@@ -1,0 +1,14 @@
+//-----------------------------------------------------------------------------
+//	stdshader_dx9.vpc
+//
+//	Project Script for mods to use an an example of how to override shaders
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+
+$Include "$SRCDIR\materialsystem\stdshaders\stdshader_dx9_inc.vpc"
+
+$Project "stdshader_dx9"
+{
+}

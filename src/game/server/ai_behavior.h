@@ -614,7 +614,7 @@ inline void CAI_BehaviorBase::ChainStartTask( int task, float taskData )
 
 	bool fPrevOverride = m_fOverrode;
 	GetOuter()->StartTask( (const Task_t *)&tempTask );
-	m_fOverrode = fPrevOverride;;
+	m_fOverrode = fPrevOverride;
 }
 
 //-------------------------------------
@@ -624,7 +624,7 @@ inline void CAI_BehaviorBase::ChainRunTask( int task, float taskData )
 	Task_t tempTask = { task, taskData }; 
 	bool fPrevOverride = m_fOverrode;
 	GetOuter()->RunTask( (const Task_t *)	&tempTask );
-	m_fOverrode = fPrevOverride;;
+	m_fOverrode = fPrevOverride;
 }
 
 //-------------------------------------

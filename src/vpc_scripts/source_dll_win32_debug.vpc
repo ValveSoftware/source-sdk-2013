@@ -57,7 +57,7 @@ $Configuration "Debug"
 		// General
 		$AdditionalIncludeDirectories		"$SRCDIR\common;$SRCDIR\public;$SRCDIR\public\tier0;$SRCDIR\public\tier1"
 		$Resolve#UsingReferences
-		$DebugInformationFormat				"Program Database for Edit & Continue (/ZI)" [$WIN32]
+		$DebugInformationFormat				"Program Database for Edit And Continue (/ZI)" [$WIN32]
 		$DebugInformationFormat				"Program Database (/Zi)" [$WIN64]
 		$SuppressStartupBanner		
 		$WarningLevel						"Level 4 (/W4)"
@@ -74,7 +74,7 @@ $Configuration "Debug"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions			"$BASE;_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
+		$PreprocessorDefinitions			"$BASE;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)"
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -84,7 +84,7 @@ $Configuration "Debug"
 		$EnableMinimalRebuild				
 		$EnableC++Exceptions				"No"
 		$SmallerTypeCheck
-		$BasicRuntimeChecks					"Default"
+		$BasicRuntimeChecks					"Both (/RTC1, equiv. to /RTCsu) (/RTC1)"
 		$RuntimeLibrary						"Multi-threaded Debug (/MTd)"
 		$StructMemberAlignment
 		$BufferSecurityCheck				"Yes"
@@ -168,7 +168,7 @@ $Configuration "Debug"
 		$AllowIsolation
 
 		// Debugging
-		$GenerateDebugInfo					"Yes (/DEBUG)"
+		$GenerateDebugInfo					"Generate Debug Information optimized for sharing and publishing (/DEBUG:FULL)"
 		$GenerateProgramDatabaseFile		"$(IntDir)/$(TargetName).pdb"
 		$StripPrivateSymbols
 		$MapExports

@@ -1,0 +1,64 @@
+//====== Copyright 1996-2010, Valve Corporation, All rights reserved. =======
+//
+// Purpose: The file defines our Google Protocol Buffers which are used in over 
+// the wire messages between servers as well as between clients and servers.
+//
+//=============================================================================
+
+// We care more about speed than code size
+option optimize_for = SPEED;
+
+// We don't use the service generation functionality
+option cc_generic_services = false;
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FieldOptions {
+	optional bool key_field = 60000 [ default = false ];
+}
+
+
+extend google.protobuf.MessageOptions{
+	// Allows us to customize the pooling for different messages
+	optional int32 msgpool_soft_limit = 60000 [default=32];
+	optional int32 msgpool_hard_limit = 60001 [default=384];
+}
+
+enum GCProtoBufMsgSrc
+{
+	GCProtoBufMsgSrc_Unspecified = 0;
+};
+
+//
+// Message header, every protcol buffer based message starts with this.
+//
+message CMsgProtoBufHeader
+{
+	option (msgpool_soft_limit) = 256;
+	option (msgpool_hard_limit) = 1024;
+
+	// All fields here are optional.
+	
+	// Client message header fields
+	optional fixed64 client_steam_id = 1;		// SteamID of the client sending this, typically set in all client originated messages.
+	optional int32 client_session_id = 2;		// SessionID of the client on the CM
+
+	// Source appId for inter-gc messages
+	optional uint32 source_app_id = 3;			// appId of source GC message sender
+	
+	// Job routing (may be set on client or inter-server messages)
+	optional fixed64 job_id_source = 10 [ default = 0xFFFFFFFFFFFFFFFF ];			// JobID that sent this message
+	optional fixed64 job_id_target = 11 [ default = 0xFFFFFFFFFFFFFFFF ];			// The target job which is expected to be waiting on this message
+	optional string target_job_name = 12;											// the type of job to start when this message is received
+
+	optional int32 eresult = 13 [default = 2];	// For response jobs, the corresponding eresult
+	optional string error_message = 14;			// Optionally an error message in case of failure. Mostly used for debugging purpose.
+
+	// Where did this message originally enter the system? From a client, from another GC, etc
+	optional GCProtoBufMsgSrc		gc_msg_src = 200;
+	// If this came from another GC, what is the GC that it came from
+	optional uint32					gc_dir_index_source = 201;
+}	
+
+// Do not remove this comment due to a bug on the Mac OS X protobuf compiler
+

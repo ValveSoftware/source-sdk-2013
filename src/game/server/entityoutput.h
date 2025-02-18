@@ -63,6 +63,7 @@ public:
 
 	void ParseEventAction( const char *EventData );
 	void AddEventAction( CEventAction *pEventAction );
+	void RemoveEventAction( CEventAction *pEventAction );
 
 	int Save( ISave &save );
 	int Restore( IRestore &restore, int elementCount );
@@ -78,6 +79,11 @@ public:
 	/// Delete every single action in the action list. 
 	void DeleteAllElements( void ) ;
 
+	CEventAction *GetFirstAction() { return m_ActionList; }
+
+	const CEventAction *GetActionForTarget( string_t iSearchTarget ) const;
+	
+	void ScriptRemoveEventAction( CEventAction *pEventAction, const char *szTarget, const char *szTargetInput, const char *szParameter );
 protected:
 	variant_t m_Value;
 	CEventAction *m_ActionList;

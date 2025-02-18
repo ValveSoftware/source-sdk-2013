@@ -194,7 +194,7 @@ int CTeamControlPointRound::GetPointOwner( int point )
 //			number will be used for that cp. Used to predict if that CP changing would
 //			win the game.
 //-----------------------------------------------------------------------------
-int CTeamControlPointRound::TeamOwnsAllPoints( CTeamControlPoint *pOverridePoint /* = NULL */, int iOverrideNewTeam /* = TEAM_UNASSIGNED */ )
+int CTeamControlPointRound::TeamOwnsAllPoints( CTeamControlPoint *pOverridePoint /* = NULL */, int iOverrideNewTeam /* = TEAM_UNASSIGNED */ ) const
 {
 	int i;
 

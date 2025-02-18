@@ -75,7 +75,6 @@ struct FS_LocalToGlobal_t
 	FS_LocalToGlobal_t( const FS_LocalToGlobal_t& src )
 	{
 		m_Key = src.m_Key;
-		delete m_Mapping;
 		m_Mapping = new int[ src.m_nCount ];
 		Q_memcpy( m_Mapping, src.m_Mapping, src.m_nCount * sizeof( int ) );
 
@@ -89,9 +88,9 @@ struct FS_LocalToGlobal_t
 		m_Mapping = 0;
 	}
 
-	const flexsettinghdr_t	*m_Key;
-	int						m_nCount;
-	int						*m_Mapping;	
+	const flexsettinghdr_t	*m_Key = nullptr;
+	int						m_nCount = 0;
+	int						*m_Mapping = nullptr;	
 };
 
 bool FlexSettingLessFunc( const FS_LocalToGlobal_t& lhs, const FS_LocalToGlobal_t& rhs );

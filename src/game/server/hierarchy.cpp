@@ -36,7 +36,7 @@ void UnlinkChild( CBaseEntity *pParent, CBaseEntity *pChild )
 			// Clear hierarchy bits for this guy
 			pList->m_hMoveParent.Set( NULL );
 			pList->m_hMovePeer.Set( NULL );
-			pList->NetworkProp()->SetNetworkParent( CBaseHandle() );
+			pList->NetworkProp()->SetNetworkParent( INVALID_EHANDLE );
 			pList->DispatchUpdateTransmitState();	
 			pList->OnEntityEvent( ENTITY_EVENT_PARENT_CHANGED, NULL );
 			

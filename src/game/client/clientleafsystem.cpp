@@ -132,7 +132,7 @@ public:
 	// methods of ISpatialLeafEnumerator
 public:
 
-	bool EnumerateLeaf( int leaf, int context );
+	bool EnumerateLeaf( int leaf, intp context );
 
 	// Adds a shadow to a leaf
 	void AddShadowToLeaf( int leaf, ClientLeafShadowHandle_t handle );
@@ -867,6 +867,11 @@ short CClientLeafSystem::GetRenderableArea( ClientRenderHandle_t handle )
 void CClientLeafSystem::SetSubSystemDataInLeaf( int leaf, int nSubSystemIdx, CClientLeafSubSystemData *pData )
 {
 	assert( nSubSystemIdx < N_CLSUBSYSTEMS );
+	if ( !m_Leaf.IsValidIndex( leaf ) )
+	{
+		Assert( false );
+		return;
+	}
 	if ( m_Leaf[leaf].m_pSubSystemData[nSubSystemIdx] )
 		delete m_Leaf[leaf].m_pSubSystemData[nSubSystemIdx];
 	m_Leaf[leaf].m_pSubSystemData[nSubSystemIdx] = pData;
@@ -875,6 +880,11 @@ void CClientLeafSystem::SetSubSystemDataInLeaf( int leaf, int nSubSystemIdx, CCl
 CClientLeafSubSystemData *CClientLeafSystem::GetSubSystemDataInLeaf( int leaf, int nSubSystemIdx )
 {
 	assert( nSubSystemIdx < N_CLSUBSYSTEMS );
+	if ( !m_Leaf.IsValidIndex( leaf ) )
+	{
+		Assert( false );
+		return NULL;
+	}
 	return m_Leaf[leaf].m_pSubSystemData[nSubSystemIdx];
 }
 
@@ -884,6 +894,11 @@ CClientLeafSubSystemData *CClientLeafSystem::GetSubSystemDataInLeaf( int leaf, i
 void CClientLeafSystem::SetDetailObjectsInLeaf( int leaf, int firstDetailObject,
 											    int detailObjectCount )
 {
+	if ( !m_Leaf.IsValidIndex( leaf ) )
+	{
+		Assert( false );
+		return;
+	}
 	m_Leaf[leaf].m_FirstDetailProp = firstDetailObject;
 	m_Leaf[leaf].m_DetailPropCount = detailObjectCount;
 }
@@ -894,6 +909,11 @@ void CClientLeafSystem::SetDetailObjectsInLeaf( int leaf, int firstDetailObject,
 void CClientLeafSystem::GetDetailObjectsInLeaf( int leaf, int& firstDetailObject,
 											    int& detailObjectCount )
 {
+	if ( !m_Leaf.IsValidIndex( leaf ) )
+	{
+		Assert( false );
+		return;
+	}
 	firstDetailObject = m_Leaf[leaf].m_FirstDetailProp;
 	detailObjectCount = m_Leaf[leaf].m_DetailPropCount;
 }
@@ -1180,7 +1200,7 @@ void CClientLeafSystem::AddRenderableToLeaves( ClientRenderHandle_t handle, int 
 //-----------------------------------------------------------------------------
 // Inserts an element into the tree
 //-----------------------------------------------------------------------------
-bool CClientLeafSystem::EnumerateLeaf( int leaf, int context )
+bool CClientLeafSystem::EnumerateLeaf( int leaf, intp context )
 {
 	EnumResultList_t *pList = (EnumResultList_t *)context;
 	if ( ThreadInMainThread() )
@@ -1216,7 +1236,7 @@ void CClientLeafSystem::InsertIntoTree( ClientRenderHandle_t &handle )
 	Assert( absMins.IsValid() && absMaxs.IsValid() );
 
 	ISpatialQuery* pQuery = engine->GetBSPTreeQuery();
-	pQuery->EnumerateLeavesInBox( absMins, absMaxs, this, (int)&list );
+	pQuery->EnumerateLeavesInBox( absMins, absMaxs, this, (intp)&list );
 
 	if ( list.pHead )
 	{
@@ -1373,7 +1393,7 @@ void CClientLeafSystem::ComputeTranslucentRenderLeaf( int count, const LeafIndex
 	ASSERT_NO_REENTRY();
 	VPROF_BUDGET( "CClientLeafSystem::ComputeTranslucentRenderLeaf", "ComputeTranslucentRenderLeaf"  );
 
-	#define LeafToMarker( leaf ) reinterpret_cast<RenderableInfo_t *>(( (leaf) << 1 ) | 1)
+	#define LeafToMarker( leaf ) reinterpret_cast<RenderableInfo_t *>(( (intp)(leaf) << 1 ) | 1)
 	#define IsLeafMarker( p ) (bool)((reinterpret_cast<size_t>(p)) & 1)
 	#define MarkerToLeaf( p ) (int)((reinterpret_cast<size_t>(p)) >> 1)
 

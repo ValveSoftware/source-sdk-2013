@@ -22,8 +22,8 @@ $Configuration	"Debug"
 {
 	$General
 	{
-		$OutputDirectory			".\Debug_$GAMENAME"			[$WIN32]
-		$IntermediateDirectory		".\Debug_$GAMENAME"			[$WIN32]
+		$OutputDirectory			".\Debug_$GAMENAME" [$WINDOWS]
+		$IntermediateDirectory		".\Debug_$GAMENAME" [$WINDOWS]
 
 		$OutputDirectory			".\Debug_$GAMENAME_360"		[$X360]
 		$IntermediateDirectory		".\Debug_$GAMENAME_360"		[$X360]
@@ -34,8 +34,9 @@ $Configuration	"Release"
 {
 	$General
 	{
-		$OutputDirectory			".\Release_$GAMENAME"		[$WIN32]
-		$IntermediateDirectory		".\Release_$GAMENAME"		[$WIN32]
+		// Windows generator doesn't sandbox these directories per configuration but others do :-/
+		$OutputDirectory			".\Release_$GAMENAME" [$WINDOWS]
+		$IntermediateDirectory		".\Release_$GAMENAME" [$WINDOWS]
 
 		$OutputDirectory			".\Release_$GAMENAME_360"	[$X360]
 		$IntermediateDirectory		".\Release_$GAMENAME_360"	[$X360]
@@ -46,29 +47,34 @@ $Configuration
 {
 	$General
 	{
-			$OutputDirectory			".\$GAMENAME"		[$OSXALL]
+		$OutputDirectory			".\$GAMENAME" [$OSXALL]
+		$IntermediateDirectory		".\$GAMENAME" [$OSXALL]
 	}
 
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	".\;$BASE;$SRCDIR\vgui2\include;$SRCDIR\vgui2\controls;$SRCDIR\game\shared;.\game_controls;$SRCDIR\thirdparty\sixensesdk\include"
 		$PreprocessorDefinitions		"$BASE;NO_STRING_T;CLIENT_DLL;VECTOR;VERSION_SAFE_STEAM_API_INTERFACES;PROTECTED_THINGS_ENABLE;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead" 
+		$PreprocessorDefinitions		"$BASE;INCLUDED_STEAM2_USERID_STRUCTS" 
 		$PreprocessorDefinitions		"$BASE;fopen=dont_use_fopen" [$WIN32]
 		$PreprocessorDefinitions		"$BASE;USE_WEBM_FOR_REPLAY;" [$LINUXALL]
-		$PreprocessorDefinitions		"$BASE;CURL_STATICLIB" [$WIN32 && $BUILD_REPLAY]
 		$Create/UsePrecompiledHeader	"Use Precompiled Header (/Yu)"
 		$Create/UsePCHThroughFile		"cbase.h"
 		$PrecompiledHeaderFile			"$(IntDir)/client.pch"
+
+		// misyl: We should eliminate these someday.
+		$DisableSpecificWarnings		"$BASE;4267" [$WIN64] // warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+		$DisableSpecificWarnings		"$BASE;4101" [$WINDOWS] // warning C4101: 'topColor': unreferenced local variable
 	}
 
 	$Linker
 	{
 		$SystemLibraries				"iconv" [$OSXALL]
 		$SystemFrameworks				"Carbon" [$OSXALL]
-		$SystemLibraries				"rt" [$LINUXALL]
+		$SystemLibraries				"rt;z" [$LINUXALL]
 		$IgnoreImportLibrary			"TRUE"
-		$AdditionalDependencies			"$BASE winmm.lib"	[$WIN32]
-		$AdditionalDependencies			"$BASE wsock32.lib Ws2_32.lib" [$BUILD_REPLAY]
+		$AdditionalDependencies			"$BASE winmm.lib"	[$WINDOWS]
+		$AdditionalDependencies			"$BASE wsock32.lib Ws2_32.lib" [$BUILD_REPLAY&&$WINDOWS]
 	}
 }
 
@@ -260,6 +266,8 @@ $Project
 		$File	"c_playerresource.cpp"
 		$File	"c_point_camera.cpp"
 		$File	"c_point_commentary_node.cpp"
+		$file	"c_point_worldtext.cpp"
+		$file	"c_point_worldtext.h"
 		$File	"c_props.cpp"
 		$File	"c_props.h"
 		$File	"c_ragdoll_manager.cpp"
@@ -372,6 +380,7 @@ $Project
 		$File	"in_camera.cpp"
 		$File	"in_joystick.cpp"
 		$File	"in_main.cpp"
+		$File	"in_steamcontroller.cpp"
 		$File	"initializer.cpp"
 		$File	"interpolatedvar.cpp"
 		$File	"IsNPCProxy.cpp"
@@ -426,7 +435,7 @@ $Project
 		$File	"ragdoll.cpp"
 		$File	"$SRCDIR\game\shared\ragdoll_shared.cpp"
 		$File	"recvproxy.cpp"
-		$File	"basepresence.cpp"			[$WIN32||$POSIX]
+		$File	"basepresence.cpp"			[$WINDOWS||$POSIX]
 		$File	"basepresence_xbox.cpp"		[$X360]
 		$File	"$SRCDIR\game\shared\rope_helpers.cpp"
 		$File	"$SRCDIR\game\shared\saverestore.cpp"
@@ -444,6 +453,7 @@ $Project
 		$File	"spritemodel.cpp"
 		$File	"$SRCDIR\game\shared\SpriteTrail.cpp"
 		$File	"$SRCDIR\game\shared\studio_shared.cpp"
+		$File	"steamshare.cpp"
 		$File	"studio_stats.cpp"
 		$File	"studio_stats.h"
 		$File	"$SRCDIR\game\shared\takedamageinfo.cpp"
@@ -502,7 +512,10 @@ $Project
 		$File	"$SRCDIR\game\client\c_vote_controller.cpp"
 		//Haptics
 		$File	"$SRCDIR\public\haptics\haptic_msgs.cpp"	[!$X360]
-		$File	"$SRCDIR\public\haptics\haptic_utils.cpp"	[$WIN32&&!$X360]
+		$File	"$SRCDIR\public\haptics\haptic_utils.cpp"	[$WINDOWS&&!$X360]
+
+		$File	"$SRCDIR\game\shared\secure_command_line.cpp"
+
 
 		$Folder	"Sixense"
 		{
@@ -531,6 +544,7 @@ $Project
 				"$SRCDIR\common\language.cpp"						\
 				"$SRCDIR\public\networkvar.cpp"						\
 				"$SRCDIR\common\randoverride.cpp"					\
+				"$SRCDIR\common\steamid.cpp"						\
 				"$SRCDIR\public\rope_physics.cpp"					\
 				"$SRCDIR\public\scratchpad3d.cpp"					\
 				"$SRCDIR\public\ScratchPadUtils.cpp"				\
@@ -541,7 +555,6 @@ $Project
 				"$SRCDIR\public\studio.cpp"							\
 				"$SRCDIR\public\vallocator.cpp"						\
 				"$SRCDIR\public\vgui_controls\vgui_controls.cpp"	\
-				"$SRCDIR\public\jigglebones.cpp"					\
 				"hud_lcd.cpp"										\
 				"in_mouse.cpp"										\
 				"mumble.cpp"						\
@@ -658,7 +671,7 @@ $Project
 
 	}
 
-	$Folder	"MP3" [$WIN32||$POSIX]
+	$Folder	"MP3" [$WINDOWS||$POSIX]
 	{
 		$File	"mp3player.cpp"
 		$File	"mp3player.h"
@@ -848,6 +861,7 @@ $Project
 		$File	"smoke_fog_overlay.h"
 		$File	"splinepatch.h"
 		$File	"$SRCDIR\public\steam\steam_api.h"
+		$File	"steamshare.h"
 		$File	"TeamBitmapImage.h"
 		$File	"tempent.h"
 		$File	"text_message.h"
@@ -874,6 +888,8 @@ $Project
 		$File	"weapons_resource.h"
 		$File	"vgui_video.h"
 		$File   "vgui_video_player.h"
+		$File	"$SRCDIR\game\shared\secure_command_line.h"
+
 	}
 
 	$Folder	"Public Header Files"
@@ -1250,20 +1266,15 @@ $Project
 		$Lib		tier3
 		$Lib		vgui_controls
 		$Lib		vtf
-		$ImpLib		steam_api
+
+		$ImpLibexternal steam_api	[!$WIN64]
+		$ImpLibexternal steam_api64	[$WIN64]
 		
 		$Libexternal $LIBCOMMON/libcrypto [$OSXALL]
-		$Libexternal "$SRCDIR\lib\common\$(CRYPTOPPDIR)\libcrypto" [$LINUXALL]
+		$Libexternal "$SRCDIR\lib\common\$CRYPTOPPDIR\libcryptopp" [$LINUXALL&&!$SOURCESDK]
+		$Lib   "libz" [$WINDOWS]
 
-		$ImpLib	"$LIBCOMMON\curl"	  [$OSXALL]
-
-		$Lib	"$LIBCOMMON\libcurl" [$WIN32]
-		$Lib   "libz" [$WIN32]
-
-		$Libexternal	libz [$LINUXALL]
-		$Libexternal "$LIBCOMMON/libcurl" [$LINUXALL]
-		$Libexternal "$LIBCOMMON/libcurlssl" [$LINUXALL]
-		$Libexternal "$SRCDIR\lib\common\$(CRYPTOPPDIR)\libssl" [$LINUXALL]
+		//$Libexternal	libz [$LINUXALL]
  	}
 
 }

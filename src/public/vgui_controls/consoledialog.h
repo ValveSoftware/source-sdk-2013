@@ -58,7 +58,7 @@ public:
 	virtual void ColorPrint( const Color& clr, const char *pMessage );
 	virtual void Print( const char *pMessage );
 	virtual void DPrint( const char *pMessage );
-	virtual void GetConsoleText( char *pchText, size_t bufSize ) const;
+	virtual void GetConsoleText( char *pchText, int nBufSize ) const;
 
 	// clears the console
 	void Clear();

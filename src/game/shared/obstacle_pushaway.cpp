@@ -182,7 +182,7 @@ int GetPushawayEnts( CBaseCombatCharacter *pPushingEntity, CBaseEntity **ents, i
 		enumerator = physPropEnum;
 	}
 
-	partition->EnumerateElementsAlongRay( PartitionMask, ray, false, enumerator );
+	::partition->EnumerateElementsAlongRay( PartitionMask, ray, false, enumerator );
 
 	int numHit = enumerator->m_nAlreadyHit;
 

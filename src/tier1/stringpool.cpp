@@ -26,7 +26,8 @@ bool StrLess( const char * const &pszLeft, const char * const &pszRight )
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-CStringPool::CStringPool()
+template< typename K >
+CStringPoolBase< K >::CStringPoolBase()
   : m_Strings( 32, 256, StrLess )
 {
 }
@@ -34,7 +35,8 @@ CStringPool::CStringPool()
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-CStringPool::~CStringPool()
+template< typename K >
+CStringPoolBase< K >::~CStringPoolBase()
 {
 	FreeAll();
 }
@@ -42,28 +44,31 @@ CStringPool::~CStringPool()
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-unsigned int CStringPool::Count() const
+template< typename K >
+unsigned int CStringPoolBase< K >::Count() const
 {
 	return m_Strings.Count();
 }
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-const char * CStringPool::Find( const char *pszValue )
+template< typename K >
+const char * CStringPoolBase< K >::Find( const char *pszValue )
 {
-	unsigned short i = m_Strings.Find(pszValue);
+	KeyType i = m_Strings.Find(pszValue);
 	if ( m_Strings.IsValidIndex(i) )
 		return m_Strings[i];
 
 	return NULL;
 }
 
-const char * CStringPool::Allocate( const char *pszValue )
+template< typename K >
+const char * CStringPoolBase< K >::Allocate( const char *pszValue )
 {
 	char	*pszNew;
 
-	unsigned short i 	= m_Strings.Find(pszValue);
-	bool		   bNew = (i == m_Strings.InvalidIndex());
+	KeyType i    = m_Strings.Find(pszValue);
+	bool    bNew = (i == m_Strings.InvalidIndex());
 
 	if ( !bNew )
 		return m_Strings[i];
@@ -79,9 +84,10 @@ const char * CStringPool::Allocate( const char *pszValue )
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-void CStringPool::FreeAll()
+template< typename K >
+void CStringPoolBase< K >::FreeAll()
 {
-	unsigned short i = m_Strings.FirstInorder();
+	KeyType i = m_Strings.FirstInorder();
 	while ( i != m_Strings.InvalidIndex() )
 	{
 		free( (void *)m_Strings[i] );
@@ -332,3 +338,7 @@ CON_COMMAND( test_stringpool, "Tests the class CStringPool" )
 	Msg("Pass.");
 }
 #endif
+
+// Explicit instantiations for publicly provided types
+template class CStringPoolBase< uint16_t >; // CStringPool
+template class CStringPoolBase< uint32_t >; // CStringPoolLarge

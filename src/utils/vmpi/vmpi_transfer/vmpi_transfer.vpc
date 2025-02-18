@@ -1,0 +1,153 @@
+//-----------------------------------------------------------------------------
+//	VMPI_TRANSFER.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINNAME	"vmpi_transfer"
+
+$Include "$SRCDIR\vpc_scripts\source_exe_con_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE,..\..\common,.."
+		$PreprocessorDefinitions			"$BASE;MPI;PROTECTED_THINGS_DISABLE"
+	}
+
+	$Linker
+	{
+		$AdditionalDependencies				"$BASE ws2_32.lib"
+	}
+}
+
+$Project "vmpi_transfer"
+{
+	$Folder	"Source Files"
+	{
+		$File	"..\..\common\vmpi_tools_shared.cpp"
+		$File	"..\..\common\vmpi_tools_shared.h"
+		$File	"vmpi_transfer.cpp"
+
+		$Folder	"Common Files"
+		{
+			$File	"..\..\common\threads.cpp"
+			$File	"..\..\common\pacifier.cpp"
+			$File	"..\..\common\cmdlib.cpp"
+			$File	"..\..\common\tools_minidump.cpp"
+			$File	"..\..\common\tools_minidump.h"
+		}
+
+		$Folder	"Public Files"
+		{
+			$File	"$SRCDIR\public\filesystem_helpers.cpp"
+		}
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"vmpi_transfer.h"
+
+		$Folder	"Common Header Files"
+		{
+			$File	"..\..\common\cmdlib.h"
+			$File	"..\iphelpers.h"
+			$File	"..\messbuf.h"
+			$File	"..\mysql_wrapper.h"
+			$File	"..\threadhelpers.h"
+			$File	"..\vmpi_defs.h"
+			$File	"..\vmpi_dispatch.h"
+			$File	"..\vmpi_distribute_work.h"
+			$File	"..\vmpi_filesystem.h"
+		}
+
+		$Folder	"Public Header Files"
+		{
+			$File	"$SRCDIR\public\mathlib\anorms.h"
+			$File	"$SRCDIR\public\basehandle.h"
+			$File	"$SRCDIR\public\tier0\basetypes.h"
+			$File	"$SRCDIR\public\tier1\bitbuf.h"
+			$File	"$SRCDIR\public\bitvec.h"
+			$File	"$SRCDIR\public\bspfile.h"
+			$File	"$SRCDIR\public\bspflags.h"
+			$File	"$SRCDIR\public\bsptreedata.h"
+			$File	"$SRCDIR\public\builddisp.h"
+			$File	"$SRCDIR\public\mathlib\bumpvects.h"
+			$File	"$SRCDIR\public\tier1\byteswap.h"
+			$File	"$SRCDIR\public\tier1\characterset.h"
+			$File	"$SRCDIR\public\tier1\checksum_crc.h"
+			$File	"$SRCDIR\public\tier1\checksum_md5.h"
+			$File	"$SRCDIR\public\chunkfile.h"
+			$File	"$SRCDIR\public\cmodel.h"
+			$File	"$SRCDIR\public\collisionutils.h"
+			$File	"$SRCDIR\public\mathlib\compressed_vector.h"
+			$File	"$SRCDIR\public\const.h"
+			$File	"$SRCDIR\public\coordsize.h"
+			$File	"$SRCDIR\public\tier0\dbg.h"
+			$File	"$SRCDIR\public\disp_common.h"
+			$File	"$SRCDIR\public\disp_powerinfo.h"
+			$File	"$SRCDIR\public\disp_vertindex.h"
+			$File	"$SRCDIR\public\dispcoll_common.h"
+			$File	"$SRCDIR\public\tier0\fasttimer.h"
+			$File	"$SRCDIR\public\filesystem.h"
+			$File	"$SRCDIR\public\filesystem_helpers.h"
+			$File	"$SRCDIR\public\gamebspfile.h"
+			$File	"$SRCDIR\public\gametrace.h"
+			$File	"$SRCDIR\public\mathlib\halton.h"
+			$File	"$SRCDIR\public\materialsystem\hardwareverts.h"
+			$File	"$SRCDIR\public\appframework\iappsystem.h"
+			$File	"$SRCDIR\public\tier0\icommandline.h"
+			$File	"$SRCDIR\public\ihandleentity.h"
+			$File	"$SRCDIR\public\materialsystem\imaterial.h"
+			$File	"$SRCDIR\public\materialsystem\imaterialsystem.h"
+			$File	"$SRCDIR\public\materialsystem\imaterialvar.h"
+			$File	"$SRCDIR\public\tier1\interface.h"
+			$File	"$SRCDIR\public\iscratchpad3d.h"
+			$File	"$SRCDIR\public\ivraddll.h"
+			$File	"$SRCDIR\public\materialsystem\materialsystem_config.h"
+			$File	"$SRCDIR\public\mathlib\mathlib.h"
+			$File	"$SRCDIR\public\tier0\memdbgon.h"
+			$File	"$SRCDIR\public\optimize.h"
+			$File	"$SRCDIR\public\tier0\platform.h"
+			$File	"$SRCDIR\public\vstdlib\random.h"
+			$File	"$SRCDIR\public\scratchpad3d.h"
+			$File	"$SRCDIR\public\ScratchPadUtils.h"
+			$File	"$SRCDIR\public\string_t.h"
+			$File	"$SRCDIR\public\tier1\strtools.h"
+			$File	"$SRCDIR\public\studio.h"
+			$File	"$SRCDIR\public\tier1\tokenreader.h"
+			$File	"$SRCDIR\public\trace.h"
+			$File	"$SRCDIR\public\tier1\utlbuffer.h"
+			$File	"$SRCDIR\public\tier1\utldict.h"
+			$File	"$SRCDIR\public\tier1\utlhash.h"
+			$File	"$SRCDIR\public\tier1\utllinkedlist.h"
+			$File	"$SRCDIR\public\tier1\utlmemory.h"
+			$File	"$SRCDIR\public\tier1\utlrbtree.h"
+			$File	"$SRCDIR\public\tier1\utlsymbol.h"
+			$File	"$SRCDIR\public\tier1\utlvector.h"
+			$File	"$SRCDIR\public\vcollide.h"
+			$File	"$SRCDIR\public\mathlib\vector.h"
+			$File	"$SRCDIR\public\mathlib\vector2d.h"
+			$File	"$SRCDIR\public\mathlib\vector4d.h"
+			$File	"$SRCDIR\public\mathlib\vmatrix.h"
+			$File	"$SRCDIR\public\vphysics_interface.h"
+			$File	"$SRCDIR\public\mathlib\vplane.h"
+			$File	"$SRCDIR\public\tier0\vprof.h"
+			$File	"$SRCDIR\public\vstdlib\vstdlib.h"
+			$File	"$SRCDIR\public\vtf\vtf.h"
+			$File	"$SRCDIR\public\wadtypes.h"
+			$File	"$SRCDIR\public\worldsize.h"
+			$File	"$SRCDIR\utils\vmpi\vmpi.h"
+		}
+	}
+
+	$Folder	"Link Libraries"
+	{
+		$File	"$SRCDIR\lib\public\tier2.lib"
+		$File	"$SRCDIR\lib\public\vmpi.lib"
+		$File	"$SRCDIR\thirdparty\libcurl\lib\win32\libcurl.lib"
+	}
+}

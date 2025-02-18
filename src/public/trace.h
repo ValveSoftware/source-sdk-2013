@@ -59,7 +59,7 @@ public:
 	bool			allsolid;				// if true, plane is not valid
 	bool			startsolid;				// if true, the initial point was in a solid area
 
-	CBaseTrace() {}
+	CBaseTrace() = default;
 
 private:
 	// No copy constructors allowed

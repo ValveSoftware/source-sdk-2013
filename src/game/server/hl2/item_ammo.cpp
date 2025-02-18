@@ -66,6 +66,10 @@ public:
 		}
 		return false;
 	}
+
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_pistol"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS(item_box_srounds, CItem_BoxSRounds);
 LINK_ENTITY_TO_CLASS(item_ammo_pistol, CItem_BoxSRounds);
@@ -100,6 +104,10 @@ public:
 		}
 		return false;
 	}
+
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_pistol"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS(item_large_box_srounds, CItem_LargeBoxSRounds);
 LINK_ENTITY_TO_CLASS(item_ammo_pistol_large, CItem_LargeBoxSRounds);
@@ -134,6 +142,10 @@ public:
 		}
 		return false;
 	}
+
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_smg1"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS(item_box_mrounds, CItem_BoxMRounds);
 LINK_ENTITY_TO_CLASS(item_ammo_smg1, CItem_BoxMRounds);
@@ -168,6 +180,10 @@ public:
 		}
 		return false;
 	}
+
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_smg1"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS(item_large_box_mrounds, CItem_LargeBoxMRounds);
 LINK_ENTITY_TO_CLASS(item_ammo_smg1_large, CItem_LargeBoxMRounds);
@@ -202,6 +218,10 @@ public:
 		}
 		return false;
 	}
+
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_ar2"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS(item_box_lrounds, CItem_BoxLRounds);
 LINK_ENTITY_TO_CLASS(item_ammo_ar2, CItem_BoxLRounds);
@@ -236,6 +256,11 @@ public:
 		}
 		return false;
 	}
+
+
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_ar2"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS(item_large_box_lrounds, CItem_LargeBoxLRounds);
 LINK_ENTITY_TO_CLASS(item_ammo_ar2_large, CItem_LargeBoxLRounds);
@@ -272,6 +297,10 @@ public:
 		}
 		return false;
 	}
+
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_357"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS(item_ammo_357, CItem_Box357Rounds);
 
@@ -307,6 +336,10 @@ public:
 		}
 		return false;
 	}
+
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_357"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS(item_ammo_357_large, CItem_LargeBox357Rounds);
 
@@ -343,6 +376,10 @@ public:
 		}
 		return false;
 	}
+
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_crossbow"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS(item_ammo_crossbow, CItem_BoxXBowRounds);
 
@@ -377,6 +414,10 @@ public:
 		}
 		return false;
 	}
+
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_flaregun"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS(item_flare_round, CItem_FlareRound);
 
@@ -445,6 +486,10 @@ public:
 		}
 		return false;
 	}
+
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_rpg"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS( item_ml_grenade, CItem_RPG_Round );
 LINK_ENTITY_TO_CLASS( item_rpg_round, CItem_RPG_Round );
@@ -479,6 +524,10 @@ public:
 		}
 		return false;
 	}
+
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_smg1"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS(item_ar2_grenade, CItem_AR2_Grenade);
 LINK_ENTITY_TO_CLASS(item_ammo_smg1_grenade, CItem_AR2_Grenade);
@@ -549,6 +598,9 @@ public:
 		}
 		return false;
 	}
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_shotgun"; }
+#endif
 };
 LINK_ENTITY_TO_CLASS(item_box_buckshot, CItem_BoxBuckshot);
 
@@ -585,6 +637,9 @@ public:
 		}
 		return false;
 	}
+#if defined( HL2MP )
+	virtual const char *GetWeaponClassForAmmo() const { return "weapon_ar2"; }
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( item_ammo_ar2_altfire, CItem_AR2AltFireRound );

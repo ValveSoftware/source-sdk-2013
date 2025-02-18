@@ -13,6 +13,7 @@
 #endif
 
 #include <vgui_controls/Panel.h>
+#include <vgui_controls/EditablePanel.h>
 #include <utlvector.h>
 
 namespace vgui
@@ -23,9 +24,9 @@ class ClickPanel;
 //-----------------------------------------------------------------------------
 // Purpose: Non-editable display of a rich text control
 //-----------------------------------------------------------------------------
-class RichText : public Panel
+class RichText : public EditablePanel
 {
-	DECLARE_CLASS_SIMPLE( RichText, Panel );
+	DECLARE_CLASS_SIMPLE( RichText, EditablePanel );
 
 public:
 	RichText(Panel *parent, const char *panelName);
@@ -168,7 +169,7 @@ private:
 	int GetLineHeight();
 	HFont GetDefaultFont();
 
-	const wchar_t *ResolveLocalizedTextAndVariables( char const *pchLookup, OUT_Z_BYTECAP(outbufsizeinbytes) wchar_t *outbuf, size_t outbufsizeinbytes );
+	const wchar_t *ResolveLocalizedTextAndVariables( char const *pchLookup, OUT_Z_BYTECAP(outbufsizeinbytes) wchar_t *outbuf, int outbufsizeinbytes );
 	void CheckRecalcLineBreaks();
 
 	void GotoWordRight();	// move cursor to start of next word

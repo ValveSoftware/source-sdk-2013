@@ -1,0 +1,5 @@
+This copy of protobuf resides in //thirdpartycode/nonredist/protobuf/protobuf-<version>
+
+If you have a change or fix that's widely applicable, it should be made as a patch to the original protobuf sources and the patch should be added to //thirdpartycode/nonredist/protobuf/patches
+
+There's a build script for windows (build.bat) and posix (build.sh) that automates patching and building.

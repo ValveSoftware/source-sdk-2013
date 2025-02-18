@@ -1,0 +1,75 @@
+//-----------------------------------------------------------------------------
+//	LAUNCHER_MAIN.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$MacroRequired "PLATSUBDIR"
+
+$Macro SRCDIR		".."
+$Macro OUTBINDIR	"$SRCDIR\..\game"
+
+$Macro OUTBINNAME		"$OUTBINNAME_win64"		[$WIN64]
+$Macro OUTBINNAME       "$OUTBINNAME_osx"		[$OSXALL]
+$Macro OUTBINNAME       "$OUTBINNAME_linux"		[$LINUX32]
+$Macro OUTBINNAME       "$OUTBINNAME_linux64"	[$LINUX64]
+
+$Conditional GAME_OUTPUT		"1"
+
+$Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
+
+$Configuration	"Debug"
+{
+	$General
+	{
+		$OutputDirectory			".\Debug_$OUTBINNAME" [$WINDOWS]
+		$IntermediateDirectory		".\Debug_$OUTBINNAME" [$WINDOWS]
+	}
+}
+
+$Configuration	"Release"
+{
+	$General
+	{
+		// Windows generator doesn't sandbox these directories per configuration but others do :-/
+		$OutputDirectory			".\Release_$OUTBINNAME" [$WINDOWS]
+		$IntermediateDirectory		".\Release_$OUTBINNAME" [$WINDOWS]
+	}
+}
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions	"$BASE;MOD_LAUNCHER" [$MOD_LAUNCHER]
+		$ForceIncludes				" "
+	}
+
+	$Linker
+	{
+		$SystemLibraries				"SDL2" [$MOD_LAUNCHER && $LINUXALL]
+	}
+}
+
+$Project
+{
+	$Folder	"Source Files"
+	{
+		-$File	"$SRCDIR\public\tier0\memoverride.cpp"
+	}
+
+	$Folder	"Link Libraries" 
+	{
+		-$Lib tier0 [$WINDOWS]
+		-$Lib tier1
+		-$ImpLib vstdlib [$WINDOWS]
+	}
+}
+
+$Project
+{
+	$Folder	"Source Files"
+	{
+		$File	"main.cpp"
+	}
+}

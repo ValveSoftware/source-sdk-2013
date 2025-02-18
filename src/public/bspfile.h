@@ -663,7 +663,7 @@ public:
 	CDispCornerNeighbors	m_CornerNeighbors[4];	// Indexed by CORNER_ defines.
 
 	enum unnamed { ALLOWEDVERTS_SIZE = PAD_NUMBER( MAX_DISPVERTS, 32 ) / 32 };
-	unsigned long	m_AllowedVerts[ALLOWEDVERTS_SIZE];	// This is built based on the layout and sizes of our neighbors
+	uint32	m_AllowedVerts[ALLOWEDVERTS_SIZE];	// This is built based on the layout and sizes of our neighbors
 														// and tells us which vertices are allowed to be active.
 };
 

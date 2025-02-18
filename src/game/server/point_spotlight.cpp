@@ -19,9 +19,9 @@
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CPointSpotlight : public CPointEntity
+class CPointSpotlight : public CServerOnlyPointEntity
 {
-	DECLARE_CLASS( CPointSpotlight, CPointEntity );
+	DECLARE_CLASS( CPointSpotlight, CServerOnlyPointEntity );
 public:
 	DECLARE_DATADESC();
 
@@ -32,6 +32,8 @@ public:
 	virtual void Activate();
 
 	virtual void OnEntityEvent( EntityEvent_t event, void *pEventData );
+
+	virtual void SetParent( CBaseEntity *pNewParent, int iAttachment = -1 );
 
 private:
 	int 	UpdateTransmitState();
@@ -52,6 +54,8 @@ private:
 
 	// Computes render info for a spotlight
 	void ComputeRenderInfo();
+
+	void PassParentToChildren( CBaseEntity *pParent );
 
 private:
 	bool	m_bSpotlightOn;
@@ -121,6 +125,8 @@ CPointSpotlight::CPointSpotlight()
 	m_flHDRColorScale = 1.0f;
 	m_nMinDXLevel = 0;
 	m_bIgnoreSolid = false;
+
+	AddEFlags( EFL_FORCE_ALLOW_MOVEPARENT );
 }
 
 
@@ -266,6 +272,16 @@ void CPointSpotlight::Activate(void)
 
 		// Don't think
 		SetThink( NULL );
+
+		// No targetname and no parent implies this is a static beam
+		// Hence, we can kill off ourselves and the end point. The beam visual will remain fixed in place
+		if ( GetEntityName() == NULL_STRING )
+		{
+			UTIL_Remove( m_hSpotlightTarget );
+			m_hSpotlightTarget = NULL;
+
+			UTIL_Remove( this );
+		}
 	}
 }
 
@@ -290,6 +306,17 @@ void CPointSpotlight::OnEntityEvent( EntityEvent_t event, void *pEventData )
 	}
 
 	BaseClass::OnEntityEvent( event, pEventData );
+}
+
+
+void CPointSpotlight::SetParent( CBaseEntity *pNewParent, int iAttachment )
+{
+	CBaseEntity *pOldParent = GetMoveParent();
+	
+	BaseClass::SetParent( pNewParent, iAttachment );
+	
+	if ( pOldParent != pNewParent )
+		PassParentToChildren( pNewParent );
 }
 
 	
@@ -372,6 +399,7 @@ void CPointSpotlight::SpotlightCreate(void)
 	m_hSpotlight->SetBrightness( 64 );
 	m_hSpotlight->SetNoise( 0 );
 	m_hSpotlight->SetMinDXLevel( m_nMinDXLevel );
+	m_hSpotlight->SetAbsOrigin( GetAbsOrigin() );
 
 	if ( m_bEfficientSpotlight )
 	{
@@ -379,8 +407,12 @@ void CPointSpotlight::SpotlightCreate(void)
 	}
 	else
 	{
-		m_hSpotlight->EntsInit( this, m_hSpotlightTarget );
+		m_hSpotlight->EntsInit( m_hSpotlight, m_hSpotlightTarget );
 	}
+
+	CBaseEntity* pParent = GetMoveParent();
+	if ( pParent )
+		PassParentToChildren( pParent );
 }
 
 //------------------------------------------------------------------------------
@@ -526,6 +558,31 @@ void CPointSpotlight::InputLightOff( inputdata_t &inputdata )
 		if ( m_bEfficientSpotlight )
 		{
 			SpotlightDestroy();
+		}
+	}
+}
+
+
+void CPointSpotlight::PassParentToChildren( CBaseEntity *pParent )
+{
+	// Since the spotlight itself is server-only, parenting wouldn't look correct on the client
+	// Instead, pass the parent entity down to our beams
+	
+	if ( m_hSpotlight )
+	{
+		// Ensure we are at the most up-to-date position
+		m_hSpotlight->SetAbsOrigin( GetAbsOrigin() );
+
+		m_hSpotlight->SetParent( pParent );
+		// SetParent can change our solidity state
+		m_hSpotlight->SetSolid( SOLID_NONE );
+		m_hSpotlight->SetMoveType( MOVETYPE_NONE );
+
+		if ( m_hSpotlightTarget )
+		{
+			m_hSpotlightTarget->SetParent( pParent );
+			m_hSpotlightTarget->SetSolid( SOLID_NONE );
+			m_hSpotlightTarget->SetMoveType( MOVETYPE_NONE );
 		}
 	}
 }

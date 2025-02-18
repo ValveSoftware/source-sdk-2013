@@ -19,9 +19,10 @@
 #include "tier2/meshutils.h"
 #include "mathlib/mathlib.h"
 
-#if defined( DX_TO_GL_ABSTRACTION )
-// Swap these so that we do color swapping on 10.6.2, which doesn't have EXT_vertex_array_bgra
-#define	OPENGL_SWAP_COLORS
+#if defined( OSX )
+	// Needed to support older versions of MacOS.
+	// No longer needed on Linux as we have BGRA there.
+	#define OPENGL_SWAP_COLORS
 #endif
 
 //-----------------------------------------------------------------------------
@@ -215,6 +216,17 @@ inline void IncrementFloatPointer( float* &pBufferPointer, int vertexSize )
 	pBufferPointer = reinterpret_cast<float*>( reinterpret_cast<unsigned char*>( pBufferPointer ) + vertexSize );
 }
 
+inline int PackRGBToPlatformColor( int r, int g, int b, int a )
+{
+	#if defined( OPENGL_SWAP_COLORS )
+		int col = r | (g << 8) | (b << 16) | (a << 24);	// r, g, b, a in memory
+	#elif defined( CELL_GCM_SWAP_COLORS )
+		int col = ( r << 24 ) | ( g << 16 ) | ( b << 8 ) | a;
+	#else
+		int col = b | (g << 8) | (r << 16) | (a << 24);
+	#endif
+	return col;
+}
 
 //-----------------------------------------------------------------------------
 // Used in lists of indexed primitives.
@@ -1149,7 +1161,6 @@ inline void CVertexBuilder::FastAdvanceNVertices( int n )
 
 
 
-#ifndef COMPILER_MSVC64
 // Implement for 64-bit Windows if needed.
 //-----------------------------------------------------------------------------
 // Fast Vertex! No need to call advance vertex, and no random access allowed
@@ -1159,7 +1170,7 @@ inline void CVertexBuilder::FastVertex( const ModelVertexDX7_t &vertex )
 	Assert( m_CompressionType == VERTEX_COMPRESSION_NONE ); // FIXME: support compressed verts if needed
 	Assert( m_nCurrentVertex < m_nMaxVertexCount );
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) && !defined( _X360 ) && !defined( _M_X64 )
 	const void *pRead = &vertex;
 	void *pCurrPos = m_pCurrPosition;
 
@@ -1203,7 +1214,7 @@ inline void CVertexBuilder::FastVertex( const ModelVertexDX7_t &vertex )
 						  "emms\n"
 						  :: "r" (pRead), "r" (pCurrPos) : "memory");
 #else
-	Error( "Implement CMeshBuilder::FastVertex(dx7) ");
+	memcpy( m_pCurrPosition, &vertex, m_VertexSize_Position );
 #endif
 
 	IncrementFloatPointer( m_pCurrPosition, m_VertexSize_Position );
@@ -1220,7 +1231,7 @@ inline void CVertexBuilder::FastVertexSSE( const ModelVertexDX7_t &vertex )
 	Assert( m_CompressionType == VERTEX_COMPRESSION_NONE ); // FIXME: support compressed verts if needed
 	Assert( m_nCurrentVertex < m_nMaxVertexCount );
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) && !defined( _X360 ) && !defined( _M_X64 )
 	const void *pRead = &vertex;
 	void *pCurrPos = m_pCurrPosition;
 	__asm
@@ -1246,7 +1257,7 @@ inline void CVertexBuilder::FastVertexSSE( const ModelVertexDX7_t &vertex )
 	_mm_stream_ps( (float *)(pCurrPos + 16), m2 );
 	_mm_stream_ps( (float *)(pCurrPos + 32), m3 );
 #else
-	Error( "Implement CMeshBuilder::FastVertexSSE(dx7)" );
+	memcpy( m_pCurrPosition, &vertex, m_VertexSize_Position );
 #endif
 
 	IncrementFloatPointer( m_pCurrPosition, m_VertexSize_Position );
@@ -1267,7 +1278,7 @@ inline void CVertexBuilder::Fast4VerticesSSE(
 	Assert( m_CompressionType == VERTEX_COMPRESSION_NONE ); // FIXME: support compressed verts if needed
 	Assert( m_nCurrentVertex < m_nMaxVertexCount-3 );
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) && !defined( _X360 ) && !defined( _M_X64 )
 	void *pCurrPos = m_pCurrPosition;
 	__asm
 	{
@@ -1310,7 +1321,10 @@ inline void CVertexBuilder::Fast4VerticesSSE(
 
 	}
 #else
-	Error( "Implement CMeshBuilder::Fast4VerticesSSE\n");
+	memcpy( &m_pCurrPosition[0 * m_VertexSize_Position], vtx_a, m_VertexSize_Position );
+	memcpy( &m_pCurrPosition[1 * m_VertexSize_Position], vtx_b, m_VertexSize_Position );
+	memcpy( &m_pCurrPosition[2 * m_VertexSize_Position], vtx_c, m_VertexSize_Position );
+	memcpy( &m_pCurrPosition[3 * m_VertexSize_Position], vtx_d, m_VertexSize_Position );
 #endif
 	IncrementFloatPointer( m_pCurrPosition, 4*m_VertexSize_Position );
 
@@ -1325,7 +1339,7 @@ inline void CVertexBuilder::FastVertex( const ModelVertexDX8_t &vertex )
 	Assert( m_CompressionType == VERTEX_COMPRESSION_NONE ); // FIXME: support compressed verts if needed
 	Assert( m_nCurrentVertex < m_nMaxVertexCount );
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) && !defined( _X360 ) && !defined( _M_X64 )
 	const void *pRead = &vertex;
 	void *pCurrPos = m_pCurrPosition;
 	__asm
@@ -1376,7 +1390,7 @@ inline void CVertexBuilder::FastVertex( const ModelVertexDX8_t &vertex )
 						  "emms\n"
 						  :: "r" (pRead), "r" (pCurrPos) : "memory");
 #else
-	Error( "Implement CMeshBuilder::FastVertex(dx8)" );
+	memcpy( m_pCurrPosition, &vertex, m_VertexSize_Position );
 #endif
 
 	IncrementFloatPointer( m_pCurrPosition, m_VertexSize_Position );
@@ -1393,7 +1407,7 @@ inline void CVertexBuilder::FastVertexSSE( const ModelVertexDX8_t &vertex )
 	Assert( m_CompressionType == VERTEX_COMPRESSION_NONE ); // FIXME: support compressed verts if needed
 	Assert( m_nCurrentVertex < m_nMaxVertexCount );
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) && !defined( _X360 ) && !defined( _M_X64 )
 	const void *pRead = &vertex;
 	void *pCurrPos = m_pCurrPosition;
 	__asm
@@ -1425,7 +1439,7 @@ inline void CVertexBuilder::FastVertexSSE( const ModelVertexDX8_t &vertex )
 						  "movntps %%xmm3, 48(%1)\n"						  
 						  :: "r" (pRead), "r" (pCurrPos) : "memory");
 #else
-	Error( "Implement CMeshBuilder::FastVertexSSE((dx8)" );
+	memcpy( m_pCurrPosition, &vertex, m_VertexSize_Position );
 #endif
 
 	IncrementFloatPointer( m_pCurrPosition, m_VertexSize_Position );
@@ -1436,7 +1450,6 @@ inline void CVertexBuilder::FastVertexSSE( const ModelVertexDX8_t &vertex )
 	m_bWrittenUserData = false;
 #endif
 }
-#endif // COMPILER_MSVC64
 
 
 //-----------------------------------------------------------------------------
@@ -3206,6 +3219,7 @@ public:
 
 	// Fast Index! No need to call advance index, and no random access allowed
 	void FastIndex( unsigned short index );
+	void FastQuad( int index );
 
 	// Fast Vertex! No need to call advance vertex, and no random access allowed. 
 	// WARNING - these are low level functions that are intended only for use
@@ -3766,6 +3780,11 @@ FORCEINLINE void CMeshBuilder::Index( unsigned short idx )
 FORCEINLINE void CMeshBuilder::FastIndex( unsigned short idx )
 {
 	m_IndexBuilder.FastIndex( idx );
+}
+
+FORCEINLINE void CMeshBuilder::FastQuad( int nIndex )
+{
+	m_IndexBuilder.FastQuad( nIndex );
 }
 
 // NOTE: Use this one to get write combining! Much faster than the other version of FastIndex

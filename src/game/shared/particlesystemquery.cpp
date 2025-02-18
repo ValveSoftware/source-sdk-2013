@@ -87,7 +87,11 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CParticleSystemQuery, IParticleSystemQuery, P
 #endif
 
 static CThreadFastMutex s_LightMutex;
-static CThreadFastMutex s_BoneMutex;
+
+// This mutex exists because EntityToWorldTransform was not threadsafe, and could potentially have been called from multiple
+// particle update threads. It has now been fixed to be threadsafe, so this mutex can safely just be a no-op (meaingful perf win for this).
+// static CThreadFastMutex s_BoneMutex;
+static CThreadNullMutex s_BoneMutex;
 
 //-----------------------------------------------------------------------------
 // Inherited from IParticleSystemQuery

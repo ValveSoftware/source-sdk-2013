@@ -66,8 +66,8 @@ public:
 	static void SetErrorReportFunc( MemoryPoolReportFunc_t func );
 
 	// returns number of allocated blocks
-	int Count() { return m_BlocksAllocated; }
-	int PeakCount() { return m_PeakAlloc; }
+	int Count() const { return m_BlocksAllocated; }
+	int PeakCount() const { return m_PeakAlloc; }
 
 protected:
 	class CBlob
@@ -135,20 +135,33 @@ template< class T >
 class CClassMemoryPool : public CUtlMemoryPool
 {
 public:
-	CClassMemoryPool(int numElements, int growMode = GROW_FAST, int nAlignment = 0 ) :
-		CUtlMemoryPool( sizeof(T), numElements, growMode, MEM_ALLOC_CLASSNAME(T), nAlignment ) {
-			#ifdef PLATFORM_64BITS 
-				COMPILE_TIME_ASSERT( sizeof(CUtlMemoryPool) == 64 );
-			#else
-				COMPILE_TIME_ASSERT( sizeof(CUtlMemoryPool) == 48 );
-			#endif
-		}
+    static inline int GetClassMemoryPoolAlignment( int nAlignment )
+    {
+        // Note(misyl): Need to ensure that any classes allocated from the memory pool
+        // have their alignment respected.
+        // Even on x86 this is problematic for a couple reasons:
+        // 1. The compiler can make assumptions about alignof and use SSE/SIMD stuff
+        //    which will crash on unaligned access.
+        // 2. It can cause splitlocks which can introduce stutters -- or in the case of
+        //    misery mode on Linux severe performance degredation due to kernel penalties.
+        // 3. (On ARM64) Doing unaligned atomics will just hard crash (SIGBUS).
+        return Max<int>( alignof( T ), nAlignment );
+    }
 
-	T*		Alloc();
-	T*		AllocZero();
-	void	Free( T *pMem );
+    CClassMemoryPool(int numElements, int growMode = GROW_FAST, int nAlignment = 0 ) :
+        CUtlMemoryPool( sizeof(T), numElements, growMode, MEM_ALLOC_CLASSNAME(T), GetClassMemoryPoolAlignment( nAlignment ) ) {
+            #ifdef PLATFORM_64BITS 
+                COMPILE_TIME_ASSERT( sizeof(CUtlMemoryPool) == 64 );
+            #else
+                COMPILE_TIME_ASSERT( sizeof(CUtlMemoryPool) == 48 );
+            #endif
+        }
 
-	void	Clear();
+    T*        Alloc();
+    T*        AllocZero();
+    void    Free( T *pMem );
+
+    void    Clear();
 };
 
 
@@ -303,7 +316,7 @@ inline void CClassMemoryPool<T>::Free(T *pMem)
 template< class T >
 inline void CClassMemoryPool<T>::Clear()
 {
-	CUtlRBTree<void *> freeBlocks;
+	CUtlRBTree<void *, int> freeBlocks;
 	SetDefLessFunc( freeBlocks );
 
 	void *pCurFree = m_pHeadOfFreeList;
@@ -315,8 +328,9 @@ inline void CClassMemoryPool<T>::Clear()
 
 	for( CBlob *pCur=m_BlobHead.m_pNext; pCur != &m_BlobHead; pCur=pCur->m_pNext )
 	{
-		T *p = (T *)pCur->m_Data;
-		T *pLimit = (T *)(pCur->m_Data + pCur->m_NumBytes);
+		int nElements = pCur->m_NumBytes / this->m_BlockSize;
+		T *p = ( T * ) AlignValue( pCur->m_Data, this->m_nAlignment );
+		T *pLimit = p + nElements;
 		while ( p < pLimit )
 		{
 			if ( freeBlocks.Find( p ) == freeBlocks.InvalidIndex() )
@@ -328,6 +342,7 @@ inline void CClassMemoryPool<T>::Clear()
 	}
 
 	CUtlMemoryPool::Clear();
+
 }
 
 
@@ -346,10 +361,10 @@ inline void CClassMemoryPool<T>::Clear()
 		static   CUtlMemoryPool   s_Allocator
     
 #define DEFINE_FIXEDSIZE_ALLOCATOR( _class, _initsize, _grow )					\
-	CUtlMemoryPool   _class::s_Allocator(sizeof(_class), _initsize, _grow, #_class " pool")
+	CUtlMemoryPool   _class::s_Allocator(sizeof(_class), _initsize, _grow, #_class " pool", alignof( _class ) )
 
 #define DEFINE_FIXEDSIZE_ALLOCATOR_ALIGNED( _class, _initsize, _grow, _alignment )		\
-	CUtlMemoryPool   _class::s_Allocator(sizeof(_class), _initsize, _grow, #_class " pool", _alignment )
+	CUtlMemoryPool   _class::s_Allocator(sizeof(_class), _initsize, _grow, #_class " pool", Max<int>( _alignment, alignof( _class ) ) )
 
 #define DECLARE_FIXEDSIZE_ALLOCATOR_MT( _class )									\
 	public:																		\
@@ -458,7 +473,7 @@ inline void CAlignedMemPool<ITEM_SIZE, ALIGNMENT, CHUNK_SIZE, CAllocator, COMPAC
 template <int ITEM_SIZE, int ALIGNMENT, int CHUNK_SIZE, class CAllocator, int COMPACT_THRESHOLD >
 inline int __cdecl CAlignedMemPool<ITEM_SIZE, ALIGNMENT, CHUNK_SIZE, CAllocator, COMPACT_THRESHOLD>::CompareChunk( void * const *ppLeft, void * const *ppRight )
 {
-	return ((unsigned)*ppLeft) - ((unsigned)*ppRight);
+	return size_cast<int>( (intp)*ppLeft - (intp)*ppRight );
 }
 
 template <int ITEM_SIZE, int ALIGNMENT, int CHUNK_SIZE, class CAllocator, int COMPACT_THRESHOLD >

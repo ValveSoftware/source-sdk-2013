@@ -407,6 +407,7 @@ void CTeamMenu::OnKeyCodePressed(KeyCode code)
 	case KEY_XSTICK1_LEFT:
 	case KEY_XSTICK2_LEFT:
 	case KEY_LEFT:
+	case STEAMCONTROLLER_DPAD_LEFT:
 		nDir = -1;
 		break;
 
@@ -418,6 +419,7 @@ void CTeamMenu::OnKeyCodePressed(KeyCode code)
 	case KEY_XSTICK1_RIGHT:
 	case KEY_XSTICK2_RIGHT:
 	case KEY_RIGHT:
+	case STEAMCONTROLLER_DPAD_RIGHT:
 		nDir = 1;
 		break;
 	}

@@ -37,6 +37,8 @@ public:
 		m_AlreadyHit = ents;
 		m_nMaxHits = nMaxEnts;
 	}
+
+	virtual ~CPushAwayEnumerator() {}
 	
 	// Actual work code
 	virtual IterationRetval_t EnumElement( IHandleEntity *pHandleEntity )

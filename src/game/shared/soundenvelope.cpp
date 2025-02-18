@@ -1056,8 +1056,8 @@ CSoundPatch *CSoundControllerImp::SoundCreate( IRecipientFilter& filter, int nEn
 	CSoundPatch *pSound = new CSoundPatch;
 
 	// FIXME: This is done so we don't have to futz with the public interface
-	EHANDLE hEnt = (nEntIndex != -1) ? g_pEntityList->GetNetworkableHandle( nEntIndex ) : NULL;
-	pSound->Init( &filter, hEnt.Get(), CHAN_AUTO, pSoundName, SNDLVL_NORM );
+	IHandleEntity* pEnt = (nEntIndex != -1) ? g_pEntityList->LookupEntityByNetworkIndex( nEntIndex ) : NULL;
+	pSound->Init( &filter, static_cast<CBaseEntity*>(pEnt), CHAN_AUTO, pSoundName, SNDLVL_NORM );
 
 	return pSound;
 }
@@ -1073,8 +1073,8 @@ CSoundPatch *CSoundControllerImp::SoundCreate( IRecipientFilter& filter, int nEn
 #endif
 
 	CSoundPatch *pSound = new CSoundPatch;
-	EHANDLE hEnt = (nEntIndex != -1) ? g_pEntityList->GetNetworkableHandle( nEntIndex ) : NULL;
-	pSound->Init( &filter, hEnt.Get(), channel, pSoundName, ATTN_TO_SNDLVL( attenuation ) );
+	IHandleEntity* pEnt = (nEntIndex != -1) ? g_pEntityList->LookupEntityByNetworkIndex( nEntIndex ) : NULL;
+	pSound->Init( &filter, static_cast<CBaseEntity*>(pEnt), channel, pSoundName, ATTN_TO_SNDLVL( attenuation ) );
 
 	return pSound;
 }
@@ -1090,8 +1090,8 @@ CSoundPatch *CSoundControllerImp::SoundCreate( IRecipientFilter& filter, int nEn
 #endif
 
 	CSoundPatch *pSound = new CSoundPatch;
-	EHANDLE hEnt = (nEntIndex != -1) ? g_pEntityList->GetNetworkableHandle( nEntIndex ) : NULL;
-	pSound->Init( &filter, hEnt.Get(), channel, pSoundName, soundlevel );
+	IHandleEntity* pEnt = (nEntIndex != -1) ? g_pEntityList->LookupEntityByNetworkIndex( nEntIndex ) : NULL;
+	pSound->Init( &filter, static_cast<CBaseEntity*>(pEnt), channel, pSoundName, soundlevel );
 
 	return pSound;
 }
@@ -1101,8 +1101,8 @@ CSoundPatch *CSoundControllerImp::SoundCreate( IRecipientFilter& filter, int nEn
 	CSoundPatch *pSound = new CSoundPatch;
 
 	// FIXME: This is done so we don't have to futz with the public interface
-	EHANDLE hEnt = (nEntIndex != -1) ? g_pEntityList->GetNetworkableHandle( nEntIndex ) : NULL;
-	pSound->Init( &filter, hEnt.Get(), es.m_nChannel, es.m_pSoundName, es.m_SoundLevel );
+	IHandleEntity* pEnt = (nEntIndex != -1) ? g_pEntityList->LookupEntityByNetworkIndex( nEntIndex ) : NULL;
+	pSound->Init( &filter, static_cast<CBaseEntity*>(pEnt), es.m_nChannel, es.m_pSoundName, es.m_SoundLevel );
 	pSound->ChangeVolume( es.m_flVolume, 0 );
 	pSound->ChangePitch( es.m_nPitch, 0 );
 

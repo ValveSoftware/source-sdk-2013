@@ -1,0 +1,17 @@
+; STATIC: "TEXTURE2" "0..1"
+ps.1.1
+
+def c4, 0.33333f, 0.33333f, 0.33333f, 0.33333f
+
+tex t0	; base color
+tex t1	; texture 2
+
+mul r0, t0, v0
+#if TEXTURE2
+mul r0, t1, r0
+#endif
+mul r1.rgb, r0, r0			; base * base
+lrp	r0.rgb, c1, r1, r0		; blend between color and color * color
+dp3	r1.rgb, r0, c4			; color greyscaled
+lrp	r0.rgb, c2, r0, r1		; blend between color and greyscale
+mul r0.rgb, r0, c3			; tint

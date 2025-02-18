@@ -18,15 +18,7 @@
 // BOTPORT: Clean up relationship between team index and danger storage in nav areas
 enum { MAX_NAV_TEAMS = 2 };
 
-#ifdef STAGING_ONLY
-inline void DebuggerBreakOnNaN_StagingOnly( float val )
-{
-	if ( IS_NAN( val ) )
-		DebuggerBreak();
-}
-#else
 #define DebuggerBreakOnNaN_StagingOnly( _val )
-#endif
 
 class CFuncElevator;
 class CFuncNavPrerequisite;

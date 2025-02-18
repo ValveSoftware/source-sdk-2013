@@ -106,6 +106,12 @@ public:
 
 	virtual void GetContentSize( int& cw, int &ch );
 
+	void SetOffsetFromMainMenu(int nOffset) { m_nOffsetFromMainMenu = nOffset; }
+	int GetOffsetFromMainMenu() const { return m_nOffsetFromMainMenu; }
+
+	void SetPaddingY( int nPadding ) { m_nPaddingY = nPadding; }
+	int GetPaddingY() const { return m_nPaddingY; }
+
 protected:
 	void OnKeyCodeReleased(KeyCode code);
 	void OnMenuClose();
@@ -129,6 +135,8 @@ private:
 
 	KeyValues *m_pUserData;
 
+	int m_nOffsetFromMainMenu;
+	int m_nPaddingY;
 };
 
 } // namespace vgui

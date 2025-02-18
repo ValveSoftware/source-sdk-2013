@@ -18,21 +18,19 @@
 #include "appframework/IAppSystem.h"
 
 class KeyValues;
+class IVEngineClient;
 
 namespace vgui
 {
 
 // safe handle to a panel - can be converted to and from a VPANEL
-typedef unsigned long HPanel;
-typedef int HContext;
+typedef uint32 HPanel;
+typedef uint32 HContext;
 
-enum
+enum : vgui::HContext
 {
 	DEFAULT_VGUI_CONTEXT = ((vgui::HContext)~0)
 };
-
-// safe handle to a panel - can be converted to and from a VPANEL
-typedef unsigned long HPanel;
 
 //-----------------------------------------------------------------------------
 // Purpose: Interface to core vgui components
@@ -102,6 +100,11 @@ public:
 
 	// add a tick signal like above, but to the head of the list of tick signals
 	virtual void AddTickSignalToHead( VPANEL panel, int intervalMilliseconds = 0 ) = 0;
+
+	virtual IVEngineClient *GetVGUIEngine() = 0;
+
+	virtual void InvalidateMdlCache() = 0;
+	virtual uint32 GetMdlCacheSerial() = 0;
 };
 
 #define VGUI_IVGUI_INTERFACE_VERSION "VGUI_ivgui008"

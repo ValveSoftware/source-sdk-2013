@@ -16,11 +16,11 @@
 #include "tier1/utlqueue.h"
 
 
-//-----------------------------------------------------------------------------
-// Handles are 32 bits. Invalid handles are all 1s
-//-----------------------------------------------------------------------------
-typedef unsigned int UtlHandle_t;
-#define UTLHANDLE_INVALID ((UtlHandle_t)~0)
+//---------------------------------------------------------------------------------
+// Handles are 32 bits on 32-bit and 64 bits on 64-bit. Invalid handles are all 1s
+//---------------------------------------------------------------------------------
+typedef uintp UtlHandle_t;
+#define UTLHANDLE_INVALID (~((UtlHandle_t)0))
 
 
 //-----------------------------------------------------------------------------

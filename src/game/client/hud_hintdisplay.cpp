@@ -573,7 +573,7 @@ bool CHudHintKeyDisplay::SetHintText( const char *text )
 
 					// Turn localized string into icon character
 					Q_snprintf( szBuff, sizeof( szBuff ), "#GameUI_Icons_%s", g_pInputSystem->ButtonCodeToString( static_cast<ButtonCode_t>( iCode ) ) );
-					g_pVGuiLocalize->ConstructString( szWideBuff, sizeof( szWideBuff ), g_pVGuiLocalize->Find( szBuff ), 0 );
+					g_pVGuiLocalize->ConstructString_safe( szWideBuff, g_pVGuiLocalize->Find( szBuff ), 0 );
 					g_pVGuiLocalize->ConvertUnicodeToANSI( szWideBuff, szBuff, sizeof( szBuff ) );
 
 					// Add this icon to our list of keys to display

@@ -1015,7 +1015,7 @@ CPolyhedron *ClipLinkedGeometry( GeneratePolyhedronFromPlanes_UnorderedPolygonLL
 
 			//Scan for onplane points connected to only other onplane/dead points, these points get downgraded to dead status.
 			{
-				GeneratePolyhedronFromPlanes_UnorderedPointLL *pActivePointWalk = pAllPoints;
+				pActivePointWalk = pAllPoints;
 				do
 				{
 					if( pActivePointWalk->pPoint->planarity == POINT_ONPLANE )
@@ -1331,25 +1331,6 @@ CPolyhedron *ClipLinkedGeometry( GeneratePolyhedronFromPlanes_UnorderedPolygonLL
 						float fInvTotalDist = 1.0f/(pDeadPoint->fPlaneDist - pLivingPoint->fPlaneDist); //subtraction because the living index is known to be negative
 						pNewPoint->ptPosition = (pLivingPoint->ptPosition * (pDeadPoint->fPlaneDist * fInvTotalDist)) - (pDeadPoint->ptPosition * (pLivingPoint->fPlaneDist * fInvTotalDist));
 
-#if ( 0 && defined( _DEBUG ) )
-						float fDebugDist = vNormal.Dot( pNewPoint->ptPosition ) - fPlaneDist; //just for looking at in watch windows
-						AssertMsg_DumpPolyhedron( fabs( fDebugDist ) < fOnPlaneEpsilon, "Generated split point is far from plane" );
-
-						//verify that the new point isn't sitting on top of another
-						{
-							GeneratePolyhedronFromPlanes_UnorderedPointLL *pActivePointWalk = pAllPoints;
-							do
-							{
-								if( pActivePointWalk->pPoint != pNewPoint )
-								{
-									Vector vDiff = pActivePointWalk->pPoint->ptPosition - pNewPoint->ptPosition;
-
-									AssertMsg_DumpPolyhedron( vDiff.Length() > fOnPlaneEpsilon, "Generated a point on top of another" );
-								}
-								pActivePointWalk = pActivePointWalk->pNext;
-							} while( pActivePointWalk );
-						}
-#endif
 
 						pNewPoint->planarity = POINT_ONPLANE;
 						pNewPoint->fPlaneDist = 0.0f;

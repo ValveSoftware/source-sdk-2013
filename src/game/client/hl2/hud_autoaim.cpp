@@ -176,9 +176,13 @@ void CHUDAutoAim::OnThink()
 
 	BaseClass::OnThink();
 
+#ifdef TF_CLIENT_DLL
+	if ( true )
+#else
 	// Get the HL2 player
 	C_BaseHLPlayer *pLocalPlayer = (C_BaseHLPlayer *)C_BasePlayer::GetLocalPlayer();
 	if ( pLocalPlayer == NULL )
+#endif
 	{
 		// Just turn the autoaim crosshair off.
 		ResetPosition();
@@ -189,6 +193,7 @@ void CHUDAutoAim::OnThink()
 		return;
 	}
 
+#ifndef TF_CLIENT_DLL
 	// Get the autoaim target.
 	CBaseEntity *pTarget = pLocalPlayer->m_HL2Local.m_hAutoAimTarget.Get();
 
@@ -358,7 +363,7 @@ void CHUDAutoAim::OnThink()
 			{
 				m_alpha = AUTOAIM_MAX_ALPHA;
 			}
-#endif
+#endif // 0
 		}
 		break;
 
@@ -381,6 +386,7 @@ void CHUDAutoAim::OnThink()
 		}
 		break;
 	}
+#endif // !TF_CLIENT_DLL
 }
 
 void CHUDAutoAim::Paint()

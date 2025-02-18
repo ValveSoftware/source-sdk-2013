@@ -135,12 +135,12 @@ inline CBaseHandle CBaseEntityList::GetNetworkableHandle( int iEntity ) const
 
 inline IHandleEntity* CBaseEntityList::LookupEntity( const CBaseHandle &handle ) const
 {
-	if ( handle.m_Index == INVALID_EHANDLE_INDEX )
+	if ( handle.m_Index == INVALID_EHANDLE )
 		return NULL;
 
 	const CEntInfo *pInfo = &m_EntPtrArray[ handle.GetEntryIndex() ];
-	if ( pInfo->m_SerialNumber == handle.GetSerialNumber() )
-		return (IHandleEntity*)pInfo->m_pEntity;
+	if ( pInfo && pInfo->m_SerialNumber == handle.GetSerialNumber() )
+		return pInfo->m_pEntity;
 	else
 		return NULL;
 }
@@ -153,14 +153,18 @@ inline IHandleEntity* CBaseEntityList::LookupEntityByNetworkIndex( int edictInde
 		return NULL;
 
 	Assert( edictIndex < NUM_ENT_ENTRIES );
-	return (IHandleEntity*)m_EntPtrArray[edictIndex].m_pEntity;
+
+	if ( edictIndex >= NUM_ENT_ENTRIES )
+		return NULL;
+
+	return m_EntPtrArray[edictIndex].m_pEntity;
 }
 
 
 inline CBaseHandle CBaseEntityList::FirstHandle() const
 {
 	if ( !m_activeList.Head() )
-		return INVALID_EHANDLE_INDEX;
+		return INVALID_EHANDLE;
 
 	int index = GetEntInfoIndex( m_activeList.Head() );
 	return CBaseHandle( index, m_EntPtrArray[index].m_SerialNumber );
@@ -171,7 +175,7 @@ inline CBaseHandle CBaseEntityList::NextHandle( CBaseHandle hEnt ) const
 	int iSlot = hEnt.GetEntryIndex();
 	CEntInfo *pNext = m_EntPtrArray[iSlot].m_pNext;
 	if ( !pNext )
-		return INVALID_EHANDLE_INDEX;
+		return INVALID_EHANDLE;
 
 	int index = GetEntInfoIndex( pNext );
 
@@ -180,7 +184,7 @@ inline CBaseHandle CBaseEntityList::NextHandle( CBaseHandle hEnt ) const
 	
 inline CBaseHandle CBaseEntityList::InvalidHandle()
 {
-	return INVALID_EHANDLE_INDEX;
+	return INVALID_EHANDLE;
 }
 
 inline const CEntInfo *CBaseEntityList::FirstEntInfo() const

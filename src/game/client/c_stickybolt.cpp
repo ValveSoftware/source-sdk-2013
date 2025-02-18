@@ -159,7 +159,7 @@ void StickRagdollNow( const Vector &vecOrigin, const Vector &vecDirection )
 	shotRay.Init( vecOrigin, vecEnd );
 
 	CRagdollBoltEnumerator	ragdollEnum( shotRay, vecOrigin );
-	partition->EnumerateElementsAlongRay( PARTITION_CLIENT_RESPONSIVE_EDICTS, shotRay, false, &ragdollEnum );
+	::partition->EnumerateElementsAlongRay( PARTITION_CLIENT_RESPONSIVE_EDICTS, shotRay, false, &ragdollEnum );
 	
 	CreateCrossbowBolt( vecOrigin, vecDirection );
 }

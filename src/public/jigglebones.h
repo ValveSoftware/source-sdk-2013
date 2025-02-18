@@ -74,7 +74,7 @@ class CJiggleBones
 {
 public:
 	JiggleData * GetJiggleData( int bone, float currenttime, const Vector &initBasePos, const Vector &initTipPos );
-	void BuildJiggleTransformations( int boneIndex, float currentime, const mstudiojigglebone_t *jiggleParams, const matrix3x4_t &goalMX, matrix3x4_t &boneMX );
+	void BuildJiggleTransformations( int boneIndex, float currentime, const mstudiojigglebone_t *jiggleParams, const matrix3x4_t &goalMX, matrix3x4_t &boneMX, bool coordSystemIsFlipped = false );
 
 	CUtlLinkedList< JiggleData >	m_jiggleBoneState;
 };

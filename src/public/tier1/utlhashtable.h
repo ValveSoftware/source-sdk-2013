@@ -7,6 +7,10 @@
 // - handles are NOT STABLE across element removal! use RemoveAndAdvance()
 //   if you are removing elements while iterating through the hashtable.
 //   Use CUtlStableHashtable if you need stable handles (less efficient).
+// - handles are also NOT STABLE across element insertion.  The handle
+//   resulting from the insertion of an element may not retreive the
+//   same (or any!) element after further insertions.  Again, use
+//   CUtlStableHashtable if you need stable handles
 // - Insert() first searches for an existing match and returns it if found
 // - a value type of "empty_t" can be used to eliminate value storage and
 //   switch Element() to return const Key references instead of values
@@ -15,6 +19,18 @@
 // - comparison function pointer / functor is exposed via GetEqualRef()
 // - if your value type cannot be copy-constructed, use key-only Insert()
 //   to default-initialize the value and then manipulate it afterwards.
+// - The reason that UtlHashtable permutes itself and invalidates
+//   iterators is to make it faster in the case where you are not
+//   tracking iterators. If you use it as a set or a map ("is this
+//   value a member?") as opposed to a long-term container, then you
+//   probably don't need stable iterators. Hashtable tries to place
+//   newly inserted data in the primary hash slot, making an
+//   assumption that if you inserted it recently, you're more likely
+//   to access it than if you inserted something a long time
+//   ago. It's effectively trying to minimize cache misses for hot
+//   data if you add and remove a lot.
+//   If you don't care too much about cache misses, UtlStableHashtable
+//   is what you're looking for
 //
 // Implementation notes:
 // - overall hash table load is kept between .25 and .75
@@ -220,6 +236,9 @@ public:
 	// Note: aside from this, ALL handles are invalid if an element is removed
 	handle_t RemoveAndAdvance( handle_t idx );
 
+	// Remove by handle, convenient when you look up a handle and do something with it before removing the element
+	void RemoveByHandle( handle_t idx );
+
 	// Nuke contents
 	void RemoveAll();
 
@@ -255,6 +274,19 @@ public:
 	// (NOTE: if using function pointers or functors with state,
 	//  it is up to the caller to ensure that they are compatible!)
 	void Swap( CUtlHashtable &other ) { m_table.Swap(other.m_table); ::V_swap(m_nUsed, other.m_nUsed); }
+
+    // GetMemoryUsage returns all memory held by this class
+    // and its held classes.  It does not include sizeof(*this).
+    size_t GetMemoryUsage() const
+    {
+        return m_table.AllocSize();
+    }
+
+	size_t GetReserveCount( )const
+	{
+		return m_table.Count();
+	}
+
 
 #if _DEBUG
 	// Validate the integrity of the hashtable
@@ -642,6 +674,18 @@ UtlHashHandle_t CUtlHashtable<KeyT, ValueT, KeyHashT, KeyIsEqualT, AltKeyT>::Rem
 		return idx;
 	}
 }
+
+
+// Remove and return the next valid iterator for a forward iteration.
+template <typename KeyT, typename ValueT, typename KeyHashT, typename KeyIsEqualT, typename AltKeyT>
+void CUtlHashtable<KeyT, ValueT, KeyHashT, KeyIsEqualT, AltKeyT>::RemoveByHandle( UtlHashHandle_t idx )
+{
+	Assert( IsValidHandle( idx ) );
+
+	// Copied from RemoveAndAdvance(): TODO optimize, implement DoRemoveAt that does not need to re-evaluate equality in DoLookup
+	DoRemove< KeyArg_t >( m_table[idx]->m_key, m_table[idx].flags_and_hash & MASK_HASH );
+}
+
 
 // Burn it with fire.
 template <typename KeyT, typename ValueT, typename KeyHashT, typename KeyIsEqualT, typename AltKeyT>

@@ -253,6 +253,17 @@ void NDebugOverlay::ScreenText( float flXpos, float flYpos, const char *text, in
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Add debug overlay text with screen position and line offset
+//-----------------------------------------------------------------------------
+void NDebugOverlay::ScreenTextLine( float flXpos, float flYpos, int iLine, const char *text, int r, int g, int b, int a, float duration )
+{
+    if ( debugoverlay )
+    {
+        debugoverlay->AddScreenTextOverlay( flXpos, flYpos, iLine, duration, r, g, b, a, text );
+    }
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Draw a colored 3D cross of the given hull size at the given position
 //-----------------------------------------------------------------------------
 void NDebugOverlay::Cross3D(const Vector &position, const Vector &mins, const Vector &maxs, int r, int g, int b, bool noDepthTest, float fDuration )
@@ -640,7 +651,10 @@ void NDebugOverlay::Circle( const Vector &position, const Vector &xAxis, const V
 		// If we have an alpha value, then draw the fan
 		if ( a && i > 1 )
 		{		
-			debugoverlay->AddTriangleOverlay( vecStart, vecLastPosition, vecPosition, r, g, b, a, bNoDepthTest, flDuration );
+			if ( debugoverlay )
+			{
+				debugoverlay->AddTriangleOverlay( vecStart, vecLastPosition, vecPosition, r, g, b, a, bNoDepthTest, flDuration );
+			}
 		}
 	}
 }

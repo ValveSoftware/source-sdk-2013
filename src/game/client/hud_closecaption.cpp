@@ -26,7 +26,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#define CC_INSET		12
+#define CC_INSET		6
 
 extern ISoundEmitterSystemBase *soundemitterbase;
 
@@ -819,6 +819,7 @@ CHudCloseCaption::CHudCloseCaption( const char *pElementName )
 {
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
+	SetProportional( true );
 
 	m_nGoalHeight = 0;
 	m_nCurrentHeight = 0;
@@ -954,11 +955,13 @@ void CHudCloseCaption::Paint( void )
 	rcOutput.right = w;
 	rcOutput.bottom = h;
 	rcOutput.top = m_nTopOffset;
-
+		
 	wrect_t rcText = rcOutput;
 
-	int avail_width = rcText.right - rcText.left - 2 * CC_INSET;
-	int avail_height = rcText.bottom - rcText.top - 2 * CC_INSET;
+	int inset = vgui::scheme()->GetProportionalScaledValueEx( GetScheme(), CC_INSET );
+
+	int avail_width = rcText.right - rcText.left - 2 * inset;
+	int avail_height = rcText.bottom - rcText.top - 2 * inset;
 
 	int totalheight = 0;
 	int i;
@@ -1067,7 +1070,7 @@ void CHudCloseCaption::Paint( void )
 		m_flCurrentAlpha = m_flGoalAlpha;
 	}
 
-	rcText.top = rcText.bottom - m_nCurrentHeight - 2 * CC_INSET;
+	rcText.top = rcText.bottom - m_nCurrentHeight - 2 * inset;
  
 	Color bgColor = GetBgColor();
    	bgColor[3] = m_flBackgroundAlpha;
@@ -1078,8 +1081,8 @@ void CHudCloseCaption::Paint( void )
 		return;
 	}
 
-	rcText.left += CC_INSET;
-	rcText.right -= CC_INSET;
+	rcText.left += inset;
+	rcText.right -= inset;
 
 	int textHeight = m_nCurrentHeight;
 	if ( growingDown )
@@ -1088,7 +1091,7 @@ void CHudCloseCaption::Paint( void )
 		textHeight = totalheight;
 	}
 
-	rcText.top = rcText.bottom - textHeight - CC_INSET;
+	rcText.top = rcText.bottom - textHeight - inset;
 
 	// Now draw them
 	c = visibleitems.Count();
@@ -1187,7 +1190,7 @@ void CHudCloseCaption::Paint( void )
  
 		wrect_t rcOut = rcText;
  
-		rcOut.right = rcOut.left + si->width + 6;
+		rcOut.right = rcOut.left + si->width + vgui::scheme()->GetProportionalScaledValueEx( GetScheme(), 6 );
 		
 		DrawStream( rcOut, rcOutput, item, iFadeLine, flFadeLineAlpha );
 
@@ -1295,7 +1298,7 @@ void CHudCloseCaption::Reset( void )
 	Unlock();
 }
 
-bool CHudCloseCaption::SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t *args ) const
+bool CHudCloseCaption::SplitCommand( wchar_t const **ppIn, wchar_t *cmd, int nCmdSize, wchar_t *args, int nArgsSize ) const
 {
 	const wchar_t *in = *ppIn;
 	const wchar_t *oldin = in;
@@ -1307,11 +1310,20 @@ bool CHudCloseCaption::SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t
 	}
 
 	args[ 0 ] = 0;
-	cmd[ 0 ]= 0;
+	cmd[ 0 ] = 0;
 	wchar_t *out = cmd;
 	in++;
 	while ( *in != L'\0' && *in != L':' && *in != L'>' && !isspace( *in ) )
 	{
+		// If there won't be enough room to null terminate, then we need to fail this.
+		if ( ( 1 + out - cmd ) == nCmdSize )
+		{
+			Assert( !"Possibly malicious closed caption file, we will fail to parse this and won't show this line." );
+			args[ 0 ] = 0;
+			cmd[ 0 ] = 0;
+			return false;
+		}
+
 		*out++ = *in++;
 	}
 	*out = L'\0';
@@ -1326,6 +1338,14 @@ bool CHudCloseCaption::SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t
 	out = args;
 	while ( *in != L'\0' && *in != L'>' )
 	{
+		if ( ( 1 + out - args ) == nArgsSize )
+		{
+			Assert( !"Possibly malicious closed caption file, we will fail to parse this and won't show this line." );
+			args[ 0 ] = 0;
+			cmd[ 0 ] = 0;
+			return false;
+		}
+
 		*out++ = *in++;
 	}
 	*out = L'\0';
@@ -1353,7 +1373,7 @@ bool CHudCloseCaption::GetFloatCommandValue( const wchar_t *stream, const wchar_
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, V_ARRAYSIZE( cmd ), args, V_ARRAYSIZE( args ) ) )
 		{
 			if ( !wcscmp( cmd, findcmd ) )
 			{
@@ -1377,7 +1397,7 @@ bool CHudCloseCaption::StreamHasCommand( const wchar_t *stream, const wchar_t *f
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, V_ARRAYSIZE( cmd ), args, V_ARRAYSIZE( args ) ) )
 		{
 			if ( !wcscmp( cmd, findcmd ) )
 			{
@@ -1416,7 +1436,7 @@ bool CHudCloseCaption::StreamHasCommand( const wchar_t *stream, const wchar_t *s
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, V_ARRAYSIZE( cmd ), args, V_ARRAYSIZE( args ) ) )
 		{
 			if ( !wcscmp( cmd, search ) )
 			{
@@ -1508,7 +1528,7 @@ void CHudCloseCaption::Process( const wchar_t *stream, float duration, const cha
 
 		const wchar_t *prevpos = curpos;
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, V_ARRAYSIZE( cmd ), args, V_ARRAYSIZE( args ) ) )
 		{
 			if ( !wcscmp( cmd, L"delay" ) )
 			{
@@ -1576,13 +1596,13 @@ void CHudCloseCaption::CreateFonts( void )
 {
 	vgui::IScheme *pScheme = vgui::scheme()->GetIScheme( GetScheme() );
 
-	m_hFonts[CCFONT_NORMAL] = pScheme->GetFont( "CloseCaption_Normal" );
+	m_hFonts[CCFONT_NORMAL] = pScheme->GetFont( "CloseCaption_Normal", true );
 
 	if ( IsPC() )
 	{
-		m_hFonts[CCFONT_BOLD] = pScheme->GetFont( "CloseCaption_Bold" );
-		m_hFonts[CCFONT_ITALIC] = pScheme->GetFont( "CloseCaption_Italic" );
-		m_hFonts[CCFONT_ITALICBOLD] = pScheme->GetFont( "CloseCaption_BoldItalic" );
+		m_hFonts[CCFONT_BOLD] = pScheme->GetFont( "CloseCaption_Bold", true );
+		m_hFonts[CCFONT_ITALIC] = pScheme->GetFont( "CloseCaption_Italic", true );
+		m_hFonts[CCFONT_ITALICBOLD] = pScheme->GetFont( "CloseCaption_BoldItalic", true );
 	}
 	else
 	{
@@ -1709,7 +1729,7 @@ void CHudCloseCaption::ComputeStreamWork( int available_width, CCloseCaptionItem
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, V_ARRAYSIZE( cmd ), args, V_ARRAYSIZE( args ) ) )
 		{
 			if ( !wcscmp( cmd, L"cr" ) )
 			{
@@ -1932,7 +1952,7 @@ bool CHudCloseCaption::GetNoRepeatValue( const wchar_t *caption, float &retval )
 		wchar_t cmd[ 256 ];
 		wchar_t args[ 256 ];
 
-		if ( SplitCommand( &curpos, cmd, args ) )
+		if ( SplitCommand( &curpos, cmd, V_ARRAYSIZE( cmd ), args, V_ARRAYSIZE( args ) ) )
 		{
 			if ( !wcscmp( cmd, L"norepeat" ) )
 			{
@@ -2414,7 +2434,7 @@ void CHudCloseCaption::ProcessSentenceCaptionStream( const char *tokenstream )
 		}
 		else
 		{
-			CaptionRepeat &entry = m_CloseCaptionRepeats[ idx ];
+			entry = m_CloseCaptionRepeats[ idx ];
 			if ( gpGlobals->curtime < ( entry.m_flLastEmitTime + entry.m_flInterval ) )
 			{
 				return;
@@ -2460,7 +2480,7 @@ void CHudCloseCaption::_ProcessCaption( const wchar_t *caption, const char *toke
 	}
 	else
 	{
-		CaptionRepeat &entry = m_CloseCaptionRepeats[ idx ];
+		entry = m_CloseCaptionRepeats[ idx ];
 
 		// Interval of 0.0 means just don't double emit on same tick #
 		if ( entry.m_flInterval <= 0.0f )

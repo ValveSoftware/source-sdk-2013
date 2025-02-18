@@ -1,0 +1,39 @@
+//-----------------------------------------------------------------------------
+// SOURCE_REPLAY.VPC
+//
+// Controls compilation of the replay system via the REPLAY_ENABLE preprocessor
+// definition.
+//
+// The BUILD_REPLAY macro (below) controls the definition of REPLAY_ENABLE 
+// across multiple projects like engine, TF client & server DLL's, and any
+// other games with replay support.
+//
+// This file serves two purposes:
+//
+//	 1. To provide a single place where replay can be built out of all games,
+//		in other words the engine, as well as any supported game client/server
+//		DLL's. This is useful for avoiding shipping any replay code prematurely
+//		(i.e. when we do staging -> rel integrations), for example.
+//
+//	 1. Any client/server DLL's that don't have REPLAY_ENABLE defined will not
+//		attempt to load or interact with the replay system, because they will
+//		not build the code to do so.
+//
+// If BUILD_REPLAY=1, replay will be built in the engine, and client/server
+// projects for supported games - otherwise, it will not.
+//
+// If you are adding replay support to a specific game, you must include this
+// file in both its client_* and server_*.vpc files.
+//
+// This file should not be included in client_base.vpc or server_base.vpc.
+//
+// Replay is only loaded for games explicitly specified in engine/replay.cpp
+// (see s_pSupportedReplayGames).
+// 
+//-----------------------------------------------------------------------------
+
+$Conditional BUILD_REPLAY		1
+
+//-----------------------------------------------------------------------------
+
+$Include "$SRCDIR\vpc_scripts\source_replay_private.vpc"	[$BUILD_REPLAY && !$X360]

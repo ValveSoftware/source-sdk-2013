@@ -241,10 +241,18 @@ public:
 	static CBaseAchievementHelper *s_pFirst;
 };
 
+#if defined( TF_DLL ) || defined ( TF_CLIENT_DLL )
+#define CHECK_ACHIEVEMENT_LIST(x) x##_YouForgotTheAchievementList;
+#else
+// Other games dont use this.
+#define CHECK_ACHIEVEMENT_LIST(x)
+#endif
+
 #define DECLARE_ACHIEVEMENT_( className, achievementID, achievementName, gameDirFilter, iPointValue, bHidden ) \
 static CBaseAchievement *Create_##className( void )					\
 {																		\
 	CBaseAchievement *pAchievement = new className( );					\
+	CHECK_ACHIEVEMENT_LIST( className );								\
 	pAchievement->SetAchievementID( achievementID );					\
 	pAchievement->SetName( achievementName );							\
 	pAchievement->SetPointValue( iPointValue );							\

@@ -9,14 +9,14 @@ $Macro GAMENAME 	"hl2mp" [!$SOURCESDK]
 $Macro GAMENAME 	"mod_hl2mp" [$SOURCESDK]
 
 $Include "$SRCDIR\game\server\server_base.vpc"
-$Include "$SRCDIR\game\server\nav_mesh.vpc" [$SOURCESDK]
+$Include "$SRCDIR\game\server\nav_mesh.vpc"
 
 $Configuration
 {
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\game\shared\hl2,.\hl2,.\hl2mp,$SRCDIR\game\shared\hl2mp"
-		$PreprocessorDefinitions		"$BASE;HL2MP;HL2_DLL"
+		$PreprocessorDefinitions		"$BASE;HL2MP;HL2_DLL;NEXT_BOT"
 	}
 }
 
@@ -60,6 +60,73 @@ $Project "Server (HL2MP)"
 		$File	"trigger_area_capture.h"
 		$File   "$SRCDIR\game\shared\teamplay_round_timer.cpp"
 		$File   "$SRCDIR\game\shared\teamplay_round_timer.h"
+
+		$Folder "NextBot"
+		{
+			$File	"NextBot\NextBot.cpp"
+			$File	"NextBot\NextBot.h"
+			$File	"NextBot\NextBotBehavior.h"
+			$File	"NextBot\NextBotManager.cpp"
+			$File	"NextBot\NextBotManager.h"
+			$File	"NextBot\NextBotUtil.h"
+			$File	"NextBot\NextBotKnownEntity.h"
+			$File	"NextBot\NextBotGroundLocomotion.cpp"
+			$File	"NextBot\NextBotGroundLocomotion.h"
+			$File	"NextBot\simple_bot.cpp"
+			$File	"NextBot\simple_bot.h"
+
+			$Folder "NextBotInterfaces"
+			{
+				$File	"NextBot\NextBotBodyInterface.cpp"
+				$File	"NextBot\NextBotBodyInterface.h"
+				$File	"NextBot\NextBotComponentInterface.cpp"
+				$File	"NextBot\NextBotComponentInterface.h"
+				$File	"NextBot\NextBotEventResponderInterface.h"
+				$File	"NextBot\NextBotHearingInterface.h"
+				$File	"NextBot\NextBotIntentionInterface.cpp"
+				$File	"NextBot\NextBotIntentionInterface.h"
+				$File	"NextBot\NextBotInterface.cpp"
+				$File	"NextBot\NextBotInterface.h"
+				$File	"NextBot\NextBotLocomotionInterface.cpp"
+				$File	"NextBot\NextBotLocomotionInterface.h"
+				$File	"NextBot\NextBotVisionInterface.cpp"
+				$File	"NextBot\NextBotVisionInterface.h"
+				$File	"NextBot\NextBotContextualQueryInterface.h"
+			}
+
+			$Folder "NextBotPath"
+			{
+				$File	"NextBot\Path\NextBotChasePath.cpp"
+				$File	"NextBot\Path\NextBotChasePath.h"
+				$File	"NextBot\Path\NextBotRetreatPath.h"
+				$File	"NextBot\Path\NextBotPath.cpp"
+				$File	"NextBot\Path\NextBotPath.h"
+				$File	"NextBot\Path\NextBotPathFollow.cpp"
+				$File	"NextBot\Path\NextBotPathFollow.h"
+			}
+			
+			$Folder "NextBotPlayer"
+			{
+				$File	"NextBot\Player\NextBotPlayerBody.cpp"
+				$File	"NextBot\Player\NextBotPlayerBody.h"
+				$File	"NextBot\Player\NextBotPlayerLocomotion.cpp"
+				$File	"NextBot\Player\NextBotPlayerLocomotion.h"
+				$File	"NextBot\Player\NextBotPlayer.cpp"
+				$File	"NextBot\Player\NextBotPlayer.h"
+			}
+
+			$Folder "NextBotCommonBehaviors"
+			{
+				$File	"NextBot\Behavior\BehaviorBackUp.h"
+				$File	"NextBot\Behavior\BehaviorMoveTo.h"
+			}
+
+			$Folder "NextBotNavMeshEntities"
+			{
+				$File	"NextBot\NavMeshEntities\func_nav_prerequisite.cpp"
+				$File	"NextBot\NavMeshEntities\func_nav_prerequisite.h"
+			}
+		}
 
 		$Folder	"HL2 DLL"
 		{
@@ -244,8 +311,6 @@ $Project "Server (HL2MP)"
 
 		$Folder	"HL2MP"
 		{
-			$File	"hl2mp\hl2mp_bot_temp.cpp"
-			$File	"hl2mp\hl2mp_bot_temp.h"
 			$File	"hl2mp\hl2mp_client.cpp"
 			$File	"hl2mp\hl2mp_cvars.cpp"
 			$File	"hl2mp\hl2mp_gameinterface.cpp"
@@ -258,6 +323,70 @@ $Project "Server (HL2MP)"
 			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_player_shared.h"
 			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_weapon_parse.cpp"
 			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_weapon_parse.h"
+
+			$Folder "Bots"
+			{
+				$File "hl2mp\bot\hl2mp_bot.cpp"
+				$File "hl2mp\bot\hl2mp_bot.h"
+				$File "hl2mp\bot\hl2mp_bot_body.cpp"
+				$File "hl2mp\bot\hl2mp_bot_body.h"
+				$File "hl2mp\bot\hl2mp_bot_locomotion.cpp"
+				$File "hl2mp\bot\hl2mp_bot_locomotion.h"
+				$File "hl2mp\bot\hl2mp_bot_manager.cpp"
+				$File "hl2mp\bot\hl2mp_bot_manager.h"
+				$File "hl2mp\bot\hl2mp_bot_squad.cpp"
+				$File "hl2mp\bot\hl2mp_bot_squad.h"
+				$File "hl2mp\bot\hl2mp_bot_vision.cpp"
+				$File "hl2mp\bot\hl2mp_bot_vision.h"
+
+				$Folder "Behaviour"
+				{
+					$Folder "Nav Entities"
+					{
+						$File	"hl2mp\bot\behavior\nav_entities\hl2mp_bot_nav_ent_destroy_entity.cpp"
+						$File	"hl2mp\bot\behavior\nav_entities\hl2mp_bot_nav_ent_destroy_entity.h"
+						$File	"hl2mp\bot\behavior\nav_entities\hl2mp_bot_nav_ent_move_to.cpp"
+						$File	"hl2mp\bot\behavior\nav_entities\hl2mp_bot_nav_ent_move_to.h"
+						$File	"hl2mp\bot\behavior\nav_entities\hl2mp_bot_nav_ent_wait.cpp"
+						$File	"hl2mp\bot\behavior\nav_entities\hl2mp_bot_nav_ent_wait.h"
+					}
+
+					$File "hl2mp\bot\behavior\hl2mp_bot_approach_object.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_approach_object.h"
+					$File "hl2mp\bot\behavior\hl2mp_bot_attack.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_attack.h"
+					$File "hl2mp\bot\behavior\hl2mp_bot_behavior.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_behavior.h"
+					$File "hl2mp\bot\behavior\hl2mp_bot_dead.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_dead.h"
+					$File "hl2mp\bot\behavior\hl2mp_bot_get_ammo.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_get_ammo.h"
+					$File "hl2mp\bot\behavior\hl2mp_bot_get_health.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_get_health.h"
+					$File "hl2mp\bot\behavior\hl2mp_bot_get_prop.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_get_prop.h"
+					$File "hl2mp\bot\behavior\hl2mp_bot_melee_attack.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_melee_attack.h"
+					$File "hl2mp\bot\behavior\hl2mp_bot_move_to_vantage_point.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_move_to_vantage_point.h"
+					$File "hl2mp\bot\behavior\hl2mp_bot_retreat_to_cover.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_retreat_to_cover.h"
+					$File "hl2mp\bot\behavior\hl2mp_bot_scenario_monitor.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_scenario_monitor.h"
+					$File "hl2mp\bot\behavior\hl2mp_bot_seek_and_destroy.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_seek_and_destroy.h"
+					$File "hl2mp\bot\behavior\hl2mp_bot_tactical_monitor.cpp"
+					$File "hl2mp\bot\behavior\hl2mp_bot_tactical_monitor.h"
+				}
+
+				$Folder "Map Entities"
+				{
+					$File "hl2mp\bot\map_entities\hl2mp_bot_generator.cpp"
+					$File "hl2mp\bot\map_entities\hl2mp_bot_generator.h"
+					$File "hl2mp\bot\map_entities\hl2mp_bot_proxy.cpp"
+					$File "hl2mp\bot\map_entities\hl2mp_bot_proxy.h"
+				}
+			}
 			
 			$Folder	"Weapons"
 			{

@@ -132,7 +132,7 @@ enum VertexElement_t
 {
 	VERTEX_ELEMENT_NONE = -1,
 
-	// Deliberately explicitly numbered so it's a pain in the ass to change, so you read this:
+	// Deliberately explicitly numbered so it's a pain to change, so you read this:
 	// #!#!#NOTE#!#!# update GetVertexElementSize, VertexElementToDeclType and
 	//                CVBAllocTracker (elementTable) when you update this!
 	VERTEX_ELEMENT_POSITION		= 0,

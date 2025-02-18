@@ -16,7 +16,7 @@ $Configuration
 		// Deprecated MBCS MFC libraries for VS 2013 (nafxcw.lib and nafxcwd.lib) can be downloaded from http://go.microsoft.com/?linkid=9832071
 		$PreprocessorDefinitions			"$BASE;NO_WARN_MBCS_MFC_DEPRECATION"
 		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
-		$PrecompiledHeaderFile				"Debug/QC_Eyes.pch"
+		$PrecompiledHeaderFile				"$(IntDir)/QC_Eyes.pch"
 		$EnableC++Exceptions				"Yes (/EHsc)"
 	}
 
@@ -26,7 +26,7 @@ $Configuration
 	}
 }
 
-$Project "QC_Eyes"
+$Project "QC Eyes"
 {
 	$Folder	"Source Files"
 	{		

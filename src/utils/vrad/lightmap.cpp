@@ -3174,7 +3174,9 @@ void BuildFacelights (int iThread, int facenum)
 		}
 	}
 
+#ifdef MPI
 	if (!g_bUseMPI) 
+#endif
 	{
 		//
 		// This is done on the master node when MPI is used

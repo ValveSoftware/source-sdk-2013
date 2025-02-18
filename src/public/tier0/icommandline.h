@@ -42,6 +42,15 @@ public:
 	virtual void SetParm( int nIndex, char const *pNewParm ) =0;
 
 	virtual const char *ParmValueByIndex( int nIndex, const char *pDefaultVal = 0 ) const = 0;
+
+	// A bool return of whether param exists, useful for just checking if param that is just a flag is set
+	virtual bool		HasParm( const char *psz ) const = 0;
+
+	virtual const char **GetParms() const = 0;
+
+	// Newer call with flag to control paramfile behavior
+	virtual void		CreateCmdLine1( const char *commandline, bool bParseParamFiles ) = 0;
+	virtual void		CreateCmdLine1( int argc, char **argv, bool bParseParamFiles ) = 0;
 };
 
 //-----------------------------------------------------------------------------

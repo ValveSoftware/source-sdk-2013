@@ -494,8 +494,11 @@ void CNewParticleEffect::DebugDrawBbox ( bool bCulled )
 		 
 	if ( bDraw )
 	{
-		debugoverlay->AddBoxOverlay( center, mins, maxs, QAngle( 0, 0, 0 ), r, g, b, 16, 0 );
-		debugoverlay->AddTextOverlayRGB( center, 0, 0, r, g, b, 64, "%s:(%d)", GetEffectName(), m_nActiveParticles );
+		if ( debugoverlay )
+		{
+			debugoverlay->AddBoxOverlay( center, mins, maxs, QAngle( 0, 0, 0 ), r, g, b, 16, 0 );
+			debugoverlay->AddTextOverlayRGB( center, 0, 0, r, g, b, 64, "%s:(%d)", GetEffectName(), m_nActiveParticles );
+		}
 	}
 }
 

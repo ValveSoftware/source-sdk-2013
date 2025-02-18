@@ -1,0 +1,22 @@
+$Project
+{
+	$Folder "Protobuf Files"
+	{
+		$File "$SRCDIR/game/shared/econ/econ_gcmessages.proto"
+		$Folder "Generated Files" [!$OSXALL]
+		{
+			$DynamicFile "$GENERATED_PROTO_DIR/econ_gcmessages.pb.h"
+			$DynamicFile "$GENERATED_PROTO_DIR/econ_gcmessages.pb.cc"
+			{
+				$Configuration
+				{
+					$Compiler 
+					{
+						$Create/UsePrecompiledHeader	"Not Using Precompiled Headers" [$WINDOWS]
+					}
+				}
+			}
+		}
+	}
+}
+

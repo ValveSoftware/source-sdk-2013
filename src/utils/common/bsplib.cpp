@@ -29,6 +29,8 @@
 #include "lzma/lzma.h"
 #include "tier1/lzmaDecoder.h"
 
+#include "tier0/memdbgon.h"
+
 //=============================================================================
 
 // Boundary each lump should be aligned to
@@ -1271,7 +1273,7 @@ int	TexDataStringTable_AddOrFindString( const char *pString )
 		}
 	}
 
-	int len = strlen( pString );
+	int len = V_strlen( pString );
 	int outOffset = g_TexDataStringData.AddMultipleToTail( len+1, pString );
 	int outIndex = g_TexDataStringTable.AddToTail( outOffset );
 	return outIndex;
@@ -2269,6 +2271,11 @@ void LoadBSPFile( const char *filename )
 	CopyLump( FIELD_CHARACTER, LUMP_TEXDATA_STRING_DATA, g_TexDataStringData );
 	CopyLump( FIELD_INTEGER, LUMP_TEXDATA_STRING_TABLE, g_TexDataStringTable );
 
+	// It's assumed by other code that the data lump is filled with C strings. We need to make sure that 
+	// the buffer as a whole ends with a '\0'.
+	if ( g_TexDataStringData.Count() > 0 && g_TexDataStringData.Tail() != 0 )
+		Error( "Cannot load corrupted bsp file %s", filename );
+
 	g_nOverlayCount = CopyLump( LUMP_OVERLAYS, g_Overlays );
 	g_nWaterOverlayCount = CopyLump( LUMP_WATEROVERLAYS, g_WaterOverlays );
 	CopyLump( LUMP_OVERLAY_FADES, g_OverlayFades );
@@ -2287,12 +2294,12 @@ void LoadBSPFile( const char *filename )
 	CopyLump( FIELD_SHORT, LUMP_LEAFMINDISTTOWATER, g_LeafMinDistToWater );
 
 	/*
-	int crap;
-	for( crap = 0; crap < g_nBSPStringTable; crap++ )
+	int junk;
+	for( junk = 0; junk < g_nBSPStringTable; junk++ )
 	{
-		Msg( "stringtable %d", ( int )crap );
-		Msg( " %d:",  ( int )g_BSPStringTable[crap] );
-		puts( &g_BSPStringData[g_BSPStringTable[crap]] );
+		Msg( "stringtable %d", ( int )junk );
+		Msg( " %d:",  ( int )g_BSPStringTable[junk] );
+		puts( &g_BSPStringData[g_BSPStringTable[junk]] );
 		puts( "\n" );
 	}
 	*/
@@ -2804,13 +2811,13 @@ void	WriteLumpToFile( char *filename, int lump, int nLumpVersion, void *pBuffer,
 	lumpfileheader_t lumpHeader;
 	lumpHeader.lumpID = lump;
 	lumpHeader.lumpVersion = nLumpVersion;
-	lumpHeader.lumpLength = nBufLen;
+	lumpHeader.lumpLength = (int)nBufLen;
 	lumpHeader.mapRevision = LittleLong( g_MapRevision );
 	lumpHeader.lumpOffset = sizeof(lumpfileheader_t);	// Lump starts after the header
 	SafeWrite( lumpfile, &lumpHeader, sizeof(lumpfileheader_t));
 
 	// Write the lump
-	SafeWrite( lumpfile, pBuffer, nBufLen );
+	SafeWrite( lumpfile, pBuffer, (int)nBufLen );
 
 	g_pFileSystem->Close( lumpfile );
 }
@@ -3076,7 +3083,7 @@ Generates the dentdata string from all the entities
 void UnparseEntities (void)
 {
 	epair_t	*ep;
-	char	line[2048];
+	char	line[2048 + 16];
 	int		i;
 	char	key[1024], value[1024];
 
@@ -3098,7 +3105,7 @@ void UnparseEntities (void)
 			strcpy (value, ep->value);
 			StripTrailing (value);
 				
-			sprintf(line, "\"%s\" \"%s\"\n", key, value);
+			V_sprintf_safe(line, "\"%s\" \"%s\"\n", key, value);
 			buffer.PutString( line );
 		}
 		buffer.PutString("}\n");
@@ -3398,10 +3405,10 @@ public:
 	int LeafCount() const;
 
 	// Enumerates the leaves along a ray, box, etc.
-	bool EnumerateLeavesAtPoint( Vector const& pt, ISpatialLeafEnumerator* pEnum, int context );
-	bool EnumerateLeavesInBox( Vector const& mins, Vector const& maxs, ISpatialLeafEnumerator* pEnum, int context );
-	bool EnumerateLeavesInSphere( Vector const& center, float radius, ISpatialLeafEnumerator* pEnum, int context );
-	bool EnumerateLeavesAlongRay( Ray_t const& ray, ISpatialLeafEnumerator* pEnum, int context );
+	bool EnumerateLeavesAtPoint( Vector const& pt, ISpatialLeafEnumerator* pEnum, intp context );
+	bool EnumerateLeavesInBox( Vector const& mins, Vector const& maxs, ISpatialLeafEnumerator* pEnum, intp context );
+	bool EnumerateLeavesInSphere( Vector const& center, float radius, ISpatialLeafEnumerator* pEnum, intp context );
+	bool EnumerateLeavesAlongRay( Ray_t const& ray, ISpatialLeafEnumerator* pEnum, intp context );
 };
 
 
@@ -3420,7 +3427,7 @@ int CToolBSPTree::LeafCount() const
 //-----------------------------------------------------------------------------
 
 bool CToolBSPTree::EnumerateLeavesAtPoint( Vector const& pt, 
-									ISpatialLeafEnumerator* pEnum, int context )
+									ISpatialLeafEnumerator* pEnum, intp context )
 {
 	int node = 0;
 	while( node >= 0 )
@@ -3447,7 +3454,7 @@ bool CToolBSPTree::EnumerateLeavesAtPoint( Vector const& pt,
 //-----------------------------------------------------------------------------
 
 static bool EnumerateLeavesInBox_R( int node, Vector const& mins, 
-				Vector const& maxs, ISpatialLeafEnumerator* pEnum, int context )
+				Vector const& maxs, ISpatialLeafEnumerator* pEnum, intp context )
 {
 	Vector cornermin, cornermax;
 
@@ -3494,7 +3501,7 @@ static bool EnumerateLeavesInBox_R( int node, Vector const& mins,
 }
 
 bool CToolBSPTree::EnumerateLeavesInBox( Vector const& mins, Vector const& maxs, 
-									ISpatialLeafEnumerator* pEnum, int context )
+									ISpatialLeafEnumerator* pEnum, intp context )
 {
 	return EnumerateLeavesInBox_R( 0, mins, maxs, pEnum, context );
 }
@@ -3504,7 +3511,7 @@ bool CToolBSPTree::EnumerateLeavesInBox( Vector const& mins, Vector const& maxs,
 //-----------------------------------------------------------------------------
 
 static bool EnumerateLeavesInSphere_R( int node, Vector const& origin, 
-				float radius, ISpatialLeafEnumerator* pEnum, int context )
+				float radius, ISpatialLeafEnumerator* pEnum, intp context )
 {
 	while( node >= 0 )
 	{
@@ -3535,7 +3542,7 @@ static bool EnumerateLeavesInSphere_R( int node, Vector const& origin,
 	return pEnum->EnumerateLeaf( - node - 1, context );
 }
 
-bool CToolBSPTree::EnumerateLeavesInSphere( Vector const& center, float radius, ISpatialLeafEnumerator* pEnum, int context )
+bool CToolBSPTree::EnumerateLeavesInSphere( Vector const& center, float radius, ISpatialLeafEnumerator* pEnum, intp context )
 {
 	return EnumerateLeavesInSphere_R( 0, center, radius, pEnum, context );
 }
@@ -3546,7 +3553,7 @@ bool CToolBSPTree::EnumerateLeavesInSphere( Vector const& center, float radius, 
 //-----------------------------------------------------------------------------
 
 static bool EnumerateLeavesAlongRay_R( int node, Ray_t const& ray, 
-	Vector const& start, Vector const& end, ISpatialLeafEnumerator* pEnum, int context )
+	Vector const& start, Vector const& end, ISpatialLeafEnumerator* pEnum, intp context )
 {
 	float front,back;
 
@@ -3609,7 +3616,7 @@ static bool EnumerateLeavesAlongRay_R( int node, Ray_t const& ray,
 	return pEnum->EnumerateLeaf( - node - 1, context );
 }
 
-bool CToolBSPTree::EnumerateLeavesAlongRay( Ray_t const& ray, ISpatialLeafEnumerator* pEnum, int context )
+bool CToolBSPTree::EnumerateLeavesAlongRay( Ray_t const& ray, ISpatialLeafEnumerator* pEnum, intp context )
 {
 	if (!ray.m_IsSwept)
 	{
@@ -3648,7 +3655,7 @@ ISpatialQuery* ToolBSPTree()
 // FIXME: Do we want this in the IBSPTree interface?
 
 static bool EnumerateNodesAlongRay_R( int node, Ray_t const& ray, float start, float end,
-	IBSPNodeEnumerator* pEnum, int context )
+	IBSPNodeEnumerator* pEnum, intp context )
 {
 	float front, back;
 	float startDotN, deltaDotN;
@@ -3717,7 +3724,7 @@ static bool EnumerateNodesAlongRay_R( int node, Ray_t const& ray, float start, f
 }
 
 
-bool EnumerateNodesAlongRay( Ray_t const& ray, IBSPNodeEnumerator* pEnum, int context )
+bool EnumerateNodesAlongRay( Ray_t const& ray, IBSPNodeEnumerator* pEnum, intp context )
 {
 	Vector end;
 	VectorAdd( ray.m_Start, ray.m_Delta, end );

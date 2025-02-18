@@ -203,7 +203,7 @@ bool CSmokeStack::KeyValue( const char *szKeyName, const char *szValue )
 		char szStrippedName[512];
 
 		m_iMaterialModel = PrecacheModel( pName );
-		Q_StripExtension( pName, szStrippedName, Q_strlen(pName)+1 );
+		Q_StripExtension( pName, szStrippedName, V_ARRAYSIZE( szStrippedName ) );
 
 		int iLength = Q_strlen( szStrippedName );
 		szStrippedName[iLength-1] = '\0';

@@ -118,9 +118,6 @@ void CBoneMergeCache::UpdateCache()
 }
 
 
-#ifdef STAGING_ONLY
-ConVar r_captain_canteen_is_angry ( "r_captain_canteen_is_angry", "1" );
-#endif
 
 void CBoneMergeCache::MergeMatchingBones( int boneMask )
 {
@@ -143,16 +140,6 @@ void CBoneMergeCache::MergeMatchingBones( int boneMask )
 		matrix3x4_t NewBone;
 		MatrixScaleByZero ( NewBone );
 		MatrixSetTranslation ( Vector ( 0.0f, 0.0f, 0.0f ), NewBone );
-#ifdef STAGING_ONLY
-		if ( r_captain_canteen_is_angry.GetBool() )
-		{
-			// We actually want to see when Captain Canteen happened, and make it really obvious that (a) he was here and (b) this code would have fixed him.
-			float HowAngry = 20.0f;		// Leon's getting larger!
-			MatrixSetColumn ( Vector ( HowAngry, 0.0f, 0.0f ), 0, NewBone );
-			MatrixSetColumn ( Vector ( 0.0f, HowAngry, 0.0f ), 1, NewBone );
-			MatrixSetColumn ( Vector ( 0.0f, 0.0f, HowAngry ), 2, NewBone );
-		}
-#endif
 
 		for ( int i=0; i < m_MergedBones.Count(); i++ )
 		{

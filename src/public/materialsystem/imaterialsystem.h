@@ -18,17 +18,17 @@
 #define GAMMA 2.2f
 #define TEXGAMMA 2.2f
 
-#include "tier1/interface.h"
-#include "tier1/refcount.h"
+#include "tier0/icommandline.h"
 #include "mathlib/vector.h"
 #include "mathlib/vector4d.h"
 #include "mathlib/vmatrix.h"
+#include "tier1/interface.h"
+#include "tier1/refcount.h"
 #include "appframework/IAppSystem.h"
 #include "bitmap/imageformat.h"
 #include "texture_group_names.h"
 #include "vtf/vtf.h"
 #include "materialsystem/deformations.h"
-#include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "materialsystem/IColorCorrection.h"
 
 
@@ -66,13 +66,28 @@ typedef uint64 VertexFormat_t;
 
 // NOTE NOTE NOTE!!!!  If you up this, grep for "NEW_INTERFACE" to see if there is anything
 // waiting to be enabled during an interface revision.
-#define MATERIAL_SYSTEM_INTERFACE_VERSION "VMaterialSystem080"
+
+// V081 - 10/25/2016 - Added new Suspend/Resume texture streaming interfaces. Might also have added more calls here due
+//                     to the streaming work that didn't get bumped, but we're not guarding versions on the TF branch
+//                     very judiciously since we need to audit them when merging to SDK branch either way.
+//
+// misyl: unfrogged this interface to be compatible, added MATERIAL_SYSTEM_INTERFACE_VERSION_OLD for sdk 2013 compat.
+#define MATERIAL_SYSTEM_INTERFACE_VERSION "VMaterialSystem082"
+#define MATERIAL_SYSTEM_INTERFACE_VERSION_OLD "VMaterialSystem080"
 
 #ifdef POSIX
 #define ABSOLUTE_MINIMUM_DXLEVEL 90
 #else
 #define ABSOLUTE_MINIMUM_DXLEVEL 80
 #endif
+
+// HDRFIXME NOTE: must match common_ps_fxc.h
+enum HDRType_t
+{
+	HDR_TYPE_NONE,
+	HDR_TYPE_INTEGER,
+	HDR_TYPE_FLOAT,
+};
 
 enum ShaderParamType_t 
 { 
@@ -562,6 +577,68 @@ class IMaterialSystemHardwareConfig;
 class CShadowMgr;
 
 DECLARE_POINTER_HANDLE( MaterialLock_t );
+
+enum RenderBackend_t
+{
+	RENDER_BACKEND_UNKNOWN,
+	RENDER_BACKEND_D3D9,
+	RENDER_BACKEND_TOGL,
+	RENDER_BACKEND_VULKAN,
+	RENDER_BACKEND_NULL,
+};
+
+FORCEINLINE const char* GetRenderBackendName( RenderBackend_t eBackend )
+{
+	switch ( eBackend )
+	{
+		default:
+#ifdef ALLOW_NOSHADERAPI
+		case RENDER_BACKEND_UNKNOWN: return "Unknown";
+		case RENDER_BACKEND_NULL:    return "Null";
+#endif
+		case RENDER_BACKEND_D3D9:    return "Direct3D 9";
+		case RENDER_BACKEND_TOGL:    return "OpenGL";
+		case RENDER_BACKEND_VULKAN:  return "Vulkan";
+	}
+}
+
+FORCEINLINE const char* GetRenderBackendShaderAPI( RenderBackend_t eBackend )
+{
+	switch ( eBackend )
+	{
+		default:
+#ifdef ALLOW_NOSHADERAPI
+		case RENDER_BACKEND_UNKNOWN:
+		case RENDER_BACKEND_NULL:   return "shaderapiempty";
+#endif
+		case RENDER_BACKEND_D3D9:   return "shaderapidx9";
+		case RENDER_BACKEND_TOGL:   return "shaderapidx9";
+		case RENDER_BACKEND_VULKAN: return "shaderapivk";
+	}
+}
+
+FORCEINLINE RenderBackend_t DetermineRenderBackend()
+{
+#ifdef ALLOW_NOSHADERAPI
+	if ( CommandLine()->FindParm( "-noshaderapi" ) )
+		return RENDER_BACKEND_NULL;
+#endif
+
+	if ( CommandLine()->FindParm( "-vulkan" ) )
+		return RENDER_BACKEND_VULKAN;
+
+	if ( CommandLine()->FindParm( "-gl" ) )
+		return RENDER_BACKEND_TOGL;
+
+	if ( CommandLine()->FindParm( "-dx9" ) )
+		return RENDER_BACKEND_D3D9;
+
+#if defined( PLATFORM_WINDOWS_PC )
+	return RENDER_BACKEND_D3D9;
+#else
+	return RENDER_BACKEND_VULKAN;
+#endif
+}
 
 //-----------------------------------------------------------------------------
 // 
@@ -1078,8 +1155,36 @@ public:
 	// creates a texture suitable for use with materials from a raw stream of bits.
 	// The bits will be retained by the material system and can be freed upon return.
 	virtual ITexture*			CreateNamedTextureFromBitsEx( const char* pName, const char *pTextureGroupName, int w, int h, int mips, ImageFormat fmt, int srcBufferSize, byte* srcBits, int nFlags ) = 0;
+
+	// Creates a texture compositor template for use in later code. 
+	virtual bool				AddTextureCompositorTemplate( const char* pName, KeyValues* pTmplDesc, int nTexCompositeTemplateFlags = 0 ) = 0;
+
+	// Performs final verification of all compositor templates (after they've all been initially loaded).
+	virtual bool				VerifyTextureCompositorTemplates( ) = 0;
+
+	virtual RenderBackend_t		GetRenderBackend() const = 0;
+
+	// Stop attempting to stream in textures in response to usage.  Useful for phases such as loading or other explicit
+	// operations that shouldn't take usage of textures as a signal to stream them in at full rez.
+	virtual void				SuspendTextureStreaming() = 0;
+	virtual void				ResumeTextureStreaming() = 0;
 };
 
+extern IMaterialSystem *materials;
+extern IMaterialSystem *g_pMaterialSystem;
+
+FORCEINLINE bool IsOpenGL( void )
+{
+#ifndef DX_TO_GL_ABSTRACTION
+	return false;
+#endif
+	return g_pMaterialSystem->GetRenderBackend() == RENDER_BACKEND_TOGL;
+}
+
+FORCEINLINE bool IsVulkan( void )
+{
+	return g_pMaterialSystem->GetRenderBackend() == RENDER_BACKEND_VULKAN;
+}
 
 //-----------------------------------------------------------------------------
 // 
@@ -1544,6 +1649,9 @@ public:
 	// The texture will be created using the destination format, and will optionally have mipmaps generated.
 	// In case of error, the provided callback function will be called with the error texture.
 	virtual void AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) = 0;
+
+	virtual void FogRadial( bool bRadial ) = 0;
+	virtual bool GetFogRadial() = 0;
 };
 
 template< class E > inline E* IMatRenderContext::LockRenderDataTyped( int nCount, const E* pSrcData )
@@ -1807,7 +1915,6 @@ static void DoMatSysQueueMark( IMaterialSystem *pMaterialSystem, const char *psz
 
 //-----------------------------------------------------------------------------
 
-extern IMaterialSystem *materials;
-extern IMaterialSystem *g_pMaterialSystem;
+#include "materialsystem/imaterialsystemhardwareconfig.h"
 
 #endif // IMATERIALSYSTEM_H

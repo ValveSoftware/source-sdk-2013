@@ -58,6 +58,7 @@ public:
 	short	m_nSurfaceProp;
 
 	// Some TF2 specific things
+	// misyl: Not a material! This is a model index most of the time!
 	int		m_nMaterial;
 	int		m_nDamageType;
 	int		m_nHitBox;
@@ -82,7 +83,7 @@ public:
 
 		m_fFlags = 0;
 #ifdef CLIENT_DLL
-		m_hEntity = INVALID_EHANDLE_INDEX;
+		m_hEntity = INVALID_EHANDLE;
 #else
 		m_nEntIndex = 0;
 #endif

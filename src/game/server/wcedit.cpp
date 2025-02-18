@@ -437,7 +437,7 @@ void NWCEdit::DestroyAILink( CBasePlayer *pPlayer )
 		else if (status == Editor_OK)
 		{
 			// Create dynamic link and mark the link
-			CAI_DynamicLink* pNewLink	= (CAI_DynamicLink*)CreateEntityByName("info_node_link" );;
+			CAI_DynamicLink* pNewLink	= (CAI_DynamicLink*)CreateEntityByName("info_node_link" );
 			pNewLink->m_nSrcID			= pAILink->m_iSrcID;
 			pNewLink->m_nDestID			= pAILink->m_iDestID;
 			pNewLink->m_nLinkState		= LINK_OFF;

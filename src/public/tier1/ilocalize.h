@@ -25,8 +25,8 @@ typedef unsigned short wchar_t;
 
 
 // direct references to localized strings
-typedef unsigned long StringIndex_t;
-const unsigned long INVALID_LOCALIZE_STRING_INDEX = (StringIndex_t) -1;
+typedef uint32 StringIndex_t;
+const uint32 INVALID_LOCALIZE_STRING_INDEX = (StringIndex_t) -1;
 
 //-----------------------------------------------------------------------------
 // Purpose: Handles localization of text
@@ -121,6 +121,32 @@ public:
 		ConstructStringKeyValuesInternal( unicodeOutput, unicodeBufferSizeInBytes, formatString, localizationVariables );
 	}
 
+
+	// Safe version of Construct String that has the compiler infer the buffer size
+	template <size_t maxLenInChars, typename T > 
+	static void ConstructString_safe( OUT_Z_ARRAY T (&pDest)[maxLenInChars], const T *formatString, int numFormatParameters, ... )
+	{
+		va_list argList;
+		va_start( argList, numFormatParameters );
+
+		ConstructStringVArgsInternal( pDest, maxLenInChars * sizeof( *pDest ), formatString, numFormatParameters, argList );
+
+		va_end( argList );
+	}
+
+	template <size_t maxLenInChars, typename T > 
+	static void ConstructString_safe( OUT_Z_ARRAY T (&pDest)[maxLenInChars], const T *formatString, KeyValues *localizationVariables )
+	{
+		ConstructStringKeyValuesInternal( pDest, maxLenInChars * sizeof( *pDest ), formatString, localizationVariables );
+	}
+
+	// Non-static version to be safe version of the virtual functions that utilize KVP
+	template <size_t maxLenInChars, typename T >
+	void ConstructString_safe( OUT_Z_ARRAY T( &pDest )[maxLenInChars], const char *formatString, KeyValues *localizationVariables )
+	{
+		ConstructString( pDest, maxLenInChars * sizeof( *pDest ), formatString, localizationVariables );
+	}
+
 private:
 	// internal "interface"
 	static void ConstructStringVArgsInternal(OUT_Z_BYTECAP(unicodeBufferSizeInBytes) char *unicodeOutput, int unicodeBufferSizeInBytes, const char *formatString, int numFormatParameters, va_list argList);
@@ -130,20 +156,6 @@ private:
 	static void ConstructStringKeyValuesInternal(OUT_Z_BYTECAP(unicodeBufferSizeInBytes) wchar_t *unicodeOutput, int unicodeBufferSizeInBytes, const wchar_t *formatString, KeyValues *localizationVariables);
 };
 
-#ifdef GC
-
-	typedef char locchar_t;
-
-	#define loc_snprintf	Q_snprintf
-	#define loc_sprintf_safe V_sprintf_safe
-	#define loc_sncat		Q_strncat
-	#define loc_scat_safe	V_strcat_safe
-	#define loc_sncpy		Q_strncpy
-	#define loc_scpy_safe	V_strcpy_safe
-	#define loc_strlen		Q_strlen
-	#define LOCCHAR( x )	x
-
-#else
 
 	typedef wchar_t locchar_t;
 
@@ -155,8 +167,10 @@ private:
 	#define loc_scpy_safe	V_wcscpy_safe
 	#define loc_strlen		Q_wcslen
 	#define LOCCHAR(x)		L ## x
+	#define LOCCHAR_FMT_LOCPRINTF L"%ls"
+	#define LOCCHAR_FMT_PRINTF    "%ls"
+	#define LOCCHAR_FMT_WPRINTF   L"%ls"
 
-#endif
 
 // --------------------------------------------------------------------------
 // Purpose:
@@ -371,6 +385,31 @@ public:
 										  CLocalizedStringArg<U>( arg1 ).GetLocArg(),
 										  CLocalizedStringArg<V>( arg2 ).GetLocArg(),
 										  CLocalizedStringArg<W>( arg3 ).GetLocArg() );
+		}
+	}
+
+	template < typename T, typename U, typename V, typename W, typename X >
+	CConstructLocalizedString( const locchar_t *loc_Format, T arg0, U arg1, V arg2, W arg3, X arg4 )
+	{
+		COMPILE_TIME_ASSERT( CLocalizedStringArg<T>::kIsValid );
+		COMPILE_TIME_ASSERT( CLocalizedStringArg<U>::kIsValid );
+		COMPILE_TIME_ASSERT( CLocalizedStringArg<V>::kIsValid );
+		COMPILE_TIME_ASSERT( CLocalizedStringArg<W>::kIsValid );
+		COMPILE_TIME_ASSERT( CLocalizedStringArg<X>::kIsValid );
+
+		m_loc_Buffer[0] = '\0';
+
+		if ( loc_Format )
+		{
+			::ILocalize::ConstructString( m_loc_Buffer,
+				sizeof( m_loc_Buffer ),
+				loc_Format,
+				5,
+				CLocalizedStringArg<T>( arg0 ).GetLocArg(),
+				CLocalizedStringArg<U>( arg1 ).GetLocArg(),
+				CLocalizedStringArg<V>( arg2 ).GetLocArg(),
+				CLocalizedStringArg<W>( arg3 ).GetLocArg(),
+				CLocalizedStringArg<X>( arg4 ).GetLocArg() );
 		}
 	}
 

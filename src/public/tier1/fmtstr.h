@@ -109,6 +109,15 @@ public:
 		return m_szBuf;
 	}
 
+	// Same as sprintf above, but for compatibility with Steam interface
+	const char *Format( PRINTF_FORMAT_STRING const char *pszFormat, ... ) FMTFUNCTION( 2, 3 )
+	{
+		InitQuietTruncation();
+		FmtStrVSNPrintf( m_szBuf, SIZE_BUF, m_bQuietTruncation, &pszFormat, 0, pszFormat );
+		return m_szBuf;
+	}
+
+
 	// Use this for va_list formatting
 	const char *sprintf_argv(const char *pszFormat, va_list arg_ptr)
 	{
@@ -276,6 +285,7 @@ void CFmtStrN< SIZE_BUF, QUIET_TRUNCATION >::AppendFormatV( const char *pchForma
 
 typedef CFmtStrN<FMTSTR_STD_LEN> CFmtStr;
 typedef CFmtStrQuietTruncationN<FMTSTR_STD_LEN> CFmtStrQuietTruncation;
+typedef CFmtStrN<32>   CFmtStr32;
 typedef CFmtStrN<1024> CFmtStr1024;
 typedef CFmtStrN<8192> CFmtStrMax;
 

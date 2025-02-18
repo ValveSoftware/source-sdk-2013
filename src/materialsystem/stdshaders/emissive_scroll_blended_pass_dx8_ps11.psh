@@ -1,0 +1,20 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; c0 EnablePixelShaderOverbright()
+; c1 SELFILLUMTINT
+; c2 ?
+; c3 ComputeModulationColor()
+; c4 flEmissiveBlendStrength, flEmissiveBlendStrength, flEmissiveBlendStrength, bWarping
+; c5 1, 1, 1, 1
+;------------------------------------------------------------------------------
+
+tex t0 ; Base color
+tex t1 ; Emissive texture
+
+mul_sat t1, c1, t1		; Emissive texture * selfIllumTint
+mul r0, t0, c3			; Base color
+mul r0.rgb, t1, r0		; Base * emissive
+mul r0.rgb, r0, c4		; * flEmissiveBlendStrength
+mul_x2 r0.rgb, c0, r0   ; * 2 * (overbrightFactor/2)
+mov r0.a, c4.a			; Should this be 0 for the refract effect?

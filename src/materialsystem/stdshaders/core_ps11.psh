@@ -1,0 +1,27 @@
+ps.1.1
+
+; t0: 
+;		texture: dudv map
+;		texcoords: dudvmap texcoords
+; t1:
+;		texture: refraction render target
+;		texcoords: 
+
+#if 1
+
+tex t0				; sample dudv map
+texbem t1, t0		; refraction
+tex t2
+
+mov r0, t1
+mul r0.rgb, r0, c0
+lrp r0.rgb, t2.a, t2, r0
+;mov r0, t2
+
+#else
+
+texcoord t0
+
+mov r0.rgba, t0
+
+#endif

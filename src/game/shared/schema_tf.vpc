@@ -1,0 +1,54 @@
+
+//-----------------------------------------------------------------------------
+//	STEAMSCHEMA.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$macro SRCDIR		"..\.."
+$Macro OUTLIBDIR	"$SRCDIR\lib\game\tf"
+$macro $_STATICLIB_EXT	".lib"
+
+$include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+
+$Configuration
+{
+	$PreBuildEvent [$WIN32]
+	{
+		$CommandLine		"call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $SRCDIR\game\shared\tf\schema_tf.h $SRCDIR" "\n" \ 
+							"call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $SRCDIR\game\shared\tf\schema_tf.cpp $SRCDIR" "\n" \
+							"$BASE" 
+	}
+}
+
+$Project "schema (TF)"
+{
+	$File "gc\base_gcschema.sch"
+	{
+		$Configuration 
+		{ 
+			$ExcludedFromBuild	"Yes" 
+		}
+	}
+	$File "econ\econ_gcschema.sch"
+	{
+		$Configuration 
+		{ 
+			$ExcludedFromBuild	"Yes" 
+		}
+	}
+	$File "tf\schema_tf.sch"
+	{
+		$Configuration
+		{
+			$CustomBuildStep
+			{
+				$Description	"Running SchemaCompiler..."
+				$CommandLine	"$SRCDIR\gcsdk\bin\schemacompiler.exe tf\schema_tf.sch tf\schema_tf.cpp tf\schema_tf.h"
+				$Outputs		"tf\schema_tf.h;tf\schema_tf.cpp"
+				$AdditionalDependencies	"..\..\bin\schemacompiler.exe"
+			}
+		}
+	}
+}
+

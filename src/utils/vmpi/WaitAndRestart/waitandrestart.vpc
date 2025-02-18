@@ -1,0 +1,42 @@
+//-----------------------------------------------------------------------------
+//	WAITANDRESTART.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINNAME	"WaitAndRestart"
+
+$Include "$SRCDIR\vpc_scripts\source_exe_con_win32_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE,..\"
+		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE"
+	}
+}
+
+$Project "WaitAndRestart"
+{
+	$Folder	"Source Files"
+	{
+		-$File	"$SRCDIR\public\tier0\memoverride.cpp"
+		$File	"WaitAndRestart.cpp"
+		$File	"../vmpi_logfile.cpp"
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"../vmpi_logfile.h"
+	}
+	
+	$Folder "Link Libraries"
+	{
+		-$Implib	"$LIBPUBLIC\tier0"
+		-$Lib		"$LIBPUBLIC\tier1"
+		-$Implib	"$LIBPUBLIC\vstdlib"
+	}
+}

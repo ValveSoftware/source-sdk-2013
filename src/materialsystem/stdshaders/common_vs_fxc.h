@@ -44,6 +44,7 @@
 
 #define FOGTYPE_RANGE				0
 #define FOGTYPE_HEIGHT				1
+#define FOGTYPE_RANGE_RADIAL		2
 
 #define COMPILE_ERROR ( 1/0; )
 
@@ -93,6 +94,9 @@ const float4 cFogParams					: register(c16);
 #define cFogEndOverFogRange cFogParams.x
 #define cFogOne cFogParams.y
 #define cFogMaxDensity cFogParams.z
+// Radial fog max density in fractional portion.
+// Height fog max density stored in integer portion and is multiplied by 1e10
+#define cRadialFogMaxDensity cFogParams.z
 #define cOOFogRange cFogParams.w
 
 const float4x4 cViewModel				: register(c17);
@@ -560,6 +564,10 @@ float CalcFog( const float3 worldPos, const float3 projPos, const int fogType )
 	{
 		return RangeFog( projPos );
 	}
+	else if ( fogType == FOGTYPE_RANGE_RADIAL )
+	{
+		return CalcRadialFog_FixedFunction( worldPos, cEyePos, cRadialFogMaxDensity, cFogEndOverFogRange, cOOFogRange );
+	}
 	else
 	{
 #if SHADERMODEL_VS_2_0 == 1
@@ -571,30 +579,32 @@ float CalcFog( const float3 worldPos, const float3 projPos, const int fogType )
 	}
 }
 
-float CalcFog( const float3 worldPos, const float3 projPos, const bool bWaterFog )
-{
-#if defined( _X360 )
-	// 360 only does pixel fog
-	return 1.0f;
-#endif
+// Unused.
+//
+// float CalcFog( const float3 worldPos, const float3 projPos, const bool bWaterFog )
+// {
+// #if defined( _X360 )
+// 	// 360 only does pixel fog
+// 	return 1.0f;
+// #endif
 
-	float flFog;
-	if( !bWaterFog )
-	{
-		flFog = RangeFog( projPos );
-	}
-	else
-	{
-#if SHADERMODEL_VS_2_0 == 1
-		// We do this work in the pixel shader in dx9, so don't do any fog here.
-		flFog = 1.0f;
-#else
-		flFog = WaterFog( worldPos, projPos );
-#endif
-	}
+// 	float flFog;
+// 	if( !bWaterFog )
+// 	{
+// 		flFog = RangeFog( projPos );
+// 	}
+// 	else
+// 	{
+// #if SHADERMODEL_VS_2_0 == 1
+// 		// We do this work in the pixel shader in dx9, so don't do any fog here.
+// 		flFog = 1.0f;
+// #else
+// 		flFog = WaterFog( worldPos, projPos );
+// #endif
+// 	}
 
-	return flFog;
-}
+// 	return flFog;
+// }
 
 float4 DecompressBoneWeights( const float4 weights )
 {

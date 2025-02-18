@@ -15,6 +15,29 @@ class C_HL2MP_Player;
 #include "beamdraw.h"
 
 //=============================================================================
+//=============================================================================
+class CSuitPowerDevice
+{
+public:
+	CSuitPowerDevice( int bitsID, float flDrainRate ) { m_bitsDeviceID = bitsID; m_flDrainRate = flDrainRate; }
+private:
+	int		m_bitsDeviceID;	// tells what the device is. DEVICE_SPRINT, DEVICE_FLASHLIGHT, etc. BITMASK!!!!!
+	float	m_flDrainRate;	// how quickly does this device deplete suit power? ( percent per second )
+
+public:
+	int		GetDeviceID( void ) const { return m_bitsDeviceID; }
+	float	GetDeviceDrainRate( void ) const
+	{
+		//if ( g_pGameRules->GetSkillLevel() == SKILL_EASY && hl2_episodic.GetBool() && !( GetDeviceID() & bits_SUIT_DEVICE_SPRINT ) )
+		//	return m_flDrainRate * 0.5f;
+		//else
+			return m_flDrainRate;
+	}
+};
+
+extern ConVar hl2_sprintspeed;
+
+//=============================================================================
 // >> HL2MP_Player
 //=============================================================================
 class C_HL2MP_Player : public C_BaseHLPlayer
@@ -65,11 +88,22 @@ public:
 	virtual void CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNear, float &zFar, float &fov );
 	virtual const QAngle& EyeAngles( void );
 
+	void SuitPower_Update( void );
+	bool SuitPower_Drain( float flPower ); // consume some of the suit's power.
+	void SuitPower_Charge( float flPower ); // add suit power.
+	void SuitPower_SetCharge( float flPower ) { m_HL2Local.m_flSuitPower = flPower; }
+	void SuitPower_Initialize( void );
+	bool SuitPower_IsDeviceActive( const CSuitPowerDevice& device );
+	bool SuitPower_AddDevice( const CSuitPowerDevice& device );
+	bool SuitPower_RemoveDevice( const CSuitPowerDevice& device );
+	bool SuitPower_ShouldRecharge( void );
+	float SuitPower_GetCurrentPercentage( void ) { return m_HL2Local.m_flSuitPower; }
 	
 	bool	CanSprint( void );
 	void	StartSprinting( void );
 	void	StopSprinting( void );
-	void	HandleSpeedChanges( void );
+	virtual void	HandleSpeedChanges( CMoveData *mv ) OVERRIDE;
+	virtual void	ReduceTimers( CMoveData* mv ) OVERRIDE;
 	void	UpdateLookAt( void );
 	void	Initialize( void );
 	int		GetIDTarget() const;
@@ -126,7 +160,7 @@ private:
 
 	CNetworkVar( HL2MPPlayerState, m_iPlayerState );	
 
-	bool m_fIsWalking;
+	bool m_fIsWalking = false;
 };
 
 inline C_HL2MP_Player *ToHL2MPPlayer( CBaseEntity *pEntity )

@@ -21,6 +21,7 @@
 //-----------------------------------------------------------------------------
 // Forward declarations
 //-----------------------------------------------------------------------------
+class CJiggleBones;
 struct matrix3x4_t;
 
 struct MDLSquenceLayer_t
@@ -74,6 +75,8 @@ public:
 	Vector		m_vecViewTarget;
 	bool		m_bWorldSpaceViewTarget;
 	void		*m_pProxyData;
+
+	CJiggleBones *m_pJiggleBones;
 };
 
 

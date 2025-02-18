@@ -29,7 +29,7 @@ public:
 					C_PlayerResource();
 	virtual			~C_PlayerResource();
 
-public : // IGameResources intreface
+public : // IGameResources interface
 
 	// Team data access 
 	virtual int		GetTeamScore( int index );
@@ -56,22 +56,29 @@ public : // IGameResources intreface
 	virtual void ClientThink();
 	virtual	void	OnDataChanged(DataUpdateType_t updateType);
 
+	virtual int		GetUserID( int index );
+
+	uint32 GetAccountID( int iIndex );
+	bool IsValid( int iIndex );
+
 protected:
 	void	UpdatePlayerName( int slot );
 
 	// Data for each player that's propagated to all clients
 	// Stored in individual arrays so they can be sent down via datatables
-	string_t	m_szName[MAX_PLAYERS+1];
-	int		m_iPing[MAX_PLAYERS+1];
-	int		m_iScore[MAX_PLAYERS+1];
-	int		m_iDeaths[MAX_PLAYERS+1];
-	bool	m_bConnected[MAX_PLAYERS+1];
-	int		m_iTeam[MAX_PLAYERS+1];
-	bool	m_bAlive[MAX_PLAYERS+1];
-	int		m_iHealth[MAX_PLAYERS+1];
+	string_t	m_szName[MAX_PLAYERS_ARRAY_SAFE];
+	int		m_iPing[MAX_PLAYERS_ARRAY_SAFE];
+	int		m_iScore[MAX_PLAYERS_ARRAY_SAFE];
+	int		m_iDeaths[MAX_PLAYERS_ARRAY_SAFE];
+	bool	m_bConnected[MAX_PLAYERS_ARRAY_SAFE];
+	int		m_iTeam[MAX_PLAYERS_ARRAY_SAFE];
+	bool	m_bAlive[MAX_PLAYERS_ARRAY_SAFE];
+	int		m_iHealth[MAX_PLAYERS_ARRAY_SAFE];
 	Color	m_Colors[MAX_TEAMS];
+	uint32	m_iAccountID[MAX_PLAYERS_ARRAY_SAFE];
+	bool	m_bValid[MAX_PLAYERS_ARRAY_SAFE];
+	int		m_iUserID[MAX_PLAYERS_ARRAY_SAFE];
 	string_t m_szUnconnectedName;
-
 };
 
 extern C_PlayerResource *g_PR;

@@ -44,6 +44,8 @@ public:
 
 	virtual bool IsWorldEntity( const CBaseHandle &handle );
 
+	virtual void SetHost( CBasePlayer* host ) OVERRIDE;
+
 private:
 	// results, tallied on client and server, but only used by server to run SV_Impact.
 	// we store off our velocity in the trace_t structure so that we can determine results
@@ -60,6 +62,8 @@ private:
 	};
 
 	CUtlVector<touchlist_t>			m_TouchList;
+
+	CBasePlayer*	m_pHost;
 };	
 
 //-----------------------------------------------------------------------------
@@ -76,12 +80,24 @@ static CMoveHelperClient s_MoveHelperClient;
 //-----------------------------------------------------------------------------
 CMoveHelperClient::CMoveHelperClient( void )
 {
+	m_pHost = NULL;
 	SetSingleton( this );
 }
 
 CMoveHelperClient::~CMoveHelperClient( void )
 {
 	SetSingleton( 0 );
+}
+
+//-----------------------------------------------------------------------------
+// Indicates which entity we're going to move
+//-----------------------------------------------------------------------------
+void CMoveHelperClient::SetHost( CBasePlayer *host )
+{
+	m_pHost = host;
+
+	// In case any stuff is ever left over, sigh...
+	ResetTouchList();
 }
 
 //-----------------------------------------------------------------------------
@@ -126,10 +142,14 @@ bool CMoveHelperClient::AddToTouched( const trace_t& tr, const Vector& impactvel
 	return true;
 }
 
+ConVar cl_movehelper_process( "cl_movehelper_process", "1" );
+
+ConVar cl_movehelper_process_vel( "cl_movehelper_process_vel", "1", 0 );
+ConVar cl_movehelper_process_imp( "cl_movehelper_process_imp", "1", 0 );
+
 void CMoveHelperClient::ProcessImpacts( void )
 {
-	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-	if ( !pPlayer )
+	if ( !cl_movehelper_process.GetBool() )
 		return;
 
 	// Relink in order to build absorigin and absmin/max to reflect any changes
@@ -139,11 +159,12 @@ void CMoveHelperClient::ProcessImpacts( void )
 	//pPlayer->PhysicsTouchTriggers();
 
 	// Don't bother if the player ain't solid
-	if ( pPlayer->IsSolidFlagSet( FSOLID_NOT_SOLID ) )
+	if ( m_pHost->IsSolidFlagSet( FSOLID_NOT_SOLID ) )
 		return;
 
 	// Save off the velocity, cause we need to temporarily reset it
-	Vector vel = pPlayer->GetAbsVelocity();
+	Vector vOldLocalVel = m_pHost->GetLocalVelocity();
+	Vector vOldAbsVel = m_pHost->GetAbsVelocity();
 
 	// Touch other objects that were intersected during the movement.
 	for (int i = 0 ; i < m_TouchList.Size(); i++)
@@ -153,22 +174,38 @@ void CMoveHelperClient::ProcessImpacts( void )
 		if ( !entity )
 			continue;
 
-		Assert( entity != pPlayer );
+		Assert( entity != m_pHost );
 		// Don't ever collide with self!!!!
-		if ( entity == pPlayer )
+		if ( entity == m_pHost )
 			continue;
 
 		// Reconstruct trace results.
 		m_TouchList[i].trace.m_pEnt = entity;
 
 		// Use the velocity we had when we collided, so boxes will move, etc.
-		pPlayer->SetAbsVelocity( m_TouchList[i].deltavelocity );
+		if ( cl_movehelper_process_vel.GetBool() )
+			m_pHost->SetAbsVelocity( m_TouchList[i].deltavelocity );
 
-		entity->PhysicsImpact( pPlayer, m_TouchList[i].trace );
+		if ( cl_movehelper_process_imp.GetBool() )
+			entity->PhysicsImpact( m_pHost, m_TouchList[i].trace );
 	}
 
-	// Restore the velocity
-	pPlayer->SetAbsVelocity( vel );
+	// misyl: Debug
+	if ( vOldLocalVel != vOldAbsVel )
+	{
+		Msg( "%d\n", gpGlobals->tickcount );
+		Msg( "vOldLocalVel: %f %f %f\n", vOldLocalVel.x, vOldLocalVel.y, vOldLocalVel.z );
+		Msg( "vOldAbsVel: %f %f %f\n", vOldAbsVel.x, vOldAbsVel.y, vOldAbsVel.z );
+	}
+		// Restore the velocity
+		m_pHost->SetAbsVelocity( vOldAbsVel );
+		//m_pHost->SetLocalVelocity( vOldLocalVel );
+
+	if ( vOldLocalVel != vOldAbsVel )
+	{
+		Msg( "vNewLocalVel: %f %f %f\n", m_pHost->GetLocalVelocity().x, m_pHost->GetLocalVelocity().y, m_pHost->GetLocalVelocity().z );
+		Msg( "vNewAbsVel: %f %f %f\n\n", m_pHost->GetAbsVelocity().x, m_pHost->GetAbsVelocity().y, m_pHost->GetAbsVelocity().z );
+	}
 
 	// So no stuff is ever left over, sigh...
 	ResetTouchList();
@@ -181,7 +218,7 @@ void CMoveHelperClient::StartSound( const Vector& origin, const char *soundname 
 
 	CLocalPlayerFilter filter;
 	filter.UsePredictionRules();
-	C_BaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, soundname, &origin );
+	C_BaseEntity::EmitSound( filter, m_pHost->entindex(), soundname, &origin );
 }
 
 
@@ -206,7 +243,7 @@ void CMoveHelperClient::StartSound( const Vector& origin, int channel,
 		ep.m_nPitch = pitch;
 		ep.m_pOrigin = &origin;
 
-		C_BaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, ep );
+		C_BaseEntity::EmitSound( filter, m_pHost->entindex(), ep );
 	}
 }
 

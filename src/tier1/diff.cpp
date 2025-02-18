@@ -219,8 +219,8 @@ int FindDiffsForLargeFiles(uint8 const *NewBlock, uint8 const *OldBlock,
         int match_of=b->dataptr-lastmatchend;
         if ((match_of>-32768) && (match_of<32767))
         {
-          int max_mlength=min(65535,OldBlock+OldSize-b->dataptr);
-          max_mlength=min(max_mlength,NewBlock+NewSize-walk);
+          int max_mlength=min(65535,(int)((ptrdiff_t)OldBlock+OldSize-(ptrdiff_t)b->dataptr));
+          max_mlength=min(max_mlength,(int)((ptrdiff_t)NewBlock+NewSize-(ptrdiff_t)walk));
           int i;
 		  for(i=0;i<max_mlength;i++)
             if (walk[i]!=b->dataptr[i])
@@ -355,8 +355,8 @@ int FindDiffs(uint8 const *NewBlock, uint8 const *OldBlock,
         int match_of=b->dataptr-lastmatchend;
         if ((match_of>-32768) && (match_of<32767))
         {
-          int max_mlength=min(65535,OldBlock+OldSize-b->dataptr);
-          max_mlength=min(max_mlength,NewBlock+NewSize-walk);
+          int max_mlength=min(65535,(int)((ptrdiff_t)OldBlock+OldSize-(ptrdiff_t)b->dataptr));
+          max_mlength=min(max_mlength,(int)((ptrdiff_t)NewBlock+NewSize-(ptrdiff_t)walk));
           int i;
 		  for(i=0;i<max_mlength;i++)
             if (walk[i]!=b->dataptr[i])

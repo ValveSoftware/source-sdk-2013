@@ -21,6 +21,10 @@ public:
 					CFunc_LOD();
 	virtual 		~CFunc_LOD();
 
+#ifdef TF_DLL
+	virtual bool	IsFuncLOD( void ) const OVERRIDE { return true; }
+#endif // TF_DLL
+
 
 	// When the viewer is between:
 	// (0 and m_fNonintrusiveDist):					the bmodel is forced to be visible

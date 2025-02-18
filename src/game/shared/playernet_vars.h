@@ -44,9 +44,10 @@ struct fogparams_t
 	CNetworkVar( float, duration );
 	CNetworkVar( bool, enable );
 	CNetworkVar( bool, blend );
+	CNetworkVar( bool, radial );
 };
 
-// Crappy. Needs to be here because it wants to use 
+// Needs to be here because it wants to use 
 #ifdef CLIENT_DLL
 #define CFogController C_FogController
 #endif
@@ -116,7 +117,7 @@ struct audioparams_t
 	CNetworkArray( Vector, localSound, NUM_AUDIO_LOCAL_SOUNDS )
 	CNetworkVar( int, soundscapeIndex );	// index of the current soundscape from soundscape.txt
 	CNetworkVar( int, localBits );			// if bits 0,1,2,3 are set then position 0,1,2,3 are valid/used
-	CNetworkHandle( CBaseEntity, ent );		// the entity setting the soundscape
+	CNetworkVar( int, entIndex );			// the entity setting the soundscape
 };
 
 

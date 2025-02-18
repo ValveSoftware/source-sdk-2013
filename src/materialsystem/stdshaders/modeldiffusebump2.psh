@@ -1,0 +1,33 @@
+ps.1.1
+
+; base texture
+tex t0
+
+; normalmap
+tex t1
+
+; rgb - color for first axis - gamma converted to 2.2 in the vertex shader
+texcoord t2
+
+; rgb - color for second axis - gamma converted to 2.2 in the vertex shader
+texcoord t3
+
+; v0.rgb : color for third axis - gamma converted to 2.2 in the vertex shader
+
+; c0, c1, c2 - Axes of the lightmap coordinate system in tangent space 
+
+dp3_sat r1.rgb, t1_bx2, c0
++mov r0.a, t0
+mul r0.rgb, r1, t2
+
+dp3_sat r1.rgb, t1_bx2, c1
+mad r0.rgb, r1, t3, r0
+
+dp3_sat r1.rgb, t1_bx2, c2
+mad r0.rgb, r1, v0, r0
+
+;mov_x2 r0.rgb, r0
+mul_x2 r0.rgb, r0, t0
+
+
+

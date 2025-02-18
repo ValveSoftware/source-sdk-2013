@@ -6,11 +6,8 @@
 
 #ifndef ISTEAMUTILS_H
 #define ISTEAMUTILS_H
-#ifdef _WIN32
-#pragma once
-#endif
 
-#include "isteamclient.h"
+#include "steam_api_common.h"
 
 
 // Steam API call failure results
@@ -41,12 +38,24 @@ enum EGamepadTextInputLineMode
 	k_EGamepadTextInputLineModeMultipleLines = 1
 };
 
+enum EFloatingGamepadTextInputMode
+{
+	k_EFloatingGamepadTextInputModeModeSingleLine = 0,		// Enter dismisses the keyboard
+	k_EFloatingGamepadTextInputModeModeMultipleLines = 1,	// User needs to explictly close the keyboard
+	k_EFloatingGamepadTextInputModeModeEmail = 2,			// Keyboard layout is email, enter dismisses the keyboard
+	k_EFloatingGamepadTextInputModeModeNumeric = 3,			// Keyboard layout is numeric, enter dismisses the keyboard
 
-// function prototype for warning message hook
-#if defined( POSIX )
-#define __cdecl
-#endif
-extern "C" typedef void (__cdecl *SteamAPIWarningMessageHook_t)(int, const char *);
+};
+
+// The context where text filtering is being done
+enum ETextFilteringContext
+{
+	k_ETextFilteringContextUnknown = 0,	// Unknown context
+	k_ETextFilteringContextGameContent = 1,	// Game content, only legally required filtering is performed
+	k_ETextFilteringContextChat = 2,	// Chat from another player
+	k_ETextFilteringContextName = 3,	// Character or item name
+};
+
 
 //-----------------------------------------------------------------------------
 // Purpose: interface to user independent utility functions
@@ -61,7 +70,7 @@ public:
 	// the universe this client is connecting to
 	virtual EUniverse GetConnectedUniverse() = 0;
 
-	// Steam server time - in PST, number of seconds since January 1, 1970 (i.e unix time)
+	// Steam server time.  Number of seconds since January 1, 1970, GMT (i.e unix time)
 	virtual uint32 GetServerRealTime() = 0;
 
 	// returns the 2 digit ISO 3166-1-alpha-2 format country code this client is running in (as looked up via an IP-to-location database)
@@ -76,8 +85,8 @@ public:
 	// the destination buffer size should be 4 * height * width * sizeof(char)
 	virtual bool GetImageRGBA( int iImage, uint8 *pubDest, int nDestBufferSize ) = 0;
 
-	// returns the IP of the reporting server for valve - currently only used in Source engine games
-	virtual bool GetCSERIPPort( uint32 *unIP, uint16 *usPort ) = 0;
+	// Deprecated.  Do not call this.
+	STEAM_PRIVATE_API( virtual bool GetCSERIPPort( uint32 *unIP, uint16 *usPort ) = 0; )
 
 	// return the amount of battery power left in the current system in % [0..100], 255 for being on AC power
 	virtual uint8 GetCurrentBatteryPower() = 0;
@@ -95,9 +104,8 @@ public:
 	virtual ESteamAPICallFailure GetAPICallFailureReason( SteamAPICall_t hSteamAPICall ) = 0;
 	virtual bool GetAPICallResult( SteamAPICall_t hSteamAPICall, void *pCallback, int cubCallback, int iCallbackExpected, bool *pbFailed ) = 0;
 
-	// this needs to be called every frame to process matchmaking results
-	// redundant if you're already calling SteamAPI_RunCallbacks()
-	virtual void RunFrame() = 0;
+	// Deprecated. Applications should use SteamAPI_RunCallbacks() instead. Game servers do not need to call this function.
+	STEAM_PRIVATE_API( virtual void RunFrame() = 0; )
 
 	// returns the number of IPC calls made since the last time this function was called
 	// Used for perf debugging so you can understand how many IPC calls your game makes per frame
@@ -126,7 +134,6 @@ public:
 	// refresh the screen with Present or SwapBuffers to allow the overlay to do it's work.
 	virtual bool BOverlayNeedsPresent() = 0;
 
-#ifndef _PS3
 	// Asynchronous call to check if an executable file has been signed using the public key set on the signing tab
 	// of the partner site, for example to refuse to load modified executable files.  
 	// The result is returned in CheckFileSignature_t.
@@ -135,20 +142,10 @@ public:
 	//   k_ECheckFileSignatureFileNotFound - The file does not exist on disk.
 	//   k_ECheckFileSignatureInvalidSignature - The file exists, and the signing tab has been set for this file, but the file is either not signed or the signature does not match.
 	//   k_ECheckFileSignatureValidSignature - The file is signed and the signature is valid.
+	STEAM_CALL_RESULT( CheckFileSignature_t )
 	virtual SteamAPICall_t CheckFileSignature( const char *szFileName ) = 0;
-#endif
 
-#ifdef _PS3
-	virtual void PostPS3SysutilCallback( uint64_t status, uint64_t param, void* userdata ) = 0;
-	virtual bool BIsReadyToShutdown() = 0;
-	virtual bool BIsPSNOnline() = 0;
-
-	// Call this with localized strings for the language the game is running in, otherwise default english
-	// strings will be used by Steam.
-	virtual void SetPSNGameBootInviteStrings( const char *pchSubject, const char *pchBody ) = 0;
-#endif
-
-	// Activates the Big Picture text input dialog which only supports gamepad input
+	// Activates the full-screen text input dialog which takes a initial text string and returns the text the user has typed
 	virtual bool ShowGamepadTextInput( EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, const char *pchExistingText ) = 0;
 
 	// Returns previously entered text & length
@@ -163,10 +160,72 @@ public:
 	
 	// Sets the inset of the overlay notification from the corner specified by SetOverlayNotificationPosition.
 	virtual void SetOverlayNotificationInset( int nHorizontalInset, int nVerticalInset ) = 0;
+
+	// returns true if Steam & the Steam Overlay are running in Big Picture mode
+	// Games much be launched through the Steam client to enable the Big Picture overlay. During development,
+	// a game can be added as a non-steam game to the developers library to test this feature
+	virtual bool IsSteamInBigPictureMode() = 0;
+
+	// ask SteamUI to create and render its OpenVR dashboard
+	virtual void StartVRDashboard() = 0;
+
+	// Returns true if the HMD content will be streamed via Steam Remote Play
+	virtual bool IsVRHeadsetStreamingEnabled() = 0;
+
+	// Set whether the HMD content will be streamed via Steam Remote Play
+	// If this is set to true, then the scene in the HMD headset will be streamed, and remote input will not be allowed.
+	// If this is set to false, then the application window will be streamed instead, and remote input will be allowed.
+	// The default is true unless "VRHeadsetStreaming" "0" is in the extended appinfo for a game.
+	// (this is useful for games that have asymmetric multiplayer gameplay)
+	virtual void SetVRHeadsetStreamingEnabled( bool bEnabled ) = 0;
+
+	// Returns whether this steam client is a Steam China specific client, vs the global client.
+	virtual bool IsSteamChinaLauncher() = 0;
+
+	// Initializes text filtering, loading dictionaries for the language the game is running in.
+	//   unFilterOptions are reserved for future use and should be set to 0
+	// Returns false if filtering is unavailable for the game's language, in which case FilterText() will act as a passthrough.
+	//
+	// Users can customize the text filter behavior in their Steam Account preferences:
+	// https://store.steampowered.com/account/preferences#CommunityContentPreferences
+	virtual bool InitFilterText( uint32 unFilterOptions = 0 ) = 0;
+
+	// Filters the provided input message and places the filtered result into pchOutFilteredText, using legally required filtering and additional filtering based on the context and user settings
+	//   eContext is the type of content in the input string
+	//   sourceSteamID is the Steam ID that is the source of the input string (e.g. the player with the name, or who said the chat text)
+	//   pchInputText is the input string that should be filtered, which can be ASCII or UTF-8
+	//   pchOutFilteredText is where the output will be placed, even if no filtering is performed
+	//   nByteSizeOutFilteredText is the size (in bytes) of pchOutFilteredText, should be at least strlen(pchInputText)+1
+	// Returns the number of characters (not bytes) filtered
+	virtual int FilterText( ETextFilteringContext eContext, CSteamID sourceSteamID, const char *pchInputMessage, char *pchOutFilteredText, uint32 nByteSizeOutFilteredText ) = 0;
+
+	// Return what we believe your current ipv6 connectivity to "the internet" is on the specified protocol.
+	// This does NOT tell you if the Steam client is currently connected to Steam via ipv6.
+	virtual ESteamIPv6ConnectivityState GetIPv6ConnectivityState( ESteamIPv6ConnectivityProtocol eProtocol ) = 0;
+
+	// returns true if currently running on the Steam Deck device
+	virtual bool IsSteamRunningOnSteamDeck() = 0;
+
+	// Opens a floating keyboard over the game content and sends OS keyboard keys directly to the game.
+	// The text field position is specified in pixels relative the origin of the game window and is used to position the floating keyboard in a way that doesn't cover the text field
+	virtual bool ShowFloatingGamepadTextInput( EFloatingGamepadTextInputMode eKeyboardMode, int nTextFieldXPosition, int nTextFieldYPosition, int nTextFieldWidth, int nTextFieldHeight ) = 0;
+
+	// In game launchers that don't have controller support you can call this to have Steam Input translate the controller input into mouse/kb to navigate the launcher
+	virtual void SetGameLauncherMode( bool bLauncherMode ) = 0;
+
+	// Dismisses the floating keyboard.
+	virtual bool DismissFloatingGamepadTextInput() = 0;
 };
 
-#define STEAMUTILS_INTERFACE_VERSION "SteamUtils007"
+#define STEAMUTILS_INTERFACE_VERSION "SteamUtils010"
 
+// Global interface accessor
+inline ISteamUtils *SteamUtils();
+STEAM_DEFINE_INTERFACE_ACCESSOR( ISteamUtils *, SteamUtils, SteamInternal_FindOrCreateUserInterface( 0, STEAMUTILS_INTERFACE_VERSION ), "user", STEAMUTILS_INTERFACE_VERSION );
+
+// Global accessor for the gameserver client
+inline ISteamUtils *SteamGameServerUtils();
+STEAM_DEFINE_INTERFACE_ACCESSOR( ISteamUtils *, SteamGameServerUtils, SteamInternal_FindOrCreateGameServerInterface( 0, STEAMUTILS_INTERFACE_VERSION ), "gameserver", STEAMUTILS_INTERFACE_VERSION );
 
 // callbacks
 #if defined( VALVE_CALLBACK_PACK_SMALL )
@@ -174,7 +233,7 @@ public:
 #elif defined( VALVE_CALLBACK_PACK_LARGE )
 #pragma pack( push, 8 )
 #else
-#error isteamclient.h must be included
+#error steam_api_common.h should define VALVE_CALLBACK_PACK_xxx
 #endif 
 
 //-----------------------------------------------------------------------------
@@ -203,6 +262,8 @@ struct SteamAPICallCompleted_t
 {
 	enum { k_iCallback = k_iSteamUtilsCallbacks + 3 };
 	SteamAPICall_t m_hAsyncCall;
+	int m_iCallback;
+	uint32 m_cubParam;
 };
 
 
@@ -235,75 +296,44 @@ struct CheckFileSignature_t
 	ECheckFileSignature m_eCheckFileSignature;
 };
 
-#ifdef _PS3
-//-----------------------------------------------------------------------------
-// callback for NetCtlNetStartDialog finishing on PS3
-//-----------------------------------------------------------------------------
-struct NetStartDialogFinished_t
-{
-	enum { k_iCallback = k_iSteamUtilsCallbacks + 6 };
-};
-
-//-----------------------------------------------------------------------------
-// callback for NetCtlNetStartDialog unloaded on PS3
-//-----------------------------------------------------------------------------
-struct NetStartDialogUnloaded_t
-{
-	enum { k_iCallback = k_iSteamUtilsCallbacks + 7 };
-};
-
-//-----------------------------------------------------------------------------
-// callback for system menu closing on PS3 - should trigger resyncronizing friends list, etc.
-//-----------------------------------------------------------------------------
-struct PS3SystemMenuClosed_t
-{
-	enum { k_iCallback = k_iSteamUtilsCallbacks + 8 };
-};
-
-//-----------------------------------------------------------------------------
-// callback for NP message being selected by user on PS3 - should trigger handling of message if it's a lobby invite, etc.
-//-----------------------------------------------------------------------------
-struct PS3NPMessageSelected_t
-{
-	enum { k_iCallback = k_iSteamUtilsCallbacks + 9 };
-	uint32 dataid;
-};
-
-//-----------------------------------------------------------------------------
-// callback for when the PS3 keyboard dialog closes
-//-----------------------------------------------------------------------------
-struct PS3KeyboardDialogFinished_t
-{
-	enum { k_iCallback = k_iSteamUtilsCallbacks + 10 };
-};
-
-// k_iSteamUtilsCallbacks + 11 is taken
-
-//-----------------------------------------------------------------------------
-// callback for PSN status changing on PS3
-//-----------------------------------------------------------------------------
-struct PS3PSNStatusChange_t
-{
-	enum { k_iCallback = k_iSteamUtilsCallbacks + 12 };
-	bool m_bPSNOnline;
-};
-
-#endif
 
 // k_iSteamUtilsCallbacks + 13 is taken
 
 
 //-----------------------------------------------------------------------------
-// Big Picture gamepad text input has been closed
+// Full Screen gamepad text input has been closed
 //-----------------------------------------------------------------------------
 struct GamepadTextInputDismissed_t
 {
 	enum { k_iCallback = k_iSteamUtilsCallbacks + 14 };
 	bool m_bSubmitted;										// true if user entered & accepted text (Call ISteamUtils::GetEnteredGamepadTextInput() for text), false if canceled input
 	uint32 m_unSubmittedText;
+	AppId_t m_unAppID;
 };
 
-// k_iSteamUtilsCallbacks + 15 is taken
+// k_iSteamUtilsCallbacks + 15 through 35 are taken
+
+STEAM_CALLBACK_BEGIN( AppResumingFromSuspend_t, k_iSteamUtilsCallbacks + 36 )
+STEAM_CALLBACK_END(0)
+
+// k_iSteamUtilsCallbacks + 37 is taken
+
+//-----------------------------------------------------------------------------
+// The floating on-screen keyboard has been closed
+//-----------------------------------------------------------------------------
+struct FloatingGamepadTextInputDismissed_t
+{
+	enum { k_iCallback = k_iSteamUtilsCallbacks + 38 };
+};
+
+//-----------------------------------------------------------------------------
+// The text filtering dictionary has changed
+//-----------------------------------------------------------------------------
+struct FilterTextDictionaryChanged_t
+{
+	enum { k_iCallback = k_iSteamUtilsCallbacks + 39 };
+	int m_eLanguage;	// One of ELanguage, or k_LegallyRequiredFiltering
+};
 
 #pragma pack( pop )
 

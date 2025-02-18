@@ -58,7 +58,17 @@
 
 #include <sys/stat.h>
 
+class GLMContext;
+struct GLMRect;
+struct GLMShaderPairInfo;
+class CGLMBuffer;
+class CGLMQuery;
+class CGLMTex;
+class CGLMProgram;
+class CGLMFBO;
+#if defined(DX_TO_GL_ABSTRACTION) && !defined(USE_DXVK)
 #include "dxabstract_types.h"
+#endif
 
 struct GLMRect;
 typedef void *PseudoGLContextPtr;

@@ -27,7 +27,7 @@
 
 extern IClientReplayContext *g_pClientReplayContext;
 extern IReplayMovieManager *g_pReplayMovieManager;
-extern const char *GetMapDisplayName( const char *mapName );
+extern const char *GetMapDisplayName( const char *mapName, bool bTitleCase = false );
 
 //-----------------------------------------------------------------------------
 

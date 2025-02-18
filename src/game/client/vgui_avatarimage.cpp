@@ -9,6 +9,7 @@
 #include <vgui_controls/Panel.h>
 #include <vgui/ISurface.h>
 #include "vgui_avatarimage.h"
+#include "VGuiMatSurface/IMatSystemSurface.h"
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"
 #endif
@@ -34,6 +35,7 @@ CAvatarImage::CAvatarImage( void )
 	m_avatarWide = m_avatarTall = 0;
 	m_Color = Color( 255, 255, 255, 255 );
 	m_bLoadPending = false;
+	m_bSetDesiredSize = false;
 	m_fNextLoadTime = 0.0f;
 	m_AvatarSize = k_EAvatarSize32x32;
 	
@@ -85,12 +87,16 @@ bool CAvatarImage::SetAvatarSteamID( CSteamID steamIDUser, EAvatarSize avatarSiz
 	ClearAvatarSteamID();
 
 	m_SteamID = steamIDUser;
-	m_AvatarSize = avatarSize;
+	// misyl: We determine this in UpdateAvatarImageSize.
+	//m_AvatarSize = avatarSize;
 	m_bLoadPending = true;
 
 	m_sPersonaStateChangedCallback.Register( this, &CAvatarImage::OnPersonaStateChanged );
 
-	LoadAvatarImage();
+	if ( m_bSetDesiredSize )
+	{
+		LoadAvatarImage();
+	}
 	UpdateFriendStatus();
 
 	return m_bValid;
@@ -108,8 +114,25 @@ void CAvatarImage::OnPersonaStateChanged( PersonaStateChange_t *info )
 		m_bLoadPending = true;
 
 		// Poll
+		UpdateAvatarImageSize();
 		LoadAvatarImage();
 	}
+}
+
+void CAvatarImage::UpdateAvatarImageSize()
+{
+	int nTall = GetAvatarTall();
+
+	EAvatarSize eNewSize = k_EAvatarSize32x32;
+	if ( nTall > 32 )
+		eNewSize = k_EAvatarSize64x64;
+	if ( nTall > 64 )
+		eNewSize = k_EAvatarSize184x184;
+
+	if ( m_AvatarSize != eNewSize )
+		m_bLoadPending = true;
+
+	m_AvatarSize = eNewSize;
 }
 
 //-----------------------------------------------------------------------------
@@ -117,6 +140,8 @@ void CAvatarImage::OnPersonaStateChanged( PersonaStateChange_t *info )
 //-----------------------------------------------------------------------------
 void CAvatarImage::LoadAvatarImage()
 {
+	UpdateAvatarImageSize();
+
 #ifdef CSS_PERF_TEST
 	return;
 #endif
@@ -191,7 +216,7 @@ void CAvatarImage::InitFromRGBA( int iAvatar, const byte *rgba, int width, int h
 	if ( iTexIndex == s_AvatarImageCache.InvalidIndex() )
 	{
 		m_iTextureID = vgui::surface()->CreateNewTextureID( true );
-		vgui::surface()->DrawSetTextureRGBA( m_iTextureID, rgba, width, height, false, false );
+		g_pMatSystemSurface->DrawSetTextureRGBAEx2( m_iTextureID, rgba, width, height, IMAGE_FORMAT_RGBA8888, true );
 		iTexIndex = s_AvatarImageCache.Insert( AvatarImagePair_t( m_SteamID, iAvatar ) );
 		s_AvatarImageCache[ iTexIndex ] = m_iTextureID;
 	}
@@ -219,6 +244,8 @@ void CAvatarImage::Paint( void )
 		posX += FRIEND_ICON_AVATAR_INDENT_X * m_avatarWide / DEFAULT_AVATAR_SIZE;
 		posY += FRIEND_ICON_AVATAR_INDENT_Y * m_avatarTall / DEFAULT_AVATAR_SIZE;
 	}
+
+	UpdateAvatarImageSize();
 	
 	if ( m_bLoadPending )
 	{
@@ -260,6 +287,10 @@ void CAvatarImage::SetAvatarSize(int wide, int tall)
 		m_wide = m_avatarWide;
 		m_tall = m_avatarTall;
 	}
+
+	m_bSetDesiredSize = true;
+
+	UpdateAvatarImageSize();
 }
 
 
@@ -344,7 +375,7 @@ void CAvatarImagePanel::SetPlayer( int entindex, EAvatarSize avatarSize )
 	{
 		if ( pi.friendsID != 0 	&& steamapicontext->SteamUtils() )
 		{		
-			CSteamID steamIDForPlayer( pi.friendsID, 1, steamapicontext->SteamUtils()->GetConnectedUniverse(), k_EAccountTypeIndividual );
+			CSteamID steamIDForPlayer( pi.friendsID, 1, GetUniverse(), k_EAccountTypeIndividual );
 			SetPlayer(steamIDForPlayer, avatarSize);
 		}
 		else

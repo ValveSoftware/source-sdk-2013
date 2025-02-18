@@ -1,0 +1,23 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Draw a texture . . woo hoo!
+; t0 - texture
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - texcoords
+;------------------------------------------------------------------------------
+
+def c0, 0.299f, 0.587f, 0.114f, 1.0f
+
+; Get the color from the texture
+tex t0
+
+; FIXME: This can only be implemented in dx9 (or ps1.4)
+; need to output max( r, g, b ) in all channels
+; Instead, I'm going to do the RGB->YUV conversion
+dp3 r1, c0, t0
+mov r0.rgb, r1.a
+mov r0.a, c0.a
+
+

@@ -18,9 +18,6 @@
 	#define VMPI_SUBPACKETID_BUILDFACELIGHTS	1
 	#define VMPI_SUBPACKETID_PLIGHTDATA_RESULTS	2
 
-// DistributeWork owns this packet ID.
-#define VMPI_DISTRIBUTEWORK_PACKETID			2
-
 
 // Called first thing in the exe.
 void		VRAD_SetupMPI( int &argc, char **&argv );

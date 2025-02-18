@@ -1,0 +1,16 @@
+ps.1.1
+
+; t0: 
+;		texture: dudv map
+;		texcoords: dudvmap texcoords
+; t1:
+;		texture: refraction render target
+;		texcoords: 
+
+tex t0				; refraction
+tex t1				; sample alpha channel
+
+mul r0.rgb, t1, t0 +
+mov r0.a, t1.a
+ 
+mul r0, r0, c0

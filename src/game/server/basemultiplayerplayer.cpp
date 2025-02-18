@@ -30,6 +30,9 @@ CBaseMultiplayerPlayer::~CBaseMultiplayerPlayer()
 	m_pAchievementKV->deleteThis();
 }
 
+BEGIN_ENT_SCRIPTDESC( CBaseMultiplayerPlayer, CBasePlayer, "Multiplayer Player" )
+END_SCRIPTDESC();
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

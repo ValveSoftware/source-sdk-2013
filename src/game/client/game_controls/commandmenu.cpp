@@ -14,6 +14,7 @@
 
 #include "commandmenu.h"
 #include "vgui_controls/MenuItem.h"
+#include "vgui/IVGui.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -61,7 +62,7 @@ void CommandMenu::OnMessage(const KeyValues *params, VPANEL fromPanel)
 
 	if ( text[0] )
 	{
-		ConVarRef convar( text );
+		UIConVarRef convar( g_pVGui->GetVGUIEngine(), text );
 		if ( convar.IsValid() )
 		{
 			// toggle cvar 
@@ -213,7 +214,7 @@ void CommandMenu::UpdateMenu()
 		if ( text[0] )
 		{
 			// set toggle state equal to cvar state
-			ConVarRef convar( text );
+			UIConVarRef convar( g_pVGui->GetVGUIEngine(), text );
 
 			if ( convar.IsValid() )
 			{

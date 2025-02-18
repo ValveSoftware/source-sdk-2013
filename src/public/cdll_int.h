@@ -67,7 +67,7 @@ class IConVar;
 
 // Engine player info, no game related infos here
 // If you change this, change the two byteswap defintions: 
-// cdll_client_int.cpp and cdll_engine_int.cpp
+// cdll_client_int.cpp and host.cpp
 typedef struct player_info_s
 {
 	DECLARE_BYTESWAP_DATADESC();
@@ -534,23 +534,27 @@ public:
 	// Params:
 	//	pKeyValues	- key values to be serialized and sent to server
 	//				  the pointer is deleted inside the function: pKeyValues->deleteThis()
-	virtual void ServerCmdKeyValues( KeyValues *pKeyValues ) = 0;
+	virtual void			ServerCmdKeyValues( KeyValues *pKeyValues ) = 0;
 
-	virtual bool IsSkippingPlayback( void ) = 0;
-	virtual bool IsLoadingDemo( void ) = 0;
+	virtual bool			IsSkippingPlayback( void ) = 0;
+	virtual bool			IsLoadingDemo( void ) = 0;
 
 	// Returns true if the engine is playing back a "locally recorded" demo, which includes
 	// both SourceTV and replay demos, since they're recorded locally (on servers), as opposed
 	// to a client recording a demo while connected to a remote server.
-	virtual bool IsPlayingDemoALocallyRecordedDemo() = 0;
+	virtual bool			IsPlayingDemoALocallyRecordedDemo() = 0;
 
 	// Given the string pBinding which may be bound to a key, 
 	//  returns the string name of the key to which this string is bound. Returns NULL if no such binding exists
 	// Unlike Key_LookupBinding, leading '+' characters are not stripped from bindings.
-	virtual	const char			*Key_LookupBindingExact( const char *pBinding ) = 0;
+	virtual	const char		*Key_LookupBindingExact( const char *pBinding ) = 0;
 	
-	virtual void				AddPhonemeFile( const char *pszPhonemeFile ) = 0;
+	virtual void			AddPhonemeFile( const char *pszPhonemeFile ) = 0;
+	virtual float			GetPausedExpireTime( void ) = 0;
 
+	virtual bool			StartDemoRecording( const char *pszFilename, const char *pszFolder = NULL ) = 0;
+	virtual void			StopDemoRecording( void ) = 0;
+	virtual void			TakeScreenshot( const char *pszFilename, const char *pszFolder = NULL ) = 0;
 };
 
 abstract_class IVEngineClient : public IVEngineClient013
@@ -571,6 +575,8 @@ public:
 	virtual void DisconnectInternal() = 0;
 
 	virtual int GetInstancesRunningCount( ) = 0;
+
+	virtual void SetRichPresenceConnect( const char *pszOverride ) = 0;
 };
 
 
@@ -785,6 +791,10 @@ public:
 	virtual bool DisconnectAttempt( void ) = 0;
 
 	virtual bool IsConnectedUserInfoChangeAllowed( IConVar *pCvar ) = 0;
+
+	virtual bool BHaveChatSuspensionInCurrentMatch() = 0;
+
+	virtual void DisplayVoiceUnavailableMessage() = 0;
 };
 
 #define CLIENT_DLL_INTERFACE_VERSION		"VClient017"

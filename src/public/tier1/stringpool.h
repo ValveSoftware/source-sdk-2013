@@ -20,11 +20,14 @@
 //			reusing exising strings if duplicate found.
 //-----------------------------------------------------------------------------
 
-class CStringPool
+template< typename K >
+class CStringPoolBase
 {
 public:
-	CStringPool();
-	~CStringPool();
+	typedef K KeyType;
+
+	CStringPoolBase();
+	~CStringPoolBase();
 
 	unsigned int Count() const;
 
@@ -35,10 +38,16 @@ public:
 	const char * Find( const char *pszValue );
 
 protected:
-	typedef CUtlRBTree<const char *, unsigned short> CStrSet;
+	typedef CUtlRBTree<const char *, KeyType> CStrSet;
 
 	CStrSet m_Strings;
 };
+
+// These should be explicitly instantiated in stringpool.cpp to ensure they're available outside of the library
+typedef CStringPoolBase< uint16_t > CStringPool;
+typedef CStringPoolBase< uint32_t > CStringPoolLarge;
+extern template class CStringPoolBase< uint16_t >;
+extern template class CStringPoolBase< uint32_t >;
 
 //-----------------------------------------------------------------------------
 // Purpose: A reference counted string pool.  

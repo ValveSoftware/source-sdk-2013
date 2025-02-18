@@ -34,6 +34,8 @@ enum MaterialSystem_Config_Flags_t
 	MATSYS_VIDCFG_FLAGS_USING_MULTIPLE_WINDOWS      = ( 1 << 15 ),
 	MATSYS_VIDCFG_FLAGS_DISABLE_PHONG               = ( 1 << 16 ),
 	MATSYS_VIDCFG_FLAGS_VR_MODE						= ( 1 << 17 ),
+	MATSYS_VIDCFG_FLAGS_NO_WINDOW_BORDER			= ( 1 << 18 ),
+	MATSYS_VIDCFG_FLAGS_LIGHTMAP_BICUBIC			= ( 1 << 19 ),
 };
 
 struct MaterialSystemHardwareIdentifier_t
@@ -46,6 +48,7 @@ struct MaterialSystemHardwareIdentifier_t
 struct MaterialSystem_Config_t
 {
 	bool Windowed() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_WINDOWED ) != 0; }
+	bool NoWindowBorder() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_NO_WINDOW_BORDER ) != 0; }
 	bool Resizing() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_RESIZING ) != 0; }
 #ifdef CSS_PERF_TEST
 	bool WaitForVSync() const { return false; }//( m_Flags & MATSYS_VIDCFG_FLAGS_NO_WAIT_FOR_VSYNC ) == 0; }
@@ -60,6 +63,7 @@ struct MaterialSystem_Config_t
 	bool UseParallaxMapping() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_ENABLE_PARALLAX_MAPPING ) != 0; }
 	bool UseZPrefill() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_USE_Z_PREFILL ) != 0; }
 	bool ReduceFillrate() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_REDUCE_FILLRATE ) != 0; }
+	bool LightmapBicubic() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_LIGHTMAP_BICUBIC ) != 0; }
 	bool HDREnabled() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_ENABLE_HDR ) != 0; }
 	bool LimitWindowedSize() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_LIMIT_WINDOWED_SIZE ) != 0; }
 	bool ScaleToOutputResolution() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_SCALE_TO_OUTPUT_RESOLUTION ) != 0; }
@@ -150,6 +154,7 @@ struct MaterialSystem_Config_t
 
 		// video config defaults
 		SetFlag( MATSYS_VIDCFG_FLAGS_WINDOWED, false );
+		SetFlag( MATSYS_VIDCFG_FLAGS_NO_WINDOW_BORDER, false );
 		SetFlag( MATSYS_VIDCFG_FLAGS_RESIZING, false );
 		SetFlag( MATSYS_VIDCFG_FLAGS_NO_WAIT_FOR_VSYNC, true );
 		SetFlag( MATSYS_VIDCFG_FLAGS_STENCIL, false );
@@ -160,6 +165,7 @@ struct MaterialSystem_Config_t
 		SetFlag( MATSYS_VIDCFG_FLAGS_ENABLE_PARALLAX_MAPPING, true );
 		SetFlag( MATSYS_VIDCFG_FLAGS_USE_Z_PREFILL, false );
 		SetFlag( MATSYS_VIDCFG_FLAGS_REDUCE_FILLRATE, false );
+		SetFlag( MATSYS_VIDCFG_FLAGS_LIGHTMAP_BICUBIC, false );
 		SetFlag( MATSYS_VIDCFG_FLAGS_LIMIT_WINDOWED_SIZE, false );
 		SetFlag( MATSYS_VIDCFG_FLAGS_SCALE_TO_OUTPUT_RESOLUTION, false );
 		SetFlag( MATSYS_VIDCFG_FLAGS_USING_MULTIPLE_WINDOWS, false );

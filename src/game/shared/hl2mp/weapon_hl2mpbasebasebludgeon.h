@@ -53,6 +53,8 @@ public:
 
 	CBaseHL2MPBludgeonWeapon( const CBaseHL2MPBludgeonWeapon & );
 
+	virtual bool	PlayFleshyHittySoundOnHit() const { return false; }
+
 protected:
 	virtual	void	ImpactEffect( trace_t &trace );
 

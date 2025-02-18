@@ -19,6 +19,7 @@
 #include "icvar.h"
 #include "tier0/dbg.h"
 #include "Color.h"
+#include "cdll_int.h"
 #if defined( _X360 )
 #include "xbox/xbox_console.h"
 #endif
@@ -414,6 +415,12 @@ bool CCommand::Tokenize( const char *pCommand, characterset_t *pBreakSet )
 	int nArgvBufferSize = 0;
 	while ( bufParse.IsValid() && ( m_nArgc < COMMAND_MAX_ARGC ) )
 	{
+		if ( nArgvBufferSize >= COMMAND_MAX_LENGTH )
+		{
+			Reset();
+			return false;
+		}
+
 		char *pArgvBuf = &m_pArgvBuffer[nArgvBufferSize];
 		int nMaxLen = COMMAND_MAX_LENGTH - nArgvBufferSize;
 		int nStartGet = bufParse.TellGet();
@@ -422,7 +429,7 @@ bool CCommand::Tokenize( const char *pCommand, characterset_t *pBreakSet )
 			break;
 
 		// Check for overflow condition
-		if ( nMaxLen == nSize )
+		if ( nSize >= nMaxLen )
 		{
 			Reset();
 			return false;
@@ -457,7 +464,14 @@ bool CCommand::Tokenize( const char *pCommand, characterset_t *pBreakSet )
 		}
 
 		nArgvBufferSize += nSize + 1;
+
 		Assert( nArgvBufferSize <= COMMAND_MAX_LENGTH );
+
+		if ( nArgvBufferSize > COMMAND_MAX_LENGTH )
+		{
+			Reset();
+			return false;
+		}
 	}
 
 	return true;
@@ -659,12 +673,17 @@ ConVar::ConVar( const char *pName, const char *pDefaultValue, int flags, const c
 
 ConVar::ConVar( const char *pName, const char *pDefaultValue, int flags, const char *pHelpString, FnChangeCallback_t callback )
 {
-	Create( pName, pDefaultValue, flags, pHelpString, false, 0.0, false, 0.0, callback );
+	Create( pName, pDefaultValue, flags, pHelpString, false, 0.0, false, 0.0, false, 0.0, false, 0.0, callback );
 }
 
 ConVar::ConVar( const char *pName, const char *pDefaultValue, int flags, const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t callback )
 {
-	Create( pName, pDefaultValue, flags, pHelpString, bMin, fMin, bMax, fMax, callback );
+	Create( pName, pDefaultValue, flags, pHelpString, bMin, fMin, bMax, fMax, false, 0.0, false, 0.0, callback );
+}
+
+ConVar::ConVar( const char *pName, const char *pDefaultValue, int flags, const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax, bool bCompMin, float fCompMin, bool bCompMax, float fCompMax, FnChangeCallback_t callback )
+{
+	Create( pName, pDefaultValue, flags, pHelpString, bMin, fMin, bMax, fMax, bCompMin, fCompMin, bCompMax, fCompMax, callback );
 }
 
 
@@ -843,12 +862,38 @@ void ConVar::ChangeStringValue( const char *tempVal, float flOldValue )
 //-----------------------------------------------------------------------------
 bool ConVar::ClampValue( float& value )
 {
+	// Competitive /should/ be more restrictive, so do it first.
+	if ( m_bCompetitiveRestrictions )
+	{
+		if ( m_bHasCompMin && ( value < m_fCompMinVal ) )
+		{
+			value = m_fCompMinVal;
+			return true;
+		}
+
+		if ( m_bHasCompMax && ( value > m_fCompMaxVal ) )
+		{
+			value = m_fCompMaxVal;
+			return true;
+		}
+
+		if ( !m_bHasCompMin && !m_bHasCompMax )
+		{
+			float fDefaultAsFloat = V_atof( m_pszDefaultValue );
+			if ( fabs( value - fDefaultAsFloat ) > 0.0001f )
+			{
+				value = fDefaultAsFloat;
+				return true;
+			}
+		}
+	}
+
 	if ( m_bHasMin && ( value < m_fMinVal ) )
 	{
 		value = m_fMinVal;
 		return true;
 	}
-	
+
 	if ( m_bHasMax && ( value > m_fMaxVal ) )
 	{
 		value = m_fMaxVal;
@@ -858,13 +903,18 @@ bool ConVar::ClampValue( float& value )
 	return false;
 }
 
+void ConVar::InternalSetFloatValue( float fNewValue )
+{
+	InternalSetFloatValue2( fNewValue );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *value - 
 //-----------------------------------------------------------------------------
-void ConVar::InternalSetFloatValue( float fNewValue )
+void ConVar::InternalSetFloatValue2( float fNewValue, bool bForce /*= false */ )
 {
-	if ( fNewValue == m_fValue )
+	if ( fNewValue == m_fValue && !bForce )
 		return;
 
 	if ( IsFlagSet( FCVAR_MATERIAL_THREAD_MASK ) )
@@ -941,12 +991,21 @@ void ConVar::InternalSetIntValue( int nValue )
 	}
 }
 
+void ConVar::Create_Vtbl( const char *pName, const char *pDefaultValue, int flags /* = 0 */,
+							const char *pHelpString /* = 0 */, bool bMin /* = false */, float fMin /* = 0.0 */,
+							bool bMax /* = false */, float fMax /* = false */, FnChangeCallback_t callback /* = 0 */ )
+{
+	Create( pName, pDefaultValue, flags, pHelpString, bMin, fMin, bMax, fMax, false, 0.0, false, 0.0, callback );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Private creation
 //-----------------------------------------------------------------------------
 void ConVar::Create( const char *pName, const char *pDefaultValue, int flags /*= 0*/,
 	const char *pHelpString /*= NULL*/, bool bMin /*= false*/, float fMin /*= 0.0*/,
-	bool bMax /*= false*/, float fMax /*= false*/, FnChangeCallback_t callback /*= NULL*/ )
+	bool bMax /*= false*/, float fMax /*= false*/, bool bCompMin /*= false */, 
+	float fCompMin /*= 0.0*/, bool bCompMax /*= false*/, float fCompMax /*= 0.0*/,
+	FnChangeCallback_t callback /*= NULL*/ )
 {
 	m_pParent = this;
 
@@ -961,6 +1020,13 @@ void ConVar::Create( const char *pName, const char *pDefaultValue, int flags /*=
 	m_fMinVal = fMin;
 	m_bHasMax = bMax;
 	m_fMaxVal = fMax;
+
+	m_bHasCompMin = bCompMin;
+	m_fCompMinVal = fCompMin;
+	m_bHasCompMax = bCompMax;
+	m_fCompMaxVal = fCompMax;
+
+	m_bCompetitiveRestrictions = false;
 	
 	m_fnChangeCallback = callback;
 
@@ -968,15 +1034,8 @@ void ConVar::Create( const char *pName, const char *pDefaultValue, int flags /*=
 	m_nValue = atoi( m_pszString ); // dont convert from float to int and lose bits
 
 	// Bounds Check, should never happen, if it does, no big deal
-	if ( m_bHasMin && ( m_fValue < m_fMinVal ) )
-	{
-		Assert( 0 );
-	}
-
-	if ( m_bHasMax && ( m_fValue > m_fMaxVal ) )
-	{
-		Assert( 0 );
-	}
+	Assert( !m_bHasMin || m_fValue >= m_fMinVal );
+	Assert( !m_bHasMax || m_fValue <= m_fMaxVal );
 
 	BaseClass::CreateBase( pName, pHelpString, flags );
 }
@@ -998,7 +1057,7 @@ void ConVar::SetValue(const char *value)
 void ConVar::SetValue( float value )
 {
 	ConVar *var = ( ConVar * )m_pParent;
-	var->InternalSetFloatValue( value );
+	var->InternalSetFloatValue2( value );
 }
 
 //-----------------------------------------------------------------------------
@@ -1044,6 +1103,66 @@ bool ConVar::GetMax( float& maxVal ) const
 
 //-----------------------------------------------------------------------------
 // Purpose: 
+// Input  : minVal - 
+// Output : true if there is a min set
+//-----------------------------------------------------------------------------
+bool ConVar::GetCompMin( float& minVal ) const
+{
+	minVal = m_pParent->m_fCompMinVal;
+	return m_pParent->m_bHasCompMin;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : maxVal - 
+//-----------------------------------------------------------------------------
+bool ConVar::GetCompMax( float& maxVal ) const
+{
+	maxVal = m_pParent->m_fCompMaxVal;
+	return m_pParent->m_bHasCompMax;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets that competitive mode is enabled for this var, and then 
+// attempts to clamp to competitive values. 
+// Input  : maxVal - 
+// Output : true if the value was successfully updated, otherwise false.
+//-----------------------------------------------------------------------------
+bool ConVar::SetCompetitiveMode( bool bCompetitive )
+{
+	// Should only do this for competitive restricted things.
+	Assert( IsCompetitiveRestricted() );
+
+	ConVar* var = m_pParent;
+
+	var->m_bCompetitiveRestrictions = true;
+	float fDefaultAsFloat = 0.0f;
+
+	bool bRequiresClamp = ( var->m_bHasCompMin && var->m_fCompMinVal > var->m_fValue )
+					   || ( var->m_bHasCompMax && var->m_fCompMaxVal < var->m_fValue );
+	bool bForceToDefault = !var->m_bHasCompMin && !var->m_bHasCompMax 
+		               && ( fabs( var->m_fValue - ( fDefaultAsFloat = V_atof( var->m_pszDefaultValue ) ) ) > 0.00001f );
+
+	if ( bRequiresClamp )
+		var->InternalSetFloatValue( var->m_fValue, true );
+	else if ( bForceToDefault )
+	{
+		STAGING_ONLY_EXEC( Msg( "Changing Convar: %s ( cur: %.2f ) to %.2f -> ", GetName(), var->m_fValue, fDefaultAsFloat ) );
+		var->InternalSetFloatValue( fDefaultAsFloat, true );
+		STAGING_ONLY_EXEC( Msg( "%.2f\n", var->m_fValue ) );
+	}
+
+	// The clamping should've worked, so if it didn't--need to understand why.
+	Assert( !bRequiresClamp || IsFlagSet( FCVAR_MATERIAL_THREAD_MASK ) || ( ( !var->m_bHasCompMin || var->m_fCompMinVal <= var->m_fValue ) 
+							  && ( !var->m_bHasCompMax || var->m_fCompMaxVal >= var->m_fValue ) ) );
+	Assert( !bForceToDefault || IsFlagSet( FCVAR_MATERIAL_THREAD_MASK ) || ( var->m_fValue == fDefaultAsFloat ) );
+	return true;
+}
+
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
 // Output : const char
 //-----------------------------------------------------------------------------
 const char *ConVar::GetDefault( void ) const
@@ -1056,6 +1175,66 @@ void ConVar::SetDefault( const char *pszDefault )
 	m_pszDefaultValue = pszDefault ? pszDefault : "";
 	Assert( m_pszDefaultValue );
 }
+
+// Josh:
+// See comments in convar.h about UIConVarRef
+// and it's purpose/implementation.
+UIConVarRef::UIConVarRef( IVEngineClient *pEngine, const char *pName, bool bIgnoreMissing )
+	: ConVarRef( pName, bIgnoreMissing )
+	, m_pEngine( pEngine )
+{
+}
+
+void UIConVarRef::Init( IVEngineClient *pEngine, const char *pName, bool bIgnoreMissing )
+{
+	ConVarRef::Init( pName, bIgnoreMissing );
+	m_pEngine = pEngine;
+}
+
+void UIConVarRef::SetValue( float flValue )
+{
+	if ( !IsValid() )
+		return;
+
+	if ( m_pEngine )
+	{
+		char szEngineCommand[ 256 ];
+		V_sprintf_safe( szEngineCommand, "%s %f\n", GetName(), flValue );
+		m_pEngine->ExecuteClientCmd( szEngineCommand );
+	}
+	else if ( CanSetWithoutEngine() )
+	{
+		ConVarRef::SetValue( flValue );
+	}
+}
+
+void UIConVarRef::SetValue( int nValue )
+{
+	if ( !IsValid() )
+		return;
+
+	if ( m_pEngine )
+	{
+		char szEngineCommand[256];
+		V_sprintf_safe( szEngineCommand, "%s %d\n", GetName(), nValue );
+		m_pEngine->ExecuteClientCmd( szEngineCommand );
+	}
+	else if ( CanSetWithoutEngine() )
+	{
+		ConVarRef::SetValue( nValue );
+	}
+}
+
+void UIConVarRef::SetValue( bool bValue )
+{
+	SetValue( bValue ? 1 : 0 );
+}
+
+bool UIConVarRef::CanSetWithoutEngine()
+{
+	return !IsFlagSet( FCVAR_UNREGISTERED | FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED | FCVAR_CHEAT | FCVAR_SPONLY );
+}
+
 
 //-----------------------------------------------------------------------------
 // This version is simply used to make reading convars simpler.

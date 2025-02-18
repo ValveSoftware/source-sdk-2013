@@ -712,7 +712,7 @@ public:
 	virtual void AsyncRemoveFetcher( IAsyncFileFetch *pFetcher ) = 0;
 
 	//------------------------------------
-	// Functions to hold a file open if planning on doing mutiple reads. Use is optional,
+	// Functions to hold a file open if planning on doing multiple reads. Use is optional,
 	// and is taken only as a hint
 	//------------------------------------
 	virtual FSAsyncStatus_t	AsyncBeginRead( const char *pszFile, FSAsyncFile_t *phFile ) = 0;
@@ -926,6 +926,12 @@ public:
 	{
 		return GetCaseCorrectFullPath_Ptr( pFullPath, pDest, (int)maxLenInChars );
 	}
+
+	// Whether we are allowed to write anywhere (default) or just to our search paths.
+	// By default, we can write everywhere--but the game client locks us down to writing in specific places, because
+	// remote users can coerce us into writing things down via a clickable URL.
+	virtual void			SetWriteProtectionEnable( bool bEnable ) = 0;
+	virtual bool			GetWriteProtectionEnable() const = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -935,8 +941,12 @@ public:
 class CMemoryFileBacking : public CRefCounted<CRefCountServiceMT>
 {
 public:
+	// malloc and free in headers with our janky memdbg system. What could go wrong. Except everything.
+	// (this free can't skip memdbg if paired malloc used memdbg)
+#include <memdbgon.h>
 	CMemoryFileBacking( IFileSystem* pFS ) : m_pFS( pFS ), m_nRegistered( 0 ), m_pFileName( NULL ), m_pData( NULL ), m_nLength( 0 ) { }
 	~CMemoryFileBacking() { free( (char*) m_pFileName ); if ( m_pData ) m_pFS->FreeOptimalReadBuffer( (char*) m_pData ); }
+#include <memdbgoff.h>
 
 	IFileSystem* m_pFS;
 	int m_nRegistered;
@@ -1002,7 +1012,7 @@ inline unsigned IFileSystem::GetOptimalReadSize( FileHandle_t hFile, unsigned nL
 // Async memory tracking
 //-----------------------------------------------------------------------------
 
-#if (defined(_DEBUG) || defined(USE_MEM_DEBUG))
+#if defined(USE_MEM_DEBUG)
 #define AsyncRead( a, b ) AsyncReadCreditAlloc( a, __FILE__, __LINE__, b )
 #define AsyncReadMutiple( a, b, c ) AsyncReadMultipleCreditAlloc( a, b, __FILE__, __LINE__, c )
 #endif

@@ -1,0 +1,82 @@
+//-----------------------------------------------------------------------------
+//	SERVER_CSTRIKE.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Include "$SRCDIR\gcsdk\gcsdk_game_include.vpc"
+$Include "$SRCDIR\game\shared\base_gcmessages_include.vpc"
+$Include "$SRCDIR\game\shared\econ_gcmessages_include.vpc"
+$include "$SRCDIR\vpc_scripts\source_cryptlib_include.vpc" [!$SOURCESDK]
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\gcsdk\steamextra"
+		$PreprocessorDefinitions		"$BASE;USES_ECON_ITEMS"
+	}
+
+	$Linker
+	{
+		$AdditionalDependencies			"$BASE ws2_32.lib" [$WINDOWS]
+	}
+}
+
+$Project
+{
+	$Folder	"Source Files"
+	{
+		$Folder	"Economy"
+		{
+			$File	"$SRCDIR\game\shared\econ\econ_item_view.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_view.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_interface.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_interface.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_system.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_system.h"
+			$File	"$SRCDIR\game\shared\econ\attribute_manager.cpp"
+			$File	"$SRCDIR\game\shared\econ\attribute_manager.h"
+			$File	"$SRCDIR\game\shared\econ\ihasattributes.h"
+			$File	"$SRCDIR\game\shared\econ\econ_entity.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_entity.h"
+			$File	"$SRCDIR\game\shared\econ\econ_entity_creation.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_entity_creation.h"
+			$File	"$SRCDIR\game\shared\econ\econ_gcmessages.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_inventory.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_inventory.h"
+			$File	"$SRCDIR\game\shared\econ\econ_wearable.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_wearable.h"
+			$File	"$SRCDIR\game\shared\econ\econ_holidays.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_holidays.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_constants.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_constants.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_preset.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_preset.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_schema.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_schema.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_schema_private.cpp" [!$SOURCESDK]
+			$File	"$SRCDIR\game\shared\econ\econ_item_schema_sdk.cpp" [$SOURCESDK]
+			$File	"$SRCDIR\game\shared\econ\econ_item_tools.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_tools.h"
+			$File	"$SRCDIR\game\shared\econ\item_selection_criteria.cpp"
+			$File	"$SRCDIR\game\shared\econ\item_selection_criteria.h"
+			$File	"$SRCDIR\game\shared\econ\econ_dynamic_recipe.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_dynamic_recipe.h"
+			$File	"$SRCDIR\game\shared\econ\econ_quests.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_quests.h"
+			$File	"$SRCDIR\game\shared\econ\econ_paintkit.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_paintkit.h"
+
+
+			$File	"$SRCDIR\game\shared\gc_clientsystem.h"
+			$File	"$SRCDIR\game\shared\gc_clientsystem.cpp"
+			$File	"$SRCDIR\game\shared\gc_replicated_convars.cpp"
+
+			$File	"$SRCDIR\game\shared\econ\localization_provider.cpp"
+			$File	"$SRCDIR\game\shared\econ\localization_provider.h"
+		}
+	}
+}

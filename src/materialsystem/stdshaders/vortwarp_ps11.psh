@@ -1,0 +1,42 @@
+; STATIC: "TRANSLUCENT" "0..1"
+; STATIC: "UNLIT" "0..1"
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Draw a texture . . woo hoo!
+; t0 - texture
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - texcoords
+;------------------------------------------------------------------------------
+
+;------------------------------------------------------------------------------
+#if UNLIT==0
+tex t0
+tex t1
+
+mul_sat t1, c1, t1
+lrp r1.rgb, t1, c5, v0  ; blend between unlit and lit.
+mul r0, t0, c3
+mul r0.rgb, r1, r0		; Apply lighting
+mul_x2 r0.rgb, c0, r0   ; * 2 * (overbrightFactor/2)
+
+#	if TRANSLUCENT==0
+mov r0.a, c4.a
+#	endif
+#endif
+
+;------------------------------------------------------------------------------
+#if UNLIT!=0
+; Get the color from the texture
+tex t0
+
+mul r0, t0, c3
+mul r0.rgb, v0, r0		; Apply lighting
+mul_x2 r0.rgb, c0, r0   ; * 2 * (overbrightFactor/2)
+
+#	if TRANSLUCENT==0
+mov r0.a, c4.a
+#	endif
+
+#endif

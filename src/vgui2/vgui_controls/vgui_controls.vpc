@@ -19,7 +19,7 @@ $Configuration
 	}
 }
 
-$Project "vgui_controls"
+$Project "VGUI Controls"
 {
 	$Folder	"Source Files"
 	{
@@ -38,7 +38,7 @@ $Project "vgui_controls"
 		$File	"consoledialog.cpp"
 		$File	"ControllerMap.cpp"
 		$File	"controls.cpp"
-		$File	"CvarToggleCheckButton.cpp"
+		$File	"cvartogglecheckbutton.cpp"
 		$File	"DirectorySelectDialog.cpp"
 		$File	"Divider.cpp"
 		$File	"EditablePanel.cpp"

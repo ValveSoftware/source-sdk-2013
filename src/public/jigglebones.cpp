@@ -57,7 +57,7 @@ JiggleData * CJiggleBones::GetJiggleData( int bone, float currenttime, const Vec
  * Do spring physics calculations and update "jiggle bone" matrix
  * (Michael Booth, Turtle Rock Studios)
  */
-void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime, const mstudiojigglebone_t *jiggleInfo, const matrix3x4_t &goalMX, matrix3x4_t &boneMX )
+void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime, const mstudiojigglebone_t *jiggleInfo, const matrix3x4_t &goalMX, matrix3x4_t &boneMX, bool coordSystemIsFlipped )
 {
 	Vector goalBasePosition;
 	MatrixPosition( goalMX, goalBasePosition );
@@ -78,11 +78,7 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 
 	// if frames have been skipped since our last update, we were likely
 	// disabled and re-enabled, so re-init
-#if defined(CLIENT_DLL) || defined(GAME_DLL)
-	float timeTolerance = 1.2f * gpGlobals->frametime;
-#else
 	float timeTolerance = 0.5f;
-#endif
 
 	if ( currenttime - data->lastUpdate > timeTolerance )
 	{
@@ -280,9 +276,12 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 					{
 						float dT = 0.01f;
 						const float axisSize = 10.0f;
-						debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * limitLeft, 0, 255, 255, true, dT );
-						debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * limitUp, 255, 255, 0, true, dT );
-						debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * limitForward, 255, 0, 255, true, dT );
+						if ( debugoverlay )
+						{
+							debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * limitLeft, 0, 255, 255, true, dT );
+							debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * limitUp, 255, 255, 0, true, dT );
+							debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * limitForward, 255, 0, 255, true, dT );
+						}
 					}
 #endif // CLIENT_DLL
 
@@ -375,9 +374,12 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 					{
 						float dT = 0.01f;
 						const float axisSize = 10.0f;
-						debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * limitLeft, 0, 255, 255, true, dT );
-						debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * limitUp, 255, 255, 0, true, dT );
-						debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * limitForward, 255, 0, 255, true, dT );
+						if ( debugoverlay )
+						{
+							debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * limitLeft, 0, 255, 255, true, dT );
+							debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * limitUp, 255, 255, 0, true, dT );
+							debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * limitForward, 255, 0, 255, true, dT );
+						}
 					}
 #endif // CLIENT_DLL
 
@@ -401,7 +403,6 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 		if ( jiggleInfo->flags & JIGGLE_HAS_ANGLE_CONSTRAINT )
 		{
 			// enforce max angular error
-			Vector error = goalTip - data->tipPos;
 			float dot = DotProduct( forward, goalForward );
 			float angleBetween = acos( dot );
 			if ( dot < 0.0f )
@@ -436,26 +437,30 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 		//
 		// Build bone matrix to align along current tip direction
 		//
-		Vector left = CrossProduct( goalUp, forward );
-		left.NormalizeInPlace();
-
-		if ( DotProduct( left, data->lastLeft ) < 0.0f )
+		Vector left, up;
+		if ( coordSystemIsFlipped )											  
 		{
-			// The bone has rotated so far its on the other side of the up vector
-			// resulting in the cross product result flipping 180 degrees around the up
-			// vector.  Flip it back.
-			left = -left;
+			// If the coordinate system is flipped, use left handed rules.
+			left = CrossProduct( forward, goalUp );
+			left.NormalizeInPlace();
+			up = CrossProduct( left, forward );
 		}
-		data->lastLeft = left;
+		else									   
+		{
+			left = CrossProduct( goalUp, forward );
+			left.NormalizeInPlace();
+			up = CrossProduct( forward, left );
+		}
 
 #ifdef CLIENT_DLL
 		if ( cl_jiggle_bone_debug.GetBool() )
 		{
-			debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + 10.0f * data->lastLeft, 255, 0, 255, true, 0.01f );
+			if ( debugoverlay )
+			{
+				debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + 10.0f * data->lastLeft, 255, 0, 255, true, 0.01f );
+			}
 		}
 #endif
-
-		Vector up = CrossProduct( forward, left );
 
 		boneMX[0][0] = left.x;
 		boneMX[1][0] = left.y;
@@ -574,7 +579,10 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 #ifdef CLIENT_DLL
 		if ( cl_jiggle_bone_debug.GetBool() )
 		{
-			debugoverlay->AddLineOverlay( data->lastBoingPos, goalBasePosition, 0, 128, ( gpGlobals->framecount & 0x1 ) ? 0 : 200, true, 999.9f );
+			if ( debugoverlay )
+			{
+				debugoverlay->AddLineOverlay( data->lastBoingPos, goalBasePosition, 0, 128, ( gpGlobals->framecount & 0x1 ) ? 0 : 200, true, 999.9f );
+			}
 		}
 #endif
 
@@ -606,10 +614,13 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 #ifdef CLIENT_DLL
 				if ( cl_jiggle_bone_debug.GetBool() )
 				{
-					debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + 5.0f * data->boingDir, 255, 255, 0, true, 999.9f );
-					debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + Vector( 0.1, 0, 0 ), 128, 128, 0, true, 999.9f );
-					debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + Vector( 0, 0.1, 0 ), 128, 128, 0, true, 999.9f );
-					debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + Vector( 0, 0, 0.1 ), 128, 128, 0, true, 999.9f );
+					if ( debugoverlay )
+					{
+						debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + 5.0f * data->boingDir, 255, 255, 0, true, 999.9f );
+						debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + Vector( 0.1, 0, 0 ), 128, 128, 0, true, 999.9f );
+						debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + Vector( 0, 0.1, 0 ), 128, 128, 0, true, 999.9f );
+						debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + Vector( 0, 0, 0.1 ), 128, 128, 0, true, 999.9f );
+					}
 				}
 #endif
 			}
@@ -731,9 +742,12 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 			if ( cl_jiggle_bone_debug.GetBool() )
 			{
 				float dT = 0.01f;
-				debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + 50.0f * data->boingDir, 255, 255, 0, true, dT );
-				debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + 50.0f * boingSide, 255, 0, 255, true, dT );
-				debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + 50.0f * boingOtherSide, 0, 255, 255, true, dT );
+				if ( debugoverlay )
+				{
+					debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + 50.0f * data->boingDir, 255, 255, 0, true, dT );
+					debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + 50.0f * boingSide, 255, 0, 255, true, dT );
+					debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + 50.0f * boingOtherSide, 0, 255, 255, true, dT );
+				}
 			}
 #endif
 
@@ -754,9 +768,12 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 	{
 		float dT = 0.01f;
 		const float axisSize = 5.0f;
-		debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * goalLeft, 255, 0, 0, true, dT );
-		debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * goalUp, 0, 255, 0, true, dT );
-		debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * goalForward, 0, 0, 255, true, dT );
+		if ( debugoverlay )
+		{
+			debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * goalLeft, 255, 0, 0, true, dT );
+			debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * goalUp, 0, 255, 0, true, dT );
+			debugoverlay->AddLineOverlay( goalBasePosition, goalBasePosition + axisSize * goalForward, 0, 0, 255, true, dT );
+		}
 
 		if ( cl_jiggle_bone_debug.GetInt() > 1 )
 		{
@@ -773,25 +790,31 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 
 		if ( jiggleInfo->flags & ( JIGGLE_IS_FLEXIBLE | JIGGLE_IS_RIGID ) )
 		{
-			debugoverlay->AddLineOverlay( goalBasePosition, 
-				data->tipPos, 255, 255, 0, true, dT );
+			if ( debugoverlay )
+			{
+				debugoverlay->AddLineOverlay( goalBasePosition, 
+					data->tipPos, 255, 255, 0, true, dT );
 
-			debugoverlay->AddLineOverlay( data->tipPos + Vector( -sz, 0, 0 ), 
-				data->tipPos + Vector( sz, 0, 0 ), 0, 255, 255, true, dT );
-			debugoverlay->AddLineOverlay( data->tipPos + Vector( 0, -sz, 0 ), 
-				data->tipPos + Vector( 0, sz, 0 ), 0, 255, 255, true, dT );
-			debugoverlay->AddLineOverlay( data->tipPos + Vector( 0, 0, -sz ), 
-				data->tipPos + Vector( 0, 0, sz ), 0, 255, 255, true, dT );
+				debugoverlay->AddLineOverlay( data->tipPos + Vector( -sz, 0, 0 ), 
+					data->tipPos + Vector( sz, 0, 0 ), 0, 255, 255, true, dT );
+				debugoverlay->AddLineOverlay( data->tipPos + Vector( 0, -sz, 0 ), 
+					data->tipPos + Vector( 0, sz, 0 ), 0, 255, 255, true, dT );
+				debugoverlay->AddLineOverlay( data->tipPos + Vector( 0, 0, -sz ), 
+					data->tipPos + Vector( 0, 0, sz ), 0, 255, 255, true, dT );
+			}
 		}
 
 		if ( jiggleInfo->flags & JIGGLE_HAS_BASE_SPRING )
 		{
-			debugoverlay->AddLineOverlay( data->basePos + Vector( -sz, 0, 0 ), 
-				data->basePos + Vector( sz, 0, 0 ), 255, 0, 255, true, dT );
-			debugoverlay->AddLineOverlay( data->basePos + Vector( 0, -sz, 0 ), 
-				data->basePos + Vector( 0, sz, 0 ), 255, 0, 255, true, dT );
-			debugoverlay->AddLineOverlay( data->basePos + Vector( 0, 0, -sz ), 
-				data->basePos + Vector( 0, 0, sz ), 255, 0, 255, true, dT );
+			if ( debugoverlay )
+			{
+				debugoverlay->AddLineOverlay( data->basePos + Vector( -sz, 0, 0 ), 
+					data->basePos + Vector( sz, 0, 0 ), 255, 0, 255, true, dT );
+				debugoverlay->AddLineOverlay( data->basePos + Vector( 0, -sz, 0 ), 
+					data->basePos + Vector( 0, sz, 0 ), 255, 0, 255, true, dT );
+				debugoverlay->AddLineOverlay( data->basePos + Vector( 0, 0, -sz ), 
+					data->basePos + Vector( 0, 0, sz ), 255, 0, 255, true, dT );
+			}
 		}
 
 

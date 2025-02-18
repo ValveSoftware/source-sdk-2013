@@ -1,0 +1,4 @@
+[wrap-git]
+directory = spngt
+url = https://github.com/libspng/spngt.git
+revision=head

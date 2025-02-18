@@ -21,7 +21,7 @@
 static void PixelvisDrawChanged( IConVar *pPixelvisVar, const char *pOld, float flOldValue );
 
 ConVar r_pixelvisibility_partial( "r_pixelvisibility_partial", "1" );
-ConVar r_dopixelvisibility( "r_dopixelvisibility", "1" );
+ConVar r_dopixelvisibility( "r_dopixelvisibility", "1", FCVAR_ALLOWED_IN_COMPETITIVE );
 ConVar r_drawpixelvisibility( "r_drawpixelvisibility", "0", 0, "Show the occlusion proxies", PixelvisDrawChanged );
 ConVar r_pixelvisibility_spew( "r_pixelvisibility_spew", "0" );
 
@@ -345,7 +345,7 @@ float CPixelVisibilityQuery::GetFractionVisible( float fadeTimeInv )
 
 			if ( r_pixelvisibility_spew.GetBool() && CurrentViewID() == 0 ) 
 			{
-				DevMsg( 1, "Pixels visible: %d (qh:%d) Pixels possible: %d (qh:%d) (frame:%d)\n", pixels, (int)m_queryHandle, pixelsPossible, (int)m_queryHandleCount, gpGlobals->framecount );
+				DevMsg( 1, "Pixels visible: %d (qh:%p) Pixels possible: %d (qh:%p) (frame:%d)\n", pixels, m_queryHandle, pixelsPossible, m_queryHandleCount, gpGlobals->framecount );
 			}
 
 			if ( pixels < 0 || pixelsPossible < 0 )
@@ -376,7 +376,7 @@ float CPixelVisibilityQuery::GetFractionVisible( float fadeTimeInv )
 
 			if ( r_pixelvisibility_spew.GetBool() && CurrentViewID() == 0 ) 
 			{
-				DevMsg( 1, "Pixels visible: %d (qh:%d) (frame:%d)\n", pixels, (int)m_queryHandle, gpGlobals->framecount );
+				DevMsg( 1, "Pixels visible: %d (qh:%p) (frame:%d)\n", pixels, m_queryHandle, gpGlobals->framecount );
 			}
 
 			if ( pixels < 0 )
@@ -415,7 +415,7 @@ void CPixelVisibilityQuery::IssueQuery( IMatRenderContext *pRenderContext, float
 
 		if ( r_pixelvisibility_spew.GetBool() && CurrentViewID() == 0 ) 
 		{
-			DevMsg( 1, "Draw Proxy: qh:%d org:<%d,%d,%d> (frame:%d)\n", (int)m_queryHandle, (int)m_origin[0], (int)m_origin[1], (int)m_origin[2], gpGlobals->framecount );
+			DevMsg( 1, "Draw Proxy: qh:%p org:<%d,%d,%d> (frame:%d)\n", m_queryHandle, (int)m_origin[0], (int)m_origin[1], (int)m_origin[2], gpGlobals->framecount );
 		}
 
 		m_clipFraction = PixelVisibility_DrawProxy( pRenderContext, m_queryHandle, m_origin, proxySize, proxyAspect, pMaterial, sizeIsScreenSpace );

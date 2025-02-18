@@ -10,10 +10,6 @@
 
 #if !defined( MAKE_VPC )
 
-#if !defined( RAD_TELEMETRY_DISABLED ) && ( defined( IS_WINDOWS_PC ) || defined( _LINUX ) )
-// Rad Telemetry profiling is enabled on Win32 and Win64.
-#define RAD_TELEMETRY_ENABLED
-#endif
 
 #endif // !MAKE_VPC
 
@@ -44,6 +40,9 @@ public:
 	CTelemetrySpikeDetector( const char *msg, uint32 threshold = 50 ) {}
 	~CTelemetrySpikeDetector() { }
 };
+
+#define TM_ZONE_DEFAULT( context ) 
+#define TM_ZONE_DEFAULT_PARAM( context, string_param ) 
 
 #else
 
@@ -77,6 +76,9 @@ PLATFORM_INTERFACE void TelemetrySetLevel( unsigned int Level );
 #define TELEMETRY_LEVEL4	g_Telemetry.tmContext[4]	// VPROF_2
 #define TELEMETRY_LEVEL5	g_Telemetry.tmContext[5]	// VPROF_3
 #define TELEMETRY_LEVEL6	g_Telemetry.tmContext[6]	// VPROF_4
+
+#define TM_ZONE_DEFAULT( context ) tmZone(context, TMZF_NONE, __FUNCTION__ )
+#define TM_ZONE_DEFAULT_PARAM( context, string_param ) tmZone(context, TMZF_NONE, "%s( %s )", __FUNCTION__ , tmDynamicString( context, (string_param) ) )
 
 #define TelemetrySetLockName( _ctx, _location, _description ) \
 	do  													  \

@@ -21,14 +21,12 @@
 //-----------------------------------------------------------------------------
 // This enumerations defines all the four-CC codes for the client lump names
 //-----------------------------------------------------------------------------
-// TODO: We may have some endian considerations here!
-#define GAMELUMP_MAKE_CODE(a, b, c, d) ((a) << 24 | (b) << 16 | (c) << 8 | (d) << 0)
 enum
 {
-	GAMELUMP_DETAIL_PROPS = GAMELUMP_MAKE_CODE('d', 'p', 'r', 'p'),
-	GAMELUMP_DETAIL_PROP_LIGHTING = GAMELUMP_MAKE_CODE('d', 'p', 'l', 't'),
-	GAMELUMP_STATIC_PROPS = GAMELUMP_MAKE_CODE('s', 'p', 'r', 'p'),
-	GAMELUMP_DETAIL_PROP_LIGHTING_HDR = GAMELUMP_MAKE_CODE('d', 'p', 'l', 'h'),
+	GAMELUMP_DETAIL_PROPS = 'dprp',
+	GAMELUMP_DETAIL_PROP_LIGHTING = 'dplt',
+	GAMELUMP_STATIC_PROPS = 'sprp',
+	GAMELUMP_DETAIL_PROP_LIGHTING_HDR = 'dplh',
 };
 
 // Versions...

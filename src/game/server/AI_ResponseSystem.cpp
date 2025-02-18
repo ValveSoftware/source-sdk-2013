@@ -1457,7 +1457,7 @@ int CResponseSystem::SelectWeightedResponseFromResponseGroup( ResponseGroup *g, 
 	{
 		for ( i = 0; i < fakedDepletes.Count(); i++ )
 		{
-			g->group[ fakedDepletes[ i ] ].depletioncount = 0;;
+			g->group[ fakedDepletes[ i ] ].depletioncount = 0;
 		}
 	}
 

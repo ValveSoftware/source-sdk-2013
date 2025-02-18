@@ -1,0 +1,159 @@
+; DYNAMIC: "MODE"		"0..8"
+
+ps.1.1
+
+//HALF Grey( HALF3 input )
+//{
+//	return dot( ( float3 )( 1.0f / 3.0f ), input );
+//}
+
+#if MODE == 0
+// negative greyscale of scene * gman
+// float scale = 1.0f / 3.0f;
+// scene.xyz = dot( float3( scale, scale, scale), scene.xyz );
+// scene = 1.0f - scene;
+// return float4( scene * gman, g_Alpha );
+def c1, 0.333333343, 0.333333343, 0.333333343, 1
+def c2, 1, 0, 0, 0
+tex t0
+tex t1
+dp3 r0, c1, t0
+add r0.w, -r0.w, c1.w
+mul r0.xyz, t1, r0.w
+dp3 r1, c2, c0
+mov r0.w, r1.w
+#endif
+
+#if MODE == 1
+//if( Grey( gman ) < 0.3 )
+//	return float4( 1.0f - gman, g_Alpha );
+//else
+//	return float4( ( 1.0f - gman ) * scene, g_Alpha );
+def c1, 0.333333343, 0.333333343, 0.333333343, 0.300000012
+def c2, 1, 1, 1, 1
+def c3, 1, 0, 0, 0.5
+tex t0
+tex t1
+dp3 r1, c1, t1
+add t0.w, r1.w, -c1.w
++ add r1.xyz, -t1, c2
+dp3 t1, c3, c0
+mov t1.w, t1.w
++ mul t1.xyz, t0, r1
+dp3 t2, c3, c0
+mov r1.w, t2.w
+mad r0.w, t0.w, -c2.w, c3.w
+cnd r0, r0.w, r1, t1
+#endif
+
+#if MODE == 2
+// return float4( lerp( scene, gman, g_Alpha ), g_Alpha );
+def c1, 1, 0, 0, 1
+def c2, 0, 0, 0, 1
+tex t0
+tex t1
+dp3 r0, c1, c0
+mul r0.w, r0.w, -c1.w
+add r0.w, r0.w, c2.w
+add r1.w, -r0.w, c2.w
++ mul r0.xyz, t0, r0.w
+mad r0.xyz, t1, r1.w, r0
+dp3 r1, c1, c0
+mov r0.w, r1.w
+#endif
+
+#if MODE == 3
+// return float4( lerp( scene, Grey( gman ), Grey( gman ) ), g_Alpha );
+def c1, 0.333333343, 0.333333343, 0.333333343, 1
+def c2, 1, 0, 0, 0
+tex t0
+tex t1
+dp3 r0, c1, t1
+add r1.w, -r0.w, c1.w
+mul r1.xyz, t0, r1.w
+mad r0.xyz, r0, r0, r1
+dp3 r1, c2, c0
+mov r0.w, r1.w
+#endif
+
+#if MODE == 4
+// return float4( lerp( scene, gman, g_Alpha ), g_Alpha );
+def c1, 1, 0, 0, 1
+def c2, 0, 0, 0, 1
+tex t0
+tex t1
+dp3 r0, c1, c0
+mul r0.w, r0.w, -c1.w
+add r0.w, r0.w, c2.w
+add r1.w, -r0.w, c2.w
++ mul r0.xyz, t0, r0.w
+mad r0.xyz, t1, r1.w, r0
+dp3 r1, c1, c0
+mov r0.w, r1.w
+#endif
+
+#if MODE == 5
+//float sceneLum = scene.r;
+//if( sceneLum > 0.0f )
+//	return float4( scene, g_Alpha );
+//else
+//	return float4( gman, g_Alpha );
+def c1, 1, 0, 0, 1
+def c2, 0, 0, 0, 0.45
+tex t0 ; gman (sceneLum)
+tex t1 ; scene
+dp3 r1, c1, c0
+mov t1.w, r1.w ; t1.w = alpha
+dp3 r1, c1, c0
+mov t0.w, r1.w ; t0.w = alpha
+dp3 r1, c1, t0 ; r1.w = gman.r
+add r0, r1.w, c2.w
+cnd r0, r0.w, t0, t1
+#endif
+
+#if MODE == 6
+// return float4( scene + gman, g_Alpha );
+def c1, 1, 0, 0, 0
+tex t0
+tex t1
+add r0.xyz, t0, t1
+dp3 r1, c1, c0
+mov r0.w, r1.w
+#endif
+
+#if MODE == 7
+// return float4( lerp( scene, gman, g_Alpha ), g_Alpha );
+def c1, 1, 0, 0, 1
+def c2, 0, 0, 0, 1
+tex t0
+tex t1
+dp3 r0, c1, c0
+mul r0.w, r0.w, -c1.w
+add r0.w, r0.w, c2.w
+add r1.w, -r0.w, c2.w
++ mul r0.xyz, t0, r0.w
+mad r0.xyz, t1, r1.w, r0
+dp3 r1, c1, c0
+mov r0.w, r1.w
+#endif
+
+#if MODE == 8
+// return float4( lerp( scene, gman, g_Alpha ), g_Alpha );
+def c1, 1, 0, 0, 1
+def c2, 0, 0, 0, 1
+tex t0
+tex t1
+dp3 r0, c1, c0
+mul r0.w, r0.w, -c1.w
+add r0.w, r0.w, c2.w
+add r1.w, -r0.w, c2.w
++ mul r0.xyz, t0, r0.w
+mad r0.xyz, t1, r1.w, r0
+dp3 r1, c1, c0
+mov r0.w, r1.w
+#endif
+
+
+
+
+

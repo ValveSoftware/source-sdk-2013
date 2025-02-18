@@ -107,7 +107,9 @@ public:
 		m_iStopWatchTimer = pTimer ? pTimer->entindex() : 0;
 	}
 
-	int GetTimerInHUD( void ) { return m_iTimerToShowInHUD; }
+	int GetStopWatchTimer( void ) { return m_iStopWatchTimer; }
+
+	int GetTimerToShowInHUD( void ) { return m_iTimerToShowInHUD; }
 
 	// Mini-rounds data
 	void SetPlayingMiniRounds( bool bPlayingMiniRounds ){ m_bPlayingMiniRounds = bPlayingMiniRounds; }

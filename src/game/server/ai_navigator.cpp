@@ -1222,16 +1222,16 @@ float CAI_Navigator::GetPathTimeToGoal()
 AI_PathNode_t CAI_Navigator::GetNearestNode()
 {
 #ifdef WIN32
-	COMPILE_TIME_ASSERT( (int)AIN_NO_NODE == NO_NODE );
+	COMPILE_TIME_ASSERT( (intp)AIN_NO_NODE == (intp)NO_NODE );
 #endif
-	return (AI_PathNode_t)( GetPathfinder()->NearestNodeToNPC() );
+	return (AI_PathNode_t)(intp)( GetPathfinder()->NearestNodeToNPC() );
 }
 
 //-----------------------------------------------------------------------------
 
 Vector CAI_Navigator::GetNodePos( AI_PathNode_t node )
 {
-	return GetNetwork()->GetNode((int)node)->GetPosition(GetHullType());
+	return GetNetwork()->GetNode((intp)node)->GetPosition(GetHullType());
 }
 
 //-----------------------------------------------------------------------------
@@ -2057,7 +2057,7 @@ bool CAI_Navigator::DelayNavigationFailure( const AIMoveTrace_t &trace )
 
 // @TODO (toml 11-12-02): right now, physics can pull the box back pretty far even though a hull
 // trace said we could make the move. Jay is looking into it. For now, if the NPC physics shadow
-// is active, allow for a bugger tolerance
+// is active, allow for a larger tolerance
 extern ConVar npc_vphysics;
 
 bool test_it = false;

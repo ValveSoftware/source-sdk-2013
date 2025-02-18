@@ -393,13 +393,13 @@ public:
 // -------------------------------------------------------------------------------- //
 
 // This is the spew output before it has connected to the MySQL database.
-CCriticalSection g_SpewTextCS;
+CVMPICriticalSection g_SpewTextCS;
 CUtlVector<char> g_SpewText( 1024 );
 
 
 void VMPI_Stats_SpewHook( const char *pMsg )
 {
-	CCriticalSectionLock csLock( &g_SpewTextCS );
+	CVMPICriticalSectionLock csLock( &g_SpewTextCS );
 	csLock.Lock();
 
 		// Queue the text up so we can send it to the DB right away when we connect.
@@ -410,7 +410,7 @@ void VMPI_Stats_SpewHook( const char *pMsg )
 void PerfThread_SendSpewText()
 {
 	// Send the spew text to the database.
-	CCriticalSectionLock csLock( &g_SpewTextCS );
+	CVMPICriticalSectionLock csLock( &g_SpewTextCS );
 	csLock.Lock();
 		
 		if ( g_SpewText.Count() > 0 )

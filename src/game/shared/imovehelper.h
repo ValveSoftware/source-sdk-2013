@@ -46,7 +46,7 @@ enum
 typedef CBaseHandle EntityHandle_t;
 
 
-#define INVALID_ENTITY_HANDLE INVALID_EHANDLE_INDEX
+#define INVALID_ENTITY_HANDLE INVALID_EHANDLE
 
 //-----------------------------------------------------------------------------
 // Functions the engine provides to IGameMovement to assist in its movement.
@@ -83,6 +83,9 @@ public:
 	virtual IPhysicsSurfaceProps *GetSurfaceProps( void ) = 0;
 
 	virtual bool IsWorldEntity( const CBaseHandle &handle ) = 0;
+
+	// sets the entity being moved
+	virtual void	SetHost( CBasePlayer *host ) = 0;
 
 protected:
 	// Inherited classes can call this to set the singleton

@@ -148,7 +148,7 @@ void CGrenadeAR2::GrenadeAR2Think( void )
 		}
 	}
 
-	// The old way of making danger sounds would scare the crap out of EVERYONE between you and where the grenade
+	// The old way of making danger sounds would scare EVERYONE between you and where the grenade
 	// was going to hit. The radius of the danger sound now 'blossoms' over the grenade's lifetime, making it seem
 	// dangerous to a larger area downrange than it does from where it was fired.
 	if( m_fDangerRadius <= AR2_GRENADE_MAX_DANGER_RADIUS )

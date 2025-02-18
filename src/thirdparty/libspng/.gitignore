@@ -1,0 +1,14 @@
+/build/
+/cbuild/
+/clang_build/
+/arm_build/
+/bench/
+/vbuild/
+/check_build/
+/benchmark_images/
+/subprojects/*/
+/.vscode/
+/.frama-c/
+/trash/
+/tests/formal/
+/site/

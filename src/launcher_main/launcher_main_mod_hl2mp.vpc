@@ -1,0 +1,22 @@
+$Macro OUTBINNAME "mod_hl2mp"
+
+$Conditional "MOD_LAUNCHER" "1"
+
+$Include "launcher_main.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions	"$BASE;MOD_APPID=243750" // Replace with your appid if you ship on Steam.
+	}
+}
+
+$Project "Launcher Main (Mod HL2MP)"
+{
+    $Folder "Resource Files" [$WINDOWS]
+    {
+        $File   "launcher_main_mod_hl2mp.rc"
+        $File   "res\mod_hl2mp.ico"
+    }
+}

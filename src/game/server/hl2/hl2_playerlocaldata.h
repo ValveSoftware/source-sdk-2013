@@ -29,6 +29,9 @@ public:
 	CHL2PlayerLocalData();
 
 	CNetworkVar( float, m_flSuitPower );
+	CNetworkVar( float, m_flSuitPowerLoad );
+	CNetworkVar( float, m_flTimeAllSuitDevicesOff );
+	CNetworkVar( bool,  m_bNewSprinting );
 	CNetworkVar( bool,	m_bZooming );
 	CNetworkVar( int,	m_bitsActiveDevices );
 	CNetworkVar( int,	m_iSquadMemberCount );
@@ -46,7 +49,7 @@ public:
 #endif
 
 	// Ladder related data
-	CNetworkVar( EHANDLE, m_hLadder );
+	CNetworkHandle( CBaseEntity, m_hLadder );
 	LadderMove_t			m_LadderMove;
 };
 

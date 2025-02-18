@@ -91,7 +91,7 @@ static ConVar r_flashlightmodels( "r_flashlightmodels", "1" );
 static ConVar r_shadowrendertotexture( "r_shadowrendertotexture", "0" );
 static ConVar r_flashlight_version2( "r_flashlight_version2", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
-ConVar r_flashlightdepthtexture( "r_flashlightdepthtexture", "1" );
+ConVar r_flashlightdepthtexture( "r_flashlightdepthtexture", "1", FCVAR_ALLOWED_IN_COMPETITIVE );
 
 #if defined( _X360 )
 ConVar r_flashlightdepthres( "r_flashlightdepthres", "512" );
@@ -1180,7 +1180,6 @@ CClientShadowMgr::CClientShadowMgr() :
 //-----------------------------------------------------------------------------
 CON_COMMAND_F( r_shadowdir, "Set shadow direction", FCVAR_CHEAT )
 {
-	Vector dir;
 	if ( args.ArgC() == 1 )
 	{
 		Vector dir = s_ClientShadowMgr.GetShadowDirection();
@@ -1190,6 +1189,7 @@ CON_COMMAND_F( r_shadowdir, "Set shadow direction", FCVAR_CHEAT )
 
 	if ( args.ArgC() == 4 )
 	{
+		Vector dir;
 		dir.x = atof( args[1] );
 		dir.y = atof( args[2] );
 		dir.z = atof( args[3] );
@@ -1199,8 +1199,6 @@ CON_COMMAND_F( r_shadowdir, "Set shadow direction", FCVAR_CHEAT )
 
 CON_COMMAND_F( r_shadowangles, "Set shadow angles", FCVAR_CHEAT )
 {
-	Vector dir;
-	QAngle angles;
 	if (args.ArgC() == 1)
 	{
 		Vector dir = s_ClientShadowMgr.GetShadowDirection();
@@ -1212,6 +1210,8 @@ CON_COMMAND_F( r_shadowangles, "Set shadow angles", FCVAR_CHEAT )
 
 	if (args.ArgC() == 4)
 	{
+		Vector dir;
+		QAngle angles;
 		angles.x = atof( args[1] );
 		angles.y = atof( args[2] );
 		angles.z = atof( args[3] );
@@ -2247,7 +2247,7 @@ inline ShadowType_t CClientShadowMgr::GetActualShadowCastType( IClientRenderable
 class CShadowLeafEnum : public ISpatialLeafEnumerator
 {
 public:
-	bool EnumerateLeaf( int leaf, int context )
+	bool EnumerateLeaf( int leaf, intp context )
 	{
 		m_LeafList.AddToTail( leaf );
 		return true;
@@ -2387,7 +2387,10 @@ void CClientShadowMgr::BuildOrthoShadow( IClientRenderable* pRenderable,
 // Visualization....
 //-----------------------------------------------------------------------------
 void CClientShadowMgr::DrawRenderToTextureDebugInfo( IClientRenderable* pRenderable, const Vector& mins, const Vector& maxs )
-{   
+{
+	if ( !debugoverlay )
+		return;
+
 	// Get the object's basis
 	Vector vec[3];
 	AngleVectors( pRenderable->GetRenderAngles(), &vec[0], &vec[1], &vec[2] );
@@ -2488,7 +2491,7 @@ void CClientShadowMgr::BuildRenderToTextureShadow( IClientRenderable* pRenderabl
 	Vector boxSize;
 	VectorSubtract( maxs, mins, boxSize );
 	
-	Vector yvec;
+	Vector yvec = vec3_origin;
 	float fProjMax = 0.0f;
 	for( int i = 0; i != 3; ++i )
 	{
@@ -2569,8 +2572,11 @@ static void LineDrawHelper( const Vector &startShadowSpace, const Vector &endSha
 	Vector3DMultiplyPositionProjective( shadowToWorld, startShadowSpace, startWorldSpace );
 	Vector3DMultiplyPositionProjective( shadowToWorld, endShadowSpace, endWorldSpace );
 
-	debugoverlay->AddLineOverlay( startWorldSpace + Vector( 0.0f, 0.0f, 1.0f ), 
-		endWorldSpace + Vector( 0.0f, 0.0f, 1.0f ), r, g, b, false, -1 );
+	if ( debugoverlay )
+	{
+		debugoverlay->AddLineOverlay( startWorldSpace + Vector( 0.0f, 0.0f, 1.0f ), 
+			endWorldSpace + Vector( 0.0f, 0.0f, 1.0f ), r, g, b, false, -1 );
+	}
 }
 
 static void DebugDrawFrustum( const Vector &vOrigin, const VMatrix &matWorldToFlashlight )
@@ -2934,7 +2940,6 @@ void CClientShadowMgr::PreRender()
 	unsigned short i = m_DirtyShadows.FirstInorder();
 	while ( i != m_DirtyShadows.InvalidIndex() )
 	{
-		MDLCACHE_CRITICAL_SECTION();
 		ClientShadowHandle_t& handle = m_DirtyShadows[ i ];
 		Assert( m_Shadows.IsValidIndex( handle ) );
 		UpdateProjectedTextureInternal( handle, false );
@@ -2944,7 +2949,7 @@ void CClientShadowMgr::PreRender()
 
 	// Transparent shadows must remain dirty, since they were not re-projected
 	int nCount = m_TransparentShadows.Count();
-	for ( int i = 0; i < nCount; ++i )
+	for ( i = 0; i < nCount; ++i )
 	{
 		m_DirtyShadows.Insert( m_TransparentShadows[i] );
 	}
@@ -3174,9 +3179,9 @@ void CClientShadowMgr::UpdateProjectedTextureInternal( ClientShadowHandle_t hand
 		VPROF_BUDGET( "CClientShadowMgr::UpdateProjectedTextureInternal", VPROF_BUDGETGROUP_SHADOW_DEPTH_TEXTURING );
 
 		Assert( ( shadow.m_Flags & SHADOW_FLAGS_SHADOW ) == 0 );
-		ClientShadow_t& shadow = m_Shadows[handle];
+		ClientShadow_t& shadowClient = m_Shadows[handle];
 
-		shadowmgr->EnableShadow( shadow.m_ShadowHandle, true );
+		shadowmgr->EnableShadow( shadowClient.m_ShadowHandle, true );
 
 		// FIXME: What's the difference between brush and model shadows for light projectors? Answer: nothing.
 		UpdateBrushShadow( NULL, handle );
@@ -3934,11 +3939,11 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 		if ( !bGotShadowDepthTexture )
 		{
 			// If we don't get one, that means we have too many this frame so bind no depth texture
-			static int bitchCount = 0;
-			if( bitchCount < 10 )
+			static int mapCount = 0;
+			if( mapCount < 10 )
 			{
 				Warning( "Too many shadow maps this frame!\n"  );
-				bitchCount++;
+				mapCount++;
 			}
 
 			Assert(0);
@@ -3970,8 +3975,8 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 		}
 
 		// Set depth bias factors specific to this flashlight
-		CMatRenderContextPtr pRenderContext( materials );
-		pRenderContext->SetShadowDepthBiasFactors( flashlightState.m_flShadowSlopeScaleDepthBias, flashlightState.m_flShadowDepthBias );
+		CMatRenderContextPtr pRenderContextMat( materials );
+		pRenderContextMat->SetShadowDepthBiasFactors( flashlightState.m_flShadowSlopeScaleDepthBias, flashlightState.m_flShadowDepthBias );
 
 		// Render to the shadow depth texture with appropriate view
 		view->UpdateShadowDepthTexture( m_DummyColorTexture, shadowDepthTexture, shadowView );
@@ -3993,7 +3998,7 @@ static void SetupBonesOnBaseAnimating( C_BaseAnimating *&pBaseAnimating )
 }
 
 
-void CClientShadowMgr::ComputeShadowTextures( const CViewSetup &view, int leafCount, LeafIndex_t* pLeafList )
+void CClientShadowMgr::ComputeShadowTextures( const CViewSetup &viewShadow, int leafCount, LeafIndex_t* pLeafList )
 {
 	VPROF_BUDGET( "CClientShadowMgr::ComputeShadowTextures", VPROF_BUDGETGROUP_SHADOW_RENDERING );
 
@@ -4004,7 +4009,7 @@ void CClientShadowMgr::ComputeShadowTextures( const CViewSetup &view, int leafCo
 
 	MDLCACHE_CRITICAL_SECTION();
 	// First grab all shadow textures we may want to render
-	int nCount = s_VisibleShadowList.FindShadows( &view, leafCount, pLeafList );
+	int nCount = s_VisibleShadowList.FindShadows( &viewShadow, leafCount, pLeafList );
 	if ( nCount == 0 )
 		return;
 
@@ -4220,7 +4225,7 @@ bool CShadowProxy::Init( IMaterial *pMaterial, KeyValues *pKeyValues )
 
 void CShadowProxy::OnBind( void *pProxyData )
 {
-	unsigned short clientShadowHandle = ( unsigned short )(int)pProxyData&0xffff;
+	unsigned short clientShadowHandle = ( unsigned short )(intp)pProxyData&0xffff;
 	ITexture* pTex = s_ClientShadowMgr.GetShadowTexture( clientShadowHandle );
 	m_BaseTextureVar->SetTextureValue( pTex );
 	if ( ToolsEnabled() )
@@ -4304,7 +4309,7 @@ bool CShadowModelProxy::Init( IMaterial *pMaterial, KeyValues *pKeyValues )
 
 void CShadowModelProxy::OnBind( void *pProxyData )
 {
-	unsigned short clientShadowHandle = ( unsigned short )((int)pProxyData&0xffff);
+	unsigned short clientShadowHandle = ( unsigned short )((intp)pProxyData&0xffff);
 	ITexture* pTex = s_ClientShadowMgr.GetShadowTexture( clientShadowHandle );
 	m_BaseTextureVar->SetTextureValue( pTex );
 

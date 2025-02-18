@@ -1,0 +1,22 @@
+ps.1.4
+
+; premultiplied by .25 so that they fit in [-1,1] and use _x4 to scale back up.
+def c0, 0.29103088375, 0.3989486695, 0.0f, -0.217663765
+def c1, 0.29103088375, -0.20336914075, -0.09786224375, 0.132426262
+def c2, 0.29103088375, 0.0f, 0.5044555665, -0.2704172135
+
+def c3, 1.0f, 0.0f, 0.0f, 1.0f
+
+texld r0, t0 ; Y
+texld r1, t1 ; cR
+texld r2, t2 ; cB
+
+mov r3.x, r0			; get Y into x
+mov r3.y, r1			; get cR into y
++mov r3.w, c3.x			; set w to 1 for the 4th component of the dp4
+mov r3.z, r2			; get cB into z
++mov r0.a, c3.a			; set output alpha to one. . .don't really care since we aren't alpha blending.
+
+dp4_x4_sat r0.r, r3, c0
+dp4_x4_sat r0.g, r3, c1
+dp4_x4_sat r0.b, r3, c2

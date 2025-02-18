@@ -1,0 +1,5 @@
+ps.1.1
+
+tex t0 ; selfillum
+
+mov r0, t0

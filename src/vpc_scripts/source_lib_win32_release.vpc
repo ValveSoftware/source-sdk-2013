@@ -6,10 +6,6 @@
 
 $IgnoreRedundancyWarning	"ON"
 
-// Disable frame pointer omission to allow fast stack walking, necessary for
-// good ETW profiling.
-$Macro  NOFPO  "1"
-
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTLIBNAME"
 $MacroRequired				"OUTLIBDIR"

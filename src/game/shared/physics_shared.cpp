@@ -590,7 +590,7 @@ IPhysicsObject *PhysCreateWorld_Shared( CBaseEntity *pWorld, vcollide_t *pWorldC
 	solid_t solid;
 	fluid_t fluid;
 
-	if ( !physenv )
+	if ( !physenv || !pWorldCollide || pWorldCollide->solidCount < 1 )
 		return NULL;
 
 	int surfaceData = physprops->GetSurfaceIndex( "default" );
@@ -621,13 +621,13 @@ IPhysicsObject *PhysCreateWorld_Shared( CBaseEntity *pWorld, vcollide_t *pWorldC
 			solid.params.enableCollisions = true;
 			solid.params.pGameData = static_cast<void *>(pWorld);
 			solid.params.pName = "world";
-			int surfaceData = physprops->GetSurfaceIndex( "default" );
+			surfaceData = physprops->GetSurfaceIndex( "default" );
 
 			// already created world above
 			if ( solid.index == 0 )
 				continue;
 
-			if ( !pWorldCollide->solids[solid.index] )
+			if ( !pWorldCollide->solids[solid.index] || solid.index >= pWorldCollide->solidCount )
 			{
 				// this implies that the collision model is a mopp and the physics DLL doesn't support that.
 				bCreateVirtualTerrain = true;
@@ -655,14 +655,14 @@ IPhysicsObject *PhysCreateWorld_Shared( CBaseEntity *pWorld, vcollide_t *pWorldC
 			pParse->ParseFluid( &fluid, NULL );
 
 			// create a fluid for floating
-			if ( fluid.index > 0 )
+			if ( fluid.index > 0 && fluid.index < pWorldCollide->solidCount )
 			{
 				solid.params = defaultParams;	// copy world's params
 				solid.params.enableCollisions = true;
 				solid.params.pName = "fluid";
 				solid.params.pGameData = static_cast<void *>(pWorld);
 				fluid.params.pGameData = static_cast<void *>(pWorld);
-				int surfaceData = physprops->GetSurfaceIndex( fluid.surfaceprop );
+				surfaceData = physprops->GetSurfaceIndex( fluid.surfaceprop );
 				// create this as part of the world
 				IPhysicsObject *pWater = physenv->CreatePolyObjectStatic( pWorldCollide->solids[fluid.index], 
 					surfaceData, vec3_origin, vec3_angle, &solid.params );

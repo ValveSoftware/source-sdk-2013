@@ -14,22 +14,18 @@
     #pragma once
 #endif
 
-#include <math.h>  
+#include <math.h>
 #include "appframework/IAppSystem.h"
 #include "tier0/platform.h"
 
 #include <stdint.h>
-#ifndef _STDINT_H 
+#ifndef _STDINT_H
 #define _STDINT_H
 #endif
 #ifndef _STDINT
 #define _STDINT
 #endif
 
-
-#ifndef nullptr
-	#define nullptr		( 0 )
-#endif
 #ifndef INT32_MAX
 #define INT32_MAX    (0x7FFFFFFF)
 #endif
@@ -106,6 +102,7 @@ namespace VideoSystem
 		WMV,
 		QUICKTIME,
 		WEBM,
+		SOURCE2_WRAPPER,
 		
 		VIDEO_SYSTEM_COUNT,
 		VIDEO_SYSTEM_FIRST = 1,

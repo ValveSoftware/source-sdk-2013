@@ -1,0 +1,101 @@
+
+$Conditional ENABLE_ASAN 0
+
+$Macro NINJA_PATHWRAP \
+    "-Wl,--wrap=fopen -Wl,--wrap=freopen -Wl,--wrap=open    -Wl,--wrap=creat    -Wl,--wrap=access  -Wl,--wrap=__xstat " \
+    "-Wl,--wrap=stat  -Wl,--wrap=stat64  -Wl,--wrap=lstat   -Wl,--wrap=fopen64  -Wl,--wrap=open64  -Wl,--wrap=opendir " \
+    "-Wl,--wrap=chmod -Wl,--wrap=chown   -Wl,--wrap=lchown  -Wl,--wrap=symlink  -Wl,--wrap=link    -Wl,--wrap=__lxstat64 " \
+    "-Wl,--wrap=mknod -Wl,--wrap=utimes  -Wl,--wrap=unlink  -Wl,--wrap=rename   -Wl,--wrap=utime   -Wl,--wrap=__xstat64 " \
+    "-Wl,--wrap=mount -Wl,--wrap=mkfifo  -Wl,--wrap=mkdir   -Wl,--wrap=rmdir    -Wl,--wrap=scandir -Wl,--wrap=realpath " \
+    "-Wl,--wrap=__lxstat"
+
+$Macro NINJA_ARCH_FLAGS "-march=nocona -march=core2" [$LINUX64]
+$Macro NINJA_ARCH_FLAGS "-march=pentium4 -march=core2 -msse2 -mfpmath=sse" [$LINUX32]
+
+$Macro NINJA_WARN_FLAGS_C \
+    "-Wall -Wno-multichar " \
+    "-Wno-write-strings -Wno-unused-variable -Wno-unused-function -Winvalid-pch -Wswitch " \
+    "-Wno-sign-compare -Wno-nonnull-compare -Wno-ignored-attributes -Wno-misleading-indentation -Wno-unused-but-set-variable -Wno-unused-local-typedefs " \
+    "-Wno-switch -Wno-parentheses " \
+    "-Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-value " \
+	"-Wno-comment " \
+    "-Wno-float-equal -Werror=return-type " \
+    "-Wformat -Wformat-security"
+
+$Macro NINJA_WARN_FLAGS_CXX "-Wno-overloaded-virtual -Wno-placement-new -Wno-c++20-compat -Wno-mismatched-new-delete -Wno-class-memaccess -Wno-conversion-null -Wno-invalid-offsetof -Wno-reorder "
+
+$Macro NINJA_C_DEV_FLAGS			"-fstack-protector -fcf-protection"	[$DEVELOPMENT_ONLY && $LINUX64]
+
+$Macro NINJA_C_FLAGS				"$NINJA_ARCH_FLAGS $NINJA_WARN_FLAGS_C $NINJA_C_DEV_FLAGS " \
+                                    "-fpch-preprocess -fvar-tracking-assignments " \
+                                    "-DVPROF_LEVEL=1 -DGNUC -DNO_HOOK_MALLOC -D_FILE_OFFSET_BITS=64 -fPIC -pipe " \
+                                    "-fdiagnostics-color -fdiagnostics-show-option "
+
+// TODO:
+// Consider -fno-plt?
+
+$Macro NINJA_CXX_FLAGS				"$NINJA_C_FLAGS $NINJA_WARN_FLAGS_CXX -std=c++11 -I/usr/include/freetype2"
+
+$Macro NINJA_EXTRA_C_FLAGS			"-Usprintf -Ustrncpy -UPROTECTED_THINGS_ENABLE"
+$Macro NINJA_EXTRA_CXX_FLAGS		"$NINJA_EXTRA_C_FLAGS"
+
+$Macro NINJA_COMMON_LINK_FLAGS		"-Wl,--build-id -Wl,-z,noexecstack"
+$Macro NINJA_SHLIB_LINK_FLAGS		"$NINJA_COMMON_LINK_FLAGS -shared $project_ldflags -Wl,--no-undefined"
+$Macro NINJA_EXEC_LINK_FLAGS		"$NINJA_COMMON_LINK_FLAGS"
+
+$Macro NINJA_LIB_START_SHLIB 		"$NINJA_PATHWRAP -static-libgcc -Wl,--start-group"
+$Macro NINJA_LIB_END_SHLIB			"-Wl,--end-group -lm -ldl -lpthread -luuid -Wl,--version-script=devtools/version_script.linux.txt"
+
+
+$Macro NINJA_LIB_START_EXEC			"$NINJA_PATHWRAP -static-libgcc -Wl,--start-group"
+$Macro NINJA_LIB_END_EXEC			"-Wl,--end-group -lm -ldl -lpthread -luuid"
+
+$Macro NINJA_STACK_OPT_DEBUG		"-fstack-clash-protection"							[$DEVELOPMENT_ONLY]
+$Macro NINJA_STACK_OPT_DEBUG		" "													[!$DEVELOPMENT_ONLY]
+$Macro NINJA_STACK_OPT_RELEASE		"-fstack-clash-protection -Wp,-D_FORTIFY_SOURCE=2"	[$DEVELOPMENT_ONLY]
+$Macro NINJA_STACK_OPT_RELEASE		" "													[!$DEVELOPMENT_ONLY]
+
+//$Macro NINJA_SANITIZE_FLAGS		"-fsanitize=address -fsanitize=undefined -fno-sanitize=vptr -DENABLE_ASAN=1" [$ENABLE_ASAN]
+$Macro NINJA_SANITIZE_FLAGS		    "-fsanitize=address -DENABLE_ASAN=1" [$ENABLE_ASAN]
+$Macro NINJA_SANITIZE_FLAGS		    " " [!$ENABLE_ASAN]
+
+$Macro NINJA_OPTIMIZATION_DEBUG		"$NINJA_SANITIZE_FLAGS -O0 -ggdb3 $NINJA_STACK_OPT_DEBUG -fno-delete-null-pointer-checks"
+$Macro NINJA_OPTIMIZATION_RELEASE	"$NINJA_SANITIZE_FLAGS -O2 -g $NINJA_STACK_OPT_RELEASE -fno-strict-aliasing -ffast-math -fno-omit-frame-pointer -fno-delete-null-pointer-checks -ftree-vectorize -fpredictive-commoning -funswitch-loops"
+$Macro NINJA_CLANG_EXTRAS			" -Wno-ignored-optimization-argument -Wno-unknown-warning-option -Wno-inconsistent-missing-override"
+
+$Configuration
+{
+	$Compiler
+	{
+		$NinjaCFlags			"$NINJA_C_FLAGS"
+		$NinjaCXXFlags			"$NINJA_CXX_FLAGS"
+
+		$NinjaExtraCFlags		"$NINJA_EXTRA_C_FLAGS"
+		$NinjaExtraCXXFlags		"$NINJA_EXTRA_CXX_FLAGS"
+
+		$NinjaShlibLinkFlags	"$NINJA_SHLIB_LINK_FLAGS"
+		$NinjaExecLinkFlags		"$NINJA_EXEC_LINK_FLAGS"
+
+		$NinjaLibStartShlib		"$NINJA_LIB_START_SHLIB"
+		$NinjaLibEndShlib		"$NINJA_LIB_END_SHLIB"
+
+		$NinjaLibStartExec		"$NINJA_LIB_START_EXEC"
+		$NinjaLibEndExec		"$NINJA_LIB_END_EXEC"
+	}
+}
+
+$Configuration "Debug"
+{
+	$Compiler
+	{
+		$NinjaOptimization		"$NINJA_OPTIMIZATION_DEBUG"
+	}
+}
+
+$Configuration "Release"
+{
+	$Compiler
+	{
+		$NinjaOptimization		"$NINJA_OPTIMIZATION_RELEASE"
+	}
+}

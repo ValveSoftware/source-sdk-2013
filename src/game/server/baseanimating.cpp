@@ -212,6 +212,9 @@ BEGIN_DATADESC( CBaseAnimating )
 
 	DEFINE_KEYFIELD( m_flModelScale, FIELD_FLOAT, "modelscale" ),
 	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetModelScale", InputSetModelScale ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetModel", InputSetModel ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetCycle", InputSetCycle ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetPlaybackRate", InputSetPlaybackRate ),
 
 	DEFINE_FIELD( m_fBoneCacheFlags, FIELD_SHORT ),
 
@@ -263,6 +266,48 @@ IMPLEMENT_SERVERCLASS_ST(CBaseAnimating, DT_BaseAnimating)
 
 END_SEND_TABLE()
 
+BEGIN_ENT_SCRIPTDESC( CBaseAnimating, CBaseEntity, "Animating models" )
+	#ifdef PORTAL2
+	DEFINE_SCRIPTFUNC( GetObjectScaleLevel, "The scale size of the entity" )
+	#endif // PORTAL2
+	DEFINE_SCRIPTFUNC( LookupAttachment, "Get the named attachement id"  )
+	DEFINE_SCRIPTFUNC( GetAttachmentBone, "Get the named attachement's parent bone index"  )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBoneOrigin, "GetBoneOrigin", "Get the bone id's origin vector"  )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBoneAngles, "GetBoneAngles", "Get the bone id's angles as a p,y,r vector"  )
+	DEFINE_SCRIPTFUNC( LookupActivity, "Get the named activity index"  )
+	DEFINE_SCRIPTFUNC( LookupBone, "Get the named bone index"  )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptLookupSequence, "LookupSequence", "Looks up a sequence by sequence name or activity name"  )
+	DEFINE_SCRIPTFUNC( SetSequence, "Set a sequence by id"  )
+	DEFINE_SCRIPTFUNC( ResetSequence, "Reset a sequence by id. If the id is different than the current sequence, switch to the new sequence"  )
+	DEFINE_SCRIPTFUNC( GetSequence, "Get the current sequence id"  )
+	DEFINE_SCRIPTFUNC( GetSequenceActivityName, "Get the activity name for a sequence by id"  )
+	DEFINE_SCRIPTFUNC( GetSequenceName, "Get a sequence name by id"  )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSequenceDuration, "GetSequenceDuration", "Get a sequence duration by id"  )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentOrigin, "GetAttachmentOrigin", "Get the attachement id's origin vector"  )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAttachmentAngles, "GetAttachmentAngles", "Get the attachement id's angles as a p,y,r vector"  )
+	DEFINE_SCRIPTFUNC( IsSequenceFinished, "Ask whether the main sequence is done playing" )
+	DEFINE_SCRIPTFUNC( SetBodygroup, "Sets a bodygroup")
+	DEFINE_SCRIPTFUNC( GetBodygroup, "Get a bodygroup by id")
+	DEFINE_SCRIPTFUNC( GetBodygroupName, "Get the bodygroup id's name")
+	DEFINE_SCRIPTFUNC( FindBodygroupByName, "Find a bodygroup id by name")
+	DEFINE_SCRIPTFUNC( GetBodygroupPartName, "Get name by group and part")
+	DEFINE_SCRIPTFUNC( StopAnimation, "Stop the current animation (same as SetPlaybackRate 0.0)" )
+	DEFINE_SCRIPTFUNC( SetPlaybackRate, "Set the current playback rate." )
+	DEFINE_SCRIPTFUNC( GetPlaybackRate, "Set the current playback rate." )
+	DEFINE_SCRIPTFUNC( GetModelScale, "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetModelScale, "SetModelScale", "(scale, change_duration) Changes a model's scale over time" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetPoseParameter, "SetPoseParameter", "(id, value) Sets a pose parameter value" )
+	DEFINE_SCRIPTFUNC( GetSkin, "Gets the current skin index." )
+	DEFINE_SCRIPTFUNC( SetSkin, "Sets the skin." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetModel, "SetModelSimple", "Set a model for this entity. Matches easier behaviour of the SetModel input, automatically precaches, maintains sequence/cycle if possible." )
+	DEFINE_SCRIPTFUNC( SetCycle, "Sets the models current cycle" )
+	DEFINE_SCRIPTFUNC( GetCycle, "Gets the models current cycle" )
+	DEFINE_SCRIPTFUNC( BecomeRagdollOnClient, "Becomes a ragdoll with a force" )
+	DEFINE_SCRIPTFUNC( StudioFrameAdvance, "Advance animation frame to some time in the future with an automatically calculated interval" )
+	DEFINE_SCRIPTFUNC( StudioFrameAdvanceManual, "Advance animation frame to some time in the future with a manual interval" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptDispatchAnimEvents, "DispatchAnimEvents", "Dispatch animation events to a CBaseAnimating" )
+	DEFINE_SCRIPTFUNC_WRAPPED( LookupPoseParameter, "Looks up a pose parameter index by name" );
+END_SCRIPTDESC();
 
 CBaseAnimating::CBaseAnimating()
 {
@@ -621,6 +666,57 @@ void CBaseAnimating::InputSetModelScale( inputdata_t &inputdata )
 	SetModelScale( vecScale.x, vecScale.y );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: SetModel input handler
+//-----------------------------------------------------------------------------
+void CBaseAnimating::ScriptSetModel( const char *pszModel )
+{
+	if ( !pszModel || !*pszModel )
+		return;
+
+	const bool bPrecacheAllowed = CBaseEntity::IsPrecacheAllowed();
+	CBaseEntity::SetAllowPrecache( true );
+	{
+		if ( PrecacheModel( pszModel, false ) != -1 )
+		{
+			// Josh:
+			// We need to maintain the current sequence as when changing models
+			// on a nextbot, etc, we want the activity to be able to complete.
+			// Otherwise things get stuck.
+			// So, get the current sequence name, and then look it back up
+			// after.
+			const char *pszCurrentSequence = GetSequenceName( GetSequence() );
+			SetModelName( AllocPooledString( pszModel ) );
+			SetModel( pszModel );
+			int nNewSequence = LookupSequence( pszCurrentSequence );
+			if ( nNewSequence != -1 )
+				SetSequence( nNewSequence );
+		}
+	}
+	CBaseEntity::SetAllowPrecache( bPrecacheAllowed );
+}
+
+void CBaseAnimating::InputSetModel( inputdata_t &inputdata )
+{
+	const char *pszModel = inputdata.value.String();
+	ScriptSetModel( pszModel );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: SetCycle input handler
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputSetCycle( inputdata_t &inputdata )
+{
+	SetCycle( inputdata.value.Float() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: SetPlaybackRate input handler
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputSetPlaybackRate( inputdata_t &inputdata )
+{
+	SetPlaybackRate( inputdata.value.Float() );
+}
 
 //=========================================================
 // SelectWeightedSequence
@@ -935,6 +1031,17 @@ void CBaseAnimating::SetSequence( int nSequence )
 
 //=========================================================
 //=========================================================
+float CBaseAnimating::ScriptGetSequenceDuration( int iSequence )
+{
+	Assert( IsDynamicModelLoading() || GetModelPtr() );
+	if ( IsDynamicModelLoading() )
+		return 0.1f;
+
+	return SequenceDuration( GetModelPtr(), iSequence );
+}
+
+//=========================================================
+//=========================================================
 float CBaseAnimating::SequenceDuration( CStudioHdr *pStudioHdr, int iSequence )
 {
 	if ( !pStudioHdr )
@@ -959,14 +1066,11 @@ float CBaseAnimating::GetSequenceCycleRate( CStudioHdr *pStudioHdr, int iSequenc
 {
 	float t = SequenceDuration( pStudioHdr, iSequence );
 
-	if (t > 0.0f)
+	if ( t != 0.0f )
 	{
 		return 1.0f / t;
 	}
-	else
-	{
-		return 1.0f / 0.1f;
-	}
+	return t;
 }
 
 
@@ -1118,7 +1222,8 @@ void CBaseAnimating::DispatchAnimEvents ( CBaseAnimating *eventHandler )
 				(float)flCycleRate );
 		}
 		*/
-		eventHandler->HandleAnimEvent( &event );
+		if ( eventHandler )
+			eventHandler->HandleAnimEvent( &event );
 
 		// FAILSAFE:
 		// If HandleAnimEvent has somehow reset my internal pointer
@@ -1636,9 +1741,12 @@ void CBaseAnimating::CalculateIKLocks( float currentTime )
 					enginetrace->TraceRay( ray, MASK_SOLID, &traceFilter, &trace );
 
 					/*
-					debugoverlay->AddBoxOverlay( p1, Vector(-r,-r,0), Vector(r,r,1), QAngle( 0, 0, 0 ), 255, 0, 0, 0, 1.0f );
-					debugoverlay->AddBoxOverlay( trace.endpos, Vector(-r,-r,0), Vector(r,r,1), QAngle( 0, 0, 0 ), 255, 0, 0, 0, 1.0f );
-					debugoverlay->AddLineOverlay( p1, trace.endpos, 255, 0, 0, 0, 1.0f );
+					if ( debugoverlay )
+					{
+						debugoverlay->AddBoxOverlay( p1, Vector(-r,-r,0), Vector(r,r,1), QAngle( 0, 0, 0 ), 255, 0, 0, 0, 1.0f );
+						debugoverlay->AddBoxOverlay( trace.endpos, Vector(-r,-r,0), Vector(r,r,1), QAngle( 0, 0, 0 ), 255, 0, 0, 0, 1.0f );
+						debugoverlay->AddLineOverlay( p1, trace.endpos, 255, 0, 0, 0, 1.0f );
+					}
 					*/
 
 					if (trace.startsolid)
@@ -1925,6 +2033,53 @@ bool CBaseAnimating::GetAttachment( const char *szName, Vector &absOrigin, QAngl
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Returns the world location and world angles of an attachment to vscript caller
+// Input  : attachment name
+// Output :	location and angles
+//-----------------------------------------------------------------------------
+Vector CBaseAnimating::ScriptGetAttachmentOrigin( int iAttachment )
+{	
+	Vector absOrigin;
+	QAngle qa;
+
+	CBaseAnimating::GetAttachment( iAttachment, absOrigin, qa );
+
+	return absOrigin;
+}
+
+QAngle CBaseAnimating::ScriptGetAttachmentAngles( int iAttachment )
+{	
+	Vector absOrigin;
+	QAngle qa;
+
+	CBaseAnimating::GetAttachment( iAttachment, absOrigin, qa );
+	return qa;
+}
+
+//-----------------------------------------------------------------------------
+Vector CBaseAnimating::ScriptGetBoneOrigin( int iBone )
+{
+	Vector vOrigin;
+	QAngle qAngles;
+
+	GetBonePosition( iBone, vOrigin, qAngles );
+
+	return vOrigin;
+}
+
+//-----------------------------------------------------------------------------
+QAngle CBaseAnimating::ScriptGetBoneAngles( int iBone )
+{
+	Vector vOrigin;
+	QAngle qAngles;
+
+	GetBonePosition( iBone, vOrigin, qAngles );
+
+	return qAngles;
+}
+
+
+//-----------------------------------------------------------------------------
 // Purpose: Returns the world location and world angles of an attachment
 // Input  : attachment index
 // Output :	location and angles
@@ -2156,6 +2311,12 @@ const char *CBaseAnimating::GetBodygroupName( int iGroup )
 {
 	Assert( IsDynamicModelLoading() || GetModelPtr() );
 	return IsDynamicModelLoading() ? "" : ::GetBodygroupName( GetModelPtr( ), iGroup );
+}
+
+const char *CBaseAnimating::GetBodygroupPartName( int iGroup, int iPart )
+{
+	Assert( IsDynamicModelLoading() || GetModelPtr() );
+	return IsDynamicModelLoading() ? "" : ::GetBodygroupPartName( GetModelPtr( ), iGroup, iPart );
 }
 
 int CBaseAnimating::FindBodygroupByName( const char *name )
@@ -2557,7 +2718,7 @@ void CBaseAnimating::LockStudioHdr()
 
 			if ( pStudioHdrContainer && pStudioHdrContainer->GetVirtualModel() )
 			{
-				MDLHandle_t hVirtualModel = (MDLHandle_t)(int)(pStudioHdrContainer->GetRenderHdr()->virtualModel)&0xffff;
+				MDLHandle_t hVirtualModel = VoidPtrToMDLHandle(pStudioHdrContainer->GetRenderHdr()->VirtualModel());
 				mdlcache->LockStudioHdr( hVirtualModel );
 			}
 			m_pStudioHdr = pStudioHdrContainer; // must be last to ensure virtual model correctly set up
@@ -2575,7 +2736,7 @@ void CBaseAnimating::UnlockStudioHdr()
 			mdlcache->UnlockStudioHdr( modelinfo->GetCacheHandle( mdl ) );
 			if ( m_pStudioHdr->GetVirtualModel() )
 			{
-				MDLHandle_t hVirtualModel = (MDLHandle_t)(int)(m_pStudioHdr->GetRenderHdr()->virtualModel)&0xffff;
+				MDLHandle_t hVirtualModel = VoidPtrToMDLHandle(m_pStudioHdr->GetRenderHdr()->VirtualModel());
 				mdlcache->UnlockStudioHdr( hVirtualModel );
 			}
 		}

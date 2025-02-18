@@ -1,0 +1,53 @@
+; DYNAMIC: "PASS" "0..1"
+ps.1.1
+
+; NOTE: If we ever need to alpha blend this, we'll need to set the right mask to RG on the first pass and B on the second.
+
+; premultiplied by .25 so that they fit in [-1,1] and use _x4 to scale back up.
+; note that the 4th component of each isn't used and is instead in c6 and c7.
+def c0, 0.29103088375, 0.3989486695, 0.0f, -0.217663765
+def c1, 0.29103088375, -0.20336914075, -0.09786224375, 0.132426262
+def c2, 0.29103088375, 0.0f, 0.5044555665, -0.2704172135
+
+; masks for component selection since ps_1_1 doesn't have general write masking.
+def c3, 1.0f, 0.0f, 0.0f, 1.0f
+def c4, 0.0f, 1.0f, 0.0f, 0.0f
+def c5, 0.0f, 0.0f, 1.0f, 0.0f
+
+def c6, -0.217663765, 0.132426262, 0.0f, 0.0f
+def c7, 0.0f, 0.0f, -0.2704172135, 0.0f
+
+tex t0 ; Y
+tex t1 ; cR
+tex t2 ; cB
+
+; could save an instruction by putting cR and cB in the same texture in the x and y components.
+mul r1.rgb, c3, t0		; get Y into x
+mad r1.rgb, c4, t1, r1	; get cR into y
+mad r1.rgb, c5, t2, r1	; get cB into z
++mov r0.a, c3.a			; set output alpha to one. . .don't really care since we aren't alpha blending.
+
+#if PASS == 0
+; do the dot3 part of the dot4 for to convert from YcRCb->Red
+dp3 t1.rgb, r1, c0
+; Mask into the red channel
+mul r0.rgb, t1, c3
+
+; do the dot3 part of the dot4 for to convert from YcRCb->Green
+dp3 t1.rgb, r1, c1
+; Mask into the green channel
+mad r0.rgb, t1, c4, r0
+
+; Add the 4th component for the dp4 to convert from YcRCb->[Red,Green]
+add_x4_sat r0.rgb, c6, r0
+#endif
+
+#if PASS == 1
+; do the dot3 part of the dot4 for to convert from YcRCb->Blue
+dp3 t1.rgb, r1, c2
+; Mask into the blue channel
+mul r0.rgb, t1, c5
+
+; Add the 4th component for the dp4 to convert from YcRCb->Blue
+add_x4_sat r0.rgb, c7, r0
+#endif

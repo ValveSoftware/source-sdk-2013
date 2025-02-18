@@ -231,7 +231,7 @@ void C_PointCommentaryNode::OnDataChanged( DataUpdateType_t updateType )
 	{
 		// Use the HDR / Non-HDR version based on whether we're running HDR or not
 		char *pszCommentaryFile;
-		if ( g_pMaterialSystemHardwareConfig->GetHDRType() == HDR_TYPE_NONE && m_iszCommentaryFileNoHDR && m_iszCommentaryFileNoHDR[0] )
+		if ( g_pMaterialSystemHardwareConfig->GetHDRType() == HDR_TYPE_NONE && m_iszCommentaryFileNoHDR[0] )
 		{
 			pszCommentaryFile = m_iszCommentaryFileNoHDR;
 		}

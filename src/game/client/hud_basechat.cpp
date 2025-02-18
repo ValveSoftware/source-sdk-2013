@@ -25,6 +25,7 @@
 #include "vgui/ILocalize.h"
 #include "multiplay_gamerules.h"
 #include "voice_status.h"
+#include "steam/isteamutils.h"
 
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -38,6 +39,7 @@ ConVar cl_showtextmsg( "cl_showtextmsg", "1", 0, "Enable/disable text messages p
 ConVar cl_chatfilters( "cl_chatfilters", "63", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Stores the chat filter settings " );
 ConVar cl_chatfilter_version( "cl_chatfilter_version", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE | FCVAR_HIDDEN, "Stores the chat filter version" );
 ConVar cl_mute_all_comms("cl_mute_all_comms", "1", FCVAR_ARCHIVE, "If 1, then all communications from a player will be blocked when that player is muted, including chat messages.");
+ConVar cl_enable_text_chat( "cl_enable_text_chat", "1", FCVAR_ARCHIVE, "Enable text chat in this game" );
 
 const int kChatFilterVersion = 1;
 
@@ -230,7 +232,7 @@ void CBaseHudChatLine::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	m_hFont = pScheme->GetFont( "Default" );
+	m_hFont = pScheme->GetFont( "Default", true );
 
 #ifdef HL1_CLIENT_DLL
 	SetBgColor( Color( 0, 0, 0, 0 ) );
@@ -397,7 +399,7 @@ void CBaseHudChatInputLine::ApplySchemeSettings(vgui::IScheme *pScheme)
 	BaseClass::ApplySchemeSettings(pScheme);
 	
 	// FIXME:  Outline
-	vgui::HFont hFont = pScheme->GetFont( "ChatFont" );
+	vgui::HFont hFont = pScheme->GetFont( "ChatFont", true );
 
 	m_pPrompt->SetFont( hFont );
 	m_pInput->SetFont( hFont );
@@ -594,7 +596,7 @@ void CHudChatHistory::ApplySchemeSettings( vgui::IScheme *pScheme )
 {
 	BaseClass::ApplySchemeSettings( pScheme );
 
-	SetFont( pScheme->GetFont( "ChatFont" ) );
+	SetFont( pScheme->GetFont( "ChatFont", true ) );
 	SetAlpha( 255 );
 }
 
@@ -771,6 +773,13 @@ void CBaseHudChat::MsgFunc_SayText( bf_read &msg )
 
 	if ( bWantsToChat )
 	{
+		UTIL_GetFilteredChatText( client, szString, sizeof( szString ) );
+		if ( !szString[ 0 ] )
+		{
+			// This user has been ignored at the Steam level
+			return;
+		}
+
 		// print raw chat text
 		ChatPrintf( client, CHAT_FILTER_NONE, "%s", szString );
 	}
@@ -819,10 +828,10 @@ void CBaseHudChat::MsgFunc_SayText2( bf_read &msg )
 	ReadLocalizedString( msg, szBuf[3], sizeof( szBuf[3] ), true );
 	ReadLocalizedString( msg, szBuf[4], sizeof( szBuf[4] ), true );
 
-	g_pVGuiLocalize->ConstructString( szBuf[5], sizeof( szBuf[5] ), msg_text, 4, szBuf[1], szBuf[2], szBuf[3], szBuf[4] );
+	g_pVGuiLocalize->ConstructString_safe( szBuf[5], msg_text, 4, szBuf[1], szBuf[2], szBuf[3], szBuf[4] );
 
 	char ansiString[512];
-	g_pVGuiLocalize->ConvertUnicodeToANSI( ConvertCRtoNL( szBuf[5] ), ansiString, sizeof( ansiString ) );
+	g_pVGuiLocalize->ConvertUnicodeToANSI( ConvertCRtoNL( szBuf[ 5 ] ), ansiString, sizeof( ansiString ) );
 
 	if ( bWantsToChat )
 	{
@@ -831,6 +840,13 @@ void CBaseHudChat::MsgFunc_SayText2( bf_read &msg )
 		if ( client > 0 && (g_PR->GetTeam( client ) != g_PR->GetTeam( GetLocalPlayerIndex() )) )
 		{
 			iFilter = CHAT_FILTER_PUBLICCHAT;
+		}
+
+		UTIL_GetFilteredChatText( client, ansiString, sizeof( ansiString ) );
+		if ( !ansiString[ 0 ] )
+		{
+			// This user has been ignored at the Steam level
+			return;
 		}
 
 		// print raw chat text
@@ -844,7 +860,7 @@ void CBaseHudChat::MsgFunc_SayText2( bf_read &msg )
 	else
 	{
 		// print raw chat text
-		ChatPrintf( client, GetFilterForString( untranslated_msg_text), "%s", ansiString );
+		ChatPrintf( client, GetFilterForString( untranslated_msg_text ), "%s", ansiString );
 	}
 }
 
@@ -899,12 +915,12 @@ void CBaseHudChat::MsgFunc_TextMsg( bf_read &msg )
 	switch ( msg_dest )
 	{
 	case HUD_PRINTCENTER:
-		g_pVGuiLocalize->ConstructString( outputBuf, sizeof(outputBuf), szBuf[0], 4, szBuf[1], szBuf[2], szBuf[3], szBuf[4] );
+		g_pVGuiLocalize->ConstructString_safe( outputBuf, szBuf[0], 4, szBuf[1], szBuf[2], szBuf[3], szBuf[4] );
 		internalCenterPrint->Print( ConvertCRtoNL( outputBuf ) );
 		break;
 
 	case HUD_PRINTNOTIFY:
-		g_pVGuiLocalize->ConstructString( outputBuf, sizeof(outputBuf), szBuf[0], 4, szBuf[1], szBuf[2], szBuf[3], szBuf[4] );
+		g_pVGuiLocalize->ConstructString_safe( outputBuf, szBuf[0], 4, szBuf[1], szBuf[2], szBuf[3], szBuf[4] );
 		g_pVGuiLocalize->ConvertUnicodeToANSI( outputBuf, szString, sizeof(szString) );
 		len = strlen( szString );
 		if ( len && szString[len-1] != '\n' && szString[len-1] != '\r' )
@@ -915,7 +931,7 @@ void CBaseHudChat::MsgFunc_TextMsg( bf_read &msg )
 		break;
 
 	case HUD_PRINTTALK:
-		g_pVGuiLocalize->ConstructString( outputBuf, sizeof(outputBuf), szBuf[0], 4, szBuf[1], szBuf[2], szBuf[3], szBuf[4] );
+		g_pVGuiLocalize->ConstructString_safe( outputBuf, szBuf[0], 4, szBuf[1], szBuf[2], szBuf[3], szBuf[4] );
 		g_pVGuiLocalize->ConvertUnicodeToANSI( outputBuf, szString, sizeof(szString) );
 		len = strlen( szString );
 		if ( len && szString[len-1] != '\n' && szString[len-1] != '\r' )
@@ -927,7 +943,7 @@ void CBaseHudChat::MsgFunc_TextMsg( bf_read &msg )
 		break;
 
 	case HUD_PRINTCONSOLE:
-		g_pVGuiLocalize->ConstructString( outputBuf, sizeof(outputBuf), szBuf[0], 4, szBuf[1], szBuf[2], szBuf[3], szBuf[4] );
+		g_pVGuiLocalize->ConstructString_safe( outputBuf, szBuf[0], 4, szBuf[1], szBuf[2], szBuf[3], szBuf[4] );
 		g_pVGuiLocalize->ConvertUnicodeToANSI( outputBuf, szString, sizeof(szString) );
 		len = strlen( szString );
 		if ( len && szString[len-1] != '\n' && szString[len-1] != '\r' )
@@ -1165,25 +1181,32 @@ void CBaseHudChat::StartMessageMode( int iMessageModeType )
 
 	m_pChatInput->ClearEntry();
 
-	const wchar_t *pszPrompt = ( m_nMessageMode == MM_SAY ) ? g_pVGuiLocalize->Find( "#chat_say" ) : g_pVGuiLocalize->Find( "#chat_say_team" ); 
+	const wchar_t *pszPrompt = NULL;
+	switch ( m_nMessageMode )
+	{
+		case MM_SAY:		pszPrompt = g_pVGuiLocalize->Find( "#chat_say" ); break;
+		case MM_SAY_TEAM:	pszPrompt = g_pVGuiLocalize->Find( "#chat_say_team" ); break;
+		case MM_SAY_PARTY:	pszPrompt = g_pVGuiLocalize->Find( "#chat_party" ); break;
+	}
+
 	if ( pszPrompt )
 	{
 		m_pChatInput->SetPrompt( pszPrompt );
 	}
 	else
 	{
-		if ( m_nMessageMode == MM_SAY )
+		switch ( m_nMessageMode )
 		{
-			m_pChatInput->SetPrompt( L"Say :" );
-		}
-		else
-		{
-			m_pChatInput->SetPrompt( L"Say (TEAM) :" );
+			case MM_SAY:		m_pChatInput->SetPrompt( L"Say :" ); break;
+			case MM_SAY_TEAM:	m_pChatInput->SetPrompt( L"Say (TEAM) :" ); break;
+			case MM_SAY_PARTY:	m_pChatInput->SetPrompt( L"Say (PARTY) :" ); break;
 		}
 	}
 	
 	if ( GetChatHistory() )
 	{
+		// TERROR: hack to get ChatFont back
+		GetChatHistory()->SetFont( vgui::scheme()->GetIScheme( GetScheme() )->GetFont( "ChatFont", true ) );
 		GetChatHistory()->SetMouseInputEnabled( true );
 		GetChatHistory()->SetKeyBoardInputEnabled( false );
 		GetChatHistory()->SetVerticalScrollbar( true );
@@ -1552,8 +1575,6 @@ void CBaseHudChatLine::Colorize( int alpha )
 			InsertColorChange( color );
 			InsertString( wText );
 
-			CBaseHudChat *pChat = dynamic_cast<CBaseHudChat*>(GetParent() );
-
 			if ( pChat && pChat->GetChatHistory() )
 			{	
 				pChat->GetChatHistory()->InsertColorChange( color );
@@ -1617,7 +1638,14 @@ This is a very long string that I am going to attempt to paste into the cs hud c
 		}
 
 		char szbuf[144];	// more than 128
-		Q_snprintf( szbuf, sizeof(szbuf), "%s \"%s\"", m_nMessageMode == MM_SAY ? "say" : "say_team", ansi );
+		const char* pszCmd = NULL;
+		switch( m_nMessageMode )
+		{
+			case MM_SAY: pszCmd = "say"; break;
+			case MM_SAY_TEAM: pszCmd = "say_team"; break;
+			case MM_SAY_PARTY: pszCmd = "say_party"; break;
+		}
+		Q_snprintf( szbuf, sizeof(szbuf), "%s \"%s\"", pszCmd, ansi );
 
 		engine->ClientCmd_Unrestricted(szbuf);
 	}
@@ -1759,6 +1787,9 @@ void CBaseHudChat::ChatPrintf( int iPlayerIndex, int iFilter, const char *fmt, .
 			return;
 	}
 
+	if ( !cl_enable_text_chat.GetBool() && ( iPlayerIndex != 0 ) )
+		return;
+
 	if ( *pmsg < 32 )
 	{
 		hudlcd->AddChatLine( pmsg + 1 );
@@ -1795,7 +1826,7 @@ void CBaseHudChat::ChatPrintf( int iPlayerIndex, int iFilter, const char *fmt, .
 		g_pVGuiLocalize->ConvertANSIToUnicode( pmsg, wbuf, bufSize);
 
 		// find the player's name in the unicode string, in case there is no color markup
-		const char *pName = sPlayerInfo.name;
+		const char *pName = UTIL_GetFilteredPlayerName( iPlayerIndex, sPlayerInfo.name );
 
 		if ( pName )
 		{

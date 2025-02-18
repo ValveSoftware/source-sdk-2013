@@ -1,0 +1,43 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Computes the diffuse component of lighting using lightmap + bumpmap
+; t0 - Normalmap
+; t1 - Lightmap1
+; t2 - Lightmap2
+; t3 - Lightmap3
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - Normalmap and lightmap texture coordinates
+; c0, c1, c2 - Axes of the lightmap coordinate system in tangent space 
+; c3 = a
+; c4 = b 
+; c5 = c in a quadratic approx to pow( 1/2.2 )
+;------------------------------------------------------------------------------
+
+; Get the 3-vector from the normal map
+tex t0
+
+; Sample the lightmaps
+tex t1 
+tex t2 
+tex t3 
+
+; Compute the dot product of axis 1 and the normal
+dp3_sat r1, t0_bx2, c0
+; Modulate the lightmap color by N dot Axis 1
+mul r0, t1, r1
+
+; Do the same for the other two axes
+dp3_sat r1, t0_bx2, c1
+mad r0, r1, t2, r0
+
+dp3_sat r1, t0_bx2, c2
+mad r0, r1, t3, r0
+
+; Do quadratic approximation to pow( x, 1 / 2.2 )
+;mad r1, c3, r0, c4		; r1 = a*x + b
+;mad_x4_sat r0, r1, r0, c5		; r0 = r1*x + c = a*x*x + b*x + c
+
+
+

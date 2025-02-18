@@ -62,6 +62,20 @@ data field should not be broadcasted to clients, use the type "local".
 class KeyValues;
 class CGameEvent;
 
+// Class for visiting every key of data on an event
+abstract_class IGameEventVisitor2
+{
+public:
+	// return true to keep iterating, false to abort iteration
+	virtual bool VisitLocal( const char* name, const void* value ) { return true; }
+	virtual bool VisitString( const char* name, const char* value ) { return true; }
+	virtual bool VisitFloat( const char* name, float value ) { return true; }
+	virtual bool VisitInt( const char* name, int value ) { return true; }
+	virtual bool VisitUint64( const char* name, uint64 value ) { return true; }
+	virtual bool VisitWString( const char* name, const wchar_t* value ) { return true; }
+	virtual bool VisitBool( const char* name, bool value ) { return true; }
+};
+
 abstract_class IGameEvent
 {
 public:
@@ -73,15 +87,29 @@ public:
 	virtual bool  IsEmpty(const char *keyName = NULL) = 0; // check if data field exists
 	
 	// Data access
-	virtual bool  GetBool( const char *keyName = NULL, bool defaultValue = false ) = 0;
-	virtual int   GetInt( const char *keyName = NULL, int defaultValue = 0 ) = 0;
-	virtual float GetFloat( const char *keyName = NULL, float defaultValue = 0.0f ) = 0;
-	virtual const char *GetString( const char *keyName = NULL, const char *defaultValue = "" ) = 0;
+	virtual bool  GetBool( const char *keyName = NULL, bool defaultValue = false ) const = 0;
+	virtual int   GetInt( const char *keyName = NULL, int defaultValue = 0 ) const = 0;
+	virtual float GetFloat( const char *keyName = NULL, float defaultValue = 0.0f ) const = 0;
+	virtual const char *GetString( const char *keyName = NULL, const char *defaultValue = "" ) const = 0;
 
 	virtual void SetBool( const char *keyName, bool value ) = 0;
 	virtual void SetInt( const char *keyName, int value ) = 0;
 	virtual void SetFloat( const char *keyName, float value ) = 0;
 	virtual void SetString( const char *keyName, const char *value ) = 0;
+
+	// New stuff!
+	virtual uint64 GetUint64( const char *keyName = NULL, uint64 defaultValue = 0 ) const = 0;
+	virtual const wchar_t *GetWString( const char *keyName = NULL, const wchar_t *defaultValue = L"" ) const = 0;
+	virtual const void *GetPtr( const char *keyName = NULL ) const = 0;	// LOCAL only
+
+	virtual void SetUint64( const char *keyName, uint64 value ) = 0;
+	virtual void SetWString( const char *keyName, const wchar_t *value ) = 0;
+	virtual void SetPtr( const char *keyName, const void * value ) = 0;	// LOCAL only
+
+	virtual KeyValues *GetDataKeys() const = 0;
+
+	// returns true if iteration aborted normally, false if it was aborted by the visitor callback
+	virtual bool ForEventData( IGameEventVisitor2* event ) const = 0;
 };
 
 
@@ -90,7 +118,7 @@ abstract_class IGameEventListener2
 public:
 	virtual	~IGameEventListener2( void ) {};
 
-	// FireEvent is called by EventManager if event just occured
+	// FireEvent is called by EventManager if event just occurred
 	// KeyValue memory will be freed by manager if not needed anymore
 	virtual void FireGameEvent( IGameEvent *event ) = 0;
 };
@@ -143,7 +171,7 @@ abstract_class IGameEventListener
 public:
 	virtual	~IGameEventListener( void ) {};
 
-	// FireEvent is called by EventManager if event just occured
+	// FireEvent is called by EventManager if event just occurred
 	// KeyValue memory will be freed by manager if not needed anymore
 	virtual void FireGameEvent( KeyValues * event) = 0;
 };

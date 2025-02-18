@@ -330,8 +330,10 @@ inline size_t MemAlloc_GetSizeAligned( void *pMemBlock )
 
 //-----------------------------------------------------------------------------
 
-#if (defined(_DEBUG) || defined(USE_MEM_DEBUG))
-#define MEM_ALLOC_CREDIT_(tag)	CMemAllocAttributeAlloction memAllocAttributeAlloction( tag, __LINE__ )
+#if defined(USE_MEM_DEBUG)
+#define MEM_ALLOC_CREDIT_JOIN_AGAIN( a, b )							a ## b
+#define MEM_ALLOC_CREDIT_JOIN( a, b )								MEM_ALLOC_CREDIT_JOIN_AGAIN( a, b )
+#define MEM_ALLOC_CREDIT_(tag)										CMemAllocAttributeAlloction MEM_ALLOC_CREDIT_JOIN( memAllocAttributeAlloction, __LINE__ )( tag, __LINE__ )
 #define MemAlloc_PushAllocDbgInfo( pszFile, line ) g_pMemAlloc->PushAllocDbgInfo( pszFile, line )
 #define MemAlloc_PopAllocDbgInfo() g_pMemAlloc->PopAllocDbgInfo()
 #define MemAlloc_RegisterAllocation( pFileName, nLine, nLogicalSize, nActualSize, nTime ) g_pMemAlloc->RegisterAllocation( pFileName, nLine, nLogicalSize, nActualSize, nTime )
@@ -346,7 +348,6 @@ inline size_t MemAlloc_GetSizeAligned( void *pMemBlock )
 
 #define MemAlloc_DumpStats() g_pMemAlloc->DumpStats()
 #define MemAlloc_CompactHeap() g_pMemAlloc->CompactHeap()
-#define MemAlloc_OutOfMemory() g_pMemAlloc->OutOfMemory()
 #define MemAlloc_CompactIncremental() g_pMemAlloc->CompactIncremental()
 #define MemAlloc_DumpStatsFileBase( _filename ) g_pMemAlloc->DumpStatsFileBase( _filename )
 #define MemAlloc_CrtCheckMemory() g_pMemAlloc->CrtCheckMemory()
@@ -378,7 +379,7 @@ public:
 
 //-----------------------------------------------------------------------------
 
-#if defined(_WIN32) && ( defined(_DEBUG) || defined(USE_MEM_DEBUG) )
+#if defined(_WIN32) && defined(USE_MEM_DEBUG)
 
 	#pragma warning(disable:4290)
 	#pragma warning(push)
@@ -411,7 +412,7 @@ public:
 
 //-----------------------------------------------------------------------------
 
-#if (defined(_DEBUG) || defined(USE_MEM_DEBUG))
+#if defined(USE_MEM_DEBUG)
 struct MemAllocFileLine_t
 {
 	const char *pszFile;
@@ -465,20 +466,26 @@ struct MemAllocFileLine_t
 
 #elif defined( POSIX )
 
+inline void MemAlloc_CheckAlloc( void *ptr, size_t nSize )
+{
+	if ( !ptr )
+		MemAllocOOMError( nSize );
+}
+
 #if defined( OSX )
 // Mac always aligns allocs, don't need to call posix_memalign which doesn't exist in 10.5.8 which TF2 still needs to run on
 //inline void *memalign(size_t alignment, size_t size) {void *pTmp=NULL; posix_memalign(&pTmp, alignment, size); return pTmp;}
-inline void *memalign(size_t alignment, size_t size) {void *pTmp=NULL; pTmp = malloc(size); return pTmp;}
+inline void *memalign(size_t alignment, size_t size) {void *pTmp=NULL; pTmp = malloc(size); MemAlloc_CheckAlloc( pTmp, size ); return pTmp;}
 #endif
 
-inline void *_aligned_malloc( size_t nSize, size_t align )															{ return memalign( align, nSize ); }
+inline void *_aligned_malloc( size_t nSize, size_t align )															{ void *ptr = memalign( align, nSize ); MemAlloc_CheckAlloc( ptr, nSize ); return ptr;  }
 inline void _aligned_free( void *ptr )																				{ free( ptr ); }
 
-inline void *MemAlloc_Alloc( size_t nSize, const char *pFileName = NULL, int nLine = 0 )							{ return malloc( nSize ); }
+inline void *MemAlloc_Alloc( size_t nSize, const char *pFileName = NULL, int nLine = 0 )							{ void *ptr = malloc( nSize ); MemAlloc_CheckAlloc( ptr, nSize ); return ptr; }
 inline void MemAlloc_Free( void *ptr, const char *pFileName = NULL, int nLine = 0 )									{ free( ptr ); }
 
-inline void *MemAlloc_AllocAligned( size_t size, size_t align, const char *pszFile = NULL, int nLine = 0  )	        { return memalign( align, size ); }
-inline void *MemAlloc_AllocAlignedFileLine( size_t size, size_t align, const char *pszFile = NULL, int nLine = 0 )	{ return memalign( align, size ); }
+inline void *MemAlloc_AllocAligned( size_t size, size_t align, const char *pszFile = NULL, int nLine = 0  )	        { void *ptr = memalign( align, size ); MemAlloc_CheckAlloc( ptr, size ); return ptr; }
+inline void *MemAlloc_AllocAlignedFileLine( size_t size, size_t align, const char *pszFile = NULL, int nLine = 0 )	{ void *ptr = memalign( align, size ); MemAlloc_CheckAlloc( ptr, size ); return ptr; }
 inline void MemAlloc_FreeAligned( void *pMemBlock, const char *pszFile = NULL, int nLine = 0 ) 						{ free( pMemBlock ); }
 
 #if defined( OSX )
@@ -500,6 +507,7 @@ inline void *MemAlloc_ReallocAligned( void *ptr, size_t size, size_t align )
 		free( ptr );
 	}
 
+	MemAlloc_CheckAlloc( ptr_new_aligned, size ); 
 	return ptr_new_aligned;
 }
 #else
@@ -526,7 +534,6 @@ inline void *MemAlloc_ReallocAligned( void *ptr, size_t size, size_t align )
 #define MemAlloc_RegisterDeallocation( pFileName, nLine, nLogicalSize, nActualSize, nTime ) ((void)0)
 #define MemAlloc_DumpStats() ((void)0)
 #define MemAlloc_CompactHeap() ((void)0)
-#define MemAlloc_OutOfMemory() ((void)0)
 #define MemAlloc_CompactIncremental() ((void)0)
 #define MemAlloc_DumpStatsFileBase( _filename ) ((void)0)
 inline bool MemAlloc_CrtCheckMemory() { return true; }

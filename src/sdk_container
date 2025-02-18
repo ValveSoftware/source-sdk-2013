@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -euo pipefail
+
+function run_in_sniper() {
+    script_file=$(basename -- "$script")
+    check_env=$(sha256sum -- "$script" | cut -d " " -f 1)
+
+    if [[ ! -f /run/.containerenv ]]; then
+        # Check if podman exists
+        if ! command -v podman &> /dev/null; then
+            echo "Error: podman is not installed. Exiting..."
+            exit 1
+        fi
+
+        # Let's say we run as /home/misyl/my_mod/src/myscript
+        # We want to mount /home/misyl/my_mod, and then launch
+        # src/myscript inside of that.
+        #
+        # The below achieves that.
+        mod_src_dir=$(pwd)
+        mod_src_dir_name=$(basename -- "$mod_src_dir")
+        mod_base_dir=$(dirname -- "$mod_src_dir")
+
+        image="registry.gitlab.steamos.cloud/steamrt/sniper/sdk:latest"
+        echo "Running script inside $image"
+        exec podman run \
+            --env "$check_env=$script_file" \
+            --env "CCACHE_DIR=${CCACHE_DIR:-$HOME/.ccache}" \
+            --userns=keep-id \
+            --rm -it \
+            --mount type=bind,\"source="${CCACHE_DIR:-$HOME/.ccache}"\",\"target="${CCACHE_DIR:-$HOME/.ccache}"\" \
+            --mount type=bind,\"source="$mod_base_dir"\",target=/my_mod/ \
+            "$image" \
+            /my_mod/"$mod_src_dir_name"/"$script_file" \
+            "$@"
+    fi
+
+    if [[ $(printenv -- "$check_env") != "$script_file" ]]; then
+        echo "Can't run in a nested container setup. Sorry! :("
+        exit 1
+    fi
+}

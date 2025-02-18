@@ -58,9 +58,6 @@ public:
 	bool	WasPunted( void ) const { return m_punted; }
 
 	// this function only used in episodic.
-#if defined(HL2_EPISODIC) && 0 // FIXME: HandleInteraction() is no longer called now that base grenade derives from CBaseAnimating
-	bool	HandleInteraction(int interactionType, void *data, CBaseCombatCharacter* sourceEnt);
-#endif 
 
 	void	InputSetTimer( inputdata_t &inputdata );
 
@@ -155,7 +152,10 @@ void CGrenadeFrag::OnRestore( void )
 void CGrenadeFrag::CreateEffects( void )
 {
 	// Start up the eye glow
-	m_pMainGlow = CSprite::SpriteCreate( "sprites/redglow1.vmt", GetLocalOrigin(), false );
+	if ( !m_pMainGlow.Get() )
+	{
+		m_pMainGlow = CSprite::SpriteCreate("sprites/redglow1.vmt", GetLocalOrigin(), false);
+	}
 
 	int	nAttachment = LookupAttachment( "fuse" );
 
@@ -169,7 +169,10 @@ void CGrenadeFrag::CreateEffects( void )
 	}
 
 	// Start up the eye trail
-	m_pGlowTrail	= CSpriteTrail::SpriteTrailCreate( "sprites/bluelaser1.vmt", GetLocalOrigin(), false );
+	if ( !m_pGlowTrail.Get() )
+	{
+		m_pGlowTrail = CSpriteTrail::SpriteTrailCreate("sprites/bluelaser1.vmt", GetLocalOrigin(), false);
+	}
 
 	if ( m_pGlowTrail != NULL )
 	{
@@ -376,40 +379,6 @@ int CGrenadeFrag::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	return BaseClass::OnTakeDamage( inputInfo );
 }
 
-#if defined(HL2_EPISODIC) && 0 // FIXME: HandleInteraction() is no longer called now that base grenade derives from CBaseAnimating
-extern int	g_interactionBarnacleVictimGrab; ///< usually declared in ai_interactions.h but no reason to haul all of that in here.
-extern int g_interactionBarnacleVictimBite;
-extern int g_interactionBarnacleVictimReleased;
-bool CGrenadeFrag::HandleInteraction(int interactionType, void *data, CBaseCombatCharacter* sourceEnt)
-{
-	// allow fragnades to be grabbed by barnacles. 
-	if ( interactionType == g_interactionBarnacleVictimGrab )
-	{
-		// give the grenade another five seconds seconds so the player can have the satisfaction of blowing up the barnacle with it
-		float timer = m_flDetonateTime - gpGlobals->curtime + 5.0f;
-		SetTimer( timer, timer - FRAG_GRENADE_WARN_TIME );
-
-		return true;
-	}
-	else if ( interactionType == g_interactionBarnacleVictimBite )
-	{
-		// detonate the grenade immediately 
-		SetTimer( 0, 0 );
-		return true;
-	}
-	else if ( interactionType == g_interactionBarnacleVictimReleased )
-	{
-		// take the five seconds back off the timer.
-		float timer = MAX(m_flDetonateTime - gpGlobals->curtime - 5.0f,0.0f);
-		SetTimer( timer, timer - FRAG_GRENADE_WARN_TIME );
-		return true;
-	}
-	else
-	{
-		return BaseClass::HandleInteraction( interactionType, data, sourceEnt );
-	}
-}
-#endif
 
 void CGrenadeFrag::InputSetTimer( inputdata_t &inputdata )
 {

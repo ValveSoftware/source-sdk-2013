@@ -10,10 +10,6 @@
 
 #include "tier0/memdbgon.h"
 
-
-extern const char *s_ClientElementNames[MAX_ARRAY_ELEMENTS];
-
-
 class CRecvPropExtra_UtlVector
 {
 public:
@@ -29,6 +25,20 @@ public:
 void RecvProxy_UtlVectorLength( const CRecvProxyData *pData, void *pStruct, void *pOut )
 {
 	CRecvPropExtra_UtlVector *pExtra = (CRecvPropExtra_UtlVector*)pData->m_pRecvProp->GetExtraData();
+	if ( pData->m_Value.m_Int < 0 || pData->m_Value.m_Int > pExtra->m_nMaxElements )
+	{
+		// If this happens we're most likely talking to a malicious server.
+		// Protect against remote code execution by crashing ourselves.
+		// A malicious server can send an invalid lengthprop attribute and cause the below code
+		// to "successfully" resize the vector to -1, which eventually translates into a call to realloc(0)
+		// due to integer math overflow.
+		// Then the remaining payload ( the actual elements of the vector ) can be used
+		// to write arbitrary data to out of bounds memory.
+		// There isn't much we can do at this point - we're deep in the networking stack, it's hard to recover
+		// gracefully and we shouldn't be talking to this server anymore.
+		// So we crash.
+		*(int *) 1 = 2;
+	}
 	pExtra->m_ResizeFn( pStruct, pExtra->m_Offset, pData->m_Value.m_Int );
 }
 
@@ -130,7 +140,7 @@ RecvProp RecvPropUtlVector(
 	{
 		pProps[i] = pArrayProp;	// copy array element property setting
 		pProps[i].SetOffset( 0 ); // leave offset at 0 so pStructBase is always a pointer to the CUtlVector
-		pProps[i].m_pVarName = s_ClientElementNames[i-1];	// give unique name
+		pProps[i].m_pVarName = DT_ArrayElementNameForIdx(i-1);	// give unique name
 		pProps[i].SetExtraData( pExtraData );
 		pProps[i].SetElementStride( i-1 );	// Kind of lame overloading element stride to hold the element index,
 											// but we can easily move it into its SetExtraData stuff if we need to.

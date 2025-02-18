@@ -86,6 +86,12 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+// This code is very not maintained, and has had known security issues.  New spots in the code that really need to
+// generate zip files should find a better approach.
+#ifndef I_SHOULD_NOT_BE_USING_XZIP
+#error "New code should not be using this library, as it has known security issues"
+#endif
+
 #ifndef XZIP_H
 #define XZIP_H
 

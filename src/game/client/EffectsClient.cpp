@@ -165,15 +165,15 @@ void CEffectsClient::MuzzleFlash( const Vector &vecOrigin, const QAngle &vecAngl
 		switch( iType )
 		{
 		case MUZZLEFLASH_TYPE_DEFAULT:
-			FX_MuzzleEffect( vecOrigin, vecAngles, flScale, INVALID_EHANDLE_INDEX );
+			FX_MuzzleEffect( vecOrigin, vecAngles, flScale, INVALID_EHANDLE );
 			break;
 
 		case MUZZLEFLASH_TYPE_GUNSHIP:
-			FX_GunshipMuzzleEffect( vecOrigin, vecAngles, flScale, INVALID_EHANDLE_INDEX );
+			FX_GunshipMuzzleEffect( vecOrigin, vecAngles, flScale, INVALID_EHANDLE );
 			break;
 
 		case MUZZLEFLASH_TYPE_STRIDER:
-			FX_StriderMuzzleEffect( vecOrigin, vecAngles, flScale, INVALID_EHANDLE_INDEX );
+			FX_StriderMuzzleEffect( vecOrigin, vecAngles, flScale, INVALID_EHANDLE );
 			break;
 		
 		default:

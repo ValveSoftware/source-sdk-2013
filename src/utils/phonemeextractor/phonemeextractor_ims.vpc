@@ -27,8 +27,8 @@ $Configuration	"Debug"
 {
 	$General
 	{
-		$OutputDirectory			".\Debug_ims"			[$WIN32]
-		$IntermediateDirectory		".\Debug_ims"			[$WIN32]
+		$OutputDirectory			".\Debug_ims"
+		$IntermediateDirectory		".\Debug_ims"
 	}
 }
 
@@ -36,8 +36,8 @@ $Configuration	"Release"
 {
 	$General
 	{
-		$OutputDirectory			".\Release_ims"			[$WIN32]
-		$IntermediateDirectory		".\Release_ims"			[$WIN32]
+		$OutputDirectory			".\Release_ims"
+		$IntermediateDirectory		".\Release_ims"
 	}
 }
 

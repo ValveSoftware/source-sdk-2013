@@ -151,7 +151,10 @@ int C_Team::Get_Ping( void )
 //-----------------------------------------------------------------------------
 int C_Team::Get_Number_Players( void )
 {
-	return m_aPlayers.Size();
+	int nCount = m_aPlayers.Size();
+	if ( nCount > MAX_PLAYERS )
+		return MAX_PLAYERS;
+	return nCount;
 }
 
 //-----------------------------------------------------------------------------

@@ -8,6 +8,8 @@
 #pragma once
 #endif
 
+#define REPLAY_SOURCE_FILE
+
 #if defined( TF_CLIENT_DLL )
 
 #  include "tf_gamestats_shared.h"

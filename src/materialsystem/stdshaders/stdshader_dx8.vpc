@@ -1,0 +1,142 @@
+//-----------------------------------------------------------------------------
+//	STDSHADER_DX8.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+
+// shader_dll_verify.cpp defines a function called _ftol3. This means that we can't
+// link with the bug-fixed ftol3.obj. It also means we can't convert float-to-unsigned.
+$Conditional DISABLE_FTOL3_OVERRIDE "1"
+
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration	"Debug"
+{
+	$General
+	{
+		$OutputDirectory		"Debug_dx8"	
+		$IntermediateDirectory	"Debug_dx8"
+	}
+}
+
+$Configuration	"Release"
+{
+	$General
+	{
+		$OutputDirectory		"Release_dx8"
+		$IntermediateDirectory	"Release_dx8"
+	}
+}
+
+// Common Configuration
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$BASE;include;..\..\dx9sdk\include"
+		$PreprocessorDefinitions		"$BASE;STDSHADER_DX8_DLL_EXPORT;FAST_MATERIALVAR_ACCESS"
+	}
+
+	$Linker
+	{
+		$AdditionalDependencies			"$BASE version.lib winmm.lib"
+	}
+}
+
+
+$Project "stdshader_dx8"
+{
+	$Folder	"Source Files"
+	{
+		$File	"BaseVSShader.cpp"					
+		$File	"BlurFilterX_dx80.cpp"
+		$File	"Bik_dx80.cpp"
+		$File	"Bik_dx81.cpp"
+		$File	"BlurFilterY_dx80.cpp"
+		$File	"BufferClearObeyStencil_dx8.cpp"
+		$File	"cable_dx8.cpp"
+		$File	"cloak_blended_pass_dx8_helper.cpp"
+		$File	"cloud_dx8.cpp"
+		$File	"core_dx8.cpp"
+		$File	"DecalBaseTimesLightmapAlphaBlendSelfIllum_dx8.cpp"
+		$File	"detail.cpp"
+		$File	"downsample_nohdr_dx80.cpp"
+		$File	"dx8fallbacks.cpp"
+		$File	"eyes.cpp"
+		$File	"emissive_scroll_blended_pass_dx8_helper.cpp"
+		$File	"flesh_interior_blended_pass_dx8_helper.cpp"
+		$File	"eyes_dx8_dx9_helper.cpp"					
+		$File	"filmdust_dx8_dx9.cpp"							
+		$File	"filmgrain_dx8_dx9.cpp"							
+		$File	"gooinglass.cpp"						
+		$File	"introscreenspaceeffect_dx80.cpp"				
+		$File	"lightmappedgeneric_decal.cpp"					
+		$File	"lightmappedgeneric_dx8.cpp"					
+		$File	"modulate_dx8.cpp"						
+		$File	"MonitorScreen_dx8.cpp"						
+		$File	"occlusion_dx8.cpp"						
+		$File	"overlay_fit.cpp"						
+		$File	"particlesphere_dx8.cpp"					
+		$File	"portal_dx80.cpp"						
+		$File	"portal_refract_dx8.cpp"
+		$File	"portal_refract_dx8_helper.cpp"
+		$File	"portalstaticoverlay_dx80.cpp"					
+		$File	"predator.cpp"							
+		$File	"refract_dx80.cpp"						
+		$File	"screenspace_general_dx8.cpp"						
+		$File	"shadow_dx8.cpp"						
+		$File	"shadowbuild_dx8.cpp"						
+		$File	"shadowmodel_dx8.cpp"						
+		$File	"shatteredglass_dx8.cpp"					
+		$File	"sprite.cpp"							
+		$File	"spritecard.cpp"
+		$File	"teeth_dx8.cpp"							
+		$File	"unlitgeneric_dx8.cpp"						
+		$File	"unlittwotexture_dx8.cpp"					
+		$File	"vertexlitgeneric_dx8.cpp"					
+		$File	"vortwarp_dx8.cpp"						
+		$File	"water_dx80.cpp"						
+		$File	"water_dx81.cpp"						
+		$File	"windowimposter_dx80.cpp"					
+		$File	"wireframe_dx8.cpp"						
+		$File	"worldtwotextureblend_dx8.cpp"					
+		$File	"worldvertexalpha_dx8.cpp"					
+		$File	"WorldVertexTransition_dx8.cpp"					
+		$File	"worldvertextransition_dx8_helper.cpp"				
+		$File	"writez_dx8.cpp"						
+		$File	"writestencil_dx8.cpp"						
+		$File	"yuv.cpp"							
+
+		$Folder	"Remove me when VAC2 is out"
+		{
+			$File	"..\shader_dll_verify.cpp"
+			$File	"..\shader_dll_verify.h"
+		}
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"eyes_dx8_dx9_helper.h"
+		$File	"worldvertextransition_dx8_helper.h"
+		$File	"BaseVSShader.h"
+	}
+
+	$Folder	"Link Libraries"
+	{
+		$File	"$SRCDIR\dx9sdk\lib\d3dx9.lib"
+		$Lib mathlib
+		$Lib shaderlib
+		$Lib	tier2
+	}
+
+	$File	"$SRCDIR\devtools\bin\fxc_prep.pl"
+	$File	"$SRCDIR\devtools\bin\vsh_prep.pl"
+	$File	"$SRCDIR\devtools\bin\psh_prep.pl"
+
+	$Shaders	"stdshader_dx9_20b.txt"
+	$Shaders	"stdshader_dx9_30.txt"
+	//$Shaders	"stdshader_dx10.txt"
+}

@@ -113,7 +113,7 @@ void CAI_FearBehavior::RunTask( const Task_t *pTask )
 					if( pHint == NULL )
 					{
 						TaskFail("Fear: Couldn't find hint node\n");
-						m_flDeferUntil = gpGlobals->curtime + 3.0f;// Don't bang the hell out of this behavior. If we don't find a node, take a short break and run regular AI.
+						m_flDeferUntil = gpGlobals->curtime + 3.0f; // Don't bang the heck out of this behavior. If we don't find a node, take a short break and run regular AI.
 					}
 					else
 					{

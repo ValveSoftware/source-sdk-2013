@@ -1,0 +1,68 @@
+//========= Copyright � 1996-2006, Valve Corporation, All rights reserved. ============//
+
+// DYNAMIC: "COMPRESSED_VERTS"			"0..1"
+// DYNAMIC: "SKINNING"					"0..1"
+// DYNAMIC: "MORPHING"					"0..1" [vs30]
+
+// Includes
+#include "common_vs_fxc.h"
+
+// Globals
+static const bool g_bSkinning = SKINNING ? true : false;
+
+#ifdef SHADER_MODEL_VS_3_0
+// NOTE: cMorphTargetTextureDim.xy = target dimensions,
+//		 cMorphTargetTextureDim.z = 4tuples/morph
+const float3 cMorphTargetTextureDim			: register( SHADER_SPECIFIC_CONST_6 );
+const float4 cMorphSubrect					: register( SHADER_SPECIFIC_CONST_7 );
+
+sampler2D morphSampler : register( s0 );
+#endif
+
+// Structs
+struct VS_INPUT
+{
+	float4 vPos					: POSITION;		// Position
+	float4 vBoneWeights			: BLENDWEIGHT;	// Skin weights
+	float4 vBoneIndices			: BLENDINDICES;	// Skin indices
+	float4 vTexCoord0			: TEXCOORD0;	// Base texture coordinates
+
+	float3 vPosFlex				: POSITION1;	// Delta positions for flexing
+	
+#ifdef SHADER_MODEL_VS_3_0
+	float vVertexID				: POSITION2;
+#endif
+};
+
+struct VS_OUTPUT
+{
+    float4 vProjPosition		: POSITION;		// Projection-space position
+	float2 vTexCoord0			: TEXCOORD0;
+};
+
+// Main
+VS_OUTPUT main( const VS_INPUT i )
+{
+	VS_OUTPUT o;
+
+	float4 vObjPosition = i.vPos;
+	
+#if !defined( SHADER_MODEL_VS_3_0 ) || !MORPHING
+	ApplyMorph( i.vPosFlex, vObjPosition.xyz );
+#else
+	ApplyMorph( morphSampler, cMorphTargetTextureDim, cMorphSubrect, i.vVertexID, float3( 0, 0, 0 ), vObjPosition.xyz );
+#endif
+
+	// Transform the position
+	float3 vWorldPosition = { 0.0f, 0.0f, 0.0f };
+	SkinPosition( g_bSkinning, vObjPosition, i.vBoneWeights, i.vBoneIndices, vWorldPosition );
+
+	// Transform into projection space
+	float4 vProjPosition = mul( float4( vWorldPosition, 1.0f ), cViewProj );
+	o.vProjPosition = vProjPosition;
+
+	// Pass through tex coords
+	o.vTexCoord0.xy = i.vTexCoord0.xy;
+
+	return o;
+}

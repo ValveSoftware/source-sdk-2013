@@ -52,7 +52,7 @@ Slider::Slider(Panel *parent, const char *panelName ) : BaseClass(parent, panelN
 	m_bUseSubRange = false;
 	m_bInverted = false;
 
-	SetThumbWidth( 8 );
+	SetThumbWidth( QuickPropScale( 8 ) );
 	RecomputeNobPosFromValue();
 	AddActionSignalTarget(this);
 	SetBlockDragChaining( true );
@@ -334,7 +334,7 @@ void Slider::ApplySettings(KeyValues *inResourceData)
 	int thumbWidth = inResourceData->GetInt("thumbwidth", 0);
 	if (thumbWidth != 0)
 	{
-		SetThumbWidth(thumbWidth);
+		SetThumbWidth(QuickPropScale(thumbWidth));
 	}
 
 	SetTickCaptions(left, right);
@@ -386,9 +386,9 @@ void Slider::GetTrackRect( int& x, int& y, int& w, int& h )
 	GetPaintSize( wide, tall );
 
 	x = 0;
-	y = 8;
+	y = QuickPropScale( 8 );
 	w = wide - (int)_nobSize;
-	h = 4;
+	h = QuickPropScale( 4 );
 }
 
 //-----------------------------------------------------------------------------
@@ -424,7 +424,7 @@ void Slider::DrawTicks()
 	float pixelspertick = freepixels / ( m_nNumTicks );
 
 	y += (int)_nobSize;
-	int tickHeight = 5;
+	int tickHeight = QuickPropScale( 5 );
 
     if (IsEnabled())
     {
@@ -433,7 +433,7 @@ void Slider::DrawTicks()
     	{
     		int xpos = (int)( leftpixel + i * pixelspertick );
     
-    		surface()->DrawFilledRect( xpos, y, xpos + 1, y + tickHeight );
+    		surface()->DrawFilledRect( xpos, y, xpos + QuickPropScale( 1 ), y + tickHeight );
     	}
     }
     else
@@ -442,13 +442,13 @@ void Slider::DrawTicks()
     	for ( int i = 0; i <= m_nNumTicks; i++ )
     	{
     		int xpos = (int)( leftpixel + i * pixelspertick );
-    		surface()->DrawFilledRect( xpos+1, y+1, xpos + 2, y + tickHeight + 1 );
+    		surface()->DrawFilledRect( xpos+QuickPropScale(1), y+QuickPropScale(1), xpos + QuickPropScale(2), y + tickHeight + QuickPropScale(1) );
     	}
         surface()->DrawSetColor( m_DisabledTextColor2 ); //vgui::Color( 127, 140, 127, 255 ) );
     	for ( int i = 0; i <= m_nNumTicks; i++ )
     	{
     		int xpos = (int)( leftpixel + i * pixelspertick );
-    		surface()->DrawFilledRect( xpos, y, xpos + 1, y + tickHeight );
+    		surface()->DrawFilledRect( xpos, y, xpos + QuickPropScale(1), y + tickHeight );
     	}
     }
 }
@@ -464,7 +464,7 @@ void Slider::DrawTickLabels()
 
 	// Figure out how to draw the ticks
 //	GetPaintSize( wide, tall );
-	y += (int)NOB_SIZE + 4;
+	y += (int)QuickPropScale( NOB_SIZE + 4 );
 
 	// Draw Start and end range values
     if (IsEnabled())
@@ -524,7 +524,8 @@ void Slider::DrawNob()
 #endif
 	surface()->DrawSetColor(col);
 
-	int nobheight = 16;
+	int nRepeats = Max( QuickPropScale( 1 ), 1 );
+	int nobheight = QuickPropScale( 16 );
 
 	surface()->DrawFilledRect(
 		_nobPos[0], 
@@ -534,11 +535,13 @@ void Slider::DrawNob()
 	// border
 	if (_sliderBorder)
 	{
-		_sliderBorder->Paint(
+		_sliderBorder->Paint2(
 			_nobPos[0], 
 			y + tall / 2 - nobheight / 2, 
 			_nobPos[1], 
-			y + tall / 2 + nobheight / 2);
+			y + tall / 2 + nobheight / 2,
+			-1, 0, 0,
+			nRepeats );
 	}
 }
 
@@ -609,6 +612,8 @@ void Slider::PaintBackground()
 {
 	BaseClass::PaintBackground();
 	
+	int nRepeats = Max( QuickPropScale( 1 ), 1 );
+
 	int x, y;
 	int wide,tall;
 
@@ -618,7 +623,7 @@ void Slider::PaintBackground()
 	surface()->DrawFilledRect( x, y, x + wide, y + tall );
 	if (_insetBorder)
 	{
-		_insetBorder->Paint( x, y, x + wide, y + tall );
+		_insetBorder->Paint2( x, y, x + wide, y + tall, -1, 0, 0, nRepeats );
 	}
 }
 

@@ -323,4 +323,18 @@ float3 Vec3TangentToWorldNormalized( float3 iTangentVector, float3 iWorldNormal,
 	return normalize( Vec3TangentToWorld( iTangentVector, iWorldNormal, iWorldTangent, iWorldBinormal ) );
 }
 
+// Returns 1.0f for no fog, 0.0f for fully fogged
+float CalcRadialFog_FixedFunction( float3 vWorldPos, float3 vEyePos, float flFogMaxDensity, float flFogEndOverRange, float flFogOORange )
+{
+	float flDistance = distance( vEyePos.xyz, vWorldPos.xyz );
+	return max( flFogMaxDensity, ( -flDistance * flFogOORange ) + flFogEndOverRange );
+}
+
+// Returns 0.0f for no fog, 1.0f for fully fogged which is opposite of what fixed function fog expects so that we don't have to do a "1-x" in the pixel shader.
+float CalcRadialFog_NonFixedFunction( float3 vWorldPos, float3 vEyePos, float flFogMaxDensity, float flFogEndOverRange, float flFogOORange )
+{
+	float flDistance = distance( vEyePos.xyz, vWorldPos.xyz );
+	return min( flFogMaxDensity, saturate( ( flDistance * flFogOORange ) - flFogEndOverRange ) );
+}
+
 #endif //#ifndef COMMON_FXC_H_

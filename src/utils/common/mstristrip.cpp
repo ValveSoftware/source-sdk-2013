@@ -867,7 +867,7 @@ public:
     int iFirstUsed;
     int iOrigIndex;
 
-    bool operator<(const SortEntry& rhs) const
+    bool operator<(const SortEntry& rhs)
     {
         return iFirstUsed < rhs.iFirstUsed;
     }

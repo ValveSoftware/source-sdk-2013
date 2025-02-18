@@ -65,11 +65,31 @@ URLLabel::~URLLabel()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: checks the URL
+//-----------------------------------------------------------------------------
+bool URLLabel::IsValidURL( const char *pszURL )
+{
+	if ( !pszURL || !pszURL[ 0 ] )
+		return false;
+
+	if ( ( Q_strncmp( pszURL, "http://", 7 ) != 0 ) && ( Q_strncmp( pszURL, "https://", 8 ) != 0 ) )
+		return false;
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: sets the URL
 //-----------------------------------------------------------------------------
 void URLLabel::SetURL(const char *pszURL)
 {
-	int iNewURLSize = strlen(pszURL);
+	if ( !IsValidURL( pszURL ) )
+	{
+		Warning( "Invalid URL in URLLabel '%s'\n", pszURL );
+		return;
+	}
+
+	int iNewURLSize = V_strlen(pszURL);
 	if (iNewURLSize > m_iURLSize || !m_pszURL)
 	{
 		delete [] m_pszURL;
@@ -88,7 +108,15 @@ void URLLabel::OnMousePressed(MouseCode code)
     {
         if (m_pszURL)
 		{
-	        system()->ShellExecute("open", m_pszURL);
+			// URL should have already been validated in SetURL()
+			if ( Q_strncmp( m_pszURL, "http://", 7 ) != 0 && Q_strncmp( m_pszURL, "https://", 8 ) != 0 )
+			{
+				Warning( "Invalid URL '%s'\n", m_pszURL );
+			}
+			else
+			{
+				system()->ShellExecute( "open", m_pszURL );
+			}
 		}
     }
 }

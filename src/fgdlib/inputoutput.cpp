@@ -36,6 +36,7 @@ static TypeMap_t TypeMap[] =
 	{ iotEHandle,	"target_destination" },
 	{ iotColor,		"color255" },
 	{ iotEHandle,	"ehandle" }, // for backwards compatibility
+	{ iotScript,	"script" },
 };
 
 

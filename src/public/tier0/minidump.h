@@ -75,6 +75,12 @@ PLATFORM_INTERFACE bool WriteMiniDumpUsingExceptionInfo(
 	tchar *ptchMinidumpFileNameBuffer = NULL
 	);
 
+// A slightly smart wrapper around WriteMiniDumpUsingExceptionInfo that tries to select the right minidump type on
+// context.
+PLATFORM_INTERFACE void AutoWriteMiniDumpUsingExceptionInfo( unsigned int uStructuredExceptionCode,
+                                                             _EXCEPTION_POINTERS * pExceptionInfo,
+                                                             const char *pszFilenameSuffix );
+
 // Call this to enable a handler for unhandled exceptions.
 PLATFORM_INTERFACE void MinidumpSetUnhandledExceptionFunction( FnMiniDump pfn );
 

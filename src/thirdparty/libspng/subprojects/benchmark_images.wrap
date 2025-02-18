@@ -1,0 +1,4 @@
+[wrap-git]
+directory = benchmark_images
+url = https://github.com/libspng/benchmark_images.git
+revision=head

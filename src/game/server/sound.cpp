@@ -159,6 +159,8 @@ class CAmbientGeneric : public CPointEntity
 public:
 	DECLARE_CLASS( CAmbientGeneric, CPointEntity );
 
+	CAmbientGeneric();
+
 	bool KeyValue( const char *szKeyName, const char *szValue );
 	void Spawn( void );
 	void Precache( void );
@@ -193,10 +195,15 @@ public:
 	bool m_fActive;		// only true when the entity is playing a looping sound
 	bool m_fLooping;		// true when the sound played will loop
 
-	string_t m_iszSound;			// Path/filename of WAV file to play.
+	char m_szSoundFile[MAX_PATH];			// Path/filename of WAV or MP3 file to play.
 	string_t m_sSourceEntName;
 	EHANDLE m_hSoundSource;	// entity from which the sound comes
 	int		m_nSoundSourceEntIndex; // In case the entity goes away before we finish stopping the sound...
+
+private:
+	void ValidateSoundFile( void );
+	string_t m_iszSound;
+	string_t m_iszPrevSound; // track if the sound has changed and we need to re-Validate
 };
 
 LINK_ENTITY_TO_CLASS( ambient_generic, CAmbientGeneric );
@@ -243,6 +250,16 @@ END_DATADESC()
 
 
 //-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+CAmbientGeneric::CAmbientGeneric()
+{
+	m_szSoundFile[0] = 0;
+	m_iszSound = NULL_STRING;
+	m_iszPrevSound = NULL_STRING;
+}
+
+//-----------------------------------------------------------------------------
 // Spawn
 //-----------------------------------------------------------------------------
 void CAmbientGeneric::Spawn( void )
@@ -250,8 +267,9 @@ void CAmbientGeneric::Spawn( void )
 	m_iSoundLevel = ComputeSoundlevel( m_radius, FBitSet( m_spawnflags, SF_AMBIENT_SOUND_EVERYWHERE )?true:false );
 	ComputeMaxAudibleDistance( );
 
-	char *szSoundFile = (char *)STRING( m_iszSound );
-	if ( !m_iszSound || strlen( szSoundFile ) < 1 )
+	ValidateSoundFile();
+
+	if ( V_strlen( m_szSoundFile ) < 1 )
 	{
 		Warning( "Empty %s (%s) at %.2f, %.2f, %.2f\n", GetClassname(), GetDebugName(), GetAbsOrigin().x, GetAbsOrigin().y, GetAbsOrigin().z );
 		UTIL_Remove(this);
@@ -420,14 +438,58 @@ void CAmbientGeneric::InputFadeOut( inputdata_t &inputdata )
 }
 
 
+void CAmbientGeneric::ValidateSoundFile( void )
+{
+	if ( m_iszSound == NULL_STRING )
+	{
+		m_iszPrevSound = NULL_STRING;
+		m_szSoundFile[0] = 0;
+		return;
+	}
+
+	if ( m_iszSound == m_iszPrevSound )
+		return;
+
+	m_iszPrevSound = m_iszSound;
+	
+	char *szSoundFile = (char *)STRING( m_iszSound );
+	if ( V_strlen( szSoundFile ) < 1 )
+		return;
+
+	char szPathTest[MAX_PATH] = { 0 };
+	char szNewSoundFile[MAX_PATH] = { 0 };
+
+	// try to fix some legacy ambient generic entities that still use .wav file references for vo sounds instead of .mp3
+	if ( V_strncmp( szSoundFile, "vo", 2 ) == 0 )
+	{
+		const char *pszExt = V_GetFileExtension( szSoundFile );
+		if ( pszExt && pszExt[0] && FStrEq( pszExt, "wav" ) )
+		{
+			V_sprintf_safe( szPathTest, "sound/%s", szSoundFile );
+			if ( !g_pFullFileSystem->FileExists( szPathTest ) )
+			{
+				V_strcpy_safe( szNewSoundFile, szSoundFile );
+				V_SetExtension( szNewSoundFile, ".mp3", ARRAYSIZE( szNewSoundFile ) );
+				V_sprintf_safe( szPathTest, "sound/%s", szNewSoundFile );
+				if ( g_pFullFileSystem->FileExists( szPathTest ) )
+				{
+					szSoundFile = szNewSoundFile;
+				}
+			}
+		}
+	}
+
+	V_strcpy_safe( m_szSoundFile, szSoundFile );
+}
+
+
 void CAmbientGeneric::Precache( void )
 {
-	char *szSoundFile = (char *)STRING( m_iszSound );
-	if ( m_iszSound != NULL_STRING && strlen( szSoundFile ) > 1 )
+	if ( V_strlen( m_szSoundFile ) > 1 )
 	{
-		if (*szSoundFile != '!')
+		if ( m_szSoundFile[0] != '!' )
 		{
-			PrecacheScriptSound(szSoundFile);
+			PrecacheScriptSound( m_szSoundFile );
 		}
 	}
 
@@ -756,8 +818,10 @@ void CAmbientGeneric::RampThink( void )
 		CBaseEntity* pSoundSource = m_hSoundSource;
 		if (pSoundSource)
 		{
+			ValidateSoundFile();
+
 			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), 
-				STRING( m_iszSound ), (vol * 0.01), m_iSoundLevel, flags, pitch);
+				m_szSoundFile, ( vol * 0.01 ), m_iSoundLevel, flags, pitch );
 		}
 	}
 
@@ -877,18 +941,19 @@ void CAmbientGeneric::InputStopSound( inputdata_t &inputdata )
 
 void CAmbientGeneric::SendSound( SoundFlags_t flags)
 {
-	char *szSoundFile = (char *)STRING( m_iszSound );
+	ValidateSoundFile();
+
 	CBaseEntity* pSoundSource = m_hSoundSource;
 	if ( pSoundSource )
 	{
 		if ( flags == SND_STOP )
 		{
-			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), szSoundFile, 
+			UTIL_EmitAmbientSound( pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), m_szSoundFile,
 						0, SNDLVL_NONE, flags, 0);
 		}
 		else
 		{
-			UTIL_EmitAmbientSound(pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), szSoundFile, 
+			UTIL_EmitAmbientSound( pSoundSource->GetSoundSourceIndex(), pSoundSource->GetAbsOrigin(), m_szSoundFile,
 				(m_dpv.vol * 0.01), m_iSoundLevel, flags, m_dpv.pitch);
 		}
 	}	
@@ -897,7 +962,7 @@ void CAmbientGeneric::SendSound( SoundFlags_t flags)
 		if ( ( flags == SND_STOP ) && 
 			( m_nSoundSourceEntIndex != -1 ) )
 		{
-			UTIL_EmitAmbientSound(m_nSoundSourceEntIndex, GetAbsOrigin(), szSoundFile, 
+			UTIL_EmitAmbientSound( m_nSoundSourceEntIndex, GetAbsOrigin(), m_szSoundFile,
 					0, SNDLVL_NONE, flags, 0);
 		}
 	}
@@ -1354,9 +1419,9 @@ void UTIL_RestartAmbientSounds( void )
 	CAmbientGeneric *pAmbient = NULL;
 	while ( ( pAmbient = (CAmbientGeneric*) gEntList.FindEntityByClassname( pAmbient, "ambient_generic" ) ) != NULL )
 	{
-		if (pAmbient->m_fActive )
+		if ( pAmbient->m_fActive )
 		{
-			if ( strstr( STRING( pAmbient->m_iszSound ), "mp3" ) )
+			if ( V_strstr( pAmbient->m_szSoundFile, "mp3" ) )
 			{
 				pAmbient->SendSound( SND_CHANGE_VOL ); // fake a change, so we don't create 2 sounds
 			}

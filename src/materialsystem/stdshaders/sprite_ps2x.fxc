@@ -7,7 +7,7 @@
 // STATIC: "SRGB_OUTPUT_ADAPTER"	"0..1"	[ps20b]
 
 // DYNAMIC: "HDRENABLED"			"0..1"
-// DYNAMIC: "PIXELFOGTYPE"			"0..1"
+// DYNAMIC: "PIXELFOGTYPE"			"0..2"
 
 #include "common_ps_fxc.h"
 #include "shader_constant_register_map.h"
@@ -44,7 +44,7 @@ float4 main( PS_INPUT i ) : COLOR
 	sample.xyz *= g_HDRColorScale;
 #endif
 
-	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos_SpecExponent.z, i.worldPos_projPosZ.z, i.worldPos_projPosZ.w );
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos_SpecExponent.xyz, i.worldPos_projPosZ.xyz, i.worldPos_projPosZ.w );
 #if SRGB
 	result = FinalOutput( sample, fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_LINEAR );
 #else

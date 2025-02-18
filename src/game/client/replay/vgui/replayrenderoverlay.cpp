@@ -297,7 +297,7 @@ void CReplayRenderOverlay::OnTick()
 					g_pVGuiLocalize->ConvertANSIToUnicode( pRenderTime, wszTime, sizeof( wszTime ) );
 				}
 				wchar_t wszText[256];
-				g_pVGuiLocalize->ConstructString( wszText,sizeof( wszText ), g_pVGuiLocalize->Find( "#Replay_RenderOverlay_TimeLeft" ), 2, wszTime, wszTimeLeft );
+				g_pVGuiLocalize->ConstructString_safe( wszText, g_pVGuiLocalize->Find( "#Replay_RenderOverlay_TimeLeft" ), 2, wszTime, wszTimeLeft );
 				m_pProgressLabel->SetText( wszText );
 			}
 		}

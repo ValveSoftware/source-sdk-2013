@@ -30,6 +30,8 @@
 #include "lzma/lzma.h"
 #endif
 
+#include "tier0/memdbgon.h"
+
 // Data descriptions for byte swapping - only needed
 // for structures that are written to file for use by the game.
 BEGIN_BYTESWAP_DATADESC( ZIP_EndOfCentralDirRecord )
@@ -172,24 +174,24 @@ class CWin32File
 public:
 	static HANDLE CreateTempFile( CUtlString &WritePath, CUtlString &FileName )
 	{
+		FILE *hFile = (FILE *)INVALID_HANDLE_VALUE;
+
 		char tempFileName[MAX_PATH];
 		if ( WritePath.IsEmpty() )
 		{
+			char mktName[MAX_PATH];
+
 			// use a safe name in the cwd
-			char *pBuffer = tmpnam( NULL );
-			if ( !pBuffer )
+			// mktemp requires a writable string.
+			V_strcpy_safe( mktName, "_fstXXXXXX.tmp" );
+			int nFileDescriptor = mkstemps( mktName, 4 );
+			if ( nFileDescriptor == -1 )
 			{
 				return INVALID_HANDLE_VALUE;
 			}
-			if ( pBuffer[0] == '\\' )
-			{
-				pBuffer++;
-			}
-			if ( pBuffer[strlen( pBuffer )-1] == '.' )
-			{
-				pBuffer[strlen( pBuffer )-1] = '\0';
-			}
-			V_snprintf( tempFileName, sizeof( tempFileName ), "_%s.tmp", pBuffer );
+			
+			FileName = mktName;
+			hFile = fdopen( nFileDescriptor, "rw+" );
 		}
 		else
 		{
@@ -197,13 +199,15 @@ public:
 			static int counter = 0;
 			time_t now = time( NULL );
 			struct tm *tm = localtime( &now );
-			sprintf( uniqueFilename, "%d_%d_%d_%d_%d.tmp", tm->tm_wday, tm->tm_hour, tm->tm_min, tm->tm_sec, ++counter );                                                \
+			V_sprintf_safe( uniqueFilename, "%d_%d_%d_%d_%d.tmp", tm->tm_wday, tm->tm_hour, tm->tm_min, tm->tm_sec, ++counter );
+
+			char tempFileName[MAX_PATH];
 			V_ComposeFileName( WritePath.String(), uniqueFilename, tempFileName, sizeof( tempFileName ) );
+
+			FileName = tempFileName;
+			hFile = fopen( tempFileName, "rw+" );
 		}
 
-		FileName = tempFileName;
-		FILE *hFile = fopen( tempFileName, "rw+" );
-		
 		return (HANDLE)hFile;
 	}
 
@@ -656,11 +660,9 @@ void CZipFile::ParseFromBuffer( void *buffer, int bufferlength )
 			// Set any xzip configuration
 			if ( rec.commentLength )
 			{
-				char commentString[128];
-				int commentLength = min( rec.commentLength, sizeof( commentString ) );
+				char commentString[128] = { 0 };
+				int commentLength = (int)Min( (size_t)rec.commentLength, sizeof( commentString ) - 1 );
 				buf.Get( commentString, commentLength );
-				if ( commentLength == sizeof( commentString ) )
-					--commentLength;
 				commentString[commentLength] = '\0';
 				ParseXZipCommentString( commentString );
 			}
@@ -673,7 +675,7 @@ void CZipFile::ParseFromBuffer( void *buffer, int bufferlength )
 		}
 	}
 	Assert( bFoundEndOfCentralDirRecord );
-	
+
 	// Make sure there are some files to parse
 	int numzipfiles = rec.nCentralDirectoryEntries_Total;
 	if ( numzipfiles <= 0 )
@@ -702,8 +704,8 @@ void CZipFile::ParseFromBuffer( void *buffer, int bufferlength )
 			Warning( "Opening ZIP file with unsupported compression type\n");
 		}
 
-		char tmpString[1024] = { 0 };
-		buf.Get( tmpString, Min( (unsigned int)zipFileHeader.fileNameLength, (unsigned int)sizeof( tmpString ) ) );
+		char tmpString[MAX_PATH] = { 0 };
+		buf.Get( tmpString, Min( (unsigned int)zipFileHeader.fileNameLength, (unsigned int)sizeof( tmpString ) - 1 ) );
 		Q_strlower( tmpString );
 
 		// can determine actual filepos, assuming a well formed zip
@@ -813,12 +815,10 @@ HANDLE CZipFile::ParseFromDisk( const char *pFilename )
 			// Set any xzip configuration
 			if ( rec.commentLength )
 			{
-				char commentString[128];
-				int commentLength = min( rec.commentLength, sizeof( commentString ) );
+				char commentString[128] = { 0 };
+				int commentLength = min( (int)rec.commentLength, (int)sizeof( commentString ) - 1 );
 				CWin32File::FileRead( hFile, commentString, commentLength );
-				if ( commentLength == sizeof( commentString ) )
-					--commentLength;
-				commentString[commentLength] = '\0';
+				commentString[ commentLength ] = '\0';
 				ParseXZipCommentString( commentString );
 			}
 			break;
@@ -870,9 +870,8 @@ HANDLE CZipFile::ParseFromDisk( const char *pFilename )
 			return NULL;
 		}
 
-		char fileName[1024];
-		zipDirBuff.Get( fileName, zipFileHeader.fileNameLength );
-		fileName[zipFileHeader.fileNameLength] = '\0';
+		char fileName[MAX_PATH] = { 0 };
+		zipDirBuff.Get( fileName, Min( zipFileHeader.fileNameLength, ( unsigned short )( sizeof( fileName ) - 1 ) ) );
 		Q_strlower( fileName );
 
 		// can determine actual filepos, assuming a well formed zip
@@ -1359,10 +1358,10 @@ unsigned int CZipFile::CalculateSize( void )
 
 		// local file header
 		size += sizeof( ZIP_LocalFileHeader );
-		size += strlen( e->m_Name.String() );
+		size += V_strlen( e->m_Name.String() );
 
 		// every file has a directory header that duplicates the filename 
-		dirHeaders += sizeof( ZIP_FileHeader ) + strlen( e->m_Name.String() );
+		dirHeaders += sizeof( ZIP_FileHeader ) + V_strlen( e->m_Name.String() );
 
 		// calculate padding
 		if ( m_AlignmentSize != 0 )
@@ -1448,8 +1447,42 @@ void CZipFile::SaveToDisk( HANDLE hOutFile )
 //-----------------------------------------------------------------------------
 void CZipFile::SaveToBuffer( CUtlBuffer& buf )
 {
+	// Estimate size for buffer, since the linear growth of CUtlBuffer is a virtual memory steamroller. This is
+	// best-effort. Ideally CUtlBuffer's growth strategy would be sane and this would be unnecessary.
+	int sizeEstimate = 0;
+	for ( int i = m_Files.FirstInorder(); i != m_Files.InvalidIndex(); i = m_Files.NextInorder( i ) )
+	{
+		CZipEntry *e = &m_Files[i];
+		Assert( e );
+
+		int nameLen = V_strlen( e->m_Name.String() );
+		// Both the per-file header and central directory have these
+		sizeEstimate += 2 * sizeof( ZIP_LocalFileHeader );
+		sizeEstimate += 2 * nameLen;
+		sizeEstimate += 2 * CalculatePadding( nameLen, e->m_ZipOffset );
+		sizeEstimate += sizeof( ZIP_EndOfCentralDirRecord );
+		sizeEstimate += e->m_nCompressedSize;
+		// XZip comment string, max 128
+		sizeEstimate += 128;
+		// We align things to m_AlignmentSize at two points
+		sizeEstimate += m_AlignmentSize * 2;
+	}
+
+	int start = buf.TellPut();
+	buf.EnsureCapacity( start + sizeEstimate );
 	CBufferStream stream( buf );
+
 	SaveDirectory( stream );
+
+	int end = buf.TellPut();
+	if ( start + sizeEstimate < end )
+	{
+		Warning( "ZIP Output overshot buffer estimate: Estimated %i, actual %i\n", sizeEstimate, end - start );
+	}
+	else
+	{
+		DevMsg( "Wrote ZIP buffer, estimated size %i, actual size %i\n", sizeEstimate, end - start );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1518,14 +1551,14 @@ void CZipFile::SaveDirectory( IWriteStream& stream )
 			const char *pFilename = e->m_Name.String();
 			hdr.compressedSize = e->m_nCompressedSize;
 			hdr.uncompressedSize = e->m_nUncompressedSize;
-			hdr.fileNameLength = strlen( pFilename );
+			hdr.fileNameLength = V_strlen( pFilename );
 			hdr.extraFieldLength = CalculatePadding( hdr.fileNameLength, e->m_ZipOffset );
 			int extraFieldLength = hdr.extraFieldLength;
 
 			// Swap header in place
 			m_Swap.SwapFieldsToTargetEndian( &hdr );
 			stream.Put( &hdr, sizeof( hdr ) );
-			stream.Put( pFilename, strlen( pFilename ) );
+			stream.Put( pFilename, V_strlen( pFilename ) );
 			stream.Put( pPaddingBuffer, extraFieldLength );
 			stream.Put( e->m_pData, e->m_nCompressedSize );
 
@@ -1584,7 +1617,7 @@ void CZipFile::SaveDirectory( IWriteStream& stream )
 
 			hdr.compressedSize = e->m_nCompressedSize;
 			hdr.uncompressedSize = e->m_nUncompressedSize;
-			hdr.fileNameLength = strlen( e->m_Name.String() );
+			hdr.fileNameLength = V_strlen( e->m_Name.String() );
 			hdr.extraFieldLength = CalculatePadding( hdr.fileNameLength, e->m_ZipOffset );
 			hdr.fileCommentLength = 0;
 			hdr.diskNumberStart = 0;
@@ -1596,7 +1629,7 @@ void CZipFile::SaveDirectory( IWriteStream& stream )
 			// Swap the header in place
 			m_Swap.SwapFieldsToTargetEndian( &hdr );
 			stream.Put( &hdr, sizeof( hdr ) );
-			stream.Put( e->m_Name.String(), strlen( e->m_Name.String() ) );
+			stream.Put( e->m_Name.String(), V_strlen( e->m_Name.String() ) );
 			if ( m_bCompatibleFormat )
 			{
 				stream.Put( pPaddingBuffer, extraFieldLength );

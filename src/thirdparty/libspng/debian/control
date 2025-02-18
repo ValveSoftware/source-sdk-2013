@@ -1,0 +1,25 @@
+Source: libspng
+Section: libraries
+Maintainer: Randy <randy408@protonmail.com>
+Build-Depends: pkg-config, zlib1g-dev
+Standards-Version: 0.4.4
+Homepage: https://libspng.org
+Vcs-Git: https://gitlab.com/randy408/libspng.git
+Vcs-Browser: https://gitlab.com/randy408/libspng
+
+Package: libspng
+Architecture: any
+Pre-Depends:
+Depends:
+Description:
+
+Package: libspng-dev
+Section: libdevel
+Multi-Arch: same
+Depends:
+Description: PNG library - development
+ libspng is a C library for reading and writing Portable Network Graphics (PNG)
+ format files with a focus on security and ease of use.
+ .
+ This package contains the header and development files needed to build
+ programs and packages using libspng.

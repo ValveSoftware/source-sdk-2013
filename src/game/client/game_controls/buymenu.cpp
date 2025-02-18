@@ -105,6 +105,7 @@ void CBuyMenu::OnKeyCodePressed( vgui::KeyCode code )
 	case KEY_XSTICK1_UP:
 	case KEY_XSTICK2_UP:
 	case KEY_UP:
+	case STEAMCONTROLLER_DPAD_UP:
 		nDir = -1;
 		break;
 
@@ -112,6 +113,7 @@ void CBuyMenu::OnKeyCodePressed( vgui::KeyCode code )
 	case KEY_XSTICK1_DOWN:
 	case KEY_XSTICK2_DOWN:
 	case KEY_DOWN:
+	case STEAMCONTROLLER_DPAD_DOWN:
 		nDir = 1;
 		break;
 	}

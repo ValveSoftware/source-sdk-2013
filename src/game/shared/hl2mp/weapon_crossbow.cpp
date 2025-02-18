@@ -468,6 +468,9 @@ END_NETWORK_TABLE()
 BEGIN_PREDICTION_DATA( CWeaponCrossbow )
 	DEFINE_PRED_FIELD( m_bInZoom, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bMustReload, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+
+	// misyl: Can't predict this easily as it comes from some animevent stuff...
+	DEFINE_PRED_FIELD( m_nSkin, FIELD_INTEGER, FTYPEDESC_INSENDTABLE | FTYPEDESC_OVERRIDE | FTYPEDESC_NOERRORCHECK ),
 END_PREDICTION_DATA()
 #endif
 
@@ -544,6 +547,12 @@ void CWeaponCrossbow::PrimaryAttack( void )
 	m_bMustReload = true;
 
 	SetWeaponIdleTime( gpGlobals->curtime + SequenceDuration( ACT_VM_PRIMARYATTACK ) );
+
+#ifdef GAME_DLL
+	CBasePlayer *player = ToBasePlayer( GetOwner() );
+	if ( player )
+		player->OnMyWeaponFired( this );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -915,6 +924,9 @@ void CWeaponCrossbow::SetChargerState( ChargerState_t state )
 //-----------------------------------------------------------------------------
 void CWeaponCrossbow::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator )
 {
+	// misyl: Disable pred filtering in this server-only section.
+	CDisablePredictionFiltering disablePred;
+
 	switch( pEvent->event )
 	{
 	case EVENT_WEAPON_THROW:

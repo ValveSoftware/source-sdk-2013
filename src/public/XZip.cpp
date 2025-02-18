@@ -109,6 +109,7 @@
 #endif
 
 #include <time.h>
+#define I_SHOULD_NOT_BE_USING_XZIP
 #include "zip/XZip.h"
 
 #ifdef __clang__
@@ -2450,17 +2451,17 @@ unsigned TZip::swrite(void *param,const char *buf, unsigned size)
   if (size==0) return 0;
   TZip *zip=(TZip*)param; return zip->write(buf,size);
 }
-unsigned int TZip::write(const char *buf,unsigned int size)
+unsigned int TZip::write(const char *pBuf,unsigned int size)
 { if (obuf!=0)
   { if (opos+size>=mapsize) {oerr=ZR_MEMSIZE; return 0;}
-    memcpy(obuf+opos, buf, size);
+    memcpy(obuf+opos, pBuf, size);
     opos+=size;
     return size;
   }
 #ifdef _WIN32
   else if (hfout!=0)
-  { DWORD writ; WriteFile(hfout,buf,size,&writ,NULL);
-    return writ;
+  { DWORD writF; WriteFile(hfout, pBuf,size,&writF,NULL);
+    return writF;
   }
 #endif
   oerr=ZR_NOTINITED; return 0;
@@ -2618,24 +2619,24 @@ unsigned TZip::sread(TState &s,char *buf,unsigned size)
   return zip->read(buf,size);
 }
 
-unsigned TZip::read(char *buf, unsigned size)
+unsigned TZip::read(char *pBuf, unsigned size)
 { if (bufin!=0)
   { if (posin>=lenin) return 0; // end of input
     ulg red = lenin-posin;
     if (red>size) red=size;
-    memcpy(buf, bufin+posin, red);
+    memcpy( pBuf, bufin+posin, red);
     posin += red;
     ired += red;
-    crc = crc32(crc, (uch*)buf, red);
+    crc = crc32(crc, (uch*)pBuf, red);
     return red;
   }
 #ifdef _WIN32
   else if (hfin!=0)
   { DWORD red;
-    BOOL ok = ReadFile(hfin,buf,size,&red,NULL);
+    BOOL ok = ReadFile(hfin, pBuf,size,&red,NULL);
     if (!ok) return 0;
     ired += red;
-    crc = crc32(crc, (uch*)buf, red);
+    crc = crc32(crc, (uch*)pBuf, red);
     return red;
   }
 #endif

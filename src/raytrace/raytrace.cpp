@@ -233,8 +233,6 @@ void CacheOptimizedTriangle::ChangeIntoIntersectionFormat(void)
 
 }
 
-int n_intersection_calculations=0;
-
 int CacheOptimizedTriangle::ClassifyAgainstAxisSplit(int split_plane, float split_value)
 {
 	// classify a triangle against an axis-aligned plane
@@ -423,7 +421,7 @@ void RayTracingEnvironment::Trace4Rays(const FourRays &rays, fltx4 TMin, fltx4 T
 				MulSIMD(
 					SubSIMD(ReplicateX4(CurNode->SplittingPlaneValue),
 							   rays.origin[split_plane_number]),OneOverRayDir[split_plane_number]);
-			fltx4 active=CmpLeSIMD(TMin,TMax);			// mask of which rays are active
+			active=CmpLeSIMD(TMin,TMax);			// mask of which rays are active
 
 			// now, decide how to traverse children. can either do front,back, or do front and push
 			// back.
@@ -476,7 +474,6 @@ void RayTracingEnvironment::Trace4Rays(const FourRays &rays, fltx4 TMin, fltx4 T
 				TriIntersectData_t const *tri = &( OptimizedTriangleList[tnum].m_Data.m_IntersectData );
 				if ( ( mailboxids[mbox_slot] != tnum ) && ( tri->m_nTriangleID != skip_id ) )
 				{
-					n_intersection_calculations++;
 					mailboxids[mbox_slot] = tnum;
 					// compute plane intersection
 
@@ -874,7 +871,7 @@ void RayTracingEnvironment::RefineNode(int node_number,int32 const *tri_list,int
 
 void RayTracingEnvironment::SetupAccelerationStructure(void)
 {
-	CacheOptimizedKDNode root;
+	CacheOptimizedKDNode root{};
 	OptimizedKDTree.AddToTail(root);
 	int32 *root_triangle_list=new int32[OptimizedTriangleList.Count()];
 	for(int t=0;t<OptimizedTriangleList.Count();t++)

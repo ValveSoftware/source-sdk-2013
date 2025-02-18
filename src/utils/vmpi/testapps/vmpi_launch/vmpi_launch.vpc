@@ -1,0 +1,38 @@
+//-----------------------------------------------------------------------------
+//	VMPI_LAUNCH.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\..\..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+
+$Include "$SRCDIR\vpc_scripts\source_exe_con_win32_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE,.\,..\.."
+	}
+
+	$Linker
+	{
+		$AdditionalDependencies				"ws2_32.lib odbc32.lib odbccp32.lib"
+	}
+}
+
+$Project "Vmpi_launch"
+{
+	$Folder	"Source Files"
+	{
+		$File	"..\..\iphelpers.cpp"
+		$File	"StdAfx.cpp"
+		$File	"vmpi_launch.cpp"
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"StdAfx.h"
+	}
+}

@@ -1,0 +1,20 @@
+# .circleci/config.yml
+version: 2.1
+
+jobs:
+  test-arm:
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
+    steps:
+      - checkout
+      - run: sudo apt install meson ninja-build
+      - run: meson -Ddev_build=true -Db_sanitize=address build
+      - run: ninja -C build test
+      - run: meson configure -Db_sanitize=none build # Some bugs disappear with AddressSanitizer
+      - run: ninja -C build test
+
+workflows:
+  build:
+    jobs:
+      - test-arm

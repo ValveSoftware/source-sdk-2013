@@ -71,10 +71,11 @@ void Button::Init()
 	_keyFocusBorder = NULL;
 	m_bSelectionStateSaved = false;
 	m_bStaySelectedOnClick = false;
+	m_bStaySelectedOnClick = false;
 	m_sArmedSoundName = UTL_INVAL_SYMBOL;
 	m_sDepressedSoundName = UTL_INVAL_SYMBOL;
 	m_sReleasedSoundName = UTL_INVAL_SYMBOL;
-	SetTextInset(6, 0);
+	SetTextInset( QuickPropScale( 6 ), 0);
 	SetMouseClickEnabled( MOUSE_LEFT, true );
 	SetButtonActivationType(ACTIVATE_ONPRESSEDANDRELEASED);
 
@@ -138,7 +139,7 @@ void Button::SetSelected( bool state )
 		InvalidateLayout(false);
 	}
 
-	if ( state && _buttonFlags.IsFlagSet( ARMED ) )
+	if ( !m_bStayArmedOnClick && state && _buttonFlags.IsFlagSet( ARMED ) )
 	{
 		_buttonFlags.SetFlag( ARMED,  false );
 		InvalidateLayout(false);
@@ -687,6 +688,15 @@ void Button::SetReleasedSound(const char *sound)
 	}
 }
 
+inline int MouseCodeToMask( MouseCode code )
+{
+	// MouseCodes do not start at zero. Make them start at zero before trying to fit them into a 32 bit mask..
+	// Otherwise, you would be trying to set bit 107 of an integer, and that would be bad.
+	const int recode = code - MOUSE_FIRST;
+	AssertMsg1( recode >= 0 && recode < 32, "MouseCode %d is invalid and cannot fit into a 32-bit mask\n", code );
+	return 1 << recode ;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Set button to be mouse clickable or not.
 //-----------------------------------------------------------------------------
@@ -695,12 +705,12 @@ void Button::SetMouseClickEnabled(MouseCode code,bool state)
 	if(state)
 	{
 		//set bit to 1
-		_mouseClickMask|=1<<((int)(code+1));
+		_mouseClickMask |= MouseCodeToMask(code); //set bit to 1
 	}
 	else
 	{
 		//set bit to 0
-		_mouseClickMask&=~(1<<((int)(code+1)));
+		_mouseClickMask &= ~MouseCodeToMask(code); //set bit to 0
 	}	
 }
 
@@ -709,7 +719,7 @@ void Button::SetMouseClickEnabled(MouseCode code,bool state)
 //-----------------------------------------------------------------------------
 bool Button::IsMouseClickEnabled(MouseCode code)
 {
-	if(_mouseClickMask&(1<<((int)(code+1))))
+	if ( _mouseClickMask & MouseCodeToMask(code) )
 	{
 		return true;
 	}
@@ -761,8 +771,18 @@ void Button::FireActionSignal()
 			&& !strnicmp(_actionMessage->GetString("command", ""), "url ", strlen("url "))
 			&& strstr(_actionMessage->GetString("command", ""), "://"))
 		{
-			// it's a command to launch a url, run it
-			system()->ShellExecute("open", _actionMessage->GetString("command", "      ") + 4);
+			const char* pszURL = _actionMessage->GetString("command", "      ") + 4;
+			// XXX ShellExecuting random URLs is questionable at any point, but lets at least make sure it's an expected
+			//     protocol.
+			if ( Q_strncmp( pszURL, "http://", 7 ) != 0 && Q_strncmp( pszURL, "https://", 8 ) != 0 )
+			{
+				Warning( "Invalid URL in FireActionSignal '%s'\n", pszURL );
+			}
+			else
+			{
+				// it's a command to launch a url, run it
+				system()->ShellExecute("open", pszURL);
+			}
 		}
 		PostActionSignal(_actionMessage->MakeCopy());
 	}
@@ -832,6 +852,8 @@ void Button::GetSettings( KeyValues *outResourceData )
 //-----------------------------------------------------------------------------
 void Button::ApplySettings( KeyValues *inResourceData )
 {
+	SetTextInset( QuickPropScale( 6 ), 0 );
+
 	BaseClass::ApplySettings(inResourceData);
 
 	const char *cmd = inResourceData->GetString("command", "");
@@ -857,6 +879,7 @@ void Button::ApplySettings( KeyValues *inResourceData )
 	}
 
 	m_bStaySelectedOnClick = inResourceData->GetBool( "stayselectedonclick", false );
+	m_bStayArmedOnClick = inResourceData->GetBool( "stay_armed_on_click", false );
 
 	const char *sound = inResourceData->GetString("sound_armed", "");
 	if (*sound)
@@ -874,7 +897,9 @@ void Button::ApplySettings( KeyValues *inResourceData )
 		SetReleasedSound(sound);
 	}
 
-	_activationType = (ActivationType_t)inResourceData->GetInt( "button_activation_type", ACTIVATE_ONRELEASED );
+	_activationType = (ActivationType_t)inResourceData->GetInt( "button_activation_type",
+		this->IsToggleButton() ? ACTIVATE_ONRELEASED : ACTIVATE_ONPRESSEDANDRELEASED
+	);
 }
 
 
@@ -990,8 +1015,12 @@ void Button::OnMouseReleased(MouseCode code)
 	if (!IsSelected() && _activationType == ACTIVATE_ONPRESSEDANDRELEASED)
 		return;
 
-	// it has to be both enabled and (mouse over the button or using a key) to fire
-	if ( IsEnabled() && ( GetVPanel() == input()->GetMouseOver() || _buttonFlags.IsFlagSet( BUTTON_KEY_DOWN ) ) )
+	Panel* pMouseOverPanel = ipanel()->GetPanel( input()->GetMouseOver(), GetControlsModuleName() );
+
+	// It has to be both enabled and (mouse over the button or using a key) to fire
+	// or the panel that the mouse is over has us as its mouse handler
+	if ( IsEnabled() && ( GetVPanel() == input()->GetMouseOver() || _buttonFlags.IsFlagSet( BUTTON_KEY_DOWN ) 
+		 || ( pMouseOverPanel && pMouseOverPanel->GetMouseHandlerPanel() == this ) ) )
 	{
 		DoClick();
 	}
@@ -1011,7 +1040,7 @@ void Button::OnKeyCodePressed(KeyCode code)
 {
 	KeyCode localCode = GetBaseButtonCode( code );
 
-	if( ( localCode == KEY_XBUTTON_A ) && IsEnabled() )
+	if( ( localCode == KEY_XBUTTON_A || localCode == STEAMCONTROLLER_A ) && IsEnabled() )
 	{
 		SetArmed( true );
 		_buttonFlags.SetFlag( BUTTON_KEY_DOWN );
@@ -1044,7 +1073,7 @@ void Button::OnKeyCodeReleased( KeyCode keycode )
 {
 	vgui::KeyCode code = GetBaseButtonCode( keycode );
 
-	if ( _buttonFlags.IsFlagSet( BUTTON_KEY_DOWN ) && ( code == KEY_XBUTTON_A || code == KEY_XBUTTON_START ) )
+	if ( _buttonFlags.IsFlagSet( BUTTON_KEY_DOWN ) && ( code == KEY_XBUTTON_A || code == KEY_XBUTTON_START || code == STEAMCONTROLLER_A ) )
 	{
 		SetArmed( true );
 		if( _activationType != ACTIVATE_ONPRESSED )
@@ -1077,11 +1106,12 @@ void Button::OnKeyCodeReleased( KeyCode keycode )
 //-----------------------------------------------------------------------------
 void Button::DrawFocusBorder(int tx0, int ty0, int tx1, int ty1)
 {
+	int nSize = QuickPropScale( 1 );
 	surface()->DrawSetColor(_keyboardFocusColor);
-	DrawDashedLine(tx0, ty0, tx1, ty0+1, 1, 1);		// top
-	DrawDashedLine(tx0, ty0, tx0+1, ty1, 1, 1);		// left
-	DrawDashedLine(tx0, ty1-1, tx1, ty1, 1, 1);		// bottom
-	DrawDashedLine(tx1-1, ty0, tx1, ty1, 1, 1);		// right
+	DrawDashedLine(tx0, ty0, tx1, ty0+1, nSize, nSize );		// top
+	DrawDashedLine(tx0, ty0, tx0+1, ty1, nSize, nSize );		// left
+	DrawDashedLine(tx0, ty1-1, tx1, ty1, nSize, nSize );		// bottom
+	DrawDashedLine(tx1-1, ty0, tx1, ty1, nSize, nSize );		// right
 }
 
 //-----------------------------------------------------------------------------
@@ -1091,5 +1121,7 @@ void Button::SizeToContents()
 {
 	int wide, tall;
 	GetContentSize(wide, tall);
-	SetSize(wide + Label::Content, tall + Label::Content);
+
+	int nBuffer = QuickPropScale( Label::Content );
+	SetSize(wide + nBuffer, tall + nBuffer);
 }

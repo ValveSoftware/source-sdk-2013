@@ -122,12 +122,17 @@ struct CaselessStringLessFunctor { bool operator()( const char *a, const char *b
 struct CaselessStringEqualFunctor { bool operator()( const char *a, const char *b ) const { return Q_strcasecmp( a, b ) == 0; } };
 
 struct Mix32HashFunctor { unsigned int operator()( uint32 s ) const; };
+struct Mix64HashFunctor { unsigned int operator()( uint64 s ) const; };
 struct StringHashFunctor { unsigned int operator()( const char* s ) const; };
 struct CaselessStringHashFunctor { unsigned int operator()( const char* s ) const; };
 
 struct PointerLessFunctor { bool operator()( const void *a, const void *b ) const { return a < b; } };
 struct PointerEqualFunctor { bool operator()( const void *a, const void *b ) const { return a == b; } };
-struct PointerHashFunctor { unsigned int operator()( const void* s ) const { return Mix32HashFunctor()((uint32)POINTER_TO_INT(s)); } };
+#if defined( PLATFORM_64BITS )
+struct PointerHashFunctor { unsigned int operator()( const void* s ) const { return Mix64HashFunctor()( ( uintp ) s ); } };
+#else
+struct PointerHashFunctor { unsigned int operator()( const void* s ) const { return Mix32HashFunctor()( ( uintp ) s ); } };
+#endif
 
 
 // Generic implementation of Less and Equal functors
@@ -155,8 +160,15 @@ template <> struct DefaultHashFunctor<signed short> : Mix32HashFunctor { };
 template <> struct DefaultHashFunctor<unsigned short> : Mix32HashFunctor { };
 template <> struct DefaultHashFunctor<signed int> : Mix32HashFunctor { };
 template <> struct DefaultHashFunctor<unsigned int> : Mix32HashFunctor { };
+#if !defined(PLATFORM_64BITS) || defined(_WIN32)
 template <> struct DefaultHashFunctor<signed long> : Mix32HashFunctor { };
 template <> struct DefaultHashFunctor<unsigned long> : Mix32HashFunctor { };
+#elif defined(POSIX)
+template <> struct DefaultHashFunctor<signed long> : Mix64HashFunctor { };
+template <> struct DefaultHashFunctor<unsigned long> : Mix64HashFunctor { };
+#endif
+template <> struct DefaultHashFunctor<signed long long> : Mix64HashFunctor { };
+template <> struct DefaultHashFunctor<unsigned long long> : Mix64HashFunctor { };
 template <> struct DefaultHashFunctor<void*> : PointerHashFunctor { };
 template <> struct DefaultHashFunctor<const void*> : PointerHashFunctor { };
 #if !defined(_MSC_VER) || defined(_NATIVE_WCHAR_T_DEFINED)
@@ -311,6 +323,20 @@ inline unsigned int Mix32HashFunctor::operator()( uint32 n ) const
 	n = ( n ^ 0xb55a4f09 ) ^ ( n >> 16 );
 	return n;
 }
+
+inline unsigned int Mix64HashFunctor::operator()( uint64 s ) const 
+{
+	// Thomas Wang hash, http://www.concentric.net/~ttwang/tech/inthash.htm
+	s = ( ~s ) + ( s << 21 ); // s = (s << 21) - s - 1;
+	s = s ^ ( s >> 24 );
+	s = (s + ( s << 3 ) ) + ( s << 8 ); // s * 265
+	s = s ^ ( s >> 14 );
+	s = ( s + ( s << 2 ) ) + ( s << 4 ); // s * 21
+	s = s ^ ( s >> 28 );
+	s = s + ( s << 31 );
+	return (unsigned int)s;
+}
+
 
 // Based on the widely-used FNV-1A string hash with a final
 // mixing step to improve dispersion for very small and very

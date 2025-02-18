@@ -35,7 +35,7 @@
 #define SF_SCRIPT_LOOP_IN_POST_IDLE		256		// Loop in the post idle animation after playing the action animation.
 #define SF_SCRIPT_HIGH_PRIORITY			512		// If set, we don't allow other scripts to steal our spot in the queue.
 #define SF_SCRIPT_SEARCH_CYCLICALLY		1024	// Start search from last entity found.
-#define SF_SCRIPT_NO_COMPLAINTS			2048	// doesn't bitch if it can't find anything
+#define SF_SCRIPT_NO_COMPLAINTS			2048	// doesn't complain if it can't find anything
 #define SF_SCRIPT_ALLOW_DEATH			4096	// the actor using this scripted sequence may die without interrupting the scene (used for scripted deaths)
 
 

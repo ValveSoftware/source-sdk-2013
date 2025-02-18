@@ -14,6 +14,7 @@
 #include <utlvector.h>
 #include <bitbuf.h>
 
+void RegisterScriptMessages();
 
 // Client dispatch function for usermessages
 typedef void (*pfnUserMsgHook)(bf_read &msg);
@@ -61,5 +62,16 @@ private:
 };
 
 extern CUserMessages *usermessages;
+
+// guaranteed usermessages' been initialized before use in static initializer
+void CreateUserMessages();
+
+#define USER_MESSAGE(x)\
+	void __MsgFunc_##x( bf_read &msg );\
+	static struct SingletonHookMsg_##x\
+	{\
+		SingletonHookMsg_##x() { CreateUserMessages(); usermessages->HookMessage(#x, __MsgFunc_##x ); }\
+	} s_SingletonHookMsg_##x;\
+	void __MsgFunc_##x( bf_read &msg )\
 
 #endif // USERMESSAGES_H

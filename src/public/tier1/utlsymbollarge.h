@@ -189,15 +189,15 @@ public:
 	{
 		// Nothing, only matters for thread-safe tables
 	}
-	inline int Insert( CUtlSymbolTableLargeBaseTreeEntry_t *entry )
+	inline intp Insert( CUtlSymbolTableLargeBaseTreeEntry_t *entry )
 	{
 		return CNonThreadsafeTreeType::Insert( entry );
 	}
-	inline int Find( CUtlSymbolTableLargeBaseTreeEntry_t *entry ) const
+	inline intp Find( CUtlSymbolTableLargeBaseTreeEntry_t *entry ) const
 	{
 		return CNonThreadsafeTreeType::Find( entry );
 	}
-	inline int InvalidIndex() const
+	inline intp InvalidIndex() const
 	{
 		return CNonThreadsafeTreeType::InvalidIndex();
 	}
@@ -240,7 +240,7 @@ public:
 };
 
 /*
-  NOTE:  So the only crappy thing about using a CUtlTSHash here is that the KEYTYPE is a CUtlSymbolTableLargeBaseTreeEntry_t ptr which has both the 
+  NOTE:  So the only bad thing about using a CUtlTSHash here is that the KEYTYPE is a CUtlSymbolTableLargeBaseTreeEntry_t ptr which has both the 
    hash and the string since with strings there is a good chance of hash collision after you have a fair number of strings so we have to implement
    a Compare method (above) which falls back to strcmp/stricmp if the hashes are equal.  This means that all of the data is in the KEYTYPE of the hash and the 
    payload doesn't matter.  So I made the payload also be a pointer to a CUtlSymbolTableLargeBaseTreeEntry_t since that makes using the API more convenient
@@ -324,6 +324,11 @@ public:
 		return m_Lookup.GetElements( nFirstElement, nCount, pElements );
 	}
 
+	const char *GetElementString(int nElement) const
+	{
+		return m_Lookup.Element( nElement )->String();
+	}
+
 	uint64 GetMemoryUsage() const
 	{
 		uint64 unBytesUsed = 0u;
@@ -387,7 +392,7 @@ inline CUtlSymbolLarge CUtlSymbolTableLargeBase<TreeType, CASEINSENSITIVE, POOL_
 	search->m_Hash = CUtlSymbolLarge_Hash( CASEINSENSITIVE, pString, len );
 	Q_memcpy( (char *)&search->m_String[ 0 ], pString, len );
 
-	int idx = const_cast< TreeType & >(m_Lookup).Find( search );
+	intp idx = const_cast< TreeType & >(m_Lookup).Find( search );
 
 	if ( idx == m_Lookup.InvalidIndex() )
 		return UTL_INVAL_SYMBOL_LARGE;

@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2007, Valve Corporation, All rights reserved. ===========================
+//====== Copyright ï¿½ 1996-2007, Valve Corporation, All rights reserved. ===========================
 
 // STATIC: "FLASHLIGHT"					"0..1"
 // STATIC: "LIGHTWARPTEXTURE"			"0..1"
@@ -19,6 +19,8 @@
 
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"					[ps20b]
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"					[ps30]
+
+// DYNAMIC: "PIXELFOGTYPE"				"0..2"
 
 // We don't use other lights when doing the flashlight
 // SKIP: ( $FLASHLIGHT != 0 ) && ( $NUM_LIGHTS > 0 )
@@ -74,8 +76,6 @@ const float4 g_vPackedConst6			: register( c6 );
 const float4 g_vFlashlightAttenuationFactors	: register( c7 ); // FarZ in w
 const float3 g_vFlashlightPos					: register( c8 );
 const float4 g_vShadowTweaks					: register( c9 );
-const float4 g_ShaderControls					: register( c10 );
-#define g_fPixelFogType							g_ShaderControls.x
 
 const float4 g_FogParams						: register( PSREG_FOG_PARAMS );
 
@@ -105,42 +105,6 @@ float IntersectRaySphere ( float3 cameraPos, float3 ray, float3 sphereCenter, fl
 	float D = B*B - C;
 	return (D > 0) ? (-B - sqrt(D)) : 0;
 }
-
-// Calculate both types of Fog and lerp to get result
-float CalcPixelFogFactorConst( float fPixelFogType, const float4 fogParams, const float flEyePosZ, const float flWorldPosZ, const float flProjPosZ )
-{
-	float fRangeFog = CalcRangeFog( flProjPosZ, fogParams.x, fogParams.z, fogParams.w );
-	float fHeightFog = CalcWaterFogAlpha( fogParams.y, flEyePosZ, flWorldPosZ, flProjPosZ, fogParams.w );
-	return lerp( fRangeFog, fHeightFog, fPixelFogType );
-}
-
-// Blend both types of Fog and lerp to get result
-float3 BlendPixelFogConst( const float3 vShaderColor, float pixelFogFactor, const float3 vFogColor, float fPixelFogType )
-{
-	pixelFogFactor = saturate( pixelFogFactor );
-	float3 fRangeResult = lerp( vShaderColor.rgb, vFogColor.rgb, pixelFogFactor * pixelFogFactor ); //squaring the factor will get the middle range mixing closer to hardware fog
-	float3 fHeightResult = lerp( vShaderColor.rgb, vFogColor.rgb, saturate( pixelFogFactor ) );
-	return lerp( fRangeResult, fHeightResult, fPixelFogType );
-}
-
-float4 FinalOutputConst( const float4 vShaderColor, float pixelFogFactor, float fPixelFogType, const int iTONEMAP_SCALE_TYPE )
-{
-	float4 result = vShaderColor;
-	if( iTONEMAP_SCALE_TYPE == TONEMAP_SCALE_LINEAR )
-	{
-		result.rgb *= LINEAR_LIGHT_SCALE;
-	}
-	else if( iTONEMAP_SCALE_TYPE == TONEMAP_SCALE_GAMMA )
-	{
-		result.rgb *= GAMMA_LIGHT_SCALE;
-	}
-
-	result.rgb = BlendPixelFogConst( result.rgb, pixelFogFactor, g_LinearFogColor.rgb, fPixelFogType );
-	result.rgb = SRGBOutput( result.rgb ); //SRGB in pixel shader conversion
-
-	return result;
-}
-
 
 // Main ===========================================================================================
 float4 main( PS_INPUT i ) : COLOR
@@ -483,12 +447,7 @@ float4 main( PS_INPUT i ) : COLOR
 	// Set alpha to 1.0 by default
 	result.a = 1.0;
 
-#if !defined( SHADER_MODEL_PS_2_0 )
-	float fogFactor = CalcPixelFogFactorConst( g_fPixelFogType, g_FogParams, g_vCameraPosition.z, i.vWorldPosition_ProjPosZ.z, i.vWorldPosition_ProjPosZ.w );
-	return FinalOutputConst( result, fogFactor, g_fPixelFogType, TONEMAP_SCALE_LINEAR );
-#else
-	float fogFactor = CalcPixelFogFactor( PIXEL_FOG_TYPE_NONE, g_FogParams, g_vCameraPosition.z, i.vWorldPosition_ProjPosZ.z, i.vWorldPosition_ProjPosZ.w );
-	return FinalOutput( result, fogFactor, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_LINEAR );
-#endif
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_vCameraPosition.xyz, i.vWorldPosition_ProjPosZ.xyz, i.vWorldPosition_ProjPosZ.w );
+	return FinalOutput( result, fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_LINEAR );
 
 }

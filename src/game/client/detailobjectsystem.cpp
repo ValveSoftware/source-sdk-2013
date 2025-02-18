@@ -21,6 +21,7 @@
 #include "env_detail_controller.h"
 #include "tier0/icommandline.h"
 #include "c_world.h"
+#include "tier1/heapsort.h"
 
 #include "tier0/valve_minmax_off.h"
 #include <algorithm>
@@ -405,7 +406,7 @@ public:
 	void BeginTranslucentDetailRendering( );
 
 	// Method of ISpatialLeafEnumerator
-	bool EnumerateLeaf( int leaf, int context );
+	bool EnumerateLeaf( int leaf, intp context );
 
 	DetailPropLightstylesLump_t& DetailLighting( int i ) { return m_DetailLighting[i]; }
 	DetailPropSpriteDict_t& DetailSpriteDict( int i ) { return m_DetailSpriteDict[i]; }
@@ -2108,8 +2109,7 @@ int CDetailObjectSystem::SortSpritesBackToFront( int nLeaf, const Vector &viewOr
 	if ( nCount )
 	{
 		VPROF( "CDetailObjectSystem::SortSpritesBackToFront -- Sort" );
-		std::make_heap( pSortInfo, pSortInfo + nCount, SortLessFunc ); 
-		std::sort_heap( pSortInfo, pSortInfo + nCount, SortLessFunc ); 
+		HeapSort( pSortInfo, nCount, SortLessFunc );
 	}
 
 	return nCount;
@@ -2193,11 +2193,30 @@ int CDetailObjectSystem::BuildOutSortedSprites( CFastDetailLeafSpriteList *pData
 			vecPos0 += vecDy;
 			pQuadBufferOut->m_Coords[3] = vecPos0;
 
+#ifdef PLATFORM_64BITS
+			// Josh: The code in the #else makes me so so upset.
+			//
+			// It took me way too long to diagnose that they were
+			// copying 4 pointers with fltx4 for no reason... argh.
+			pQuadBufferOut->m_pSpriteDefs[0] = pSprites->m_pSpriteDefs[0];
+			pQuadBufferOut->m_pSpriteDefs[1] = pSprites->m_pSpriteDefs[1];
+			pQuadBufferOut->m_pSpriteDefs[2] = pSprites->m_pSpriteDefs[2];
+			pQuadBufferOut->m_pSpriteDefs[3] = pSprites->m_pSpriteDefs[3];
+
+			for ( int k = 0; k < 4; k++ )
+			{
+				pQuadBufferOut->m_RGBColor[k][0] = pSprites->m_RGBColor[k][0];
+				pQuadBufferOut->m_RGBColor[k][1] = pSprites->m_RGBColor[k][1];
+				pQuadBufferOut->m_RGBColor[k][2] = pSprites->m_RGBColor[k][2];
+				pQuadBufferOut->m_RGBColor[k][3] = pSprites->m_RGBColor[k][3];
+			}
+#else
 			fltx4 fetch4 = *( ( fltx4 *) ( &pSprites->m_pSpriteDefs[0] ) );
 			*( (fltx4 *) ( & ( pQuadBufferOut->m_pSpriteDefs[0] ) ) ) = fetch4;
 
 			fetch4 = *( ( fltx4 *) ( &pSprites->m_RGBColor[0][0] ) );
 			*( (fltx4 *) ( & ( pQuadBufferOut->m_RGBColor[0][0] ) ) ) = fetch4;
+#endif
 
 			//!! bug!! store distance
 			// !! speed!! simd?
@@ -2225,8 +2244,7 @@ int CDetailObjectSystem::BuildOutSortedSprites( CFastDetailLeafSpriteList *pData
 	if ( nCount )
 	{
 		VPROF( "CDetailObjectSystem::SortSpritesBackToFront -- Sort" );
-		std::make_heap( m_pFastSortInfo, m_pFastSortInfo + nCount, SortLessFunc ); 
-		std::sort_heap( m_pFastSortInfo, m_pFastSortInfo + nCount, SortLessFunc ); 
+		HeapSort( m_pFastSortInfo, nCount, SortLessFunc );
 	}
 	return nCount;
 }
@@ -2321,34 +2339,41 @@ void CDetailObjectSystem::RenderFastSprites( const Vector &viewOrigin, const Vec
 
 					FastSpriteQuadBuildoutBufferNonSIMDView_t const *pquad = pQuadBuffer+nSIMDIdx;
 
+#if PLATFORM_64BITS
+					// Josh: Let's NOT do 'voodoo', that doesn't work because ptrs are not sizeof(int).
+					int nIndex = nSubIdx;
+					uint8 const* pColorsCasted = reinterpret_cast<uint8 const*> ( &pquad->m_Alpha[nIndex] );
+#else
+					const int nIndex = 0;
 					// voodoo - since everything is in 4s, offset structure pointer by a couple of floats to handle sub-index
-					pquad = (FastSpriteQuadBuildoutBufferNonSIMDView_t const *) ( ( (int) ( pquad ) )+ ( nSubIdx << 2 ) );
-					uint8 const *pColorsCasted = reinterpret_cast<uint8 const *> ( pquad->m_Alpha );
+					pquad = (FastSpriteQuadBuildoutBufferNonSIMDView_t const*) ( ( (intp) ( pquad ) ) + ( nSubIdx << 2 ) );
+					uint8 const* pColorsCasted = reinterpret_cast<uint8 const*> ( pquad->m_Alpha );
+#endif
 
 					uint8 color[4];
-					color[0] = pquad->m_RGBColor[0][0];
-					color[1] = pquad->m_RGBColor[0][1];
-					color[2] = pquad->m_RGBColor[0][2];
+					color[0] = pquad->m_RGBColor[nIndex][0];
+					color[1] = pquad->m_RGBColor[nIndex][1];
+					color[2] = pquad->m_RGBColor[nIndex][2];
 					color[3] = pColorsCasted[MANTISSA_LSB_OFFSET];
 
-					DetailPropSpriteDict_t *pDict = pquad->m_pSpriteDefs[0];
+					DetailPropSpriteDict_t *pDict = pquad->m_pSpriteDefs[nIndex];
 
-					meshBuilder.Position3f( pquad->m_flX0[0], pquad->m_flY0[0], pquad->m_flZ0[0] );
+					meshBuilder.Position3f( pquad->m_flX0[nIndex], pquad->m_flY0[nIndex], pquad->m_flZ0[nIndex] );
 					meshBuilder.Color4ubv( color );
 					meshBuilder.TexCoord2f( 0, pDict->m_TexLR.x, pDict->m_TexLR.y );
 					meshBuilder.AdvanceVertex();
 
-					meshBuilder.Position3f( pquad->m_flX1[0], pquad->m_flY1[0], pquad->m_flZ1[0] );
+					meshBuilder.Position3f( pquad->m_flX1[nIndex], pquad->m_flY1[nIndex], pquad->m_flZ1[nIndex] );
 					meshBuilder.Color4ubv( color );
 					meshBuilder.TexCoord2f( 0, pDict->m_TexLR.x, pDict->m_TexUL.y );
 					meshBuilder.AdvanceVertex();
 
-					meshBuilder.Position3f( pquad->m_flX2[0], pquad->m_flY2[0], pquad->m_flZ2[0] );
+					meshBuilder.Position3f( pquad->m_flX2[nIndex], pquad->m_flY2[nIndex], pquad->m_flZ2[nIndex] );
 					meshBuilder.Color4ubv( color );
 					meshBuilder.TexCoord2f( 0, pDict->m_TexUL.x, pDict->m_TexUL.y );
 					meshBuilder.AdvanceVertex();
 
-					meshBuilder.Position3f( pquad->m_flX3[0], pquad->m_flY3[0], pquad->m_flZ3[0] );
+					meshBuilder.Position3f( pquad->m_flX3[nIndex], pquad->m_flY3[nIndex], pquad->m_flZ3[nIndex] );
 					meshBuilder.Color4ubv( color );
 					meshBuilder.TexCoord2f( 0, pDict->m_TexUL.x, pDict->m_TexLR.y );
 					meshBuilder.AdvanceVertex();
@@ -2553,34 +2578,41 @@ void CDetailObjectSystem::RenderFastTranslucentDetailObjectsInLeaf( const Vector
 
 			FastSpriteQuadBuildoutBufferNonSIMDView_t const *pquad = pQuadBuffer+nSIMDIdx;
 
+#if PLATFORM_64BITS
+			// Josh: Let's NOT do 'voodoo', that doesn't work because ptrs are not sizeof(int).
+			int nIndex = nSubIdx;
+			uint8 const* pColorsCasted = reinterpret_cast<uint8 const*> ( &pquad->m_Alpha[ nIndex ] );
+#else
+			const int nIndex = 0;
 			// voodoo - since everything is in 4s, offset structure pointer by a couple of floats to handle sub-index
-			pquad = (FastSpriteQuadBuildoutBufferNonSIMDView_t const *) ( ( (int) ( pquad ) )+ ( nSubIdx << 2 ) );
+			pquad = (FastSpriteQuadBuildoutBufferNonSIMDView_t const *) ( ( (intp) ( pquad ) )+ ( nSubIdx << 2 ) );
 			uint8 const *pColorsCasted = reinterpret_cast<uint8 const *> ( pquad->m_Alpha );
+#endif
 
 			uint8 color[4];
-			color[0] = pquad->m_RGBColor[0][0];
-			color[1] = pquad->m_RGBColor[0][1];
-			color[2] = pquad->m_RGBColor[0][2];
+			color[0] = pquad->m_RGBColor[nIndex][0];
+			color[1] = pquad->m_RGBColor[nIndex][1];
+			color[2] = pquad->m_RGBColor[nIndex][2];
 			color[3] = pColorsCasted[MANTISSA_LSB_OFFSET];
 
-			DetailPropSpriteDict_t *pDict = pquad->m_pSpriteDefs[0];
+			DetailPropSpriteDict_t *pDict = pquad->m_pSpriteDefs[nIndex];
 
-			meshBuilder.Position3f( pquad->m_flX0[0], pquad->m_flY0[0], pquad->m_flZ0[0] );
+			meshBuilder.Position3f( pquad->m_flX0[nIndex], pquad->m_flY0[nIndex], pquad->m_flZ0[nIndex] );
 			meshBuilder.Color4ubv( color );
 			meshBuilder.TexCoord2f( 0, pDict->m_TexLR.x, pDict->m_TexLR.y );
 			meshBuilder.AdvanceVertex();
 
-			meshBuilder.Position3f( pquad->m_flX1[0], pquad->m_flY1[0], pquad->m_flZ1[0] );
+			meshBuilder.Position3f( pquad->m_flX1[nIndex], pquad->m_flY1[nIndex], pquad->m_flZ1[nIndex] );
 			meshBuilder.Color4ubv( color );
 			meshBuilder.TexCoord2f( 0, pDict->m_TexLR.x, pDict->m_TexUL.y );
 			meshBuilder.AdvanceVertex();
 
-			meshBuilder.Position3f( pquad->m_flX2[0], pquad->m_flY2[0], pquad->m_flZ2[0] );
+			meshBuilder.Position3f( pquad->m_flX2[nIndex], pquad->m_flY2[nIndex], pquad->m_flZ2[nIndex] );
 			meshBuilder.Color4ubv( color );
 			meshBuilder.TexCoord2f( 0, pDict->m_TexUL.x, pDict->m_TexUL.y );
 			meshBuilder.AdvanceVertex();
 
-			meshBuilder.Position3f( pquad->m_flX3[0], pquad->m_flY3[0], pquad->m_flZ3[0] );
+			meshBuilder.Position3f( pquad->m_flX3[nIndex], pquad->m_flY3[nIndex], pquad->m_flZ3[nIndex] );
 			meshBuilder.Color4ubv( color );
 			meshBuilder.TexCoord2f( 0, pDict->m_TexUL.x, pDict->m_TexLR.y );
 			meshBuilder.AdvanceVertex();
@@ -2707,7 +2739,7 @@ void CDetailObjectSystem::RenderTranslucentDetailObjectsInLeaf( const Vector &vi
 //-----------------------------------------------------------------------------
 // Gets called each view
 //-----------------------------------------------------------------------------
-bool CDetailObjectSystem::EnumerateLeaf( int leaf, int context )
+bool CDetailObjectSystem::EnumerateLeaf( int leaf, intp context )
 {
 	VPROF_BUDGET( "CDetailObjectSystem::EnumerateLeaf", VPROF_BUDGETGROUP_DETAILPROP_RENDERING );
 	Vector v;
@@ -2806,6 +2838,6 @@ void CDetailObjectSystem::BuildDetailObjectRenderLists( const Vector &vViewOrigi
 
 	ISpatialQuery* pQuery = engine->GetBSPTreeQuery();
 	pQuery->EnumerateLeavesInSphere( CurrentViewOrigin(), 
-									 cl_detaildist.GetFloat(), this, (int)&ctx );
+									 cl_detaildist.GetFloat(), this, (intp)&ctx );
 }
 

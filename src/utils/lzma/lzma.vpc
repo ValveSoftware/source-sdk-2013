@@ -1,0 +1,39 @@
+//-----------------------------------------------------------------------------
+//	LZMA.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\.."
+$Macro OUTLIBDIR	"$LIBCOMMON"
+
+$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE;C"
+		$PreprocessorDefinitions			"$BASE;_NO_EXCEPTIONS;_LZMA_PROB32;_7ZIP_ST"
+	}
+}
+
+$Project "lzma"
+{
+	$Folder	"Source Files"
+	{
+		$File "lzma.cpp"
+
+		$Folder	"7Zip Common"
+		{
+			$File "C\7zTypes.h"
+			$File "C\LzmaEnc.h"
+			$File "C\LzmaEnc.c"
+			$File "C\LzmaDec.c"
+			$File "C\LzmaDec.h"
+			$File "C\LzFind.h"
+			$File "C\LzFind.c"
+			$File "C\LzHash.h"
+		}
+	}
+}

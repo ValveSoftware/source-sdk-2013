@@ -84,6 +84,8 @@ MenuItem::MenuItem(Menu *parent, const char *panelName, const char *text, Menu *
 	SetButtonActivationType(ACTIVATE_ONRELEASED);
 	m_pUserData = NULL;
 	m_pCurrentKeyBinding = NULL;
+	m_nOffsetFromMainMenu = 0;
+	m_nPaddingY = 0;
 
 	// only one arg should be passed in.
 	Assert (!(cascadeMenu && checkable));
@@ -106,6 +108,8 @@ MenuItem::MenuItem(Menu *parent, const char *panelName, const wchar_t *wszText, 
 	SetButtonActivationType(ACTIVATE_ONRELEASED);
 	m_pUserData = NULL;
 	m_pCurrentKeyBinding = NULL;
+	m_nOffsetFromMainMenu = 0;
+	m_nPaddingY = 0;
 
 	// only one arg should be passed in.
 	Assert (!(cascadeMenu && checkable));
@@ -222,7 +226,11 @@ void MenuItem::OnCursorEntered()
 	// forward the message on to the parent of this menu.
 	KeyValues *msg = new KeyValues ("CursorEnteredMenuItem");
 	// tell the parent this menuitem is the one that was entered so it can highlight it
+#ifdef PLATFORM_64BITS
+	msg->SetPtr( "VPanel", (void*) GetVPanel() );
+#else
 	msg->SetInt("VPanel", GetVPanel());
+#endif
 
 	ivgui()->PostMessage(GetVParent(), msg, NULL);
 }
@@ -236,7 +244,11 @@ void MenuItem::OnCursorExited()
 	// forward the message on to the parent of this menu.
 	KeyValues *msg = new KeyValues ("CursorExitedMenuItem");
 	// tell the parent this menuitem is the one that was entered so it can unhighlight it
-	msg->SetInt("VPanel", GetVPanel());
+#ifdef PLATFORM_64BITS
+	msg->SetPtr( "VPanel", (void*) GetVPanel() );
+#else
+	msg->SetInt( "VPanel", GetVPanel() );
+#endif
 
 	ivgui()->PostMessage(GetVParent(), msg, NULL);
 }
@@ -358,7 +370,7 @@ void MenuItem::OpenCascadeMenu()
 		// if the window's been moved
 		m_pCascadeMenu->PerformLayout();
 		m_pCascadeMenu->SetVisible(true);
-		ArmItem();
+		m_pCascadeMenu->MoveToFront();
 	}
 }
 
@@ -383,7 +395,7 @@ void MenuItem::ApplySchemeSettings(IScheme *pScheme)
 	SetArmedColor(GetSchemeColor("Menu.ArmedTextColor", GetFgColor(), pScheme), GetSchemeColor("Menu.ArmedBgColor", GetBgColor(), pScheme));
 	SetDepressedColor(GetSchemeColor("Menu.ArmedTextColor", GetFgColor(), pScheme), GetSchemeColor("Menu.ArmedBgColor", GetBgColor(), pScheme));
 
-	SetTextInset(atoi(pScheme->GetResourceString("Menu.TextInset")), 0);
+	SetTextInset(QuickPropScale( atoi(pScheme->GetResourceString("Menu.TextInset")) ), 0);
 	
 	// reload images since applyschemesettings in label wipes them out.
 	if ( m_pCascadeArrow )
@@ -610,7 +622,7 @@ void MenuItem::Paint()
 	int iw, ih;
 	m_pCurrentKeyBinding->GetSize( iw, ih );
 
-	int x = w - iw - KEYBINDING_INSET;
+	int x = w - iw - QuickPropScale( KEYBINDING_INSET );
 	int y = ( h - ih ) / 2;
 
 	if ( IsEnabled() )
@@ -636,12 +648,17 @@ void MenuItem::Paint()
 void MenuItem::GetContentSize( int& cw, int &ch )
 {
 	BaseClass::GetContentSize( cw, ch );
+	if ( m_nOffsetFromMainMenu > 0 )
+	{
+		cw += QuickPropScale( GetOffsetFromMainMenu() );
+	}
+	
 	if ( !m_pCurrentKeyBinding )
 		return;
 
 	int iw, ih;
 	m_pCurrentKeyBinding->GetSize( iw, ih );
 
-	cw += iw + KEYBINDING_INSET;
+	cw += iw + QuickPropScale( KEYBINDING_INSET );
 	ch = max( ch, ih );
 }

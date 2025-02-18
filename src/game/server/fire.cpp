@@ -267,7 +267,7 @@ IterationRetval_t CFireSphere::EnumElement( IHandleEntity *pHandleEntity )
 int FireSystem_GetFiresInSphere( CFire **pList, int listMax, bool onlyActiveFires, const Vector &origin, float radius )
 {
 	CFireSphere sphereEnum( pList, listMax, onlyActiveFires, origin, radius );
-	partition->EnumerateElementsInSphere( PARTITION_ENGINE_NON_STATIC_EDICTS, origin, radius, false, &sphereEnum );
+	::partition->EnumerateElementsInSphere( PARTITION_ENGINE_NON_STATIC_EDICTS, origin, radius, false, &sphereEnum );
 
 	return sphereEnum.GetCount();
 }

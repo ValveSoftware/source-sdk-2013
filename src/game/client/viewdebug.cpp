@@ -514,7 +514,7 @@ static void OverlayColorRamp( bool bHalfSpace )
 //-----------------------------------------------------------------------------
 // Draws all the debugging info
 //-----------------------------------------------------------------------------
-void CDebugViewRender::Draw3DDebuggingInfo( const CViewSetup &view )
+void CDebugViewRender::Draw3DDebuggingInfo( const CViewSetup &viewDebug )
 {
 	VPROF("CViewRender::Draw3DDebuggingInfo");
 
@@ -529,7 +529,7 @@ void CDebugViewRender::Draw3DDebuggingInfo( const CViewSetup &view )
 //-----------------------------------------------------------------------------
 // Draws all the debugging info
 //-----------------------------------------------------------------------------
-void CDebugViewRender::Draw2DDebuggingInfo( const CViewSetup &view )
+void CDebugViewRender::Draw2DDebuggingInfo( const CViewSetup &viewDebug )
 {
 	if ( IsX360() && IsRetail() )
 		return;
@@ -542,7 +542,7 @@ void CDebugViewRender::Draw2DDebuggingInfo( const CViewSetup &view )
 		if( !IsErrorMaterial( pMaterial ) )
 		{
 			pMaterial->IncrementReferenceCount();
-			DrawScreenEffectMaterial( pMaterial, view.x, view.y, view.width, view.height );
+			DrawScreenEffectMaterial( pMaterial, viewDebug.x, viewDebug.y, viewDebug.width, viewDebug.height );
 			pMaterial->DecrementReferenceCount();
 		}
 	}
@@ -554,7 +554,7 @@ void CDebugViewRender::Draw2DDebuggingInfo( const CViewSetup &view )
 		if( !IsErrorMaterial( pMaterial ) )
 		{
 			pMaterial->IncrementReferenceCount();
-			DrawScreenEffectMaterial( pMaterial, view.x, view.y, view.width, view.height );
+			DrawScreenEffectMaterial( pMaterial, viewDebug.x, viewDebug.y, viewDebug.width, viewDebug.height );
 			pMaterial->DecrementReferenceCount();
 		}
 	}
@@ -562,8 +562,8 @@ void CDebugViewRender::Draw2DDebuggingInfo( const CViewSetup &view )
 	// Draw debugging lightmaps
 	if ( mat_showlightmappage.GetInt() != -1 )
 	{
-		CLightmapDebugView clientView( assert_cast<CViewRender *>( ::view ) );
-		clientView.Setup( view );
+		CLightmapDebugView clientView( assert_cast<CViewRender *>( ::view) );
+		clientView.Setup( viewDebug );
 		clientView.Draw();
 	}
 
@@ -631,7 +631,8 @@ CON_COMMAND_F( r_screenoverlay, "Draw specified material as an overlay", FCVAR_C
 {
 	if( args.ArgC() == 2 )
 	{
-		if ( !Q_stricmp( "off", args[1] ) )
+		// This command is silly an undocumented, but, users are expecting r_screenoverlay 0 to function as 'off'.
+		if ( !Q_stricmp( "off", args[1] ) || !Q_stricmp( "0", args[1] ) )
 		{
 			view->SetScreenOverlayMaterial( NULL );
 		}

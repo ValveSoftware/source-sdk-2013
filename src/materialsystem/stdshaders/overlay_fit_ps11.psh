@@ -1,0 +1,11 @@
+ps.1.1
+
+tex t0 ; base
+tex t1 ; lightmap
+tex t2 ; base (with tcoords for alpha)
+
+
+mov r0.rgb, t0			; base times vertex color (with alpha)
+mul r0.rgb, t1, r0		; fold in lightmap (color only)
+mul_x2 r0.rgb, c0, r0   ; * 2 * (overbrightFactor/2)
+mov r0.a, t2.a

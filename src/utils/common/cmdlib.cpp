@@ -42,6 +42,8 @@
 #include "xbox/xbox_win32stubs.h"
 #endif
 
+#include "tier0/memdbgon.h"
+
 // set these before calling CheckParm
 int myargc;
 char **myargv;
@@ -718,7 +720,7 @@ void CmdLib_AddBasePath( const char *pPath )
 
 bool CmdLib_HasBasePath( const char *pFileName_, int &pathLength )
 {
-	char *pFileName = ( char * )_alloca( strlen( pFileName_ ) + 1 );
+	char *pFileName = ( char * )_alloca( V_strlen( pFileName_ ) + 1 );
 	strcpy( pFileName, pFileName_ );
 	Q_FixSlashes( pFileName );
 	pathLength = 0;
@@ -726,9 +728,9 @@ bool CmdLib_HasBasePath( const char *pFileName_, int &pathLength )
 	for( i = 0; i < g_NumBasePaths; i++ )
 	{
 		// see if we can rip the base off of the filename.
-		if( Q_strncasecmp( g_pBasePaths[i], pFileName, strlen( g_pBasePaths[i] ) ) == 0 )
+		if( Q_strncasecmp( g_pBasePaths[i], pFileName, V_strlen( g_pBasePaths[i] ) ) == 0 )
 		{
-			pathLength = strlen( g_pBasePaths[i] );
+			pathLength = V_strlen( g_pBasePaths[i] );
 			return true;
 		}
 	}
@@ -956,7 +958,7 @@ void CreatePath (char *path)
 }
 
 //-----------------------------------------------------------------------------
-// Creates a path, path may already exist
+// Creates a path, path may already exist. This is kinda janky, avoid.
 //-----------------------------------------------------------------------------
 #if defined( _WIN32 ) || defined( WIN32 )
 void SafeCreatePath( char *path )
@@ -980,6 +982,24 @@ void SafeCreatePath( char *path )
 			*ptr = '\0';
 			_mkdir( path );
 			*ptr = '\\';
+		}
+	}
+}
+#elif defined( POSIX )
+void SafeCreatePath( char *path )
+{
+	char *ptr = path;
+	// Ignore leading slashes (don't mkdir /)
+	while ( *ptr == '/' ) { ptr++; };
+
+	while ( ptr && *ptr )
+	{
+		ptr = strchr( ptr+1, '/' );
+		if ( ptr )
+		{
+			*ptr = '\0';
+			_mkdir( path );
+			*ptr = '/';
 		}
 	}
 }

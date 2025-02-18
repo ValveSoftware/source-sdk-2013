@@ -212,6 +212,8 @@ public:
 
 	ScrollBar *GetScrollBar( void ) { return m_pScrollBar; }
 
+	void SetColumnWidthBySection(int sectionID, const char *columnName, int iWidth);
+
 protected:
 	virtual void PerformLayout();
 	virtual void ApplySchemeSettings(IScheme *pScheme);
@@ -225,6 +227,23 @@ protected:
 
 public:
 	virtual void SetFontSection(int sectionID, HFont font);
+	virtual void SetItemBgHorizFillInset( int itemID, int nInset );
+	void SetColorOverrideForCell( int sectionID, int itemID, int columnID, Color clrOverride );
+	Color *GetColorOverrideForCell( int sectionID, int itemID, int columnID );
+	void ClearAllColorOverrideForCell(){ m_ColorOverrides.Purge(); }
+
+	enum
+	{
+		BUTTON_HEIGHT_DEFAULT = 20,
+		BUTTON_HEIGHT_SPACER = 7,
+		DEFAULT_LINE_SPACING = 20,
+		DEFAULT_SECTION_GAP = 8,
+		COLUMN_DATA_INDENT = 6,
+		COLUMN_DATA_GAP = 2,
+	};
+
+	virtual void SetSectionDrawDividerBar( int sectionID, bool bDraw );
+
 private:
 	MESSAGE_FUNC( OnSliderMoved, "ScrollBarSliderMoved" );
 
@@ -237,6 +256,14 @@ private:
 	friend class CItemButton;
 	void SetSelectedItem(CItemButton *item);
 	DHANDLE<CItemButton> m_hSelectedItem;
+
+	struct color_override_t
+	{
+		int m_SectionID;
+		int m_ItemID;
+		int m_ColumnID;
+		Color m_clrOverride;
+	};
 
 	struct column_t
 	{
@@ -261,11 +288,14 @@ private:
 	CUtlLinkedList<CItemButton *, int> 	m_FreeItems;
     CUtlVector<CItemButton *> 			m_SortedItems;
 
+	CUtlVector<color_override_t> 		m_ColorOverrides;
+
 	PHandle m_hEditModePanel;
 	int m_iEditModeItemID;
 	int m_iEditModeColumn;
 	int m_iContentHeight;
-	int m_iLineSpacing;
+	int m_iLineSpacing;	// row height
+	int m_iLineGap;		// gap between rows
 	int m_iSectionGap;
 
 	int FindSectionIndexByID(int sectionID);
@@ -307,11 +337,13 @@ public:
 
 	void SetColor(Color col);
 	void SetDividerColor(Color col );
+	void DrawDividerBar(bool bDraw){ m_bDrawDividerBar = bDraw; }
 
 protected:
 	int m_iSectionID;
 	Color m_SectionDividerColor;
 	SectionedListPanel *m_pListPanel;
+	bool m_bDrawDividerBar;
 };
 
 } // namespace vgui

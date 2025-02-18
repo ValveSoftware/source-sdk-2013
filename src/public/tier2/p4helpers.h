@@ -15,7 +15,7 @@
 
 #include "tier1/utlstring.h"
 #include "tier1/smartptr.h"
-
+#include "p4lib/ip4.h"
 
 //
 // Class representing file operations
@@ -35,12 +35,18 @@ public:
 
 	// Reverts the file
 	virtual bool Revert( void );
+	
+	// Marks the file for delete
+	virtual bool Delete( void );
 
 	// Is the file in perforce?
 	virtual bool IsFileInPerforce();
 
 	// Changes the file to the specified filetype.
 	virtual bool SetFileType( const CUtlString& desiredFileType );
+
+	// Get the state of a file
+	virtual P4FileState_t GetFileState();
 
 protected:
 	// The filename that this class instance represents

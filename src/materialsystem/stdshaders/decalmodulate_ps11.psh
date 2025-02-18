@@ -1,0 +1,4 @@
+ps.1.1
+
+tex t0
+mov r0, t0

@@ -170,6 +170,8 @@ public:
 	virtual void NavigateTo();
 	virtual void NavigateFrom();
 
+	virtual bool IsToggleButton() { return false; }
+
 protected:
 	virtual void DrawFocusBorder(int tx0, int ty0, int tx1, int ty1);
 
@@ -231,6 +233,7 @@ protected:
 	unsigned short	   m_sArmedSoundName, m_sDepressedSoundName, m_sReleasedSoundName;
 	bool m_bSelectionStateSaved;
 	bool m_bStaySelectedOnClick;
+	bool m_bStayArmedOnClick;
 };
 
 } // namespace vgui

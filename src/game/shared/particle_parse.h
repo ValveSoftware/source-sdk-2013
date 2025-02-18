@@ -55,7 +55,7 @@ struct te_tf_particle_effects_control_point_t
 // Parse the particle manifest file & register the effects within it
 // Only needs to be called once per game, unless tools change particle definitions
 void ParseParticleEffects( bool bLoadSheets, bool bPrecache );
-void ParseParticleEffectsMap( const char *pMapName, bool bLoadSheets, IFileList *pFilesToReload = NULL ); 
+void ParseParticleEffectsMap( const char *pMapName, bool bLoadSheets ); 
 
 // Get a list of the files inside the particle manifest file
 void GetParticleManifest( CUtlVector<CUtlString>& list );
@@ -65,7 +65,7 @@ void GetParticleManifest( CUtlVector<CUtlString>& list );
 void PrecacheStandardParticleSystems( );
 
 class IFileList;
-void ReloadParticleEffectsInList( IFileList *pFilesToReload );
+void ReloadParticleEffects();
 
 //-----------------------------------------------------------------------------
 // Particle spawning methods

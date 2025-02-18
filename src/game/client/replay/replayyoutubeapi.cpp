@@ -302,7 +302,7 @@ public:
 				_snwprintf( wszPercentage, ARRAYSIZE( wszPercentage ), L"%u", iProgress );
 				_snwprintf( wszNow, ARRAYSIZE( wszNow ), L"%u", ulnow_kb );
 				_snwprintf( wszTotal, ARRAYSIZE( wszTotal ), L"%u", ultotal_kb );
-				g_pVGuiLocalize->ConstructString( wszProgress,sizeof( wszProgress ), g_pVGuiLocalize->Find( "#YouTube_UploadProgress" ), 3, 
+				g_pVGuiLocalize->ConstructString_safe( wszProgress, g_pVGuiLocalize->Find( "#YouTube_UploadProgress" ), 3, 
 												  wszPercentage,
 												  wszNow,
 												  wszTotal );
@@ -382,7 +382,7 @@ protected:
 
 	void Login( const char* pUserName, const char *pPassword )
 	{
-		const bool bOnSteamPublic = steamapicontext && steamapicontext->SteamUtils() && steamapicontext->SteamUtils()->GetConnectedUniverse() == k_EUniversePublic;
+		const bool bOnSteamPublic = GetUniverse() == k_EUniversePublic;
 		const char *pGameDir = COM_GetModDirectory();
 		const char *pSource = NULL;
 		const char *pDeveloperTag = NULL;
@@ -517,7 +517,7 @@ public:
 			const char *pCategory = "Games";
 
 			// add steam profile to the description for verification if necessary
-			EUniverse eSteamUniverse = steamapicontext && steamapicontext->SteamUtils() ? steamapicontext->SteamUtils()->GetConnectedUniverse() : k_EUniverseDev;
+			EUniverse eSteamUniverse = GetUniverse();
 			CUtlString description( szDesc );
 			if ( steamapicontext && steamapicontext->SteamUser() )
 			{

@@ -290,7 +290,10 @@ void SharedVehicleViewSmoothing(CBasePlayer *pPlayer,
 
 				pData->pVehicle->GetAttachmentLocal( eyeAttachmentIndex, localEyeOrigin, localEyeAngles );
 #ifdef CLIENT_DLL
-				engine->SetViewAngles( localEyeAngles );
+				if ( pPlayer->IsLocalPlayer() )
+				{
+					engine->SetViewAngles( localEyeAngles );
+				}
 #endif
 			}
 		}

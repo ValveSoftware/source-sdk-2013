@@ -380,7 +380,7 @@ void C_AR2Explosion::SimulateParticles( CParticleSimulateIterator *pIterator )
 	while ( pParticle )
 	{
 		if (dt > 0.05)
-			dt = 0.05; // yuck, air resistance function craps out at less then 20fps
+			dt = 0.05; // yuck, air resistance function fails at less then 20fps
 
 		// Update its lifetime.
 		pParticle->m_Lifetime += dt; // pDraw->GetTimeDelta();

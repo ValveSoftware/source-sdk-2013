@@ -96,7 +96,7 @@ private:
 static CSoundCombiner g_SoundCombiner;
 ISoundCombiner *soundcombiner = &g_SoundCombiner;
 
-bool CSoundCombiner::CreateWorkList( IFileSystem *filesystem, CUtlVector< CombinerEntry >& info )
+bool CSoundCombiner::CreateWorkList( IFileSystem *pFilesystem, CUtlVector< CombinerEntry >& info )
 {
 	m_Work.RemoveAll();
 
@@ -107,7 +107,7 @@ bool CSoundCombiner::CreateWorkList( IFileSystem *filesystem, CUtlVector< Combin
 
 		char fullpath[ MAX_PATH ];
 		Q_strncpy( fullpath, info[ i ].wavefile, sizeof( fullpath ) );
-		filesystem->GetLocalPath( info[ i ].wavefile, fullpath, sizeof( fullpath ) );
+		pFilesystem->GetLocalPath( info[ i ].wavefile, fullpath, sizeof( fullpath ) );
 
 		if ( !LoadSentenceFromWavFile( fullpath, workitem->sentence ) )
 		{
@@ -144,7 +144,7 @@ void CSoundCombiner::CleanupWork()
 	m_pOutRIFF = NULL;
 }
 
-bool CSoundCombiner::InternalCombineSoundFiles( IFileSystem *filesystem, char const *outfile, CUtlVector< CombinerEntry >& info )
+bool CSoundCombiner::InternalCombineSoundFiles( IFileSystem *pFilesystem, char const *outfile, CUtlVector< CombinerEntry >& info )
 {
 	Q_strncpy( m_szOutFile, outfile, sizeof( m_szOutFile ) );
 	if ( info.Count() <= 0 )
@@ -153,24 +153,24 @@ bool CSoundCombiner::InternalCombineSoundFiles( IFileSystem *filesystem, char co
 		return false;
 	}
 
-	if ( !VerifyFilesExist( filesystem, info ) )
+	if ( !VerifyFilesExist( pFilesystem, info ) )
 	{
 		return false;
 	}
 
-	if ( !CreateWorkList( filesystem, info ) )
+	if ( !CreateWorkList( pFilesystem, info ) )
 	{
 		return false;
 	}
 
-	PerformSplicingOnWorkItems( filesystem );
+	PerformSplicingOnWorkItems( pFilesystem );
 
 	return true;
 }
 
-bool CSoundCombiner::CombineSoundFiles( IFileSystem *filesystem, char const *outfile, CUtlVector< CombinerEntry >& info )
+bool CSoundCombiner::CombineSoundFiles( IFileSystem *pFilesystem, char const *outfile, CUtlVector< CombinerEntry >& info )
 {
-	bool bret = InternalCombineSoundFiles( filesystem, outfile, info );
+	bool bret = InternalCombineSoundFiles( pFilesystem, outfile, info );
 	CleanupWork();
 	return bret;
 }
@@ -198,7 +198,7 @@ unsigned int CSoundCombiner::ComputeChecksum()
 	return ( unsigned int )crc;
 }
 
-unsigned int CSoundCombiner::CheckSumWork( IFileSystem *filesystem, CUtlVector< CombinerEntry >& info )
+unsigned int CSoundCombiner::CheckSumWork( IFileSystem *pFilesystem, CUtlVector< CombinerEntry >& info )
 {
 	if ( info.Count() <= 0 )
 	{
@@ -206,12 +206,12 @@ unsigned int CSoundCombiner::CheckSumWork( IFileSystem *filesystem, CUtlVector< 
 		return 0;
 	}
 
-	if ( !VerifyFilesExist( filesystem, info ) )
+	if ( !VerifyFilesExist( pFilesystem, info ) )
 	{
 		return 0;
 	}
 
-	if ( !CreateWorkList( filesystem, info ) )
+	if ( !CreateWorkList( pFilesystem, info ) )
 	{
 		return 0;
 	}
@@ -222,13 +222,13 @@ unsigned int CSoundCombiner::CheckSumWork( IFileSystem *filesystem, CUtlVector< 
 	return checksum;
 }
 
-bool CSoundCombiner::IsCombinedFileChecksumValid( IFileSystem *filesystem, char const *outfile, CUtlVector< CombinerEntry >& info )
+bool CSoundCombiner::IsCombinedFileChecksumValid( IFileSystem *pFilesystem, char const *outfile, CUtlVector< CombinerEntry >& info )
 {
-	unsigned int computedChecksum = CheckSumWork( filesystem, info );
+	unsigned int computedChecksum = CheckSumWork( pFilesystem, info );
 
 	char fullpath[ MAX_PATH ];
 	Q_strncpy( fullpath, outfile, sizeof( fullpath ) );
-	filesystem->GetLocalPath( outfile, fullpath, sizeof( fullpath ) );
+	pFilesystem->GetLocalPath( outfile, fullpath, sizeof( fullpath ) );
 
 	CSentence sentence;
 
@@ -255,13 +255,13 @@ bool CSoundCombiner::IsCombinedFileChecksumValid( IFileSystem *filesystem, char 
 	return valid;
 }
 
-bool CSoundCombiner::VerifyFilesExist( IFileSystem *filesystem, CUtlVector< CombinerEntry >& info )
+bool CSoundCombiner::VerifyFilesExist( IFileSystem *pFilesystem, CUtlVector< CombinerEntry >& info )
 {
 	int c = info.Count();
 	for ( int i = 0 ; i < c; ++i )
 	{
 		CombinerEntry& entry = info[ i ];
-		if ( !filesystem->FileExists( entry.wavefile ) )
+		if ( !pFilesystem->FileExists( entry.wavefile ) )
 		{
 			Warning( "CSoundCombiner::VerifyFilesExist: missing file %s\n", entry.wavefile );
 			return false;
@@ -276,12 +276,12 @@ bool CSoundCombiner::VerifyFilesExist( IFileSystem *filesystem, CUtlVector< Comb
 class StdIOReadBinary : public IFileReadBinary
 {
 public:
-	int open( const char *pFileName )
+	FileHandle_t open( const char *pFileName )
 	{
-		return (int)filesystem->Open( pFileName, "rb" );
+		return filesystem->Open( pFileName, "rb" );
 	}
 
-	int read( void *pOutput, int size, int file )
+	int read( void *pOutput, int size, FileHandle_t file )
 	{
 		if ( !file )
 			return 0;
@@ -289,15 +289,15 @@ public:
 		return filesystem->Read( pOutput, size, (FileHandle_t)file );
 	}
 
-	void seek( int file, int pos )
+	void seek( FileHandle_t file, int pos )
 	{
 		if ( !file )
 			return;
 
-		filesystem->Seek( (FileHandle_t)file, pos, FILESYSTEM_SEEK_HEAD );
+		filesystem->Seek( file, pos, FILESYSTEM_SEEK_HEAD );
 	}
 
-	unsigned int tell( int file )
+	unsigned int tell( FileHandle_t file )
 	{
 		if ( !file )
 			return 0;
@@ -305,7 +305,7 @@ public:
 		return filesystem->Tell( (FileHandle_t)file );
 	}
 
-	unsigned int size( int file )
+	unsigned int size( FileHandle_t file )
 	{
 		if ( !file )
 			return 0;
@@ -313,7 +313,7 @@ public:
 		return filesystem->Size( (FileHandle_t)file );
 	}
 
-	void close( int file )
+	void close( FileHandle_t file )
 	{
 		if ( !file )
 			return;
@@ -325,29 +325,29 @@ public:
 class StdIOWriteBinary : public IFileWriteBinary
 {
 public:
-	int create( const char *pFileName )
+	FileHandle_t create( const char *pFileName )
 	{
-		return (int)filesystem->Open( pFileName, "wb" );
+		return filesystem->Open( pFileName, "wb" );
 	}
 
-	int write( void *pData, int size, int file )
+	int write( void *pData, int size, FileHandle_t file )
 	{
-		return filesystem->Write( pData, size, (FileHandle_t)file );
+		return filesystem->Write( pData, size, file );
 	}
 
-	void close( int file )
+	void close( FileHandle_t file )
 	{
-		filesystem->Close( (FileHandle_t)file );
+		filesystem->Close( file );
 	}
 
-	void seek( int file, int pos )
+	void seek( FileHandle_t file, int pos )
 	{
-		filesystem->Seek( (FileHandle_t)file, pos, FILESYSTEM_SEEK_HEAD );
+		filesystem->Seek( file, pos, FILESYSTEM_SEEK_HEAD );
 	}
 
-	unsigned int tell( int file )
+	unsigned int tell( FileHandle_t file )
 	{
-		return filesystem->Tell( (FileHandle_t)file );
+		return filesystem->Tell( file );
 	}
 };
 
@@ -517,7 +517,7 @@ typedef struct channel_s
 	float	pitch;
 } channel_t;
 
-bool CSoundCombiner::InitSplicer( IFileSystem *filesystem, int samplerate, int numchannels, int bitspersample )
+bool CSoundCombiner::InitSplicer( IFileSystem *pFilesystem, int samplerate, int numchannels, int bitspersample )
 {
 	m_nSampleRate = samplerate;
 	m_nNumChannels = numchannels;
@@ -534,7 +534,7 @@ bool CSoundCombiner::InitSplicer( IFileSystem *filesystem, int samplerate, int n
 	// Make sure the directory exists
 	char basepath[ 512 ];
 	Q_ExtractFilePath( m_szOutFile, basepath, sizeof( basepath ) );
-	filesystem->CreateDirHierarchy( basepath, "GAME" );
+	pFilesystem->CreateDirHierarchy( basepath, "GAME" );
 
 	// Create out put file
 	m_pOutRIFF = new OutFileRIFF( m_szOutFile, io_out );
@@ -745,7 +745,7 @@ int CSoundCombiner::ComputeBestNumChannels()
 	return 1;
 }
 
-bool CSoundCombiner::PerformSplicingOnWorkItems( IFileSystem *filesystem )
+bool CSoundCombiner::PerformSplicingOnWorkItems( IFileSystem *pFilesystem )
 {
 	if ( !LoadSpliceAudioSources() )
 	{
@@ -756,7 +756,7 @@ bool CSoundCombiner::PerformSplicingOnWorkItems( IFileSystem *filesystem )
 	int bitsPerChannel = WAVEOUTPUT_BITSPERCHANNEL;
 
 	// Pull in data and write it out
-	if ( !InitSplicer( filesystem, WAVEOUTPUT_FREQUENCY, bestNumChannels, bitsPerChannel ) )
+	if ( !InitSplicer( pFilesystem, WAVEOUTPUT_FREQUENCY, bestNumChannels, bitsPerChannel ) )
 	{
 		return false;
 	}

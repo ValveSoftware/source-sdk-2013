@@ -169,7 +169,7 @@ private:
 
 	void	DrawStream( wrect_t& rect, wrect_t &rcWindow, CCloseCaptionItem *item, int iFadeLine, float flFadeLineAlpha ); 
 	void	ComputeStreamWork( int available_width, CCloseCaptionItem *item );
-	bool	SplitCommand( wchar_t const **ppIn, wchar_t *cmd, wchar_t *args ) const;
+	bool	SplitCommand( wchar_t const **ppIn, wchar_t *cmd, int nCmdSize, wchar_t *args, int nArgsSize ) const;
 
 	bool	StreamHasCommand( const wchar_t *stream, const wchar_t *findcmd ) const;
 	bool	GetFloatCommandValue( const wchar_t *stream, const wchar_t *findcmd, float& value ) const;
@@ -206,6 +206,7 @@ private:
 	CPanelAnimationVar( float, m_flItemFadeInTime, "ItemFadeInTime", "0.15" );
 	CPanelAnimationVar( float, m_flItemFadeOutTime, "ItemFadeOutTime", "0.3" );
 	CPanelAnimationVar( int, m_nTopOffset, "topoffset", "40" );
+	CPanelAnimationVar( int, m_nAspectRatioOffset, "aspectratiooffset", "36" );
 
 	CUtlVector< AsyncCaption_t > m_AsyncCaptions;
 	bool		m_bLocked;

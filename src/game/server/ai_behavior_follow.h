@@ -100,7 +100,7 @@ struct AI_FollowGroup_t;
 struct AI_FollowManagerInfoHandle_t
 {
 	AI_FollowGroup_t *m_pGroup;
-	int m_hFollower;
+	intp m_hFollower;
 };
 
 //-------------------------------------

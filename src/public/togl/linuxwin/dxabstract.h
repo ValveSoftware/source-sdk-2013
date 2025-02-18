@@ -32,119 +32,11 @@
 
 #include "togl/rendermechanism.h"
 
+#include "togl/dx_iunknown.h"
+
 #include "tier0/platform.h"
 #include "tier0/dbg.h"
 #include "tier1/utlmap.h"
-
-// turn this on to get refcount logging from IUnknown
-#define	IUNKNOWN_ALLOC_SPEW 0
-#define	IUNKNOWN_ALLOC_SPEW_MARK_ALL 0	
-
-
-TOGL_INTERFACE void toglGetClientRect( VD3DHWND hWnd, RECT *destRect );
-
-
-struct TOGL_CLASS IUnknown
-{
-	int	m_refcount[2];
-	bool m_mark;
-		
-	IUnknown()
-	{
-		m_refcount[0] = 1;
-		m_refcount[1] = 0;
-		m_mark = (IUNKNOWN_ALLOC_SPEW_MARK_ALL != 0);	// either all are marked, or only the ones that have SetMark(true) called on them
-
-		#if IUNKNOWN_ALLOC_SPEW
-			if (m_mark)
-			{
-				GLMPRINTF(("-A- IUnew (%08x) refc -> (%d,%d) ",this,m_refcount[0],m_refcount[1]));
-			}
-		#endif
-	};
-				
-	virtual	~IUnknown()
-	{
-		#if IUNKNOWN_ALLOC_SPEW
-			if (m_mark)
-			{
-				GLMPRINTF(("-A- IUdel (%08x) ",this ));
-			}
-		#endif
-	};
-		
-	void	AddRef( int which=0, char *comment = NULL )
-	{
-		Assert( which >= 0 );
-		Assert( which < 2 );
-		m_refcount[which]++;
-			
-		#if IUNKNOWN_ALLOC_SPEW
-			if (m_mark)
-			{
-				GLMPRINTF(("-A- IUAddRef  (%08x,%d) refc -> (%d,%d) [%s]",this,which,m_refcount[0],m_refcount[1],comment?comment:"..."))	;
-				if (!comment)
-				{
-					GLMPRINTF((""))	;	// place to hang a breakpoint
-				}
-			}
-		#endif
-	};
-		
-	ULONG __stdcall	Release( int which=0, char *comment = NULL )
-	{
-		Assert( which >= 0 );
-		Assert( which < 2 );
-			
-		//int oldrefcs[2] = { m_refcount[0], m_refcount[1] };
-		bool deleting = false;
-			
-		m_refcount[which]--;
-		if ( (!m_refcount[0]) && (!m_refcount[1]) )
-		{
-			deleting = true;
-		}
-			
-		#if IUNKNOWN_ALLOC_SPEW
-			if (m_mark)
-			{
-				GLMPRINTF(("-A- IURelease (%08x,%d) refc -> (%d,%d) [%s] %s",this,which,m_refcount[0],m_refcount[1],comment?comment:"...",deleting?"->DELETING":""));
-				if (!comment)
-				{
-					GLMPRINTF((""))	;	// place to hang a breakpoint
-				}
-			}
-		#endif
-
-		if (deleting)
-		{
-			if (m_mark)
-			{
-				GLMPRINTF((""))	;		// place to hang a breakpoint
-			}
-			delete this;
-			return 0;
-		}
-		else
-		{
-			return m_refcount[0];
-		}
-	};
-		
-	void	SetMark( bool markValue, char *comment=NULL )
-	{
-		#if IUNKNOWN_ALLOC_SPEW
-			if (!m_mark && markValue)	// leading edge detect
-			{
-				// print the same thing that the constructor would have printed if it had been marked from the beginning
-				// i.e. it's anticipated that callers asking for marking will do so right at create time
-				GLMPRINTF(("-A- IUSetMark (%08x) refc -> (%d,%d) (%s) ",this,m_refcount[0],m_refcount[1],comment?comment:"..."));
-			}
-		#endif
-
-		m_mark = markValue;
-	}
-};
 
 // ------------------------------------------------------------------------------------------------------------------------------ //
 // INTERFACES
@@ -310,48 +202,6 @@ struct TOGL_CLASS IDirect3DVertexShader9 : public IDirect3DResource9	//was IUnkn
 	virtual					~IDirect3DVertexShader9();
 };
 
-#ifdef _MSC_VER
-	typedef class TOGL_CLASS CUtlMemory<D3DMATRIX> CD3DMATRIXAllocator;
-	typedef class TOGL_CLASS CUtlVector<D3DMATRIX, CD3DMATRIXAllocator> CD3DMATRIXStack;
-#else
-	typedef class CUtlMemory<D3DMATRIX> CD3DMATRIXAllocator;
-	typedef class CUtlVector<D3DMATRIX, CD3DMATRIXAllocator> CD3DMATRIXStack;
-#endif
-
-struct TOGL_CLASS ID3DXMatrixStack //: public IUnknown
-{
-	int	m_refcount[2];
-	bool m_mark;
-	CD3DMATRIXStack	m_stack;
-	int						m_stackTop;	// top of stack is at the highest index, this is that index.  push increases, pop decreases.
-
-	ID3DXMatrixStack();
-	void  AddRef( int which=0, char *comment = NULL );
-	ULONG Release( int which=0, char *comment = NULL );
-	
-	HRESULT	Create( void );
-	
-	D3DXMATRIX* GetTop();
-	void Push();
-	void Pop();
-	void LoadIdentity();
-	void LoadMatrix( const D3DXMATRIX *pMat );
-	void MultMatrix( const D3DXMATRIX *pMat );
-	void MultMatrixLocal( const D3DXMATRIX *pMat );
-	HRESULT ScaleLocal(FLOAT x, FLOAT y, FLOAT z);
-
-	// Left multiply the current matrix with the computed rotation
-	// matrix, counterclockwise about the given axis with the given angle.
-	// (rotation is about the local origin of the object)
-	HRESULT RotateAxisLocal(CONST D3DXVECTOR3* pV, FLOAT Angle);
-
-	// Left multiply the current matrix with the computed translation
-	// matrix. (transformation is about the local origin of the object)
-	HRESULT TranslateLocal(FLOAT x, FLOAT y, FLOAT z);
-};
-
-typedef ID3DXMatrixStack* LPD3DXMATRIXSTACK;
-
 struct RenderTargetState_t
 {
 	void clear() { V_memset( this, 0, sizeof( *this ) ); }
@@ -373,7 +223,7 @@ struct RenderTargetState_t
 
 	static inline bool LessFunc( const RenderTargetState_t &lhs, const RenderTargetState_t &rhs ) 
 	{
-		COMPILE_TIME_ASSERT( sizeof( lhs.m_pRenderTargets[0] ) == sizeof( uint32 ) );
+		COMPILE_TIME_ASSERT( sizeof( lhs.m_pRenderTargets[0] ) == sizeof( uint32 ) || sizeof( lhs.m_pRenderTargets[0] ) == sizeof( uint64 ) );
 		uint64 lhs0 = reinterpret_cast<const uint64 *>(lhs.m_pRenderTargets)[0];
 		uint64 rhs0 = reinterpret_cast<const uint64 *>(rhs.m_pRenderTargets)[0];
 		if ( lhs0 < rhs0 )
@@ -519,8 +369,8 @@ struct TOGL_CLASS IDirect3DDevice9 : public IUnknown
     FORCEINLINE HRESULT TOGLMETHODCALLTYPE SetSamplerState(DWORD Sampler,D3DSAMPLERSTATETYPE Type,DWORD Value);
 	HRESULT TOGLMETHODCALLTYPE SetSamplerStateNonInline(DWORD Sampler,D3DSAMPLERSTATETYPE Type,DWORD Value);
 
-	FORCEINLINE void TOGLMETHODCALLTYPE SetSamplerStates(DWORD Sampler, DWORD AddressU, DWORD AddressV, DWORD AddressW, DWORD MinFilter, DWORD MagFilter, DWORD MipFilter );
-	void TOGLMETHODCALLTYPE SetSamplerStatesNonInline(DWORD Sampler, DWORD AddressU, DWORD AddressV, DWORD AddressW, DWORD MinFilter, DWORD MagFilter, DWORD MipFilter );
+	FORCEINLINE void TOGLMETHODCALLTYPE SetSamplerStates(DWORD Sampler, DWORD AddressU, DWORD AddressV, DWORD AddressW, DWORD MinFilter, DWORD MagFilter, DWORD MipFilter, DWORD MinLod, float LodBias );
+	void TOGLMETHODCALLTYPE SetSamplerStatesNonInline(DWORD Sampler, DWORD AddressU, DWORD AddressV, DWORD AddressW, DWORD MinFilter, DWORD MagFilter, DWORD MipFilter, DWORD MinLod, float LodBias );
 			
 #ifdef OSX
 	// required for 10.6 support
@@ -563,7 +413,7 @@ struct TOGL_CLASS IDirect3DDevice9 : public IUnknown
 
 	void TOGLMETHODCALLTYPE AcquireThreadOwnership( );
 	void TOGLMETHODCALLTYPE ReleaseThreadOwnership( );
-	inline DWORD TOGLMETHODCALLTYPE GetCurrentOwnerThreadId() const { return m_ctx->m_nCurOwnerThreadId; }
+	inline ThreadId_t TOGLMETHODCALLTYPE GetCurrentOwnerThreadId() const { return m_ctx->m_nCurOwnerThreadId; }
 
 	FORCEINLINE void TOGLMETHODCALLTYPE SetMaxUsedVertexShaderConstantsHint( uint nMaxReg );
 	void TOGLMETHODCALLTYPE SetMaxUsedVertexShaderConstantsHintNonInline( uint nMaxReg );
@@ -795,17 +645,18 @@ FORCEINLINE HRESULT TOGLMETHODCALLTYPE IDirect3DDevice9::SetSamplerState( DWORD 
 
 FORCEINLINE void TOGLMETHODCALLTYPE IDirect3DDevice9::SetSamplerStates(
 	DWORD Sampler, DWORD AddressU, DWORD AddressV, DWORD AddressW,
-	DWORD MinFilter, DWORD MagFilter, DWORD MipFilter )
+	DWORD MinFilter, DWORD MagFilter, DWORD MipFilter, DWORD MinLod,
+	float LodBias)
 {
 #if GLMDEBUG || GL_BATCH_PERF_ANALYSIS
-	SetSamplerStatesNonInline( Sampler, AddressU, AddressV, AddressW, MinFilter, MagFilter, MipFilter );
+	SetSamplerStatesNonInline( Sampler, AddressU, AddressV, AddressW, MinFilter, MagFilter, MipFilter, MinLod, LodBias );
 #else
 	Assert( GetCurrentOwnerThreadId() == ThreadGetCurrentId() );
 	Assert( Sampler < GLM_SAMPLER_COUNT);
 		
 	m_ctx->SetSamplerDirty( Sampler );
 		
-	m_ctx->SetSamplerStates( Sampler, AddressU, AddressV, AddressW, MinFilter, MagFilter, MipFilter );
+	m_ctx->SetSamplerStates( Sampler, AddressU, AddressV, AddressW, MinFilter, MagFilter, MipFilter, MinLod, LodBias );
 #endif
 }
 
@@ -1167,6 +1018,10 @@ FORCEINLINE HRESULT TOGLMETHODCALLTYPE IDirect3DDevice9::SetRenderStateInline( D
 			m_ctx->WritePolygonMode( &gl.m_PolygonMode );
 			break;
 		}
+		default:
+		{
+			break;
+		}
 	}
 		
 	return S_OK;
@@ -1321,102 +1176,9 @@ FORCEINLINE void IDirect3DDevice9::SetMaxUsedVertexShaderConstantsHint( uint nMa
 #endif
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------ //
-// D3DX
-// ------------------------------------------------------------------------------------------------------------------------------ //
-struct ID3DXInclude
-{
-	virtual HRESULT Open(D3DXINCLUDE_TYPE IncludeType, LPCSTR pFileName, LPCVOID pParentData, LPCVOID *ppData, UINT *pBytes);
-	virtual HRESULT Close(LPCVOID pData);
-};
-typedef ID3DXInclude* LPD3DXINCLUDE;
-
-
-struct TOGL_CLASS ID3DXBuffer : public IUnknown
-{
-	void* GetBufferPointer();
-	DWORD GetBufferSize();
-};
-
-typedef ID3DXBuffer* LPD3DXBUFFER;
-
-class ID3DXConstantTable : public IUnknown
-{
-};
-typedef ID3DXConstantTable* LPD3DXCONSTANTTABLE;
-
-TOGL_INTERFACE const char* D3DXGetPixelShaderProfile( IDirect3DDevice9 *pDevice );
-
-TOGL_INTERFACE D3DXMATRIX* D3DXMatrixMultiply( D3DXMATRIX *pOut, CONST D3DXMATRIX *pM1, CONST D3DXMATRIX *pM2 );
-TOGL_INTERFACE D3DXVECTOR3* D3DXVec3TransformCoord( D3DXVECTOR3 *pOut, CONST D3DXVECTOR3 *pV, CONST D3DXMATRIX *pM );
-
-TOGL_INTERFACE HRESULT D3DXCreateMatrixStack( DWORD Flags, LPD3DXMATRIXSTACK* ppStack);
-TOGL_INTERFACE void D3DXMatrixIdentity( D3DXMATRIX * );
-
-TOGL_INTERFACE D3DXINLINE D3DXVECTOR3* D3DXVec3Subtract( D3DXVECTOR3 *pOut, CONST D3DXVECTOR3 *pV1, CONST D3DXVECTOR3 *pV2 )
-{
-	pOut->x = pV1->x - pV2->x;
-	pOut->y = pV1->y - pV2->y;
-	pOut->z = pV1->z - pV2->z;
-	return pOut;
-}
-
-TOGL_INTERFACE D3DXINLINE D3DXVECTOR3* D3DXVec3Cross( D3DXVECTOR3 *pOut, CONST D3DXVECTOR3 *pV1, CONST D3DXVECTOR3 *pV2 )
-{
-	D3DXVECTOR3 v;
-
-	v.x = pV1->y * pV2->z - pV1->z * pV2->y;
-	v.y = pV1->z * pV2->x - pV1->x * pV2->z;
-	v.z = pV1->x * pV2->y - pV1->y * pV2->x;
-
-	*pOut = v;
-	return pOut;
-}
-
-TOGL_INTERFACE D3DXINLINE FLOAT D3DXVec3Dot( CONST D3DXVECTOR3 *pV1, CONST D3DXVECTOR3 *pV2 )
-{
-	return pV1->x * pV2->x + pV1->y * pV2->y + pV1->z * pV2->z;
-}
-
-TOGL_INTERFACE D3DXMATRIX* D3DXMatrixInverse( D3DXMATRIX *pOut, FLOAT *pDeterminant, CONST D3DXMATRIX *pM );
-
-TOGL_INTERFACE D3DXMATRIX* D3DXMatrixTranspose( D3DXMATRIX *pOut, CONST D3DXMATRIX *pM );
-
-TOGL_INTERFACE D3DXPLANE* D3DXPlaneNormalize( D3DXPLANE *pOut, CONST D3DXPLANE *pP);
-
-TOGL_INTERFACE D3DXVECTOR4* D3DXVec4Transform( D3DXVECTOR4 *pOut, CONST D3DXVECTOR4 *pV, CONST D3DXMATRIX *pM );
-
-
-TOGL_INTERFACE D3DXVECTOR4* D3DXVec4Normalize( D3DXVECTOR4 *pOut, CONST D3DXVECTOR4 *pV );
-
-TOGL_INTERFACE D3DXMATRIX* D3DXMatrixTranslation( D3DXMATRIX *pOut, FLOAT x, FLOAT y, FLOAT z );
-
-// Build an ortho projection matrix. (right-handed)
-TOGL_INTERFACE D3DXMATRIX* D3DXMatrixOrthoOffCenterRH( D3DXMATRIX *pOut, FLOAT l, FLOAT r, FLOAT b, FLOAT t, FLOAT zn,FLOAT zf );
-
-TOGL_INTERFACE D3DXMATRIX* D3DXMatrixPerspectiveRH( D3DXMATRIX *pOut, FLOAT w, FLOAT h, FLOAT zn, FLOAT zf );
-
-TOGL_INTERFACE D3DXMATRIX* D3DXMatrixPerspectiveOffCenterRH( D3DXMATRIX *pOut, FLOAT l, FLOAT r, FLOAT b, FLOAT t, FLOAT zn, FLOAT zf );
-
-// Transform a plane by a matrix.  The vector (a,b,c) must be normal.
-// M should be the inverse transpose of the transformation desired.
-TOGL_INTERFACE D3DXPLANE* D3DXPlaneTransform( D3DXPLANE *pOut, CONST D3DXPLANE *pP, CONST D3DXMATRIX *pM );
-
 TOGL_INTERFACE IDirect3D9 *Direct3DCreate9(UINT SDKVersion);
 
 TOGL_INTERFACE void D3DPERF_SetOptions( DWORD dwOptions );
-
-TOGL_INTERFACE HRESULT D3DXCompileShader(
-	LPCSTR                          pSrcData,
-	UINT                            SrcDataLen,
-	CONST D3DXMACRO*                pDefines,
-	LPD3DXINCLUDE                   pInclude,
-	LPCSTR                          pFunctionName,
-	LPCSTR                          pProfile,
-	DWORD                           Flags,
-	LPD3DXBUFFER*                   ppShader,
-	LPD3DXBUFFER*                   ppErrorMsgs,
-	LPD3DXCONSTANTTABLE*            ppConstantTable);
 
 // fake D3D usage constant for SRGB tex creation
 #define D3DUSAGE_TEXTURE_SRGB (0x80000000L)

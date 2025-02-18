@@ -499,7 +499,7 @@ inline void CDispCollTree::LockCache()
 #ifdef ENGINE_DLL
 	if ( !g_DispCollTriCache.LockResource( m_hCache ) )
 	{
-		AUTO_LOCK_FM( s_CacheMutex );
+		AUTO_LOCK( s_CacheMutex );
 
 		// Cache may have just been created, so check once more
 		if ( !g_DispCollTriCache.LockResource( m_hCache ) )
@@ -809,7 +809,6 @@ bool CDispCollTree::AABBTree_IntersectAABB( const Vector &absMins, const Vector 
 	mins0.DuplicateVector(absMins);
 	FourVectors maxs0;
 	maxs0.DuplicateVector(absMaxs);
-	FourVectors rayExtents;
 	while ( listIndex <= maxIndex )
 	{
 		int iNode = nodeList[listIndex];
@@ -1010,7 +1009,6 @@ bool FORCEINLINE CDispCollTree::AxisPlanesXYZ( const Ray_t &ray, CDispCollTri *p
 		}
 	};
 
-	Vector vecImpactNormal;
 	float flDist, flExpDist, flStart, flEnd;
 	
 	int iAxis;
@@ -1500,7 +1498,7 @@ CDispCollTree *DispCollTrees_Alloc( int count )
 {
 	CDispCollTree *pTrees = NULL;
 #ifdef ENGINE_DLL
-	pTrees = (CDispCollTree *)Hunk_Alloc( count * sizeof(CDispCollTree), false );
+	pTrees = (CDispCollTree *)Hunk_AllocName( count * sizeof(CDispCollTree), "DispCollTrees_Alloc", false );
 	g_nTrees = count;
 	for ( int i = 0; i < g_nTrees; i++ )
 	{

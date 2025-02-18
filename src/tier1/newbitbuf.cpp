@@ -31,7 +31,7 @@ void CBitWrite::StartWriting( void *pData, int nBytes, int iStartBit, int nBits 
 {
 	// Make sure it's dword aligned and padded.
 	Assert( (nBytes % 4) == 0 );
-	Assert(((unsigned long)pData & 3) == 0);
+	Assert(((uintp)pData & 3) == 0);
 	Assert( iStartBit == 0 );
 	m_pData = (uint32 *) pData;
 	m_pDataOut = m_pData;
@@ -392,7 +392,7 @@ bool CBitRead::Seek( int nPosition )
 void CBitRead::StartReading( const void *pData, int nBytes, int iStartBit, int nBits )
 {
 // Make sure it's dword aligned and padded.
-	Assert(((unsigned long)pData & 3) == 0);
+	Assert(((uintp)pData & 3) == 0);
 	m_pData = (uint32 *) pData;
 	m_pDataIn = m_pData;
 	m_nDataBytes = nBytes;
@@ -485,7 +485,7 @@ void CBitRead::ReadBits(void *pOutData, int nBits)
 
 	
 	// align output to dword boundary
-	while( ((unsigned long)pOut & 3) != 0 && nBitsLeft >= 8 )
+	while( ((uintp)pOut & 3) != 0 && nBitsLeft >= 8 )
 	{
 		*pOut = (unsigned char)ReadUBitLong(8);
 		++pOut;
@@ -498,8 +498,8 @@ void CBitRead::ReadBits(void *pOutData, int nBits)
 		// read dwords
 		while ( nBitsLeft >= 32 )
 		{
-			*((unsigned long*)pOut) = ReadUBitLong(32);
-			pOut += sizeof(unsigned long);
+			*((uint32*)pOut) = ReadUBitLong(32);
+			pOut += sizeof(uint32);
 			nBitsLeft -= 32;
 		}
 	}

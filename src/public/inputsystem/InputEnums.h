@@ -55,8 +55,6 @@ enum JoystickAxis_t
 };
 #endif
 
-
-
 //-----------------------------------------------------------------------------
 // Extra mouse codes
 //-----------------------------------------------------------------------------
@@ -95,6 +93,103 @@ struct InputEvent_t
 	int m_nData;				// Generic 32-bit data, what it contains depends on the event
 	int m_nData2;				// Generic 32-bit data, what it contains depends on the event
 	int m_nData3;				// Generic 32-bit data, what it contains depends on the event
+};
+
+//-----------------------------------------------------------------------------
+// Steam Controller Enums
+//-----------------------------------------------------------------------------
+
+#define MAX_STEAM_CONTROLLERS 8
+
+typedef enum
+{
+	SK_NULL,
+	SK_BUTTON_A,
+	SK_BUTTON_B,
+	SK_BUTTON_X,
+	SK_BUTTON_Y,
+	SK_BUTTON_UP,
+	SK_BUTTON_RIGHT,
+	SK_BUTTON_DOWN,
+	SK_BUTTON_LEFT,
+	SK_BUTTON_LEFT_BUMPER,
+	SK_BUTTON_RIGHT_BUMPER,
+	SK_BUTTON_LEFT_TRIGGER,
+	SK_BUTTON_RIGHT_TRIGGER,
+	SK_BUTTON_LEFT_GRIP,
+	SK_BUTTON_RIGHT_GRIP,
+	SK_BUTTON_LPAD_TOUCH,
+	SK_BUTTON_RPAD_TOUCH,
+	SK_BUTTON_LPAD_CLICK,
+	SK_BUTTON_RPAD_CLICK,
+	SK_BUTTON_LPAD_UP,
+	SK_BUTTON_LPAD_RIGHT,
+	SK_BUTTON_LPAD_DOWN,
+	SK_BUTTON_LPAD_LEFT,
+	SK_BUTTON_RPAD_UP,
+	SK_BUTTON_RPAD_RIGHT,
+	SK_BUTTON_RPAD_DOWN,
+	SK_BUTTON_RPAD_LEFT,
+	SK_BUTTON_SELECT,
+	SK_BUTTON_START,
+	SK_BUTTON_STEAM,
+	SK_BUTTON_INACTIVE_START,
+	SK_VBUTTON_F1,						// These are "virtual" buttons. Useful if you want to have flow that maps an action to button code to be interpreted by some UI that accepts keystrokes, but you
+	SK_VBUTTON_F2,						// don't want to map to real button (perhaps because it would be interpreted by UI in a way you don't like). 																																										
+	SK_VBUTTON_F3,
+	SK_VBUTTON_F4,
+	SK_VBUTTON_F5,
+	SK_VBUTTON_F6,
+	SK_VBUTTON_F7,
+	SK_VBUTTON_F8,
+	SK_VBUTTON_F9,
+	SK_VBUTTON_F10,
+	SK_VBUTTON_F11,
+	SK_VBUTTON_F12,
+	SK_MAX_KEYS
+} sKey_t;
+
+enum ESteamPadAxis
+{
+	LEFTPAD_AXIS_X,
+	LEFTPAD_AXIS_Y,
+	RIGHTPAD_AXIS_X,
+	RIGHTPAD_AXIS_Y,
+	LEFT_TRIGGER_AXIS,
+	RIGHT_TRIGGER_AXIS,
+	GYRO_AXIS_PITCH,
+	GYRO_AXIS_ROLL,
+	GYRO_AXIS_YAW,
+	MAX_STEAMPADAXIS = GYRO_AXIS_YAW
+};
+
+enum
+{
+	LASTINPUT_KBMOUSE = 0,
+	LASTINPUT_CONTROLLER = 1,
+	LASTINPUT_STEAMCONTROLLER = 2
+};
+
+enum GameActionSet_t
+{
+	GAME_ACTION_SET_NONE = -1,
+	GAME_ACTION_SET_MENUCONTROLS = 0,
+	GAME_ACTION_SET_FPSCONTROLS,
+	GAME_ACTION_SET_IN_GAME_HUD,
+	GAME_ACTION_SET_SPECTATOR,
+};
+
+enum GameActionSetFlags_t
+{
+	GAME_ACTION_SET_FLAGS_NONE = 0,
+	GAME_ACTION_SET_FLAGS_TAUNTING = (1<<0),
+};
+
+enum JoystickType_t
+{
+	INPUT_TYPE_GENERIC_JOYSTICK = 0,
+	INPUT_TYPE_X360,
+	INPUT_TYPE_STEAMCONTROLLER,
 };
 
 #endif // INPUTENUMS_H

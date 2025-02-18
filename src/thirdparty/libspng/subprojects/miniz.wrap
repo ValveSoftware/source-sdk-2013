@@ -1,0 +1,4 @@
+[wrap-git]
+directory = miniz-2.2.0
+url = https://github.com/richgel999/miniz.git
+revision=2.2.0

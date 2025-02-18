@@ -1,0 +1,91 @@
+//-----------------------------------------------------------------------------
+//	vmpi_services_watch.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINNAME	"vmpi_services_watch"
+
+$Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE;.\;..\;..\..\common"
+		$AdditionalIncludeDirectories		"$BASE,$SRCDIR\thirdparty\libcurl\include"
+		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE;WINVER=0x501;NO_WARN_MBCS_MFC_DEPRECATION"
+		$EnableC++Exceptions				"Yes (/EHsc)"
+	}
+
+	$Linker
+	{
+		$AdditionalDependencies				"$BASE ws2_32.lib"
+	}
+}
+
+$Project "vmpi_services_watch"
+{
+	$Folder	"Source Files"
+	{
+		-$File	"$SRCDIR\public\tier0\memoverride.cpp"
+		
+		$File	"..\idle_dialog.cpp"
+		$File	"..\net_view_thread.cpp"
+		$File	"PatchTimeout.cpp"
+		$File	"ServicesDlg.cpp"
+		$File	"SetPasswordDlg.cpp"
+		$File	"..\vmpi_browser_helpers.cpp"
+		$File	"vmpi_browser_services.cpp"
+		$File	"vmpi_browser_services.rc"
+		$File	"..\win_idle.cpp"
+		$File	"..\window_anchor_mgr.cpp"
+		$File	"../vmpi_registry_query_thread.cpp"
+		$File	"StdAfx.cpp"
+
+		$Folder	"Common Files"
+		{
+			$File	"..\..\common\vmpi_tools_shared.cpp"
+			$File	"..\..\common\vmpi_tools_shared.h"
+			$File	"..\..\common\threads.cpp"
+			$File	"..\..\common\pacifier.cpp"
+			$File	"..\..\common\cmdlib.cpp"
+			//$File	"..\..\common\tools_minidump.cpp"
+			//$File	"..\..\common\tools_minidump.h"
+			$File	"$SRCDIR\public\filesystem_helpers.cpp"
+		}
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"..\idle_dialog.h"
+		$File	"..\net_view_thread.h"
+		$File	"PatchTimeout.h"
+		$File	"resource.h"
+		$File	"ServicesDlg.h"
+		$File	"SetPasswordDlg.h"
+		$File	"StdAfx.h"
+		$File	"vmpi_browser_services.h"
+		$File	"..\vmpi_defs.h"
+		$File	"..\win_idle.h"
+		$File	"..\window_anchor_mgr.h"
+		$File	"../vmpi_registry_query_thread.h"
+		$File	"../serviceinfo.h"
+	}
+
+	$Folder	"Resources"
+	{
+		$File	"res\vmpi_browser_services.ico"
+		$File	"res\vmpi_browser_services.rc2"
+	}
+
+	$Folder "Link Libraries"
+	{
+		$ImpLib		"$LIBPUBLIC\tier0"
+		$File	"$SRCDIR\lib\public\tier2.lib"
+		$File	"$SRCDIR\lib\public\vmpi.lib"
+		$File	"$SRCDIR\thirdparty\libcurl\lib\win32\libcurl.lib"
+	}
+}

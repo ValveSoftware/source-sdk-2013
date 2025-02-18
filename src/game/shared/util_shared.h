@@ -17,6 +17,7 @@
 #include "engine/IEngineTrace.h"
 #include "engine/IStaticPropMgr.h"
 #include "shared_classnames.h"
+#include "steam/steamuniverse.h"
 
 #ifdef CLIENT_DLL
 #include "cdll_client_int.h"
@@ -359,15 +360,32 @@ void		UTIL_StringToFloatArray( float *pVector, int count, const char *pString );
 void		UTIL_StringToColor32( color32 *color, const char *pString );
 
 CBasePlayer *UTIL_PlayerByIndex( int entindex );
+// Helper for use with console commands and the like.
+// Returns NULL if not found or if the provided arg would match multiple players.
+// Currently accepts, in descending priority:
+//  - Formatted SteamID ([U:1:1234])
+//  - SteamID64 (76561123412341234)
+//  - Legacy SteamID (STEAM_0:1:1234)
+//  - UserID preceded by a pound (#4)
+//  - Partial name match (if unique)
+//  - UserID not preceded by a pound*
+//
+// *Does not count as ambiguous with higher priority items
+CBasePlayer* UTIL_PlayerByCommandArg( const char *arg );
 
-//=============================================================================
-// HPE_BEGIN:
-// [menglish] Added UTIL function for events in client win_panel which transmit the player as a user ID
-//=============================================================================
-CBasePlayer *UTIL_PlayerByUserId( int userID );
-//=============================================================================
-// HPE_END
-//=============================================================================
+CBasePlayer* UTIL_PlayerByUserId( int userID );
+CBasePlayer* UTIL_PlayerByName( const char *name ); // not case sensitive
+// Finds a player who has this non-ambiguous substring.  Also not case sensitive.
+CBasePlayer* UTIL_PlayerByPartialName( const char *name );
+
+// Get the name of a player for display, filtered for profanity and slurs
+char *UTIL_GetFilteredPlayerName( int iPlayerIndex, char *pszName );
+char *UTIL_GetFilteredPlayerName( const CSteamID &steamID, char *pszName );
+wchar_t *UTIL_GetFilteredPlayerNameAsWChar( int iPlayerIndex, const char *pszName, wchar_t *pwszName );
+wchar_t *UTIL_GetFilteredPlayerNameAsWChar( const CSteamID &steamID, const char *pszName, wchar_t *pwszName );
+
+// Get chat text filtered for profanity and slurs
+char *UTIL_GetFilteredChatText( int iPlayerIndex, char *pszText, int nTextBufferSize );
 
 // decodes a buffer using a 64bit ICE key (inplace)
 void		UTIL_DecodeICE( unsigned char * buffer, int size, const unsigned char *key);
@@ -465,19 +483,36 @@ inline float DistanceToRay( const Vector &pos, const Vector &rayStart, const Vec
 	}
 
 //--------------------------------------------------------------------------------------------------------------
-// This would do the same thing without requiring casts all over the place. Yes, it's a template, but 
-// DECLARE_AUTO_LIST requires a CUtlVector<T> anyway. TODO ask about replacing the macros with this.
-//template<class T>
-//class AutoList {
-//public:
-//	typedef CUtlVector<T*> AutoListType;
-//	static AutoListType& All() { return m_autolist; }
-//protected:
-//	AutoList() { m_autolist.AddToTail(static_cast<T*>(this)); }
-//	virtual ~AutoList() { m_autolist.FindAndFastRemove(static_cast<T*>(this)); }
-//private:
-//	static AutoListType m_autolist;
-//};
+// You can use this if you need an autolist without an extra interface type involved.
+// To use this, just inherit (class Mine : public TAutoList<Mine> {)
+template< class T >
+class TAutoList
+{
+public:
+	typedef CUtlVector< T* > AutoListType;
+
+	static AutoListType &GetAutoList()
+	{
+		return m_autolist;
+	}
+
+protected:
+	TAutoList()
+	{
+		m_autolist.AddToTail( static_cast< T* >( this ) );
+	}
+
+	virtual ~TAutoList()
+	{
+		m_autolist.FindAndFastRemove( static_cast< T* >( this ) );
+	}
+
+private:
+	static AutoListType m_autolist;
+};
+
+template< class T >
+CUtlVector< T* > TAutoList< T >::m_autolist;
 
 //--------------------------------------------------------------------------------------------------------------
 /**
@@ -622,5 +657,40 @@ bool				UTIL_IsHolidayActive( /*EHoliday*/ int eHoliday );
 // holidays overlapping, the list order will act as priority.
 const char		   *UTIL_GetActiveHolidayString();
 
+const char *UTIL_GetRandomSoundFromEntry( const char* pszEntryName );
+
+/// Clamp and round float vals to int.  The values are in the 0...255 range.
+Color FloatRGBAToColor( float r, float g, float b, float a );
+float LerpFloat( float x0, float x1, float t );
+Color LerpColor( const Color &c0, const Color &c1, float t );
+
+// Global econ-level helper functionality.
+EUniverse GetUniverse();
+
+CSteamID SteamIDFromDecimalString( const char *pszUint64InDecimal );
+
+//-----------------------------------------------------------------------------
+// Try to parse an un-ambiguous steamID from a string
+//
+//  Accepts
+//  - Formatted SteamID ([U:1:1234])
+//  - SteamID64 (76561123412341234)
+//  - Legacy SteamID (STEAM_0:1:1234) (if bAllowSteam2)
+//-----------------------------------------------------------------------------
+CSteamID UTIL_SteamIDFromProperString( const char *pszInputRaw, bool bAllowSteam2 = true );
+
+//-----------------------------------------------------------------------------
+// Try to parse a string referring to a steam account to a CSteamID.
+//
+//   This is intended for fuzzy user input -- NOT guaranteed to find a unique
+//   or un-ambiugous result
+//-----------------------------------------------------------------------------
+CSteamID UTIL_GuessSteamIDFromFuzzyInput( const char *pszInputRaw, bool bCurrentUniverseOnly = true );
+
+// This will return the first active operation string it can find. In the case of multiple
+// operations overlapping, the list order will act as priority.
+const char		   *UTIL_GetActiveOperationString();
+
+const char *GetCleanMapName( const char *pszUnCleanMapName, char (&pszTmp)[256] );
 
 #endif // UTIL_SHARED_H

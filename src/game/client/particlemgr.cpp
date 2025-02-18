@@ -235,8 +235,8 @@ inline void CParticleEffectBinding::StartDrawMaterialParticles(
 	// Setup the ParticleDraw and bind the material.
 	if( bWireframe )
 	{
-		IMaterial *pMaterial = m_pParticleMgr->m_pMaterialSystem->FindMaterial( "debug/debugparticlewireframe", TEXTURE_GROUP_OTHER );
-		pRenderContext->Bind( pMaterial, NULL );
+		IMaterial *pMaterialWire = m_pParticleMgr->m_pMaterialSystem->FindMaterial( "debug/debugparticlewireframe", TEXTURE_GROUP_OTHER );
+		pRenderContext->Bind( pMaterialWire, NULL );
 	}
 	else
 	{
@@ -470,8 +470,11 @@ int CParticleEffectBinding::DrawModel( int flags )
 		
 			if ( bDraw )
 			{
-				debugoverlay->AddBoxOverlay( center, mins, maxs, QAngle( 0, 0, 0 ), r, g, b, 16, 0 );
-				debugoverlay->AddTextOverlayRGB( center, 0, 0, r, g, b, 64, "%s:(%d)", m_pSim->GetEffectName(), m_nActiveParticles );
+				if ( debugoverlay )
+				{
+					debugoverlay->AddBoxOverlay( center, mins, maxs, QAngle( 0, 0, 0 ), r, g, b, 16, 0 );
+					debugoverlay->AddTextOverlayRGB( center, 0, 0, r, g, b, 64, "%s:(%d)", m_pSim->GetEffectName(), m_nActiveParticles );
+				}
 			}
 		}
 	}
@@ -1014,7 +1017,7 @@ bool CParticleEffectBinding::RecalculateBoundingBox()
 CEffectMaterial* CParticleEffectBinding::GetEffectMaterial( CParticleSubTexture *pSubTexture )
 {
 	// Hash the IMaterial pointer.
-	unsigned long index = (((unsigned long)pSubTexture->m_pGroup) >> 6) % EFFECT_MATERIAL_HASH_SIZE;
+	unsigned long index = (((uintp)pSubTexture->m_pGroup) >> 6) % EFFECT_MATERIAL_HASH_SIZE;
 	for ( CEffectMaterial *pCur=m_EffectMaterialHash[index]; pCur; pCur = pCur->m_pHashedNext )
 	{
 		if ( pCur->m_pGroup == pSubTexture->m_pGroup )
@@ -1583,7 +1586,7 @@ static void ProcessPSystem( ParticleSimListEntry_t& pSimListEntry )
 
 
 int CParticleMgr::ComputeParticleDefScreenArea( int nInfoCount, RetireInfo_t *pInfo, float *pTotalArea, CParticleSystemDefinition* pDef, 
-	const CViewSetup& view, const VMatrix &worldToPixels, float flFocalDist )
+	const CViewSetup& viewParticle, const VMatrix &worldToPixels, float flFocalDist )
 {
 	int nCollection = 0;
 	float flCullCost = pDef->GetCullFillCost();
@@ -1592,7 +1595,7 @@ int CParticleMgr::ComputeParticleDefScreenArea( int nInfoCount, RetireInfo_t *pI
 	*pTotalArea = 0.0f;
 
 #ifdef DBGFLAG_ASSERT
-	float flMaxPixels = view.width * view.height;
+	float flMaxPixels = viewParticle.width * viewParticle.height;
 #endif
 
 	CParticleCollection *pCollection = pDef->FirstCollection();
@@ -1614,16 +1617,16 @@ int CParticleMgr::ComputeParticleDefScreenArea( int nInfoCount, RetireInfo_t *pI
 		vecCenter = pCollection->GetControlPointAtCurrentTime( pDef->GetCullControlPoint() );
 
 		Vector3DMultiplyPositionProjective( worldToPixels, vecCenter, vecScreenCenter );
-		float lSqr = vecCenter.DistToSqr( view.origin );
+		float lSqr = vecCenter.DistToSqr( viewParticle.origin );
 
 		float flProjRadius = ( lSqr > flCullRadiusSqr ) ? 0.5f * flFocalDist * flCullRadius / sqrt( lSqr - flCullRadiusSqr ) : 1.0f;
-		flProjRadius *= view.width;
+		flProjRadius *= viewParticle.width;
 
-		float flMinX = MAX( view.x, vecScreenCenter.x - flProjRadius );
-		float flMaxX = MIN( view.x + view.width, vecScreenCenter.x + flProjRadius );
+		float flMinX = MAX( viewParticle.x, vecScreenCenter.x - flProjRadius );
+		float flMaxX = MIN( viewParticle.x + viewParticle.width, vecScreenCenter.x + flProjRadius );
 
-		float flMinY = MAX( view.y, vecScreenCenter.y - flProjRadius );
-		float flMaxY = MIN( view.y + view.height, vecScreenCenter.y + flProjRadius );
+		float flMinY = MAX( viewParticle.y, vecScreenCenter.y - flProjRadius );
+		float flMaxY = MIN( viewParticle.y + viewParticle.height, vecScreenCenter.y + flProjRadius );
 
 		float flArea = ( flMaxX - flMinX ) * ( flMaxY - flMinY );
 		Assert( flArea <= flMaxPixels );
@@ -1685,7 +1688,7 @@ bool CParticleMgr::RetireParticleCollections( CParticleSystemDefinition* pDef,
 }
 
 // Next, see if there are new particle systems that need early retirement
-static ConVar cl_particle_retire_cost( "cl_particle_retire_cost", "0", FCVAR_CHEAT );
+static ConVar cl_particle_retire_cost( "cl_particle_retire_cost", "0", FCVAR_CHEAT | FCVAR_ALLOWED_IN_COMPETITIVE );
 
 bool CParticleMgr::EarlyRetireParticleSystems( int nCount, ParticleSimListEntry_t *ppEffects )
 {
@@ -2249,36 +2252,10 @@ float Helper_GetFrameTime()
 
 static void StatsParticlesStart()
 {
-#ifdef STAGING_ONLY
-	CParticleMgr *pMgr = ParticleMgr();
-	if ( pMgr->m_bStatsRunning )
-	{
-		pMgr->StatsSpewResults();
-	}
-	pMgr->StatsReset();
-	pMgr->m_bStatsRunning = true;
-#endif
 }
 
 static void StatsParticlesStop()
 {
-#ifdef STAGING_ONLY
-	CParticleMgr *pMgr = ParticleMgr();
-	if ( pMgr->m_bStatsRunning )
-	{
-		pMgr->StatsSpewResults();
-		pMgr->StatsReset();
-	}
-	else
-	{
-		// Weren't running, so snapshot this frame.
-		pMgr->StatsReset();
-		pMgr->StatsAccumulateActiveParticleSystems();
-		pMgr->StatsSpewResults();
-		pMgr->StatsReset();
-	}
-	pMgr->m_bStatsRunning = false;
-#endif
 }
 
 
@@ -2308,147 +2285,22 @@ int Profiling_nMaxParticles;
 // These functions will be called by the particles as they're actually drawn. (TODO: thread safety?)
 void CParticleMgr::StatsNewParticleEffectDrawn ( CNewParticleEffect *pParticles )
 {
-#ifdef STAGING_ONLY
-	ParticleInfo_t *pParticleInfo = &(SingleFrameHistogram[ pParticles->GetName() ]);
-	pParticleInfo->m_nTotalDrawnParticles += CountParticleSystemActiveParticles ( pParticles );
-#endif
 }
 
 void CParticleMgr::StatsOldParticleEffectDrawn ( CParticleEffectBinding *pParticles )
 {
-#ifdef STAGING_ONLY
-	ParticleInfo_t *pParticleInfo = &(SingleFrameHistogram[ pParticles->m_pSim->GetEffectName() ]);
-	pParticleInfo->m_nTotalDrawnParticles += pParticles->m_nActiveParticles;
-#endif
 }
 
 void CParticleMgr::StatsAccumulateActiveParticleSystems()
 {
-#ifdef STAGING_ONLY
-	Profiling_nFrames++;
-	Profiling_nMaxParticles = Max ( Profiling_nMaxParticles, g_pParticleSystemMgr->Debug_GetTotalParticleCount() );
-
-	// Accumulate this frame's stats.
-
-	// Count the new particle effects.
-	for( CNewParticleEffect *pNewEffect=m_NewEffects.m_pHead; pNewEffect;
-		pNewEffect=pNewEffect->m_pNext )
-	{
-		ParticleInfo_t *pParticleInfo = &(SingleFrameHistogram[ pNewEffect->GetName() ]);
-		pParticleInfo->m_nCount++;
-		pParticleInfo->m_nTotalActiveParticles += CountParticleSystemActiveParticles( pNewEffect );
-		pParticleInfo->m_nChildCount += CountChildParticleSystems( pNewEffect );
-		pParticleInfo->pDef = pNewEffect->m_pDef;
-	}
-
-	// Count the old types.
-	FOR_EACH_LL( m_Effects, i )
-	{
-		CParticleEffectBinding *pParticleBinding = m_Effects[i];
-		const char *pEffectName = pParticleBinding->m_pSim->GetEffectName();
-		ParticleInfo_t *pParticleInfo = &(SingleFrameHistogram[ pEffectName ]);
-		pParticleInfo->m_nCount++;
-		pParticleInfo->m_nChildCount = 0;
-		pParticleInfo->m_nTotalActiveParticles += pParticleBinding->m_nActiveParticles;
-		pParticleInfo->pDef = NULL;		// These don't have this sort of def.
-	}
-
-	// Now accumulate/max then into the multi-frame stats.
-	int nCount = SingleFrameHistogram.GetNumStrings();
-	for ( int i = 0; i < nCount; ++i )
-	{
-		ParticleInfo_t *pSingleInfo = &(SingleFrameHistogram[i]);
-		const char *pName = SingleFrameHistogram.String(i);
-
-		ParticleInfo_t *pGlobalInfo = &(ProfilingHistogram[pName]);
-		pGlobalInfo->m_nCount					+= pSingleInfo->m_nCount;
-		pGlobalInfo->m_nChildCount				+= pSingleInfo->m_nChildCount;
-		pGlobalInfo->m_nTotalActiveParticles	+= pSingleInfo->m_nTotalActiveParticles;
-		pGlobalInfo->m_nTotalDrawnParticles		+= pSingleInfo->m_nTotalDrawnParticles;
-		pGlobalInfo->m_nCountMax				= Max ( pGlobalInfo->m_nCountMax,					pSingleInfo->m_nCount );
-		pGlobalInfo->m_nChildCountMax			= Max ( pGlobalInfo->m_nChildCountMax,				pSingleInfo->m_nChildCount );
-		pGlobalInfo->m_nTotalActiveParticlesMax	= Max ( pGlobalInfo->m_nTotalActiveParticlesMax,	pSingleInfo->m_nTotalActiveParticles );
-		pGlobalInfo->m_nTotalDrawnParticlesMax	= Max ( pGlobalInfo->m_nTotalDrawnParticlesMax,		pSingleInfo->m_nTotalDrawnParticles );
-		pGlobalInfo->pDef = pSingleInfo->pDef;
-	}
-
-	SingleFrameHistogram.Clear();
-#endif
 }
 
 void CParticleMgr::StatsReset()
 {
-#ifdef STAGING_ONLY
-	ProfilingHistogram.Clear();
-	Profiling_nFrames = 0;
-	Profiling_nMaxParticles = 0;
-#endif
 }
 
 void CParticleMgr::StatsSpewResults()
 {
-#ifdef STAGING_ONLY
-#ifdef TF_CLIENT_DLL
-	int nCount = ProfilingHistogram.GetNumStrings();
-
-	Msg( "Active particle systems. Numbers are averages over %d frames. Max num particles %d.\n", Profiling_nFrames, Profiling_nMaxParticles );
-	Msg( "Name\t\t\t\t\t\tSystems\t\tActive\t\tDrawn\tAv Children\t\tMaximums per frame\t\t\tMax draw dist\n" );
-	for ( int i = 0; i < nCount; ++i )
-	{
-		ParticleInfo_t *pParticleInfo = &(ProfilingHistogram[i]);
-		if ( pParticleInfo->m_nTotalActiveParticles > 0 )
-		{
-			Msg( "%38s\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t%d\t%d\t%d\t\t%.1f\n",
-				ProfilingHistogram.String(i),
-				pParticleInfo->m_nCount / Profiling_nFrames,
-				pParticleInfo->m_nTotalActiveParticles / Profiling_nFrames,
-				pParticleInfo->m_nTotalDrawnParticles / Profiling_nFrames,
-				pParticleInfo->m_nChildCount / pParticleInfo->m_nCount,
-				pParticleInfo->m_nCountMax,
-				pParticleInfo->m_nTotalActiveParticlesMax,
-				pParticleInfo->m_nTotalDrawnParticlesMax,
-				pParticleInfo->m_nChildCountMax / pParticleInfo->m_nCountMax,
-				( pParticleInfo->pDef == NULL ) ? 0.0f : pParticleInfo->pDef->m_flMaxDrawDistance
-				);
-		}
-	}
-
-	CRTime CurrentTime;
-	CurrentTime.SetToCurrentTime();
-
-	// Also dump to CSV.
-	FileHandle_t fh = g_pFullFileSystem->Open( "particle_stats.csv", "at" );	// at = append + text mode
-	g_pFullFileSystem->FPrintf( fh, "\nNumframes,%d,Max particles,%d\n", Profiling_nFrames, Profiling_nMaxParticles );
-	g_pFullFileSystem->FPrintf( fh, "Date,%d,%d,%d,Time,%d,%d,%d\n",
-		CurrentTime.GetYear(),
-		CurrentTime.GetMonth()+1,		// GetMonth() returns 0...11
-		CurrentTime.GetDayOfMonth(),	// GetDay() returns 1...31
-		CurrentTime.GetHour(),
-		CurrentTime.GetMinute(),
-		CurrentTime.GetSecond() );
-	g_pFullFileSystem->FPrintf( fh, "Name, Systems, Particles active, Particles drawn, Av Children, Max systems, Max particles active, Max particles drawn, Max children, Max draw distance\n" );
-	for ( int i = 0; i < nCount; ++i )
-	{
-		ParticleInfo_t *pParticleInfo = &(ProfilingHistogram[i]);
-		if ( pParticleInfo->m_nTotalActiveParticles > 0 )
-		{
-			g_pFullFileSystem->FPrintf( fh, "%s,%d,%d,%d,%d,%d,%d,%d,%d,%.1f\n",
-				ProfilingHistogram.String(i),
-				pParticleInfo->m_nCount / Profiling_nFrames,
-				pParticleInfo->m_nTotalActiveParticles / Profiling_nFrames,
-				pParticleInfo->m_nTotalDrawnParticles / Profiling_nFrames,
-				pParticleInfo->m_nChildCount / pParticleInfo->m_nCount,
-				pParticleInfo->m_nCountMax,
-				pParticleInfo->m_nTotalActiveParticlesMax,
-				pParticleInfo->m_nTotalDrawnParticlesMax,
-				pParticleInfo->m_nChildCountMax / pParticleInfo->m_nCountMax,
-				( pParticleInfo->pDef == NULL ) ? 0.0f : pParticleInfo->pDef->m_flMaxDrawDistance
-				);
-		}
-	}
-	g_pFullFileSystem->Close( fh );
-#endif
-#endif
 }
 
 

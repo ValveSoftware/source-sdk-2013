@@ -1,0 +1,103 @@
+//-----------------------------------------------------------------------------
+//	STDSHADER_DBG.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$macro SRCDIR		"..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+
+// shader_dll_verify.cpp defines a function called _ftol3. This means that we can't
+// link with the bug-fixed ftol3.obj. It also means we can't convert float-to-unsigned.
+$Conditional DISABLE_FTOL3_OVERRIDE "1"
+
+$include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration	"Debug"
+{
+	$General
+	{
+		$OutputDirectory		"Debug_dbg" [$WINDOWS]
+		$IntermediateDirectory	"Debug_dbg" [$WINDOWS]
+
+		$OutputDirectory		"Debug_dbg_360"		[$X360]
+		$IntermediateDirectory	"Debug_dbg_360"		[$X360]
+	}
+}
+
+$Configuration	"Release"
+{
+	$General
+	{
+		$OutputDirectory		"Release_dbg" [$WINDOWS]
+		$IntermediateDirectory	"Release_dbg" [$WINDOWS]
+
+		$OutputDirectory		"Release_dbg_360"	[$X360]
+		$IntermediateDirectory	"Release_dbg_360"	[$X360]
+	}
+}
+
+// Common Configuration
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$BASE;include;..\..\dx9sdk\include"	[$WINDOWS]
+		$AdditionalIncludeDirectories	"$BASE;fxctmp9_360;vshtmp9_360"					[$X360]
+		$PreprocessorDefinitions		"$BASE;STDSHADER_DBG_DLL_EXPORT;FAST_MATERIALVAR_ACCESS"
+	}
+
+	$Linker
+	{
+		$AdditionalDependencies			"$BASE version.lib winmm.lib"	[$WINDOWS]
+		$ModuleDefinitionFile			"xbox\xbox_dbg.def"				[$X360]
+	}
+}
+
+$Project "stdshader_dbg"
+{
+	$Folder	"Source Files"
+	{
+		$File	"BaseVSShader.cpp"
+		$File	"debugdepth.cpp"
+		$File	"DebugDrawEnvmapMask.cpp"
+		$File	"debugluxel.cpp"
+		$File	"debugnormalmap.cpp"
+		$File	"debugtangentspace.cpp"
+		$File	"fillrate.cpp"
+
+		$Folder	"Remove me when VAC2 is out" [$WINDOWS]
+		{
+			$File	"..\shader_dll_verify.cpp"
+			$File	"..\shader_dll_verify.h"
+		}
+	}
+
+	$Folder "Xbox"	[$X360]
+	{
+		-$File	"xbox\xbox.def"
+		$File	"xbox\xbox_dbg.def"
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"BaseVSShader.h"
+	}
+
+	$Folder	"Link Libraries"
+	{
+		$File	"$SRCDIR\dx9sdk\lib\d3dx9.lib"			[$WINDOWS]
+		$Lib mathlib
+		$Lib shaderlib
+		$Lib	tier2
+	}
+
+	$File	"$SRCDIR\devtools\bin\vsh_prep.pl"
+	$File	"$SRCDIR\devtools\bin\psh_prep.pl"
+	$File	"$SRCDIR\devtools\bin\fxc_prep.pl"
+	$File	"$SRCDIR\devtools\bin\updateshaders.pl"
+
+	$Shaders	"stdshader_dx9_20b.txt"
+	$Shaders	"stdshader_dx9_30.txt"
+	//$Shaders	"stdshader_dx10.txt"
+}

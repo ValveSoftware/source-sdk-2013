@@ -206,11 +206,9 @@ void C_BaseAnimatingOverlay::GetRenderBounds( Vector& theMins, Vector& theMaxs )
 
 void C_BaseAnimatingOverlay::CheckForLayerChanges( CStudioHdr *hdr, float currentTime )
 {
-	CDisableRangeChecks disableRangeChecks;
-
 	bool bLayersChanged = false;
 	
-	// FIXME: damn, there has to be a better way than this.
+	// FIXME: there has to be a better way than this.
 	int i;
 	for (i = 0; i < m_iv_AnimOverlay.Count(); i++)
 	{

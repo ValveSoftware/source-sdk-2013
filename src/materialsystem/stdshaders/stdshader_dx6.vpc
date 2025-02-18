@@ -1,0 +1,106 @@
+//-----------------------------------------------------------------------------
+//	STDSHADER_DX6.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+
+// shader_dll_verify.cpp defines a function called _ftol3. This means that we can't
+// link with the bug-fixed ftol3.obj. It also means we can't convert float-to-unsigned.
+$Conditional DISABLE_FTOL3_OVERRIDE "1"
+
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration	"Debug"
+{
+	$General
+	{
+		$OutputDirectory		"Debug_dx6"			
+		$IntermediateDirectory	"Debug_dx6"			
+	}
+}
+
+$Configuration	"Release"
+{
+	$General
+	{
+		$OutputDirectory		"Release_dx6"		
+		$IntermediateDirectory	"Release_dx6"		
+	}
+}
+
+// Common Configuration
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"$BASE;STDSHADER_DX6_DLL_EXPORT;FAST_MATERIALVAR_ACCESS"
+		$AdditionalIncludeDirectories	"$BASE;..\..\dx9sdk\include"
+	}
+
+	$Linker
+	{
+		$AdditionalDependencies			"$BASE odbc32.lib odbccp32.lib"
+	}
+}
+
+$Project "Stdshader_dx6"
+{
+	$Folder	"Source Files"
+	{
+		$File	"BufferClearObeyStencil_dx6.cpp"
+		$File	"cable_dx6.cpp"
+		$File	"cloud.cpp"
+		$File	"decal.cpp"
+		$File	"DecalBaseTimesLightmapAlphaBlendSelfIllum_dx6.cpp"
+		$File	"decalmodulate.cpp"
+		$File	"eyeball.cpp"
+		$File	"eyes_dx6.cpp"
+		$File	"introscreenspaceeffect_dx60.cpp"
+		$File	"lightmappedgeneric_dx6.cpp"
+		$File	"lightmappedtwotexture.cpp"
+		$File	"modulate_dx6.cpp"
+		$File	"portal_dx60.cpp"
+		$File	"portalstaticoverlay_dx60.cpp"
+		$File	"refract_dx60.cpp"
+		$File	"rift_dx6.cpp"
+		$File	"SetZ.cpp"
+		$File	"shadow_dx6.cpp"
+		$File	"shadowbuild_dx6.cpp"
+		$File	"sky_dx6.cpp"
+		$File	"sprite_dx6.cpp"
+		$File	"teeth_dx6.cpp"
+		$File	"unlitgeneric_dx6.cpp"
+		$File	"unlittwotexture_dx6.cpp"
+		$File	"vertexlitgeneric_dx6.cpp"
+		$File	"viewalpha.cpp"
+		$File	"volumetricfog.cpp"
+		$File	"water_dx60.cpp"
+		$File	"worldtwotextureblend_dx6.cpp"
+		$File	"worldvertextransition_dx6.cpp"
+		$File	"worldvertextransition_dx6_helper.cpp"
+		$File	"writez_dx6.cpp"
+
+		$Folder	"remove me when VAC2 is out"
+		{
+			$File	"$SRCDIR\tier1\checksum_crc.cpp"
+			$File	"$SRCDIR\tier1\checksum_md5.cpp"
+			$File	"..\shader_dll_verify.cpp"
+			$File	"..\shader_dll_verify.h"
+		}
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"worldvertextransition_dx6_helper.h"
+	}
+
+	$Folder	"Link Libraries"
+	{
+		$Lib mathlib
+		$Lib shaderlib
+		$Lib	tier2
+	}
+}

@@ -70,8 +70,8 @@ static bool s_bShowDiag;
 #define _COMPILE_TIME_ASSERT(pred) switch(0){case 0:case pred:;}
 
 #define WRAP( fn, ret, ... ) \
-	ret __real_##fn(__VA_ARGS__); \
-	ret __wrap_##fn(__VA_ARGS__)
+	__attribute__((visibility("default"))) ret __real_##fn(__VA_ARGS__); \
+	__attribute__((visibility("default"))) ret __wrap_##fn(__VA_ARGS__)
 
 #define CALL( fn ) __real_##fn
 
@@ -643,6 +643,11 @@ PathMod_t pathmatch( const char *pszIn, char **ppszOut, bool bAllowBasenameMisma
 	return kPathFailed;
 }
 
+bool pathmatch_external( const char *pszIn, char **ppszOut, bool bAllowBasenameMismatch, char *pszOutBuf, size_t OutBufLen )
+{
+	return pathmatch( pszIn, ppszOut, bAllowBasenameMismatch, pszOutBuf, OutBufLen ) != kPathFailed;
+}
+
 // Wrapper object that manages the 'typical' usage cases of pathmatch()
 class CWrap
 {
@@ -787,6 +792,11 @@ extern "C" {
 	WRAP(stat, int, const char *path, struct stat *buf)
 	{
 		return CALL(stat)( CWrap( path, false ), buf );
+	}
+
+	WRAP(stat64, int, const char *path, struct stat *buf)
+	{
+		return CALL(stat64)( CWrap( path, false ), buf );
 	}
 
 	WRAP(lstat, int, const char *path, struct stat *buf)

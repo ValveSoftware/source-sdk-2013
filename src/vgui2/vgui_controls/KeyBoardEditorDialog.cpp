@@ -27,9 +27,9 @@ static char *CopyString( const char *in )
 	if ( !in )
 		return NULL;
 
-	int len = strlen( in );
+	int len = V_strlen( in );
 	char *n = new char[ len + 1 ];
-	Q_strncpy( n, in, len  + 1 );
+	V_strncpy( n, in, len  + 1 );
 	return n;
 }
 
@@ -558,18 +558,18 @@ static bool BindingLessFunc( KeyValues * const & lhs, KeyValues * const &rhs )
 	return ( Q_stricmp( p1->GetString( "Action" ), p2->GetString( "Action" ) ) < 0 ) ? true : false;
 }
 
-void CKeyBoardEditorPage::AnsiText( char const *token, char *out, size_t buflen )
+void CKeyBoardEditorPage::AnsiText( char const *token, char *out, int nBuflen )
 {
 	out[ 0 ] = 0;
 
 	wchar_t *str = g_pVGuiLocalize->Find( token );
 	if ( !str )
 	{
-		Q_strncpy( out, token, buflen );
+		V_strncpy( out, token, nBuflen );
 	}
 	else
 	{
-		g_pVGuiLocalize->ConvertUnicodeToANSI( str, out, buflen );
+		g_pVGuiLocalize->ConvertUnicodeToANSI( str, out, nBuflen );
 	}
 }
 

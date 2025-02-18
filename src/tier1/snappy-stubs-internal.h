@@ -100,7 +100,10 @@ static const int64 kint64max = static_cast<int64>(0x7FFFFFFFFFFFFFFFLL);
 
 // x86 and PowerPC can simply do these loads and stores native.
 
-#if defined(__i386__) || defined(__x86_64__) || defined(__powerpc__)
+// misyl: This used to be enabled, but this gets miscompiled
+// on modern GCC due to alignment assumptions (ie. alignof(uint64), etc)
+
+#if 0//defined(__i386__) || defined(__x86_64__) || defined(__powerpc__)
 
 #define UNALIGNED_LOAD16(_p) (*reinterpret_cast<const uint16 *>(_p))
 #define UNALIGNED_LOAD32(_p) (*reinterpret_cast<const uint32 *>(_p))
@@ -190,18 +193,12 @@ inline void UNALIGNED_STORE64(void *p, uint64 v) {
 
 #endif
 
-// This can be more efficient than UNALIGNED_LOAD64 + UNALIGNED_STORE64
-// on some platforms, in particular ARM.
-inline void UnalignedCopy64(const void *src, void *dst) {
-  if (sizeof(void *) == 8) {
-    UNALIGNED_STORE64(dst, UNALIGNED_LOAD64(src));
-  } else {
-    const char *src_char = reinterpret_cast<const char *>(src);
-    char *dst_char = reinterpret_cast<char *>(dst);
-
-    UNALIGNED_STORE32(dst_char, UNALIGNED_LOAD32(src_char));
-    UNALIGNED_STORE32(dst_char + 4, UNALIGNED_LOAD32(src_char + 4));
-  }
+// misyl: This was brought over from modern Snappy as the older paths
+// get optimized based on alignment of types.
+inline void UnalignedCopy64(const void* src, void* dst) {
+  char tmp[8];
+  memcpy(tmp, src, 8);
+  memcpy(dst, tmp, 8);
 }
 
 // The following guarantees declaration of the byte swap functions.

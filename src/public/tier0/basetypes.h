@@ -42,10 +42,7 @@
 #define NULL 0
 #endif
 
-
-#ifdef POSIX
 #include <stdint.h>
-#endif
 
 #define ExecuteNTimes( nTimes, x )	\
 	{								\
@@ -126,25 +123,31 @@ T Max( T const &val1, T const &val2 )
 
 #endif
 
+#ifndef USE_DXVK_NATIVE
+#ifndef DONT_DEFINE_BOOL // Needed for Cocoa stuff to compile.
+typedef int BOOL;
+#endif
+typedef unsigned char BYTE;
+#else
+#include <windows.h>
+#endif
+typedef int qboolean;
+typedef unsigned char byte;
+typedef unsigned short word;
+
+#ifdef _WIN32
+typedef wchar_t ucs2; // under windows wchar_t is ucs2
+#else
+typedef unsigned short ucs2;
+#endif
+
 #ifndef FALSE
 #define FALSE 0
 #define TRUE (!FALSE)
 #endif
 
-
-#ifndef DONT_DEFINE_BOOL // Needed for Cocoa stuff to compile.
-typedef int BOOL;
-#endif
-
-typedef int qboolean;
-typedef unsigned long ULONG;
-typedef unsigned char BYTE;
-typedef unsigned char byte;
-typedef unsigned short word;
-#ifdef _WIN32
-typedef wchar_t ucs2; // under windows wchar_t is ucs2
-#else
-typedef unsigned short ucs2;
+#ifdef POSIX
+#include <stdint.h>
 #endif
 
 enum ThreeState_t
@@ -160,8 +163,15 @@ typedef float vec_t;
 #define fpmin __builtin_fminf
 #define fpmax __builtin_fmaxf
 #elif !defined(_X360)
-#define fpmin min
-#define fpmax max
+static inline float fpmin( float a, float b )
+{
+	return a > b  ? b : a;
+}
+
+static inline float fpmax( float a, float b )
+{
+	return a >= b ? a : b;
+}
 #endif
 
 
@@ -170,17 +180,17 @@ typedef float vec_t;
 // This assumes the ANSI/IEEE 754-1985 standard
 //-----------------------------------------------------------------------------
 
-inline unsigned long& FloatBits( vec_t& f )
+inline unsigned int& FloatBits( vec_t& f )
 {
-	return *reinterpret_cast<unsigned long*>(&f);
+	return *reinterpret_cast<unsigned int*>(&f);
 }
 
-inline unsigned long const& FloatBits( vec_t const& f )
+inline unsigned int const& FloatBits( vec_t const& f )
 {
-	return *reinterpret_cast<unsigned long const*>(&f);
+	return *reinterpret_cast<unsigned int const*>(&f);
 }
 
-inline vec_t BitsToFloat( unsigned long i )
+inline vec_t BitsToFloat( unsigned int i )
 {
 	return *reinterpret_cast<vec_t*>(&i);
 }
@@ -190,7 +200,7 @@ inline bool IsFinite( vec_t f )
 	return ((FloatBits(f) & 0x7F800000) != 0x7F800000);
 }
 
-inline unsigned long FloatAbsBits( vec_t f )
+inline unsigned int FloatAbsBits( vec_t f )
 {
 	return FloatBits(f) & 0x7FFFFFFF;
 }
@@ -201,7 +211,7 @@ inline unsigned long FloatAbsBits( vec_t f )
 #ifndef _In_
 #define _In_
 #endif
-extern "C" float fabsf(_In_ float);
+extern "C" _Check_return_ __inline float __CRTDECL fabsf(_In_ float _X);
 #else
 #include <math.h>
 #endif

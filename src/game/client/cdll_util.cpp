@@ -27,6 +27,7 @@
 #include <vgui/ILocalize.h>
 #include "view.h"
 #include "ixboxsystem.h"
+#include "inputsystem/iinputsystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -82,14 +83,24 @@ int GetLocalPlayerIndex( void )
 		return 0;	// game not started yet
 }
 
+// NOTE: cache these because this gets executed hundreds of times per frame
+static int g_nLocalPlayerVisionFlagsWeaponsCheck = 0;
+static int g_nLocalPlayerVisionFlags = 0;
 int GetLocalPlayerVisionFilterFlags( bool bWeaponsCheck /*= false */ )
 {
-	C_BasePlayer * player = C_BasePlayer::GetLocalPlayer();
+	return bWeaponsCheck ? g_nLocalPlayerVisionFlagsWeaponsCheck : g_nLocalPlayerVisionFlags;
+}
 
-	if ( player )
-		return player->GetVisionFilterFlags( bWeaponsCheck );
-	else
-		return 0;
+void UpdateLocalPlayerVisionFlags()
+{
+	g_nLocalPlayerVisionFlagsWeaponsCheck = 0;
+	g_nLocalPlayerVisionFlags = 0;
+	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+	if ( pPlayer )
+	{
+		g_nLocalPlayerVisionFlagsWeaponsCheck = pPlayer->GetVisionFilterFlags( true );
+		g_nLocalPlayerVisionFlags = pPlayer->GetVisionFilterFlags( false );
+	}
 }
 
 bool IsLocalPlayerUsingVisionFilterFlags( int nFlags, bool bWeaponsCheck /* = false */ )
@@ -663,7 +674,7 @@ IterationRetval_t CFlaggedEntitiesEnum::EnumElement( IHandleEntity *pHandleEntit
 int UTIL_EntitiesInBox( C_BaseEntity **pList, int listMax, const Vector &mins, const Vector &maxs, int flagMask, int partitionMask )
 {
 	CFlaggedEntitiesEnum boxEnum( pList, listMax, flagMask );
-	partition->EnumerateElementsInBox( partitionMask, mins, maxs, false, &boxEnum );
+	::partition->EnumerateElementsInBox( partitionMask, mins, maxs, false, &boxEnum );
 	
 	return boxEnum.GetCount();
 
@@ -681,7 +692,7 @@ int UTIL_EntitiesInBox( C_BaseEntity **pList, int listMax, const Vector &mins, c
 int UTIL_EntitiesInSphere( C_BaseEntity **pList, int listMax, const Vector &center, float radius, int flagMask, int partitionMask )
 {
 	CFlaggedEntitiesEnum sphereEnum( pList, listMax, flagMask );
-	partition->EnumerateElementsInSphere( partitionMask, center, radius, false, &sphereEnum );
+	::partition->EnumerateElementsInSphere( partitionMask, center, radius, false, &sphereEnum );
 
 	return sphereEnum.GetCount();
 
@@ -698,7 +709,7 @@ int UTIL_EntitiesInSphere( C_BaseEntity **pList, int listMax, const Vector &cent
 int UTIL_EntitiesAlongRay( C_BaseEntity **pList, int listMax, const Ray_t &ray, int flagMask, int partitionMask )
 {
 	CFlaggedEntitiesEnum rayEnum( pList, listMax, flagMask );
-	partition->EnumerateElementsAlongRay( partitionMask, ray, false, &rayEnum );
+	::partition->EnumerateElementsAlongRay( partitionMask, ray, false, &rayEnum );
 
 	return rayEnum.GetCount();
 }
@@ -714,48 +725,6 @@ CBaseEntity *CEntitySphereQuery::GetCurrentEntity()
 	if ( m_listIndex < m_listCount )
 		return m_pList[m_listIndex];
 	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Slightly modified strtok. Does not modify the input string. Does
-//			not skip over more than one separator at a time. This allows parsing
-//			strings where tokens between separators may or may not be present:
-//
-//			Door01,,,0 would be parsed as "Door01"  ""  ""  "0"
-//			Door01,Open,,0 would be parsed as "Door01"  "Open"  ""  "0"
-//
-// Input  : token - Returns with a token, or zero length if the token was missing.
-//			str - String to parse.
-//			sep - Character to use as separator. UNDONE: allow multiple separator chars
-// Output : Returns a pointer to the next token to be parsed.
-//-----------------------------------------------------------------------------
-const char *nexttoken(char *token, const char *str, char sep)
-{
-	if ((str == NULL) || (*str == '\0'))
-	{
-		*token = '\0';
-		return(NULL);
-	}
-
-	//
-	// Copy everything up to the first separator into the return buffer.
-	// Do not include separators in the return buffer.
-	//
-	while ((*str != sep) && (*str != '\0'))
-	{
-		*token++ = *str++;
-	}
-	*token = '\0';
-
-	//
-	// Advance the pointer unless we hit the end of the input string.
-	//
-	if (*str == '\0')
-	{
-		return(str);
-	}
-
-	return(++str);
 }
 
 //-----------------------------------------------------------------------------
@@ -891,8 +860,12 @@ const char * UTIL_SafeName( const char *oldName )
 //			for consistency with other APIs.  If inbufsizebytes is 0 a NULL-terminated
 //			input buffer is assumed, or you can pass the size of the input buffer if
 //			not NULL-terminated.
+//
+//			If actionset is other than GAME_ACTION_SET_NONE (the default), then a lookup is first
+//			attempted for a Steam Controller binding in the given action set. If none if found, fallback
+//			is to the usual keyboard binding path.
 //-----------------------------------------------------------------------------
-void UTIL_ReplaceKeyBindings( const wchar_t *inbuf, int inbufsizebytes, OUT_Z_BYTECAP(outbufsizebytes) wchar_t *outbuf, int outbufsizebytes )
+void UTIL_ReplaceKeyBindings( const wchar_t *inbuf, int inbufsizebytes, OUT_Z_BYTECAP(outbufsizebytes) wchar_t *outbuf, int outbufsizebytes, GameActionSet_t actionset )
 {
 	Assert( outbufsizebytes >= sizeof(outbuf[0]) );
 	// copy to a new buf if there are vars
@@ -928,6 +901,19 @@ void UTIL_ReplaceKeyBindings( const wchar_t *inbuf, int inbufsizebytes, OUT_Z_BY
 				char binding[64];
 				g_pVGuiLocalize->ConvertUnicodeToANSI( token, binding, sizeof(binding) );
 
+				// Find a Steam Controller mapping, if an action set was specified and steam controller is active.
+				const char* sc_origin = nullptr;
+				if ( actionset != GAME_ACTION_SET_NONE && g_pInputSystem->IsSteamControllerActive() )
+				{
+					auto origin = g_pInputSystem->GetSteamControllerActionOrigin( *binding == '+' ? binding + 1 : binding, actionset );
+					if ( origin != k_EControllerActionOrigin_None )
+					{
+						auto pSteamController = g_pInputSystem->SteamControllerInterface();
+						sc_origin = pSteamController ? pSteamController->GetStringForActionOrigin( origin ) : "";
+					}
+				}
+
+				// Find also the keyboard mapping
 				const char *key = engine->Key_LookupBinding( *binding == '+' ? binding + 1 : binding );
 				if ( !key )
 				{
@@ -955,7 +941,20 @@ void UTIL_ReplaceKeyBindings( const wchar_t *inbuf, int inbufsizebytes, OUT_Z_BY
 				}
 				Q_strupr( friendlyName );
 
-				wchar_t *locName = g_pVGuiLocalize->Find( friendlyName );
+				const wchar_t* locName = nullptr;
+
+				// If we got a Steam Controller key description, use that, otherwise use the (possibly localized) key name
+				CStrAutoEncode sc_origin_encoded( sc_origin );
+
+				if ( sc_origin )
+				{
+					locName = sc_origin_encoded.ToWString();
+				}
+				else
+				{
+					locName = g_pVGuiLocalize->Find( friendlyName );
+				}
+
 				if ( !locName || wcslen(locName) <= 0)
 				{
 					g_pVGuiLocalize->ConvertANSIToUnicode( friendlyName, token, sizeof(token) );
@@ -1318,4 +1317,61 @@ bool UTIL_HasLoadedAnyMap()
 		return false;
 
 	return g_pFullFileSystem->FileExists( szFilename, "MOD" );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Performs a near-miss check of pEntity against the local player.
+//			Plays pszNearMissSound in their ears and returns true when a near-
+//			miss is detected.
+//-----------------------------------------------------------------------------
+bool UTIL_BPerformNearMiss( const CBaseEntity* pEntity, const char* pszNearMissSound, float flNearMissDistanceThreshold )
+{
+	// Check against the local player. If we're near him play a near miss sound.
+	C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
+	if ( !pLocalPlayer || !pLocalPlayer->IsAlive() )
+		return false;
+
+	// Can't hear near miss sounds from friendly arrows.
+	if ( pLocalPlayer->GetTeamNumber() == pEntity->GetTeamNumber() )
+		return false;
+
+	Vector vecPlayerPos = pLocalPlayer->GetAbsOrigin();
+	Vector vecArrowPos = pEntity->GetAbsOrigin(), forward;
+	AngleVectors( pEntity->GetAbsAngles(), &forward );
+	Vector vecArrowDest = pEntity->GetAbsOrigin() + forward * 200.f;
+
+	// If the arrow is moving away from the player just stop checking.
+	float dist1 = vecArrowPos.DistToSqr( vecPlayerPos );
+	float dist2 = vecArrowDest.DistToSqr( vecPlayerPos );
+	if ( dist2 > dist1 )
+	{
+		return true;
+	}
+
+	// Check to see if the arrow is passing near the player.
+	Vector vecClosestPoint;
+	float dist;
+	CalcClosestPointOnLineSegment( vecPlayerPos, vecArrowPos, vecArrowDest, vecClosestPoint, &dist );
+	dist = vecPlayerPos.DistTo( vecClosestPoint );
+	if ( dist > flNearMissDistanceThreshold )
+		return false;
+
+	// The arrow is passing close to the local player.
+
+	// If the arrow is about to hit something, don't play the sound and stop this check.
+	trace_t tr;
+	UTIL_TraceLine( vecArrowPos, vecArrowPos + forward * 400.f, CONTENTS_HITBOX|CONTENTS_MONSTER|CONTENTS_SOLID, pEntity, COLLISION_GROUP_NONE, &tr );
+	if ( tr.DidHit() )
+		return true;
+
+	// We're good for a near miss!
+	float soundlen = 0;
+	EmitSound_t params;
+	params.m_flSoundTime = 0;
+	params.m_pSoundName = pszNearMissSound;
+	params.m_pflSoundDuration = &soundlen;
+	CSingleUserRecipientFilter localFilter( pLocalPlayer );
+	CBaseEntity::EmitSound( localFilter, pLocalPlayer->entindex(), params );
+
+	return true;
 }

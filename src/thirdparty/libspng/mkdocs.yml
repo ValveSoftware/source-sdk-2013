@@ -1,0 +1,40 @@
+site_name: libspng v0.7.2
+site_url: https://libspng.org/docs
+repo_url: https://github.com/randy408/libspng/
+site_description: libspng documentation
+site_author: Randy
+copyright: © 2018-2022, Randy
+
+nav:
+    - 'libspng documentation': 'index.md'
+    - 'Build': 'build.md'
+    - 'Usage': 'usage.md'
+    - 'API Documentation': 'api.md'
+    - 'Migration guide - libpng': 'migrate-libpng.md'
+
+theme:
+    name: material
+    palette:
+        - media: "(prefers-color-scheme: light)"
+          scheme: default
+          toggle:
+            icon: material/toggle-switch-off-outline
+            name: Switch to dark mode
+        - media: "(prefers-color-scheme: dark)"
+          scheme: slate
+          toggle:
+            icon: material/toggle-switch
+            name: Switch to light mode
+
+site_dir: 'site'
+
+markdown_extensions:
+    - smarty
+    - fenced_code
+    - admonition
+    - codehilite
+    - markdown.extensions.toc:
+        permalink: true
+
+plugins:
+    - search

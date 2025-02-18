@@ -96,9 +96,9 @@ void CAnimationLayer::Init( CBaseAnimatingOverlay *pOverlay )
 {
 	m_pOwnerEntity = pOverlay;
 	m_fFlags = 0;
-	m_flWeight = 0;
-	m_flCycle = 0;
-	m_flPrevCycle = 0;
+	m_flWeight.SetDirect( 0.0f );
+	m_flCycle.SetDirect( 0.0f );
+	m_flPrevCycle.SetDirect( 0.0f );
 	m_bSequenceFinished = false;
 	m_nActivity = ACT_INVALID;
 	m_nSequence = 0;
@@ -110,7 +110,9 @@ void CAnimationLayer::Init( CBaseAnimatingOverlay *pOverlay )
 
 	m_flKillRate = 100.0;
 	m_flKillDelay = 0.0;
-	m_flPlaybackRate = 1.0;
+	m_flPlaybackRate = 1.0f;
+	// misyl: If we ever network this... We probably should :S
+	//m_flPlaybackRate.SetDirect( 1.0f );
 	m_flLastEventCheck = 0.0;
 	m_flLastAccess = gpGlobals->curtime;
 	m_flLayerAnimtime = 0;

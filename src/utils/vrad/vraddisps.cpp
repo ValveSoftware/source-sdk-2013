@@ -41,10 +41,10 @@ public:
 	}
 
 	// ISpatialLeafEnumerator
-	bool EnumerateLeaf( int ndxLeaf, int context ); 
+	bool EnumerateLeaf( int ndxLeaf, intp context ); 
 
 	// IBSPTreeDataEnumerator
-	bool FASTCALL EnumerateElement( int userId, int context );
+	bool FASTCALL EnumerateElement( int userId, intp context );
 
 public:
 
@@ -61,10 +61,10 @@ class CBSPDispRayEnumerator : public ISpatialLeafEnumerator, public IBSPTreeData
 {
 public:
 	// ISpatialLeafEnumerator
-	bool EnumerateLeaf( int ndxLeaf, int context );
+	bool EnumerateLeaf( int ndxLeaf, intp context );
 
 	// IBSPTreeDataEnumerator
-	bool FASTCALL EnumerateElement( int userId, int context );
+	bool FASTCALL EnumerateElement( int userId, intp context );
 };
 
 //=============================================================================
@@ -215,13 +215,13 @@ IVRadDispMgr *StaticDispMgr( void )
 // Displacement/Face List
 //
 // ISpatialLeafEnumerator
-bool CBSPDispFaceListEnumerator::EnumerateLeaf( int ndxLeaf, int context ) 
+bool CBSPDispFaceListEnumerator::EnumerateLeaf( int ndxLeaf, intp context ) 
 { 
 	return s_DispMgr.DispFaceList_EnumerateLeaf( ndxLeaf, context );
 }
 
 // IBSPTreeDataEnumerator
-bool FASTCALL CBSPDispFaceListEnumerator::EnumerateElement( int userId, int context )
+bool FASTCALL CBSPDispFaceListEnumerator::EnumerateElement( int userId, intp context )
 {
 	return s_DispMgr.DispFaceList_EnumerateElement( userId, context );
 }
@@ -231,12 +231,12 @@ bool FASTCALL CBSPDispFaceListEnumerator::EnumerateElement( int userId, int cont
 //
 // RayEnumerator
 //
-bool CBSPDispRayEnumerator::EnumerateLeaf( int ndxLeaf, int context )
+bool CBSPDispRayEnumerator::EnumerateLeaf( int ndxLeaf, intp context )
 {
 	return s_DispMgr.DispRay_EnumerateLeaf( ndxLeaf, context );
 }
 
-bool FASTCALL CBSPDispRayEnumerator::EnumerateElement( int userId, int context )
+bool FASTCALL CBSPDispRayEnumerator::EnumerateElement( int userId, intp context )
 {
 	return s_DispMgr.DispRay_EnumerateElement( userId, context );
 }
@@ -252,7 +252,7 @@ public:
 	CBSPDispRayDistanceEnumerator() : m_Distance(1.0f), m_pSurface(0) {}
 
 	// IBSPTreeDataEnumerator
-	bool FASTCALL EnumerateElement( int userId, int context )
+	bool FASTCALL EnumerateElement( int userId, intp context )
 	{
 		return s_DispMgr.DispRayDistance_EnumerateElement( userId, this );
 	}

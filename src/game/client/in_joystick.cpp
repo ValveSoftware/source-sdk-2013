@@ -283,7 +283,7 @@ ConVar joy_pegged("joy_pegged", "0.75");// Once the stick is pushed this far, it
 ConVar joy_virtual_peg("joy_virtual_peg", "0");
 static float ResponseCurveLookDefault( float x, int axis, float otherAxis, float dist, float frametime )
 {
-	float input = x;
+	float inputX = x;
 
 	bool bStickIsPhysicallyPegged = ( dist >= joy_pegged.GetFloat() );
 
@@ -351,11 +351,11 @@ static float ResponseCurveLookDefault( float x, int axis, float otherAxis, float
 		x = joy_lowmap.GetFloat() * factor;
 	}
 
-	x *= AutoAimDampening( input, axis, dist );
+	x *= AutoAimDampening( inputX, axis, dist );
 
 	if( axis == YAW && x > 0.0f && joy_display_input.GetBool() )
 	{
-		Msg("In:%f Out:%f Frametime:%f\n", input, x, frametime );
+		Msg("In:%f Out:%f Frametime:%f\n", inputX, x, frametime );
 	}
 
 	if( negative )
@@ -369,7 +369,7 @@ static float ResponseCurveLookDefault( float x, int axis, float otherAxis, float
 ConVar joy_accel_filter("joy_accel_filter", "0.2");// If the non-accelerated axis is pushed farther than this, then accelerate it, too.
 static float ResponseCurveLookAccelerated( float x, int axis, float otherAxis, float dist, float frametime )
 {
-	float input = x;
+	float inputX = x;
 
 	float flJoyDist = ( sqrt(x*x + otherAxis * otherAxis) );
 	bool bIsPegged = ( flJoyDist>= joy_pegged.GetFloat() );
@@ -419,11 +419,11 @@ static float ResponseCurveLookAccelerated( float x, int axis, float otherAxis, f
 		}
 	}
 
-	x *= AutoAimDampening( input, axis, dist );
+	x *= AutoAimDampening( inputX, axis, dist );
 
-	if( axis == YAW && input != 0.0f && joy_display_input.GetBool() )
+	if( axis == YAW && inputX != 0.0f && joy_display_input.GetBool() )
 	{
-		Msg("In:%f Out:%f Frametime:%f\n", input, x, frametime );
+		Msg("In:%f Out:%f Frametime:%f\n", inputX, x, frametime );
 	}
 
 	if( negative )
@@ -854,7 +854,7 @@ void CInput::JoyStickMove( float frametime, CUserCmd *cmd )
 	// apply look control
 	if ( IsX360() || in_jlook.state & 1 )
 	{
-		float angle = 0;
+		angle = 0;
 		if ( JOY_ABSOLUTE_AXIS == gameAxes[GAME_AXIS_PITCH].controlType )
 		{
 			float fAxisValue = ResponseCurveLook( joy_response_look.GetInt(), m_flPreviousJoystickPitch, PITCH, m_flPreviousJoystickYaw, dist, frametime );

@@ -3,6 +3,14 @@
 // builds the analyze.vpc file will not be listed as a dependency.
 $Include "$SRCDIR\vpc_scripts\source_win32_analyze.vpc" [$ANALYZE]
 
+$Conditional	$AT_LEAST_VS2022	"true" [$VS2022]
+$Conditional	$AT_LEAST_VS2019	"true" [$VS2019 || $AT_LEAST_VS2022]
+$Conditional	$AT_LEAST_VS2017	"true" [$VS2017 || $AT_LEAST_VS2019]
+$Conditional	$AT_LEAST_VS2015	"true" [$VS2015 || $AT_LEAST_VS2017]
+$Conditional	$AT_LEAST_VS2013	"true" [$VS2013 || $AT_LEAST_VS2015]
+
+$Macro VSIGN_SERVER "https://vsign.build.valve.org:7443/signcode"
+
 $Configuration
 {
 	$General
@@ -13,13 +21,23 @@ $Configuration
 		$PlatformToolset "v110" [$VS2012 && $ANALYZE] // VS 2012 for /analyze
 		$PlatformToolset "v120_xp" [$VS2013 && !$ANALYZE] // VS 2013 targeting Windows XP - http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
 		$PlatformToolset "v120" [$VS2013 && $ANALYZE] // VS 2013 for /analyze
+		$PlatformToolset "v140_xp" [$VS2015 && !$ANALYZE] // VS 2015 for /analyze
+		$PlatformToolset "v140" [$VS2015 && $ANALYZE] // VS 2015 for /analyze
+		$PlatformToolset "v141"		[$VS2017]
+		$PlatformToolset "v142"		[$VS2019]
+		$PlatformToolset "v143"		[$VS2022]
+
+		$WindowsTargetPlatformVersion "10.0"
+
+		// Use the 64-bit compilers for win32 and win64 both
+		$PreferredToolArchitecture "64-bit (x64)"
 	}
 
 	$General
 	{
 		$ExecutableDirectories "$(ExecutablePath);$(Path)"
 		// We need to override mt.exe for Win7 compatibiity.  Append paths before $(ExecutablePath) if you need VS to use your tools rather than its own
-		$ExecutableDirectories "$SRCDIR\devtools\vstools;$BASE"
+		$ExecutableDirectories "$BASE"
 		// VS 2012 compiles fine but does not link. We want to redirect to stub versions of
 		// the tools (like link.exe and mt.exe) so that the link stage will be NOPed when
 		// doing /analyze builds.
@@ -31,7 +49,17 @@ $Configuration
 		$MultiProcessorCompilation "True"
 
 		// warning C4316: object allocated on the heap may not be aligned 16
-		$DisableSpecificWarnings	"$BASE;4316" [$VS2013]
+		$DisableSpecificWarnings	"$BASE;4316" [$AT_LEAST_VS2013]
+
+		$DisableSpecificWarnings	"$BASE;5033" [$AT_LEAST_VS2019] // 'register' is no longer a supported storage class
+		$DisableSpecificWarnings	"$BASE;5054" [$AT_LEAST_VS2019] // operator '|': deprecated between enumerations of different types
+		$DisableSpecificWarnings	"$BASE;5055" [$AT_LEAST_VS2019] // operator '>': deprecated between enumerations and floating-point types
+
+		$DisableSpecificWarnings	"$BASE;4577" [$AT_LEAST_VS2015] // 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
+		$DisableSpecificWarnings	"$BASE;4091" [$AT_LEAST_VS2015] // 'keyword' : ignored on left of 'type' when no variable is declared
+
+		// Started appearning now since compiler updates... We have warnings as errors on Win32, so disable this there.
+		$DisableSpecificWarnings	"$BASE;4101" [$WIN32 && $AT_LEAST_VS2022] // 'Start': unreferenced local variable
 
 		// Having lots of warnings makes it harder to notice new, and possibly
 		// important warnings, both on buildbot and in the output window. Lots
@@ -40,6 +68,9 @@ $Configuration
 		// keep the warning count down is to have warnings-as-errors.
 		// We will not be warning free on 64-bit for a while...
 		$TreatWarningsAsErrors				"Yes (/WX)" [!$ANALYZE && !$WIN64]
+
+		// Disable Using _alloca in a loop
+		$DisableSpecificWarnings			"$BASE;6263" [$ANALYZE]
 
 		// Defines to differentiate 32 from 64 bit builds
 		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
@@ -50,9 +81,19 @@ $Configuration
 		// reduces the client.dll size by about 1.14%. When linker optimizations are disabled this has no
 		// effect. This option does not show up in the IDE so we need to add it in $AdditionalOptions.
 		// http://blogs.msdn.com/b/vcblog/archive/2013/09/11/introducing-gw-compiler-switch.aspx
-		$AdditionalOptions	"$BASE /Gw" [$VS2013]
+		$AdditionalOptions	"$BASE /Gw" [$AT_LEAST_VS2013]
 		// Strip unreferenced inline functions from object files to shrink .obj files and .lib files,
 		// improve linker speed, and improve conformance. Requires VS 2013 Update 3
-		$AdditionalOptions	"$BASE /Zc:inline" [$VS2013]
+		$AdditionalOptions	"$BASE /Zc:inline" [$AT_LEAST_VS2013]
+
+		$AdditionalOptions	"$BASE /Zc:threadSafeInit-" [$AT_LEAST_VS2015] //thread-safe static initialization will crash on Windows XP if the dll is dynamically loaded
+
+		$AdditionalOptions	"$BASE /Wv:18" [$AT_LEAST_VS2015&&!$WARN_ALL] //warning C4456: declaration of 'accFactorZ' hides previous local declaration suppression
+
+		// Zc:__cplusplus makes the compiler use the real value for the __cplusplus macro
+		// normally, MSVC sets it to C++97, for VC6 compatibility. This is stupid. and C++97 doesn't even exist!
+		// mimalloc (by Microsoft) naively relies on this being set to the proper values, due to how poorly
+		// documented this terrible hack is -- which is important if we ever wanted to ship that on Windows.
+		$AdditionalOptions	"$BASE /Zc:__cplusplus" [$AT_LEAST_VS2017]
 	}
 }

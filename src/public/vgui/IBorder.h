@@ -58,6 +58,11 @@ public:
 	};
 
 	virtual bool PaintFirst( void ) = 0;
+
+	virtual void Paint2(int x0, int y0, int x1, int y1, int breakSide, int breakStart, int breakStop, int nRepeats)
+	{
+		return this->Paint( x0, y0, x1, y1, breakSide, breakStart, breakStop );
+	}
 };
 
 } // namespace vgui

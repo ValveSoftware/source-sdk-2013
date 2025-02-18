@@ -16,10 +16,10 @@
 #undef ALIGN4
 #undef ALIGN16
 #undef ALIGN32
-#define ALIGN4( a ) a = (byte *)((int)((byte *)a + 3) & ~ 3)
-#define ALIGN16( a ) a = (byte *)((int)((byte *)a + 15) & ~ 15)
-#define ALIGN32( a ) a = (byte *)((int)((byte *)a + 31) & ~ 31)
-#define ALIGN64( a ) a = (byte *)((int)((byte *)a + 63) & ~ 63)
+#define ALIGN4( a ) a = (byte *)((intp)((byte *)a + 3) & ~ 3)
+#define ALIGN16( a ) a = (byte *)((intp)((byte *)a + 15) & ~ 15)
+#define ALIGN32( a ) a = (byte *)((intp)((byte *)a + 31) & ~ 31)
+#define ALIGN64( a ) a = (byte *)((intp)((byte *)a + 63) & ~ 63)
 
 // Fixup macros create variables that may not be referenced
 #pragma warning( push )
@@ -860,9 +860,9 @@ void ByteswapAnimData( mstudioanimdesc_t *pAnimDesc, int section, byte *&pDataSr
 
 			if ( pAnimation->flags & STUDIO_ANIM_ANIMPOS )
 			{
-				int offset = (byte*)pAnimation->pPosV() - (byte*)pAnimation;
-				pDataSrc = (byte*)pAnimationSrc + offset;
-				pDataDest = (byte*)pAnimationDest + offset;
+				int offsetAnim = (byte*)pAnimation->pPosV() - (byte*)pAnimation;
+				pDataSrc = (byte*)pAnimationSrc + offsetAnim;
+				pDataDest = (byte*)pAnimationDest + offsetAnim;
 
 				mstudioanim_valueptr_t *posvptr	= (mstudioanim_valueptr_t*)pDataSrc;
 				WriteObjects<mstudioanim_valueptr_t>( &pDataDest, &pDataSrc );
@@ -994,7 +994,7 @@ int ByteswapIKRules( studiohdr_t *&pHdrSrc, int numikrules, int numFrames, byte 
 			if ( pIKRule->szattachmentindex )
 			{
 				SET_INDEX_POINTERS( pData, pIKRule, szattachmentindex )
-				int size = strlen( (char*)pDataSrc ) + 1;
+				int size = V_strlen( (char*)pDataSrc ) + 1;
 				WriteBuffer<char>( pDataDest, pDataSrc, size );
 			}
 		}
@@ -1073,10 +1073,10 @@ int ByteswapANIFile( studiohdr_t* pHdr, void *pDestBase, const void *pSrcBase, c
 		{
 			int numsections = pAnimDesc->numframes / pAnimDesc->sectionframes + 2;
 
-			for ( int i = 0; i < numsections; ++i )
+			for ( int iSec = 0; iSec < numsections; ++iSec )
 			{
-				int block = pAnimDesc->pSection( i )->animblock;
-				int index = pAnimDesc->pSection( i )->animindex;
+				int block = pAnimDesc->pSection( iSec )->animblock;
+				int index = pAnimDesc->pSection( iSec )->animindex;
 
 				if ( block != 0 )
 				{
@@ -1093,7 +1093,7 @@ int ByteswapANIFile( studiohdr_t* pHdr, void *pDestBase, const void *pSrcBase, c
 					byte *pDataSrc = pBlockBaseSrc + index;
 					byte *pDataDest = pBlockBaseDest + index;
 
-					ByteswapAnimData( pAnimDesc, i, pDataSrc, pDataDest );
+					ByteswapAnimData( pAnimDesc, iSec, pDataSrc, pDataDest );
 				}
 			}
 		}
@@ -1228,8 +1228,8 @@ int ByteswapANI( studiohdr_t* pHdr, void *pDestBase, const void *pSrcBase, const
 		V_memcpy( pNewDest, pDestBase, pAnimBlock->datastart );
 		pNewDest += pAnimBlock->datastart;
 
-		int padding = AlignValue( (unsigned int)pNewDest - (unsigned int)pNewDestBase, 2048 );
-		padding -= (unsigned int)pNewDest - (unsigned int)pNewDestBase;
+		int padding = AlignValue( (uintp)pNewDest - (uintp)pNewDestBase, 2048 );
+		padding -= (uintp)pNewDest - (uintp)pNewDestBase;
 		pNewDest += padding;
 
 		// iterate and compress anim blocks
@@ -1240,7 +1240,7 @@ int ByteswapANI( studiohdr_t* pHdr, void *pDestBase, const void *pSrcBase, const
 			void *pInput = (byte *)pDestBase + pAnimBlock->datastart;
 			int inputSize = pAnimBlock->dataend - pAnimBlock->datastart;
 
-			pAnimBlock->datastart = (unsigned int)pNewDest - (unsigned int)pNewDestBase;
+			pAnimBlock->datastart = (uintp)pNewDest - (uintp)pNewDestBase;
 
 			void *pOutput;
 			int outputSize;
@@ -1257,11 +1257,11 @@ int ByteswapANI( studiohdr_t* pHdr, void *pDestBase, const void *pSrcBase, const
 				pNewDest += inputSize;
 			}
 
-			padding = AlignValue( (unsigned int)pNewDest - (unsigned int)pNewDestBase, 2048 );
-			padding -= (unsigned int)pNewDest - (unsigned int)pNewDestBase;
+			padding = AlignValue( (uintp)pNewDest - (uintp)pNewDestBase, 2048 );
+			padding -= (uintp)pNewDest - (uintp)pNewDestBase;
 			pNewDest += padding;
 
-			pAnimBlock->dataend = (unsigned int)pNewDest - (unsigned int)pNewDestBase;
+			pAnimBlock->dataend = (uintp)pNewDest - (uintp)pNewDestBase;
 		}
 
 		fixedFileSize = pNewDest - pNewDestBase;
@@ -1418,10 +1418,10 @@ int ByteswapMDLFile( void *pDestBase, void *pSrcBase, const int fileSize )
 						int index = pAnimDesc->pSection( i )->animindex;
 
 						// Base address of the animation in the animblock
-						byte *pDataSrc = (byte *)pAnimDescSrc + index;
-						byte *pDataDest = (byte *)pAnimDescDest + index;
+						byte *pDataSrcAnim = (byte *)pAnimDescSrc + index;
+						byte *pDataDestAnim = (byte *)pAnimDescDest + index;
 
-						ByteswapAnimData( pAnimDesc, i, pDataSrc, pDataDest );
+						ByteswapAnimData( pAnimDesc, i, pDataSrcAnim, pDataDestAnim );
 					}
 				}
 			}
@@ -1580,7 +1580,7 @@ int ByteswapMDLFile( void *pDestBase, void *pSrcBase, const int fileSize )
 					if ( pIKRule->szattachmentindex )
 					{
 						SET_INDEX_POINTERS( pData, pIKRule, szattachmentindex )
-						int size = strlen( (char*)pDataSrc ) + 1;
+						int size = V_strlen( (char*)pDataSrc ) + 1;
 						WriteBuffer<char>( pDataDest, pDataSrc, size );
 					}
 				}
@@ -1957,7 +1957,7 @@ int ByteswapMDLFile( void *pDestBase, void *pSrcBase, const int fileSize )
 	for ( int i = 0; i < numCdTextures; ++i )
 	{
 		char *pPath = (char*)pHdrDest + SrcNative( &((int *)pDataSrc)[i] );
-		int len = strlen( pPath );
+		int len = V_strlen( pPath );
 		if ( len >= 2 && ( pPath[len-1] == '\\' || pPath[len-1] == '/' ) && ( pPath[len-2] == '\\' || pPath[len-2] == '/' ) )
 		{
 			pPath[len-1] = '\0';
@@ -2068,7 +2068,7 @@ int ByteswapStudioFile( const char *pFilename, void *pOutBase, const void *pFile
 void ProcessANIFields( void *pDataBase, datadescProcessFunc_t pfnProcessFunc )
 {
 	studiohdr_t *pHdr = g_pHdr;
-	byte *pData = (byte*)pDataBase;
+	//byte *pData = (byte*)pDataBase;
 	byte *pSrcBase = (byte*)g_pDataSrcBase;
 
 	// Since the animblocks and animdescs are native data, trick the system
@@ -2088,7 +2088,7 @@ void ProcessANIFields( void *pDataBase, datadescProcessFunc_t pfnProcessFunc )
 	mstudioanimdesc_t *pAnimDesc = pHdr->pLocalAnimdesc( 0 );
 	for ( int i = 0; i < pHdr->numlocalanim; ++i, ++pAnimDesc )
 	{
-		mstudioanimblock_t *pAnimBlock = pHdr->pAnimBlock( pAnimDesc->animblock );
+		pAnimBlock = pHdr->pAnimBlock( pAnimDesc->animblock );
 		byte *pBlockBase = (byte*)pSrcBase + pAnimBlock->datastart;
 
 		ProcessFieldByName( pBlockBase, pAnimDesc, &mstudioanimdesc_t::m_DataMap, "animindex", pfnProcessFunc );
@@ -2133,7 +2133,7 @@ void ProcessANIFields( void *pDataBase, datadescProcessFunc_t pfnProcessFunc )
 			pData = (byte*)pBlockBase + pAnimDesc->animblockikruleindex;
 
 			mstudioikrule_t *pIKRule = (mstudioikrule_t *)pData;
-			for ( int i = 0; i < pAnimDesc->numikrules; ++i, ++pIKRule )
+			for ( int iIK = 0; iIK < pAnimDesc->numikrules; ++iIK, ++pIKRule )
 			{
 				ProcessFields( pIKRule, &mstudioikrule_t::m_DataMap, pfnProcessFunc );
 			}
@@ -2227,7 +2227,7 @@ void ProcessMDLFields( void *pDataBase, datadescProcessFunc_t pfnProcessFunc  )
 		/** HITBOXES **/
 		pData = (byte*)pHitboxSet + SrcNative( &pHitboxSet->hitboxindex );
 		mstudiobbox_t *pBBox = (mstudiobbox_t*)pData;
-		for ( int i = 0; i < SrcNative( &pHitboxSet->numhitboxes ); ++i, ++pBBox )
+		for ( int iHit = 0; iHit < SrcNative( &pHitboxSet->numhitboxes ); ++iHit, ++pBBox )
 		{
 			ProcessFields( pBBox, &mstudiobbox_t::m_DataMap, pfnProcessFunc );
 		}
@@ -2275,7 +2275,7 @@ void ProcessMDLFields( void *pDataBase, datadescProcessFunc_t pfnProcessFunc  )
 			pData = (byte*)pAnimDesc + SrcNative( &pAnimDesc->ikruleindex );
 
 			mstudioikrule_t *pIKRule = (mstudioikrule_t *)pData;
-			for ( int i = 0; i < SrcNative( &pAnimDesc->numikrules ); ++i, ++pIKRule )
+			for ( int iIK = 0; iIK < SrcNative( &pAnimDesc->numikrules ); ++iIK, ++pIKRule )
 			{
 				ProcessFields( pIKRule, &mstudioikrule_t::m_DataMap, pfnProcessFunc );
 			}
@@ -2294,7 +2294,7 @@ void ProcessMDLFields( void *pDataBase, datadescProcessFunc_t pfnProcessFunc  )
 
 		pData = (byte*)pHdr + SrcNative( &pSequenceHdr->eventindex );
 		mstudioevent_t *pEvent = (mstudioevent_t*)pData;
-		for ( int i = 0; i < SrcNative( &pSequenceHdr->numevents ); ++i, ++pEvent )
+		for ( int iEvent = 0; iEvent < SrcNative( &pSequenceHdr->numevents ); ++iEvent, ++pEvent )
 		{
 			ProcessFields( pSequenceHdr, &mstudioevent_t::m_DataMap, pfnProcessFunc );
 		}
@@ -2310,9 +2310,9 @@ void ProcessMDLFields( void *pDataBase, datadescProcessFunc_t pfnProcessFunc  )
 
 		/** MODEL INFO **/
 
-		byte *pData = (byte*)pBodypart + SrcNative( &pBodypart->modelindex );
-		mstudiomodel_t *pModel = (mstudiomodel_t*)pData;
-		for ( int i = 0; i < SrcNative( &pBodypart->nummodels ); ++i, ++pModel )
+		byte *pDataModel = (byte*)pBodypart + SrcNative( &pBodypart->modelindex );
+		mstudiomodel_t *pModel = (mstudiomodel_t*)pDataModel;
+		for ( int iModel = 0; iModel < SrcNative( &pBodypart->nummodels ); ++iModel, ++pModel )
 		{
 			ProcessFields( pModel, &mstudiomodel_t::m_DataMap, pfnProcessFunc );
 
@@ -2320,7 +2320,7 @@ void ProcessMDLFields( void *pDataBase, datadescProcessFunc_t pfnProcessFunc  )
 
 			pData = (byte*)pModel + SrcNative( &pModel->meshindex );
 			mstudiomesh_t *pMesh = (mstudiomesh_t*)pData;
-			for ( int i = 0; i < SrcNative( &pModel->nummeshes ); ++i, ++pMesh )
+			for ( int iMesh = 0; iMesh < SrcNative( &pModel->nummeshes ); ++iMesh, ++pMesh )
 			{	
 				ProcessFields( pMesh, &mstudiomesh_t::m_DataMap, pfnProcessFunc );
 
@@ -2331,7 +2331,7 @@ void ProcessMDLFields( void *pDataBase, datadescProcessFunc_t pfnProcessFunc  )
 
 				pData = (byte*)pMesh + SrcNative( &pMesh->flexindex );
 				mstudioflex_t *pFlex = (mstudioflex_t*)pData;
-				for ( int i = 0; i < SrcNative( &pMesh->numflexes ); ++i, ++pFlex )
+				for ( int iFlesh = 0; iFlesh < SrcNative( &pMesh->numflexes ); ++iFlesh, ++pFlex )
 				{	
 					ProcessFields( pFlex, &mstudioflex_t::m_DataMap, pfnProcessFunc );
 				}
@@ -2341,7 +2341,7 @@ void ProcessMDLFields( void *pDataBase, datadescProcessFunc_t pfnProcessFunc  )
 
 			pData= (byte*)pModel + SrcNative( &pModel->eyeballindex );
 			mstudioeyeball_t *pEyeball = (mstudioeyeball_t*)pData;
-			for ( int i = 0; i < SrcNative( &pModel->numeyeballs ); ++i, ++pEyeball )
+			for ( int iEye = 0; iEye < SrcNative( &pModel->numeyeballs ); ++iEye, ++pEyeball )
 			{
 				ProcessFields( pEyeball, &mstudioeyeball_t::m_DataMap, pfnProcessFunc );
 			}
@@ -2445,7 +2445,7 @@ void ProcessMDLFields( void *pDataBase, datadescProcessFunc_t pfnProcessFunc  )
 
 			pData = (byte*)pHdr + SrcNative( &pStudioHdr2->srcbonetransformindex );
 			mstudiosrcbonetransform_t *pSrcBoneTransform = (mstudiosrcbonetransform_t*)pData;
-			for ( int i = 0; i < SrcNative( &pStudioHdr2->numsrcbonetransform ); ++i, ++pSrcBoneTransform )
+			for ( int iBone = 0; iBone < SrcNative( &pStudioHdr2->numsrcbonetransform ); ++iBone, ++pSrcBoneTransform )
 			{
 				ProcessFields( pSrcBoneTransform, &mstudiosrcbonetransform_t::m_DataMap, pfnProcessFunc );
 			}
@@ -2522,14 +2522,27 @@ BEGIN_BYTESWAP_DATADESC( studiohdr_t )
 	DEFINE_FIELD( contents, FIELD_INTEGER ),
 	DEFINE_FIELD( numincludemodels, FIELD_INTEGER ),
 	DEFINE_INDEX( includemodelindex, FIELD_INTEGER ),
+#ifdef PLATFORM_64BITS
+	DEFINE_FIELD( unused_virtualModel, FIELD_INTEGER ),				// void*
+#else
 	DEFINE_FIELD( virtualModel, FIELD_INTEGER ),				// void*
+#endif
 	DEFINE_INDEX( szanimblocknameindex, FIELD_INTEGER ),	
 	DEFINE_FIELD( numanimblocks, FIELD_INTEGER ),
 	DEFINE_INDEX( animblockindex, FIELD_INTEGER ),
+#ifdef PLATFORM_64BITS
+	DEFINE_FIELD( unused_animblockModel, FIELD_INTEGER ),				// void*
+#else
 	DEFINE_FIELD( animblockModel, FIELD_INTEGER ),				// void*
+#endif
 	DEFINE_INDEX( bonetablebynameindex, FIELD_INTEGER ),
+#ifdef PLATFORM_64BITS
+	DEFINE_FIELD( unused_pVertexBase, FIELD_INTEGER ),					// void*
+	DEFINE_FIELD( unused_pIndexBase, FIELD_INTEGER ),					// void*
+#else
 	DEFINE_FIELD( pVertexBase, FIELD_INTEGER ),					// void*
 	DEFINE_FIELD( pIndexBase, FIELD_INTEGER ),					// void*
+#endif
 	DEFINE_FIELD( constdirectionallightdot, FIELD_CHARACTER ),	// byte
 	DEFINE_FIELD( rootLOD, FIELD_CHARACTER ),					// byte
 	DEFINE_FIELD( numAllowedRootLODs, FIELD_CHARACTER ),		// byte

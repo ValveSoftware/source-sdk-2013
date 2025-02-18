@@ -30,22 +30,31 @@ class CReservePlayerSpot;
 //-----------------------------------------------------------------------------
 struct LadderMove_t
 {
+	DECLARE_CLASS_NOBASE( LadderMove_t );
 	DECLARE_SIMPLE_DATADESC();
+	DECLARE_EMBEDDED_NETWORKVAR();
+
+	DECLARE_PREDICTABLE();
 
 	//	Are we forcing player movement during mount/dismount
-	bool		m_bForceLadderMove;
+	CNetworkVar(bool, m_bForceLadderMove);
 	// Is the forced move getting on or off the ladder
-	bool		m_bForceMount;
+	CNetworkVar(bool, m_bForceMount);
 	
 	// Simulation info for forcing the player move
-	float		m_flStartTime;
-	float		m_flArrivalTime;
-	Vector		m_vecGoalPosition;
-	Vector		m_vecStartPosition;
+	CNetworkVar(float, m_flStartTime);
+	CNetworkVar(float, m_flArrivalTime);
+	CNetworkVector( m_vecGoalPosition );
+	CNetworkVector( m_vecStartPosition )
 
 	// The ladder entity owning the forced move (for marking us "on" the ladder after automounting it)
 	CHandle< CFuncLadder > m_hForceLadder;
 	CHandle< CReservePlayerSpot > m_hReservedSpot;
 };
+
+EXTERN_SEND_TABLE(DT_LadderMove);
+#ifdef CLIENT_DLL
+EXTERN_RECV_TABLE( DT_LadderMove );
+#endif
 
 #endif // HL_MOVEDATA_H

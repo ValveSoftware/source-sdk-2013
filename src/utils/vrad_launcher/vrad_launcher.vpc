@@ -24,7 +24,7 @@ $Configuration
 	}
 }
 
-$Project "Vrad_launcher"
+$Project "VRAD (Launcher)"
 {
 	$Folder	"Source Files"
 	{

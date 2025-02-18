@@ -74,6 +74,7 @@ void LightDesc_t::ComputeLightAtPoints( const FourVectors &pos, const FourVector
 	Assert((m_Type==MATERIAL_LIGHT_POINT) || (m_Type==MATERIAL_LIGHT_SPOT) || (m_Type==MATERIAL_LIGHT_DIRECTIONAL));
 	switch (m_Type)
 	{
+		default:
 		case MATERIAL_LIGHT_POINT:
 		case MATERIAL_LIGHT_SPOT:
 			delta.DuplicateVector(m_Position);
@@ -171,6 +172,7 @@ void LightDesc_t::ComputeNonincidenceLightAtPoints( const FourVectors &pos, Four
 	Assert((m_Type==MATERIAL_LIGHT_POINT) || (m_Type==MATERIAL_LIGHT_SPOT) || (m_Type==MATERIAL_LIGHT_DIRECTIONAL));
 	switch (m_Type)
 	{
+		default:
 		case MATERIAL_LIGHT_POINT:
 		case MATERIAL_LIGHT_SPOT:
 			delta.DuplicateVector(m_Position);

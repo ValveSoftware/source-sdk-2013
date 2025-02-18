@@ -1,0 +1,132 @@
+//-----------------------------------------------------------------------------
+//	CLIENT_EPISODIC.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\.."
+$Macro GAMENAME 	"episodic" [!$SOURCESDK]
+$Macro GAMENAME 	"mod_episodic" [$SOURCESDK]
+
+$Include "$SRCDIR\game\client\client_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	".\hl2;.\hl2\elements;$SRCDIR\game\shared\hl2;$SRCDIR\game\shared\episodic;..\..\public;$BASE"
+		$PreprocessorDefinitions		"$BASE;HL2_CLIENT_DLL;HL2_EPISODIC"
+	}
+}
+
+$Project "Client (Episodic)"
+{
+	$Folder	"Source Files"
+	{
+		$File	"hud_chat.cpp"
+		$File	"c_team_objectiveresource.cpp"
+		$File	"c_team_objectiveresource.h"
+
+		$Folder	"HL2 DLL"
+		{
+			$File	"$SRCDIR\game\shared\hl2\basehlcombatweapon_shared.cpp"
+			$File	"$SRCDIR\game\shared\episodic\achievements_ep1.cpp"
+			$File	"$SRCDIR\game\shared\episodic\achievements_ep2.cpp"
+			$File	"$SRCDIR\game\shared\episodic\achievements_epx.cpp"
+			$File	"hl2\c_antlion_dust.cpp"
+			$File	"hl2\c_ar2_explosion.cpp"
+			$File	"hl2\c_barnacle.cpp"
+			$File	"hl2\c_barney.cpp"
+			$File	"hl2\c_basehelicopter.cpp"
+			$File	"hl2\c_basehelicopter.h"
+			$File	"hl2\c_basehlcombatweapon.cpp"
+			$File	"hl2\c_basehlcombatweapon.h"
+			$File	"hl2\c_basehlplayer.cpp"
+			$File	"hl2\c_basehlplayer.h"
+			$File	"hl2\c_citadel_effects.cpp"
+			$File	"hl2\c_corpse.cpp"
+			$File	"hl2\c_corpse.h"
+			$File	"hl2\c_env_alyxtemp.cpp"
+			$File	"hl2\c_env_headcrabcanister.cpp"
+			$File	"hl2\c_env_starfield.cpp"
+			$File	"hl2\c_func_tankmortar.cpp"
+			$File	"hl2\c_hl2_playerlocaldata.cpp"
+			$File	"hl2\c_hl2_playerlocaldata.h"
+			$File	"hl2\c_info_teleporter_countdown.cpp"
+			$File	"hl2\c_npc_antlionguard.cpp"
+			$File	"hl2\c_npc_combinegunship.cpp"
+			$File	"hl2\c_npc_manhack.cpp"
+			$File	"hl2\c_npc_rollermine.cpp"
+			$File	"hl2\c_plasma_beam_node.cpp"
+			$File	"hl2\c_prop_combine_ball.cpp"
+			$File	"hl2\c_prop_combine_ball.h"
+			$File	"episodic\c_prop_scalable.cpp"
+			$File	"hl2\c_rotorwash.cpp"
+			$File	"hl2\c_script_intro.cpp"
+			$File	"$SRCDIR\game\shared\script_intro_shared.cpp"
+			$File	"hl2\c_strider.cpp"
+			$File	"hl2\c_te_concussiveexplosion.cpp"
+			$File	"hl2\c_te_flare.cpp"
+			$File	"hl2\c_thumper_dust.cpp"
+			$File	"hl2\c_vehicle_airboat.cpp"
+			$File	"hl2\c_vehicle_cannon.cpp"
+			$File	"hl2\c_vehicle_crane.cpp"
+			$File	"hl2\c_vehicle_crane.h"
+			$File	"episodic\c_vehicle_jeep_episodic.cpp"
+			$File	"hl2\c_vehicle_prisoner_pod.cpp"
+			$File	"episodic\c_vort_charge_token.cpp"
+			$File	"hl2\c_weapon__stubs_hl2.cpp"
+			$File	"hl2\c_weapon_crossbow.cpp"
+			$File	"episodic\c_weapon_hopwire.cpp"
+			$File	"hl2\c_weapon_physcannon.cpp"
+			$File	"hl2\c_weapon_stunstick.cpp"
+			$File	"$SRCDIR\game\shared\hl2\citadel_effects_shared.h"
+			$File	"hl2\clientmode_hlnormal.cpp"
+			$File	"hl2\clientmode_hlnormal.h"
+			$File	"death.cpp"
+			$File	"$SRCDIR\game\shared\hl2\env_headcrabcanister_shared.cpp"
+			$File	"$SRCDIR\game\shared\hl2\env_headcrabcanister_shared.h"
+			$File	"$SRCDIR\game\shared\episodic\npc_advisor_shared.h"
+			$File	"episodic\c_npc_advisor.cpp"
+			$File	"episodic\episodic_screenspaceeffects.cpp"
+			$File	"episodic\episodic_screenspaceeffects.h"
+			$File	"episodic\flesh_internal_material_proxy.cpp"
+			$File	"hl2\fx_antlion.cpp"
+			$File	"hl2\fx_bugbait.cpp"
+			$File	"hl2\fx_hl2_impacts.cpp"
+			$File	"hl2\fx_hl2_tracers.cpp"
+			$File	"hl2\hl2_clientmode.cpp"
+			$File	"$SRCDIR\game\shared\hl2\hl2_gamerules.cpp"
+			$File	"$SRCDIR\game\shared\hl2\hl2_gamerules.h"
+			$File	"$SRCDIR\game\shared\hl2\hl2_shareddefs.h"
+			$File	"$SRCDIR\game\shared\hl2\hl2_usermessages.cpp"
+			$File	"$SRCDIR\game\shared\hl2\hl_gamemovement.cpp"
+			$File	"$SRCDIR\game\shared\hl2\hl_gamemovement.h"
+			$File	"hl2\hl_in_main.cpp"
+			$File	"hl2\hl_prediction.cpp"
+			$File	"hl2\hud_ammo.cpp"
+			$File	"hl2\hud_battery.cpp"
+			$File	"hl2\hud_blood.cpp"
+			$File	"hl2\hud_credits.cpp"
+			$File	"hl2\hud_damageindicator.cpp"
+			$File	"hl2\hud_flashlight.cpp"
+			$File	"hl2\hud_locator.cpp"
+			$File	"hl2\hud_health.cpp"
+			$File	"hl2\hud_poisondamageindicator.cpp"			
+			$File	"hud_posture.cpp"
+			$File	"hl2\hud_quickinfo.cpp"
+			$File	"hl2\hud_radar.cpp"
+			$File	"hl2\hud_radar.h"
+			$File	"hud_squadstatus.cpp"
+			$File	"hl2\hud_suitpower.cpp"
+			$File	"hl2\hud_suitpower.h"
+			$File	"hl2\hud_weaponselection.cpp"
+			$File	"hl2\hud_zoom.cpp"
+			$File	"hl2\shieldproxy.cpp"
+			$File	"$SRCDIR\game\shared\hl2\survival_gamerules.cpp"
+			$File	"hl2\vgui_rootpanel_hl2.cpp"
+			$File	"episodic\c_npc_puppet.cpp"
+		}
+	}
+	
+}

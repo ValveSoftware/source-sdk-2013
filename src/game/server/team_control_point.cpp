@@ -83,6 +83,7 @@ CTeamControlPoint::CTeamControlPoint()
 
 	m_bLocked = false;
 	m_flUnlockTime = -1;
+	m_bBotsIgnore = false;
 
 #ifdef  TF_DLL
 	UseClientSideAnimation();
@@ -142,6 +143,8 @@ void CTeamControlPoint::Spawn( void )
 	{
 		AddEffects( EF_NOSHADOW );
 	}
+
+	m_bBotsIgnore = FBitSet( m_spawnflags, SF_CAP_POINT_BOTS_IGNORE ) > 0;
 
 	m_flLastContestedAt = -1;
 
@@ -681,6 +684,13 @@ void CTeamControlPoint::InternalSetOwner( int iCapTeam, bool bMakeSound, int iNu
 		{
 			SendCapString( m_iTeam, iNumCappers, pCappingPlayers );
 		}
+
+#ifdef TF_DLL
+		if ( TFGameRules() && TFGameRules()->IsHolidayActive( kHoliday_Halloween ) )
+		{
+			TFGameRules()->DropHalloweenSoulPackToTeam( 5, GetAbsOrigin(), m_iTeam, TEAM_SPECTATOR );
+		}
+#endif
 	}
 
 	// Have control point master check the win conditions now!

@@ -26,11 +26,6 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#ifdef STAGING_ONLY
-#ifdef TF_CLIENT_DLL
-extern ConVar tf_unusual_effect_offset;
-#endif
-#endif
 
 //-----------------------------------------------------------------------------
 // Save/load
@@ -97,10 +92,6 @@ int CParticleProperty::GetParticleAttachment( C_BaseEntity *pEntity, const char 
 
 	// Find the attachment point index
 	int iAttachment = pEntity->GetBaseAnimating()->LookupAttachment( pszAttachmentName );
-	if ( iAttachment == INVALID_PARTICLE_ATTACHMENT )
-	{
-		Warning("Model '%s' doesn't have attachment '%s' to attach particle system '%s' to.\n", STRING(pEntity->GetBaseAnimating()->GetModelName()), pszAttachmentName, pszParticleName );
-	}
 
 	return iAttachment;
 }
@@ -367,11 +358,13 @@ void CParticleProperty::StopParticlesInvolving( CBaseEntity *pEntity )
 //-----------------------------------------------------------------------------
 void CParticleProperty::StopParticlesNamed( const char *pszEffectName, bool bForceRemoveInstantly /* =false */,  bool bInverse /*= false*/ )
 {
+	if ( !pszEffectName || !pszEffectName[0] )
+		return;
+
 	CParticleSystemDefinition *pDef = g_pParticleSystemMgr->FindParticleSystem( pszEffectName );
 	AssertMsg1(pDef, "Could not find particle definition %s", pszEffectName );
 	if (!pDef)
 		return;
-
 
 	// If we return from dormancy and are then told to stop emitting,
 	// we should have died while dormant. Remove ourselves immediately.

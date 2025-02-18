@@ -178,6 +178,7 @@ void CPlayerMove::SetupMove( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper *p
 	// Prepare remaining fields
 	move->m_flClientMaxSpeed		= player->m_flMaxspeed;
 	move->m_nOldButtons			= player->m_Local.m_nOldButtons;
+	move->m_flOldForwardMove = player->m_Local.m_flOldForwardMove;
 	move->m_vecAngles			= player->pl.v_angle;
 
 	move->m_vecVelocity			= player->GetAbsVelocity();
@@ -314,10 +315,8 @@ void CommentarySystem_PePlayerRunCommand( CBasePlayer *player, CUserCmd *ucmd );
 //-----------------------------------------------------------------------------
 void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper *moveHelper )
 {
-	const float playerCurTime = player->m_nTickBase * TICK_INTERVAL; 
-	const float playerFrameTime = player->m_bGamePaused ? 0 : TICK_INTERVAL;
-	const float flTimeAllowedForProcessing = player->ConsumeMovementTimeForUserCmdProcessing( playerFrameTime );
-	if ( !player->IsBot() && ( flTimeAllowedForProcessing < playerFrameTime ) )
+	const int nTicksAllowedForProcessing = player->ConsumeMovementTicksForUserCmdProcessing( 1 );
+	if ( !player->IsBot() && !player->IsHLTV() && ( nTicksAllowedForProcessing < 1 ) )
 	{
 		// Make sure that the activity in command is erased because player cheated or dropped too many packets
 		double dblWarningFrequencyThrottle = sv_maxusrcmdprocessticks_warning.GetFloat();
@@ -328,17 +327,20 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 			if ( !s_dblLastWarningTime || ( dblTimeNow - s_dblLastWarningTime >= dblWarningFrequencyThrottle ) )
 			{
 				s_dblLastWarningTime = dblTimeNow;
-				Warning( "sv_maxusrcmdprocessticks_warning at server tick %u: Ignored client %s usrcmd (%.6f < %.6f)!\n", gpGlobals->tickcount, player->GetPlayerName(), flTimeAllowedForProcessing, playerFrameTime );
+				Warning( "sv_maxusrcmdprocessticks_warning at server tick %u: Ignored client %s usrcmd (more commands than available movement ticks)!\n", gpGlobals->tickcount, player->GetPlayerName() );
 			}
 		}
 		return; // Don't process this command
 	}
 
+	const float playerCurTime = player->m_nTickBase * TICK_INTERVAL;
+	const float playerFrameTime = TICK_INTERVAL;
+
 	StartCommand( player, ucmd );
 
 	// Set globals appropriately
-	gpGlobals->curtime		=  playerCurTime;
-	gpGlobals->frametime	=  playerFrameTime;
+	gpGlobals->curtime = playerCurTime;
+	gpGlobals->frametime = playerFrameTime;
 
 	// Prevent hacked clients from sending us invalid view angles to try to get leaf server code to crash
 	if ( !ucmd->viewangles.IsValid() || !IsEntityQAngleReasonable(ucmd->viewangles) )
@@ -361,15 +363,6 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 			gpGlobals->frametime = TICK_INTERVAL;
 		}
 	}
-
-	/*
-	// TODO:  We can check whether the player is sending more commands than elapsed real time
-	cmdtimeremaining -= ucmd->msec;
-	if ( cmdtimeremaining < 0 )
-	{
-	//	return;
-	}
-	*/
 
 	g_pGameMovement->StartTrackPredictionErrors( player );
 

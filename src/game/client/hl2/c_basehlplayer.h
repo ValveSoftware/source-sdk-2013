@@ -52,6 +52,9 @@ public:
 
 	bool				IsWeaponLowered( void ) { return m_HL2Local.m_bWeaponLowered; }
 
+	virtual void	HandleSpeedChanges( CMoveData *mv ){}
+	virtual void	ReduceTimers( CMoveData *mv ){}
+
 public:
 
 	C_HL2PlayerLocalData		m_HL2Local;

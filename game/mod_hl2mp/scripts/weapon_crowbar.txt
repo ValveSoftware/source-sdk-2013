@@ -43,26 +43,21 @@ WeaponData
 				"font"		"WeaponIcons"
 				"character"	"c"
 		}
-		"ammo2"
-		{
-			"file"		"sprites/640hud7"
-			"x"			"48"
-			"y"			"72"
-			"width"		"24"
-			"height"	"24"
-		}
 		"crosshair"
 		{
-				"font"		"Crosshairs"
-				"character"	"Q"
+				"file"		"sprites/crosshairs"
+				"x"			"0"
+				"y"			"48"
+				"width"		"24"
+				"height"	"24"
 		}
 		"autoaim"
 		{
-			"file"		"sprites/crosshairs"
-			"x"			"0"
-			"y"			"48"
-			"width"		"24"
-			"height"	"24"
+				"file"		"sprites/crosshairs"
+				"x"			"48"
+				"y"			"72"
+				"width"		"24"
+				"height"	"24"
 		}
 	}
 }

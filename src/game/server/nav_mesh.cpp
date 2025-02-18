@@ -20,10 +20,17 @@
 #include "func_simpleladder.h"
 #endif
 #include "functorutils.h"
+#include "nav_pathfind.h"
+
+#ifdef TF_DLL
+#include "tf/nav_mesh/tf_nav_area.h"
+#endif
 
 #ifdef NEXT_BOT
 #include "NextBot/NavMeshEntities/func_nav_prerequisite.h"
 #endif
+// Defines the ToHScript and ToNavArea stuff.
+#include "NextBot/NextBotLocomotionInterface.h"
 
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
@@ -49,9 +56,6 @@ ConVar nav_max_vis_delta_list_length( "nav_max_vis_delta_list_length", "64", FCV
 
 extern ConVar nav_show_potentially_visible;
 
-#ifdef STAGING_ONLY
-int g_DebugPathfindCounter = 0;
-#endif
 
 
 bool FindGroundForNode( Vector *pos, Vector *normal );
@@ -3102,6 +3106,234 @@ NavErrorType HidingSpot::PostLoad( void )
 	return NAV_OK;
 }
 
+BEGIN_SCRIPTDESC_ROOT( CNavMesh, "The nav mesh" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetNavAreaByID, "GetNavAreaByID", "Arguments: ( areaID ) - get nav area by ID" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetNavArea, "GetNavArea", "Arguments: ( origin, flBeneath ) - given a position in the world, return the nav area that is closest to or below that height." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetNearestNavArea, "GetNearestNavArea", "Arguments: ( origin, maxDist, checkLOS, checkGround ) - given a position in the world, return the nav area that is closest to or below that height." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetNavAreaCount, "GetNavAreaCount", "return total number of nav areas" )
+	DEFINE_SCRIPTFUNC( GetNavAreasInRadius, "Arguments: ( origin, radius, table ) - fills a passed in table of nav areas within radius" )
+	DEFINE_SCRIPTFUNC( FindNavAreaAlongRay, "Arguments: ( startpos, endpos, ignoreAreaID ) - get nav area from ray" )
+	DEFINE_SCRIPTFUNC( GetAllAreas, "Arguments: ( table ) - fills a passed in table of all nav areas" )
+	DEFINE_SCRIPTFUNC( GetObstructingEntities, "Arguments: ( table ) - fills a passed in table of all obstructing entities" )
+	DEFINE_SCRIPTFUNC( GetAreasWithAttributes, "Arguments: ( bits, table ) - fills a passed in table of all nav areas that have the specified attributes" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptNavAreaBuildPath, "NavAreaBuildPath", "Arguments: ( area, area, goalPos, flMaxPathLength, teamID, ignoreNavBlockers ) - returns true if a path exists" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptNavAreaTravelDistance, "NavAreaTravelDistance", "Arguments: ( area, area, flMaxPathLength ) - compute distance between two areas. Return -1 if can't reach 'endArea' from 'startArea'" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetNavAreasFromBuildPath, "GetNavAreasFromBuildPath", "Arguments: ( table ) - Fills the table with areas from a path. Returns whether a path was found" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptRegisterAvoidanceObstacle, "RegisterAvoidanceObstacle", "Arguments: ( entity ) - registers avoidance obstacle" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptUnregisterAvoidanceObstacle, "UnregisterAvoidanceObstacle", "Arguments: ( entity ) - unregisters avoidance obstacle" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetNavAreasOverlappingEntityExtent, "GetNavAreasOverlappingEntityExtent", "Arguments: ( entity, table ) - fills passed in table with areas overlapping entity's extent" )
+END_SCRIPTDESC();
+
+//--------------------------------------------------------------------------------------------------------
+HSCRIPT CNavMesh::ScriptGetNavAreaByID( int areaID )
+{
+#ifdef TF_DLL
+	CNavArea *area = GetNavAreaByID( areaID );
+	if ( area )
+	{
+		return ToHScript( area );
+	}
+#endif
+	return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------------
+HSCRIPT CNavMesh::ScriptGetNavArea( const Vector &pos, float beneathLimt )
+{
+#ifdef TF_DLL
+	CNavArea *area = GetNavArea( pos, beneathLimt );
+	if ( area )
+	{
+		return ToHScript( area );
+	}
+#endif
+	return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------------
+HSCRIPT CNavMesh::ScriptGetNearestNavArea( const Vector &pos, float maxDist, bool checkLOS, bool checkGround )
+{
+#ifdef TF_DLL
+	CNavArea *area = GetNearestNavArea( pos, false, maxDist, checkLOS, checkGround );
+	if ( area )
+	{
+		return ToHScript( area );
+	}
+#endif
+	return NULL;
+}
+
+
+//--------------------------------------------------------------------------------------------------------
+bool CNavMesh::ScriptGetNavAreasFromBuildPath( HSCRIPT hStartArea, HSCRIPT hGoalArea, const Vector &goalPos, float maxPathLength, int teamID, bool ignoreNavBlockers, HSCRIPT hTable )
+{
+	CNavArea *startArea = ToNavArea( hStartArea );
+	CNavArea *goalArea = ToNavArea( hGoalArea );
+	bool bInvalidPos = ( goalPos == Vector(0,0,0) );
+	if ( ( !startArea ) || ( !goalArea && bInvalidPos ) || !hTable )
+		return false;
+
+	CNavArea *closestArea = NULL;
+	ShortestPathCost shortestPath;
+	if ( !NavAreaBuildPath( startArea, goalArea, (( bInvalidPos ) ? NULL : &goalPos), shortestPath, &closestArea, maxPathLength, teamID, ignoreNavBlockers ) )
+		return false;
+
+	if ( !goalArea )
+		goalArea = closestArea;
+
+	int i = 0;
+	for( CNavArea *area = goalArea; (area && area->GetParent()); area = area->GetParent() )
+	{
+		g_pScriptVM->SetValue( hTable, CFmtStr( "area%i", i++ ), ToHScript( area ) );
+	}
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+void CNavMesh::ScriptRegisterAvoidanceObstacle( HSCRIPT hEntity )
+{
+	CBaseEntity *pEntity = ToEnt( hEntity );
+	if ( !pEntity )
+		return;
+
+	INavAvoidanceObstacle *pObstacle = dynamic_cast<INavAvoidanceObstacle*>( pEntity );
+	if ( !pObstacle )
+		return;
+
+	RegisterAvoidanceObstacle( pObstacle );
+}
+
+//-----------------------------------------------------------------------------
+void CNavMesh::ScriptUnregisterAvoidanceObstacle( HSCRIPT hEntity )
+{
+	CBaseEntity *pEntity = ToEnt( hEntity );
+	if ( !pEntity )
+		return;
+
+	INavAvoidanceObstacle *pObstacle = dynamic_cast<INavAvoidanceObstacle*>( pEntity );
+	if ( !pObstacle )
+		return;
+
+	UnregisterAvoidanceObstacle( pObstacle );
+}
+
+//-----------------------------------------------------------------------------
+void CNavMesh::ScriptGetNavAreasOverlappingEntityExtent( HSCRIPT hEntity, HSCRIPT hTable )
+{
+	CBaseEntity *pEntity = ToEnt( hEntity );
+	if ( !pEntity || !IsValid( hTable ) )
+		return;
+
+	NavAreaCollector collector;
+	Extent extent;
+	pEntity->CollisionProp()->WorldSpaceAABB( &extent.lo, &extent.hi );
+	if ( FClassnameIs( pEntity, "prop_physics" ) || FClassnameIs( pEntity, "trigger_hurt" ) )
+		extent.lo.z -= HumanHeight;
+
+	ForAllAreasOverlappingExtent( collector, extent );
+	FOR_EACH_VEC( collector.m_area, it )
+	{
+		CNavArea *area = collector.m_area[ it ];
+		if ( area )
+		{
+			g_pScriptVM->SetValue( hTable, CFmtStr( "area%i", it ), ToHScript( area ) );
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------------------------------
+bool CNavMesh::ScriptNavAreaBuildPath( HSCRIPT hStartArea, HSCRIPT hGoalArea, const Vector &goalPos, float maxPathLength, int teamID, bool ignoreNavBlockers )
+{
+	ShortestPathCost shortestPath;
+	CNavArea *startArea = ToNavArea( hStartArea );
+	CNavArea *goalArea = ToNavArea( hGoalArea );
+
+	return NavAreaBuildPath( startArea, goalArea, (( goalPos == Vector(0,0,0) ) ? NULL : &goalPos), shortestPath, NULL, maxPathLength, teamID, ignoreNavBlockers );
+}
+
+//--------------------------------------------------------------------------------------------------------
+float CNavMesh::ScriptNavAreaTravelDistance( HSCRIPT hStartArea, HSCRIPT hGoalArea, float maxPathLength )
+{
+	ShortestPathCost shortestPath;
+	CNavArea *startArea = ToNavArea( hStartArea );
+	CNavArea *goalArea = ToNavArea( hGoalArea );
+
+	return NavAreaTravelDistance( startArea, goalArea, shortestPath, maxPathLength );
+}
+
+//--------------------------------------------------------------------------------------------------------
+void CNavMesh::GetAllAreas( HSCRIPT hTable )
+{
+	FOR_EACH_VEC( TheNavAreas, it )
+	{
+		CNavArea *area = TheNavAreas[ it ];
+		if ( area )
+		{
+			g_pScriptVM->SetValue( hTable, CFmtStr( "area%i", it ), ToHScript( area ) );
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------------------------------
+void CNavMesh::GetNavAreasInRadius( const Vector &pos, float radius, HSCRIPT hTable )
+{
+	if ( !hTable )
+		return;
+		
+	NavAreaCollector collector;
+	TheNavMesh->ForAllAreasInRadius( collector, pos, radius );
+
+	FOR_EACH_VEC( collector.m_area, it )
+	{
+		g_pScriptVM->SetValue( hTable, CFmtStr( "area%i", it ), ToHScript( collector.m_area[it] ) );
+	}
+}
+
+//--------------------------------------------------------------------------------------------------------
+HSCRIPT CNavMesh::FindNavAreaAlongRay( const Vector &start, const Vector &end, HSCRIPT hIgnoreArea )
+{
+	CNavArea *area = NULL;
+	CNavLadder *ladder = NULL;
+	CNavArea *ignoreArea = ToNavArea( hIgnoreArea );
+	if ( TheNavMesh->FindNavAreaOrLadderAlongRay( start, end, &area, &ladder, ignoreArea ) )
+	{
+		if ( area )
+			return ToHScript( area );
+	}
+	return NULL;
+}
+
+
+//--------------------------------------------------------------------------------------------------------
+void CNavMesh::GetObstructingEntities( HSCRIPT hTable )
+{
+	if ( !hTable )
+		return;
+
+	const CUtlVector< INavAvoidanceObstacle* >& vecObstructions = TheNavMesh->GetObstructions();
+	for ( int i = 0; i < vecObstructions.Count(); ++i )
+	{
+		INavAvoidanceObstacle *obstruction = vecObstructions[i];
+		CBaseEntity *obstructingEntity = obstruction->GetObstructingEntity();
+		if ( !obstructingEntity )
+			continue;
+
+		g_pScriptVM->SetValue( hTable, CFmtStr( "obstruction%i", i ), ToHScript( obstructingEntity ) );
+	}
+}
+
+//--------------------------------------------------------------------------------------------------------
+void CNavMesh::GetAreasWithAttributes( int bits, HSCRIPT hTable )
+{
+	FOR_EACH_VEC( TheNavAreas, it )
+	{
+		CNavArea *area = TheNavAreas[ it ];
+		if ( area && area->HasAttributes( bits ) )
+		{
+			g_pScriptVM->SetValue( hTable, CFmtStr( "area%i", it ), ToHScript( area ) );
+		}
+	}
+}
 
 //--------------------------------------------------------------------------------------------------------------
 /**

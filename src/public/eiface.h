@@ -84,6 +84,14 @@ struct bbox_t
 	Vector maxs;
 };
 
+struct WorkshopMapDesc_t
+{
+	char	szMapName[MAX_PATH];
+	char	szOriginalMapName[MAX_PATH];
+	uint32	uTimestamp;
+	bool	bDownloaded;
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: Interface the engine exposes to the game DLL
 //-----------------------------------------------------------------------------
@@ -340,7 +348,7 @@ public:
 
 	// Tells the engine we can immdiately re-use all edict indices
 	// even though we may not have waited enough time
-	virtual void			AllowImmediateEdictReuse( ) = 0;
+	virtual void			AllowImmediateEdictReuse( ) = 0;	
 
 	// Returns true if the engine is an internal build. i.e. is using the internal bugreporter.
 	virtual bool		IsInternalBuild( void ) = 0;
@@ -443,6 +451,8 @@ public:
 		eFindMap_PossiblyAvailable
 	};
 	virtual eFindMapResult FindMap( /* in/out */ char *pMapName, int nMapNameMax ) = 0;
+	
+	virtual void SetPausedForced( bool bPaused, float flDuration = -1.f ) = 0;
 };
 
 // These only differ in new items added to the end
@@ -452,8 +462,10 @@ typedef IVEngineServer IVEngineServer022;
 
 #define INTERFACEVERSION_SERVERGAMEDLL_VERSION_8	"ServerGameDLL008"
 #define INTERFACEVERSION_SERVERGAMEDLL_VERSION_9	"ServerGameDLL009"
-#define INTERFACEVERSION_SERVERGAMEDLL				"ServerGameDLL010"
-#define INTERFACEVERSION_SERVERGAMEDLL_INT			10
+#define INTERFACEVERSION_SERVERGAMEDLL_VERSION_10	"ServerGameDLL010"
+#define INTERFACEVERSION_SERVERGAMEDLL_VERSION_11	"ServerGameDLL011"
+#define INTERFACEVERSION_SERVERGAMEDLL				"ServerGameDLL012"
+#define INTERFACEVERSION_SERVERGAMEDLL_INT			12
 
 class IServerGCLobby;
 
@@ -629,6 +641,11 @@ public:
 
 	// Called to see if the game server is okay with a manual changelevel or map command
 	virtual bool			IsManualMapChangeOkay( const char **pszReason ) = 0;
+
+	// Josh: Allows the engine over all workshop maps and get some information about them.
+	// Used primarily for listmaps code.
+	// Returns true if uIndex was valid, false if invalid.
+	virtual bool			GetWorkshopMap( uint32 uIndex, WorkshopMapDesc_t *pDesc ) = 0;
 };
 
 typedef IServerGameDLL IServerGameDLL008;
@@ -671,7 +688,8 @@ public:
 };
 
 #define INTERFACEVERSION_SERVERGAMECLIENTS_VERSION_3	"ServerGameClients003"
-#define INTERFACEVERSION_SERVERGAMECLIENTS				"ServerGameClients004"
+#define INTERFACEVERSION_SERVERGAMECLIENTS_VERSION_4	"ServerGameClients004"
+#define INTERFACEVERSION_SERVERGAMECLIENTS				"ServerGameClients005"
 
 //-----------------------------------------------------------------------------
 // Purpose: Player / Client related functions
@@ -736,10 +754,13 @@ public:
 
 	// Hook for player spawning
 	virtual void			ClientSpawned( edict_t *pPlayer ) = 0;
+
+	// Hook for player voice
+	virtual void			ClientVoice( edict_t *pPlayer ) = 0;
 };
 
 typedef IServerGameClients IServerGameClients003;
-
+typedef IServerGameClients IServerGameClients004;
 
 #define INTERFACEVERSION_UPLOADGAMESTATS		"ServerUploadGameStats001"
 
@@ -820,6 +841,9 @@ public:
 	virtual bool SteamIDAllowedToConnect( const CSteamID &steamId ) const = 0;
 	virtual void UpdateServerDetails(void) = 0;
 	virtual bool ShouldHibernate() = 0;
+
+	virtual bool MatchAllowsNameChanges() = 0;
+	virtual bool GetPlayerGCMatchName( const CSteamID &steamId, char *pszOutGCMatchName, size_t nGCMatchNameLen ) = 0;
 };
 
 #endif // EIFACE_H

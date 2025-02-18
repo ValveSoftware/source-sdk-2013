@@ -83,7 +83,7 @@ void RecvProxy_IntToEHandle( const CRecvProxyData *pData, void *pStruct, void *p
 	
 	if ( pData->m_Value.m_Int == INVALID_NETWORKED_EHANDLE_VALUE )
 	{
-		*pEHandle = INVALID_EHANDLE_INDEX;
+		*pEHandle = INVALID_EHANDLE;
 	}
 	else
 	{
@@ -111,6 +111,18 @@ RecvProp RecvPropBool(
 {
 	Assert( sizeofVar == sizeof( bool ) );
 	return RecvPropInt( pVarName, offset, sizeofVar );
+}
+
+RecvProp RecvPropBool(
+	const char *pVarName,
+	int offset,
+	int sizeofVar,
+	int flags,
+	RecvVarProxyFn varProxy
+	)
+{
+	Assert( sizeofVar == sizeof( bool ) );
+	return RecvPropInt( pVarName, offset, sizeofVar, flags, varProxy );
 }
 
 

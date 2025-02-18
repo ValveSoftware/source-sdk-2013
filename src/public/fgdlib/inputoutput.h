@@ -24,6 +24,7 @@ enum InputOutputType_t
 	iotVector,
 	iotEHandle,
 	iotColor,
+	iotScript,
 };
 
 

@@ -147,6 +147,7 @@ class SVC_Menu;
 class SVC_GameEventList;
 class SVC_GetCvarValue;
 class SVC_CmdKeyValues;
+class SVC_SetPauseTimed;
 
 class IServerMessageHandler : public INetMessageHandler
 {
@@ -180,6 +181,7 @@ public:
 	PROCESS_SVC_MESSAGE( GameEventList ) = 0;
 	PROCESS_SVC_MESSAGE( GetCvarValue ) = 0;
 	PROCESS_SVC_MESSAGE( CmdKeyValues ) = 0;
+	PROCESS_SVC_MESSAGE( SetPauseTimed ) = 0;
 };
 
 class MM_Heartbeat;

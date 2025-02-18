@@ -295,8 +295,13 @@ protected:
 
 	void SetCurrentlySelectedItem(MenuItem *item);
 	void SetCurrentlySelectedItem(int itemID);
+#ifdef PLATFORM_64BITS
+	MESSAGE_FUNC_PTR( OnCursorEnteredMenuItem, "CursorEnteredMenuItem", VPanel );
+	MESSAGE_FUNC_PTR( OnCursorExitedMenuItem, "CursorExitedMenuItem", VPanel );
+#else
 	MESSAGE_FUNC_INT( OnCursorEnteredMenuItem, "CursorEnteredMenuItem", VPanel);
 	MESSAGE_FUNC_INT( OnCursorExitedMenuItem, "CursorExitedMenuItem", VPanel);
+#endif
 
 	void MoveAlongMenuItemList(int direction, int loopCount); 
 
@@ -362,8 +367,12 @@ public:
 	MenuBuilder( Menu *pMenu, Panel *pActionTarget );
 
 	MenuItem* AddMenuItem( const char *pszButtonText, const char *pszCommand, const char *pszCategoryName );
+	MenuItem* AddMenuItem( const char *pszButtonText, KeyValues *kvUserData, const char *pszCategoryName );
+	MenuItem* AddMenuItem( const wchar_t *pwszButtonText, const char *pszCommand, const char *pszCategoryName );
+	MenuItem* AddMenuItem( const wchar_t *pwszButtonText, KeyValues *kvUserData, const char *pszCategoryName );
 
 	MenuItem* AddCascadingMenuItem( const char *pszButtonText, Menu *pSubMenu, const char *pszCategoryName );
+	MenuItem* AddCascadingMenuItem( const wchar_t *pwszButtonText, Menu *pSubMenu, const char *pszCategoryName );
 
 private:
 

@@ -39,6 +39,8 @@
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/MessageBox.h>
 #include "filesystem.h"
+#include "tier0/icommandline.h"
+#include "const.h"
 
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"
@@ -47,6 +49,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
+ConVar vgui_cache_res_files( "vgui_cache_res_files", "1" );
+
 using namespace vgui;
 
 //-----------------------------------------------------------------------------
@@ -54,6 +58,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 IMPLEMENT_HANDLES( BuildGroup, 20 )
 
+CUtlDict< KeyValues* > BuildGroup::m_dictCachedResFiles;
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -869,25 +874,74 @@ void BuildGroup::PanelAdded(Panel *panel)
 //-----------------------------------------------------------------------------
 void BuildGroup::LoadControlSettings(const char *controlResourceName, const char *pathID, KeyValues *pPreloadedKeyValues, KeyValues *pConditions)
 {
+	if ( !controlResourceName || !controlResourceName[ 0 ] )
+	{
+		Warning( "LoadControlSettings failed! Invalid resource filename!\n" );
+		return;
+	}
+
 	// make sure the file is registered
 	RegisterControlSettingsFile(controlResourceName, pathID);
 
 	// Use the keyvalues they passed in or load them.
 	KeyValues *rDat = pPreloadedKeyValues;
-	if ( !rDat )
+
+	bool bUsePrecaching = vgui_cache_res_files.GetBool();
+	bool bUsingPrecachedSourceKeys = false;
+	bool bShouldCacheKeys = true;
+	bool bDeleteKeys = false;
+
+	while ( !rDat )
 	{
+		if ( bUsePrecaching )
+		{
+			int nIndex = m_dictCachedResFiles.Find( controlResourceName );
+			if ( nIndex != m_dictCachedResFiles.InvalidIndex() )
+			{
+				rDat = m_dictCachedResFiles[nIndex];
+				bUsingPrecachedSourceKeys = true;
+				bDeleteKeys = false;
+				bShouldCacheKeys = false;
+				break;
+			}
+		}
+
 		// load the resource data from the file
-		rDat  = new KeyValues(controlResourceName);
+		rDat = new KeyValues( controlResourceName );
 
 		// check the skins directory first, if an explicit pathID hasn't been set
 		bool bSuccess = false;
-		if (!pathID)
+		if ( !pathID )
 		{
-			bSuccess = rDat->LoadFromFile(g_pFullFileSystem, controlResourceName, "SKIN");
+			bSuccess = rDat->LoadFromFile( g_pFullFileSystem, controlResourceName, "SKIN" );
 		}
-		if (!bSuccess)
+
+		if ( !V_stricmp( CommandLine()->ParmValue( "-game", "hl2" ), "tf" ) )
 		{
-			bSuccess = rDat->LoadFromFile(g_pFullFileSystem, controlResourceName, pathID);
+			if ( !bSuccess )
+			{
+				bSuccess = rDat->LoadFromFile( g_pFullFileSystem, controlResourceName, "custom_mod" );
+			}
+			if ( !bSuccess )
+			{
+				bSuccess = rDat->LoadFromFile( g_pFullFileSystem, controlResourceName, "vgui" );
+			}
+			if ( !bSuccess )
+			{
+				bSuccess = rDat->LoadFromFile( g_pFullFileSystem, controlResourceName, "BSP" );
+			}
+			// only allow to load loose files when using insecure mode
+			if ( !bSuccess && CommandLine()->FindParm( "-insecure" ) )
+			{
+				bSuccess = rDat->LoadFromFile( g_pFullFileSystem, controlResourceName, pathID );
+			}
+		}
+		else
+		{
+			if ( !bSuccess )
+			{
+				bSuccess = rDat->LoadFromFile( g_pFullFileSystem, controlResourceName, pathID );
+			}
 		}
 
 		if ( bSuccess )
@@ -904,12 +958,28 @@ void BuildGroup::LoadControlSettings(const char *controlResourceName, const char
 					rDat->ProcessResolutionKeys( "_minmode" );
 				}
 			}
-
-			if ( pConditions && pConditions->GetFirstSubKey() )
-			{
-				ProcessConditionalKeys( rDat, pConditions );			
-			}
+			bDeleteKeys = true;
+			bShouldCacheKeys = true;
 		}
+		else
+		{
+			Warning( "Failed to load %s\n", controlResourceName );
+		}
+		break;
+	}
+
+	if ( pConditions && pConditions->GetFirstSubKey() )
+	{
+		if ( bUsingPrecachedSourceKeys )
+		{
+			// ProcessConditionalKeys modifies the KVs in place.  We dont want
+			// that to happen to our cached keys
+			rDat = rDat->MakeCopy();
+			bDeleteKeys = true;
+		}
+
+		ProcessConditionalKeys(rDat, pConditions);
+		bShouldCacheKeys = false;
 	}
 
 	// save off the resource name
@@ -936,8 +1006,14 @@ void BuildGroup::LoadControlSettings(const char *controlResourceName, const char
 		m_pParentPanel->Repaint();
 	}
 
-	if ( rDat != pPreloadedKeyValues )
+	if ( bShouldCacheKeys && bUsePrecaching )
 	{
+		Assert( m_dictCachedResFiles.Find( controlResourceName ) == m_dictCachedResFiles.InvalidIndex() );
+		m_dictCachedResFiles.Insert( controlResourceName, rDat );
+	}
+	else if ( bDeleteKeys )
+	{
+		Assert( m_dictCachedResFiles.Find( controlResourceName ) != m_dictCachedResFiles.InvalidIndex() || pConditions || pPreloadedKeyValues );
 		rDat->deleteThis();
 	}
 }
@@ -1157,6 +1233,8 @@ void BuildGroup::DeleteAllControlsCreatedByControlSettingsFile()
 //-----------------------------------------------------------------------------
 void BuildGroup::ApplySettings( KeyValues *resourceData )
 {
+	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
+
 	// loop through all the keys, applying them wherever
 	for (KeyValues *controlKeys = resourceData->GetFirstSubKey(); controlKeys != NULL; controlKeys = controlKeys->GetNextKey())
 	{
@@ -1346,9 +1424,9 @@ void BuildGroup::GetSettings( KeyValues *resourceData )
 		// do not get setting for ruler labels.
 		if (_showRulers) // rulers are visible
 		{
-			for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
 			{
-				if (panel == _rulerNumber[i])
+				if (panel == _rulerNumber[j])
 				{
 					isRuler = true;
 					break;
@@ -1445,4 +1523,28 @@ KeyValues *BuildGroup::GetDialogVariables()
 	}
 
 	return NULL;
+}
+
+bool BuildGroup::PrecacheResFile( const char* pszResFileName )
+{
+	KeyValues *pkvResFile = new KeyValues( pszResFileName );
+	if ( pkvResFile->LoadFromFile( g_pFullFileSystem, pszResFileName, "GAME" ) )
+	{
+		Assert( m_dictCachedResFiles.Find( pszResFileName ) == m_dictCachedResFiles.InvalidIndex() );
+		m_dictCachedResFiles.Insert( pszResFileName, pkvResFile );
+		return true;
+	}
+
+	return false;
+}
+
+void BuildGroup::ClearResFileCache()
+{
+	int nIndex = m_dictCachedResFiles.First();
+	while( m_dictCachedResFiles.IsValidIndex( nIndex ) )
+	{
+		m_dictCachedResFiles[ nIndex ]->deleteThis();
+		nIndex = m_dictCachedResFiles.Next( nIndex );
+	}
+	m_dictCachedResFiles.Purge();
 }

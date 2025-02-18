@@ -370,7 +370,7 @@ public:
 //-----------------------------------------------------------------------------
 // Enumerates nodes + leafs in front to back order...
 //-----------------------------------------------------------------------------
-bool EnumerateNodesAlongRay( Ray_t const& ray, IBSPNodeEnumerator* pEnum, int context );
+bool EnumerateNodesAlongRay( Ray_t const& ray, IBSPNodeEnumerator* pEnum, intp context );
 
 
 //-----------------------------------------------------------------------------

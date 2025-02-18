@@ -1,0 +1,19 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Draw a alpha blended, translucent (alpha in texture) texture.
+; t0 - texture
+;
+; c0 - overbright value
+;
+; The texture coordinates need to be defined as follows:
+; tc0 - texcoords
+;------------------------------------------------------------------------------
+
+; Get the color from the texture
+tex t0
+tex t1
+mul r0.rgb, t0, t1      ; base * lightmap
+mul_x2 r0.rgb, c0, r0   ; * 2 * (overbrightFactor/2)
+
+mov r0.a, t0.a

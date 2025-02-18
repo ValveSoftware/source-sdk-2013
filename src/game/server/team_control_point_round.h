@@ -51,7 +51,7 @@ public:
 
 	CHandle<CTeamControlPoint> GetPointOwnedBy( int iTeam );
 
-	bool RoundOwnedByTeam( int iTeam ){ return ( TeamOwnsAllPoints() == iTeam ); }
+	bool RoundOwnedByTeam( int iTeam ) const { return ( TeamOwnsAllPoints() == iTeam ); }
 	int GetInvalidCapWinner() { return m_iInvalidCapWinner; }
 
 	CUtlVector< CHandle<CTeamControlPoint> > m_ControlPoints;
@@ -59,7 +59,7 @@ public:
 private:
 	void FindControlPoints( void );	//look in the map to find the control points for this round
 	void SetupSpawnPoints( void );
-	int TeamOwnsAllPoints( CTeamControlPoint *pOverridePoint = NULL, int iOverrideNewTeam = TEAM_UNASSIGNED );
+	int TeamOwnsAllPoints( CTeamControlPoint *pOverridePoint = NULL, int iOverrideNewTeam = TEAM_UNASSIGNED ) const;
 
 	DECLARE_DATADESC();
 

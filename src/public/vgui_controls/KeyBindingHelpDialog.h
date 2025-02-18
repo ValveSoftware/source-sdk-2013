@@ -44,7 +44,7 @@ private:
 	void					PopulateList();
 	void					GetMappingList( Panel *panel, CUtlVector< PanelKeyBindingMap * >& maps );
 
-	void					AnsiText( char const *token, char *out, size_t buflen );
+	void					AnsiText( char const *token, char *out, int nBuflen );
 
 	vgui::PHandle			m_hPanel;
 	KeyBindingContextHandle_t m_Handle;

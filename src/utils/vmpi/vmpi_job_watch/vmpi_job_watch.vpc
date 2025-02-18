@@ -1,0 +1,80 @@
+//-----------------------------------------------------------------------------
+//	vmpi_job_watch.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINNAME	"vmpi_job_watch"
+
+$Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE,.\,..\,..\..\common,..\mysql\include"
+		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE;WINVER=0x501;NO_WARN_MBCS_MFC_DEPRECATION"
+		$EnableC++Exceptions				"Yes (/EHsc)"
+	}
+}
+
+$Configuration "Debug"
+{
+	$Linker
+	{
+		// Deprecated MBCS MFC libraries for VS 2013 (nafxcw.lib and nafxcwd.lib) can be downloaded from http://go.microsoft.com/?linkid=9832071
+		$AdditionalDependencies				"$BASE nafxcwd.lib"
+		$IgnoreSpecificLibrary				"nafxcw.lib libcmt.lib"
+	}
+}
+
+$Configuration "Release"
+{
+	$Linker
+	{
+		// Deprecated MBCS MFC libraries for VS 2013 (nafxcw.lib and nafxcwd.lib) can be downloaded from http://go.microsoft.com/?linkid=9832071
+		$AdditionalDependencies				"$BASE nafxcw.lib libcmt.lib"
+		$IgnoreSpecificLibrary				"nafxcwd.lib libcmtd.lib"
+	}
+}
+
+$Project "vmpi_job_watch"
+{
+	$Folder	"Source Files"
+	{
+		-$File	"$SRCDIR\public\tier0\memoverride.cpp"
+		
+		$File	"..\..\common\consolewnd.cpp"
+		$File	"GraphControl.cpp"
+		$File	"..\idle_dialog.cpp"
+		$File	"JobWatchDlg.cpp"
+		$File	"..\mysql_async.cpp"
+		$File	"..\vmpi_browser_helpers.cpp"
+		$File	"vmpi_browser_job_watch.cpp"
+		$File	"vmpi_browser_job_watch.rc"
+		$File	"..\win_idle.cpp"
+		$File	"..\window_anchor_mgr.cpp"
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"..\..\common\consolewnd.h"
+		$File	"GraphControl.h"
+		$File	"..\idle_dialog.h"
+		$File	"JobWatchDlg.h"
+		$File	"..\mysql_async.h"
+		$File	"..\mysql_wrapper.h"
+		$File	"Resource.h"
+		$File	"StdAfx.h"
+		$File	"vmpi_browser_job_watch.h"
+		$File	"..\win_idle.h"
+	}
+
+	$Folder	"Resource Files"
+	{
+		$File	"res\vmpi_browser_job_watch.ico"
+		$File	"res\vmpi_browser_job_watch.rc2"
+	}
+}

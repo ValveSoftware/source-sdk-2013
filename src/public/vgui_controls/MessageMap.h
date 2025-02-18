@@ -46,7 +46,7 @@ class __virtual_inheritance Panel;
 #else
 class Panel;
 #endif
-typedef unsigned int VPANEL;
+typedef uintp VPANEL;
 
 typedef void (Panel::*MessageFunc_t)(void);
 
@@ -215,7 +215,11 @@ public:							\
 #define MESSAGE_FUNC_INT_INT( name, scriptname, p1, p2 )	_MessageFuncCommon( name, scriptname, 2, vgui::DATATYPE_INT, #p1, vgui::DATATYPE_INT, #p2 );	virtual void name( int p1, int p2 )
 #define MESSAGE_FUNC_PTR_INT( name, scriptname, p1, p2 )	_MessageFuncCommon( name, scriptname, 2, vgui::DATATYPE_PTR, #p1, vgui::DATATYPE_INT, #p2 );	virtual void name( vgui::Panel *p1, int p2 )
 #define MESSAGE_FUNC_HANDLE_INT( name, scriptname, p1, p2 )	_MessageFuncCommon( name, scriptname, 2, vgui::DATATYPE_HANDLE, #p1, vgui::DATATYPE_INT, #p2 );	virtual void name( vgui::VPANEL p1, int p2 )
+#ifdef PLATFORM_64BITS
+#define MESSAGE_FUNC_ENUM_ENUM( name, scriptname, t1, p1, t2, p2 )	_MessageFuncCommon( name, scriptname, 2, vgui::DATATYPE_PTR, #p1, vgui::DATATYPE_PTR, #p2 );	virtual void name( t1 p1, t2 p2 )
+#else
 #define MESSAGE_FUNC_ENUM_ENUM( name, scriptname, t1, p1, t2, p2 )	_MessageFuncCommon( name, scriptname, 2, vgui::DATATYPE_INT, #p1, vgui::DATATYPE_INT, #p2 );	virtual void name( t1 p1, t2 p2 )
+#endif
 #define MESSAGE_FUNC_INT_CHARPTR( name, scriptname, p1, p2 )	_MessageFuncCommon( name, scriptname, 2, vgui::DATATYPE_INT, #p1, vgui::DATATYPE_CONSTCHARPTR, #p2 );	virtual void name( int p1, const char *p2 )
 #define MESSAGE_FUNC_PTR_CHARPTR( name, scriptname, p1, p2 )	_MessageFuncCommon( name, scriptname, 2, vgui::DATATYPE_PTR, #p1, vgui::DATATYPE_CONSTCHARPTR, #p2 );	virtual void name( vgui::Panel *p1, const char *p2 )
 #define MESSAGE_FUNC_HANDLE_CHARPTR( name, scriptname, p1, p2 )	_MessageFuncCommon( name, scriptname, 2, vgui::DATATYPE_HANDLE, #p1, vgui::DATATYPE_CONSTCHARPTR, #p2 );	virtual void name( vgui::VPANEL p1, const char *p2 )

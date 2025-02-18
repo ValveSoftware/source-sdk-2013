@@ -52,7 +52,7 @@ enum ShaderRenderTarget_t
 //-----------------------------------------------------------------------------
 // This must match the definition in playback.cpp!
 //-----------------------------------------------------------------------------
-typedef int ShaderAPITextureHandle_t;
+typedef intp ShaderAPITextureHandle_t;
 #define INVALID_SHADERAPI_TEXTURE_HANDLE 0
 
 
@@ -593,7 +593,7 @@ public:
 	virtual void AcquireThreadOwnership() = 0;
 	virtual void ReleaseThreadOwnership() = 0;
 
-	virtual bool SupportsNormalMapCompression() const = 0;
+	virtual bool SupportsNormalMapCompression() const { Assert( !"This has all been removed." ); return false; }
 
 	// Only does anything on XBox360. This is useful to eliminate stalls
 	virtual void EnableBuffer2FramesAhead( bool bEnable ) = 0;
@@ -612,12 +612,27 @@ public:
 	//extended clear buffers function with alpha independent from color
 	virtual void ClearBuffersObeyStencilEx( bool bClearColor, bool bClearAlpha, bool bClearDepth ) = 0;
 
+
 	// Allows copying a render target to another texture by specifying them both.
 	virtual void CopyRenderTargetToScratchTexture( ShaderAPITextureHandle_t srcRt, ShaderAPITextureHandle_t dstTex, Rect_t *pSrcRect = NULL, Rect_t *pDstRect = NULL ) = 0;
 
 	// Allows locking and unlocking of very specific surface types.
 	virtual void LockRect( void** pOutBits, int* pOutPitch, ShaderAPITextureHandle_t texHandle, int mipmap, int x, int y, int w, int h, bool bWrite, bool bRead ) = 0;
 	virtual void UnlockRect( ShaderAPITextureHandle_t texHandle, int mipmap ) = 0;
+
+	// Set the finest mipmap that can be used for the texture which is currently being modified. 
+	virtual void TexLodClamp( int finest ) = 0;
+
+	// Set the Lod Bias for the texture which is currently being modified. 
+	virtual void TexLodBias( float bias ) = 0;
+	
+	virtual void CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, ShaderAPITextureHandle_t dstTex ) = 0;
+
+	virtual int VertexFormatSize( VertexFormat_t vertexFormat ) const = 0;
+
+	virtual void SceneFogRadial( bool bRadial ) = 0;
+	virtual bool GetSceneFogRadial() = 0;
+	
 };
 
 

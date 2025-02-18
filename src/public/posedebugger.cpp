@@ -372,14 +372,14 @@ void CPoseDebuggerImpl::ShowAllModels( bool bShow )
 
 void CPoseDebuggerImpl::ShowModel( int iEntNum, bool bShow )
 {
-	Assert( iEntNum < MAX_EDICTS );
-	if ( iEntNum < MAX_EDICTS )
+	Assert( iEntNum >= 0 && iEntNum < MAX_EDICTS );
+	if ( iEntNum >= 0 && iEntNum < MAX_EDICTS )
 		m_uiMaskShowModels.Set( iEntNum, bShow );
 }
 
 bool CPoseDebuggerImpl::IsModelShown( int iEntNum ) const
 {
-	Assert( iEntNum < MAX_EDICTS );
+	Assert( iEntNum >= 0 && iEntNum < MAX_EDICTS );
 	if ( iEntNum >= 0 && iEntNum < MAX_EDICTS )
 		return m_uiMaskShowModels.IsBitSet( iEntNum );
 	else

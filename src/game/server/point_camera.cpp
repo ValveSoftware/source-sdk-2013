@@ -50,6 +50,7 @@ CPointCamera::CPointCamera()
 	m_bIsOn = false;
 	
 	m_bFogEnable = false;
+	m_bFogRadial = false;
 
 	g_PointCameraList.Insert( this );
 }
@@ -69,6 +70,8 @@ void CPointCamera::Spawn( void )
 	{
 		m_bIsOn = true;
 	}
+
+	SetActive( m_bIsOn );
 }
 
 //-----------------------------------------------------------------------------
@@ -200,6 +203,7 @@ void CPointCamera::InputSetOnAndTurnOthersOff( inputdata_t &inputdata )
 void CPointCamera::InputSetOn( inputdata_t &inputdata )
 {
 	m_bIsOn = true;
+	SetActive( true );
 }
 
 //-----------------------------------------------------------------------------
@@ -221,6 +225,7 @@ BEGIN_DATADESC( CPointCamera )
 	DEFINE_KEYFIELD( m_flFogStart,	FIELD_FLOAT, "fogStart" ),
 	DEFINE_KEYFIELD( m_flFogEnd,	FIELD_FLOAT, "fogEnd" ),
 	DEFINE_KEYFIELD( m_flFogMaxDensity,	FIELD_FLOAT, "fogMaxDensity" ),
+	DEFINE_KEYFIELD( m_bFogRadial, FIELD_BOOLEAN, "fogRadial" ),
 	DEFINE_KEYFIELD( m_bUseScreenAspectRatio, FIELD_BOOLEAN, "UseScreenAspectRatio" ),
 	DEFINE_FIELD( m_bActive,		FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_bIsOn,			FIELD_BOOLEAN ),
@@ -248,6 +253,7 @@ IMPLEMENT_SERVERCLASS_ST( CPointCamera, DT_PointCamera )
 	SendPropFloat( SENDINFO( m_flFogStart ), 0, SPROP_NOSCALE ),	
 	SendPropFloat( SENDINFO( m_flFogEnd ), 0, SPROP_NOSCALE ),	
 	SendPropFloat( SENDINFO( m_flFogMaxDensity ), 0, SPROP_NOSCALE ),	
+	SendPropInt( SENDINFO( m_bFogRadial ), 1, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_bActive ), 1, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_bUseScreenAspectRatio ), 1, SPROP_UNSIGNED ),
 END_SEND_TABLE()

@@ -43,7 +43,7 @@ void ComboBoxButton::ApplySchemeSettings(IScheme *pScheme)
 #ifdef OSX
 	SetTextInset(-3, 0);
 #else
-	SetTextInset(3, 0);
+	SetTextInset( QuickPropScale( 3 ), 0 );
 #endif
 	SetDefaultBorder(pScheme->GetBorder("ScrollBarButtonBorder"));
 	

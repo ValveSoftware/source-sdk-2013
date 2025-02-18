@@ -11,10 +11,9 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-enum
-{
-	SERIAL_MASK = 0x7fff // the max value of a serial number, rolls back to 0 when it hits this limit
-};
+// the max value of a serial number, rolls back to 0 when it hits this limit
+// we use 1 less than the number of serial bits, since highest bit is reserved for static props
+static const uint32 SERIAL_MASK = ( ( 1 << ( NUM_SERIAL_NUM_BITS - 1 ) ) - 1 ); 
 
 void CEntInfo::ClearLinks()
 {
@@ -242,7 +241,7 @@ void CBaseEntityList::RemoveEntityAtSlot( int iSlot )
 
 	if ( pInfo->m_pEntity )
 	{
-		pInfo->m_pEntity->SetRefEHandle( INVALID_EHANDLE_INDEX );
+		pInfo->m_pEntity->SetRefEHandle( INVALID_EHANDLE );
 
 		// Notify the derived class that we're about to remove this entity.
 		OnRemoveEntity( pInfo->m_pEntity, CBaseHandle( iSlot, pInfo->m_SerialNumber ) );

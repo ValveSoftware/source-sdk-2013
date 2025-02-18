@@ -10,7 +10,7 @@
 #pragma once
 #endif
 
-#include "appframework/iappsystem.h"
+#include "appframework/IAppSystem.h"
 
 
 //-----------------------------------------------------------------------------
@@ -41,6 +41,32 @@ enum FindAudioSourceFlags_t
 	FINDAUDIOSOURCE_PLAYONCE = 0x4,
 };
 
+#include "soundsystem/audio_mix.h"
+
+/* filter types */
+enum audio_filter_type_t
+{
+	FILTER_LOWPASS = 0, /* low pass filter */
+	FILTER_HIGHPASS, /* High pass filter */
+	FILTER_BANDPASS, /* band pass filter */
+	FILTER_NOTCH, /* Notch Filter */
+	FILTER_PEAKING_EQ, /* Peaking band EQ filter */
+	FILTER_LOW_SHELF, /* Low shelf filter */
+	FILTER_HIGH_SHELF /* High shelf filter */
+};
+
+class IAudioMix
+{
+public:
+	virtual ~IAudioMix() {}
+	virtual void Process( CAudioMixState *pState ) = 0;
+
+	CAudioMixBuffer *m_pOutput;
+	int				m_nOutputChannelCount;
+};
+
+class CAudioMixState;
+class CAudioMixDescription;
 
 //-----------------------------------------------------------------------------
 // Purpose: DLL interface for low-level sound utilities

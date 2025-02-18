@@ -17,7 +17,7 @@ typedef struct phyheader_s
 	int		size;
 	int		id;
 	int		solidCount;
-	long	checkSum;	// checksum of source .mdl file
+	int32	checkSum;	// checksum of source .mdl file
 } phyheader_t;
 
 #endif // PHYFILE_H

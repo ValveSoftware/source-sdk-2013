@@ -36,6 +36,7 @@
 #include "datacache/imdlcache.h"
 #include "util.h"
 #include "cdll_int.h"
+#include "vscript_server.h"
 
 #ifdef PORTAL
 #include "PortalSimulation.h"
@@ -161,11 +162,6 @@ IServerNetworkable *CEntityFactoryDictionary::Create( const char *pClassName )
 	IEntityFactory *pFactory = FindFactory( pClassName );
 	if ( !pFactory )
 	{
-#ifdef STAGING_ONLY
-		static ConVarRef tf_bot_use_items( "tf_bot_use_items" );
-		if ( tf_bot_use_items.IsValid() && tf_bot_use_items.GetInt() )
-			return NULL;
-#endif
 		Warning("Attempted to create unknown entity type %s!\n", pClassName );
 		return NULL;
 	}
@@ -284,19 +280,19 @@ float UTIL_GetSimulationInterval()
 //-----------------------------------------------------------------------------
 int UTIL_EntitiesInBox( const Vector &mins, const Vector &maxs, CFlaggedEntitiesEnum *pEnum )
 {
-	partition->EnumerateElementsInBox( PARTITION_ENGINE_NON_STATIC_EDICTS, mins, maxs, false, pEnum );
+	::partition->EnumerateElementsInBox( PARTITION_ENGINE_NON_STATIC_EDICTS, mins, maxs, false, pEnum );
 	return pEnum->GetCount();
 }
 
 int UTIL_EntitiesAlongRay( const Ray_t &ray, CFlaggedEntitiesEnum *pEnum )
 {
-	partition->EnumerateElementsAlongRay( PARTITION_ENGINE_NON_STATIC_EDICTS, ray, false, pEnum );
+	::partition->EnumerateElementsAlongRay( PARTITION_ENGINE_NON_STATIC_EDICTS, ray, false, pEnum );
 	return pEnum->GetCount();
 }
 
 int UTIL_EntitiesInSphere( const Vector &center, float radius, CFlaggedEntitiesEnum *pEnum )
 {
-	partition->EnumerateElementsInSphere( PARTITION_ENGINE_NON_STATIC_EDICTS, center, radius, false, pEnum );
+	::partition->EnumerateElementsInSphere( PARTITION_ENGINE_NON_STATIC_EDICTS, center, radius, false, pEnum );
 	return pEnum->GetCount();
 }
 
@@ -479,6 +475,11 @@ void UTIL_Remove( IServerNetworkable *oldObj )
 	CBaseEntity *pBaseEnt = oldObj->GetBaseEntity();
 	if ( pBaseEnt )
 	{
+#if 0
+		if ( g_pScriptVM )
+			g_VScriptGameEventListener.RunGameEventCallbacks( "OnEntityRemove", ToHScript( pBaseEnt ) );
+#endif
+
 #ifdef PORTAL //make sure entities are in the primary physics environment for the portal mod, this code should be safe even if the entity is in neither extra environment
 		CPortalSimulator::Pre_UTIL_Remove( pBaseEnt );
 #endif
@@ -571,69 +572,6 @@ CBasePlayer	*UTIL_PlayerByIndex( int playerIndex )
 	}
 	
 	return pPlayer;
-}
-
-CBasePlayer *UTIL_PlayerBySteamID( const CSteamID &steamID )
-{
-	CSteamID steamIDPlayer;
-	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
-	{
-		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-		if ( !pPlayer )
-			continue;
-
-		if ( !pPlayer->GetSteamID( &steamIDPlayer ) )
-			continue;
-
-		if ( steamIDPlayer == steamID )
-			return pPlayer;
-	}
-	return NULL;
-}
-
-CBasePlayer* UTIL_PlayerByName( const char *name )
-{
-	if ( !name || !name[0] )
-		return NULL;
-
-	for (int i = 1; i<=gpGlobals->maxClients; i++ )
-	{
-		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-		
-		if ( !pPlayer )
-			continue;
-
-		if ( !pPlayer->IsConnected() )
-			continue;
-
-		if ( Q_stricmp( pPlayer->GetPlayerName(), name ) == 0 )
-		{
-			return pPlayer;
-		}
-	}
-	
-	return NULL;
-}
-
-CBasePlayer* UTIL_PlayerByUserId( int userID )
-{
-	for (int i = 1; i<=gpGlobals->maxClients; i++ )
-	{
-		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-		
-		if ( !pPlayer )
-			continue;
-
-		if ( !pPlayer->IsConnected() )
-			continue;
-
-		if ( engine->GetPlayerUserId(pPlayer->edict()) == userID )
-		{
-			return pPlayer;
-		}
-	}
-	
-	return NULL;
 }
 
 //
@@ -1341,7 +1279,7 @@ void UTIL_SetOrigin( CBaseEntity *entity, const Vector &vecOrigin, bool bFireTri
 }
 
 
-void UTIL_ParticleEffect( const Vector &vecOrigin, const Vector &vecDirection, ULONG ulColor, ULONG ulCount )
+void UTIL_ParticleEffect( const Vector &vecOrigin, const Vector &vecDirection, uint32 ulColor, uint32 ulCount )
 {
 	Msg( "UTIL_ParticleEffect:  Disabled\n" );
 }
@@ -1842,14 +1780,13 @@ float UTIL_DotPoints ( const Vector &vecSrc, const Vector &vecCheck, const Vecto
 //=========================================================
 // UTIL_StripToken - for redundant keynames
 //=========================================================
-void UTIL_StripToken( const char *pKey, char *pDest )
+void UTIL_StripToken( const char *pKey, char *pDest, int nDestLength )
 {
 	int i = 0;
-
-	while ( pKey[i] && pKey[i] != '#' )
+	while ( ( i < nDestLength - 1 ) && pKey[i] && pKey[i] != '#' )
 	{
 		pDest[i] = pKey[i];
-		i++;
+		++ i;
 	}
 	pDest[i] = 0;
 }
@@ -1887,11 +1824,16 @@ extern "C" void Sys_Error( char *error, ... )
 //			*mapData - pointer a block of entity map data
 // Output : -1 if the entity was not successfully created; 0 on success
 //-----------------------------------------------------------------------------
-int DispatchSpawn( CBaseEntity *pEntity )
+int DispatchSpawn( CBaseEntity *pEntity, bool bRunVScripts )
 {
 	if ( pEntity )
 	{
 		MDLCACHE_CRITICAL_SECTION();
+
+#if 0
+		if ( g_pScriptVM )
+			g_VScriptGameEventListener.RunGameEventCallbacks( "OnEntityPreSpawn", ToHScript( pEntity ) );
+#endif
 
 		// keep a smart pointer that will now if the object gets deleted
 		EHANDLE pEntSafe;
@@ -1901,6 +1843,12 @@ int DispatchSpawn( CBaseEntity *pEntity )
 		// is this necessary?
 		//pEntity->SetAbsMins( pEntity->GetOrigin() - Vector(1,1,1) );
 		//pEntity->SetAbsMaxs( pEntity->GetOrigin() + Vector(1,1,1) );
+
+		if( bRunVScripts )
+		{
+			pEntity->RunVScripts();
+			pEntity->RunPrecacheScripts();
+		}
 
 #if defined(TRACK_ENTITY_MEMORY) && defined(USE_MEM_DEBUG)
 		const char *pszClassname = NULL;
@@ -1968,6 +1916,16 @@ int DispatchSpawn( CBaseEntity *pEntity )
 		}
 
 		gEntList.NotifySpawn( pEntity );
+
+		if( bRunVScripts )
+		{
+			pEntity->RunOnPostSpawnScripts();
+		}
+
+#if 0
+		if ( g_pScriptVM )
+			g_VScriptGameEventListener.RunGameEventCallbacks( "OnEntityPostSpawn", ToHScript( pEntity ) );
+#endif
 	}
 
 	return 0;
@@ -2028,7 +1986,7 @@ void EntityMatrix::InitFromEntity( CBaseEntity *pEntity, int iAttachment )
 
 void EntityMatrix::InitFromEntityLocal( CBaseEntity *entity )
 {
-	if ( !entity || !entity->edict() )
+	if ( !entity || ( !entity->edict() && !entity->IsEFlagSet( EFL_FORCE_ALLOW_MOVEPARENT ) ) )
 	{
 		Identity();
 		return;
@@ -2050,49 +2008,6 @@ void UTIL_ValidateSoundName( string_t &name, const char *defaultStr )
 	{
 		name = AllocPooledString( defaultStr );
 	}
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Slightly modified strtok. Does not modify the input string. Does
-//			not skip over more than one separator at a time. This allows parsing
-//			strings where tokens between separators may or may not be present:
-//
-//			Door01,,,0 would be parsed as "Door01"  ""  ""  "0"
-//			Door01,Open,,0 would be parsed as "Door01"  "Open"  ""  "0"
-//
-// Input  : token - Returns with a token, or zero length if the token was missing.
-//			str - String to parse.
-//			sep - Character to use as separator. UNDONE: allow multiple separator chars
-// Output : Returns a pointer to the next token to be parsed.
-//-----------------------------------------------------------------------------
-const char *nexttoken(char *token, const char *str, char sep)
-{
-	if ((str == NULL) || (*str == '\0'))
-	{
-		*token = '\0';
-		return(NULL);
-	}
-
-	//
-	// Copy everything up to the first separator into the return buffer.
-	// Do not include separators in the return buffer.
-	//
-	while ((*str != sep) && (*str != '\0'))
-	{
-		*token++ = *str++;
-	}
-	*token = '\0';
-
-	//
-	// Advance the pointer unless we hit the end of the input string.
-	//
-	if (*str == '\0')
-	{
-		return(str);
-	}
-
-	return(++str);
 }
 
 //-----------------------------------------------------------------------------
@@ -3089,7 +3004,7 @@ static ConCommand kdtree_test( "kdtree_test", CC_KDTreeTest, "Tests spatial part
 void CC_VoxelTreeView( void )
 {
 	Msg( "VoxelTreeView\n" );
-	partition->RenderAllObjectsInTree( 10.0f );
+	::partition->RenderAllObjectsInTree( 10.0f );
 }
 
 static ConCommand voxeltree_view( "voxeltree_view", CC_VoxelTreeView, "View entities in the voxel-tree.", FCVAR_CHEAT );
@@ -3100,7 +3015,7 @@ void CC_VoxelTreePlayerView( void )
 
 	CBasePlayer *pPlayer = static_cast<CBasePlayer*>( UTIL_GetLocalPlayer() );
 	Vector vecStart = pPlayer->GetAbsOrigin();
-	partition->RenderObjectsInPlayerLeafs( vecStart - VEC_HULL_MIN_SCALED( pPlayer ), vecStart + VEC_HULL_MAX_SCALED( pPlayer ), 3.0f  );
+	::partition->RenderObjectsInPlayerLeafs( vecStart - VEC_HULL_MIN_SCALED( pPlayer ), vecStart + VEC_HULL_MAX_SCALED( pPlayer ), 3.0f  );
 }
 
 static ConCommand voxeltree_playerview( "voxeltree_playerview", CC_VoxelTreePlayerView, "View entities in the voxel-tree at the player position.", FCVAR_CHEAT );
@@ -3134,24 +3049,27 @@ void CC_VoxelTreeBox( const CCommand &args )
 	vecPoints[5].Init( vecMin.x, vecMax.y, vecMax.z );
 	vecPoints[6].Init( vecMax.x, vecMax.y, vecMax.z );
 	vecPoints[7].Init( vecMax.x, vecMin.y, vecMax.z );
+
+	if ( debugoverlay )
+	{
+		debugoverlay->AddLineOverlay( vecPoints[0], vecPoints[1], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[1], vecPoints[2], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[2], vecPoints[3], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[3], vecPoints[0], 255, 0, 0, true, flTime );
 	
-	debugoverlay->AddLineOverlay( vecPoints[0], vecPoints[1], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[1], vecPoints[2], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[2], vecPoints[3], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[3], vecPoints[0], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[4], vecPoints[5], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[5], vecPoints[6], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[6], vecPoints[7], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[7], vecPoints[4], 255, 0, 0, true, flTime );
 	
-	debugoverlay->AddLineOverlay( vecPoints[4], vecPoints[5], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[5], vecPoints[6], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[6], vecPoints[7], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[7], vecPoints[4], 255, 0, 0, true, flTime );
-	
-	debugoverlay->AddLineOverlay( vecPoints[0], vecPoints[4], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[3], vecPoints[7], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[1], vecPoints[5], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[2], vecPoints[6], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[0], vecPoints[4], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[3], vecPoints[7], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[1], vecPoints[5], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[2], vecPoints[6], 255, 0, 0, true, flTime );
+	}
 
 	Msg( "VoxelTreeBox - (%f %f %f) to (%f %f %f)\n", vecMin.x, vecMin.y, vecMin.z, vecMax.x, vecMax.y, vecMax.z );
-	partition->RenderObjectsInBox( vecMin, vecMax, flTime );
+	::partition->RenderObjectsInBox( vecMin, vecMax, flTime );
 }
 
 static ConCommand voxeltree_box( "voxeltree_box", CC_VoxelTreeBox, "View entities in the voxel-tree inside box <Vector(min), Vector(max)>.", FCVAR_CHEAT );
@@ -3189,23 +3107,26 @@ void CC_VoxelTreeSphere( const CCommand &args )
 	vecPoints[6].Init( vecMax.x, vecMax.y, vecMax.z );
 	vecPoints[7].Init( vecMax.x, vecMin.y, vecMax.z );
 	
-	debugoverlay->AddLineOverlay( vecPoints[0], vecPoints[1], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[1], vecPoints[2], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[2], vecPoints[3], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[3], vecPoints[0], 255, 0, 0, true, flTime );
+	if ( debugoverlay )
+	{
+		debugoverlay->AddLineOverlay( vecPoints[0], vecPoints[1], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[1], vecPoints[2], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[2], vecPoints[3], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[3], vecPoints[0], 255, 0, 0, true, flTime );
 	
-	debugoverlay->AddLineOverlay( vecPoints[4], vecPoints[5], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[5], vecPoints[6], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[6], vecPoints[7], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[7], vecPoints[4], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[4], vecPoints[5], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[5], vecPoints[6], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[6], vecPoints[7], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[7], vecPoints[4], 255, 0, 0, true, flTime );
 	
-	debugoverlay->AddLineOverlay( vecPoints[0], vecPoints[4], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[3], vecPoints[7], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[1], vecPoints[5], 255, 0, 0, true, flTime );
-	debugoverlay->AddLineOverlay( vecPoints[2], vecPoints[6], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[0], vecPoints[4], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[3], vecPoints[7], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[1], vecPoints[5], 255, 0, 0, true, flTime );
+		debugoverlay->AddLineOverlay( vecPoints[2], vecPoints[6], 255, 0, 0, true, flTime );
+	}
 
 	Msg( "VoxelTreeSphere - (%f %f %f), %f\n", vecCenter.x, vecCenter.y, vecCenter.z, flRadius );
-	partition->RenderObjectsInSphere( vecCenter, flRadius, flTime );
+	::partition->RenderObjectsInSphere( vecCenter, flRadius, flTime );
 }
 
 static ConCommand voxeltree_sphere( "voxeltree_sphere", CC_VoxelTreeSphere, "View entities in the voxel-tree inside sphere <Vector(center), float(radius)>.", FCVAR_CHEAT );
@@ -3219,7 +3140,7 @@ void CC_CollisionTest( const CCommand &args )
 		return;
 
 	Msg( "Testing collision system\n" );
-	partition->ReportStats( "" );
+	::partition->ReportStats( "" );
 	int i;
 	CBaseEntity *pSpot = gEntList.FindEntityByClassname( NULL, "info_player_start");
 	Vector start = pSpot->GetAbsOrigin();
@@ -3290,14 +3211,14 @@ void CC_CollisionTest( const CCommand &args )
 			{
 				if ( i == 0 )
 				{
-					partition->RenderLeafsForRayTraceStart( 10.0f );
+					::partition->RenderLeafsForRayTraceStart( 10.0f );
 				}
 
 				UTIL_TraceLine( start, targets[i], nMask, NULL, COLLISION_GROUP_NONE, &tr );
 
 				if ( i == 0 )
 				{
-					partition->RenderLeafsForRayTraceEnd( );
+					::partition->RenderLeafsForRayTraceEnd( );
 				}
 			}
 		}
@@ -3306,7 +3227,7 @@ void CC_CollisionTest( const CCommand &args )
 	}
 	test[testType] = duration;
 	Msg("%d collisions in %.2f ms (%u dots)\n", NUM_COLLISION_TESTS, duration*1000, dots );
-	partition->ReportStats( "" );
+	::partition->ReportStats( "" );
 #if 1
 	int red = 255, green = 0, blue = 0;
 	for ( i = 0; i < 1 /*NUM_COLLISION_TESTS*/; i++ )

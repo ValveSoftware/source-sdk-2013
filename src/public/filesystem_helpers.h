@@ -23,7 +23,7 @@ const char* ParseFileInternal( const char* pFileBytes, OUT_Z_CAP(nMaxTokenLen) c
 template <size_t count>
 const char* ParseFile( const char* pFileBytes, OUT_Z_ARRAY char (&pTokenOut)[count], bool* pWasQuoted, characterset_t *pCharSet = NULL, unsigned int nMaxTokenLen = (unsigned int)-1 )
 {
-	(void*)nMaxTokenLen; // Avoid unreferenced variable warnings.
+	(void)nMaxTokenLen; // Avoid unreferenced variable warnings.
 	return ParseFileInternal( pFileBytes, pTokenOut, pWasQuoted, pCharSet, count );
 }
 

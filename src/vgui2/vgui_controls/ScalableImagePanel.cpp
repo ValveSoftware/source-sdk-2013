@@ -70,7 +70,7 @@ void ScalableImagePanel::SetImage(const char *imageName)
 
 		const char *pszDir = "vgui/";
 		int len = Q_strlen(imageName) + 1;
-		len += strlen(pszDir);
+		len += V_strlen(pszDir);
 		Q_snprintf( szImage, len, "%s%s", pszDir, imageName );
 
 		if ( m_pszImageName && V_stricmp( szImage, m_pszImageName ) == 0 )
@@ -124,7 +124,7 @@ void ScalableImagePanel::PaintBackground()
 		else
 		{
 			//uvh - row 1, is tall - ( 2 * src_corner_height ) ( min 0 )
-			uvh = max( 1.0 - 2 * m_flCornerHeightPercent, 0.0f );
+			uvh = max( 1.f - 2.f * m_flCornerHeightPercent, 0.0f );
 			drawH = max( 0, ( tall - 2 * m_iCornerHeight ) );
 		}
 
@@ -139,7 +139,7 @@ void ScalableImagePanel::PaintBackground()
 			else
 			{
 				//uvw - col 1, is wide - ( 2 * src_corner_width ) ( min 0 )
-				uvw = max( 1.0 - 2 * m_flCornerWidthPercent, 0.0f );
+				uvw = max( 1.f - 2.f * m_flCornerWidthPercent, 0.0f );
 				drawW = max( 0, ( wide - 2 * m_iCornerWidth ) );
 			}
 

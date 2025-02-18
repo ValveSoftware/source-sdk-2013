@@ -31,8 +31,8 @@ ProgressBar::ProgressBar(Panel *parent, const char *panelName) : Panel(parent, p
 {
 	_progress = 0.0f;
 	m_pszDialogVar = NULL;
-	SetSegmentInfo( 4, 8 );
-	SetBarInset( 4 );
+	SetSegmentInfo( QuickPropScale( 4 ), QuickPropScale( 8 ) );
+	SetBarInset( QuickPropScale( 4 ) );
 	SetMargin( 0 );
 	m_iProgressDirection = PROGRESS_EAST;
 }
@@ -393,6 +393,21 @@ DECLARE_BUILD_FACTORY( ContinuousProgressBar );
 //-----------------------------------------------------------------------------
 ContinuousProgressBar::ContinuousProgressBar(Panel *parent, const char *panelName) : ProgressBar(parent, panelName)
 {
+	_prevProgress = -1.f;
+	m_colorGain = Color( 100, 255, 100, 255 );
+	m_colorLoss = Color( 200, 45, 45, 255 );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void ContinuousProgressBar::SetPrevProgress( float progress )
+{
+	if ( progress == _prevProgress )
+		return;
+
+	_prevProgress = ( progress == -1.f ) ? progress : clamp( progress, 0.f, 1.f );
+	Repaint();
 }
 
 //-----------------------------------------------------------------------------
@@ -404,23 +419,102 @@ void ContinuousProgressBar::Paint()
 	int wide, tall;
 	GetSize(wide, tall);
 
-	surface()->DrawSetColor(GetFgColor());
+	surface()->DrawSetColor( GetFgColor() );
+
+	bool bUsePrev = _prevProgress >= 0.f;
+	bool bGain = _progress > _prevProgress;
 
 	switch( m_iProgressDirection )
 	{
 	case PROGRESS_EAST:
+		if ( bUsePrev )
+		{
+			if ( bGain )
+			{
+				surface()->DrawFilledRect( x, y, x + (int)( wide * _prevProgress ), y + tall );
+
+				// Delta
+				surface()->DrawSetColor( m_colorGain );
+				surface()->DrawFilledRect( x + (int)( wide * _prevProgress ), y, x + (int)( wide * _progress ), y + tall );
+				break;
+			}
+			else
+			{
+				// Delta
+				surface()->DrawSetColor( m_colorLoss );
+				surface()->DrawFilledRect( x + (int)( wide * _progress ), y, x + (int)( wide * _prevProgress ), y + tall );
+			}
+		}
+		surface()->DrawSetColor( GetFgColor() );
 		surface()->DrawFilledRect( x, y, x + (int)( wide * _progress ), y + tall );
 		break;
 
 	case PROGRESS_WEST:
+		if ( bUsePrev )
+		{
+			if ( bGain )
+			{
+				surface()->DrawFilledRect( x + (int)( wide * ( 1.0f - _prevProgress ) ), y, x + wide, y + tall );
+
+				// Delta
+				surface()->DrawSetColor( m_colorGain );
+				surface()->DrawFilledRect( x + (int)( wide * ( 1.0f - _progress ) ), y, x + (int)( wide * ( 1.0f - _prevProgress ) ), y + tall );
+				break;
+			}
+			else
+			{
+				// Delta
+				surface()->DrawSetColor( m_colorLoss );
+				surface()->DrawFilledRect( x + (int)( wide * ( 1.0f - _prevProgress ) ), y, x + (int)( wide * ( 1.0f - _progress ) ), y + tall );
+			}
+		}
+		surface()->DrawSetColor( GetFgColor() );
 		surface()->DrawFilledRect( x + (int)( wide * ( 1.0f - _progress ) ), y, x + wide, y + tall );
 		break;
 
 	case PROGRESS_NORTH:
+		if ( bUsePrev )
+		{
+			if ( bGain )
+			{
+				surface()->DrawFilledRect( x, y + (int)( tall * ( 1.0f - _prevProgress ) ), x + wide, y + tall );
+
+				// Delta
+				surface()->DrawSetColor( m_colorGain );
+				surface()->DrawFilledRect( x, y + (int)( tall * ( 1.0f - _progress ) ), x + wide, y + (int)( tall * ( 1.0f - _prevProgress ) ) );
+				break;
+			}
+			else
+			{
+				// Delta
+				surface()->DrawSetColor( m_colorLoss );
+				surface()->DrawFilledRect( x, y + (int)( tall * ( 1.0f - _prevProgress ) ), x + wide, y + (int)( tall * ( 1.0f - _progress ) ) );
+			}
+		}
+		surface()->DrawSetColor( GetFgColor() );
 		surface()->DrawFilledRect( x, y + (int)( tall * ( 1.0f - _progress ) ), x + wide, y + tall );
 		break;
 
 	case PROGRESS_SOUTH:
+		if ( bUsePrev )
+		{
+			if ( bGain )
+			{
+				surface()->DrawFilledRect( x, y, x + wide, y + (int)( tall * ( 1.0f - _progress ) ) );
+
+				// Delta
+				surface()->DrawSetColor( m_colorGain );
+				surface()->DrawFilledRect( x, y + (int)( tall * ( 1.0f - _progress ) ), x + wide, y + (int)( tall * ( 1.0f - _prevProgress ) ) );
+				break;
+			}
+			else
+			{
+				// Delta
+				surface()->DrawSetColor( m_colorLoss );
+				surface()->DrawFilledRect( x, y + (int)( tall * ( 1.0f - _prevProgress ) ), x + wide, y + (int)( tall * ( 1.0f - _progress  ) ) );
+			}
+		}
+		surface()->DrawSetColor( GetFgColor() );
 		surface()->DrawFilledRect( x, y, x + wide, y + (int)( tall * _progress ) );
 		break;
 	}

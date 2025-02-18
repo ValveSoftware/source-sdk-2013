@@ -1789,7 +1789,7 @@ void M_RotateZMatrix(float radian, M_matrix4x4_t &resultMatrix)
 	resultMatrix[2][2] = 1.0;
 }
 
-// !!! THIS SHIT DOESN'T WORK!! WHY? HAS I EVER?
+// !!! THIS DOESN'T WORK!! WHY? HAS IT EVER?
 void M_AngleAboutAxis(Vector &axis, float radianAngle, M_matrix4x4_t &result)
 {
 	float c = cosf(radianAngle);

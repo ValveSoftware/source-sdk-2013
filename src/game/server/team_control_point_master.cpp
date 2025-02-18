@@ -951,6 +951,20 @@ void CTeamControlPointMaster::FireRoundEndOutput( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+const CTeamControlPointRound* CTeamControlPointMaster::GetRoundByIndex( int nIndex ) const
+{
+	if ( nIndex < 0 || nIndex >= m_ControlPointRounds.Count() )
+	{
+		Assert( false );
+		return 0;
+	}
+
+	return m_ControlPointRounds[ nIndex ];
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 float CTeamControlPointMaster::PointLastContestedAt( int point )
 {
 	CTeamControlPoint *pPoint = GetControlPoint(point);
@@ -1246,9 +1260,6 @@ float CTeamControlPointMaster::GetPartialCapturePointRate( void )
 	return m_flPartialCapturePointsRate;
 }
 
-#ifdef STAGING_ONLY
-//-----------------------------------------------------------------------------
-// Purpose: 
 //-----------------------------------------------------------------------------
 void CTeamControlPointMaster::ListRounds( void )
 {
@@ -1274,10 +1285,11 @@ void CTeamControlPointMaster::ListRounds( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------	
 void cc_ListRounds( void )
 {
+	if ( !UTIL_IsCommandIssuedByServerAdmin() )
+		{ return; }
+
 	CTeamControlPointMaster *pMaster = g_hControlPointMasters.Count() ? g_hControlPointMasters[0] : NULL;
 	if ( pMaster )
 	{
@@ -1285,13 +1297,14 @@ void cc_ListRounds( void )
 	}
 }
 
-static ConCommand listrounds( "listrounds", cc_ListRounds, "List the rounds for the current map", FCVAR_CHEAT );
+static ConCommand tf_listrounds( "tf_listrounds", cc_ListRounds, "List the rounds for the current map", FCVAR_CHEAT );
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------	
 void cc_PlayRound( const CCommand& args )
 {
+	if ( !UTIL_IsCommandIssuedByServerAdmin() )
+		{ return; }
+
 	if ( args.ArgC() > 1 )
 	{
 		CTeamplayRoundBasedRules *pRules = dynamic_cast<CTeamplayRoundBasedRules*>( GameRules() );
@@ -1318,9 +1331,8 @@ void cc_PlayRound( const CCommand& args )
 	}
 	else
 	{
-		ConMsg( "Usage:  playround < round name >\n" );
+		ConMsg( "Usage:  tf_playround < round name >\n" );
 	}
 }
 
-static ConCommand playround( "playround", cc_PlayRound, "Play the selected round\n\tArgument: {round name given by \"listrounds\" command}", FCVAR_CHEAT );
-#endif
+static ConCommand tf_playround( "tf_playround", cc_PlayRound, "Play the selected round\n\tArgument: {round name given by \"tf_listrounds\" command}", FCVAR_CHEAT );

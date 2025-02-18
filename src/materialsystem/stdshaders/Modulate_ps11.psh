@@ -1,0 +1,8 @@
+ps.1.1
+
+; c0 is grey or white depending on if this is mod2x or not.
+
+tex t0	; base color
+
+mul_sat r0.rgba, t0, v0
+lrp r0.rgb, r0.a, r0, c0

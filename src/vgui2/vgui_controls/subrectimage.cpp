@@ -35,7 +35,7 @@ CSubRectImage::CSubRectImage( const char *filename, bool hardwareFiltered, int s
 	// HACKHACK - force VGUI materials to be in the vgui/ directory
 	//			 This needs to be revisited once GoldSRC is grandfathered off.
 	//!! need to make this work with goldsrc
-	int size = strlen(filename) + 1 + strlen("vgui/");
+	int size = V_strlen(filename) + 1 + V_strlen("vgui/");
 	_filename = (char *)malloc( size );
 	Assert( _filename );
 

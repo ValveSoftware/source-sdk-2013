@@ -128,13 +128,13 @@ private:
 
 	inline int					GetSmokeParticleIndex(int x, int y, int z)	{return z*m_xCount*m_yCount+y*m_yCount+x;}
 	inline SmokeParticleInfo*	GetSmokeParticleInfo(int x, int y, int z)	{return &m_SmokeParticleInfos[GetSmokeParticleIndex(x,y,z)];}
-	inline void					GetParticleInfoXYZ(int index, int &x, int &y, int &z)
+	inline void					GetParticleInfoXYZ(int index_, int &x, int &y, int &z)
 	{
-		z = index / (m_xCount*m_yCount);
+		z = index_ / (m_xCount*m_yCount);
 		int zIndex = z*m_xCount*m_yCount;
-		y = (index - zIndex) / m_yCount;
+		y = (index_ - zIndex) / m_yCount;
 		int yIndex = y*m_yCount;
-		x = index - zIndex - yIndex;
+		x = index_ - zIndex - yIndex;
 	}
 
 	inline bool					IsValidXYZCoords(int x, int y, int z)
@@ -150,10 +150,10 @@ private:
 				((float)z / (m_zCount-1)) * m_SpacingRadius * 2 - m_SpacingRadius);
 	}
 
-	inline Vector				GetSmokeParticlePosIndex(int index)
+	inline Vector				GetSmokeParticlePosIndex(int index_)
 	{
 		int x, y, z;
-		GetParticleInfoXYZ(index, x, y, z);
+		GetParticleInfoXYZ( index_, x, y, z);
 		return GetSmokeParticlePos(x, y, z);
 	}
 
@@ -875,8 +875,8 @@ void C_ParticleSmokeGrenade::FillVolume()
 
 						#ifdef _DEBUG
 							int testX, testY, testZ;
-							int index = GetSmokeParticleIndex(x,y,z);
-							GetParticleInfoXYZ(index, testX, testY, testZ);
+							int index_ = GetSmokeParticleIndex(x,y,z);
+							GetParticleInfoXYZ( index_, testX, testY, testZ);
 							assert(testX == x && testY == y && testZ == z);
 						#endif
 
@@ -943,12 +943,12 @@ void C_ParticleSmokeGrenade::CleanupToolRecordingState( KeyValues *msg )
 
 		int nId = AllocateToolParticleEffectId();
 
-		KeyValues *msg = new KeyValues( "OldParticleSystem_Create" );
-		msg->SetString( "name", "C_ParticleSmokeGrenade" );
-		msg->SetInt( "id", nId );
-		msg->SetFloat( "time", gpGlobals->curtime );
+		KeyValues *oldmsg = new KeyValues( "OldParticleSystem_Create" );
+		oldmsg->SetString( "name", "C_ParticleSmokeGrenade" );
+		oldmsg->SetInt( "id", nId );
+		oldmsg->SetFloat( "time", gpGlobals->curtime );
 
-		KeyValues *pEmitter = msg->FindKey( "DmeSpriteEmitter", true );
+		KeyValues *pEmitter = oldmsg->FindKey( "DmeSpriteEmitter", true );
 		pEmitter->SetInt( "count", NUM_PARTICLES_PER_DIMENSION * NUM_PARTICLES_PER_DIMENSION * NUM_PARTICLES_PER_DIMENSION );
 		pEmitter->SetFloat( "duration", 0 );
 		pEmitter->SetString( "material", "particle/particle_smokegrenade1" );
@@ -968,7 +968,7 @@ void C_ParticleSmokeGrenade::CleanupToolRecordingState( KeyValues *msg )
  		pLifetime->SetFloat( "maxLifetime", m_FadeEndTime );
 
 		KeyValues *pVelocity = pInitializers->FindKey( "DmeAttachmentVelocityInitializer", true );
-		pVelocity->SetPtr( "entindex", (void*)entindex() );
+		pVelocity->SetPtr( "entindex", (void*)(intp)entindex() );
  		pVelocity->SetFloat( "minRandomSpeed", 10 );
  		pVelocity->SetFloat( "maxRandomSpeed", 20 );
 
@@ -1025,8 +1025,8 @@ void C_ParticleSmokeGrenade::CleanupToolRecordingState( KeyValues *msg )
 		pSmokeGrenadeUpdater->SetFloat( "radiusExpandTime", SMOKESPHERE_EXPAND_TIME );
 		pSmokeGrenadeUpdater->SetFloat( "cutoffFraction", 0.7f );
 
-		ToolFramework_PostToolMessage( HTOOLHANDLE_INVALID, msg );
-		msg->deleteThis();
+		ToolFramework_PostToolMessage( HTOOLHANDLE_INVALID, oldmsg );
+		oldmsg->deleteThis();
 	}
 }
 

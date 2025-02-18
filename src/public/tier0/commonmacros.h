@@ -153,6 +153,7 @@ char (*RtlpNumberOf( UNALIGNED T (&)[N] ))[N];
 #define _ARRAYSIZE(A)   RTL_NUMBER_OF_V1(A)
 
 #define Q_ARRAYSIZE(p)		ARRAYSIZE(p)
+#define V_ARRAYSIZE(p)		ARRAYSIZE(p)
 
 template< typename IndexType, typename T, unsigned int N >
 IndexType ClampedArrayIndex( const T (&buffer)[N], IndexType index )

@@ -25,7 +25,7 @@ extern ConVar	my_mat_fullbright;
 template<int N> class CFixedCommandStorageBuffer
 {
 public:
-	uint8 m_Data[N];
+	alignas( 8 ) uint8 m_Data[N];
 
 	uint8 *m_pDataOut;
 #ifdef DBGFLAG_ASSERT
@@ -335,7 +335,7 @@ public:
 		{
 			m_Storage.PutInt( CBCMD_BIND_SHADERAPI_TEXTURE_HANDLE );
 			m_Storage.PutInt( nSampler );
-			m_Storage.PutInt( hTexture );
+			m_Storage.Put( hTexture );
 		}
 	}
 

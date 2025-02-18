@@ -15,6 +15,7 @@
 #pragma once
 #endif
 
+#include <algorithm>
 
 #include <string.h>
 #include "tier0/platform.h"
@@ -26,9 +27,16 @@
 #include "vstdlib/random.h"
 
 #define FOR_EACH_VEC( vecName, iteratorName ) \
-	for ( int iteratorName = 0; iteratorName < (vecName).Count(); iteratorName++ )
+	for ( int iteratorName = 0; (vecName).IsUtlVector && iteratorName < (vecName).Count(); iteratorName++ )
 #define FOR_EACH_VEC_BACK( vecName, iteratorName ) \
-	for ( int iteratorName = (vecName).Count()-1; iteratorName >= 0; iteratorName-- )
+	for ( int iteratorName = (vecName).Count()-1; (vecName).IsUtlVector && iteratorName >= 0; iteratorName-- )
+
+// UtlVector derives from this so we can do the type check above
+struct base_vector_t
+{
+public:
+	enum { IsUtlVector = true }; // Used to match this at compiletime 		
+};
 
 //-----------------------------------------------------------------------------
 // The CUtlVector class:
@@ -39,7 +47,7 @@
 // by index (they should *never* maintain pointers to elements in the vector).
 //-----------------------------------------------------------------------------
 template< class T, class A = CUtlMemory<T> >
-class CUtlVector
+class CUtlVector : public base_vector_t
 {
 	typedef A CAllocator;
 public:
@@ -47,9 +55,14 @@ public:
 	typedef T* iterator;
 	typedef const T* const_iterator;
 
-	// constructor, destructor
-	explicit CUtlVector( int growSize = 0, int initSize = 0 );
-	explicit CUtlVector( T* pMemory, int allocationCount, int numElements = 0 );
+	// Set the growth policy and initial capacity. Count will always be zero. This is different from std::vector
+	// where the constructor sets count as well as capacity.
+	// growSize of zero implies the default growth pattern which is exponential.
+	explicit CUtlVector( int growSize = 0, int initialCapacity = 0 );
+
+	// Initialize with separately allocated buffer, setting the capacity and count.
+	// The container will not be growable.
+	CUtlVector( T* pMemory, int initialCapacity, int initialCount = 0 );
 	~CUtlVector();
 	
 	// Copy the array.
@@ -96,6 +109,7 @@ public:
 	// Adds an element, uses default constructor
 	int AddToHead();
 	int AddToTail();
+	T *AddToTailGetPtr();
 	int InsertBefore( int elem );
 	int InsertAfter( int elem );
 
@@ -107,12 +121,18 @@ public:
 
 	// Adds multiple elements, uses default constructor
 	int AddMultipleToHead( int num );
-	int AddMultipleToTail( int num, const T *pToCopy=NULL );	   
-	int InsertMultipleBefore( int elem, int num, const T *pToCopy=NULL );	// If pToCopy is set, then it's an array of length 'num' and
+	int AddMultipleToTail( int num );	   
+	int AddMultipleToTail( int num, const T *pToCopy );	   
+	int InsertMultipleBefore( int elem, int num );
+	int InsertMultipleBefore( int elem, int num, const T *pToCopy );
 	int InsertMultipleAfter( int elem, int num );
 
 	// Calls RemoveAll() then AddMultipleToTail.
+	// SetSize is a synonym for SetCount
 	void SetSize( int size );
+	// SetCount deletes the previous contents of the container and sets the
+	// container to have this many elements.
+	// Use GetCount to retrieve the current count.
 	void SetCount( int count );
 	void SetCountNonDestructively( int count ); //sets count by adding or removing elements to tail TODO: This should probably be the default behavior for SetCount
 	
@@ -128,12 +148,23 @@ public:
 	// Finds an element (element needs operator== defined)
 	int Find( const T& src ) const;
 
+	// Helper to find using std::find_if with a predicate
+	//   e.g. [] -> bool ( T &a ) { return a.IsTheThingIWant(); }
+	//
+	// Useful if your object doesn't define a ==
+	template < typename F >
+	int FindPredicate( F&& predicate ) const;
+
+	void FillWithValue( const T& src );
+
 	bool HasElement( const T& src ) const;
 
 	// Makes sure we have enough memory allocated to store a requested # of elements
+	// Use NumAllocated() to retrieve the current capacity.
 	void EnsureCapacity( int num );
 
 	// Makes sure we have at least this many elements
+	// Use GetCount to retrieve the current count.
 	void EnsureCount( int num );
 
 	// Element removal
@@ -163,12 +194,26 @@ public:
 	void Sort( int (__cdecl *pfnCompare)(const T *, const T *) );
 
 	void Shuffle( IUniformRandomStream* pSteam = NULL );
+	
+	// Call this to quickly sort non-contiguously allocated vectors
+	void InPlaceQuickSort( int (__cdecl *pfnCompare)(const T *, const T *) );
+	// reverse the order of elements
+	void Reverse( );
 
 #ifdef DBGFLAG_VALIDATE
 	void Validate( CValidator &validator, char *pchName );		// Validate our internal structures
 #endif // DBGFLAG_VALIDATE
 
+	/// sort using std:: and expecting a "<" function to be defined for the type
+	void Sort( void );
+
+	/// sort using std:: with a predicate. e.g. [] -> bool ( T &a, T &b ) { return a < b; }
+	template <class F> void SortPredicate( F &&predicate );
+
 protected:
+	// Can't copy this unless we explicitly do it!
+	CUtlVector( CUtlVector const& vec ) { Assert(0); }
+
 	// Grows the vector
 	void GrowVector( int num = 1 );
 
@@ -193,9 +238,7 @@ protected:
 #endif
 
 private:
-	// Can't copy this unless we explicitly do it!
-	// Use CCopyableUtlVector<T> to get this functionality
-	CUtlVector( CUtlVector const& vec );
+	void InPlaceQuickSort_r( int (__cdecl *pfnCompare)(const T *, const T *), int nLeft, int nRight );
 };
 
 
@@ -206,21 +249,13 @@ class CUtlBlockVector : public CUtlVector< T, CUtlBlockMemory< T, int > >
 public:
 	explicit CUtlBlockVector( int growSize = 0, int initSize = 0 )
 		: CUtlVector< T, CUtlBlockMemory< T, int > >( growSize, initSize ) {}
-
-private:
-	// Private and unimplemented because iterator semantics are not currently supported
-	// on CUtlBlockVector, due to its non-contiguous allocations.
-	// typename is require to disambiguate iterator as a type versus other possibilities.
-	typedef CUtlVector< T, CUtlBlockMemory< T, int > > Base;
-	typename Base::iterator begin();
-	typename Base::const_iterator begin() const;
-	typename Base::iterator end();
-	typename Base::const_iterator end() const;
 };
 
 //-----------------------------------------------------------------------------
-// The CUtlVectorFixed class:
-// A array class with a fixed allocation scheme
+// The CUtlVectorMT class:
+// An array class with spurious mutex protection. Nothing is actually protected
+// unless you call Lock and Unlock. Also, the Mutex_t is actually not a type
+// but a member which probably isn't used.
 //-----------------------------------------------------------------------------
 
 template< class BASE_UTLVECTOR, class MUTEX_TYPE = CThreadFastMutex >
@@ -228,11 +263,11 @@ class CUtlVectorMT : public BASE_UTLVECTOR, public MUTEX_TYPE
 {
 	typedef BASE_UTLVECTOR BaseClass;
 public:
-	MUTEX_TYPE Mutex_t;
+	// MUTEX_TYPE Mutex_t;
 
 	// constructor, destructor
 	explicit CUtlVectorMT( int growSize = 0, int initSize = 0 ) : BaseClass( growSize, initSize ) {}
-	explicit CUtlVectorMT( typename BaseClass::ElemType_t* pMemory, int numElements ) : BaseClass( pMemory, numElements ) {}
+	CUtlVectorMT( typename BaseClass::ElemType_t* pMemory, int numElements ) : BaseClass( pMemory, numElements ) {}
 };
 
 
@@ -248,7 +283,7 @@ public:
 
 	// constructor, destructor
 	explicit CUtlVectorFixed( int growSize = 0, int initSize = 0 ) : BaseClass( growSize, initSize ) {}
-	explicit CUtlVectorFixed( T* pMemory, int numElements ) : BaseClass( pMemory, numElements ) {}
+	CUtlVectorFixed( T* pMemory, int numElements ) : BaseClass( pMemory, numElements ) {}
 };
 
 
@@ -279,7 +314,7 @@ public:
 
 	// constructor, destructor
 	explicit CUtlVectorConservative( int growSize = 0, int initSize = 0 ) : BaseClass( growSize, initSize ) {}
-	explicit CUtlVectorConservative( T* pMemory, int numElements ) : BaseClass( pMemory, numElements ) {}
+	CUtlVectorConservative( T* pMemory, int numElements ) : BaseClass( pMemory, numElements ) {}
 };
 
 
@@ -322,6 +357,10 @@ template <typename T, typename A = CUtlVectorUltraConservativeAllocator >
 class CUtlVectorUltraConservative : private A
 {
 public:
+	// Don't inherit from base_vector_t because multiple-inheritance increases
+	// class size!
+	enum { IsUtlVector = true }; // Used to match this at compiletime 		
+
 	CUtlVectorUltraConservative()
 	{
 		m_pData = StaticData();
@@ -380,12 +419,12 @@ public:
 		}
 		if ( m_pData == StaticData() )
 		{
-			m_pData = (Data_t *)A::Alloc( sizeof(int) + ( num * sizeof(T) ) );
+			m_pData = (Data_t *)A::Alloc( sizeof(Data_t) + ( num * sizeof(T) ) );
 			m_pData->m_Size = 0;
 		}
 		else
 		{
-			int nNeeded = sizeof(int) + ( num * sizeof(T) );
+			int nNeeded = sizeof(Data_t) + ( num * sizeof(T) );
 			int nHave = A::GetSize( m_pData );
 			if ( nNeeded > nHave )
 			{
@@ -409,7 +448,8 @@ public:
 		{
 			for (int i = m_pData->m_Size; --i >= 0; )
 			{
-				Destruct(&m_pData->m_Elements[i]);
+				// Global scope to resolve conflict with Scaleform 4.0
+				::Destruct(&m_pData->m_Elements[i]);
 			}
 		}
 		if ( m_pData != StaticData() )
@@ -436,7 +476,8 @@ public:
 	{
 		Assert( IsValidIndex(elem) );
 
-		Destruct( &Element(elem) );
+		// Global scope to resolve conflict with Scaleform 4.0
+		::Destruct( &Element(elem) );
 		if (Count() > 0)
 		{
 			if ( elem != m_pData->m_Size -1 )
@@ -452,7 +493,8 @@ public:
 
 	void Remove( int elem )
 	{
-		Destruct( &Element(elem) );
+		// Global scope to resolve conflict with Scaleform 4.0
+		::Destruct( &Element(elem) );
 		ShiftElementsLeft(elem);
 		--m_pData->m_Size;
 		if ( !m_pData->m_Size )
@@ -496,6 +538,8 @@ public:
 		return false;
 	}
 
+	bool DebugCompileError_ANonVectorIsUsedInThe_FOR_EACH_VEC_Macro( void ) const { return true; }
+
 	struct Data_t
 	{
 		int m_Size;
@@ -531,6 +575,9 @@ private:
 
 #pragma warning(pop)
 
+// Make sure nobody adds multiple inheritance and makes this class bigger.
+COMPILE_TIME_ASSERT( sizeof(CUtlVectorUltraConservative<int>) == sizeof(void*) );
+
 
 //-----------------------------------------------------------------------------
 // The CCopyableUtlVector class:
@@ -538,15 +585,49 @@ private:
 //  WARNING - this class lets you copy construct which can be an expensive operation if you don't carefully control when it happens
 // Only use this when nesting a CUtlVector() inside of another one of our container classes (i.e a CUtlMap)
 //-----------------------------------------------------------------------------
-template< typename T, typename A = CUtlMemory<T> >
-class CCopyableUtlVector : public CUtlVector< T, A >
+template< class T >
+class CCopyableUtlVector : public CUtlVector< T, CUtlMemory<T> >
 {
-	typedef CUtlVector< T, A > BaseClass;
+	typedef CUtlVector< T, CUtlMemory<T> > BaseClass;
 public:
 	explicit CCopyableUtlVector( int growSize = 0, int initSize = 0 ) : BaseClass( growSize, initSize ) {}
-	explicit CCopyableUtlVector( T* pMemory, int numElements ) : BaseClass( pMemory, numElements ) {}
+	CCopyableUtlVector( T* pMemory, int numElements ) : BaseClass( pMemory, numElements ) {}
 	virtual ~CCopyableUtlVector() {}
 	CCopyableUtlVector( CCopyableUtlVector const& vec ) { this->CopyArray( vec.Base(), vec.Count() ); }
+};
+
+//-----------------------------------------------------------------------------
+// The CCopyableUtlVector class:
+// A array class that allows copy construction (so you can nest a CUtlVector inside of another one of our containers)
+//  WARNING - this class lets you copy construct which can be an expensive operation if you don't carefully control when it happens
+// Only use this when nesting a CUtlVector() inside of another one of our container classes (i.e a CUtlMap)
+//-----------------------------------------------------------------------------
+template< class T, size_t MAX_SIZE >
+class CCopyableUtlVectorFixedGrowable : public CUtlVectorFixedGrowable< T, MAX_SIZE >
+{
+	typedef CUtlVectorFixedGrowable< T, MAX_SIZE > BaseClass;
+public:
+	explicit CCopyableUtlVectorFixedGrowable( int growSize = 0 ) : BaseClass( growSize ) {}
+	CCopyableUtlVectorFixedGrowable( T* pMemory, int numElements ) : BaseClass( pMemory, numElements ) {}
+	virtual ~CCopyableUtlVectorFixedGrowable() {}
+	CCopyableUtlVectorFixedGrowable( CCopyableUtlVectorFixedGrowable const& vec ) { this->CopyArray( vec.Base(), vec.Count() ); }
+};
+
+//-----------------------------------------------------------------------------
+// The CCopyableUtlVector class:
+// A array class that allows copy construction (so you can nest a CUtlVector inside of another one of our containers)
+//  WARNING - this class lets you copy construct which can be an expensive operation if you don't carefully control when it happens
+// Only use this when nesting a CUtlVector() inside of another one of our container classes (i.e a CUtlMap)
+//-----------------------------------------------------------------------------
+template< class T, size_t MAX_SIZE >
+class CCopyableUtlVectorFixed : public CUtlVectorFixed< T, MAX_SIZE >
+{
+	typedef CUtlVectorFixed< T, MAX_SIZE > BaseClass;
+public:
+	explicit CCopyableUtlVectorFixed( int growSize = 0, int initSize = 0 ) : BaseClass( growSize, initSize ) {}
+	CCopyableUtlVectorFixed( T* pMemory, int numElements ) : BaseClass( pMemory, numElements ) {}
+	virtual ~CCopyableUtlVectorFixed() {}
+	CCopyableUtlVectorFixed( CCopyableUtlVectorFixed const& vec ) { this->CopyArray( vec.Base(), vec.Count() ); }
 };
 
 // TODO (Ilya): It seems like all the functions in CUtlVector are simple enough that they should be inlined.
@@ -586,19 +667,7 @@ inline CUtlVector<T, A>& CUtlVector<T, A>::operator=( const CUtlVector<T, A> &ot
 	return *this;
 }
 
-#ifdef STAGING_ONLY
-inline void StagingUtlVectorBoundsCheck( int i, int size )
-{
-	if ( (unsigned)i >= (unsigned)size )
-	{
-		Msg( "Array access error: %d / %d\n", i, size );
-		DebuggerBreak();
-	}
-}
-
-#else
 #define StagingUtlVectorBoundsCheck( _i, _size )
-#endif
 
 //-----------------------------------------------------------------------------
 // element access
@@ -720,6 +789,26 @@ inline int CUtlVector<T, A>::Count() const
 
 
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// Reverse - reverse the order of elements, akin to std::vector<>::reverse()
+//-----------------------------------------------------------------------------
+template< typename T, class A >
+void CUtlVector<T, A>::Reverse( )
+{
+	for ( int i = 0; i < m_Size / 2; i++ )
+	{
+		V_swap( m_Memory[ i ], m_Memory[ m_Size - 1 - i ] );
+#if defined( UTLVECTOR_TRACK_STACKS )
+		if ( bTrackingEnabled )
+		{
+			V_swap( m_pElementStackStatsIndices[ i ], m_pElementStackStatsIndices[ m_Size - 1 - i ] );
+		}
+#endif
+	}
+}
+
+
+//-----------------------------------------------------------------------------
 // Is element index valid?
 //-----------------------------------------------------------------------------
 template< typename T, class A >
@@ -791,6 +880,77 @@ void CUtlVector<T, A>::Sort( int (__cdecl *pfnCompare)(const T *, const T *) )
 	}
 }
 
+
+//----------------------------------------------------------------------------------------------
+// Private function that does the in-place quicksort for non-contiguously allocated vectors.
+//----------------------------------------------------------------------------------------------
+template< typename T, class A >
+void CUtlVector<T, A>::InPlaceQuickSort_r( int (__cdecl *pfnCompare)(const T *, const T *), int nLeft, int nRight )
+{
+	int nPivot;
+	int nLeftIdx = nLeft;
+	int nRightIdx = nRight;
+
+	if ( nRight - nLeft > 0 )
+	{
+		nPivot = ( nLeft + nRight ) / 2;
+
+		while ( ( nLeftIdx <= nPivot ) && ( nRightIdx >= nPivot ) )
+		{
+			while ( ( pfnCompare( &Element( nLeftIdx ), &Element( nPivot ) ) < 0 ) && ( nLeftIdx <= nPivot ) )
+			{
+				nLeftIdx++;
+			}
+
+			while ( ( pfnCompare( &Element( nRightIdx ), &Element( nPivot ) ) > 0 ) && ( nRightIdx >= nPivot ) )
+			{
+				nRightIdx--;
+			}
+
+			V_swap( Element( nLeftIdx ), Element( nRightIdx ) );
+
+			nLeftIdx++;
+			nRightIdx--;
+
+			if ( ( nLeftIdx - 1 ) == nPivot )
+			{
+				nPivot = nRightIdx = nRightIdx + 1;
+			}
+			else if ( nRightIdx + 1 == nPivot )
+			{
+				nPivot = nLeftIdx = nLeftIdx - 1;
+			}
+		}
+
+		InPlaceQuickSort_r( pfnCompare, nLeft, nPivot - 1 );
+		InPlaceQuickSort_r( pfnCompare, nPivot + 1, nRight );
+	}
+}
+
+
+//----------------------------------------------------------------------------------------------
+// Call this to quickly sort non-contiguously allocated vectors. Sort uses a slower bubble sort.
+//----------------------------------------------------------------------------------------------
+template< typename T, class A >
+void CUtlVector<T, A>::InPlaceQuickSort( int (__cdecl *pfnCompare)(const T *, const T *) )
+{
+	InPlaceQuickSort_r( pfnCompare, 0, Count() - 1 );
+}
+
+template< typename T, class A >
+void CUtlVector<T, A>::Sort( void )
+{
+	//STACK STATS TODO: Do we care about allocation tracking precision enough to match element origins across a sort?
+	std::sort( Base(), Base() + Count() );
+}
+
+template< typename T, class A >
+template <class F>
+void CUtlVector<T, A>::SortPredicate( F &&predicate )
+{
+	std::sort( Base(), Base() + Count(), predicate );
+}
+
 //-----------------------------------------------------------------------------
 // Makes sure we have enough memory allocated to store a requested # of elements
 //-----------------------------------------------------------------------------
@@ -810,7 +970,9 @@ template< typename T, class A >
 void CUtlVector<T, A>::EnsureCount( int num )
 {
 	if (Count() < num)
+	{
 		AddMultipleToTail( num - Count() );
+	}
 }
 
 
@@ -855,6 +1017,12 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::AddToTail()
 {
 	return InsertBefore( m_Size );
+}
+
+template< typename T, class A >
+inline T *CUtlVector<T, A>::AddToTailGetPtr()
+{
+	return &Element( AddToTail() );
 }
 
 template< typename T, class A >
@@ -929,10 +1097,16 @@ inline int CUtlVector<T, A>::AddMultipleToHead( int num )
 }
 
 template< typename T, class A >
+inline int CUtlVector<T, A>::AddMultipleToTail( int num )
+{
+	return InsertMultipleBefore( m_Size, num );
+}
+
+template< typename T, class A >
 inline int CUtlVector<T, A>::AddMultipleToTail( int num, const T *pToCopy )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || !pToCopy || (pToCopy + num < Base()) || (pToCopy >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || !pToCopy || (pToCopy + num <= Base()) || (pToCopy >= (Base() + Count()) ) ); 
 
 	return InsertMultipleBefore( m_Size, num, pToCopy );
 }
@@ -997,19 +1171,20 @@ int CUtlVector<T, A>::AddVectorToTail( CUtlVector const &src )
 	int base = Count();
 	
 	// Make space.
-	AddMultipleToTail( src.Count() );
+	int nSrcCount = src.Count();
+	EnsureCapacity( base + nSrcCount );
 
 	// Copy the elements.	
-	for ( int i=0; i < src.Count(); i++ )
+	m_Size += nSrcCount;
+	for ( int i=0; i < nSrcCount; i++ )
 	{
-		(*this)[base + i] = src[i];
+		CopyConstruct( &Element(base+i), src[i] );
 	}
-
 	return base;
 }
 
 template< typename T, class A >
-inline int CUtlVector<T, A>::InsertMultipleBefore( int elem, int num, const T *pToInsert )
+inline int CUtlVector<T, A>::InsertMultipleBefore( int elem, int num )
 {
 	if( num == 0 )
 		return elem;
@@ -1022,14 +1197,38 @@ inline int CUtlVector<T, A>::InsertMultipleBefore( int elem, int num, const T *p
 
 	// Invoke default constructors
 	for (int i = 0; i < num; ++i )
+	{
 		Construct( &Element( elem+i ) );
+	}
 
-	// Copy stuff in?
-	if ( pToInsert )
+	return elem;
+}
+
+template< typename T, class A >
+inline int CUtlVector<T, A>::InsertMultipleBefore( int elem, int num, const T *pToInsert )
+{
+	if( num == 0 )
+		return elem;
+	
+	// Can insert at the end
+	Assert( (elem == Count()) || IsValidIndex(elem) );
+
+	GrowVector(num);
+	ShiftElementsRight( elem, num );
+
+	// Invoke default constructors
+	if ( !pToInsert )
+	{
+		for (int i = 0; i < num; ++i )
+		{
+			Construct( &Element( elem+i ) );
+		}
+	}
+	else
 	{
 		for ( int i=0; i < num; i++ )
 		{
-			Element( elem+i ) = pToInsert[i];
+			CopyConstruct( &Element( elem+i ), pToInsert[i] );
 		}
 	}
 
@@ -1051,6 +1250,36 @@ int CUtlVector<T, A>::Find( const T& src ) const
 	return -1;
 }
 
+//-----------------------------------------------------------------------------
+// Finds an element using a predicate, using std::find_if
+//-----------------------------------------------------------------------------
+template< typename T, class A >
+template< class F >
+int CUtlVector<T, A>::FindPredicate( F &&predicate ) const
+{
+	const T * begin = Base();
+	const T * end = begin + Count();
+	const T * const &elem = std::find_if( begin, end, predicate );
+
+	if ( elem != end )
+	{
+		int idx = (int)std::distance( begin, elem );
+		StagingUtlVectorBoundsCheck( idx, m_Size );
+		return idx;
+	}
+
+	return InvalidIndex();
+}
+
+template< typename T, class A >
+void CUtlVector<T, A>::FillWithValue( const T& src )
+{
+	for ( int i = 0; i < Count(); i++ )
+	{
+		Element(i) = src;
+	}
+}
+
 template< typename T, class A >
 bool CUtlVector<T, A>::HasElement( const T& src ) const
 {
@@ -1066,11 +1295,12 @@ void CUtlVector<T, A>::FastRemove( int elem )
 {
 	Assert( IsValidIndex(elem) );
 
-	Destruct( &Element(elem) );
+	// Global scope to resolve conflict with Scaleform 4.0
+	::Destruct( &Element(elem) );
 	if (m_Size > 0)
 	{
 		if ( elem != m_Size -1 )
-			memcpy( reinterpret_cast<void*>( &Element(elem) ), reinterpret_cast<void*>( &Element(m_Size-1) ), sizeof(T) );
+			memcpy( &Element(elem), &Element(m_Size-1), sizeof(T) );
 		--m_Size;
 	}
 }
@@ -1078,7 +1308,8 @@ void CUtlVector<T, A>::FastRemove( int elem )
 template< typename T, class A >
 void CUtlVector<T, A>::Remove( int elem )
 {
-	Destruct( &Element(elem) );
+	// Global scope to resolve conflict with Scaleform 4.0
+	::Destruct( &Element(elem) );
 	ShiftElementsLeft(elem);
 	--m_Size;
 }
@@ -1113,8 +1344,9 @@ void CUtlVector<T, A>::RemoveMultiple( int elem, int num )
 	Assert( elem >= 0 );
 	Assert( elem + num <= Count() );
 
+	// Global scope to resolve conflict with Scaleform 4.0
 	for (int i = elem + num; --i >= elem; )
-		Destruct(&Element(i));
+		::Destruct(&Element(i));
 
 	ShiftElementsLeft(elem, num);
 	m_Size -= num;
@@ -1125,8 +1357,9 @@ void CUtlVector<T, A>::RemoveMultipleFromHead( int num )
 {
 	Assert( num <= Count() );
 
+	// Global scope to resolve conflict with Scaleform 4.0
 	for (int i = num; --i >= 0; )
-		Destruct(&Element(i));
+		::Destruct(&Element(i));
 
 	ShiftElementsLeft(0, num);
 	m_Size -= num;
@@ -1137,8 +1370,9 @@ void CUtlVector<T, A>::RemoveMultipleFromTail( int num )
 {
 	Assert( num <= Count() );
 
+	// Global scope to resolve conflict with Scaleform 4.0
 	for (int i = m_Size-num; i < m_Size; i++)
-		Destruct(&Element(i));
+		::Destruct(&Element(i));
 
 	m_Size -= num;
 }
@@ -1148,7 +1382,8 @@ void CUtlVector<T, A>::RemoveAll()
 {
 	for (int i = m_Size; --i >= 0; )
 	{
-		Destruct(&Element(i));
+		// Global scope to resolve conflict with Scaleform 4.0
+		::Destruct(&Element(i));
 	}
 
 	m_Size = 0;
@@ -1235,19 +1470,29 @@ public:
 		return strcmp( *sz1, *sz2 );
 	}
 
-	inline void PurgeAndDeleteElements()
+	CUtlStringList(){}
+
+	CUtlStringList( char const *pString, char const *pSeparator )
 	{
-		for( int i=0; i < m_Size; i++ )
-		{
-			delete [] Element(i);
-		}
-		Purge();
+		SplitString( pString, pSeparator );
 	}
 
-	~CUtlStringList( void )
+	CUtlStringList( char const *pString, const char **pSeparators, int nSeparators )
 	{
-		this->PurgeAndDeleteElements();
+		SplitString2( pString, pSeparators, nSeparators );
 	}
+
+	void SplitString( char const *pString, char const *pSeparator )
+	{
+		V_SplitString( pString, pSeparator, *this );
+	}
+
+	void SplitString2( char const *pString, const char **pSeparators, int nSeparators )
+	{
+		V_SplitString2( pString, pSeparators, nSeparators, *this );
+	}
+private:
+	CUtlStringList( const CUtlStringList &other ); // copying directly will cause double-release of the same strings; maybe we need to do a deep copy, but unless and until such need arises, this will guard against double-release
 };
 
 
@@ -1256,12 +1501,17 @@ public:
 class CSplitString: public CUtlVector<char*, CUtlMemory<char*, int> >
 {
 public:
+	CSplitString() { m_szBuffer = nullptr; }
 	CSplitString(const char *pString, const char *pSeparator);
 	CSplitString(const char *pString, const char **pSeparators, int nSeparators);
 	~CSplitString();
 	//
 	// NOTE: If you want to make Construct() public and implement Purge() here, you'll have to free m_szBuffer there
 	//
+
+	void Set( const char *pString, const char **pSeparators, int nSeparators );
+	void Set( const char *pString, const char *pSeparator );
+
 private:
 	void Construct(const char *pString, const char **pSeparators, int nSeparators);
 	void PurgeAndDeleteElements();
@@ -1269,5 +1519,32 @@ private:
 	char *m_szBuffer; // a copy of original string, with '\0' instead of separators
 };
 
+inline void CSplitString::Set( const char* pString, const char* pSeparator )
+{
+	Set( pString, &pSeparator, 1 );
+}
+
+inline void CSplitString::Set( const char *pString, const char **pSeparators, int nSeparators )
+{
+	if ( m_szBuffer )
+		delete[] m_szBuffer;
+	Construct( pString, pSeparators, nSeparators );
+}
+
+// A fixed growable vector that's castable to CUtlVector
+template< class T, size_t FIXED_SIZE >
+class CUtlVectorFixedGrowableCompat : public CUtlVector< T >
+{
+	typedef CUtlVector< T > BaseClass;
+
+public:
+	// constructor, destructor
+	CUtlVectorFixedGrowableCompat(int growSize = 0) : BaseClass(nullptr, FIXED_SIZE, growSize)
+	{
+		this->m_Memory.m_pMemory = m_FixedMemory.Base();
+	}
+
+	AlignedByteArray_t< FIXED_SIZE, T > m_FixedMemory;
+};
 
 #endif // CCVECTOR_H

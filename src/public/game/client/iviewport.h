@@ -20,6 +20,8 @@
 
 #include "viewport_panel_names.h"
 
+#include "inputsystem/InputEnums.h"
+
 class KeyValues;
 
 abstract_class IViewPortPanel
@@ -36,6 +38,8 @@ public:
 	virtual bool HasInputElements( void ) = 0;	// true if panel contains elments which accepts input
 
 	virtual void ShowPanel( bool state ) = 0; // activate VGUI Frame
+
+	virtual GameActionSet_t GetPreferredActionSet() = 0;
 		
 	// VGUI functions:
 	virtual vgui::VPANEL GetVPanel( void ) = 0; // returns VGUI panel handle

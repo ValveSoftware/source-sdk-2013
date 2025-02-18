@@ -461,7 +461,7 @@ inline void CUtlHash<Data, C, K>::Log( const char *filename )
 // Number of buckets must be a power of 2.
 // Key must be 32-bits (unsigned int).
 //
-typedef int UtlHashFastHandle_t;
+typedef intp UtlHashFastHandle_t;
 
 #define UTLHASH_POOL_SCALAR		2
 
@@ -505,15 +505,15 @@ public:
 	int Count( void );
 
 	// Insertion.
-	UtlHashFastHandle_t Insert( unsigned int uiKey, const Data &data );
-	UtlHashFastHandle_t FastInsert( unsigned int uiKey, const Data &data );
+	UtlHashFastHandle_t Insert( uintp uiKey, const Data &data );
+	UtlHashFastHandle_t FastInsert( uintp uiKey, const Data &data );
 
 	// Removal.
 	void Remove( UtlHashFastHandle_t hHash );
 	void RemoveAll( void );
 
 	// Retrieval.
-	UtlHashFastHandle_t Find( unsigned int uiKey );
+	UtlHashFastHandle_t Find( uintp uiKey );
 
 	Data &Element( UtlHashFastHandle_t hHash );
 	Data const &Element( UtlHashFastHandle_t hHash ) const;
@@ -526,13 +526,13 @@ public:
 	template <typename HashData>
 	struct HashFastData_t_
 	{
-		unsigned int	m_uiKey;
+		uintp		m_uiKey;
 		HashData	m_Data;
 	};
 
 	typedef HashFastData_t_<Data> HashFastData_t;
 
-	unsigned int						m_uiBucketMask;	
+	uintp								m_uiBucketMask;	
 	CUtlVector<UtlHashFastHandle_t>		m_aBuckets;
 	CUtlFixedLinkedList<HashFastData_t>	m_aDataPool;
 };
@@ -597,10 +597,10 @@ template<class Data, class HashFuncs> inline int CUtlHashFast<Data,HashFuncs>::C
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Insert data into the hash table given its key (unsigned int), with
+// Purpose: Insert data into the hash table given its key (uintp), with
 //          a check to see if the element already exists within the tree.
 //-----------------------------------------------------------------------------
-template<class Data, class HashFuncs> inline UtlHashFastHandle_t CUtlHashFast<Data,HashFuncs>::Insert( unsigned int uiKey, const Data &data )
+template<class Data, class HashFuncs> inline UtlHashFastHandle_t CUtlHashFast<Data,HashFuncs>::Insert( uintp uiKey, const Data &data )
 {
 	// Check to see if that key already exists in the buckets (should be unique).
 	UtlHashFastHandle_t hHash = Find( uiKey );
@@ -611,13 +611,13 @@ template<class Data, class HashFuncs> inline UtlHashFastHandle_t CUtlHashFast<Da
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Insert data into the hash table given its key (unsigned int),
+// Purpose: Insert data into the hash table given its key (uintp),
 //          without a check to see if the element already exists within the tree.
 //-----------------------------------------------------------------------------
-template<class Data, class HashFuncs> inline UtlHashFastHandle_t CUtlHashFast<Data,HashFuncs>::FastInsert( unsigned int uiKey, const Data &data )
+template<class Data, class HashFuncs> inline UtlHashFastHandle_t CUtlHashFast<Data,HashFuncs>::FastInsert( uintp uiKey, const Data &data )
 {
 	// Get a new element from the pool.
-	int iHashData = m_aDataPool.Alloc( true );
+	intp iHashData = m_aDataPool.Alloc( true );
 	HashFastData_t *pHashData = &m_aDataPool[iHashData];
 	if ( !pHashData )
 		return InvalidHandle();
@@ -666,12 +666,12 @@ template<class Data, class HashFuncs> inline void CUtlHashFast<Data,HashFuncs>::
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-template<class Data, class HashFuncs> inline UtlHashFastHandle_t CUtlHashFast<Data,HashFuncs>::Find( unsigned int uiKey )
+template<class Data, class HashFuncs> inline UtlHashFastHandle_t CUtlHashFast<Data,HashFuncs>::Find( uintp uiKey )
 {
 	// hash the "key" - get the correct hash table "bucket"
 	int iBucket = HashFuncs::Hash( uiKey, m_uiBucketMask );
 
-	for ( int iElement = m_aBuckets[iBucket]; iElement != m_aDataPool.InvalidIndex(); iElement = m_aDataPool.Next( iElement ) )
+	for ( intp iElement = m_aBuckets[iBucket]; iElement != m_aDataPool.InvalidIndex(); iElement = m_aDataPool.Next( iElement ) )
 	{
 		if ( m_aDataPool[iElement].m_uiKey == uiKey )
 			return iElement;
@@ -719,7 +719,7 @@ template<class Data, class HashFuncs> inline Data const &CUtlHashFast<Data,HashF
 // Number of buckets must be a power of 2.
 // Key must be 32-bits (unsigned int).
 //
-typedef int UtlHashFixedHandle_t;
+typedef intp UtlHashFixedHandle_t;
 
 template <int NUM_BUCKETS>
 class CUtlHashFixedGenericHash

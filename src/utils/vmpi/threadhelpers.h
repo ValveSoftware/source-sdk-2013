@@ -14,20 +14,22 @@
 
 #include "tier1/utllinkedlist.h"
 
+#if PLATFORM_WINDOWS_PC64
+	#define SIZEOF_CS	40	// sizeof( CRITICAL_SECTION )
+#else
+	#define SIZEOF_CS	24	// sizeof( CRITICAL_SECTION )
+#endif
 
-#define SIZEOF_CS	24	// sizeof( CRITICAL_SECTION )
-
-
-class CCriticalSection
+class CVMPICriticalSection
 {
 public:
-			CCriticalSection();
-			~CCriticalSection();
+			CVMPICriticalSection();
+			~CVMPICriticalSection();
 
 
 protected:
 
-	friend class CCriticalSectionLock;
+	friend class CVMPICriticalSectionLock;
 	
 	void	Lock();
 	void	Unlock();
@@ -45,34 +47,34 @@ public:
 
 
 // Use this to lock a critical section.
-class CCriticalSectionLock
+class CVMPICriticalSectionLock
 {
 public:
-			CCriticalSectionLock( CCriticalSection *pCS );
-			~CCriticalSectionLock();
+			CVMPICriticalSectionLock( CVMPICriticalSection *pCS );
+			~CVMPICriticalSectionLock();
 	void	Lock();
 	void	Unlock();
 
 private:
-	CCriticalSection	*m_pCS;
+	CVMPICriticalSection	*m_pCS;
 	bool				m_bLocked;
 };
 
 
 template< class T >
-class CCriticalSectionData : private CCriticalSection
+class CCriticalSectionData : private CVMPICriticalSection
 {
 public:
 	// You only have access to the data between Lock() and Unlock().
 	T*		Lock()
 	{
-		CCriticalSection::Lock();
+		CVMPICriticalSection::Lock();
 		return &m_Data;
 	}
 	
 	void	Unlock()
 	{
-		CCriticalSection::Unlock();
+		CVMPICriticalSection::Unlock();
 	}
 
 private:

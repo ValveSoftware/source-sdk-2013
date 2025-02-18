@@ -75,8 +75,6 @@ class CGLMFBO;
 #define TOGLMETHODCALLTYPE       __stdcall
 //#define TOGLMETHODCALLTYPE
 
-#define DXABSTRACT_BREAK_ON_ERROR() DebuggerBreak()
-
 typedef void* VD3DHWND;
 typedef void* VD3DHANDLE;
 
@@ -89,25 +87,21 @@ typedef void* VD3DHANDLE;
 //
 #if !defined(_WINNT_)
 
-	typedef int INT;
-	typedef unsigned long ULONG;
-	typedef long LONG;
+    typedef uint32_t UINT;
+	typedef int32_t INT;
+	typedef uint32_t ULONG;
+	typedef int32_t LONG;
 	typedef float FLOAT;
-	typedef unsigned int DWORD;
-	typedef unsigned short WORD;
-	typedef long long LONGLONG;
-	typedef unsigned int UINT;
-	typedef long HRESULT;
-	typedef unsigned char BYTE;
+	typedef uint32_t DWORD;
+	typedef uint16_t WORD;
+	typedef int64_t LONGLONG;
+	typedef int32_t HRESULT;
+	typedef uint8_t BYTE;
 	#define CONST const
 		
-	#if defined(POSIX)
-		typedef size_t ULONG_PTR;
-	#else
-		typedef unsigned long ULONG_PTR;
-	#endif
+    typedef uintptr_t ULONG_PTR;
 
-	typedef ULONG_PTR SIZE_T;
+	typedef size_t SIZE_T;
 
 	typedef const char* LPCSTR;
 	typedef char* LPSTR;
@@ -221,8 +215,6 @@ typedef enum _D3DSHADER_COMPARISON
 #define D3DCOLORWRITEENABLE_ALPHA   (1L<<3)
 
 #define D3DSGR_NO_CALIBRATION 0x00000000L
-	
-#define D3DXINLINE inline
 
 #define D3D_SDK_VERSION   32
 
@@ -401,10 +393,6 @@ typedef enum _D3DSHADER_COMPARISON
                                                                 //      using multisample "centroid" location.
                                                                 //      "Centroid" is some location within the covered
                                                                 //      region of the pixel.
-
-#define D3DXSHADER_DEBUG                    (1 << 0)
-#define D3DXSHADER_AVOID_FLOW_CONTROL       (1 << 9)
-
 
 #define D3DLOCK_READONLY           0x00000010L
 #define D3DLOCK_DISCARD            0x00002000L
@@ -1075,16 +1063,6 @@ typedef struct _D3DVERTEXBUFFER_DESC
 
 } D3DVERTEXBUFFER_DESC;
 
-class TOGL_CLASS D3DXMATRIX : public D3DMATRIX
-{
-public:
-	D3DXMATRIX operator*( const D3DXMATRIX &o ) const;
-	operator FLOAT* ();
-	float& operator()( int row, int column );
-	const float& operator()( int row, int column ) const;
-	bool operator != ( CONST D3DXMATRIX& src ) const;
-};
-
 typedef DWORD D3DCOLOR;
 
 typedef enum _D3DSAMPLERSTATETYPE
@@ -1174,17 +1152,6 @@ typedef enum _D3DPRIMITIVETYPE
 // ------------------------------------------------------------------------------------------------------------------------------ //
 // STRUCTURES
 // ------------------------------------------------------------------------------------------------------------------------------ //
-
-typedef struct TOGL_CLASS D3DXPLANE
-{
-	float& operator[]( int i );
-	bool operator==( const D3DXPLANE &o );
-	bool operator!=( const D3DXPLANE &o );
-	operator float*();
-	operator const float*() const;
-
-	float a, b, c, d;
-} D3DXPLANE;
 
 typedef enum _D3DVERTEXBLENDFLAGS
 {
@@ -1447,33 +1414,6 @@ typedef struct TOGL_CLASS _D3DVECTOR
     float z;
 } D3DVECTOR;
 
-class TOGL_CLASS D3DXVECTOR2
-{
-public:
-    operator FLOAT* ();
-    operator CONST FLOAT* () const;
-
-	float x,y;
-};
-
-class TOGL_CLASS D3DXVECTOR3 : public D3DVECTOR
-{
-public:
-	D3DXVECTOR3() {}
-	D3DXVECTOR3( float a, float b, float c );
-    operator FLOAT* ();
-    operator CONST FLOAT* () const;
-};
-
-typedef enum _D3DXINCLUDE_TYPE
-{
-    D3DXINC_LOCAL,
-
-    // force 32-bit size enum
-    D3DXINC_FORCE_DWORD = 0x7fffffff
-
-} D3DXINCLUDE_TYPE;
-
 typedef struct _D3DLIGHT9 
 {
     D3DLIGHTTYPE    Type;            /* Type of light source */
@@ -1490,30 +1430,6 @@ typedef struct _D3DLIGHT9
     float           Theta;            /* Inner angle of spotlight cone */
     float           Phi;              /* Outer angle of spotlight cone */
 } D3DLIGHT9;
-
-class TOGL_CLASS D3DXVECTOR4
-{
-public:
-	D3DXVECTOR4() {}
-	D3DXVECTOR4( float a, float b, float c, float d );
-
-	float x,y,z,w;
-};
-
-//----------------------------------------------------------------------------
-// D3DXMACRO:
-// ----------
-// Preprocessor macro definition.  The application pass in a NULL-terminated
-// array of this structure to various D3DX APIs.  This enables the application
-// to #define tokens at runtime, before the file is parsed.
-//----------------------------------------------------------------------------
-
-typedef struct _D3DXMACRO
-{
-    LPCSTR Name;
-    LPCSTR Definition;
-
-} D3DXMACRO, *LPD3DXMACRO;
 
 // ------------------------------------------------------------------------------------------------------------------------------ //
 // ------------------------------------------------------------------------------------------------------------------------------ //

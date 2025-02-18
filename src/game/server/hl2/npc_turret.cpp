@@ -113,7 +113,7 @@ public:
 	int m_iBaseTurnRate;	// angles per second
 	float m_fTurnRate;		// actual turn rate
 	int	m_iOn;
-	int m_fBeserk;			// Sometimes this bitch will just freak out
+	int m_fBeserk;			// Sometimes this will just freak out
 	int m_iAutoStart;		// true if the turret auto deploys when a target
 							// enters its range
 

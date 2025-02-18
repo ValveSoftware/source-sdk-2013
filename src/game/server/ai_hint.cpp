@@ -729,7 +729,7 @@ CAI_Hint *CAI_HintManager::GetFirstHint( AIHintIter_t *pIter )
 { 
 	if ( !gm_AllHints.Count() )
 	{
-		*pIter = (AIHintIter_t)gm_AllHints.InvalidIndex();
+		*pIter = (AIHintIter_t)(intp)gm_AllHints.InvalidIndex();
 		return NULL;
 	}
 	*pIter = (AIHintIter_t)0; 
@@ -741,12 +741,14 @@ CAI_Hint *CAI_HintManager::GetFirstHint( AIHintIter_t *pIter )
 //-----------------------------------------------------------------------------
 CAI_Hint *CAI_HintManager::GetNextHint(  AIHintIter_t *pIter )
 {
-	if ( (int)*pIter != gm_AllHints.InvalidIndex() )
+	int iterAsInt = size_cast< int >( (intp )*pIter );
+
+	if ( iterAsInt != gm_AllHints.InvalidIndex() )
 	{
-		int i = ( (int)*pIter ) + 1;
+		intp i = iterAsInt + 1;
 		if ( gm_AllHints.Count() <= i )
 		{
-			*pIter = (AIHintIter_t)gm_AllHints.InvalidIndex();
+			*pIter = (AIHintIter_t)(intp)gm_AllHints.InvalidIndex();
 			return NULL;
 		}
 		*pIter = (AIHintIter_t)i; 

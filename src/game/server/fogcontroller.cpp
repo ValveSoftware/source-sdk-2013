@@ -39,6 +39,7 @@ BEGIN_DATADESC( CFogController )
 	DEFINE_INPUTFUNC( FIELD_COLOR32,	"SetColorSecondary",	InputSetColorSecondary ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER,	"SetFarZ",		InputSetFarZ ),
 	DEFINE_INPUTFUNC( FIELD_STRING,		"SetAngles",	InputSetAngles ),
+	DEFINE_INPUTFUNC( FIELD_BOOLEAN,	"SetRadial",	InputSetRadial ),
 
 	DEFINE_INPUTFUNC( FIELD_COLOR32,	"SetColorLerpTo",		InputSetColorLerpTo ),
 	DEFINE_INPUTFUNC( FIELD_COLOR32,	"SetColorSecondaryLerpTo",	InputSetColorSecondaryLerpTo ),
@@ -60,6 +61,7 @@ BEGIN_DATADESC( CFogController )
 	DEFINE_KEYFIELD( m_fog.maxdensity,		FIELD_FLOAT,	"fogmaxdensity" ),
 	DEFINE_KEYFIELD( m_fog.farz,			FIELD_FLOAT,	"farz" ),
 	DEFINE_KEYFIELD( m_fog.duration,		FIELD_FLOAT,	"foglerptime" ),
+	DEFINE_KEYFIELD( m_fog.radial,			FIELD_BOOLEAN,  "fogradial" ),
 
 	DEFINE_THINKFUNC( SetLerpValues ),
 
@@ -77,6 +79,7 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE( CFogController, DT_FogController )
 // fog data
 	SendPropInt( SENDINFO_STRUCTELEM( m_fog.enable ), 1, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO_STRUCTELEM( m_fog.blend ), 1, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO_STRUCTELEM( m_fog.radial ), 1, SPROP_UNSIGNED ),
 	SendPropVector( SENDINFO_STRUCTELEM(m_fog.dirPrimary), -1, SPROP_COORD),
 	SendPropInt( SENDINFO_STRUCTELEM( m_fog.colorPrimary ), 32, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO_STRUCTELEM( m_fog.colorSecondary ), 32, SPROP_UNSIGNED ),
@@ -223,6 +226,13 @@ void CFogController::InputSetAngles( inputdata_t &inputdata )
 	m_fog.dirPrimary.GetForModify() *= -1.0f;
 }
 
+void CFogController::InputSetRadial( inputdata_t &inputdata )
+{
+	bool bRadial = inputdata.value.Bool();
+
+	m_fog.radial = bRadial;
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Draw any debug text overlays
@@ -361,6 +371,12 @@ void CFogSystem::LevelInitPostEntity( void )
 		pFogController = static_cast<CFogController*>( gEntList.FindEntityByClassname( pFogController, "env_fog_controller" ) );
 		if ( pFogController )
 		{
+			// HACK(misyl): If this is an official map then force on radial fog.
+			if ( GameRules()->IsOfficialMap() )
+			{
+				pFogController->m_fog.radial = true;
+			}
+
 			if ( m_pMasterController == NULL )
 			{
 				m_pMasterController = pFogController;

@@ -1,0 +1,44 @@
+image: debian:buster-slim
+
+stages:
+  - test
+  - coverity
+
+before_script:
+  - apt update
+  - apt install -y build-essential meson git git-lfs unzip clang-tools clang-tidy libfuzzer-7-dev libubsan1 zlib1g-dev libpng-dev pkg-config gcovr wget tar curl
+
+test:
+  stage: test
+  script:
+    - CC=clang-7 CXX=clang++-7 meson -Ddev_build=true -Duse_miniz=true -Db_sanitize=address,undefined -Db_lundef=false --wrap-mode=forcefallback -Doptimization=1 -Doss_fuzz=true clang_build
+    - cd clang_build
+    - ninja scan-build # this uses gcc due to a bug: https://github.com/mesonbuild/meson/issues/5716
+    - ninja test
+    - meson configure -Duse_miniz=false -Db_sanitize=memory
+    - MSAN_OPTIONS=exitcode=100 ninja test
+    - cd ..
+    - CC=gcc CXX=g++ meson -Ddev_build=true -Db_sanitize=address,undefined -Db_coverage=true gcc_build
+    - cd gcc_build
+    - ninja
+    - meson test info -v
+    - ninja test
+    - ninja coverage-text
+    - cat meson-logs/coverage.txt
+  artifacts:
+    paths:
+      - clang_build/
+      - gcc_build/
+
+coverity:
+  stage: coverity
+  script:
+    - wget https://scan.coverity.com/download/linux64 --post-data "token=$COVERITY_TOKEN&project=randy408%2Flibspng" -O coverity_tool.tgz
+    - mkdir coverity_tool
+    - tar -xvzf coverity_tool.tgz -C coverity_tool --strip-components=1
+    - ninja -C gcc_build clean
+    - ./coverity_tool/bin/cov-build --dir cov-int ninja -C gcc_build
+    - tar czvf spng.tgz cov-int
+    - curl --form token=$COVERITY_TOKEN --form email=randy408@protonmail.com --form file=@spng.tgz --form version="master" --form description="libspng" https://scan.coverity.com/builds?project=randy408%2Flibspng
+    - rm spng.tgz
+    - rm -r cov-int

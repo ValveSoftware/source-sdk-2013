@@ -1138,6 +1138,20 @@ bool CTriggerAreaCapture::CheckIfDeathCausesBlock( CBaseMultiplayerPlayer *pVict
 		bBreakCap = ( m_TeamData[m_nCapturingTeam].iBlockedTouching - 1 < m_TeamData[m_nCapturingTeam].iNumRequiredToCap );
 	}
 
+	// For TF2's contracts, fire a special event when killing anyone on the cap, regardless
+	// if it's causes the "block"
+	IGameEvent *event = gameeventmanager->CreateEvent( "capper_killed" );
+	if ( event )
+	{
+		event->SetInt( "blocker", pKiller->entindex() );
+		if ( pVictim )
+		{
+			event->SetInt( "victim", pVictim->entindex() );
+		}
+
+		gameeventmanager->FireEvent( event );
+	}
+
 	if ( bBreakCap )
 	{
 		m_hPoint->CaptureBlocked( pKiller, pVictim );

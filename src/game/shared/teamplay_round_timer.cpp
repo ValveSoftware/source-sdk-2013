@@ -889,8 +889,8 @@ void CTeamRoundTimer::RoundTimerSetupThink( void )
 		m_OnSetupFinished.FireOutput( this, this );
 		m_bFireFinished = false;
 
-		SetTimeRemaining( m_nTimeToUseAfterSetupFinished );
 		SetState( RT_STATE_NORMAL );
+		SetTimeRemaining( m_nTimeToUseAfterSetupFinished );
 
 		if ( ShowInHud() && !TeamplayRoundBasedRules()->IsInWaitingForPlayers() )
 		{
@@ -1109,8 +1109,8 @@ void CTeamRoundTimer::InputRoundSpawn( inputdata_t &input )
 
 	if ( m_nSetupTimeLength > 0 )
 	{
-		SetTimeRemaining( m_nSetupTimeLength );
 		SetState( RT_STATE_SETUP );
+		SetTimeRemaining( m_nSetupTimeLength );
 
 		if ( ShowInHud() && !TeamplayRoundBasedRules()->IsInWaitingForPlayers() )
 		{
@@ -1119,8 +1119,8 @@ void CTeamRoundTimer::InputRoundSpawn( inputdata_t &input )
 	}
 	else
 	{
-		SetTimeRemaining( m_nTimeToUseAfterSetupFinished );
 		SetState( RT_STATE_NORMAL );
+		SetTimeRemaining( m_nTimeToUseAfterSetupFinished );
 	}
 
 	if ( !m_bStartPaused && !TeamplayRoundBasedRules()->IsInWaitingForPlayers() )
@@ -1138,15 +1138,23 @@ void CTeamRoundTimer::SetTimeRemaining( int iTimerSeconds )
 		return;
 
 	// make sure we don't go over our max length
-	if ( m_nTimerMaxLength > 0 )
+	iTimerSeconds = m_nTimerMaxLength > 0 ? MIN( iTimerSeconds, m_nTimerMaxLength ) : iTimerSeconds;
+
+	float flTimerSeconds = (float)iTimerSeconds;
+	if ( TeamplayRoundBasedRules()->IsInTournamentMode() && TeamplayRoundBasedRules()->IsInStopWatch() && ObjectiveResource() && !IsStopWatchTimer() && !TeamplayRoundBasedRules()->InSetup() )
 	{
-		if ( iTimerSeconds > m_nTimerMaxLength )
+		// make sure we don't go over our stop watch timer
+		int iStopWatchTimer = ObjectiveResource()->GetStopWatchTimer();
+		CTeamRoundTimer *pStopWatch = dynamic_cast< CTeamRoundTimer* >( UTIL_EntityByIndex( iStopWatchTimer ) );
+		if ( pStopWatch && !pStopWatch->IsWatchingTimeStamps() && TeamplayRoundBasedRules()->StopWatchShouldBeTimedWin() )
 		{
-			iTimerSeconds = m_nTimerMaxLength;
+			float flStopWatchRemainingTime = pStopWatch->GetTimeRemaining();
+			flTimerSeconds = flStopWatchRemainingTime > 0 ? MIN( flTimerSeconds, flStopWatchRemainingTime ) : flTimerSeconds;
+			iTimerSeconds = (int)ceil( flTimerSeconds );
 		}
 	}
 
-	m_flTimeRemaining = (float)iTimerSeconds;
+	m_flTimeRemaining = flTimerSeconds;
 	m_flTimerEndTime = gpGlobals->curtime + m_flTimeRemaining;
 	m_nTimerLength = iTimerSeconds;
 	
@@ -1238,19 +1246,38 @@ void CTeamRoundTimer::AddTimerSeconds( int iSecondsToAdd, int iTeamResponsible /
 		}
 	}
 
+	float flSecondsToAdd = (float)iSecondsToAdd;
+	if ( TeamplayRoundBasedRules()->IsInTournamentMode() && TeamplayRoundBasedRules()->IsInStopWatch() && ObjectiveResource() && !IsStopWatchTimer() && !TeamplayRoundBasedRules()->InSetup() )
+	{
+		int iStopWatchTimer = ObjectiveResource()->GetStopWatchTimer();
+		CTeamRoundTimer *pStopWatch = dynamic_cast< CTeamRoundTimer* >( UTIL_EntityByIndex( iStopWatchTimer ) );
+		if ( pStopWatch && !pStopWatch->IsWatchingTimeStamps() && TeamplayRoundBasedRules()->StopWatchShouldBeTimedWin() )
+		{
+			float flStopWatchRemainingTime = pStopWatch->GetTimeRemaining();
+			float flRemainingTime = GetTimeRemaining();
+			// will adding this many seconds push us over our stop watch timer?
+			if ( flRemainingTime + flSecondsToAdd > flStopWatchRemainingTime )
+			{
+				// adjust to only add up to our stop watch timer
+				flSecondsToAdd = flStopWatchRemainingTime - flRemainingTime;
+				iSecondsToAdd = ( int )ceil( flSecondsToAdd );
+			}
+		}
+	}
+
 	if ( m_bTimerPaused )
 	{
-		m_flTimeRemaining += (float)iSecondsToAdd;
+		m_flTimeRemaining += flSecondsToAdd;
 	}
 	else
 	{
-		m_flTimerEndTime += (float)iSecondsToAdd;
+		m_flTimerEndTime += flSecondsToAdd;
 	}
 
 	m_nTimerLength += iSecondsToAdd;
 	CalculateOutputMessages();
 
-	if ( ( ObjectiveResource() && ObjectiveResource()->GetTimerInHUD() == entindex() ) || ( TeamplayRoundBasedRules()->IsInKothMode() ) )
+	if ( ( ObjectiveResource() && ObjectiveResource()->GetTimerToShowInHUD() == entindex() ) || ( TeamplayRoundBasedRules()->IsInKothMode() ) )
 	{
 		if ( !TeamplayRoundBasedRules()->InStalemate() && !TeamplayRoundBasedRules()->RoundHasBeenWon() && !TeamplayRoundBasedRules()->IsInKothMode() )
 		{

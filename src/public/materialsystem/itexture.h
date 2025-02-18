@@ -131,6 +131,9 @@ public:
 
 	// Set that this texture should return true for the call "IsError"
 	virtual void SetErrorTexture( bool bIsErrorTexture ) = 0;
+
+	// Download textures, except return true if we were successful and false if we were not.
+	virtual bool BDownload( Rect_t *pRect = 0, int nAdditionalCreationFlags = 0 ) = 0;
 };
 
 

@@ -123,9 +123,9 @@ END_NETWORK_TABLE()
 
 #ifdef CLIENT_DLL
 BEGIN_PREDICTION_DATA( CWeaponFrag )
-	DEFINE_PRED_FIELD( m_bRedraw, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
-	DEFINE_PRED_FIELD( m_fDrawbackFinished, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
-	DEFINE_PRED_FIELD( m_AttackPaused, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_bRedraw, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE | FTYPEDESC_NOERRORCHECK ),
+	DEFINE_PRED_FIELD( m_fDrawbackFinished, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE | FTYPEDESC_NOERRORCHECK ),
+	DEFINE_PRED_FIELD( m_AttackPaused, FIELD_INTEGER, FTYPEDESC_INSENDTABLE | FTYPEDESC_NOERRORCHECK ),
 END_PREDICTION_DATA()
 #endif
 
@@ -461,6 +461,10 @@ void CWeaponFrag::ThrowGrenade( CBasePlayer *pPlayer )
 	
 	// player "shoot" animation
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+
+#ifdef GAME_DLL
+	pPlayer->OnMyWeaponFired( this );
+#endif
 }
 
 //-----------------------------------------------------------------------------

@@ -70,7 +70,7 @@ Color s_selectedSetBorderColor( 100, 100, 0, 255 );
 Color s_dragSelectionSetBorderColor( 50, 50, 50, 255 );
 static void SelectedSetColorChaged( IConVar *var, const char *pOldValue, float flOldValue )
 {
-	ConVarRef colorVar( var->GetName() );
+	const ConVarRef colorVar( var );
 
 	Color *color = &s_selectedSetColor;
 	if ( FStrEq( var->GetName(), "nav_selected_set_border_color" ) )

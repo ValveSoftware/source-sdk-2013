@@ -16,7 +16,7 @@
 
 #if defined ( SDK_USE_PLAYERCLASSES )
 //--------------------------------------------------------------------------------------------------------
-class CSDKPlayerClassInfo : public FilePlayerClassInfo_t
+class CSDKPlayerClassInfo final : public FilePlayerClassInfo_t
 {
 public:
 	DECLARE_CLASS_GAMEROOT( CSDKPlayerClassInfo, FilePlayerClassInfo_t );

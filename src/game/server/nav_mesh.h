@@ -198,9 +198,16 @@ public:
 
 	unsigned int operator()( const NavVisPair_t &item ) const
 	{
-		COMPILE_TIME_ASSERT( sizeof(CNavArea *) == 4 );
-		int key[2] = { (int)item.pAreas[0] + item.pAreas[1]->GetID(), (int)item.pAreas[1] + item.pAreas[0]->GetID() };
-		return Hash8( key );	
+		COMPILE_TIME_ASSERT( sizeof(CNavArea *) == sizeof( intp ) );
+		intp key[2] = { (intp) ( (intp)item.pAreas[0] + item.pAreas[1]->GetID() ), (intp)( (intp)item.pAreas[1] + item.pAreas[0]->GetID() ) };
+		if ( sizeof( key ) >= 16 )
+		{
+			return Hash16( key );
+		}
+		else
+		{
+			return Hash8( key );
+		}
 	}
 };
 
@@ -1051,7 +1058,26 @@ public:
 	void PostProcessCliffAreas();
 	void SimplifySelectedAreas( void );	// Simplifies the selected set by reducing to 1x1 areas and re-merging them up with loosened tolerances
 
+	// Script accessors
+	HSCRIPT ScriptGetNavAreaByID( int areaID );
+	HSCRIPT ScriptGetNavArea( const Vector& pos, float beneathLimt );
+	HSCRIPT ScriptGetNearestNavArea( const Vector& pos, float maxDist, bool checkLOS, bool checkGround );
+	int ScriptGetNavAreaCount() { return ( int )GetNavAreaCount(); }
+	void GetNavAreasInRadius( const Vector& pos, float radius, HSCRIPT hTable );
+	HSCRIPT FindNavAreaAlongRay( const Vector& start, const Vector& end, HSCRIPT hIgnoreArea );
+	void GetAllAreas( HSCRIPT hTable );
+	void GetObstructingEntities( HSCRIPT hTable );
+	void GetAreasWithAttributes( int bits, HSCRIPT hTable );
+	bool ScriptNavAreaBuildPath( HSCRIPT hStartArea, HSCRIPT hGoalArea, const Vector& goalPos, float maxPathLength, int teamID, bool ignoreNavBlockers );
+	float ScriptNavAreaTravelDistance( HSCRIPT hStartArea, HSCRIPT hGoalArea, float maxPathLength );
+	bool ScriptGetNavAreasFromBuildPath( HSCRIPT hStartArea, HSCRIPT hGoalArea, const Vector& goalPos, float maxPathLength, int teamID, bool ignoreNavBlockers, HSCRIPT hTable );
+	void ScriptRegisterAvoidanceObstacle( HSCRIPT hEntity );
+	void ScriptUnregisterAvoidanceObstacle( HSCRIPT hEntity );
+	void ScriptGetNavAreasOverlappingEntityExtent( HSCRIPT hEntity, HSCRIPT hTable );
+
 protected:
+	NavErrorType GetNavDataFromFile( CUtlBuffer &outBuffer, bool *pNavDataFromBSP = NULL );
+
 	virtual void PostCustomAnalysis( void ) { }					// invoked when custom analysis step is complete
 	bool FindActiveNavArea( void );								// Finds the area or ladder the local player is currently pointing at.  Returns true if a surface was hit by the traceline.
 	virtual void RemoveNavArea( CNavArea *area );				// remove an area from the grid
@@ -1259,10 +1285,6 @@ extern CNavMesh *TheNavMesh;
 // factory for creating the Navigation Mesh
 extern CNavMesh *NavMeshFactory( void );
 
-#ifdef STAGING_ONLY
-// for debugging the A* algorithm, if nonzero, show debug display and decrement for each pathfind
-extern int g_DebugPathfindCounter;
-#endif
 
 
 //--------------------------------------------------------------------------------------------------------------

@@ -29,7 +29,7 @@
 #include "mpi_stats.h"
 #include "vmpi_distribute_work.h"
 #include "vmpi_tools_shared.h"
-
+#include "tier0/fasttimer.h"
 
 
 
@@ -60,9 +60,13 @@ bool VRAD_DispatchFn( MessageBuffer *pBuf, int iSource, int iPacketID )
 	}
 }
 CDispatchReg g_VRADDispatchReg( VMPI_VRAD_PACKET_ID, VRAD_DispatchFn ); // register to handle the messages we want
-CDispatchReg g_DistributeWorkReg( VMPI_DISTRIBUTEWORK_PACKETID, DistributeWorkDispatch );
 
 
+VMPI_REGISTER_PACKET_ID( VMPI_VRAD_PACKET_ID )
+VMPI_REGISTER_SUBPACKET_ID( VMPI_VRAD_PACKET_ID, VMPI_SUBPACKETID_VIS_LEAFS	)
+VMPI_REGISTER_SUBPACKET_ID( VMPI_VRAD_PACKET_ID, VMPI_SUBPACKETID_BUILDFACELIGHTS )
+VMPI_REGISTER_SUBPACKET_ID( VMPI_VRAD_PACKET_ID, VMPI_SUBPACKETID_PLIGHTDATA_RESULTS )
+	
 
 void VRAD_SetupMPI( int &argc, char **&argv )
 {
@@ -238,7 +242,6 @@ void RunMPIBuildFacelights()
 	VMPI_SetCurrentStage( "RunMPIBuildFaceLights" );
 	double elapsed = DistributeWork( 
 		numfaces, 
-		VMPI_DISTRIBUTEWORK_PACKETID,
 		MPI_ProcessFaces, 
 		MPI_ReceiveFaceResults );
 
@@ -396,7 +399,6 @@ void RunMPIBuildVisLeafs()
 	
 	double elapsed = DistributeWork( 
 		dvis->numclusters, 
-		VMPI_DISTRIBUTEWORK_PACKETID,
 		MPI_ProcessVisLeafs, 
 		MPI_ReceiveVisLeafsResults );
 

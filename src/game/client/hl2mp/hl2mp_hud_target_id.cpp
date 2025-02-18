@@ -63,6 +63,7 @@ CTargetID::CTargetID( const char *pElementName ) :
 	m_iLastEntIndex = 0;
 
 	SetHiddenBits( HIDEHUD_MISCSTATUS );
+	SetSize( ScreenWidth(), ScreenHeight() );
 }
 
 //-----------------------------------------------------------------------------
@@ -70,6 +71,7 @@ CTargetID::CTargetID( const char *pElementName ) :
 //-----------------------------------------------------------------------------
 void CTargetID::Init( void )
 {
+	SetSize( ScreenWidth(), ScreenHeight() );
 };
 
 void CTargetID::ApplySchemeSettings( vgui::IScheme *scheme )
@@ -79,6 +81,8 @@ void CTargetID::ApplySchemeSettings( vgui::IScheme *scheme )
 	m_hFont = scheme->GetFont( "TargetID", IsProportional() );
 
 	SetPaintBackgroundEnabled( false );
+
+	SetSize( ScreenWidth(), ScreenHeight() );
 }
 
 //-----------------------------------------------------------------------------

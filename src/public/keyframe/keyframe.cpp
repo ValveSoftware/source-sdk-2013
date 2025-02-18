@@ -276,7 +276,7 @@ void CRopeDelegate::ApplyConstraints( CSimplePhysics::CNode *pNodes, int nNodes 
 }
 
 
-class CPositionInterpolator_Rope : public IPositionInterpolator
+class CPositionInterpolator_Rope final : public IPositionInterpolator
 {
 public:
 						CPositionInterpolator_Rope();

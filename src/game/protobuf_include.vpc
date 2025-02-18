@@ -10,8 +10,30 @@ $Project
 {
 	$Folder "Link Libraries"
 	{
-		$Libexternal $SRCDIR\lib\public\2010\libprotobuf [$VS2010]
-		$Libexternal 2012\libprotobuf [$VS2012]
-		$Libexternal libprotobuf [$VS2013 || !$WINDOWS]
+		$Libexternal $SRCDIR\thirdparty\protobuf-2.6.1\bin\osx32\libc++\libprotobuf [$OSX32]
+		$Libexternal $SRCDIR\thirdparty\protobuf-2.6.1\bin\linux32\libprotobuf [$LINUX32]
+		$Libexternal $SRCDIR\thirdparty\protobuf-2.6.1\bin\linux64\libprotobuf [$LINUX64]
+	}
+
+	$Folder "Link Libraries"
+	{
+		$File "$SRCDIR\thirdparty\protobuf-2.6.1\bin\win32\2015\staticcrt\release\libprotobuf.lib" [$WIN32]
+		{
+			$Configuration "Debug" 	{ $ExcludedFromBuild "Yes" }
+		}
+		$File "$SRCDIR\thirdparty\protobuf-2.6.1\bin\win32\2015\staticcrt\debug\libprotobuf.lib" [$WIN32]
+		{
+			$Configuration "Release" { $ExcludedFromBuild "Yes" }
+		}
+		
+		$File "$SRCDIR\thirdparty\protobuf-2.6.1\bin\win64\2015\staticcrt\release\libprotobuf.lib" [$WIN64]
+		{
+			$Configuration "Debug" 	{ $ExcludedFromBuild "Yes" }
+		}
+		$File "$SRCDIR\thirdparty\protobuf-2.6.1\bin\win64\2015\staticcrt\debug\libprotobuf.lib" [$WIN64]
+		{
+			$Configuration "Release" { $ExcludedFromBuild "Yes" }
+		}
 	}
 }
+

@@ -131,8 +131,8 @@ public:
 	// Constructors for growable + external buffers for serialization/unserialization
 	CUtlBuffer( int growSize = 0, int initSize = 0, int nFlags = 0 );
 	CUtlBuffer( const void* pBuffer, int size, int nFlags = 0 );
-	// This one isn't actually defined so that we catch contructors that are trying to pass a bool in as the third param.
-	CUtlBuffer( const void *pBuffer, int size, bool crap );
+	// This one isn't actually defined so that we catch constructors that are trying to pass a bool in as the third param.
+	CUtlBuffer( const void *pBuffer, int size, bool junk );
 
 	unsigned char	GetFlags() const;
 
@@ -143,11 +143,17 @@ public:
 	// Makes sure we've got at least this much memory
 	void			EnsureCapacity( int num );
 
+	// Access for direct read into buffer
+	void *			AccessForDirectRead( int nBytes );
+
 	// Attaches the buffer to external memory....
 	void			SetExternalBuffer( void* pMemory, int nSize, int nInitialPut, int nFlags = 0 );
 	bool			IsExternallyAllocated() const;
 	// Takes ownership of the passed memory, including freeing it when this buffer is destroyed.
 	void			AssumeMemory( void *pMemory, int nSize, int nInitialPut, int nFlags = 0 );
+
+	void* Detach();
+	void* DetachMemory();
 
 	// copies data from another buffer
 	void			CopyBuffer( const CUtlBuffer &buffer );
@@ -189,7 +195,12 @@ public:
 	unsigned int	GetUnsignedInt( );
 	float			GetFloat( );
 	double			GetDouble( );
+	void *			GetPtr();
 	template <size_t maxLenInChars> void GetString( char( &pString )[maxLenInChars] )
+	{
+		GetStringInternal( pString, maxLenInChars );
+	}
+	void GetString( char* pString, size_t maxLenInChars )
 	{
 		GetStringInternal( pString, maxLenInChars );
 	}
@@ -273,6 +284,7 @@ public:
 	void			PutUnsignedInt( unsigned int u );
 	void			PutFloat( float f );
 	void			PutDouble( double d );
+	void			PutPtr( void* ); // Writes the pointer, not the pointed to
 	void			PutString( const char* pString );
 	void			Put( const void* pMem, int size );
 
@@ -759,6 +771,17 @@ inline double CUtlBuffer::GetDouble( )
 	return d;
 }
 
+inline void *CUtlBuffer::GetPtr( )
+{
+	void *p;
+	// LEGACY WARNING: in text mode, PutPtr writes 32 bit pointers in hex, while GetPtr reads 32 or 64 bit pointers in decimal
+#if !defined(X64BITS) && !defined(PLATFORM_64BITS)
+	p = ( void* )GetUnsignedInt();
+#else
+	p = ( void* )GetInt64();
+#endif
+	return p;
+}
 
 //-----------------------------------------------------------------------------
 // Where am I writing?
@@ -981,6 +1004,18 @@ inline void CUtlBuffer::PutDouble( double d )
 	PutType( d, "%f" );
 }
 
+inline void CUtlBuffer::PutPtr( void* p )
+{
+	// LEGACY WARNING: in text mode, PutPtr writes 32 bit pointers in hex, while GetPtr reads 32 or 64 bit pointers in decimal
+	if ( !IsText() )
+	{
+		PutTypeBin( p );
+	}
+	else
+	{
+		Printf( "0x%p", p );
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Am I a text buffer?
@@ -1076,6 +1111,14 @@ inline void CUtlBuffer::Purge()
 	m_Memory.Purge();
 }
 
+inline void *CUtlBuffer::AccessForDirectRead( int nBytes )
+{
+	Assert( m_Get == 0 && m_Put == 0 && m_nMaxPut == 0 );
+	EnsureCapacity( nBytes );
+	m_nMaxPut = nBytes;
+	return Base();
+}
+
 inline void CUtlBuffer::CopyBuffer( const CUtlBuffer &buffer )
 {
 	CopyBuffer( buffer.Base(), buffer.TellPut() );
@@ -1088,6 +1131,13 @@ inline void	CUtlBuffer::CopyBuffer( const void *pubData, int cubData )
 	{
 		Put( pubData, cubData );
 	}
+}
+
+inline void *CUtlBuffer::Detach()
+{
+	void *p = m_Memory.Detach();
+	Clear();
+	return p;
 }
 
 #endif // UTLBUFFER_H

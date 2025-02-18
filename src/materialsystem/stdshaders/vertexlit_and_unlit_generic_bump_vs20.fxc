@@ -29,7 +29,7 @@ const float4x4 g_FlashlightWorldToTexture :  register( SHADER_SPECIFIC_CONST_6 )
 const float3 cMorphTargetTextureDim			: register( SHADER_SPECIFIC_CONST_10 );
 const float4 cMorphSubrect					: register( SHADER_SPECIFIC_CONST_11 );
 
-sampler2D morphSampler : register( D3DVERTEXTEXTURESAMPLER0, s0 );
+sampler2D morphSampler : register( s0 );
 #endif
 
 

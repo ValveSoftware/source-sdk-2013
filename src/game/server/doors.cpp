@@ -23,6 +23,7 @@
 
 #ifdef TF_DLL
 #include "tf_gamerules.h"
+#include "tf/nav_mesh/tf_nav_mesh.h"
 #endif // TF_DLL
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -343,6 +344,8 @@ void CBaseDoor::Spawn()
 		// Never block doors in TF2 - to prevent various exploits.
 		m_bIgnoreNonPlayerEntsOnBlock = true;
 	}
+
+	TheTFNavMesh()->OnDoorCreated( this );
 #else
 	m_bIgnoreNonPlayerEntsOnBlock = false;
 #endif // TF_DLL
@@ -1359,7 +1362,7 @@ void CRotDoor::Spawn( void )
 	if ( HasSpawnFlags(SF_DOOR_ROTATE_BACKWARDS) )
 		m_vecMoveAng = m_vecMoveAng * -1;
 	
-	//m_flWait			= 2; who the hell did this? (sjb)
+	//m_flWait			= 2; who did this? (sjb)
 	m_vecAngle1	= GetLocalAngles();
 	m_vecAngle2	= GetLocalAngles() + m_vecMoveAng * m_flMoveDistance;
 

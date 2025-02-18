@@ -45,7 +45,7 @@ void QueryCacheKey_t::ComputeHashIndex( void )
 	for( int i = 0 ; i < m_nNumValidPoints; i++ )
 	{
 		ret += ( unsigned int ) m_pEntities[i].ToInt();
-		ret += ( unsigned int ) m_nOffsetMode;
+		ret += size_cast< unsigned int >( (uintp)m_nOffsetMode );
 	}
 	ret += *( ( uint32 *) &m_flMinimumUpdateInterval );
 	ret += m_nTraceMask;

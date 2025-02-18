@@ -6,6 +6,7 @@
 //=============================================================================//
 
 #include "vgui_controls/pch_vgui_controls.h"
+#include "strtools.h"
 
 // memdbgon must be the last include file in a .cpp file
 #include "tier0/memdbgon.h"
@@ -834,11 +835,30 @@ void Menu::PerformLayout()
 			child->SetFont( m_hItemFont );
 		}
 
+		int nX = QuickPropScale( child->GetOffsetFromMainMenu() );
+
 		// take into account inset
-		child->SetPos (0, menuTall);
-		child->SetTall( m_iMenuItemHeight ); // Width is set in a second pass
-		menuTall += m_iMenuItemHeight;
-		totalTall += m_iMenuItemHeight;
+		child->SetPos (nX, menuTall);
+
+		int nPaddingY = child->GetPaddingY();
+		if ( nPaddingY != 0 )
+		{
+			nPaddingY = QuickPropScale(nPaddingY);
+			int wide, tall;
+			surface()->GetScreenSize(wide, tall);
+
+			// special handling for resolutions where this feels cramped and the fonts have switched
+			if ( tall < 800 )
+			{
+				nPaddingY = clamp(nPaddingY, 0, Ceil2Int( (float)m_iMenuItemHeight * 1.5f) );
+			}
+		}
+
+		int nChildHeight = m_iMenuItemHeight + nPaddingY;
+
+		child->SetTall( nChildHeight ); // Width is set in a second pass
+		menuTall += nChildHeight;
+		totalTall += nChildHeight;
 
 		// this will make all the menuitems line up in a column with space for the checks to the left.
 		if ( ( !child->IsCheckable() ) && ( m_iCheckImageWidth > 0 ) )
@@ -858,7 +878,7 @@ void Menu::PerformLayout()
 			MenuSeparator *sep = m_SeparatorPanels[ sepIndex ];
 			Assert( sep );
 			sep->SetVisible( true );
-			sep->SetBounds( 0, menuTall, trueW, separatorHeight );
+			sep->SetBounds( nX, menuTall, nX + trueW, separatorHeight );
 			menuTall += separatorHeight;
 			totalTall += separatorHeight;
 		}
@@ -950,9 +970,9 @@ void Menu::CalculateWidth()
 		{		
 			int wide, tall;
 			m_MenuItems[i]->GetContentSize(wide, tall);
-			if (wide > _menuWide - Label::Content)
+			if (wide > _menuWide - QuickPropScale( Label::Content ) )
 			{
-				_menuWide =  wide + Label::Content;	
+				_menuWide =  wide + QuickPropScale( Label::Content );	
 			}
 		}	
 	}
@@ -1267,7 +1287,8 @@ void Menu::OnKeyCodeTyped(KeyCode keycode)
 	switch (code)
 	{
 	case KEY_ESCAPE:
-	case KEY_XBUTTON_B: 
+	case KEY_XBUTTON_B:
+	case STEAMCONTROLLER_B:
 		{
 			// hide the menu on ESC
 			SetVisible(false);
@@ -1277,7 +1298,8 @@ void Menu::OnKeyCodeTyped(KeyCode keycode)
 		// they should also scroll the scroll bar if needed
 	case KEY_UP:
 	case KEY_XBUTTON_UP: 
-	case KEY_XSTICK1_UP: 
+	case KEY_XSTICK1_UP:
+	case STEAMCONTROLLER_DPAD_UP:
 		{	
 			MoveAlongMenuItemList(MENU_UP, 0);
 			if ( m_MenuItems.IsValidIndex( m_iCurrentlySelectedItemID ) )
@@ -1293,6 +1315,7 @@ void Menu::OnKeyCodeTyped(KeyCode keycode)
 	case KEY_DOWN:
 	case KEY_XBUTTON_DOWN: 
 	case KEY_XSTICK1_DOWN: 
+	case STEAMCONTROLLER_DPAD_DOWN:
 		{
 			MoveAlongMenuItemList(MENU_DOWN, 0);
 			if ( m_MenuItems.IsValidIndex( m_iCurrentlySelectedItemID ) )
@@ -1309,6 +1332,7 @@ void Menu::OnKeyCodeTyped(KeyCode keycode)
 	case KEY_RIGHT:
 	case KEY_XBUTTON_RIGHT: 
 	case KEY_XSTICK1_RIGHT: 
+	case STEAMCONTROLLER_DPAD_RIGHT:
 		{
 			// make sure a menuItem is currently selected
 			if ( m_MenuItems.IsValidIndex(m_iCurrentlySelectedItemID) )
@@ -1331,6 +1355,7 @@ void Menu::OnKeyCodeTyped(KeyCode keycode)
 	case KEY_LEFT:
 	case KEY_XBUTTON_LEFT: 
 	case KEY_XSTICK1_LEFT: 
+	case STEAMCONTROLLER_DPAD_LEFT:
 		{
 			// if our parent is a menu item then we are a submenu so close us.
 			if (GetParentMenuItem())
@@ -1345,6 +1370,7 @@ void Menu::OnKeyCodeTyped(KeyCode keycode)
 		}
 	case KEY_ENTER:
 	case KEY_XBUTTON_A:
+	case STEAMCONTROLLER_A:
 		{
 			// make sure a menuItem is currently selected
 			if ( m_MenuItems.IsValidIndex(m_iCurrentlySelectedItemID) )
@@ -2237,8 +2263,8 @@ void Menu::OnCursorMoved(int x, int y)
 	
 	// chain up
 	CallParentFunction(new KeyValues("OnCursorMoved", "x", x, "y", y));
-	RequestFocus();
-	InvalidateLayout();
+	//RequestFocus();
+	//InvalidateLayout();
 }
 
 //-----------------------------------------------------------------------------
@@ -2359,27 +2385,47 @@ int Menu::GetCurrentlyHighlightedItem()
 //-----------------------------------------------------------------------------
 // Purpose: Respond to cursor entering a menuItem.
 //-----------------------------------------------------------------------------
+// 
+// Josh: Slightly annoying, but need to completely ensure compatiblity with the SDK + GameUI interactions.
+#ifdef PLATFORM_64BITS
+void Menu::OnCursorEnteredMenuItem( vgui::Panel* VPanel )
+{
+	VPANEL menuItem = (VPANEL) VPanel;
+#else
 void Menu::OnCursorEnteredMenuItem(int VPanel)
 {
 	VPANEL menuItem = (VPANEL)VPanel;
+#endif
 	// if we are in mouse mode
 	if (m_iInputMode == MOUSE)
 	{
 		MenuItem *item = static_cast<MenuItem *>(ipanel()->GetPanel(menuItem, GetModuleName()));
 		// arm the menu
 		item->ArmItem();
-		// open the cascading menu if there is one.
-		item->OpenCascadeMenu();
 		SetCurrentlySelectedItem(item);
+
+		// open the cascading menu if there is one.
+		if ( item->HasMenu() )
+		{
+			// open the cascading menu if there is one.
+			item->OpenCascadeMenu();
+			ActivateItem( m_iCurrentlySelectedItemID );
+		}
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Respond to cursor exiting a menuItem
 //-----------------------------------------------------------------------------
-void Menu::OnCursorExitedMenuItem(int VPanel)
+#ifdef PLATFORM_64BITS
+void Menu::OnCursorExitedMenuItem( vgui::Panel* VPanel )
 {
-	VPANEL menuItem = (VPANEL)VPanel;
+	VPANEL menuItem = (VPANEL) VPanel;
+#else
+void Menu::OnCursorExitedMenuItem( int VPanel )
+{
+	VPANEL menuItem = (VPANEL) VPanel;
+#endif
 	// only care if we are in mouse mode
 	if (m_iInputMode == MOUSE)
 	{
@@ -2598,7 +2644,7 @@ void Menu::SetFont( HFont font )
 	m_hItemFont = font;
 	if ( font )
 	{
-		m_iMenuItemHeight = surface()->GetFontTall( font ) + 2;
+		m_iMenuItemHeight = surface()->GetFontTall( font ) + QuickPropScale( 2 );
 	}
 	InvalidateLayout();
 }
@@ -2712,7 +2758,25 @@ MenuBuilder::MenuBuilder( Menu *pMenu, Panel *pActionTarget )
 MenuItem* MenuBuilder::AddMenuItem( const char *pszButtonText, const char *pszCommand, const char *pszCategoryName )
 {
 	AddSepratorIfNeeded( pszCategoryName );
-	return m_pMenu->GetMenuItem( m_pMenu->AddMenuItem( pszButtonText, new KeyValues( pszCommand ), m_pActionTarget ) );
+	return m_pMenu->GetMenuItem( m_pMenu->AddMenuItem( pszButtonText, pszCommand, m_pActionTarget ) );
+}
+
+MenuItem* MenuBuilder::AddMenuItem( const char *pszButtonText, KeyValues *kvUserData, const char *pszCategoryName )
+{
+	AddSepratorIfNeeded( pszCategoryName );
+	return m_pMenu->GetMenuItem( m_pMenu->AddMenuItem( pszButtonText, kvUserData, m_pActionTarget ) );
+}
+
+MenuItem* MenuBuilder::AddMenuItem( const wchar_t *pwszButtonText, const char *pszCommand, const char *pszCategoryName )
+{
+	AddSepratorIfNeeded( pszCategoryName );
+	return m_pMenu->GetMenuItem( m_pMenu->AddMenuItem( CStrAutoEncode( pwszButtonText ).ToString(), pwszButtonText, pszCommand, m_pActionTarget ) );
+}
+
+MenuItem* MenuBuilder::AddMenuItem( const wchar_t *pwszButtonText, KeyValues *kvUserData, const char *pszCategoryName )
+{
+	AddSepratorIfNeeded( pszCategoryName );
+	return m_pMenu->GetMenuItem( m_pMenu->AddMenuItem( CStrAutoEncode( pwszButtonText ).ToString(), pwszButtonText, kvUserData, m_pActionTarget ) );
 }
 
 MenuItem* MenuBuilder::AddCascadingMenuItem( const char *pszButtonText, Menu *pSubMenu, const char *pszCategoryName )
@@ -2720,6 +2784,13 @@ MenuItem* MenuBuilder::AddCascadingMenuItem( const char *pszButtonText, Menu *pS
 	AddSepratorIfNeeded( pszCategoryName );
 	return m_pMenu->GetMenuItem( m_pMenu->AddCascadingMenuItem( pszButtonText, m_pActionTarget, pSubMenu ) );
 }
+
+MenuItem* MenuBuilder::AddCascadingMenuItem( const wchar_t *pwszButtonText, Menu *pSubMenu, const char *pszCategoryName )
+{
+	AddSepratorIfNeeded( pszCategoryName );
+	return m_pMenu->GetMenuItem( m_pMenu->AddCascadingMenuItem( CStrAutoEncode( pwszButtonText ).ToString(), pwszButtonText, (KeyValues*)NULL, m_pActionTarget, pSubMenu ) );
+}
+
 
 void MenuBuilder::AddSepratorIfNeeded( const char *pszCategoryName )
 {

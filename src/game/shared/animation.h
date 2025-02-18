@@ -48,6 +48,7 @@ void SetBodygroup( CStudioHdr *pstudiohdr, int& body, int iGroup, int iValue );
 int GetBodygroup( CStudioHdr *pstudiohdr, int body, int iGroup );
 
 const char *GetBodygroupName( CStudioHdr *pstudiohdr, int iGroup );
+const char *GetBodygroupPartName( CStudioHdr *pstudiohdr, int iGroup, int iPart );
 int FindBodygroupByName( CStudioHdr *pstudiohdr, const char *name );
 int GetBodygroupCount( CStudioHdr *pstudiohdr, int iGroup );
 int GetNumBodyGroups( CStudioHdr *pstudiohdr );

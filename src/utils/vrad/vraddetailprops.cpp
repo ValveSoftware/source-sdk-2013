@@ -524,8 +524,7 @@ private:
 	bool TestPointAgainstSkySurface( Vector const &pt, dface_t *pFace )
 	{
 		// Create sky face winding.
-		Vector v( 0.0f, 0.0f, 0.0f );
-		winding_t *pWinding = WindingFromFace( pFace, v );
+		winding_t *pWinding = WindingFromFace( pFace, Vector( 0.0f, 0.0f, 0.0f ) );
 
 		// Test point in winding. (Since it is at the node, it is in the plane.)
 		bool bRet = PointInWinding( pt, pWinding );
@@ -961,6 +960,7 @@ void UnserializeDetailPropLighting( int lumpID, int lumpVersion, CUtlVector<Deta
 
 DetailObjectLump_t *g_pMPIDetailProps = NULL;
 
+#ifdef MPI
 void VMPI_ProcessDetailPropWU( int iThread, int iWorkUnit, MessageBuffer *pBuf )
 {
 	CUtlVector<DetailPropLightstylesLump_t> *pDetailPropLump = s_pDetailPropLightStyleLump;
@@ -1001,6 +1001,7 @@ void VMPI_ReceiveDetailPropWU( int iWorkUnit, MessageBuffer *pBuf, int iWorker )
 		pBuf->read( &l->m_Style, sizeof( l->m_Style ) );
 	}
 }
+#endif
 	
 //-----------------------------------------------------------------------------
 // Computes lighting for the detail props

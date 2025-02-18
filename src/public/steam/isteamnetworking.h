@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//====== Copyright © 1996-2008, Valve Corporation, All rights reserved. =======
 //
 // Purpose: interface to steam managing network connections between game clients & servers
 //
@@ -10,21 +10,23 @@
 #pragma once
 #endif
 
-#include "steamtypes.h"
-#include "steamclientpublic.h"
-
+#include "steam_api_common.h"
 
 // list of possible errors returned by SendP2PPacket() API
 // these will be posted in the P2PSessionConnectFail_t callback
 enum EP2PSessionError
 {
 	k_EP2PSessionErrorNone = 0,
-	k_EP2PSessionErrorNotRunningApp = 1,			// target is not running the same game
 	k_EP2PSessionErrorNoRightsToApp = 2,			// local user doesn't own the app that is running
-	k_EP2PSessionErrorDestinationNotLoggedIn = 3,	// target user isn't connected to Steam
 	k_EP2PSessionErrorTimeout = 4,					// target isn't responding, perhaps not calling AcceptP2PSessionWithUser()
 													// corporate firewalls can also block this (NAT traversal is not firewall traversal)
 													// make sure that UDP ports 3478, 4379, and 4380 are open in an outbound direction
+
+	// The following error codes were removed and will never be sent.
+	// For privacy reasons, there is no reply if the user is offline or playing another game.
+	k_EP2PSessionErrorNotRunningApp_DELETED = 1,
+	k_EP2PSessionErrorDestinationNotLoggedIn_DELETED = 3,
+
 	k_EP2PSessionErrorMax = 5
 };
 
@@ -63,7 +65,7 @@ enum EP2PSend
 #elif defined( VALVE_CALLBACK_PACK_LARGE )
 #pragma pack( push, 8 )
 #else
-#error isteamclient.h must be included
+#error steam_api_common.h should define VALVE_CALLBACK_PACK_xxx
 #endif 
 struct P2PSessionState_t
 {
@@ -122,13 +124,26 @@ enum ESNetSocketConnectionType
 //-----------------------------------------------------------------------------
 // Purpose: Functions for making connections and sending data between clients,
 //			traversing NAT's where possible
+//
+// NOTE: This interface is deprecated and may be removed in a future release of
+///      the Steamworks SDK.  Please see ISteamNetworkingSockets and
+///      ISteamNetworkingMessages
 //-----------------------------------------------------------------------------
 class ISteamNetworking
 {
 public:
 	////////////////////////////////////////////////////////////////////////////////////////////
-	// Session-less connection functions
-	//    automatically establishes NAT-traversing or Relay server connections
+	//
+	// UDP-style (connectionless) networking interface.  These functions send messages using
+	// an API organized around the destination.  Reliable and unreliable messages are supported.
+	//
+	// For a more TCP-style interface (meaning you have a connection handle), see the functions below.
+	// Both interface styles can send both reliable and unreliable messages.
+	//
+	// Automatically establishes NAT-traversing or Relay server connections
+	//
+	// These APIs are deprecated, and may be removed in a future version of the Steamworks
+	// SDK.  See ISteamNetworkingMessages.
 
 	// Sends a P2P packet to the specified user
 	// UDP-like, unreliable and a max packet size of 1200 bytes
@@ -177,15 +192,29 @@ public:
 	// or to existing connections that need to automatically reconnect after this value is set.
 	//
 	// P2P packet relay is allowed by default
+	//
+	// NOTE: This function is deprecated and may be removed in a future version of the SDK.  For
+	// security purposes, we may decide to relay the traffic to certain peers, even if you pass false
+	// to this function, to prevent revealing the client's IP address top another peer.
 	virtual bool AllowP2PPacketRelay( bool bAllow ) = 0;
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////
-	// LISTEN / CONNECT style interface functions
 	//
-	// This is an older set of functions designed around the Berkeley TCP sockets model
-	// it's preferential that you use the above P2P functions, they're more robust
-	// and these older functions will be removed eventually
+	// LISTEN / CONNECT connection-oriented interface functions
+	//
+	// These functions are more like a client-server TCP API.  One side is the "server"
+	// and "listens" for incoming connections, which then must be "accepted."  The "client"
+	// initiates a connection by "connecting."  Sending and receiving is done through a
+	// connection handle.
+	//
+	// For a more UDP-style interface, where you do not track connection handles but
+	// simply send messages to a SteamID, use the UDP-style functions above.
+	//
+	// Both methods can send both reliable and unreliable methods.
+	//
+	// These APIs are deprecated, and may be removed in a future version of the Steamworks
+	// SDK.  See ISteamNetworkingSockets.
 	//
 	////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -198,14 +227,14 @@ public:
 	//		pass in 0 if you just want the default local IP
 	// unPort is the port to use
 	//		pass in 0 if you don't want users to be able to connect via IP/Port, but expect to be always peer-to-peer connections only
-	virtual SNetListenSocket_t CreateListenSocket( int nVirtualP2PPort, uint32 nIP, uint16 nPort, bool bAllowUseOfPacketRelay ) = 0;
+	virtual SNetListenSocket_t CreateListenSocket( int nVirtualP2PPort, SteamIPAddress_t nIP, uint16 nPort, bool bAllowUseOfPacketRelay ) = 0;
 
 	// creates a socket and begin connection to a remote destination
 	// can connect via a known steamID (client or game server), or directly to an IP
 	// on success will trigger a SocketStatusCallback_t callback
 	// on failure or timeout will trigger a SocketStatusCallback_t callback with a failure code in m_eSNetSocketState
 	virtual SNetSocket_t CreateP2PConnectionSocket( CSteamID steamIDTarget, int nVirtualPort, int nTimeoutSec, bool bAllowUseOfPacketRelay ) = 0;
-	virtual SNetSocket_t CreateConnectionSocket( uint32 nIP, uint16 nPort, int nTimeoutSec ) = 0;
+	virtual SNetSocket_t CreateConnectionSocket( SteamIPAddress_t nIP, uint16 nPort, int nTimeoutSec ) = 0;
 
 	// disconnects the connection to the socket, if any, and invalidates the handle
 	// any unread data on the socket will be thrown away
@@ -247,11 +276,11 @@ public:
 	virtual bool RetrieveData( SNetListenSocket_t hListenSocket, void *pubDest, uint32 cubDest, uint32 *pcubMsgSize, SNetSocket_t *phSocket ) = 0;
 
 	// returns information about the specified socket, filling out the contents of the pointers
-	virtual bool GetSocketInfo( SNetSocket_t hSocket, CSteamID *pSteamIDRemote, int *peSocketStatus, uint32 *punIPRemote, uint16 *punPortRemote ) = 0;
+	virtual bool GetSocketInfo( SNetSocket_t hSocket, CSteamID *pSteamIDRemote, int *peSocketStatus, SteamIPAddress_t *punIPRemote, uint16 *punPortRemote ) = 0;
 
 	// returns which local port the listen socket is bound to
 	// *pnIP and *pnPort will be 0 if the socket is set to listen for P2P connections only
-	virtual bool GetListenSocketInfo( SNetListenSocket_t hListenSocket, uint32 *pnIP, uint16 *pnPort ) = 0;
+	virtual bool GetListenSocketInfo( SNetListenSocket_t hListenSocket, SteamIPAddress_t *pnIP, uint16 *pnPort ) = 0;
 
 	// returns true to describe how the socket ended up connecting
 	virtual ESNetSocketConnectionType GetSocketConnectionType( SNetSocket_t hSocket ) = 0;
@@ -259,7 +288,15 @@ public:
 	// max packet size, in bytes
 	virtual int GetMaxPacketSize( SNetSocket_t hSocket ) = 0;
 };
-#define STEAMNETWORKING_INTERFACE_VERSION "SteamNetworking005"
+#define STEAMNETWORKING_INTERFACE_VERSION "SteamNetworking006"
+
+// Global interface accessor
+inline ISteamNetworking *SteamNetworking();
+STEAM_DEFINE_USER_INTERFACE_ACCESSOR( ISteamNetworking *, SteamNetworking, STEAMNETWORKING_INTERFACE_VERSION );
+
+// Global accessor for the gameserver client
+inline ISteamNetworking *SteamGameServerNetworking();
+STEAM_DEFINE_GAMESERVER_INTERFACE_ACCESSOR( ISteamNetworking *, SteamGameServerNetworking, STEAMNETWORKING_INTERFACE_VERSION );
 
 // callbacks
 #if defined( VALVE_CALLBACK_PACK_SMALL )
@@ -267,7 +304,7 @@ public:
 #elif defined( VALVE_CALLBACK_PACK_LARGE )
 #pragma pack( push, 8 )
 #else
-#error isteamclient.h must be included
+#error steam_api_common.h should define VALVE_CALLBACK_PACK_xxx
 #endif 
 
 // callback notification - a user wants to talk to us over the P2P channel via the SendP2PPacket() API

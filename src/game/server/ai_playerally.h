@@ -17,7 +17,6 @@
 #endif
 #include "stdstring.h"
 #ifndef _WIN32
-#undef MINMAX_H
 #include "minmax.h"
 #endif
 

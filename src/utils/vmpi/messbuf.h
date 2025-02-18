@@ -42,6 +42,16 @@ class MessageBuffer {
 		void	reset(int minsize);
 		void	print(FILE * ofile, int num);	
 
+		void *GetReadPointer()
+		{
+			return ( void * )( data + offset );
+		}
+
+		int GetReadBytesLeft()
+		{
+			return len - offset;
+		}
+
 	private:
 		void	resize(int minsize);
 		int		size;

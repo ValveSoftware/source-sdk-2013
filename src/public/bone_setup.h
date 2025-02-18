@@ -249,7 +249,10 @@ struct ikcontextikrule_t
 	Vector		kneeDir;
 	Vector		kneePos;
 
-	ikcontextikrule_t() {}
+	ikcontextikrule_t()
+	{
+		memset( this, 0, sizeof( *this ) );
+	}
 
 private:
 	// No copy constructors allowed

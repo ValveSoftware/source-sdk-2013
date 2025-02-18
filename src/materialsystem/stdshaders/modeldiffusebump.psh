@@ -1,0 +1,39 @@
+ps.1.1
+
+; base texture
+tex t0
+
+; normalmap
+tex t1
+
+; rgb - tangent space light direction for first light
+texcoord t2
+
+; rgb - tangent space light direction for second light
+texcoord t3
+
+; v0.rgb : ambient color
+; c5     : light 1 color
+; c6	 : light 2 color
+
+; first local light
+dp3_sat r0.rgb, t1_bx2, t2_bx2	; n dot l
++mov r0.a, t0.a					; Get the output color alpha from the base texture
+mad r0.rgb, c5, r0, v0			; mult by light color add add ambient color
+
+; second local light
+dp3_sat r1, t1_bx2, t3_bx2	; n dot l
+mad		r0.rgb, c6, r1, r0			; mult by light color and add first local light
+
+; c1 = A
+; c2 = B
+; c3 = C
+; D = 0
+;mad_x2 r1.rgb, c1, r0, c2
+;mad_x2 r1.rgb, r1, r0, c3
+;mul_x4 r0.rgb, r1, r0
+
+;mul_x2 r0.rgb, r0, t0			; mult by texture and overbright
+
+
+mov_x2 r0.rgb, r0

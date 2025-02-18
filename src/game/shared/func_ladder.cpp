@@ -14,6 +14,8 @@
 #endif
 
 CUtlVector< CFuncLadder * >	CFuncLadder::s_Ladders;
+CUtlVector< CInfoLadderDismount* >	CInfoLadderDismount::s_Dismounts;
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -157,10 +159,10 @@ void CFuncLadder::Activate()
 	// Chain to base class
 	BaseClass::Activate();
 
-#if !defined( CLIENT_DLL )
 	// Re-hook up ladder dismount points
 	SearchForDismountPoints();
 
+#if !defined( CLIENT_DLL )
 	// Show debugging UI if it's active
 	if ( sv_showladders.GetBool() )
 	{
@@ -174,7 +176,6 @@ void CFuncLadder::Activate()
 //-----------------------------------------------------------------------------
 void CFuncLadder::SearchForDismountPoints()
 {
-#if !defined( CLIENT_DLL )
 	CUtlVector< CInfoLadderDismountHandle > allNodes;
 
 	Vector topPos;
@@ -202,7 +203,6 @@ void CFuncLadder::SearchForDismountPoints()
 		bottomPos += recheck * vecBottomToTop;
 		FindNearbyDismountPoints( bottomPos, dismount_radius, m_Dismounts );
 	}
-#endif
 }
 
 void CFuncLadder::SetEndPoints( const Vector& p1, const Vector& p2 )
@@ -326,11 +326,11 @@ int CFuncLadder::GetDismountCount() const
 // Input  : index - 
 // Output : CInfoLadderDismountHandle
 //-----------------------------------------------------------------------------
-CInfoLadderDismount *CFuncLadder::GetDismount( int index )
+CInfoLadderDismount *CFuncLadder::GetDismount( int index_ )
 {
-	if ( index < 0 || index >= m_Dismounts.Count() )
+	if ( index_ < 0 || index_ >= m_Dismounts.Count() )
 		return NULL;
-	return m_Dismounts[ index ];
+	return m_Dismounts[index_];
 }
 
 //-----------------------------------------------------------------------------
@@ -341,13 +341,25 @@ CInfoLadderDismount *CFuncLadder::GetDismount( int index )
 //-----------------------------------------------------------------------------
 void CFuncLadder::FindNearbyDismountPoints( const Vector& origin, float radius, CUtlVector< CInfoLadderDismountHandle >& list )
 {
-#if !defined( CLIENT_DLL )
+#ifdef CLIENT_DLL
+	
+	for ( int i = 0; i < CInfoLadderDismount::GetDismountCount(); i++ )
+	{
+		const float flRadiusSqr = radius * radius;
+
+		CInfoLadderDismount *landingspot = CInfoLadderDismount::GetDismount( i );
+		if ( landingspot->GetAbsOrigin().DistToSqr( origin ) >= flRadiusSqr )
+			continue;
+#else
 	CBaseEntity *pEntity = NULL;
 	while ( (pEntity = gEntList.FindEntityByClassnameWithin( pEntity, "info_ladder_dismount", origin, radius)) != NULL )
 	{
 		CInfoLadderDismount *landingspot = static_cast< CInfoLadderDismount * >( pEntity );
+#endif
 		Assert( landingspot );
 
+		// TODO: Tell the client about this.
+#ifdef GAME_DLL
 		// If spot has a target, then if the target is not this ladder, don't add to our list.
 		if ( landingspot->m_target != NULL_STRING )
 		{
@@ -356,6 +368,7 @@ void CFuncLadder::FindNearbyDismountPoints( const Vector& origin, float radius, 
 				continue;
 			}
 		}
+#endif
 
 		CInfoLadderDismountHandle handle;
 		handle = landingspot;
@@ -364,7 +377,6 @@ void CFuncLadder::FindNearbyDismountPoints( const Vector& origin, float radius, 
 			list.AddToTail( handle  );
 		}
 	}
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -499,7 +511,50 @@ END_NETWORK_TABLE()
 
 LINK_ENTITY_TO_CLASS( info_ladder_dismount, CInfoLadderDismount );
 
+CInfoLadderDismount::CInfoLadderDismount()
+{
+	s_Dismounts.AddToTail( this );
+}
+
+CInfoLadderDismount::~CInfoLadderDismount()
+{
+	s_Dismounts.FindAndRemove( this );
+}
+
+void CInfoLadderDismount::Spawn()
+{
+	BaseClass::Spawn();
+
+	// Entity is symbolid
+	SetSolid( SOLID_NONE );
+	SetMoveType( MOVETYPE_NONE );
+	SetCollisionGroup( COLLISION_GROUP_NONE );
+
+	//AddFlag( FL_WORLDBRUSH );
+	SetModelName( NULL_STRING );
+
+	// Make entity invisible
+	AddEffects( EF_NODRAW );
+	// No model but should still network
+	AddEFlags( EFL_FORCE_CHECK_TRANSMIT );
+}
+
+/*static*/ int CInfoLadderDismount::GetDismountCount()
+{
+	return s_Dismounts.Count();
+}
+/*static*/ CInfoLadderDismount* CInfoLadderDismount::GetDismount( int index )
+{
+	return s_Dismounts[index];
+}
+
 #if defined(GAME_DLL)
+int CInfoLadderDismount::UpdateTransmitState()
+{
+	// transmit if in PVS for clientside prediction
+	return SetTransmitState( FL_EDICT_PVSCHECK );
+}
+
 const char *FuncLadder_GetSurfaceprops(CBaseEntity *pLadderEntity)
 {
 	CFuncLadder *pLadder = dynamic_cast<CFuncLadder *>(pLadderEntity);

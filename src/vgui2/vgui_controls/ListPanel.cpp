@@ -862,7 +862,7 @@ int ListPanel::FindColumn(const char *columnName)
 //			data->GetName() is used to uniquely identify an item
 //			data sub items are matched against column header name to be used in the table
 //-----------------------------------------------------------------------------
-int ListPanel::AddItem( const KeyValues *item, unsigned int userData, bool bScrollToItem, bool bSortOnAdd)
+int ListPanel::AddItem( const KeyValues *item, uintp userData, bool bScrollToItem, bool bSortOnAdd)
 {
 	FastSortListPanelItem *newitem = new FastSortListPanelItem;
 	newitem->kv = item->MakeCopy();
@@ -898,7 +898,7 @@ int ListPanel::AddItem( const KeyValues *item, unsigned int userData, bool bScro
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void ListPanel::SetUserData( int itemID, unsigned int userData )
+void ListPanel::SetUserData( int itemID, uintp userData )
 {
 	if ( !m_DataItems.IsValidIndex(itemID) )
 		return;
@@ -909,7 +909,7 @@ void ListPanel::SetUserData( int itemID, unsigned int userData )
 //-----------------------------------------------------------------------------
 // Purpose: Finds the first itemID with a matching userData
 //-----------------------------------------------------------------------------
-int ListPanel::GetItemIDFromUserData( unsigned int userData )
+int ListPanel::GetItemIDFromUserData( uintp userData )
 {
 	FOR_EACH_LL( m_DataItems, itemID )
 	{
@@ -1064,7 +1064,7 @@ ListPanelItem *ListPanel::GetItemData( int itemID )
 //-----------------------------------------------------------------------------
 // Purpose: returns user data for itemID
 //-----------------------------------------------------------------------------
-unsigned int ListPanel::GetItemUserData(int itemID)
+uintp ListPanel::GetItemUserData(int itemID)
 {
 	if ( !m_DataItems.IsValidIndex(itemID) )
 		return 0;
@@ -1495,7 +1495,7 @@ Panel *ListPanel::GetCellRenderer(int itemID, int col)
 		wchar_t tempText[ 256 ];
 
 		// Grab cell text
-		GetCellText( itemID, col, tempText, 256 );
+		GetCellText( itemID, col, tempText, static_cast<int>( sizeof( tempText ) ) );
 		KeyValues *item = GetItem( itemID );
 		m_pTextImage->SetText(tempText);
         int cw, tall;
@@ -1901,7 +1901,7 @@ void ListPanel::PerformLayout()
 				if (!header->IsVisible())
 					continue;
 
-				int wide = header->GetWide();
+				wide = header->GetWide();
 
 				if ( itemID == m_iEditModeItemID &&
 					 j == m_iEditModeColumn )
@@ -1922,6 +1922,8 @@ void ListPanel::PerformLayout()
 
 	Repaint();
 	m_iColumnDraggerMoved = -1; // reset to invalid column
+
+	m_iHeaderHeight = m_ColumnsData[0].m_pHeader ? m_ColumnsData[0].m_pHeader->GetTall() : m_iHeaderHeight;
 }
 
 //-----------------------------------------------------------------------------
@@ -1988,7 +1990,7 @@ void ListPanel::Paint()
 			if (!header->IsVisible())
 				continue;
 
-			int wide = header->GetWide();
+			int hWide = header->GetWide();
 
 			if (render)
 			{
@@ -2005,7 +2007,7 @@ void ListPanel::Paint()
 
 				render->SetPos( xpos, (drawcount * m_iRowHeight) + m_iTableStartY);
 
-				int right = min( xpos + wide, maxw );
+				int right = min( xpos + hWide, maxw );
 				int usew = right - xpos;
 				render->SetSize( usew, m_iRowHeight - 1 );
 
@@ -2038,7 +2040,7 @@ void ListPanel::Paint()
 			}
 			*/
 
-			x += wide;
+			x += hWide;
 		}
 
 		drawcount++;
@@ -2462,6 +2464,7 @@ void ListPanel::OnKeyCodePressed(KeyCode code)
 	case KEY_XBUTTON_UP:
 	case KEY_XSTICK1_UP:
 	case KEY_XSTICK2_UP:
+	case STEAMCONTROLLER_DPAD_UP:
 		if ( nTotalRows > 0 )
 		{
 			nSelectedRow--;
@@ -2473,6 +2476,7 @@ void ListPanel::OnKeyCodePressed(KeyCode code)
 	case KEY_XBUTTON_DOWN:
 	case KEY_XSTICK1_DOWN:
 	case KEY_XSTICK2_DOWN:
+	case STEAMCONTROLLER_DPAD_DOWN:
 		if ( nTotalRows > 0 )
 		{
 			nSelectedRow++;
@@ -2530,7 +2534,7 @@ void ListPanel::OnKeyCodePressed(KeyCode code)
 	// move the newly selected item to within the visible range
 	if ( nRowsPerPage < nTotalRows )
 	{
-		int nStartItem = m_vbar->GetValue();
+		nStartItem = m_vbar->GetValue();
 		if ( nSelectedRow < nStartItem )
 		{
 			// move the list back to match
@@ -3099,7 +3103,7 @@ void ListPanel::ResizeColumnToContents(int column)
 
 		// get the text
 		wchar_t tempText[ 256 ];
-		GetCellText( itemID, column, tempText, 256 );
+		GetCellText( itemID, column, tempText, static_cast<int>( sizeof( tempText ) ) );
 		m_pTextImage->SetText(tempText);
 
 		m_pTextImage->GetContentSize(wide, tall);

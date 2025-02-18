@@ -14,6 +14,7 @@
 
 class C_BaseEntity;
 class C_LocalTempEntity;
+class C_PhysPropClientside;
 struct model_t;
 
 #include "mempool.h"
@@ -74,6 +75,7 @@ public:
 	virtual void				PlaySound ( C_LocalTempEntity *pTemp, float damp ) = 0;
 	virtual void				PhysicsProp( int modelindex, int skin, const Vector& pos, const QAngle &angles, const Vector& vel, int flags, int effects = 0 ) = 0;
 	virtual C_LocalTempEntity	*ClientProjectile( const Vector& vecOrigin, const Vector& vecVelocity, const Vector& vecAccel, int modelindex, int lifetime, CBaseEntity *pOwner, const char *pszImpactEffect = NULL, const char *pszParticleEffect = NULL ) = 0;
+	virtual C_PhysPropClientside		*PhysicsProp( const model_t *pModel, int skin, const Vector& pos, const QAngle &angles, const Vector& vel, int flags, int effects = 0, int nModelIndex = -1 ) = 0;
 };
 
 
@@ -128,6 +130,7 @@ public:
 	void					CSEjectBrass( const Vector &vecPosition, const QAngle &angAngles, int nType, int nShellType, CBasePlayer *pShooter );
 	void					PhysicsProp( int modelindex, int skin, const Vector& pos, const QAngle &angles, const Vector& vel, int flags, int effects = 0 );
 	C_LocalTempEntity		*ClientProjectile( const Vector& vecOrigin, const Vector& vecVelocity, const Vector& vecAcceleration, int modelindex, int lifetime, CBaseEntity *pOwner, const char *pszImpactEffect = NULL, const char *pszParticleEffect = NULL );
+	C_PhysPropClientside	*PhysicsProp( const model_t *pModel, int skin, const Vector& pos, const QAngle &angles, const Vector& vel, int flags, int effects = 0, int modelindex = -1 );
 
 // Data
 public:

@@ -1,0 +1,645 @@
+//====== Copyright 1996-2010, Valve Corporation, All rights reserved. =======
+//
+// Purpose: The file defines our Google Protocol Buffers which are used in over 
+// the wire messages between servers as well as between the TF GC and TF gameservers
+// and clients.
+//
+//=============================================================================
+
+// We care more about speed than code size
+option optimize_for = SPEED;
+
+// We don't use the service generation functionality
+option cc_generic_services = false;
+
+
+// 
+// STYLE NOTES:
+//
+// Use CamelCase CMsgMyMessageName style names for messages.
+// 
+// Use lowercase _ delimited names like my_steam_id for field names, this is non-standard for Steam,
+// but plays nice with the Google formatted code generation.  
+// 
+// Try not to use required fields ever. Only do so if you are really really sure you'll never want them removed. 
+// Optional should be preffered as it will make versioning easier and cleaner in the future if someone refactors
+// your message and wants to remove or rename fields.
+//
+// Use fixed64 for JobId_t, GID_t, or SteamID.  This is appropriate for any field that is normally
+// going to be larger than 2^56.  Otherwise use int64 for 64 bit values that are frequently smaller
+// than 2^56 as it will safe space on the wire in those cases.
+//
+// Similar to fixed64, use fixed32 for RTime32 or other 32 bit values that are frequently larger than
+// 2^28.  It will save space in those cases, otherwise use int32 which will safe space for smaller values.
+// An exception to this rule for RTime32 is if the value will frequently be zero rather than set to an actual 
+// time.
+//
+
+import "steammessages.proto";
+
+enum EGCItemMsg
+{
+	k_EMsgGCBase						 = 1000;
+	k_EMsgGCSetSingleItemPosition		 = 1001; // uses old-school struct for a single item.  Prefer k_EMsgGCSetItemPositions
+	k_EMsgGCCraft						 = 1002;
+	k_EMsgGCCraftResponse				 = 1003;
+	k_EMsgGCDelete						 = 1004;
+	k_EMsgGCVerifyCacheSubscription		 = 1005; // sent by gameservers who don't have a cache they expect
+	k_EMsgGCNameItem					 = 1006;
+	k_EMsgGCUnlockCrate					 = 1007; // used by decoder rings to unlock supply crates
+	k_EMsgGCUnlockCrateResponse			 = 1008;
+	k_EMsgGCPaintItem					 = 1009; // used by paint cans to paint items
+	k_EMsgGCPaintItemResponse			 = 1010;
+	k_EMsgGCGoldenWrenchBroadcast		 = 1011; // sent to all users when a Golden Wrench is crafted or deleted
+	k_EMsgGCMOTDRequest					 = 1012; // client is asking for a set of MOTDs
+	k_EMsgGCMOTDRequestResponse			 = 1013;
+
+//	k_EMsgGCAddItemToSocket_DEPRECATED				 = 1014;
+//	k_EMsgGCAddItemToSocketResponse_DEPRECATED		 = 1015;
+//	k_EMsgGCAddSocketToBaseItem_DEPRECATED			 = 1016;
+//	k_EMsgGCAddSocketToItem_DEPRECATED				 = 1017;
+//	k_EMsgGCAddSocketToItemResponse_DEPRECATED		 = 1018;
+
+	k_EMsgGCNameBaseItem				 = 1019;
+	k_EMsgGCNameBaseItemResponse		 = 1020;
+
+	k_EMsgGCRemoveSocketItem_DEPRECATED				 = 1021;
+	k_EMsgGCRemoveSocketItemResponse_DEPRECATED		 = 1022;
+
+	k_EMsgGCCustomizeItemTexture		 = 1023;
+	k_EMsgGCCustomizeItemTextureResponse = 1024;
+	k_EMsgGCUseItemRequest				 = 1025;	// client/game server => GC
+	k_EMsgGCUseItemResponse				 = 1026;	// GC => client/game server
+
+//	k_EMsgGCSpawnItem_DEPRECATED		 = 1028;	// GC => game server
+	k_EMsgGCRespawnPostLoadoutChange	 = 1029;	// client => GC => game server
+	k_EMsgGCRemoveItemName				 = 1030;	// client => GC
+	k_EMsgGCRemoveItemPaint				 = 1031;	// client => GC
+	k_EMsgGCGiftWrapItem				 = 1032;   // client => GC (the player requests an item to be gift wrapped)
+	k_EMsgGCGiftWrapItemResponse		 = 1033;   // GC => client (confirmation that an item was gift wrapped)
+	k_EMsgGCDeliverGift					 = 1034;
+	k_EMsgGCDeliverGiftResponseReceiver	 = 1036;
+	k_EMsgGCUnwrapGiftRequest			 = 1037;
+	k_EMsgGCUnwrapGiftResponse			 = 1038;
+	k_EMsgGCSetItemStyle				 = 1039;
+
+	k_EMsgGCUsedClaimCodeItem			 = 1040;
+	k_EMsgGCSortItems					 = 1041;
+
+	k_EMsgGC_RevolvingLootList_DEPRECATED= 1042; // GC => client; revolving loot list
+
+	k_EMsgGCLookupAccount				 = 1043; // client is requesting a lookup of an account
+	k_EMsgGCLookupAccountResponse		 = 1044;
+	k_EMsgGCLookupAccountName			 = 1045; // old-school struct for single account.  client is requesting a lookup of an account name
+	k_EMsgGCLookupAccountNameResponse	 = 1046;
+
+	//k_EMsgGCStartupCheck				 = 1047; // GC => client
+	//k_EMsgGCStartupCheckResponse		 = 1048; // client => GC
+	k_EMsgGCUpdateItemSchema			 = 1049; // GC => client
+	k_EMsgGCRequestInventoryRefresh		 = 1050; // client => GC
+
+	k_EMsgGCRemoveCustomTexture			 = 1051; // client => GC
+	k_EMsgGCRemoveCustomTextureResponse	 = 1052; // GC => client
+	k_EMsgGCRemoveMakersMark			 = 1053; // client => GC
+	k_EMsgGCRemoveMakersMarkResponse	 = 1054; // GC => client
+	k_EMsgGCRemoveUniqueCraftIndex		 = 1055; // client => GC
+	k_EMsgGCRemoveUniqueCraftIndexResponse = 1056; // GC => client
+
+	k_EMsgGCSaxxyBroadcast				 = 1057; // sent to all users when a Saxxy is deleted
+
+	k_EMsgGCBackpackSortFinished		 = 1058; // GC => client
+	k_EMsgGCAdjustItemEquippedState		 = 1059; // GC => client
+//	k_EMsgGCRequestItemSchemaData_DEPRECATED	 = 1060; // client => GC  Should only be used in dev universe
+
+	k_EMsgGCCollectItem					 = 1061;
+
+	k_EMsgGCItemAcknowledged			 = 1062; // sent to a dedicated server when a client acknowledges an item
+
+	// item presets
+	k_EMsgGCPresets_SelectPresetForClass = 1063; // client => GC
+	k_EMsgGCPresets_SetItemPosition		 = 1064; // client => GC
+
+	// Abuse reporting
+	k_EMsgGC_ReportAbuse				 = 1065; // client => GC
+	k_EMsgGC_ReportAbuseResponse		 = 1066; // GC => client
+
+	// more item presets
+	k_EMsgGCPresets_SelectPresetForClassReply = 1067; // GC => client
+
+	// item naming broadcast
+	k_EMsgGCNameItemNotification		 = 1068; // GC => client
+
+// !FIXME! DOTAMERGE
+// these messages are particular to DOTA, or
+// conflict with corresponding TF messages
+//
+//	k_EMsgGCGiftedItems					 = 1027;	// GC => game server
+//	k_EMsgGCDeliverGiftResponseGiver	 = 1035;
+//
+//	k_EMsgGCApplyConsumableEffects		 = 1069;
+//
+//	k_EMsgGCConsumableExhausted			 = 1070;
+//	k_EMsgGCApplyStrangePart			 = 1073; // GC => client
+//	k_EMsgGCShowItemsPickedUp			 = 1071;
+//
+//	// generic broadcast
+//	k_EMsgGCClientDisplayNotification	 = 1072; // GC => client
+//
+////	OBSOLETE k_EMsgGC_IncrementKillCountAttribute = 1074; // client => GC
+//	k_EMsgGC_IncrementKillCountResponse	 = 1075; // GC => client
+//	k_EMsgGCApplyPennantUpgrade			 = 1076; // GC => client
+//
+//	k_EMsgGCSetItemPositions			 = 1077; // client => GC; protobuf batched item position update
+//
+//	k_EMsgGCUnlockItemStyle	=					1080;
+//	k_EMsgGCUnlockItemStyleResponse	=			1081;
+//
+//	k_EMsgGCFulfillDynamicRecipeComponent			= 1082;
+//	k_EMsgGCFulfillDynamicRecipeComponentResponse	= 1083;
+//	k_EMsgGCApplyEggEssence				= 1078;
+//	k_EMsgGCNameEggEssenceResponse		 = 1079;
+//
+//	k_EMsgGCClientRequestMarketData			= 1084;
+//	k_EMsgGCClientRequestMarketDataResponse	= 1085;
+//	k_EMsgGCExtractGems =						1086;
+//	k_EMsgGCAddSocket =							1087;	// client -> GC
+//	k_EMsgGCAddItemToSocket =					1088;	// client -> GC
+//	k_EMsgGCAddItemToSocketResponse =			1089;	// GC -> client
+//	k_EMsgGCAddSocketResponse =					1090;	// GC -> client
+//
+//	k_EMsgGCResetStrangeGemCount =				1091;	// client -> GC
+
+// << DOTA
+
+// TF >>
+
+	// generic broadcast
+	k_EMsgGCClientDisplayNotification	 = 1069; // GC => client
+
+	k_EMsgGCApplyStrangePart			 = 1070; // GC => client
+	k_EMsgGC_IncrementKillCountAttribute = 1071; // client => GC
+	k_EMsgGC_IncrementKillCountResponse	 = 1072; // GC => client
+	k_EMsgGCRemoveStrangePart			 = 1073; // GC => client
+	k_EMsgGCResetStrangeScores			 = 1074; // client => GC
+
+	k_EMsgGCGiftedItems					 = 1075; // GC => game server
+
+	k_EMsgGCApplyUpgradeCard			 = 1077; // client => GC
+	k_EMsgGCRemoveUpgradeCard			 = 1078; // client => GC
+
+	k_EMsgGCApplyStrangeRestriction		 = 1079; // client => GC
+
+	k_EMsgGCClientRequestMarketData			= 1080; // client => GC
+	k_EMsgGCClientRequestMarketDataResponse	= 1081; // GC => client
+
+	k_EMsgGCApplyXifier						= 1082; // client => GC
+	k_EMsgGCApplyXifierResponse				= 1083; // GC => Client
+
+	k_EMsgGC_TrackUniquePlayerPairEvent	 = 1084; // client => GC
+	k_EMsgGCFulfillDynamicRecipeComponent			= 1085; // client => GC
+	k_EMsgGCFulfillDynamicRecipeComponentResponse	= 1086; // GC => client
+
+	k_EMsgGCSetItemEffectVerticalOffset		= 1087;	// client => GC
+	k_EMsgGCSetHatEffectUseHeadOrigin		= 1088;	// client => GC
+
+	k_EMsgGCItemEaterRecharger			 = 1089; // client => GC
+	k_EMsgGCItemEaterRechargerResponse	 = 1090; // GC => Client
+
+	k_EMsgGCApplyBaseItemXifier			 = 1091; // client => GC
+
+	k_EMsgGCApplyClassTransmogrifier	 = 1092; // client => GC
+	k_EMsgGCApplyHalloweenSpellbookPage	 = 1093; // client => GC
+
+	k_EMsgGCRemoveKillStreak			 = 1094; // client => GC
+	k_EMsgGCRemoveKillStreakResponse	 = 1095; // GC => client
+
+	k_EMsgGCTFSpecificItemBroadcast		 = 1096; // GC => client (broadcast)
+	k_EMsgGC_IncrementKillCountAttribute_Multiple = 1097; // client (game server) => GC
+	k_EMsgGCDeliverGiftResponseGiver	= 1098;
+
+	k_EMsgGCSetItemPositions			 = 1100; // client => GC; protobuf batched item position update
+
+// << TF
+
+	k_EMsgGCLookupMultipleAccountNames			 = 1101;
+	k_EMsgGCLookupMultipleAccountNamesResponse	 = 1102;
+
+	// trading!
+	k_EMsgGCTradingBase =						1500;
+	k_EMsgGCTrading_InitiateTradeRequest =		1501;	// client A -> GC and then GC -> client B
+	k_EMsgGCTrading_InitiateTradeResponse =		1502;	// client B -> GC or GC -> client A
+	k_EMsgGCTrading_StartSession =				1503;	// GC -> client A & B
+//	k_EMsgGCTrading_SetItem =					1504;	// client -> GC
+//	k_EMsgGCTrading_RemoveItem =				1505;	// client -> GC
+//	k_EMsgGCTrading_UpdateTradeInfo =			1506;	// GC -> client A & B in response to SetItem or RemoveItem message
+//	k_EMsgGCTrading_SetReadiness	=			1507;	// client -> GC
+//	k_EMsgGCTrading_ReadinessResponse	=		1508;	// GC -> client A & B
+	k_EMsgGCTrading_SessionClosed =				1509;	// GC -> client A & B
+	k_EMsgGCTrading_CancelSession =				1510;	// client -> GC
+//	k_EMsgGCTrading_TradeChatMsg =				1511;	// client -> GC and then GC -> other client
+//	k_EMsgGCTrading_ConfirmOffer =				1512;	// client -> GC
+//	k_EMsgGCTrading_TradeTypingChatMsg =		1513;	// client -> GC and then GC -> other client
+	k_EMsgGCTrading_InitiateTradeRequestResponse = 1514; // GC -> client
+
+	// serverbrowser messages
+	k_EMsgGCServerBrowser_FavoriteServer =		1601;
+	k_EMsgGCServerBrowser_BlacklistServer =		1602;
+
+	// rentals & previews
+	k_EMsgGCServerRentalsBase =					1700;
+	k_EMsgGCItemPreviewCheckStatus =			1701;
+	k_EMsgGCItemPreviewStatusResponse =			1702;
+	k_EMsgGCItemPreviewRequest =				1703;
+	k_EMsgGCItemPreviewRequestResponse =		1704;
+	k_EMsgGCItemPreviewExpire =					1705;
+	k_EMsgGCItemPreviewExpireNotification =		1706;
+
+// !FIXME! DOTAMERGE
+// This message is 1707 in DOTA, but it came from TF, where it was 1707 at one time, then switched to 1708
+// when the message format changed.
+//	k_EMsgGCItemPreviewItemBoughtNotification = 1707;
+	k_EMsgGCItemPreviewItemBoughtNotification = 1708;
+
+	// Development only messages
+	k_EMsgGCDev_NewItemRequest =				2001;
+	k_EMsgGCDev_NewItemRequestResponse =		2002;
+	k_EMsgGCDev_DebugRollLootRequest =			2003;
+
+	// Microtransaction messages
+	k_EMsgGCStoreGetUserData =						2500;			// Gets the current price sheet from the GC
+	k_EMsgGCStoreGetUserDataResponse =				2501;		// Response
+	k_EMsgGCStorePurchaseInit_DEPRECATED =			2502;		// Initiate a purchase (old pre-protobuff format -- deprecated!)
+	k_EMsgGCStorePurchaseInitResponse_DEPRECATED =	2503;		// Response
+
+// !FIXME! DOTAMERGE
+// These messages have different values in TF and DOTA.
+//	k_EMsgGCStorePurchaseFinalize =					2504;		// Finalize a purchase
+//	k_EMsgGCStorePurchaseFinalizeResponse =			2505;		// Response
+//	k_EMsgGCStorePurchaseCancel =					2506;		// Cancel a purchase
+//	k_EMsgGCStorePurchaseCancelResponse =			2507;		// Response
+	k_EMsgGCStorePurchaseFinalize =					2512;		// Finalize a purchase
+	k_EMsgGCStorePurchaseFinalizeResponse =			2513;		// Response
+	k_EMsgGCStorePurchaseCancel =					2514;		// Cancel a purchase
+	k_EMsgGCStorePurchaseCancelResponse =			2515;		// Response
+
+	k_EMsgGCStorePurchaseQueryTxn =					2508;		// Query the status of a transaction
+	k_EMsgGCStorePurchaseQueryTxnResponse =			2509;		// Response
+	k_EMsgGCStorePurchaseInit =						2510;		// Initiate a purchase
+	k_EMsgGCStorePurchaseInitResponse =				2511;		// Response
+
+// !FIXME! DOTAMERGE
+// Conflict with TF messages
+//	k_EMsgGCBannedWordListRequest =					2512;		// Request a list of new banned words
+//	k_EMsgGCBannedWordListResponse =				2513;		// response to a request, or a push of a new banned word update to clients
+//	k_EMsgGCToGCBannedWordListBroadcast =			2514;		// sent from GC to GC so the main GC can broadcast a banned word change to clients
+//	k_EMsgGCToGCBannedWordListUpdated =				2515;		// sent from GC to other GCs so that they can be kept in sync with banned word list updates
+
+	k_EMsgGCToGCDirtySDOCache =						2516;		// when an SDO cache needs to be dirtied on another GC
+	k_EMsgGCToGCDirtyMultipleSDOCache =				2517;		// when a list of SDO caches needs to be dirtied on another GC
+
+	k_EMsgGCToGCUpdateSQLKeyValue =					2518;		// when a key value changes and needs to be updated on other GCs
+//	k_EMsgGCToGCIsTrustedServer =					2519;		// Is the specified server trusted?
+//	k_EMsgGCToGCIsTrustedServerResponse =			2520;		// response to whether or not this is a trusted server
+	k_EMsgGCToGCBroadcastConsoleCommand =			2521;		// run a console command remotely on another GC from a GC
+
+	k_EMsgGCServerVersionUpdated =					2522;		// Sent when the active version of a server changes so servers can restart
+
+	k_EMsgGCApplyAutograph	=						2523; // 
+	k_EMsgGCToGCWebAPIAccountChanged =				2524;
+	k_EMsgGCRequestAnnouncements	=				2525; // 
+	k_EMsgGCRequestAnnouncementsResponse	=		2526; // 
+	k_EMsgGCRequestPassportItemGrant =				2527;
+
+	k_EMsgGCClientVersionUpdated =					2528;		// Sent when the client doesn't match the appropriate version
+
+	k_EMsgGCItemPurgatory_FinalizePurchase =			2531;	// Sent for Korean government requirement - move a purchased item from the "maybe box" (referred to as item purgatory in code) to the backpack
+	k_EMsgGCItemPurgatory_FinalizePurchaseResponse =	2532;
+	k_EMsgGCItemPurgatory_RefundPurchase =				2533;
+	k_EMsgGCItemPurgatory_RefundPurchaseResponse =		2534;
+
+	k_EMsgGCToGCPlayerStrangeCountAdjustments =		2535;
+
+	k_EMsgGCRequestStoreSalesData =					2536; // get which items are currently on sale
+	k_EMsgGCRequestStoreSalesDataResponse =			2537;
+	k_EMsgGCRequestStoreSalesDataUpToDateResponse =	2538;
+
+	k_EMsgGCToGCPingRequest =						2539;
+	k_EMsgGCToGCPingResponse =						2540;
+
+	k_EMsgGCToGCGetUserSessionServer =				2541; // GC->GC, see what the steam ID is of the server that this user is on
+	k_EMsgGCToGCGetUserSessionServerResponse =		2542; //  --response
+	k_EMsgGCToGCGetUserServerMembers =				2543; // GC->GC, what members are on the server and spectating
+	k_EMsgGCToGCGetUserServerMembersResponse =		2544; //  --response
+
+	k_EMsgGCToGCGrantSelfMadeItemToAccount =		2555; // GC->GC, via SQL message queue, grant one specific self-made item to this contributor account ID
+	k_EMsgGCToGCThankedByNewUser =					2556; // GC->GC, via SQL message queue, this account was thanked by a new user account, so grant a thanked item or level up the current item
+
+	k_EMsgGCShuffleCrateContents =					2557; // game client->GC, shuffle the contents of the line item loot list for this crate
+
+	k_EMsgGCQuestObjective_Progress =				2558; // client/game -> GC, report progress in a quest objective
+	k_EMsgGCQuestCompleted =						2559; // GC -> client, report completion of a quest
+
+	k_EMsgGCApplyDuckToken							= 2560; // client => GC
+
+//	k_EMsgGCQuestComplete_Request =					2561;	// client -> GC
+	k_EMsgGCQuestObjective_PointsChange =			2562;	// server -> GC
+	k_EMsgGCQuestObjective_RequestLoanerItems =		2564;	// client -> GC
+	k_EMsgGCQuestObjective_RequestLoanerResponse =	2565;	// GC -> client
+
+	k_EMsgGCApplyStrangeCountTransfer				= 2566; // client => GC
+	k_EMsgGCCraftCollectionUpgrade					= 2567; // client => GC
+	k_EMsgGCCraftHalloweenOffering					= 2568; // client => GC
+
+	k_EMsgGCQuestDiscard_Request					= 2569; // client => GC
+
+	k_EMsgGCRemoveGiftedBy			 = 2570; // client => GC
+	k_EMsgGCRemoveGiftedByResponse	 = 2571; // GC => client
+
+	k_EMsgGCRemoveFestivizer			 = 2572; // client => GC
+	k_EMsgGCRemoveFestivizerResponse	 = 2573; // GC => client
+
+	k_EMsgGCCraftCommonStatClock		= 2574; // client => GC
+
+	// Game specific messages start at 5000 and GCGameBase messages start at 3000
+	// So all these must be < 3000
+};
+
+enum EGCMsgResponse
+{
+	k_EGCMsgResponseOK = 0;				// Request succeeded
+	k_EGCMsgResponseDenied = 1;			// Request denied
+	k_EGCMsgResponseServerError = 2;	// Request failed due to a temporary server error
+	k_EGCMsgResponseTimeout = 3;		// Request timed out
+	k_EGCMsgResponseInvalid = 4;		// Request was corrupt
+	k_EGCMsgResponseNoMatch = 5;		// No item definition matched the request
+	k_EGCMsgResponseUnknownError = 6;	// Request failed with an unknown error
+	k_EGCMsgResponseNotLoggedOn = 7;	// Client not logged on to steam
+	k_EGCMsgFailedToCreate = 8;			// Failed to create whatever object the GC was asked to create
+
+//	k_EGCMsgResponseForceSizeInt = 0x7FFFFFFF
+};
+
+enum EUnlockStyle
+{
+	k_UnlockStyle_Succeeded = 0;
+	k_UnlockStyle_Failed_PreReq = 1;
+	k_UnlockStyle_Failed_CantAfford = 2;
+	k_UnlockStyle_Failed_CantCommit = 3;
+	k_UnlockStyle_Failed_CantLockCache = 4;
+	k_UnlockStyle_Failed_CantAffordAttrib = 5;
+	k_UnlockStyle_Failed_CantAffordGem = 6;
+};
+
+enum EItemPurgatoryResponse_Finalize
+{
+	k_ItemPurgatoryResponse_Finalize_Succeeded = 0;
+	k_ItemPurgatoryResponse_Finalize_Failed_Incomplete = 1;				// Some but not all finalized
+	k_ItemPurgatoryResponse_Finalize_Failed_ItemsNotInPurgatory = 2;	// Item ID's sent up were not in purgatory
+	k_ItemPurgatoryResponse_Finalize_Failed_CouldNotFindItems = 3;		// One or more items do not belong to the given steam ID or were deleted, etc.
+	k_ItemPurgatoryResponse_Finalize_Failed_NoSOCache = 4;				// Couldn't load the user's SO cache
+	k_ItemPurgatoryResponse_Finalize_BackpackFull = 5;					// Backpack was full. We may have finalized some items.
+};
+
+enum EItemPurgatoryResponse_Refund
+{
+	k_ItemPurgatoryResponse_Refund_Succeeded = 0;
+	k_ItemPurgatoryResponse_Refund_Failed_ItemNotInPurgatory = 1;		// Item ID's sent up were not in purgatory
+	k_ItemPurgatoryResponse_Refund_Failed_CouldNotFindItem = 2;			// One or more items do not belong to the given steam ID or were deleted, etc.
+	k_ItemPurgatoryResponse_Refund_Failed_NoSOCache = 3;				// Couldn't load the user's SO cache
+	k_ItemPurgatoryResponse_Refund_Failed_NoDetail = 4;					// Generic error to avoid giving the client too much detail
+	k_ItemPurgatoryResponse_Refund_Failed_NexonWebAPI = 5;				// The Nexon WebAPI failed
+};
+
+//
+// k_EMsgGCApplyAutograph
+//
+message CMsgApplyAutograph
+{
+	optional uint64 autograph_item_id = 1;			// which autograph?
+	optional uint64 item_item_id = 2;				// which item is getting this autograph
+};
+
+
+// k_EMsgGCToGCPlayerStrangeCountAdjustments
+// Used in the GC SQL Msg queue and in match signout
+message CMsgEconPlayerStrangeCountAdjustment
+{
+	message CStrangeCountAdjustment
+	{
+		optional uint32			event_type = 1;
+		optional uint64			item_id = 2;
+		optional uint32			adjustment = 3;
+	};
+
+	optional uint32						account_id = 1;
+	repeated CStrangeCountAdjustment	strange_count_adjustments = 2;
+};
+
+
+//
+// k_EMsgGCItemPurgatory_FinalizePurchase
+//
+message CMsgRequestItemPurgatory_FinalizePurchase
+{
+	repeated uint64 item_ids = 1;
+};
+
+//
+// k_EMsgGCItemPurgatory_FinalizePurchaseResponse
+//
+message CMsgRequestItemPurgatory_FinalizePurchaseResponse
+{
+	optional uint32 result = 1;
+};
+
+//
+// k_EMsgGCItemPurgatory_RefundPurchase
+//
+message CMsgRequestItemPurgatory_RefundPurchase
+{
+	optional uint64 item_id = 1;
+};
+
+//
+// k_EMsgGCItemPurgatory_RefundPurchaseResponse
+//
+message CMsgRequestItemPurgatory_RefundPurchaseResponse
+{
+	optional uint32 result = 1;
+};
+
+message CMsgCraftingResponse
+{
+	repeated uint64 item_ids = 1;
+};
+
+// k_EMsgGCRequestStoreSalesData
+message CMsgGCRequestStoreSalesData
+{
+	optional uint32		version = 1;		// the last received version (used to identify when sales data may have changed)
+	optional uint32		currency = 2;		// which currency we want the sales values for
+};
+
+// k_EMsgGCRequestStoreSalesDataResponse
+message CMsgGCRequestStoreSalesDataResponse
+{
+	message Price
+	{
+		optional uint32	item_def = 1;
+		optional uint32 price = 2;
+	};
+	repeated Price		sale_price = 1;			// the list of items on sale and their sale price for the requested currency
+	optional uint32		version = 2;			// the version of this data, future sale requests should provide this value so redundant requests can be ignored
+	optional uint32		expiration_time = 3;	// the time after which this sale is likely to expire. It could expire sooner than this if the GC restarts
+};
+
+// k_EMsgGCRequestStoreSalesDataUpToDateResponse
+message CMsgGCRequestStoreSalesDataUpToDateResponse
+{
+	optional uint32		version = 1;			// the last received version (used to identify when sales data may have changed)
+	optional uint32		expiration_time = 2;	// the time after which this sale is likely to expire. It could expire sooner than this if the GC restarts
+};
+
+// k_EMsgGCToGCPingRequest
+message CMsgGCToGCPingRequest
+{
+};
+
+// k_EMsgGCToGCPingResponse
+message CMsgGCToGCPingResponse
+{
+};
+
+// k_EMsgGCToGCGetUserSessionServer
+message CMsgGCToGCGetUserSessionServer
+{
+	optional uint32		account_id = 1;				// the user to lookup the server information for
+};
+
+// k_EMsgGCToGCGetUserSessionServerResponse
+message CMsgGCToGCGetUserSessionServerResponse
+{
+	optional fixed64	server_steam_id = 1;		// zero if this user is not online or not on a server
+};
+
+// k_EMsgGCToGCGetUserServerMembers		
+message CMsgGCToGCGetUserServerMembers
+{
+	optional uint32		account_id = 1;				// the account ID to look up the server and spectators from	
+	optional uint32		max_spectators = 2;			// do you want spectators? If so what is the limit of how many will be returned (otherwise specify zero)
+};
+
+// k_EMsgGCToGCGetUserServerMembersResponse
+message CMsgGCToGCGetUserServerMembersResponse
+{
+	repeated uint32		member_account_id = 1;		// the list of other server members or spectators
+};
+
+// k_EMsgGCLookupMultipleAccountNames
+message CMsgLookupMultipleAccountNames
+{
+	repeated uint32 accountids = 1 [ packed=true ];
+};
+
+// k_EMsgGCLookupMultipleAccountNamesResponse
+message CMsgLookupMultipleAccountNamesResponse
+{
+	message Account
+	{
+		optional uint32 accountid = 1;
+		optional string persona = 2;
+	}
+	repeated Account accounts = 1;
+};
+
+// k_EMsgGCToGCGrantSelfMadeItemToAccount
+message CMsgGCToGCGrantSelfMadeItemToAccount
+{
+	optional uint32 item_def_index = 1;
+	optional uint32 accountid = 2;
+}
+
+// k_EMsgGCToGCThankedByNewUser
+message CMsgGCToGCThankedByNewUser
+{
+	optional uint32 new_user_accountid = 1;			// guy who did the thanking
+	optional uint32 thanked_user_accountid = 2;		// guy who was thanked
+}
+
+// k_EMsgGCShuffleCrateContents
+message CMsgGCShuffleCrateContents
+{
+	optional uint64 crate_item_id = 1;
+	optional string user_code_string = 2;
+}
+
+// k_EMsgGCQuestObjective_Progress
+message CMsgGCQuestObjective_Progress
+{
+	optional uint64 quest_id = 1;
+	optional uint32 quest_attrib_index = 2;
+	optional uint32 delta = 3;
+	optional fixed64 owner_steamid = 4;
+}
+
+// CMsgGCQuestObjective_PointsChange
+message CMsgGCQuestObjective_PointsChange
+{
+	optional uint64 quest_id = 1;
+	optional fixed64 owner_steamid = 4;
+	optional bool update_base_points = 5 [default = false];
+	optional uint32 points_0 = 6;
+	optional uint32 points_1 = 7;
+	optional uint32 points_2 = 8;
+}
+
+// k_EMsgGCQuestComplete_Request
+message CMsgGCQuestComplete_Request
+{
+	optional uint64 quest_id = 1;
+}
+
+// k_EMsgGCQuestCompleted
+message CMsgGCQuestCompleted
+{
+}
+
+// k_EMsgGCQuestObjective_RequestLoanerItems
+message CMsgGCQuestObjective_RequestLoanerItems
+{
+	optional uint64 quest_id = 1;
+}
+
+// k_EMsgGCQuestObjective_RequestLoanerResponse
+message CMsgGCQuestObjective_RequestLoanerResponse
+{
+}
+
+// k_EMsgGCCraftCollectionUpgrader
+message CMsgCraftCollectionUpgrade
+{
+	repeated uint64 item_id = 1;					// list of item ids
+};
+
+// k_EMsgGCCraftHalloweenOffering
+message CMsgCraftHalloweenOffering
+{
+	optional uint64 tool_id = 1;					// tool that is invoking this call
+	repeated uint64 item_id = 2;					// list of item ids
+};
+
+// k_EMsgGCCraftCommonStatClock
+message CMsgCraftCommonStatClock
+{
+	optional uint64 tool_id = 1;					// tool that is invoking this call
+	repeated uint64 item_id = 2;					// list of item ids
+};
+
+// k_EMsgGCQuestDiscard_Request
+message CMsgGCQuestDiscard_Request
+{
+	optional uint64 quest_id = 1;
+}
+
+// Do not remove this comment due to a bug on the Mac OS X protobuf compiler - lol
+

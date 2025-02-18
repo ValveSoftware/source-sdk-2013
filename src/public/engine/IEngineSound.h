@@ -46,12 +46,41 @@ class Vector;
 #define SNDLEVEL_IS_COMPATIBILITY_MODE( x )		( (x) >= soundlevel_t(256) )
 
 
-	
+// IAudioOutputStream from source2
+// a separate stream that connects to the main output
+class IAudioOutputStream
+{
+public:
+	virtual ~IAudioOutputStream() {}
+	// queue a set of samples for output.  
+	// NOTE: nSampleCount is the number of samples being written to each channel, not the total # of all channels' samples
+	virtual void WriteAudioData( const int16 *pData, uint nSampleCount, uint nChannels ) = 0;
+
+	// change output volume (will be ramped linearly per sample over one mix quantum)
+	virtual void SetVolume( float flVolume ) = 0;
+
+	// how many samples are queued to play?
+	virtual uint32 QueuedSampleCount() = 0;
+
+	// how many samples can we write in a WriteAudioData call without truncation in the internal buffer?
+	virtual uint32 MaxWriteSampleCount() = 0;
+
+	// how many samples of latency
+	virtual uint32 LatencySamplesCount() = 0;
+
+	virtual void Pause() = 0;
+	virtual void Resume() = 0;
+};
+
+
+
 //-----------------------------------------------------------------------------
 // Client-server neutral effects interface
 //-----------------------------------------------------------------------------
 #define IENGINESOUND_CLIENT_INTERFACE_VERSION	"IEngineSoundClient003"
 #define IENGINESOUND_SERVER_INTERFACE_VERSION	"IEngineSoundServer003"
+
+struct AudioState_t;
 
 abstract_class IEngineSound
 {
@@ -117,6 +146,15 @@ public:
 	virtual void	PrecacheSentenceGroup( const char *pGroupName ) = 0;
 	virtual void	NotifyBeginMoviePlayback() = 0;
 	virtual void	NotifyEndMoviePlayback() = 0;
+
+	// create/destroy an audio stream
+	virtual IAudioOutputStream *CreateOutputStream( uint nSampleRate, uint nChannels, uint nBits ) = 0;
+	virtual void DestroyOutputStream( IAudioOutputStream *pStream ) = 0;
+
+	// Force an update, for instances where we are otherwise deadlocked from the main loop.
+	virtual void	ManualUpdate( const AudioState_t *pListenerState ) = 0;
+	// Force an extra update.
+	virtual void	ExtraUpdate() = 0;
 };
 
 

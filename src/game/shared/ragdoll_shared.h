@@ -54,7 +54,7 @@ struct ragdollanimatedfriction_t
 
 struct ragdoll_t
 {
-	int						listCount;
+	int					listCount;
 	bool					allowStretch;
 	bool					unused;
 	IPhysicsConstraintGroup *pGroup;

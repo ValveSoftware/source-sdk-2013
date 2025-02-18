@@ -90,60 +90,6 @@ bool UseHWMorphVCDs()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-bool C_SceneEntity::GetHWMorphSceneFileName( const char *pFilename, char *pHWMFilename )
-{
-	// Are we even using hardware morph?
-	if ( !UseHWMorphVCDs() )
-		return false;
-
-	// Multi-player only!
-	if ( !m_bMultiplayer )
-		return false;
-
-	// Do we have a valid filename?
-	if ( !( pFilename && pFilename[0] ) )
-		return false;
-
-	// Check to see if we already have an player/hwm/* filename.
-	if ( ( V_strstr( pFilename, "/high" ) != NULL ) || ( V_strstr( pFilename, "\\high" ) != NULL ) )
-	{
-		V_strcpy( pHWMFilename, pFilename );
-		return true;
-	}
-
-	// Find the hardware morph scene name and pass that along as well.
-	char szScene[MAX_PATH];
-	V_strcpy( szScene, pFilename );
-
-	char szSceneHWM[MAX_PATH];
-	szSceneHWM[0] = '\0';
-
-	char *pszToken = strtok( szScene, "/\\" );
-	while ( pszToken != NULL )
-	{
-		if ( !V_stricmp( pszToken, "low" ) )
-		{
-			V_strcat( szSceneHWM, "high", sizeof( szSceneHWM ) );
-		}
-		else
-		{
-			V_strcat( szSceneHWM, pszToken, sizeof( szSceneHWM ) );
-		}
-
-		pszToken = strtok( NULL, "/\\" );
-		if ( pszToken != NULL )
-		{
-			V_strcat( szSceneHWM, "\\", sizeof( szSceneHWM ) );
-		}
-	}
-
-	V_strcpy( pHWMFilename, szSceneHWM );
-	return true;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void C_SceneEntity::ResetActorFlexesForScene()
@@ -204,14 +150,14 @@ void C_SceneEntity::SetupClientOnlyScene( const char *pszFilename, C_BaseFlex *p
 	m_hOwner = pOwner;
 	m_bClientOnly = true;
 
-	char szFilename[128];
-	Assert( V_strlen( pszFilename ) < 128 );
-	V_strcpy( szFilename, pszFilename );
+	char szFilename[MAX_PATH];
+	Assert( V_strlen( pszFilename ) < MAX_PATH );
+	V_strcpy_safe( szFilename, pszFilename );
 
-	char szSceneHWM[128];
+	char szSceneHWM[ MAX_PATH ];
 	if ( GetHWMorphSceneFileName( szFilename, szSceneHWM ) )
 	{
-		V_strcpy( szFilename, szSceneHWM );
+		V_strcpy_safe( szFilename, szSceneHWM );
 	}
 
 	Assert(  szFilename[ 0 ] );
@@ -320,7 +266,7 @@ void C_SceneEntity::PostDataUpdate( DataUpdateType_t updateType )
 	if ( str )
 	{
 		Assert( V_strlen( str ) < MAX_PATH );
-		V_strcpy( szFilename, str );
+		V_strcpy_safe( szFilename, str );
 	}
 	else
 	{
@@ -330,7 +276,7 @@ void C_SceneEntity::PostDataUpdate( DataUpdateType_t updateType )
 	char szSceneHWM[MAX_PATH];
 	if ( GetHWMorphSceneFileName( szFilename, szSceneHWM ) )
 	{
-		V_strcpy( szFilename, szSceneHWM );
+		V_strcpy_safe( szFilename, szSceneHWM );
 	}
 
 	if ( updateType == DATA_UPDATE_CREATED )
@@ -1162,11 +1108,11 @@ void C_SceneEntity::PrefetchAnimBlocks( CChoreoScene *pScene )
 							{
 								// Now look up the animblock
 								mstudioseqdesc_t &seqdesc = pStudioHdr->pSeqdesc( iSequence );
-								for ( int i = 0 ; i < seqdesc.groupsize[ 0 ] ; ++i )
+								for ( int iGroup = 0 ; iGroup < seqdesc.groupsize[ 0 ] ; ++iGroup )
 								{
 									for ( int j = 0; j < seqdesc.groupsize[ 1 ]; ++j )
 									{
-										int iAnimation = seqdesc.anim( i, j );
+										int iAnimation = seqdesc.anim( iGroup, j );
 										int iBaseAnimation = pStudioHdr->iRelativeAnim( iSequence, iAnimation );
 										mstudioanimdesc_t &animdesc = pStudioHdr->pAnimdesc( iBaseAnimation );
 
@@ -1185,14 +1131,14 @@ void C_SceneEntity::PrefetchAnimBlocks( CChoreoScene *pScene )
 											++nResident;
 											if ( nSpew > 1 )
 											{
-												Msg( "%s:%s[%i:%i] was resident\n", pStudioHdr->pszName(), animdesc.pszName(), i, j );
+												Msg( "%s:%s[%i:%i] was resident\n", pStudioHdr->pszName(), animdesc.pszName(), iGroup, j );
 											}
 										}
 										else
 										{
 											if ( nSpew != 0 )
 											{
-												Msg( "%s:%s[%i:%i] async load\n", pStudioHdr->pszName(), animdesc.pszName(), i, j );
+												Msg( "%s:%s[%i:%i] async load\n", pStudioHdr->pszName(), animdesc.pszName(), iGroup, j );
 											}
 										}
 									}

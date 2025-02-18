@@ -1,0 +1,14 @@
+//-----------------------------------------------------------------------------
+//	game_shader_generic_example_tf.vpc
+//
+//	Project Script for mods to use an an example of how to override shaders
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\.."
+$Macro OUTBINNAME "game_shader_generic_example"
+$Macro GAMENAME "mod_tf"
+$Include "$SRCDIR\materialsystem\stdshaders\game_shader_generic_example_base.vpc"
+
+$Project "Game Shaders (TF)"
+{
+}

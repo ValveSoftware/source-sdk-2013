@@ -110,7 +110,7 @@ public:
 	// Sets special trigger bounds. The bloat amount indicates how much bigger the 
 	// trigger bounds should be beyond the bounds set in SetCollisionBounds
 	// This method will also set the FSOLID flag FSOLID_USE_TRIGGER_BOUNDS
-	void			UseTriggerBounds( bool bEnable, float flBloat = 0.0f );
+	void			UseTriggerBounds( bool bEnable, float flBloat = 0.0f, bool bUniformTriggerBloat = false );
 
 	// Sets the method by which the surrounding collision bounds is set
 	// You must pass in values for mins + maxs if you select the USE_SPECIFIED_BOUNDS type. 
@@ -254,6 +254,7 @@ private:
 	// One of the SOLID_ defines. Use GetSolid/SetSolid.
 	CNetworkVar( unsigned char, m_nSolidType );			
 	CNetworkVar( unsigned char , m_triggerBloat );
+	CNetworkVar( bool, m_bUniformTriggerBloat );
 
 	// SUCKY: We didn't use to have to store this previously
 	// but storing it here means that we can network it + avoid a ton of

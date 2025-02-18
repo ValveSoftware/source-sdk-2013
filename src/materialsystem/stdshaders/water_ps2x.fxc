@@ -11,7 +11,7 @@
 // STATIC: "NORMAL_DECODE_MODE"				"0..0"	[XBOX]
 // STATIC: "NORMAL_DECODE_MODE"				"0..0"	[PC]
 
-// DYNAMIC: "PIXELFOGTYPE"					"0..1"
+// DYNAMIC: "PIXELFOGTYPE"					"0..2"
 // DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"		"0..1"	[ps20b] [PC]
 // DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"		"0..0"	[ps20b] [XBOX]
 
@@ -43,6 +43,7 @@ const HALF4 g_WaterFogParams		: register( c7 );
 
 const float4 g_PixelFogParams		: register( c8 );
 
+const float3 g_EyePos				: register( c9 );
 
 #define g_WaterFogStart			g_WaterFogParams.x
 #define g_WaterFogEndMinusStart	g_WaterFogParams.y
@@ -53,7 +54,7 @@ struct PS_INPUT
 	float2 vBumpTexCoord			: TEXCOORD0;
 	half3 vTangentEyeVect			: TEXCOORD1;
 	float4 vReflectXY_vRefractYX	: TEXCOORD2;
-	float W							: TEXCOORD3;
+	float4 vWorldPos_projPosW		: TEXCOORD3;
 	float4 vProjPos					: TEXCOORD4;
 	float screenCoord				: TEXCOORD5;
 #if MULTITEXTURE
@@ -78,7 +79,7 @@ float4 main( PS_INPUT i ) : COLOR
 	params.vExtraBumpTexCoord = i.vExtraBumpTexCoord;
 #endif
 	params.vReflectXY_vRefractYX = i.vReflectXY_vRefractYX;
-	params.w = i.W;
+	params.w = i.vWorldPos_projPosW.w;
 	params.vReflectRefractScale = g_ReflectRefractScale;
 	params.fReflectOverbright = g_Reflect_OverBright;
 	params.vReflectTint = vReflectTint;
@@ -93,6 +94,8 @@ float4 main( PS_INPUT i ) : COLOR
 	params.pixelFogParams = g_PixelFogParams;
 	params.fWaterFogStart = g_WaterFogStart;
 	params.fWaterFogEndMinusStart = g_WaterFogEndMinusStart;
+	params.vEyePos = g_EyePos;
+	params.vWorldPos = i.vWorldPos_projPosW.xyz;
 
 	float4 result;
 	float fogFactor;

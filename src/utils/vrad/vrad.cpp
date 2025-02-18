@@ -94,7 +94,7 @@ bool g_bOnlyStaticProps = false;
 bool g_bShowStaticPropNormals = false;
 
 
-float		gamma_value = 0.5;
+float		gamma = 0.5;
 float		indirect_sun = 1.0;
 float		reflectivityScale = 1.0;
 qboolean	do_extra = true;
@@ -2020,12 +2020,14 @@ bool RadWorld_Go()
 	}
 
 	// build initial facelights
+#ifdef MPI
 	if (g_bUseMPI) 
 	{
 		// RunThreadsOnIndividual (numfaces, true, BuildFacelights);
 		RunMPIBuildFacelights();
 	}
 	else 
+#endif
 	{
 		RunThreadsOnIndividual (numfaces, true, BuildFacelights);
 	}
@@ -2079,13 +2081,19 @@ bool RadWorld_Go()
 		StaticDispMgr()->InsertPatchSampleDataIntoHashTable();
 		StaticDispMgr()->EndTimer();
 
+#ifdef MPI
 		// blend bounced light into direct light and save
 		VMPI_SetCurrentStage( "FinalLightFace" );
 		if ( !g_bUseMPI || g_bMPIMaster )
+#endif
+		{
 			RunThreadsOnIndividual (numfaces, true, FinalLightFace);
+		}
 		
 		// Distribute the lighting data to workers.
+#ifdef MPI
 		VMPI_DistributeLightData();
+#endif
 			
 		Msg("FinalLightFace Done\n"); fflush(stdout);
 	}
@@ -2143,7 +2151,9 @@ void VRAD_LoadBSP( char const *pFilename )
 	// so we prepend qdir here.
 	strcpy( source, ExpandPath( source ) );
 
+#ifdef MPI
 	if ( !g_bUseMPI )
+#endif
 	{
 		// Setup the logfile.
 		char logFile[512];
@@ -2181,10 +2191,13 @@ void VRAD_LoadBSP( char const *pFilename )
 	Q_DefaultExtension(source, ".bsp", sizeof( source ));
 
 	Msg( "Loading %s\n", source );
+#ifdef MPI
 	VMPI_SetCurrentStage( "LoadBSPFile" );
+#endif
 	LoadBSPFile (source);
 
 	// Add this bsp to our search path so embedded resources can be found
+#ifdef MPI
 	if ( g_bUseMPI && g_bMPIMaster )
 	{
 		// MPI Master, MPI workers don't need to do anything
@@ -2192,6 +2205,7 @@ void VRAD_LoadBSP( char const *pFilename )
 		g_pOriginalPassThruFileSystem->AddSearchPath(source, "MOD", PATH_ADD_TO_HEAD);
 	}
 	else if ( !g_bUseMPI )
+#endif
 	{
 		// Non-MPI
 		g_pFullFileSystem->AddSearchPath(source, "GAME", PATH_ADD_TO_HEAD);
@@ -2323,7 +2337,9 @@ void VRAD_Finish()
 	}
 
 	Msg( "Writing %s\n", source );
+#ifdef MPI
 	VMPI_SetCurrentStage( "WriteBSPFile" );
+#endif
 	WriteBSPFile(source);
 
 	if ( g_bDumpPatches )
@@ -2751,6 +2767,7 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 			}
 		}
 #endif
+#ifdef MPI
 		// NOTE: the -mpi checks must come last here because they allow the previous argument 
 		// to be -mpi as well. If it game before something else like -game, then if the previous
 		// argument was -mpi and the current argument was something valid like -game, it would skip it.
@@ -2763,6 +2780,7 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 			if ( i == argc - 1 && V_stricmp( argv[i], "-mpi_ListParams" ) != 0 )
 				break;
 		}
+#endif
 		else if ( mapArg == -1 )
 		{
 			mapArg = i;
@@ -2805,7 +2823,9 @@ void PrintUsage( int argc, char **argv )
 		"  -final          : High quality processing. equivalent to -extrasky 16.\n"
 		"  -extrasky n     : trace N times as many rays for indirect light and sky ambient.\n"
 		"  -low            : Run as an idle-priority process.\n"
+#ifdef MPI
 		"  -mpi            : Use VMPI to distribute computations.\n"
+#endif
 		"  -rederror       : Show errors in red.\n"
 		"\n"
 		"  -vproject <directory> : Override the VPROJECT environment variable.\n"
@@ -2828,7 +2848,9 @@ void PrintUsage( int argc, char **argv )
 		"  -dlightmap      : Force direct lighting into different lightmap than\n"
 		"                    radiosity.\n"
 		"  -stoponexit	   : Wait for a keypress on exit.\n"
+#ifdef MPI
 		"  -mpi_pw <pw>    : Use a password to choose a specific set of VMPI workers.\n"
+#endif
 		"  -nodetaillight  : Don't light detail props.\n"
 		"  -centersamples  : Move sample centers.\n"
 		"  -luxeldensity # : Rescale all luxels by the specified amount (default: 1.0).\n"
@@ -2922,7 +2944,9 @@ int RunVRAD( int argc, char **argv )
 
 	VRAD_Finish();
 
+#ifdef MPI
 	VMPI_SetCurrentStage( "master done" );
+#endif
 
 	DeleteCmdLine( argc, argv );
 	CmdLib_Cleanup();
@@ -2937,14 +2961,18 @@ int VRAD_Main(int argc, char **argv)
 	VRAD_Init();
 
 	// This must come first.
+#ifdef MPI
 	VRAD_SetupMPI( argc, argv );
+#endif
 
+#ifdef MPI
 #if !defined( _DEBUG )
 	if ( g_bUseMPI && !g_bMPIMaster )
 	{
 		SetupToolsMinidumpHandler( VMPI_ExceptionFilter );
 	}
 	else
+#endif
 #endif
 	{
 		LoadCmdLineFromFile( argc, argv, source, "vrad" ); // Don't do this if we're a VMPI worker..

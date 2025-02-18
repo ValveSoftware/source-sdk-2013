@@ -133,7 +133,7 @@ const char *AI_CriteriaSet::GetValue( int index ) const
 		return "";
 
 	const CritEntry_t *entry = &m_Lookup[ index ];
-	return entry->value ? entry->value : "";
+	return entry->value;
 }
 
 //-----------------------------------------------------------------------------
@@ -161,11 +161,11 @@ void AI_CriteriaSet::Describe()
 
 		if ( entry->weight != 1.0f )
 		{
-			DevMsg( "  %20s = '%s' (weight %f)\n", entry->criterianame.String(), entry->value ? entry->value : "", entry->weight );
+			DevMsg( "  %20s = '%s' (weight %f)\n", entry->criterianame.String(), entry->value, entry->weight );
 		}
 		else
 		{
-			DevMsg( "  %20s = '%s'\n", entry->criterianame.String(), entry->value ? entry->value : "" );
+			DevMsg( "  %20s = '%s'\n", entry->criterianame.String(), entry->value );
 		}
 	}
 }

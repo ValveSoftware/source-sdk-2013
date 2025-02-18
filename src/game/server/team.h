@@ -40,9 +40,9 @@ public:
 	// Data Handling
 	//-----------------------------------------------------------------------------
 	virtual int			GetTeamNumber( void ) const;
-	virtual const char *GetName( void );
+	virtual const char *GetName( void ) const;
 	virtual void		UpdateClientData( CBasePlayer *pPlayer );
-	virtual bool		ShouldTransmitToPlayer( CBasePlayer* pRecipient, CBaseEntity* pEntity );
+	virtual bool		ShouldTransmitToPlayer( CBasePlayer* pRecipient, CBaseEntity* pEntity ) const;
 
 	//-----------------------------------------------------------------------------
 	// Spawnpoints
@@ -58,25 +58,25 @@ public:
 	virtual void InitializePlayers( void );
 	virtual void AddPlayer( CBasePlayer *pPlayer );
 	virtual void RemovePlayer( CBasePlayer *pPlayer );
-	virtual int  GetNumPlayers( void );
-	virtual CBasePlayer *GetPlayer( int iIndex );
+	virtual int  GetNumPlayers( void ) const;
+	virtual CBasePlayer *GetPlayer( int iIndex ) const ;
 
 	//-----------------------------------------------------------------------------
 	// Scoring
 	//-----------------------------------------------------------------------------
 	virtual void AddScore( int iScore );
 	virtual void SetScore( int iScore );
-	virtual int  GetScore( void );
+	virtual int  GetScore( void ) const;
 	virtual void ResetScores( void );
 
 	// Round scoring
-	virtual int GetRoundsWon( void ) { return m_iRoundsWon; }
+	virtual int GetRoundsWon( void ) const { return m_iRoundsWon; }
 	virtual void SetRoundsWon( int iRounds ) { m_iRoundsWon = iRounds; }
 	virtual void IncrementRoundsWon( void ) { m_iRoundsWon++; }
 
 	void AwardAchievement( int iAchievement );
 
-	virtual int GetAliveMembers( void );
+	virtual int GetAliveMembers( void ) const;
 
 public:
 	CUtlVector< CTeamSpawnPoint * > m_aSpawnPoints;

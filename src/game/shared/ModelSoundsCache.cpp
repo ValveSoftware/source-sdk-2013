@@ -151,7 +151,7 @@ void CModelSoundsCache::BuildAnimationEventSoundList( CStudioHdr *hdr, CUtlVecto
 				{
 					if ( pEvent->type & AE_TYPE_NEWEVENTSYSTEM )
 					{
-						if ( pEvent->event == AE_SV_PLAYSOUND )
+						if ( pEvent->event == AE_SV_PLAYSOUND || pEvent->event == AE_SV_EXCLUDE_PLAYER_SOUND )
 						{
 							FindOrAddScriptSound( sounds, pEvent->pszOptions() );
 						}
@@ -185,6 +185,7 @@ void CModelSoundsCache::BuildAnimationEventSoundList( CStudioHdr *hdr, CUtlVecto
 				}
 				break;
 			case AE_CL_PLAYSOUND:
+			case AE_CL_EXCLUDE_PLAYER_SOUND:
 				{
 					if ( !( pEvent->type & AE_TYPE_CLIENT ) )
 						break;

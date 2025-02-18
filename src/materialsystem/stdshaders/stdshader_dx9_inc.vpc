@@ -1,0 +1,204 @@
+//-----------------------------------------------------------------------------
+//	STDSHADER_DX9_INC.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\.."
+
+// shader_dll_verify.cpp defines a function called _ftol3. This means that we can't
+// link with the bug-fixed ftol3.obj. It also means we can't convert float-to-unsigned.
+$Conditional DISABLE_FTOL3_OVERRIDE "1" [!$SOURCESDK]
+
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration	"Debug"
+{
+	$General
+	{
+		$OutputDirectory		"Debug_dx9" [$WINDOWS]
+		$IntermediateDirectory	"Debug_dx9" [$WINDOWS]
+	}
+}
+
+$Configuration	"Release"
+{
+	$General
+	{
+		$OutputDirectory		"Release_dx9" [$WINDOWS]
+		$IntermediateDirectory	"Release_dx9" [$WINDOWS]
+	}
+}
+
+// Common Configuration
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$BASE;include;"	[$WINDOWS||$POSIX]
+		$AdditionalIncludeDirectories	"$BASE;..\..\dx9sdk\include"	[$WINDOWS]
+		$PreprocessorDefinitions		"$BASE;STDSHADER_DX9_DLL_EXPORT;FAST_MATERIALVAR_ACCESS"
+		$PreprocessorDefinitions		"$BASE;USE_ACTUAL_DX" [($WINDOWS||$X360) && !$GL]
+	}
+
+	$Linker
+	{
+		$AdditionalDependencies			"$BASE version.lib winmm.lib"	[$WINDOWS]
+	}
+}
+
+$Project
+{
+	$Folder	"Source Files"
+	{
+		$File	"aftershock.cpp"
+		$File	"aftershock_helper.cpp"
+		$File	"AccumBuff4Sample.cpp"
+		$File	"accumbuff5sample.cpp"
+		$File	"BaseVSShader.cpp"
+		$File	"bik_dx90.cpp"
+		$File	"Bloom.cpp"
+		$File	"BlurFilterX.cpp"
+		$File	"BlurFilterY.cpp"
+		$File	"BufferClearObeyStencil_dx9.cpp"
+		$File	"cable_dx9.cpp"
+		$File	"cloak.cpp"
+		$File	"cloak_blended_pass_helper.cpp"
+		$File	"cloak_dx9_helper.cpp"
+		$File	"cloud_dx9.cpp"
+		$File	"colorcorrection.cpp"
+		$File	"compositor.cpp"
+		$File	"core_dx9.cpp"
+		$File	"color_projection.cpp"
+		$File	"debugmrttexture.cpp"
+		$File	"debugmorphaccumulator_dx9.cpp"					[$WINDOWS]
+		$File	"DebugTextureView.cpp"
+		$File	"DecalBaseTimesLightmapAlphaBlendSelfIllum_dx9.cpp"
+		$File	"DecalModulate_dx9.cpp"
+		$File	"depthwrite.cpp"
+		$File	"Downsample.cpp"
+		$File	"downsample_nohdr.cpp"
+		$File	"Engine_Post_dx9.cpp"
+		$File	"emissive_scroll_blended_pass_helper.cpp"
+		$File	"eye_refract.cpp"
+		$File	"eye_refract_helper.cpp"
+		$File	"eyes_dx8_dx9_helper.cpp"
+		$File	"eyes_dx9.cpp"
+		$File	"eyeglint_dx9.cpp"
+		$File	"filmdust_dx8_dx9.cpp"							
+		$File	"filmgrain_dx8_dx9.cpp"							
+		$File	"flesh_interior_blended_pass_helper.cpp"
+		$File	"floatcombine.cpp"
+		$File	"floatcombine_autoexpose.cpp"
+		$File	"floattoscreen.cpp"
+		$File	"floattoscreen_vanilla.cpp"
+		$File	"HDRCombineTo16Bit.cpp"
+		$File	"HDRSelectRange.cpp"
+		$File	"hsl_filmgrain_pass1.cpp"
+		$File	"hsl_filmgrain_pass2.cpp"
+		$File	"hsv.cpp"
+		$File	"introscreenspaceeffect.cpp"
+		$File	"lightmappedgeneric_dx9.cpp"
+		$File	"lightmappedgeneric_dx9_helper.cpp"
+		$File	"lightmappedreflective.cpp"
+		$File	"modulate_dx9.cpp"
+		$File	"MonitorScreen_dx9.cpp"
+		$File	"morphaccumulate_dx9.cpp"					[$WINDOWS]
+		$File	"morphweight_dx9.cpp"						[$WINDOWS]
+		$File	"motion_blur_dx9.cpp"
+		$File	"occlusion_dx9.cpp"
+		$File	"particlelitgeneric_dx9.cpp"
+		$File	"particlelitgeneric_dx9_helper.cpp"
+		$File	"particlesphere_dx9.cpp"
+		$File	"portal.cpp"
+		$File	"portalstaticoverlay.cpp"
+		$File	"portal_refract.cpp"
+		$File	"portal_refract_helper.cpp"
+		$File	"pyro_vision.cpp"
+		$File	"refract.cpp"
+		$File	"refract_dx9_helper.cpp"
+		$File	"rendertargetblit_x360.cpp"					[$X360]	
+		$File	"sample4x4.cpp"
+		$File	"sample4x4_blend.cpp"
+		$File	"screenspace_general.cpp"
+		$File	"sfm_blurfilterx.cpp"
+		$File	"sfm_blurfiltery.cpp"
+		$File	"sfm_downsample.cpp"
+		$File	"sfm_integercombine.cpp"
+		$File	"shadow.cpp"
+		$File	"shadowbuild_dx9.cpp"
+		$File	"shadowmodel_dx9.cpp"
+		$File	"shatteredglass.cpp"
+		$File	"showz.cpp"
+		$File	"skin_dx9_helper.cpp"
+		$File	"sky_dx9.cpp"
+		$File	"sky_hdr_dx9.cpp"
+		$File	"sprite_dx9.cpp"
+		$File	"spritecard.cpp"
+		$File	"teeth.cpp"
+		$File	"TreeLeaf.cpp"
+		$File	"unlitgeneric_dx9.cpp"
+		$File	"unlittwotexture_dx9.cpp"
+		$File	"vertexlitgeneric_dx9.cpp"
+		$File	"vertexlitgeneric_dx9_helper.cpp"
+		$File	"volume_clouds.cpp"
+		$File	"volume_clouds_helper.cpp"
+		$File	"vortwarp_dx9.cpp"
+		$File	"vr_distort_hud.cpp"
+		$File	"vr_distort_texture.cpp"
+		$File	"warp.cpp"
+		$File	"water.cpp"
+		$File	"weapon_sheen_pass_helper.cpp"
+		$File	"windowimposter_dx90.cpp"
+		$File	"wireframe_dx9.cpp"
+		$File	"worldtwotextureblend.cpp"
+		$File	"worldvertexalpha.cpp"
+		$File	"worldvertextransition.cpp"
+		$File	"worldvertextransition_dx8_helper.cpp"
+		$File	"writez_dx9.cpp"
+		$File	"writestencil_dx9.cpp"
+
+		$Folder	"Remove me when VAC2 is out" [$WINDOWS && !$SOURCESDK]
+		{
+			$File	"$SRCDIR\tier1\checksum_crc.cpp"
+			$File	"$SRCDIR\tier1\checksum_md5.cpp"
+			$File	"..\shader_dll_verify.cpp"
+			$File	"..\shader_dll_verify.h"
+		}
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"BaseVSShader.h"
+		$File	"cloak_dx9_helper.h"
+		$File	"common_fxc.h"
+		$File	"common_hlsl_cpp_consts.h"
+		$File	"common_ps_fxc.h"
+		$File	"common_vertexlitgeneric_dx9.h"
+		$File	"common_vs_fxc.h"
+		$File	"lightmappedgeneric_dx9_helper.h"
+		$File	"lightmappedgeneric_ps2_3_x.h"
+		$File	"refract_dx9_helper.h"
+		$File	"shader_constant_register_map.h"
+		$File	"skin_dx9_helper.h"
+		$File	"particlelitgeneric_dx9_helper.h"
+		$File	"vertexlitgeneric_dx95_helper.h"
+		$File	"vortwarp_vs20_helper.h"
+		$File	"worldvertextransition_dx8_helper.h"
+		$File	"water_ps2x_helper.h"
+	}
+
+	$Folder "Link Libraries" 
+	{
+        $Lib	mathlib
+        $Lib	shaderlib
+		$Lib	tier2
+    }
+
+	$File	"buildstdshaders.bat"
+	$File	"buildshaders.bat"
+
+	$Shaders	"stdshader_dx9_20b.txt"
+	$Shaders	"stdshader_dx9_30.txt"
+	//$Shaders	"stdshader_dx10.txt"
+}

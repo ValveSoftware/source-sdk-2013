@@ -941,7 +941,7 @@ static UInt32 Backward(CLzmaEnc *p, UInt32 *backRes, UInt32 cur)
 
 static UInt32 GetOptimum(CLzmaEnc *p, UInt32 position, UInt32 *backRes)
 {
-  UInt32 numAvail, mainLen, numPairs, repMaxIndex, i, posState, lenEnd, len, cur;
+  UInt32 numAvail, mainLen, numPairs, repMaxIndex, posState, lenEnd, len, cur;
   UInt32 matchPrice, repMatchPrice, normalMatchPrice;
   UInt32 reps[LZMA_NUM_REPS], repLens[LZMA_NUM_REPS];
   UInt32 *matches;
@@ -976,7 +976,7 @@ static UInt32 GetOptimum(CLzmaEnc *p, UInt32 position, UInt32 *backRes)
 
   data = p->matchFinder.GetPointerToCurrentPos(p->matchFinderObj) - 1;
   repMaxIndex = 0;
-  for (i = 0; i < LZMA_NUM_REPS; i++)
+  for (int i = 0; i < LZMA_NUM_REPS; i++)
   {
     UInt32 lenTest;
     const Byte *data2;
@@ -1052,7 +1052,7 @@ static UInt32 GetOptimum(CLzmaEnc *p, UInt32 position, UInt32 *backRes)
   }
 
   p->opt[1].posPrev = 0;
-  for (i = 0; i < LZMA_NUM_REPS; i++)
+  for (int i = 0; i < LZMA_NUM_REPS; i++)
     p->opt[0].backs[i] = reps[i];
 
   len = lenEnd;
@@ -1060,7 +1060,7 @@ static UInt32 GetOptimum(CLzmaEnc *p, UInt32 position, UInt32 *backRes)
     p->opt[len--].price = kInfinityPrice;
   while (len >= 2);
 
-  for (i = 0; i < LZMA_NUM_REPS; i++)
+  for (int i = 0; i < LZMA_NUM_REPS; i++)
   {
     UInt32 repLen = repLens[i];
     UInt32 price;
@@ -1136,11 +1136,9 @@ static UInt32 GetOptimum(CLzmaEnc *p, UInt32 position, UInt32 *backRes)
 
   for (;;)
   {
-    UInt32 numAvailFull, newLen, numPairs, posPrev, state, posState, startLen;
-    UInt32 curPrice, curAnd1Price, matchPrice, repMatchPrice;
+    UInt32 numAvailFull, newLen, posPrev, state, startLen;
+    UInt32 curPrice, curAnd1Price;
     Bool nextIsChar;
-    Byte curByte, matchByte;
-    const Byte *data;
     COptimal *curOpt;
     COptimal *nextOpt;
 
@@ -1409,7 +1407,7 @@ static UInt32 GetOptimum(CLzmaEnc *p, UInt32 position, UInt32 *backRes)
     }
     if (newLen >= startLen)
     {
-      UInt32 normalMatchPrice = matchPrice + GET_PRICE_0(p->isRep[state]);
+      normalMatchPrice = matchPrice + GET_PRICE_0(p->isRep[state]);
       UInt32 offs, curBack, posSlot;
       UInt32 lenTest;
       while (lenEnd < cur + newLen)
@@ -1467,8 +1465,6 @@ static UInt32 GetOptimum(CLzmaEnc *p, UInt32 position, UInt32 *backRes)
             /* for (; lenTest2 >= 2; lenTest2--) */
             {
               UInt32 offset = cur + lenTest + 1 + lenTest2;
-              UInt32 curAndLenPrice;
-              COptimal *opt;
               while (lenEnd < offset)
                 p->opt[++lenEnd].price = kInfinityPrice;
               curAndLenPrice = nextRepMatchPrice + GetRepPrice(p, 0, lenTest2, state2, posStateNext);
@@ -1676,11 +1672,11 @@ static void FillDistancesPrices(CLzmaEnc *p)
 
     {
       UInt32 *distancesPrices = p->distancesPrices[lenToPosState];
-      UInt32 i;
-      for (i = 0; i < kStartPosModelIndex; i++)
-        distancesPrices[i] = posSlotPrices[i];
-      for (; i < kNumFullDistances; i++)
-        distancesPrices[i] = posSlotPrices[GetPosSlot1(i)] + tempPrices[i];
+	  UInt32 j;
+      for (j = 0; j < kStartPosModelIndex; j++)
+        distancesPrices[j] = posSlotPrices[j];
+      for (; j < kNumFullDistances; j++)
+        distancesPrices[j] = posSlotPrices[GetPosSlot1(j)] + tempPrices[j];
     }
   }
   p->matchPriceCount = 0;

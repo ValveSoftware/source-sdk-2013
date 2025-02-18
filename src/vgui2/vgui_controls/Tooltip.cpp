@@ -48,6 +48,10 @@ BaseTooltip::BaseTooltip(Panel *parent, const char *text)
 	_delay = 0;
 }
 
+BaseTooltip::~BaseTooltip()
+{
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Reset the tooltip delay timer
 //-----------------------------------------------------------------------------
@@ -122,6 +126,10 @@ bool BaseTooltip::ShouldLayout( void )
 	if ( !_isDirty )
 		return false;
 
+	Panel* pMouseOverPanel = ipanel()->GetPanel( input()->GetMouseOver(), GetControlsModuleName() );
+	if ( pMouseOverPanel && pMouseOverPanel->GetTooltip() != this )
+		return false;
+
 	return true;
 }
 
@@ -184,6 +192,16 @@ void BaseTooltip::PositionWindow( Panel *pTipPanel )
 
 	int wide, tall;
 	surface()->GetScreenSize(wide, tall);
+
+	int iParentX = 0, iParentY = 0;
+	if ( !pTipPanel->IsPopup() )
+	{
+		pTipPanel->GetParent()->GetPos( iParentX, iParentY );
+		pTipPanel->GetParent()->LocalToScreen( iParentX, iParentY );
+	}
+
+	cursorX -= iParentX;
+	cursorY -= iParentY;
 
 	if (wide - iTipW > cursorX)
 	{
@@ -313,6 +331,14 @@ void TextTooltip::ShowTooltip(Panel *currentPanel)
 		_isDirty = _isDirty || ( pCurrentParent != currentPanel );
 		s_TooltipWindow->SetText( m_Text.Base() );
 		s_TooltipWindow->SetParent(currentPanel);
+
+		// Apply proportional scaling to the tooltip if the parent has scaling enabled.
+		//	This requires us to re-apply the font to see the changes.
+		if ( IScheme* pScheme = scheme()->GetIScheme( s_TooltipWindow->GetScheme() ) )
+		{
+			s_TooltipWindow->SetProportional( currentPanel && currentPanel->IsProportional() );
+			s_TooltipWindow->SetFont( pScheme->GetFont( "DefaultSmall", s_TooltipWindow->IsProportional() ) );
+		}
 	}
 	BaseTooltip::ShowTooltip( currentPanel );
 }

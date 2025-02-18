@@ -58,7 +58,7 @@ void CReplayReminderPanel::SetupText()
 	wchar_t wLabel[256];
 
 	g_pVGuiLocalize->ConvertANSIToUnicode( szKey, wKey, sizeof( wKey ) );
-	g_pVGuiLocalize->ConstructString( wLabel, sizeof( wLabel ), g_pVGuiLocalize->Find("#Replay_freezecam_replay" ), 1, wKey );
+	g_pVGuiLocalize->ConstructString_safe( wLabel, g_pVGuiLocalize->Find("#Replay_freezecam_replay" ), 1, wKey );
 
 	// Set the text
 	SetDialogVariable( "text", wLabel );

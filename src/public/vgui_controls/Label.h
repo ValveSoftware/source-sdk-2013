@@ -191,9 +191,9 @@ private:
 	struct TImageInfo
 	{
 		IImage *image;
-		short offset;
-		short xpos;
-		short width;
+		int offset;
+		int xpos;
+		int width;
 	};
 	CUtlVector<TImageInfo> _imageDar;
 
@@ -215,7 +215,9 @@ private:
 	bool	m_bCenterWrap;
 	bool	m_bAllCaps;
 	bool	m_bAutoWideToContents;
+	bool	m_bAutoTallToContents;
 	bool	m_bAutoWideDirty;
+	bool	m_bAutoTallDirty;
 	bool	m_bUseProportionalInsets;
 
 };

@@ -9,8 +9,8 @@
 #define _LZSS_H
 #pragma once
 
-#define LZSS_ID   uint32( BigLong( ('L'<<24)|('Z'<<16)|('S'<<8)|('S') ) )
-#define SNAPPY_ID uint32( BigLong( ('S'<<24)|('N'<<16)|('A'<<8)|('P') ) )
+#define LZSS_ID   uint32( BigDWord( ('L'<<24)|('Z'<<16)|('S'<<8)|('S') ) )
+#define SNAPPY_ID uint32( BigDWord( ('S'<<24)|('N'<<16)|('A'<<8)|('P') ) )
 
 // bind the buffer for correct identification
 struct lzss_header_t
@@ -30,7 +30,7 @@ public:
 	unsigned char*	CompressNoAlloc( const unsigned char *pInput, int inputlen, unsigned char *pOutput, unsigned int *pOutputSize );
 	unsigned int	Uncompress( const unsigned char *pInput, unsigned char *pOutput );
 	//unsigned int	Uncompress( unsigned char *pInput, CUtlBuffer &buf );
-	unsigned int	SafeUncompress( const unsigned char *pInput, unsigned char *pOutput, unsigned int unBufSize );
+	unsigned int	SafeUncompress( const unsigned char *pInput, unsigned int inputlen, unsigned char *pOutput, unsigned int unBufSize );
 
 	static bool			IsCompressed( const unsigned char *pInput );
 	static unsigned int	GetActualSize( const unsigned char *pInput );

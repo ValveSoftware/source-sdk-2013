@@ -68,6 +68,7 @@ const float4 cLightScale : register( c30 );
 #define PIXEL_FOG_TYPE_NONE -1 //MATERIAL_FOG_NONE is handled by PIXEL_FOG_TYPE_RANGE, this is for explicitly disabling fog in the shader
 #define PIXEL_FOG_TYPE_RANGE 0 //range+none packed together in ps2b. Simply none in ps20 (instruction limits)
 #define PIXEL_FOG_TYPE_HEIGHT 1
+#define PIXEL_FOG_TYPE_RANGE_RADIAL 2
 
 // If you change these, make the corresponding change in hardwareconfig.cpp
 #define NVIDIA_PCF_POISSON	0
@@ -237,23 +238,41 @@ float CalcRangeFog( const float flProjPosZ, const float flFogStartOverRange, con
 #endif
 }
 
-float CalcPixelFogFactor( int iPIXELFOGTYPE, const float4 fogParams, const float flEyePosZ, const float flWorldPosZ, const float flProjPosZ )
+float CalcPixelFogFactor( int iPIXELFOGTYPE, const float4 fogParams, const float3 vEyePos, const float3 vWorldPos, const float flProjPosZ )
 {
 	float retVal;
 	if ( iPIXELFOGTYPE == PIXEL_FOG_TYPE_NONE )
 	{
 		retVal = 0.0f;
 	}
-	if ( iPIXELFOGTYPE == PIXEL_FOG_TYPE_RANGE ) //range fog, or no fog depending on fog parameters
+	else if ( iPIXELFOGTYPE == PIXEL_FOG_TYPE_RANGE ) //range fog, or no fog depending on fog parameters
 	{
 		retVal = CalcRangeFog( flProjPosZ, fogParams.x, fogParams.z, fogParams.w );
 	}
+	else if ( iPIXELFOGTYPE == PIXEL_FOG_TYPE_RANGE_RADIAL )
+	{
+		float flFogMaxDensity = fogParams.z;
+		float flFogEndOverRange = fogParams.x;
+		float flFogOORange = fogParams.w;
+
+		retVal = CalcRadialFog_NonFixedFunction( vWorldPos, vEyePos, flFogMaxDensity, flFogEndOverRange, flFogOORange );
+	}
 	else if ( iPIXELFOGTYPE == PIXEL_FOG_TYPE_HEIGHT ) //height fog
 	{
-		retVal = CalcWaterFogAlpha( fogParams.y, flEyePosZ, flWorldPosZ, flProjPosZ, fogParams.w );
+		retVal = CalcWaterFogAlpha( fogParams.y, vEyePos.z, vWorldPos.z, flProjPosZ, fogParams.w );
 	}
 
 	return retVal;
+}
+
+// Legacy support overload, without range fog support.
+float CalcPixelFogFactor( int iPIXELFOGTYPE, const float4 fogParams, const float flEyePosZ, const float flWorldPosZ, const float flProjPosZ )
+{
+	// Old HLSL hack support... Can't just set here.
+	if ( iPIXELFOGTYPE == PIXEL_FOG_TYPE_RANGE_RADIAL )
+		return CalcPixelFogFactor( PIXEL_FOG_TYPE_RANGE, fogParams, float3( 0, 0, flEyePosZ ), float3( 0, 0, flWorldPosZ ), flProjPosZ );
+
+	return CalcPixelFogFactor( iPIXELFOGTYPE, fogParams, float3( 0, 0, flEyePosZ ), float3( 0, 0, flWorldPosZ ), flProjPosZ );
 }
 
 //g_FogParams not defined by default, but this is the same layout for every shader that does define it
@@ -264,7 +283,7 @@ float CalcPixelFogFactor( int iPIXELFOGTYPE, const float4 fogParams, const float
 
 float3 BlendPixelFog( const float3 vShaderColor, float pixelFogFactor, const float3 vFogColor, const int iPIXELFOGTYPE )
 {
-	if( iPIXELFOGTYPE == PIXEL_FOG_TYPE_RANGE ) //either range fog or no fog depending on fog parameters and whether this is ps20 or ps2b
+	if( iPIXELFOGTYPE == PIXEL_FOG_TYPE_RANGE || iPIXELFOGTYPE == PIXEL_FOG_TYPE_RANGE_RADIAL ) //either range fog or no fog depending on fog parameters and whether this is ps20 or ps2b
 	{
 #	if !(defined(SHADER_MODEL_PS_1_1) || defined(SHADER_MODEL_PS_1_4) || defined(SHADER_MODEL_PS_2_0)) //Minimum requirement of ps2b
 		pixelFogFactor = saturate( pixelFogFactor );

@@ -36,20 +36,20 @@ struct PixRGBA8
 inline PixRGBAF PixRGBA8_to_F( PixRGBA8 const &x )
 {
 	PixRGBAF f;
-	f.Red = x.Red / float( 255.0f );
-	f.Green = x.Green / float( 255.0f );
-	f.Blue = x.Blue / float( 255.0f );
-	f.Alpha = x.Alpha / float( 255.0f );
+	f.Red = x.Red / 255.f;
+	f.Green = x.Green / 255.f;
+	f.Blue = x.Blue / 255.f;
+	f.Alpha = x.Alpha / 255.f;
 	return f;
 }
 
 inline PixRGBA8 PixRGBAF_to_8( PixRGBAF const &f )
 {
 	PixRGBA8 x;
-	x.Red = max( 0, min( 255.0,255.0*f.Red ) );
-	x.Green = max( 0, min( 255.0,255.0*f.Green ) );
-	x.Blue = max( 0, min( 255.0,255.0*f.Blue ) );
-	x.Alpha = max( 0, min( 255.0,255.0*f.Alpha ) );
+	x.Red = max( 0.f, min( 255.f,255.f*f.Red ) );
+	x.Green = max( 0.f, min( 255.f,255.f*f.Green ) );
+	x.Blue = max( 0.f, min( 255.f,255.f*f.Blue ) );
+	x.Alpha = max( 0.f, min( 255.f,255.f*f.Alpha ) );
 	return x;
 }
 
@@ -278,14 +278,16 @@ public:
 		Vector ret(0,0,0);
 		int nfaces=0;
 		for(int f=0;f<6;f++)
+		{
 			if (face_maps[f].RGBAData)
 			{
 				nfaces++;
 				ret+=face_maps[f].AverageColor();
 			}
-			if (nfaces)
-				ret*=(1.0/nfaces);
-			return ret;
+		}
+		if (nfaces)
+			ret*=(1.0/nfaces);
+		return ret;
 	}
 
 	float BrightestColor(void)
@@ -293,12 +295,14 @@ public:
 		float ret=0.0;
 		int nfaces=0;
 		for(int f=0;f<6;f++)
+		{
 			if (face_maps[f].RGBAData)
 			{
 				nfaces++;
 				ret=max(ret,face_maps[f].BrightestColor());
 			}
-			return ret;
+		}
+		return ret;
 	}
 
 

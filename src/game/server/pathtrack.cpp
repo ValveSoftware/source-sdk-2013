@@ -17,19 +17,19 @@
 //-----------------------------------------------------------------------------
 BEGIN_DATADESC( CPathTrack )
 
-	DEFINE_FIELD( m_pnext,			FIELD_CLASSPTR ),
-	DEFINE_FIELD( m_pprevious,		FIELD_CLASSPTR ),
-	DEFINE_FIELD( m_paltpath,		FIELD_CLASSPTR ),
+	DEFINE_FIELD( m_pnext,			FIELD_EHANDLE ),
+	DEFINE_FIELD( m_pprevious,		FIELD_EHANDLE ),
+	DEFINE_FIELD( m_paltpath,		FIELD_EHANDLE ),
 
 	DEFINE_KEYFIELD( m_flRadius,	FIELD_FLOAT, "radius" ),
 	DEFINE_FIELD( m_length,			FIELD_FLOAT ),
 	DEFINE_KEYFIELD( m_altName,		FIELD_STRING, "altpath" ),
 	DEFINE_KEYFIELD( m_eOrientationType, FIELD_INTEGER, "orientationtype" ),
 //	DEFINE_FIELD( m_nIterVal,		FIELD_INTEGER ),
-	
+
 	DEFINE_INPUTFUNC( FIELD_VOID, "InPass", InputPass ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "InTeleport",  InputTeleport ),
-	
+
 	DEFINE_INPUTFUNC( FIELD_VOID, "EnableAlternatePath", InputEnableAlternatePath ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "DisableAlternatePath", InputDisableAlternatePath ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "ToggleAlternatePath", InputToggleAlternatePath ),
@@ -89,7 +89,7 @@ void CPathTrack::Activate( void )
 
 
 //-----------------------------------------------------------------------------
-// Connects up the previous + next pointers 
+// Connects up the previous + next pointers
 //-----------------------------------------------------------------------------
 void CPathTrack::Link( void  )
 {
@@ -102,7 +102,7 @@ void CPathTrack::Link( void  )
 		if ( pTarget == this)
 		{
 			Warning("ERROR: path_track (%s) refers to itself as a target!\n", GetDebugName());
-			
+
 			//FIXME: Why were we removing this?  If it was already connected to, we weren't updating the other linked
 			//		 end, causing problems with walking through bogus memory links!  -- jdw
 
@@ -169,7 +169,7 @@ bool CPathTrack::HasBeenVisited() const
 //-----------------------------------------------------------------------------
 bool CPathTrack::HasAlternathPath() const
 {
-	return ( m_paltpath != NULL ); 
+	return ( m_paltpath != NULL );
 }
 
 
@@ -193,7 +193,7 @@ void CPathTrack::ToggleAlternatePath( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPathTrack::EnableAlternatePath( void )
 {
@@ -204,7 +204,7 @@ void CPathTrack::EnableAlternatePath( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPathTrack::DisableAlternatePath( void )
 {
@@ -215,8 +215,8 @@ void CPathTrack::DisableAlternatePath( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CPathTrack::InputEnableAlternatePath( inputdata_t &inputdata )
 {
@@ -224,8 +224,8 @@ void CPathTrack::InputEnableAlternatePath( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CPathTrack::InputDisableAlternatePath( inputdata_t &inputdata )
 {
@@ -233,8 +233,8 @@ void CPathTrack::InputDisableAlternatePath( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CPathTrack::InputToggleAlternatePath( inputdata_t &inputdata )
 {
@@ -258,7 +258,7 @@ void CPathTrack::TogglePath( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPathTrack::EnablePath( void )
 {
@@ -266,7 +266,7 @@ void CPathTrack::EnablePath( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPathTrack::DisablePath( void )
 {
@@ -274,8 +274,8 @@ void CPathTrack::DisablePath( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CPathTrack::InputEnablePath( inputdata_t &inputdata )
 {
@@ -283,8 +283,8 @@ void CPathTrack::InputEnablePath( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CPathTrack::InputDisablePath( inputdata_t &inputdata )
 {
@@ -292,8 +292,8 @@ void CPathTrack::InputDisablePath( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CPathTrack::InputTogglePath( inputdata_t &inputdata )
 {
@@ -301,7 +301,7 @@ void CPathTrack::InputTogglePath( inputdata_t &inputdata )
 }
 
 
-void CPathTrack::DrawDebugGeometryOverlays() 
+void CPathTrack::DrawDebugGeometryOverlays()
 {
 	// ----------------------------------------------
 	// Draw line to next target is bbox is selected
@@ -345,7 +345,7 @@ CPathTrack *CPathTrack::GetNext( void )
 		Assert( !m_paltpath.IsValid() || m_paltpath.Get() != NULL );
 		return m_paltpath;
 	}
-	
+
 	// The paths shouldn't normally be getting deleted so assert that if it was set, it's valid.
 	Assert( !m_pnext.IsValid() || m_pnext.Get() != NULL );
 	return m_pnext;
@@ -360,7 +360,7 @@ CPathTrack *CPathTrack::GetPrevious( void )
 		Assert( !m_paltpath.IsValid() || m_paltpath.Get() != NULL );
 		return m_paltpath;
 	}
-	
+
 	Assert( !m_pprevious.IsValid() || m_pprevious.Get() != NULL );
 	return m_pprevious;
 }
@@ -379,7 +379,7 @@ CPathTrack *CPathTrack::GetNextInDir( bool bForward )
 {
 	if ( bForward )
 		return GetNext();
-	
+
 	return GetPrevious();
 }
 
@@ -388,7 +388,7 @@ CPathTrack *CPathTrack::GetNextInDir( bool bForward )
 // Purpose: Assumes this is ALWAYS enabled
 // Input  : origin - position along path to look ahead from
 //			dist - distance to look ahead, negative values look backward
-//			move - 
+//			move -
 // Output : Returns the track that we will be PAST in 'dist' units.
 //-----------------------------------------------------------------------------
 CPathTrack *CPathTrack::LookAhead( Vector &origin, float dist, int move, CPathTrack **pNextNext )
@@ -520,7 +520,7 @@ TrackOrientationType_t CPathTrack::GetOrientationType()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 QAngle CPathTrack::GetOrientation( bool bForwardDir )
 {
@@ -547,8 +547,8 @@ QAngle CPathTrack::GetOrientation( bool bForwardDir )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pent - 
+// Purpose:
+// Input  : *pent -
 // Output : CPathTrack
 //-----------------------------------------------------------------------------
 CPathTrack *CPathTrack::Instance( edict_t *pent )
@@ -561,7 +561,7 @@ CPathTrack *CPathTrack::Instance( edict_t *pent )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPathTrack::InputPass( inputdata_t &inputdata )
 {
@@ -571,14 +571,14 @@ void CPathTrack::InputPass( inputdata_t &inputdata )
 	IGameEvent * event = gameeventmanager->CreateEvent( "path_track_passed" );
 	if ( event )
 	{
-		event->SetInt( "index", entindex() );
+		event->SetInt( "index", GetRefEHandle().ToInt() );
 		gameeventmanager->FireEvent( event, true );
 	}
 #endif
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPathTrack::InputTeleport( inputdata_t &inputdata )
 {

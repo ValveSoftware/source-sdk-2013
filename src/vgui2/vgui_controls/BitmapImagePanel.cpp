@@ -159,9 +159,11 @@ void CBitmapImagePanel::PaintBorder()
 	int x, y, w, h;
 	ComputeImagePosition(x, y, w, h);
 
+	int nRepeats = Max( QuickPropScale( 1 ), 1 );
+
 	IBorder *pBorder = GetBorder();
 	if ( pBorder )
-		pBorder->Paint( x, y, x+w, y+h, -1, 0, 0 );
+		pBorder->Paint2( x, y, x+w, y+h, -1, 0, 0, nRepeats );
 }
 
 //-----------------------------------------------------------------------------

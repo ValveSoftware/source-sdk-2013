@@ -117,22 +117,22 @@ void CReplayConfirmQuitDialog::OnKeyCodeTyped( vgui::KeyCode code )
 
 void CReplayConfirmQuitDialog::OnKeyCodePressed( vgui::KeyCode code )
 {
-	if ( GetBaseButtonCode( code ) == KEY_XBUTTON_B )
+	if ( GetBaseButtonCode( code ) == KEY_XBUTTON_B || GetBaseButtonCode( code ) == STEAMCONTROLLER_B )
 	{
 		OnCommand( "cancel" );
 	}
-	else if ( GetBaseButtonCode( code ) == KEY_XBUTTON_A )
+	else if ( GetBaseButtonCode( code ) == KEY_XBUTTON_A || GetBaseButtonCode( code ) == STEAMCONTROLLER_A )
 	{
 		OnCommand( "quit" );
 	}
-	else if ( GetBaseButtonCode( code ) == KEY_XBUTTON_X )
+	else if ( GetBaseButtonCode( code ) == KEY_XBUTTON_X || GetBaseButtonCode( code ) == STEAMCONTROLLER_X )
 	{
 		if ( m_pDontShowAgain )
 		{
 			m_pDontShowAgain->SetSelected( !m_pDontShowAgain->IsSelected() );
 		}
 	}
-	else if ( GetBaseButtonCode( code ) == KEY_XBUTTON_Y )
+	else if ( GetBaseButtonCode( code ) == KEY_XBUTTON_Y || GetBaseButtonCode( code ) == STEAMCONTROLLER_Y )
 	{
 		OnCommand( "gotoreplays" );
 	}

@@ -38,6 +38,24 @@ BEGIN_PREDICTION_DATA( C_BaseHLPlayer )
 	DEFINE_PRED_FIELD( m_fIsSprinting, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 END_PREDICTION_DATA()
 
+BEGIN_RECV_TABLE_NOBASE( LadderMove_t, DT_LadderMove )
+	RecvPropBool( RECVINFO( m_bForceLadderMove ) ),
+	RecvPropBool( RECVINFO( m_bForceMount ) ),
+	RecvPropFloat( RECVINFO( m_flStartTime ) ),
+	RecvPropFloat( RECVINFO( m_flArrivalTime ) ),
+	RecvPropVector( RECVINFO( m_vecGoalPosition ) ),
+	RecvPropVector( RECVINFO( m_vecStartPosition ) ),
+END_RECV_TABLE()
+
+BEGIN_PREDICTION_DATA_NO_BASE( LadderMove_t )
+	DEFINE_PRED_FIELD( m_bForceLadderMove, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_bForceMount, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD_TOL( m_flStartTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, 0.02f ),
+	DEFINE_PRED_FIELD_TOL( m_flArrivalTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, 0.02f ),
+	DEFINE_PRED_FIELD( m_vecGoalPosition, FIELD_VECTOR, FTYPEDESC_INSENDTABLE | FTYPEDESC_NOERRORCHECK ),
+	DEFINE_PRED_FIELD( m_vecStartPosition, FIELD_VECTOR, FTYPEDESC_INSENDTABLE | FTYPEDESC_NOERRORCHECK ),
+END_PREDICTION_DATA()
+
 //-----------------------------------------------------------------------------
 // Purpose: Drops player's primary weapon
 //-----------------------------------------------------------------------------

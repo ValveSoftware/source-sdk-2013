@@ -78,6 +78,7 @@ public:
 	CheckImage *GetCheckImage() { return _checkBoxImage; }
 
 	virtual void SetHighlightColor(Color fgColor);
+	virtual void ApplySettings( KeyValues *inResourceData ) OVERRIDE;
 
 protected:
 	virtual void ApplySchemeSettings(IScheme *pScheme);
@@ -95,6 +96,7 @@ protected:
 private:
 	enum { CHECK_INSET = 6 };
 	bool m_bCheckButtonCheckable;
+	bool m_bUseSmallCheckImage;
 	CheckImage *_checkBoxImage;
 	Color _disabledFgColor;
 	Color _disabledBgColor;

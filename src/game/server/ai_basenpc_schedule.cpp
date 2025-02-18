@@ -2384,7 +2384,7 @@ void CAI_BaseNPC::StartTask( const Task_t *pTask )
 					}
 					else
 					{
-						int iSequence = LookupSequence(STRING(GetHintNode()->HintActivityName()));;
+						int iSequence = LookupSequence(STRING(GetHintNode()->HintActivityName()));
 						if ( iSequence != ACT_INVALID )
 							GetNavigator()->SetArrivalSequence( iSequence );
 					}
@@ -3275,7 +3275,7 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 						DbgNavMsg( this, "Jump landed\n" );
 						SetNavType( NAV_GROUND ); // this assumes that NAV_JUMP only happens with npcs that use NAV_GROUND as base movement
 					}
-					else if (GetSmoothedVelocity().Length() > 0.01) // use an EPSILON damnit!!
+					else if (GetSmoothedVelocity().Length() > 0.01) // use an EPSILON
 					{
 						// wait until you land
 						break;

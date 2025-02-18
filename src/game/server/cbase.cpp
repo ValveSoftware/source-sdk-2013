@@ -84,6 +84,7 @@ OUTPUTS:
 #include "tier1/strtools.h"
 #include "datacache/imdlcache.h"
 #include "env_debughistory.h"
+#include "fgdlib/entitydefs.h"
 
 #include "tier0/vprof.h"
 
@@ -129,10 +130,16 @@ CEventAction::CEventAction( const char *ActionData )
 
 	char szToken[256];
 
+	char chDelim = VMF_IOPARAM_STRING_DELIMITER;
+	if (!strchr(ActionData, VMF_IOPARAM_STRING_DELIMITER))
+	{
+		chDelim = ',';
+	}
+
 	//
 	// Parse the target name.
 	//
-	const char *psz = nexttoken(szToken, ActionData, ',');
+	const char *psz = nexttoken(szToken, ActionData, chDelim);
 	if (szToken[0] != '\0')
 	{
 		m_iTarget = AllocPooledString(szToken);
@@ -141,7 +148,7 @@ CEventAction::CEventAction( const char *ActionData )
 	//
 	// Parse the input name.
 	//
-	psz = nexttoken(szToken, psz, ',');
+	psz = nexttoken(szToken, psz, chDelim);
 	if (szToken[0] != '\0')
 	{
 		m_iTargetInput = AllocPooledString(szToken);
@@ -154,7 +161,7 @@ CEventAction::CEventAction( const char *ActionData )
 	//
 	// Parse the parameter override.
 	//
-	psz = nexttoken(szToken, psz, ',');
+	psz = nexttoken(szToken, psz, chDelim);
 	if (szToken[0] != '\0')
 	{
 		m_iParameter = AllocPooledString(szToken);
@@ -163,7 +170,7 @@ CEventAction::CEventAction( const char *ActionData )
 	//
 	// Parse the delay.
 	//
-	psz = nexttoken(szToken, psz, ',');
+	psz = nexttoken(szToken, psz, chDelim);
 	if (szToken[0] != '\0')
 	{
 		m_flDelay = atof(szToken);
@@ -172,7 +179,7 @@ CEventAction::CEventAction( const char *ActionData )
 	//
 	// Parse the number of times to fire.
 	//
-	nexttoken(szToken, psz, ',');
+	nexttoken(szToken, psz, chDelim);
 	if (szToken[0] != '\0')
 	{
 		m_nTimesToFire = atoi(szToken);
@@ -186,7 +193,7 @@ CEventAction::CEventAction( const char *ActionData )
 
 // this memory pool stores blocks around the size of CEventAction/inputitem_t structs
 // can be used for other blocks; will error if to big a block is tried to be allocated
-CUtlMemoryPool g_EntityListPool( MAX(sizeof(CEventAction),sizeof(CMultiInputVar::inputitem_t)), 512, CUtlMemoryPool::GROW_FAST, "g_EntityListPool" );
+CUtlMemoryPool g_EntityListPool( MAX(sizeof(CEventAction),sizeof(CMultiInputVar::inputitem_t)), 512, CUtlMemoryPool::GROW_FAST, "g_EntityListPool", Max<int>( alignof( CEventAction ), alignof( CMultiInputVar::inputitem_t ) ) );
 
 #include "tier0/memdbgoff.h"
 
@@ -239,6 +246,54 @@ CBaseEntityOutput::~CBaseEntityOutput()
 		CEventAction *pNext = ev->m_pNext;	
 		delete ev;
 		ev = pNext;
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CBaseEntityOutput::ScriptRemoveEventAction( CEventAction *pEventAction, const char *szTarget, const char *szTargetInput, const char *szParameter )
+{
+	CEventAction *ev = m_ActionList;
+	CEventAction *prev = NULL;
+	bool bTargetOnly = false;
+	if ( V_strcmp( szTargetInput, "" ) == 0 )
+		bTargetOnly = true;
+	
+	while (ev != NULL)
+	{
+		bool bRemove = false;
+
+		if ( bTargetOnly )
+		{
+			if ( ev->m_iTarget == AllocPooledString( szTarget ) )
+				bRemove = true;
+		}
+		else
+		{
+			if ( ev->m_iTarget == AllocPooledString( szTarget ) && ev->m_iTargetInput == AllocPooledString( szTargetInput ) && ev->m_iParameter == AllocPooledString( szParameter ) )
+				bRemove = true;
+		}
+
+		if (!bRemove)
+		{
+			prev = ev;
+			ev = ev->m_pNext;
+		}
+		else
+		{
+			if (prev != NULL)
+			{
+				prev->m_pNext = ev->m_pNext;
+			}
+			else
+			{
+				m_ActionList = ev->m_pNext;
+			}
+
+			CEventAction *next = ev->m_pNext;
+			delete ev;
+			ev = next;
+		}
 	}
 }
 
@@ -387,6 +442,27 @@ void CBaseEntityOutput::AddEventAction( CEventAction *pEventAction )
 	m_ActionList = pEventAction;
 }
 
+void CBaseEntityOutput::RemoveEventAction( CEventAction *pEventAction )
+{
+	CEventAction *pAction = GetFirstAction();
+	CEventAction *pPrevAction = NULL;
+	while ( pAction )
+	{
+		if ( pAction == pEventAction )
+		{
+			if ( !pPrevAction )
+			{
+				m_ActionList = NULL;
+			}
+			else
+			{
+				pPrevAction->m_pNext = pAction->m_pNext;
+			}
+			return;
+		}
+		pAction = pAction->m_pNext;
+	}
+}
 
 // save data description for the event queue
 BEGIN_SIMPLE_DATADESC( CBaseEntityOutput )
@@ -444,6 +520,17 @@ int CBaseEntityOutput::Restore( IRestore &restore, int elementCount )
 	}
 
 	return 1;
+}
+
+const CEventAction *CBaseEntityOutput::GetActionForTarget( string_t iSearchTarget ) const
+{
+	for ( CEventAction *ev = m_ActionList; ev != NULL; ev = ev->m_pNext )
+	{
+		if ( ev->m_iTarget == iSearchTarget )
+			return ev;
+	}
+
+	return NULL;
 }
 
 int CBaseEntityOutput::NumberOfElements( void )
@@ -1486,8 +1573,6 @@ bool variant_t::Convert( fieldtype_t newType )
 //-----------------------------------------------------------------------------
 const char *variant_t::ToString( void ) const
 {
-	COMPILE_TIME_ASSERT( sizeof(string_t) == sizeof(int) );
-
 	static char szBuf[512];
 
 	switch (fieldType)

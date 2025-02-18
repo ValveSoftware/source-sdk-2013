@@ -1,0 +1,4 @@
+[wrap-git]
+directory = fuzzing_corpora
+url = https://github.com/libspng/fuzzing_corpora.git
+revision=head

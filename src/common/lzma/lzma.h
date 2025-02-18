@@ -33,6 +33,14 @@ unsigned int	inputSize,
 unsigned int	*pOutputSize );
 
 //-----------------------------------------------------------------------------
+// Above, but returns null if compression would not yield a size improvement
+//-----------------------------------------------------------------------------
+unsigned char *LZMA_OpportunisticCompress(
+unsigned char	*pInput,
+unsigned int	inputSize,
+unsigned int	*pOutputSize );
+
+//-----------------------------------------------------------------------------
 // Decoding glue. Returns TRUE if succesful.
 //-----------------------------------------------------------------------------
 bool LZMA_Uncompress(

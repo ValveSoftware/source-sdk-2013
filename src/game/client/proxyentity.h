@@ -25,8 +25,8 @@ public:
 protected:
 	// base classes should implement these
 	virtual void OnBind( C_BaseEntity *pBaseEntity ) = 0;
+	virtual void OnBindNotEntity( void *pRenderable ) {}
 };
-
 
 #endif // PROXY_ENTITY_H
 

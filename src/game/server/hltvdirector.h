@@ -112,7 +112,7 @@ protected:
 	CBaseEntity		*m_pFixedCameras[MAX_NUM_CAMERAS]; // fixed cameras (point_viewcontrol)
 	
 	int				m_nNumActivePlayers;	//number of cameras in current map
-	CBasePlayer		*m_pActivePlayers[MAX_PLAYERS]; // fixed cameras (point_viewcontrol)
+	CBasePlayer		*m_pActivePlayers[MAX_PLAYERS_ARRAY_SAFE]; // fixed cameras (point_viewcontrol)
 	int				m_iCameraManIndex;		// entity index of current camera man or 0
 	
 	CUtlRBTree<CHLTVGameEvent>	m_EventHistory;

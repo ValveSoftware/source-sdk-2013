@@ -307,12 +307,13 @@ CDominationsPanel::CDominationsPanel( Panel *pParent, ReplayHandle_t hReplay )
 	m_pNumDominationsImage->SetImage( szImage );
 	
 	// Add avatars for each person dominated
-	if ( steamapicontext && steamapicontext->SteamUtils() && steamapicontext->SteamUtils()->GetConnectedUniverse() )
+	EUniverse localUniverse = GetUniverse();
+	if ( localUniverse != k_EUniverseInvalid )
 	{
 		for ( int i = 0; i < nNumDominations; ++i )
 		{
 			CAvatarImage *pAvatar = new CAvatarImage();
-			CSteamID id( pReplay->GetDomination( i )->m_nVictimFriendId, 1, steamapicontext->SteamUtils()->GetConnectedUniverse(), k_EAccountTypeIndividual );
+			CSteamID id( pReplay->GetDomination( i )->m_nVictimFriendId, 1, localUniverse, k_EAccountTypeIndividual );
 			pAvatar->SetAvatarSteamID( id );
 			pAvatar->SetAvatarSize( 32, 32 );
 			pAvatar->UpdateFriendStatus();
@@ -385,7 +386,7 @@ CKillsPanel::CKillsPanel( Panel *pParent, ReplayHandle_t hReplay )
 
 			V_snprintf( szImgPath, sizeof( szImgPath ), "../hud/leaderboard_class_%s", pClass );
 #elif defined( CSTRIKE_DLL )
-			V_strcpy( szImgPath, "../hud/scoreboard_dead" );
+			V_strcpy_safe( szImgPath, "../hud/scoreboard_dead" );
 #endif
 
 			// Get the image
@@ -454,7 +455,7 @@ void CKillsPanel::ApplySchemeSettings( IScheme *pScheme )
 
 //-----------------------------------------------------------------------------
 
-extern const char *GetMapDisplayName( const char *mapName );
+extern const char *GetMapDisplayName( const char *mapName, bool bTitleCase = false );
 
 CBasicLifeInfoPanel::CBasicLifeInfoPanel( Panel *pParent, ReplayHandle_t hReplay )
 :	CBaseDetailsPanel( pParent, "BasicLifeInfo", hReplay )
@@ -1349,7 +1350,7 @@ public:
 		}
 
 		wchar_t wszStats[256] = L"";
-		g_pVGuiLocalize->ConstructString( wszStats,sizeof( wszStats ), g_pVGuiLocalize->Find( "#YouTube_Stats" ), 3, 
+		g_pVGuiLocalize->ConstructString_safe( wszStats, g_pVGuiLocalize->Find( "#YouTube_Stats" ), 3, 
 			wszFavorited,
 			wszViews,
 			wszLikes );
@@ -1855,9 +1856,8 @@ void CReplayDetailsPanel::ShowRenderInfo()
 	kvParams->SetWString( "raw", pRaw );
 
 	wchar_t wszStr[1024];
-	g_pVGuiLocalize->ConstructString(
+	g_pVGuiLocalize->ConstructString_safe(
 		wszStr,
-		sizeof( wszStr ),
 		"#Replay_MovieRenderInfo",
 		kvParams
 	);

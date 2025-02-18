@@ -40,6 +40,11 @@ WeaponData
 				"font"		"WeaponIconsSelected"
 				"character"	"n"
 		}
+		"weapon_small"
+		{
+				"font"		"WeaponIconsSmall"
+				"character"	"n"
+		}
 		"ammo"
 		{
 				"font"		"WeaponIcons"
@@ -55,19 +60,16 @@ WeaponData
 		}
 		"crosshair"
 		{
-				"file"		"sprites/crosshairs"
-				"x"			"0"
-				"y"			"48"
-				"width"		"24"
-				"height"	"24"
+				"font"		"Crosshairs"
+				"character"	"Q"
 		}
 		"autoaim"
 		{
-				"file"		"sprites/crosshairs"
-				"x"			"48"
-				"y"			"72"
-				"width"		"24"
-				"height"	"24"
+			"file"		"sprites/crosshairs"
+			"x"			"0"
+			"y"			"48"
+			"width"		"24"
+			"height"	"24"
 		}
 	}
 }

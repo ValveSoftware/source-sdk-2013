@@ -50,6 +50,8 @@ public:
 	virtual void OnKeyCodePressed( vgui::KeyCode code );
 	virtual void OnKeyCodeTyped( vgui::KeyCode code );
 
+	virtual GameActionSet_t GetPreferredActionSet() { return GAME_ACTION_SET_MENUCONTROLS; }
+
 public:
 	virtual void OnClose();
 

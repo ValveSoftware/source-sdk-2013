@@ -35,16 +35,16 @@ public:
 	void ElementMoved( BSPTreeDataHandle_t handle, Vector const& mins, Vector const& maxs );
 
 	// Enumerate elements in a particular leaf
-	bool EnumerateElementsInLeaf( int leaf, IBSPTreeDataEnumerator* pEnum, int context );
+	bool EnumerateElementsInLeaf( int leaf, IBSPTreeDataEnumerator* pEnum, intp context );
 
 	// For convenience, enumerates the leaves along a ray, box, etc.
-	bool EnumerateLeavesAtPoint( Vector const& pt, ISpatialLeafEnumerator* pEnum, int context );
-	bool EnumerateLeavesInBox( Vector const& mins, Vector const& maxs, ISpatialLeafEnumerator* pEnum, int context );
-	bool EnumerateLeavesInSphere( Vector const& center, float radius, ISpatialLeafEnumerator* pEnum, int context );
-	bool EnumerateLeavesAlongRay( Ray_t const& ray, ISpatialLeafEnumerator* pEnum, int context );
+	bool EnumerateLeavesAtPoint( Vector const& pt, ISpatialLeafEnumerator* pEnum, intp context );
+	bool EnumerateLeavesInBox( Vector const& mins, Vector const& maxs, ISpatialLeafEnumerator* pEnum, intp context );
+	bool EnumerateLeavesInSphere( Vector const& center, float radius, ISpatialLeafEnumerator* pEnum, intp context );
+	bool EnumerateLeavesAlongRay( Ray_t const& ray, ISpatialLeafEnumerator* pEnum, intp context );
 
 	// methods of IBSPLeafEnumerator
-	bool EnumerateLeaf( int leaf, int context );
+	bool EnumerateLeaf( int leaf, intp context );
 
 	// Is the element in any leaves at all?
 	bool IsElementInTree( BSPTreeDataHandle_t handle ) const;
@@ -223,7 +223,7 @@ void CBSPTreeData::AddHandleToLeaf( int leaf, BSPTreeDataHandle_t handle )
 //-----------------------------------------------------------------------------
 // Inserts an element into the tree
 //-----------------------------------------------------------------------------
-bool CBSPTreeData::EnumerateLeaf( int leaf, int context )
+bool CBSPTreeData::EnumerateLeaf( int leaf, intp context )
 {
 	BSPTreeDataHandle_t handle = (BSPTreeDataHandle_t)context;
 	AddHandleToLeaf( leaf, handle );
@@ -302,10 +302,10 @@ int CBSPTreeData::CountElementsInLeaf( int leaf )
 //-----------------------------------------------------------------------------
 // Enumerate elements in a particular leaf
 //-----------------------------------------------------------------------------
-bool CBSPTreeData::EnumerateElementsInLeaf( int leaf, IBSPTreeDataEnumerator* pEnum, int context )
+bool CBSPTreeData::EnumerateElementsInLeaf( int leaf, IBSPTreeDataEnumerator* pEnum, intp context )
 {
 #ifdef DBGFLAG_ASSERT
-	// The enumeration method better damn well not change this list...
+	// The enumeration method better not change this list...
 	int nCount = CountElementsInLeaf(leaf);
 #endif
 
@@ -330,22 +330,22 @@ bool CBSPTreeData::EnumerateElementsInLeaf( int leaf, IBSPTreeDataEnumerator* pE
 //-----------------------------------------------------------------------------
 // For convenience, enumerates the leaves along a ray, box, etc.
 //-----------------------------------------------------------------------------
-bool CBSPTreeData::EnumerateLeavesAtPoint( Vector const& pt, ISpatialLeafEnumerator* pEnum, int context )
+bool CBSPTreeData::EnumerateLeavesAtPoint( Vector const& pt, ISpatialLeafEnumerator* pEnum, intp context )
 {
 	return m_pBSPTree->EnumerateLeavesAtPoint( pt, pEnum, context );
 }
 
-bool CBSPTreeData::EnumerateLeavesInBox( Vector const& mins, Vector const& maxs, ISpatialLeafEnumerator* pEnum, int context )
+bool CBSPTreeData::EnumerateLeavesInBox( Vector const& mins, Vector const& maxs, ISpatialLeafEnumerator* pEnum, intp context )
 {
 	return m_pBSPTree->EnumerateLeavesInBox( mins, maxs, pEnum, context );
 }
 
-bool CBSPTreeData::EnumerateLeavesInSphere( Vector const& center, float radius, ISpatialLeafEnumerator* pEnum, int context )
+bool CBSPTreeData::EnumerateLeavesInSphere( Vector const& center, float radius, ISpatialLeafEnumerator* pEnum, intp context )
 {
 	return m_pBSPTree->EnumerateLeavesInSphere( center, radius, pEnum, context );
 }
 
-bool CBSPTreeData::EnumerateLeavesAlongRay( Ray_t const& ray, ISpatialLeafEnumerator* pEnum, int context )
+bool CBSPTreeData::EnumerateLeavesAlongRay( Ray_t const& ray, ISpatialLeafEnumerator* pEnum, intp context )
 {
 	return m_pBSPTree->EnumerateLeavesAlongRay( ray, pEnum, context );
 }

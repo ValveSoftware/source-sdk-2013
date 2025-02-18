@@ -261,8 +261,8 @@ void C_BaseCombatWeapon::DrawCrosshair()
 	}		 
 */
 
-	CHudCrosshair *crosshair = GET_HUDELEMENT( CHudCrosshair );
-	if ( !crosshair )
+	CHudCrosshair *pCrosshair = GET_HUDELEMENT( CHudCrosshair );
+	if ( !pCrosshair )
 		return;
 
 	// Find out if this weapon's auto-aimed onto a target
@@ -275,16 +275,16 @@ void C_BaseCombatWeapon::DrawCrosshair()
 		{
 			clr[3] = 255;
 
-			crosshair->SetCrosshair( GetWpnData().iconAutoaim, clr );
+			pCrosshair->SetCrosshair( GetWpnData().iconAutoaim, clr );
 		}
 		else if ( GetWpnData().iconCrosshair )
 		{
 			clr[3] = 255;
-			crosshair->SetCrosshair( GetWpnData().iconCrosshair, clr );
+			pCrosshair->SetCrosshair( GetWpnData().iconCrosshair, clr );
 		}
 		else
 		{
-			crosshair->ResetCrosshair();
+			pCrosshair->ResetCrosshair();
 		}
 	}
 	else
@@ -293,11 +293,11 @@ void C_BaseCombatWeapon::DrawCrosshair()
 
 		// zoomed crosshairs
 		if (bOnTarget && GetWpnData().iconZoomedAutoaim)
-			crosshair->SetCrosshair(GetWpnData().iconZoomedAutoaim, white);
+			pCrosshair->SetCrosshair(GetWpnData().iconZoomedAutoaim, white);
 		else if ( GetWpnData().iconZoomedCrosshair )
-			crosshair->SetCrosshair( GetWpnData().iconZoomedCrosshair, white );
+			pCrosshair->SetCrosshair( GetWpnData().iconZoomedCrosshair, white );
 		else
-			crosshair->ResetCrosshair();
+			pCrosshair->ResetCrosshair();
 	}
 }
 
@@ -517,6 +517,22 @@ int C_BaseCombatWeapon::CalcOverrideModelIndex()
 	}
 }
 
+bool C_BaseCombatWeapon::PredictionErrorShouldResetLatchedForAllPredictables( void )
+{
+#ifdef HL2MP
+	// misyl: Although I have tried to fix many of the pred errors in HL2MP.
+	// Still many remain, and many things remain unpredictable without a rewrite of the weapon code.
+	//
+	// As a workaround, if this weapon is not tangible (ie. has an owner/in inventory).
+	// Don't reset every latched var for every predictable ever if we have a pred error on a weapon.
+	//
+	// This might be useful for other games as well, but needs wider testing there.
+	if ( GetOwner() )
+		return false;
+#endif
+
+	return BaseClass::PredictionErrorShouldResetLatchedForAllPredictables();
+}
 
 //-----------------------------------------------------------------------------
 // tool recording

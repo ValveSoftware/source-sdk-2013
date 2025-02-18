@@ -94,8 +94,17 @@ class ContinuousProgressBar : public ProgressBar
 
 public:
 	ContinuousProgressBar(Panel *parent, const char *panelName);
+	MESSAGE_FUNC_FLOAT( SetPrevProgress, "SetPrevProgress", prevProgress );
+
+	void SetGainColor( Color color ) { m_colorGain = color; }
+	void SetLossColor( Color color ) { m_colorLoss = color; }
 
 	virtual void Paint();
+
+protected:
+	float _prevProgress;
+	Color m_colorGain;
+	Color m_colorLoss;
 };
 
 } // namespace vgui

@@ -488,6 +488,9 @@ private:
 	CMaterialReference	m_ScreenOverlayMaterial;
 	CMaterialReference m_UnderWaterOverlayMaterial;
 
+	CMaterialReference	m_ScriptOverlayMaterial;
+	char m_szCurrentScriptMaterialName[ MAX_PATH ];
+
 	Vector			m_vecLastFacing;
 	float			m_flCheapWaterStartDistance;
 	float			m_flCheapWaterEndDistance;

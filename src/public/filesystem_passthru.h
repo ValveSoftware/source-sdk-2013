@@ -248,6 +248,10 @@ public:
 	virtual void			NotifyFileUnloaded( const char *pszFilename, const char *pPathId ) OVERRIDE
 		{ m_pFileSystemPassThru->NotifyFileUnloaded( pszFilename, pPathId ); }
 
+	virtual void			SetWriteProtectionEnable( bool bEnable ) { m_pFileSystemPassThru->SetWriteProtectionEnable( bEnable ); }
+	virtual bool			GetWriteProtectionEnable() const { return m_pFileSystemPassThru->GetWriteProtectionEnable(); }
+
+
 protected:
 	IFileSystem *m_pFileSystemPassThru;
 };

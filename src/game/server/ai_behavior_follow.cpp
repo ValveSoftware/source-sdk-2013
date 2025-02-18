@@ -111,7 +111,7 @@ public:
 		else
 		{
 			int result = 0;
-			for ( int i = pGroup->followers.Head(); i != pGroup->followers.InvalidIndex(); i = pGroup->followers.Next( i ) )
+			for ( intp i = pGroup->followers.Head(); i != pGroup->followers.InvalidIndex(); i = pGroup->followers.Next( i ) )
 			{
 				if ( pGroup->followers[i].hFollower && pGroup->followers[i].hFollower->ClassMatches( iszClassname ) )
 				{
@@ -131,7 +131,7 @@ public:
 			return 0;
 		}
 
-		int h = pGroup->followers.Head();
+		intp h = pGroup->followers.Head();
 
 		while( h != pGroup->followers.InvalidIndex() )
 		{
@@ -2561,7 +2561,7 @@ bool CAI_FollowManager::AddFollower( CBaseEntity *pTarget, CAI_BaseNPC *pFollowe
 
 		AI_FollowSlot_t *pSlot 		= &pGroup->pFormation->pSlots[slot];
 
-		int i = pGroup->followers.AddToTail( );
+		intp i = pGroup->followers.AddToTail( );
 
 		AI_Follower_t *iterNode = &pGroup->followers[i];
 		iterNode->hFollower 	= pFollower;
@@ -2641,8 +2641,8 @@ bool CAI_FollowManager::RedistributeSlots( AI_FollowGroup_t *pGroup )
 	{
 		AI_FollowSlot_t *  pSlot 	  = &pGroup->pFormation->pSlots[bestSlot];
 		Vector			   slotPos	  = originFollowed + pSlot->position;
-		int  h			= pGroup->followers.Head();
-		int  hBest 		= pGroup->followers.InvalidIndex();
+		intp  h			= pGroup->followers.Head();
+		intp  hBest 		= pGroup->followers.InvalidIndex();
 		float 			   distSqBest = FLT_MAX;
 		
 		while ( h != pGroup->followers.InvalidIndex() )
@@ -2691,7 +2691,7 @@ void CAI_FollowManager::ChangeFormation( AI_FollowManagerInfoHandle_t& hInfo, AI
 	if ( pNewFormation == pGroup->pFormation )
 		return;
 
-	int h = pGroup->followers.Head();
+	intp h = pGroup->followers.Head();
 		
 	while ( h != pGroup->followers.InvalidIndex() )
 	{
@@ -2846,7 +2846,7 @@ AI_FollowGroup_t *CAI_FollowManager::FindFollowerGroup( CBaseEntity *pFollower )
 {
 	for ( int i = 0; i < m_groups.Count(); i++ )
 	{
-		int h = m_groups[i]->followers.Head();
+		intp h = m_groups[i]->followers.Head();
 		while( h != m_groups[i]->followers.InvalidIndex() )
 		{
 			AI_Follower_t *p = &m_groups[i]->followers[h];

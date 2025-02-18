@@ -1,0 +1,28 @@
+ps.1.4
+
+def c0, 1.0f, 1.0f, 1.0f, 1.0f
+def c2, 0.2f, 0.2f, 0.2f, 0.2f
+
+texld r0, t0
+texld r1, t1
+texld r2, t2
+texld r3, t3
+texld r4, t4
+
+// The mul has to happen here first because we overflow otherwise
+mul r0.r, r0.a, c2.a
+mad r0.r, r1.a, c2.a, r0.r
+mad r0.r, r2.a, c2.a, r0.r
+mad r0.r, r3.a, c2.a, r0.r
+mad r0.r, r4.a, c2.a, r0.r
+
+; To accomplish shadow fading, subtract vertex alpha from texture alpha
+; color channel isn't used...
+sub_sat r0.a, r0.r, v0.a
+
+; Blend between white and the constant color...
+lrp r0.rgba, 1-r0.a, c0, c1
+
+
+
+

@@ -63,7 +63,7 @@ protected:
 	void			ApplyMappings();
 
 protected:
-	void					AnsiText( char const *token, char *out, size_t buflen );
+	void					AnsiText( char const *token, char *out, int nBuflen );
 
 	Panel			*m_pPanel;
 	KeyBindingContextHandle_t m_Handle;

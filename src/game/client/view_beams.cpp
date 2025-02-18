@@ -438,7 +438,7 @@ int	Beam_t::GetFxBlend( )
 extern bool g_bRenderingScreenshot;
 extern ConVar r_drawviewmodel;
 
-int Beam_t::DrawModel( int flags )
+int Beam_t::DrawModel( int ignored )
 {
 #ifdef PORTAL
 	if ( ( !g_pPortalRender->IsRenderingPortal() && !m_bDrawInMainRender ) || 
@@ -1733,15 +1733,21 @@ void CViewRenderBeams::DrawBeamFollow( const model_t* pSprite, Beam_t *pbeam,
 	}
 	if (!pnew && div != 0)
 	{
-		VectorCopy( pbeam->attachment[0], delta );
-		debugoverlay->ScreenPosition( pbeam->attachment[0], screenLast );
-		debugoverlay->ScreenPosition( particles->org, screen );
+		if ( debugoverlay )
+		{
+			VectorCopy( pbeam->attachment[0], delta );
+			debugoverlay->ScreenPosition( pbeam->attachment[0], screenLast );
+			debugoverlay->ScreenPosition( particles->org, screen );
+		}
 	}
 	else if (particles && particles->next)
 	{
-		VectorCopy( particles->org, delta );
-		debugoverlay->ScreenPosition( particles->org, screenLast );
-		debugoverlay->ScreenPosition( particles->next->org, screen );
+		if ( debugoverlay )
+		{
+			VectorCopy( particles->org, delta );
+			debugoverlay->ScreenPosition( particles->org, screenLast );
+			debugoverlay->ScreenPosition( particles->next->org, screen );
+		}
 		particles = particles->next;
 	}
 	else
@@ -1803,7 +1809,7 @@ void CViewRenderBeams::DrawBeamWithHalo(	Beam_t*			pbeam,
 
 	distToLine = ( CurrentViewOrigin() - out ).Length();
 
-	float scaleColor[4];
+	float scaleColor[3];
 	float dotScale = 1.0f;
 	
 	// Use beam width
@@ -1818,7 +1824,6 @@ void CViewRenderBeams::DrawBeamWithHalo(	Beam_t*			pbeam,
 	scaleColor[0] = color[0] * dotScale;
 	scaleColor[1] = color[1] * dotScale;
 	scaleColor[2] = color[2] * dotScale;
-	scaleColor[3] = color[3] * dotScale;
 
 	if( pbeam->flags & FBEAM_HALOBEAM )
 	{

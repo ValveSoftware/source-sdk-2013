@@ -250,7 +250,7 @@ void CHudVoiceStatus::OnThink( void )
 				{
 					if ( steamapicontext != NULL && steamapicontext->SteamUtils() != NULL )
 					{
-						CSteamID steamIDForPlayer( pi.friendsID, 1, steamapicontext->SteamUtils()->GetConnectedUniverse(), k_EAccountTypeIndividual );
+						CSteamID steamIDForPlayer( pi.friendsID, 1, GetUniverse(), k_EAccountTypeIndividual );
 						activeSpeaker.pAvatar->SetAvatarSteamID(steamIDForPlayer, k_EAvatarSize32x32);
 					}
 				}
@@ -381,7 +381,7 @@ void CHudVoiceStatus::Paint()
 							wchar_t unicodeName[ 64 ];
 							g_pVGuiLocalize->ConvertANSIToUnicode( pName, unicodeName, sizeof( unicodeName ) );
 
-							g_pVGuiLocalize->ConstructString( szconverted, sizeof( szconverted ),
+							g_pVGuiLocalize->ConstructString_safe( szconverted,
 								formatStr, 2, unicodeName, unicodeLocation );
 
 							usedLocation = true;

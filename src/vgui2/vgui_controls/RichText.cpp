@@ -344,7 +344,7 @@ void RichText::OnSizeChanged( int wide, int tall )
 }
 
 
-const wchar_t *RichText::ResolveLocalizedTextAndVariables( char const *pchLookup, wchar_t *outbuf, size_t outbufsizeinbytes )
+const wchar_t *RichText::ResolveLocalizedTextAndVariables( char const *pchLookup, wchar_t *outbuf, int outbufsizeinbytes )
 {
 	if ( pchLookup[ 0 ] == '#' )
 	{
@@ -445,7 +445,7 @@ void RichText::SetText(const wchar_t *text)
 	m_TextStream.RemoveAll();
 	if ( text && *text )
 	{
-		int textLen = wcslen(text) + 1;
+		int textLen = V_wcslen(text) + 1;
 		m_TextStream.EnsureCapacity(textLen);
 		for(int i = 0; i < textLen; i++)
 		{
@@ -1583,7 +1583,7 @@ void RichText::OnCursorExited()
 //-----------------------------------------------------------------------------
 // Purpose: Handle selection of text by mouse
 //-----------------------------------------------------------------------------
-void RichText::OnCursorMoved(int x, int y)
+void RichText::OnCursorMoved(int ignX, int ignY)
 {
 	if (_mouseSelection)
 	{
@@ -2047,7 +2047,7 @@ void RichText::InsertString(const char *text)
 	}
 
 	// upgrade the ansi text to unicode to display it
-	int len = strlen(text);
+	int len = V_strlen(text);
 	wchar_t *unicode = (wchar_t *)_alloca((len + 1) * sizeof(wchar_t));
 	Q_UTF8ToUnicode(text, unicode, ((len + 1) * sizeof(wchar_t)));
 	InsertString(unicode);
@@ -2205,7 +2205,7 @@ void RichText::CopySelected()
 	if (GetSelectedRange(x0, x1))
 	{
 		CUtlVector<wchar_t> buf;
-		for (int i = x0; i <= x1; i++)
+		for (int i = x0; i < x1; i++)
 		{
 			if ( m_TextStream.IsValidIndex(i) == false )
 				 continue;
@@ -2441,6 +2441,10 @@ int RichText::GetNumLines()
 //-----------------------------------------------------------------------------
 void RichText::SetToFullHeight()
 {
+	// We might not yet have calculated our line breaks yet, which would be bad
+	// since we're about to change our height based on how many lines we use.
+	// Let's make sure they're calculated.
+	RecalculateLineBreaks();
 	PerformLayout();
 	int wide, tall;
 	GetSize(wide, tall);
@@ -2547,12 +2551,12 @@ int RichText::ParseTextStringForUrls( const char *text, int startPos, char *pchU
 			// get the url
 			i += Q_strlen( "<a href=" );
 			const char *pchURLEnd = Q_strstr( text + i, ">" );
-			Q_strncpy( pchURL, text + i, min( pchURLEnd - text - i + 1, cchURL ) ); 
+			Q_strncpy( pchURL, text + i, (int)min<size_t>( pchURLEnd - text - i + 1, cchURL ) ); 
 			i += ( pchURLEnd - text - i + 1 );
             
 			// get the url text
 			pchURLEnd = Q_strstr( text, "</a>" );
-			Q_strncpy( pchURLText, text + i, min( pchURLEnd - text - i + 1, cchURLText ) ); 
+			Q_strncpy( pchURLText, text + i, (int)min<size_t>( pchURLEnd - text - i + 1, cchURLText ) ); 
 			i += ( pchURLEnd - text - i );
 			i += Q_strlen( "</a>" );
 
@@ -2670,7 +2674,14 @@ void RichText::OnTextClicked(const wchar_t *wszText)
 	}
 	else
 	{
-		system()->ShellExecute( "open", ansi );
+		if ( Q_strncmp( ansi, "http://", 7 ) != 0 && Q_strncmp( ansi, "https://", 8 ) != 0 )
+		{
+			Warning( "Invalid URL '%s'\n", ansi );
+		}
+		else
+		{
+			system()->ShellExecute( "open", ansi );
+		}
 	}
 }
 

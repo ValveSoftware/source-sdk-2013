@@ -49,7 +49,7 @@ public:
 	}
 
 	KeyValues		*kv;
-	unsigned int 	userData;
+	uintp		 	userData;
 	KeyValues		*m_pDragData;
 	bool			m_bImage;
 	int				m_nImageIndex;
@@ -115,17 +115,17 @@ public:
 	// DATA HANDLING
 	// data->GetName() is used to uniquely identify an item
 	// data sub items are matched against column header name to be used in the table
-	virtual int AddItem(const KeyValues *data, unsigned int userData, bool bScrollToItem, bool bSortOnAdd); // Takes a copy of the data for use in the table. Returns the index the item is at.
+	virtual int AddItem(const KeyValues *data, uintp userData, bool bScrollToItem, bool bSortOnAdd); // Takes a copy of the data for use in the table. Returns the index the item is at.
 	void SetItemDragData( int itemID, const KeyValues *data ); // Makes a copy of the keyvalues to store in the table. Used when dragging from the table. Only used if the caller enables drag support
 	virtual int	GetItemCount( void );			// returns the number of VISIBLE items
 	virtual int GetItem(const char *itemName);	// gets the row index of an item by name (data->GetName())
 	virtual KeyValues *GetItem(int itemID); // returns pointer to data the row holds
 	virtual int GetItemCurrentRow(int itemID);		// returns -1 if invalid index or item not visible
 	virtual int GetItemIDFromRow(int currentRow);			// returns -1 if invalid row
-	virtual unsigned int GetItemUserData(int itemID);
+	virtual uintp GetItemUserData(int itemID);
 	virtual ListPanelItem *GetItemData(int itemID);
-	virtual void SetUserData( int itemID, unsigned int userData );
-	virtual int GetItemIDFromUserData( unsigned int userData );
+	virtual void SetUserData( int itemID, uintp userData );
+	virtual int GetItemIDFromUserData( uintp userData );
 	virtual void ApplyItemChanges(int itemID); // applies any changes to the data, performed by modifying the return of GetItem() above
 	virtual void RemoveItem(int itemID); // removes an item from the table (changing the indices of all following items)
 	virtual void RereadAllItems(); // updates the view with the new data

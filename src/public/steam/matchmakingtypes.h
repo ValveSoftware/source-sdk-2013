@@ -8,16 +8,6 @@
 #ifndef MATCHMAKINGTYPES_H
 #define MATCHMAKINGTYPES_H
 
-#ifdef _WIN32
-#pragma once
-#endif
-
-#ifdef POSIX
-#ifndef _snprintf
-#define _snprintf snprintf
-#endif
-#endif
-
 #include <stdio.h>
 #include <string.h>
 
@@ -68,9 +58,6 @@ public:
 	servernetadr_t() : m_usConnectionPort( 0 ), m_usQueryPort( 0 ), m_unIP( 0 ) {}
 	
 	void	Init( unsigned int ip, uint16 usQueryPort, uint16 usConnectionPort );
-#ifdef NETADR_H
-	netadr_t	GetIPAndQueryPort();
-#endif
 	
 	// Access the query port.
 	uint16	GetQueryPort() const;
@@ -82,7 +69,7 @@ public:
 
 	// Access the IP
 	uint32 GetIP() const;
-	void SetIP( uint32 );
+	void SetIP( uint32 unIP );
 
 	// This gets the 'a.b.c.d:port' string with the connection port (instead of the query port).
 	const char *GetConnectionAddressString() const;
@@ -112,13 +99,6 @@ inline void	servernetadr_t::Init( unsigned int ip, uint16 usQueryPort, uint16 us
 	m_usQueryPort = usQueryPort;
 	m_usConnectionPort = usConnectionPort;
 }
-
-#ifdef NETADR_H
-inline netadr_t servernetadr_t::GetIPAndQueryPort()
-{
-	return netadr_t( m_unIP, m_usQueryPort );
-}
-#endif
 
 inline uint16 servernetadr_t::GetQueryPort() const
 {
@@ -156,9 +136,9 @@ inline const char *servernetadr_t::ToString( uint32 unIP, uint16 usPort ) const
 	static int nBuf = 0;
 	unsigned char *ipByte = (unsigned char *)&unIP;
 #ifdef VALVE_BIG_ENDIAN
-	V_snprintf (s[nBuf], sizeof( s[nBuf] ), "%u.%u.%u.%u:%i", (int)(ipByte[0]), (int)(ipByte[1]), (int)(ipByte[2]), (int)(ipByte[3]), usPort );
+	snprintf(s[nBuf], sizeof( s[nBuf] ), "%u.%u.%u.%u:%i", (int)(ipByte[0]), (int)(ipByte[1]), (int)(ipByte[2]), (int)(ipByte[3]), usPort );
 #else
-	V_snprintf (s[nBuf], sizeof( s[nBuf] ), "%u.%u.%u.%u:%i", (int)(ipByte[3]), (int)(ipByte[2]), (int)(ipByte[1]), (int)(ipByte[0]), usPort );
+	snprintf(s[nBuf], sizeof( s[nBuf] ), "%u.%u.%u.%u:%i", (int)(ipByte[3]), (int)(ipByte[2]), (int)(ipByte[1]), (int)(ipByte[0]), usPort );
 #endif
 	const char *pchRet = s[nBuf];
 	++nBuf;

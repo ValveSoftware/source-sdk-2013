@@ -29,9 +29,11 @@ DECLARE_BUILD_FACTORY( CircularProgressBar );
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CircularProgressBar::CircularProgressBar(Panel *parent, const char *panelName) : ProgressBar(parent, panelName)
+CircularProgressBar::CircularProgressBar(Panel *parent, const char *panelName) 
+	: ProgressBar(parent, panelName)
+	, m_bReverseProgress( false )
 {
-	m_iProgressDirection = CircularProgressBar::PROGRESS_CCW;
+	m_iProgressDirection = CircularProgressBar::PROGRESS_CW;
 
 	for ( int i = 0; i < NUM_PROGRESS_TEXTURES; i++ )
 	{
@@ -119,7 +121,7 @@ void CircularProgressBar::SetImage(const char *imageName, progress_textures_t iP
 {
 	const char *pszDir = "vgui/";
 	int len = Q_strlen(imageName) + 1;
-	len += strlen(pszDir);
+	len += V_strlen(pszDir);
 	
 	if ( m_pszImageName[iPos] && ( m_lenImageName[iPos] < len ) )
 	{
@@ -163,14 +165,8 @@ void CircularProgressBar::Paint()
 	float flProgress = GetProgress();
 	float flEndAngle;
 
-	if ( m_iProgressDirection == PROGRESS_CW )
-	{
-		flEndAngle = flProgress;
-	}
-	else
-	{
-		flEndAngle = ( 1.0 - flProgress );
-	}
+	flEndAngle = m_bReverseProgress ? ( 1.0 - flProgress ) : flProgress;
+	flEndAngle = m_iProgressDirection == PROGRESS_CCW ? ( 1.0 - flEndAngle ) : flEndAngle;
 
 	DrawCircleSegment( GetFgColor(), flEndAngle, ( m_iProgressDirection == PROGRESS_CW ) );
 }
@@ -227,7 +223,72 @@ void CircularProgressBar::DrawCircleSegment( Color c, float flEndProgress, bool 
 	vgui::surface()->DrawSetTexture( m_nTextureId[PROGRESS_TEXTURE_FG] );
 	vgui::surface()->DrawSetColor( c );
 
-	// TODO - if we want to progress CCW, reverse a few things
+	// if we want to progress CCW, reverse a few things
+	if ( !bClockwise )
+	{
+		float flEndProgressRadians = flEndProgress * M_PI * 2;
+
+		int i;
+		for ( i=0;i<8;i++ )
+		{
+			float segmentRadiansMin = Segments[i].minProgressRadians;
+			float segmentRadiansMax = segmentRadiansMin + SEGMENT_ANGLE;
+
+			if ( flEndProgressRadians < segmentRadiansMax )
+			{
+				vgui::Vertex_t v[3];
+
+				// vert 0 is ( 0.5, 0.5 )
+				v[0].m_Position.Init( flHalfWide, flHalfTall );
+				v[0].m_TexCoord.Init( 0.5f, 0.5f );
+
+				float flInternalProgress = segmentRadiansMax - flEndProgressRadians;
+
+				if ( flInternalProgress < SEGMENT_ANGLE )
+				{
+					// Calc how much of this slice we should be drawing
+					flInternalProgress = SEGMENT_ANGLE - flInternalProgress;
+
+					if ( i % 2 == 1 )
+					{
+						flInternalProgress = SEGMENT_ANGLE - flInternalProgress;
+					}
+
+					float flTan = tan(flInternalProgress);
+
+					float flDeltaX, flDeltaY;
+
+					if ( i % 2 == 1 )
+					{
+						flDeltaX = ( flHalfWide - flHalfTall * flTan ) * Segments[i].swipe_dir_x;
+						flDeltaY = ( flHalfTall - flHalfWide * flTan ) * Segments[i].swipe_dir_y;
+					}
+					else
+					{
+						flDeltaX = flHalfTall * flTan * Segments[i].swipe_dir_x;
+						flDeltaY = flHalfWide * flTan * Segments[i].swipe_dir_y;
+					}
+
+					v[1].m_Position.Init( Segments[i].vert1x * flWide + flDeltaX, Segments[i].vert1y * flTall + flDeltaY );
+					v[1].m_TexCoord.Init( Segments[i].vert1x + ( flDeltaX / flHalfWide ) * 0.5, Segments[i].vert1y + ( flDeltaY / flHalfTall ) * 0.5 );
+				}
+				else
+				{
+					// full segment, easy calculation
+					v[1].m_Position.Init( flHalfWide + flWide * ( Segments[i].vert1x - 0.5 ), flHalfTall + flTall * ( Segments[i].vert1y - 0.5 ) );
+					v[1].m_TexCoord.Init( Segments[i].vert1x, Segments[i].vert1y );
+				}
+
+				// vert 2 is ( Segments[i].vert1x, Segments[i].vert1y )
+				v[2].m_Position.Init( flHalfWide + flWide * ( Segments[i].vert2x - 0.5 ), flHalfTall + flTall * ( Segments[i].vert2y - 0.5 ) );
+				v[2].m_TexCoord.Init( Segments[i].vert2x, Segments[i].vert2y );
+
+				vgui::surface()->DrawTexturedPolygon( 3, v );
+			}
+		}
+		return;
+	}
+
 
 	float flEndProgressRadians = flEndProgress * M_PI * 2;
 

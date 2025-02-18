@@ -21,6 +21,7 @@ struct VS_OUTPUT
 	float3x3 tangentSpaceTranspose	: TEXCOORD2;
 	float4 vRefract_W_ProjZ			: TEXCOORD5;
 	float4 vExtraBumpTexCoord       : TEXCOORD6;
+	float3 vWorldPos				: TEXCOORD7;
 	float4 fogFactorW				: COLOR1;
 };
 
@@ -78,6 +79,8 @@ VS_OUTPUT main( const VS_INPUT v )
 #if !defined( _X360 )
 	o.fog = o.fogFactorW;
 #endif
+	o.vWorldPos = worldPos;
+
 	return o;
 }
 

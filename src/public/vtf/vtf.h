@@ -59,11 +59,12 @@ enum CompiledVtfFlags
 	TEXTUREFLAGS_STAGING_MEMORY                = 0x00080000,
 	TEXTUREFLAGS_IMMEDIATE_CLEANUP			   = 0x00100000,
 	TEXTUREFLAGS_IGNORE_PICMIP				   = 0x00200000,
-		TEXTUREFLAGS_UNUSED_00400000           = 0x00400000,
+
+		TEXTUREFLAGS_UNUSED_00400000		   = 0x00400000,
 
 	TEXTUREFLAGS_NODEPTHBUFFER                 = 0x00800000,
 
-		TEXTUREFLAGS_UNUSED_01000000           = 0x01000000,
+		TEXTUREFLAGS_UNUSED_01000000		   = 0x01000000,
 
 	TEXTUREFLAGS_CLAMPU                        = 0x02000000,
 
@@ -76,8 +77,10 @@ enum CompiledVtfFlags
 	// Clamp to border color on all texture coordinates
 	TEXTUREFLAGS_BORDER						   = 0x20000000,
 
-		TEXTUREFLAGS_UNUSED_40000000		   = 0x40000000,
-		TEXTUREFLAGS_UNUSED_80000000		   = 0x80000000,
+	TEXTUREFLAGS_STREAMABLE_COARSE			   = 0x40000000,
+	TEXTUREFLAGS_STREAMABLE_FINE		       = 0x80000000, 
+	TEXTUREFLAGS_STREAMABLE					   = ( TEXTUREFLAGS_STREAMABLE_COARSE | TEXTUREFLAGS_STREAMABLE_FINE )
+
 };
 
 enum VersionedVtfFlags
@@ -159,6 +162,10 @@ enum LookDir_t
 	LOOK_DOWN_NEGZ,
 };
 
+//-----------------------------------------------------------------------------
+// What mipmap (and coarser) is always available when we ship 
+//-----------------------------------------------------------------------------
+#define STREAMING_START_MIPMAP 3
 
 //-----------------------------------------------------------------------------
 // Use this image format if you want to perform tool operations on the texture
@@ -346,6 +353,13 @@ public:
 
 	// Sets post-processing flags (settings are copied, pointer passed to distinguish between structure versions)
 	virtual void SetPostProcessingSettings( VtfProcessingOptions const *pOptions ) = 0;
+
+	// Like Unserialize, but allows you to additionally specify some flags to forcibly enable. 
+	virtual bool UnserializeEx( CUtlBuffer &buf, bool bHeaderOnly = false, int nForceFlags = 0, int nSkipMipLevels = 0 ) = 0;
+
+	// Data is included in [ finest, coarsest ] mips--other ranges have garbage. This is particularly useful for 
+	// streaming textures.
+	virtual void GetMipmapRange( int* pOutFinest, int* pOutCoarsest ) = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -602,6 +616,16 @@ struct TextureSettingsEx_t
 };
 
 #define VTF_RSRC_TEXTURE_CRC ( MK_VTF_RSRC_ID( 'C','R','C' ) )
+
+#define VTF_RSRC_TEXTURE_STREAM_SETTINGS ( MK_VTF_RSRC_ID( 'S', 'T', 'R' ) )
+struct TextureStreamSettings_t
+{
+	uint8 m_firstAvailableMip;
+	uint8 m_lastAvailableMip;
+
+	uint8 m_reserved0;
+	uint8 m_reserved1;
+};
 
 #pragma pack()
 

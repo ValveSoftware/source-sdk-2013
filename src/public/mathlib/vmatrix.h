@@ -43,7 +43,7 @@ class VMatrix
 {
 public:
 
-	VMatrix();
+	VMatrix() = default;
 	VMatrix(
 		vec_t m00, vec_t m01, vec_t m02, vec_t m03,
 		vec_t m10, vec_t m11, vec_t m12, vec_t m13,
@@ -421,10 +421,6 @@ void MatrixInverseTranspose( const VMatrix& src, VMatrix& dst );
 //-----------------------------------------------------------------------------
 // VMatrix inlines.
 //-----------------------------------------------------------------------------
-inline VMatrix::VMatrix()
-{
-}
-
 inline VMatrix::VMatrix(
 	vec_t m00, vec_t m01, vec_t m02, vec_t m03,
 	vec_t m10, vec_t m11, vec_t m12, vec_t m13,

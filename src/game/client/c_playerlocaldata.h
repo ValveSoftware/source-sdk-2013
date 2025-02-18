@@ -33,6 +33,10 @@ public:
 		m_iv_vecPunchAngle.Setup( &m_vecPunchAngle.m_Value, LATCH_SIMULATION_VAR );
 		m_iv_vecPunchAngleVel.Setup( &m_vecPunchAngleVel.m_Value, LATCH_SIMULATION_VAR );
 		m_flFOVRate = 0;
+		m_bForceLocalPlayerDraw = false;
+		m_bPrevForceLocalPlayerDraw = false;
+
+		m_szScriptOverlayMaterial.GetForModify()[0] = '\0';
 	}
 
 	unsigned char			m_chAreaBits[MAX_AREA_STATE_BYTES];				// Area visibility flags.
@@ -52,6 +56,7 @@ public:
 	int						m_nStepside;
 	float					m_flFallVelocity;
 	int						m_nOldButtons;
+	float					m_flOldForwardMove;
 	// Base velocity that was passed in to server physics so 
 	//  client can predict conveyors correctly.  Server zeroes it, so we need to store here, too.
 	Vector					m_vecClientBaseVelocity;  
@@ -63,6 +68,8 @@ public:
 	bool					m_bDrawViewmodel;
 	bool					m_bWearingSuit;
 	bool					m_bPoisoned;
+	bool					m_bForceLocalPlayerDraw; // Allows VScripts, etc to force the local player to draw.
+	bool					m_bPrevForceLocalPlayerDraw;
 	float					m_flStepSize;
 	bool					m_bAllowAutoMovement;
 
@@ -75,6 +82,7 @@ public:
 
 	bool					m_bSlowMovement;
 
+	CNetworkString( m_szScriptOverlayMaterial, MAX_PATH );
 };
 
 #endif // C_PLAYERLOCALDATA_H

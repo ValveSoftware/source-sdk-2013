@@ -103,6 +103,11 @@ public:
 	// Look up the string associated with a particular symbol
 	const char* String( CUtlSymbol id ) const;
 	
+	inline bool HasElement( const char* pStr ) const
+	{
+		return Find( pStr ) != UTL_INVAL_SYMBOL;
+	}
+
 	// Remove all symbols in the table.
 	void  RemoveAll();
 
@@ -238,14 +243,25 @@ class CUtlFilenameSymbolTable
 	{
 		FileNameHandleInternal_t()
 		{
+			COMPILE_TIME_ASSERT( sizeof( *this ) == sizeof( FileNameHandle_t ) );
+
 			path = 0;
 			file = 0;
+
+#ifdef PLATFORM_64BITS
+			pad = 0;
+#endif
 		}
 
 		// Part before the final '/' character
 		unsigned short path;
 		// Part after the final '/', including extension
 		unsigned short file;
+
+#ifdef PLATFORM_64BITS
+		// some padding to make sure we are the same size as FileNameHandle_t on 64 bit.
+		unsigned int pad;
+#endif
 	};
 
 	class HashTable;

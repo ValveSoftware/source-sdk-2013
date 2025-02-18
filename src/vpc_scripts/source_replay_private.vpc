@@ -1,0 +1,22 @@
+//-----------------------------------------------------------------------------
+// SOURCE_REPLAY_PRIVATE.VPC
+//
+// Included from SOURCE_REPLAY.VPC if the $BUILD_REPLAY macro defined.
+//
+//-----------------------------------------------------------------------------
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"$BASE;REPLAY_ENABLED"
+	}
+}
+
+$Project
+{
+	$Folder	"Link libraries"
+	{
+		$Lib "$LIBCOMMON/replay_common"
+	}
+}

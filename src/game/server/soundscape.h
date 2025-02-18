@@ -22,10 +22,10 @@ struct ss_update_t
 	bool		bInRange;
 };
 
-class CEnvSoundscape : public CPointEntity
+class CEnvSoundscape : public CServerOnlyPointEntity
 {
 public:
-	DECLARE_CLASS( CEnvSoundscape, CPointEntity );
+	DECLARE_CLASS( CEnvSoundscape, CServerOnlyPointEntity );
 	DECLARE_DATADESC();
 
 	CEnvSoundscape();
@@ -36,7 +36,6 @@ public:
 	void Precache( void );
 	void UpdateForPlayer( ss_update_t &update );
 	void WriteAudioParamsTo( audioparams_t &audio );
-	virtual int UpdateTransmitState();
 	bool InRangeOfPlayer( CBasePlayer *pPlayer );
 	void DrawDebugGeometryOverlays( void );
 

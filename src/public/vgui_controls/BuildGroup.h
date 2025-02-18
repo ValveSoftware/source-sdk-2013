@@ -13,6 +13,7 @@
 #endif
 
 #include "tier1/utlvector.h"
+#include "tier1/utldict.h"
 #include "tier1/utlsymbol.h"
 #include <vgui/VGUI.h>
 #include <vgui/Dar.h>
@@ -31,7 +32,7 @@ namespace vgui
 // Purpose: a BuildGroup is a list of panels contained in a window (the contextPanel)
 //			Members of this group are viewable and editable in Build Mode, via the BuildModeDialog wizard
 //-----------------------------------------------------------------------------
-class BuildGroup
+class BuildGroup final
 {
 	DECLARE_HANDLES( BuildGroup, 20 );
 
@@ -40,16 +41,16 @@ public:
 	~BuildGroup();
 
 	// Toggle build mode on/off
-	virtual void SetEnabled(bool state);
+	void SetEnabled(bool state);
 
 	// Check if buildgroup is enabled
-	virtual bool IsEnabled();
+	bool IsEnabled();
 
 	// Return the currently selected panel
-	virtual Panel *GetCurrentPanel();
+	Panel *GetCurrentPanel();
 
 	// Load the control settings from file
-	virtual void LoadControlSettings(const char *controlResourceName, const char *pathID = NULL, KeyValues *pPreloadedKeyValues = NULL, KeyValues *pConditions = NULL);
+	void LoadControlSettings(const char *controlResourceName, const char *pathID = NULL, KeyValues *pPreloadedKeyValues = NULL, KeyValues *pConditions = NULL );
 
 	// Reload the control settings from file
 	void ReloadControlSettings();
@@ -59,16 +60,16 @@ public:
 
 	// Save control settings from file, using the same resource 
 	// name as what LoadControlSettings() was called with
-	virtual bool SaveControlSettings();
+	bool SaveControlSettings();
 
 	// Serialize settings from a resource data container
-	virtual void ApplySettings(KeyValues *resourceData);
+	void ApplySettings(KeyValues *resourceData);
 
 	// Serialize settings to a resource data container
-	virtual void GetSettings(KeyValues *resourceData);
+	void GetSettings(KeyValues *resourceData);
 
 	// Remove all objects in the current control group
-	virtual void RemoveSettings();
+	void RemoveSettings();
 
 	// Get a new unique fieldname for a new control
 	void GetNewFieldName(char *newFieldName, int newFieldNameSize, Panel *newPanel);
@@ -81,36 +82,36 @@ public:
 	Panel *NewControl( const char *name, int x=0, int y=0);
 
 	// Set the panel from which the build group gets all it's object creation information
-	virtual void SetContextPanel(Panel *contextPanel);
+	void SetContextPanel(Panel *contextPanel);
 
 	//Get the panel that build group is pointed at.
-	virtual Panel *GetContextPanel();
+	Panel *GetContextPanel();
 
 	// Get the list of panels in the buildgroup
 	CUtlVector<PHandle> *GetPanelList(); 
 
 	// Get the resource file name used
-	virtual const char *GetResourceName(void) { return m_pResourceName; }
+	const char *GetResourceName(void) { return m_pResourceName; }
 
-	virtual void PanelAdded(Panel* panel);
+	void PanelAdded(Panel* panel);
 
-	virtual bool MousePressed(MouseCode code,Panel* panel);
-	virtual bool MouseReleased(MouseCode code,Panel* panel);
+	bool MousePressed(MouseCode code,Panel* panel);
+	bool MouseReleased(MouseCode code,Panel* panel);
 
 	// Get the list of panels that are currently selected
-	virtual CUtlVector<PHandle> *GetControlGroup();
+	CUtlVector<PHandle> *GetControlGroup();
 
 	// Toggle ruler display on/off
-	virtual void ToggleRulerDisplay();
+	void ToggleRulerDisplay();
 	
 	// Toggle visibility of ruler number labels
-	virtual void SetRulerLabelsVisible(bool state);
+	void SetRulerLabelsVisible(bool state);
 
 	// Check if ruler display is activated
-	virtual bool HasRulersOn();
+	bool HasRulersOn();
 
 	// Draw Rulers on screen 
-	virtual void DrawRulers();
+	void DrawRulers();
 
 	// registers that a control settings file may be loaded
 	// use when the dialog may have multiple states and the editor will need to be able to switch between them
@@ -126,15 +127,18 @@ public:
 	// conditional keys for selectively reading keyvalues
 	void ProcessConditionalKeys( KeyValues *pDat, KeyValues *pConditions );
 
-protected:
-	virtual bool CursorMoved(int x, int y, Panel *panel);
-	virtual bool MouseDoublePressed(MouseCode code, Panel *panel);
-	virtual bool KeyCodeTyped(KeyCode code, Panel *panel);
-	virtual bool KeyCodeReleased(KeyCode code, Panel *panel );
-	virtual void ApplySchemeSettings(IScheme *pScheme);
-	virtual bool KeyTyped( wchar_t unichar, Panel *panel );
+	static bool PrecacheResFile( const char* pszResFileName );
+	static void ClearResFileCache();
 
-	virtual HCursor GetCursor(Panel *panel);
+protected:
+	bool CursorMoved(int x, int y, Panel *panel);
+	bool MouseDoublePressed(MouseCode code, Panel *panel);
+	bool KeyCodeTyped(KeyCode code, Panel *panel);
+	bool KeyCodeReleased(KeyCode code, Panel *panel );
+	void ApplySchemeSettings(IScheme *pScheme);
+	bool KeyTyped( wchar_t unichar, Panel *panel );
+
+	HCursor GetCursor(Panel *panel);
 
 private:	
 	void ApplySnap(Panel* panel);
@@ -170,6 +174,8 @@ private:
 	CUtlVector<CUtlSymbol> m_RegisteredControlSettingsFiles;
 
 	friend class Panel;
+
+	static CUtlDict< KeyValues* > m_dictCachedResFiles;
 };
 
 

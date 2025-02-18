@@ -29,7 +29,7 @@ class CAI_WaypointList;
 class CAI_Network;
 struct AIMoveTrace_t;
 struct AILocalMoveGoal_t;
-typedef int AI_TaskFailureCode_t;
+typedef intp AI_TaskFailureCode_t;
 
 //-----------------------------------------------------------------------------
 // Debugging tools

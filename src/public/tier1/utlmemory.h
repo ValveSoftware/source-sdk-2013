@@ -45,6 +45,8 @@
 template< class T, class I = int >
 class CUtlMemory
 {
+	template< class A, class B > friend class CUtlVector;
+	template< class A, size_t B > friend class CUtlVectorFixedGrowableCompat;
 public:
 	// constructor, destructor
 	CUtlMemory( int nGrowSize = 0, int nInitSize = 0 );
@@ -93,6 +95,8 @@ public:
 	void SetExternalBuffer( const T* pMemory, int numElements );
 	// Takes ownership of the passed memory, including freeing it when this buffer is destroyed.
 	void AssumeMemory( T *pMemory, int nSize );
+	T* Detach();
+	void* DetachMemory();
 
 	// Fast swap
 	void Swap( CUtlMemory< T, I > &mem );
@@ -542,6 +546,23 @@ void CUtlMemory<T,I>::AssumeMemory( T* pMemory, int numElements )
 	m_nAllocationCount = numElements;
 }
 
+template< class T, class I >
+void *CUtlMemory<T,I>::DetachMemory()
+{
+	if ( IsExternallyAllocated() )
+		return NULL;
+
+	void *pMemory = m_pMemory;
+	m_pMemory = 0;
+	m_nAllocationCount = 0;
+	return pMemory;
+}
+
+template< class T, class I >
+inline T* CUtlMemory<T,I>::Detach()
+{
+	return (T*)DetachMemory();
+}
 
 //-----------------------------------------------------------------------------
 // element access

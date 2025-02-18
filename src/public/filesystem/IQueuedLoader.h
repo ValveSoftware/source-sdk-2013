@@ -130,6 +130,8 @@ public:
 	virtual void				DynamicLoadMapResource( const char *pFilename, DynamicResourceCallback_t pCallback, void *pContext, void *pContext2 ) = 0;
 	virtual void				QueueDynamicLoadFunctor( CFunctor* pFunctor ) = 0;
 	virtual bool				CompleteDynamicLoad() = 0;
+	virtual void				QueueCleanupDynamicLoadFunctor( CFunctor* pFunctor ) = 0;
+	virtual bool				CleanupDynamicLoad() = 0;
 
 	// callback is asynchronous
 	virtual bool				ClaimAnonymousJob( const char *pFilename, QueuedLoaderCallback_t pCallback, void *pContext, void *pContext2 = NULL ) = 0;

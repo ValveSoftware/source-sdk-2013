@@ -95,13 +95,15 @@ public:
 	int		GetMergeMDLIndex( MDLHandle_t handle );
 	CMDL	*GetMergeMDL(MDLHandle_t handle );
 	void	ClearMergeMDLs( void );
+	void	ValidateMDLs( void );
+	CStudioHdr *GetMergeMDLStudioHdr( MDLHandle_t handle );
 
 	virtual void	SetupFlexWeights( void ) { return; }
 
 	// Events
 	void DoAnimationEvents();
 	void DoAnimationEvents( CStudioHdr *pStudioHdr, int nSeqNum, float flTime, bool bNoLoop, MDLAnimEventState_t *pEventState );
-	virtual void FireEvent( const char *pszEventName, const char *pszEventOptions ) { }
+	virtual void FireEvent( const char *pszEventName, const char *pszEventOptions );
 	void ResetAnimationEventState( MDLAnimEventState_t *pEventState );
 
 protected:
@@ -114,6 +116,8 @@ protected:
 		matrix3x4_t	m_MDLToWorld;
 		bool		m_bDisabled;
 		float		m_flCycleStartTime;
+		CStudioHdr	*m_pStudioHdr;
+		uint32		m_unMdlCacheSerial;
 	};
 
 	MDLData_t				m_RootMDL;
@@ -133,6 +137,7 @@ private:
 	virtual void PostPaint3D( IMatRenderContext *pRenderContext ) { };
 	virtual void RenderingRootModel( IMatRenderContext *pRenderContext, CStudioHdr *pStudioHdr, MDLHandle_t mdlHandle, matrix3x4_t *pWorldMatrix ) { };
 	virtual void RenderingMergedModel( IMatRenderContext *pRenderContext, CStudioHdr *pStudioHdr, MDLHandle_t mdlHandle, matrix3x4_t *pWorldMatrix ) { };
+	virtual IMaterial* GetOverrideMaterial( MDLHandle_t mdlHandle ) { return NULL; }
 
 	void OnMouseDoublePressed( vgui::MouseCode code );
 

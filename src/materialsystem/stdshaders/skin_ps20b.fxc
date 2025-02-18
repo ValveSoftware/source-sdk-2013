@@ -1,4 +1,4 @@
-//======= Copyright © 1996-2007, Valve Corporation, All rights reserved. ======
+//======= Copyright ï¿½ 1996-2007, Valve Corporation, All rights reserved. ======
 // STATIC: "CONVERT_TO_SRGB"			"0..0"
 // STATIC: "CUBEMAP"					"0..1"
 // STATIC: "SELFILLUM"					"0..1"
@@ -17,7 +17,7 @@
 // STATIC: "BLENDTINTBYBASEALPHA"       "0..1"
 
 // DYNAMIC: "WRITEWATERFOGTODESTALPHA"  "0..1"
-// DYNAMIC: "PIXELFOGTYPE"				"0..1"
+// DYNAMIC: "PIXELFOGTYPE"				"0..2"
 // DYNAMIC: "NUM_LIGHTS"				"0..4"
 // DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..1"	[ps20b] [PC]
 // DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..0"	[ps20b] [XBOX]
@@ -180,7 +180,7 @@ float4 main( PS_INPUT i ) : COLOR
 	baseColor = TextureCombine( baseColor, detailColor, DETAIL_BLEND_MODE, g_SelfIllumTint_and_DetailBlendFactor.w );
 #endif
 
-	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos_SpecExponent.z, vWorldPos.z, vProjPos.z );
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos_SpecExponent.xyz, vWorldPos.xyz, vProjPos.z );
 
 	float3 vEyeDir = normalize(i.worldVertToEyeVectorXYZ_tangentSpaceVertToEyeVectorZ.xyz);
 	float3 vRimAmbientCubeColor = PixelShaderAmbientLight(vEyeDir, cAmbientCube);

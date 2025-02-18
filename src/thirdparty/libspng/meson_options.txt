@@ -1,0 +1,11 @@
+option('dev_build', type : 'boolean', value : false, description : 'Enable the testsuite, requires libpng')
+option('enable_opt', type : 'boolean', value : true, description : 'Enable architecture-specific optimizations')
+option('use_miniz', type : 'boolean', value : false, description : 'Compile with miniz instead of zlib, disables some features')
+option('static_zlib', type : 'boolean', value : false, description : 'Link zlib statically')
+option('benchmarks', type : 'boolean', value : false, description : 'Enable benchmarks, requires Git LFS')
+option('build_examples', type : 'boolean', value : true, description : 'Build examples, overriden by dev_build')
+
+
+# Not for end-users
+option('multithreading', type : 'feature', value : 'disabled', description : 'Experimental multithreading features')
+option('oss_fuzz', type : 'boolean', value : false, description : 'Enable regression tests with OSS-Fuzz corpora')

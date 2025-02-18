@@ -29,10 +29,6 @@
 #define VMPI_SHARED_PACKET_ID		10
 
 
-// Turn this on, and the various service apps will log stuff.
-//#define VMPI_SERVICE_LOGS
-
-
 // This value is put in the RunningTimeMS until the job is finished. This is how
 // the job_search app knows if a job never finished.
 #define RUNNINGTIME_MS_SENTINEL		0xFEDCBAFD
@@ -74,6 +70,7 @@
 #define VMPI_SERVICE_EXIT				5	// User chose "exit" from the menu. Kill the service.
 #define VMPI_SERVICE_SKIP_CSX_JOBS		6
 #define VMPI_SERVICE_SCREENSAVER_MODE	7
+#define VMPI_SERVICE_PIPE_STDOUT		8	//enable piping of stdout of vmpi jobs to the vmpi console. Otherwise all you get is stderr
 
 
 // The worker service waits on this range of ports.
@@ -95,6 +92,10 @@
 #define VMPI_MASTER_FILESYSTEM_BROADCAST_PORT	21146
 
 
+// VMPI Registry server settings
+#define VMPI_REGISTRY_WEB_SERVICE_HOST "vmpi-registry.valvesoftware.com"
+#define VMPI_REGISTRY_WEB_SERVICE_PORT 80
+#define VMPI_REGISTRY_REGISTRATION_UPDATE_INTERVAL 600.0	// vmpi_service worker machines advertise themselves with the registry every 10 minutes
 
 
 // Protocol.
@@ -134,6 +135,10 @@
 
 #define VMPI_FORCE_PASSWORD_CHANGE	(VMPI_MESSAGE_BASE+11)
 
+#define VMPI_ENABLE_SCREENSAVER_MODE	(VMPI_MESSAGE_BASE+12)
+#define VMPI_DISABLE_SCREENSAVER_MODE	(VMPI_MESSAGE_BASE+13)
+
+#define VMPI_LOG_FILE_REQUEST		(VMPI_MESSAGE_BASE+14)
 
 // These states are sent from the service to the services browser.
 #define VMPI_STATE_IDLE					0

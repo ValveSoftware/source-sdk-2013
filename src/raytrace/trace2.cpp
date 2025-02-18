@@ -42,7 +42,7 @@ void MapLinearIntensities(FourVectors const &intens,uint32 *p1, uint32 *p2, uint
 	*(p4)=(SubInt(r, 3))|(SubInt(g, 3)<<8)|(SubInt(b, 3)<<16);
 }
 
-static ALIGN16 int32 signmask[4]={0x80000000,0x80000000,0x80000000,0x80000000};
+static ALIGN16 uint32 signmask[4]={0x80000000,0x80000000,0x80000000,0x80000000};
 static ALIGN16 int32 all_ones[4]={-1,-1,-1,-1};
 static fltx4 all_zeros={0,0,0,0};
 static fltx4 TraceLimit={1.0e20,1.0e20,1.0e20,1.0e20};
@@ -155,7 +155,7 @@ void RayTracingEnvironment::RenderScene(
 							fltx4 MaxT=ldir.length();
 							ldir.VectorNormalizeFast();
 							// now, compute shadow flag
-							FourRays myrays;
+							//FourRays myrays;
 							myrays.origin=surface_pos;
 							FourVectors epsilon=ldir;
 							epsilon*=0.01;

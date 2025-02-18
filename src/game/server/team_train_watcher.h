@@ -91,9 +91,6 @@ public:
 	float GetTrainDistanceAlongTrack( void ) const;
 	Vector GetNextCheckpointPosition( void ) const;	// return world space location of next checkpoint along the path
 
-#if defined( STAGING_ONLY ) && defined( TF_DLL )
-	void DumpStats( void );
-#endif // STAGING_ONLY && TF_DLL
 
 	float GetTrainProgress() { return m_flTotalProgress; }
 
@@ -146,6 +143,7 @@ private:
 	float m_flTotalPathDistance;	// calculated only at round start, node graph
 	// may get chopped as the round progresses
 
+	float m_flTrainDistanceAccumulator;
 	float m_flTrainDistanceFromStart;	// actual distance along path of train, for comparing against m_CPLinks[].flDistanceFromStart
 
 	float m_flSpeedLevels[3];

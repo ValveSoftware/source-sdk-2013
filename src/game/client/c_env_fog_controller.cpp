@@ -19,6 +19,7 @@ BEGIN_NETWORK_TABLE_NOBASE( CFogController, DT_FogController )
 	// fog data
 	RecvPropInt( RECVINFO( m_fog.enable ) ),
 	RecvPropInt( RECVINFO( m_fog.blend ) ),
+	RecvPropInt( RECVINFO( m_fog.radial ) ),
 	RecvPropVector( RECVINFO( m_fog.dirPrimary ) ),
 	RecvPropInt( RECVINFO( m_fog.colorPrimary ) ),
 	RecvPropInt( RECVINFO( m_fog.colorSecondary ) ),
@@ -43,4 +44,5 @@ C_FogController::C_FogController()
 	// Make sure that old maps without fog fields don't get wacked out fog values.
 	m_fog.enable = false;
 	m_fog.maxdensity = 1.0f;
+	m_fog.radial = false;
 }

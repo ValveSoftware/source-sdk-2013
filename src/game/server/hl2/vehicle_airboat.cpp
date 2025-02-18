@@ -843,7 +843,7 @@ void CPropAirboat::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &
 //-----------------------------------------------------------------------------
 bool CPropAirboat::ShouldDrawWaterImpacts( void )
 {
-	// The airboat spits out so much crap that we need to do cheaper versions
+	// The airboat spits out so much stuff that we need to do cheaper versions
 	// of the impact effects. Also, we need to do less of them.
 	if ( m_flLastImpactEffectTime >= gpGlobals->curtime )
 		return false;
@@ -858,7 +858,7 @@ bool CPropAirboat::ShouldDrawWaterImpacts( void )
 //-----------------------------------------------------------------------------
 void CPropAirboat::DoImpactEffect( trace_t &tr, int nDamageType )
 {
-	// The airboat spits out so much crap that we need to do cheaper versions
+	// The airboat spits out so much stuff that we need to do cheaper versions
 	// of the impact effects. Also, we need to do less of them.
 	if ( m_flLastImpactEffectTime == gpGlobals->curtime )
 		return;

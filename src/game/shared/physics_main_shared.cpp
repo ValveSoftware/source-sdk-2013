@@ -537,11 +537,6 @@ inline void FreeTouchLink( touchlink_t *link )
 	g_EdictTouchLinks.Free( link );
 }
 
-#ifdef STAGING_ONLY
-#ifndef CLIENT_DLL
-ConVar sv_groundlink_debug( "sv_groundlink_debug", "0", FCVAR_NONE, "Enable logging of alloc/free operations for debugging." );
-#endif
-#endif // STAGING_ONLY
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -559,14 +554,6 @@ inline groundlink_t *AllocGroundLink( void )
 		DevMsg( "AllocGroundLink: failed to allocate groundlink_t.!!!  groundlinksallocated=%d g_EntityGroundLinks.Count()=%d\n", groundlinksallocated, g_EntityGroundLinks.Count() );
 	}
 
-#ifdef STAGING_ONLY
-#ifndef CLIENT_DLL
-	if ( sv_groundlink_debug.GetBool() )
-	{
-		UTIL_LogPrintf( "Groundlink Alloc: %p at %d\n", link, groundlinksallocated );
-	}
-#endif
-#endif // STAGING_ONLY
 
 	return link;
 }
@@ -578,14 +565,6 @@ inline groundlink_t *AllocGroundLink( void )
 //-----------------------------------------------------------------------------
 inline void FreeGroundLink( groundlink_t *link )
 {
-#ifdef STAGING_ONLY
-#ifndef CLIENT_DLL
-	if ( sv_groundlink_debug.GetBool() )
-	{
-		UTIL_LogPrintf( "Groundlink Free: %p at %d\n", link, groundlinksallocated );
-	}
-#endif
-#endif // STAGING_ONLY
 
 	if ( link )
 	{

@@ -619,8 +619,7 @@ bool CGamePlayerEquip::KeyValue( const char *szKeyName, const char *szValue )
 			if ( !m_weaponNames[i] )
 			{
 				char tmp[128];
-
-				UTIL_StripToken( szKeyName, tmp );
+				UTIL_StripToken( szKeyName, tmp, Q_ARRAYSIZE( tmp ) );
 
 				m_weaponNames[i] = AllocPooledString(tmp);
 				m_weaponCount[i] = atoi(szValue);

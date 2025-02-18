@@ -1321,7 +1321,7 @@ void BuildModeDialog::OnPanelMoved()
 //-----------------------------------------------------------------------------
 void BuildModeDialog::OnSetClipboardText(const char *text)
 {
-	system()->SetClipboardText(text, strlen(text));
+	system()->SetClipboardText(text, V_strlen(text));
 }
 
 void BuildModeDialog::OnCreateNewControl( char const *text )

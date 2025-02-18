@@ -1,0 +1,23 @@
+ps.1.1
+
+def c0, 0.00f, 0.00f, 0.00f, 0.25f
+def c1, 0.30f, 0.59f, 0.11f, 0.00f
+
+tex t0
+tex t1
+tex t2
+tex t3
+
+
+// r1 = average = ( t0 + t1 + t2 + t3 ) * 0.25
+mul r1.rgb, t0, c0.a
+mad r1.rgb, t1, c0.a, r1
+mad r1.rgb, t2, c0.a, r1
+mad r1.rgb, t3, c0.a, r1
+
+// r0.a = avg luminance
+dp3 r0, r1, c1
+
+// r0.rgb = color = average*(luminance)
+mul r0.rgb, r1, r0.a 
+

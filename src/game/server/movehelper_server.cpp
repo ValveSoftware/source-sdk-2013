@@ -362,8 +362,11 @@ bool CMoveHelperServer::PlayerFallingDamage( void )
 	float flFallDamage = g_pGameRules->FlPlayerFallDamage( m_pHostPlayer );	
 	if ( flFallDamage > 0 )
 	{
-		m_pHostPlayer->TakeDamage( CTakeDamageInfo( GetContainingEntity(INDEXENT(0)), GetContainingEntity(INDEXENT(0)), flFallDamage, DMG_FALL ) ); 
-		StartSound( m_pHostPlayer->GetAbsOrigin(), "Player.FallDamage" );
+		int iDamageTaken = m_pHostPlayer->TakeDamage( CTakeDamageInfo( GetContainingEntity(INDEXENT(0)), GetContainingEntity(INDEXENT(0)), flFallDamage, DMG_FALL ) ); 
+		if ( iDamageTaken > 0 )
+		{
+			StartSound( m_pHostPlayer->GetAbsOrigin(), "Player.FallDamage" );
+		}
 
         //=============================================================================
         // HPE_BEGIN:

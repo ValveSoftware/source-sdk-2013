@@ -572,11 +572,11 @@ public:
 	virtual bool					GetAttachmentVelocity( int number, Vector &originVel, Quaternion &angleVel );
 
 	// Team handling
-	virtual C_Team					*GetTeam( void );
+	virtual C_Team					*GetTeam( void ) const;
 	virtual int						GetTeamNumber( void ) const;
 	virtual void					ChangeTeam( int iTeamNum );			// Assign this entity to a team.
 	virtual int						GetRenderTeamNumber( void );
-	virtual bool					InSameTeam( C_BaseEntity *pEntity );	// Returns true if the specified entity is on the same team as this one
+	virtual bool					InSameTeam( const C_BaseEntity *pEntity ) const;	// Returns true if the specified entity is on the same team as this one
 	virtual bool					InLocalTeam( void );
 
 	// ID Target handling
@@ -816,6 +816,7 @@ public:
 	void							PreEntityPacketReceived( int commands_acknowledged );
 	void							PostEntityPacketReceived( void );
 	bool							PostNetworkDataReceived( int commands_acknowledged );
+	virtual bool					PredictionErrorShouldResetLatchedForAllPredictables( void ) { return true; } //legacy behavior is that any prediction error causes all predictables to reset latched
 	bool							GetPredictionEligible( void ) const;
 	void							SetPredictionEligible( bool canpredict );
 
@@ -1151,6 +1152,9 @@ public:
 	void	SetCreateTime( float flCreateTime )					{ m_flCreateTime = flCreateTime; }
 
 	int		GetCreationTick() const;
+
+	virtual void ClientAdjustStartSoundParams( EmitSound_t &params ) {}
+	virtual void ClientAdjustStartSoundParams( StartSoundParams_t& params ) {}
 
 #ifdef _DEBUG
 	void FunctionCheck( void *pFunction, const char *name );
@@ -1704,6 +1708,9 @@ protected:
 	RenderMode_t m_PreviousRenderMode;
 	color32 m_PreviousRenderColor;
 #endif
+
+private:
+	bool	m_bOldShouldDraw;
 };
 
 EXTERN_RECV_TABLE(DT_BaseEntity);

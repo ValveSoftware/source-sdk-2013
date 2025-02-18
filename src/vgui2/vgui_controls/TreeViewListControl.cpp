@@ -309,7 +309,7 @@ void CTreeViewListControl::DrawTitleBars()
 			surface()->DrawSetTextPos( midx - wide/2, midy - tall/2 );
 		}
 		
-		surface()->DrawPrintText( unicodeString, strlen( pTitleString ) );
+		surface()->DrawPrintText( unicodeString, V_strlen( pTitleString ) );
 	}
 }
 

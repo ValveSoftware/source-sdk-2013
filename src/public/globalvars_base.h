@@ -74,6 +74,11 @@ public:
 
 	// current saverestore data
 	CSaveRestoreData *pSaveData;
+	
+	int			ClampedMaxClients( int nMaxCount )
+	{
+		return min( maxClients, nMaxCount );
+	}
 
 private:
 	// Set to true in client code.

@@ -40,6 +40,7 @@ public:
 	DECLARE_NETWORKCLASS();
 
 	CBaseProjectile();
+	virtual ~CBaseProjectile();
 
 	virtual void Spawn();
 
@@ -53,7 +54,12 @@ public:
 	virtual float GetCollideWithTeammatesDelay() const { return 0.25f; }
 #endif // GAME_DLL
 
-	virtual bool IsDestroyable( void ) { return false; }
+#ifdef TF_DLL
+	void RecordEnemyPlayerHit( const CBaseEntity* pHitPlayer, bool bDirect );
+	virtual bool IsBaseProjectile( void ) const OVERRIDE { return true; }	
+#endif // TF_DLL
+
+	virtual bool IsDestroyable( bool bOrbAttack = false ) { return false; }
 	virtual void Destroy( bool bBlinkOut = true, bool bBreakRocket = false ) {}
 	virtual void SetLauncher( CBaseEntity *pLauncher );
 	CBaseEntity *GetOriginalLauncher() const { return m_hOriginalLauncher; }
@@ -61,6 +67,7 @@ public:
 protected:
 #ifdef GAME_DLL
 	void CollideWithTeammatesThink();
+	virtual bool ShouldTouchNonWorldSolid( CBaseEntity *pOther, const trace_t *pTrace );
 
 	int m_iDestroyableHitCount;
 #endif // GAME_DLL
@@ -74,6 +81,34 @@ private:
 #endif // GAME_DLL
 
 	CNetworkHandle( CBaseEntity, m_hOriginalLauncher );
+
+#ifdef TF_DLL
+	CUtlVector< int > m_vecEntsHit;
+	CUtlVector< int > m_vecEntsDirectHit;
+#endif
+};
+
+// Trace helper
+
+class CTraceFilterIgnoreProjectiles : public CTraceFilterSimple
+{
+public:
+	// It does have a base, but we'll never network anything below here..
+	DECLARE_CLASS( CTraceFilterIgnoreProjectiles, CTraceFilterSimple );
+
+	CTraceFilterIgnoreProjectiles( const IHandleEntity *passentity, int collisionGroup )
+		: CTraceFilterSimple( passentity, collisionGroup )
+	{
+	}
+
+	virtual bool ShouldHitEntity( IHandleEntity *pServerEntity, int contentsMask )
+	{
+		CBaseEntity *pEntity = EntityFromEntityHandle( pServerEntity );
+		if ( pEntity && dynamic_cast< CBaseProjectile* >( pEntity ) )
+			return false;
+
+		return BaseClass::ShouldHitEntity( pServerEntity, contentsMask );
+	}
 };
 
 #endif // BASEPROJECTILE_H

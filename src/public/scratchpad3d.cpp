@@ -417,7 +417,7 @@ void CScratchPad3D::DrawText( const char *pStr, const CTextParams &params )
 	CCommand_Text *cmd = new CCommand_Text;
 	m_Commands.AddToTail( cmd );
 
-	cmd->m_String.CopyArray( pStr, strlen( pStr ) + 1 );
+	cmd->m_String.CopyArray( pStr, V_strlen( pStr ) + 1 );
 	cmd->m_TextParams = params;
 
 	AutoFlush();

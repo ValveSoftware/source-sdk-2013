@@ -1,4 +1,4 @@
-//======= Copyright © 1996-2007, Valve Corporation, All rights reserved. ======
+//======= Copyright ï¿½ 1996-2007, Valve Corporation, All rights reserved. ======
 
 //  STATIC: "VERTEXCOLOR"				"0..1"
 //	STATIC: "CUBEMAP"					"0..1"
@@ -10,6 +10,7 @@
 //  STATIC: "DECAL"						"0..1" [vs30]
 //  STATIC: "USE_STATIC_CONTROL_FLOW"	"0..1" [vs20]
 //  STATIC: "DONT_GAMMA_CONVERT_VERTEX_COLOR" "0..1"
+//  STATIC: "TREESWAY"					"0..2" [PC]
 //  DYNAMIC: "COMPRESSED_VERTS"			"0..1"
 //	DYNAMIC: "DYNAMIC_LIGHT"			"0..1"
 //	DYNAMIC: "STATIC_LIGHT_VERTEX"		"0..1"
@@ -25,8 +26,12 @@
 // SKIP: $USE_STATIC_CONTROL_FLOW && ( $NUM_LIGHTS > 0 ) [vs20]
 // SKIP: ($SEPARATE_DETAIL_UVS) && ($SEAMLESS_DETAIL)
 // SKIP: ($DONT_GAMMA_CONVERT_VERTEX_COLOR && ( ! $VERTEXCOLOR ) )
+// SKIP: ($TREESWAY) && ($MORPHING)
+// SKIP: ($TREESWAY) && ($TESSELLATION)
+// SKIP: ( $TREESWAY ) && ( $SEAMLESS_DETAIL || $SEAMLESS_BASE )
+
 #include "common_vs_fxc.h"
- 
+
 static const bool g_bSkinning		= SKINNING ? true : false;
 static const int  g_FogType			= DOWATERFOG;
 static const bool g_bVertexColor	= VERTEXCOLOR ? true : false;
@@ -56,7 +61,35 @@ const float4x4 g_FlashlightWorldToTexture :  register( SHADER_SPECIFIC_CONST_6 )
 //		 cMorphTargetTextureDim.z = 4tuples/morph
 const float3 cMorphTargetTextureDim			: register( SHADER_SPECIFIC_CONST_10 );
 const float4 cMorphSubrect					: register( SHADER_SPECIFIC_CONST_11 );
-sampler2D morphSampler						: register( D3DVERTEXTEXTURESAMPLER0, s0 );
+sampler2D morphSampler						: register( s0 );
+#endif
+
+#if ( TREESWAY )
+	const float4 g_vMiscParams1				: register( SHADER_SPECIFIC_CONST_3 );
+	const float4 g_vMiscParams2				: register( SHADER_SPECIFIC_CONST_2 );
+	const float4 g_vMiscParams3				: register( SHADER_SPECIFIC_CONST_10 );
+	const float4 g_vMiscParams4				: register( SHADER_SPECIFIC_CONST_11 );
+
+	#define g_flTime g_vMiscParams2.y
+	#define g_vWindDir g_vMiscParams2.zw
+
+	#define g_flFastSwaySpeedScale g_vMiscParams1.x
+	#define g_flScrumbleFalloffCurve g_vMiscParams1.y
+	#define g_flSwayFalloffCurve g_vMiscParams1.z
+	#define g_flScrumbleSpeed g_vMiscParams1.w
+
+	#define g_flHeight g_vMiscParams3.x
+	#define g_flStartHeight g_vMiscParams3.y
+	#define g_flRadius g_vMiscParams3.z
+	#define g_flStartRadius g_vMiscParams3.w
+
+	#define g_flSwaySpeed g_vMiscParams4.x
+	#define g_flSwayIntensity g_vMiscParams4.y
+	#define g_flScrumbleWaveCount g_vMiscParams4.z
+	#define g_flScrumbleIntensity g_vMiscParams4.w
+
+	#define g_flWindSpeedLerpStart cDetailTexCoordTransform[0].x
+	#define g_flWindSpeedLerpEnd cDetailTexCoordTransform[0].y
 #endif
 
 struct VS_INPUT
@@ -121,6 +154,8 @@ struct VS_OUTPUT
 
 };
 
+#include "tree_sway.h"
+
 VS_OUTPUT main( const VS_INPUT v )
 {
 	VS_OUTPUT o = ( VS_OUTPUT )0;
@@ -150,6 +185,12 @@ VS_OUTPUT main( const VS_INPUT v )
 		v.vVertexID, v.vTexCoord2, vPosition.xyz, vNormal );
 #endif
 	  
+	#if ( TREESWAY )
+	{
+		vPosition.xyz = ComputeTreeSway( vPosition.xyz, g_flTime ) + 0;
+	}
+	#endif
+
 	// Perform skinning
 	float3 worldNormal, worldPos;
 	SkinPositionAndNormal( 

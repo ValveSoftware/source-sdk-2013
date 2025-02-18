@@ -24,7 +24,7 @@
 
 // This is a useful macro to iterate from head to tail in a linked list.
 #define FOR_EACH_LL( listName, iteratorName ) \
-	for( int iteratorName=(listName).Head(); (listName).IsUtlLinkedList && iteratorName != (listName).InvalidIndex(); iteratorName = (listName).Next( iteratorName ) )
+	for( intp iteratorName=(listName).Head(); (listName).IsUtlLinkedList && iteratorName != (listName).InvalidIndex(); iteratorName = (listName).Next( iteratorName ) )
 
 //-----------------------------------------------------------------------------
 // class CUtlLinkedList:
@@ -132,6 +132,11 @@ public:
 
 	// list statistics
 	int	Count() const;
+	inline bool IsEmpty( void ) const
+	{
+		return ( Head() == InvalidIndex() );
+	}
+
 	I	MaxElementIndex() const;
 	I	NumAllocated( void ) const { return m_NumAlloced; }
 
@@ -385,14 +390,15 @@ private:
 
 // this is kind of ugly, but until C++ gets templatized typedefs in C++0x, it's our only choice
 template < class T >
-class CUtlFixedLinkedList : public CUtlLinkedList< T, int, true, int, CUtlFixedMemory< UtlLinkedListElem_t< T, int > > >
+class CUtlFixedLinkedList : public CUtlLinkedList< T, intp, true, intp, CUtlFixedMemory< UtlLinkedListElem_t< T, intp > > >
 {
 public:
-	CUtlFixedLinkedList( int growSize = 0, int initSize = 0 )
-		: CUtlLinkedList< T, int, true, int, CUtlFixedMemory< UtlLinkedListElem_t< T, int > > >( growSize, initSize ) {}
+	typedef CUtlLinkedList< T, intp, true, intp, CUtlFixedMemory< UtlLinkedListElem_t< T, intp > > > BaseClass;
 
-	typedef CUtlLinkedList< T, int, true, int, CUtlFixedMemory< UtlLinkedListElem_t< T, int > > > BaseClass;
-	bool IsValidIndex( int i ) const
+	CUtlFixedLinkedList( int growSize = 0, int initSize = 0 )
+		: BaseClass( growSize, initSize ) {}
+
+	bool IsValidIndex( intp i ) const
 	{
 		if ( !BaseClass::Memory().IsIdxValid( i ) )
 			return false;
@@ -434,7 +440,10 @@ CUtlLinkedList<T,S,ML,I,M>::CUtlLinkedList( int growSize, int initSize ) :
 	m_Memory( growSize, initSize ), m_LastAlloc( m_Memory.InvalidIterator() )
 {
 	// Prevent signed non-int datatypes
-	COMPILE_TIME_ASSERT( sizeof(S) == 4 || ( ( (S)-1 ) > 0 ) );
+#if !defined( PLATFORM_WINDOWS_PC64 ) && !defined( PLATFORM_64BITS )
+	// Prevent signed non-int datatypes
+	COMPILE_TIME_ASSERT( sizeof( S ) == 4 || ( ( (S) -1 ) > 0 ) );
+#endif
 	ConstructList();
 	ResetDbgInfo();
 }

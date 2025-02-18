@@ -1,0 +1,12 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Use the vertex color, modulate vertex alpha by texture alpha
+;------------------------------------------------------------------------------
+def c0, 1.0f, 1.0f, 1.0f, 1.0f
+
+tex t0
+
+; relevant data is in alpha channel
+mov r0.rgb, c0 +
+mul r0.a, v0.a, t0.a

@@ -62,10 +62,10 @@ _PS_EXTERN_CONST(am_pi_o_2, (float)(M_PI / 2.0));
 _PS_EXTERN_CONST(am_2_o_pi, (float)(2.0 / M_PI));
 _PS_EXTERN_CONST(am_pi_o_4, (float)(M_PI / 4.0));
 _PS_EXTERN_CONST(am_4_o_pi, (float)(4.0 / M_PI));
-_PS_EXTERN_CONST_TYPE(am_sign_mask, int32, 0x80000000);
-_PS_EXTERN_CONST_TYPE(am_inv_sign_mask, int32, ~0x80000000);
-_PS_EXTERN_CONST_TYPE(am_min_norm_pos,int32, 0x00800000);
-_PS_EXTERN_CONST_TYPE(am_mant_mask, int32, 0x7f800000);
+_PS_EXTERN_CONST_TYPE(am_sign_mask, uint32, 0x80000000);
+_PS_EXTERN_CONST_TYPE(am_inv_sign_mask, uint32, ~0x80000000);
+_PS_EXTERN_CONST_TYPE(am_min_norm_pos,uint32, 0x00800000);
+_PS_EXTERN_CONST_TYPE(am_mant_mask, uint32, 0x7f800000);
 _PS_EXTERN_CONST_TYPE(am_inv_mant_mask, int32, ~0x7f800000);
 
 _EPI32_CONST(1, 1);
@@ -341,7 +341,7 @@ float _SSE_InvRSquared(const float* v)
 // #define _PS_CONST(Name, Val) static const ALIGN16 float _ps_##Name[4] ALIGN16_POST = { Val, Val, Val, Val }
 #define _PS_CONST_TYPE(Name, Type, Val) static const ALIGN16 Type _ps_##Name[4] ALIGN16_POST = { Val, Val, Val, Val }
 
-_PS_CONST_TYPE(sign_mask, int, 0x80000000);
+_PS_CONST_TYPE(sign_mask, int, (int)0x80000000);
 _PS_CONST_TYPE(inv_sign_mask, int, ~0x80000000);
 
 

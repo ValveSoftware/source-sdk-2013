@@ -90,6 +90,13 @@ typedef enum
 	AE_TAUNT_ENABLE_MOVE,
 	AE_TAUNT_DISABLE_MOVE,
 
+	AE_CL_REMOVE_PARTICLE_EFFECT,
+
+	AE_TAUNT_ADD_ATTRIBUTE, // Used to add attribute via taunt animation
+
+	AE_SV_EXCLUDE_PLAYER_SOUND, // Plays a sound for everyone except the player doing the animation
+	AE_CL_EXCLUDE_PLAYER_SOUND,
+
 	LAST_SHARED_ANIMEVENT,
 } Animevent;
 

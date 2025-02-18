@@ -10,9 +10,6 @@
 
 #include "tier0/memdbgon.h"
 
-
-extern const char *s_ElementNames[MAX_ARRAY_ELEMENTS];
-
 // This gets associated with SendProps inside a utlvector and stores extra data needed to make it work.
 class CSendPropExtra_UtlVector
 {
@@ -195,7 +192,7 @@ SendProp SendPropUtlVector(
 	{
 		pProps[i] = pArrayProp;	// copy array element property setting
 		pProps[i].SetOffset( 0 ); // leave offset at 0 so pStructBase is always a pointer to the CUtlVector
-		pProps[i].m_pVarName = s_ElementNames[i-1];	// give unique name
+		pProps[i].m_pVarName = DT_ArrayElementNameForIdx(i-1);	// give unique name
 		pProps[i].m_pParentArrayPropName = pParentArrayPropName; // TERROR: For debugging...
 		pProps[i].SetExtraData( pExtraData );
 		pProps[i].m_ElementStride = i-1;	// Kind of lame overloading element stride to hold the element index,

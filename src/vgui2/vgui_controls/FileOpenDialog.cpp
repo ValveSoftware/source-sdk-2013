@@ -528,7 +528,7 @@ void FileOpenDialog::Init( const char *title, KeyValues *pContextKeyValues )
 	{
 		const ColumnInfo_t& info = g_ColInfo[ i ];
 
-		m_pFileList->AddColumnHeader( i, info.columnName, info.columnText, info.startingWidth, info.minWidth, info.maxWidth, info.flags );
+		m_pFileList->AddColumnHeader( i, info.columnName, info.columnText, QuickPropScale( info.startingWidth ), QuickPropScale( info.minWidth ), QuickPropScale( info.maxWidth ), info.flags );
 		m_pFileList->SetSortFunc( i, info.pfnSort );
 		m_pFileList->SetColumnTextAlignment( i, info.alignment );
 	}
@@ -578,36 +578,36 @@ void FileOpenDialog::Init( const char *title, KeyValues *pContextKeyValues )
 	m_pFolderIcon = new ImagePanel(NULL, "FolderIcon");
 
 	// set up the control's initial positions
-	SetSize( 600, 260 );
+	SetSize( QuickPropScale( 600 ), QuickPropScale( 260 ) );
 
 	int nFileEditLeftSide = ( m_DialogType != FOD_SELECT_DIRECTORY ) ? 84 : 100;
 	int nFileNameWidth = ( m_DialogType != FOD_SELECT_DIRECTORY ) ? 72 : 82;
 
-	m_pFullPathEdit->SetBounds(67, 32, 310, 24);
-	m_pFolderUpButton->SetBounds(362, 32, 24, 24);
-	m_pNewFolderButton->SetBounds(392, 32, 24, 24);
-	m_pOpenInExplorerButton->SetBounds(332, 32, 24, 24);
-	m_pFileList->SetBounds(10, 60, 406, 130);
-	m_pFileNameEdit->SetBounds( nFileEditLeftSide, 194, 238, 24);
-	m_pFileTypeCombo->SetBounds( nFileEditLeftSide, 224, 238, 24);
-	m_pOpenButton->SetBounds(336, 194, 74, 24);
-	m_pCancelButton->SetBounds(336, 224, 74, 24);
-	lookIn->SetBounds(10, 32, 55, 24);
-	fileName->SetBounds(10, 194, nFileNameWidth, 24);
+	m_pFullPathEdit->SetBounds( QuickPropScale(67 ), QuickPropScale( 32 ), QuickPropScale( 310 ), QuickPropScale( 24 ));
+	m_pFolderUpButton->SetBounds( QuickPropScale(362 ), QuickPropScale( 32 ), QuickPropScale( 24 ), QuickPropScale( 24 ));
+	m_pNewFolderButton->SetBounds( QuickPropScale(392 ), QuickPropScale( 32 ), QuickPropScale( 24 ), QuickPropScale( 24 ));
+	m_pOpenInExplorerButton->SetBounds( QuickPropScale(332 ), QuickPropScale( 32 ), QuickPropScale( 24 ), QuickPropScale( 24 ));
+	m_pFileList->SetBounds( QuickPropScale(10 ), QuickPropScale( 60 ), QuickPropScale( 406 ), QuickPropScale( 130 ));
+	m_pFileNameEdit->SetBounds( QuickPropScale( nFileEditLeftSide ), QuickPropScale( 194 ), QuickPropScale( 238 ), QuickPropScale( 24 ));
+	m_pFileTypeCombo->SetBounds( QuickPropScale( nFileEditLeftSide ), QuickPropScale( 224 ), QuickPropScale( 238 ), QuickPropScale( 24 ));
+	m_pOpenButton->SetBounds( QuickPropScale(336 ), QuickPropScale( 194 ), QuickPropScale( 74 ), QuickPropScale( 24 ));
+	m_pCancelButton->SetBounds( QuickPropScale(336 ), QuickPropScale( 224 ), QuickPropScale( 74 ), QuickPropScale( 24 ));
+	lookIn->SetBounds( QuickPropScale(10 ), QuickPropScale( 32 ), QuickPropScale( 55 ), QuickPropScale( 24 ));
+	fileName->SetBounds( QuickPropScale(10 ), QuickPropScale( 194 ), QuickPropScale( nFileNameWidth ), QuickPropScale( 24 ));
 
 	// set autolayout parameters
-	m_pFullPathEdit->SetAutoResize( Panel::PIN_TOPLEFT, Panel::AUTORESIZE_RIGHT, 67, 32, -100, 0 );
-	m_pFileNameEdit->SetAutoResize( Panel::PIN_BOTTOMLEFT, Panel::AUTORESIZE_RIGHT, nFileEditLeftSide, -42, -104, 0 );
-	m_pFileTypeCombo->SetAutoResize( Panel::PIN_BOTTOMLEFT, Panel::AUTORESIZE_RIGHT, nFileEditLeftSide, -12, -104, 0 );
-	m_pFileList->SetAutoResize( Panel::PIN_TOPLEFT, Panel::AUTORESIZE_DOWNANDRIGHT, 10, 60, -10, -70 );
+	m_pFullPathEdit->SetAutoResize( Panel::PIN_TOPLEFT, Panel::AUTORESIZE_RIGHT, QuickPropScale( 67 ), QuickPropScale( 32 ), QuickPropScale( -100 ), QuickPropScale( 0 ) );
+	m_pFileNameEdit->SetAutoResize( Panel::PIN_BOTTOMLEFT, Panel::AUTORESIZE_RIGHT, QuickPropScale( nFileEditLeftSide ), QuickPropScale( -42 ), QuickPropScale( -104 ), QuickPropScale( 0 ) );
+	m_pFileTypeCombo->SetAutoResize( Panel::PIN_BOTTOMLEFT, Panel::AUTORESIZE_RIGHT, QuickPropScale( nFileEditLeftSide ), QuickPropScale( -12 ), QuickPropScale( -104 ), QuickPropScale( 0 ) );
+	m_pFileList->SetAutoResize( Panel::PIN_TOPLEFT, Panel::AUTORESIZE_DOWNANDRIGHT, QuickPropScale( 10 ), QuickPropScale( 60 ), QuickPropScale( -10 ), QuickPropScale( -70 ) );
 
-	m_pFolderUpButton->SetPinCorner( Panel::PIN_TOPRIGHT, -40, 32 );
-	m_pNewFolderButton->SetPinCorner( Panel::PIN_TOPRIGHT, -10, 32 );
-	m_pOpenInExplorerButton->SetPinCorner( Panel::PIN_TOPRIGHT, -70, 32 );
-	m_pOpenButton->SetPinCorner( Panel::PIN_BOTTOMRIGHT, -16, -42 );
-	m_pCancelButton->SetPinCorner( Panel::PIN_BOTTOMRIGHT, -16, -12 );
-	lookIn->SetPinCorner( Panel::PIN_TOPLEFT, 10, 32 );
-	fileName->SetPinCorner( Panel::PIN_BOTTOMLEFT, 10, -42 );
+	m_pFolderUpButton->SetPinCorner( Panel::PIN_TOPRIGHT, QuickPropScale( -40 ), QuickPropScale( 32 ) );
+	m_pNewFolderButton->SetPinCorner( Panel::PIN_TOPRIGHT, QuickPropScale( -10 ), QuickPropScale( 32 ) );
+	m_pOpenInExplorerButton->SetPinCorner( Panel::PIN_TOPRIGHT, QuickPropScale( -70 ), QuickPropScale( 32 ) );
+	m_pOpenButton->SetPinCorner( Panel::PIN_BOTTOMRIGHT, QuickPropScale( -16 ), QuickPropScale( -42 ) );
+	m_pCancelButton->SetPinCorner( Panel::PIN_BOTTOMRIGHT, QuickPropScale( -16 ), QuickPropScale( -12 ) );
+	lookIn->SetPinCorner( Panel::PIN_TOPLEFT, QuickPropScale( 10 ), QuickPropScale( 32 ) );
+	fileName->SetPinCorner( Panel::PIN_BOTTOMLEFT, QuickPropScale( 10 ), QuickPropScale( -42 ));
 
 	// label settings
 	lookIn->SetContentAlignment(Label::a_west);
@@ -619,8 +619,8 @@ void FileOpenDialog::Init( const char *title, KeyValues *pContextKeyValues )
 	if ( m_DialogType != FOD_SELECT_DIRECTORY )
 	{
 		Label *fileType = new Label(this, "FileTypeLabel", "#FileOpenDialog_File_type");
-		fileType->SetBounds(10, 224, 72, 24);
-		fileType->SetPinCorner( Panel::PIN_BOTTOMLEFT, 10, -12 );
+		fileType->SetBounds( QuickPropScale( 10 ), QuickPropScale( 224 ), QuickPropScale( 72 ), QuickPropScale( 24 ));
+		fileType->SetPinCorner( Panel::PIN_BOTTOMLEFT, QuickPropScale( 10 ), QuickPropScale(-12 ));
 		fileType->SetContentAlignment(Label::a_west);
 		fileType->SetAssociatedControl( m_pFileTypeCombo );
 	}
@@ -641,7 +641,7 @@ void FileOpenDialog::Init( const char *title, KeyValues *pContextKeyValues )
 	m_pNewFolderButton->SetCommand( new KeyValues( "OnNewFolder" ) );
 	m_pOpenInExplorerButton->SetCommand( new KeyValues( "OpenInExplorer" ) );
 
-	SetSize( 600, 384 );
+	SetSize( QuickPropScale( 600 ), QuickPropScale( 384 ) );
 
 	m_nStartDirContext = s_StartDirContexts.InvalidIndex();
 
@@ -1617,7 +1617,7 @@ void FileOpenDialog::PopulateFileNameCompletion()
 	m_pFileNameEdit->GetText(buf, 80);
 	wchar_t wbuf[80];
 	m_pFileNameEdit->GetText(wbuf, 80);
-	int bufLen = wcslen(wbuf);
+	int bufLen = V_wcslen(wbuf);
 
 	// delete all items before we check if there's even a string
 	m_pFileNameEdit->DeleteAllItems();

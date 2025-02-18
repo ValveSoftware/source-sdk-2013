@@ -2676,7 +2676,7 @@ void Cubic_Spline(
 
 	output.Init();
 
-	Vector a, b, c, d;
+	Vector b, c;
 
 	// matrix row 1
 	VectorScale( p2, tSqrSqr * 2, b );
@@ -2811,7 +2811,7 @@ void Parabolic_Spline(
 
 	output.Init();
 
-	Vector a, b, c, d;
+	Vector a, b, c;
 
 	// matrix row 1
 	// no influence from t cubed

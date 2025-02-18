@@ -16,7 +16,7 @@ $Configuration
 	{
 		$AdditionalIncludeDirectories		"$BASE,..\common"
 		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
-		$PrecompiledHeaderFile				"Debug/vvis_launcher.pch"
+		$PrecompiledHeaderFile				"$(IntDir)/vvis_launcher.pch"
 	}
 
 	$Linker [$WIN32]
@@ -25,7 +25,7 @@ $Configuration
 	}
 }
 
-$Project "Vvis_launcher"
+$Project "VVIS (Launcher)"
 {
 	$Folder	"Source Files"
 	{

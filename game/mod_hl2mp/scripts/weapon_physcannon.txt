@@ -53,14 +53,6 @@ WeaponData
 				"font"		"WeaponIconsSelected"
 				"character"	"m"
 		}
-		"ammo"
-		{
-			"file"		"sprites/a_icons1"
-			"x"			"0"
-			"y"			"0"
-			"width"		"32"
-			"height"	"32"
-		}
 		"crosshair"
 		{
 				"font"		"Crosshairs"

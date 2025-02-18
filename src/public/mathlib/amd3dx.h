@@ -1,4 +1,3 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
 /******************************************************************************
 
  Copyright (c) 1999 Advanced Micro Devices, Inc.

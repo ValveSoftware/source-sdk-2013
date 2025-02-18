@@ -17,6 +17,7 @@
 #include "kbutton.h"
 #include "ehandle.h"
 #include "inputsystem/AnalogCode.h"
+#include "steam/isteamcontroller.h"
 
 typedef unsigned int CRC32_t;
 
@@ -113,6 +114,20 @@ public:
 
 	virtual	bool		EnableJoystickMode();
 
+	// SteamController
+	bool		InitializeSteamControllerGameActionSets();
+	Vector2D	ScaleSteamControllerLook( Vector2D vecPosition );
+	void		PerformSteamControllerCameraHaptics( ESteamControllerPad ePad, float flDistance );
+	void		PerformSteamControllerStickHaptics( ESteamControllerPad ePad, bool bFingerDown );
+	Vector2D	PerformSteamControllerCameraMove( ESteamControllerPad ePad, Vector2D vecPadPosition, bool bFingerDown, float flFrametime );
+	void		ApplySteamControllerCameraMove( QAngle& viewangles, CUserCmd *cmd, Vector2D vecPosition );
+
+	virtual void	SetPreferredGameActionSet( GameActionSet_t action_set );
+	virtual GameActionSet_t GetPreferredGameActionSet();
+	virtual void	SetGameActionSetFlags( GameActionSetFlags_t action_set_flags );
+
+	virtual bool IsSteamControllerActive();
+
 // Private Implementation
 protected:
 	// Implementation specific initialization
@@ -143,6 +158,7 @@ protected:
 	void		JoyStickMove ( float frametime, CUserCmd *cmd );
 	float		ScaleAxisValue( const float axisValue, const float axisThreshold );
 	virtual float JoyStickAdjustYaw( float flSpeed ) { return flSpeed; }
+	virtual void SteamControllerMove( float frametime, CUserCmd *cmd );
 
 	// Call this to get the cursor position. The call will be logged in the VCR file if there is one.
 	void		GetMousePos(int &x, int &y);
@@ -208,6 +224,9 @@ private:
 	float		m_flRemainingJoystickSampleTime;
 	float		m_flKeyboardSampleTime;
 
+	int			m_iCaptureWorkaroundLastMouseX;
+	int			m_iCaptureWorkaroundLastMouseY;
+
 	// Flag to restore systemparameters when exiting
 	bool		m_fRestoreSPI;
 	// Original mouse parameters
@@ -249,6 +268,15 @@ private:
 	float m_flPreviousJoystickSide;
 	float m_flPreviousJoystickPitch;
 	float m_flPreviousJoystickYaw;
+
+	// Steam controller stuff
+	int m_nControllerType[MAX_JOYSTICKS + MAX_STEAM_CONTROLLERS];
+
+	GameActionSet_t m_PreferredGameActionSet;
+	GameActionSetFlags_t m_GameActionSetFlags;
+
+	bool m_bSteamControllerGameActionsInitialized;
+	bool m_bSteamControllerSeenInput = false;
 
 	class CVerifiedUserCmd
 	{

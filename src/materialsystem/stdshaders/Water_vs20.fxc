@@ -28,7 +28,7 @@ struct VS_OUTPUT
 	float2 vBumpTexCoord			: TEXCOORD0;
 	float3 vTangentEyeVect			: TEXCOORD1;
 	float4 vReflectXY_vRefractYX	: TEXCOORD2;
-	float  W						: TEXCOORD3;
+	float4 vWorldPos_projPosW		: TEXCOORD3;
 	float4 vProjPos					: TEXCOORD4;
 	float  screenCoord				: TEXCOORD5;
 #if MULTITEXTURE
@@ -68,7 +68,7 @@ VS_OUTPUT main( const VS_INPUT v )
 
 	// Reflection transform
 	o.vReflectXY_vRefractYX = float4( vReflectPos.x, vReflectPos.y, vRefractPos.y, vRefractPos.x );
-	o.W = vProjPos.w;
+	o.vWorldPos_projPosW.w = vProjPos.w;
 	
 	o.screenCoord = vProjPos.x;
 
@@ -78,6 +78,7 @@ VS_OUTPUT main( const VS_INPUT v )
 #if !defined( _X360 )
 	o.vFog = o.fogFactorW;
 #endif
+	o.vWorldPos_projPosW.xyz = vWorldPos;
 
 	// Eye vector
 	float3 vWorldEyeVect = cEyePos - vWorldPos;

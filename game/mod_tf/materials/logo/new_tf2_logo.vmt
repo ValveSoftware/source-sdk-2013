@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "logo\new_tf2_logo"
+	"$translucent" 1
+	"$ignorez" 1
+}

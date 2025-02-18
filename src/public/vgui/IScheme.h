@@ -21,8 +21,8 @@ class KeyValues;
 namespace vgui
 {
 
-typedef unsigned long HScheme;
-typedef unsigned long HTexture;
+typedef uint32 HScheme;
+typedef uint32 HTexture;
 
 class IBorder;
 class IImage;
@@ -63,6 +63,11 @@ public:
 
 	// Get color data
 	virtual const KeyValues *GetColorData() const = 0;
+
+	// returns a pointer to an existing border
+	virtual IBorder* GetBorder2( const char* borderName ) = 0;
+
+	virtual VPANEL GetSizingPanel() = 0;
 };
 
 
@@ -114,8 +119,22 @@ public:
 	virtual int GetProportionalScaledValueEx( HScheme scheme, int normalizedValue ) = 0;
 	virtual int GetProportionalNormalizedValueEx( HScheme scheme, int scaledValue ) = 0;
 
+	int QuickPropScaleCond( bool bScale, HScheme scheme, int normalizedValue )
+	{
+		if ( !bScale )
+			return normalizedValue;
+		return this->GetProportionalScaledValueEx( scheme, normalizedValue );
+	}
+
+	// misyl: Added this to scale much quicker and easier
+	// lots of things were broken with scaling.
+	// Not a real virtual method etc, just a helper to derp into existing code.
+	#define QuickPropScale( x ) ( ::vgui::scheme()->QuickPropScaleCond( this->IsProportional(), this->GetScheme(), ( x ) ) )
+
 	// Returns true if image evicted, false otherwise
 	virtual bool DeleteImage( const char *pImageName ) = 0;
+
+	virtual void UpdateBorders() = 0;
 };
 
 #define VGUI_SCHEME_INTERFACE_VERSION "VGUI_Scheme010"

@@ -19,11 +19,12 @@
 #include "../common/xbox/xboxstubs.h"
 #include "steam/steam_api.h"
 #include "tier0/cpumonitoring.h"
+#include "util_shared.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-static ConVar cl_showfps( "cl_showfps", "0", 0, "Draw fps meter at top of screen (1 = fps, 2 = smooth fps)" );
+static ConVar cl_showfps( "cl_showfps", "0", FCVAR_ALLOWED_IN_COMPETITIVE, "Draw fps meter at top of screen (1 = fps, 2 = smooth fps)" );
 static ConVar cl_showpos( "cl_showpos", "0", 0, "Draw current position at top of screen" );
 static ConVar cl_showbattery( "cl_showbattery", "0", 0, "Draw current battery level at top of screen when on battery power" );
 
@@ -258,6 +259,8 @@ void CFPSPanel::Paint()
 	{
 		if ( m_lastRealTime != -1.0f )
 		{
+			const char *pszMapName = V_GetFileName( engine->GetLevelName() );
+
 			i++;
 
 			int nFps = -1;
@@ -286,14 +289,14 @@ void CFPSPanel::Paint()
 				nFps = static_cast<int>( m_AverageFPS );
 				float frameMS = realFrameTime * 1000.0f;
 				GetFPSColor( nFps, ucColor );
-				g_pMatSystemSurface->DrawColoredText( m_hFont, x, 2, ucColor[0], ucColor[1], ucColor[2], 255, "%3i fps (%3i, %3i) %.1f ms on %s", nFps, m_low, m_high, frameMS, engine->GetLevelName() );
+				g_pMatSystemSurface->DrawColoredText( m_hFont, x, 2, ucColor[0], ucColor[1], ucColor[2], 255, "%3i fps (%3i, %3i) %.1f ms on %s", nFps, m_low, m_high, frameMS, pszMapName );
 			} 
 			else
 			{
 				m_AverageFPS = -1;
 				nFps = static_cast<int>( 1.0f / realFrameTime );
 				GetFPSColor( nFps, ucColor );
-				g_pMatSystemSurface->DrawColoredText( m_hFont, x, 2, ucColor[0], ucColor[1], ucColor[2], 255, "%3i fps on %s", nFps, engine->GetLevelName() );
+				g_pMatSystemSurface->DrawColoredText( m_hFont, x, 2, ucColor[0], ucColor[1], ucColor[2], 255, "%3i fps on %s", nFps, pszMapName );
 			}
 
 			const CPUFrequencyResults frequency = GetCPUFrequencyResults();

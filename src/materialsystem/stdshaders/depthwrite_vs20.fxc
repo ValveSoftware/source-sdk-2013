@@ -1,6 +1,7 @@
 //	STATIC: "ONLY_PROJECT_POSITION"	"0..1" [XBOX]
 //	STATIC: "ONLY_PROJECT_POSITION"	"0..0" [PC]
 //  STATIC: "COLOR_DEPTH"			"0..1"
+//  STATIC: "TREESWAY"				"0..2"
 
 //	DYNAMIC: "COMPRESSED_VERTS"		"0..1"
 //	DYNAMIC: "SKINNING"				"0..1"
@@ -16,9 +17,38 @@ static const bool g_bSkinning = SKINNING ? true : false;
 const float3 cMorphTargetTextureDim			: register( SHADER_SPECIFIC_CONST_6 );
 const float4 cMorphSubrect					: register( SHADER_SPECIFIC_CONST_7 );
 
-sampler2D morphSampler : register( D3DVERTEXTEXTURESAMPLER0, s0 );
+sampler2D morphSampler : register( s0 );
 #endif
 
+#if ( TREESWAY )
+	const float4 g_vTreeSwayParams0			: register( SHADER_SPECIFIC_CONST_2 );
+	const float4 g_vTreeSwayParams1			: register( SHADER_SPECIFIC_CONST_3 );
+	const float4 g_vTreeSwayParams2			: register( SHADER_SPECIFIC_CONST_4 );
+	const float4 g_vTreeSwayParams3			: register( SHADER_SPECIFIC_CONST_5 );
+	const float4 g_vTreeSwayParams4			: register( SHADER_SPECIFIC_CONST_9 );
+
+	#define g_flTime				g_vTreeSwayParams0.x
+	#define g_vWindDir				g_vTreeSwayParams0.yz
+
+	#define g_flScrumbleFalloffCurve g_vTreeSwayParams1.x
+	#define g_flSwayFalloffCurve	g_vTreeSwayParams1.y
+	#define g_flScrumbleSpeed		g_vTreeSwayParams1.z
+	#define g_flFastSwaySpeedScale	g_vTreeSwayParams1.w
+
+
+	#define g_flHeight				g_vTreeSwayParams2.x
+	#define g_flStartHeight			g_vTreeSwayParams2.y
+	#define g_flRadius				g_vTreeSwayParams2.z
+	#define g_flStartRadius			g_vTreeSwayParams2.w
+
+	#define g_flSwaySpeed			g_vTreeSwayParams3.x
+	#define g_flSwayIntensity		g_vTreeSwayParams3.y
+	#define g_flScrumbleWaveCount	g_vTreeSwayParams3.z
+	#define g_flScrumbleIntensity	g_vTreeSwayParams3.w
+
+	#define g_flWindSpeedLerpStart	g_vTreeSwayParams4.x
+	#define g_flWindSpeedLerpEnd	g_vTreeSwayParams4.y
+#endif
 
 struct VS_INPUT
 {
@@ -49,6 +79,8 @@ struct VS_OUTPUT
 
 };
 
+#include "tree_sway.h"
+
 VS_OUTPUT main( const VS_INPUT v )
 {
 	VS_OUTPUT o = ( VS_OUTPUT )0;
@@ -61,6 +93,12 @@ VS_OUTPUT main( const VS_INPUT v )
 	ApplyMorph( morphSampler, cMorphTargetTextureDim, cMorphSubrect, 
 		v.vVertexID, float3(0, 0, 0), vPosition.xyz );
 #endif
+
+	#if ( TREESWAY )
+	{
+		vPosition.xyz = ComputeTreeSway( vPosition.xyz, g_flTime );
+	}
+	#endif
 
 	SkinPosition( g_bSkinning, vPosition, v.vBoneWeights, v.vBoneIndices, vWorldPos );
 

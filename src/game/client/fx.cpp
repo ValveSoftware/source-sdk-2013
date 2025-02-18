@@ -116,7 +116,7 @@ void FX_RicochetSound( const Vector& pos )
 bool FX_GetAttachmentTransform( ClientEntityHandle_t hEntity, int attachmentIndex, Vector *origin, QAngle *angles )
 {
 	// Validate our input
-	if ( ( hEntity == INVALID_EHANDLE_INDEX ) || ( attachmentIndex < 1 ) )
+	if ( ( hEntity == INVALID_EHANDLE ) || ( attachmentIndex < 1 ) )
 	{
 		if ( origin != NULL )
 		{
@@ -403,7 +403,7 @@ void FX_MuzzleEffectAttached(
 	KeyValues *pInitializers = pEmitter->FindKey( "initializers", true );
 
 	KeyValues *pPosition = pInitializers->FindKey( "DmeLinearAttachedPositionInitializer", true );
-	pPosition->SetPtr( "entindex", (void*)pEnt->entindex() );
+	pPosition->SetPtr( "entindex", (void*)(intp)pEnt->entindex() );
 	pPosition->SetInt( "attachmentIndex", attachmentIndex );
 	pPosition->SetFloat( "linearOffsetX", 2.0f * scale );
 
@@ -520,9 +520,9 @@ CSmartPtr<CSimpleEmitter> FX_Smoke( const Vector &origin, const Vector &velocity
 		pParticle->m_flLifetime = 0.0f;
 		pParticle->m_flDieTime = flDietime;
 		pParticle->m_vecVelocity = velocity;
-		for( int i = 0; i < 3; ++i )
+		for( int j = 0; j < 3; ++j )
 		{
-			pParticle->m_uchColor[i] = pColor[i];
+			pParticle->m_uchColor[j] = pColor[j];
 		}
 		pParticle->m_uchStartAlpha	= iAlpha;
 		pParticle->m_uchEndAlpha	= 0;
@@ -673,10 +673,10 @@ public:
 
 			// Randomize the color a little
 			int color[3][2];
-			for( int i = 0; i < 3; ++i )
+			for( int j = 0; j < 3; ++j )
 			{
-				color[i][0] = MAX( 0, m_SpurtColor[i] - 64 );
-				color[i][1] = MIN( 255, m_SpurtColor[i] + 64 );
+				color[j][0] = MAX( 0, m_SpurtColor[j] - 64 );
+				color[j][1] = MIN( 255, m_SpurtColor[j] + 64 );
 			}
 			pParticle->m_uchColor[0] = random->RandomInt( color[0][0], color[0][1] );
 			pParticle->m_uchColor[1] = random->RandomInt( color[1][0], color[1][1] );
@@ -1087,7 +1087,6 @@ void FX_Tesla( const CTeslaInfo &teslaInfo )
 			{
 				// Move it towards the camera
 				Vector vecFlash = tr.endpos;
-				Vector vecForward;
 				AngleVectors( MainViewAngles(), &vecForward );
 				vecFlash -= (vecForward * 8);
 

@@ -20,6 +20,8 @@
 #include "grenade_satchel.h"
 #include "eventqueue.h"
 #include "gamestats.h"
+#include "ammodef.h"
+#include "NextBot.h"
 
 #include "engine/IEngineSound.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
@@ -33,6 +35,8 @@ CBaseEntity	 *g_pLastCombineSpawn = NULL;
 CBaseEntity	 *g_pLastRebelSpawn = NULL;
 extern CBaseEntity				*g_pLastSpawn;
 
+ConVar hl2mp_spawn_frag_fallback_radius( "hl2mp_spawn_frag_fallback_radius", "48", FCVAR_NONE, "If no spawns are available, kill players with this radius to allow new players to spawn." );
+
 #define HL2MP_COMMAND_MAX_RATE 0.3
 
 void DropPrimedFragGrenade( CHL2MP_Player *pPlayer, CBaseCombatWeapon *pGrenade );
@@ -42,9 +46,47 @@ LINK_ENTITY_TO_CLASS( player, CHL2MP_Player );
 LINK_ENTITY_TO_CLASS( info_player_combine, CPointEntity );
 LINK_ENTITY_TO_CLASS( info_player_rebel, CPointEntity );
 
+// specific to the local player
+BEGIN_SEND_TABLE_NOBASE( CHL2MP_Player, DT_HL2MPLocalPlayerExclusive )
+	// send a hi-res origin to the local player for use in prediction
+	SendPropVectorXY(SENDINFO(m_vecOrigin),               -1, SPROP_NOSCALE|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_OriginXY ),
+	SendPropFloat   (SENDINFO_VECTORELEM(m_vecOrigin, 2), -1, SPROP_NOSCALE|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_OriginZ ),
+
+	SendPropFloat( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 8, SPROP_CHANGES_OFTEN, -90.0f, 90.0f ),
+	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 10, SPROP_CHANGES_OFTEN ),
+
+END_SEND_TABLE()
+
+// all players except the local player
+BEGIN_SEND_TABLE_NOBASE( CHL2MP_Player, DT_HL2MPNonLocalPlayerExclusive )
+	// send a lo-res origin to other players
+	SendPropVectorXY(SENDINFO(m_vecOrigin),               -1, SPROP_COORD_MP_LOWPRECISION|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_OriginXY ),
+	SendPropFloat   (SENDINFO_VECTORELEM(m_vecOrigin, 2), -1, SPROP_COORD_MP_LOWPRECISION|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_OriginZ ),
+
+	SendPropFloat( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 8, SPROP_CHANGES_OFTEN, -90.0f, 90.0f ),
+	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 10, SPROP_CHANGES_OFTEN ),
+
+END_SEND_TABLE()
+
 IMPLEMENT_SERVERCLASS_ST(CHL2MP_Player, DT_HL2MP_Player)
-	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 11, SPROP_CHANGES_OFTEN ),
-	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 11, SPROP_CHANGES_OFTEN ),
+	SendPropExclude( "DT_BaseEntity", "m_vecOrigin" ),
+
+	// misyl:
+	// m_flMaxspeed is fully predicted by the client and the client's
+	// maxspeed is sent in the user message.
+	// Other games like DOD, etc don't use this var at all and just fully
+	// predict in GameMovement, but the HL2 codebase doesn't do that and modifies this
+	// on the player.
+	// So, just never send it, and don't predict it on the client either.
+	SendPropExclude( "DT_BasePlayer", "m_flMaxspeed" ),
+
+
+	// Data that only gets sent to the local player
+	SendPropDataTable( "hl2mplocaldata", 0, &REFERENCE_SEND_TABLE( DT_HL2MPLocalPlayerExclusive ), SendProxy_SendLocalDataTable ),
+
+	// Data that gets sent to all other players
+	SendPropDataTable( "hl2mpnonlocaldata", 0, &REFERENCE_SEND_TABLE( DT_HL2MPNonLocalPlayerExclusive ), SendProxy_SendNonLocalDataTable ),
+
 	SendPropEHandle( SENDINFO( m_hRagdoll ) ),
 	SendPropInt( SENDINFO( m_iSpawnInterpCounter), 4 ),
 	SendPropInt( SENDINFO( m_iPlayerSoundType), 3 ),
@@ -53,12 +95,14 @@ IMPLEMENT_SERVERCLASS_ST(CHL2MP_Player, DT_HL2MP_Player)
 	SendPropExclude( "DT_BaseFlex", "m_viewtarget" ),
 
 //	SendPropExclude( "DT_ServerAnimationData" , "m_flCycle" ),	
-//	SendPropExclude( "DT_AnimTimeMustBeFirst" , "m_flAnimTime" ),
-	
+//	SendPropExclude( "DT_AnimTimeMustBeFirst" , "m_flAnimTime" ),	
 END_SEND_TABLE()
 
 BEGIN_DATADESC( CHL2MP_Player )
 END_DATADESC()
+
+BEGIN_ENT_SCRIPTDESC( CHL2MP_Player, CHL2_Player, "Half-Life 2: Deathmatch Player" )
+END_SCRIPTDESC();
 
 const char *g_ppszRandomCitizenModels[] = 
 {
@@ -112,7 +156,7 @@ CHL2MP_Player::CHL2MP_Player() : m_PlayerAnimState( this )
 
 	BaseClass::ChangeTeam( 0 );
 	
-//	UseClientSideAnimation();
+	//UseClientSideAnimation();
 }
 
 CHL2MP_Player::~CHL2MP_Player( void )
@@ -169,6 +213,7 @@ void CHL2MP_Player::GiveAllItems( void )
 	CBasePlayer::GiveAmmo( 255,	"Buckshot");
 	CBasePlayer::GiveAmmo( 32,	"357" );
 	CBasePlayer::GiveAmmo( 3,	"rpg_round");
+	CBasePlayer::GiveAmmo( 16,	"XBowBolt");
 
 	CBasePlayer::GiveAmmo( 1,	"grenade" );
 	CBasePlayer::GiveAmmo( 2,	"slam" );
@@ -333,11 +378,6 @@ void CHL2MP_Player::Spawn(void)
 	m_bReady = false;
 }
 
-void CHL2MP_Player::PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize )
-{
-	
-}
-
 bool CHL2MP_Player::ValidatePlayerModel( const char *pModel )
 {
 	int iModels = ARRAYSIZE( g_ppszRandomCitizenModels );
@@ -362,6 +402,16 @@ bool CHL2MP_Player::ValidatePlayerModel( const char *pModel )
 	}
 
 	return false;
+}
+
+ConVar hl2mp_allow_pickup( "hl2mp_allow_pickup", "0", FCVAR_GAMEDLL );
+
+void CHL2MP_Player::PickupObject( CBaseEntity* pObject, bool bLimitMassAndSize )
+{
+	if ( !hl2mp_allow_pickup.GetBool() )
+		return;
+
+	return BaseClass::PickupObject( pObject, bLimitMassAndSize );
 }
 
 void CHL2MP_Player::SetPlayerTeamModel( void )
@@ -518,6 +568,10 @@ void CHL2MP_Player::ResetAnimation( void )
 			SetAnimation( PLAYER_WALK );
 		else if (GetWaterLevel() > 1)
 			SetAnimation( PLAYER_WALK );
+		else if ( ( GetFlags() & FL_ONGROUND ) != FL_ONGROUND)
+			SetAnimation( PLAYER_JUMP );
+		else
+			SetAnimation( PLAYER_IDLE );
 	}
 }
 
@@ -603,6 +657,16 @@ void CHL2MP_Player::FireBullets ( const FireBulletsInfo_t &info )
 
 	// Move other players back to history positions based on local player's lag
 	lagcompensation->FinishLagCompensation( this );
+
+	if ( pWeapon )
+		this->OnMyWeaponFired( pWeapon );
+}
+
+void CHL2MP_Player::OnMyWeaponFired( CBaseCombatWeapon* weapon )
+{
+	BaseClass::OnMyWeaponFired( weapon );
+
+	TheNextBots().OnWeaponFired( this, weapon );
 }
 
 void CHL2MP_Player::NoteWeaponFired( void )
@@ -789,7 +853,10 @@ void CHL2MP_Player::SetAnimation( PLAYER_ANIM playerAnim )
 		RestartGesture( Weapon_TranslateActivity( idealActivity ) );
 
 		// FIXME: this seems a bit wacked
-		Weapon_SetActivity( Weapon_TranslateActivity( ACT_RANGE_ATTACK1 ), 0 );
+		//
+		// misyl: it was and was causing a pred error every time.
+		// the weapons already call SendWeaponAnim with the right activity.
+		//Weapon_SetActivity( Weapon_TranslateActivity( ACT_RANGE_ATTACK1 ), 0 );
 
 		return;
 	}
@@ -952,7 +1019,7 @@ bool CHL2MP_Player::HandleCommand_JoinTeam( int team )
 	if ( team == TEAM_SPECTATOR )
 	{
 		// Prevent this is the cvar is set
-		if ( !mp_allowspectators.GetInt() )
+		if ( !mp_allowspectators.GetInt() && !IsHLTV() )
 		{
 			ClientPrint( this, HUD_PRINTCENTER, "#Cannot_Be_Spectator" );
 			return false;
@@ -1201,6 +1268,16 @@ void CHL2MP_Player::Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecT
 	BaseClass::Weapon_Drop( pWeapon, pvecTarget, pVelocity );
 }
 
+int CHL2MP_Player::GetMaxAmmo( int iAmmoIndex ) const
+{
+	if ( iAmmoIndex == -1 )
+		return 0;
+
+	if ( GetAmmoDef()->MaxCarry( iAmmoIndex ) == INFINITE_AMMO )
+		return 999;
+
+	return GetAmmoDef()->MaxCarry( iAmmoIndex );
+}
 
 void CHL2MP_Player::DetonateTripmines( void )
 {
@@ -1371,7 +1448,7 @@ CBaseEntity* CHL2MP_Player::EntSelectSpawnPoint( void )
 	if ( pSpot )
 	{
 		CBaseEntity *ent = NULL;
-		for ( CEntitySphereQuery sphere( pSpot->GetAbsOrigin(), 128 ); (ent = sphere.GetCurrentEntity()) != NULL; sphere.NextEntity() )
+		for ( CEntitySphereQuery sphere( pSpot->GetAbsOrigin(), hl2mp_spawn_frag_fallback_radius.GetFloat() ); (ent = sphere.GetCurrentEntity()) != NULL; sphere.NextEntity() )
 		{
 			// if ent is a client, kill em (unless they are ourselves)
 			if ( ent->IsPlayer() && !(ent->edict() == player) )
@@ -1626,4 +1703,45 @@ bool CHL2MP_Player::CanHearAndReadChatFrom( CBasePlayer *pPlayer )
 		return false;
 
 	return true;
+}
+
+//-----------------------------------------------------------------------------------------------------
+// Return true if the given threat is aiming in our direction
+bool CHL2MP_Player::IsThreatAimingTowardMe( CBaseEntity* threat, float cosTolerance ) const
+{
+	CHL2MP_Player* player = ToHL2MPPlayer( threat );
+	Vector to = GetAbsOrigin() - threat->GetAbsOrigin();
+	Vector forward;
+
+	if ( player == NULL )
+	{
+		return false;
+	}
+
+	// is the player pointing at me?
+	player->EyeVectors( &forward );
+
+	if ( DotProduct( to, forward ) > cosTolerance )
+	{
+		return true;
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------------------------------
+// Return true if the given threat is aiming in our direction and firing its weapon
+bool CHL2MP_Player::IsThreatFiringAtMe( CBaseEntity* threat ) const
+{
+	if ( IsThreatAimingTowardMe( threat ) )
+	{
+		CHL2MP_Player* player = ToHL2MPPlayer( threat );
+
+		if ( player )
+		{
+			return player->IsFiringWeapon();
+		}
+	}
+
+	return false;
 }

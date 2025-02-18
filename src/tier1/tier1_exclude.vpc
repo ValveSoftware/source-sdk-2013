@@ -8,6 +8,12 @@ $Project
 {
 	$Folder	"Link Libraries"
 	{
+		// Should match the sites that include this
+		-$Lib "$LIBPUBLIC\tier1"	[$POSIX && !$IS_LIB_PROJECT]
+	}
+
+	$Folder	"Link Libraries"
+	{
 		-$File "$SRCDIR\lib\$PLATFORM\tier1$_STATICLIB_EXT" [!$WINDOWS]
 		-$File "$SRCDIR\lib\public\tier1$_STATICLIB_EXT" [$WINDOWS]
 	}

@@ -245,12 +245,12 @@ void CReplayBrowserThumbnail::UpdateProgress( bool bDownloadPhase, const CReplay
 	if ( pLocalizedText )
 	{
 		// Add animating '...' to end of string
-		wchar_t wszText[128];
-		wcscpy( wszText, pLocalizedText );
-		int nNumPeriods = fmod( gpGlobals->realtime * 2.0f, 4.0f );	// Max of 3 dots
-		const int nLen = wcslen( wszText );
-		wcscat( wszText, L"..." );
-		wszText[ nLen + nNumPeriods ] = L'\0';
+		wchar_t wszText[128] = { 0 };
+		V_wcscpy_safe( wszText, pLocalizedText );
+		unsigned int nNumPeriods = fmod( gpGlobals->realtime * 2.0f, 4.0f );	// Max of 3 dots
+		const unsigned int nLen = wcslen( wszText );
+		V_wcscat_safe( wszText, L"..." );
+		wszText[ Min( nLen + nNumPeriods, (unsigned int)sizeof( wszText ) - 1 ) ] = L'\0';
 		m_pDownloadLabel->SetText( wszText );
 		m_pDownloadLabel->SizeToContents();
 		m_pDownloadLabel->SetWide( m_pDownloadProgress->GetWide() );
@@ -274,10 +274,10 @@ void CReplayBrowserThumbnail::PerformLayout()
 	BaseClass::PerformLayout();
 
 	const CGenericClassBasedReplay *pReplay = GetReplay();
-	AssertValidReadPtr( pReplay );
-
 	if ( !pReplay )
 		return;
+
+	AssertValidReadPtr( pReplay );
 
 	// Get thumbnail for first screenshot
 	char szImage[MAX_OSPATH] = { '\0' };
@@ -735,7 +735,7 @@ void CBaseThumbnailCollection::UpdateViewingPage( void )
 	if ( iNextReplays > 0 )
 	{
 		_snwprintf( wszCount, ARRAYSIZE( wszCount ), L"%d", iNextReplays );
-		g_pVGuiLocalize->ConstructString( wszTemp, sizeof( wszTemp ), g_pVGuiLocalize->Find("#Replay_NextX"), 1, wszCount );
+		g_pVGuiLocalize->ConstructString_safe( wszTemp, g_pVGuiLocalize->Find("#Replay_NextX"), 1, wszCount );
 		SetDialogVariable( "nextbuttontext", wszTemp );
 		m_pShowNextButton->SetVisible( true );
 	}
@@ -748,7 +748,7 @@ void CBaseThumbnailCollection::UpdateViewingPage( void )
 	if ( iPrevReplays > 0 )
 	{
 		_snwprintf( wszCount, ARRAYSIZE( wszCount ), L"%d", iPrevReplays );
-		g_pVGuiLocalize->ConstructString( wszTemp, sizeof( wszTemp ), g_pVGuiLocalize->Find("#Replay_PrevX"), 1, wszCount );
+		g_pVGuiLocalize->ConstructString_safe( wszTemp, g_pVGuiLocalize->Find("#Replay_PrevX"), 1, wszCount );
 		SetDialogVariable( "prevbuttontext", wszTemp );
 		m_pShowPrevButton->SetVisible( true );
 	}
@@ -802,7 +802,7 @@ void CBaseThumbnailCollection::PerformLayout()
 	_snwprintf( wszCount, ARRAYSIZE( wszCount ), L"%d", m_vecReplays.Count() );
 	wchar_t wszTemp[256];
 	const char *pszLocString = IsMovieCollection() ? "#Replay_SavedMovies" : "#Replay_UnrenderedReplays";
-	g_pVGuiLocalize->ConstructString( wszTemp, sizeof( wszTemp ), g_pVGuiLocalize->Find(pszLocString), 1, wszCount );
+	g_pVGuiLocalize->ConstructString_safe( wszTemp, g_pVGuiLocalize->Find(pszLocString), 1, wszCount );
 	SetDialogVariable( "titleandcount", wszTemp );
 
 	// Setup labels for unconverted replay display
@@ -906,7 +906,7 @@ void CReplayThumbnailCollection::ApplySchemeSettings( IScheme *pScheme )
 		wchar_t wLabel[256];
 
 		g_pVGuiLocalize->ConvertANSIToUnicode( szKey, wKey, sizeof( wKey ) );
-		g_pVGuiLocalize->ConstructString( wLabel, sizeof( wLabel ), g_pVGuiLocalize->Find("#Replay_NoReplays" ), 1, wKey );
+		g_pVGuiLocalize->ConstructString_safe( wLabel, g_pVGuiLocalize->Find("#Replay_NoReplays" ), 1, wKey );
 
 		m_pNoReplayItemsLabel->SetText( wLabel );
 	}
@@ -1024,7 +1024,7 @@ void CMovieThumbnailCollection::PerformLayout()
 		wchar_t wszCount[10];
 		_snwprintf( wszCount, ARRAYSIZE( wszCount ), L"%d", g_pReplayMovieManager->GetMovieCount() );
 		wchar_t wszTemp[256];
-		g_pVGuiLocalize->ConstructString( wszTemp, sizeof( wszTemp ), g_pVGuiLocalize->Find("#Replay_SavedMovies"), 1, wszCount );
+		g_pVGuiLocalize->ConstructString_safe( wszTemp, g_pVGuiLocalize->Find("#Replay_SavedMovies"), 1, wszCount );
 		SetDialogVariable( "titleandcount", wszTemp );
 	}
 

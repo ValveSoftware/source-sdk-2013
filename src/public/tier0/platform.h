@@ -38,19 +38,20 @@
 	#undef _XBOX
 #endif
 
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
+
 #include "wchartypes.h"
 #include "basetypes.h"
 #include "tier0/valve_off.h"
 
-#ifdef _DEBUG
-#if !defined( PLAT_COMPILE_TIME_ASSERT )
-#define PLAT_COMPILE_TIME_ASSERT( pred )	switch(0){case 0:case pred:;}
-#endif
-#else
-#if !defined( PLAT_COMPILE_TIME_ASSERT )
-#define PLAT_COMPILE_TIME_ASSERT( pred )
-#endif
-#endif
+//-----------------------------------------------------------------------------
+// This macro predates universal static_assert support in our toolchains
+#define COMPILE_TIME_ASSERT( pred ) static_assert( pred, "Compile time assert constraint is not true: " #pred )
+
+// ASSERT_INVARIANT used to be needed in order to allow COMPILE_TIME_ASSERTs at global
+// scope. However the new COMPILE_TIME_ASSERT macro supports that by default.
+#define ASSERT_INVARIANT( pred )	COMPILE_TIME_ASSERT( pred )
 
 #ifdef _WIN32
 #pragma once
@@ -65,6 +66,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
+#include <stdarg.h>
 #endif
 
 #include <malloc.h>
@@ -75,10 +77,27 @@
 
 #include "tier0/valve_minmax_on.h"	// GCC 4.2.2 headers screw up our min/max defs.
 
+// Detect the architecture we are running on
+#if defined(__arm__) || defined( __aarch64__ ) || defined(_M_ARM) || defined(_M_ARM64)
+	#define PLATFORM_ARM 1
+#elif  defined(_M_X64) || defined(__x86_64__)
+  #define PLATFORM_INTEL
+  #define PLATFORM_X86 64
+#elif defined(_M_IX86) || defined(__i386__)
+  #define PLATFORM_INTEL
+  #define PLATFORM_X86 32
+#else
+	#error Unknown processor architecture.
+#endif
+
 #ifdef _RETAIL
 #define IsRetail() true
 #else
 #define IsRetail() false
+#endif
+
+#if defined( DX_TO_GL_ABSTRACTION ) && defined( USE_DXVK )
+#include <windows.h>
 #endif
 
 #ifdef _DEBUG
@@ -104,7 +123,7 @@
 		#define IsConsole() false
 		#define IsX360() false
 		#define IsPS3() false
-		#define IS_WINDOWS_PC
+		#define IS_WINDOWS_PC 1
 		#define PLATFORM_WINDOWS_PC 1 // Windows PC
 		#ifdef _WIN64
 			#define IsPlatformWindowsPC64() true
@@ -126,12 +145,6 @@
 		#define IsX360() true
 		#define IsPS3() false
 	#endif
-	// Adding IsPlatformOpenGL() to help fix a bunch of code that was using IsPosix() to infer if the DX->GL translation layer was being used.
-	#if defined( DX_TO_GL_ABSTRACTION )
-		#define IsPlatformOpenGL() true
-	#else
-		#define IsPlatformOpenGL() false
-	#endif
 #elif defined(POSIX)
 	#define IsPC() true
 	#define IsWindows() false
@@ -151,10 +164,45 @@
 	#endif
 	
 	#define IsPosix() true
-	#define IsPlatformOpenGL() true
 #else
 	#error
 #endif
+
+#if PLATFORM_WINDOWS_PC
+
+# if PLATFORM_64BITS
+#  define PLATFORM_DIR "\\x64"
+# else
+#  define PLATFORM_DIR ""
+# endif
+
+//#elif PLATFORM_LINUX
+#elif LINUX
+
+# if PLATFORM_64BITS
+#  define PLATFORM_DIR "/linux64"
+# else
+#  define PLATFORM_DIR ""
+# endif
+
+//#elif PLATFORM_OSX
+#elif OSX
+
+#if PLATFORM_ARM
+#  define PLATFORM_DIR "/osxarm64"
+#else
+# if PLATFORM_64BITS
+#  define PLATFORM_DIR "/osx64"
+# else
+#  define PLATFORM_DIR ""
+# endif
+#endif
+
+#else
+# error "Define a platform dir for me!"
+#endif
+
+#define PLATFORM_BIN_DIR "bin" PLATFORM_DIR
 
 typedef unsigned char uint8;
 typedef signed char int8;
@@ -205,7 +253,9 @@ typedef signed char int8;
 		typedef int					intp;
 		typedef unsigned int		uintp;
 	#endif
+	#ifndef USE_DXVK
 	typedef void *HWND;
+	#endif
 
 	// Avoid redefinition warnings if a previous header defines this.
 	#undef OVERRIDE
@@ -219,6 +269,18 @@ typedef signed char int8;
 	#else
 		#define OVERRIDE
 	#endif
+
+    // [u]int64 are actually defined as 'long long' and gcc 64-bit
+    // doesn't automatically consider them the same as 'long int'.
+    // Changing the types for [u]int64 is complicated by
+    // there being many definitions, so we just
+    // define a 'long int' here and use it in places that would
+    // otherwise confuse the compiler.
+    typedef long int lint64;
+    typedef unsigned long int ulint64;
+
+	// include nullptr_t in global namespace
+	typedef decltype( nullptr ) nullptr_t;
 
 #endif // else _WIN32
 
@@ -325,8 +387,6 @@ typedef unsigned int		uint;
 // you might typically want to use RAND_MAX
 #define VALVE_RAND_MAX 0x7fff
 
-
-
 /*
 FIXME: Enable this when we no longer fear change =)
 
@@ -373,7 +433,7 @@ FIXME: Enable this when we no longer fear change =)
 #define __i386__	1
 #endif
 
-#elif POSIX
+#elif defined( POSIX ) && !defined( USE_DXVK )
 #if defined( OSX ) && defined( CARBON_WORKAROUND )
 #define DWORD unsigned int
 #else
@@ -388,6 +448,11 @@ typedef void * HINSTANCE;
 
 #endif // defined(_WIN32) && !defined(WINDED)
 
+#ifdef POSIX
+typedef unsigned int *LPDWORD;
+#endif
+
+#define MAX_FILEPATH 512 
 
 // Defines MAX_PATH
 #ifndef MAX_PATH
@@ -402,14 +467,13 @@ typedef void * HINSTANCE;
 
 #define MAX_UNICODE_PATH_IN_UTF8 MAX_UNICODE_PATH*4
 
-#ifdef GNUC
-#undef offsetof
-//#define offsetof( type, var ) __builtin_offsetof( type, var ) 
-#define offsetof(s,m)	(size_t)&(((s *)0)->m)
-#else
-#undef offsetof
-#define offsetof(s,m)	(size_t)&(((s *)0)->m)
-#endif
+#if !defined( offsetof )
+	#ifdef __GNUC__
+		#define offsetof( type, var ) __builtin_offsetof( type, var )
+	#else
+		#define offsetof(s,m)	(size_t)&(((s *)0)->m)
+	#endif
+#endif // !defined( offsetof )
 
 
 #define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) ) //  need macro for constant expression
@@ -430,18 +494,10 @@ typedef void * HINSTANCE;
 #endif
 #define	DebuggerBreakIfDebugging() if ( !Plat_IsInDebugSession() ) ; else DebuggerBreak()
 
-#ifdef STAGING_ONLY
-#define	DebuggerBreakIfDebugging_StagingOnly() if ( !Plat_IsInDebugSession() ) ; else DebuggerBreak()
-#else
 #define	DebuggerBreakIfDebugging_StagingOnly()
-#endif
 
 // Allows you to specify code that should only execute if we are in a staging build. Otherwise the code noops.
-#ifdef STAGING_ONLY
-#define STAGING_ONLY_EXEC( _exec ) do { _exec; } while (0)
-#else
 #define STAGING_ONLY_EXEC( _exec ) do { } while (0)
-#endif
 
 // C functions for external declarations that call the appropriate C++ methods
 #ifndef EXPORT
@@ -468,34 +524,48 @@ typedef void * HINSTANCE;
         #define DECL_ALIGN(x) /* */
 #endif
 
-#ifdef _MSC_VER
-// MSVC has the align at the start of the struct
-#define ALIGN4 DECL_ALIGN(4)
-#define ALIGN8 DECL_ALIGN(8)
-#define ALIGN16 DECL_ALIGN(16)
-#define ALIGN32 DECL_ALIGN(32)
-#define ALIGN128 DECL_ALIGN(128)
-
-#define ALIGN4_POST
-#define ALIGN8_POST
-#define ALIGN16_POST
-#define ALIGN32_POST
-#define ALIGN128_POST
-#elif defined( GNUC )
+#if defined( GNUC )
 // gnuc has the align decoration at the end
 #define ALIGN4
 #define ALIGN8 
 #define ALIGN16
 #define ALIGN32
 #define ALIGN128
+#define ALIGN_N( _align_ )
 
+#undef ALIGN16_POST
 #define ALIGN4_POST DECL_ALIGN(4)
 #define ALIGN8_POST DECL_ALIGN(8)
 #define ALIGN16_POST DECL_ALIGN(16)
 #define ALIGN32_POST DECL_ALIGN(32)
 #define ALIGN128_POST DECL_ALIGN(128)
+#define ALIGN_N_POST( _align_ ) DECL_ALIGN( _align_ )
 #else
-#error
+// MSVC has the align at the start of the struct
+// PS3 SNC supports both
+#define ALIGN4 DECL_ALIGN(4)
+#define ALIGN8 DECL_ALIGN(8)
+#define ALIGN16 DECL_ALIGN(16)
+#define ALIGN32 DECL_ALIGN(32)
+#define ALIGN128 DECL_ALIGN(128)
+#define ALIGN_N( _align_ ) DECL_ALIGN( _align_ )
+
+#define ALIGN4_POST
+#define ALIGN8_POST
+#define ALIGN16_POST
+#define ALIGN32_POST
+#define ALIGN128_POST
+#define ALIGN_N_POST( _align_ )
+#endif
+
+// !!! NOTE: if you get a compile error here, you are using VALIGNOF on an abstract type :NOTE !!!
+#define VALIGNOF_PORTABLE( type ) ( sizeof( AlignOf_t<type> ) - sizeof( type ) )
+
+#if defined( COMPILER_GCC ) || defined( COMPILER_MSVC )
+#define VALIGNOF( type ) __alignof( type )
+#define VALIGNOF_TEMPLATE_SAFE( type ) VALIGNOF_PORTABLE( type )
+#else
+#error "PORT: Code only tested with MSVC! Must validate with new compiler, and use built-in keyword if available."
 #endif
 
 // Pull in the /analyze code annotations.
@@ -513,10 +583,10 @@ typedef void * HINSTANCE;
 //-----------------------------------------------------------------------------
 #if defined( GNUC )
 	#define stackalloc( _size )		alloca( ALIGN_VALUE( _size, 16 ) )
-#ifdef _LINUX
-	#define mallocsize( _p )	( malloc_usable_size( _p ) )
-#elif defined(OSX)
+#if defined(OSX)
 	#define mallocsize( _p )	( malloc_size( _p ) )
+#elif defined(_LINUX)
+	#define mallocsize( _p )	( malloc_usable_size( _p ) )
 #else
 #error
 #endif
@@ -616,10 +686,16 @@ typedef void * HINSTANCE;
 	#else
 			#define  FORCEINLINE inline __attribute__ ((always_inline))
 		#endif
-	// GCC 3.4.1 has a bug in supporting forced inline of templated functions
-	// this macro lets us not force inlining in that case
-	#define FORCEINLINE_TEMPLATE	inline
+	#define FORCEINLINE_TEMPLATE	FORCEINLINE
 //	#define  __stdcall			__attribute__ ((__stdcall__))
+#endif
+
+#if ( defined(__SANITIZE_ADDRESS__) && __SANITIZE_ADDRESS__ )
+	#define NO_ASAN __attribute__((no_sanitize("address")))
+	#define NO_ASAN_FORCEINLINE NO_ASAN inline
+#else
+	#define NO_ASAN
+	#define NO_ASAN_FORCEINLINE FORCEINLINE
 #endif
 
 // Force a function call site -not- to inlined. (useful for profiling)
@@ -746,8 +822,18 @@ typedef void * HINSTANCE;
 #define _wtoi(arg) wcstol(arg, NULL, 10)
 #define _wtoi64(arg) wcstoll(arg, NULL, 10)
 
-typedef uint32 HMODULE;
+#define _O_RDONLY O_RDONLY
+
+#define _stat stat
+#define _open open
+#define _lseek lseek
+#define _read read
+#define _close close
+
+#ifndef USE_DXVK
+typedef uintp HMODULE;
 typedef void *HANDLE;
+#endif
 #endif
 
 //-----------------------------------------------------------------------------
@@ -873,6 +959,15 @@ static FORCEINLINE double fsel(double fComparand, double fValGE, double fLT)
 #endif // _X360
 
 //-----------------------------------------------------------------------------
+// Portability casting
+//-----------------------------------------------------------------------------
+template < typename Tdst, typename Tsrc > FORCEINLINE Tdst size_cast( Tsrc val )
+{
+	static_assert( sizeof( Tdst ) <= sizeof( uint64 ) && sizeof( Tsrc ) <= sizeof( uint64 ), "Okay in my defense there weren't any types larger than 64-bits when this code was written." );
+	return ( Tdst )val;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Standard functions for handling endian-ness
 //-----------------------------------------------------------------------------
 
@@ -885,6 +980,8 @@ inline T WordSwapC( T w )
 {
    uint16 temp;
 
+   COMPILE_TIME_ASSERT( sizeof( T ) == sizeof(uint16) );
+
    temp  = ((*((uint16 *)&w) & 0xff00) >> 8);
    temp |= ((*((uint16 *)&w) & 0x00ff) << 8);
 
@@ -895,6 +992,8 @@ template <typename T>
 inline T DWordSwapC( T dw )
 {
    uint32 temp;
+
+   COMPILE_TIME_ASSERT( sizeof( T ) == sizeof(uint32) );
 
    temp  =   *((uint32 *)&dw) 				>> 24;
    temp |= ((*((uint32 *)&dw) & 0x00FF0000) >> 8);
@@ -910,7 +1009,7 @@ inline T QWordSwapC( T dw )
 	// Assert sizes passed to this are already correct, otherwise
 	// the cast to uint64 * below is unsafe and may have wrong results 
 	// or even crash.
-	PLAT_COMPILE_TIME_ASSERT( sizeof( dw ) == sizeof(uint64) );
+	COMPILE_TIME_ASSERT( sizeof( dw ) == sizeof(uint64) );
 
 	uint64 temp;
 
@@ -930,78 +1029,33 @@ inline T QWordSwapC( T dw )
 // Fast swaps
 //-------------------------------------
 
-#if defined( _X360 )
+#if defined _MSC_VER		// MSVC (What about MinGW and Clang for Windows)
 
-	#define WordSwap  WordSwap360Intr
-	#define DWordSwap DWordSwap360Intr
+#define WordSwap(d) _byteswap_ushort(d)
+#define DWordSwap(d) ((uint32)(_byteswap_ulong( (unsigned long) d)))
+#define QWordSwap(d) _byteswap_uint64(d)
 
-	template <typename T>
-	inline T WordSwap360Intr( T w )
-	{
-		T output;
-		__storeshortbytereverse( w, 0, &output );
-		return output;
-	}
+#elif defined __GNUC__		// GCC or Clang
 
-	template <typename T>
-	inline T DWordSwap360Intr( T dw )
-	{
-		T output;
-		__storewordbytereverse( dw, 0, &output );
-		return output;
-	}
+#define WordSwap(d) __builtin_bswap16(d)
+#define DWordSwap(d) __builtin_bswap32(d)
+#define QWordSwap(d) __builtin_bswap64(d)
 
-#elif defined( _MSC_VER ) && !defined( PLATFORM_WINDOWS_PC64 )
+#else						// N/A, native code
 
-	#define WordSwap  WordSwapAsm
-	#define DWordSwap DWordSwapAsm
+#pragma message( "TODO: Using non-intrinsic byteswap functions..." )
 
-	#pragma warning(push)
-	#pragma warning (disable:4035) // no return value
-
-	template <typename T>
-	inline T WordSwapAsm( T w )
-	{
-	   __asm
-	   {
-		  mov ax, w
-		  xchg al, ah
-	   }
-	}
-
-	template <typename T>
-	inline T DWordSwapAsm( T dw )
-	{
-	   __asm
-	   {
-		  mov eax, dw
-		  bswap eax
-	   }
-	}
-
-	#pragma warning(pop)
-
-#else
-
-	#define WordSwap  WordSwapC
-	#define DWordSwap DWordSwapC
+#define WordSwap WordSwapC
+#define DWordSwap DWordSwapC
+#define QWordSwap QWordSwapC
 
 #endif
-
-// No ASM implementation for this yet
-#define QWordSwap QWordSwapC
 
 //-------------------------------------
 // The typically used methods.
 //-------------------------------------
 
-#if defined(__i386__) && !defined(VALVE_LITTLE_ENDIAN)
 #define VALVE_LITTLE_ENDIAN 1
-#endif
-
-#if defined( _SGI_SOURCE ) || defined( _X360 )
-#define	VALVE_BIG_ENDIAN 1
-#endif
 
 // If a swapped float passes through the fpu, the bytes may get changed.
 // Prevent this by swapping floats as DWORDs.
@@ -1086,17 +1140,26 @@ FORCEINLINE void StoreLittleDWord( unsigned long *base, unsigned int dwordIndex,
 			__storewordbytereverse( dword, dwordIndex<<2, base );
 		}
 #else
-FORCEINLINE unsigned long LoadLittleDWord( const unsigned long *base, unsigned int dwordIndex )
+	FORCEINLINE uint32 LoadLittleDWord( uint32 *base, unsigned int dwordIndex )
 	{
 		return LittleDWord( base[dwordIndex] );
 	}
 
-FORCEINLINE void StoreLittleDWord( unsigned long *base, unsigned int dwordIndex, unsigned long dword )
+	FORCEINLINE void StoreLittleDWord( uint32 *base, unsigned int dwordIndex, uint32 dword )
 	{
 		base[dwordIndex] = LittleDWord(dword);
 	}
 #endif
 
+inline uint64 CastPtrToUint64( const void* p )
+{
+	return (uint64) ( (uintp) p );
+}
+
+inline int64 CastPtrToInt64( const void* p )
+{
+	return (int64) ( (uintp) p );
+}
 
 //-----------------------------------------------------------------------------
 // DLL export for platform utilities
@@ -1121,6 +1184,8 @@ FORCEINLINE void StoreLittleDWord( unsigned long *base, unsigned int dwordIndex,
 
 #endif	// BUILD_AS_DLL
 
+typedef class CSysModule* PlatModule_t;
+#define PLAT_MODULE_INVALID ((PlatModule_t)0)
 
 // When in benchmark mode, the timer returns a simple incremented value each time you call it.
 //
@@ -1131,8 +1196,35 @@ PLATFORM_INTERFACE bool				Plat_IsInBenchmarkMode();
 
 
 PLATFORM_INTERFACE double			Plat_FloatTime();		// Returns time in seconds since the module was loaded.
-PLATFORM_INTERFACE unsigned int		Plat_MSTime();			// Time in milliseconds.
+PLATFORM_INTERFACE uint32			Plat_MSTime();			// Time in milliseconds.
+PLATFORM_INTERFACE uint64			Plat_USTime();			// Time in microseconds.
 PLATFORM_INTERFACE char *			Plat_ctime( const time_t *timep, char *buf, size_t bufsize );
+PLATFORM_INTERFACE void				Plat_GetModuleFilename( char *pOut, int nMaxBytes );
+
+PLATFORM_INTERFACE void				Plat_ExitProcess( int nCode );
+
+typedef uint32 strlen_t;
+
+PLATFORM_INTERFACE void Plat_getwd( char *pWorkingDirectory, strlen_t nBufLen );
+
+PLATFORM_INTERFACE void Plat_chdir( const char *pDir );
+
+PLATFORM_INTERFACE char const * Plat_GetEnv( char const *pEnvVarName );
+
+PLATFORM_INTERFACE bool Plat_GetExecutablePath( char *pBuff, strlen_t nBuff );
+
+PLATFORM_INTERFACE bool Plat_FileExists( const char *pFileName );
+
+//called to exit the process due to a fatal error. This allows for the application to handle providing a hook as well which can be called
+//before exiting
+PLATFORM_INTERFACE void				Plat_ExitProcessWithError( int nCode, bool bGenerateMinidump = false );
+
+//sets the callback that will be triggered by Plat_ExitProcessWithError. NULL is valid. The return value true indicates that
+//the exit has been handled and no further processing should be performed. False will cause a minidump to be generated, and the process
+//to be terminated
+typedef bool (*ExitProcessWithErrorCBFn)( int nCode );
+PLATFORM_INTERFACE void				Plat_SetExitProcessWithErrorCB( ExitProcessWithErrorCBFn pfnCB );
+
 PLATFORM_INTERFACE struct tm *		Plat_gmtime( const time_t *timep, struct tm *result );
 PLATFORM_INTERFACE time_t			Plat_timegm( struct tm *timeptr );
 PLATFORM_INTERFACE struct tm *		Plat_localtime( const time_t *timep, struct tm *result );
@@ -1202,30 +1294,71 @@ struct CPUInformation
 
 	uint8 m_nLogicalProcessors;		// Number op logical processors.
 	uint8 m_nPhysicalProcessors;	// Number of physical processors
-	
+
 	bool m_bSSE3 : 1,
 		 m_bSSSE3 : 1,
 		 m_bSSE4a : 1,
 		 m_bSSE41 : 1,
-		 m_bSSE42 : 1;	
+		 m_bSSE42 : 1,
+		 m_bAVX   : 1;  // Is AVX supported?
 
 	int64 m_Speed;						// In cycles per second.
 
-	tchar* m_szProcessorID;				// Processor vendor Identification.
+	char* m_szProcessorID;				// Processor vendor Identification.
 
 	uint32 m_nModel;
-	uint32 m_nFeatures[3];
+	uint32 m_nFeatures[ 3 ];
 
-	CPUInformation(): m_Size(0){}
+	char* m_szProcessorBrand;			// Processor brand string, if available
+
+	uint32 m_nL1CacheSizeKb;
+	uint32 m_nL1CacheDesc;
+	uint32 m_nL2CacheSizeKb;
+	uint32 m_nL2CacheDesc;
+	uint32 m_nL3CacheSizeKb;
+	uint32 m_nL3CacheDesc;
+
+	CPUInformation()
+	{
+		memset( this, 0, sizeof( *this ) );
+	}
 };
 
 // Have to return a pointer, not a reference, because references are not compatible with the
 // extern "C" implied by PLATFORM_INTERFACE.
 PLATFORM_INTERFACE const CPUInformation* GetCPUInformation();
 
+#define MEMORY_INFORMATION_VERSION 0
+
+struct MemoryInformation
+{
+	int m_nStructVersion;
+
+	uint m_nPhysicalRamMbTotal;
+	uint m_nPhysicalRamMbAvailable;
+	
+	uint m_nVirtualRamMbTotal;
+	uint m_nVirtualRamMbAvailable;
+
+	inline MemoryInformation()
+	{
+		memset( this, 0, sizeof( *this ) );
+		m_nStructVersion = MEMORY_INFORMATION_VERSION;
+	}
+};
+
+// Returns true if the passed in MemoryInformation structure was filled out, otherwise false.
+PLATFORM_INTERFACE bool GetMemoryInformation( MemoryInformation *pOutMemoryInfo );
+
 PLATFORM_INTERFACE float GetCPUUsage();
 
 PLATFORM_INTERFACE void GetCurrentDate( int *pDay, int *pMonth, int *pYear );
+
+//-----------------------------------------------------------------------------
+// D3DX
+//-----------------------------------------------------------------------------
+
+#define DXABSTRACT_BREAK_ON_ERROR() DebuggerBreak()
 
 // ---------------------------------------------------------------------------------- //
 // Performance Monitoring Events - L2 stats etc...
@@ -1370,43 +1503,73 @@ inline const char *GetPlatformExt( void )
 #endif
 
 //-----------------------------------------------------------------------------
+// There is no requirement that a va_list be usable in multiple calls,
+// but the Steam code does this.  Linux64 does not support reuse, whereas
+// Windows does, so Linux64 breaks on code that was written and working
+// on Windows.  Fortunately Linux has va_copy, which provides a simple
+// way to let a va_list be used multiple times.  Unfortunately Windows
+// does not have va_copy, so here we provide things to hide the difference.
+//-----------------------------------------------------------------------------
+
+class CReuseVaList
+{
+public:
+    CReuseVaList( va_list List )
+    {
+#if defined(LINUX) || defined(OSX)
+        va_copy( m_ReuseList, List );
+#else
+        m_ReuseList = List;
+#endif
+    }
+    ~CReuseVaList()
+    {
+#if defined(LINUX) || defined(OSX)
+        va_end( m_ReuseList );
+#endif
+    }
+
+    va_list m_ReuseList;
+};
+
+//-----------------------------------------------------------------------------
 // Methods to invoke the constructor, copy constructor, and destructor
 //-----------------------------------------------------------------------------
 
 template <class T>
 inline T* Construct( T* pMemory )
 {
-	return ::new( pMemory ) T;
+	return reinterpret_cast<T*>(::new( pMemory ) T);
 }
 
 template <class T, typename ARG1>
 inline T* Construct( T* pMemory, ARG1 a1 )
 {
-	return ::new( pMemory ) T( a1 );
+	return reinterpret_cast<T*>(::new( pMemory ) T( a1 ));
 }
 
 template <class T, typename ARG1, typename ARG2>
 inline T* Construct( T* pMemory, ARG1 a1, ARG2 a2 )
 {
-	return ::new( pMemory ) T( a1, a2 );
+	return reinterpret_cast<T*>(::new( pMemory ) T( a1, a2 ));
 }
 
 template <class T, typename ARG1, typename ARG2, typename ARG3>
 inline T* Construct( T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3 )
 {
-	return ::new( pMemory ) T( a1, a2, a3 );
+	return reinterpret_cast<T*>(::new( pMemory ) T( a1, a2, a3 ));
 }
 
 template <class T, typename ARG1, typename ARG2, typename ARG3, typename ARG4>
 inline T* Construct( T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3, ARG4 a4 )
 {
-	return ::new( pMemory ) T( a1, a2, a3, a4 );
+	return reinterpret_cast<T*>(::new( pMemory ) T( a1, a2, a3, a4 ));
 }
 
 template <class T, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5>
 inline T* Construct( T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3, ARG4 a4, ARG5 a5 )
 {
-	return ::new( pMemory ) T( a1, a2, a3, a4, a5 );
+	return reinterpret_cast<T*>(::new( pMemory ) T( a1, a2, a3, a4, a5 ));
 }
 
 template <class T, class P>
@@ -1430,7 +1593,7 @@ inline void ConstructThreeArg( T* pMemory, P1 const& arg1, P2 const& arg2, P3 co
 template <class T>
 inline T* CopyConstruct( T* pMemory, T const& src )
 {
-	return ::new( pMemory ) T(src);
+	return reinterpret_cast<T*>(::new( pMemory ) T(src));
 }
 
 template <class T>
@@ -1443,6 +1606,64 @@ inline void Destruct( T* pMemory )
 #endif
 }
 
+// The above will error when binding to a type of: foo(*)[] -- there is no provision in c++ for knowing how many objects
+// to destruct without preserving the count and calling the necessary destructors.
+template <class T, size_t N>
+inline void Destruct( T (*pMemory)[N] )
+{
+	for ( size_t i = 0; i < N; i++ )
+	{
+		(pMemory[i])->~T();
+	}
+
+#ifdef _DEBUG
+	memset( reinterpret_cast<void*>( pMemory ), 0xDD, sizeof(*pMemory) );
+#endif
+}
+
+template <typename T> struct RemoveReference_      { using Type = T; };
+template <typename T> struct RemoveReference_<T&>  { using Type = T; };
+template <typename T> struct RemoveReference_<T&&> { using Type = T; };
+
+template <typename T>
+using RemoveReference = typename RemoveReference_<T>::Type;
+
+template <typename T>
+constexpr RemoveReference<T>&& Move(T&& arg)
+{
+	return static_cast<RemoveReference<T>&&>(arg);
+}
+
+// misyl: Shamelessly nicked from Source 2 =)
+//
+//--------------------------------------------------------------------------------------------------
+// RunCodeAtScopeExit
+//
+// Example:
+//	int *x = new int;
+//	RunCodeAtScopeExit( delete x )
+//--------------------------------------------------------------------------------------------------
+template <typename LambdaType>
+class CScopeGuardLambdaImpl
+{
+public:
+	explicit CScopeGuardLambdaImpl( LambdaType&& lambda ) : m_lambda( Move( lambda ) ) { }
+	~CScopeGuardLambdaImpl() { m_lambda(); }
+private:
+	LambdaType m_lambda;
+};
+
+//--------------------------------------------------------------------------------------------------
+template <typename LambdaType>
+CScopeGuardLambdaImpl< LambdaType > MakeScopeGuardLambda( LambdaType&& lambda )
+{
+	return CScopeGuardLambdaImpl< LambdaType >( Move( lambda ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+#define RunLambdaAtScopeExit2( VarName, ... )		const auto VarName( MakeScopeGuardLambda( __VA_ARGS__ ) ); (void)VarName
+#define RunLambdaAtScopeExit( ... )					RunLambdaAtScopeExit2( UNIQUE_ID, __VA_ARGS__ )
+#define RunCodeAtScopeExit( ... )					RunLambdaAtScopeExit( [&]() { __VA_ARGS__ ; } )
 
 //
 // GET_OUTER()
@@ -1621,6 +1842,54 @@ PLATFORM_INTERFACE int Plat_GetWatchdogTime( void );
 typedef void (*Plat_WatchDogHandlerFunction_t)(void);
 PLATFORM_INTERFACE void Plat_SetWatchdogHandlerFunction( Plat_WatchDogHandlerFunction_t function );
 
+/// Get some random bytes from a secure source of high entropy
+PLATFORM_INTERFACE void SecureRandomBytes( void *pDest, size_t cbSize );
+
+// Use ValidateAlignment to sanity-check alignment usage when allocating arrays of an aligned type
+#define ALIGN_ASSERT( pred ) { COMPILE_TIME_ASSERT( pred ); }
+template< class T, int ALIGN >
+inline void ValidateAlignmentExplicit(void)
+{
+	// Alignment must be a power of two
+	ALIGN_ASSERT((ALIGN & (ALIGN - 1)) == 0);
+	// Alignment must not imply gaps in the array (which the CUtlMemory pattern does not allow for)
+	ALIGN_ASSERT(ALIGN <= sizeof(T));
+	// Alignment must be a multiple of the size of the object type, or elements will *NOT* be aligned!
+	ALIGN_ASSERT((sizeof(T) % ALIGN) == 0);
+	// Alignment should be a multiple of the base alignment of T
+//	ALIGN_ASSERT((ALIGN % VALIGNOF(T)) == 0);
+	// Alignment must not be bigger than the maximum declared alignment used by DECLARE_ALIGNED_BYTE_ARRAY
+	// (if you hit this, just add more powers of 2 below and increase this limit)
+	ALIGN_ASSERT( ALIGN <= 128 );
+}
+template< class T > inline void ValidateAlignment(void) { ValidateAlignmentExplicit<T, VALIGNOF(T)>(); }
+
+// Portable alternative to __alignof
+template<class T> struct AlignOf_t { AlignOf_t(){} AlignOf_t & operator=(const AlignOf_t &) { return *this; } byte b; T t; };
+
+template < size_t NUM, class T, int ALIGN > struct AlignedByteArrayExplicit_t{};
+template < size_t NUM, class T > struct AlignedByteArray_t : public AlignedByteArrayExplicit_t< NUM, T, VALIGNOF_TEMPLATE_SAFE(T) > {};
+
+#define DECLARE_ALIGNED_BYTE_ARRAY( ALIGN ) \
+	template < size_t NUM, class T > \
+	struct ALIGN_N( ALIGN ) AlignedByteArrayExplicit_t< NUM, T, ALIGN > \
+	{ \
+		/* NOTE: verify alignment in the constructor (which may be wrong if this is heap-allocated, for ALIGN > MEMALLOC_MAX_AUTO_ALIGN) */ \
+		AlignedByteArrayExplicit_t()	{ if ( (ALIGN-1) & (size_t)this ) DebuggerBreakIfDebugging(); } \
+		T *			Base( void )		{ ValidateAlignmentExplicit<T,ALIGN>(); return (T *)&m_Data; } \
+		const T *	Base( void ) const	{ ValidateAlignmentExplicit<T,ALIGN>(); return (const T *)&m_Data; } \
+	private: \
+		byte m_Data[ NUM*sizeof( T ) ]; \
+	} ALIGN_N_POST( ALIGN );
+
+DECLARE_ALIGNED_BYTE_ARRAY(1);
+DECLARE_ALIGNED_BYTE_ARRAY(2);
+DECLARE_ALIGNED_BYTE_ARRAY(4);
+DECLARE_ALIGNED_BYTE_ARRAY(8);
+DECLARE_ALIGNED_BYTE_ARRAY(16);
+DECLARE_ALIGNED_BYTE_ARRAY(32);
+DECLARE_ALIGNED_BYTE_ARRAY(64);
+DECLARE_ALIGNED_BYTE_ARRAY(128);
 
 //-----------------------------------------------------------------------------
 
@@ -1634,5 +1903,10 @@ extern "C" int V_tier0_stricmp(const char *s1, const char *s2 );
 #define strcmpi(s1,s2) V_tier0_stricmp( s1, s2 )
 #endif
 
+// misyl: Pad the lightmap atlas so we can do r_lightmap_bicubic and have bicubic sampling as an option.
+// I am so evil I put it in platform.h, but a few places need this define and I didn't want to think too
+// hard about it.
+// >:)
+#define PAD_LIGHTMAP_ATLAS 1
 
 #endif /* PLATFORM_H */

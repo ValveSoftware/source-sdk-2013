@@ -179,7 +179,7 @@ static HMODULE InternalLoadLibrary( const char *pName, Sys_Flags flags )
 		return LoadLibraryEx( pName, NULL, LOAD_WITH_ALTERED_SEARCH_PATH );
 #endif
 }
-unsigned ThreadedLoadLibraryFunc( void *pParam )
+uintp ThreadedLoadLibraryFunc( void *pParam )
 {
 	ThreadedLoadLibaryContext_t *pContext = (ThreadedLoadLibaryContext_t*)pParam;
 	pContext->m_hLibrary = InternalLoadLibrary( pContext->m_pLibraryName, SYS_NOFLAGS );
@@ -293,15 +293,14 @@ CSysModule *Sys_LoadModule( const char *pModuleName, Sys_Flags flags /* = SYS_NO
 		}
 
 		char szAbsoluteModuleName[1024];
-		size_t cCwd = strlen( szCwd );
-		if ( strstr( pModuleName, "bin/") == pModuleName || ( szCwd[ cCwd - 1 ] == 'n'  && szCwd[ cCwd - 2 ] == 'i' && szCwd[ cCwd - 3 ] == 'b' )  )
+		if ( strstr( pModuleName, PLATFORM_BIN_DIR ) != NULL )
 		{
 			// don't make bin/bin path
-			Q_snprintf( szAbsoluteModuleName, sizeof(szAbsoluteModuleName), "%s/%s", szCwd, pModuleName );			
+			Q_snprintf( szAbsoluteModuleName, sizeof( szAbsoluteModuleName ), "%s" CORRECT_PATH_SEPARATOR_S "%s", szCwd, pModuleName );
 		}
 		else
 		{
-			Q_snprintf( szAbsoluteModuleName, sizeof(szAbsoluteModuleName), "%s/bin/%s", szCwd, pModuleName );
+			Q_snprintf( szAbsoluteModuleName, sizeof( szAbsoluteModuleName ), "%s" CORRECT_PATH_SEPARATOR_S PLATFORM_BIN_DIR CORRECT_PATH_SEPARATOR_S "%s", szCwd, pModuleName );
 		}
 		hDLL = Sys_LoadLibrary( szAbsoluteModuleName, flags );
 	}
@@ -543,25 +542,4 @@ void CDllDemandLoader::Unload()
 	}
 }
 
-#if defined( STAGING_ONLY ) && defined( _WIN32 )
-
-typedef USHORT( WINAPI RtlCaptureStackBackTrace_FUNC )(
-	ULONG frames_to_skip,
-	ULONG frames_to_capture,
-	PVOID *backtrace,
-	PULONG backtrace_hash );
-
-extern "C" int backtrace( void **buffer, int size )
-{
-	HMODULE hNTDll = GetModuleHandleA( "ntdll.dll" );
-	static RtlCaptureStackBackTrace_FUNC * const pfnRtlCaptureStackBackTrace =
-		( RtlCaptureStackBackTrace_FUNC * )GetProcAddress( hNTDll, "RtlCaptureStackBackTrace" );
-
-	if ( !pfnRtlCaptureStackBackTrace )
-		return 0;
-
-	return (int)pfnRtlCaptureStackBackTrace( 2, size, buffer, 0 );
-}
-
-#endif // STAGING_ONLY && _WIN32
 

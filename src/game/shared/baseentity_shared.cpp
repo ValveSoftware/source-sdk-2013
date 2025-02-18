@@ -655,15 +655,15 @@ void CBaseEntity::SetPredictionRandomSeed( const CUserCmd *cmd )
 //------------------------------------------------------------------------------
 void CBaseEntity::DecalTrace( trace_t *pTrace, char const *decalName )
 {
-	int index = decalsystem->GetDecalIndexForName( decalName );
-	if ( index < 0 )
+	int indexD = decalsystem->GetDecalIndexForName( decalName );
+	if ( indexD < 0 )
 		return;
 
 	Assert( pTrace->m_pEnt );
 
 	CBroadcastRecipientFilter filter;
 	te->Decal( filter, 0.0, &pTrace->endpos, &pTrace->startpos,
-		pTrace->GetEntityIndex(), pTrace->hitbox, index );
+		pTrace->GetEntityIndex(), pTrace->hitbox, indexD );
 }
 
 //-----------------------------------------------------------------------------
@@ -759,14 +759,8 @@ int CBaseEntity::RegisterThinkContext( const char *szContext )
 //-----------------------------------------------------------------------------
 BASEPTR	CBaseEntity::ThinkSet( BASEPTR func, float thinkTime, const char *szContext )
 {
-#if !defined( CLIENT_DLL )
-#ifdef _DEBUG
-#ifdef GNUC
-	COMPILE_TIME_ASSERT( sizeof(func) == 8 );
-#else
-	COMPILE_TIME_ASSERT( sizeof(func) == 4 );
-#endif
-#endif
+#if !defined( CLIENT_DLL ) && defined( _DEBUG )
+	COMPILE_TIME_ASSERT( sizeof(func) == ENTITYFUNCPTR_SIZE );
 #endif
 
 	// Old system?
@@ -1399,9 +1393,9 @@ bool CBaseEntity::IsBSPModel() const
 	if ( GetSolid() == SOLID_BSP )
 		return true;
 	
-	const model_t *model = modelinfo->GetModel( GetModelIndex() );
+	const model_t *pModel = modelinfo->GetModel( GetModelIndex() );
 
-	if ( GetSolid() == SOLID_VPHYSICS && modelinfo->GetModelType( model ) == mod_brush )
+	if ( GetSolid() == SOLID_VPHYSICS && modelinfo->GetModelType( pModel ) == mod_brush )
 		return true;
 
 	return false;

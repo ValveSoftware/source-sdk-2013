@@ -23,6 +23,7 @@ enum EHTTPMethod
 	k_EHTTPMethodPUT,
 	k_EHTTPMethodDELETE,
 	k_EHTTPMethodOPTIONS,
+	k_EHTTPMethodPATCH,
 
 	// The remaining HTTP methods are not yet supported, per rfc2616 section 5.1.1 only GET and HEAD are required for 
 	// a compliant general purpose server.  We'll likely add more as we find uses for them.
@@ -61,6 +62,7 @@ enum EHTTPStatusCode
 	k_EHTTPStatusCode305UseProxy =				305,
 	//k_EHTTPStatusCode306Unused =				306, (used in old HTTP spec, now unused in 1.1)
 	k_EHTTPStatusCode307TemporaryRedirect =		307,
+	k_EHTTPStatusCode308PermanentRedirect =		308,
 
 	// Error codes
 	k_EHTTPStatusCode400BadRequest =			400,
@@ -83,6 +85,7 @@ enum EHTTPStatusCode
 	k_EHTTPStatusCode417ExpectationFailed =		417,
 	k_EHTTPStatusCode4xxUnknown = 				418, // 418 is reserved, so we'll use it to mean unknown
 	k_EHTTPStatusCode429TooManyRequests	=		429,
+	k_EHTTPStatusCode444ConnectionClosed =		444, // nginx only?
 
 	// Server error codes
 	k_EHTTPStatusCode500InternalServerError =	500,

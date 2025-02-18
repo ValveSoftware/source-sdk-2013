@@ -31,10 +31,12 @@ typedef enum { matGlass = 0, matWood, matMetal, matFlesh, matCinderBlock, matCei
 #define SF_PUSH_BREAKABLE					0x0080
 #define SF_PUSH_NO_USE						0x0100	// player cannot +use pickup this ent
 
+DECLARE_AUTO_LIST( IBreakablePropAutoList );
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CBreakable : public CBaseEntity, public IBreakableWithPropData, public CDefaultPlayerPickupVPhysics
+class CBreakable : public CBaseEntity, public IBreakableWithPropData, public CDefaultPlayerPickupVPhysics, public IBreakablePropAutoList
 {
 public:
 	DECLARE_CLASS( CBreakable, CBaseEntity );
@@ -158,6 +160,7 @@ protected:
 	string_t		m_iszBasePropData;	
 	int				m_iInteractions;
 	PerformanceMode_t m_PerformanceMode;
+	int				m_nTeamNumber;
 
 	float			m_explodeRadius;
 

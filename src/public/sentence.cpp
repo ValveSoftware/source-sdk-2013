@@ -185,7 +185,7 @@ void CWordTag::SetWord( const char *word )
 	if ( !word || !word[ 0 ] )
 		return;
 
-	int len = strlen( word ) + 1;
+	int len = V_strlen( word ) + 1;
 	m_pszWord = new char[ len ];
 	Assert( m_pszWord );
 	Q_strncpy( m_pszWord, word, len );
@@ -508,7 +508,6 @@ void CSentence::ParseWords( CUtlBuffer& buf )
 			// Parse phoneme
 			int code;
 			char phonemename[ 256 ];
-			float start, end;
 			float volume;
 
 			code = atoi( token );
@@ -561,13 +560,14 @@ void CSentence::ParseEmphasis( CUtlBuffer& buf )
 	}
 }
 
-// This is obsolete, so it doesn't do anything with the data which is parsed.
+// This is obsolete, so it doesn't do anything with the data which is parsed, but is needed to advance the correct
+// amount in the stream.
 void CSentence::ParseCloseCaption( CUtlBuffer& buf )
 {
 	char token[ 4096 ];
 	while ( 1 )
 	{
-		// Format is 
+		// Format is
 		// language_name
 		// {
 		//   PHRASE char streamlength "streambytes" starttime endtime
@@ -611,12 +611,19 @@ void CSentence::ParseCloseCaption( CUtlBuffer& buf )
 
 			buf.GetString( token );
 			cc_length = atoi( token );
-			Assert( cc_length >= 0 && cc_length < sizeof( cc_stream ) );
+
+			if ( cc_length < 0 || (unsigned int)cc_length >= ARRAYSIZE( cc_stream ) )
+			{
+				Warning( "Invalid CloseCaption data - segment length %d is out of bounds\n", cc_length );
+				AssertMsg( false, "Invalid CloseCaption data" );
+				break;
+			}
+
 			// Skip space
 			buf.GetChar();
 			buf.Get( cc_stream, cc_length );
 			cc_stream[ cc_length ] = 0;
-			
+
 			// Skip space
 			buf.GetChar();
 			buf.GetString( token );
@@ -1308,9 +1315,9 @@ void CSentence::Append( float starttime, const CSentence& src )
 
 		// Offset times
 		int c = newWord->m_Phonemes.Count();
-		for ( int i = 0; i < c; ++i )
+		for ( int j = 0; j < c; ++j )
 		{
-			CPhonemeTag *tag = newWord->m_Phonemes[ i ];
+			CPhonemeTag *tag = newWord->m_Phonemes[ j ];
 			tag->AddStartTime( starttime );
 			tag->AddEndTime( starttime );
 		}

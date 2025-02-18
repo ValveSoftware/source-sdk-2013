@@ -21,12 +21,15 @@ void CEntityMaterialProxy::Release( void )
 }
 
 //-----------------------------------------------------------------------------
-// Helper class to deal with floating point inputs
+//
 //-----------------------------------------------------------------------------
 void CEntityMaterialProxy::OnBind( void *pRenderable )
 {
 	if( !pRenderable )
+	{
+		OnBindNotEntity( pRenderable );
 		return;
+	}
 
 	IClientRenderable *pRend = ( IClientRenderable* )pRenderable;
 	C_BaseEntity *pEnt = pRend->GetIClientUnknown()->GetBaseEntity();
@@ -37,5 +40,9 @@ void CEntityMaterialProxy::OnBind( void *pRenderable )
 		{
 			ToolFramework_RecordMaterialParams( GetMaterial() );
 		}
+	}
+	else
+	{
+		OnBindNotEntity( pRenderable );
 	}
 }

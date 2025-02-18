@@ -25,7 +25,17 @@
 ConVar DrawBattleLines( "ai_drawbattlelines", "0", FCVAR_CHEAT );
 
 
-static AI_StandoffParams_t AI_DEFAULT_STANDOFF_PARAMS = { AIHCR_MOVE_ON_COVER, true, 1.5, 2.5, 1, 3, 25, 0 };
+// XXX(JohnS): The old parameters below triggered a warning -- fPlayerIsBattleline field used to be "1.5" which
+//             implicitly cast to true.  Given that there are two floats followed by three ints, it seems all these
+//             fields are off-by-one, but this code hasn't been touched in a very long time so I'm going to avoid
+//             changing its behavior drastically now.  It probably has never used the originally intended values.  The
+//             new values are just expanding what they would've been implicitly filled with.
+//
+// static AI_StandoffParams_t AI_DEFAULT_STANDOFF_PARAMS = { AIHCR_MOVE_ON_COVER, true, 1.5, 2.5, 1, 3, 25, 0 };
+static AI_StandoffParams_t AI_DEFAULT_STANDOFF_PARAMS = { AIHCR_MOVE_ON_COVER, true, true, 2.5, 1., 3, 25, 0, false, 0.f };
+// Suspected originally intended values:
+//
+// static AI_StandoffParams_t AI_DEFAULT_STANDOFF_PARAMS = { AIHCR_MOVE_ON_COVER, true, true(?), 1.5, 2.5, 1, 3, 25, false(?), 0.(?) };
 
 #define MAKE_ACTMAP_KEY( posture, activity ) ( (((unsigned)(posture)) << 16) | ((unsigned)(activity)) )
 

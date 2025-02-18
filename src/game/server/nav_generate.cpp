@@ -39,6 +39,7 @@ ConVar nav_slope_tolerance( "nav_slope_tolerance", "0.1", FCVAR_CHEAT, "The grou
 ConVar nav_displacement_test( "nav_displacement_test", "10000", FCVAR_CHEAT, "Checks for nodes embedded in displacements (useful for in-development maps)" );
 ConVar nav_generate_fencetops( "nav_generate_fencetops", "1", FCVAR_CHEAT, "Autogenerate nav areas on fence and obstacle tops" );
 ConVar nav_generate_fixup_jump_areas( "nav_generate_fixup_jump_areas", "1", FCVAR_CHEAT, "Convert obsolete jump areas into 2-way connections" );
+ConVar nav_generate_jump_connections( "nav_generate_jump_connections", "1", FCVAR_CHEAT, "If disabled, don't generate jump connections from jump areas" );
 ConVar nav_generate_incremental_range( "nav_generate_incremental_range", "2000", FCVAR_CHEAT );
 ConVar nav_generate_incremental_tolerance( "nav_generate_incremental_tolerance", "0", FCVAR_CHEAT, "Z tolerance for adding new nav areas." );
 ConVar nav_area_max_size( "nav_area_max_size", "50", FCVAR_CHEAT, "Max area size created in nav generation" );
@@ -497,6 +498,11 @@ class JumpConnector
 public:
 	bool operator()( CNavArea *jumpArea )
 	{
+		if ( !nav_generate_jump_connections.GetBool() )
+		{
+			return true;
+		}
+
 		if ( !(jumpArea->GetAttributes() & NAV_MESH_JUMP) )
 		{
 			return true;
@@ -1795,6 +1801,11 @@ inline bool testJumpDown( const Vector *fromPos, const Vector *toPos )
 //--------------------------------------------------------------------------------------------------------------
 inline CNavArea *findJumpDownArea( const Vector *fromPos, NavDirType dir )
 {
+	if ( !nav_generate_jump_connections.GetBool() )
+	{
+		return NULL;
+	}
+
 	Vector start( fromPos->x, fromPos->y, fromPos->z + HalfHumanHeight );
 	AddDirectionVector( &start, dir, GenerationStepSize/2.0f );
 
@@ -4454,7 +4465,7 @@ bool CNavMesh::SampleStep( void )
 				trace_t result;
 				Vector from( *m_currentNode->GetPosition() );
 				CTraceFilterWalkableEntities filter( NULL, COLLISION_GROUP_NONE, WALK_THRU_EVERYTHING );
-				Vector to, toNormal;
+				Vector to = vec3_origin, toNormal = vec3_origin;
 				float obstacleHeight = 0, obstacleStartDist = 0, obstacleEndDist = GenerationStepSize;
 				if ( TraceAdjacentNode( 0, from, pos, &result ) )
 				{

@@ -2973,7 +2973,7 @@ void CFuncTankAirboatGun::DoMuzzleFlash( void )
 //-----------------------------------------------------------------------------
 void CFuncTankAirboatGun::DoImpactEffect( trace_t &tr, int nDamageType )
 {
-	// The airboat spits out so much crap that we need to do cheaper versions
+	// The airboat spits out so much stuff that we need to do cheaper versions
 	// of the impact effects. Also, we need to do less of them.
 	if ( m_flLastImpactEffectTime == gpGlobals->curtime )
 		return;
@@ -4269,7 +4269,7 @@ void CFuncTankCombineCannon::FuncTankPostThink()
 
 				if( trLOS.fraction < trShoot.fraction )
 				{
-					// Damn block LOS brushes.
+					// block LOS brushes.
 					continue;
 				}
 

@@ -702,7 +702,7 @@ struct CoreDispTri_t
 	unsigned short	m_uiTags;							// walkable, buildable, etc.
 };
 
-class CCoreDispInfo : public CDispUtilsHelper
+class CCoreDispInfo final : public CDispUtilsHelper
 {
 public:
 

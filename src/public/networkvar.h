@@ -21,7 +21,7 @@
 
 #pragma warning( disable : 4284 ) // warning C4284: return type for 'CNetworkVarT<int>::operator ->' is 'int *' (ie; not a UDT or reference to a UDT.  Will produce errors if applied using infix notation)
 
-#define MyOffsetOf( type, var ) ( (int)&((type*)0)->var )
+#define MyOffsetOf( type, var ) ( (int)(intp)&((type*)0)->var )
 
 #ifdef _DEBUG
 	extern bool g_bUseNetworkVars;
@@ -181,6 +181,40 @@ template<typename T>
 FORCEINLINE void NetworkVarConstruct( T &x ) { x = T(0); }
 FORCEINLINE void NetworkVarConstruct( color32_s &x ) { x.r = x.g = x.b = x.a = 0; }
 
+template <typename T>
+inline bool NetworkParanoidUnequal( const T &a, const T &b )
+{
+	return a != b;
+}
+
+template <>
+inline bool NetworkParanoidUnequal( const float &a, const float &b )
+{
+	//return 0 != memcmp( &a, &b, sizeof( a ) );
+	union
+	{
+		float f32;
+		uint32 u32;
+	} p, q;
+	p.f32 = a;
+	q.f32 = b;
+	return p.u32 != q.u32;
+}
+
+template <>
+inline bool NetworkParanoidUnequal( const double &a, const double &b )
+{
+	// return 0 != memcmp( &a, &b, sizeof( a ) );
+	union
+	{
+		double f64;
+		uint64 u64;
+	} p, q;
+	p.f64 = a;
+	q.f64 = b;
+	return p.u64 != q.u64;
+}
+
 template< class Type, class Changer >
 class CNetworkVarBase
 {
@@ -201,10 +235,17 @@ public:
 	{ 
 		return Set( ( const Type )val.m_Value ); 
 	}
+
+	FORCEINLINE const Type& SetDirect( const Type &val )
+	{
+		NetworkStateChanged();
+		m_Value = val;
+		return m_Value;
+	}
 	
 	const Type& Set( const Type &val )
 	{
-		if ( memcmp( &m_Value, &val, sizeof(Type) ) )
+		if ( NetworkParanoidUnequal( m_Value, val ) )
 		{
 			NetworkStateChanged();
 			m_Value = val;
@@ -395,12 +436,12 @@ public:
 
 	bool operator==( const Type &val ) const 
 	{ 
-		return CNetworkVectorBase<Type,Changer>::m_Value == (Type)val; 
+		return !NetworkParanoidUnequal( this->m_Value, ( Type )val );
 	}
 
 	bool operator!=( const Type &val ) const 
 	{
-		return CNetworkVectorBase<Type,Changer>::m_Value != (Type)val; 
+		return NetworkParanoidUnequal( this->m_Value, val );
 	}
 
 	const Type operator+( const Type &val ) const 
@@ -436,9 +477,9 @@ public:
 private:
 	inline void DetectChange( float &out, float in ) 
 	{
-		if ( out != in ) 
+		if ( NetworkParanoidUnequal( out, in ) )
 		{
-			CNetworkVectorBase<Type,Changer>::NetworkStateChanged();
+			this->NetworkStateChanged();
 			out = in;
 		}
 	}
@@ -744,9 +785,9 @@ private:
 		const type* Base() const { return m_Value; } \
 		int Count() const { return count; } \
 	protected: \
-		inline void NetworkStateChanged( int index ) \
+		inline void NetworkStateChanged( int net_change_index ) \
 		{ \
-			CHECK_USENETWORKVARS ((ThisClass*)(((char*)this) - MyOffsetOf(ThisClass,name)))->stateChangedFn( &m_Value[index] ); \
+			CHECK_USENETWORKVARS ((ThisClass*)(((char*)this) - MyOffsetOf(ThisClass,name)))->stateChangedFn( &m_Value[net_change_index] ); \
 		} \
 		type m_Value[count]; \
 	}; \

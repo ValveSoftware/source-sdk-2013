@@ -1,0 +1,11 @@
+[wrap-file]
+directory = zlib-1.2.11
+
+source_url = http://zlib.net/fossils/zlib-1.2.11.tar.gz
+source_filename = zlib-1.2.11.tar.gz
+source_hash = c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1
+
+patch_url = https://wrapdb.mesonbuild.com/v1/projects/zlib/1.2.11/4/get_zip
+patch_filename = zlib-1.2.11-4-wrap.zip
+patch_hash = f733976fbfc59e0bcde01aa9469a24eeb16faf0a4280b17e9eaa60a301d75657
+

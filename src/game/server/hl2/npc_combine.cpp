@@ -2798,7 +2798,7 @@ bool CNPC_Combine::CanThrowGrenade( const Vector &vecTarget )
 	{
 		if (m_pSquad->SquadMemberInRange( vecTarget, COMBINE_MIN_GRENADE_CLEAR_DIST ))
 		{
-			// crap, I might blow my own guy up. Don't throw a grenade and don't check again for a while.
+			// I might blow my own guy up. Don't throw a grenade and don't check again for a while.
 			m_flNextGrenadeCheck = gpGlobals->curtime + 1; // one full second.
 
 			// Tell my squad members to clear out so I can get a grenade in

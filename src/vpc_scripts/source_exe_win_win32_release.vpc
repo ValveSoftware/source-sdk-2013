@@ -6,10 +6,6 @@
 
 $IgnoreRedundancyWarning	"ON"
 
-// Disable frame pointer omission to allow fast stack walking, necessary for
-// good ETW profiling.
-$Macro  NOFPO  "1"
-
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTBINNAME"
 $MacroRequired				"OUTBINDIR"
@@ -184,7 +180,7 @@ $Configuration "Release"
 		$UACExecutionLevel
 
 		// Debugging
-		$GenerateDebugInfo						"Yes (/DEBUG)"
+		$GenerateDebugInfo					"Generate Debug Information optimized for sharing and publishing (/DEBUG:FULL)"
 		$GenerateProgramDatabaseFile			"$(IntDir)/$(TargetName).pdb"
 		$StripPrivateSymbols
 		$MapExports

@@ -95,7 +95,52 @@ BEGIN_DATADESC( CBaseFlex )
 
 END_DATADESC()
 
+BEGIN_ENT_SCRIPTDESC( CBaseFlex, CBaseAnimating, "Animated characters who have vertex flex capability." )
+#if 0
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetOldestScene, "GetCurrentScene", "Returns the instance of the oldest active scene entity (if any)." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSceneByIndex, "GetSceneByIndex", "Returns the instance of the scene entity at the specified index." )
+#endif
+	DEFINE_SCRIPTFUNC_NAMED( ScriptPlayScene, "PlayScene", "Play the specified .vcd file." )
+END_SCRIPTDESC();
 
+#if 0
+//--------------------------------------------------------------------------------------------------
+// Returns the script instance of the scene entity associated with our oldest ("top level") scene event
+//--------------------------------------------------------------------------------------------------
+HSCRIPT CBaseFlex::ScriptGetOldestScene( void )
+{
+	if ( m_SceneEvents.Count() > 0 )
+	{
+		CSceneEventInfo curScene = m_SceneEvents.Head();
+		return ToHScript( (CBaseEntity*)(curScene.m_hSceneEntity.Get()) );
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+//--------------------------------------------------------------------------------------------------
+// Returns the script instance of the scene at the specified index, or null if index >= count 
+//--------------------------------------------------------------------------------------------------
+HSCRIPT CBaseFlex::ScriptGetSceneByIndex( int index )
+{
+	if ( m_SceneEvents.IsValidIndex( index ) )
+	{
+		CSceneEventInfo curScene = m_SceneEvents.Element( index ); 
+		return ToHScript( (CBaseEntity*)(curScene.m_hSceneEntity.Get()) );
+	}
+	else
+	{
+		return NULL;
+	}
+}
+#endif
+//--------------------------------------------------------------------------------------------------
+float CBaseFlex::ScriptPlayScene( const char* pszScene, float flDelay )
+{
+	return InstancedScriptedScene( this, pszScene, NULL, flDelay );
+}
 
 LINK_ENTITY_TO_CLASS( funCBaseFlex, CBaseFlex ); // meaningless independant class!!
 
@@ -801,7 +846,6 @@ void CBaseFlex::RemoveSceneEvent( CChoreoScene *scene, CChoreoEvent *event, bool
 			info->m_bStarted	= false;
 
 			m_SceneEvents.Remove( i );
-			return;
 		}
 	}
 
@@ -2380,6 +2424,7 @@ const char *predef_flexcontroller_names[] = {
 	"right_mouth_drop",
 	"left_mouth_drop", 
 	NULL };
+int predef_flexcontroller_names_count = ARRAYSIZE( predef_flexcontroller_names );
 
 float predef_flexcontroller_values[7][30] = {
 /* 0 */	{ 0.700,0.560,0.650,0.650,0.650,0.585,0.000,0.000,0.400,0.040,0.000,0.000,0.450,0.450,0.000,0.000,0.000,0.750,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.150,1.000,0.000,0.000,0.000 }, 
@@ -2485,7 +2530,7 @@ void CFlexCycler::Think( void )
 				m_flextarget[m_flexnum] = 0;
 			}
 
-			for (i = 0; i < 35 && predef_flexcontroller_names[i]; i++)
+			for (i = 0; i < predef_flexcontroller_names_count && predef_flexcontroller_names[i]; i++)
 			{
 				m_flexnum = LookupFlex( predef_flexcontroller_names[i] );
 				m_flextarget[m_flexnum] = predef_flexcontroller_values[j][i];

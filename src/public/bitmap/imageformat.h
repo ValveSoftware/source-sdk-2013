@@ -15,9 +15,7 @@
 
 enum NormalDecodeMode_t
 {
-	NORMAL_DECODE_NONE			= 0,
-	NORMAL_DECODE_ATI2N			= 1,
-	NORMAL_DECODE_ATI2N_ALPHA	= 2
+	NORMAL_DECODE_NONE			= 0
 };
 
 // Forward declaration
@@ -29,7 +27,7 @@ typedef enum _D3DFORMAT D3DFORMAT;
 // The various image format types
 //-----------------------------------------------------------------------------
 
-// don't bitch that inline functions aren't used!!!!
+// don't complain that inline functions aren't used!!!!
 #pragma warning(disable : 4514)
 
 enum ImageFormat 
@@ -106,64 +104,26 @@ enum ImageFormat
 	NUM_IMAGE_FORMATS
 };
 
-#if defined( POSIX  ) || defined( DX_TO_GL_ABSTRACTION )
-typedef enum _D3DFORMAT
-	{
-		D3DFMT_INDEX16,
-		D3DFMT_D16,
-		D3DFMT_D24S8,
-		D3DFMT_A8R8G8B8,
-		D3DFMT_A4R4G4B4,
-		D3DFMT_X8R8G8B8,
-		D3DFMT_R5G6R5,
-		D3DFMT_X1R5G5B5,
-		D3DFMT_A1R5G5B5,
-		D3DFMT_L8,
-		D3DFMT_A8L8,
-		D3DFMT_A,
-		D3DFMT_DXT1,
-		D3DFMT_DXT3,
-		D3DFMT_DXT5,
-		D3DFMT_V8U8,
-		D3DFMT_Q8W8V8U8,
-		D3DFMT_X8L8V8U8,
-		D3DFMT_A16B16G16R16F,
-		D3DFMT_A16B16G16R16,
-		D3DFMT_R32F,
-		D3DFMT_A32B32G32R32F,
-		D3DFMT_R8G8B8,
-		D3DFMT_D24X4S4,
-		D3DFMT_A8,
-		D3DFMT_R5G6B5,
-		D3DFMT_D15S1,
-		D3DFMT_D24X8,
-		D3DFMT_VERTEXDATA,
-		D3DFMT_INDEX32,
+#if ( defined( POSIX  ) || defined( DX_TO_GL_ABSTRACTION ) ) && !defined( USE_DXVK )
+#include "togl/dxformats.h"
+#endif
 
-		// adding fake D3D format names for the vendor specific ones (eases debugging/logging)
-		
-		// NV shadow depth tex
-		D3DFMT_NV_INTZ		= 0x5a544e49,	// MAKEFOURCC('I','N','T','Z')
-		D3DFMT_NV_RAWZ		= 0x5a574152,	// MAKEFOURCC('R','A','W','Z')
-
-		// NV null tex
-		D3DFMT_NV_NULL		= 0x4c4c554e,	// MAKEFOURCC('N','U','L','L')
-
-		// ATI shadow depth tex
-		D3DFMT_ATI_D16		= 0x36314644,	// MAKEFOURCC('D','F','1','6')
-		D3DFMT_ATI_D24S8	= 0x34324644,	// MAKEFOURCC('D','F','2','4')
-
-		// ATI 1N and 2N compressed tex
-		D3DFMT_ATI_2N		= 0x32495441,	// MAKEFOURCC('A', 'T', 'I', '2')
-		D3DFMT_ATI_1N		= 0x31495441,	// MAKEFOURCC('A', 'T', 'I', '1')
-		
-		D3DFMT_UNKNOWN
-	} D3DFORMAT;
+#ifdef USE_DXVK
+#include <d3d9.h>
 #endif
 
 //-----------------------------------------------------------------------------
 // Color structures
 //-----------------------------------------------------------------------------
+struct BGRA8888_t;
+struct BGRX8888_t;
+struct RGBA8888_t;
+struct RGB888_t;
+struct BGR888_t;
+struct BGR565_t;
+struct BGRA5551_t;
+struct BGRA4444_t;
+struct RGBX5551_t;
 
 struct BGRA8888_t
 {
@@ -178,20 +138,28 @@ struct BGRA8888_t
 	}
 };
 
+struct BGRX8888_t
+{
+	unsigned char b;		// change the order of names to change the 
+	unsigned char g;		//  order of the output ARGB or BGRA, etc...
+	unsigned char r;		//  Last one is MSB, 1st is LSB.
+	unsigned char x;
+	inline BGRX8888_t& operator=( const BGRX8888_t& in )
+	{
+		*( unsigned int * )this = *( unsigned int * ) &in;
+		return *this;
+	}
+};
+
 struct RGBA8888_t
 {
 	unsigned char r;		// change the order of names to change the 
 	unsigned char g;		//  order of the output ARGB or BGRA, etc...
 	unsigned char b;		//  Last one is MSB, 1st is LSB.
 	unsigned char a;
-	inline RGBA8888_t& operator=( const BGRA8888_t& in )
-	{
-		r = in.r;
-		g = in.g;
-		b = in.b;
-		a = in.a;
-		return *this;
-	}
+	inline RGBA8888_t& operator=( const BGRA8888_t& in );
+	inline RGBA8888_t& operator=( const RGB888_t& in );
+	inline RGBA8888_t& operator=( const BGRX8888_t& in );
 };
 
 struct RGB888_t
@@ -304,6 +272,37 @@ struct RGBX5551_t
 		return *this;
 	}
 };
+
+
+//-----------------------------------------------------------------------------
+// Conversion assignments
+//-----------------------------------------------------------------------------
+RGBA8888_t& RGBA8888_t::operator=( const BGRA8888_t& in )
+{
+	r = in.r;
+	g = in.g;
+	b = in.b;
+	a = in.a;
+	return *this;
+}
+
+RGBA8888_t& RGBA8888_t::operator=( const RGB888_t& in )
+{
+	r = in.r;
+	g = in.g;
+	b = in.b;
+	a = 0xFF;
+	return *this;
+}
+
+RGBA8888_t& RGBA8888_t::operator=( const BGRX8888_t& in )
+{
+	r = in.r;
+	g = in.g;
+	b = in.b;
+	a = 0xFF;
+	return *this;
+}
 
 //-----------------------------------------------------------------------------
 // some important constants

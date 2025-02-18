@@ -23,6 +23,10 @@ public:
 	
 	virtual void SetFadeMinMax( float fademin, float fademax );
 
+	//virtual bool	ShouldPredict( void ) OVERRIDE;
+	//virtual C_BasePlayer *GetPredictionOwner( void ) OVERRIDE;
+	virtual bool PredictionErrorShouldResetLatchedForAllPredictables( void ) OVERRIDE { return false; }
+
 	// Copy fade from another breakable prop
 	void CopyFadeFrom( C_BreakableProp *pSource );
 };

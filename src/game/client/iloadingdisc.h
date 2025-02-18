@@ -30,7 +30,7 @@ public:
 	virtual void		SetLoadingVisible( bool bVisible ) = 0;
 
 	// paused disc
-	virtual void		SetPausedVisible( bool bVisible ) = 0;
+	virtual void		SetPausedVisible( bool bVisible, float flExpireTime = -1.f ) = 0;
 };
 
 extern ILoadingDisc *loadingdisc;

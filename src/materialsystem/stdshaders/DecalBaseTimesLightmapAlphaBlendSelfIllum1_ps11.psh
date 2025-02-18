@@ -1,0 +1,9 @@
+ps.1.1
+
+tex t0 ; base texture
+tex t1 ; lightmap
+
+mul r0.rgb, t0, t1 
++ mov r0.a, t0.a
+
+

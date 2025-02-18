@@ -163,7 +163,7 @@ private:
 	CExLabel			*m_pPlayerNameLabel;
 
 	KeyValues			*m_pPlayerCellData;
-	CPlayerCell			*m_pPlayerCells[2][MAX_PLAYERS+1];
+	CPlayerCell			*m_pPlayerCells[2][MAX_PLAYERS_ARRAY_SAFE];
 	vgui::ImageList		*m_pImageList;
 
 	EditablePanel		*m_pMouseTargetPanel;

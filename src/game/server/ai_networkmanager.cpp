@@ -654,7 +654,7 @@ void CAI_NetworkManager::LoadNetworkGraph( void )
 		srcID = buf.GetShort();
 		destID = buf.GetShort();
 
-		CAI_Link *pLink = m_pNetwork->CreateLink( srcID, destID );;
+		CAI_Link *pLink = m_pNetwork->CreateLink( srcID, destID );
 
 		byte ignored[NUM_HULLS];
 		byte *pDest = ( pLink ) ? &pLink->m_iAcceptedMoveTypes[0] : &ignored[0];

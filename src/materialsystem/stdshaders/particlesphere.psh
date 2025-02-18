@@ -1,0 +1,39 @@
+ps.1.1
+
+;------------------------------------------------------------------------------
+; Sphere-lit particle pixel shader.
+;
+; The ParticleSphere lighting equation is:
+; A + [[N dot |L - P|] * 0.5 + 0.5] * C * r / ||L - P||
+;
+; where:
+; A = ambient light color
+; N = particle normal (stored in the texture)
+; L = light position
+; P = point on surface
+; C = directional light color
+; r = directional light intensity
+;
+; This shader takes as input:
+; t0	= Normal map texture coordinates (N)
+; t1	= Light vector Normalize(L - P) * 0.5 in range [0,1]
+; v0	= Directional color (C * r / ||L - P||^2) * 0.5
+; t2	= Ambient light color (A)
+; c0	= 0.5
+;
+; and outputs [v1 + (sample(t0) dot t1) * 0.5f + 0.5f]
+;------------------------------------------------------------------------------
+
+tex			t0					; Get the 3-vector from the normal map
+texcoord	t1					; Interpret tcoord t1 as color data.
+texcoord	t2					; Ambient light color
+
+dp3			r1, t0_bx2, t1_bx2	; r0 = sample(t0) dot t1
+add			r0, r1, c0			; + 0.5
+
+mul			r1, v0, r0			; scale the dot product by the dirlight's actual color
+add			r0.rgb, r1, t2		; add the ambient color in v1
+
+mul			r0.a, t0, v0		; Alpha = normal map alpha * vertex alpha
+
+

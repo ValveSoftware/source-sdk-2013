@@ -13,9 +13,7 @@
 #pragma once
 #endif
 
-#if _DEBUG
-extern bool g_bRenderingCameraView;		// For debugging (frustum fix for cameras)...
-#endif
+extern bool g_bRenderingCameraView;
 
 class VMatrix;
 class Vector;

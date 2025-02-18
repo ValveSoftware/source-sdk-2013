@@ -38,7 +38,11 @@ public:
 	vec_t x, y, z, w;
 
 	// Construction/destruction
-	Vector4D(void);
+#ifdef _DEBUG
+	Vector4D();
+#else
+	Vector4D() = default;
+#endif
 	Vector4D(vec_t X, vec_t Y, vec_t Z, vec_t W);
 	Vector4D(const float *pFloat);
 
@@ -76,7 +80,14 @@ public:
 	Vector4D&	operator*=(const Vector4D &v);			
 	Vector4D&	operator*=(float s);
 	Vector4D&	operator/=(const Vector4D &v);		
-	Vector4D&	operator/=(float s);					
+	Vector4D&	operator/=(float s);				
+
+	Vector4D	operator-( void ) const;
+	Vector4D	operator*( float fl ) const;
+	Vector4D	operator/( float fl ) const;
+	Vector4D	operator*( const Vector4D& v ) const;
+	Vector4D	operator+( const Vector4D& v ) const;
+	Vector4D	operator-( const Vector4D& v ) const;
 
 	// negate the Vector4D components
 	void	Negate(); 
@@ -201,13 +212,13 @@ void Vector4DLerp(Vector4D const& src1, Vector4D const& src2, vec_t t, Vector4D&
 // constructors
 //-----------------------------------------------------------------------------
 
+#ifdef _DEBUG
 inline Vector4D::Vector4D(void)									
 { 
-#ifdef _DEBUG
 	// Initialize to NAN to catch errors
 	x = y = z = w = VEC_T_NAN;
-#endif
 }
+#endif
 
 inline Vector4D::Vector4D(vec_t X, vec_t Y, vec_t Z, vec_t W )
 { 
@@ -432,6 +443,52 @@ inline Vector4D& Vector4D::operator/=(Vector4D const& v)
 	w /= v.w;
 	Assert( IsValid() );
 	return *this;
+}
+
+inline Vector4D Vector4D::operator-(void) const
+{ 
+	return Vector4D(-x,-y,-z,-w);				
+}
+
+inline Vector4D Vector4D::operator+(const Vector4D& v) const	
+{ 
+	Vector4D res;
+	Vector4DAdd( *this, v, res );
+	return res;	
+}
+
+inline Vector4D Vector4D::operator-(const Vector4D& v) const	
+{ 
+	Vector4D res;
+	Vector4DSubtract( *this, v, res );
+	return res;	
+}
+
+
+inline Vector4D Vector4D::operator*(float fl) const	
+{ 
+	Vector4D res;
+	Vector4DMultiply( *this, fl, res );
+	return res;	
+}
+
+inline Vector4D Vector4D::operator*(const Vector4D& v) const	
+{ 
+	Vector4D res;
+	Vector4DMultiply( *this, v, res );
+	return res;	
+}
+
+inline Vector4D Vector4D::operator/(float fl) const	
+{ 
+	Vector4D res;
+	Vector4DDivide( *this, fl, res );
+	return res;	
+}
+
+inline Vector4D operator*( float fl, const Vector4D& v )	
+{ 
+	return v * fl; 
 }
 
 inline void Vector4DAdd( Vector4D const& a, Vector4D const& b, Vector4D& c )

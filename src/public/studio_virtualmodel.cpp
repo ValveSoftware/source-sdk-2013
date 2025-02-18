@@ -80,7 +80,7 @@ CModelLookupContext::~CModelLookupContext()
 
 void virtualmodel_t::AppendModels( int group, const studiohdr_t *pStudioHdr )
 {
-	AUTO_LOCK_( CThreadTerminalMutex<CThreadFastMutex>, m_Lock );
+	AUTO_LOCK( m_Lock );
 
 	// build a search table if necesary
 	CModelLookupContext ctx(group, pStudioHdr);
@@ -141,7 +141,7 @@ void virtualmodel_t::AppendModels( int group, const studiohdr_t *pStudioHdr )
 
 void virtualmodel_t::AppendSequences( int group, const studiohdr_t *pStudioHdr )
 {
-	AUTO_LOCK_( CThreadTerminalMutex<CThreadFastMutex>, m_Lock );
+	AUTO_LOCK( m_Lock );
 	int numCheck = m_seq.Count();
 
 	int j, k;
@@ -219,7 +219,7 @@ void virtualmodel_t::AppendSequences( int group, const studiohdr_t *pStudioHdr )
 
 void virtualmodel_t::UpdateAutoplaySequences( const studiohdr_t *pStudioHdr )
 {
-	AUTO_LOCK_( CThreadTerminalMutex<CThreadFastMutex>, m_Lock );
+	AUTO_LOCK( m_Lock );
 	int autoplayCount = pStudioHdr->CountAutoplaySequences();
 	m_autoplaySequences.SetCount( autoplayCount );
 	pStudioHdr->CopyAutoplaySequences( m_autoplaySequences.Base(), autoplayCount );
@@ -231,7 +231,7 @@ void virtualmodel_t::UpdateAutoplaySequences( const studiohdr_t *pStudioHdr )
 
 void virtualmodel_t::AppendAnimations( int group, const studiohdr_t *pStudioHdr )
 {
-	AUTO_LOCK_( CThreadTerminalMutex<CThreadFastMutex>, m_Lock );
+	AUTO_LOCK( m_Lock );
 	int numCheck = m_anim.Count();
 
 	CUtlVector< virtualgeneric_t > anim;
@@ -297,7 +297,7 @@ void virtualmodel_t::AppendAnimations( int group, const studiohdr_t *pStudioHdr 
 
 void virtualmodel_t::AppendBonemap( int group, const studiohdr_t *pStudioHdr )
 {
-	AUTO_LOCK_( CThreadTerminalMutex<CThreadFastMutex>, m_Lock );
+	AUTO_LOCK( m_Lock );
 	MEM_ALLOC_CREDIT();
 
 	const studiohdr_t *pBaseStudioHdr = m_group[ 0 ].GetStudioHdr( );
@@ -364,7 +364,7 @@ void virtualmodel_t::AppendBonemap( int group, const studiohdr_t *pStudioHdr )
 
 void virtualmodel_t::AppendAttachments( int group, const studiohdr_t *pStudioHdr )
 {
-	AUTO_LOCK_( CThreadTerminalMutex<CThreadFastMutex>, m_Lock );
+	AUTO_LOCK( m_Lock );
 	int numCheck = m_attachment.Count();
 
 	CUtlVector< virtualgeneric_t > attachment;
@@ -437,7 +437,7 @@ void virtualmodel_t::AppendAttachments( int group, const studiohdr_t *pStudioHdr
 
 void virtualmodel_t::AppendPoseParameters( int group, const studiohdr_t *pStudioHdr )
 {
-	AUTO_LOCK_( CThreadTerminalMutex<CThreadFastMutex>, m_Lock );
+	AUTO_LOCK( m_Lock );
 	int numCheck = m_pose.Count();
 
 	CUtlVector< virtualgeneric_t > pose;
@@ -493,7 +493,7 @@ void virtualmodel_t::AppendPoseParameters( int group, const studiohdr_t *pStudio
 
 void virtualmodel_t::AppendNodes( int group, const studiohdr_t *pStudioHdr )
 {
-	AUTO_LOCK_( CThreadTerminalMutex<CThreadFastMutex>, m_Lock );
+	AUTO_LOCK( m_Lock );
 	int numCheck = m_node.Count();
 
 	CUtlVector< virtualgeneric_t > node;
@@ -539,7 +539,7 @@ void virtualmodel_t::AppendNodes( int group, const studiohdr_t *pStudioHdr )
 
 void virtualmodel_t::AppendIKLocks( int group, const studiohdr_t *pStudioHdr )
 {
-	AUTO_LOCK_( CThreadTerminalMutex<CThreadFastMutex>, m_Lock );
+	AUTO_LOCK( m_Lock );
 	int numCheck = m_iklock.Count();
 
 	CUtlVector< virtualgeneric_t > iklock;

@@ -1,0 +1,66 @@
+//-----------------------------------------------------------------------------
+//	VMPI.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\.."
+
+$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE,..\common,zlib,.\"
+		$AdditionalIncludeDirectories		"$BASE,$SRCDIR\thirdparty\libcurl\include"
+		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE;MPI"
+	}
+}
+
+$Project "Vmpi"
+{
+	$Folder	"Source Files"
+	{
+		$File	"$SRCDIR\public\filesystem_init.cpp"
+		$File	"..\common\filesystem_tools.cpp"
+		$File	"iphelpers.cpp"
+		$File	"loopback_channel.cpp"
+		$File	"messbuf.cpp"
+		$File	"ThreadedTCPSocket.cpp"
+		$File	"ThreadedTCPSocketEmu.cpp"
+		$File	"threadhelpers.cpp"
+		$File	"vmpi.cpp"
+		$File	"vmpi_distribute_tracker.cpp"
+		$File	"vmpi_distribute_work.cpp"
+		$File	"vmpi_distribute_work_sdk.cpp"
+		$File	"vmpi_distribute_work_default.cpp"
+		$File	"vmpi_filesystem.cpp"
+		$File	"vmpi_filesystem_internal.h"
+		$File	"vmpi_filesystem_master.cpp"
+		$File	"vmpi_filesystem_worker.cpp"
+		$File	"vmpi_logfile.cpp"
+		$File	"vmpi_logfile.h"
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"$SRCDIR\public\tier1\bitbuf.h"
+		$File	"ichannel.h"
+		$File	"iphelpers.h"
+		$File	"IThreadedTCPSocket.h"
+		$File	"loopback_channel.h"
+		$File	"messbuf.h"
+		$File	"tcpsocket.h"
+		$File	"ThreadedTCPSocketEmu.h"
+		$File	"threadhelpers.h"
+		$File	"vmpi.h"
+		$File	"vmpi_defs.h"
+		$File	"vmpi_filesystem.h"
+	}
+
+	$Folder "Link Libraries"
+	{
+		$File	"ZLib.lib"
+	}
+}

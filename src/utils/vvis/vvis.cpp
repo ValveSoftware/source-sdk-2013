@@ -302,11 +302,13 @@ void CalcPortalVis (void)
 	}
 
 
+#ifdef MPI
     if (g_bUseMPI) 
 	{
  		RunMPIPortalFlow();
 	}
 	else 
+#endif
 	{
 		RunThreadsOnIndividual (g_numportals*2, true, PortalFlow);
 	}
@@ -331,11 +333,13 @@ void CalcVis (void)
 {
 	int		i;
 
+#ifdef MPI
 	if (g_bUseMPI) 
 	{
 		RunMPIBasePortalVis();
 	}
 	else 
+#endif
 	{
 	    RunThreadsOnIndividual (g_numportals*2, true, BasePortalVis);
 	}
@@ -414,6 +418,7 @@ void LoadPortals (char *name)
 	FILE *f;
 
 	// Open the portal file.
+#ifdef MPI
 	if ( g_bUseMPI )
 	{
 		// If we're using MPI, copy off the file to a temporary first. This will download the file
@@ -448,6 +453,7 @@ void LoadPortals (char *name)
 		f = fopen( tempFile, "rSTD" ); // read only, sequential, temporary, delete on close
 	}
 	else
+#endif
 	{
 		f = fopen( name, "r" );
 	}
@@ -971,6 +977,7 @@ int ParseCommandLine( int argc, char **argv )
 		// NOTE: the -mpi checks must come last here because they allow the previous argument 
 		// to be -mpi as well. If it game before something else like -game, then if the previous
 		// argument was -mpi and the current argument was something valid like -game, it would skip it.
+#ifdef MPI
 		else if ( !Q_strncasecmp( argv[i], "-mpi", 4 ) || !Q_strncasecmp( argv[i-1], "-mpi", 4 ) )
 		{
 			if ( stricmp( argv[i], "-mpi" ) == 0 )
@@ -980,6 +987,7 @@ int ParseCommandLine( int argc, char **argv )
 			if ( i == argc - 1 )
 				break;
 		}
+#endif
 		else if (argv[i][0] == '-')
 		{
 			Warning("VBSP: Unknown option \"%s\"\n\n", argv[i]);
@@ -1016,7 +1024,9 @@ void PrintUsage( int argc, char **argv )
 		"\n"
 		"  -v (or -verbose): Turn on verbose output (also shows more command\n"
 		"  -fast           : Only do first quick pass on vis calculations.\n"
+#ifdef MPI
 		"  -mpi            : Use VMPI to distribute computations.\n"
+#endif
 		"  -low            : Run as an idle-priority process.\n"
 		"                    env_fog_controller specifies one.\n"
 		"\n"
@@ -1026,7 +1036,9 @@ void PrintUsage( int argc, char **argv )
 		"Other options:\n"
 		"  -novconfig      : Don't bring up graphical UI on vproject errors.\n"
 		"  -radius_override: Force a vis radius, regardless of whether an\n"
+#ifdef MPI
 		"  -mpi_pw <pw>    : Use a password to choose a specific set of VMPI workers.\n"
+#endif
 		"  -threads        : Control the number of threads vbsp uses (defaults to the #\n"
 		"                    or processors on your machine).\n"
 		"  -nosort         : Don't sort portals (sorting is an optimization).\n"
@@ -1109,8 +1121,9 @@ int RunVVis( int argc, char **argv )
 
 	start = Plat_FloatTime();
 
-
+#ifdef MPI
 	if (!g_bUseMPI)
+#endif
 	{
 		// Setup the logfile.
 		char logFile[512];
@@ -1187,10 +1200,12 @@ int RunVVis( int argc, char **argv )
 		{
 			Error("Invalid cluster trace: %d to %d, valid range is 0 to %d\n", g_TraceClusterStart, g_TraceClusterStop, portalclusters-1 );
 		}
+#ifdef MPI
 		if ( g_bUseMPI )
 		{
 			Warning("Can't compile trace in MPI mode\n");
 		}
+#endif
 		CalcVisTrace ();
 		WritePortalTrace(source);
 	}
@@ -1221,13 +1236,19 @@ int main (int argc, char **argv)
 	InstallAllocationFunctions();
 	InstallSpewFunction();
 
+#ifdef MPI
 	VVIS_SetupMPI( argc, argv );
+#endif
 
 	// Install an exception handler.
+#ifdef MPI
 	if ( g_bUseMPI && !g_bMPIMaster )
 		SetupToolsMinidumpHandler( VMPI_ExceptionFilter );
 	else
+#endif
+	{
 		SetupDefaultToolsMinidumpHandler();
+	}
 
 	return RunVVis( argc, argv );
 }

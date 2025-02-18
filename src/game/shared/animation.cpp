@@ -59,9 +59,6 @@ extern int g_nEventListVersion;
 
 void SetEventIndexForSequence( mstudioseqdesc_t &seqdesc )
 {
-	if ( &seqdesc == NULL )
-		 return;
-
 	seqdesc.flags |= STUDIO_EVENT;
 
 	if ( seqdesc.numevents == 0 )
@@ -600,8 +597,6 @@ bool HasAnimationEventOfType( CStudioHdr *pstudiohdr, int sequence, int type )
 		return false;
 
 	mstudioseqdesc_t &seqdesc = pstudiohdr->pSeqdesc( sequence );
-	if ( !&seqdesc )
-		return false;
 
 	mstudioevent_t *pevent = GetEventIndexForSequence( seqdesc );
 	if ( !pevent )
@@ -870,7 +865,7 @@ void SetBodygroup( CStudioHdr *pstudiohdr, int& body, int iGroup, int iValue )
 	if (! pstudiohdr)
 		return;
 
-	if (iGroup >= pstudiohdr->numbodyparts())
+	if (iGroup < 0 || iGroup >= pstudiohdr->numbodyparts())
 		return;
 
 	mstudiobodyparts_t *pbodypart = pstudiohdr->pBodypart( iGroup );
@@ -889,7 +884,7 @@ int GetBodygroup( CStudioHdr *pstudiohdr, int body, int iGroup )
 	if (! pstudiohdr)
 		return 0;
 
-	if (iGroup >= pstudiohdr->numbodyparts())
+	if (iGroup < 0 || iGroup >= pstudiohdr->numbodyparts())
 		return 0;
 
 	mstudiobodyparts_t *pbodypart = pstudiohdr->pBodypart( iGroup );
@@ -907,11 +902,26 @@ const char *GetBodygroupName( CStudioHdr *pstudiohdr, int iGroup )
 	if ( !pstudiohdr)
 		return "";
 
-	if (iGroup >= pstudiohdr->numbodyparts())
+	if (iGroup < 0 || iGroup >= pstudiohdr->numbodyparts())
 		return "";
 
 	mstudiobodyparts_t *pbodypart = pstudiohdr->pBodypart( iGroup );
 	return pbodypart->pszName();
+}
+
+const char *GetBodygroupPartName( CStudioHdr *pstudiohdr, int iGroup, int iPart )
+{
+	if ( !pstudiohdr)
+		return "";
+
+	if ( iGroup < 0 || iGroup >= pstudiohdr->numbodyparts() )
+		return "";
+
+	mstudiobodyparts_t *pbodypart = pstudiohdr->pBodypart( iGroup );
+	if ( iPart < 0 && iPart >= pbodypart->nummodels )
+		return "";
+
+	return pbodypart->pModel( iPart )->name;
 }
 
 int FindBodygroupByName( CStudioHdr *pstudiohdr, const char *name )
@@ -937,7 +947,7 @@ int GetBodygroupCount( CStudioHdr *pstudiohdr, int iGroup )
 	if ( !pstudiohdr )
 		return 0;
 
-	if (iGroup >= pstudiohdr->numbodyparts())
+	if (iGroup < 0 || iGroup >= pstudiohdr->numbodyparts())
 		return 0;
 
 	mstudiobodyparts_t *pbodypart = pstudiohdr->pBodypart( iGroup );

@@ -45,11 +45,8 @@ static ConVar	cl_predictionentitydump( "cl_pdump", "-1", FCVAR_CHEAT, "Dump info
 static ConVar	cl_predictionentitydumpbyclass( "cl_pclass", "", FCVAR_CHEAT, "Dump entity by prediction classname." );
 static ConVar	cl_pred_optimize( "cl_pred_optimize", "2", 0, "Optimize for not copying data if didn't receive a network update (1), and also for not repredicting if there were no errors (2)." );
 
-#ifdef STAGING_ONLY
-// Do not ship this - testing a fix
-static ConVar	cl_pred_optimize_prefer_server_data( "cl_pred_optimize_prefer_server_data", "0", 0, "In the case where we have both server data and predicted data up to the same tick, choose server data over predicted data." );
-//
-#endif // STAGING_ONLY
+static ConVar	cl_pred_doresetlatch( "cl_pred_doresetlatch", "1", 0 );
+
 
 #endif
 
@@ -105,6 +102,7 @@ CPrediction::CPrediction( void )
 	m_nCommandsPredicted = 0;
 	m_nServerCommandsAcknowledged = 0;
 	m_bPreviousAckHadErrors = false;
+	m_bPreviousAckErrorTriggersFullLatchReset = false;
 #endif
 }
 
@@ -421,9 +419,9 @@ void CPrediction::PostNetworkDataReceived( int commands_acknowledged )
 
 	bool error_check = ( commands_acknowledged > 0 ) ? true : false;
 #if defined( _DEBUG )
-	char sz[ 32 ];
-	Q_snprintf( sz, sizeof( sz ), "postnetworkdata%d", commands_acknowledged );
-	PREDICTION_TRACKVALUECHANGESCOPE( sz );
+	char szDebug[32];
+	Q_snprintf( szDebug, sizeof( szDebug ), "postnetworkdata%d", commands_acknowledged );
+	PREDICTION_TRACKVALUECHANGESCOPE( szDebug );
 #endif
 #ifndef _XBOX
 	CPDumpPanel *dump = GetPDumpPanel();
@@ -435,6 +433,8 @@ void CPrediction::PostNetworkDataReceived( int commands_acknowledged )
 
 	m_nServerCommandsAcknowledged += commands_acknowledged;
 	m_bPreviousAckHadErrors = false;
+	m_bPreviousAckErrorTriggersFullLatchReset = false;
+	m_EntsWithPredictionErrorsInLastAck.RemoveAll();
 
 	bool entityDumped = false;
 
@@ -472,12 +472,14 @@ void CPrediction::PostNetworkDataReceived( int commands_acknowledged )
 				if ( ent->PostNetworkDataReceived( m_nServerCommandsAcknowledged ) )
 				{
 					m_bPreviousAckHadErrors = true;
+					m_bPreviousAckErrorTriggersFullLatchReset |= ent->PredictionErrorShouldResetLatchedForAllPredictables() ? 1 : 0;
+					m_EntsWithPredictionErrorsInLastAck.AddToTail( ent );
 				}
 			}
 
 			if ( showlist )
 			{
-				char sz[ 32 ];
+				char sz[32];
 				if ( ent->entindex() == -1 )
 				{
 					Q_snprintf( sz, sizeof( sz ), "handle %u", (unsigned int)ent->GetClientHandle().ToInt() );
@@ -611,12 +613,18 @@ void CPrediction::SetupMove( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper *
 	VPROF( "CPrediction::SetupMove" );
 
 	move->m_bFirstRunOfFunctions = IsFirstTimePredicted();
+	move->m_bGameCodeMovedPlayer = false;
+	if ( player->GetPreviouslyPredictedOrigin() != player->GetNetworkOrigin() )
+	{
+		move->m_bGameCodeMovedPlayer = true;
+	}
 	
 	move->m_nPlayerHandle = player->GetClientHandle();
 	move->m_vecVelocity		= player->GetAbsVelocity();
 	move->SetAbsOrigin( player->GetNetworkOrigin() );
 	move->m_vecOldAngles	= move->m_vecAngles;
 	move->m_nOldButtons		= player->m_Local.m_nOldButtons;
+	move->m_flOldForwardMove = player->m_Local.m_flOldForwardMove;
 	move->m_flClientMaxSpeed = player->m_flMaxspeed;
 
 	move->m_vecAngles		= ucmd->viewangles;
@@ -693,9 +701,14 @@ void CPrediction::FinishMove( C_BasePlayer *player, CUserCmd *ucmd, CMoveData *m
 
 	player->m_RefEHandle = move->m_nPlayerHandle;
 
-	player->m_vecVelocity = move->m_vecVelocity;
+	// misyl: was player->m_vecVelocity = move->m_vecVelocity;
+	// but that's totally WRONG !!! We need to update AbsVelocity here
+	// like in CPlayerMove as other code could use the abs and not local
+	// velocity and then overwrite it and cause a cascade of PRED errors!
+	player->SetAbsVelocity( move->m_vecVelocity );
 
 	player->m_vecNetworkOrigin = move->GetAbsOrigin();
+	player->SetPreviouslyPredictedOrigin( move->GetAbsOrigin() );
 	
 	player->m_Local.m_nOldButtons = move->m_nButtons;
 
@@ -823,6 +836,44 @@ void CPrediction::RunPostThink( C_BasePlayer *player )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Checks if the player is standing on a moving entity and adjusts velocity and 
+//  basevelocity appropriately
+// Input  : *player - 
+//			frametime - 
+//-----------------------------------------------------------------------------
+void CPrediction::CheckMovingGround( C_BasePlayer *player, double frametime )
+{
+#if 0
+	CBaseEntity	    *groundentity;
+
+	if ( player->GetFlags() & FL_ONGROUND )
+	{
+		groundentity = player->GetGroundEntity();
+		if ( groundentity && ( groundentity->GetFlags() & FL_CONVEYOR) )
+		{
+			Vector vecNewVelocity;
+			groundentity->GetGroundVelocityToApply( vecNewVelocity );
+			if ( player->GetFlags() & FL_BASEVELOCITY )
+			{
+				vecNewVelocity += player->GetBaseVelocity();
+			}
+			player->SetBaseVelocity( vecNewVelocity );
+			player->AddFlag( FL_BASEVELOCITY );
+		}
+	}
+#endif
+
+	if ( !( player->GetFlags() & FL_BASEVELOCITY ) )
+	{
+		// Apply momentum (add in half of the previous frame of velocity first)
+		player->ApplyAbsVelocityImpulse( (1.0 + ( frametime * 0.5 )) * player->GetBaseVelocity() );
+		player->SetBaseVelocity( vec3_origin );
+	}
+
+	player->RemoveFlag( FL_BASEVELOCITY );
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Predicts a single movement command for player
 // Input  : *moveHelper - 
 //			*player - 
@@ -875,7 +926,7 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	player->UpdateButtonState( ucmd->buttons );
 
 // TODO
-//	CheckMovingGround( player, ucmd->frametime );
+	CheckMovingGround( player, gpGlobals->frametime );
 
 // TODO
 //	g_pMoveData->m_vecOldAngles = player->pl.v_angle;
@@ -910,6 +961,10 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	}
 
 	FinishMove( player, ucmd, g_pMoveData );
+
+	VPROF_SCOPE_BEGIN( "moveHelper->ProcessImpacts(cl)" );
+	moveHelper->ProcessImpacts();
+	VPROF_SCOPE_END();
 
 	RunPostThink( player );
 
@@ -1407,11 +1462,7 @@ int CPrediction::ComputeFirstCommandToExecute( bool received_new_world_update, i
 	}
 	else
 	{
-#ifdef STAGING_ONLY	
-		int nPredictedLimit = cl_pred_optimize_prefer_server_data.GetBool() ? m_nCommandsPredicted - 1 : m_nCommandsPredicted;
-#else
 		int nPredictedLimit = m_nCommandsPredicted;		
-#endif // STAGING_ONLY
 		// Otherwise, there is a second optimization, wherein if we did receive an update, but no
 		//  values differed (or were outside their epsilon) and the server actually acknowledged running
 		//  one or more commands, then we can revert the entity to the predicted state from last frame, 
@@ -1452,13 +1503,49 @@ int CPrediction::ComputeFirstCommandToExecute( bool received_new_world_update, i
 				// ANY entity like your gun gets a prediction error).
 				float flPrev = gpGlobals->curtime;
 				gpGlobals->curtime = pLocalPlayer->GetTimeBase() - TICK_INTERVAL;
+
+				// misyl: We are not really predicting if spectating, so force partial latch resets here.
+				bool bForcePartialReset = pLocalPlayer->GetObserverTarget() != nullptr;
 				
-				for ( int i = 0; i < predictables->GetPredictableCount(); i++ )
-				{
-					C_BaseEntity *entity = predictables->GetPredictable( i );
-					if ( entity )
+				if( ( m_bPreviousAckErrorTriggersFullLatchReset || (cl_pred_doresetlatch.GetInt() == 2) ) && !bForcePartialReset )
+				{				
+					for ( int i = 0; i < predictables->GetPredictableCount(); i++ )
 					{
-						entity->ResetLatched();
+						C_BaseEntity* entity = predictables->GetPredictable( i );
+						if ( entity )
+						{
+							entity->ResetLatched();
+						}
+					}
+
+					if ( cl_showerror.GetInt() >= 1 )
+					{
+						ConColorMsg( Color( 255, 0, 0, 255 ), "[Tick %d] Full latch reset!\n", gpGlobals->tickcount );
+					}
+				}
+				else
+				{
+					//individual latch resets
+					for ( int i = 0; i < m_EntsWithPredictionErrorsInLastAck.Count(); i++ )
+					{
+						C_BaseEntity* entity = m_EntsWithPredictionErrorsInLastAck[i];
+						if ( entity )
+						{
+							//ensure it's still in our predictable list
+							for ( int j = 0; j < predictables->GetPredictableCount(); j++ )
+							{
+								if ( entity == predictables->GetPredictable( j ) )
+								{
+									entity->ResetLatched();
+									break;
+								}
+							}
+						}
+					}
+
+					if ( cl_showerror.GetInt() >= 1 )
+					{
+						ConColorMsg( Color( 0, 255, 100, 255 ), "[Tick %d] Partial latch reset!\n", gpGlobals->tickcount );
 					}
 				}
 

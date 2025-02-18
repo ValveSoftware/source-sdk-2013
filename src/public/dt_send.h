@@ -576,34 +576,34 @@ inline void SendTable::SetHasPropsEncodedAgainstTickcount( bool bState )
 		return 1; \
 	} 
 
+// Normal offset of is invalid on non-array-types, this is dubious as hell. The rest of the codebase converted to the
+// legit offsetof from the C headers, so we'll use the old impl here to avoid exposing temptation to others
+#define _hacky_dtsend_offsetof(s,m)	( (size_t)&(((s *)0x1000000)->m) - 0x1000000u )
 
 // These can simplify creating the variables.
 // Note: currentSendDTClass::MakeANetworkVar_##varName equates to currentSendDTClass. It's
 // there as a check to make sure all networked variables use the CNetworkXXXX macros in network_var.h.
-#define SENDINFO(varName)					#varName, offsetof(currentSendDTClass::MakeANetworkVar_##varName, varName), sizeof(((currentSendDTClass*)0)->varName)
-#define SENDINFO_ARRAY(varName)				#varName, offsetof(currentSendDTClass::MakeANetworkVar_##varName, varName), sizeof(((currentSendDTClass*)0)->varName[0])
-#define SENDINFO_ARRAY3(varName)			#varName, offsetof(currentSendDTClass::MakeANetworkVar_##varName, varName), sizeof(((currentSendDTClass*)0)->varName[0]), sizeof(((currentSendDTClass*)0)->varName)/sizeof(((currentSendDTClass*)0)->varName[0])
-#define SENDINFO_ARRAYELEM(varName, i)		#varName "[" #i "]", offsetof(currentSendDTClass::MakeANetworkVar_##varName, varName[i]), sizeof(((currentSendDTClass*)0)->varName[0])
-#define SENDINFO_NETWORKARRAYELEM(varName, i)#varName "[" #i "]", offsetof(currentSendDTClass::MakeANetworkVar_##varName, varName.m_Value[i]), sizeof(((currentSendDTClass*)0)->varName.m_Value[0])
+#define SENDINFO(varName)					#varName, _hacky_dtsend_offsetof(currentSendDTClass::MakeANetworkVar_##varName, varName), sizeof(((currentSendDTClass*)0)->varName)
+#define SENDINFO_ARRAY(varName)				#varName, _hacky_dtsend_offsetof(currentSendDTClass::MakeANetworkVar_##varName, varName), sizeof(((currentSendDTClass*)0)->varName[0])
+#define SENDINFO_ARRAY3(varName)			#varName, _hacky_dtsend_offsetof(currentSendDTClass::MakeANetworkVar_##varName, varName), sizeof(((currentSendDTClass*)0)->varName[0]), sizeof(((currentSendDTClass*)0)->varName)/sizeof(((currentSendDTClass*)0)->varName[0])
+#define SENDINFO_ARRAYELEM(varName, i)		#varName "[" #i "]", _hacky_dtsend_offsetof(currentSendDTClass::MakeANetworkVar_##varName, varName[i]), sizeof(((currentSendDTClass*)0)->varName[0])
+#define SENDINFO_NETWORKARRAYELEM(varName, i)#varName "[" #i "]", _hacky_dtsend_offsetof(currentSendDTClass::MakeANetworkVar_##varName, varName.m_Value[i]), sizeof(((currentSendDTClass*)0)->varName.m_Value[0])
 
 // NOTE: Be VERY careful to specify any other vector elems for the same vector IN ORDER and 
 // right after each other, otherwise it might miss the Y or Z component in SP.
 //
 // Note: this macro specifies a negative offset so the engine can detect it and setup m_pNext
-#define SENDINFO_VECTORELEM(varName, i)		#varName "[" #i "]", -(int)offsetof(currentSendDTClass::MakeANetworkVar_##varName, varName.m_Value[i]), sizeof(((currentSendDTClass*)0)->varName.m_Value[0])
+#define SENDINFO_VECTORELEM(varName, i)		#varName "[" #i "]", -(int)_hacky_dtsend_offsetof(currentSendDTClass::MakeANetworkVar_##varName, varName.m_Value[i]), sizeof(((currentSendDTClass*)0)->varName.m_Value[0])
 
-#define SENDINFO_STRUCTELEM(varName)		#varName, offsetof(currentSendDTClass, varName), sizeof(((currentSendDTClass*)0)->varName.m_Value)
-#define SENDINFO_STRUCTARRAYELEM(varName, i)#varName "[" #i "]", offsetof(currentSendDTClass, varName.m_Value[i]), sizeof(((currentSendDTClass*)0)->varName.m_Value[0])
+#define SENDINFO_STRUCTELEM(varName)		#varName, _hacky_dtsend_offsetof(currentSendDTClass, varName), sizeof(((currentSendDTClass*)0)->varName.m_Value)
+#define SENDINFO_STRUCTARRAYELEM(varName, i)#varName "[" #i "]", _hacky_dtsend_offsetof(currentSendDTClass, varName.m_Value[i]), sizeof(((currentSendDTClass*)0)->varName.m_Value[0])
 
 // Use this when you're not using a CNetworkVar to represent the data you're sending.
-#define SENDINFO_NOCHECK(varName)						#varName, offsetof(currentSendDTClass, varName), sizeof(((currentSendDTClass*)0)->varName)
-#define SENDINFO_STRING_NOCHECK(varName)				#varName, offsetof(currentSendDTClass, varName)
-#define SENDINFO_DT(varName)							#varName, offsetof(currentSendDTClass, varName)
-#define SENDINFO_DT_NAME(varName, remoteVarName)		#remoteVarName, offsetof(currentSendDTClass, varName)
-#define SENDINFO_NAME(varName,remoteVarName)			#remoteVarName, offsetof(currentSendDTClass, varName), sizeof(((currentSendDTClass*)0)->varName)
-
-
-
+#define SENDINFO_NOCHECK(varName)						#varName, _hacky_dtsend_offsetof(currentSendDTClass, varName), sizeof(((currentSendDTClass*)0)->varName)
+#define SENDINFO_STRING_NOCHECK(varName)				#varName, _hacky_dtsend_offsetof(currentSendDTClass, varName)
+#define SENDINFO_DT(varName)							#varName, _hacky_dtsend_offsetof(currentSendDTClass, varName)
+#define SENDINFO_DT_NAME(varName, remoteVarName)		#remoteVarName, _hacky_dtsend_offsetof(currentSendDTClass, varName)
+#define SENDINFO_NAME(varName,remoteVarName)			#remoteVarName, _hacky_dtsend_offsetof(currentSendDTClass, varName), sizeof(((currentSendDTClass*)0)->varName)
 
 // ------------------------------------------------------------------------ //
 // Built-in proxy types.

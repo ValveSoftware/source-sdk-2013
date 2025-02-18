@@ -1,0 +1,24 @@
+$Project
+{
+	$Folder "Header Files"
+	{
+		$File "$SRCDIR\game\shared\tf\tf_proto_def_messages.h"
+	}
+
+	$Folder "Protobuf Files"
+	{
+		$File "$SRCDIR\game\shared\tf\tf_proto_def_messages.proto"
+		$DynamicFile "$GENERATED_PROTO_DIR\tf_proto_def_messages.pb.h"
+		$DynamicFile "$GENERATED_PROTO_DIR\tf_proto_def_messages.pb.cc" [!$OSXALL]
+		{
+			$Configuration
+			{
+				$Compiler
+				{
+					$Create/UsePrecompiledHeader	"Not Using Precompiled Headers"
+				}
+			}
+		}
+	}
+
+}

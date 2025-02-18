@@ -115,6 +115,8 @@ public:
 	// begin and end skin composition painting
 	virtual void BeginSkinCompositionPainting() = 0;
 	virtual void EndSkinCompositionPainting() = 0;
+
+	virtual void DrawSetTextureRGBAEx2( int id, const unsigned char* rgba, int wide, int tall, ImageFormat format, bool bLinearFilter ) = 0;
 };
 
 

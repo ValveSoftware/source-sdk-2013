@@ -461,9 +461,9 @@ void CReplayRenderDialog::Render()
 	params.m_bExportRaw = m_pExportRawCheck->IsSelected();
 	m_pTitleText->GetText( params.m_wszTitle, sizeof( params.m_wszTitle ) );
 #ifdef USE_WEBM_FOR_REPLAY
-	V_strcpy( params.m_szExtension, ".webm" );	// Use .webm
+	V_strcpy_safe( params.m_szExtension, ".webm" );	// Use .webm
 #else
-	V_strcpy( params.m_szExtension, ".mov" );	// Use .mov for Quicktime
+	V_strcpy_safe( params.m_szExtension, ".mov" );	// Use .mov for Quicktime
 #endif
 
 	const int iRes = m_pVideoModesCombo->GetActiveItem();
@@ -586,13 +586,13 @@ void CReplayRenderDialog::OnThink()
 
 	wchar_t wzText[256] = L"";
 
-	g_pVGuiLocalize->ConstructString( wzText, sizeof( wzText ), g_pVGuiLocalize->Find( "#Replay_RenderEstimate_File" ), 1, 
+	g_pVGuiLocalize->ConstructString_safe( wzText, g_pVGuiLocalize->Find( "#Replay_RenderEstimate_File" ), 1, 
 									  wzFileSize,
 									  wzTimeMin,
 									  wzTimeMax );
 	m_pEstimateFileLabel->SetText( wzText );
 
-	g_pVGuiLocalize->ConstructString( wzText, sizeof( wzText ), g_pVGuiLocalize->Find( "#Replay_RenderEstimate_Time" ), 2, 
+	g_pVGuiLocalize->ConstructString_safe( wzText, g_pVGuiLocalize->Find( "#Replay_RenderEstimate_Time" ), 2, 
 									  wzTimeMin,
 									  wzTimeMax );
 	m_pEstimateTimeLabel->SetText( wzText );

@@ -166,7 +166,7 @@ void CNPC_CombineS::PrescheduleThink( void )
 		{
 			if( FInViewCone( pSound->GetSoundReactOrigin() ) )
 			{
-				DevMsg( "OH CRAP!\n" );
+				DevMsg( "OH NO!\n" );
 				NDebugOverlay::Line( EyePosition(), pSound->GetSoundReactOrigin(), 0, 0, 255, false, 2.0f );
 			}
 		}

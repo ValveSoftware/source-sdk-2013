@@ -91,12 +91,12 @@ void CSHA1::Reset()
 }
 
 #ifdef	_MINIMUM_BUILD_
-void Minimum_CSHA1::Transform(unsigned long state[5], unsigned char buffer[64])
+void Minimum_CSHA1::Transform(uint32 state[5], unsigned char buffer[64])
 #else
-void CSHA1::Transform(unsigned long state[5], unsigned char buffer[64])
+void CSHA1::Transform(uint32 state[5], unsigned char buffer[64])
 #endif
 {
-	unsigned long a = 0, b = 0, c = 0, d = 0, e = 0;
+	uint32 a = 0, b = 0, c = 0, d = 0, e = 0;
 
 	memcpy(m_block, buffer, 64);
 
@@ -147,7 +147,7 @@ void Minimum_CSHA1::Update(unsigned char *data, unsigned int len)
 void CSHA1::Update(unsigned char *data, unsigned int len)
 #endif
 {
-	unsigned long i = 0, j;
+	uint32 i = 0, j;
 
 	j = (m_count[0] >> 3) & 63;
 
@@ -174,8 +174,8 @@ void CSHA1::Update(unsigned char *data, unsigned int len)
 // Hash in file contents
 bool CSHA1::HashFile(char *szFileName)
 {
-	unsigned long ulFileSize = 0, ulRest = 0, ulBlocks = 0;
-	unsigned long i = 0;
+	uint32 ulFileSize = 0, ulRest = 0, ulBlocks = 0;
+	uint32 i = 0;
 	unsigned char uData[MAX_FILE_READ_BUFFER];
 	FILE *fIn = NULL;
 
@@ -215,7 +215,7 @@ void Minimum_CSHA1::Final()
 void CSHA1::Final()
 #endif
 {
-	unsigned long i = 0;
+	uint32 i = 0;
 	unsigned char finalcount[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	for (i = 0; i < 8; i++)

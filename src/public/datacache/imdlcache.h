@@ -41,6 +41,16 @@ namespace OptimizedModel
 //-----------------------------------------------------------------------------
 typedef unsigned short MDLHandle_t;
 
+inline MDLHandle_t VoidPtrToMDLHandle( void *ptr )
+{
+	return ( MDLHandle_t ) ( int ) ( intp ) ptr;
+}
+
+inline void* MDLHandleToVirtual( MDLHandle_t hndl )
+{
+	return (void*)(uintp)hndl;
+}
+
 enum
 {
 	MDLHANDLE_INVALID = (MDLHandle_t)~0 
@@ -193,7 +203,7 @@ public:
 	virtual vertexFileHeader_t *GetVertexData( MDLHandle_t handle ) = 0;
 
 	// Brings all data associated with an MDL into memory
-	virtual void TouchAllData( MDLHandle_t handle ) = 0;
+	virtual void TouchAllData_Old( MDLHandle_t handle ) = 0;
 
 	// Gets/sets user data associated with the MDL
 	virtual void SetUserData( MDLHandle_t handle, void* pData ) = 0;
@@ -255,6 +265,8 @@ public:
 	virtual void ResetErrorModelStatus( MDLHandle_t handle ) = 0;
 
 	virtual void MarkFrame() = 0;
+	
+	virtual bool TouchAllData( MDLHandle_t handle ) = 0;
 };
 
 

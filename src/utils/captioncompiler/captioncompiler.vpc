@@ -18,7 +18,7 @@ $Configuration
 	}
 }
 
-$Project "Captioncompiler"
+$Project "Caption Compiler"
 {
 	$Folder	"Source Files"
 	{

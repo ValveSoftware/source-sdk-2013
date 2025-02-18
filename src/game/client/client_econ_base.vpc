@@ -1,0 +1,190 @@
+//-----------------------------------------------------------------------------
+//	CLIENT_ECON_BASE.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Include "$SRCDIR\gcsdk\gcsdk_game_include.vpc"
+$Include "$SRCDIR\game\shared\base_gcmessages_include.vpc"
+$Include "$SRCDIR\game\shared\econ_gcmessages_include.vpc"
+$include "$SRCDIR\vpc_scripts\source_cryptlib_include.vpc" [!$SOURCESDK]
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\game\shared\econ;$SRCDIR\gcsdk\steamextra;.\econ"
+		$PreprocessorDefinitions		"$BASE;USES_ECON_ITEMS"
+	}
+
+	$Linker
+	{
+        $SystemLibraries                        "$BASE;z" [$OSXALL]
+		$SystemLibraries                        "$BASE;z" [$LINUXALL]
+	}
+}
+
+$Project
+{
+	$Folder	"Source Files"
+	{
+		$Folder	"Economy"
+		{
+			$File	"$SRCDIR\game\shared\econ\econ_item_view.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_view.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_interface.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_interface.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_description.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_description.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_system.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_system.h"
+			$File	"$SRCDIR\game\shared\econ\attribute_manager.cpp"
+			$File	"$SRCDIR\game\shared\econ\attribute_manager.h"
+			$File	"$SRCDIR\game\shared\econ\ihasattributes.h"
+			$File	"$SRCDIR\game\shared\econ\econ_entity.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_entity.h"
+			$File	"$SRCDIR\game\shared\econ\econ_entity_creation.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_entity_creation.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_inventory.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_inventory.h"
+			$File	"$SRCDIR\game\shared\econ\econ_gcmessages.h"
+			$File	"$SRCDIR\game\shared\econ\econ_wearable.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_wearable.h"
+			$File	"$SRCDIR\game\shared\econ\econ_holidays.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_holidays.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_preset.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_preset.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_constants.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_constants.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_schema.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_schema.h"
+			$File	"$SRCDIR\game\shared\econ\econ_item_schema_private.cpp" [!$SOURCESDK]
+			$File	"$SRCDIR\game\shared\econ\econ_item_schema_sdk.cpp" [$SOURCESDK]
+			$File	"$SRCDIR\game\shared\econ\econ_item_tools.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_item_tools.h"
+			$File	"$SRCDIR\game\shared\econ\econ_store.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_store.h"
+			$File	"$SRCDIR\game\shared\econ\econ_storecategory.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_storecategory.h"
+			$File	"$SRCDIR\game\shared\econ\item_selection_criteria.cpp"
+			$File	"$SRCDIR\game\shared\econ\item_selection_criteria.h"
+			$File	"$SRCDIR\game\shared\econ\econ_dynamic_recipe.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_dynamic_recipe.h"
+			$File	"$SRCDIR\game\shared\econ\econ_quests.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_quests.h"
+			$File	"$SRCDIR\game\shared\econ\econ_paintkit.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_paintkit.h"
+			
+			$File	"$SRCDIR\game\client\econ\econ_consumables.cpp"
+			
+			$File	"$SRCDIR\game\shared\gc_clientsystem.h"
+			$File	"$SRCDIR\game\shared\gc_clientsystem.cpp"
+			$File	"$SRCDIR\game\shared\gc_replicated_convars.cpp"
+
+			$File	"$SRCDIR\game\shared\econ\localization_provider.cpp"
+			$File	"$SRCDIR\game\shared\econ\localization_provider.h"
+		}
+		$Folder	"Economy Client"
+		{
+			$File	"econ\econ_ui.h"
+			$File	"econ\backpack_panel.cpp"
+			$File	"econ\backpack_panel.h"
+			$File	"econ\base_loadout_panel.cpp"
+			$File	"econ\base_loadout_panel.h"
+			$File	"econ\trading_start_dialog.cpp"
+			$File	"econ\trading_start_dialog.h"
+			$File	"econ\iconrenderreceiver.h"
+			$File	"econ\item_model_panel.cpp"
+			$File	"econ\item_model_panel.h"
+			$File	"econ\item_pickup_panel.cpp"
+			$File	"econ\item_pickup_panel.h"
+			$File	"econ\confirm_dialog.cpp"
+			$File	"econ\confirm_dialog.h"
+			$File	"econ\confirm_delete_dialog.cpp"
+			$File	"econ\confirm_delete_dialog.h"
+			$File	"econ\item_confirm_delete_dialog.cpp"
+			$File	"econ\item_confirm_delete_dialog.h"
+			$File	"econ\item_style_select_dialog.cpp"
+			$File	"econ\item_style_select_dialog.h"
+			$File	"econ\econ_controls.cpp"
+			$File	"econ\econ_controls.h"
+			$File	"econ\econ_notifications.cpp"
+			$File	"econ\econ_notifications.h"
+			$File	"econ\item_rental_ui.cpp"
+			$File	"econ\item_rental_ui.h"
+			$File	"econ\client_community_market.cpp"
+			$File	"econ\client_community_market.h"
+			$File	"econ\local_steam_shared_object_listener.cpp"
+			$File	"econ\local_steam_shared_object_listener.h"
+			
+			// Temp UI to allow you to test
+			$File	"econ\econ_sample_rootui.cpp"
+			$File	"econ\econ_sample_rootui.h"
+			
+			$Folder	"Trading"
+			{
+				$File	"econ\econ_trading.cpp"
+				$File	"econ\econ_trading.h"
+			}
+			
+			$Folder "VGUI dependencies"
+			{
+				$File	"game_controls\navigationpanel.cpp"
+				$File	"game_controls\navigationpanel.h"
+			}
+			
+			$Folder	"Store"
+			{
+				$File	"econ\store\store_page.cpp"
+				$File	"econ\store\store_page.h"
+				$File	"econ\store\store_page_new.cpp"
+				$File	"econ\store\store_page_new.h"
+				$File	"econ\store\store_panel.cpp"
+				$File	"econ\store\store_panel.h"
+				$File	"econ\store\store_preview_item.cpp"
+				$File	"econ\store\store_preview_item.h"
+				$File	"econ\store\store_viewcart.cpp"
+				$File	"econ\store\store_viewcart.h"
+			}
+			
+			$Folder	"tool_items"
+			{
+				$File	"econ\tool_items\tool_items.cpp"
+				$File	"econ\tool_items\tool_items.h"
+				$File	"econ\tool_items\rename_tool_ui.cpp"
+				$File	"econ\tool_items\rename_tool_ui.h"
+				$File	"econ\tool_items\decoder_ring_tool.cpp"
+				$File	"econ\tool_items\decoder_ring_tool.h"
+				$File	"econ\tool_items\paint_can_tool.cpp"
+				$File	"econ\tool_items\paint_can_tool.h"
+				$File	"econ\tool_items\custom_texture_cache.cpp"
+				$File	"econ\tool_items\custom_texture_cache.h"
+				$File	"econ\tool_items\custom_texture_tool.cpp"
+				$File	"econ\tool_items\gift_wrap_tool.cpp"
+				$File	"econ\tool_items\gift_wrap_tool.h"
+			}
+		}
+		
+		// For item image stamping
+		$File	"$SRCDIR\common\imageutils.h"
+		$File	"$SRCDIR\common\imageutils.cpp"
+		{
+			$Configuration
+			{
+				$Compiler
+				{
+					$Create/UsePrecompiledHeader	"Not Using Precompiled Headers"
+				}
+			}
+		}
+	}
+	
+	$Folder	"Link Libraries" 
+	{
+		$Lib "$LIBCOMMON/jpeglib"
+		$Lib "$LIBCOMMON/libspng"
+		$Lib libz [!$LINUXALL]
+	}
+}

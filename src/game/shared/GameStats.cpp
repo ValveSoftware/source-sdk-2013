@@ -36,6 +36,7 @@ extern const ConVar *sv_cheats;
 #if !defined(NO_STEAM)
 #include "steam/steam_api.h"
 #endif
+#include "inputsystem/iinputsystem.h"
 #endif
 
 
@@ -1164,6 +1165,7 @@ bool CBaseGameStats_Driver::AddBaseDataForSend( KeyValues *pKV, StatSendType_t s
 			{
 				const char *currentLanguage = steamapicontext->SteamApps()->GetCurrentGameLanguage();
 				pKV->SetString( "Language", currentLanguage ? currentLanguage : "unknown" );
+
 			}
 #endif
 
@@ -1178,6 +1180,8 @@ bool CBaseGameStats_Driver::AddBaseDataForSend( KeyValues *pKV, StatSendType_t s
 
 			int mapTime = gpGlobals->realtime - m_flLevelStartTime;
 			pKV->SetInt( "MapTime", mapTime );
+
+			pKV->SetBool( "SteamControllerActive", g_pInputSystem->IsSteamControllerActive() );
 
 			AddLoadTimeMainMenu(pKV);
 			AddLoadTimeMap(pKV);
@@ -1223,7 +1227,17 @@ void CBaseGameStats_Driver::ResetData()
 	pKV->SetUint64( "CPUFeatures1", cpu.m_nFeatures[ 1 ] );
 	pKV->SetUint64( "CPUFeatures2", cpu.m_nFeatures[ 2 ] );
 	pKV->SetInt( "NumCores", cpu.m_nPhysicalProcessors );
-
+	
+	// Capture memory stats as well.
+	MemoryInformation memInfo;
+	if ( GetMemoryInformation( &memInfo ) )
+	{
+		pKV->SetInt( "PhysicalRamMbTotal",     memInfo.m_nPhysicalRamMbTotal );
+		pKV->SetInt( "PhysicalRamMbAvailable", memInfo.m_nPhysicalRamMbAvailable );
+		pKV->SetInt( "VirtualRamMbTotal",      memInfo.m_nVirtualRamMbTotal );
+		pKV->SetInt( "VirtualRamMbAvailable",  memInfo.m_nVirtualRamMbAvailable );
+	}
+			
 	MaterialAdapterInfo_t gpu;
 	materials->GetDisplayAdapterInfo( materials->GetCurrentAdapter(), gpu );
 
@@ -1231,10 +1245,7 @@ void CBaseGameStats_Driver::ResetData()
 	int dest_width,dest_height;
 	pRenderContext->GetRenderTargetDimensions( dest_width, dest_height );
 
-	if ( gpu.m_pDriverName )
-	{
-		OverWriteCharsWeHate( gpu.m_pDriverName );
-	}
+	OverWriteCharsWeHate( gpu.m_pDriverName );
 	pKV->SetString( "GPUDrv", SafeString( gpu.m_pDriverName ) );
 	pKV->SetInt( "GPUVendor", gpu.m_VendorID );
 	pKV->SetInt( "GPUDeviceID", gpu.m_DeviceID );

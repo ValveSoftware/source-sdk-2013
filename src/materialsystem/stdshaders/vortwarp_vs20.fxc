@@ -1,0 +1,174 @@
+//======= Copyright (c) 1996-2007, Valve Corporation, All rights reserved. ======
+
+//  STATIC: "HALFLAMBERT"				"0..1"
+//  STATIC: "USE_STATIC_CONTROL_FLOW"	"0..1" [vs20]
+
+//	DYNAMIC: "COMPRESSED_VERTS"			"0..1"
+//	DYNAMIC: "DOWATERFOG"				"0..1"
+//	DYNAMIC: "SKINNING"					"0..1"
+//  DYNAMIC: "MORPHING"					"0..1" [vs30]
+//  DYNAMIC: "NUM_LIGHTS"				"0..2" [vs20]
+
+// If using static control flow on Direct3D, we should use the NUM_LIGHTS=0 combo
+//  SKIP: $USE_STATIC_CONTROL_FLOW && ( $NUM_LIGHTS > 0 ) [vs20]
+//	SKIP: $DOWATERFOG
+
+#include "vortwarp_vs20_helper.h"
+
+static const bool g_bSkinning		= SKINNING ? true : false;
+static const int g_FogType			= DOWATERFOG;
+
+const float4 cBaseTexCoordTransform[2]	:  register( SHADER_SPECIFIC_CONST_0 );
+
+const float4 const4	:  register( SHADER_SPECIFIC_CONST_4 );
+#define g_Time const4.w
+#define modelOrigin const4.xyz
+
+#ifdef SHADER_MODEL_VS_3_0
+// NOTE: cMorphTargetTextureDim.xy = target dimensions,
+//		 cMorphTargetTextureDim.z = 4tuples/morph
+const float3 cMorphTargetTextureDim		: register( SHADER_SPECIFIC_CONST_6 );
+const float4 cMorphSubrect				: register( SHADER_SPECIFIC_CONST_7 );
+
+sampler2D morphSampler					: register( s0 );
+#endif
+
+
+//-----------------------------------------------------------------------------
+// Input vertex format
+//-----------------------------------------------------------------------------
+struct VS_INPUT
+{
+	// This is all of the stuff that we ever use.
+	float4 vPos				: POSITION;
+	float4 vBoneWeights		: BLENDWEIGHT;
+	float4 vBoneIndices		: BLENDINDICES;
+	float4 vNormal			: NORMAL;
+	float4 vColor			: COLOR0;
+	float3 vSpecular		: COLOR1;
+	// make these float2's and stick the [n n 0 1] in the dot math.
+	float4 vTexCoord0		: TEXCOORD0;
+	float4 vTexCoord1		: TEXCOORD1;
+	float4 vTexCoord2		: TEXCOORD2;
+	float4 vTexCoord3		: TEXCOORD3;
+	float3 vTangentS		: TANGENT;
+	float3 vTangentT		: BINORMAL;
+	float4 vUserData		: TANGENT;
+
+	// Position and normal/tangent deltas
+	float3 vPosFlex			: POSITION1;
+	float3 vNormalFlex		: NORMAL1;
+#ifdef SHADER_MODEL_VS_3_0
+	float vVertexID			: POSITION2;
+#endif
+};
+
+
+//-----------------------------------------------------------------------------
+// Output vertex format
+//-----------------------------------------------------------------------------
+struct VS_OUTPUT
+{
+    float4 projPos					: POSITION;	
+#if !defined( _X360 )
+	float  fog						: FOG;
+#endif
+
+	HALF4 baseTexCoord2_tangentSpaceVertToEyeVectorXY			: TEXCOORD0;
+	// bump mapping and a separate envmap mask texture are mutually exclusive.
+	float4 lightAtten											: TEXCOORD1;
+	float4 worldVertToEyeVectorXYZ_tangentSpaceVertToEyeVectorZ	: TEXCOORD2;
+	float3x3 tangentSpaceTranspose								: TEXCOORD3;
+	//	     second row											: TEXCOORD4;
+	//	     third row											: TEXCOORD5;
+	float4 worldPos_projPosZ									: TEXCOORD6;
+	float4 fogFactorW											: COLOR1;
+};
+
+//-----------------------------------------------------------------------------
+// Main shader entry point
+//-----------------------------------------------------------------------------
+VS_OUTPUT main( const VS_INPUT v )
+{
+	VS_OUTPUT o = ( VS_OUTPUT )0;
+
+	float4 vPosition = v.vPos;
+	float3 vNormal;
+	float4 vTangent;
+
+	DecompressVertex_NormalTangent( v.vNormal, v.vUserData, vNormal, vTangent );
+
+#if !defined( SHADER_MODEL_VS_3_0 ) || !MORPHING
+	ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal, vTangent.xyz );
+#else
+	ApplyMorph( morphSampler, cMorphTargetTextureDim, cMorphSubrect, v.vVertexID, float3( 0, 0, 0 ),
+		vPosition.xyz, vNormal, vTangent.xyz );
+#endif
+
+	// Perform skinning
+	float3 worldNormal, worldPos, worldTangentS, worldTangentT;
+	SkinPositionNormalAndTangentSpace( 
+		g_bSkinning, 
+		vPosition, vNormal, vTangent,
+		v.vBoneWeights, v.vBoneIndices,
+		worldPos, worldNormal, worldTangentS, worldTangentT );
+
+	WorldSpaceVertexProcess( g_Time, modelOrigin, worldPos, worldNormal, worldTangentS, worldTangentT );
+
+	// Always normalize since flex path is controlled by runtime
+	// constant not a shader combo and will always generate the normalization
+	worldNormal   = normalize( worldNormal );
+	worldTangentS = normalize( worldTangentS );
+	worldTangentT = normalize( worldTangentT );
+
+	// Transform into projection space
+	float4 projPos = mul( float4( worldPos, 1 ), cViewProj );
+	o.projPos = projPos;
+	projPos.z = mul( float4( worldPos, 1 ), cViewProjZ );
+	o.fogFactorW = CalcFog( worldPos, projPos, g_FogType );
+#if !defined( _X360 )
+	o.fog = o.fogFactorW;
+#endif
+ 	// Needed for water fog alpha and diffuse lighting 
+	// FIXME: we shouldn't have to compute this all the time.
+	o.worldPos_projPosZ = float4( worldPos, projPos.z );
+
+	// Needed for cubemapping + parallax mapping
+	// FIXME: We shouldn't have to compute this all the time.
+	o.worldVertToEyeVectorXYZ_tangentSpaceVertToEyeVectorZ.xyz = VSHADER_VECT_SCALE * (cEyePos - worldPos);
+
+#if defined ( SHADER_MODEL_VS_2_0 ) && ( !USE_STATIC_CONTROL_FLOW )
+	o.lightAtten = float4(0,0,0,0);
+	#if ( NUM_LIGHTS > 0 )
+		o.lightAtten.x = GetVertexAttenForLight( worldPos, 0, false );
+	#endif
+	#if ( NUM_LIGHTS > 1 )
+		o.lightAtten.y = GetVertexAttenForLight( worldPos, 1, false );
+	#endif
+	#if ( NUM_LIGHTS > 2 )
+		o.lightAtten.z = GetVertexAttenForLight( worldPos, 2, false );
+	#endif
+	#if ( NUM_LIGHTS > 3 )
+		o.lightAtten.w = GetVertexAttenForLight( worldPos, 3, false );
+	#endif
+#else
+	// Scalar light attenuation
+	o.lightAtten.x = GetVertexAttenForLight( worldPos, 0, true );
+	o.lightAtten.y = GetVertexAttenForLight( worldPos, 1, true );
+	o.lightAtten.z = GetVertexAttenForLight( worldPos, 2, true );
+	o.lightAtten.w = GetVertexAttenForLight( worldPos, 3, true );
+#endif
+
+	// Base texture coordinate transform
+	o.baseTexCoord2_tangentSpaceVertToEyeVectorXY.x = dot( v.vTexCoord0, cBaseTexCoordTransform[0] );
+	o.baseTexCoord2_tangentSpaceVertToEyeVectorXY.y = dot( v.vTexCoord0, cBaseTexCoordTransform[1] );
+
+	// Tangent space transform
+	o.tangentSpaceTranspose[0] = float3( worldTangentS.x, worldTangentT.x, worldNormal.x );
+	o.tangentSpaceTranspose[1] = float3( worldTangentS.y, worldTangentT.y, worldNormal.y );
+	o.tangentSpaceTranspose[2] = float3( worldTangentS.z, worldTangentT.z, worldNormal.z );
+
+	return o;
+}
+
+

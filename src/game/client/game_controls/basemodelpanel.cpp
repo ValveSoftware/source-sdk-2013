@@ -95,6 +95,21 @@ void CModelPanel::ApplySettings( KeyValues *inResourceData )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CModelPanel::OnCommand( const char *command )
+{
+	if (!Q_strnicmp("animation", command, 9))
+	{
+		UpdateModel();
+		SetSequence( command + 9 + 1 );
+		return;
+	}
+
+	BaseClass::OnCommand(command);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CModelPanel::ParseModelInfo( KeyValues *inResourceData )
 {
 	// delete any current info
@@ -349,6 +364,23 @@ const char *CModelPanel::GetModelName( void )
 	return m_pModelInfo->m_pszModelName;
 }
 
+void CModelPanel::SetBodyGroup( const char* pszBodyGroupName, int nGroup )
+{
+	if ( !m_pModelInfo )
+		return;
+
+	if ( !m_hModel.Get() )
+		return;
+
+	int nBodyGroupNum = m_hModel->FindBodygroupByName( pszBodyGroupName );
+
+	if ( nBodyGroupNum == -1 )
+		return;
+
+	m_pModelInfo->m_mapBodygroupValues.InsertOrReplace( nBodyGroupNum, nGroup );
+	m_bPanelDirty = true;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -388,6 +420,11 @@ void CModelPanel::SetupModel( void )
 	if ( m_pModelInfo->m_nSkin >= 0 )
 	{
 		pEnt->m_nSkin = m_pModelInfo->m_nSkin;
+	}
+
+	FOR_EACH_MAP_FAST( m_pModelInfo->m_mapBodygroupValues, i )
+	{
+		pEnt->SetBodygroup( m_pModelInfo->m_mapBodygroupValues.Key( i ), m_pModelInfo->m_mapBodygroupValues[ i ] );
 	}
 
 	// do we have any animation information?
@@ -702,6 +739,18 @@ bool CModelPanel::SetSequence( const char *pszName )
 	}
 
 	return bRetVal;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CModelPanel::SetSkin( int nSkin )
+{
+	if ( m_pModelInfo )
+	{
+		m_pModelInfo->m_nSkin = nSkin;
+		m_bPanelDirty = true;
+	}
 }
 
 //-----------------------------------------------------------------------------

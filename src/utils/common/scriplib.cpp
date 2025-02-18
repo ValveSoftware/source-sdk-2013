@@ -316,7 +316,7 @@ bool ExpandMacroToken( char *&token_p )
 		}
 
 		// paste token into 
-		len = strlen( script->macrovalue[index] );
+		len = V_strlen( script->macrovalue[index] );
 		strcpy( token_p, script->macrovalue[index] );
 		token_p += len;
 		
@@ -375,7 +375,7 @@ bool ExpandVariableToken( char *&token_p )
 		}
 
 		// paste token into 
-		len = strlen( g_definevariable[index].value );
+		len = V_strlen( g_definevariable[index].value );
 		strcpy( token_p, g_definevariable[index].value );
 		token_p += len;
 		
@@ -1087,6 +1087,7 @@ int CScriptLib::CompareFileTime( const char *pFilenameA, const char *pFilenameB 
 //-----------------------------------------------------------------------------
 char *CScriptLib::MakeTemporaryFilename( char const *pchModPath, char *pPath, int pathSize )
 {
+#if 0
 	char *pBuffer = _tempnam( pchModPath, "mgd_" );
 	if ( pBuffer[0] == '\\' )
 	{
@@ -1101,6 +1102,11 @@ char *CScriptLib::MakeTemporaryFilename( char const *pchModPath, char *pPath, in
 	free( pBuffer );
 
 	return pPath;
+#else
+	// misyl: Deprecated!
+
+	return nullptr;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1216,7 +1222,7 @@ int CScriptLib::GetFileList( const char* pDirPath, const char* pPattern, CUtlVec
 	FIND_DATA findData;
 	Q_FixSlashes( fullPath );
 	void *h = FindFirstFile( fullPath, &findData );
-	if ( (int)h == -1 )
+	if ( (intp)h == -1 )
 	{
 		return 0;
 	}

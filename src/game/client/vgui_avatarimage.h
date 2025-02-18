@@ -144,6 +144,8 @@ protected:
 	void InitFromRGBA( int iAvatar, const byte *rgba, int width, int height );
 
 private:
+	void UpdateAvatarImageSize();
+
 	void LoadAvatarImage();
 
 	Color m_Color;
@@ -154,6 +156,7 @@ private:
 	bool m_bValid;
 	bool m_bFriend;
 	bool m_bLoadPending;
+	bool m_bSetDesiredSize;
 	float m_fNextLoadTime;	// used to throttle load attempts
 
 	EAvatarSize m_AvatarSize;

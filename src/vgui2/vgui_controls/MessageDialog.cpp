@@ -310,10 +310,12 @@ void CMessageDialog::OnKeyCodePressed( vgui::KeyCode code )
 	switch ( GetBaseButtonCode( code ) )
 	{
 	case KEY_XBUTTON_A:
+	case STEAMCONTROLLER_A:
 		DoCommand( BTN_A );
 		break;
 
 	case KEY_XBUTTON_B:
+	case STEAMCONTROLLER_B:
 		DoCommand( BTN_B );
 		break;
 

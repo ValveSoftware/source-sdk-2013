@@ -12259,7 +12259,7 @@ bool CAI_BaseNPC::OnUpcomingPropDoor( AILocalMoveGoal_t *pMoveGoal,
 			}
 
 			// Attach the door to the waypoint so we open it when we get there.
-			// dvs: FIXME: this is kind of bullshit, I need to find the exact waypoint to open the door
+			// dvs: FIXME: this is kind of bad, I need to find the exact waypoint to open the door
 			//		should I just walk the path until I find it?
 			pOpenDoorRoute->m_hData = pDoor;
 

@@ -14,7 +14,7 @@
 
 class CAI_BaseNPC;
 class CAI_Enemies;
-typedef int AI_TaskFailureCode_t;
+typedef intp AI_TaskFailureCode_t;
 struct Task_t;
 
 //-----------------------------------------------------------------------------

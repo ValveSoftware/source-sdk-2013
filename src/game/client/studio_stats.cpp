@@ -109,7 +109,7 @@ void StudioStats_FindClosestEntity( CClientRenderablesList *pClientRenderablesLi
 	Ray_t shotRay;
 	shotRay.Init( vecStart, vecEnd );
 	CStudioStatsEnumerator studioEnum( shotRay );
-	partition->EnumerateElementsAlongRay( PARTITION_ALL_CLIENT_EDICTS, shotRay, false, &studioEnum );
+	::partition->EnumerateElementsAlongRay( PARTITION_ALL_CLIENT_EDICTS, shotRay, false, &studioEnum );
 
 	if ( g_pStudioStatsEntity )
 	{

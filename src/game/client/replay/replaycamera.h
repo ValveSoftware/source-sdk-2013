@@ -41,10 +41,11 @@ public:
 	void SetMode(int iMode);
 	void SetChaseCamParams( float flOffset, float flDistance, float flTheta, float flPhi  );
 	void SpecNextPlayer( bool bInverse );
-	void SpecNamedPlayer( const char *szPlayerName );
+	// See UTIL_PlayerByCommandArg for what all might go in here.
+	void SpecPlayerByPredicate( const char *szPlayerSearch );
 	bool IsPVSLocked();
 	void SetAutoDirector( bool bActive );
-	
+
 	int  GetMode();	// returns current camera mode
 	C_BaseEntity *GetPrimaryTarget();  // return primary target
 	inline int GetPrimaryTargetIndex()	{ return m_iTarget1; }	

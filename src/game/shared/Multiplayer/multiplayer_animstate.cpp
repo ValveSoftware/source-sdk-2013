@@ -187,14 +187,24 @@ void CMultiPlayerAnimState::DoAnimationEvent( PlayerAnimEvent_t event, int nData
 				RestartGesture( GESTURE_SLOT_ATTACK_AND_RELOAD, ACT_MP_RELOAD_STAND );
 			}
 
-
-			// Set the modified reload playback rate
+			// Set the modified reload playback rate	
 			float flPlaybackRate = 1.0f;
-			#if defined(TF_CLIENT_DLL) || defined(TF_DLL)
-				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetBasePlayer(), flPlaybackRate, mult_reload_time );
-				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetBasePlayer(), flPlaybackRate, mult_reload_time_hidden );
-				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetBasePlayer(), flPlaybackRate, fast_reload );
-			#endif
+#if defined ( TF_CLIENT_DLL ) || defined ( TF_DLL )
+				// These attribute classes actually speed up the first-person reload time the lower the float is, so divide 1 by the resulting value to reflect the speed in third-person
+				// Check the active weapon's reload attributes, eliminating incorrect third-person reload times caused by checking the player themselves
+				CBaseCombatWeapon *pWeapon = GetBasePlayer()->GetActiveWeapon();
+				if ( pWeapon )
+				{
+					CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flPlaybackRate, mult_reload_time );
+					CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flPlaybackRate, mult_reload_time_hidden );
+					CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flPlaybackRate, fast_reload );
+				}
+				if ( flPlaybackRate > 0.f )
+				{
+					// If the player has doubled reload speed (attribute value of 0.5), the animation speed should now be doubled instead of halved
+					flPlaybackRate = Clamp( ( 1.f / flPlaybackRate ), -4.f, 12.f );
+				}
+#endif // TF_CLIENT_DLL || TF_DLL
 			m_aGestureSlots[ GESTURE_SLOT_ATTACK_AND_RELOAD ].m_pAnimLayer->m_flPlaybackRate = flPlaybackRate;
 
 			break;
@@ -217,11 +227,22 @@ void CMultiPlayerAnimState::DoAnimationEvent( PlayerAnimEvent_t event, int nData
 
 			// Set the modified reload playback rate
 			float flPlaybackRate = 1.0f;
-			#if defined(TF_CLIENT_DLL) || defined(TF_DLL)
-				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetBasePlayer(), flPlaybackRate, mult_reload_time );
-				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetBasePlayer(), flPlaybackRate, mult_reload_time_hidden );
-				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetBasePlayer(), flPlaybackRate, fast_reload );
-			#endif
+#if defined ( TF_CLIENT_DLL ) || defined ( TF_DLL )
+			// These attribute classes actually speed up the first-person reload time the lower the float is, so divide 1 by the resulting value to reflect the speed in third-person
+			// Check the active weapon's reload attributes, eliminating incorrect third-person reload times caused by checking the player themselves
+			CBaseCombatWeapon *pWeapon = GetBasePlayer()->GetActiveWeapon();
+			if ( pWeapon )
+			{
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flPlaybackRate, mult_reload_time );
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flPlaybackRate, mult_reload_time_hidden );
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flPlaybackRate, fast_reload );
+			}
+			if ( flPlaybackRate > 0.f )
+			{
+				// If the player has doubled reload speed (attribute value of 0.5), the animation speed should now be doubled instead of halved
+				flPlaybackRate = Clamp( ( 1.f / flPlaybackRate ), -4.f, 12.f );
+			}
+#endif // TF_CLIENT_DLL || TF_DLL
 			m_aGestureSlots[ GESTURE_SLOT_ATTACK_AND_RELOAD ].m_pAnimLayer->m_flPlaybackRate = flPlaybackRate;
 
 			break;
@@ -244,11 +265,22 @@ void CMultiPlayerAnimState::DoAnimationEvent( PlayerAnimEvent_t event, int nData
 
 			// Set the modified reload playback rate
 			float flPlaybackRate = 1.0f;
-			#if defined(TF_CLIENT_DLL) || defined(TF_DLL)
-				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetBasePlayer(), flPlaybackRate, mult_reload_time );
-				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetBasePlayer(), flPlaybackRate, mult_reload_time_hidden );
-				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetBasePlayer(), flPlaybackRate, fast_reload );
-			#endif
+#if defined ( TF_CLIENT_DLL ) || defined ( TF_DLL )
+			// These attribute classes actually speed up the first-person reload time the lower the float is, so divide 1 by the resulting value to reflect the speed in third-person
+			// Check the active weapon's reload attributes, eliminating incorrect third-person reload times caused by checking the player themselves
+			CBaseCombatWeapon *pWeapon = GetBasePlayer()->GetActiveWeapon();
+			if ( pWeapon )
+			{
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flPlaybackRate, mult_reload_time );
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flPlaybackRate, mult_reload_time_hidden );
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flPlaybackRate, fast_reload );
+			}
+			if ( flPlaybackRate > 0.f )
+			{
+				// If the player has doubled reload speed (attribute value of 0.5), the animation speed should now be doubled instead of halved
+				flPlaybackRate = Clamp( ( 1.f / flPlaybackRate ), -4.f, 12.f );
+			}
+#endif // TF_CLIENT_DLL || TF_DLL
 			m_aGestureSlots[ GESTURE_SLOT_ATTACK_AND_RELOAD ].m_pAnimLayer->m_flPlaybackRate = flPlaybackRate;
 
 			break;
@@ -693,7 +725,7 @@ void CMultiPlayerAnimState::AddVCDSequenceToGestureSlot( int iGestureSlot, int i
 	m_aGestureSlots[iGestureSlot].m_pAnimLayer->m_flLayerAnimtime = 0.0f;
 	m_aGestureSlots[iGestureSlot].m_pAnimLayer->m_flLayerFadeOuttime = 0.0f;
 
-	pPlayer->m_flOverlayPrevEventCycle[iGestureSlot] = -1.0;
+	pPlayer->m_flOverlayPrevEventCycle[iGestureSlot] = flCycle == 0.f ? -1.0 : flCycle;
 
 #else
 
@@ -1084,6 +1116,8 @@ void CMultiPlayerAnimState::ComputeSequences( CStudioHdr *pStudioHdr )
 	ComputeGestureSequence( pStudioHdr );
 }
 
+Activity g_currentActivity = ACT_INVALID;
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  :  - 
@@ -1109,6 +1143,16 @@ void CMultiPlayerAnimState::ComputeMainSequence()
 	{
 		if ( pPlayer->GetSequence() != m_nSpecificMainSequence )
 		{
+			if ( anim_showstate.GetInt() == pPlayer->entindex() )
+			{
+				g_currentActivity = pPlayer->GetSequenceActivity( m_nSpecificMainSequence );
+#ifdef GAME_DLL
+				DevMsg( "SERVER SPECIFIC ACT: %s\n", pPlayer->GetSequenceActivityName( m_nSpecificMainSequence ) );
+#else
+				DevMsg( "CLIENT SPECIFIC ACT: %s\n", pPlayer->GetSequenceActivityName( m_nSpecificMainSequence ) );
+#endif
+			}
+
 			pPlayer->ResetSequence( m_nSpecificMainSequence );
 			ResetGroundSpeed();
 			return;
@@ -1130,6 +1174,19 @@ void CMultiPlayerAnimState::ComputeMainSequence()
 	if ( animDesired < 0 )
 	{
 		 animDesired = 0;
+	}
+
+	if ( anim_showstate.GetInt() == pPlayer->entindex() )
+	{
+		if ( g_currentActivity != pPlayer->GetSequenceActivity( animDesired ) )
+		{
+			g_currentActivity = pPlayer->GetSequenceActivity( animDesired );
+#ifdef GAME_DLL
+			DevMsg( "SERVER MAIN ACT: %s\n", pPlayer->GetSequenceActivityName( animDesired ) );
+#else
+			DevMsg( "CLIENT MAIN ACT: %s\n", pPlayer->GetSequenceActivityName( animDesired ) );
+#endif
+		}
 	}
 
 	pPlayer->ResetSequence( animDesired );
@@ -1425,13 +1482,6 @@ void CMultiPlayerAnimState::DoMovementTest( CStudioHdr *pStudioHdr, float flX, f
 	GetBasePlayer()->SetPoseParameter( pStudioHdr, m_PoseParameterData.m_iMoveX, flX );
 	GetBasePlayer()->SetPoseParameter( pStudioHdr, m_PoseParameterData.m_iMoveY, flY );
 
-#ifdef STAGING_ONLY
-	float flTestSpeed = GetBasePlayer()->GetSequenceGroundSpeed( m_nMovementSequence );
-	if ( flTestSpeed < 10.0f )
-	{
-		Warning( "%s : %s (X %.0f Y %.0f) missing movement\n", pStudioHdr->pszName(), GetBasePlayer()->GetSequenceName( m_nMovementSequence ), flX, flY );
-	}
-#endif
 
 	/*
 	GetBasePlayer()->SetPoseParameter( pStudioHdr, m_PoseParameterData.m_iMoveX, flX );
@@ -1937,9 +1987,12 @@ void CMultiPlayerAnimState::DebugShowEyeYaw( void )
 	AngleVectors( angles, &vecForward, &vecRight, &vecUp );
 
 	// Draw a red triangle on the ground for the eye yaw.
-	debugoverlay->AddTriangleOverlay( ( vecPos + vecRight * flBaseSize / 2.0f ), 
-		( vecPos - vecRight * flBaseSize / 2.0f ), 
-		( vecPos + vecForward * flHeight, 255, 0, 0, 255, false, 0.01f );
+	if ( debugoverlay )
+	{
+		debugoverlay->AddTriangleOverlay( ( vecPos + vecRight * flBaseSize / 2.0f ), 
+			( vecPos - vecRight * flBaseSize / 2.0f ), 
+			( vecPos + vecForward * flHeight, 255, 0, 0, 255, false, 0.01f );
+	}
 
 #endif
 }
@@ -2020,20 +2073,23 @@ void CMultiPlayerAnimState::DebugShowAnimState( int iStartLine )
 
 	Anim_StateLog( "--------------------------------------------\n\n" );
 
-	// Draw a red triangle on the ground for the eye yaw.
-	float flBaseSize = 10;
-	float flHeight = 80;
-	Vector vBasePos = GetBasePlayer()->GetAbsOrigin() + Vector( 0, 0, 3 );
-	QAngle angles( 0, 0, 0 );
-	angles[YAW] = m_flEyeYaw;
-	Vector vForward, vRight, vUp;
-	AngleVectors( angles, &vForward, &vRight, &vUp );
-	debugoverlay->AddTriangleOverlay( vBasePos+vRight*flBaseSize/2, vBasePos-vRight*flBaseSize/2, vBasePos+vForward*flHeight, 255, 0, 0, 255, false, 0.01 );
+	if ( debugoverlay )
+	{
+		// Draw a red triangle on the ground for the eye yaw.
+		float flBaseSize = 10;
+		float flHeight = 80;
+		Vector vBasePos = GetBasePlayer()->GetAbsOrigin() + Vector( 0, 0, 3 );
+		QAngle angles( 0, 0, 0 );
+		angles[YAW] = m_flEyeYaw;
+		Vector vForward, vRight, vUp;
+		AngleVectors( angles, &vForward, &vRight, &vUp );
+		debugoverlay->AddTriangleOverlay( vBasePos+vRight*flBaseSize/2, vBasePos-vRight*flBaseSize/2, vBasePos+vForward*flHeight, 255, 0, 0, 255, false, 0.01 );
 
-	// Draw a blue triangle on the ground for the body yaw.
-	angles[YAW] = m_angRender[YAW];
-	AngleVectors( angles, &vForward, &vRight, &vUp );
-	debugoverlay->AddTriangleOverlay( vBasePos+vRight*flBaseSize/2, vBasePos-vRight*flBaseSize/2, vBasePos+vForward*flHeight, 0, 0, 255, 255, false, 0.01 );	
+		// Draw a blue triangle on the ground for the body yaw.
+		angles[YAW] = m_angRender[YAW];
+		AngleVectors( angles, &vForward, &vRight, &vUp );
+		debugoverlay->AddTriangleOverlay( vBasePos+vRight*flBaseSize/2, vBasePos-vRight*flBaseSize/2, vBasePos+vForward*flHeight, 0, 0, 255, 255, false, 0.01 );	
+	}
 }
 
 // Debug!

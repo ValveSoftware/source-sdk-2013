@@ -1,0 +1,12 @@
+ps.1.1
+
+def c0, 1.0f, 1.0f, 1.0f, 1.0f
+
+tex t0
+
+; To accomplish shadow fading, subtract vertex alpha from texture alpha
+; color channel isn't used...
+sub_sat r0.a, t0.a, v0.a
+
+; Blend between white and the constant color...
+lrp r0.rgba, 1-r0.a, c0, c1

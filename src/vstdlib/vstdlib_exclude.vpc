@@ -10,6 +10,8 @@ $Project
 {
 	$Folder	"Link Libraries"
 	{
+		// Should match the sites that include this in base
+		-$Lib "$LIBPUBLIC\vstdlib"	[$POSIX && !$IS_LIB_PROJECT]
 		-$Implib vstdlib [$POSIX]
 		-$File "$SRCDIR\lib\public\$_IMPLIB_PREFIXvstdlib$_IMPLIB_EXT" [$WIN32]
 		-$File "$SRCDIR\lib\public$PLATSUBDIR\$_IMPLIB_PREFIXvstdlib$_IMPLIB_EXT" [$WIN64]

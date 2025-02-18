@@ -235,7 +235,7 @@ void CCoreDispSurface::SetNeighborData( const CDispNeighbor edgeNeighbors[4], co
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void CCoreDispSurface::GeneratePointStartIndexFromMappingAxes( Vector const &sAxis, Vector const &tAxis )
+void CCoreDispSurface::GeneratePointStartIndexFromMappingAxes( Vector const &sAxis_, Vector const &tAxis_ )
 {
 	if( m_PointStartIndex != -1 )
 		return;
@@ -247,14 +247,14 @@ void CCoreDispSurface::GeneratePointStartIndexFromMappingAxes( Vector const &sAx
     //
     // project all points on to the v-axis first and find the minimum
     //
-	float minValue = DotProduct( tAxis, m_Points[0] );
+	float minValue = DotProduct( tAxis_, m_Points[0] );
     indices[numIndices] = 0;
     numIndices++;
 
 	int i;
     for( i = 1; i < m_PointCount; i++ )
     {
-		float value = DotProduct( tAxis, m_Points[i] );
+		float value = DotProduct( tAxis_, m_Points[i] );
 		float delta = ( value - minValue );
 		delta = FloatMakePositive( delta );
         if( delta < 0.1 )
@@ -273,12 +273,12 @@ void CCoreDispSurface::GeneratePointStartIndexFromMappingAxes( Vector const &sAx
     //
     // break ties with the u-axis projection
     //
-	minValue = DotProduct( sAxis, m_Points[indices[0]] );
+	minValue = DotProduct( sAxis_, m_Points[indices[0]] );
     offsetIndex = indices[0];
     
     for( i = 1; i < numIndices; i++ )
     {
-		float value = DotProduct( sAxis, m_Points[indices[i]] );
+		float value = DotProduct( sAxis_, m_Points[indices[i]] );
         if( ( value < minValue ) )
         {
             minValue = value;
