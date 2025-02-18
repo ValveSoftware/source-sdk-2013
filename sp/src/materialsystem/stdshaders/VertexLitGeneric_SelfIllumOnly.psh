@@ -1,5 +1,0 @@
-ps.1.1
-
-tex t0
-
-mul r0.rgba, c0, t0

@@ -1,5 +1,0 @@
-// call up either the posix or win32 vpc file based upon target platform
-
-//$Include "$SRCDIR\vpc_scripts\source_exe_qt_linux_base.vpc"		[$POSIX]
-$Include "$SRCDIR\vpc_scripts\source_exe_qt_win32_base.vpc" 	[$WIN32 || $WIN64]
-		 
