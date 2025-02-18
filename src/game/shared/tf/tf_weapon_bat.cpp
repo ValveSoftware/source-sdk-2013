@@ -273,9 +273,11 @@ void CTFBat_Wood::SecondaryAttack( void )
 
 		CalcIsAttackCritical();
 
-		SetContextThink( &CTFBat_Wood::LaunchBallThink, gpGlobals->curtime + tf_scout_bat_launch_delay.GetFloat(), "LAUNCH_BALL_THINK" );
+		const float fLaunchDelay = tf_scout_bat_launch_delay.GetFloat();
 
-		m_flNextPrimaryAttack = gpGlobals->curtime + 0.25;
+		SetContextThink( &CTFBat_Wood::LaunchBallThink, gpGlobals->curtime + fLaunchDelay, "LAUNCH_BALL_THINK" );
+
+		m_flNextPrimaryAttack = gpGlobals->curtime + fLaunchDelay + 0.15f;
 
 #ifdef GAME_DLL
 		if ( pPlayer->m_Shared.IsStealthed() )
