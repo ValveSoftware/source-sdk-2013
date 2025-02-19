@@ -41,6 +41,8 @@ C_TFProjectile_EnergyBall::~C_TFProjectile_EnergyBall( void )
 	}
 }
 
+extern ConVar tf_rocket_trail;
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -54,6 +56,9 @@ void C_TFProjectile_EnergyBall::CreateTrails( void )
 		ParticleProp()->StopEmission( pEffect );
 		pEffect = NULL;
 	}
+
+	if (!tf_rocket_trail.GetBool())
+		return;
 
 	bool bDeflected = m_iCachedDeflect != GetDeflected();
 
