@@ -21,12 +21,19 @@ ipch
 *.sln
 
 # OSX/Linux build products
+*.a
+game/*_linux64
 *.mak
 *.mak.vpc_crc
 *.xcodeproj/
 obj*/
 !devtools/*.mak
 !utils/smdlexp/smdlexp.mak
+
+# ninja files
+.ninja_deps
+.ninja_log
+compile_commands.json
 
 # Specific Source build products
 client.pdb
