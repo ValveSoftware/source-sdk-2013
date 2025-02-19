@@ -10747,6 +10747,7 @@ bool C_TFPlayer::ShouldPlayEffect( EBonusEffectFilter_t filter, const C_TFPlayer
 	};
 }
 
+static ConVar tf_skip_equip_action_hint( "tf_skip_equip_action_hint", "0", 0, "Skip equip action hint. 1 - Skip hint for Power Up Canteen 2 - Skip all hints" );
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -10948,7 +10949,7 @@ void C_TFPlayer::FireGameEvent( IGameEvent *event )
 		{
 
 			// ADD EconNotification to equip spellbook here
-			if ( TFGameRules() && TFGameRules()->IsUsingSpells() )
+			if ( TFGameRules() && TFGameRules()->IsUsingSpells() && tf_skip_equip_action_hint.GetInt() < 2 )
 			{
 				int iCount = NotificationQueue_Count( &CEquipSpellbookNotification::IsNotificationType );
 				CEconItemView *pItem = TFInventoryManager()->GetItemInLoadoutForClass( event->GetInt( "class"), LOADOUT_POSITION_ACTION );
@@ -10969,7 +10970,7 @@ void C_TFPlayer::FireGameEvent( IGameEvent *event )
 				}
 			}
 			// ADD EconNotification to equip grapplinghook here
-			else if ( TFGameRules() && TFGameRules()->IsUsingGrapplingHook() )
+			else if ( TFGameRules() && TFGameRules()->IsUsingGrapplingHook() && tf_skip_equip_action_hint.GetInt() < 2 )
 			{
 				int iCount = NotificationQueue_Count( &CEquipGrapplingHookNotification::IsNotificationType );
 				CEconItemView *pItem = TFInventoryManager()->GetItemInLoadoutForClass( event->GetInt( "class"), LOADOUT_POSITION_ACTION );
@@ -10991,7 +10992,7 @@ void C_TFPlayer::FireGameEvent( IGameEvent *event )
 				
 			}
 			// Add EconNotification to equip Canteen here
-			else if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
+			else if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && tf_skip_equip_action_hint.GetInt() < 1 )
 			{
 				int iCount = NotificationQueue_Count( &CEquipMvMCanteenNotification::IsNotificationType );
 				CEconItemView *pItem = TFInventoryManager()->GetItemInLoadoutForClass( event->GetInt( "class" ), LOADOUT_POSITION_ACTION );
