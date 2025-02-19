@@ -307,7 +307,6 @@ void CTFGameMovement::ProcessMovement( CBasePlayer *pBasePlayer, CMoveData *pMov
 	player = m_pTFPlayer;
 	mv = pMove;
 
-	// The max speed is currently set to the scout - if this changes we need to change this!
 	mv->m_flMaxSpeed = tf_maxspeed_limit.GetFloat();
 
 	// Handle charging demomens
