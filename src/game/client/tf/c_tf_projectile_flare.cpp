@@ -82,6 +82,8 @@ const char *GetFlareTrailParticleName( int iTeamNumber, bool bCritical, int nTyp
 	}
 }
 
+ConVar tf_flare_trail("tf_flare_trail", "1", FCVAR_NONE);
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -95,6 +97,9 @@ void C_TFProjectile_Flare::CreateTrails( void )
 		ParticleProp()->StopEmission( pEffect );
 		pEffect = NULL;
 	}
+
+	if ( !tf_flare_trail.GetBool() )
+		return;
 
 	int nType = 0;
 
