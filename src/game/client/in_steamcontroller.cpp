@@ -69,8 +69,8 @@ void CInput::ApplySteamControllerCameraMove( QAngle& viewangles, CUserCmd *cmd, 
 	//roll the view angles so roll is 0 (the HL2 assumed state) and mouse adjustments are relative to the screen.
 	//Assuming roll is unchanging, we want mouse left to translate to screen left at all times (same for right, up, and down)	
 
-	ConVarRef cl_pitchdown ( "cl_pitchdown" );
-	ConVarRef cl_pitchup ( "cl_pitchup" );
+	static ConVarRef cl_pitchdown ( "cl_pitchdown" );
+	static ConVarRef cl_pitchup ( "cl_pitchup" );
 
 	// Scale yaw and pitch inputs by sensitivity, and make sure they are within acceptable limits (important to avoid exploits, e.g. during Demoman charge we must restrict allowed yaw).
 	float yaw = CAM_CapYaw( sc_yaw_sensitivity.GetFloat() * vecPosition.x );
