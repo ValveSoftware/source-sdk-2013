@@ -42,6 +42,8 @@ void C_TFProjectile_Rocket::OnDataChanged(DataUpdateType_t updateType)
 	BaseClass::OnDataChanged(updateType);
 }
 
+ConVar tf_rocket_trail("tf_rocket_trail", "1", FCVAR_NONE);
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -57,6 +59,9 @@ void C_TFProjectile_Rocket::CreateTrails( void )
 		ParticleProp()->StopEmission( pEffect );
 		pEffect = NULL;
 	}
+
+	if ( !tf_rocket_trail.GetBool() )
+		return;
 
 	int iAttachment = LookupAttachment( "trail" );
 	if ( iAttachment == INVALID_PARTICLE_ATTACHMENT )
