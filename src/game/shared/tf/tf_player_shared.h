@@ -1218,6 +1218,8 @@ private:
 #endif
 
 public:
+	bool m_bScattergunJump;
+
 	float	m_flStunFade;
 	float	m_flStunEnd;
 	float	m_flStunMid;
