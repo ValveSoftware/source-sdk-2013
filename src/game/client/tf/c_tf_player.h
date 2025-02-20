@@ -937,6 +937,10 @@ public:
 
 	int GetSkinOverride() const { return m_iPlayerSkinOverride; }
 
+	// 0 - no restrictions. 1 - restrict class-specific achievements/quests only. 2 - restrict ALL achievements/quests.
+	short GetAchievementRestrictions() const { return m_nRestrictAchievements; }
+	short GetQuestRestrictions() const { return m_nRestrictQuests; }
+
 	virtual void ClientAdjustStartSoundParams( EmitSound_t &params ) override;
 	virtual void ClientAdjustStartSoundParams( StartSoundParams_t& params ) override;
 
@@ -966,6 +970,9 @@ private:
 	float m_flTempForceDrawViewModelCycle  = 0.0f;
 
 	CNetworkVar( int, m_iPlayerSkinOverride );
+
+	CNetworkVar( short, m_nRestrictAchievements );
+	CNetworkVar( short, m_nRestrictQuests );
 };
 
 inline C_TFPlayer* ToTFPlayer( C_BaseEntity *pEntity )
