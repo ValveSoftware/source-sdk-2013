@@ -550,6 +550,14 @@ public:
 	virtual bool SetValue( HSCRIPT hScope, const char *pszKey, const char *pszValue ) = 0;
 	virtual bool SetValue( HSCRIPT hScope, const char *pszKey, const ScriptVariant_t &value ) = 0;
 	bool SetValue( const char *pszKey, const ScriptVariant_t &value )																{ return SetValue(NULL, pszKey, value ); }
+	// temporary objects take this path to be automatically released
+	bool SetValue( HSCRIPT hScope, const char* pszKey, ScriptVariant_t&& value )
+	{
+		bool bRet = SetValue( hScope, pszKey, value );
+		value.Free();
+		return bRet;
+	}
+	bool SetValue( const char *pszKey, ScriptVariant_t&& value )																	{ return SetValue(NULL, pszKey, std::move(value)); }
 
 	virtual void CreateTable( ScriptVariant_t &Table ) = 0;
 	virtual int	GetNumTableEntries( HSCRIPT hScope ) = 0;
@@ -570,7 +578,9 @@ public:
 	{
 		ScriptVariant_t variant;
 		GetValue( hScope, pszKey, &variant );
-		return variant.Get<T>();
+		T ret = variant.Get<T>();
+		variant.Free();
+		return ret;
 	}
 
 	template <typename T>
@@ -1395,11 +1405,13 @@ public:
 template <>
 inline HSCRIPT IScriptVM::Get<HSCRIPT>( HSCRIPT hScope, const char *pszKey )
 {
+	HSCRIPT ret = nullptr;
 	ScriptVariant_t variant;
 	GetValue( hScope, pszKey, &variant );
-	if ( variant.GetType() == FIELD_VOID )
-		return NULL;
-	return variant.Get<HSCRIPT>();
+	if ( variant.GetType() != FIELD_VOID )
+		ret = variant.Get<HSCRIPT>();
+	variant.Free();
+	return ret;
 }
 
 #include "tier0/memdbgoff.h"
