@@ -78,6 +78,7 @@ void CTFWeaponBaseMelee::WeaponReset( void )
 	m_flSmackTime = -1.0f;
 	m_bConnected = false;
 	m_bMiniCrit = false;
+	m_bWasCharging = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -139,6 +140,7 @@ void CTFWeaponBaseMelee::Spawn()
 // -----------------------------------------------------------------------------
 bool CTFWeaponBaseMelee::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
+	m_bWasCharging = false; // Once we holster, remove the charge hit extension
 	m_flSmackTime = -1.0f;
 	if ( GetPlayerOwner() )
 	{
@@ -164,8 +166,9 @@ bool CTFWeaponBaseMelee::Holster( CBaseCombatWeapon *pSwitchingTo )
 int	CTFWeaponBaseMelee::GetSwingRange( void )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
-	if ( pOwner && pOwner->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
+	if ( pOwner && (pOwner->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) || m_bWasCharging) )
 	{
+		m_bWasCharging = false;
 		return 128;
 	}
 	else
@@ -198,6 +201,7 @@ void CTFWeaponBaseMelee::PrimaryAttack()
 	m_iWeaponMode = TF_WEAPON_PRIMARY_MODE;
 	m_bConnected = false;
 
+	m_bWasCharging = pPlayer->m_Shared.InCond(TF_COND_SHIELD_CHARGE);
 	pPlayer->EndClassSpecialSkill();
 
 	// Swing the weapon.
