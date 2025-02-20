@@ -1368,6 +1368,8 @@ public:
 	float				GetTorsoScaleSpeed() const;
 	float				GetDesiredHandScale() const;
 	float				GetHandScaleSpeed() const;
+	float				GetDesiredNeckScale() const;
+	float				GetNeckScaleSpeed() const;
 
 	bool				IsInPurgatory( void ) const;
 	bool				HasPurgatoryBuff( void ) const;
@@ -1417,6 +1419,7 @@ private:
 	CNetworkVar( float, m_flHeadScale );
 	CNetworkVar( float, m_flTorsoScale );
 	CNetworkVar( float, m_flHandScale );
+	CNetworkVar( float, m_flNeckScale );
 
 	//CountdownTimer		m_fireproofTimer;		// if active, we're fireproof
 

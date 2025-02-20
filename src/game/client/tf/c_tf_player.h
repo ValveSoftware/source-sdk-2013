@@ -452,6 +452,7 @@ public:
 	float			GetHeadScale() const { return m_flHeadScale; }
 	float			GetTorsoScale() const { return m_flTorsoScale; }
 	float			GetHandScale() const { return m_flHandScale; }
+	float			GetNeckScale() const { return m_flNeckScale; }
 	float			GetLastResistTime()	const { return m_flLastResistTime; }
 	bool			BRenderAsZombie( bool bWeaponsCheck = false );
 	static void AdjustSkinIndexForZombie( int iClassIndex, int &iSkinIndex );
@@ -885,6 +886,7 @@ private:
 	CNetworkVar( float, m_flHeadScale );
 	CNetworkVar( float, m_flTorsoScale );
 	CNetworkVar( float, m_flHandScale );
+	CNetworkVar( float, m_flNeckScale );
 
 	// Allseecrit throttle - other clients ask us if we can be the source of another particle+sound
 	float	m_flNextMiniCritEffectTime[ kBonusEffect_Count ];
@@ -1065,6 +1067,7 @@ public:
 	float GetHeadScale() const { return m_flHeadScale; }
 	float GetTorsoScale() const { return m_flTorsoScale; }
 	float GetHandScale() const { return m_flHandScale; }
+	float GetNeckScale() const { return m_flNeckScale; }
 
 private:
 
@@ -1120,6 +1123,7 @@ private:
 	float m_flHeadScale;
 	float m_flTorsoScale;
 	float m_flHandScale;
+	float m_flNeckScale;
 
 	CMaterialReference		m_MaterialOverride;
 
