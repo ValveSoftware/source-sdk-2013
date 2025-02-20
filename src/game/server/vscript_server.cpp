@@ -1006,7 +1006,7 @@ static float Time()
 	return gpGlobals->curtime;
 }
 
-static float MaxClients()
+static int MaxClients()
 {
 	return gpGlobals->maxClients;
 }
