@@ -1011,7 +1011,7 @@ static float MaxClients()
 	return gpGlobals->maxClients;
 }
 
-static int MaxClientsEx()
+static unsigned int MaxClientsEx()
 {
 	return gpGlobals->maxClients;
 }
