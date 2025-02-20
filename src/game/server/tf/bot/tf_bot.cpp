@@ -195,6 +195,22 @@ const char *GetRandomBotName( void )
 		"Saxton Hale",
 		"RageQuit",
 		"Screamin' Eagles",
+		"No Bones",
+		"Im Not Real",
+	
+		"Sexy Mann",
+		"This Sucks On Ice",
+		"SEDUCE ME!",
+		"Bloody Hell",
+		"Explode",
+		"Kill",
+		"sv_cheats 1",
+		"ch_createairboat",
+		"ch_createjeep",
+		"WHO TOUCH SASHA!?",
+		"Bulletproof",
+		"Waterproof",
+		"Fire Proof",
 
 		"Ze Ubermensch",
 		"Maggot",
@@ -218,7 +234,7 @@ const char *GetRandomBotName( void )
 		"Tiny Baby Man",
 		"Big Mean Muther Hubbard",
 		"Force of Nature",
-
+		
 		"Crazed Gunman",
 		"Grim Bloody Fable",
 		"Poopy Joe",
