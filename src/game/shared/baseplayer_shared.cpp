@@ -716,12 +716,17 @@ void CBasePlayer::PlayStepSound( Vector &vecOrigin, surfacedata_t *psurface, flo
 	filter.AddRecipientsByPAS( vecOrigin );
 
 #ifndef CLIENT_DLL
-	// in MP, server removes all players in the vecOrigin's PVS, these players generate the footsteps client side
-	if ( gpGlobals->maxClients > 1 )
-	{
-		filter.RemoveRecipientsByPVS( vecOrigin );
-	}
-#endif
+	EmitSound_t ep;
+	ep.m_nChannel = CHAN_BODY;
+	ep.m_pSoundName = params.soundname;
+	ep.m_flVolume = fvol;
+	ep.m_SoundLevel = params.soundlevel;
+	ep.m_nFlags = 0;
+	ep.m_nPitch = params.pitch;
+	ep.m_pOrigin = &vecOrigin;
+
+	EmitSound( filter, entindex(), ep );
+#else
 
 	EmitSound_t ep;
 	ep.m_nChannel = CHAN_BODY;
@@ -744,6 +749,8 @@ void CBasePlayer::PlayStepSound( Vector &vecOrigin, surfacedata_t *psurface, flo
 	ep.m_pOrigin = &vecOrigin;
 
 	EmitSound( filter, entindex(), ep );
+
+#endif	// CLIENT_DLL
 
 	// Kyle says: ugggh. This function may as well be called "PerformPileOfDesperateGameSpecificFootstepHacks".
 	OnEmitFootstepSound( params, vecOrigin, fvol );

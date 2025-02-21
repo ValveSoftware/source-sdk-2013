@@ -37,6 +37,7 @@
 #include "util.h"
 #include "cdll_int.h"
 #include "vscript_server.h"
+#include "inetchannel.h"
 
 #ifdef PORTAL
 #include "PortalSimulation.h"
@@ -3238,6 +3239,30 @@ void CC_CollisionTest( const CCommand &args )
 }
 static ConCommand collision_test("collision_test", CC_CollisionTest, "Tests collision system", FCVAR_CHEAT );
 
+void UTIL_SetClientConVarValue( edict_t* pEdict, const char* pszConVarName, const char* pszConVarValue )
+{
+	char data[256];
+	bf_write buffer( data, sizeof( data ) );
 
+	buffer.WriteUBitLong( 5, 6 );	// msg num, NET_MESSAGE_BITS
+	buffer.WriteByte( 1 );
+	buffer.WriteString( pszConVarName );
+	buffer.WriteString( pszConVarValue );
 
+	INetChannel* pnetchan = static_cast<INetChannel*>(engine->GetPlayerNetInfo( pEdict->m_EdictIndex ));
 
+	if ( pnetchan )
+		pnetchan->SendData( buffer );
+}
+
+void UTIL_SetClientConVarValueAll( const char* pszConVarName, const char* pszConVarValue )
+{
+	for ( int i = 0; i < gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer* pPlayer = UTIL_PlayerByIndex( i + 1 );
+		if ( pPlayer && pPlayer->IsConnected() )
+		{
+			UTIL_SetClientConVarValue( pPlayer->edict(), pszConVarName, pszConVarValue );
+		}
+	}
+}

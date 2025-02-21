@@ -20,6 +20,21 @@
 
 extern ConVar sv_footsteps;
 
+#ifndef CLIENT_DLL
+
+static void OnChangeFootsteps( IConVar* var, const char* pOldValue, float flOldValue )
+{
+	if ( ((ConVar*)var)->GetInt() != 0 )
+		UTIL_SetClientConVarValueAll( "sv_footsteps", "0" );
+	else
+		UTIL_SetClientConVarValueAll( "sv_footsteps", "1" );
+}
+
+ConVar mk_footsteps( "mk_footsteps", "1", FCVAR_NONE, "", true, 0.0f, true, 1.0f, OnChangeFootsteps );
+ConVar mk_footsteps_silent_in_duck( "mk_footsteps_silent_in_duck", "0", FCVAR_NONE, "", true, 0.0f, true, 1.0f );
+
+#endif	//CLIENT_DLL
+
 const char *g_ppszPlayerSoundPrefixNames[PLAYER_SOUNDS_MAX] =
 {
 	"NPC_Citizen",
@@ -70,10 +85,20 @@ Vector CHL2MP_Player::GetAttackSpread( CBaseCombatWeapon *pWeapon, CBaseEntity *
 //-----------------------------------------------------------------------------
 void CHL2MP_Player::PlayStepSound( Vector &vecOrigin, surfacedata_t *psurface, float fvol, bool force )
 {
+
+#if !defined( CLIENT_DLL )
+	if ( mk_footsteps.GetInt() > 0 )
+	{
+		if ( mk_footsteps_silent_in_duck.GetInt() > 0 && GetFlags() & FL_DUCKING )
+			return;
+
+		BaseClass::PlayStepSound( vecOrigin, psurface, fvol, force );
+		return;
+	}
+
 	if ( gpGlobals->maxClients > 1 && !sv_footsteps.GetFloat() )
 		return;
-
-#if defined( CLIENT_DLL )
+#else
 	// during prediction play footstep sounds only once
 	if ( !prediction->IsFirstTimePredicted() )
 		return;

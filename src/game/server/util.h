@@ -644,4 +644,7 @@ bool UTIL_LoadAndSpawnEntitiesFromScript( CUtlVector <CBaseEntity*> &entities, c
 // Given a vector, clamps the scalar axes to MAX_COORD_FLOAT ranges from worldsize.h
 void UTIL_BoundToWorldSize( Vector *pVecPos );
 
+void UTIL_SetClientConVarValue( edict_t* pEdict, const char* pszConVarName, const char* pszConVarValue );
+void UTIL_SetClientConVarValueAll( const char* pszConVarName, const char* pszConVarValue );
+
 #endif // UTIL_H

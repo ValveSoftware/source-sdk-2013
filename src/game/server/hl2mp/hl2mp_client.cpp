@@ -31,6 +31,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+extern ConVar mk_footsteps;
+
 void Host_Say( edict_t *pEdict, bool teamonly );
 
 ConVar sv_motd_unload_on_dismissal( "sv_motd_unload_on_dismissal", "0", 0, "If enabled, the MOTD contents will be unloaded when the player closes the MOTD." );
@@ -99,6 +101,11 @@ void ClientActive( edict_t *pEdict, bool bLoadGame )
 
 	CHL2MP_Player *pPlayer = ToHL2MPPlayer( CBaseEntity::Instance( pEdict ) );
 	FinishClientPutInServer( pPlayer );
+
+	if ( mk_footsteps.GetInt() > 0 )
+		UTIL_SetClientConVarValue( pEdict, "sv_footsteps", "0" );
+	else
+		UTIL_SetClientConVarValue( pEdict, "sv_footsteps", "1" );
 }
 
 
