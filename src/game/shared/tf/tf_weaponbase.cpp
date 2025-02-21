@@ -4829,6 +4829,7 @@ int CTFWeaponBase::GetSkin()
 
 #if defined( CLIENT_DLL )
 
+extern ConVar cl_ejectbrass;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -4836,6 +4837,9 @@ bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& orig
 {
 	if ( event == 6002 && ShouldEjectBrass() )
 	{
+	        if ( cl_ejectbrass.GetBool() == false )
+		        return true;
+
 		if ( UsingViewModel() && !g_pClientMode->ShouldDrawViewModel() )
 		{
 			// Prevent effects when the ViewModel is hidden with r_drawviewmodel=0
