@@ -1182,3 +1182,7 @@ void CHLTVDirector::AnalyzePlayers()
 	}
 }
 
+CBasePlayer* CHLTVDirector::GetHLTVClient( void )
+{
+	return m_pHLTVClient;
+}

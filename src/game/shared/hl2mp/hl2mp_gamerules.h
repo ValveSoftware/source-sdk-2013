@@ -167,6 +167,12 @@ private:
 #ifndef CLIENT_DLL
 	bool m_bChangelevelDone;
 #endif
+
+// [TOIZY] CUSTOM PROPERTIES AND METHODS
+#ifndef CLIENT_DLL
+	CBasePlayer* CHL2MPRules::GetSourceTvPlayer( void );
+#endif // !CLIENT_DLL
+
 };
 
 inline CHL2MPRules* HL2MPRules()

@@ -33,6 +33,7 @@
 	#include "voice_gamemgr.h"
 	#include "hl2mp_gameinterface.h"
 	#include "hl2mp_cvars.h"
+	#include "hltvdirector.h"
 
 extern void respawn(CBaseEntity *pEdict, bool fCopyCorpse);
 
@@ -48,6 +49,16 @@ extern CBaseEntity	 *g_pLastCombineSpawn;
 extern CBaseEntity	 *g_pLastRebelSpawn;
 
 #define WEAPON_MAX_DISTANCE_FROM_SPAWN 64
+
+// For Source TV Informer bot
+constexpr float STV_CHECK_INTERVAL = 1.0f;
+constexpr int SECONDS_IN_MINUTE = 60;
+
+static float g_nextHLTVCheckTime = 0.0f;
+static bool g_STVNameChanged = false;
+
+// [toizy] Don't forget to add ' +tv_enable 1' to the server start parameters to enable SourceTV on the first map load.
+ConVar mk_stv_informer( "mk_stv_informer", "1", FCVAR_NONE, "Make Source TV bot display elapsed and remaining game time", true, 0.0f, true, 1.0f );
 
 #endif
 
@@ -203,6 +214,10 @@ CHL2MPRules::CHL2MPRules()
 	m_bHeardAllPlayersReady = false;
 	m_bAwaitingReadyRestart = false;
 	m_bChangelevelDone = false;
+
+	// Source TV Informer
+	g_nextHLTVCheckTime = 0.0f;
+	g_STVNameChanged = false;
 
 #endif
 }
@@ -369,6 +384,36 @@ void CHL2MPRules::Think( void )
 	}
 
 	ManageObjectRelocation();
+
+	// Source TV Informer
+	if ( mk_stv_informer.GetBool() && g_nextHLTVCheckTime < gpGlobals->curtime )
+	{
+		auto* pHLTVDirector = HLTVDirector();
+		if ( !pHLTVDirector )
+			return;
+
+		CBasePlayer* pPlayer = pHLTVDirector->GetHLTVClient();
+		if ( pPlayer )
+		{
+			if ( !g_STVNameChanged )
+			{
+				char mapName[MAX_MAP_NAME + 1] = "";
+				Q_snprintf( mapName, sizeof( mapName ), "[MAP] %s", gpGlobals->mapname.ToCStr() );
+
+				engine->SetFakeClientConVarValue( pPlayer->edict(), "name", mapName );
+				pPlayer->ChangeTeam( TEAM_SPECTATOR );
+				g_STVNameChanged = true;
+			}
+
+			const int timeElapsed = static_cast<int>((gpGlobals->curtime - m_flGameStartTime) / SECONDS_IN_MINUTE);
+			const int timeRemaining = static_cast<int>(GetMapRemainingTime() / SECONDS_IN_MINUTE) + 1;
+
+			pPlayer->SetFragCount( timeElapsed );
+			pPlayer->SetDeathCount( timeRemaining );
+		}
+
+		g_nextHLTVCheckTime = gpGlobals->curtime + STV_CHECK_INTERVAL;
+	}
 
 #endif
 }

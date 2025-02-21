@@ -47,6 +47,7 @@ public:
 
 	virtual void SetHLTVServer( IHLTVServer *hltv ); // give the director an HLTV interface 
 	IHLTVServer* GetHLTVServer( void ); 
+	CBasePlayer* GetHLTVClient( void );
 	int		GetDirectorTick( void );	// get current broadcast tick from director
 	int		GetPVSEntity( void ); // get current view entity (PVS)
 	Vector	GetPVSOrigin( void ); // get current PVS origin, if PVS entity is 0

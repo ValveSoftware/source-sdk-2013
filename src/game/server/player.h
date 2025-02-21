@@ -1270,6 +1270,11 @@ public:
 
 	// A voice packet from this client was received by the server
 	virtual void OnVoiceTransmit( void ) {}
+
+// [TOIZY] CUSTOM PROPERTIES AND METHODS
+public:
+	void	SetFragCount( int count ) { m_iFrags = count; }
+	void	SetDeathCount( int count ) { m_iDeaths = count; }
 };
 
 typedef CHandle<CBasePlayer> CBasePlayerHandle;
