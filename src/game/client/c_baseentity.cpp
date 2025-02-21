@@ -6318,52 +6318,25 @@ bool C_BaseEntity::ValidateEntityAttachedToPlayer( bool &bShouldRetry )
 	C_BaseEntity *pParent = GetRootMoveParent();
 	if ( pParent == this )
 		return true;
-
-	// Some wearables parent to the view model
-	C_TFPlayer *pPlayer = ToTFPlayer( pParent );
-	if ( pPlayer )
+	
+	if(pParent->IsPlayer())
 	{
-		if ( pPlayer->GetViewModel() == this )
-			return true;
+		const char* pszModel = modelinfo->GetModelName(GetModel());
+		if (pszModel && pszModel[0])
+		{
+			// Disallow attaching any models to players that are used in econ.
+			if (Q_strstr(pszModel, "models/player/items"))
+				return false;
 
-		if ( pPlayer->HasItem() && ( pPlayer->GetItem()->GetItemID() == TF_ITEM_CAPTURE_FLAG ) && ( pPlayer->GetItem() == this ) )
-			return true;
+			if (Q_strstr(pszModel, "models/workshop"))
+				return false;
+
+			if (Q_strstr(pszModel, "models/workshop_partner"))
+				return false;
+		}
 	}
-
-	// always allow the briefcase model
-	const char *pszModel = modelinfo->GetModelName( GetModel() );
-	if ( pszModel && pszModel[0] )
-	{
-		if ( FStrEq( pszModel, "models/flag/briefcase.mdl" ) )
-			return true;
-				
-		if ( FStrEq( pszModel, "models/props_doomsday/australium_container.mdl" ) )
-			return true;
-
-		// Temp for MVM testing
-		if ( FStrEq( pszModel, "models/buildables/sapper_placement.mdl" ) )
-			return true;
-
-		if ( FStrEq( pszModel, "models/props_td/atom_bomb.mdl" ) )
-			return true;
-
-		if ( FStrEq( pszModel, "models/props_lakeside_event/bomb_temp_hat.mdl" ) )
-			return true;
-
-		if ( FStrEq( pszModel, "models/props_moonbase/powersupply_flag.mdl" ) )
-			return true;
-
-		// The Halloween 2014 doomsday flag replacement
-		if ( FStrEq( pszModel, "models/flag/ticket_case.mdl" ) )
-			return true;
-
-		if ( FStrEq( pszModel, "models/weapons/c_models/c_grapple_proj/c_grapple_proj.mdl" ) )
-			return true;
-	}
-
-	// Any entity that's not an item parented to a player is invalid.
-	// This prevents them creating some other entity to pretend to be a cosmetic item.
-	return !pParent->IsPlayer();
+	
+	return true;
 }
 #endif // TF_CLIENT_DLL
 
