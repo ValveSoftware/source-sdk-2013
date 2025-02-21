@@ -91,6 +91,9 @@ extern ConVar sensitivity;
 
 static C_BasePlayer *s_pLocalPlayer = NULL;
 
+// Bunny hop
+ConVar cl_mk_bhop_enabled( "cl_mk_bhop_enabled", "0.0", FCVAR_NONE, "Enable client-side bunny hop", true, 0.0, true, 1.0 );
+
 static ConVar	cl_customsounds ( "cl_customsounds", "0", 0, "Enable customized player sound playback" );
 static ConVar	spec_track		( "spec_track", "0", 0, "Tracks an entity in spec mode" );
 static ConVar	cl_smooth		( "cl_smooth", "1", 0, "Smooth view/eye origin after prediction errors" );
@@ -1235,6 +1238,54 @@ bool C_BasePlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 	
 	// Check to see if we're in vgui input mode...
 	DetermineVguiInputMode( pCmd );
+
+	// Bunny hop
+	if ( cl_mk_bhop_enabled.GetBool() && (pCmd->buttons & IN_JUMP) )
+	{
+		static bool jumped_last_tick = false;
+		static bool should_fake_jump = false;
+		static QAngle oldViewAngles = QAngle( 0, 0, 0 );
+		extern ConVar cl_sidespeed;
+
+		// Should be alive
+		if ( !IsAlive() )
+			return true;
+
+		// Don't jump on ladders, in water, or in fly/observer mode
+		if ( C_BasePlayer::GetLocalPlayer()->GetMoveType() != MOVETYPE_WALK )
+			return true;
+
+		// Jump only once, while on the floor
+		if ( !jumped_last_tick && should_fake_jump )
+		{
+			should_fake_jump = false;
+			pCmd->buttons |= IN_JUMP;
+		}
+		else if ( pCmd->buttons & IN_JUMP )
+		{
+			if ( GetFlags() & FL_ONGROUND )
+			{
+				jumped_last_tick = true;
+				should_fake_jump = true;
+			}
+			else
+			{
+				// Reset IN_JUMP if in air
+				pCmd->buttons &= ~IN_JUMP;
+				jumped_last_tick = false;
+
+				// Add side velosity to keep the move impulse
+				QAngle curViewAngles = CurrentViewAngles();
+				pCmd->sidemove += (curViewAngles.y < oldViewAngles.y ? 1 : -1) * cl_sidespeed.GetFloat();
+				oldViewAngles = curViewAngles;
+			}
+		}
+		else
+		{
+			jumped_last_tick = false;
+			should_fake_jump = false;
+		}
+	}
 
 	return true;
 }
