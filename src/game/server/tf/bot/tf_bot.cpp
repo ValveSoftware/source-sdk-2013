@@ -210,7 +210,6 @@ const char *GetRandomBotName( void )
 		"Bulletproof",
 		"Waterproof",
 		"Fire Proof",
-
 		"Ze Ubermensch",
 		"Maggot",
 		"CRITRAWKETS",
@@ -224,7 +223,6 @@ const char *GetRandomBotName( void )
 		"IvanTheSpaceBiker",
 		"I LIVE!",
 		"Cannon Fodder",
-
 		"trigger_hurt",
 		"Nom Nom Nom",
 		"Divide by Zero",
@@ -233,7 +231,6 @@ const char *GetRandomBotName( void )
 		"Tiny Baby Man",
 		"Big Mean Muther Hubbard",
 		"Force of Nature",
-		
 		"Crazed Gunman",
 		"Grim Bloody Fable",
 		"Poopy Joe",
@@ -242,7 +239,6 @@ const char *GetRandomBotName( void )
 		"SMELLY UNFORTUNATE",
 		"The Administrator",
 		"Mentlegen",
-
 		"Archimedes!",
 		"Ribs Grow Back",
 		"It's Filthy in There!",
