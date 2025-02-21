@@ -47,6 +47,186 @@ ConVar	sk_combine_ball_search_radius( "sk_combine_ball_search_radius", "512", FC
 ConVar	sk_combineball_seek_angle( "sk_combineball_seek_angle","15.0", FCVAR_REPLICATED);
 ConVar	sk_combineball_seek_kill( "sk_combineball_seek_kill","0", FCVAR_REPLICATED);
 
+class CBallPrefs
+{
+public:
+	bool	m_bTrailEnabled;
+	int		m_iTrailColorMode;
+	char	m_szTrailColor[32];
+	float	m_flTrailStartWidth;
+	float	m_flTrailEndWidth;
+	float	m_flTrailLifetime;
+	bool	m_bDisableTrailInPhysgun;
+	bool	m_bEnableWhizSounds;
+	float	m_flWhizSoundMaxDistance;
+	float	m_flWhizSoundMinDistance;
+	float	m_flWhizSoundInterval;
+	float	m_flWhizSoundIntervalRandomFactor;
+public:
+	CBallPrefs()
+	{
+		Init();
+	}
+	~CBallPrefs()
+	{
+
+	}
+	void Init();
+};
+
+// forward declaration:
+static void ReassignValues( IConVar* var, const char* pOldValue, float flOldValue );
+
+ConVar mk_combine_ball_trail(
+	"mk_combine_ball_trail",
+	"1.0",
+	FCVAR_NONE,
+	"Enable or disable the combine ball trail effect", // Enables trail
+	true, 0.0f,
+	true, 1.0f,
+	ReassignValues
+);
+
+ConVar mk_combine_ball_trail_colormode(
+	"mk_combine_ball_trail_colormode",
+	"1.0",
+	FCVAR_NONE,
+	"Trail color mode: 0 - default; 1 - team-based; 2 - random", // How colors of trail appear
+	true, 0.0,
+	true, 2.0,
+	ReassignValues
+);
+
+ConVar mk_combine_ball_trail_defcolor(
+	"mk_combine_ball_trail_defcolor",
+	"255 0 0 255",
+	FCVAR_NONE,
+	"Default trail color in RGBA format for example 255 255 255 255)", // rgba codes and opacity
+	ReassignValues
+);
+
+ConVar mk_combine_ball_trail_startwidth(
+	"mk_combine_ball_trail_startwidth",
+	"5.0",
+	FCVAR_NONE,
+	"Width of the trail at the starting point", // Trail's initial width
+	true, 0.0f,
+	true, 16.0f,
+	ReassignValues
+);
+
+ConVar mk_combine_ball_trail_endwidth(
+	"mk_combine_ball_trail_endwidth",
+	"1.0",
+	FCVAR_NONE,
+	"Width of the trail at the endpoint", // Trail's end width
+	true, 0.0f,
+	true, 16.0f,
+	ReassignValues
+);
+
+ConVar mk_combine_ball_trail_lifetime(
+	"mk_combine_ball_trail_lifetime",
+	"2.0",
+	FCVAR_NONE,
+	"Duration of the trail in seconds", // Trail visibility duration
+	true, 0.0f,
+	true, 16.0f,
+	ReassignValues
+);
+
+ConVar mk_combine_ball_trail_in_physgun(
+	"mk_combine_ball_trail_in_physgun",
+	"1.0",
+	FCVAR_NONE,
+	"Disable trail when picked up by the physgun", // Physgun interaction behavior
+	true, 0.0,
+	true, 1.0,
+	ReassignValues
+);
+
+ConVar mk_combine_ball_whiz_sound(
+	"mk_combine_ball_whiz_sound",
+	"1.0",
+	FCVAR_NONE,
+	"Enable or disable whiz sound effect", // Whiz sound effect toggle
+	true, 0.0,
+	true, 1.0,
+	ReassignValues
+);
+
+ConVar mk_combine_ball_whiz_interval(
+	"mk_combine_ball_whiz_interval",
+	"0.02",
+	FCVAR_NONE,
+	"Interval between whiz sound effects in seconds", // Time gap for whiz effects
+	true, 0.0,
+	true, 1.0,
+	ReassignValues
+);
+
+ConVar mk_combine_ball_whiz_interval_rndfactor(
+	"mk_combine_ball_whiz_interval_rndfactor",
+	"0.0",
+	FCVAR_NONE,
+	"Randomization factor for whiz intervals", // Randomize sound interval factor
+	true, 0.0,
+	true, 1.0,
+	ReassignValues
+);
+
+ConVar mk_combine_ball_whiz_sound_mindist(
+	"mk_combine_ball_whiz_sound_mindist",
+	"50.0",
+	FCVAR_NONE,
+	"Minimum distance for whiz sound to play", // Minimum distance for sound trigger
+	true, 0.0,
+	true, 65535.0,
+	ReassignValues
+);
+
+ConVar mk_combine_ball_whiz_sound_maxdist(
+	"mk_combine_ball_whiz_sound_maxdist",
+	"250.0",
+	FCVAR_NONE,
+	"Maximum distance for whiz sound to play", // Maximum audible distance for sound
+	true, 0.0,
+	true, 65535.0,
+	ReassignValues
+);
+
+
+CBallPrefs g_BallPrefs;
+
+static void ReassignValues( IConVar* var, const char* pOldValue, float flOldValue )
+{
+	g_BallPrefs.Init();
+}
+
+void CBallPrefs::Init()
+{
+	static constexpr size_t COLOR_STRING_SIZE = 32;
+
+	m_flWhizSoundInterval = mk_combine_ball_whiz_interval.GetFloat();	//0.02f;	// (TICK_INTERVAL * 2.0f) -> (1/100) * 2 -> (0.01 * 2) -> 0.02
+	m_flWhizSoundIntervalRandomFactor = mk_combine_ball_whiz_interval_rndfactor.GetFloat();
+	m_bTrailEnabled = mk_combine_ball_trail.GetBool();
+	m_iTrailColorMode = mk_combine_ball_trail_colormode.GetInt();
+	m_flTrailStartWidth = mk_combine_ball_trail_startwidth.GetFloat();
+	m_flTrailEndWidth = mk_combine_ball_trail_endwidth.GetFloat();
+	m_flTrailLifetime = mk_combine_ball_trail_lifetime.GetFloat();
+	m_bDisableTrailInPhysgun = mk_combine_ball_trail_in_physgun.GetBool();
+	m_bEnableWhizSounds = mk_combine_ball_whiz_sound.GetBool();
+	m_flWhizSoundMinDistance = mk_combine_ball_whiz_sound_mindist.GetFloat();
+	m_flWhizSoundMaxDistance = mk_combine_ball_whiz_sound_maxdist.GetFloat();
+	Q_strncpy( m_szTrailColor, mk_combine_ball_trail_defcolor.GetString(), COLOR_STRING_SIZE );
+	m_szTrailColor[COLOR_STRING_SIZE - 1] = '\0';
+	//int r, g, b, a;
+	//if (sscanf( m_szColor, "%d %d %d %d", &r, &g, &b, &a ) != 4) {
+	//	// Обработка ошибки: неверный формат строки
+	//	r = g = b = a = 255; // Значения по умолчанию
+	//}
+}
+
 // For our ring explosion
 int s_nExplosionTexture = -1;
 
@@ -399,12 +579,23 @@ void CPropCombineBall::Spawn( void )
 	
 	if ( m_pGlowTrail != NULL )
 	{
-		m_pGlowTrail->FollowEntity( this );
-		m_pGlowTrail->SetTransparency( kRenderTransAdd, 0, 0, 0, 255, kRenderFxNone );
-		m_pGlowTrail->SetStartWidth( m_flRadius );
-		m_pGlowTrail->SetEndWidth( 0 );
-		m_pGlowTrail->SetLifeTime( 0.1f );
-		m_pGlowTrail->TurnOff();
+		if ( g_BallPrefs.m_bTrailEnabled == false )
+		{
+			m_pGlowTrail->SetTransparency( kRenderTransAdd, 0, 0, 0, 255, kRenderFxNone );
+			m_pGlowTrail->SetStartWidth( m_flRadius );
+			m_pGlowTrail->SetEndWidth( 0 );
+			m_pGlowTrail->SetLifeTime( 0.1f );
+		}
+		else
+		{
+			color32 color;
+			UTIL_GenerateRGBA( GetOwnerEntity(), &mk_combine_ball_trail_colormode, &mk_combine_ball_trail_defcolor, color );
+			m_pGlowTrail->SetTransparency( kRenderTransAdd, color.r, color.g, color.b, color.a, kRenderFxNone );
+			m_pGlowTrail->SetStartWidth( g_BallPrefs.m_flTrailStartWidth );
+			m_pGlowTrail->SetEndWidth( g_BallPrefs.m_flTrailEndWidth );
+			m_pGlowTrail->SetLifeTime( g_BallPrefs.m_flTrailLifetime );
+			m_pGlowTrail->TurnOn();
+		}
 	}
 
 	m_bEmit = true;
@@ -684,7 +875,45 @@ void CPropCombineBall::FadeOut( float flDuration )
 //-----------------------------------------------------------------------------
 void CPropCombineBall::StartWhizSoundThink( void )
 {
-	SetContextThink( &CPropCombineBall::WhizSoundThink, gpGlobals->curtime + 2.0f * TICK_INTERVAL, s_pWhizThinkContext );
+	if ( g_BallPrefs.m_bEnableWhizSounds )
+	{
+		SetContextThink( &CPropCombineBall::WhizSoundThink, gpGlobals->curtime + g_BallPrefs.m_flWhizSoundInterval, s_pWhizThinkContext );
+	}
+}
+
+bool CPropCombineBall::ShouldEmitWhizSound( CBasePlayer* pPlayer, const Vector& vecPosition, const Vector& vecVelocity ) const
+{
+	Vector vecDelta;
+	VectorSubtract( pPlayer->GetAbsOrigin(), vecPosition, vecDelta );
+	VectorNormalize( vecDelta );
+
+	if ( DotProduct( vecDelta, vecVelocity ) <= 0.5f )
+		return false;
+
+	Vector vecEndPoint;
+	VectorMA( vecPosition, g_BallPrefs.m_flWhizSoundInterval, vecVelocity, vecEndPoint );
+
+	float flDistance = CalcDistanceToLineSegment( pPlayer->GetAbsOrigin(), vecPosition, vecEndPoint );
+	if ( flDistance >= g_BallPrefs.m_flWhizSoundMaxDistance )
+		return false;
+
+	Vector vecRelative;
+	VectorSubtract( pPlayer->EarPosition(), vecPosition, vecRelative );
+
+	return VectorLength( vecRelative ) > g_BallPrefs.m_flWhizSoundMinDistance;
+}
+
+void CPropCombineBall::EmitWhizSound( CBasePlayer* pPlayer )
+{
+	EmitSound_t ep;
+	ep.m_nChannel = CHAN_STATIC;
+	ep.m_pSoundName = "NPC_CombineBall.WhizFlyby";
+	ep.m_flVolume = 1.0f;
+	ep.m_SoundLevel = SNDLVL_120dB;
+
+	CSingleUserRecipientFilter filter( pPlayer );
+	filter.MakeReliable();
+	EmitSound( filter, entindex(), ep );
 }
 
 //-----------------------------------------------------------------------------
@@ -692,61 +921,30 @@ void CPropCombineBall::StartWhizSoundThink( void )
 //-----------------------------------------------------------------------------
 void CPropCombineBall::WhizSoundThink()
 {
-	Vector vecPosition, vecVelocity;
-	IPhysicsObject *pPhysicsObject = VPhysicsGetObject();
-	
-	if ( pPhysicsObject == NULL )
+	IPhysicsObject* pPhysicsObject = VPhysicsGetObject();
+	if ( !pPhysicsObject )
 	{
-		//NOTENOTE: We should always have been created at this point
-		Assert( 0 );
-		SetContextThink( &CPropCombineBall::WhizSoundThink, gpGlobals->curtime + 2.0f * TICK_INTERVAL, s_pWhizThinkContext );
+		SetContextThink( &CPropCombineBall::WhizSoundThink, gpGlobals->curtime + g_BallPrefs.m_flWhizSoundInterval, s_pWhizThinkContext );
 		return;
 	}
 
-	pPhysicsObject->GetPosition( &vecPosition, NULL );
-	pPhysicsObject->GetVelocity( &vecVelocity, NULL );
-	
-	if ( gpGlobals->maxClients == 1 )
+	Vector vecPosition, vecVelocity;
+	pPhysicsObject->GetPosition( &vecPosition, nullptr );
+	pPhysicsObject->GetVelocity( &vecVelocity, nullptr );
+
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
-		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-		if ( pPlayer )
+		CBasePlayer* pPlayer = UTIL_PlayerByIndex( i );
+		if ( pPlayer && ShouldEmitWhizSound( pPlayer, vecPosition, vecVelocity ) )
 		{
-			Vector vecDelta;
-			VectorSubtract( pPlayer->GetAbsOrigin(), vecPosition, vecDelta );
-			VectorNormalize( vecDelta );
-			if ( DotProduct( vecDelta, vecVelocity ) > 0.5f )
-			{
-				Vector vecEndPoint;
-				VectorMA( vecPosition, 2.0f * TICK_INTERVAL, vecVelocity, vecEndPoint );
-				float flDist = CalcDistanceToLineSegment( pPlayer->GetAbsOrigin(), vecPosition, vecEndPoint );
-				if ( flDist < 200.0f )
-				{
-					CPASAttenuationFilter filter( vecPosition, ATTN_NORM );
-
-					EmitSound_t ep;
-					ep.m_nChannel = CHAN_STATIC;
-					if ( hl2_episodic.GetBool() )
-					{
-						ep.m_pSoundName = "NPC_CombineBall_Episodic.WhizFlyby";
-					}
-					else
-					{
-						ep.m_pSoundName = "NPC_CombineBall.WhizFlyby";
-					}
-					ep.m_flVolume = 1.0f;
-					ep.m_SoundLevel = SNDLVL_NORM;
-
-					EmitSound( filter, entindex(), ep );
-
-					SetContextThink( &CPropCombineBall::WhizSoundThink, gpGlobals->curtime + 0.5f, s_pWhizThinkContext );
-					return;
-				}
-			}
+			EmitWhizSound( pPlayer );
 		}
 	}
 
-	SetContextThink( &CPropCombineBall::WhizSoundThink, gpGlobals->curtime + 2.0f * TICK_INTERVAL, s_pWhizThinkContext );
+	float flNextThink = g_BallPrefs.m_flWhizSoundInterval + RandomInt( 0, g_BallPrefs.m_flWhizSoundIntervalRandomFactor );
+	SetContextThink( &CPropCombineBall::WhizSoundThink, gpGlobals->curtime + flNextThink, s_pWhizThinkContext );
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -793,8 +991,18 @@ void CPropCombineBall::OnPhysGunPickup( CBasePlayer *pPhysGunUser, PhysGunPickup
 
 	if ( m_pGlowTrail )
 	{
-		m_pGlowTrail->TurnOff();
-		m_pGlowTrail->SetRenderColor( 0, 0, 0, 0 );
+		if ( g_BallPrefs.m_bTrailEnabled == false )
+		{
+			m_pGlowTrail->TurnOff();
+			m_pGlowTrail->SetRenderColor( 0, 0, 0, 0 );
+		}
+		else
+		{
+			if ( g_BallPrefs.m_bDisableTrailInPhysgun == false && reason != PUNTED_BY_CANNON )
+			{
+				m_pGlowTrail->TurnOff();
+			}
+		}
 	}
 
 	if ( reason != PUNTED_BY_CANNON )
@@ -899,8 +1107,18 @@ void CPropCombineBall::OnPhysGunDrop( CBasePlayer *pPhysGunUser, PhysGunDrop_t R
 
 	if ( m_pGlowTrail )
 	{
-		m_pGlowTrail->TurnOn();
-		m_pGlowTrail->SetRenderColor( 255, 255, 255, 255 );
+		if ( g_BallPrefs.m_bTrailEnabled == false )
+		{
+			m_pGlowTrail->TurnOn();
+			m_pGlowTrail->SetRenderColor( 255, 255, 255, 255 );
+		}
+		else
+		{
+			if ( g_BallPrefs.m_bDisableTrailInPhysgun == false )
+			{
+				m_pGlowTrail->TurnOn();
+			}
+		}
 	}
 
 	// Set our desired speed to be launched at
@@ -1224,6 +1442,10 @@ void CPropCombineBall::OnHitEntity( CBaseEntity *pHitEntity, float flSpeed, int 
 		{
 			if( WasFiredByNPC() || m_nMaxBounces == -1 )
 			{
+				if ( pHitEntity->IsPlayer() )
+				{
+					EmitSound( "NPC_CombineBall.KillImpact" );
+				}
 				// Since Combine balls fired by NPCs do a metered dose of damage per impact, we have to ignore touches
 				// for a little while after we hit someone, or the ball will immediately touch them again and do more
 				// damage. 

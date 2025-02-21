@@ -193,6 +193,10 @@ private:
 	CNetworkVar( bool, m_bHeld );
 	CNetworkVar( bool, m_bLaunched );
 	CNetworkVar( float, m_flRadius );
+
+// [TOIZY] CUSTOM PROPERTIES AND METHODS
+	bool ShouldEmitWhizSound( CBasePlayer* pPlayer, const Vector& vecPosition, const Vector& vecVelocity ) const;
+	void EmitWhizSound( CBasePlayer* pPlayer );
 };
 
 class CFuncCombineBallSpawner : public CBaseEntity

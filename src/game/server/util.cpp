@@ -38,6 +38,7 @@
 #include "cdll_int.h"
 #include "vscript_server.h"
 #include "inetchannel.h"
+#include "hl2mp_gamerules.h"
 
 #ifdef PORTAL
 #include "PortalSimulation.h"
@@ -3272,5 +3273,55 @@ void UTIL_SetGameDescription( const char* description )
 	if ( steamgameserverapicontext->SteamGameServer() )
 	{
 		steamgameserverapicontext->SteamGameServer()->SetGameDescription( description );
+	}
+}
+
+void UTIL_GenerateRGBA( CBaseEntity* pPlayer, ConVar* var_condition, ConVar* var_defcolors, color32& outcolor )
+{
+	if ( !var_condition || !var_defcolors || !var_defcolors->GetString() )
+		return;
+
+	static constexpr color32 RGBA_COMBINE = { 31, 143, 255, 255 };
+	static constexpr color32 RGBA_REBELS = { 255, 0, 0, 255 };
+
+	typedef enum
+	{
+		RGBACOND_DEFAULT = 0,
+		RGBACOND_TEAMBASED,
+		RGBACOND_RANDOM
+	} RGBA_COND;
+
+	UTIL_StringToColor32( &outcolor, var_defcolors->GetString() );
+
+	RGBA_COND condition = static_cast<RGBA_COND>(var_condition->GetInt());
+
+	switch ( condition )
+	{
+		case RGBACOND_DEFAULT:
+			break;
+
+		case RGBACOND_TEAMBASED:
+			if ( g_pGameRules->IsTeamplay() && pPlayer )
+			{
+				if ( pPlayer->GetTeamNumber() == TEAM_COMBINE )
+				{
+					outcolor = RGBA_COMBINE;
+				}
+				else
+				{
+					outcolor = RGBA_REBELS;
+				}
+			}
+			break;
+
+		case RGBACOND_RANDOM:
+			outcolor.r = static_cast<unsigned char>(rand() % 256);
+			outcolor.g = static_cast<unsigned char>(rand() % 256);
+			outcolor.b = static_cast<unsigned char>(rand() % 256);
+			outcolor.a = 255;
+			break;
+
+		default:
+			break;
 	}
 }
