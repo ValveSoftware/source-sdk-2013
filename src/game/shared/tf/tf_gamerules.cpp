@@ -18692,8 +18692,6 @@ convar_tags_t convars_to_check_for_tags[] =
 	{ "mp_fadetoblack", "fadetoblack", NULL },
 	{ "tf_weapon_criticals", "nocrits", NULL },
 	{ "mp_disable_respawn_times", "norespawntime", NULL },
-	{ "sv_enablebunnyhopping", "bhop", NULL },
-	{ "sv_autobunnyhopping", "bhop", NULL },
 	{ "tf_gamemode_arena", "arena", NULL },
 	{ "tf_gamemode_cp", "cp", NULL },
 	{ "tf_gamemode_ctf", "ctf", NULL },
