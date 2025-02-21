@@ -348,6 +348,13 @@ void CEnvExplosion::InputExplode( inputdata_t &inputdata )
 		RadiusDamage( info, GetAbsOrigin(), iRadius, m_iClassIgnore, m_hEntityIgnore.Get() );
 	}
 
+	// Enable DLIGHT support
+	if ( !(m_spawnflags & SF_ENVEXPLOSION_NODLIGHTS) )
+	{
+		CBroadcastRecipientFilter DLFilter;
+		te->DynamicLight( DLFilter, 0.0, &GetAbsOrigin(), 255, 173, 41, 0, 200, 0.15, 0 );
+	}
+
 	SetThink( &CEnvExplosion::Smoke );
 	SetNextThink( gpGlobals->curtime + 0.3 );
 
