@@ -197,7 +197,6 @@ const char *GetRandomBotName( void )
 		"Screamin' Eagles",
 		"No Bones",
 		"Im Not Real",
-	
 		"Sexy Mann",
 		"This Sucks On Ice",
 		"SEDUCE ME!",
