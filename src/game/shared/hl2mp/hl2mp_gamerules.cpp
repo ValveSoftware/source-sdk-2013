@@ -1331,4 +1331,9 @@ const char *CHL2MPRules::GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer )
 	return pszFormat;
 }
 
+CBasePlayer* CHL2MPRules::GetSourceTvPlayer( void )
+{
+	return HLTVDirector()->GetHLTVClient();
+}
+
 #endif
