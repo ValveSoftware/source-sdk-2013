@@ -24,10 +24,7 @@ extern ConVar sv_footsteps;
 
 static void OnChangeFootsteps( IConVar* var, const char* pOldValue, float flOldValue )
 {
-	if ( ((ConVar*)var)->GetInt() != 0 )
-		UTIL_SetClientConVarValueAll( "sv_footsteps", "0" );
-	else
-		UTIL_SetClientConVarValueAll( "sv_footsteps", "1" );
+	UTIL_SetClientConVarValue( pEdict, "sv_footsteps", mk_footsteps.GetInt() == 0 ? "0" : "1" );
 }
 
 ConVar mk_footsteps( "mk_footsteps", "1", FCVAR_NONE, "", true, 0.0f, true, 1.0f, OnChangeFootsteps );

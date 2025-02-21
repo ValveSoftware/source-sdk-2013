@@ -102,10 +102,7 @@ void ClientActive( edict_t *pEdict, bool bLoadGame )
 	CHL2MP_Player *pPlayer = ToHL2MPPlayer( CBaseEntity::Instance( pEdict ) );
 	FinishClientPutInServer( pPlayer );
 
-	if ( mk_footsteps.GetInt() > 0 )
-		UTIL_SetClientConVarValue( pEdict, "sv_footsteps", "0" );
-	else
-		UTIL_SetClientConVarValue( pEdict, "sv_footsteps", "1" );
+	UTIL_SetClientConVarValue( pEdict, "sv_footsteps", mk_footsteps.GetInt() == 0 ? "0" : "1" );
 }
 
 

@@ -3257,9 +3257,9 @@ void UTIL_SetClientConVarValue( edict_t* pEdict, const char* pszConVarName, cons
 
 void UTIL_SetClientConVarValueAll( const char* pszConVarName, const char* pszConVarValue )
 {
-	for ( int i = 0; i < gpGlobals->maxClients; i++ )
+	for ( int i = 1; i < gpGlobals->maxClients + 1; i++ )
 	{
-		CBasePlayer* pPlayer = UTIL_PlayerByIndex( i + 1 );
+		CBasePlayer* pPlayer = UTIL_PlayerByIndex( i );
 		if ( pPlayer && pPlayer->IsConnected() )
 		{
 			UTIL_SetClientConVarValue( pPlayer->edict(), pszConVarName, pszConVarValue );
