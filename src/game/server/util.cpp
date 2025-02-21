@@ -3266,3 +3266,11 @@ void UTIL_SetClientConVarValueAll( const char* pszConVarName, const char* pszCon
 		}
 	}
 }
+
+void UTIL_SetGameDescription( const char* description )
+{
+	if ( steamgameserverapicontext->SteamGameServer() )
+	{
+		steamgameserverapicontext->SteamGameServer()->SetGameDescription( description );
+	}
+}

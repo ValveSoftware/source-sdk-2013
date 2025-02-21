@@ -129,6 +129,23 @@ extern ConVar tf_mm_servermode;
 #include "replay/ireplaysystem.h"
 #endif
 
+static void OnChangeGameDescription( IConVar* var, const char* pOldValue, float flOldValue )
+{
+	ConVar* pConVar = dynamic_cast<ConVar*>(var);
+	if ( pConVar )
+	{
+		UTIL_SetGameDescription( pConVar->GetString() );
+	}
+}
+
+ConVar mk_gamedescription(
+	"mk_gamedescription",
+	"",
+	FCVAR_NONE,
+	"Sets the game description displayed in the server browser.",
+	OnChangeGameDescription
+);
+
 extern IToolFrameworkServer *g_pToolFrameworkServer;
 extern IParticleSystemQuery *g_pParticleSystemQuery;
 

@@ -646,5 +646,6 @@ void UTIL_BoundToWorldSize( Vector *pVecPos );
 
 void UTIL_SetClientConVarValue( edict_t* pEdict, const char* pszConVarName, const char* pszConVarValue );
 void UTIL_SetClientConVarValueAll( const char* pszConVarName, const char* pszConVarValue );
+void UTIL_SetGameDescription( const char* description );
 
 #endif // UTIL_H
