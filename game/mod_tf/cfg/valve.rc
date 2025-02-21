@@ -1,0 +1,29 @@
+// load the base configuration
+//exec default.cfg
+//NativeHUD 2, config file based on the one from Old Main Menu By Сырворту ( Dmitry Lipovka )
+r_decal_cullsize 1
+
+// Setup custom controller
+exec joystick.cfg
+
+// run a user script file if present
+exec autoexec.cfg
+
+//
+// stuff command line statements
+//
+stuffcmds
+
+// display the startup level
+startupmenu
+
+sv_unlockedchapters 99
+
+// HUD settings
+tf_use_match_hud 0
+tf_hud_target_id_disable_floating_health 1 
+tf_hud_target_id_alpha 255
+tf_scoreboard_ping_as_text 1
+
+// Fix the game being dumb if necessary
+toggle mat_aaquality 0 1

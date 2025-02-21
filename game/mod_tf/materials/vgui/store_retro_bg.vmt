@@ -1,0 +1,6 @@
+"unlitGeneric"
+{
+	"$baseTexture" "vgui/store_retro_bg"
+	"$translucent" 1
+}
+

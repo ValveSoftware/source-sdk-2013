@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\progress_bar_blu"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

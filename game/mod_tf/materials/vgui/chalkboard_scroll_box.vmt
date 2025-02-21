@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\chalkboard_scroll_box"
+	"$translucent" 1
+	"$ignorez" 1
+}

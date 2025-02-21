@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\ico_waiting3"
+	"$translucent" 1
+	"$ignorez" 1
+}

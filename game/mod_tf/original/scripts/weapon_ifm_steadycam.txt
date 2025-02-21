@@ -1,0 +1,78 @@
+WeaponData
+{
+	// Attributes Base.
+	"printname"			"#Weapon_IFM_SteadyCam"
+	"BuiltRightHanded"		"0"
+	"MeleeWeapon"			"1"
+	"weight"			"5"
+	"item_flags"			"0"
+
+	// Attributes TF.
+	"Damage"			"0"
+//	"FireDelay"			"0.1"
+//	"IdleTimeAfterFire"		"5.0"
+//	"IdleInterval"			"5.0"
+
+	// Ammo & Clip
+	"primary_ammo"			"None"
+	"secondary_ammo"		"None"
+
+	// Buckets.	
+	"bucket"			"1"
+	"bucket_position"		"3"
+
+	// Model & Animation
+	"viewmodel"				"models/weapons/c_models/c_bat.mdl"
+	"playermodel"			"models/weapons/c_models/c_bat.mdl"
+	"anim_prefix"			"bat"
+
+	// Sounds for the weapon. There is a max of 16 sounds per category (i.e. max 16 "single_shot" sounds)
+	SoundData
+	{
+		"melee_miss"		"Weapon_Bat.Miss"
+		"melee_hit"		"Weapon_Bat.HitFlesh"
+		"melee_hit_world"	"Weapon_Bat.HitWorld"
+	}
+
+	// Weapon Sprite data is loaded by the Client DLL.
+	TextureData
+	{
+		"weapon"
+		{
+				"font"		"WeaponIcons"
+				"character"	"c"
+		}
+		"weapon_s"
+		{	
+				"font"		"WeaponIcons"
+				"character"	"c"
+		}
+
+		"ammo"
+		{
+				"file"		"sprites/a_icons1"
+				"x"		"55"
+				"y"		"60"
+				"width"		"73"
+				"height"	"15"
+		}
+
+		"crosshair"
+		{
+				"file"		"sprites/crosshairs"
+				"x"		"0"
+				"y"		"48"
+				"width"		"24"
+				"height"	"24"
+		}
+
+		"autoaim"
+		{
+				"file"		"sprites/crosshairs"
+				"x"		"0"
+				"y"		"48"
+				"width"		"24"
+				"height"	"24"
+		}
+	}
+}

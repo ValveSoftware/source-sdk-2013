@@ -1,0 +1,37 @@
+"Refract"
+{
+	<dx90
+	{
+		 	"$fallbackmaterial" "HUD/scope_sniper_ll_dx80"
+	}
+ 	"$model" 1
+ 	"$refractamount" ".1"
+ 	"$bluramount" "1"
+	"$scale" "[1 1]"
+ 	"$dudvmap" "HUD\scope_dudv_ul"
+ 	"$normalmap" "HUD\scope_normal_ul"
+	"$bumpframe" "0"
+	"$translucent" "1"
+	"$ignorez" "1"
+	"$forcerefract" 1
+	"$nofog" "1"
+	"$refracttinttexture" "HUD\scope_sniper_ul"
+//	"$nocull" "1"	
+	"$forcealphawrite" "1"
+	
+	"$scaleamount" "[1 -1]"
+
+	"Proxies"
+	{
+	
+
+		"TextureTransform"
+		{
+			"scaleVar" "$scaleamount"
+			"resultVar" "$bumptransform"
+		}
+	}
+
+}
+
+

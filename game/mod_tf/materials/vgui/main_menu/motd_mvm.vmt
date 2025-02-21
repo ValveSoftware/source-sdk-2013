@@ -1,0 +1,7 @@
+"unlitGeneric"
+{
+	"$baseTexture" "vgui\main_menu\motd_mvm"
+
+	"$translucent" 1
+	"$ignorez" 1
+}

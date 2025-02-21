@@ -1,0 +1,264 @@
+
+
+	"soho_generic"
+{
+	"dsp"	"21"
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/outdoors.wav"
+	}
+"playlooping"
+		{
+		"volume"	"0.2"
+		"pitch"		"100"
+		"wave"		"ambient\voices\appartments_crowd_loop1.wav"
+	}
+
+
+	"playrandom"
+	{
+		"time"		"5,15"
+		"volume"	"0.5,0.75"
+		"pitch"		"125"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3\cp_harbor\car_1shot_06.mp3"
+			"wave"		"ambient_mp3\cp_harbor\car_1shot_05.mp3"
+			"wave"		"ambient_mp3\cp_harbor\car_1shot_04.mp3"
+			"wave"		"ambient_mp3\cp_harbor\car_1shot_03.mp3"
+
+		}
+	}
+
+	"playrandom"
+	{
+		"time"		"5,15"
+		"volume"	"1"
+		"pitch"		"115"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3\dog1.mp3"
+			"wave"		"ambient_mp3\dog2.mp3"
+			"wave"		"ambient_mp3\dog3.mp3"
+			"wave"		"ambient_mp3\dog4.mp3"
+
+		}
+	}
+
+
+	"playrandom"
+	{
+		"time"		"50,65"
+		"volume"	"0.75"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient\machines\heli_pass1.wav"
+		}
+	}
+	
+		"playrandom"
+	{
+		"time"		"20,45"
+		"volume"	"0.2"
+		"pitch"		"180"
+		"rndwave"
+		{
+			"wave"		"ambient\alarms\apc_alarm_pass1.wav"
+		}
+	}
+} 
+
+
+
+
+	"soho_square"
+{
+	"dsp"	"21"
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/outdoors.wav"
+	}
+
+
+		"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient\atmosphere\plaza_amb.wav"
+	}
+	
+		"playrandom"
+	{
+		"time"		"35,70"
+		"volume"	"0.18"
+		"pitch"		"180"
+		"rndwave"
+		{
+			"wave"		"ambient\alarms\apc_alarm_pass1.wav"
+		}
+	}
+	"playrandom"
+	{
+		"time"		"5,15"
+		"volume"	"0.35,0.55"
+		"pitch"		"125"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3\cp_harbor\car_1shot_06.mp3"
+			"wave"		"ambient_mp3\cp_harbor\car_1shot_05.mp3"
+			"wave"		"ambient_mp3\cp_harbor\car_1shot_04.mp3"
+			"wave"		"ambient_mp3\cp_harbor\car_1shot_03.mp3"
+
+		}
+	}
+		"playrandom"
+	{
+		"time"		"2,15"
+		"volume"	"0.55,0.75"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient\materials\shutter6.wav"
+			"wave"		"ambient\materials\shutter7.wav"
+			"wave"		"ambient\materials\shutter8.wav"
+			"wave"		"ambient_mp3\shutter4.mp3"
+			"wave"		"ambient_mp3\shutter5.mp3"
+			"wave"		"ambient_mp3\shutter6.mp3"
+
+		}
+	}
+	"playrandom"
+	{
+		"time"		"5,15"
+		"volume"	"1"
+		"pitch"		"115"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3\dog1.mp3"
+			"wave"		"ambient_mp3\dog2.mp3"
+			"wave"		"ambient_mp3\dog3.mp3"
+			"wave"		"ambient_mp3\dog4.mp3"
+
+		}
+	}
+
+
+	"playrandom"
+	{
+		"time"		"50,65"
+		"volume"	"0.45"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient\machines\heli_pass1.wav"
+		}
+	}
+} 
+
+
+
+"underground_soho"
+{
+	"dsp"	"5"
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"80"
+		"wave"		"ambient/indoors.wav"
+	}
+	"playrandom"	
+		{		
+		"time" "10,20"	
+		"volume" "0.15"
+		"pitch"		"135"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3\creak01.mp3"
+			"wave"		"ambient_mp3\creak02.mp3"
+			"wave"		"ambient_mp3\creak03.mp3"
+		}
+	}
+
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"position"		"0"
+		"attenuation"	"0.19"	
+		"wave"		"ambient\levels\canals\waterleak_loop1.wav"
+	}
+
+		"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"position"		"1"
+		"attenuation"	"0.17"	
+		"wave"		"ambient/lighthum.wav"
+	}
+		"playlooping"
+	{
+		"volume"	"0.75"
+		"pitch"		"115"
+		"position"		"2"
+		"attenuation"	"0.18"	
+		"wave"		"ambient\cp_harbor\indoor_lp_01.wav"
+	}
+
+		"playlooping"
+	{
+		"volume"		"1"
+		"pitch"		"100"
+		"position"		"3"
+		"attenuation"	"0.19"	
+		"wave"		"ambient\levels\canals\waterleak_loop1.wav"
+	}
+			"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"position"		"4"
+		"attenuation"	"0.17"	
+		"wave"		"ambient/lighthum.wav"
+	}
+		"playlooping"
+	{
+		"volume"	"0.75"
+		"pitch"		"115"
+		"position"		"5"
+		"attenuation"	"0.18"	
+		"wave"		"ambient\cp_harbor\indoor_lp_01.wav"
+	}
+	
+} 
+
+
+
+
+
+
+"soho_indoor"
+{
+	"dsp"	"11"
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/outdoors.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0.2"
+		"pitch"		"100"
+		"wave"		"ambient/lighthum.wav"
+	}
+
+} 
+
+

@@ -1,0 +1,10 @@
+"unlitgeneric"
+{
+	"$translucent" 1
+	"$baseTexture" "vgui\pve\mvm_challenge_completed"
+	"$vertexcolor" 1
+	"$vertexalpha"	1
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"%keywords" "tf"
+}

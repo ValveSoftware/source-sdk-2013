@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\glyph_workshop_edit"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

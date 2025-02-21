@@ -1,0 +1,4 @@
+weapon_manifest
+{
+	"file"		"scripts/weapon_ifm_steadycam.txt"
+}

@@ -1,0 +1,19 @@
+"UnlitTwoTexture"
+{
+	"$basetexture" "HUD/sniperscope_numbers"
+	"$texture2" "HUD/sniperscope_numbers3"
+	"$translucent" "1"
+	"$additive" "1"
+	"$ignorez" "1"
+	"$nofog" "1"
+
+	"Proxies"
+	{
+		"SniperRifleCharge"
+		{
+			"resultVar"	"$basetexturetransform"
+		}
+	}
+}
+
+

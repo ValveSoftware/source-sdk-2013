@@ -1,0 +1,2036 @@
+// DSP Effects
+// 0 : "Normal (off)"
+// 1 : "Generic"
+// 2 : "Metal Small"
+// 3 : "Metal Medium"
+// 4 : "Metal Large"
+// 5 : "Tunnel Small"
+// 6 : "Tunnel Medium"
+// 7 : "Tunnel Large"
+// 8 : "Chamber Small"
+// 9 : "Chamber Medium"
+// 10: "Chamber Large"
+// 11: "Bright Small"
+// 12: "Bright Medium"
+// 13: "Bright Large"
+// 14: "Water 1"
+// 15: "Water 2"
+// 16: "Water 3"
+// 17: "Concrete Small"
+// 18: "Concrete Medium"
+// 19: "Concrete Large"
+// 20: "Big 1"
+// 21: "Big 2"
+// 22: "Big 3"
+// 23: "Cavern Small"
+// 24: "Cavern Medium"
+// 25: "Cavern Large"
+// 26: "Weirdo 1"
+// 27: "Weirdo 2"
+// 28: "Weirdo 3"
+
+//	ATTN_NONE		0.0f	
+//	ATTN_NORM		0.8f	75dB
+//	ATTN_IDLE		2.0f	60dB
+//	ATTN_STATIC		1.25f	66dB
+//	ATTN_RICOCHET	1.5f	65dB
+//	ATTN_GUNFIRE	0.27f	140dB
+
+//	SNDLVL_50dB		= 50,	// 3.9
+//	SNDLVL_55dB		= 55,	// 3.0
+//	SNDLVL_IDLE		= 60,	// 2.0
+//	SNDLVL_TALKING	= 60,	// 2.0
+//	SNDLVL_60dB		= 60,	// 2.0
+//	SNDLVL_65dB		= 65,	// 1.5
+//	SNDLVL_STATIC	= 66,	// 1.25
+//	SNDLVL_70dB		= 70,	// 1.0
+//	SNDLVL_NORM		= 75,
+//	SNDLVL_75dB		= 75,	// 0.8
+//	SNDLVL_80dB		= 80,	// 0.7
+//	SNDLVL_85dB		= 85,	// 0.6
+//	SNDLVL_90dB		= 90,	// 0.5
+//	SNDLVL_95dB		= 95,
+//	SNDLVL_100dB	= 100,	// 0.4
+//	SNDLVL_105dB	= 105,
+//	SNDLVL_120dB	= 120,
+//	SNDLVL_130dB	= 130,
+//	SNDLVL_GUNFIRE	= 140,	// 0.27
+//	SNDLVL_140dB	= 140,	// 0.2
+//	SNDLVL_150dB	= 150,	// 0.2
+
+"Lair.VisitorsCenterSpawnBlue"
+{
+	"dsp"	"137"  
+	
+	"playsoundscape"
+	{
+		"name"		"Lair.VisitorsCenterSpawnBlueLightJungle"
+		"volume"	".65"
+	}
+
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone1.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".9"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_1_tone2.wav"
+	}
+	
+	"playrandom"  
+	{
+		"volume"		"1"
+		"time"		"8,12"
+		"position"		"0"
+		"pitch"			"100"
+		"soundlevel"  	"SNDLVL_85dB"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/macaw1.mp3"
+			"wave"		"ambient_mp3/lair/macaw2.mp3"
+			"wave"		"ambient_mp3/lair/macaw3.mp3"
+			"wave"		"ambient_mp3/lair/macaw4.mp3"
+			"wave"		"ambient_mp3/lair/macaw5.mp3"
+			"wave"		"ambient_mp3/lair/macaw6.mp3"
+			"wave"		"ambient_mp3/lair/macaw7.mp3"
+			"wave"		"ambient_mp3/lair/macaw8.mp3"
+		}
+	}
+}
+
+"Lair.VisitorsCenterSpawnBlueLightJungle"
+{
+	"dsp"	"137"
+	
+	"playlooping"
+	{
+		"volume"	".75"
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone1.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_base_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop2.wav"
+	}
+	
+	"playrandom"
+	{
+		"time"		"14,24"
+		"volume"	".5"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/rolling_thunder1.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder2.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder3.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder4.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"2,25"
+		"volume"	".29"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl6.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"4,18"
+		"volume"	".29"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_yeti1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti7.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"6,26"
+		"volume"	".25"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird6.mp3"
+		}
+	}
+	
+		"playrandom"
+	{
+		"time"		"8,20"
+		"volume"	".22"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird7.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird8.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird9.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird10.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird13.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird14.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"10,22"
+		"volume"	".29"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon4.mp3"
+		}
+	}	
+	
+	"playrandom"
+	{
+		"time"		"12,25"
+		"volume"	".29"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_hunter.mp3" 
+		}
+	}
+}
+
+"Lair.JungleLight"
+{
+	"dsp"	"137"
+	
+	"playlooping"
+	{
+		"volume"	".75"
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone1.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".6"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_1_tone2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_base_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_life_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_wind_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop2.wav"
+	}
+	
+	"playrandom"
+	{
+		"time"		"14,24"
+		"volume"	"1"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/rolling_thunder1.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder2.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder3.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder4.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"2,25"
+		"volume"	".29"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl6.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"4,18"
+		"volume"	".55"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_yeti1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti7.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"6,26"
+		"volume"	".25"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird6.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"8,20"
+		"volume"	".22"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird7.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird8.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird9.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird10.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird13.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird14.mp3"
+		}
+	}
+
+	"playrandom"
+	{
+		"time"		"10,22"
+		"volume"	".29"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon4.mp3"
+		}
+	}	
+	
+	"playrandom"
+	{
+		"time"		"12,25"
+		"volume"	".29"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_hunter.mp3" 
+		}
+	}
+	
+
+		
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"position"	"0"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"		")ambient/lair/animal_call_frog_loop1.wav"
+	}
+}
+
+"Lair.JungleUnderGround"
+{
+	"dsp"	"137"
+
+	"playsoundscape"
+	{
+		"name"		"Lair.JungleUndergroundLightJungle"
+		"volume"	".5"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		")ambient/lair/jungle_underground.wav"
+	}
+
+	
+	"playlooping"
+	{
+		"volume"	".25"
+		"pitch"		"100"
+		"wave"		")ambient/lair/jungle_underground2.wav"
+	}
+	
+	"playlooping" 
+	{
+		"volume"		".5"
+		"pitch"			"100"
+		"wave"			"ambient/lair/jungle_flies.wav"
+	}
+
+	"playrandom"
+	{
+		"time"		"5,10"
+		"volume"	".25"
+		"pitch"		"100"
+
+		"rndwave"
+		{
+			"wave"		")ambient_mp3/lair/jungle_underground_steam.mp3"
+			"wave"		")ambient_mp3/lair/jungle_underground_steam2.mp3"
+		}
+	}
+}
+
+"Lair.JungleUndergroundLightJungle"
+{
+	"dsp"	"137"
+	
+	"playlooping"
+	{
+		"volume"	".75"
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone1.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_base_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_life_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop2.wav"
+	}
+	
+	"playrandom"
+	{
+		"time"		"14,24"
+		"volume"	"1"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/rolling_thunder1.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder2.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder3.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder4.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"2,25"
+		"volume"	".29"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl6.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"4,18"
+		"volume"	".29"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_yeti1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti7.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"6,26"
+		"volume"	".25"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird6.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"8,20"
+		"volume"	".22"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird7.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird8.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird9.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird10.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird13.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird14.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"10,22"
+		"volume"	".29"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon4.mp3"
+		}
+	}	
+	
+	"playrandom"
+	{
+		"time"		"12,25"
+		"volume"	".29"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_hunter.mp3" 
+		}
+	}
+}
+
+"Lair.Jungle"
+{
+	"dsp"	"139"
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_base_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_life_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_wind_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop2.wav"
+	}
+	
+	"playrandom"
+	{
+		"time"		"14,24"
+		"volume"	"1"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/rolling_thunder1.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder2.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder3.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder4.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"2,25"
+		"volume"	".75"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl6.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"4,18"
+		"volume"	".75"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_yeti1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti7.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"6,26"
+		"volume"	".6"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_weird6.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"8,20"
+		"volume"	".5"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird7.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird8.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird9.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird10.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird13.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird14.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"10,22"
+		"volume"	".75"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon4.mp3"
+		}
+	}	
+	
+	"playrandom"
+	{
+		"time"		"12,25"
+		"volume"	".75"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_hunter.mp3" 
+		}
+	}
+		
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"position"	"0"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"		")ambient/lair/perimeter_electric_fence0.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"position"	"1"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"		")ambient/lair/perimeter_electric_fence1.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"position"	"2"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"		")ambient/lair/perimeter_electric_fence2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"position"	"3"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"		")ambient/lair/perimeter_electric_fence3.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"position"	"4"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"		")ambient/lair/perimeter_electric_fence4.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"position"	"5"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"		")ambient/lair/perimeter_electric_fence5.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"position"	"6"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"		")ambient/lair/animal_call_frog_loop2.wav"
+	}
+	
+		"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"position"	"7"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"		")ambient/lair/animal_call_frog_loop3.wav"
+	}
+}
+
+"Lair.JungleCap1InteriorTransition"
+{
+	"dsp"	"137"
+	
+		"playlooping"
+	{
+		"volume"	".1"
+		"pitch"		"100"
+		"wave"		")ambient/lair/jungle_underground2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		")ambient/lair/cap_1_tone3.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"0"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_base_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".75"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_wind_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".75"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".75"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop2.wav"
+	}
+	
+	"playrandom"
+	{
+		"time"		"14,24"
+		"volume"	".5"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/rolling_thunder1.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder2.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder3.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder4.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"2,25"
+		"volume"	".45"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl6.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"4,18"
+		"volume"	".35"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_yeti1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti7.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"12,22"
+		"volume"	".35"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon4.mp3"
+		}
+	}
+
+	"playlooping"
+	{
+		"volume"	".65"
+		"pitch"		"100"
+		"position"	"0"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"		")ambient/lair/ac_vent2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"position"	".75"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"		")ambient/lair/light_hum1.wav"
+	}
+}
+	
+"Lair.Cap1Underground"
+{
+	"dsp"	"137"
+	
+	"playlooping"
+	{
+		"volume"	".25"
+		"pitch"		"100"
+		"wave"		")ambient/lair/jungle_underground2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_base_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_wind_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop2.wav"
+	}
+	
+	"playlooping" 
+	{
+		"volume"		".15"
+		"pitch"			"100"
+		"wave"			"ambient/lair/perimeter_waterfall_sweetener_close_fade_in.wav"
+	}
+	
+	"playrandom"
+	{
+		"time"		"14,24"
+		"volume"	".5"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/rolling_thunder1.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder2.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder3.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder4.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"2,25"
+		"volume"	".25"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl6.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"4,18"
+		"volume"	".2"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_yeti1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti7.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"12,22"
+		"volume"	".2"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon4.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"14,25"
+		"volume"	".5"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement1.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement2.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement3.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement4.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement5.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement6.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement7.mp3"
+		}
+	}
+}
+
+"Lair.Cap1SpawnBlue"
+{
+	"dsp"	"137"
+
+		"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone1.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".6"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_1_tone2.wav"
+	}
+}
+
+"Lair.Cap1"
+{
+	"dsp"	"139"
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_base_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_wind_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".75"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop2.wav"
+	}
+	
+	"playrandom"
+	{
+		"time"		"14,24"
+		"volume"	"1"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/rolling_thunder1.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder2.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder3.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder4.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"2,25"
+		"volume"	".75"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl6.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"4,18"
+		"volume"	".75"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_yeti1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti7.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"12,22"
+		"volume"	".75"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon4.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"14,25"
+		"volume"	"1"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement1.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement2.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement3.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement4.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement5.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement6.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement7.mp3"
+		}
+	}
+	
+	"playlooping"
+	{
+		"volume"		".4"
+		"pitch"			"100"
+		"position"		"0"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"			"ambient/lair/perimeter_waves_close.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"		".65"
+		"pitch"			"100"
+		"position"		"1"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"			"ambient/lair/perimeter_waves_close2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"		"1"
+		"pitch"			"100"
+		"position"		"2"
+		"soundlevel"  	"SNDLVL_90dB"
+		"wave"			")ambient/lair/perimeter_waterfall.wav"
+	}
+	
+	"playlooping" 
+	{
+		"volume"		"1"
+		"pitch"			"100"
+		"position"		"3"
+		"soundlevel"  	"SNDLVL_90dB"
+		"wave"			"ambient/lair/perimeter_waterfall_sweetener_close.wav"
+	}
+		"playlooping"
+	{
+		"volume"		".85"
+		"pitch"			"100"
+		"position"		"4"
+		"soundlevel"  	"SNDLVL_75dB"
+		"wave"			"ambient/lair/perimeter_waves_close3.wav"
+	}
+	
+	"playlooping" 
+	{
+		"volume"		".25"
+		"pitch"			"100"
+		"wave"			"ambient/lair/perimeter_waterfall_sweetener_close_fade_in.wav"
+	}
+}
+
+"Lair.Cap1Cap2Transition"
+{
+	"dsp"	"139"
+	
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_base_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"0" //.5
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_wind_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"0" //.35
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"0" //.5
+		"pitch"		"100"
+		"wave"		"ambient/lair/jungle_insect_loop2.wav"
+	}
+	
+		"playlooping"
+	{
+		"volume"	".3"  //machine hum room tone definite presence
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_2_tone3.wav"
+	}
+	
+		"playlooping"
+	{
+		"volume"	".55" //closer machine hum
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_2_tone6.wav"
+	}
+	
+	"playrandom"
+	{
+		"time"		"14,24"
+		"volume"	".5"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/rolling_thunder1.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder2.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder3.mp3"
+			"wave"		"ambient_mp3/lair/rolling_thunder4.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"2,25"
+		"volume"	".25"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_unknown_howl6.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"4,18"
+		"volume"	".2"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_yeti1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti7.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"12,22"
+		"volume"	".2"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_bird_loon4.mp3"
+		}
+	}
+	
+	"playlooping"
+	{
+		"volume"		".75"
+		"pitch"			"100"
+		"position"		"0"
+		"soundlevel"  	"SNDLVL_90dB"
+		"wave"			")ambient/lair/perimeter_waterfall.wav"
+	}
+		
+	"playlooping"
+	{
+		"volume"		".75"
+		"pitch"			"100"
+		"position"		"1"
+		"soundlevel"  	"SNDLVL_90dB"
+		"wave"			"ambient/lair/perimeter_waterfall_sweetener_close.wav"
+	}
+}
+
+"Lair.Cap2SpawnRed"
+{
+	"dsp"	"138"
+
+		"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone1.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".4"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_duct_tone.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_vista_tone.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".3"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_mountain_rumble.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_vista_tone_drips.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".2"
+		"pitch"		"100"
+		"soundlevel"  	"SNDLVL_95dB"
+		"wave"		")ambient/lair/cap_3_vista_localized_drips.wav"
+	}
+	
+		"playrandom"
+	{
+		"time"		"6,20"
+		"volume"	"1"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement1.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement2.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement3.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement4.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement5.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement6.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement7.mp3"
+		}
+	}
+}
+
+"Lair.Cap2SpawnBlue"
+{
+	"dsp"	"137"
+
+		"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone1.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".6"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_1_tone2.wav"
+	}
+}
+
+"Lair.Cap2"
+{
+
+	"dsp"	"138"
+	
+	"playlooping"
+	{
+		"volume"	"0" //distant machine hum
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_2_tone1.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0"  //tone with light hum
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_2_tone2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".5"  //machine hum room tone definite presence
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_2_tone3.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0"  //distant machine hum, nah
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_2_tone4.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"0"  //leave 0, super light tone, spawn?
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_2_tone5.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".75" //closer machine hum
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_2_tone6.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"position"	"0"
+		"soundlevel"  	"SNDLVL_105dB"
+		"wave"		")ambient/lair/cap_2_fan.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			".35"
+		"position"		"1"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_telephone_bank1.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			".45"
+		"position"		"2"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_telephone_bank2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			".35"
+		"position"		"3"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_radar2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			"1"
+		"position"		"4"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_2_boiler_rough1.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			"1"
+		"position"		"5"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_2_boiler_smooth1.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			".35"
+		"position"		"6"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_radar1.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			".75"
+		"position"		"7"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/light_hum3.wav"
+	}
+}
+
+"Lair.Cap3SpawnRed"
+{
+	"dsp"	"137"
+
+		"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone1.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone2.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".6"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_1_tone2.wav"
+	}
+}
+
+Lair.Cap3
+{
+
+	"dsp"	"138"
+	
+		"playlooping"
+	{
+		"volume"	".5"  //machine hum room tone definite presence
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_2_tone3.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".25"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_tone1.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".25"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_tone2.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_tone3.wav"
+	}
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_tone_birds2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".6"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_mountain_rumble.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"0"  //.75
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone1.wav"
+	}
+	
+	"playrandom" //remove one thunder
+	{
+		"time"		"10,20"
+		"volume"	".75"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/cap_3_rolling_thunder1.mp3"
+			"wave"		"ambient_mp3/lair/cap_3_rolling_thunder2.mp3"
+			"wave"		"ambient_mp3/lair/cap_3_rolling_thunder3.mp3"
+			//"wave"		"ambient_mp3/lair/cap_3_rolling_thunder4.mp3"
+		}
+	}
+	
+		"playrandom"
+	{
+		"time"		"7,18"
+		"volume"	".65"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_yeti1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti5.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti6.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_yeti7.mp3"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"12,25"
+		"volume"	".29"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker1.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker2.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker3.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_woodpecker4.mp3"
+			"wave"		"ambient_mp3/lair/animal_call_hunter.mp3" 
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"6,20"
+		"volume"	"1"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement1.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement2.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement3.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement4.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement5.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement6.mp3"
+			"wave"		"ambient_mp3/lair/cap_1_tone_metal_movement7.mp3"
+		}
+	}
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"position"	"0"
+		"soundlevel"  	"SNDLVL_105dB"
+		"wave"		")ambient/lair/cap_2_fan.wav"
+	}
+	
+	"playlooping" 
+	{
+		"volume"			".75"
+		"position"		"1"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_tape_machine1.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			".25"
+		"position"		"2"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_telephone_bank2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			".5"
+		"position"		"3"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_radar1.wav"
+	}
+	
+	"playlooping" 
+	{
+		"volume"			".35"
+		"position"		"4"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_tape_machine2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			".35"
+		"position"		"5"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_radar2.wav"
+	}
+	
+	"playlooping" 
+	{
+		"volume"			".4"
+		"position"		"6"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_tape_machine3.wav"
+	}
+	
+	"playlooping" 
+	{
+		"volume"			".75"
+		"position"		"7"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_computer_bank1.wav"
+	}
+}
+
+Lair.Cap3Inside
+{
+	"dsp"	"137"
+
+		"playlooping"
+	{
+		"volume"	".2"  //machine hum room tone definite presence
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_2_tone3.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_tone1.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_tone2.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"0"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_tone3.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".6"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_mountain_rumble.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"0"  //.75
+		"pitch"		"100"
+		"wave"		"ambient/lair/spawn_tone1.wav"
+	}
+	
+		"playlooping"
+	{
+		"volume"	".1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_tone_birds2.wav"
+	}
+	
+		"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_duct_tone.wav"
+	}
+	
+	"playrandom" 
+	{
+		"time"		"10,20"
+		"volume"	".25"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/cap_3_rolling_thunder1.mp3"
+			"wave"		"ambient_mp3/lair/cap_3_rolling_thunder2.mp3"
+			"wave"		"ambient_mp3/lair/cap_3_rolling_thunder3.mp3"
+		}
+	}
+	
+	"playlooping"
+	{
+		"volume"			".25"
+		"position"		"0"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_radar2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			".45"
+		"position"		"2"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_telephone_bank2.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			".35"
+		"position"		"3"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_telephone_bank1.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"			".35"
+		"position"		"4"
+		"pitch"				"100"
+		"soundlevel"  "SNDLVL_75dB"
+		"wave"				")ambient/lair/cap_3_inside_radar1.wav"
+	}
+}
+
+Lair.Cap3Duct
+{
+	"dsp"	"137"
+
+	"playlooping"
+	{
+		"volume"	".75"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_duct_tone.wav"
+	}
+	
+		"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_vista_tone.wav"
+	}
+	
+		"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_vista_tone_drips.wav"
+	}
+	
+		"playlooping"
+	{
+		"volume"	".3"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_mountain_rumble.wav"
+	}
+
+}
+
+Lair.Cap3Vista
+{
+	"dsp"	"137"
+	
+		"playlooping"
+	{
+		"volume"	".4"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_duct_tone.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".5"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_vista_tone.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".3"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_mountain_rumble.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_vista_tone_drips.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".8"
+		"position"		"0"
+		"pitch"		"100"
+		"soundlevel"  	"SNDLVL_95dB"
+		"wave"		")ambient/lair/cap_3_vista_localized_drips.wav"
+	}
+	
+	"playrandom" 
+	{
+		"time"		"9,15"
+		"volume"	"1"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/lair/cap_3_vista_thunder1.mp3"
+			"wave"		"ambient_mp3/lair/cap_3_vista_thunder2.mp3"
+			"wave"		"ambient_mp3/lair/cap_3_vista_thunder3.mp3"
+		}
+	}
+	
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/lair/cap_3_vista_birds1.wav"
+	}
+}

@@ -1,0 +1,9 @@
+"unlitGeneric"
+{
+	"$baseTexture" "vgui/store/innershadow_border"
+	"$translucent" 1
+	"$vertexalpha" 1
+	"$vertexcolor" 1
+	"$alphatest"	"1"
+}
+

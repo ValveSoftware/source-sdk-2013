@@ -1,0 +1,6 @@
+"unlitGeneric"
+{
+	"$baseTexture" "vgui/store/store_tab_unselected"
+	"$translucent" 1
+}
+

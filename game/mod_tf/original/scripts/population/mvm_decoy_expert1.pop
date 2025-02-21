@@ -1,0 +1,971 @@
+#base robot_giant.pop
+#base robot_standard.pop
+
+WaveSchedule
+{
+
+	StartingCurrency		400
+	RespawnWaveTime 		7
+	CanBotsAttackWhileInSpawnRoom no
+
+	Mission // sentry buster
+	{
+		Objective DestroySentries
+
+		InitialCooldown 5
+		Where spawnbot
+		BeginAtWave 1
+		RunForThisManyWaves 9
+
+		CooldownTime 20            
+
+            TFBot
+			{
+				Template T_TFBot_SentryBuster
+            }
+	}
+	Mission // Spy - wave 2
+	{
+		Objective Spy  
+
+		InitialCooldown 40
+		Where spawnbot_mission_spy
+		BeginAtWave 2
+		RunForThisManyWaves 1
+		CooldownTime 30
+		DesiredCount 4
+
+		TFBot
+		{
+			Class Spy
+			Skill Expert
+			Name Spy
+		}
+	}	
+	Mission // Spy - wave 4
+	{
+		Objective Spy  
+
+		InitialCooldown 20
+		Where spawnbot_mission_spy
+		BeginAtWave 4
+		RunForThisManyWaves 1
+		CooldownTime 30
+		DesiredCount 4
+
+		TFBot
+		{
+			Class Spy
+			Skill Expert
+			Name Spy
+		}
+	}	
+	Mission // Spy - wave 5
+	{
+		Objective Spy  
+
+		InitialCooldown 30
+		Where spawnbot_mission_spy
+		BeginAtWave 5
+		RunForThisManyWaves 1
+		CooldownTime 15
+		DesiredCount 8
+
+		TFBot
+		{
+			Class Spy
+			Skill Expert
+			Name Spy
+		}
+	}	
+	Mission // Sniper - wave 3
+	{
+		Objective Sniper
+
+		InitialCooldown 45
+		Where spawnbot_mission_sniper
+		BeginAtWave 3
+		RunForThisManyWaves 1
+		CooldownTime 20
+		DesiredCount 4
+
+		TFBot
+		{
+			Template T_TFBot_Sniper_Sydney_Sleeper
+		}
+	}
+	Mission // Sniper - wave 6
+	{
+		Objective Sniper
+
+		InitialCooldown 25
+		Where spawnbot_mission_sniper
+		BeginAtWave 6
+		RunForThisManyWaves 1
+		CooldownTime 20
+		DesiredCount 4
+
+		TFBot
+		{
+			Class Sniper
+			Skill Hard
+			Name Sniper
+			MaxVisionRange 3000
+		}
+	}
+	Mission // Sniper - wave 7
+	{
+		Objective Sniper
+
+		InitialCooldown 70
+		Where spawnbot_mission_sniper
+		BeginAtWave 7
+		RunForThisManyWaves 1
+		CooldownTime 40
+		DesiredCount 4
+
+		TFBot
+		{
+			Class Sniper
+			Skill Hard
+			Name Sniper
+			MaxVisionRange 3000
+		}
+	}
+	
+	//WAVE 1 //Currency 700 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+			{
+				Target wave_start_relay
+				Action Trigger
+			}
+		DoneOutput					
+			{
+				Target wave_finished_relay
+				Action trigger
+			}
+		Checkpoint Yes
+		
+		WaveSpawn //WAVE 03a: 8 total, 8 active, Soldier + Uber medic (first push)
+		{
+			Name "wave03a"
+			Where spawnbot
+			TotalCount 8
+			MaxActive 8
+			SpawnCount 4
+			WaitBetweenSpawns 5
+			WaitBeforeStarting 0
+			TotalCurrency 100
+
+			Squad
+			{			
+				TFBot
+				{
+					Class Soldier
+					Skill Expert
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_QuickUber
+				}
+			}
+		}		
+		WaveSpawn //WAVE 03b: [GIANT] 4 total, 4 active, Demoknight
+		{
+			Name "wave03b"
+			Where spawnbot
+			TotalCount 4
+			MaxActive 4
+			SpawnCount 1
+			WaitBetweenSpawns 25
+			WaitBeforeStarting 20
+			TotalCurrency 200
+
+			TFBot
+			{
+				Template T_TFBot_Giant_DemoMan_PrinceTavish
+			}
+		}	
+		WaveSpawn //WAVE 03c: 16 total, 16 active, Soldier + medic (maintain)
+		{
+			Name "wave03c"
+			WaitForAllSpawned "wave03a"
+			Where spawnbot
+			TotalCount 16
+			MaxActive 8
+			SpawnCount 4
+			WaitBetweenSpawns 10
+			WaitBeforeStarting 5
+			TotalCurrency 200
+
+			Squad
+			{			
+				TFBot
+				{
+					Class Soldier
+					Skill Expert
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_QuickUber
+				}
+			}
+		}		
+		WaveSpawn //WAVE 03d: 24 total, 12 active, Scouts (bonk, melee only) WAITFORSPAWNED 03c
+		{
+			Name "wave03d"
+			WaitForAllSpawned "wave03c"
+			Where spawnbot
+			TotalCount 30
+			MaxActive 10
+			SpawnCount 10
+			WaitBetweenSpawns 30
+			WaitBeforeStarting 0
+			TotalCurrency 200
+
+			TFBot
+			{
+				Template T_TFBot_Scout_Bonk
+			}
+		}
+		WaveSpawn //WAVE 03e: 12 total, 12 active, Pyro WAITFORSPAWNED 03c
+		{
+			Name "wave03e"
+			WaitForAllSpawned "wave03c"
+			Where spawnbot
+			TotalCount 20
+			MaxActive 10
+			SpawnCount 5
+			WaitBetweenSpawns 0
+			WaitBeforeStarting 15
+			TotalCurrency 200
+
+			TFBot
+			{
+				Class Pyro
+				Skill Easy
+			}
+		}				
+	}
+	//WAVE 2 //Currency 700 //////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+			{
+				Target wave_start_relay
+				Action Trigger
+			}
+		DoneOutput					
+			{
+				Target wave_finished_relay
+				Action trigger
+			}
+		Checkpoint Yes
+
+		// Spy mission - 2 active		
+
+		WaveSpawn //WAVE 02a: 42 total, 14 active, scout (crit melee only)
+		{
+			Name "wave02a"
+			Where spawnbot
+			TotalCount 42
+			MaxActive 14
+			SpawnCount 7
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 10
+			TotalCurrency 200
+
+			Support 1
+			
+				TFBot
+				{
+					Class Scout
+					Skill Expert	
+					WeaponRestrictions MeleeOnly
+					Attributes AlwaysCrit
+				}
+		}
+		WaveSpawn //WAVE 02b: [GIANT] 1 total, 1 active, heavyweapons (flank right)
+		{
+			Name "wave02b"
+			Where spawnbot
+			TotalCount 1
+			MaxActive 1
+			WaitBeforeStarting 10
+			SpawnCount 1
+			WaitBetweenSpawns 0
+			TotalCurrency 150		
+			
+			TFBot
+			{
+				Template T_TFBot_Giant_Heavyweapons
+				Tag nav_prefer_flank_right
+			}
+		}
+		WaveSpawn //WAVE 02c: [GIANT] 1 total, 1 active, heavyweapons (flank left)
+		{
+			Name "wave02c"
+			Where spawnbot
+			TotalCount 1
+			MaxActive 1
+			WaitBeforeStarting 30
+			SpawnCount 1
+			WaitBetweenSpawns 0
+			TotalCurrency 150		
+			
+			TFBot
+			{
+				Template T_TFBot_Giant_Heavyweapons
+				Tag nav_prefer_flank_left
+			}
+		}
+		WaveSpawn //WAVE 02d: [GIANT] 5 total, 2 active, scout (Super Scouts) 
+		{
+			Name "wave02d"
+			Where spawnbot
+			TotalCount 5
+			MaxActive 2
+			WaitBeforeStarting 60
+			SpawnCount 1
+			WaitBetweenSpawns 25
+			TotalCurrency 150		
+			
+			TFBot
+			{
+				Template T_TFBot_Giant_Scout_Fast
+			}
+		}
+		WaveSpawn //WAVE 02e: 21 total, 7 active, pyro
+		{
+			Name "wave02e"
+			Where spawnbot
+			TotalCount 21
+			MaxActive 7
+			SpawnCount 7
+			WaitBeforeStarting 75
+			WaitBetweenSpawns 15
+			TotalCurrency 100
+
+				TFBot
+				{
+					Class Pyro
+					Skill Easy
+				}
+		}
+	}	
+	//WAVE 3 //Currency 800 //////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+			{
+				Target wave_start_relay
+				Action Trigger
+			}
+		DoneOutput					
+			{
+				Target wave_finished_relay
+				Action trigger
+			}
+		Checkpoint Yes
+
+		// Sniper mission - 4 active		
+
+		WaveSpawn //WAVE 03a: 40 total, 10 active, Heavy (Steel fist)
+		{
+			Name "wave03a"
+			Where spawnbot
+			TotalCount 40
+			MaxActive 10
+			SpawnCount 5
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 10
+			TotalCurrency 300
+
+			TFBot
+			{
+				Template T_TFBot_Heavyweapons_Fist
+			}
+		}
+		WaveSpawn //WAVE 03b: 20 total, 8 active, Soldier + Uber medic
+		{
+			Name "wave03b"
+			Where spawnbot
+			TotalCount 20
+			MaxActive 8
+			SpawnCount 2
+			WaitBeforeStarting 60
+			WaitBetweenSpawns 5
+			TotalCurrency 250
+
+			Squad
+			{
+				TFBot
+				{
+					Class Soldier
+					Skill Expert
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_QuickUber
+				}
+			}	
+		}
+		WaveSpawn //WAVE 03c: 20 total, 8 active, Pyro
+		{
+			Name "wave03c"
+			Where spawnbot_invasion
+			TotalCount 30
+			MaxActive 4
+			SpawnCount 4
+			WaitBeforeStarting 70
+			WaitBetweenSpawns 5
+			TotalCurrency 200
+			
+			Support 1
+
+			Squad
+			{
+				TFBot
+				{
+					Class Pyro
+					Skill Easy
+				}
+				TFBot
+				{
+					Class Pyro
+					Skill Easy
+				}
+				TFBot
+				{
+					Class Pyro
+					Skill Easy
+				}
+				TFBot
+				{
+					Class Pyro
+					Skill Easy
+				}
+			}					
+		}
+		WaveSpawn //WAVE 03d: [GIANT] 1 total, 1 active, Soldier (slow crit)
+		{
+			Name "wave03d"
+			Where spawnbot
+			TotalCount 1
+			MaxActive 1
+			WaitBeforeStarting 100
+			SpawnCount 1
+			WaitBetweenSpawns 0
+			TotalCurrency 50		
+			
+			TFBot
+			{
+				Template T_TFBot_Giant_Soldier_Crit
+			}
+		}
+	}	
+	//WAVE 4 //Currency 800 //////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+			{
+				Target wave_start_relay
+				Action Trigger
+			}
+		DoneOutput					
+			{
+				Target wave_finished_relay
+				Action trigger
+			}
+		Checkpoint Yes
+
+		WaveSpawn //WAVE 04a: [2 TANKS]  
+		{
+			Name "wave04a"
+			TotalCount 2
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 45
+			TotalCurrency 400
+			
+			FirstSpawnOutput                                                                                                                                                            
+			
+			{
+				 Target boss_spawn_relay                                            
+				 Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 22000
+				Speed 75
+				Name "tankboss"
+				StartingPathTrackNode "boss_path_a1"
+
+				OnKilledOutput                                  
+				{
+					Target boss_dead_relay
+					Action Trigger                         
+				}
+				
+				OnBombDroppedOutput                             
+				{
+					Target boss_deploy_relay 
+					Action Trigger                         
+				}
+			}			
+		}
+		WaveSpawn //WAVE 04b: 24 total, 10 active, Sniper (Huntsman)
+		{
+			Name "wave04b"
+			Where spawnbot
+			TotalCount 24
+			MaxActive 10
+			SpawnCount 5
+			WaitBeforeStarting 10
+			WaitBetweenSpawns 10
+			TotalCurrency 200
+			
+			Support 1
+
+			TFBot
+			{
+				Template T_TFBot_Sniper_Huntsman
+			}
+		}
+		WaveSpawn //WAVE 04b: 24 total, 10 active, Pyro 
+		{
+			Name "wave04b"
+			Where spawnbot
+			TotalCount 24
+			MaxActive 10
+			SpawnCount 5
+			WaitBeforeStarting 10
+			WaitBetweenSpawns 10
+			TotalCurrency 200
+			
+			Support 1
+
+			TFBot
+			{
+				Class Pyro
+				Skill Easy
+			}
+		}
+		WaveSpawn //WAVE 04c: [GIANT] 4 total, 2 active, Soldier (clow crit)
+		{
+			Name "wave04c"
+			Where spawnbot
+			TotalCount 4
+			MaxActive 2
+			SpawnCount 2
+			WaitBeforeStarting 30
+			WaitBetweenSpawns 5
+			TotalCurrency 200
+			
+			TFBot
+			{
+				Template T_TFBot_Giant_Soldier_Crit
+			}
+		}
+	}	
+	//WAVE 5 //Currency 800 //////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+			{
+				Target wave_start_relay
+				Action Trigger
+			}
+		DoneOutput					
+			{
+				Target wave_finished_relay
+				Action trigger
+			}
+		Checkpoint Yes
+
+		// Spy mission - 8 active		
+
+		WaveSpawn //WAVE 05a: [GIANT] 4(16) total, 2(8) active,  Heavyweapons (Deflector) + Giant Medic + Pyro
+		{
+			Name "wave05a"
+			Where spawnbot
+			TotalCount 16
+			MaxActive 16
+			SpawnCount 4
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 25
+			TotalCurrency 500		
+		
+			Squad
+			{
+				TFBot
+				{
+					Template T_TFBot_Giant_Heavyweapons_Deflector
+				}
+				TFBot
+				{
+					Template T_TFBot_Giant_Medic
+				}
+				TFBot
+				{
+					Class Pyro
+					Skill Expert
+					Attributes AlwaysFireWeapon
+				}
+				TFBot
+				{
+					Class Pyro
+					Skill Expert
+					Attributes AlwaysFireWeapon
+				}
+			}
+		}
+		WaveSpawn //WAVE 05b: 12 total, 4 active, Soldier 
+		{
+			Name "wave05b"
+			Where spawnbot
+			TotalCount 12
+			MaxActive 4
+			SpawnCount 4
+			WaitBeforeStarting 10
+			WaitBetweenSpawns 10
+			TotalCurrency 300
+
+			TFBot
+			{
+				Class Soldier
+				Skill Expert
+			}
+		}
+	}	
+	//WAVE 6 //Currency 1100 //////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+			{
+				Target wave_start_relay
+				Action Trigger
+			}
+		DoneOutput					
+			{
+				Target wave_finished_relay
+				Action trigger
+			}
+		Checkpoint Yes
+
+		// Sniper mission - 4 active		
+
+		WaveSpawn //WAVE 06a: 48 total, 14 active, Scout
+		{
+			Name "wave06a"
+			Where spawnbot
+			TotalCount 48
+			MaxActive 14
+			SpawnCount 7
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 10
+			TotalCurrency 300
+
+			TFBot
+			{
+				Class Scout
+				Skill Easy
+			}
+		}
+		WaveSpawn //WAVE 06b: [GIANT] 12 total, 8 active,  Soldier (rapid fire) 
+		{
+			Name "wave06b"
+			Where spawnbot
+			TotalCount 12
+			MaxActive 4
+			SpawnCount 1
+			WaitBeforeStarting 5
+			WaitBetweenSpawns 8
+			TotalCurrency 300		
+		
+			TFBot
+			{
+				Template T_TFBot_Giant_Soldier_Spammer
+			}
+		}
+		WaveSpawn //WAVE 06c: 28 total, 14 active, Soldier
+		{
+			Name "wave06c"
+			Where spawnbot
+			TotalCount 28
+			MaxActive 14
+			SpawnCount 7
+			WaitForAllDead "wave06a"
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 5
+			TotalCurrency 300
+
+			TFBot
+			{
+				Class Soldier
+				Skill Expert
+			}
+		}
+		WaveSpawn //WAVE 06d: [GIANT] 4 total, 4 active,  Soldier (rapid fire) 
+		{
+			Name "wave06d"
+			Where spawnbot
+			TotalCount 4
+			MaxActive 4
+			SpawnCount 1
+			WaitForAllSpawned "wave06b"
+			WaitBeforeStarting 25
+			WaitBetweenSpawns 2
+			TotalCurrency 100		
+		
+			TFBot
+			{
+				Template T_TFBot_Giant_Soldier_Spammer
+			}
+		}
+		WaveSpawn //WAVE 06e: 7(14) total, 7(14) active,  Heavyweapons + medic 
+		{
+			Name "wave06e"
+			Where spawnbot
+			TotalCount 14
+			MaxActive 14
+			SpawnCount 4
+			WaitForAllSpawned "wave06b"
+			WaitBeforeStarting 30
+			WaitBetweenSpawns 2
+			TotalCurrency 100		
+		
+			Squad
+			{
+				TFBot
+				{
+					Class Heavyweapons
+					Skill Hard
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_QuickUber
+				}
+			}	
+		}
+	}	
+	//WAVE 7 //Currency 950 //////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+			{
+				Target wave_start_relay
+				Action Trigger
+			}
+		DoneOutput					
+			{
+				Target wave_finished_relay
+				Action trigger
+			}
+		Checkpoint Yes
+
+		// Sniper mission - 4 active		
+
+		WaveSpawn //WAVE 07a: [TANK]  
+		{
+			Name "wave07a"
+			TotalCount 1
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 45
+			TotalCurrency 100
+			
+			FirstSpawnOutput                                                                                                                                                            
+			
+			{
+				 Target boss_spawn_relay                                            
+				 Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 35000
+				Speed 75
+				Name "tankboss"
+				StartingPathTrackNode "boss_path_a1"
+
+				OnKilledOutput                                  
+				{
+					Target boss_dead_relay
+					Action Trigger                         
+				}
+				
+				OnBombDroppedOutput                             
+				{
+					Target boss_deploy_relay 
+					Action Trigger                         
+				}
+			}			
+		}
+		WaveSpawn //WAVE 07b: 12 total, 6 active, Pyro
+		{
+			Name "wave07b"
+			Where spawnbot
+			TotalCount 12
+			MaxActive 4
+			SpawnCount 4
+			WaitBeforeStarting 10
+			WaitBetweenSpawns 10
+			TotalCurrency 50
+
+			TFBot
+			{
+				Class Pyro
+				Skill Easy
+			}
+		}
+		WaveSpawn //WAVE 07c: 12 total, 6 active, Heavyweapons + uber medic
+		{
+			Name "wave07c"
+			Where spawnbot
+			TotalCount 12
+			MaxActive 6
+			SpawnCount 2
+			WaitBeforeStarting 20
+			WaitBetweenSpawns 7
+			TotalCurrency 100
+
+			Squad
+			{
+				TFBot
+				{
+					Class Heavyweapons
+					Skill Expert
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_QuickUber
+				}
+			}
+		}
+		WaveSpawn //WAVE 07d: [GIANT] 4(16) total, 1(4) active, Heavyweapons + uber medics
+		{
+			Name "wave07d"
+			Where spawnbot
+			TotalCount 16
+			MaxActive 4
+			SpawnCount 4
+			WaitForAllSpawned "wave07b"
+			WaitBeforeStarting 10
+			WaitBetweenSpawns 0
+			TotalCurrency 200
+
+			Squad
+			{
+				TFBot
+				{
+					Template T_TFBot_Giant_Heavyweapons
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_QuickUber
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_QuickUber
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_QuickUber
+				}
+			}
+		}
+		WaveSpawn //WAVE 07e: [GIANT] 6 total, 2 active, Soldier (flank right)
+		{
+			Name "wave07e"
+			Where spawnbot
+			TotalCount 6
+			MaxActive 4
+			SpawnCount 1
+			WaitForAllSpawned "wave07c"
+			WaitBeforeStarting 10
+			WaitBetweenSpawns 22
+			TotalCurrency 200
+
+			TFBot
+			{
+				Template T_TFBot_Giant_Soldier_Spammer
+				BehaviorModifiers push
+				Tag nav_prefer_flank_right
+			}
+		}
+		WaveSpawn //WAVE 07f: [GIANT] 6 total, 2 active, Soldier (flank left)
+		{
+			Name "wave07f"
+			Where spawnbot
+			TotalCount 6
+			MaxActive 4
+			SpawnCount 1
+			WaitForAllSpawned "wave07c"
+			WaitBeforeStarting 10
+			WaitBetweenSpawns 22
+			TotalCurrency 200
+
+			TFBot
+			{
+				Template T_TFBot_Giant_Soldier_Spammer
+				BehaviorModifiers push
+				Tag nav_prefer_flank_left
+			}
+		}
+		WaveSpawn //WAVE 07g: [GIANT] 12 total, 8 active, Scout (fast)
+		{
+			Name "wave07g"
+			Where spawnbot
+			TotalCount 12
+			MaxActive 8
+			SpawnCount 2
+			WaitForAllSpawned "wave07d"
+			WaitBeforeStarting 10
+			WaitBetweenSpawns 10
+			TotalCurrency 100
+
+			TFBot
+			{
+				Template T_TFBot_Giant_Scout_Fast
+			}
+		}
+		WaveSpawn //WAVE 07h: [FINAL TANK]  
+		{
+			TotalCount 1
+			WaitBeforeStarting 50
+			WaitForAllSpawned "wave07e"
+			TotalCurrency 0
+			
+			FirstSpawnOutput                                                                                                                                                            
+			
+			{
+				 Target boss_spawn_relay                                            
+				 Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 45000
+				Speed 75
+				Name "tankboss"
+				Skin 1
+				StartingPathTrackNode "boss_path_a1"
+
+				OnKilledOutput                                  
+				{
+					Target boss_dead_relay
+					Action Trigger                         
+				}
+				
+				OnBombDroppedOutput                             
+				{
+					Target boss_deploy_relay 
+					Action Trigger                         
+				}
+
+			}			
+		}
+	}	
+}

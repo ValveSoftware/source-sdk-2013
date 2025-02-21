@@ -1,0 +1,20 @@
+ "Refract"
+{
+
+ 	"$model" 1
+ 	"$refractamount" "0"
+ 	"$bluramount" "1"
+	"$scale" "[1 1]"
+ 	"$normalmap" "hud\class_medic_normal"
+ 	"$dudvmap" "hud\class_medic_dudv"
+	"$bumpframe" "0"
+	"$translucent" "1"
+	"$ignorez" "1"
+	"$forcerefract" 1
+	"$nofog" "1"
+	"$refracttinttexture" "hud\class_medicblue_cloak"
+	"$nocull" "1"	
+
+}
+
+

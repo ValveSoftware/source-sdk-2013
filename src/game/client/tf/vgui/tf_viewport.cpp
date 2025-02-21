@@ -450,8 +450,8 @@ void TFViewport::OnScreenSizeChanged( int iOldWide, int iOldTall )
 
 	// The dashboard can't listen for this directly because it's parenting is all
 	// over the place.  Reset the dashboard so it get sized correctly.
-	GetDashboardPanel().RecreateAll();
-	GetMMDashboard()->Reload();
+	//GetDashboardPanel().RecreateAll();
+	//GetMMDashboard()->Reload();
 }
 
 //-----------------------------------------------------------------------------

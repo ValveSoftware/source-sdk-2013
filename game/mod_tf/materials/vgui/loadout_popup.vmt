@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\loadout_popup"
+	"$translucent" 1
+	"$ignorez" 1
+}

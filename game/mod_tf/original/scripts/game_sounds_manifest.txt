@@ -1,0 +1,29 @@
+game_sounds_manifest
+{
+	"precache_file"		"scripts/game_sounds.txt"	
+	"precache_file"  	"scripts/game_sounds_physics.txt"
+	"precache_file"  	"scripts/game_sounds_weapons.txt"
+	"precache_file"  	"scripts/game_sounds_vo.txt"
+	"precache_file"  	"scripts/game_sounds_vo_handmade.txt"
+	"precache_file"  	"scripts/game_sounds_music.txt"
+
+	"preload_file"  	"scripts/game_sounds_player.txt"
+
+	"precache_file"  	"scripts/game_sounds_mvm.txt"
+//	"preload_file"  	"scripts/game_sounds_vo_mvm.txt"
+//	"preload_file"  	"scripts/game_sounds_vo_mvm_mighty.txt"
+	"precache_file"  	"scripts/game_sounds_vo_mvm_handmade.txt"
+
+//	"precache_file" 	"scripts/mvm_level_sounds.txt"
+	"precache_file"  	"scripts/game_sounds_vo_rd_robots.txt"
+	"precache_file"  	"scripts/game_sounds_vo_taunts.txt"
+
+	"precache_file"		"scripts/game_sounds_taunt_workshop.txt"
+
+	"precache_file"  	"scripts/game_sounds_vo_pauling.txt"
+	"precache_file"  	"scripts/game_sounds_vo_merasmus.txt"
+	"precache_file"		"scripts/game_sounds_vo_tough_break.txt"
+
+	"precache_file"  	"scripts/game_sounds_passtime.txt"
+	
+}

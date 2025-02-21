@@ -1,0 +1,8 @@
+"Modulate"
+{
+	"$baseTexture" "VGUI/screens/transparent"
+	"$writez" 1	// force z to be written
+	"$texoffset"	"[0 0]"
+	"$texscale"	1
+	"$translucent" "1"
+}

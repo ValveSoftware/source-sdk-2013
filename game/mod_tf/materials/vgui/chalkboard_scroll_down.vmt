@@ -1,0 +1,8 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\chalkboard_scroll_down"
+	"$translucent" 1
+	"$vertexcolor" 1
+	"$vertexalpha"	1
+	"$ignorez" 1
+}

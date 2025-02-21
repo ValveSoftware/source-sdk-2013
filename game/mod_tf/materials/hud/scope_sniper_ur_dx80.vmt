@@ -1,0 +1,20 @@
+"UnlitGeneric"
+{
+ 	"$model" 1
+	"$basetexture" "HUD\scope_sniper_ul_dx80"
+	"$translucent" "1"	
+	"$scaleamount" "[-1 1]"
+
+	"Proxies"
+	{
+	
+
+		"TextureTransform"
+		{
+			"scaleVar" "$scaleamount"
+			"resultVar" "$basetexturetransform"
+		}
+	}
+}
+
+

@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\maps\menu_thumb_cp_manor_event"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

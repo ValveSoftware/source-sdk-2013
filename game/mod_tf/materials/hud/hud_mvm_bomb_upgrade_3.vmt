@@ -1,0 +1,10 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "hud\hud_mvm_bomb_upgrade_3"
+	"$vertexcolor" 1
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"%keywords" "tf"
+	"$translucent" 1
+}
+

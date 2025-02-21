@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\maps\menu_photos_arena_nucleus"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

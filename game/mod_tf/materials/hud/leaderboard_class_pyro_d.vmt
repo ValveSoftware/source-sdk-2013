@@ -1,0 +1,12 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "hud\leaderboard_class_pyro"
+	"$color2" "[.1 .1 .3]"
+	"$alpha" ".5"
+	"$vertexcolor" 1
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"%keywords" "tf"
+	"$translucent" 1
+}
+

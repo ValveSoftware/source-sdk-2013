@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\close_button"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

@@ -1,0 +1,40 @@
+/////////////
+// X360 button names
+//
+// A_BUTTON
+// B_BUTTON
+// X_BUTTON		
+// Y_BUTTON
+//		
+// L_SHOULDER
+// R_SHOULDER
+// L_TRIGGER
+// R_TRIGGER
+//
+// BACK		
+// START
+//
+// UP
+// DOWN
+// LEFT
+// RIGHT
+//
+// STICK1
+// STICK2
+//
+// S1_RIGHT
+// S1_LEFT		
+// S1_DOWN
+// S1_UP
+//
+// S2_RIGHT
+// S2_LEFT
+// S2_DOWN
+// S2_UP
+///////////////
+
+cheat_codes
+{
+
+
+}

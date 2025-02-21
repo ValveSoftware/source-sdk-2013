@@ -1,0 +1,10 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "console/background_mvm_widescreen"
+	"$vertexcolor" 1
+	"$vertexalpha" 1
+	"$ignorez" 1
+	"$no_fullbright" "1"
+	"$nolod" "1"
+	"%keywords" "tf"
+}

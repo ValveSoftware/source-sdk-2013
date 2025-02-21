@@ -1,0 +1,118 @@
+"Nightfall.Outdoors"
+{
+	"dsp"	"1"
+
+// general ambiance
+	"playlooping"
+	{
+		"volume"		".4"
+		"pitch"		"100"
+		"wave"		"ambient\outdoors.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"		".25"
+		"pitch"		"100"
+		"wave"		"ambient\forest_life.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".35"
+		"pitch"		"100"
+		"wave"		"ambient/waterfalloutside.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	"1"
+		"pitch"		"100"
+		"wave"		"ambient/rain.wav"
+	}
+	
+}
+
+
+"Nightfall.Indoors"
+{
+	"dsp"	"1"
+
+// general ambient
+	"playlooping"
+	{
+		"volume"	".6"
+		"pitch"		"100"
+		"wave"		"ambient/indoors.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".2"
+		"pitch"		"100"
+		"wave"		"ambient/waterfallinside.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".2"
+		"pitch"		"100"
+		"wave"		"ambient/waterfalloutside.wav"
+	}
+}	
+
+"Nightfall.Cavern"
+{
+	"dsp"	"1"
+
+// general ambient
+	"playlooping"
+	{
+		"volume"	".6"
+		"pitch"		"100"
+		"wave"		"ambient/underground.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".4"
+		"pitch"		"100"
+		"wave"		"ambient/waterfallinside.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".2"
+		"pitch"		"100"
+		"wave"		"ambient/waterfalloutside.wav"
+	}
+	
+	"playrandom"
+	{
+		"time"		"2,6"
+		"volume"	"1"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient/water/distant_drip1.wav"
+			"wave"		"ambient/water/distant_drip2.wav"
+			"wave"		"ambient/water/distant_drip3.wav"
+			"wave"		"ambient/water/distant_drip4.wav"
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"		"2,6"
+		"volume"	"1"
+		"pitch"		"100"
+		"rndwave"
+		{
+			"wave"		"ambient/water/distant_drip1.wav"
+			"wave"		"ambient/water/distant_drip2.wav"
+			"wave"		"ambient/water/distant_drip3.wav"
+			"wave"		"ambient/water/distant_drip4.wav"
+		}
+	}
+
+}

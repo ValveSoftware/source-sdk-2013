@@ -1,0 +1,6 @@
+"unlitGeneric"
+{
+	"$baseTexture" "vgui/store/store_saxton_signature"
+	"$translucent" 1
+}
+

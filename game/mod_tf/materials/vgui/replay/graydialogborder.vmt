@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\replay\graydialogborder"
+	"$translucent" 1
+	"$ignorez" 1
+}

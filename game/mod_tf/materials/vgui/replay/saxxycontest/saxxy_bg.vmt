@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\replay\saxxycontest\saxxy_bg"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

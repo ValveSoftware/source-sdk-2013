@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture"	"VGUI/maps/menu_photos_pl_hoodoo"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

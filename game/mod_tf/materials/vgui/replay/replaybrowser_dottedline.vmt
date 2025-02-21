@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\replay\replaybrowser_dottedline"
+	"$translucent" 1
+	"$ignorez" 1
+}

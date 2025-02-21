@@ -1,0 +1,9 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "hud\hud_icon_attack"
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"%keywords" "tf"
+	"$translucent" 1
+}
+

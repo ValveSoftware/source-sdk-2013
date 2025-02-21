@@ -1,0 +1,47 @@
+"UnlitTwoTexture"
+{
+	"$basetexture" "vgui\pipboy_overlay"
+	"$texture2"	"dev/dev_scanline"
+	"$mod2x" "1"
+	
+	"$translucent" 1
+	"$additive" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+	
+	"Proxies"
+	{
+
+		"Sine"
+		{
+			"resultVar" "$color[0]"
+			"sineperiod" .1
+			"sinemin" .98
+			"sinemax" 1
+		}
+		"Sine"
+		{
+			"resultVar" "$color[1]"
+			"sineperiod" .1
+			"sinemin" .98
+			"sinemax" 1
+		}
+		"Sine"
+		{
+			"resultVar" "$color[2]"
+			"sineperiod" .1
+			"sinemin" .99
+			"sinemax" 1
+		}
+
+		"TextureScroll"
+		{
+			"texturescrollvar" "$texture2transform"
+			"texturescrollrate" 0.4
+			"texturescrollangle" -90
+		}
+
+
+	}
+
+}

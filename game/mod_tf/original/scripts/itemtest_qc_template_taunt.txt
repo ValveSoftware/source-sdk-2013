@@ -1,0 +1,14 @@
+// defining the upaxis is needed for maya exports
+$upaxis Y
+
+$modelname player/<CLASS_NAME>_user_animations.mdl
+
+$include "<CLASS_NAME>_definebones.qci"
+
+// include the file that sets up the ikchains
+$include "../TF_animation_rules/ruleshierarchy.qci"
+$include "../TF_animation_rules/TF_macros_list.qci"
+
+$pushd "../../<QCI_RELATIVE_DIR>"
+$include "../../<QCI_RELATIVE_PATH>"
+$popd

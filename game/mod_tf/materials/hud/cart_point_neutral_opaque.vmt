@@ -1,0 +1,12 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "hud\cart_point_neutral_opaque"
+	"$translucent" 1
+	"$alpha" 1
+	"$vertexalpha" "1"
+	"$ignorez"     "1"
+	"$no_fullbright" "1"	
+	"$vertextcolor" "1"
+	"%keywords" "tf"
+}
+

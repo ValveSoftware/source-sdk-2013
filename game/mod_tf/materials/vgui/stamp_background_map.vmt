@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "vgui/stamp_background_map"
+	"$translucent"	1
+	"$vertexcolor"	1
+}

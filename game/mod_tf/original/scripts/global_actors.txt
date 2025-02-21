@@ -1,0 +1,13 @@
+globalactors
+{
+	"demo"		"male"
+	"engineer"	"male"
+	"heavy"		"male"
+	"heavy_hwm"	"male"
+	"medic"		"male"
+	"pyro"		"male"
+	"scout"		"male"
+	"sniper"	"male"
+	"soldier"	"male"
+	"spy"		"male"
+}

@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "vgui\maps/menu_thumb_pl_frontier_final"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

@@ -1308,17 +1308,20 @@ protected:
 		// Check if the server is registered
 		item.m_bRegistered = BHasTag( TagList, "_registered" );
 
-		const SchemaMap_t *pMapInfo = GetItemSchema()->GetMapForName( item.server.m_szMap );
-		if ( pMapInfo != NULL )
-		{
-			item.m_bMapIsQuickPlayOK = true;
-			item.m_bNewUserFriendly = pMapInfo->eQuickplayType == kQuickplay_AllUsers;
-		}
-		else
-		{
-			item.m_bMapIsQuickPlayOK = false;
-			item.m_bNewUserFriendly = false;
-		}
+		//const SchemaMap_t *pMapInfo = GetItemSchema()->GetMapForName( item.server.m_szMap );
+		//if ( pMapInfo != NULL )
+		//{
+		//	item.m_bMapIsQuickPlayOK = true;
+		//	item.m_bNewUserFriendly = pMapInfo->eQuickplayType == kQuickplay_AllUsers;
+		//}
+		//else
+		//{
+		//	item.m_bMapIsQuickPlayOK = false;
+		//	item.m_bNewUserFriendly = false;
+		//}
+
+		item.m_bMapIsQuickPlayOK = true;
+		item.m_bNewUserFriendly = true;
 
 		// Joined recently?
 		CalculateRecentMatchPenalty( item );
@@ -1329,29 +1332,29 @@ protected:
 		int failureCodes = 0;
 		if ( !PassesFilter( item.server ) ) failureCodes |= (1<<15);
 		if ( !HasAppropriateTags(TagList) ) failureCodes |= (1<<14);
-		if ( pMapInfo == NULL )
-			failureCodes |= (1<<13); // unknown map
-		else
-		{
-
-			// Map is known to us, make sure it matches search criteria
-			switch ( m_options.m_eSelectedGameType )
-			{
-				case kGameCategory_EventMix:
-					if ( pMapInfo->eGameCategory != kGameCategory_EventMix && pMapInfo->eGameCategory != kGameCategory_Event247 )
-						failureCodes |= (1<<12);
-					break;
-
-				case kGameCategory_Quickplay:
-					// Any map that's in the list will do
-					break;
-
-				default:
-					// Must match requested game mode
-					if ( pMapInfo->eGameCategory != m_options.m_eSelectedGameType )
-						failureCodes |= (1<<12);
-			}
-		}
+		//if ( pMapInfo == NULL )
+		//	failureCodes |= (1<<13); // unknown map
+		//else
+		//{
+		//
+		//	// Map is known to us, make sure it matches search criteria
+		//	switch ( m_options.m_eSelectedGameType )
+		//	{
+		//		case kGameCategory_EventMix:
+		//			if ( pMapInfo->eGameCategory != kGameCategory_EventMix && pMapInfo->eGameCategory != kGameCategory_Event247 )
+		//				failureCodes |= (1<<12);
+		//			break;
+		//
+		//		case kGameCategory_Quickplay:
+		//			// Any map that's in the list will do
+		//			break;
+		//
+		//		default:
+		//			// Must match requested game mode
+		//			if ( pMapInfo->eGameCategory != m_options.m_eSelectedGameType )
+		//				failureCodes |= (1<<12);
+		//	}
+		//}
 		if ( server.m_nPlayers >= server.m_nMaxPlayers ) failureCodes |= (1<<11);
 		if ( m_blackList.IsServerBlacklisted( server ) ) failureCodes |= (1<<10);
 
@@ -1609,29 +1612,29 @@ protected:
 	static void AddMapsFilter( CUtlVector<MatchMakingKeyValuePair_t> &vecServerFilters, EGameCategory t )
 	{
 		CUtlString sMapList;
-		for ( int i = 0 ; i < GetItemSchema()->GetMapCount() ; ++i )
-		{
-			const SchemaMap_t& map = GetItemSchema()->GetMapForIndex( i );
-			int mapType = map.eGameCategory;
-			if ( ( mapType == t )  || ( ( mapType == kGameCategory_Event247 ) && ( t == kGameCategory_EventMix ) ) )
-			{
-				if ( !sMapList.IsEmpty() )
-				{
-					sMapList.Append( "," );
-				}
-				sMapList.Append( map.pszMapName );
-			}
-		}
+		//for ( int i = 0 ; i < GetItemSchema()->GetMapCount() ; ++i )
+		//{
+		//	const SchemaMap_t& map = GetItemSchema()->GetMapForIndex( i );
+		//	int mapType = map.eGameCategory;
+		//	if ( ( mapType == t )  || ( ( mapType == kGameCategory_Event247 ) && ( t == kGameCategory_EventMix ) ) )
+		//	{
+		//		if ( !sMapList.IsEmpty() )
+		//		{
+		//			sMapList.Append( "," );
+		//		}
+		//		sMapList.Append( map.pszMapName );
+		//	}
+		//}
 		MatchMakingKeyValuePair_t kludge;
-		if ( sMapList.Length() < sizeof( kludge.m_szValue ) )
-		{
-			AddFilter( vecServerFilters, "map", sMapList );
-		}
-		else
-		{
-			Warning( "List of map names too long for this game mode, cannot filter on server side!\n" );
-			Assert( false );
-		}
+		//if ( sMapList.Length() < sizeof( kludge.m_szValue ) )
+		//{
+		//	AddFilter( vecServerFilters, "map", sMapList );
+		//}
+		//else
+		//{
+		//	Warning( "List of map names too long for this game mode, cannot filter on server side!\n" );
+		//	Assert( false );
+		//}
 	}
 
 	bool PassesFilter( const gameserveritem_t &server )
@@ -1826,19 +1829,19 @@ protected:
 			//float fCountHi = Lerp( fSearchTimePct, tf_matchmaking_goodenough_hi_count_start.GetFloat(), tf_matchmaking_goodenough_hi_count_end.GetFloat() );
 
 			// !TEST! Hack this to force us to just show some servers
-			//fScoreLo = 3.0f;
-			//fCountLo = 10.0f;
+			fScoreLo = 3.0f;
+			fCountLo = 10.0f;
 
 			// Now scan list to see if we have enough results at this point
 			int iGoodEnoughCount = 0;
 			for ( iGoodEnoughCount = 0 ; iGoodEnoughCount < vecGameServers.Count() ; ++iGoodEnoughCount)
 			{
 				sortable_gameserveritem_t *pItem = vecGameServers[ iGoodEnoughCount ];
-				if ( pItem->TotalScore() < fScoreLo )
-				{
-					// This guy and all subsequent ones don't meet the criteria.
-					break;
-				}
+				//if ( pItem->TotalScore() < fScoreLo )
+				//{
+				//	// This guy and all subsequent ones don't meet the criteria.
+				//	break;
+				//}
 				Assert( pItem->m_eStatus == TF_Gamestats_QuickPlay_t::k_Server_Eligible );
 			}
 
@@ -2847,25 +2850,25 @@ protected:
 			int nNumForThisMode = 0;
 
 			// Go through each of the modes
-			for ( int j = 0 ; j < GetItemSchema()->GetMapCount(); ++j )
-			{
-				const SchemaMap_t& map = GetItemSchema()->GetMapForIndex( j );
-
-				// Tally up maps for this mode
-				if ( map.eGameCategory == m_vecAllItems[i].gameType )
-				{
-					nNumForThisMode++;
-
-					// Check if any of the tags has "beta" as a tag, and tally that if so
-					for( int k = 0; k < map.vecTags.Count(); ++k )
-					{
-						if ( map.vecTags.HasElement( GetItemSchema()->GetHandleForTag( "beta" ) ) )
-						{
-							nNumWithBetaContent++;
-						}
-					}
-				}
-			}
+			//for ( int j = 0 ; j < GetItemSchema()->GetMapCount(); ++j )
+			//{
+			//	const SchemaMap_t& map = GetItemSchema()->GetMapForIndex( j );
+			//
+			//	// Tally up maps for this mode
+			//	if ( map.eGameCategory == m_vecAllItems[i].gameType )
+			//	{
+			//		nNumForThisMode++;
+			//
+			//		// Check if any of the tags has "beta" as a tag, and tally that if so
+			//		for( int k = 0; k < map.vecTags.Count(); ++k )
+			//		{
+			//			if ( map.vecTags.HasElement( GetItemSchema()->GetHandleForTag( "beta" ) ) )
+			//			{
+			//				nNumWithBetaContent++;
+			//			}
+			//		}
+			//	}
+			//}
 
 			// Only add the visible items if we're filtering for beta and this category has at least 1 beta map
 			// OR if we're not filtering for beta and we have at least 1 map that's not beta

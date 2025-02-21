@@ -1,0 +1,181 @@
+"itemtest_manifest"
+{
+	// Item directory under the "<mod>/models" directory. (i.e. TF's is "workshop/player/items/")
+	"item_directory"		"workshop/player/items/"
+	"animation_directory"		"workshop/player/animations/"
+	
+	// Icon directory (i.e. TF's is "backpack/workshop/player/items/")
+	"icon_directory"		"backpack/workshop/player/items/"
+
+	"item_path_has_steamid"	"0"
+	"archive_source_path"	"content"
+	"archive_output_path"	"game"
+	"terse_messages"		"1"
+
+	"classes"
+	{
+		"demo"				"0"	// Number doesn't matter
+		"engineer"			"1"
+		"heavy"				"2"
+		"medic"				"3"
+		"pyro"				"4"
+		"scout"				"5"
+		"sniper"			"6"
+		"soldier"			"7"
+		"spy"				"8"
+		"all_class"			"9"
+	}
+
+	"mdl_files"
+	{
+		".mdl"				"1"
+		".dx80.vtx"			"1"
+		".dx90.vtx"			"1"
+		".sw.vtx"			"1"
+		//".phy"				"1"
+		".vvd"				"1"
+	}
+
+	"animation_mdl_files"
+	{
+		".mdl"				"1"
+	}
+
+	"default_material_type"	"primary"
+	"material_types"
+	{
+		"primary"
+		{
+		}
+		"secondary"
+		{
+		}
+	}
+
+	"default_material_skin"	"red"
+	"material_skins"
+	{
+		"red"
+		{
+			"file_append"	""
+		}
+		"blue"
+		{
+			"file_append"	"_blue"
+		}
+	}
+
+	"texture_types"
+	{
+		"_color"
+		{
+			"optional"		"0"
+		}
+		"_normal"
+		{
+			"optional"		"1"
+		}
+		"_phongexponent"
+		{
+			"optional"		"1"
+		}
+		"_illum"
+		{
+			"optional"		"1"
+		}
+	}
+	
+	"icon_types"
+	{
+		"small"
+		{
+			"width"			"128"
+			"height"		"128"
+			"file_append"	""
+
+			"add_to_vtex_config"
+			{
+				"nomip"		"1"
+				"nolod"		"1"
+				"nonice"	"1"
+			}
+			
+			"vmt_template"
+			{
+				"UnlitGeneric"
+				{
+					"$basetexture"	""
+					"$translucent"	"1"
+					"$vertexcolor"	"1"
+				}
+			}
+		}
+		"large"
+		{
+			"width"			"512"
+			"height"		"512"
+			"file_append"	"_large"
+
+			"add_to_vtex_config"
+			{
+				"nomip"		"1"
+				"nolod"		"1"
+			}
+			
+			"vmt_template"
+			{
+				"UnlitGeneric"
+				{
+					"$basetexture"	""
+					"$translucent"	"1"
+				}
+			}
+		}
+	}
+
+	"qc_template"				"scripts/itemtest_qc_template_misc.txt"
+	"qc_lod_distances"			"11,22,33"
+	"qci_template"				"scripts/itemtest_qci_template_taunt.txt"
+
+	"vmt_templates"
+	{
+		"vmt_texture_settings"
+		{
+			"$basetexture"				"_color"
+			"$bumpmap"					"_normal"
+			"$phongexponenttexture"		"_phongexponent"
+			"$selfillummask"			"_illum"
+		}
+	}
+
+	// STUFF BELOW THIS ISN'T HOOKED UP, BUT WOULD BE STRAIGHTFORWARD TO IF YOU WANT TO GET AUTOSKINNING WORKING
+	// DATA IS FROM TF
+
+	"autoskin_vectors"
+	{
+		// Vector for the bone that autoskin should skin to
+		"demo"				"0 76.142968, -0.39608"
+		"engineer"			"0 69.030248, -1.264691"
+		"heavy"				"-0.000138993 79.541796, -3.352982"
+		"medic"				"-0.000111273 76.504372, -0.565035"
+		"pyro"				"-0.000102534 71.788881,  2.145585"
+		"scout"				"0 73.501752, -1.429994"
+		"sniper"			"0 75.982279, -3.858408"
+		"soldier"			"0 75.194376, -1.120618"
+		"spy"				"0 75.679732, -2.87915"
+	}
+
+	"autoskin_vectors"
+	{
+		// Angle for the bone that autoskin should skin to
+		"demo"				"-180.0 0 0"
+		"engineer"			"-170.459 0 0"
+		"heavy"				"-180.0 0 0"
+		"medic"				"-180.0 0 0"
+		"pyro"				"-154.175 0 0"
+		"scout"				"-173.451 0 0"
+		"sniper"			"-172.722 0 0"
+		"soldier"			"-179.729 0 0"
+		"spy"				"-180.0 0 0"
+	}
+}

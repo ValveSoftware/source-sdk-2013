@@ -1,0 +1,91 @@
+// pyro napalm grenade
+"grenade_napalm"
+{
+	"base"		"grenade"
+	"friction"		"0.05"
+	"elasticity"	"2"
+
+//	"audiohardnessfactor" "1.0"
+//	"audioroughnessfactor" "0.4"
+
+//	"bulletimpact"	"Grenade.ImpactHard"
+//	"scraperough"	"Grenade.ScrapeRough"
+//	"scrapesmooth"	"Grenade.ScrapeSmooth"
+//	"impacthard"	"Grenade.ImpactHard"
+//	"impactsoft"	"Grenade.ImpactSoft"
+//	"roll"		"Grenade.Roll"
+}
+
+"wrecking_ball"
+{
+	"base"			"metal"
+	
+	"friction"		"0"
+	"elasticity"	"0"
+}
+
+"demoman_grenade"
+{
+	"base"		"metal"
+
+	"bulletimpact"	"Grenade.ImpactHard"
+	"scraperough"	"Grenade.ScrapeRough"
+	"scrapesmooth"	"Grenade.ScrapeSmooth"
+	"impacthard"	"Grenade.ImpactHard"
+	"impactsoft"	"Grenade.ImpactSoft"
+	"rolling"	"Grenade.Roll"
+}
+
+"scout_baseball"
+{
+	"base"		"rubber"
+
+	"bulletimpact"	"Weapon_Baseball.HitWorld"
+	"scraperough"	"Grenade.ScrapeRough"
+	"scrapesmooth"	"Grenade.ScrapeSmooth"
+	"impacthard"	"Weapon_Baseball.HitWorld"
+	"impactsoft"	"Weapon_Baseball.HitWorld"
+	"rolling"	"Grenade.Roll"
+}
+
+"scout_ornament"
+{
+	"base"		"glass"
+
+	"bulletimpact"	"BallBuster.Ball_HitWorld"
+	"impacthard"	"BallBuster.Ball_HitWorld"
+	"impactsoft"	"BallBuster.Ball_HitWorld"
+}
+
+"snow"
+{
+	"base"		"dirt"
+	"density"	"800"
+	"friction"	"0.8"
+
+	"audiohardnessfactor" "0.25"
+	"gamematerial"	"91"
+}
+
+"ball_bouncy"
+{
+	"base"		"rubber"
+	
+	"friction"	".3"
+	"elasticity"	"3"
+	"density"	"500"
+}
+
+"passtime_ball"
+{
+	"base"	"rubber"
+	"elasticity" "1"
+	"friction" "1"
+
+	"bulletimpact"	"Grenade.ImpactHard"
+	"scraperough"	"Grenade.ScrapeRough"
+	"scrapesmooth"	"Grenade.ScrapeSmooth"
+	"impacthard"	"Grenade.ImpactHard"
+	"impactsoft"	"Grenade.ImpactSoft"
+	"rolling"	"Grenade.Roll"
+}

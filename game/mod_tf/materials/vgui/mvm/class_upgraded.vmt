@@ -1,0 +1,11 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "vgui/mvm/class_upgraded"
+
+	"$vertexcolor" 1
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"%keywords" "tf, mvm, map"
+	"$translucent" 1
+	"$vertexalpha" 1
+}

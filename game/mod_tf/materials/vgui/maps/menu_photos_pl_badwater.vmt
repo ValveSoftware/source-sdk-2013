@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\maps\menu_photos_pl_badwater"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

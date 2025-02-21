@@ -1,0 +1,7 @@
+"unlitGeneric"
+{
+	"$baseTexture" "vgui\main_menu\news_newspaper"
+
+	"$translucent" 1
+	"$ignorez" 1
+}

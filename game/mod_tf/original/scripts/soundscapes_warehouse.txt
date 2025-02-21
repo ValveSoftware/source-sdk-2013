@@ -1,0 +1,498 @@
+// DSP Effects
+// 0 : "Normal (off)"
+// 1 : "Generic"
+// 2 : "Metal Small"
+// 3 : "Metal Medium"
+// 4 : "Metal Large"
+// 5 : "Tunnel Small"
+// 6 : "Tunnel Medium"
+// 7 : "Tunnel Large"
+// 8 : "Chamber Small"
+// 9 : "Chamber Medium"
+// 10: "Chamber Large"
+// 11: "Bright Small"
+// 12: "Bright Medium"
+// 13: "Bright Large"
+// 14: "Water 1"
+// 15: "Water 2"
+// 16: "Water 3"
+// 17: "Concrete Small"
+// 18: "Concrete Medium"
+// 19: "Concrete Large"
+// 20: "Big 1"
+// 21: "Big 2"
+// 22: "Big 3"
+// 23: "Cavern Small"
+// 24: "Cavern Medium"
+// 25: "Cavern Large"
+// 26: "Weirdo 1"
+// 27: "Weirdo 2"
+// 28: "Weirdo 3"
+
+//	ATTN_NONE		0.0f	
+//	ATTN_NORM		0.8f	75dB
+//	ATTN_IDLE		2.0f	60dB
+//	ATTN_STATIC		1.25f	66dB
+//	ATTN_RICOCHET	1.5f	65dB
+//	ATTN_GUNFIRE	0.27f	140dB
+
+//	SNDLVL_50dB		= 50,	// 3.9
+//	SNDLVL_55dB		= 55,	// 3.0
+//	SNDLVL_IDLE		= 60,	// 2.0
+//	SNDLVL_TALKING	= 60,	// 2.0
+//	SNDLVL_60dB		= 60,	// 2.0
+//	SNDLVL_65dB		= 65,	// 1.5
+//	SNDLVL_STATIC	= 66,	// 1.25
+//	SNDLVL_70dB		= 70,	// 1.0
+//	SNDLVL_NORM		= 75,
+//	SNDLVL_75dB		= 75,	// 0.8
+//	SNDLVL_80dB		= 80,	// 0.7
+//	SNDLVL_85dB		= 85,	// 0.6
+//	SNDLVL_90dB		= 90,	// 0.5
+//	SNDLVL_95dB		= 95,
+//	SNDLVL_100dB	= 100,	// 0.4
+//	SNDLVL_105dB	= 105,
+//	SNDLVL_120dB	= 120,
+//	SNDLVL_130dB	= 130,
+//	SNDLVL_GUNFIRE	= 140,	// 0.27
+//	SNDLVL_140dB	= 140,	// 0.2
+//	SNDLVL_150dB	= 150,	// 0.2
+
+
+"warehouse.inside_spawn_int"
+{
+	"dsp"	"17"
+	
+	"playlooping"
+	{
+		"volume"	".75"
+		"pitch"		"100"
+		"wave"		"ambient/indoors.wav"
+	}
+
+	"playlooping"
+	{
+		"volume"	".15"
+		"pitch"		"100"
+		"wave"		"ambient/lighthum.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"	".25"
+		"pitch"		"100"
+		"wave"		"ambient/underground.wav"
+	}
+}
+
+
+"warehouse.inside_spawn_foyer"
+{
+	"dsp"	"18"
+	
+	"playlooping"
+	{
+		"volume"	".4"
+		"pitch"		"100"
+		"wave"		"ambient/indoors.wav"
+	}
+	
+		"playlooping"
+	{
+		"volume"	".15"
+		"pitch"		"100"
+		"wave"		"ambient/lighthum.wav"
+	}
+	
+	"playlooping"
+	{  
+		"volume"	".2"
+		"pitch"		"100"
+		"wave"		"ambient/mvm_warehouse/warehouse_outdoors.wav"
+	}
+	
+	"playrandom"
+	{	
+		"time"			"8, 10"
+		"volume"		"0.35"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_90dB"
+		"position"		"4"
+		"rndwave"
+		{
+				"wave"		"ambient_mp3/mvm_warehouse/seagull_01.mp3"
+				"wave"		"ambient_mp3/mvm_warehouse/seagull_02.mp3"
+				"wave"		"ambient_mp3/mvm_warehouse/seagull_03.mp3"
+		}	
+	}
+	
+	"playrandom"
+	{
+		"time"			"4, 9"
+		"volume"		"0.35"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_95dB"
+		"position"  	"1"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_01.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_02.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_05.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_06.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_07.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_05.mp3"		
+		}
+	}
+	
+	"playlooping"
+	{
+		"volume"		"0.45"
+		"soundlevel" 	"SNDLVL_95dB"
+		"position" 		"6"
+		"wave"			"ambient/mvm_warehouse/warehouse_city.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"		"0.35"
+		"soundlevel" 	"SNDLVL_85dB"
+		"position"		"7"
+		"wave"			"ambient/mvm_warehouse/warehouse_harbor.wav"	
+	}
+}
+
+
+"warehouse.outside"
+{
+
+	"dsp"	"1"
+	
+	"playlooping"
+	{  
+		"volume"	".3"
+		"pitch"		"100"
+		"wave"		"ambient/mvm_warehouse/warehouse_outdoors.wav"
+	}
+	
+	"playrandom"
+	{
+		"time"			"3, 9"
+		"volume"		"0.5"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_95dB"
+		"position"  	"1"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_01.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_02.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_05.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_06.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_07.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_05.mp3"		
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"			"2, 8"
+		"volume"		"0.5"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_95dB"
+		"position"  	"2"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_01.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_02.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_05.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_01.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_02.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_05.mp3"
+		}
+	}
+	
+	"playrandom"
+	{	
+		"time"			"9, 13"
+		"volume"		"0.6"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_90dB"
+		"position"		"3"
+		"rndwave"
+		{
+				"wave"		"ambient_mp3/mvm_warehouse/seagull_01.mp3"
+				"wave"		"ambient_mp3/mvm_warehouse/seagull_02.mp3"
+				"wave"		"ambient_mp3/mvm_warehouse/seagull_03.mp3"
+		}	
+	}
+	
+	"playrandom"
+	{	
+		"time"			"8, 10"
+		"volume"		"0.6"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_90dB"
+		"position"		"4"
+		"rndwave"
+		{
+				"wave"		"ambient_mp3/mvm_warehouse/seagull_01.mp3"
+				"wave"		"ambient_mp3/mvm_warehouse/seagull_02.mp3"
+				"wave"		"ambient_mp3/mvm_warehouse/seagull_03.mp3"
+		}	
+	}
+	
+	"playrandom"
+	{	
+		"time"			"10, 26"
+		"volume"		"0.5"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_100dB"
+		"position"		"5"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/mvm_warehouse/ship_horn_01.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/ship_horn_02.mp3"
+		}
+	}
+	
+	"playlooping"
+	{
+		"volume"		"0.6"
+		"soundlevel" 	"SNDLVL_95dB"
+		"position" 		"6"
+		"wave"			"ambient/mvm_warehouse/warehouse_city.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"		"0.6"
+		"soundlevel" 	"SNDLVL_85dB"
+		"position"		"7"
+		"wave"			"ambient/mvm_warehouse/warehouse_harbor.wav"	
+	}
+	
+	"playrandom"
+	{	
+		"time"			"5, 12"
+		"volume"		"1"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_100dB"
+		"position"		"0"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/mvm_warehouse/train_01.mp3"	
+			"wave"		"ambient_mp3/mvm_warehouse/train_02.mp3"	
+			"wave"		"ambient_mp3/mvm_warehouse/train_03.mp3"	
+			"wave" 		"ambient_mp3/cp_harbor/train_1shot_04.mp3"
+		}
+	}
+
+}
+
+
+"warehouse.inside_mainhall"
+{
+	"dsp"	"25"
+	
+	"playlooping"
+	{  
+		"volume"	".5"
+		"pitch"		"100"
+		"wave"		"ambient/mvm_warehouse/warehouse_indoors.wav"
+	}
+	
+	"playrandom"
+	{	
+		"time"			"8, 12"
+		"volume"		"0.5"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_85dB"
+		"position"		"0"
+		"rndwave"
+		{
+				"wave"		"ambient_mp3/mvm_warehouse/seagull_01.mp3"
+				"wave"		"ambient_mp3/mvm_warehouse/seagull_02.mp3"
+				"wave"		"ambient_mp3/mvm_warehouse/seagull_03.mp3"
+		}	
+	}
+	
+	"playrandom"
+	{
+		"time"			"4, 10"
+		"volume"		"0.45"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_95dB"
+		"position"  	"1"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_01.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_02.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_05.mp3"	
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"			"3, 9"
+		"volume"		"0.45"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_95dB"
+		"position"  	"2"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_01.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_02.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_05.mp3"
+		}
+	}
+
+	"playrandom"
+	{
+		"time"			"4, 11"
+		"volume"		"0.55"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_95dB"
+		"position"  	"3"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_06.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_07.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_05.mp3"		
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"			"5, 10"
+		"volume"		"0.55"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_95dB"
+		"position"  	"4"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_01.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_02.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_05.mp3"
+		}
+	}
+	
+	"playlooping"
+	{
+		"volume"		"0.5"
+		"soundlevel" 	"SNDLVL_85dB"
+		"position" 		"5"
+		"wave"			"ambient/mvm_warehouse/warehouse_city.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"		"0.5"
+		"soundlevel" 	"SNDLVL_85dB"
+		"position"		"6"
+		"wave"			"ambient/mvm_warehouse/warehouse_harbor.wav"	
+	}
+
+}
+
+
+"warehouse.inside_boilers"
+{
+	"dsp"	"17"
+	
+	"playlooping"
+	{
+		"volume"	".4"
+		"pitch"		"100"
+		"wave"		"ambient/indoors.wav"
+	}
+	
+	"playlooping"
+	{
+		"volume"		"0.85"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_85dB"
+		"position"  	"0"
+		"wave"			"ambient/boiler_01.wav"
+	}
+	
+	"playlooping"
+	{  
+		"volume"	"0.2"
+		"pitch"		"100"
+		"wave"		"ambient/mvm_warehouse/warehouse_outdoors.wav"
+	}
+	
+	"playrandom"
+	{
+		"time"			"3, 9"
+		"volume"		"0.5"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_95dB"
+		"position"  	"1"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_01.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_02.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_05.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_06.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_07.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_05.mp3"		
+		}
+	}
+	
+	"playrandom"
+	{
+		"time"			"2, 8"
+		"volume"		"0.5"
+		"pitch"			"100"
+		"soundlevel" 	"SNDLVL_95dB"
+		"position"  	"2"
+		"rndwave"
+		{
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_01.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_02.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_horn_05.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_01.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_02.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_03.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_04.mp3"
+			"wave"		"ambient_mp3/mvm_warehouse/car_passby_05.mp3"
+		}
+	}
+	
+	"playlooping"
+	{
+		"volume"		"0.45"
+		"soundlevel" 	"SNDLVL_95dB"
+		"position" 		"6"
+		"wave"			"ambient/mvm_warehouse/warehouse_city.wav"
+	}
+
+}
+
+

@@ -1,0 +1,10 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "hud\ico_powerup_refill_ammo_red"
+	"$vertexcolor" 1
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"%keywords" "tf"
+	"$translucent" 1
+}
+

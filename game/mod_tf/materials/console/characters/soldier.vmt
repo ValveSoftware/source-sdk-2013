@@ -1,0 +1,11 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "console/characters/soldier"
+//	"$vertexcolor" 1
+//	"$vertexalpha" 1
+	"$ignorez" 1
+	"$no_fullbright" "1"
+	"$nolod" "1"
+	"$translucent" "1"
+	"%keywords" "tf"
+}

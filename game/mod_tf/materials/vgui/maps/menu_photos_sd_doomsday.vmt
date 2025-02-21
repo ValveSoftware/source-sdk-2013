@@ -1,0 +1,5 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "vgui\maps/menu_photos_sd_doomsday"
+	$translucent 1
+}

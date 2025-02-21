@@ -1,0 +1,8 @@
+"unlitGeneric"
+{
+	"$baseTexture" "vgui/store/saxton_welcome"
+	"$translucent" 1
+	"$vertexalpha" 1
+	"$alphatest"	"1"
+}
+

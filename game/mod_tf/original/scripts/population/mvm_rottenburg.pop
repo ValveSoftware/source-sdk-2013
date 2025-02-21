@@ -1,0 +1,1131 @@
+///////////////////////////////////////////////////////////////////////////
+// BEGIN POP FILE
+///////////////////////////////////////////////////////////////////////////
+
+#base robot_giant.pop
+#base robot_standard.pop
+
+WaveSchedule													
+{
+
+	StartingCurrency 1000
+	RespawnWaveTime 6
+	CanBotsAttackWhileInSpawnRoom no
+	
+/////////////////
+//MISSIONS
+/////////////////
+
+
+///////////////////////////////////////////////////////////////////////////
+//SENTRY BUSTER MISSIONS
+///////////////////////////////////////////////////////////////////////////
+	
+	Mission	// Sentry Busters - All
+	{
+		Objective DestroySentries
+
+		InitialCooldown 30
+		Where spawnbot_mission_sentry_buster
+		BeginAtWave 1
+		RunForThisManyWaves 7
+		CooldownTime 45
+
+            TFBot
+			{
+				Template T_TFBot_SentryBuster
+            }
+	}
+
+	
+///////////////////////////////////////////////////////////////////////////
+//SNIPER MISSIONS
+///////////////////////////////////////////////////////////////////////////
+	
+	Mission	// Sniper wave 3
+	{
+		Objective Sniper
+
+		InitialCooldown 45
+		Where spawnbot_mission_sniper
+		BeginAtWave 3
+		RunForThisManyWaves 1
+		CooldownTime 60
+		DesiredCount 2
+
+		TFBot
+		{
+			Template T_TFBot_Sniper
+			Skill Hard
+			CharacterAttributes
+			{
+				"damage bonus"	1.0
+			}
+		}
+	}	
+	
+	Mission	// Sniper wave 7
+	{
+		Objective Sniper
+
+		InitialCooldown 45
+		Where spawnbot_mission_sniper
+		BeginAtWave 7
+		RunForThisManyWaves 1
+		CooldownTime 45
+		DesiredCount 2
+
+		TFBot
+		{
+			Template T_TFBot_Sniper
+			Skill Hard
+			CharacterAttributes
+			{
+				"damage bonus"	1.0
+			}
+		}
+	}
+
+	
+///////////////////////////////////////////////////////////////////////////
+//SPY MISSIONS
+///////////////////////////////////////////////////////////////////////////
+	
+	Mission // Spy wave 5
+	{
+		Objective Spy  
+
+		InitialCooldown 30
+		Where spawnbot_mission_spy
+		BeginAtWave 5
+		RunForThisManyWaves 1
+		CooldownTime 45
+		DesiredCount 2
+
+		TFBot
+		{
+			Class Spy
+			Skill Expert
+			Name Spy
+		}
+	}	
+	
+	Mission // Spy wave 7
+	{
+		Objective Spy  
+
+		InitialCooldown 30
+		Where spawnbot_mission_spy
+		BeginAtWave 7
+		RunForThisManyWaves 1
+		CooldownTime 45
+		DesiredCount 2
+
+		TFBot
+		{
+			Class Spy
+			Skill Expert
+			Name Spy
+		}
+	}	
+	
+
+	
+///////////////////////////////////////////////////////////////////////////	
+//ENGINEER MISSIONS
+///////////////////////////////////////////////////////////////////////////	
+		
+		
+	Mission // Engineer wave 4 
+	{
+		Objective Engineer  
+
+		InitialCooldown 45
+		Where spawnbot
+		BeginAtWave 4
+		RunForThisManyWaves 1
+		CooldownTime 45
+		DesiredCount 1
+
+		TFBot
+		{
+			Template T_TFBot_Engineer_Sentry_Teleporter
+			TeleportWhere spawnbot
+			TeleportWhere flankers
+			Attributes TeleportToHint
+			Health 600
+		}
+	}
+	
+	Mission // Engineer wave 6 
+	{
+		Objective Engineer  
+
+		InitialCooldown 45
+		Where spawnbot
+		BeginAtWave 6
+		RunForThisManyWaves 1
+		CooldownTime 45
+		DesiredCount 1
+
+		TFBot
+		{
+			Template T_TFBot_Engineer_Sentry_Teleporter
+			TeleportWhere spawnbot
+			TeleportWhere flankers
+			Attributes TeleportToHint
+			Health 600
+		}
+	}	
+
+
+/////////////////
+//WAVES
+//POPFILE PAYOUT
+//START $1000
+//DROP W1 $1000 /W2 $900 /W3 $900 /W4 $900 /W5 $800 /W6 $800 /W7 $800
+//START: $1000 / DROP: $6100 / TOTAL: $7100 / TOTAL PLUS BONUS: $7800
+/////////////////	
+
+//WAVE 1  /////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// 20 Scouts and Melee Scouts (200)
+// 12 Demoknight flood (180)
+// 20 Scouts (200)
+// 16 Soldiers (240) 
+// 1 Super Scout (180) 
+// Missions: Sentries 1/45, 
+// Cash at start is $1000
+// Total cash in this wave is $1000
+// Running Total cash is $2000
+///////////////////////////////////////////////////////////////////////////
+
+	Wave
+	{
+		StartWaveOutput
+		{
+			Target wave_start_relay_classic
+			Action Trigger
+		}
+		DoneOutput
+		{
+			Target wave_finished_relay
+			Action trigger
+		}
+
+		Checkpoint Yes
+		
+	WaveSpawn // 20 Scouts and Melee Scouts (200)
+		{
+			Where spawnbot	
+			Name "W1_01"
+			TotalCount 20			
+			MaxActive 12								
+			SpawnCount 5									
+			WaitBetweenSpawns 8							
+			TotalCurrency 200	
+
+			RandomChoice
+			{
+				TFBot
+				{
+					Class Scout
+					Skill Easy
+				}
+				TFBot
+				{
+					Class Scout
+					WeaponRestrictions MeleeOnly
+					Skill Hard
+				}
+			}	
+		}
+		
+	WaveSpawn // 12 Demoknight flood (180)
+		{
+			Where spawnbot
+			Name "W1_02"
+			WaitForAllSpawned "W1_01"
+			WaitBeforeStarting 5
+			TotalCount 12			
+			MaxActive 12								
+			SpawnCount 4									
+			WaitBetweenSpawns 4							
+			TotalCurrency 180	
+
+			TFBot
+				{
+					Template T_TFBot_Demoman_Knight
+				}
+		}
+		
+	WaveSpawn // 20 Scouts (200)
+		{
+			Where spawnbot	
+			WaitForAllSpawned "W1_02"
+			WaitBeforeStarting 20
+			TotalCount 20			
+			MaxActive 12								
+			SpawnCount 5									
+			WaitBetweenSpawns 18							
+			TotalCurrency 200	
+
+			TFBot
+				{
+					Class Scout
+					Skill Easy
+				}
+		}
+		
+	WaveSpawn // 16 Soldiers (240)
+		{
+			Where spawnbot
+			Name "W1_03"
+			WaitForAllSpawned "W1_02"
+			WaitBeforeStarting 20
+			TotalCount 16
+			MaxActive 8
+			SpawnCount 4
+			WaitBetweenSpawns 18							
+			TotalCurrency 240	
+
+			TFBot
+				{
+					Class Soldier
+					Skill Easy
+				}
+		}
+		
+	WaveSpawn // 1 Super Scout (180) 
+		{
+			Where spawnbot
+			WaitForAllSpawned "W1_03"
+			TotalCount 1			
+			MaxActive 1								
+			SpawnCount 1			
+			TotalCurrency 180	
+
+			TFBot
+				{
+					Template T_TFBot_Giant_Scout_Fast
+				}
+		}
+	}
+
+	
+//WAVE 2  /////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// 20 Flaregun Pyros (100)
+// 1 Tank (300)
+// 40 Demoman Squads (200)
+// 1 Squad 1 Giant Soldier 3 Medics (300)
+// Missions: Sentries 1/45,
+// Cash at start is $2000
+// Total cash in this wave is $900
+// Running Total cash is $2900
+///////////////////////////////////////////////////////////////////////////
+
+	Wave
+	{
+		StartWaveOutput
+		{
+			Target wave_start_relay_classic
+			Action Trigger
+		}
+		DoneOutput
+		{
+			Target wave_finished_relay
+			Action trigger
+		}
+
+		Checkpoint Yes
+		
+	WaveSpawn // 20 Flaregun Pyros (100)
+		{
+			Where spawnbot	
+			Name "W2_01"
+			TotalCount 20			
+			MaxActive 16								
+			SpawnCount 4									
+			WaitBetweenSpawns 6							
+			TotalCurrency 100	
+
+			TFBot
+				{
+					Template T_TFBot_Pyro_Flaregun
+				}
+		}
+
+	WaveSpawn // Tank (300)
+		{						
+			Name "W2_02"
+			WaitForAllSpawned "W2_01"
+			WaitBeforeStarting 20
+			TotalCount 1
+			TotalCurrency 300
+			
+			FirstSpawnOutput 
+			
+			{
+				Target boss_spawn_relay                       
+				Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 25000					
+				Speed 75								
+				Name "TankBossA"
+				StartingPathTrackNode "tank_path_a_10"
+				
+				OnKilledOutput                              
+				{
+					Target boss_dead_relay					
+					Action Trigger                
+				}
+					
+				OnBombDroppedOutput                       
+				{
+					Target boss_deploy_relay 	
+					Action Trigger                  
+				}
+			}
+		}	
+		
+	WaveSpawn // 40 Demoman Squads (200)
+		{
+			Where spawnbot	
+			WaitForAllSpawned "W2_02"
+			WaitBeforeStarting 40
+			TotalCount 40			
+			MaxActive 16								
+			SpawnCount 4									
+			WaitBetweenSpawns 7							
+			TotalCurrency 200	
+				
+			Squad 
+			{
+				TFBot
+				{
+					Class Demoman
+					Skill Easy
+				}
+				TFBot
+				{
+					Class Demoman
+					Skill Easy
+				}
+				TFBot
+				{
+					Class Demoman
+					Skill Easy
+				}
+				TFBot
+				{
+					Class Demoman
+					Skill Easy
+				}
+			}
+		}
+		
+	WaveSpawn // 1 Squad 1 Giant Soldier 3 Medics (200)
+		{
+			Where spawnbot	
+			Name "W2_03"
+			WaitForAllSpawned "W2_02"
+			WaitBeforeStarting 50
+			TotalCount 4			
+			MaxActive 4								
+			SpawnCount 4																
+			TotalCurrency 300	
+				
+			Squad 
+			{
+				FormationSize 250
+				
+				TFBot
+				{
+					Template T_TFBot_Giant_Soldier
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic
+				}
+			}
+		}
+	}
+	
+
+//WAVE 3  /////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// 40 Demoknights (200)
+// 3 Giant Soldiers (300)
+// 10 Steelfist Heavies (200)
+// 40 Scorchshot Pyros (200)
+// Missions: Sentry Busters: 1/30, Snipers: 1/30
+// Cash at start is $2900
+// Total cash in this wave is $900
+// Running Total cash is $3800
+///////////////////////////////////////////////////////////////////////////
+
+	Wave
+	{
+		StartWaveOutput
+		{
+			Target wave_start_relay_classic
+			Action Trigger
+		}
+		DoneOutput
+		{
+			Target wave_finished_relay
+			Action trigger
+		}
+
+		Checkpoint Yes
+		
+	WaveSpawn // 40 Demoknights (200)
+		{
+			Where spawnbot
+			Name "W3_01"					
+			TotalCount 40			
+			MaxActive 12								
+			SpawnCount 4									
+			WaitBetweenSpawns 6							
+			TotalCurrency 200	
+				
+				TFBot
+				{
+					Template T_TFBot_Demoman_Knight
+				}
+		}
+
+	WaveSpawn // 3 Giant Soldiers (300)
+		{
+			Where spawnbot
+			Name "W3_02"
+			WaitBeforeStarting 15
+			WaitBetweenSpawns 40
+			TotalCount 3			
+			MaxActive 3								
+			SpawnCount 1													
+			TotalCurrency 300	
+				
+			TFBot
+				{
+					Template T_TFBot_Giant_Soldier
+				}
+		}
+		
+	WaveSpawn // 10 Steelfist Heavies (200)
+		{
+			Where spawnbot
+			Name "W3_03"
+			WaitForAllSpawned "W3_01"		
+			TotalCount 10			
+			MaxActive 6 								
+			SpawnCount 1									
+			WaitBetweenSpawns 10							
+			TotalCurrency 200	
+				
+			TFBot
+				{
+					Template T_TFBot_Heavyweapons_Fist
+				}
+		}
+		
+	WaveSpawn // 40 Scorchshot Pyros (200)
+		{
+			Where spawnbot
+			Name "W3_04"
+			WaitForAllSpawned "W3_01"
+			TotalCount 40			
+			MaxActive 15								
+			SpawnCount 5									
+			WaitBetweenSpawns 12							
+			TotalCurrency 200	
+				
+
+			TFBot
+				{
+					Template T_TFBot_ScorchShot
+				}
+		}
+	}
+
+
+//WAVE 4  /////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// 1 Tank (200)
+// 50 Mixed Scouts and Baseball Scouts (250)
+// 1 Tank (200)
+// 50 Demomen (250)
+// Missions: Sentries 1/45, Engie 1/45
+// Cash at start is $3800
+// Total cash in this wave is $900
+// Running Total cash is $4700
+///////////////////////////////////////////////////////////////////////////
+
+	Wave
+	{
+		StartWaveOutput
+		{
+			Target wave_start_relay_classic
+			Action Trigger
+		}
+		DoneOutput
+		{
+			Target wave_finished_relay
+			Action trigger
+		}
+
+		Checkpoint Yes
+		
+	WaveSpawn // 1 Tank (200)
+		{						
+			Name "W5_01"
+			TotalCount 1
+			TotalCurrency 200
+			
+			FirstSpawnOutput 
+			
+			{
+				Target boss_spawn_relay                       
+				Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 20000					
+				Speed 75								
+				Name "TankBossA"
+				StartingPathTrackNode "tank_path_a_10"
+				
+				OnKilledOutput                              
+				{
+					Target boss_dead_relay					
+					Action Trigger                
+				}
+					
+				OnBombDroppedOutput                       
+				{
+					Target boss_deploy_relay 	
+					Action Trigger                  
+				}
+			}
+		}	
+		
+	WaveSpawn //  50 Mixed Scouts and Baseball Scouts (250)
+		{
+			Where spawnbot
+			Name "W5_02"
+			WaitBeforeStarting 20
+			TotalCount 50			
+			MaxActive 20								
+			SpawnCount 5									
+			WaitBetweenSpawns 10							
+			TotalCurrency 250	
+				
+			RandomChoice
+			{
+				TFBot
+					{
+						Class Scout
+						Skill Easy
+					}
+				TFBot
+					{
+						Class Scout
+						Skill Easy
+					}
+				TFBot
+					{
+						Template T_TFBot_Scout_Sandman
+					}
+			}
+		}
+		
+	WaveSpawn // 1 Tank (200)
+		{						
+			Name "W5_03"
+			WaitBeforeStarting 70
+			TotalCount 1
+			TotalCurrency 200
+			
+			FirstSpawnOutput 
+			
+			{
+				Target boss_spawn_relay                       
+				Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 20000					
+				Speed 75								
+				Name "TankBossB"
+				StartingPathTrackNode "tank_path_b_10"
+				
+				OnKilledOutput                              
+				{
+					Target boss_dead_relay					
+					Action Trigger                
+				}
+					
+				OnBombDroppedOutput                       
+				{
+					Target boss_deploy_relay 	
+					Action Trigger                  
+				}
+			}
+		}		
+		
+		
+
+	WaveSpawn // 50 Demomen (250)
+		{
+			Where spawnbot
+			Name "W5_04"
+			WaitBeforeStarting 90
+			TotalCount 50			
+			MaxActive 20								
+			SpawnCount 5									
+			WaitBetweenSpawns 8							
+			TotalCurrency 250		
+				
+			TFBot
+				{
+					Class Demoman
+					Skill Easy
+				}
+		}
+	}
+
+
+//WAVE 5  /////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// 20 Scouts (100)
+// 5 Squads 1 Heavy 2 Medics (300)
+// 40 Pyros (200)
+// Squad 1 Giant Heavy 4 Medics (200)
+// Missions: Sentries 1/30, Spies 1/45,
+// Cash at start is $4700
+// Total cash in this wave is $800
+// Running Total cash is $5500
+///////////////////////////////////////////////////////////////////////////
+
+	Wave
+	{
+		StartWaveOutput
+		{
+			Target wave_start_relay_classic
+			Action Trigger
+		}
+		DoneOutput
+		{
+			Target wave_finished_relay
+			Action trigger
+		}
+
+		Checkpoint Yes
+		
+	WaveSpawn // 20 Scouts (100)
+		{
+			Where spawnbot
+			Name "W5_01"
+			TotalCount 20			
+			MaxActive 10								
+			SpawnCount 5									
+			WaitBetweenSpawns 8							
+			TotalCurrency 100	
+				
+			TFBot
+				{
+					Class Scout
+					Skill Easy
+				}
+		}
+		
+	WaveSpawn // 5 Squads 1 Heavy 2 Medics (300)
+		{
+			Where spawnbot
+			Name "W5_02"
+			TotalCount 15			
+			MaxActive 6								
+			SpawnCount 3	
+			WaitBetweenSpawns 20				
+			TotalCurrency 300
+				
+			Squad
+			{
+				TFBot
+				{
+					Class HeavyWeapons
+					Skill Easy
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic
+				}
+			}
+		}
+		
+	WaveSpawn // 40 Pyros (200)
+		{
+			Where spawnbot
+			Name "W5_03"
+			WaitForAllDead "W5_01"
+			WaitBeforeStarting 10
+			TotalCount 40			
+			MaxActive 10								
+			SpawnCount 5									
+			WaitBetweenSpawns 8							
+			TotalCurrency 200	
+				
+				TFBot
+				{
+					Class Pyro
+					Skill Easy
+				}
+		}
+		
+	WaveSpawn // Squad 1 Giant Heavy 4 Medics (200)
+		{
+			Where spawnbot
+			WaitForAllSpawned "W5_02"
+			WaitBeforeStarting 30
+			TotalCount 5			
+			MaxActive 5								
+			SpawnCount 5					
+			TotalCurrency 200
+				
+			Squad
+			{
+				TFBot
+				{
+					Template T_TFBot_Giant_Heavyweapons
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic
+				}
+			}
+		}
+	}
+
+
+//WAVE 6  /////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// 50 Mixed Scouts and DemoKnights (250)
+// 10 Squads 4 Soldiers 1 Medic (200)
+// 3 Giant Pyros (150)
+// 40 Huntsmen Snipers(200)
+// Missions: Sentries 1/30, Engies 1/45
+// Cash at start is $5500
+// Total cash in this wave is $800
+// Running Total cash is $6300
+///////////////////////////////////////////////////////////////////////////
+
+	Wave
+	{
+		StartWaveOutput
+		{
+			Target wave_start_relay_classic
+			Action Trigger
+		}
+		DoneOutput
+		{
+			Target wave_finished_relay
+			Action trigger
+		}
+
+		Checkpoint Yes
+		
+	WaveSpawn // 50 Mixed Scouts, DemoKnights (150)
+		{
+			Where spawnbot
+			Name "W6_01"
+			TotalCount 50			
+			MaxActive 10								
+			SpawnCount 5
+			WaitBetweenSpawns 10
+			TotalCurrency 250	
+				
+			RandomChoice
+				{
+					TFBot
+					{
+						Class Scout
+						Skill Easy
+					}
+					TFBot
+					{
+						Template T_TFBot_Demoman_Knight
+					}
+				}
+		}
+	
+	WaveSpawn // 10 Squads 4 Soldiers 1 Medic (200)
+		{
+			Where spawnbot
+			Name "W6_02"
+			TotalCount 50			
+			MaxActive 10								
+			SpawnCount 5
+			WaitBetweenSpawns 10			
+			TotalCurrency 200	
+				
+			Squad
+				{
+					TFBot
+					{
+						Class Soldier
+						Skill Easy
+					}
+					TFBot
+					{
+						Class Soldier
+						Skill Easy
+					}
+					TFBot
+					{
+						Class Soldier
+						Skill Easy
+					}
+					TFBot
+					{
+						Class Soldier
+						Skill Easy
+					}
+					TFBot
+					{
+						Template T_TFBot_Medic
+					}
+				}
+		}
+	
+	WaveSpawn // 3 Giant Pyros (150)
+		{
+			Where spawnbot
+			Name "W6_03"
+			WaitForAllSpawned "W6_02"
+			WaitBeforeStarting 30
+			TotalCount 3			
+			MaxActive 3								
+			SpawnCount 1
+			WaitBetweenSpawns 20			
+			TotalCurrency 150	
+				
+			TFBot
+				{
+					Template T_TFBot_Giant_Pyro
+				}
+		}
+		
+	WaveSpawn // 40 Huntsmen Sniper (200)
+		{
+			Where flankers	
+			WaitForAllSpawned "W6_02"
+			WaitBeforeStarting 30
+			TotalCount 40			
+			MaxActive 16								
+			SpawnCount 4 									
+			WaitBetweenSpawns 4							
+			TotalCurrency 200	
+				
+			TFBot
+				{
+					Template T_TFBot_Sniper_Huntsman
+				}
+		}
+	}
+
+	
+//WAVE 7  /////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// 4 Tanks (200)
+// Mixed Melee Scouts, Demoknights, Pyros and FastChamp Heavies
+// Missions: Sentries 1/30, Snipers 2/45, Spies 2/45,
+// Cash at start is $6300
+// Total cash in this wave is $800
+// Running Total cash is $7100
+///////////////////////////////////////////////////////////////////////////
+
+	Wave
+	{
+		StartWaveOutput
+		{
+			Target wave_start_relay_classic
+			Action Trigger
+		}
+		DoneOutput
+		{
+			Target wave_finished_relay
+			Action trigger
+		}
+
+		Checkpoint Yes
+		
+	WaveSpawn // 2 Tanks (200)
+		{						
+			TotalCount 2
+			WaitBetweenSpawns 14
+			TotalCurrency 200
+			
+			FirstSpawnOutput 
+			
+			{
+				Target boss_spawn_relay                       
+				Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 20000					
+				Speed 75								
+				Name "TankBossB"
+				StartingPathTrackNode "tank_path_b_10"
+				
+				OnKilledOutput                              
+				{
+					Target boss_dead_relay					
+					Action Trigger                
+				}
+					
+				OnBombDroppedOutput                       
+				{
+					Target boss_deploy_relay 	
+					Action Trigger                  
+				}
+			}
+		}	
+	
+	WaveSpawn // 1 Tank (100)
+		{						
+			TotalCount 1
+			WaitBeforeStarting 7
+			TotalCurrency 100
+			
+			FirstSpawnOutput 
+			
+			{
+				Target boss_spawn_relay                       
+				Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 20000					
+				Speed 75								
+				Name "TankBossA"
+				StartingPathTrackNode "tank_path_a_10"
+				
+				OnKilledOutput                              
+				{
+					Target boss_dead_relay					
+					Action Trigger                
+				}
+					
+				OnBombDroppedOutput                       
+				{
+					Target boss_deploy_relay 	
+					Action Trigger                  
+				}
+			}
+		}
+
+	WaveSpawn // 1 Tank (100)
+		{						
+			TotalCount 1
+			WaitBeforeStarting 21
+			TotalCurrency 100
+			
+			FirstSpawnOutput 
+			
+			{
+				Target boss_spawn_relay                       
+				Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 20000					
+				Speed 75								
+				Name "TankBossA"
+				Skin 1
+				StartingPathTrackNode "tank_path_a_10"
+				
+				OnKilledOutput                              
+				{
+					Target boss_dead_relay					
+					Action Trigger                
+				}
+					
+				OnBombDroppedOutput                       
+				{
+					Target boss_deploy_relay 	
+					Action Trigger                  
+				}
+			}
+		}			
+	
+	WaveSpawn // Support 
+		{
+			Where spawnbot
+			WaitBeforeStarting 20
+			TotalCount 50			
+			MaxActive 12								
+			SpawnCount 6									
+			WaitBetweenSpawns 6							
+			TotalCurrency 400	
+			
+			Support 1
+			
+			RandomChoice
+			{
+				TFBot
+				{
+					Template T_TFBot_Scout_Melee
+				}
+				TFBot
+				{
+					Template T_TFBot_Demoman_Knight
+				}
+				TFBot
+				{
+					Class Pyro
+					Skill Easy
+					Attributes AlwaysFireWeapon
+				}
+				TFBot
+				{
+					Template T_TFBot_Heavyweapons_Heavyweight_Champ_Fast
+				}
+			}
+		}
+	}
+}
+

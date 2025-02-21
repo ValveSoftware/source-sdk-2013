@@ -1,0 +1,493 @@
+// This .pop file defines a Population, and is usually owned and
+// controlled by the tf_populator entity.
+//
+// Populations consist of one or more Populators.  
+// All Populators in a .pop file run simultaneously unless stated otherwise. 
+// For example, if you have three PeriodicSpawn populators, all three
+// will be spawning entities according to their parameters.
+// 
+// In general, Populators contain one Spawner.  When a Spawner is invoked,
+// it actually spawns one or more entities into the world. 
+
+// NOTE: This particular .pop file is for documentation purposes, and
+// tries to show all available features, not necessarily a useful population.
+//
+
+// Available Global Options (specified outside Populators):
+//
+// StartingCurrency	<amount>
+//		Specifies the amount of currency that players should start with
+//
+
+// Templates are specified in a separate block of Templates, and then referenced 
+// inside WaveSpawn or TFBot entries. 
+
+// Available Populators:
+//
+// RandomPlacement
+//		A RandomPlacement Populator is invoked once at the start
+//		of each round, and spawns entities at random locations
+//		throughout the map. For example, a RandomPlacement might
+//		place random Sentry guns throughout a map.
+//
+// PeriodicSpawn
+//		A PeriodicSpawn Populator invokes its Spawner periodically.
+//		For example, a PeriodicSpawn might spawn a TFBot every 30 seconds.
+//
+// WaveSpawn
+//		A WaveSpawn Populator spawns a "wave" of N entities, and has
+//		the special property that only ONE WaveSpawn at a time in a
+//		.pop file is active - the first one. Once that WaveSpawn is
+//		finished, it shuts off and the next WaveSpawn in the file
+//		becomes active, and so on.
+// 
+
+
+// Available Spawners:
+//
+// TFBot 
+//		Spawns TFBots of a specified class and skill.
+//
+// SentryGun
+//		Spawns unowned Sentry guns at a specified upgrade level.
+//
+// RandomChoice
+//		Contains a set of spawners and invokes one at random.
+//
+// Squad
+//		Contains a set of spawners, all are invoked and collected into a "squad".
+//
+// Mob
+//		Spawns N instances of the spawner it contains, ie: 15 TFBots.
+//
+
+
+ExamplePopulation
+{
+	// Global options
+	StartingCurrency				100		// Players start with 100 bucks
+	RespawnWaveTime					12		// Override default respawn time as if it was being set with entity i/o
+	CanBotsAttackWhileInSpawnRoom	no		// Default if omitted is "yes".  Set to "no" to prevent bots from attacking while invulnerable in their spawn rooms
+	AddSentryBusterWhenDamageDealtExceeds 3000 // Default is ommited is 3000 points of damage inflicted by your sentry gun. Set this to override the threshold at which a Sentry Buster will be dispatched.
+	AddSentryBusterWhenKillCountExceeds 15	// Default is ommited is 15 kills inflicted by your sentry gun. Set this to override the threshold at which a Sentry Buster will be dispatched.
+	Advanced	1							// Flags this experienced as difficult.  Things like achievements look for this.
+	
+	Templates
+	{
+		// A template for a TFBot entry that creates a Natascha wielding Heavy.
+		T_TFBot_NataschaHeavy
+		{
+			Class HeavyWeapons
+			Skill Easy
+			Attributes RemoveOnDeath
+			Item "Natascha"
+			Item "Football Helmet"
+		}
+	
+		// A template for a WaveSpawn creates 5 Natascha wielding Heavies. 
+		//	- Note that you can reference other templates inside templates.
+		//	- In this example, the wave spawn template overrides the skill of the Heavies to be Normal (which the Template has initialized as Easy)
+		T_WaveSpawn_Heavies
+		{
+			TotalCount 5
+			MaxActive 1
+			WaveDoneWhen AllDead		
+
+			TFBot
+			{
+				Template T_TFBot_NataschaHeavy
+				Skill Normal   
+			}
+		}
+		
+		// A template for a WaveSpawn that creates Pyros, and drops lots of money. 
+		T_WaveSpawn_MoneyPyros
+		{
+			Template T_WaveSpawn_Heavies
+			
+			TotalCurrency 2000
+			
+			// WARNING NOTE: This block overrides the entire TFBot block in T_WaveSpawn_Heavies.
+			// i.e. this will NOT result in Pyros wielding natachas & helmets & being restricted to melee only.
+			TFBot
+			{
+				Class Pyro
+			}
+		}
+	}
+
+	// A "mission" defines a set of TFBots that the "AI Director" can send in to accomplish certain context-specific goals	
+	Mission
+	{
+		Objective Sniper							// The mission objective. Available missions: 
+													//    "Sniper" (add harassing snipers)
+													//    "Spy" (add harassing spies)
+													//    "DestroySentries" (send in bots who focus on killing overly successful sentry guns)
+													//    "Engineer" (add harassing engineers who will build sentry nests on bot_hint_sentrygun entities)
+
+		Where spawn_sniper_mission					// Where the mission bots will spawn
+
+		TeleportWhere								// For Engineer missions. When the bot builds a teleporter, that teleporter will become a spawn point for bots with a Where name matching this TeleportWhere name.
+
+		BeginAtWave 4								// The wave number (1 to N) at which this mission becomes active
+		RunForThisManyWaves 3						// How many waves this mission is active. This example would have snipers active for waves 4, 5, and 6
+		
+		CooldownTime 90								// The minimum time between spawning mission sorties
+		DesiredCount 2								// How many copies of the spawner should be sent in
+
+		TFBot										// The mission payload
+		{
+			Class Sniper
+			Skill Hard
+			Name Sniper
+		}
+	}
+
+	
+	// this populator places 30 idling, bat-wielding Scouts scattered throughout the map
+	RandomPlacement
+	{
+		Count 30				// the number of times to invoke the given spawner
+		
+		MinimumSeparation 750	// the minimum distance between entities spawned
+		
+		TFBot					// a Spawner that spawns a TFBot
+		{
+			Name "Badass Bot"				// (player) name, which will be displayed in-game.  will default to the class name if not specified.
+			Class Scout						// class can be: Scout, Soldier, Demoman, Heavyweapons, Pyro, Medic, Sniper, Spy, Engineer
+			Skill Easy						// skill can be: Easy, Normal, Hard, or Expert
+			Health <value>					// if specified, overrides the normal starting health of this bot
+			Scale <value>					// if specified, sets the model scale of this bot (overrides the default scale for minibosses)
+			Item <item definition name>		// if specified, gives the bot the item. Multiple items can be listed. Each item will remove any
+											// existing item in its loadout slot, so if you specify multiple items in the same loadout slot, 
+											// only the last one will be left on the bot.
+			Attributes RemoveOnDeath		// attributes can be:
+											//		RemoveOnDeath (kick this bot from the game when it dies)
+											//		Aggressive (make this bot "aggressive" - behavior dependant)
+											//		SuppressFire (don't allow this bot to fire its weapon)
+											//		DisableDodge (don't allow this bot to dodge left/right in combat)
+											//		BecomeSpectatorOnDeath (send this bot to the spectator team when it dies)
+											//		RetainBuildings (any buildings built by this bot should not blow up if this bot is removed)
+											//		SpawnWithFullCharge (any weapons that build up a charge over time will spawn fully charged)
+											//		AlwaysCrit (all shots will be critical hits)
+											//		HoldFireUntilFullReload (dont fire until our weapon is fully reloaded after a barrage - for rocket launchers, grenade launchers, shotguns, etc)
+											//		DefensiveBuffHigh (takes 90% less damage, has a particle effect)
+											//		AlwaysFireWeapon (constantly fire our weapon)
+											
+			WeaponRestrictions MeleeOnly	// if specified, restricts the weapons this bot is allowed to use. Restrictions can be: MeleeOnly, PrimaryOnly, or SecondaryOnly
+			BehaviorModifiers Idler			// if specified, sets this bot's initial behavior. Allowed values:
+											//		Idler (stands around idle until a player gets close or injures them)
+											//		Mobber	(picks a random player and chases them down, regardless of where they run)
+			CharacterAttributes				// same attributes as those listed in items_master.txt
+			{
+				"move speed bonus"			"3"
+				"dmg from sentry reduced"	"0.8"
+			}											
+			Tag <custom tag>				// if specified, adds the given custom tag (no internal spaces) to the bot's set of tags. Bots will pay attention to func_nav_avoid or func_nav_prefer entities with matching tags.
+			MaxVisionRange <range>			// if specified, sets the farthest range at which this bot can see enemies
+		}
+	}
+
+
+	// this populator places 10 level three sentry guns scattered throughout the map, but only on navigation areas marked as SENTRY_SPOT
+	RandomPlacement
+	{
+		Count 10
+		
+		MinimumSeparation 750
+		
+		NavAreaFilter SENTRY_SPOT			// when collecting potential nav areas to spawn, only consider areas that have the SENTRY_SPOT flag
+		
+		SentryGun							// a Spawner that spawns a Sentry gun
+		{
+			Level 3							// ... a level 3 Sentry gun (can be 1 or 2 as well)
+		}
+	}
+
+	
+	// every 60 to 90 seconds, spawn either a melee-only mob of TFBots that chase down the players
+	// or spawn a squad of 4 TFBots that move together and attack the players
+	PeriodicSpawn
+	{
+		Where Behind						// find a nearby hidden spot behind the players to spawn
+
+		When								// specify how often our Spawner is invoked. In this case, we pick a random
+		{									// interval between 60 and 90 seconds.  Alternatively, we could also say
+			MinInterval 60					// "When 30" to invoke our Spawner every 30 seconds.
+			MaxInterval 90
+		}
+		
+		// our Spawner is a RandomChoice, which picks at random from the Spawners it contains
+		RandomChoice
+		{
+			Squad		// choice 1: a Squad Spawner which, in this case, creates a squad of 4 TFBots: Soldier, Pyro, Demoman, and Heavyweapons
+			{
+				FormationSize 125	// the size of the formation (for a circle formation, this is the radius)
+
+				TFBot
+				{
+					Class Soldier
+					Skill Easy
+				}
+
+				TFBot
+				{
+					Class Pyro
+					Skill Easy
+				}
+
+				TFBot
+				{
+					Class Demoman
+					Skill Easy
+				}
+
+				TFBot
+				{
+					Class HeavyWeapons
+					Skill Easy
+				}
+			}
+
+			Mob		// choice 2: a Mob Spawner which will create a mob of 15 bat-wielding Scout mobbers
+			{
+				Count 15
+
+				TFBot
+				{
+					Class Scout
+					WeaponRestrictions MeleeOnly				
+					BehaviorModifiers Mobber
+				}
+			}
+			
+			Mob		// choice 3: a Mob Spawner which will create a mob of 15 fist-wielding Heavy mobbers
+			{
+				Count 15
+
+				TFBot
+				{
+					Class HeavyWeapons
+					WeaponRestrictions MeleeOnly				
+					BehaviorModifiers Mobber
+				}
+			}
+			
+			Mob		// choice 4: a Mob Spawner which will create a mob of 15 axe-wielding Pyro mobbers
+			{
+				Count 15
+
+				TFBot
+				{
+					Class Pyro
+					WeaponRestrictions MeleeOnly				
+					BehaviorModifiers Mobber
+				}
+			}
+			
+			Mob		// choice 5: a Mob Spawner which will create a mob of 15 knife-wielding Spy mobbers
+			{
+				Count 15
+
+				TFBot
+				{
+					Class Spy
+					WeaponRestrictions MeleeOnly
+					BehaviorModifiers Mobber
+				}
+			}
+		}
+	}
+
+
+	// every 30 seconds, throw in a Spy or a Sniper to keep the players on their toes
+	PeriodicSpawn
+	{
+		Where Anywhere						// find a nearby hidden spot spawn
+
+		When 30								// spawn every 30 seconds
+
+		RandomChoice
+		{		
+			TFBot
+			{
+				Class Sniper
+				Skill Normal
+				Attributes RemoveOnDeath			
+			}
+
+			TFBot
+			{
+				Class Spy
+				Skill Normal
+				Attributes RemoveOnDeath			
+			}
+		}
+	}
+	
+	// a single wave can contain multiple WaveSpawns
+	Wave
+	{
+		Description "Lots of bad guys in this wave!"	// the given description text will be displayed in the HUD when the prior Wave is counting down its 'WaitWhenDone' timer, and thereafter.
+		Sound "Announcer.IncomingMob"			// the given sound will be played when this Wave starts
+		WaitWhenDone 25					// specifies a delay, in seconds, to wait after this wave is "done" 
+
+		StartWaveOutput					// when this Wave becomes active, fire an output to the given target entity
+		{
+			Target MyNamedEntity			// the mapper-specified name of an entity
+			Action OnTrigger			// the action to send to the entity
+		}
+
+		DoneOutput					// when this Wave is done, after the WaitWhenDone timer elapses
+		{
+			Target MyNamedEntity
+			Action OnTrigger
+		}
+
+		WaveSpawn
+		{
+			Name "FIRST WAVE"					// Name of the wave. Not required, but if another wave is waiting for this wave, this wave needs a name.
+			Where wave_spawn_here				// Defines where this wave will spawn into the environment.
+												// In this case, an entity name of "wave_spawn_here" was given.
+												// All entities in the map with that name will be collected
+												// and one picked at random as the location to spawn from.
+												// Alternatively, these special Where locations can be used:
+												// AHEAD	(spawns wave somewhere nearby ahead of the players, just out of sight)
+												// BEHIND	(spawns wave somewhere nearby behind the players, just out of sight)
+												// ANYWHERE (spawns wave somewhere nearby the players, just out of sight)
+			
+			TotalCount 16						// defines the total number of times the Spawner will be invoked in this wave
+			MaxActive 8							// defines the maximum number of entities from this WaveSpawn that can be alive at the same time
+			SpawnCount 4						// defines the number of entities to spawn at a time as a group. Default is 1.	
+			TotalCurrency 200					// Total amount of currency dropped by this wave. Should be cleanly divisible by TotalCount, so bots all drop the same amount.
+	
+			WaitBeforeStarting 5				// specifies the duration in seconds to wait once this WaveSpawn becomes active 
+												// and the first time its Spawner is invoked
+												
+			Support 1							// Marks this WaveSpawn as a Support wave. Support waves will keep running until all 
+												// non-Support waves are finished, even after the TotalCount is reached. Support waves
+												// will not drop any more currency after TotalCurrency is reached.
+												
+			RandomSpawn 1						// Marks the WaveSpawn as wanting to select a new "Where" spawn location for every bot that spawns.
+												// The default is 0, which spawns the entire SpawnCount group at the same location.
+												// The next group will pick a random "Where" spawn location for the entire group to use.
+												
+			WaitBetweenSpawns 0					// specifies a delay, in seconds, between spawning SpawnCount groups of entities
+			
+			// ***NOTE: Any of the sound and text warnings as well as the outputs below can be omitted. They are all listed here for completeness.
+			
+			StartWaveWarningSound "Player.YouAreIt"				// when this WaveSpawn becomes active (which might be before it starts spawning), emit this sound to all players
+			StartWaveOutput										// when this WaveSpawn becomes active, fire an output to the given target entity
+			{
+				Target MyNamedEntity			// the mapper-specified name of an entity
+				Action OnTrigger				// the action to send to the entity
+			}
+			
+			FirstSpawnWarningSound "Player.YouAreIt"			// when this WaveSpawn first invokes its Spawner, emit this sound to all players
+			FirstSpawnOutput									// when this WaveSpawn first invokes its Spawner, fire an output to the given target entity
+			{
+				Target MyNamedEntity
+				Action OnTrigger
+			}
+	
+			LastSpawnWarningSound "Player.YouAreIt"				// when this WaveSpawn invokes its Spawner for the last time, emit this sound to all players
+			LastSpawnOutput										// when this WaveSpawn invokes its Spawner for the last time, fire an output to the given target entity
+			{
+				Target MyNamedEntity
+				Action OnTrigger
+			}
+	
+			DoneWarningSound "Player.YouAreIt"					// when this WaveSpawn relinquishes control to the next WaveSpawn, emit this sound to all players
+			DoneOutput											// when this WaveSpawn relinquishes control to the next WaveSpawn, fire an output to the given target entity
+			{
+				Target MyNamedEntity
+				Action OnTrigger
+			}
+	
+			// the Spawner for this WaveSpawn will pick one of three TFBots at random each time it is invoked
+			RandomChoice
+			{
+				TFBot
+				{
+					Class Medic
+					Skill Easy
+					Attributes RemoveOnDeath
+				}
+				TFBot
+				{
+					Class Soldier
+					Skill Easy
+					Attributes RemoveOnDeath
+				}
+				TFBot
+				{
+					Class Demoman
+					Skill Easy
+					Attributes RemoveOnDeath
+				}
+			}
+		}
+		
+		// the next wave spits out 10 Heavies and waits for them to all die
+		WaveSpawn 
+		{
+			Name "HEAVY WAVE"
+			Where wave_spawn_here
+			
+			TotalCount 10
+			MaxActive 10
+			WaitForAllSpawned "FIRST WAVE"								// waits for the wave spawn named "FIRST WAVE" to say it is done spawning all of its TFBots before starting
+	
+			TFBot
+			{
+				Class Heavyweapons
+				Skill Easy
+				Attributes RemoveOnDeath
+			}
+		}
+		
+		// the last wave brings a horde of Pyros that come out in groups of 10
+		WaveSpawn
+		{
+			Where wave_spawn_here
+			
+			TotalCount 30
+			MaxActive 10
+	
+			TFBot
+			{
+				Class Pyro
+				Skill Normal
+				Attributes RemoveOnDeath
+			}
+		}
+
+		WaveSpawn
+		{
+			TotalCurrency 25		// the total amount of currency dropped by all the Tanks in this wave
+			TotalCount 1
+
+			Tank
+			{
+				Health 50000
+				Speed 75
+				Name "Sherman"
+				Skin 0									// 0 - normal skin, 1 - final wave skin
+				StartingPathTrackNode "boss_path_1"		// if this is omitted, the Tank will find the path_track with no previous node and start there
+
+				OnKilledOutput							// output sent when the Tank is killed
+				{
+					Target tank_died_relay
+					Action Trigger                         
+				}
+
+				OnBombDroppedOutput						// output sent when the Tank drops its bomb once it reaches the end of its path
+				{
+					Target bomb_dropped_relay
+					Action Trigger                         
+				}
+			}
+		}
+
+	} // end Wave
+}

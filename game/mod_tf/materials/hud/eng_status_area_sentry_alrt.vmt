@@ -1,0 +1,14 @@
+"UnlitGeneric"
+{
+	"$translucent" 1
+	"$baseTexture" "hud\eng_status_area_sentry_alrt"
+	"$vertexcolor" 1
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"$detail"		"hud\eng_status_area_sentry_alrt_mask"
+	"$detailblendmode"	"9"
+	"$separatedetailuvs"	"1"
+
+	"%keywords" "tf"
+}
+

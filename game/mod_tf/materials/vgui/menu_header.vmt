@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\menu_header"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

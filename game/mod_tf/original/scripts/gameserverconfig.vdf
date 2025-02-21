@@ -1,0 +1,21 @@
+// CSTRIKE DEDICATED SERVER CONFIGURATION SPECIFICATION FOR GUI
+"GameServerConfig"
+{
+	"mp_timelimit"
+	{
+		"name"	"Time per map (minutes)"
+		"type"	"string"
+	}
+
+	"mp_winlimit"
+	{
+		"name" "Win limit (score)"
+		"type" "string"
+	}
+	
+	"mp_maxrounds"
+	{
+		"name" "Round limit (rounds)"
+		"type" "string"
+	}
+}

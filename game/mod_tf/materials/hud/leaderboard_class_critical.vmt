@@ -1,0 +1,19 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "hud\leaderboard_class_critical"
+	"$vertexcolor" 1
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"%keywords" "tf"
+	"$translucent" 1
+   "Proxies"
+   {
+      "AnimatedTexture"
+      {
+         "animatedtexturevar" "$basetexture"
+         "animatedtextureframenumvar" "$frame"
+         "animatedtextureframerate" "5"
+      }
+   }
+}
+

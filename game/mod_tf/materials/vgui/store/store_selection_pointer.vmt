@@ -1,0 +1,6 @@
+"unlitGeneric"
+{
+	"$baseTexture" "vgui/store/store_selection_pointer"
+	"$translucent" 1
+}
+

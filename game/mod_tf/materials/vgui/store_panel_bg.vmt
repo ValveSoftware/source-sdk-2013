@@ -1,0 +1,6 @@
+"unlitGeneric"
+{
+	"$baseTexture" "vgui/store_panel_bg"
+	"$translucent" 1
+}
+

@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\loadout_bottom_gradient"
+	"$translucent" 1
+	"$ignorez" 1
+}

@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\button_central_hover"
+	"$translucent" 1
+	"$ignorez" 1
+}

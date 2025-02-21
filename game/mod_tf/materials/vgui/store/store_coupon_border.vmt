@@ -1,0 +1,6 @@
+"unlitGeneric"
+{
+	"$baseTexture" "vgui/store/store_coupon_border"
+	"$translucent" 1
+}
+

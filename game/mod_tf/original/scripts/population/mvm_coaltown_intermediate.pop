@@ -1,0 +1,1143 @@
+#base robot_giant.pop
+#base robot_standard.pop
+
+WaveSchedule
+{
+
+	StartingCurrency		400
+	RespawnWaveTime 		7
+	CanBotsAttackWhileInSpawnRoom no
+	Advanced	1
+
+	Mission // sentry buster
+	{
+		Objective DestroySentries
+
+		InitialCooldown 5
+		Where spawnbot
+		BeginAtWave 1
+		RunForThisManyWaves 9
+
+		CooldownTime 27         
+
+            TFBot
+			{
+				Template T_TFBot_SentryBuster
+            }
+	}	
+	Mission // Sniper - wave 3
+	{
+		Objective Sniper
+
+		InitialCooldown 30
+		Where spawnbot_mission_sniper
+		BeginAtWave 3
+		RunForThisManyWaves 1
+		CooldownTime 30
+		DesiredCount 2
+
+		TFBot
+		{
+			Class Sniper
+			Skill Expert
+			Name Sniper
+			MaxVisionRange 3000
+		}
+	}
+	//WAVE 1 //Scouts and heavies//Currency 600 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+		{
+				Target wave_start_relay
+				Action Trigger
+			}
+		DoneOutput					
+		{
+				Target wave_finished_relay
+				Action trigger
+			}
+		WaitWhenDone 65
+		Checkpoint Yes
+
+		WaveSpawn 
+		{			
+			Name "primary_scouts"
+			
+			Where spawnbot
+			TotalCount 24
+			MaxActive 12
+			SpawnCount 3
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 1
+			TotalCurrency 100
+			
+			TFBot
+			{
+				Class Scout
+				Skill Easy
+			}
+		}
+		WaveSpawn 
+		{						
+			Where spawnbot_invasion
+			TotalCount 20
+			MaxActive 10
+			SpawnCount 5
+			WaitBeforeStarting 10
+			WaitBetweenSpawns 1
+			TotalCurrency 100
+			
+			RandomChoice
+			{
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+					Tag nav_prefer_flank_right
+					BehaviorModifiers push
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+					Tag nav_prefer_flank_left
+					BehaviorModifiers push
+				}
+			}
+		}
+		WaveSpawn 
+		{			
+			WaitForAllSpawned "primary_scouts"
+			
+			Where spawnbot
+			TotalCount 12
+			MaxActive 6
+			SpawnCount 2
+			WaitBeforeStarting 8
+			WaitBetweenSpawns 1
+			TotalCurrency 50
+			
+			TFBot
+			{
+				Class HeavyWeapons
+				Skill Easy
+			}
+		}
+		WaveSpawn 
+		{			
+			WaitForAllSpawned "primary_scouts"
+			
+			Where spawnbot
+			TotalCount 4
+			MaxActive 4
+			SpawnCount 2
+			WaitBeforeStarting 10
+			WaitBetweenSpawns 10
+			TotalCurrency 50
+			
+			TFBot
+			{
+				Class HeavyWeapons
+				Skill Easy
+				Tag nav_prefer_flank_right
+				BehaviorModifiers push
+			}
+		}
+		WaveSpawn 
+		{			
+			WaitForAllSpawned "primary_scouts"
+			
+			Where spawnbot
+			TotalCount 4
+			MaxActive 4
+			SpawnCount 2
+			WaitBeforeStarting 16
+			WaitBetweenSpawns 10
+			TotalCurrency 100
+			
+			TFBot
+			{
+				Class HeavyWeapons
+				Skill Easy
+				Tag nav_prefer_flank_left
+				BehaviorModifiers push
+			}
+		}
+		WaveSpawn 
+		{		
+			WaitForAllSpawned "primary_scouts"
+			
+			Where spawnbot_invasion
+			TotalCount 24
+			MaxActive 12
+			SpawnCount 4
+			WaitBeforeStarting 25
+			WaitBetweenSpawns 1
+			TotalCurrency 200
+			
+			RandomSpawn 1
+			
+			RandomChoice
+			{
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+				}
+				TFBot
+				{
+					Class Scout
+					Skill Easy
+				}
+			}
+		}
+	}
+	//WAVE 2 //Huntsman snipers, scouts, Tavish giant squads with huntsman and bigheal, 1x Tanks at 17.5k//Currency 800 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+		{
+				Target wave_start_relay
+				Action Trigger
+			}
+		DoneOutput					
+		{
+				Target wave_finished_relay
+				Action trigger
+			}
+		WaitWhenDone 65
+		Checkpoint Yes
+
+		WaveSpawn
+		{	
+			Name "primary_huntsman"
+			
+			Where spawnbot
+			TotalCount 24
+			MaxActive 12
+			SpawnCount 6
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 0
+			TotalCurrency 100
+			
+			TFBot
+			{
+				Template T_TFBot_Sniper_Huntsman
+			}
+		}
+		WaveSpawn
+		{	
+			WaitForAllSpawned "primary_huntsman"
+			
+			Where spawnbot_giant
+			TotalCount 10
+			MaxActive 10
+			SpawnCount 5
+			WaitBeforeStarting 5
+			WaitBetweenSpawns 1
+			TotalCurrency 100
+			
+			RandomSpawn 1
+			
+			TFBot
+			{
+				Template T_TFBot_Scout_Sandman
+			}
+		}
+		WaveSpawn 
+		{	
+			WaitForAllSpawned "primary_huntsman"
+			
+			Where spawnbot
+			TotalCount 10
+			MaxActive 10
+			SpawnCount 5
+			WaitBeforeStarting 15
+			WaitBetweenSpawns 7
+			TotalCurrency 200
+			
+			Squad 
+			{
+				TFBot
+				{
+					Template T_TFBot_Giant_DemoMan_PrinceTavish
+				}
+				TFBot
+				{
+					Template T_TFBot_Sniper_Huntsman                                          
+				}
+				TFBot
+				{
+					Template T_TFBot_Sniper_Huntsman                                          
+				}
+				TFBot
+				{
+					Template T_TFBot_Sniper_Huntsman                                        
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_BigHeal                                            
+				}
+			}
+		}
+		WaveSpawn
+		{
+			WaitForAllSpawned "primary_huntsman"
+		
+			TotalCount 1
+			WaitBeforeStarting 38
+			TotalCurrency 200
+			
+			FirstSpawnOutput                                                                                                                                                            
+			
+			{
+				Target boss_spawn_relay                                            
+				Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 17500
+				Speed 75
+				Name "tankboss"
+				StartingPathTrackNode "boss_path_a1"
+
+				OnKilledOutput                                  
+				{
+					Target boss_dead_relay
+					Action Trigger                         
+				}
+				
+				OnBombDroppedOutput                             
+				{
+					Target boss_deploy_relay
+					Action Trigger                         
+				}
+			}		
+		}
+		// WaveSpawn
+		// {
+			// WaitForAllSpawned "primary_huntsman"
+		
+			// TotalCount 1
+			// WaitBeforeStarting 53
+			// TotalCurrency 100
+			
+			// FirstSpawnOutput                                                                                                                                                            
+			
+			// {
+				// Target boss_spawn_relay                                            
+				// Action Trigger                         
+			// }
+
+			// Tank
+			// {
+				// Health 12500
+				// Speed 75
+				// Name "tankboss"
+				// StartingPathTrackNode "boss_path_a1"
+
+				// OnKilledOutput                                  
+				// {
+					// Target boss_dead_relay
+					// Action Trigger                         
+				// }
+				
+				// OnBombDroppedOutput                             
+				// {
+					// Target boss_deploy_relay
+					// Action Trigger                         
+				// }
+			// }		
+		// }
+		WaveSpawn 
+		{	
+			WaitForAllSpawned "primary_huntsman"
+			
+			Where spawnbot
+			TotalCount 5
+			MaxActive 5
+			SpawnCount 5
+			WaitBeforeStarting 58
+			WaitBetweenSpawns 1
+			TotalCurrency 100
+			
+			Squad 
+			{
+				TFBot
+				{
+					Template T_TFBot_Giant_DemoMan_PrinceTavish
+				}
+				TFBot
+				{
+					Template T_TFBot_Sniper_Huntsman                                          
+				}
+				TFBot
+				{
+					Template T_TFBot_Sniper_Huntsman                                          
+				}
+				TFBot
+				{
+					Template T_TFBot_Sniper_Huntsman                                        
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_BigHeal                                            
+				}
+			}
+		}
+		WaveSpawn
+		{	
+			WaitForAllSpawned "primary_huntsman"
+			
+			Where spawnbot_invasion
+			TotalCount 10
+			MaxActive 10
+			SpawnCount 5
+			WaitBeforeStarting 68
+			WaitBetweenSpawns 8
+			TotalCurrency 100
+			
+			TFBot
+			{
+				Template T_TFBot_Scout_Sandman
+			}
+		}
+	}
+	//WAVE 3 //Conch sollys with bigheal medics, rapid Giant solly squads finale//Currency 700 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+		{
+				Target wave_start_relay
+				Action Trigger
+			}
+		DoneOutput					
+		{
+				Target wave_finished_relay
+				Action trigger
+			}
+		WaitWhenDone 65
+		Checkpoint Yes
+
+		WaveSpawn 
+		{	
+			Name "primary_soldiers"
+			
+			Where spawnbot_invasion
+			TotalCount 48
+			MaxActive 12
+			SpawnCount 4
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 1
+			TotalCurrency 400
+			
+			Squad 
+			{
+				TFBot
+				{
+					Template T_TFBot_Soldier_Extended_Concheror
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_BigHeal                                       
+				}
+			}
+		}
+		WaveSpawn 
+		{	
+			WaitForAllSpawned  "primary_soldiers"
+			
+			Where spawnbot_giant
+			TotalCount 6
+			MaxActive 6
+			SpawnCount 3
+			WaitBeforeStarting 18
+			WaitBetweenSpawns 22
+			TotalCurrency 300
+			
+			Squad 
+			{
+				TFBot
+				{
+					Template T_TFBot_Giant_Soldier_Spammer
+				}
+				TFBot
+				{
+					Template T_TFBot_Soldier_Extended_Concheror
+				}
+				TFBot
+				{
+					Template T_TFBot_Soldier_Extended_Concheror
+				}
+			}
+		}
+	}
+	//WAVE 4 //3x Tanks at 13.3k each with scouts//Currency 700 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+		{
+			Target wave_start_relay
+			Action Trigger
+		}
+		DoneOutput					
+		{
+			Target wave_finished_relay
+			Action trigger
+		}
+		WaitWhenDone 65
+		Checkpoint Yes
+		
+		WaveSpawn 
+		{				
+			Where spawnbot_invasion
+			TotalCount 80
+			MaxActive 12
+			SpawnCount 4
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 1
+			TotalCurrency 400
+			
+			RandomSpawn 1
+			
+			RandomChoice
+			{
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+				}
+				TFBot
+				{
+					Class Scout
+					Skill Easy
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+				}
+				TFBot
+				{
+					Class Scout
+					Skill Easy
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+					Tag nav_prefer_flank_right
+					BehaviorModifiers push
+				}
+				TFBot
+				{
+					Class Scout
+					Skill Easy
+					Tag nav_prefer_flank_right
+					BehaviorModifiers push
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+					Tag nav_prefer_flank_left
+					BehaviorModifiers push
+				}
+				TFBot
+				{
+					Class Scout
+					Skill Easy
+					Tag nav_prefer_flank_left
+					BehaviorModifiers push
+				}
+			}
+		}
+		
+		WaveSpawn 
+		{			
+			TotalCount 1
+			WaitBeforeStarting 10
+			TotalCurrency 100
+
+			FirstSpawnOutput                                                                                                                                                            
+			{
+				Target boss_spawn_relay                                            
+				Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 13300
+				Speed 75
+				Name "tankboss"
+				StartingPathTrackNode "boss_path_a1"
+
+				OnKilledOutput                                  
+				{
+					Target boss_dead_relay
+					Action Trigger                         
+				}
+				
+				OnBombDroppedOutput                             
+				{
+					Target boss_deploy_relay 
+					Action Trigger                         
+				}
+
+			}			
+		}
+		WaveSpawn 
+		{			
+			TotalCount 1
+			WaitBeforeStarting 38
+			TotalCurrency 100
+
+			FirstSpawnOutput                                                                                                                                                            
+			{
+				Target boss_spawn_relay                                            
+				Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 13300
+				Speed 75
+				Name "tankboss"
+				StartingPathTrackNode "boss_path_a1"
+
+				OnKilledOutput                                  
+				{
+					Target boss_dead_relay
+					Action Trigger                         
+				}
+				
+				OnBombDroppedOutput                             
+				{
+					Target boss_deploy_relay 
+					Action Trigger                         
+				}
+
+			}			
+		}
+		WaveSpawn 
+		{			
+			TotalCount 1
+			WaitBeforeStarting 62
+			TotalCurrency 100
+
+			FirstSpawnOutput                                                                                                                                                            
+			{
+				Target boss_spawn_relay                                            
+				Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 13300
+				Speed 75
+				Name "tankboss"
+				StartingPathTrackNode "boss_path_a1"
+
+				OnKilledOutput                                  
+				{
+					Target boss_dead_relay
+					Action Trigger                         
+				}
+				
+				OnBombDroppedOutput                             
+				{
+					Target boss_deploy_relay 
+					Action Trigger                         
+				}
+
+			}			
+		}
+	}
+	//WAVE 5 //Boxing heavies with uber medics, GRU Heavies with uber medics, sandman scouts finale//Currency 1000 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+		{
+				Target wave_start_relay
+				Action Trigger
+			}
+		DoneOutput					
+		{
+				Target wave_finished_relay
+				Action trigger
+			}
+		WaitWhenDone 65
+		Checkpoint Yes
+
+		WaveSpawn 
+		{	
+			Name "primary_heavies"
+			
+			Where spawnbot_invasion
+			TotalCount 40
+			MaxActive 16
+			SpawnCount 4
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 1
+			TotalCurrency 300
+			
+			Squad 
+			{
+				TFBot
+				{
+					Template T_TFBot_Heavyweapons_Heavyweight_Champ
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_QuickUber                                    
+				}
+			}
+		}
+		WaveSpawn 
+		{	
+			Name "secondary_heavies"
+			WaitForAllSpawned "primary_heavies"
+			
+			Where spawnbot_invasion
+			TotalCount 24
+			MaxActive 16
+			SpawnCount 4
+			WaitBeforeStarting 15
+			WaitBetweenSpawns 1
+			TotalCurrency 300
+			
+			Squad 
+			{
+				TFBot
+				{
+					Template T_TFBot_Heavyweapons_Heavyweight_Champ_Fast
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_QuickUber                                    
+				}
+			}
+		}
+		WaveSpawn 
+		{	
+			Name "primary_scouts"
+			WaitForAllSpawned "secondary_heavies"
+			
+			Where spawnbot_giant
+			TotalCount 18
+			MaxActive 18
+			SpawnCount 18
+			WaitBeforeStarting 15
+			WaitBetweenSpawns 0
+			TotalCurrency 200
+			
+			RandomSpawn 1
+			
+			RandomChoice
+			{
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+					Tag nav_prefer_flank_right
+					BehaviorModifiers push
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+					Tag nav_prefer_flank_left
+					BehaviorModifiers push
+				}
+			}
+		}
+		WaveSpawn 
+		{	
+			WaitForAllSpawned "primary_scouts"
+			
+			Where spawnbot_invasion
+			TotalCount 12
+			MaxActive 12
+			SpawnCount 12
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 0
+			TotalCurrency 100
+			
+			RandomSpawn 1
+			
+			RandomChoice
+			{
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+					Tag nav_prefer_flank_right
+					BehaviorModifiers push
+				}
+				TFBot
+				{
+					Template T_TFBot_Scout_Sandman
+					Skill Expert
+					Tag nav_prefer_flank_left
+					BehaviorModifiers push
+				}
+			}
+		}
+		WaveSpawn 
+		{	
+			WaitForAllSpawned "primary_scouts"
+			
+			Where spawnbot_giant
+			TotalCount 8
+			MaxActive 8
+			SpawnCount 8
+			WaitBeforeStarting 5
+			WaitBetweenSpawns 1
+			TotalCurrency 100
+			
+			Squad 
+			{
+				TFBot
+				{
+					Template T_TFBot_Heavyweapons_Heavyweight_Champ_Fast
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_QuickUber                                    
+				}
+			}
+		}
+	}
+	//WAVE 6 //Giant flare pyro squads, champ heavy cooldown, 2x Tanks at 25k and 25k with giant spammer squads and giant flare pyros//Currency 1300 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+	Wave
+	{
+		StartWaveOutput
+		{
+				Target wave_start_relay
+				Action Trigger
+			}
+		DoneOutput					
+		{
+				Target wave_finished_relay
+				Action trigger
+			}
+		WaitWhenDone 65
+		Checkpoint Yes
+
+		WaveSpawn 
+		{	
+			
+			Where spawnbot
+			TotalCount 10
+			MaxActive 10
+			SpawnCount 5
+			WaitBeforeStarting 0
+			WaitBetweenSpawns 1
+			TotalCurrency 200
+			
+			Squad 
+			{
+				TFBot
+				{
+					Template T_TFBot_Giant_Pyro_Flare_Spammer
+				}
+				TFBot
+				{
+					Class HeavyWeapons
+					Skill Easy
+				}
+				TFBot
+				{
+					Class HeavyWeapons
+					Skill Easy
+				}
+				TFBot
+				{
+					Template T_TFBot_Pyro
+					Attributes AlwaysFireWeapon
+				}
+				TFBot
+				{
+					Template T_TFBot_Pyro
+					Attributes AlwaysFireWeapon
+				}
+			}
+		}
+		WaveSpawn 
+		{	
+			
+			Where spawnbot_giant
+			TotalCount 10
+			MaxActive 10
+			SpawnCount 10
+			WaitBeforeStarting 1
+			WaitBetweenSpawns 3
+			TotalCurrency 200
+			
+			RandomSpawn 1
+			
+			Squad 
+			{
+				TFBot
+				{
+					Template T_TFBot_Giant_Pyro_Flare_Spammer
+				}
+				TFBot
+				{
+					Class HeavyWeapons
+					Skill Easy
+				}
+				TFBot
+				{
+					Class HeavyWeapons
+					Skill Easy
+				}
+				TFBot
+				{
+					Template T_TFBot_Pyro
+					Attributes AlwaysFireWeapon
+				}
+				TFBot
+				{
+					Template T_TFBot_Pyro
+					Attributes AlwaysFireWeapon
+				}
+			}
+		}
+		WaveSpawn 
+		{	
+			Name "primary_heavies"
+			
+			Where spawnbot
+			TotalCount 44
+			MaxActive 12
+			SpawnCount 4
+			WaitBeforeStarting 40
+			WaitBetweenSpawns 1
+			TotalCurrency 200
+			
+			TFBot
+			{
+				Template T_TFBot_Heavyweapons_Heavyweight_Champ
+			}
+		}
+		WaveSpawn 
+		{			
+			Where spawnbot_giant
+			TotalCount 36
+			MaxActive 8
+			SpawnCount 4
+			WaitBeforeStarting 52
+			WaitBetweenSpawns 1
+			TotalCurrency 200
+			
+			RandomChoice 
+			{
+				TFBot
+				{
+					Template T_TFBot_Heavyweapons_Heavyweight_Champ_Fast
+					Tag nav_prefer_flank_right
+					BehaviorModifiers push
+				}
+				TFBot
+				{
+					Template T_TFBot_Heavyweapons_Heavyweight_Champ_Fast
+					Tag nav_prefer_flank_left
+					BehaviorModifiers push
+				}
+			}
+		}
+		WaveSpawn 
+		{		
+			Name "primary_tank"
+			WaitForAllSpawned "primary_heavies"
+			
+			TotalCount 1
+			WaitBeforeStarting 35
+			TotalCurrency 100
+
+			FirstSpawnOutput                                                                                                                                                            
+			{
+				Target boss_spawn_relay                                            
+				Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 25000
+				Speed 75
+				Name "tankboss"
+				StartingPathTrackNode "boss_path_a1"
+
+				OnKilledOutput                                  
+				{
+					Target boss_dead_relay
+					Action Trigger                         
+				}
+				
+				OnBombDroppedOutput                             
+				{
+					Target boss_deploy_relay 
+					Action Trigger                         
+				}
+
+			}			
+		}
+		WaveSpawn 
+		{		
+			WaitForAllSpawned "primary_heavies"
+			
+			TotalCount 1
+			WaitBeforeStarting 110
+			TotalCurrency 100
+
+			FirstSpawnOutput                                                                                                                                                            
+			{
+				Target boss_spawn_relay                                            
+				Action Trigger                         
+			}
+
+			Tank
+			{
+				Health 25000
+				Speed 75
+				Name "tankboss"
+				Skin 1
+				StartingPathTrackNode "boss_path_a1"
+
+				OnKilledOutput                                  
+				{
+					Target boss_dead_relay
+					Action Trigger                         
+				}
+				
+				OnBombDroppedOutput                             
+				{
+					Target boss_deploy_relay 
+					Action Trigger                         
+				}
+
+			}			
+		}
+		WaveSpawn 
+		{	
+			WaitForAllSpawned "primary_tank"
+			
+			Where spawnbot_giant
+			TotalCount 10
+			MaxActive 10
+			SpawnCount 5
+			WaitBeforeStarting 15
+			WaitBetweenSpawns 5
+			TotalCurrency 100
+			
+			RandomSpawn 1
+			
+			Squad 
+			{
+				TFBot
+				{
+					Template T_TFBot_Giant_Soldier_Spammer
+				}
+				TFBot
+				{
+					Class HeavyWeapons
+					Skill Easy
+				}
+				TFBot
+				{
+					Class HeavyWeapons
+					Skill Easy
+				}
+				TFBot
+				{
+					Template T_TFBot_Pyro
+					Attributes AlwaysFireWeapon
+				}
+				TFBot
+				{
+					Template T_TFBot_Pyro
+					Attributes AlwaysFireWeapon
+				}
+			}
+		}
+		WaveSpawn 
+		{	
+			WaitForAllSpawned "primary_tank"
+			
+			Where spawnbot
+			TotalCount 4
+			MaxActive 4
+			SpawnCount 2
+			WaitBeforeStarting 61
+			WaitBetweenSpawns 10
+			TotalCurrency 100
+			
+			Squad 
+			{
+				TFBot
+				{
+					Template T_TFBot_Giant_Pyro_Flare_Spammer
+				}
+				TFBot
+				{
+					Template T_TFBot_Medic_BigHeal
+				}
+			}
+		}
+		WaveSpawn 
+		{	
+			WaitForAllSpawned "primary_tank"
+			
+			Where spawnbot
+			TotalCount 12
+			MaxActive 4
+			SpawnCount 2
+			WaitBeforeStarting 30
+			WaitBetweenSpawns 1
+			TotalCurrency 100
+			
+			TFBot
+			{
+				Template T_TFBot_Pyro_Flaregun
+			}
+
+		}
+	}
+}	

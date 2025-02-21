@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\crafticon_common_items"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

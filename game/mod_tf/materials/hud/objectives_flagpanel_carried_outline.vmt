@@ -1,0 +1,23 @@
+"UnlitGeneric"
+{
+	"$translucent" 1
+	
+	"$softedges" "1"
+	"$edgesoftnessstart" .5
+	"$edgesoftnessend" .46
+	"$scaleedgesoftnessbasedonscreenres" 1
+	
+	"$glow" 1
+	"$glowcolor" "[0 0 0]"
+	"$glowalpha" .4
+	"$glowstart" .1
+	"$glowend" .5
+
+	"$distancealpha" "1"
+	"$baseTexture" "hud\objectives_flagpanel_carried_outline"
+	"$vertexcolor" 1
+	"$vertexalpha" 1
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"%keywords" "tf"
+}

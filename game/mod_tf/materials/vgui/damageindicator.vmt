@@ -1,0 +1,9 @@
+"UnlitGeneric"
+{
+//	"$translucent" 1
+	"$basetexture" "VGUI/damageindicator"
+	"$vertexcolor" 1
+	"$vertexalpha" 1
+	"$ignorez" 1
+	"$additive" 1
+}

@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\glyph_server_browser"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\loadout_round_rect_selected"
+	"$translucent" 1
+	"$ignorez" 1
+}

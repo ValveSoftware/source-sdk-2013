@@ -1,0 +1,8 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\replay\replay_icon_menu"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexalpha" 1
+	"$vertexcolor" 1
+}

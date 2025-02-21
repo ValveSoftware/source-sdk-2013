@@ -1,0 +1,17 @@
+// Override this file in your mod directory so you can load the base HL2 file as well
+// as new properties.  
+// NOTE: Listing a property twice (e.g. in separate files) means that
+// the values in the second definition will override the first definition
+
+// NOTE: Each file must have a unique name.  The physics system does not understand mods and will not
+// parse the same file (compared by name) twice.
+
+surfaceproperties_manifest
+{
+	"file"		"scripts/surfaceproperties.txt"
+	
+	// List additional surface property files here:
+	"file"		"scripts/surfaceproperties_hl2.txt"
+	"file"		"scripts/surfaceproperties_tf.txt"
+}
+

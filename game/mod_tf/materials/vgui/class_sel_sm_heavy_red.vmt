@@ -1,0 +1,8 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\class_sel_sm_heavy_red"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexalpha" 1
+	"$vertexcolor" 1
+}

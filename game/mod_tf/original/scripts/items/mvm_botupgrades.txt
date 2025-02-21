@@ -1,0 +1,75 @@
+// mvm_botupgrades.txt
+"upgrades"
+{
+	"1"
+	{
+		// Damage - Normal
+		"attribute"	"damage bonus"		// attrib to hook
+		"value"	"0.10"				// percent
+		"cost"	"100"
+	}
+	"2"
+	{
+		// Fire Speed - Normal
+		"attribute"	"fire rate bonus"	// attrib to hook
+		"value"		"-0.1"				// percent
+		"cost"		"100"
+		"max" 		"-2.0"
+	}
+	"3"
+	{
+		"attribute"	"heal on kill"
+		"value"		"100"			
+		"cost"		"100"
+	}
+	"4"
+	{
+		"attribute"	"AlwaysCrit"	// (Special Case) bot m_attribute 
+		"value"		"512"				// CTFBot::ALWAYS_CRIT;
+		"cost"		"600"
+		"max" 		"1"
+		"IsBotAttr" "1"			// appends value to m_attribute array
+	}
+	"5"
+	{
+		"attribute"	"critboost on kill"	// attrib to hook
+		"value"		"1"				
+		"cost"		"100"
+		"max" 		"1"
+	}
+	"6"
+	{
+		"attribute"	"faster reload rate"	// attrib to hook
+		"value"		"-0.1"				// percent
+		"cost"		"100"
+		"max" 		"-2.0"
+	}
+	"7"
+	{
+		"attribute"	"move speed bonus"
+		"value"		"0.1"
+		"cost"		"100"
+		"base"		"1"
+	}
+	"8"
+	{
+		"attribute"	"health regen"  // regen per second
+		"value"		"10"
+		"cost"		"100"
+	}
+	"9"
+	{
+		"attribute"	"max health additive bonus"	//
+		"value"		"100"
+		"cost"		"100"
+		"weight"	"2"
+	}
+	"10"
+	{
+		"attribute"	"bot skill"	// (Special Case) m_skill easy, normal, hard, expert
+		"value"		"1"
+		"cost"		"200"
+		"max" 		"3"
+		"IsSkillAttr" "1"		// flag that this is a skill attribute
+	}
+}

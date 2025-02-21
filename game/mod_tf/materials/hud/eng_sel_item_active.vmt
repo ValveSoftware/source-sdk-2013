@@ -1,0 +1,32 @@
+"UnlitGeneric"
+{
+	"$translucent" 1
+	"$baseTexture" "hud\color_dark_opaque_small"
+	"$detail" "hud\eng_build_item_mask"
+	$detailscale 1
+	$detailblendmode 8
+	$distancealphafromdetail 1
+
+	// give it a slight outer soft edge
+	$softedges 1
+	$edgesoftnessstart 0.55
+    $edgesoftnessend 0.5
+	$scaleedgesoftnessbasedonscreenres 1
+
+	// give it a white outline
+	$outline 1
+	$outlinecolor "[0.78 0.73 0.63]"
+	$outlinestart0 0.4
+	$outlinestart1 0.5
+	$outlineend0 0.5.5
+	$outlineend1 0.6.5
+	$scaleoutlinesoftnessbasedonscreenres 1
+
+	$vertexcolor 1
+	$vertexalpha 1
+	$distancealpha 1
+	$no_fullbright 1
+	$ignorez 1
+	"%keywords" "tf"
+}
+

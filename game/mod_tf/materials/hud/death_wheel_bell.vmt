@@ -1,0 +1,9 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "signs/death_wheel_bell"
+
+	$translucent 1
+	$alphatest 1
+	"$ignorez" 1
+
+}

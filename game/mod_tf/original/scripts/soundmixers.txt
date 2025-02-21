@@ -1,0 +1,265 @@
+// Halflife 2 custom sound mixers.
+// These Sound Mixers are referenced by name from Soundscapes, and are used to provide
+// custom volume control over various sound categories, called 'mix groups'
+
+// "GROUPRULES" specifies the rules for inclusion of a sound in a mix group.
+// Rules are checked sequentially (from top to bottom). All fields must match
+// in a row in order for a sound to match the group.  A sound my be included 
+// in up to 8 mix groups.
+
+// LIMITS: 
+//		up to 64 unique mix groups
+//		up to 76 group rules entries
+//		up to 32 sound mixers
+//		all strings are limited to 31 characters!
+
+// NOTE2: at runtime, you can display the classname of the sound source by
+// setting snd_showclassname 1 in the console.
+
+// NOTE3: main character dialog during critical scenes is ducked using a separate code path which, when
+// active, temporarilly disables mixer ducking (prevent double ducking).  
+// Lower priority sounds are ducked by higher priority sounds, if "is ducked" is enabled. 
+// Only sounds with "causes ducking" enabled can cause a lower priority sound to be ducked.
+
+"GROUPRULES"
+{
+// NOTE: order these from least general to most general
+
+//							directory or .wav	classname																Causes  Duck to  Ducker
+//	group name				name substring		substring	chan			sndlvl_min	sndlvl_max	priority Is Ducked	Ducking	Percent	 Threshold
+//  ---------				------------------	---------	-----------		----------	----------	-------- --------	-------	-------	 ---------
+	
+	"MVM_All"				"mvm/"				""			""				""			""			"50"		"0"		"0"		"100"	"40"
+
+	"QuestAlert"			"ui/quest"			""			""				""			""			"65"		"0"		"1"		"100"	"40"
+	"QuestPauling"			"vo/pauling/"		""			""				""			""			"65"		"0"		"1"		"100"	"40"
+	
+	"bullethit"				"impact_bullet"		""			""				""			""			"50"		"0"		"0"		"100"	"40"
+	"bulletmiss"			"nearmiss"			""			""				""			""			"50"		"0"		"0"		"100"	"40"
+	"Explosions"			"explo"				""			""				"120"		""			"50"		"0"		"1"		"100"	"40"
+
+	"Player_Suit"			"fvox/"				"Player"	""				""			""			"50"		"0"		"0"		"100"	"40"
+	"Player_Weapons_Loud"	"weapon"			"Player"	""				"140"		""			"50"		"0"		"1"		"100"	"40"
+	"Player_Weapons"		"weapon"			"Player"	""				""			""			"50"		"0"		"1"		"100"	"40"
+	"Player"				"player/"			"Player"	""				""			""			"50"		"0"		"0"		"100"	"40"
+	"Player"				"physics/"			"Player"	""				""			""			"50"		"0"		"0"		"100"	"40"
+			
+	"NPC_Voice"				""					"NPC"		"CHAN_VOICE"	""			""			"50"		"0"		"1"		"100"	"40"
+	"NPC_Weapons_Loud"		""					"NPC"		"CHAN_WEAPON"	"140"		""			"50"		"0"		"1"		"100"	"40"
+	"NPC_Weapons"			""					"NPC"		"CHAN_WEAPON"	""			""			"50"		"0"		"1"		"100"	"40"
+	"NPC_Body"				""					"NPC"		"CHAN_BODY"		""			""			"50"		"0"		"0"		"100"	"40"
+	"NPC_Looping"			""					"NPC"		"CHAN_STATIC"	""			""			"50"		"0"		"0"		"100"	"40"
+	"NPC"					""					"NPC"		""				""			""			"50"		"0"		"0"		"100"	"40"
+	
+	//"AHELI_WEAPON"			"aheli_weapon"		""			""				"140"		""			"50"		"0"		"1"		"100"	"40"
+	//"GUNSHIP_WEAPON"		"gunship_weapon"	""			""				"140"		""			"50"		"0"		"1"		"100"	"40"
+	"STRIDER_WEAPON"		"strider_weapon"	""			""				"140"		""			"50"		"0"		"1"		"100"	"40"
+
+	"Ambient_Alarms"		"ambient/alarms"	""			""				""			""			"20"		"1"		"0"		"60"	"40"
+	"Ambient_Atmosphere"	"ambient/atmos"		""			""				""			""			"20"		"1"		"0"		"60"	"40"
+	"Ambient_Wind"			"ambient/wind"		""			""				""			""			"20"		"1"		"0"		"60"	"40"
+	"Ambient_Water"			"ambient/water"		""			""				""			""			"20"		"1"		"0"		"60"	"40"
+	"Ambient_Fire"			"ambient/fire"		""			""				""			""			"20"		"1"		"0"		"60"	"40"
+	"Ambient_Gas"			"ambient/gas"		""			""				""			""			"20"		"1"		"0"		"60"	"40"
+	"Ambient_Levels"		"ambient/levels"	""			""				""			""			"20"		"1"		"0"		"60"	"40"
+	"Ambient_Creatures"		"ambient/creatures"	""			""				""			""			"20"		"1"		"0"		"60"	"40"
+	"Ambient_Machines"		"ambient/machines"	""			""				""			""			"50"		"1"		"0"		"60"	"40"
+
+	"Trains"				"plats/"			""			""				""			""			"50"		"0"		"0"		"100"	"40"
+	"Doors"					"doors/"			""			""				""			""			"50"		"0"		"0"		"100"	"40"
+	"Buttons"				"buttons/"			""			""				""			""			"50"		"0"		"0"		"100"	"40"
+	"Items"					"items/"			""			""				""			""			"50"		"0"		"0"		"100"	"40"
+	"Beams"					"beams/"			""			""				""			""			"50"		"0"		"0"		"100"	"40"
+	"Vehicles"				"vehicles/"			""			""				""			""			"20"		"1"		"0"		"68"	"40"
+	"Vehicles_Looping"		"vehicles/"			""			"CHAN_STATIC"	""			""			"20"		"1"		"0"		"68"	"40"
+
+	"MainMenuMusic"			"ui/gamestartup"	""			""				""			""			"50"		"0"		"0"		"100"	"40"
+	"UI"					"common/"			""			""				""			""			"50"		"0"		"0"		"100"	"40"
+	"UI"					"ui/"				""			""				""			""			"50"		"0"		"0"		"100"	"40"
+
+	"Physics"				"physics/"			""			""				""			""			"50"		"0"		"0"		"100"	"40"
+	"Ambient"				"ambien"			""			""				""			""			"50"		"0"		"0"		"100"	"40"
+	"Music"					"music/"			""			""				""			""			"25"		"1"		"1"		"75"	"40"
+	"Dialog"				"vo/"				""			""				""			""			"60"		"0"		"1"		"100"	"20"
+	"Dialog"				"combined/"			""			""				""			""			"60"		"0"		"1"		"100"	"20"
+	"Combat"				"weapon"			""			""				"110"		""			"50"		"0"		"0"		"100"	"40"
+	"Combat"				"explo"				""			""				"110"		""			"50"		"0"		"0"		"100"	"40"
+	"Weapons"				"weapon"			""			""				"120"		""			"50"		"0"		"0"		"100"	"40"
+
+	"Quiet"					""					""			""				"0"			"70"		"50"		"0"		"0"		"100"	"40"
+	"Medium"				""					""			""				"71"		"90"		"50"		"0"		"0"		"100"	"40"
+	"Loud"					""					""			""				"91"		"100"		"50"		"0"		"0"		"100"	"40"
+	"VeryLoud"				""					""			""				"101"		"149"		"50"		"0"		"0"		"100"	"40"
+	"SuperLoud"				""					""			""				"150"		""			"50"		"0"		"0"		"100"	"40"
+
+	"FreezeCam"				"/freeze_cam"		""			""				""			""			"65"		"0"		"1"		"100"	"40"
+	"WinSounds"				"misc/your_team"	""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"FlagWarnings"			"vo/intel"			""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"CaptureWarnings"		"vo/announcer_last"	""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"PlayerVoice"			"?VoiceSfx"			""			""				""			""			"65"		"0"		"1"		"100"	"40"
+	"DemomanTaunts"			"vo/taunts/demoman"	""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"EngineerTaunts"		"vo/taunts/engineer"	""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"HeavyTaunts"			"vo/taunts/heavy"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"MedicTaunts"			"vo/taunts/medic"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"PyroTaunts"			"vo/taunts/pyro"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"ScoutTaunts"			"vo/taunts/scout"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"SniperTaunts"			"vo/taunts/snipe"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"SoldierTaunts"			"vo/taunts/soldier"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"SpyTaunts"				"vo/taunts/spy"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"Tf_music"				"misc/tf"			""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"BuffBanner"			"weapons/buff_banner_horn"			""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	
+	"Doors"					"doors/generic"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"PlayerAnimations"			"player/taunt"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	
+	
+	
+	"All"					""			""			""				""			""			"50"		"0"		"0"		"100"	"40"
+
+}
+
+
+//----------------------------------------------------------------
+// Sound Mixers, referenced in Soundscapes via "SOUNDMIXER" "name"
+// New Sound Mixers may be created by level designers or sound engineer.
+//----------------------------------------------------------------
+
+// This is the default mix for the game.
+// The mix value of a sound will be set to the value referenced by the 
+// least general group found that includes the sound. (top to bottom search of grouprules)
+
+"Default_Mix"
+{
+
+//	group name				mix value
+//  --------				---------
+	"MVM_All"    			"1.0"
+	"QuestAlert"			".72"	
+	"QuestPauling"			".72"
+	"Explosions"			"0.90"
+	"Player_Weapons_Loud"	"1.0"
+	"Player_Suit"			"0.56"
+	"Weapons"				"0.79"
+
+	"AHELI_WEAPON"			"0.85"
+	"GUNSHIP_WEAPON"		"0.85"
+	"STRIDER_WEAPON"		"0.85"
+	"bullethit"				"0.67"
+	
+	"Music"					"0.81"
+	"MainMenuMusic"			"0.3"
+	
+
+	"All"					"0.72"
+}
+
+
+"Display_Mix"
+{
+//	group name			mix value
+//  --------			---------
+	"MVM_All"    			"1.0"
+	"Explosions"		"1.0"
+	"Physics"			"0.7"
+	"Ambient"			"0.7"
+	"Music"				"0.7"
+	"Vehicles"			"0.7"
+	"Vehicles_Looping"	"0.7"
+	"Ambient_Alarms"	"0.7"
+	"Trains"			"0.7"
+	"Doors"				"0.7"
+	"Buttons"			"0.7"
+	"Items"				"0.7"
+	"Beams"				"0.7"
+	"UI"				"0.7"
+	"bullethit"			"0.7"
+	"bulletmiss"		"0.7"
+	"Player_Suit"		"0.7"
+	"Player_Weapons_Loud"	"0.7"
+	"Player_Weapons"	"0.7"
+	"Player"			"0.7"
+	"NPC_Voice"			"0.7"
+	"NPC_Weapons"		"0.7"
+	"NPC_Weapons_Loud"	"0.7"
+	"NPC_Body"			"0.7"
+	"NPC_Looping"		"0.7"
+	"AHELI_WEAPON"		"1.0"
+	"GUNSHIP_WEAPON"	"1.0"
+	"STRIDER_WEAPON"	"1.0"
+	"NPC"				"0.7"
+	"Dialog"			"0.7"			
+	"Weapons"			"0.8"
+	"Alyx_Dialog"		"0.7"
+	"Citizen_Dialog"	"0.7"
+	"Barney_Dialog"		"0.7"
+	"Metrocop_Dialog"	"0.7"
+	"Soldier_Dialog"	"0.7"
+	"All"				"0.7"
+}
+
+"Voicetest_Mix"
+{
+//	group name			mix value
+//  --------			---------
+
+	"MVM_All"    			"1.0"
+	"NPC_Voice"			"1.0"
+	"Dialog"			"1.0"			
+	"Alyx_Dialog"		"1.0"
+	"Citizen_Dialog"	"1.0"
+	"Barney_Dialog"		"1.0"
+	"Metrocop_Dialog"	"1.0"
+	"Soldier_Dialog"	"1.0"
+	"All"				"0.1"
+}
+
+"Citadel_Dialog_Only"
+{
+//	group name			mix value
+//  --------			---------
+
+	"MVM_All"    			"1.0"
+	"NPC_Voice"			"0.72"
+	"Dialog"			"0.72"			
+	"Alyx_Dialog"		"0.72"
+	"Gman_Dialog"		"0.72"
+	"Music"				"0.81"
+	"All"				"0.01"
+}
+
+// add new sound mixers here...ALWAYS use Default_Mix as a template.
+
+"FreezeCam_Only"
+{
+//	group name			mix value
+//  --------			---------
+
+	"MVM_All"    			"1.0"
+	"FreezeCam"			"0.72"
+	"WinSounds"			"0.72"
+	"FlagWarnings"			"0.72"
+	"CaptureWarnings"			"0.72"
+	"PlayerVoice"			"0.72"
+	"DemomanTaunts"			"0.72"				
+	"EngineerTaunts"			"0.72"
+	"HeavyTaunts"			"0.72"
+	"MedicTaunts"			"0.72"
+	"PyroTaunts"			"0.72"
+	"ScoutTaunts"			"0.72"
+	"SniperTaunts"			"0.72"
+	"SoldierTaunts"			"0.72"
+	"SpyTaunts"			"0.72"
+	"Tf_music"			"0.72"
+	"BuffBanner"			"0.72"
+	"All"				"0.01"
+}
+
+"Menu_Only"
+{
+//	group name			mix value
+//  --------			---------
+
+	"Doors"				"0.99"
+	"PlayerAnimations"		"0.99"
+	"All"				"0.01"
+}

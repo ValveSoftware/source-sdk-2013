@@ -1,0 +1,253 @@
+// Decal definitions, format is 
+//   decalname weight
+//   where weight is used to randomly selected a decal to apply from within the group
+
+// This is just an entry to map material types to "impact.xxx"
+"TranslationData"
+{
+	"-"			""  // don't decal this surface
+
+	"C"			"Impact.Concrete"
+	"M"			"Impact.Metal"
+	"W"			"Impact.Wood"
+	"Y"			"Impact.Glass"
+	"F"			"Impact.Flesh"
+	"B"			"Impact.BloodyFlesh"
+	"N"			"Impact.Sand"
+	"V"			"Impact.Metal"
+	"D"			"Impact.Dirt"
+
+// These might be translated in the future
+	//CHAR_TEX_DIRT		'D'
+	//CHAR_TEX_GRATE	'G'
+	//CHAR_TEX_TILE		'T'
+	//CHAR_TEX_SLOSH	'S'
+	//CHAR_TEX_COMPUTER	'P'
+	//CHAR_TEX_CLIP		'I'
+	//CHAR_TEX_FOLIAGE	'O'
+}
+
+"Impact.Concrete"
+{
+	"decals/concrete/shot1_subrect" "1"
+	"decals/concrete/shot2_subrect" "1"
+	"decals/concrete/shot3_subrect" "1"
+	"decals/concrete/shot4_subrect" "1"
+	"decals/concrete/shot5_subrect" "1"
+}
+
+"Impact.Metal"
+{
+	"decals/metal/shot1_subrect" "1"
+	"decals/metal/shot2_subrect" "1"
+	"decals/metal/shot3_subrect" "1"
+	"decals/metal/shot4_subrect" "1"
+	"decals/metal/shot5_subrect" "1"
+}
+
+"Impact.Wood"
+{
+	"decals/wood/shot1_subrect" "1"
+	"decals/wood/shot2_subrect" "1"
+	"decals/wood/shot3_subrect" "1"
+	"decals/wood/shot4_subrect" "1"
+	"decals/wood/shot5_subrect" "1"
+}
+
+"Impact.Glass"
+{
+	"decals/glass/shot1_subrect" "1"
+	"decals/glass/shot2_subrect" "1"
+	"decals/glass/shot3_subrect" "1"
+	"decals/glass/shot4_subrect" "1"
+	"decals/glass/shot5_subrect" "1"
+}
+
+
+"Impact.Flesh"
+{
+	"decals/flesh/blood1_subrect" "1"
+	"decals/flesh/blood2_subrect" "1"
+	"decals/flesh/blood3_subrect" "1"
+	"decals/flesh/blood4_subrect" "1"
+	"decals/flesh/blood5_subrect" "1"
+}
+
+
+"Impact.BloodyFlesh"
+{
+	"decals/bloodyflesh/blood1_subrect" "1"
+	"decals/bloodyflesh/blood2_subrect" "1"
+	"decals/bloodyflesh/blood3_subrect" "1"
+	"decals/bloodyflesh/blood4_subrect" "1"
+	"decals/bloodyflesh/blood5_subrect" "1"
+}
+
+
+"Impact.Dirt"
+{
+	"decals/dirt/dirtshot1_subrect" "1"
+	"decals/dirt/dirtshot2_subrect" "1"
+	"decals/dirt/dirtshot3_subrect" "1"
+	"decals/dirt/dirtshot4_subrect" "1"
+}
+
+
+// Sand does not have model versions of the decals.
+"Impact.Sand"
+{
+	"decals/sand/shot1_subrect" "1"
+	"decals/sand/shot2_subrect" "1"
+	"decals/sand/shot3_subrect" "1"
+	"decals/sand/shot4_subrect" "1"
+}
+
+"Scorch"
+{
+	"decals/scorch1_subrect" "1"
+	"decals/scorch2_subrect" "1"
+}
+
+"footprintL_snow"
+{
+	"decals/footprintL_snow_subrect" "1"
+}
+
+"footprintR_snow"
+{
+	"decals/footprintR_snow_subrect" "1"
+}
+
+"Blood"
+{
+	"decals/blood1_subrect" "1"
+	"decals/blood2_subrect" "1"
+	"decals/blood3_subrect" "1"
+	"decals/blood4_subrect" "1"
+	"decals/blood5_subrect" "1"
+	"decals/blood6_subrect" "1"
+}
+
+
+"GlassBreak"
+{
+	"decals/break1_subrect" "1"
+	"decals/break2_subrect" "1"
+	"decals/break3_subrect" "1"
+}
+
+"BigShot"
+{
+	"decals/bigshot1_subrect" "1"
+	"decals/bigshot2_subrect" "1"
+	"decals/bigshot3_subrect" "1"
+	"decals/bigshot4_subrect" "1"
+	"decals/bigshot5_subrect" "1"
+}
+
+"BulletProof"
+{
+	"decals/bproof1_subrect" "1"
+}
+
+"SmallScorch"
+{
+	"decals/smscorch1_subrect" "1"
+	"decals/smscorch2_subrect" "1"
+	"decals/smscorch3_subrect" "1"
+}
+
+"FadingScorch"
+{
+	"decals/scorchfade_subrect" "1"
+}
+
+"ExplosiveGunshot"
+{
+	"decals/concrete/shot1_subrect" "1"
+}
+
+
+
+
+
+
+"Models"
+{
+	// World Model specific decal precache.
+	"decals/concrete/shot1" "1"
+	"decals/concrete/shot2" "1"
+	"decals/concrete/shot3" "1"
+	"decals/concrete/shot4" "1"
+	"decals/concrete/shot5" "1"
+	"decals/metal/shot1" "1"
+	"decals/metal/shot2" "1"
+	"decals/metal/shot3" "1"
+	"decals/metal/shot4" "1"
+	"decals/metal/shot5" "1"
+	"decals/wood/shot1" "1"
+	"decals/wood/shot2" "1"
+	"decals/wood/shot3" "1"
+	"decals/wood/shot4" "1"
+	"decals/wood/shot5" "1"
+	"decals/glass/shot1" "1"
+	"decals/glass/shot2" "1"
+	"decals/glass/shot3" "1"
+	"decals/glass/shot4" "1"
+	"decals/glass/shot5" "1"
+	"decals/flesh/blood1" "1"
+	"decals/flesh/blood2" "1"
+	"decals/flesh/blood3" "1"
+	"decals/flesh/blood4" "1"
+	"decals/flesh/blood5" "1"
+	"decals/bloodyflesh/blood1" "1"
+	"decals/bloodyflesh/blood2" "1"
+	"decals/bloodyflesh/blood3" "1"
+	"decals/bloodyflesh/blood4" "1"
+	"decals/bloodyflesh/blood5" "1"
+	"decals/scorch1" "1"
+	"decals/scorch2" "1"
+	"decals/blood1" "1"
+	"decals/blood2" "1"
+	"decals/blood3" "1"
+	"decals/blood4" "1"
+	"decals/blood5" "1"
+	"decals/blood6" "1"
+	"decals/blood7" "1"
+	"decals/blood8" "1"
+	"decals/break1" "1"
+	"decals/break2" "1"
+	"decals/break3" "1"
+	"decals/bigshot1" "1"
+	"decals/bigshot2" "1"
+	"decals/bigshot3" "1"
+	"decals/bigshot4" "1"
+	"decals/bigshot5" "1"
+	"decals/bproof1" "1"
+	"decals/smscorch1" "1"
+	"decals/smscorch2" "1"
+	"decals/smscorch3" "1"
+	"decals/scorchfade" "1"
+	"decals/dirtshot1" "1"
+	"decals/dirtshot2" "1"
+	"decals/dirtshot3" "1"
+	"decals/dirtshot4" "1"
+
+	// Model specific decal precache.
+	"decals/bigshot1model" "1"
+	"decals/bigshot2model" "1"
+	"decals/bigshot3model" "1"
+	"decals/bigshot4model" "1"
+	"decals/bigshot5model" "1"
+	"decals/bproof1model" "1"
+	"decals/break1model" "1"
+	"decals/break2model" "1"
+	"decals/break3model" "1"
+
+	"decals/scorch1model" "1"
+	"decals/scorch2model" "1"
+	"decals/scorchfademodel" "1"
+	"decals/smscorch1model" "1"
+	"decals/smscorch2model" "1"
+	"decals/smscorch3model" "1"
+}

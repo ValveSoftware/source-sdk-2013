@@ -1,0 +1,12 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui/corner_3px_1"
+	"$translucent" "1"
+	"$vertexcolor" "1"
+	"$vertexalpha" "1"
+	"$ignorez"     "1"
+	"$alphatest"	"1"
+	"$alphatestreference"	"0.1"
+	"$no_fullbright" 1
+	"$use_in_fillrate_mode" 1
+}

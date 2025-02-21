@@ -1,0 +1,10 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "console/background_gravelpit"
+	"$vertexcolor" 1
+	"$vertexalpha" 1
+	"$ignorez" 1
+	"$no_fullbright" "1"
+	"$nolod" "1"
+	"%keywords" "tf"
+}

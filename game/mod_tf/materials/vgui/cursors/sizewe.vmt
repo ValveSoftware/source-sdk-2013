@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\cursors\sizewe"
+	"$translucent" 1
+	"$ignorez" 1
+}

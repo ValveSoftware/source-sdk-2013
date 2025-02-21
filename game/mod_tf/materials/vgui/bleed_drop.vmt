@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\bleed_drop"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

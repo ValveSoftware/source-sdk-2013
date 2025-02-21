@@ -1,0 +1,7 @@
+"unlitGeneric"
+{
+	"$baseTexture" "vgui/store/store_halloween_premium_callout"
+	"$translucent" 1
+	"$vertexalpha"	"1"
+}
+

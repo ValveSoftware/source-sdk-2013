@@ -1,0 +1,23 @@
+$upaxis Y
+
+$modelname "<ITEMTEST_REPLACE_MDLABSPATH>"
+
+$surfaceprop "default"
+
+$body "default" "<ITEMTEST_REPLACE_LOD0>"
+
+<ITEMTEST_REPLACE_LOD1_HEADER>
+{
+replacemodel "<ITEMTEST_REPLACE_LOD0>" "<ITEMTEST_REPLACE_LOD1>"
+}
+
+<ITEMTEST_REPLACE_LOD2_HEADER>
+{
+replacemodel "<ITEMTEST_REPLACE_LOD0>" "<ITEMTEST_REPLACE_LOD2>"
+}
+
+<ITEMTEST_REPLACE_SKIN_OPTIONALBLOCK>
+
+$sequence "ref" "<ITEMTEST_REPLACE_LOD0>"
+
+$attachment unusual "bip_head" 0 0 0 rotate 0 0 0

@@ -1,0 +1,5 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "vgui/war_demo_kills"
+	$translucent 1
+}

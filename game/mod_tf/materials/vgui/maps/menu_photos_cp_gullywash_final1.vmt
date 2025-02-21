@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "vgui\maps/menu_photos_cp_gullywash_final1"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

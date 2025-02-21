@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "vgui/mvm_background_map"
+	"$translucent"	1
+	"$vertexcolor"	1
+}

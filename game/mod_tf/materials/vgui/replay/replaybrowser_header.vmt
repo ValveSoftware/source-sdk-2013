@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\replay\replaybrowser_header"
+	"$translucent" 1
+	"$ignorez" 1
+}

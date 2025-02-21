@@ -1,0 +1,28 @@
+"UnlitGeneric"
+{
+	"$translucent" 1
+	"$baseTexture" "hud\gradient_blue"
+	"$detail" "hud\objectives_flagpanel_mask_left"
+	$detailscale 1
+	$detailblendmode 8
+	$distancealphafromdetail 1
+
+	// give it a slight outer soft edge
+	$softedges 1
+	$edgesoftnessstart 0.5
+    $edgesoftnessend 0.4
+	$scaleedgesoftnessbasedonscreenres 1
+
+	// give it a white outline
+	$outline 0
+
+	// and a drop shadow
+	$glow 0
+
+//	"$vertexcolor" 1
+	$distancealpha 1
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"%keywords" "tf"
+}
+

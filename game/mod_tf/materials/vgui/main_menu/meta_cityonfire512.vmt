@@ -1,0 +1,7 @@
+"unlitGeneric"
+{
+	"$baseTexture" "vgui\main_menu\meta_cityonfire512"
+
+	"$translucent" 1
+	"$ignorez" 1
+}

@@ -1,0 +1,4 @@
+map: default
+	vbsp:
+	vvis:	
+	vrad:	-final -staticproppolys -staticproplighting -textureshadows -both

@@ -1,0 +1,150 @@
+objects
+{
+	// Engineer Objects
+
+	OBJ_SENTRYGUN
+	{
+		ClassName			obj_sentrygun
+		StatusName			"#TF_Object_Sentry"
+		BuildTime			10
+		MaxObjects			1
+		Cost				130
+		CostMultiplier		1
+		UpgradeCost			200
+		UpgradeDuration		1.5
+		MaxUpgradeLevel		0
+		BuilderWeaponName	"Sentry Gun"
+		BuilderPlacementString	"Place on ground"
+		SelectionSlot		5
+		SelectionPosition	0
+		SapperAttachTime	0.0
+		IconActive			obj_sentrygun
+		IconInactive		obj_sentrygun
+		IconMenu		hud_menu_sentry_build
+		UseItemInfo		1
+		Viewmodel			"models/weapons/c_models/c_toolbox/c_toolbox.mdl"
+		Playermodel			"models/weapons/c_models/c_toolbox/c_toolbox.mdl"
+		DisplayPriority		4
+		HudStatusIcon		"obj_status_sentrygun_1"
+		VisibleInWeaponSelection 0
+		ExplodeSound		"Building_Sentry.Explode"
+		ExplodeEffect		"ExplosionCore_buildings"	
+		UpgradeSound		"Building_Sentrygun.Built"
+		BuildCount		1
+		RequiresOwnBuilder	0
+	}
+	
+	OBJ_DISPENSER
+	{
+		ClassName			obj_dispenser
+		StatusName			"#TF_Object_Dispenser"
+		BuildTime			20
+		MaxObjects			1
+		Cost				100
+		CostMultiplier		1
+		UpgradeCost			200
+		UpgradeDuration		1.5
+		MaxUpgradeLevel		0
+		BuilderWeaponName	"Dispenser"
+		BuilderPlacementString	"Place on ground"
+		SelectionSlot		5
+		SelectionPosition	1
+		SapperAttachTime	0.0
+		IconActive			obj_dispenser
+		IconInactive		obj_dispenser
+		IconMenu		hud_menu_dispenser_build
+		UseItemInfo		1
+		Viewmodel			"models/weapons/c_models/c_toolbox/c_toolbox.mdl"
+		Playermodel			"models/weapons/c_models/c_toolbox/c_toolbox.mdl"
+		DisplayPriority		3
+		HudStatusIcon		"obj_status_dispenser"
+		VisibleInWeaponSelection 0
+		ExplodeSound		"Building_Dispenser.Explode"
+		ExplodeEffect		"ExplosionCore_buildings"
+		UpgradeSound		"Building_Sentrygun.Built"
+		BuildCount		1
+		RequiresOwnBuilder	0
+	}
+		
+	OBJ_TELEPORTER
+	{
+		ClassName			obj_teleporter
+		StatusName			"#TF_Object_Tele"
+		BuildTime			20
+		MaxObjects			1
+		Cost				50
+		CostMultiplier		1
+		UpgradeCost			200
+		UpgradeDuration		1.5
+		MaxUpgradeLevel		0
+		BuilderWeaponName	"Teleporter"
+		BuilderPlacementString	"Place on ground"
+		SelectionSlot		5
+		SelectionPosition	2
+		SapperAttachTime	0.0
+		IconActive			obj_teleporter_entrance
+		IconInactive		obj_teleporter_entrance
+		IconMenu		hud_menu_tele_entrance_build
+		SolidToPlayerMovement	1
+		UseItemInfo		1
+		Viewmodel			"models/weapons/c_models/c_toolbox/c_toolbox.mdl"
+		Playermodel			"models/weapons/c_models/c_toolbox/c_toolbox.mdl"
+		DisplayPriority		2
+		HudStatusIcon		"obj_status_tele_entrance"
+		VisibleInWeaponSelection 0
+		ExplodeSound		"Building_Teleporter.Explode"
+		ExplodeEffect		"ExplosionCore_buildings"
+		UpgradeSound		"Building_Sentrygun.Built"
+		BuildCount		1
+		RequiresOwnBuilder	0
+		AltModes
+		{
+			AltMode0
+			{
+				StatusName	"#TF_Object_Tele"
+				ModeName	"#TF_Teleporter_Mode_Entrance"
+				IconMenu	hud_menu_tele_entrance_build
+			}
+			AltMode1
+			{
+				StatusName	"#TF_Object_Tele"
+				ModeName	"#TF_Teleporter_Mode_Exit"
+				IconMenu	hud_menu_tele_exit_build
+			}
+		}
+	}
+
+	OBJ_ATTACHMENT_SAPPER
+	{
+		ClassName			obj_attachment_sapper
+		StatusName			"Object Sapper"
+		BuildTime			0.1
+		MaxObjects			-1
+		Cost				0
+		CostMultiplier		1
+		UpgradeCost			0
+		UpgradeDuration		0
+		MaxUpgradeLevel		0
+		BuilderWeaponName	"Object Sapper"
+		BuilderPlacementString	"Place on object"
+		SelectionSlot		1
+		SelectionPosition	0
+		SapperAttachTime	0.0
+		IconActive			obj_attachment_sapper
+		IconInactive		obj_attachment_sapper
+		IconMenu			hud_menu_tele_entrance_build
+		UseItemInfo			1
+		Viewmodel			"models/weapons/c_models/c_sapper/c_sapper.mdl"
+		Playermodel			"models/weapons/c_models/c_sapper/c_sapper.mdl"
+		DisplayPriority		1
+		HudStatusIcon		"obj_status_sapper"
+		VisibleInWeaponSelection 1
+		autoswitchto		1
+		ExplodeSound		"Weapon_Sapper.Removed"
+		ExplodeEffect		"ExplosionCore_sapperdestroyed"
+		MetalToDropInGibs	10		
+		UpgradeSound		"Building_Sentrygun.Built"
+		BuildCount		1
+		RequiresOwnBuilder	0
+	}
+}

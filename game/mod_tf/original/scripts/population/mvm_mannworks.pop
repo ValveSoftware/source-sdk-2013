@@ -1,0 +1,687 @@
+// mvm_mannworks
+// normal skill
+
+#base robot_giant.pop
+#base robot_standard.pop
+
+WaveSchedule
+{
+	StartingCurrency 400
+	RespawnWaveTime 5
+	CanBotsAttackWhileInSpawnRoom No
+
+// MISSION: Sentry Buster
+	Mission
+	{
+		Objective DestroySentries
+		Where spawnbot
+		CooldownTime 30
+		
+		TFBot
+		{
+			Template T_TFBot_SentryBuster
+		}
+	}
+
+// MISSION: Sniper 02
+	Mission
+	{
+		Objective Sniper
+		
+		Where spawnbot_mission_sniper
+		
+		BeginAtWave 2
+		RunForThisManyWaves 1
+		CooldownTime 60
+		InitialCooldown 15
+		DesiredCount 3
+		
+		TFBot
+		{
+			Template T_TFBot_Sniper
+		}
+	}
+	
+// MISSION: Sniper 03-04
+	Mission
+	{
+		Objective Sniper
+		
+		Where spawnbot_mission_sniper
+		
+		BeginAtWave 2
+		RunForThisManyWaves 2
+		CooldownTime 60
+		InitialCooldown 15
+		DesiredCount 2
+		
+		TFBot
+		{
+			Template T_TFBot_Sniper
+		}
+	}
+	
+// MISSION: Sniper 06-07
+	Mission
+	{
+		Objective Sniper
+		
+		Where spawnbot_mission_sniper
+		
+		BeginAtWave 6
+		RunForThisManyWaves 2
+		CooldownTime 60
+		InitialCooldown 15
+		DesiredCount 2
+		
+		TFBot
+		{
+			Template T_TFBot_Sniper
+		}
+	}
+	
+// MISSION: Spy 05-07
+	Mission
+	{
+		Objective Spy
+		
+		Where spawnbot_mission_spy
+		
+		BeginAtWave	5
+		RunForThisManyWaves 3
+		CooldownTime 60
+		InitialCooldown 30
+		DesiredCount 2
+		
+		TFBot
+		{
+			Template T_TFBot_Spy
+		}
+	}
+	
+// WAVE 01 400
+// Introduction
+	Wave
+	{
+		WaitWhenDone 60
+		Sound "Announcer.IncomingMob"
+		//Checkpoint Yes
+
+		StartWaveOutput
+		{
+			Target bombpath_arrows_clear_relay
+			Action Trigger
+		}
+		
+		DoneOutput
+		{
+			Target bombpath_wavefinished
+			Action Trigger
+		}
+		
+		WaveSpawn // Soldier Right
+		{
+			TotalCurrency 100
+			
+			Name "waveSoldierRight"
+			
+			Where spawnbot_right
+			TotalCount 12
+			SpawnCount 6
+			MaxActive 10
+			WaitBetweenSpawns 45
+			WaitBeforeStarting 0
+			
+			TFBot
+			{
+				Class Soldier
+				Skill Easy
+				WeaponRestrictions PrimaryOnly
+			}
+		}
+		
+		WaveSpawn // Soldier Left
+		{
+			TotalCurrency 100
+			
+			Name "waveSoldierLeft"
+			
+			Where spawnbot_left
+			TotalCount 12
+			SpawnCount 6
+			MaxActive 10
+			WaitBetweenSpawns 45
+			WaitBeforeStarting 30
+			
+			TFBot
+			{
+				Class Soldier
+				Skill Easy
+				WeaponRestrictions PrimaryOnly
+			}
+		}
+		
+		WaveSpawn // Scout
+		{
+			TotalCurrency 100
+			
+			Name "waveScout1"
+			WaitForAllSpawned "waveSoldierLeft"
+			
+			Where spawnbot
+			TotalCount 24
+			SpawnCount 8
+			MaxActive 12
+			WaitBetweenSpawns 15
+			WaitBeforeStarting 15
+			
+			TFBot
+			{
+				Class Scout
+				Skill Easy
+				WeaponRestrictions MeleeOnly
+			}
+		}
+		
+		WaveSpawn // Soldier
+		{
+			TotalCurrency 100
+			
+			WaitForAllSpawned "waveScout1"
+			
+			Where spawnbot
+			TotalCount 24
+			SpawnCount 6
+			MaxActive 16
+			WaitBetweenSpawns 30
+			WaitBeforeStarting 0
+			
+			TFBot
+			{
+				Class Soldier
+				Skill Easy
+				WeaponRestrictions PrimaryOnly
+			}
+		}
+		
+		WaveSpawn // Scout
+		{
+			TotalCurrency 100
+			
+			WaitForAllSpawned "waveScout1"
+			
+			Where spawnbot
+			TotalCount 16
+			SpawnCount 4
+			MaxActive 8
+			WaitBetweenSpawns 15
+			WaitBeforeStarting 30
+			
+			TFBot
+			{
+				Class Scout
+				Skill Easy
+				WeaponRestrictions MeleeOnly
+			}
+		}
+	}
+
+// WAVE 02 400
+// Tank
+	Wave
+	{
+		WaitWhenDone 60
+		Sound "Announcer.IncomingMob"
+		Checkpoint Yes
+		
+		StartWaveOutput
+		{
+			Target bombpath_arrows_clear_relay
+			Action Trigger
+		}
+		
+		DoneOutput
+		{
+			Target bombpath_wavefinished
+			Action Trigger
+		}
+		
+		WaveSpawn
+		{
+			TotalCurrency 300
+			TotalCount 1
+			
+			Name "Tank1"
+			
+			Tank
+			{
+				Health 20000
+				Speed 75
+				Name "tankboss_left"
+				StartingPathTrackNode "boss_path_1"
+				
+				OnBombDroppedOutput
+				{
+					Target boss_deploy_relay
+					Action Trigger
+				}
+			}
+		}
+		
+		WaveSpawn
+		{
+			TotalCurrency 100
+			
+			Where spawnbot_lower
+			TotalCount 16
+			SpawnCount 4
+			MaxActive 16
+			WaitBetweenSpawns 15
+			WaitBeforeStarting 30
+			
+			TFBot
+			{
+				Class Pyro
+				Skill Easy
+				WeaponRestrictions PrimaryOnly
+			}
+		}
+	}
+
+// WAVE 03 500
+// Demoman
+	Wave
+	{
+		WaitWhenDone 60
+		Sound "Announcer.IncomingMob"
+		Checkpoint Yes
+
+		StartWaveOutput
+		{
+			Target bombpath_arrows_clear_relay
+			Action Trigger
+		}
+		
+		DoneOutput
+		{
+			Target bombpath_wavefinished
+			Action Trigger
+		}
+		
+		WaveSpawn // Demoman
+		{
+			TotalCurrency 100
+			
+			Name "wave3_rush"
+			
+			Where spawnbot_left
+			TotalCount 22
+			SpawnCount 11
+			MaxActive 22
+			WaitBetweenSpawns 30
+			WaitBeforeStarting 0
+			
+			TFBot
+			{
+				Class Demoman
+				Skill Easy
+				WeaponRestrictions PrimaryOnly
+			}
+		}
+		
+		WaveSpawn // Demoman
+		{
+			TotalCurrency 100
+			
+			WaitForAllSpawned "wave3_rush"
+			
+			Where spawnbot_right
+			TotalCount 16
+			SpawnCount 2
+			MaxActive 8
+			WaitBetweenSpawns 15
+			WaitBeforeStarting 30
+			
+			TFBot
+			{
+				Class Demoman
+				Skill Easy
+				WeaponRestrictions PrimaryOnly
+			}
+		}
+		
+		WaveSpawn // Demoman
+		{
+			TotalCurrency 100
+			
+			WaitForAllSpawned "wave3_rush"
+			
+			Where spawnbot_left
+			TotalCount 24
+			SpawnCount 2
+			MaxActive 8
+			WaitBetweenSpawns 15
+			WaitBeforeStarting 30
+			
+			TFBot
+			{
+				Class Demoman
+				Skill Easy
+				WeaponRestrictions PrimaryOnly
+			}
+		}
+		
+		WaveSpawn // Heavyweapons Bullet Sponge
+		{
+			TotalCurrency 200
+			
+			WaitForAllSpawned "wave3_rush"
+			
+			Where spawnbot
+			TotalCount 12
+			SpawnCount 2
+			MaxActive 6
+			WaitBetweenSpawns 20
+			WaitBeforeStarting 60
+			
+			TFBot
+			{
+				Template T_TFBot_Heavyweapons_Fist
+			}
+		}
+	}
+
+// WAVE 04 500
+// Giant Soldier
+	Wave
+	{
+		WaitWhenDone 60
+		Sound "Announcer.IncomingMob"
+		Checkpoint Yes
+		
+		StartWaveOutput
+		{
+			Target bombpath_arrows_clear_relay
+			Action Trigger
+		}
+		
+		DoneOutput
+		{
+			Target bombpath_wavefinished
+			Action Trigger
+		}
+		
+		WaveSpawn // Giant Soldier
+		{
+			TotalCurrency 100
+			
+			Where spawnbot_left
+			TotalCount 3
+			SpawnCount 1
+			MaxActive 3
+			WaitBetweenSpawns 60
+			WaitBeforeStarting 0
+			
+			TFBot
+			{
+				Template T_TFBot_Giant_Soldier
+			}
+		}
+		
+		WaveSpawn // Giant Soldier
+		{
+			TotalCurrency 300
+			
+			Where spawnbot_right
+			TotalCount 3
+			SpawnCount 1
+			MaxActive 3
+			WaitBetweenSpawns 60
+			WaitBeforeStarting 0
+			
+			TFBot
+			{
+				Template T_TFBot_Giant_Soldier
+			}
+		}
+		
+		WaveSpawn // Pyro
+		{
+			TotalCurrency 100
+			
+			Where spawnbot_lower
+			TotalCount 27
+			SpawnCount 3
+			MaxActive 12
+			WaitBetweenSpawns 20
+			WaitBeforeStarting 5
+			
+			TFBot
+			{
+				Class Pyro
+				Skill Normal
+				WeaponRestrictions PrimaryOnly
+			}
+		}
+	}
+
+// WAVE 05 500
+// Baseball Scout
+	Wave
+	{
+		WaitWhenDone 60
+		Sound "Announcer.IncomingMob"
+		Checkpoint Yes
+		
+		StartWaveOutput
+		{
+			Target bombpath_arrows_clear_relay
+			Action Trigger
+		}
+		
+		DoneOutput
+		{
+			Target bombpath_wavefinished
+			Action Trigger
+		}
+		
+		WaveSpawn
+		{
+			TotalCurrency 200
+			
+			Where spawnbot
+			TotalCount 3
+			SpawnCount 1
+			MaxActive 3
+			WaitBetweenSpawns 30
+			WaitBeforeStarting 15
+			
+			TFBot
+			{
+				Template T_TFBot_Giant_Scout_Baseball
+			}
+		}
+		
+		WaveSpawn
+		{
+			TotalCurrency 200
+			
+			Where spawnbot
+			TotalCount 18
+			SpawnCount 8
+			MaxActive 16
+			WaitBetweenSpawns 20
+			WaitBeforeStarting 0
+			
+			TFBot
+			{
+				Template T_TFBot_Heavyweapons_Fist
+			}
+		}
+		
+		WaveSpawn
+		{
+			TotalCurrency 100
+			
+			Where spawnbot
+			TotalCount 32
+			SpawnCount 6
+			MaxActive 12
+			WaitBetweenSpawns 30
+			WaitBeforeStarting 60
+			
+			TFBot
+			{
+				Class Soldier
+				Skill Easy
+				WeaponRestrictions PrimaryOnly
+			}
+		}
+	}
+
+// WAVE 06 600
+// Giant CritSoldier
+	Wave
+	{
+		WaitWhenDone 60
+		Sound "Announcer.IncomingMob"
+		Checkpoint Yes
+		
+		StartWaveOutput
+		{
+			Target bombpath_arrows_clear_relay
+			Action Trigger
+		}
+		
+		DoneOutput
+		{
+			Target bombpath_wavefinished
+			Action Trigger
+		}
+		
+		WaveSpawn // MiniBoss CritSoldier
+		{
+			TotalCurrency 400
+			
+			Where spawnbot
+			TotalCount 6
+			SpawnCount 2
+			MaxActive 4
+			WaitBetweenSpawns 45
+			
+			Squad // Soldier + Medic
+			{
+				TFBot
+				{
+					Template T_TFBot_Giant_Soldier_Crit
+				}
+				
+				TFBot
+				{
+					Template T_TFBot_Medic
+				}
+			}
+		}
+		
+		WaveSpawn
+		{
+			TotalCurrency 200
+			
+			Where spawnbot_lower
+			TotalCount 24
+			SpawnCount 2
+			MaxActive 6
+			WaitBetweenSpawns 6
+			WaitBeforeStarting 10
+			
+			TFBot
+			{
+				Class Pyro
+				Skill Easy
+			}
+		}
+	}
+
+// WAVE 07 600
+// Finale
+	Wave
+	{
+		//WaitWhenDone 60
+		Sound "Announcer.IncomingMob"
+		Checkpoint Yes
+		
+		StartWaveOutput
+		{
+			Target bombpath_arrows_clear_relay
+			Action Trigger
+		}
+		
+		DoneOutput
+		{
+			Target bombpath_wavefinished
+			Action Trigger
+		}
+		
+		WaveSpawn
+		{
+			TotalCurrency 300
+			TotalCount 1
+
+			Tank
+			{
+				Health 22500
+				Speed 75
+				Name "tankboss_left"
+				StartingPathTrackNode "boss_path_1"
+				
+				OnBombDroppedOutput
+				{
+					Target boss_deploy_relay
+					Action Trigger
+				}
+			}
+		}
+		
+		WaveSpawn
+		{
+			TotalCurrency 300
+			TotalCount 1
+			WaitBeforeStarting 30
+
+			Tank
+			{
+				Health 22500
+				Speed 75
+				Name "tankboss_right"
+				StartingPathTrackNode "boss_path2_1"
+				
+				OnBombDroppedOutput
+				{
+					Target boss_deploy_relay
+					Action Trigger
+				}
+			}
+		}
+	
+		WaveSpawn
+		{
+			TotalCurrency 0
+			
+			Where spawnbot_lower
+			TotalCount 27
+			SpawnCount 3
+			MaxActive 12
+			WaitBetweenSpawns 20
+			WaitBeforeStarting 10
+			
+			Support 1
+			
+			TFBot
+			{
+				Class Pyro
+				Skill Hard
+				WeaponRestrictions PrimaryOnly
+			}
+		}
+	}
+}

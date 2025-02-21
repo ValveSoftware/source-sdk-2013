@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\cursors\up"
+	"$translucent" 1
+	"$ignorez" 1
+}

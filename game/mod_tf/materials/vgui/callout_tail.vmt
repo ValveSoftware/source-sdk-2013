@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\callout_tail"
+	"$translucent" 1
+	"$ignorez" 1
+}
