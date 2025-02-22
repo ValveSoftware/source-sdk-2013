@@ -1116,12 +1116,6 @@ void CTFGameMovement::PreventBunnyJumping()
 //-----------------------------------------------------------------------------
 void CTFGameMovement::ToggleParachute()
 {
-	if ( ( m_pTFPlayer->GetFlags() & FL_ONGROUND ) )
-	{
-		m_pTFPlayer->m_Shared.RemoveCond( TF_COND_PARACHUTE_DEPLOYED );
-		return;
-	}
-
 	if ( mv->m_nOldButtons & IN_JUMP )
 		return;
 

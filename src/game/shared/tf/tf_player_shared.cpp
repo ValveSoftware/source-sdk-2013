@@ -3106,6 +3106,10 @@ void CTFPlayerShared::ConditionThink( void )
 		{
 			RemoveCond( TF_COND_PARACHUTE_ACTIVE );
 		}
+		if ( InCond( TF_COND_PARACHUTE_DEPLOYED ) )
+		{
+			RemoveCond( TF_COND_PARACHUTE_DEPLOYED );
+		}
 
 		if ( InCond( TF_COND_ROCKETPACK ) )
 		{
