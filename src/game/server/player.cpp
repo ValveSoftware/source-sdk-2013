@@ -7782,6 +7782,8 @@ BEGIN_ENT_SCRIPTDESC( CBasePlayer, CBaseCombatCharacter, "The player entity." )
 	DEFINE_SCRIPTFUNC( GetForceLocalDraw, "Gets the state of whether the player is being forced by SetForceLocalDraw to be drawn" )
 	DEFINE_SCRIPTFUNC( GetScriptOverlayMaterial, "Gets the current view overlay material" )
 	DEFINE_SCRIPTFUNC( SetScriptOverlayMaterial, "Sets a view overlay material" )
+	DEFINE_SCRIPTFUNC( GetScriptOverlayMaterialEx, "Gets a view overlay material by index" )
+	DEFINE_SCRIPTFUNC( SetScriptOverlayMaterialEx, "Sets a view overlay material by index" )
 END_SCRIPTDESC();
 
 void CStripWeapons::InputStripWeapons(inputdata_t &data)
