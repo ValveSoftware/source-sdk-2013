@@ -3090,9 +3090,16 @@ void CTFPlayerShared::ConditionThink( void )
 
 	VehicleThink();
 
-	if ( m_pOuter->GetFlags() & FL_ONGROUND && InCond( TF_COND_PARACHUTE_ACTIVE ) )
+	if ( m_pOuter->GetFlags() & FL_ONGROUND )
 	{
-		RemoveCond( TF_COND_PARACHUTE_ACTIVE );
+		if ( InCond( TF_COND_PARACHUTE_ACTIVE ) )
+		{
+			RemoveCond( TF_COND_PARACHUTE_ACTIVE );
+		}
+		if ( InCond( TF_COND_PARACHUTE_DEPLOYED ) )
+		{
+			RemoveCond( TF_COND_PARACHUTE_DEPLOYED );
+		}
 	}
 
 	// See if we should be pulsing our radius heal
