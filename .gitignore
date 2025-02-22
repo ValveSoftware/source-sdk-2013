@@ -21,8 +21,11 @@ ipch
 *.sln
 
 # OSX/Linux build products
+*.a
 *.mak
 *.mak.vpc_crc
+game/*_linux64
+game/*_linux
 *.xcodeproj/
 obj*/
 !devtools/*.mak
@@ -57,7 +60,9 @@ game/mod_*/GameState.txt
 game/mod_*/media/viewed.res
 game/mod_*/*_playerstats.dmx
 game/mod_*/voice_ban.dt
+game/mod_*/stats.txt
 game/platform/config/ServerBrowser.vdf
+game/platform/config/InGameDialogConfig.vdf
 game/steam_appid.txt
 src/game/client/steam_appid.txt
 game/mod_*.exe
@@ -459,6 +464,11 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+
+# ninja files
+.ninja_deps
+.ninja_log
+compile_commands.json
 
 # OpenCover UI analysis results
 OpenCover/
