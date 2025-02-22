@@ -457,6 +457,7 @@ BEGIN_RECV_TABLE_NOBASE(C_BaseEntity, DT_BaseEntity)
 	RecvPropInt(RECVINFO(m_clrRender)),
 	RecvPropInt(RECVINFO(m_iTeamNum)),
 	RecvPropInt(RECVINFO(m_CollisionGroup)),
+	RecvPropFloat(RECVINFO(m_flGravity)),
 	RecvPropFloat(RECVINFO(m_flElasticity)),
 	RecvPropFloat(RECVINFO(m_flShadowCastDistance)),
 	RecvPropEHandle( RECVINFO(m_hOwnerEntity) ),
