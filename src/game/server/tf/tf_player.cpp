@@ -543,8 +543,6 @@ BEGIN_DATADESC( CTFPlayer )
 END_DATADESC()
 
 BEGIN_ENT_SCRIPTDESC( CTFPlayer, CBaseMultiplayerPlayer , "Team Fortress 2 Player" )
-	DEFINE_SCRIPTFUNC_NAMED( ScriptGetActiveWeapon, "GetActiveWeapon", "Get the player's current weapon" )
-
 	DEFINE_SCRIPTFUNC( ForceRespawn, "Force respawns the player" )
 	DEFINE_SCRIPTFUNC( ForceRegenerateAndRespawn, "Force regenerates and respawns the player" )
 	DEFINE_SCRIPTFUNC( Regenerate, "Resupplies a player. If regen health/ammo is set, clears negative conds, gives back player health/ammo" )
@@ -671,24 +669,10 @@ BEGIN_ENT_SCRIPTDESC( CTFPlayer, CBaseMultiplayerPlayer , "Team Fortress 2 Playe
 	DEFINE_SCRIPTFUNC_NAMED( ScriptRemoveAllItems, "RemoveAllItems", "" )
 
 	DEFINE_SCRIPTFUNC( UpdateSkin, "" )
-	DEFINE_SCRIPTFUNC_WRAPPED( Weapon_ShootPosition, "" ) // Needs this slim wrapper or the world falls apart on MSVC.
-	DEFINE_SCRIPTFUNC_WRAPPED( Weapon_CanUse, "" )
-	DEFINE_SCRIPTFUNC_WRAPPED( Weapon_Equip, "" )
-	DEFINE_SCRIPTFUNC_WRAPPED( Weapon_Drop, "" )
-	DEFINE_SCRIPTFUNC_WRAPPED( Weapon_DropEx, "" )
-	DEFINE_SCRIPTFUNC_WRAPPED( Weapon_Switch, "" )
-	DEFINE_SCRIPTFUNC_WRAPPED( Weapon_SetLast, "" )
-	DEFINE_SCRIPTFUNC_WRAPPED( GetLastWeapon, "" )
 	DEFINE_SCRIPTFUNC_WRAPPED( EquipWearableViewModel, "" )
 
-	DEFINE_SCRIPTFUNC_WRAPPED( IsFakeClient, "" )
 	DEFINE_SCRIPTFUNC_WRAPPED( GetBotType, "" )
 	DEFINE_SCRIPTFUNC_WRAPPED( IsBotOfType, "" )
-
-	DEFINE_SCRIPTFUNC( AddHudHideFlags, "Hides a hud element based on Constants.FHideHUD." )
-	DEFINE_SCRIPTFUNC( RemoveHudHideFlags, "Unhides a hud element based on Constants.FHideHUD." )
-	DEFINE_SCRIPTFUNC( SetHudHideFlags, "Force hud hide flags to a value" )
-	DEFINE_SCRIPTFUNC( GetHudHideFlags, "Gets current hidden hud elements" )
 
 	DEFINE_SCRIPTFUNC( IsTaunting, "" )
 	DEFINE_SCRIPTFUNC( DoTauntAttack, "" )
@@ -23027,70 +23011,6 @@ void	CTFPlayer::ScriptSetCondDuration( int nCond, float flNewDuration )
 HSCRIPT	CTFPlayer::ScriptGetDisguiseTarget()
 {
 	return ToHScript( m_Shared.GetDisguiseTarget() );
-}
-
-Vector CTFPlayer::ScriptWeapon_ShootPosition()
-{
-	return this->Weapon_ShootPosition();
-}
-
-bool CTFPlayer::ScriptWeapon_CanUse( HSCRIPT hWeapon )
-{
-	CBaseCombatWeapon *pCombatWeapon = ScriptToEntClass< CBaseCombatWeapon >( hWeapon );
-	if ( !pCombatWeapon )
-		return false;
-
-	return this->Weapon_CanUse( pCombatWeapon );
-}
-
-void CTFPlayer::ScriptWeapon_Equip( HSCRIPT hWeapon )
-{
-	CBaseCombatWeapon *pCombatWeapon = ScriptToEntClass< CBaseCombatWeapon >( hWeapon );
-	if ( !pCombatWeapon )
-		return;
-
-	this->Weapon_Equip( pCombatWeapon );
-}
-
-void CTFPlayer::ScriptWeapon_Drop( HSCRIPT hWeapon )
-{
-	CBaseCombatWeapon *pCombatWeapon = ScriptToEntClass< CBaseCombatWeapon >( hWeapon );
-	if ( !pCombatWeapon )
-		return;
-
-	this->Weapon_Drop( pCombatWeapon, NULL, NULL );
-}
-
-void CTFPlayer::ScriptWeapon_DropEx( HSCRIPT hWeapon, Vector vecTarget, Vector vecVelocity )
-{
-	CBaseCombatWeapon *pCombatWeapon = ScriptToEntClass< CBaseCombatWeapon >( hWeapon );
-	if ( !pCombatWeapon )
-		return;
-
-	this->Weapon_Drop( pCombatWeapon, &vecTarget, &vecVelocity );
-}
-
-void CTFPlayer::ScriptWeapon_Switch( HSCRIPT hWeapon )
-{
-	CBaseCombatWeapon *pCombatWeapon = ScriptToEntClass< CBaseCombatWeapon >( hWeapon );
-	if ( !pCombatWeapon )
-		return;
-
-	this->Weapon_Switch( pCombatWeapon );
-}
-
-void CTFPlayer::ScriptWeapon_SetLast( HSCRIPT hWeapon )
-{
-	CBaseCombatWeapon *pCombatWeapon = ScriptToEntClass< CBaseCombatWeapon >( hWeapon );
-	if ( !pCombatWeapon )
-		return;
-
-	this->Weapon_SetLast( pCombatWeapon );
-}
-
-HSCRIPT	CTFPlayer::ScriptGetLastWeapon()
-{
-	return ToHScript(this->GetLastWeapon() );
 }
 
 void CTFPlayer::ScriptEquipWearableViewModel( HSCRIPT hWearableViewModel )

@@ -1221,6 +1221,11 @@ public:
 	// NVNT sets weather a user should receive haptic device messages.
 	virtual void SetHaptics(bool has) { m_bhasHaptics = has;}
 
+	void AddHudHideFlags(int flags) { m_Local.m_iHideHUD |= flags; }
+	void RemoveHudHideFlags(int flags) { m_Local.m_iHideHUD &= ~flags; }
+	void SetHudHideFlags(int flags) { m_Local.m_iHideHUD = flags; }
+	int GetHudHideFlags() { return m_Local.m_iHideHUD; }
+
 	const char* GetScriptOverlayMaterial() const { return m_Local.m_szScriptOverlayMaterial; }
 	void SetScriptOverlayMaterial( const char *pszMaterial )
 	{
@@ -1237,6 +1242,19 @@ public:
 	{
 		SetScriptOverlayMaterial( inputdata.value.String() );
 	}
+
+	HSCRIPT	ScriptGetActiveWeapon( void );
+	Vector	ScriptWeapon_ShootPosition();
+	bool	ScriptWeapon_CanUse( HSCRIPT hWeapon );
+	void	ScriptWeapon_Equip( HSCRIPT hWeapon );
+	void	ScriptWeapon_Drop( HSCRIPT hWeapon );
+	void	ScriptWeapon_DropEx( HSCRIPT hWeapon, Vector vecTarget, Vector vecVelocity );
+	void	ScriptWeapon_Switch( HSCRIPT hWeapon );
+	void	ScriptWeapon_SetLast( HSCRIPT hWeapon );
+	HSCRIPT	ScriptGetLastWeapon();
+
+	bool ScriptIsFakeClient() const { return this->IsFakeClient(); }
+
 private:
 	// NVNT member variable holding if this user is using a haptic device.
 	bool m_bhasHaptics;
