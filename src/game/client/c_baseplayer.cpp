@@ -214,6 +214,7 @@ BEGIN_RECV_TABLE_NOBASE( CPlayerLocalData, DT_Local )
 	RecvPropInt( RECVINFO( m_audio.entIndex ) ),
 
 	RecvPropString( RECVINFO( m_szScriptOverlayMaterial ) ),
+	RecvPropArray3( RECVINFO_ARRAY( m_szScriptOverlayMaterialArray ), RecvPropString( RECVINFO_ARRAY( m_szScriptOverlayMaterialArray ) ) ),
 END_RECV_TABLE()
 
 // -------------------------------------------------------------------------------- //

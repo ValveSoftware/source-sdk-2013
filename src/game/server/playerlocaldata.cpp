@@ -88,6 +88,8 @@ BEGIN_SEND_TABLE_NOBASE( CPlayerLocalData, DT_Local )
 	SendPropInt( SENDINFO_STRUCTELEM( m_audio.entIndex ) ),
 
 	SendPropString( SENDINFO( m_szScriptOverlayMaterial ) ),
+	SendPropArray3( SENDINFO_ARRAY3( m_szScriptOverlayMaterialArray ), SendPropString( SENDINFO_ARRAY( m_szScriptOverlayMaterialArray ) ) )
+
 END_SEND_TABLE()
 
 BEGIN_SIMPLE_DATADESC( fogplayerparams_t )
@@ -195,6 +197,11 @@ CPlayerLocalData::CPlayerLocalData()
 	m_bDrawViewmodel = true;
 
 	m_szScriptOverlayMaterial.GetForModify()[0] = '\0';
+
+	for (int i = 0; i < MAX_SCRIPT_OVERLAYS; i++)
+	{
+		m_szScriptOverlayMaterialArray.Set(i, NULL_STRING);
+	}
 }
 
 
