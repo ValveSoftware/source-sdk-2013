@@ -1092,6 +1092,24 @@ int RunVVis( int argc, char **argv )
 
 	verbose = false;
 
+	// Populate source first to read real command line in LoadCmdLineFromFile.
+	// Then repopulate source and mapFile by real command line.
+
+	// The ExpandPath is just for VMPI. VMPI's file system needs the basedir in front of all filenames,
+	// so we prepend qdir here.
+
+	// XXX(johns): Somewhat preserving legacy behavior here to avoid changing tool behavior, there's no specific rhyme
+	//             or reason to this. We get just the base name we were passed, discarding any directory or extension
+	//             information. We then ExpandPath() it (see VMPI comment above), and tack on .bsp for the file access
+	//             parts.
+	V_FileBase( argv[ argc - 1 ], mapFile, sizeof( mapFile ) );
+	V_strncpy( mapFile, ExpandPath( mapFile ), sizeof( mapFile ) );
+	V_strncat( mapFile, ".bsp", sizeof( mapFile ) );
+
+	// Source is just the mapfile without an extension at this point...
+	V_strncpy( source, mapFile, sizeof( mapFile ) );
+	V_StripExtension( source, source, sizeof( source ) );
+
 	LoadCmdLineFromFile( argc, argv, source, "vvis" );
 	int i = ParseCommandLine( argc, argv );
 
