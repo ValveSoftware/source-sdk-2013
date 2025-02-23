@@ -1167,7 +1167,7 @@ int RunVVis( int argc, char **argv )
 	}
 	else
 	{
-		sprintf ( portalfile, "%s%s", inbase, argv[i] );
+		V_sprintf_safe ( portalfile, "%s%s", inbase, argv[i] );
 		Q_StripExtension( portalfile, portalfile, sizeof( portalfile ) );
 	}
 	strcat (portalfile, ".prt");
