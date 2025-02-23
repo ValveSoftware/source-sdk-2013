@@ -228,6 +228,22 @@ END_SEND_TABLE()
 
 void *SendProxy_ClientSideAnimation( const SendProp *pProp, const void *pStruct, const void *pVarData, CSendProxyRecipients *pRecipients, int objectID );
 
+// [toizy] Prevent console flood by optimizing weapon animation sequence updates
+void SendProxy_Sequence( const SendProp* pProp, const void* pStructBase, const void* pData, DVariant* pOut, int iElement, int objectID )
+{
+	CBaseEntity* pWeapon = (CBaseEntity*)pStructBase;
+	if ( pWeapon && pWeapon->IsBaseCombatWeapon() )
+	{
+		CBaseCombatWeapon* pEntity = (CBaseCombatWeapon*)pStructBase;
+		if ( pEntity && pEntity->GetOwner() )
+		{
+			pOut->m_Int = 0;
+			return;
+		}
+	}
+	pOut->m_Int = *(int*)pData;
+}
+
 // SendTable stuff.
 IMPLEMENT_SERVERCLASS_ST(CBaseAnimating, DT_BaseAnimating)
 	SendPropInt		( SENDINFO(m_nForceBone), 8, 0 ),
@@ -242,7 +258,7 @@ IMPLEMENT_SERVERCLASS_ST(CBaseAnimating, DT_BaseAnimating)
 
 	SendPropArray3  ( SENDINFO_ARRAY3(m_flPoseParameter), SendPropFloat(SENDINFO_ARRAY(m_flPoseParameter), ANIMATION_POSEPARAMETER_BITS, 0, 0.0f, 1.0f ) ),
 	
-	SendPropInt		( SENDINFO(m_nSequence), ANIMATION_SEQUENCE_BITS, SPROP_UNSIGNED ),
+	SendPropInt		( SENDINFO(m_nSequence), ANIMATION_SEQUENCE_BITS, SPROP_UNSIGNED, SendProxy_Sequence ),
 	SendPropFloat	( SENDINFO(m_flPlaybackRate), ANIMATION_PLAYBACKRATE_BITS, SPROP_ROUNDUP, -4.0, 12.0f ), // NOTE: if this isn't a power of 2 than "1.0" can't be encoded correctly
 
 	SendPropArray3 	(SENDINFO_ARRAY3(m_flEncodedController), SendPropFloat(SENDINFO_ARRAY(m_flEncodedController), 11, SPROP_ROUNDDOWN, 0.0f, 1.0f ) ),
