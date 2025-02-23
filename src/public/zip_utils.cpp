@@ -1331,9 +1331,7 @@ void CZipFile::ParseXZipCommentString( const char *pCommentString )
 		// parse out the alignement configuration
 		if ( !m_bForceAlignment )
 		{
-			m_AlignmentSize = 0;
-			sscanf( pCommentString + 4, "%d", &m_AlignmentSize );
-			if ( !IsPowerOfTwo( m_AlignmentSize ) )
+			if ( sscanf( pCommentString + 4, "%u", &m_AlignmentSize ) != 1 || !IsPowerOfTwo( m_AlignmentSize ) )
 			{
 				m_AlignmentSize = 0;
 			}
