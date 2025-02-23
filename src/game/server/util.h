@@ -647,7 +647,8 @@ void UTIL_BoundToWorldSize( Vector *pVecPos );
 void UTIL_SetClientConVarValue( edict_t* pEdict, const char* pszConVarName, const char* pszConVarValue );
 void UTIL_SetClientConVarValueAll( const char* pszConVarName, const char* pszConVarValue );
 void UTIL_SetGameDescription( const char* description );
+#ifndef TF_DLL
 void UTIL_GenerateRGBA( CBaseEntity* pPlayer, ConVar* var_condition, ConVar* var_defcolors, color32& outcolor );
-
+#endif
 
 #endif // UTIL_H

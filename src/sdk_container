@@ -24,6 +24,7 @@ function run_in_sniper() {
 
         image="registry.gitlab.steamos.cloud/steamrt/sniper/sdk:latest"
         echo "Running script inside $image"
+        mkdir -p "${CCACHE_DIR:-$HOME/.ccache}"
         exec podman run \
             --env "$check_env=$script_file" \
             --env "CCACHE_DIR=${CCACHE_DIR:-$HOME/.ccache}" \

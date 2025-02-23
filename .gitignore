@@ -506,3 +506,10 @@ FodyWeavers.xsd
 # toizy
 mod_hl2mp_win64.exe
 mod_tf_win64.exe
+src/.ninja_deps
+src/.ninja_log
+src/compile_commands.json
+src/lib/public/linux64/mathlib.a
+src/lib/public/linux64/raytrace.a
+src/lib/public/linux64/tier1.a
+src/lib/public/linux64/vgui_controls.a

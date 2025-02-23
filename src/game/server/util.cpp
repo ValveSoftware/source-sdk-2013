@@ -38,7 +38,9 @@
 #include "cdll_int.h"
 #include "vscript_server.h"
 #include "inetchannel.h"
+#ifndef TF_DLL
 #include "hl2mp_gamerules.h"
+#endif //TF_DLL
 
 #ifdef PORTAL
 #include "PortalSimulation.h"
@@ -3276,6 +3278,8 @@ void UTIL_SetGameDescription( const char* description )
 	}
 }
 
+#ifndef TF_DLL
+
 void UTIL_GenerateRGBA( CBaseEntity* pPlayer, ConVar* var_condition, ConVar* var_defcolors, color32& outcolor )
 {
 	if ( !var_condition || !var_defcolors || !var_defcolors->GetString() )
@@ -3325,3 +3329,4 @@ void UTIL_GenerateRGBA( CBaseEntity* pPlayer, ConVar* var_condition, ConVar* var
 			break;
 	}
 }
+#endif

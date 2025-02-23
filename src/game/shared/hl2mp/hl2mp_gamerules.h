@@ -170,7 +170,7 @@ private:
 
 // [TOIZY] CUSTOM PROPERTIES AND METHODS
 #ifndef CLIENT_DLL
-	CBasePlayer* CHL2MPRules::GetSourceTvPlayer( void );
+	CBasePlayer* GetSourceTvPlayer( void );
 #endif // !CLIENT_DLL
 
 };
