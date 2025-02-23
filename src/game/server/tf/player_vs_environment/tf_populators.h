@@ -228,6 +228,8 @@ public:
 	CUtlString m_name;
 	CUtlString m_waitForAllSpawned;
 	CUtlString m_waitForAllDead;
+    CUtlString m_spawnUntilAllSpawned;
+    CUtlString m_spawnUntilAllDead;
 
 	bool IsDone( void ) const
 	{
@@ -247,6 +249,9 @@ public:
 		m_remainingCount = m_totalCount;
 		m_state = PENDING; 
 	}
+
+	// Mark the populator finished
+	void Finish(void);
 
 	bool IsSupportWave( void ) const { return m_bSupportWave; }
 	bool IsLimitedSupportWave( void ) const { return m_bLimitedSupport; }
