@@ -61,6 +61,7 @@ game/mod_*/media/viewed.res
 game/mod_*/*_playerstats.dmx
 game/mod_*/voice_ban.dt
 game/mod_*/stats.txt
+game/mod_*/videoconfig_linux.cfg
 game/platform/config/ServerBrowser.vdf
 game/platform/config/InGameDialogConfig.vdf
 game/steam_appid.txt
