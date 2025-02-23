@@ -554,7 +554,7 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 					nNumEnemyTypes++;
 
 					// Show support spies
-					if ( (iFlags & MVM_CLASS_FLAG_SUPPORT_LIMITED) && support_miniboss[index].bActive )
+					if ( ( iFlags & MVM_CLASS_FLAG_SUPPORT_LIMITED ) && support_miniboss[index].bActive )
 					{
 						nNumNonVerboseTypes++;
 					}
@@ -577,7 +577,7 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 			}
 			else if ( iFlags & MVM_CLASS_FLAG_MISSION )
 			{
-				if (iFlags & MVM_CLASS_FLAG_MINIBOSS)
+				if ( iFlags & MVM_CLASS_FLAG_MINIBOSS )
 				{
 					if ( ( ( TFGameRules()->State_Get() != GR_STATE_RND_RUNNING ) && !( FStrEq( "sentry_buster", pchClassIconName ) || FStrEq( "teleporter", pchClassIconName ) ) ) || ( nClassCount > 0 ) )
 					{
