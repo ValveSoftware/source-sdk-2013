@@ -1151,11 +1151,11 @@ int CScriptLib::GetFileList( const char* pDirPath, const char* pPattern, CUtlVec
 
 	fileList.Purge();
 
-	strcpy( sourcePath, pDirPath );
-	int len = (int)strlen( sourcePath );
+	V_strcpy_safe( sourcePath, pDirPath );
+	int len = V_strlen( sourcePath );
 	if ( !len )
 	{
-		strcpy( sourcePath, ".\\" );
+		V_strcpy_safe( sourcePath, ".\\" );
 	}
 	else if ( sourcePath[len-1] != '\\' )
 	{
@@ -1163,18 +1163,18 @@ int CScriptLib::GetFileList( const char* pDirPath, const char* pPattern, CUtlVec
 		sourcePath[len+1] = '\0';
 	}
 
-	strcpy( fullPath, sourcePath );
+	V_strcpy_safe( fullPath, sourcePath );
 	if ( pPattern[0] == '\\' && pPattern[1] == '\0' )
 	{
 		// find directories only
 		bFindDirs = true;
-		strcat( fullPath, "*" );
+		V_strcat_safe( fullPath, "*" );
 	}
 	else
 	{
 		// find files, use provided pattern
 		bFindDirs = false;
-		strcat( fullPath, pPattern );
+		V_strcat_safe( fullPath, pPattern );
 	}
 
 #ifdef WIN32
@@ -1208,8 +1208,8 @@ int CScriptLib::GetFileList( const char* pDirPath, const char* pPattern, CUtlVec
 			continue;
 
 		char fileName[MAX_PATH];
-		strcpy( fileName, sourcePath );
-		strcat( fileName, findData.name );
+		V_strcpy_safe( fileName, sourcePath );
+		V_strcat_safe( fileName, findData.name );
 
 		int j = fileList.AddToTail();
 		fileList[j].fileName.Set( fileName );
@@ -1250,8 +1250,8 @@ int CScriptLib::GetFileList( const char* pDirPath, const char* pPattern, CUtlVec
 			continue;
 
 		char fileName[MAX_PATH];
-		strcpy( fileName, sourcePath );
-		strcat( fileName, findData.cFileName );
+		V_strcpy_safe( fileName, sourcePath );
+		V_strcat_safe( fileName, findData.cFileName );
 
 		int j = fileList.AddToTail();
 		fileList[j].fileName.Set( fileName );
