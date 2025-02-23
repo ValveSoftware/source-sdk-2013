@@ -1159,8 +1159,17 @@ int CScriptLib::GetFileList( const char* pDirPath, const char* pPattern, CUtlVec
 	}
 	else if ( sourcePath[len-1] != '\\' )
 	{
-		sourcePath[len]   = '\\';
-		sourcePath[len+1] = '\0';
+		if ( len != ARRAYSIZE( sourcePath ) - 1 )
+		{
+			sourcePath[len]   = '\\';
+			sourcePath[len+1] = '\0';
+		}
+		else
+		{
+			Error( "Directory path \"%s\" to get list of files by pattern \"%s\" is too large. "
+				"Max directory path length is %zu, but got %zu",
+				pDirPath, pPattern, ARRAYSIZE( sourcePath ) - 2, len );
+		}
 	}
 
 	V_strcpy_safe( fullPath, sourcePath );
