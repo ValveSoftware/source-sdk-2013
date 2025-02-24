@@ -143,8 +143,8 @@ enum
 };
 typedef uint32 PathTypeQuery_t;
 
-#define IS_PACKFILE( n ) ( n & ( PATH_IS_PACKFILE | PATH_IS_MAPPACKFILE ) )
-#define IS_REMOTE( n )   ( n & PATH_IS_REMOTE )
+#define IS_PACKFILE( n ) ( (n) & ( PATH_IS_PACKFILE | PATH_IS_MAPPACKFILE ) )
+#define IS_REMOTE( n )   ( (n) & PATH_IS_REMOTE )
 
 enum DVDMode_t
 {

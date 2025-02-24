@@ -89,6 +89,7 @@ inline void *MemAlloc_InlineCallocMemset( void *pMem, size_t nCount, size_t nEle
 #endif
 
 #define calloc(c, s)		MemAlloc_InlineCallocMemset(malloc(c*s), c, s)
+#define calloc(c, s)		MemAlloc_InlineCallocMemset(malloc((c)*(s)), c, s)
 #define free(p)				g_pMemAlloc->Free( p )
 #define _msize(p)			g_pMemAlloc->GetSize( p )
 #define _expand(p, s)		_expand_NoLongerSupported(p, s)

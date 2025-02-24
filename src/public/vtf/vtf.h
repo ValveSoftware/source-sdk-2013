@@ -495,6 +495,7 @@ struct VTFFileHeaderV7_2_t : public VTFFileHeaderV7_1_t
 };
 
 #define BYTE_POS( byteVal, shft )	uint32( uint32(uint8(byteVal)) << uint8(shft * 8) )
+#define BYTE_POS( byteVal, shft )	uint32( uint32(uint8(byteVal)) << uint8((shft) * 8) )
 #if !defined( _X360 )
 #define MK_VTF_RSRC_ID(a, b, c)		uint32( BYTE_POS(a, 0) | BYTE_POS(b, 1) | BYTE_POS(c, 2) )
 #define MK_VTF_RSRCF(d)				BYTE_POS(d, 3)

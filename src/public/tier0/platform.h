@@ -475,8 +475,7 @@ typedef unsigned int *LPDWORD;
 	#endif
 #endif // !defined( offsetof )
 
-
-#define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) ) //  need macro for constant expression
+#define ALIGN_VALUE( val, alignment ) ( ( (val) + (alignment) - 1 ) & ~( (alignment) - 1 ) ) //  need macro for constant expression
 
 // Used to step into the debugger
 #if defined( _WIN32 ) && !defined( _X360 )

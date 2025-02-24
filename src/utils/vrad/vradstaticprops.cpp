@@ -41,6 +41,7 @@
 
 
 #define ALIGN_TO_POW2(x,y) (((x)+(y-1))&~(y-1))
+#define ALIGN_TO_POW2(x,y) (((x)+((y)-1))&~((y)-1))
 
 // identifies a vertex embedded in solid
 // lighting will be copied from nearest valid neighbor
