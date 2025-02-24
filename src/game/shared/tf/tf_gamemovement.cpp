@@ -2958,7 +2958,7 @@ void CTFGameMovement::SetGroundEntity( trace_t *pm )
 			m_pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_DOUBLE_JUMP, "started_jumping:0" );
 		}
 		m_pTFPlayer->m_Shared.SetWeaponKnockbackID( -1 );
-		m_pTFPlayer->m_bScattergunJump = false;
+		m_pTFPlayer->m_iScattergunJump = 0;
 #endif // GAME_DLL
 		m_pTFPlayer->m_Shared.SetAirDash( 0 );
 		m_pTFPlayer->m_Shared.SetAirDucked( 0 );
