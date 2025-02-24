@@ -60,10 +60,10 @@ public:
 		bool bFixedConstraints=false );
 
 	virtual void RagdollBone( C_BaseEntity *ent, mstudiobone_t *pbones, int boneCount, bool *boneSimulated, CBoneAccessor &pBoneToWorld );
+	void    AcquireOrCopyBoneCache( matrix3x4_t* pBonesToWorld, int boneCount );
 	virtual const Vector& GetRagdollOrigin( );
 	virtual void GetRagdollBounds( Vector &theMins, Vector &theMaxs );
 	void	BuildRagdollBounds( C_BaseEntity *ent );
-	
 	virtual IPhysicsObject *GetElement( int elementNum );
 	virtual IPhysicsConstraintGroup *GetConstraintGroup() { return m_ragdoll.pGroup; }
 	virtual void DrawWireframe();
@@ -101,6 +101,8 @@ private:
 	bool		m_allAsleep;
 	Vector		m_vecLastOrigin;
 	float		m_flLastOriginChangeTime;
+	CUtlVector< matrix3x4_t > m_BoneCache;
+	float		m_flBoneCacheTime;
 
 #if RAGDOLL_VISUALIZE
 	matrix3x4_t			m_savedBone1[MAXSTUDIOBONES];
