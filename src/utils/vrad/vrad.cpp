@@ -223,16 +223,18 @@ void ReadLightFile (char *filename)
 
 		scan += strspn( scan, " \t" );
 		char NoShadName[1024];
-		if ( sscanf(scan,"noshadow %s",NoShadName)==1)
+		if ( sscanf(scan,"noshadow %1023s",NoShadName)==1)
 		{
+			NoShadName[ ARRAYSIZE( NoShadName ) - 1 ] = '\0';
 			char * dot = strchr( NoShadName, '.' );
 			if ( dot )										// if they specify .vmt, kill it
 				* dot = 0;
 			//printf("add %s as a non shadow casting material\n",NoShadName);
 			g_NonShadowCastingMaterialStrings.AddToTail( strdup( NoShadName ));
 		}
-		else if ( sscanf( scan, "forcetextureshadow %s", NoShadName ) == 1 )
+		else if ( sscanf( scan, "forcetextureshadow %1023s", NoShadName ) == 1 )
 		{
+			NoShadName[ ARRAYSIZE( NoShadName ) - 1 ] = '\0';
 			//printf("add %s as a non shadow casting material\n",NoShadName);
 			ForceTextureShadowsOnModel( NoShadName );
 		}
@@ -243,7 +245,8 @@ void ReadLightFile (char *filename)
 			if ( num_texlights == MAX_TEXLIGHTS )
 				Error ("Too many texlights, max = %d", MAX_TEXLIGHTS);
 
-			int argCnt = sscanf (scan, "%s ",szTexlight );
+			int argCnt = sscanf (scan, "%255s ",szTexlight );
+			szTexlight[ ARRAYSIZE( szTexlight ) - 1 ] = '\0';
 
 			if( argCnt != 1 )
 			{
@@ -2483,7 +2486,7 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 		{
 			if ( ++i < argc && *argv[i] )
 			{
-				strcpy( designer_lights, argv[i] );
+				V_strcpy_safe( designer_lights, argv[i] );
 			}
 			else
 			{
