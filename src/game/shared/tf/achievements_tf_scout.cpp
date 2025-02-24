@@ -952,7 +952,7 @@ class CAchievementTFScout_KillFromBehind : public CBaseTFAchievement
 		if ( event->GetInt( "weaponid" ) == TF_WEAPON_SCATTERGUN )
 		{
 			CTFScatterGun *pScattergun = (CTFScatterGun *)ToTFPlayer( C_TFPlayer::GetLocalPlayer() )->Weapon_OwnsThisID( TF_WEAPON_SCATTERGUN );
-			if ( pScattergun && pScattergun->HasKnockback() &&
+			if ( pScattergun && pScattergun->GetKnockbackCount() > 0 &&
 				( DotProductToTarget( pAttacker, pVictim ) > -0.1 ) )
 			{
 				IncrementCount();
