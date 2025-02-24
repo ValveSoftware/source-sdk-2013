@@ -1720,7 +1720,7 @@ void BounceLight (void)
 		i++;
 		if ( g_bDumpPatches && !bouncing && i != 1)
 		{
-			sprintf (name, "bounce%i.txt", i);
+			sprintf (name, "bounce%u.txt", i);
 			WriteWorld (name, 0);
 		}
 	}
