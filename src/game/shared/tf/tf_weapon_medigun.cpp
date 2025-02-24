@@ -1252,7 +1252,6 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 
 			if ( pTFPlayer && weapon_medigun_charge_rate.GetFloat() )
 			{
-#ifdef GAME_DLL
 				int iBoostMax = floor( pTFPlayer->m_Shared.GetMaxBuffedHealth() * 0.95);
 				float flChargeModifier = 1.f;
 
@@ -1309,7 +1308,7 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 
 				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pOwner, flChargeAmount, mult_medigun_uberchargerate );
 
-
+#ifdef GAME_DLL
 				// Apply any bonus our target gives us.
 				if ( pTarget )
 				{
@@ -1322,6 +1321,7 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 						CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pTarget, flChargeAmount, mult_uberchargerate_for_healer );
 					}
 				}
+#endif
 				if ( TFGameRules() )
 				{
 					if ( TFGameRules()->IsQuickBuildTime() )
@@ -1333,7 +1333,6 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 						flChargeAmount *= 3.f;
 					}
 				}
-#endif
 
 				float flNewLevel = MIN( m_flChargeLevel + flChargeAmount, 1.0 );
 
