@@ -789,6 +789,10 @@ void DumpPointListToGLView( GeneratePolyhedronFromPlanes_UnorderedPointLL *pHead
 		pTransform = &s_matIdentity;
 	
 	FILE *pFile = fopen( szDumpFile, "ab" );
+	if ( !pFile )
+	{
+		Error( "Error opening %s! (Check for write enable)\n", szDumpFile );
+	}
 	
 	while( pHead )
 	{
@@ -2194,6 +2198,10 @@ void DumpPolyhedronToGLView( const CPolyhedron *pPolyhedron, const char *pFilena
 	printf("Writing %s...\n", pFilename );
 
 	FILE *pFile = fopen( pFilename, "ab" );
+	if ( !pFile )
+	{
+		Error( "Error opening %s! (Check for write enable)\n", pFilename );
+	}
 
 	//randomizing an array of colors to help spot shared/unshared vertices
 	Vector *pColors = (Vector *)stackalloc( sizeof( Vector ) * pPolyhedron->iVertexCount );	
@@ -2249,6 +2257,10 @@ void DumpPlaneToGlView( const float *pPlane, float fGrayScale, const char *pszFi
 		pTransform = &s_matIdentity;
 
 	FILE *pFile = fopen( pszFileName, "ab" );
+	if ( !pFile )
+	{
+		Error( "Error opening %s! (Check for write enable)\n", pszFileName );
+	}
 
 	//transform the plane
 	Vector vNormal = pTransform->ApplyRotation( *(Vector *)pPlane );

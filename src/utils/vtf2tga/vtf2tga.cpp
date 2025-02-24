@@ -25,8 +25,12 @@
 //-----------------------------------------------------------------------------
 static void PFMWrite( float *pFloatImage, const char *pFilename, int width, int height )
 {
-	FILE *fp;
-	fp = fopen( pFilename, "wb" );
+	FILE *fp = fopen( pFilename, "wb" );
+	if ( !fp )
+	{
+		Error( "Can't open %s! (Check for write enable).\n", pFilename );
+		exit( -1 );
+	}
 	fprintf( fp, "PF\n%d %d\n-1.000000\n", width, height );
 	int i;
 	for( i = height-1; i >= 0; i-- )
@@ -105,7 +109,7 @@ int main( int argc, char **argv )
 	FILE *vtfFp = fopen( pActualVTFFileName, "rb" );
 	if( !vtfFp )
 	{
-		Error( "Can't open %s\n", pActualVTFFileName );
+		Error( "Can't open %s! (Check for read enable).\n", pActualVTFFileName );
 		exit( -1 );
 	}
 

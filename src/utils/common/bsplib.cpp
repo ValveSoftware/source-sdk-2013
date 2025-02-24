@@ -2519,6 +2519,11 @@ void LoadBSPFileTexinfo( const char *filename )
 	g_pBSPHeader = (dheader_t*)malloc( sizeof(dheader_t) );
 
 	f = fopen( filename, "rb" );
+	if ( !f )
+	{
+		Error( "Error opening %s! (Check for read enable)\n", filename );
+	}
+
 	fread( g_pBSPHeader, sizeof(dheader_t), 1, f);
 
 	ValidateHeader( filename, g_pBSPHeader );

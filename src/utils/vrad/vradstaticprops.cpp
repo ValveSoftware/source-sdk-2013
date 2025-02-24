@@ -577,6 +577,11 @@ void DumpCollideToGlView( vcollide_t *pCollide, const char *pFilename )
 	Msg("Writing %s...\n", pFilename );
 
 	FILE *fp = fopen( pFilename, "w" );
+	if ( !fp )
+	{
+		Error( "Error opening %s! (Check for write enable)\n", pFilename );
+	}
+
 	for (int i = 0; i < pCollide->solidCount; ++i)
 	{
 		Vector *outVerts;

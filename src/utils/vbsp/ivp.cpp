@@ -153,6 +153,11 @@ void DumpCollideToGlView( CPhysCollide *pCollide, const char *pFilename )
 	Vector *outVerts;
 	int vertCount = physcollision->CreateDebugMesh( pCollide, &outVerts );
 	FILE *fp = fopen( pFilename, "w" );
+	if ( !fp )
+	{
+		Error( "Error opening %s! (Check for write enable)\n", pFilename );
+	}
+
 	int triCount = vertCount / 3;
 	int vert = 0;
 	for ( int i = 0; i < triCount; i++ )
@@ -174,6 +179,11 @@ void DumpCollideToPHY( CPhysCollide *pCollide, CTextBuffer *text,   const char *
 {
 	Msg("Writing %s...\n", pFilename );
 	FILE *fp = fopen( pFilename, "wb" );
+	if ( !fp )
+	{
+		Error( "Error opening %s! (Check for write enable)\n", pFilename );
+	}
+
 	phyheader_t header;
 	header.size = sizeof(header);
 	header.id = 0;
