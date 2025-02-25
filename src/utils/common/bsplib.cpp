@@ -4803,6 +4803,7 @@ bool SwapBSPFile( const char *pInFilename, const char *pOutFilename, bool bSwapO
 	CRC32_Init(&mapCRC);
 	if ( !CRC_MapFile( &mapCRC, pInFilename ) )
 	{
+		CloseBSPFile();
 		Warning( "Failed to CRC the bsp\n" );
 		return false;
 	}
@@ -5096,6 +5097,7 @@ bool SetPakFileLump( const char *pBSPFilename, const char *pNewFilename, void *p
 	g_hBSPFile = SafeOpenWrite( pNewFilename );
 	if ( !g_hBSPFile )
 	{
+		CloseBSPFile();
 		return false;
 	}
 
