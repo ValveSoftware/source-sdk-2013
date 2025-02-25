@@ -594,7 +594,7 @@ ALLOC_CALL void *__cdecl _aligned_malloc_base( size_t size, size_t align )
 
 inline void *MemAlloc_Unalign( void *pMemBlock )
 {
-	unsigned *pAlloc = (unsigned *)pMemBlock;
+	alignas(unsigned **) unsigned *pAlloc = (unsigned *)pMemBlock;
 
 	// pAlloc points to the pointer to starting of the memory block
 	pAlloc = (unsigned *)(((size_t)pAlloc & ~(sizeof( void * ) - 1)) - sizeof( void * ));

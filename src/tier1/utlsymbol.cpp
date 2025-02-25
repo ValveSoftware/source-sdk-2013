@@ -338,7 +338,7 @@ FileNameHandle_t CUtlFilenameSymbolTable::FindOrAddFileName( const char *pFileNa
 	Q_strncpy( filename, fn + Q_strlen( basepath ), sizeof( filename ) );
 
 	// not found, lock and look again
-	FileNameHandleInternal_t handle;
+	alignas(FileNameHandle_t) FileNameHandleInternal_t handle;
 	m_lock.LockForWrite();
 	handle.path = m_Strings->Insert( basepath ) + 1;
 	handle.file = m_Strings->Insert( filename ) + 1;
@@ -380,7 +380,7 @@ FileNameHandle_t CUtlFilenameSymbolTable::FindFileName( const char *pFileName )
 	char filename[ MAX_PATH ];
 	Q_strncpy( filename, fn + Q_strlen( basepath ), sizeof( filename ) );
 
-	FileNameHandleInternal_t handle;
+	alignas(FileNameHandle_t) FileNameHandleInternal_t handle;
 
 	Assert( (uint16)(m_Strings->InvalidHandle() + 1) == 0 );
 

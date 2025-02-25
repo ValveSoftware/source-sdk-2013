@@ -259,7 +259,7 @@ char *MD5_Print( unsigned char *hash, int hashlen )
 unsigned int MD5_PseudoRandom(unsigned int nSeed)
 {
 	MD5Context_t ctx;
-	unsigned char digest[MD5_DIGEST_LENGTH]; // The MD5 Hash
+	alignas(unsigned int) unsigned char digest[MD5_DIGEST_LENGTH]; // The MD5 Hash
 
 	memset( &ctx, 0, sizeof( ctx ) );
 		
