@@ -712,6 +712,7 @@ vscript_convar_allowlist
     tf_mvm_endless_wait_time                                          allowed
     tf_mvm_engineer_teleporter_uber_duration                          allowed
     tf_mvm_max_connected_players                                      allowed
+	tf_mvm_max_invaders                                               allowed	
     tf_mvm_min_players_to_start                                       allowed
     tf_mvm_miniboss_scale                                             allowed
     tf_mvm_notice_sapped_squadmates_delay                             allowed
