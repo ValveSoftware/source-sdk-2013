@@ -15,6 +15,7 @@
 #include "iviewrender.h"
 #include "hud_basechat.h"
 #include "weapon_selection.h"
+#include "in_buttons.h"
 #include <vgui/IVGui.h>
 #include <vgui/Cursor.h>
 #include <vgui/IPanel.h>
@@ -422,6 +423,9 @@ bool ClientModeShared::CreateMove( float flInputSampleTime, CUserCmd *cmd )
 	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
 	if(!pPlayer)
 		return true;
+
+	if ( m_pChatElement && m_pChatElement->GetMessageMode() != MM_NONE )
+		cmd->buttons |= IN_TYPING;
 
 	// Let the player at it
 	return pPlayer->CreateMove( flInputSampleTime, cmd );

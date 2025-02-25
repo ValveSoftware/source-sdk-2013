@@ -3756,6 +3756,7 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropInt( RECVINFO( m_iPlayerSkinOverride ) ),
 	RecvPropBool( RECVINFO( m_bViewingCYOAPDA ) ),
 	RecvPropBool( RECVINFO( m_bRegenerating ) ),
+	RecvPropBool( RECVINFO( m_bTyping ) ),
 END_RECV_TABLE()
 
 
@@ -3822,6 +3823,7 @@ C_TFPlayer::C_TFPlayer() :
 	m_flBurnEffectStartTime = 0;
 	m_pDisguisingEffect = NULL;
 	m_pSaveMeEffect = NULL;
+	m_pTypingEffect = NULL;
 	m_pTauntWithMeEffect = NULL;
 	m_hOldObserverTarget = NULL;
 	m_iOldObserverMode = OBS_MODE_NONE;
@@ -3934,6 +3936,7 @@ C_TFPlayer::C_TFPlayer() :
 	m_flHelpmeButtonPressTime = 0.f;
 	m_bViewingCYOAPDA = false;
 	m_bRegenerating = false;
+	m_bTyping = false;
 
 	m_bNotifiedWeaponInspectThisLife = false;
 
@@ -4474,6 +4477,8 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 		// Player has triggered a save me command
 		CreateSaveMeEffect();
 	}
+
+	UpdateTypingEffect();
 
 	// To better support old demos, which have some screwed up flags, we just ignore various things if we're a SourceTV client.
 	if ( !IsHLTV() )
@@ -8120,6 +8125,30 @@ void C_TFPlayer::StopSaveMeEffect( bool bForceRemoveInstantly /*= false*/ )
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_TFPlayer::UpdateTypingEffect()
+{
+	if ( m_bTyping 
+		&& IsAlive() 
+		&& !InFirstPersonView()
+		&& ( !m_Shared.IsStealthed() || !IsEnemyPlayer() ) )
+	{
+		if ( !m_pTypingEffect )
+		{
+			m_pTypingEffect = ParticleProp()->Create( "speech_typing", PATTACH_POINT_FOLLOW, "head" );
+		}
+	}
+	else
+	{
+		if ( m_pTypingEffect )
+		{
+			ParticleProp()->StopEmissionAndDestroyImmediately( m_pTypingEffect );
+			m_pTypingEffect = NULL;
+		}
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 

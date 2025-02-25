@@ -843,6 +843,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	SendPropInt( SENDINFO( m_iPlayerSkinOverride ) ),
 	SendPropBool( SENDINFO( m_bViewingCYOAPDA ) ),
 	SendPropBool( SENDINFO( m_bRegenerating ) ),
+	SendPropBool( SENDINFO( m_bTyping ) ),
 END_SEND_TABLE()
 
 // -------------------------------------------------------------------------------- //
@@ -1123,6 +1124,8 @@ CTFPlayer::CTFPlayer()
 	m_bRespawning = false;
 
 	m_bAlreadyUsedExtendFreezeThisDeath = false;
+
+	m_bTyping = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -3035,6 +3038,7 @@ void CTFPlayer::PrecacheTFPlayer()
 	PrecacheParticleSystem( "speech_taunt_all" );
 	PrecacheParticleSystem( "speech_taunt_red" );
 	PrecacheParticleSystem( "speech_taunt_blue" );
+	PrecacheParticleSystem( "speech_typing" );
 	PrecacheParticleSystem( "player_recent_teleport_blue" );
 	PrecacheParticleSystem( "player_recent_teleport_red" );
 	PrecacheParticleSystem( "particle_nemesis_red" );
@@ -3184,6 +3188,8 @@ void CTFPlayer::PlayerRunCommand( CUserCmd *ucmd, IMoveHelper *moveHelper )
 
 	if ( !sv_runcmds.GetInt() )
 		return;
+
+	m_bTyping = (ucmd->buttons & IN_TYPING) != 0;
 
 	if ( m_Shared.InCond( TF_COND_HALLOWEEN_KART ) )
 	{

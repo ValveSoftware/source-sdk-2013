@@ -1280,6 +1280,9 @@ private:
 	// is this player bound to the match on penalty of abandon. Sync'd via local-player-only DT
 	CNetworkVar( bool, m_bMatchSafeToLeave );
 
+	// Using the chat?
+	CNetworkVar( bool, m_bTyping );
+
 	CWaveSpawnPopulator *m_pWaveSpawnPopulator;
 	float				m_flLastReadySoundTime;
 
