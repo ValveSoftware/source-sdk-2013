@@ -325,6 +325,8 @@ void CTFHudPlayerClass::OnThink()
 
 					// Get and set the rarity color of the weapon
 					const char* pszColorName = GetItemSchema()->GetRarityColor( pItem->GetRarity() );	// FIX: War Paint weapons will display color on ground
+					if (pItem->GetItemQuality() == AE_SELFMADE) pszColorName = EconQuality_GetColorString(AE_SELFMADE); // Addition for consistency with other economy UI
+
 					pszColorName = pszColorName ? pszColorName : "TanLight";
 					if ( pszColorName )
 					{
