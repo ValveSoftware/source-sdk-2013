@@ -17,6 +17,8 @@ Clone the repository using the following command:
 Requirements:
  - Source SDK 2013 Multiplayer installed via Steam
  - Visual Studio 2022
+ - The latest version of the Windows 10 or 11 SDK (Can be installed with Visual Studio)
+ - The latest version of Python 3
 
 Inside the cloned directory, navigate to `src`, run:
 ```bat
@@ -49,6 +51,8 @@ You can then, in the root of the cloned directory, you can navigate to `game` an
 ```
 
 *Mods that are distributed on Steam MUST be built against the Steam Runtime, which the above steps will automatically do for you.*
+
+More detailed info about setting up Source SDK 2013 - Multiplayer you can find [on this Developer Wiki Page](https://developer.valvesoftware.com/wiki/Setting_up_Source_SDK_Base_2013_Multiplayer)
 
 ## Distributing your Mod
 
