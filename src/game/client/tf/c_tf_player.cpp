@@ -220,6 +220,7 @@ ConVar tf_taunt_first_person( "tf_taunt_first_person", "0", FCVAR_NONE, "1 = tau
 ConVar tf_romevision_opt_in( "tf_romevision_opt_in", "0", FCVAR_ARCHIVE, "Enable Romevision in Mann vs. Machine mode when available." );
 ConVar tf_romevision_skip_prompt( "tf_romevision_skip_prompt", "0", FCVAR_ARCHIVE, "If nonzero, skip the prompt about sharing Romevision." );
 
+ConVar tf_chat_particle( "tf_chat_particle", "1", FCVAR_ARCHIVE, "Show typing bubble above player heads" );
 
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
 #define BOMB_HAT_MODEL		"models/props_lakeside_event/bomb_temp_hat.mdl"
@@ -8130,7 +8131,9 @@ void C_TFPlayer::StopSaveMeEffect( bool bForceRemoveInstantly /*= false*/ )
 //-----------------------------------------------------------------------------
 void C_TFPlayer::UpdateTypingEffect()
 {
-	if ( m_bTyping 
+	if ( tf_chat_particle.GetBool()
+		&& m_bTyping 
+		&& !GetClientVoiceMgr()->IsPlayerSpeaking( entindex() )
 		&& IsAlive() 
 		&& !InFirstPersonView()
 		&& ( !m_Shared.IsStealthed() || !IsEnemyPlayer() ) )
