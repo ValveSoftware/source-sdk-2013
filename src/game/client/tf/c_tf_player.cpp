@@ -9443,6 +9443,11 @@ IMaterial *C_TFPlayer::GetHeadLabelMaterial( void )
 	return BaseClass::GetHeadLabelMaterial();
 }
 
+bool C_TFPlayer::ShouldShowHeadLabel()
+{
+	return BaseClass::ShouldShowHeadLabel() && ( !m_Shared.IsStealthed() || !IsEnemyPlayer() );
+}
+
 void SetupHeadLabelMaterials( void )
 {
 	for ( int i = 0; i < 2; i++ )
