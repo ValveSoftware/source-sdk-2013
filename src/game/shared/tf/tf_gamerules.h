@@ -218,6 +218,7 @@ private:
 
 	bool	m_bOvertimeAllowedForCTF;
 	bool	m_bRopesHolidayLightsAllowed;
+	bool    m_bSupportsPyroland;
 #endif
 
 public: // IGameEventListener Interface
@@ -1006,6 +1007,7 @@ public:
 	bool GetOvertimeAllowedForCTF( void ){ return m_bOvertimeAllowedForCTF; }
 
 	void SetRopesHolidayLightsAllowed( bool bAllowed ) { m_bRopesHolidayLightsAllowed = bAllowed; }
+	void SetPyrovisionAllowed( bool bAllowed ) { m_bSupportsPyroland = bAllowed; }
 
 	const CUtlVector< CHandle< CBaseEntity > > &GetHealthEntityVector( void );		// return vector of health entities 
 	const CUtlVector< CHandle< CBaseEntity > > &GetAmmoEntityVector( void );		// return vector of ammo entities 
@@ -1047,6 +1049,7 @@ private:
 #endif // GAME_DLL
 
 	bool GetRopesHolidayLightsAllowed( void ) { return m_bRopesHolidayLightsAllowed; }
+	bool GetPyrovisionAllowed( void ) { return m_bSupportsPyroland; }
 
 private:
 
@@ -1201,6 +1204,7 @@ private:
 	CNetworkVar( bool, m_bTeamsSwitched );
 
 	CNetworkVar( bool, m_bRopesHolidayLightsAllowed );
+	CNetworkVar( bool, m_bSupportsPyroland );
 
 #ifdef GAME_DLL
 	float	m_flNextFlagAlarm;
