@@ -16,7 +16,12 @@ Clone the repository using the following command:
 
 Requirements:
  - Source SDK 2013 Multiplayer installed via Steam
- - Visual Studio 2022
+ - Visual Studio 2022 with the following workload and components:
+   - Desktop development with C++:
+     - MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)
+     - Windows 11 SDK (10.0.22621.0) or Windows 10 SDK (10.0.19041.1)
+     - C++ MFC for latest v143 build tools (x86 & x64)
+ - Python 3 (Latest version)
 
 Inside the cloned directory, navigate to `src`, run:
 ```bat
@@ -59,6 +64,7 @@ https://partner.steamgames.com/doc/sdk/uploading/distributing_source_engine
 ## Additional Resources
 
 - [Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Source_SDK_2013)
+- [Source SDK Documentation](https://developer.valvesoftware.com/wiki/SDK_Docs)
 
 ## License
 
