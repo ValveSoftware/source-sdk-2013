@@ -53,7 +53,7 @@ CHeadlessHatman::CHeadlessHatman()
 	m_intention = new CHeadlessHatmanIntention( this );
 	m_locomotor = new CHeadlessHatmanLocomotion( this );
 	m_body = new CHeadlessHatmanBody( this );
-	m_bMallet = false;
+	m_bMallet = TFGameRules() && TFGameRules()->IsHalloweenScenario(CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY);
 }
 
 
@@ -190,7 +190,7 @@ void CHeadlessHatman::Update( void )
 //---------------------------------------------------------------------------------------------
 const char *CHeadlessHatman::GetWeaponModel() const
 {
-	if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) || m_bMallet )
+	if ( m_bMallet )
 	{
 		return "models/weapons/c_models/c_big_mallet/c_big_mallet.mdl";
 	}
