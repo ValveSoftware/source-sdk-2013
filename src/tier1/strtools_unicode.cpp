@@ -262,7 +262,6 @@ namespace // internal use only
 					}
 					else if ( ePolicy & _STRINGCONVERTFLAG_FAIL )
 					{
-						pOut[0] = 0;
 						return 0;
 					}
 				}
