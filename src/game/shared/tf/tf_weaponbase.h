@@ -335,6 +335,7 @@ class CTFWeaponBase : public CBaseCombatWeapon, public IHasOwner, public IHasGen
 	void EnableDuck();
 	void DisableDuck();
 
+	virtual bool OwnerCanJump( void ) { return true; }
 	virtual bool OwnerCanTaunt( void ) { return true; }
 	virtual bool CanBeCritBoosted( void );
 	bool CanHaveRevengeCrits( void );
