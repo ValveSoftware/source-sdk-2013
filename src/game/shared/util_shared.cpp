@@ -894,6 +894,7 @@ void UTIL_BloodDecalTrace( trace_t *pTrace, int bloodColor )
 //-----------------------------------------------------------------------------
 void UTIL_BloodImpact( const Vector &pos, const Vector &dir, int color, int amount )
 {
+#ifndef CLIENT_DLL
 	CEffectData	data;
 
 	data.m_vOrigin = pos;
@@ -902,6 +903,7 @@ void UTIL_BloodImpact( const Vector &pos, const Vector &dir, int color, int amou
 	data.m_nColor = (unsigned char)color;
 
 	DispatchEffect( "bloodimpact", data );
+#endif
 }
 
 bool UTIL_IsSpaceEmpty( CBaseEntity *pMainEnt, const Vector &vMin, const Vector &vMax )
