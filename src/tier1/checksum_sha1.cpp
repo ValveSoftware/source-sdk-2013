@@ -209,6 +209,14 @@ bool CSHA1::HashFile(char *szFileName)
 }
 #endif
 
+// Compiler removes memset when it proves no side effects are present.
+// See https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1381.pdf
+static void* secure_memset( void* v, int c, size_t n ) {
+	volatile unsigned char* p = static_cast<unsigned char*>(v);
+	while (n--) *p++ = c;
+	return v;
+}
+
 #ifdef	_MINIMUM_BUILD_
 void Minimum_CSHA1::Final()
 #else
@@ -239,7 +247,11 @@ void CSHA1::Final()
 	memset(m_buffer, 0, sizeof(m_buffer) );
 	memset(m_state, 0, sizeof(m_state) );
 	memset(m_count, 0, sizeof(m_count) );
-	memset(finalcount, 0, sizeof( finalcount) );
+	// Use secure_memset as compiler deleted usual one when variable is not referenced after.
+	// See
+	// https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1381.pdf
+	// https://stackoverflow.com/questions/15538366/can-memset-function-call-be-removed-by-compiler
+	secure_memset(finalcount, 0, sizeof( finalcount) );
 
 	Transform(m_state, m_buffer);
 }
