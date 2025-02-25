@@ -230,7 +230,7 @@ void CHeadlessHatmanAttack::AttackTarget( CHeadlessHatman *me, CBaseCombatCharac
 
 		if ( pPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_KART ) )
 		{
-			pPlayer->AddHalloweenKartPushEvent( NULL, NULL, NULL, vecDir, 100.0f, TF_DMG_CUSTOM_DECAPITATION_BOSS );
+			pPlayer->AddHalloweenKartPushEvent(NULL, NULL, NULL, vecDir, 100.0f, me->m_bMallet ? TF_DMG_CUSTOM_DECAPITATION_BOSS_HAMMER : TF_DMG_CUSTOM_DECAPITATION_BOSS);
 		}
 		else
 		{
@@ -251,7 +251,7 @@ void CHeadlessHatmanAttack::AttackTarget( CHeadlessHatman *me, CBaseCombatCharac
 			if ( me->IsLineOfSightClear( pTarget ) )
 			{
 				// CHOP!
-				CTakeDamageInfo info( me, me, m_attackTarget->GetMaxHealth() * 0.8f, DMG_CLUB, TF_DMG_CUSTOM_DECAPITATION_BOSS );
+				CTakeDamageInfo info(me, me, m_attackTarget->GetMaxHealth() * 0.8f, DMG_CLUB, me->m_bMallet ? TF_DMG_CUSTOM_DECAPITATION_BOSS_HAMMER : TF_DMG_CUSTOM_DECAPITATION_BOSS);
 				CalculateMeleeDamageForce( &info, toVictim, me->WorldSpaceCenter(), 5.0f );
 				m_attackTarget->TakeDamage( info );
 				me->EmitSound( "Halloween.HeadlessBossAxeHitFlesh" );
@@ -272,7 +272,7 @@ void CHeadlessHatmanAttack::UpdateAxeSwing( CHeadlessHatman *me )
 			// moment of impact - did axe swing hit?
 			m_axeSwingTimer.Invalidate();
 
-			if ( TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
+			if ( TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) || me->m_bMallet)
 			{
 				CUtlVector< CTFPlayer* > playerVector;
 				CollectPlayers( &playerVector, TEAM_ANY );
@@ -295,7 +295,7 @@ void CHeadlessHatmanAttack::UpdateAxeSwing( CHeadlessHatman *me )
 
 			// always playe the axe-hit-world impact sound, since it carries through the world better
 			me->EmitSound( "Halloween.HeadlessBossAxeHitWorld" );
-			if ( !TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
+			if ( !TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) || me->m_bMallet)
 			{
 				UTIL_ScreenShake( me->GetAbsOrigin(), 15.0f, 5.0f, 1.0f, 1000.0f, SHAKE_START );
 			}
@@ -404,7 +404,7 @@ ActionResult< CHeadlessHatman >	CHeadlessHatmanAttack::Update( CHeadlessHatman *
 			{
 				if ( !IsSwingingAxe() )
 				{
-					if ( TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
+					if ( TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) || me->m_bMallet)
 					{
 						me->AddGesture( ACT_MP_ATTACK_STAND_ITEM2 );
 					}

@@ -69,16 +69,11 @@ void CHeadlessHatman::PrecacheHeadlessHatman()
 	int model = PrecacheModel( "models/bots/headless_hatman.mdl" );
 	PrecacheGibsForModel( model );
 
-	if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
-	{
-		PrecacheModel( "models/weapons/c_models/c_big_mallet/c_big_mallet.mdl" );
-		PrecacheParticleSystem( "hammer_impact_button" );
-		PrecacheScriptSound( "Halloween.HammerImpact" );
-	}
-	else
-	{
-		PrecacheModel( "models/weapons/c_models/c_bigaxe/c_bigaxe.mdl" );
-	}
+	//Precache all since now it's a keyvalue
+	PrecacheModel( "models/weapons/c_models/c_big_mallet/c_big_mallet.mdl" );
+	PrecacheParticleSystem( "hammer_impact_button" );
+	PrecacheScriptSound( "Halloween.HammerImpact" );
+	PrecacheModel( "models/weapons/c_models/c_bigaxe/c_bigaxe.mdl" );
 
 	PrecacheScriptSound( "Halloween.HeadlessBossSpawn" );
 	PrecacheScriptSound( "Halloween.HeadlessBossSpawnRumble" );
