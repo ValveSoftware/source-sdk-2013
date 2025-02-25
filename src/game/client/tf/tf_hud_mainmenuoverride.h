@@ -107,7 +107,7 @@ public:
 	void		 SetMOTDButtonVisible( bool bVisible );
 	void		 SetMOTDVisible( bool bVisible );
 	//void		 SetQuestLogVisible( bool bVisible );
-	//void		 SetWatchStreamVisible( bool bVisible );
+	void		 SetWatchStreamVisible( bool bVisible );
 	//void		 OpenMvMMMPanel();
 	//void		 OpenCompMMPanel();
 	//void		 OpenCasualMMPanel();

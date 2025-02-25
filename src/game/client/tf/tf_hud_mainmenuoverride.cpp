@@ -532,9 +532,9 @@ CHudMainMenuOverride::CHudMainMenuOverride(IViewPort* pViewPort) : BaseClass(NUL
 	m_pFeaturedItemPanel = NULL;//new CItemModelPanel( m_pStoreSpecialPanel, "FeaturedItemModelPanel" );
 	m_bReapplyButtonKVs = false;
 
-	m_pMouseOverItemPanel = vgui::SETUP_PANEL(new CItemModelPanel(this, "mouseoveritempanel"));
-	m_pMouseOverTooltip = new CItemModelPanelToolTip(this);
-	m_pMouseOverTooltip->SetupPanels(this, m_pMouseOverItemPanel);
+	//m_pMouseOverItemPanel = vgui::SETUP_PANEL(new CItemModelPanel(this, "mouseoveritempanel"));
+	//m_pMouseOverTooltip = new CItemModelPanelToolTip(this);
+	//m_pMouseOverTooltip->SetupPanels(this, m_pMouseOverItemPanel);
 
 	m_pMOTDHeaderLabel = NULL;
 	m_pMOTDHeaderIcon = NULL;
@@ -543,7 +543,7 @@ CHudMainMenuOverride::CHudMainMenuOverride(IViewPort* pViewPort) : BaseClass(NUL
 	m_pMOTDTitleImage = NULL;
 	m_hTitleLabelFont = vgui::INVALID_FONT;
 
-	m_pQuestLogButton = new EditablePanel(this, "QuestLogButton");
+	//m_pQuestLogButton = new EditablePanel(this, "QuestLogButton");
 
 #ifdef STAGING_ONLY
 	m_bGeneratingIcons = false;
@@ -623,7 +623,7 @@ CHudMainMenuOverride::CHudMainMenuOverride(IViewPort* pViewPort) : BaseClass(NUL
 
 	m_bBackgroundUsesCharacterImages = true;
 
-	m_pWatchStreamsPanel = new CTFStreamListPanel(this, "StreamListPanel");
+	//m_pWatchStreamsPanel = new CTFStreamListPanel(this, "StreamListPanel");
 
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 50);
 }
@@ -1030,7 +1030,7 @@ void CHudMainMenuOverride::ApplySchemeSettings(IScheme* scheme)
 
 	// m_pMOTDShowPanel shows that the player has an unread MOTD. Pressing it pops up the MOTD.
 	m_pMOTDShowPanel = dynamic_cast<vgui::EditablePanel*>(FindChildByName("MOTD_ShowButtonPanel"));
-
+	
 	vgui::EditablePanel* pHeaderContainer = dynamic_cast<vgui::EditablePanel*>(m_pMOTDPanel->FindChildByName("MOTD_HeaderContainer"));
 	if (pHeaderContainer)
 	{
@@ -1926,7 +1926,7 @@ void CHudMainMenuOverride::SetMOTDVisible(bool bVisible)
 //	{
 //		SetMOTDVisible(false);
 //		SetNotificationsPanelVisible(false);
-//		SetQuestLogVisible(false);
+//		//SetQuestLogVisible(false);
 //	}
 //}
 

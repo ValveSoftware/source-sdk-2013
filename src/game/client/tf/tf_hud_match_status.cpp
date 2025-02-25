@@ -303,6 +303,8 @@ CTFHudMatchStatus::CTFHudMatchStatus(const char *pElementName)
 	ListenForGameEvent( "teamplay_round_start" );
 	ListenForGameEvent( "restart_timer_time" );
 	ListenForGameEvent( "show_match_summary" );
+
+	m_bUseMatchHUD = ShouldUseMatchHUD();
 }
 
 //-----------------------------------------------------------------------------

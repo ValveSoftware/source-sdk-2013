@@ -557,7 +557,7 @@ private:
 
 
 	VMatrix m_LocalSpaceTransform;
-	bool m_bLocalSpaceTransformIdentity;	// If this is true, then m_LocalSpaceTransform is assumed to be identity.
+	bool m_bLocalSpaceTransformIdentity = false;	// If this is true, then m_LocalSpaceTransform is assumed to be identity.
 	
 	// Bounding box. Stored in WORLD space.
 	Vector							m_Min;
@@ -568,22 +568,22 @@ private:
 	Vector							m_LastMax;
 	
 	// The particle cull size
-	float							m_flParticleCullRadius;
+	float							m_flParticleCullRadius = 0.0f;
 
 	// Number of active particles.
-	unsigned short					m_nActiveParticles;
+	unsigned short					m_nActiveParticles = 0;
 
 	// See CParticleMgr::m_FrameCode.
-	unsigned short					m_FrameCode;
+	unsigned short					m_FrameCode = 0;
 
 	// For CParticleMgr's list index.
-	unsigned short					m_ListIndex;
+	unsigned short					m_ListIndex = 0;
 
-	IParticleEffect					*m_pSim;
-	CParticleMgr					*m_pParticleMgr;
+	IParticleEffect					*m_pSim = NULL;
+	CParticleMgr					*m_pParticleMgr = NULL;
 	
 	// Combination of the CParticleEffectBinding::FLAGS_ flags.
-	int								m_Flags;
+	int								m_Flags = 0;
 
 	// Materials this effect is using.
 	enum { EFFECT_MATERIAL_HASH_SIZE = 8 };
@@ -593,7 +593,7 @@ private:
 	CUtlLinkedList<CEffectMaterial*, unsigned short> m_Materials;
 
 	// auto updates the bbox after N frames
-	unsigned short					m_UpdateBBoxCounter;
+	unsigned short					m_UpdateBBoxCounter = 0;
 };
 
 
