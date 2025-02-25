@@ -37,6 +37,12 @@ ConVar tf_halloween_bot_quit_range( "tf_halloween_bot_quit_range", "2000", FCVAR
 //-----------------------------------------------------------------------------------------------------
 LINK_ENTITY_TO_CLASS( headless_hatman, CHeadlessHatman );
 
+BEGIN_DATADESC(CHeadlessHatman)
+
+DEFINE_KEYFIELD(m_bMallet, FIELD_BOOLEAN, "mallet"),
+
+END_DATADESC();
+
 IMPLEMENT_SERVERCLASS_ST( CHeadlessHatman, DT_HeadlessHatman )
 END_SEND_TABLE()
 
@@ -47,6 +53,7 @@ CHeadlessHatman::CHeadlessHatman()
 	m_intention = new CHeadlessHatmanIntention( this );
 	m_locomotor = new CHeadlessHatmanLocomotion( this );
 	m_body = new CHeadlessHatmanBody( this );
+	m_bMallet = false;
 }
 
 
