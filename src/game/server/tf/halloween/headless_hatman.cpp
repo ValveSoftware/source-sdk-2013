@@ -183,7 +183,7 @@ void CHeadlessHatman::Update( void )
 //---------------------------------------------------------------------------------------------
 const char *CHeadlessHatman::GetWeaponModel() const
 {
-	if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
+	if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) || m_bMallet )
 	{
 		return "models/weapons/c_models/c_big_mallet/c_big_mallet.mdl";
 	}
