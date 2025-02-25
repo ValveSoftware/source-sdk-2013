@@ -91,9 +91,6 @@ public:
 
 	bool			OwnerCanJump( void );
 
-protected:
-	virtual void	SetInternalChargeBeginTime( float flChargeBeginTime ) OVERRIDE;
-
 private:
 #ifdef CLIENT_DLL
 	virtual void	StartBurningEffect( void );
