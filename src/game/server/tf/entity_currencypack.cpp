@@ -18,6 +18,7 @@
 #include "player_vs_environment/tf_population_manager.h"
 #include "collisionutils.h"
 #include "tf_objective_resource.h"
+#include "func_respawnroom.h"
 
 //=============================================================================
 //
@@ -171,6 +172,28 @@ void CCurrencyPack::BlinkThink( void )
 	SetContextThink( &CCurrencyPack::BlinkThink, gpGlobals->curtime + TF_CURRENCYPACK_BLINK_DURATION, "CurrencyPackBlinkThink" );
 }
 
+//-----------------------------------------------------------------------------
+// Despawn and collect the currency
+//-----------------------------------------------------------------------------
+void CCurrencyPack::DespawnAndCollect( void )
+{
+   TFGameRules()->DistributeCurrencyAmount( m_nAmount );
+	m_bTouched = true;
+	UTIL_Remove( this );
+}
+
+//-----------------------------------------------------------------------------
+// Check if the currency's origin is within some bounding box
+//-----------------------------------------------------------------------------
+bool CCurrencyPack::IsWithinCollidableBoundingBox( CBaseEntity *pEntity )
+{
+   Vector origin = GetCollideable()->GetCollisionOrigin();
+
+   Vector vecMins, vecMaxs;
+	pEntity->GetCollideable()->WorldSpaceSurroundingBounds( &vecMins, &vecMaxs );
+
+   return IsPointInBox( origin, vecMins, vecMaxs );
+}
 
 //-----------------------------------------------------------------------------
 // Become touchable when we are at rest
@@ -185,10 +208,7 @@ void CCurrencyPack::ComeToRest( void )
 	// if we've come to rest in an area with no nav, just grant the money to the player
 	if ( TheNavMesh->GetNavArea( GetAbsOrigin() ) == NULL )
 	{
-		TFGameRules()->DistributeCurrencyAmount( m_nAmount );
-		m_bTouched = true;
-		UTIL_Remove( this );
-
+      DespawnAndCollect();
 		return;
 	}
 
@@ -196,19 +216,35 @@ void CCurrencyPack::ComeToRest( void )
 	for ( int i = 0; i < ITriggerHurtAutoList::AutoList().Count(); i++ )
 	{
 		CTriggerHurt *pTrigger = static_cast<CTriggerHurt*>( ITriggerHurtAutoList::AutoList()[i] );
-		if ( !pTrigger->m_bDisabled )
+		if ( pTrigger->m_bDisabled )
+      {
+         continue;
+      }
+		if ( IsWithinCollidableBoundingBox( pTrigger ) )
 		{
-			Vector vecMins, vecMaxs;
-			pTrigger->GetCollideable()->WorldSpaceSurroundingBounds( &vecMins, &vecMaxs );
-			if ( IsPointInBox( GetCollideable()->GetCollisionOrigin(), vecMins, vecMaxs ) )
-			{
-				TFGameRules()->DistributeCurrencyAmount( m_nAmount );
-
-				m_bTouched = true;
-				UTIL_Remove( this );
-			}
+         DespawnAndCollect();
+			return;
 		}
 	}
+
+   // See if we've come to rest in the bots' spawn
+   for ( int i = 0; i < IFuncRespawnRoomAutoList::AutoList().Count(); i++ )
+   {
+      CFuncRespawnRoom *pRespawnRoom = static_cast< CFuncRespawnRoom* >( IFuncRespawnRoomAutoList::AutoList()[i] );
+      if ( !pRespawnRoom->GetActive() )
+      {
+         continue;
+      }
+      if ( pRespawnRoom->GetTeamNumber() != TF_TEAM_PVE_INVADERS )
+      {
+         continue;
+      }
+		if ( IsWithinCollidableBoundingBox( pRespawnRoom ) )
+      {
+         DespawnAndCollect();
+         return;
+      }
+   }
 }
 
 //-----------------------------------------------------------------------------
