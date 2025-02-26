@@ -9431,7 +9431,17 @@ IMaterial *C_TFPlayer::GetHeadLabelMaterial( void )
 	if ( g_pHeadLabelMaterial[0] == NULL )
 		SetupHeadLabelMaterials();
 
-	if ( GetTeamNumber() == TF_TEAM_RED )
+	int nTeam;
+	if ( m_Shared.InCond( TF_COND_DISGUISED ) && IsEnemyPlayer() )
+	{
+		nTeam = m_Shared.GetDisguiseTeam();
+	}
+	else
+	{
+		nTeam = GetTeamNumber();
+	}
+
+	if ( nTeam == TF_TEAM_RED )
 	{
 		return g_pHeadLabelMaterial[TF_PLAYER_HEAD_LABEL_RED];
 	}
