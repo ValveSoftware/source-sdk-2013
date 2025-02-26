@@ -1597,6 +1597,12 @@ inline T* CopyConstruct( T* pMemory, T const& src )
 }
 
 template <class T>
+inline T* MoveConstruct( T* pMemory, T&& src )
+{
+	return reinterpret_cast<T*>(::new( pMemory ) T(src));
+}
+
+template <class T>
 inline void Destruct( T* pMemory )
 {
 	pMemory->~T();

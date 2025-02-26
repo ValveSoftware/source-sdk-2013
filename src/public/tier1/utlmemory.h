@@ -502,6 +502,7 @@ template <class T, class I>
 CUtlMemory<T, I>& CUtlMemory<T, I>::operator=(CUtlMemory&& other)
 {
 	Swap( other );
+	return *this;
 }
 
 
@@ -781,7 +782,6 @@ void CUtlMemory<T,I>::Grow( int num )
 		}
 	}
 
-	int nOldAllocCount = m_nAllocationCount;
 	m_nAllocationCount = nNewAllocationCount;
 
 	UTLMEMORY_TRACK_ALLOC();
@@ -821,7 +821,6 @@ inline void CUtlMemory<T,I>::EnsureCapacity( int num )
 
 	UTLMEMORY_TRACK_FREE();
 	
-	int nOldAllocCount = m_nAllocationCount;
 	m_nAllocationCount = num;
 
 	UTLMEMORY_TRACK_ALLOC();
