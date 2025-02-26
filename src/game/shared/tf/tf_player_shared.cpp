@@ -3102,14 +3102,8 @@ void CTFPlayerShared::ConditionThink( void )
 		RemoveCond( TF_COND_KNOCKED_INTO_AIR );
 		RemoveCond( TF_COND_AIR_CURRENT );
 
-		if ( InCond( TF_COND_PARACHUTE_ACTIVE ) )
-		{
-			RemoveCond( TF_COND_PARACHUTE_ACTIVE );
-		}
-		if ( InCond( TF_COND_PARACHUTE_DEPLOYED ) )
-		{
-			RemoveCond( TF_COND_PARACHUTE_DEPLOYED );
-		}
+		RemoveCond( TF_COND_PARACHUTE_ACTIVE );
+		RemoveCond( TF_COND_PARACHUTE_DEPLOYED );
 
 		if ( InCond( TF_COND_ROCKETPACK ) )
 		{
