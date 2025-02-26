@@ -970,7 +970,8 @@ void CTargetID::UpdateID( void )
 							if ( pScheme )
 							{
 								const char* pszColorName = GetItemSchema()->GetRarityColor( pDroppedEconItem->GetRarity() ); // FIX: War Paint weapons now display color on ground
-								if (pDroppedEconItem->GetItemQuality() == AE_SELFMADE) pszColorName = EconQuality_GetColorString(AE_SELFMADE); // Addition for consistency with other economy UI
+								if (pDroppedEconItem->GetItemQuality() == AE_SELFMADE)
+									pszColorName = EconQuality_GetColorString(AE_SELFMADE); // Addition for consistency with other economy UI
 								
 								pszColorName = pszColorName ? pszColorName : "TanLight";
 								colorName = pScheme->GetColor( pszColorName, Color( 255, 255, 255, 255 ) );
