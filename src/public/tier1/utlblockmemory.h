@@ -18,6 +18,8 @@
 #include "tier0/platform.h"
 #include "mathlib/mathlib.h"
 
+#include "tier1/utlswap.h"
+
 #include "tier0/memalloc.h"
 #include "tier0/memdbgon.h"
 
@@ -46,6 +48,10 @@ public:
 	// constructor, destructor
 	CUtlBlockMemory( int nGrowSize = 0, int nInitSize = 0 );
 	~CUtlBlockMemory();
+
+	void Swap( CUtlBlockMemory< T, I > &mem );
+	CUtlBlockMemory( CUtlBlockMemory&& other );
+	CUtlBlockMemory& operator=( CUtlBlockMemory&& other );
 
 	// Set the size by which the memory grows - round up to the next power of 2
 	void Init( int nGrowSize = 0, int nInitSize = 0 );
@@ -80,7 +86,6 @@ public:
 	bool IsIdxValid( I i ) const;
 	static I InvalidIndex() { return ( I )-1; }
 
-	void Swap( CUtlBlockMemory< T, I > &mem );
 
 	// Size
 	int NumAllocated() const;
@@ -135,10 +140,25 @@ CUtlBlockMemory<T,I>::~CUtlBlockMemory()
 template< class T, class I >
 void CUtlBlockMemory<T,I>::Swap( CUtlBlockMemory< T, I > &mem )
 {
-	V_swap( m_pMemory, mem.m_pMemory );
-	V_swap( m_nBlocks, mem.m_nBlocks );
-	V_swap( m_nIndexMask, mem.m_nIndexMask );
-	V_swap( m_nIndexShift, mem.m_nIndexShift );
+	CUtlSwap( m_pMemory, mem.m_pMemory );
+	CUtlSwap( m_nBlocks, mem.m_nBlocks );
+	CUtlSwap( m_nIndexMask, mem.m_nIndexMask );
+	CUtlSwap( m_nIndexShift, mem.m_nIndexShift );
+}
+
+template< class T, class I >
+CUtlBlockMemory<T,I>::CUtlBlockMemory( CUtlBlockMemory< T, I > &&mem )
+: m_pMemory( 0 ), m_nBlocks( 0 ), m_nIndexMask( 0 ), m_nIndexShift( 0 )
+{
+	Init( 0, 0 );
+	Swap( mem );
+}
+
+template <class T, class I>
+CUtlBlockMemory<T, I>& CUtlBlockMemory<T, I>::operator=(CUtlBlockMemory&& other)
+{
+	Swap( other );
+	return *this;
 }
 
 
@@ -156,6 +176,10 @@ void CUtlBlockMemory<T,I>::Init( int nGrowSize /* = 0 */, int nInitSize /* = 0 *
 		nGrowSize = ( 127 + sizeof( T ) ) / sizeof( T );
 	}
 	nGrowSize = SmallestPowerOfTwoGreaterOrEqual( nGrowSize );
+
+	//	P.S. If this changes then memory needs to be purged first,
+	//	since Purge() will try to destruct the memory using the value of m_nIndexMask
+	//	to determine bounds.
 	m_nIndexMask = nGrowSize - 1;
 
 	m_nIndexShift = 0;
@@ -253,6 +277,10 @@ void CUtlBlockMemory<T,I>::ChangeSize( int nBlocks )
 		// Only possible if m_pMemory is non-NULL (and avoids PVS-Studio warning)
 		for ( int i = m_nBlocks; i < nBlocksOld; ++i )
 		{
+			//	destruct blocks before freeing
+			for ( int j = 0; j < NumElementsInBlock(); ++j )
+				m_pMemory[ i ][ j ].~T();
+			
 			UTLBLOCKMEMORY_TRACK_FREE();
 			free( (void*)m_pMemory[ i ] );
 		}
@@ -279,6 +307,11 @@ void CUtlBlockMemory<T,I>::ChangeSize( int nBlocks )
 	{
 		MEM_ALLOC_CREDIT_CLASS();
 		m_pMemory[ i ] = (T*)malloc( nBlockSize * sizeof( T ) );
+
+		//	initialize freshly-allocated blocks
+		for ( int j = 0; j < nBlockSize; ++j )
+			new (&m_pMemory[ i ][ j ]) T();
+		
 		Assert( m_pMemory[ i ] );
 	}
 }
@@ -305,6 +338,10 @@ void CUtlBlockMemory<T,I>::Purge()
 
 	for ( int i = 0; i < m_nBlocks; ++i )
 	{
+		//	destruct blocks before freeing
+		for ( int j = 0; j < NumElementsInBlock(); ++j )
+			m_pMemory[ i ][ j ].~T();
+		
 		UTLBLOCKMEMORY_TRACK_FREE();
 		free( (void*)m_pMemory[ i ] );
 	}
