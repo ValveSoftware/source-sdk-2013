@@ -56,6 +56,10 @@ public:
 	CUtlMemory( const T* pMemory, int numElements );
 	~CUtlMemory();
 
+	//	move operators
+	CUtlMemory( CUtlMemory&& other );
+	CUtlMemory& operator=( CUtlMemory&& other );
+
 	// Set the size by which the memory grows
 	void Init( int nGrowSize = 0, int nInitSize = 0 );
 
@@ -483,10 +487,31 @@ void CUtlMemory<T,I>::Init( int nGrowSize /*= 0*/, int nInitSize /*= 0*/ )
 template< class T, class I >
 void CUtlMemory<T,I>::Swap( CUtlMemory<T,I> &mem )
 {
+	//	Both buffers need to be fully owned!
+	//	if one of the buffers is eg. CUtlMemoryFixedGrowable then this
+	//	swaps the ownership of the fixed buffer. No bueno!
+	//	alternative: would it make more sense to Assert( !IsExternallyAllocated() )?
+	ConvertToGrowableMemory(m_nGrowSize);
+	mem.ConvertToGrowableMemory(mem.m_nGrowSize);
+	
 	CUtlSwap( m_nGrowSize, mem.m_nGrowSize );
 	CUtlSwap( m_pMemory, mem.m_pMemory );
 	CUtlSwap( m_nAllocationCount, mem.m_nAllocationCount );
 }
+
+template <class T, class I>
+CUtlMemory<T, I>::CUtlMemory(CUtlMemory&& other)
+	: m_pMemory( 0 ), m_nAllocationCount( 0 )
+{
+	Swap( other );
+}
+
+template <class T, class I>
+CUtlMemory<T, I>& CUtlMemory<T, I>::operator=(CUtlMemory&& other)
+{
+	Swap( other );
+}
+
 
 
 //-----------------------------------------------------------------------------
