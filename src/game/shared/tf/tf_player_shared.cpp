@@ -3092,14 +3092,9 @@ void CTFPlayerShared::ConditionThink( void )
 
 	if ( m_pOuter->GetFlags() & FL_ONGROUND )
 	{
-		if ( InCond( TF_COND_PARACHUTE_ACTIVE ) )
-		{
-			RemoveCond( TF_COND_PARACHUTE_ACTIVE );
-		}
-		if ( InCond( TF_COND_PARACHUTE_DEPLOYED ) )
-		{
-			RemoveCond( TF_COND_PARACHUTE_DEPLOYED );
-		}
+		// RemoveCond already handles InCond checks
+		RemoveCond( TF_COND_PARACHUTE_ACTIVE );
+		RemoveCond( TF_COND_PARACHUTE_DEPLOYED );
 	}
 
 	// See if we should be pulsing our radius heal
