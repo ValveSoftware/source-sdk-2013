@@ -205,6 +205,10 @@ public:
 	explicit CUtlRBTree( const LessFunc_t &lessfunc );
 	~CUtlRBTree( );
 
+	// move operators
+	CUtlRBTree( CUtlRBTree&& other );
+	CUtlRBTree& operator=( CUtlRBTree&& other );
+
 	void EnsureCapacity( int num );
 
 	void CopyFrom( const CUtlRBTree<T, I, L, M> &other );
@@ -263,8 +267,13 @@ public:
 	// NOTE: the returned 'index' will be valid as long as the element remains in the tree
 	//       (other elements being added/removed will not affect it)
 	I  Insert( T const &insert );
+	I  Insert( T &&insert );
+
 	void Insert( const T *pArray, int nItems );
+	void MoveInsert( T *pArray, int nItems );
+	
 	I  InsertIfNotFound( T const &insert );
+	I  InsertIfNotFound( T &&insert );
 
 	// Find method
 	I  Find( T const &search ) const;
@@ -486,6 +495,23 @@ inline void CUtlRBTree<T, I, L, M>::CopyFrom( const CUtlRBTree<T, I, L, M> &othe
 	m_FirstFree = other.m_FirstFree;
 	m_LastAlloc = other.m_LastAlloc;
 	ResetDbgInfo();
+}
+
+//-----------------------------------------------------------------------------
+// move operators
+//-----------------------------------------------------------------------------
+
+template < class T, class I, typename L, class M >
+inline CUtlRBTree<T, I, L, M>::CUtlRBTree( CUtlRBTree&& other )
+{
+	Swap( other );
+}
+
+template < class T, class I, typename L, class M >
+inline  CUtlRBTree<T, I, L, M>& CUtlRBTree<T, I, L, M>::operator=( CUtlRBTree&& other )
+{
+	Swap( other );
+	return *this;
 }
 
 //-----------------------------------------------------------------------------
@@ -1586,6 +1612,18 @@ I CUtlRBTree<T, I, L, M>::Insert( T const &insert )
 	return newNode;
 }
 
+template < class T, class I, typename L, class M > 
+I CUtlRBTree<T, I, L, M>::Insert( T &&insert )
+{
+	// use copy constructor to copy it in
+	I parent = InvalidIndex();
+	bool leftchild = false;
+	FindInsertionPosition( insert, parent, leftchild );
+	I newNode = InsertAt( parent, leftchild );
+	MoveConstruct<T>( &Element( newNode ), CUtlMove(insert) );
+	return newNode;
+}
+
 
 template < class T, class I, typename L, class M > 
 void CUtlRBTree<T, I, L, M>::Insert( const T *pArray, int nItems )
@@ -1593,6 +1631,16 @@ void CUtlRBTree<T, I, L, M>::Insert( const T *pArray, int nItems )
 	while ( nItems-- )
 	{
 		Insert( *pArray++ );
+	}
+}
+
+
+template < class T, class I, typename L, class M > 
+void CUtlRBTree<T, I, L, M>::MoveInsert( T *pArray, int nItems )
+{
+	while ( nItems-- )
+	{
+		Insert( CUtlMove( *pArray++ ) );
 	}
 }
 
@@ -1625,6 +1673,37 @@ I CUtlRBTree<T, I, L, M>::InsertIfNotFound( T const &insert )
 
 	I newNode = InsertAt( parent, leftchild );
 	CopyConstruct( &Element( newNode ), insert );
+	return newNode;
+}
+
+template < class T, class I, typename L, class M > 
+I CUtlRBTree<T, I, L, M>::InsertIfNotFound( T &&insert )
+{
+	// use copy constructor to copy it in
+	I parent;
+	bool leftchild;
+
+	I current = m_Root;
+	parent = InvalidIndex();
+	leftchild = false;
+	while (current != InvalidIndex()) 
+	{
+		parent = current;
+		if (m_LessFunc( insert, Element(current) ))
+		{
+			leftchild = true; current = LeftChild(current);
+		}
+		else if (m_LessFunc( Element(current), insert ))
+		{
+			leftchild = false; current = RightChild(current);
+		}
+		else
+			// Match found, no insertion
+				return InvalidIndex();
+	}
+
+	I newNode = InsertAt( parent, leftchild );
+	MoveConstruct( &Element( newNode ), insert );
 	return newNode;
 }
 
@@ -1733,13 +1812,14 @@ I CUtlRBTree<T, I, L, E>::FindClosest( T const &search, CompareOperands_t eFindC
 template < class T, class I, typename L, class M > 
 void CUtlRBTree<T, I, L, M>::Swap( CUtlRBTree< T, I, L > &that )
 {
-	m_Elements.Swap( that.m_Elements );
-	V_swap( m_LessFunc, that.m_LessFunc );
-	V_swap( m_Root, that.m_Root );
-	V_swap( m_NumElements, that.m_NumElements );
-	V_swap( m_FirstFree, that.m_FirstFree );
-	V_swap( m_pElements, that.m_pElements );
-	V_swap( m_LastAlloc, that.m_LastAlloc );
+	CUtlSwap(m_Elements, that.m_Elements);
+	CUtlSwap(m_LessFunc, that.m_LessFunc);
+	CUtlSwap(m_Root, that.m_Root);
+	CUtlSwap(m_NumElements, that.m_NumElements);
+	CUtlSwap(m_FirstFree, that.m_FirstFree);
+	CUtlSwap(m_pElements, that.m_pElements);
+	CUtlSwap(m_LastAlloc, that.m_LastAlloc);
+
 	Assert( IsValid() );
 	Assert( m_Elements.IsValidIterator( m_LastAlloc ) || ( m_NumElements == 0 && m_FirstFree == InvalidIndex() ) );
 }
