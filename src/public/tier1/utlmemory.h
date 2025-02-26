@@ -19,6 +19,8 @@
 #include "tier0/platform.h"
 #include "mathlib/mathlib.h"
 
+#include "tier1/utlswap.h"
+
 #include "tier0/memalloc.h"
 #include "tier0/memdbgon.h"
 
@@ -425,6 +427,10 @@ CUtlMemory<T,I>::CUtlMemory( int nGrowSize, int nInitAllocationCount ) : m_pMemo
 		UTLMEMORY_TRACK_ALLOC();
 		MEM_ALLOC_CREDIT_CLASS();
 		m_pMemory = (T*)malloc( m_nAllocationCount * sizeof(T) );
+
+		//	Initialize the malloc'd memory using T's default constructor
+		for (int i = 0; i < m_nAllocationCount; i++)
+			new (&m_pMemory[i]) T();
 	}
 }
 
@@ -464,6 +470,10 @@ void CUtlMemory<T,I>::Init( int nGrowSize /*= 0*/, int nInitSize /*= 0*/ )
 		UTLMEMORY_TRACK_ALLOC();
 		MEM_ALLOC_CREDIT_CLASS();
 		m_pMemory = (T*)malloc( m_nAllocationCount * sizeof(T) );
+
+		//	Initialize the malloc'd memory using T's default constructor
+		for (int i = 0; i < m_nAllocationCount; i++)
+			new (&m_pMemory[i]) T();
 	}
 }
 
@@ -473,9 +483,9 @@ void CUtlMemory<T,I>::Init( int nGrowSize /*= 0*/, int nInitSize /*= 0*/ )
 template< class T, class I >
 void CUtlMemory<T,I>::Swap( CUtlMemory<T,I> &mem )
 {
-	V_swap( m_nGrowSize, mem.m_nGrowSize );
-	V_swap( m_pMemory, mem.m_pMemory );
-	V_swap( m_nAllocationCount, mem.m_nAllocationCount );
+	CUtlSwap( m_nGrowSize, mem.m_nGrowSize );
+	CUtlSwap( m_pMemory, mem.m_pMemory );
+	CUtlSwap( m_nAllocationCount, mem.m_nAllocationCount );
 }
 
 
@@ -496,6 +506,7 @@ void CUtlMemory<T,I>::ConvertToGrowableMemory( int nGrowSize )
 
 		int nNumBytes = m_nAllocationCount * sizeof(T);
 		T *pMemory = (T*)malloc( nNumBytes );
+		
 		memcpy( (void*)pMemory, (void*)m_pMemory, nNumBytes ); 
 		m_pMemory = pMemory;
 	}
@@ -753,6 +764,7 @@ void CUtlMemory<T,I>::Grow( int num )
 		}
 	}
 
+	int nOldAllocCount = m_nAllocationCount;
 	m_nAllocationCount = nNewAllocationCount;
 
 	UTLMEMORY_TRACK_ALLOC();
@@ -761,12 +773,22 @@ void CUtlMemory<T,I>::Grow( int num )
 	{
 		MEM_ALLOC_CREDIT_CLASS();
 		m_pMemory = (T*)realloc( m_pMemory, m_nAllocationCount * sizeof(T) );
+
+		//	initialize any freshly-allocated memory
+		for (int i = nOldAllocCount; i < m_nAllocationCount; i++)
+			new (&m_pMemory[i]) T();
+		
 		Assert( m_pMemory );
 	}
 	else
 	{
 		MEM_ALLOC_CREDIT_CLASS();
 		m_pMemory = (T*)malloc( m_nAllocationCount * sizeof(T) );
+
+		//	initialize all memory
+		for (int i = 0; i < m_nAllocationCount; i++)
+			new (&m_pMemory[i]) T();
+		
 		Assert( m_pMemory );
 	}
 }
@@ -789,7 +811,8 @@ inline void CUtlMemory<T,I>::EnsureCapacity( int num )
 	}
 
 	UTLMEMORY_TRACK_FREE();
-
+	
+	int nOldAllocCount = m_nAllocationCount;
 	m_nAllocationCount = num;
 
 	UTLMEMORY_TRACK_ALLOC();
@@ -798,11 +821,22 @@ inline void CUtlMemory<T,I>::EnsureCapacity( int num )
 	{
 		MEM_ALLOC_CREDIT_CLASS();
 		m_pMemory = (T*)realloc( m_pMemory, m_nAllocationCount * sizeof(T) );
+
+		//	initialize any freshly-allocated memory
+		for (int i = nOldAllocCount; i < m_nAllocationCount; ++i)
+			new (&m_pMemory[i]) T();
+
 	}
 	else
 	{
 		MEM_ALLOC_CREDIT_CLASS();
 		m_pMemory = (T*)malloc( m_nAllocationCount * sizeof(T) );
+
+		//	initialize all memory
+		for (int i = 0; i < m_nAllocationCount; ++i)
+			new (&m_pMemory[i]) T();
+
+		Assert( m_pMemory );
 	}
 }
 
@@ -818,6 +852,11 @@ void CUtlMemory<T,I>::Purge()
 		if (m_pMemory)
 		{
 			UTLMEMORY_TRACK_FREE();
+
+			//	Destruct any memory that will be going goodbye :(
+			for (int i = 0; i < m_nAllocationCount; ++i)
+				m_pMemory[i].~T();
+			
 			free( (void*)m_pMemory );
 			m_pMemory = 0;
 		}
@@ -865,6 +904,10 @@ void CUtlMemory<T,I>::Purge( int numElements )
 	}
 
 	UTLMEMORY_TRACK_FREE();
+
+	//	Destruct any memory that will be going goodbye :(
+	for (int i = numElements; i < m_nAllocationCount; ++i)
+		m_pMemory[i].~T();
 
 	m_nAllocationCount = numElements;
 	
