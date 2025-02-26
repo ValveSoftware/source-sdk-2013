@@ -706,7 +706,7 @@ public:
 		, m_nSourceItemID( pItem->GetID() )
 	{
 		TFModalStack()->PushModal( this );
-		GetMMDashboardParentManager()->AddPanel( this );
+		//GetMMDashboardParentManager()->AddPanel( this );
 
 		m_pIspectionPanel = new CTFItemInspectionPanel( this, "InspectionPanel" );
 		m_pIspectionPanel->SetOptions( false, true, true );
@@ -714,14 +714,14 @@ public:
 		if ( !tf_warpaint_explanation_viewed.GetBool() )
 		{
 			tf_warpaint_explanation_viewed.SetValue( true );
-			ShowDashboardExplanation( "WarPaintUse" );
+			//ShowDashboardExplanation( "WarPaintUse" );
 		}
 	}
 
 	virtual ~CTFPainkitConsumeDialog()
 	{
 		TFModalStack()->PopModal( this );
-		GetMMDashboardParentManager()->RemovePanel( this );
+		//GetMMDashboardParentManager()->RemovePanel( this );
 	}
 
 	virtual void ApplySchemeSettings( IScheme *pScheme ) OVERRIDE

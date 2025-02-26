@@ -20,7 +20,7 @@ $Configuration
 	{
 		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\game\shared\hl2;.\tf;.\tf\vgui;$SRCDIR\statemachine;$SRCDIR\game\shared\Multiplayer;$SRCDIR\game\shared\tf"
 		$PreprocessorDefinitions		"$BASE;TF_DLL;ENABLE_GC_MATCHMAKING;GLOWS_ENABLE;USE_DYNAMIC_ASSET_LOADING;NEXT_BOT"
-		$PreprocessorDefinitions		"$BASE;DISABLE_GC_CONNECTION;DISABLE_IN_SOURCESDK;INVENTORY_VIA_WEBAPI" [$SOURCESDK]		
+		$PreprocessorDefinitions		"$BASE;INVENTORY_VIA_WEBAPI" [$SOURCESDK]		
 	}
 }
 
@@ -346,8 +346,8 @@ $Project "Server (TF)"
 			$File	"$SRCDIR\game\shared\steamworks_gamestats_sdk.cpp" [$SOURCESDK]
 			$File	"$SRCDIR\game\shared\steamworks_gamestats.h"
 			$File	"$SRCDIR\game\shared\tf\tf_gamestats_shared.cpp"
-			$File	"$SRCDIR\game\server\tf\tf_gc_api.h" [!$SOURCESDK]
-			$File	"$SRCDIR\game\server\tf\tf_gc_api.cpp" [!$SOURCESDK]
+			$File	"$SRCDIR\game\server\tf\tf_gc_api.h"
+			$File	"$SRCDIR\game\server\tf\tf_gc_api.cpp"
 			$File	"$SRCDIR\game\shared\tf\tf_revive.cpp"
 			$File	"$SRCDIR\game\shared\tf\tf_revive.h"
 			$File	"$SRCDIR\game\shared\tf\tf_wheel_of_doom.cpp"

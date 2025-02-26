@@ -1,0 +1,22 @@
+//-----------------------------------------------------------------------------
+// SOURCE_CRYPTLIB_INCLUDE.VPC
+//
+// Includes needed to link cryptopp
+//
+//-----------------------------------------------------------------------------
+
+
+$Project
+{	
+	$Folder	"Source Files"
+	{
+	}
+
+	$Folder	"Link Libraries" 
+	{
+	}
+
+	$Folder "Link Libraries" [$VS2015]
+	{
+	}
+}

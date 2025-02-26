@@ -349,7 +349,7 @@ void CCasualCriteriaPanel::OnCategoryExpanded( KeyValues* pKVParams )
 		tf_show_maps_details_explanation_count.SetValue( tf_show_maps_details_explanation_count.GetInt() - 1 );
 		tf_show_maps_details_explanation_session.SetValue( true );
 
-		CExplanationPopup* pPopup = ShowDashboardExplanation( "MapSelectionDetailsExplanation" );
+		CExplanationPopup* pPopup = NULL;//ShowDashboardExplanation( "MapSelectionDetailsExplanation" );
 		if ( pPopup )
 		{
 			// Move the callout to be pointing at the first map in the category they clicked

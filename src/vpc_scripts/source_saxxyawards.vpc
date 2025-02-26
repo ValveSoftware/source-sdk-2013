@@ -1,0 +1,18 @@
+//-----------------------------------------------------------------------------
+// SOURCE_SAXXYAWARDS.VPC
+//
+// Turn the macro on to enable the Saxxy awards main menu UI and music.
+// 
+//-----------------------------------------------------------------------------
+
+$Conditional SAXXYAWARDS_ENABLE	0
+
+//-----------------------------------------------------------------------------
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"$BASE;SAXXYMAINMENU_ENABLED" [$SAXXYAWARDS_ENABLE]
+	}
+}

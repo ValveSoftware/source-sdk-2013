@@ -1128,7 +1128,7 @@ void CQuestMapPanel::UpdateStarsGlobalStatus()
 			if ( !pPanel )
 				return;
 
-			pPanel->SetTooltip( GetDashboardTooltip( k_eSmallFont ), pszLocToken );
+			//pPanel->SetTooltip( GetDashboardTooltip( k_eSmallFont ), pszLocToken );
 		};
 
 		auto pRegionDef = GetProtoScriptObjDefManager()->GetTypedDefinition< CQuestMapRegion >( m_currentRegion );
