@@ -1014,7 +1014,7 @@ bool CTFBotSpawner::Spawn( const Vector &rawHere, EntityHandleVector_t *result )
 
 			nNumEnemyBots = botVector.Count();
 
-			if ( nNumEnemyBots >= CPopulationManager::MVM_INVADERS_TEAM_SIZE )
+			if ( nNumEnemyBots >= tf_mvm_max_invaders.GetInt() )
 			{
 				// no room for more
 				if ( tf_populator_debug.GetBool() ) 
@@ -1023,10 +1023,10 @@ bool CTFBotSpawner::Spawn( const Vector &rawHere, EntityHandleVector_t *result )
 				}
 
 				// extra guard if we're over full on bots
-				if ( nNumEnemyBots > CPopulationManager::MVM_INVADERS_TEAM_SIZE )
+				if ( nNumEnemyBots > tf_mvm_max_invaders.GetInt() )
 				{
 					// Kick bots until we are at the proper number starting with spectator bots
-					int iNumberToKick = nNumEnemyBots - CPopulationManager::MVM_INVADERS_TEAM_SIZE;
+					int iNumberToKick = nNumEnemyBots - tf_mvm_max_invaders.GetInt();
 					int iKickedBots = 0;
 
 					// loop through spectators and invaders in that order
