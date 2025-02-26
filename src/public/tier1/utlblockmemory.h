@@ -176,10 +176,7 @@ void CUtlBlockMemory<T,I>::Init( int nGrowSize /* = 0 */, int nInitSize /* = 0 *
 		nGrowSize = ( 127 + sizeof( T ) ) / sizeof( T );
 	}
 	nGrowSize = SmallestPowerOfTwoGreaterOrEqual( nGrowSize );
-
-	//	P.S. If this changes then memory needs to be purged first,
-	//	since Purge() will try to destruct the memory using the value of m_nIndexMask
-	//	to determine bounds.
+	
 	m_nIndexMask = nGrowSize - 1;
 
 	m_nIndexShift = 0;
@@ -277,10 +274,6 @@ void CUtlBlockMemory<T,I>::ChangeSize( int nBlocks )
 		// Only possible if m_pMemory is non-NULL (and avoids PVS-Studio warning)
 		for ( int i = m_nBlocks; i < nBlocksOld; ++i )
 		{
-			//	destruct blocks before freeing
-			for ( int j = 0; j < NumElementsInBlock(); ++j )
-				m_pMemory[ i ][ j ].~T();
-			
 			UTLBLOCKMEMORY_TRACK_FREE();
 			free( (void*)m_pMemory[ i ] );
 		}
@@ -307,10 +300,6 @@ void CUtlBlockMemory<T,I>::ChangeSize( int nBlocks )
 	{
 		MEM_ALLOC_CREDIT_CLASS();
 		m_pMemory[ i ] = (T*)malloc( nBlockSize * sizeof( T ) );
-
-		//	initialize freshly-allocated blocks
-		for ( int j = 0; j < nBlockSize; ++j )
-			new (&m_pMemory[ i ][ j ]) T();
 		
 		Assert( m_pMemory[ i ] );
 	}
@@ -338,10 +327,6 @@ void CUtlBlockMemory<T,I>::Purge()
 
 	for ( int i = 0; i < m_nBlocks; ++i )
 	{
-		//	destruct blocks before freeing
-		for ( int j = 0; j < NumElementsInBlock(); ++j )
-			m_pMemory[ i ][ j ].~T();
-		
 		UTLBLOCKMEMORY_TRACK_FREE();
 		free( (void*)m_pMemory[ i ] );
 	}
