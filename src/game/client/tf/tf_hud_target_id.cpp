@@ -950,11 +950,11 @@ void CTargetID::UpdateID( void )
 							_snwprintf( wszChargeLevel, ARRAYSIZE( wszChargeLevel ) - 1, L"%.0f", pDroppedWeapon->GetChargeLevel() * 100 );
 							wszChargeLevel[ARRAYSIZE( wszChargeLevel ) - 1] = '\0';
 
-							g_pVGuiLocalize->ConstructString_safe( sIDString, L"%s1 (%s2%)", 2, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pDroppedEconItem->GetItemDefinition(), pDroppedEconItem->GetItemQuality() ).GetFullName(), wszChargeLevel );
+							g_pVGuiLocalize->ConstructString_safe(sIDString, L"%s1 (%s2%)", 2, pDroppedEconItem->GetItemName(), wszChargeLevel); //FIX; The previous version of code would only pull data from static schema, which doesn't work with War Paint weapons. Weapons will now display custom names & war paint weapons will display design name
 						}
 						else
 						{
-							g_pVGuiLocalize->ConstructString_safe( sIDString, L"%s1", 1, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pDroppedEconItem->GetItemDefinition(), pDroppedEconItem->GetItemQuality() ).GetFullName() );
+							g_pVGuiLocalize->ConstructString_safe(sIDString, L"%s1", 1, pDroppedEconItem->GetItemName()); // FIX: Weapons will now display custom names & war paint weapons will display design name
 						}
 
 						locchar_t wszPlayerName [128];
@@ -969,7 +969,10 @@ void CTargetID::UpdateID( void )
 							vgui::IScheme *pScheme = vgui::scheme()->GetIScheme( GetScheme() );
 							if ( pScheme )
 							{
-								const char* pszColorName = GetItemSchema()->GetRarityColor( pDroppedEconItem->GetItemDefinition()->GetRarity() );
+								const char* pszColorName = GetItemSchema()->GetRarityColor( pDroppedEconItem->GetRarity() ); // FIX: War Paint weapons now display color on ground
+								if (pDroppedEconItem->GetItemQuality() == AE_SELFMADE)
+									pszColorName = EconQuality_GetColorString(AE_SELFMADE); // Addition for consistency with other economy UI
+								
 								pszColorName = pszColorName ? pszColorName : "TanLight";
 								colorName = pScheme->GetColor( pszColorName, Color( 255, 255, 255, 255 ) );
 							}

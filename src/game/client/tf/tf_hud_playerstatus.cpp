@@ -320,11 +320,14 @@ void CTFHudPlayerClass::OnThink()
 					locchar_t wszLocString [128];
 
 					// Construct and set the weapon's name
-					g_pVGuiLocalize->ConstructString_safe( wszLocString, L"%s1", 1, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pItem->GetItemDefinition(), pItem->GetItemQuality() ).GetFullName() );
+					g_pVGuiLocalize->ConstructString_safe( wszLocString, L"%s1", 1, pItem->GetItemName()); // FIX: Weapons will now display custom names & war paint weapons will display design name
 					m_pCarryingWeaponPanel->SetDialogVariable( "carrying", wszLocString );
 
 					// Get and set the rarity color of the weapon
-					const char* pszColorName = GetItemSchema()->GetRarityColor( pItem->GetItemDefinition()->GetRarity() );
+					const char* pszColorName = GetItemSchema()->GetRarityColor( pItem->GetRarity() );	// FIX: War Paint weapons will display color on ground
+					if (pItem->GetItemQuality() == AE_SELFMADE)
+						pszColorName = EconQuality_GetColorString(AE_SELFMADE); // Addition for consistency with other economy UI
+
 					pszColorName = pszColorName ? pszColorName : "TanLight";
 					if ( pszColorName )
 					{
