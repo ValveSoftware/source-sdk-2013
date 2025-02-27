@@ -269,7 +269,7 @@ CTFHudMatchStatus::CTFHudMatchStatus(const char *pElementName)
 	: CHudElement(pElementName)
 	, BaseClass(NULL, "HudMatchStatus")
 	, m_pTimePanel( NULL )
-	, m_bUseMatchHUD( false )
+	, m_nUseMatchHUD( -1 )
 	, m_eMatchGroupSettings( k_eTFMatchGroup_Invalid )
 {
 	Panel *pParent = g_pClientMode->GetViewport();
@@ -437,11 +437,11 @@ void CTFHudMatchStatus::OnThink()
 		return;
 
 	bool bReload = false;
-	bool bUseMatchHUD = ShouldUseMatchHUD();
+	char nUseMatchHUD = (char)ShouldUseMatchHUD();
 
-	if ( bUseMatchHUD != m_bUseMatchHUD )
+	if ( nUseMatchHUD != m_nUseMatchHUD )
 	{
-		m_bUseMatchHUD = bUseMatchHUD;
+		m_nUseMatchHUD = nUseMatchHUD;
 		bReload = true;
 	}
 
