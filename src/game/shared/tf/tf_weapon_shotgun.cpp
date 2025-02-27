@@ -316,8 +316,11 @@ extern float AirBurstDamageForce( const Vector &size, float damage, float scale 
 //-----------------------------------------------------------------------------
 void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 {
-#ifndef CLIENT_DLL
-	if ( HasKnockback() )
+	// see CTFScatterGun::HasKnockback
+	int iKnockbackCount = 0;
+	CALL_ATTRIB_HOOK_INT( iKnockbackCount, set_scattergun_has_knockback );
+
+	if ( iKnockbackCount > 0 )
 	{
 		// Perform some knock back.
 		CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
@@ -329,11 +332,13 @@ void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 			return;
 
 		// Knock the firer back!
-		if ( !(pOwner->GetFlags() & FL_ONGROUND) && !pPlayer->m_bScattergunJump )
+		if ( !(pOwner->GetFlags() & FL_ONGROUND) && pPlayer->m_Shared.m_iScattergunJump < iKnockbackCount )
 		{
-			pPlayer->m_bScattergunJump = true;
+			pPlayer->m_Shared.m_iScattergunJump += 1;
 
+#ifndef CLIENT_DLL
 			pOwner->m_Shared.StunPlayer( 0.3f, 1.f, TF_STUN_MOVEMENT | TF_STUN_MOVEMENT_FORWARD_ONLY );
+#endif
 
 			float flForce = AirBurstDamageForce( pOwner->WorldAlignSize(), 60, 6.f );
 
@@ -341,15 +346,15 @@ void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 			AngleVectors( pOwner->EyeAngles(), &vecForward );
 			Vector vecForce = vecForward * -flForce;
 
-			EntityMatrix mtxPlayer;
-			mtxPlayer.InitFromEntity( pOwner );
+			VMatrix mtxPlayer;
+			mtxPlayer.SetupMatrixOrgAngles( pOwner->GetAbsOrigin(), pOwner->EyeAngles() );
 			Vector vecAbsVelocity = pOwner->GetAbsVelocity();
 			Vector vecAbsVelocityAsPoint = vecAbsVelocity + pOwner->GetAbsOrigin();
-			Vector vecLocalVelocity = mtxPlayer.WorldToLocal( vecAbsVelocityAsPoint );
+			Vector vecLocalVelocity = mtxPlayer.VMul4x3Transpose( vecAbsVelocityAsPoint );
 
 			vecLocalVelocity.x = -300;
 
-			vecAbsVelocityAsPoint = mtxPlayer.LocalToWorld( vecLocalVelocity );
+			vecAbsVelocityAsPoint = mtxPlayer.VMul4x3( vecLocalVelocity );
 			vecAbsVelocity = vecAbsVelocityAsPoint - pOwner->GetAbsOrigin();
 			pOwner->SetAbsVelocity( vecAbsVelocity );
 
@@ -360,7 +365,6 @@ void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 			pOwner->RemoveFlag( FL_ONGROUND );
 		}
 	}
-#endif
 
 	BaseClass::FireBullet( pPlayer );
 }
@@ -434,9 +438,9 @@ void CTFScatterGun::FinishReload( void )
 //-----------------------------------------------------------------------------
 bool CTFScatterGun::HasKnockback( void )
 {
-	int iWeaponMod = 0;
-	CALL_ATTRIB_HOOK_INT( iWeaponMod, set_scattergun_has_knockback );
-	if ( iWeaponMod == 1 )
+	int iKnockbackCount = 0;
+	CALL_ATTRIB_HOOK_INT( iKnockbackCount, set_scattergun_has_knockback );
+	if ( iKnockbackCount > 0 )
 		return true;
 	else
 		return false;
