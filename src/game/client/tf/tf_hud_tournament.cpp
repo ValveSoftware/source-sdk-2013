@@ -35,6 +35,7 @@
 #include "c_tf_objective_resource.h"
 #include "tf_time_panel.h"
 #include "tf_hud_match_status.h"
+#include "engine/IEngineSound.h"
 
 #include "tf_gc_client.h"
 #include "tf_lobby_server.h"
@@ -162,32 +163,36 @@ void CHudTournament::PlaySounds( int nTime )
 		}
 		case 10:
 		{
+			const char* pszEntryName = "";
 			if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
 			{
 				if ( TFObjectiveResource()->GetMannVsMachineWaveCount() >= TFObjectiveResource()->GetMannVsMachineMaxWaveCount() )
 				{
-					pLocalPlayer->EmitSound( "Announcer.MVM_Final_Wave_Start" );
+					pszEntryName = UTIL_GetRandomSoundFromEntry( "Announcer.MVM_Final_Wave_Start" );
 				}
 				else if ( TFObjectiveResource()->GetMannVsMachineWaveCount() <= 1 )
 				{
 					if ( GTFGCClientSystem()->GetLobby() && IsMannUpGroup( GTFGCClientSystem()->GetLobby()->GetMatchGroup() ) )
 					{
-						pLocalPlayer->EmitSound( "Announcer.MVM_Manned_Up" );
+						pszEntryName = UTIL_GetRandomSoundFromEntry( "Announcer.MVM_Manned_Up" );
 					}
 					else
 					{
-						pLocalPlayer->EmitSound( "Announcer.MVM_First_Wave_Start" );
+						pszEntryName = UTIL_GetRandomSoundFromEntry( "Announcer.MVM_First_Wave_Start" );
 					}
 				}
 				else
 				{
-					pLocalPlayer->EmitSound( "Announcer.MVM_Wave_Start" );
+					pszEntryName = UTIL_GetRandomSoundFromEntry( "Announcer.MVM_Wave_Start" );
 				}
 			}
 			else
 			{
-				pLocalPlayer->EmitSound( bCompetitiveMode ? "Announcer.CompGame1Begins10Seconds" : "Announcer.RoundBegins10Seconds" );
+				pszEntryName = UTIL_GetRandomSoundFromEntry( bCompetitiveMode ? "Announcer.CompGame1Begins10Seconds" : "Announcer.RoundBegins10Seconds" );
 			}
+			float flDelay = enginesound->GetSoundDuration(pszEntryName); // Pulling sound length
+			pLocalPlayer->EmitSound(pszEntryName); // Playing sound
+			m_flNextActionTime = gpGlobals->curtime + flDelay; // Determining min time for admin to not talk over herself
 			break;
 		}
 		case 9:
@@ -227,27 +232,27 @@ void CHudTournament::PlaySounds( int nTime )
 		}
 		case 5:
 		{
-			pLocalPlayer->EmitSound( bCompetitiveMode ? "Announcer.CompGameBegins05Seconds" : "Announcer.RoundBegins5Seconds" );
+			if (gpGlobals->curtime > m_flNextActionTime) pLocalPlayer->EmitSound( bCompetitiveMode ? "Announcer.CompGameBegins05Seconds" : "Announcer.RoundBegins5Seconds" );
 			break;
 		}
 		case 4:
 		{
-			pLocalPlayer->EmitSound( bCompetitiveMode ? "Announcer.CompGameBegins04Seconds" : "Announcer.RoundBegins4Seconds" );
+			if (gpGlobals->curtime > m_flNextActionTime) pLocalPlayer->EmitSound( bCompetitiveMode ? "Announcer.CompGameBegins04Seconds" : "Announcer.RoundBegins4Seconds" );
 			break;
 		}
 		case 3:
 		{
-			pLocalPlayer->EmitSound( bCompetitiveMode ? "Announcer.CompGameBegins03Seconds" : "Announcer.RoundBegins3Seconds" );
+			if (gpGlobals->curtime > m_flNextActionTime) pLocalPlayer->EmitSound( bCompetitiveMode ? "Announcer.CompGameBegins03Seconds" : "Announcer.RoundBegins3Seconds" );
 			break;
 		}
 		case 2:
 		{
-			pLocalPlayer->EmitSound( bCompetitiveMode ? "Announcer.CompGameBegins02Seconds" : "Announcer.RoundBegins2Seconds" );
+			if (gpGlobals->curtime > m_flNextActionTime) pLocalPlayer->EmitSound( bCompetitiveMode ? "Announcer.CompGameBegins02Seconds" : "Announcer.RoundBegins2Seconds" );
 			break;
 		}
 		case 1:
 		{
-			pLocalPlayer->EmitSound( bCompetitiveMode ? "Announcer.CompGameBegins01Seconds" : "Announcer.RoundBegins1Seconds" );
+			if (gpGlobals->curtime > m_flNextActionTime) pLocalPlayer->EmitSound( bCompetitiveMode ? "Announcer.CompGameBegins01Seconds" : "Announcer.RoundBegins1Seconds" );
 			break;
 		}
 	}
