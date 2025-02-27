@@ -271,9 +271,13 @@ void CTFBat_Wood::SecondaryAttack( void )
 		SecondaryAttackAnim( pPlayer );
 		SendWeaponAnim( ACT_VM_PRIMARYATTACK );
 
-		SetContextThink( &CTFBat_Wood::LaunchBallThink, gpGlobals->curtime + tf_scout_bat_launch_delay.GetFloat(), "LAUNCH_BALL_THINK" );
+		CalcIsAttackCritical();
 
-		m_flNextPrimaryAttack = gpGlobals->curtime + 0.25;
+		const float fLaunchDelay = tf_scout_bat_launch_delay.GetFloat();
+
+		SetContextThink( &CTFBat_Wood::LaunchBallThink, gpGlobals->curtime + fLaunchDelay, "LAUNCH_BALL_THINK" );
+
+		m_flNextPrimaryAttack = gpGlobals->curtime + fLaunchDelay + 0.15f;
 
 #ifdef GAME_DLL
 		if ( pPlayer->m_Shared.IsStealthed() )
@@ -508,8 +512,6 @@ CBaseEntity* CTFBat_Wood::CreateBall( void )
 	Assert( pBall );
 	if ( !pBall )
 		return NULL;
-
-	CalcIsAttackCritical();
 
 	pBall->m_iOriginalOwnerID = m_iEnemyBallID;
 	m_iEnemyBallID = 0;
@@ -1085,8 +1087,6 @@ CBaseEntity *CTFBat_Giftwrap::CreateBall( void )
 	Assert( pBall );
 	if ( !pBall )
 		return NULL;
-
-	CalcIsAttackCritical();
 
 	pBall->m_iOriginalOwnerID = m_iEnemyBallID;
 	m_iEnemyBallID = 0;
