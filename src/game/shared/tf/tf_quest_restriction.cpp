@@ -374,6 +374,12 @@ bool CTFQuestCondition::IsValidForPlayer( const CTFPlayer *pOwner, InvalidReason
 
 		// Can only do quests on Valve servers
 		IsValidServerForQuests( steamIDOwner, invalidReasons );
+
+		// m_nRestrictQuests set to 2 prevents from earning quests
+		if ( pOwner->GetQuestRestrictions() == 2 )
+		{
+			invalidReasons.m_bits.Set( INVALID_QUEST_REASON_WRONG_CLASS );
+		}
 	}
 
 	return true;
@@ -1483,8 +1489,9 @@ private:
 	virtual bool BPlayerCheck( const CTFPlayer* pPlayer, IGameEvent *pEvent ) const OVERRIDE
 	{
 		// Check if the classes match
+		// m_nRestrictQuests set to 1 prevents from earning class-specific quests
 		int iClass = pPlayer->GetPlayerClass()->GetClassIndex();
-		return m_iClass == iClass;
+		return m_iClass == iClass && pPlayer->GetQuestRestrictions() == 0;
 	}
 
 

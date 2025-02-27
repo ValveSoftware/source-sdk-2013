@@ -56,6 +56,12 @@ bool CBaseTFAchievementSimple::LocalPlayerCanEarn( void )
 		}
 	}
 
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if ( pLocalPlayer && pLocalPlayer->GetAchievementRestrictions() == 2 )
+	{
+		return false;
+	}
+
 	return BaseClass::LocalPlayerCanEarn();
 }
 
@@ -81,6 +87,13 @@ bool CBaseTFAchievement::LocalPlayerCanEarn( void )
 	{
 		int iClass = floor( (m_iAchievementID - ACHIEVEMENT_START_CLASS_SPECIFIC) / 100.0f ) + 1;
 		if ( !IsLocalTFPlayerClass( iClass ) )
+		{
+			return false;
+		}
+
+		// m_nRestrictAchievements set to 1 prevents from earning class-specific achievements only
+		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+		if ( pLocalPlayer && pLocalPlayer->GetAchievementRestrictions() > 0 )
 		{
 			return false;
 		}
