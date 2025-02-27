@@ -13312,7 +13312,7 @@ void CTFGameRules::ClientDisconnected( edict_t *pClient )
 // Falling damage stuff.
 #define TF_PLAYER_MAX_SAFE_FALL_SPEED	650		
 
-ConVar tf_fall_damage_disablespread( "tf_fall_damage_disablespread", "0", FCVAR_NONE );
+ConVar tf_fall_damage_disablespread( "tf_fall_damage_disablespread", "0", FCVAR_NOTIFY | FCVAR_REPLICATED, "Toggles damage spread for player fall damage" );
 
 float CTFGameRules::FlPlayerFallDamage( CBasePlayer *pPlayer )
 {
