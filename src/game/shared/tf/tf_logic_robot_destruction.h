@@ -232,6 +232,7 @@ protected:
 	virtual void OnBlueScoreChanged() {}
 	void	ApproachTargetScoresThink();
 	int		ApproachTeamTargetScore( int nTeam, int nApproachScore, int nCurrentScore );
+	void	CheckAdjustedScore();
 	void	PlaySoundInPlayersEars( CTFPlayer* pPlayer, const EmitSound_t& params ) const;
 	void	RedTeamWin();
 	void	BlueTeamWin();
@@ -246,6 +247,7 @@ protected:
 	float m_flNextBlueRobotAttackedAlertTime;
 	int m_nNumFlagsOut[ TF_TEAM_COUNT ];
 	bool m_bEducateNewConnectors;
+	int m_nLastTeamScored;
 	string_t m_iszResFile;
 
 	TeamSound_t m_AnnouncerProgressSound;

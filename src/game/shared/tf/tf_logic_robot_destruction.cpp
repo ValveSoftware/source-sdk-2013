@@ -832,6 +832,67 @@ int CTFRobotDestructionLogic::ApproachTeamTargetScore( int nTeam, int nApproachS
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Evaluate possible win conditions if player count is adjusted
+//-----------------------------------------------------------------------------
+void CTFRobotDestructionLogic::CheckAdjustedScore()
+{	
+	if ( TFGameRules()->IsInWaitingForPlayers()) 
+		return;
+
+	if ( !TFGameRules()->FlagsMayBeCapped())
+		return;
+
+	//Ignore if someone is already winning
+	if ( m_flRedFinaleEndTime != FLT_MAX || m_flBlueFinaleEndTime != FLT_MAX ) 
+		return;
+	
+	int winning_team = -1;
+	int score_red = 0;
+	int score_blue = 0;
+	score_red = GetScore( TF_TEAM_RED );
+	score_blue = GetScore( TF_TEAM_BLUE );
+
+	//Both teams have enough points to win, but are also tied; the first team to have scored the last point wins
+	if (score_blue >= m_nMaxPoints && score_red >= m_nMaxPoints && score_red == score_blue)
+	{
+		winning_team = (m_nLastTeamScored == TF_TEAM_RED) ? TF_TEAM_BLUE : TF_TEAM_RED;
+	}
+	else if (score_red >= m_nMaxPoints && score_red > score_blue)
+	{
+		winning_team = TF_TEAM_RED;
+	}
+	else if (score_blue >= m_nMaxPoints && score_blue > score_red)
+	{
+		winning_team = TF_TEAM_BLUE;
+	}
+
+	if ( winning_team == TF_TEAM_RED )
+	{
+		m_OnRedHitMaxPoints.FireOutput( this, this );
+		m_flRedFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
+		SetContextThink( &CTFRobotDestructionLogic::RedTeamWin, m_flRedFinaleEndTime, "RedWin" );
+
+		if ( m_flBlueFinaleEndTime == FLT_MAX && GetType() == TYPE_ROBOT_DESTRUCTION )
+		{
+			// Announce the state change
+			TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
+		}
+	}
+	else if ( winning_team == TF_TEAM_BLUE )
+	{
+		m_OnBlueHitMaxPoints.FireOutput( this, this );
+		m_flBlueFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
+		SetContextThink( &CTFRobotDestructionLogic::BlueTeamWin, m_flBlueFinaleEndTime, "BlueWin" );
+
+		if ( m_flRedFinaleEndTime == FLT_MAX && GetType() == TYPE_ROBOT_DESTRUCTION )
+		{
+			// Announce the state change
+			TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Score nPoints for nTeam.  Check for a victory.
 //-----------------------------------------------------------------------------
 void CTFRobotDestructionLogic::ScorePoints( int nTeam, int nPoints, RDScoreMethod_t eMethod, CTFPlayer *pPlayer )
@@ -911,6 +972,8 @@ void CTFRobotDestructionLogic::ScorePoints( int nTeam, int nPoints, RDScoreMetho
 	short nDelta = nNewScore - nOldScore;
 	if ( nDelta != 0 )
 	{
+		m_nLastTeamScored = nTeam;
+		
 		const char *pszEventName = "RDTeamPointsChanged";
 		CBroadcastRecipientFilter filter;
 		filter.MakeReliable();

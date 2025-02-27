@@ -82,6 +82,7 @@ private:
 
 	int m_nMinPoints;
 	int m_nPointsPerPlayer;
+	int m_nLastTeamScored;
 	bool m_bMaxScoreUpdatingAllowed;
 
 	int m_nFlagResetDelay;
