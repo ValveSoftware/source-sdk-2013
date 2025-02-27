@@ -885,7 +885,7 @@ void CPasstimeBall::UpdateLagCompensationHistory()
 	
 	// remove tail records that are too old
 	intp tailIndex = m_lagCompensationHistory.Tail();
-	int flDeadtime = gpGlobals->curtime - sv_maxunlag.GetFloat();
+	float flDeadtime = gpGlobals->curtime - sv_maxunlag.GetFloat();
 	while ( m_lagCompensationHistory.IsValidIndex( tailIndex ) )
 	{
 		LagRecord &tail = m_lagCompensationHistory.Element( tailIndex );
