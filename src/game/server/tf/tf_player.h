@@ -938,7 +938,7 @@ public:
 
 	bool				m_bSuicideExplode;
 
-	bool				m_bScattergunJump;
+	int					m_iScattergunJump;
 	int					m_iOldStunFlags;
 
 	bool				m_bFlipViewModels;
