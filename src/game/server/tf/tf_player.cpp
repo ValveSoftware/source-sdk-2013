@@ -20289,7 +20289,7 @@ void TestIgnitePlayer( const CCommand &args )
 		return;
 
 	float flBurningTime = args.ArgC() >= 2 ? atof(args[1]) : TF_BURNING_FLAME_LIFE;
-	pPlayer->m_Shared.Burn( pPlayer, NULL, flBurningTime );
+	pPlayer->m_Shared.Burn( pPlayer, pPlayer->GetActiveTFWeapon(), flBurningTime );
 }
 static ConCommand cc_IgnitePlayer( "tf_ignite_player", TestIgnitePlayer, "Sets you on fire", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
