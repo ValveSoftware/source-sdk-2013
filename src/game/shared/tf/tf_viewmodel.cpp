@@ -62,8 +62,8 @@ CTFViewModel::~CTFViewModel()
 void DrawEconEntityAttachedModels( CBaseAnimating *pEnt, CEconEntity *pAttachedModelSource, const ClientModelRenderInfo_t *pInfo, int iMatchDisplayFlags );
 
 // TODO:  Turning this off by setting interp 0.0 instead of 0.1 for now since we have a timing bug to resolve
-ConVar cl_wpn_sway_interp( "cl_wpn_sway_interp", "0.0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE );
-ConVar cl_wpn_sway_scale( "cl_wpn_sway_scale", "5.0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE );
+ConVar cl_wpn_sway_interp( "cl_wpn_sway_interp", "0.0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "", true, 0.0, true, 0.1 );
+ConVar cl_wpn_sway_scale( "cl_wpn_sway_scale", "2.5", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "", true, 0.0, true, 5.0 );
 #endif
 
 //-----------------------------------------------------------------------------
@@ -111,6 +111,12 @@ void CTFViewModel::CalcViewModelLag( Vector& origin, QAngle& angles, QAngle& ori
 	QAngle angleDiff = m_vLagAngles - angles;
 	AngleVectors( -angleDiff, &vLaggedForward, 0, 0 );
 	Vector vForwardDiff = Vector(1,0,0) - vLaggedForward;
+
+	if ( ShouldFlipViewModel() )
+	{
+		vForwardDiff *= -1.0;
+		up *= -1.0;
+	}
 
 	// Now offset the origin using that.
 	vForwardDiff *= cl_wpn_sway_scale.GetFloat();
