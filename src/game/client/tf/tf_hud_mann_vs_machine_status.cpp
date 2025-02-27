@@ -526,8 +526,10 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 	// Loop through all the class types to find which enemy counts to display
 	CUtlVector< hud_enemy_data_t > miniboss;
 	CUtlVector< hud_enemy_data_t > normal;
-	CUtlVector< hud_enemy_data_t > support;
-	CUtlVector< hud_enemy_data_t > mission;
+	CUtlVector< hud_enemy_data_t > support_miniboss;
+	CUtlVector< hud_enemy_data_t > support_normal;
+	CUtlVector< hud_enemy_data_t > mission_miniboss;
+	CUtlVector< hud_enemy_data_t > mission_normal;
 	int nNumEnemyRemaining = 0;
 	int nNumEnemyTypes = 0;
 	int nNumNonVerboseTypes = 0;
@@ -542,30 +544,64 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 		{
 			if ( iFlags & MVM_CLASS_FLAG_SUPPORT )
 			{
-				int index = support.AddToTail();
-				support[index].nCount = nClassCount;
-				support[index].pchClassIconName = pchClassIconName;
-				support[index].iFlags = iFlags;
-				support[index].bActive = TFObjectiveResource()->GetMannVsMachineWaveClassActive( i );
-				nNumEnemyTypes++;
-
-				// Show support spies
-				if ( ( iFlags & MVM_CLASS_FLAG_SUPPORT_LIMITED ) && support[index].bActive )
+				if ( iFlags & MVM_CLASS_FLAG_MINIBOSS )
 				{
- 					nNumNonVerboseTypes++;
+					int index = support_miniboss.AddToTail();
+					support_miniboss[index].nCount = nClassCount;
+					support_miniboss[index].pchClassIconName = pchClassIconName;
+					support_miniboss[index].iFlags = iFlags;
+					support_miniboss[index].bActive = TFObjectiveResource()->GetMannVsMachineWaveClassActive(i);
+					nNumEnemyTypes++;
+
+					// Show support spies
+					if ( ( iFlags & MVM_CLASS_FLAG_SUPPORT_LIMITED ) && support_miniboss[index].bActive )
+					{
+						nNumNonVerboseTypes++;
+					}
+				}
+				else
+				{
+					int index = support_normal.AddToTail();
+					support_normal[index].nCount = nClassCount;
+					support_normal[index].pchClassIconName = pchClassIconName;
+					support_normal[index].iFlags = iFlags;
+					support_normal[index].bActive = TFObjectiveResource()->GetMannVsMachineWaveClassActive(i);
+					nNumEnemyTypes++;
+
+					// Show support spies
+					if ( ( iFlags & MVM_CLASS_FLAG_SUPPORT_LIMITED ) && support_normal[index].bActive )
+					{
+						nNumNonVerboseTypes++;
+					}
 				}
 			}
 			else if ( iFlags & MVM_CLASS_FLAG_MISSION )
 			{
-				if ( ( ( TFGameRules()->State_Get() != GR_STATE_RND_RUNNING ) && !( FStrEq( "sentry_buster", pchClassIconName ) || FStrEq( "teleporter", pchClassIconName ) ) ) || ( nClassCount > 0 ) )
+				if ( iFlags & MVM_CLASS_FLAG_MINIBOSS )
 				{
-					int index = mission.AddToTail();
-					mission[index].nCount = nClassCount;
-					mission[index].pchClassIconName = pchClassIconName;
-					mission[index].iFlags = iFlags;
-					mission[index].bActive = TFObjectiveResource()->GetMannVsMachineWaveClassActive( i );
-					nNumEnemyTypes++;
-					nNumNonVerboseTypes++;
+					if ( ( ( TFGameRules()->State_Get() != GR_STATE_RND_RUNNING ) && !( FStrEq( "sentry_buster", pchClassIconName ) || FStrEq( "teleporter", pchClassIconName ) ) ) || ( nClassCount > 0 ) )
+					{
+						int index = mission_miniboss.AddToTail();
+						mission_miniboss[index].nCount = nClassCount;
+						mission_miniboss[index].pchClassIconName = pchClassIconName;
+						mission_miniboss[index].iFlags = iFlags;
+						mission_miniboss[index].bActive = TFObjectiveResource()->GetMannVsMachineWaveClassActive( i );
+						nNumEnemyTypes++;
+						nNumNonVerboseTypes++;
+					}
+				}
+				else
+				{
+					if ( ( ( TFGameRules()->State_Get() != GR_STATE_RND_RUNNING ) && !( FStrEq( "sentry_buster", pchClassIconName ) || FStrEq( "teleporter", pchClassIconName ) ) ) || ( nClassCount > 0 ) )
+					{
+						int index = mission_normal.AddToTail();
+						mission_normal[index].nCount = nClassCount;
+						mission_normal[index].pchClassIconName = pchClassIconName;
+						mission_normal[index].iFlags = iFlags;
+						mission_normal[index].bActive = TFObjectiveResource()->GetMannVsMachineWaveClassActive( i );
+						nNumEnemyTypes++;
+						nNumNonVerboseTypes++;
+					}
 				}
 			}
 			else if ( iFlags & MVM_CLASS_FLAG_MINIBOSS )
@@ -648,7 +684,7 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 		int nSpacerWidth = ( nNumEnemyTypes - 1 ) * m_nWaveCountOffset;
 
 		int nSeparatorBarWidth = 0;
-		if ( support.Count() > 0 || mission.Count() > 0 )
+		if ( support_miniboss.Count() > 0 || support_normal.Count() > 0 || mission_miniboss.Count() > 0 || mission_normal.Count() > 0 )
 		{
 			nSeparatorBarWidth = m_pSeparatorBar ? m_pSeparatorBar->GetWide() + m_nWaveCountOffset : 0;
 		}
@@ -783,7 +819,7 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 	}
 
 	// bar and label
-	if ( bVerbose && ( support.Count() > 0 || mission.Count() > 0 ) )
+	if ( bVerbose && ( support_miniboss.Count() > 0 || support_normal.Count() > 0 || mission_miniboss.Count() > 0 || mission_normal.Count() > 0 ) )
 	{
 		if ( m_pSeparatorBar && m_pSupportLabel )
 		{
@@ -826,13 +862,13 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 	
   	CUtlVector< const char* > classIconsBeingUsed; // used temporarily to track the icons we're showing
 
-	// support
-	for ( int i = 0 ; i < support.Count() && iPanelIndex < m_EnemyCountPanels.Count() ; i++ )
+	// support miniboss
+	for ( int i = 0 ; i < support_miniboss.Count() && iPanelIndex < m_EnemyCountPanels.Count() ; i++ )
 	{
-		bool bActive = !bVerbose && support[i].bActive && ( support[i].iFlags & MVM_CLASS_FLAG_SUPPORT_LIMITED );
+		bool bActive = !bVerbose && support_miniboss[i].bActive && (support_miniboss[i].iFlags & MVM_CLASS_FLAG_SUPPORT_LIMITED );
 		if ( bVerbose || bActive )
 		{
-			if ( !IsClassIconBeingUsed( classIconsBeingUsed, support[i].pchClassIconName ) )
+			if ( !IsClassIconBeingUsed( classIconsBeingUsed, support_miniboss[i].pchClassIconName ) )
 			{
 				CEnemyCountPanel *pPanel = m_EnemyCountPanels[ iPanelIndex ];
 
@@ -843,20 +879,20 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 
 				if ( pPanel->m_pEnemyCountImage )
 				{
-					pPanel->m_pEnemyCountImage->SetImage( VarArgs( "../hud/leaderboard_class_%s", support[i].pchClassIconName ) );
+					pPanel->m_pEnemyCountImage->SetImage( VarArgs( "../hud/leaderboard_class_%s", support_miniboss[i].pchClassIconName ) );
 					pPanel->m_pEnemyCountImage->SetVisible( true );
 				}
 
-				AddClassIconBeingUsed( classIconsBeingUsed, support[i].pchClassIconName );
+				AddClassIconBeingUsed( classIconsBeingUsed, support_miniboss[i].pchClassIconName );
 
 				if ( pPanel->m_pEnemyCountImageBG  )
 				{
-					pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrNormal );
+					pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrMiniBoss );
 				}
 
 				if ( pPanel->m_pEnemyCountCritBG )
 				{
-					pPanel->m_pEnemyCountCritBG->SetVisible( support[i].iFlags & MVM_CLASS_FLAG_ALWAYSCRIT );
+					pPanel->m_pEnemyCountCritBG->SetVisible(support_miniboss[i].iFlags & MVM_CLASS_FLAG_ALWAYSCRIT );
 				}
 
 				nXPos += nEnemyCountWide + m_nWaveCountOffset;
@@ -865,10 +901,49 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 		}
 	}
 
-	// missions
-	for ( int i = 0 ; i < mission.Count() && iPanelIndex < m_EnemyCountPanels.Count() ; i++, iPanelIndex++ )
+	// support normal
+	for ( int i = 0 ; i < support_normal.Count() && iPanelIndex < m_EnemyCountPanels.Count() ; i++ )
 	{
-		if ( !IsClassIconBeingUsed( classIconsBeingUsed, mission[i].pchClassIconName ) )
+		bool bActive = !bVerbose && support_normal[i].bActive && ( support_normal[i].iFlags & MVM_CLASS_FLAG_SUPPORT_LIMITED );
+		if ( bVerbose || bActive )
+		{
+			if ( !IsClassIconBeingUsed( classIconsBeingUsed, support_normal[i].pchClassIconName ) )
+			{
+				CEnemyCountPanel *pPanel = m_EnemyCountPanels[ iPanelIndex ];
+
+				pPanel->SetVisible( true );
+				pPanel->SetDialogVariable( "enemy_count", "" );
+				pPanel->SetPos( nXPos, m_nWaveCountYPos + nMinModeReduction );
+				pPanel->SetFlashing( false );
+
+				if ( pPanel->m_pEnemyCountImage )
+				{
+					pPanel->m_pEnemyCountImage->SetImage( VarArgs( "../hud/leaderboard_class_%s", support_normal[i].pchClassIconName ) );
+					pPanel->m_pEnemyCountImage->SetVisible( true );
+				}
+
+				AddClassIconBeingUsed( classIconsBeingUsed, support_normal[i].pchClassIconName );
+
+				if ( pPanel->m_pEnemyCountImageBG  )
+				{
+					pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrNormal );
+				}
+
+				if ( pPanel->m_pEnemyCountCritBG )
+				{
+					pPanel->m_pEnemyCountCritBG->SetVisible( support_normal[i].iFlags & MVM_CLASS_FLAG_ALWAYSCRIT );
+				}
+
+				nXPos += nEnemyCountWide + m_nWaveCountOffset;
+				iPanelIndex++;
+			}
+		}
+	}
+
+	// missions miniboss
+	for ( int i = 0 ; i < mission_miniboss.Count() && iPanelIndex < m_EnemyCountPanels.Count() ; i++, iPanelIndex++ )
+	{
+		if ( !IsClassIconBeingUsed( classIconsBeingUsed, mission_miniboss[i].pchClassIconName ) )
 		{
 			CEnemyCountPanel *pPanel = m_EnemyCountPanels[ iPanelIndex ];
 
@@ -878,7 +953,7 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 
 			if ( pPanel->m_pEnemyCountImage )
 			{
-				const char* pchMissionClassIconName = mission[i].pchClassIconName;
+				const char* pchMissionClassIconName = mission_miniboss[i].pchClassIconName;
 				pPanel->m_pEnemyCountImage->SetImage( VarArgs( "../hud/leaderboard_class_%s", pchMissionClassIconName ) );
 				pPanel->m_pEnemyCountImage->SetVisible( true );
 
@@ -904,7 +979,68 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 			
 				if ( pPanel->m_pEnemyCountCritBG )
 				{
-					pPanel->m_pEnemyCountCritBG->SetVisible( mission[i].iFlags & MVM_CLASS_FLAG_ALWAYSCRIT );
+					pPanel->m_pEnemyCountCritBG->SetVisible(mission_miniboss[i].iFlags & MVM_CLASS_FLAG_ALWAYSCRIT );
+				}
+
+				if ( bResetBG )
+				{
+					if ( pPanel->m_pEnemyCountImageBG )
+					{
+						pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrMiniBoss );
+					}
+					if ( pPanel->m_pEnemyCountCritBG )
+					{
+						pPanel->m_pEnemyCountCritBG->SetVisible( false );
+					}
+				}
+			}
+			
+			AddClassIconBeingUsed( classIconsBeingUsed, mission_miniboss[i].pchClassIconName );
+
+			nXPos += nEnemyCountWide + m_nWaveCountOffset;
+		}
+	}
+
+	// missions normal
+	for ( int i = 0 ; i < mission_normal.Count() && iPanelIndex < m_EnemyCountPanels.Count() ; i++, iPanelIndex++ )
+	{
+		if ( !IsClassIconBeingUsed( classIconsBeingUsed, mission_normal[i].pchClassIconName) )
+		{
+			CEnemyCountPanel* pPanel = m_EnemyCountPanels[iPanelIndex];
+
+			pPanel->SetVisible( true );
+			pPanel->SetDialogVariable( "enemy_count", "" );
+			pPanel->SetPos( nXPos, m_nWaveCountYPos + nMinModeReduction );
+
+			if ( pPanel->m_pEnemyCountImage )
+			{
+				const char* pchMissionClassIconName = mission_normal[i].pchClassIconName;
+				pPanel->m_pEnemyCountImage->SetImage( VarArgs( "../hud/leaderboard_class_%s", pchMissionClassIconName ) );
+				pPanel->m_pEnemyCountImage->SetVisible( true );
+
+				bool bResetBG = true;
+
+				if ( !bBetweenWaves && ( FStrEq( "spy", pchMissionClassIconName ) || FStrEq( "sentry_buster", pchMissionClassIconName ) || FStrEq( "engineer", pchMissionClassIconName ) ) )
+				{
+					if ( pPanel->IsFlashing() )
+					{
+						// we're already flashing so don't reset the background
+						bResetBG = false;
+					}
+					else
+					{
+						// start flashing
+						pPanel->SetFlashing( true );
+					}
+				}
+				else
+				{
+					pPanel->SetFlashing( false );
+				}
+
+				if ( pPanel->m_pEnemyCountCritBG )
+				{
+					pPanel->m_pEnemyCountCritBG->SetVisible( mission_normal[i].iFlags & MVM_CLASS_FLAG_ALWAYSCRIT );
 				}
 
 				if ( bResetBG )
@@ -919,8 +1055,8 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 					}
 				}
 			}
-			
-			AddClassIconBeingUsed( classIconsBeingUsed, mission[i].pchClassIconName );
+
+			AddClassIconBeingUsed( classIconsBeingUsed, mission_normal[i].pchClassIconName );
 
 			nXPos += nEnemyCountWide + m_nWaveCountOffset;
 		}
