@@ -12663,36 +12663,29 @@ bool CTFPlayer::CanAirDash( void ) const
 	if ( m_Shared.InCond( TF_COND_HALLOWEEN_SPEED_BOOST ) )
 		return true;
 
-	bool bScout = GetPlayerClass()->IsClass( TF_CLASS_SCOUT );
-	if ( !bScout )
-		return false;
+	int iNoAirDash = 0;
+	CALL_ATTRIB_HOOK_INT( iNoAirDash, set_scout_doublejump_disabled );
+
+	int iDashCount = ( !iNoAirDash && GetPlayerClass()->IsClass( TF_CLASS_SCOUT ) ) ? tf_scout_air_dash_count.GetInt() : 0;
 
 	if ( m_Shared.InCond( TF_COND_SODAPOPPER_HYPE ) )
 	{
-		if ( m_Shared.GetAirDash() < 5 )
-			return true;
-		else
- 			return false;
+		iDashCount += 4;
 	}
+
+	CALL_ATTRIB_HOOK_INT( iDashCount, air_dash_count )
 
 	CTFWeaponBase *pTFActiveWeapon = GetActiveTFWeapon();
-	int iDashCount = tf_scout_air_dash_count.GetInt();
-	CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFActiveWeapon, iDashCount, air_dash_count );
-
-	if ( m_Shared.GetAirDash() >= iDashCount )
-		return false;
-
 	if ( pTFActiveWeapon )
 	{
-		// TODO(driller): Hack fix to restrict this to The Atomzier (currently the only item that uses this attribute) on what would be the third jump
-		float flTimeSinceDeploy = gpGlobals->curtime - pTFActiveWeapon->GetLastDeployTime();
-		if ( iDashCount >= 2 && m_Shared.GetAirDash() == 1 && flTimeSinceDeploy < 0.7f )
-			return false;
+		// (for Atomizer): enforce that the item providing this attribute must be fully deployed to provide the bonus jumps
+		if ( gpGlobals->curtime >= m_Shared.m_flFirstPrimaryAttack )
+		{
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFActiveWeapon, iDashCount, air_dash_count_from_weapon );
+		}
 	}
 
-	int iNoAirDash = 0;
-	CALL_ATTRIB_HOOK_INT( iNoAirDash, set_scout_doublejump_disabled );
-	if ( 1 == iNoAirDash )
+	if ( m_Shared.GetAirDash() >= iDashCount )
 		return false;
 
 	return true;
