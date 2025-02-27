@@ -1603,7 +1603,25 @@ void C_BaseAnimating::BuildTransformations( CStudioHdr *hdr, Vector *pos, Quater
 		}
 	}
 	
-	
+	if ( m_pRagdoll )
+	{
+		C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+		if ( pPlayer )
+		{
+			// When the local player is spectating a ragdoll, they are copying the root physics bone
+			// Afterwards, physics simulation of ragdolls happens and updates the bones
+			// ... But after that, the ragdoll is drawn with the NEW bones
+			// which leads to the camera and rendering being out of sync with each other and causing visible jittering
+			// The workaround for this problem is to render the ragdoll with the last frame's bone data
+			C_BaseEntity* pObserverTarget = pPlayer->GetObserverTarget();
+			if ( pObserverTarget 
+				&& pObserverTarget->IsPlayer() 
+				&& static_cast< C_BasePlayer* >( pObserverTarget )->GetRepresentativeRagdoll() == m_pRagdoll )
+			{
+				m_pRagdoll->AcquireOrCopyBoneCache( m_CachedBoneData.Base(), m_CachedBoneData.Count() );
+			}
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
