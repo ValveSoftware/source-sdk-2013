@@ -13905,13 +13905,13 @@ bool CTFGameRules::IsFirstBloodAllowed( void )
 //-----------------------------------------------------------------------------
 void CTFGameRules::ShowRoundInfoPanel( CTFPlayer *pPlayer /* = NULL */ )
 {
-	KeyValues *data = new KeyValues( "data" );
-
 	if ( m_iCurrentRoundState < 0 )
 	{
 		// Haven't set up the round state yet
 		return;
 	}
+	
+	KeyValues *data = new KeyValues( "data" );
 
 	// if prev and cur are equal, we are starting from a fresh round
 	if ( m_iPrevRoundState >= 0 && pPlayer == NULL )	// we have data about a previous state
