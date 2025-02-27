@@ -649,7 +649,6 @@ BEGIN_ENT_SCRIPTDESC( CTFPlayer, CBaseMultiplayerPlayer , "Team Fortress 2 Playe
 	DEFINE_SCRIPTFUNC( AddCurrency, "Kaching! Give the player some cash for game modes with upgrades, ie. MvM" )
 	DEFINE_SCRIPTFUNC( RemoveCurrency, "Take away money from a player for reasons such as ie. spending." )
 
-	DEFINE_SCRIPTFUNC( IgnitePlayer, "" )
 	DEFINE_SCRIPTFUNC( SetCustomModel, "" )
 	DEFINE_SCRIPTFUNC( SetCustomModelWithClassAnimations, "" )
 	DEFINE_SCRIPTFUNC( SetCustomModelOffset, "" )
@@ -710,6 +709,7 @@ BEGIN_ENT_SCRIPTDESC( CTFPlayer, CBaseMultiplayerPlayer , "Team Fortress 2 Playe
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetCustomAttribute, "GetCustomAttribute", "Get a custom attribute float from the player" )
 
 	DEFINE_SCRIPTFUNC_WRAPPED( StunPlayer, "" )
+	DEFINE_SCRIPTFUNC_WRAPPED( IgnitePlayer, "" )
 END_SCRIPTDESC();
 
 
@@ -20282,12 +20282,16 @@ static ConCommand sv_debug_stuck_particles( "sv_debug_stuck_particles", DebugPar
 //-----------------------------------------------------------------------------
 // Purpose: Debug concommand to set the player on fire
 //-----------------------------------------------------------------------------
-void IgnitePlayer()
+void TestIgnitePlayer( const CCommand &args )
 {
-	CTFPlayer *pPlayer = ToTFPlayer( ToTFPlayer( UTIL_PlayerByIndex( 1 ) ) );
-	pPlayer->m_Shared.Burn( pPlayer, pPlayer->GetActiveTFWeapon() );
+	CTFPlayer *pPlayer = ToTFPlayer( UTIL_GetCommandClient() );
+	if ( !pPlayer )
+		return;
+
+	float flBurningTime = args.ArgC() >= 2 ? atof(args[1]) : TF_BURNING_FLAME_LIFE;
+	pPlayer->m_Shared.Burn( pPlayer, pPlayer->GetActiveTFWeapon(), flBurningTime );
 }
-static ConCommand cc_IgnitePlayer( "tf_ignite_player", IgnitePlayer, "Sets you on fire", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+static ConCommand cc_IgnitePlayer( "tf_ignite_player", TestIgnitePlayer, "Sets you on fire", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -20681,11 +20685,10 @@ void CTFPlayer::Internal_HandleMapEvent( inputdata_t &inputdata )
 	BaseClass::Internal_HandleMapEvent( inputdata );
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFPlayer::IgnitePlayer()
+void CTFPlayer::InputIgnitePlayer( inputdata_t &inputdata )
 {
+	// doomsday uses this input for the exhaust area at end of round
+	// (it should probably be changed to use trigger_ignite)
 	if ( FStrEq( "sd_doomsday", STRING( gpGlobals->mapname ) ) )
 	{
 		CTFPlayer *pRecentDamager = TFGameRules()->GetRecentDamager( this, 0, 5.0 );
@@ -20695,12 +20698,7 @@ void CTFPlayer::IgnitePlayer()
 		}
 	}
 
-	m_Shared.Burn( this, NULL );
-}
-
-void CTFPlayer::InputIgnitePlayer( inputdata_t &inputdata )
-{
-	IgnitePlayer();
+	m_Shared.Burn( this, NULL, inputdata.value.Float() > 0 ? inputdata.value.Float() : TF_BURNING_FLAME_LIFE );
 }
 
 //-----------------------------------------------------------------------------
@@ -23108,4 +23106,11 @@ void CTFPlayer::ScriptEquipWearableViewModel( HSCRIPT hWearableViewModel )
 void CTFPlayer::ScriptStunPlayer( float flTime, float flReductionAmount, int iStunFlags /* = TF_STUN_MOVEMENT */, HSCRIPT hAttacker /* = NULL */ )
 {
 	m_Shared.StunPlayer( flTime, flReductionAmount, iStunFlags, ScriptToEntClass< CTFPlayer >( hAttacker ) );
+}
+
+void CTFPlayer::ScriptIgnitePlayer( float flBurningTime, HSCRIPT hAttacker /* = NULL */, HSCRIPT hWeapon /* = NULL */ )
+{
+	CTFPlayer *pAttacker = ScriptToEntClass< CTFPlayer >( hAttacker );
+	CTFWeaponBase *pWeapon = ScriptToEntClass< CTFWeaponBase >( hWeapon );
+	m_Shared.Burn( pAttacker ? pAttacker : this, pWeapon, flBurningTime );
 }
