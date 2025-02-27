@@ -813,6 +813,8 @@ CTFHudPasstimeBallStatus::CTFHudPasstimeBallStatus( Panel *pParent )
 //-----------------------------------------------------------------------------
 CTFHudPasstimeBallStatus::~CTFHudPasstimeBallStatus()
 {
+	delete m_pEventText;
+	m_pEventText = nullptr;
 }
 
 //-----------------------------------------------------------------------------
