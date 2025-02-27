@@ -157,6 +157,377 @@ size_t CNavVectorNoEditAllocator::GetSize( void *pMem )
 }
 
 //--------------------------------------------------------------------------------------------------------------
+// Script access to manipulate the nav
+//--------------------------------------------------------------------------------------------------------------
+
+DEFINE_SCRIPT_INSTANCE_HELPER( CNavArea, &g_NavAreaScriptInstanceHelper )
+
+BEGIN_ENT_SCRIPTDESC_ROOT( CNavArea, "Navigation areas class" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetID, "GetID", "Get area ID." )
+	DEFINE_SCRIPTFUNC( GetAttributes, "Get area attribute bits" )
+	DEFINE_SCRIPTFUNC( SetAttributes, "Set area attribute bits" )
+	DEFINE_SCRIPTFUNC( HasAttributes, "Has area attribute bits" )
+	DEFINE_SCRIPTFUNC( RemoveAttributes, "Removes area attribute bits" )
+	DEFINE_SCRIPTFUNC( GetCenter, "Get center origin of area" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetCorner, "GetCorner", "( corner ) - Get corner origin of area" )
+	DEFINE_SCRIPTFUNC( FindRandomSpot, "Get random origin within extent of area" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptConnectToArea, "ConnectTo", "( area, dir ) - Connect this area to given area in given direction" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptDisconnectArea, "Disconnect", "( area ) - Disconnect this area from given area" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsConnectedArea, "IsConnected", "( area, dir ) - Return true if given area is connected in given direction" )
+	DEFINE_SCRIPTFUNC( IsDamaging, "Return true if continuous damage (ie: fire) is in this area" )
+	DEFINE_SCRIPTFUNC( MarkAsDamaging, "( duration ) - Mark this area is damaging for the next 'duration' seconds" )
+	DEFINE_SCRIPTFUNC( IsBlocked, "( team ) - Return true if team is blocked in this area" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptMarkAsBlocked, "MarkAsBlocked", "( team ) - Mark this area as blocked for team" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAdjacentCount, "GetAdjacentCount", "( dir ) - Get the number of adjacent areas in the given direction" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAdjacentAreas, "GetAdjacentAreas", "( dir, table ) - Fills a passed in table with all adjacent areas in the given direction" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetAdjacentArea, "GetAdjacentArea", "( dir, n ) - Return the i'th adjacent area in the given direction" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetRandomAdjacentArea, "GetRandomAdjacentArea", "( dir ) - Return a random adjacent area in the given direction" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetIncomingConnections, "GetIncomingConnections", "( dir, table ) - Fills a passed in table with areas connected TO this area by a ONE-WAY link (ie: we have no connection back to them)" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddIncomingConnection, "AddIncomingConnection", "( area, dir ) - Add areas that connect TO this area by a ONE-WAY link" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetPlaceName, "GetPlaceName", "Get place name" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetPlaceName, "SetPlaceName", "( name ) - Set place name" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptComputeDirection, "ComputeDirection", "( point ) - Return direction from this area to the given point" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetPlayerCount, "GetPlayerCount", "( team ) - Return number of players of given team currently within this area (team of zero means any/all)" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsOverlapping, "IsOverlapping", "( area ) - Return true if 'area' overlaps our 2D extents" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsOverlappingOrigin, "IsOverlappingOrigin", "( pos, tolerance ) - Return true if 'pos' is within 2D extents of area" )
+	DEFINE_SCRIPTFUNC( IsPotentiallyVisibleToTeam, "( team ) - Return true if any portion of this area is visible to anyone on the given team" )
+	DEFINE_SCRIPTFUNC( IsCompletelyVisibleToTeam, "( team ) - Return true if given area is completely visible from somewhere in this area by someone on the team" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsEdge, "IsEdge", "( dir ) - Return true if there are no bi-directional links on the given side" )
+	DEFINE_SCRIPTFUNC( HasAvoidanceObstacle, "( maxheight ) - Returns true if there's a large, immobile object obstructing this area" )
+	DEFINE_SCRIPTFUNC( MarkObstacleToAvoid, "( height ) - Marks the obstructed status of the nav area" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptContains, "Contains", "( area ) - Return true if other area is on or above this area, but no others" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptContainsOrigin, "ContainsOrigin", "( point ) - Return true if given point is on or above this area, but no others" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetParent, "GetParent", "Returns the area just prior to this one in the search path" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetParentHow, "GetParentHow", "Returns how we get from parent to us" )
+	DEFINE_SCRIPTFUNC_NAMED( DrawFilled, "DebugDrawFilled", "Draw area as a filled rect of the given color" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptUnblockArea, "UnblockArea", "Unblocks this area" )
+	DEFINE_SCRIPTFUNC( IsRoughlySquare, "Return true if this area is approximately square" )
+	DEFINE_SCRIPTFUNC( IsFlat, "Return true if this area is approximately flat" )
+	DEFINE_SCRIPTFUNC( IsDegenerate, "Return true if this area is badly formed" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsVisible, "IsVisible", "( point ) - Return true if area is visible from the given eyepoint" )
+	DEFINE_SCRIPTFUNC( GetSizeX, "Return the area size along the X axis" )
+	DEFINE_SCRIPTFUNC( GetSizeY, "Return the area size along the Y axis" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetZ, "GetZ", "( pos ) - Return Z of area at (x,y) of 'pos'" )
+	DEFINE_SCRIPTFUNC( GetDistanceSquaredToPoint, "( pos ) - Return shortest distance between point and this area" )
+	DEFINE_SCRIPTFUNC( IsUnderwater, "Return true if area is underwater" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsCoplanar, "IsCoplanar", "( area ) - Return true if this area and given area are approximately co-planar" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptRemoveOrthogonalConnections, "RemoveOrthogonalConnections", "( dir ) - Removes all connections in directions to left and right of specified direction" )
+	DEFINE_SCRIPTFUNC( GetAvoidanceObstacleHeight, "Returns the maximum height of the obstruction above the ground" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetElevator, "GetElevator", "Returns the elevator if in an elevator's path" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetElevatorAreas, "GetElevatorAreas", "( table ) - Fills table with a collection of areas reachable via elevator from this area" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetDoor, "GetDoor", "Returns the door entity above the area" )
+	DEFINE_SCRIPTFUNC( IsBottleneck, "Returns true if area is a bottleneck" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptComputeClosestPointInPortal, "ComputeClosestPointInPortal", "Compute closest point within the portal between to adjacent areas." )
+END_SCRIPTDESC();
+
+
+HSCRIPT CNavArea::GetScriptInstance()
+{
+	if ( !m_hScriptInstance )
+	{
+		m_hScriptInstance = g_pScriptVM->RegisterInstance( GetScriptDesc(), this );
+	}
+	return m_hScriptInstance;
+}
+
+//-----------------------------------------------------------------------------
+void CNavArea::ScriptGetAdjacentAreas( int dir, HSCRIPT hTable )
+{
+	if ( dir >= NUM_DIRECTIONS || !IsValid( hTable ) )
+		return;
+
+	const NavConnectVector *pConnections = GetAdjacentAreas( (NavDirType)dir );
+	FOR_EACH_VEC( (*pConnections), it )
+	{
+		NavConnect connect = (*pConnections)[ it ];
+		CNavArea *area = connect.area;
+		if ( area )
+		{
+			g_pScriptVM->SetValue( hTable, CFmtStr( "area%i", it ), ToHScript( area ) );
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+HSCRIPT CNavArea::ScriptGetAdjacentArea( int dir, int i )
+{
+	if ( dir >= NUM_DIRECTIONS )
+		return NULL;
+
+	return ToHScript( GetAdjacentArea( (NavDirType)dir, i ) );
+}
+
+//-----------------------------------------------------------------------------
+HSCRIPT CNavArea::ScriptGetRandomAdjacentArea( int dir )
+{
+	if ( dir >= NUM_DIRECTIONS )
+		return NULL;
+
+	return ToHScript( GetRandomAdjacentArea( (NavDirType)dir ) );
+}
+
+//-----------------------------------------------------------------------------
+void CNavArea::ScriptGetIncomingConnections( int dir, HSCRIPT hTable )
+{
+	if ( dir >= NUM_DIRECTIONS || !IsValid( hTable ) )
+		return;
+
+	const NavConnectVector *pConnections = GetIncomingConnections( (NavDirType)dir );
+	FOR_EACH_VEC( (*pConnections), it )
+	{
+		NavConnect connect = (*pConnections)[ it ];
+		CNavArea *area = connect.area;
+		if ( area )
+		{
+			g_pScriptVM->SetValue( hTable, CFmtStr( "area%i", it ), ToHScript( area ) );
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+void CNavArea::ScriptAddIncomingConnection( HSCRIPT hSource, int incomingEdgeDir )
+{
+	CNavArea *pArea = ToNavArea( hSource );
+	if ( incomingEdgeDir >= NUM_DIRECTIONS || !pArea )
+		return;
+
+	AddIncomingConnection( pArea, (NavDirType)incomingEdgeDir );
+}
+
+//-----------------------------------------------------------------------------
+void CNavArea::ScriptConnectToArea( HSCRIPT hArea, int dir )
+{
+	CNavArea *pArea = ToNavArea( hArea );
+	if ( dir >= NUM_DIRECTIONS || !pArea )
+		return;
+
+	if ( dir == -1 )
+	{
+		Vector center;
+		float halfWidth;
+		NavDirType autoDir = ComputeLargestPortal( pArea, &center, &halfWidth );
+		if ( autoDir != NUM_DIRECTIONS )
+		{
+			ConnectTo( pArea, autoDir );
+		}
+	}
+	else
+	{
+		ConnectTo( pArea, (NavDirType)dir );
+	}
+}
+
+//-----------------------------------------------------------------------------
+void CNavArea::ScriptDisconnectArea( HSCRIPT hArea )
+{
+	CNavArea *pArea = ToNavArea( hArea );
+	if ( !pArea )
+		return;
+
+	Disconnect( pArea );
+}
+
+//-----------------------------------------------------------------------------
+bool CNavArea::ScriptIsConnectedArea( HSCRIPT hArea, int dir )
+{
+	CNavArea *pArea = ToNavArea( hArea );
+	if ( dir > NUM_DIRECTIONS || !pArea )
+		return false;
+
+	if ( dir == -1 )
+		dir = NUM_DIRECTIONS;
+	return IsConnected( pArea, (NavDirType) dir );
+}
+
+//-----------------------------------------------------------------------------
+void CNavArea::ScriptMarkAsBlocked( int teamID )
+{
+	m_attributeFlags |= NAV_MESH_NAV_BLOCKER;
+	MarkAsBlocked( teamID, NULL );
+}
+
+//-----------------------------------------------------------------------------
+const char *CNavArea::ScriptGetPlaceName()
+{
+	return TheNavMesh->PlaceToName( GetPlace() );
+}
+
+//-----------------------------------------------------------------------------
+void CNavArea::ScriptSetPlaceName( const char *pszName )
+{
+	if ( !pszName )
+	{
+		SetPlace( UNDEFINED_PLACE );
+		return;
+	}
+
+	Place place = TheNavMesh->PartialNameToPlace( pszName );
+	if ( place == UNDEFINED_PLACE )
+		return;
+
+	SetPlace( place );
+}
+
+//-----------------------------------------------------------------------------
+bool CNavArea::ScriptIsOverlapping( HSCRIPT hArea ) const
+{
+	CNavArea *pArea = ToNavArea( hArea );
+	if ( !pArea )
+		return false;
+
+	return IsOverlapping( pArea );
+}
+
+//-----------------------------------------------------------------------------
+bool CNavArea::ScriptContains( HSCRIPT hArea ) const
+{
+	CNavArea *pArea = ToNavArea( hArea );
+	if ( !pArea )
+		return false;
+
+	return Contains( pArea );
+}
+
+//-----------------------------------------------------------------------------
+HSCRIPT CNavArea::ScriptGetParent()
+{
+	return ToHScript( GetParent() );
+}
+
+//-----------------------------------------------------------------------------
+int CNavArea::ScriptComputeDirection( const Vector &point ) const
+{
+	Vector pos = point;
+	return ComputeDirection( &pos );
+}
+
+//-----------------------------------------------------------------------------
+void CNavArea::ScriptUnblockArea( void )
+{
+	UnblockArea();
+}
+
+//-----------------------------------------------------------------------------
+bool CNavArea::ScriptIsCoplanar( HSCRIPT hArea ) const
+{
+	CNavArea *pArea = ToNavArea( hArea );
+	if ( !pArea )
+		return false;
+
+	return IsCoplanar( pArea );
+}
+
+//-----------------------------------------------------------------------------
+void CNavArea::ScriptGetElevatorAreas( HSCRIPT hTable )
+{
+	if ( !IsValid( hTable ) )
+		return;
+
+	const NavConnectVector &pElevatorAreas = GetElevatorAreas();
+	FOR_EACH_VEC( pElevatorAreas, it )
+	{
+		CNavArea *area = pElevatorAreas[ it ].area;
+		if ( area )
+		{
+			g_pScriptVM->SetValue( hTable, CFmtStr( "area%i", it ), ToHScript( area ) );
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+Vector CNavArea::ScriptComputeClosestPointInPortal( HSCRIPT to, int dir, const Vector &fromPos ) const
+{
+	CNavArea *pNavArea = ToNavArea( to );
+	if ( !pNavArea )
+	{
+		DevMsg( "ComputeClosestPointInPortal: the to area was invalid. Returning origin.\n" );
+		return vec3_origin;
+	}
+
+	Vector closePos = vec3_origin;
+	this->ComputeClosestPointInPortal( pNavArea, (NavDirType)dir, fromPos, &closePos );
+	return closePos;
+}
+
+//-----------------------------------------------------------------------------
+void CNavArea::ScriptRemoveOrthogonalConnections( int dir )
+{
+	if ( dir >= NUM_DIRECTIONS )
+		return;
+
+	RemoveOrthogonalConnections( (NavDirType) dir );
+}
+
+//--------------------------------------------------------------------------------------------------------
+/**
+ * Invoked when a door is created
+ */
+void CNavArea::OnDoorCreated( CBaseEntity *door )
+{
+	m_hDoor = door;
+}
+
+
+//--------------------------------------------------------------------------------------------------------
+// return a door contained in this area
+CBaseEntity * CNavArea::GetDoor( void ) const
+{
+	return m_hDoor;
+}
+
+//--------------------------------------------------------------------------------------------------------
+/**
+ * Return a random spot in this area
+ */
+Vector CNavArea::FindRandomSpot( void ) const
+{
+	const float margin = 25.0f;
+	Vector spot;
+	
+	if (GetSizeX() < 2.0f * margin || GetSizeY() < 2.0f * margin)
+	{
+		spot = GetCenter();
+		spot.z += 10.0f;
+	}
+	else
+	{
+		spot.x = GetCorner( NORTH_WEST ).x + margin + RandomFloat( 0.0f, GetSizeX() - 2.0f * margin );
+		spot.y = GetCorner( NORTH_WEST ).y + margin + RandomFloat( 0.0f, GetSizeY() - 2.0f * margin );
+		spot.z = GetZ( spot.x, spot.y ) + 10.0f;
+	}
+	
+	return spot;
+}
+
+//--------------------------------------------------------------------------------------------------------
+/**
+ * A bottleneck is a small nav area with connections on only two opposing sides (ie: a doorway)
+ */
+bool CNavArea::IsBottleneck( void ) const
+{
+	const float narrow = 2.1f * GenerationStepSize;
+
+	if ( GetAdjacentCount( NORTH ) == 0 && GetAdjacentCount( SOUTH ) == 0 && 
+		 GetAdjacentCount( EAST ) > 0 && GetAdjacentCount( WEST ) > 0 )
+	{
+		if ( GetSizeY() < narrow )
+		{
+			return true;
+		}
+	}
+	else if ( GetAdjacentCount( NORTH ) > 0 && GetAdjacentCount( SOUTH ) > 0 && 
+			 GetAdjacentCount( EAST ) == 0 && GetAdjacentCount( WEST ) == 0 )
+	{
+		if ( GetSizeX() < narrow )
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//--------------------------------------------------------------------------------------------------------------
 void CNavArea::CompressIDs( void )
 {
 	m_nextID = 1;
@@ -171,7 +542,6 @@ void CNavArea::CompressIDs( void )
 		TheNavMesh->AddNavArea( area );
 	}
 }
-
 
 //--------------------------------------------------------------------------------------------------------------
 /**
@@ -248,6 +618,9 @@ CNavArea::CNavArea( void )
 	m_funcNavCostVector.RemoveAll();
 
 	m_nVisTestCounter = (uint32)-1;
+
+	m_hDoor = NULL;
+	m_hScriptInstance = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -531,6 +904,12 @@ public:
  */
 CNavArea::~CNavArea()
 {
+	if ( g_pScriptVM && m_hScriptInstance )
+	{
+		g_pScriptVM->RemoveInstance( m_hScriptInstance );
+		m_hScriptInstance = NULL;
+	}
+
 	// spot encounters aren't owned by anything else, so free them up here
 	m_spotEncounters.PurgeAndDeleteElements();
 

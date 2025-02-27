@@ -19,6 +19,7 @@
 #include "sceneentity.h"		// for exposing scene precache function
 #include "isaverestore.h"
 #include "gamerules.h"
+#include "player_voice_listener.h"
 #include "particle_parse.h"
 #include "usermessages.h"
 #include "engine/IEngineSound.h"
@@ -30,11 +31,19 @@
 #include "coordsize.h"
 #include "team.h"
 
+#ifdef USE_NAV_MESH
+#include "nav_mesh.h"
+#include "nav_area.h"
+#endif
+
+#ifdef NEXT_BOT
+#include "NextBot/NextBotInterface.h"
+#endif
+
 #ifdef TF_DLL
 #include "tf/tf_gamerules.h"
 #include "nav_mesh/tf_nav_mesh.h"
 #include "nav_mesh/tf_nav_area.h"
-#include "NextBot/NextBotLocomotionInterface.h"
 #include "bot/tf_bot.h"
 #endif
 
@@ -2616,8 +2625,9 @@ bool VScriptServerInit()
 				{
 					GameRules()->RegisterScriptFunctions();
 				}
-
-#ifdef TF_DLL
+	
+				g_pScriptVM->RegisterInstance( &PlayerVoiceListener(), "PlayerVoiceListener" );
+#ifdef USE_NAV_MESH
 				g_pScriptVM->RegisterInstance( TheNavMesh, "NavMesh" );
 #endif
 				g_pScriptVM->RegisterInstance( &g_ScriptEntityIterator, "Entities" );
@@ -2634,7 +2644,7 @@ bool VScriptServerInit()
 #define DECLARE_SCRIPT_CONST_NAMED( type, name, x ) g_pScriptVM->SetValue( (HSCRIPT)vConstantsTable_##type, name, x );
 #define DECLARE_SCRIPT_CONST( type, x ) DECLARE_SCRIPT_CONST_NAMED( type, #x, x )
 #define REGISTER_SCRIPT_CONST_TABLE( x ) g_pScriptVM->SetValue( (HSCRIPT) vConstantsTable, #x, vConstantsTable_##x );
-#ifdef TF_DLL
+
 DECLARE_SCRIPT_CONST_TABLE( EScriptRecipientFilter )
 DECLARE_SCRIPT_CONST( EScriptRecipientFilter, RECIPIENT_FILTER_DEFAULT )
 DECLARE_SCRIPT_CONST( EScriptRecipientFilter, RECIPIENT_FILTER_PAS_ATTENUATION )
@@ -2645,6 +2655,7 @@ DECLARE_SCRIPT_CONST( EScriptRecipientFilter, RECIPIENT_FILTER_GLOBAL )
 DECLARE_SCRIPT_CONST( EScriptRecipientFilter, RECIPIENT_FILTER_TEAM )
 REGISTER_SCRIPT_CONST_TABLE( EScriptRecipientFilter )
 
+#ifdef TF_DLL
 DECLARE_SCRIPT_CONST_TABLE( ETFCond )
 DECLARE_SCRIPT_CONST( ETFCond, TF_COND_INVALID )
 DECLARE_SCRIPT_CONST( ETFCond, TF_COND_AIMING )
@@ -2825,7 +2836,9 @@ DECLARE_SCRIPT_CONST_NAMED( ETFBotDifficultyType, "HARD", CTFBot::DifficultyType
 DECLARE_SCRIPT_CONST_NAMED( ETFBotDifficultyType, "EXPERT", CTFBot::DifficultyType::EXPERT )
 DECLARE_SCRIPT_CONST_NAMED( ETFBotDifficultyType, "NUM_DIFFICULTY_LEVELS", CTFBot::DifficultyType::NUM_DIFFICULTY_LEVELS )
 REGISTER_SCRIPT_CONST_TABLE( ETFBotDifficultyType )
+#endif
 
+#ifdef USE_NAV_MESH
 DECLARE_SCRIPT_CONST_TABLE( ENavDirType )
 DECLARE_SCRIPT_CONST( ENavDirType, NORTH )
 DECLARE_SCRIPT_CONST( ENavDirType, EAST )
@@ -2889,6 +2902,7 @@ DECLARE_SCRIPT_CONST( FNavAttributeType, NAV_MESH_FUNC_COST )
 DECLARE_SCRIPT_CONST( FNavAttributeType, NAV_MESH_HAS_ELEVATOR )
 DECLARE_SCRIPT_CONST( FNavAttributeType, NAV_MESH_NAV_BLOCKER )
 REGISTER_SCRIPT_CONST_TABLE( FNavAttributeType )
+#endif
 
 DECLARE_SCRIPT_CONST_TABLE( FButtons )
 DECLARE_SCRIPT_CONST( FButtons, IN_ATTACK )
@@ -2932,15 +2946,18 @@ DECLARE_SCRIPT_CONST( FHideHUD, HIDEHUD_CROSSHAIR )
 DECLARE_SCRIPT_CONST( FHideHUD, HIDEHUD_VEHICLE_CROSSHAIR )
 DECLARE_SCRIPT_CONST( FHideHUD, HIDEHUD_INVEHICLE )
 DECLARE_SCRIPT_CONST( FHideHUD, HIDEHUD_BONUS_PROGRESS )
+#ifdef TF_DLL
 DECLARE_SCRIPT_CONST( FHideHUD, HIDEHUD_BUILDING_STATUS )
 DECLARE_SCRIPT_CONST( FHideHUD, HIDEHUD_CLOAK_AND_FEIGN )
 DECLARE_SCRIPT_CONST( FHideHUD, HIDEHUD_PIPES_AND_CHARGE )
 DECLARE_SCRIPT_CONST( FHideHUD, HIDEHUD_METAL )
 DECLARE_SCRIPT_CONST( FHideHUD, HIDEHUD_TARGET_ID )
 DECLARE_SCRIPT_CONST( FHideHUD, HIDEHUD_MATCH_STATUS )
+#endif
 DECLARE_SCRIPT_CONST( FHideHUD, HIDEHUD_BITCOUNT )
 REGISTER_SCRIPT_CONST_TABLE( FHideHUD )
 
+#ifdef TF_DLL
 DECLARE_SCRIPT_CONST_TABLE( FTaunts )
 DECLARE_SCRIPT_CONST( FTaunts, TAUNT_BASE_WEAPON )
 DECLARE_SCRIPT_CONST( FTaunts, TAUNT_MISC_ITEM )
@@ -2948,6 +2965,7 @@ DECLARE_SCRIPT_CONST( FTaunts, TAUNT_SHOW_ITEM )
 DECLARE_SCRIPT_CONST( FTaunts, TAUNT_LONG )
 DECLARE_SCRIPT_CONST( FTaunts, TAUNT_SPECIAL )
 REGISTER_SCRIPT_CONST_TABLE( FTaunts )
+#endif
 
 DECLARE_SCRIPT_CONST_TABLE( EHitGroup )
 DECLARE_SCRIPT_CONST( EHitGroup, HITGROUP_GENERIC )
@@ -3276,14 +3294,17 @@ DECLARE_SCRIPT_CONST( ETFTeam, TEAM_INVALID )
 DECLARE_SCRIPT_CONST( ETFTeam, TEAM_UNASSIGNED )
 DECLARE_SCRIPT_CONST( ETFTeam, TEAM_SPECTATOR )
 DECLARE_SCRIPT_CONST( ETFTeam, TEAM_SPECTATOR )
+#ifdef TF_DLL
 DECLARE_SCRIPT_CONST( ETFTeam, TF_TEAM_RED )
 DECLARE_SCRIPT_CONST( ETFTeam, TF_TEAM_BLUE )
 DECLARE_SCRIPT_CONST( ETFTeam, TF_TEAM_COUNT )
 DECLARE_SCRIPT_CONST( ETFTeam, TF_TEAM_PVE_INVADERS )
 DECLARE_SCRIPT_CONST( ETFTeam, TF_TEAM_PVE_DEFENDERS )
 DECLARE_SCRIPT_CONST( ETFTeam, TF_TEAM_PVE_INVADERS_GIANTS )
+#endif
 REGISTER_SCRIPT_CONST_TABLE( ETFTeam )
 
+#ifdef TF_DLL
 // ETFDmgCustom
 DECLARE_SCRIPT_CONST_TABLE( ETFDmgCustom )
 DECLARE_SCRIPT_CONST( ETFDmgCustom, TF_DMG_CUSTOM_NONE )
@@ -3464,6 +3485,7 @@ DECLARE_SCRIPT_CONST( FTFNavAttributeType, TF_NAV_DOOR_ALWAYS_BLOCKS )
 DECLARE_SCRIPT_CONST( FTFNavAttributeType, TF_NAV_UNBLOCKABLE )
 DECLARE_SCRIPT_CONST( FTFNavAttributeType, TF_NAV_PERSISTENT_ATTRIBUTES )
 REGISTER_SCRIPT_CONST_TABLE( FTFNavAttributeType )
+#endif
 
 DECLARE_SCRIPT_CONST_TABLE( EHudNotify )
 DECLARE_SCRIPT_CONST( EHudNotify, HUD_PRINTNOTIFY )
@@ -3472,9 +3494,11 @@ DECLARE_SCRIPT_CONST( EHudNotify, HUD_PRINTTALK )
 DECLARE_SCRIPT_CONST( EHudNotify, HUD_PRINTCENTER )
 REGISTER_SCRIPT_CONST_TABLE( EHudNotify )
 
+#ifdef TF_DLL
 DECLARE_SCRIPT_CONST_TABLE( EBotType )
 DECLARE_SCRIPT_CONST( EBotType, TF_BOT_TYPE )
 REGISTER_SCRIPT_CONST_TABLE( EBotType )
+#endif
 
 DECLARE_SCRIPT_CONST_TABLE( Math )
 DECLARE_SCRIPT_CONST_NAMED( Math, "Epsilon", FLT_EPSILON)
@@ -3494,7 +3518,7 @@ DECLARE_SCRIPT_CONST( Server, MAX_PLAYERS )
 DECLARE_SCRIPT_CONST( Server, DIST_EPSILON )
 DECLARE_SCRIPT_CONST_NAMED( Server, "ConstantNamingConvention", "Constants are named as follows: F -> flags, E -> enums, (nothing) -> random values/constants" )
 REGISTER_SCRIPT_CONST_TABLE( Server )
-#endif
+
 				g_pScriptVM->SetValue( "Constants", vConstantsTable );
 
 				if ( scriptLanguage == SL_SQUIRREL )
@@ -4165,16 +4189,18 @@ void *CBaseEntityScriptInstanceHelper::BindOnRead( HSCRIPT hInstance, void *pOld
 
 CBaseEntityScriptInstanceHelper g_BaseEntityScriptInstanceHelper;
 
-#ifdef TF_DLL
+#ifdef USE_NAV_MESH
 bool CNavAreaScriptInstanceHelper::ToString( void *p, char *pBuf, int bufSize )	
 {
-	CTFNavArea *pArea = (CTFNavArea *)p;
+	CNavArea *pArea = (CNavArea *)p;
 	V_snprintf( pBuf, bufSize, "([%u] Area)", pArea->GetID() );
 	return true;
 }
 
 CNavAreaScriptInstanceHelper g_NavAreaScriptInstanceHelper;
+#endif
 
+#ifdef NEXT_BOT
 bool INextBotComponentScriptInstanceHelper::ToString( void *p, char *pBuf, int bufSize )	
 {
 	INextBotComponent *pNextBotComponent = (INextBotComponent *)p;
