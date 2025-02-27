@@ -44,6 +44,11 @@ struct UtlLinkedListElem_t
 	I  m_Previous;
 	I  m_Next;
 
+	UtlLinkedListElem_t() = default;
+	~UtlLinkedListElem_t() = default;
+	UtlLinkedListElem_t( UtlLinkedListElem_t<T, I>&& ) = default;
+	UtlLinkedListElem_t& operator=( UtlLinkedListElem_t<T, I>&& ) = default;
+	
 private:
 	// No copy constructor for these...
 	UtlLinkedListElem_t( const UtlLinkedListElem_t& );
@@ -70,6 +75,11 @@ public:
 	// constructor, destructor
 	CUtlLinkedList( int growSize = 0, int initSize = 0 );
 	~CUtlLinkedList();
+
+	// move operators
+	void Swap( CUtlLinkedList& other );
+	CUtlLinkedList( CUtlLinkedList&& other );
+	CUtlLinkedList& operator=( CUtlLinkedList&& other );
 
 	// gets particular elements
 	T&         Element( I i );
@@ -463,6 +473,38 @@ void CUtlLinkedList<T,S,ML,I,M>::ConstructList()
 	m_ElementCount = 0;
 	m_NumAlloced = 0;
 }
+
+//-----------------------------------------------------------------------------
+// move operators
+//-----------------------------------------------------------------------------
+
+template <class T, class S, bool ML, class I, class M>
+void CUtlLinkedList<T,S,ML,I,M>::Swap( CUtlLinkedList& other ) 
+{
+	CUtlSwap( m_Memory, other.m_Memory );
+	CUtlSwap( m_Head, other.m_Head );
+	CUtlSwap( m_Tail, other.m_Tail );
+	CUtlSwap( m_FirstFree, other.m_FirstFree );
+	CUtlSwap( m_ElementCount, other.m_ElementCount );
+	CUtlSwap( m_LastAlloc, other.m_LastAlloc );
+	CUtlSwap( m_pElements, other.m_pElements );
+	CUtlSwap( m_NumAlloced, other.m_NumAlloced );
+}
+
+template <class T, class S, bool ML, class I, class M>
+CUtlLinkedList<T, S, ML, I, M>::CUtlLinkedList(CUtlLinkedList&& other)
+	: m_Memory( 0, 0 ), m_LastAlloc( m_Memory.InvalidIterator() )
+{
+	Swap( other );
+}
+
+template <class T, class S, bool ML, class I, class M>
+CUtlLinkedList<T, S, ML, I, M>& CUtlLinkedList<T, S, ML, I, M>::operator=(CUtlLinkedList&& other)
+{
+	Swap(other);
+	return *this;
+}
+
 
 
 //-----------------------------------------------------------------------------

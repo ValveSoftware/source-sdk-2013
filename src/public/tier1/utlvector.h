@@ -64,9 +64,15 @@ public:
 	// The container will not be growable.
 	CUtlVector( T* pMemory, int initialCapacity, int initialCount = 0 );
 	~CUtlVector();
+
 	
 	// Copy the array.
 	CUtlVector<T, A>& operator=( const CUtlVector<T, A> &other );
+	CUtlVector( const CUtlVector& other );
+
+	// Move the array
+	CUtlVector<T, A>& operator=( CUtlVector<T, A> &&other );
+	CUtlVector( CUtlVector&& other );
 
 	// element access
 	T& operator[]( int i );
@@ -119,12 +125,19 @@ public:
 	int InsertBefore( int elem, const T& src );
 	int InsertAfter( int elem, const T& src );
 
+	// Adds an element, uses move constructor
+	int AddToHead( T&& src );
+	int AddToTail( T&& src );
+	int InsertBefore( int elem, T&& src );
+	int InsertAfter( int elem, T&& src );
+
 	// Adds multiple elements, uses default constructor
 	int AddMultipleToHead( int num );
 	int AddMultipleToTail( int num );	   
 	int AddMultipleToTail( int num, const T *pToCopy );	   
 	int InsertMultipleBefore( int elem, int num );
 	int InsertMultipleBefore( int elem, int num, const T *pToCopy );
+	int MoveInsertMultipleBefore( int elem, int num, T *pToCopy );
 	int InsertMultipleAfter( int elem, int num );
 
 	// Calls RemoveAll() then AddMultipleToTail.
@@ -139,11 +152,15 @@ public:
 	// Calls SetSize and copies each element.
 	void CopyArray( const T *pArray, int size );
 
+	// Calls SetSize and moves each element
+	void MoveArray( T *pArray, int size );
+
 	// Fast swap
 	void Swap( CUtlVector< T, A > &vec );
 	
 	// Add the specified array to the tail.
 	int AddVectorToTail( CUtlVector<T, A> const &src );
+	int AddVectorToTail( CUtlVector<T, A> &&src );
 
 	// Finds an element (element needs operator== defined)
 	int Find( const T& src ) const;
@@ -211,9 +228,6 @@ public:
 	template <class F> void SortPredicate( F &&predicate );
 
 protected:
-	// Can't copy this unless we explicitly do it!
-	CUtlVector( CUtlVector const& vec ) { Assert(0); }
-
 	// Grows the vector
 	void GrowVector( int num = 1 );
 
@@ -656,6 +670,17 @@ inline CUtlVector<T, A>::~CUtlVector()
 }
 
 template< typename T, class A >
+inline CUtlVector<T, A>::CUtlVector( const CUtlVector<T, A> &other )
+{
+	int nCount = other.Count();
+	SetSize( nCount );
+	for ( int i = 0; i < nCount; i++ )
+	{
+		(*this)[ i ] = other[ i ];
+	}
+}
+
+template< typename T, class A >
 inline CUtlVector<T, A>& CUtlVector<T, A>::operator=( const CUtlVector<T, A> &other )
 {
 	int nCount = other.Count();
@@ -664,6 +689,20 @@ inline CUtlVector<T, A>& CUtlVector<T, A>::operator=( const CUtlVector<T, A> &ot
 	{
 		(*this)[ i ] = other[ i ];
 	}
+	return *this;
+}
+
+template< typename T, class A >
+inline CUtlVector<T, A>::CUtlVector( CUtlVector<T, A> &&other )
+	: m_Memory(0, 0), m_Size(0)
+{
+	Swap(other);
+}
+
+template< typename T, class A >
+inline CUtlVector<T, A>& CUtlVector<T, A>::operator=( CUtlVector<T, A> &&other )
+{
+	Swap(other);
 	return *this;
 }
 
@@ -1086,6 +1125,48 @@ int CUtlVector<T, A>::InsertBefore( int elem, const T& src )
 	return elem;
 }
 
+//-----------------------------------------------------------------------------
+// Adds an element, uses move constructor
+//-----------------------------------------------------------------------------
+template< typename T, class A >
+inline int CUtlVector<T, A>::AddToHead( T&& src )
+{
+	// Can't insert something that's in the list... reallocation may hose us
+	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) ); 
+	return InsertBefore( 0, src );
+}
+
+template< typename T, class A >
+inline int CUtlVector<T, A>::AddToTail( T&& src )
+{
+	// Can't insert something that's in the list... reallocation may hose us
+	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) ); 
+	return InsertBefore( m_Size, src );
+}
+
+template< typename T, class A >
+inline int CUtlVector<T, A>::InsertAfter( int elem, T&& src )
+{
+	// Can't insert something that's in the list... reallocation may hose us
+	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) ); 
+	return InsertBefore( elem + 1, src );
+}
+
+template< typename T, class A >
+int CUtlVector<T, A>::InsertBefore( int elem, T&& src )
+{
+	// Can't insert something that's in the list... reallocation may hose us
+	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) ); 
+
+	// Can insert at the end
+	Assert( (elem == Count()) || IsValidIndex(elem) );
+
+	GrowVector();
+	ShiftElementsRight(elem);
+	MoveConstruct( &Element(elem), src );
+	return elem;
+}
+
 
 //-----------------------------------------------------------------------------
 // Adds multiple elements, uses default constructor
@@ -1153,13 +1234,26 @@ void CUtlVector<T, A>::CopyArray( const T *pArray, int size )
 }
 
 template< typename T, class A >
+void CUtlVector<T, A>::MoveArray( T *pArray, int size )
+{
+	// Can't insert something that's in the list... reallocation may hose us
+	Assert( (Base() == NULL) || !pArray || (Base() >= (pArray + size)) || (pArray >= (Base() + Count()) ) ); 
+
+	SetSize( size );
+	for( int i=0; i < size; i++ )
+	{
+		CUtlSwap((*this)[i], pArray[i]);
+	}
+}
+
+template< typename T, class A >
 void CUtlVector<T, A>::Swap( CUtlVector< T, A > &vec )
 {
-	m_Memory.Swap( vec.m_Memory );
-	V_swap( m_Size, vec.m_Size );
+	CUtlSwap(m_Memory, vec.m_Memory);
+	CUtlSwap( m_Size, vec.m_Size );
 
 #ifndef _X360
-	V_swap( m_pElements, vec.m_pElements );
+	CUtlSwap( m_pElements, vec.m_pElements );
 #endif
 }
 
@@ -1179,6 +1273,26 @@ int CUtlVector<T, A>::AddVectorToTail( CUtlVector const &src )
 	for ( int i=0; i < nSrcCount; i++ )
 	{
 		CopyConstruct( &Element(base+i), src[i] );
+	}
+	return base;
+}
+
+template< typename T, class A >
+int CUtlVector<T, A>::AddVectorToTail( CUtlVector &&src )
+{
+	Assert( &src != this );
+
+	int base = Count();
+	
+	// Make space.
+	int nSrcCount = src.Count();
+	EnsureCapacity( base + nSrcCount );
+
+	// Copy the elements.	
+	m_Size += nSrcCount;
+	for ( int i=0; i < nSrcCount; i++ )
+	{
+		MoveConstruct( &Element(base+i), src[i] );
 	}
 	return base;
 }
@@ -1234,6 +1348,38 @@ inline int CUtlVector<T, A>::InsertMultipleBefore( int elem, int num, const T *p
 
 	return elem;
 }
+
+template< typename T, class A >
+inline int CUtlVector<T, A>::MoveInsertMultipleBefore( int elem, int num, T *pToInsert )
+{
+	if( num == 0 )
+		return elem;
+	
+	// Can insert at the end
+	Assert( (elem == Count()) || IsValidIndex(elem) );
+
+	GrowVector(num);
+	ShiftElementsRight( elem, num );
+
+	// Invoke default constructors
+	if ( !pToInsert )
+	{
+		for (int i = 0; i < num; ++i )
+		{
+			Construct( &Element( elem+i ) );
+		}
+	}
+	else
+	{
+		for ( int i=0; i < num; i++ )
+		{
+			MoveConstruct( &Element( elem+i ), pToInsert[i] );
+		}
+	}
+
+	return elem;
+}
+
 
 
 //-----------------------------------------------------------------------------
