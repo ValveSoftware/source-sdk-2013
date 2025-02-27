@@ -2174,7 +2174,7 @@ void UTIL_SetClientVisibilityPVS( edict_t *pClient, const unsigned char *pvs, in
 		int remainder = pvssize % 4;
 		for ( i = 0; i < remainder; i++ )
 		{
-			((unsigned char *)&pTo[limit])[i] = ((unsigned char *)&pFrom[limit])[i] & !((unsigned char *)&pMask[limit])[i];
+			((unsigned char *)&pTo[limit])[i] = ((unsigned char *)&pFrom[limit])[i] & ~((unsigned char *)&pMask[limit])[i];
 
 			if ( ((unsigned char *)&pFrom[limit])[i] != 0)
 			{
