@@ -1541,8 +1541,8 @@ bool CSniperDot::GetRenderingPositions( C_TFPlayer *pPlayer, Vector &vecAttachme
 		{
 			// Take the owning player eye position and direction.
 			vecAttachment = pPlayer->EyePosition();
-			QAngle anglesEye = pPlayer->EyeAngles();
-			AngleVectors( anglesEye, &vecDir );
+			vecDir = GetAbsOrigin() - vecAttachment;
+			VectorNormalize( vecDir );
 		}
 
 		trace_t tr;
