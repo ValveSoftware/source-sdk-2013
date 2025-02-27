@@ -207,7 +207,7 @@ void CHalfLife2Survival::ParseSurvivalSettings( KeyValues *pSubKey )
 		}
 		else if ( !stricmp( pTestKey->GetName(), "spawnhealth" ) )
 		{
-			m_SurvivalSettings.m_iSpawnHealth = pTestKey->GetInt( NULL, 100 );
+			m_SurvivalSettings.m_iSpawnHealth = pTestKey->GetInt( nullptr, 100 );
 		}
 		else if ( !stricmp( pTestKey->GetName(), "allowedpickups" ) )
 		{
