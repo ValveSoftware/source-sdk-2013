@@ -6050,7 +6050,7 @@ void C_TFPlayer::ClientThink()
 		// 
 		// Passtime ask for ball button
 		//
-	    if ( m_nButtons & IN_ATTACK3 )
+	    if ( m_afButtonPressed & IN_ATTACK3 )
 	    {
 		    engine->ClientCmd("voicemenu 1 8");
 	    }
