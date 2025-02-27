@@ -325,6 +325,7 @@ void CSave::Log( const char *pName, fieldtype_t fieldType, void *value, int coun
 				char chValue = pValue[iCount];
 				Q_snprintf( szTempBuf, sizeof( szTempBuf ), "%c", chValue );
 				Q_strncat( szBuf, szTempBuf, sizeof( szTempBuf ), COPY_ALL_CHARACTERS );
+				break;
 			}
 		case FIELD_COLOR32:
 			{
