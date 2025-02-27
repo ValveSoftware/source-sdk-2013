@@ -883,7 +883,7 @@ ConVar tf_mvm_respec_limit( "tf_mvm_respec_limit", "0", FCVAR_CHEAT | FCVAR_REPL
 ConVar tf_mvm_respec_credit_goal( "tf_mvm_respec_credit_goal", "2000", FCVAR_CHEAT | FCVAR_REPLICATED, "When tf_mvm_respec_limit is non-zero, the total amount of money the team must collect to earn a respec credit." );
 ConVar tf_mvm_buybacks_method( "tf_mvm_buybacks_method", "0", FCVAR_REPLICATED | FCVAR_HIDDEN, "When set to 0, use the traditional, currency-based system.  When set to 1, use finite, charge-based system.", true, 0.0, true, 1.0 );
 ConVar tf_mvm_buybacks_per_wave( "tf_mvm_buybacks_per_wave", "3", FCVAR_REPLICATED | FCVAR_HIDDEN, "The fixed number of buybacks players can use per-wave." );
-
+ConVar tf_mvm_allow_upgrade_inspect( "tf_mvm_allow_upgrade_inspect", "-1", FCVAR_REPLICATED, "Allow inspecting upgrades of other players. (-1 = Allow for friends and party members, 0 = Never allow, 1 = Always allow)" );
 
 #ifdef GAME_DLL
 enum { kMVM_CurrencyPackMinSize = 1, };
