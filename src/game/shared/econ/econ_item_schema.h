@@ -2911,6 +2911,9 @@ private:
 	// Contains the list of item definitions read in from all data files.
 	ItemDefinitionMap_t									m_mapItems;
 
+	// Contains a mapping from definition name to item definition
+	CUtlDict<CEconItemDefinition*>						m_mapItemsName;
+
 	CUtlMap<int, CQuestObjectiveDefinition*, int >		m_mapQuestObjectives;
 
 	// A sorted version of the same map, for instances where we really want sorted data
