@@ -56,14 +56,10 @@ private:
 	bool m_isSentryOutOfPosition;
 	bool CheckIfSentryIsOutOfPosition( CTFBot *me ) const;
 
-	CObjectSentrygun *m_mySentry = NULL;
-	CObjectDispenser *m_myDispencer = NULL;
-	CObjectTeleporter *m_myClosestTeleporter = NULL;
-
 	CObjectTeleporter* PickClosestValidTeleporter( CTFBot *me ) const;
 	CBaseObject* PickCurrentWorkTarget( CTFBot *me ) const;
 	Vector PickIdealWorkSpot( CTFBot *me, CBaseObject *workTarget ) const;
-	bool IsTooFarFromWorkTarget( CTFBot *me, CBaseObject *workTarget ) const;
+	bool IsInPositionToWork( CTFBot *me, CBaseObject *workTarget, bool& shouldBeDucking, const Vector* idealPosition = NULL ) const;
 	void UpgradeAndMaintainBuildings( CTFBot *me );
 	bool IsMetalSourceNearby( CTFBot *me ) const;
 };
