@@ -251,6 +251,8 @@ void CTFBotEngineerBuilding::NavigateToWorkingSpot( CTFBot* me, const Vector& sp
 // Proccesses maintaining buildings
 void CTFBotEngineerBuilding::MaintainBuilding(CTFBot* me, CBaseObject* workTarget)
 {
+	m_searchTimer.Invalidate();
+
 	// we are in position - work on our buildings
 	me->StopLookingAroundForEnemies();
 	me->GetBodyInterface()->AimHeadTowards( LookAtPointOnWorkTarget( me, workTarget ), IBody::CRITICAL, 1.0f, NULL, "Work on my buildings" );
@@ -279,81 +281,15 @@ void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
 		me->Weapon_Switch( wrench );
 	}
 
-	const float tooFarRange = 75.0f;
+	Vector spot = PickIdealWorkSpot( me, workTarget );
+	bool shouldBeDucking;
+	if ( IsInPositionToWork( me, workTarget, shouldBeDucking, &spot ) )
+		MaintainBuilding( me, workTarget );
+	else
+		NavigateToWorkingSpot( me, spot );
 
-	if ( !myDispenser )
-	{
-		// just work on our sentry
-		float rangeToSentry = me->GetDistanceBetween( mySentry );
-
-		if ( rangeToSentry < 1.2f * tooFarRange )
-		{
-			// crouch both for cover behind our buildings, but also to slow us down so we hit our move goal more accurately
-			me->PressCrouchButton();
-		}
-
-		if ( rangeToSentry > tooFarRange )
-		{
-			if ( m_repathTimer.IsElapsed() )
-			{
-				m_repathTimer.Start( RandomFloat( 1.0f, 2.0f ) );
-
-				CTFBotPathCost cost( me, FASTEST_ROUTE );
-				m_path.Compute( me, mySentry->GetAbsOrigin(), cost );
-			}
-
-			m_path.Update( me );
-		}
-		else
-		{
-			// we are in position - work on our buildings
-			me->StopLookingAroundForEnemies();
-			me->GetBodyInterface()->AimHeadTowards( mySentry->WorldSpaceCenter(), IBody::CRITICAL, 1.0f, NULL, "Work on my Sentry" );
-			me->PressFireButton();
-		}
-
-		return;
-	}
-
-	// sit near both buildings
-	Vector betweenMyBuildings = ( mySentry->GetAbsOrigin() + myDispenser->GetAbsOrigin() ) / 2.0f;
-
-	// try to equalize distance between both
-	float rangeToSentry = me->GetDistanceBetween( mySentry );
-	float rangeToDispenser = me->GetDistanceBetween( myDispenser );
-
-	const float equalTolerance = 25.0f;
-
-	if ( rangeToSentry < 1.2f * tooFarRange && rangeToDispenser < 1.2f * tooFarRange )
-	{
-		// crouch both for cover behind our buildings, but also to slow us down so we hit our move goal more accurately
+	if ( shouldBeDucking )
 		me->PressCrouchButton();
-	}
-
-	if ( fabs( rangeToDispenser - rangeToSentry ) > equalTolerance || rangeToSentry > tooFarRange || rangeToDispenser > tooFarRange )
-	{
-		if ( m_repathTimer.IsElapsed() )
-		{
-			m_repathTimer.Start( RandomFloat( 1.0f, 2.0f ) );
-
-			CTFBotPathCost cost( me, FASTEST_ROUTE );
-			m_path.Compute( me, betweenMyBuildings, cost );
-		}
-
-		m_path.Update( me );
-	}
-
-	if ( rangeToSentry < tooFarRange || rangeToDispenser < tooFarRange )
-	{
-		// we are (nearly) in position - work on our buildings
-		m_searchTimer.Invalidate();
-
-		
-
-		me->StopLookingAroundForEnemies();
-		me->GetBodyInterface()->AimHeadTowards( workTarget->WorldSpaceCenter(), IBody::CRITICAL, 1.0f, NULL, "Work on my buildings" );
-		me->PressFireButton();
-	}
 }
 
 
