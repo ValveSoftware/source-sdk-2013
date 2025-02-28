@@ -60,6 +60,10 @@ private:
 	CBaseObject* PickCurrentWorkTarget( CTFBot *me ) const;
 	Vector PickIdealWorkSpot( CTFBot *me, CBaseObject *workTarget ) const;
 	bool IsInPositionToWork( CTFBot *me, CBaseObject *workTarget, bool& shouldBeDucking, const Vector* idealPosition = NULL ) const;
+	void NavigateToWorkingSpot( CTFBot *me, const Vector& spot );
+	void MaintainBuilding( CTFBot *me, CBaseObject *workTarget );
+	const Vector& LookAtPointOnWorkTarget( CTFBot *me, CBaseObject *workTarget ) const;
+
 	void UpgradeAndMaintainBuildings( CTFBot *me );
 	bool IsMetalSourceNearby( CTFBot *me ) const;
 };
