@@ -366,7 +366,7 @@ void CArmoryPanel::OnCommand( const char *command )
 				ELanguage iLang = PchLanguageToELanguage( uilanguage );
 
 				char szURL[512];
-				Q_snprintf( szURL, sizeof(szURL), "http://wiki.teamfortress.com/scripts/itemredirect.php?id=%d&lang=%s", m_SelectedItem.GetItemDefIndex(), GetLanguageICUName( iLang ) );
+				Q_snprintf( szURL, sizeof(szURL), "https://wiki.teamfortress.com/scripts/itemredirect.php?id=%d&lang=%s", m_SelectedItem.GetItemDefIndex(), GetLanguageICUName( iLang ) );
 				steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( szURL );
 
 				C_CTF_GameStats.Event_Catalog( IE_ARMORY_BROWSE_WIKI, NULL, &m_SelectedItem );

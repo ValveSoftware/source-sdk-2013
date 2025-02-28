@@ -569,7 +569,7 @@ public:
 		m_sSignature = msg.Body().signature();
 
 		// !TEST!
-		//const char *szURL = "http://cdn.beta.steampowered.com/apps/440/scripts/items/items_game.b8b7a85b4dd98b139957004b86ec0bc070a59d18.txt";
+		//const char *szURL = "https://cdn.beta.steampowered.com/apps/440/scripts/items/items_game.b8b7a85b4dd98b139957004b86ec0bc070a59d18.txt";
 		if ( msg.Body().has_items_game() )
 		{
 			bool bDidInit = ItemSystem()->GetItemSchema()->MaybeInitFromBuffer( new DelayedSchemaData_GCDirectData( msg.Body().items_game() ) );
