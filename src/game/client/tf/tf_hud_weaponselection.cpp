@@ -394,18 +394,36 @@ void CHudWeaponSelection::LevelShutdown( void )
 //-------------------------------------------------------------------------
 int CHudWeaponSelection::GetNumVisibleSlots()
 {
-	int nCount = 0;
+	if ( m_iMaxSlots <= 0 )
+		return 0;
 
-	// iterate over all the weapon slots
-	for ( int i = 0; i < m_iMaxSlots; i++ )
+	int nLastSlot = -1;
+	// find last non-empty slot
+	for ( int i = m_iMaxSlots - 1; i >= 0; i-- )
 	{
 		if ( GetFirstPos( i ) )
 		{
-			nCount++;
+			nLastSlot = i;
+			break;
 		}
 	}
 
-	return nCount;
+	int nFirstSlot = nLastSlot;
+	// find first non-empty slot
+	for ( int i = 0; i < nLastSlot; i++ )
+	{
+		if ( GetFirstPos( i ) )
+		{
+			nFirstSlot = i;
+			break;
+		}
+	}
+
+	if ( nLastSlot < 0 )
+		return 0;
+
+	// calc how many slots to draw including empty slots between those
+	return MAX( nLastSlot - nFirstSlot + 1, 0 );
 }
 
 
@@ -429,10 +447,14 @@ void CHudWeaponSelection::ComputeSlotLayout( SlotLayout_t *rSlot, int nActiveSlo
 			int nTotalHeight = ( nNumSlots - 1 ) * ( m_flSmallBoxTall + m_flBoxGap ) + m_flLargeBoxTall;
 			int xStartPos = GetWide() - m_flBoxGap - m_flRightMargin;
 			int ypos = ( GetTall() - nTotalHeight ) / 2;
+			bool bFoundFirstVisibleSlot = false;
 
 			// iterate over all the weapon slots
 			for ( int i = 0; i < m_iMaxSlots; i++ )
 			{
+				if ( !bFoundFirstVisibleSlot && GetFirstPos( i ) == NULL )
+					continue;
+				bFoundFirstVisibleSlot = true;
 				if ( i == nActiveSlot )
 				{
 					rSlot[i].wide = m_flLargeBoxWide;
