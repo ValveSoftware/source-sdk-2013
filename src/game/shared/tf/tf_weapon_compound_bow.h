@@ -89,8 +89,7 @@ public:
 
 	void			SetArrowAlight( bool bAlight );
 
-protected:
-	virtual void	SetInternalChargeBeginTime( float flChargeBeginTime ) OVERRIDE;
+	bool			OwnerCanJump( void );
 
 private:
 #ifdef CLIENT_DLL
