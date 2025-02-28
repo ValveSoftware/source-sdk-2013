@@ -208,6 +208,7 @@ public:
 	void	RobotAttacked( CTFRobotDestruction_Robot *pRobot );
 	float	GetScoringInterval() const { return m_flRobotScoreInterval; }
 	void	ScorePoints( int nTeam, int nPoints, RDScoreMethod_t eMethod, CTFPlayer *pPlayer );
+	void 	StartFinale( int nTeam );
 	void	AddRobotGroup( CTFRobotDestruction_RobotGroup* pGroup );
 	void	ManageGameState();
 	void	FlagCreated( int nTeam );
