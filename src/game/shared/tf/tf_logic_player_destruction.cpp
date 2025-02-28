@@ -77,6 +77,7 @@ CTFPlayerDestructionLogic::CTFPlayerDestructionLogic()
 	m_iszPropModelName = MAKE_STRING( "models/flag/flag.mdl" );
 	ListenForGameEvent( "player_disconnect" );
 	m_bMaxScoreUpdatingAllowed = false;
+	m_nLastTeamScored = -1;
 	m_nFlagResetDelay = 60;
 	m_nHealDistance = 450;
 	m_nPointsOnPlayerDeath = 1;
@@ -266,6 +267,8 @@ void CTFPlayerDestructionLogic::EvaluatePlayerCount()
 	CollectPlayers( &vecAllPlayers );
 
 	m_nMaxPoints = Max( m_nMinPoints, m_nPointsPerPlayer * vecAllPlayers.Count() );
+
+	CheckAdjustedScore();
 }
 
 void CTFPlayerDestructionLogic::InputScoreRedPoints( inputdata_t& inputdata )
