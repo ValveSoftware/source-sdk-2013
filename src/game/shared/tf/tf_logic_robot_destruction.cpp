@@ -836,10 +836,10 @@ int CTFRobotDestructionLogic::ApproachTeamTargetScore( int nTeam, int nApproachS
 //-----------------------------------------------------------------------------
 void CTFRobotDestructionLogic::CheckAdjustedScore()
 {	
-	if ( TFGameRules()->IsInWaitingForPlayers()) 
+	if ( TFGameRules()->IsInWaitingForPlayers() ) 
 		return;
 
-	if ( !TFGameRules()->FlagsMayBeCapped())
+	if ( !TFGameRules()->FlagsMayBeCapped() )
 		return;
 
 	//Ignore if someone is already winning
@@ -853,15 +853,15 @@ void CTFRobotDestructionLogic::CheckAdjustedScore()
 	score_blue = GetScore( TF_TEAM_BLUE );
 
 	//Both teams have enough points to win, but are also tied; the first team to have scored the last point wins
-	if (score_blue >= m_nMaxPoints && score_red >= m_nMaxPoints && score_red == score_blue)
+	if ( score_blue >= m_nMaxPoints && score_red >= m_nMaxPoints && score_red == score_blue )
 	{
 		winning_team = (m_nLastTeamScored == TF_TEAM_RED) ? TF_TEAM_BLUE : TF_TEAM_RED;
 	}
-	else if (score_red >= m_nMaxPoints && score_red > score_blue)
+	else if ( score_red >= m_nMaxPoints && score_red > score_blue )
 	{
 		winning_team = TF_TEAM_RED;
 	}
-	else if (score_blue >= m_nMaxPoints && score_blue > score_red)
+	else if ( score_blue >= m_nMaxPoints && score_blue > score_red )
 	{
 		winning_team = TF_TEAM_BLUE;
 	}
