@@ -458,9 +458,7 @@ void CTFRocketPack::RocketLaunchPlayer( CTFPlayer *pPlayer, const Vector& vecFor
 		if ( bIsPassenger )
 		{
 		}
-#ifdef GAME_DLL
 		pPlayer->m_Shared.StunPlayer( 0.5f, 1.0f, TF_STUN_MOVEMENT );
-#endif
 		UTIL_ScreenShake( pPlayer->GetAbsOrigin(), 100.f, 150, 0.5f, 128.f, SHAKE_START, true );
 	}
 
