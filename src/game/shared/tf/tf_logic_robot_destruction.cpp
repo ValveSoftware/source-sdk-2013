@@ -846,27 +846,25 @@ void CTFRobotDestructionLogic::CheckAdjustedScore()
 	if ( m_flRedFinaleEndTime != FLT_MAX || m_flBlueFinaleEndTime != FLT_MAX ) 
 		return;
 	
-	int winning_team = -1;
-	int score_red = 0;
-	int score_blue = 0;
-	score_red = GetScore( TF_TEAM_RED );
-	score_blue = GetScore( TF_TEAM_BLUE );
+	int winningTeam = -1;
+	int scoreRed = GetScore( TF_TEAM_RED );
+	int scoreBlue = GetScore( TF_TEAM_BLUE );
 
 	//Both teams have enough points to win, but are also tied; the first team to have scored the last point wins
-	if ( score_blue >= m_nMaxPoints && score_red >= m_nMaxPoints && score_red == score_blue )
+	if ( scoreBlue >= m_nMaxPoints && scoreRed >= m_nMaxPoints && scoreRed == scoreBlue )
 	{
-		winning_team = (m_nLastTeamScored == TF_TEAM_RED) ? TF_TEAM_BLUE : TF_TEAM_RED;
+		winningTeam = (m_nLastTeamScored == TF_TEAM_RED) ? TF_TEAM_BLUE : TF_TEAM_RED;
 	}
-	else if ( score_red >= m_nMaxPoints && score_red > score_blue )
+	else if ( scoreRed >= m_nMaxPoints && scoreRed > scoreBlue )
 	{
-		winning_team = TF_TEAM_RED;
+		winningTeam = TF_TEAM_RED;
 	}
-	else if ( score_blue >= m_nMaxPoints && score_blue > score_red )
+	else if ( scoreBlue >= m_nMaxPoints && scoreBlue > scoreRed )
 	{
-		winning_team = TF_TEAM_BLUE;
+		winningTeam = TF_TEAM_BLUE;
 	}
 
-	if ( winning_team == TF_TEAM_RED )
+	if ( winningTeam == TF_TEAM_RED )
 	{
 		m_OnRedHitMaxPoints.FireOutput( this, this );
 		m_flRedFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
@@ -878,7 +876,7 @@ void CTFRobotDestructionLogic::CheckAdjustedScore()
 			TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
 		}
 	}
-	else if ( winning_team == TF_TEAM_BLUE )
+	else if ( winningTeam == TF_TEAM_BLUE )
 	{
 		m_OnBlueHitMaxPoints.FireOutput( this, this );
 		m_flBlueFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
