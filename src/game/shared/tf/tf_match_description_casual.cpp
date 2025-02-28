@@ -14,6 +14,7 @@
 	#include "tf_rating_data.h"
 #endif
 
+extern ConVar tf_queue_spinner_color;
 
 class CCasualMatchGroupDescription : public IMatchGroupDescription
 {
@@ -79,6 +80,11 @@ public:
 
 	virtual const char *GetMapLoadBackgroundOverride( bool bWidescreen ) const OVERRIDE
 	{
+		if( tf_queue_spinner_color.GetInt() != 0) // Added BLU Team representation
+		{
+			return (bWidescreen ? "../console/title_blue_widescreen" : "../console/title_blue");
+		}
+
 		return NULL;
 	}
 #endif

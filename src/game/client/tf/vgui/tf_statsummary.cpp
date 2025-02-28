@@ -30,6 +30,8 @@
 #include "tf_gamerules.h"
 #include "tf_gc_client.h"
 
+extern ConVar tf_queue_spinner_color;
+
 using namespace vgui;
 
 #if defined( REPLAY_ENABLED )
