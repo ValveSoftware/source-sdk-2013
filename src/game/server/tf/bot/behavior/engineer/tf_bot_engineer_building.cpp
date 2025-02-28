@@ -62,6 +62,24 @@ ActionResult< CTFBot >	CTFBotEngineerBuilding::OnStart( CTFBot *me, Action< CTFB
 	return Continue();
 }
 
+//---------------------------------------------------------------------------------------------
+// Return whichever teleporter is the closest if both are built. 
+// Otherwise returns whichever is built or NULL if none
+CObjectTeleporter* PickClosestTeleporter( CTFBot* me )
+{
+	CObjectTeleporter *myTeleporterEntrance =
+		static_cast< CObjectTeleporter* >( me->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_ENTRANCE ) );
+	CObjectTeleporter *myTeleporterExit =
+		static_cast< CObjectTeleporter* >( me->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_EXIT ) );
+
+	if ( !myTeleporterEntrance && !myTeleporterExit ) return NULL;
+	if ( myTeleporterEntrance && !myTeleporterExit ) return myTeleporterEntrance;
+	if ( !myTeleporterEntrance && !myTeleporterExit ) return myTeleporterExit;
+
+	return 
+		me->GetDistanceBetween( myTeleporterEntrance ) < me->GetDistanceBetween( myTeleporterExit )
+		? myTeleporterEntrance : myTeleporterExit;
+}
 
 //---------------------------------------------------------------------------------------------
 // Everything is built, upgrade/maintain it
@@ -75,6 +93,8 @@ void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
 	{
 		return;
 	}
+
+	CObjectTeleporter *myClosestTeleporter = PickClosestTeleporter( me );
 
 	CBaseCombatWeapon *wrench = me->Weapon_GetSlot( TF_WPN_TYPE_MELEE );
 	if ( wrench )
