@@ -231,6 +231,41 @@ bool CTFBotEngineerBuilding::IsInPositionToWork(
 }
 
 //---------------------------------------------------------------------------------------------
+// Proccesses navigation towards ideal working spot
+void CTFBotEngineerBuilding::NavigateToWorkingSpot( CTFBot* me, const Vector& spot )
+{
+	if ( m_repathTimer.IsElapsed() )
+	{
+		// Periodically recalculate the path in case if our building... teleports... I guess...
+		m_repathTimer.Start( RandomFloat( 1.0f, 2.0f ) );
+
+		CTFBotPathCost cost( me, FASTEST_ROUTE );
+		m_path.Compute( me, spot, cost );
+	}
+
+	// Go to building
+	m_path.Update( me );
+}
+
+//---------------------------------------------------------------------------------------------
+// Proccesses maintaining buildings
+void CTFBotEngineerBuilding::MaintainBuilding(CTFBot* me, CBaseObject* workTarget)
+{
+	// we are in position - work on our buildings
+	me->StopLookingAroundForEnemies();
+	me->GetBodyInterface()->AimHeadTowards( LookAtPointOnWorkTarget( me, workTarget ), IBody::CRITICAL, 1.0f, NULL, "Work on my buildings" );
+	me->PressFireButton();
+}
+
+//---------------------------------------------------------------------------------------------
+// Returns a point on the work target which engineers should be looking at 
+// when they maintain their buildings 
+const Vector& CTFBotEngineerBuilding::LookAtPointOnWorkTarget(CTFBot* me, CBaseObject* workTarget) const
+{
+	return workTarget->WorldSpaceCenter();
+}
+
+//---------------------------------------------------------------------------------------------
 // Everything is built, upgrade/maintain it
 // TODO: Upgrade/maintain nearby friendly buildings, too.
 void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
