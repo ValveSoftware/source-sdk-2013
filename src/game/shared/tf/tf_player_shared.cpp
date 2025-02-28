@@ -31,6 +31,7 @@
 #include "tf_mapinfo.h"
 #include "tf_dropped_weapon.h"
 #include "tf_weapon_passtime_gun.h"
+#include "tf_weapon_rocketpack.h"
 #include <functional>
 
 // Client specific.
@@ -471,6 +472,7 @@ BEGIN_PREDICTION_DATA_NO_BASE( CTFPlayerShared )
 	DEFINE_PRED_FIELD( m_bHasPasstimeBall, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bIsTargetedForPasstimePass, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ), // does this belong here?
 	DEFINE_PRED_FIELD( m_askForBallTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_flHolsterAnimTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_ARRAY( m_flItemChargeMeter, FIELD_FLOAT, LAST_LOADOUT_SLOT_WITH_CHARGE_METER, FTYPEDESC_INSENDTABLE ),
 END_PREDICTION_DATA()
 
@@ -3090,9 +3092,48 @@ void CTFPlayerShared::ConditionThink( void )
 
 	VehicleThink();
 
-	if ( m_pOuter->GetFlags() & FL_ONGROUND && InCond( TF_COND_PARACHUTE_ACTIVE ) )
+	if ( m_pOuter->GetFlags() & FL_ONGROUND )
 	{
-		RemoveCond( TF_COND_PARACHUTE_ACTIVE );
+		// Airborne conditions end on ground contact
+		RemoveCond( TF_COND_KNOCKED_INTO_AIR );
+		RemoveCond( TF_COND_AIR_CURRENT );
+
+		if ( InCond( TF_COND_PARACHUTE_ACTIVE ) )
+		{
+			RemoveCond( TF_COND_PARACHUTE_ACTIVE );
+		}
+
+		if ( InCond( TF_COND_ROCKETPACK ) )
+		{
+			// Make sure we're still not dealing with launch, where it's possible
+			// to hit your head and fall to the ground before the second stage.
+			CTFWeaponBase *pRocketPack = m_pOuter->Weapon_OwnsThisID( TF_WEAPON_ROCKETPACK );
+			if ( pRocketPack )
+			{
+				if ( gpGlobals->curtime > ( static_cast< CTFRocketPack* >( pRocketPack )->GetRefireTime() ) )
+				{
+#ifdef CLIENT_DLL
+					if ( prediction->IsFirstTimePredicted() )
+#endif
+					{
+						CPASAttenuationFilter filter( m_pOuter );
+						filter.UsePredictionRules();
+						m_pOuter->EmitSound( filter, m_pOuter->entindex(), "Weapon_RocketPack.BoostersShutdown" );
+						m_pOuter->EmitSound( filter, m_pOuter->entindex(), "Weapon_RocketPack.Land" );
+					}
+					RemoveCond( TF_COND_ROCKETPACK );
+
+#ifdef GAME_DLL
+					IGameEvent *pEvent = gameeventmanager->CreateEvent( "rocketpack_landed" );
+					if ( pEvent )
+					{
+						pEvent->SetInt( "userid", m_pOuter->GetUserID() );
+						gameeventmanager->FireEvent( pEvent );
+					}
+#endif
+				}
+			}
+		}
 	}
 
 	// See if we should be pulsing our radius heal
