@@ -332,9 +332,7 @@ void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 		{
 			pPlayer->m_Shared.m_bScattergunJump = true;
 
-#ifndef CLIENT_DLL
 			pOwner->m_Shared.StunPlayer( 0.3f, 1.f, TF_STUN_MOVEMENT | TF_STUN_MOVEMENT_FORWARD_ONLY );
-#endif
 
 			float flForce = AirBurstDamageForce( pOwner->WorldAlignSize(), 60, 6.f );
 
