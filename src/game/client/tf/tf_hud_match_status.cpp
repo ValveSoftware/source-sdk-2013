@@ -574,6 +574,17 @@ void CTFHudMatchStatus::FireGameEvent( IGameEvent * event )
 		}
 
 		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
+
+		//FIX: Refresh versus doors so Casual late-joiners do not see the wrong skin
+		int nSkin = 0;
+		int nSubModel = 0;
+		if (pMatchDesc->BGetRoundDoorParameters(nSkin, nSubModel))
+		{
+			m_pMatchStartModelPanel->SetBodyGroup( "logos", nSubModel );
+			m_pMatchStartModelPanel->UpdateModel();
+			m_pMatchStartModelPanel->SetSkin( nSkin );
+		}
+
 		bool bForceDoors = false;
 		if ( bForceDoors || ( pMatchDesc && pMatchDesc->BUsesPostRoundDoors() ) )
 		{
