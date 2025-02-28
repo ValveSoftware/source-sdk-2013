@@ -741,7 +741,7 @@ ConVar tf_force_holidays_off( "tf_force_holidays_off", "0", FCVAR_NOTIFY | FCVAR
 #endif // GAME_DLL
 );
 ConVar tf_birthday( "tf_birthday", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
-ConVar tf_spells_enabled( "tf_spells_enabled", "0", FCVAR_NOTIFY | FCVAR_REPLICATED, "Enable to Allow Halloween Spells to be dropped and used by players" );
+ConVar tf_spells_enabled( "tf_spells_enabled", "-1", FCVAR_NOTIFY | FCVAR_REPLICATED, "-1 Default (Map-based)\n0 - Force off\n1 - Force on" );
 
 ConVar tf_caplinear( "tf_caplinear", "1", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "If set to 1, teams must capture control points linearly." );
 ConVar tf_stalematechangeclasstime( "tf_stalematechangeclasstime", "20", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time that players are allowed to change class in stalemates." );
@@ -3661,9 +3661,15 @@ CTFGameRules::HalloweenScenarioType CTFGameRules::GetHalloweenScenario( void ) c
 //-----------------------------------------------------------------------------
 bool CTFGameRules::IsUsingSpells( void ) const
 {
-	if ( tf_spells_enabled.GetBool() )
+	if ( tf_spells_enabled.GetInt() == 0 )
+	{
+		return false;
+	}
+	else if ( tf_spells_enabled.GetInt() > 0 )
+	{
 		return true;
-
+	}
+	
 	if ( IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_HIGHTOWER ) )
 		return true;
 
