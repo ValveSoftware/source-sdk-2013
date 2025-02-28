@@ -754,30 +754,7 @@ int CTFRobotDestructionLogic::ApproachTeamTargetScore( int nTeam, int nApproachS
 
 		if ( nNewScore == m_nMaxPoints )
 		{
-			if ( nTeam == TF_TEAM_RED )
-			{
-				m_OnRedHitMaxPoints.FireOutput( this, this );
-				m_flRedFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
-				SetContextThink( &CTFRobotDestructionLogic::RedTeamWin, m_flRedFinaleEndTime, "RedWin" );
-
-				if ( m_flBlueFinaleEndTime == FLT_MAX && GetType() == TYPE_ROBOT_DESTRUCTION )
-				{
-					// Announce the state change
-					TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
-				}
-			}
-			else
-			{
-				m_OnBlueHitMaxPoints.FireOutput( this, this );
-				m_flBlueFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
-				SetContextThink( &CTFRobotDestructionLogic::BlueTeamWin, m_flBlueFinaleEndTime, "BlueWin" );
-
-				if ( m_flRedFinaleEndTime == FLT_MAX && GetType() == TYPE_ROBOT_DESTRUCTION )
-				{
-					// Announce the state change
-					TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
-				}
-			}
+			StartFinale( nTeam );
 		}
 		else if ( nCurrentScore == m_nMaxPoints && nNewScore < m_nMaxPoints )
 		{
@@ -846,48 +823,29 @@ void CTFRobotDestructionLogic::CheckAdjustedScore()
 	if ( m_flRedFinaleEndTime != FLT_MAX || m_flBlueFinaleEndTime != FLT_MAX ) 
 		return;
 	
-	int winningTeam = -1;
 	int scoreRed = GetScore( TF_TEAM_RED );
 	int scoreBlue = GetScore( TF_TEAM_BLUE );
 
+	if (!(scoreRed >= m_nMaxPoints || scoreBlue >= m_nMaxPoints))
+		return;
+	
+	int winningTeam = -1;
+
 	//Both teams have enough points to win, but are also tied; the first team to have scored the last point wins
-	if ( scoreBlue >= m_nMaxPoints && scoreRed >= m_nMaxPoints && scoreRed == scoreBlue )
+	if ( scoreRed == scoreBlue )
 	{
 		winningTeam = (m_nLastTeamScored == TF_TEAM_RED) ? TF_TEAM_BLUE : TF_TEAM_RED;
 	}
-	else if ( scoreRed >= m_nMaxPoints && scoreRed > scoreBlue )
+	else if ( scoreRed > scoreBlue )
 	{
 		winningTeam = TF_TEAM_RED;
 	}
-	else if ( scoreBlue >= m_nMaxPoints && scoreBlue > scoreRed )
+	else if ( scoreBlue > scoreRed )
 	{
 		winningTeam = TF_TEAM_BLUE;
 	}
 
-	if ( winningTeam == TF_TEAM_RED )
-	{
-		m_OnRedHitMaxPoints.FireOutput( this, this );
-		m_flRedFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
-		SetContextThink( &CTFRobotDestructionLogic::RedTeamWin, m_flRedFinaleEndTime, "RedWin" );
-
-		if ( m_flBlueFinaleEndTime == FLT_MAX && GetType() == TYPE_ROBOT_DESTRUCTION )
-		{
-			// Announce the state change
-			TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
-		}
-	}
-	else if ( winningTeam == TF_TEAM_BLUE )
-	{
-		m_OnBlueHitMaxPoints.FireOutput( this, this );
-		m_flBlueFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
-		SetContextThink( &CTFRobotDestructionLogic::BlueTeamWin, m_flBlueFinaleEndTime, "BlueWin" );
-
-		if ( m_flRedFinaleEndTime == FLT_MAX && GetType() == TYPE_ROBOT_DESTRUCTION )
-		{
-			// Announce the state change
-			TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
-		}
-	}
+	StartFinale( winningTeam );
 }
 
 //-----------------------------------------------------------------------------
@@ -992,6 +950,37 @@ void CTFRobotDestructionLogic::ScorePoints( int nTeam, int nPoints, RDScoreMetho
 		
 				gameeventmanager->FireEvent( pScoreEvent );
 			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Setup finale for nTeam.
+//-----------------------------------------------------------------------------
+void CTFRobotDestructionLogic::StartFinale (int nTeam)
+{
+	if ( nTeam == TF_TEAM_RED )
+	{
+		m_OnRedHitMaxPoints.FireOutput( this, this );
+		m_flRedFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
+		SetContextThink( &CTFRobotDestructionLogic::RedTeamWin, m_flRedFinaleEndTime, "RedWin" );
+
+		if ( m_flBlueFinaleEndTime == FLT_MAX && GetType() == TYPE_ROBOT_DESTRUCTION )
+		{
+			// Announce the state change
+			TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
+		}
+	}
+	else
+	{
+		m_OnBlueHitMaxPoints.FireOutput( this, this );
+		m_flBlueFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
+		SetContextThink( &CTFRobotDestructionLogic::BlueTeamWin, m_flBlueFinaleEndTime, "BlueWin" );
+
+		if ( m_flRedFinaleEndTime == FLT_MAX && GetType() == TYPE_ROBOT_DESTRUCTION )
+		{
+			// Announce the state change
+			TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
 		}
 	}
 }
