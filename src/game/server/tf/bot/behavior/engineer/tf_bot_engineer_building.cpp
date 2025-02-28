@@ -87,7 +87,7 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 {
 	CObjectSentrygun *mySentry = 
 		static_cast< CObjectSentrygun* >( me->GetObjectOfType( OBJ_SENTRYGUN ) );
-	CObjectDispenser *myDispencer = 
+	CObjectDispenser *myDispencer =
 		static_cast< CObjectDispenser* >( me->GetObjectOfType( OBJ_DISPENSER ) );
 	CObjectTeleporter *myClosestTeleporter = PickClosestValidTeleporter( me );
 
@@ -148,6 +148,86 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	else if (myDispenser->GetUpgradeLevel() < mySentry->GetUpgradeLevel())
 		workTarget = myDispenser;
 	*/
+}
+
+//---------------------------------------------------------------------------------------------
+// Pick a spot where engineer should be safe enough to work on a building
+Vector CTFBotEngineerBuilding::PickIdealWorkSpot( CTFBot *me, CBaseObject *workTarget ) const
+{
+	if ( workTarget->GetType() == OBJ_SENTRYGUN || workTarget->GetType() == OBJ_DISPENSER )
+	{
+		// When maintaining a sentry or a dispencer, engineer should sit inbetween them
+		CBaseObject *sentry = NULL, *dispencer = NULL;
+		if ( workTarget->GetType() == OBJ_SENTRYGUN )
+		{
+			sentry = workTarget;
+			dispencer = me->GetObjectOfType( OBJ_DISPENSER );
+		}
+		else
+		{
+			dispencer = workTarget;
+			sentry = me->GetObjectOfType( OBJ_SENTRYGUN );
+		}
+
+		// Only do this if both buildings actually exist
+		if ( sentry && dispencer )
+			return ( sentry->GetAbsOrigin() + dispencer->GetAbsOrigin() ) / 2.0f;
+	}
+
+	return workTarget->GetAbsOrigin();
+}
+
+//---------------------------------------------------------------------------------------------
+// Whether or not engineer is too far from it's work target
+// true if the engineer is close enought to perform maintenance
+// false if the engineer still need to navigate to it's maintenance target
+// Additionally has 'shouldBeDucking' that should be set to true if engineer needs to duck
+bool CTFBotEngineerBuilding::IsInPositionToWork( 
+	CTFBot *me, 
+	CBaseObject *workTarget, 
+	bool& shouldBeDucking, 
+	const Vector* idealPosition
+) const {
+	const float tooFarRange = 75.0f;
+	
+	float curDistanceToPosition = 
+		me->GetDistanceBetween( ( idealPosition != NULL ) ? *idealPosition : PickIdealWorkSpot( me, workTarget ) );
+
+	// Should duck not only to cover but also to approach the target more precisely
+	shouldBeDucking = curDistanceToPosition < 1.2f * tooFarRange;
+
+	if ( curDistanceToPosition < tooFarRange ) return false;
+	
+	if ( workTarget->GetType() == OBJ_SENTRYGUN || workTarget->GetType() == OBJ_DISPENSER )
+	{
+		// When maintaining a sentry or a dispencer, engineer should sit inbetween them
+		CBaseObject *sentry = NULL, *dispencer = NULL;
+		if ( workTarget->GetType() == OBJ_SENTRYGUN )
+		{
+			sentry = workTarget;
+			dispencer = me->GetObjectOfType( OBJ_DISPENSER );
+		}
+		else
+		{
+			dispencer = workTarget;
+			sentry = me->GetObjectOfType( OBJ_SENTRYGUN );
+		}
+
+		// Only do this if both buildings actually exist
+		if (sentry && dispencer)
+		{
+			// ... and 'inbetween' means the difference between distances to 
+			// both engineer and both buildings should be about equal
+			const float equalityTolerance = 25.0f;
+
+			const float sentryDistance = me->GetDistanceBetween( sentry );
+			const float dispDistance = me->GetDistanceBetween( dispencer );
+
+			if ( fabs( sentryDistance - dispDistance ) > equalityTolerance ) return false;
+		}
+	}
+
+	return true;
 }
 
 //---------------------------------------------------------------------------------------------
