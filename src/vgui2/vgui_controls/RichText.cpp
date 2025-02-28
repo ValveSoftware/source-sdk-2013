@@ -2586,6 +2586,10 @@ int RichText::ParseTextStringForUrls( const char *text, int startPos, char *pchU
 		{
 			bURLFound = true;
 		}
+		else if (!Q_strnicmp(text + i, "https://", 8))
+		{
+			bURLFound = true;
+		}
 		else if (!Q_strnicmp(text + i, "ftp://", 6))
 		{
 			bURLFound = true;
