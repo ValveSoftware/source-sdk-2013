@@ -65,7 +65,7 @@ ActionResult< CTFBot >	CTFBotEngineerBuilding::OnStart( CTFBot *me, Action< CTFB
 //---------------------------------------------------------------------------------------------
 // Return whichever teleporter is the closest if both are built. 
 // Otherwise returns whichever is built or NULL if none
-CObjectTeleporter* PickClosestTeleporter( CTFBot* me )
+CObjectTeleporter* CTFBotEngineerBuilding::PickClosestValidTeleporter( CTFBot *me ) const
 {
 	CObjectTeleporter *myTeleporterEntrance =
 		static_cast< CObjectTeleporter* >( me->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_ENTRANCE ) );
@@ -82,19 +82,81 @@ CObjectTeleporter* PickClosestTeleporter( CTFBot* me )
 }
 
 //---------------------------------------------------------------------------------------------
+// Return the building currently needing upmost attention
+CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
+{
+	CObjectSentrygun *mySentry = 
+		static_cast< CObjectSentrygun* >( me->GetObjectOfType( OBJ_SENTRYGUN ) );
+	CObjectDispenser *myDispencer = 
+		static_cast< CObjectDispenser* >( me->GetObjectOfType( OBJ_DISPENSER ) );
+	CObjectTeleporter *myClosestTeleporter = PickClosestValidTeleporter( me );
+
+	// Don't do anything if we do not have a sentry
+	if ( !mySentry ) return NULL;
+
+	// Prioritize building that has sapper on it above else
+	if ( mySentry->HasSapper() || mySentry->IsPlasmaDisabled() ) 
+		return mySentry;
+	if ( myDispencer && ( myDispencer->HasSapper() || myDispencer->IsPlasmaDisabled() ) ) 
+		return myDispencer;
+	if ( myClosestTeleporter && ( myClosestTeleporter->HasSapper() || myClosestTeleporter->IsPlasmaDisabled() ) ) 
+		return myClosestTeleporter;
+	// Prioritize sentry if it's damaged
+	if ( mySentry->GetTimeSinceLastInjury() < 1.0f || mySentry->GetHealth() < mySentry->GetMaxHealth() )
+		return mySentry;
+	// ... sentry or dispencer that are currently being built
+	if ( mySentry->IsBuilding() )
+		return mySentry;
+	if ( myDispencer && myDispencer->IsBuilding() )
+		return myDispencer;
+	// ... sentry that is not upgraded
+	if ( mySentry->GetUpgradeLevel() < 3 )
+		return mySentry;
+	// ... damaged dispencer or teleporter
+	if ( myDispencer && myDispencer->GetHealth() < myDispencer->GetMaxHealth() )
+		return myDispencer;
+	if ( myClosestTeleporter && myClosestTeleporter->GetHealth() < myClosestTeleporter->GetMaxHealth() )
+		return myClosestTeleporter;
+	// ... dispencer that is not upgraded
+	if ( myDispencer && myDispencer->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
+		return myDispencer;
+	if ( myClosestTeleporter && myClosestTeleporter->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
+		return myClosestTeleporter;
+
+	// Just keep whacking the sentry if nothing specifically wrong with any other building
+	return mySentry;
+
+
+	// Old code for reference
+	/*
+	CBaseObject* workTarget = mySentry;
+
+	if (mySentry->HasSapper() || mySentry->IsPlasmaDisabled())
+		workTarget = mySentry;
+	else if (myDispenser->HasSapper() || myDispenser->IsPlasmaDisabled())
+		workTarget = myDispenser;
+	else if (mySentry->GetTimeSinceLastInjury() < 1.0f || mySentry->GetHealth() < mySentry->GetMaxHealth())
+		workTarget = mySentry;
+	else if (mySentry->IsBuilding())
+		workTarget = mySentry;
+	else if (myDispenser->IsBuilding())
+		workTarget = myDispenser;
+	else if (mySentry->GetUpgradeLevel() < 3)
+		workTarget = mySentry;
+	else if (myDispenser->GetHealth() < myDispenser->GetMaxHealth())
+		workTarget = myDispenser;
+	else if (myDispenser->GetUpgradeLevel() < mySentry->GetUpgradeLevel())
+		workTarget = myDispenser;
+	*/
+}
+
+//---------------------------------------------------------------------------------------------
 // Everything is built, upgrade/maintain it
 // TODO: Upgrade/maintain nearby friendly buildings, too.
 void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
 {
-	CObjectSentrygun *mySentry = (CObjectSentrygun *)me->GetObjectOfType( OBJ_SENTRYGUN );
-	CObjectDispenser *myDispenser = (CObjectDispenser *)me->GetObjectOfType( OBJ_DISPENSER );
-
-	if ( !mySentry )
-	{
-		return;
-	}
-
-	CObjectTeleporter *myClosestTeleporter = PickClosestTeleporter( me );
+	CBaseObject *workTarget = PickCurrentWorkTarget( me );
+	if ( !workTarget ) return;
 
 	CBaseCombatWeapon *wrench = me->Weapon_GetSlot( TF_WPN_TYPE_MELEE );
 	if ( wrench )
@@ -171,24 +233,7 @@ void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
 		// we are (nearly) in position - work on our buildings
 		m_searchTimer.Invalidate();
 
-		CBaseObject *workTarget = mySentry;
-
-		if ( mySentry->HasSapper() || mySentry->IsPlasmaDisabled() )
-			workTarget = mySentry;
-		else if ( myDispenser->HasSapper() || myDispenser->IsPlasmaDisabled() )
-			workTarget = myDispenser;
-		else if ( mySentry->GetTimeSinceLastInjury() < 1.0f || mySentry->GetHealth() < mySentry->GetMaxHealth() )
-			workTarget = mySentry;
-		else if ( mySentry->IsBuilding() )
-			workTarget = mySentry;
-		else if ( myDispenser->IsBuilding() )
-			workTarget = myDispenser;
-		else if ( mySentry->GetUpgradeLevel() < 3 )
-			workTarget = mySentry;
-		else if ( myDispenser->GetHealth() < myDispenser->GetMaxHealth() )
-			workTarget = myDispenser;
-		else if ( myDispenser->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
-			workTarget = myDispenser;
+		
 
 		me->StopLookingAroundForEnemies();
 		me->GetBodyInterface()->AimHeadTowards( workTarget->WorldSpaceCenter(), IBody::CRITICAL, 1.0f, NULL, "Work on my buildings" );
