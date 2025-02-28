@@ -126,7 +126,6 @@
 #include "tf_revive.h"
 #include "tf_logic_halloween_2014.h"
 #include "tf_logic_player_destruction.h"
-#include "tf_weapon_rocketpack.h"
 #include "tf_weapon_slap.h"
 #include "func_croc.h"
 #include "tf_weapon_bonesaw.h"
@@ -1453,35 +1452,6 @@ void CTFPlayer::TFPlayerThink()
 	else
 	{
 		m_iLeftGroundHealth = -1;
-		if ( GetFlags() & FL_ONGROUND )
-		{
-			// Airborne conditions end on ground contact
-			m_Shared.RemoveCond( TF_COND_KNOCKED_INTO_AIR );
-			m_Shared.RemoveCond( TF_COND_AIR_CURRENT );
-
-			if ( m_Shared.InCond( TF_COND_ROCKETPACK ) )
-			{
-				// Make sure we're still not dealing with launch, where it's possible
-				// to hit your head and fall to the ground before the second stage.
-				CTFWeaponBase *pRocketPack = Weapon_OwnsThisID( TF_WEAPON_ROCKETPACK );
-				if ( pRocketPack )
-				{
-					if ( gpGlobals->curtime > ( static_cast< CTFRocketPack* >( pRocketPack )->GetRefireTime() ) )
-					{
-						EmitSound( "Weapon_RocketPack.BoostersShutdown" );
-						EmitSound( "Weapon_RocketPack.Land" );
-						m_Shared.RemoveCond( TF_COND_ROCKETPACK );
-
-						IGameEvent *pEvent = gameeventmanager->CreateEvent( "rocketpack_landed" );
-						if ( pEvent )
-						{
-							pEvent->SetInt( "userid", GetUserID() );
-							gameeventmanager->FireEvent( pEvent );
-						}
-					}
-				}
-			}
-		}
 
 		if ( m_iBlastJumpState )
 		{
