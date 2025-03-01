@@ -157,7 +157,7 @@ static bool LoadSteam( const char *pRootDir )
 	s_SteamModule = Launcher_LoadModule(szPathBuffer);
 	if ( !s_SteamModule )
 	{
-		char szErrorBuffer[4096];
+		char szErrorBuffer[4140];
 		_snprintf(szErrorBuffer, sizeof(szErrorBuffer), "Not able to load Steam API. Is %s missing?", szPathBuffer);
 		szErrorBuffer[sizeof(szErrorBuffer) - 1] = '\0';
 	
