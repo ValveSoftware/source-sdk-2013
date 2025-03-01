@@ -196,7 +196,7 @@ bool CTFBotEngineerBuilding::IsInPositionToWork(
 	// Should duck not only to cover but also to approach the target more precisely
 	shouldBeDucking = curDistanceToPosition < 1.2f * tooFarRange;
 
-	if ( curDistanceToPosition < tooFarRange ) return false;
+	if ( curDistanceToPosition > tooFarRange ) return false;
 	
 	if ( workTarget->GetType() == OBJ_SENTRYGUN || workTarget->GetType() == OBJ_DISPENSER )
 	{
@@ -217,7 +217,7 @@ bool CTFBotEngineerBuilding::IsInPositionToWork(
 		if (sentry && dispencer)
 		{
 			// ... and 'inbetween' means the difference between distances to 
-			// both engineer and both buildings should be about equal
+			// engineer and both his buildings should be about equal
 			const float equalityTolerance = 25.0f;
 
 			const float sentryDistance = me->GetDistanceBetween( sentry );
