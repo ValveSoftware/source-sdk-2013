@@ -74,7 +74,7 @@ CObjectTeleporter* CTFBotEngineerBuilding::PickClosestValidTeleporter( CTFBot *m
 
 	if ( !myTeleporterEntrance && !myTeleporterExit ) return NULL;
 	if ( myTeleporterEntrance && !myTeleporterExit ) return myTeleporterEntrance;
-	if ( !myTeleporterEntrance && !myTeleporterExit ) return myTeleporterExit;
+	if ( !myTeleporterEntrance && myTeleporterExit ) return myTeleporterExit;
 
 	return 
 		me->GetDistanceBetween( myTeleporterEntrance ) < me->GetDistanceBetween( myTeleporterExit )
@@ -90,6 +90,7 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	CObjectDispenser *myDispencer =
 		static_cast< CObjectDispenser* >( me->GetObjectOfType( OBJ_DISPENSER ) );
 	CObjectTeleporter *myClosestTeleporter = PickClosestValidTeleporter( me );
+	CObjectTeleporter *myOtherTeleporter = ( myClosestTeleporter ) ? myClosestTeleporter->GetMatchingTeleporter() : NULL;
 
 	// Don't do anything if we do not have a sentry
 	if ( !mySentry ) return NULL;
@@ -112,10 +113,13 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	// ... sentry that is not upgraded
 	if ( mySentry->GetUpgradeLevel() < 3 )
 		return mySentry;
-	// ... damaged dispencer or teleporter
+	// ... damaged dispencer or either of the teleporters
 	if ( myDispencer && myDispencer->GetHealth() < myDispencer->GetMaxHealth() )
 		return myDispencer;
-	if ( myClosestTeleporter && myClosestTeleporter->GetHealth() < myClosestTeleporter->GetMaxHealth() )
+	if ( myClosestTeleporter && ( 
+		myClosestTeleporter->GetHealth() < myClosestTeleporter->GetMaxHealth() || 
+		myOtherTeleporter && myOtherTeleporter->GetHealth() < myOtherTeleporter->GetMaxHealth()
+	) )
 		return myClosestTeleporter;
 	// ... dispencer that is not upgraded
 	if ( myDispencer && myDispencer->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
@@ -249,7 +253,7 @@ void CTFBotEngineerBuilding::NavigateToWorkingSpot( CTFBot* me, const Vector& sp
 
 //---------------------------------------------------------------------------------------------
 // Proccesses maintaining buildings
-void CTFBotEngineerBuilding::MaintainBuilding(CTFBot* me, CBaseObject* workTarget)
+void CTFBotEngineerBuilding::MaintainBuilding( CTFBot *me, CBaseObject *workTarget )
 {
 	m_searchTimer.Invalidate();
 
@@ -262,7 +266,7 @@ void CTFBotEngineerBuilding::MaintainBuilding(CTFBot* me, CBaseObject* workTarge
 //---------------------------------------------------------------------------------------------
 // Returns a point on the work target which engineers should be looking at 
 // when they maintain their buildings 
-const Vector& CTFBotEngineerBuilding::LookAtPointOnWorkTarget(CTFBot* me, CBaseObject* workTarget) const
+const Vector& CTFBotEngineerBuilding::LookAtPointOnWorkTarget( CTFBot *me, CBaseObject *workTarget ) const
 {
 	return workTarget->WorldSpaceCenter();
 }
