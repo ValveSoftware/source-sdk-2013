@@ -578,13 +578,14 @@ void CTFDroppedWeapon::InitDroppedWeapon( CTFPlayer *pPlayer, CTFWeaponBase *pWe
 	}
 	else
 	{
-		CWeaponMedigun *pMedigun = dynamic_cast< CWeaponMedigun* >( pWeapon );
-		if ( pMedigun )
+		CWeaponMedigun* pMedigun = dynamic_cast<CWeaponMedigun*>(pWeapon);
+		if (pMedigun)
 		{
-			m_flChargeLevel.Set( pMedigun->GetChargeLevel() );
-			if ( m_flChargeLevel > 0.f )
+			SetBodygroup(1, 1);
+			m_flChargeLevel.Set(pMedigun->GetChargeLevel());
+			if (m_flChargeLevel > 0.f)
 			{
-				SetContextThink( &CTFDroppedWeapon::ChargeLevelDegradeThink, gpGlobals->curtime + 0.1f, "ChargeLevelDegradeThink" );
+				SetContextThink(&CTFDroppedWeapon::ChargeLevelDegradeThink, gpGlobals->curtime + 0.1f, "ChargeLevelDegradeThink");
 			}
 		}
 	}

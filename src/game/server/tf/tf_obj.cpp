@@ -44,6 +44,7 @@
 #include "tf_weapon_wrench.h"
 #include "tf_weapon_grenade_pipebomb.h"
 #include "tf_weapon_builder.h"
+#include "tf_objective_resource.h"
 
 #include "player_vs_environment/tf_population_manager.h"
 
@@ -3094,15 +3095,17 @@ void CBaseObject::UpgradeThink( void )
 //-----------------------------------------------------------------------------
 // Purpose: Handles health upgrade for objects we've already built
 //-----------------------------------------------------------------------------
-void CBaseObject::ApplyHealthUpgrade( void )
+void CBaseObject::ApplyHealthUpgrade(void)
 {
-	CTFPlayer *pTFPlayer = GetOwner();
-	if ( !pTFPlayer )
+	CTFPlayer* pTFPlayer = GetOwner();
+	if (!pTFPlayer)
 		return;
 
-	int iHealth = GetMaxHealthForCurrentLevel();
-	SetMaxHealth( iHealth );
-	SetHealth( iHealth );
+	int iMaxHealth = GetMaxHealthForCurrentLevel();
+	SetMaxHealth(iMaxHealth);
+	// set health up (or down) to max only between waves in MvM, or if current health would end up higher than max health (possible via "unbuying" the building health upgrade). fixes "infinite" building health exploit in both cases
+	if (TFObjectiveResource() && !TFObjectiveResource()->GetMannVsMachineIsBetweenWaves() || GetHealth() > iMaxHealth)
+		SetHealth(iMaxHealth);
 
 	//DevMsg( "%i\n", GetMaxHealth() );
 }

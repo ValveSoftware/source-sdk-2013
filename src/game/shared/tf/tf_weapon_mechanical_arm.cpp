@@ -250,7 +250,7 @@ void CTFMechanicalArm::SecondaryAttack( void )
 		Vector vecForward, vecRight, vecUp;
 		AngleVectors( pOwner->EyeAngles(), &vecForward, &vecRight, &vecUp );
 
-		float fRight = 8.f;
+		float fRight = 15.f;
 		if ( IsViewModelFlipped() )
 		{
 			fRight *= -1;
@@ -259,7 +259,7 @@ void CTFMechanicalArm::SecondaryAttack( void )
 // 		vecSrc = vecSrc + ( vecUp * -9.0f ) + ( vecRight * 7.0f ) + ( vecForward * 3.0f );
 		Vector vecSrc = pOwner->EyePosition()
 			+ ( vecForward * 40.f )
-			+ ( vecRight * 15.f )
+			+ ( vecRight * fRight )
 			+ ( vecUp * -10.f );
 
 		QAngle angForward = pOwner->EyeAngles();
