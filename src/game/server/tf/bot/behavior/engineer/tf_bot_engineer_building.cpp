@@ -249,7 +249,7 @@ void CTFBotEngineerBuilding::NavigateToWorkingSpot( CTFBot* me, const Vector& sp
 
 //---------------------------------------------------------------------------------------------
 // Proccesses maintaining buildings
-void CTFBotEngineerBuilding::MaintainBuilding(CTFBot* me, CBaseObject* workTarget)
+void CTFBotEngineerBuilding::MaintainBuilding( CTFBot *me, CBaseObject *workTarget )
 {
 	m_searchTimer.Invalidate();
 
@@ -262,7 +262,7 @@ void CTFBotEngineerBuilding::MaintainBuilding(CTFBot* me, CBaseObject* workTarge
 //---------------------------------------------------------------------------------------------
 // Returns a point on the work target which engineers should be looking at 
 // when they maintain their buildings 
-const Vector& CTFBotEngineerBuilding::LookAtPointOnWorkTarget(CTFBot* me, CBaseObject* workTarget) const
+const Vector& CTFBotEngineerBuilding::LookAtPointOnWorkTarget( CTFBot *me, CBaseObject *workTarget ) const
 {
 	return workTarget->WorldSpaceCenter();
 }
