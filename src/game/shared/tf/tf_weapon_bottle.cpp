@@ -255,10 +255,8 @@ void CTFStickBomb::Smack( void )
 			TE_TFExplosion( filter, 0.0f, explosion, Vector(0,0,1), TF_WEAPON_GRENADELAUNCHER, pTFPlayer->entindex(), -1, SPECIAL1, iCustomParticleIndex );
 
 			int dmgType = DMG_BLAST | DMG_USEDISTANCEMOD;
-			if (IsCurrentAttackACrit())
+			if ( IsCurrentAttackACrit() )
 				dmgType |= DMG_CRITICAL;
-			else if (m_bMiniCrit)
-				dmgType |= DMG_RADIUS_MAX;
 
 			CTakeDamageInfo info( pTFPlayer, pTFPlayer, this, explosion, explosion, 75.0f, dmgType, TF_DMG_CUSTOM_STICKBOMB_EXPLOSION, &explosion );
 			CTFRadiusDamageInfo radiusinfo( &info, explosion, 100.f );

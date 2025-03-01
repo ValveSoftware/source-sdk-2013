@@ -5679,18 +5679,16 @@ void CTFGameRules::RadiusDamage( CTFRadiusDamageInfo &info )
 //-----------------------------------------------------------------------------
 void CTFRadiusDamageInfo::CalculateFalloff( void )
 {
-	// ignores caber explosion, otherwise the charge minicrit explosion would do less damage
-	if (dmgInfo->GetDamageCustom() != TF_DMG_CUSTOM_STICKBOMB_EXPLOSION && dmgInfo->GetDamageType() & DMG_RADIUS_MAX )
+	if ( dmgInfo->GetDamageType() & DMG_RADIUS_MAX )
 		flFalloff = 0.f;
-	else if (dmgInfo->GetDamageType() & DMG_HALF_FALLOFF)
+	else if ( dmgInfo->GetDamageType() & DMG_HALF_FALLOFF )
 		flFalloff = 0.5f;
 	else if ( flRadius )
 		flFalloff = dmgInfo->GetDamage() / flRadius;
 	else
 		flFalloff = 1.f;
 
-	CBaseEntity* pWeapon = dmgInfo->GetWeapon();
-
+	CBaseEntity *pWeapon = dmgInfo->GetWeapon();
 	if ( pWeapon != NULL )
 	{
 		float flFalloffMod = 1.f;
@@ -6111,7 +6109,7 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 					eDamageBonusCond = TF_COND_OFFENSEBUFF;
 				}
 			}
-			else if ( pTFAttacker && (bitsDamage & DMG_RADIUS_MAX) && pWeapon && ( (pWeapon->GetWeaponID() == TF_WEAPON_SWORD) || (pWeapon->GetWeaponID() == TF_WEAPON_BOTTLE) || (pWeapon->GetWeaponID() == TF_WEAPON_STICKBOMB) || (pWeapon->GetWeaponID() == TF_WEAPON_WRENCH) ) )
+			else if ( pTFAttacker && (bitsDamage & DMG_RADIUS_MAX) && pWeapon && ( (pWeapon->GetWeaponID() == TF_WEAPON_SWORD) || (pWeapon->GetWeaponID() == TF_WEAPON_BOTTLE)|| (pWeapon->GetWeaponID() == TF_WEAPON_WRENCH) ) )
 			{
 				// First sword or bottle attack after a charge is a mini-crit.
 				bAllSeeCrit = true;

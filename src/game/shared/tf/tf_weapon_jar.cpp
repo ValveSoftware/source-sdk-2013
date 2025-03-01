@@ -508,8 +508,7 @@ void CTFProjectile_Jar::PipebombTouch( CBaseEntity *pOther )
 	{
 		// Exception to this rule - if we're a jar or milk, and our potential victim is on fire, then allow collision after all.
 		// If we're a jar or milk, then still allow collision if our potential victim is on fire.
-		// This condition only applies to non-cleaver jars, sinces there's so many jar types capable of extinguishing.
-		if (m_iProjectileType != TF_PROJECTILE_CLEAVER)
+		if (m_iProjectileType == TF_PROJECTILE_JAR || m_iProjectileType == TF_PROJECTILE_JAR_MILK)
 		{
 			auto victim = ToTFPlayer(pOther);
 			if (!victim->m_Shared.InCond(TF_COND_BURNING))

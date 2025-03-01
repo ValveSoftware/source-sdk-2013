@@ -738,61 +738,11 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 	if ( m_bStruckEnemy || (GetMoveType() == MOVETYPE_NONE) )
 		return;
 
-	if (!pOther)
+	if ( !pOther )
 		return;
 
-	// Used when checking against things like FUNC_BRUSHES
-	// Copied from CTFProjectile_EnergyRing::ProjectileTouch(), but it's needed for penetrating arrows.
-	if (m_bPenetrate && !pOther->IsWorld() && pOther->GetSolid() == SOLID_VPHYSICS)
-	{
-		const trace_t* pTrace = &CBaseEntity::GetTouchTrace();
-		CPhysCollide* pTriggerCollide = modelinfo->GetVCollide(GetModelIndex())->solids[0];
-		Assert(pTriggerCollide);
-
-		CUtlVector<collidelist_t> collideList;
-		IPhysicsObject* pList[VPHYSICS_MAX_OBJECT_LIST_COUNT];
-		int physicsCount = pOther->VPhysicsGetObjectList(pList, ARRAYSIZE(pList));
-		vcollide_t* pVCollide = modelinfo->GetVCollide(pOther->GetModelIndex());
-
-		if (physicsCount)
-		{
-			for (int i = 0; i < physicsCount; i++)
-			{
-				const CPhysCollide* pCollide = pList[i]->GetCollide();
-				if (pCollide)
-				{
-					collidelist_t element;
-					element.pCollide = pCollide;
-					pList[i]->GetPosition(&element.origin, &element.angles);
-					collideList.AddToTail(element);
-				}
-			}
-		}
-		else if (pVCollide && pVCollide->solidCount)
-		{
-			collidelist_t element;
-			element.pCollide = pVCollide->solids[0];
-			element.origin = pOther->GetAbsOrigin();
-			element.angles = pOther->GetAbsAngles();
-			collideList.AddToTail(element);
-		}
-		else
-		{
-			return;
-		}
-
-		for (int i = collideList.Count() - 1; i >= 0; --i)
-		{
-			const collidelist_t& element = collideList[i];
-			trace_t tr;
-			physcollision->TraceCollide(pTrace->startpos, element.origin, element.pCollide, element.angles, pTriggerCollide, GetAbsOrigin(), GetAbsAngles(), &tr);
-			if (!tr.DidHit())
-				return;
-		}
-	}
-
-	bool bShield = pOther->IsCombatItem() && !InSameTeam(pOther);
-	CTFPumpkinBomb* pPumpkinBomb = dynamic_cast<CTFPumpkinBomb*>(pOther);
+	bool bShield = pOther->IsCombatItem() && !InSameTeam( pOther );
+	CTFPumpkinBomb *pPumpkinBomb = dynamic_cast< CTFPumpkinBomb * >( pOther );
 
 	if ( pOther->IsSolidFlagSet( FSOLID_TRIGGER | FSOLID_VOLUME_CONTENTS ) && !pPumpkinBomb && !bShield )
 		return;
