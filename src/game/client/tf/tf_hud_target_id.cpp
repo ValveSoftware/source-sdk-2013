@@ -798,19 +798,19 @@ void CTargetID::UpdateID( void )
 
 			bool bInSameTeam = pLocalTFPlayer->InSameDisguisedTeam( pEnt );
 			bool bSpy = pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY );
-			bool bMedic = pLocalTFPlayer->IsPlayerClass( TF_CLASS_MEDIC );
-			bool bHeavy = pLocalTFPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS );
+			int iSeeEnemyHealth = 0;
+			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pLocalTFPlayer, iSeeEnemyHealth, see_enemy_health )
 
 			// See if the player wants to fill in the data string
 			bool bIsAmmoData = false;
 			bool bIsKillStreakData = false;
 			pPlayer->GetTargetIDDataString( bDisguisedTarget, sDataString, sizeof(sDataString), bIsAmmoData, bIsKillStreakData );
-			if ( pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || bInSameTeam || bSpy || bDisguisedEnemy || bMedic || bHeavy )
+			if ( pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || bInSameTeam )
 			{
 				printFormatString = "#TF_playerid_sameteam";
 				bShowHealth = true;
 			}
-			else if ( pLocalTFPlayer->m_Shared.GetState() == TF_STATE_DYING )
+			else if ( bSpy || iSeeEnemyHealth || pLocalTFPlayer->m_Shared.GetState() == TF_STATE_DYING )
 			{
 				// We're looking at an enemy who killed us.
 				printFormatString = "#TF_playerid_diffteam";
