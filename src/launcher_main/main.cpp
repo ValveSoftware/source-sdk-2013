@@ -149,15 +149,19 @@ static bool LoadSteam( const char *pRootDir )
 	#define STEAM_API_DLL_PATH	"%s/" PLATFORM_BIN_DIR "/libsteam_api.so"
 #endif
 
-	char szBuffer[4096];
+	char szPathBuffer[4096];
 	// Assemble the full path to our "steam_api.dll"
-	_snprintf( szBuffer, sizeof( szBuffer ), STEAM_API_DLL_PATH, pRootDir );
-	szBuffer[sizeof( szBuffer ) - 1] = '\0';
-
-	s_SteamModule = Launcher_LoadModule( szBuffer );
+	_snprintf(szPathBuffer, sizeof(szPathBuffer), STEAM_API_DLL_PATH, pRootDir );
+	szPathBuffer[sizeof(szPathBuffer) - 1] = '\0';
+	
+	s_SteamModule = Launcher_LoadModule(szPathBuffer);
 	if ( !s_SteamModule )
 	{
-		MessageBox( 0, "Not able to load Steam API. Is " STEAM_API_DLL_PATH " missing?", "Launcher Error", MB_OK );
+		char szErrorBuffer[4140];
+		_snprintf(szErrorBuffer, sizeof(szErrorBuffer), "Not able to load Steam API. Is %s missing?", szPathBuffer);
+		szErrorBuffer[sizeof(szErrorBuffer) - 1] = '\0';
+	
+		MessageBox( 0, szErrorBuffer, "Launcher Error", MB_OK );
 		return false;
 	}
 
