@@ -2770,7 +2770,7 @@ void WriteLumpToFile( char *filename, int lump )
 	FileHandle_t lumpfile = g_pFileSystem->Open(lumppre, "wb");
 	if ( !lumpfile )
 	{
-		Error ("Error opening %s! (Check for write enable)\n",filename);
+		Error ("Error opening %s! (Check for write enable)\n", lumppre);
 		return;
 	}
 
