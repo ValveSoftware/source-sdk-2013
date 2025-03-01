@@ -80,15 +80,17 @@ bool ShouldHealthBarBeVisible( CBaseEntity *pTarget, CTFPlayer *pLocalPlayer )
 	if ( !pTarget || !pLocalPlayer )
 		return false;
 
-	if ( tf_hud_target_id_disable_floating_health.GetBool() )
-		return false;
-
+	// now second in priority to force floating health bars on for giant robots in MvM, robot destruction NPCs, and any custom game logic that forces the mini boss flag on players
+	// regardless of setting due to entities that return this check as true typically not having a visible target ID to fall back to when tf_hud_target_id_disable_floating_health is 1.
 	if ( pTarget->IsHealthBarVisible() )
 		return true;
 
+	if ( tf_hud_target_id_disable_floating_health.GetBool() )
+		return false;
+	
 	if ( !pTarget->IsPlayer() )
 		return false;
-
+	
 	int iHideEnemyHealth = 0;
 	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pLocalPlayer, iHideEnemyHealth, hide_enemy_health );
 	if ( ( iHideEnemyHealth > 0 ) && !pLocalPlayer->InSameTeam( pTarget ) )
