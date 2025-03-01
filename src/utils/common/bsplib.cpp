@@ -2788,6 +2788,8 @@ void WriteLumpToFile( char *filename, int lump )
 
 	// Write the lump
 	SafeWrite (lumpfile, (byte *)g_pBSPHeader + ofs, length);
+
+	g_pFileSystem->Close(lumpfile);
 }
 
 void	WriteLumpToFile( char *filename, int lump, int nLumpVersion, void *pBuffer, size_t nBufLen )
