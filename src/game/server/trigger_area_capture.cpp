@@ -471,7 +471,7 @@ void CTriggerAreaCapture::CaptureThink( void )
 		if ( CaptureModeScalesWithPlayers() )
 		{
 			// Diminishing returns for successive players.
-			for ( int i = 1; i < m_TeamData[m_nTeamInZone].iNumTouching; i++ )
+			for ( int i = 1; i < m_TeamData[m_nTeamInZone].iNumTouching && i < MAX_TRANSMIT_CAPPERS; i++ )
 			{
 				flReduction += (flTimeDelta / (float)(i+1));
 			}

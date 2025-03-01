@@ -12,6 +12,9 @@
 
 #include "shareddefs.h"
 
+#define MAX_TRANSMIT_CAPPERS_BITS		4
+#define MAX_TRANSMIT_CAPPERS			(1 << MAX_TRANSMIT_CAPPERS_BITS) - 1
+
 #define TEAM_ARRAY( index, team )		(index + (team * MAX_CONTROL_POINTS))
 
 //-----------------------------------------------------------------------------
