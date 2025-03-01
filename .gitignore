@@ -517,3 +517,7 @@ game/mod_tf/stats.txt
 game/mod_tf/tf2_playerstats.dmx
 game/mod_tf/voice_ban.dt
 /game/mod_tf/screenshots
+/game/mod_tf/custom
+/game/mod_tf/download
+/game/platform
+game/steam_appid.txt

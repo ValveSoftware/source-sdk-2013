@@ -24,6 +24,3 @@ tf_use_match_hud 0
 tf_hud_target_id_disable_floating_health 1 
 tf_hud_target_id_alpha 255
 tf_scoreboard_ping_as_text 1
-
-// Fix the game being dumb if necessary
-toggle mat_aaquality 0 1

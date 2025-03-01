@@ -448,15 +448,15 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	// Get the root directory the .exe is in
 	char* pRootDir = GetBaseDir( moduleName );
 	const char *pBinaryGameDir = pRootDir;
-	char szGameInstallDir[4096];
-	if ( !GetGameInstallDir( pRootDir, szGameInstallDir, 4096 ) )
-	{
-		return 1;
-	}
-
-	pBinaryGameDir = szGameInstallDir;
-
-	SetEnvironmentVariableA( "SDK_EXEC_DIR", szGameInstallDir );
+	//char szGameInstallDir[4096];
+	//if ( !GetGameInstallDir( pRootDir, szGameInstallDir, 4096 ) )
+	//{
+	//	return 1;
+	//}
+	//
+	//pBinaryGameDir = szGameInstallDir;
+	//
+	//SetEnvironmentVariableA( "SDK_EXEC_DIR", szGameInstallDir );
 
 #define LAUNCHER_DLL_PATH	"%s\\" PLATFORM_BIN_DIR "\\launcher.dll"
 #define LAUNCHER_PATH		"%s\\" PLATFORM_BIN_DIR
@@ -621,14 +621,16 @@ int main( int argc, char *argv[] )
 
 	const char *pBinaryGameDir = pRootDir;
 
-	char szGameInstallDir[4096];
-	if ( !GetGameInstallDir( pRootDir, szGameInstallDir, 4096 ) )
-	{
-		return 1;
-	}
+	//char szGameInstallDir[4096];
+	//if ( !GetGameInstallDir( pRootDir, szGameInstallDir, 4096 ) )
+	//{
+	//	return 1;
+	//}
+	//
+	//pBinaryGameDir = szGameInstallDir;
 
 	char szExecutable[8192];
-	snprintf(szExecutable, sizeof(szExecutable), "%s/hl2.sh", szGameInstallDir );
+	snprintf(szExecutable, sizeof(szExecutable), "%s/hl2.sh", pBinaryGameDir);
 
 	std::vector<char *> new_argv;
 

@@ -773,8 +773,6 @@ void CCharacterInfoPanel::CreateStorePanel( void )
 //-----------------------------------------------------------------------------
 CStorePanel	*CCharacterInfoPanel::OpenStorePanel( int iItemDef, bool bAddToCart )
 {
-	return NULL;
-
 	// Make sure we've got the appropriate connections to Steam
 	if ( !steamapicontext || !steamapicontext->SteamUtils() )
 	{

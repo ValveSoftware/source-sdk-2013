@@ -78,4 +78,12 @@
 			game+download		mod_tf/download
 		}
 	}
+	
+	ToolsEnvironment
+	{
+		"Engine"			"Source"
+		"UseVPLATFORM"		"1"
+		"PythonVersion"		"2.7"
+		"PythonHomeDisable"	"1"
+	}
 }
