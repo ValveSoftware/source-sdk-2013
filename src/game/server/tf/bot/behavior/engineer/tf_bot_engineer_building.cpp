@@ -90,6 +90,7 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	CObjectDispenser *myDispencer =
 		static_cast< CObjectDispenser* >( me->GetObjectOfType( OBJ_DISPENSER ) );
 	CObjectTeleporter *myClosestTeleporter = PickClosestValidTeleporter( me );
+	CObjectTeleporter *myOtherTeleporter = ( myClosestTeleporter ) ? myClosestTeleporter->GetMatchingTeleporter() : NULL;
 
 	// Don't do anything if we do not have a sentry
 	if ( !mySentry ) return NULL;
@@ -112,10 +113,13 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	// ... sentry that is not upgraded
 	if ( mySentry->GetUpgradeLevel() < 3 )
 		return mySentry;
-	// ... damaged dispencer or teleporter
+	// ... damaged dispencer or either of the teleporters
 	if ( myDispencer && myDispencer->GetHealth() < myDispencer->GetMaxHealth() )
 		return myDispencer;
-	if ( myClosestTeleporter && myClosestTeleporter->GetHealth() < myClosestTeleporter->GetMaxHealth() )
+	if ( myClosestTeleporter && ( 
+		myClosestTeleporter->GetHealth() < myClosestTeleporter->GetMaxHealth() || 
+		myOtherTeleporter && myOtherTeleporter->GetHealth() < myOtherTeleporter->GetMaxHealth()
+	) )
 		return myClosestTeleporter;
 	// ... dispencer that is not upgraded
 	if ( myDispencer && myDispencer->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
