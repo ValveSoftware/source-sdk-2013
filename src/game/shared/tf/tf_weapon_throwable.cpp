@@ -313,7 +313,7 @@ CTFProjectile_Throwable *CTFThrowable::FireProjectileInternal( void )
 	Vector vecForward, vecRight, vecUp;
 	AngleVectors( pPlayer->EyeAngles(), &vecForward, &vecRight, &vecUp );
 
-	float fRight = 8.f;
+	float fRight = 7.f;
 	if ( IsViewModelFlipped() )
 	{
 		fRight *= -1;
@@ -321,7 +321,7 @@ CTFProjectile_Throwable *CTFThrowable::FireProjectileInternal( void )
 	Vector vecSrc = pPlayer->Weapon_ShootPosition();
 
 	// Make spell toss position at the hand
-	vecSrc = vecSrc + ( vecUp * -9.0f ) + ( vecRight * 7.0f ) + ( vecForward * 3.0f );
+	vecSrc = vecSrc + ( vecUp * -9.0f ) + ( vecRight * fRight ) + ( vecForward * 3.0f );
 
 	trace_t trace;
 	Vector vecEye = pPlayer->EyePosition();
