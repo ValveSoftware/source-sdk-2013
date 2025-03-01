@@ -12,6 +12,7 @@
 
 #include "shareddefs.h"
 
+// Number of bits used to transmit the number of point cappers to the client.
 #define MAX_TRANSMIT_CAPPERS_BITS		4
 #define MAX_TRANSMIT_CAPPERS			(1 << MAX_TRANSMIT_CAPPERS_BITS) - 1
 

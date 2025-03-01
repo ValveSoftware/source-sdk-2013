@@ -24,7 +24,9 @@ class CTeamTrainWatcher;
 #define CAPTURE_CATCHUP_ALIVEPLAYERS	1
 
 #define MAX_CLIENT_AREAS				128
-#define MAX_AREA_CAPPERS				9
+// Max number of cappers the server will transmit to the client as entity ids (for killfeed notification)
+// not to be confused with MAX_TRANSMIT_CAPPERS in team_objectiveresource.h
+#define MAX_AREA_CAPPERS				9 
 
 //-----------------------------------------------------------------------------
 // Purpose: An area entity that players must remain in in order to active another entity
