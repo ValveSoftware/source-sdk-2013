@@ -113,6 +113,7 @@ protected:
 
 	int					m_nState;
 	Color				m_ProgressBar_FgColor;
+	Color				m_ProgressBar_FlashColor;
 
 	CPanelAnimationVarAliasType( float, m_iXOffset, "x_offset", "0", "proportional_float" );
 };

@@ -391,6 +391,7 @@ void CHudItemEffectMeter::ApplySchemeSettings( IScheme *pScheme )
 	SetLabelText();
 
 	m_ProgressBar_FgColor = GetSchemeColor("ProgressBar.FgColor", pScheme);
+	m_ProgressBar_FlashColor = GetSchemeColor("ProgressBar.FlashColor", Color(160, 0, 0, 255), pScheme);
 
 	m_pItemEffectIcon = dynamic_cast< CTFImagePanel* >( FindChildByName( "ItemEffectIcon" ) );
 	if ( m_pItemEffectIcon )
@@ -548,12 +549,11 @@ void CHudItemEffectMeter::Update( C_TFPlayer* pPlayer )
 		// Flash the bar if this class implementation requires it.
 		if ( ShouldFlash() )
 		{
-			int color_offset = ((int)(gpGlobals->realtime * 10)) % 10;
-			int amount = 0.8;
-			int red = ( m_ProgressBar_FgColor.r() * amount)  + color_offset;
-			int green = ( m_ProgressBar_FgColor.g() * amount) + color_offset;
-			int blue = ( m_ProgressBar_FgColor.b() * amount) + color_offset;
-            m_vecProgressBars[i]->SetFgColor( Color(red, green, blue, m_ProgressBar_FgColor.a()) );
+			int color_offset = ( ( int ) ( gpGlobals->realtime * 10 ) ) % 10;
+			int red = m_ProgressBar_FlashColor.r() + ( color_offset * 5 );
+			int green = m_ProgressBar_FlashColor.g() + ( color_offset * 5 );
+			int blue = m_ProgressBar_FlashColor.b() + ( color_offset * 5 );
+			m_vecProgressBars[i]->SetFgColor( Color( red, green, blue, m_ProgressBar_FlashColor.a() ) );
 		}
 		else
 		{
