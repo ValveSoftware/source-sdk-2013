@@ -74,7 +74,7 @@ CObjectTeleporter* CTFBotEngineerBuilding::PickClosestValidTeleporter( CTFBot *m
 
 	if ( !myTeleporterEntrance && !myTeleporterExit ) return NULL;
 	if ( myTeleporterEntrance && !myTeleporterExit ) return myTeleporterEntrance;
-	if ( !myTeleporterEntrance && !myTeleporterExit ) return myTeleporterExit;
+	if ( !myTeleporterEntrance && myTeleporterExit ) return myTeleporterExit;
 
 	return 
 		me->GetDistanceBetween( myTeleporterEntrance ) < me->GetDistanceBetween( myTeleporterExit )
