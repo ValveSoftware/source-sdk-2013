@@ -728,6 +728,8 @@ void CTFHudPlayerHealth::ApplySchemeSettings( IScheme *pScheme )
 	m_pBuildingHealthImageBG->SetVisible( m_bBuilding );
 
 	m_pPlayerLevelLabel = dynamic_cast<CExLabel*>( FindChildByName( "PlayerStatusPlayerLevel" ) );
+
+	m_pPlayerMaxHealthLabel = dynamic_cast<CExLabel*>( FindChildByName( "PlayerStatusMaxHealthValue" ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -847,14 +849,13 @@ void CTFHudPlayerHealth::SetHealth( int iNewHealth, int iMaxHealth, int	iMaxBuff
 	if ( m_nHealth > 0 )
 	{
 		SetDialogVariable( "Health", m_nHealth );
+		SetDialogVariable( "MaxHealth", m_nMaxHealth );
 
-		if ( m_nMaxHealth - m_nHealth >= 5 )
+		bool bVisible = (m_nMaxHealth - m_nHealth >= 5) ? true : false;
+
+		if (m_pPlayerMaxHealthLabel->IsVisible() != bVisible)
 		{
-			SetDialogVariable( "MaxHealth", m_nMaxHealth );
-		}
-		else
-		{
-			SetDialogVariable( "MaxHealth", "" );
+			m_pPlayerMaxHealthLabel->SetVisible( bVisible );
 		}
 	}
 	else
