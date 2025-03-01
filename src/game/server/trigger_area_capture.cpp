@@ -469,12 +469,20 @@ void CTriggerAreaCapture::CaptureThink( void )
 
 		float flReduction = flTimeDelta;
 		if ( CaptureModeScalesWithPlayers() )
-		{
-			// Diminishing returns for successive players.
-			for ( int i = 1; i < m_TeamData[m_nTeamInZone].iNumTouching; i++ )
+		{	
+#ifdef TF_DLL
+			// Diminishing returns for successive players. MAX_TRANSMIT_CAPPERS prevents overflow
+			for (int i = 1; i < m_TeamData[m_nTeamInZone].iNumTouching && i < MAX_TRANSMIT_CAPPERS; i++)
 			{
-				flReduction += (flTimeDelta / (float)(i+1));
+				flReduction += (flTimeDelta / (float)(i + 1));
 			}
+#else
+			// Diminishing returns for successive players
+			for (int i = 1; i < m_TeamData[m_nTeamInZone].iNumTouching; i++)
+			{
+				flReduction += (flTimeDelta / (float)(i + 1));
+			}
+#endif
 		}
 		m_flLastReductionTime = gpGlobals->curtime;
 
