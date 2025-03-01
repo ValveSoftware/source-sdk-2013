@@ -1234,6 +1234,10 @@ void CTFBall_Ornament::PipebombTouch( CBaseEntity *pOther )
 	if ( pOther == GetThrower() )
 		return;
 
+	// Don't collide with teammates if we're still in the grace period.
+	if ( pOther->IsPlayer() && InSameTeam(pOther) && !CanCollideWithTeammates() )
+		return;
+
 	// Explode (does radius damage, triggers particles and sound effects).
 	Explode( &pTrace, DMG_BLAST|DMG_PREVENT_PHYSICS_FORCE );
 
