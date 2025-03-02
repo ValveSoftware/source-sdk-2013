@@ -530,7 +530,7 @@ void CTFPlayerModelPanel::SwitchHeldItemTo( CEconItemView *pItem )
 		}
 		else
 		{
-			SetToPlayerClass( m_iCurrentClassIndex );
+			SetToPlayerClass( m_iCurrentClassIndex, false, m_strPlayerModelOverride );
 		}
 	}
 

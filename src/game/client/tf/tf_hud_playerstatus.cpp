@@ -446,6 +446,7 @@ void CTFHudPlayerClass::UpdateModelPanel()
 		int nClass;
 		int nTeam;
 		int nItemSlot = m_nLoadoutPosition;
+		const char* pCustomModel = NULL;
 		CEconItemView *pWeapon = NULL;
 
 		bool bDisguised = pPlayer->m_Shared.InCond( TF_COND_DISGUISED );
@@ -474,10 +475,14 @@ void CTFHudPlayerClass::UpdateModelPanel()
 			{
 				pWeapon = pEnt->GetAttributeContainer()->GetItem();
 			}
+			if ( pPlayer->GetPlayerClass()->HasCustomModel() )
+			{
+				pCustomModel = pPlayer->GetPlayerClass()->GetModelName();
+			}
 		}
 
 		m_pPlayerModelPanel->ClearCarriedItems();
-		m_pPlayerModelPanel->SetToPlayerClass( nClass );
+		m_pPlayerModelPanel->SetToPlayerClass( nClass, false, pCustomModel );
 		m_pPlayerModelPanel->SetTeam( nTeam );
 
 		if ( pWeapon )
