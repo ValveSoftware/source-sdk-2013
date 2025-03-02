@@ -95,17 +95,32 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	// Don't do anything if we do not have a sentry
 	if ( !mySentry ) return NULL;
 
-	// Only consider teleporters close enough for maintenance
-	bool hasValidTeleporterCloseEnough = 
-		myClosestTeleporter && 
-		( mySentry->GetAbsOrigin() - myClosestTeleporter->GetAbsOrigin() )
-			.IsLengthLessThan( tf_bot_engineer_exit_near_sentry_range.GetFloat() );
-
 	// Prioritize building that has sapper on it above else
 	if ( mySentry->HasSapper() || mySentry->IsPlasmaDisabled() ) 
 		return mySentry;
 	if ( myDispencer && ( myDispencer->HasSapper() || myDispencer->IsPlasmaDisabled() ) ) 
 		return myDispencer;
+
+	// Only consider teleporters close enough for maintenance
+	CTFBotPathCost cost( me, FASTEST_ROUTE );
+	bool hasValidTeleporterCloseEnough = static_cast<bool>( myClosestTeleporter );
+	// Check absolute distance not to rebuild path if we definitely know teleporter is too far
+	if ( hasValidTeleporterCloseEnough )
+		hasValidTeleporterCloseEnough = 
+		( mySentry->GetAbsOrigin() - myClosestTeleporter->GetAbsOrigin() ).IsLengthLessThan(
+			tf_bot_engineer_exit_near_sentry_range.GetFloat()
+		);
+
+	if ( hasValidTeleporterCloseEnough )
+	{
+		CNavArea *sentryArea = mySentry->GetLastKnownArea();
+		CNavArea *teleArea = myClosestTeleporter->GetLastKnownArea();
+
+		hasValidTeleporterCloseEnough = 
+			NavAreaTravelDistance( sentryArea, teleArea, cost, tf_bot_engineer_exit_near_sentry_range.GetFloat() ) > -FLT_EPSILON &&
+			NavAreaTravelDistance( teleArea, sentryArea, cost, tf_bot_engineer_exit_near_sentry_range.GetFloat() ) > -FLT_EPSILON;
+	}
+
 	if ( hasValidTeleporterCloseEnough && ( myClosestTeleporter->HasSapper() || myClosestTeleporter->IsPlasmaDisabled() ) ) 
 		return myClosestTeleporter;
 	// Prioritize sentry if it's damaged
