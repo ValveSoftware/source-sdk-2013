@@ -137,8 +137,9 @@ void CUtlBlockMemory<T,I>::Swap( CUtlBlockMemory< T, I > &mem )
 {
 	V_swap( m_pMemory, mem.m_pMemory );
 	V_swap( m_nBlocks, mem.m_nBlocks );
-	V_swap( m_nIndexMask, mem.m_nIndexMask );
-	V_swap( m_nIndexShift, mem.m_nIndexShift );
+	// Casts fix "Non-const reference cannot bind to bit-field" error
+	V_swap( (int &)m_nIndexMask, (int &)mem.m_nIndexMask );
+	V_swap( (int &)m_nIndexShift, (int &)mem.m_nIndexShift );
 }
 
 
