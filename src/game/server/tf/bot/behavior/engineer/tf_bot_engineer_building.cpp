@@ -117,8 +117,8 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	if ( myDispencer && myDispencer->GetHealth() < myDispencer->GetMaxHealth() )
 		return myDispencer;
 	if ( myClosestTeleporter && ( 
-		myClosestTeleporter->GetHealth() < myClosestTeleporter->GetMaxHealth() || 
-		myOtherTeleporter && myOtherTeleporter->GetHealth() < myOtherTeleporter->GetMaxHealth()
+		( myClosestTeleporter->GetHealth() < myClosestTeleporter->GetMaxHealth() ) || 
+		( myOtherTeleporter && ( myOtherTeleporter->GetHealth() < myOtherTeleporter->GetMaxHealth() ) )
 	) )
 		return myClosestTeleporter;
 	// ... dispencer that is not upgraded
