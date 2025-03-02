@@ -457,6 +457,47 @@ bool CTFFlameManager::AddPoint( int iCurrentTick )
 	return bRet;
 }
 
+void CTFFlameManager::Touch( CBaseEntity* pOther )
+{
+	if ( !ShouldCollide( pOther ) )
+		return;
+
+	// find the first point that collide with this ent
+	FOR_EACH_VEC( GetPointVec(), i)
+	{
+		int iPoint = i;
+
+		// As Pyro to maximise damage it is beneficial to not have old flame particles
+		// touch the target. This is relevant when attacking tanks, and looking sideways
+		// or upwards minimises the time flame particles touch tanks -> less lifetime
+		// penalty for the oldest touching.
+		// As a fix, loop backwards and always take the newest particle
+		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && !Q_strcmp( pOther->m_iClassname.ToCStr(), "tank_boss" ) )
+		{
+			iPoint = GetPointVec().Count() - i - 1;
+		}
+
+		tf_point_t* pPoint = GetPointVec()[iPoint];
+
+		float flRadius = GetRadius( pPoint );
+		Vector vMins = flRadius * Vector( -1, -1, -1 );
+		Vector vMaxs = flRadius * Vector( 1, 1, 1 );
+
+		Ray_t ray;
+		ray.Init( pPoint->m_vecPrevPosition, pPoint->m_vecPosition, vMins, vMaxs );
+
+		trace_t trEnt;
+		enginetrace->ClipRayToEntity( ray, MASK_SOLID | CONTENTS_HITBOX, pOther, &trEnt );
+		if ( trEnt.DidHit() )
+		{
+			OnCollide( pOther, iPoint );
+
+			// found the first ray that hit this entity, stop checking against other rays
+			break;
+		}
+	}
+}
+
 
 void CTFFlameManager::HookAttributes()
 {
