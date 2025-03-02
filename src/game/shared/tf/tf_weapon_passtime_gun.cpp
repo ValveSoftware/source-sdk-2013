@@ -28,7 +28,10 @@
 #include "tier0/memdbgon.h"
 
 static ConVar tf_passtime_mode_lock_eye_to_eye( "tf_passtime_mode_lock_eye_to_eye", "1" );
-static ConVar p4ss_legacy_throw_controls( "p4ss_legacy_throw_controls" , "0" , 0, "For oldies who cannot fathom changes made to their game.");
+#ifdef CLIENT_DLL
+static ConVar p4ss_legacy_throw_controls( "p4ss_legacy_throw_controls" , "0" , FCVAR_USERINFO, "For oldies who cannot fathom changes made to their game.");
+#endif
+// FIXME: This isn't networked but should be similar to the above.
 static ConVar p4ss_reverse_throw_controls( "p4ss_reverse_throw_controls", "0", 0, "Switches mouse1 and mouse2 inputs for freethrow and passing" );
 
 //-----------------------------------------------------------------------------
@@ -396,7 +399,6 @@ bool CPasstimeGun::SendWeaponAnim( int actBase )
 //-----------------------------------------------------------------------------
 void CPasstimeGun::ItemPostFrame()
 {
-	bool bLegacyCtrl = p4ss_legacy_throw_controls.GetBool();
 	bool bCanAttack2Cancel = !tf_passtime_experiment_autopass.GetBool();
 
 	if (p4ss_reverse_throw_controls.GetBool() )
@@ -416,6 +418,7 @@ void CPasstimeGun::ItemPostFrame()
 		return;
 	}
 
+	bool bLegacyCtrl = pOwner->ShouldUseLegacyPasstimeGunControls();
 
 #ifdef GAME_DLL
 

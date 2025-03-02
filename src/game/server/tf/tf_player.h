@@ -458,6 +458,8 @@ public:
 	void SetAutoRezoom( bool bAutoRezoom ) { m_bAutoRezoom = bAutoRezoom; }
 	bool ShouldAutoReload( void ){ return m_bAutoReload; }
 	void SetAutoReload( bool bAutoReload ) { m_bAutoReload = bAutoReload; }
+	bool ShouldUseLegacyPasstimeGunControls( void ){ return m_bLegacyPasstimeGunControls; }
+	void SetUseLegacyPasstimeGunControls( bool value ) { m_bLegacyPasstimeGunControls = value; }
 
 	virtual void	ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet );
 
@@ -1227,6 +1229,7 @@ private:
 	bool 				m_bMedigunAutoHeal;
 	bool				m_bAutoRezoom;	// does the player want to re-zoom after each shot for sniper rifles
 	bool				m_bAutoReload;
+	CNetworkVar( bool, m_bLegacyPasstimeGunControls );
 
 	bool				m_bForceItemRemovalOnRespawn;
 
