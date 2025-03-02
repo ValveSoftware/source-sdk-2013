@@ -266,7 +266,15 @@ void CTFClientScoreBoardDialog::UpdatePlayerModel()
 	}
 
 	m_pPlayerModelPanel->ClearCarriedItems();
-	m_pPlayerModelPanel->SetToPlayerClass( nClass );
+	if (pPlayer->GetPlayerClass()->HasCustomModel())
+	{
+		const char* pszcustommodels = pPlayer->GetPlayerClass()->GetModelName();
+		m_pPlayerModelPanel->SetToPlayerClass(nClass, false, pszcustommodels);
+	}
+	else
+	{
+		m_pPlayerModelPanel->SetToPlayerClass(nClass);
+	}
 	m_pPlayerModelPanel->SetTeam( nTeam );
 
 	if ( pWeapon )
