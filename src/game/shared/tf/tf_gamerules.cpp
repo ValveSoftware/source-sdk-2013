@@ -20870,6 +20870,18 @@ const CUtlVector< CHandle< CBaseEntity > > &CTFGameRules::GetAmmoEntityVector( v
 	return m_ammoVector;
 }
 
+CHandle< CTeamTrainWatcher > LookupTrainWatcher( int team = TEAM_UNASSIGNED )
+{
+	CTeamTrainWatcher *watcher;
+	while ( ( watcher = dynamic_cast< CTeamTrainWatcher * >( gEntList.FindEntityByClassname( watcher, "team_train_watcher" ) ) ) != NULL )
+	{
+		if ( !watcher->IsDisabled() && ( team != TEAM_UNASSIGNED && watcher->GetTeamNumber() == team ) )
+			return watcher;
+	}
+
+	return NULL;
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Return the Payload cart the given team needs to push to win, or NULL if none currently exists
@@ -20887,6 +20899,7 @@ CHandle< CTeamTrainWatcher > CTFGameRules::GetPayloadToPush( int pushingTeam ) c
 			if ( TFGameRules()->HasMultipleTrains() )
 			{
 				// find the red cart
+				m_redPayloadToPush = LookupTrainWatcher( TF_TEAM_RED );
 			}
 			else
 			{
@@ -20905,19 +20918,12 @@ CHandle< CTeamTrainWatcher > CTFGameRules::GetPayloadToPush( int pushingTeam ) c
 			if ( TFGameRules()->HasMultipleTrains() )
 			{
 				// find the blue cart
+				m_bluePayloadToPush = LookupTrainWatcher( TF_TEAM_BLUE );
 			}
 			else
 			{
 				// only one cart in the map, and we need to push it
-				CTeamTrainWatcher *watcher = NULL;
-				while( ( watcher = dynamic_cast< CTeamTrainWatcher * >( gEntList.FindEntityByClassname( watcher, "team_train_watcher" ) ) ) != NULL )
-				{
-					if ( !watcher->IsDisabled() )
-					{
-						m_bluePayloadToPush = watcher;
-						break;
-					}
-				}
+				m_bluePayloadToPush = LookupTrainWatcher();
 			}
 		}
 
@@ -20944,19 +20950,12 @@ CHandle< CTeamTrainWatcher > CTFGameRules::GetPayloadToBlock( int blockingTeam )
 			if ( TFGameRules()->HasMultipleTrains() )
 			{
 				// find the red cart
+				m_redPayloadToBlock = LookupTrainWatcher( TF_TEAM_BLUE );
 			}
 			else
 			{
 				// normal Escort scenario, red always blocks
-				CTeamTrainWatcher *watcher = NULL;
-				while( ( watcher = dynamic_cast< CTeamTrainWatcher * >( gEntList.FindEntityByClassname( watcher, "team_train_watcher" ) ) ) != NULL )
-				{
-					if ( !watcher->IsDisabled() )
-					{
-						m_redPayloadToBlock = watcher;
-						break;
-					}
-				}
+				m_redPayloadToBlock = LookupTrainWatcher();
 			}
 		}
 
@@ -20970,6 +20969,7 @@ CHandle< CTeamTrainWatcher > CTFGameRules::GetPayloadToBlock( int blockingTeam )
 			if ( TFGameRules()->HasMultipleTrains() )
 			{
 				// find the blue cart
+				m_bluePayloadToBlock = LookupTrainWatcher( TF_TEAM_RED );
 			}
 			else
 			{

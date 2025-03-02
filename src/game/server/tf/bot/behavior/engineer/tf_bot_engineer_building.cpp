@@ -101,9 +101,6 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 		( mySentry->GetAbsOrigin() - myClosestTeleporter->GetAbsOrigin() )
 			.IsLengthLessThan( tf_bot_engineer_exit_near_sentry_range.GetFloat() );
 
-	float _tempHealthValue = myOtherTeleporter ? myOtherTeleporter->GetHealth() : 0.0f;
-	float _tempHealthMaxValue = myOtherTeleporter ? myOtherTeleporter->GetMaxHealth() : 0.0f;
-
 	// Prioritize building that has sapper on it above else
 	if ( mySentry->HasSapper() || mySentry->IsPlasmaDisabled() ) 
 		return mySentry;
