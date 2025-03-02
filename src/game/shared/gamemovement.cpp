@@ -4059,6 +4059,7 @@ void CGameMovement::FixPlayerCrouchStuck( bool upward )
 	mv->SetAbsOrigin( test ); // Failed
 }
 
+[[gnu::optimize("no-associative-math")]]
 bool CGameMovement::CanUnduck()
 {
 	int i;
@@ -4098,6 +4099,7 @@ bool CGameMovement::CanUnduck()
 //-----------------------------------------------------------------------------
 // Purpose: Stop ducking
 //-----------------------------------------------------------------------------
+[[gnu::optimize("no-associative-math")]]
 void CGameMovement::FinishUnDuck( void )
 {
 	int i;
@@ -4202,6 +4204,7 @@ void CGameMovement::FinishUnDuckJump( trace_t &trace )
 //-----------------------------------------------------------------------------
 // Purpose: Finish ducking
 //-----------------------------------------------------------------------------
+[[gnu::optimize("no-associative-math")]]
 void CGameMovement::FinishDuck( void )
 {
 	if ( player->GetFlags() & FL_DUCKING )
