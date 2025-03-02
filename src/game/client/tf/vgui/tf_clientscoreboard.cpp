@@ -269,7 +269,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerModel()
 	if ( pPlayer->GetPlayerClass()->HasCustomModel() )
 	{
 		const char* pCustomModel = pPlayer->GetPlayerClass()->GetModelName();
-		m_pPlayerModelPanel->SetToPlayerClass ( nClass, false, pCustomModel );
+		m_pPlayerModelPanel->SetToPlayerClass( nClass, false, pCustomModel );
 	}
 	else
 	{
