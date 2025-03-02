@@ -4168,6 +4168,7 @@ void CGameMovement::UpdateDuckJumpEyeOffset( void )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
+[[gnu::optimize("no-associative-math")]]
 void CGameMovement::FinishUnDuckJump( trace_t &trace )
 {
 	Vector vecNewOrigin;
@@ -4250,6 +4251,7 @@ void CGameMovement::FinishDuck( void )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
+[[gnu::optimize("no-associative-math")]]
 void CGameMovement::StartUnDuckJump( void )
 {
 	player->AddFlag( FL_DUCKING );
