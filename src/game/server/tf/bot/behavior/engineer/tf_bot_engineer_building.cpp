@@ -95,12 +95,18 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	// Don't do anything if we do not have a sentry
 	if ( !mySentry ) return NULL;
 
+	// Only consider teleporters close enough for maintenance
+	bool hasValidTeleporterCloseEnough = 
+		myClosestTeleporter && 
+		( mySentry->GetAbsOrigin() - myClosestTeleporter->GetAbsOrigin() )
+			.IsLengthLessThan( tf_bot_engineer_exit_near_sentry_range.GetFloat() );
+
 	// Prioritize building that has sapper on it above else
 	if ( mySentry->HasSapper() || mySentry->IsPlasmaDisabled() ) 
 		return mySentry;
 	if ( myDispencer && ( myDispencer->HasSapper() || myDispencer->IsPlasmaDisabled() ) ) 
 		return myDispencer;
-	if ( myClosestTeleporter && ( myClosestTeleporter->HasSapper() || myClosestTeleporter->IsPlasmaDisabled() ) ) 
+	if ( hasValidTeleporterCloseEnough && ( myClosestTeleporter->HasSapper() || myClosestTeleporter->IsPlasmaDisabled() ) ) 
 		return myClosestTeleporter;
 	// Prioritize sentry if it's damaged
 	if ( mySentry->GetTimeSinceLastInjury() < 1.0f || mySentry->GetHealth() < mySentry->GetMaxHealth() )
@@ -116,15 +122,15 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	// ... damaged dispencer or either of the teleporters
 	if ( myDispencer && myDispencer->GetHealth() < myDispencer->GetMaxHealth() )
 		return myDispencer;
-	if ( myClosestTeleporter && ( 
-		myClosestTeleporter->GetHealth() < myClosestTeleporter->GetMaxHealth() || 
-		myOtherTeleporter && myOtherTeleporter->GetHealth() < myOtherTeleporter->GetMaxHealth()
+	if ( hasValidTeleporterCloseEnough && ( 
+		( myClosestTeleporter->GetHealth() < myClosestTeleporter->GetMaxHealth() ) || 
+		( myOtherTeleporter && ( myOtherTeleporter->GetHealth() < myOtherTeleporter->GetMaxHealth() ) )
 	) )
 		return myClosestTeleporter;
 	// ... dispencer that is not upgraded
 	if ( myDispencer && myDispencer->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
 		return myDispencer;
-	if ( myClosestTeleporter && myClosestTeleporter->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
+	if ( hasValidTeleporterCloseEnough && myClosestTeleporter->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
 		return myClosestTeleporter;
 
 	// Just keep whacking the sentry if nothing specifically wrong with any other building
