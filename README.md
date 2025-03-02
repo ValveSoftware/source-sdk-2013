@@ -1,8 +1,8 @@
 # Source SDK 2013
 
-Source code for Source SDK 2013.
+Source code for HL2DM: Remastered using  Source SDK 2013.
 
-Contains the game code for Half-Life 2, HL2: DM and TF2.
+Contains the game code for Half-Life 2, HL2DM: Remastered and TF2.
 
 **Now including Team Fortress 2! ✨**
 
