@@ -787,7 +787,7 @@ void CHudWeaponSelection::DrawSelection( C_BaseCombatWeapon *pSelectedWeapon )
 		else
 		{
 			// check to see if there is a weapons in this bucket
-			if ( iSlotBits & ( i << i ) )
+			if ( iSlotBits & ( 1 << i ) )
 			{
 				C_BaseCombatWeapon *pWeapon = GetFirstPos( i );
 				if ( !pWeapon )
