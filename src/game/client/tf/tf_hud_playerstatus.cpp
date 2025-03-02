@@ -475,20 +475,20 @@ void CTFHudPlayerClass::UpdateModelPanel()
 			{
 				pWeapon = pEnt->GetAttributeContainer()->GetItem();
 			}
-			if (pPlayer->GetPlayerClass()->HasCustomModel())
+			if ( pPlayer->GetPlayerClass()->HasCustomModel() )
 			{
 				pszcustommodels = pPlayer->GetPlayerClass()->GetModelName();
 			}
 		}
 
 		m_pPlayerModelPanel->ClearCarriedItems();
-		if (pszcustommodels)
+		if ( pszcustommodels )
 		{
-			m_pPlayerModelPanel->SetToPlayerClass(nClass,false,pszcustommodels);
+			m_pPlayerModelPanel->SetToPlayerClass( nClass, false, pszcustommodels );
 		}
 		else
 		{ 
-			m_pPlayerModelPanel->SetToPlayerClass( nClass);
+			m_pPlayerModelPanel->SetToPlayerClass( nClass );
 		}
 		m_pPlayerModelPanel->SetTeam( nTeam );
 
