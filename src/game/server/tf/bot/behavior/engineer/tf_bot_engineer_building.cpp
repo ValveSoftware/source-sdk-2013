@@ -62,19 +62,248 @@ ActionResult< CTFBot >	CTFBotEngineerBuilding::OnStart( CTFBot *me, Action< CTFB
 	return Continue();
 }
 
+//---------------------------------------------------------------------------------------------
+// Return whichever teleporter is the closest if both are built. 
+// Otherwise returns whichever is built or NULL if none
+CObjectTeleporter* CTFBotEngineerBuilding::PickClosestValidTeleporter( CTFBot *me ) const
+{
+	CObjectTeleporter *myTeleporterEntrance =
+		static_cast< CObjectTeleporter* >( me->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_ENTRANCE ) );
+	CObjectTeleporter *myTeleporterExit =
+		static_cast< CObjectTeleporter* >( me->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_EXIT ) );
+
+	if ( !myTeleporterEntrance && !myTeleporterExit ) return NULL;
+	if ( myTeleporterEntrance && !myTeleporterExit ) return myTeleporterEntrance;
+	if ( !myTeleporterEntrance && myTeleporterExit ) return myTeleporterExit;
+
+	return 
+		me->GetDistanceBetween( myTeleporterEntrance ) < me->GetDistanceBetween( myTeleporterExit )
+		? myTeleporterEntrance : myTeleporterExit;
+}
+
+//---------------------------------------------------------------------------------------------
+// Return the building currently needing upmost attention
+CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
+{
+	CObjectSentrygun *mySentry = 
+		static_cast< CObjectSentrygun* >( me->GetObjectOfType( OBJ_SENTRYGUN ) );
+	CObjectDispenser *myDispenser =
+		static_cast< CObjectDispenser* >( me->GetObjectOfType( OBJ_DISPENSER ) );
+	CObjectTeleporter *myClosestTeleporter = PickClosestValidTeleporter( me );
+	CObjectTeleporter *myOtherTeleporter = ( myClosestTeleporter ) ? myClosestTeleporter->GetMatchingTeleporter() : NULL;
+
+	// Don't do anything if we do not have a sentry
+	if ( !mySentry ) return NULL;
+
+	// Prioritize building that has sapper on it above else
+	if ( mySentry->HasSapper() || mySentry->IsPlasmaDisabled() ) 
+		return mySentry;
+	if ( myDispenser && ( myDispenser->HasSapper() || myDispenser->IsPlasmaDisabled() ) ) 
+		return myDispenser;
+
+	// Only consider teleporters close enough for maintenance
+	CTFBotPathCost cost( me, FASTEST_ROUTE );
+	bool hasValidTeleporterCloseEnough = static_cast<bool>( myClosestTeleporter );
+	// Check absolute distance not to rebuild path if we definitely know teleporter is too far
+	if ( hasValidTeleporterCloseEnough )
+		hasValidTeleporterCloseEnough = 
+		( mySentry->GetAbsOrigin() - myClosestTeleporter->GetAbsOrigin() ).IsLengthLessThan(
+			tf_bot_engineer_exit_near_sentry_range.GetFloat()
+		);
+
+	if ( hasValidTeleporterCloseEnough )
+	{
+		CNavArea *sentryArea = mySentry->GetLastKnownArea();
+		CNavArea *teleArea = myClosestTeleporter->GetLastKnownArea();
+
+		hasValidTeleporterCloseEnough = 
+			NavAreaTravelDistance( sentryArea, teleArea, cost, tf_bot_engineer_exit_near_sentry_range.GetFloat() ) > -FLT_EPSILON &&
+			NavAreaTravelDistance( teleArea, sentryArea, cost, tf_bot_engineer_exit_near_sentry_range.GetFloat() ) > -FLT_EPSILON;
+	}
+
+	if ( hasValidTeleporterCloseEnough && ( myClosestTeleporter->HasSapper() || myClosestTeleporter->IsPlasmaDisabled() ) ) 
+		return myClosestTeleporter;
+	// Prioritize sentry if it's damaged
+	if ( mySentry->GetTimeSinceLastInjury() < 1.0f || mySentry->GetHealth() < mySentry->GetMaxHealth() )
+		return mySentry;
+	// ... sentry or dispenser that are currently being built
+	if ( mySentry->IsBuilding() )
+		return mySentry;
+	if ( myDispenser && myDispenser->IsBuilding() )
+		return myDispenser;
+	// ... sentry that is not upgraded
+	if ( mySentry->GetUpgradeLevel() < 3 )
+		return mySentry;
+	// ... damaged dispenser or either of the teleporters
+	if ( myDispenser && myDispenser->GetHealth() < myDispenser->GetMaxHealth() )
+		return myDispenser;
+	if ( hasValidTeleporterCloseEnough && ( 
+		( myClosestTeleporter->GetHealth() < myClosestTeleporter->GetMaxHealth() ) || 
+		( myOtherTeleporter && ( ( myOtherTeleporter->GetMaxHealth() - myOtherTeleporter->GetHealth() ) > 1.0f ) )
+		// I can't beleive that of all building teleporter consistently gets considered injured due float imprecisions on health values,
+		// which is why it is needed to check if the difference is bigger than 1 rathen than just comparing them directly
+	) )
+		return myClosestTeleporter;
+	// ... dispenser that is not upgraded
+	if ( myDispenser && myDispenser->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
+		return myDispenser;
+	if ( 
+		hasValidTeleporterCloseEnough && myOtherTeleporter && 
+		myClosestTeleporter->GetUpgradeLevel() < mySentry->GetUpgradeLevel() 
+	)
+		return myClosestTeleporter;
+
+	// Just keep whacking the sentry if nothing specifically wrong with any other building
+	return mySentry;
+
+
+	// Old code for reference
+	/*
+	CBaseObject* workTarget = mySentry;
+
+	if (mySentry->HasSapper() || mySentry->IsPlasmaDisabled())
+		workTarget = mySentry;
+	else if (myDispenser->HasSapper() || myDispenser->IsPlasmaDisabled())
+		workTarget = myDispenser;
+	else if (mySentry->GetTimeSinceLastInjury() < 1.0f || mySentry->GetHealth() < mySentry->GetMaxHealth())
+		workTarget = mySentry;
+	else if (mySentry->IsBuilding())
+		workTarget = mySentry;
+	else if (myDispenser->IsBuilding())
+		workTarget = myDispenser;
+	else if (mySentry->GetUpgradeLevel() < 3)
+		workTarget = mySentry;
+	else if (myDispenser->GetHealth() < myDispenser->GetMaxHealth())
+		workTarget = myDispenser;
+	else if (myDispenser->GetUpgradeLevel() < mySentry->GetUpgradeLevel())
+		workTarget = myDispenser;
+	*/
+}
+
+//---------------------------------------------------------------------------------------------
+// Pick a spot where engineer should be safe enough to work on a building
+Vector CTFBotEngineerBuilding::PickIdealWorkSpot( CTFBot *me, CBaseObject *workTarget ) const
+{
+	if ( workTarget->GetType() == OBJ_SENTRYGUN || workTarget->GetType() == OBJ_DISPENSER )
+	{
+		// When maintaining a sentry or a dispenser, engineer should sit inbetween them
+		CBaseObject *sentry = NULL, *dispenser = NULL;
+		if ( workTarget->GetType() == OBJ_SENTRYGUN )
+		{
+			sentry = workTarget;
+			dispenser = me->GetObjectOfType( OBJ_DISPENSER );
+		}
+		else
+		{
+			dispenser = workTarget;
+			sentry = me->GetObjectOfType( OBJ_SENTRYGUN );
+		}
+
+		// Only do this if both buildings actually exist
+		if ( sentry && dispenser )
+			return ( sentry->GetAbsOrigin() + dispenser->GetAbsOrigin() ) / 2.0f;
+	}
+
+	return workTarget->GetAbsOrigin();
+}
+
+//---------------------------------------------------------------------------------------------
+// Whether or not engineer is too far from it's work target
+// true if the engineer is close enought to perform maintenance
+// false if the engineer still need to navigate to it's maintenance target
+// Additionally has 'shouldBeDucking' that should be set to true if engineer needs to duck
+bool CTFBotEngineerBuilding::IsInPositionToWork( 
+	CTFBot *me, 
+	CBaseObject *workTarget, 
+	bool& shouldBeDucking, 
+	const Vector* idealPosition
+) const {
+	const float tooFarRange = 75.0f;
+	
+	float curDistanceToPosition = 
+		me->GetDistanceBetween( ( idealPosition != NULL ) ? *idealPosition : PickIdealWorkSpot( me, workTarget ) );
+
+	// Should duck not only to cover but also to approach the target more precisely
+	shouldBeDucking = curDistanceToPosition < 1.2f * tooFarRange;
+
+	if ( curDistanceToPosition > tooFarRange ) return false;
+	
+	if ( workTarget->GetType() == OBJ_SENTRYGUN || workTarget->GetType() == OBJ_DISPENSER )
+	{
+		// When maintaining a sentry or a dispenser, engineer should sit inbetween them
+		CBaseObject *sentry = NULL, *dispenser = NULL;
+		if ( workTarget->GetType() == OBJ_SENTRYGUN )
+		{
+			sentry = workTarget;
+			dispenser = me->GetObjectOfType( OBJ_DISPENSER );
+		}
+		else
+		{
+			dispenser = workTarget;
+			sentry = me->GetObjectOfType( OBJ_SENTRYGUN );
+		}
+
+		// Only do this if both buildings actually exist
+		if (sentry && dispenser)
+		{
+			// ... and 'inbetween' means the difference between distances to 
+			// engineer and both his buildings should be about equal
+			const float equalityTolerance = 25.0f;
+
+			const float sentryDistance = me->GetDistanceBetween( sentry );
+			const float dispDistance = me->GetDistanceBetween( dispenser );
+
+			if ( fabs( sentryDistance - dispDistance ) > equalityTolerance ) return false;
+		}
+	}
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------------------
+// Proccesses navigation towards ideal working spot
+void CTFBotEngineerBuilding::NavigateToWorkingSpot( CTFBot* me, const Vector& spot )
+{
+	if ( m_repathTimer.IsElapsed() )
+	{
+		// Periodically recalculate the path in case if our building... teleports... I guess...
+		m_repathTimer.Start( RandomFloat( 1.0f, 2.0f ) );
+
+		CTFBotPathCost cost( me, FASTEST_ROUTE );
+		m_path.Compute( me, spot, cost );
+	}
+
+	// Go to building
+	m_path.Update( me );
+}
+
+//---------------------------------------------------------------------------------------------
+// Proccesses maintaining buildings
+void CTFBotEngineerBuilding::MaintainBuilding( CTFBot *me, CBaseObject *workTarget )
+{
+	m_searchTimer.Invalidate();
+
+	// we are in position - work on our buildings
+	me->StopLookingAroundForEnemies();
+	me->GetBodyInterface()->AimHeadTowards( LookAtPointOnWorkTarget( me, workTarget ), IBody::CRITICAL, 1.0f, NULL, "Work on my buildings" );
+	me->PressFireButton();
+}
+
+//---------------------------------------------------------------------------------------------
+// Returns a point on the work target which engineers should be looking at 
+// when they maintain their buildings 
+const Vector& CTFBotEngineerBuilding::LookAtPointOnWorkTarget( CTFBot *me, CBaseObject *workTarget ) const
+{
+	return workTarget->WorldSpaceCenter();
+}
 
 //---------------------------------------------------------------------------------------------
 // Everything is built, upgrade/maintain it
 // TODO: Upgrade/maintain nearby friendly buildings, too.
 void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
 {
-	CObjectSentrygun *mySentry = (CObjectSentrygun *)me->GetObjectOfType( OBJ_SENTRYGUN );
-	CObjectDispenser *myDispenser = (CObjectDispenser *)me->GetObjectOfType( OBJ_DISPENSER );
-
-	if ( !mySentry )
-	{
-		return;
-	}
+	CBaseObject *workTarget = PickCurrentWorkTarget( me );
+	if ( !workTarget ) return;
 
 	CBaseCombatWeapon *wrench = me->Weapon_GetSlot( TF_WPN_TYPE_MELEE );
 	if ( wrench )
@@ -82,98 +311,15 @@ void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
 		me->Weapon_Switch( wrench );
 	}
 
-	const float tooFarRange = 75.0f;
+	Vector spot = PickIdealWorkSpot( me, workTarget );
+	bool shouldBeDucking;
+	if ( IsInPositionToWork( me, workTarget, shouldBeDucking, &spot ) )
+		MaintainBuilding( me, workTarget );
+	else
+		NavigateToWorkingSpot( me, spot );
 
-	if ( !myDispenser )
-	{
-		// just work on our sentry
-		float rangeToSentry = me->GetDistanceBetween( mySentry );
-
-		if ( rangeToSentry < 1.2f * tooFarRange )
-		{
-			// crouch both for cover behind our buildings, but also to slow us down so we hit our move goal more accurately
-			me->PressCrouchButton();
-		}
-
-		if ( rangeToSentry > tooFarRange )
-		{
-			if ( m_repathTimer.IsElapsed() )
-			{
-				m_repathTimer.Start( RandomFloat( 1.0f, 2.0f ) );
-
-				CTFBotPathCost cost( me, FASTEST_ROUTE );
-				m_path.Compute( me, mySentry->GetAbsOrigin(), cost );
-			}
-
-			m_path.Update( me );
-		}
-		else
-		{
-			// we are in position - work on our buildings
-			me->StopLookingAroundForEnemies();
-			me->GetBodyInterface()->AimHeadTowards( mySentry->WorldSpaceCenter(), IBody::CRITICAL, 1.0f, NULL, "Work on my Sentry" );
-			me->PressFireButton();
-		}
-
-		return;
-	}
-
-	// sit near both buildings
-	Vector betweenMyBuildings = ( mySentry->GetAbsOrigin() + myDispenser->GetAbsOrigin() ) / 2.0f;
-
-	// try to equalize distance between both
-	float rangeToSentry = me->GetDistanceBetween( mySentry );
-	float rangeToDispenser = me->GetDistanceBetween( myDispenser );
-
-	const float equalTolerance = 25.0f;
-
-	if ( rangeToSentry < 1.2f * tooFarRange && rangeToDispenser < 1.2f * tooFarRange )
-	{
-		// crouch both for cover behind our buildings, but also to slow us down so we hit our move goal more accurately
+	if ( shouldBeDucking )
 		me->PressCrouchButton();
-	}
-
-	if ( fabs( rangeToDispenser - rangeToSentry ) > equalTolerance || rangeToSentry > tooFarRange || rangeToDispenser > tooFarRange )
-	{
-		if ( m_repathTimer.IsElapsed() )
-		{
-			m_repathTimer.Start( RandomFloat( 1.0f, 2.0f ) );
-
-			CTFBotPathCost cost( me, FASTEST_ROUTE );
-			m_path.Compute( me, betweenMyBuildings, cost );
-		}
-
-		m_path.Update( me );
-	}
-
-	if ( rangeToSentry < tooFarRange || rangeToDispenser < tooFarRange )
-	{
-		// we are (nearly) in position - work on our buildings
-		m_searchTimer.Invalidate();
-
-		CBaseObject *workTarget = mySentry;
-
-		if ( mySentry->HasSapper() || mySentry->IsPlasmaDisabled() )
-			workTarget = mySentry;
-		else if ( myDispenser->HasSapper() || myDispenser->IsPlasmaDisabled() )
-			workTarget = myDispenser;
-		else if ( mySentry->GetTimeSinceLastInjury() < 1.0f || mySentry->GetHealth() < mySentry->GetMaxHealth() )
-			workTarget = mySentry;
-		else if ( mySentry->IsBuilding() )
-			workTarget = mySentry;
-		else if ( myDispenser->IsBuilding() )
-			workTarget = myDispenser;
-		else if ( mySentry->GetUpgradeLevel() < 3 )
-			workTarget = mySentry;
-		else if ( myDispenser->GetHealth() < myDispenser->GetMaxHealth() )
-			workTarget = myDispenser;
-		else if ( myDispenser->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
-			workTarget = myDispenser;
-
-		me->StopLookingAroundForEnemies();
-		me->GetBodyInterface()->AimHeadTowards( workTarget->WorldSpaceCenter(), IBody::CRITICAL, 1.0f, NULL, "Work on my buildings" );
-		me->PressFireButton();
-	}
 }
 
 
