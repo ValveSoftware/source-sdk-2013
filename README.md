@@ -17,6 +17,8 @@ Clone the repository using the following command:
 Requirements:
  - Source SDK 2013 Multiplayer installed via Steam
  - Visual Studio 2022
+   - Desktop development with C++ Workload
+   - C++ MFC (Required for tools and launcher)
 
 Inside the cloned directory, navigate to `src`, run:
 ```bat
@@ -26,7 +28,7 @@ This will generate the Visual Studio project `everything.sln` which will be used
 
 Then, on the menu bar, go to `Build > Build Solution`, and wait for everything to build.
 
-You can then select the `Client (Mod Name)` project you wish to run, right click and select `Set as Startup Project` and hit the big green `> Local Windows Debugger` button on the tool bar in order to launch your mod.
+Read the build log, if you see `0 failed` showing up in the summary, you can then select the `Client (Mod Name)` project you wish to run, right click and select `Set as Startup Project` and hit the big green `▶ Local Windows Debugger` button on the tool bar in order to launch your mod. Otherwise, make sure your Visual Studio has all the required dependencies installed, as shown above.
 
 The default launch options should be already filled in for the `Release` configuration.
 
