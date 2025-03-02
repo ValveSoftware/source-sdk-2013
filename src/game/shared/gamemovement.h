@@ -180,15 +180,6 @@ protected:
 	// Does not change the entities velocity at all
 	void			PushEntity( Vector& push, trace_t *pTrace );
 
-	// Slide off of the impacting object
-	// returns the blocked flags:
-	// 0x01 == floor
-	// 0x02 == step / wall
-	//
-	// redirectCoeff - multiplier on the clipped velocity to apply along their new direction. 0 -> stomp into-normal
-	//                 velocity, 1 -> redirect it all along new vector.
-	int				ClipVelocity( Vector& in, Vector& normal, Vector& out, float overbounce, float redirectCoeff = 0.f );
-
 	// If pmove.origin is in a solid position,
 	// try nudging slightly on all axis to
 	// allow for the cut precision of the net coordinates
@@ -257,6 +248,14 @@ protected:
 
 
 protected:
+	// Slide off of the impacting object
+	// returns the blocked flags:
+	// 0x01 == floor
+	// 0x02 == step / wall
+	//
+	// redirectCoeff - multiplier on the clipped velocity to apply along their new direction. 0 -> stomp into-normal
+	//                 velocity, 1 -> redirect it all along new vector.
+	int				ClipVelocity( Vector& in, Vector& normal, Vector& out, float overbounce, float redirectCoeff = 0.f );
 
 	// Performs the collision resolution for fliers.
 	void			PerformFlyCollisionResolution( trace_t &pm, Vector &move );

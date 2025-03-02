@@ -76,6 +76,8 @@ ConVar tf_movement_lost_footing_restick( "tf_movement_lost_footing_restick", "50
                                          "Early escape the lost footing condition if the player is moving slower than this across the ground" );
 ConVar tf_movement_lost_footing_friction( "tf_movement_lost_footing_friction", "0.1", FCVAR_REPLICATED | FCVAR_CHEAT,
                                           "Ground friction for players who have lost their footing" );
+ConVar tf_movement_predict_ramp_slide( "tf_movement_predict_ramp_slide", "1", FCVAR_REPLICATED | FCVAR_CHEAT,
+                                       "Prevent players from sometimes stopping up on a ramp instead of sliding up it" );
 
 extern ConVar cl_forwardspeed;
 extern ConVar cl_backspeed;
@@ -2390,6 +2392,31 @@ void CTFGameMovement::CategorizePosition( void )
 
 	trace_t trace;
 	TracePlayerBBox( vecStartPos, vecEndPos, PlayerSolidMask(), COLLISION_GROUP_PLAYER_MOVEMENT, trace );
+
+	// The player's movement sometimes stop while being within 2 units above a shallow ramp.
+	// Normally this will cause the player to get grounded and stop up, even if they had
+	// enough speed to slide up it by slamming into it. This can be remedied by predicting
+	// what the player's clipped velocity would have been had they not been grounded and hit
+	// the ramp on the next tick. If the predicted vertical velocity is positive enough they
+	// can be allowed to stay airborne so they can slide up the ramp as expected.
+	if ( tf_movement_predict_ramp_slide.GetBool() && player->GetGroundEntity() == NULL && trace.fraction < 1.0f && trace.plane.normal.z < 1.0f )
+	{
+		Vector vecVelocityNext = mv->m_vecVelocity;
+
+		float ent_gravity = player->GetGravity() ? player->GetGravity() : 1.0;
+		vecVelocityNext.z -= ent_gravity * GetCurrentGravity() * gpGlobals->frametime;
+
+		float flWallSlideCoeff = 0.f;
+		if ( m_pTFPlayer->m_Shared.InCond( TF_COND_AIR_CURRENT ) )
+		{
+			flWallSlideCoeff = Clamp( 1.f - tf_movement_aircurrent_friction_mult.GetFloat(), 0.f, 1.f );
+		}
+
+		ClipVelocity( vecVelocityNext, trace.plane.normal, vecVelocityNext, 1.0f, flWallSlideCoeff );
+
+		if ( vecVelocityNext.z > 250.0f )
+			return;
+	}
 
 	bool bInAir = false;
 	float flGroundFrictionMult = 1.f;
