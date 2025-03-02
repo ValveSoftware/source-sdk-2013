@@ -147,7 +147,10 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	// ... dispencer that is not upgraded
 	if ( myDispencer && myDispencer->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
 		return myDispencer;
-	if ( hasValidTeleporterCloseEnough && myClosestTeleporter->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
+	if ( 
+		hasValidTeleporterCloseEnough && myOtherTeleporter && 
+		myClosestTeleporter->GetUpgradeLevel() < mySentry->GetUpgradeLevel() 
+	)
 		return myClosestTeleporter;
 
 	// Just keep whacking the sentry if nothing specifically wrong with any other building
