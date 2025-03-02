@@ -101,6 +101,9 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 		( mySentry->GetAbsOrigin() - myClosestTeleporter->GetAbsOrigin() )
 			.IsLengthLessThan( tf_bot_engineer_exit_near_sentry_range.GetFloat() );
 
+	float _tempHealthValue = myOtherTeleporter ? myOtherTeleporter->GetHealth() : 0.0f;
+	float _tempHealthMaxValue = myOtherTeleporter ? myOtherTeleporter->GetMaxHealth() : 0.0f;
+
 	// Prioritize building that has sapper on it above else
 	if ( mySentry->HasSapper() || mySentry->IsPlasmaDisabled() ) 
 		return mySentry;
@@ -124,7 +127,9 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 		return myDispencer;
 	if ( hasValidTeleporterCloseEnough && ( 
 		( myClosestTeleporter->GetHealth() < myClosestTeleporter->GetMaxHealth() ) || 
-		( myOtherTeleporter && ( myOtherTeleporter->GetHealth() < myOtherTeleporter->GetMaxHealth() ) )
+		( myOtherTeleporter && ( ( myOtherTeleporter->GetMaxHealth() - myOtherTeleporter->GetHealth() ) > 1.0f ) )
+		// I can't beleive that of all building teleporter consistently gets considered injured due float imprecisions on health values,
+		// which is why it is needed to check if the difference is bigger than 1 rathen than just comparing them directly
 	) )
 		return myClosestTeleporter;
 	// ... dispencer that is not upgraded
