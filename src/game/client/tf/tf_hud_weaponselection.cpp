@@ -120,7 +120,7 @@ private:
 
 	void FastWeaponSwitch( int iWeaponSlot );
 	void PlusTypeFastWeaponSwitch( int iWeaponSlot, bool *pbPlaySwitchSound );
-	int GetNumVisibleSlots();
+	int GetVisibleSlotBits();
 	bool ShouldDrawInternal();
 
 	virtual	void SetSelectedWeapon( C_BaseCombatWeapon *pWeapon ) 
@@ -390,22 +390,22 @@ void CHudWeaponSelection::LevelShutdown( void )
 }
 
 //-------------------------------------------------------------------------
-// Purpose: Calculates how many weapons slots need to be displayed
+// Purpose: Calculates which weapon slots to display, as bits
 //-------------------------------------------------------------------------
-int CHudWeaponSelection::GetNumVisibleSlots()
+int CHudWeaponSelection::GetVisibleSlotBits()
 {
-	int nCount = 0;
+	int iSlotBits = 0;
 
 	// iterate over all the weapon slots
 	for ( int i = 0; i < m_iMaxSlots; i++ )
 	{
 		if ( GetFirstPos( i ) )
 		{
-			nCount++;
+			iSlotBits |= (1 << i);
 		}
 	}
 
-	return nCount;
+	return iSlotBits;
 }
 
 
@@ -415,8 +415,8 @@ int CHudWeaponSelection::GetNumVisibleSlots()
 //-----------------------------------------------------------------------------
 void CHudWeaponSelection::ComputeSlotLayout( SlotLayout_t *rSlot, int nActiveSlot, int nSelectionMode )
 {
-	int nNumSlots = GetNumVisibleSlots();
-	if ( nNumSlots <= 0 )
+	int iSlotBits = GetVisibleSlotBits();
+	if ( iSlotBits <= 0 )
 		return;
 
 	switch( nSelectionMode )
@@ -426,9 +426,8 @@ void CHudWeaponSelection::ComputeSlotLayout( SlotLayout_t *rSlot, int nActiveSlo
 	case HUDTYPE_FASTSWITCH:
 		{
 			// calculate where to start drawing
-			int nTotalHeight = ( nNumSlots - 1 ) * ( m_flSmallBoxTall + m_flBoxGap ) + m_flLargeBoxTall;
+			int nTotalHeight = 0;
 			int xStartPos = GetWide() - m_flBoxGap - m_flRightMargin;
-			int ypos = ( GetTall() - nTotalHeight ) / 2;
 
 			// iterate over all the weapon slots
 			for ( int i = 0; i < m_iMaxSlots; i++ )
@@ -437,17 +436,33 @@ void CHudWeaponSelection::ComputeSlotLayout( SlotLayout_t *rSlot, int nActiveSlo
 				{
 					rSlot[i].wide = m_flLargeBoxWide;
 					rSlot[i].tall = m_flLargeBoxTall;
+					nTotalHeight += rSlot[i].tall;
 				}
 				else
 				{
 					rSlot[i].wide = m_flSmallBoxWide;
-					rSlot[i].tall = m_flSmallBoxTall;
+					// only include slot if visible OR (any slot above visible AND any slot below visible)
+					if ( ( iSlotBits >> i ) && ( iSlotBits & ( ( 1 << ( i + 1 ) ) - 1 ) ) )
+					{
+						rSlot[i].tall = m_flSmallBoxTall;
+						nTotalHeight += rSlot[i].tall + m_flBoxGap;
+					}
+					else
+					{
+						rSlot[i].tall = 0;
+					}
 				}
 
 				rSlot[i].x = xStartPos - ( rSlot[i].wide + m_flBoxGap );
-				rSlot[i].y = ypos;
+			}
 
-				ypos += ( rSlot[i].tall + m_flBoxGap );	
+			// now calculate ypos from total height
+			int ypos = ( GetTall() - nTotalHeight ) / 2;
+			for ( int i = 0; i < m_iMaxSlots; i++ )
+			{
+				rSlot[i].y = ypos;
+				// only include boxgap if slot was visible
+				ypos += ( rSlot[i].tall + ( rSlot[i].tall > 0 ? m_flBoxGap : 0 ) );
 			}
 		}
 		break;
@@ -509,8 +524,8 @@ void CHudWeaponSelection::PerformLayout( void )
 	if ( !pPlayer )
 		return;
 
-	int nNumSlots = GetNumVisibleSlots();
-	if ( nNumSlots <= 0 )
+	int iSlotBits = GetVisibleSlotBits();
+	if ( iSlotBits <= 0 )
 		return;
 
 	// find and display our current selection
@@ -578,7 +593,7 @@ void CHudWeaponSelection::PerformLayout( void )
 		else
 		{
 			// check to see if there is a weapons in this bucket
-			if ( GetFirstPos( i ) )
+			if ( iSlotBits & ( 1 << i ) )
 			{
 				C_BaseCombatWeapon *pWeapon = GetFirstPos( i );
 				if ( !pWeapon )
@@ -679,8 +694,8 @@ void CHudWeaponSelection::PostChildPaint()
 		m_pActiveWeaponBG->SetVisible( fastswitch != HUDTYPE_PLUS && pSelectedWeapon != NULL );
 	}
 
-	int nNumSlots = GetNumVisibleSlots();
-	if ( nNumSlots <= 0 )
+	int iSlotBits = GetVisibleSlotBits();
+	if ( iSlotBits <= 0 )
 		return;
 
 	DrawSelection( pSelectedWeapon );
@@ -699,8 +714,8 @@ void CHudWeaponSelection::DrawSelection( C_BaseCombatWeapon *pSelectedWeapon )
 	if ( !pPlayer )
 		return;
 
-	int nNumSlots = GetNumVisibleSlots();
-	if ( nNumSlots <= 0 )
+	int iSlotBits = GetVisibleSlotBits();
+	if ( iSlotBits <= 0 )
 		return;
 
 	// calculate where to start drawing
@@ -772,7 +787,7 @@ void CHudWeaponSelection::DrawSelection( C_BaseCombatWeapon *pSelectedWeapon )
 		else
 		{
 			// check to see if there is a weapons in this bucket
-			if ( GetFirstPos( i ) )
+			if ( iSlotBits & ( 1 << i ) )
 			{
 				C_BaseCombatWeapon *pWeapon = GetFirstPos( i );
 				if ( !pWeapon )
