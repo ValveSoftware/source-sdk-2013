@@ -27,6 +27,13 @@
 #endif
 #include "tier0/memdbgon.h"
 
+static ConVar tf_passtime_mode_lock_eye_to_eye( "tf_passtime_mode_lock_eye_to_eye", "1" );
+#ifdef CLIENT_DLL
+static ConVar p4ss_legacy_throw_controls( "p4ss_legacy_throw_controls" , "0" , FCVAR_USERINFO, "For oldies who cannot fathom changes made to their game.");
+#endif
+// FIXME: This isn't networked but should be similar to the above.
+static ConVar p4ss_reverse_throw_controls( "p4ss_reverse_throw_controls", "0", 0, "Switches mouse1 and mouse2 inputs for freethrow and passing" );
+
 //-----------------------------------------------------------------------------
 IMPLEMENT_NETWORKCLASS_ALIASED( PasstimeGun, DT_PasstimeGun )
 
@@ -393,13 +400,26 @@ bool CPasstimeGun::SendWeaponAnim( int actBase )
 //-----------------------------------------------------------------------------
 void CPasstimeGun::ItemPostFrame()
 {
+	bool bCanAttack2Cancel = !tf_passtime_experiment_autopass.GetBool();
+
+	if (p4ss_reverse_throw_controls.GetBool() )
+	{
+		m_attack.iButton = IN_ATTACK2;
+		m_attack2.iButton = IN_ATTACK;
+	}
+	else
+	{
+		m_attack.iButton = IN_ATTACK;
+		m_attack2.iButton = IN_ATTACK2;
+	}
+
 	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
 	if ( !pOwner )
 	{
 		return;
 	}
 
-	bool bCanAttack2Cancel = !tf_passtime_experiment_autopass.GetBool();
+	bool bLegacyCtrl = pOwner->ShouldUseLegacyPasstimeGunControls();
 
 #ifdef GAME_DLL
 
@@ -598,7 +618,10 @@ void CPasstimeGun::ItemPostFrame()
 			m_attack2.Enable();
 			m_attack2.Update( pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased );
 
-			if ( bCanAttack2Cancel && m_attack2.Is( BUTTONSTATE_PRESSED ) )
+			if ( bCanAttack2Cancel && (
+				bLegacyCtrl
+				? m_attack2.Is( BUTTONSTATE_PRESSED )	// Legacy
+				: ( m_attack2.Is( BUTTONSTATE_PRESSED ) || m_attack.Is( BUTTONSTATE_PRESSED ) ) ) ) // New
 			{
 				// check for cancelling attack by pressing attack2
 				if ( (m_eThrowState == THROWSTATE_CHARGING) || (m_eThrowState == THROWSTATE_CHARGED) )
@@ -620,7 +643,9 @@ void CPasstimeGun::ItemPostFrame()
 			{
 			case THROWSTATE_IDLE:
 			{
-				if ( m_attack.Is( BUTTONSTATE_PRESSED ) || m_attack.Is(BUTTONSTATE_DOWN ) )
+				if ( bLegacyCtrl
+					? m_attack.Is(BUTTONSTATE_PRESSED) ||  m_attack.Is(BUTTONSTATE_DOWN) // Legacy
+					: ( m_attack.Is( BUTTONSTATE_PRESSED ) || m_attack.Is(BUTTONSTATE_DOWN) || m_attack2.Is( BUTTONSTATE_PRESSED ) || m_attack.Is(BUTTONSTATE_DOWN) ) ) // New + input buffer
 				{
 					// note: should transition to CHARGING even if it will immediately finish charging
 					m_eThrowState = THROWSTATE_CHARGING;
@@ -642,7 +667,9 @@ void CPasstimeGun::ItemPostFrame()
 
 			case THROWSTATE_CHARGING: 
 			{
-				if ( m_attack.Is( BUTTONSTATE_RELEASED ) )
+				if ( bLegacyCtrl
+					? m_attack.Is(BUTTONSTATE_RELEASED)
+					: ( m_attack.Is( BUTTONSTATE_RELEASED ) || m_attack2.Is( BUTTONSTATE_RELEASED ) ) )
 				{
 					// NOTE: change state after calling Throw
 					Throw( pOwner );
@@ -665,7 +692,9 @@ void CPasstimeGun::ItemPostFrame()
 
 			case THROWSTATE_CHARGED:
 			{
-				if ( m_attack.Is( BUTTONSTATE_RELEASED ) )
+				if ( bLegacyCtrl
+					? m_attack.Is(BUTTONSTATE_RELEASED)
+					: ( m_attack.Is( BUTTONSTATE_RELEASED ) || m_attack2.Is( BUTTONSTATE_RELEASED ) ) )
 				{
 					// NOTE: change state after calling Throw
 					Throw( pOwner );
