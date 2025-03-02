@@ -570,6 +570,21 @@ typedef enum
 #define COLOR_WHITE		Color(255, 255, 255, 255)
 #define COLOR_BLACK		Color(0, 0, 0, 255)
 
+// [toizy] - Additional colors
+#define COLOR_MK_DEFAULT	Color(255, 180, 0, 255)
+#define COLOR_MK_SILVER		Color(192, 192, 192, 255)
+#define COLOR_MK_COMBINE	Color(154, 205, 255, 255)
+#define COLOR_MK_REBELS		Color(255, 62, 62, 255)
+#define COLOR_MK_ROYALBLUE	Color(65, 105, 225, 255)
+#define COLOR_MK_LIME		Color(0, 255, 0, 255)
+#define COLOR_MK_GREEN		Color(0, 128, 0, 255)
+#define COLOR_MK_YELLOW		Color(255, 255, 0, 255)
+#define COLOR_MK_RED		Color(255, 0, 0, 255)
+#define COLOR_MK_NAVY		Color(0, 0, 128, 255)
+#define COLOR_MK_GRAY		Color(128, 128, 128, 255)
+#define COLOR_MK_ORANGE		Color(255, 165, 0, 255)
+#define COLOR_MK_WHITE		Color(255, 255, 255, 255)
+
 // All NPCs need this data
 enum
 {

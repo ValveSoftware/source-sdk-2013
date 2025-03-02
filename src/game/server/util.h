@@ -647,8 +647,9 @@ void UTIL_BoundToWorldSize( Vector *pVecPos );
 void UTIL_SetClientConVarValue( edict_t* pEdict, const char* pszConVarName, const char* pszConVarValue );
 void UTIL_SetClientConVarValueAll( const char* pszConVarName, const char* pszConVarValue );
 void UTIL_SetGameDescription( const char* description );
-#ifndef TF_DLL
+#ifdef HL2MP
 void UTIL_GenerateRGBA( CBaseEntity* pPlayer, ConVar* var_condition, ConVar* var_defcolors, color32& outcolor );
-#endif
+#endif	//HL2MP
+void UTIL_FakePlayerCommand( edict_t* pEdict, const char* pszString );
 
 #endif // UTIL_H

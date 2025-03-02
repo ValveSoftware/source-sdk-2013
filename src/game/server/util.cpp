@@ -1,8 +1,7 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Utility code.
-//
-// $NoKeywords: $
+//// $NoKeywords: $
 //=============================================================================//
 
 #include "cbase.h"
@@ -3278,7 +3277,7 @@ void UTIL_SetGameDescription( const char* description )
 	}
 }
 
-#ifndef TF_DLL
+#ifdef HL2MP
 
 void UTIL_GenerateRGBA( CBaseEntity* pPlayer, ConVar* var_condition, ConVar* var_defcolors, color32& outcolor )
 {
@@ -3329,4 +3328,19 @@ void UTIL_GenerateRGBA( CBaseEntity* pPlayer, ConVar* var_condition, ConVar* var
 			break;
 	}
 }
+
+void UTIL_FakePlayerCommand( edict_t* pEdict, const char* pszString )
+{
+	char data[256];
+	bf_write buffer( data, sizeof( data ) );
+
+	buffer.WriteUBitLong( 4, 6 );	// msg num, NET_MESSAGE_BITS
+	buffer.WriteString( pszString );
+
+	INetChannel* pnetchan = static_cast<INetChannel*>(engine->GetPlayerNetInfo( pEdict->m_EdictIndex ));
+
+	if ( pnetchan )
+		pnetchan->SendData( buffer );
+}
+
 #endif
