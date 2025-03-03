@@ -17726,7 +17726,7 @@ void CTFPlayer::OnTauntSucceeded( const char* pszSceneName, int iTauntIndex /*= 
 
 	float flDurationMod = 1;
 	CALL_ATTRIB_HOOK_FLOAT( flDurationMod, mult_gesture_time ); // Modify by attributes.
-	flDuration /= flDurationMod;
+	flDuration /= abs( flDurationMod );
 
 	// Set player state as taunting.
 	m_Shared.m_iTauntIndex = iTauntIndex;
