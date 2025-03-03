@@ -47,6 +47,7 @@ class CBoneList;
 class KeyValues;
 class CJiggleBones;
 class IBoneSetup;
+class CGlowObject;
 FORWARD_DECLARE_HANDLE( memhandle_t );
 typedef unsigned short MDLHandle_t;
 
@@ -470,6 +471,10 @@ protected:
 
 	virtual bool					ShouldFlipViewModel();
 
+#ifdef GLOWS_ENABLE
+	virtual void					UpdateGlow();
+#endif
+
 private:
 	// This method should return true if the bones have changed + SetupBones needs to be called
 	virtual float					LastBoneChangedTime() { return FLT_MAX; }
@@ -541,6 +546,14 @@ protected:
 	float							m_fadeMinDist;
 	float							m_fadeMaxDist;
 	float							m_flFadeScale;
+
+#ifdef GLOWS_ENABLE
+	CGlowObject						*m_pGlowObject;
+
+	CNetworkVar( bool, m_bGlowEnabled );
+	CNetworkColor32( m_glowColor );
+	CNetworkVar( int, m_iGlowMode );
+#endif
 
 private:
 

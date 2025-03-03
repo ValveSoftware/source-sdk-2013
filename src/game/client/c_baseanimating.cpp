@@ -203,6 +203,12 @@ IMPLEMENT_CLIENTCLASS_DT(C_BaseAnimating, DT_BaseAnimating, CBaseAnimating)
 	RecvPropFloat( RECVINFO( m_fadeMaxDist ) ), 
 	RecvPropFloat( RECVINFO( m_flFadeScale ) ), 
 
+#ifdef GLOWS_ENABLE
+	RecvPropBool( RECVINFO( m_bGlowEnabled ) ),
+	RecvPropInt( RECVINFO( m_glowColor ), 0, RecvProxy_IntToColor32 ),
+	RecvPropInt( RECVINFO( m_iGlowMode ) ),
+#endif
+
 END_RECV_TABLE()
 
 BEGIN_PREDICTION_DATA( C_BaseAnimating )
@@ -745,6 +751,11 @@ C_BaseAnimating::C_BaseAnimating() :
 	Q_memset(&m_mouth, 0, sizeof(m_mouth));
 	m_flCycle = 0;
 	m_flOldCycle = 0;
+
+#ifdef GLOWS_ENABLE
+	m_bGlowEnabled = false;
+	m_iGlowMode = 0;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -785,6 +796,14 @@ C_BaseAnimating::~C_BaseAnimating()
 		m_pAttachedTo->RemoveBoneAttachment( this );
 		m_pAttachedTo = NULL;
 	}
+
+#ifdef GLOWS_ENABLE
+	if ( m_pGlowObject )
+	{
+		delete m_pGlowObject;
+		m_pGlowObject = NULL;
+	}
+#endif
 }
 
 bool C_BaseAnimating::UsesPowerOfTwoFrameBufferTexture( void )
@@ -4747,6 +4766,10 @@ void C_BaseAnimating::PostDataUpdate( DataUpdateType_t updateType )
 			m_iv_flCycle.Reset();
 		}
 	}
+
+#ifdef GLOWS_ENABLE
+	UpdateGlow();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -6723,3 +6746,38 @@ void C_BaseAnimating::MoveBoneAttachments( C_BaseAnimating* attachTarget )
 		}
 	}
 }
+
+#ifdef GLOWS_ENABLE
+void C_BaseAnimating::UpdateGlow()
+{
+	if ( !m_bGlowEnabled )
+	{
+		if ( m_pGlowObject )
+		{
+			delete m_pGlowObject;
+			m_pGlowObject = nullptr;
+		}
+
+		return;
+	}
+
+	if ( !m_pGlowObject )
+		m_pGlowObject = new CGlowObject( this, Vector( 1.0f, 1.0f, 1.0f ), 0.0f, false, false );
+
+	Vector glowColor;
+	glowColor[0] = m_glowColor.GetR() * ( 1.0f / 255.0f );
+	glowColor[1] = m_glowColor.GetG() * ( 1.0f / 255.0f );
+	glowColor[2] = m_glowColor.GetB() * ( 1.0f / 255.0f );
+	float glowAlpha = m_glowColor.GetA() * ( 1.0f / 255.0f );
+
+	bool bDrawWhenOccluded = ( m_iGlowMode == 0) || ( m_iGlowMode == 1 );
+	bool bDrawWhenVisible = ( m_iGlowMode == 0) || ( m_iGlowMode == 2 );
+	Assert( bDrawWhenOccluded || bDrawWhenVisible );
+
+	m_pGlowObject->SetColor( glowColor );
+	m_pGlowObject->SetAlpha( glowAlpha );
+	m_pGlowObject->SetRenderFlags( bDrawWhenOccluded, bDrawWhenVisible );
+
+	SetNextClientThink( gpGlobals->curtime + 0.1f );
+}
+#endif

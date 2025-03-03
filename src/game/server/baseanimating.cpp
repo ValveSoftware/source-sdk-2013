@@ -216,6 +216,17 @@ BEGIN_DATADESC( CBaseAnimating )
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetCycle", InputSetCycle ),
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetPlaybackRate", InputSetPlaybackRate ),
 
+#ifdef GLOWS_ENABLE
+	DEFINE_KEYFIELD( m_iGlowMode, FIELD_INTEGER, "GlowMode" ),
+	DEFINE_KEYFIELD( m_glowColor, FIELD_COLOR32, "GlowColor" ),
+	DEFINE_KEYFIELD( m_bGlowEnabled, FIELD_BOOLEAN, "GlowEnabled" ),
+
+	DEFINE_INPUTFUNC( FIELD_VOID, "EnableGlow", InputEnableGlow ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "DisableGlow", InputDisableGlow ),
+	DEFINE_INPUTFUNC( FIELD_COLOR32, "SetGlowColor", InputSetGlowColor ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetGlowMode", InputSetGlowMode ),
+#endif
+
 	DEFINE_FIELD( m_fBoneCacheFlags, FIELD_SHORT ),
 
 	END_DATADESC()
@@ -264,6 +275,12 @@ IMPLEMENT_SERVERCLASS_ST(CBaseAnimating, DT_BaseAnimating)
 	SendPropFloat( SENDINFO( m_fadeMaxDist ), 0, SPROP_NOSCALE ),
 	SendPropFloat( SENDINFO( m_flFadeScale ), 0, SPROP_NOSCALE ),
 
+#ifdef GLOWS_ENABLE
+	SendPropBool( SENDINFO( m_bGlowEnabled ) ),
+	SendPropInt( SENDINFO( m_glowColor ), 32, SPROP_UNSIGNED, SendProxy_Color32ToInt ),
+	SendPropInt( SENDINFO( m_iGlowMode ), -1, SPROP_UNSIGNED ),
+#endif
+
 END_SEND_TABLE()
 
 BEGIN_ENT_SCRIPTDESC( CBaseAnimating, CBaseEntity, "Animating models" )
@@ -305,6 +322,11 @@ BEGIN_ENT_SCRIPTDESC( CBaseAnimating, CBaseEntity, "Animating models" )
 	DEFINE_SCRIPTFUNC( BecomeRagdollOnClient, "Becomes a ragdoll with a force" )
 	DEFINE_SCRIPTFUNC( StudioFrameAdvance, "Advance animation frame to some time in the future with an automatically calculated interval" )
 	DEFINE_SCRIPTFUNC( StudioFrameAdvanceManual, "Advance animation frame to some time in the future with a manual interval" )
+#ifdef GLOWS_ENABLE
+	DEFINE_SCRIPTFUNC( ToggleGlow, "Toggles model glow" )
+	DEFINE_SCRIPTFUNC( SetGlowColor, "Sets model glow color" )
+	DEFINE_SCRIPTFUNC( SetGlowMode, "Sets model glow mode" )
+#endif
 	DEFINE_SCRIPTFUNC_NAMED( ScriptDispatchAnimEvents, "DispatchAnimEvents", "Dispatch animation events to a CBaseAnimating" )
 	DEFINE_SCRIPTFUNC_WRAPPED( LookupPoseParameter, "Looks up a pose parameter index by name" );
 END_SCRIPTDESC();
@@ -333,6 +355,12 @@ CBaseAnimating::CBaseAnimating()
 	m_fadeMaxDist = 0;
 	m_flFadeScale = 0.0f;
 	m_fBoneCacheFlags = 0;
+
+#ifdef GLOWS_ENABLE
+	m_iGlowMode = 0;
+	m_bGlowEnabled = false;
+	SetGlowColor( 255, 255, 255, 255 );
+#endif
 }
 
 CBaseAnimating::~CBaseAnimating()
@@ -393,6 +421,18 @@ void CBaseAnimating::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 	{
 		m_hLightingOriginRelative->SetTransmit( pInfo, bAlways );
 	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+int CBaseAnimating::UpdateTransmitState()
+{
+#ifdef GLOWS_ENABLE
+	if ( m_bGlowEnabled )
+		return SetTransmitState( FL_EDICT_ALWAYS );
+#endif
+
+	return BaseClass::UpdateTransmitState();
 }
 
 //-----------------------------------------------------------------------------
@@ -717,6 +757,67 @@ void CBaseAnimating::InputSetPlaybackRate( inputdata_t &inputdata )
 {
 	SetPlaybackRate( inputdata.value.Float() );
 }
+
+#ifdef GLOWS_ENABLE
+//-----------------------------------------------------------------------------
+// Purpose: Toggle glow status
+//-----------------------------------------------------------------------------
+void CBaseAnimating::ToggleGlow( bool bToggle )
+{
+	m_bGlowEnabled = bToggle;
+
+	DispatchUpdateTransmitState();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Set glow color
+//-----------------------------------------------------------------------------
+void CBaseAnimating::SetGlowColor( int r, int g, int b, int a )
+{
+	m_glowColor.Init(r, g, b, a);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Set glow mode
+//-----------------------------------------------------------------------------
+void CBaseAnimating::SetGlowMode( int iMode )
+{
+	m_iGlowMode = iMode;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: EnableGlow input handler
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputEnableGlow( inputdata_t &inputdata )
+{
+	ToggleGlow(true);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: DisableGlow input handler
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputDisableGlow(inputdata_t &inputdata)
+{
+	ToggleGlow(false);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: SetGlowColor input handler
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputSetGlowColor( inputdata_t &inputdata )
+{
+	color32 color = inputdata.value.Color32();
+	SetGlowColor( color.r, color.g, color.b, color.a );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: SetGlowMode input handler
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputSetGlowMode( inputdata_t &inputdata )
+{
+	SetGlowMode(inputdata.value.Int());
+}
+#endif
 
 //=========================================================
 // SelectWeightedSequence
