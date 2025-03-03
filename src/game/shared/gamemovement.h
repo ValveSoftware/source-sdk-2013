@@ -139,6 +139,7 @@ protected:
 	// simultaneously.
 	bool			CheckInterval( IntervalType_t type );
 
+	float 			GetPlayerGravity( void );
 
 	// Decompoosed gravity
 	void			StartGravity( void );

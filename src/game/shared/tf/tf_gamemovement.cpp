@@ -128,6 +128,7 @@ public:
 	void			VehicleMove( void );
 	bool			HighMaxSpeedMove( void );
 	virtual float	GetAirSpeedCap( void );
+	float 			GetSpeedRedirectCoefficient( void );
 
 	virtual void	TracePlayerBBox( const Vector& start, const Vector& end, unsigned int fMask, int collisionGroup, trace_t& pm );
 	virtual CBaseHandle	TestPlayerPosition( const Vector& pos, int collisionGroup, trace_t& pm );
@@ -2102,6 +2103,17 @@ float CTFGameMovement::GetAirSpeedCap( void )
 	}
 }
 
+float CTFGameMovement::GetSpeedRedirectCoefficient( void )
+{
+	float flRedirectCoeff = 0.f;
+	if ( m_pTFPlayer->m_Shared.InCond( TF_COND_AIR_CURRENT ) )
+	{
+		flRedirectCoeff = Clamp( 1.f - tf_movement_aircurrent_friction_mult.GetFloat(), 0.f, 1.f );
+	}
+
+	return flRedirectCoeff;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -2157,11 +2169,9 @@ void CTFGameMovement::AirMove( void )
 	}
 
 	float flAirAccel = sv_airaccelerate.GetFloat();
-	float flWallSlideCoeff = 0.f;
 	if ( m_pTFPlayer->m_Shared.InCond( TF_COND_AIR_CURRENT ) )
 	{
 		flAirAccel *= tf_movement_aircurrent_aircontrol_mult.GetFloat();
-		flWallSlideCoeff = Clamp( 1.f - tf_movement_aircurrent_friction_mult.GetFloat(), 0.f, 1.f );
 	}
 /*
 #ifdef STAGING_ONLY
@@ -2192,7 +2202,7 @@ void CTFGameMovement::AirMove( void )
 	// Add in any base velocity to the current velocity.
 	VectorAdd( mv->m_vecVelocity, player->GetBaseVelocity(), mv->m_vecVelocity );
 
-	int iBlocked = TryPlayerMove( NULL, NULL, flWallSlideCoeff );
+	int iBlocked = TryPlayerMove( NULL, NULL, GetSpeedRedirectCoefficient() );
 
 	// TryPlayerMove uses '2' to indictate wall colision wtf
 	if ( iBlocked & 2 )
@@ -2403,16 +2413,9 @@ void CTFGameMovement::CategorizePosition( void )
 	{
 		Vector vecVelocityNext = mv->m_vecVelocity;
 
-		float ent_gravity = player->GetGravity() ? player->GetGravity() : 1.0;
-		vecVelocityNext.z -= ent_gravity * GetCurrentGravity() * gpGlobals->frametime;
+		vecVelocityNext.z -= GetPlayerGravity() * gpGlobals->frametime;
 
-		float flWallSlideCoeff = 0.f;
-		if ( m_pTFPlayer->m_Shared.InCond( TF_COND_AIR_CURRENT ) )
-		{
-			flWallSlideCoeff = Clamp( 1.f - tf_movement_aircurrent_friction_mult.GetFloat(), 0.f, 1.f );
-		}
-
-		ClipVelocity( vecVelocityNext, trace.plane.normal, vecVelocityNext, 1.0f, flWallSlideCoeff );
+		ClipVelocity( vecVelocityNext, trace.plane.normal, vecVelocityNext, 1.0f, GetSpeedRedirectCoefficient() );
 
 		if ( vecVelocityNext.z > 250.0f )
 			return;
