@@ -8891,26 +8891,16 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 		return 0;
 	}
-
+	
+	// Sentry Busters hurt teammates when they explode.
+	// Force damage value when the victim is a giant.
 	if ( IsBot() )
 	{
-		// Don't let Sentry Busters die until they've done their spin-up
 		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
 		{
 			CTFBot *bot = ToTFBot( this );
 			if ( bot )
 			{
-				if ( bot->HasMission( CTFBot::MISSION_DESTROY_SENTRIES ) )
-				{
-					if ( ( m_iHealth - info.GetDamage() ) <= 0 )
-					{
-						m_iHealth = 1;
-						return 0;
-					}
-				}
-
-				// Sentry Busters hurt teammates when they explode.
-				// Force damage value when the victim is a giant.
 				if ( pTFAttacker && pTFAttacker->IsBot() )
 				{
 					CTFBot *pTFAttackerBot = ToTFBot( pTFAttacker );
@@ -9260,6 +9250,24 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	if ( !TFGameRules()->ApplyOnDamageModifyRules( info, this, bAllowDamage ) )
 	{
 		return 0;
+	}
+	
+	// Don't let Sentry Busters die until they've done their spin-up
+	if ( IsBot() )
+	{
+		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
+		{
+			CTFBot* bot = ToTFBot( this );
+			if ( bot && bot->HasMission( CTFBot::MISSION_DESTROY_SENTRIES ) )
+			{
+				// Round to nearest like in OnTakeDamage_Alive
+				if ( ( m_iHealth - ( info.GetDamage() + 0.5f ) ) <= 0 )
+				{
+					m_iHealth = 1;
+					return 0;
+				}
+			}
+		}
 	}
 
 	// If player has Reflect Powerup, reflect damage to attacker. 
