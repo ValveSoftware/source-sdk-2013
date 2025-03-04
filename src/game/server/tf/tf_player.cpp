@@ -9263,8 +9263,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				// Round to nearest like in OnTakeDamage_Alive
 				if ( ( m_iHealth - ( info.GetDamage() + 0.5f ) ) <= 0 )
 				{
-					m_iHealth = 1;
-					return 0;
+					info.SetDamage( m_iHealth - 1 );
 				}
 			}
 		}
