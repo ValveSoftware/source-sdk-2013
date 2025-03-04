@@ -19448,7 +19448,10 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 		{
 			if ( pCP->GetOwner() == GetTeamNumber() )
 			{
-				criteriaSet.AppendCriteria( "OnFriendlyControlPoint", "1" );
+				if ( TeamplayGameRules()->TeamMayCapturePoint( GetEnemyTeam( GetTeamNumber() ), pCP->GetPointIndex() ) )
+				{
+					criteriaSet.AppendCriteria( "OnFriendlyControlPoint", "1" );
+				}
 			}
 			else 
 			{
