@@ -884,7 +884,7 @@ ConVar tf_mvm_respec_credit_goal( "tf_mvm_respec_credit_goal", "2000", FCVAR_CHE
 ConVar tf_mvm_buybacks_method( "tf_mvm_buybacks_method", "0", FCVAR_REPLICATED, "When set to 0, use the traditional, currency-based system.  When set to 1, use finite, charge-based system.", true, 0.0, true, 1.0 );
 ConVar tf_mvm_buybacks_per_wave( "tf_mvm_buybacks_per_wave", "3", FCVAR_REPLICATED, "The fixed number of buybacks players can use per-wave." );
 
-ConVar tf_mvm_disguise_on_backstab_mode ("tf_mvm_disguise_on_backstab_mode", "0", FCVAR_REPLICATED, "When set to 1, disables MvM-specific nerfs for disguise on backstab weapons.");
+ConVar tf_mvm_disguise_on_backstab_mode ( "tf_mvm_disguise_on_backstab_mode", "0", FCVAR_REPLICATED, "When set to 1, disables MvM-specific nerfs for disguise on backstab weapons." );
 
 #ifdef GAME_DLL
 enum { kMVM_CurrencyPackMinSize = 1, };
