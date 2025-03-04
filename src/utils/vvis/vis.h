@@ -1,16 +1,8 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
-//
-// Purpose: 
-//
-// $NoKeywords: $
-//
-//=============================================================================//
-// vis.h
-
 #include "cmdlib.h"
 #include "mathlib/mathlib.h"
 #include "bsplib.h"
-
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
 
 #define	MAX_PORTALS	65536
 
@@ -123,3 +115,16 @@ int CountBits (byte *bits, int numbits);
 #define CheckBit( bitstring, bitNumber )	( (bitstring)[ ((bitNumber) >> 3) ] & ( 1 << ( (bitNumber) & 7 ) ) )
 #define SetBit( bitstring, bitNumber )	( (bitstring)[ ((bitNumber) >> 3) ] |= ( 1 << ( (bitNumber) & 7 ) ) )
 #define ClearBit( bitstring, bitNumber )	( (bitstring)[ ((bitNumber) >> 3) ] &= ~( 1 << ( (bitNumber) & 7 ) ) )
+
+// GPU-based visibility calculation structures and definitions
+struct gpu_visibility_data_t
+{
+	byte* d_bits;
+	int* d_result;
+};
+
+void AllocateGPUVisibilityData(gpu_visibility_data_t* data, int numbits);
+void FreeGPUVisibilityData(gpu_visibility_data_t* data);
+void CopyBitsToGPU(gpu_visibility_data_t* data, byte* bits, int numbits);
+void CopyResultFromGPU(gpu_visibility_data_t* data, int* result);
+void CountBitsOnGPU(gpu_visibility_data_t* data, int numbits);

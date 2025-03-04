@@ -1,11 +1,3 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
-//
-// Purpose: 
-//
-// $NoKeywords: $
-//
-//=============================================================================//
-
 #include <windows.h>
 #include "vis.h"
 #include "threads.h"
@@ -23,6 +15,8 @@
 #include <conio.h>
 #include "scratchpad_helpers.h"
 #include "tier0/fasttimer.h"
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
 
 
 #define VMPI_VVIS_PACKET_ID						1

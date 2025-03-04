@@ -1,8 +1,8 @@
-//-----------------------------------------------------------------------------
-//	VVIS_DLL.VPC
-//
-//	Project Script
-//-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+#	VVIS_DLL.VPC
+#
+#	Project Script
+#-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
 $Macro OUTBINDIR	"$SRCDIR\..\game\bin"
@@ -16,11 +16,15 @@ $Configuration
 		$AdditionalIncludeDirectories		"$BASE,..\common,..\vmpi,..\vmpi\mysql\include"
 		$PreprocessorDefinitions			"$BASE;MPI" [$WIN32]
 		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE"
+		$PreprocessorDefinitions			"$BASE;CUDA" [$WIN32]
+		$AdditionalIncludeDirectories		"$BASE;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\include" [$WIN32]
 	}
 
 	$Linker
 	{
 		$AdditionalDependencies				"$BASE odbc32.lib odbccp32.lib ws2_32.lib"
+		$AdditionalDependencies				"$BASE cudart.lib" [$WIN32]
+		$AdditionalLibraryDirectories		"$BASE;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\lib\x64" [$WIN32]
 	}
 }
 
