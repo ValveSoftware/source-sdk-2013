@@ -681,6 +681,7 @@ void C_TFRagdoll::CreateTFRagdoll()
 	C_TFPlayer *pPlayer = GetPlayer();
 
 	int nModelIndex = -1;
+	float flBurnSequence = 0.0f;
 
 	if ( pPlayer && pPlayer->GetPlayerClass() && !pPlayer->ShouldDrawSpyAsDisguised() )
 	{
@@ -827,6 +828,14 @@ void C_TFRagdoll::CreateTFRagdoll()
 			{
 				iDeathSeq = -1;
 			}
+
+			//We want to end this particular animation with us becoming ash
+			//The death animation has a varying sequence at which it plays
+			if ( iDeathSeq > -1 && iDeathSeq == LookupSequence( "primary_death_burning" ) )
+			{
+				flBurnSequence = SequenceDuration( LookupSequence( "primary_death_burning" ) );
+				m_bBecomeAsh = 1;
+			}
 		}
 	}
 
@@ -936,9 +945,16 @@ void C_TFRagdoll::CreateTFRagdoll()
 	}
 
 	if ( m_bBecomeAsh && !m_bDissolving && !m_bGib )
-	{
-		ParticleProp()->Create( "drg_fiery_death", PATTACH_ABSORIGIN_FOLLOW );
-		m_flTimeToDissolve = 0.5f;
+	{		
+		if (iDeathSeq = LookupSequence( "primary_death_burning" ) )
+		{
+			m_flTimeToDissolve = flBurnSequence;
+		}
+		else
+		{
+			ParticleProp()->Create( "drg_fiery_death", PATTACH_ABSORIGIN_FOLLOW );
+			m_flTimeToDissolve = 0.5f;
+		}
 	}
 
 	if ( pPlayer->HasBombinomiconEffectOnDeath() && !m_bGib && !m_bDissolving )
@@ -1031,6 +1047,12 @@ float C_TFRagdoll::FrameAdvance( float flInterval )
 
 	if ( !m_bRagdollOn && IsSequenceFinished() && m_bDeathAnim )
 	{
+		//If we're using the burning death animation, we want to add our ash effect at the end of the sequence.
+		if ( m_bBecomeAsh && bPlayDeathAnim )
+		{
+			ParticleProp()->Create( "drg_fiery_death", PATTACH_ABSORIGIN_FOLLOW );
+		}
+		
 		m_nRenderFX = kRenderFxRagdoll;
 
 		matrix3x4_t boneDelta0[MAXSTUDIOBONES];
@@ -1432,6 +1454,7 @@ void C_TFRagdoll::ClientThink( void )
 		else if ( m_bBecomeAsh )
 		{
 			m_flTimeToDissolve -= gpGlobals->frametime;
+
 			if ( m_flTimeToDissolve <= 0 )
 			{
 				if ( bBombinomicon )

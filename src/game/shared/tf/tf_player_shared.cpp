@@ -13252,10 +13252,10 @@ int CTFPlayerShared::GetSequenceForDeath( CBaseAnimating* pRagdoll, bool bBurnin
 	}
 
 	int iDeathSeq = -1;
-// 	if ( bBurning )
-// 	{
-// 		iDeathSeq = pRagdoll->LookupSequence( "primary_death_burning" );
-// 	}
+	if ( bBurning )
+	{
+		iDeathSeq = pRagdoll->LookupSequence( "primary_death_burning" );
+	}
 
 	switch ( nCustomDeath )
 	{
