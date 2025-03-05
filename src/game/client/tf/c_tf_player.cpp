@@ -681,7 +681,6 @@ void C_TFRagdoll::CreateTFRagdoll()
 	C_TFPlayer *pPlayer = GetPlayer();
 
 	int nModelIndex = -1;
-	float flBurnSequence = 0.0f;
 
 	if ( pPlayer && pPlayer->GetPlayerClass() && !pPlayer->ShouldDrawSpyAsDisguised() )
 	{
@@ -830,10 +829,8 @@ void C_TFRagdoll::CreateTFRagdoll()
 			}
 
 			//We want to end this particular animation with us becoming ash
-			//The death animation has a varying sequence at which it plays
 			if ( iDeathSeq > -1 && iDeathSeq == LookupSequence( "primary_death_burning" ) )
 			{
-				flBurnSequence = SequenceDuration( LookupSequence( "primary_death_burning" ) );
 				m_bBecomeAsh = 1;
 			}
 		}
@@ -946,9 +943,10 @@ void C_TFRagdoll::CreateTFRagdoll()
 
 	if ( m_bBecomeAsh && !m_bDissolving && !m_bGib )
 	{		
-		if (iDeathSeq = LookupSequence( "primary_death_burning" ) )
+		//The death animation has a varying sequence at which it plays
+		if (iDeathSeq > -1 && iDeathSeq == LookupSequence( "primary_death_burning" ) )
 		{
-			m_flTimeToDissolve = flBurnSequence;
+			m_flTimeToDissolve = SequenceDuration( LookupSequence( "primary_death_burning" ) );
 		}
 		else
 		{
@@ -1048,7 +1046,7 @@ float C_TFRagdoll::FrameAdvance( float flInterval )
 	if ( !m_bRagdollOn && IsSequenceFinished() && m_bDeathAnim )
 	{
 		//If we're using the burning death animation, we want to add our ash effect at the end of the sequence.
-		if ( m_bBecomeAsh && bPlayDeathAnim )
+		if ( m_bBecomeAsh )
 		{
 			ParticleProp()->Create( "drg_fiery_death", PATTACH_ABSORIGIN_FOLLOW );
 		}

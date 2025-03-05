@@ -13252,10 +13252,10 @@ int CTFPlayerShared::GetSequenceForDeath( CBaseAnimating* pRagdoll, bool bBurnin
 	}
 
 	int iDeathSeq = -1;
-	if ( bBurning )
-	{
-		iDeathSeq = pRagdoll->LookupSequence( "primary_death_burning" );
-	}
+	// if ( bBurning )
+	// {
+	// 	iDeathSeq = pRagdoll->LookupSequence( "primary_death_burning" );
+	// }
 
 	switch ( nCustomDeath )
 	{
@@ -13267,6 +13267,13 @@ int CTFPlayerShared::GetSequenceForDeath( CBaseAnimating* pRagdoll, bool bBurnin
 		break;
 	case TF_DMG_CUSTOM_BACKSTAB:
 		iDeathSeq = pRagdoll->LookupSequence( "primary_death_backstab" );
+		break;
+	case TF_DMG_CUSTOM_BURNING:
+	case TF_DMG_CUSTOM_BURNING_ARROW:
+	case TF_DMG_CUSTOM_BURNING_FLARE:
+	case TF_DMG_CUSTOM_FLARE_PELLET:
+	case TF_DMG_CUSTOM_PLASMA_CHARGED:
+		iDeathSeq = pRagdoll->LookupSequence( "primary_death_burning" );
 		break;
 	}
 
