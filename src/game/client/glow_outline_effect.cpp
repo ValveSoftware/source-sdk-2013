@@ -97,18 +97,18 @@ void CGlowObjectManager::RenderGlowModels( const CViewSetup *pSetup, int nSplitS
 	// After this function returns, this image will then be blurred and added into the frame	//
 	// buffer with the objects stenciled out.													//
 	//==========================================================================================//
-	pRenderContext->PushRenderTargetAndViewport();
+	ITexture *pRtFullFrame = materials->FindTexture( FULL_FRAME_TEXTURE, TEXTURE_GROUP_RENDER_TARGET );
+	ITexture *pRtFullFrame1 = materials->FindTexture( "_rt_FullFrameFB1", TEXTURE_GROUP_RENDER_TARGET );
+
+	// Backup the current RT
+	// This is used instead of PushRenderTargetAndViewport because the latter will replace the depth buffer
+	// The depth buffer is needed so glows can be occluded if desired
+	pRenderContext->CopyRenderTargetToTexture( pRtFullFrame1 );
 
 	// Save modulation color and blend
 	Vector vOrigColor;
 	render->GetColorModulation( vOrigColor.Base() );
 	float flOrigBlend = render->GetBlend();
-
-	// Get pointer to FullFrameFB
-	ITexture *pRtFullFrame = NULL;
-	pRtFullFrame = materials->FindTexture( FULL_FRAME_TEXTURE, TEXTURE_GROUP_RENDER_TARGET );
-
-	SetRenderTargetAndViewPort( pRtFullFrame, pSetup->width, pSetup->height );
 
 	pRenderContext->ClearColor3ub( 0, 0, 0 );
 	pRenderContext->ClearBuffers( true, false, false );
@@ -138,12 +138,30 @@ void CGlowObjectManager::RenderGlowModels( const CViewSetup *pSetup, int nSplitS
 		if ( m_GlowObjectDefinitions[i].IsUnused() || !m_GlowObjectDefinitions[i].ShouldDraw( nSplitScreenSlot ) )
 			continue;
 
-		render->SetBlend( m_GlowObjectDefinitions[i].m_flGlowAlpha );
-		Vector vGlowColor = m_GlowObjectDefinitions[i].m_vGlowColor * m_GlowObjectDefinitions[i].m_flGlowAlpha;
-		render->SetColorModulation( &vGlowColor[0] ); // This only sets rgb, not alpha
+		bool bRenderWhenOccluded = m_GlowObjectDefinitions[i].m_bRenderWhenOccluded;
+		bool bRenderWhenUnccluded = m_GlowObjectDefinitions[i].m_bRenderWhenUnoccluded;
+		float flGlowAlpha = m_GlowObjectDefinitions[i].m_flGlowAlpha;
+		Vector vGlowColor = m_GlowObjectDefinitions[i].m_vGlowColor * flGlowAlpha;
+
+		pRenderContext->OverrideDepthEnable( !bRenderWhenOccluded, false );
+
+		render->SetBlend( flGlowAlpha );
+		render->SetColorModulation( &vGlowColor[0] );
 
 		m_GlowObjectDefinitions[i].DrawModel();
-	}	
+
+		if ( bRenderWhenOccluded && !bRenderWhenUnccluded )
+		{
+			// For objects that only show when occluded, clear any unoccluded pixels
+			vGlowColor.Init();
+			render->SetBlend( 1.0f );
+			render->SetColorModulation( &vGlowColor[0] );
+
+			pRenderContext->OverrideDepthEnable( true, false );
+
+			m_GlowObjectDefinitions[i].DrawModel();
+		}
+	}
 
 	if ( g_bDumpRenderTargets )
 	{
@@ -158,7 +176,14 @@ void CGlowObjectManager::RenderGlowModels( const CViewSetup *pSetup, int nSplitS
 	stencilStateDisable.m_bEnable = false;
 	stencilStateDisable.SetStencilState( pRenderContext );
 
-	pRenderContext->PopRenderTargetAndViewport();
+	// Reset depth override
+	pRenderContext->OverrideDepthEnable( false, false );
+
+	// Copy what we just rendered to FullFrame
+	pRenderContext->CopyRenderTargetToTexture( pRtFullFrame );
+
+	// Restore our backup
+	pRenderContext->CopyTextureToRenderTargetEx( 0, pRtFullFrame1, NULL );
 }
 
 void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int nSplitScreenSlot, CMatRenderContextPtr &pRenderContext, float flBloomScale, int x, int y, int w, int h )
@@ -225,7 +250,7 @@ void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int n
 				stencilState.m_CompareFunc = STENCILCOMPARISONFUNCTION_EQUAL;
 				stencilState.m_PassOp = STENCILOPERATION_INCRSAT;
 				stencilState.m_FailOp = STENCILOPERATION_KEEP;
-				stencilState.m_ZFailOp = STENCILOPERATION_REPLACE;
+				stencilState.m_ZFailOp = STENCILOPERATION_KEEP;
 
 				stencilState.SetStencilState( pRenderContext );
 
@@ -234,27 +259,6 @@ void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int n
 		}
 
 		iNumGlowObjects++;
-	}
-
-	// Need to do a 2nd pass to warm stencil for objects which are rendered only when occluded
-	for ( int i = 0; i < m_GlowObjectDefinitions.Count(); ++ i )
-	{
-		if ( m_GlowObjectDefinitions[i].IsUnused() || !m_GlowObjectDefinitions[i].ShouldDraw( nSplitScreenSlot ) )
-			continue;
-
-		if ( m_GlowObjectDefinitions[i].m_bRenderWhenOccluded && !m_GlowObjectDefinitions[i].m_bRenderWhenUnoccluded )
-		{
-			ShaderStencilState_t stencilState;
-			stencilState.m_bEnable = true;
-			stencilState.m_nReferenceValue = 2;
-			stencilState.m_CompareFunc = STENCILCOMPARISONFUNCTION_ALWAYS;
-			stencilState.m_PassOp = STENCILOPERATION_REPLACE;
-			stencilState.m_FailOp = STENCILOPERATION_KEEP;
-			stencilState.m_ZFailOp = STENCILOPERATION_KEEP;
-			stencilState.SetStencilState( pRenderContext );
-
-			m_GlowObjectDefinitions[i].DrawModel();
-		}
 	}
 
 	pRenderContext->OverrideDepthEnable( false, false );
