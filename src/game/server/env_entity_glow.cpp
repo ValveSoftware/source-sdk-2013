@@ -6,14 +6,16 @@
 
 #include "cbase.h"
 
+#ifdef GLOWS_ENABLE
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 //-----------------------------------------------------------------------------
-class CTFGlow : public CBaseEntity
+class CEnvEntityGlow : public CBaseEntity
 {
 public:
-	DECLARE_CLASS( CTFGlow, CBaseEntity );
+	DECLARE_CLASS( CEnvEntityGlow, CBaseEntity );
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
 
@@ -31,7 +33,7 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-BEGIN_DATADESC( CTFGlow )
+BEGIN_DATADESC( CEnvEntityGlow )
 	DEFINE_KEYFIELD( m_iMode, FIELD_INTEGER, "Mode" ),
 	DEFINE_KEYFIELD( m_glowColor, FIELD_COLOR32, "GlowColor" ),
 	DEFINE_KEYFIELD( m_bDisabled, FIELD_BOOLEAN, "StartDisabled" ),
@@ -42,7 +44,7 @@ BEGIN_DATADESC( CTFGlow )
 END_DATADESC()
 
 //-----------------------------------------------------------------------------
-IMPLEMENT_SERVERCLASS_ST( CTFGlow, DT_TFGlow )
+IMPLEMENT_SERVERCLASS_ST( CEnvEntityGlow, DT_EnvEntityGlow )
 	SendPropInt( SENDINFO( m_glowColor ), 32, SPROP_UNSIGNED, SendProxy_Color32ToInt ),
 	SendPropBool( SENDINFO( m_bDisabled ) ),
 	SendPropEHandle( SENDINFO( m_hTarget ) ),
@@ -50,15 +52,19 @@ IMPLEMENT_SERVERCLASS_ST( CTFGlow, DT_TFGlow )
 END_SEND_TABLE()
 
 //-----------------------------------------------------------------------------
-LINK_ENTITY_TO_CLASS( tf_glow, CTFGlow );
+LINK_ENTITY_TO_CLASS( env_entity_glow, CEnvEntityGlow );
+
+#ifdef TF_DLL
+LINK_ENTITY_TO_CLASS( tf_glow, CEnvEntityGlow );
+#endif
 
 //-----------------------------------------------------------------------------
-void CTFGlow::Spawn()
+void CEnvEntityGlow::Spawn()
 {
 	CBaseEntity *pEnt = gEntList.FindEntityByName( nullptr, m_target );
 	if ( !pEnt ) 
 	{
-		Warning( "tf_glow: failed to find target %s\n", m_target.ToCStr() );
+		Warning( "env_entity_glow: failed to find target %s\n", m_target.ToCStr() );
 		UTIL_Remove( this );
 		return;
 	}
@@ -67,30 +73,32 @@ void CTFGlow::Spawn()
 
 	if ( gEntList.FindEntityByName( pEnt, m_target ) )
 	{
-		Warning( "tf_glow: only one target is supported (%s)\n", m_target.ToCStr() );
+		Warning( "env_entity_glow: only one target is supported (%s)\n", m_target.ToCStr() );
 	}
 }
 
 //-----------------------------------------------------------------------------
-void CTFGlow::InputEnable( inputdata_t &inputdata )
+void CEnvEntityGlow::InputEnable( inputdata_t &inputdata )
 {
 	m_bDisabled = false; // clients will take action
 }
 
 //-----------------------------------------------------------------------------
-void CTFGlow::InputDisable( inputdata_t &inputdata )
+void CEnvEntityGlow::InputDisable( inputdata_t &inputdata )
 {
 	m_bDisabled = true; // clients will take action
 }
 
 //-----------------------------------------------------------------------------
-void CTFGlow::InputSetGlowColor( inputdata_t &inputdata )
+void CEnvEntityGlow::InputSetGlowColor( inputdata_t &inputdata )
 {
 	m_glowColor = inputdata.value.Color32(); // clients will take action
 }
 
 //-----------------------------------------------------------------------------
-int CTFGlow::UpdateTransmitState()
+int CEnvEntityGlow::UpdateTransmitState()
 {
 	return SetTransmitState( FL_EDICT_ALWAYS );
 }
+
+#endif // GLOWS_ENABLE
