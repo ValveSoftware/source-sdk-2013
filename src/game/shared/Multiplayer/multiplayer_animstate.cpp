@@ -1286,17 +1286,13 @@ void CMultiPlayerAnimState::UpdateGestureLayer( CStudioHdr *pStudioHdr, GestureS
 
 	// Get the current cycle.
 	float flCycle = pGesture->m_pAnimLayer->m_flCycle;
-	flCycle += pPlayer->GetSequenceCycleRate( pStudioHdr, pGesture->m_pAnimLayer->m_nSequence ) * gpGlobals->frametime * GetGesturePlaybackRate() * pGesture->m_pAnimLayer->m_flPlaybackRate;
-	if ( flCycle < 0.0f )
-	{
-		// if playback rate is negative, allow the animation to loop backwards
-		flCycle = 1.0f;
-	}
+	float flPlaybackRate = GetGesturePlaybackRate();
+	flCycle += pPlayer->GetSequenceCycleRate( pStudioHdr, pGesture->m_pAnimLayer->m_nSequence ) * gpGlobals->frametime * flPlaybackRate * pGesture->m_pAnimLayer->m_flPlaybackRate;
 
 	pGesture->m_pAnimLayer->m_flPrevCycle =	pGesture->m_pAnimLayer->m_flCycle;
 	pGesture->m_pAnimLayer->m_flCycle = flCycle;
 
-	if( flCycle > 1.0f )
+	if( flCycle > 1.0f || ( flPlaybackRate < 0.0f && flCycle < 0.0f ) )
 	{
 		RunGestureSlotAnimEventsToCompletion( pGesture );
 
