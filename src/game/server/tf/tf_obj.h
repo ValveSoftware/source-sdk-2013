@@ -51,8 +51,11 @@ if ( object_verbose.GetInt() )									\
 #define TRACE_OBJECT( string )
 #endif
 
-#define SF_BASEOBJ_INVULN	(1<<1)
-#define LAST_SF_BASEOBJ		SF_BASEOBJ_INVULN
+#define SF_BASEOBJ_INVULN		( 1 << 1 )	// object cannot be damaged (or reverse-built)
+#define SF_BASEOBJ_LEGACY_1		( 1 << 2 )	// sentry and dispenser use this for different purposes
+#define SF_BASEOBJ_LEGACY_2		( 1 << 3 )	// ditto
+#define SF_BASEOBJ_NO_UPGRADE	( 1 << 4 )	// no upgrading
+#define SF_BASEOBJ_NO_ATTACH	( 1 << 5 )	// no attachments (sappers)
 
 DECLARE_AUTO_LIST( IBaseObjectAutoList );
 
@@ -348,7 +351,7 @@ public:
 	Vector GetBuildCenterOfMass() { return m_vecBuildCenterOfMass; }
 protected:
 
-	virtual bool CanBeUpgraded() const { return !( IsDisposableBuilding() || IsMiniBuilding() ); }
+	virtual bool CanUpgradeOnHit() const { return !( IsDisposableBuilding() || IsMiniBuilding() ); }
 	
 	virtual int  GetUpgradeMetalRequired();
 
