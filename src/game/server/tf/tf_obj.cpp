@@ -3431,11 +3431,12 @@ void CBaseObject::RotateBuildAngles( void )
 //-----------------------------------------------------------------------------
 void CBaseObject::UpdateDisabledState( void )
 {
-	const bool bShouldBeEnabled = !m_bHasSapper
-							   && !m_bPlasmaDisable
-							   && (!TFGameRules()->RoundHasBeenWon() || TFGameRules()->GetWinningTeam() == GetTeamNumber());
+	const bool bPlayerDisabled = !HasSpawnFlags( SF_BASEOBJ_NO_DISABLE )
+								 && (m_bHasSapper || m_bPlasmaDisable);
+	const bool bGameDisabled = !HasSpawnFlags( SF_BASEOBJ_NO_LOSERSTATE )
+							   && (TFGameRules()->RoundHasBeenWon() && TFGameRules()->GetWinningTeam() != GetTeamNumber());
 
-	SetDisabled( !bShouldBeEnabled );
+	SetDisabled( bPlayerDisabled || bGameDisabled );
 }
 
 //-----------------------------------------------------------------------------

@@ -15871,7 +15871,7 @@ void CTFGameRules::InternalHandleTeamWin( int iWinningTeam )
 			}
 
 			// Disable sentry guns that the losing team has built
-			if( pObj->GetType() == OBJ_SENTRYGUN )
+			if( pObj->GetType() == OBJ_SENTRYGUN && !pObj->HasSpawnFlags( SF_BASEOBJ_NO_LOSERSTATE ) )
 			{
 				pObj->SetDisabled( true );
 			}
