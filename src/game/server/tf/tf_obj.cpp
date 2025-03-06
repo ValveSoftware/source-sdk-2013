@@ -2919,7 +2919,7 @@ bool CBaseObject::CheckUpgradeOnHit( CTFPlayer *pPlayer )
 bool CBaseObject::CanBeUpgraded( CTFPlayer *pPlayer )
 {
 	// map says can't upgrade (not limiting to m_bMapPlaced for mods to use)
-	if ( HasSpawnFlags(SF_BASEOBJ_NO_UPGRADE) )
+	if ( HasSpawnFlags( SF_BASEOBJ_NO_UPGRADE ) )
 	{
 		return false;
 	}
