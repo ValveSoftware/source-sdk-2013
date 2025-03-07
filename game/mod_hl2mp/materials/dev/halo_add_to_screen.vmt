@@ -1,9 +1,9 @@
 "screenspace_general"
 {
-    "$PIXSHADER" "haloaddoutline_ps20"
+    "$PIXSHADER" "haloadd_ps20"
 
     "$ALPHA_BLEND_COLOR_OVERLAY" 1
-    "$basetexture" "_rt_FullFrameFB"
+    "$basetexture" "_rt_SmallFB0"
     "$ignorez" 1
     "$linearread_basetexture" 1
     "$linearwrite" 1
