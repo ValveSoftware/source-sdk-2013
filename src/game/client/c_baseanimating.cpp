@@ -207,6 +207,7 @@ IMPLEMENT_CLIENTCLASS_DT(C_BaseAnimating, DT_BaseAnimating, CBaseAnimating)
 	RecvPropBool( RECVINFO( m_bGlowEnabled ) ),
 	RecvPropInt( RECVINFO( m_glowColor ), 0, RecvProxy_IntToColor32 ),
 	RecvPropInt( RECVINFO( m_iGlowMode ) ),
+	RecvPropInt( RECVINFO( m_iGlowStyle ) ),
 #endif
 
 END_RECV_TABLE()
@@ -755,6 +756,7 @@ C_BaseAnimating::C_BaseAnimating() :
 #ifdef GLOWS_ENABLE
 	m_bGlowEnabled = false;
 	m_iGlowMode = 0;
+	m_iGlowStyle = 0;
 #endif
 }
 
@@ -6777,6 +6779,7 @@ void C_BaseAnimating::UpdateGlow()
 	m_pGlowObject->SetColor( glowColor );
 	m_pGlowObject->SetAlpha( glowAlpha );
 	m_pGlowObject->SetRenderFlags( bDrawWhenOccluded, bDrawWhenVisible );
+	m_pGlowObject->SetStyle( (GlowStyle_t)m_iGlowStyle.Get() );
 
 	SetNextClientThink( gpGlobals->curtime + 0.1f );
 }

@@ -24,6 +24,7 @@ CLIENTEFFECT_REGISTER_BEGIN( PrecachePostProcessingGlowEffects )
 	CLIENTEFFECT_MATERIAL( "dev/glow_color" )
 	CLIENTEFFECT_MATERIAL( "dev/glow_downsample" )
 	CLIENTEFFECT_MATERIAL( "dev/halo_add_to_screen" )
+	CLIENTEFFECT_MATERIAL( "dev/outline_add_to_screen" )
 CLIENTEFFECT_REGISTER_END()
 
 ConVar glow_outline_effect_enable( "glow_outline_effect_enable", "1", FCVAR_ARCHIVE, "Enable entity outline glow effects." );
@@ -98,6 +99,8 @@ void CGlowObjectManager::RenderGlowModels( const CViewSetup *pSetup, int nSplitS
 	// buffer with the objects stenciled out.													//
 	//==========================================================================================//
 	ITexture *pRtFullFrame = materials->FindTexture( FULL_FRAME_TEXTURE, TEXTURE_GROUP_RENDER_TARGET );
+	ITexture *pRtQuarterSize0 = materials->FindTexture( "_rt_SmallFB0", TEXTURE_GROUP_RENDER_TARGET );
+	ITexture *pRtQuarterSize1 = materials->FindTexture( "_rt_SmallFB1", TEXTURE_GROUP_RENDER_TARGET );
 	ITexture *pRtFullFrame1 = materials->FindTexture( "_rt_FullFrameFB1", TEXTURE_GROUP_RENDER_TARGET );
 
 	// Backup the current RT
@@ -130,12 +133,65 @@ void CGlowObjectManager::RenderGlowModels( const CViewSetup *pSetup, int nSplitS
 
 	stencilState.SetStencilState( pRenderContext );
 
-	//==================//
-	// Draw the objects //
-	//==================//
-	for ( int i = 0; i < m_GlowObjectDefinitions.Count(); ++ i )
+	int iNumHalos = 0;
+
+	//==================================//
+	// Draw the objects with halo style //
+	//==================================//
+	for ( int i = 0; i < m_GlowObjectDefinitions.Count(); ++i )
 	{
-		if ( m_GlowObjectDefinitions[i].IsUnused() || !m_GlowObjectDefinitions[i].ShouldDraw( nSplitScreenSlot ) )
+		if ( m_GlowObjectDefinitions[i].IsUnused() || !m_GlowObjectDefinitions[i].ShouldDraw( nSplitScreenSlot ) || m_GlowObjectDefinitions[i].m_nGlowStyle != GLOW_STYLE_HALO )
+			continue;
+
+		bool bRenderWhenOccluded = m_GlowObjectDefinitions[i].m_bRenderWhenOccluded;
+		bool bRenderWhenUnccluded = m_GlowObjectDefinitions[i].m_bRenderWhenUnoccluded;
+		float flGlowAlpha = m_GlowObjectDefinitions[i].m_flGlowAlpha;
+		Vector vGlowColor = m_GlowObjectDefinitions[i].m_vGlowColor * flGlowAlpha;
+
+		pRenderContext->OverrideDepthEnable( !bRenderWhenOccluded, false );
+
+		render->SetBlend( flGlowAlpha );
+		render->SetColorModulation( &vGlowColor[0] );
+
+		m_GlowObjectDefinitions[i].DrawModel();
+
+		if ( bRenderWhenOccluded && !bRenderWhenUnccluded )
+		{
+			// For objects that only show when occluded, clear any unoccluded pixels
+			vGlowColor.Init();
+			render->SetBlend( 1.0f );
+			render->SetColorModulation( &vGlowColor[0] );
+
+			pRenderContext->OverrideDepthEnable( true, false );
+
+			m_GlowObjectDefinitions[i].DrawModel();
+		}
+
+		iNumHalos++;
+	}
+
+	// No need to downsample if we don't have anything rendered to begin with
+	if ( iNumHalos > 0 )
+	{
+		pRenderContext->CopyRenderTargetToTexture( pRtFullFrame );
+		DownSampleAndBlurRT( pSetup, pRenderContext, pRtFullFrame, pRtQuarterSize0, pRtQuarterSize1 );
+	}
+
+	if ( g_bDumpRenderTargets )
+	{
+		DumpTGAofRenderTarget( pSetup->width, pSetup->height, "GlowModelsHalo" );
+	}
+
+	// Clear color buffer to draw the next set of glows
+	pRenderContext->ClearColor3ub( 0, 0, 0 );
+	pRenderContext->ClearBuffers( true, false, false );
+
+	//=====================================//
+	// Draw the objects with outline style //
+	//=====================================//
+	for ( int i = 0; i < m_GlowObjectDefinitions.Count(); ++i )
+	{
+		if ( m_GlowObjectDefinitions[i].IsUnused() || !m_GlowObjectDefinitions[i].ShouldDraw( nSplitScreenSlot ) || m_GlowObjectDefinitions[i].m_nGlowStyle != GLOW_STYLE_OUTLINE )
 			continue;
 
 		bool bRenderWhenOccluded = m_GlowObjectDefinitions[i].m_bRenderWhenOccluded;
@@ -165,7 +221,7 @@ void CGlowObjectManager::RenderGlowModels( const CViewSetup *pSetup, int nSplitS
 
 	if ( g_bDumpRenderTargets )
 	{
-		DumpTGAofRenderTarget( pSetup->width, pSetup->height, "GlowModels" );
+		DumpTGAofRenderTarget( pSetup->width, pSetup->height, "GlowModelsOutline" );
 	}
 
 	g_pStudioRender->ForcedMaterialOverride( NULL );
@@ -203,7 +259,7 @@ void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int n
 	render->SetBlend( 0.0f );
 	pRenderContext->OverrideDepthEnable( true, false );
 
-	int iNumGlowObjects = 0;
+	int iNumHaloObjects = 0, iNumOutlineObjects = 0;
 
 	for ( int i = 0; i < m_GlowObjectDefinitions.Count(); ++ i )
 	{
@@ -258,7 +314,10 @@ void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int n
 			}
 		}
 
-		iNumGlowObjects++;
+		if ( m_GlowObjectDefinitions[i].m_nGlowStyle == GLOW_STYLE_OUTLINE )
+			iNumOutlineObjects++;
+		else if ( m_GlowObjectDefinitions[i].m_nGlowStyle == GLOW_STYLE_HALO )
+			iNumHaloObjects++;
 	}
 
 	pRenderContext->OverrideDepthEnable( false, false );
@@ -269,7 +328,7 @@ void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int n
 	// If there aren't any objects to glow, don't do all this other stuff
 	// this fixes a bug where if there are glow objects in the list, but none of them are glowing,
 	// the whole screen blooms.
-	if ( iNumGlowObjects <= 0 )
+	if ( iNumHaloObjects <= 0 && iNumOutlineObjects <= 0 )
 		return;
 
 	//=============================================
@@ -279,20 +338,6 @@ void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int n
 		PIXEvent pixEvent( pRenderContext, "RenderGlowModels" );
 		RenderGlowModels( pSetup, nSplitScreenSlot, pRenderContext );
 	}
-	
-	// Get viewport
-	int nSrcWidth = pSetup->width;
-	int nSrcHeight = pSetup->height;
-	int nViewportX, nViewportY, nViewportWidth, nViewportHeight;
-	pRenderContext->GetViewport( nViewportX, nViewportY, nViewportWidth, nViewportHeight );
-
-	// Get material and texture pointers
-	ITexture *pRtFullFrame = materials->FindTexture( FULL_FRAME_TEXTURE, TEXTURE_GROUP_RENDER_TARGET );
-	ITexture *pRtQuarterSize0 = materials->FindTexture( "_rt_SmallFB0", TEXTURE_GROUP_RENDER_TARGET );
-	ITexture *pRtQuarterSize1 = materials->FindTexture( "_rt_SmallFB1", TEXTURE_GROUP_RENDER_TARGET );
-
-	
-	DownSampleAndBlurRT( pSetup, pRenderContext, pRtFullFrame, pRtQuarterSize0, pRtQuarterSize1 );
 
 	{
 		//=======================================================================================================//
@@ -301,10 +346,7 @@ void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int n
 		// stencil bits set in the range we care about.                                                          //
 		//=======================================================================================================//
 		IMaterial *pMatHaloAddToScreen = materials->FindMaterial( "dev/halo_add_to_screen", TEXTURE_GROUP_OTHER, true );
-
-		// Do not fade the glows out at all (weight = 1.0)
-		IMaterialVar *pDimVar = pMatHaloAddToScreen->FindVar( "$C0_X", NULL );
-		pDimVar->SetFloatValue( 1.0f );
+		IMaterial *pMatOutlineAddToScreen = materials->FindMaterial( "dev/outline_add_to_screen", TEXTURE_GROUP_OTHER, true );
 
 		// Set stencil state
 		ShaderStencilState_t stencilState;
@@ -318,11 +360,29 @@ void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int n
 		stencilState.m_ZFailOp = STENCILOPERATION_KEEP;
 		stencilState.SetStencilState( pRenderContext );
 
-		// Draw quad
-		pRenderContext->DrawScreenSpaceRectangle( pMatHaloAddToScreen, 0, 0, nViewportWidth, nViewportHeight,
-			0.0f, -0.5f, nSrcWidth / 4 - 1, nSrcHeight / 4 - 1,
-			pRtQuarterSize1->GetActualWidth(),
-			pRtQuarterSize1->GetActualHeight() );
+		// Get viewport
+		int nSrcWidth = pSetup->width;
+		int nSrcHeight = pSetup->height;
+		int nViewportX, nViewportY, nViewportWidth, nViewportHeight;
+		pRenderContext->GetViewport(nViewportX, nViewportY, nViewportWidth, nViewportHeight);
+
+		if ( iNumHaloObjects )
+		{
+			ITexture *pRtQuarterSize1 = materials->FindTexture( "_rt_SmallFB1", TEXTURE_GROUP_RENDER_TARGET );
+			pRenderContext->DrawScreenSpaceRectangle( pMatHaloAddToScreen, 0, 0, nViewportWidth, nViewportHeight,
+				0.0f, -0.5f, nSrcWidth / 4 - 1, nSrcHeight / 4 - 1,
+				pRtQuarterSize1->GetActualWidth(),
+				pRtQuarterSize1->GetActualHeight() );
+		}
+
+		if ( iNumOutlineObjects )
+		{
+			ITexture *pRtFullFrame = materials->FindTexture( FULL_FRAME_TEXTURE, TEXTURE_GROUP_RENDER_TARGET );
+			pRenderContext->DrawScreenSpaceRectangle( pMatOutlineAddToScreen, 0, 0, nViewportWidth, nViewportHeight,
+				0.0f, -0.5f, nSrcWidth - 1, nSrcHeight - 1,
+				pRtFullFrame->GetActualWidth(),
+				pRtFullFrame->GetActualHeight() );
+		}
 
 		stencilStateDisable.SetStencilState( pRenderContext );
 	}

@@ -23,6 +23,7 @@
 #include "sequence_Transitioner.h"
 #include "bone_accessor.h"
 #include "bone_merge_cache.h"
+#include "glow_outline_effect.h"
 #include "ragdoll_shared.h"
 #include "tier0/threadtools.h"
 #include "datacache/idatacache.h"
@@ -553,6 +554,7 @@ protected:
 	CNetworkVar( bool, m_bGlowEnabled );
 	CNetworkColor32( m_glowColor );
 	CNetworkVar( int, m_iGlowMode );
+	CNetworkVar( int, m_iGlowStyle );
 #endif
 
 private:

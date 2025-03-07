@@ -24,9 +24,11 @@ public:
 	void InputEnable( inputdata_t &inputdata );
 	void InputDisable( inputdata_t &inputdata );
 	void InputSetGlowColor( inputdata_t &inputdata );
+	void InputSetGlowStyle( inputdata_t &inputdata );
 
 private:
 	CNetworkVar( int, m_iMode );
+	CNetworkVar( int, m_iStyle );
 	CNetworkVar( color32, m_glowColor );
 	CNetworkVar( bool, m_bDisabled );
 	CNetworkHandle( CBaseEntity, m_hTarget );
@@ -36,11 +38,13 @@ private:
 BEGIN_DATADESC( CEnvEntityGlow )
 	DEFINE_KEYFIELD( m_iMode, FIELD_INTEGER, "Mode" ),
 	DEFINE_KEYFIELD( m_glowColor, FIELD_COLOR32, "GlowColor" ),
+	DEFINE_KEYFIELD( m_iStyle, FIELD_INTEGER, "Style" ),
 	DEFINE_KEYFIELD( m_bDisabled, FIELD_BOOLEAN, "StartDisabled" ),
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
 	DEFINE_INPUTFUNC( FIELD_COLOR32, "SetGlowColor", InputSetGlowColor ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetGlowStyle", InputSetGlowStyle ),
 END_DATADESC()
 
 //-----------------------------------------------------------------------------
@@ -49,6 +53,7 @@ IMPLEMENT_SERVERCLASS_ST( CEnvEntityGlow, DT_EnvEntityGlow )
 	SendPropBool( SENDINFO( m_bDisabled ) ),
 	SendPropEHandle( SENDINFO( m_hTarget ) ),
 	SendPropInt( SENDINFO( m_iMode ), -1, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_iStyle ), -1, SPROP_UNSIGNED ),
 END_SEND_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -93,6 +98,12 @@ void CEnvEntityGlow::InputDisable( inputdata_t &inputdata )
 void CEnvEntityGlow::InputSetGlowColor( inputdata_t &inputdata )
 {
 	m_glowColor = inputdata.value.Color32(); // clients will take action
+}
+
+//-----------------------------------------------------------------------------
+void CEnvEntityGlow::InputSetGlowStyle( inputdata_t &inputdata )
+{
+	m_iStyle = inputdata.value.Int(); // clients will take action
 }
 
 //-----------------------------------------------------------------------------

@@ -27,6 +27,7 @@ private:
 
 	CGlowObject *pGlow;
 	CNetworkVar( int, m_iMode );
+	CNetworkVar( int, m_iStyle );
 	CNetworkVar( color32, m_glowColor );
 	CNetworkVar( bool, m_bDisabled );
 	CNetworkHandle( CBaseEntity, m_hTarget );
@@ -35,6 +36,7 @@ private:
 //-----------------------------------------------------------------------------
 IMPLEMENT_CLIENTCLASS_DT( C_EnvEntityGlow, DT_EnvEntityGlow, CEnvEntityGlow )
 	RecvPropInt( RECVINFO( m_iMode ) ),
+	RecvPropInt( RECVINFO( m_iStyle ) ),
 	RecvPropInt( RECVINFO( m_glowColor ), 0, RecvProxy_IntToColor32 ),
 	RecvPropBool( RECVINFO( m_bDisabled ) ),
 	RecvPropEHandle( RECVINFO( m_hTarget ) ),
@@ -77,7 +79,7 @@ void C_EnvEntityGlow::CreateGlow()
 	bool bDrawWhenVisible = ( iMode == 0 ) || ( iMode == 2 );
 	Assert( bDrawWhenOccluded || bDrawWhenVisible );
 
-	pGlow = new CGlowObject( m_hTarget, cvec, a, bDrawWhenOccluded, bDrawWhenVisible );
+	pGlow = new CGlowObject( m_hTarget, cvec, a, bDrawWhenOccluded, bDrawWhenVisible, (GlowStyle_t)m_iStyle.Get() );
 }
 
 //-----------------------------------------------------------------------------

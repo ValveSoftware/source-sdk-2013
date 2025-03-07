@@ -22,6 +22,14 @@ class CMatRenderContextPtr;
 
 static const int GLOW_FOR_ALL_SPLIT_SCREEN_SLOTS = -1;
 
+enum GlowStyle_t
+{
+	GLOW_STYLE_OUTLINE,
+	GLOW_STYLE_HALO,
+
+	GLOW_STYLE_COUNT
+};
+
 class CGlowObjectManager
 {
 public:
@@ -30,7 +38,7 @@ public:
 	{
 	}
 
-	int RegisterGlowObject( C_BaseEntity *pEntity, const Vector &vGlowColor, float flGlowAlpha, bool bRenderWhenOccluded, bool bRenderWhenUnoccluded, int nSplitScreenSlot )
+	int RegisterGlowObject( C_BaseEntity *pEntity, const Vector &vGlowColor, float flGlowAlpha, bool bRenderWhenOccluded, bool bRenderWhenUnoccluded, GlowStyle_t nGlowStyle, int nSplitScreenSlot )
 	{
 		int nIndex;
 		if ( m_nFirstFreeSlot == GlowObjectDefinition_t::END_OF_FREE_LIST )
@@ -42,10 +50,14 @@ public:
 			nIndex = m_nFirstFreeSlot;
 			m_nFirstFreeSlot = m_GlowObjectDefinitions[nIndex].m_nNextFreeSlot;
 		}
+
+		if ( nGlowStyle < GLOW_STYLE_OUTLINE || nGlowStyle >= GLOW_STYLE_COUNT )
+			nGlowStyle = GLOW_STYLE_OUTLINE;
 		
 		m_GlowObjectDefinitions[nIndex].m_hEntity = pEntity;
 		m_GlowObjectDefinitions[nIndex].m_vGlowColor = vGlowColor;
 		m_GlowObjectDefinitions[nIndex].m_flGlowAlpha = flGlowAlpha;
+		m_GlowObjectDefinitions[nIndex].m_nGlowStyle = nGlowStyle;
 		m_GlowObjectDefinitions[nIndex].m_bRenderWhenOccluded = bRenderWhenOccluded;
 		m_GlowObjectDefinitions[nIndex].m_bRenderWhenUnoccluded = bRenderWhenUnoccluded;
 		m_GlowObjectDefinitions[nIndex].m_nSplitScreenSlot = nSplitScreenSlot;
@@ -79,6 +91,12 @@ public:
 	{ 
 		Assert( !m_GlowObjectDefinitions[nGlowObjectHandle].IsUnused() );
 		m_GlowObjectDefinitions[nGlowObjectHandle].m_flGlowAlpha = flAlpha;
+	}
+
+	void SetStyle( int nGlowObjectHandle, GlowStyle_t nStyle )
+	{
+		Assert( !m_GlowObjectDefinitions[nGlowObjectHandle].IsUnused() );
+		m_GlowObjectDefinitions[nGlowObjectHandle].m_nGlowStyle = nStyle;
 	}
 
 	void SetRenderFlags( int nGlowObjectHandle, bool bRenderWhenOccluded, bool bRenderWhenUnoccluded )
@@ -138,6 +156,7 @@ private:
 		EHANDLE m_hEntity;
 		Vector m_vGlowColor;
 		float m_flGlowAlpha;
+		GlowStyle_t m_nGlowStyle;
 
 		bool m_bRenderWhenOccluded;
 		bool m_bRenderWhenUnoccluded;
@@ -160,9 +179,10 @@ extern CGlowObjectManager g_GlowObjectManager;
 class CGlowObject
 {
 public:
-	CGlowObject( C_BaseEntity *pEntity, const Vector &vGlowColor = Vector( 1.0f, 1.0f, 1.0f ), float flGlowAlpha = 1.0f, bool bRenderWhenOccluded = false, bool bRenderWhenUnoccluded = false, int nSplitScreenSlot = GLOW_FOR_ALL_SPLIT_SCREEN_SLOTS )
+	CGlowObject( C_BaseEntity *pEntity, const Vector &vGlowColor = Vector( 1.0f, 1.0f, 1.0f ), float flGlowAlpha = 1.0f, bool bRenderWhenOccluded = false, bool bRenderWhenUnoccluded = false, 
+		GlowStyle_t nGlowStyle = GLOW_STYLE_OUTLINE, int nSplitScreenSlot = GLOW_FOR_ALL_SPLIT_SCREEN_SLOTS )
 	{
-		m_nGlowObjectHandle = g_GlowObjectManager.RegisterGlowObject( pEntity, vGlowColor, flGlowAlpha, bRenderWhenOccluded, bRenderWhenUnoccluded, nSplitScreenSlot );
+		m_nGlowObjectHandle = g_GlowObjectManager.RegisterGlowObject( pEntity, vGlowColor, flGlowAlpha, bRenderWhenOccluded, bRenderWhenUnoccluded, nGlowStyle, nSplitScreenSlot );
 	}
 
 	~CGlowObject()
@@ -183,6 +203,11 @@ public:
 	void SetAlpha( float flAlpha )
 	{
 		g_GlowObjectManager.SetAlpha( m_nGlowObjectHandle, flAlpha );
+	}
+
+	void SetStyle( GlowStyle_t nStyle )
+	{
+		g_GlowObjectManager.SetStyle(m_nGlowObjectHandle, nStyle);
 	}
 
 	void SetRenderFlags( bool bRenderWhenOccluded, bool bRenderWhenUnoccluded )

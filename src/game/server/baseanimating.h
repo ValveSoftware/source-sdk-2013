@@ -375,11 +375,13 @@ private:
 	void InputDisableGlow( inputdata_t &inputdata );
 	void InputSetGlowColor( inputdata_t &inputdata );
 	void InputSetGlowMode( inputdata_t &inputdata );
+	void InputSetGlowStyle( inputdata_t &inputdata );
 
 public:
 	void ToggleGlow( bool bToggle );
 	void SetGlowColor( int r, int g, int b, int a );
 	void SetGlowMode( int iMode );
+	void SetGlowStyle( int iStyle );
 #endif
 
 public:
@@ -459,6 +461,7 @@ protected:
 	CNetworkVar( bool, m_bGlowEnabled );
 	CNetworkColor32( m_glowColor );
 	CNetworkVar( int, m_iGlowMode );
+	CNetworkVar( int, m_iGlowStyle );
 #endif
 
 public:

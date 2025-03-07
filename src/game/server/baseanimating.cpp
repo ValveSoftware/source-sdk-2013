@@ -220,11 +220,13 @@ BEGIN_DATADESC( CBaseAnimating )
 	DEFINE_KEYFIELD( m_iGlowMode, FIELD_INTEGER, "GlowMode" ),
 	DEFINE_KEYFIELD( m_glowColor, FIELD_COLOR32, "GlowColor" ),
 	DEFINE_KEYFIELD( m_bGlowEnabled, FIELD_BOOLEAN, "GlowEnabled" ),
+	DEFINE_KEYFIELD( m_iGlowStyle, FIELD_INTEGER, "GlowStyle" ),
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "EnableGlow", InputEnableGlow ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "DisableGlow", InputDisableGlow ),
 	DEFINE_INPUTFUNC( FIELD_COLOR32, "SetGlowColor", InputSetGlowColor ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetGlowMode", InputSetGlowMode ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetGlowStyle", InputSetGlowStyle ),
 #endif
 
 	DEFINE_FIELD( m_fBoneCacheFlags, FIELD_SHORT ),
@@ -279,6 +281,7 @@ IMPLEMENT_SERVERCLASS_ST(CBaseAnimating, DT_BaseAnimating)
 	SendPropBool( SENDINFO( m_bGlowEnabled ) ),
 	SendPropInt( SENDINFO( m_glowColor ), 32, SPROP_UNSIGNED, SendProxy_Color32ToInt ),
 	SendPropInt( SENDINFO( m_iGlowMode ), -1, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_iGlowStyle ), -1, SPROP_UNSIGNED ),
 #endif
 
 END_SEND_TABLE()
@@ -326,6 +329,7 @@ BEGIN_ENT_SCRIPTDESC( CBaseAnimating, CBaseEntity, "Animating models" )
 	DEFINE_SCRIPTFUNC( ToggleGlow, "Toggles model glow" )
 	DEFINE_SCRIPTFUNC( SetGlowColor, "Sets model glow color" )
 	DEFINE_SCRIPTFUNC( SetGlowMode, "Sets model glow mode" )
+	DEFINE_SCRIPTFUNC( SetGlowStyle, "Sets model glow style" )
 #endif
 	DEFINE_SCRIPTFUNC_NAMED( ScriptDispatchAnimEvents, "DispatchAnimEvents", "Dispatch animation events to a CBaseAnimating" )
 	DEFINE_SCRIPTFUNC_WRAPPED( LookupPoseParameter, "Looks up a pose parameter index by name" );
@@ -786,6 +790,14 @@ void CBaseAnimating::SetGlowMode( int iMode )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Set glow style
+//-----------------------------------------------------------------------------
+void CBaseAnimating::SetGlowStyle( int iStyle )
+{
+	m_iGlowStyle = iStyle;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: EnableGlow input handler
 //-----------------------------------------------------------------------------
 void CBaseAnimating::InputEnableGlow( inputdata_t &inputdata )
@@ -815,7 +827,15 @@ void CBaseAnimating::InputSetGlowColor( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CBaseAnimating::InputSetGlowMode( inputdata_t &inputdata )
 {
-	SetGlowMode(inputdata.value.Int());
+	SetGlowMode( inputdata.value.Int() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: SetGlowStyle input handler
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputSetGlowStyle( inputdata_t &inputdata )
+{
+	SetGlowStyle( inputdata.value.Int() );
 }
 #endif
 
