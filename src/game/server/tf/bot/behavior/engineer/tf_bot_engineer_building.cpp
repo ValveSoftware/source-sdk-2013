@@ -28,6 +28,7 @@
 ConVar tf_bot_engineer_retaliate_range( "tf_bot_engineer_retaliate_range", "750", FCVAR_CHEAT, "If attacker who destroyed sentry is closer than this, attack. Otherwise, retreat" );
 ConVar tf_bot_engineer_exit_near_sentry_range( "tf_bot_engineer_exit_near_sentry_range", "2500", FCVAR_CHEAT, "Maximum travel distance between a bot's Sentry gun and its Teleporter Exit" );
 ConVar tf_bot_engineer_max_sentry_travel_distance_to_point( "tf_bot_engineer_max_sentry_travel_distance_to_point", "2500", FCVAR_CHEAT, "Maximum travel distance between a bot's Sentry gun and the currently contested point" );
+ConVar tf_bot_engineer_remote_tele_maintenance_range( "tf_bot_engineer_remote_tele_maintenance_range", "750", FCVAR_CHEAT, "Maximum distance at which bot repairs teleporters that are too far away from the nest" );
 
 extern ConVar tf_bot_path_lookahead_range;
 
