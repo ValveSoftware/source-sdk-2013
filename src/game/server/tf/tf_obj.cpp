@@ -3434,7 +3434,7 @@ void CBaseObject::UpdateDisabledState( void )
 	const bool bPlayerDisabled = !HasSpawnFlags( SF_BASEOBJ_NO_DISABLE )
 								 && (m_bHasSapper || m_bPlasmaDisable);
 	const bool bGameDisabled = !HasSpawnFlags( SF_BASEOBJ_NO_LOSERSTATE )
-							   && (TFGameRules()->RoundHasBeenWon() && TFGameRules()->GetWinningTeam() != GetTeamNumber());
+							   && (GetType() == OBJ_SENTRYGUN && TFGameRules()->RoundHasBeenWon() && TFGameRules()->GetWinningTeam() != GetTeamNumber());
 
 	SetDisabled( bPlayerDisabled || bGameDisabled );
 }
