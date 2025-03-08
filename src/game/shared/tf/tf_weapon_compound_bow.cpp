@@ -144,22 +144,22 @@ void CTFCompoundBow::LaunchGrenade( void )
 
 	ApplyRefireSpeedModifications( flFireDelay );
 	
-	float flRateMultiplyer = flBaseFireDelay / flFireDelay;
+	float flRateMultiplier = flBaseFireDelay / flFireDelay;
 
 	// Speed up the reload animation built in to firing
 	if ( pPlayer->GetViewModel(0) )
 	{
-		pPlayer->GetViewModel(0)->SetPlaybackRate( flRateMultiplyer );
+		pPlayer->GetViewModel(0)->SetPlaybackRate( flRateMultiplier );
 	}
 	if ( pPlayer->GetViewModel(1) )
 	{
-		pPlayer->GetViewModel(1)->SetPlaybackRate( flRateMultiplyer );
+		pPlayer->GetViewModel(1)->SetPlaybackRate( flRateMultiplier );
 	}
 
 	m_flNextPrimaryAttack = gpGlobals->curtime + flFireDelay;
 	m_flLastDenySoundTime = gpGlobals->curtime;
 
-	float flIdleDelay = 0.5f * flRateMultiplyer;
+	float flIdleDelay = 0.5f * flRateMultiplier;
 	SetWeaponIdleTime( m_flNextPrimaryAttack + flIdleDelay );
 
 	pPlayer->m_Shared.RemoveCond( TF_COND_AIMING );
@@ -209,21 +209,21 @@ void CTFCompoundBow::PrimaryAttack( void )
 
 		SendWeaponAnim( ACT_VM_PULLBACK );
 
-		float flRateMultiplyer = ApplyFireDelay( 1.0f );
-		ApplyRefireSpeedModifications( flRateMultiplyer );
-		if ( flRateMultiplyer > 0.0f )
+		float flRateMultiplier = ApplyFireDelay( 1.0f );
+		ApplyRefireSpeedModifications( flRateMultiplier );
+		if ( flRateMultiplier > 0.0f )
 		{
-			flRateMultiplyer = 1.0f / flRateMultiplyer;
+			flRateMultiplier = 1.0f / flRateMultiplier;
 		}
 
 		// Speed up the reload animation built in to firing
 		if ( pPlayer->GetViewModel(0) )
 		{
-			pPlayer->GetViewModel(0)->SetPlaybackRate( flRateMultiplyer );
+			pPlayer->GetViewModel(0)->SetPlaybackRate( flRateMultiplier );
 		}
 		if ( pPlayer->GetViewModel(1) )
 		{
-			pPlayer->GetViewModel(1)->SetPlaybackRate( flRateMultiplyer );
+			pPlayer->GetViewModel(1)->SetPlaybackRate( flRateMultiplier );
 		}
 
 		bool bPlaySound = true;
@@ -241,7 +241,7 @@ void CTFCompoundBow::PrimaryAttack( void )
 				filter.RemoveRecipient( pPlayer );
 #endif
 				EmitSound_t ep( params );
-				ep.m_nPitch *= flRateMultiplyer;
+				ep.m_nPitch *= flRateMultiplier;
 
 				pPlayer->EmitSound( filter, pPlayer->entindex(), ep );
 			}
