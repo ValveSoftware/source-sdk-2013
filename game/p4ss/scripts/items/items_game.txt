@@ -60189,6 +60189,10 @@
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
 			"model_player" "models/passtime/ball/passtime_ball.mdl"
+			"static_attrs"
+			{
+				"min_viewmodel_offset"		"10 0 -10"
+			}
 			"used_by_classes"
 			{
 				"demoman"	"1"
