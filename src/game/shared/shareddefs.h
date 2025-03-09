@@ -251,10 +251,13 @@ enum CastVote
 //Since this is decided by the gamerules (and it can be whatever number as long as its less than MAX_PLAYERS).
 #if defined( CSTRIKE_DLL )
 	#define MAX_PLAYERS				65  // Absolute max players supported
+	#define PLAYER_INDEX_BITS		6
 #elif defined( TF_DLL ) || defined ( TF_CLIENT_DLL ) || defined( HL2MP )
 	#define MAX_PLAYERS				101
+	#define PLAYER_INDEX_BITS		7
 #else
 	#define MAX_PLAYERS				33  // Absolute max players supported
+	#define PLAYER_INDEX_BITS		5
 #endif
 
 // Josh: Accounts for code that may index this array by an entindex
