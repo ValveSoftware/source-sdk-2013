@@ -105,7 +105,7 @@ CLIENTEFFECT_MATERIAL( "decals/playerlogo61" )
 CLIENTEFFECT_MATERIAL( "decals/playerlogo62" )
 CLIENTEFFECT_MATERIAL( "decals/playerlogo63" )
 CLIENTEFFECT_MATERIAL( "decals/playerlogo64" )
-#if defined( TF_CLIENT_DLL ) || defined( HL2MP )
+#if MAX_PLAYERS > 65
 CLIENTEFFECT_MATERIAL( "decals/playerlogo65" )
 CLIENTEFFECT_MATERIAL( "decals/playerlogo66" )
 CLIENTEFFECT_MATERIAL( "decals/playerlogo67" )
