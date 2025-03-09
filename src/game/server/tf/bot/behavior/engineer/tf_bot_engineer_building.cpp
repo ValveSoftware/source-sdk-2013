@@ -102,27 +102,43 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	if ( myDispenser && ( myDispenser->HasSapper() || myDispenser->IsPlasmaDisabled() ) ) 
 		return myDispenser;
 
+	float teleporterNearNestRange = tf_bot_engineer_exit_near_sentry_range.GetFloat();
+	float teleporterNearEngieRange = tf_bot_engineer_remote_tele_maintenance_range.GetFloat();
+
 	// Only consider teleporters close enough for maintenance
 	CTFBotPathCost cost( me, FASTEST_ROUTE );
-	bool hasValidTeleporterCloseEnough = static_cast<bool>( myClosestTeleporter );
-	// Check absolute distance not to rebuild path if we definitely know teleporter is too far
-	if ( hasValidTeleporterCloseEnough )
-		hasValidTeleporterCloseEnough = 
-		( mySentry->GetAbsOrigin() - myClosestTeleporter->GetAbsOrigin() ).IsLengthLessThan(
-			tf_bot_engineer_exit_near_sentry_range.GetFloat()
-		);
-
-	if ( hasValidTeleporterCloseEnough )
+	bool isValidTeleporterCloseEnough = static_cast<bool>( myClosestTeleporter );
+	// This will be true if the closest teleporter is far away from the nest
+ 	bool isClosestValidTeleRemote = false;
+	// Check absolute distance so we do not build path if we definitely know teleporter is too far
+	if ( isValidTeleporterCloseEnough )
 	{
-		CNavArea *sentryArea = mySentry->GetLastKnownArea();
+		isValidTeleporterCloseEnough =
+			abs( ( mySentry->GetAbsOrigin() - myClosestTeleporter->GetAbsOrigin() ).LengthSqr() ) < ( teleporterNearNestRange * teleporterNearNestRange ) ||
+			abs( ( me->GetAbsOrigin() - myClosestTeleporter->GetAbsOrigin() ).LengthSqr() ) > ( teleporterNearEngieRange * teleporterNearEngieRange );
+	}
+	if ( isValidTeleporterCloseEnough )
+	{
+		CNavArea *myArea = me->GetLastKnownArea();
 		CNavArea *teleArea = myClosestTeleporter->GetLastKnownArea();
+		CNavArea *sentryArea = mySentry->GetLastKnownArea();
 
-		hasValidTeleporterCloseEnough = 
-			NavAreaTravelDistance( sentryArea, teleArea, cost, tf_bot_engineer_exit_near_sentry_range.GetFloat() ) > -FLT_EPSILON &&
-			NavAreaTravelDistance( teleArea, sentryArea, cost, tf_bot_engineer_exit_near_sentry_range.GetFloat() ) > -FLT_EPSILON;
+		// Mark teleporter as too far away from the nest if it's too far away
+		// from the sentry
+		isClosestValidTeleRemote =
+			NavAreaTravelDistance( sentryArea, teleArea, cost, teleporterNearNestRange ) < 0.0f &&
+			NavAreaTravelDistance( teleArea, sentryArea, cost, teleporterNearNestRange ) < 0.0f;
+
+		if ( isClosestValidTeleRemote )
+		{
+			// Check if we are close enough to the teleporter
+			isValidTeleporterCloseEnough =
+				NavAreaTravelDistance( myArea, teleArea, cost, teleporterNearEngieRange ) > -FLT_EPSILON &&
+				NavAreaTravelDistance( teleArea, myArea, cost, teleporterNearEngieRange ) > -FLT_EPSILON;
+		}
 	}
 
-	if ( hasValidTeleporterCloseEnough && ( myClosestTeleporter->HasSapper() || myClosestTeleporter->IsPlasmaDisabled() ) ) 
+	if ( isValidTeleporterCloseEnough && ( myClosestTeleporter->HasSapper() || myClosestTeleporter->IsPlasmaDisabled() ) ) 
 		return myClosestTeleporter;
 	// Prioritize sentry if it's damaged
 	if ( mySentry->GetTimeSinceLastInjury() < 1.0f || mySentry->GetHealth() < mySentry->GetMaxHealth() )
@@ -138,7 +154,7 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	// ... damaged dispenser or either of the teleporters
 	if ( myDispenser && myDispenser->GetHealth() < myDispenser->GetMaxHealth() )
 		return myDispenser;
-	if ( hasValidTeleporterCloseEnough && ( 
+	if ( isValidTeleporterCloseEnough && ( 
 		( myClosestTeleporter->GetHealth() < myClosestTeleporter->GetMaxHealth() ) || 
 		( myOtherTeleporter && ( ( myOtherTeleporter->GetMaxHealth() - myOtherTeleporter->GetHealth() ) > 1.0f ) )
 		// I can't beleive that of all building teleporter consistently gets considered injured due float imprecisions on health values,
@@ -148,8 +164,9 @@ CBaseObject* CTFBotEngineerBuilding::PickCurrentWorkTarget( CTFBot *me ) const
 	// ... dispenser that is not upgraded
 	if ( myDispenser && myDispenser->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
 		return myDispenser;
+	// ... teleporter that is not upgraded but is close enough to the nest
 	if ( 
-		hasValidTeleporterCloseEnough && myOtherTeleporter && 
+		isValidTeleporterCloseEnough && !isClosestValidTeleRemote && 
 		myClosestTeleporter->GetUpgradeLevel() < mySentry->GetUpgradeLevel() 
 	)
 		return myClosestTeleporter;
