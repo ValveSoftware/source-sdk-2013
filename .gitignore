@@ -12,7 +12,7 @@
 *.exp
 *.ilk
 *.lastbuildstate
-vc100.pdb
+*.pdb
 ipch
 *.sdf
 *.opensdf
@@ -29,10 +29,8 @@ obj*/
 !utils/smdlexp/smdlexp.mak
 
 # Specific Source build products
-client.pdb
 client.dll
 client.lib
-server.pdb
 server.dll
 server.lib
 
@@ -54,6 +52,8 @@ config.cfg
 # shader files
 *.tmp
 
+# Our crap.
 *.vpc_cache
 *.filters
 *.vpc_crc
+.vs/
