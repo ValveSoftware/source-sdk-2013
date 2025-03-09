@@ -403,24 +403,29 @@
 		"font"				"HudFontSmallestBold"
 		"visible"				"1"
 		"enabled"				"1"
-		"zpos"					"-400"
+		"zpos"					"0"
 		"xpos"					"0"
-		"ypos"					"0"
-		"wide"					"200"
+		"ypos"					"-417"
+		
+		"wide"					"180"
+		"wide_minmode"			"125"		
+		
 		"tall"					"16"
 		"textAlignment"			"center"
 		"dulltext"				"0"
 		"brighttext"			"1"
 		"labelText"				"NameOfCarrier"
 		"border"				"TFFatLineBorder"
-		"auto_wide_tocontents"	"1"
-		"textinsetx"			"30"
+		"auto_wide_tocontents"	"0"
+		"textinsetx"			"20"
 		
 		"pin_to_sibling"	"CarrierAnchor"
 		"pin_corner_to_sibling"		"4"
 		"pin_to_sibling_corner"		"4"
 	}
 	
+	
+		//What does this do?
 	"CarrierAnchor"
 	{	
 		"ControlName"			"ImagePanel"
