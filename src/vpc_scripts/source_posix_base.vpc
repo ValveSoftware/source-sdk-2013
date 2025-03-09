@@ -1,18 +1,24 @@
 
 $Include "$SRCDIR\vpc_scripts\version.vpc"
 
+$Macro CRYPTOPPDIR "steamrt_sniper32" [$LINUX32]
+$Macro CRYPTOPPDIR "steamrt_sniper64" [$LINUX64]
+
 $Macro LIBPUBLIC	"$SRCDIR\lib\public$PLATSUBDIR"
 $Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR"
 
 $MacroRequired				"SRCDIR"
+$Macro						"DEVTOOLS"	"$SRCDIR/devtools"
 
+$Include "$SRCDIR\vpc_scripts\source_posix_ninja.vpc" [$NINJA]
 
 $Configuration "Debug"
 {
 	$Compiler
 	{
 		$PreprocessorDefinitions			"$BASE;DEBUG;_DEBUG"
-		$OptimizerLevel					"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)"
+		$OptimizerLevel					"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)" [$OSXALL]
+		$OptimizerLevel					"-gdwarf-4 -g2 $(OptimizerLevel_CompilerSpecific)" [$LINUX]
 	}
 }
 
@@ -21,13 +27,15 @@ $Configuration "Release"
 	$Compiler
 	{
 		$PreprocessorDefinitions		"$BASE;NDEBUG"
-		$OptimizerLevel					"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)"
+		$OptimizerLevel					"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)" [$OSXALL]
+		$OptimizerLevel					"-gdwarf-4 -g2 $(OptimizerLevel_CompilerSpecific)" [$LINUX]
+		$PreprocessorDefinitions		"$BASE;RELEASEASSERTS" [$RELEASEASSERTS]
 	}
 }
 
 $Configuration
 {
-	$General
+	$General [!$IS_LIB_PROJECT]
 	{
 		$ConfigurationType				"Application (.exe)"
 	}
@@ -35,23 +43,25 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories		"$SRCDIR\common;$SRCDIR\public;$SRCDIR\public\tier0;$SRCDIR\public\tier1"
-		$AdditionalLibraryDirectories		"$LIBCOMMON;$LIBPUBLIC" [$OSXALL]
 		$PreprocessorDefinitions		"$BASE;GNUC;POSIX;COMPILER_GCC;_DLL_EXT=$_DLL_EXT"
 		$PreprocessorDefinitions		"$BASE;DEDICATED" [$DEDICATED]
 		// the 10240 in the following line is the output of `sysctl -n kern.maxfilesperproc`
 		$PreprocessorDefinitions		"$BASE;_OSX;OSX;_DARWIN_UNLIMITED_SELECT;FD_SETSIZE=10240;" [$OSXALL]
 		$PreprocessorDefinitions		"$BASE;OVERRIDE_V_DEFINES"	  [$OSXALL]						
 		$PreprocessorDefinitions		"$BASE;_LINUX;LINUX;" [$LINUXALL]
+		$PreprocessorDefinitions		"$BASE;PLATFORM_64BITS" [$LINUX64]
 		$SymbolVisibility				"hidden" 					[$POSIX]
 		$PreprocessorDefinitions		"$BASE;POSIX;_POSIX"		[$POSIX]
 
 		$PreprocessorDefinitions		"$BASE;PLATFORM_64BITS"		[$OSX64]
 		$GCC_ExtraCompilerFlags			"$BASE -arch x86_64"		[$OSX64]
 
+		$AdditionalIncludeDirectories	"$BASE;/usr/include/SDL2" [$POSIX]
+
 		$Create/UsePCHThroughFile	"stdafx.h"
 	}
 	
-	$Linker
+	$Linker [!$IS_LIB_PROJECT]
 	{
 		$GCC_ExtraLinkerFlags			"$BASE -arch x86_64"		[$OSX64]
 	}

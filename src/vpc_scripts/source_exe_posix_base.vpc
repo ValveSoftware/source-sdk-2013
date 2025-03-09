@@ -8,7 +8,11 @@ $Include "$SRCDIR\vpc_scripts\version.vpc"
 
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTBINNAME"	"$PROJECTNAME"
-$Macro IS_LIB_PROJECT		"1"
+$MacroRequired				"OUTBINDIR"
+
+$Macro OUTBINDIR	"$OUTBINDIR$PLATSUBDIR" [!$GAME_OUTPUT && ($LINUX64 || $LINUXARM64)]
+
+$Conditional IS_LIB_PROJECT		"1"
 $Include "$SRCDIR\vpc_scripts\source_posix_base.vpc"
 
 $Include "$SRCDIR\vpc_scripts\loadaddress.vpc"
@@ -30,14 +34,14 @@ $Configuration
 
 	$Linker
 	{
-		$OutputFile						"$SRCDIR/../game/$OUTBINNAME"
+		$OutputFile						"$OUTBINDIR/$OUTBINNAME"
 
 		// In order to get the Valve standard allocator memory alignment (16-byte
 		// alignment for objects that are a multiple of 16 bytes) we use tcmalloc.
 		// Using -l will ask the linker to use it, but if there are no references
 		// to malloc/free then it may not actually use it. Wrapping the flag in the
-		// as-needed controls forces it to be pulled in (from libtcmalloc_minimal.so).
-		$GCC_ExtraLinkerFlags			"-Wl,--no-as-needed -ltcmalloc_minimal -Wl,--as-needed" [$LINUXALL&&!$DEDICATED]
+		// as-needed controls forces it to be pulled in (from libmimalloc.so).
+		$GCC_ExtraLinkerFlags			"-Wl,--no-as-needed -lmimalloc -Wl,--as-needed" [$LINUXALL&&!$DEDICATED&&!$ENABLE_ASAN&&!$SOURCESDK]
 	}
 }
 
@@ -63,9 +67,9 @@ $Project
 		$File	"$ROOTSCRIPT"
 	}
 
-	$Folder	"Link Libraries" [$LINUXALL&&!$DEDICATED]
+	$Folder	"Link Libraries" [$LINUXALL&&!$DEDICATED&&!$ENABLE_ASAN&&!$SOURCESDK]
 	{
-		$File	"$SRCDIR/thirdparty/gperftools-2.0/.libs/libtcmalloc_minimal.so"
+		$ImpLibExternal	"$LIBPUBLIC\mimalloc"
 	}
 }
 

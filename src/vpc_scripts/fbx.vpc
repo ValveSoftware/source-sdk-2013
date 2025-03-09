@@ -1,0 +1,48 @@
+//============ Copyright (c) Valve Corporation, All rights reserved. ==========
+//
+// In addition to fbx_base.vpc which defines the version, include path and
+// defines for compiling code that utilizes Autodesk FBX SDK, add the lib
+// for linking.  NOTE that this is expecting to link with the DLL version of
+// the FBX SDK and so the appropriate FBX SDK DLL needs to be distributed
+// in game/bin
+// 
+//=============================================================================
+
+$MacroRequired	SRCDIR
+
+$Include "$SRCDIR\vpc_scripts\fbx_base.vpc"
+
+// VS 2010 settings, can mix debug and release libraries, don't use the DLL version for anything
+$Macro	FBXLIB_RELEASE	"$FBXDIR\lib\vs2010\x86\release\libfbxsdk-mt.lib"	[$WIN32 && $VS2010]
+$Macro	FBXLIB_RELEASE	"$FBXDIR\lib\vs2010\x64\release\libfbxsdk-mt.lib"	[$WIN64 && $VS2010]
+$Macro	FBXLIB_DEBUG	"$FBXDIR\lib\vs2010\x86\release\libfbxsdk-mt.lib"	[$WIN32 && $VS2010]
+$Macro	FBXLIB_DEBUG	"$FBXDIR\lib\vs2010\x64\release\libfbxsdk-mt.lib"	[$WIN64 && $VS2010]
+
+// VS 2012 and VS 2013 don't like mixing debug and release libraries and the libfbxsdk libraries trigger
+// lots of failures as soon as we start mixing so we need to use the DLL version. Also, the latest
+// fbxsdk doesn't support VS 2013 yet, so DLL isolation is required.
+$Macro	FBXLIB_RELEASE	"$FBXDIR\lib\vs2012\x86\release\libfbxsdk.lib"	[$WIN32 && ($VS2012 || $VS2013) && !$VS2022]
+$Macro	FBXLIB_RELEASE	"$FBXDIR\lib\vs2012\x64\release\libfbxsdk.lib"	[$WIN64 && ($VS2012 || $VS2013) && !$VS2022]
+$Macro	FBXLIB_DEBUG	"$FBXDIR\lib\vs2012\x86\release\libfbxsdk.lib"	[$WIN32 && ($VS2012 || $VS2013) && !$VS2022]
+$Macro	FBXLIB_DEBUG	"$FBXDIR\lib\vs2012\x64\release\libfbxsdk.lib"	[$WIN64 && ($VS2012 || $VS2013) && !$VS2022]
+
+$Macro	FBXLIB_RELEASE	"$FBXDIR\lib\vs2017\x86\release\libfbxsdk.lib"	[$WIN32 && $VS2022]
+$Macro	FBXLIB_RELEASE	"$FBXDIR\lib\vs2017\x64\release\libfbxsdk.lib"	[$WIN64 && $VS2022]
+$Macro	FBXLIB_DEBUG	"$FBXDIR\lib\vs2017\x86\release\libfbxsdk.lib"	[$WIN32 && $VS2022]
+$Macro	FBXLIB_DEBUG	"$FBXDIR\lib\vs2017\x64\release\libfbxsdk.lib"	[$WIN64 && $VS2022]
+
+$Configuration "Release"
+{
+	$Linker
+	{
+		$AdditionalDependencies	"$BASE wininet.lib $FBXLIB_RELEASE" [$WIN32 || $WIN64]
+	}
+}
+
+$Configuration "Debug"
+{
+	$Linker
+	{
+		$AdditionalDependencies	"$BASE wininet.lib $FBXLIB_DEBUG" [$WIN32 || $WIN64]
+	}
+}

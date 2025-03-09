@@ -1,2 +1,2 @@
-devtools\bin\vpc.exe /hl2 /episodic +game /mksln games.sln
+devtools\bin\vpc.exe /episodic +game /mksln games.sln
 pause
