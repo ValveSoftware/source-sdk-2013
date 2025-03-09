@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Father Grigori, a benevolent monk who is the last remaining human
 //			in Ravenholm. He keeps to the rooftops and uses a big ole elephant

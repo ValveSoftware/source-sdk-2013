@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef IN_SIXENSE_H
 #define IN_SIXENSE_H
 

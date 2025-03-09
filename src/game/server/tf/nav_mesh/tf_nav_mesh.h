@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_nav_mesh.h
 // TF specific nav mesh
 // Michael Booth, February 2009

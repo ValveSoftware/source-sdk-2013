@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_engineer_building.h
 // At building location, constructing buildings
 // Michael Booth, May 2010

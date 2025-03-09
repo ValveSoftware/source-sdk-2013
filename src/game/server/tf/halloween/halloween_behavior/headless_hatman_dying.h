@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // headless_hatman_dying.h
 // The HHH in the process of dying
 // Michael Booth, October 2010

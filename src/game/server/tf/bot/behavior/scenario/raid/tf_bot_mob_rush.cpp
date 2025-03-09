@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_mob_rush.cpp
 // A member of a rushing mob of melee attackers
 // Michael Booth, October 2009

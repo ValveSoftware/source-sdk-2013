@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // NVNT haptics for Team Fortress 2
 #ifndef C_TF_HAPTICS_H
 #define C_TF_HAPTICS_H

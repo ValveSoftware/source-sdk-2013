@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_payload_push.h
 // Push the cart to the goal
 // Michael Booth, April 2010

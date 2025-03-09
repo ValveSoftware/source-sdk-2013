@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_escort_squad_leader.cpp
 // Escort the squad leader to their destination
 // Michael Booth, Octoboer 2011

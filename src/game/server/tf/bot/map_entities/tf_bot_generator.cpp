@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_generator.cpp
 // Entity to spawn a collection of TFBots
 // Michael Booth, September 2009

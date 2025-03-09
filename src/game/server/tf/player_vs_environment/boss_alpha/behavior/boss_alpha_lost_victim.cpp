@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // boss_alpha_lost_victim.cpp
 // Michael Booth, November 2010
 

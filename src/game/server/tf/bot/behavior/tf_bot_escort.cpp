@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_escort.cpp
 // Move near an entity and protect it
 // Michael Booth, April 2011

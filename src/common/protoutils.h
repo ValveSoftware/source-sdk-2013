@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef VALVE_PROTO_UTILS_H
 #define VALVE_PROTO_UTILS_H

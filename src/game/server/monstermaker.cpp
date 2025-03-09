@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: An entity that creates NPCs in the game. There are two types of NPC
 //			makers -- one which creates NPCs using a template NPC, and one which

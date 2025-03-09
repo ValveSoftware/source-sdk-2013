@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: A hideous, putrescent, pus-filled undead carcass atop which a vile
 //			nest of filthy poisonous headcrabs lurks.

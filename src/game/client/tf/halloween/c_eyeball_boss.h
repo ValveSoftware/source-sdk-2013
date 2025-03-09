@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef C_EYEBALL_BOSS_H
 #define C_EYEBALL_BOSS_H
 

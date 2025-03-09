@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #include "cbase.h"
 #include "forcefeedback.h"
 #include "hud_macros.h"

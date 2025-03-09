@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: An entity that networks the state of the game's objectives.
 //			May contain data for objectives that aren't used by your mod, but

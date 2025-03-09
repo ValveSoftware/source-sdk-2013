@@ -1,7 +1,7 @@
 // NextBotLocomotionInterface.cpp
 // Common functionality for all NextBot locomotors
 // Author: Michael Booth, April 2005
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #include "cbase.h"
 

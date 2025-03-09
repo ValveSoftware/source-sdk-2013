@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #include "cbase.h"
 #include "tf_quest_map_node_view_panel.h"

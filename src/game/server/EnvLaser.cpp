@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: A special kind of beam effect that traces from its start position to
 //			its end position and stops if it hits anything.

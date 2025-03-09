@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_stickybomb_sentrygun.cpp
 // Destroy the given sentrygun with stickybombs
 // Michael Booth, August 2010

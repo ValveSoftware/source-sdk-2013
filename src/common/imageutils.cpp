@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // NOTE: To make use of this file, g_pFullFileSystem must be defined, or you can modify
 // this source to take an IFileSystem * as input.

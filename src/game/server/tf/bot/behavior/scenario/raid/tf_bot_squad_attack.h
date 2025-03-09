@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_squad_attack.h
 // Move and attack as a small, cohesive, group
 // Michael Booth, October 2009

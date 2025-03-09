@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // The expression operator class - scalar math calculator
 // for a good list of operators and simple functions, see:

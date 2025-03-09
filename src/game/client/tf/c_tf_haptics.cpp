@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // NVNT haptic manager for tf2
 #include "cbase.h"
 #include "c_tf_haptics.h"

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_engineer_build_teleport_entrance.cpp
 // Engineer building a teleport entrance right outside of the spawn room
 // Michael Booth, May 2009

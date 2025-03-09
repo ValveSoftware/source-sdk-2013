@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 /* Based heavily on cloak_blended_pass, look at cloak_blended_pass_helper.cpp
 

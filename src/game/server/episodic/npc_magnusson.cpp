@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Dr. Magnusson, a grumpy bastard who builds satellites and rockets
 //			at the White Forest missile silo. Instantly unlikeable, he is also

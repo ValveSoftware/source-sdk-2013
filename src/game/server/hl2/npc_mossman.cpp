@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Dr. Mossman, stalwart heroine, doing what is right in the face of 
 //			near certain doom, all while fighting off the clumsy advances of her

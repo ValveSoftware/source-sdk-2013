@@ -1,7 +1,7 @@
 // NextBotPath.cpp
 // Encapsulate and manipulate a path through the world
 // Author: Michael Booth, February 2006
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #include "cbase.h"
 

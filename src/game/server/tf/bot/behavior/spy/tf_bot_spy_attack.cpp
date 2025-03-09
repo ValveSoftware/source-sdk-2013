@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_spy_attack.cpp
 // Backstab or pistol, as appropriate
 // Michael Booth, June 2010

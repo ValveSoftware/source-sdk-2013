@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #include "cbase.h"
 #include "game_item_schema.h"
 #include "econ_item_interface.h"

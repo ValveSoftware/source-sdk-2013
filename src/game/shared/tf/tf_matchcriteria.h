@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef TF_MATCH_CRITERIA_H
 #define TF_MATCH_CRITERIA_H

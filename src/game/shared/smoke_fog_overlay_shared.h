@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef SMOKE_FOG_OVERLAY_SHARED_H
 #define SMOKE_FOG_OVERLAY_SHARED_H

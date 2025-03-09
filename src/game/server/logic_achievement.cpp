@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //	
 //	Defines a logical entity which passes achievement related events to the gamerules system.
 

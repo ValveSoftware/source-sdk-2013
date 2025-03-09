@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_mann_vs_machine_logic.h
 // Mann Vs Machine game mode singleton manager
 // Michael Booth, June 2011

@@ -1,7 +1,7 @@
 // C_NextBot.cpp
 // Client-side implementation of Next generation bot system
 // Author: Michael Booth, April 2005
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #include "cbase.h"
 #include "C_NextBot.h"

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_get_ammo.h
 // Pick up any nearby ammo
 // Michael Booth, May 2009

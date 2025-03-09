@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // bot_npc_mini.h
 // A NextBot non-player derived actor
 // Michael Booth, March 2011

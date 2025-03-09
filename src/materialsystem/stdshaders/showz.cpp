@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Visualize shadow z buffers.  Designed to be used when drawing a screen-aligned
 //          quad with a floating-point z-buffer so that the large z-range is divided down

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_spawner.cpp
 // Entity to spawn one or more templatized entities
 // Michael Booth, April 2011

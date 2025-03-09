@@ -1,7 +1,7 @@
 // NextBotAttentionInterface.cpp
 // Manage what this bot pays attention to
 // Author: Michael Booth, April 2007
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #include "cbase.h"
 

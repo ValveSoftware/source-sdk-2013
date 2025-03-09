@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //                       TOGL CODE LICENSE
 //
 //  Copyright 2011-2014 Valve Corporation

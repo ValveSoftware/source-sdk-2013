@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #include "cbase.h"
 #include "c_monster_resource.h"
 #include "tf_hud_boss_health.h"

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef TF_GC_SERVER_H
 #define TF_GC_SERVER_H
 #ifdef _WIN32

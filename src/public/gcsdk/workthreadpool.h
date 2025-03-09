@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: A thread pool implementation.  You give it CWorkItems,
 // it processes them asynchronously, and hands them back to you when they've 

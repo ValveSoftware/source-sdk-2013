@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_mission_destroy_sentries.cpp
 // Seek and destroy enemy sentries and ignore everything else
 // Michael Booth, June 2011

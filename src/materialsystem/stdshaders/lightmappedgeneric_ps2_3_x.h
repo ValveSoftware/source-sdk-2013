@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //  SKIP: $BUMPMAP2 && $WARPLIGHTING
 //  SKIP: $WARPLIGHTING && $DETAILTEXTURE
 //	SKIP: $ENVMAPMASK && $BUMPMAP

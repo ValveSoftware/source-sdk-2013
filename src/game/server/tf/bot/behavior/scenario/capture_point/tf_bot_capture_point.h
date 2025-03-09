@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_capture_point.h
 // Move to and try to capture the next point
 // Michael Booth, February 2009

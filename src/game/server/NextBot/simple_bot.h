@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // simple_bot.h
 // A mininal example of a NextBotCombatCharacter (ie: non-player) bot
 // Michael Booth, February 2009

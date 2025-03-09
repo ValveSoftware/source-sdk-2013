@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: vmpi_distribute_work sends events to this module, and this module
 //          can track the events or display them graphically for debugging.

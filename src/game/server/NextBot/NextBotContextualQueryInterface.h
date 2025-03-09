@@ -1,7 +1,7 @@
 // NextBotContextualQueryInterface.h
 // Queries within the context of the bot's current behavior state
 // Author: Michael Booth, June 2007
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _NEXT_BOT_CONTEXTUAL_QUERY_H_
 #define _NEXT_BOT_CONTEXTUAL_QUERY_H_

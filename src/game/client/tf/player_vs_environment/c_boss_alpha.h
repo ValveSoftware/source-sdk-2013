@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef C_BOSS_ALPHA_H
 #define C_BOSS_ALPHA_H
 

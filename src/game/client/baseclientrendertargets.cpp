@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Implementation for CBaseClientRenderTargets class.
 //			Provides Init functions for common render textures used by the engine.

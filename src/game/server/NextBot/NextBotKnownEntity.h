@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // NextBotKnownEntity.h
 // Encapsulation of being aware of an entity
 // Author: Michael Booth, June 2009

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Acts exactly like "AnimatedTexture", but ONLY if the texture 
 //			it's working on matches the desired texture to work on.

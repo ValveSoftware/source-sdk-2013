@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_spy_backstab.cpp
 // Chase behind a victim and backstab them
 // Michael Booth, June 2010

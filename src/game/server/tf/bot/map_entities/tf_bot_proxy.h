@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_proxy.h
 // A Hammer entity that spawns a TFBot and relays events to/from it
 // Michael Booth, November 2009

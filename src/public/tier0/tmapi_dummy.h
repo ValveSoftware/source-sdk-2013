@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // This is the null header file used to remove Telemetry calls.
 
 #define TMERR_DISABLED 1

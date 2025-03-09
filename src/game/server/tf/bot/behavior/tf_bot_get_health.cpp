@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_get_health.h
 // Pick up any nearby health kit
 // Michael Booth, May 2009

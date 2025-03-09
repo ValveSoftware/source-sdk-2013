@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_engineer_build_dispenser.h
 // Engineer building his Dispenser near his Sentry
 // Michael Booth, May 2010

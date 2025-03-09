@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_nav_ent_move_to.h
 // Move onto target and wait, as directed by nav entity
 // Michael Booth, September 2009

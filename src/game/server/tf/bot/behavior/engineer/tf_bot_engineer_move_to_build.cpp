@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_engineer_move_to_build.cpp
 // Engineer moving into position to build
 // Michael Booth, February 2009

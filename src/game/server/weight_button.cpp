@@ -1,5 +1,5 @@
 
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: 'Button' which activates after a specified amount of weight is touching it.
 //

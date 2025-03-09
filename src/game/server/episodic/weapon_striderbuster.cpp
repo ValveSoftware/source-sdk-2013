@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // An ingenious device. We call it "The Magnusson Device". Not my chosen label,
 // you understand, but it seemed to please the personnel.

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Dr. Eli Vance, earths last great hope, single-handedly fighting
 //			off both an evil alien invasion, as well as trying to stop 

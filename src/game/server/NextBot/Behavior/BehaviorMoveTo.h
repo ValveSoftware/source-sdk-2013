@@ -1,7 +1,7 @@
 // BehaviorMoveTo.h
 // Move to a potentially far away position
 // Author: Michael Booth, June 2007
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _BEHAVIOR_MOVE_TO_H_
 #define _BEHAVIOR_MOVE_TO_H_

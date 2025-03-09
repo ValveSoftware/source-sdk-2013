@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: tf_populator_spawners
 // Implementations of NPC Spawning Code for PvE related game modes (MvM)

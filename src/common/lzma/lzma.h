@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 //	Purpose: LZMA Glue. Designed for Tool time Encoding/Decoding.
 //

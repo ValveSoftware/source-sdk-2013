@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef VOLUME_CLOUDS_HELPER_H
 #define VOLUME_CLOUDS_HELPER_H

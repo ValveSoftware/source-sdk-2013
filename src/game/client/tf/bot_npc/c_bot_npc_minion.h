@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef C_BOT_NPC_MINION_H
 #define C_BOT_NPC_MINION_H
 

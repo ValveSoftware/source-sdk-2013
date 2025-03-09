@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef TF_BASE_BOSS_H
 #define TF_BASE_BOSS_H
 

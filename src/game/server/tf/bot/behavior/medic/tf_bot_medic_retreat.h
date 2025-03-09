@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_retreat.cpp
 // Retreat towards our spawn to find another patient
 // Michael Booth, May 2009

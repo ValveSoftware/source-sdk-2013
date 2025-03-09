@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Implements a brush model entity that moves along a linear path.
 //			Water whose level can be changed is implemented using the same entity.

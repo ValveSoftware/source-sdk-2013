@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 //  LZMA Codec interface for engine. Based largely on LzmaUtil.c in SDK
 //

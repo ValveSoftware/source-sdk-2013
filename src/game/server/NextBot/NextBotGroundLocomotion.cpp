@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // NextBotGroundLocomotion.cpp
 // Basic ground-based movement for NextBotCombatCharacters
 // Author: Michael Booth, February 2009

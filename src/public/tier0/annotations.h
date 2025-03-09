@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef ANALYSIS_ANNOTATIONS_H
 #define ANALYSIS_ANNOTATIONS_H
 

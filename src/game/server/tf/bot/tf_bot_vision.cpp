@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_vision.cpp
 // Team Fortress NextBot vision interface
 // Michael Booth, May 2009

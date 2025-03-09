@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef HUD_ACHIEVEMENT_TRACKER_H
 #define HUD_ACHIEVEMENT_TRACKER_H
 #ifdef _WIN32

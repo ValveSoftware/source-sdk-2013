@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_behavior.h
 // Team Fortress NextBot behaviors
 // Michael Booth, February 2009

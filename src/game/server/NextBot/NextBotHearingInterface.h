@@ -1,7 +1,7 @@
 // NextBotHearingInterface.h
 // Interface for auditory queries of a bot
 // Author: Michael Booth, April 2005
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _NEXT_BOT_HEARING_INTERFACE_H_
 #define _NEXT_BOT_HEARING_INTERFACE_H_

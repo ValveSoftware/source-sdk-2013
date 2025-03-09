@@ -1,7 +1,7 @@
 // NextBotVisionInterface.h
 // Visual information query interface for bots
 // Author: Michael Booth, April 2005
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _NEXT_BOT_VISION_INTERFACE_H_
 #define _NEXT_BOT_VISION_INTERFACE_H_

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef HL2MP_BOT_RETREAT_TO_COVER_H
 #define HL2MP_BOT_RETREAT_TO_COVER_H

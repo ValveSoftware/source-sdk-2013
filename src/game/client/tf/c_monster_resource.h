@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef C_MONSTER_RESOURCE
 #define C_MONSTER_RESOURCE
 #ifdef _WIN32

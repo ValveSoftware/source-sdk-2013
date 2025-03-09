@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Bi-directional set. A Bucket knows about the elements that lie
 // in it, and the elements know about the buckets they lie in.

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_populator.cpp
 // KeyValues driven procedural population system
 // Michael Booth, April 2011

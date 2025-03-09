@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // halloween_boss_base.cpp
 // Shared code for the Halloween Bosses
 // Michael Booth, October 2011

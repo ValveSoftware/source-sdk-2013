@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #if defined( WIN32 ) && !defined( _X360 )
 	#include <windows.h>

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #include "cbase.h"
 #include "custom_texture_cache.h"
 #include "materialsystem/imaterialproxy.h"

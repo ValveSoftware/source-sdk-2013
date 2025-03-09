@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: defines constants to use for the materialsystem and shaderapi
 // SetxxxRenderingParameter functions

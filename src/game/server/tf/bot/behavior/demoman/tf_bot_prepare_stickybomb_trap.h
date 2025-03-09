@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_prepare_stickybomb_trap.h
 // Place stickybombs to create a deadly trap
 // Michael Booth, July 2010

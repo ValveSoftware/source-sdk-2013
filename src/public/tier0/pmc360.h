@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Analogous to l2cache.h, this class represents information gleaned
 //			from the 360's Performance Monitor Counters. In particular we 

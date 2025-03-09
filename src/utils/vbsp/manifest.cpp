@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #include "vbsp.h"
 #include "map_shared.h"
 #include "fgdlib/fgdlib.h"

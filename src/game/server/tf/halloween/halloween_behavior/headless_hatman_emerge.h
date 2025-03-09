@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // headless_hatman_emerge.h
 // The Halloween Boss emerging from the ground
 // Michael Booth, October 2010

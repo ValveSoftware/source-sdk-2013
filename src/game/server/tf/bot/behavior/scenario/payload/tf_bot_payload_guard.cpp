@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_payload_guard.cpp
 // Guard the payload and keep the attackers from getting near it
 // Michael Booth, April 2010

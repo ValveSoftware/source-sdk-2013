@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // headless_hatman_attack.cpp
 // Halloween Boss chase and attack behavior
 // Michael Booth, October 2010

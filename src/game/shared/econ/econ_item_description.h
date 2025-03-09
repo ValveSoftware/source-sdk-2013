@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef ECONITEMDESCRIPTION_H
 #define ECONITEMDESCRIPTION_H

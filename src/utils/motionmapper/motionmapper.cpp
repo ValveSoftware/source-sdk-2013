@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_retreat_to_cover.h
 // Retreat to local cover from known threats
 // Michael Booth, June 2009

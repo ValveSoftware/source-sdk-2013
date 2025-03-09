@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_attack_flag_defenders.h
 // Attack enemies that are preventing the flag from reaching its destination
 // Michael Booth, May 2011

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_spy_leave_spawn_room.cpp
 // Assume the enemy is watching our spawn - escape it
 // Michael Booth, September 2011

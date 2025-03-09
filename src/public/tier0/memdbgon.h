@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: This header, which must be the final include in a .cpp (or .h) file,
 // causes all crt methods to use debugging versions of the memory allocators.

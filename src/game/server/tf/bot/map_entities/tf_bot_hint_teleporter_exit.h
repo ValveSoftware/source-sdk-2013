@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_hint_teleporter_exit.h
 // Designer-placed hint for bot teleporter exit placement
 // Michael Booth, May 2010

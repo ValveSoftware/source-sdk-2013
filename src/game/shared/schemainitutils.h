@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: schemainitutils: Helpful macros when initing stuff that you'll
 //			want to record multiple errors from

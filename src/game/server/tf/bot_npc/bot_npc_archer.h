@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // bot_npc_archer.h
 // A NextBot non-player derived archer
 // Michael Booth, November 2010

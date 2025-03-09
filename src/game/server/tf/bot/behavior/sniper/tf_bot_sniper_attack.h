@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_sniper_attack.h
 // Attack a threat as a Sniper
 // Michael Booth, February 2009

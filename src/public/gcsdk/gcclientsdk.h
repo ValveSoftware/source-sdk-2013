@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: includes all the headers required for the cliend side of the GC 
 //			SDK GC SDK. Include this in your stdafx.h

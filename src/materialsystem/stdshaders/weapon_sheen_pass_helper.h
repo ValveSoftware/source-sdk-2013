@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef WEAPON_SHEEN_PASS_HELPER_H
 #define WEAPON_SHEEN_PASS_HELPER_H

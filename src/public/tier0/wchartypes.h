@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose:	All of our code is completely Unicode.  Instead of char, you should
 //			use wchar, uint8, or char8, as explained below.

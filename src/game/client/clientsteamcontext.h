@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #if !defined( CLIENTSTEAMCONTEXT_H )
 #define CLIENTSTEAMCONTEXT_H
 #ifdef _WIN32

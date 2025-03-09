@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_locomotion.cpp
 // Team Fortress NextBot locomotion interface
 // Michael Booth, May 2010

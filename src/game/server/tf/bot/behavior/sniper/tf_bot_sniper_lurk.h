@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_sniper_lurk.h
 // Move into position and wait for victims
 // Michael Booth, October 2009

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef HUD_BOSS_HEALTH_METER_H
 #define HUD_BOSS_HEALTH_METER_H
 

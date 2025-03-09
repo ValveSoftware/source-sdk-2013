@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // boss_alpha.h
 // Our first "real" TF Boss
 // Michael Booth, November 2010

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_squad.h
 // Small groups of TFBot, managed as a unit
 // Michael Booth, November 2009

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // bot_npc_decoy.cpp
 // A NextBot non-player decoy that imitates a real player
 // Michael Booth, January 2011

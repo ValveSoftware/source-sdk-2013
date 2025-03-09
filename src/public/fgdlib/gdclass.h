@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Defines the interface to a game class as defined by the game data
 //			file (FGD). Each class is type of entity that can be placed in

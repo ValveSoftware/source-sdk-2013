@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Implements the Sticky Bolt code. This constraints ragdolls to the world
 //			after being hit by a crossbow bolt. If something here is acting funny

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: A blood spray effect, like a big exit wound, used when people are
 //			violently impaled, skewered, eviscerated, etc.

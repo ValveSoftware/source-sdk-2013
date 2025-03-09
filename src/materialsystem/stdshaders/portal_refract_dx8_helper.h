@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef PORTALREFRACT_DX8_HELPER_H
 #define PORTALREFRACT_DX8_HELPER_H

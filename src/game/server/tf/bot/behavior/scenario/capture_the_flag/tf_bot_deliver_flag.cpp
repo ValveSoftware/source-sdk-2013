@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_deliver_flag.cpp
 // Take the flag we are holding to its destination
 // Michael Booth, May 2011

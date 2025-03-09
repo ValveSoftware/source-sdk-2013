@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // NOTE: Inserting to most or all of the enums in this file will BREAK DEMOS -
 // please add to the end instead.

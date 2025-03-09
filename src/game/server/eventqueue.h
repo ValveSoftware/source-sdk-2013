@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: A global class that holds a prioritized queue of entity I/O events.
 //			Events can be posted with a nonzero delay, which determines how long

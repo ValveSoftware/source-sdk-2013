@@ -1,7 +1,7 @@
 // NextBotPathFollow.h
 // Path following
 // Author: Michael Booth, April 2005
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _NEXT_BOT_PATH_FOLLOWER_
 #define _NEXT_BOT_PATH_FOLLOWER_

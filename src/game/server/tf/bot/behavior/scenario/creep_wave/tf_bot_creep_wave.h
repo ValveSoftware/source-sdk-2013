@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_creep_wave.h
 // Move in a "creep wave" to the next available control point to capture it
 // Michael Booth, August 2010

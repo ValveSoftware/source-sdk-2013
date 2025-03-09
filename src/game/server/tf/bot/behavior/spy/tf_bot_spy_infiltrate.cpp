@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_spy_infiltrate.cpp
 // Move into position behind enemy lines and wait for victims
 // Michael Booth, June 2010

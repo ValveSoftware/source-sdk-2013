@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_hint_sentrygun.cpp
 // Designer-placed hint for bot sentry placement
 // Michael Booth, October 2009

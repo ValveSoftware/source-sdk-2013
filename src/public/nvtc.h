@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 /*
  *   Copyright (c) 1997-8  S3 Inc.  All Rights Reserved.
  *

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // Michael Booth, September 2012
 
 #ifndef TF_BOT_MVM_ENGINEER_BUILD_SENTRYGUN_H

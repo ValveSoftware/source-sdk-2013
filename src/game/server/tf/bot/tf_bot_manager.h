@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_manager.h
 // Team Fortress NextBotManager
 // Tom Bui, May 2010

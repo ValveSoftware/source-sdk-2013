@@ -1,7 +1,7 @@
 // NextBotEventResponderInterface.h
 // Interface for propagating and responding to events
 // Author: Michael Booth, May 2006
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _NEXT_BOT_EVENT_RESPONDER_INTERFACE_H_
 #define _NEXT_BOT_EVENT_RESPONDER_INTERFACE_H_

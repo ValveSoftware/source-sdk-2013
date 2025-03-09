@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------------
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef MESHTOOL_H
 #define MESHTOOL_H

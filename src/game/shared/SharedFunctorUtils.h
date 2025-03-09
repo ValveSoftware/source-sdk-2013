@@ -1,6 +1,6 @@
 // SharedFunctorUtils.h
 // Useful functors for client and server
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 //--------------------------------------------------------------------------------------------------------
 /**

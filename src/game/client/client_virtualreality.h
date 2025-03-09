@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: The implementation of ISourceVirtualReality, which provides utility
 //			functions for VR including head tracking, window/viewport information,

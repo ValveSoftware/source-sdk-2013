@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // crybaby_boss_escape.h
 // Crybaby Boss runs to the pit in Mann Manor to escape
 // Michael Booth, October 2011

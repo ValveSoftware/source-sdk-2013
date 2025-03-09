@@ -1,7 +1,7 @@
 // NextBotUtil.h
 // Utilities for the NextBot system
 // Author: Michael Booth, May 2006
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _NEXT_BOT_UTIL_H_
 #define _NEXT_BOT_UTIL_H_

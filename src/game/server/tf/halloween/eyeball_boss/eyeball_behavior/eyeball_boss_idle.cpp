@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // eyeball_boss_idle.cpp
 // The 2011 Halloween Boss
 // Michael Booth, October 2011

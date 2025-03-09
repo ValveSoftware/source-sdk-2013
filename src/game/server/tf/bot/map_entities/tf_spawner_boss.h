@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_spawner_boss.h
 // Entity to spawn a Boss
 // Michael Booth, February 2011

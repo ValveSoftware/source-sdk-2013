@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Security cameras will track a default target (if they have one)
 //			until they either acquire an enemy to track or are told to track

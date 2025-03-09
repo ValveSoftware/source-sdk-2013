@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: TF version of the stickybolt code.
 //			I broke off our own version because I didn't want to accidentally break HL2.

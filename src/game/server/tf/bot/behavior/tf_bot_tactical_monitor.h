@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_tactical_monitor.h
 // Behavior layer that interrupts for ammo/health/retreat/etc
 // Michael Booth, June 2009

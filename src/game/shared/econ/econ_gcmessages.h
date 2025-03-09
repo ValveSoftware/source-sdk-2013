@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: This file defines all of our over-the-wire net protocols for the
 //			Game Coordinator for the item system.  Note that we never use types

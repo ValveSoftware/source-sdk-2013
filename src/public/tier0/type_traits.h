@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: functionality that is provided in C++11 type_traits, which 
 // currently isn't supported by the OSX compiler. Sadness.

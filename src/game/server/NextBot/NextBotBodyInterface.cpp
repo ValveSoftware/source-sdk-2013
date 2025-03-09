@@ -1,7 +1,7 @@
 // NextBotBodyInterface.cpp
 // Control and information about the bot's body state (posture, animation state, etc)
 // Author: Michael Booth, April 2006
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #include "cbase.h"
 

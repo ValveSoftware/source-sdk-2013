@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #include "BaseVSShader.h"
 #include "mathlib/vmatrix.h"
 #include "portal_refract_dx8_helper.h"

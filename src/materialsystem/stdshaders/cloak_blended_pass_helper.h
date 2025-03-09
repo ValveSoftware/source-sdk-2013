@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef CLOAK_BLENDED_PASS_HELPER_H
 #define CLOAK_BLENDED_PASS_HELPER_H

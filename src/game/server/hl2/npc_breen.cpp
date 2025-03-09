@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Dr. Breen, the oft maligned genius, heroically saving humanity from 
 //			its own worst enemy, itself.

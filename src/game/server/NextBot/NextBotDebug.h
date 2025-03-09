@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef NEXTBOT_DEBUG_H
 #define NEXTBOT_DEBUG_H
 //------------------------------------------------------------------------------

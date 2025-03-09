@@ -1,7 +1,7 @@
 // NextBotBehaviorEngine.h
 // Behavioral system constructed from Actions
 // Author: Michael Booth, April 2006
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _BEHAVIOR_ENGINE_H_
 #define _BEHAVIOR_ENGINE_H_

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Defines the interface a given texture for the 3D renderer. Current
 //			implementations are for world textures (WADTexture.cpp) and sprite

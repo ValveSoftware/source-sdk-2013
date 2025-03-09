@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_payload_block.cpp
 // Prevent the other team from moving the cart
 // Michael Booth, April 2010

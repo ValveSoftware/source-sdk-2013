@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_boss_battle_logic.cpp
 // Boss battle game mode singleton manager
 // Michael Booth, April 2011

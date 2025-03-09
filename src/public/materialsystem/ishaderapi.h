@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: NOTE: This file is for backward compat!
 // We'll get rid of it soon. Most of the contents of this file were moved

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // headless_hatman.cpp
 // An NPC that spawns in the Halloween map and wreaks havok
 // Michael Booth, October 2010

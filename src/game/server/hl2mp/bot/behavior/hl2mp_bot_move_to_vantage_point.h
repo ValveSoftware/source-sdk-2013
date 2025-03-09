@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef HL2MP_BOT_MOVE_TO_VANTAGE_POINT_H
 #define HL2MP_BOT_MOVE_TO_VANTAGE_POINT_H

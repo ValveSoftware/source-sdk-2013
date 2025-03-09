@@ -1,7 +1,7 @@
 // NextBotChasePath.h
 // Maintain and follow a "chase path" to a selected Actor
 // Author: Michael Booth, September 2006
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _NEXT_BOT_CHASE_PATH_
 #define _NEXT_BOT_CHASE_PATH_

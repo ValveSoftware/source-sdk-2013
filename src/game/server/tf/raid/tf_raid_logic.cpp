@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_raid_logic.cpp
 // Raid game mode singleton manager
 // Michael Booth, November 2009

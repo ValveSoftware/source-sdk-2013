@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef C_ENTITY_CURRENCYPACK_H
 #define C_ENTITY_CURRENCYPACK_H
 

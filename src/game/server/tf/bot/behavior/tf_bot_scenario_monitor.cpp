@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_scenario_monitor.h
 // Behavior layer that interrupts for scenario rules (picked up flag, drop what you're doing and capture, etc)
 // Michael Booth, May 2011

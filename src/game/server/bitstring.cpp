@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose:		Arbitrary length bit string
 //				** NOTE: This class does NOT override the bitwise operators

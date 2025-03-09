@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_escort_flag_carrier.h
 // Escort the flag carrier to their destination
 // Michael Booth, May 2011

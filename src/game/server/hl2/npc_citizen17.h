@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: The downtrodden citizens of City 17. Timid when unarmed, they will
 //			rise up against their Combine oppressors when given a weapon.

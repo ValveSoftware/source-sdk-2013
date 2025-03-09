@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Defines entity interface between engine and DLLs.
 // This header file included by engine files and DLL files.

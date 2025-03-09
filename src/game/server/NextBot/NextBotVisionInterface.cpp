@@ -1,7 +1,7 @@
 // NextBotVisionInterface.cpp
 // Implementation of common vision system
 // Author: Michael Booth, May 2006
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #include "cbase.h"
 

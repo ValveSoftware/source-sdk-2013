@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_taunt.cpp
 // Stand still and play a taunt animation
 // Michael Booth, November 2009

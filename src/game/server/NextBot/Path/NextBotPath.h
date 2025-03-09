@@ -1,7 +1,7 @@
 // NextBotPath.h
 // Encapsulate and manipulate a path through the world
 // Author: Michael Booth, February 2006
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _NEXT_BOT_PATH_H_
 #define _NEXT_BOT_PATH_H_

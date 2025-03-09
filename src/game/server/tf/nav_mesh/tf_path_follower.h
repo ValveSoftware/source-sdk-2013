@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_path_follower.h
 // Simplified path following for TF2
 // Author: Michael Booth, November 2010

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_tactical_mission.cpp
 // Team Fortress specific missions
 // Michael Booth, June 2009

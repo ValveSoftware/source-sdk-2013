@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef TF_WEAPON_BOTTLE_H
 #define TF_WEAPON_BOTTLE_H

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_engineer_build_sentrygun.h
 // Engineer building his Sentry gun
 // Michael Booth, May 2010

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_destroy_enemy_sentry.h
 // Destroy an enemy sentry gun
 // Michael Booth, June 2010

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_body.cpp
 // Team Fortress NextBot body interface
 // Michael Booth, May 2010

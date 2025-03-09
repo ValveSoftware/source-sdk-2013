@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_roster.cpp
 // entity that dictates what classes a bot can choose when spawning
 // Tom Bui, April 2010

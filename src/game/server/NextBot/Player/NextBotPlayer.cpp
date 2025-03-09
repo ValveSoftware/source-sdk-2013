@@ -1,7 +1,7 @@
 // NextBotPlayer.cpp
 // A CBasePlayer bot based on the NextBot technology
 // Author: Michael Booth, November 2005
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #include "cbase.h"
 

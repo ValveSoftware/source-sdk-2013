@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // ghost.h
 // A spooky halloween ghost bot
 // Michael Booth, October 2011

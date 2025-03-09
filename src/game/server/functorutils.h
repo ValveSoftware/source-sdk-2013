@@ -1,6 +1,6 @@
 // FunctorUtils.h
 // Useful functors
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _FUNCTOR_UTILS_H_
 #define _FUNCTOR_UTILS_H_

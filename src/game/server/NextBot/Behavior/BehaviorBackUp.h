@@ -1,7 +1,7 @@
 // BehaviorBackUp.h
 // Back up for a short duration
 // Author: Michael Booth, March 2007
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _BEHAVIOR_BACK_UP_H_
 #define _BEHAVIOR_BACK_UP_H_

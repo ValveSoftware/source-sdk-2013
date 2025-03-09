@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_mission_reprogrammed.cpp
 // Move to target and explode
 // Michael Booth, October 2011

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef EMISSIVE_SCROLL_BLENDED_PASS_HELPER_H
 #define EMISSIVE_SCROLL_BLENDED_PASS_HELPER_H

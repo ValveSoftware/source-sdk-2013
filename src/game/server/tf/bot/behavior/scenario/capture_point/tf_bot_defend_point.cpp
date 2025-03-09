@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_defend_point.h
 // Move to and defend current point from capture
 // Michael Booth, February 2009

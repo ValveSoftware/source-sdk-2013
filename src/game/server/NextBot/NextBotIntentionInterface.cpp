@@ -1,7 +1,7 @@
 // NextBotIntentionInterface.cpp
 // Interface for intentional thinking
 // Author: Michael Booth, November 2007
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #include "cbase.h"
 

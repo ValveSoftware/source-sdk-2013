@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose:  Parties are a specific type of CPlayerGroup with a leader that can invite and kick members.
 //			

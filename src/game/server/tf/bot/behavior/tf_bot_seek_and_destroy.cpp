@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_seek_and_destroy.h
 // Roam the environment, attacking victims
 // Michael Booth, January 2010

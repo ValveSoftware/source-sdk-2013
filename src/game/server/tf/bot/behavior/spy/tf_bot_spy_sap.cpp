@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_spy_sap.cpp
 // Sap nearby enemy buildings
 // Michael Booth, June 2010

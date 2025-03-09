@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 #ifndef NPC_TURRET_FLOOR_H
 #define NPC_TURRET_FLOOR_H
 #ifdef _WIN32

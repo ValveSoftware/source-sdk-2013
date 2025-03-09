@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_wander.cpp
 // Wanderering/idle enemies for Squad Co-op mode
 // Michael Booth, October 2009

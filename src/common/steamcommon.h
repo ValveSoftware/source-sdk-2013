@@ -1,5 +1,5 @@
 
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 /*
 ** The copyright to the contents herein is the property of Valve Corporation.
 ** The contents may be used and/or copied only with the written permission of

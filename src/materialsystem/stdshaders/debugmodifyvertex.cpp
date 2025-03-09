@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: This is an example of a material that modifies vertex data
 // in the shader. NOTE: Every pass is given a clean set of vertex data.

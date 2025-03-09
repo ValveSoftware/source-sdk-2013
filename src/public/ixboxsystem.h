@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 //
 // Purpose: Interface to Xbox 360 system functions. Helps deal with the async system and Live
 //			functions by either providing a handle for the caller to check results or handling

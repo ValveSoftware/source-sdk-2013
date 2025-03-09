@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // NextBot paths that go through this entity must fulfill the given prerequisites to pass
 // Michael Booth, August 2009
 

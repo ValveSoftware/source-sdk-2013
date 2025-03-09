@@ -1,7 +1,7 @@
 // NextBotRetreatPath.h
 // Maintain and follow a path that leads safely away from the given Actor
 // Author: Michael Booth, February 2007
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef _NEXT_BOT_RETREAT_PATH_
 #define _NEXT_BOT_RETREAT_PATH_

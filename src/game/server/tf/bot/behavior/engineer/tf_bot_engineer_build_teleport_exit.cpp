@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_engineer_build_teleport_exit.cpp
 // Engineer building a teleport exit
 // Michael Booth, May 2010

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 
 #ifndef FLESH_INTERIOR_BLENDED_PASS_HELPER_H
 #define FLESH_INTERIOR_BLENDED_PASS_HELPER_H

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_nav_ent_destroy_entity.h
 // Destroy the given entity, under nav entity control
 // Michael Booth, September 2009

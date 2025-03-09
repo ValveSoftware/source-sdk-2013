@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_move_to_vantage_point.h
 // Move to a position where at least one enemy is visible
 // Michael Booth, November 2009

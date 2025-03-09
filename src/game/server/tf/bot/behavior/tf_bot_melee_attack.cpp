@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//============= Copyright Valve Corporation, All rights reserved. =============//
 // tf_bot_melee_attack.h
 // Attack a threat with out melee weapon
 // Michael Booth, February 2009
