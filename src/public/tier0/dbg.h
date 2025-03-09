@@ -15,8 +15,16 @@
 #include "basetypes.h"
 #include "dbgflag.h"
 #include "platform.h"
+#if _MSC_VER  <= 1939
+#include <cmath> // Replacement for math.h.
+#include <cstdio> // Replacement for stdio.h.
+#ifdef _WIN64
+#include <strtools.h>
+#endif // _WIN64
+#else
 #include <math.h>
 #include <stdio.h>
+#endif
 #include <stdarg.h>
 
 #ifdef POSIX
@@ -640,7 +648,12 @@ public:
 		va_list arg_ptr;
 
 		va_start(arg_ptr, pszFormat);
-		_vsntprintf(m_szBuf, sizeof(m_szBuf)-1, pszFormat, arg_ptr);
+#if _MSC_VER <= 1939
+		Q_snprintf(m_szBuf, sizeof(m_szBuf) - 1, pszFormat, arg_ptr);
+#else
+		_vsntprintf(m_szBuf, sizeof(m_szBuf) - 1, pszFormat, arg_ptr);
+#endif // _MSC_VER <= 1939
+
 		va_end(arg_ptr);
 
 		m_szBuf[sizeof(m_szBuf)-1] = 0;

@@ -57,3 +57,4 @@ config.cfg
 *.filters
 *.vpc_crc
 .vs/
+*manifest.txt
