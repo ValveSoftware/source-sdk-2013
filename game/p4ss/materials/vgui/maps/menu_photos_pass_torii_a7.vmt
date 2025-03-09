@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui/maps/menu_photos_pass_torii_a7"
+	"%keywords" "map_photos,passtime,p4ss,torii"
+	"$translucent" 1
+	"$vertexcolor" 1
+}
