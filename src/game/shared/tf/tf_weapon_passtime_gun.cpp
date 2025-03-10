@@ -45,6 +45,7 @@ END_NETWORK_TABLE()
 BEGIN_PREDICTION_DATA( CPasstimeGun )
 #ifdef CLIENT_DLL
 	DEFINE_PRED_FIELD( m_eThrowState, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_fChargeBeginTime, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 #endif
 END_PREDICTION_DATA()
 
@@ -619,7 +620,7 @@ void CPasstimeGun::ItemPostFrame()
 			{
 			case THROWSTATE_IDLE:
 			{
-				if ( m_attack.Is( BUTTONSTATE_PRESSED ) )
+				if ( m_attack.Is( BUTTONSTATE_PRESSED ) || m_attack.Is(BUTTONSTATE_DOWN ) )
 				{
 					// note: should transition to CHARGING even if it will immediately finish charging
 					m_eThrowState = THROWSTATE_CHARGING;
