@@ -21567,6 +21567,18 @@ CTFPlayer *CTFPlayer::FindPartnerTauntInitiator( void )
 			continue;
 		}
 
+		// Check if: 1. the initiator is inside a respawnroom and 2. the round has not ended, 
+		// to not execute when players can already enter the enemy respawnroom.
+		// This should be an easy way to fix players entering spawnrooms with partner taunts
+		if( PointInRespawnRoom( pPlayer, pPlayer->WorldSpaceCenter() ) && TFGameRules()->State_Get() != GR_STATE_TEAM_WIN)
+		{
+			if ( tf_highfive_debug.GetBool() )
+				Msg( " - but %s is inside their spawn room and the round hasn't ended.\n", pPlayer->GetPlayerName() );
+
+			//no trolling
+			continue;
+		}
+
 		// update to closer target player
 		if ( flDistSqrToPlayer < flDistSqrToTargetInitiator )
 		{
