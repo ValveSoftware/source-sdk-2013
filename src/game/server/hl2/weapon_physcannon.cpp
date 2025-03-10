@@ -149,9 +149,9 @@ public:
 			// See if it's a grabbable physics prop
 			if ( FClassnameIs( pEntity, "prop_physics" ) )
 			{
-				CPhysicsProp *pPhysProp = dynamic_cast<CPhysicsProp *>(pEntity);
-				if ( pPhysProp != NULL )
-					return pPhysProp->CanBePickedUpByPhyscannon();
+				CPhysicsProp *pPhysProp_ = dynamic_cast<CPhysicsProp *>(pEntity);
+				if ( pPhysProp_ != NULL )
+					return pPhysProp_->CanBePickedUpByPhyscannon();
 
 				// Somehow had a classname that didn't match the class!
 				Assert(0);

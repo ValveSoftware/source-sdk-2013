@@ -735,15 +735,15 @@ void C_WeaponStunStick::DrawThirdPersonEffects( void )
 		// Update our effects
 		if ( gpGlobals->frametime != 0.0f && ( random->RandomInt( 0, 5 ) == 0 ) )
 		{
-			Vector	vecOrigin;
-			QAngle	vecAngles;
+			Vector	vecBeamOrigin;
+			QAngle	vecBeamAngles;
 
-			GetAttachment( 1, vecOrigin, vecAngles );
+			GetAttachment( 1, vecBeamOrigin, vecBeamAngles );
 
 			Vector	vForward;
-			AngleVectors( vecAngles, &vForward );
+			AngleVectors( vecBeamAngles, &vForward );
 
-			Vector vEnd = vecOrigin - vForward * 1.0f;
+			Vector vEnd = vecBeamOrigin - vForward * 1.0f;
 
 			// Inner beams
 			BeamInfo_t beamInfo;
@@ -752,7 +752,7 @@ void C_WeaponStunStick::DrawThirdPersonEffects( void )
 			Vector	offset = RandomVector( -12, 8 );
 
 			offset += Vector(4,4,4);
-			beamInfo.m_vecEnd = vecOrigin + offset;
+			beamInfo.m_vecEnd = vecBeamOrigin + offset;
 
 			beamInfo.m_pStartEnt= cl_entitylist->GetEnt( BEAMENT_ENTITY( entindex() ) );
 			beamInfo.m_pEndEnt	= cl_entitylist->GetEnt( BEAMENT_ENTITY( entindex() ) );

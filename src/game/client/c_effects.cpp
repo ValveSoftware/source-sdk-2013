@@ -566,7 +566,7 @@ void CClient_Precipitation::Render()
 	if ( CurrentViewID() == VIEW_MONITOR )
 		return;
 
-	if ( view->GetDrawFlags() & (DF_RENDER_REFLECTION | DF_RENDER_REFRACTION) )
+	if ( g_pView->GetDrawFlags() & (DF_RENDER_REFLECTION | DF_RENDER_REFRACTION) )
 		return;
 
 	if ( m_nPrecipType == PRECIPITATION_TYPE_ASH )
@@ -1875,11 +1875,11 @@ void CSnowFallManager::FindSnowVolumes( Vector &vecCenter, float flRadius, Vecto
 	{
 		for ( iSnow = 0; iSnow < m_nActiveSnowCount; ++iSnow )
 		{
-			Vector vecCenter, vecMin, vecMax;
-			vecCenter = ( m_aSnow[iSnow].m_vecMin, m_aSnow[iSnow].m_vecMax ) * 0.5;
-			vecMin = m_aSnow[iSnow].m_vecMin - vecCenter;
-			vecMax = m_aSnow[iSnow].m_vecMax - vecCenter;
-			debugoverlay->AddBoxOverlay( vecCenter, vecMin, vecMax, QAngle( 0, 0, 0 ), 200, 0, 0, 25, r_SnowDebugBox.GetFloat() );
+			Vector vecSnowCenter, vecMin, vecMax;
+			vecSnowCenter = ( m_aSnow[iSnow].m_vecMin, m_aSnow[iSnow].m_vecMax ) * 0.5;
+			vecMin = m_aSnow[iSnow].m_vecMin - vecSnowCenter;
+			vecMax = m_aSnow[iSnow].m_vecMax - vecSnowCenter;
+			debugoverlay->AddBoxOverlay(vecSnowCenter, vecMin, vecMax, QAngle( 0, 0, 0 ), 200, 0, 0, 25, r_SnowDebugBox.GetFloat() );
 		}
 	}
 #endif

@@ -1956,14 +1956,14 @@ void CValueChangeTracker::SetupTracking( C_BaseEntity *ent, char const *pchField
 	datamap_t *dmap = ent->GetPredDescMap();
 	if ( !dmap )
 	{
-		Msg( "No prediction datamap_t for entity %d/%s\n", ent->index, ent->GetClassname() );
+		Msg( "No prediction datamap_t for entity %d/%s\n", ent->m_nIndex, ent->GetClassname() );
 		return;
 	}
 
 	bool bFound = FindFieldStackByName_R( pchFieldName, dmap, m_FieldStack );
 	if ( !bFound || !m_FieldStack.Count() )
 	{
-		Msg( "No field '%s' in datamap_t for entity %d/%s\n", pchFieldName, ent->index, ent->GetClassname() );
+		Msg( "No field '%s' in datamap_t for entity %d/%s\n", pchFieldName, ent->m_nIndex, ent->GetClassname() );
 		return;
 	}
 

@@ -206,7 +206,7 @@ void PatchSampleData_AddSample( CPatch *pPatch, int ndxPatch )
 				UtlHashHandle_t handle = g_PatchSampleHashTable.Find( iteratePatch );
 				if( handle == g_PatchSampleHashTable.InvalidHandle() )
 				{
-					UtlHashHandle_t handle = g_PatchSampleHashTable.AllocEntryFromKey( iteratePatch );
+					handle = g_PatchSampleHashTable.AllocEntryFromKey( iteratePatch );
 
 					PatchSampleData_t *pPatchData = &g_PatchSampleHashTable.Element( handle );
 					pPatchData->x = iteratePatch.x;

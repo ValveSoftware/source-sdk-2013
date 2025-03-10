@@ -125,8 +125,8 @@ public:
 		{
 			Assert(m_pIk->m_target.Count() > STOMP_IK_SLOT);
 			// HACKHACK: Hardcoded 11???  Not a cleaner way to do this
-			CIKTarget &target = m_pIk->m_target[STOMP_IK_SLOT];
-			target.SetPos( m_vecHitPos );
+			CIKTarget &target_ = m_pIk->m_target[STOMP_IK_SLOT];
+			target_.SetPos( m_vecHitPos );
 			// target.latched.pos = m_vecHitPos;
 
 			for ( int i = 0; i < NUM_STRIDER_IK_TARGETS; i++ )

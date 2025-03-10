@@ -533,15 +533,15 @@ void CLagCompensationManager::BacktrackPlayer( CBasePlayer *pPlayer, float flTar
 				{
 					// prevent recursion - save a copy of m_RestorePlayer,
 					// pretend that this player is off-limits
-					int pl_index = pPlayer->entindex() - 1;
+					int player_index = pPlayer->entindex() - 1;
 
 					// Temp turn this flag on
-					m_RestorePlayer.Set( pl_index );
+					m_RestorePlayer.Set( player_index  );
 
 					BacktrackPlayer( pHitPlayer, flTargetTime );
 
 					// Remove the temp flag
-					m_RestorePlayer.Clear( pl_index );
+					m_RestorePlayer.Clear( player_index  );
 				}				
 			}
 

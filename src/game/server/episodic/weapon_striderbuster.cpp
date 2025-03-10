@@ -992,18 +992,18 @@ void CWeaponStriderBuster::BusterFlyThink()
 				break;
 			case 4:
 				{
-					Vector toTarget;
-					pBestStrider->GetAttachment( "buster_target", toTarget );
+					Vector vecBusterTarget;
+					pBestStrider->GetAttachment( "buster_target", vecBusterTarget );
 
 					if ( striderbuster_debugseek.GetBool() )
 					{
-						NDebugOverlay::Cross3D( toTarget, magradius, 255, 0, 255, true, .1 );
-						NDebugOverlay::Cross3D( toTarget, magradius, 255, 0, 255, true, .1 );
+						NDebugOverlay::Cross3D( vecBusterTarget, magradius, 255, 0, 255, true, .1 );
+						NDebugOverlay::Cross3D( vecBusterTarget, magradius, 255, 0, 255, true, .1 );
 					}
 
-					toTarget -= GetAbsOrigin();
-					toTarget.NormalizeInPlace();
-					VPhysicsGetObject()->ApplyForceCenter( toTarget * magnitude );
+					vecBusterTarget -= GetAbsOrigin();
+					vecBusterTarget.NormalizeInPlace();
+					VPhysicsGetObject()->ApplyForceCenter( vecBusterTarget * magnitude );
 
 				}
 				break;

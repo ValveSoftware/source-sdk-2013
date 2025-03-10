@@ -1285,7 +1285,7 @@ void EndBSPFile (void)
 	DiscoverMacroTextures();
 	
 	char	targetPath[1024];
-	GetPlatformMapPath( source, targetPath, g_nDXLevel, 1024 );
+	GetPlatformMapPath( g_source, targetPath, g_nDXLevel, 1024 );
 	Msg ("Writing %s\n", targetPath);
 	WriteBSPFile (targetPath);
 }

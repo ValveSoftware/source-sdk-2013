@@ -106,11 +106,11 @@ void CBaseTempEntity::Test( const Vector& current_origin, const QAngle& current_
 //-----------------------------------------------------------------------------
 void CBaseTempEntity::PrecacheTempEnts( void )
 {
-	CBaseTempEntity *te = GetList();
-	while ( te )
+	CBaseTempEntity *te_ = GetList();
+	while ( te_ )
 	{
-		te->Precache();
-		te = te->GetNext();
+		te_->Precache();
+		te_ = te_->GetNext();
 	}
 }
 

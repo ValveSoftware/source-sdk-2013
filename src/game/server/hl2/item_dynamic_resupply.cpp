@@ -417,9 +417,9 @@ void CItem_DynamicResupply::FindPotentialItems( int nCount, DynamicResupplyItems
 	if ( iDebug )
 	{
 		Msg("Searching the PVS:\n");
-		for ( int i = 0; i < nCount; i++ )
+		for ( int j = 0; j < nCount; j++ )
 		{
-			Msg("   Found %d '%s' in the PVS.\n", pSpawnInfo[i].m_iPotentialItems, pItems[i].sEntityName );
+			Msg("   Found %d '%s' in the PVS.\n", pSpawnInfo[j].m_iPotentialItems, pItems[j].sEntityName );
 		}
 	}
 }

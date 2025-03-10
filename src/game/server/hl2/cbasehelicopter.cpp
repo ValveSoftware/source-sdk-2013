@@ -467,9 +467,6 @@ bool CBaseHelicopter::DoWashPush( washentity_t *pWash, const Vector &vecWashOrig
 		int i = m_hEntitiesPushedByWash.AddToTail( Wash );
 		pWash = &m_hEntitiesPushedByWash[i];
 		
-		pPhysObject = pEntity->VPhysicsGetObject();
-		if ( !pPhysObject )
-			return true;
 	}
 	else
 	{
@@ -480,10 +477,11 @@ bool CBaseHelicopter::DoWashPush( washentity_t *pWash, const Vector &vecWashOrig
 			return true;
 		}
 
-		pPhysObject = pEntity->VPhysicsGetObject();
-		if ( !pPhysObject )
-			return false;
 	}
+	
+	pPhysObject = pEntity->VPhysicsGetObject();
+	if ( !pPhysObject )
+		return false;
 
 	// Push it away from the center of the wash
 	float flMass = pPhysObject->GetMass();
@@ -502,7 +500,6 @@ bool CBaseHelicopter::DoWashPush( washentity_t *pWash, const Vector &vecWashOrig
 		NDebugOverlay::Cross3D( pEntity->GetAbsOrigin(), -Vector(4,4,4), Vector(4,4,4), 255, 0, 0, true, 0.1f );
 		NDebugOverlay::Line( pEntity->GetAbsOrigin(), pEntity->GetAbsOrigin() + vecForce, 255, 255, 0, true, 0.1f );
 
-		IPhysicsObject *pPhysObject = pEntity->VPhysicsGetObject();
 		Msg("Pushed %s (index %d) (mass %f) with force %f (min %.2f max %.2f) at time %.2f\n", 
 			pEntity->GetClassname(), pEntity->entindex(), pPhysObject->GetMass(), flWashAmount, 
 			BASECHOPPER_WASH_PUSH_MIN * flMass, BASECHOPPER_WASH_PUSH_MAX * flMass, gpGlobals->curtime );

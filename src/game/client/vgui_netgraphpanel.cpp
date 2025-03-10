@@ -761,7 +761,7 @@ void CNetGraphPanel::DrawTextFields( int graphvalue, int x, int y, int w, netban
 
 	Q_snprintf( sz, sizeof( sz ), "lerp: %5.1f ms", GetClientInterpAmount() * 1000.0f );
 
-	int interpcolor[ 3 ] = { GRAPH_RED, GRAPH_GREEN, GRAPH_BLUE }; 
+	int interpcolor[ 3 ] = { (int)GRAPH_RED, (int)GRAPH_GREEN, (int)GRAPH_BLUE };
 	float flInterp = GetClientInterpAmount();
 	if ( flInterp > 0.001f )
 	{
@@ -817,7 +817,7 @@ void CNetGraphPanel::DrawTextFields( int graphvalue, int x, int y, int w, netban
 		{
 			Q_snprintf( sz, sizeof( sz ), "sv  : %5.1f   var: %4.2f msec", m_flServerFramerate, m_flServerFramerateStdDeviation * 1000.0f );
 
-			int servercolor[ 3 ] = { GRAPH_RED, GRAPH_GREEN, GRAPH_BLUE };
+			int servercolor[ 3 ] = { (int)GRAPH_RED, (int)GRAPH_GREEN, (int)GRAPH_BLUE };
 
 			if ( m_flServerFramerate < 10.0f )
 			{
@@ -841,9 +841,9 @@ void CNetGraphPanel::DrawTextFields( int graphvalue, int x, int y, int w, netban
 	// Draw legend
 	if ( graphvalue >= 3 )
 	{
-		int textTall = g_pMatSystemSurface->GetFontTall( m_hFontSmall );
+		int textTall_ = g_pMatSystemSurface->GetFontTall( m_hFontSmall );
 
-		y = saveY - textTall - 5;
+		y = saveY - textTall_ - 5;
 		int cw, ch;
 		g_pMatSystemSurface->GetTextSize( m_hFontSmall, L"otherplayersWWW", cw, ch );
 		if ( x - cw < 0 )
@@ -856,25 +856,25 @@ void CNetGraphPanel::DrawTextFields( int graphvalue, int x, int y, int w, netban
 		}
 
 		g_pMatSystemSurface->DrawColoredText( m_hFontSmall, x, y, 0, 0, 255, 255, "localplayer" );
-		y -= textTall;
+		y -= textTall_;
 		g_pMatSystemSurface->DrawColoredText( m_hFontSmall, x, y, 0, 255, 0, 255, "otherplayers" );
-		y -= textTall;
+		y -= textTall_;
 		g_pMatSystemSurface->DrawColoredText( m_hFontSmall, x, y, 255, 0, 0, 255, "entities" );
-		y -= textTall;
+		y -= textTall_;
 		g_pMatSystemSurface->DrawColoredText( m_hFontSmall, x, y, 255, 255, 0, 255, "sounds" );
-		y -= textTall;
+		y -= textTall_;
 		g_pMatSystemSurface->DrawColoredText( m_hFontSmall, x, y, 0, 255, 255, 255, "events" );
-		y -= textTall;
+		y -= textTall_;
 		g_pMatSystemSurface->DrawColoredText( m_hFontSmall, x, y, 128, 128, 0, 255, "usermessages" );
-		y -= textTall;
+		y -= textTall_;
 		g_pMatSystemSurface->DrawColoredText( m_hFontSmall, x, y, 0, 128, 128, 255, "entmessages" );
-		y -= textTall;
+		y -= textTall_;
 		g_pMatSystemSurface->DrawColoredText( m_hFontSmall, x, y, 128, 0, 0, 255, "stringcmds" );
-		y -= textTall;
+		y -= textTall_;
 		g_pMatSystemSurface->DrawColoredText( m_hFontSmall, x, y, 0, 128, 0, 255, "stringtables" );
-		y -= textTall;
+		y -= textTall_;
 		g_pMatSystemSurface->DrawColoredText( m_hFontSmall, x, y, 0, 0, 128, 255, "voice" );
-		y -= textTall;
+		y -= textTall_;
 	}
 }
 

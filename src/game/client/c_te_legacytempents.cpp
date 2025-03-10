@@ -113,7 +113,7 @@ void C_LocalTempEntity::Prepare( const model_t *pmodel, float time )
 {
 	Interp_SetupMappings( GetVarMapping() );
 
-	index = -1;
+	m_nIndex = -1;
 	Clear();
 
 	// Use these to set per-frame and termination conditions / actions
@@ -153,7 +153,7 @@ void C_LocalTempEntity::SetAcceleration( const Vector &vecVelocity )
 // Purpose: 
 // Output : int
 //-----------------------------------------------------------------------------
-int C_LocalTempEntity::DrawStudioModel( int flags )
+int C_LocalTempEntity::DrawStudioModel( int fl )
 {
 	VPROF_BUDGET( "C_LocalTempEntity::DrawStudioModel", VPROF_BUDGETGROUP_MODEL_RENDERING );
 	int drawn = 0;
@@ -168,15 +168,15 @@ int C_LocalTempEntity::DrawStudioModel( int flags )
 
 	if ( m_pfnDrawHelper )
 	{
-		drawn = ( *m_pfnDrawHelper )( this, flags );
+		drawn = ( *m_pfnDrawHelper )( this, fl );
 	}
 	else
 	{
 		drawn = modelrender->DrawModel( 
-			flags, 
+			fl,
 			this,
 			MODEL_INSTANCE_INVALID,
-			index, 
+			m_nIndex,
 			GetModel(),
 			GetAbsOrigin(),
 			GetAbsAngles(),
@@ -191,7 +191,7 @@ int C_LocalTempEntity::DrawStudioModel( int flags )
 // Purpose: 
 // Input  : flags - 
 //-----------------------------------------------------------------------------
-int	C_LocalTempEntity::DrawModel( int flags )
+int	C_LocalTempEntity::DrawModel( int drawflags )
 {
 	int drawn = 0;
 
@@ -238,7 +238,7 @@ int	C_LocalTempEntity::DrawModel( int flags )
 			);
 		break;
 	case mod_studio:
-		drawn = DrawStudioModel( flags );
+		drawn = DrawStudioModel( drawflags );
 		break;
 	default:
 		break;
@@ -966,7 +966,7 @@ int BreakModelDrawHelper( C_LocalTempEntity *entity, int flags )
 	sInfo.flags = flags;
 	sInfo.pRenderable = entity;
 	sInfo.instance = MODEL_INSTANCE_INVALID;
-	sInfo.entity_index = entity->index;
+	sInfo.entity_index = entity->m_nIndex;
 	sInfo.pModel = entity->GetModel();
 	sInfo.origin = entity->GetRenderOrigin();
 	sInfo.angles = entity->GetRenderAngles();
@@ -1097,7 +1097,7 @@ void CTempEnts::BreakModel( const Vector &pos, const QAngle &angles, const Vecto
 	}
 }
 
-void CTempEnts::PhysicsProp( int modelindex, int skin, const Vector& pos, const QAngle &angles, const Vector& vel, int flags, int effects )
+void CTempEnts::PhysicsProp( int modelindex, int skin, const Vector& pos, const QAngle &angles, const Vector& vel, int flags, int enteffects )
 {
 	C_PhysPropClientside *pEntity = C_PhysPropClientside::CreateNew();
 	
@@ -1117,7 +1117,7 @@ void CTempEnts::PhysicsProp( int modelindex, int skin, const Vector& pos, const 
 	pEntity->SetAbsOrigin( pos );
 	pEntity->SetAbsAngles( angles );
 	pEntity->SetPhysicsMode( PHYSICS_MULTIPLAYER_CLIENTSIDE );
-	pEntity->SetEffects( effects );
+	pEntity->SetEffects( enteffects );
 
 	if ( !pEntity->Initialize() )
 	{
@@ -1539,7 +1539,7 @@ void CTempEnts::BloodSprite( const Vector &org, int r, int g, int b, int a, int 
 	{
 		C_LocalTempEntity		*pTemp;
 		int						frameCount = modelinfo->GetModelFrameCount( model );
-		color32					impactcolor = { r, g, b, a };
+		color32					impactcolor = { (byte)r, (byte)g, (byte)b, (byte)a };
 
 		//Large, single blood sprite is a high-priority tent
 		if ( ( pTemp = TempEntAllocHigh( org, model ) ) != NULL )
@@ -2300,7 +2300,7 @@ int CTempEnts::AddVisibleTempEntity( C_LocalTempEntity *pEntity )
 	//if ( engine->IsBoxInViewCluster( mins, maxs ) )
 	{
 		// Temporary entities have no corresponding element in cl_entitylist
-		pEntity->index = -1;
+		pEntity->m_nIndex = -1;
 		
 		// Add to list
 		if( pEntity->m_RenderGroup == RENDER_GROUP_OTHER )
@@ -2941,7 +2941,6 @@ void CTempEnts::MuzzleFlash_Shotgun_NPC( ClientEntityHandle_t hEntity, int attac
 	QAngle	angles;
 
 	Vector	forward;
-	int		i;
 
 	// Setup the origin.
 	Vector	origin;
@@ -3008,7 +3007,7 @@ void CTempEnts::MuzzleFlash_Shotgun_NPC( ClientEntityHandle_t hEntity, int attac
 
 	int	numEmbers = random->RandomInt( 4, 8 );
 
-	for ( i = 0; i < numEmbers; i++ )
+	for ( int i = 0; i < numEmbers; i++ )
 	{
 		pTrailParticle = (TrailParticle *) pTrails->AddParticle( sizeof( TrailParticle ), g_Mat_SMG_Muzzleflash[0], origin );
 			

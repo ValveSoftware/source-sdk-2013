@@ -144,7 +144,7 @@ void C_NPC_AntlionGuard::ClientThink()
 	// update the dlight. (always done because clienthink only exists for cavernguard)
 	if (!m_dlight)
 	{
-		m_dlight = effects->CL_AllocDlight( index );
+		m_dlight = effects->CL_AllocDlight( m_nIndex );
 		m_dlight->color.r = 220;
 		m_dlight->color.g = 255;
 		m_dlight->color.b = 80;

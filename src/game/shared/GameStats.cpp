@@ -1362,17 +1362,17 @@ void CBaseGameStats::SetCaptionsStatistic( bool bClosedCaptionsEnabled )
 
 void CBaseGameStats::SetSkillStatistic( int iSkillSetting )
 {
-	int skill = clamp( iSkillSetting, 1, 3 ) - 1;
+	int skill_ = clamp( iSkillSetting, 1, 3 ) - 1;
 
 	if( CBGSDriver.m_bInLevel )
 	{
 		BasicGameStatsRecord_t *map = m_BasicStats.FindOrAddRecordForMap( CBGSDriver.m_PrevMapName.String() );
-		++map->m_nSkill[ skill ];
+		++map->m_nSkill[ skill_ ];
 	}
 
 	if ( CBGSDriver. m_bFirstLevel )
 	{
-		++m_BasicStats.m_Summary.m_nSkill[ skill ];
+		++m_BasicStats.m_Summary.m_nSkill[ skill_ ];
 	}
 }
 

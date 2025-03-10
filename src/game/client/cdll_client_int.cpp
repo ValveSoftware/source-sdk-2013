@@ -1039,12 +1039,12 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 
 	g_pClientMode->Enable();
 
-	if ( !view )
+	if ( !g_pView )
 	{
-		view = ( IViewRender * )&g_DefaultViewRender;
+		g_pView = ( IViewRender * )&g_DefaultViewRender;
 	}
 
-	view->Init();
+	g_pView->Init();
 	vieweffects->Init();
 
 	C_BaseTempEntity::PrecacheTempEnts();
@@ -1187,7 +1187,7 @@ void CHLClient::Shutdown( void )
 	input->Shutdown_All();
 	C_BaseTempEntity::ClearDynamicTempEnts();
 	TermSmokeFogOverlay();
-	view->Shutdown();
+	g_pView->Shutdown();
 	g_pParticleSystemMgr->UncacheAllParticleSystems();
 	UncacheAllMaterials();
 
@@ -1494,7 +1494,7 @@ void CHLClient::View_Render( vrect_t *rect )
 	if ( rect->width == 0 || rect->height == 0 )
 		return;
 
-	view->Render( rect );
+	g_pView->Render( rect );
 	UpdatePerfStats();
 }
 
@@ -1504,7 +1504,7 @@ void CHLClient::View_Render( vrect_t *rect )
 //-----------------------------------------------------------------------------
 bool CHLClient::GetPlayerView( CViewSetup &playerView )
 {
-	playerView = *view->GetPlayerViewSetup();
+	playerView = *g_pView->GetPlayerViewSetup();
 	return true;
 }
 
@@ -1587,7 +1587,7 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 
 	C_BaseTempEntity::ClearDynamicTempEnts();
 	clienteffects->Flush();
-	view->LevelInit();
+	g_pView->LevelInit();
 	tempents->LevelInit();
 	ResetToneMapping(1.0);
 
@@ -1705,7 +1705,7 @@ void CHLClient::LevelShutdown( void )
 	// Now do the post-entity shutdown of all systems
 	IGameSystem::LevelShutdownPostEntityAllSystems();
 
-	view->LevelShutdown();
+	g_pView->LevelShutdown();
 	beams->ClearBeams();
 	ParticleMgr()->RemoveAllEffects();
 	
@@ -1745,10 +1745,10 @@ void CHLClient::LevelShutdown( void )
 //-----------------------------------------------------------------------------
 void CHLClient::SetCrosshairAngle( const QAngle& angle )
 {
-	CHudCrosshair *crosshair = GET_HUDELEMENT( CHudCrosshair );
-	if ( crosshair )
+	CHudCrosshair *pCrosshair = GET_HUDELEMENT( CHudCrosshair );
+	if ( pCrosshair )
 	{
-		crosshair->SetCrosshairAngle( angle );
+		pCrosshair->SetCrosshairAngle( angle );
 	}
 }
 
@@ -2141,7 +2141,7 @@ void OnRenderStart()
 	// This will place the player + the view models + all parent
 	// entities	at the correct abs position so that their attachment points
 	// are at the correct location
-	view->OnRenderStart();
+	g_pView->OnRenderStart();
 
 	RopeManager()->OnRenderStart();
 	
@@ -2384,7 +2384,7 @@ void CHLClient::DispatchOnRestore()
 
 void CHLClient::WriteSaveGameScreenshot( const char *pFilename )
 {
-	view->WriteSaveGameScreenshot( pFilename );
+	g_pView->WriteSaveGameScreenshot( pFilename );
 }
 
 // Given a list of "S(wavname) S(wavname2)" tokens, look up the localized text and emit
@@ -2480,14 +2480,14 @@ int CHLClient::GetScreenHeight()
 void CHLClient::WriteSaveGameScreenshotOfSize( const char *pFilename, int width, int height, bool bCreatePowerOf2Padded/*=false*/,
 											   bool bWriteVTF/*=false*/ )
 {
-	view->WriteSaveGameScreenshotOfSize( pFilename, width, height, bCreatePowerOf2Padded, bWriteVTF );
+	g_pView->WriteSaveGameScreenshotOfSize( pFilename, width, height, bCreatePowerOf2Padded, bWriteVTF );
 }
 
 // See RenderViewInfo_t
 void CHLClient::RenderView( const CViewSetup &setup, int nClearFlags, int whatToDraw )
 {
 	VPROF("RenderView");
-	view->RenderView( setup, nClearFlags, whatToDraw );
+	g_pView->RenderView( setup, nClearFlags, whatToDraw );
 }
 
 void ReloadSoundEntriesInList( IFileList *pFilesToReload );

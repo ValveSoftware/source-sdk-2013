@@ -36,7 +36,8 @@ $Configuration
 		$DisableSpecificWarnings	"$BASE;6308;6255;6387;6309;6011;6211;6326;6239;6285;6237;6235;6240;6323;6326;6335;6320;6250;6384;6318;6322" [$ANALYZE]
 		// See http://randomascii.wordpress.com/2011/10/04/analyzecommand-line-options/ for details on these options.
 		// /analyze:only may result in fewer warnings being reported, but the warnings it misses should show up in the regular build.
-		$AdditionalOptions	"$BASE /analyze /analyze:only /analyze:stacksize100000" [$ANALYZE]
+		$AdditionalOptions	"$BASE /analyze /analyze:stacksize100000" [$ANALYZE]
+		$AdditionalOptions	"$BASE /analyze:only" [$ANALYZE && $ANALYZE_MACHINE] // /analyze:only makes builds faster on buildbot but is terrible for incremental /analyze on developer machines
 
 		// Specify /define:ALLOWSHADOWING to suppress variable shadowing warnings
 		$DisableSpecificWarnings	"$BASE;6244;6246" [$ANALYZE && $ALLOWSHADOWING]

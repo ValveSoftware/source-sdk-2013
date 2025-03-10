@@ -1801,8 +1801,8 @@ void CSceneEntity::DispatchStartSpeak( CChoreoScene *scene, CBaseFlex *actor, CC
 				if ( !event->IsSuppressingCaptionAttenuation() && 
 					( filter.GetRecipientCount() > 0 ) )
 				{
-					int c = filter.GetRecipientCount();
-					for ( int i = c - 1 ; i >= 0; --i )
+					int recipc = filter.GetRecipientCount();
+					for ( int i = recipc - 1 ; i >= 0; --i )
 					{
 						CBasePlayer *player = UTIL_PlayerByIndex( filter.GetRecipientIndex( i ) );
 						if ( !player )
@@ -2181,8 +2181,7 @@ void CSceneEntity::InputInterjectResponse( inputdata_t &inputdata )
 	}
 
 	CUtlVector< CAI_BaseActor * >	candidates;
-	int i;
-	for ( i = 0 ; i < m_pScene->GetNumActors(); i++ )
+	for ( int i = 0 ; i < m_pScene->GetNumActors(); i++ )
 	{
 		CBaseFlex *pTestActor = FindNamedActor( i );
 		if ( !pTestActor )
@@ -2432,11 +2431,11 @@ void CSceneEntity::PrefetchAnimBlocks( CChoreoScene *scene )
 							{
 								// Now look up the animblock
 								mstudioseqdesc_t &seqdesc = pStudioHdr->pSeqdesc( seq );
-								for ( int i = 0 ; i < seqdesc.groupsize[ 0 ] ; ++i )
+								for ( int k = 0 ; k < seqdesc.groupsize[ 0 ] ; ++k)
 								{
 									for ( int j = 0; j < seqdesc.groupsize[ 1 ]; ++j )
 									{
-										int animation = seqdesc.anim( i, j );
+										int animation = seqdesc.anim( k, j );
 										int baseanimation = pStudioHdr->iRelativeAnim( seq, animation );
 										mstudioanimdesc_t &animdesc = pStudioHdr->pAnimdesc( baseanimation );
 
@@ -2455,14 +2454,14 @@ void CSceneEntity::PrefetchAnimBlocks( CChoreoScene *scene )
 											++resident;
 											if ( spew > 1 )
 											{
-												Msg( "%s:%s[%i:%i] was resident\n", pStudioHdr->pszName(), animdesc.pszName(), i, j );
+												Msg( "%s:%s[%i:%i] was resident\n", pStudioHdr->pszName(), animdesc.pszName(), k, j );
 											}
 										}
 										else
 										{
 											if ( spew != 0 )
 											{
-												Msg( "%s:%s[%i:%i] async load\n", pStudioHdr->pszName(), animdesc.pszName(), i, j );
+												Msg( "%s:%s[%i:%i] async load\n", pStudioHdr->pszName(), animdesc.pszName(), k, j );
 											}
 										}
 									}

@@ -6,6 +6,9 @@ $Include "$SRCDIR\vpc_scripts\source_posix_base.vpc"
 $MacroRequired	 "OUTBINNAME"	"$PROJECTNAME"
 $MacroRequired	 "OUTBINDIR"	"$SRCDIR\..\game\bin"
 
+$Macro OUTBINDIR	"$OUTBINDIR$PLATSUBDIR" [$LINUX64 || $LINUXARM64]
+$Macro LIBPUBLIC	"$SRCDIR\lib\public$PLATSUBDIR"
+$Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR"
 
 // General configuration info.
 $Configuration

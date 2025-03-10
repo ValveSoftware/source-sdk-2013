@@ -363,7 +363,6 @@ void CNPC_CraneDriver::StartTask( const Task_t *pTask )
 
 	case TASK_CRANE_FIND_OBJECT_TO_PICKUP:
 		{
-			Vector2D vecOrigin2D( m_hCrane->GetAbsOrigin().x, m_hCrane->GetAbsOrigin().y );
 
 			// Find a large physics object within our reach to pickup
 			float flLargestMass = 0;

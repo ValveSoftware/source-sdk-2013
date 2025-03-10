@@ -562,7 +562,7 @@ void CDebugViewRender::Draw2DDebuggingInfo( const CViewSetup &view )
 	// Draw debugging lightmaps
 	if ( mat_showlightmappage.GetInt() != -1 )
 	{
-		CLightmapDebugView clientView( assert_cast<CViewRender *>( ::view ) );
+		CLightmapDebugView clientView( assert_cast<CViewRender *>( g_pView ) );
 		clientView.Setup( view );
 		clientView.Draw();
 	}
@@ -633,24 +633,24 @@ CON_COMMAND_F( r_screenoverlay, "Draw specified material as an overlay", FCVAR_C
 	{
 		if ( !Q_stricmp( "off", args[1] ) )
 		{
-			view->SetScreenOverlayMaterial( NULL );
+			g_pView->SetScreenOverlayMaterial( NULL );
 		}
 		else
 		{
 			IMaterial *pMaterial = materials->FindMaterial( args[1], TEXTURE_GROUP_OTHER, false );
 			if ( !IsErrorMaterial( pMaterial ) )
 			{
-				view->SetScreenOverlayMaterial( pMaterial );
+				g_pView->SetScreenOverlayMaterial( pMaterial );
 			}
 			else
 			{
-				view->SetScreenOverlayMaterial( NULL );
+				g_pView->SetScreenOverlayMaterial( NULL );
 			}
 		}
 	}
 	else
 	{
-		IMaterial *pMaterial = view->GetScreenOverlayMaterial();
+		IMaterial *pMaterial = g_pView->GetScreenOverlayMaterial();
 		Warning( "r_screenoverlay: %s\n", pMaterial ? pMaterial->GetName() : "off" );
 	}
 }

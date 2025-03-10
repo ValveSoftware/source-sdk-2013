@@ -487,9 +487,7 @@ void CBaseTrigger::EndTouch(CBaseEntity *pOther)
 {
 	if ( IsTouching( pOther ) )
 	{
-		EHANDLE hOther;
-		hOther = pOther;
-		m_hTouchingEntities.FindAndRemove( hOther );
+		m_hTouchingEntities.FindAndRemove( (EHANDLE)pOther );
 		
 		//FIXME: Without this, triggers fire their EndTouch outputs when they are disabled!
 		//if ( !m_bDisabled )
@@ -503,8 +501,7 @@ void CBaseTrigger::EndTouch(CBaseEntity *pOther)
 		int iSize = m_hTouchingEntities.Count();
 		for ( int i = iSize-1; i >= 0; i-- )
 		{
-			EHANDLE hOther;
-			hOther = m_hTouchingEntities[i];
+			EHANDLE hOther = m_hTouchingEntities[i];
 
 			if ( !hOther )
 			{

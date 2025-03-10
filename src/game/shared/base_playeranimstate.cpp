@@ -402,21 +402,21 @@ void CBasePlayerAnimState::OptimizeLayerWeights( int iFirstLayer, int nLayers )
 	int iLastOne = -1;
 	for ( i=0; i < nLayers; i++ )
 	{
-		CAnimationLayer *pLayer = m_pOuter->GetAnimOverlay( iFirstLayer+i );
-		if ( pLayer->IsActive() && pLayer->m_flWeight > 0.99 )
+		CAnimationLayer *pLayer_ = m_pOuter->GetAnimOverlay( iFirstLayer+i );
+		if ( pLayer_->IsActive() && pLayer_->m_flWeight > 0.99 )
 			iLastOne = i;
 	}
 
 	if ( iLastOne != -1 )
 	{
-		for ( int i=iLastOne-1; i >= 0; i-- )
+		for ( int j=iLastOne-1; j >= 0; j-- )
 		{
-			CAnimationLayer *pLayer = m_pOuter->GetAnimOverlay( iFirstLayer+i );
+			CAnimationLayer *pLayer_ = m_pOuter->GetAnimOverlay( iFirstLayer+j );
 #ifdef CLIENT_DLL 
-			pLayer->m_nOrder = CBaseAnimatingOverlay::MAX_OVERLAYS;
+			pLayer_->m_nOrder = CBaseAnimatingOverlay::MAX_OVERLAYS;
 #else
-			pLayer->m_nOrder.Set( CBaseAnimatingOverlay::MAX_OVERLAYS );
-			pLayer->m_fFlags = 0;
+			pLayer_->m_nOrder.Set( CBaseAnimatingOverlay::MAX_OVERLAYS );
+			pLayer_->m_fFlags = 0;
 #endif
 		}
 	}

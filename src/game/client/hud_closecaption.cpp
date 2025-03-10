@@ -2413,14 +2413,14 @@ void CHudCloseCaption::ProcessSentenceCaptionStream( const char *tokenstream )
 		}
 		else
 		{
-			CaptionRepeat &entry = m_CloseCaptionRepeats[ idx ];
-			if ( gpGlobals->curtime < ( entry.m_flLastEmitTime + entry.m_flInterval ) )
+			CaptionRepeat &entry_ = m_CloseCaptionRepeats[ idx ];
+			if ( gpGlobals->curtime < (entry_.m_flLastEmitTime + entry_.m_flInterval ) )
 			{
 				return;
 			}
 
-			entry.m_flLastEmitTime = gpGlobals->curtime;
-			entry.m_nLastEmitTick = gpGlobals->tickcount;
+			entry_.m_flLastEmitTime = gpGlobals->curtime;
+			entry_.m_nLastEmitTick = gpGlobals->tickcount;
 		}
 	}
 
@@ -2459,26 +2459,26 @@ void CHudCloseCaption::_ProcessCaption( const wchar_t *caption, const char *toke
 	}
 	else
 	{
-		CaptionRepeat &entry = m_CloseCaptionRepeats[ idx ];
+		CaptionRepeat &entry_ = m_CloseCaptionRepeats[ idx ];
 
 		// Interval of 0.0 means just don't double emit on same tick #
-		if ( entry.m_flInterval <= 0.0f )
+		if ( entry_.m_flInterval <= 0.0f )
 		{
-			if ( gpGlobals->tickcount <= entry.m_nLastEmitTick )
+			if ( gpGlobals->tickcount <= entry_.m_nLastEmitTick )
 			{
 				return;
 			}
 		}
 		else if ( hasnorepeat )
 		{
-			if ( gpGlobals->curtime < ( entry.m_flLastEmitTime + entry.m_flInterval ) )
+			if ( gpGlobals->curtime < (entry_.m_flLastEmitTime + entry_.m_flInterval ) )
 			{
 				return;
 			}
 		}
 
-		entry.m_flLastEmitTime = gpGlobals->curtime;
-		entry.m_nLastEmitTick = gpGlobals->tickcount;
+		entry_.m_flLastEmitTime = gpGlobals->curtime;
+		entry_.m_nLastEmitTick = gpGlobals->tickcount;
 	}
 
 	Process( caption, duration, tokenname, fromplayer, direct );

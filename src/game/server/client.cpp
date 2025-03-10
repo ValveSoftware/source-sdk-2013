@@ -684,8 +684,8 @@ CON_COMMAND( explode, "Kills the player with explosive damage" )
 //------------------------------------------------------------------------------
 void killvector_helper( const CCommand &args, bool bExplode )
 {
-	CBasePlayer *pPlayer = UTIL_GetCommandClient();
-	if ( pPlayer && args.ArgC() == 5 )
+	CBasePlayer *pClientPlayer = UTIL_GetCommandClient();
+	if ( pClientPlayer && args.ArgC() == 5 )
 	{
 		// Find the matching netname.
 		for ( int iClient = 1; iClient <= gpGlobals->maxClients; iClient++ )

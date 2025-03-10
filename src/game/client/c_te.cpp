@@ -509,11 +509,11 @@ public:
 		}
 	}
 	virtual void PhysicsProp( IRecipientFilter& filter, float delay, int modelindex, int skin,
-		const Vector& pos, const QAngle &angles, const Vector& vel, int flags, int effects )
+		const Vector& pos, const QAngle &angles, const Vector& vel, int flags, int propeffects )
 	{
 		if ( !SuppressTE( filter ) )
 		{
-			TE_PhysicsProp( filter, delay, modelindex, skin, pos, angles, vel, flags, effects );
+			TE_PhysicsProp( filter, delay, modelindex, skin, pos, angles, vel, flags, propeffects );
 		}
 	}
 	virtual void ClientProjectile( IRecipientFilter& filter, float delay,

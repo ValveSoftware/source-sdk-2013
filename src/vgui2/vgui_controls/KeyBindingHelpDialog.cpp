@@ -249,9 +249,9 @@ void CKeyBindingHelpDialog::PopulateList()
 			}
 			if ( k == c )
 			{
-				int k = maps.AddToTail( );
-				maps[k].m_pMap = map;
-				maps[k].m_pPanel = pPanel;
+				int l = maps.AddToTail( );
+				maps[l].m_pMap = map;
+				maps[l].m_pPanel = pPanel;
 			}
 			map = map->baseMap;
 		}
@@ -268,7 +268,7 @@ void CKeyBindingHelpDialog::PopulateList()
 	for ( i = 0; i < c; ++i )
 	{
 		PanelKeyBindingMap *m = maps[ i ].m_pMap;
-		Panel *pPanel = maps[i].m_pPanel;
+		Panel *pMapPanel = maps[i].m_pPanel;
 		Assert( m );
 
 		int bindings = m->boundkeys.Count();
@@ -291,7 +291,7 @@ void CKeyBindingHelpDialog::PopulateList()
 			item->SetWString( "Binding", Panel::KeyCodeModifiersToDisplayString( (KeyCode)kbMap->keycode, kbMap->modifiers ) );
 
 			// Find the binding
-			KeyBindingMap_t *bindingMap = pPanel->LookupBinding( kbMap->bindingname );
+			KeyBindingMap_t *bindingMap = pMapPanel->LookupBinding( kbMap->bindingname );
 			if ( bindingMap && 
 				 bindingMap->helpstring )
 			{
@@ -312,7 +312,7 @@ void CKeyBindingHelpDialog::PopulateList()
 
 			// See if it's bound
 			CUtlVector< BoundKey_t * > list;
-			pPanel->LookupBoundKeys( kbMap->bindingname, list );
+			pMapPanel->LookupBoundKeys( kbMap->bindingname, list );
 			if ( list.Count() > 0 )
 				continue;
 

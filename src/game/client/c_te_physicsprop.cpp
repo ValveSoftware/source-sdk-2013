@@ -123,10 +123,10 @@ static inline void RecordPhysicsProp( const Vector& start, const QAngle &angles,
 // Purpose: 
 //-----------------------------------------------------------------------------
 void TE_PhysicsProp( IRecipientFilter& filter, float delay,
-	int modelindex, int skin, const Vector& pos, const QAngle &angles, const Vector& vel, bool breakmodel, int effects )
+	int modelindex, int skin, const Vector& pos, const QAngle &angles, const Vector& vel, bool breakmodel, int propeffects )
 {
-	tempents->PhysicsProp( modelindex, skin, pos, angles, vel, breakmodel, effects );
-	RecordPhysicsProp( pos, angles, vel, modelindex, breakmodel, skin, effects );
+	tempents->PhysicsProp( modelindex, skin, pos, angles, vel, breakmodel, propeffects );
+	RecordPhysicsProp( pos, angles, vel, modelindex, breakmodel, skin, propeffects );
 }
 
 //-----------------------------------------------------------------------------

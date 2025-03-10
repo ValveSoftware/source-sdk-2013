@@ -26,9 +26,8 @@
 
 // $macro QUICKTIME_WIN32 1
 
-$Macro GL "1" [!$DEDICATED && !$WIN32 && !$WIN64]
 // If we're using OpenGL, we're implicitly using SDL.
-$Macro SDL "1" [$GL && !$DEDICATED]
+$Conditional SDL "1" [$GL && !$DEDICATED]
 
 $Configuration
 {
@@ -45,6 +44,6 @@ $Configuration
 		
 		$PreprocessorDefinitions		"$BASE;GL_GLEXT_PROTOTYPES;DX_TO_GL_ABSTRACTION"			[$GL]
 		$PreprocessorDefinitions		"$BASE;USE_SDL"										[$SDL]
-                $AdditionalIncludeDirectories		"$BASE;$SRCDIR\thirdparty\SDL2"					[$SDL || $DEDICATED]
+                $AdditionalIncludeDirectories		"$BASE;$SRCDIR\thirdparty\SDL2"					[($SDL || $DEDICATED) && !$LINUX]
 	}
 }

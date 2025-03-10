@@ -319,12 +319,13 @@ void C_CitadelEnergyCore::UpdateDischarging( void )
 	sParticle->m_flRoll			= Helper_RandomInt( 0, 360 );
 	sParticle->m_flRollDelta	= 0.0f;
 
-	float alpha = 128;
 
-	sParticle->m_uchColor[0]	= alpha;
-	sParticle->m_uchColor[1]	= alpha;
-	sParticle->m_uchColor[2]	= alpha;
-	sParticle->m_uchStartAlpha	= alpha;
+	float alpha_ = 128;
+
+	sParticle->m_uchColor[0]	= alpha_;
+	sParticle->m_uchColor[1]	= alpha_;
+	sParticle->m_uchColor[2]	= alpha_;
+	sParticle->m_uchStartAlpha	= alpha_;
 	sParticle->m_uchEndAlpha	= 0;
 
 	sParticle->m_uchStartSize	= flScale * 2.0f;

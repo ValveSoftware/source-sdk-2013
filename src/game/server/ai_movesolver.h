@@ -88,10 +88,10 @@ struct AI_MoveSuggestion_t
 {
 	AI_MoveSuggestion_t();
 	AI_MoveSuggestion_t( AI_MoveSuggType_t newType, float newWeight, float newDir, float newSpan, CBaseEntity *pEntity = NULL );
-	AI_MoveSuggestion_t( AI_MoveSuggType_t newType, float newWeight, const AI_Arc_t &arc, CBaseEntity *pEntity = NULL );
+	AI_MoveSuggestion_t( AI_MoveSuggType_t newType, float newWeight, const AI_Arc_t &arc_, CBaseEntity *pEntity = NULL );
 
 	void Set( AI_MoveSuggType_t newType, float newWeight, float newDir, float newSpan, CBaseEntity *pEntity = NULL );
-	void Set( AI_MoveSuggType_t newType, float newWeight, const AI_Arc_t &arc, CBaseEntity *pEntity = NULL );
+	void Set( AI_MoveSuggType_t newType, float newWeight, const AI_Arc_t &arc_, CBaseEntity *pEntity = NULL );
 
 	//---------------------------------
 
@@ -248,16 +248,16 @@ inline AI_MoveSuggestion_t::AI_MoveSuggestion_t( AI_MoveSuggType_t newType, floa
 
 //-------------------------------------
 
-inline AI_MoveSuggestion_t::AI_MoveSuggestion_t( AI_MoveSuggType_t newType, float newWeight, const AI_Arc_t &arc, CBaseEntity *pEntity  )
+inline AI_MoveSuggestion_t::AI_MoveSuggestion_t( AI_MoveSuggType_t newType, float newWeight, const AI_Arc_t &arc_, CBaseEntity *pEntity  )
 {
-	Set( newType, newWeight, arc.center, arc.span, pEntity );
+	Set( newType, newWeight, arc_.center, arc_.span, pEntity );
 }
 
 //-------------------------------------
 
-inline void AI_MoveSuggestion_t::Set( AI_MoveSuggType_t newType, float newWeight, const AI_Arc_t &arc, CBaseEntity *pEntity )
+inline void AI_MoveSuggestion_t::Set( AI_MoveSuggType_t newType, float newWeight, const AI_Arc_t &arc_, CBaseEntity *pEntity )
 {
-	Set( newType, newWeight, arc.center, arc.span, pEntity );
+	Set( newType, newWeight, arc_.center, arc_.span, pEntity );
 }
 
 //-----------------------------------------------------------------------------

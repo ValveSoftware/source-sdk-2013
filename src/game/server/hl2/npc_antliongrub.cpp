@@ -256,15 +256,15 @@ void CAntlionGrub::CreateNugget( void )
 	if ( pNugget == NULL )
 		return;
 
-	Vector vecOrigin;
-	Vector vecForward;
-	GetAttachment( LookupAttachment( "glow" ), vecOrigin, &vecForward );
+	Vector vecOriginGlow;
+	Vector vecForwardGlow;
+	GetAttachment( LookupAttachment( "glow" ), vecOriginGlow, &vecForwardGlow );
 
 	// Find out what size to make this nugget!
 	int nDenomination = GetNuggetDenomination();
 	pNugget->SetDenomination( nDenomination );
 	
-	pNugget->SetAbsOrigin( vecOrigin );
+	pNugget->SetAbsOrigin( vecOriginGlow );
 	pNugget->SetAbsAngles( RandomAngle( 0, 360 ) );
 	DispatchSpawn( pNugget );
 

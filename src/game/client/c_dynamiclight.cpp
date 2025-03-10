@@ -134,14 +134,14 @@ void C_DynamicLight::ClientThink(void)
 	if ( (m_Flags & DLIGHT_NO_MODEL_ILLUMINATION) == 0 )
 	{
 		// Deal with the model light
- 		if ( !m_pDynamicLight || (m_pDynamicLight->key != index) )
+ 		if ( !m_pDynamicLight || ( m_pDynamicLight->key != m_nIndex ) )
 		{
 #if DLIGHT_NO_WORLD_USES_ELIGHT
 			m_pDynamicLight = ShouldBeElight() != 0
-				? effects->CL_AllocElight( index )
-				: effects->CL_AllocDlight( index );
+				? effects->CL_AllocElight( m_nIndex )
+				: effects->CL_AllocDlight( m_nIndex );
 #else
-			m_pDynamicLight = effects->CL_AllocDlight( index );
+			m_pDynamicLight = effects->CL_AllocDlight( m_nIndex );
 #endif
 			Assert (m_pDynamicLight);
 			m_pDynamicLight->minlight = 0;
@@ -180,9 +180,9 @@ void C_DynamicLight::ClientThink(void)
 	{
 		// Raycast to where the endpoint goes
 		// Deal with the environment light
-		if ( !m_pSpotlightEnd || (m_pSpotlightEnd->key != -index) )
+		if ( !m_pSpotlightEnd || (m_pSpotlightEnd->key != -m_nIndex) )
 		{
-			m_pSpotlightEnd = effects->CL_AllocDlight( -index );
+			m_pSpotlightEnd = effects->CL_AllocDlight( -m_nIndex );
 			Assert (m_pSpotlightEnd);
 		}
 				  

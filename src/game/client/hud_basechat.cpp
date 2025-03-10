@@ -1550,7 +1550,7 @@ void CBaseHudChatLine::Colorize( int alpha )
 			InsertColorChange( color );
 			InsertString( wText );
 
-			CBaseHudChat *pChat = dynamic_cast<CBaseHudChat*>(GetParent() );
+			//CBaseHudChat *pChat = dynamic_cast<CBaseHudChat*>(GetParent() );
 
 			if ( pChat && pChat->GetChatHistory() )
 			{	

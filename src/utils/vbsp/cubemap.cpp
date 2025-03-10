@@ -347,14 +347,14 @@ void CreateDefaultCubemaps( bool bHDR )
 				if ( ( pSrcVTFTextures[iFace]->Width() == 4 ) && ( pSrcVTFTextures[iFace]->Height() == 4 ) ) // If texture is 4x4 square
 				{
 					// Force mip level 2 to get the 1x1 face
-					unsigned char *pSrcBits = pSrcVTFTextures[iFace]->ImageData( iFrame, 0, 2 );
-					int iSrcMipSize = pSrcVTFTextures[iFace]->ComputeMipSize( 2 );
+					unsigned char *pSrcBitsLvl2 = pSrcVTFTextures[iFace]->ImageData( iFrame, 0, 2 );
+					int iSrcMipSizeLvl2 = pSrcVTFTextures[iFace]->ComputeMipSize( 2 );
 
 					// Replicate 1x1 mip level across entire face
 					//memset( pDstBits, 0, iSize ); 
-					for ( int i = 0; i < ( iSize / iSrcMipSize ); i++ )
+					for ( int i = 0; i < ( iSize / iSrcMipSizeLvl2 ); i++ )
 					{
-						memcpy( pDstBits + ( i * iSrcMipSize ), pSrcBits, iSrcMipSize ); 
+						memcpy( pDstBits + ( i * iSrcMipSizeLvl2 ), pSrcBitsLvl2, iSrcMipSizeLvl2 );
 					}
 				}
 				else if ( pSrcVTFTextures[iFace]->Width() == pSrcVTFTextures[iFace]->Height() ) // If texture is square
@@ -434,11 +434,11 @@ void CreateDefaultCubemaps( bool bHDR )
 	char dstVTFFileName[1024];
 	if( bHDR )
 	{
-		sprintf( dstVTFFileName, "materials/maps/%s/cubemapdefault.hdr.vtf", mapbase );
+		sprintf( dstVTFFileName, "materials/maps/%s/cubemapdefault.hdr.vtf", g_mapbase );
 	}
 	else
 	{
-		sprintf( dstVTFFileName, "materials/maps/%s/cubemapdefault.vtf", mapbase );
+		sprintf( dstVTFFileName, "materials/maps/%s/cubemapdefault.vtf", g_mapbase );
 	}
 
 	CUtlBuffer outputBuf;
@@ -621,7 +621,7 @@ static int Cubemap_CreateTexInfo( int originalTexInfo, int origin[3] )
 
 	// Package up information needed to generate patch names
 	PatchInfo_t info;
-	info.m_pMapName = mapbase;
+	info.m_pMapName = g_mapbase;
 	info.m_pOrigin[0] = origin[0];
 	info.m_pOrigin[1] = origin[1];
 	info.m_pOrigin[2] = origin[2];
@@ -969,7 +969,7 @@ void Cubemap_AddUnreferencedCubemaps()
 		pSample = &g_CubemapSamples[i];	
 
 		// generate the formatted texture name based on cubemap origin
-		info.m_pMapName   = mapbase;
+		info.m_pMapName   = g_mapbase;
 		info.m_pOrigin[0] = pSample->origin[0];
 		info.m_pOrigin[1] = pSample->origin[1];
 		info.m_pOrigin[2] = pSample->origin[2];

@@ -234,8 +234,7 @@ void CHudRadar::Paint()
 	// Draw the radar background.
 	int wide, tall;
 	GetSize(wide, tall);
-	int alpha = 255;
-	vgui::surface()->DrawSetColor(255, 255, 255, alpha);
+	vgui::surface()->DrawSetColor(255, 255, 255, 255);
 	vgui::surface()->DrawSetTexture(m_iImageID);
 	vgui::surface()->DrawTexturedRect(0, 0, wide, tall);
 

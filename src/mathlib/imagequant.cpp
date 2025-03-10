@@ -57,8 +57,8 @@ void ColorQuantize(uint8 const *Image,
 	{
 		struct QuantizedValue *v=FindQNode(q,p);
 		if (v)
-			for(int c=0;c<3;c++)
-				out_palette[p*3+c]=v->Mean[c];
+			for(int c_=0;c_<3;c_++)
+				out_palette[p*3+c_]=v->Mean[c_];
 	}
 	memset(Error,0,sizeof(Error));
 	for(y=0;y<Height;y++)

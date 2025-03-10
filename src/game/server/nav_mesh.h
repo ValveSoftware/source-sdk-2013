@@ -199,7 +199,7 @@ public:
 	unsigned int operator()( const NavVisPair_t &item ) const
 	{
 		COMPILE_TIME_ASSERT( sizeof(CNavArea *) == 4 );
-		int key[2] = { (int)item.pAreas[0] + item.pAreas[1]->GetID(), (int)item.pAreas[1] + item.pAreas[0]->GetID() };
+		unsigned int key[2] = { (unsigned int)item.pAreas[0] + item.pAreas[1]->GetID(), (unsigned int)item.pAreas[1] + item.pAreas[0]->GetID() };
 		return Hash8( key );	
 	}
 };
@@ -246,7 +246,7 @@ private:
 	bool m_hasUnnamedAreas;
 };
 
-extern PlaceDirectory placeDirectory;
+//extern PlaceDirectory placeDirectory;
 
 
 

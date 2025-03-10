@@ -624,7 +624,7 @@ public:
 			return false;
 		}
 
-		m_ScriptStack[ 0 ].currenttoken = engine->ParseFile( m_ScriptStack[ 0 ].currenttoken, token, sizeof( token ) );
+		m_ScriptStack[ 0 ].currenttoken = engine->ParseFile( m_ScriptStack[ 0 ].currenttoken, m_token, sizeof( m_token ) );
 		m_ScriptStack[ 0 ].tokencount++;
 		return m_ScriptStack[ 0 ].currenttoken != NULL ? true : false;
 	}
@@ -710,7 +710,7 @@ public:
 	CUtlDict< Rule, short >	m_Rules;
 	CUtlDict< Enumeration, short > m_Enumerations;
 
-	char		token[ 1204 ];
+	char		m_token[ 1204 ];
 
 	bool		m_bUnget;
 	bool		m_bPrecache;	
@@ -758,7 +758,7 @@ END_DATADESC()
 //-----------------------------------------------------------------------------
 CResponseSystem::CResponseSystem()
 {
-	token[0] = 0;
+	m_token[0] = 0;
 	m_bUnget = false;
 	m_bPrecache = true;
 	m_bCustomManagable = false;
@@ -1898,7 +1898,7 @@ void CResponseSystem::ParseInclude( CStringPool &includedFiles )
 {
 	char includefile[ 256 ];
 	ParseToken();
-	Q_snprintf( includefile, sizeof( includefile ), "scripts/%s", token );
+	Q_snprintf( includefile, sizeof( includefile ), "scripts/%s", m_token );
 
 	// check if the file is already included
 	if ( includedFiles.Find( includefile ) != NULL )
@@ -1932,29 +1932,29 @@ void CResponseSystem::LoadFromBuffer( const char *scriptfile, const char *buffer
 	while ( 1 )
 	{
 		ParseToken();
-		if ( !token[0] )
+		if ( !m_token[0] )
 		{
 			break;
 		}
 
-		if ( !Q_stricmp( token, "#include" ) )
+		if ( !Q_stricmp( m_token, "#include" ) )
 		{
 			ParseInclude( includedFiles );
 		}
-		else if ( !Q_stricmp( token, "response" ) )
+		else if ( !Q_stricmp( m_token, "response" ) )
 		{
 			ParseResponse();
 		}
-		else if ( !Q_stricmp( token, "criterion" ) || 
-			!Q_stricmp( token, "criteria" ) )
+		else if ( !Q_stricmp( m_token, "criterion" ) || 
+			!Q_stricmp( m_token, "criteria" ) )
 		{
 			ParseCriterion();
 		}
-		else if ( !Q_stricmp( token, "rule" ) )
+		else if ( !Q_stricmp( m_token, "rule" ) )
 		{
 			ParseRule();
 		}
-		else if ( !Q_stricmp( token, "enumeration" ) )
+		else if ( !Q_stricmp( m_token, "enumeration" ) )
 		{
 			ParseEnumeration();
 		}
@@ -1963,7 +1963,7 @@ void CResponseSystem::LoadFromBuffer( const char *scriptfile, const char *buffer
 			int byteoffset = m_ScriptStack[ 0 ].currenttoken - (const char *)m_ScriptStack[ 0 ].buffer;
 
 			Error( "CResponseSystem::LoadFromBuffer:  Unknown entry type '%s', expecting 'response', 'criterion', 'enumeration' or 'rules' in file %s(offset:%i)\n", 
-				token, scriptfile, byteoffset );
+				m_token, scriptfile, byteoffset );
 			break;
 		}
 	}
@@ -2038,35 +2038,35 @@ void CResponseSystem::ParseOneResponse( const char *responseGroupName, ResponseG
 	newResponse.weight.SetFloat( 1.0f );
 	AI_ResponseParams *rp = &group.rp;
 
-	newResponse.type = ComputeResponseType( token );
+	newResponse.type = ComputeResponseType( m_token );
 	if ( RESPONSE_NONE == newResponse.type )
 	{
-		ResponseWarning( "response entry '%s' with unknown response type '%s'\n", responseGroupName, token );
+		ResponseWarning( "response entry '%s' with unknown response type '%s'\n", responseGroupName, m_token );
 		return;
 	}
 
 	ParseToken();
-	newResponse.value = CopyString( token );
+	newResponse.value = CopyString( m_token );
 
 	while ( TokenWaiting() )
 	{
 		ParseToken();
-		if ( !Q_stricmp( token, "weight" ) )
+		if ( !Q_stricmp( m_token, "weight" ) )
 		{
 			ParseToken();
-			newResponse.weight.SetFloat( (float)atof( token ) );
+			newResponse.weight.SetFloat( (float)atof( m_token ) );
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "predelay" ) )
+		if ( !Q_stricmp( m_token, "predelay" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_DELAYBEFORESPEAK;
-			rp->predelay.FromInterval( ReadInterval( token ) );
+			rp->predelay.FromInterval( ReadInterval( m_token ) );
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "nodelay" ) )
+		if ( !Q_stricmp( m_token, "nodelay" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_DELAYAFTERSPEAK;
@@ -2075,7 +2075,7 @@ void CResponseSystem::ParseOneResponse( const char *responseGroupName, ResponseG
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "defaultdelay" ) )
+		if ( !Q_stricmp( m_token, "defaultdelay" ) )
 		{
 			rp->flags |= AI_ResponseParams::RG_DELAYAFTERSPEAK;
 			rp->delay.start = AIS_DEF_MIN_DELAY;
@@ -2083,79 +2083,79 @@ void CResponseSystem::ParseOneResponse( const char *responseGroupName, ResponseG
 			continue;
 		}
 	
-		if ( !Q_stricmp( token, "delay" ) )
+		if ( !Q_stricmp( m_token, "delay" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_DELAYAFTERSPEAK;
-			rp->delay.FromInterval( ReadInterval( token ) );
+			rp->delay.FromInterval( ReadInterval( m_token ) );
 			continue;
 		}
 		
-		if ( !Q_stricmp( token, "speakonce" ) )
+		if ( !Q_stricmp( m_token, "speakonce" ) )
 		{
 			rp->flags |= AI_ResponseParams::RG_SPEAKONCE;
 			continue;
 		}
 		
-		if ( !Q_stricmp( token, "noscene" ) )
+		if ( !Q_stricmp( m_token, "noscene" ) )
 		{
 			rp->flags |= AI_ResponseParams::RG_DONT_USE_SCENE;
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "stop_on_nonidle" ) )
+		if ( !Q_stricmp( m_token, "stop_on_nonidle" ) )
 		{
 			rp->flags |= AI_ResponseParams::RG_STOP_ON_NONIDLE;
 			continue;
 		}
 		
-		if ( !Q_stricmp( token, "odds" ) )
+		if ( !Q_stricmp( m_token, "odds" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_ODDS;
-			rp->odds = clamp( atoi( token ), 0, 100 );
+			rp->odds = clamp( atoi( m_token ), 0, 100 );
 			continue;
 		}
 		
-		if ( !Q_stricmp( token, "respeakdelay" ) )
+		if ( !Q_stricmp( m_token, "respeakdelay" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_RESPEAKDELAY;
-			rp->respeakdelay.FromInterval( ReadInterval( token ) );
+			rp->respeakdelay.FromInterval( ReadInterval( m_token ) );
 			continue;
 		}
 		
-		if ( !Q_stricmp( token, "weapondelay" ) )
+		if ( !Q_stricmp( m_token, "weapondelay" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_WEAPONDELAY;
-			rp->weapondelay.FromInterval( ReadInterval( token ) );
+			rp->weapondelay.FromInterval( ReadInterval( m_token ) );
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "soundlevel" ) )
+		if ( !Q_stricmp( m_token, "soundlevel" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_SOUNDLEVEL;
-			rp->soundlevel = (soundlevel_t)TextToSoundLevel( token );
+			rp->soundlevel = (soundlevel_t)TextToSoundLevel( m_token );
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "displayfirst" ) )
+		if ( !Q_stricmp( m_token, "displayfirst" ) )
 		{
 			newResponse.first = true;
 			group.m_bHasFirst = true;
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "displaylast" ) )
+		if ( !Q_stricmp( m_token, "displaylast" ) )
 		{
 			newResponse.last = true;
 			group.m_bHasLast= true;
 			continue;
 		}
 
-		ResponseWarning( "response entry '%s' with unknown command '%s'\n", responseGroupName, token );
+		ResponseWarning( "response entry '%s' with unknown command '%s'\n", responseGroupName, m_token );
 	}
 
 	group.group.AddToTail( newResponse );
@@ -2167,17 +2167,17 @@ void CResponseSystem::ParseOneResponse( const char *responseGroupName, ResponseG
 //-----------------------------------------------------------------------------
 bool CResponseSystem::IsRootCommand()
 {
-	if ( !Q_stricmp( token, "#include" ) )
+	if ( !Q_stricmp( m_token, "#include" ) )
 		return true;
-	if ( !Q_stricmp( token, "response" ) )
+	if ( !Q_stricmp( m_token, "response" ) )
 		return true;
-	if ( !Q_stricmp( token, "enumeration" ) )
+	if ( !Q_stricmp( m_token, "enumeration" ) )
 		return true;
-	if ( !Q_stricmp( token, "criteria" ) )
+	if ( !Q_stricmp( m_token, "criteria" ) )
 		return true;
-	if ( !Q_stricmp( token, "criterion" ) )
+	if ( !Q_stricmp( m_token, "criterion" ) )
 		return true;
-	if ( !Q_stricmp( token, "rule" ) )
+	if ( !Q_stricmp( m_token, "rule" ) )
 		return true;
 	return false;
 }
@@ -2196,7 +2196,7 @@ void CResponseSystem::ParseResponse( void )
 
 	// Response Group Name
 	ParseToken();
-	Q_strncpy( responseGroupName, token, sizeof( responseGroupName ) );
+	Q_strncpy( responseGroupName, m_token, sizeof( responseGroupName ) );
 
 	while ( 1 )
 	{
@@ -2209,25 +2209,25 @@ void CResponseSystem::ParseResponse( void )
 			break;
 		}
 
-		if ( !Q_stricmp( token, "{" ) )
+		if ( !Q_stricmp( m_token, "{" ) )
 		{
 			while ( 1 )
 			{
 				ParseToken();
-				if ( !Q_stricmp( token, "}" ) )
+				if ( !Q_stricmp( m_token, "}" ) )
 					break;
 
-				if ( !Q_stricmp( token, "permitrepeats" ) )
+				if ( !Q_stricmp( m_token, "permitrepeats" ) )
 				{
 					newGroup.m_bDepleteBeforeRepeat = false;
 					continue;
 				}
-				else if ( !Q_stricmp( token, "sequential" ) )
+				else if ( !Q_stricmp( m_token, "sequential" ) )
 				{
 					newGroup.SetSequential( true );
 					continue;
 				}
-				else if ( !Q_stricmp( token, "norepeat" ) )
+				else if ( !Q_stricmp( m_token, "norepeat" ) )
 				{
 					newGroup.SetNoRepeat( true );
 					continue;
@@ -2238,15 +2238,15 @@ void CResponseSystem::ParseResponse( void )
 			break;
 		}
 
-		if ( !Q_stricmp( token, "predelay" ) )
+		if ( !Q_stricmp( m_token, "predelay" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_DELAYBEFORESPEAK;
-			rp->predelay.FromInterval( ReadInterval( token ) );
+			rp->predelay.FromInterval( ReadInterval( m_token ) );
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "nodelay" ) )
+		if ( !Q_stricmp( m_token, "nodelay" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_DELAYAFTERSPEAK;
@@ -2255,7 +2255,7 @@ void CResponseSystem::ParseResponse( void )
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "defaultdelay" ) )
+		if ( !Q_stricmp( m_token, "defaultdelay" ) )
 		{
 			rp->flags |= AI_ResponseParams::RG_DELAYAFTERSPEAK;
 			rp->delay.start = AIS_DEF_MIN_DELAY;
@@ -2263,61 +2263,61 @@ void CResponseSystem::ParseResponse( void )
 			continue;
 		}
 	
-		if ( !Q_stricmp( token, "delay" ) )
+		if ( !Q_stricmp( m_token, "delay" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_DELAYAFTERSPEAK;
-			rp->delay.FromInterval( ReadInterval( token ) );
+			rp->delay.FromInterval( ReadInterval( m_token ) );
 			continue;
 		}
 		
-		if ( !Q_stricmp( token, "speakonce" ) )
+		if ( !Q_stricmp( m_token, "speakonce" ) )
 		{
 			rp->flags |= AI_ResponseParams::RG_SPEAKONCE;
 			continue;
 		}
 		
-		if ( !Q_stricmp( token, "noscene" ) )
+		if ( !Q_stricmp( m_token, "noscene" ) )
 		{
 			rp->flags |= AI_ResponseParams::RG_DONT_USE_SCENE;
 			continue;
 		}
 		
-		if ( !Q_stricmp( token, "stop_on_nonidle" ) )
+		if ( !Q_stricmp( m_token, "stop_on_nonidle" ) )
 		{
 			rp->flags |= AI_ResponseParams::RG_STOP_ON_NONIDLE;
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "odds" ) )
+		if ( !Q_stricmp( m_token, "odds" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_ODDS;
-			rp->odds = clamp( atoi( token ), 0, 100 );
+			rp->odds = clamp( atoi( m_token ), 0, 100 );
 			continue;
 		}
 		
-		if ( !Q_stricmp( token, "respeakdelay" ) )
+		if ( !Q_stricmp( m_token, "respeakdelay" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_RESPEAKDELAY;
-			rp->respeakdelay.FromInterval( ReadInterval( token ) );
+			rp->respeakdelay.FromInterval( ReadInterval( m_token ) );
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "weapondelay" ) )
+		if ( !Q_stricmp( m_token, "weapondelay" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_WEAPONDELAY;
-			rp->weapondelay.FromInterval( ReadInterval( token ) );
+			rp->weapondelay.FromInterval( ReadInterval( m_token ) );
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "soundlevel" ) )
+		if ( !Q_stricmp( m_token, "soundlevel" ) )
 		{
 			ParseToken();
 			rp->flags |= AI_ResponseParams::RG_SOUNDLEVEL;
-			rp->soundlevel = (soundlevel_t)TextToSoundLevel( token );
+			rp->soundlevel = (soundlevel_t)TextToSoundLevel( m_token );
 			continue;
 		}
 
@@ -2352,46 +2352,46 @@ int CResponseSystem::ParseOneCriterion( const char *criterionName )
 			break;
 		}
 
-		if ( !Q_stricmp( token, "{" ) )
+		if ( !Q_stricmp( m_token, "{" ) )
 		{
 			gotbody = true;
 
 			while ( 1 )
 			{
 				ParseToken();
-				if ( !Q_stricmp( token, "}" ) )
+				if ( !Q_stricmp( m_token, "}" ) )
 					break;
 
 				// Look up subcriteria index
-				int idx = m_Criteria.Find( token );
+				int idx = m_Criteria.Find( m_token );
 				if ( idx != m_Criteria.InvalidIndex() )
 				{
 					newCriterion.subcriteria.AddToTail( idx );
 				}
 				else
 				{
-					ResponseWarning( "Skipping unrecongized subcriterion '%s' in '%s'\n", token, criterionName );
+					ResponseWarning( "Skipping unrecongized subcriterion '%s' in '%s'\n", m_token, criterionName );
 				}
 			}
 			continue;
 		}
-		else if ( !Q_stricmp( token, "required" ) )
+		else if ( !Q_stricmp( m_token, "required" ) )
 		{
 			newCriterion.required = true;
 		}
-		else if ( !Q_stricmp( token, "weight" ) )
+		else if ( !Q_stricmp( m_token, "weight" ) )
 		{
 			ParseToken();
-			newCriterion.weight.SetFloat( (float)atof( token ) );
+			newCriterion.weight.SetFloat( (float)atof( m_token ) );
 		}
 		else
 		{
 			Assert( newCriterion.subcriteria.Count() == 0 );
 
 			// Assume it's the math info for a non-subcriteria resposne
-			Q_strncpy( key, token, sizeof( key ) );
+			Q_strncpy( key, m_token, sizeof( key ) );
 			ParseToken();
-			Q_strncpy( value, token, sizeof( value ) );
+			Q_strncpy( value, m_token, sizeof( value ) );
 
 			newCriterion.name = CopyString( key );
 			newCriterion.value = CopyString( value );
@@ -2424,7 +2424,7 @@ void CResponseSystem::ParseCriterion( void )
 	// Should have groupname at start
 	char criterionName[ 128 ];
 	ParseToken();
-	Q_strncpy( criterionName, token, sizeof( criterionName ) );
+	Q_strncpy( criterionName, m_token, sizeof( criterionName ) );
 
 	ParseOneCriterion( criterionName );
 }
@@ -2437,22 +2437,22 @@ void CResponseSystem::ParseEnumeration( void )
 {
 	char enumerationName[ 128 ];
 	ParseToken();
-	Q_strncpy( enumerationName, token, sizeof( enumerationName ) );
+	Q_strncpy( enumerationName, m_token, sizeof( enumerationName ) );
 
 	ParseToken();
-	if ( Q_stricmp( token, "{" ) )
+	if ( Q_stricmp( m_token, "{" ) )
 	{
-		ResponseWarning( "Expecting '{' in enumeration '%s', got '%s'\n", enumerationName, token );
+		ResponseWarning( "Expecting '{' in enumeration '%s', got '%s'\n", enumerationName, m_token );
 		return;
 	}
 
 	while ( 1 )
 	{
 		ParseToken();
-		if ( !Q_stricmp( token, "}" ) )
+		if ( !Q_stricmp( m_token, "}" ) )
 			break;
 
-		if ( Q_strlen( token ) <= 0 )
+		if ( Q_strlen( m_token ) <= 0 )
 		{
 			ResponseWarning( "Expecting more tokens in enumeration '%s'\n", enumerationName );
 			break;
@@ -2460,9 +2460,9 @@ void CResponseSystem::ParseEnumeration( void )
 
 		char key[ 128 ];
 
-		Q_strncpy( key, token, sizeof( key ) );
+		Q_strncpy( key, m_token, sizeof( key ) );
 		ParseToken();
-		float value = (float)atof( token );
+		float value = (float)atof( m_token );
 
 		char sz[ 128 ];
 		Q_snprintf( sz, sizeof( sz ), "[%s::%s]", enumerationName, key );
@@ -2494,12 +2494,12 @@ void CResponseSystem::ParseRule( void )
 
 	char ruleName[ 128 ];
 	ParseToken();
-	Q_strncpy( ruleName, token, sizeof( ruleName ) );
+	Q_strncpy( ruleName, m_token, sizeof( ruleName ) );
 
 	ParseToken();
-	if ( Q_stricmp( token, "{" ) )
+	if ( Q_stricmp( m_token, "{" ) )
 	{
-		ResponseWarning( "Expecting '{' in rule '%s', got '%s'\n", ruleName, token );
+		ResponseWarning( "Expecting '{' in rule '%s', got '%s'\n", ruleName, m_token );
 		return;
 	}
 
@@ -2512,51 +2512,51 @@ void CResponseSystem::ParseRule( void )
 	while ( 1 )
 	{
 		ParseToken();
-		if ( !Q_stricmp( token, "}" ) )
+		if ( !Q_stricmp( m_token, "}" ) )
 		{
 			break;
 		}
 
-		if ( Q_strlen( token ) <= 0 )
+		if ( Q_strlen( m_token ) <= 0 )
 		{
 			ResponseWarning( "Expecting more tokens in rule '%s'\n", ruleName );
 			break;
 		}
 
-		if ( !Q_stricmp( token, "matchonce" ) )
+		if ( !Q_stricmp( m_token, "matchonce" ) )
 		{
 			newRule.m_bMatchOnce = true;
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "applyContextToWorld" ) )
+		if ( !Q_stricmp( m_token, "applyContextToWorld" ) )
 		{
 			newRule.m_bApplyContextToWorld = true;
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "applyContext" ) )
+		if ( !Q_stricmp( m_token, "applyContext" ) )
 		{
 			ParseToken();
 			if ( newRule.GetContext() == NULL )
 			{
-				newRule.SetContext( token );
+				newRule.SetContext( m_token );
 			}
 			else
 			{
-				CFmtStrN<1024> newContext( "%s,%s", newRule.GetContext(), token );
+				CFmtStrN<1024> newContext( "%s,%s", newRule.GetContext(), m_token );
 				newRule.SetContext( newContext );
 			}
 			continue;
 		}
 		
-		if ( !Q_stricmp( token, "response" ) )
+		if ( !Q_stricmp( m_token, "response" ) )
 		{
 			// Read them until we run out.
 			while ( TokenWaiting() )
 			{
 				ParseToken();
-				int idx = m_Responses.Find( token );
+				int idx = m_Responses.Find( m_token );
 				if ( idx != m_Responses.InvalidIndex() )
 				{
 					MEM_ALLOC_CREDIT();
@@ -2565,21 +2565,21 @@ void CResponseSystem::ParseRule( void )
 				else
 				{
 					validRule = false;
-					ResponseWarning( "No such response '%s' for rule '%s'\n", token, ruleName );
+					ResponseWarning( "No such response '%s' for rule '%s'\n", m_token, ruleName );
 				}
 			}
 			continue;
 		}
 
-		if ( !Q_stricmp( token, "criteria" ) ||
-			 !Q_stricmp( token, "criterion" ) )
+		if ( !Q_stricmp( m_token, "criteria" ) ||
+			 !Q_stricmp( m_token, "criterion" ) )
 		{
 			// Read them until we run out.
 			while ( TokenWaiting() )
 			{
 				ParseToken();
 
-				int idx = m_Criteria.Find( token );
+				int idx = m_Criteria.Find( m_token );
 				if ( idx != m_Criteria.InvalidIndex() )
 				{
 					MEM_ALLOC_CREDIT();
@@ -2588,7 +2588,7 @@ void CResponseSystem::ParseRule( void )
 				else
 				{
 					validRule = false;
-					ResponseWarning( "No such criterion '%s' for rule '%s'\n", token, ruleName );
+					ResponseWarning( "No such criterion '%s' for rule '%s'\n", m_token, ruleName );
 				}
 			}
 			continue;

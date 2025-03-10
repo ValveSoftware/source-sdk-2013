@@ -451,7 +451,6 @@ void CAI_BehaviorAlyxInjured::GatherConditions( void )
 		{
 			// FIXME: This should be routed through the normal speaking code with a system to emit from the player's suit.
 			
-			CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
 			//float flPlayerDistSqr = ( GetOuter()->GetAbsOrigin() - pPlayer->GetAbsOrigin() ).LengthSqr();
 
 			// If the player is too far away or we can't see him

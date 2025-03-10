@@ -2767,7 +2767,7 @@ void CDetailObjectSystem::BuildDetailObjectRenderLists( const Vector &vViewOrigi
 
 	EnumContext_t ctx;
 	ctx.m_vViewOrigin = vViewOrigin;
- 	ctx.m_BuildWorldListNumber = view->BuildWorldListsNumber();
+ 	ctx.m_BuildWorldListNumber = g_pView->BuildWorldListsNumber();
 
 	// We need to recompute translucency information for all detail props
 	for (int i = m_DetailObjectDict.Size(); --i >= 0; )

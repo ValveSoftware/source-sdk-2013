@@ -289,9 +289,9 @@ void ApplyPostProcessingPasses(PostProcessingPass *pass_list, // table of effect
 					pRenderContext->SetRenderTarget(NULL);
 					int row=pcount/4;
 					int col=pcount %4;
-					int dest_width,dest_height;
-					pRenderContext->GetRenderTargetDimensions( dest_width, dest_height );
-					pRenderContext->Viewport( 0, 0, dest_width, dest_height );
+					int dest_width_,dest_height_;
+					pRenderContext->GetRenderTargetDimensions( dest_width_, dest_height_ );
+					pRenderContext->Viewport( 0, 0, dest_width_, dest_height_ );
 					DrawClippedScreenSpaceRectangle(src_mat,10+col*220,10+row*220,
 						200,200,
 						0,0,1,1,1,1,cb);
@@ -595,9 +595,10 @@ void CLuminanceHistogramSystem::Update( void )
 	// now, issue queries for the oldest finished queries we have
 	while( n_queries_issued_this_frame < MAX_QUERIES_PER_FRAME )
 	{
-		int nNumRanges = N_LUMINANCE_RANGES;
-		if ( mat_tonemap_algorithm.GetInt() == 1 )
-			nNumRanges = N_LUMINANCE_RANGES_NEW;
+		// FIXME: VS2022 Port - These 3 lines, why?
+		// int nNumRanges = N_LUMINANCE_RANGES;
+		// if ( mat_tonemap_algorithm.GetInt() == 1 )
+		//	nNumRanges = N_LUMINANCE_RANGES_NEW;
 
 		int oldest_so_far =- 1;
 		for( int i = 0;i < nNumRanges;i ++ )
@@ -2385,9 +2386,9 @@ void DoEnginePostProcessing( int x, int y, int w, int h, bool bFlashlightIsOn, b
 					partialViewportPostDestRect.height	-= 0.50f*fullViewportPostDestRect.height;
 
 					// This math interprets texel coords as being at corner pixel centers (*not* at corner vertices):
-					Vector2D uvScale(	1.0f - ( (w / 2) / (float)(w - 1) ),
+					Vector2D uvScale_(	1.0f - ( (w / 2) / (float)(w - 1) ),
 										1.0f - ( (h / 2) / (float)(h - 1) ) );
-					CenterScaleQuadUVs( partialViewportPostSrcCorners, uvScale );
+					CenterScaleQuadUVs( partialViewportPostSrcCorners, uvScale_ );
 				}
 
 				// Temporary hack... Color correction was crashing on the first frame 

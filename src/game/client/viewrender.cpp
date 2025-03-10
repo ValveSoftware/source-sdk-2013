@@ -83,7 +83,7 @@
 
 static void testfreezeframe_f( void )
 {
-	view->FreezeFrame( 3.0 );
+	g_pView->FreezeFrame( 3.0 );
 }
 static ConCommand test_freezeframe( "test_freezeframe", testfreezeframe_f, "Test the freeze frame code.", FCVAR_CHEAT );
 
@@ -196,12 +196,12 @@ CON_COMMAND( r_cheapwaterstart,  "" )
 	if( args.ArgC() == 2 )
 	{
 		float dist = atof( args[ 1 ] );
-		view->SetCheapWaterStartDistance( dist );
+		g_pView->SetCheapWaterStartDistance( dist );
 	}
 	else
 	{
 		float start, end;
-		view->GetWaterLODParams( start, end );
+		g_pView->GetWaterLODParams( start, end );
 		Warning( "r_cheapwaterstart: %f\n", start );
 	}
 }
@@ -211,12 +211,12 @@ CON_COMMAND( r_cheapwaterend,  "" )
 	if( args.ArgC() == 2 )
 	{
 		float dist = atof( args[ 1 ] );
-		view->SetCheapWaterEndDistance( dist );
+		g_pView->SetCheapWaterEndDistance( dist );
 	}
 	else
 	{
 		float start, end;
-		view->GetWaterLODParams( start, end );
+		g_pView->GetWaterLODParams( start, end );
 		Warning( "r_cheapwaterend: %f\n", end );
 	}
 }
@@ -876,7 +876,7 @@ void SetupCurrentView( const Vector &vecOrigin, const QAngle &angles, view_id_t 
 
 	// Cache off fade distances
 	float flScreenFadeMinSize, flScreenFadeMaxSize;
-	view->GetScreenFadeDistances( &flScreenFadeMinSize, &flScreenFadeMaxSize );
+	g_pView->GetScreenFadeDistances( &flScreenFadeMinSize, &flScreenFadeMaxSize );
 	modelinfo->SetViewScreenFadeRange( flScreenFadeMinSize, flScreenFadeMaxSize );
 
 	CMatRenderContextPtr pRenderContext( materials );
@@ -1247,13 +1247,13 @@ void CViewRender::DrawUnderwaterOverlay( void )
 			UpdateRefractTexture( x, y, w, h, true );
 
 			// Now draw the entire screen using the material...
-			CMatRenderContextPtr pRenderContext( materials );
+			CMatRenderContextPtr ctx( materials );
 			ITexture *pTexture = GetPowerOfTwoFrameBufferTexture( );
 			int sw = pTexture->GetActualWidth();
 			int sh = pTexture->GetActualHeight();
             // Note - don't offset by x,y - already done by the viewport.
-			pRenderContext->DrawScreenSpaceRectangle( pOverlayMat, 0, 0, w, h,
-													  0, 0, sw-1, sh-1, sw, sh );
+			ctx->DrawScreenSpaceRectangle( pOverlayMat, 0, 0, w, h,
+										   0, 0, sw-1, sh-1, sw, sh );
 		}
 		else
 		{
@@ -1435,8 +1435,8 @@ static void GetFogColorTransition( fogparams_t *pFogParams, float *pColorPrimary
 	{
 		float flPercent = 1.0f - (( pFogParams->lerptime - gpGlobals->curtime ) / pFogParams->duration );
 
-		float flPrimaryColorLerp[3] = { pFogParams->colorPrimaryLerpTo.GetR(), pFogParams->colorPrimaryLerpTo.GetG(), pFogParams->colorPrimaryLerpTo.GetB() };
-		float flSecondaryColorLerp[3] = { pFogParams->colorSecondaryLerpTo.GetR(), pFogParams->colorSecondaryLerpTo.GetG(), pFogParams->colorSecondaryLerpTo.GetB() };
+		float flPrimaryColorLerp[3] = { (float)pFogParams->colorPrimaryLerpTo.GetR(), (float)pFogParams->colorPrimaryLerpTo.GetG(), (float)pFogParams->colorPrimaryLerpTo.GetB() };
+		float flSecondaryColorLerp[3] = { (float)pFogParams->colorSecondaryLerpTo.GetR(), (float)pFogParams->colorSecondaryLerpTo.GetG(), (float)pFogParams->colorSecondaryLerpTo.GetB() };
 
 		CheckAndTransitionColor( flPercent, pColorPrimary, flPrimaryColorLerp );
 		CheckAndTransitionColor( flPercent, pColorSecondary, flSecondaryColorLerp );
@@ -1459,8 +1459,8 @@ static void GetFogColor( fogparams_t *pFogParams, float *pColor )
 	}
 	else
 	{
-		float flPrimaryColor[3] = { pFogParams->colorPrimary.GetR(), pFogParams->colorPrimary.GetG(), pFogParams->colorPrimary.GetB() };
-		float flSecondaryColor[3] = { pFogParams->colorSecondary.GetR(), pFogParams->colorSecondary.GetG(), pFogParams->colorSecondary.GetB() };
+		float flPrimaryColor[3] = { (float)pFogParams->colorPrimary.GetR(), (float)pFogParams->colorPrimary.GetG(), (float)pFogParams->colorPrimary.GetB() };
+		float flSecondaryColor[3] = { (float)pFogParams->colorSecondary.GetR(), (float)pFogParams->colorSecondary.GetG(), (float)pFogParams->colorSecondary.GetB() };
 
 		GetFogColorTransition( pFogParams, flPrimaryColor, flSecondaryColor );
 
@@ -2145,7 +2145,7 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 
 	if ( mat_viewportupscale.GetBool() && mat_viewportscale.GetFloat() < 1.0f ) 
 	{
-		CMatRenderContextPtr pRenderContext( materials );
+		CMatRenderContextPtr ctx( materials );
 
 		ITexture	*pFullFrameFB1 = materials->FindTexture( "_rt_FullFrameFB1", TEXTURE_GROUP_RENDER_TARGET );
 		IMaterial	*pCopyMaterial = materials->FindMaterial( "dev/upscale", TEXTURE_GROUP_OTHER );
@@ -2163,8 +2163,8 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		UpscaleRect.width = view.m_nUnscaledWidth;
 		UpscaleRect.height = view.m_nUnscaledHeight;
 
-		pRenderContext->CopyRenderTargetToTextureEx( pFullFrameFB1, 0, &DownscaleRect, &DownscaleRect );
-		pRenderContext->DrawScreenSpaceRectangle( pCopyMaterial, UpscaleRect.x, UpscaleRect.y, UpscaleRect.width, UpscaleRect.height,
+		ctx->CopyRenderTargetToTextureEx( pFullFrameFB1, 0, &DownscaleRect, &DownscaleRect );
+		ctx->DrawScreenSpaceRectangle( pCopyMaterial, UpscaleRect.x, UpscaleRect.y, UpscaleRect.width, UpscaleRect.height,
 			DownscaleRect.x, DownscaleRect.y, DownscaleRect.x+DownscaleRect.width-1, DownscaleRect.y+DownscaleRect.height-1, 
 			pFullFrameFB1->GetActualWidth(), pFullFrameFB1->GetActualHeight() );
 
@@ -2345,14 +2345,14 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 //-----------------------------------------------------------------------------
 // Purpose: Renders extra 2D effects in derived classes while the 2D view is on the stack
 //-----------------------------------------------------------------------------
-void CViewRender::Render2DEffectsPreHUD( const CViewSetup &view )
+void CViewRender::Render2DEffectsPreHUD( const CViewSetup & )
 {
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Renders extra 2D effects in derived classes while the 2D view is on the stack
 //-----------------------------------------------------------------------------
-void CViewRender::Render2DEffectsPostHUD( const CViewSetup &view )
+void CViewRender::Render2DEffectsPostHUD( const CViewSetup & )
 {
 }
 
@@ -3823,19 +3823,19 @@ static inline void DrawOpaqueRenderable( IClientRenderable *pEnt, bool bTwoPass,
 			pRenderContext->PushCustomClipPlane( pRenderClipPlane );
 		else
 			DrawClippedDepthBox( pEnt, pRenderClipPlane );
-		Assert( view->GetCurrentlyDrawingEntity() == NULL );
-		view->SetCurrentlyDrawingEntity( pEnt->GetIClientUnknown()->GetBaseEntity() );
+		Assert( g_pView->GetCurrentlyDrawingEntity() == NULL );
+		g_pView->SetCurrentlyDrawingEntity( pEnt->GetIClientUnknown()->GetBaseEntity() );
 		pEnt->DrawModel( flags );
-		view->SetCurrentlyDrawingEntity( NULL );
+		g_pView->SetCurrentlyDrawingEntity( NULL );
 		if( pRenderClipPlane && !materials->UsingFastClipping() )	
 			pRenderContext->PopCustomClipPlane();
 	}
 	else
 	{
-		Assert( view->GetCurrentlyDrawingEntity() == NULL );
-		view->SetCurrentlyDrawingEntity( pEnt->GetIClientUnknown()->GetBaseEntity() );
+		Assert( g_pView->GetCurrentlyDrawingEntity() == NULL );
+		g_pView->SetCurrentlyDrawingEntity( pEnt->GetIClientUnknown()->GetBaseEntity() );
 		pEnt->DrawModel( flags );
-		view->SetCurrentlyDrawingEntity( NULL );
+		g_pView->SetCurrentlyDrawingEntity( NULL );
 	}
 }
 
@@ -4224,20 +4224,20 @@ static inline void DrawTranslucentRenderable( IClientRenderable *pEnt, bool twoP
 			pRenderContext->PushCustomClipPlane( pRenderClipPlane );
 		else
 			DrawClippedDepthBox( pEnt, pRenderClipPlane );
-		Assert( view->GetCurrentlyDrawingEntity() == NULL );
-		view->SetCurrentlyDrawingEntity( pEnt->GetIClientUnknown()->GetBaseEntity() );
+		Assert( g_pView->GetCurrentlyDrawingEntity() == NULL );
+		g_pView->SetCurrentlyDrawingEntity( pEnt->GetIClientUnknown()->GetBaseEntity() );
 		pEnt->DrawModel( flags );
-		view->SetCurrentlyDrawingEntity( NULL );
+		g_pView->SetCurrentlyDrawingEntity( NULL );
 
 		if( pRenderClipPlane && !materials->UsingFastClipping() )	
 			pRenderContext->PopCustomClipPlane();
 	}
 	else
 	{
-		Assert( view->GetCurrentlyDrawingEntity() == NULL );
-		view->SetCurrentlyDrawingEntity( pEnt->GetIClientUnknown()->GetBaseEntity() );
+		Assert( g_pView->GetCurrentlyDrawingEntity() == NULL );
+		g_pView->SetCurrentlyDrawingEntity( pEnt->GetIClientUnknown()->GetBaseEntity() );
 		pEnt->DrawModel( flags );
-		view->SetCurrentlyDrawingEntity( NULL );
+		g_pView->SetCurrentlyDrawingEntity( NULL );
 	}
 }
 
@@ -5567,9 +5567,9 @@ void CBaseWorldView::DrawDepthOfField( )
 //-----------------------------------------------------------------------------
 // Draws the scene when there's no water or only cheap water
 //-----------------------------------------------------------------------------
-void CSimpleWorldView::Setup( const CViewSetup &view, int nClearFlags, bool bDrawSkybox, const VisibleFogVolumeInfo_t &fogInfo, const WaterRenderInfo_t &waterInfo, ViewCustomVisibility_t *pCustomVisibility )
+void CSimpleWorldView::Setup( const CViewSetup &viewsetup, int nClearFlags, bool bDrawSkybox, const VisibleFogVolumeInfo_t &fogInfo, const WaterRenderInfo_t &waterInfo, ViewCustomVisibility_t *pCustomVisibility )
 {
-	BaseClass::Setup( view );
+	BaseClass::Setup( viewsetup );
 
 	m_ClearFlags = nClearFlags;
 	m_DrawFlags = DF_DRAW_ENTITITES;

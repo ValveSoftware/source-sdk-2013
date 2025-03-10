@@ -914,11 +914,11 @@ bool CAntlionTemplateMaker::ValidateSpawnPosition( Vector &vOrigin, CBaseEntity 
 
 					if ( trVerify.fraction != 1.0f )
 					{
-						const surfacedata_t *psurf = physprops->GetSurfaceData( trVerify.surface.surfaceProps );
+						const surfacedata_t *psurf_ = physprops->GetSurfaceData( trVerify.surface.surfaceProps );
 
-						if ( psurf )
+						if ( psurf_ )
 						{
-							if ( psurf->game.material == CHAR_TEX_DIRT )
+							if ( psurf_->game.material == CHAR_TEX_DIRT )
 							{
 								if ( g_debug_antlionmaker.GetInt() == 1 )
 								{
@@ -1123,16 +1123,16 @@ CBaseEntity *CAntlionTemplateMaker::AllHintsFromClusterBlocked( CAI_Hint *pNode,
 					int count = UTIL_EntitiesInBox( pList, 20, spawnOrigin + NAI_Hull::Mins( HULL_MEDIUM ), spawnOrigin + NAI_Hull::Maxs( HULL_MEDIUM ), 0 );
 
 					//Iterate over all the possible targets
-					for ( int i = 0; i < count; i++ )
+					for ( int t = 0; t < count; t++ )
 					{
-						if ( pList[i]->GetMoveType() != MOVETYPE_VPHYSICS )
+						if ( pList[t]->GetMoveType() != MOVETYPE_VPHYSICS )
 							continue;
 
-						if ( PhysGetEntityMass( pList[i] ) > ANTLION_MAKER_BLOCKED_MASS )
+						if ( PhysGetEntityMass( pList[t] ) > ANTLION_MAKER_BLOCKED_MASS )
 						{
 							bBlocked = true;
 							iNumBlocked++;
-							pBlocker = pList[i];
+							pBlocker = pList[t];
 
 							if ( pTestHint == pNode )
 							{
@@ -1265,12 +1265,12 @@ void CAntlionTemplateMaker::BlockedCheckFunc( void )
 				int count = UTIL_EntitiesInBox( pList, 20, vHintPos + NAI_Hull::Mins( HULL_MEDIUM ), vHintPos + NAI_Hull::Maxs( HULL_MEDIUM ), 0 );
 
 				//Iterate over all the possible targets
-				for ( int i = 0; i < count; i++ )
+				for ( int j = 0; j < count; j++ )
 				{
-					if ( pList[i]->GetMoveType() != MOVETYPE_VPHYSICS )
+					if ( pList[j]->GetMoveType() != MOVETYPE_VPHYSICS )
 						continue;
 
-					if ( PhysGetEntityMass( pList[i] ) > ANTLION_MAKER_BLOCKED_MASS )
+					if ( PhysGetEntityMass( pList[j] ) > ANTLION_MAKER_BLOCKED_MASS )
 					{
 						iBlocked++;
 						break;

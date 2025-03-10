@@ -235,8 +235,8 @@ inline void CParticleEffectBinding::StartDrawMaterialParticles(
 	// Setup the ParticleDraw and bind the material.
 	if( bWireframe )
 	{
-		IMaterial *pMaterial = m_pParticleMgr->m_pMaterialSystem->FindMaterial( "debug/debugparticlewireframe", TEXTURE_GROUP_OTHER );
-		pRenderContext->Bind( pMaterial, NULL );
+		IMaterial *pMatWireframe = m_pParticleMgr->m_pMaterialSystem->FindMaterial( "debug/debugparticlewireframe", TEXTURE_GROUP_OTHER );
+		pRenderContext->Bind( pMatWireframe, NULL );
 	}
 	else
 	{
@@ -1687,7 +1687,7 @@ static ConVar cl_particle_retire_cost( "cl_particle_retire_cost", "0", FCVAR_CHE
 bool CParticleMgr::EarlyRetireParticleSystems( int nCount, CNewParticleEffect **ppEffects )
 {
 	// NOTE: Doing a cheap and hacky estimate of worst-case fillrate
-	const CViewSetup *pViewSetup = view->GetPlayerViewSetup();
+	const CViewSetup *pViewSetup = g_pView->GetPlayerViewSetup();
 	if ( pViewSetup->width == 0 || pViewSetup->height == 0 )
 		return false;
 

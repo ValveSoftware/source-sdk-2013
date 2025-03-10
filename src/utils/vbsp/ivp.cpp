@@ -807,7 +807,7 @@ void EmitWaterMaterialFile( WaterTexInfo *wti )
 		return;
 	}
 
-	GetWaterTextureName( mapbase, wti->m_MaterialName.String(), ( int )wti->m_nWaterDepth, waterTextureName );
+	GetWaterTextureName( g_mapbase, wti->m_MaterialName.String(), ( int )wti->m_nWaterDepth, waterTextureName );
 	
 	// Convert to string
 	char szDepth[ 32 ];
@@ -830,7 +830,7 @@ int FindOrCreateWaterTexInfo( texinfo_t *pBaseInfo, float depth )
 	// Get the base texture/material name
 	char const *name = TexDataStringTable_GetString( GetTexData( pBaseInfo->texdata )->nameStringTableID );
 
-	GetWaterTextureName( mapbase, name, (int)depth, fullname );
+	GetWaterTextureName( g_mapbase, name, (int)depth, fullname );
 
 	// See if we already have an entry for this depth
 	WaterTexInfo lookup;
@@ -1474,9 +1474,7 @@ static void ConvertModelToPhysCollide( CUtlVector<CPhysCollisionEntry *> &collis
 
 static void ClearLeafWaterData( void )
 {
-	int i;
-
-	for( i = 0; i < numleafs; i++ )
+	for(int i = 0; i < numleafs; i++ )
 	{
 		dleafs[i].leafWaterDataID = -1;
 		dleafs[i].contents &= ~CONTENTS_TESTFOGVOLUME;
@@ -1520,8 +1518,7 @@ void EmitPhysCollision()
 
 	Msg("Building Physics collision data...\n" );
 
-	int i, j;
-	for ( i = 0; i < nummodels; i++ )
+	for (int i = 0; i < nummodels; i++ )
 	{
 		// Build a list of collision models for this brush model section
 		if ( i == 0 )
@@ -1541,7 +1538,7 @@ void EmitPhysCollision()
 
 		// if we've got collision models, write their script for processing in the game
 		pTextBuffer[i] = new CTextBuffer;
-		for ( j = 0; j < collisionList[i].Count(); j++ )
+		for (int j = 0; j < collisionList[i].Count(); j++ )
 		{
 			// dump a text file for visualization
 			if ( dumpcollide )
@@ -1564,7 +1561,7 @@ void EmitPhysCollision()
 			if ( s_WorldPropList.Count() )
 			{
 				pTextBuffer[i]->WriteText( "materialtable {\n" );
-				for ( j = 0; j < s_WorldPropList.Count(); j++ )
+				for (int j = 0; j < s_WorldPropList.Count(); j++ )
 				{
 					int propIndex = s_WorldPropList[j];
 					if ( propIndex < 0 )
@@ -1598,11 +1595,10 @@ void EmitPhysCollision()
 	memset( g_pPhysCollide, 0, g_PhysCollideSize );
 	ptr = g_pPhysCollide;
 
-	for ( i = 0; i < nummodels; i++ )
+	for (int i = 0; i < nummodels; i++ )
 	{
 		if ( pTextBuffer[i] )
 		{
-			int j;
 
 			dphysmodel_t model;
 
@@ -1610,7 +1606,7 @@ void EmitPhysCollision()
 			model.solidCount = collisionList[i].Count();
 			model.dataSize = sizeof(int) * model.solidCount;
 
-			for ( j = 0; j < model.solidCount; j++ )
+			for (int j = 0; j < model.solidCount; j++ )
 			{
 				model.dataSize += collisionList[i][j]->GetCollisionBinarySize();
 			}
@@ -1620,7 +1616,7 @@ void EmitPhysCollision()
 			memcpy( ptr, &model, sizeof(model) );
 			ptr += sizeof(model);
 
-			for ( j = 0; j < model.solidCount; j++ )
+			for (int j = 0; j < model.solidCount; j++ )
 			{
 				int collideSize = collisionList[i][j]->GetCollisionBinarySize();
 

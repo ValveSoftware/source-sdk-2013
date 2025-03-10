@@ -256,7 +256,9 @@ struct typedescription_t
 {
 	fieldtype_t			fieldType;
 	const char			*fieldName;
-	int					fieldOffset[ TD_OFFSET_COUNT ]; // 0 == normal, 1 == packed offset
+
+	// FIXME: VS2022 Port - I changed this to be unsigned to get some warnings away. Good? Bad? Test it.
+	unsigned int		fieldOffset[ TD_OFFSET_COUNT ]; // 0 == normal, 1 == packed offset
 	unsigned short		fieldSize;
 	short				flags;
 	// the name of the variable in the map/fgd data, or the name of the action
@@ -269,7 +271,7 @@ struct typedescription_t
 	datamap_t			*td;
 
 	// Stores the actual member variable size in bytes
-	int					fieldSizeInBytes;
+	int		fieldSizeInBytes;
 
 	// FTYPEDESC_OVERRIDE point to first baseclass instance if chains_validated has occurred
 	struct typedescription_t *override_field;

@@ -1121,9 +1121,9 @@ void C_SceneEntity::PrefetchAnimBlocks( CChoreoScene *pScene )
 	int nChecked = 0;
 
 	// Iterate events and precache necessary resources
-	for ( int i = 0; i < pScene->GetNumEvents(); i++ )
+	for ( int eidx = 0; eidx < pScene->GetNumEvents(); eidx++ )
 	{
-		CChoreoEvent *pEvent = pScene->GetEvent( i );
+		CChoreoEvent *pEvent = pScene->GetEvent( eidx );
 		if ( !pEvent )
 			continue;
 
