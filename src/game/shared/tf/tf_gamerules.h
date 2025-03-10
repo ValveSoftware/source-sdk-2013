@@ -301,7 +301,7 @@ public:
 };
 
 #define MAX_TEAMGOAL_STRING		256
-#define MAX_TEAMNAME_STRING		6
+#define MAX_TEAMNAME_STRING		12
 
 class CTFGameRules : public CTeamplayRoundBasedRules
 {
