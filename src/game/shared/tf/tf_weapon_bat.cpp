@@ -760,7 +760,7 @@ void CTFStunBall::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 			pPlayer->m_Shared.StunPlayer( flStunDuration, flStunAmount, iStunFlags, pOwner );
 
 #ifdef GAME_DLL
-            pOwner->SpeakConceptIfAllowed( MP_CONCEPT_STUNNED_TARGET );
+			pOwner->SpeakConceptIfAllowed( MP_CONCEPT_STUNNED_TARGET );
 #endif
 
 			if ( pPlayer->GetUserID() == m_iOriginalOwnerID )
