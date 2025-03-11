@@ -30,9 +30,8 @@
 static ConVar tf_passtime_mode_lock_eye_to_eye( "tf_passtime_mode_lock_eye_to_eye", "1" );
 #ifdef CLIENT_DLL
 static ConVar p4ss_legacy_throw_controls( "p4ss_legacy_throw_controls" , "0" , FCVAR_USERINFO, "For oldies who cannot fathom changes made to their game.");
+static ConVar p4ss_reverse_throw_controls( "p4ss_reverse_throw_controls", "0", FCVAR_USERINFO, "Switches mouse1 and mouse2 inputs for freethrow and passing" );
 #endif
-// FIXME: This isn't networked but should be similar to the above.
-static ConVar p4ss_reverse_throw_controls( "p4ss_reverse_throw_controls", "0", 0, "Switches mouse1 and mouse2 inputs for freethrow and passing" );
 
 //-----------------------------------------------------------------------------
 IMPLEMENT_NETWORKCLASS_ALIASED( PasstimeGun, DT_PasstimeGun )
@@ -401,7 +400,16 @@ void CPasstimeGun::ItemPostFrame()
 {
 	bool bCanAttack2Cancel = !tf_passtime_experiment_autopass.GetBool();
 
-	if (p4ss_reverse_throw_controls.GetBool() )
+	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
+	if ( !pOwner )
+	{
+		return;
+	}
+
+	bool bReversedCtrl = pOwner->ShouldUseReversedPasstimeGunControls();
+	bool bLegacyCtrl = pOwner->ShouldUseLegacyPasstimeGunControls();
+
+	if (bReversedCtrl)
 	{
 		m_attack.iButton = IN_ATTACK2;
 		m_attack2.iButton = IN_ATTACK;
@@ -411,14 +419,6 @@ void CPasstimeGun::ItemPostFrame()
 		m_attack.iButton = IN_ATTACK;
 		m_attack2.iButton = IN_ATTACK2;
 	}
-
-	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
-	if ( !pOwner )
-	{
-		return;
-	}
-
-	bool bLegacyCtrl = pOwner->ShouldUseLegacyPasstimeGunControls();
 
 #ifdef GAME_DLL
 

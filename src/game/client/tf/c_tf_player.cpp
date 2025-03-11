@@ -3757,6 +3757,7 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropBool( RECVINFO( m_bViewingCYOAPDA ) ),
 	RecvPropBool( RECVINFO( m_bRegenerating ) ),
 	RecvPropBool( RECVINFO( m_bLegacyPasstimeGunControls ) ),
+	RecvPropBool( RECVINFO( m_bReversedPasstimeGunControls ) ),
 END_RECV_TABLE()
 
 
