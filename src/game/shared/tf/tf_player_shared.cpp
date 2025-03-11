@@ -31,6 +31,7 @@
 #include "tf_mapinfo.h"
 #include "tf_dropped_weapon.h"
 #include "tf_weapon_passtime_gun.h"
+#include "tf_weapon_rocketpack.h"
 #include <functional>
 
 // Client specific.
@@ -471,7 +472,10 @@ BEGIN_PREDICTION_DATA_NO_BASE( CTFPlayerShared )
 	DEFINE_PRED_FIELD( m_bHasPasstimeBall, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bIsTargetedForPasstimePass, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ), // does this belong here?
 	DEFINE_PRED_FIELD( m_askForBallTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_flHolsterAnimTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_ARRAY( m_flItemChargeMeter, FIELD_FLOAT, LAST_LOADOUT_SLOT_WITH_CHARGE_METER, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_iStunIndex, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_bScattergunJump, FIELD_BOOLEAN, 0 ),
 END_PREDICTION_DATA()
 
 // Server specific.
@@ -784,6 +788,8 @@ CTFPlayerShared::CTFPlayerShared()
 	m_flPrevInvisibility = 0.f;
 	m_flTmpDamageBonusAmount = 1.0f;
 
+	m_bScattergunJump = false;
+
 	m_bFeignDeathReady = false;
 
 	m_fCloakConsumeRate = tf_spy_cloak_consume_rate.GetFloat();
@@ -1005,7 +1011,6 @@ void CTFPlayerShared::Spawn( void )
 	SetRevengeCrits( 0 );
 
 	m_PlayerStuns.RemoveAll();
-	m_iStunIndex = -1;
 
 	m_iPasstimeThrowAnimState = PASSTIME_THROW_ANIM_NONE;
 	m_bHasPasstimeBall = false;
@@ -1014,6 +1019,7 @@ void CTFPlayerShared::Spawn( void )
 #else
 	m_bSyncingConditions = false;
 #endif
+	m_iStunIndex = -1;
 	m_bKingRuneBuffActive = false;
 
 	// Reset our assist here incase something happens before we get killed
@@ -3090,9 +3096,48 @@ void CTFPlayerShared::ConditionThink( void )
 
 	VehicleThink();
 
-	if ( m_pOuter->GetFlags() & FL_ONGROUND && InCond( TF_COND_PARACHUTE_ACTIVE ) )
+	if ( m_pOuter->GetFlags() & FL_ONGROUND )
 	{
-		RemoveCond( TF_COND_PARACHUTE_ACTIVE );
+		// Airborne conditions end on ground contact
+		RemoveCond( TF_COND_KNOCKED_INTO_AIR );
+		RemoveCond( TF_COND_AIR_CURRENT );
+
+		if ( InCond( TF_COND_PARACHUTE_ACTIVE ) )
+		{
+			RemoveCond( TF_COND_PARACHUTE_ACTIVE );
+		}
+
+		if ( InCond( TF_COND_ROCKETPACK ) )
+		{
+			// Make sure we're still not dealing with launch, where it's possible
+			// to hit your head and fall to the ground before the second stage.
+			CTFWeaponBase *pRocketPack = m_pOuter->Weapon_OwnsThisID( TF_WEAPON_ROCKETPACK );
+			if ( pRocketPack )
+			{
+				if ( gpGlobals->curtime > ( static_cast< CTFRocketPack* >( pRocketPack )->GetRefireTime() ) )
+				{
+#ifdef CLIENT_DLL
+					if ( prediction->IsFirstTimePredicted() )
+#endif
+					{
+						CPASAttenuationFilter filter( m_pOuter );
+						filter.UsePredictionRules();
+						m_pOuter->EmitSound( filter, m_pOuter->entindex(), "Weapon_RocketPack.BoostersShutdown" );
+						m_pOuter->EmitSound( filter, m_pOuter->entindex(), "Weapon_RocketPack.Land" );
+					}
+					RemoveCond( TF_COND_ROCKETPACK );
+
+#ifdef GAME_DLL
+					IGameEvent *pEvent = gameeventmanager->CreateEvent( "rocketpack_landed" );
+					if ( pEvent )
+					{
+						pEvent->SetInt( "userid", m_pOuter->GetUserID() );
+						gameeventmanager->FireEvent( pEvent );
+					}
+#endif
+				}
+			}
+		}
 	}
 
 	// See if we should be pulsing our radius heal
@@ -7301,6 +7346,8 @@ void CTFPlayerShared::OnRemoveStunned( void )
 	m_iStunFlags = 0;
 	m_hStunner = NULL;
 
+	m_iStunIndex = -1;
+
 #ifdef CLIENT_DLL
 	if ( m_pOuter->m_pStunnedEffect )
 	{
@@ -7310,7 +7357,6 @@ void CTFPlayerShared::OnRemoveStunned( void )
 		m_pOuter->m_pStunnedEffect = NULL;
 	}
 #else
-	m_iStunIndex = -1;
 	m_PlayerStuns.RemoveAll();
 #endif
 
@@ -9624,15 +9670,16 @@ bool CTFPlayerShared::AddToSpyCloakMeter( float val, bool bForce )
 
 #endif
 
-#ifdef GAME_DLL
 //-----------------------------------------------------------------------------
 // Purpose: Stun & Snare Application
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::StunPlayer( float flTime, float flReductionAmount, int iStunFlags, CTFPlayer* pAttacker )
 {
+#ifdef GAME_DLL
 	// Insanity prevention
 	if ( ( m_PlayerStuns.Count() + 1 ) >= 250 )
 		return;
+#endif
 
 	if ( InCond( TF_COND_PHASE ) || InCond( TF_COND_PASSTIME_INTERCEPTION ) )
 		return;
@@ -9643,11 +9690,13 @@ void CTFPlayerShared::StunPlayer( float flTime, float flReductionAmount, int iSt
 	if ( InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGED ) && !InCond( TF_COND_MVM_BOT_STUN_RADIOWAVE ) )
 		return;
 
+#ifdef GAME_DLL
 	if ( pAttacker && TFGameRules() && TFGameRules()->IsTruceActive() && pAttacker->IsTruceValidForEnt() )
 	{
 		if ( ( pAttacker->GetTeamNumber() == TF_TEAM_RED ) || ( pAttacker->GetTeamNumber() == TF_TEAM_BLUE ) )
 			return;
 	}
+#endif
 
 	float flRemapAmount = RemapValClamped( flReductionAmount, 0.0, 1.0, 0, 255 );
 
@@ -9674,10 +9723,13 @@ void CTFPlayerShared::StunPlayer( float flTime, float flReductionAmount, int iSt
 	}
 	else if ( GetActiveStunInfo() )
 	{
+#ifdef GAME_DLL
 		// Something yanked our TF_COND_STUNNED in an unexpected way
 		if ( !HushAsserts() )
 			Assert( !"Something yanked out TF_COND_STUNNED." );
 		m_PlayerStuns.RemoveAll();
+#endif
+		m_iStunIndex = -1;
 		return;
 	}
 
@@ -9699,7 +9751,16 @@ void CTFPlayerShared::StunPlayer( float flTime, float flReductionAmount, int iSt
 		// This can happen when stuns use TF_STUN_CONTROLS or TF_STUN_LOSER_STATE.
 		float flOldStun = GetActiveStunInfo() ? GetActiveStunInfo()->flStunAmount : 0.f;
 
+#ifdef GAME_DLL
 		m_iStunIndex = m_PlayerStuns.AddToTail( stunEvent );
+#else
+		m_iStunIndex = 0;
+
+		if ( prediction->IsFirstTimePredicted() )
+		{
+			m_ActiveStunInfo = stunEvent;
+		}
+#endif
 
 		if ( flOldStun > flRemapAmount )
 		{
@@ -9709,10 +9770,18 @@ void CTFPlayerShared::StunPlayer( float flTime, float flReductionAmount, int iSt
 	else
 	{
 		// Done for now
+#ifdef GAME_DLL
 		m_PlayerStuns.AddToTail( stunEvent );
+#else
+		if ( prediction->IsFirstTimePredicted() )
+		{
+			m_ActiveStunInfo = stunEvent;
+		}
+#endif
 		return;
 	}
 
+#ifdef GAME_DLL
 	// Add in extra time when TF_STUN_CONTROLS
 	if ( GetActiveStunInfo()->iStunFlags & TF_STUN_CONTROLS )
 	{
@@ -9766,10 +9835,10 @@ void CTFPlayerShared::StunPlayer( float flTime, float flReductionAmount, int iSt
 		m_pOuter->ClearExpression();
 		m_pOuter->ClearWeaponFireScene();
 	}
+#endif
 
 	AddCond( TF_COND_STUNNED, -1.f, pAttacker );
 }
-#endif // GAME_DLL
 
 //-----------------------------------------------------------------------------
 // Purpose: Returns the intensity of the current stun effect, if we have the type of stun indicated.
