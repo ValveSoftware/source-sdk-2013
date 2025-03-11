@@ -844,6 +844,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	SendPropBool( SENDINFO( m_bViewingCYOAPDA ) ),
 	SendPropBool( SENDINFO( m_bRegenerating ) ),
 	SendPropBool( SENDINFO( m_bLegacyPasstimeGunControls ) ),
+	SendPropBool( SENDINFO( m_bReversedPasstimeGunControls ) ),
 	SendPropBool( SENDINFO( m_bTyping ) ),
 END_SEND_TABLE()
 
