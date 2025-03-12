@@ -645,7 +645,7 @@ void CPasstimeGun::ItemPostFrame()
 			{
 				if ( bLegacyCtrl
 					? m_attack.Is(BUTTONSTATE_PRESSED) ||  m_attack.Is(BUTTONSTATE_DOWN) // Legacy
-					: ( m_attack.Is( BUTTONSTATE_PRESSED ) || m_attack.Is(BUTTONSTATE_DOWN) || m_attack2.Is( BUTTONSTATE_PRESSED ) || m_attack.Is(BUTTONSTATE_DOWN) ) ) // New + input buffer
+					: ( m_attack.Is( BUTTONSTATE_PRESSED ) || m_attack.Is(BUTTONSTATE_DOWN) || m_attack2.Is( BUTTONSTATE_PRESSED ) || m_attack2.Is(BUTTONSTATE_DOWN) ) ) // New + input buffer
 				{
 					// note: should transition to CHARGING even if it will immediately finish charging
 					m_eThrowState = THROWSTATE_CHARGING;
@@ -763,7 +763,9 @@ void CPasstimeGun::ItemPostFrame()
 	SetWeaponVisible( pOwner->m_Shared.HasPasstimeBall() );
 
 #ifdef CLIENT_DLL
-	if ( m_attack.Is( BUTTONSTATE_DOWN ) )
+	if ( bLegacyCtrl 
+		? m_attack.Is( BUTTONSTATE_DOWN ) 
+		: m_attack.Is( BUTTONSTATE_DOWN ) || m_attack2.Is( BUTTONSTATE_DOWN ) )
 	{
 		pOwner->SetFiredWeapon( true ); // not sure what this does, exactly, but it seems important
 	}
