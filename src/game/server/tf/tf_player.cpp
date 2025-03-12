@@ -10049,7 +10049,8 @@ void CTFPlayer::AddConnectedPlayers( CUtlVector<CTFPlayer*> &vecPlayers, CTFPlay
 	for ( int i = 0 ; i < pPlayerToConsider->m_Shared.GetNumHealers() ; i++ )
 	{
 		CTFPlayer *pMedic = ToTFPlayer( pPlayerToConsider->m_Shared.GetHealerByIndex( i ) );
-		if ( pMedic )
+		bool isAOE = pPlayerToConsider->m_Shared.m_aHealers[i].flOverhealBonus <= 1.0f;
+		if ( pMedic && !isAOE )
 		{
 			AddConnectedPlayers( vecPlayers, pMedic );
 		}
