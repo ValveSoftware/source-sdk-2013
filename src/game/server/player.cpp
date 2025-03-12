@@ -592,6 +592,7 @@ CBasePlayer::CBasePlayer( )
 
 	m_bForceOrigin = false;
 	m_hVehicle = NULL;
+	m_hUseEntity = NULL;
 	m_pCurrentCommand = NULL;
 	m_iLockViewanglesTickNumber = 0;
 	m_qangLockViewangles.Init();
@@ -2631,6 +2632,17 @@ void CBasePlayer::ObserverUse( bool bIsPressed )
 
 void CBasePlayer::JumptoPosition(const Vector &origin, const QAngle &angles)
 {
+	Vector neworigin;
+	QAngle newangles;
+
+	// Clamp the position and angles to prevent crashes
+	neworigin.x = clamp( origin.x, MIN_COORD_FLOAT, MAX_COORD_FLOAT );
+	neworigin.y = clamp( origin.y, MIN_COORD_FLOAT, MAX_COORD_FLOAT );
+	neworigin.z = clamp( origin.z, MIN_COORD_FLOAT, MAX_COORD_FLOAT );
+	newangles.x = clamp( angles.x, MIN_COORD_FLOAT, MAX_COORD_FLOAT );
+	newangles.y = clamp( angles.y, MIN_COORD_FLOAT, MAX_COORD_FLOAT );
+	newangles.z = clamp( angles.z, MIN_COORD_FLOAT, MAX_COORD_FLOAT );
+
 	SetAbsOrigin( origin );
 	SetAbsVelocity( vec3_origin );	// stop movement
 	SetLocalAngles( angles );
