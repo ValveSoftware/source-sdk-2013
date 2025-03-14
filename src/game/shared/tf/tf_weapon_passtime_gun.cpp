@@ -614,21 +614,16 @@ void CPasstimeGun::ItemPostFrame()
 		}
 		else 
 		{
-			//update input but not overwrite deploy buffer
-			if (!m_bDeploymentInputBuffer)
-			{
-				m_attack.Enable();
-				m_attack.Update(pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased);
-				m_attack2.Enable();
-				m_attack2.Update(pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased);
-			}
-			else
-			{
-				m_attack.Enable();
-				m_attack2.Enable();
-				m_bDeploymentInputBuffer = false;
-			}
-
+			// update input
+			m_attack.Enable();
+			m_attack.Update(pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased);
+			m_attack2.Enable();
+			m_attack2.Update(pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased);
+			
+			// get input buffer
+			bool bBufferM1 =  m_attack.Is( BUTTONSTATE_DOWN ) && m_bDeploymentInputBuffer;
+			bool bBufferM2 =  m_attack2.Is( BUTTONSTATE_DOWN ) && m_bDeploymentInputBuffer;
+			
 			if ( bCanAttack2Cancel && (
 				bLegacyCtrl
 				? m_attack2.Is( BUTTONSTATE_PRESSED )	// Legacy
@@ -655,11 +650,13 @@ void CPasstimeGun::ItemPostFrame()
 			case THROWSTATE_IDLE:
 			{
 				if ( bLegacyCtrl
-					? m_attack.Is(BUTTONSTATE_PRESSED) // Legacy
-					: ( m_attack.Is( BUTTONSTATE_PRESSED ) || m_attack2.Is( BUTTONSTATE_PRESSED ) ) ) // New + input buffer
+					? (m_attack.Is(BUTTONSTATE_PRESSED) || bBufferM1 )
+					: ( m_attack.Is( BUTTONSTATE_PRESSED ) || bBufferM1 )
+						|| ( m_attack2.Is( BUTTONSTATE_PRESSED ) || bBufferM2 ) ) // New + input buffer
 				{
 					// note: should transition to CHARGING even if it will immediately finish charging
 					m_eThrowState = THROWSTATE_CHARGING;
+					m_bDeploymentInputBuffer = false; // reset buffer flag
 					m_fChargeBeginTime = gpGlobals->curtime;
 					if ( GetChargeMaxTime() != 0 )
 					{
@@ -925,21 +922,8 @@ bool CPasstimeGun::Deploy()
     m_attack2.UnlatchUp();
     m_attack.UnlatchUp();
 
-    // Update the input state only once
-    if (!m_bDeploymentInputBuffer)
-    {
-        m_attack.Update(GetTFPlayerOwner()->m_nButtons, GetTFPlayerOwner()->m_afButtonPressed, GetTFPlayerOwner()->m_afButtonReleased);
-        m_attack2.Update(GetTFPlayerOwner()->m_nButtons, GetTFPlayerOwner()->m_afButtonPressed, GetTFPlayerOwner()->m_afButtonReleased);
-		if (m_attack.Is(BUTTONSTATE_DOWN) )
-		{
-			m_attack.eButtonState = BUTTONSTATE_PRESSED;
-		}
-		if (m_attack2.Is(BUTTONSTATE_DOWN))
-		{
-			m_attack2.eButtonState = BUTTONSTATE_PRESSED;
-		}
-		m_bDeploymentInputBuffer = true;
-	}
+    // Update buffer flag
+	m_bDeploymentInputBuffer = true;
 	return true;
 }
 
