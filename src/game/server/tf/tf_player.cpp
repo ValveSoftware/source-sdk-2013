@@ -12038,7 +12038,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		// Revenge Crits for Diamondback
 		if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BACKSTAB )
 		{
-			pPlayerAttacker->m_Shared.IncrementRevengeCrits();
+			pPlayerAttacker->m_Shared.AddRevengeCrits( 1 );
 		}
 	}
 

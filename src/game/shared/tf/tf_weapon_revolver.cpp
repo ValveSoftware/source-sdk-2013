@@ -128,8 +128,7 @@ CBaseEntity *CTFRevolver::FireProjectile( CTFPlayer *pPlayer )
 		CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
 		if ( pOwner )
 		{
-			int iNewRevengeCrits = MAX( pOwner->m_Shared.GetRevengeCrits() - 1, 0 );
-			pOwner->m_Shared.SetRevengeCrits( iNewRevengeCrits );
+			pOwner->m_Shared.AddRevengeCrits( -1 );
 		}
 	}
 

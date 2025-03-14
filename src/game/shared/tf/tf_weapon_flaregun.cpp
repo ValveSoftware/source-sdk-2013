@@ -496,8 +496,7 @@ CBaseEntity *CTFFlareGun_Revenge::FireProjectile( CTFPlayer *pPlayer )
 	CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
 	if ( pOwner )
 	{
-		int iNewRevengeCrits = MAX( pOwner->m_Shared.GetRevengeCrits() - 1, 0 );
-		pOwner->m_Shared.SetRevengeCrits( iNewRevengeCrits );
+		pOwner->m_Shared.AddRevengeCrits( -1 );
 	}
 
 	return pProjectile;
@@ -562,7 +561,7 @@ void CTFFlareGun_Revenge::ChargePostFrame( void )
 					if ( pBurner && pBurner->GetTeamNumber() != pOwner->GetTeamNumber() )
 					{
 						// Grant revenge crits
-						pOwner->m_Shared.IncrementRevengeCrits();
+						pOwner->m_Shared.AddRevengeCrits( 1 );
 
 						// Return health to the Pyro.
 						int iRestoreHealthOnExtinguish = 0;

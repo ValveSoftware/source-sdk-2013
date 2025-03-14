@@ -138,8 +138,7 @@ CBaseEntity *CTFShotgun_Revenge::FireProjectile( CTFPlayer *pPlayer )
 	CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
 	if ( pOwner )
 	{
-		int iNewRevengeCrits = MAX( pOwner->m_Shared.GetRevengeCrits() - 1, 0 );
-		pOwner->m_Shared.SetRevengeCrits( iNewRevengeCrits );
+		pOwner->m_Shared.AddRevengeCrits( -1 );
 	}
 
 	return pProjectile;
@@ -157,7 +156,7 @@ void CTFShotgun_Revenge::SentryKilled( int iCrits )
 		CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
 		if ( pOwner )
 		{
-			pOwner->m_Shared.SetRevengeCrits( pOwner->m_Shared.GetRevengeCrits() + iCrits );
+			pOwner->m_Shared.AddRevengeCrits( iCrits );
 		}
 	}
 }

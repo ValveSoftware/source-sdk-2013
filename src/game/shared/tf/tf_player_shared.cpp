@@ -14349,9 +14349,9 @@ void CTFPlayerShared::PulseKingRuneBuff( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerShared::IncrementRevengeCrits( void )
+void CTFPlayerShared::AddRevengeCrits( int iCrits )
 {
-	SetRevengeCrits( m_iRevengeCrits + 1 );
+	SetRevengeCrits( m_iRevengeCrits + iCrits );
 }
 
 //-----------------------------------------------------------------------------
