@@ -7187,7 +7187,9 @@ void CTFPlayer::Resupply( void )
 	if ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN && TFGameRules()->GetWinningTeam() != GetTeamNumber() ) 
 		return;
 
+	iLastWeapon = m_iLastWeaponSlot;
 	ForceRegenerateAndRespawn();
+	m_iLastWeaponSlot = iLastWeapon;
 }
 
 void CC_Resupply( void )
