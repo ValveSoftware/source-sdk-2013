@@ -502,11 +502,3 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-
-#Linux files from build outputs
-*.a
-
-game/mod_hl2mp_linux64
-game/mod_tf_linux64
-src/.ninja_deps
-src/.ninja_log
