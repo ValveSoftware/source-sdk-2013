@@ -843,6 +843,8 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	SendPropInt( SENDINFO( m_iPlayerSkinOverride ) ),
 	SendPropBool( SENDINFO( m_bViewingCYOAPDA ) ),
 	SendPropBool( SENDINFO( m_bRegenerating ) ),
+	SendPropBool( SENDINFO( m_bLegacyPasstimeGunControls ) ),
+	SendPropBool( SENDINFO( m_bReversedPasstimeGunControls ) ),
 	SendPropBool( SENDINFO( m_bTyping ) ),
 END_SEND_TABLE()
 

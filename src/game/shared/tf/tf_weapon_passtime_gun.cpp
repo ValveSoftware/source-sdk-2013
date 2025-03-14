@@ -27,6 +27,12 @@
 #endif
 #include "tier0/memdbgon.h"
 
+static ConVar tf_passtime_mode_lock_eye_to_eye( "tf_passtime_mode_lock_eye_to_eye", "1" );
+#ifdef CLIENT_DLL
+static ConVar p4ss_legacy_throw_controls( "p4ss_legacy_throw_controls" , "0" , FCVAR_USERINFO, "For oldies who cannot fathom changes made to their game.");
+static ConVar p4ss_reverse_throw_controls( "p4ss_reverse_throw_controls", "0", FCVAR_USERINFO, "Switches mouse1 and mouse2 inputs for freethrow and passing" );
+#endif
+
 //-----------------------------------------------------------------------------
 IMPLEMENT_NETWORKCLASS_ALIASED( PasstimeGun, DT_PasstimeGun )
 
@@ -68,6 +74,7 @@ CPasstimeGun::CPasstimeGun()
 	: m_flTargetResetTime( 0 )
 	, m_attack( IN_ATTACK )
 	, m_attack2( IN_ATTACK2 )
+	, m_bDeploymentInputBuffer(false) // Initialize the flag
 {
 	m_eThrowState = THROWSTATE_DISABLED;
 #ifdef CLIENT_DLL
@@ -147,25 +154,26 @@ bool CPasstimeGun::Holster( CBaseCombatWeapon *pSwitchingTo )
 //-----------------------------------------------------------------------------
 void CPasstimeGun::WeaponReset()
 {
-	// this can happen when the weapon is holstered or not
-	BaseClass::WeaponReset();
+    // this can happen when the weapon is holstered or not
+    BaseClass::WeaponReset();
 
-	if ( (m_eThrowState != THROWSTATE_DISABLED) && (m_eThrowState != THROWSTATE_IDLE) )
-	{
-		m_eThrowState = THROWSTATE_CANCELLED;
-		m_attack2.LatchUp();
-		m_attack.LatchUp();
-	}
+    if ((m_eThrowState != THROWSTATE_DISABLED) && (m_eThrowState != THROWSTATE_IDLE))
+    {
+        m_eThrowState = THROWSTATE_CANCELLED;
+        m_attack2.LatchUp();
+        m_attack.LatchUp();
+    }
 
 #ifdef CLIENT_DLL
-	if ( m_pBounceReticle )
-		m_pBounceReticle->Hide();
+    if (m_pBounceReticle)
+        m_pBounceReticle->Hide();
 #endif
 
-	CTFPlayer* pOwner = GetTFPlayerOwner();
-	if ( pOwner )
-		pOwner->m_Shared.SetPasstimePassTarget( 0 );
+    CTFPlayer* pOwner = GetTFPlayerOwner();
+    if (pOwner)
+        pOwner->m_Shared.SetPasstimePassTarget(0);
 
+    m_bDeploymentInputBuffer = false; // Reset the flag
 }
 
 //-----------------------------------------------------------------------------
@@ -393,13 +401,27 @@ bool CPasstimeGun::SendWeaponAnim( int actBase )
 //-----------------------------------------------------------------------------
 void CPasstimeGun::ItemPostFrame()
 {
+	bool bCanAttack2Cancel = !tf_passtime_experiment_autopass.GetBool();
+
 	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
 	if ( !pOwner )
 	{
 		return;
 	}
 
-	bool bCanAttack2Cancel = !tf_passtime_experiment_autopass.GetBool();
+	bool bReversedCtrl = pOwner->ShouldUseReversedPasstimeGunControls();
+	bool bLegacyCtrl = pOwner->ShouldUseLegacyPasstimeGunControls();
+
+	if (bReversedCtrl)
+	{
+		m_attack.iButton = IN_ATTACK2;
+		m_attack2.iButton = IN_ATTACK;
+	}
+	else
+	{
+		m_attack.iButton = IN_ATTACK;
+		m_attack2.iButton = IN_ATTACK2;
+	}
 
 #ifdef GAME_DLL
 
@@ -594,11 +616,18 @@ void CPasstimeGun::ItemPostFrame()
 		{
 			// update input
 			m_attack.Enable();
-			m_attack.Update( pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased );
+			m_attack.Update(pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased);
 			m_attack2.Enable();
-			m_attack2.Update( pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased );
-
-			if ( bCanAttack2Cancel && m_attack2.Is( BUTTONSTATE_PRESSED ) )
+			m_attack2.Update(pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased);
+			
+			// get input buffer
+			bool bBufferM1 =  m_attack.Is( BUTTONSTATE_DOWN ) && m_bDeploymentInputBuffer;
+			bool bBufferM2 =  m_attack2.Is( BUTTONSTATE_DOWN ) && m_bDeploymentInputBuffer;
+			
+			if ( bCanAttack2Cancel && (
+				bLegacyCtrl
+				? m_attack2.Is( BUTTONSTATE_PRESSED )	// Legacy
+				: ( m_attack2.Is( BUTTONSTATE_PRESSED ) || m_attack.Is( BUTTONSTATE_PRESSED ) ) ) ) // New
 			{
 				// check for cancelling attack by pressing attack2
 				if ( (m_eThrowState == THROWSTATE_CHARGING) || (m_eThrowState == THROWSTATE_CHARGED) )
@@ -620,10 +649,14 @@ void CPasstimeGun::ItemPostFrame()
 			{
 			case THROWSTATE_IDLE:
 			{
-				if ( m_attack.Is( BUTTONSTATE_PRESSED ) || m_attack.Is(BUTTONSTATE_DOWN ) )
+				if ( bLegacyCtrl
+					? (m_attack.Is(BUTTONSTATE_PRESSED) || bBufferM1 )
+					: ( m_attack.Is( BUTTONSTATE_PRESSED ) || bBufferM1 )
+						|| ( m_attack2.Is( BUTTONSTATE_PRESSED ) || bBufferM2 ) ) // New + input buffer
 				{
 					// note: should transition to CHARGING even if it will immediately finish charging
 					m_eThrowState = THROWSTATE_CHARGING;
+					m_bDeploymentInputBuffer = false; // reset buffer flag
 					m_fChargeBeginTime = gpGlobals->curtime;
 					if ( GetChargeMaxTime() != 0 )
 					{
@@ -642,7 +675,9 @@ void CPasstimeGun::ItemPostFrame()
 
 			case THROWSTATE_CHARGING: 
 			{
-				if ( m_attack.Is( BUTTONSTATE_RELEASED ) )
+				if ( bLegacyCtrl
+					? m_attack.Is(BUTTONSTATE_RELEASED)
+					: ( m_attack.Is( BUTTONSTATE_RELEASED ) || m_attack2.Is( BUTTONSTATE_RELEASED ) ) )
 				{
 					// NOTE: change state after calling Throw
 					Throw( pOwner );
@@ -665,7 +700,9 @@ void CPasstimeGun::ItemPostFrame()
 
 			case THROWSTATE_CHARGED:
 			{
-				if ( m_attack.Is( BUTTONSTATE_RELEASED ) )
+				if ( bLegacyCtrl
+					? m_attack.Is(BUTTONSTATE_RELEASED)
+					: ( m_attack.Is( BUTTONSTATE_RELEASED ) || m_attack2.Is( BUTTONSTATE_RELEASED ) ) )
 				{
 					// NOTE: change state after calling Throw
 					Throw( pOwner );
@@ -734,7 +771,9 @@ void CPasstimeGun::ItemPostFrame()
 	SetWeaponVisible( pOwner->m_Shared.HasPasstimeBall() );
 
 #ifdef CLIENT_DLL
-	if ( m_attack.Is( BUTTONSTATE_DOWN ) )
+	if ( bLegacyCtrl 
+		? m_attack.Is( BUTTONSTATE_DOWN ) 
+		: m_attack.Is( BUTTONSTATE_DOWN ) || m_attack2.Is( BUTTONSTATE_DOWN ) )
 	{
 		pOwner->SetFiredWeapon( true ); // not sure what this does, exactly, but it seems important
 	}
@@ -873,15 +912,18 @@ const char *CPasstimeGun::GetWorldModel() const
 //-----------------------------------------------------------------------------
 bool CPasstimeGun::Deploy()
 {
-	// This is not called on the client because the client can't predict it.
-	if ( !BaseClass::Deploy() )
-	{
-		return false;
-	}
-	
-	m_eThrowState = THROWSTATE_IDLE;
-	m_attack2.UnlatchUp();
-	m_attack.UnlatchUp();
+    // This is not called on the client because the client can't predict it.
+    if (!BaseClass::Deploy())
+    {
+        return false;
+    }
+
+    m_eThrowState = THROWSTATE_IDLE;
+    m_attack2.UnlatchUp();
+    m_attack.UnlatchUp();
+
+    // Update buffer flag
+	m_bDeploymentInputBuffer = true;
 	return true;
 }
 

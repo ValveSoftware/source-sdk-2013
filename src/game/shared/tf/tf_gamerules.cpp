@@ -10244,6 +10244,9 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	pTFPlayer->SetDefaultFOV( iFov );
 
 	pTFPlayer->m_bFlipViewModels = Q_strcmp( engine->GetClientConVarValue( pPlayer->entindex(), "cl_flipviewmodels" ), "1" ) == 0;
+
+	pTFPlayer->SetUseLegacyPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "p4ss_legacy_throw_controls" ) ) > 0 );
+	pTFPlayer->SetUseReversedPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "p4ss_reverse_throw_controls" ) ) > 0);
 }
 
 //-----------------------------------------------------------------------------
