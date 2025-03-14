@@ -74,6 +74,7 @@ CPasstimeGun::CPasstimeGun()
 	: m_flTargetResetTime( 0 )
 	, m_attack( IN_ATTACK )
 	, m_attack2( IN_ATTACK2 )
+	, m_bDeploymentInputBuffer(false) // Initialize the flag
 {
 	m_eThrowState = THROWSTATE_DISABLED;
 #ifdef CLIENT_DLL
@@ -153,25 +154,26 @@ bool CPasstimeGun::Holster( CBaseCombatWeapon *pSwitchingTo )
 //-----------------------------------------------------------------------------
 void CPasstimeGun::WeaponReset()
 {
-	// this can happen when the weapon is holstered or not
-	BaseClass::WeaponReset();
+    // this can happen when the weapon is holstered or not
+    BaseClass::WeaponReset();
 
-	if ( (m_eThrowState != THROWSTATE_DISABLED) && (m_eThrowState != THROWSTATE_IDLE) )
-	{
-		m_eThrowState = THROWSTATE_CANCELLED;
-		m_attack2.LatchUp();
-		m_attack.LatchUp();
-	}
+    if ((m_eThrowState != THROWSTATE_DISABLED) && (m_eThrowState != THROWSTATE_IDLE))
+    {
+        m_eThrowState = THROWSTATE_CANCELLED;
+        m_attack2.LatchUp();
+        m_attack.LatchUp();
+    }
 
 #ifdef CLIENT_DLL
-	if ( m_pBounceReticle )
-		m_pBounceReticle->Hide();
+    if (m_pBounceReticle)
+        m_pBounceReticle->Hide();
 #endif
 
-	CTFPlayer* pOwner = GetTFPlayerOwner();
-	if ( pOwner )
-		pOwner->m_Shared.SetPasstimePassTarget( 0 );
+    CTFPlayer* pOwner = GetTFPlayerOwner();
+    if (pOwner)
+        pOwner->m_Shared.SetPasstimePassTarget(0);
 
+    m_bDeploymentInputBuffer = false; // Reset the flag
 }
 
 //-----------------------------------------------------------------------------
@@ -612,11 +614,20 @@ void CPasstimeGun::ItemPostFrame()
 		}
 		else 
 		{
-			// update input
-			m_attack.Enable();
-			m_attack.Update( pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased );
-			m_attack2.Enable();
-			m_attack2.Update( pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased );
+			//update input but not overwrite deploy buffer
+			if (!m_bDeploymentInputBuffer)
+			{
+				m_attack.Enable();
+				m_attack.Update(pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased);
+				m_attack2.Enable();
+				m_attack2.Update(pOwner->m_nButtons, pOwner->m_afButtonPressed, pOwner->m_afButtonReleased);
+			}
+			else
+			{
+				m_attack.Enable();
+				m_attack2.Enable();
+				m_bDeploymentInputBuffer = false;
+			}
 
 			if ( bCanAttack2Cancel && (
 				bLegacyCtrl
@@ -644,8 +655,8 @@ void CPasstimeGun::ItemPostFrame()
 			case THROWSTATE_IDLE:
 			{
 				if ( bLegacyCtrl
-					? m_attack.Is(BUTTONSTATE_PRESSED) ||  m_attack.Is(BUTTONSTATE_DOWN) // Legacy
-					: ( m_attack.Is( BUTTONSTATE_PRESSED ) || m_attack.Is(BUTTONSTATE_DOWN) || m_attack2.Is( BUTTONSTATE_PRESSED ) || m_attack2.Is(BUTTONSTATE_DOWN) ) ) // New + input buffer
+					? m_attack.Is(BUTTONSTATE_PRESSED) // Legacy
+					: ( m_attack.Is( BUTTONSTATE_PRESSED ) || m_attack2.Is( BUTTONSTATE_PRESSED ) ) ) // New + input buffer
 				{
 					// note: should transition to CHARGING even if it will immediately finish charging
 					m_eThrowState = THROWSTATE_CHARGING;
@@ -904,15 +915,31 @@ const char *CPasstimeGun::GetWorldModel() const
 //-----------------------------------------------------------------------------
 bool CPasstimeGun::Deploy()
 {
-	// This is not called on the client because the client can't predict it.
-	if ( !BaseClass::Deploy() )
-	{
-		return false;
+    // This is not called on the client because the client can't predict it.
+    if (!BaseClass::Deploy())
+    {
+        return false;
+    }
+
+    m_eThrowState = THROWSTATE_IDLE;
+    m_attack2.UnlatchUp();
+    m_attack.UnlatchUp();
+
+    // Update the input state only once
+    if (!m_bDeploymentInputBuffer)
+    {
+        m_attack.Update(GetTFPlayerOwner()->m_nButtons, GetTFPlayerOwner()->m_afButtonPressed, GetTFPlayerOwner()->m_afButtonReleased);
+        m_attack2.Update(GetTFPlayerOwner()->m_nButtons, GetTFPlayerOwner()->m_afButtonPressed, GetTFPlayerOwner()->m_afButtonReleased);
+		if (m_attack.Is(BUTTONSTATE_DOWN) )
+		{
+			m_attack.eButtonState = BUTTONSTATE_PRESSED;
+		}
+		if (m_attack2.Is(BUTTONSTATE_DOWN))
+		{
+			m_attack2.eButtonState = BUTTONSTATE_PRESSED;
+		}
+		m_bDeploymentInputBuffer = true;
 	}
-	
-	m_eThrowState = THROWSTATE_IDLE;
-	m_attack2.UnlatchUp();
-	m_attack.UnlatchUp();
 	return true;
 }
 
