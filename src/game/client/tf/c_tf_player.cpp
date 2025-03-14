@@ -818,8 +818,10 @@ void C_TFRagdoll::CreateTFRagdoll()
 		}
 
 		// did we find a death sequence?
-		if ( iDeathSeq > -1 && (m_iDamageCustom != TF_DMG_CUSTOM_TAUNTATK_BARBARIAN_SWING) &&
-			(m_iDamageCustom != TF_DMG_CUSTOM_TAUNTATK_ENGINEER_GUITAR_SMASH) && (m_iDamageCustom != TF_DMG_CUSTOM_TAUNTATK_ALLCLASS_GUITAR_RIFF) )
+		if ( iDeathSeq > -1
+			&& (m_iDamageCustom != TF_DMG_CUSTOM_TAUNTATK_BARBARIAN_SWING)
+			&& (m_iDamageCustom != TF_DMG_CUSTOM_TAUNTATK_ENGINEER_GUITAR_SMASH)
+			&& (m_iDamageCustom != TF_DMG_CUSTOM_TAUNTATK_ALLCLASS_GUITAR_RIFF) )
 		{
 			// we only want to show the death anims 25% of the time, unless this is a demoman kill taunt
 			// always play backstab animations for the ice ragdoll
@@ -1238,7 +1240,11 @@ void C_TFRagdoll::OnDataChanged( DataUpdateType_t type )
 				CreateTFRagdoll();
 				if ( IsDecapitation() )
 				{
-					CreateTFHeadGib();
+					// no head gib if their minds are blown
+					if ( m_iDamageCustom != TF_DMG_CUSTOM_TAUNTATK_ALLCLASS_GUITAR_RIFF )
+					{
+						CreateTFHeadGib();
+					}
 					EmitSound( "TFPlayer.Decapitated" );
 
 					bool bBlood = true;
@@ -1301,7 +1307,8 @@ bool C_TFRagdoll::IsDecapitation()
 		|| (m_iDamageCustom == TF_DMG_CUSTOM_TAUNTATK_BARBARIAN_SWING)
 		|| (m_iDamageCustom == TF_DMG_CUSTOM_DECAPITATION_BOSS) 
 		|| (m_iDamageCustom == TF_DMG_CUSTOM_HEADSHOT_DECAPITATION)
-		|| (m_iDamageCustom == TF_DMG_CUSTOM_MERASMUS_DECAPITATION) );
+		|| (m_iDamageCustom == TF_DMG_CUSTOM_MERASMUS_DECAPITATION)
+		|| (m_iDamageCustom == TF_DMG_CUSTOM_TAUNTATK_ALLCLASS_GUITAR_RIFF) );
 }
 
 //-----------------------------------------------------------------------------
@@ -10060,7 +10067,8 @@ static bool IsDecapitationCustomDamageType( int iCustomDamageType )
 	return iCustomDamageType == TF_DMG_CUSTOM_DECAPITATION
 		|| iCustomDamageType == TF_DMG_CUSTOM_TAUNTATK_BARBARIAN_SWING
 		|| iCustomDamageType == TF_DMG_CUSTOM_DECAPITATION_BOSS
-		|| iCustomDamageType == TF_DMG_CUSTOM_MERASMUS_DECAPITATION;
+		|| iCustomDamageType == TF_DMG_CUSTOM_MERASMUS_DECAPITATION
+		|| iCustomDamageType == TF_DMG_CUSTOM_TAUNTATK_ALLCLASS_GUITAR_RIFF;
 }
 
 void C_TFPlayer::CreateBoneAttachmentsFromWearables( C_TFRagdoll *pRagdoll, bool bDisguised )

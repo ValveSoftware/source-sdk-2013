@@ -229,6 +229,8 @@ ConVar tf_highfive_max_range( "tf_highfive_max_range", "150", FCVAR_CHEAT | FCVA
 ConVar tf_highfive_height_tolerance( "tf_highfive_height_tolerance", "12", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "The maximum height difference allowed for two high-fivers." );
 ConVar tf_highfive_debug( "tf_highfive_debug", "0", FCVAR_NONE, "Turns on some console spew for debugging high five issues." );
 
+ConVar tf_allow_econ_tauntkill( "tf_allow_econ_tauntkill", "0", FCVAR_NOTIFY, "Allow equippable taunts to tauntkill." );
+
 ConVar tf_test_teleport_home_fx( "tf_test_teleport_home_fx", "0", FCVAR_CHEAT );
 
 ConVar tf_halloween_giant_health_scale( "tf_halloween_giant_health_scale", "10", FCVAR_CHEAT );
@@ -18742,7 +18744,7 @@ void CTFPlayer::DoTauntAttack( void )
 			SpawnClientsideFlyingBird( vecPos );
 		}
 	}
-	else if ( iTauntAttack == TAUNTATK_PYRO_ARMAGEDDON )
+	else if ( iTauntAttack == TAUNTATK_PYRO_ARMAGEDDON || ( tf_allow_econ_tauntkill.GetBool() && iTauntAttack == TAUNTATK_ALLCLASS_GUITAR_RIFF_EXPLODE ) )
 	{
 		Vector origin( GetAbsOrigin() );
 
@@ -18838,6 +18840,8 @@ void CTFPlayer::DoTauntAttack( void )
 	}
 	else if ( iTauntAttack == TAUNTATK_ALLCLASS_GUITAR_RIFF )
 	{
+		m_iTauntAttack = TAUNTATK_ALLCLASS_GUITAR_RIFF_EXPLODE;
+		m_flTauntAttackTime = gpGlobals->curtime + 3.13f;
 		// We need to parent this to a target instead of the player because the player changing their camera view can twist the rainbow
 		CBaseEntity *pTarget = CreateEntityByName( "info_target" );
 		if ( pTarget )

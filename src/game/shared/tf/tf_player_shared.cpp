@@ -13332,6 +13332,7 @@ int CTFPlayerShared::GetSequenceForDeath( CBaseAnimating* pRagdoll, bool bBurnin
 	case TF_DMG_CUSTOM_TAUNTATK_BARBARIAN_SWING:
 	case TF_DMG_CUSTOM_DECAPITATION:
 	case TF_DMG_CUSTOM_HEADSHOT:
+	case TF_DMG_CUSTOM_TAUNTATK_ALLCLASS_GUITAR_RIFF:
 		iDeathSeq = pRagdoll->LookupSequence( "primary_death_headshot" );
 		break;
 	case TF_DMG_CUSTOM_BACKSTAB:
