@@ -10049,10 +10049,13 @@ void CTFPlayer::AddConnectedPlayers( CUtlVector<CTFPlayer*> &vecPlayers, CTFPlay
 	for ( int i = 0 ; i < pPlayerToConsider->m_Shared.GetNumHealers() ; i++ )
 	{
 		CTFPlayer *pMedic = ToTFPlayer( pPlayerToConsider->m_Shared.GetHealerByIndex( i ) );
-		bool isAOE = pPlayerToConsider->m_Shared.m_aHealers[i].flOverhealBonus <= 1.0f;
-		if ( pMedic && !isAOE )
+		if ( pMedic )
 		{
-			AddConnectedPlayers( vecPlayers, pMedic );
+			// Make sure the healer is using a Medigun to heal us - don't count AoE healing
+			if ( dynamic_cast< CWeaponMedigun* >( pMedic->GetActiveTFWeapon() ) )
+			{
+				AddConnectedPlayers( vecPlayers, pMedic );
+			}
 		}
 	}
 }
