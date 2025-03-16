@@ -230,7 +230,12 @@ float CPasstimeGun::GetCurrentCharge()
 	return 0;
 }
 
-
+//-----------------------------------------------------------------------------
+bool CPasstimeGun::CanInspect() const
+{
+	// NOTE: Change this if the ball ever gets its own inspect animation.
+	return false;
+}
 
 //-----------------------------------------------------------------------------
 void CPasstimeGun::UpdateOnRemove()
