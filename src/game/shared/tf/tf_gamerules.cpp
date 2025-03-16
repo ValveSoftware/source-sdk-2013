@@ -5110,9 +5110,9 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 					eDamageBonusCond = TF_COND_OFFENSEBUFF;
 				}
 			}
-			else if ( pTFAttacker && (bitsDamage & DMG_RADIUS_MAX) && pWeapon && ( (pWeapon->GetWeaponID() == TF_WEAPON_SWORD) || (pWeapon->GetWeaponID() == TF_WEAPON_BOTTLE)|| (pWeapon->GetWeaponID() == TF_WEAPON_WRENCH) ) )
+			else if ( pTFAttacker && ( bitsDamage & DMG_RADIUS_MAX ) && pWeapon && ( ( pWeapon->GetWeaponID() == TF_WEAPON_SWORD ) || ( pWeapon->GetWeaponID() == TF_WEAPON_BOTTLE ) || ( pWeapon->GetWeaponID() == TF_WEAPON_STICKBOMB ) || ( pWeapon->GetWeaponID() == TF_WEAPON_WRENCH ) ) )
 			{
-				// First sword or bottle attack after a charge is a mini-crit.
+				// First sword, bottle, or caber attack after a charge is a mini-crit.
 				bAllSeeCrit = true;
 				info.SetCritType( CTakeDamageInfo::CRIT_MINI );
 				eBonusEffect = kBonusEffect_MiniCrit;
