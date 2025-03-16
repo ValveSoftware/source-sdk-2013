@@ -298,7 +298,7 @@ bool CTFTeamStatusPlayerPanel::Update( void )
 		if ( iRespawnWait != m_iPrevRespawnWait )
 		{
 			m_iPrevRespawnWait = iRespawnWait;
-			if ( ( iRespawnWait < 0 ) || !bSameTeamAsLocalPlayer || ( iRespawnWait >= 9990.0 ) )
+			if ( ( iRespawnWait < 0 ) || !bSameTeamAsLocalPlayer || ( iRespawnWait >= 1000.0 ) )
 			{
 				SetDialogVariable( "respawntime", "" );
 			}
