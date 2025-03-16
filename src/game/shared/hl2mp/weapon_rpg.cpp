@@ -362,7 +362,7 @@ void CMissile::DoExplosion( void )
 	Vector explosionOrigin = WorldSpaceCenter();
 
 	// Explode
-	ExplosionCreate( GetAbsOrigin(), GetAbsAngles(), GetOwnerEntity(), GetDamage(), GetDamage() * 2, 
+	ExplosionCreate( explosionOrigin, GetAbsAngles(), GetOwnerEntity(), GetDamage(), GetDamage() * 2,
 		SF_ENVEXPLOSION_NOSPARKS | SF_ENVEXPLOSION_NODLIGHTS | SF_ENVEXPLOSION_NOSMOKE, 0.0f, this);
 }
 
