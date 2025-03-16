@@ -10051,11 +10051,15 @@ void CTFPlayer::AddConnectedPlayers( CUtlVector<CTFPlayer*> &vecPlayers, CTFPlay
 		CTFPlayer *pMedic = ToTFPlayer( pPlayerToConsider->m_Shared.GetHealerByIndex( i ) );
 		if ( pMedic )
 		{
-			// Make sure the healer is using a Medigun to heal us - don't count AoE healing
+			// Make sure the healer is healing us with a Medigun - don't count AoE healing
 			CTFWeaponBase *pWpn = pMedic->GetActiveTFWeapon();
 			if ( pWpn && pWpn->GetWeaponID() == TF_WEAPON_MEDIGUN )
 			{
-				AddConnectedPlayers( vecPlayers, pMedic );
+				CWeaponMedigun *pMedigun = assert_cast< CWeaponMedigun* >( pWpn );
+				if ( pMedigun->GetHealTarget() == pPlayerToConsider )
+				{
+					AddConnectedPlayers( vecPlayers, pMedic );
+				}
 			}
 		}
 	}
