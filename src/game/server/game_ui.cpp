@@ -43,6 +43,8 @@ public:
 	void Deactivate( CBaseEntity *pActivator );
 
 	float				m_flFieldOfView;
+	bool				m_bStrict;
+
 	CHandle<CBaseCombatWeapon>	m_hSaveWeapon;
 
 	COutputEvent		m_playerOn;
@@ -77,6 +79,7 @@ public:
 BEGIN_DATADESC( CGameUI )
 
 	DEFINE_KEYFIELD( m_flFieldOfView, FIELD_FLOAT, "FieldOfView" ),
+	DEFINE_KEYFIELD( m_bStrict, FIELD_BOOLEAN, "Strict" ),
 	DEFINE_FIELD( m_hSaveWeapon, FIELD_EHANDLE ),
 	DEFINE_FIELD( m_bForceUpdate, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_player, FIELD_EHANDLE ),
@@ -133,7 +136,8 @@ void CGameUI::Deactivate( CBaseEntity *pActivator )
 
 	if (pPlayer)
 	{
-		pPlayer->IsUsingGameUI( false );
+		if ( m_bStrict )
+			pPlayer->IsUsingGameUI( false );
 		// Re-enable player motion
 		if ( FBitSet( m_spawnflags, SF_GAMEUI_FREEZE_PLAYER ) )
 		{
@@ -219,7 +223,8 @@ void CGameUI::InputActivate( inputdata_t &inputdata )
 
 	// Setup our internal data
 	m_player = pPlayer;
-	pPlayer->IsUsingGameUI( true );
+	if ( m_bStrict )
+		pPlayer->IsUsingGameUI( true );
 	m_playerOn.FireOutput( pPlayer, this, 0 );
 
 	// Turn the hud off
