@@ -257,6 +257,8 @@ void CTFStickBomb::Smack( void )
 			int dmgType = DMG_BLAST | DMG_USEDISTANCEMOD;
 			if ( IsCurrentAttackACrit() )
 				dmgType |= DMG_CRITICAL;
+            else if ( m_bMiniCrit )
+                dmgType |= DMG_RADIUS_MAX;
 
 			CTakeDamageInfo info( pTFPlayer, pTFPlayer, this, explosion, explosion, 75.0f, dmgType, TF_DMG_CUSTOM_STICKBOMB_EXPLOSION, &explosion );
 			CTFRadiusDamageInfo radiusinfo( &info, explosion, 100.f );
