@@ -326,6 +326,14 @@ void CTFSniperRifle::HandleZooms( void )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
+bool CTFSniperRifle::CanInspect() const
+{
+	return BaseClass::CanInspect() && !IsZoomed() && m_flChargedDamage == 0.f;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 void CTFSniperRifle::ItemPostFrame( void )
 {
 	// If we're lowered, we're not allowed to fire

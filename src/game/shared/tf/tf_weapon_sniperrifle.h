@@ -117,6 +117,8 @@ public:
 
 	virtual void WeaponReset( void );
 
+	virtual bool CanInspect() const OVERRIDE;
+
 	virtual bool CanFireCriticalShot( bool bIsHeadshot = false, CBaseEntity *pTarget = NULL ) OVERRIDE;
 
 	virtual void PlayWeaponShootSound( void );
