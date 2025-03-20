@@ -1925,6 +1925,9 @@ void CTFSniperRifleClassic::ItemPostFrame( void )
 			CreateSniperDot();
 			pPlayer->ClearExpression();	
 #endif
+			// Stop inspecting and reset our animation.
+			StopInspect();
+			SendWeaponAnim( ACT_VM_IDLE );
 		}
 
 		float fSniperRifleChargePerSec = m_flChargePerSec;
