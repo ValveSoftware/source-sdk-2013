@@ -377,9 +377,21 @@ void CTFHudPasstimePassNotify::OnTick()
 			m_pTextBox->SetVisible( false );
 		}
 
-		if ( m_pSpeechIndicator )
+		// If p4ss_whistle_more = 0, don't show the speech indicator of
+		// carrier or observer
+		if ( !p4ss_whistle_more.GetBool() 
+			|| pLocalPlayer->IsObserver() 
+			|| (pBallCarrier == pLocalPlayer) )
 		{
-			m_pSpeechIndicator->SetVisible( false );
+			if ( m_pSpeechIndicator )
+			{
+				m_pSpeechIndicator->SetVisible( false );
+				pLocalPlayer->m_Shared.SetAskForBallTime(0);
+			}
+		}
+		else
+		{
+			m_pSpeechIndicator->SetVisible( pLocalPlayer->m_Shared.AskForBallTime() > gpGlobals->curtime );
 		}
 
 		if ( m_pPassLockIndicator )
@@ -404,7 +416,7 @@ void CTFHudPasstimePassNotify::OnTick()
 		bTargetable = tr.fraction == 1;
 	}
 
-	if ( !bTargetable ) 
+	if ( !bTargetable ) // Not in range or not in LOS
 	{
 		if ( m_pTextBox )
 		{

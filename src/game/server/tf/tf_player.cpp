@@ -113,6 +113,7 @@
 #include "tf_player_resource.h"
 #include "gcsdk/gcclient_sharedobjectcache.h"
 #include "tf_party.h"
+#include "passtime_convars.h"
 
 #ifdef TF_RAID_MODE
 #include "bot_npc/bot_npc_decoy.h"
@@ -16087,7 +16088,7 @@ bool CTFPlayer::SayAskForBall()
 	}
 
 	CTFPlayer *pBallCarrier = pBall->GetCarrier();
-	if ( !pBallCarrier )
+	if ( !pBallCarrier && !p4ss_whistle_more.GetBool())
 	{
 		return false;
 	}

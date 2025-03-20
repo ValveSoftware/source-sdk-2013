@@ -1074,6 +1074,23 @@ void CTFPasstimeLogic::StopAskForBallEffects()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Stop ask for ball effects on players in opposing team of the ball carrier.
+//-----------------------------------------------------------------------------
+void CTFPasstimeLogic::StopAskForBallEffectsOnOpposingTeam(CTFPlayer *pCarrier)
+{
+	int carrierTeam = pCarrier->GetTeamNumber();
+
+    for (int i = 1; i <= MAX_PLAYERS; i++)
+    {
+        CTFPlayer *pPlayer = ToTFPlayer(UTIL_PlayerByIndex(i));
+        if ( pPlayer && ( pPlayer->GetTeamNumber() != carrierTeam || pPlayer == pCarrier ) )
+        {
+            pPlayer->m_Shared.SetAskForBallTime(0);
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
 void CTFPasstimeLogic::OnBallCarrierMeleeHit( CTFPlayer *pPlayer, CTFPlayer *pAttacker ) 
 {
 	// TODO refactor OnBallCarrierMeleeHit and OnBallCarrierDamaged for less copypasta
@@ -1314,7 +1331,10 @@ void CTFPasstimeLogic::EjectBall( CTFPlayer *pPlayer, CTFPlayer *pAttacker )
 //-----------------------------------------------------------------------------
 void CTFPasstimeLogic::LaunchBall( CTFPlayer *pPlayer, const Vector &vecPos, const Vector &vecVel )
 {
-	StopAskForBallEffects();
+	if ( !p4ss_whistle_more.GetBool() )
+	{
+		StopAskForBallEffects();
+	}
 	m_hBall->SetStateFree();
 	m_hBall->MoveTo( vecPos, vecVel );
 	m_onBallFree.FireOutput( m_hBall, this );
@@ -1806,8 +1826,15 @@ void CTFPasstimeLogic::OnPlayerTouchBall( CTFPlayer *pCatcher, CPasstimeBall *pB
 
 //-----------------------------------------------------------------------------
 void CTFPasstimeLogic::OnBallGet() 
-{
-	StopAskForBallEffects();
+{	
+	if ( p4ss_whistle_more.GetBool() )
+	{
+		StopAskForBallEffectsOnOpposingTeam(m_hBall->GetCarrier());
+	}
+	else
+	{
+		StopAskForBallEffects();
+	}
 	if ( CTFPlayer *pPlayer = m_hBall->GetCarrier() )
 	{
 		m_onBallGetAny.FireOutput( pPlayer, this );

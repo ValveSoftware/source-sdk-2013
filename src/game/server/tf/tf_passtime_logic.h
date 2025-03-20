@@ -76,6 +76,7 @@ private:
 	void InputJumpPadUsed( inputdata_t &input );
 
 	void StopAskForBallEffects();
+	void StopAskForBallEffectsOnOpposingTeam(CTFPlayer *pCarrier);
 	void OnBallGet();
 	void Score( CTFPlayer *pPlayer, CFuncPasstimeGoal *pGoal );
 	void Score( CPasstimeBall *pBall, CFuncPasstimeGoal *pGoal, bool isDeathBomb );
