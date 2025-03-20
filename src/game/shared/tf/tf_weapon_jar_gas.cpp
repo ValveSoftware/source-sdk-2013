@@ -82,10 +82,10 @@ gas_particle_t::~gas_particle_t()
 // Purpose:
 //-----------------------------------------------------------------------------
 CTFProjectile_Jar *CTFJarGas::CreateJarProjectile( const Vector &position, const QAngle &angles, const Vector &velocity,
-	const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo )
+	const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon )
 {
 	RemoveJarGas( pOwner );
-	return CTFProjectile_JarGas::Create( position, angles, velocity, angVelocity, pOwner, weaponInfo );
+	return CTFProjectile_JarGas::Create( position, angles, velocity, angVelocity, pOwner, pWeapon );
 }
 
 //-----------------------------------------------------------------------------
@@ -136,16 +136,17 @@ void CTFProjectile_JarGas::Precache()
 //-----------------------------------------------------------------------------
 CTFProjectile_JarGas* CTFProjectile_JarGas::Create( const Vector &position, const QAngle &angles,
 	const Vector &velocity, const AngularImpulse &angVelocity,
-	CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo )
+	CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon )
 {
 	CTFProjectile_JarGas *pGrenade = static_cast< CTFProjectile_JarGas* >( CBaseEntity::CreateNoSpawn( "tf_projectile_jar_gas", position, angles, pOwner ) );
 	if ( pGrenade )
 	{
-		// Set the pipebomb mode before calling spawn, so the model & associated vphysics get setup properly.
+		// Set the pipebomb mode and launcher before calling spawn, so the model & associated vphysics get setup properly.
 		pGrenade->SetPipebombMode();
+		pGrenade->SetLauncher( pOwner );
 		DispatchSpawn( pGrenade );
 
-		pGrenade->InitGrenade( velocity, angVelocity, pOwner, weaponInfo );
+		pGrenade->InitGrenade( velocity, angVelocity, pOwner, pWeapon->GetTFWpnData() );
 		pGrenade->m_flFullDamage = 0;
 		pGrenade->ApplyLocalAngularVelocityImpulse( angVelocity );
 	}

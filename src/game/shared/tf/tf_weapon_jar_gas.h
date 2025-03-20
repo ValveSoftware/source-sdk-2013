@@ -48,7 +48,7 @@ public:
 	virtual bool CanAttack() OVERRIDE;
 
 #ifdef GAME_DLL
-	virtual CTFProjectile_Jar* CreateJarProjectile( const Vector &position, const QAngle &angles, const Vector &velocity, const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo ) OVERRIDE;
+	virtual CTFProjectile_Jar* CreateJarProjectile( const Vector &position, const QAngle &angles, const Vector &velocity, const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon ) OVERRIDE;
 	virtual float GetAfterburnRateOnHit() const OVERRIDE;
 	virtual void OnResourceMeterFilled() OVERRIDE;
 	virtual float GetDefaultItemChargeMeterValue( void ) const OVERRIDE { return 0.f; }
@@ -74,7 +74,7 @@ public:
 
 #ifdef GAME_DLL
 	static CTFProjectile_JarGas *Create( const Vector &position, const QAngle &angles, const Vector &velocity,
-		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo );
+		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon );
 
 	virtual void		SetCustomPipebombModel() OVERRIDE;
 
