@@ -130,7 +130,7 @@ public:
 	virtual bool ShouldEjectBrass();
 #endif
 
-	bool IsZoomed( void );
+	bool IsZoomed( void ) const;
 	bool IsFullyCharged( void ) const;			// have we been zoomed in long enough for our shot to do max damage
 
 	virtual void OnControlStunned( void );

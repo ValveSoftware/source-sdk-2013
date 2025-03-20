@@ -545,7 +545,7 @@ void CTFSniperRifle::ZoomIn( void )
 
 
 //-----------------------------------------------------------------------------
-bool CTFSniperRifle::IsZoomed( void )
+bool CTFSniperRifle::IsZoomed( void ) const
 {
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
 
