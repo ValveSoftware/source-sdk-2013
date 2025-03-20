@@ -346,8 +346,7 @@ CTFWeaponBase::CTFWeaponBase()
 	m_eStrangeType = STRANGE_UNKNOWN;
 	m_eStatTrakModuleType = MODULE_UNKNOWN;
 
-	m_flInspectAnimEndTime = -1.f;
-	m_nInspectStage = INSPECT_INVALID;
+	StopInspect();
 }
 
 CTFWeaponBase::~CTFWeaponBase()
@@ -785,8 +784,7 @@ bool CTFWeaponBase::SendWeaponAnim( int iActivity )
 		// allow other activity to override the inspect
 		if ( !IsInspectActivity( iActivity ) )
 		{
-			m_flInspectAnimEndTime = -1.f;
-			m_nInspectStage = INSPECT_INVALID;
+			StopInspect();
 			return BaseClass::SendWeaponAnim( iActivity );
 		}
 
@@ -2549,8 +2547,7 @@ void CTFWeaponBase::HandleInspect()
 	// first time pressing inspecting key
 	if ( !m_bInspecting && pPlayer->IsInspecting() )
 	{
-		m_nInspectStage = INSPECT_INVALID;
-		m_flInspectAnimEndTime = -1.f;
+		StopInspect();
 		if ( SendWeaponAnim( GetInspectActivity( INSPECT_START ) ) )
 		{
 			m_flInspectAnimEndTime = gpGlobals->curtime + SequenceDuration();
@@ -2582,14 +2579,22 @@ void CTFWeaponBase::HandleInspect()
 			}
 			else if ( m_nInspectStage == INSPECT_END )
 			{
-				m_flInspectAnimEndTime = -1.f;
-				m_nInspectStage = INSPECT_INVALID;
+				StopInspect();
 				SendWeaponAnim( ACT_VM_IDLE );
 			}
 		}
 	}
 
 	m_bInspecting = pPlayer->IsInspecting();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::StopInspect()
+{
+	m_flInspectAnimEndTime = -1.f;
+	m_nInspectStage = INSPECT_INVALID;
 }
 
 //-----------------------------------------------------------------------------

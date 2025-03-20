@@ -760,6 +760,7 @@ public:
 
 	virtual bool CanInspect() const { return true; }
 	void HandleInspect();
+	void StopInspect();
 	
 	virtual void HookAttributes( void ) {};
 	virtual void OnUpgraded( void ) { HookAttributes(); }
