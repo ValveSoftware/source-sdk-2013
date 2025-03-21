@@ -143,9 +143,9 @@ CBaseEntity *CTFJar::FireJar( CTFPlayer *pPlayer )
 // Purpose:
 //-----------------------------------------------------------------------------
 CTFProjectile_Jar *CTFJar::CreateJarProjectile( const Vector &position, const QAngle &angles, const Vector &velocity, 
-												   const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon )
+												   const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo )
 {
-	return CTFProjectile_Jar::Create( position, angles, velocity, angVelocity, pOwner, pWeapon );
+	return CTFProjectile_Jar::Create( position, angles, velocity, angVelocity, pOwner, weaponInfo );
 }
 #endif
 
@@ -193,7 +193,7 @@ void CTFJar::TossJarThink( void )
 	Vector vecVelocity = GetVelocityVector( vecForward, vecRight, vecUp );
 
 	CTFProjectile_Jar *pProjectile = CreateJarProjectile( trace.endpos, pPlayer->EyeAngles(), vecVelocity, 
-		GetAngularImpulse(), pPlayer, this );
+		GetAngularImpulse(), pPlayer, GetTFWpnData() );
 
 	if ( pProjectile )
 	{
@@ -251,10 +251,10 @@ void CTFProjectile_Jar::SetCustomPipebombModel()
 {
 	// Check for Model Override
 	int iProjectile = 0;
-	CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase*>(GetOriginalLauncher());
-	if ( pWeapon )
+	CTFPlayer *pThrower = ToTFPlayer( GetThrower() );
+	if ( pThrower && pThrower->Weapon_OwnsThisID( TF_WEAPON_JAR ) )
 	{
-		CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iProjectile, override_projectile_type );
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( pThrower->Weapon_OwnsThisID( TF_WEAPON_JAR ), iProjectile, override_projectile_type );
 		switch ( iProjectile )
 		{
 		case TF_PROJECTILE_FESTIVE_JAR :
@@ -277,17 +277,16 @@ void CTFProjectile_Jar::SetCustomPipebombModel()
 //-----------------------------------------------------------------------------
 CTFProjectile_Jar* CTFProjectile_Jar::Create( const Vector &position, const QAngle &angles, 
 												const Vector &velocity, const AngularImpulse &angVelocity, 
-												CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon )
+												CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo )
 {
 	CTFProjectile_Jar *pGrenade = static_cast<CTFProjectile_Jar*>( CBaseEntity::CreateNoSpawn( "tf_projectile_jar", position, angles, pOwner ) );
 	if ( pGrenade )
 	{
-		// Set the pipebomb mode and launcher before calling spawn, so the model & associated vphysics get setup properly.
+		// Set the pipebomb mode before calling spawn, so the model & associated vphysics get setup properly.
 		pGrenade->SetPipebombMode();
-		pGrenade->SetLauncher( pWeapon );
 		DispatchSpawn( pGrenade );
 
-		pGrenade->InitGrenade( velocity, angVelocity, pOwner, pWeapon->GetTFWpnData() );
+		pGrenade->InitGrenade( velocity, angVelocity, pOwner, weaponInfo );
 
 #ifdef _X360 
 		if ( pGrenade->m_iType != TF_GL_MODE_REMOTE_DETONATE )
@@ -772,9 +771,9 @@ const char *CTFProjectile_Jar::GetTrailParticleName( void )
 // Purpose:
 //-----------------------------------------------------------------------------
 CTFProjectile_Jar *CTFJarMilk::CreateJarProjectile( const Vector &position, const QAngle &angles, const Vector &velocity, 
-												 const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon )
+												 const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo )
 {
-	return CTFProjectile_JarMilk::Create( position, angles, velocity, angVelocity, pOwner, pWeapon );
+	return CTFProjectile_JarMilk::Create( position, angles, velocity, angVelocity, pOwner, weaponInfo );
 }
 #endif
 
@@ -794,17 +793,16 @@ void CTFProjectile_JarMilk::Precache()
 //-----------------------------------------------------------------------------
 CTFProjectile_JarMilk* CTFProjectile_JarMilk::Create( const Vector &position, const QAngle &angles, 
 											 const Vector &velocity, const AngularImpulse &angVelocity, 
-											 CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon )
+											 CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo )
 {
 	CTFProjectile_JarMilk *pGrenade = static_cast<CTFProjectile_JarMilk*>( CBaseEntity::CreateNoSpawn( "tf_projectile_jar_milk", position, angles, pOwner ) );
 	if ( pGrenade )
 	{
-		// Set the pipebomb mode and launcher before calling spawn, so the model & associated vphysics get setup properly.
+		// Set the pipebomb mode before calling spawn, so the model & associated vphysics get setup properly.
 		pGrenade->SetPipebombMode();
-		pGrenade->SetLauncher( pWeapon );
 		DispatchSpawn( pGrenade );
 
-		pGrenade->InitGrenade( velocity, angVelocity, pOwner, pWeapon->GetTFWpnData() );
+		pGrenade->InitGrenade( velocity, angVelocity, pOwner, weaponInfo );
 
 #ifdef _X360 
 		if ( pGrenade->m_iType != TF_GL_MODE_REMOTE_DETONATE )
@@ -828,10 +826,10 @@ void CTFProjectile_JarMilk::SetCustomPipebombModel()
 {
 	// Check for Model Override
 	int iProjectile = 0;
-	CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase*>(GetOriginalLauncher());
-	if ( pWeapon )
+	CTFPlayer *pThrower = ToTFPlayer( GetThrower() );
+	if ( pThrower && pThrower->Weapon_OwnsThisID( TF_WEAPON_JAR_MILK ) )
 	{
-		CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iProjectile, override_projectile_type );
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( pThrower->Weapon_OwnsThisID( TF_WEAPON_JAR_MILK ), iProjectile, override_projectile_type );
 		switch ( iProjectile )
 		{
 		case TF_PROJECTILE_BREADMONSTER_JARATE:
@@ -910,9 +908,9 @@ Vector CTFCleaver::GetVelocityVector( const Vector &vecForward, const Vector &ve
 // Purpose:
 //-----------------------------------------------------------------------------
 CTFProjectile_Jar *CTFCleaver::CreateJarProjectile( const Vector &position, const QAngle &angles, const Vector &velocity, 
-	const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon )
+	const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo )
 {
-	return CTFProjectile_Cleaver::Create( position, angles, velocity, angVelocity, pOwner, pWeapon, GetSkin() );
+	return CTFProjectile_Cleaver::Create( position, angles, velocity, angVelocity, pOwner, weaponInfo, GetSkin() );
 }
 #endif
 
@@ -1107,19 +1105,18 @@ void CTFProjectile_Cleaver::Detonate( void )
 //-----------------------------------------------------------------------------
 CTFProjectile_Cleaver* CTFProjectile_Cleaver::Create( const Vector &position, const QAngle &angles, 
 	const Vector &velocity, const AngularImpulse &angVelocity, 
-	CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon, int nSkin )
+	CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, int nSkin )
 {
 	CTFProjectile_Cleaver *pGrenade = static_cast<CTFProjectile_Cleaver*>( CBaseEntity::CreateNoSpawn( "tf_projectile_cleaver", position, angles, pOwner ) );
 	if ( pGrenade )
 	{
-		// Set the pipebomb mode and launcher before calling spawn, so the model & associated vphysics get setup properly.
+		// Set the pipebomb mode before calling spawn, so the model & associated vphysics get setup properly.
 		pGrenade->SetPipebombMode();
-		pGrenade->SetLauncher( pWeapon );
 		DispatchSpawn( pGrenade );
 
 		pGrenade->m_nSkin = nSkin;
 
-		pGrenade->InitGrenade( velocity, angVelocity, pOwner, pWeapon->GetTFWpnData() );
+		pGrenade->InitGrenade( velocity, angVelocity, pOwner, weaponInfo );
 
 		pGrenade->m_flFullDamage = 0;
 

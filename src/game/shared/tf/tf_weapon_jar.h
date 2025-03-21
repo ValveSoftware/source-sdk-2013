@@ -71,7 +71,7 @@ public:
 //	virtual bool		SendWeaponAnim( int iActivity );
 
 	virtual CTFProjectile_Jar	*CreateJarProjectile( const Vector &position, const QAngle &angles, const Vector &velocity, 
-		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon );
+		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo );
 #endif
 
 	virtual bool CanThrowUnderWater( void ){ return false; }
@@ -94,7 +94,7 @@ public:
 
 #ifdef GAME_DLL
 	virtual CTFProjectile_Jar	*CreateJarProjectile( const Vector &position, const QAngle &angles, const Vector &velocity, 
-		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon );
+		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo );
 #endif
 
 #ifdef CLIENT_DLL
@@ -126,7 +126,7 @@ public:
 	virtual bool		ShouldSpeakWhenFiring( void ){ return false; }
 
 	virtual CTFProjectile_Jar	*CreateJarProjectile( const Vector &position, const QAngle &angles, const Vector &velocity, 
-		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon );
+		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo );
 #endif
 
 #ifdef CLIENT_DLL
@@ -153,7 +153,7 @@ public:
 	CTFProjectile_Jar();
 
 	static CTFProjectile_Jar *Create( const Vector &position, const QAngle &angles, const Vector &velocity, 
-	const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon );
+	const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo );
 
 	virtual int			GetProjectileType() const OVERRIDE			{ return m_iProjectileType; }
 
@@ -201,7 +201,7 @@ public:
 
 #ifdef GAME_DLL
 	static CTFProjectile_JarMilk *Create( const Vector &position, const QAngle &angles, const Vector &velocity, 
-		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon );
+		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo );
 
 	virtual void		SetCustomPipebombModel() OVERRIDE;
 
@@ -228,7 +228,7 @@ public:
 
 #ifdef GAME_DLL
 	static CTFProjectile_Cleaver *Create( const Vector &position, const QAngle &angles, const Vector &velocity, 
-		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CTFWeaponBase *pWeapon, int nSkin );
+		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, int nSkin );
 #endif
 
 	CTFProjectile_Cleaver();
