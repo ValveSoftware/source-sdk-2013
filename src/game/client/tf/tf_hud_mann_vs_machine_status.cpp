@@ -957,7 +957,7 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-DECLARE_HUDELEMENT( CCurrencyStatusPanel );
+DECLARE_HUDELEMENT_DEPTH( CCurrencyStatusPanel, 49 );
 
 CCurrencyStatusPanel::CCurrencyStatusPanel( const char *pElementName )
 	: CHudElement( pElementName )
@@ -1617,7 +1617,7 @@ void CMvMBombCarrierProgress::ApplySchemeSettings( IScheme *pScheme )
 //-----------------------------------------------------------------------------
 // CTFHudMannVsMachineStatus 
 //-----------------------------------------------------------------------------
-DECLARE_HUDELEMENT( CTFHudMannVsMachineStatus );
+DECLARE_HUDELEMENT_DEPTH( CTFHudMannVsMachineStatus, 48 );
 
 CTFHudMannVsMachineStatus::CTFHudMannVsMachineStatus( const char *pElementName ) :
 CHudElement( pElementName ), BaseClass( NULL, "HudMannVsMachineStatus" )
