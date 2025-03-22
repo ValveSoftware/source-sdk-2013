@@ -488,6 +488,8 @@ class CTFWeaponBase : public CBaseCombatWeapon, public IHasOwner, public IHasGen
 
 	virtual bool IsViewModelFlipped( void );
 
+	int GetClientRocketOffset( );
+
 	virtual int			GetMaxHealthMod() { return 0; }
 
 	virtual float		GetLastDeployTime( void ) { return m_flLastDeployTime; }
