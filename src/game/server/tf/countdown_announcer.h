@@ -49,6 +49,11 @@ public:
 		Tick( 0 );
 	}
 
+	float GetTimeRemain() 
+	{ 
+		return m_fTimeRemain;
+	}
+
 	// returns true once when time expires
 	bool Tick( float delta ) 
 	{

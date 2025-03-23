@@ -979,6 +979,7 @@ void CTFPasstimeLogic::RespawnBall()
 		if ( !pTimer || ( pTimer->GetTimeRemaining() > m_iBallSpawnCountdownSec ) )
 		{
 			m_pRespawnCountdown->Start( m_iBallSpawnCountdownSec );
+
 			SpawnBallAtRandomSpawnerThink();
 		}
 		//----------------------------------------
@@ -1013,6 +1014,18 @@ void CTFPasstimeLogic::SpawnBallAtRandomSpawnerThink()
 	else
 	{
 		SetContextThink( &CTFPasstimeLogic::SpawnBallAtRandomSpawnerThink, gpGlobals->curtime + 1, "spawnball" );
+	}
+
+	if ( (int)m_pRespawnCountdown->GetTimeRemain() == 11 )
+	{
+		// P4SS: hud show countdown timer
+		CBroadcastRecipientFilter filter;
+		filter.MakeReliable();
+
+		UserMessageBegin( filter, "P4SS_Countdown" );
+		WRITE_FLOAT( gpGlobals->curtime );
+		WRITE_FLOAT( m_pRespawnCountdown->GetTimeRemain() + 1.0f );
+		MessageEnd();
 	}
 }
 
