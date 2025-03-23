@@ -557,15 +557,15 @@ void CParticleProperty::UpdateControlPoint( ParticleEffectList_t *pEffect, int i
 #ifdef TF_CLIENT_DLL
 
 	CBaseEntity *pWearable = (CBaseEntity*) pPoint->hEntity.Get();
-	if ( pWearable && GetAttribInterface( pWearable ) && !pWearable->IsPlayer() )
+	if ( pWearable && GetAttribInterface( pWearable ) && !pWearable->IsPlayer() && V_strcmp( pWearable->GetClassname(), "tf_wearable" ) == 0 )
 	{
 		C_BaseAnimating *pAnimating = pPoint->hEntity->GetBaseAnimating();
-		// Do not use this now. It asks players to use particle from head attachment.
-		// But unusual particles for wearables are made for head attachment already.
-		// int bUseHeadOrigin = 1;
-		// CALL_ATTRIB_HOOK_INT_ON_OTHER( pAnimating, bUseHeadOrigin, particle_effect_use_head_origin );
 		if ( pAnimating )
 		{
+			// Do not use this now. It asks players to use particle from head attachment.
+			// But unusual particles for wearables are made for head attachment already.
+			// CALL_ATTRIB_HOOK_INT_ON_OTHER( pAnimating, bUseHeadOrigin, particle_effect_use_head_origin );
+
 			// Reference from bone_merge_cache
 			CUtlVector<CUtlString> 		BoneNames;
 			CUtlVector<unsigned short> 	ParentBones;
@@ -575,7 +575,11 @@ void CParticleProperty::UpdateControlPoint( ParticleEffectList_t *pEffect, int i
 			C_BaseAnimating *pFollow 	= pAnimating->FindFollowedEntity();
 			CStudioHdr *pFollowHdr 		= (pFollow ? pFollow->GetModelPtr() : NULL);
 
-			if ( pWearableHdr && pFollowHdr )
+			bool bIsUnusual 			= false;
+			bool bIsUnusualStatic 		= false;
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pAnimating, bIsUnusual, set_attached_particle );
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pAnimating, bIsUnusualStatic, set_attached_particle_static );
+			if ( pWearableHdr && pFollowHdr && ( bIsUnusual || bIsUnusualStatic ) )
 			{
 				CUtlVector<unsigned char> BoneMergeBits;	// One bit for each bone. The bit is set if the bone gets merged.
 				BoneMergeBits.SetSize( pWearableHdr->numbones() / 8 + 1 );
@@ -612,28 +616,27 @@ void CParticleProperty::UpdateControlPoint( ParticleEffectList_t *pEffect, int i
 				nFollowBoneSetupMask = 0;
 			}
 
-			matrix3x4_t rootBone;
 			if ( pWearableHdr && BoneNames.Count() )
 			{
 				pFollow->SetupBones( NULL, -1, nFollowBoneSetupMask, gpGlobals->curtime );
+				const char * const pPriorityBones[] = { "bip_head", "prp_helmet", "prp_hat" };
 				int iBone = -1;
-				int iHead = BoneNames.Find( "bip_head" );
-				int iHelmet = BoneNames.Find( "prp_helmet" );
-				int iHat = BoneNames.Find( "prp_hat" );
-				if ( iHead >= 0 )
-					iBone = iHead;
-				else if ( iHelmet >= 0 )
-					iBone = iHelmet;
-				else if ( iHat >= 0 )
-					iBone = iHat;
-
-				if ( iBone >= 0 )
-					rootBone = pFollow->GetBone( ParentBones[iBone] );
-				else
-					rootBone = pFollow->GetBone( ParentBones[0] );
+				bool bFound = false;
+				for ( int j = 0; j < ARRAYSIZE(pPriorityBones) && !bFound; j++ )
+				{
+					for ( int i = 0; i < BoneNames.Count(); i++ )
+					{
+						if ( BoneNames[i] == pPriorityBones[j] )
+						{
+							iBone = i;
+							bFound = true;
+							break;
+						}
+					}
+				}
 
 				bUsingUnusual = true;
-
+				const matrix3x4_t rootBone = iBone >= 0 ? pFollow->GetBone( ParentBones[iBone] ) : pFollow->GetBone( ParentBones[0] );
 				MatrixVectors( rootBone, &vecForward, &vecRight, &vecUp );
 				MatrixPosition( rootBone, vecOrigin );
 
