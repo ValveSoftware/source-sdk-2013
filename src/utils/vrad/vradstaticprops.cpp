@@ -703,14 +703,10 @@ public:
 			if ( pVMT->LoadFromBuffer( pMaterialName, buf ) )
 			{
 				bFound = true;
-				if ( pVMT->FindKey("$alphatest") || pVMT->FindKey("$translucent") || pVMT->FindKey("%alphatexture") )
+				KeyValues *pBaseTexture = pVMT->FindKey("%alphatexture");
+				if ( pBaseTexture || pVMT->FindKey("$alphatest") || pVMT->FindKey("$translucent") )
 				{
-					KeyValues *pBaseTexture = NULL;
-					if ( pVMT->FindKey("%alphatexture") )
-					{
-						pBaseTexture = pVMT->FindKey("%alphatexture");
-					}
-					else
+					if ( !pBaseTexture )
 					{
 						pBaseTexture = pVMT->FindKey("$basetexture");
 					}
