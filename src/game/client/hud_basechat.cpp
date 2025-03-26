@@ -178,9 +178,9 @@ wchar_t* ReadChatTextString( bf_read &msg, OUT_Z_BYTECAP(outSizeInBytes) wchar_t
 			{
 				// mark the next seven or nine characters. one for the control character and six or eight for the code itself.
 				const int nSkip = ( *test == COLOR_HEXCODE ? 7 : 9 );
-				for ( int i = 0; i < nSkip && *test != 0; i++, test++ )
+				for ( int i = 0; i < nSkip && *test != 0; i++ )
 				{
-					*test = COLOR_NORMAL;
+					*++test = COLOR_NORMAL;
 				}
 
 				// if we reached the end of the string first, then back up
