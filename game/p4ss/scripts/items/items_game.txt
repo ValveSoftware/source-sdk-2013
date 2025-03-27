@@ -20550,7 +20550,6 @@
 			{
 				"engineer"	"primary"
 				"pyro" "secondary"
-				"soldier" "secondary"
 				"heavy" "secondary"
 			}
 			"attributes"
@@ -20856,7 +20855,6 @@
 			"attach_to_hands"	"1"
 			"used_by_classes"
 			{
-				"demoman"	"1"
 			}
 			"static_attrs"
 			{
@@ -20899,7 +20897,6 @@
 			"attach_to_hands"	"1"
 			"used_by_classes"
 			{
-				"medic"	"1"
 			}
 			"static_attrs"
 			{
