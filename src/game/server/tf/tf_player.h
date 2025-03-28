@@ -945,7 +945,6 @@ public:
 
 	bool				m_bSuicideExplode;
 
-	bool				m_bScattergunJump;
 	int					m_iOldStunFlags;
 
 	int					m_iRocketFireOffset;

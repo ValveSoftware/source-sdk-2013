@@ -155,7 +155,7 @@ float4 main( PS_INPUT i ) : COLOR
 	if( bFlashlight )
 	{
 		float3 worldSpaceNormal;
-		// Make the unbumped version not so fucking stupid and not need tangentSpaceTranspose you knob.
+		// Make the unbumped version not need tangentSpaceTranspose
 		worldSpaceNormal = mul( normal, i.tangentSpaceTranspose );
 
 		int nShadowSampleLevel = 0;
