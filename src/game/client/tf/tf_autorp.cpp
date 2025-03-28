@@ -547,7 +547,7 @@ void CTFAutoRP::ModifySpeech( const char *pszInText, char *pszOutText, int iOutL
 				{
 					szStoredWord[0] = toupper( szStoredWord[0] );
 				}
-				else if ( pszCurWord[0] >= 'a' && pszCurWord[0] <= 'a' )
+				else if ( pszCurWord[0] >= 'a' && pszCurWord[0] <= 'z' )
 				{
 					szStoredWord[0] = tolower( szStoredWord[0] );
 				}

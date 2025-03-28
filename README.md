@@ -11,20 +11,16 @@ The original README.md distributed with Source SDK Base 2013 can be located at [
 
 ### Windows
 Prerequisites:
-- Steam
-- Team Fortress 2
-- Source SDK Base 2013 Multiplayer (on Steam)
-- Visual Studio Community 2022
-- Python (3.x)
 
-### 1. Install the necessary files
-For Visual Studio you need the following packages/workloads:
-- Desktop development with C++
-
-and the following individual components:
-- C++ MFC for latest v143 build tools (x86 & x64)
-- C++ ATL for latest v143 build tools (x86 & x64)
-- Windows 11 SDK (10.0.22621.0)
+Requirements:
+ - Steam
+ - Source SDK 2013 Multiplayer installed via Steam
+ - Team Fortress 2
+ - Visual Studio 2022 with the following workload and components:
+   - Desktop development with C++:
+     - MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)
+     - Windows 11 SDK (10.0.22621.0) or Windows 10 SDK (10.0.19041.1)
+ - Python 3.13 or later
 
 **If you just installed these components restart your computer!**
 
@@ -75,6 +71,11 @@ Clone this repository, then run:
 ```
 This will build all the code and bundle it into a nice little executable.
 
+Alternatively, to build the project for release, run:
+```bash
+./src/buildallprojects release clean
+```
+
 Then:
 ```bash
 ./game/p4ss_linux64
@@ -86,8 +87,7 @@ and you're up and running!
 Thanks for your interest!
 
 We are currently in need of people to fill these positions:
-- C++ programmers (preferably those with experience modding Source 1 games)
 - Concept artists (for our HUD and UI)
 - VGUI HUD developers (if you've made a tf2 hud in the past, you're a perfect fit)
 
-If you think you'd fit in any of the above categories, join [our discord](https://discord.passtime.tf/), tab into #passtime-mod-discussion and say you read the README!
+If you think you'd fit in any of the above categories, or want to contribute anyway, join [our discord](https://discord.passtime.tf/), tab into #passtime-mod-discussion and say you read the README and are interested in helping! Let us know what you can do, and we'll reach out.
