@@ -3106,7 +3106,13 @@ void CTFPlayer::PrecacheTFPlayer()
 
 	PrecacheScriptSound( "Spy.TeaseVictim" );
 	PrecacheScriptSound( "Demoman.CritDeath" );
-	PrecacheScriptSound( "Heavy.Battlecry03" );
+	
+	// precache Heavy rage vo
+	PrecacheScriptSound("Heavy.Battlecry03");
+	PrecacheScriptSound("heavy_mvm_rage01");
+	PrecacheScriptSound("heavy_mvm_rage02");
+	PrecacheScriptSound("heavy_mvm_rage03");
+	PrecacheScriptSound("heavy_mvm_rage04");
 
 	PrecacheModel( "models/effects/resist_shield/resist_shield.mdl" );
 
@@ -17803,6 +17809,11 @@ void CTFPlayer::Taunt( taunts_t iTauntIndex, int iTauntConcept )
 		return;
 	}
 
+	// Allow voice commands, etc to be interrupted.
+	CMultiplayer_Expresser* pExpresser = GetMultiplayerExpresser();
+	Assert(pExpresser);
+	pExpresser->AllowMultipleScenes();
+
 	// Heavies can purchase a rage-based knockback+stun effect in MvM,
 	// so ignore taunt and activate rage if we're at full rage
 	if ( IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
@@ -17816,7 +17827,15 @@ void CTFPlayer::Taunt( taunts_t iTauntIndex, int iTauntConcept )
 				if ( m_Shared.GetRageMeter() >= 100.f )
 				{
 					m_Shared.m_bRageDraining = true;
-					EmitSound( "Heavy.Battlecry03" );
+
+					// Keep MvM lines exclusive to the mode, use generic lines elsewhere
+					if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_DEFENDERS )
+						SpeakConceptIfAllowed( MP_CONCEPT_MVM_DEPLOY_RAGE );
+					else
+						SpeakConceptIfAllowed( MP_CONCEPT_PLAYER_BATTLECRY );
+	
+					pExpresser->DisallowMultipleScenes();
+
 					return;
 				}
 
@@ -17825,11 +17844,6 @@ void CTFPlayer::Taunt( taunts_t iTauntIndex, int iTauntConcept )
 			}
 		}
 	}
-
-	// Allow voice commands, etc to be interrupted.
-	CMultiplayer_Expresser *pExpresser = GetMultiplayerExpresser();
-	Assert( pExpresser );
-	pExpresser->AllowMultipleScenes();
 
 	m_hTauntItem = NULL;
 
