@@ -8,12 +8,6 @@ Criterion "HeavyIsStillonFire" "HeavyOnFire" "1" "required" weight 0
 Criterion "HeavyNotInvulnerableSpeech" "HeavyInvulnerableSpeech" "!=1" "required" weight 0
 Criterion "HeavyNotKillSpeech" "HeavyKillSpeech" "!=1" "required" weight 0
 Criterion "HeavyNotKillSpeechMelee" "HeavyKillSpeechMelee" "!=1" "required" weight 0
-Criterion "HeavyNotSaidCartMovingBackwardD" "SaidCartMovingBackwardD" "!=1" "required" weight 0
-Criterion "HeavyNotSaidCartMovingBackwardO" "SaidCartMovingBackwardO" "!=1" "required" weight 0
-Criterion "HeavyNotSaidCartMovingForwardD" "SaidCartMovingForwardD" "!=1" "required" weight 0
-Criterion "HeavyNotSaidCartMovingForwardO" "SaidCartMovingForwardO" "!=1" "required" weight 0
-Criterion "HeavyNotSaidCartMovingStoppedD" "SaidCartMovingStoppedD" "!=1" "required" weight 0
-Criterion "HeavyNotSaidCartMovingStoppedO" "SaidCartMovingStoppedO" "!=1" "required" weight 0
 Criterion "HeavyNotSaidHealThanks" "HeavySaidHealThanks" "!=1" "required"
 Criterion "IsHelpCapHeavy" "HeavyHelpCap" "1" "required" weight 0
 // Custom stuff
@@ -253,6 +247,15 @@ Rule PlayerTeleporterThanksHeavy
 //--------------------------------------------------------------------------------------------------------------
 // Auto Speech Cart
 //--------------------------------------------------------------------------------------------------------------
+Criterion "HeavyNotSaidCartMovingBackwardD" "SaidCartMovingBackwardD" "!=1" "required" weight 0
+Criterion "HeavyNotSaidCartMovingBackwardO" "SaidCartMovingBackwardO" "!=1" "required" weight 0
+Criterion "HeavyNotSaidCartMovingForwardD" "SaidCartMovingForwardD" "!=1" "required" weight 0
+Criterion "HeavyNotSaidCartMovingForwardO" "SaidCartMovingForwardO" "!=1" "required" weight 0
+Criterion "HeavyNotSaidCartMovingStoppedD" "SaidCartMovingStoppedD" "!=1" "required" weight 0
+Criterion "HeavyNotSaidCartMovingStoppedO" "SaidCartMovingStoppedO" "!=1" "required" weight 0
+
+// backward //
+
 Response CartMovingBackwardsDefenseHeavy
 {
 	scene "scenes/Player/Heavy/low/1990.vcd" 
@@ -280,6 +283,8 @@ Response CartMovingBackwardsOffenseHeavy
 	scene "scenes/Player/Heavy/low/2072.vcd" 
 	scene "scenes/Player/Heavy/low/2206.vcd" 
 	scene "scenes/Player/Heavy/low/2207.vcd" 
+	scene "scenes/Player/Heavy/low/2073.vcd" //new
+	scene "scenes/Player/Heavy/low/2270.vcd" //new
 }
 Rule CartMovingBackwardsOffenseHeavy
 {
@@ -288,14 +293,16 @@ Rule CartMovingBackwardsOffenseHeavy
 	Response CartMovingBackwardsOffenseHeavy
 }
 
+// forward //
+
 Response CartMovingForwardDefenseHeavy
 {
 	scene "scenes/Player/Heavy/low/1984.vcd" 
 	scene "scenes/Player/Heavy/low/1985.vcd" 
 	scene "scenes/Player/Heavy/low/2269.vcd" 
 	scene "scenes/Player/Heavy/low/1986.vcd" 
-	scene "scenes/Player/Heavy/low/2073.vcd" 
-	scene "scenes/Player/Heavy/low/2270.vcd" 
+	// scene "scenes/Player/Heavy/low/2073.vcd" 
+	// scene "scenes/Player/Heavy/low/2270.vcd" 
 	scene "scenes/Player/Heavy/low/2263.vcd" 
 }
 Rule CartMovingForwardDefenseHeavy
@@ -337,10 +344,12 @@ Response CartMovingForwardOffenseHeavy
 }
 Rule CartMovingForwardOffenseHeavy
 {
-	criteria ConceptCartMovingForward IsOnOffense IsHeavy HeavyNotSaidCartMovingForwardO IsNotDisguised 75PercentChance
+	criteria ConceptCartPushing IsOnOffense IsHeavy HeavyNotSaidCartMovingForwardO IsNotDisguised 75PercentChance
 	ApplyContext "SaidCartMovingForwardO:1:20"
 	Response CartMovingForwardOffenseHeavy
 }
+
+// stopped //
 
 Response CartMovingStoppedDefenseHeavy
 {
@@ -369,7 +378,6 @@ Rule CartMovingStoppedOffenseHeavy
 	ApplyContext "SaidCartMovingStoppedO:1:20"
 	Response CartMovingStoppedOffenseHeavy
 }
-
 
 //--------------------------------------------------------------------------------------------------------------
 // Auto Speech Combat

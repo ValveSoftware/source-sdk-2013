@@ -1324,8 +1324,12 @@ Criterion "MedicNotSaidCartMovingForwardD" "SaidCartMovingForwardD" "!=1" "requi
 Criterion "MedicNotSaidCartMovingForwardO" "SaidCartMovingForwardO" "!=1" "required" weight 0
 Criterion "MedicNotSaidCartMovingStoppedD" "SaidCartMovingStoppedD" "!=1" "required" weight 0
 Criterion "MedicNotSaidCartMovingStoppedO" "SaidCartMovingStoppedO" "!=1" "required" weight 0
+
+// backward //
+
 Response CartMovingBackwardsDefenseMedic                                                     
 {
+	
 }
 Rule CartMovingBackwardsDefenseMedic                                                     
 {
@@ -1333,6 +1337,7 @@ Rule CartMovingBackwardsDefenseMedic
 	ApplyContext "SaidCartMovingBackwardD:1:20"
 	Response CartMovingBackwardsDefenseMedic                                                     
 }
+
 Response CartMovingBackwardsOffenseMedic                                                     
 {
 	scene "scenes/Player/Medic/low/6763.vcd"
@@ -1344,6 +1349,9 @@ Rule CartMovingBackwardsOffenseMedic
 	ApplyContext "SaidCartMovingBackwardO:1:20"
 	Response CartMovingBackwardsOffenseMedic                                                     
 }
+
+// forward //
+
 Response CartMovingForwardDefenseMedic                                                       
 {
 	scene "scenes/Player/Medic/low/6767.vcd"
@@ -1355,6 +1363,7 @@ Rule CartMovingForwardDefenseMedic
 	ApplyContext "SaidCartMovingForwardD:1:20"
 	Response CartMovingForwardDefenseMedic                                                       
 }
+
 Response CartMovingForwardOffenseMedic                                                       
 {
 	scene "scenes/Player/Medic/low/6752.vcd"
@@ -1371,10 +1380,13 @@ Response CartMovingForwardOffenseMedic
 }
 Rule CartMovingForwardOffenseMedic                                                       
 {
-	criteria ConceptCartMovingForward IsOnOffense IsMedic MedicNotSaidCartMovingForwardO IsNotDisguised 75PercentChance                                                                                                                                                            
+	criteria ConceptCartPushing IsOnOffense IsMedic MedicNotSaidCartMovingForwardO IsNotDisguised 75PercentChance                                                                                                                                                            
 	ApplyContext "SaidCartMovingForwardO:1:20"
 	Response CartMovingForwardOffenseMedic                                                       
 }
+
+// stopped //
+
 Response CartMovingStoppedDefenseMedic                                                       
 {
 	scene "scenes/Player/Medic/low/6786.vcd"
@@ -1385,6 +1397,7 @@ Rule CartMovingStoppedDefenseMedic
 	ApplyContext "SaidCartMovingStoppedD:1:20"
 	Response CartMovingStoppedDefenseMedic                                                       
 }
+
 Response CartMovingStoppedOffenseMedic                                                       
 {
 	scene "scenes/Player/Medic/low/6776.vcd"
@@ -1398,6 +1411,7 @@ Rule CartMovingStoppedOffenseMedic
 	ApplyContext "SaidCartMovingStoppedO:1:20"
 	Response CartMovingStoppedOffenseMedic                                                       
 }
+
 //--------------------------------------------------------------------------------------------------------------
 // END OF Auto Speech Cart
 //--------------------------------------------------------------------------------------------------------------

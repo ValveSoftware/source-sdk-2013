@@ -1225,6 +1225,9 @@ Criterion "DemomanNotSaidCartMovingForwardD" "SaidCartMovingForwardD" "!=1" "req
 Criterion "DemomanNotSaidCartMovingForwardO" "SaidCartMovingForwardO" "!=1" "required" weight 0
 Criterion "DemomanNotSaidCartMovingStoppedD" "SaidCartMovingStoppedD" "!=1" "required" weight 0
 Criterion "DemomanNotSaidCartMovingStoppedO" "SaidCartMovingStoppedO" "!=1" "required" weight 0
+
+// backward //
+
 Response CartMovingBackwardsDefenseDemoman                                                     
 {
 	scene "scenes/Player/Demoman/low/7718.vcd"
@@ -1237,6 +1240,7 @@ Rule CartMovingBackwardsDefenseDemoman
 	ApplyContext "SaidCartMovingBackwardD:1:20"
 	Response CartMovingBackwardsDefenseDemoman                                                     
 }
+
 Response CartMovingBackwardsOffenseDemoman                                                     
 {
 	scene "scenes/Player/Demoman/low/7714.vcd"
@@ -1250,6 +1254,9 @@ Rule CartMovingBackwardsOffenseDemoman
 	ApplyContext "SaidCartMovingBackwardO:1:20"
 	Response CartMovingBackwardsOffenseDemoman                                                     
 }
+
+// forward //
+
 Response CartMovingForwardDefenseDemoman                                                       
 {
 	scene "scenes/Player/Demoman/low/7716.vcd"
@@ -1261,6 +1268,7 @@ Rule CartMovingForwardDefenseDemoman
 	ApplyContext "SaidCartMovingForwardD:1:20"
 	Response CartMovingForwardDefenseDemoman                                                       
 }
+
 Response CartMovingForwardOffenseDemoman                                                       
 {
 	scene "scenes/Player/Demoman/low/7704.vcd"
@@ -1274,12 +1282,16 @@ Response CartMovingForwardOffenseDemoman
 }
 Rule CartMovingForwardOffenseDemoman                                                       
 {
-	criteria ConceptCartMovingForward IsOnOffense IsDemoman DemomanNotSaidCartMovingForwardO IsNotDisguised 75PercentChance                                                                                                                                                            
+	criteria ConceptCartPushing IsOnOffense IsDemoman DemomanNotSaidCartMovingForwardO IsNotDisguised 75PercentChance                                                                                                                                                            
 	ApplyContext "SaidCartMovingForwardO:1:20"
 	Response CartMovingForwardOffenseDemoman                                                       
 }
+
+// stopped //
+
 Response CartMovingStoppedDefenseDemoman                                                       
 {
+	
 }
 Rule CartMovingStoppedDefenseDemoman                                                       
 {
@@ -1287,6 +1299,7 @@ Rule CartMovingStoppedDefenseDemoman
 	ApplyContext "SaidCartMovingStoppedD:1:20"
 	Response CartMovingStoppedDefenseDemoman                                                       
 }
+
 Response CartMovingStoppedOffenseDemoman                                                       
 {
 	scene "scenes/Player/Demoman/low/7726.vcd"
@@ -1299,6 +1312,7 @@ Rule CartMovingStoppedOffenseDemoman
 	ApplyContext "SaidCartMovingStoppedO:1:20"
 	Response CartMovingStoppedOffenseDemoman                                                       
 }
+
 //--------------------------------------------------------------------------------------------------------------
 // END OF Auto Speech Cart
 //--------------------------------------------------------------------------------------------------------------

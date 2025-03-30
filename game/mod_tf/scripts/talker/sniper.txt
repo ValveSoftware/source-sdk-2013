@@ -6,16 +6,10 @@ Criterion "SniperIsNotStillonFire" "SniperOnFire" "!=1" "required" weight 0
 Criterion "SniperIsStillonFire" "SniperOnFire" "1" "required" weight 0
 Criterion "SniperNotKillSpeech" "SniperKillSpeech" "!=1" "required" weight 0
 Criterion "SniperNotKillSpeechMelee" "SniperKillSpeechMelee" "!=1" "required" weight 0
-Criterion "SniperNotSaidCartMovingBackwardD" "SaidCartMovingBackwardD" "!=1" "required" weight 0
 Criterion "SniperNotSaidHealThanks" "SniperSaidHealThanks" "!=1" "required"
 Criterion "IsHelpCapSniper" "SniperHelpCap" "1" "required" weight 0
 // Custom stuff
 Criterion "SniperNotInvulnerableSpeech" "SniperInvulnerableSpeech" "!=1" "required" weight 0
-Criterion "SniperNotSaidCartMovingBackwardO" "SaidCartMovingBackwardO" "!=1" "required" weight 0
-Criterion "SniperNotSaidCartMovingForwardD" "SaidCartMovingForwardD" "!=1" "required" weight 0
-Criterion "SniperNotSaidCartMovingForwardO" "SaidCartMovingForwardO" "!=1" "required" weight 0
-Criterion "SniperNotSaidCartMovingStoppedD" "SaidCartMovingStoppedD" "!=1" "required" weight 0
-Criterion "SniperNotSaidCartMovingStoppedO" "SaidCartMovingStoppedO" "!=1" "required" weight 0
 Criterion "SniperNotAwardSpeech" "SniperAwardSpeech" "!=1" "required" weight 0
 Criterion "SniperNotAssistSpeech" "SniperAssistSpeech" "!=1" "required" weight 0
 Criterion "SniperNotHoldStill" "SniperHoldStill" "!=1" "required" weight 0
@@ -368,6 +362,15 @@ Rule PlayerTeleporterThanksSniper
 //--------------------------------------------------------------------------------------------------------------
 // Auto Speech Cart
 //--------------------------------------------------------------------------------------------------------------
+Criterion "SniperNotSaidCartMovingBackwardD" "SaidCartMovingBackwardD" "!=1" "required" weight 0
+Criterion "SniperNotSaidCartMovingBackwardO" "SaidCartMovingBackwardO" "!=1" "required" weight 0
+Criterion "SniperNotSaidCartMovingForwardD" "SaidCartMovingForwardD" "!=1" "required" weight 0
+Criterion "SniperNotSaidCartMovingForwardO" "SaidCartMovingForwardO" "!=1" "required" weight 0
+Criterion "SniperNotSaidCartMovingStoppedD" "SaidCartMovingStoppedD" "!=1" "required" weight 0
+Criterion "SniperNotSaidCartMovingStoppedO" "SaidCartMovingStoppedO" "!=1" "required" weight 0
+
+// backward //
+
 Response CartMovingBackwardsDefenseSniper
 {
 	scene "scenes/Player/Sniper/low/2334.vcd" 
@@ -441,6 +444,8 @@ Rule CartMovingBackwardsOffenseScopedSniper
 	Response CartMovingBackwardsOffenseScopedSniper
 }
 
+// forward //
+
 // Defense forward
 Response CartMovingForwardDefenseSniper
 {
@@ -498,7 +503,7 @@ Response CartMovingForwardOffenseSniper
 }
 Rule CartMovingForwardOffenseSniper
 {
-	criteria ConceptCartMovingForward IsOnOffense IsSniper Unzoomed SniperNotSaidCartMovingForwardO IsNotDisguised 75PercentChance
+	criteria ConceptCartPushing IsOnOffense IsSniper Unzoomed SniperNotSaidCartMovingForwardO IsNotDisguised 75PercentChance
 	ApplyContext "SaidCartMovingForwardO:1:20"
 	Response CartMovingForwardOffenseSniper
 }
@@ -525,10 +530,13 @@ Response CartMovingForwardOffenseScopedSniper
 }
 Rule CartMovingForwardOffenseScopedSniper
 {
-	criteria ConceptCartMovingForward IsOnOffense IsSniper DeployedContext SniperNotSaidCartMovingForwardO IsNotDisguised 75PercentChance
+	criteria ConceptCartPushing IsOnOffense IsSniper DeployedContext SniperNotSaidCartMovingForwardO IsNotDisguised 75PercentChance
 	ApplyContext "SaidCartMovingForwardO:1:20"
 	Response CartMovingForwardOffenseScopedSniper
 }
+
+// stopped //
+
 // Cart stopped Defense
 
 Response CartMovingStoppedDefenseSniper

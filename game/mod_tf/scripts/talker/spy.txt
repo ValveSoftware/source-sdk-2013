@@ -1117,6 +1117,9 @@ Criterion "SpyNotSaidCartMovingForwardD" "SaidCartMovingForwardD" "!=1" "require
 Criterion "SpyNotSaidCartMovingForwardO" "SaidCartMovingForwardO" "!=1" "required" weight 0
 Criterion "SpyNotSaidCartMovingStoppedD" "SaidCartMovingStoppedD" "!=1" "required" weight 0
 Criterion "SpyNotSaidCartMovingStoppedO" "SaidCartMovingStoppedO" "!=1" "required" weight 0
+
+// backward //
+
 Response CartMovingBackwardsDefenseSpy                                                     
 {
 	scene "scenes/Player/Spy/low/7588.vcd"
@@ -1128,6 +1131,7 @@ Rule CartMovingBackwardsDefenseSpy
 	ApplyContext "SaidCartMovingBackwardD:1:20"
 	Response CartMovingBackwardsDefenseSpy                                                     
 }
+
 Response CartMovingBackwardsOffenseSpy                                                     
 {
 	scene "scenes/Player/Spy/low/7582.vcd"
@@ -1139,6 +1143,9 @@ Rule CartMovingBackwardsOffenseSpy
 	ApplyContext "SaidCartMovingBackwardO:1:20"
 	Response CartMovingBackwardsOffenseSpy                                                     
 }
+
+// forward //
+
 Response CartMovingForwardDefenseSpy                                                       
 {
 	scene "scenes/Player/Spy/low/7584.vcd"
@@ -1152,6 +1159,7 @@ Rule CartMovingForwardDefenseSpy
 	ApplyContext "SaidCartMovingForwardD:1:20"
 	Response CartMovingForwardDefenseSpy                                                       
 }
+
 Response CartMovingForwardOffenseSpy                                                       
 {
 	scene "scenes/Player/Spy/low/8553.vcd"
@@ -1169,10 +1177,13 @@ Response CartMovingForwardOffenseSpy
 }
 Rule CartMovingForwardOffenseSpy                                                       
 {
-	criteria ConceptCartMovingForward IsOnOffense IsSpy SpyNotSaidCartMovingForwardO IsNotDisguised IsNotCloaked 75PercentChance                                                                                                                                                            
+	criteria ConceptCartPushing IsOnOffense IsSpy SpyNotSaidCartMovingForwardO IsNotDisguised IsNotCloaked 75PercentChance                                                                                                                                                            
 	ApplyContext "SaidCartMovingForwardO:1:20"
 	Response CartMovingForwardOffenseSpy                                                       
 }
+
+// stopped //
+
 Response CartMovingStoppedDefenseSpy                                                       
 {
 	scene "scenes/Player/Spy/low/7600.vcd"
@@ -1186,6 +1197,7 @@ Rule CartMovingStoppedDefenseSpy
 	ApplyContext "SaidCartMovingStoppedD:1:20"
 	Response CartMovingStoppedDefenseSpy                                                       
 }
+
 Response CartMovingStoppedOffenseSpy                                                       
 {
 	scene "scenes/Player/Spy/low/7596.vcd"
@@ -1198,6 +1210,7 @@ Rule CartMovingStoppedOffenseSpy
 	ApplyContext "SaidCartMovingStoppedO:1:20"
 	Response CartMovingStoppedOffenseSpy                                                       
 }
+
 //--------------------------------------------------------------------------------------------------------------
 // END OF Auto Speech Cart
 //--------------------------------------------------------------------------------------------------------------

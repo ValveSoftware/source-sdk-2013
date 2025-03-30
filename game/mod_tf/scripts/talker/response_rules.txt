@@ -216,6 +216,7 @@ criterion "ConceptPlayerCapturedIntelligence" "Concept" "TLK_FLAGCAPTURED" requi
 
 //cart stuff
 criterion "ConceptCartMovingForward" "Concept" "TLK_CART_MOVING_FORWARD" required          
+criterion "ConceptCartPushing" "Concept" "TLK_CART_PUSHING" required
 criterion "ConceptCartMovingStopped" "Concept" "TLK_CART_STOP" required          
 criterion "ConceptCartMovingBackward" "Concept" "TLK_CART_MOVING_BACKWARD" required          
 
