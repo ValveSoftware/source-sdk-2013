@@ -54,6 +54,10 @@ public:
 	
 	static LaunchParams CalcLaunch( CTFPlayer *pPlayer, bool bHoming );
 
+#ifdef CLIENT_DLL
+	C_PasstimeBounceReticle* GetBounceReticle() const { return m_pBounceReticle; }
+#endif
+
 protected:
 	virtual int	GetWeaponID() const OVERRIDE { return TF_WEAPON_PASSTIME_GUN; }
 	virtual void Spawn() OVERRIDE;

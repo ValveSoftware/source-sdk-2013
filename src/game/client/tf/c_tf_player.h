@@ -945,6 +945,8 @@ public:
 	virtual void ClientAdjustStartSoundParams( EmitSound_t &params ) override;
 	virtual void ClientAdjustStartSoundParams( StartSoundParams_t& params ) override;
 
+	C_PasstimePlayerReticle* GetPasstimePlayerReticle() const { return m_pPasstimePlayerReticle; }
+
 private:
 	void ClientAdjustVOPitch( int& pitch );
 

@@ -41,6 +41,9 @@ public:
 
 	float GetMaxPassRange() const { return m_flMaxPassRange; }
 	int GetBallPower() const { return m_iBallPower; }
+	C_PasstimeReticle* GetPassReticle() const { return m_pPassReticle; }
+	C_PasstimeReticle* GetBallReticle() const { return m_pBallReticle; }
+
 
 private:
 	bool GetImportantEntities( C_PasstimeBall **ppBall, C_TFPlayer **ppCarrier, C_TFPlayer **ppHomingTarget ) const;
