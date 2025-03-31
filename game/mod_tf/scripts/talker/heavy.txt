@@ -1719,7 +1719,7 @@ Response RocketDestroyedHeavy
 }
 Rule RocketDestroyedHeavy
 {
-	criteria ConceptRocketDestroyed 5PercentChance IsHeavy
+	criteria ConceptRocketDestroyed 10PercentChance IsHeavy
 	Response RocketDestroyedHeavy
 }
 
