@@ -152,17 +152,40 @@ void C_PasstimeReticle::ReloadSprites()
 // C_PasstimeBallReticle
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-ConVar p4ss_ball_outline_1_file( "p4ss_ball_outline_1_file", "passtime/hud/passtime_ball_reticle_piece_1", FCVAR_ARCHIVE, "Sets the first sprite drawn on the ball when not carried by a player.", OnCrosshairSettingsChanged );
-ConVar p4ss_ball_outline_2_file( "p4ss_ball_outline_2_file", "passtime/hud/passtime_ball_reticle_piece_2", FCVAR_ARCHIVE, "Sets the second sprite drawn on the ball when not carried by a player.", OnCrosshairSettingsChanged );
+ConVar p4ss_ball_outline_1_file( "p4ss_ball_outline_1_file", "", FCVAR_ARCHIVE, "Sets the first sprite drawn on the ball when not carried by a player.", OnCrosshairSettingsChanged );
+ConVar p4ss_ball_outline_2_file( "p4ss_ball_outline_2_file", "", FCVAR_ARCHIVE, "Sets the second sprite drawn on the ball when not carried by a player.", OnCrosshairSettingsChanged );
 
 static const float k_flBallReticleSize = 64;
 
 void C_PasstimeBallReticle::InitializeSprites()
 {
+	const char* defaultFolder = "reticles/";
 	//get material paths from convars and pass to CreateReticleSprite
 	//refactored this out of the constructor to allow it to be called from ReloadSprites
 	const char* pBallOutlineA = p4ss_ball_outline_1_file.GetString();
 	const char* pBallOutlineB = p4ss_ball_outline_2_file.GetString();
+
+	if ( !pBallOutlineA || strlen(pBallOutlineA) == 0 )
+	{
+		pBallOutlineA = "passtime/hud/passtime_ball_reticle_piece_1"; 
+	}
+	else if ( strnicmp( pBallOutlineA, defaultFolder, strlen( defaultFolder ) ) != 0 )
+	{
+        static char fullPath[256];
+		snprintf(fullPath, sizeof(fullPath), "%s%s", defaultFolder, pBallOutlineA);
+		pBallOutlineA = fullPath;
+	}
+	if ( !pBallOutlineB || strlen(pBallOutlineB) == 0 )
+	{
+		pBallOutlineB = "passtime/hud/passtime_ball_reticle_piece_2"; 
+	}
+	else if ( strnicmp( pBallOutlineB, defaultFolder, strlen( defaultFolder ) ) != 0 )
+	{
+		static char fullPath[256];
+		snprintf(fullPath, sizeof(fullPath), "%s%s", defaultFolder, pBallOutlineB);
+		pBallOutlineB = fullPath;
+	}
+
 	AddSprite( CreateReticleSprite( pBallOutlineA, k_flBallReticleSize, 360 ) ); // the O
 	AddSprite( CreateReticleSprite( pBallOutlineB, k_flBallReticleSize, 360 ) ); // the ><
 }
@@ -288,9 +311,11 @@ bool C_PasstimeGoalReticle::Update()
 	return true;
 }
 
-ConVar p4ss_crosshair_teammate_inner( "p4ss_crosshair_teammate_inner", "passtime/hud/passtime_ball_reticle_passlock", FCVAR_ARCHIVE, "Material for the inner part of the teammate pass reticle.", OnCrosshairSettingsChanged );
-ConVar p4ss_crosshair_teammate_outer_1( "p4ss_crosshair_teammate_outer_1", "passtime/hud/passtime_ball_reticle_piece_1", FCVAR_ARCHIVE, "Material for the first outer part of the teammate pass reticle.", OnCrosshairSettingsChanged );
-ConVar p4ss_crosshair_teammate_outer_2( "p4ss_crosshair_teammate_outer_2", "passtime/hud/passtime_ball_reticle_piece_2", FCVAR_ARCHIVE, "Material for the second outer part of the teammate pass reticle.", OnCrosshairSettingsChanged );
+ConVar p4ss_crosshair_teammate_inner( "p4ss_crosshair_teammate_inner", "", FCVAR_ARCHIVE, "Material for the inner part of the teammate pass reticle.", OnCrosshairSettingsChanged );
+ConVar p4ss_crosshair_teammate_outer_1( "p4ss_crosshair_teammate_outer_1", "", FCVAR_ARCHIVE, "Material for the first outer part of the teammate pass reticle.", OnCrosshairSettingsChanged );
+ConVar p4ss_crosshair_teammate_outer_2( "p4ss_crosshair_teammate_outer_2", "", FCVAR_ARCHIVE, "Material for the second outer part of the teammate pass reticle.", OnCrosshairSettingsChanged );
+ConVar p4ss_crosshair_teammate_blink( "p4ss_crosshair_teammate_blink", "1", FCVAR_ARCHIVE, "Sets whether the teammate pass reticle is solid (0) or glowing (1).", OnCrosshairSettingsChanged );
+
 //-----------------------------------------------------------------------------
 // C_PasstimePassReticle
 //-----------------------------------------------------------------------------
@@ -299,11 +324,44 @@ const float kPassReticleScale = 64;
 //-----------------------------------------------------------------------------
 void C_PasstimePassReticle::InitializeSprites()
 {
+	const char* defaultFolder = "reticles/";
 	// in the base game, there are three sprites for the pass reticle
 	// the inner sprite is the soccer ball, and the outer sprites are the O and ><
 	const char* innerTeammateSprite = p4ss_crosshair_teammate_inner.GetString();
 	const char* outerTeammateSprite1 = p4ss_crosshair_teammate_outer_1.GetString();
 	const char* outerTeammateSprite2 = p4ss_crosshair_teammate_outer_2.GetString();
+
+	if ( !innerTeammateSprite || strlen(innerTeammateSprite) == 0 )
+	{
+		innerTeammateSprite = "passtime/hud/passtime_ball_reticle_passlock"; 
+	}
+	else if ( strnicmp( innerTeammateSprite, defaultFolder, strlen( defaultFolder ) ) != 0 )
+	{
+		static char fullPath[256];
+		snprintf(fullPath, sizeof(fullPath), "%s%s", defaultFolder, innerTeammateSprite);
+		innerTeammateSprite = fullPath;
+	}
+	if ( !outerTeammateSprite1 || strlen(outerTeammateSprite1) == 0 )
+	{
+		outerTeammateSprite1 = "passtime/hud/passtime_ball_reticle_piece_1"; 
+	}
+	else if ( strnicmp( outerTeammateSprite1, defaultFolder, strlen( defaultFolder ) ) != 0 )
+	{
+		static char fullPath[256];
+		snprintf(fullPath, sizeof(fullPath), "%s%s", defaultFolder, outerTeammateSprite1);
+		outerTeammateSprite1 = fullPath;
+	}
+	if ( !outerTeammateSprite2 || strlen(outerTeammateSprite2) == 0 )
+	{
+		outerTeammateSprite2 = "passtime/hud/passtime_ball_reticle_piece_2"; 
+	}
+	else if ( strnicmp( outerTeammateSprite2, defaultFolder, strlen( defaultFolder ) ) != 0 )
+	{
+		static char fullPath[256];
+		snprintf(fullPath, sizeof(fullPath), "%s%s", defaultFolder, outerTeammateSprite2);
+		outerTeammateSprite2 = fullPath;
+	}
+
 	AddSprite( CreateReticleSprite( innerTeammateSprite, kPassReticleScale, 100 ) ); // the *
 	AddSprite( CreateReticleSprite( outerTeammateSprite1, kPassReticleScale, 0 ) ); // the O
 	AddSprite( CreateReticleSprite( outerTeammateSprite2, kPassReticleScale, 0 ) ); // the ><
@@ -353,7 +411,16 @@ bool C_PasstimePassReticle::Update()
 
 		auto teamColor = GetTeamColor( pBallCarrier->GetTeamNumber() );
 		auto neutralColor = GetTeamColor( TEAM_UNASSIGNED );
-		auto iAlpha = (int)( (fmodf( gpGlobals->curtime * 3.0f, 1.0f )) * 255 );
+
+		int iAlpha;
+		if (p4ss_crosshair_teammate_blink.GetBool())
+		{
+   			iAlpha = (int)((fmodf(gpGlobals->curtime * 3.0f, 1.0f)) * 255);
+		}
+		else
+		{
+ 	   		iAlpha = 255;
+		}
 		SetRgba( 0, teamColor.r(), teamColor.g(), teamColor.b(), iAlpha );
 		SetRgba( 1, neutralColor.r(), neutralColor.g(), neutralColor.b(), 255 );
 		SetRgba( 2, teamColor.r(), teamColor.g(), teamColor.b(), iAlpha );
@@ -372,7 +439,16 @@ bool C_PasstimePassReticle::Update()
 
 		auto flPulseSpeed = 20;
 		auto flPulseFrac = Clamp( FastCos( gpGlobals->curtime * flPulseSpeed ), 0.3f, 1.0f );
-		auto iAlpha = 200 * flPulseFrac * Clamp( m_flTargetScore + 0.5f, 0.0f, 1.0f ); // higher flScore is better
+
+		int iAlpha;
+		if (p4ss_crosshair_teammate_blink.GetBool())
+		{
+			iAlpha = 200 * flPulseFrac * Clamp( m_flTargetScore + 0.5f, 0.0f, 1.0f );
+		}
+		else
+		{
+			iAlpha = 255;
+		}
 
 		auto teamColor = GetTeamColor( TEAM_UNASSIGNED );
 		auto neutralColor = GetTeamColor( TEAM_UNASSIGNED );
@@ -387,7 +463,7 @@ bool C_PasstimePassReticle::Update()
 		auto flScale = RemapValClamped( flDist, 768.0f, 8192.0f, 1.0f, 8.0f );
 		SetAllScales( flScale * kPassReticleScale );
 	}
-	
+
 	return true;
 }
 
@@ -457,8 +533,8 @@ void C_PasstimePassReticle::FindPassHintTarget( C_TFPlayer *pLocalPlayer )
 	}
 }
 
-ConVar p4ss_crosshair_inner_file( "p4ss_crosshair_inner_file", "passtime/hud/passtime_ball_reticle_passlock", FCVAR_ARCHIVE, "Material for the inner part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
-ConVar p4ss_crosshair_outer_file( "p4ss_crosshair_outer_file", "passtime/hud/passtime_ball_reticle_piece_1", FCVAR_ARCHIVE, "Material for the outer part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
+ConVar p4ss_crosshair_inner_file( "p4ss_crosshair_inner_file", "", FCVAR_ARCHIVE, "Material for the inner part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
+ConVar p4ss_crosshair_outer_file( "p4ss_crosshair_outer_file", "", FCVAR_ARCHIVE, "Material for the outer part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
 ConVar p4ss_crosshair_inner_scale( "p4ss_crosshair_inner_scale", "1", FCVAR_ARCHIVE, "Size of the inner part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
 ConVar p4ss_crosshair_outer_scale( "p4ss_crosshair_outer_scale", "1", FCVAR_ARCHIVE, "Size of the outer part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
 ConVar p4ss_crosshair_outer_spinspeed( "p4ss_crosshair_outer_spinspeed", "200", FCVAR_ARCHIVE, "Speed of the rotation of the outer part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
@@ -466,14 +542,39 @@ ConVar p4ss_crosshair_outer_spinspeed( "p4ss_crosshair_outer_spinspeed", "200", 
 //-----------------------------------------------------------------------------
 // C_PasstimeBounceReticle
 //-----------------------------------------------------------------------------
+C_PasstimeBounceReticle* g_pBounceReticle = nullptr;
+//-----------------------------------------------------------------------------
 void C_PasstimeBounceReticle::InitializeSprites()
 {
+	const char* defaultFolder = "reticles/";
     // Get ConVar values
     const char* pInnerBounceSprite = p4ss_crosshair_inner_file.GetString();
     const char* pOuterBounceSprite = p4ss_crosshair_outer_file.GetString();
     float pInnerBounceScale = p4ss_crosshair_inner_scale.GetFloat();
     float pOuterBounceScale = p4ss_crosshair_outer_scale.GetFloat();
     int pOuterBounceSpinSpeed = p4ss_crosshair_outer_spinspeed.GetInt();
+
+	//sets the default files for if the user inputs "" 
+	if (!pInnerBounceSprite || strlen(pInnerBounceSprite) == 0)
+    {
+        pInnerBounceSprite = "passtime/hud/passtime_ball_reticle_passlock"; 
+    }
+	else if ( strnicmp( pInnerBounceSprite, defaultFolder, strlen( defaultFolder ) ) != 0 )
+	{
+		static char fullPath[256];
+		snprintf(fullPath, sizeof(fullPath), "%s%s", defaultFolder, pInnerBounceSprite);
+		pInnerBounceSprite = fullPath;
+	}
+    if (!pOuterBounceSprite || strlen(pOuterBounceSprite) == 0)
+    {
+        pOuterBounceSprite = "passtime/hud/passtime_ball_reticle_piece_1"; 
+    }
+	else if ( strnicmp( pOuterBounceSprite, defaultFolder, strlen( defaultFolder ) ) != 0 )
+	{
+		static char fullPath[256];
+		snprintf(fullPath, sizeof(fullPath), "%s%s", defaultFolder, pOuterBounceSprite);
+		pOuterBounceSprite = fullPath;
+	}
 
     // Add new sprites and scale by factors from convars
     AddSprite(CreateReticleSprite(pInnerBounceSprite, pInnerBounceScale * 160, 0)); // Inner crosshair
@@ -482,6 +583,7 @@ void C_PasstimeBounceReticle::InitializeSprites()
 
 C_PasstimeBounceReticle::C_PasstimeBounceReticle()
 {
+	g_pBounceReticle = this;
 	InitializeSprites();
 }
 
@@ -569,9 +671,14 @@ bool C_PasstimeBounceReticle::Update()
 	return !IsLocalPlayerSpectator();
 }
 
+C_PasstimeBounceReticle::~C_PasstimeBounceReticle()
+{
+    g_pBounceReticle = nullptr; 
+}
+
 ConVar p4ss_teamicons_alpha( "p4ss_teamicons_alpha", "100", FCVAR_ARCHIVE, "Sets alpha of the icons drawn on teammates through walls." );
-ConVar p4ss_teamicons_red_file( "p4ss_teamicons_red_file", "passtime/hud/passtime_teamicon_red", FCVAR_ARCHIVE, "Sets material file path of the icons drawn on teammates through walls for RED team.", OnCrosshairSettingsChanged );
-ConVar p4ss_teamicons_blu_file( "p4ss_teamicons_blu_file", "passtime/hud/passtime_teamicon_blue", FCVAR_ARCHIVE, "Sets material file path of the icons drawn on teammates through walls for BLU team.", OnCrosshairSettingsChanged );
+ConVar p4ss_teamicons_red_file( "p4ss_teamicons_red_file", "", FCVAR_ARCHIVE, "Sets material file path of the icons drawn on teammates through walls for RED team.", OnCrosshairSettingsChanged );
+ConVar p4ss_teamicons_blu_file( "p4ss_teamicons_blu_file", "", FCVAR_ARCHIVE, "Sets material file path of the icons drawn on teammates through walls for BLU team.", OnCrosshairSettingsChanged );
 ConVar p4ss_teamicons( "p4ss_teamicons", "1", FCVAR_ARCHIVE, "Enables/disables the icons drawn on teammates through walls." );
 ConVar p4ss_teamicons_scale( "p4ss_teamicons_scale", "1", FCVAR_ARCHIVE, "Sets the scale of the icons drawn on teammates through walls." );
 //-----------------------------------------------------------------------------
@@ -579,10 +686,32 @@ ConVar p4ss_teamicons_scale( "p4ss_teamicons_scale", "1", FCVAR_ARCHIVE, "Sets t
 //-----------------------------------------------------------------------------
 void C_PasstimePlayerReticle::InitializeSprites()
 {
+	const char* defaultFolder = "reticles/";
 	// Get ConVar values
 	const char* teamSpriteRed = p4ss_teamicons_red_file.GetString();
 	const char* teamSpriteBlu = p4ss_teamicons_blu_file.GetString();
 	float teamSpriteScale = p4ss_teamicons_scale.GetFloat();
+
+	if ( !teamSpriteRed || strlen(teamSpriteRed) == 0 )
+	{
+		teamSpriteRed = "passtime/hud/passtime_teamicon_red"; 
+	}
+	else if ( strnicmp( teamSpriteRed, defaultFolder, strlen( defaultFolder ) ) != 0 )
+	{
+		static char fullPath[256];
+		snprintf(fullPath, sizeof(fullPath), "%s%s", defaultFolder, teamSpriteRed);
+		teamSpriteRed = fullPath;
+	}
+	if ( !teamSpriteBlu || strlen(teamSpriteBlu) == 0 )
+	{
+		teamSpriteBlu = "passtime/hud/passtime_teamicon_blue"; 
+	}
+	else if ( strnicmp( teamSpriteBlu, defaultFolder, strlen( defaultFolder ) ) != 0 )
+	{
+		static char fullPath[256];
+		snprintf(fullPath, sizeof(fullPath), "%s%s", defaultFolder, teamSpriteBlu);
+		teamSpriteBlu = fullPath;
+	}
 
 	AddSprite(CreateReticleSprite(teamSpriteRed, teamSpriteScale * 128, 0)); // Red team icon
 	AddSprite(CreateReticleSprite(teamSpriteBlu, teamSpriteScale * 128, 0)); // Blue team icon
@@ -836,6 +965,11 @@ void OnCrosshairSettingsChanged(IConVar* pConVar, const char* pOldValue, float f
 
 void ReloadAllPlayerReticles()
 {
+	if (!g_pPasstimeLogic)
+	{
+		return;
+	}
+
     for (int i = 1; i <= MAX_PLAYERS; ++i)
     {
         C_TFPlayer* pPlayer = ToTFPlayer(UTIL_PlayerByIndex(i));
@@ -875,16 +1009,10 @@ void ReloadBallReticle()
 #ifdef CLIENT_DLL
 void ReloadBounceReticle()
 {
-	auto* pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-    if (!pLocalPlayer)
+	if (!g_pBounceReticle)
     {
         return;
     }
-
-    C_PasstimeGun* pWeapon = dynamic_cast<C_PasstimeGun*>(pLocalPlayer->GetActiveWeapon());
-    if (pWeapon && pWeapon->GetBounceReticle())
-    {
-        pWeapon->GetBounceReticle()->ReloadSprites();
-    }
+	g_pBounceReticle->ReloadSprites();
 }
 #endif
