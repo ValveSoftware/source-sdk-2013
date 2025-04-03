@@ -314,7 +314,8 @@ bool C_PasstimeGoalReticle::Update()
 ConVar p4ss_crosshair_teammate_inner( "p4ss_crosshair_teammate_inner", "", FCVAR_ARCHIVE, "Material for the inner part of the teammate pass reticle.", OnCrosshairSettingsChanged );
 ConVar p4ss_crosshair_teammate_outer_1( "p4ss_crosshair_teammate_outer_1", "", FCVAR_ARCHIVE, "Material for the first outer part of the teammate pass reticle.", OnCrosshairSettingsChanged );
 ConVar p4ss_crosshair_teammate_outer_2( "p4ss_crosshair_teammate_outer_2", "", FCVAR_ARCHIVE, "Material for the second outer part of the teammate pass reticle.", OnCrosshairSettingsChanged );
-ConVar p4ss_crosshair_teammate_blink( "p4ss_crosshair_teammate_blink", "1", FCVAR_ARCHIVE, "Sets whether the teammate pass reticle is solid (0) or glowing (1).", OnCrosshairSettingsChanged );
+ConVar p4ss_crosshair_teammate_blink( "p4ss_crosshair_teammate_blink", "1", FCVAR_ARCHIVE, "Sets whether the teammate pass reticle is solid (0) or glowing (1)." );
+ConVar p4ss_crosshair_teammate_alpha( "p4ss_crosshair_teammate_alpha", "200", FCVAR_ARCHIVE, "Sets the alpha value of the teammate pass reticle. Only works when p4ss_crosshair_teammate_blink is set to 0." );
 
 //-----------------------------------------------------------------------------
 // C_PasstimePassReticle
@@ -416,13 +417,14 @@ bool C_PasstimePassReticle::Update()
 		if (p4ss_crosshair_teammate_blink.GetBool())
 		{
    			iAlpha = (int)((fmodf(gpGlobals->curtime * 3.0f, 1.0f)) * 255);
+			SetRgba( 1, neutralColor.r(), neutralColor.g(), neutralColor.b(), 255 );
 		}
 		else
 		{
- 	   		iAlpha = 255;
+			iAlpha = p4ss_crosshair_teammate_alpha.GetInt();
+			SetRgba( 1, neutralColor.r(), neutralColor.g(), neutralColor.b(), iAlpha );
 		}
 		SetRgba( 0, teamColor.r(), teamColor.g(), teamColor.b(), iAlpha );
-		SetRgba( 1, neutralColor.r(), neutralColor.g(), neutralColor.b(), 255 );
 		SetRgba( 2, teamColor.r(), teamColor.g(), teamColor.b(), iAlpha );
 
 		auto flDist = (vecTargetPos - MainViewOrigin()).Length();
@@ -440,20 +442,22 @@ bool C_PasstimePassReticle::Update()
 		auto flPulseSpeed = 20;
 		auto flPulseFrac = Clamp( FastCos( gpGlobals->curtime * flPulseSpeed ), 0.3f, 1.0f );
 
+
+		auto teamColor = GetTeamColor( TEAM_UNASSIGNED );
+		auto neutralColor = GetTeamColor( TEAM_UNASSIGNED );
 		int iAlpha;
 		if (p4ss_crosshair_teammate_blink.GetBool())
 		{
 			iAlpha = 200 * flPulseFrac * Clamp( m_flTargetScore + 0.5f, 0.0f, 1.0f );
+			SetRgba( 1, neutralColor.r(), neutralColor.g(), neutralColor.b(), 80 );
 		}
 		else
 		{
-			iAlpha = 255;
+			iAlpha = p4ss_crosshair_teammate_alpha.GetInt();
+			SetRgba( 1, neutralColor.r(), neutralColor.g(), neutralColor.b(), iAlpha );
 		}
 
-		auto teamColor = GetTeamColor( TEAM_UNASSIGNED );
-		auto neutralColor = GetTeamColor( TEAM_UNASSIGNED );
 		SetRgba( 0, teamColor.r(), teamColor.g(), teamColor.b(), iAlpha );
-		SetRgba( 1, neutralColor.r(), neutralColor.g(), neutralColor.b(), 80 );
 		SetRgba( 2, teamColor.r(), teamColor.g(), teamColor.b(), iAlpha );
 		
 		auto vecTargetPos = m_hTarget->WorldSpaceCenter();
