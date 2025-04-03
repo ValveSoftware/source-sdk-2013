@@ -1243,7 +1243,7 @@ char *UTIL_GetFilteredPlayerName( const CSteamID &steamID, char *pszName )
 
 	if ( SteamUtils() )
 	{
-		SteamUtils()->FilterText( k_ETextFilteringContextName, steamID, pszName, pszName, MAX_PLAYER_NAME_LENGTH );
+		SteamUtils()->FilterText( k_ETextFilteringContextName, steamID, pszName, pszName, MAX_PLAYER_NAME_LENGTH_WITHOUT_NULL );
 	}
 	return pszName;
 }

@@ -331,7 +331,7 @@ void CClientScoreBoardDialog::UpdatePlayerInfo()
 			const char *oldName = playerData->GetString("name","");
 			char newName[MAX_PLAYER_NAME_LENGTH];
 
-			UTIL_MakeSafeName( oldName, newName, MAX_PLAYER_NAME_LENGTH );
+			UTIL_MakeSafeName( oldName, newName, MAX_PLAYER_NAME_LENGTH_WITHOUT_NULL );
 
 			playerData->SetString("name", newName);
 
