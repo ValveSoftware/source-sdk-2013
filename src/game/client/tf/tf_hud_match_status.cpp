@@ -546,10 +546,16 @@ void CTFHudMatchStatus::OnThink()
 //-----------------------------------------------------------------------------
 void CTFHudMatchStatus::FireGameEvent( IGameEvent * event )
 {
+	if ( FStrEq( "teamplay_round_start", event->GetName() ) )
+	{
+		// Force match status panel to reload scheme
+		m_bUseMatchHUD = !m_bUseMatchHUD;
+	}
+
 	if ( !ShouldUseMatchHUD() )
 		return;
 
-	if ( FStrEq("teamplay_round_start", event->GetName() ) )
+	if ( FStrEq( "teamplay_round_start", event->GetName() ) )
 	{
 		// Drop the round sign right when the match starts on rounds > 1
 		if ( TFGameRules()->GetRoundsPlayed() > 0 )
