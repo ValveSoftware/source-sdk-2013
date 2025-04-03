@@ -8080,6 +8080,8 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		
 		return true;
 	}
+
+//	Disabled to avoid an exploit in pass time
 /*	else if ( FStrEq( "cyoa_pda_open", pcmd ) )
 	{
 		bool bOpen = atoi( args[1] ) != 0;

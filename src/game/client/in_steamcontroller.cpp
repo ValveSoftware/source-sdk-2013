@@ -150,7 +150,7 @@ static ControllerDigitalActionToCommand g_ControllerDigitalGameActions[] =
 	{ "inspect", "+inspect", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },
 	{ "taunt", "+taunt", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },
 	{ "voicerecord", "+voicerecord", CONTROLLER_ACTION_FLAGS_NONE },
-	{ "show_quest_log", "show_quest_log", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },
+//	{ "show_quest_log", "show_quest_log", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },
 	{ "showscores", "+showscores", CONTROLLER_ACTION_FLAGS_NONE },
 	{ "callvote", "callvote", CONTROLLER_ACTION_FLAGS_NONE },
 	{ "cl_trigger_first_notification", "cl_trigger_first_notification", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },

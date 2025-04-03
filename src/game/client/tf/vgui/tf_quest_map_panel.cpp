@@ -1227,6 +1227,8 @@ void CQuestMapPanel::GoToCurrentQuest()
 // Debugging functions
 //
 
+// Disabled to avoid an exploit in pass time
+/*
 CON_COMMAND( show_quest_log, "Show the quest map panel" )
 {
 	if ( GetQuestMapPanel()->IsVisible() )
@@ -1248,4 +1250,4 @@ CON_COMMAND( show_quest_log, "Show the quest map panel" )
 			GetQuestMapPanel()->GoToCurrentQuest();
 		}
 	}
-}
+}*/
