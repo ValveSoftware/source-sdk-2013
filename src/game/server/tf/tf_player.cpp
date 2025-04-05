@@ -2807,6 +2807,13 @@ void CTFPlayer::PrecacheMvM()
 	PrecacheScriptSound( "MVM.Robot_Teleporter_Deliver" );
 	PrecacheScriptSound( "MVM.MoneyPickup" );
 
+	// precache Heavy rage vo
+	PrecacheScriptSound("Heavy.Battlecry03");
+	PrecacheScriptSound("heavy_mvm_rage01");
+	PrecacheScriptSound("heavy_mvm_rage02");
+	PrecacheScriptSound("heavy_mvm_rage03");
+	PrecacheScriptSound("heavy_mvm_rage04");
+
 	PrecacheMaterial( "effects/circle_nocull" );
 }
 
@@ -3106,13 +3113,6 @@ void CTFPlayer::PrecacheTFPlayer()
 
 	PrecacheScriptSound( "Spy.TeaseVictim" );
 	PrecacheScriptSound( "Demoman.CritDeath" );
-	
-	// precache Heavy rage vo
-	PrecacheScriptSound("Heavy.Battlecry03");
-	PrecacheScriptSound("heavy_mvm_rage01");
-	PrecacheScriptSound("heavy_mvm_rage02");
-	PrecacheScriptSound("heavy_mvm_rage03");
-	PrecacheScriptSound("heavy_mvm_rage04");
 
 	PrecacheModel( "models/effects/resist_shield/resist_shield.mdl" );
 
