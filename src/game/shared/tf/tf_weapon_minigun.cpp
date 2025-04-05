@@ -635,7 +635,7 @@ void CTFMinigun::AttackEnemyProjectiles( void )
 					EmitSound( "Halloween.HeadlessBossAxeHitWorld" );
 
 					// Trigger response rule, we only have vo for Rockets so limit to that type
-					if (FClassnameIs(pObject, "tf_projectile_rocket") || FClassnameIs(pObject, "tf_projectile_sentryrocket"))
+					if ( FClassnameIs(pObject, "tf_projectile_rocket") || FClassnameIs(pObject, "tf_projectile_sentryrocket") || FClassnameIs(pObject, "tf_projectile_energy_ball") )
 					{
 						// Making sure Heavy has a chance to speak the lines, he will be typically be under fire in these scenarios
 						CMultiplayer_Expresser* pExpresser = pPlayer->GetMultiplayerExpresser();
