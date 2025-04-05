@@ -1720,6 +1720,7 @@ Response RocketDestroyedHeavy
 Rule RocketDestroyedHeavy
 {
 	criteria ConceptRocketDestroyed 10PercentChance IsHeavy
+	ApplyContext "IsDominating:1:5" // Adding this so Heavy is not cut-off here, he will be under fire in these situations
 	Response RocketDestroyedHeavy
 }
 

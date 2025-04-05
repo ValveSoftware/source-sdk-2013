@@ -614,6 +614,7 @@ void CTFMinigun::AttackEnemyProjectiles( void )
 				continue;
 
 			CBaseProjectile *pProjectile = dynamic_cast< CBaseProjectile* >( pObjects[i] );
+			CBaseEntity* pObject = pObjects[i];
 			if ( pProjectile && pProjectile->IsDestroyable() )
 			{
 				pProjectile->IncrementDestroyableHitCount();
@@ -629,13 +630,12 @@ void CTFMinigun::AttackEnemyProjectiles( void )
 				int nHitsRequired = m_bCritShot ? 1 : (int)RemapValClamped( iAttackProjectiles, 1, 2, 2, 1 );
 				if ( pProjectile->GetDestroyableHitCount() >= nHitsRequired )
 				{
-					int projectileType = pProjectile->GetBaseProjectileType();
 					pProjectile->Destroy( false, true );
 
 					EmitSound( "Halloween.HeadlessBossAxeHitWorld" );
 
 					// Trigger response rule, we only have vo for Rockets so limit to that type
-					if (projectileType == -1)
+					if (FClassnameIs(pObject, "tf_projectile_rocket") || FClassnameIs(pObject, "tf_projectile_sentryrocket"))
 					{
 						// Making sure Heavy has a chance to speak the lines, he will be typically be under fire in these scenarios
 						CMultiplayer_Expresser* pExpresser = pPlayer->GetMultiplayerExpresser();
