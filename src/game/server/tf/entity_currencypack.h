@@ -47,6 +47,10 @@ public:
 	virtual CurrencyRewards_t	GetPackSize( void ) { return TF_CURRENCY_PACK_LARGE; }
 	virtual const char *GetDefaultPowerupModel( void ) { return "models/items/currencypack_large.mdl"; }
 
+private:
+   void DespawnAndCollect( void );
+   bool IsWithinCollidableBoundingBox( CBaseEntity *pEntity );
+
 protected:
 	virtual void ComeToRest( void );
 
