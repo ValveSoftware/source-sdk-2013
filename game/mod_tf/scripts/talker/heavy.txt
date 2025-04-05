@@ -1709,6 +1709,7 @@ Response MvMDeployRageHeavy
 Rule MvMDeployRageHeavy
 {
 	criteria ConceptMvMDeployRage IsMvMDefender IsHeavy
+	ApplyContext "IsDominating:1:8" // Adding so Heavy is not cut-off, he will be under fire a lot in this scenario
 	Response MvMDeployRageHeavy
 }
 
