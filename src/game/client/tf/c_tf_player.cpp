@@ -7873,7 +7873,13 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 		m_bNotifiedWeaponInspectThisLife = false;
 
 		// make sure the chat window has been restored to the appropriate place
-		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( "CompetitiveGame_RestoreChatWindow", false );
+		if ( TFGameRules() && (TFGameRules()->ShowMatchSummary() || TFGameRules()->PlayersAreOnMatchSummaryStage()) )
+		{
+			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("CompetitiveGame_LowerChatWindow", false);
+		}
+		else
+			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("CompetitiveGame_RestoreChatWindow", false);
+
 	}
 
 	UpdateVisibility();
