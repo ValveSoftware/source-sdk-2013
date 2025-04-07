@@ -3072,6 +3072,7 @@ void CTFPlayer::PrecacheTFPlayer()
 	PrecacheModel( "effects/beam001_blu.vmt" );
 	PrecacheModel( "effects/beam001_white.vmt" );
 	PrecacheModel( "models/player/gibs/random_organ.mdl" );
+    PrecacheModel( "models/player/gibs/gibs_bolt.mdl" );
 
 	PrecacheScriptSound( "Weapon_Mantreads.Impact" );
 
@@ -9112,7 +9113,15 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				pRandomInternalOrgan->KeyValue( "origin", buf );
 				Q_snprintf( buf, sizeof( buf ), "%.10f %.10f %.10f", GetAbsAngles().x, GetAbsAngles().y, GetAbsAngles().z );
 				pRandomInternalOrgan->KeyValue( "angles", buf );
-				pRandomInternalOrgan->KeyValue( "model", "models/player/gibs/random_organ.mdl" );
+				if (TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_BLUE)
+				{
+					//robots don't have spleens....
+					pRandomInternalOrgan->KeyValue("model", "models/player/gibs/gibs_bolt.mdl");
+				}
+				else
+				{
+					pRandomInternalOrgan->KeyValue("model", "models/player/gibs/random_organ.mdl");
+				}
 				pRandomInternalOrgan->KeyValue( "fademindist", "-1" );
 				pRandomInternalOrgan->KeyValue( "fademaxdist", "0" );
 				pRandomInternalOrgan->KeyValue( "fadescale", "1" );
