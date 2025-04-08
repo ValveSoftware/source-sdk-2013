@@ -334,8 +334,6 @@ void CTFHudMatchStatus::Reset()
 		m_pTeamStatus->Reset();
 	}
 
-	g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("CompetitiveGame_RestoreChatWindow", false); // Restore chat window to in-game position
-
 	CHudElement::Reset();
 }
 
@@ -616,6 +614,7 @@ void CTFHudMatchStatus::HandleCountdown( int nTime )
 		if ( TFGameRules()->GetRoundsPlayed() == 0 )
 		{
 			ShowRoundSign( TFGameRules()->GetRoundsPlayed() );
+			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("CompetitiveGame_RestoreChatWindow", false); // Restore chat window to in-game position
 		}
 		break;
 	case 10:
