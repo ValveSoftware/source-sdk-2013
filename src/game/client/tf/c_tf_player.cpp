@@ -7873,9 +7873,9 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 		m_bNotifiedWeaponInspectThisLife = false;
 
 		// make sure the chat window has been restored to the appropriate place
-		if ( TFGameRules() && (TFGameRules()->ShowMatchSummary() || TFGameRules()->PlayersAreOnMatchSummaryStage()) )
+		if (  (TFGameRules() && (TFGameRules()->BInMatchStartCountdown()) || TFGameRules()->ShowMatchSummary()) ) // If we're at the start or end of a casual/competitive match...
 		{
-			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("CompetitiveGame_LowerChatWindow", false);
+			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("CompetitiveGame_LowerChatWindow", false); // ...do not update position!
 		}
 		else
 			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("CompetitiveGame_RestoreChatWindow", false);
