@@ -615,7 +615,6 @@ void CTFMinigun::AttackEnemyProjectiles( void )
 				continue;
 
 			CBaseProjectile *pProjectile = dynamic_cast< CBaseProjectile* >( pObjects[i] );
-			CBaseEntity* pObject = pObjects[i];
 			if ( pProjectile && pProjectile->IsDestroyable() )
 			{
 				pProjectile->IncrementDestroyableHitCount();
