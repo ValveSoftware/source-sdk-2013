@@ -36,6 +36,7 @@ void ReloadAllPlayerReticles();
 void ReloadAllPassReticles();
 void ReloadBallReticle();
 void ReloadBounceReticle();
+static bool g_BounceReticleDirty = false;
 //-----------------------------------------------------------------------------
 // C_PasstimeReticle
 //-----------------------------------------------------------------------------
@@ -138,14 +139,21 @@ void C_PasstimeReticle::SetScale( int i, float flScale )
 //-----------------------------------------------------------------------------
 void C_PasstimeReticle::ReloadSprites()
 {
+	DevMsg("ReloadSprites: Clearing %d sprites.\n", m_pSprites.Count());
 	for( int i = 0; i < m_pSprites.Count(); ++i )
 	{
 		if (m_pSprites[i])
 		{
+			DevMsg("Removing sprite at index %d.\n", i);
 			clienteffects->RemoveEffect(m_pSprites[i]);
+		}
+		else 
+		{
+			DevMsg("Sprite at index %d is null.\n", i);
 		}
 	}
 	m_pSprites.RemoveAll();
+	DevMsg("ReloadSprites: Sprite list cleared. Remaining count: %d.\n", m_pSprites.Count());
 }
 
 //-----------------------------------------------------------------------------
@@ -546,7 +554,6 @@ ConVar p4ss_crosshair_outer_spinspeed( "p4ss_crosshair_outer_spinspeed", "200", 
 //-----------------------------------------------------------------------------
 // C_PasstimeBounceReticle
 //-----------------------------------------------------------------------------
-C_PasstimeBounceReticle* g_pBounceReticle = nullptr;
 //-----------------------------------------------------------------------------
 void C_PasstimeBounceReticle::InitializeSprites()
 {
@@ -579,7 +586,7 @@ void C_PasstimeBounceReticle::InitializeSprites()
 		snprintf(fullPath, sizeof(fullPath), "%s%s", defaultFolder, pOuterBounceSprite);
 		pOuterBounceSprite = fullPath;
 	}
-
+	DevMsg("Inner Sprite: %s, Outer Sprite: %s\n", pInnerBounceSprite, pOuterBounceSprite);
     // Add new sprites and scale by factors from convars
     AddSprite(CreateReticleSprite(pInnerBounceSprite, pInnerBounceScale * 160, 0)); // Inner crosshair
     AddSprite(CreateReticleSprite(pOuterBounceSprite, pOuterBounceScale * 80, pOuterBounceSpinSpeed)); // Outer crosshair
@@ -587,7 +594,6 @@ void C_PasstimeBounceReticle::InitializeSprites()
 
 C_PasstimeBounceReticle::C_PasstimeBounceReticle()
 {
-	g_pBounceReticle = this;
 	InitializeSprites();
 }
 
@@ -614,6 +620,11 @@ void C_PasstimeBounceReticle::Show( const Vector &vec, const Vector &normal )
 	SetNormal( 0, normal );
 	SetNormal( 1, -MainViewForward() );
 
+	if ( g_BounceReticleDirty )
+	{
+		ReloadSprites();
+		g_BounceReticleDirty = false;
+	}
 	if ( p4ss_crosshair_inner_teamcolored.GetBool() )
 	{
 		if ( nTeamNumber == TF_TEAM_RED )
@@ -673,11 +684,6 @@ void C_PasstimeBounceReticle::Hide()
 bool C_PasstimeBounceReticle::Update()
 {
 	return !IsLocalPlayerSpectator();
-}
-
-C_PasstimeBounceReticle::~C_PasstimeBounceReticle()
-{
-    g_pBounceReticle = nullptr; 
 }
 
 ConVar p4ss_teamicons_alpha( "p4ss_teamicons_alpha", "100", FCVAR_ARCHIVE, "Sets alpha of the icons drawn on teammates through walls." );
@@ -944,6 +950,7 @@ void OnCrosshairSettingsChanged(IConVar* pConVar, const char* pOldValue, float f
         strcmp(pConVarName, "p4ss_crosshair_outer_scale") == 0 ||
         strcmp(pConVarName, "p4ss_crosshair_outer_spinspeed") == 0)
     {
+		g_BounceReticleDirty = true;
 		ReloadBounceReticle();
     }
 
@@ -1013,10 +1020,20 @@ void ReloadBallReticle()
 #ifdef CLIENT_DLL
 void ReloadBounceReticle()
 {
-	if (!g_pBounceReticle)
+	auto* pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+    if (!pLocalPlayer)
     {
         return;
     }
-	g_pBounceReticle->ReloadSprites();
+    C_PasstimeGun* pWeapon = dynamic_cast<C_PasstimeGun*>(pLocalPlayer->GetActiveWeapon());
+    if (pWeapon && pWeapon->GetBounceReticle())
+    {
+        pWeapon->GetBounceReticle()->ReloadSprites();
+		g_BounceReticleDirty = false;
+    }
+	else
+	{
+		g_BounceReticleDirty = true;
+	}
 }
 #endif

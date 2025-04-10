@@ -92,7 +92,6 @@ private:
 class C_PasstimeBounceReticle : public C_PasstimeReticle
 {
 public:
-virtual ~C_PasstimeBounceReticle();
 	C_PasstimeBounceReticle();
 	void Show( const Vector& pos, const Vector& normal );
 	void Hide();
