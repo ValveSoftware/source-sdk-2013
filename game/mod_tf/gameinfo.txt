@@ -86,22 +86,17 @@
 
 	CubemapBuilder 
 	{
-		SetGameToMaximunGraphic 1
+		SetGameToMaximumGraphic 1
 		BuildDefaultCubemap 	1
 
 		Hdr
 		{
-			+sv_cheats 			1
-			+mat_specular	 	0
-			+mat_hdr_level		2
-			+building_cubemaps 	1
+			BuildParams		"+sv_cheats 1 +mat_specular 0 +mat_hdr_level 2 +building_cubemaps 1"
 		}
 
 		Ldr
 		{
-			+sv_cheats 			1
-			+mat_specular	 	0
-			+mat_hdr_level		0
+			BuildParams		"+sv_cheats 1 +mat_specular 0 +mat_hdr_level 0"
 		}
 	}
 }

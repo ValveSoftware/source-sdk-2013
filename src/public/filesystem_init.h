@@ -211,10 +211,7 @@ FSReturnCode_t GetSteamCfgPath( char *steamCfgPath, int steamCfgPathLen );
 
 // Returns the last error.
 const char *FileSystem_GetLastErrorString();
-void FileSystem_GetAppInstallDir(char* string, size_t bufferSize);
 
 void Q_getwd( char *out, int outSize );
-
-KeyValues* ReadKeyValuesFile(const char* pFilename);
 
 #endif // FILESYSTEM_INIT_H

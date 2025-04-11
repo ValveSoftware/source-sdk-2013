@@ -50,7 +50,5 @@ $Project "GL View"
 	{
 		$Lib mathlib
 		$Lib tier2
-		$Lib steam_api64 [$WIN64]
-		$Lib steam_api [$WIN32]
 	}
 }

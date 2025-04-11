@@ -37,7 +37,5 @@ $Project "Vice"
 	{
 		$Lib tier2
 		$Lib mathlib
-		$Lib steam_api64 [$WIN64]
-		$Lib steam_api [$WIN32]
 	}
 }

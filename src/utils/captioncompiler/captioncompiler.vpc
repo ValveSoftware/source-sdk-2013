@@ -56,7 +56,5 @@ $Project "Caption Compiler"
 		$Lib mathlib
 		$Lib tier2
 		$Lib tier3
-		$Lib steam_api64 [$WIN64]
-		$Lib steam_api [$WIN32]
 	}
 }

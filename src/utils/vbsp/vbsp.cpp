@@ -849,10 +849,10 @@ void ProcessModels (void)
 		}
 		else
 		{
-			ProcessSubModel( );
+			ProcessSubModel();
 		}
 
-		EndModel ();
+		EndModel();
 
 		if (!verboseentities)
 		{
@@ -860,22 +860,29 @@ void ProcessModels (void)
 		}
 	}
 
-	KeyValues* GameInfoKVCubemap = ReadKeyValuesFile(GameInfoPath);
-	if(!GameInfoKVCubemap)
+	KeyValues* pKvGameInfoCubemap = new KeyValues(GameInfoPath);
+	if(pKvGameInfoCubemap)
 	{
-		Error("Could not get KeyValues from %s!\n", GameInfoPath);
-	}
-	
-	KeyValues* CubemapBuilder = GameInfoKVCubemap->FindKey("CubemapBuilder",true);
-	const char* BuildDefaultCubemap = CubemapBuilder->GetString("BuildDefaultCubemap","1");
+		KeyValues* pKvCubemapBuilder = pKvGameInfoCubemap->FindKey("CubemapBuilder");
+		if (pKvCubemapBuilder) 
+		{
+			const char* pBuildDefaultCubemap = pKvCubemapBuilder->GetString("BuildDefaultCubemap");
 
-	if (atoi(BuildDefaultCubemap) == 1)
+			if (atoi(pBuildDefaultCubemap) == 1)
+			{
+				// Turn the skybox into a cubemap in case we don't build env_cubemap textures.
+				Cubemap_CreateDefaultCubemaps();
+			}
+		}
+		pKvGameInfoCubemap->deleteThis();
+	}
+	else
 	{
-		// Turn the skybox into a cubemap in case we don't build env_cubemap textures.
 		Cubemap_CreateDefaultCubemaps();
 	}
+	
 
-	EndBSPFile ();
+	EndBSPFile();
 }
 
 

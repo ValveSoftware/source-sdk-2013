@@ -102,7 +102,5 @@ $Project "VVIS"
 		$Lib vmpi [$WIN32]
 		$Lib "$LIBCOMMON/lzma"
 		$File "$SRCDIR\thirdparty\libcurl\lib\win32\libcurl.lib" [$WIN32]
-		$Lib steam_api64 [$WIN64]
-		$Lib steam_api [$WIN32]
 	}
 }
