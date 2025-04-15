@@ -354,8 +354,8 @@ public:
 	virtual bool			AllowsAutoSwitchFrom( void ) const;
 	virtual bool			ForceWeaponSwitch( void ) const { return false; }
 	virtual int				GetWeaponFlags( void ) const;
-	virtual int				GetSlot( void ) const;
-	virtual int				GetPosition( void ) const;
+	virtual int				GetSlot( void ) const { return m_iSlot; };
+	virtual int				GetPosition( void ) const { return m_iPosition; };
 	virtual char const		*GetName( void ) const;
 	virtual char const		*GetPrintName( void ) const;
 	virtual char const		*GetShootSound( int iIndex ) const;
@@ -638,7 +638,7 @@ public:
 	float					m_fMaxRange2;			// What's the furthest this weapon can be used?
 	bool					m_bReloadsSingly;		// True if this weapon reloads 1 round at a time
 	float					m_fFireDuration;		// The amount of time that the weapon has sustained firing
-	int						m_iSubType;
+	CNetworkVar( int, m_iSubType );
 
 	float					m_flUnlockTime;
 	EHANDLE					m_hLocker;				// Who locked this weapon.
@@ -659,6 +659,9 @@ private:
 	float					m_flHudHintMinDisplayTime; // if the hint is squelched before this, reset my counter so we'll display it again.
 	
 	CNetworkVar( short, m_nCustomViewmodelModelIndex );
+
+	CNetworkVar( int, m_iSlot );				// which bucket this weapon is in
+	CNetworkVar( int, m_iPosition );			// position in the bucket
 
 	// Server only
 #if !defined( CLIENT_DLL )

@@ -182,6 +182,8 @@ void CBaseCombatWeapon::Spawn( void )
 		tmLeave( TELEMETRY_LEVEL1 );
 	}
 
+	m_iSlot = GetWpnData().iSlot;
+	m_iPosition = GetWpnData().iPosition;
 
 	BaseClass::Spawn();
 
@@ -450,22 +452,6 @@ bool CBaseCombatWeapon::AllowsAutoSwitchFrom( void ) const
 int CBaseCombatWeapon::GetWeaponFlags( void ) const
 {
 	return GetWpnData().iFlags;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int CBaseCombatWeapon::GetSlot( void ) const
-{
-	return GetWpnData().iSlot;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int CBaseCombatWeapon::GetPosition( void ) const
-{
-	return GetWpnData().iPosition;
 }
 
 //-----------------------------------------------------------------------------
@@ -2572,17 +2558,17 @@ BEGIN_PREDICTION_DATA( CBaseCombatWeapon )
 	// Networked
 	DEFINE_PRED_FIELD( m_hOwner, FIELD_EHANDLE, FTYPEDESC_INSENDTABLE ),
 	// DEFINE_FIELD( m_hWeaponFileInfo, FIELD_SHORT ),
-	DEFINE_PRED_FIELD( m_iState, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),			 
+	DEFINE_PRED_FIELD( m_iState, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iViewModelIndex, FIELD_INTEGER, FTYPEDESC_INSENDTABLE | FTYPEDESC_MODELINDEX ),
 	DEFINE_PRED_FIELD( m_iWorldModelIndex, FIELD_INTEGER, FTYPEDESC_INSENDTABLE | FTYPEDESC_MODELINDEX ),
-	DEFINE_PRED_FIELD_TOL( m_flNextPrimaryAttack, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, TD_MSECTOLERANCE ),	
+	DEFINE_PRED_FIELD_TOL( m_flNextPrimaryAttack, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, TD_MSECTOLERANCE ),
 	DEFINE_PRED_FIELD_TOL( m_flNextSecondaryAttack, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, TD_MSECTOLERANCE ),
 	DEFINE_PRED_FIELD_TOL( m_flTimeWeaponIdle, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, TD_MSECTOLERANCE ),
 
 	DEFINE_PRED_FIELD( m_iPrimaryAmmoType, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iSecondaryAmmoType, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
-	DEFINE_PRED_FIELD( m_iClip1, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),			
-	DEFINE_PRED_FIELD( m_iClip2, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),			
+	DEFINE_PRED_FIELD( m_iClip1, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_iClip2, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 
 	DEFINE_PRED_FIELD( m_nViewModelIndex, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 
@@ -2594,14 +2580,14 @@ BEGIN_PREDICTION_DATA( CBaseCombatWeapon )
 	DEFINE_FIELD( m_flNextEmptySoundTime, FIELD_FLOAT ),
 	DEFINE_FIELD( m_Activity, FIELD_INTEGER ),
 	DEFINE_FIELD( m_fFireDuration, FIELD_FLOAT ),
-	DEFINE_FIELD( m_iszName, FIELD_INTEGER ),		
+	DEFINE_FIELD( m_iszName, FIELD_INTEGER ),
 	DEFINE_FIELD( m_bFiresUnderwater, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_bAltFiresUnderwater, FIELD_BOOLEAN ),
-	DEFINE_FIELD( m_fMinRange1, FIELD_FLOAT ),		
-	DEFINE_FIELD( m_fMinRange2, FIELD_FLOAT ),		
-	DEFINE_FIELD( m_fMaxRange1, FIELD_FLOAT ),		
-	DEFINE_FIELD( m_fMaxRange2, FIELD_FLOAT ),		
-	DEFINE_FIELD( m_bReloadsSingly, FIELD_BOOLEAN ),	
+	DEFINE_FIELD( m_fMinRange1, FIELD_FLOAT ),
+	DEFINE_FIELD( m_fMinRange2, FIELD_FLOAT ),
+	DEFINE_FIELD( m_fMaxRange1, FIELD_FLOAT ),
+	DEFINE_FIELD( m_fMaxRange2, FIELD_FLOAT ),
+	DEFINE_FIELD( m_bReloadsSingly, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_bRemoveable, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_iPrimaryAmmoCount, FIELD_INTEGER ),
 	DEFINE_FIELD( m_iSecondaryAmmoCount, FIELD_INTEGER ),
@@ -2682,6 +2668,9 @@ BEGIN_DATADESC( CBaseCombatWeapon )
 	DEFINE_FIELD( m_flHudHintMinDisplayTime, FIELD_TIME ),
 
 	DEFINE_FIELD( m_nCustomViewmodelModelIndex, FIELD_SHORT ),
+
+	DEFINE_FIELD( m_iSlot, FIELD_INTEGER ),
+	DEFINE_FIELD( m_iPosition, FIELD_INTEGER ),
 
 	// Just to quiet classcheck.. this field exists only on the client
 //	DEFINE_FIELD( m_iOldState, FIELD_INTEGER ),
@@ -2830,7 +2819,7 @@ BEGIN_NETWORK_TABLE_NOBASE( CBaseCombatWeapon, DT_LocalActiveWeaponData )
 END_NETWORK_TABLE()
 
 //-----------------------------------------------------------------------------
-// Purpose: Propagation data for weapons. Only sent when a player's holding it.
+// Purpose: Propagation data for weapons.
 //-----------------------------------------------------------------------------
 BEGIN_NETWORK_TABLE_NOBASE( CBaseCombatWeapon, DT_LocalWeaponData )
 #if !defined( CLIENT_DLL )
@@ -2840,7 +2829,11 @@ BEGIN_NETWORK_TABLE_NOBASE( CBaseCombatWeapon, DT_LocalWeaponData )
 	SendPropInt( SENDINFO(m_iSecondaryAmmoType ), 8 ),
 
 	SendPropInt( SENDINFO( m_nViewModelIndex ), VIEWMODEL_INDEX_BITS, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO(m_iSubType ), 6, SPROP_UNSIGNED ),
 	SendPropModelIndex( SENDINFO( m_nCustomViewmodelModelIndex ) ),
+
+	SendPropInt( SENDINFO(m_iSlot ), 4, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO(m_iPosition ), 5, SPROP_UNSIGNED ),
 
 	SendPropInt( SENDINFO( m_bFlipViewModel ) ),
 
@@ -2855,7 +2848,11 @@ BEGIN_NETWORK_TABLE_NOBASE( CBaseCombatWeapon, DT_LocalWeaponData )
 	RecvPropInt( RECVINFO(m_iSecondaryAmmoType )),
 
 	RecvPropInt( RECVINFO( m_nViewModelIndex ) ),
+	RecvPropInt( RECVINFO(m_iSubType )),
 	RecvPropInt( RECVINFO( m_nCustomViewmodelModelIndex ) ),
+
+	RecvPropInt( RECVINFO(m_iSlot )),
+	RecvPropInt( RECVINFO(m_iPosition )),
 
 	RecvPropBool( RECVINFO( m_bFlipViewModel ) ),
 
