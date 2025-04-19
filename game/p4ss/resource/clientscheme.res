@@ -21,8 +21,8 @@ Scheme
 		// base colors
 		"Orange"			"178 82 22 255"
 		"OrangeDim"			"178 82 22 120"
-		"LightOrange"		"188 112 0 255"
-		"GoalOrange"		"255 133 0 255"
+		"LightOrange"		"188 112 0 128"
+		"GoalOrange"		"255 133 0"
 		"TFOrange"			"145 73 59 255"
 		"Purple"			"137 69 99 255"
 
@@ -97,7 +97,6 @@ Scheme
 		"HudTrainingHint"			"212 160 23 255"
 		
 		"TanDark"				"117 107 94 255"
-		"Tan"					"176 165 141 255"
 		"TanLight"				"235 226 202 255"
 		"TanDarker"				"46 43 42 255"
 		
@@ -209,14 +208,6 @@ Scheme
 		"UpgradeSelectedBg"		"249 138 83 255"
 		"UpgradeDisabledFg"		"64 59 52 255"
 		"UpgradeDisabledBg"		"79 77 68 255"
-		
-		//PASS Fortress Colors :3
-		"PureWhite"				"255 255 255 255"
-		"PureBlack"				"0 0 0 255"
-		"PFGrey" 				"32 32 32 180"
-		"PFGreen"				"152 191 101 255"
-		"PFDarkGreen"			"62 76 41 255"
-		"PFGreenDim" 			"152 191 101 128"
 	}
 
 	///////////////////// BASE SETTINGS ////////////////////////
@@ -481,16 +472,69 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"14"
+				"name"		"Verdana"
+				"tall"		"12"
+				"weight"	"900"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-			}	
+				"yres"	"480 599"
+			}
+			"2"
+			{
+				"name"		"Verdana"
+				"tall"		"13"	[$WIN32]
+				"tall"		"20"	[$X360]
+				"weight"	"900"
+				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"yres"	"600 767"
+			}
+			"3"
+			{
+				"name"		"Verdana"
+				"tall"		"14"
+				"weight"	"900"
+				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"yres"	"768 1023"
+				"antialias"	"1"
+			}
+			"4"
+			{
+				"name"		"Verdana"
+				"tall"		"20"
+				"weight"	"900"
+				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"yres"	"1024 1199"
+				"antialias"	"1"
+			}
+			"5" // Misyl: Proportional
+			{
+				"name"		"Verdana"
+				"tall"		"9"
+				"weight"	"900"
+				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"antialias"	"1"
+			}
+			"6"
+			{
+				"name"		"Verdana"
+				"tall"		"12"
+				"range" 		"0x0000 0x00FF"
+				"weight"		"900"
+			}
+			"7"
+			{
+				"name"		"Arial"
+				"tall"		"12"
+				"range" 		"0x0000 0x00FF"
+				"weight"		"800"
+			}
+
+			
 		}
 		"DefaultUnderline"
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Tahoma"
 				"tall"		"12"
 				"weight"	"500"
 				"underline" "1"
@@ -508,9 +552,52 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Light"
-				"tall"		"10"
+				"name"		"Verdana"
+				"tall"		"12"
+				"weight"	"0"
 				"range"		"0x0000 0x017F"
+				"yres"	"480 599"
+			}
+			"2"
+			{
+				"name"		"Verdana"
+				"tall"		"13"
+				"weight"	"0"
+				"range"		"0x0000 0x017F"
+				"yres"	"600 767"
+			}
+			"3"
+			{
+				"name"		"Verdana"
+				"tall"		"14"
+				"weight"	"0"
+				"range"		"0x0000 0x017F"
+				"yres"	"768 1023"
+				"antialias"	"1"
+			}
+			"4"
+			{
+				"name"		"Verdana"
+				"tall"		"20"
+				"weight"	"0"
+				"range"		"0x0000 0x017F"
+				"yres"	"1024 1199"
+				"antialias"	"1"
+			}
+			"5" // Misyl: Proportional
+			{
+				"name"		"Verdana"
+				"tall"		"9"
+				"weight"	"0"
+				"range"		"0x0000 0x017F"
+				"antialias"	"1"
+			}
+			"6"
+			{
+				"name"		"Arial"
+				"tall"		"12"
+				"range" 		"0x0000 0x00FF"
+				"weight"		"0"
 			}
 		}
 
@@ -519,19 +606,104 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Light"
-				"tall"		"8"
+				"name"		"Verdana"
+				"tall"		"12"
+				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"yres"	"480 599"
+			}
+			"2"
+			{
+				"name"		"Verdana"
+				"tall"		"12"
+				"weight"	"0"
+				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"yres"	"600 767"
+			}
+			"3"
+			{
+				"name"		"Verdana"
+				"tall"		"12"
+				"weight"	"0"
+				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"yres"	"768 1023"
+				"antialias"	"1"
+			}
+			"4"
+			{
+				"name"		"Verdana"
+				"tall"		"14"
+				"weight"	"0"
+				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"yres"	"1024 1199"
+				"antialias"	"1"
+			}
+			"5" // Misyl: Proportional
+			{
+				"name"		"Verdana"
+				"tall"		"9"
+				"weight"	"0"
+				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"antialias"	"1"
 			}
 		}
-		
 		DefaultLarge
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"18"
+				"weight"	"900"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"yres"		"480 599"
+			}
+			"2"
+			{
+				"name"		"Verdana"
+				"tall"		"21"
+				"weight"	"900"
+				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"yres"		"600 767"
+			}
+			"3"
+			{
+				"name"		"Verdana"
+				"tall"		"22"
+				"weight"	"900"
+				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"yres"		"768 1023"
+				"antialias"	"1"
+			}
+			"4"
+			{
+				"name"		"Verdana"
+				"tall"		"28"
+				"weight"	"900"
+				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"yres"		"1024 1199"
+				"antialias"	"1"
+			}
+			"5" // Misyl: Proportional
+			{
+				"name"		"Verdana"
+				"tall"		"18"
+				"weight"	"900"
+				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
+				"antialias"	"1"
+			}
+			"6"
+			{
+				"name"		"Verdana"
+				"tall"		"20"
+				"range" 		"0x0000 0x00FF"
+				"weight"		"900"
+			}
+			"7"
+			{
+				"name"		"Arial"
+				"tall"		"20"
+				"range" 		"0x0000 0x00FF"
+				"weight"		"800"
 			}
 		}
 		CenterPrintText
@@ -1406,7 +1578,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"6"
 				"weight"	"400"
 				"additive"	"0"
@@ -1417,7 +1589,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"8"
 				"tall_hidef"	"10"
 				"tall_lodef"	"14"
@@ -1430,10 +1602,10 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"12"
+				"name"		"TF2 Secondary"
+				"tall"		"10"
 				"tall_hidef"	"12"
-				"tall_lodef"	"12"
+				"tall_lodef"	"14"
 				"weight"	"400"
 				"additive"	"0"
 				"antialias" "1"
@@ -1443,7 +1615,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"14"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1455,7 +1627,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"20"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1467,7 +1639,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"20"
 				"tall_hidef"	"24"
 				"tall_lodef"	"24"
@@ -1481,7 +1653,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"14"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1493,7 +1665,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"20"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1505,7 +1677,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"34"
 				"tall_hidef"	"38"
 				"tall_lodef"	"38"
@@ -1520,7 +1692,7 @@ Scheme
  		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"36"
 				"tall_hidef"	"48"
 				"weight"	"500"
@@ -1532,7 +1704,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"52"
 				"tall_lodef"		"80"
 				"range" 	"0x0000 0x00FF"
@@ -1542,7 +1714,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"72"
 				"tall_hidef"	"120"
 				"range" 	"0x0000 0x00FF"
@@ -1552,7 +1724,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"100"
 				"range" 	"0x0000 0x00FF"
 				"weight"	"400"
@@ -1561,7 +1733,7 @@ Scheme
 			}
 			"4"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"140"
 				"range" 	"0x0000 0x00FF"
 				"weight"	"400"
@@ -1570,7 +1742,7 @@ Scheme
 			}
 			"5"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"180"
 				"range" 	"0x0000 0x00FF"
 				"weight"	"400"
@@ -1582,7 +1754,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"36"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1594,7 +1766,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"14"
 				"weight"	"400"
 				"additive"	"0"
@@ -1605,7 +1777,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"20"
 				"weight"	"400"
 				"additive"	"0"
@@ -1616,7 +1788,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"14"
 				"weight"	"400"
 				"additive"	"0"
@@ -1627,7 +1799,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"10"
 				"weight"	"400"
 				"additive"	"0"
@@ -1638,7 +1810,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"7"
 				"weight"	"400"
 				"additive"	"0"
@@ -2713,7 +2885,6 @@ Scheme
 		//
 		//////////////////// ECON FONTS //////////////////////////////
 		//
-
 		"EconFontSmall"
 		{
 			"1"
@@ -2864,509 +3035,18 @@ Scheme
 				"antialias" "1"
 			}
 		}
-
-		//////////////// Custom Font Definitions :D////////////////
-
-		"Compacta14"
+///////////////////NAMETAG FONTS
+		"NametagSmall"
 		{
 			"1"
 			{
-				"name"	"Compacta BT"
-				"tall"	"14"
+				"name"		"Montserrat Bold"
+				"tall"		"16"
+				"weight"	"500"
+				"additive"	"0"
+				"antialias" "1"
 			}
 		}
-		"Compacta16"
-		{
-			"1"
-			{
-				"name"	"Compacta BT"
-				"tall"	"16"
-			}
-		}
-		"Compacta18"
-		{
-			"1"
-			{
-				"name"	"Compacta BT"
-				"tall"	"18"
-			}
-		}
-		"Compacta20"
-		{
-			"1"
-			{
-				"name"	"Compacta BT"
-				"tall"	"20"
-			}
-		}
-		"Compacta24"
-		{
-			"1"
-			{
-				"name"	"Compacta BT"
-				"tall"	"24"
-			}
-		}
-		"Compacta28"
-		{
-			"1"
-			{
-				"name"	"Compacta BT"
-				"tall"	"28"
-			}
-		}
-		"Compacta32"
-		{
-			"1"
-			{
-				"name"	"Compacta BT"
-				"tall"	"32"
-			}
-		}
-		"Compacta36"
-		{
-			"1"
-			{
-				"name"	"Compacta BT"
-				"tall"	"36"
-			}
-		}
-		
-		"CompactaBlack14"
-		{
-			"1"
-			{
-				"name"	"Compacta BT Black"
-				"tall"	"14"
-			}
-		}
-		"CompactaBlack16"
-		{
-			"1"
-			{
-				"name"	"Compacta BT Black"
-				"tall"	"16"
-			}
-		}
-		"CompactaBlack20"
-		{
-			"1"
-			{
-				"name"	"Compacta BT Black"
-				"tall"	"20"
-			}
-		}
-		"CompactaBlack24"
-		{
-			"1"
-			{
-				"name"	"Compacta BT Black"
-				"tall"	"24"
-			}
-		}
-		"CompactaBlack28"
-		{
-			"1"
-			{
-				"name"	"Compacta BT Black"
-				"tall"	"28"
-			}
-		}
-		"CompactaBlack32"
-		{
-			"1"
-			{
-				"name"	"Compacta BT Black"
-				"tall"	"32"
-			}
-		}
-		"CompactaBlack36"
-		{
-			"1"
-			{
-				"name"	"Compacta BT Black"
-				"tall"	"36"
-			}
-		}
-		"CompactaBlack40"
-		{
-			"1"
-			{
-				"name"	"Compacta BT Black"
-				"tall"	"40"
-			}
-		}
-		"CompactaBlack44"
-		{
-			"1"
-			{
-				"name"	"Compacta BT Black"
-				"tall"	"44"
-			}
-		}
-		"MontserratBlack10Shadow"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"10"
-				"dropshadow"	"1"
-			}
-		}
-		"MontserratBlack11Shadow"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"11"
-				"dropshadow"	"1"
-			}
-		}
-		"MontserratBlack12"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"12"
-			}
-		}
-		"MontserratBlack12Shadow"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"12"
-				"dropshadow"	"1"
-			}
-		}
-		"MontserratBlack14"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"14"
-			}
-		}
-		"MontserratBlack14Shadow"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"14"
-				
-			}
-		}
-		"MontserratBlack16Shadow"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"16"
-				"dropshadow"	"1"
-			}
-		}
-		"MontserratBlack20"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"20"
-			}
-		}
-		"MontserratBlack22"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"22"
-			}
-		}
-		"MontserratBlack24"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"24"
-			}
-		}
-		"MontserratBlack26"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"26"
-			}
-		}
-		"MontserratBlack28"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"28"
-			}
-		}
-		"MontserratBlack32"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"32"
-			}
-		}
-		"MontserratBlack34"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"34"
-			}
-		}
-		"MontserratBlack36"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"36"
-			}
-		}
-		"MontserratBlack40"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"40"
-			}
-		}
-		"MontserratBlack44"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"44"
-			}
-		}
-		"MontserratBlack48"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"48"
-			}
-		}
-		"MontserratBlack52"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"52"
-			}
-		}
-		"MontserratBlack56"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"56"
-			}
-		}
-		"MontserratBlack64"
-		{
-			"1"
-			{
-				"name"	"Montserrat Black"
-				"tall"	"64"
-			}
-		}
-		
-		"MontserratSemibold16"
-		{
-			"1"
-			{
-				"name"	"Montserrat SemiBold"
-				"tall"	"16"
-			}
-		}
-		"MontserratSemibold16Shadow"
-		{
-			"1"
-			{
-				"name"	"Montserrat SemiBold"
-				"tall"	"16"
-				"dropshadow"	"1"
-			}
-		}
-		"MontserratSemibold20"
-		{
-			"1"
-			{
-				"name"	"Montserrat SemiBold"
-				"tall"	"20"
-			}
-		}
-		"MontserratSemibold24"
-		{
-			"1"
-			{
-				"name"	"Montserrat SemiBold"
-				"tall"	"24"
-			}
-		}
-		"MontserratSemibold28"
-		{
-			"1"
-			{
-				"name"	"Montserrat SemiBold"
-				"tall"	"28"
-			}
-		}
-		"MontserratSemibold32"
-		{
-			"1"
-			{
-				"name"	"Montserrat SemiBold"
-				"tall"	"32"
-			}
-		}
-		
-		"MontserratLight6"
-		{
-			"1"
-			{
-				"name"	"Montserrat Light"
-				"tall"	"6"
-			}
-		}
-		"MontserratLight8"
-		{
-			"1"
-			{
-				"name"	"Montserrat Light"
-				"tall"	"8"
-			}
-		}
-		"MontserratLight12"
-		{
-			"1"
-			{
-				"name"	"Montserrat Light"
-				"tall"	"12"
-			}
-		}
-		"MontserratLight16"
-		{
-			"1"
-			{
-				"name"	"Montserrat Light"
-				"tall"	"16"
-			}
-		}
-		"MontserratLight20"
-		{
-			"1"
-			{
-				"name"	"Montserrat Light"
-				"tall"	"20"
-			}
-		}
-		"MenuGlyphs12"
-		{
-			"1"
-			{
-				"name"	"Bobby's TF2 Glyphs"
-				"tall"	"12"
-			}
-		}
-		
-		"MenuGlyphs16"
-		{
-			"1"
-			{
-				"name"	"Bobby's TF2 Glyphs"
-				"tall"	"16"
-			}
-		}
-		"MenuGlyphs20"
-		{
-			"1"
-			{
-				"name"	"Bobby's TF2 Glyphs"
-				"tall"	"20"
-			}
-		}
-		"MenuGlyphs24"
-		{
-			"1"
-			{
-				"name"	"Bobby's TF2 Glyphs"
-				"tall"	"24"
-			}
-		}
-		"MenuGlyphs28"
-		{
-			"1"
-			{
-				"name"	"Bobby's TF2 Glyphs"
-				"tall"	"28"
-			}
-		}
-		"MenuGlyphs32"
-		{
-			"1"
-			{
-				"name"	"Bobby's TF2 Glyphs"
-				"tall"	"32"
-			}
-		}
-		"MenuGlyphs36"
-		{
-			"1"
-			{
-				"name"	"Bobby's TF2 Glyphs"
-				"tall"	"36"
-			}
-		}
-		
-		"FuturaDemiCon8"
-		{
-			"1"
-			{
-				"name"	"Futura Condensed Demi Regular"
-				"tall"	"8"
-			}
-		}
-		"FuturaDemiCon10"
-		{
-			"1"
-			{
-				"name"	"Futura Condensed Demi Regular"
-				"tall"	"10"
-			}
-		}
-		"FuturaDemiCon12"
-		{
-			"1"
-			{
-				"name"	"Futura Condensed Demi Regular"
-				"tall"	"12"
-			}
-		}
-		"FuturaDemiCon14"
-		{
-			"1"
-			{
-				"name"	"Futura Condensed Demi Regular"
-				"tall"	"14"
-			}
-		}
-		"FuturaDemiCon16"
-		{
-			"1"
-			{
-				"name"	"Futura Condensed Demi Regular"
-				"tall"	"16"
-			}
-		}
-		
 	}
 
 	//
@@ -5957,7 +5637,7 @@ Scheme
 			{
 				"1"
 				{
-					"color" "PFGreen"
+					"color" "CreditsGreen"
 					"offset" "0 1"
 				}
 
@@ -5967,7 +5647,7 @@ Scheme
 			{
 				"1"
 				{
-					"color" "PFGreen"
+					"color" "CreditsGreen"
 					"offset" "1 0"
 				}
 			}
@@ -5976,7 +5656,7 @@ Scheme
 			{
 				"1"
 				{
-					"color" "PFGreen"
+					"color" "CreditsGreen"
 					"offset" "0 0"
 				}
 			}
@@ -5985,7 +5665,7 @@ Scheme
 			{
 				"1"
 				{
-					"color" "PFGreen"
+					"color" "CreditsGreen"
 					"offset" "0 0"
 				}
 			}
@@ -5998,68 +5678,12 @@ Scheme
 			{
 				"1"
 				{
-					"color" "PFGreen"
+					"color" "CreditsGreen"
 					"offset" "0 1"
 				}
 				"2"
 				{
-					"color" "PFGreen"
-					"offset" "0 1"
-				}
-			}
-
-			Right
-			{
-				"1"
-				{
-					"color" "PFGreen"
-					"offset" "1 0"
-				}
-				"2"
-				{
-					"color" "PFGreen"
-					"offset" "1 0"
-				}
-			}
-
-			Top
-			{
-				"1"
-				{
-					"color" "PFGreen"
-					"offset" "0 0"
-				}
-				"2"
-				{
-					"color" "PFGreen"
-					"offset" "0 0"
-				}
-			}
-
-			Bottom
-			{
-				"1"
-				{
-					"color" "PFGreen"
-					"offset" "0 0"
-				}
-				"2"
-				{
-					"color" "PFGreen"
-					"offset" "0 0"
-				}
-			}
-		}
-		
-		////////////////Custom Border Hi Speakers////////////////
-		PFMainMenuTooltip	//Used for the hover tooltips on the main menu 
-		{
-			"inset" "0 0 1 1"
-			Left
-			{
-				"1"
-				{
-					"color" "PFDarkGreen"
+					"color" "CreditsGreen"
 					"offset" "0 1"
 				}
 			}
@@ -6068,7 +5692,12 @@ Scheme
 			{
 				"1"
 				{
-					"color" "PFDarkGreen"
+					"color" "CreditsGreen"
+					"offset" "1 0"
+				}
+				"2"
+				{
+					"color" "CreditsGreen"
 					"offset" "1 0"
 				}
 			}
@@ -6077,7 +5706,12 @@ Scheme
 			{
 				"1"
 				{
-					"color" "PFDarkGreen"
+					"color" "CreditsGreen"
+					"offset" "0 0"
+				}
+				"2"
+				{
+					"color" "CreditsGreen"
 					"offset" "0 0"
 				}
 			}
@@ -6086,7 +5720,12 @@ Scheme
 			{
 				"1"
 				{
-					"color" "PFDarkGreen"
+					"color" "CreditsGreen"
+					"offset" "0 0"
+				}
+				"2"
+				{
+					"color" "CreditsGreen"
 					"offset" "0 0"
 				}
 			}
@@ -6228,43 +5867,9 @@ Scheme
 		"15"		"resource/linux_fonts/LiberationSans-Bold.ttf"
 		"16"		"resource/linux_fonts/LiberationMono-Regular.ttf"
 		"17"		"resource/linux_fonts/FiraSans-Regular.ttf"
-		
-		//Bobby Joe's Custom Fonts Installation :D
-		
-		"18"	//Compacta Regular
+		"18" 
 		{
-				"font"	"resource/fonts/Compacta-BT.ttf"
-				"name"	"Compacta BT"
-		}
-		"19"	//Compacta Black
-		{
-				"font"	"resource/fonts/Compacta-BT-Black.ttf"
-				"name"	"Compacta BT Black"
-		}
-		"20"	//Glyphs font
-		{
-				"font"	"resource/fonts/TF2-Glyphs.ttf"
-				"name"	"Bobby's TF2 Glyphs"
-		}
-		"21"
-		{
-				"font"	"resource/fonts/Futura-Condensed-Demi.ttf"
-				"name"	"Futura Condensed Demi Regular"
-		}
-		"22"
-		{
-				"font"	"resource/fonts/Montserrat-Black.ttf"
-				"name"	"Montserrat Black"
-		}
-		"23"
-		{
-				"font"	"resource/fonts/Montserrat-SemiBold.ttf"
-				"name"	"Montserrat SemiBold"
-		}
-		"24"
-		{
-				"font"	"resource/fonts/Montserrat-Light.ttf"
-				"name"	"Montserrat Light"
-		}
+			"font" "resource/fonts/Montserrat-Bold.ttf"
+			"name" "Montserrat Bold"
 	}
 }

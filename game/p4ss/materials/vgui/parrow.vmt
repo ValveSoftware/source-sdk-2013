@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui/parrow2"
+	"$translucent" 1
+	"$ignorez" 1
+}

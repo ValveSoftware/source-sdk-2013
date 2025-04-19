@@ -11414,23 +11414,24 @@ void C_TFPlayer::GetGlowEffectColor( float *r, float *g, float *b )
 	if ( pLocalPlayer && p4ss_glow_healthcolor.GetBool() )
 	{
 		float flHealth = (float)GetHealth() / (float)GetMaxHealth();
-		if ( flHealth <= 0.5f )
+
+		if ( flHealth > 0.6 )
 		{
-			*r = 1.0f;
-			*g = flHealth * 2.0f;
-			*b = 0.05f;
+			*r = 0.33f;
+			*g = 0.75f;
+			*b = 0.23f;
 		}
-		else if( flHealth > 0.5f && flHealth <= 1.0f )
+		else if( flHealth > 0.3 )
 		{
-			*r = ( 1.0f - flHealth ) * 2.0f;
-			*g = 1.0f;
-			*b = 0.05f;
-		}          
-		else if ( flHealth > 1.0f )
+			*r = 0.75f;
+			*g = 0.72f;
+			*b = 0.23f;
+		}
+		else
 		{
-			*r = 0.00f;
-			*g = 1.0f;
-			*b = 0.05f;
+			*r = 0.75f;
+			*g = 0.23f;
+			*b = 0.23f;
 		}
 		return;
 	}
