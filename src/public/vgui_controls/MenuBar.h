@@ -41,7 +41,11 @@ protected:
 	virtual void PerformLayout();
 	virtual void Paint();
 	MESSAGE_FUNC( OnMenuClose, "MenuClose" );
-	MESSAGE_FUNC_INT( OnCursorEnteredMenuButton, "CursorEnteredMenuButton", VPanel);
+#ifdef PLATFORM_64BITS
+	MESSAGE_FUNC_PTR( OnCursorEnteredMenuButton, "CursorEnteredMenuButton", VPanel );
+#else
+	MESSAGE_FUNC_INT( OnCursorEnteredMenuButton, "CursorEnteredMenuButton", VPanel );
+#endif
 
 private:
 	CUtlVector<MenuButton *> m_pMenuButtons;
