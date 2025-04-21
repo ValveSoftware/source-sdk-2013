@@ -355,7 +355,9 @@ public:
 	virtual bool			ForceWeaponSwitch( void ) const { return false; }
 	virtual int				GetWeaponFlags( void ) const;
 	virtual int				GetSlot( void ) const { return m_iSlot; };
+	virtual void			SetSlot( int iSlot ) { m_iSlot = iSlot; };
 	virtual int				GetPosition( void ) const { return m_iPosition; };
+	virtual void			SetPosition( int iPosition ) { m_iPosition = iPosition; };
 	virtual char const		*GetName( void ) const;
 	virtual char const		*GetPrintName( void ) const;
 	virtual char const		*GetShootSound( int iIndex ) const;
