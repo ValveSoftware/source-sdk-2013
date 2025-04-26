@@ -2160,7 +2160,14 @@ void CBasePlayer::PlayerDeathThink(void)
 
 		if ( g_pGameRules->FPlayerCanRespawn( this ) )
 		{
-			m_lifeState = LIFE_RESPAWNABLE;
+			// m_lifeState = LIFE_RESPAWNABLE;
+
+			// Immediately respawn the player
+			m_nButtons = 0; // Clear buttons just before respawn
+			m_iRespawnFrames = 0; // Reset animation counter
+			respawn( this, !IsObserver() ); // Call respawn directly
+			SetNextThink( TICK_NEVER_THINK ); // Stop this think function
+			return; // Exit after respawning
 		}
 		
 		return;
@@ -2174,19 +2181,6 @@ void CBasePlayer::PlayerDeathThink(void)
 		// go to dead camera. 
 		StartObserverMode( m_iObserverLastMode );
 	}
-	
-// wait for any button down,  or mp_forcerespawn is set and the respawn time is up
-	if (!fAnyButtonDown 
-		&& !( g_pGameRules->IsMultiplayer() && forcerespawn.GetInt() > 0 && (gpGlobals->curtime > (m_flDeathTime + 5))) )
-		return;
-
-	m_nButtons = 0;
-	m_iRespawnFrames = 0;
-
-	//Msg( "Respawn\n");
-
-	respawn( this, !IsObserver() );// don't copy a corpse if we're in deathcam.
-	SetNextThink( TICK_NEVER_THINK );
 }
 
 /*

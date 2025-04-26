@@ -65,7 +65,8 @@ bool CTFTeamStatusPlayerPanel::Update( void )
 
 	bool bChanged = false;
 	bool bVisible = GetTeam() >= FIRST_GAME_TEAM;
-	int iRespawnWait = -1;
+	// Use float for respawn time to preserve fractions
+	float flRespawnWait = -1.0f;
 
 	if ( IsVisible() != bVisible )
 	{
@@ -123,13 +124,17 @@ bool CTFTeamStatusPlayerPanel::Update( void )
 				iHealth = g_TF_PR->GetHealth( m_iPlayerIndex );
 			}
 
-			// calc respawn time remaining
+			// Calculate remaining time as float
+			CTFPlayer *pLocalTFPlayer = C_TFPlayer::GetLocalTFPlayer();
 			if ( !bAlive && ( iClass != TF_CLASS_UNDEFINED ) )
 			{
 				float flRespawnAt = g_TF_PR->GetNextRespawnTime( m_iPlayerIndex );
-				iRespawnWait = ( flRespawnAt - gpGlobals->curtime );
-				if ( iRespawnWait <= 0 )
-					iRespawnWait = -1;
+				flRespawnWait = ( flRespawnAt - gpGlobals->curtime );
+				// Use float comparison
+				if ( flRespawnWait <= 0.0f )
+				{
+					flRespawnWait = -1.0f;
+				}
 			}
 
 			// hide class info from the other team?
@@ -295,16 +300,20 @@ bool CTFTeamStatusPlayerPanel::Update( void )
 		}
 
 		// update respawn time
-		if ( iRespawnWait != m_iPrevRespawnWait )
+		// Compare floats
+		if ( flRespawnWait != m_flPrevRespawnWait )
 		{
-			m_iPrevRespawnWait = iRespawnWait;
-			if ( ( iRespawnWait < 0 ) || !bSameTeamAsLocalPlayer )
+			// Store float
+			m_flPrevRespawnWait = flRespawnWait;
+			// Use float comparison
+			if ( ( flRespawnWait < 0.0f ) || !bSameTeamAsLocalPlayer )
 			{
 				SetDialogVariable( "respawntime", "" );
 			}
 			else
 			{
-				SetDialogVariable( "respawntime", VarArgs( "%d", iRespawnWait ) );
+				// Display respawn time with one decimal place using the float value
+				SetDialogVariable( "respawntime", VarArgs( "%.1f", flRespawnWait ) );
 			}
 
 			bChanged = true;
