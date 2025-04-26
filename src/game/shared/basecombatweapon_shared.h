@@ -649,6 +649,9 @@ public:
 
 	IPhysicsConstraint		*GetConstraint() { return m_pConstraint; }
 
+	CNetworkVar( int, m_iSlot );				// which bucket this weapon is in
+	CNetworkVar( int, m_iPosition );			// position in the bucket
+
 private:
 	WEAPON_FILE_INFO_HANDLE	m_hWeaponFileInfo;
 	IPhysicsConstraint		*m_pConstraint;
@@ -661,9 +664,6 @@ private:
 	float					m_flHudHintMinDisplayTime; // if the hint is squelched before this, reset my counter so we'll display it again.
 	
 	CNetworkVar( short, m_nCustomViewmodelModelIndex );
-
-	CNetworkVar( int, m_iSlot );				// which bucket this weapon is in
-	CNetworkVar( int, m_iPosition );			// position in the bucket
 
 	// Server only
 #if !defined( CLIENT_DLL )
