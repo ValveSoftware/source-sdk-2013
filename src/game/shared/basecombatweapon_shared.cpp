@@ -2653,6 +2653,9 @@ BEGIN_DATADESC( CBaseCombatWeapon )
 
 	DEFINE_FIELD( m_flUnlockTime,		FIELD_TIME ),
 	DEFINE_FIELD( m_hLocker,			FIELD_EHANDLE ),
+	
+	DEFINE_FIELD( m_iSlot, FIELD_INTEGER ),
+	DEFINE_FIELD( m_iPosition, FIELD_INTEGER ),
 
 	//	DEFINE_FIELD( m_iViewModelIndex, FIELD_INTEGER ),
 	//	DEFINE_FIELD( m_iWorldModelIndex, FIELD_INTEGER ),
@@ -2668,9 +2671,6 @@ BEGIN_DATADESC( CBaseCombatWeapon )
 	DEFINE_FIELD( m_flHudHintMinDisplayTime, FIELD_TIME ),
 
 	DEFINE_FIELD( m_nCustomViewmodelModelIndex, FIELD_SHORT ),
-
-	DEFINE_FIELD( m_iSlot, FIELD_INTEGER ),
-	DEFINE_FIELD( m_iPosition, FIELD_INTEGER ),
 
 	// Just to quiet classcheck.. this field exists only on the client
 //	DEFINE_FIELD( m_iOldState, FIELD_INTEGER ),
@@ -2829,11 +2829,12 @@ BEGIN_NETWORK_TABLE_NOBASE( CBaseCombatWeapon, DT_LocalWeaponData )
 	SendPropInt( SENDINFO(m_iSecondaryAmmoType ), 8 ),
 
 	SendPropInt( SENDINFO( m_nViewModelIndex ), VIEWMODEL_INDEX_BITS, SPROP_UNSIGNED ),
-	SendPropInt( SENDINFO(m_iSubType ), 6, SPROP_UNSIGNED ),
-	SendPropModelIndex( SENDINFO( m_nCustomViewmodelModelIndex ) ),
 
+	SendPropInt( SENDINFO(m_iSubType ), 6, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO(m_iSlot ), 4, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO(m_iPosition ), 5, SPROP_UNSIGNED ),
+
+	SendPropModelIndex( SENDINFO( m_nCustomViewmodelModelIndex ) ),
 
 	SendPropInt( SENDINFO( m_bFlipViewModel ) ),
 
@@ -2848,11 +2849,12 @@ BEGIN_NETWORK_TABLE_NOBASE( CBaseCombatWeapon, DT_LocalWeaponData )
 	RecvPropInt( RECVINFO(m_iSecondaryAmmoType )),
 
 	RecvPropInt( RECVINFO( m_nViewModelIndex ) ),
-	RecvPropInt( RECVINFO(m_iSubType )),
-	RecvPropInt( RECVINFO( m_nCustomViewmodelModelIndex ) ),
 
+	RecvPropInt( RECVINFO(m_iSubType )),
 	RecvPropInt( RECVINFO(m_iSlot )),
 	RecvPropInt( RECVINFO(m_iPosition )),
+
+	RecvPropInt( RECVINFO( m_nCustomViewmodelModelIndex ) ),
 
 	RecvPropBool( RECVINFO( m_bFlipViewModel ) ),
 

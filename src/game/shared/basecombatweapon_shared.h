@@ -647,10 +647,10 @@ public:
 
 	CNetworkVar( bool, m_bFlipViewModel );
 
-	IPhysicsConstraint		*GetConstraint() { return m_pConstraint; }
-
 	CNetworkVar( int, m_iSlot );				// which bucket this weapon is in
 	CNetworkVar( int, m_iPosition );			// position in the bucket
+
+	IPhysicsConstraint		*GetConstraint() { return m_pConstraint; }
 
 private:
 	WEAPON_FILE_INFO_HANDLE	m_hWeaponFileInfo;
