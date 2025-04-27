@@ -1385,7 +1385,6 @@ void CSpectatorTargetID::PerformLayout( void )
 //-----------------------------------------------------------------------------
 CFloatingHealthIcon::CFloatingHealthIcon( vgui::Panel *parent, const char *name ) : EditablePanel( parent, name )
 {
-	m_flPrevHealth = -1.f;
 	m_nPrevLevel = 0;
 
 	SetVisible( false );
@@ -1485,12 +1484,8 @@ void CFloatingHealthIcon::OnTick( void )
 		flMaxHealth = (float)pTargetPlayer->m_Shared.GetDisguiseMaxHealth();
 		iMaxBuffedHealth = pTargetPlayer->m_Shared.GetDisguiseMaxBuffedHealth();
 	}
-		
-	if ( flHealth != m_flPrevHealth )
- 	{
-		m_pTargetHealth->SetHealth( flHealth, flMaxHealth, iMaxBuffedHealth );
-		m_flPrevHealth = flHealth;
-	}
+
+	m_pTargetHealth->SetHealth( flHealth, flMaxHealth, iMaxBuffedHealth );
 
 }
 
