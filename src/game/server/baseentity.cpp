@@ -5784,7 +5784,7 @@ void CC_Ent_SetName( const CCommand& args )
 {
 	CBaseEntity *pEntity = NULL;
 
-	if ( args.ArgC() < 1 )
+	if ( args.ArgC() < 2 )
 	{
 		CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() );
 		if (!pPlayer)
@@ -5795,7 +5795,7 @@ void CC_Ent_SetName( const CCommand& args )
 	else
 	{
 		// If no name was given set bits based on the picked
-		if ( FStrEq( args[2],"") ) 
+		if ( FStrEq( args[2], "" ) )
 		{
 			pEntity = FindPickerEntity( UTIL_GetCommandClient() );
 		}
@@ -5805,9 +5805,9 @@ void CC_Ent_SetName( const CCommand& args )
 			CBaseEntity *ent = NULL;
 			while ( (ent = gEntList.NextEnt(ent)) != NULL )
 			{
-				if (  (ent->GetEntityName() != NULL_STRING	&& FStrEq(args[1], STRING(ent->GetEntityName())))	|| 
-					  (ent->m_iClassname != NULL_STRING	&& FStrEq(args[1], STRING(ent->m_iClassname))) ||
-					  (ent->GetClassname()!=NULL && FStrEq(args[1], ent->GetClassname())))
+				if (( ent->GetEntityName() != NULL_STRING && FStrEq( args[2], STRING( ent->GetEntityName() ) ) ) ||
+					( ent->m_iClassname != NULL_STRING && FStrEq( args[2], STRING( ent->m_iClassname ) ) ) ||
+					( ent->GetClassname() != NULL && FStrEq( args[2], ent->GetClassname() ) ) )
 				{
 					pEntity = ent;
 					break;
