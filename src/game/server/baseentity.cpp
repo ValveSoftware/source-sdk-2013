@@ -2259,7 +2259,8 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptInputKill, "Kill", "" )
 	DEFINE_SCRIPTFUNC( GetClassname, "" )
-	DEFINE_SCRIPTFUNC_NAMED( GetEntityNameAsCStr, "GetName", "" )
+	DEFINE_SCRIPTFUNC_NAMED( GetEntityNameAsCStr, "GetName", "!!!LEGACY FOR COMPAT!!! Use GetTargetname" )
+	DEFINE_SCRIPTFUNC_NAMED( GetEntityNameAsCStr, "GetTargetname", "" )
 	DEFINE_SCRIPTFUNC( GetPreTemplateName, "Get the entity name stripped of template unique decoration" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetEHandle, "GetEntityHandle", "Get the entity as an EHANDLE" )
 
