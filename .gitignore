@@ -556,6 +556,7 @@ game/p4ss/bin/linux64/game_shader_generic_example.so
 !game/p4ss/cfg/p4ss_*.cfg
 
 !game/p4ss/media/Valve_Intro.webm
+!game/p4ss/media/movie_readme.txt
 !game/p4ss/media/startupvids.txt
 game/p4ss/cfg/user.scr
 game/p4ss/cfg/settings.scr
