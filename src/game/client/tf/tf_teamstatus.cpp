@@ -306,7 +306,7 @@ bool CTFTeamStatusPlayerPanel::Update( void )
 			// Store float
 			m_flPrevRespawnWait = flRespawnWait;
 			// Use float comparison
-			if ( ( flRespawnWait < 0.0f ) || !bSameTeamAsLocalPlayer )
+			if ( ( flRespawnWait <= 0.0f ) || !bSameTeamAsLocalPlayer )
 			{
 				SetDialogVariable( "respawntime", "" );
 			}
