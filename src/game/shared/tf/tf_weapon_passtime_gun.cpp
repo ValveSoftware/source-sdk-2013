@@ -429,7 +429,7 @@ void CPasstimeGun::ItemPostFrame()
 	//
 	// Update pass target
 	//
-	if ( pOwner->m_Shared.HasPasstimeBall() )
+	if ( pOwner->m_Shared.HasPasstimeBall() && !pf_nolock.GetBool() )
 	{
 		VMatrix mWorldToView( SetupMatrixIdentity() );
 		Vector vecEyePos;
@@ -540,7 +540,7 @@ void CPasstimeGun::ItemPostFrame()
 		//
 		// Replace the current pass target with a better one
 		//
-		if ( pNewTarget && !pf_nolock.GetBool() )
+		if ( pNewTarget )
 		{
 			// Always bump the target reset time when the target is valid.
 			// When the target isn't under the cursor anymore, the reset time will try to 
