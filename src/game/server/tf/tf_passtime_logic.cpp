@@ -1601,7 +1601,7 @@ void CTFPasstimeLogic::OnPlayerTouchBall( CTFPlayer *pCatcher, CPasstimeBall *pB
 		CPASFilter pasFilter( pCatcher->GetAbsOrigin() );
 		pCatcher->EmitSound( pasFilter, pCatcher->entindex(), "Passtime.BallCatch" );
 
-		// make sure this happens before BeginCarry/SEtOwner etc
+		// make sure this happens before BeginCarry/SEtOwner` etc
 		if ( pThrower->GetTeamNumber() == iCatcherTeam )
 		{
 			if ( pBall->GetHomingTarget() )
