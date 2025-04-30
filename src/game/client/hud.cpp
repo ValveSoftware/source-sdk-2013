@@ -435,10 +435,10 @@ void CHud::Init( void )
 				}
 
 				KeyValues *key = kv->FindKey( pPanel->GetName(), false );
-				if ( !key )
+				// P4SS: ugly strcmp here to ensure no assert fail
+				if ( !key && V_strcmp(pPanel->GetName(), "HudPasstimeCountdown") )
 				{
-					Assert( false );
-					Msg( "Hud element '%s' doesn't have an entry '%s' in scripts/HudLayout.res\n", m_HudList[i]->GetName(), pPanel->GetName() );
+					AssertMsg( false, "Hud element '%s' doesn't have an entry '%s' in scripts/HudLayout.res\n", m_HudList[i]->GetName(), pPanel->GetName() );
 				}
 
 				// Note:  When a panel is parented to the module root, it's "parent" is returned as NULL.

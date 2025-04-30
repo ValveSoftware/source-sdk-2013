@@ -530,7 +530,6 @@ FodyWeavers.xsd
 *.sln.iml
 
 !src/lib/public/x64/
-!src/lib/public/x64/discord-rpc.lib
 game/p4ss_win64.exe
 
 src/lib/public/x64/*.lib

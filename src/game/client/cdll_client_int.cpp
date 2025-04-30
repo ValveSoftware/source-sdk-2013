@@ -150,9 +150,11 @@
 
 #endif
 
+#if defined ( DISCORD_RPC )
 // Discord RPC
 #include "discord_rpc.h"
 #include <time.h> 
+#endif
 
 
 extern vgui::IInputInternal *g_InputInternal;
@@ -339,9 +341,12 @@ static ConVar s_CV_ShowParticleCounts("showparticlecounts", "0", 0, "Display num
 static ConVar s_cl_team("cl_team", "default", FCVAR_USERINFO|FCVAR_ARCHIVE, "Default team when joining a game");
 static ConVar s_cl_class("cl_class", "default", FCVAR_USERINFO|FCVAR_ARCHIVE, "Default class when joining a game");
 
+#ifdef DISCORD_RPC
 // Discord AppID
 static ConVar cl_discord_appid( "cl_discord_appid", "1342303659664609383", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT );
 static int64_t startTimestamp = time( 0 );
+
+#endif
 
 #ifdef HL1MP_CLIENT_DLL
 static ConVar s_cl_load_hl1_content("cl_load_hl1_content", "0", FCVAR_ARCHIVE, "Mount the content from Half-Life: Source if possible");
@@ -857,6 +862,7 @@ bool IsEngineThreaded()
 	return false;
 }
 
+#ifdef DISCORD_RPC
 //-----------------------------------------------------------------------------
 // Discord RPC
 //-----------------------------------------------------------------------------
@@ -890,7 +896,7 @@ static void HandleDiscordJoinRequest( const DiscordUser *request )
 {
 	// Not implemented
 }
-
+#endif
 
 //-----------------------------------------------------------------------------
 // Constructor
@@ -1159,6 +1165,7 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 		RegisterSecureLaunchProcessFunc( pfnUnsafeCmdLineProcessor );
 	}
 
+#ifdef DISCORD_RPC
 	// Discord RPC
 	DiscordEventHandlers handlers;
 	memset( &handlers, 0, sizeof( handlers ) );
@@ -1185,6 +1192,7 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 		discordPresence.largeImageKey = "passtimelogo";
 		Discord_UpdatePresence( &discordPresence );
 	}
+#endif
 
 	return true;
 }
@@ -1328,8 +1336,11 @@ void CHLClient::Shutdown( void )
 	// NVNT Disconnect haptics system
 	DisconnectHaptics();
 #endif
+
+#ifdef DISCORD_RPC
 	// Discord RPC
 	Discord_Shutdown();
+#endif
 }
 
 
@@ -1732,6 +1743,7 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 		}
 	}
 #endif
+#ifdef DISCORD_RPC
 	// Discord RPC
 	if ( !g_bTextMode )
 	{
@@ -1745,7 +1757,7 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 		discordPresence.largeImageKey = pMapName;
 		Discord_UpdatePresence( &discordPresence );
 	}
-
+#endif
 	// Check low violence settings for this map
 	g_RagdollLVManager.SetLowViolence( pMapName );
 
@@ -1837,6 +1849,7 @@ void CHLClient::LevelShutdown( void )
 
 	gHUD.LevelShutdown();
 
+#ifdef DISCORD_RPC
 	// Discord RPC
 	if ( !g_bTextMode )
 	{
@@ -1853,6 +1866,7 @@ void CHLClient::LevelShutdown( void )
 	internalCenterPrint->Clear();
 
 	messagechars->Clear();
+#endif
 
 #ifndef TF_CLIENT_DLL
 	// don't want to do this for TF2 because we have particle systems in our
