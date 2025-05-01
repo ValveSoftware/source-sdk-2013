@@ -683,15 +683,23 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, int iPipeBombTy
 		return NULL;
 
 	float flLaunchSpeed = GetProjectileSpeed();
+	float flTickRateRatio = TICK_INTERVAL / 0.015f;
 	CALL_ATTRIB_HOOK_FLOAT( flLaunchSpeed, mult_projectile_range );
-	Vector vecVelocity = ( vecForward * flLaunchSpeed ) + ( vecUp * 200.0f ) + ( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) +		
-		( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
-
+	/*Vector vecVelocity = 	( vecForward * flLaunchSpeed ) + 
+							( vecUp * 200.0f ) + 
+							( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) + 
+							( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
+*/
+	Vector vecVelocity = 	( vecForward * flLaunchSpeed ) + 
+							( vecUp * (200.0f * flTickRateRatio) ) + 
+							( vecRight ) + 
+							( vecUp );
 	float flMultDmg = 1.f;
 	CALL_ATTRIB_HOOK_FLOAT( flMultDmg, mult_dmg );
 	
 	// no spin for loch-n-load
 	Vector angImpulse = AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 );
+
 	// Remove pipe spinning for P4SS
 	// int iNoSpin = 0;
 	// CALL_ATTRIB_HOOK_INT( iNoSpin, grenade_no_spin );
