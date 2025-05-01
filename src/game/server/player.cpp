@@ -82,6 +82,9 @@
 #include "weapon_physcannon.h"
 #endif
 
+// ConVar for suicide cooldown time (in seconds)
+ConVar sv_limit_suicide_rate( "sv_limit_suicide_rate", "0.0", FCVAR_REPLICATED, "The cooldown time in seconds between player suicides. Set to 0 to disable the cooldown." );
+
 ConVar autoaim_max_dist( "autoaim_max_dist", "2160" ); // 2160 = 180 feet
 ConVar autoaim_max_deflect( "autoaim_max_deflect", "0.99" );
 
@@ -5440,13 +5443,15 @@ void CBasePlayer::CommitSuicide( bool bExplode /*= false*/, bool bForce /*= fals
 	if( !IsAlive() )
 		return;
 		
-	// prevent suiciding too often
-	if ( m_fNextSuicideTime > gpGlobals->curtime && !bForce )
+	// Check suicide cooldown using the ConVar
+	float flSuicideTime = sv_limit_suicide_rate.GetFloat();
+	if ( flSuicideTime > 0.0f && m_fNextSuicideTime > gpGlobals->curtime && !bForce )
 		return;
-
-	// don't let them suicide for 5 seconds after suiciding
-	m_fNextSuicideTime = gpGlobals->curtime + 5;
-
+	
+	// Set next suicide time based on ConVar value
+	if ( flSuicideTime > 0.0f )
+		m_fNextSuicideTime = gpGlobals->curtime + flSuicideTime;
+	
 	int fDamage = DMG_PREVENT_PHYSICS_FORCE | ( bExplode ? ( DMG_BLAST | DMG_ALWAYSGIB ) : DMG_NEVERGIB );
 
 	// have the player kill themself

@@ -312,9 +312,7 @@ private:
 };
 
 
-//-----------------------------------------------------------------------------
-// Purpose: A console variable
-//-----------------------------------------------------------------------------
+// ConVar name(`pName`, `pDefaultValue`, `flags`, `pHelpString`, `bMin`, `fMin`, `bMax`, `fMax`, `callback`)
 class ConVar : public ConCommandBase, public IConVar
 {
 friend class CCvar;
