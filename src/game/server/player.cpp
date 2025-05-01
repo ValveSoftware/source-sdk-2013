@@ -82,6 +82,9 @@
 #include "weapon_physcannon.h"
 #endif
 
+// ConVar for suicide cooldown time (in seconds)
+ConVar sv_limit_suicide_rate( "sv_limit_suicide_rate", "0.0", FCVAR_REPLICATED, "The cooldown time in seconds between player suicides. Set to 0 to disable the cooldown." );
+
 ConVar autoaim_max_dist( "autoaim_max_dist", "2160" ); // 2160 = 180 feet
 ConVar autoaim_max_deflect( "autoaim_max_deflect", "0.99" );
 
@@ -95,9 +98,9 @@ ConVar	spec_freeze_traveltime( "spec_freeze_traveltime", "0.4", FCVAR_CHEAT | FC
 
 ConVar sv_bonus_challenge( "sv_bonus_challenge", "0", FCVAR_REPLICATED, "Set to values other than 0 to select a bonus map challenge type." );
 
-ConVar sv_chat_bucket_size_tier1( "sv_chat_bucket_size_tier1", "4", FCVAR_NONE, "The maxmimum size of the short term chat msg bucket." );
+ConVar sv_chat_bucket_size_tier1( "sv_chat_bucket_size_tier1", "4", FCVAR_NONE, "The maximum size of the short term chat msg bucket." );
 ConVar sv_chat_seconds_per_msg_tier1( "sv_chat_seconds_per_msg_tier1", "3", FCVAR_NONE, "The number of seconds to accrue an additional short term chat msg." );
-ConVar sv_chat_bucket_size_tier2( "sv_chat_bucket_size_tier2", "30", FCVAR_NONE, "The maxmimum size of the long term chat msg bucket." );
+ConVar sv_chat_bucket_size_tier2( "sv_chat_bucket_size_tier2", "30", FCVAR_NONE, "The maximum size of the long term chat msg bucket." );
 ConVar sv_chat_seconds_per_msg_tier2( "sv_chat_seconds_per_msg_tier2", "10", FCVAR_NONE, "The number of seconds to accrue an additional long term chat msg." );
 
 static ConVar sv_maxusrcmdprocessticks( "sv_maxusrcmdprocessticks", "24", FCVAR_NOTIFY, "Maximum number of client-issued usrcmd ticks that can be replayed in packet loss conditions, 0 to allow no restrictions" );
@@ -5440,13 +5443,15 @@ void CBasePlayer::CommitSuicide( bool bExplode /*= false*/, bool bForce /*= fals
 	if( !IsAlive() )
 		return;
 		
-	// prevent suiciding too often
-	if ( m_fNextSuicideTime > gpGlobals->curtime && !bForce )
+	// Check suicide cooldown using the ConVar
+	float flSuicideTime = sv_limit_suicide_rate.GetFloat();
+	if ( flSuicideTime > 0.0f && m_fNextSuicideTime > gpGlobals->curtime && !bForce )
 		return;
-
-	// don't let them suicide for 5 seconds after suiciding
-	m_fNextSuicideTime = gpGlobals->curtime + 5;
-
+	
+	// Set next suicide time based on ConVar value
+	if ( flSuicideTime > 0.0f )
+		m_fNextSuicideTime = gpGlobals->curtime + flSuicideTime;
+	
 	int fDamage = DMG_PREVENT_PHYSICS_FORCE | ( bExplode ? ( DMG_BLAST | DMG_ALWAYSGIB ) : DMG_NEVERGIB );
 
 	// have the player kill themself
@@ -8102,13 +8107,6 @@ void CMovementSpeedMod::InputSpeedMod(inputdata_t &data)
 }
 
 
-void SendProxy_CropFlagsToPlayerFlagBitsLength( const SendProp *pProp, const void *pStruct, const void *pVarData, DVariant *pOut, int iElement, int objectID)
-{
-	int mask = (1<<PLAYER_FLAG_BITS) - 1;
-	int data = *(int *)pVarData;
-
-	pOut->m_Int = ( data & mask );
-}
 // -------------------------------------------------------------------------------- //
 // SendTable for CPlayerState.
 // -------------------------------------------------------------------------------- //
@@ -8187,7 +8185,7 @@ void SendProxy_CropFlagsToPlayerFlagBitsLength( const SendProp *pProp, const voi
 		SendPropInt		(SENDINFO(m_iBonusProgress), 15 ),
 		SendPropInt		(SENDINFO(m_iBonusChallenge), 4 ),
 		SendPropFloat	(SENDINFO(m_flMaxspeed), 12, SPROP_ROUNDDOWN, 0.0f, 2048.0f ),  // CL
-		SendPropInt		(SENDINFO(m_fFlags), PLAYER_FLAG_BITS, SPROP_UNSIGNED|SPROP_CHANGES_OFTEN, SendProxy_CropFlagsToPlayerFlagBitsLength ),
+		SendPropInt		(SENDINFO(m_fFlags), 0, SPROP_UNSIGNED|SPROP_CHANGES_OFTEN ),
 		SendPropInt		(SENDINFO(m_iObserverMode), 3, SPROP_UNSIGNED ),
 		SendPropEHandle	(SENDINFO(m_hObserverTarget) ),
 		SendPropInt		(SENDINFO(m_iFOV), 8, SPROP_UNSIGNED ),
