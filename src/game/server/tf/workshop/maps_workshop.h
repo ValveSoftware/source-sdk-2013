@@ -176,8 +176,6 @@ private:
 	// All managed workshop maps
 	CUtlMap< PublishedFileId_t, CTFWorkshopMap * > m_mapMaps;
 	CUtlVector< PublishedFileId_t > m_vecSubscribedMaps;
-
-	PublishedFileId_t m_nPreparingMap;
 };
 
 //

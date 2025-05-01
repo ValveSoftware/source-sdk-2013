@@ -356,7 +356,6 @@ CTFMapsWorkshop::CTFMapsWorkshop()
 	, m_callbackDownloadItem_GameServer( NULL, NULL )
 	, m_callbackItemInstalled_GameServer( NULL, NULL )
 	, m_mapMaps( 0, 0, PublishedFileId_t_Less )
-	, m_nPreparingMap( k_PublishedFileIdInvalid )
 {
 }
 
@@ -542,12 +541,9 @@ CTFMapsWorkshop::AsyncPrepareLevelResources( /* in/out */ char *pMapName, size_t
 		{
 			*flProgress = 1.f;
 		}
-		m_nPreparingMap = k_PublishedFileIdInvalid;
 		return IServerGameDLL::ePrepareLevelResources_Prepared;
 	}
 
-	bool bNewPrepare = ( m_nPreparingMap != nMapID );
-	m_nPreparingMap = nMapID;
 
 	TFWorkshopDebug( "OnClientPrepareLevelResources for [ %s ]\n", pMapName );
 
@@ -564,11 +560,8 @@ CTFMapsWorkshop::AsyncPrepareLevelResources( /* in/out */ char *pMapName, size_t
 		pMap = m_mapMaps[ nIndex ];
 	}
 
-	if ( bNewPrepare )
-	{
-		// Even if map is up to date, it could be stale, so always start a new prepare with a re-check
-		pMap->Refresh( CTFWorkshopMap::eRefresh_HighPriority );
-	}
+	// Even if map is up to date, it could be stale, so always start a new prepare with a re-check
+	pMap->Refresh( CTFWorkshopMap::eRefresh_HighPriority );
 
 	if ( pMap->State() == CTFWorkshopMap::eState_Refreshing )
 	{
@@ -618,8 +611,6 @@ CTFMapsWorkshop::AsyncPrepareLevelResources( /* in/out */ char *pMapName, size_t
 		*flProgress = 1.f;
 	}
 
-	// New calls to this map ID are new loads
-	m_nPreparingMap = k_PublishedFileIdInvalid;
 
 	return IServerGameDLL::ePrepareLevelResources_Prepared;
 }
@@ -790,7 +781,7 @@ bool CTFMapsWorkshop::GetWorkshopMapDesc( uint32 uIndex, WorkshopMapDesc_t* pDes
 	V_sprintf_safe( pDesc->szMapName, "workshop/%llu", id );
 	pDesc->uTimestamp  = 0;
 	pDesc->bDownloaded = false;
-	
+
 	auto index = m_mapMaps.Find( id );
 	if ( index != m_mapMaps.InvalidIndex() )
 	{
