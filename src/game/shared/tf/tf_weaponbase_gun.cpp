@@ -683,17 +683,19 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, int iPipeBombTy
 		return NULL;
 
 	float flLaunchSpeed = GetProjectileSpeed();
-	float flTickRateRatio = TICK_INTERVAL / 0.015f;
 	CALL_ATTRIB_HOOK_FLOAT( flLaunchSpeed, mult_projectile_range );
+
 	/*Vector vecVelocity = 	( vecForward * flLaunchSpeed ) + 
-							( vecUp * 200.0f ) + 
-							( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) + 
-							( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
-*/
-	Vector vecVelocity = 	( vecForward * flLaunchSpeed ) + 
-							( vecUp * (200.0f * flTickRateRatio) ) + 
-							( vecRight ) + 
-							( vecUp );
+			( vecUp * 200.0f ) + 
+			( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) + 
+			( random->RandomFloat( -10.0f, 10.0f ) * vecUp );*/
+
+	//P4SS: removed pipe random trajectory
+	Vector vecVelocity = ( vecForward * flLaunchSpeed ) + 
+			( vecUp * 200.0f ) + 
+			( vecRight ) + 
+			( vecUp );
+
 	float flMultDmg = 1.f;
 	CALL_ATTRIB_HOOK_FLOAT( flMultDmg, mult_dmg );
 	
