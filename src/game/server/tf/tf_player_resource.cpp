@@ -17,6 +17,11 @@
 #include "player_vs_environment/tf_population_manager.h"
 #include "tf_gc_server.h"
 
+// ConVars needed for respawn time calculations
+extern ConVar spec_freeze_traveltime;
+extern ConVar spec_freeze_time;
+extern ConVar mp_disable_respawn_times;
+
 #define STATS_SEND_FREQUENCY 1.f
 
 // Datatable
@@ -282,6 +287,15 @@ void CTFPlayerResource::UpdateConnectedPlayer( int iIndex, CBasePlayer *pPlayer 
 	}
 
 	float flRespawnTime = pTFPlayer->IsAlive() ? 0 : TFGameRules()->GetNextRespawnWave( pTFPlayer->GetTeamNumber(), pTFPlayer );
+
+	if ( !pTFPlayer->IsAlive() && flRespawnTime <= gpGlobals->curtime && !mp_disable_respawn_times.GetBool() )
+	{
+		float flDeathAnimTime = 2.0f + spec_freeze_traveltime.GetFloat() + spec_freeze_time.GetFloat();
+		float flMinRespawnTime = pTFPlayer->GetDeathTime() + flDeathAnimTime;
+		
+		if ( flMinRespawnTime > gpGlobals->curtime ) flRespawnTime = flMinRespawnTime;
+	}
+
 	if ( pTFPlayer->GetRespawnTimeOverride() != -1.f )
 	{
 		flRespawnTime = pTFPlayer->GetDeathTime() + pTFPlayer->GetRespawnTimeOverride();
