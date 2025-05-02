@@ -37,7 +37,7 @@
 using namespace vgui;
 
 ConVar cl_hud_playerclass_use_playermodel( "cl_hud_playerclass_use_playermodel", "1", FCVAR_ARCHIVE, "Use player model in player class HUD." );
-
+ConVar cl_hud_critical_health_percentage( "cl_hud_critical_health_percentage", "0.625", FCVAR_ARCHIVE, "Percentage of health at which the health bar starts flashing.", 1, 0.5, 1, 1.0 );
 
 ConVar cl_hud_playerclass_playermodel_showed_confirm_dialog( "cl_hud_playerclass_playermodel_showed_confirm_dialog", "0", FCVAR_ARCHIVE | FCVAR_HIDDEN );
 
@@ -799,7 +799,7 @@ void CTFHudPlayerHealth::SetHealth( int iNewHealth, int iMaxHealth, int	iMaxBuff
 			}
 		}
 		// are we close to dying?
-		else if ( m_nHealth < m_nMaxHealth * m_flHealthDeathWarning )
+		else if ( m_nHealth < m_nMaxHealth * cl_hud_critical_health_percentage.GetFloat() )
 		{
 			if ( m_pHealthBonusImage && m_nBonusHealthOrigW != -1 )
 			{
@@ -819,7 +819,7 @@ void CTFHudPlayerHealth::SetHealth( int iNewHealth, int iMaxHealth, int	iMaxBuff
 				m_pHealthBonusImage->SetDrawColor( m_clrHealthDeathWarningColor );
 
 				// scale the flashing image based on how much health bonus we currently have
-				float flBoostMaxAmount = m_nMaxHealth * m_flHealthDeathWarning;
+				float flBoostMaxAmount = m_nMaxHealth * cl_hud_critical_health_percentage.GetFloat();
 				float flPercent = ( flBoostMaxAmount - m_nHealth ) / flBoostMaxAmount;
 
 				int nPosAdj = RoundFloatToInt( flPercent * m_nHealthBonusPosAdj );
