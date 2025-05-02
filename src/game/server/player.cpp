@@ -8107,6 +8107,14 @@ void CMovementSpeedMod::InputSpeedMod(inputdata_t &data)
 }
 
 
+void SendProxy_CropFlagsToPlayerFlagBitsLength( const SendProp *pProp, const void *pStruct, const void *pVarData, DVariant *pOut, int iElement, int objectID)
+{
+	int mask = (1<<PLAYER_FLAG_BITS) - 1;
+	int data = *(int *)pVarData;
+
+	pOut->m_Int = ( data & mask );
+}
+
 // -------------------------------------------------------------------------------- //
 // SendTable for CPlayerState.
 // -------------------------------------------------------------------------------- //
@@ -8193,7 +8201,7 @@ void CMovementSpeedMod::InputSpeedMod(inputdata_t &data)
 		SendPropFloat	(SENDINFO(m_flFOVTime) ),
 		SendPropInt		(SENDINFO(m_iDefaultFOV), 8, SPROP_UNSIGNED ),
 		SendPropEHandle	(SENDINFO(m_hZoomOwner) ),
-		SendPropArray	( SendPropEHandle( SENDINFO_ARRAY( m_hViewModel ) ), m_hViewModel ),
+		SendPropInt		(SENDINFO(m_fFlags), PLAYER_FLAG_BITS, SPROP_UNSIGNED|SPROP_CHANGES_OFTEN, SendProxy_CropFlagsToPlayerFlagBitsLength ),
 		SendPropString	(SENDINFO(m_szLastPlaceName) ),
 
 #if defined USES_ECON_ITEMS
