@@ -102,6 +102,7 @@ LINK_ENTITY_TO_CLASS( _ballplayertoucher, CBallPlayerToucher );
 IMPLEMENT_SERVERCLASS_ST( CPasstimeBall, DT_PasstimeBall )
 	SendPropInt(SENDINFO(m_iCollisionCount)),
 	SendPropEHandle(SENDINFO(m_hHomingTarget)),
+	SendPropEHandle( SENDINFO(m_hLastHomingTarget)),
 	SendPropEHandle(SENDINFO(m_hCarrier)),
 	SendPropEHandle(SENDINFO(m_hPrevCarrier)),
 END_SEND_TABLE()
@@ -124,6 +125,8 @@ CPasstimeBall::CPasstimeBall()
 	m_flBeginCarryTime = 0;
 	m_flIdleRespawnTime = 0;
 	m_bTrailActive = false;
+	m_pCloseToTarget = 0;
+	m_bPanacea = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -144,6 +147,7 @@ void CPasstimeBall::Precache()
 	PrecacheScriptSound( "Passtime.BallGet" );
 	PrecacheScriptSound( "Passtime.BallIdle" );
 	PrecacheScriptSound( "Passtime.BallHoming" );
+	PrecacheScriptSound( "Passtime.BallMagnetLock" );
 	BaseClass::Precache();
 }
 
@@ -324,7 +328,8 @@ void CPasstimeBall::CreateSphereCollider()
 void CPasstimeBall::Spawn()
 {
 	// not sure why this has to come first, but iirc it does.
-	SetCollisionGroup( COLLISION_GROUP_NONE ); 
+	// Use COLLISION_GROUP_INTERACTIVE so we don't collide with nonsense like dropped weapons and ammo from players.
+	SetCollisionGroup( COLLISION_GROUP_INTERACTIVE );
 
 	// === CBaseProp::Spawn
 	const char *pszModelName = (char*) STRING( GetModelName() );
@@ -373,11 +378,12 @@ void CPasstimeBall::Spawn()
 	}
 
 	// === My spawn
+	SetLastHomingTarget( 0 );
 	m_flLastTeamChangeTime = gpGlobals->curtime;
 	m_flBeginCarryTime = -1;
 	ResetTrail();
 	ChangeTeam( TEAM_UNASSIGNED );
-	
+
 	if ( TFGameRules()->IsPasstimeMode() )
 	{
 		// TODO the ball used to be functional in non-wasabi maps, but I haven't maintained it
@@ -385,11 +391,27 @@ void CPasstimeBall::Spawn()
 		SetNextThink( gpGlobals->curtime );
 		SetTransmitState( FL_EDICT_ALWAYS );
 		m_playerSeek.SetIsEnabled( true );
+
+
+		m_mapGoals.PurgeAndDeleteElements();
+
+		// all goal entities on map
+		// if for whatever reason a map has more than 2 goals we still want this to work
+
+		for (CBaseEntity* pEntity = gEntList.FirstEnt(); pEntity != nullptr; pEntity = gEntList.NextEnt(pEntity)) {
+			if (FStrEq(pEntity->GetClassname(), "func_passtime_goal")) {
+				m_mapGoals.AddToTail( pEntity );
+			}
+		}
+
 	}
 
 	m_flLastCollisionTime = gpGlobals->curtime;
 	m_flAirtimeDistance = 0;
 	m_eState = STATE_OUT_OF_PLAY;
+
+	SetPanacea(true);
+	SetWinstrat(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -579,6 +601,8 @@ void CPasstimeBall::SetStateFree()
 		m_hPrevCarrier = m_hCarrier;
 	}
 	m_hCarrier = 0;
+	SetLastHomingTarget( 0 );
+
 }
 
 //-----------------------------------------------------------------------------
@@ -646,6 +670,7 @@ void CPasstimeBall::SetStateOutOfPlay()
 		m_hPrevCarrier = m_hCarrier;
 	}
 	m_hCarrier = 0;
+	//m_hLastHomingTarget = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -715,6 +740,8 @@ void CPasstimeBall::SetStateCarried( CTFPlayer *pCarrier )
 	// Sounds
 	//
 	EmitSound( "Passtime.BallGet" );
+	EmitSound( "Passtime.BallMagnetImpact" );
+
 	if ( m_pHumLoop )
 	{
 		CSoundEnvelopeController::GetController().SoundDestroy( m_pHumLoop );
@@ -726,6 +753,8 @@ void CPasstimeBall::SetStateCarried( CTFPlayer *pCarrier )
 		CSoundEnvelopeController::GetController().SoundDestroy( m_pBeepLoop );
 		m_pBeepLoop = 0;
 	}
+
+	KillMagnetSound();
 
 	//
 	// Stats
@@ -834,6 +863,18 @@ void CPasstimeBall::DefaultThink()
 	if ( pCarrier )
 	{
 		HudNotification_t ejectReason;
+
+		// if player is on the ground, kill matt p
+		if ( pCarrier->GetFlags() & FL_ONGROUND )
+		{
+			SetPanacea( false );
+		}
+		
+		if ( g_pPasstimeLogic->BPlayerInWinstratZone( pCarrier ) )
+		{
+			SetWinstrat( true );
+		}
+
 		if ( !g_pPasstimeLogic->BCanPlayerPickUpBall( pCarrier, &ejectReason ) )
 		{
 			if ( ejectReason && TFGameRules() ) 
@@ -869,7 +910,7 @@ void CPasstimeBall::DefaultThink()
 
 		pPhysObj->Wake(); // NEVER SLEEP
 
-		//m_playerSeek.SetIsEnabled( !m_bTouchedSinceSpawn );
+		//m_playerSeek.SetIsEnabled( !m_bTouchedSinceSpawn );`
 		CPasstimeBallController::ApplyTo( this );
 	}
 }
@@ -1116,7 +1157,6 @@ void CPasstimeBall::TouchPlayer( CTFPlayer *pPlayer )
 		}
 	}
 
-
 	if ( bCanPickUp )
 	{
 		m_bTouchedSinceSpawn = true;
@@ -1280,17 +1320,22 @@ void CPasstimeBall::OnCollision()
 	if ( m_iCollisionCount == 1 ) 
 	{
 		SetThrower( 0 );
+		m_bPanacea = false;
 		if ( m_bTouchedSinceSpawn )
 		{
 			SetIdleRespawnTime();
 		}
 	}
 	m_hBlocker.Term();
+	SetLastHomingTarget(0);
 }
 
 //-----------------------------------------------------------------------------
+
 int	CPasstimeBall::OnTakeDamage( const CTakeDamageInfo &info ) 
 {
+	CTFPlayer *ballThrower = GetThrower();
+
 	if ( !tf_passtime_ball_takedamage.GetBool() )
 	{
 		// this can happen if the cvar is disabled after the ball has spawned
@@ -1315,8 +1360,108 @@ int	CPasstimeBall::OnTakeDamage( const CTakeDamageInfo &info )
 		pPhysObj->ApplyForceOffset( info.GetDamageForce().Normalized() * tf_passtime_ball_takedamage_force.GetFloat(), GetAbsOrigin() );
 	}
 
+	if ( info.GetAttacker() || info.GetInflictor() )
+	{
+		CBaseEntity *inflictor = info.GetInflictor();
+		CBaseEntity *attacker = info.GetAttacker();
+
+		Vector inflictorOrigin = inflictor->GetAbsOrigin();
+		Vector ballOrigin = GetAbsOrigin();
+
+		trace_t result;
+		Ray_t ray;
+
+		ray.Init( inflictorOrigin, ballOrigin );
+		UTIL_TraceRay( ray, MASK_SOLID, inflictor,
+COLLISION_GROUP_WEAPON, &result );
+
+		if ( result.DidHit() ) // ball direct
+		{
+			float distance = inflictorOrigin.DistTo( result.endpos );
+
+			bool didSplashGoal = false;
+			int iWeaponID;
+			const char *weaponname =
+			TFGameRules()->GetKillingWeaponName( info, NULL, &iWeaponID );
+
+			for ( CBaseEntity *pEntity : m_mapGoals )
+			{
+				float splashDistance =
+				pEntity->GetAbsOrigin().DistTo( GetAbsOrigin() );
+
+				if ( splashDistance <= 120.0f )
+				{
+					didSplashGoal = true;
+				}
+			}
+
+			CTFPlayer *attackerPlayer = dynamic_cast<CTFPlayer *>(attacker);
+
+			// P4SS: this may cause issues later for things like pipes but we will try it out and see
+			if ( distance < 10.0f )
+			{
+				if ( didSplashGoal && attackerPlayer && ballThrower && attackerPlayer->GetTeamNumber() != ballThrower->GetTeamNumber() )
+				{
+					PasstimeGameEvents::BallSplashed(
+					attackerPlayer->entindex(), weaponname, true )
+					.Fire();
+				}
+				else
+				{
+					PasstimeGameEvents::BallDirected(
+					attackerPlayer->entindex(), inflictor->entindex(), weaponname )
+					.Fire();				
+				}
+
+			} else if ( didSplashGoal && attackerPlayer && ballThrower && attackerPlayer->GetTeamNumber() != ballThrower->GetTeamNumber() ) { // ball splash
+
+					PasstimeGameEvents::BallSplashed(
+					attackerPlayer->entindex(), weaponname, false )
+					.Fire();
+			} 
+		}
+
+	}
+
 	return 0;
 }
+
+//----------------------------------------------------------------------------
+
+bool CPasstimeBall::PlayerInGoalieZone(CTFPlayer* pCatcher)
+{
+	bool inZone = false;
+
+	for ( CBaseEntity *pEntity : m_mapGoals )
+	{
+		if ( pEntity->GetTeamNumber() != pCatcher->GetTeamNumber() )
+		{
+			float distance = pEntity->GetAbsOrigin().DistTo( pCatcher->GetAbsOrigin() );
+
+			if ( distance <= 200.0f )
+			{
+				inZone = true;
+			}
+		}
+	}
+
+	return inZone;
+}
+
+//----------------------------------------------------------------------------
+
+bool CPasstimeBall::GetPanacea() const { return m_bPanacea; }
+
+void CPasstimeBall::SetPanacea(bool isPanacea) {
+	m_bPanacea = isPanacea;
+}
+
+//----------------------------------------------------------------------------
+
+bool CPasstimeBall::GetWinstrat() const { return m_bWinstrat; }
+
+void CPasstimeBall::SetWinstrat( bool isWinstrat ) { m_bWinstrat = isWinstrat; }
+
 
 //-----------------------------------------------------------------------------
 void CPasstimeBall::Deflected(CBaseEntity *pDeflectedBy, Vector& vecDir )
@@ -1395,8 +1540,9 @@ CPasstimeBall *CPasstimeBall::Create( Vector vecPosition, QAngle angles )
 
 //-----------------------------------------------------------------------------
 void CPasstimeBall::SetHomingTarget( CTFPlayer *pPlayer ) 
-{ 
+{
 	m_hHomingTarget = pPlayer; 
+
 	if ( m_hHomingTarget )
 	{
 		if ( !m_pBeepLoop )
@@ -1414,13 +1560,25 @@ void CPasstimeBall::SetHomingTarget( CTFPlayer *pPlayer )
 			CSoundEnvelopeController::GetController().SoundDestroy( m_pBeepLoop );
 			m_pBeepLoop = 0;
 		}
+		KillMagnetSound();
 	}
 }
+
+void CPasstimeBall::SetLastHomingTarget(CTFPlayer* pPlayer)
+{
+	m_hLastHomingTarget = pPlayer;
+}
+
 
 //-----------------------------------------------------------------------------
 CTFPlayer *CPasstimeBall::GetHomingTarget() const
 {
 	return m_hHomingTarget;
+}
+
+CTFPlayer *CPasstimeBall::GetLastHomingTarget() const
+{
+	return m_hLastHomingTarget;
 }
 
 //-----------------------------------------------------------------------------
@@ -1435,3 +1593,33 @@ float CPasstimeBall::GetAirtimeDistance() const
 	return m_flAirtimeDistance;
 }
 
+
+void CPasstimeBall::CreateMagnetSound()
+{
+	if ( !m_pCloseToTarget )
+	{
+		CReliableBroadcastRecipientFilter filter;
+		m_pCloseToTarget =CSoundEnvelopeController::GetController().SoundCreate( filter, entindex(), "Passtime.BallMagnetLock" );
+		CSoundEnvelopeController::GetController().Play( m_pCloseToTarget, 2.5, PITCH_NORM );
+	}
+}
+
+bool CPasstimeBall::GetActiveMagnetSound()
+{
+	if ( m_pCloseToTarget )
+	{
+		return true; 
+	}
+
+	return false;
+}
+
+void CPasstimeBall::KillMagnetSound()
+{
+	if ( m_pCloseToTarget )
+	{
+		CSoundEnvelopeController::GetController().Shutdown( m_pCloseToTarget );
+		CSoundEnvelopeController::GetController().SoundDestroy( 0 );
+		m_pCloseToTarget = 0;
+	}
+}

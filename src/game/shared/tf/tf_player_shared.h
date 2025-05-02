@@ -529,17 +529,17 @@ public:
 	void	DemoShieldChargeThink( void );
 	void	UpdateChargeMeter( void );
 	float	GetDemomanChargeMeter() const		{ return m_flChargeMeter; }
-	void	EndCharge( void );
-	float	CalculateChargeCap( void ) const;
+	void	EndCharge( void ); 
+	float	CapChargeTurnRate(float flYawDelta) const;
 	void	SetDemomanChargeMeter( float val )  { m_flChargeMeter = Clamp( val, 0.0f, 100.0f); }
 	void	CalcChargeCrit( bool bForceCrit=false );
 	bool	HasDemoShieldEquipped() const;
 
 	bool	IsJumping( void ) const			{ return m_bJumping; }
 	void	SetJumping( bool bJumping );
-	bool    IsAirDashing( void ) const		{ return (m_iAirDash > 0); }
+	bool	IsAirDashing( void ) const		{ return (m_iAirDash > 0); }
 	int		GetAirDash( void ) const		{ return m_iAirDash; }
-	void    SetAirDash( int iAirDash );
+	void	SetAirDash( int iAirDash );
 	void	SetAirDucked( int nAirDucked )	{ m_nAirDucked = nAirDucked; }
 	int		AirDuckedCount( void )			{ return m_nAirDucked; }
 	void	SetDuckTimer( float flTime )	{ m_flDuckTimer = flTime; }
@@ -560,9 +560,7 @@ public:
 
 	// Stuns
 	stun_struct_t *GetActiveStunInfo( void ) const;
-#ifdef GAME_DLL
 	void	StunPlayer( float flTime, float flReductionAmount, int iStunFlags = TF_STUN_MOVEMENT, CTFPlayer* pAttacker = NULL );
-#endif // GAME_DLL
 	float	GetAmountStunned( int iStunFlags );
 	bool	IsLoserStateStunned( void ) const;
 	bool	IsControlStunned( void );
@@ -1218,6 +1216,8 @@ private:
 #endif
 
 public:
+	bool m_bScattergunJump;
+
 	float	m_flStunFade;
 	float	m_flStunEnd;
 	float	m_flStunMid;

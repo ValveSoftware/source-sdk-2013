@@ -1,14 +1,14 @@
 "chapters"
 {
-	1	"background_upward"     // Bobbyjoe1
-	//2	"background_gravelpit"  // Blue
-	//3	"background_mvm"        // Light Blue
-	//4	"background_2fort"      // VG
+	1	"background_upward"     // Arena
+	2	"background_gravelpit"  // Stadium
+	//3	"background_mvm"        // 
+	//4	"background_2fort"      // 
 }
 "BackgroundMaps"
 {
-	1	"background_upward"     // Bobbyjoe1
-	//2	"background_gravelpit"  // Blue
-	//3	"background_mvm"        // Light Blue
-	//4	"background_2fort"      // VG
+	1	"background_upward"     // Arena
+	2	"background_gravelpit"  // Stadium
+	//3	"background_mvm"        // 
+	//4	"background_2fort"      // 
 }

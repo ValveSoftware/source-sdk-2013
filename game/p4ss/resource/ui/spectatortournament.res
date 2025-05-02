@@ -11,16 +11,16 @@
 		"enabled"		"1"
 				
 			//Blu
-		"team1_player_base_offset_x"		"-95"
-		"team1_player_base_y"				"0"
-		"team1_player_delta_x"				"-47"
-		"team1_player_delta_y"				"0"
+		"team1_player_base_offset_x"		"-427"
+		"team1_player_base_y"				"147"
+		"team1_player_delta_x"				"0"
+		"team1_player_delta_y"				"32"
 		
 			//Red
-		"team2_player_base_offset_x"		"45"
-		"team2_player_base_y"				"0"
-		"team2_player_delta_x"				"47"
-		"team2_player_delta_y"				"0"
+		"team2_player_base_offset_x"		"377"
+		"team2_player_base_y"				"147"
+		"team2_player_delta_x"				"0"
+		"team2_player_delta_y"				"32"
 		
 		"playerpanels_kv"
 		{

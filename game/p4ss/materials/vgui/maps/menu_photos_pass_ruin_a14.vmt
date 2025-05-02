@@ -1,0 +1,8 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui/maps/menu_photos_pass_ruin_a14"
+	"%keywords" "map_photos,passtime,p4ss,ruin,tf"
+	"$ignorez"	1
+	"$translucent" 1
+	"$vertexcolor" 1
+}

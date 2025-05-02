@@ -878,27 +878,8 @@ void CTeamRoundTimer::RoundTimerSetupThink( void )
 		}
 	}
 
-	if ( flTime <= 0.0f && m_bFireFinished )
-	{
-		IGameEvent *event = gameeventmanager->CreateEvent( "teamplay_setup_finished" );
-		if ( event )
-		{
-			gameeventmanager->FireEvent( event );
-		}
 
-		m_OnSetupFinished.FireOutput( this, this );
-		m_bFireFinished = false;
-
-		SetState( RT_STATE_NORMAL );
-		SetTimeRemaining( m_nTimeToUseAfterSetupFinished );
-
-		if ( ShowInHud() && !TeamplayRoundBasedRules()->IsInWaitingForPlayers() )
-		{
-			UTIL_LogPrintf( "World triggered \"Round_Setup_End\"\n" );
-		}
-		return;
-	}
-	else if ( flTime <= 60.0 && m_bFire1MinRemain )
+	if ( flTime <= 60.0 && m_bFire1MinRemain )
 	{
 		m_On1MinRemain.FireOutput( this, this );
 		m_bFire1MinRemain = false;
@@ -937,6 +918,31 @@ void CTeamRoundTimer::RoundTimerSetupThink( void )
 	{
 		m_On1SecRemain.FireOutput( this, this );
 		m_bFire1SecRemain = false;
+
+		// This used to be 1 second delayed which caused the ball spawn
+		// time to be inconsistent with setup and normal ball spawn
+		// 
+		// This hack send the setup_finished event 1 second earlier
+		// whack...
+
+		IGameEvent* event = gameeventmanager->CreateEvent("teamplay_setup_finished");
+		if (event)
+		{
+			gameeventmanager->FireEvent(event);
+		}
+
+		m_OnSetupFinished.FireOutput(this, this);
+		m_bFireFinished = false;
+
+		SetState(RT_STATE_NORMAL);
+		SetTimeRemaining(m_nTimeToUseAfterSetupFinished);
+
+		if (ShowInHud() && !TeamplayRoundBasedRules()->IsInWaitingForPlayers())
+		{
+			UTIL_LogPrintf("World triggered \"Round_Setup_End\"\n");
+		}
+
+		return;
 	}
 
 	SetContextThink( &CTeamRoundTimer::RoundTimerSetupThink, gpGlobals->curtime + 0.05, ROUND_TIMER_SETUP_THINK );

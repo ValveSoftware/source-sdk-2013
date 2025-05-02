@@ -335,6 +335,7 @@ class CTFWeaponBase : public CBaseCombatWeapon, public IHasOwner, public IHasGen
 	void EnableDuck();
 	void DisableDuck();
 
+	virtual bool OwnerCanJump( void ) { return true; }
 	virtual bool OwnerCanTaunt( void ) { return true; }
 	virtual bool CanBeCritBoosted( void );
 	bool CanHaveRevengeCrits( void );
@@ -486,6 +487,8 @@ class CTFWeaponBase : public CBaseCombatWeapon, public IHasOwner, public IHasGen
 	virtual bool		HideWhileStunned( void ) { return true; }
 
 	virtual bool IsViewModelFlipped( void );
+
+	int GetClientRocketOffset( );
 
 	virtual int			GetMaxHealthMod() { return 0; }
 

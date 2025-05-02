@@ -137,8 +137,6 @@ public:
 	bool IsBonusRound() const { return m_bBonusRound; }
 	CBaseCombatCharacter* GetBonusBoss() const { return m_hBonusBoss; }
 
-	enum { MVM_INVADERS_TEAM_SIZE = 22 };
-
 	static bool GetWavesUseReadyBetween() { return true; }
 
 	void SetDefaultEventChangeAttributesName( const char* pszDefaultEventChangeAttributesName ) { m_defaultEventChangeAttributesName = pszDefaultEventChangeAttributesName; }

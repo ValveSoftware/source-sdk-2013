@@ -74,6 +74,7 @@ extern ConVar	tf_arena_change_limit;
 extern ConVar	tf_ctf_bonus_time;
 extern ConVar	tf_mvm_respec_enabled;
 extern ConVar	tf_spawn_glows_duration;
+extern ConVar	tf_selfblast_resist_on_enemy_hit;
 
 #ifdef GAME_DLL
 extern ConVar mp_tournament_prevent_team_switch_on_readyup;
@@ -97,6 +98,7 @@ class CMannVsMachineUpgrades;
 //extern ConVar tf_populator_damage_multiplier;
 
 extern ConVar tf_mvm_defenders_team_size;
+extern ConVar tf_mvm_max_invaders;
 
 const int kLadder_TeamSize_6v6 = 6;
 const int kLadder_TeamSize_9v9 = 9;
@@ -299,7 +301,7 @@ public:
 };
 
 #define MAX_TEAMGOAL_STRING		256
-#define MAX_TEAMNAME_STRING		6
+#define MAX_TEAMNAME_STRING		12
 
 class CTFGameRules : public CTeamplayRoundBasedRules
 {

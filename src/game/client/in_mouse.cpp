@@ -81,7 +81,6 @@ extern ConVar cam_idealyaw;
 extern ConVar cam_idealpitch;
 extern ConVar thirdperson_platformer;
 
-static ConVar m_filter( "m_filter","0", FCVAR_ARCHIVE, "Mouse filtering (set this to 1 to average the mouse over 2 frames)." );
 ConVar sensitivity( "sensitivity","3", FCVAR_ARCHIVE, "Mouse sensitivity.", true, 0.0001f, true, 10000000 );
 
 static ConVar m_side( "m_side","0.8", FCVAR_ARCHIVE, "Mouse side factor." );
@@ -414,18 +413,8 @@ void CInput::GetAccumulatedMouseDeltasAndResetAccumulators( float *mx, float *my
 //-----------------------------------------------------------------------------
 void CInput::GetMouseDelta( float inmousex, float inmousey, float *pOutMouseX, float *pOutMouseY )
 {
-	// Apply filtering?
-	if ( m_filter.GetBool() )
-	{
-		// Average over last two samples
-		*pOutMouseX = ( inmousex + m_flPreviousMouseXPosition ) * 0.5f;
-		*pOutMouseY = ( inmousey + m_flPreviousMouseYPosition ) * 0.5f;
-	}
-	else
-	{
-		*pOutMouseX = inmousex;
-		*pOutMouseY = inmousey;
-	}
+	*pOutMouseX = inmousex;
+	*pOutMouseY = inmousey;
 
 	// Latch previous
 	m_flPreviousMouseXPosition = inmousex;

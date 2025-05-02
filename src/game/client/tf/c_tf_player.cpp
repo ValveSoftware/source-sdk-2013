@@ -220,6 +220,7 @@ ConVar tf_taunt_first_person( "tf_taunt_first_person", "0", FCVAR_NONE, "1 = tau
 ConVar tf_romevision_opt_in( "tf_romevision_opt_in", "0", FCVAR_ARCHIVE, "Enable Romevision in Mann vs. Machine mode when available." );
 ConVar tf_romevision_skip_prompt( "tf_romevision_skip_prompt", "0", FCVAR_ARCHIVE, "If nonzero, skip the prompt about sharing Romevision." );
 
+ConVar tf_chat_particle( "tf_chat_particle", "1", FCVAR_ARCHIVE, "Show typing bubble above player heads" );
 
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
 #define BOMB_HAT_MODEL		"models/props_lakeside_event/bomb_temp_hat.mdl"
@@ -3756,6 +3757,9 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropInt( RECVINFO( m_iPlayerSkinOverride ) ),
 	RecvPropBool( RECVINFO( m_bViewingCYOAPDA ) ),
 	RecvPropBool( RECVINFO( m_bRegenerating ) ),
+	RecvPropBool( RECVINFO( m_bLegacyPasstimeGunControls ) ),
+	RecvPropBool( RECVINFO( m_bReversedPasstimeGunControls ) ),
+	RecvPropBool( RECVINFO( m_bTyping ) ),
 END_RECV_TABLE()
 
 
@@ -3822,6 +3826,7 @@ C_TFPlayer::C_TFPlayer() :
 	m_flBurnEffectStartTime = 0;
 	m_pDisguisingEffect = NULL;
 	m_pSaveMeEffect = NULL;
+	m_pTypingEffect = NULL;
 	m_pTauntWithMeEffect = NULL;
 	m_hOldObserverTarget = NULL;
 	m_iOldObserverMode = OBS_MODE_NONE;
@@ -3934,6 +3939,7 @@ C_TFPlayer::C_TFPlayer() :
 	m_flHelpmeButtonPressTime = 0.f;
 	m_bViewingCYOAPDA = false;
 	m_bRegenerating = false;
+	m_pTypingEffect = NULL;
 
 	m_bNotifiedWeaponInspectThisLife = false;
 
@@ -4474,6 +4480,8 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 		// Player has triggered a save me command
 		CreateSaveMeEffect();
 	}
+
+	UpdateTypingEffect();
 
 	// To better support old demos, which have some screwed up flags, we just ignore various things if we're a SourceTV client.
 	if ( !IsHLTV() )
@@ -6050,7 +6058,7 @@ void C_TFPlayer::ClientThink()
 		// 
 		// Passtime ask for ball button
 		//
-	    if ( m_nButtons & IN_ATTACK3 )
+	    if ( m_afButtonPressed & IN_ATTACK3 )
 	    {
 		    engine->ClientCmd("voicemenu 1 8");
 	    }
@@ -8120,6 +8128,32 @@ void C_TFPlayer::StopSaveMeEffect( bool bForceRemoveInstantly /*= false*/ )
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void C_TFPlayer::UpdateTypingEffect()
+{
+	if ( tf_chat_particle.GetBool() && m_bTyping &&
+		 !GetClientVoiceMgr()->IsPlayerSpeaking( entindex() ) && IsAlive() &&
+		 !InFirstPersonView() &&
+		 ( !m_Shared.IsStealthed() || !IsEnemyPlayer() ) )
+	{
+		if ( !m_pTypingEffect )
+		{
+			m_pTypingEffect = ParticleProp()->Create(
+			"speech_typing", PATTACH_POINT_FOLLOW, "head" );
+		}
+	}
+	else
+	{
+		if ( m_pTypingEffect )
+		{
+			ParticleProp()->StopEmissionAndDestroyImmediately(
+			m_pTypingEffect );
+			m_pTypingEffect = NULL;
+		}
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 

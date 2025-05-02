@@ -1674,6 +1674,9 @@
 		"scorer" "short"
 		"assister" "short"
 		"points" "byte"
+		"is_deathbomb" "bool"
+		"is_panacea" "bool"
+		"is_winstrat" "bool"
 	}
 
 	"pass_free"
@@ -1689,8 +1692,20 @@
 		"dist"	"float"
 		"duration" "float"
 		"is_handoff" "bool"
+		"is_block" "bool"
 	}
-
+	"pass_ball_directed"
+	{
+		"attacker" "short"
+		"inflictor" "short"
+		"inflictor_name" "string"
+	}
+	"pass_ball_splashed"
+	{
+		"attacker" "short"
+		"inflictor_name" "string"
+		"is_direct" "bool"
+	}
 	"pass_ball_stolen"
 	{
 		"victim" "short"

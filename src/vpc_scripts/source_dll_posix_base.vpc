@@ -54,6 +54,6 @@ $Project
 
 	$Folder	"Link Libraries"
 	{
-		$Lib "$LIBPUBLIC\libdiscord-rpc"
+		$Lib "$LIBPUBLIC\libdiscord-rpc" [$DISCORDRPC]
 	}
 }

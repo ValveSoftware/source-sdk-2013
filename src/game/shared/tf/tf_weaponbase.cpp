@@ -5589,6 +5589,7 @@ bool CTFWeaponBase::IsViewModelFlipped( void )
 	return false;
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -5628,21 +5629,58 @@ void CTFWeaponBase::ReapplyProvision( void )
 //-----------------------------------------------------------------------------
 // Purpose: Return the origin & angles for a projectile fired from the player's gun
 //-----------------------------------------------------------------------------
+#ifdef TF_CLIENT_DLL
+	ConVar cl_rocketoffsetposition( "cl_rocketoffsetposition", "0", FCVAR_USERINFO | FCVAR_ARCHIVE | FCVAR_NOT_CONNECTED, "\n0 default firing offset per weapon\n1 is stock rocket launcher offset \n2 is the original offset\n3 is the cowmangler offset" );
+#endif
+
+int CTFWeaponBase::GetClientRocketOffset( void ) {
+
+	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
+	if ( !pPlayer )
+		return 0;
+
+	#ifdef GAME_DLL
+		return pPlayer->m_iRocketFireOffset;
+	#else
+		return cl_rocketoffsetposition.GetInt();
+	#endif
+
+	return 0;
+}
+
 void CTFWeaponBase::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOffset, Vector *vecSrc, QAngle *angForward, bool bHitTeammates /* = true */, float flEndDist /* = 2000 */)
 {
 	// @todo third person code!!
+
+	// rocket client offset code
+	int client_offset = GetClientRocketOffset();
+
+	if ( client_offset > 0 )
+	{
+		if (client_offset == 2) { // original offset
+			vecOffset.y = 0; 
+		}
+
+		// cowmangler offset
+		// make sure we're not using the mangler because for some reason its offset is flipped by default
+		if (client_offset == 3 && GetWeaponID() != TF_WEAPON_PARTICLE_CANNON ) {
+			vecOffset.y = 8;
+		}
+	}
+	else { // default offsets
+		int iCenterFireProjectile = 0;
+		CALL_ATTRIB_HOOK_INT( iCenterFireProjectile, centerfire_projectile );
+
+		if ( iCenterFireProjectile == 1 )
+		{
+			vecOffset.y = 0;
+		}
+	}
 
 	// Flip the firing offset if our view model is flipped.
 	if ( IsViewModelFlipped() )
 	{
 		vecOffset.y *= -1;
-	}
-
-	int iCenterFireProjectile = 0;
-	CALL_ATTRIB_HOOK_INT( iCenterFireProjectile, centerfire_projectile );
-	if ( iCenterFireProjectile == 1 )
-	{
-		vecOffset.y = 0;
 	}
 
 	QAngle angSpread = GetSpreadAngles();

@@ -54,6 +54,10 @@ public:
 	
 	static LaunchParams CalcLaunch( CTFPlayer *pPlayer, bool bHoming );
 
+#ifdef CLIENT_DLL
+	C_PasstimeBounceReticle* GetBounceReticle() const { return m_pBounceReticle; }
+#endif
+
 protected:
 	virtual int	GetWeaponID() const OVERRIDE { return TF_WEAPON_PASSTIME_GUN; }
 	virtual void Spawn() OVERRIDE;
@@ -116,7 +120,7 @@ protected:
 			: iButton( button ), eButtonState( BUTTONSTATE_UP )
 			, bLatchedUp( false )
 		{}
-		const int iButton;
+		int iButton;
 		EButtonState eButtonState;
 		bool bLatchedUp;
 
@@ -144,7 +148,7 @@ protected:
 #ifdef GAME_DLL
 	CPasstimeBallControllerHoming m_ballController;
 #endif
-
+	bool m_bDeploymentInputBuffer; // Passtimegun deployment buffer flag
 };
 
 #endif // TF_WEAPON_PASSTIME_GUN_H  

@@ -43,7 +43,7 @@ static CTFInput g_Input;
 IInput *input = ( IInput * )&g_Input;
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: Cap yaw movement
 //-----------------------------------------------------------------------------
 float CTFInput::CAM_CapYaw( float fVal ) const
 {
@@ -53,12 +53,8 @@ float CTFInput::CAM_CapYaw( float fVal ) const
 
 	if ( pPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 	{
-		float flChargeYawCap = pPlayer->m_Shared.CalculateChargeCap();
-
-		if ( fVal > flChargeYawCap )
-			return flChargeYawCap;
-		else if ( fVal < -flChargeYawCap )
-			return -flChargeYawCap;
+		// Use the unified charge turn rate limiter
+		return pPlayer->m_Shared.CapChargeTurnRate( fVal );
 	}
 
 	return fVal;
@@ -79,34 +75,57 @@ float CTFInput::CAM_CapPitch( float fVal ) const
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: Unified yaw adjustment for all input sources
 //-----------------------------------------------------------------------------
 void CTFInput::AdjustYaw( float speed, QAngle& viewangles )
 {
-	if ( !(in_strafe.state & 1) )
+	CTFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	
+	// Store previous viewangles for comparison
+	QAngle prevViewangles = viewangles;
+	float totalYawChange = 0.0f;
+	
+	// Handle keyboard turning if not strafing
+	if ( !( in_strafe.state & 1 ) )
 	{
-		float yaw_right = speed*cl_yawspeed.GetFloat() * KeyState (&in_right);
-		float yaw_left = speed*cl_yawspeed.GetFloat() * KeyState (&in_left);
-
-		CTFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+		// Calculate keyboard input turn amount
+		float frameTime = gpGlobals->frametime;
+		float yaw_right = speed*cl_yawspeed.GetFloat() * KeyState( &in_right ) * frameTime * ( 1.0f / TICK_INTERVAL );
+		float yaw_left = speed*cl_yawspeed.GetFloat() * KeyState( &in_left ) * frameTime * ( 1.0f / TICK_INTERVAL );
+		
 		if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 		{
-			float flChargeYawCap = pPlayer->m_Shared.CalculateChargeCap();
-
-			if ( yaw_right > flChargeYawCap )
-				yaw_right = flChargeYawCap;
-			else if ( yaw_right < -flChargeYawCap )
-				yaw_right = -flChargeYawCap;
-			if ( yaw_left > flChargeYawCap )
-				yaw_left = flChargeYawCap;
-			else if ( yaw_left < -flChargeYawCap )
-				yaw_left = -flChargeYawCap;
+			// Cap the keyboard turning using unified function
+			yaw_right = pPlayer->m_Shared.CapChargeTurnRate( yaw_right );
+			yaw_left = pPlayer->m_Shared.CapChargeTurnRate( yaw_left );
 		}
-
+		
+		// Apply keyboard turn
 		viewangles[YAW] -= yaw_right;
 		viewangles[YAW] += yaw_left;
+		
+		// Calculate how much we've turned from keyboard
+		totalYawChange = AngleDiff( viewangles[YAW], prevViewangles[YAW] );
+	}
+	
+	// For mouse movement, the engine has already applied the changes to viewangles
+	// We need to check if the mouse change + keyboard change exceeds the cap
+	if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
+	{
+		// Calculate the total angle change from previous frame
+		float mouseYawChange = AngleDiff(viewangles[YAW], prevViewangles[YAW]) - totalYawChange;
+		
+		// Cap mouse movement
+		float cappedMouseYaw = pPlayer->m_Shared.CapChargeTurnRate(mouseYawChange);
+		
+		// Apply capped mouse movement
+		if (cappedMouseYaw != mouseYawChange)
+		{
+			viewangles[YAW] = prevViewangles[YAW] + cappedMouseYaw + totalYawChange;
+		}
 	}
 
+	// Handle third person camera adjustments
 	if ( CAM_IsThirdPerson() )
 	{
 		if ( thirdperson_platformer.GetInt() )
@@ -127,7 +146,7 @@ void CTFInput::AdjustYaw( float speed, QAngle& viewangles )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: Joystick yaw adjustment
 //-----------------------------------------------------------------------------
 float CTFInput::JoyStickAdjustYaw( float flSpeed )
 {
@@ -137,12 +156,8 @@ float CTFInput::JoyStickAdjustYaw( float flSpeed )
 		CTFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 		if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 		{
-			float flChargeYawCap = pPlayer->m_Shared.CalculateChargeCap();
-			
-			if ( flSpeed > 0.f && flSpeed > flChargeYawCap )
-				flSpeed = flChargeYawCap;
-			else if ( flSpeed < 0.f && flSpeed < -flChargeYawCap )
-				flSpeed = -flChargeYawCap;
+			// Use the unified charge turn rate limiter
+			flSpeed = pPlayer->m_Shared.CapChargeTurnRate( flSpeed );
 		}
 	}
 

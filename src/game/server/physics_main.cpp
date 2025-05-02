@@ -2037,7 +2037,8 @@ void Physics_RunThinkFunctions( bool simulating )
 	// clear all entites freed outside of this loop
 	gEntList.CleanupDeleteList();
 
-	if ( !simulating )
+	// James: Don't simulate players whilst we aren't simulating -- it'll cause bugs.
+	if ( !simulating && false )
 	{
 		// only simulate players
 		for ( int i = 1; i <= gpGlobals->maxClients; i++ )

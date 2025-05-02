@@ -67,26 +67,39 @@ const char *const Score::s_eventName = "pass_score";
 const char *const Score::s_keyScorerIndex = "scorer";
 const char *const Score::s_keyAssisterIndex = "assister";
 const char *const Score::s_keyNumPoints = "points";
+const char *const Score::s_keyIsDeathBomb = "is_deathbomb";
+const char *const Score::s_keyIsPanacea = "is_panacea";
+const char *const Score::s_keyIsWinstrat = "is_winstrat";
+
 
 Score::Score( IGameEvent *pEvent )
 	: scorerIndex( pEvent->GetInt( s_keyScorerIndex ) )
 	, assisterIndex( pEvent->GetInt( s_keyAssisterIndex ) )
 	, numPoints( pEvent->GetInt( s_keyNumPoints ) )
+	, isDeathBomb( pEvent->GetBool(s_keyIsDeathBomb) )
+	, isPanacea( pEvent->GetBool( s_keyIsPanacea ) )
+	, isWinstrat( pEvent->GetBool( s_keyIsWinstrat ) )
 {
 	Assert( IsType<Score>( pEvent ) );
 }
 
-Score::Score( int scorerIndex_, int assisterIndex_, int numPoints_ )
+Score::Score( int scorerIndex_, int assisterIndex_, int numPoints_, bool isDeathBomb_, bool isPanacea_, bool isWinstrat_ )
 	: scorerIndex( scorerIndex_ )
 	, assisterIndex( assisterIndex_ )
 	, numPoints( numPoints_ )
+	, isDeathBomb( isDeathBomb_)
+	, isPanacea( isPanacea_ )
+	, isWinstrat( isWinstrat_ )
 {
 }
 
-Score::Score( int scorerIndex_, int numPoints_ )
+Score::Score( int scorerIndex_, int numPoints_, bool isPanacea_, bool isWinstrat_ )
 	: scorerIndex( scorerIndex_ )
 	, assisterIndex( -1 )
 	, numPoints( numPoints_ )
+	, isDeathBomb( false )
+	, isPanacea( isPanacea_ )
+	, isWinstrat( isWinstrat_ )
 {
 }
 
@@ -97,6 +110,9 @@ void Score::Fire()
 		pEvent->SetInt( s_keyScorerIndex, scorerIndex );
 		pEvent->SetInt( s_keyAssisterIndex, assisterIndex );
 		pEvent->SetInt( s_keyNumPoints, numPoints );
+		pEvent->SetBool( s_keyIsDeathBomb, isDeathBomb );
+		pEvent->SetBool( s_keyIsPanacea, isPanacea );
+		pEvent->SetBool( s_keyIsWinstrat, isWinstrat );
 		gameeventmanager->FireEvent( pEvent );
 	}
 }
@@ -148,6 +164,8 @@ const char *const PassCaught::s_keyCatcherIndex = "catcher";
 const char *const PassCaught::s_keyDist = "dist";
 const char *const PassCaught::s_keyDuration = "duration";
 const char *const PassCaught::s_keyIsHandoff = "is_handoff";
+const char *const PassCaught::s_keyIsBlock = "is_block";
+
 
 PassCaught::PassCaught( IGameEvent *pEvent )
 	: passerIndex( pEvent->GetInt( s_keyPasserIndex ) )
@@ -155,6 +173,7 @@ PassCaught::PassCaught( IGameEvent *pEvent )
 	, dist( pEvent->GetFloat( s_keyDist ) )
 	, duration( pEvent->GetFloat( s_keyDuration ) ) 
 	, isHandoff( pEvent->GetBool( s_keyIsHandoff ) )
+	, isBlock( pEvent->GetBool( s_keyIsBlock ) )
 {
 	Assert( IsType<PassCaught>( pEvent ) );
 }
@@ -165,6 +184,7 @@ PassCaught::PassCaught()
 	, dist( 0 )
 	, duration( 0 )
 	, isHandoff( false )
+	, isBlock( false )
 {
 	Msg("P4SS Overload without isHandoff called.\n");
 }
@@ -175,16 +195,18 @@ PassCaught::PassCaught( int passerIndex_, int catcherIndex_, float dist_, float 
 	, dist( dist_ )
 	, duration( duration_ )
 	, isHandoff( false )
+	, isBlock(false)
 {
 	Msg("P4SS Overload without isHandoff called.\n");
 }
 
-PassCaught::PassCaught( int passerIndex_, int catcherIndex_, float dist_, float duration_, bool isHandoff_ )
+PassCaught::PassCaught( int passerIndex_, int catcherIndex_, float dist_, float duration_, bool isHandoff_, bool isBlock_ )
 	: passerIndex( passerIndex_ )
 	, catcherIndex( catcherIndex_ )
 	, dist( dist_ )
 	, duration( duration_ )
 	, isHandoff( isHandoff_ )
+	, isBlock( isBlock_ )
 {
 	Msg("P4SS Overload with isHandoff called. isHandoff_: %s\n", isHandoff_ ? "true" : "false");
 }
@@ -197,6 +219,7 @@ void PassCaught::Fire()
 		pEvent->SetFloat( s_keyDist, dist );
 		pEvent->SetFloat( s_keyDuration, duration );
 		pEvent->SetBool( s_keyIsHandoff, isHandoff );
+		pEvent->SetBool( s_keyIsBlock, isBlock );
 		gameeventmanager->FireEvent( pEvent );
 	}
 }
@@ -269,12 +292,69 @@ void BallBlocked::Fire()
 	}
 }
 // -------------------------------------------------------------------
-BallArrowed::BallArrowed(IGameEvent* PEvent)
-{
+const char *const BallDirected::s_eventName = "pass_ball_directed";
+const char *const BallDirected::s_keyAttackerIndex = "attacker";
+const char *const BallDirected::s_keyInflictorIndex = "inflictor";
+const char *const BallDirected::s_keyInflictorName = "inflictor_name";
 
+BallDirected::BallDirected( IGameEvent *pEvent )
+	: attackerIndex( pEvent->GetInt( s_keyAttackerIndex ) ),
+	  inflictorIndex( pEvent->GetInt( s_keyInflictorIndex ) ),
+	  inflictorName( pEvent->GetString( s_keyInflictorName ) )
+{
+	Assert( IsType<BallDirected>( pEvent ) );
 }
 
-void BallArrowed::Fire()
+BallDirected::BallDirected( int attackerIndex, int inflictorIndex, const char *inflictorName )
+	: attackerIndex( attackerIndex ), inflictorIndex( inflictorIndex ), inflictorName( inflictorName )
 {
+}
 
+BallDirected::BallDirected() : attackerIndex( -1 ), inflictorIndex( -1 ), inflictorName(NULL) {}
+
+void BallDirected::Fire()
+{
+	if ( IGameEvent *pEvent = CreateEvent<BallDirected>() )
+	{
+		pEvent->SetInt( s_keyAttackerIndex, attackerIndex );
+		pEvent->SetInt( s_keyInflictorIndex, inflictorIndex );
+		pEvent->SetString( s_keyInflictorName, inflictorName );
+		gameeventmanager->FireEvent( pEvent );
+	}
+}
+
+//-----------------------------------------------------------------------------
+
+const char *const BallSplashed::s_eventName = "pass_ball_splashed";
+const char *const BallSplashed::s_keyAttackerIndex = "attacker";
+const char *const BallSplashed::s_keyInflictorName = "inflictor_name";
+const char *const BallSplashed::s_keyIsDirect = "is_direct";
+
+BallSplashed::BallSplashed( IGameEvent *pEvent )
+	: attackerIndex( pEvent->GetInt( s_keyAttackerIndex ) ),
+	  inflictorName( pEvent->GetString( s_keyInflictorName ) ),
+	  isDirect( pEvent->GetBool( s_keyIsDirect ) )
+{
+	Assert( IsType<BallSplashed>( pEvent ) );
+}
+
+BallSplashed::BallSplashed( int attackerIndex, const char *inflictorName, bool isDirect )
+	: attackerIndex( attackerIndex ), inflictorName( inflictorName ), isDirect( isDirect )
+{
+}
+
+BallSplashed::BallSplashed()
+	: attackerIndex( -1 ), inflictorName( NULL ), isDirect( false )
+{
+}
+
+void BallSplashed::Fire()
+{
+	if ( IGameEvent *pEvent = CreateEvent<BallSplashed>() )
+	{
+		pEvent->SetInt( s_keyAttackerIndex, attackerIndex );
+		pEvent->SetBool( s_keyIsDirect, isDirect );
+		pEvent->SetString( s_keyInflictorName, inflictorName );
+		gameeventmanager->FireEvent( pEvent );
+	}
 }

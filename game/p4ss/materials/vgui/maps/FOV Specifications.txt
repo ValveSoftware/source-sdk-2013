@@ -1,0 +1,5 @@
+For the INSTAX Wide, set your fov to 63.2 for 16:9 aspect ratios. 
+When putting the image in the Photoshop template, scale it (proportionally) until the top and bottom bounds of the image match the top and bottom bounds of the image frame.
+
+For the Polaroid, set your fov to 71.1 for 16:9 aspect ratios.
+When putting the image in the Photoshop template, do the same as described for the INSTAX Wide.

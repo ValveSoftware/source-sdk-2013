@@ -4,7 +4,8 @@ set -euo pipefail
 
 script=$(readlink -f -- "$0")
 pushd "$(dirname -- "$script")" > /dev/null
-this_directory="$(pwd)"
+pwd="$(pwd)"
+THIS_DIR="${THIS_DIR:-$pwd}"
 source sdk_container
 run_in_sniper "$@"
 
@@ -39,8 +40,9 @@ if [[ ! -e "$solution_out.ninja" ]] || [[ "$should_clean" = true ]]; then
     # Remove some unsupported clang commands.
     sed -i 's/-fpredictive-commoning//g; s/-fvar-tracking-assignments//g' compile_commands.json
 fi
-sed -i "s|/my_mod/src|$this_directory|g" compile_commands.json
+sed -i "s|/my_mod/src|$THIS_DIR|g" compile_commands.json
+sed -i "s|_vpc_/ninja/debug/$THIS_DIR|_vpc_/ninja/debug|g" compile_commands.json
 
 ninja -f "$solution_out.ninja" -j$(nproc)
 
-popd
+popd > /dev/null

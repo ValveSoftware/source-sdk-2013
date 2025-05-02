@@ -43,6 +43,7 @@ void CPasstimeBallControllerHoming::StartHoming( CPasstimeBall *pBall, CTFPlayer
 	pBall->VPhysicsGetObject()->EnableGravity( false );
 	m_fHomingStrength = 0.01f; // totally arbitrary
 	pBall->SetHomingTarget( pTarget );
+	pBall->SetLastHomingTarget( pTarget );
 
 	if ( tf_passtime_experiment_instapass.GetBool() && (!tf_passtime_experiment_instapass_charge.GetBool() || isCharged) )
 	{

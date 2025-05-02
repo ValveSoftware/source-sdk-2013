@@ -204,8 +204,8 @@ CHudMainMenuOverride::CHudMainMenuOverride( IViewPort *pViewPort ) : BaseClass( 
 	ListenForGameEvent( "party_updated" );
 	ListenForGameEvent( "server_spawn" );
 
-	m_pRankPanel = new CPvPRankPanel( this, "rankpanel" );
-	m_pRankModelPanel = new CPvPRankPanel( this, "rankmodelpanel" );
+	// m_pRankPanel = new CPvPRankPanel( this, "rankpanel" );
+	// m_pRankModelPanel = new CPvPRankPanel( this, "rankmodelpanel" );
 
 	// Create our MOTD scrollable section
 	m_pMOTDPanel = new vgui::EditablePanel( this, "MOTD_Panel" );
@@ -963,7 +963,7 @@ void CHudMainMenuOverride::OnUpdateMenu( void )
 	// So try and do the least amount of work if nothing has changed.
 
 	bool bSomethingChanged = false;
-	bool bInGame = engine->IsInGame();
+	bool bInGame = engine->IsInGame() && !engine->IsLevelMainMenuBackground();
 #if defined( REPLAY_ENABLED )
 	bool bInReplay = g_pEngineClientReplay->IsPlayingReplayDemo();
 #else
@@ -1793,8 +1793,8 @@ void CHudMainMenuOverride::UpdateRankPanelVisibility()
 {
 	bool bConnectedToGC = GTFGCClientSystem()->BConnectedtoGC();
 
-	m_pRankPanel->SetVisible( bConnectedToGC );
-	m_pRankModelPanel->SetVisible( bConnectedToGC );
+	// m_pRankPanel->SetVisible( bConnectedToGC );
+	// m_pRankModelPanel->SetVisible( bConnectedToGC );
 	SetControlVisible( "CycleRankTypeButton", bConnectedToGC );
 	SetControlVisible( "NoGCMessage", !bConnectedToGC, true );
 	SetControlVisible( "NoGCImage", !bConnectedToGC, true );
@@ -2186,6 +2186,8 @@ void CHudMainMenuOverride::CheckTrainingStatus( void )
 
 void CHudMainMenuOverride::UpdateRankPanelType()
 {
+	// P4SS: lucy: strip all code related to ranks and GC
+	return;
 	ETFMatchGroup eMatchGroup = (ETFMatchGroup)tf_mainmenu_match_panel_type.GetInt();
 
 	// Sanitize the matchgroup they want to see.

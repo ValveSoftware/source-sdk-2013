@@ -20550,7 +20550,6 @@
 			{
 				"engineer"	"primary"
 				"pyro" "secondary"
-				"soldier" "secondary"
 				"heavy" "secondary"
 			}
 			"attributes"
@@ -20856,7 +20855,6 @@
 			"attach_to_hands"	"1"
 			"used_by_classes"
 			{
-				"demoman"	"1"
 			}
 			"static_attrs"
 			{
@@ -20899,7 +20897,6 @@
 			"attach_to_hands"	"1"
 			"used_by_classes"
 			{
-				"medic"	"1"
 			}
 			"static_attrs"
 			{
@@ -60189,6 +60186,10 @@
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
 			"model_player" "models/passtime/ball/passtime_ball.mdl"
+			"static_attrs"
+			{
+				"min_viewmodel_offset"		"10 0 -10"
+			}
 			"used_by_classes"
 			{
 				"demoman"	"1"
@@ -247369,6 +247370,118 @@
 			{
 				"weight" "0.5"
 			}
+		}
+	}
+	"204"
+	{			//Authors: Jaguarfiend, nikeshoe92, Danmar33
+		"name"				"pass_arena2_b14b"
+		"localizedname"		"#P4SS_Map_Arena2"
+		"authors"			"#P4SS_Authors_Arena2"
+		"rolling_match_tags"
+		{
+			"passtime"		"1"
+		}
+		"rolling_match_target_tags"
+		{
+			"passtime"		"1"
+		}
+	}
+	"205"
+	{			//Authors: kin
+		"name"				"pass_boutique_rc3c"
+		"localizedname"		"#P4SS_Map_Boutique"
+		"authors"			"#P4SS_Authors_Boutique"
+		"rolling_match_tags"
+		{
+			"passtime"		"1"
+		}
+		"rolling_match_target_tags"
+		{
+			"passtime"		"1"
+		}
+	}
+	"206"
+	{			//Authors: kingfin, Berry, Crowbar, Lacry, Taxicat, nikeshoe92, Harlen 'UEAK' Crash
+		"name"				"pass_maple_a10"
+		"localizedname"		"#P4SS_Map_Maple"
+		"authors"			"#P4SS_Authors_Maple"
+		"rolling_match_tags"
+		{
+			"passtime"		"1"
+		}
+		"rolling_match_target_tags"
+		{
+			"passtime"		"1"
+		}
+	}
+	"207"
+	{			//Authors: Shears, Danmar33
+		"name"				"pass_plexiglass_b6"
+		"localizedname"		"#P4SS_Map_Plexiglass"
+		"authors"			"#P4SS_Authors_Plexiglass"
+		"rolling_match_tags"
+		{
+			"passtime"		"1"
+		}
+		"rolling_match_target_tags"
+		{
+			"passtime"		"1"
+		}
+	}
+	"208"
+	{			//Authors: DropKnock, Sean 'Heyo' Cutino, EArkham, Aeon 'Void' Bollig
+		"name"				"pass_ruin_a14"
+		"localizedname"		"#P4SS_Map_Ruin"
+		"authors"			"#P4SS_Authors_Ruin"
+		"rolling_match_tags"
+		{
+			"passtime"		"1"
+		}
+		"rolling_match_target_tags"
+		{
+			"passtime"		"1"
+		}
+	}
+	"209"
+	{			//Authors: nikeshoe92
+		"name"				"pass_stadium_rc3"
+		"localizedname"		"#P4SS_Map_Stadium"
+		"authors"			"#P4SS_Authors_Stadium"
+		"rolling_match_tags"
+		{
+			"passtime"		"1"
+		}
+		"rolling_match_target_tags"
+		{
+			"passtime"		"1"
+		}
+	}
+	"210"
+	{			//Authors: nikeshoe92
+		"name"				"pass_stonework_rc2"
+		"localizedname"		"#P4SS_Map_Stonework"
+		"authors"			"#P4SS_Authors_Stonework"
+		"rolling_match_tags"
+		{
+			"passtime"		"1"
+		}
+		"rolling_match_target_tags"
+		{
+			"passtime"		"1"
+		}
+	}
+	"211"
+	{			//Authors: kingfin, Speakers, Freyja, EArkham, Aeon 'Void' Bollig, Exactol
+		"name"				"pass_torii_a7"
+		"localizedname"		"#P4SS_Map_Torii"
+		"authors"			"#P4SS_Authors_Torii"
+		"rolling_match_tags"
+		{
+			"passtime"		"1"
+		}
+		"rolling_match_target_tags"
+		{
+			"passtime"		"1"
 		}
 	}
 }

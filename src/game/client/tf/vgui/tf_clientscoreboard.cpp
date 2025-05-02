@@ -894,7 +894,7 @@ void CTFClientScoreBoardDialog::InitPlayerList( SectionedListPanel *pPlayerList 
 	pPlayerList->SetBgColor( Color( 0, 0, 0, 0 ) );
 	pPlayerList->SetBorder( NULL );
 
-	pPlayerList->AddColumnToSection( 0, "medal", "", SectionedListPanel::COLUMN_IMAGE | SectionedListPanel::COLUMN_CENTER, m_iMedalColumnWidth );
+	// pPlayerList->AddColumnToSection( 0, "medal", "", SectionedListPanel::COLUMN_IMAGE | SectionedListPanel::COLUMN_CENTER, m_iMedalColumnWidth );
 
 	// Avatars are always displayed at 32x32 regardless of resolution
 	if ( ShowAvatars() )
@@ -904,14 +904,28 @@ void CTFClientScoreBoardDialog::InitPlayerList( SectionedListPanel *pPlayerList 
 	}
 	
 	// the player avatar is always a fixed size, so as we change resolutions we need to vary the size of the name column to adjust the total width of all the columns
-	m_nExtraSpace = pPlayerList->GetWide() - m_iMedalColumnWidth - m_iAvatarWidth - m_iSpacerWidth - m_iNameWidth - m_iKillstreakWidth - m_iKillstreakImageWidth - m_iNemesisWidth - m_iNemesisWidth - m_iScoreWidth - m_iClassWidth - m_iPingWidth - m_iSpacerWidth - ( 2 * SectionedListPanel::COLUMN_DATA_INDENT ); // the SectionedListPanel will indent the columns on either end by SectionedListPanel::COLUMN_DATA_INDENT 
+	m_nExtraSpace = pPlayerList->GetWide() - m_iMedalColumnWidth - m_iAvatarWidth - m_iSpacerWidth - m_iNameWidth - m_iKillstreakWidth - m_iKillstreakImageWidth - m_iNemesisWidth - m_iNemesisWidth - (m_iScoreWidth * 4) - m_iClassWidth - m_iPingWidth - m_iSpacerWidth - ( 2 * SectionedListPanel::COLUMN_DATA_INDENT ); // the SectionedListPanel will indent the columns on either end by SectionedListPanel::COLUMN_DATA_INDENT 
+
+	// i dont know why and dont want to know why but anything over 1440p scales the medal column width to -1114130
+	// this is not proper solution but medal width never gets scaled past 25 so this is probably fine
+	if ( m_iMedalColumnWidth < 25 )
+	{
+		m_iMedalColumnWidth = 25;
+	}
+
+	#ifdef DEBUG
+	DevMsg("tf_clientscoreboard: m_iMedalColumnWidth: %d, m_iAvatarWidth: %d, m_iSpacerWidth: %d, m_iNameWidth: %d, m_iKillstreakWidth: %d, m_iKillstreakImageWidth: %d, m_iNemesisWidth: %d, m_iNemesisWidth: %d, m_iScoreWidth: %d, m_iClassWidth: %d, m_iPingWidth: %d, m_iSpacerWidth: %d\n", m_iMedalColumnWidth, m_iAvatarWidth, m_iSpacerWidth, m_iNameWidth, m_iKillstreakWidth, m_iKillstreakImageWidth, m_iNemesisWidth, m_iNemesisWidth, m_iScoreWidth, m_iClassWidth, m_iPingWidth, m_iSpacerWidth);
+	#endif
 
 	pPlayerList->AddColumnToSection( 0, "name", "#TF_Scoreboard_Name", 0, m_iNameWidth + m_nExtraSpace );
 	pPlayerList->AddColumnToSection( 0, "killstreak", "", SectionedListPanel::COLUMN_RIGHT, m_iKillstreakWidth );
 	pPlayerList->AddColumnToSection( 0, "killstreak_image", "", SectionedListPanel::COLUMN_IMAGE, m_iKillstreakImageWidth );
 	pPlayerList->AddColumnToSection( 0, "dominating", "", SectionedListPanel::COLUMN_IMAGE | SectionedListPanel::COLUMN_CENTER, m_iNemesisWidth );
 	pPlayerList->AddColumnToSection( 0, "nemesis", "", SectionedListPanel::COLUMN_IMAGE | SectionedListPanel::COLUMN_CENTER, m_iNemesisWidth );
-	pPlayerList->AddColumnToSection( 0, "score", "#TF_Scoreboard_Score", SectionedListPanel::COLUMN_RIGHT, m_iScoreWidth );
+	pPlayerList->AddColumnToSection( 0, "goals", "#P4SS_Scoreboard_Goals", SectionedListPanel::COLUMN_RIGHT, m_iScoreWidth );
+	pPlayerList->AddColumnToSection( 0, "assists", "#P4SS_Scoreboard_Assists", SectionedListPanel::COLUMN_RIGHT, m_iScoreWidth );
+	pPlayerList->AddColumnToSection( 0, "intercepts", "#P4SS_Scoreboard_Intercepts", SectionedListPanel::COLUMN_RIGHT, m_iScoreWidth );
+	pPlayerList->AddColumnToSection( 0, "saves", "#P4SS_Scoreboard_Saves", SectionedListPanel::COLUMN_RIGHT, m_iScoreWidth );
 	pPlayerList->AddColumnToSection( 0, "class", "", SectionedListPanel::COLUMN_IMAGE | SectionedListPanel::COLUMN_RIGHT, m_iClassWidth );
 
 	if ( tf_scoreboard_ping_as_text.GetBool() )
@@ -1374,7 +1388,10 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 			pKeyValues->SetInt( "playerIndex", playerIndex );
 			pKeyValues->SetString( "name", g_TF_PR->GetPlayerName( playerIndex ) );
 			pKeyValues->SetInt( "dominating", iDominationIndex );
-			pKeyValues->SetInt( "score", g_TF_PR->GetTotalScore( playerIndex ) );
+			pKeyValues->SetInt( "goals", g_TF_PR->GetP4ssScores( playerIndex ) );
+			pKeyValues->SetInt( "assists", g_TF_PR->GetP4ssAssists( playerIndex ) );
+			pKeyValues->SetInt( "intercepts", g_TF_PR->GetP4ssIntercepts( playerIndex ) );
+			pKeyValues->SetInt( "saves", g_TF_PR->GetP4ssSaves( playerIndex ) );
 			pKeyValues->SetInt( "connected", 2 );
 
 			C_TFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerByIndex( playerIndex ) );
@@ -1464,47 +1481,44 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 				}
 			}
 
-			// can only see class information if we're on the same team
-			if ( !AreEnemyTeams( g_PR->GetTeam( playerIndex ), localteam ) && !( localteam == TEAM_UNASSIGNED ) )
+			// class name
+			if ( g_PR->IsConnected( playerIndex ) )
 			{
-				// class name
-				if ( g_PR->IsConnected( playerIndex ) )
+				int iClass = g_TF_PR->GetPlayerClass( playerIndex );
+				if ( GetLocalPlayerIndex() == playerIndex && !bAlive )
 				{
-					int iClass = g_TF_PR->GetPlayerClass( playerIndex );
-					if ( GetLocalPlayerIndex() == playerIndex && !bAlive )
+					// If this is local player and he is dead, show desired class (which he will spawn as) rather than current class.
+					int iDesiredClass = pLocalTFPlayer->m_Shared.GetDesiredPlayerClassIndex();
+					// use desired class unless it's random -- if random, his future class is not decided until moment of spawn
+					if ( TF_CLASS_RANDOM != iDesiredClass )
 					{
-						// If this is local player and he is dead, show desired class (which he will spawn as) rather than current class.
-						int iDesiredClass = pLocalTFPlayer->m_Shared.GetDesiredPlayerClassIndex();
-						// use desired class unless it's random -- if random, his future class is not decided until moment of spawn
-						if ( TF_CLASS_RANDOM != iDesiredClass )
-						{
-							iClass = iDesiredClass;
-						}
-					}
-					else
-					{
-						// for non-local players, show the current class
-						iClass = g_TF_PR->GetPlayerClass( playerIndex );
-					}
-
-					if ( iClass >= TF_FIRST_NORMAL_CLASS && iClass <= TF_LAST_NORMAL_CLASS )
-					{
-						if ( bAlive )
-						{
-							pKeyValues->SetInt( "class", tf_scoreboard_alt_class_icons.GetBool() ? m_iImageClassAlt[iClass] : m_iImageClass[iClass] );
-						}
-						else
-						{
-							pKeyValues->SetInt( "class", tf_scoreboard_alt_class_icons.GetBool() ? m_iImageClassAlt[iClass + 9] : m_iImageClass[iClass + 9] ); // +9 is to jump ahead to the darker dead icons
-						}
-					}
-					else
-					{
-						pKeyValues->SetInt( "class", 0 );
+						iClass = iDesiredClass;
 					}
 				}
+				else
+				{
+					// for non-local players, show the current class
+					iClass = g_TF_PR->GetPlayerClass( playerIndex );
+				}
+
+				if ( iClass >= TF_FIRST_NORMAL_CLASS && iClass <= TF_LAST_NORMAL_CLASS )
+				{
+					if ( bAlive )
+					{
+						pKeyValues->SetInt( "class", tf_scoreboard_alt_class_icons.GetBool() ? m_iImageClassAlt[iClass] : m_iImageClass[iClass] );
+					}
+					else
+					{
+						pKeyValues->SetInt( "class", tf_scoreboard_alt_class_icons.GetBool() ? m_iImageClassAlt[iClass + 9] : m_iImageClass[iClass + 9] ); // +9 is to jump ahead to the darker dead icons
+					}
+				}
+				else
+				{
+					pKeyValues->SetInt( "class", 0 );
+				}
 			}
-			else
+
+			if ( AreEnemyTeams( g_PR->GetTeam( playerIndex ), localteam ) && ( localteam == TEAM_UNASSIGNED ) )
 			{
 				if ( pTFPlayer && pTFPlayer->m_Shared.IsPlayerDominated( pLocalTFPlayer->entindex() ) )
 				{

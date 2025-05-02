@@ -40,16 +40,17 @@ bool g_bIsReplayRewinding = false;
 
 const char *g_pszTipsClassImages[] =
 {
-	"",						// TF_CLASS_UNDEFINED = 0,
-	"class_portraits/scout",	// TF_CLASS_SCOUT,			
-	"class_portraits/sniper",// TF_CLASS_SNIPER,
+	"",								// TF_CLASS_UNDEFINED = 0,
+	"class_portraits/scout",		// TF_CLASS_SCOUT,			
+	"class_portraits/sniper",		// TF_CLASS_SNIPER,
 	"class_portraits/soldier",		// TF_CLASS_SOLDIER,
 	"class_portraits/demoman",		// TF_CLASS_DEMOMAN,
 	"class_portraits/medic",		// TF_CLASS_MEDIC,
-	"class_portraits/heavy",	// TF_CLASS_HEAVYWEAPONS,
-	"class_portraits/pyro",	// TF_CLASS_PYRO,
-	"class_portraits/spy",		// TF_CLASS_SPY,
-	"class_portraits/engineer",		// TF_CLASS_ENGINEER,		
+	"class_portraits/heavy",		// TF_CLASS_HEAVYWEAPONS,
+	"class_portraits/pyro",			// TF_CLASS_PYRO,
+	"class_portraits/spy",			// TF_CLASS_SPY,
+	"class_portraits/engineer",		// TF_CLASS_ENGINEER,
+	"class_portraits/JACK",			// TF_JACK teehee figure it out
 };
 
 ClassDetails_t g_PerClassStatDetails[15] =
@@ -1080,8 +1081,8 @@ void CTFStatsSummaryPanel::UpdateTip()
 	SetDialogVariable( "tiptext", g_TFTips.GetRandomTip( iTipClass ) );
 
 	if ( m_pTipImage )
-	{
-		if ( iTipClass > TF_CLASS_UNDEFINED && iTipClass <= TF_CLASS_ENGINEER )
+	{	//This + 1 on the end of ENGINEER is the only thing propping up the JACK tip class.
+		if ( iTipClass > TF_CLASS_UNDEFINED && iTipClass <= (TF_CLASS_ENGINEER + 1))
 		{
 			m_pTipImage->SetVisible( true );
 			m_pTipImage->SetImage( g_pszTipsClassImages[iTipClass] );

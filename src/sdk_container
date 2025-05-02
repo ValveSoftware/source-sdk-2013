@@ -27,6 +27,7 @@ function run_in_sniper() {
         exec podman run \
             --env "$check_env=$script_file" \
             --env "CCACHE_DIR=${CCACHE_DIR:-$HOME/.ccache}" \
+            --env "THIS_DIR=${THIS_DIR:-''}" \
             --userns=keep-id \
             --rm -it \
             --mount type=bind,\"source="${CCACHE_DIR:-$HOME/.ccache}"\",\"target="${CCACHE_DIR:-$HOME/.ccache}"\" \

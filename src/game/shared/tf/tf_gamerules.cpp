@@ -875,6 +875,7 @@ ConVar tf_raid_allow_overtime( "tf_raid_allow_overtime", "0"/*, FCVAR_CHEAT*/ );
 
 ConVar tf_mvm_defenders_team_size( "tf_mvm_defenders_team_size", "6", FCVAR_REPLICATED | FCVAR_NOTIFY, "Maximum number of defenders in MvM" );
 ConVar tf_mvm_max_connected_players( "tf_mvm_max_connected_players", "10", FCVAR_GAMEDLL, "Maximum number of connected real players in MvM" );
+ConVar tf_mvm_max_invaders( "tf_mvm_max_invaders", "22", FCVAR_GAMEDLL, "Maximum number of invaders in MvM" );
 
 ConVar tf_mvm_min_players_to_start( "tf_mvm_min_players_to_start", "3", FCVAR_REPLICATED | FCVAR_NOTIFY, "Minimum number of players connected to start a countdown timer" );
 ConVar tf_mvm_respec_enabled( "tf_mvm_respec_enabled", "1", FCVAR_CHEAT | FCVAR_REPLICATED, "Allow players to refund credits spent on player and item upgrades." );
@@ -7057,6 +7058,8 @@ static void PotentiallyDamageMitigatedEvent( const CTFPlayer* pMitigator, const 
 	}
 }
 
+ConVar tf_selfblast_resist_on_enemy_hit( "tf_selfblast_resist_on_enemy_hit", "0.0", FCVAR_REPLICATED, "Scale the self-inflicted blast damage resistance when explosives also hit an enemy.", true, 0.0, true, 1.0 );
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -7406,12 +7409,22 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 		}
 
 		if ( pAttacker == pVictimBaseEntity && (info.GetDamageType() & DMG_BLAST) &&
-			 info.GetDamagedOtherPlayers() == 0 && (info.GetDamageCustom() != TF_DMG_CUSTOM_TAUNTATK_GRENADE) )
+			 (info.GetDamageCustom() != TF_DMG_CUSTOM_TAUNTATK_GRENADE) )
 		{
-			// If we attacked ourselves, hurt no other players, and it is a blast,
-			// check the attribute that reduces rocket jump damage.
-			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( info.GetAttacker(), flRealDamage, rocket_jump_dmg_reduction );
-			outParams.bSelfBlastDmg = true;
+			if ( info.GetDamagedOtherPlayers() == 0 )
+			{
+				// If we attacked ourselves, hurt no other players, and it is a blast,
+				// check the attribute that reduces rocket jump damage.
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( info.GetAttacker(), flRealDamage, rocket_jump_dmg_reduction );
+				outParams.bSelfBlastDmg = true;
+			}
+			else
+			{
+				float flTemp = 1.0f;
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( info.GetAttacker(), flTemp, rocket_jump_dmg_reduction );
+				flRealDamage = flRealDamage * ( flTemp + ( ( 1.0f - flTemp ) * ( 1.0f - tf_selfblast_resist_on_enemy_hit.GetFloat() ) ) );
+				outParams.bSelfBlastDmg = true;
+			}
 		}
 
 		if ( pAttacker == pVictimBaseEntity )
@@ -10204,7 +10217,7 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 
 	// msg everyone if someone changes their name,  and it isn't the first time (changing no name to current name)
 	// Note, not using FStrEq so that this is case sensitive
-	if ( pszOldName[0] != 0 && Q_strncmp( pszOldName, pszName, MAX_PLAYER_NAME_LENGTH-1 ) )		
+	if ( pszOldName[0] != 0 && Q_strncmp( pszOldName, pszName, MAX_PLAYER_NAME_LENGTH_WITHOUT_NULL ) )		
 	{
 		ChangePlayerName( pTFPlayer, pszName );
 	}
@@ -10231,6 +10244,11 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	pTFPlayer->SetDefaultFOV( iFov );
 
 	pTFPlayer->m_bFlipViewModels = Q_strcmp( engine->GetClientConVarValue( pPlayer->entindex(), "cl_flipviewmodels" ), "1" ) == 0;
+
+	pTFPlayer->m_iRocketFireOffset = Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "cl_rocketoffsetposition" ) );
+
+	pTFPlayer->SetUseLegacyPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "p4ss_legacy_throw_controls" ) ) > 0 );
+	pTFPlayer->SetUseReversedPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "p4ss_reverse_throw_controls" ) ) > 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -16966,7 +16984,7 @@ int CTFGameRules::CalcPlayerScore( RoundStats_t *pRoundStats, CTFPlayer *pPlayer
 					( pRoundStats->m_iStat[TFSTAT_TELEPORTS] / TF_SCORE_TELEPORTS_PER_POINT ) +
 					( pRoundStats->m_iStat[TFSTAT_INVULNS] / TF_SCORE_INVULN ) +
 					( pRoundStats->m_iStat[TFSTAT_REVENGE] / TF_SCORE_REVENGE ) +
-					( pRoundStats->m_iStat[TFSTAT_BONUS_POINTS] / TF_SCORE_BONUS_POINT_DIVISOR );
+					( pRoundStats->m_iStat[TFSTAT_BONUS_POINTS] / TF_SCORE_BONUS_POINT_DIVISOR ) +
 					( pRoundStats->m_iStat[TFSTAT_CURRENCY_COLLECTED] / TF_SCORE_CURRENCY_COLLECTED );
 
 	if ( pPlayer )

@@ -88,11 +88,13 @@ static void *Launcher_GetProcAddress( void *pHandle, const char *pszName )
 
 static const AppId_t k_unSDK2013MPAppId = 243750;
 
-#ifdef MOD_LAUNCHER
-static const AppId_t k_unMyModAppid = MOD_APPID;
-#else
-static const AppId_t k_unMyModAppid = k_unSDK2013MPAppId;
-#endif
+// #ifdef MOD_LAUNCHER
+// static const AppId_t k_unMyModAppid = MOD_APPID;
+// #else
+// static const AppId_t k_unMyModAppid = k_unSDK2013MPAppId;
+// #endif
+
+static const AppId_t k_unMyModAppid = 3554290;
 
 static bool s_bInittedSteam = false;
 
@@ -172,14 +174,14 @@ static bool LoadSteam( const char *pRootDir )
 	decltype(SteamAPI_Init) *pfnSAPIInit = (decltype( SteamAPI_Init ) *) GetProcAddress( s_SteamModule, "SteamAPI_Init" );
 	if ( !pfnSAPIInit )
 	{
-		MessageBox( 0, "SteamAPI_Init was not available!", "Launcher Error", MB_OK );
+		MessageBox( 0, "SteamAPI_Init was not available!\nReinstall the game, please", "Launcher Error", MB_OK );
 		UnloadSteam();
 		return false;
 	}
 
 	if ( !pfnSAPIInit() )
 	{
-		MessageBox( 0, "SteamAPI_Init failed!", "Launcher Error", MB_OK );
+		MessageBox( 0, "SteamAPI_Init failed!\nEnsure Steam is running, and that you are allowed to play P4SS.", "Launcher Error", MB_OK );
 		UnloadSteam();
 		return false;
 	}

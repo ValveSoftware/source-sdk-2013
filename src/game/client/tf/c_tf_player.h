@@ -230,6 +230,8 @@ public:
 	void CreateSaveMeEffect( MedicCallerType nType = CALLER_TYPE_NORMAL );
 	void StopSaveMeEffect( bool bForceRemoveInstantly = false );
 
+	void UpdateTypingEffect();
+
 	void CreateTauntWithMeEffect();
 	void StopTauntWithMeEffect();
 
@@ -293,6 +295,8 @@ public:
 	bool			GetMedigunAutoHeal( void ){ return tf_medigun_autoheal.GetBool(); }
 	bool			ShouldAutoRezoom( void ){ return cl_autorezoom.GetBool(); }
 	bool			ShouldAutoReload( void ){ return cl_autoreload.GetBool(); }
+	bool			ShouldUseLegacyPasstimeGunControls( void ){ return m_bLegacyPasstimeGunControls; }
+	bool			ShouldUseReversedPasstimeGunControls( void ) { return  m_bReversedPasstimeGunControls; }
 
 	void			GetTargetIDDataString( bool bIsDisguised, OUT_Z_BYTECAP(iMaxLenInBytes) wchar_t *sDataString, int iMaxLenInBytes, bool &bIsAmmoData, bool &bIsKillStreakData );
 
@@ -596,6 +600,7 @@ private:
 
 	// Medic callout particle effect
 	CNewParticleEffect	*m_pSaveMeEffect;
+	CNewParticleEffect *m_pTypingEffect;
 	CNewParticleEffect	*m_pTauntWithMeEffect;
 
 	bool m_bUpdateObjectHudState;
@@ -940,6 +945,8 @@ public:
 	virtual void ClientAdjustStartSoundParams( EmitSound_t &params ) override;
 	virtual void ClientAdjustStartSoundParams( StartSoundParams_t& params ) override;
 
+	C_PasstimePlayerReticle* GetPasstimePlayerReticle() const { return m_pPasstimePlayerReticle; }
+
 private:
 	void ClientAdjustVOPitch( int& pitch );
 
@@ -952,6 +959,9 @@ private:
 	CNetworkVar( float, m_flHelpmeButtonPressTime );
 	CNetworkVar( bool, m_bViewingCYOAPDA );
 	CNetworkVar( bool, m_bRegenerating );
+	CNetworkVar( bool, m_bLegacyPasstimeGunControls );
+	CNetworkVar( bool, m_bReversedPasstimeGunControls);
+	CNetworkVar( bool, m_bTyping );
 
 	bool m_bNotifiedWeaponInspectThisLife;
 

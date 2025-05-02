@@ -8,7 +8,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$PreprocessorDefinitions	"$BASE;MOD_APPID=243750" // Replace with your appid if you ship on Steam.
+		$PreprocessorDefinitions	"$BASE;MOD_APPID=3554290" // Replace with your appid if you ship on Steam.
 	}
 }
 

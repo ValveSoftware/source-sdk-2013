@@ -12,10 +12,9 @@ using namespace vgui;
 
 namespace P4ss
 {
-	void ColorTextP4ss(vgui::Label *label, const wchar_t *text,  const int team)
+	void ColorTextP4ss(vgui::TextImage *textImage, const wchar_t *text,  const int team)
 	{
-		Msg("ColorTextP4ss: Fired\n");
-		label->GetTextImage()->ClearColorChangeStream();
+		textImage->ClearColorChangeStream();
 		Color color;
 		Color secondaryColor;
 		if ( team == TF_TEAM_BLUE )
@@ -41,31 +40,37 @@ namespace P4ss
 			switch ( *txt )
 			{
 			case 0x06: // Assists
-				label->GetTextImage()->AddColorChange( Color( 59, 196, 143, 255 ), iWChars );
+				textImage->AddColorChange( Color( 59, 196, 143, 255 ), iWChars );
 				break;
 			case 0x07: // Saves
-				label->GetTextImage()->AddColorChange( Color( 255, 255, 0, 255 ), iWChars );
+				textImage->AddColorChange( Color( 255, 255, 0, 255 ), iWChars );
 				break;
 			case 0x08: // Intercepts
-				label->GetTextImage()->AddColorChange( Color( 255, 0, 255, 255 ), iWChars );
+				textImage->AddColorChange( Color( 255, 0, 255, 255 ), iWChars );
+				break;
+			case 0x15: // Deathbomb
+				textImage->AddColorChange( Color( 151, 224, 67, 255 ), iWChars );
+				break;
+			case 0x17: // Winstrat & Panacea
+				textImage->AddColorChange( Color(77, 247, 4, 255), iWChars );
 				break;
 			case 0x14: // Steals
-				label->GetTextImage()->AddColorChange( Color( 255, 128, 0, 255 ), iWChars );
+				textImage->AddColorChange( Color( 255, 128, 0, 255 ), iWChars );
 				break;
 			case 0x0F: // Splashes
-				label->GetTextImage()->AddColorChange( Color( 91, 212, 180, 255 ), iWChars );
+				textImage->AddColorChange( Color( 91, 212, 180, 255 ), iWChars );
 				break;
 			case 0x13: // PRIMARY team color
-				label->GetTextImage()->AddColorChange( color, iWChars );
+				textImage->AddColorChange( color, iWChars );
 				break;
 			case 0x11: // SECONDARY team color
-				label->GetTextImage()->AddColorChange( secondaryColor, iWChars );
+				textImage->AddColorChange( secondaryColor, iWChars );
 				break;
 			case 0x12: // Goals
-				label->GetTextImage()->AddColorChange( Color( 59, 196, 59, 255 ), iWChars );
+				textImage->AddColorChange( Color( 59, 196, 59, 255 ), iWChars );
 				break;
 			case 0x01:
-				label->GetTextImage()->AddColorChange( Color( 255, 255, 255, 255), iWChars );
+				textImage->AddColorChange( Color( 224, 217, 197, 255), iWChars );
 				break;
 			default:
 				break;

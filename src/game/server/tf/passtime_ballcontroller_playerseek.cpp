@@ -30,13 +30,14 @@ bool CPasstimeBallControllerPlayerSeek::Apply( CPasstimeBall *ball )
 {
 	if ( gpGlobals->curtime < m_fEnableTime )
 		return false;
+
 	return Seek( ball, FindTarget( ball->GetThrower(), ball->GetAbsOrigin() ) );
 }
 
 //-----------------------------------------------------------------------------
 CTFPlayer *CPasstimeBallControllerPlayerSeek::FindTarget( CTFPlayer *pIgnorePlayer, const Vector& ballOrigin ) const
 {
-	CTFPlayer *pTarget = 0;
+	CTFPlayer *pTarget = 0;	
 	float closestPlayerDist = tf_passtime_ball_seek_range.GetFloat();
 	closestPlayerDist *= closestPlayerDist; // avoid some sqrts
 
@@ -81,7 +82,13 @@ extern float GetCurrentGravity( void ); // tf_gamerules.h
 bool CPasstimeBallControllerPlayerSeek::Seek( CPasstimeBall *ball, CTFPlayer *pTarget ) const
 {
 	if ( !pTarget )
+		ball->KillMagnetSound();
+
+	if ( !pTarget )
 		return false;
+
+	// P4SS: detect if ball is close to player during a pass and make a different sound
+	ball->CreateMagnetSound();
 
 	// taken from ballcontroller_homing
 	IPhysicsObject *pPhys = ball->VPhysicsGetObject();

@@ -362,6 +362,7 @@ public:
 	//-----------------------------------------------------------------------------
 	void SetClass( int iClass )
 	{
+		// DevMsg( "CTFClassTipsPanel::SetClass( %d ) - Start\n", iClass );
 		const char *pPathID = IsX360() ? "MOD" : "GAME";
 		m_fmtResFilename.sprintf( "classes/%s.res", g_aRawPlayerClassNames[ iClass ] );
 		if ( !g_pFullFileSystem->FileExists( m_fmtResFilename.Access(), pPathID ) &&
@@ -370,53 +371,64 @@ public:
 			m_fmtResFilename.sprintf( "classes/default.res" );
 		}
 
+		// DevMsg( "CTFClassTipsPanel::SetClass( %d ) - Resource file: %s\n",
+				// iClass, m_fmtResFilename.Access() );
+
 		if ( m_pClassTipsListPanel )
 		{
 			m_pClassTipsListPanel->DeleteAllItems();
+			// DevMsg( "CTFClassTipsPanel::SetClass( %d ) - Deleted all items from ClassTipsListPanel\n", iClass );
 
 			int nScrollToItem = 0;
 
 			// Get tip count
 			const wchar_t *wzTipCount = g_pVGuiLocalize->Find( CFmtStr( "ClassTips_%d_Count", iClass ) );
 			int nTipCount = wzTipCount ? _wtoi( wzTipCount ) : 0;
-			for ( int iTip = 1; iTip < nTipCount+1; ++iTip )
+			// DevMsg( "CTFClassTipsPanel::SetClass( %d ) - %d tips\n", iClass, nTipCount );
+			for ( int iTip = 1; iTip < nTipCount + 1; ++iTip )
 			{
+				// DevMsg( "CTFClassTipsPanel::SetClass( %d ) - in loop iteration %d\n", iClass, iTip );
 				const wchar_t *pwszText = g_pVGuiLocalize->Find( CFmtStr( "#ClassTips_%d_%d", iClass, iTip ) );
-				const wchar_t *pwszTextMvM = g_pVGuiLocalize->Find( CFmtStr( "#ClassTips_%d_%d_MvM", iClass, iTip ) );
+				// const wchar_t *pwszTextMvM = g_pVGuiLocalize->Find( CFmtStr( "#ClassTips_%d_%d_MvM", iClass, iTip ) );
 				wchar_t *pwszIcon = g_pVGuiLocalize->Find( CFmtStr( "ClassTips_%d_%d_Icon", iClass, iTip ) );
 				char szIcon[MAX_PATH];
 
 				szIcon[0] = 0;
 				if ( pwszIcon )
 				{
-					g_pVGuiLocalize->ConvertUnicodeToANSI( pwszIcon, szIcon, sizeof( szIcon ) );
+					// DevMsg( "CTFClassTipsPanel::SetClass( %d ) tip %d - found pwszIcon\n", iClass, iTip );
+					g_pVGuiLocalize->ConvertUnicodeToANSI( pwszIcon, szIcon,
+														   sizeof( szIcon ) );
 				}
 
-				// Don't load MvM tips outside the mode
-				if ( pwszTextMvM )
-				{
-					if ( !TFGameRules()->IsMannVsMachineMode() )
-						continue;
+				// // Don't load MvM tips outside the mode
+				// if ( pwszTextMvM )
+				// {
+				// 	DevMsg( "CTFClassTipsPanel::SetClass( %d ) tip %d - found pwszTextMvM\n", iClass, iTip );
+				// 	if ( !TFGameRules()->IsMannVsMachineMode() )
+				// 		continue;
 
-					// If we're MvM mode, remember first MvM tip
-					if ( !nScrollToItem )
-						nScrollToItem = iTip;
-				}
+				// 	// If we're MvM mode, remember first MvM tip
+				// 	if ( !nScrollToItem )
+				// 		nScrollToItem = iTip;
+				// }
 
 				// Create a TipsItemPanel for each tip
-				if ( pwszText || pwszTextMvM )
+				if ( pwszText )
 				{
+					// DevMsg( "CTFClassTipsPanel::SetClass( %d ) tip %d - found pwszTextMvM\n", iClass, iTip );
 					CTFClassTipsItemPanel *pClassTipsItemPanel = new CTFClassTipsItemPanel( this, "ClassTipsItemPanel", iTip );
-					if ( pwszText )
-					{
-						pClassTipsItemPanel->SetClassTip( pwszText, szIcon );
-					}
-					else if ( pwszTextMvM )
-					{
-						pClassTipsItemPanel->SetClassTip( pwszTextMvM, szIcon );
-					}
+
+					pClassTipsItemPanel->SetClassTip( pwszText, szIcon );
+					// else if ( pwszTextMvM )
+					// {
+					// 	pClassTipsItemPanel->SetClassTip( pwszTextMvM, szIcon );
+					// }
 
 					m_pClassTipsListPanel->AddItem( NULL, pClassTipsItemPanel );
+					// DevMsg( "CTFClassTipsPanel::SetClass( %d ) - Added tip %d "
+							// "to ClassTipsListPanel\n",
+							// iClass, iTip );
 				}
 			}
 
@@ -424,10 +436,12 @@ public:
 			{
 				m_pClassTipsListPanel->SetFirstColumnWidth( 0 );
 				m_pClassTipsListPanel->ScrollToItem( nScrollToItem );
+				// DevMsg( "CTFClassTipsPanel::SetClass( %d ) - Scrolled to item %d\n", iClass, nScrollToItem );
 			}
 		}
 
 		InvalidateLayout( true, true );
+		// DevMsg( "CTFClassTipsPanel::SetClass( %d ) - End\n", iClass );
 	}
 
 private:

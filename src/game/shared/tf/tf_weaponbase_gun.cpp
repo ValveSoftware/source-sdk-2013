@@ -692,12 +692,14 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, int iPipeBombTy
 	
 	// no spin for loch-n-load
 	Vector angImpulse = AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 );
-	int iNoSpin = 0;
-	CALL_ATTRIB_HOOK_INT( iNoSpin, grenade_no_spin );
-	if ( iNoSpin )
-	{
-		angImpulse.Zero();
-	}
+	// Remove pipe spinning for P4SS
+	// int iNoSpin = 0;
+	// CALL_ATTRIB_HOOK_INT( iNoSpin, grenade_no_spin );
+	// if ( iNoSpin )
+	// {
+	// 	angImpulse.Zero();
+	// }
+	angImpulse.Zero();
 
 	CTFGrenadePipebombProjectile *pProjectile = CTFGrenadePipebombProjectile::Create( trace.endpos, angEyes, vecVelocity, angImpulse, pPlayer, GetTFWpnData(), iPipeBombType, flMultDmg );
 

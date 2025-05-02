@@ -23,6 +23,10 @@ C_TF_PlayerResource *g_TF_PR;
 
 IMPLEMENT_CLIENTCLASS_DT( C_TF_PlayerResource, DT_TFPlayerResource, CTFPlayerResource )
 	RecvPropArray3( RECVINFO_ARRAY( m_iTotalScore ), RecvPropInt( RECVINFO( m_iTotalScore[0] ) ) ),
+	RecvPropArray3( RECVINFO_ARRAY( m_iP4ssScores ), RecvPropInt( RECVINFO( m_iP4ssScores[0] ) ) ),
+	RecvPropArray3( RECVINFO_ARRAY( m_iP4ssAssists ), RecvPropInt( RECVINFO( m_iP4ssAssists[0] ) ) ),
+	RecvPropArray3( RECVINFO_ARRAY( m_iP4ssSaves ), RecvPropInt( RECVINFO( m_iP4ssSaves[0] ) ) ),
+	RecvPropArray3( RECVINFO_ARRAY( m_iP4ssIntercepts ), RecvPropInt( RECVINFO( m_iP4ssIntercepts[0] ) ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_iMaxHealth ), RecvPropInt( RECVINFO( m_iMaxHealth[0] ) ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_iMaxBuffedHealth ), RecvPropInt( RECVINFO( m_iMaxBuffedHealth[0] ) ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_iPlayerClass ), RecvPropInt( RECVINFO( m_iPlayerClass[0] ) ) ),

@@ -26,7 +26,7 @@
 		"zpos"			"1"
 		"wide"			"f0"
 		"tall"			"35"
-		"visible"		"1"
+		"visible"		"0"
 		"proportionaltoparent"	"1"
 
 		"pinCorner"		"2"

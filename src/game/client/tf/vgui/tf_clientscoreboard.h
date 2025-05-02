@@ -149,12 +149,12 @@ private:
 	vgui::HFont					m_hScoreFontDefault;
 	vgui::HFont					m_hScoreFontSmallest;
 
-	CPanelAnimationVarAliasType( int, m_iSpacerWidth, "spacer", "5", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iNemesisWidth, "nemesis_width", "20", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iMedalWidth, "medal_width", "15", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iMedalColumnWidth, "medal_column_width", "15", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iKillstreakWidth, "killstreak_width", "20", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iKillstreakImageWidth, "killstreak_image_width", "20", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iSpacerWidth, "spacer", "5", "int" );
+	CPanelAnimationVarAliasType( int, m_iNemesisWidth, "nemesis_width", "20", "int" );
+	CPanelAnimationVarAliasType( int, m_iMedalWidth, "medal_width", "15", "int" );
+	CPanelAnimationVarAliasType( int, m_iMedalColumnWidth, "medal_column_width", "15", "int" );
+	CPanelAnimationVarAliasType( int, m_iKillstreakWidth, "killstreak_width", "20", "int" );
+	CPanelAnimationVarAliasType( int, m_iKillstreakImageWidth, "killstreak_image_width", "20", "int" );
 
 	CTFPlayerModelPanel			*m_pPlayerModelPanel;
 	int							m_nPlayerModelPanelIndex;

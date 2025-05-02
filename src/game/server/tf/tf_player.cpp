@@ -113,6 +113,7 @@
 #include "tf_player_resource.h"
 #include "gcsdk/gcclient_sharedobjectcache.h"
 #include "tf_party.h"
+#include "passtime_convars.h"
 
 #ifdef TF_RAID_MODE
 #include "bot_npc/bot_npc_decoy.h"
@@ -126,7 +127,6 @@
 #include "tf_revive.h"
 #include "tf_logic_halloween_2014.h"
 #include "tf_logic_player_destruction.h"
-#include "tf_weapon_rocketpack.h"
 #include "tf_weapon_slap.h"
 #include "func_croc.h"
 #include "tf_weapon_bonesaw.h"
@@ -843,6 +843,9 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	SendPropInt( SENDINFO( m_iPlayerSkinOverride ) ),
 	SendPropBool( SENDINFO( m_bViewingCYOAPDA ) ),
 	SendPropBool( SENDINFO( m_bRegenerating ) ),
+	SendPropBool( SENDINFO( m_bLegacyPasstimeGunControls ) ),
+	SendPropBool( SENDINFO( m_bReversedPasstimeGunControls ) ),
+	SendPropBool( SENDINFO( m_bTyping ) ),
 END_SEND_TABLE()
 
 // -------------------------------------------------------------------------------- //
@@ -997,7 +1000,6 @@ CTFPlayer::CTFPlayer()
 	m_flNextChangeClassTime = 0.0f;
 	m_flNextChangeTeamTime = 0.0f;
 
-	m_bScattergunJump = false;
 	m_iOldStunFlags = 0;
 	m_iLastWeaponSlot = 1;
 	m_iNumberofDominations = 0;
@@ -1123,7 +1125,10 @@ CTFPlayer::CTFPlayer()
 	m_bRespawning = false;
 
 	m_bAlreadyUsedExtendFreezeThisDeath = false;
+
+	m_bTyping = false;
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -1453,35 +1458,6 @@ void CTFPlayer::TFPlayerThink()
 	else
 	{
 		m_iLeftGroundHealth = -1;
-		if ( GetFlags() & FL_ONGROUND )
-		{
-			// Airborne conditions end on ground contact
-			m_Shared.RemoveCond( TF_COND_KNOCKED_INTO_AIR );
-			m_Shared.RemoveCond( TF_COND_AIR_CURRENT );
-
-			if ( m_Shared.InCond( TF_COND_ROCKETPACK ) )
-			{
-				// Make sure we're still not dealing with launch, where it's possible
-				// to hit your head and fall to the ground before the second stage.
-				CTFWeaponBase *pRocketPack = Weapon_OwnsThisID( TF_WEAPON_ROCKETPACK );
-				if ( pRocketPack )
-				{
-					if ( gpGlobals->curtime > ( static_cast< CTFRocketPack* >( pRocketPack )->GetRefireTime() ) )
-					{
-						EmitSound( "Weapon_RocketPack.BoostersShutdown" );
-						EmitSound( "Weapon_RocketPack.Land" );
-						m_Shared.RemoveCond( TF_COND_ROCKETPACK );
-
-						IGameEvent *pEvent = gameeventmanager->CreateEvent( "rocketpack_landed" );
-						if ( pEvent )
-						{
-							pEvent->SetInt( "userid", GetUserID() );
-							gameeventmanager->FireEvent( pEvent );
-						}
-					}
-				}
-			}
-		}
 
 		if ( m_iBlastJumpState )
 		{
@@ -2833,6 +2809,7 @@ void CTFPlayer::PrecacheMvM()
 	PrecacheScriptSound( "MVM.DeployBombGiant" );
 	PrecacheScriptSound( "Weapon_Upgrade.ExplosiveHeadshot" );
 	PrecacheScriptSound( "Spy.MVM_Chuckle" );
+	PrecacheScriptSound( "Spy.MVM_TeaseVictim" );
 	PrecacheScriptSound( "MVM.Robot_Engineer_Spawn" );
 	PrecacheScriptSound( "MVM.Robot_Teleporter_Deliver" );
 	PrecacheScriptSound( "MVM.MoneyPickup" );
@@ -3035,6 +3012,7 @@ void CTFPlayer::PrecacheTFPlayer()
 	PrecacheParticleSystem( "speech_taunt_all" );
 	PrecacheParticleSystem( "speech_taunt_red" );
 	PrecacheParticleSystem( "speech_taunt_blue" );
+	PrecacheParticleSystem( "speech_typing" );
 	PrecacheParticleSystem( "player_recent_teleport_blue" );
 	PrecacheParticleSystem( "player_recent_teleport_red" );
 	PrecacheParticleSystem( "particle_nemesis_red" );
@@ -3184,6 +3162,8 @@ void CTFPlayer::PlayerRunCommand( CUserCmd *ucmd, IMoveHelper *moveHelper )
 
 	if ( !sv_runcmds.GetInt() )
 		return;
+
+	m_bTyping = ( ucmd->buttons & IN_TYPING ) != 0;
 
 	if ( m_Shared.InCond( TF_COND_HALLOWEEN_KART ) )
 	{
@@ -3781,7 +3761,6 @@ void CTFPlayer::Spawn()
 
 	m_Shared.SetFeignDeathReady( false );
 
-	m_bScattergunJump = false;
 	m_iOldStunFlags = 0;
 
 	m_flAccumulatedHealthRegen = 0;
@@ -7156,6 +7135,41 @@ void CTFPlayer::CheckInstantLoadoutRespawn( void )
 	}
 }
 
+void CTFPlayer::Resupply( void )
+{
+	// Must be alive
+	if ( !IsAlive() )
+		return;
+
+	// In a respawn room of your own team
+	if ( !PointInRespawnRoom( this, WorldSpaceCenter(), true ) )
+		return;
+	
+	// Not in stalemate (beyond the change class period)
+	if ( TFGameRules()->InStalemate() && !TFGameRules()->CanChangeClassInStalemate() )
+		return;
+
+	// Not in Arena mode
+	if ( TFGameRules()->IsInArenaMode() == true )
+		return;
+
+	// Not if we're on the losing team
+	if ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN && TFGameRules()->GetWinningTeam() != GetTeamNumber() ) 
+		return;
+
+	iLastWeapon = m_iLastWeaponSlot;
+	ForceRegenerateAndRespawn();
+	m_iLastWeaponSlot = iLastWeapon;
+}
+
+void CC_Resupply( void )
+{
+	CTFPlayer *pPlayer = ToTFPlayer( UTIL_GetCommandClient() );
+
+	pPlayer->Resupply();
+}
+static ConCommand resupply( "resupply", CC_Resupply, "Resupply and respawn if inside a spawnroom" );
+
 class CGC_RespawnPostLoadoutChange : public GCSDK::CGCClientJob
 {
 public:
@@ -8066,7 +8080,9 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		
 		return true;
 	}
-	else if ( FStrEq( "cyoa_pda_open", pcmd ) )
+
+//	Disabled to avoid an exploit in pass time
+/*	else if ( FStrEq( "cyoa_pda_open", pcmd ) )
 	{
 		bool bOpen = atoi( args[1] ) != 0;
 
@@ -8080,7 +8096,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			TeamFortress_SetSpeed();
 		}
 		return true;
-	}
+	}*/
 
 	return BaseClass::ClientCommand( args );
 }
@@ -9127,44 +9143,40 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		}
 	}
 	
-	if ( pTFAttacker && pTFAttacker->IsPlayerClass( TF_CLASS_MEDIC ) )
+	if ( pTFAttacker && pTFAttacker->IsPlayerClass( TF_CLASS_MEDIC ) && pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_BONESAW )
 	{
-		CTFWeaponBase *pAttackerWeapon = pTFAttacker->GetActiveTFWeapon();
-		if ( pAttackerWeapon && pAttackerWeapon->GetWeaponID() == TF_WEAPON_BONESAW )
+		CTFBonesaw *pBoneSaw = static_cast< CTFBonesaw* >( pWeapon );
+		if ( pBoneSaw->GetBonesawType() == BONESAW_UBER_SAVEDONDEATH )
 		{
-			CTFBonesaw *pBoneSaw = static_cast< CTFBonesaw* >( pAttackerWeapon );
-			if ( pBoneSaw->GetBonesawType() == BONESAW_UBER_SAVEDONDEATH )
+			// Spawn their spleen
+			CPhysicsProp *pRandomInternalOrgan = dynamic_cast< CPhysicsProp* >( CreateEntityByName( "prop_physics_override" ) );
+			if ( pRandomInternalOrgan )
 			{
-				// Spawn their spleen
-				CPhysicsProp *pRandomInternalOrgan = dynamic_cast< CPhysicsProp* >( CreateEntityByName( "prop_physics_override" ) );
-				if ( pRandomInternalOrgan )
-				{
-					pRandomInternalOrgan->SetCollisionGroup( COLLISION_GROUP_DEBRIS );
-					pRandomInternalOrgan->AddFlag( FL_GRENADE );
-					char buf[512];
-					Q_snprintf( buf, sizeof( buf ), "%.10f %.10f %.10f", GetAbsOrigin().x, GetAbsOrigin().y, GetAbsOrigin().z );
-					pRandomInternalOrgan->KeyValue( "origin", buf );
-					Q_snprintf( buf, sizeof( buf ), "%.10f %.10f %.10f", GetAbsAngles().x, GetAbsAngles().y, GetAbsAngles().z );
-					pRandomInternalOrgan->KeyValue( "angles", buf );
-					pRandomInternalOrgan->KeyValue( "model", "models/player/gibs/random_organ.mdl" );
-					pRandomInternalOrgan->KeyValue( "fademindist", "-1" );
-					pRandomInternalOrgan->KeyValue( "fademaxdist", "0" );
-					pRandomInternalOrgan->KeyValue( "fadescale", "1" );
-					pRandomInternalOrgan->KeyValue( "inertiaScale", "1.0" );
-					pRandomInternalOrgan->KeyValue( "physdamagescale", "0.1" );
-					DispatchSpawn( pRandomInternalOrgan );
-					pRandomInternalOrgan->m_takedamage = DAMAGE_YES;	// Take damage, otherwise this can block trains
-					pRandomInternalOrgan->SetHealth( 100 );
-					pRandomInternalOrgan->Activate();
+				pRandomInternalOrgan->SetCollisionGroup( COLLISION_GROUP_DEBRIS );
+				pRandomInternalOrgan->AddFlag( FL_GRENADE );
+				char buf[512];
+				Q_snprintf( buf, sizeof( buf ), "%.10f %.10f %.10f", GetAbsOrigin().x, GetAbsOrigin().y, GetAbsOrigin().z );
+				pRandomInternalOrgan->KeyValue( "origin", buf );
+				Q_snprintf( buf, sizeof( buf ), "%.10f %.10f %.10f", GetAbsAngles().x, GetAbsAngles().y, GetAbsAngles().z );
+				pRandomInternalOrgan->KeyValue( "angles", buf );
+				pRandomInternalOrgan->KeyValue( "model", "models/player/gibs/random_organ.mdl" );
+				pRandomInternalOrgan->KeyValue( "fademindist", "-1" );
+				pRandomInternalOrgan->KeyValue( "fademaxdist", "0" );
+				pRandomInternalOrgan->KeyValue( "fadescale", "1" );
+				pRandomInternalOrgan->KeyValue( "inertiaScale", "1.0" );
+				pRandomInternalOrgan->KeyValue( "physdamagescale", "0.1" );
+				DispatchSpawn( pRandomInternalOrgan );
+				pRandomInternalOrgan->m_takedamage = DAMAGE_YES;	// Take damage, otherwise this can block trains
+				pRandomInternalOrgan->SetHealth( 100 );
+				pRandomInternalOrgan->Activate();
 
-					Vector vecImpulse = RandomVector( -1.f, 1.f );
-					vecImpulse.z = 1.f;
-					VectorNormalize( vecImpulse );
-					Vector vecVelocity = vecImpulse * 250.0;
-					pRandomInternalOrgan->ApplyAbsVelocityImpulse( vecVelocity );
+				Vector vecImpulse = RandomVector( -1.f, 1.f );
+				vecImpulse.z = 1.f;
+				VectorNormalize( vecImpulse );
+				Vector vecVelocity = vecImpulse * 250.0;
+				pRandomInternalOrgan->ApplyAbsVelocityImpulse( vecVelocity );
 
-					pRandomInternalOrgan->ThinkSet( &CBaseEntity::SUB_Remove, gpGlobals->curtime + 5.f, "DieContext" );
-				}
+				pRandomInternalOrgan->ThinkSet( &CBaseEntity::SUB_Remove, gpGlobals->curtime + 5.f, "DieContext" );
 			}
 		}
 	}
@@ -14785,11 +14797,7 @@ void CTFPlayer::CheatImpulseCommands( int iImpulse )
 						continue;
 
 					pWeapon->GiveDefaultAmmo();
-
-					if ( pWeapon->IsEnergyWeapon() )
-					{
-						pWeapon->WeaponRegenerate();
-					}
+					pWeapon->WeaponRegenerate();
 				}
 
 				m_Shared.m_flRageMeter = 100.f;
@@ -16047,7 +16055,7 @@ bool CTFPlayer::SayAskForBall()
 	}
 
 	CTFPlayer *pBallCarrier = pBall->GetCarrier();
-	if ( !pBallCarrier )
+	if ( !pBallCarrier && !p4ss_whistle_more.GetBool())
 	{
 		return false;
 	}

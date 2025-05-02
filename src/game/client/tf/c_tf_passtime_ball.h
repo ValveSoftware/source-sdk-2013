@@ -37,6 +37,7 @@ public:
 
 	int GetCollisionCount() const { return m_iCollisionCount; }
 	C_TFPlayer *GetHomingTarget() const { return m_hHomingTarget; }
+	C_TFPlayer *GetLastHomingTarget() const { return m_hLastHomingTarget; }
 	C_TFPlayer *GetCarrier();
 	C_TFPlayer *GetPrevCarrier();
 	
@@ -45,6 +46,7 @@ private:
 	float m_fDrawTime;
 	CNetworkVar( int, m_iCollisionCount );
 	CNetworkHandle( C_TFPlayer, m_hHomingTarget );
+	CNetworkHandle( C_TFPlayer, m_hLastHomingTarget );
 	CNetworkHandle( C_TFPlayer, m_hCarrier );
 	CNetworkHandle( C_TFPlayer, m_hPrevCarrier );
 };

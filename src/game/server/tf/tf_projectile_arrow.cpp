@@ -754,7 +754,7 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 
 	// P4SS: neutral and push the jack
 
-	if ( tf_passtime_med_cansplash.GetBool() )
+	if ( p4ss_med_cansplash.GetBool() )
 	{
 	
 		if ( !Q_strcmp( pOther->GetClassname(), "passtime_ball" ) )
@@ -773,13 +773,14 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 			}
 
 
-			if ( tf_passtime_med_canpushball.GetBool() )
+			if ( p4ss_med_canpushball.GetBool() )
 			{
 				CTakeDamageInfo info( this, pAttacker, m_hLauncher, vecVelocity, vecOrigin, crossbowDamage, DMG_GENERIC );
 				pOther->TakeDamage( info );		
 			}
 			else
 			{
+				// P4SS: fix me, this is not a good solution to making the ball neutral because splash/direct calculations do not work without the ball taking damage
 				((CPasstimeBall *) pOther)->ChangeTeam( 0 );
 			}
 		}

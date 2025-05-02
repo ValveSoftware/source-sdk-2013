@@ -25,7 +25,7 @@
 		"name_width"		"118"
 		"nemesis_width"		"25"
 		"class_width"		"25"
-		"score_width"		"30"
+		"score_width"		"25"
 		"ping_width"		"25"
 		"killstreak_width"	"15"
 		"killstreak_image_width" "15"

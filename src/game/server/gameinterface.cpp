@@ -3087,7 +3087,7 @@ float CServerGameClients::ProcessUsercmds( edict_t *player, bf_read *buf, int nu
 	}
 
 	// Client not fully connected or server has gone inactive  or is paused, just ignore
-	if ( ignore || !pPlayer )
+	if ( ignore || paused || !pPlayer )
 	{
 		return 0.0f;
 	}

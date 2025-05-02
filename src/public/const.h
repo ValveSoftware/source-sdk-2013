@@ -28,7 +28,7 @@
 #define CLIENTNAME_TIMED_OUT "%s timed out"
 
 // This is the default, see shareddefs.h for mod-specific value, which can override this
-#define DEFAULT_TICK_INTERVAL	(0.015)				// 15 msec is the default
+#define DEFAULT_TICK_INTERVAL	(0.0078125)				// 15 msec is the default
 #define MINIMUM_TICK_INTERVAL   (0.001)
 #define MAXIMUM_TICK_INTERVAL	(0.1)
 
@@ -36,9 +36,11 @@
 #define ABSOLUTE_PLAYER_LIMIT 255  // not 256, so we can send the limit as a byte 
 #define ABSOLUTE_PLAYER_LIMIT_DW	( (ABSOLUTE_PLAYER_LIMIT/32) + 1 )
 
-// a player name may have 31 chars + 0 on the PC.
-// the 360 only allows 15 char + 0, but stick with the larger PC size for cross-platform communication
-#define MAX_PLAYER_NAME_LENGTH		32
+// Steam allows 32 visible characters for account names
+// MAX_PLAYER_NAME_LENGTH is the buffer size including null terminator
+// MAX_PLAYER_NAME_LENGTH_WITHOUT_NULL is the maximum number of characters without null terminator
+#define MAX_PLAYER_NAME_LENGTH		33  // 32 chars + null terminator
+#define MAX_PLAYER_NAME_LENGTH_WITHOUT_NULL	32  // matches Steam's limit
 
 #ifdef _X360
 #define MAX_PLAYERS_PER_CLIENT		XUSER_MAX_COUNT	// Xbox 360 supports 4 players per console
@@ -163,7 +165,7 @@
 #define	FL_INWATER				(1<<10)	// In water
 
 // NOTE if you move things up, make sure to change this value
-#define PLAYER_FLAG_BITS		11
+#define PLAYER_FLAG_BITS		32
 
 #define	FL_FLY					(1<<11)	// Changes the SV_Movestep() behavior to not need to be on ground
 #define	FL_SWIM					(1<<12)	// Changes the SV_Movestep() behavior to not need to be on ground (but stay in water)

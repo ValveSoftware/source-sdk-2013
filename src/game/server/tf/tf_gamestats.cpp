@@ -2933,6 +2933,26 @@ void CTFGameStats::Event_PlayerEarnedKillStreak( CTFPlayer *pAttacker )
 	}
 }
 
+void CTFGameStats::Event_PlayerP4ssGoal( CTFPlayer *pPlayer )
+{
+	IncrementStat( pPlayer, TFSTAT_P4SS_SCORES, 1 );
+}
+
+void CTFGameStats::Event_PlayerP4ssSave( CTFPlayer *pPlayer )
+{
+	IncrementStat( pPlayer, TFSTAT_P4SS_SAVES, 1 );
+}
+
+void CTFGameStats::Event_PlayerP4ssAssist( CTFPlayer *pPlayer )
+{
+	IncrementStat( pPlayer, TFSTAT_P4SS_ASSISTS, 1 );
+}
+
+void CTFGameStats::Event_PlayerP4ssIntercept( CTFPlayer *pPlayer )
+{
+	IncrementStat( pPlayer, TFSTAT_P4SS_INTERCEPTS, 1 );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Halloween!
 //-----------------------------------------------------------------------------

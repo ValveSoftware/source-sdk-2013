@@ -1,0 +1,8 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui/maps/menu_photos_pass_stadium_rc4"
+	"%keywords" "stadium,tf,p4ss,passtime,map_photos"
+	"$translucent" 1
+	"$vertexcolor" 1
+	"$ignorez" 1
+}

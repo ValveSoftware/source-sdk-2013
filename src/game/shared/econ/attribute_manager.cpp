@@ -332,17 +332,17 @@ float CAttributeManager::ApplyAttributeFloatWrapper( float flValue, CBaseEntity 
 {
 	VPROF_BUDGET( "CAttributeManager::ApplyAttributeFloatWrapper", VPROF_BUDGETGROUP_ATTRIBUTES );
 
-#ifdef DEBUG
-	AssertMsg1( m_nCalls != 5000, "%d calls for attributes in a single tick.  This is slow and bad.", m_nCalls );
+// #ifdef DEBUG
+// 	AssertMsg1( m_nCalls != 5000, "%d calls for attributes in a single tick.  This is slow and bad.", m_nCalls );
 
-	if( m_nCurrentTick != gpGlobals->tickcount )
-	{	
-		m_nCalls = 0;
-		m_nCurrentTick = gpGlobals->tickcount;
-	}
+// 	if( m_nCurrentTick != gpGlobals->tickcount )
+// 	{	
+// 		m_nCalls = 0;
+// 		m_nCurrentTick = gpGlobals->tickcount;
+// 	}
 
-	++m_nCalls;
-#endif
+// 	++m_nCalls;
+// #endif
 
 	// Have we requested a global attribute cache flush?
 	const int iGlobalCacheVersion = GetGlobalCacheVersion();

@@ -181,6 +181,8 @@ bool CSteamShareSystem::Init()
 	ListenForGameEvent( "teamplay_point_captured" );
 	ListenForGameEvent( PasstimeGameEvents::Score::s_eventName );
 	ListenForGameEvent( PasstimeGameEvents::BallGet::s_eventName );
+	ListenForGameEvent( PasstimeGameEvents::BallDirected::s_eventName );
+	ListenForGameEvent( PasstimeGameEvents::BallSplashed::s_eventName );
 	ListenForGameEvent( PasstimeGameEvents::PassCaught::s_eventName );
 	ListenForGameEvent( PasstimeGameEvents::BallFree::s_eventName );
 	ListenForGameEvent( "killed_ball_carrier" );
@@ -465,6 +467,14 @@ void CSteamShareSystem::FireGameEvent( IGameEvent *event )
 			const char *pszTitle = GetLocalizedTitleString( "#TF_Timeline_JackScore" );
 			SteamTimeline()->AddTimelineEvent( ( GetLocalPlayerTeam() == TF_TEAM_BLUE ) ? "passtime_blu" : "passtime_red", pszTitle, "", TIMELINE_LOW_PRIORITY, 0.f, 0.f, k_ETimelineEventClipPriority_Standard );
 		}
+	}
+	else if ( FStrEq( PasstimeGameEvents::BallDirected::s_eventName, event->GetName() ) )
+	{
+		PasstimeGameEvents::BallDirected ev( event );
+	}
+	else if ( FStrEq( PasstimeGameEvents::BallSplashed::s_eventName, event->GetName() ) )
+	{
+		PasstimeGameEvents::BallSplashed ev( event );
 	}
 	else if ( FStrEq( PasstimeGameEvents::BallGet::s_eventName, event->GetName() ) )
 	{

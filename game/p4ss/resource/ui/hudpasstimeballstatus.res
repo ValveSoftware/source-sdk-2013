@@ -69,6 +69,30 @@
 		"pin_to_sibling_corner"	"6"
 	}
 
+	"EventTitleLabelShadow"
+	{
+		"ControlName"	"CExLabel"
+		"fieldName"		"EventTitleLabelShadow"
+		"dropshadow"	"1"
+		"font"			"HudFontMediumSmallBold"
+		"xpos"			"1"
+		"ypos"			"91"
+		"zpos"			"2"
+		"wide"			"f"
+		"tall"			"15"
+		"visible"		"1"
+		"enabled"		"1"
+		"textAlignment"	"center"
+		"labelText"		"A TEAM STOLE THE BALL"
+		"fgcolor" "TanDark"
+		"border"				""
+		"textinsetx"		"30"
+		"auto_wide_tocontents"	"1"
+		"pin_to_sibling"		"EventTitleAnchor"
+		"pin_corner_to_sibling"	"4"
+		"pin_to_sibling_corner"	"6"
+	}
+
 	"EventDetailLabel"
 	{
 		"ControlName"	"CExLabel"
@@ -85,6 +109,30 @@
 		"textAlignment"	"center"
 		"labelText"		"A TEAM STOLE THE BALL"
 		"fgcolor_override"	"224 217 197 255"
+		"border"				""
+		"textinsetx"		"30"
+		"auto_wide_tocontents"	"1"
+		
+		"pin_to_sibling"		"EventTitleLabel"
+		"pin_corner_to_sibling"	"4"
+		"pin_to_sibling_corner"	"6"
+	}
+
+	"EventDetailLabelShadow"
+	{
+		"ControlName"	"CExLabel"
+		"fieldName"		"EventDetailLabelShadow"
+		"font"			"HudFontSmallestBold"
+		"xpos"			"1"
+		"ypos"			"1"
+		"zpos"			"2"
+		"wide"			"f"
+		"tall"			"20"
+		"visible"		"1"
+		"enabled"		"1"
+		"textAlignment"	"center"
+		"labelText"		"A TEAM STOLE THE BALL"
+		"fgcolor" "TanDark"
 		"border"				""
 		"textinsetx"		"30"
 		"auto_wide_tocontents"	"1"
@@ -119,14 +167,41 @@
 		"pin_corner_to_sibling"	"6"
 		"pin_to_sibling_corner"	"4"
 	}
+	"EventBonusLabelShadow"
+	{
+		"ControlName"	"CExLabel"
+		"fieldName"		"EventBonusLabelShadow"
+		"font"			"HudFontSmallBold"
+		"dropshadow"	"1"
+		"xpos"			"0"
+		"ypos"			"9999" //Disabled the critboost notification
+		"zpos"			"3"
+		"wide"			"f"
+		"tall"			"20"
+		"visible"		"1" 
+		"enabled"		"1"
+		"textAlignment"	"center"
+		"labelText"		""
+		"fgcolor_override"	"255 235 35 200"
+		"border"				""
+		"textinsetx"		"30"
+		"auto_wide_tocontents"	"1"
+		
+		"pin_to_sibling"		"EventTitleLabel"
+		"pin_corner_to_sibling"	"6"
+		"pin_to_sibling_corner"	"4"
+	}
 
 	"ProgressLevelBar"
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"ProgressLevelBar"	
 		"xpos"			"c-190"
+		"ypos"			"r86"
+		
 		"xpos_minmode"	"c-140"
-		"ypos"			"r88"
+		"ypos_minmode"	"r80"
+		
 		"zpos"			"0"
 		"wide"			"380"
 		"wide_minmode"	"280"
@@ -145,8 +220,11 @@
 		"ControlName" 	"Panel"
 		"fieldName"		"BlueProgressEnd"
 		"xpos"			"c-152"
+		"ypos"			"r62"
+		
 		"xpos_minmode"	"c-112"
-		"ypos"			"r64"
+		"ypos_minmode"	"r56"
+		
 		"visible"		"0"
 	}
 
@@ -157,8 +235,11 @@
 		"ControlName"	"Panel"
 		"fieldName"		"RedProgressEnd"
 		"xpos"			"c152"
+		"ypos"			"r62"
+		
 		"xpos_minmode"	"c112"
-		"ypos"			"r64"
+		"ypos_minmode"	"r56"
+		
 		"visible"		"0"
 	}	
 
@@ -322,24 +403,29 @@
 		"font"				"HudFontSmallestBold"
 		"visible"				"1"
 		"enabled"				"1"
-		"zpos"					"-400"
+		"zpos"					"0"
 		"xpos"					"0"
-		"ypos"					"0"
-		"wide"					"200"
+		"ypos"					"-417"
+		
+		"wide"					"180"
+		"wide_minmode"			"125"		
+		
 		"tall"					"16"
 		"textAlignment"			"center"
 		"dulltext"				"0"
 		"brighttext"			"1"
 		"labelText"				"NameOfCarrier"
 		"border"				"TFFatLineBorder"
-		"auto_wide_tocontents"	"1"
-		"textinsetx"			"30"
+		"auto_wide_tocontents"	"0"
+		"textinsetx"			"20"
 		
 		"pin_to_sibling"	"CarrierAnchor"
 		"pin_corner_to_sibling"		"4"
 		"pin_to_sibling_corner"		"4"
 	}
 	
+	
+		//What does this do?
 	"CarrierAnchor"
 	{	
 		"ControlName"			"ImagePanel"

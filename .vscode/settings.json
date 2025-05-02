@@ -4,5 +4,8 @@
   ],
   "editor.formatOnSave": false,
   "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
-  "cmake.ignoreCMakeListsMissing": true
+  "cmake.ignoreCMakeListsMissing": true,
+  "[vdf]": {
+    "editor.defaultFormatter": "pfwobcke.vscode-vdf"
+  }
 }
