@@ -10534,6 +10534,9 @@ void EconItemInterface_OnOwnerKillEaterEvent( IEconItemInterface *pEconEntity, C
 		if ( !pWearableItem->GetAttributeContainer() )
 			continue;
 
+		if ( !strcmp( pWearableItem->GetAttributeContainer()->GetItem()->GetStaticData()->GetItemClass(), "tf_wearable_demoshield" ) )
+			continue;
+
 		EconEntity_ValidateAndSendStrangeMessageToGC( pWearableItem->GetAttributeContainer()->GetItem(), pOwner, pVictim, eEventType, nIncrementValue );
 
 		if ( pWearableItem->GetAttributeContainer()->GetItem() == pEconEntity )
