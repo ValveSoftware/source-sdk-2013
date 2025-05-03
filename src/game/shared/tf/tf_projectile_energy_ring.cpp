@@ -268,8 +268,8 @@ void CTFProjectile_EnergyRing::ProjectileTouch( CBaseEntity *pOther )
 		}
 		else // Pomson
 		{
-			// Projectiles shouldn't collide with friendly things except buildings.
-			if ( pOther->InSameTeam( this ) && !pOther->IsBaseObject() )
+			// Skip collision with teammates unless explicit collision with teammates is allowed.
+			if ( pOther->InSameTeam( this ) && pOther->IsPlayer() && !CanCollideWithTeammates() )
 				return;
 		}
 
