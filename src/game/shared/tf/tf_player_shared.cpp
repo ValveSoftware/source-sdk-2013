@@ -1097,7 +1097,7 @@ void CTFPlayerShared::AddCond( ETFCond eCond, float flDuration /* = PERMANENT_CO
 		return;
 	}
 
-#ifdef CLEINT_DLL
+#ifdef CLIENT_DLL
 	if ( m_pOuter->IsDormant() )
 	{
 		return;
