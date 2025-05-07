@@ -37,7 +37,7 @@
 using namespace vgui;
 
 ConVar cl_hud_playerclass_use_playermodel( "cl_hud_playerclass_use_playermodel", "1", FCVAR_ARCHIVE, "Use player model in player class HUD." );
-ConVar cl_hud_critical_health_percentage( "cl_hud_critical_health_percentage", "0.625", FCVAR_ARCHIVE, "Percentage of health at which the health bar starts flashing.", 1, 0.5, 1, 1.0 );
+ConVar cl_hud_critical_health_percentage( "cl_hud_critical_health_percentage", "0.49", FCVAR_ARCHIVE, "Percentage of health at which the health bar starts flashing.", 1, 0.0, 1, 1.0 );
 
 ConVar cl_hud_playerclass_playermodel_showed_confirm_dialog( "cl_hud_playerclass_playermodel_showed_confirm_dialog", "0", FCVAR_ARCHIVE | FCVAR_HIDDEN );
 
