@@ -9,15 +9,17 @@
 //
 
 #include "stdafx.h"
-#include <direct.h>
 #include "tier1/strtools.h"
 #include "tier0/icommandline.h"
 
+#ifndef LPVOID
+#define LPVOID void*
+#endif
 
 char* GetLastErrorString()
 {
 	static char err[2048];
-	
+#ifdef WIN32
 	LPVOID lpMsgBuf;
 	FormatMessage( 
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -33,7 +35,9 @@ char* GetLastErrorString()
 
 	strncpy( err, (char*)lpMsgBuf, sizeof( err ) );
 	LocalFree( lpMsgBuf );
-
+#elif defined(POSIX)
+	strncpy( err, strerror( errno ), sizeof( err) );
+#endif
 	err[ sizeof( err ) - 1 ] = 0;
 
 	return err;
