@@ -35,6 +35,8 @@ enum
 // CNormalList.
 //==========================================================================//
 
+const int NUM_SUBDIVS = 8;
+
 // This class keeps a list of unique normals and provides a fast 
 class CNormalList
 {
@@ -53,7 +55,6 @@ public:
 private:
 
 	// This represents a grid from (-1,-1,-1) to (1,1,1).
-	enum {NUM_SUBDIVS = 8};
 	CUtlVector<int>	m_NormalGrid[NUM_SUBDIVS][NUM_SUBDIVS][NUM_SUBDIVS];
 };
 
