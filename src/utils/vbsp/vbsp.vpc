@@ -177,6 +177,9 @@ $Project "VBSP"
 		$Lib bitmap
 		$Lib fgdlib
 		$Lib mathlib
+		$ImpLibexternal tier0 [$POSIX]
+		$Lib tier1 [$POSIX]
+		$ImpLibexternal vstdlib [$POSIX]
 		$Lib tier2
 		$Lib vtf
 		$Lib "$LIBCOMMON/lzma"

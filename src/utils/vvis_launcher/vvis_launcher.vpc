@@ -48,4 +48,11 @@ $Project "VVIS (Launcher)"
 		$File	"$SRCDIR\public\tier1\interface.h"
 		$File	"StdAfx.h"
 	}
+
+	$Folder "Link Libraries"
+	{
+			$ImpLibexternal tier0 [$POSIX]
+			$Lib tier1 [$POSIX]
+			$ImpLibexternal vstdlib [$POSIX]
+	}
 }

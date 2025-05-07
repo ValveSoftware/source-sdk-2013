@@ -51,4 +51,11 @@ $Project "VRAD (Launcher)"
 		$File	"$SRCDIR\public\ivraddll.h"
 		$File	"StdAfx.h"
 	}
+
+	$Folder "Link Libraries"
+	{
+			$ImpLibexternal tier0 [$POSIX]
+			$Lib tier1 [$POSIX]
+			$ImpLibexternal vstdlib [$POSIX]
+	}
 }

@@ -218,6 +218,9 @@ $Project "VRAD"
 	{
 		$Lib bitmap
 		$Lib mathlib
+		$ImpLibexternal tier0 [$POSIX]
+		$Lib tier1 [$POSIX]
+		$ImpLibexternal vstdlib [$POSIX]
 		$Lib raytrace
 		$Lib tier2
 		$Lib vmpi [$WIN32]

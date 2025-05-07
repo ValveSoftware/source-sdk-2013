@@ -98,6 +98,9 @@ $Project "VVIS"
 	$Folder	"Link Libraries"
 	{
 		$Lib mathlib
+		$ImpLibexternal tier0 [$POSIX]
+		$Lib tier1 [$POSIX]
+		$ImpLibexternal vstdlib [$POSIX]
 		$Lib tier2
 		$Lib vmpi [$WIN32]
 		$Lib "$LIBCOMMON/lzma"
