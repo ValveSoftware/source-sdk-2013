@@ -831,7 +831,7 @@ void AddFileToPak( IZip *pak, const char *relativename, const char *fullpath, IZ
 //			*data - 
 //			length - 
 //-----------------------------------------------------------------------------
-void AddBufferToPak( IZip *pak, const char *pRelativeName, void *data, int length, bool bTextMode, IZip::eCompressionType compressionType )
+void AddBufferToPak( IZip *pak, const char *pRelativeName, const void *data, int length, bool bTextMode, IZip::eCompressionType compressionType )
 {
 	pak->AddBufferToZip( pRelativeName, data, length, bTextMode, compressionType );
 }
