@@ -2171,7 +2171,11 @@ void VRAD_LoadBSP( char const *pFilename )
 		// Otherwise, try looking in the BIN directory from which we were run from
 		Msg( "Could not find lights.rad in %s.\nTrying VRAD BIN directory instead...\n", 
 			    global_lights );
+#ifdef WIN32
 		GetModuleFileName( NULL, global_lights, sizeof( global_lights ) );
+#elif defined(POSIX)
+		readlink( "/proc/self/exe", global_lights, sizeof( global_lights ) );
+#endif
 		Q_ExtractFilePath( global_lights, global_lights, sizeof( global_lights ) );
 		strcat( global_lights, "lights.rad" );
 	}
