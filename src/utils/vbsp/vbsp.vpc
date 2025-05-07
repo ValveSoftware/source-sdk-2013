@@ -81,8 +81,8 @@ $Project "VBSP"
 			$File	"..\common\polylib.cpp"
 			$File	"..\common\scriplib.cpp"
 			$File	"..\common\threads.cpp"
-			$File	"..\common\tools_minidump.cpp"
-			$File	"..\common\tools_minidump.h"
+			$File	"..\common\tools_minidump.cpp" [$WINDOWS]
+			$File	"..\common\tools_minidump.h" [$WINDOWS]
 		}
 	}
 

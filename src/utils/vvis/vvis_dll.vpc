@@ -47,8 +47,8 @@ $Project "VVIS"
 		$File	"..\common\scratchpad_helpers.cpp"
 		$File	"..\common\scriplib.cpp"
 		$File	"..\common\threads.cpp"
-		$File	"..\common\tools_minidump.cpp"
-		$File	"..\common\tools_minidump.h"
+		$File	"..\common\tools_minidump.cpp"    [$WIN32]
+		$File	"..\common\tools_minidump.h"      [$WIN32]
 		$File	"..\common\vmpi_tools_shared.cpp" [$WIN32]
 		$File	"vvis.cpp"
 		$File	"WaterDist.cpp"

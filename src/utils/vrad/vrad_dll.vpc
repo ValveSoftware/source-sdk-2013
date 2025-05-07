@@ -72,8 +72,8 @@ $Project "VRAD"
 			$File	"..\common\polylib.cpp"
 			$File	"..\common\scriplib.cpp"
 			$File	"..\common\threads.cpp"
-			$File	"..\common\tools_minidump.cpp"
-			$File	"..\common\tools_minidump.h"
+			$File	"..\common\tools_minidump.cpp" [$WIN32]
+			$File	"..\common\tools_minidump.h" [$WIN32]
 		}
 
 		$Folder	"Public Files"

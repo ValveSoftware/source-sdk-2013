@@ -958,10 +958,12 @@ int ParseCommandLine( int argc, char **argv )
 		{
 			g_bLowPriority = true;
 		}
+#ifdef WIN32
 		else if ( !Q_stricmp( argv[i], "-FullMinidumps" ) )
 		{
 			EnableFullMinidumps( true );
 		}
+#endif
 		else if ( !Q_stricmp( argv[i], CMDLINEOPTION_NOVCONFIG ) )
 		{
 		}
@@ -1245,9 +1247,11 @@ int main (int argc, char **argv)
 		SetupToolsMinidumpHandler( VMPI_ExceptionFilter );
 	else
 #endif
+#ifdef WIN32
 	{
 		SetupDefaultToolsMinidumpHandler();
 	}
+#endif
 
 	return RunVVis( argc, argv );
 }
