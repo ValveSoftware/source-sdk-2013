@@ -50,6 +50,7 @@ private:
 
 	// threading data
 	bool m_bRunThread;
+#ifdef WIN32
 	CRITICAL_SECTION m_csThread;
 	CRITICAL_SECTION m_csInQueue;
 	CRITICAL_SECTION m_csOutQueue;
@@ -57,6 +58,15 @@ private:
 
 	// wait event
 	HANDLE m_hEvent;
+#elif defined(POSIX)
+	pthread_mutex_t m_csThread;
+	pthread_mutex_t m_csInQueue;
+	pthread_mutex_t m_csOutQueue;
+	pthread_mutex_t m_csDBAccess;
+
+	pthread_mutex_t m_EventMutex;
+	pthread_cond_t m_hEvent;
+#endif
 
 	struct msg_t
 	{
