@@ -562,7 +562,7 @@ bool CVRadDispMgr::ClipRayToDisp( DispTested_t &dispTested, Ray_t const &ray )
 	ctx.m_pDispTested = &dispTested;
 
 	// If it got through without a hit, it returns true
-	return !m_pBSPTreeData->EnumerateLeavesAlongRay( ray, &m_EnumDispRay, ( int )&ctx );
+	return !m_pBSPTreeData->EnumerateLeavesAlongRay( ray, &m_EnumDispRay, ( intp )&ctx );
 }
 
 
@@ -575,7 +575,7 @@ bool CVRadDispMgr::ClipRayToDispInLeaf( DispTested_t &dispTested, Ray_t const &r
 	ctx.m_pRay = &ray;
 	ctx.m_pDispTested = &dispTested;
 
-	return !m_pBSPTreeData->EnumerateElementsInLeaf( ndxLeaf, &m_EnumDispRay, ( int )&ctx );
+	return !m_pBSPTreeData->EnumerateElementsInLeaf( ndxLeaf, &m_EnumDispRay, ( intp )&ctx );
 }
 
 //-----------------------------------------------------------------------------
