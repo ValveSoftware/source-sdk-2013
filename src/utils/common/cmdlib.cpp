@@ -25,6 +25,7 @@
 #include "tier0/icommandline.h"
 #include "KeyValues.h"
 #include "filesystem_tools.h"
+#include "threadtools.h"
 
 #if defined( MPI )
 
@@ -221,23 +222,14 @@ void Error( char const *pMsg, ... )
 
 #else
 
-CRITICAL_SECTION g_SpewCS;
-bool g_bSpewCSInitted = false;
+CThreadMutex g_SpewCS;
 bool g_bSuppressPrintfOutput = false;
 
 SpewRetval_t CmdLib_SpewOutputFunc( SpewType_t type, char const *pMsg )
 {
-	// Hopefully two threads won't call this simultaneously right at the start!
-	if ( !g_bSpewCSInitted )
-	{
-		InitializeCriticalSection( &g_SpewCS );
-		g_bSpewCSInitted = true;
-	}
-
 	WORD old;
 	SpewRetval_t retVal;
-	
-	EnterCriticalSection( &g_SpewCS );
+	g_SpewCS.Lock();
 	{
 		if (( type == SPEW_MESSAGE ) || (type == SPEW_LOG ))
 		{
@@ -322,7 +314,7 @@ SpewRetval_t CmdLib_SpewOutputFunc( SpewType_t type, char const *pMsg )
 
 		RestoreConsoleTextColor( old );
 	}
-	LeaveCriticalSection( &g_SpewCS );
+	g_SpewCS.Unlock();
 
 	if ( type == SPEW_ERROR )
 	{
