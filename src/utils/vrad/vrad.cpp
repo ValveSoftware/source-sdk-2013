@@ -94,7 +94,8 @@ bool g_bOnlyStaticProps = false;
 bool g_bShowStaticPropNormals = false;
 
 
-float		gamma = 0.5;
+// Underscore to avoid conflicting with the `gamme` function from GNU libm
+float		gamma_ = 0.5;
 float		indirect_sun = 1.0;
 float		reflectivityScale = 1.0;
 qboolean	do_extra = true;
