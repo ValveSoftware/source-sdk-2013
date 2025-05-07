@@ -165,8 +165,8 @@ void Rasterizer::Build()
 		return;
 
 	// Clamp to 0..1
-	fMinX = max(0, fMinX);
-	fMinY = max(0, fMinY);
+	fMinX = max(0.0f, fMinX);
+	fMinY = max(0.0f, fMinY);
 	fMaxX = min(1.0f, fMaxX);
 	fMaxY = min(1.0f, fMaxY);
 
@@ -176,8 +176,8 @@ void Rasterizer::Build()
 
 	int iMinX = GetCol(fMinX) - kFilterSampleRadius;
 	int iMinY = GetRow(fMinY) - kFilterSampleRadius;
-	int iMaxX = GetCol(fMaxX) + 1 + kFilterSampleRadius;
-	int iMaxY = GetRow(fMaxY) + 1 + kFilterSampleRadius;
+	size_t iMaxX = GetCol(fMaxX) + 1 + kFilterSampleRadius;
+	size_t iMaxY = GetRow(fMaxY) + 1 + kFilterSampleRadius;
 
 	// Clamp to valid texture (integer) locations
 	iMinX = max(0, iMinX);
@@ -2463,8 +2463,8 @@ static int GetTexelCount(unsigned int _resX, unsigned int _resY, bool _mipmaps)
 	while (_resX > 1 || _resY > 1) 
 	{
 		retVal += _resX * _resY;
-		_resX = max(1, _resX >> 1);
-		_resY = max(1, _resY >> 1);
+		_resX = max(1u, _resX >> 1);
+		_resY = max(1u, _resY >> 1);
 	}
 
 	// Add in the 1x1 mipmap level, which wasn't hit above. This could be done in the initializer of 

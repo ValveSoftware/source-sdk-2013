@@ -98,10 +98,10 @@ void AddDirectToRadial( radial_t *rad,
 	{
 		for( t = t_min; t < t_max; t++ )
 		{
-			float s0 = max( coordmins[0] - s, -1.0 );
-			float t0 = max( coordmins[1] - t, -1.0 );
-			float s1 = min( coordmaxs[0] - s, 1.0 );
-			float t1 = min( coordmaxs[1] - t, 1.0 );
+			float s0 = max( coordmins[0] - s, -1.0f );
+			float t0 = max( coordmins[1] - t, -1.0f );
+			float s1 = min( coordmaxs[0] - s, 1.0f );
+			float t1 = min( coordmaxs[1] - t, 1.0f );
 
 			area = (s1 - s0) * (t1 - t0);
 
@@ -176,8 +176,8 @@ void AddBouncedToRadial( radial_t *rad,
 	distt = (coordmaxs[1] - coordmins[1]);
 
 	// patches less than a luxel in size could be mistakeningly filtered, so clamp.
-	dists = max( 1.0, dists );
-	distt = max( 1.0, distt );
+	dists = max( 1.0f, dists );
+	distt = max( 1.0f, distt );
 
 	// find possible domain of patch influence
   	s_min = ( int )( coord[0] - dists * RADIALDIST );
