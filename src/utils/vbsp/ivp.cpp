@@ -432,7 +432,7 @@ public:
 
 private:
 
-	CPhysConvex *CPlaneList::BuildConvexForBrush( int brushnumber, float shrink, CPhysCollide *pCollideTest, float shrinkMinimum );
+	CPhysConvex *BuildConvexForBrush( int brushnumber, float shrink, CPhysCollide *pCollideTest, float shrinkMinimum );
 
 public:
 	CUtlVector<CPhysConvex *>	m_convex;
