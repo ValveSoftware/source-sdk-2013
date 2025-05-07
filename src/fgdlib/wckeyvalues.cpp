@@ -169,7 +169,7 @@ template<class Base>
 void WCKeyValuesT<Base>::SetValue(const char *pszKey, int iValue)
 {
 	char szValue[100];
-	itoa(iValue, szValue, 10);
+	Q_snprintf(szValue, sizeof(szValue), "%i", iValue);
 
 	SetValue(pszKey, szValue);
 }
