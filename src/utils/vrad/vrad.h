@@ -24,9 +24,9 @@
 #include "polylib.h"
 #include "threads.h"
 #include "builddisp.h"
-#include "VRAD_DispColl.h"
-#include "UtlMemory.h"
-#include "UtlHash.h"
+#include "vrad_dispcoll.h"
+#include "utlmemory.h"
+#include "utlhash.h"
 #include "utlvector.h"
 #include "iincremental.h"
 #include "raytrace.h"
@@ -40,11 +40,9 @@
 #include <sys/stat.h>
 
 #pragma warning(disable: 4142 4028)
-#include <io.h>
 #pragma warning(default: 4142 4028)
 
 #include <fcntl.h>
-#include <direct.h>
 #include <ctype.h>
 
 

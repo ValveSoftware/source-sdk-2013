@@ -13,7 +13,6 @@
 
 #define	USED
 
-#include <windows.h>
 #include "cmdlib.h"
 #define NO_THREAD_NAMES
 #include "threads.h"

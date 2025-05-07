@@ -10,11 +10,11 @@
 //=============================================================================//
 
 #include "vrad.h"
-#include "Bsplib.h"
-#include "GameBSPFile.h"
-#include "UtlBuffer.h"
+#include "bsplib.h"
+#include "gamebspfile.h"
+#include "utlbuffer.h"
 #include "utlvector.h"
-#include "CModel.h"
+#include "cmodel.h"
 #include "studio.h"
 #include "pacifier.h"
 #include "vraddetailprops.h"

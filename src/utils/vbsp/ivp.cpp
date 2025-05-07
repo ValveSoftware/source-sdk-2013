@@ -16,7 +16,7 @@
 #include "phyfile.h"
 #include <float.h>
 #include "KeyValues.h"
-#include "UtlBuffer.h"
+#include "utlbuffer.h"
 #include "utlsymbol.h"
 #include "utlrbtree.h"
 #include "ivp.h"

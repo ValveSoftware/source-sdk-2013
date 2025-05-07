@@ -11,10 +11,9 @@
 #pragma once
 #endif
 
-#include <windows.h>
 #include "ISQLDBReplyTarget.h"
 #include "utlvector.h"
-#include "UtlLinkedList.h"
+#include "utllinkedlist.h"
 
 class ISQLDBCommand;
 

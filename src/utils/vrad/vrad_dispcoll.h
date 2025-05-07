@@ -10,7 +10,7 @@
 #pragma once
 
 #include <assert.h>
-#include "DispColl_Common.h"
+#include "dispcoll_common.h"
 
 //=============================================================================
 //
