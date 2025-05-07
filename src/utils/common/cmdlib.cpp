@@ -418,7 +418,11 @@ void CmdLib_Cleanup()
 
 void CmdLib_Exit( int exitCode )
 {
+#ifdef WIN32
 	TerminateProcess( GetCurrentProcess(), 1 );
+#elif defined(POSIX)
+	kill( getpid(), SIGTERM );
+#endif
 }	
 
 
