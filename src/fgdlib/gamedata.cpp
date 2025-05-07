@@ -278,9 +278,6 @@ BOOL GameData::Load(const char *pszFilename)
 {
 	TokenReader tr;
 
-	if(GetFileAttributes(pszFilename) == 0xffffffff)
-		return FALSE;
-
 	if(!tr.Open(pszFilename))
 		return FALSE;
 
