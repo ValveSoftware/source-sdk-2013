@@ -43,7 +43,7 @@ static Color GetTeamColor( int iTeam, byte alpha = 255 )
 	{
 	case TF_TEAM_RED:	return Color( 159, 55, 34, alpha );
 	case TF_TEAM_BLUE:	return Color( 76, 109, 128, alpha );
-	default:			return Color( 245, 231, 222, alpha );
+	default:			return Color( 255, 255, 255, alpha );
 	}
 }
 

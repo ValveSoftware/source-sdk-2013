@@ -17,6 +17,7 @@
 
 //-----------------------------------------------------------------------------
 CFXQuad *CreateReticleSprite( const char *pModelName, float scale, float spinSpeed );
+Color GetTeamColor( int iTeam );
 class C_FuncPasstimeGoal;
 
 //-----------------------------------------------------------------------------

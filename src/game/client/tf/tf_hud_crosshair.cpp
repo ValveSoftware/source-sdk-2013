@@ -19,15 +19,24 @@
 #include "tf_logic_halloween_2014.h"
 #include "tf_gamerules.h"
 #include "mathlib/mathlib.h"
+#include "tf_weapon_passtime_gun.h"
+#include "tf_hud_passtime_reticle.h"
 
-ConVar cl_crosshair_red( "cl_crosshair_red", "200", FCVAR_ARCHIVE );
-ConVar cl_crosshair_green( "cl_crosshair_green", "200", FCVAR_ARCHIVE );
-ConVar cl_crosshair_blue( "cl_crosshair_blue", "200", FCVAR_ARCHIVE );
+//ConVar cl_crosshair_red( "cl_crosshair_red", "200", FCVAR_ARCHIVE );
+//ConVar cl_crosshair_green( "cl_crosshair_green", "200", FCVAR_ARCHIVE );
+//ConVar cl_crosshair_blue( "cl_crosshair_blue", "200", FCVAR_ARCHIVE );
 
 ConVar cl_crosshair_file( "cl_crosshair_file", "", FCVAR_ARCHIVE );
 
 ConVar cl_crosshair_scale( "cl_crosshair_scale", "32.0", FCVAR_ARCHIVE );
 
+void OnCrosshairColorChanged( IConVar *var, const char *pOldValue, float flOldValue );
+ConVar cl_crosshair_color( "cl_crosshair_color", "200 200 200", FCVAR_ARCHIVE, "Crosshair color in RGB format (\"r g b\")", OnCrosshairColorChanged );
+ConVar pf_ballindicator( "pf_ballindicator", "1", FCVAR_ARCHIVE, "Enable/disable the HUD indicator when holding the ball." );
+ConVar pf_ballindicator_file( "pf_ballindicator_file", "vgui/crosshairs/ballindicator", FCVAR_ARCHIVE, "Change the material for the HUD indicator when holding the ball." );
+ConVar pf_ballindicator_color( "pf_ballindicator_color", "255 255 255", FCVAR_ARCHIVE, "Change the color of the HUD indicator when holding the ball.", OnCrosshairColorChanged );
+ConVar pf_ballindicator_teamcolored( "pf_ballindicator_teamcolored", "1", FCVAR_ARCHIVE, "Overrides the color of the HUD indicator when holding the ball to always use your team's color." );
+ConVar pf_ballindicator_scale( "pf_ballindicator_scale", "1.0", FCVAR_ARCHIVE, "Scale factor of the HUD indicator when holding the ball." );
 using namespace vgui;
 
 // Everything else is expecting to find "CHudCrosshair"
@@ -41,6 +50,7 @@ CHudTFCrosshair::CHudTFCrosshair( const char *pName ) :
 {
 	m_szPreviousCrosshair[0] = '\0';
 	m_iCrosshairTextureID = -1;
+	m_iBallIndicatorTextureID = -1;
 	m_flTimeToHideUntil = -1.f;
 
 	ListenForGameEvent( "restart_timer_time" );
@@ -55,6 +65,11 @@ CHudTFCrosshair::~CHudTFCrosshair( void )
 	{
 		vgui::surface()->DestroyTextureID( m_iCrosshairTextureID );
 		m_iCrosshairTextureID = -1;
+		if ( m_iBallIndicatorTextureID != -1 )
+		{
+			vgui::surface()->DestroyTextureID( m_iBallIndicatorTextureID );
+			m_iBallIndicatorTextureID = -1;
+		}
 	}
 }
 
@@ -111,6 +126,11 @@ void CHudTFCrosshair::Init()
 	if ( m_iCrosshairTextureID == -1 )
 	{
 		m_iCrosshairTextureID = vgui::surface()->CreateNewTextureID();
+	}
+
+	if ( m_iBallIndicatorTextureID == -1 )
+	{
+		m_iBallIndicatorTextureID = vgui::surface()->CreateNewTextureID();
 	}
 
 	m_flTimeToHideUntil = -1.f;
@@ -172,6 +192,8 @@ void CHudTFCrosshair::Paint()
 		Q_strncpy( m_szPreviousCrosshair, crosshairfile, sizeof(m_szPreviousCrosshair) );
 	}
 
+	
+
 	if ( m_szPreviousCrosshair[0] == '\0' )
 	{
 		return BaseClass::Paint();
@@ -190,30 +212,81 @@ void CHudTFCrosshair::Paint()
 	int iTextureW = 32;
 	int iTextureH = 32;
 	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
-	if ( pWeapon )
-	{
-		pWeapon->GetWeaponCrosshairScale( flWeaponScale );
-	}
+	vgui::ISurface *pSurf = vgui::surface();
+
 
 	float flPlayerScale = 1.0f;
+	float flBallIndicatorScale = 1.0f;
 #ifdef TF_CLIENT_DLL
-	Color clr( cl_crosshair_red.GetInt(), cl_crosshair_green.GetInt(), cl_crosshair_blue.GetInt(), 255 );
+	//Color clr( cl_crosshair_red.GetInt(), cl_crosshair_green.GetInt(), cl_crosshair_blue.GetInt(), 255 );
+    int r = 200, g = 200, b = 200;
+	sscanf( cl_crosshair_color.GetString(), "%d %d %d", &r, &g, &b );
+	Color clr( r, g, b, 255 );
+	sscanf( pf_ballindicator_color.GetString(), "%d %d %d", &r, &g, &b );
+	Color clrbi( r, g, b, 255 );
 	flPlayerScale = cl_crosshair_scale.GetFloat() / 32.0f;  // the player can change the scale in the options/multiplayer tab
+	flBallIndicatorScale = pf_ballindicator_scale.GetFloat(); // the player can change the scale in the options/multiplayer tab
 #else
 	Color clr = m_clrCrosshair;
+	Color clrbi = m_clrCrosshair;
 #endif
 	float flWidth = flWeaponScale * flPlayerScale * (float)iTextureW;
 	float flHeight = flWeaponScale * flPlayerScale * (float)iTextureH;
+	float flBallIndicatorWidth = flBallIndicatorScale * (float)iTextureW;
+	float flBallIndicatorHeight = flBallIndicatorScale * (float)iTextureH;
 	int iWidth = (int)( flWidth + 0.5f );
 	int iHeight = (int)( flHeight + 0.5f );
+	int iBallIndicatorWidth = (int)( flBallIndicatorWidth + 0.5f );
+	int iBallIndicatorHeight = (int)( flBallIndicatorHeight + 0.5f );
 	int iX = (int)( x + 0.5f );
 	int iY = (int)( y + 0.5f );
 
-	vgui::ISurface *pSurf = vgui::surface();
+	if ( pWeapon )
+	{
+		pWeapon->GetWeaponCrosshairScale( flWeaponScale );
+
+		bool bShouldDrawBallIndicator = pf_ballindicator.GetBool();
+		if ( bShouldDrawBallIndicator ) 
+		{
+			if ( pPlayer->m_Shared.HasPasstimeBall())
+			{
+				const char *ballindicatorfile = pf_ballindicator_file.GetString();
+
+				if ( m_iBallIndicatorTextureID != -1 )
+				{
+					pSurf->DrawSetTextureFile( m_iBallIndicatorTextureID, ballindicatorfile, true, false );
+				}
+
+				if ( pf_ballindicator_teamcolored.GetBool() )
+				{
+					Color teamColor;
+					teamColor = GetTeamColor( pPlayer->GetTeamNumber() );
+					clrbi = Color( teamColor.r(), teamColor.g(), teamColor.b(), 255 );
+				}
+				pSurf->DrawSetColor( clrbi );
+				pSurf->DrawSetTexture( m_iBallIndicatorTextureID );
+				pSurf->DrawTexturedRect( iX-iBallIndicatorWidth, iY-iBallIndicatorHeight, iX+iBallIndicatorWidth, iY+iBallIndicatorHeight );
+				pSurf->DrawSetTexture(0);
+			}
+		}
+	}
+	
 	pSurf->DrawSetColor( clr );
 	pSurf->DrawSetTexture( m_iCrosshairTextureID );
 	pSurf->DrawTexturedRect( iX-iWidth, iY-iHeight, iX+iWidth, iY+iHeight );
 	pSurf->DrawSetTexture(0);
+
+
 }
 
-
+void OnCrosshairColorChanged( IConVar *var, const char *pOldValue, float flOldValue )
+{
+    int r = 200, g = 200, b = 200;
+    const char *value = ((ConVar*)var)->GetString();
+    sscanf( value, "%d %d %d", &r, &g, &b );
+    
+    // Clamp values
+    r = clamp( r, 0, 255 );
+    g = clamp( g, 0, 255 );
+    b = clamp( b, 0, 255 );
+}

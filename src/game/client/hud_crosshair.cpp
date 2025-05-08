@@ -134,10 +134,11 @@ bool CHudCrosshair::ShouldDraw( void )
 }
 
 #ifdef TF_CLIENT_DLL
-extern ConVar cl_crosshair_red;
-extern ConVar cl_crosshair_green;
-extern ConVar cl_crosshair_blue;
+//extern ConVar cl_crosshair_red;
+//extern ConVar cl_crosshair_green;
+//extern ConVar cl_crosshair_blue;
 extern ConVar cl_crosshair_scale;
+extern ConVar cl_crosshair_color;
 #endif
 
 
@@ -260,7 +261,9 @@ void CHudCrosshair::Paint( void )
 
 	float flPlayerScale = 1.0f;
 #ifdef TF_CLIENT_DLL
-	Color clr( cl_crosshair_red.GetInt(), cl_crosshair_green.GetInt(), cl_crosshair_blue.GetInt(), 255 );
+    int r = 200, g = 200, b = 200;
+	sscanf( cl_crosshair_color.GetString(), "%d %d %d", &r, &g, &b );
+	Color clr( r, g, b, 255 );
 	flPlayerScale = cl_crosshair_scale.GetFloat() / 32.0f;  // the player can change the scale in the options/multiplayer tab
 #else
 	Color clr = m_clrCrosshair;

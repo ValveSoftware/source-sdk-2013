@@ -34,6 +34,7 @@ protected:
 
 private:
 	int					m_iCrosshairTextureID;
+	int					m_iBallIndicatorTextureID;
 	IVguiMatInfo		*m_pCrosshairMaterial;
 
 	char				m_szPreviousCrosshair[256];	// name of the current crosshair

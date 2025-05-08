@@ -20,13 +20,13 @@
 
 // The team colors from g_PR are wrong and I couldn't fix that fast enough.
 // These colors were sampled from HUD art.
-static Color GetTeamColor( int iTeam )
+Color GetTeamColor( int iTeam )
 {
 	switch( iTeam )
 	{
-	case TF_TEAM_RED: return Color(0xFF, 0x51, 0x51);
+	case TF_TEAM_RED: return Color(0xFF, 0x64, 0x64);
 	case TF_TEAM_BLUE: return Color(0xA5, 0xDE, 0xFF);
-	default: return Color(0xF5, 0xE7, 0xDE);
+	default: return Color(0xFF, 0xFF, 0xFF);
 	};
 }
 //callback included in crosshair convars
@@ -597,18 +597,13 @@ C_PasstimeBounceReticle::C_PasstimeBounceReticle()
 	InitializeSprites();
 }
 
-ConVar pf_crosshair_inner_r( "pf_crosshair_inner_r", "255", FCVAR_ARCHIVE, "Sets the red value of the inner piece of the JACK bounce crosshair." );
-ConVar pf_crosshair_inner_g( "pf_crosshair_inner_g", "255", FCVAR_ARCHIVE, "Sets the green value of the inner piece of the JACK bounce crosshair." );
-ConVar pf_crosshair_inner_b( "pf_crosshair_inner_b", "0", FCVAR_ARCHIVE, "Sets the blue value of the inner piece of the JACK bounce crosshair." );
+ConVar pf_crosshair_inner_color( "pf_crosshair_inner_color", "255 255 0", FCVAR_ARCHIVE, "Sets the color of the inner piece of the JACK bounce crosshair in R G B format.", OnCrosshairSettingsChanged );
+ConVar pf_crosshair_outer_color( "pf_crosshair_outer_color", "255 255 255", FCVAR_ARCHIVE, "Sets the color of the outer piece of the JACK bounce crosshair in R G B format.", OnCrosshairSettingsChanged );
 ConVar pf_crosshair_inner_a( "pf_crosshair_inner_a", "200", FCVAR_ARCHIVE, "Sets the alpha value of the inner piece of the JACK bounce crosshair." );
-
-ConVar pf_crosshair_outer_r( "pf_crosshair_outer_r", "255", FCVAR_ARCHIVE, "Sets the red value of the outer piece of the JACK bounce crosshair." );
-ConVar pf_crosshair_outer_g( "pf_crosshair_outer_g", "255", FCVAR_ARCHIVE, "Sets the green value of the outer piece of the JACK bounce crosshair." );
-ConVar pf_crosshair_outer_b( "pf_crosshair_outer_b", "0", FCVAR_ARCHIVE, "Sets the blue value of the outer piece of the JACK bounce crosshair." );
 ConVar pf_crosshair_outer_a( "pf_crosshair_outer_a", "200", FCVAR_ARCHIVE, "Sets the alpha value of the outer piece of the JACK bounce crosshair." );
 
-ConVar pf_crosshair_inner_teamcolored( "pf_crosshair_inner_teamcolored", "0", FCVAR_ARCHIVE, "If set to 1, the inner piece of the JACK bounce crosshair will be team colored." );
-ConVar pf_crosshair_outer_teamcolored( "pf_crosshair_outer_teamcolored", "1", FCVAR_ARCHIVE, "If set to 1, the outer piece of the JACK bounce crosshair will be team colored." );
+ConVar pf_crosshair_inner_teamcolored( "pf_crosshair_inner_teamcolored", "1", FCVAR_ARCHIVE, "If set to 1, the inner piece of the JACK bounce crosshair will be team colored." );
+ConVar pf_crosshair_outer_teamcolored( "pf_crosshair_outer_teamcolored", "0", FCVAR_ARCHIVE, "If set to 1, the outer piece of the JACK bounce crosshair will be team colored." );
 
 void C_PasstimeBounceReticle::Show( const Vector &vec, const Vector &normal )
 {
@@ -619,7 +614,7 @@ void C_PasstimeBounceReticle::Show( const Vector &vec, const Vector &normal )
 	SetOrigin( 1, vec );//+ (normal * 16) );
 	SetNormal( 0, normal );
 	SetNormal( 1, -MainViewForward() );
-
+	int r = 200, g = 200, b = 200;
 	if ( g_BounceReticleDirty )
 	{
 		ReloadSprites();
@@ -627,44 +622,30 @@ void C_PasstimeBounceReticle::Show( const Vector &vec, const Vector &normal )
 	}
 	if ( pf_crosshair_inner_teamcolored.GetBool() )
 	{
-		if ( nTeamNumber == TF_TEAM_RED )
+		if ( nTeamNumber )
 		{
-			SetRgba( 0, 192, 28, 0, pf_crosshair_inner_a.GetInt() );
-		}
-		else if ( nTeamNumber == TF_TEAM_BLUE )
-		{
-			SetRgba( 0, 33, 140, 255, pf_crosshair_inner_a.GetInt() );
-		}
-		else
-		{
-			// fallback
-			SetRgba( 0, 255, 255, 0, pf_crosshair_inner_a.GetInt() );
+			Color teamColor = GetTeamColor( nTeamNumber );
+			SetRgba( 0, teamColor.r(), teamColor.g(), teamColor.b(), pf_crosshair_inner_a.GetInt() );
 		}
 	}
 	else
 	{
-		SetRgba( 0, pf_crosshair_inner_r.GetInt(), pf_crosshair_inner_g.GetInt(), pf_crosshair_inner_b.GetInt(), pf_crosshair_inner_a.GetInt() );
+		sscanf( pf_crosshair_inner_color.GetString(), "%d %d %d", &r, &g, &b );
+		SetRgba( 0, r, g, b, pf_crosshair_inner_a.GetInt() );
 	}
 	
 	if ( pf_crosshair_outer_teamcolored.GetBool() )
 	{
-		if ( nTeamNumber == TF_TEAM_RED )
+		if ( nTeamNumber )
 		{
-			SetRgba( 1, 192, 28, 0, pf_crosshair_outer_a.GetInt() );
-		}
-		else if ( nTeamNumber == TF_TEAM_BLUE )
-		{
-			SetRgba( 1, 33, 140, 255, pf_crosshair_outer_a.GetInt() );
-		}
-		else
-		{
-			// fallback
-			SetRgba( 1, 255, 255, 0, pf_crosshair_outer_a.GetInt() );
+			Color teamColor = GetTeamColor( nTeamNumber );
+			SetRgba( 1, teamColor.r(), teamColor.g(), teamColor.b(), pf_crosshair_inner_a.GetInt() );
 		}
 	}
 	else
 	{
-	SetRgba( 1, pf_crosshair_outer_r.GetInt(), pf_crosshair_outer_g.GetInt(), pf_crosshair_outer_b.GetInt(), pf_crosshair_outer_a.GetInt() );
+		sscanf( pf_crosshair_outer_color.GetString(), "%d %d %d", &r, &g, &b );
+		SetRgba( 1, r, g, b, pf_crosshair_outer_a.GetInt() );
 	}
 	
 }
@@ -971,6 +952,18 @@ void OnCrosshairSettingsChanged(IConVar* pConVar, const char* pOldValue, float f
 	strcmp(pConVarName, "pf_ball_outline_2_file") == 0)
 	{
 		ReloadBallReticle();
+	}
+	else if (strcmp(pConVarName, "pf_crosshair_inner_color") == 0 || 
+		strcmp(pConVarName, "pf_crosshair_outer_color") == 0)
+	{
+		int r = 200, g = 200, b = 200;
+		const char *value = ((ConVar*)pConVar)->GetString();
+		sscanf( value, "%d %d %d", &r, &g, &b );
+		
+		// Clamp values
+		r = clamp( r, 0, 255 );
+		g = clamp( g, 0, 255 );
+		b = clamp( b, 0, 255 );
 	}
 }
 
