@@ -10247,8 +10247,8 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 
 	pTFPlayer->m_iRocketFireOffset = Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "cl_rocketoffsetposition" ) );
 
-	pTFPlayer->SetUseLegacyPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "p4ss_legacy_throw_controls" ) ) > 0 );
-	pTFPlayer->SetUseReversedPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "p4ss_reverse_throw_controls" ) ) > 0);
+	pTFPlayer->SetUseLegacyPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "pf_legacy_throw_controls" ) ) > 0 );
+	pTFPlayer->SetUseReversedPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "pf_reverse_throw_controls" ) ) > 0);
 }
 
 //-----------------------------------------------------------------------------
