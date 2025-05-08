@@ -26,6 +26,9 @@
 #endif // TF_DLL
 #endif
 
+ConVar tf_round_timer( "tf_round_timer", "480", FCVAR_NOTIFY, "Sets the round timer (replaces a team_round_timer keyvalue)." );
+ConVar tf_round_timer_max( "tf_round_timer_max", "480", FCVAR_NOTIFY, "Sets the maximum round timer (replaces a team_round_timer keyvalue)." );
+
 #define ROUND_TIMER_60SECS	"Announcer.RoundEnds60seconds"
 #define ROUND_TIMER_30SECS	"Announcer.RoundEnds30seconds"
 #define ROUND_TIMER_10SECS	"Announcer.RoundEnds10seconds"
@@ -330,6 +333,18 @@ void CTeamRoundTimer::Spawn( void )
 
 	int nTimerTime = 0;
 
+	int customDuration = tf_round_timer.GetInt();
+	if ( customDuration > 0 )
+	{
+		m_nTimerInitialLength = customDuration;
+	}
+
+	int customMaxDuration = tf_round_timer_max.GetInt();
+	if ( customMaxDuration > 0 )
+	{
+		m_nTimerMaxLength = customMaxDuration;
+	}
+	
 	// do we have a setup time?
 	if ( m_nSetupTimeLength > 0 )
 	{
@@ -416,6 +431,11 @@ void CTeamRoundTimer::SetCaptureWatchState( bool bCaptureWatch )
 //-----------------------------------------------------------------------------
 int CTeamRoundTimer::GetTimerMaxLength( void )
 {
+	int customMaxDuration = tf_round_timer_max.GetInt();
+	if ( customMaxDuration > 0 )
+	{
+		m_nTimerMaxLength = customMaxDuration;
+	}
 	if ( m_nState == RT_STATE_SETUP )
 	{
 		return m_nSetupTimeLength;
@@ -1104,6 +1124,12 @@ void CTeamRoundTimer::RoundTimerThink( void )
 //-----------------------------------------------------------------------------
 void CTeamRoundTimer::InputRoundSpawn( inputdata_t &input )
 {
+	int customDuration = tf_round_timer.GetInt();
+    if (customDuration > 0)
+    {
+        m_nTimerInitialLength = customDuration;
+    }
+
 	if ( !m_bResetTimeOnRoundStart && ( m_nState == RT_STATE_NORMAL ) )
 	{
 		m_nTimeToUseAfterSetupFinished = GetTimeRemaining();
@@ -1142,7 +1168,6 @@ void CTeamRoundTimer::SetTimeRemaining( int iTimerSeconds )
 {
 	if ( IsDisabled() )
 		return;
-
 	// make sure we don't go over our max length
 	iTimerSeconds = m_nTimerMaxLength > 0 ? MIN( iTimerSeconds, m_nTimerMaxLength ) : iTimerSeconds;
 
@@ -1428,6 +1453,11 @@ void CTeamRoundTimer::InputAddTeamTime( inputdata_t &input )
 //-----------------------------------------------------------------------------
 void CTeamRoundTimer::InputRestart( inputdata_t &input )
 {
+	int customDuration = tf_round_timer.GetInt();
+    if (customDuration > 0)
+    {
+        m_nTimerInitialLength = customDuration;
+    }
 	SetTimeRemaining( m_nTimerInitialLength );
 }
 
