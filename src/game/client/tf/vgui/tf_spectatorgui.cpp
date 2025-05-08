@@ -397,45 +397,51 @@ void CTFSpectatorGUI::UpdateReinforcements( void )
 			return;
 		}
 
-		int iRespawnWait = (flNextRespawn - gpGlobals->curtime);
-		if ( iRespawnWait <= 0 )
+		float flRespawnWait = (flNextRespawn - gpGlobals->curtime);
+		if ( flRespawnWait <= 0.0f )
 		{
 			g_pVGuiLocalize->ConstructString_safe( wLabel, g_pVGuiLocalize->Find("#game_respawntime_now" ), 0 );
+			// Ensure buyback isn't shown when respawning now
+			bBuyBackVisible = false;
 		}
-		else if ( iRespawnWait <= 1.0 )
+		else // flRespawnWait > 0.0f
 		{
-			g_pVGuiLocalize->ConstructString_safe( wLabel, g_pVGuiLocalize->Find("#game_respawntime_in_sec" ), 0 );
-		}
-		else
-		{
-			char szSecs[6];
-			wchar_t wSecs[4];
-
+			// Handle MvM Buyback logic conditionally first
 			if ( TFGameRules()->IsMannVsMachineMode() )
 			{
 				bool bNewMethod = tf_mvm_buybacks_method.GetBool();
-				bBuyBackVisible = ( bNewMethod ) ? g_TF_PR->GetNumBuybackCredits( pPlayer->entindex() ) : true;
+				// Determine if buyback is possible (has credits or uses fixed system with time remaining)
+				bBuyBackVisible = ( bNewMethod ) ? ( g_TF_PR->GetNumBuybackCredits( pPlayer->entindex() ) > 0 ) : true;
 
 				if ( bBuyBackVisible )
 				{
-					// When using the new system, we display "Hit '%use_action_slot_item%' to RESPAWN INSTANTLY! (%s1 remaining this wave)"
-					// When using the old system, we display "Hit '%use_action_slot_item%' to pay %s1 credits and RESPAWN INSTANTLY!"
-					int nCost = ( bNewMethod ) ? g_TF_PR->GetNumBuybackCredits( pPlayer->entindex() ) : iRespawnWait * MVM_BUYBACK_COST_PER_SEC;
+					// Calculate cost and get string for the buyback label
+					int nCost = ( bNewMethod ) ? g_TF_PR->GetNumBuybackCredits( pPlayer->entindex() ) : int( ceil( flRespawnWait ) * MVM_BUYBACK_COST_PER_SEC );
 					const char *pszString = ( bNewMethod ) ? "#TF_PVE_Buyback_Fixed" : "#TF_PVE_Buyback";
 
-					Q_snprintf( szSecs, sizeof( szSecs ), "%d", nCost );
-					g_pVGuiLocalize->ConvertANSIToUnicode( szSecs, wSecs, sizeof( wSecs ) );
-					g_pVGuiLocalize->ConstructString_safe( wLabel, g_pVGuiLocalize->Find( pszString ), 1, wSecs );
+					// Format the buyback string separately for its dedicated label
+					char szBuyBackCost[10];
+					wchar_t wBuyBackCost[10];
+					wchar_t wBuyBackTextRaw[256];
+					wchar_t wBuyBackTextFinal[256];
 
-					wchar_t wBuyBack[256];
-					UTIL_ReplaceKeyBindings( wLabel, 0, wBuyBack, sizeof( wBuyBack ), GAME_ACTION_SET_SPECTATOR );
-
-					m_pBuyBackLabel->SetText( wBuyBack, true );
+					Q_snprintf( szBuyBackCost, sizeof( szBuyBackCost ), "%d", nCost );
+					g_pVGuiLocalize->ConvertANSIToUnicode( szBuyBackCost, wBuyBackCost, sizeof( wBuyBackCost ) );
+					g_pVGuiLocalize->ConstructString_safe( wBuyBackTextRaw, g_pVGuiLocalize->Find( pszString ), 1, wBuyBackCost );
+					UTIL_ReplaceKeyBindings( wBuyBackTextRaw, 0, wBuyBackTextFinal, sizeof( wBuyBackTextFinal ), GAME_ACTION_SET_SPECTATOR );
+					m_pBuyBackLabel->SetText( wBuyBackTextFinal, true );
 				}
 			}
+			else
+			{
+				// Not MvM, no buyback
+				bBuyBackVisible = false;
+			}
 
-			Q_snprintf( szSecs, sizeof(szSecs), "%d", iRespawnWait );
-
+			// Common formatting for the main respawn time label (wLabel) for all cases > 0
+			char szSecs[10];
+			wchar_t wSecs[10];
+			Q_snprintf( szSecs, sizeof(szSecs), "%.1f", flRespawnWait );
 			g_pVGuiLocalize->ConvertANSIToUnicode(szSecs, wSecs, sizeof(wSecs));
 			g_pVGuiLocalize->ConstructString_safe( wLabel, g_pVGuiLocalize->Find("#game_respawntime_in_secs" ), 1, wSecs );
 		}

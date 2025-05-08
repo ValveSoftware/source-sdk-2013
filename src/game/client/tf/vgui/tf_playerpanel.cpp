@@ -67,7 +67,7 @@ void CTFPlayerPanel::Reset( void )
 	m_iPrevHealth = -999;
 	m_iPrevClass = -999;
 	m_bPrevAlive = false;
-	m_iPrevRespawnWait = -999;
+	m_flPrevRespawnWait = -999.0f;
 	m_iPrevCharge = -1;
 	m_bPrevReady = true;
 	m_iPrevState = GR_STATE_PREGAME;
@@ -90,7 +90,7 @@ bool CTFPlayerPanel::Update( void )
 	bool bChanged = false;
 	bool bObserver = pLocalPlayer->GetObserverMode() != OBS_MODE_NONE;
 	bool bVisible = GetTeam() >= FIRST_GAME_TEAM;
-	int iRespawnWait = -1;
+	float flRespawnWait = -1.0f;
 	m_bPlayerReadyModeActive = ( !bObserver &&
 								 TFGameRules()->UsePlayerReadyStatusMode() &&
 								 TFGameRules()->State_Get() == GR_STATE_BETWEEN_RNDS );
@@ -108,9 +108,15 @@ bool CTFPlayerPanel::Update( void )
 			RTime32 rtLastConnect = member.GetLastConnectTime();
 			if ( !m_iPlayerIndex && rtLastConnect != 0 )
 			{
-				iRespawnWait = CRTime::RTime32DateAdd( rtLastConnect, 180, k_ETimeUnitSecond ) - CRTime::RTime32TimeCur();
-				if ( iRespawnWait <= 0 )
-					iRespawnWait = -1;
+				int iDisconnectTimeRemaining = CRTime::RTime32DateAdd( rtLastConnect, 180, k_ETimeUnitSecond ) - CRTime::RTime32TimeCur();
+				if ( iDisconnectTimeRemaining <= 0 )
+				{
+					flRespawnWait = -1.0f; // Or handle disconnected state differently?
+				}
+				else
+				{
+					flRespawnWait = (float)iDisconnectTimeRemaining; // Keep as float
+				}
 			}
 		}
 	}
@@ -148,9 +154,9 @@ bool CTFPlayerPanel::Update( void )
 				if ( iClass != TF_CLASS_UNDEFINED && !bAlive )
 				{
 					float flRespawnAt = g_TF_PR->GetNextRespawnTime( m_iPlayerIndex );
-					iRespawnWait = (flRespawnAt - gpGlobals->curtime);
-					if ( iRespawnWait <= 0 )
-						iRespawnWait = -1;
+					flRespawnWait = (flRespawnAt - gpGlobals->curtime);
+					if ( flRespawnWait <= 0.0f )
+						flRespawnWait = -1.0f;
 				}
 
 				// Hide class info from the other team?
@@ -228,16 +234,16 @@ bool CTFPlayerPanel::Update( void )
 			}
 
 			// Update respawn time text
-			if ( iRespawnWait != m_iPrevRespawnWait )
+			if ( flRespawnWait != m_flPrevRespawnWait )
 			{
-				m_iPrevRespawnWait = iRespawnWait;
-				if ( iRespawnWait < 0 )
+				m_flPrevRespawnWait = flRespawnWait;
+				if ( flRespawnWait < 0.0f )
 				{
 					SetDialogVariable( "respawntime", "" );
 				}
 				else
 				{
-					SetDialogVariable( "respawntime", VarArgs( "%d s", iRespawnWait ) );
+					SetDialogVariable( "respawntime", VarArgs( "%.1f s", flRespawnWait ) );
 					bChanged = true;
 				}
 			}
@@ -409,5 +415,3 @@ int	CTFPlayerPanel::GetTeam( void )
 
 	return TEAM_INVALID;
 }
-
-

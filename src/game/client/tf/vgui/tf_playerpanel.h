@@ -61,7 +61,7 @@ protected:
 	int						m_iPrevHealth;
 	bool					m_bPrevAlive;
 	int						m_iPrevClass;
-	int						m_iPrevRespawnWait;
+	float					m_flPrevRespawnWait;
 	int						m_iPrevCharge;
 	vgui::ScalableImagePanel		*m_pReadyBG;
 	vgui::ImagePanel				*m_pReadyImage;

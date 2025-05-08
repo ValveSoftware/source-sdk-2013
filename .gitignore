@@ -561,3 +561,4 @@ game/p4ss/cfg/user.scr
 game/p4ss/cfg/settings.scr
 game/p4ss/screenshots/
 game/p4ss/screenshots/*
+.vscode/tasks.json
