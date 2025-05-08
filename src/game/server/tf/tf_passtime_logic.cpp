@@ -975,7 +975,14 @@ void CTFPasstimeLogic::RespawnBall()
 	{
 		m_hBall->SetStateOutOfPlay();
 		MoveBallToSpawner();
+		
+		// Pause the timer when ball is out of play
 		CTeamRoundTimer *pTimer = TFGameRules()->GetActiveRoundTimer();
+		if ( pTimer && !pTimer->IsTimerPaused() )
+		{
+			pTimer->PauseTimer();
+		}
+		
 		if ( !pTimer || ( pTimer->GetTimeRemaining() > m_iBallSpawnCountdownSec ) )
 		{
 			m_pRespawnCountdown->Start( m_iBallSpawnCountdownSec );
@@ -1064,6 +1071,17 @@ void CTFPasstimeLogic::SpawnBallAtSpawner( CPasstimeBallSpawn *pSpawner )
 	m_hBall->SetWinstrat( false );
 	m_onBallFree.FireOutput( m_hBall, this );
 	pSpawner->m_onSpawnBall.FireOutput( pSpawner, pSpawner );
+
+	// Resume the timer when ball comes back into play
+	gamerules_roundstate_t state = TFGameRules()->State_Get();
+	if ( ( state == GR_STATE_RND_RUNNING ) || ( state == GR_STATE_STALEMATE ) )
+	{
+		CTeamRoundTimer *pTimer = TFGameRules()->GetActiveRoundTimer();
+		if ( pTimer && pTimer->IsTimerPaused() )
+		{
+			pTimer->ResumeTimer();
+		}
+	}
 
 	TFGameRules()->BroadcastSound( 255, "Passtime.BallSpawn" );
 	// TODO: wrap in convar
