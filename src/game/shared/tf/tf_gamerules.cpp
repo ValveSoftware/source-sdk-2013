@@ -735,7 +735,7 @@ ConVar tf_item_based_forced_holiday( "tf_item_based_forced_holiday", "0", FCVAR_
 	, cc_tf_forced_holiday_changed
 #endif // GAME_DLL
 );
-ConVar tf_force_holidays_off( "tf_force_holidays_off", "0", FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, ""
+ConVar tf_force_holidays_off( "tf_force_holidays_off", "0", FCVAR_NOTIFY | FCVAR_REPLICATED, ""
 #ifdef GAME_DLL
 , cc_tf_forced_holiday_changed
 #endif // GAME_DLL
