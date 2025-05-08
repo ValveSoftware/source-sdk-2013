@@ -27,6 +27,8 @@ ConVar tf_enable_glows_after_respawn( "tf_enable_glows_after_respawn", "1", FCVA
 ConVar p4ss_healthbars( "p4ss_healthbars", "1", FCVAR_ARCHIVE, "Enable health bars above teammates." );
 ConVar p4ss_healthbars_healthcolor( "p4ss_healthbars_healthcolor", "0", FCVAR_ARCHIVE, "Use health-based coloring for health bars." );
 ConVar p4ss_nametag_background_alpha( "p4ss_nametag_background_alpha", "160", FCVAR_ARCHIVE, "Set the alpha value for the nametag background." );
+ConVar p4ss_healthbars_background_alpha( "p4ss_healthbars_background_alpha", "160", FCVAR_ARCHIVE, "Set the alpha value for the health bar background." );
+ConVar p4ss_healthbars_size( "p4ss_healthbars_size", "6", FCVAR_ARCHIVE, "Set the size of the health bar." );
 DECLARE_HUDELEMENT( CTFHudSpectatorExtras );
 
 //-----------------------------------------------------------------------------
@@ -429,7 +431,8 @@ void CTFHudSpectatorExtras::Paint()
 		return;
 
 	int nNameOffset = 35;
-	int nHealthHeight = 6;
+	//int nHealthHeight = 6;
+	int nHealthHeight = p4ss_healthbars_size.GetInt(); // Use the size from the ConVar
 
 	FOR_EACH_VEC( m_vecEntitiesToDraw, i )
 	{
@@ -462,7 +465,7 @@ void CTFHudSpectatorExtras::Paint()
 			vgui::surface()->DrawSetColor( Color( 0, 0, 0, p4ss_nametag_background_alpha.GetInt() ) );
 			vgui::surface()->DrawFilledRect( 
 				iX - ( nWidth / 2 ),
-				iY - nNameOffset - 2,
+				iY - nNameOffset,
 				iX + ( nWidth / 2 ),
 				iY - nNameOffset + 26
 			);
@@ -480,15 +483,16 @@ void CTFHudSpectatorExtras::Paint()
 
 			// Position health bar at bottom of name border
 			int yHealthPos = iY - nNameOffset + 26;
-			int healthBarWidth = m_vecEntitiesToDraw[i].m_nNameWidth; // Match name width exactly
+			//int healthBarWidth = m_vecEntitiesToDraw[i].m_nNameWidth; // Match name width exactly
+			int healthBarWidth = nWidth; 
 			int xHealthPos = iX - ( healthBarWidth / 2 );
 
-			// Draw black background for health bar
-			vgui::surface()->DrawSetColor( Color( 0, 0, 0, p4ss_nametag_background_alpha.GetInt() ) );
+			// Draw black background for hpbar
+			vgui::surface()->DrawSetColor( Color( 0, 0, 0, p4ss_healthbars_background_alpha.GetInt() ) );
 			vgui::surface()->DrawFilledRect( 
 				xHealthPos,
 				yHealthPos,
-				xHealthPos + healthBarWidth,
+				xHealthPos + healthBarWidth - 1,
 				yHealthPos + nHealthHeight
 			);
 
@@ -509,7 +513,7 @@ void CTFHudSpectatorExtras::Paint()
 			vgui::surface()->DrawFilledRect( 
 				xHealthPos,
 				yHealthPos,
-				xHealthPos + fillWidth,
+				xHealthPos + fillWidth - 1,
 				yHealthPos + nHealthHeight
 			);
 
@@ -519,6 +523,7 @@ void CTFHudSpectatorExtras::Paint()
 			
 			// Draw the arrow texture with top edge at bottom of health bar
 			int arrowY = yHealthPos + nHealthHeight;  // Position top of arrow at bottom of health bar
+			//int arrowY = yHealthPos;
 			vgui::surface()->DrawTexturedRect( iX - 10, arrowY, iX + 10, arrowY + 20 );
 		}
 	}

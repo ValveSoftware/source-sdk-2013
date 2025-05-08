@@ -3,4 +3,5 @@
 	"$basetexture" "vgui/parrow2"
 	"$translucent" 1
 	"$ignorez" 1
+	"$color" "[.49 .66 .77]"
 }
