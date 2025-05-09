@@ -562,3 +562,5 @@ game/p4ss/cfg/settings.scr
 game/p4ss/screenshots/
 game/p4ss/screenshots/*
 .vscode/tasks.json
+jumpqol.inc
+jumpqol.sp
