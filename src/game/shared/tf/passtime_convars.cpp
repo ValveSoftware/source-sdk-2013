@@ -17,7 +17,7 @@ PASSTIME_CONVAR( tf_passtime_ball_damping_scale, 0.0f, "Physics ball damping par
 PASSTIME_CONVAR( tf_passtime_ball_drag_coefficient, 0.01f, "" );
 PASSTIME_CONVAR( tf_passtime_ball_inertia_scale, 1.0f, "" );
 PASSTIME_CONVAR( tf_passtime_ball_mass, 1.0f, "" );
-PASSTIME_CONVAR( tf_passtime_ball_model, models/passtime/ball/passtime_ball.mdl, "Needs a model with collision info. Map change required." ); // TODO allow override in map
+PASSTIME_CONVAR( tf_passtime_ball_model, models/passtime/ball/passfortress_ball.mdl, "Needs a model with collision info. Map change required." ); // TODO allow override in map
 PASSTIME_CONVAR( tf_passtime_ball_sphere_collision, 1, "Boolean value. If nonzero, override mdl collision with a perfect sphere collider." );
 PASSTIME_CONVAR( tf_passtime_ball_sphere_radius, 7.2f, "" );
 PASSTIME_CONVAR( tf_passtime_ball_reset_time, 15, "How long the ball can be neutral before being automatically reset" );
