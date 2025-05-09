@@ -26,7 +26,7 @@
 //ConVar cl_crosshair_green( "cl_crosshair_green", "200", FCVAR_ARCHIVE );
 //ConVar cl_crosshair_blue( "cl_crosshair_blue", "200", FCVAR_ARCHIVE );
 
-ConVar cl_crosshair_file( "cl_crosshair_file", "", FCVAR_ARCHIVE );
+ConVar cl_crosshair_file( "cl_crosshair_file", "", FCVAR_ARCHIVE, "Change the crosshair file material. Uses the directory materials/vgui/crosshairs/." );
 
 ConVar cl_crosshair_scale( "cl_crosshair_scale", "31.0", FCVAR_ARCHIVE );
 
