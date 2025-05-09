@@ -16,7 +16,7 @@ VertexLitGeneric
 	$phongboost					15
 	$phongfresnelranges			"[0.2 1 1]"
 	
-	$selfillum					1
+	$selfillum					0
 	$selfillummask				"models/passtime/ball/passfortress_ball_emit"
 	
 	$lightwarptexture 			"models/buildables/sentry1/Sentry1_lightwarp"
