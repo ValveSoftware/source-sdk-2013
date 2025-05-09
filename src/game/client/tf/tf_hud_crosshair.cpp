@@ -36,7 +36,7 @@ ConVar pf_ballindicator( "pf_ballindicator", "1", FCVAR_ARCHIVE, "Enable/disable
 ConVar pf_ballindicator_file( "pf_ballindicator_file", "vgui/crosshairs/ballindicator", FCVAR_ARCHIVE, "Change the material for the HUD indicator when holding the ball." );
 ConVar pf_ballindicator_color( "pf_ballindicator_color", "255 255 255", FCVAR_ARCHIVE, "Change the color of the HUD indicator when holding the ball.", OnCrosshairColorChanged );
 ConVar pf_ballindicator_teamcolored( "pf_ballindicator_teamcolored", "1", FCVAR_ARCHIVE, "Overrides the color of the HUD indicator when holding the ball to always use your team's color." );
-ConVar pf_ballindicator_scale( "pf_ballindicator_scale", "1.0", FCVAR_ARCHIVE, "Scale factor of the HUD indicator when holding the ball." );
+ConVar pf_ballindicator_scale( "pf_ballindicator_scale", "32.0", FCVAR_ARCHIVE, "Scale factor of the HUD indicator when holding the ball." );
 using namespace vgui;
 
 // Everything else is expecting to find "CHudCrosshair"
@@ -193,13 +193,6 @@ void CHudTFCrosshair::Paint()
 	}
 
 	
-
-	if ( m_szPreviousCrosshair[0] == '\0' )
-	{
-		return BaseClass::Paint();
-	}
-
-
 	// This is somewhat cut'n'paste from CHudCrosshair::Paint(). Would be nice to unify them some more.
 	float x, y;
 	bool bBehindCamera;
@@ -218,65 +211,76 @@ void CHudTFCrosshair::Paint()
 	float flPlayerScale = 1.0f;
 	float flBallIndicatorScale = 1.0f;
 #ifdef TF_CLIENT_DLL
-	//Color clr( cl_crosshair_red.GetInt(), cl_crosshair_green.GetInt(), cl_crosshair_blue.GetInt(), 255 );
     int r = 200, g = 200, b = 200;
 	sscanf( cl_crosshair_color.GetString(), "%d %d %d", &r, &g, &b );
 	Color clr( r, g, b, 255 );
 	sscanf( pf_ballindicator_color.GetString(), "%d %d %d", &r, &g, &b );
 	Color clrbi( r, g, b, 255 );
 	flPlayerScale = cl_crosshair_scale.GetFloat() / 32.0f;  // the player can change the scale in the options/multiplayer tab
-	flBallIndicatorScale = pf_ballindicator_scale.GetFloat(); // the player can change the scale in the options/multiplayer tab
+	flBallIndicatorScale = pf_ballindicator_scale.GetFloat() / 32.0f; // the player can change the scale in the options/multiplayer tab
 #else
 	Color clr = m_clrCrosshair;
 	Color clrbi = m_clrCrosshair;
 #endif
 	float flWidth = flWeaponScale * flPlayerScale * (float)iTextureW;
 	float flHeight = flWeaponScale * flPlayerScale * (float)iTextureH;
-	float flBallIndicatorWidth = flBallIndicatorScale * (float)iTextureW;
-	float flBallIndicatorHeight = flBallIndicatorScale * (float)iTextureH;
 	int iWidth = (int)( flWidth + 0.5f );
 	int iHeight = (int)( flHeight + 0.5f );
+	float flBallIndicatorWidth = flBallIndicatorScale * (float)iTextureW;
+	float flBallIndicatorHeight = flBallIndicatorScale * (float)iTextureH;
 	int iBallIndicatorWidth = (int)( flBallIndicatorWidth + 0.5f );
 	int iBallIndicatorHeight = (int)( flBallIndicatorHeight + 0.5f );
 	int iX = (int)( x + 0.5f );
 	int iY = (int)( y + 0.5f );
 
-	if ( pWeapon )
-	{
-		pWeapon->GetWeaponCrosshairScale( flWeaponScale );
+    if ( pWeapon )
+    {
+        pWeapon->GetWeaponCrosshairScale( flWeaponScale );
+    }
+    
+    bool bShouldDrawBallIndicator = pf_ballindicator.GetBool();
+	// HasPasstimeBall is more responsive than using the passtimegun weapon as it has a switch delay
+    bool bHasPasstimeBall = pPlayer->m_Shared.HasPasstimeBall();
 
-		bool bShouldDrawBallIndicator = pf_ballindicator.GetBool();
-		if ( bShouldDrawBallIndicator ) 
-		{
-			if ( pPlayer->m_Shared.HasPasstimeBall())
-			{
-				const char *ballindicatorfile = pf_ballindicator_file.GetString();
+    // Check if cl_crosshair_file = "" 
+    bool bUseDefaultCrosshair = (m_szPreviousCrosshair[0] == '\0');
+    
+    // Fall back to base class if file = "" (use weapon specific crosshair)
+    if (bUseDefaultCrosshair)
+    {
+        BaseClass::Paint();
+    }
+    else
+    {
+        // Draw custom crosshair
+        pSurf->DrawSetColor( clr );
+        pSurf->DrawSetTexture( m_iCrosshairTextureID );
+        pSurf->DrawTexturedRect( iX-iWidth, iY-iHeight, iX+iWidth, iY+iHeight );
+        pSurf->DrawSetTexture(0);
+    }
+    
+    // Draw the ball indicator on top
+    if ( bShouldDrawBallIndicator && bHasPasstimeBall ) 
+    {
+        const char *ballindicatorfile = pf_ballindicator_file.GetString();
 
-				if ( m_iBallIndicatorTextureID != -1 )
-				{
-					pSurf->DrawSetTextureFile( m_iBallIndicatorTextureID, ballindicatorfile, true, false );
-				}
+        if ( m_iBallIndicatorTextureID != -1 )
+        {
+            pSurf->DrawSetTextureFile( m_iBallIndicatorTextureID, ballindicatorfile, true, false );
+        }
 
-				if ( pf_ballindicator_teamcolored.GetBool() )
-				{
-					Color teamColor;
-					teamColor = GetTeamColor( pPlayer->GetTeamNumber() );
-					clrbi = Color( teamColor.r(), teamColor.g(), teamColor.b(), 255 );
-				}
-				pSurf->DrawSetColor( clrbi );
-				pSurf->DrawSetTexture( m_iBallIndicatorTextureID );
-				pSurf->DrawTexturedRect( iX-iBallIndicatorWidth, iY-iBallIndicatorHeight, iX+iBallIndicatorWidth, iY+iBallIndicatorHeight );
-				pSurf->DrawSetTexture(0);
-			}
-		}
-	}
-	
-	pSurf->DrawSetColor( clr );
-	pSurf->DrawSetTexture( m_iCrosshairTextureID );
-	pSurf->DrawTexturedRect( iX-iWidth, iY-iHeight, iX+iWidth, iY+iHeight );
-	pSurf->DrawSetTexture(0);
-
-
+        if ( pf_ballindicator_teamcolored.GetBool() )
+        {
+            Color teamColor;
+            teamColor = GetTeamColor( pPlayer->GetTeamNumber() );
+            clrbi = Color( teamColor.r(), teamColor.g(), teamColor.b(), 255 );
+        }
+        
+        pSurf->DrawSetColor( clrbi );
+        pSurf->DrawSetTexture( m_iBallIndicatorTextureID );
+        pSurf->DrawTexturedRect( iX-iBallIndicatorWidth, iY-iBallIndicatorHeight, iX+iBallIndicatorWidth, iY+iBallIndicatorHeight );
+        pSurf->DrawSetTexture(0);
+    }
 }
 
 void OnCrosshairColorChanged( IConVar *var, const char *pOldValue, float flOldValue )
