@@ -160,8 +160,8 @@ void C_PasstimeReticle::ReloadSprites()
 // C_PasstimeBallReticle
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-ConVar pf_ball_outline_1_file( "pf_ball_outline_1_file", "", FCVAR_ARCHIVE, "Sets the first sprite drawn on the ball when not carried by a player.", OnCrosshairSettingsChanged );
-ConVar pf_ball_outline_2_file( "pf_ball_outline_2_file", "", FCVAR_ARCHIVE, "Sets the second sprite drawn on the ball when not carried by a player.", OnCrosshairSettingsChanged );
+ConVar pf_ball_outline_1_file( "pf_ball_outline_1_file", "p1fix", FCVAR_ARCHIVE, "Sets the first sprite drawn on the ball when not carried by a player.", OnCrosshairSettingsChanged );
+ConVar pf_ball_outline_2_file( "pf_ball_outline_2_file", "p2fix", FCVAR_ARCHIVE, "Sets the second sprite drawn on the ball when not carried by a player.", OnCrosshairSettingsChanged );
 
 static const float k_flBallReticleSize = 64;
 
@@ -319,9 +319,9 @@ bool C_PasstimeGoalReticle::Update()
 	return true;
 }
 
-ConVar pf_crosshair_teammate_inner( "pf_crosshair_teammate_inner", "", FCVAR_ARCHIVE, "Material for the inner part of the teammate pass reticle.", OnCrosshairSettingsChanged );
-ConVar pf_crosshair_teammate_outer_1( "pf_crosshair_teammate_outer_1", "", FCVAR_ARCHIVE, "Material for the first outer part of the teammate pass reticle.", OnCrosshairSettingsChanged );
-ConVar pf_crosshair_teammate_outer_2( "pf_crosshair_teammate_outer_2", "", FCVAR_ARCHIVE, "Material for the second outer part of the teammate pass reticle.", OnCrosshairSettingsChanged );
+ConVar pf_crosshair_teammate_inner( "pf_crosshair_teammate_inner", "plfix", FCVAR_ARCHIVE, "Material for the inner part of the teammate pass reticle.", OnCrosshairSettingsChanged );
+ConVar pf_crosshair_teammate_outer_1( "pf_crosshair_teammate_outer_1", "p1fix", FCVAR_ARCHIVE, "Material for the first outer part of the teammate pass reticle.", OnCrosshairSettingsChanged );
+ConVar pf_crosshair_teammate_outer_2( "pf_crosshair_teammate_outer_2", "p2fix", FCVAR_ARCHIVE, "Material for the second outer part of the teammate pass reticle.", OnCrosshairSettingsChanged );
 ConVar pf_crosshair_teammate_blink( "pf_crosshair_teammate_blink", "1", FCVAR_ARCHIVE, "Sets whether the teammate pass reticle is solid (0) or glowing (1)." );
 ConVar pf_crosshair_teammate_alpha( "pf_crosshair_teammate_alpha", "200", FCVAR_ARCHIVE, "Sets the alpha value of the teammate pass reticle. Only works when pf_crosshair_teammate_blink is set to 0." );
 
@@ -545,8 +545,8 @@ void C_PasstimePassReticle::FindPassHintTarget( C_TFPlayer *pLocalPlayer )
 	}
 }
 
-ConVar pf_crosshair_inner_file( "pf_crosshair_inner_file", "", FCVAR_ARCHIVE, "Material for the inner part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
-ConVar pf_crosshair_outer_file( "pf_crosshair_outer_file", "", FCVAR_ARCHIVE, "Material for the outer part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
+ConVar pf_crosshair_inner_file( "pf_crosshair_inner_file", "plfix", FCVAR_ARCHIVE, "Material for the inner part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
+ConVar pf_crosshair_outer_file( "pf_crosshair_outer_file", "p1fix", FCVAR_ARCHIVE, "Material for the outer part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
 ConVar pf_crosshair_inner_scale( "pf_crosshair_inner_scale", "1", FCVAR_ARCHIVE, "Size of the inner part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
 ConVar pf_crosshair_outer_scale( "pf_crosshair_outer_scale", "1", FCVAR_ARCHIVE, "Size of the outer part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
 ConVar pf_crosshair_outer_spinspeed( "pf_crosshair_outer_spinspeed", "200", FCVAR_ARCHIVE, "Speed of the rotation of the outer part of the JACK bounce crosshair.", OnCrosshairSettingsChanged );
