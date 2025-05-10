@@ -1770,6 +1770,10 @@ int CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 float CBaseEntity::GetAttackDamageScale( CBaseEntity *pVictim )
 {
 	float flScale = 1;
+    
+	if ( m_DamageModifiers.Count() <= 0 )
+		return flScale;
+    
 	FOR_EACH_LL( m_DamageModifiers, i )
 	{
 		if ( !m_DamageModifiers[i]->IsDamageDoneToMe() )
@@ -1786,6 +1790,10 @@ float CBaseEntity::GetAttackDamageScale( CBaseEntity *pVictim )
 float CBaseEntity::GetReceivedDamageScale( CBaseEntity *pAttacker )
 {
 	float flScale = 1;
+    
+	if ( m_DamageModifiers.Count() <= 0 )
+		return flScale;
+    
 	FOR_EACH_LL( m_DamageModifiers, i )
 	{
 		if ( m_DamageModifiers[i]->IsDamageDoneToMe() )
