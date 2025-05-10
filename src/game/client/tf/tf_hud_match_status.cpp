@@ -580,6 +580,12 @@ void CTFHudMatchStatus::FireGameEvent( IGameEvent * event )
 		int nSubModel = 0;
 		if (pMatchDesc->BGetRoundDoorParameters(nSkin, nSubModel))
 		{
+			// Is VS doors model not initialized yet?
+			if (m_pMatchStartModelPanel->m_hModel == NULL)
+			{
+				m_pMatchStartModelPanel->UpdateModel();
+			}
+
 			m_pMatchStartModelPanel->SetBodyGroup( "logos", nSubModel );
 			m_pMatchStartModelPanel->UpdateModel();
 			m_pMatchStartModelPanel->SetSkin( nSkin );
