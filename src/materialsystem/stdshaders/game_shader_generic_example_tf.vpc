@@ -11,4 +11,34 @@ $Include "$SRCDIR\materialsystem\stdshaders\game_shader_generic_example_base.vpc
 
 $Project "Game Shaders (TF)"
 {
+    $Folder "Header Files"
+	{
+		$File	"common_vertexlitgeneric_dx9.h"
+		$File	"common_lightmappedgeneric_fxc.h"
+		$File	"common_flashlight_fxc.h"
+	}
+
+	$Folder "Shader Source"
+	{
+		$Folder "fxc"
+		{
+			$File	"pbr_ps30.fxc"
+			$File	"pbr_vs30.fxc"
+			$File	"pbr_ps20b.fxc"
+			$File	"pbr_vs20b.fxc"
+		}
+
+		$Folder "Headers"
+		{
+			$File	"pbr_common_ps2_3_x.h"
+		}
+
+		//$File	"p4ss_dx9_30.txt"
+		//$File	"p4ss_dx9_20b.txt"
+	}
+
+	$Folder "Source Files"
+	{
+		$File	"pbr_dx9.cpp"
+	}
 }
