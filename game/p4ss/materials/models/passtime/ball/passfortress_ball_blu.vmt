@@ -1,11 +1,11 @@
 PBR
 {
-        $basetexture      "models/passtime/ball/pbrball_albedo8"
-        $bumpmap          "models/passtime/ball/pbrball_normal"
-        $mraotexture      "models/passtime/ball/pbrball_mrao8"
+        $basetexture      "models/passtime/ball/alb"
+        $bumpmap          "models/passtime/ball/norm"
+        $mraotexture      "models/passtime/ball/mrao"
 	$emissiontexture  "models/passtime/ball/pbrball_emit_blu"
-	$speculartexture "models/passtime/ball/pbrball_spec9"
-	$useenvambient 1
+	//$speculartexture "models/passtime/ball/pbrball_spec9"
+	$useenvambient 0
 	$useparallax  0
         $envmap           "env_cubemap"
         $model            1
