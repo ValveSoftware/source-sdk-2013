@@ -2775,7 +2775,7 @@ void CTFPlayer::PrecacheMvM()
 
 	PrecacheModel( "models/bots/tw2/boss_bot/twcarrier_addon.mdl" );
     
-    PrecacheModel( "models/player/gibs/gibs_bolt.mdl" );
+	PrecacheModel( "models/player/gibs/gibs_bolt.mdl" );
 
 	PrecacheParticleSystem( "bot_impact_light" );
 	PrecacheParticleSystem( "bot_impact_heavy" );
