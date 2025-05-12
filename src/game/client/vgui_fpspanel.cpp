@@ -363,7 +363,10 @@ void CFPSPanel::Paint()
 			m_lastBatteryPercent = gpGlobals->realtime;
 		}
 		
-		i++;
+		if ( nShowPosMode > 0 )
+		{
+			i++;
+		}
         
 		if ( m_BatteryPercent > 0 )
 		{
