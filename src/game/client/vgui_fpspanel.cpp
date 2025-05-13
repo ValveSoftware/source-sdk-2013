@@ -28,6 +28,9 @@ static ConVar cl_showfps( "cl_showfps", "0", FCVAR_ALLOWED_IN_COMPETITIVE|FCVAR_
 static ConVar cl_showpos( "cl_showpos", "0", FCVAR_ARCHIVE, "Draw current position at top of screen" );
 static ConVar cl_showbattery( "cl_showbattery", "0", FCVAR_ALLOWED_IN_COMPETITIVE|FCVAR_ARCHIVE, "Draw current battery level at top of screen when on battery power" );
 
+void FPSPanelFontChangeCallback( IConVar* var, const char* pOldValue, float flOldValue );
+static ConVar cl_showfps_proportionalfont( "cl_showfps_proportionalfont", "1", FCVAR_ARCHIVE, "Draw fps meter, current position, or current battery level with a proportional font.", FPSPanelFontChangeCallback );
+
 extern bool g_bDisplayParticlePerformance;
 int GetParticlePerformance();
 
@@ -46,6 +49,8 @@ public:
 	virtual void	ApplySchemeSettings(vgui::IScheme *pScheme);
 	virtual void	Paint();
 	virtual void	OnTick( void );
+	
+	virtual void	SetFont(void);
 
 	virtual bool	ShouldDraw( void );
 
@@ -72,7 +77,16 @@ private:
 	float			m_lastBatteryPercent;
 };
 
+CFPSPanel* g_pFPSPanel = NULL;
 #define FPS_PANEL_WIDTH 300
+
+void FPSPanelFontChangeCallback( IConVar* var, const char* pOldValue, float flOldValue )
+{
+	if ( g_pFPSPanel )
+	{
+		g_pFPSPanel->SetFont();
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -95,6 +109,7 @@ CFPSPanel::CFPSPanel( vgui::VPANEL parent ) : BaseClass( NULL, "CFPSPanel" )
 
 	vgui::ivgui()->AddTickSignal( GetVPanel(), 250 );
 	m_bLastDraw = false;
+	g_pFPSPanel = this;
 }
 
 //-----------------------------------------------------------------------------
@@ -102,6 +117,7 @@ CFPSPanel::CFPSPanel( vgui::VPANEL parent ) : BaseClass( NULL, "CFPSPanel" )
 //-----------------------------------------------------------------------------
 CFPSPanel::~CFPSPanel( void )
 {
+	g_pFPSPanel = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -121,7 +137,14 @@ void CFPSPanel::ComputeSize( void )
 	int wide, tall;
 	vgui::ipanel()->GetSize(GetVParent(), wide, tall );
 
-	int x = wide - FPS_PANEL_WIDTH;
+	int width = FPS_PANEL_WIDTH;
+
+	if ( cl_showfps_proportionalfont.GetBool() )
+	{
+		width = width * 1.5f;
+	}
+
+	int x = wide - width;
 	int y = 0;
 	if ( IsX360() )
 	{
@@ -129,15 +152,23 @@ void CFPSPanel::ComputeSize( void )
 		y += XBOX_MINBORDERSAFE * tall;
 	}
 	SetPos( x, y );
-	SetSize( FPS_PANEL_WIDTH, 6 * vgui::surface()->GetFontTall( m_hFont ) + 12 );
+	
+	SetSize( width, 6 * vgui::surface()->GetFontTall( m_hFont ) + 12 );
 }
 
 void CFPSPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
+	g_pFPSPanel = this;
+	SetFont();
+}
 
-	m_hFont = pScheme->GetFont( "DefaultFixedOutline" );
-	Assert( m_hFont );
+void CFPSPanel::SetFont( void )
+{
+	vgui::IScheme* pScheme = vgui::scheme()->GetIScheme( GetScheme() );
+
+	m_hFont = pScheme->GetFont( "DefaultFixedOutline", cl_showfps_proportionalfont.GetBool() );
+	Assert(m_hFont);
 
 	ComputeSize();
 }
