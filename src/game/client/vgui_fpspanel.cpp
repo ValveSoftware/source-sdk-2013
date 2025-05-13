@@ -25,11 +25,11 @@
 #include "tier0/memdbgon.h"
 
 void FPSPanelFontChangeCallback( IConVar* var, const char* pOldValue, float flOldValue );
-static ConVar cl_showfps( "cl_showfps", "0", FCVAR_ALLOWED_IN_COMPETITIVE|FCVAR_ARCHIVE, "Draw fps meter at top of screen (1 = fps, 2 = smooth fps)", FPSPanelFontChangeCallback );
+static ConVar cl_showfps( "cl_showfps", "0", FCVAR_ALLOWED_IN_COMPETITIVE | FCVAR_ARCHIVE, "Draw fps meter at top of screen (1 = fps, 2 = smooth fps)", FPSPanelFontChangeCallback );
 static ConVar cl_showpos( "cl_showpos", "0", FCVAR_ARCHIVE, "Draw current position at top of screen" );
-static ConVar cl_showbattery( "cl_showbattery", "0", FCVAR_ALLOWED_IN_COMPETITIVE|FCVAR_ARCHIVE, "Draw current battery level at top of screen when on battery power" );
+static ConVar cl_showbattery( "cl_showbattery", "0", FCVAR_ALLOWED_IN_COMPETITIVE | FCVAR_ARCHIVE, "Draw current battery level at top of screen when on battery power" );
 
-static ConVar cl_showfps_proportionalfont( "cl_showfps_proportionalfont", "1", FCVAR_ARCHIVE, "Draw fps meter, current position, or current battery level with a proportional font.", FPSPanelFontChangeCallback );
+static ConVar cl_showfps_proportionalfont( "cl_showfps_proportionalfont", "1", FCVAR_ALLOWED_IN_COMPETITIVE | FCVAR_ARCHIVE, "Draw fps meter, current position, or current battery level with a proportional font.", FPSPanelFontChangeCallback );
 
 extern bool g_bDisplayParticlePerformance;
 int GetParticlePerformance();
