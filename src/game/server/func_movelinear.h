@@ -36,6 +36,8 @@ public:
 
 	int			DrawDebugTextOverlays(void);
 
+	void SetParent( CBaseEntity *pParentEntity, int iAttachment );
+
 	// Input handlers
 	void InputOpen( inputdata_t &inputdata );
 	void InputClose( inputdata_t &inputdata );
