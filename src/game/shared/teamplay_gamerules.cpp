@@ -354,6 +354,9 @@ bool CTeamplayRules::IsTeamplay( void )
 
 bool CTeamplayRules::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info )
 {
+	if ( pAttacker->GetTeamNumber() == TEAM_SPECTATOR )
+		return false;
+
 	if ( pAttacker && PlayerRelationship( pPlayer, pAttacker ) == GR_TEAMMATE && !info.IsForceFriendlyFire() )
 	{
 		// my teammate hit me.

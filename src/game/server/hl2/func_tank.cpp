@@ -1450,6 +1450,9 @@ void CFuncTank::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 	if ( !pPlayer )
 		return;
 
+	if ( pPlayer->IsPlayer() && pPlayer->GetTeamNumber() == TEAM_SPECTATOR )
+		return;
+
 	if ( value == 2 && useType == USE_SET )
 	{
 		ControllerPostFrame();
