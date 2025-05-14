@@ -704,9 +704,9 @@ DEFINE_SCRIPTFUNC( IsOnAnyMission, "Return true if this bot has a current missio
 DEFINE_SCRIPTFUNC_WRAPPED( SetMissionTarget, "Set this bot's mission target to the given entity" )
 DEFINE_SCRIPTFUNC_WRAPPED( GetMissionTarget, "Get this bot's current mission target" )
 
-DEFINE_SCRIPTFUNC( SetBehaviorFlag, "Set the given behavior flag(s) for this bot" )
-DEFINE_SCRIPTFUNC( ClearBehaviorFlag, "Clear the given behavior flag(s) for this bot" )
-DEFINE_SCRIPTFUNC( IsBehaviorFlagSet, "Return true if the given behavior flag(s) are set for this bot" )
+DEFINE_SCRIPTFUNC_WRAPPED( SetBehaviorFlag, "Set the given behavior flag(s) for this bot" )
+DEFINE_SCRIPTFUNC_WRAPPED( ClearBehaviorFlag, "Clear the given behavior flag(s) for this bot" )
+DEFINE_SCRIPTFUNC_WRAPPED( IsBehaviorFlagSet, "Return true if the given behavior flag(s) are set for this bot" )
 
 DEFINE_SCRIPTFUNC_WRAPPED( SetActionPoint, "Set the given action point for this bot" )
 DEFINE_SCRIPTFUNC_WRAPPED( GetActionPoint, "Get the given action point for this bot" )

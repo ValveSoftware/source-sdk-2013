@@ -875,6 +875,7 @@ ConVar tf_raid_allow_overtime( "tf_raid_allow_overtime", "0"/*, FCVAR_CHEAT*/ );
 
 ConVar tf_mvm_defenders_team_size( "tf_mvm_defenders_team_size", "6", FCVAR_REPLICATED | FCVAR_NOTIFY, "Maximum number of defenders in MvM" );
 ConVar tf_mvm_max_connected_players( "tf_mvm_max_connected_players", "10", FCVAR_GAMEDLL, "Maximum number of connected real players in MvM" );
+ConVar tf_mvm_max_invaders( "tf_mvm_max_invaders", "22", FCVAR_GAMEDLL, "Maximum number of invaders in MvM" );
 
 ConVar tf_mvm_min_players_to_start( "tf_mvm_min_players_to_start", "3", FCVAR_REPLICATED | FCVAR_NOTIFY, "Minimum number of players connected to start a countdown timer" );
 ConVar tf_mvm_respec_enabled( "tf_mvm_respec_enabled", "1", FCVAR_CHEAT | FCVAR_REPLICATED, "Allow players to refund credits spent on player and item upgrades." );
@@ -1106,7 +1107,13 @@ ConVar tf_competitive_required_late_join_confirm_timeout( "tf_competitive_requir
 
 ConVar tf_gamemode_community ( "tf_gamemode_community", "0", FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DEVELOPMENTONLY );
 
+ConVar tf_voice_command_suspension_mode( "tf_voice_command_suspension_mode", "2", FCVAR_REPLICATED, "0 = None | 1 = No Voice Commands | 2 = Rate Limited" );
+
 #ifdef GAME_DLL
+
+ConVar tf_voice_command_suspension_rate_limit_bucket_count( "tf_voice_command_suspension_rate_limit_bucket_count", "5" ); // Bucket size of 5.
+ConVar tf_voice_command_suspension_rate_limit_bucket_refill_rate( "tf_voice_command_suspension_rate_limit_bucket_refill_rate", "6" ); // 6s
+
 void cc_powerup_mode( IConVar *pConVar, const char *pOldString, float flOldValue )
 {
 	ConVarRef var( pConVar );
@@ -10126,7 +10133,12 @@ VoiceCommandMenuItem_t *CTFGameRules::VoiceCommand( CBaseMultiplayerPlayer *pPla
 	if ( pTFPlayer )
 	{
 		if ( pTFPlayer->BHaveChatSuspensionInCurrentMatch() )
-			return NULL;
+		{
+			if ( tf_voice_command_suspension_mode.GetInt() == 1 )
+			{
+				return NULL;
+			}
+		}
 
 		if ( pTFPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) )
 		{
@@ -16966,7 +16978,7 @@ int CTFGameRules::CalcPlayerScore( RoundStats_t *pRoundStats, CTFPlayer *pPlayer
 					( pRoundStats->m_iStat[TFSTAT_TELEPORTS] / TF_SCORE_TELEPORTS_PER_POINT ) +
 					( pRoundStats->m_iStat[TFSTAT_INVULNS] / TF_SCORE_INVULN ) +
 					( pRoundStats->m_iStat[TFSTAT_REVENGE] / TF_SCORE_REVENGE ) +
-					( pRoundStats->m_iStat[TFSTAT_BONUS_POINTS] / TF_SCORE_BONUS_POINT_DIVISOR );
+					( pRoundStats->m_iStat[TFSTAT_BONUS_POINTS] / TF_SCORE_BONUS_POINT_DIVISOR ) +
 					( pRoundStats->m_iStat[TFSTAT_CURRENCY_COLLECTED] / TF_SCORE_CURRENCY_COLLECTED );
 
 	if ( pPlayer )
