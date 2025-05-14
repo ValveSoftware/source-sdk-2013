@@ -99,6 +99,10 @@ public:
 	bool SuitPower_ShouldRecharge( void );
 	float SuitPower_GetCurrentPercentage( void ) { return m_HL2Local.m_flSuitPower; }
 	
+	bool IsNewSprinting() const
+	{
+		return m_HL2Local.m_bNewSprinting;
+	}
 	bool	CanSprint( void );
 	void	StartSprinting( void );
 	void	StopSprinting( void );

@@ -505,6 +505,26 @@ void CHL2_Player::HandleSpeedChanges( CMoveData *mv )
 	const bool bWantsToChangeSprinting = ( m_HL2Local.m_bNewSprinting != bWantSprint ) && ( nChangedButtons & IN_SPEED ) != 0;
 
 	bool bSprinting = m_HL2Local.m_bNewSprinting;
+
+	// Fixes: 
+	// 1) Completely stop sprinting when going underwater 
+	// 2) Fix sprint not starting during unducking
+
+	if ( GetWaterLevel() == 3 )
+		bSprinting = false;
+
+	// Putting those here instead of within bWantsToChangeSprinting to ensure sprint properly starts when summoned!
+	// Restoring pre-OB (2010) working sprinting behavior.
+
+	if ( GetGroundEntity() == NULL && ( mv->m_nButtons & IN_SPEED ) )
+		bSprinting = true;
+
+	if ( m_Local.m_bDucked && !m_Local.m_bDucking && bSprinting )
+		bSprinting = false;
+
+	if ( m_Local.m_bDucked && m_Local.m_bDucking && !bSprinting && ( mv->m_nButtons & IN_SPEED ) )
+		bSprinting = true;
+
 	if ( bWantsToChangeSprinting )
 	{
 		if ( bWantSprint )
