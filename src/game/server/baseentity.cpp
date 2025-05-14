@@ -63,6 +63,7 @@
 #include "tier1/utlstring.h"
 #include "utlhashtable.h"
 #include "vscript_server.h"
+#include "subs.h"
 
 #if defined( TF_DLL )
 #include "tf_gamerules.h"
@@ -5705,6 +5706,65 @@ void CC_Ent_Remove( const CCommand& args )
 {
 	CBaseEntity *pEntity = NULL;
 
+	CBasePlayer *pPlayer = UTIL_GetCommandClient();
+	if ( pPlayer )
+	{
+		CBaseEntity *targetEntity = NULL;
+		if ( FStrEq( args[ 1 ], "" ) )
+		{
+			targetEntity = FindPickerEntity( pPlayer );
+		}
+		else
+		{
+			int index = atoi( args[ 1 ] );
+			if ( index )
+			{
+				targetEntity = CBaseEntity::Instance( index );
+			}
+			else
+			{
+				targetEntity = gEntList.FindEntityByName( NULL, args[ 1 ] );
+
+				if ( !targetEntity )
+				{
+					targetEntity = gEntList.FindEntityByClassname( NULL, args[ 1 ] );
+				}
+			}
+		}
+
+		// Don't check against a classname. They can be changed maliciously 
+		// e.g. ent_fire player addoutput "classname abc";ent_remove abc
+		if ( targetEntity )
+		{
+			// Check if it's a player
+			if ( dynamic_cast< CBasePlayer * >( targetEntity ) )
+			{
+				ClientPrint( pPlayer, HUD_PRINTCONSOLE, "You cannot remove players\n" );
+				return;
+			}
+
+			// Check if it's the world entity
+			if ( targetEntity->edict() == INDEXENT( 0 ) )
+			{
+				ClientPrint( pPlayer, HUD_PRINTCONSOLE, "You cannot remove the world entity\n" );
+				return;
+			}
+
+			// Check if it's a DM spawn point
+			if ( dynamic_cast< CBaseDMStart * >( targetEntity ) )
+			{
+				ClientPrint( pPlayer, HUD_PRINTCONSOLE, "You cannot remove spawn points\n" );
+				return;
+			}
+
+			if ( dynamic_cast< CBaseTeamSpawn * >( targetEntity ) )
+			{
+				ClientPrint( pPlayer, HUD_PRINTCONSOLE, "You cannot remove spawn points\n" );
+				return;
+			}
+		}
+	}
+
 	// If no name was given set bits based on the picked
 	if ( FStrEq( args[1],"") ) 
 	{
@@ -5753,6 +5813,65 @@ void CC_Ent_RemoveAll( const CCommand& args )
 	}
 	else 
 	{
+		CBasePlayer *pPlayer = UTIL_GetCommandClient();
+		if ( pPlayer )
+		{
+			CBaseEntity *targetEntity = NULL;
+			if ( FStrEq( args[ 1 ], "" ) )
+			{
+				targetEntity = FindPickerEntity( pPlayer );
+			}
+			else
+			{
+				int index = atoi( args[ 1 ] );
+				if ( index )
+				{
+					targetEntity = CBaseEntity::Instance( index );
+				}
+				else
+				{
+					targetEntity = gEntList.FindEntityByName( NULL, args[ 1 ] );
+
+					if ( !targetEntity )
+					{
+						targetEntity = gEntList.FindEntityByClassname( NULL, args[ 1 ] );
+					}
+				}
+			}
+
+			// If we found an entity, check if it's a protected one
+			if ( targetEntity )
+			{
+				// Check if it's a player
+				if ( dynamic_cast< CBasePlayer * >( targetEntity ) )
+				{
+					ClientPrint( pPlayer, HUD_PRINTCONSOLE, "You cannot remove players\n" );
+					return;
+				}
+
+				// Check if it's the world entity
+				if ( targetEntity->edict() == INDEXENT( 0 ) )
+				{
+					ClientPrint( pPlayer, HUD_PRINTCONSOLE, "You cannot remove the world entity\n" );
+					return;
+				}
+
+				// Check if it's a DM spawn point
+				if ( dynamic_cast< CBaseDMStart * >( targetEntity ) )
+				{
+					ClientPrint( pPlayer, HUD_PRINTCONSOLE, "You cannot remove spawn points\n" );
+					return;
+				}
+
+				// Check if it's a TDM spawn point
+				if ( dynamic_cast< CBaseTeamSpawn * >( targetEntity ) )
+				{
+					ClientPrint( pPlayer, HUD_PRINTCONSOLE, "You cannot remove spawn points\n" );
+					return;
+				}
+			}
+		}
+
 		// Otherwise remove based on name or classname
 		int iCount = 0;
 		CBaseEntity *ent = NULL;

@@ -621,6 +621,7 @@ $Project
 		$File	"$SRCDIR\public\stringregistry.h"
 		$File	"$SRCDIR\game\shared\studio_shared.cpp"
 		$File	"subs.cpp"
+		$File	"subs.h"
 		$File	"sun.cpp"
 		$File	"tactical_mission.cpp"
 		$File	"tactical_mission.h"

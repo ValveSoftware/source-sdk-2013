@@ -10,6 +10,7 @@
 #include "doors.h"
 #include "entitylist.h"
 #include "globals.h"
+#include "subs.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -38,19 +39,6 @@ void CNullEntity::Spawn( void )
 }
 LINK_ENTITY_TO_CLASS(info_null,CNullEntity);
 
-class CBaseDMStart : public CPointEntity
-{
-public:
-	DECLARE_CLASS( CBaseDMStart, CPointEntity );
-
-	bool IsTriggered( CBaseEntity *pEntity );
-
-	DECLARE_DATADESC();
-
-	string_t m_Master;
-
-private:
-};
 
 BEGIN_DATADESC( CBaseDMStart )
 
