@@ -283,7 +283,7 @@ public:
 	virtual bool ShouldUseRobustRadiusDamage(CBaseEntity *pEntity) { return false; }
 	virtual void  RadiusDamage( const CTakeDamageInfo &info, const Vector &vecSrc, float flRadius, int iClassIgnore, CBaseEntity *pEntityIgnore );
 	// Let the game rules specify if fall death should fade screen to black
-	virtual bool  FlPlayerFallDeathDoesScreenFade( CBasePlayer *pl ) { return TRUE; }
+	virtual bool  FlPlayerFallDeathDoesScreenFade( CBasePlayer *pl ) { return FALSE; }
 
 	virtual bool AllowDamage( CBaseEntity *pVictim, const CTakeDamageInfo &info ) = 0;
 
