@@ -11,6 +11,7 @@
 #include "ammodef.h"
 #include "eventlist.h"
 #include "npcevent.h"
+#include "weapon_hl2mpbasebasebludgeon.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -877,6 +878,9 @@ void CItem_AmmoCrate::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TY
 	if ( pPlayer == NULL )
 		return;
 
+	if ( !pPlayer->IsAlive() )
+		return;
+
 	m_OnUsed.FireOutput( pActivator, this );
 
 	int iSequence = LookupSequence( "Open" );
@@ -925,16 +929,18 @@ int CItem_AmmoCrate::OnTakeDamage( const CTakeDamageInfo &info )
 {
 	// if it's the player hitting us with a crowbar, open up
 	CBasePlayer *player = ToBasePlayer(info.GetAttacker());
-	if (player)
+	if ( player )
 	{
 		CBaseCombatWeapon *weapon = player->GetActiveWeapon();
 
-		if (weapon && !stricmp(weapon->GetName(), "weapon_crowbar"))
+		if ( weapon && dynamic_cast< CBaseHL2MPBludgeonWeapon * >( weapon ) )
 		{
-			// play the normal use sound
-			player->EmitSound( "HL2Player.Use" );
-			// open the crate
-			Use(info.GetAttacker(), info.GetAttacker(), USE_TOGGLE, 0.0f);
+			if ( info.GetDamageType() & DMG_CLUB )
+			{
+				// Play the normal use sound
+				player->EmitSound( "HL2Player.Use" );
+				Use( info.GetAttacker(), info.GetAttacker(), USE_TOGGLE, 0.0f );
+			}
 		}
 	}
 
