@@ -1050,7 +1050,7 @@ int CBreakableProp::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		return 1;
 	}
 
-	if( info.GetAttacker() && info.GetAttacker()->MyCombatCharacterPointer() )
+	if ( !IsOnFire() && ToBaseCombatCharacter( info.GetAttacker() ) != NULL )
 	{
 		m_hLastAttacker.Set( info.GetAttacker() );
 	}
@@ -1164,6 +1164,11 @@ int CBreakableProp::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	float flRatio = clamp( (float)m_iHealth / (float)m_iMaxHealth, 0.f, 1.f );
 	m_OnHealthChanged.Set( flRatio, info.GetAttacker(), this );
 	m_OnTakeDamage.FireOutput( info.GetAttacker(), this );
+
+	if ( !IsOnFire() )
+	{
+		m_hLastAttacker.Term();
+	}
 
 	return ret;
 }
@@ -1675,22 +1680,19 @@ void CBreakableProp::Break( CBaseEntity *pBreaker, const CTakeDamageInfo &info )
 	bool bExploded = false;
 
 	CBaseEntity *pAttacker = info.GetAttacker();
-	if ( m_hLastAttacker )
-	{
-		// Pass along the person who made this explosive breakable explode.
-		// This way the player allies can get immunity from barrels exploded by the player.
-		pAttacker = m_hLastAttacker;
-	}
-	else if( m_hPhysicsAttacker )
+	if ( HasPhysicsAttacker() )
 	{
 		// If I have a physics attacker and was influenced in the last 2 seconds,
 		// Make the attacker my physics attacker. This helps protect citizens from dying
 		// in the explosion of a physics object that was thrown by the player's physgun
 		// and exploded on impact.
-		if( gpGlobals->curtime - m_flLastPhysicsInfluenceTime <= 2.0f )
-		{
-			pAttacker = m_hPhysicsAttacker;
-		}
+		pAttacker = m_hPhysicsAttacker;
+	}
+	else if ( m_hLastAttacker )
+	{
+		// Pass along the person who made this explosive breakable explode.
+		// This way the player allies can get immunity from barrels exploded by the player.
+		pAttacker = m_hLastAttacker;
 	}
 
 	if ( m_explodeDamage > 0 || m_explodeRadius > 0 )
@@ -1801,10 +1803,11 @@ void CBreakableProp::Break( CBaseEntity *pBreaker, const CTakeDamageInfo &info )
 			}
 		}
 	}
+}
 
-#ifndef HL2MP
-	UTIL_Remove( this );
-#endif
+void CBreakableProp::OnBreak( const Vector &, const AngularImpulse &, CBaseEntity * )
+{
+	Remove();
 }
 
 
@@ -2483,6 +2486,8 @@ void CPhysicsProp::Spawn( )
 		SetClassname( "prop_physics" );
 	}
 
+	ClearThrownState();
+
 	BaseClass::Spawn();
 
 	if ( IsMarkedForDeletion() )
@@ -2657,6 +2662,16 @@ void CPhysicsProp::InputWake( inputdata_t &inputdata )
 	}
 }
 
+void CPhysicsProp::Break( CBaseEntity *pBreaker, const CTakeDamageInfo &info )
+{
+	m_bFirstCollisionAfterLaunch = false;
+
+	// Setup the think function to remove the flags
+	RegisterThinkContext( "PROP_CLEARFLAGS" );
+	SetContextThink( &CPhysicsProp::ClearFlagsThink, gpGlobals->curtime, "PROP_CLEARFLAGS" );
+	CBreakableProp::Break( pBreaker, info );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Input handler to stop the physics prop simulating.
 //-----------------------------------------------------------------------------
@@ -2742,6 +2757,15 @@ void CPhysicsProp::OnPhysGunPickup( CBasePlayer *pPhysGunUser, PhysGunPickup_t r
 		}
 	}
 
+	if ( pPhysicsObject && ( pPhysicsObject->GetGameFlags() & FVPHYSICS_WAS_THROWN ) )
+	{
+		PhysClearGameFlags( pPhysicsObject, FVPHYSICS_WAS_THROWN );
+		m_bFirstCollisionAfterLaunch = false;
+	}
+
+	// Extra check
+	m_bFirstCollisionAfterLaunch = false;
+
 	m_OnPhysGunPickup.FireOutput( pPhysGunUser, this );
 
 	if( reason == PICKED_UP_BY_CANNON )
@@ -2756,6 +2780,7 @@ void CPhysicsProp::OnPhysGunPickup( CBasePlayer *pPhysGunUser, PhysGunPickup_t r
 
 	if ( reason == PICKED_UP_BY_CANNON || reason == PICKED_UP_BY_PLAYER )
 	{
+		ClearThrownState();
 		m_OnPlayerPickup.FireOutput( pPhysGunUser, this );
 	}
 
@@ -2948,6 +2973,10 @@ void CPhysicsProp::ClearFlagsThink( void )
 	SetContextThink( NULL, 0, "PROP_CLEARFLAGS" );
 }
 
+void CPhysicsProp::ClearThrownState()
+{
+	m_bThrownByPlayer = m_bFirstCollisionAfterLaunch = false;
+}
 
 //-----------------------------------------------------------------------------
 // Compute impulse to apply to the enabled entity.
@@ -3018,7 +3047,7 @@ void CPhysicsProp::VPhysicsCollision( int index, gamevcollisionevent_t *pEvent )
 		HandleFirstCollisionInteractions( index, pEvent );
 	}
 
-	if ( HasPhysicsAttacker( 2.0f ) )
+	if ( HasPhysicsAttacker() )
 	{
 		HandleAnyCollisionInteractions( index, pEvent );
 	}
@@ -5720,6 +5749,7 @@ public:
 
 private:
 
+	void OnBreak( const Vector &, const AngularImpulse &, CBaseEntity * ) OVERRIDE {}
 	Vector m_vOriginalSpawnOrigin;
 	QAngle m_vOriginalSpawnAngles;
 

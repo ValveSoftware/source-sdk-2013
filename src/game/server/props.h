@@ -16,6 +16,8 @@
 #include "player_pickup.h"
 #include "positionwatcher.h"
 
+#define BREAKABLE_PROP_MAIN_INFLUENCE_TIME 2.0f
+
 //=============================================================================================================
 // PROP TYPES
 //=============================================================================================================
@@ -62,7 +64,7 @@ public:
 
 	virtual int OnTakeDamage( const CTakeDamageInfo &info );
 	void Event_Killed( const CTakeDamageInfo &info );
-	void Break( CBaseEntity *pBreaker, const CTakeDamageInfo &info );
+	virtual void Break( CBaseEntity *pBreaker, const CTakeDamageInfo &info );
 	void BreakThink( void );
 	void AnimateThink( void );
 
@@ -154,7 +156,7 @@ public:
 protected:
 
 	bool			UpdateHealth( int iNewHealth, CBaseEntity *pActivator );
-	virtual void	OnBreak( const Vector &vecVelocity, const AngularImpulse &angVel, CBaseEntity *pBreaker ) {}
+	virtual void	OnBreak( const Vector &vecVelocity, const AngularImpulse &angVel, CBaseEntity *pBreaker );
 
 protected:
 
@@ -193,7 +195,7 @@ public:
 	virtual void OnPhysGunPickup( CBasePlayer *pPhysGunUser, PhysGunPickup_t reason );
 	virtual void OnPhysGunDrop( CBasePlayer *pPhysGunUser, PhysGunDrop_t reason );
 	virtual AngularImpulse	PhysGunLaunchAngularImpulse();
-	virtual	CBasePlayer *HasPhysicsAttacker( float dt );
+	virtual	CBasePlayer *HasPhysicsAttacker( float dt = BREAKABLE_PROP_MAIN_INFLUENCE_TIME );
 
 #ifdef HL2_EPISODIC
 	void CreateFlare( float flLifetime );
@@ -346,6 +348,8 @@ public:
 	virtual void VPhysicsUpdate( IPhysicsObject *pPhysics );
 	virtual void VPhysicsCollision( int index, gamevcollisionevent_t *pEvent );
 
+	virtual void Break( CBaseEntity *pBreaker, const CTakeDamageInfo &info );
+
 	void InputWake( inputdata_t &inputdata );
 	void InputSleep( inputdata_t &inputdata );
 	void InputEnableMotion( inputdata_t &inputdata );
@@ -382,6 +386,7 @@ public:
 private:
 	// Compute impulse to apply to the enabled entity.
 	void ComputeEnablingImpulse( int index, gamevcollisionevent_t *pEvent );
+	void ClearThrownState();
 
 	COutputEvent m_MotionEnabled;
 	COutputEvent m_OnAwakened;
