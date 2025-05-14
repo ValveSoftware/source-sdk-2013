@@ -20664,12 +20664,12 @@ void CTFPlayer::Internal_HandleMapEvent( inputdata_t &inputdata )
 
 void CTFPlayer::DoomsdayAchievementCheck() 
 {
-	if (FStrEq("sd_doomsday", STRING(gpGlobals->mapname)))
+	if ( FStrEq( "sd_doomsday", STRING( gpGlobals->mapname ) ) )
 	{
-		CTFPlayer* pRecentDamager = TFGameRules()->GetRecentDamager(this, 0, 5.0);
-		if (pRecentDamager && (pRecentDamager->GetTeamNumber() != GetTeamNumber()))
+		CTFPlayer* pRecentDamager = TFGameRules()->GetRecentDamager( this, 0, 5.0 );
+		if ( pRecentDamager && ( pRecentDamager->GetTeamNumber() != GetTeamNumber() ) )
 		{
-			pRecentDamager->AwardAchievement(ACHIEVEMENT_TF_MAPS_DOOMSDAY_PUSH_INTO_EXHAUST);
+			pRecentDamager->AwardAchievement( ACHIEVEMENT_TF_MAPS_DOOMSDAY_PUSH_INTO_EXHAUST );
 		}
 	}
 }
@@ -20696,12 +20696,12 @@ void CTFPlayer::IgnitePlayerEx( float fBurnTime )
 {
 	DoomsdayAchievementCheck();
 
-	m_Shared.Burn(this, NULL, fBurnTime);
+	m_Shared.Burn( this, NULL, fBurnTime );
 }
 
-void CTFPlayer::InputIgnitePlayerEx(inputdata_t& inputdata)
+void CTFPlayer::InputIgnitePlayerEx( inputdata_t& inputdata )
 {
-	IgnitePlayerEx(inputdata.value.Float());
+	IgnitePlayerEx( inputdata.value.Float() );
 }
 
 //-----------------------------------------------------------------------------
