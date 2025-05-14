@@ -1066,6 +1066,10 @@ float IntervalDistance( float x, float x0, float x1 )
 
 CBaseEntity *CBasePlayer::FindUseEntity()
 {
+#ifdef GAME_DLL
+	if ( UsingGameUI() )
+		return NULL;
+#endif
 	Vector forward, up;
 	EyeVectors( &forward, NULL, &up );
 

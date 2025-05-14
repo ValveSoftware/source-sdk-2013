@@ -3628,7 +3628,8 @@ void CHL2_Player::ItemPostFrame()
 	if ( m_bPlayUseDenySound )
 	{
 		m_bPlayUseDenySound = false;
-		EmitSound( "HL2Player.UseDeny" );
+		if ( !UsingGameUI() )
+			EmitSound( "HL2Player.UseDeny" );
 	}
 }
 
