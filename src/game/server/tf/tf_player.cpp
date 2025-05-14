@@ -525,6 +525,7 @@ REGISTER_SEND_PROXY_NON_MODIFIED_POINTER( SendProxy_SendHealersDataTable );
 
 BEGIN_DATADESC( CTFPlayer )
 	DEFINE_INPUTFUNC( FIELD_VOID, "IgnitePlayer", InputIgnitePlayer ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "IgnitePlayerEx", InputIgnitePlayer ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetCustomModel", InputSetCustomModel ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "SetCustomModelWithClassAnimations", InputSetCustomModelWithClassAnimations ),
 	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetCustomModelOffset", InputSetCustomModelOffset ),
@@ -650,6 +651,7 @@ BEGIN_ENT_SCRIPTDESC( CTFPlayer, CBaseMultiplayerPlayer , "Team Fortress 2 Playe
 	DEFINE_SCRIPTFUNC( RemoveCurrency, "Take away money from a player for reasons such as ie. spending." )
 
 	DEFINE_SCRIPTFUNC( IgnitePlayer, "" )
+	DEFINE_SCRIPTFUNC( IgnitePlayerEx, "" )
 	DEFINE_SCRIPTFUNC( SetCustomModel, "" )
 	DEFINE_SCRIPTFUNC( SetCustomModelWithClassAnimations, "" )
 	DEFINE_SCRIPTFUNC( SetCustomModelOffset, "" )
@@ -20660,19 +20662,24 @@ void CTFPlayer::Internal_HandleMapEvent( inputdata_t &inputdata )
 	BaseClass::Internal_HandleMapEvent( inputdata );
 }
 
+void CTFPlayer::DoomsdayAchievementCheck() 
+{
+	if (FStrEq("sd_doomsday", STRING(gpGlobals->mapname)))
+	{
+		CTFPlayer* pRecentDamager = TFGameRules()->GetRecentDamager(this, 0, 5.0);
+		if (pRecentDamager && (pRecentDamager->GetTeamNumber() != GetTeamNumber()))
+		{
+			pRecentDamager->AwardAchievement(ACHIEVEMENT_TF_MAPS_DOOMSDAY_PUSH_INTO_EXHAUST);
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFPlayer::IgnitePlayer()
 {
-	if ( FStrEq( "sd_doomsday", STRING( gpGlobals->mapname ) ) )
-	{
-		CTFPlayer *pRecentDamager = TFGameRules()->GetRecentDamager( this, 0, 5.0 );
-		if ( pRecentDamager && ( pRecentDamager->GetTeamNumber() != GetTeamNumber() ) )
-		{
-			pRecentDamager->AwardAchievement( ACHIEVEMENT_TF_MAPS_DOOMSDAY_PUSH_INTO_EXHAUST );
-		}
-	}
+	DoomsdayAchievementCheck();
 
 	m_Shared.Burn( this, NULL );
 }
@@ -20680,6 +20687,21 @@ void CTFPlayer::IgnitePlayer()
 void CTFPlayer::InputIgnitePlayer( inputdata_t &inputdata )
 {
 	IgnitePlayer();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::IgnitePlayerEx( float fBurnTime )
+{
+	DoomsdayAchievementCheck();
+
+	m_Shared.Burn(this, NULL, fBurnTime);
+}
+
+void CTFPlayer::InputIgnitePlayerEx(inputdata_t& inputdata)
+{
+	IgnitePlayerEx(inputdata.value.Float());
 }
 
 //-----------------------------------------------------------------------------
