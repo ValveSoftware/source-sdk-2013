@@ -1038,40 +1038,6 @@ void CC_Player_TestDispatchEffect( const CCommand &args )
 
 static ConCommand test_dispatcheffect("test_dispatcheffect", CC_Player_TestDispatchEffect, "Test a clientside dispatch effect.\n\tUsage: test_dispatcheffect <effect name> <distance away> <flags> <magnitude> <scale>\n\tDefaults are: <distance 1024> <flags 0> <magnitude 0> <scale 0>\n", FCVAR_CHEAT);
 
-#ifdef HL2_DLL
-//-----------------------------------------------------------------------------
-// Purpose: Quickly switch to the physics cannon, or back to previous item
-//-----------------------------------------------------------------------------
-void CC_Player_PhysSwap( void )
-{
-	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() );
-	
-	if ( pPlayer )
-	{
-		CBaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
-
-		if ( pWeapon )
-		{
-			// Tell the client to stop selecting weapons
-			engine->ClientCommand( UTIL_GetCommandClient()->edict(), "cancelselect" );
-
-			const char *strWeaponName = pWeapon->GetName();
-
-			if ( !Q_stricmp( strWeaponName, "weapon_physcannon" ) )
-			{
-				PhysCannonForceDrop( pWeapon, NULL );
-				pPlayer->SelectLastItem();
-			}
-			else
-			{
-				pPlayer->SelectItem( "weapon_physcannon" );
-			}
-		}
-	}
-}
-static ConCommand physswap("phys_swap", CC_Player_PhysSwap, "Automatically swaps the current weapon for the physcannon and back again." );
-#endif
-
 //-----------------------------------------------------------------------------
 // Purpose: Quickly switch to the bug bait, or back to previous item
 //-----------------------------------------------------------------------------
