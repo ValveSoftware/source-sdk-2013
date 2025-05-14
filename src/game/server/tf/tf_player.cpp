@@ -20666,7 +20666,7 @@ void CTFPlayer::DoomsdayAchievementCheck()
 {
 	if ( FStrEq( "sd_doomsday", STRING( gpGlobals->mapname ) ) )
 	{
-		CTFPlayer* pRecentDamager = TFGameRules()->GetRecentDamager( this, 0, 5.0 );
+		CTFPlayer *pRecentDamager = TFGameRules()->GetRecentDamager( this, 0, 5.0 );
 		if ( pRecentDamager && ( pRecentDamager->GetTeamNumber() != GetTeamNumber() ) )
 		{
 			pRecentDamager->AwardAchievement( ACHIEVEMENT_TF_MAPS_DOOMSDAY_PUSH_INTO_EXHAUST );
