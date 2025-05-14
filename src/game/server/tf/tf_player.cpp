@@ -277,6 +277,7 @@ extern ConVar sv_vote_allow_spectators;
 ConVar sv_vote_late_join_time( "sv_vote_late_join_time", "90", FCVAR_NONE, "Grace period after the match starts before players who join the match receive a vote-creation cooldown" );
 ConVar sv_vote_late_join_cooldown( "sv_vote_late_join_cooldown", "300", FCVAR_NONE, "Length of the vote-creation cooldown when joining the server after the grace period has expired" );
 
+extern ConVar tf_voice_command_suspension_mode;
 extern ConVar tf_feign_death_duration;
 extern ConVar spec_freeze_time;
 extern ConVar spec_freeze_traveltime;
@@ -19993,7 +19994,20 @@ bool CTFPlayer::ShouldShowVoiceSubtitleToEnemy( void )
 //-----------------------------------------------------------------------------
 bool CTFPlayer::CanSpeakVoiceCommand( void )
 {
-	return ( gpGlobals->curtime > m_flNextVoiceCommandTime );
+	if ( tf_voice_command_suspension_mode.GetInt() == 1 )
+		return false;
+
+	if ( gpGlobals->curtime <= m_flNextVoiceCommandTime )
+		return false;
+
+	// misyl: New F2P voice command rate-limiting path.
+	if ( BHaveChatSuspensionInCurrentMatch() && tf_voice_command_suspension_mode.GetInt() == 2 )
+	{
+		if ( !m_RateLimitedVoiceCommandTokenBucket.BTakeToken( gpGlobals->curtime ) )
+			return false;
+	}
+
+	return true;
 }
 
 //-----------------------------------------------------------------------------

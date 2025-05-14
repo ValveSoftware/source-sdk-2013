@@ -441,10 +441,10 @@ void CHudCommentary::Paint()
 	// Draw the speaker names
 	// Get our scheme and font information
 	vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
-	vgui::HFont hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault" );
+	vgui::HFont hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "CommentaryDefault", true );
 	if ( !hFont )
 	{
-		hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "Default" );
+		hFont = vgui::scheme()->GetIScheme(scheme)->GetFont( "Default", true );
 	}
 	vgui::surface()->DrawSetTextFont( hFont );
 	vgui::surface()->DrawSetTextColor( clr ); 
