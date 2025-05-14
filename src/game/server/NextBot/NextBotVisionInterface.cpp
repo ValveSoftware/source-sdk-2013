@@ -593,7 +593,7 @@ bool IVision::IsAbleToSee( CBaseEntity *subject, FieldOfViewCheckType checkFOV, 
 		CNavArea *myArea = GetBot()->GetEntity()->GetLastKnownArea();
 		if ( myArea && subjectArea )
 		{
-			if ( !myArea->IsPotentiallyVisible( subjectArea ) )
+			if ( !myArea->IsPotentiallyVisible( subjectArea ) && TheNavMesh->GetNavArea( subject->GetAbsOrigin(), 100.0f ) )
 			{
 				// subject is not potentially visible, skip the expensive raycast
 				return false;
