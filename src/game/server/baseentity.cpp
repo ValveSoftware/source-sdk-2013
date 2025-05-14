@@ -6234,59 +6234,76 @@ static ConCommand ent_cancelpendingentfires("ent_cancelpendingentfires", CC_Ent_
 // Input   :
 // Output  :
 //------------------------------------------------------------------------------
-void CC_Ent_Info( const CCommand& args )
+void CC_Ent_Info( const CCommand &args )
 {
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() );
-	if (!pPlayer)
+	if ( !pPlayer )
 	{
 		return;
 	}
-	
+
 	if ( args.ArgC() < 2 )
 	{
 		ClientPrint( pPlayer, HUD_PRINTCONSOLE, "Usage:\n   ent_info <class name>\n" );
+		return;
+	}
+
+	CBaseEntity *ent = nullptr;
+
+	// Check if the user requested "worldspawn"
+	if ( !Q_stricmp( args[ 1 ], "worldspawn" ) )
+	{
+		ent = CBaseEntity::Instance( 0 ); // Fetch the existing worldspawn entity
+		if ( !ent )
+		{
+			ClientPrint( pPlayer, HUD_PRINTCONSOLE, "Worldspawn entity not found!\n" );
+			return;
+		}
 	}
 	else
 	{
-		// iterate through all the ents printing out their details
-		CBaseEntity *ent = CreateEntityByName( args[1] );
+		// Otherwise, create a temporary entity
+		ent = CreateEntityByName( args[ 1 ] );
+	}
 
-		if ( ent )
+	if ( ent )
+	{
+		datamap_t *dmap;
+		for ( dmap = ent->GetDataDescMap(); dmap != NULL; dmap = dmap->baseMap )
 		{
-			datamap_t *dmap;
-			for ( dmap = ent->GetDataDescMap(); dmap != NULL; dmap = dmap->baseMap )
+			for ( int i = 0; i < dmap->dataNumFields; i++ )
 			{
-				// search through all the actions in the data description, printing out details
-				for ( int i = 0; i < dmap->dataNumFields; i++ )
+				if ( dmap->dataDesc[ i ].flags & FTYPEDESC_OUTPUT )
 				{
-					if ( dmap->dataDesc[i].flags & FTYPEDESC_OUTPUT )
-					{
-						ClientPrint( pPlayer, HUD_PRINTCONSOLE, UTIL_VarArgs("  output: %s\n", dmap->dataDesc[i].externalName) );
-					}
+					ClientPrint( pPlayer, HUD_PRINTCONSOLE, UTIL_VarArgs( "  output: %s\n", dmap->dataDesc[ i ].externalName ) );
 				}
 			}
+		}
 
-			for ( dmap = ent->GetDataDescMap(); dmap != NULL; dmap = dmap->baseMap )
+		for ( dmap = ent->GetDataDescMap(); dmap != NULL; dmap = dmap->baseMap )
+		{
+			for ( int i = 0; i < dmap->dataNumFields; i++ )
 			{
-				// search through all the actions in the data description, printing out details
-				for ( int i = 0; i < dmap->dataNumFields; i++ )
+				if ( dmap->dataDesc[ i ].flags & FTYPEDESC_INPUT )
 				{
-					if ( dmap->dataDesc[i].flags & FTYPEDESC_INPUT )
-					{
-						ClientPrint( pPlayer, HUD_PRINTCONSOLE, UTIL_VarArgs("  input: %s\n", dmap->dataDesc[i].externalName) );
-					}
+					ClientPrint( pPlayer, HUD_PRINTCONSOLE, UTIL_VarArgs( "  input: %s\n", dmap->dataDesc[ i ].externalName ) );
 				}
 			}
+		}
 
+		// Only delete if it was dynamically created
+		if ( ent->entindex() != 0 )
+		{
 			delete ent;
 		}
-		else
-		{
-			ClientPrint( pPlayer, HUD_PRINTCONSOLE, UTIL_VarArgs("no such entity %s\n", args[1]) );
-		}
+	}
+	else
+	{
+		ClientPrint( pPlayer, HUD_PRINTCONSOLE, UTIL_VarArgs( "No such entity %s\n", args[ 1 ] ) );
 	}
 }
-static ConCommand ent_info("ent_info", CC_Ent_Info, "Usage:\n   ent_info <class name>\n", FCVAR_CHEAT);
+
+static ConCommand ent_info( "ent_info", CC_Ent_Info, "Usage:\n   ent_info <class name>\n", FCVAR_CHEAT );
 
 
 //------------------------------------------------------------------------------
