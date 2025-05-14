@@ -51,7 +51,6 @@ extern CBaseEntity	 *g_pLastRebelSpawn;
 
 #endif
 
-
 REGISTER_GAMERULES_CLASS( CHL2MPRules );
 
 BEGIN_NETWORK_TABLE_NOBASE( CHL2MPRules, DT_HL2MPRules )

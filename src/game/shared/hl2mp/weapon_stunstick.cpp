@@ -77,7 +77,7 @@ public:
 
 	float		GetRange( void )		{ return STUNSTICK_RANGE; }
 	float		GetFireRate( void )		{ return STUNSTICK_REFIRE; }
-
+	void		AddViewKick( void );
 
 	bool		Deploy( void );
 	bool		Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
@@ -244,9 +244,21 @@ void CWeaponStunStick::ImpactEffect( trace_t &traceHit )
 	UTIL_ImpactTrace( &traceHit, DMG_CLUB );
 }
 
+
+void CWeaponStunStick::AddViewKick( void )
+{
+	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
+
+	if ( pPlayer == NULL )
+		return;
+
+	QAngle punchAng;
+	punchAng.x = SharedRandomFloat( "crowbarpax", 1.0f, 2.0f );
+	punchAng.y = SharedRandomFloat( "crowbarpay", -2.0f, -1.0f );
+	punchAng.z = 0.0f;
+	pPlayer->ViewPunch( punchAng );
+}
 #ifndef CLIENT_DLL
-
-
 int CWeaponStunStick::WeaponMeleeAttack1Condition( float flDot, float flDist )
 {
 	// Attempt to lead the target (needed because citizens can't hit manhacks with the crowbar!)
