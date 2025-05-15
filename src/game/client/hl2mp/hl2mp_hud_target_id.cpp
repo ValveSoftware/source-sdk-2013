@@ -21,7 +21,7 @@
 #define PLAYER_HINT_DISTANCE_SQ	(PLAYER_HINT_DISTANCE*PLAYER_HINT_DISTANCE)
 
 static ConVar hud_centerid( "hud_centerid", "1" );
-static ConVar hud_showtargetid( "hud_showtargetid", "1" );
+ConVar hud_showtargetid( "hud_showtargetid", "1" );
 
 //-----------------------------------------------------------------------------
 // Purpose: 

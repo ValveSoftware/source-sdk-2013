@@ -135,6 +135,12 @@ void C_HL2MP_Player::UpdateIDTarget()
 	if ( !IsLocalPlayer() )
 		return;
 
+	if ( !hud_showtargetid.GetBool() )
+	{
+		m_iIDEntIndex = 0;
+		return;
+	}
+
 	// Clear old target and find a new one
 	m_iIDEntIndex = 0;
 

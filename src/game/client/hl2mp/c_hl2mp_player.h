@@ -14,6 +14,8 @@ class C_HL2MP_Player;
 #include "hl2mp_player_shared.h"
 #include "beamdraw.h"
 
+extern ConVar hud_showtargetid;
+
 //=============================================================================
 //=============================================================================
 class CSuitPowerDevice
