@@ -298,14 +298,31 @@ void CGrenadeFrag::SetTimer( float detonateDelay, float warnDelay )
 	CreateEffects();
 }
 
+
 void CGrenadeFrag::OnPhysGunPickup( CBasePlayer *pPhysGunUser, PhysGunPickup_t reason )
 {
+	IPhysicsObject *pPhysicsObject = VPhysicsGetObject();
+
+	if ( pPhysicsObject && ( pPhysicsObject->GetGameFlags() & FVPHYSICS_PLAYER_HELD ) )
+	{
+		CBasePlayer *pCurrentOwner = ToBasePlayer( GetOwnerEntity() );
+		if ( pCurrentOwner && pCurrentOwner != pPhysGunUser )
+		{
+#ifdef HL2MP
+			SetTimer( FRAG_GRENADE_GRACE_TIME_AFTER_PICKUP, FRAG_GRENADE_GRACE_TIME_AFTER_PICKUP / 2 );
+			m_flNextBlipTime = gpGlobals->curtime + FRAG_GRENADE_BLIP_FAST_FREQUENCY;
+			m_bHasWarnedAI = true;
+#endif
+			return;
+		}
+	}
+
+	// If not being held, set the new owner
 	SetThrower( pPhysGunUser );
 
 #ifdef HL2MP
-	SetTimer( FRAG_GRENADE_GRACE_TIME_AFTER_PICKUP, FRAG_GRENADE_GRACE_TIME_AFTER_PICKUP / 2);
-
-	BlipSound();
+	SetTimer( FRAG_GRENADE_GRACE_TIME_AFTER_PICKUP, FRAG_GRENADE_GRACE_TIME_AFTER_PICKUP / 2 );
+	// BlipSound();
 	m_flNextBlipTime = gpGlobals->curtime + FRAG_GRENADE_BLIP_FAST_FREQUENCY;
 	m_bHasWarnedAI = true;
 #else
