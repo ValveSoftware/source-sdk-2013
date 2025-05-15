@@ -2647,13 +2647,17 @@ int CHL2_Player::GiveAmmo( int nCount, int nAmmoIndex, bool bSuppressSound)
 	// If I was dry on ammo for my best weapon and justed picked up ammo for it,
 	// autoswitch to my best weapon now.
 	//
-	if (bCheckAutoSwitch)
+	const char *cl_autowepswitch = engine->GetClientConVarValue( engine->IndexOfEdict( this->edict() ), "cl_autowepswitch" ); // if cl_autowepswitch is 0, it will not switch weapon.
+	if ( cl_autowepswitch && atoi( cl_autowepswitch ) >= 1 )
 	{
-		CBaseCombatWeapon *pWeapon = g_pGameRules->GetNextBestWeapon(this, GetActiveWeapon());
-
-		if ( pWeapon && pWeapon->GetPrimaryAmmoType() == nAmmoIndex )
+		if ( bCheckAutoSwitch )
 		{
-			SwitchToNextBestWeapon(GetActiveWeapon());
+			CBaseCombatWeapon *pWeapon = g_pGameRules->GetNextBestWeapon( this, GetActiveWeapon() );
+
+			if ( pWeapon && pWeapon->GetPrimaryAmmoType() == nAmmoIndex )
+			{
+				SwitchToNextBestWeapon( GetActiveWeapon() );
+			}
 		}
 	}
 
