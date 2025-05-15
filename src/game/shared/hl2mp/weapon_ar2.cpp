@@ -268,7 +268,7 @@ void CWeaponAR2::SecondaryAttack( void )
 // Purpose: Override if we're waiting to release a shot
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CWeaponAR2::CanHolster( void )
+bool CWeaponAR2::CanHolster( void ) const
 {
 	if ( m_bShotDelayed )
 		return false;
