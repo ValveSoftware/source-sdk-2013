@@ -63,7 +63,7 @@ inline unsigned int CountTrailingZeros(unsigned int elem)
 
 static BitBufErrorHandler g_BitBufErrorHandler = 0;
 
-inline int BitForBitnum(int bitnum)
+inline unsigned int BitForBitnum(int bitnum)
 {
 	return GetBitForBitnum(bitnum);
 }
