@@ -185,11 +185,13 @@ void C_HL2MP_Player::TraceAttack( const CTakeDamageInfo &info, const Vector &vec
 				return;
 		}
 
+		/*
 		if ( blood != DONT_BLEED )
 		{
 			SpawnBlood( vecOrigin, vecDir, blood, flDistance );// a little surface blood.
 			TraceBleed( flDistance, vecDir, ptr, info.GetDamageType() );
 		}
+		*/
 	}
 }
 
