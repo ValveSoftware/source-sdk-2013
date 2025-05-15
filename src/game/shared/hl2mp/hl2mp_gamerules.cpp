@@ -294,6 +294,8 @@ void CHL2MPRules::Think( void )
 	
 	CGameRules::Think();
 
+	ObserverTargetFix();
+
 	if ( g_fGameOver )   // someone else quit the game already
 	{
 		// check to see if we should change levels now
@@ -372,6 +374,39 @@ void CHL2MPRules::Think( void )
 
 #endif
 }
+
+#ifdef GAME_DLL
+void CHL2MPRules::ObserverTargetFix()
+{
+	// Fixes a bug where a specator could spectate another spectator
+	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+
+		if ( !pPlayer )
+			continue;
+
+		if ( pPlayer->GetObserverMode() == OBS_MODE_CHASE || pPlayer->GetObserverMode() == OBS_MODE_IN_EYE )
+		{
+			CBasePlayer *pTarget = ToBasePlayer( pPlayer->GetObserverTarget() );
+
+			if ( pTarget )
+			{
+				if ( pTarget->GetTeamNumber() == TEAM_SPECTATOR )
+				{
+					pPlayer->SetObserverMode( OBS_MODE_ROAMING );
+					pPlayer->SetObserverTarget( NULL );
+				}
+			}
+			else
+			{
+				pPlayer->SetObserverMode( OBS_MODE_ROAMING );
+				pPlayer->SetObserverTarget( NULL );
+			}
+		}
+	}
+}
+#endif
 
 void CHL2MPRules::GoToIntermission( void )
 {
