@@ -74,9 +74,19 @@ void CHL2MP_Player::PlayStepSound( Vector &vecOrigin, surfacedata_t *psurface, f
 		return;
 
 #if defined( CLIENT_DLL )
-	// during prediction play footstep sounds only once
-	if ( !prediction->IsFirstTimePredicted() )
-		return;
+	// Peter: The problem here is that prediction prevents hearing other players footstep sounds. 
+	// Therefore, we need to predict the footstep sounds of the local player only so that all other 
+	// footstep sounds can be processed and played properly. It is also possible to perform a similar 
+	// result by removing "filter.RemoveRecipientsByPVS( vecOrigin );" below (the entire #ifndef block can go actually), 
+	// and add "filter.RemoveRecipient( this );" to filter the local player out. This should only be done 
+	// if there is no client access as it can cause a minor issue of double footstep sounds when 
+	// viewing a demo with the server-side only fix.
+	C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
+	if ( this == pLocalPlayer ) // Only apply prediction to the local player
+	{
+		if ( !prediction->IsFirstTimePredicted() )
+			return;
+	}
 #endif
 
 	if ( GetFlags() & FL_DUCKING )
