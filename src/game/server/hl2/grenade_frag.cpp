@@ -157,31 +157,38 @@ void CGrenadeFrag::CreateEffects( void )
 		m_pMainGlow = CSprite::SpriteCreate("sprites/redglow1.vmt", GetLocalOrigin(), false);
 	}
 
-	int	nAttachment = LookupAttachment( "fuse" );
+	Vector attachmentpos( 0, 0, 8.5 );
+	QAngle attachmentangle( 0, 0, 90 );
+	VectorAngles( attachmentpos, attachmentangle );
 
 	if ( m_pMainGlow != NULL )
 	{
-		m_pMainGlow->FollowEntity( this );
-		m_pMainGlow->SetAttachment( this, nAttachment );
 		m_pMainGlow->SetTransparency( kRenderGlow, 255, 255, 255, 200, kRenderFxNoDissipation );
 		m_pMainGlow->SetScale( 0.2f );
 		m_pMainGlow->SetGlowProxySize( 4.0f );
+		m_pMainGlow->SetParent( this );
+
+		m_pMainGlow->SetLocalOrigin( attachmentpos );
+		m_pMainGlow->SetLocalAngles( attachmentangle );
+
+		m_pMainGlow->SetMoveType( MOVETYPE_NONE );
 	}
 
-	// Start up the eye trail
 	if ( !m_pGlowTrail.Get() )
-	{
-		m_pGlowTrail = CSpriteTrail::SpriteTrailCreate("sprites/bluelaser1.vmt", GetLocalOrigin(), false);
-	}
+		m_pGlowTrail = CSpriteTrail::SpriteTrailCreate( "sprites/bluelaser1.vmt", GetLocalOrigin(), false );
 
 	if ( m_pGlowTrail != NULL )
 	{
-		m_pGlowTrail->FollowEntity( this );
-		m_pGlowTrail->SetAttachment( this, nAttachment );
 		m_pGlowTrail->SetTransparency( kRenderTransAdd, 255, 0, 0, 255, kRenderFxNone );
 		m_pGlowTrail->SetStartWidth( 8.0f );
 		m_pGlowTrail->SetEndWidth( 1.0f );
 		m_pGlowTrail->SetLifeTime( 0.5f );
+		m_pGlowTrail->SetParent( this );
+
+		m_pGlowTrail->SetLocalOrigin( attachmentpos );
+		m_pGlowTrail->SetLocalAngles( attachmentangle );
+
+		m_pGlowTrail->SetMoveType( MOVETYPE_NONE );
 	}
 }
 
