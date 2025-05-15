@@ -166,6 +166,9 @@ void CWeaponAR2::DoImpactEffect( trace_t &tr, int nDamageType )
 	data.m_vOrigin = tr.endpos + ( tr.plane.normal * 1.0f );
 	data.m_vNormal = tr.plane.normal;
 
+	if ( tr.fraction != 1.0 && ( ( tr.surface.flags & SURF_SKY ) || ( tr.surface.flags & SURF_NODRAW ) ) )
+		return;
+
 	DispatchEffect( "AR2Impact", data );
 
 	BaseClass::DoImpactEffect( tr, nDamageType );
