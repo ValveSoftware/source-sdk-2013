@@ -525,15 +525,13 @@ bool CTFWearable::UpdateBodygroups( CBaseCombatCharacter* pOwner, int iState )
 	if ( !pTFOwner )
 		return false;
 
-	bool bBaseUpdate = BaseClass::UpdateBodygroups( pOwner, iState );
-	if ( bBaseUpdate && m_bDisguiseWearable )
+	BaseClass::UpdateBodygroups( pOwner, iState );
+
+	CEconItemView *pItem = GetAttributeContainer() ? GetAttributeContainer()->GetItem() : NULL;
+
+#ifdef CLIENT_DLL
+	if ( pItem && m_bDisguiseWearable )
 	{
-		CEconItemView *pItem = GetAttributeContainer()->GetItem(); // Safe. Checked in base class call.
-
-		CTFPlayer *pDisguiseTarget = pTFOwner->m_Shared.GetDisguiseTarget();
-		if ( !pDisguiseTarget )
-			return false;
-
 		// Update our disguise bodygroup.
 		int iDisguiseBody = pTFOwner->m_Shared.GetDisguiseBody();
 		int iTeam = pTFOwner->m_Shared.GetDisguiseTeam();
@@ -542,18 +540,18 @@ bool CTFWearable::UpdateBodygroups( CBaseCombatCharacter* pOwner, int iState )
 		{
 			int iBody = 0;
 			const char *pszBodyGroup = pItem->GetStaticData()->GetModifiedBodyGroup( iTeam, i, iBody );
-			int iBodyGroup = pDisguiseTarget->FindBodygroupByName( pszBodyGroup );
+			int iBodyGroup = pTFOwner->FindBodygroupByName( pszBodyGroup );
 
 			if ( iBodyGroup == -1 )
 				continue;
 
-			::SetBodygroup( pDisguiseTarget->GetModelPtr(), iDisguiseBody, iBodyGroup, iState );
+			::SetBodygroup( pTFOwner->GetModelPtr(), iDisguiseBody, iBodyGroup, iState );
 		}
 
 		pTFOwner->m_Shared.SetDisguiseBody( iDisguiseBody );
 	}
+#endif // CLIENT_DLL
 
-	CEconItemView *pItem = GetAttributeContainer() ? GetAttributeContainer()->GetItem() : NULL;
 	if ( pItem )
 	{		
 		int iTeam = pTFOwner->GetTeamNumber();

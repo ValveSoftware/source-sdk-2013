@@ -13584,6 +13584,13 @@ void CTFPlayerShared::RecalculatePlayerBodygroups( void )
 	// like if we switch to a class that uses those bits for other things.
 	m_pOuter->m_nBody = 0;
 
+#ifdef CLIENT_DLL
+	// Do the same to m_iDisguiseBody on the client. 
+	// Leaving it will make it stick between different disguises
+	m_iDisguiseBody = 0;
+#endif // CLIENT_DLL
+
+
 	// Update our weapon bodygroups that change state purely based on whether they're
 	// equipped or not.
 	CTFWeaponBase::UpdateWeaponBodyGroups( m_pOuter, false );
