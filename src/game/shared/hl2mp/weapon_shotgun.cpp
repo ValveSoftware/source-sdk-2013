@@ -36,11 +36,12 @@ private:
 	CNetworkVar( bool,	m_bDelayedFire1 );	// Fire primary when finished reloading
 	CNetworkVar( bool,	m_bDelayedFire2 );	// Fire secondary when finished reloading
 	CNetworkVar( bool,	m_bDelayedReload );	// Reload when finished pump
+	CNetworkVar( bool,	m_bInReload );		// Reload
 
 public:
 	virtual const Vector& GetBulletSpread( void )
 	{
-		static Vector cone = VECTOR_CONE_10DEGREES;
+		static Vector cone = VECTOR_CONE_15DEGREES;
 		return cone;
 	}
 
@@ -79,11 +80,13 @@ BEGIN_NETWORK_TABLE( CWeaponShotgun, DT_WeaponShotgun )
 	RecvPropBool( RECVINFO( m_bDelayedFire1 ) ),
 	RecvPropBool( RECVINFO( m_bDelayedFire2 ) ),
 	RecvPropBool( RECVINFO( m_bDelayedReload ) ),
+	RecvPropBool( RECVINFO( m_bInReload ) ),
 #else
 	SendPropBool( SENDINFO( m_bNeedPump ) ),
 	SendPropBool( SENDINFO( m_bDelayedFire1 ) ),
 	SendPropBool( SENDINFO( m_bDelayedFire2 ) ),
 	SendPropBool( SENDINFO( m_bDelayedReload ) ),
+	SendPropBool( SENDINFO( m_bInReload ) ),
 #endif
 END_NETWORK_TABLE()
 
@@ -93,6 +96,7 @@ BEGIN_PREDICTION_DATA( CWeaponShotgun )
 	DEFINE_PRED_FIELD( m_bDelayedFire1, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bDelayedFire2, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bDelayedReload, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_bInReload, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 END_PREDICTION_DATA()
 #endif
 
@@ -146,11 +150,17 @@ bool CWeaponShotgun::StartReload( void )
 
 	SendWeaponAnim( ACT_SHOTGUN_RELOAD_START );
 
+	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
+
+	if ( pPlayer )
+		pPlayer->SetAnimation( PLAYER_RELOAD );
+
 	// Make shotgun shell visible
 	SetBodygroup(1,0);
 
-	pOwner->m_flNextAttack = gpGlobals->curtime;
-	m_flNextPrimaryAttack = gpGlobals->curtime + SequenceDuration();
+	float flSequenceEndTime = gpGlobals->curtime + SequenceDuration();
+	pOwner->SetNextAttack( flSequenceEndTime );
+	m_flNextPrimaryAttack = flSequenceEndTime;
 
 	m_bInReload = true;
 	return true;
@@ -585,6 +595,11 @@ CWeaponShotgun::CWeaponShotgun( void )
 //-----------------------------------------------------------------------------
 void CWeaponShotgun::ItemHolsterFrame( void )
 {
+	// Fix shotgun reload loop, fix shotgun locking up when holding reload + attack
+	m_bInReload		= false;
+	m_bDelayedFire1 = false;
+	m_bDelayedFire2 = false;
+
 	// Must be player held
 	if ( GetOwner() && GetOwner()->IsPlayer() == false )
 		return;
