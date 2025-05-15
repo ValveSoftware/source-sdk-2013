@@ -18,6 +18,7 @@
 	#include "Sprite.h"
 	#include "SpriteTrail.h"
 	#include "beam_shared.h"
+	#include "func_break.h"
 #endif
 
 #include "weapon_hl2mpbasehlmpcombatweapon.h"
@@ -202,6 +203,48 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 {
 	if ( !pOther->IsSolid() || pOther->IsSolidFlagSet(FSOLID_VOLUME_CONTENTS) )
 		return;
+
+	if ( FClassnameIs( pOther, "func_breakable" ) || FClassnameIs( pOther, "func_breakable_surf" ) )
+	{
+		CBreakable *pOtherEntity = static_cast< CBreakable * > ( pOther );
+		if ( ( pOtherEntity->GetMaterialType() == matGlass ) || ( pOtherEntity->GetMaterialType() == matWeb ) )
+			return;
+	}
+	else if ( FClassnameIs( pOther, "prop_door_rotating" ) ||
+		FClassnameIs( pOther, "func_door" ) ||
+		FClassnameIs( pOther, "func_door_rotating" ) ||
+		FClassnameIs( pOther, "func_movelinear" ) ||
+		FClassnameIs( pOther, "func_train" ) ||
+		FClassnameIs( pOther, "func_tanktrain" ) ||
+		FClassnameIs( pOther, "func_conveyor" ) ||
+		FClassnameIs( pOther, "func_brush" ) ||
+		FClassnameIs( pOther, "func_tracktrain" ) )
+	{
+		trace_t tr;
+		tr = BaseClass::GetTouchTrace();
+
+		Vector vecDir = GetAbsVelocity();
+		float speed = VectorNormalize( vecDir );
+
+		float hitDot = DotProduct( tr.plane.normal, -vecDir );
+		Vector vReflection = 2.0f * tr.plane.normal * hitDot + vecDir;
+
+		QAngle reflectAngles;
+		VectorAngles( vReflection, reflectAngles );
+
+		SetLocalAngles( reflectAngles );
+		SetAbsVelocity( vReflection * speed * 0.75f );
+
+		// Shoot some sparks
+		if ( UTIL_PointContents( GetAbsOrigin() ) != CONTENTS_WATER )
+		{
+			g_pEffects->Sparks( GetAbsOrigin() );
+		}
+
+		EmitSound( "Weapon_Crossbow.BoltBounce" );
+
+		return;
+	}
 
 	if ( pOther->m_takedamage != DAMAGE_NO )
 	{
