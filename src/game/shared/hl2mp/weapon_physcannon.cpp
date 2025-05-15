@@ -1298,8 +1298,14 @@ void CWeaponPhysCannon::PuntVPhysics( CBaseEntity *pEntity, const Vector &vecFor
 				
 			if( forward.z < 0 )
 			{
-				//reflect, but flatten the trajectory out a bit so it's easier to hit standing targets
-				forward.z *= -0.65f;
+				// Only apply upward Z punt for props to still let players prop boost
+				CBaseProp *pProp = dynamic_cast< CBaseProp * >( pEntity );
+
+				if (pProp)
+				{
+					//reflect, but flatten the trajectory out a bit so it's easier to hit standing targets
+					forward.z *= -0.65f;
+				}
 			}
 				
 			// NOTE: Do this first to enable motion (if disabled) - so forces will work
