@@ -838,6 +838,7 @@ private:
 
 	int					DetermineSimulationTicks( void );
 	void				AdjustPlayerTimeBase( int simulation_ticks );
+	int					iDamageTime;
 
 public:
 	
