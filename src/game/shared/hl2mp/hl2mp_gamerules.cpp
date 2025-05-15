@@ -1026,6 +1026,7 @@ void CHL2MPRules::RestartGame()
 			pPlayer->GetActiveWeapon()->Holster();
 		}
 		pPlayer->RemoveAllItems( true );
+		pPlayer->LadderRespawnFix();
 		respawn( pPlayer, false );
 		pPlayer->Reset();
 	}

@@ -143,6 +143,8 @@ public:
 
 	bool IsThreatAimingTowardMe( CBaseEntity* threat, float cosTolerance = 0.8f ) const;
 	bool IsThreatFiringAtMe( CBaseEntity* threat ) const;
+
+	void LadderRespawnFix();
 private:
 
 	CNetworkQAngle( m_angEyeAngles );

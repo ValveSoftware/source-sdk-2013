@@ -823,6 +823,9 @@ public:
 		}
 	}
 
+	float GetLadderCooldownTime() const { return m_flLadderCooldownTime; }
+	void SetLadderCooldownTime( float cooldownTime ) { m_flLadderCooldownTime = cooldownTime; }
+
 private:
 	// How much of a movement time buffer can we process from this user?
 	int				m_nMovementTicksForUserCmdProcessingRemaining;
@@ -838,6 +841,7 @@ private:
 
 	int					DetermineSimulationTicks( void );
 	void				AdjustPlayerTimeBase( int simulation_ticks );
+	float				m_flLadderCooldownTime;
 
 public:
 	
