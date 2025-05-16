@@ -480,7 +480,7 @@ void CEconItem::UnequipFromClass( equipped_class_t unClass )
 	Assert( GetItemSchema()->IsValidClass( unClass ) );
 
 	// If we only have a single equipped class...
-	if ( m_dirtyBits.m_bHasEquipSingleton )
+ 	if ( m_dirtyBits.m_bHasEquipSingleton )
 	{
 		// ...and that's the class we're trying to remove from...
 		if ( m_EquipInstanceSingleton.m_unEquippedClass == unClass )
