@@ -145,7 +145,6 @@ public:
 	void ForceFinishAllAnimation();
 	void SetLootAnimationPause( float flPause );
 private:
-	void PlayVCD( const char * pszVCDName );
 	bool SetModelPanelInfo( C_TFPlayer* pPlayer );
 	void SetBadgeProgressBarProgress( float flPercent );
 #ifdef USE_MVM_TOUR

@@ -52,7 +52,6 @@ extern const ConVar *sv_cheats;
 
 
 extern const char *g_szItemBorders[AE_MAX_TYPES][5];
-extern int g_iLegacyClassSelectWeaponSlots[TF_LAST_NORMAL_CLASS];
 
 class CShowMannUpLootNotification : public CEconNotification
 {
@@ -876,11 +875,6 @@ void CMvMVictoryMannUpEntry::SetLootAnimationPause( float flPause )
 void CMvMVictoryMannUpEntry::SetActive( bool bActive )
 {
 	SetVisible( bActive );
-
-	if ( bActive )
-	{
-		PlayVCD( "class_select" );
-	}
 }
 
 void CMvMVictoryMannUpEntry::PerformLayout()
@@ -1290,19 +1284,6 @@ void CMvMVictoryMannUpEntry::ClearEconItems()
 	SetLootAnimationPause( 2.f ); // + 2 gives us a pause of 2 seconds when the panel first opens
 }
 
-
-void CMvMVictoryMannUpEntry::PlayVCD( const char * pszVCDName )
-{
-	if (m_pPlayerModelPanel)
-	{
-		const int iClass = m_pPlayerModelPanel->GetPlayerClass();
-		m_pPlayerModelPanel->PlayVCD(pszVCDName, NULL, false);
-		// This causes the VCD to be played.  Yep.
-		m_pPlayerModelPanel->HoldItemInSlot(g_iLegacyClassSelectWeaponSlots[iClass]);
-	}
-}
-
-
 bool CMvMVictoryMannUpEntry::SetModelPanelInfo( C_TFPlayer* pPlayer )
 {
 	if ( !pPlayer )
@@ -1324,38 +1305,11 @@ bool CMvMVictoryMannUpEntry::SetModelPanelInfo( C_TFPlayer* pPlayer )
 
 	int nClass = pPlayer->GetPlayerClass()->GetClassIndex();
 	int nTeam = pPlayer->GetTeamNumber();
-	int nLoadoutSlot = g_iLegacyClassSelectWeaponSlots[nClass];	// We want to mirror the class select panel
-	CEconItemView *pWeapon = TFInventoryManager()->GetItemInLoadoutForClass( nClass, nLoadoutSlot, &steamID );
 
 	m_pPlayerModelPanel->ClearCarriedItems();
 	m_pPlayerModelPanel->SetToPlayerClass( nClass, true );
 	m_pPlayerModelPanel->SetTeam( nTeam );
-
-	for ( int wbl = pPlayer->GetNumWearables()-1; wbl >= 0; wbl-- )
-	{
-		C_TFWearable *pItem = dynamic_cast<C_TFWearable*>( pPlayer->GetWearable( wbl ) );
-		if ( !pItem )
-			continue;
-
-		if ( pItem->IsViewModelWearable() )
-			continue;
-
-		CAttributeContainer *pCont		   = pItem->GetAttributeContainer();
-		CEconItemView		*pEconItemView = pCont ? pCont->GetItem() : NULL;
-
-		if ( pEconItemView && pEconItemView->IsValid() )
-		{
-			m_pPlayerModelPanel->AddCarriedItem( pEconItemView );
-		}
-	}
-
-	if ( pWeapon )
-	{
-		m_pPlayerModelPanel->AddCarriedItem( pWeapon );
-	}
-
-	m_pPlayerModelPanel->HoldItemInSlot( nLoadoutSlot );
-	m_pPlayerModelPanel->SetVisible( true );
+	m_pPlayerModelPanel->PlayClassSelectAnimation( pPlayer );
 
 	return true;
 }
