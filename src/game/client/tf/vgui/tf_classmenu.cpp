@@ -681,34 +681,6 @@ void CTFClassMenu::ShowPanel( bool bShow )
 	}
 }
 
-const char *g_pszLegacyClassSelectVCDWeapons[TF_LAST_NORMAL_CLASS] =
-{
-	"",										// TF_CLASS_UNDEFINED = 0,
-	"",										// TF_CLASS_SCOUT,				// weapons handled individually
-	"",										// TF_CLASS_SNIPER,				// weapons handled individually
-	"",										// TF_CLASS_SOLDIER,			// weapons handled individually
-	"tf_weapon_grenadelauncher",			// TF_CLASS_DEMOMAN,
-	"tf_weapon_medigun",					// TF_CLASS_MEDIC,
-	"tf_weapon_minigun",					// TF_CLASS_HEAVYWEAPONS,
-	"tf_weapon_flamethrower",				// TF_CLASS_PYRO,
-	"",										// TF_CLASS_SPY,				// weapons handled individually
-	"tf_weapon_wrench",						// TF_CLASS_ENGINEER,		
-};
-
-int g_iLegacyClassSelectWeaponSlots[TF_LAST_NORMAL_CLASS] =
-{
-	LOADOUT_POSITION_PRIMARY,		// TF_CLASS_UNDEFINED = 0,
-	LOADOUT_POSITION_PRIMARY,		// TF_CLASS_SCOUT,			// TF_FIRST_NORMAL_CLASS
-	LOADOUT_POSITION_PRIMARY,		// TF_CLASS_SNIPER,
-	LOADOUT_POSITION_PRIMARY,		// TF_CLASS_SOLDIER,
-	LOADOUT_POSITION_PRIMARY,		// TF_CLASS_DEMOMAN,
-	LOADOUT_POSITION_SECONDARY,		// TF_CLASS_MEDIC,
-	LOADOUT_POSITION_PRIMARY,		// TF_CLASS_HEAVYWEAPONS,
-	LOADOUT_POSITION_PRIMARY,		// TF_CLASS_PYRO,
-	LOADOUT_POSITION_MELEE,			// TF_CLASS_SPY,
-	LOADOUT_POSITION_MELEE,			// TF_CLASS_ENGINEER,		
-};
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -829,43 +801,7 @@ void CTFClassMenu::SelectClass( int iClass )
 //-----------------------------------------------------------------------------
 void CTFClassMenu::LoadItems()
 {
-	const int iClass = m_pTFPlayerModelPanel->GetPlayerClass();
-
-	m_pTFPlayerModelPanel->ClearCarriedItems();
-
-	static CSchemaAttributeDefHandle pAttrDef_DisableFancyLoadoutAnim( "disable fancy class select anim" );
-	bool bCanUseFancyClassSelectAnimation = true;
-
-	static CSchemaAttributeDefHandle pAttrDef_ClassSelectOverrideVCD( "class select override vcd" );
-	CAttribute_String attrClassSelectOverrideVCD;
-
-	const char *pszVCD = "class_select";
-
-	for ( int i = 0; i < CLASS_LOADOUT_POSITION_COUNT; i++ )
-	{
-		CEconItemView *pItemData = TFInventoryManager()->GetItemInLoadoutForClass( iClass, i );
-		if ( pItemData && pItemData->IsValid() )
-		{
-			m_pTFPlayerModelPanel->AddCarriedItem( pItemData );
-
-			// Certain items have different shapes and would interfere with our class select animations.
-			bCanUseFancyClassSelectAnimation = bCanUseFancyClassSelectAnimation
-											&& !pItemData->FindAttribute( pAttrDef_DisableFancyLoadoutAnim );
-
-			// Some items want to override the class select VCD
-			if ( pItemData->FindAttribute( pAttrDef_ClassSelectOverrideVCD, &attrClassSelectOverrideVCD ) )
-			{
-				const char *pszClassSelectOverrideVCD = attrClassSelectOverrideVCD.value().c_str();
-				if ( pszClassSelectOverrideVCD && *pszClassSelectOverrideVCD )
-				{
-					pszVCD = pszClassSelectOverrideVCD;
-				}
-			}
-		}
-	}
-
-	m_pTFPlayerModelPanel->PlayVCD( bCanUseFancyClassSelectAnimation ? pszVCD : NULL, g_pszLegacyClassSelectVCDWeapons[iClass] );
-	m_pTFPlayerModelPanel->HoldItemInSlot( g_iLegacyClassSelectWeaponSlots[iClass] );
+	m_pTFPlayerModelPanel->PlayClassSelectAnimation( C_TFPlayer::GetLocalTFPlayer() );
 }
 
 //-----------------------------------------------------------------------------

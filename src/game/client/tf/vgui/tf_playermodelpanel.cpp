@@ -487,6 +487,85 @@ void CTFPlayerModelPanel::PlayVCD( const char *pszVCD, const char *pszWeaponEnti
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFPlayerModelPanel::PlayClassSelectAnimation( C_TFPlayer *pPlayer )
+{
+	if ( !pPlayer )
+		return;
+
+	const int iClass = GetPlayerClass();
+
+	CSteamID playerSteamID = CSteamID();
+	if ( !pPlayer->IsLocalPlayer() )
+		pPlayer->GetSteamID( &playerSteamID );
+
+	static CSchemaAttributeDefHandle pAttrDef_DisableFancyLoadoutAnim( "disable fancy class select anim" );
+	bool bCanUseFancyClassSelectAnimation = true;
+
+	static CSchemaAttributeDefHandle pAttrDef_ClassSelectOverrideVCD( "class select override vcd" );
+	CAttribute_String attrClassSelectOverrideVCD;
+
+	const char *pszVCD = "class_select";
+
+	ClearCarriedItems();
+
+	for ( int i = 0; i < CLASS_LOADOUT_POSITION_COUNT; i++ )
+	{
+		CEconItemView *pItemData = TFInventoryManager()->GetItemInLoadoutForClass( iClass, i, playerSteamID.IsValid() ? &playerSteamID : NULL );
+		if ( pItemData && pItemData->IsValid() )
+		{
+			AddCarriedItem( pItemData );
+
+			// Certain items have different shapes and would interfere with our class select animations.
+			bCanUseFancyClassSelectAnimation = bCanUseFancyClassSelectAnimation
+				&& !pItemData->FindAttribute( pAttrDef_DisableFancyLoadoutAnim );
+
+			// Some items want to override the class select VCD
+			if ( pItemData->FindAttribute( pAttrDef_ClassSelectOverrideVCD, &attrClassSelectOverrideVCD ) )
+			{
+				const char *pszClassSelectOverrideVCD = attrClassSelectOverrideVCD.value().c_str();
+				if ( pszClassSelectOverrideVCD && *pszClassSelectOverrideVCD )
+				{
+					pszVCD = pszClassSelectOverrideVCD;
+				}
+			}
+		}
+	}
+
+	static const char *s_pszLegacyClassSelectVCDWeapons[TF_LAST_NORMAL_CLASS] =
+	{
+		"",										// TF_CLASS_UNDEFINED = 0,
+		"",										// TF_CLASS_SCOUT,				// weapons handled individually
+		"",										// TF_CLASS_SNIPER,				// weapons handled individually
+		"",										// TF_CLASS_SOLDIER,			// weapons handled individually
+		"tf_weapon_grenadelauncher",			// TF_CLASS_DEMOMAN,
+		"tf_weapon_medigun",					// TF_CLASS_MEDIC,
+		"tf_weapon_minigun",					// TF_CLASS_HEAVYWEAPONS,
+		"tf_weapon_flamethrower",				// TF_CLASS_PYRO,
+		"",										// TF_CLASS_SPY,				// weapons handled individually
+		"tf_weapon_wrench",						// TF_CLASS_ENGINEER,
+	};
+
+	static int s_iLegacyClassSelectWeaponSlots[TF_LAST_NORMAL_CLASS] =
+	{
+		LOADOUT_POSITION_PRIMARY,		// TF_CLASS_UNDEFINED = 0,
+		LOADOUT_POSITION_PRIMARY,		// TF_CLASS_SCOUT,			// TF_FIRST_NORMAL_CLASS
+		LOADOUT_POSITION_PRIMARY,		// TF_CLASS_SNIPER,
+		LOADOUT_POSITION_PRIMARY,		// TF_CLASS_SOLDIER,
+		LOADOUT_POSITION_PRIMARY,		// TF_CLASS_DEMOMAN,
+		LOADOUT_POSITION_SECONDARY,		// TF_CLASS_MEDIC,
+		LOADOUT_POSITION_PRIMARY,		// TF_CLASS_HEAVYWEAPONS,
+		LOADOUT_POSITION_PRIMARY,		// TF_CLASS_PYRO,
+		LOADOUT_POSITION_MELEE,			// TF_CLASS_SPY,
+		LOADOUT_POSITION_MELEE,			// TF_CLASS_ENGINEER,
+	};
+
+	PlayVCD( bCanUseFancyClassSelectAnimation ? pszVCD : NULL, s_pszLegacyClassSelectVCDWeapons[iClass] );
+	HoldItemInSlot( s_iLegacyClassSelectWeaponSlots[iClass] );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFPlayerModelPanel::FireEvent( const char *pszEventName, const char *pszEventOptions )
 {
 	//Plat_DebugString( CFmtStr( "********* ANIM EVENT: %s\n", pszEventName ) );
