@@ -1745,6 +1745,7 @@ void CWaveSpawnPopulator::Update( void )
 CWave::CWave( CPopulationManager *manager ) : IPopulator( manager )
 {
 	m_iEnemyCount = 0;
+	m_bHasTanks = false;
 	m_nTanksSpawned = 0;
 	m_nSentryBustersSpawned = 0;
 	m_nNumEngineersTeleportSpawned = 0;
@@ -1779,6 +1780,7 @@ CWave::~CWave()
 bool CWave::Parse( KeyValues *data )
 {
 	m_iEnemyCount = 0;
+	m_bHasTanks = false;
 	m_nWaveClassCounts.RemoveAll();
 	m_totalCurrency = 0;
 
@@ -1801,12 +1803,18 @@ bool CWave::Parse( KeyValues *data )
 				// this is a total of all enemies we have to fight that are NOT support enemies
 				m_iEnemyCount += wavePopulator->m_totalCount;
 			}
+			
 			m_totalCurrency += wavePopulator->m_totalCurrency;
 
 			wavePopulator->SetParent( this );
 
 			if ( wavePopulator->m_spawner )
 			{
+				CTankSpawner* tankSpawner = dynamic_cast<CTankSpawner*>(wavePopulator->m_spawner);
+				if (tankSpawner)
+				{
+					m_bHasTanks = true;
+				}
 				if ( wavePopulator->m_spawner->IsVarious() )
 				{
 					for ( int i = 0; i < wavePopulator->m_totalCount; ++i )

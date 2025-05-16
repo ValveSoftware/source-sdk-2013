@@ -15,6 +15,7 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFObjectiveResource, DT_TFObjectiveResource, CTFObje
 	RecvPropInt( RECVINFO(m_nMannVsMachineMaxWaveCount) ),
 	RecvPropInt( RECVINFO(m_nMannVsMachineWaveCount) ),
 	RecvPropInt( RECVINFO(m_nMannVsMachineWaveEnemyCount) ),
+	RecvPropBool( RECVINFO(m_nMannVsMachineWaveHasTanks) ),
 	RecvPropInt( RECVINFO(m_nMvMWorldMoney) ),
 	RecvPropFloat( RECVINFO( m_flMannVsMachineNextWaveTime ) ),
 	RecvPropBool( RECVINFO( m_bMannVsMachineBetweenWaves ) ),
