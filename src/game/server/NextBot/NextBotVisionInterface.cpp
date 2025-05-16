@@ -589,16 +589,16 @@ bool IVision::IsAbleToSee( CBaseEntity *subject, FieldOfViewCheckType checkFOV, 
 	CBaseCombatCharacter *combat = subject->MyCombatCharacterPointer();
 	if ( combat )
 	{
-		CNavArea *subjectArea = combat->GetLastKnownArea();
-		CNavArea *myArea = GetBot()->GetEntity()->GetLastKnownArea();
-		if ( myArea && subjectArea )
-		{
-			if ( !myArea->IsPotentiallyVisible( subjectArea ) && TheNavMesh->GetNavArea( subject->GetAbsOrigin(), 100.0f ) )
-			{
-				// subject is not potentially visible, skip the expensive raycast
-				return false;
-			}
-		}
+	    CNavArea *subjectArea = combat->GetLastKnownArea();
+	    if ( subjectArea && subjectArea->IsOverlapping( combat->GetAbsOrigin() ) )
+	    {
+	        CNavArea *myArea = GetBot()->GetEntity()->GetLastKnownArea();
+	        if ( myArea && myArea->IsOverlapping( GetBot()->GetEntity()->GetAbsOrigin() ) && !myArea->IsPotentiallyVisible( subjectArea ) )
+	        {
+	            // subject is not potentially visible, skip the expensive raycast
+	            return false;
+	        }
+	    }
 	}
 
 	// do actual line-of-sight trace
