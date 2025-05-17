@@ -16,6 +16,7 @@
 #include "vstdlib/random.h"
 #include "engine/IEngineSound.h"
 #include "world.h"
+#include "particle_parse.h"
 
 #ifdef PORTAL
 	#include "portal_util_shared.h"
@@ -90,31 +91,6 @@ void CGrenadeAR2::Spawn( void )
 	m_fDangerRadius = 100;
 
 	m_fSpawnTime = gpGlobals->curtime;
-
-	// -------------
-	// Smoke trail.
-	// -------------
-	if( g_CV_SmokeTrail.GetInt() && !IsXbox() )
-	{
-		m_hSmokeTrail = SmokeTrail::CreateSmokeTrail();
-		
-		if( m_hSmokeTrail )
-		{
-			m_hSmokeTrail->m_SpawnRate = 48;
-			m_hSmokeTrail->m_ParticleLifetime = 1;
-			m_hSmokeTrail->m_StartColor.Init(0.1f, 0.1f, 0.1f);
-			m_hSmokeTrail->m_EndColor.Init(0,0,0);
-			m_hSmokeTrail->m_StartSize = 12;
-			m_hSmokeTrail->m_EndSize = m_hSmokeTrail->m_StartSize * 4;
-			m_hSmokeTrail->m_SpawnRadius = 4;
-			m_hSmokeTrail->m_MinSpeed = 4;
-			m_hSmokeTrail->m_MaxSpeed = 24;
-			m_hSmokeTrail->m_Opacity = 0.2f;
-
-			m_hSmokeTrail->SetLifetime(10.0f);
-			m_hSmokeTrail->FollowEntity(this);
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -127,6 +103,7 @@ void CGrenadeAR2::Spawn( void )
 void CGrenadeAR2::GrenadeAR2Think( void )
 {
 	SetNextThink( gpGlobals->curtime + 0.05f );
+	DispatchParticleEffect( "Rocket_Smoke_Trail", PATTACH_ABSORIGIN_FOLLOW, this, true, true );
 
 	if (!m_bIsLive)
 	{
@@ -244,6 +221,7 @@ void CGrenadeAR2::Detonate(void)
 void CGrenadeAR2::Precache( void )
 {
 	PrecacheModel("models/Weapons/ar2_grenade.mdl"); 
+	PrecacheParticleSystem( "Rocket_Smoke_Trail" );
 }
 
 
