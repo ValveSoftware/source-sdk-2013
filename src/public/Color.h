@@ -40,7 +40,7 @@ public:
 		
 		//check if # exists at the beginning.
 		//if it doesn't, return a raw color of 0.
-		if ( col[8] )
+		if ( col[8] || col[6] )
 		{
 			col = col + 1;
 		}
@@ -68,7 +68,7 @@ public:
 		
 		//check if # exists at the beginning.
 		//if it doesn't, return a raw color of 0.
-		if ( col[8] )
+		if ( col[8] || col[6] )
 		{
 			col = col + 1;
 		}
