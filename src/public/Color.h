@@ -38,17 +38,16 @@ public:
 	{
 		char *col = _hexCode;
 		
-		//check if FF or #F exist at the beginning.
-		//if they don't, return a raw color of 0.
-		if ( !col[0] && !col[1] )
-		{
-			*( ( int* )this ) = 0;
-			return;
-		}
-
+		//check if # exists at the beginning.
+		//if it doesn't, return a raw color of 0.
 		if ( col[8] )
 		{
 			col = col + 1;
+		}
+		else
+		{
+			*((int *)this) = 0;
+			return;
 		}
 
 		int r = V_nibble( col[0] ) << 4 | V_nibble( col[1] );
@@ -67,17 +66,16 @@ public:
 	{
 		wchar_t *col = _hexCode;
 		
-		//check if FF or #F exist at the beginning.
-		//if they don't, return a raw color of 0.
-		if ( !col[0] && !col[1] )
-		{
-			*( ( int* )this ) = 0;
-			return;
-		}
-
+		//check if # exists at the beginning.
+		//if it doesn't, return a raw color of 0.
 		if ( col[8] )
 		{
 			col = col + 1;
+		}
+		else
+		{
+			*((int *)this) = 0;
+			return;
 		}
 
 		int r = V_nibble( col[0] ) << 4 | V_nibble( col[1] );
