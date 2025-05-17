@@ -1376,6 +1376,7 @@ CTankSpawner::CTankSpawner( IPopulator *populator ) : IPopulationSpawner( popula
 	m_startingPathTrackNodeName = NULL;
 	m_onKilledOutput = NULL;
 	m_onBombDroppedOutput = NULL;
+	m_iszClassIcon = NULL_STRING;
 }
 
 
@@ -1385,7 +1386,6 @@ bool CTankSpawner::Parse( KeyValues *values )
 	for ( KeyValues *data = values->GetFirstSubKey(); data != NULL; data = data->GetNextKey() )
 	{
 		const char *name = data->GetName();
-		const char* value = data->GetString();
 
 		if ( Q_strlen( name ) <= 0 )
 		{
@@ -1396,9 +1396,9 @@ bool CTankSpawner::Parse( KeyValues *values )
 		{
 			m_health = data->GetInt();
 		}
-		else if ( !Q_stricmp(name, "ClassIcon") )
+		else if (!Q_stricmp(name, "ClassIcon"))
 		{
-			m_iszClassIcon = AllocPooledString(value);
+			m_iszClassIcon = AllocPooledString(data->GetString());
 		}
 		else if ( !Q_stricmp( name, "Speed" ) )
 		{
@@ -1406,7 +1406,7 @@ bool CTankSpawner::Parse( KeyValues *values )
 		}
 		else if ( !Q_stricmp( name, "Name" ) )
 		{
-			m_name = value;
+			m_name = data->GetString();
 		}
 		else if ( !Q_stricmp( name, "Skin" ) )
 		{
@@ -1414,7 +1414,7 @@ bool CTankSpawner::Parse( KeyValues *values )
 		}
 		else if ( !Q_stricmp( name, "StartingPathTrackNode" ) )
 		{
-			m_startingPathTrackNodeName = value;
+			m_startingPathTrackNodeName = data->GetString();
 		}
 		else if ( !Q_stricmp( name, "OnKilledOutput" ) )
 		{
@@ -1457,7 +1457,6 @@ bool CTankSpawner::Spawn( const Vector &here, EntityHandleVector_t *result )
 		tank->DefineOnKilledOutput( m_onKilledOutput );
 		tank->DefineOnBombDroppedOutput( m_onBombDroppedOutput );
 		tank->SetClassIconName( GetClassIcon() );
-		DevMsg("Icon: %s", tank->GetClassIconName().ToCStr());
 
 		if ( result )
 		{
@@ -1474,7 +1473,7 @@ bool CTankSpawner::Spawn( const Vector &here, EntityHandleVector_t *result )
 	return false;
 }
 
-string_t CTankSpawner::GetClassIcon(int nSpawnNum /*= -1*/)
+string_t CTankSpawner::GetClassIcon(int nSpawnNum)
 {
 	if (m_iszClassIcon != NULL_STRING)
 	{
