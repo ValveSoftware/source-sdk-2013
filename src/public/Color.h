@@ -34,7 +34,21 @@ public:
 	{
 		SetColor(_r, _g, _b, _a);
 	}
-	Color(const char *_hexCode)
+	Color( char *_hexCode )
+	{
+		int r = V_nibble( _hexCode[0] ) << 4 | V_nibble( _hexCode[1] );
+		int g = V_nibble( _hexCode[2] ) << 4 | V_nibble( _hexCode[3] );
+		int b = V_nibble( _hexCode[4] ) << 4 | V_nibble( _hexCode[5] );
+		int a = 0;
+
+		if ( _hexCode[6] && _hexCode[7] )
+		{
+			a = V_nibble( _hexCode[6] ) << 4 | V_nibble( _hexCode[7] );
+		}
+
+		SetColor( r, g, b, a );
+	}
+	Color( wchar_t *_hexCode )
 	{
 		int r = V_nibble( _hexCode[0] ) << 4 | V_nibble( _hexCode[1] );
 		int g = V_nibble( _hexCode[2] ) << 4 | V_nibble( _hexCode[3] );
