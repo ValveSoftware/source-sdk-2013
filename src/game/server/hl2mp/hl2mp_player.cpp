@@ -22,6 +22,7 @@
 #include "gamestats.h"
 #include "ammodef.h"
 #include "NextBot.h"
+#include "admin/hl2mp_serveradmin.h"
 
 #include "engine/IEngineSound.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
@@ -1546,6 +1547,7 @@ void CHL2MP_Player::SetReady( bool bReady )
 
 void CHL2MP_Player::CheckChatText( char *p, int bufsize )
 {
+	CHL2MP_Admin::CheckChatText( p, bufsize );
 	//Look for escape sequences and replace
 
 	char *buf = new char[bufsize];

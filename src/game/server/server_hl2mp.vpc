@@ -388,6 +388,12 @@ $Project "Server (HL2MP)"
 				}
 			}
 			
+			$Folder	"Admin"
+			{
+				$File	"hl2mp\admin\hl2mp_serveradmin.cpp"
+				$File	"hl2mp\admin\hl2mp_serveradmin.h"
+			}
+			
 			$Folder	"Weapons"
 			{
 				$File	"hl2mp\grenade_satchel.cpp"

@@ -746,6 +746,7 @@ public:
 	void	SetLastUserCommand( const CUserCmd &cmd );
 	const CUserCmd *GetLastUserCommand( void );
 	
+	bool IsPlayerBot() const;
 	virtual bool IsBot() const;		// IMPORTANT: This returns true for ANY type of bot. If your game uses different, incompatible types of bots check your specific bot type before casting
 	virtual bool IsBotOfType( int botType ) const;	// return true if this player is a bot of the specific type (zero is invalid)
 	virtual int GetBotType( void ) const;			// return a unique int representing the type of bot instance this is
@@ -823,6 +824,15 @@ public:
 		}
 	}
 
+	bool IsGagged() const { return m_bIsGagged; }
+	void SetGagged( bool gagged ) { m_bIsGagged = gagged; }
+	bool IsMuted() const { return m_bIsMuted; }
+	void SetMuted( bool muted ) { m_bIsMuted = muted; }
+	void SetLastCommandWasFromChat( bool enabled ) { m_bLastCommandWasFromChat = enabled; }
+	bool WasCommandUsedFromChat() { return m_bLastCommandWasFromChat; }
+	void SetChatCommandResetThink();
+	void ChatCommandResetThink();
+
 private:
 	// How much of a movement time buffer can we process from this user?
 	int				m_nMovementTicksForUserCmdProcessingRemaining;
@@ -838,6 +848,11 @@ private:
 
 	int					DetermineSimulationTicks( void );
 	void				AdjustPlayerTimeBase( int simulation_ticks );
+
+	// Gagged and muted
+	bool m_bIsGagged;
+	bool m_bIsMuted;
+	bool m_bLastCommandWasFromChat;
 
 public:
 	

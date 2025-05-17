@@ -203,71 +203,79 @@ void CVoiceGameMgr::UpdateMasks()
 
 	bool bAllTalk = !!sv_alltalk.GetInt();
 
-	for(int iClient=0; iClient < m_nMaxPlayers; iClient++)
+	for ( int iClient = 0; iClient < m_nMaxPlayers; iClient++ )
 	{
-		CBaseEntity *pEnt = UTIL_PlayerByIndex(iClient+1);
-		if(!pEnt || !pEnt->IsPlayer())
+		CBaseEntity *pEnt = UTIL_PlayerByIndex( iClient + 1 );
+		if ( !pEnt || !pEnt->IsPlayer() )
 			continue;
 
-		CBasePlayer *pPlayer = (CBasePlayer*)pEnt;
+		CBasePlayer *pPlayer = ( CBasePlayer * ) pEnt;
 
 		CSingleUserRecipientFilter user( pPlayer );
 
 		// Request the state of their "VModEnable" cvar.
-		if(g_bWantModEnable[iClient])
+		if ( g_bWantModEnable[ iClient ] )
 		{
-
 			UserMessageBegin( user, "RequestState" );
 			MessageEnd();
-			// Since this is reliable, only send it once
-			g_bWantModEnable[iClient] = false;
+			g_bWantModEnable[ iClient ] = false;
 		}
 
 		CPlayerBitVec gameRulesMask;
 		CPlayerBitVec ProximityMask;
-		bool		bProximity = false;
-		if( g_PlayerModEnable[iClient] )
+		bool bProximity = false;
+		if ( g_PlayerModEnable[ iClient ] )
 		{
 			// Build a mask of who they can hear based on the game rules.
-			for(int iOtherClient=0; iOtherClient < m_nMaxPlayers; iOtherClient++)
+			for ( int iOtherClient = 0; iOtherClient < m_nMaxPlayers; iOtherClient++ )
 			{
-				CBaseEntity *pEnt = UTIL_PlayerByIndex(iOtherClient+1);
-				if(pEnt && pEnt->IsPlayer() && 
-					(bAllTalk || m_pHelper->CanPlayerHearPlayer(pPlayer, (CBasePlayer*)pEnt, bProximity )) )
+				CBaseEntity *pOtherEnt = UTIL_PlayerByIndex( iOtherClient + 1 );
+				if ( pOtherEnt && pOtherEnt->IsPlayer() )
 				{
-					gameRulesMask[iOtherClient] = true;
-					ProximityMask[iOtherClient] = bProximity;
+					CBasePlayer *pOtherPlayer = ( CBasePlayer * ) pOtherEnt;
+
+					if ( !pOtherPlayer->IsMuted() )
+					{
+						if ( bAllTalk || m_pHelper->CanPlayerHearPlayer( pPlayer, pOtherPlayer, bProximity ) )
+						{
+							gameRulesMask[ iOtherClient ] = true;
+							ProximityMask[ iOtherClient ] = bProximity;
+						}
+					}
+					else
+					{
+						g_BanMasks[ iClient ][ iOtherClient ] = true;
+					}
 				}
 			}
 		}
 
-		// If this is different from what the client has, send an update. 
-		if(gameRulesMask != g_SentGameRulesMasks[iClient] || 
-			g_BanMasks[iClient] != g_SentBanMasks[iClient])
+		// If this is different from what the client has, send an update.
+		if ( gameRulesMask != g_SentGameRulesMasks[ iClient ] ||
+			g_BanMasks[ iClient ] != g_SentBanMasks[ iClient ] )
 		{
-			g_SentGameRulesMasks[iClient] = gameRulesMask;
-			g_SentBanMasks[iClient] = g_BanMasks[iClient];
+			g_SentGameRulesMasks[ iClient ] = gameRulesMask;
+			g_SentBanMasks[ iClient ] = g_BanMasks[ iClient ];
 
 			UserMessageBegin( user, "VoiceMask" );
-				int dw;
-				for(dw=0; dw < VOICE_MAX_PLAYERS_DW; dw++)
-				{
-					WRITE_LONG(gameRulesMask.GetDWord(dw));
-					WRITE_LONG(g_BanMasks[iClient].GetDWord(dw));
-				}
-				WRITE_BYTE( !!g_PlayerModEnable[iClient] );
+			for ( int dw = 0; dw < VOICE_MAX_PLAYERS_DW; dw++ )
+			{
+				WRITE_LONG( gameRulesMask.GetDWord( dw ) );
+				WRITE_LONG( g_BanMasks[ iClient ].GetDWord( dw ) );
+			}
+			WRITE_BYTE( !!g_PlayerModEnable[ iClient ] );
 			MessageEnd();
 		}
 
-		// Tell the engine.
-		for(int iOtherClient=0; iOtherClient < m_nMaxPlayers; iOtherClient++)
+		// Tell the engine who can hear whom.
+		for ( int iOtherClient = 0; iOtherClient < m_nMaxPlayers; iOtherClient++ )
 		{
-			bool bCanHear = gameRulesMask[iOtherClient] && !g_BanMasks[iClient][iOtherClient];
-			g_pVoiceServer->SetClientListening( iClient+1, iOtherClient+1, bCanHear );
+			bool bCanHear = gameRulesMask[ iOtherClient ] && !g_BanMasks[ iClient ][ iOtherClient ];
+			g_pVoiceServer->SetClientListening( iClient + 1, iOtherClient + 1, bCanHear );
 
 			if ( bCanHear )
 			{
-				g_pVoiceServer->SetClientProximity( iClient+1, iOtherClient+1, !!ProximityMask[iOtherClient] );
+				g_pVoiceServer->SetClientProximity( iClient + 1, iOtherClient + 1, !!ProximityMask[ iOtherClient ] );
 			}
 		}
 	}

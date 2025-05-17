@@ -85,6 +85,7 @@
 #include "particle_parse.h"
 #ifndef NO_STEAM
 #include "steam/steam_gameserver.h"
+#include "hl2mp/admin/hl2mp_serveradmin.h"
 #endif
 #include "tier3/tier3.h"
 #include "serverbenchmark_base.h"
@@ -967,6 +968,8 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		pItemSchema->BInitFromDelayedBuffer();
 	}
 #endif // USES_ECON_ITEMS
+	
+	CHL2MP_Admin::InitAdminSystem();
 
 	ResetWindspeed();
 	UpdateChapterRestrictions( pMapName );

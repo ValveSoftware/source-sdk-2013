@@ -152,7 +152,16 @@ public:
 	void	CheckAllPlayersReady( void );
 
 	virtual bool IsConnectedUserInfoChangeAllowed( CBasePlayer *pPlayer );
-	
+
+#ifndef CLIENT_DLL
+	void SetMapChangeOnGoing( bool enabled ) { bMapChangeOnGoing = enabled; }
+	void SetMapChange( bool enabled ) { bMapChange = enabled; }
+	bool IsMapChangeOnGoing() const { return bMapChangeOnGoing; }
+	bool IsMapChange() const { return bMapChange; }
+	void SetScheduledMapName( const char *mapName ) { Q_strncpy( m_scheduledMapName, mapName, sizeof( m_scheduledMapName ) ); }
+	void HandleMapChange();
+#endif
+
 private:
 	
 	CNetworkVar( bool, m_bTeamPlayEnabled );
@@ -166,6 +175,11 @@ private:
 
 #ifndef CLIENT_DLL
 	bool m_bChangelevelDone;
+
+	bool bMapChangeOnGoing;
+	bool bMapChange;
+	float m_flMapChangeTime;
+	char m_scheduledMapName[ 64 ];  // The map name to change to
 #endif
 };
 

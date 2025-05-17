@@ -10,7 +10,7 @@
 #pragma once
 #endif
 
-
+#define VERSION	"1.0"
 extern Vector g_vecAttackDir;
 extern int g_iSkillLevel;
 extern bool g_fGameOver;

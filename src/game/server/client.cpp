@@ -35,6 +35,7 @@
 #include "datacache/imdlcache.h"
 #include "basemultiplayerplayer.h"
 #include "voice_gamemgr.h"
+#include "tier0/icommandline.h"
 
 #ifdef TF_DLL
 #include "tf_player.h"
@@ -248,6 +249,48 @@ void Host_Say( edict_t *pEdict, const CCommand &args, bool teamonly )
 	{
 		bSenderDead = false;
 	}
+
+	if ( !CommandLine()->CheckParm( "-noadmin" ) )
+	{
+		if ( Q_strncmp( p, "/kick", strlen( "/kick" ) ) == 0 ||
+			Q_strncmp( p, "/ban", strlen( "/ban" ) ) == 0 ||
+			Q_strncmp( p, "/addban", strlen( "/addban" ) ) == 0 ||
+			Q_strncmp( p, "/unban", strlen( "/unban" ) ) == 0 ||
+			Q_strncmp( p, "/slap", strlen( "/slap" ) ) == 0 ||
+			Q_strncmp( p, "/slay", strlen( "/slay" ) ) == 0 ||
+			Q_strncmp( p, "/noclip", strlen( "/noclip" ) ) == 0 ||
+			Q_strncmp( p, "/team", strlen( "/team" ) ) == 0 ||
+			Q_strncmp( p, "/gag", strlen( "/gag" ) ) == 0 ||
+			Q_strncmp( p, "/ungag", strlen( "/ungag" ) ) == 0 ||
+			Q_strncmp( p, "/mute", strlen( "/mute" ) ) == 0 ||
+			Q_strncmp( p, "/unmute", strlen( "/unmute" ) ) == 0 ||
+			Q_strncmp( p, "/bring", strlen( "/bring" ) ) == 0 ||
+			Q_strncmp( p, "/goto", strlen( "/goto" ) ) == 0 ||
+			Q_strncmp( p, "/map", strlen( "/map" ) ) == 0 ||
+			Q_strncmp( p, "/cvar", strlen( "/cvar" ) ) == 0 ||
+			Q_strncmp( p, "/exec", strlen( "/exec" ) ) == 0 ||
+			Q_strncmp( p, "/rcon", strlen( "/rcon" ) ) == 0 ||
+			Q_strncmp( p, "/say", strlen( "/say" ) ) == 0 ||
+			Q_strncmp( p, "/csay", strlen( "/csay" ) ) == 0 ||
+			Q_strncmp( p, "/psay", strlen( "/psay" ) ) == 0 ||
+			Q_strncmp( p, "/chat", strlen( "/chat" ) ) == 0 )
+		{
+			if ( args.ArgC() > 1 )
+			{
+				return;
+			}
+		}
+
+		if ( FStrEq( p, "/sa" ) ||
+			FStrEq( p, "/credits" ) ||
+			FStrEq( p, "/version" ) ||
+			FStrEq( p, "/help" ) ||
+			FStrEq( p, "/reloadadmins" ) )
+			return;
+	}
+
+	if ( pPlayer && pPlayer->IsGagged() )
+		return;
 
 	const char *pszFormat = NULL;
 	const char *pszPrefix = NULL;
