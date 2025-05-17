@@ -12,6 +12,8 @@
 #pragma once
 #endif
 
+#include "tier1/strtools.h"
+
 //-----------------------------------------------------------------------------
 // Purpose: Basic handler for an rgb set of colors
 //			This class is fully inline
@@ -31,6 +33,20 @@ public:
 	Color(int _r,int _g,int _b,int _a)
 	{
 		SetColor(_r, _g, _b, _a);
+	}
+	Color(const char *_hexCode, bool alphaHex = false)
+	{
+		int r = V_nibble(_hexCode[0]) << 4 | V_nibble(_hexCode[1]);
+		int g = V_nibble(_hexCode[2]) << 4 | V_nibble(_hexCode[3]);
+		int b = V_nibble(_hexCode[4]) << 4 | V_nibble(_hexCode[5]);
+		int a = 255;
+
+		if (alphaHex)
+		{
+			a = V_nibble(_hexCode[6]) << 4 | V_nibble(_hexCode[7]);
+		}
+
+		SetColor(r, g, b, a);
 	}
 	
 	// set the color
