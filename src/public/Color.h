@@ -26,14 +26,58 @@ public:
 	{
 		*((int *)this) = 0;
 	}
-	Color(int _r,int _g,int _b)
+	// These first two support RGB and RGBA in Color255 and Color1 formats.
+	Color( float _r, float _g, float _b )
 	{
-		SetColor(_r, _g, _b, 0);
+		int r = (int)_r;
+		if ( r < 1 )
+		{
+			r = ( _r * 255.0f );
+		}
+
+		int g = (int)_g;
+		if ( g < 1 )
+		{
+			g = ( _g * 255.0f );
+		}
+
+		int b = (int)_b;
+		if ( b < 1 )
+		{
+			b = ( _b * 255.0f );
+		}
+
+		SetColor( r, g, b, 0 );
 	}
-	Color(int _r,int _g,int _b,int _a)
+	Color( float _r, float _g, float _b, float _a )
 	{
-		SetColor(_r, _g, _b, _a);
+		int r = (int)_r;
+		if ( r < 1 )
+		{
+			r = ( _r * 255.0f );
+		}
+
+		int g = (int)_g;
+		if ( g < 1 )
+		{
+			g = ( _g * 255.0f );
+		}
+
+		int b = (int)_b;
+		if ( b < 1 )
+		{
+			b = ( _b * 255.0f );
+		}
+
+		int a = (int)_a;
+		if ( a < 1 )
+		{
+			a = ( _a * 255.0f );
+		}
+
+		SetColor( r, g, b, a );
 	}
+	// These two support hex code strings in 6 digit (without alpha) and 9 digit (with alpha)
 	Color( char *_hexCode )
 	{
 		char *col = _hexCode;
