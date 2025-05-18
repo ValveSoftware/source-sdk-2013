@@ -30,19 +30,19 @@ public:
 	Color( float _r, float _g, float _b )
 	{
 		int r = (int)_r;
-		if ( r < 1 )
+		if ( _r < 1 )
 		{
 			r = ( _r * 255.0f );
 		}
 
 		int g = (int)_g;
-		if ( g < 1 )
+		if ( _g < 1 )
 		{
 			g = ( _g * 255.0f );
 		}
 
 		int b = (int)_b;
-		if ( b < 1 )
+		if ( _b < 1 )
 		{
 			b = ( _b * 255.0f );
 		}
@@ -52,25 +52,25 @@ public:
 	Color( float _r, float _g, float _b, float _a )
 	{
 		int r = (int)_r;
-		if ( r < 1 )
+		if ( _r < 1 )
 		{
 			r = ( _r * 255.0f );
 		}
 
 		int g = (int)_g;
-		if ( g < 1 )
+		if ( _g < 1 )
 		{
 			g = ( _g * 255.0f );
 		}
 
 		int b = (int)_b;
-		if ( b < 1 )
+		if ( _b < 1 )
 		{
 			b = ( _b * 255.0f );
 		}
 
 		int a = (int)_a;
-		if ( a < 1 )
+		if ( _a < 1 )
 		{
 			a = ( _a * 255.0f );
 		}
