@@ -77,11 +77,11 @@ public:
 
 		SetColor( r, g, b, a );
 	}
-	// These two support hex code strings in 6 digit (without alpha) and 9 digit (with alpha)
+	// These two support hex code strings in 3 digit (without alpha), 6 digit (without alpha) and 9 digit (with alpha)
 	Color( char *_hexCode )
 	{
 		char *col = _hexCode;
-		
+
 		//check if # exists at the beginning.
 		//if it doesn't, return a raw color of 0.
 		if ( !Q_strncmp( col, "#", 1 ) )
@@ -94,14 +94,27 @@ public:
 			return;
 		}
 
-		int r = V_nibble( col[0] ) << 4 | V_nibble( col[1] );
-		int g = V_nibble( col[2] ) << 4 | V_nibble( col[3] );
-		int b = V_nibble( col[4] ) << 4 | V_nibble( col[5] );
+		int r = 0;
+		int g = 0;
+		int b = 0;
 		int a = 0;
 
-		if ( col[6] && col[7] )
+		if ( Q_strlen(col) == 3 )
 		{
-			a = V_nibble( col[6] ) << 4 | V_nibble( col[7] );
+			r = V_nibble( col[0] ) << 4;
+			g = V_nibble( col[1] ) << 4;
+			b = V_nibble( col[2] ) << 4;
+		}
+		else
+		{
+			r = V_nibble( col[0] ) << 4 | V_nibble( col[1] );
+			g = V_nibble( col[2] ) << 4 | V_nibble( col[3] );
+			b = V_nibble( col[4] ) << 4 | V_nibble( col[5] );
+
+			if ( col[6] && col[7] )
+			{
+				a = V_nibble( col[6]) << 4 | V_nibble(col[7] );
+			}
 		}
 
 		SetColor( r, g, b, a );
@@ -109,7 +122,7 @@ public:
 	Color( wchar_t *_hexCode )
 	{
 		wchar_t *col = _hexCode;
-		
+
 		//check if # exists at the beginning.
 		//if it doesn't, return a raw color of 0.
 		if ( !wcsncmp( col, L"#", 1 ) )
@@ -122,14 +135,27 @@ public:
 			return;
 		}
 
-		int r = V_nibble( col[0] ) << 4 | V_nibble( col[1] );
-		int g = V_nibble( col[2] ) << 4 | V_nibble( col[3] );
-		int b = V_nibble( col[4] ) << 4 | V_nibble( col[5] );
+		int r = 0;
+		int g = 0;
+		int b = 0;
 		int a = 0;
 
-		if ( col[6] && col[7] )
+		if ( wcslen( col ) == 3 )
 		{
-			a = V_nibble( col[6] ) << 4 | V_nibble( col[7] );
+			r = V_nibble( col[0] ) << 4;
+			g = V_nibble( col[1] ) << 4;
+			b = V_nibble( col[2] ) << 4;
+		}
+		else
+		{
+			r = V_nibble( col[0] ) << 4 | V_nibble( col[1] );
+			g = V_nibble( col[2] ) << 4 | V_nibble( col[3] );
+			b = V_nibble( col[4] ) << 4 | V_nibble( col[5] );
+
+			if ( col[6] && col[7] )
+			{
+				a = V_nibble( col[6] ) << 4 | V_nibble( col[7] );
+			}
 		}
 
 		SetColor( r, g, b, a );
