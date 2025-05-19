@@ -1,6 +1,6 @@
 PBR
 {
-        $basetexture      "models/passtime/ball/pf_diffuse"
+        $basetexture      "models/passtime/ball/pf_albedo"
         $bumpmap          "models/passtime/ball/pf_norm"
         $mraotexture      "models/passtime/ball/pf_mrao"
 	$emissiontexture  "models/passtime/ball/pf_emitneu"
