@@ -566,3 +566,7 @@ game/p4ss/cfg/settings.scr
 game/p4ss/screenshots/
 game/p4ss/screenshots/*
 .vscode/tasks.json
+*.bsp
+game/p4ss_win64.exe - Shortcut.lnk
+CppProperties.json
+src/thirdparty/luajit
