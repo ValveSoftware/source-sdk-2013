@@ -36,6 +36,8 @@ void ReloadAllPlayerReticles();
 void ReloadAllPassReticles();
 void ReloadBallReticle();
 void ReloadBounceReticle();
+void PrecacheAllReticleMaterials();
+void PrecacheReticleMaterial( const char *pMaterialName );
 static bool g_BounceReticleDirty = false;
 //-----------------------------------------------------------------------------
 // C_PasstimeReticle
@@ -175,7 +177,7 @@ void C_PasstimeBallReticle::InitializeSprites()
 
 	if ( !pBallOutlineA || strlen(pBallOutlineA) == 0 )
 	{
-		pBallOutlineA = "passtime/hud/passtime_ball_reticle_piece_1"; 
+		pBallOutlineA = "reticles/p1fix"; 
 	}
 	else if ( strnicmp( pBallOutlineA, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -185,7 +187,7 @@ void C_PasstimeBallReticle::InitializeSprites()
 	}
 	if ( !pBallOutlineB || strlen(pBallOutlineB) == 0 )
 	{
-		pBallOutlineB = "passtime/hud/passtime_ball_reticle_piece_2"; 
+		pBallOutlineB = "reticles/p2fix"; 
 	}
 	else if ( strnicmp( pBallOutlineB, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -201,6 +203,7 @@ void C_PasstimeBallReticle::InitializeSprites()
 C_PasstimeBallReticle::C_PasstimeBallReticle()
 {
 	InitializeSprites();
+	PrecacheAllReticleMaterials();
 }
 
 //-----------------------------------------------------------------------------
@@ -262,8 +265,8 @@ C_PasstimeGoalReticle::C_PasstimeGoalReticle( C_FuncPasstimeGoal *pGoal )
 {
 	Assert( pGoal );
 	m_hGoal.Set( pGoal );
-	AddSprite( CreateReticleSprite( "passtime/hud/passtime_ball_reticle_piece_1", 256, 50 ) );
-	AddSprite( CreateReticleSprite( "passtime/hud/passtime_ball_reticle_piece_2", 128, 0 ) );
+	AddSprite( CreateReticleSprite( "reticles/p1fix", 256, 50 ) );
+	AddSprite( CreateReticleSprite( "reticles/p2fix", 128, 0 ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -342,7 +345,7 @@ void C_PasstimePassReticle::InitializeSprites()
 
 	if ( !innerTeammateSprite || strlen(innerTeammateSprite) == 0 )
 	{
-		innerTeammateSprite = "passtime/hud/passtime_ball_reticle_passlock"; 
+		innerTeammateSprite = "reticles/plfix"; 
 	}
 	else if ( strnicmp( innerTeammateSprite, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -352,7 +355,7 @@ void C_PasstimePassReticle::InitializeSprites()
 	}
 	if ( !outerTeammateSprite1 || strlen(outerTeammateSprite1) == 0 )
 	{
-		outerTeammateSprite1 = "passtime/hud/passtime_ball_reticle_piece_1"; 
+		outerTeammateSprite1 = "reticles/p1fix"; 
 	}
 	else if ( strnicmp( outerTeammateSprite1, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -362,7 +365,7 @@ void C_PasstimePassReticle::InitializeSprites()
 	}
 	if ( !outerTeammateSprite2 || strlen(outerTeammateSprite2) == 0 )
 	{
-		outerTeammateSprite2 = "passtime/hud/passtime_ball_reticle_piece_2"; 
+		outerTeammateSprite2 = "reticles/p2fix"; 
 	}
 	else if ( strnicmp( outerTeammateSprite2, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -568,7 +571,7 @@ void C_PasstimeBounceReticle::InitializeSprites()
 	//sets the default files for if the user inputs "" 
 	if (!pInnerBounceSprite || strlen(pInnerBounceSprite) == 0)
     {
-        pInnerBounceSprite = "passtime/hud/passtime_ball_reticle_passlock"; 
+        pInnerBounceSprite = "reticles/plfix"; 
     }
 	else if ( strnicmp( pInnerBounceSprite, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -578,7 +581,7 @@ void C_PasstimeBounceReticle::InitializeSprites()
 	}
     if (!pOuterBounceSprite || strlen(pOuterBounceSprite) == 0)
     {
-        pOuterBounceSprite = "passtime/hud/passtime_ball_reticle_piece_1"; 
+        pOuterBounceSprite = "reticles/p1fix"; 
     }
 	else if ( strnicmp( pOuterBounceSprite, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -931,6 +934,7 @@ void OnCrosshairSettingsChanged(IConVar* pConVar, const char* pOldValue, float f
         strcmp(pConVarName, "pf_crosshair_outer_scale") == 0 ||
         strcmp(pConVarName, "pf_crosshair_outer_spinspeed") == 0)
     {
+		PrecacheReticleMaterial(((ConVar*)pConVar)->GetString());
 		g_BounceReticleDirty = true;
 		ReloadBounceReticle();
     }
@@ -1008,6 +1012,42 @@ void ReloadBallReticle()
 	{
 		g_pPasstimeLogic->GetBallReticle()->ReloadSprites();
 	}
+}
+
+void PrecacheReticleMaterial(const char* pMaterialName)
+{
+    if (!pMaterialName || strlen(pMaterialName) == 0)
+        return;
+
+    static char fullPath[256];
+    const char* defaultFolder = "reticles/";
+
+	if (strnicmp(pMaterialName, "passtime/", 9) != 0 && 
+        strnicmp(pMaterialName, defaultFolder, strlen(defaultFolder)) != 0)
+    {
+        snprintf(fullPath, sizeof(fullPath), "%s%s", defaultFolder, pMaterialName);
+        pMaterialName = fullPath;
+    }
+
+    // Precache the material
+    PrecacheMaterial(pMaterialName);
+    DevMsg("Precached reticle material: %s\n", pMaterialName);
+}
+
+void PrecacheAllReticleMaterials()
+{
+    PrecacheReticleMaterial("passtime/hud/passtime_ball_reticle_piece_1");
+    PrecacheReticleMaterial("passtime/hud/passtime_ball_reticle_piece_2");
+    PrecacheReticleMaterial("passtime/hud/passtime_ball_reticle_passlock");
+    PrecacheReticleMaterial("passtime/hud/passtime_teamicon_red");
+    PrecacheReticleMaterial("passtime/hud/passtime_teamicon_blue");
+    PrecacheReticleMaterial(pf_ball_outline_1_file.GetString());
+    PrecacheReticleMaterial(pf_ball_outline_2_file.GetString());
+    PrecacheReticleMaterial(pf_crosshair_teammate_inner.GetString());
+	PrecacheReticleMaterial(pf_crosshair_teammate_outer_1.GetString());
+	PrecacheReticleMaterial(pf_crosshair_teammate_outer_2.GetString());
+	PrecacheReticleMaterial(pf_crosshair_inner_file.GetString());
+	PrecacheReticleMaterial(pf_crosshair_outer_file.GetString());
 }
 
 #ifdef CLIENT_DLL

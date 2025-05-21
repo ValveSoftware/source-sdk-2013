@@ -31,6 +31,7 @@ ConVar cl_crosshair_file( "cl_crosshair_file", "", FCVAR_ARCHIVE, "Change the cr
 ConVar cl_crosshair_scale( "cl_crosshair_scale", "31.0", FCVAR_ARCHIVE );
 
 void OnCrosshairColorChanged( IConVar *var, const char *pOldValue, float flOldValue );
+void OnBallIndicatorChanged( IConVar *var, const char *pOldValue, float flOldValue );
 ConVar cl_crosshair_color( "cl_crosshair_color", "255 255 255", FCVAR_ARCHIVE, "Crosshair color in RGB format (\"r g b\")", OnCrosshairColorChanged );
 ConVar pf_ballindicator( "pf_ballindicator", "1", FCVAR_ARCHIVE, "Enable/disable the HUD indicator when holding the ball." );
 ConVar pf_ballindicator_file( "pf_ballindicator_file", "reticles/pf", FCVAR_ARCHIVE, "Change the material for the HUD indicator when holding the ball." );
@@ -51,6 +52,7 @@ CHudTFCrosshair::CHudTFCrosshair( const char *pName ) :
 	m_szPreviousCrosshair[0] = '\0';
 	m_iCrosshairTextureID = -1;
 	m_iBallIndicatorTextureID = -1;
+	m_szPreviousBallIndicator[0] = '\0';
 	m_flTimeToHideUntil = -1.f;
 
 	ListenForGameEvent( "restart_timer_time" );
@@ -108,13 +110,17 @@ bool CHudTFCrosshair::ShouldDraw( void )
 void CHudTFCrosshair::LevelShutdown( void )
 {
 	m_szPreviousCrosshair[0] = '\0';
-
+	m_szPreviousBallIndicator[0] = '\0';
 	if ( m_pCrosshairMaterial )
 	{
 		delete m_pCrosshairMaterial;
 		m_pCrosshairMaterial = NULL;
 	}
-	
+	if ( m_pBallIndicatorMaterial )
+	{
+		delete m_pBallIndicatorMaterial;
+		m_pBallIndicatorMaterial = NULL;
+	}
 	m_flTimeToHideUntil = -1.f;
 }
 
@@ -258,24 +264,36 @@ void CHudTFCrosshair::Paint()
         pSurf->DrawTexturedRect( iX-iWidth, iY-iHeight, iX+iWidth, iY+iHeight );
         pSurf->DrawSetTexture(0);
     }
-    
+    const char *ballindicatorfile = pf_ballindicator_file.GetString();
+	if ( ( ballindicatorfile == NULL ) || ( Q_stricmp( m_szPreviousBallIndicator, ballindicatorfile ) != 0 ) )
+	{
+		if ( m_iBallIndicatorTextureID != -1 )
+		{
+			pSurf->DrawSetTextureFile( m_iBallIndicatorTextureID, ballindicatorfile, true, false );
+		}
+		if ( m_pBallIndicatorMaterial )
+		{
+			delete m_pBallIndicatorMaterial;
+		}
+
+		m_pBallIndicatorMaterial = vgui::surface()->DrawGetTextureMatInfoFactory( m_iBallIndicatorTextureID );
+
+		if ( !m_pBallIndicatorMaterial )
+			return;
+		
+		// save the name to compare with the cvar in the future
+		Q_strncpy( m_szPreviousBallIndicator, ballindicatorfile, sizeof(m_szPreviousBallIndicator) );
+	}
     // Draw the ball indicator on top
     if ( bShouldDrawBallIndicator && bHasPasstimeBall ) 
     {
-        const char *ballindicatorfile = pf_ballindicator_file.GetString();
-
-        if ( m_iBallIndicatorTextureID != -1 )
-        {
-            pSurf->DrawSetTextureFile( m_iBallIndicatorTextureID, ballindicatorfile, true, false );
-        }
-
-        if ( pf_ballindicator_teamcolored.GetBool() )
-        {
-            Color teamColor;
-            teamColor = GetTeamColor( pPlayer->GetTeamNumber() );
-            clrbi = Color( teamColor.r(), teamColor.g(), teamColor.b(), 255 );
-        }
         
+		if ( pf_ballindicator_teamcolored.GetBool() )
+		{
+			Color teamColor;
+			teamColor = GetTeamColor( pPlayer->GetTeamNumber() );
+			clrbi = Color( teamColor.r(), teamColor.g(), teamColor.b(), 255 );
+		}
         pSurf->DrawSetColor( clrbi );
         pSurf->DrawSetTexture( m_iBallIndicatorTextureID );
         pSurf->DrawTexturedRect( iX-iBallIndicatorWidth, iY-iBallIndicatorHeight, iX+iBallIndicatorWidth, iY+iBallIndicatorHeight );
