@@ -1697,10 +1697,10 @@ int CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 		if ( info.GetAttacker() )
 		{
 			info.ScaleDamage( info.GetAttacker()->GetAttackDamageScale( this ) );
-            
-			// Scale the damage by my own modifiers
-			info.ScaleDamage( GetReceivedDamageScale( info.GetAttacker() ) );
 		}
+		
+		// Scale the damage by my own modifiers
+		info.ScaleDamage( GetReceivedDamageScale( info.GetAttacker() ? info.GetAttacker() : NULL ) );
 
 		//Msg("%s took %.2f Damage, at %.2f\n", GetClassname(), info.GetDamage(), gpGlobals->curtime );
 
