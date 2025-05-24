@@ -896,6 +896,96 @@ bool C_PasstimeAskForBallReticle::Update()
 	return true;
 }
 
+
+//-----------------------------------------------------------------------------
+// C_PasstimeBallPredictionReticle
+//-----------------------------------------------------------------------------
+ConVar pf_ball_floor_enabled("pf_ball_floor_enabled", "1", FCVAR_ARCHIVE, "Enables/disables the floor indicator sprite.");
+
+void C_PasstimeBallPredictionReticle::InitializeSprites()
+{
+    const char* pFloorSprite = "reticles/pf";
+	const char* pFloorSpriteOuter = "reticles/b2";
+
+    AddSprite(CreateReticleSprite(pFloorSprite, 128, 200)); // Floor indicator sprite, inner section
+	AddSprite(CreateReticleSprite(pFloorSpriteOuter, 128, 0)); // Floor indicator sprite, outer section
+}
+
+C_PasstimeBallPredictionReticle::C_PasstimeBallPredictionReticle()
+{
+    InitializeSprites();
+}
+
+bool C_PasstimeBallPredictionReticle::Update()
+{
+    if (!g_pPasstimeLogic || !g_pPasstimeLogic->GetBall() || !pf_ball_floor_enabled.GetBool())
+    {
+        return false;
+    }
+
+    C_BaseEntity* pBallEntity = g_pPasstimeLogic->GetBall();
+    C_PasstimeBall* pBall = dynamic_cast<C_PasstimeBall*>(pBallEntity);
+    if (pBall && pBall->GetCarrier())
+    {
+        // Ball is being carried, don't show the floor indicator
+        return false;
+    }
+
+    C_BaseEntity* pTarget = 0;
+    bool bHomingActive = false;
+    bool bHaveTarget = g_pPasstimeLogic->GetBallReticleTarget(&pTarget, &bHomingActive);
+    
+    if (!bHaveTarget || !pTarget)
+    {
+        // We don't have a target, use neutral color
+        return false;
+    }
+    
+    // Get team color based on target (same as ball reticle)
+    Color teamColor = GetTeamColor(pTarget->GetTeamNumber());
+
+    Vector ballPosition = pBall->WorldSpaceCenter();
+    
+    // Trace down to find the floor
+    trace_t tr;
+    UTIL_TraceLine(ballPosition, ballPosition - Vector(0, 0, 5000), MASK_SOLID, pBall, COLLISION_GROUP_NONE, &tr);
+    
+    if (tr.fraction < 1.0f)
+    {
+        Vector floorPos = tr.endpos + Vector(0, 0, 1); // Slightly above the floor to prevent z-fighting
+        
+        SetAllOrigins(floorPos);
+        SetAllNormals(tr.plane.normal); // Orient sprite to floor normal
+        
+        float distFromFloor = (ballPosition - floorPos).Length();
+		float alpha = 255.0f; 
+		alpha = RemapValClamped(distFromFloor, 64.0f, 1000.0f, 0, 255);
+		SetAllAlphas(alpha);
+        
+        SetRgba(0, teamColor.r(), teamColor.g(), teamColor.b(), alpha);
+		SetRgba(1, 255, 255, 255, alpha);
+
+		float scale;
+		if (distFromFloor <= 1000.0f) {
+			scale = RemapValClamped(distFromFloor, 32.0f, 1000.0f, 1.0f, 0.1f) * 128.0f;
+		} else {
+			scale = RemapValClamped(distFromFloor, 1000.0f, 8192.0f, 0.1f, 0.05f) * 128.0f;
+		}
+
+		SetScale(1, 128.0f);
+		SetScale(0, scale);
+        
+        return true;
+    }
+    
+    return false;
+}
+
+void C_PasstimeBallPredictionReticle::ReloadSprites()
+{
+	C_PasstimeReticle::ReloadSprites();
+	InitializeSprites(); 
+}
 //-----------------------------------------------------------------------------
 // Functions
 //-----------------------------------------------------------------------------
@@ -969,6 +1059,7 @@ void OnCrosshairSettingsChanged(IConVar* pConVar, const char* pOldValue, float f
 		g = clamp( g, 0, 255 );
 		b = clamp( b, 0, 255 );
 	}
+
 }
 
 void ReloadAllPlayerReticles()

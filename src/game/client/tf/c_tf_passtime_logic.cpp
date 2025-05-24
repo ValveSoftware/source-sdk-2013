@@ -28,6 +28,7 @@ void C_TFPasstimeLogic::PostDataUpdate( DataUpdateType_t updateType )
 		SetNextClientThink( CLIENT_THINK_ALWAYS );
 		m_pBallReticle = static_cast<C_PasstimeReticle *>(new C_PasstimeBallReticle());
 		m_pPassReticle = static_cast<C_PasstimeReticle *>(new C_PasstimePassReticle());
+		m_pBallFloorReticle = static_cast<C_PasstimeReticle *>(new C_PasstimeBallPredictionReticle()); // Create the new reticle
 		for( auto *pGoal : (C_FuncPasstimeGoal::GetAutoList()) ) 
 		{
 			m_pGoalReticles.AddToTail( new C_PasstimeGoalReticle( 
@@ -59,6 +60,7 @@ C_TFPasstimeLogic::C_TFPasstimeLogic()
 {
 	m_pBallReticle = nullptr;
 	m_pPassReticle = nullptr;
+	m_pBallFloorReticle = nullptr;
 	memset( m_apPackBeams, 0, sizeof( m_apPackBeams ) );
 	memset( m_bPlayerIsPackMember, 0, sizeof( m_bPlayerIsPackMember ) );
 	for( int i = 0; i < m_trackPoints.Count(); ++i )
@@ -75,7 +77,7 @@ C_TFPasstimeLogic::~C_TFPasstimeLogic()
 	delete m_pBallReticle;
 	m_pGoalReticles.PurgeAndDeleteElements();
 	delete m_pPassReticle;
-
+	delete m_pBallFloorReticle;
 	// Don't set g_pPasstimeLogic to null here because sometimes this destructor
 	// happens after the contructor of the new object
 	// FIXME: what's the right way to do this?
@@ -98,6 +100,7 @@ void C_TFPasstimeLogic::ClientThink()
 		pGoal->OnClientThink();
 	}
 	m_pPassReticle->OnClientThink();
+	m_pBallFloorReticle->OnClientThink();
 	UpdateBeams();
 }
 

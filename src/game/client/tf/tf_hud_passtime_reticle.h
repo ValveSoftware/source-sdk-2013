@@ -124,4 +124,16 @@ private:
 	CHandle<C_TFPlayer> m_hPlayer;
 };
 
+//-----------------------------------------------------------------------------
+class C_PasstimeBallPredictionReticle : public C_PasstimeReticle
+{
+public:
+	C_PasstimeBallPredictionReticle();
+	virtual void ReloadSprites() OVERRIDE;
+	
+private:
+	virtual bool Update() OVERRIDE;
+	void InitializeSprites();
+};
+
 #endif // TF_HUD_PASSTIME_RETICLE_H  
