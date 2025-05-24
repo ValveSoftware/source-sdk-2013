@@ -190,6 +190,16 @@ void CWeaponAR2::DelayedAttack( void )
 	// Register a muzzleflash for the AI
 	pOwner->DoMuzzleFlash();
 	
+#ifndef CLIENT_DLL
+	CEffectData data;
+	data.m_nEntIndex = entindex();
+	data.m_vOrigin = pOwner->Weapon_ShootPosition();
+	data.m_nAttachmentIndex = LookupAttachment( "muzzle" );
+	data.m_flScale = 1.0f;
+	data.m_fFlags = MUZZLEFLASH_COMBINE;
+	DispatchEffect( "MuzzleFlash", data );
+#endif
+
 	WeaponSound( WPN_DOUBLE );
 
 	// Fire the bullets
@@ -229,10 +239,10 @@ void CWeaponAR2::DelayedAttack( void )
 	pOwner->RemoveAmmo( 1, m_iSecondaryAmmoType );
 
 	// Can shoot again immediately
-	m_flNextPrimaryAttack = gpGlobals->curtime + 0.5f;
+	pOwner->m_flNextAttack = gpGlobals->curtime + 0.5f;
 
 	// Can blow up after a short delay (so have time to release mouse button)
-	m_flNextEmptySoundTime = m_flNextSecondaryAttack = gpGlobals->curtime + 1.0f;
+	m_flNextSecondaryAttack = gpGlobals->curtime + 1.0f;
 }
 
 //-----------------------------------------------------------------------------
@@ -240,25 +250,26 @@ void CWeaponAR2::DelayedAttack( void )
 //-----------------------------------------------------------------------------
 void CWeaponAR2::SecondaryAttack( void )
 {
+	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
+
+	if ( pOwner == NULL )
+		return;
+
 	if ( m_bShotDelayed )
 		return;
 
-	CBasePlayer* pPlayer = ToBasePlayer( GetOwner() );
-
-	if ( pPlayer == NULL )
-		return;
-
 	// Cannot fire underwater
-	if ( ( pPlayer->GetAmmoCount( m_iSecondaryAmmoType ) <= 0 ) || ( pPlayer->GetWaterLevel() == 3 ) )
+	if ( pOwner->GetWaterLevel() == 3 )
 	{
 		SendWeaponAnim( ACT_VM_DRYFIRE );
 		BaseClass::WeaponSound( EMPTY );
-		m_flNextEmptySoundTime = m_flNextSecondaryAttack = gpGlobals->curtime + 0.5f;
+		m_flNextSecondaryAttack = gpGlobals->curtime + 0.5f;
 		return;
 	}
 
 	m_bShotDelayed = true;
-	m_flNextEmptySoundTime = m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flDelayedFire = gpGlobals->curtime + 0.5f;
+	m_flNextPrimaryAttack = m_flDelayedFire = gpGlobals->curtime + 1.0f;
+	m_flNextSecondaryAttack = m_flDelayedFire = gpGlobals->curtime + 0.5f;
 
 	SendWeaponAnim( ACT_VM_FIDGET );
 	WeaponSound( SPECIAL1 );
