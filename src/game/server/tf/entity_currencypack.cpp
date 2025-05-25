@@ -180,7 +180,7 @@ void CCurrencyPack::ComeToRest( void )
 {
 	BaseClass::ComeToRest();
 
-	// I'm not when this should ever actually return true, but it doesn't seem to cause any issues so I'm not touching it.
+	// I'm not sure when this should ever actually return true, but it doesn't seem to cause any issues so I'm not touching it.
 	if ( IsClaimed() )
 		return;
 
