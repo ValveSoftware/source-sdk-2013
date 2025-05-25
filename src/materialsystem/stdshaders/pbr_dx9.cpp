@@ -134,6 +134,21 @@ BEGIN_VS_SHADER(PBR, "PBR shader")
     // Define shader fallback
     SHADER_FALLBACK
     {
+        // Check if we're forcing SM 2.0b or we don't support SM 3.0
+        if (mat_pbr_force_20b.GetBool() || !g_pHardwareConfig->SupportsShaderModel_3_0())
+        {
+            // Since we don't have working pbr_vs20b, fall back to VertexLitGeneric
+            bool bIsModel = IS_FLAG_SET(MATERIAL_VAR_MODEL);
+            if (bIsModel)
+            {
+                return "VertexLitGeneric";
+            }
+            else
+            {
+                // For world brushes
+                return "LightmappedGeneric";
+            }
+        }
         return 0;
     };
 

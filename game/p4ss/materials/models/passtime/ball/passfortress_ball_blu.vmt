@@ -1,5 +1,7 @@
 PBR
 {
+	">=DX90"
+	{
         $basetexture      "models/passtime/ball/pf_albedo"
         $bumpmap          "models/passtime/ball/pf_norm"
         $mraotexture      "models/passtime/ball/pf_mrao"
@@ -8,4 +10,18 @@ PBR
 	$useparallax  0
         $envmap           "env_cubemap"
         $model            1
+	}
+	
+	"<DX90"
+	{
+	$model            1
+        $basetexture      "models/passtime/ball/dx8_albedo"
+        $bumpmap          "models/passtime/ball/dx8_norm"
+	$envmaptint					"[.2 .3 .2]"
+	$envmapfresnel				1
+	$normalmapalphaenvmapmask	1
+	$selfillum					1
+	$selfillummask  "models/passtime/ball/pf_emitblu"
+        $envmap           "env_cubemap"
+	}
 }

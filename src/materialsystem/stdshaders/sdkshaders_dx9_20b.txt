@@ -15,6 +15,5 @@
 
 //sdk_bloomadd_ps2x.fxc
 
-example_ascii_ps2x.hlsl
 pbr_vs20b.fxc
 pbr_ps20b.fxc
