@@ -52,7 +52,7 @@ public:
 
 	virtual bool	IsDeflectable() { return true; }
 	virtual void	Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
-
+	virtual bool 	CanCollideWithTeammates() const OVERRIDE { return false; }
 	void			SetChargedShot( bool bCharged ) { m_bChargedShot = bCharged; }
 
 	virtual void	Explode( trace_t *pTrace, CBaseEntity *pOther );
