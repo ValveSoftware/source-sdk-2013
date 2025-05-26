@@ -14,6 +14,7 @@
 #include "c_tf_player.h"
 #include "view.h"
 #include "c_tf_playerresource.h"
+#include "igameevents.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -930,9 +931,15 @@ bool C_PasstimeBallPredictionReticle::Update()
         // Ball is being carried, don't show the floor indicator
         return false;
     }
+
     static Vector vBallSpawnPos;
     static bool bSpawnPosSet = false;
-    if (!bSpawnPosSet && pBall) {
+
+	if (pBall && !pBall->GetCarrier() && pBall->IsEffectActive(EF_NODRAW) && bSpawnPosSet) {
+		bSpawnPosSet = false;
+	}
+
+    if (!bSpawnPosSet && pBall && !pBall->IsEffectActive(EF_NODRAW)) {
         vBallSpawnPos = pBall->WorldSpaceCenter();
         bSpawnPosSet = true;
     }
@@ -951,6 +958,7 @@ bool C_PasstimeBallPredictionReticle::Update()
             return false;
         }
     }
+
     C_BaseEntity* pTarget = 0;
     bool bHomingActive = false;
     bool bHaveTarget = g_pPasstimeLogic->GetBallReticleTarget(&pTarget, &bHomingActive);
