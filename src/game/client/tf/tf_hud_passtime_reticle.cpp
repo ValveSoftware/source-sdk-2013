@@ -930,7 +930,27 @@ bool C_PasstimeBallPredictionReticle::Update()
         // Ball is being carried, don't show the floor indicator
         return false;
     }
+    static Vector vBallSpawnPos;
+    static bool bSpawnPosSet = false;
+    if (!bSpawnPosSet && pBall) {
+        vBallSpawnPos = pBall->WorldSpaceCenter();
+        bSpawnPosSet = true;
+    }
 
+    if (pBall) {
+        Vector velocity = pBall->GetAbsVelocity();
+        float speed = velocity.Length();
+		Vector ballPos2D = pBall->WorldSpaceCenter();
+		Vector spawnPos2D = vBallSpawnPos;
+		ballPos2D.z = 0;
+		spawnPos2D.z = 0;
+		float distFromSpawn = (ballPos2D - spawnPos2D).Length();
+
+        // If the ball is close to spawn and barely moving, suppress indicator
+        if (speed < 10.0f && distFromSpawn < 32.0f) {
+            return false;
+        }
+    }
     C_BaseEntity* pTarget = 0;
     bool bHomingActive = false;
     bool bHaveTarget = g_pPasstimeLogic->GetBallReticleTarget(&pTarget, &bHomingActive);
@@ -959,7 +979,7 @@ bool C_PasstimeBallPredictionReticle::Update()
         
         float distFromFloor = (ballPosition - floorPos).Length();
 		float alpha = 255.0f; 
-		alpha = RemapValClamped(distFromFloor, 64.0f, 1000.0f, 0, 255);
+		alpha = RemapValClamped(distFromFloor, 16.0f, 1000.0f, 0, 255);
 		SetAllAlphas(alpha);
         
         SetRgba(0, teamColor.r(), teamColor.g(), teamColor.b(), alpha);
@@ -967,7 +987,7 @@ bool C_PasstimeBallPredictionReticle::Update()
 
 		float scale;
 		if (distFromFloor <= 1000.0f) {
-			scale = RemapValClamped(distFromFloor, 32.0f, 1000.0f, 1.0f, 0.1f) * 128.0f;
+			scale = RemapValClamped(distFromFloor, 16.0f, 1000.0f, 1.0f, 0.1f) * 128.0f;
 		} else {
 			scale = RemapValClamped(distFromFloor, 1000.0f, 8192.0f, 0.1f, 0.05f) * 128.0f;
 		}
