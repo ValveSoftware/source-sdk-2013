@@ -526,7 +526,14 @@ CBaseEntity *CGlobalEntityList::FindEntityProcedural( const char *szName, CBaseE
 		//
 		if ( FStrEq( pName, "player" ) )
 		{
-			return (CBaseEntity *)UTIL_PlayerByIndex( 1 );
+			if ( pSearchingEntity )
+			{
+				return FindEntityGenericNearest( "player", pSearchingEntity->GetAbsOrigin(), 0, pSearchingEntity, pActivator, pCaller );
+			}
+			else
+			{
+				return ( CBaseEntity * ) UTIL_PlayerByIndex( 1 );
+			}
 		}
 		else if ( FStrEq( pName, "pvsplayer" ) )
 		{
