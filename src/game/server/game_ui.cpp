@@ -264,6 +264,13 @@ void CGameUI::Think( void )
 		return;
 	}
 
+	if ( !pPlayer->IsAlive() )
+	{
+		pPlayer->RemoveFlag( FL_ONTRAIN );
+		Deactivate( pPlayer );
+		return;
+	}
+
 	// If we're forcing an update, state with a clean button state
 	if ( m_bForceUpdate )
 	{
