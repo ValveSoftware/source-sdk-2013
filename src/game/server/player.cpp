@@ -100,6 +100,9 @@ ConVar sv_chat_seconds_per_msg_tier1( "sv_chat_seconds_per_msg_tier1", "3", FCVA
 ConVar sv_chat_bucket_size_tier2( "sv_chat_bucket_size_tier2", "30", FCVAR_NONE, "The maximum size of the long term chat msg bucket." );
 ConVar sv_chat_seconds_per_msg_tier2( "sv_chat_seconds_per_msg_tier2", "10", FCVAR_NONE, "The number of seconds to accrue an additional long term chat msg." );
 
+ConVar sv_chat_bucket_size_tier1_penalty( "sv_chat_bucket_size_tier1_penalty", "0.25", FCVAR_NONE, "The penalty multiplier that gets added to the regeneration time of this bucket.", true, 0.1, false, NULL );
+ConVar sv_chat_bucket_size_tier1_penalty_decay( "sv_chat_bucket_size_tier1_penalty_decay", "30", FCVAR_NONE, "The time in seconds to wait to reduce penalty multiplier one notch.", true, 1.0, false, NULL );
+
 static ConVar sv_maxusrcmdprocessticks( "sv_maxusrcmdprocessticks", "24", FCVAR_NOTIFY, "Maximum number of client-issued usrcmd ticks that can be replayed in packet loss conditions, 0 to allow no restrictions" );
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -614,6 +617,8 @@ CBasePlayer::CBasePlayer( )
 	m_fLastPlayerTalkAttemptTime = 0.0f;
 	m_flPlayerTalkAvailableMessagesTier1 = 1.0f;
 	m_flPlayerTalkAvailableMessagesTier2 = 10.0f;
+	m_flChatPenaltyMultiplier = 1.0f;
+	m_flLastPenaltyDecayTime = gpGlobals->curtime;
 	m_PlayerInfo.SetParent( this );
 
 	ResetObserverMode();
@@ -8768,37 +8773,90 @@ void CBasePlayer::DeactivateMovementConstraint( )
 //-----------------------------------------------------------------------------
 // Purpose: Fight chat spam with a two tiered token bucket
 //-----------------------------------------------------------------------------
-bool CBasePlayer::ArePlayerTalkMessagesAvailable( void )
+void CBasePlayer::DecrementPlayerChatBuckets()
 {
-	// How long since we last tried to chat?
+	m_flPlayerTalkAvailableMessagesTier1 -= 1.0f;
+
+	// If the bucket in tier 1 is above 0, decrement by 1 
+	// this avoids really sinking into a deep hole and having 
+	// to wait for an undetermined amout of time
+	if ( m_flPlayerTalkAvailableMessagesTier1 > 0 )
+	{
+		m_flPlayerTalkAvailableMessagesTier2 -= 1.0f;
+	}
+
+	m_flPlayerTalkAvailableMessagesTier1 = MAX( -2.5f, m_flPlayerTalkAvailableMessagesTier1 );
+}
+
+bool CBasePlayer::ArePlayerTalkMessagesAvailable()
+{
+	if ( m_flChatPenaltyMultiplier < 1.0f ) // This should never happen, but it is a safety net
+		m_flChatPenaltyMultiplier = 1.0f;
+	if ( m_flChatPenaltyMultiplier > 3.0f ) // This should never happen, but it is a safety net
+		m_flChatPenaltyMultiplier = 3.0f;
+
 	float flTimeElapsedSinceLastMsg = gpGlobals->curtime - m_fLastPlayerTalkAttemptTime;
 	m_fLastPlayerTalkAttemptTime = gpGlobals->curtime;
 
-	// The max messages we can have available
-	// Tier 1 is for short-term spam
-	float flTotalBucketSizeTier1 = sv_chat_bucket_size_tier1.GetFloat();	
-	// rate at which we gain new messages, this slows if we continue to try to spam messages
-	float flSecondsPerMessageTier1 = sv_chat_seconds_per_msg_tier1.GetFloat() - MIN( 0.0f, m_flPlayerTalkAvailableMessagesTier1 );
+	// Apply decay to the penalty if enough time has passed since last chat message
+	const float flPenaltyDecayInterval = sv_chat_bucket_size_tier1_penalty_decay.GetFloat();  // Every 30 seconds, the penalty decays slightly
+	if ( gpGlobals->curtime - m_flLastPenaltyDecayTime >= flPenaltyDecayInterval )
+	{
+		m_flChatPenaltyMultiplier = MAX( 1.0f, m_flChatPenaltyMultiplier - 0.1f );  // Slowly recover
+		m_flLastPenaltyDecayTime = gpGlobals->curtime;
+	}
 
-	// We'll count partial counts of accruing message throughout, as it'll be more consistent
+	// Short-term bucket
+	float flTotalBucketSizeTier1 = sv_chat_bucket_size_tier1.GetFloat();
+	float flChatPenaltyMulitplier = sv_chat_bucket_size_tier1_penalty.GetFloat();
+
+	// Increase regen time by the penalty multiplier
+	float flBaseSecondsPerMessageTier1 = sv_chat_seconds_per_msg_tier1.GetFloat();
+	float flSecondsPerMessageTier1 = flBaseSecondsPerMessageTier1 * m_flChatPenaltyMultiplier;
+
 	float flMessagesGainedTier1 = MAX( 0, flTimeElapsedSinceLastMsg / flSecondsPerMessageTier1 );
+	m_flPlayerTalkAvailableMessagesTier1 = MIN( flTotalBucketSizeTier1, m_flPlayerTalkAvailableMessagesTier1 + flMessagesGainedTier1 );
 
-	// But we will allow the counter to go negative, so if you keep trying to spam you have to work your way out of a hole.
-	m_flPlayerTalkAvailableMessagesTier1 = MAX( -2.5f, MIN( flTotalBucketSizeTier1, m_flPlayerTalkAvailableMessagesTier1 + flMessagesGainedTier1 ) - 1.0f ); 
+	// We are going to use a penalty system designed to limit spammers by slowing down the recovery rate of their buckets. 
+	// Basically, if the short term bucket value is insufficient, the message does not get sent and a multiplier penalty is added, 
+	// slowing down their regeneration of the bucket. Their buckets will keep refilling no matter what, but at a slower rate, 
+	// and at each failed message, the bucket fills more slowly. This penalty multiplier will eventually go back down if the player 
+	// stops spamming or does not use the chat for a while.
+	if ( m_flPlayerTalkAvailableMessagesTier1 <= 1.0f )
+	{
+		// Let's not go overboard and apply a max multiplier
+		// We are setting a hard coded value, because going above 3 would just cause the same original behavior of digging 
+		// a hole and never being to talk ever again due to an insane multiplier and we do not want that.
+		if ( m_flChatPenaltyMultiplier < 3.0f )
+		{
+			m_flChatPenaltyMultiplier += flChatPenaltyMulitplier;  // Increase penalty
+			m_flChatPenaltyMultiplier = clamp( m_flChatPenaltyMultiplier, 1.0f, 3.0f ); // Ensure within bounds
+		}
 
-	// Tier2 is for curbing longer-term consistent spamming
-	// We'll only allow the long term bucket to accrue if we're not currently in a spammy state
+		if ( m_flPlayerTalkAvailableMessagesTier1 <= 0.0f )
+			m_flPlayerTalkAvailableMessagesTier1 = 0.0f;  // Never go negative
+	}
+
+	// Long-term bucket
+	float flMessagesGainedTier2 = 0.0f;
 	if ( m_flPlayerTalkAvailableMessagesTier1 > 0 )
 	{
 		float flTotalBucketSizeTier2 = sv_chat_bucket_size_tier2.GetFloat();
 		float flSecondsPerMessageTier2 = sv_chat_seconds_per_msg_tier2.GetFloat();
 
-		float flMessagesGainedTier2 = MAX( 0, flTimeElapsedSinceLastMsg / flSecondsPerMessageTier2 );
-		m_flPlayerTalkAvailableMessagesTier2 = MAX( 0, MIN( flTotalBucketSizeTier2, m_flPlayerTalkAvailableMessagesTier2 + flMessagesGainedTier2 ) - 1.0f );
-		//Msg( "Elapsed : %f2  Gained : %f2 / %f2 \n", flTimeElapsedSinceLastMsg, flMessagesGainedTier1, flMessagesGainedTier2 );
+		flMessagesGainedTier2 = MAX( 0, flTimeElapsedSinceLastMsg / flSecondsPerMessageTier2 );
+		m_flPlayerTalkAvailableMessagesTier2 = MIN( flTotalBucketSizeTier2, m_flPlayerTalkAvailableMessagesTier2 + flMessagesGainedTier2 );
 	}
+	m_flPlayerTalkAvailableMessagesTier2 = MAX( 0, m_flPlayerTalkAvailableMessagesTier2 );
 
-	//Msg( "Remaining Msgs : %f2 / %f2\n", m_flPlayerTalkAvailableMessagesTier1, m_flPlayerTalkAvailableMessagesTier2 );
+	// Debug messages
+	DevMsg( "Elapsed: %.2f sec | Gained Tier1: %.2f | Gained Tier2: %.2f\n",
+		flTimeElapsedSinceLastMsg, flMessagesGainedTier1, flMessagesGainedTier2 );
+
+	DevMsg( "Remaining Msgs - Tier1: %.2f / %.2f | Tier2: %.2f / %.2f | Penalty Multiplier: %.2f\n",
+		m_flPlayerTalkAvailableMessagesTier1, flTotalBucketSizeTier1,
+		m_flPlayerTalkAvailableMessagesTier2, sv_chat_bucket_size_tier2.GetFloat(),
+		m_flChatPenaltyMultiplier );
 
 	return m_flPlayerTalkAvailableMessagesTier1 > 1.0f && m_flPlayerTalkAvailableMessagesTier2 > 1.0f;
 }
@@ -8808,7 +8866,9 @@ bool CBasePlayer::ArePlayerTalkMessagesAvailable( void )
 //-----------------------------------------------------------------------------
 bool CBasePlayer::CanPlayerTalk()
 {
-	const float talk_interval = 0.66; // min time between say commands from a client
+	// min time between say commands from a client,
+	// has no effect when the game is paused because time is frozen
+	const float talk_interval = 0.66;
 
 	bool bRateLimitAllowed = LastTimePlayerTalked() + talk_interval < gpGlobals->curtime;
 

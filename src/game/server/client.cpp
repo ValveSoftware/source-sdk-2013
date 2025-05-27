@@ -302,8 +302,22 @@ void Host_Say( edict_t *pEdict, const CCommand &args, bool teamonly )
 		if ( !(client->IsNetClient()) )	// Not a client ? (should never be true)
 			continue;
 
-		if ( teamonly && g_pGameRules->PlayerCanHearChat( client, pPlayer ) != GR_TEAMMATE )
-			continue;
+		if ( g_pGameRules->IsTeamplay() )
+		{
+			if ( teamonly && g_pGameRules->PlayerCanHearChat( client, pPlayer ) != GR_TEAMMATE )
+				continue;
+		}
+		else
+		{
+			CTeam *sendingTeam = pPlayer ? pPlayer->GetTeam() : NULL; // Could still be NULL at this point
+			CTeam *receivingTeam = client->GetTeam();
+
+			if ( !sendingTeam || !receivingTeam )
+				continue;
+
+			if ( sendingTeam != receivingTeam )
+				continue;
+		}
 
 		if ( pPlayer && !client->CanHearAndReadChatFrom( pPlayer ) )
 			continue;
@@ -363,6 +377,11 @@ void Host_Say( edict_t *pEdict, const CCommand &args, bool teamonly )
 		}
 	}
 		
+	if ( pPlayer )
+	{
+		pPlayer->DecrementPlayerChatBuckets();
+	}
+
 	if ( teamonly )
 		UTIL_LogPrintf( "\"%s<%i><%s><%s>\" say_team \"%s\"\n", playerName, userid, networkID, playerTeam, p );
 	else
@@ -845,10 +864,18 @@ CON_COMMAND( say, "Display player message" )
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
 	if ( pPlayer )
 	{
-		if ( pPlayer->CanPlayerTalk() )
+		if ( engine->IsPaused() )
+		{
+			Host_Say( pPlayer->edict(), args, 0 );
+		}
+		else if ( pPlayer->CanPlayerTalk() )
 		{
 			Host_Say( pPlayer->edict(), args, 0 );
 			pPlayer->NotePlayerTalked();
+		}
+		else
+		{
+			ClientPrint( pPlayer, HUD_PRINTTALK, "You have sent too many messages! Please wait before sending new messages.\n" );
 		}
 	}
 	// This will result in a "console" say.  Ignore anything from
@@ -869,10 +896,18 @@ CON_COMMAND( say_team, "Display player message to team" )
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
 	if (pPlayer)
 	{
-		if ( pPlayer->CanPlayerTalk() )
+		if ( engine->IsPaused() )
+		{
+			Host_Say( pPlayer->edict(), args, 1 );
+		}
+		else if ( pPlayer->CanPlayerTalk() )
 		{
 			Host_Say( pPlayer->edict(), args, 1 );
 			pPlayer->NotePlayerTalked();
+		}
+		else
+		{
+			ClientPrint( pPlayer, HUD_PRINTTALK, "You have sent too many messages! Please wait before sending new messages.\n" );
 		}
 	}
 }
