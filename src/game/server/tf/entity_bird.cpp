@@ -88,12 +88,9 @@ void CEntityBird::SpawnRandomBirds( void )
 	if ( !pszMapName || !pszMapName[0] )
 		return;
 
-	KeyValues *pFileKV = new KeyValues( "birds" );
+	KeyValuesAD pFileKV("birds" );
 	if ( !pFileKV->LoadFromFile( g_pFullFileSystem, "scripts/birds.txt", "MOD" ) )
-	{
-		pFileKV->deleteThis();
 		return;
-	}
 
 	// Build a list of birds in the map already, and make sure we don't spawn any on those spots again
 	CUtlVector<Vector>	vecExistingBirds;
