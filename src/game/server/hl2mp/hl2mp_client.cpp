@@ -38,11 +38,21 @@ ConVar sv_motd_unload_on_dismissal( "sv_motd_unload_on_dismissal", "0", 0, "If e
 extern CBaseEntity*	FindPickerEntityClass( CBasePlayer *pPlayer, char *classname );
 extern bool			g_fGameOver;
 
+void CBasePlayer::DelayedSpawn()
+{
+	Spawn();
+}
+
 void FinishClientPutInServer( CHL2MP_Player *pPlayer )
 {
 	pPlayer->InitialSpawn();
-	pPlayer->Spawn();
-
+	// Peter: I can't seem to find anything that would suggest 
+	// this would be broken after connecting to a server, but clearly, 
+	// delaying this fixes: 
+	// 
+	// 1) The spawning angles of 0, 0, 0 
+	// 2) Always spawning in showers on lockdown
+	pPlayer->SetContextThink( &CBasePlayer::DelayedSpawn, gpGlobals->curtime + 0.01f, "DelayedSnapEyeAngles" );
 
 	char sName[128];
 	Q_strncpy( sName, pPlayer->GetPlayerName(), sizeof( sName ) );
