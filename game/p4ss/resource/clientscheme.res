@@ -19,13 +19,12 @@ Scheme
 	Colors
 	{
 		// base colors
-		"Orange"			"152 191 100 255"
-		"OrangeDim"			"152 191 100 120"
-		"LightOrange"		"76 107 34 128"
-		"GoalOrange"		"152 191 100"
+		"Orange"			"178 82 22 255"
+		"OrangeDim"			"178 82 22 120"
+		"LightOrange"		"188 112 0 255"
+		"GoalOrange"		"255 133 0 255"
 		"TFOrange"			"145 73 59 255"
 		"Purple"			"137 69 99 255"
-		"PFGrey" 			"32 32 32 180"
 
 		"QuestGold"			"208 147 75 255"
 		"HalloweenThemeColor2015_Light"	"238 126 17 255"
@@ -98,6 +97,7 @@ Scheme
 		"HudTrainingHint"			"212 160 23 255"
 		
 		"TanDark"				"117 107 94 255"
+		"Tan"					"176 165 141 255"
 		"TanLight"				"235 226 202 255"
 		"TanDarker"				"46 43 42 255"
 		
@@ -209,6 +209,10 @@ Scheme
 		"UpgradeSelectedBg"		"249 138 83 255"
 		"UpgradeDisabledFg"		"64 59 52 255"
 		"UpgradeDisabledBg"		"79 77 68 255"
+		
+		//Bobby Joe Colors :3
+		"PureWhite"				"255 255 255 255"
+		"PureBlack"				"255 255 255 255"
 	}
 
 	///////////////////// BASE SETTINGS ////////////////////////
@@ -473,63 +477,10 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"18"
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"480 599"
-			}
-			"2"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"13"	[$WIN32]
-				"tall"		"20"	[$X360]
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"600 767"
-			}
-			"3"
-			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Futura Condensed Demi Regular"
 				"tall"		"14"
-				"weight"	"900"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"768 1023"
-				"antialias"	"1"
-			}
-			"4"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"20"
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"1024 1199"
-				"antialias"	"1"
-			}
-			"5" // Misyl: Proportional
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"9"
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"antialias"	"1"
-			}
-			"6"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"12"
-				"range" 		"0x0000 0x00FF"
-				"weight"		"900"
-			}
-			"7"
-			{
-				"name"		"Arial"
-				"tall"		"12"
-				"range" 		"0x0000 0x00FF"
-				"weight"		"800"
-			}
-
-			
+			}	
 		}
 		"DefaultUnderline"
 		{
@@ -553,52 +504,9 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"16"
-				"weight"	"0"
+				"name"		"Futura Condensed Demi Regular"
+				"tall"		"10"
 				"range"		"0x0000 0x017F"
-				"yres"	"480 599"
-			}
-			"2"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"13"
-				"weight"	"0"
-				"range"		"0x0000 0x017F"
-				"yres"	"600 767"
-			}
-			"3"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"14"
-				"weight"	"0"
-				"range"		"0x0000 0x017F"
-				"yres"	"768 1023"
-				"antialias"	"1"
-			}
-			"4"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"20"
-				"weight"	"0"
-				"range"		"0x0000 0x017F"
-				"yres"	"1024 1199"
-				"antialias"	"1"
-			}
-			"5" // Misyl: Proportional
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"9"
-				"weight"	"0"
-				"range"		"0x0000 0x017F"
-				"antialias"	"1"
-			}
-			"6"
-			{
-				"name"		"Arial"
-				"tall"		"12"
-				"range" 		"0x0000 0x00FF"
-				"weight"		"0"
 			}
 		}
 
@@ -607,104 +515,21 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"14"
-				"weight"	"0"
+				"name"		"Futura Condensed Demi Regular"
+				"tall"		"8"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"480 599"
-			}
-			"2"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"12"
-				"weight"	"0"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"600 767"
-			}
-			"3"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"12"
-				"weight"	"0"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"768 1023"
-				"antialias"	"1"
-			}
-			"4"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"14"
-				"weight"	"0"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"	"1024 1199"
-				"antialias"	"1"
-			}
-			"5" // Misyl: Proportional
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"9"
-				"weight"	"0"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"antialias"	"1"
 			}
 		}
+		
 		DefaultLarge
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"22"
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"		"480 599"
-			}
-			"2"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"21"
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"		"600 767"
-			}
-			"3"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"22"
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"		"768 1023"
-				"antialias"	"1"
-			}
-			"4"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"28"
-				"weight"	"900"
-				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"		"1024 1199"
-				"antialias"	"1"
-			}
-			"5" // Misyl: Proportional
-			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Compacta20"
 				"tall"		"18"
 				"weight"	"900"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"antialias"	"1"
-			}
-			"6"
-			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"20"
-				"range" 		"0x0000 0x00FF"
-				"weight"		"900"
-			}
-			"7"
-			{
-				"name"		"Arial"
-				"tall"		"20"
-				"range" 		"0x0000 0x00FF"
-				"weight"		"800"
+				"yres"		"480 599"
 			}
 		}
 		CenterPrintText
@@ -725,7 +550,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"6"
 				"weight"	"500"
 				"additive"	"0"
@@ -736,14 +561,14 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"16"
+				"name"		"Verdana"
+				"tall"		"12"
 				"weight"	"700"
 				"yres"	"480 599"
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"13"	[$WIN32]
 				"tall"		"23"	[$X360]
 				"weight"	"700"
@@ -751,21 +576,21 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"14"
 				"weight"	"700"
 				"yres"	"768 1023"
 			}
 			"4"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"20"
 				"weight"	"700"
 				"yres"	"1024 1199"
 			}
 			"5" // Misyl: Proportional
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"12"
 				"weight"	"700"
 				"antialias"	"1"
@@ -775,8 +600,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"32"
+				"name"		"TF2"
+				"tall"		"24"
 				"tall_lodef"	"80"
 				"weight"	"500"
 				"additive"	"0"
@@ -785,7 +610,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"32"
 				"tall_hidef"	"120"
 				"weight"	"500"
@@ -795,7 +620,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"44"
 				"weight"	"500"
 				"additive"	"0"
@@ -804,7 +629,7 @@ Scheme
 			}
 			"4"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"48"
 				"weight"	"500"
 				"additive"	"0"
@@ -813,7 +638,7 @@ Scheme
 			}
 			"5"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"24"
 				"weight"	"500"
 				"additive"	"0"
@@ -824,44 +649,21 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
-				"tall"		"46"
+				"name"		"TF2 Build"
+				"tall"		"44"
 				"tall_lodef"	"52"
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" "1"
 			}
 		}
-		"HudFont52Bold"
-		{
-			"1"
-			{
-				"name"		"Montserrat Black"
-				"tall"		"52"
-				"tall_lodef"	"52"
-				"weight"	"500"
-				"additive"	"0"
-				"antialias" "1"
-			}
-		}
-		"HudFont64Bold"
-		{
-			"1"
-			{
-				"name"		"Montserrat Black"
-				"tall"		"64"
-				"tall_lodef"	"64"
-				"weight"	"500"
-				"additive"	"0"
-				"antialias" "1"
-			}
-		}
+
 		"HudFontBiggerBold"
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
-				"tall"		"38"
+				"name"		"TF2 Build"
+				"tall"		"35"
 				"tall_lodef"	"40"
 				"weight"	"500"
 				"additive"	"0"
@@ -873,7 +675,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"36"
 				"tall_hidef"	"48"
 				"weight"	"500"
@@ -885,7 +687,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"30"
 				"weight"	"500"
 				"additive"	"0"
@@ -896,8 +698,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
-				"tall"		"34"
+				"name"		"TF2 Build"
+				"tall"		"30"
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" "1"
@@ -907,8 +709,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"26"
+				"name"		"TF2"
+				"tall"		"24"
 				"tall_lodef"		"28"
 				"weight"	"500"
 				"additive"	"0"
@@ -919,8 +721,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"26"
+				"name"		"TF2 Secondary"
+				"tall"		"24"
 				"weight"	"500"
 				"yres"		"1 1199"
 				"additive"	"0"
@@ -928,7 +730,7 @@ Scheme
 			}
 			"2" // Misyl: Proportional
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"10"
 				"weight"	"500"
 				"additive"	"0"
@@ -939,31 +741,19 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
-				"tall"		"26"
+				"name"		"TF2 Build"
+				"tall"		"24"
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" "1"
-			}
-		}
-		"HudFontMediumBoldShadow"
-		{
-			"1"
-			{
-				"name"		"Montserrat Black"
-				"tall"		"26"
-				"weight"	"500"
-				"additive"	"0"
-				"antialias" "1"
-				"dropshadow"	"1"
 			}
 		}
 		"HudFontMediumSmallBold"
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
-				"tall"		"22"
+				"name"		"TF2 Build"
+				"tall"		"18"
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" "1"
@@ -973,8 +763,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"22"
+				"name"		"TF2"
+				"tall"		"18"
 				"tall_hidef"	"24"
 				"tall_lodef"	"18"
 				"weight"	"500"
@@ -986,8 +776,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
-				"tall"		"22"
+				"name"		"TF2 Secondary"
+				"tall"		"18"
 				"tall_hidef"	"24"
 				"tall_lodef"	"20"
 				"weight"	"500"
@@ -999,9 +789,9 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"14"
-				"tall_lodef"	"14"
+				"tall_lodef"	"16"
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" 	"1"
@@ -1011,8 +801,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
-				"tall"		"18"
+				"name"		"TF2 Build"
+				"tall"		"16"
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" "1"
@@ -1022,7 +812,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"14"
 				"weight"	"500"
 				"additive"	"0"
@@ -1033,7 +823,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"14"
 				"weight"	"500"
 				"additive"	"0"
@@ -1045,7 +835,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"11"
 				"weight"	"500"
 				"additive"	"0"
@@ -1056,7 +846,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"11"
 				"weight"	"500"
 				"additive"	"0"
@@ -1068,54 +858,18 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"11"
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" "1"
-			}
-		}
-		"HudFontSmallestBoldShadow"
-		{
-			"1"
-			{
-				"name"		"Montserrat Black"
-				"tall"		"11"
-				"weight"	"500"
-				"additive"	"0"
-				"antialias" "1"
-				"dropshadow"	"1"
-			}
-		}
-		"HudFont10BoldShadow"
-		{
-			"1"
-			{
-				"name"		"Montserrat Black"
-				"tall"		"10"
-				"weight"	"500"
-				"additive"	"0"
-				"antialias" "1"
-				"dropshadow"	"1"
-			}
-		}
-		"HudFont9BoldShadow"
-		{
-			"1"
-			{
-				"name"		"Montserrat Black"
-				"tall"		"9"
-				"weight"	"500"
-				"additive"	"0"
-				"antialias" "1"
-				"dropshadow"	"1"
 			}
 		}
 		"PerformanceModeSmall"
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"4"
 				"weight"	"500"
 				"additive"	"0"
@@ -1126,7 +880,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"10"
 				"weight"	"500"
 				"additive"	"0"
@@ -1137,7 +891,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"16"
 				"weight"	"500"
 				"additive"	"0"
@@ -1148,7 +902,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"9"
 				"weight"	"0"
 				"additive"	"0"
@@ -1159,7 +913,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"9"
 				"weight"	"0"
 				"additive"	"0"
@@ -1170,7 +924,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"6"
 				"weight"	"0"
 				"additive"	"0"
@@ -1181,7 +935,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"12"
 				"tall_hidef"	"14"
 				"tall_lodef"	"16"
@@ -1194,7 +948,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"11"
 				"weight"	"500"
 				"additive"	"0"
@@ -1269,7 +1023,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"18"
 				"tall_hidef"	"24"
 				"tall_lodef"	"18"
@@ -1282,7 +1036,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"16"
 				"tall_hidef"	"22"
 				"tall_lodef"	"22"
@@ -1295,7 +1049,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"8"
 				"weight"	"500"
 				"additive"	"0"
@@ -1306,7 +1060,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"9"
 				"weight"	"500"
 				"additive"	"0"
@@ -1317,7 +1071,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"8"
 				"tall_hidef"	"9"
 				"tall_lodef"	"10"
@@ -1330,7 +1084,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"8"
 				"tall_hidef"	"7"
 				"weight"	"500"
@@ -1342,7 +1096,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"15"
 				"weight"	"700"
 				"antialias" 	"1"
@@ -1352,7 +1106,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"15"	[$WIN32]
 				"tall"		"21"	[$X360]
 				"weight"	"700"
@@ -1363,7 +1117,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"18"
 				"weight"	"900"
 				"antialias" 	"1"
@@ -1372,7 +1126,7 @@ Scheme
 			}
 			"4"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"21"
 				"weight"	"900"
 				"antialias" 	"1"
@@ -1381,7 +1135,7 @@ Scheme
 			}
 			"5"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"24"
 				"weight"	"1000"
 				"antialias" 	"1"
@@ -1455,19 +1209,20 @@ Scheme
 			}
 			"2"
 			{
-				"name"  "Montserrat SemiBold"
+				"name"  "Verdana"
 				"tall"  "28"
 				"weight" "0"
 				"additive" "1"
 				"antialias" "1"
 			}
 		}
-		"CloseCaption"
+		"CloseCaption_Normal"
 		{
 			"1"
 			{
 				"name"		"Tahoma"
-				"tall"		"8"
+				"tall"		"24"
+				"tall_hidef"	"32"
 				"weight"	"500"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
 			}
@@ -1477,7 +1232,8 @@ Scheme
 			"1"
 			{
 				"name"		"Tahoma"
-				"tall"		"8"
+				"tall"		"24"
+				"tall_hidef"	"32"
 				"weight"	"500"
 				"italic"	"1"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
@@ -1488,7 +1244,8 @@ Scheme
 			"1"
 			{
 				"name"		"Tahoma"
-				"tall"		"8"
+				"tall"		"24"
+				"tall_hidef"	"32"
 				"weight"	"900"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
 			}
@@ -1498,7 +1255,8 @@ Scheme
 			"1"
 			{
 				"name"		"Tahoma"
-				"tall"		"8"
+				"tall"		"24"
+				"tall_hidef"	"32"
 				"weight"	"900"
 				"italic"	"1"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
@@ -1543,7 +1301,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"24"
 				"antialias" "1"
 				"weight"	"500"
@@ -1553,7 +1311,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"11"
 				"tall_lodef"	"14"
 				"antialias" "1"
@@ -1564,7 +1322,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"12"
 				"antialias" "1"
 				"weight"	"500"
@@ -1575,7 +1333,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"13"
 				"tall_hidef"	"14"
 				"tall_lodef"	"17"
@@ -1589,8 +1347,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"			"Montserrat Medium Italic"
-				"tall"			"32"
+				"name"			"TF2 Professor"
+				"tall"			"28"
 				"tall_lodef"	"48"
 				"tall_hidef"	"48"
 				"antialias"		"1" 
@@ -1604,8 +1362,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"			"Montserrat Medium Italic"
-				"tall"			"44"
+				"name"			"TF2 Professor"
+				"tall"			"40"
 				"tall_lodef"	"48"
 				"tall_hidef"	"48"
 				"antialias"		"1"
@@ -1619,8 +1377,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Medium Italic"
-				"tall"		"26"
+				"name"		"TF2 Professor"
+				"tall"		"24"
 				"tall_lodef"	"36"
 				"tall_hidef"	"36"
 				"antialias" "1"
@@ -1632,8 +1390,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"			"Montserrat Medium Italic"
-				"tall"			"15" [!$OSX]
+				"name"			"TF2 Professor"
+				"tall"			"14" [!$OSX]
 				"tall"			"15" [$OSX]
 				"tall_lodef"	"32"
 				"tall_hidef"	"32"
@@ -1646,7 +1404,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"6"
 				"weight"	"400"
 				"additive"	"0"
@@ -1657,7 +1415,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"8"
 				"tall_hidef"	"10"
 				"tall_lodef"	"14"
@@ -1670,7 +1428,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"10"
 				"tall_hidef"	"12"
 				"tall_lodef"	"14"
@@ -1683,7 +1441,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"14"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1695,7 +1453,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"20"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1707,7 +1465,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"20"
 				"tall_hidef"	"24"
 				"tall_lodef"	"24"
@@ -1721,7 +1479,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"14"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1733,7 +1491,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"20"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1745,7 +1503,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"34"
 				"tall_hidef"	"38"
 				"tall_lodef"	"38"
@@ -1760,7 +1518,7 @@ Scheme
  		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"36"
 				"tall_hidef"	"48"
 				"weight"	"500"
@@ -1772,7 +1530,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"52"
 				"tall_lodef"		"80"
 				"range" 	"0x0000 0x00FF"
@@ -1782,7 +1540,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"72"
 				"tall_hidef"	"120"
 				"range" 	"0x0000 0x00FF"
@@ -1792,7 +1550,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"100"
 				"range" 	"0x0000 0x00FF"
 				"weight"	"400"
@@ -1801,7 +1559,7 @@ Scheme
 			}
 			"4"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"140"
 				"range" 	"0x0000 0x00FF"
 				"weight"	"400"
@@ -1810,7 +1568,7 @@ Scheme
 			}
 			"5"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"180"
 				"range" 	"0x0000 0x00FF"
 				"weight"	"400"
@@ -1822,7 +1580,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"36"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1834,7 +1592,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"14"
 				"weight"	"400"
 				"additive"	"0"
@@ -1845,7 +1603,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"20"
 				"weight"	"400"
 				"additive"	"0"
@@ -1856,7 +1614,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"14"
 				"weight"	"400"
 				"additive"	"0"
@@ -1867,7 +1625,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"10"
 				"weight"	"400"
 				"additive"	"0"
@@ -1878,7 +1636,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"7"
 				"weight"	"400"
 				"additive"	"0"
@@ -1890,7 +1648,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"10"
 				"tall_hidef"	"12"
 				"tall_lodef"	"14"
@@ -1904,7 +1662,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"12"
 				"weight"	"700"
 				"yres"		"480 599"
@@ -1912,7 +1670,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"13"
 				"weight"	"700"
 				"yres"		"600 767"
@@ -1920,7 +1678,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"14"
 				"weight"	"700"
 				"yres"		"768 1023"
@@ -1928,7 +1686,7 @@ Scheme
 			}
 			"4"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"20"
 				"weight"	"700"
 				"yres"		"1024 1199"
@@ -1936,7 +1694,7 @@ Scheme
 			}
 			"5"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"24"
 				"weight"	"700"
 				"yres"		"1200 10000"
@@ -1947,7 +1705,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"12"
 				"weight"	"700"
 				"yres"		"480 599"
@@ -1955,7 +1713,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"13"
 				"weight"	"700"
 				"yres"		"600 767"
@@ -1963,7 +1721,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"14"
 				"weight"	"700"
 				"yres"		"768 1023"
@@ -1971,7 +1729,7 @@ Scheme
 			}
 			"4"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"20"
 				"weight"	"700"
 				"yres"		"1024 1199"
@@ -1979,7 +1737,7 @@ Scheme
 			}
 			"5"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"24"
 				"weight"	"700"
 				"yres"		"1200 10000"
@@ -1990,7 +1748,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"10"
 				"weight"	"700"
 				"yres"		"480 599"
@@ -1998,7 +1756,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"10"
 				"weight"	"700"
 				"yres"		"600 767"
@@ -2006,7 +1764,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"13"
 				"weight"	"700"
 				"yres"		"768 1023"
@@ -2014,7 +1772,7 @@ Scheme
 			}
 			"4"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"14"
 				"weight"	"700"
 				"yres"		"1024 1199"
@@ -2022,7 +1780,7 @@ Scheme
 			}
 			"5"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"15"
 				"weight"	"700"
 				"yres"		"1200 10000"
@@ -2047,7 +1805,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"14"
 				"tall_lodef"	"18"
 				"range" 		"0x0000 0x00FF"
@@ -2060,7 +1818,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"12"
 				"weight"	"500"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
@@ -2072,7 +1830,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"8"
 				"weight"	"500"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
@@ -2085,7 +1843,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"8"
 				"tall_hidef"	"10"
 				"tall_lodef"	"12"
@@ -2098,7 +1856,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"9"
 				"tall_hidef"	"10"
 				"tall_lodef"	"16"
@@ -2112,7 +1870,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"11"  [!$OSX]
 				"tall"		"9"  [$OSX]
 				"weight"	"800"
@@ -2125,7 +1883,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"36"
 				"tall_lodef"		"28"
 				"weight"	"500"
@@ -2135,7 +1893,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"30"
 				"tall_lodef"		"22"
 				"weight"	"500"
@@ -2145,7 +1903,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"28"
 				"tall_lodef"	"24"
 				"weight"	"500"
@@ -2173,7 +1931,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"22"
 				"weight"	"500"
 			}
@@ -2182,7 +1940,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"18"
 				"weight"	"500"
 			}
@@ -2191,7 +1949,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"22"
 				"tall_lodef"		"18"
 				"weight"	"900"
@@ -2201,7 +1959,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"18"
 				"tall_lodef"		"18"
 				"weight"	"900"
@@ -2211,7 +1969,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"15"
 				"weight"	"900"
 			}
@@ -2221,7 +1979,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"36"
 				"weight"	"500"
 				"additive"	"0"
@@ -2232,7 +1990,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"11"
 				"weight"	"600"
 				"additive"	"0"
@@ -2243,7 +2001,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"18"
 				"weight"	"400"
 				"additive"	"0"
@@ -2264,7 +2022,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"10"
 				"weight"	"600"
 				"additive"	"0"
@@ -2275,7 +2033,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"10"
 				"weight"	"500"
 				"additive"	"0"
@@ -2286,7 +2044,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"7"
 				"weight"	"400"
 				"additive"	"0"
@@ -2298,7 +2056,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"10"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
@@ -2307,7 +2065,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"12"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
@@ -2316,7 +2074,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"15"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
@@ -2329,7 +2087,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"8"
 				"weight"	"500"
 				"additive"	"0"
@@ -2340,7 +2098,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"9"
 				"weight"	"500"
 				"additive"	"0"
@@ -2351,7 +2109,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"12"
 				"weight"	"500"
 				"additive"	"0"
@@ -2362,7 +2120,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"18"
 				"weight"	"500"
 				"additive"	"0"
@@ -2373,7 +2131,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"7"
 				"weight"	"500"
 				"additive"	"0"
@@ -2384,7 +2142,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"8"
 				"antialias" "1"
 				"weight"	"500"
@@ -2394,7 +2152,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"8"
 				"weight"	"500"
 				"additive"	"0"
@@ -2405,7 +2163,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"11"
 				"weight"	"500"
 				"additive"	"0"
@@ -2416,7 +2174,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"14"
 				"weight"	"500"
 				"additive"	"0"
@@ -2428,7 +2186,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"9"
 				"weight"	"500"
 				"additive"	"0"
@@ -2439,7 +2197,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"9"
 				"weight"	"500"
 				"blur"		"3"
@@ -2451,7 +2209,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"7"
 				"weight"	"0"
 				"additive"	"1"
@@ -2462,7 +2220,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"7" [!$POSIX]
 				"tall"		"8" [$POSIX]
 				"weight"	"0"
@@ -2474,7 +2232,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"7" [!$POSIX]
 				"tall"		"8" [$POSIX]
 				"weight"	"0"
@@ -2485,7 +2243,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"7" [!$POSIX]
 				"tall"		"8" [$POSIX]
 				"weight"	"0"
@@ -2498,7 +2256,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"7"
 				"weight"	"0"
 				"antialias" 	"1"
@@ -2590,7 +2348,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Medium Italic"
+				"name"		"TF2 Professor"
 				"tall"		"20"
 				"antialias" "1"
 				"custom"		"1" [$OSX]
@@ -2602,7 +2360,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"10"
 				"weight"	"400"
 				"yres"		"480 599"
@@ -2611,7 +2369,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"14"
 				"weight"	"400"
 				"additive"	"0"
@@ -2620,7 +2378,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"22"
 				"weight"	"400"
 				"additive"	"0"
@@ -2633,7 +2391,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"10"
 				"weight"	"400"
 				"yres"		"480 599"
@@ -2643,7 +2401,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"14"
 				"weight"	"400"
 				"additive"	"0"
@@ -2653,7 +2411,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"22"
 				"weight"	"400"
 				"additive"	"0"
@@ -2667,7 +2425,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"10"
 				"weight"	"800"
 				"yres"		"480 599"
@@ -2676,7 +2434,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"14"
 				"weight"	"800"
 				"additive"	"0"
@@ -2685,7 +2443,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"18"
 				"weight"	"800"
 				"additive"	"0"
@@ -2698,7 +2456,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"13"
 				"weight"	"400"
 				"additive"	"0"
@@ -2710,7 +2468,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"16"
 				"weight"	"400"
 				"additive"	"0"
@@ -2722,7 +2480,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"12"
 				"weight"	"400"
 				"additive"	"0"
@@ -2734,7 +2492,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"8"
 				"weight"	"400"
 				"additive"	"0"
@@ -2745,7 +2503,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"8"
 				"weight"	"0"
 				"antialias" 	"1"
@@ -2756,7 +2514,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"8"
 				"weight"	"400"
 				"antialias" "1"
@@ -2784,7 +2542,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"12"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
@@ -2792,7 +2550,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"12"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
@@ -2800,7 +2558,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"12"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
@@ -2809,7 +2567,7 @@ Scheme
 			}
 			"4"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"14"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
@@ -2818,7 +2576,7 @@ Scheme
 			}
 			"5"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"16"
 				"weight"	"0"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
@@ -2830,7 +2588,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"11"
 				"weight"	"500"
 				"additive"	"0"
@@ -2841,7 +2599,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"12"
 				"weight"	"0"
 				"range"		"0x0000 0x017F"
@@ -2849,7 +2607,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"13"
 				"weight"	"0"
 				"range"		"0x0000 0x017F"
@@ -2857,7 +2615,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"14"
 				"weight"	"0"
 				"range"		"0x0000 0x017F"
@@ -2866,7 +2624,7 @@ Scheme
 			}
 			"4"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"20"
 				"weight"	"0"
 				"range"		"0x0000 0x017F"
@@ -2875,7 +2633,7 @@ Scheme
 			}
 			"5"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"Verdana"
 				"tall"		"22"
 				"weight"	"0"
 				"range"		"0x0000 0x017F"
@@ -2894,7 +2652,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"11"
 				"weight"	"500"
 				"additive"	"0"
@@ -2905,7 +2663,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"14"
 				"weight"	"500"
 				"additive"	"0"
@@ -2916,7 +2674,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2"
 				"tall"		"18"
 				"tall_hidef"	"24"
 				"tall_lodef"	"18"
@@ -2929,7 +2687,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"24"
 				"weight"	"500"
 				"additive"	"0"
@@ -2940,7 +2698,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"18"
 				"tall_hidef"	"24"
 				"tall_lodef"	"20"
@@ -2953,11 +2711,12 @@ Scheme
 		//
 		//////////////////// ECON FONTS //////////////////////////////
 		//
+
 		"EconFontSmall"
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"14"
 				"weight"	"500"
 				"additive"	"0"
@@ -2968,7 +2727,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"24"
 				"weight"	"500"
 				"additive"	"0"
@@ -2980,7 +2739,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"15"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -2993,7 +2752,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat SemiBold"
+				"name"		"TF2 Secondary"
 				"tall"		"9"
 				"weight"	"400"
 				"additive"	"0"
@@ -3005,7 +2764,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"11"
 				"weight"	"500"
 				"antialias" 	"1"
@@ -3016,7 +2775,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"11"
 				"weight"	"500"
 				"blur"		"3"
@@ -3029,7 +2788,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Black"
+				"name"		"TF2 Build"
 				"tall"		"12"
 				"weight"	"500"
 				"additive"	"0"
@@ -3103,6 +2862,407 @@ Scheme
 				"antialias" "1"
 			}
 		}
+
+		//////////////// Custom Font Definitions :D////////////////
+
+		"Compacta14"
+		{
+			"1"
+			{
+				"name"	"Compacta BT"
+				"tall"	"14"
+			}
+		}
+		"Compacta16"
+		{
+			"1"
+			{
+				"name"	"Compacta BT"
+				"tall"	"16"
+			}
+		}
+		"Compacta18"
+		{
+			"1"
+			{
+				"name"	"Compacta BT"
+				"tall"	"18"
+			}
+		}
+		"Compacta20"
+		{
+			"1"
+			{
+				"name"	"Compacta BT"
+				"tall"	"20"
+			}
+		}
+		"Compacta24"
+		{
+			"1"
+			{
+				"name"	"Compacta BT"
+				"tall"	"24"
+			}
+		}
+		"Compacta28"
+		{
+			"1"
+			{
+				"name"	"Compacta BT"
+				"tall"	"28"
+			}
+		}
+		"Compacta32"
+		{
+			"1"
+			{
+				"name"	"Compacta BT"
+				"tall"	"32"
+			}
+		}
+		"Compacta36"
+		{
+			"1"
+			{
+				"name"	"Compacta BT"
+				"tall"	"36"
+			}
+		}
+		
+		"CompactaBlack14"
+		{
+			"1"
+			{
+				"name"	"Compacta BT Black"
+				"tall"	"14"
+			}
+		}
+		"CompactaBlack16"
+		{
+			"1"
+			{
+				"name"	"Compacta BT Black"
+				"tall"	"16"
+			}
+		}
+		"CompactaBlack20"
+		{
+			"1"
+			{
+				"name"	"Compacta BT Black"
+				"tall"	"20"
+			}
+		}
+		"CompactaBlack24"
+		{
+			"1"
+			{
+				"name"	"Compacta BT Black"
+				"tall"	"24"
+			}
+		}
+		"CompactaBlack28"
+		{
+			"1"
+			{
+				"name"	"Compacta BT Black"
+				"tall"	"28"
+			}
+		}
+		"CompactaBlack32"
+		{
+			"1"
+			{
+				"name"	"Compacta BT Black"
+				"tall"	"32"
+			}
+		}
+		"CompactaBlack36"
+		{
+			"1"
+			{
+				"name"	"Compacta BT Black"
+				"tall"	"36"
+			}
+		}
+		"CompactaBlack40"
+		{
+			"1"
+			{
+				"name"	"Compacta BT Black"
+				"tall"	"40"
+			}
+		}
+		"CompactaBlack44"
+		{
+			"1"
+			{
+				"name"	"Compacta BT Black"
+				"tall"	"44"
+			}
+		}
+		"MontserratBlack20"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"20"
+			}
+		}
+		"MontserratBlack24"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"24"
+			}
+		}
+		"MontserratBlack28"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"28"
+			}
+		}
+		"MontserratBlack32"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"32"
+			}
+		}
+		"MontserratBlack36"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"36"
+			}
+		}
+		"MontserratBlack40"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"40"
+			}
+		}
+		"MontserratBlack44"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"44"
+			}
+		}
+		"MontserratBlack48"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"48"
+			}
+		}
+		"MontserratBlack52"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"52"
+			}
+		}
+		"MontserratBlack56"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"56"
+			}
+		}
+		
+		"MontserratSemibold16"
+		{
+			"1"
+			{
+				"name"	"Montserrat SemiBold"
+				"tall"	"16"
+			}
+		}
+		"MontserratSemibold20"
+		{
+			"1"
+			{
+				"name"	"Montserrat SemiBold"
+				"tall"	"20"
+			}
+		}
+		"MontserratSemibold24"
+		{
+			"1"
+			{
+				"name"	"Montserrat SemiBold"
+				"tall"	"24"
+			}
+		}
+		"MontserratSemibold28"
+		{
+			"1"
+			{
+				"name"	"Montserrat SemiBold"
+				"tall"	"28"
+			}
+		}
+		"MontserratSemibold32"
+		{
+			"1"
+			{
+				"name"	"Montserrat SemiBold"
+				"tall"	"32"
+			}
+		}
+		
+		"MontserratLight6"
+		{
+			"1"
+			{
+				"name"	"Montserrat Light"
+				"tall"	"6"
+			}
+		}
+		"MontserratLight8"
+		{
+			"1"
+			{
+				"name"	"Montserrat Light"
+				"tall"	"8"
+			}
+		}
+		"MontserratLight12"
+		{
+			"1"
+			{
+				"name"	"Montserrat Light"
+				"tall"	"12"
+			}
+		}
+		"MontserratLight16"
+		{
+			"1"
+			{
+				"name"	"Montserrat Light"
+				"tall"	"16"
+			}
+		}
+		"MontserratLight20"
+		{
+			"1"
+			{
+				"name"	"Montserrat Light"
+				"tall"	"20"
+			}
+		}
+		"MenuGlyphs12"
+		{
+			"1"
+			{
+				"name"	"Bobby's TF2 Glyphs"
+				"tall"	"12"
+			}
+		}
+		
+		"MenuGlyphs16"
+		{
+			"1"
+			{
+				"name"	"Bobby's TF2 Glyphs"
+				"tall"	"16"
+			}
+		}
+		"MenuGlyphs20"
+		{
+			"1"
+			{
+				"name"	"Bobby's TF2 Glyphs"
+				"tall"	"20"
+			}
+		}
+		"MenuGlyphs24"
+		{
+			"1"
+			{
+				"name"	"Bobby's TF2 Glyphs"
+				"tall"	"24"
+			}
+		}
+		"MenuGlyphs28"
+		{
+			"1"
+			{
+				"name"	"Bobby's TF2 Glyphs"
+				"tall"	"28"
+			}
+		}
+		"MenuGlyphs32"
+		{
+			"1"
+			{
+				"name"	"Bobby's TF2 Glyphs"
+				"tall"	"32"
+			}
+		}
+		"MenuGlyphs36"
+		{
+			"1"
+			{
+				"name"	"Bobby's TF2 Glyphs"
+				"tall"	"36"
+			}
+		}
+		
+		"FuturaDemiCon8"
+		{
+			"1"
+			{
+				"name"	"Futura Condensed Demi Regular"
+				"tall"	"8"
+			}
+		}
+		"FuturaDemiCon10"
+		{
+			"1"
+			{
+				"name"	"Futura Condensed Demi Regular"
+				"tall"	"10"
+			}
+		}
+		"FuturaDemiCon12"
+		{
+			"1"
+			{
+				"name"	"Futura Condensed Demi Regular"
+				"tall"	"12"
+			}
+		}
+		"FuturaDemiCon14"
+		{
+			"1"
+			{
+				"name"	"Futura Condensed Demi Regular"
+				"tall"	"14"
+			}
+		}
+		"FuturaDemiCon16"
+		{
+			"1"
+			{
+				"name"	"Futura Condensed Demi Regular"
+				"tall"	"16"
+			}
+		}
+		
 	}
 
 	//
@@ -4965,7 +5125,7 @@ Scheme
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
-			"color"					"Orange"
+			"color"					"178 83 22 255"
 			
 			"image"					"button_glow"
 			"src_corner_height"		"4"				// pixels inside the image
@@ -4978,7 +5138,7 @@ Scheme
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
-			"color"					"Orange"
+			"color"					"238 103 17 255"
 			
 			"image"					"button_glow"
 			"src_corner_height"		"4"				// pixels inside the image
@@ -5786,6 +5946,19 @@ Scheme
 				}
 			}
 		}
+		
+		////////////////Custom Border Hi Speakers////////////////
+		PTMainMenuTooltip	//Used for the hover tooltips on the main menu 
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"loadout_header"
+			"src_corner_height"		"23"				// pixels inside the image
+			"src_corner_width"		"23"
+			"draw_corner_width"		"5"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"5"	
+		}
 	}
 
 	//////////////////////// CUSTOM FONT FILES /////////////////////////////
@@ -5801,7 +5974,7 @@ Scheme
 		"3"
 		{
 			"font" "resource/TF2.ttf"
-			"name" "Montserrat SemiBold"
+			"name" "TF2"
 			"russian"
 			{
 				"range" "0x0000 0xFFFF"
@@ -5814,7 +5987,7 @@ Scheme
 		"4" 
 		{
 			"font" "resource/TF2Secondary.ttf"
-			"name" "Montserrat SemiBold"
+			"name" "TF2 Secondary"
 			"russian"
 			{
 				"range" "0x0000 0xFFFF"
@@ -5827,7 +6000,7 @@ Scheme
 		"5" 
 		{
 			"font" "resource/TF2Professor.ttf"
-			"name" "Montserrat Medium Italic"
+			"name" "TF2 Professor"
 			"russian"
 			{
 				"range" "0x0000 0x00FF"
@@ -5840,7 +6013,7 @@ Scheme
 		"6" 
 		{
 			"font" "resource/TF2Build.ttf"
-			"name" "Montserrat Black"
+			"name" "TF2 Build"
 			"russian"
 			{
 				"range" "0x0000 0xFFFF"
@@ -5923,72 +6096,43 @@ Scheme
 		"15"		"resource/linux_fonts/LiberationSans-Bold.ttf"
 		"16"		"resource/linux_fonts/LiberationMono-Regular.ttf"
 		"17"		"resource/linux_fonts/FiraSans-Regular.ttf"
-		"18" 		
-		{	
-		"font" "resource/fonts/Montserrat-Black.ttf"
-		"name" "Montserrat Black"
-		}
-		"19"
+		
+		//Bobby Joe's Custom Fonts Installation :D
+		
+		"18"	//Compacta Regular
 		{
-		"font" "resource/fonts/Montserrat-Bold.ttf"
-		"name" "Montserrat Bold"
+				"font"	"resource/fonts/Compacta-BT.ttf"
+				"name"	"Compacta BT"
 		}
-		"20"
+		"19"	//Compacta Black
 		{
-		"font" "resource/fonts/Montserrat-Medium.ttf"
-		"name" "Montserrat Medium"
+				"font"	"resource/fonts/Compacta-BT-Black.ttf"
+				"name"	"Compacta BT Black"
+		}
+		"20"	//Glyphs font
+		{
+				"font"	"resource/fonts/TF2-Glyphs.ttf"
+				"name"	"Bobby's TF2 Glyphs"
 		}
 		"21"
 		{
-		"font" "resource/fonts/Montserrat-Regular.ttf"
-		"name" "Montserrat Regular"
+				"font"	"resource/fonts/Futura-Condensed-Demi.ttf"
+				"name"	"Futura Condensed Demi Regular"
 		}
 		"22"
 		{
-		"font" "resource/fonts/Montserrat-SemiBold.ttf"
-		"name" "Montserrat SemiBold"
+				"font"	"resource/fonts/Montserrat-Black.ttf"
+				"name"	"Montserrat Black"
 		}
 		"23"
 		{
-		"font" "resource/fonts/Montserrat-Thin.ttf"
-		"name" "Montserrat Thin"
+				"font"	"resource/fonts/Montserrat-SemiBold.ttf"
+				"name"	"Montserrat SemiBold"
 		}
 		"24"
 		{
-		"font" "resource/fonts/Montserrat-Light.ttf"
-		"name" "Montserrat Light"
+				"font"	"resource/fonts/Montserrat-Light.ttf"
+				"name"	"Montserrat Light"
 		}
-		"25"
-		{
-		"font" "resource/fonts/Montserrat-ExtraBold.ttf"
-		"name" "Montserrat ExtraBold"
-		}
-		"26"
-		{
-		"font" "resource/fonts/Montserrat-ExtraLight.ttf"
-		"name" "Montserrat ExtraLight"
-		}
-		"27"
-		{
-		"font" "resource/fonts/Montserrat-BlackItalic.ttf"
-		"name" "Montserrat Black Italic"
-		}
-		"28"
-		{
-		"font" "resource/fonts/Montserrat-BoldItalic.ttf"
-		"name" "Montserrat Bold Italic"
-		}
-		"29"
-		{
-		"font" "resource/fonts/Montserrat-MediumItalic.ttf"
-		"name" "Montserrat Medium Italic"
-		}
-		"30"
-		{
-		"font" "resource/fonts/Montserrat-Italic.ttf"
-		"name" "Montserrat Italic"
-		}
-
-
 	}
 }

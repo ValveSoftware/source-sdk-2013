@@ -2,13 +2,6 @@
 //Some elements cannot be disabled with visible and enabled set to 0.
 //These elements are set in the sky, remove the last four 9999's to reenable them.
 
-
-	// The following buttons are not enabled due to TF2 SDK disabling them.
-		// WatchStreamButton, QuestLogButton (Contracker), RequestCoachButton, NewUserForumsButton, CommentaryButton, CoachPlayersButton.
-
-	// These following buttons are disabled as we didn't need them.
-		// MOTD_ShowButtonPanel, CharacterSetupButton, AchievementsButton, ReplayButton, ReportBugButton.
-
 "Resource/UI/MainMenuOverride.res"
 {
 	MainMenuOverride
@@ -88,8 +81,8 @@
 		}
 		
 		
-				//This button needs to be set invisible once we release.
-		    "ReloadMenuButton"
+		
+	"ReloadMenuButton"
     {
         "ControlName"    "CExImageButton"
         "fieldName"        "ReloadMenuButton"
@@ -238,35 +231,18 @@
 			"image"		"../console/snowy_arena_widescreen"
 		}		
 	}
-	
-	"PassTimeLogo"
-	{
-		"ControlName"	"ImagePanel"
-		"fieldName"		"PassTimeLogo"
-		"xpos"			"40"
-		"ypos"			"32"
-		"zpos"			"1"
-		"wide"			"168"
-		"tall"			"84"
-		"visible"		"1"
-		"enabled"		"1"
-		"image"			"../hud/pass_time_logo_eu"
-		"scaleImage"	"1"
-		"mouseinputenabled"	"0"
-	}	
-	
 					
 	"TFLogoImage"
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"TFLogoImage"
-		"xpos"			"c-290"
-		"ypos"			"32"
+		"xpos"			"0"
+		"ypos"			"65"
 		"zpos"			"1"
 		"wide"			"256"
 		"tall"			"64"
-		"visible"		"0"
-		"enabled"		"0"
+		"visible"		"1"
+		"enabled"		"1"
 		"image"			"../logo/new_tf2_logo"
 		"scaleImage"	"1"
 		"mouseinputenabled"	"0"
@@ -295,24 +271,24 @@
 		"xpos"			"0"
 		"ypos"			"0"
 		"zpos"			"10000"
-		"wide"			"150"
-		"tall"			"50"
+		"wide"			"75"
+		"tall"			"25"
 		"visible"		"0"
 		"PaintBackgroundType"	"2"
-		"border"		"MainMenuBGBorder"
+		"border"		"TFFatLineBorderOpaque"
 		
 		"TipSubLabel"
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"TipSubLabel"
-			"font"			"HudFontSmall"
+			"font"			"Compacta16"
 			"labelText"		"%tipsubtext%"
 			"textAlignment"	"center"
 			"xpos"			"20"
 			"ypos"			"30"
 			"zpos"			"2"
 			"wide"			"250"
-			"tall"			"50"
+			"tall"			"25"
 			"autoResize"	"0"
 			"pinCorner"		"0"
 			"visible"		"1"
@@ -325,14 +301,14 @@
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"TipLabel"
-			"font"			"HudFontSmallBold"
+			"font"			"Compacta16"
 			"labelText"		"%tiptext%"
 			"textAlignment"	"center"
-			"xpos"			"20"
+			"xpos"			"10"
 			"ypos"			"5"
 			"zpos"			"2"
 			"wide"			"140"
-			"tall"			"30"
+			"tall"			"20"
 			"autoResize"	"0"
 			"pinCorner"		"0"
 			"visible"		"1"
@@ -342,625 +318,687 @@
 		}
 	}	
 	
-	"PlayMainMenuBGBorder"
+	"ServerBrowserButton"		//Play button
 	{
 		"ControlName"	"EditablePanel"
-		"fieldname"		"PlayMainMenuBGBorder"
-		"xpos"			"40"
-		"ypos"			"150"		//97
-		"zpos"			"0"
-		"wide"			"170"
-		"tall"			"145"
-		"visible"		"1"
-		"PaintBackgroundType"	"0"
-		"border"		"MainMenuBGBorder"
-	}
-	
-	"PlayText"
-	{
-		"Controlname"		"CExLabel"
-		"fieldname"			"PlayText"
-		"labelText"			"Play"
-		"font"				"HudFontSmallishBold"
-		"textAlignment"			"west"
-		"xpos"					"55"
-		"ypos"					"157"
-		"wide"					"150"
-		"tall"					"25"
-		"zpos"					"1"
-		"visible"				"1"
-		"enabled"				"1"
-	}
-	
-	
-			//PLAY button
-		"ServerBrowserButton"
-	{
-		"ControlName"	"CExImageButton"
 		"fieldname"		"ServerBrowserButton"
-		"xpos"			"50"
-		"ypos"			"183"
-		"zpos"			"15"
-		"wide"			"150"
-		"tall"			"30"
-		"visible"		"1"
-
-		"font"			"HudFontSmallBold"
-		"command" 		"OpenServerBrowser"
-		"labeltext"		"Servers"
-		"OnlyInGame"	"1"
-
-		"border_default"	"MainMenuButtonDefault"
-		"border_armed"		"MainMenuButtonArmed"
+		"xpos"			"40"
+		"ypos"			"153"
+		"zpos"			"3"
+		"wide"			"60"
+		"tall"			"35"
 		
-		"paintbackground"	"0"
-		"paintborder"		"1"
+		"SubButton"
+		{
+			"ControlName"	"CExImageButton"
+			"fieldName"		"SubButton"
+			"zpos"			"3"
+			"wide"			"65"
+			"tall"			"35"
+			"autoResize"	"0"
+			"pinCorner"		"3"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+			"font"			"MontserratBlack36"
+			"textAlignment"	"west"
+			"dulltext"		"0"
+			"brighttext"	"0"
+			"default"		"1"
 			
-		"FgColor" 					"Black"
-		"defaultFgColor_override" 	"Black"
-		"armedFgColor_override" 	"Flavor"
-		"depressedFgColor_override" "Black"
-		
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-
-		"image_drawcolor"	"117 107 94 255"
-		"image_armedcolor"	"200 80 60 255"
-		"textinsetx"	"55"
+			"sound_armed"        "UI/buttonrollover.wav"
+			"sound_depressed"	"UI/buttonclick.wav"
+			"sound_released"	"UI/buttonclickrelease.wav"
 			
-				"SubImage"
-				{
-					"ControlName"	"ImagePanel"
-					"fieldName"		"SubImage"
-					"xpos"			"7.5"
-					"ypos"			"8"
-					"zpos"			"1"
-					"wide"			"14"
-					"tall"			"14"
-					"visible"		"1"
-					"enabled"		"1"
-					"scaleImage"	"1"
-					"image"			"glyph_multiplayer"
-			}
-	
+			"paintbackground"	"0"
+			"paintborder"		"0"
+			
+			"navUp"			"SettingsButton"
+			"navDown"		"ReplayButton"
+			"navRight"		"HostAServerButton"
+			
+			"FgColor" 					"TanLight"
+			"defaultFgColor_override" 	"TanLight"
+			"armedFgColor_override" 	"LightOrange"
+			"depressedFgColor_override" "Black"
+		}
 	}
 	
-	"LearnButton"
+	"PlayModeShadow"
 	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"LearnButton"
-		"xpos"			"50"
-		"ypos"			"218"
-		"zpos"			"15"
-		"wide"			"150"
-		"tall"			"30"
+		"ControlName"	"CExLabel"
+		"fieldName"		"PlayModeShadow"
+		"xpos"			"48"
+		"ypos"			"155.5"
+		"zpos"			"2"
+		"wide"			"200"
+		"tall"			"35"
+		"autoResize"	"0"
+		"pinCorner"		"3"
 		"visible"		"1"
-
-		"font"			"HudFontSmallBold"
-		"command" 		"engine echo learn"
-		"labeltext"		"Learn"
-		"OnlyInGame"	"1"
-
-		"border_default"	"MainMenuButtonDefault"
-		"border_armed"		"MainMenuButtonArmed"
+		"enabled"		"1"
+		"tabPosition"	"0"
+		"labeltext"		"Play | Host"
+		"font"			"MontserratBlack36"
+		"textAlignment"	"west"
+		"dulltext"		"0"
+		"brighttext"	"0"
+		"default"		"1"
 		
 		"paintbackground"	"0"
-		"paintborder"		"1"
-			
-		"FgColor" 					"Black"
-		"defaultFgColor_override" 	"Black"
-		"armedFgColor_override" 	"Flavor"
-		"depressedFgColor_override" "Black"
+		"paintborder"		"0"
 		
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-
-		"image_drawcolor"	"117 107 94 255"
-		"image_armedcolor"	"200 80 60 255"
-		"textinsetx"	"55"
-			
-				"SubImage"
-				{
-					"ControlName"	"ImagePanel"
-					"fieldName"		"SubImage"
-					"xpos"			"7.5"
-					"ypos"			"8"
-					"zpos"			"1"
-					"wide"			"14"
-					"tall"			"14"
-					"visible"		"1"
-					"enabled"		"1"
-					"scaleImage"	"1"
-					"image"			"glyph_tutorial"
-			}
-	
+		"navUp"			"SettingsButton"
+		"navDown"		"ReplayButton"
+		"navRight"		"HostAServerButton"
+		
+		"fgcolor"		"TransparentLightBlack"
 	}
 	
-	
-	"HostAServerButton"
+	"PlayModePipe"
 	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"HostAServerButton"
-		"xpos"			"50"
-		"ypos"			"253"
-		"zpos"			"15"
-		"wide"			"150"
-		"tall"			"30"
+		"ControlName"	"CExLabel"
+		"fieldName"		"PlayModePipe"
+		"xpos"			"107"
+		"ypos"			"153"
+		"zpos"			"3"
+		"wide"			"70"
+		"tall"			"35"
+		"autoResize"	"0"
+		"pinCorner"		"3"
 		"visible"		"1"
+		"enabled"		"1"
+		"tabPosition"	"0"
+		"use_proportional_insets" "1"
+		"font"			"MontserratBlack36"
+		"textAlignment"	"west"
+		"dulltext"		"0"
+		"brighttext"	"0"
+		"default"		"1"
+		"labelText"		"|"
 
-		"font"			"HudFontSmallBold"
-		"command" 		"OpenCreateMultiplayerGameDialog"
-		"labeltext"		"Host a server"
-		
-		"border_default"	"MainMenuButtonDefault"
-		"border_armed"		"MainMenuButtonArmed"
-		
 		"paintbackground"	"0"
 		"paintborder"		"1"
 			
-		"FgColor" 					"Black"
-		"defaultFgColor_override" 	"Black"
-		"armedFgColor_override" 	"Flavor"
-		"depressedFgColor_override" "Black"
+		"FgColor" 					"TanLight"
+		"defaultFgColor_override" 	"TanLight"
 		
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
 
-		"image_drawcolor"	"117 107 94 255"
-		"image_armedcolor"	"200 80 60 255"
-		"textinsetx"	"55"
-			
-				"SubImage"
-				{
-					"ControlName"	"ImagePanel"
-					"fieldName"		"SubImage"
-					"xpos"			"7.5"
-					"ypos"			"8"
-					"zpos"			"1"
-					"wide"			"14"
-					"tall"			"14"
-					"visible"		"1"
-					"enabled"		"1"
-					"scaleImage"	"1"
-					"image"			"glyph_server"
-			}
 	}
 	
-		"CustomizeMainMenuBGBorder"
+	"ReplayButton"
 	{
 		"ControlName"	"EditablePanel"
-		"fieldname"		"CustomizeMainMenuBGBorder"
+		"fieldname"		"ReplayButton"
 		"xpos"			"40"
-		"ypos"			"300"
-		"zpos"			"0"
-		"wide"			"170"
-		"tall"			"145"
+		"ypos"			"198"
+		"zpos"			"4"
+		"wide"			"90"
+		"tall"			"35"
+		"visible"		"1"
+
+		"SubButton"
+		{
+			"ControlName"	"CExImageButton"
+			"fieldName"		"SubButton"
+			"wide"			"90"
+			"tall"			"35"
+			"zpos"			"4"
+			"autoResize"	"0"
+			"pinCorner"		"3"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+			"use_proportional_insets" "1"
+			"font"			"MontserratBlack36"
+			"textAlignment"	"west"
+			"dulltext"		"0"
+			"brighttext"	"0"
+			"default"		"1"
+			
+			"sound_armed"        "UI/buttonrollover.wav"
+			"sound_depressed"	"UI/buttonclick.wav"
+			"sound_released"	"UI/buttonclickrelease.wav"	
+
+			"paintbackground"	"0"
+			"paintborder"		"0"
+			
+			"navUp"			"SettingsButton"
+			"navDown"		"ReplayBrowserButton"
+			"navLeft"		"ServerBrowserButton"
+			"navRight"		"FriendsContainer"
+			
+			"FgColor" 					"TanLight"
+			"defaultFgColor_override" 	"TanLight"
+			"armedFgColor_override" 	"LightOrange"
+			"depressedFgColor_override" "Black"
+		}
+	}
+	
+	"ReplayShadow"
+	{
+		"ControlName"	"CExLabel"
+		"fieldName"		"ReplayShadow"
+		"xpos"			"48"
+		"ypos"			"200.5"
+		"zpos"			"2"
+		"wide"			"200"
+		"tall"			"35"
+		"autoResize"	"0"
+		"pinCorner"		"3"
+		"visible"		"1"
+		"enabled"		"1"
+		"tabPosition"	"0"
+		"labeltext"		"Watch"
+		"font"			"MontserratBlack36"
+		"textAlignment"	"west"
+		"dulltext"		"0"
+		"brighttext"	"0"
+		"default"		"1"
+		
+		"paintbackground"	"0"
+		"paintborder"		"0"
+		
+		"navUp"			"SettingsButton"
+		"navDown"		"ReplayButton"
+		"navRight"		"HostAServerButton"
+		
+		"fgcolor"		"TransparentLightBlack"
+	}
+
+	"HostAServerButton"		//Host Button
+	{
+		"ControlName"	"EditablePanel"
+		"fieldname"		"HostAServerButton"
+		"xpos"			"116"
+		"ypos"			"153"
+		"zpos"			"4"
+		"wide"			"65"
+		"tall"			"35"
+		"visible"		"1"
+
+		"SubButton"
+		{
+			"ControlName"	"CExImageButton"
+			"fieldName"		"SubButton"
+			"wide"			"65"
+			"tall"			"35"
+			"zpos"			"4"
+			"autoResize"	"0"
+			"pinCorner"		"3"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+			"use_proportional_insets" "1"
+			"font"			"MontserratBlack36"
+			"textAlignment"	"west"
+			"dulltext"		"0"
+			"brighttext"	"0"
+			"default"		"1"
+			
+			"sound_armed"        "UI/buttonrollover.wav"
+			"sound_depressed"	"UI/buttonclick.wav"
+			"sound_released"	"UI/buttonclickrelease.wav"	
+
+			"paintbackground"	"0"
+			"paintborder"		"0"
+			
+			"navUp"			"SettingsButton"
+			"navDown"		"ReplayBrowserButton"
+			"navLeft"		"ServerBrowserButton"
+			"navRight"		"FriendsContainer"
+			
+			"FgColor" 					"TanLight"
+			"defaultFgColor_override" 	"TanLight"
+			"armedFgColor_override" 	"LightOrange"
+			"depressedFgColor_override" "Black"
+		}
+	}
+	
+	"LearnButton"		//LEARN Button
+	{
+		"ControlName"	"EditablePanel"
+		"fieldname"		"LearnButton"
+		"xpos"			"40"
+		"ypos"			"243"
+		"zpos"			"15"
+		"wide"			"85"
+		"tall"			"35"
+		"visible"		"1"
+
+		"SubButton"
+		{
+			"ControlName"	"CExImageButton"
+			"fieldName"		"SubButton"
+			"wide"			"85"
+			"tall"			"35"
+			"autoResize"	"0"
+			"pinCorner"		"3"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+			"use_proportional_insets" "1"
+			"font"			"MontserratBlack36"
+			"textAlignment"	"west"
+			"dulltext"		"0"
+			"brighttext"	"0"
+			"default"		"1"
+			
+			"sound_armed"        "UI/buttonrollover.wav"
+			"sound_depressed"	"UI/buttonclick.wav"
+			"sound_released"	"UI/buttonclickrelease.wav"
+			
+			"paintbackground"	"0"
+			"paintborder"		"0"
+			
+			"navUp"			"ReplayBrowserButton"
+			"navDown"		"EquipButton"
+			"navRight"		"FriendsContainer"
+			
+			"FgColor" 					"TanLight"
+			"defaultFgColor_override" 	"TanLight"
+			"armedFgColor_override" 	"LightOrange"
+			"depressedFgColor_override" "Black"
+		}
+	}
+	
+	"TutorialShadow"
+	{
+		"ControlName"	"CExLabel"
+		"fieldName"		"TutorialShadow"
+		"xpos"			"48"
+		"ypos"			"245.5"
+		"zpos"			"2"
+		"wide"			"200"
+		"tall"			"35"
+		"autoResize"	"0"
+		"pinCorner"		"3"
+		"visible"		"1"
+		"enabled"		"1"
+		"tabPosition"	"0"
+		"labeltext"		"Learn"
+		"font"			"MontserratBlack36"
+		"textAlignment"	"west"
+		"dulltext"		"0"
+		"brighttext"	"0"
+		"default"		"1"
+		
+		"paintbackground"	"0"
+		"paintborder"		"0"
+		
+		"navUp"			"SettingsButton"
+		"navDown"		"ReplayButton"
+		"navRight"		"HostAServerButton"
+		
+		"fgcolor"		"TransparentLightBlack"
+	}
+	
+	"EquipButton"		//EQUIP Button
+	{
+		"ControlName"	"EditablePanel"
+		"fieldname"		"EquipButton"
+		"xpos"			"40"
+		"ypos"			"288"
+		"zpos"			"15"
+		"wide"			"80"
+		"tall"			"35"
 		"visible"		"1"
 		"PaintBackgroundType"	"0"
-		"border"		"MainMenuBGBorder"
-	}
-	
-	"CustomizeText"
-	{
-		"Controlname"		"CExLabel"
-		"fieldname"			"PlayText"
-		"labelText"			"Customize"
-		"font"				"HudFontSmallishBold"
-		"textAlignment"			"west"
-		"xpos"					"55"
-		"ypos"					"307"
-		"wide"					"160"
-		"tall"					"25"
-		"zpos"					"1"
-		"visible"				"1"
-		"enabled"				"1"
-	}
-	
-	
-		"LoadoutButton"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"LoadoutButton"
-		"xpos"			"50"
-		"ypos"			"333"
-		"zpos"			"15"
-		"wide"			"150"
-		"tall"			"30"
-		"visible"		"1"
 
-		"font"			"HudFontSmallBold"
-		"command" 		"engine open_charinfo_direct"
-		"labeltext"		"Loadout"
-		
-		"border_default"	"MainMenuButtonDefault"
-		"border_armed"		"MainMenuButtonArmed"
+		"SubButton"
+		{
+			"ControlName"	"CExImageButton"
+			"fieldName"		"SubButton"
+			"wide"			"80"
+			"tall"			"35"
+			"autoResize"	"0"
+			"pinCorner"		"3"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+			"use_proportional_insets" "1"
+			"font"			"MontserratBlack36"
+			"textAlignment"	"west"
+			"dulltext"		"0"
+			"brighttext"	"0"
+			"default"		"1"
+			
+			"sound_armed"        "UI/buttonrollover.wav"
+			"sound_depressed"	"UI/buttonclick.wav"
+			"sound_released"	"UI/buttonclickrelease.wav"
+			
+			"paintbackground"	"0"
+			"paintborder"		"0"
+			
+			"navUp"			"LearnButton"
+			"navDown"		"SettingsButton"
+			"navRight"		"FriendsContainer"
+			
+			"FgColor" 					"TanLight"
+			"defaultFgColor_override" 	"TanLight"
+			"armedFgColor_override" 	"LightOrange"
+			"depressedFgColor_override" "Black"	
+		}
+	}
+	
+	"EquipShadow"
+	{
+		"ControlName"	"CExLabel"
+		"fieldName"		"EquipShadow"
+		"xpos"			"48"
+		"ypos"			"290.5"
+		"zpos"			"2"
+		"wide"			"200"
+		"tall"			"35"
+		"autoResize"	"0"
+		"pinCorner"		"3"
+		"visible"		"1"
+		"enabled"		"1"
+		"tabPosition"	"0"
+		"labeltext"		"Equip"
+		"font"			"MontserratBlack36"
+		"textAlignment"	"west"
+		"dulltext"		"0"
+		"brighttext"	"0"
+		"default"		"1"
 		
 		"paintbackground"	"0"
-		"paintborder"		"1"
-			
-		"FgColor" 					"Black"
-		"defaultFgColor_override" 	"Black"
-		"armedFgColor_override" 	"Flavor"
-		"depressedFgColor_override" "Black"
+		"paintborder"		"0"
 		
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-
-		"image_drawcolor"	"117 107 94 255"
-		"image_armedcolor"	"200 80 60 255"
-		"textinsetx"	"55"
-			
-				"SubImage"
-				{
-					"ControlName"	"ImagePanel"
-					"fieldName"		"SubImage"
-					"xpos"			"7.5"
-					"ypos"			"8"
-					"zpos"			"1"
-					"wide"			"14"
-					"tall"			"14"
-					"visible"		"1"
-					"enabled"		"1"
-					"scaleImage"	"1"
-					"image"			"glyph_items"
-			}
+		"navUp"			"SettingsButton"
+		"navDown"		"ReplayButton"
+		"navRight"		"HostAServerButton"
+		
+		"fgcolor"		"TransparentLightBlack"
 	}
 	
-	
-	"SettingsButtonSDK"
+	"QuitButton"
 	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"SettingsButtonSDK"
-		"xpos"			"50"
-		"ypos"			"368"
+		"ControlName"	"EditablePanel"
+		"fieldname"		"QuitButton"
+		"xpos"			"38"
+		"ypos"			"318"
 		"zpos"			"15"
-		"wide"			"150"
-		"tall"			"30"
+		"wide"			"45"
+		"tall"			"25"
 		"visible"		"1"
+		"PaintBackgroundType"	"0"
 
-		"font"			"HudFontSmallBold"
-		"command" 		"OpenOptionsDialog"
-		"labeltext"		"Options"
-		
-		"border_default"	"MainMenuButtonDefault"
-		"border_armed"		"MainMenuButtonArmed"
-		
-		"paintbackground"	"0"
-		"paintborder"		"1"
+		"SubButton"
+		{
+			"ControlName"	"CExImageButton"
+			"fieldName"		"SubButton"
+			"zpos"			"3"
+			"wide"			"45"
+			"tall"			"25"
+			"autoResize"	"0"
+			"pinCorner"		"3"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+			"use_proportional_insets" "1"
+			"font"			"MontserratSemibold20"
+			"textAlignment"	"west"
+			"dulltext"		"0"
+			"brighttext"	"0"
+			"default"		"1"
 			
-		"FgColor" 					"Black"
-		"defaultFgColor_override" 	"Black"
-		"armedFgColor_override" 	"Flavor"
-		"depressedFgColor_override" "Black"
-		
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-
-		"image_drawcolor"	"117 107 94 255"
-		"image_armedcolor"	"200 80 60 255"
-		"textinsetx"	"55"
+			"sound_armed"        "UI/buttonrollover.wav"
+			"sound_depressed"	"UI/buttonclick.wav"
+			"sound_released"	"UI/buttonclickrelease.wav"
 			
-				"SubImage"
-				{
-					"ControlName"	"ImagePanel"
-					"fieldName"		"SubImage"
-					"xpos"			"7.5"
-					"ypos"			"8"
-					"zpos"			"1"
-					"wide"			"14"
-					"tall"			"14"
-					"visible"		"1"
-					"enabled"		"1"
-					"scaleImage"	"1"
-					"image"			"glyph_options"
-			}
+			"paintbackground"	"0"
+			"paintborder"		"1"
+			
+			"FgColor" 					"Tan"
+			"defaultFgColor_override" 	"Tan"
+			"armedFgColor_override" 	"RedSolid"
+			"depressedFgColor_override" "Black"	
+		}
+		"QuitShadow"
+		{
+			"ControlName"	"CExLabel"
+			"fieldName"		"QuitShadow"
+			"xpos"			"12"
+			"ypos"			"1"
+			"zpos"			"2"
+			"wide"			"32"
+			"tall"			"25"
+			"autoResize"	"0"
+			"pinCorner"		"3"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+			"labeltext"		"Quit"
+			"font"			"MontserratSemibold20"
+			"textAlignment"	"west"
+			"dulltext"		"0"
+			"brighttext"	"0"
+			"default"		"1"
+			
+			"paintbackground"	"0"
+			"paintborder"		"0"
+			
+			"fgcolor"		"TransparentLightBlack"
+		}
 	}
-	
-	
-	"SettingsAdvancedButton"
+
+	"DisconnectButton"
 	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"SettingsAdvancedButton"
-		"xpos"			"50"
-		"ypos"			"403"
+		"ControlName"	"EditablePanel"
+		"fieldname"		"DisconnectButton"
+		"xpos"			"38"
+		"ypos"			"318"
 		"zpos"			"15"
-		"wide"			"150"
-		"tall"			"30"
+		"wide"			"85"
+		"tall"			"25"
 		"visible"		"1"
+		"PaintBackgroundType"	"0"
 
-		"font"			"HudFontSmallBold"
-		"command" 		"opentf2options"
-		"labeltext"		"Adv. Options"
-		
-		"border_default"	"MainMenuButtonDefault"
-		"border_armed"		"MainMenuButtonArmed"
-		
-		"paintbackground"	"0"
-		"paintborder"		"1"
+		"SubButton"
+		{
+			"ControlName"	"CExImageButton"
+			"fieldName"		"SubButton"
+			"zpos"			"3"
+			"wide"			"85"
+			"tall"			"25"
+			"autoResize"	"0"
+			"pinCorner"		"3"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+			"use_proportional_insets" "1"
+			"font"			"MontserratSemibold20"
+			"textAlignment"	"west"
+			"dulltext"		"0"
+			"brighttext"	"0"
+			"default"		"1"
 			
-		"FgColor" 					"Black"
-		"defaultFgColor_override" 	"Black"
-		"armedFgColor_override" 	"Flavor"
-		"depressedFgColor_override" "Black"
-		
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-
-		"image_drawcolor"	"117 107 94 255"
-		"image_armedcolor"	"200 80 60 255"
-		"textinsetx"	"55"
+			"sound_armed"        "UI/buttonrollover.wav"
+			"sound_depressed"	"UI/buttonclick.wav"
+			"sound_released"	"UI/buttonclickrelease.wav"
 			
-				"SubImage"
-				{
-					"ControlName"	"ImagePanel"
-					"fieldName"		"SubImage"
-					"xpos"			"7.5"
-					"ypos"			"8"
-					"zpos"			"1"
-					"wide"			"14"
-					"tall"			"14"
-					"visible"		"1"
-					"enabled"		"1"
-					"scaleImage"	"1"
-					"image"			"glyph_options"
-			}
+			"paintbackground"	"0"
+			"paintborder"		"1"
+			
+			"FgColor" 					"Tan"
+			"defaultFgColor_override" 	"Tan"
+			"armedFgColor_override" 	"RedSolid"
+			"depressedFgColor_override" "Black"	
+		}
+		
+		"DisconnectShadow"
+		{
+			"ControlName"	"CExLabel"
+			"fieldName"		"QuitShadow"
+			"xpos"			"11"
+			"ypos"			"2"
+			"zpos"			"2"
+			"wide"			"85"
+			"tall"			"25"
+			"autoResize"	"0"
+			"pinCorner"		"3"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+			"labeltext"		"Disconnect"
+			"font"			"MontserratSemibold20"
+			"textAlignment"	"west"
+			"dulltext"		"0"
+			"brighttext"	"0"
+			"default"		"1"
+			
+			"paintbackground"	"0"
+			"paintborder"		"0"
+			
+			"fgcolor"		"TransparentLightBlack"
 		}
 	}
 	
 	
 	
-	
-	"QuitMainMenuBGBorder"
+	"SettingsButton"
 	{
 		"ControlName"	"EditablePanel"
-		"fieldname"		"QuitMainMenuBGBorder"
-		"xpos"			"rs1-25"
-		"ypos"			"395"
-		"zpos"			"0"
-		"wide"			"170"
-		"tall"			"45"
-		"visible"		"1"
-		"PaintBackgroundType"	"0"
-		"border"		"MainMenuBGBorder"
-	}
-	
-	
-	"DisconnectButton"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"DisconnectButton"
-		"xpos"			"rs1-35"
-		"ypos"			"403"
+		"fieldname"		"SettingsButton"
+		"xpos"			"40"
+		"ypos"			"380"
 		"zpos"			"15"
-		"wide"			"150"
-		"tall"			"30"
+		"wide"			"24"
+		"tall"			"24"
 		"visible"		"1"
 		"PaintBackgroundType"	"0"
 
-		"font"			"HudFontSmallBold"
-		"command" 		"engine disconnect"
-		"labeltext"		"Disconnect"
-		"OnlyInGame"	"1"
-
-		"border_default"	"MainMenuButtonDefault"
-		"border_armed"		"MainMenuButtonArmed"
-		
-		"paintbackground"	"0"
-		"paintborder"		"1"
+		"SubButton"
+		{
+			"ControlName"	"CExImageButton"
+			"fieldName"		"SubButton"
+			"wide"			"24"
+			"tall"			"24"
+			"autoResize"	"0"
+			"pinCorner"		"3"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+			"use_proportional_insets" "1"
+			"font"			"MenuGlyphs12"
+			"textAlignment"	"west"
+			"dulltext"		"0"
+			"brighttext"	"0"
+			"default"		"1"
 			
-		"FgColor" 					"Black"
-		"defaultFgColor_override" 	"Black"
-		"armedFgColor_override" 	"Flavor"
-		"depressedFgColor_override" "Black"
-		
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-
-		"image_drawcolor"	"117 107 94 255"
-		"image_armedcolor"	"200 80 60 255"
-		"textinsetx"	"55"
+			"sound_depressed"	"UI/buttonclick.wav"
+			"sound_released"	"UI/buttonclickrelease.wav"
 			
-				"SubImage"
-				{
-					"ControlName"	"ImagePanel"
-					"fieldName"		"SubImage"
-					"xpos"			"7.5"
-					"ypos"			"8"
-					"zpos"			"1"
-					"wide"			"14"
-					"tall"			"14"
-					"visible"		"1"
-					"enabled"		"1"
-					"scaleImage"	"1"
-					"image"			"glyph_close_x"
-			}
-	
+			"paintbackground"	"0"
+			"paintborder"		"0"
+			
+			"navUp"			"EquipButton"
+			"navDown"		"ServerBrowserButton"
+			"navRight"		"SettingsAdvancedButton"
+			
+			"FgColor" 					"Tan"
+			"defaultFgColor_override" 	"Tan"
+			"armedFgColor_override" 	"LightOrange"
+			"depressedFgColor_override" "Black"	
+		}
 	}
 	
-
-	"QuitButton"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"QuitButton"
-		"xpos"			"rs1-35"
-		"ypos"			"403"
-		"zpos"			"15"
-		"wide"			"150"
-		"tall"			"30"
-		"visible"		"0"
-		"PaintBackgroundType"	"0"
-    
-		"font"			"HudFontSmallBold"
-		"command" 		"engine quit prompt"
-		"labeltext"		"Quit"
-		"OnlyAtMenu"	"1"
-
-		"border_default"	"MainMenuButtonDefault"
-		"border_armed"		"MainMenuButtonArmed"
-		
-		"paintbackground"	"0"
-		"paintborder"		"1"
-			
-		"FgColor" 					"Black"
-		"defaultFgColor_override" 	"Black"
-		"armedFgColor_override" 	"Flavor"
-		"depressedFgColor_override" "Black"
-		
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-
-		"image_drawcolor"	"117 107 94 255"
-		"image_armedcolor"	"200 80 60 255"
-		"textinsetx"	"55"
-			
-				"SubImage"
-				{
-					"ControlName"	"ImagePanel"
-					"fieldName"		"SubImage"
-					"xpos"			"7.5"
-					"ypos"			"8"
-					"zpos"			"1"
-					"wide"			"14"
-					"tall"			"14"
-					"visible"		"1"
-					"enabled"		"1"
-					"scaleImage"	"1"
-					"image"			"glyph_quit"
-			}
-	}
-	
-	"CommunityMainMenuBGBorder"
+	"SettingsAdvancedButton"
 	{
 		"ControlName"	"EditablePanel"
-		"fieldname"		"QuitMainMenuBGBorder"
-		"xpos"			"rs1-25"
-		"ypos"			"290"
-		"zpos"			"0"
-		"wide"			"170"
-		"tall"			"105"
+		"fieldname"		"SettingsAdvancedButton"
+		"xpos"			"58"
+		"ypos"			"380"
+		"zpos"			"15"
+		"wide"			"24"
+		"tall"			"24"
 		"visible"		"1"
 		"PaintBackgroundType"	"0"
-		"border"		"MainMenuBGBorder"
-	}
-	
-	"CommunityText"
-	{
-		"Controlname"		"CExLabel"
-		"fieldname"			"Community"
-		"labelText"			"Community"
-		"font"				"HudFontSmallishBold"
-		"textAlignment"			"west"
-		"xpos"					"rs1-35"
-		"ypos"					"294"
-		"wide"					"150"
-		"tall"					"25"
-		"zpos"					"1"
-		"visible"				"1"
-		"enabled"				"1"
-	}
-	
-	
-	"DiscordButton"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"DiscordButton"
-		"xpos"			"rs1-35"
-		"ypos"			"320"
-		"zpos"			"15"
-		"wide"			"150"
-		"tall"			"30"
-		"visible"		"1"
-		"PaintBackgroundType"	"2"
 
-		"font"			"HudFontSmallBold"
-		"command" 		"open_discord"
-		"labeltext"		"Discord"
-		"OnlyInGame"	"1"
-
-		"border_default"	"MainMenuButtonDefault"
-		"border_armed"		"MainMenuButtonArmed"
-		
-		"paintbackground"	"0"
-		"paintborder"		"1"
+		"SubButton"
+		{
+			"ControlName"	"CExImageButton"
+			"fieldName"		"SubButton"
+			"wide"			"24"
+			"tall"			"24"
+			"autoResize"	"0"
+			"pinCorner"		"3"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+			"use_proportional_insets" "1"
+			"font"			"MenuGlyphs12"
+			"textAlignment"	"west"
+			"dulltext"		"0"
+			"brighttext"	"0"
+			"default"		"1"
 			
-		"FgColor" 					"Black"
-		"defaultFgColor_override" 	"Black"
-		"armedFgColor_override" 	"Flavor"
-		"depressedFgColor_override" "Black"
-		
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-
-		"image_drawcolor"	"117 107 94 255"
-		"image_armedcolor"	"200 80 60 255"
-		"textinsetx"	"55"
+			"sound_depressed"	"UI/buttonclick.wav"
+			"sound_released"	"UI/buttonclickrelease.wav"
 			
-				"SubImage"
-				{
-					"ControlName"	"ImagePanel"
-					"fieldName"		"SubImage"
-					"xpos"			"7.5"
-					"ypos"			"8"
-					"zpos"			"1"
-					"wide"			"14"
-					"tall"			"14"
-					"visible"		"1"
-					"enabled"		"1"
-					"scaleImage"	"1"
-					"image"			"glyph_server"
-			}
+			"paintbackground"	"0"
+			"paintborder"		"0"
+			
+			"navUp"			"EquipButton"
+			"navDown"		"ServerBrowserButton"
+			"navRight"		"ReportBugButton"
+			"navLeft"		"SettingsButton"
+			
+			"FgColor" 					"Tan"
+			"defaultFgColor_override" 	"Tan"
+			"armedFgColor_override" 	"LightOrange"
+			"depressedFgColor_override" "Black"	
+		}
 	}
 	
-		"WebsiteButton"
+	"WebsiteButton"
 	{
-		"ControlName"	"CExImageButton"
+		"ControlName"	"EditablePanel"
 		"fieldname"		"WebsiteButton"
-		"xpos"			"rs1-35"
-		"ypos"			"355"
+		"xpos"			"94"
+		"ypos"			"380"
 		"zpos"			"15"
-		"wide"			"150"
-		"tall"			"30"
+		"wide"			"24"
+		"tall"			"24"
 		"visible"		"1"
-		"PaintBackgroundType"	"2"
+		"PaintBackgroundType"	"0"
 
-		"font"			"HudFontSmallBold"
-		"command" 		"open_website"
-		"labeltext"		"Website"
-		"OnlyInGame"	"1"
-
-		"border_default"	"MainMenuButtonDefault"
-		"border_armed"		"MainMenuButtonArmed"
-		
-		"paintbackground"	"0"
-		"paintborder"		"1"
+		"SubButton"
+		{
+			"ControlName"	"CExImageButton"
+			"fieldName"		"SubButton"
+			"wide"			"24"
+			"tall"			"24"
+			"autoResize"	"0"
+			"pinCorner"		"3"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+			"use_proportional_insets" "1"
+			"font"			"MenuGlyphs12"
+			"textAlignment"	"west"
+			"dulltext"		"0"
+			"brighttext"	"0"
+			"default"		"1"
 			
-		"FgColor" 					"Black"
-		"defaultFgColor_override" 	"Black"
-		"armedFgColor_override" 	"Flavor"
-		"depressedFgColor_override" "Black"
-		
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-
-		"image_drawcolor"	"117 107 94 255"
-		"image_armedcolor"	"200 80 60 255"
-		"textinsetx"	"55"
-				"SubImage"
-				{
-					"ControlName"	"ImagePanel"
-					"fieldName"		"SubImage"
-					"xpos"			"7.5"
-					"ypos"			"8"
-					"zpos"			"1"
-					"wide"			"14"
-					"tall"			"14"
-					"visible"		"1"
-					"enabled"		"1"
-					"scaleImage"	"1"
-					"image"			"glyph_server"
-			}
+			"sound_depressed"	"UI/buttonclick.wav"
+			"sound_released"	"UI/buttonclickrelease.wav"
+			
+			"paintbackground"	"0"
+			"paintborder"		"0"
+			
+			"navUp"			"EquipButton"
+			"navDown"		"ServerBrowserButton"
+			"navRight"		"ReportBugButton"
+			"navLeft"		"SettingsButton"
+			
+			"FgColor" 					"Tan"
+			"defaultFgColor_override" 	"Tan"
+			"armedFgColor_override" 	"LightOrange"
+			"depressedFgColor_override" "Black"	
+		}
 	}
-
 
 	"Notifications_ShowButtonPanel"
 	{
@@ -1778,20 +1816,6 @@
 			}
 		}
 	}
-	
-	"VRBGPanel"
-	{
-		"ControlName"	"EditablePanel"
-		"fieldName"		"VRBGPanel"
-		"xpos"			"c-290"
-		"ypos"			"373"
-		"zpos"			"-61"
-		"wide"			"260"
-		"tall"			"38"
-		"visible"		"1"
-		"PaintBackgroundType"	"2"
-		"border"		"MainMenuBGBorder"
-	}
 
 	"VRModeButton"
 	{
@@ -1875,24 +1899,20 @@
 	{
 		"ControlName"	"EditablePanel"
 		"fieldname"		"FriendsContainer"
-		"xpos"			"rs1-25"
-		"ypos"			"150" //goodbye. previously 260
-		"zpos"			"5"
-		"wide"			"170"
-		"tall"			"140"
+		"xpos"			"r170"
+		"ypos"			"c-105" //goodbye. previously 260
+		"wide"			"200"
+		"tall"			"210"
 		"visible"		"1"
-
-		"border"		"MainMenuBGBorder"
 
 		"TitleLabel"
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"TitleLabel"
-			"font"			"ScoreboardMedium"
-			"labelText"		"#TF_Competitive_Friends"
+			"font"			"MontserratBlack36"
+			"labelText"		"Friends"
 			"textAlignment"	"west"
-			"xpos"			"12"
-			"ypos"			"-2"
+			"zpos"			"2"
 			"wide"			"f0"
 			"tall"			"30"
 			"autoResize"	"0"
@@ -1902,34 +1922,46 @@
 			"textinsetx"	"0"
 			"fgcolor_override"	"235 227 203 255"
 		}
-
-		"InnerShadow"
-		{
-			"ControlName"	"EditablePanel"
-			"fieldname"		"InnerShadow"
-			"xpos"			"cs-0.5"
-			"ypos"			"rs1-10"
-			"zpos"			"501"
-			"wide"			"f10"
-			"tall"			"110"
-			"visible"		"1"	
-			"PaintBackgroundType"	"0"
-			"proportionaltoparent"	"1"
-			"mouseinputenabled"	"0"
-
-			"paintborder"	"1"
-			"border"		"InnerShadowBorder"
-		}
+		
+		"FriendsShadow"
+	{
+		"ControlName"	"CExLabel"
+		"fieldName"		"FriendsShadow"
+		"xpos"			"2"
+		"ypos"			"0.5"
+		"wide"			"200"
+		"tall"			"35"
+		"autoResize"	"0"
+		"pinCorner"		"3"
+		"visible"		"1"
+		"enabled"		"1"
+		"tabPosition"	"0"
+		"labeltext"		"Friends"
+		"font"			"MontserratBlack36"
+		"textAlignment"	"west"
+		"dulltext"		"0"
+		"brighttext"	"0"
+		"default"		"1"
+		
+		"paintbackground"	"0"
+		"paintborder"		"0"
+		
+		"navUp"			"SettingsButton"
+		"navDown"		"ReplayButton"
+		"navRight"		"HostAServerButton"
+		
+		"fgcolor"		"TransparentLightBlack"
+	}
 
 		"SteamFriendsList"
 		{
 			"ControlName"	"CSteamFriendsListPanel"
 			"fieldname"		"SteamFriendsList"
-			"xpos"			"cs-0.5"
-			"ypos"			"rs1-10"
-			"zpos"			"500"
-			"wide"			"f10"
-			"tall"			"100"
+			"xpos"			"-5"
+			"ypos"			"30"
+			"zpos"			"2"
+			"wide"			"175"
+			"tall"			"175"
 			"visible"		"1"
 			"proportionaltoparent"	"1"
 
@@ -1944,23 +1976,29 @@
 			{
 				"wide"		"110"
 				"tall"		"20"
+				"zpos"		"4"
 			}
 
 			"ScrollBar"
 			{
 				"ControlName"	"ScrollBar"
 				"FieldName"		"ScrollBar"
-				"xpos"			"rs1-1"
-				"ypos"			"0"
-				"tall"			"f0"
+				"xpos"			"r5"
+				"ypos"			"5"
+				"zpos"			"2"
+				"tall"			"170"
 				"wide"			"5" // This gets slammed from client schme.  GG.
-				"zpos"			"1000"
+				"zpos"			"5"
 				"nobuttons"		"1"
 				"proportionaltoparent"	"1"
 
 				"Slider"
 				{
-					"fgcolor_override"	"TanDark"
+					"FgColor" 					"Tan"
+					"defaultFgColor_override" 	"Tan"
+					"armedFgColor_override" 	"LightOrange"
+					"depressedFgColor_override" "Black"
+					"zpos"						"5"
 				}
 		
 				"UpButton"
@@ -1978,27 +2016,23 @@
 				}
 			}
 		}
-
 		"BelowDarken"
 		{
 			"ControlName"	"EditablePanel"
 			"fieldname"		"BelowDarken"
-			"xpos"			"cs-0.5"
-			"ypos"			"rs1-10"
-			"zpos"			"499"
-			"wide"			"f10"
-			"tall"			"110"
+			"ypos"			"30"
+			"zpos"			"1"
+			"wide"			"170"
+			"tall"			"180"
 			"visible"		"1"	
 			"PaintBackgroundType"	"0"
 			"proportionaltoparent"	"1"
 			"mouseinputenabled"	"0"
 
-			"bgcolor_override"	"0 0 0 100"
+			"bgcolor_override"	"0 0 0 130"
 		}
 	}
 
-
-		//This button does not work.
 	"ReportPlayerButton"
 	{
 		"ControlName"	"EditablePanel"
@@ -2010,7 +2044,10 @@
 		"tall"			"25"
 		"visible"		"1"
 
-
+		"navLeft"		"ResumeGameButton"
+		"navRight"		"CallVoteButton"
+		"navDown"		"QuickplayChangeButton"
+		"navToRelay"	"SubButton"
 
 		"SubButton"
 		{
@@ -2022,8 +2059,8 @@
 			"tall"			"25"
 			"autoResize"	"0"
 			"pinCorner"		"3"
-			"visible"		"0"
-			"enabled"		"0"
+			"visible"		"1"
+			"enabled"		"1"
 			"tabPosition"	"0"
 			"textinsetx"	"100"
 			"use_proportional_insets" "1"
@@ -2069,12 +2106,17 @@
 	{
 		"ControlName"	"EditablePanel"
 		"fieldname"		"CallVoteButton"
-		"xpos"			"67"
+		"xpos"			"c-24"
 		"ypos"			"447"
 		"zpos"			"12"
 		"wide"			"25"
 		"tall"			"25"
 		"visible"		"1"
+
+		"navLeft"		"ReportPlayerButton"
+		"navDown"		"QuickplayChangeButton"
+		"navRight"		"MutePlayersButton"
+		"navToRelay"	"SubButton"
 
 		"SubButton"
 		{
@@ -2082,7 +2124,7 @@
 			"fieldName"		"SubButton"
 			"xpos"			"0"
 			"ypos"			"0"
-			"wide"			"25"
+			"wide"			"p1"
 			"tall"			"25"
 			"autoResize"	"0"
 			"pinCorner"		"3"
@@ -2096,19 +2138,26 @@
 			"dulltext"		"0"
 			"brighttext"	"0"
 			"default"		"1"
-			
 			"sound_depressed"	"UI/buttonclick.wav"
-			"sound_released"	"UI/buttonclickrelease.wav"		
+			"sound_released"	"UI/buttonclickrelease.wav"
+			
+			"border_default"	"MainMenuSubButtonBorder"
+			"paintbackground"	"1"
+			
+			"defaultFgColor_override" "46 43 42 255"
+			"armedFgColor_override" "46 43 42 255"
+			"depressedFgColor_override" "46 43 42 255"
 			
 			"image_drawcolor"	"235 226 202 255"
-			
+			"image_armedcolor"	"235 226 202 255"
+			"proportionaltoparent"	"1"
 			
 			"SubImage"
 			{
 				"ControlName"	"ImagePanel"
 				"fieldName"		"SubImage"
-				"xpos"			"5"
-				"ypos"			"5"
+				"xpos"			"cs-0.5"
+				"ypos"			"cs-0.5"
 				"zpos"			"1"
 				"wide"			"15"
 				"tall"			"15"
@@ -2124,20 +2173,25 @@
 	{
 		"ControlName"	"EditablePanel"
 		"fieldname"		"MutePlayersButton"
-		"xpos"			"93"
+		"xpos"			"c-1"
 		"ypos"			"447"
 		"zpos"			"12"
 		"wide"			"25"
 		"tall"			"25"
 		"visible"		"1"
-		
+
+		"navLeft"		"CallVoteButton"
+		"navDown"		"QuickplayChangeButton"
+		"navRight"		"RequestCoachButton"
+		"navToRelay"	"SubButton"
+
 		"SubButton"
 		{
 			"ControlName"	"CExImageButton"
 			"fieldName"		"SubButton"
 			"xpos"			"0"
 			"ypos"			"0"
-			"wide"			"25"
+			"wide"			"p1"
 			"tall"			"25"
 			"autoResize"	"0"
 			"pinCorner"		"3"
@@ -2151,19 +2205,26 @@
 			"dulltext"		"0"
 			"brighttext"	"0"
 			"default"		"1"
-			
 			"sound_depressed"	"UI/buttonclick.wav"
-			"sound_released"	"UI/buttonclickrelease.wav"		
+			"sound_released"	"UI/buttonclickrelease.wav"
+			
+			"border_default"	"MainMenuSubButtonBorder"
+			"paintbackground"	"1"
+			
+			"defaultFgColor_override" "46 43 42 255"
+			"armedFgColor_override" "46 43 42 255"
+			"depressedFgColor_override" "46 43 42 255"
 			
 			"image_drawcolor"	"235 226 202 255"
-			
+			"image_armedcolor"	"235 226 202 255"
+			"proportionaltoparent"	"1"
 			
 			"SubImage"
 			{
 				"ControlName"	"ImagePanel"
 				"fieldName"		"SubImage"
-				"xpos"			"5"
-				"ypos"			"5"
+				"xpos"			"cs-0.5"
+				"ypos"			"cs-0.5"
 				"zpos"			"1"
 				"wide"			"15"
 				"tall"			"15"
@@ -2259,7 +2320,8 @@
 		"enabled"		"0"
 		"image"			"loadout_bottom_gradient"
 		"tileImage"		"1"
-	}				
+	}	
+	
 	"FooterLine"
 	{
 		"ControlName"	"ImagePanel"
@@ -2301,16 +2363,11 @@
 		"labeltext"		"#MMenu_CharacterSetup"
 		"sound_depressed"	"UI/buttonclick.wav"
 		"sound_released"	"UI/buttonclickrelease.wav"
-		
-			"border_default"	"MainMenuButtonDefault"
-			"border_armed"		"MainMenuButtonArmed"
-		
 		"proportionaltoparent"	"1"
 			
 		"paintbackground"	"1"
 				
 		"image_drawcolor"	"235 226 202 255"
-		
 		"SubImage"
 		{
 			"ControlName"	"ImagePanel"
@@ -2336,103 +2393,6 @@
 		"enabled"		"1"
 	}
 
-	"ConsoleButton"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldName"		"ConsoleButton"
-		"xpos"			"41"
-		"ypos"			"447"
-		"zpos"			"1"
-		"wide"			"25"
-		"tall"			"25"
-		"autoResize"	"0"
-		"pinCorner"		"3"
-		"visible"		"1"
-		"enabled"		"1"
-		"tabPosition"	"0"
-		"labelText"		""
-		"font"			"HudFontSmallBold"
-		"textAlignment"	"west"
-		"textinsetx"	"25"
-		"use_proportional_insets" "1"
-		"dulltext"		"0"
-		"brighttext"	"0"
-		"default"		"1"
-		"Command"		"engine con_enable 1;toggleconsole"
-
-		"navUp"			"Notifications_Panel"
-		"navLeft"		"ReportBugButton"
-		"navRight"		"TF2SettingsButton"
-
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-		
-		"image_drawcolor"	"235 226 202 255"
-		"SubImage"
-		{
-			"ControlName"	"ImagePanel"
-			"fieldName"		"SubImage"
-			"xpos"			"5"
-			"ypos"			"5"
-			"zpos"			"1"
-			"wide"			"15"
-			"tall"			"15"
-			"visible"		"1"
-			"enabled"		"1"
-			"scaleImage"	"1"
-			"image"			"glyph_options"
-		}			
-	}
-
-	"TF2SettingsButton"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldName"		"TF2SettingsButton"
-		"xpos"			"c-183+273"
-		"ypos"			"417"
-		"zpos"			"2"
-		"wide"			"26"
-		"tall"			"25"
-		"autoResize"	"0"
-		"pinCorner"		"3"
-		"visible"		"0"
-		"enabled"		"0"
-		"tabPosition"	"0"
-		"labelText"		"+"
-		"textAlignment"	"north-west"
-		"textinsetx"	"18"
-		"dulltext"		"0"
-		"brighttext"	"0"
-		"default"		"1"
-		"Command"		"engine con_enable 1;toggleconsole"
-		"use_proportional_insets"	"1"
-
-		"navUp"			"Notifications_Panel"
-		"navLeft"		"SettingsButton"
-
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-		"border_default"	"MainMenuSubButtonBorder"
-		
-		"image_drawcolor"	"235 226 202 255"
-		"SubImage"
-		{
-			"ControlName"	"ImagePanel"
-			"fieldName"		"SubImage"
-			"xpos"			"6"
-			"ypos"			"6"
-			"zpos"			"1"
-			"wide"			"14"
-			"tall"			"14"
-			"visible"		"1"
-			"enabled"		"1"
-			"scaleImage"	"1"
-			"image"			"glyph_options"
-			"scaleImage"	"1"
-		}				
-	}
-	
-	
 			//Disabled
 	"NewUserForumsButton"
 	{
@@ -2677,100 +2637,46 @@
 
 
 		//Disabled until in use
-	"ReplayButton"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldName"		"ReplayButton"
-		"xpos"			"c-108+247"
-		"ypos"			"437"
-		"zpos"			"5"
-		"wide"			"25"
-		"tall"			"25"
-		"autoResize"	"0"
-		"pinCorner"		"3"
-		"visible"		"0"
-		"enabled"		"0"
-		"tabPosition"	"0"
-		"labelText"		""
-		"font"			"HudFontSmallBold"
-		"textAlignment"	"center"
-		"dulltext"		"0"
-		"brighttext"	"0"
-		"default"		"1"
-		"Command"		"engine replay_reloadbrowser"
-
-		"navUp"			"VRModeButton"
-		"navLeft"		"AchievementsButton"
-		"navRight"		"CoachPlayersButton"
-
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-		"border_default"	"MainMenuSubButtonBorder"
-		
-		"image_drawcolor"	"235 226 202 255"
-		"SubImage"
-		{
-			"ControlName"	"ImagePanel"
-			"fieldName"		"SubImage"
-			"xpos"			"5"
-			"ypos"			"5"
-			"zpos"			"1"
-			"wide"			"15"
-			"tall"			"15"
-			"visible"		"1"
-			"enabled"		"1"
-			"image"			"glyph_tv"
-			"scaleImage"	"1"
-		}				
-	}
 	
-			//This button does not work
+	
 	"ReportBugButton"
 	{
 		"ControlName"	"CExImageButton"
 		"fieldName"		"ReportBugButton"
-		"xpos"			"65"
-		"ypos"			"447"
+		"xpos"			"77"
+		"ypos"			"380"
 		"zpos"			"4"
-		"wide"			"25"
-		"tall"			"25"
+		"wide"			"24"
+		"tall"			"24"
 		"autoResize"	"0"
 		"pinCorner"		"3"
 		"visible"		"1"
 		"enabled"		"1"
 		"tabPosition"	"0"
-		"labelText"		""
-		"font"			"HudFontSmallBold"
+		"labelText"		"C"
+		"font"			"MenuGlyphs12"
 		"textAlignment"	"center"
 		"dulltext"		"0"
 		"brighttext"	"0"
 		"default"		"1"
-		"Command"		"engine bug"
+		"command"		"url https://github.com/p4sstime/p4ss/issues"
+		
+		"paintbackground"	"0"
+		"paintborder"		"0"
 
-		"navUp"			"VRModeButton"
-		"navLeft"		"CoachPlayersButton"
-		"navRight"		"SettingsButton"
+		"navUp"			"EquipButton"
+		"navDown"		"ServerBrowserButton"
+		"navRight"		"PTWebsiteButton"
+		"navLeft"		"SettingsAdvancedButton"
 
 		"sound_depressed"	"UI/buttonclick.wav"
 		"sound_released"	"UI/buttonclickrelease.wav"
 		
-		"image_drawcolor"	"235 226 202 255"
-		"SubImage"
-		{
-			"ControlName"	"ImagePanel"
-			"fieldName"		"SubImage"
-			"xpos"			"5"
-			"ypos"			"5"
-			"zpos"			"1"
-			"wide"			"15"
-			"tall"			"15"
-			"visible"		"1"
-			"enabled"		"1"
-			"image"			"glyph_bug"
-			"scaleImage"	"1"
-		}				
-	}			
-				
+		"FgColor" 					"Tan"
+		"defaultFgColor_override" 	"Tan"
+		"armedFgColor_override" 	"LightOrange"
+		"depressedFgColor_override" "Black"
+	}
 	
 	"BackToReplaysButton"
 	{
@@ -2846,179 +2752,4 @@
 			"angles_z"		"0"
 		}
 	}
-	
-		//
-		// Beta buttons
-		//
-	
-	
-			"ArenaButton"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"ArenaButton"
-		"xpos"			"c-25"
-		"ypos"			"180"
-		"zpos"			"15"
-		"wide"			"60"
-		"tall"			"30"
-		"visible"		"1"
-		
-		"font"			"HudFontSmallishBold"
-		"command" 		"engine map pass_arena2_b14b "
-		"labeltext"		"Arena"
-		
-		"border_default"	"storeinnershadowborder"
-		
-		"paintbackground"	"0"
-		"paintborder"		"1"
-			
-		"FgColor" 					"white"
-		"armedFgColor_override" 	"partymember2"
-		
-		"sound_depressed"	"p4ss/jack/jack_lock.wav"
-		"sound_released"	"p4ss/jack/ball_impact.wav"	
-	}
-	
-			"Arena2Button"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"Aren2Button"
-		"xpos"			"c-105"
-		"ypos"			"212"
-		"zpos"			"15"
-		"wide"			"140"
-		"tall"			"30"
-		"visible"		"1"
-		
-		"font"			"HudFontSmallishBold"
-		"command" 		"engine mp_tournament 1; mp_restartgame_immediate 1"
-		"labeltext"		"restart round"
-		"OnlyInGame"	"1"
-		
-		"border_default"	"storeinnershadowborder"
-		
-		"paintbackground"	"0"
-		"paintborder"		"1"
-			
-		"FgColor" 					"white"
-		"armedFgColor_override" 	"partymember2"
-		
-		"sound_depressed"	"p4ss/jack/jack_lock.wav"
-		"sound_released"	"p4ss/jack/ball_impact.wav"	
-	}
-	
-		"Arena3Button"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"Aren3Button"
-		"xpos"			"c36"
-		"ypos"			"180"
-		"zpos"			"15"
-		"wide"			"70"
-		"tall"			"30"
-		"visible"		"1"
-		
-		"font"			"HudFontSmallishBold"
-		"command" 		"engine sv_cheats 1"
-		"labeltext"		"cheats"
-		"OnlyInGame"	"1"
-		
-		"border_default"	"storeinnershadowborder"
-		
-		"paintbackground"	"0"
-		"paintborder"		"1"
-			
-		"FgColor" 					"white"
-		"armedFgColor_override" 	"partymember2"
-		
-		"sound_depressed"	"p4ss/jack/jack_lock.wav"
-		"sound_released"	"p4ss/jack/ball_impact.wav"	
-	}
-	
-			"Arena4Button"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"Aren4Button"
-		"xpos"			"c-105"
-		"ypos"			"180"
-		"zpos"			"15"
-		"wide"			"79"
-		"tall"			"30"
-		"visible"		"1"
-		
-		"font"			"HudFontSmallishBold"
-		"command" 		"engine toggle cl_hud_minmode"
-		"labeltext"		"minmode"
-		"OnlyInGame"	"1"
-		
-		"border_default"	"storeinnershadowborder"
-		
-		"paintbackground"	"0"
-		"paintborder"		"1"
-			
-		"FgColor" 					"white"
-		"armedFgColor_override" 	"partymember2"
-		
-		"sound_depressed"	"p4ss/jack/jack_lock.wav"
-		"sound_released"	"p4ss/jack/ball_impact.wav"	
-	}
-	
-		"Arena5Button"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"Aren5Button"
-		"xpos"			"c-70"
-		"ypos"			"210"
-		"zpos"			"15"
-		"wide"			"80"
-		"tall"			"30"
-		"visible"		"0"
-		
-		"font"			"HudFontSmallishBold"
-		"command" 		"engine cl_hud_minmode 1"
-		"labeltext"		"smallhud"
-		"OnlyInGame"	"1"
-		
-		"border_default"	"storeinnershadowborder"
-		
-		"paintbackground"	"0"
-		"paintborder"		"1"
-			
-		"FgColor" 					"white"
-		"armedFgColor_override" 	"partymember2"
-		
-		"sound_depressed"	"p4ss/jack/jack_lock.wav"
-		"sound_released"	"p4ss/jack/ball_impact.wav"	
-	}
-	
-			"Arena5Button"
-	{
-		"ControlName"	"CExImageButton"
-		"fieldname"		"Aren5Button"
-		"xpos"			"c36"
-		"ypos"			"212"
-		"zpos"			"15"
-		"wide"			"80"
-		"tall"			"30"
-		"visible"		"1"
-		
-		"font"			"HudFontSmallishBold"
-		"command" 		"engine bot"
-		"labeltext"		"add bot"
-		"OnlyInGame"	"1"
-		
-		"border_default"	"storeinnershadowborder"
-		
-		"paintbackground"	"0"
-		"paintborder"		"1"
-			
-		"FgColor" 					"white"
-		"armedFgColor_override" 	"partymember2"
-		
-		"sound_depressed"	"p4ss/jack/jack_lock.wav"
-		"sound_released"	"p4ss/jack/ball_impact.wav"	
-	}
-	
-	
-	
 }

@@ -25,7 +25,7 @@
 		"name_width"		"118"
 		"nemesis_width"		"25"
 		"class_width"		"25"
-		"score_width"		"25"
+		"score_width"		"30"
 		"ping_width"		"25"
 		"killstreak_width"	"15"
 		"killstreak_image_width" "15"
@@ -231,7 +231,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"BlueTeamLabel"
-		"font"			"ScoreboardTeamNameNew"
+		"font"			"Compacta20"
 		"labelText"		"%blueteamname%"
 		"textAlignment"		"center"
 		"xpos"			"0"
@@ -260,10 +260,11 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"BlueTeamScore"
-		"font"			"ScoreboardTeamScoreNew"
+		"font"			"CompactaBlack36"
 		"labelText"		"%blueteamscore%"
 		"textAlignment"		"center"
-		"xpos"			"10"
+		"xpos"			"14"
+		
 		"ypos"			"14" 
 		"zpos"			"2"
 		"wide"			"70"
@@ -286,11 +287,12 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"BlueTeamScoreDropshadow"
-		"font"			"ScoreboardTeamScoreNew"
+		"font"			"CompactaBlack36"
 		"fgcolor"		"Black"
 		"labelText"		"%blueteamscore%"
 		"textAlignment"		"center"
-		"xpos"			"9"
+		"xpos"			"13"
+		
 		"ypos"			"13" 
 		"zpos"			"2"
 		"wide"			"70"
@@ -313,7 +315,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"BlueTeamPlayerCount"
-		"font"			"ScoreboardTeamCountNew"
+		"font"			"Compacta16"
 		"labelText"		"%blueteamplayercount%"
 		"textAlignment"		"center"
 		"xpos"			"2"
@@ -355,7 +357,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"RedTeamLabel"
-		"font"			"ScoreboardTeamNameNew"
+		"font"			"Compacta20"
 		"labelText"		"%redteamname%"
 		"textAlignment"		"center"
 		"xpos"			"0"
@@ -384,10 +386,11 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"RedTeamScore"
-		"font"			"ScoreboardTeamScoreNew"
+		"font"			"CompactaBlack36"
 		"labelText"		"%redteamscore%"
 		"textAlignment"		"center"
-		"xpos"			"10"
+		"xpos"			"14"
+		
 		"ypos"			"14" 
 		"zpos"			"2"
 		"wide"			"70"
@@ -410,11 +413,12 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"RedTeamScoreDropshadow"
-		"font"			"ScoreboardTeamScoreNew"
+		"font"			"CompactaBlack36"
 		"fgcolor"		"Black"
 		"labelText"		"%redteamscore%"
 		"textAlignment"		"center"
-		"xpos"			"9"
+		"xpos"			"13"
+		
 		"ypos"			"13" 
 		"zpos"			"2"
 		"wide"			"70"
@@ -437,7 +441,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"RedTeamPlayerCount"
-		"font"			"ScoreboardTeamCountNew"
+		"font"			"Compacta16"
 		"labelText"		"%redteamplayercount%"
 		"textAlignment"		"center"
 		"xpos"			"2"
@@ -463,9 +467,9 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"ServerLabel"
-		"font"			"ScoreboardVerySmall"
+		"font"			"FuturaDemiCon12"
 		"labelText"		"%server%"
-		"textAlignment"		"west"
+		"textAlignment"	"west"
 		"xpos"			"11"
 		"ypos"			"60"
 		"wide"			"300"
@@ -473,7 +477,7 @@
 		"autoResize"	"0"
 		"pinCorner"		"0"
 		"visible"		"0"
-		"enabled"		"1"
+		"enabled"		"0"
 		
 		if_mvm
 		{
@@ -489,7 +493,7 @@
 		"ypos"			"-3"
 		"zpos"			"-1"
 		"wide"			"80"
-		"tall"			"43"
+		"tall"			"45"
 		"autoResize"	"0"
 		"pinCorner"		"0"
 		"visible"		"1"
@@ -507,7 +511,7 @@
 		"ControlName"	"EditablePanel"
 		"fieldName"		"ServerTimeLeftInsetBG"
 		"xpos"			"cs-0.5"
-		"ypos"			"12"
+		"ypos"			"14"
 		"zpos"			"1"
 		"wide"			"68"
 		"tall"			"23"
@@ -527,7 +531,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"ServerTimeLeftLabel"
-		"font"			"ScoreboardVerySmall"
+		"font"			"Compacta16"
 		"labelText"		"#Scoreboard_TimeLeftLabel"
 		"textAlignment"		"center"
 		"xpos"			"cs-0.5"
@@ -550,11 +554,11 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"ServerTimeLeftValue"
-		"font"			"ScoreboardVerySmall"
+		"font"			"Compacta20"
 		"labelText"		"%servertime%"
-		"textAlignment"		"center"
+		"textAlignment"	"center"
 		"xpos"			"cs-0.5"
-		"ypos"			"14"
+		"ypos"			"16"
 		"zpos"			"2"
 		"wide"			"72"
 		"tall"			"20"
@@ -575,9 +579,9 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"ServerTimeLeft"
-		"font"			"ScoreboardVerySmall"
+		"font"			"Compacta20"
 		"labelText"		"%servertimeleft%"
-		"textAlignment"		"east"
+		"textAlignment"	"east"
 		"xpos"			"cs-0.5"
 		"ypos"			"60"
 		"wide"			"300"
@@ -664,39 +668,23 @@
 			"visible"		"0"
 		}
 	}
-	"Spectators"
-	{
-		"ControlName"		"CExLabel"
-		"fieldName"		"Spectators"
-		"visible"		"0"
-		"enabled"		"0"
-		
-		if_mvm
-		{
-		}
-	}	
 	
 	"SpectatorsColoredLabel"
 	{
-		"controlname" "cautofittinglabel"
+		"controlname" 	"cautofittinglabel"
 		"fieldName"		"SpectatorsColoredLabel"
-		"xpos"			"0"	[$WIN32]
-		"ypos"			"0"	[$WIN32]
+		"xpos"			"r275"	[$WIN32]
+		"ypos"			"r20"	[$WIN32]
 		"zpos"			"4"
-		"wide"			"300"	[$WIN32]
-		"tall"			"16"
+		"wide"			"260"	[$WIN32]
+		"tall"			"15"
 		"visible"		"1"
 		"enabled"		"1"
 		"labeltext" "%spectators%"
 		"dulltext"		"0"
 		"brighttext"	"0"
-		"font"			"ScoreboardVerySmall"
-		"bgcolor_override"    "0 0 0 0"
-		"border"		""
-		"auto_wide_tocontents"	"1"
-		"centerwrap"	"0"
-		"textinsetx"	"0"
-		"textAlignment"	"center"
+		"font"			"FuturaDemiCon12"
+		"textAlignment"	"east"
 		
 		"colors"
 		{
@@ -704,10 +692,6 @@
 			"2" "Orange"
 			"3" "Orange"
 		}
-		
-		"pin_to_sibling"	"SpectatorAnchor"
-		"pin_corner_to_sibling"		"4"
-		"pin_to_sibling_corner"		"4"
 	}
 	
 	"SpectatorAnchor"
@@ -731,7 +715,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"SpectatorsInQueue"
-		"font"			"ScoreboardVerySmall"
+		"font"			"Compacta20"
 		"labelText"		"%waitingtoplay%"
 		"textAlignment"		"west"
 		"xpos"			"115"
@@ -943,7 +927,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"PlayerNameLabel"
-		"font"			"ScoreboardMedium"
+		"font"			"Compacta20"
 		"labelText"		"%playername%"
 		"textAlignment"		"center"
 		"xpos"			"5"
@@ -967,16 +951,16 @@
 	}
 	"ServerLabelNew"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"	"CAutoFittingLabel"
 		"fieldName"		"ServerLabelNew"
-		"font"			"ScoreboardVerySmall"
+		"font"			"FuturaDemiCon12"
 		"labelText"		"%server%"
-		"textAlignment"		"east"
+		"textAlignment"	"east"
 		"xpos"			"r275"
-		"ypos"			"r16"
-		"zpos"			"3"
+		"ypos"			"r34"
+		"zpos"			"5"
 		"wide"			"265"
-		"tall"			"16"
+		"tall"			"9"
 		"autoResize"	"0"
 		"pinCorner"		"0"
 		"visible"		"1"
@@ -989,21 +973,20 @@
 	}
 	"MapName"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CAutoFittingLabel"
 		"fieldName"		"mapname"
-		"font"			"ScoreboardVerySmall"
+		"font"			"FuturaDemiCon12"
 		"labelText"		"%mapname%"
 		"textAlignment"	"east"
  		"xpos"			"r275"
-		"ypos"			"r32"
-		"zpos"			"3"
+		"ypos"			"r48"
+		"zpos"			"5"
 		"wide"			"265"
-		"tall"			"16"
+		"tall"			"9"
 		"autoResize"	"0"
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"fgcolor"		"236 227 203 255"
 
 		if_mvm
 		{
@@ -1022,7 +1005,7 @@
 		"autoResize"	"0"
 		"pinCorner"		"0"
 		"visible"		"0"
-		"enabled"		"1"
+		"enabled"		"0"
 		"tabPosition"	"0"	
 		"fillcolor"		"127 127 127 153"
 		"PaintBackgroundType"	"0"
@@ -1036,7 +1019,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"PlayerScoreLabel"
-		"font"		"ScoreboardMedium"
+		"font"		"Compacta20"
 		"labelText"		"%playerscore%"
 		"textAlignment"	"east"
 		"xpos"			"440"
@@ -1165,7 +1148,7 @@
 				"wrap"			"0"
 				"labelText"		"%playername%"
 				"textAlignment"	"east"
-				"font"			"HudFontSmallest"
+				"font"			"FuturaDemiCon10"
 			}
 			"Score"
 			{
@@ -1182,7 +1165,7 @@
 				"pinCorner"		"0"
 				"visible"		"1"
 				"enabled"		"1"
-				"font"			"ScoreboardMedium"
+				"font"			"Compacta20"
 			}
 		}
 
@@ -1261,7 +1244,7 @@
 				"pinCorner"		"0"
 				"visible"		"1"
 				"enabled"		"1"
-				"font"			"ScoreboardMedium"
+				"font"			"FuturaDemiCon16"
 			}
 		}
 	}
@@ -1289,7 +1272,7 @@
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"gametype"
-			"font"			"ScoreboardMedium"
+			"font"			"Compacta20"
 			"labelText"		"%gametype%"
 			"textAlignment"		"east"
 			"xpos"			"435"
@@ -1308,7 +1291,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"KillsLabel"
-			"font"			"ScoreboardMedium"
+			"font"			"Compacta20"
 			"labelText"		"#TF_ScoreBoard_KillsLabel"
 			"textAlignment"		"east"
 			"xpos"			"c-260"
@@ -1325,10 +1308,10 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"Kills"
-			"font"			"ScoreboardMedium"
+			"font"			"Compacta20"
 			"labelText"		"%kills%"
 			"textAlignment"		"west"
-			"xpos"			"c-160"
+			"xpos"			"c-164"
 			"ypos"			"10"
 			"zpos"			"3"
 			"wide"			"35"
@@ -1342,9 +1325,9 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"DeathsLabel"
-			"font"			"ScoreboardMedium"
+			"font"			"Compacta20"
 			"labelText"		"#TF_ScoreBoard_DeathsLabel"
-			"textAlignment"		"east"
+			"textAlignment"	"east"
 			"xpos"			"c-140"
 			"ypos"			"10"
 			"zpos"			"3"
@@ -1359,10 +1342,10 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"Deaths"
-			"font"			"ScoreboardMedium"
+			"font"			"Compacta20"
 			"labelText"		"%deaths%"
-			"textAlignment"		"west"
-			"xpos"			"c-40"
+			"textAlignment"	"west"
+			"xpos"			"c-44"
 			"ypos"			"10"
 			"zpos"			"3"
 			"wide"			"35"
@@ -1376,7 +1359,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"AssistsLabel"
-			"font"			"ScoreboardMedium"
+			"font"			"Compacta20"
 			"labelText"		"#TF_ScoreBoard_AssistsLabel"
 			"textAlignment"		"east"
 			"xpos"			"c-20"
@@ -1393,10 +1376,10 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"Assists"
-			"font"			"ScoreboardMedium"
+			"font"			"Compacta20"
 			"labelText"		"%assists%"
 			"textAlignment"		"west"
-			"xpos"			"c80"
+			"xpos"			"c76"
 			"ypos"			"10"
 			"zpos"			"3"
 			"wide"			"35"
@@ -1410,7 +1393,7 @@
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"DamageLabel"
-			"font"			"ScoreboardMedium"
+			"font"			"Compacta20"
 			"labelText"		"#TF_Scoreboard_Damage"
 			"textAlignment"	"east"
 			"xpos"			"c100"
@@ -1427,10 +1410,10 @@
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"Damage"
-			"font"			"ScoreboardMedium"
+			"font"			"Compacta20"
 			"labelText"		"%damage%"
 			"textAlignment"	"west"
-			"xpos"			"c200"
+			"xpos"			"c196"
 			"ypos"			"10"
 			"zpos"			"3"
 			"wide"			"35"
@@ -1458,8 +1441,18 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"CapturesLabel"
-			"visible"		"0"
-			"enabled"		"0"
+			"font"			"Compacta20"
+			"labelText"		"Goals:"
+			"textAlignment"	"east"
+			"xpos"			"c-200"
+			"ypos"			"30"
+			"zpos"			"3"
+			"wide"			"95"
+			"tall"			"20"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
 		}						
 		"DefensesLabel"
 		{
@@ -1486,8 +1479,18 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"Captures"
-			"visible"		"0"
-			"enabled"		"0"
+			"font"			"Compacta20"
+			"labelText"		"%captures%"
+			"textAlignment"	"west"
+			"xpos"			"c-104"
+			"ypos"			"30"
+			"zpos"			"3"
+			"wide"			"95"
+			"tall"			"20"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
 		}						
 		"Defenses"
 		{
