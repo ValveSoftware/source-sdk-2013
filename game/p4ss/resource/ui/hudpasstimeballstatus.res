@@ -196,15 +196,15 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"ProgressLevelBar"	
-		"xpos"			"c-190"
+		"xpos"			"c-150"
 		"ypos"			"r86"
 		
-		"xpos_minmode"	"c-140"
+		"xpos_minmode"	"c-120"
 		"ypos_minmode"	"r80"
 		
 		"zpos"			"0"
-		"wide"			"380"
-		"wide_minmode"	"280"
+		"wide"			"300"
+		"wide_minmode"	"240"
 		"tall"			"48"
 		"visible"		"1"
 		"enabled"		"1"
@@ -219,10 +219,10 @@
 		// might be padded for npot reasons.
 		"ControlName" 	"Panel"
 		"fieldName"		"BlueProgressEnd"
-		"xpos"			"c-152"
+		"xpos"			"c-126"
 		"ypos"			"r62"
 		
-		"xpos_minmode"	"c-112"
+		"xpos_minmode"	"c-102"
 		"ypos_minmode"	"r56"
 		
 		"visible"		"0"
@@ -234,10 +234,10 @@
 		// might be padded for npot reasons.
 		"ControlName"	"Panel"
 		"fieldName"		"RedProgressEnd"
-		"xpos"			"c152"
+		"xpos"			"c126"
 		"ypos"			"r62"
 		
-		"xpos_minmode"	"c112"
+		"xpos_minmode"	"c102"
 		"ypos_minmode"	"r56"
 		
 		"visible"		"0"
@@ -247,7 +247,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GoalBlue0"	
-		"xpos"			"c-162"
+		//"xpos"			"c-162"
+		"xpos"			"9999"
 		"ypos"			"r72"
 		"zpos"			"1"									
 		"wide"			"17"
@@ -266,7 +267,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GoalBlue1"	
-		"xpos"			"c-132"
+		//"xpos"			"c-132"
+		"xpos"			"9999"
 		"ypos"			"r72"
 		"zpos"			"1"									
 		"wide"			"17"
@@ -285,7 +287,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GoalBlue2"	
-		"xpos"			"c-102"
+		//"xpos"			"c-102"
+		"xpos"			"9999"
 		"ypos"			"r72"
 		"zpos"			"1"									
 		"wide"			"17"
@@ -305,7 +308,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GoalRed0"	
-		"xpos"			"c146"
+		//"xpos"			"c146"
+		"xpos"			"9999"
 		"ypos"			"r72"
 		"zpos"			"1"									
 		"wide"			"17"
@@ -324,7 +328,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GoalRed1"
-		"xpos"			"c116"
+		//"xpos"			"c116"
+		"xpos"			"9999"
 		"ypos"			"r72"
 		"zpos"			"1"									
 		"wide"			"17"
@@ -344,7 +349,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GoalRed2"
-		"xpos"			"c86"
+		//"xpos"			"c86"
+		"xpos"			"9999"
 		"ypos"			"r72"
 		"zpos"			"1"									
 		"wide"			"17"
@@ -366,8 +372,8 @@
 		"xpos"			"0"
 		"ypos"			"0"
 		"zpos"			"10"
-		"wide"			"42"
-		"tall"			"42"
+		"wide"			"20"
+		"tall"			"20"
 		"autoResize"	"0"
 		"pinCorner"		"0"
 		"visible"		"1"
@@ -400,12 +406,12 @@
 	{
 		"ControlName"			"Label"
 		"fieldName"				"ProgressBallCarrierName"
-		"font"				"HudFontSmallestBold"
+		"font"				"HudFontSmallBoldShadow"
 		"visible"				"1"
 		"enabled"				"1"
 		"zpos"					"0"
 		"xpos"					"0"
-		"ypos"					"-417"
+		"ypos"					"-22"
 		
 		"wide"					"180"
 		"wide_minmode"			"125"		
@@ -415,16 +421,17 @@
 		"dulltext"				"0"
 		"brighttext"			"1"
 		"labelText"				"NameOfCarrier"
-		"border"				"TFFatLineBorder"
-		"auto_wide_tocontents"	"0"
+		"border"				""
+		"auto_wide_tocontents"	"1"
 		"textinsetx"			"20"
-		
-		"pin_to_sibling"	"CarrierAnchor"
+		"fgcolor_override"	"255 255 246 200"
+		//"bgcolor_override"	"0 0 0 110"
+		"pin_to_sibling"	"ProgressBallIcon"
 		"pin_corner_to_sibling"		"4"
 		"pin_to_sibling_corner"		"4"
 	}
 	
-	
+
 		//What does this do?
 	"CarrierAnchor"
 	{	

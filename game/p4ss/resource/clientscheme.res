@@ -964,8 +964,8 @@ Scheme
 			"1"
 			{
 				"name"		"Montserrat SemiBold"
-				"tall"		"16"
-				"tall_lodef"	"16"
+				"tall"		"14"
+				"tall_lodef"	"14"
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" 	"1"
@@ -987,7 +987,7 @@ Scheme
 			"1"
 			{
 				"name"		"Montserrat Black"
-				"tall"		"16"
+				"tall"		"14"
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" "1"
@@ -998,7 +998,7 @@ Scheme
 			"1"
 			{
 				"name"		"Montserrat Black"
-				"tall"		"16"
+				"tall"		"14"
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" "1"
@@ -1037,6 +1037,18 @@ Scheme
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" "1"
+			}
+		}
+		"HudFontSmallestBoldShadow"
+		{
+			"1"
+			{
+				"name"		"Montserrat Black"
+				"tall"		"11"
+				"weight"	"500"
+				"additive"	"0"
+				"antialias" "1"
+				"dropshadow"	"1"
 			}
 		}
 		"PerformanceModeSmall"
@@ -4893,7 +4905,7 @@ Scheme
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
-			"color"					"178 83 22 255"
+			"color"					"Orange"
 			
 			"image"					"button_glow"
 			"src_corner_height"		"4"				// pixels inside the image
@@ -4906,7 +4918,7 @@ Scheme
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
-			"color"					"238 103 17 255"
+			"color"					"Orange"
 			
 			"image"					"button_glow"
 			"src_corner_height"		"4"				// pixels inside the image
