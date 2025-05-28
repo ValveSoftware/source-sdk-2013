@@ -204,20 +204,21 @@
 			"font"			"MontserratSemibold16"
 			"fgcolor"		"TanDark"
 				
-		"PlayingToBG"
-		{
-			"ControlName"	"CTFImagePanel"
-			"fieldName"		"PlayingToBG"
-			"xpos"			"c-60"
-			"ypos"			"r60"
-			"zpos"			"3"
-			"wide"			"120"
-			"tall"			"36"
-			"visible"		"0"
-			"enabled"		"1"
-			"image"			"../hud/objectives_flagpanel_bg_playingto"
-			"image_hidef"	"../hud/objectives_flagpanel_bg_playingto_hidef"
-			"scaleImage"	"1"	
+			"PlayingToBG"
+			{
+				"ControlName"	"CTFImagePanel"
+				"fieldName"		"PlayingToBG"
+				"xpos"			"c-60"
+				"ypos"			"r60"
+				"zpos"			"3"
+				"wide"			"120"
+				"tall"			"36"
+				"visible"		"0"
+				"enabled"		"1"
+				"image"			"../hud/objectives_flagpanel_bg_playingto"
+				"image_hidef"	"../hud/objectives_flagpanel_bg_playingto_hidef"
+				"scaleImage"	"1"	
+			}
 		}
 	}
 }

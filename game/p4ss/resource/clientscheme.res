@@ -210,9 +210,11 @@ Scheme
 		"UpgradeDisabledFg"		"64 59 52 255"
 		"UpgradeDisabledBg"		"79 77 68 255"
 		
-		//Bobby Joe Colors :3
+		//PASS Fortress Colors :3
 		"PureWhite"				"255 255 255 255"
-		"PureBlack"				"255 255 255 255"
+		"PureBlack"				"0 0 0 255"
+		"PFGreen"				"152 191 101 255"
+		"PFDarkGreen"			"62 76 41 255"
 	}
 
 	///////////////////// BASE SETTINGS ////////////////////////
@@ -477,7 +479,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Futura Condensed Demi Regular"
+				"name"		"Montserrat Light"
 				"tall"		"14"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
 			}	
@@ -504,7 +506,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Futura Condensed Demi Regular"
+				"name"		"Montserrat Light"
 				"tall"		"10"
 				"range"		"0x0000 0x017F"
 			}
@@ -515,7 +517,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Futura Condensed Demi Regular"
+				"name"		"Montserrat Light"
 				"tall"		"8"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
 			}
@@ -525,11 +527,9 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Compacta20"
+				"name"		"Montserrat SemiBold"
 				"tall"		"18"
-				"weight"	"900"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
-				"yres"		"480 599"
 			}
 		}
 		CenterPrintText
@@ -5853,7 +5853,7 @@ Scheme
 			{
 				"1"
 				{
-					"color" "CreditsGreen"
+					"color" "PFGreen"
 					"offset" "0 1"
 				}
 
@@ -5863,7 +5863,7 @@ Scheme
 			{
 				"1"
 				{
-					"color" "CreditsGreen"
+					"color" "PFGreen"
 					"offset" "1 0"
 				}
 			}
@@ -5872,7 +5872,7 @@ Scheme
 			{
 				"1"
 				{
-					"color" "CreditsGreen"
+					"color" "PFGreen"
 					"offset" "0 0"
 				}
 			}
@@ -5881,7 +5881,7 @@ Scheme
 			{
 				"1"
 				{
-					"color" "CreditsGreen"
+					"color" "PFGreen"
 					"offset" "0 0"
 				}
 			}
@@ -5894,12 +5894,12 @@ Scheme
 			{
 				"1"
 				{
-					"color" "CreditsGreen"
+					"color" "PFGreen"
 					"offset" "0 1"
 				}
 				"2"
 				{
-					"color" "CreditsGreen"
+					"color" "PFGreen"
 					"offset" "0 1"
 				}
 			}
@@ -5908,12 +5908,12 @@ Scheme
 			{
 				"1"
 				{
-					"color" "CreditsGreen"
+					"color" "PFGreen"
 					"offset" "1 0"
 				}
 				"2"
 				{
-					"color" "CreditsGreen"
+					"color" "PFGreen"
 					"offset" "1 0"
 				}
 			}
@@ -5922,12 +5922,12 @@ Scheme
 			{
 				"1"
 				{
-					"color" "CreditsGreen"
+					"color" "PFGreen"
 					"offset" "0 0"
 				}
 				"2"
 				{
-					"color" "CreditsGreen"
+					"color" "PFGreen"
 					"offset" "0 0"
 				}
 			}
@@ -5936,28 +5936,56 @@ Scheme
 			{
 				"1"
 				{
-					"color" "CreditsGreen"
+					"color" "PFGreen"
 					"offset" "0 0"
 				}
 				"2"
 				{
-					"color" "CreditsGreen"
+					"color" "PFGreen"
 					"offset" "0 0"
 				}
 			}
 		}
 		
 		////////////////Custom Border Hi Speakers////////////////
-		PTMainMenuTooltip	//Used for the hover tooltips on the main menu 
+		PFMainMenuTooltip	//Used for the hover tooltips on the main menu 
 		{
-			"bordertype"			"scalable_image"
-			"backgroundtype"		"2"
-			
-			"image"					"loadout_header"
-			"src_corner_height"		"23"				// pixels inside the image
-			"src_corner_width"		"23"
-			"draw_corner_width"		"5"				// screen size of the corners ( and sides ), proportional
-			"draw_corner_height" 	"5"	
+			"inset" "0 0 1 1"
+			Left
+			{
+				"1"
+				{
+					"color" "PFDarkGreen"
+					"offset" "0 1"
+				}
+			}
+
+			Right
+			{
+				"1"
+				{
+					"color" "PFDarkGreen"
+					"offset" "1 0"
+				}
+			}
+
+			Top
+			{
+				"1"
+				{
+					"color" "PFDarkGreen"
+					"offset" "0 0"
+				}
+			}
+
+			Bottom
+			{
+				"1"
+				{
+					"color" "PFDarkGreen"
+					"offset" "0 0"
+				}
+			}
 		}
 	}
 

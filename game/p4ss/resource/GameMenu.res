@@ -1,4 +1,4 @@
-"GameMenu" [$WIN32]
+"GameMenu"
 {
 	"VRModeButton"
 	{
@@ -93,16 +93,20 @@
 	{
 		"label" 		"B"
 		"command" 		"opentf2options"
-		"subimage" 		""
 		"tooltip"		"Advanced Settings"
 	}
 	
-	
+	"ReportBugButton"
+	{
+		"label"			"C"
+		"command"		"url https://github.com/p4sstime/p4ss/issues"
+		"tooltip"		"Report A Bug"
+
+	}
 	"WebsiteButton"
 	{
 		"label" 		"D"
-		"command" 		"open_website"
-		"subimage" 		""
+		"command" 		"url https://passtime.tf"
 		"tooltip"		"passtime.tf"
 	}
 	

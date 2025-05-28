@@ -79,7 +79,7 @@ void CSteamFriendPanel::OnCommand( const char *command )
 		m_pContextMenu = new Menu( this, "ContextMenu" );
 		MenuBuilder contextMenuBuilder( m_pContextMenu, this );
 		const char *pszContextMenuBorder = "NotificationDefault";
-		const char *pszContextMenuFont = "HudFontMediumSecondary";
+		const char *pszContextMenuFont = "MontserratLight20";
 		m_pContextMenu->SetBorder( scheme()->GetIScheme( GetScheme() )->GetBorder( pszContextMenuBorder ) );
 		m_pContextMenu->SetFont( scheme()->GetIScheme( GetScheme() )->GetFont( pszContextMenuFont, IsProportional() ) );
 
@@ -146,8 +146,8 @@ void CSteamFriendPanel::DoSendMessage()
 
 void CSteamFriendPanel::UpdateControls()
 {
-	const Color& colorInTF2 = vgui::scheme()->GetIScheme( GetScheme() )->GetColor( "CreditsGreen", Color( 255, 255, 255, 255 ) );
-	const Color& colorOnline = vgui::scheme()->GetIScheme( GetScheme() )->GetColor( "ProgressBarBlue", Color( 255, 255, 255, 255 ) );
+	const Color& colorInTF2 = vgui::scheme()->GetIScheme( GetScheme() )->GetColor( "PFGreen", Color( 255, 255, 255, 255 ) );
+	const Color& colorOnline = vgui::scheme()->GetIScheme( GetScheme() )->GetColor( "PartyMember1", Color( 255, 255, 255, 255 ) );
 	const Color& colorOther = vgui::scheme()->GetIScheme( GetScheme() )->GetColor( "QuestMap_InactiveGrey", Color( 255, 255, 255, 255 ) );
 
 	CUtlString strName = "...";
