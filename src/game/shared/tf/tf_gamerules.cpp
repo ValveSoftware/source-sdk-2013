@@ -20755,8 +20755,7 @@ void CTFGameRules::BetweenRounds_Think( void )
 		float flDropDeadTime = gpGlobals->curtime + mp_tournament_readymode_countdown.GetFloat() + 0.1f;
 		if ( bStartFinalCountdown && ( m_flRestartRoundTime < 0 || m_flRestartRoundTime >= flDropDeadTime ) )
 		{
-			float flDelay = IsMannVsMachineMode() ? 10.f : mp_tournament_readymode_countdown.GetFloat();
-			m_flRestartRoundTime.Set( gpGlobals->curtime + flDelay );
+			m_flRestartRoundTime.Set( gpGlobals->curtime + mp_tournament_readymode_countdown.GetFloat() );
 			ShouldResetScores( true, true );
 			ShouldResetRoundsPlayed( true );
 
