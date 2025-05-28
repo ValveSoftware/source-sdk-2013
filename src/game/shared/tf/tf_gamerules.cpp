@@ -13249,6 +13249,11 @@ void CTFGameRules::ClientDisconnected( edict_t *pClient )
 					{
 						PlayerReadyStatus_ResetState();
 					}
+					// For MvM, we don't want to stop the countdown if others are ready so reset only the leaving player's ready state.
+					else if ( IsPlayerReady( pPlayer->entindex() ) )
+					{
+						PlayerReadyStatus_UpdatePlayerState( pPlayer, false );
+					}
 				}
 				else if ( !IsTeamReady( pPlayer->GetTeamNumber() ) )
 				{
