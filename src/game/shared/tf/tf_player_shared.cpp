@@ -12986,7 +12986,7 @@ bool CTFPlayer::CanMoveDuringTaunt()
 
 	if ( TFGameRules() && TFGameRules()->IsCompetitiveMode() )
 	{
-		if ( ( TFGameRules()->GetRoundRestartTime() > -1.f ) && ( (int)( TFGameRules()->GetRoundRestartTime() - gpGlobals->curtime ) <= mp_tournament_readymode_countdown.GetInt() ) )
+		if ( ( TFGameRules()->GetRoundRestartTime() > -1.f ) && ( (int)ceil( TFGameRules()->GetRoundRestartTime() - gpGlobals->curtime ) <= mp_tournament_readymode_countdown.GetInt() ) )
 			return false;
 
 		if ( TFGameRules()->PlayersAreOnMatchSummaryStage() )
