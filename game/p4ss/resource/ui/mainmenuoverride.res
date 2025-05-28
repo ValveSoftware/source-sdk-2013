@@ -357,8 +357,8 @@
 				"navDown"		"ReplayButton"
 				"navRight"		"HostAServerButton"
 				
-				"FgColor" 					"PureWhite"
-				"defaultFgColor_override" 	"PureWhite"
+				"FgColor" 					"TanLight"
+				"defaultFgColor_override" 	"TanLight"
 				"armedFgColor_override" 	"PFGreen"
 				"depressedFgColor_override" "PFDarkGreen"
 			}
@@ -420,8 +420,8 @@
 			"paintbackground"	"0"
 			"paintborder"		"1"
 				
-			"FgColor" 					"PureWhite"
-			"defaultFgColor_override" 	"PureWhite"
+			"FgColor" 					"TanLight"
+			"defaultFgColor_override" 	"TanLight"
 			
 
 		}
@@ -468,8 +468,8 @@
 				"navLeft"		"ServerBrowserButton"
 				"navRight"		"FriendsContainer"
 				
-				"FgColor" 					"PureWhite"
-				"defaultFgColor_override" 	"PureWhite"
+				"FgColor" 					"TanLight"
+				"defaultFgColor_override" 	"TanLight"
 				"armedFgColor_override" 	"PFGreen"
 				"depressedFgColor_override" "PFDarkGreen"
 			}
@@ -548,8 +548,8 @@
 				"navLeft"		"ServerBrowserButton"
 				"navRight"		"FriendsContainer"
 				
-				"FgColor" 					"PureWhite"
-				"defaultFgColor_override" 	"PureWhite"
+				"FgColor" 					"TanLight"
+				"defaultFgColor_override" 	"TanLight"
 				"armedFgColor_override" 	"PFGreen"
 				"depressedFgColor_override" "PFDarkGreen"
 			}
@@ -595,8 +595,8 @@
 				"navDown"		"EquipButton"
 				"navRight"		"FriendsContainer"
 				
-				"FgColor" 					"PureWhite"
-				"defaultFgColor_override" 	"PureWhite"
+				"FgColor" 					"TanLight"
+				"defaultFgColor_override" 	"TanLight"
 				"armedFgColor_override" 	"PFGreen"
 				"depressedFgColor_override" "PFDarkGreen"
 			}
@@ -674,8 +674,8 @@
 				"navDown"		"SettingsButton"
 				"navRight"		"FriendsContainer"
 				
-				"FgColor" 					"PureWhite"
-				"defaultFgColor_override" 	"PureWhite"
+				"FgColor" 					"TanLight"
+				"defaultFgColor_override" 	"TanLight"
 				"armedFgColor_override" 	"PFGreen"
 				"depressedFgColor_override" "PFDarkGreen"	
 			}
@@ -750,8 +750,8 @@
 				"paintbackground"	"0"
 				"paintborder"		"1"
 				
-				"FgColor" 					"TanLight"
-				"defaultFgColor_override" 	"TanLight"
+				"FgColor" 					"Tan"
+				"defaultFgColor_override" 	"Tan"
 				"armedFgColor_override" 	"RedSolid"
 				"depressedFgColor_override" "PFDarkGreen"	
 			}
@@ -821,8 +821,8 @@
 				"paintbackground"	"0"
 				"paintborder"		"1"
 				
-				"FgColor" 					"TanLight"
-				"defaultFgColor_override" 	"TanLight"
+				"FgColor" 					"Tan"
+				"defaultFgColor_override" 	"Tan"
 				"armedFgColor_override" 	"RedSolid"
 				"depressedFgColor_override" "PFDarkGreen"	
 			}
@@ -897,8 +897,8 @@
 				"navDown"		"ServerBrowserButton"
 				"navRight"		"SettingsAdvancedButton"
 				
-				"FgColor" 					"TanLight"
-				"defaultFgColor_override" 	"TanLight"
+				"FgColor" 					"Tan"
+				"defaultFgColor_override" 	"Tan"
 				"armedFgColor_override" 	"PFGreen"
 				"depressedFgColor_override" "PFDarkGreen"	
 			}
@@ -945,8 +945,8 @@
 				"navRight"		"ReportBugButton"
 				"navLeft"		"SettingsButton"
 				
-				"FgColor" 					"TanLight"
-				"defaultFgColor_override" 	"TanLight"
+				"FgColor" 					"Tan"
+				"defaultFgColor_override" 	"Tan"
 				"armedFgColor_override" 	"PFGreen"
 				"depressedFgColor_override" "PFDarkGreen"	
 			}
@@ -993,8 +993,8 @@
 				"navRight"		"ReportBugButton"
 				"navLeft"		"SettingsButton"
 				
-				"FgColor" 					"TanLight"
-				"defaultFgColor_override" 	"TanLight"
+				"FgColor" 					"Tan"
+				"defaultFgColor_override" 	"Tan"
 				"armedFgColor_override" 	"PFGreen"
 				"depressedFgColor_override" "PFDarkGreen"	
 			}
@@ -1041,8 +1041,8 @@
 				"navRight"		"ReportBugButton"
 				"navLeft"		"SettingsButton"
 				
-				"FgColor" 					"TanLight"
-				"defaultFgColor_override" 	"TanLight"
+				"FgColor" 					"Tan"
+				"defaultFgColor_override" 	"Tan"
 				"armedFgColor_override" 	"PFGreen"
 				"depressedFgColor_override" "PFDarkGreen"	
 			}
@@ -1968,7 +1968,7 @@
 				"visible"		"1"
 				"enabled"		"1"
 				"textinsetx"	"0"
-				"fgcolor"		"PureWhite"
+				"fgcolor"		"TanLight"
 			}
 			
 			"FriendsShadow"
@@ -2042,8 +2042,8 @@
 
 					"Slider"
 					{
-						"FgColor" 					"TanLight"
-						"defaultFgColor_override" 	"TanLight"
+						"FgColor" 					"Tan"
+						"defaultFgColor_override" 	"Tan"
 						"armedFgColor_override" 	"PFGreen"
 						"depressedFgColor_override" "PFDarkGreen"
 						"zpos"						"5"
@@ -2720,8 +2720,8 @@
 			"sound_depressed"	"UI/buttonclick.wav"
 			"sound_released"	"UI/buttonclickrelease.wav"
 			
-			"FgColor" 					"TanLight"
-			"defaultFgColor_override" 	"TanLight"
+			"FgColor" 					"Tan"
+			"defaultFgColor_override" 	"Tan"
 			"armedFgColor_override" 	"PFGreen"
 			"depressedFgColor_override" "PFDarkGreen"
 		}
