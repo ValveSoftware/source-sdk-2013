@@ -22356,9 +22356,17 @@ void CTFPlayer::PlayReadySound( void )
 			CFmtStr goYell( pszFormat, g_aPlayerClassNames_NonLocalized[ m_Shared.GetDesiredPlayerClassIndex() ] );
 			TFGameRules()->BroadcastSound( iTeam, goYell, 0, this );
 			TFGameRules()->BroadcastSound( TEAM_SPECTATOR, goYell, 0, this ); // spectators hear the ready sounds, too
-
-			m_flLastReadySoundTime = gpGlobals->curtime + 4.f;
 		}
+	}
+
+	// Apply a longer delay if it seems the ready sound is being spammed.
+	if ( gpGlobals->curtime - m_flLastReadySoundTime < 6.f )
+	{
+		m_flLastReadySoundTime = gpGlobals->curtime + 8.f;
+	}
+	else
+	{
+		m_flLastReadySoundTime = gpGlobals->curtime + 4.f;
 	}
 }
 
