@@ -5,10 +5,12 @@
 		"fieldName"		"HudPasstimeCountdown"
 		"visible"		"1"
 		"enabled"		"1"
-		"xpos"			"162"	[$WIN32]
-		"ypos"			"r52"	[$WIN32]
-		"wide"			"100"
+		"xpos"			"cs-0.5"	[$WIN32]
+		"ypos"			"r94"	[$WIN32]
+		"zpos"			"20"
+		"wide"			"20"
 		"tall"			"50"
+
 	}	
 
 	"background"
@@ -21,9 +23,9 @@
 		"wide"			"76"
 		"wide_minmode"	"56"
 		"tall"			"38"
-		"visible"		"1"
+		"visible"		"0"
 		"visible_minmode"	"0"
-		"enabled"		"1"
+		"enabled"		"0"
 		"image"			"../hud/misc_ammo_area_blue"
 		"scaleImage"	"1"	
 		"teambg_2"		"../hud/misc_ammo_area_red"
@@ -36,12 +38,12 @@
 	{
 			"ControlName"	"CExLabel"
 			"fieldName"		"CountdownLabel"
-			"xpos"			"50"
+			"xpos"			"0"	
 			"xpos_minmode"	"42"
-			"ypos"			"18"
+			"ypos"			"0"
 			"ypos_minmode"	"12"
-			"zpos"			"2"
-			"wide"			"35"
+			"zpos"			"3"
+			"wide"			"20"
 			"tall"			"20"
 			"tall_lodef"	"28"
 			"autoResize"	"1"
@@ -50,11 +52,16 @@
 			"enabled"		"1"
 			"tabPosition"	"0"
 			"labelText"		"#P4SS_Countdown"
-			"textAlignment"	"west"
+			"textAlignment"	"center"
 			"dulltext"		"0"
 			"brighttext"	"0"
-			"font"			"HudFontMedium"
+			"font"			"HudFontMediumBold"
 			"font_minmode"	"HudFontSmall"
 			"font_lodef"	"HudFontMediumBig"
+			"fgcolor_override"	"255 255 246 255"
+			"bgcolor_override"	"255 255 246 0"
+		"textinsetx"		"0"
+
 	}
+
 }
