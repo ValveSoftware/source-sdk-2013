@@ -20,7 +20,7 @@
 		"fieldName"		"PlayerStatusClassImage"
 		"xpos"			"25"	[$WIN32]
 		"xpos_minmode"	"15"	[$WIN32]
-		"ypos"			"r88"	[$WIN32]
+		"ypos"			"r90"	[$WIN32]
 		"ypos_minmode"	"r54"	[$WIN32]
 		"xpos"			"57"	[$X360]
 		"ypos"			"r110"	[$X360]
@@ -80,14 +80,14 @@
 	{
 		"ControlName"	"CTFImagePanel"
 		"fieldName"		"PlayerStatusClassImageBG"
-		"xpos"			"9"		[$WIN32]
+		"xpos"			"0"		[$WIN32]
 		"xpos_minmode"	"-10"		[$WIN32]
 		"ypos"			"r60"	[$WIN32]
 		"ypos_minmode"		"r40"	[$WIN32]
 		"xpos"			"41"	[$X360]
 		"ypos"			"r82"	[$X360]
-		"zpos"			"1"		
-		"wide"			"100"
+		"zpos"			"6"		
+		"wide"			"80"
 		"tall"			"50"
 		"visible"		"1"
 		"enabled"		"1"
@@ -103,7 +103,7 @@
 	{
 		"ControlName"	"CTFImagePanel"
 		"fieldName"		"classmodelpanelBG"
-		"xpos"			"9999"		[$WIN32]
+		"xpos"			"0"		[$WIN32]
 		"xpos_minmode"	"-15"		[$WIN32]
 		"ypos"			"r60"	[$WIN32]
 		"ypos_minmode"		"r40"	[$WIN32]
@@ -112,8 +112,8 @@
 		"zpos"			"1"		
 		"wide"			"109"
 		"tall"			"50"
-		"visible"		"0"
-		"enabled"		"0"
+		"visible"		"1"
+		"enabled"		"1"
 		"scaleImage"	"1"
 		"image"				"../hud/character_red_bg_clipped"	
 		"teambg_2"			"../hud/character_red_bg_clipped"
@@ -127,9 +127,9 @@
 		"ControlName"	"CTFPlayerModelPanel"
 		"fieldName"		"classmodelpanel"
 		
-		"xpos"			"100"	[$WIN32]
+		"xpos"			"0"	[$WIN32]
 		"xpos_minmode"	"0"	[$WIN32]
-		"ypos"			"r100"	[$WIN32]
+		"ypos"			"c25"	[$WIN32]
 		"ypos_minmode"	"r88"	[$WIN32]
 		"zpos"			"2"		
 		"wide"			"100"
@@ -199,12 +199,12 @@
 				"fov"			"15"
 				"angles_x"		"-10"
 				"angles_x_minmode"	"-3"
-				"angles_y"		"189"
+				"angles_y"		"164"
 				"angles_z"		"0"
-				"origin_x"		"145"
-				"origin_y"		"-5"
+				"origin_x"		"190"
+				"origin_y"		"-10"
 				"origin_y_minmode"	"-8"
-				"origin_z"		"-90"
+				"origin_z"		"-82"
 				"origin_z_minmode"	"-50"
 			}
 			"Demoman"

@@ -5,9 +5,9 @@
 	{
 		"ControlName"	"EditablePanel"
 		"fieldName"		"HudPlayerHealth"
-		"xpos"			"c-320"		[$WIN32]
+		"xpos"			"c-430"		[$WIN32]
 		"xpos_minmode"	"-5"		[$WIN32]
-		"ypos"			"r130"	[$WIN32]
+		"ypos"			"r132"	[$WIN32]
 		"ypos_minmode"	"r88"	[$WIN32]
 		"xpos"			"32"	[$X360]
 		"ypos"			"r144"	[$X360]
@@ -28,8 +28,8 @@
 		"xpos_minmode"	"60"
 		"ypos"			"35"
 		"zpos"			"4"
-		"wide"			"64"
-		"tall"			"64"
+		"wide"			"80"
+		"tall"			"80"
 		"visible"		"1"
 		"enabled"		"1"
 		"scaleImage"	"1"	
@@ -45,8 +45,8 @@
 		"xpos_minmode"	"58"
 		"ypos"			"2"
 		"zpos"			"3"
-		"wide"			"68"
-		"tall"			"68"
+		"wide"			"84"
+		"tall"			"84"
 		"visible"		"1"
 		"enabled"		"1"
 		"image"			"../hud/health_bg"
@@ -82,9 +82,9 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"PlayerStatusHealthValue"
-		"xpos"			"-8"
+		"xpos"			"-16"
 		"xpos_minmode"	"61"
-		"ypos"			"-24"	[$WIN32]
+		"ypos"			"-31"	[$WIN32]
 		"ypos"			"55"	[$X360]
 		"zpos"			"5"
 		"wide"			"50"
