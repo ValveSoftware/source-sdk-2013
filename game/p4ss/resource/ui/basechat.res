@@ -66,7 +66,7 @@
 		"enabled"		"1"
 		"labelText"		""
 		"textAlignment"		"south-west"
-		"font"			"HudFontMedium"
+		"font"			"MontserratSemibold28"
 		"maxchars"		"-1"
 	}
 }

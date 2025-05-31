@@ -254,7 +254,7 @@
 				"enabled"			"1"	
 				"HealthBonusPosAdj"	"10"
 				"HealthDeathWarning"		"0.49"
-				"TFFont"					"HudFontSmallest"
+				"TFFont"					"MontserratSemibold12"
 				"HealthDeathWarningColor"	"HUDDeathWarning"
 				"TextColor"					"HudOffWhite"
 				
@@ -478,7 +478,7 @@
 	{	
 		"ControlName"		"Label"
 		"fieldName"		"TournamentLabel"
-		"font"			"HudFontSmall"
+		"font"			"MontserratSemibold16"
 		"xpos"			"150"
 		"ypos"			"3"
 		"zpos"			"1"
@@ -554,7 +554,7 @@
 	{	
 		"ControlName"		"Label"
 		"fieldName"		"TournamentBLUELabel"
-		"font"			"HudFontSmallest"
+		"font"			"MontserratSemibold12"
 		"xpos"			"12"
 		"ypos"			"24"
 		"zpos"			"1"
@@ -590,7 +590,7 @@
 	{	
 		"ControlName"		"Label"
 		"fieldName"		"TournamentBLUEStateLabel"
-		"font"			"HudFontSmallestBold"
+		"font"			"MontserratBlack12"
 		"xpos"			"56"
 		"ypos"			"24"
 		"zpos"			"1"
@@ -666,7 +666,7 @@
 	{	
 		"ControlName"		"Label"
 		"fieldName"		"TournamentREDLabel"
-		"font"			"HudFontSmallest"
+		"font"			"MontserratSemibold12"
 		"xpos"			"12"
 		"ypos"			"6"
 		"zpos"			"1"
@@ -701,7 +701,7 @@
 	{	
 		"ControlName"		"Label"
 		"fieldName"		"TournamentREDStateLabel"
-		"font"			"HudFontSmallestBold"
+		"font"			"MontserratBlack12"
 		"xpos"			"56"
 		"ypos"			"6"
 		"zpos"			"1"
@@ -832,7 +832,7 @@
 		
 		if_mvm
 		{
-			"font"			"HudFontSmallishBold"
+			"font"			"MontserratBlack18"
 			"xpos"			"155"
 			"ypos"			"105"
 			"wide"			"190"
@@ -842,7 +842,7 @@
 
 		if_competitive
 		{
-			"font"			"HudFontSmallishBold"
+			"font"			"MontserratBlack18"
 			"xpos"			"cs-0.5"
 			"ypos"			"110"
 			"wide"			"190"
@@ -852,7 +852,7 @@
 
 		if_readymode
 		{
-			"font"			"HudFontSmallishBold"
+			"font"			"MontserratBlack18"
 			"xpos"			"225"
 			"ypos"			"110"
 			"wide"			"190"
@@ -882,7 +882,7 @@
 		
 		if_mvm
 		{
-			"font"			"HudFontSmallishBold"
+			"font"			"MontserratBlack18"
 			"xpos"			"156"
 			"ypos"			"106"
 			"wide"			"190"
@@ -893,7 +893,7 @@
 
 		if_competitive
 		{
-			"font"			"HudFontSmallishBold"
+			"font"			"MontserratBlack18"
 			"xpos"			"cs-0.5"
 			"ypos"			"111"
 			"wide"			"190"
@@ -904,7 +904,7 @@
 
 		if_readymode
 		{
-			"font"			"HudFontSmallishBold"
+			"font"			"MontserratBlack18"
 			"xpos"			"226"
 			"ypos"			"111"
 			"wide"			"190"
@@ -995,7 +995,7 @@
 	{	
 		"ControlName"		"CExLabel"
 		"fieldName"		"CountdownLabel"
-		"font"			"HudFontGiant"
+		"font"			"MontserratSemibold32"
 		"xpos"			"230"
 		"ypos"			"r55"
 		"wide"			"40"
@@ -1015,7 +1015,7 @@
 			"xpos"			"cs-0.5"
 			"ypos"			"cs-0.1"
 			"fgcolor"		"TanLight"
-			"font"			"HudFontGiant"
+			"font"			"MontserratSemibold32"
 		}
 
 		if_readymode
@@ -1029,7 +1029,7 @@
 	{	
 		"ControlName"		"CExLabel"
 		"fieldName"		"CountdownLabelShadow"
-		"font"			"HudFontGiant"
+		"font"			"MontserratSemibold32"
 		"xpos"			"231"
 		"ypos"			"r54"
 		"wide"			"40"
@@ -1049,7 +1049,7 @@
 		{
 			"xpos"			"cs-0.48"
 			"ypos"			"cs-0.08"
-			"font"			"HudFontGiant"
+			"font"			"MontserratSemibold32"
 		}
 
 		if_readymode

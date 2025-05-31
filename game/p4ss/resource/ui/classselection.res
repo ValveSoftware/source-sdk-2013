@@ -740,7 +740,7 @@
 		"labelText"		"#TF_ClassMenu_Cancel"
 		"textAlignment"	"center"
 		"Command"		"vguicancel"
-		"font"			"HudFontSmallBold"
+		"font"			"MontserratBlack14"
 		"fgcolor_override" "200 80 60 255"
 	}
 	
@@ -761,7 +761,7 @@
 		"labelText"		"#EditLoadout"
 		"textAlignment"	"center"
 		"Command"		"openloadout"
-		"font"			"HudFontSmallBold"
+		"font"			"MontserratBlack14"
 	}
 
 	"ResetButton" [$WIN32] 
@@ -781,7 +781,7 @@
 		"labelText"		"#TF_ClassMenu_Reset"
 		"textAlignment"	"center"
 		"Command"		"resetclass"
-		"font"			"HudFontSmallBold"
+		"font"			"MontserratBlack14"
 	}
 
 	"ClassMenuSelect"
@@ -860,8 +860,8 @@
 		"labelText"		"%hint%"
 		"textAlignment"	"left"
 		"wrap"			"1"
-		"font"			"HudFontMediumSmallSecondary"
-		"font_lodef"	"HudFontMediumSmallSecondary"
+		"font"			"MontserratSemibold22"
+		"font_lodef"	"MontserratSemibold22"
 		"fgcolor"		"HudTrainingHint"
 		"fgcolor_lodef"	"HudTrainingHint"
 	}
@@ -1154,7 +1154,7 @@
 		"tabPosition"	"0"
 		"labelText"		"#TF_TeamCount"
 		"textAlignment"	"left"
-		"font"			"HudFontMediumSmallSecondary"
+		"font"			"MontserratSemibold22"
 		"fgcolor"		"TanLight"
 	}
 	
@@ -1428,7 +1428,7 @@
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"TitleLabel"
-			"font"			"HudFontSmallBold"
+			"font"			"MontserratBlack14"
 			"labelText"		"#TF_MvM_UpgradeExplanation_Title"
 			"textAlignment"	"north"
 			"xpos"			"20"
@@ -1447,7 +1447,7 @@
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"TextLabel"
-			"font"			"HudFontSmall"
+			"font"			"MontserratSemibold16"
 			"labelText"		"#TF_MvM_UpgradeExplanation_Text"
 			"textAlignment"	"north-west"
 			"xpos"			"20"
@@ -1477,7 +1477,7 @@
 			"enabled"		"1"
 			"tabPosition"	"0"
 			"labeltext"		""
-			"font"			"HudFontSmallBold"
+			"font"			"MontserratBlack14"
 			"textAlignment"	"center"
 			"dulltext"		"0"
 			"brighttext"	"0"
@@ -1600,7 +1600,7 @@
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"TitleLabel"
-			"font"			"HudFontSmallBold"
+			"font"			"MontserratBlack14"
 			"labelText"		"#CMenu_ClassHighlightPanel_Title"
 			"textAlignment"	"north-west"
 			"xpos"			"10"
@@ -1619,7 +1619,7 @@
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"ClassHighlightText"
-			"font"			"HudFontSmall"
+			"font"			"MontserratSemibold16"
 			"labelText"		"%ClassHighlightText%"
 			"textAlignment"	"north-west"
 			"xpos"			"20"
@@ -1649,7 +1649,7 @@
 			"enabled"		"1"
 			"tabPosition"	"0"
 			"labeltext"		""
-			"font"			"HudFontSmallBold"
+			"font"			"MontserratBlack14"
 			"textAlignment"	"center"
 			"dulltext"		"0"
 			"brighttext"	"0"

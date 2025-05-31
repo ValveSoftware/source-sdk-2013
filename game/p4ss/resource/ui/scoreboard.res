@@ -1227,7 +1227,7 @@
 				"wrap"			"0"
 				"labelText"		"%playername%"
 				"textAlignment"	"west"
-				"font"			"HudFontSmallest"
+				"font"			"MontserratSemibold12"
 			}
 			"Score"
 			{

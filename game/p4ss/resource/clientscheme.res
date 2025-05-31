@@ -3004,6 +3004,49 @@ Scheme
 				"tall"	"44"
 			}
 		}
+		"MontserratBlack12"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"12"
+			}
+		}
+		"MontserratBlack12Shadow"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"12"
+				"dropshadow"	"1"
+			}
+		}
+		"MontserratBlack14"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"14"
+			}
+		}
+		"MontserratBlack14Shadow"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"14"
+				
+			}
+		}
+		"MontserratBlack16Shadow"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"16"
+				"dropshadow"	"1"
+			}
+		}
 		"MontserratBlack20"
 		{
 			"1"
@@ -3012,12 +3055,28 @@ Scheme
 				"tall"	"20"
 			}
 		}
+		"MontserratBlack22"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"22"
+			}
+		}
 		"MontserratBlack24"
 		{
 			"1"
 			{
 				"name"	"Montserrat Black"
 				"tall"	"24"
+			}
+		}
+		"MontserratBlack26"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"26"
 			}
 		}
 		"MontserratBlack28"
@@ -3034,6 +3093,14 @@ Scheme
 			{
 				"name"	"Montserrat Black"
 				"tall"	"32"
+			}
+		}
+		"MontserratBlack34"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"34"
 			}
 		}
 		"MontserratBlack36"
@@ -3084,6 +3151,14 @@ Scheme
 				"tall"	"56"
 			}
 		}
+		"MontserratBlack64"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"64"
+			}
+		}
 		
 		"MontserratSemibold16"
 		{
@@ -3091,6 +3166,15 @@ Scheme
 			{
 				"name"	"Montserrat SemiBold"
 				"tall"	"16"
+			}
+		}
+		"MontserratSemibold16Shadow"
+		{
+			"1"
+			{
+				"name"	"Montserrat SemiBold"
+				"tall"	"16"
+				"dropshadow"	"1"
 			}
 		}
 		"MontserratSemibold20"
@@ -5127,7 +5211,7 @@ Scheme
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
-			"color"					"PFGreen"
+			"color"					"178 83 22 255"
 			
 			"image"					"button_glow"
 			"src_corner_height"		"4"				// pixels inside the image
@@ -5140,7 +5224,7 @@ Scheme
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
-			"color"					"PFGreen"
+			"color"					"238 103 17 255"
 			
 			"image"					"button_glow"
 			"src_corner_height"		"4"				// pixels inside the image

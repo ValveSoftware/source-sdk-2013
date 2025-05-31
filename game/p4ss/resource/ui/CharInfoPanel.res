@@ -20,7 +20,7 @@
 		"outoffocus_bgcolor_override"	"46 43 42 0"
 		
 		"title"			"#CharInfoAndSetup"
-		"title_font"	"HudFontMediumBold"
+		"title_font"	"MontserratBlack26"
 		"titletextinsetX"	"40"
 		"titletextinsetY"	"0"
 		"titlebarfgcolor_override"				"200 187 161 255"
@@ -103,7 +103,7 @@
 		"tabskv"
 		{
 			"textinsetx"		"40"
-			"font"				"HudFontMediumSmallBold"
+			"font"				"MontserratBlack22"
 			"selectedcolor"		"200 187 161 255"
 			"unselectedcolor"	"130 120 104 255"	
 			"defaultBgColor_override"	"46 43 42 255"
@@ -128,7 +128,7 @@
 		"enabled"		"1"
 		"tabPosition"	"0"
 		"labelText"		"#TF_BackCarat"
-		"font"			"HudFontSmallBold"
+		"font"			"MontserratBlack14"
 		"textAlignment"	"center"
 		"dulltext"		"0"
 		"brighttext"	"0"
@@ -168,7 +168,7 @@
 			"image"			"glyph_workshop_delete"
 			"scaleImage"	"1"
 		}		
-		"font"			"HudFontSmallBold"
+		"font"			"MontserratBlack14"
 		"textAlignment"	"center"
 		"dulltext"		"0"
 		"brighttext"	"0"
@@ -208,7 +208,7 @@
 			"image"			"glyph_server"
 			"scaleImage"	"1"
 		}		
-		"font"			"HudFontSmallBold"
+		"font"			"MontserratBlack14"
 		"textAlignment"	"center"
 		"dulltext"		"0"
 		"brighttext"	"0"
@@ -234,7 +234,7 @@
 		"tabPosition"	"0"
 		"labelText"		"#TF_SDK_LocalLoadout"
 		"image_drawcolor"	"235 226 202 255"
-		"font"			"HudFontSmall"
+		"font"			"MontserratSemibold16"
 		"textAlignment"	"west"
 		"dulltext"		"0"
 		"brighttext"	"0"

@@ -37,8 +37,8 @@
 		"textAlignment_minmode"		"west"
 		"use_proportional_insets_minmode"	"1"
 		"textinsetx_minmode"				"5"
-		"font"			"HudFontMediumSmallSecondary"
-		"font_minmode"			"HudFontSmall"
+		"font"			"MontserratSemibold22"
+		"font_minmode"			"MontserratSemibold16"
 	}
 	
 
@@ -98,8 +98,8 @@
 		"textAlignment"		"center"
 		"textAlignment_lodef"		"north-west"
 		"font"			"SpectatorKeyHints"
-		"font_hidef"	"HudFontSmallest"
-		"font_lodef"	"HudFontSmall"
+		"font_hidef"	"MontserratSemibold12"
+		"font_lodef"	"MontserratSemibold16"
 		"wrap_lodef"			"1"
 	}
 	"SwitchCamModeKeyLabel"
@@ -222,7 +222,7 @@
 		"labelText"		"%tip%"
 		"textAlignment"		"center"	
 		"font"			"SpectatorKeyHints"
-		"font_hidef"	"HudFontSmall"
+		"font_hidef"	"MontserratSemibold16"
 		"font_lodef"	"DefaultVerySmall"
 		"wrap"			"1"
 	}

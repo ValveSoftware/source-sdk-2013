@@ -85,8 +85,8 @@ Scheme
 		FrameSystemButton.BgColor		"Blank"
 		FrameSystemButton.Icon			""
 		FrameSystemButton.DisabledIcon	""
-		FrameTitleBar.Font				"HudFontMedium"		[$WIN32]
-		FrameTitleBar.Font				"HudFontMedium"	[$WIN32]
+		FrameTitleBar.Font				"MontserratSemibold28"		[$WIN32]
+		FrameTitleBar.Font				"MontserratSemibold28"	[$WIN32]
 		FrameTitleBar.TextColor			"White"
 		FrameTitleBar.BgColor			"Blank"
 		FrameTitleBar.DisabledTextColor	"255 255 255 192"

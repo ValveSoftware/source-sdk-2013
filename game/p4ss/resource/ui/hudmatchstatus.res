@@ -62,7 +62,7 @@
 	{	
 		"ControlName"	"CExLabel"
 		"fieldName"		"CountdownLabel"
-		"font"			"CompactaBlack24"
+		"font"			"MontserratSemibold32"
 		"xpos"			"cs-0.5"
 		"ypos"			"cs-0.1"
 		"wide"			"40"
@@ -89,7 +89,7 @@
 	{	
 		"ControlName"	"CExLabel"
 		"fieldName"		"CountdownLabelShadow"
-		"font"			"CompactaBlack24"
+		"font"			"MontserratSemibold32"
 		"xpos"			"cs-0.48"
 		"ypos"			"cs-0.08"
 		"wide"			"40"
@@ -102,7 +102,7 @@
 		"wrap"			"0"
 		"labelText"		"%countdown%"
 		"textAlignment"	"center"
-		"fgcolor"		"Black"
+		"fgcolor"		"PFGrey"
 		"proportionaltoparent"	"1"
 
 	
@@ -214,7 +214,7 @@
 	{
 		"ControlName"		"EditablePanel"
 		"fieldName"			"BGFrame"
-		"xpos"				"cs-0.5"
+		"xpos"				"9999"
 		"ypos"				"-5"
 		"zpos"				"0"
 		"wide"				"365"
@@ -227,6 +227,7 @@
 		if_match
 		{
 			"visible"		"0"
+			"enabled" "0"
 		}
 	}
 
@@ -234,7 +235,7 @@
 	{	
 		"ControlName"	"CExLabel"
 		"fieldName"		"RankUpLabel"
-		"font"			"Compacta18"
+		"font"			"MontserratBlack24"
 		"xpos"			"cs-0.5"
 		"ypos"			"80"
 		"wide"			"600"
@@ -257,7 +258,7 @@
 	{	
 		"ControlName"	"CExLabel"
 		"fieldName"		"RankUpShadowLabel"
-		"font"			"Compacta18"
+		"font"			"MontserratBlack24"
 		"xpos"			"cs-0.5+2"
 		"ypos"			"80+2"
 		"wide"			"600"
@@ -281,8 +282,6 @@
 		"ControlName"		"EditablePanel"
 		"fieldName"			"ObjectiveStatusTimePanel"
 		"xpos"				"c-55"
-		"xpos_hidef"		"c-150"
-		"xpos_lodef"		"c-150"
 		"ypos"				"0"	[$WIN32]
 		"ypos_minmode"		"-14"	[$WIN32]
 		"ypos"				"24"	[$X360]
@@ -300,11 +299,12 @@
 		"PositiveColor"			"0 255 0 255"
 		"NegativeColor"			"255 0 0 255"
 		"delta_lifetime"		"1.5"
-		"delta_item_font"		"Compacta20"
+		"delta_item_font"		"MontserratSemibold28"
 
 		if_match
 		{
 			"xpos"					"cs-0.5"
+			"ypos"					"c-225"
 			"wide"					"130"
 			"ypos_minmode"			"0"
 			"delta_item_x"			"35"
@@ -313,17 +313,17 @@
 			"PositiveColor"			"0 255 0 255"
 			"NegativeColor"			"255 0 0 255"
 			"delta_lifetime"		"1.5"
-			"delta_item_font"		"Compacta18"
+			"delta_item_font"		"MontserratSemibold24"
 		}
 		
 		"TimePanelValue"
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"TimePanelValue"
-			"font"			"Compacta18"
-			"font_minmode"	"Compacta16"
-			"font_lodef"	"Compacta20"
-			"fgcolor"		"TanLight"
+			"font"			"MontserratSemibold24"
+			"font_minmode"	"MontserratSemibold16"
+			"font_lodef"	"MontserratSemibold28"
+			"fgcolor"		"255 255 246 255"
 			"xpos"			"23"
 			"xpos_minmode"	"39"
 			"xpos_hidef"	"114"
@@ -333,7 +333,7 @@
 			"ypos_hidef"	"15"
 			"ypos_lodef"	"18"
 			"zpos"			"3"
-			"wide"			"45"
+			"wide"			"32"
 			"wide_minmode"	"30"
 			"wide_lodef"	"50"
 			"tall"			"31"
@@ -347,21 +347,51 @@
 				"proportionaltoparent"	"1"
 
 				"xpos"			"cs-0.5"
-				"ypos"			"12"
+				"ypos"			"c-60"
 				"ypos_minmode"	"12"
 				"tall"			"10"
-				"font"			"Compacta16"
-				"font_minmode"	"Compacta16"
-				"font_lodef"	"Compacta16"
+				"font"			"MontserratBlack14"
+				"font_minmode"	"MontserratSemibold16"
+				"font_lodef"	"MontserratSemibold16"
 			}
 		}	
+
+	"GreyBG"
+		{
+		"ControlName"	"ImagePanel"
+		"fieldName"		"GreyBG"
+		"xpos"			"0"
+		"ypos"			"0"
+		"xpos_minmode"	"c-92"
+		"ypos_minmode"	"r68"
+		"zpos"			"0"
+		"wide"			"32"
+		"tall"			"10"
+		"wide_minmode"	"184"
+		"tall_minmode"	"64"
+		"visible"		"1"
+		"enabled"		"1"
+		"image"			"../hud/greybg"
+		"scaleImage"	"1"	
+			// "proportionaltoparent" "1"
+		"pin_to_sibling" "TimePanelValue"
+		"pin_corner_to_sibling" "PIN_TOPLEFT"
+		"pin_to_sibling_corner" "PIN_TOPLEFT"
+		}
+	"SetupLabel"
+	{
+	"ControlName" "CExLabel"
+	"fieldName" "SetupLabel"
+	"font" "MontserratBlack12"
+	}
+
 	}
 	"TeamStatus"
 	{
 		"ControlName"	"CTFTeamStatus"
 		"fieldName"		"TeamStatus"
 		"xpos"			"0"
-		"ypos"			"0"
+		"ypos"			"c-234"
 		"zpos"			"2"
 		"wide"			"f0"
 		"tall"			"75"
@@ -371,28 +401,28 @@
 
 		"max_size"	"19"
 
-		"6v6_gap"	"4"
+		"6v6_gap"	"2"
 		"12v12_gap"	"1"
 
 		"team1_grow_dir" "west"
-		"team1_base_x"	"c-45"
+		"team1_base_x"	"c-82"
 		"team1_max_expand"	"133"
 
 		"team2_grow_dir" "east"
-		"team2_base_x"	"c47"
+		"team2_base_x"	"c82"
 		"team2_max_expand"	"133"
 
 		"playerpanels_kv"
 		{
-			"visible"		"0"
-			"wide"			"25"
-			"tall"			"50"
+			"visible"		"1"
+			"wide"			"18"
+			"tall"			"24"
 			"zpos"			"1"
 
-			"color_portrait_bg_red"	"119 62 61 255"
-			"color_portrait_bg_blue"	"62 81 101 255"
-			"color_portrait_bg_red_dead"	"79 54 52 255"
-			"color_portrait_bg_blue_dead"	"44 49 51 255"
+			"color_portrait_bg_red"	"130 40 40 255"
+			"color_portrait_bg_blue"	"48 93 122 255"
+			"color_portrait_bg_red_dead"	"33 22 22 255"
+			"color_portrait_bg_blue_dead"	"22 22 33 255"
 			"color_bar_health_high"	"84 191 58 255"
 			"color_bar_health_med"	"191 183 58 255"
 			"percentage_health_med"	"0.6"
@@ -405,28 +435,51 @@
 			{
 				"ControlName"	"CExLabel"
 				"fieldName"		"playername"
-				"font"			"FuturaDemiCon10"
-				"xpos"			"5"
-				"ypos"			"24"
-				"zpos"			"5"
-				"wide"			"50"
-				"tall"			"8"
+				"font"			"MontserratBlack12Shadow"
+				"xpos"			"0"
+				"ypos"			"r14"
+				"zpos"			"7"
+				"wide"			"f0"
+				"tall"			"14"
 				"autoResize"	"0"
-				"pinCorner"		"0"
-				"visible"		"0"
+				"pinCorner"		"1"
+				"visible"		"1"
+				"visible_minmode" "0"
+				"labelText"		"%playername%"
+				"textAlignment"	"center"
+				"fgcolor" 		"255 255 246 255" 
+				"proportionaltoparent"	"1"
+				"wrap" "0"
 			}
+			"playernameBG"
+			{
+				"ControlName"	"EditablePanel"
+				"fieldName"		"playernameBG"
+				"font"			"MontserratBlack12Shadow"
+				"xpos"			"cs-0.5"
+				"ypos"			"0"
+				"zpos"			"-15"
+				"visible"		"1"
+				"enabled"		"1"
+				"wide"			"f0"
+				"tall"			"18"
+				"bgcolor_override"	"0 0 0 120"
+				"proportionaltoparent"	"1"
+								"PaintBackgroundType"	"0"
+			}
+
 			"classimage"
 			{
 				"ControlName"	"CTFClassImage"
 				"fieldName"		"classimage"
 				"xpos"			"cs-0.5"
-				"ypos"			"0"
+				"ypos"			"c-11"
 				"zpos"			"3"
-				"wide"			"19"
-				"tall"			"19"
+				"wide"			"14"
+				"tall"			"14"
 				"visible"		"1"
 				"enabled"		"1"
-				"image"			"../hud/class_scoutred"
+				"image"			"../vgui/class_portraits/class_scoutred"
 				"scaleImage"	"1"	
 				"proportionaltoparent"	"1"
 			}
@@ -434,25 +487,27 @@
 			{
 				"ControlName"		"Panel"
 				"fieldName"		"classimagebg"
-				"xpos"			"0"
-				"ypos"			"0"
-				"zpos"			"2"
-				"wide"			"f0"
-				"tall"			"19"
-				"visible"		"1"
-				"enabled"		"1"
+				"xpos"					"cs-0.5"
+				"ypos"					"1"
+				"zpos"					"-10"
+				"wide"					"16"
+				"tall"					"16"
+				"visible"				"1"
+				"enabled"				"1"
 				"PaintBackgroundType"	"0"
+				"alpha" 				"200"
 				"proportionaltoparent"	"1"
 			}
+
 			"healthbar"
 			{	
 				"ControlName"			"ContinuousProgressBar"
 				"fieldName"				"healthbar"
-				"font"					"FuturaDemiCon14"																		
-				"xpos"					"0"
-				"ypos"					"19"
+				"font"					"Default"																		
+				"xpos"					"cs-0.5"
+				"ypos"					"r0"
 				"zpos"					"5"
-				"wide"					"f0"
+				"wide"					"16"
 				"tall"					"2"				
 				"autoResize"			"0"
 				"pinCorner"				"0"
@@ -461,19 +516,19 @@
 				"textAlignment"			"Left"
 				"dulltext"				"0"
 				"brighttext"			"0"
-				"bgcolor_override"	   "80 80 80 255"
+				"bgcolor_override"	   "PFGrey"
 				"proportionaltoparent"	"1"
 			}
 			"overhealbar"
 			{	
 				"ControlName"			"ContinuousProgressBar"
 				"fieldName"				"overhealbar"
-				"font"					"FuturaDemiCon14"																		
-				"xpos"					"0"
-				"ypos"					"19"
+				"font"					"Default"																		
+				"xpos"					"1"
+				"ypos"					"r0"
 				"zpos"					"6"
-				"wide"					"f0"
-				"tall"					"2"				
+				"wide"					"40"
+				"tall"					"3"				
 				"autoResize"			"0"
 				"pinCorner"				"0"
 				"visible"				"1"
@@ -482,7 +537,7 @@
 				"dulltext"				"0"
 				"brighttext"			"0"
 				"bgcolor_override"	   "0 0 0 0"
-				"fgcolor_override"	   "255 255 255 160"
+				"fgcolor_override"	   "255 255 255 200"
 				"proportionaltoparent"	"1"
 			}
 			"HealthIcon"
@@ -498,7 +553,7 @@
 				"enabled"			"1"	
 				"HealthBonusPosAdj"	"10"
 				"HealthDeathWarning"		"0.49"
-				"TFFont"					"FuturaDemiCon10"
+				"TFFont"					"MontserratSemibold12"
 				"HealthDeathWarningColor"	"HUDDeathWarning"
 				"TextColor"					"HudOffWhite"
 			}
@@ -558,7 +613,7 @@
 			{
 				"ControlName"	"CExLabel"
 				"fieldName"		"chargeamount"
-				"font"			"FuturaDemiCon12"
+				"font"			"DefaultSmall"
 				"xpos"			"25"
 				"ypos"			"17"
 				"zpos"			"6"
@@ -575,7 +630,7 @@
 			{
 				"ControlName"	"CExLabel"
 				"fieldName"		"specindex"
-				"font"			"FuturaDemiCon10"
+				"font"			"DefaultVerySmall"
 				"xpos"			"4"
 				"ypos"			"2"
 				"zpos"			"5"
@@ -671,7 +726,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"BlueTeamLabel"
-			"font"			"Compacta14"
+			"font"			"MontserratSemibold16"
 			"labelText"		"%blueteamname%"
 			"textAlignment"		"center"
 			"xpos"			"48"
@@ -809,7 +864,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"RedTeamLabel"
-			"font"			"Compacta14"
+			"font"			"MontserratSemibold16"
 			"labelText"		"%redteamname%"
 			"textAlignment"		"center"
 			"xpos"			"5"
