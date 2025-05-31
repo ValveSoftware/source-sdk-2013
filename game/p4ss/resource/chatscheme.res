@@ -19,12 +19,16 @@ Scheme
 		"White"				"255 255 255 255"
 		"OffWhite"			"216 216 216 255"
 		"DullWhite"			"32 32 32 255"
-		"Orange"			"152 191 100 255"
+		"Orange"			"178 82 22 255"
 		"TransparentBlack"		"0 0 0 128"
 		"Black"				"0 0 0 255"
 		"Green"				"63 185 73 255"
-		"PFGrey" 			"32 32 32 180"
+
 		"Blank"				"0 0 0 0"
+
+		"PFGrey" 			"32 32 32 180"
+		"PFGreen" 			"152 191 100 255"
+		"PFGreenDim" 		"152 191 100 128"
 	}
 
 	///////////////////// BASE SETTINGS ////////////////////////
@@ -103,14 +107,14 @@ Scheme
 		ListPanel.TextBgColor				"Blank"
 		ListPanel.BgColor					"TransparentBlack"
 		ListPanel.SelectedTextColor			"Black"
-		ListPanel.SelectedBgColor			"Orange"
-		ListPanel.SelectedOutOfFocusBgColor	"152 191 100 128"
+		ListPanel.SelectedBgColor			"PFGreen"
+		ListPanel.SelectedOutOfFocusBgColor	"PFGreenDim"
 		ListPanel.EmptyListInfoTextColor	"OffWhite"
 
 		Menu.TextColor					"White"
 		Menu.BgColor					"160 160 160 64"
 		Menu.ArmedTextColor				"Black"
-		Menu.ArmedBgColor				"Orange"
+		Menu.ArmedBgColor				"PFGreen"
 		Menu.TextInset					"6"
 
 		Panel.FgColor					"Blank"
@@ -129,7 +133,7 @@ Scheme
 		RichText.TextColor				"OffWhite"
 		RichText.BgColor				"TransparentBlack"
 		RichText.SelectedTextColor		"Black"
-		RichText.SelectedBgColor		"Orange"
+		RichText.SelectedBgColor		"PFGreen"
 
 		ScrollBar.Wide					8
 
@@ -150,9 +154,9 @@ Scheme
 		SectionedListPanel.BrightTextColor	"White"
 		SectionedListPanel.BgColor			"TransparentBlack"
 		SectionedListPanel.SelectedTextColor			"Black"
-		SectionedListPanel.SelectedBgColor				"Orange"
+		SectionedListPanel.SelectedBgColor				"PFGreen"
 		SectionedListPanel.OutOfFocusSelectedTextColor	"Black"
-		SectionedListPanel.OutOfFocusSelectedBgColor	"152 191 100 128"
+		SectionedListPanel.OutOfFocusSelectedBgColor	"PFGreenDim"
 
 		Slider.NobColor				"108 108 108 255"
 		Slider.TextColor			"180 180 180 255"
@@ -166,14 +170,14 @@ Scheme
 		TextEntry.DisabledTextColor	"DullWhite"
 		TextEntry.DisabledBgColor	"Blank"
 		TextEntry.SelectedTextColor	"Black"
-		TextEntry.SelectedBgColor	"Orange"
-		TextEntry.OutOfFocusSelectedBgColor	"152 191 100 128"
+		TextEntry.SelectedBgColor	"PFGreen"
+		TextEntry.OutOfFocusSelectedBgColor	"PFGreenDim"
 		TextEntry.FocusEdgeColor	"0 0 0 196"
 
 		ToggleButton.SelectedTextColor	"White"
 
 		Tooltip.TextColor			"0 0 0 196"
-		Tooltip.BgColor				"Orange"
+		Tooltip.BgColor				"PFGreen"
 
 		TreeView.BgColor			"TransparentBlack"
 
@@ -195,7 +199,7 @@ Scheme
 
 		NewGame.TextColor			"White"
 		NewGame.FillColor			"0 0 0 255"
-		NewGame.SelectionColor		"Orange"	[$WIN32]
+		NewGame.SelectionColor		"PFGreen"	[$WIN32]
 		NewGame.SelectionColor		"0 0 0 255"	[$X360]
 		NewGame.DisabledColor		"128 128 128 196"
 

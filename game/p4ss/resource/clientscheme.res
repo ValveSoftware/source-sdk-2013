@@ -213,8 +213,10 @@ Scheme
 		//PASS Fortress Colors :3
 		"PureWhite"				"255 255 255 255"
 		"PureBlack"				"0 0 0 255"
+		"PFGrey" 				"32 32 32 180"
 		"PFGreen"				"152 191 101 255"
 		"PFDarkGreen"			"62 76 41 255"
+		"PFGreenDim" 			"152 191 101 128"
 	}
 
 	///////////////////// BASE SETTINGS ////////////////////////
@@ -5125,7 +5127,7 @@ Scheme
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
-			"color"					"178 83 22 255"
+			"color"					"PFGreen"
 			
 			"image"					"button_glow"
 			"src_corner_height"		"4"				// pixels inside the image
@@ -5138,7 +5140,7 @@ Scheme
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
-			"color"					"238 103 17 255"
+			"color"					"PFGreen"
 			
 			"image"					"button_glow"
 			"src_corner_height"		"4"				// pixels inside the image
