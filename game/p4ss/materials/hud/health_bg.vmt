@@ -1,0 +1,8 @@
+"UnlitGeneric"
+{
+	"$translucent" 1
+	"$baseTexture" "hud\health_bg"
+	"$alpha" "0.7"
+
+}
+
