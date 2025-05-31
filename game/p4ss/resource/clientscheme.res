@@ -25,6 +25,7 @@ Scheme
 		"GoalOrange"		"152 191 100"
 		"TFOrange"			"145 73 59 255"
 		"Purple"			"137 69 99 255"
+		"PFGrey" 			"32 32 32 180"
 
 		"QuestGold"			"208 147 75 255"
 		"HalloweenThemeColor2015_Light"	"238 126 17 255"
@@ -831,7 +832,30 @@ Scheme
 				"antialias" "1"
 			}
 		}
-
+		"HudFont52Bold"
+		{
+			"1"
+			{
+				"name"		"Montserrat Black"
+				"tall"		"52"
+				"tall_lodef"	"52"
+				"weight"	"500"
+				"additive"	"0"
+				"antialias" "1"
+			}
+		}
+		"HudFont64Bold"
+		{
+			"1"
+			{
+				"name"		"Montserrat Black"
+				"tall"		"64"
+				"tall_lodef"	"64"
+				"weight"	"500"
+				"additive"	"0"
+				"antialias" "1"
+			}
+		}
 		"HudFontBiggerBold"
 		{
 			"1"
@@ -920,6 +944,18 @@ Scheme
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" "1"
+			}
+		}
+		"HudFontMediumBoldShadow"
+		{
+			"1"
+			{
+				"name"		"Montserrat Black"
+				"tall"		"26"
+				"weight"	"500"
+				"additive"	"0"
+				"antialias" "1"
+				"dropshadow"	"1"
 			}
 		}
 		"HudFontMediumSmallBold"
@@ -1045,6 +1081,30 @@ Scheme
 			{
 				"name"		"Montserrat Black"
 				"tall"		"11"
+				"weight"	"500"
+				"additive"	"0"
+				"antialias" "1"
+				"dropshadow"	"1"
+			}
+		}
+		"HudFont10BoldShadow"
+		{
+			"1"
+			{
+				"name"		"Montserrat Black"
+				"tall"		"10"
+				"weight"	"500"
+				"additive"	"0"
+				"antialias" "1"
+				"dropshadow"	"1"
+			}
+		}
+		"HudFont9BoldShadow"
+		{
+			"1"
+			{
+				"name"		"Montserrat Black"
+				"tall"		"9"
 				"weight"	"500"
 				"additive"	"0"
 				"antialias" "1"
