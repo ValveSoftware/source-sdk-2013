@@ -209,8 +209,9 @@
 		"visible"		"1"
 		"enabled"		"1"
 		"labelText"		""
-		"image"			"../passtime/hud/passtime_ballcontrol_bar"
+		"image"			"../hud/radar/bar"
 		"scaleImage"	"1"
+		
 	}
 
 	"BlueProgressEnd"
@@ -219,7 +220,7 @@
 		// might be padded for npot reasons.
 		"ControlName" 	"Panel"
 		"fieldName"		"BlueProgressEnd"
-		"xpos"			"c-126"
+		"xpos"			"c-112"
 		"ypos"			"r62"
 		
 		"xpos_minmode"	"c-102"
@@ -234,7 +235,7 @@
 		// might be padded for npot reasons.
 		"ControlName"	"Panel"
 		"fieldName"		"RedProgressEnd"
-		"xpos"			"c126"
+		"xpos"			"c112"
 		"ypos"			"r62"
 		
 		"xpos_minmode"	"c102"

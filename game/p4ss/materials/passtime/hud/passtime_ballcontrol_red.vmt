@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "hud/radar/ball_r"
+	"$translucent" 1
+	"$alpha" "1"
+}
