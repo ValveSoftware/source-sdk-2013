@@ -585,7 +585,10 @@ BEGIN_ENT_SCRIPTDESC( CTFPlayer, CBaseMultiplayerPlayer , "Team Fortress 2 Playe
 	DEFINE_SCRIPTFUNC( SetUseBossHealthBar, "" )
 	DEFINE_SCRIPTFUNC( IsFireproof, "" )
 	DEFINE_SCRIPTFUNC( IsAllowedToTaunt, "" )
-	DEFINE_SCRIPTFUNC( IsViewingCYOAPDA, "" )
+	DEFINE_SCRIPTFUNC( IsAllowedToViewCYOAPDA, "" )
+	DEFINE_SCRIPTFUNC( IsViewingCYOAPDA, "Returns true if this player has indicated that they are viewing the ConTracker" )
+	DEFINE_SCRIPTFUNC( IsInCYOAPDAAnimation, "Returns true if this player is viewing or playing any ConTracker animations" )
+	DEFINE_SCRIPTFUNC( StopViewingCYOAPDA, "Causes the player to immediately stop viewing the ConTracker" )
 	DEFINE_SCRIPTFUNC( IsRegenerating, "" )
 	DEFINE_SCRIPTFUNC( GetCurrentTauntMoveSpeed, "" )
 	DEFINE_SCRIPTFUNC( SetCurrentTauntMoveSpeed, "" )
@@ -3159,6 +3162,16 @@ void CTFPlayer::PlayerRunCommand( CUserCmd *ucmd, IMoveHelper *moveHelper )
 	if ( m_Shared.InCond( TF_COND_HALLOWEEN_KART ) )
 	{
 		m_Shared.CreateVehicleMove( gpGlobals->frametime, ucmd );
+	}
+	else if ( IsInCYOAPDAAnimation() )
+	{
+		// Not allowed to move while the ConTracker is open.
+		ucmd->forwardmove = 0.0f;
+		ucmd->sidemove = 0.0f;
+		ucmd->upmove = 0.0f;
+
+		ucmd->viewangles = pl.v_angle;
+		ucmd->weaponselect = 0;
 	}
 	else if ( IsTaunting() || m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER ) )
 	{
@@ -8039,16 +8052,14 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	else if ( FStrEq( "cyoa_pda_open", pcmd ) )
 	{
 		bool bOpen = atoi( args[1] ) != 0;
+		
+		if ( bOpen && !IsAllowedToViewCYOAPDA() )
+		{
+			bOpen = false;
+		}
 
-		if ( bOpen && IsTaunting() )
-		{
-			ClientPrint( this, HUD_PRINTCENTER, "#TF_CYOA_PDA_Taunting" );
-		}
-		else
-		{
-			m_bViewingCYOAPDA.Set( bOpen );
-			TeamFortress_SetSpeed();
-		}
+		m_bViewingCYOAPDA.Set( bOpen );
+
 		return true;
 	}
 

@@ -5605,6 +5605,7 @@ void C_TFPlayer::HandleTaunting( void )
 	// Clear the taunt slot.
 	if (	!m_bWasTaunting &&
 			(	
+				IsInCYOAPDAAnimation() ||
 				m_Shared.InCond( TF_COND_TAUNTING ) ||
 				m_Shared.IsControlStunned() ||
 				m_Shared.IsLoser() ||
@@ -5632,7 +5633,7 @@ void C_TFPlayer::HandleTaunting( void )
 
 	if (	( !IsAlive() && m_nForceTauntCam < 2 ) || 
 			(
-				m_bWasTaunting && !m_Shared.InCond( TF_COND_TAUNTING ) && !m_Shared.IsControlStunned() && 
+				m_bWasTaunting && !IsInCYOAPDAAnimation() && !m_Shared.InCond( TF_COND_TAUNTING ) && !m_Shared.IsControlStunned() && 
 				!m_Shared.InCond( TF_COND_PHASE ) && !m_Shared.IsLoser() && !m_bIsReadyToHighFive &&
 				!m_nForceTauntCam && !m_Shared.InCond( TF_COND_HALLOWEEN_BOMB_HEAD ) &&
 				!m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER ) &&
@@ -6515,6 +6516,15 @@ bool C_TFPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 	{
 		m_Shared.CreateVehicleMove( flInputSampleTime, pCmd );
 	}
+	else if ( IsInCYOAPDAAnimation() )
+	{
+		// Not allowed to move while the ConTracker is open.
+		pCmd->forwardmove = 0.0f;
+		pCmd->sidemove = 0.0f;
+		pCmd->upmove = 0.0f;
+
+		pCmd->weaponselect = 0;
+	}
 	else if ( bInTaunt )
 	{
 		if ( tf_allow_taunt_switch.GetInt() <= 1 )
@@ -6700,6 +6710,9 @@ void C_TFPlayer::CleanUpAnimationOnSpawn()
 	{
 		m_PlayerAnimState->ClearAnimationState();
 	}
+
+	// Close the ConTracker
+	StopViewingCYOAPDA();
 }
 
 
