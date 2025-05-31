@@ -33,6 +33,7 @@ public:
 	void		StopMoveSound( void );
 	void		Blocked( CBaseEntity *pOther );
 	void		SetPosition( float flPosition );
+	void		StopMoving();
 
 	int			DrawDebugTextOverlays(void);
 
