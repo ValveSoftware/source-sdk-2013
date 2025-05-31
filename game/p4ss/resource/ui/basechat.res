@@ -6,11 +6,11 @@
 		"fieldName" 		"HudChat"
 		"visible" 		"1"
 		"enabled" 		"1"
-		"xpos"			"10"	[$WIN32]
+		"xpos"			"6"	[$WIN32]
 		"xpos"			"42"	[$X360]
 		"ypos"			"275"
 		"ypos_hidef"		"245"
-		"wide"	 		"280"
+		"wide"	 		"266"
 		"tall"	 		"120"
 		"PaintBackgroundType"	"2"
 	}
@@ -21,7 +21,7 @@
 		"fieldName" 		ChatInputLine
 		"visible" 		"1"
 		"enabled" 		"1"
-		"xpos"			"10"	[$WIN32]
+		"xpos"			"2"	[$WIN32]
 		"xpos"			"42"	[$X360]
 		"ypos"			"395"
 		"wide"	 		"260"
@@ -33,14 +33,14 @@
 	{
 		"ControlName"		"Button"
 		"fieldName"		"ChatFiltersButton"
-		"xpos"			"225"
+		"xpos"			"205"
 		"ypos"			"2"
 		"wide"			"45"
 		"tall"			"15"
 		"autoResize"		"1"
 		"pinCorner"		"0"
-		"visible"		"1"
-		"enabled"		"1"
+		"visible"		"0"
+		"enabled"		"0"
 		"tabPosition"		"0"
 		"labelText"		"#chat_filterbutton"
 		"textAlignment"		"center"
@@ -53,11 +53,11 @@
 	{
 		"ControlName"		"RichText"
 		"fieldName"		"HudChatHistory"
-		"xpos"			"10"	[$WIN32]
-		"ypos"			"17"	[$WIN32]
+		"xpos"			"4"	[$WIN32]
+		"ypos"			"4"	[$WIN32]
 		"xpos"			"10"	[$X360]
 		"ypos"			"10"	[$X360]
-		"wide"	 		"260"
+		"wide"	 		"258"
 		"tall"			"75"
 		"wrap"			"1"
 		"autoResize"		"1"
@@ -66,7 +66,7 @@
 		"enabled"		"1"
 		"labelText"		""
 		"textAlignment"		"south-west"
-		"font"			"ChatFont"
+		"font"			"HudFontMedium"
 		"maxchars"		"-1"
 	}
 }

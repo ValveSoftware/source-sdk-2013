@@ -699,7 +699,7 @@ void CBaseHudChat::ApplySchemeSettings( vgui::IScheme *pScheme )
 
 	BaseClass::ApplySchemeSettings( pScheme );
 
-	SetPaintBackgroundType( 2 );
+	SetPaintBackgroundType( 0 );
 	SetPaintBorderEnabled( true );
 	SetPaintBackgroundEnabled( true );
 

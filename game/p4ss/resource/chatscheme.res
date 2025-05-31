@@ -18,12 +18,12 @@ Scheme
 		// base colors
 		"White"				"255 255 255 255"
 		"OffWhite"			"216 216 216 255"
-		"DullWhite"			"142 142 142 255"
+		"DullWhite"			"32 32 32 255"
 		"Orange"			"152 191 100 255"
 		"TransparentBlack"		"0 0 0 128"
 		"Black"				"0 0 0 255"
 		"Green"				"63 185 73 255"
-
+		"PFGrey" 			"32 32 32 180"
 		"Blank"				"0 0 0 0"
 	}
 
@@ -81,8 +81,8 @@ Scheme
 		FrameSystemButton.BgColor		"Blank"
 		FrameSystemButton.Icon			""
 		FrameSystemButton.DisabledIcon	""
-		FrameTitleBar.Font				"UiBold"		[$WIN32]
-		FrameTitleBar.Font				"DefaultLarge"	[$WIN32]
+		FrameTitleBar.Font				"HudFontMedium"		[$WIN32]
+		FrameTitleBar.Font				"HudFontMedium"	[$WIN32]
 		FrameTitleBar.TextColor			"White"
 		FrameTitleBar.BgColor			"Blank"
 		FrameTitleBar.DisabledTextColor	"255 255 255 192"
@@ -131,7 +131,7 @@ Scheme
 		RichText.SelectedTextColor		"Black"
 		RichText.SelectedBgColor		"Orange"
 
-		ScrollBar.Wide					17
+		ScrollBar.Wide					8
 
 		ScrollBarButton.FgColor				"White"
 		ScrollBarButton.BgColor				"Blank"
@@ -140,8 +140,8 @@ Scheme
 		ScrollBarButton.DepressedFgColor	"White"
 		ScrollBarButton.DepressedBgColor	"Blank"
 
-		ScrollBarSlider.FgColor				"Blank"			// nob color
-		ScrollBarSlider.BgColor				"255 255 255 64"	// slider background color
+		ScrollBarSlider.FgColor				"255 255 255 200"			// nob color
+		ScrollBarSlider.BgColor				"32 32 32 150"	// slider background color
 
 		SectionedListPanel.HeaderTextColor	"White"
 		SectionedListPanel.HeaderBgColor	"Blank"
@@ -199,7 +199,7 @@ Scheme
 		NewGame.SelectionColor		"0 0 0 255"	[$X360]
 		NewGame.DisabledColor		"128 128 128 196"
 
-		TFColors.ChatTextYellow		"251 235 202 255"
+		TFColors.ChatTextYellow		"255 255 246 255"
 		TFColors.ChatTextTeamBlue	"153 204 255 255"
 		TFColors.ChatTextTeamRed	"255 63 53 255"
 	}
@@ -252,7 +252,7 @@ Scheme
 			}
 			"4"
 			{
-				"name"		"Verdana"
+				"name"		"Montserrat SemiBold"
 				"tall"		"16" [!$POSIX]
 				"tall"		"18" [$POSIX]
 				"weight"	"0"
@@ -392,12 +392,13 @@ Scheme
 			}
 			"4"
 			{
-				"name"		"Verdana"
-				"tall"		"17"	[!$POSIX]
-				"tall"		"20"	[$POSIX]
+				"name"		"Montserrat SemiBold"
+				"tall"		"24"	[!$POSIX]
+				"tall"		"26"	[$POSIX]
 				"weight"	"700"
 				"yres"		"1024 1199"
 				"dropshadow"	"1"
+				"antialias"	"1"
 			}
 			"5" // Misyl: Proportional
 			{
