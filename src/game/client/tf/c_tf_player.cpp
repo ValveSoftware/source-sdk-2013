@@ -6496,11 +6496,16 @@ bool C_TFPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 	static float flTauntTurnSpeed = 0.f;
 	
 	bool bNoTaunt = true;
-	bool bInTaunt = m_Shared.InCond( TF_COND_TAUNTING ) || m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER );
+	bool bInTaunt = m_Shared.InCond( TF_COND_TAUNTING );
 
 	if ( m_Shared.InCond( TF_COND_FREEZE_INPUT ) )
 	{
-		pCmd->viewangles = angMoveAngle; // use the last save angles
+		if ( !m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER ) )
+		{
+			// if NOT halloween taunt, force their last-saved view angles
+			// (thriller allows it so teleports can set the correct view angles)
+			pCmd->viewangles = angMoveAngle;
+		}
 		pCmd->forwardmove = 0.0f;
 		pCmd->sidemove = 0.0f;
 		pCmd->upmove = 0.0f;

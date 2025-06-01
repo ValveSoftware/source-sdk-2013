@@ -4489,7 +4489,9 @@ void CTFPlayerShared::OnAddHalloweenThriller( void )
 			m_pOuter->EmitSound( "Halloween.dance_loop" );	
 		}
 	}
-#endif
+#else
+	AddCond( TF_COND_FREEZE_INPUT );
+#endif // CLIENT_DLL
 }
 
 void CTFPlayerShared::OnRemoveHalloweenThriller( void )
@@ -4505,6 +4507,7 @@ void CTFPlayerShared::OnRemoveHalloweenThriller( void )
 		}
 	}
 #else
+	RemoveCond( TF_COND_FREEZE_INPUT );
 	// If this is hightower, players will be healing themselves while dancing
 	StopHealing( m_pOuter );
 #endif
@@ -12996,7 +12999,7 @@ bool CTFPlayer::CanMoveDuringTaunt()
 	if ( m_Shared.InCond( TF_COND_HALLOWEEN_KART ) )
 		return true;
 
-	if ( m_Shared.InCond( TF_COND_TAUNTING ) || m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER ) )
+	if ( m_Shared.InCond( TF_COND_TAUNTING ) )
 	{
 #ifdef GAME_DLL
 		if ( tf_allow_sliding_taunt.GetBool() )

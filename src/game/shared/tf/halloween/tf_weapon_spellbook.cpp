@@ -866,10 +866,10 @@ bool CTFSpellBook::HasASpellWithCharges()
 //-----------------------------------------------------------------------------
 bool CTFSpellBook::CanCastSpell( CTFPlayer *pPlayer )
 {
-	if ( !pPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_KART) && !pPlayer->CanAttack() )
+	if ( !pPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_KART ) && !pPlayer->CanAttack() )
 		return false;
 
-	if ( pPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER ) )
+	if ( pPlayer->m_Shared.InCond( TF_COND_FREEZE_INPUT ) )
 		return false;
 
 	if ( tf_test_spellindex.GetInt() > -1 && tf_test_spellindex.GetInt() < GetTotalSpellCount( pPlayer ) )

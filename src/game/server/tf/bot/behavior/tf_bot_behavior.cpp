@@ -107,7 +107,7 @@ ActionResult< CTFBot >	CTFBotMainAction::Update( CTFBot *me, float interval )
 		return Done( "Not on a playing team" );
 	}
 
-	if ( me->m_Shared.InCond( TF_COND_FREEZE_INPUT ) || me->m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER ) )
+	if ( me->m_Shared.InCond( TF_COND_FREEZE_INPUT ) )
 	{
 		// frozen - do nothing
 		return SuspendFor( new CTFBotFreezeInput, "Frozen by TF_COND" );

@@ -11,7 +11,7 @@
 //---------------------------------------------------------------------------------------------
 ActionResult< CTFBot > CTFBotFreezeInput::Update( CTFBot *me, float interval )
 {
-	if ( !me->m_Shared.InCond( TF_COND_FREEZE_INPUT ) && !me->m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER ) )
+	if ( !me->m_Shared.InCond( TF_COND_FREEZE_INPUT ) )
 	{
 		return Done( "No longer frozen by TF_COND" );
 	}
