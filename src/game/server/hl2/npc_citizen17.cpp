@@ -13,6 +13,7 @@
 #include "soundent.h"
 #include "BasePropDoor.h"
 #include "weapon_rpg.h"
+#include "weapon_ar2.h"
 #include "hl2_player.h"
 #include "items.h"
 
@@ -25,6 +26,7 @@
 
 #include "eventqueue.h"
 
+#include "ai_tacticalservices.h"
 #include "ai_squad.h"
 #include "ai_pathfinder.h"
 #include "ai_route.h"
@@ -61,6 +63,7 @@ ConVar	sk_citizen_heal_ally_min_pct	( "sk_citizen_heal_ally_min_pct",		"0.90");
 ConVar	sk_citizen_player_stare_time	( "sk_citizen_player_stare_time",		"1.0" );
 ConVar  sk_citizen_player_stare_dist	( "sk_citizen_player_stare_dist",		"72" );
 ConVar	sk_citizen_stare_heal_time		( "sk_citizen_stare_heal_time",			"5" );
+ConVar	sk_citizen_energy_balls			( "sk_citizen_energy_balls",			"3"	);
 
 ConVar	g_ai_citizen_show_enemy( "g_ai_citizen_show_enemy", "0" );
 
@@ -114,6 +117,10 @@ const float RPG_SAFE_DISTANCE = CMissile::EXPLOSION_RADIUS + 64.0;
 // Animation events
 int AE_CITIZEN_GET_PACKAGE;
 int AE_CITIZEN_HEAL;
+static int COMBINE_AE_BEGIN_ALTFIRE;
+static int COMBINE_AE_ALTFIRE;
+
+#define	CITIZEN_MIN_BALL_CLEAR_DIST	200
 
 //-------------------------------------
 //-------------------------------------
@@ -318,6 +325,8 @@ BEGIN_DATADESC( CNPC_Citizen )
 	DEFINE_FIELD( 		m_flPlayerGiveAmmoTime, 	FIELD_TIME ),
 	DEFINE_KEYFIELD(	m_iszAmmoSupply, 			FIELD_STRING,	"ammosupply" ),
 	DEFINE_KEYFIELD(	m_iAmmoAmount, 				FIELD_INTEGER,	"ammoamount" ),
+	DEFINE_KEYFIELD(	m_iNumEnergyBalls,			FIELD_INTEGER,	"NumEnergyBalls" ),
+	DEFINE_FIELD(		m_hForcedEnergyBallTarget,	FIELD_EHANDLE ),
 	DEFINE_FIELD( 		m_bRPGAvoidPlayer, 			FIELD_BOOLEAN ),
 	DEFINE_FIELD( 		m_bShouldPatrol, 			FIELD_BOOLEAN ),
 	DEFINE_FIELD( 		m_iszOriginalSquad, 		FIELD_STRING ),
@@ -352,10 +361,15 @@ BEGIN_DATADESC( CNPC_Citizen )
 	DEFINE_INPUTFUNC( FIELD_VOID,	"SetAmmoResupplierOn",	InputSetAmmoResupplierOn ),
 	DEFINE_INPUTFUNC( FIELD_VOID,	"SetAmmoResupplierOff",	InputSetAmmoResupplierOff ),
 	DEFINE_INPUTFUNC( FIELD_VOID,	"SpeakIdleResponse", InputSpeakIdleResponse ),
+	DEFINE_INPUTFUNC( FIELD_STRING,	"FireEnergyBallAtTarget",	InputFireEnergyBallAtTarget ),
 
 #if HL2_EPISODIC
 	DEFINE_INPUTFUNC( FIELD_VOID,   "ThrowHealthKit", InputForceHealthKitToss ),
 #endif
+	
+	// copied from npc_combine.cpp
+	DEFINE_FIELD(m_flNextAltFireTime, FIELD_TIME),
+	DEFINE_FIELD(m_vecAltFireTarget, FIELD_VECTOR),
 
 	DEFINE_USEFUNC( CommanderUse ),
 	DEFINE_USEFUNC( SimpleUse ),
@@ -398,6 +412,7 @@ void CNPC_Citizen::Precache()
 	PrecacheScriptSound( "NPC_Citizen.FootstepLeft" );
 	PrecacheScriptSound( "NPC_Citizen.FootstepRight" );
 	PrecacheScriptSound( "NPC_Citizen.Die" );
+	PrecacheScriptSound( "Weapon_CombineGuard.Special1" );
 
 	PrecacheInstancedScene( "scenes/Expressions/CitizenIdle.vcd" );
 	PrecacheInstancedScene( "scenes/Expressions/CitizenAlert_loop.vcd" );
@@ -515,6 +530,9 @@ void CNPC_Citizen::Spawn()
 		pRPG->StopGuiding();
 	}
 
+	// Give our citizens this much energy balls per the skill config
+	m_iNumEnergyBalls = sk_citizen_energy_balls.GetFloat();
+
 	m_flTimePlayerStare = FLT_MAX;
 
 	AddEFlags( EFL_NO_DISSOLVE | EFL_NO_MEGAPHYSCANNON_RAGDOLL | EFL_NO_PHYSCANNON_INTERACTION );
@@ -528,6 +546,9 @@ void CNPC_Citizen::Spawn()
 
 	// Use render bounds instead of human hull for guys sitting in chairs, etc.
 	m_ActBusyBehavior.SetUseRenderBounds( HasSpawnFlags( SF_CITIZEN_USE_RENDER_BOUNDS ) );
+
+	// copied from npc_combine.cpp
+	m_flNextAltFireTime = gpGlobals->curtime;
 }
 
 //-----------------------------------------------------------------------------
@@ -980,6 +1001,92 @@ void CNPC_Citizen::GatherConditions()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//
+//			This is for energy ball attacks. As the test for ball attacks
+//			is expensive we don't want to do it every frame.  Return true
+//			if we meet minimum set of requirements and then test for actual
+//			throw later if we actually decide to do a grenade attack.
+// Input  :
+// Output :
+//-----------------------------------------------------------------------------
+int	CNPC_Citizen::RangeAttack2Conditions( float flDot, float flDist ) 
+{
+	return COND_NONE;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool CNPC_Citizen::CanAltFireEnemy( bool bUseFreeKnowledge )
+{
+	if ( GetActiveWeapon() && ( GetActiveWeapon()->CapabilitiesGet() & bits_CAP_WEAPON_RANGE_ATTACK2 ) )
+		return false;
+
+	if ( IsCrouching() )
+		return false;
+
+	if ( gpGlobals->curtime < m_flNextAltFireTime )
+		return false;
+
+	if ( !GetEnemy() )
+		return false;
+
+	if ( gpGlobals->curtime < m_flNextEnergyBallCheck )
+		return false;
+
+	// Do we have enough energy balls?
+	if ( m_iNumEnergyBalls < 1 )
+		return false;
+
+	CBaseEntity* pEnemy = GetEnemy();
+
+	Vector vecTarget;
+
+	// Determine what point we're shooting at
+	if (bUseFreeKnowledge)
+	{
+		vecTarget = GetEnemies()->LastKnownPosition(pEnemy) + (pEnemy->GetViewOffset() * 0.75);// approximates the chest
+	}
+	else
+	{
+		vecTarget = GetEnemies()->LastSeenPosition(pEnemy) + (pEnemy->GetViewOffset() * 0.75);// approximates the chest
+	}
+
+	// Trace a hull about the size of the combine ball (don't shoot through grates!)
+	trace_t tr;
+
+	Vector mins(-12, -12, -12);
+	Vector maxs(12, 12, 12);
+
+	Vector vShootPosition = EyePosition();
+
+	if ( GetActiveWeapon() )
+	{
+		GetActiveWeapon()->GetAttachment( "muzzle", vShootPosition );
+	}
+
+	// Trace a hull about the size of the combine ball.
+	UTIL_TraceHull( vShootPosition, vecTarget, mins, maxs, MASK_SHOT, this, COLLISION_GROUP_NONE, &tr );
+
+	float flLength = (vShootPosition - vecTarget).Length();
+
+	flLength *= tr.fraction;
+
+	//If the ball can travel at least 65% of the distance to the player then let the NPC shoot it.
+	if ( tr.fraction >= 0.65 && flLength > 128.0f )
+	{
+		// Target is valid
+		m_vecAltFireTarget = vecTarget;
+		return true;
+	}
+
+	// Check again later
+	m_vecAltFireTarget = vec3_origin;
+	m_flNextEnergyBallCheck = gpGlobals->curtime + 1.0f;
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 void CNPC_Citizen::PredictPlayerPush()
 {
@@ -1057,6 +1164,44 @@ void CNPC_Citizen::PrescheduleThink()
 				NDebugOverlay::Cross3D(pCommandPoint->GetAbsOrigin(), 16, 0, 255, 255, false, 0.1 );
 			}
 		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Borrowed from npc_combine_s
+//-----------------------------------------------------------------------------
+void CNPC_Citizen::DelayAltFireAttack(float flDelay)
+{
+	float flNextAltFire = gpGlobals->curtime + flDelay;
+
+	if (flNextAltFire > m_flNextAltFireTime)
+	{
+		// Don't let this delay order preempt a previous request to wait longer.
+		m_flNextAltFireTime = flNextAltFire;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Borrowed from npc_combine_s
+//-----------------------------------------------------------------------------
+void CNPC_Citizen::DelaySquadAltFireAttack(float flDelay)
+{
+	// Make sure to delay my own alt-fire attack.
+	DelayAltFireAttack(flDelay);
+
+	AISquadIter_t iter;
+	CAI_BaseNPC* pSquadmate = m_pSquad ? m_pSquad->GetFirstMember(&iter) : NULL;
+	while (pSquadmate)
+	{
+		CNPC_Citizen* pCitizen = dynamic_cast<CNPC_Citizen*>(pSquadmate);
+		CWeaponAR2* pAR2 = dynamic_cast<CWeaponAR2*>(GetActiveWeapon());
+
+		if (pCitizen && pAR2 )
+		{
+			pCitizen->DelayAltFireAttack(flDelay);
+		}
+
+		pSquadmate = m_pSquad->GetNextMember(&iter);
 	}
 }
 
@@ -1179,6 +1324,16 @@ int CNPC_Citizen::SelectSchedule()
 	{
 		DevMsg( "Citizen in select schedule but RPG is guiding?\n");
 		pRPG->StopGuiding();
+	}
+
+	if ( m_NPCState == NPC_STATE_COMBAT )
+	{
+		if (CanAltFireEnemy(true) && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ))
+		{
+			// If an AR2 holder in the squad could fire a combine ball at the player's last known position,
+			// do so!
+			return SCHED_CITIZEN_AR2_ALTFIRE;
+		}
 	}
 	
 	return BaseClass::SelectSchedule();
@@ -1419,8 +1574,75 @@ int CNPC_Citizen::SelectScheduleCombat()
 	int schedule = SelectScheduleManhackCombat();
 	if ( schedule != SCHED_NONE )
 		return schedule;
+
+	// -----------
+	// new enemy
+	// -----------
+	if ( HasCondition( COND_NEW_ENEMY ) )
+	{
+		CBaseEntity *pEnemy = GetEnemy();
+		bool bFirstContact = false;
+		float flTimeSinceFirstSeen = gpGlobals->curtime - GetEnemies()->FirstTimeSeen( pEnemy );
+
+		if (flTimeSinceFirstSeen < 3.0f)
+			bFirstContact = true;
+
+		if ( m_pSquad && pEnemy )
+		{
+			if ( m_pSquad->IsLeader( this ) || ( m_pSquad->GetLeader() && m_pSquad->GetLeader()->GetEnemy() != pEnemy ) )
+				{
+					// I'm the leader, but I didn't get the job suppressing the enemy. We know this because
+					// This code only runs if the code above didn't assign me SCHED_COMBINE_SUPPRESS.
+					if ( HasCondition( COND_CAN_RANGE_ATTACK1 ) && OccupyStrategySlotRange( SQUAD_SLOT_ATTACK1, SQUAD_SLOT_ATTACK2 ) )
+					{
+						return SCHED_RANGE_ATTACK1;
+					}
+			}
+			else
+			{
+				// First contact, and I'm solo, or not the squad leader.
+				if( HasCondition( COND_SEE_ENEMY ) && CanAltFireEnemy(true) )
+				{
+					if( OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
+					{
+						return SCHED_RANGE_ATTACK2;
+					}
+				}
+			}
+		}
+	}
+
+	int attackSchedule = SelectScheduleAttack();
+	if (attackSchedule != SCHED_NONE)
+		return attackSchedule;
 		
 	return BaseClass::SelectScheduleCombat();
+}
+
+int CNPC_Citizen::SelectScheduleAttack()
+{
+	// Can I shoot?
+	if (HasCondition( COND_CAN_RANGE_ATTACK1 ))
+	{
+		// Engage if allowed
+		if ( OccupyStrategySlotRange( SQUAD_SLOT_ATTACK1, SQUAD_SLOT_ATTACK2 ) )
+		{
+			return SCHED_RANGE_ATTACK1;
+		}
+
+		// Shoot an AR2 energy ball if not allowed to engage with weapon.
+		if ( CanAltFireEnemy(true) )
+		{
+			if ( OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
+			{
+				return SCHED_RANGE_ATTACK2;
+			}
+		}
+
+		return SCHED_TAKE_COVER_FROM_ENEMY;
+	}
+
+	return SCHED_NONE;
 }
 
 //-----------------------------------------------------------------------------
@@ -1443,68 +1665,114 @@ int CNPC_Citizen::TranslateSchedule( int scheduleType )
 
 	switch( scheduleType )
 	{
-	case SCHED_IDLE_STAND:
-	case SCHED_ALERT_STAND:
-		if( m_NPCState != NPC_STATE_COMBAT && pLocalPlayer && !pLocalPlayer->IsAlive() && CanJoinPlayerSquad() )
-		{
-			// Player is dead! 
-			float flDist;
-			flDist = ( pLocalPlayer->GetAbsOrigin() - GetAbsOrigin() ).Length();
-
-			if( flDist < 50 * 12 )
+		case SCHED_IDLE_STAND:
+		case SCHED_ALERT_STAND:
+			if( m_NPCState != NPC_STATE_COMBAT && pLocalPlayer && !pLocalPlayer->IsAlive() && CanJoinPlayerSquad() )
 			{
-				AddSpawnFlags( SF_CITIZEN_NOT_COMMANDABLE );
-				return SCHED_CITIZEN_MOURN_PLAYER;
+				// Player is dead! 
+				float flDist;
+				flDist = ( pLocalPlayer->GetAbsOrigin() - GetAbsOrigin() ).Length();
+
+				if( flDist < 50 * 12 )
+				{
+					AddSpawnFlags( SF_CITIZEN_NOT_COMMANDABLE );
+					return SCHED_CITIZEN_MOURN_PLAYER;
+				}
+			}
+			break;
+
+		case SCHED_ESTABLISH_LINE_OF_FIRE:
+		case SCHED_MOVE_TO_WEAPON_RANGE:
+		{
+			if( !IsMortar( GetEnemy() ) && HaveCommandGoal() )
+			{
+				if ( GetActiveWeapon() && ( GetActiveWeapon()->CapabilitiesGet() & bits_CAP_WEAPON_RANGE_ATTACK1 ) && random->RandomInt( 0, 1 ) && HasCondition(COND_SEE_ENEMY) && !HasCondition ( COND_NO_PRIMARY_AMMO ) )
+					return TranslateSchedule( SCHED_RANGE_ATTACK1 );
+
+				return SCHED_STANDOFF;
+			}
+			if ( CanAltFireEnemy(true) && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
+			{
+				// If an AR2 holder in the squad could fire a combine ball at the enemy's last known position,
+				// do so!
+				return SCHED_CITIZEN_AR2_ALTFIRE;
 			}
 		}
 		break;
-
-	case SCHED_ESTABLISH_LINE_OF_FIRE:
-	case SCHED_MOVE_TO_WEAPON_RANGE:
-		if( !IsMortar( GetEnemy() ) && HaveCommandGoal() )
-		{
-			if ( GetActiveWeapon() && ( GetActiveWeapon()->CapabilitiesGet() & bits_CAP_WEAPON_RANGE_ATTACK1 ) && random->RandomInt( 0, 1 ) && HasCondition(COND_SEE_ENEMY) && !HasCondition ( COND_NO_PRIMARY_AMMO ) )
-				return TranslateSchedule( SCHED_RANGE_ATTACK1 );
-
-			return SCHED_STANDOFF;
-		}
-		break;
-
-	case SCHED_CHASE_ENEMY:
-		if( !IsMortar( GetEnemy() ) && HaveCommandGoal() )
-		{
-			return SCHED_STANDOFF;
-		}
-		break;
-
-	case SCHED_RANGE_ATTACK1:
-		// If we have an RPG, we use a custom schedule for it
-		if ( !IsMortar( GetEnemy() ) && GetActiveWeapon() && FClassnameIs( GetActiveWeapon(), "weapon_rpg" ) )
-		{
-			if ( GetEnemy() && GetEnemy()->ClassMatches( "npc_strider" ) )
+		case SCHED_CHASE_ENEMY:
+			if( !IsMortar( GetEnemy() ) && HaveCommandGoal() )
 			{
-				if (OccupyStrategySlotRange( SQUAD_SLOT_CITIZEN_RPG1, SQUAD_SLOT_CITIZEN_RPG2 ) )
+				return SCHED_STANDOFF;
+			}
+			break;
+
+		case SCHED_TAKE_COVER_FROM_ENEMY:
+			if ( m_pSquad )
+			{
+				// Have to explicitly check innate range attack condition as may have weapon with range attack 2
+				if ( g_pGameRules->IsSkillLevel( SKILL_HARD ) &&
+					HasCondition( COND_CAN_RANGE_ATTACK2 ) &&
+					OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ))
 				{
-					return SCHED_CITIZEN_STRIDER_RANGE_ATTACK1_RPG;
-				}
-				else
-				{
-					return SCHED_STANDOFF;
+					return SCHED_CITIZEN_AR2_ALTFIRE;
 				}
 			}
 			else
 			{
-				CBasePlayer *pPlayer = AI_GetSinglePlayer();
-				if ( pPlayer && GetEnemy() && ( ( GetEnemy()->GetAbsOrigin() - 
-					pPlayer->GetAbsOrigin() ).LengthSqr() < RPG_SAFE_DISTANCE * RPG_SAFE_DISTANCE ) )
+				// Have to explicitly check innate range attack condition as may have weapon with range attack 2
+				if ( random->RandomInt(0, 1) && HasCondition( COND_CAN_RANGE_ATTACK2 ) )
 				{
-					// Don't fire our RPG at an enemy too close to the player
-					return SCHED_STANDOFF;
+					return SCHED_CITIZEN_AR2_ALTFIRE;
+				}
+			}
+			break;
+
+		case SCHED_RANGE_ATTACK1:
+		{
+			// If we have an RPG, we use a custom schedule for it
+			if ( !IsMortar( GetEnemy() ) && GetActiveWeapon() && FClassnameIs( GetActiveWeapon(), "weapon_rpg" ) )
+			{
+				if ( GetEnemy() && GetEnemy()->ClassMatches( "npc_strider" ) )
+				{
+					if (OccupyStrategySlotRange( SQUAD_SLOT_CITIZEN_RPG1, SQUAD_SLOT_CITIZEN_RPG2 ) )
+					{
+						return SCHED_CITIZEN_STRIDER_RANGE_ATTACK1_RPG;
+					}
+					else
+					{
+						return SCHED_STANDOFF;
+					}
 				}
 				else
 				{
-					return SCHED_CITIZEN_RANGE_ATTACK1_RPG;
+					CBasePlayer *pPlayer = AI_GetSinglePlayer();
+					if ( pPlayer && GetEnemy() && ( ( GetEnemy()->GetAbsOrigin() - 
+						pPlayer->GetAbsOrigin() ).LengthSqr() < RPG_SAFE_DISTANCE * RPG_SAFE_DISTANCE ) )
+					{
+						// Don't fire our RPG at an enemy too close to the player
+						return SCHED_STANDOFF;
+					}
+					else
+					{
+						return SCHED_CITIZEN_RANGE_ATTACK1_RPG;
+					}
 				}
+			}
+			if ( CanAltFireEnemy(true) && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
+			{
+				// Since I'm holding this squadslot, no one else can try right now. If I die before the shot 
+				// goes off, I won't have affected anyone else's ability to use this attack at their nearest
+				// convenience.
+				return SCHED_CITIZEN_AR2_ALTFIRE;
+			}
+		}
+		break;
+		case SCHED_RANGE_ATTACK2:
+		{
+			// If my weapon can range attack 2 use the weapon
+			if (GetActiveWeapon() && GetActiveWeapon()->CapabilitiesGet() & bits_CAP_WEAPON_RANGE_ATTACK2)
+			{
+				return SCHED_RANGE_ATTACK2;
 			}
 		}
 		break;
@@ -1615,6 +1883,11 @@ void CNPC_Citizen::StartTask( const Task_t *pTask )
 			Speak(TLK_PLDEAD);
 		}
 		TaskComplete();
+		break;
+
+	case TASK_CIT_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET:
+		SetIdealActivity( (Activity)(int)pTask->flTaskData );
+		GetMotor()->SetIdealYawToTargetAndUpdate( m_vecAltFireTarget, AI_KEEP_YAW_SPEED );
 		break;
 
 	default:
@@ -1805,6 +2078,15 @@ void CNPC_Citizen::RunTask( const Task_t *pTask )
 			}
 			break;
 
+		case TASK_CIT_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET:
+			GetMotor()->SetIdealYawToTargetAndUpdate(m_vecAltFireTarget, AI_KEEP_YAW_SPEED);
+
+			if (IsActivityFinished())
+			{
+				TaskComplete();
+			}
+			break;
+
 		default:
 			BaseClass::RunTask( pTask );
 			break;
@@ -1843,14 +2125,24 @@ Activity CNPC_Citizen::NPC_TranslateActivity( Activity activity )
 
 	// !!!HACK - Citizens don't have the required animations for shotguns, 
 	// so trick them into using the rifle counterparts for now (sjb)
-	if ( activity == ACT_RUN_AIM_SHOTGUN )
-		return ACT_RUN_AIM_RIFLE;
-	if ( activity == ACT_WALK_AIM_SHOTGUN )
-		return ACT_WALK_AIM_RIFLE;
-	if ( activity == ACT_IDLE_ANGRY_SHOTGUN )
-		return ACT_IDLE_ANGRY_SMG1;
-	if ( activity == ACT_RANGE_ATTACK_SHOTGUN_LOW )
-		return ACT_RANGE_ATTACK_SMG1_LOW;
+	switch ( activity )
+	{
+		case ACT_RUN_AIM_AR2:
+			activity = ACT_RUN_AIM_AR2_STIMULATED;
+			break;
+		case ACT_RUN_AIM_SHOTGUN:
+			activity = ACT_RUN_AIM_RIFLE;
+			break;
+		case ACT_WALK_AIM_SHOTGUN:
+			activity = ACT_WALK_AIM_RIFLE;
+			break;
+		case ACT_IDLE_ANGRY_SHOTGUN:
+			activity = ACT_IDLE_ANGRY_SMG1;
+			break;
+		case ACT_RANGE_ATTACK_SHOTGUN_LOW:
+			activity = ACT_RANGE_ATTACK_SMG1_LOW;
+			break;
+	}
 
 	return BaseClass::NPC_TranslateActivity( activity );
 }
@@ -1859,6 +2151,41 @@ Activity CNPC_Citizen::NPC_TranslateActivity( Activity activity )
 //------------------------------------------------------------------------------
 void CNPC_Citizen::HandleAnimEvent( animevent_t *pEvent )
 {
+	bool handledEvent = false;
+
+	if (pEvent->type & AE_TYPE_NEWEVENTSYSTEM)
+	{
+		// Allow citizens to use AR2/SMG1 altfire.
+		// Borrowed from npc_combine_s code
+		if ( pEvent->event == COMBINE_AE_BEGIN_ALTFIRE )
+		{
+			CWeaponAR2* pAR2 = dynamic_cast<CWeaponAR2*>(GetActiveWeapon());
+			if ( pAR2 )
+			{
+				EmitSound( "Weapon_CombineGuard.Special1" );
+			}
+			handledEvent = true;
+		}
+		else if ( pEvent->event == COMBINE_AE_ALTFIRE )
+		{
+			animevent_t fakeEvent;
+
+			fakeEvent.pSource = this;
+			fakeEvent.event = EVENT_WEAPON_AR2_ALTFIRE;
+			GetActiveWeapon()->Operator_HandleAnimEvent(&fakeEvent, this);
+
+			// Stop other squad members from combine balling for a while.
+			DelaySquadAltFireAttack(10.0f);
+
+			m_iNumEnergyBalls--;
+			
+			handledEvent = true;
+		}
+		else
+		{
+			BaseClass::HandleAnimEvent(pEvent);
+		}
+	}
 	if ( pEvent->event == AE_CITIZEN_GET_PACKAGE )
 	{
 		// Give the citizen a package
@@ -2048,6 +2375,9 @@ bool CNPC_Citizen::OnBeginMoveAndShoot()
 			return true; // already have the slot I need
 
 		if( m_iMySquadSlot == SQUAD_SLOT_NONE && OccupyStrategySlotRange( SQUAD_SLOT_ATTACK1, SQUAD_SLOT_ATTACK2 ) )
+			return true;
+
+		if ( !HasStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) && OccupyStrategySlotRange(SQUAD_SLOT_ATTACK1, SQUAD_SLOT_ATTACK2) )
 			return true;
 	}
 
@@ -3834,6 +4164,29 @@ void CNPC_Citizen::InputSpeakIdleResponse( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: If I'm a citizen that has an AR2, fire a ball at the target.
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CNPC_Citizen::InputFireEnergyBallAtTarget(inputdata_t& inputdata)
+{
+	// Ignore if we're inside a scripted sequence
+	if ( m_NPCState == NPC_STATE_SCRIPT && m_hCine )
+		return;
+
+	CBaseEntity* pEntity = gEntList.FindEntityByName(NULL, inputdata.value.String(), NULL, inputdata.pActivator, inputdata.pCaller);
+	if (!pEntity)
+	{
+		DevMsg("%s (%s) received FireEnergyBallAtTarget input, but couldn't find target entity '%s'\n", GetClassname(), GetDebugName(), inputdata.value.String());
+		return;
+	}
+
+	m_hForcedEnergyBallTarget = pEntity;
+	m_flNextEnergyBallCheck = 0;
+
+	ClearSchedule("Told to fire energy ball via input");
+}
+
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 void CNPC_Citizen::DeathSound( const CTakeDamageInfo &info )
 {
@@ -3879,6 +4232,7 @@ AI_BEGIN_CUSTOM_NPC( npc_citizen, CNPC_Citizen )
 #if HL2_EPISODIC
 	DECLARE_TASK( TASK_CIT_HEAL_TOSS )
 #endif
+	DECLARE_TASK( TASK_CIT_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET )
 
 	DECLARE_ACTIVITY( ACT_CIT_HANDSUP )
 	DECLARE_ACTIVITY( ACT_CIT_BLINDED )
@@ -3893,6 +4247,9 @@ AI_BEGIN_CUSTOM_NPC( npc_citizen, CNPC_Citizen )
 	//Events
 	DECLARE_ANIMEVENT( AE_CITIZEN_GET_PACKAGE )
 	DECLARE_ANIMEVENT( AE_CITIZEN_HEAL )
+
+	DECLARE_ANIMEVENT( COMBINE_AE_BEGIN_ALTFIRE )
+	DECLARE_ANIMEVENT( COMBINE_AE_ALTFIRE )
 
 	//=========================================================
 	// > SCHED_SCI_HEAL
@@ -3973,6 +4330,20 @@ AI_BEGIN_CUSTOM_NPC( npc_citizen, CNPC_Citizen )
 		"	Interrupts"
 	)
 
+	//=========================================================
+	// AR2 Alt Fire Attack
+	//=========================================================
+	DEFINE_SCHEDULE
+	(
+		SCHED_CITIZEN_AR2_ALTFIRE,
+
+		"	Tasks"
+		"		TASK_STOP_MOVING									0"
+		"		TASK_ANNOUNCE_ATTACK								1"
+		"		TASK_CIT_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET		ACTIVITY:ACT_COMBINE_AR2_ALTFIRE"
+		""
+		"	Interrupts"
+	)
 
 	//=========================================================
 	// > SCHED_CITIZEN_PATROL

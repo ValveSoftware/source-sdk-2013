@@ -88,12 +88,16 @@ public:
 	virtual float	GetJumpGravity() const		{ return 1.8f; }
 #endif//HL2_EPISODIC
 
+
 	void			OnRestore();
 	
 	//---------------------------------
 	string_t 		GetModelName() const;
 	
 	Class_T 		Classify();
+
+	void			DelayAltFireAttack(float flDelay);
+	void			DelaySquadAltFireAttack(float flDelay);
 
 	bool 			ShouldAlwaysThink();
 
@@ -117,6 +121,7 @@ public:
 	int 			SelectScheduleNonCombat();
 	int 			SelectScheduleManhackCombat();
 	int 			SelectScheduleCombat();
+	int 			SelectScheduleAttack();
 	bool			ShouldDeferToFollowBehavior();
 	int 			TranslateSchedule( int scheduleType );
 
@@ -143,6 +148,8 @@ public:
 	//---------------------------------
 	// Combat
 	//---------------------------------
+	virtual bool	CanAltFireEnemy( bool bUseFreeKnowledge );
+	int				RangeAttack2Conditions( float flDot, float flDist ); // For energy ball attack
 	bool 			OnBeginMoveAndShoot();
 	void 			OnEndMoveAndShoot();
 	
@@ -240,6 +247,7 @@ public:
 	void			InputSetAmmoResupplierOn( inputdata_t &inputdata );
 	void			InputSetAmmoResupplierOff( inputdata_t &inputdata );
 	void			InputSpeakIdleResponse( inputdata_t &inputdata );
+	void			InputFireEnergyBallAtTarget( inputdata_t& inputdata );
 
 	//---------------------------------
 	//	Sounds & speech
@@ -264,6 +272,7 @@ private:
 		SCHED_CITIZEN_PLAY_INSPECT_ACTIVITY = BaseClass::NEXT_SCHEDULE,
 		SCHED_CITIZEN_HEAL,
 		SCHED_CITIZEN_RANGE_ATTACK1_RPG,
+		SCHED_CITIZEN_AR2_ALTFIRE,					// Copied from npc_combine.h for citizen alt-fire
 		SCHED_CITIZEN_PATROL,
 		SCHED_CITIZEN_MOURN_PLAYER,
 		SCHED_CITIZEN_SIT_ON_TRAIN,
@@ -281,6 +290,7 @@ private:
 #ifdef HL2_EPISODIC
 		TASK_CIT_HEAL_TOSS,
 #endif
+		TASK_CIT_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET
 
 	};
 
@@ -316,6 +326,17 @@ private:
 
 	float			m_flTimePlayerStare;	// The game time at which the player started staring at me.
 	float			m_flTimeNextHealStare;	// Next time I'm allowed to heal a player who is staring at me.
+
+	// Copied from npc_combine.h
+	EHANDLE			m_hForcedEnergyBallTarget;
+	float			m_flNextEnergyBallCheck;	// Next time I'm allowed to alt-fire the AR2.
+	float			m_flNextAltFireTime;		// AR2 users only. Next time to begin considering alt-fire attack.
+	int				m_iNumEnergyBalls;
+
+public:
+	Vector			m_vecAltFireTarget;			// In which direction should our citizen fire an energy ball?
+
+private:
 
 	//-----------------------------------------------------
 	//	Outputs
