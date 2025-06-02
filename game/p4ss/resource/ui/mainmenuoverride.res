@@ -714,7 +714,7 @@
 	{
 		"ControlName"	"EditablePanel"
 		"fieldname"		"QuitMainMenuBGBorder"
-		"xpos"			"660"
+		"xpos"			"rs1-25"
 		"ypos"			"395"
 		"zpos"			"0"
 		"wide"			"170"
@@ -729,7 +729,7 @@
 	{
 		"ControlName"	"CExImageButton"
 		"fieldname"		"DisconnectButton"
-		"xpos"			"670"
+		"xpos"			"rs1-35"
 		"ypos"			"403"
 		"zpos"			"15"
 		"wide"			"150"
@@ -782,7 +782,7 @@
 	{
 		"ControlName"	"CExImageButton"
 		"fieldname"		"QuitButton"
-		"xpos"			"670"
+		"xpos"			"rs1-35"
 		"ypos"			"403"
 		"zpos"			"15"
 		"wide"			"150"
@@ -833,7 +833,7 @@
 	{
 		"ControlName"	"EditablePanel"
 		"fieldname"		"QuitMainMenuBGBorder"
-		"xpos"			"660"
+		"xpos"			"rs1-25"
 		"ypos"			"290"
 		"zpos"			"0"
 		"wide"			"170"
@@ -850,7 +850,7 @@
 		"labelText"			"Community"
 		"font"				"HudFontSmallishBold"
 		"textAlignment"			"west"
-		"xpos"					"675"
+		"xpos"					"rs1-35"
 		"ypos"					"294"
 		"wide"					"150"
 		"tall"					"25"
@@ -864,7 +864,7 @@
 	{
 		"ControlName"	"CExImageButton"
 		"fieldname"		"DiscordButton"
-		"xpos"			"670"
+		"xpos"			"rs1-35"
 		"ypos"			"320"
 		"zpos"			"15"
 		"wide"			"150"
@@ -915,7 +915,7 @@
 	{
 		"ControlName"	"CExImageButton"
 		"fieldname"		"WebsiteButton"
-		"xpos"			"670"
+		"xpos"			"rs1-35"
 		"ypos"			"355"
 		"zpos"			"15"
 		"wide"			"150"
@@ -1875,7 +1875,7 @@
 	{
 		"ControlName"	"EditablePanel"
 		"fieldname"		"FriendsContainer"
-		"xpos"			"660"
+		"xpos"			"rs1-25"
 		"ypos"			"150" //goodbye. previously 260
 		"zpos"			"5"
 		"wide"			"170"
@@ -2856,7 +2856,7 @@
 	{
 		"ControlName"	"CExImageButton"
 		"fieldname"		"ArenaButton"
-		"xpos"			"c1"
+		"xpos"			"c-25"
 		"ypos"			"180"
 		"zpos"			"15"
 		"wide"			"60"
@@ -2883,8 +2883,8 @@
 	{
 		"ControlName"	"CExImageButton"
 		"fieldname"		"Aren2Button"
-		"xpos"			"c1"
-		"ypos"			"210"
+		"xpos"			"c-105"
+		"ypos"			"212"
 		"zpos"			"15"
 		"wide"			"140"
 		"tall"			"30"
@@ -2911,7 +2911,7 @@
 	{
 		"ControlName"	"CExImageButton"
 		"fieldname"		"Aren3Button"
-		"xpos"			"c60"
+		"xpos"			"c36"
 		"ypos"			"180"
 		"zpos"			"15"
 		"wide"			"70"
@@ -2939,16 +2939,16 @@
 	{
 		"ControlName"	"CExImageButton"
 		"fieldname"		"Aren4Button"
-		"xpos"			"c-70"
+		"xpos"			"c-105"
 		"ypos"			"180"
 		"zpos"			"15"
-		"wide"			"70"
+		"wide"			"79"
 		"tall"			"30"
 		"visible"		"1"
 		
 		"font"			"HudFontSmallishBold"
-		"command" 		"engine cl_hud_minmode 0"
-		"labeltext"		"bighud"
+		"command" 		"engine toggle cl_hud_minmode"
+		"labeltext"		"minmode"
 		"OnlyInGame"	"1"
 		
 		"border_default"	"storeinnershadowborder"
@@ -2972,11 +2972,11 @@
 		"zpos"			"15"
 		"wide"			"80"
 		"tall"			"30"
-		"visible"		"1"
+		"visible"		"0"
 		
 		"font"			"HudFontSmallishBold"
 		"command" 		"engine cl_hud_minmode 1"
-		"labeltext"		"smallhudhud"
+		"labeltext"		"smallhud"
 		"OnlyInGame"	"1"
 		
 		"border_default"	"storeinnershadowborder"
@@ -2995,8 +2995,8 @@
 	{
 		"ControlName"	"CExImageButton"
 		"fieldname"		"Aren5Button"
-		"xpos"			"c130"
-		"ypos"			"180"
+		"xpos"			"c36"
+		"ypos"			"212"
 		"zpos"			"15"
 		"wide"			"80"
 		"tall"			"30"
