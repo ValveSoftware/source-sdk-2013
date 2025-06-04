@@ -1262,7 +1262,7 @@ IMPLEMENT_NETWORKCLASS_ALIASED( WeaponRPG, DT_WeaponRPG )
 #ifdef CLIENT_DLL
 void RecvProxy_MissileDied( const CRecvProxyData *pData, void *pStruct, void *pOut )
 {
-	CWeaponRPG *pRPG = ((CWeaponRPG*)pStruct);
+	CWeaponRPG *pRPG = ( ( CWeaponRPG * ) pStruct );
 
 	RecvProxy_IntToEHandle( pData, pStruct, pOut );
 
@@ -1272,10 +1272,17 @@ void RecvProxy_MissileDied( const CRecvProxyData *pData, void *pStruct, void *pO
 	{
 		if ( pRPG->GetOwner() && pRPG->GetOwner()->GetActiveWeapon() == pRPG )
 		{
+			if ( pRPG->IsPredictingMissile() )
+			{
+				pRPG->SetPredictingMissile( false );
+				return; // Ignore this frame's `NotifyRocketDied()`
+			}
+
 			pRPG->NotifyRocketDied();
 		}
 	}
 }
+
 
 #endif
 
@@ -1426,7 +1433,7 @@ void CWeaponRPG::PrimaryAttack( void )
 	// Only the player fires this way so we can cast
 	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
 
-	if (!pPlayer)
+	if ( !pPlayer )
 		return;
 
 	// Can't have an active missile out
@@ -1443,12 +1450,11 @@ void CWeaponRPG::PrimaryAttack( void )
 	m_flNextPrimaryAttack = gpGlobals->curtime + 0.5f;
 
 	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
-	
+
 	if ( pOwner == NULL )
 		return;
 
 	Vector	vForward, vRight, vUp;
-
 	pOwner->EyeVectors( &vForward, &vRight, &vUp );
 
 	Vector	muzzlePoint = pOwner->Weapon_ShootPosition() + vForward * 12.0f + vRight * 6.0f + vUp * -3.0f;
@@ -1472,6 +1478,8 @@ void CWeaponRPG::PrimaryAttack( void )
 	pMissile->SetDamage( GetHL2MPWpnData().m_iPlayerDamage );
 
 	m_hMissile = pMissile;
+#else
+	SetPredictingMissile( true );
 #endif
 
 	DecrementAmmo( GetOwner() );
