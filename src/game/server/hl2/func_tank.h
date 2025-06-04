@@ -75,6 +75,8 @@ public:
 	void	Precache( void );
 	bool	CreateVPhysics( void );
 	bool	KeyValue( const char *szKeyName, const char *szValue );
+	virtual int ShouldTransmit( const CCheckTransmitInfo *pInfo );
+	virtual int UpdateTransmitState( void );
 	void	UpdateOnRemove();
 
 	void	SetYawRate( float flYawRate ) { m_yawRate = flYawRate; }
