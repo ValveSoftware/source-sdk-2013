@@ -136,7 +136,7 @@ public:
 	 * A visible spot on the subject is returned in 'visibleSpot'.
 	 */
 	virtual bool IsLineOfSightClearToEntity( const CBaseEntity *subject, Vector *visibleSpot = NULL ) const;
-	
+
 	/// @todo: Implement LookAt system
 	virtual bool IsLookingAt( const Vector &pos, float cosTolerance = 0.95f ) const;					// are we looking at the given position
 	bool ScriptIsLookingAt( const Vector &pos, float cosTolerance = 0.95f ) const { return this->IsLookingAt( pos, cosTolerance ); }
