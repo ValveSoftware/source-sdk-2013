@@ -32,9 +32,17 @@ ConVar tf_weapon_criticals_melee( "tf_weapon_criticals_melee", "1", FCVAR_REPLIC
 IMPLEMENT_NETWORKCLASS_ALIASED( TFWeaponBaseMelee, DT_TFWeaponBaseMelee )
 
 BEGIN_NETWORK_TABLE( CTFWeaponBaseMelee, DT_TFWeaponBaseMelee )
+#ifdef CLIENT_DLL
+	RecvPropFloat( RECVINFO( m_flSmackTime ) ),
+#else
+	SendPropFloat( SENDINFO( m_flSmackTime ), 0, SPROP_NOSCALE ),
+#endif
 END_NETWORK_TABLE()
 
 BEGIN_PREDICTION_DATA( CTFWeaponBaseMelee )
+#ifdef CLIENT_DLL
+	DEFINE_PRED_FIELD( m_flSmackTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
+#endif
 END_PREDICTION_DATA()
 
 LINK_ENTITY_TO_CLASS( tf_weaponbase_melee, CTFWeaponBaseMelee );

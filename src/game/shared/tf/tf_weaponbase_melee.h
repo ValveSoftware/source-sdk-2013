@@ -89,7 +89,7 @@ protected:
 
 protected:
 
-	float	m_flSmackTime;
+	CNetworkVar( float, m_flSmackTime );
 	bool	m_bConnected;
 	bool	m_bMiniCrit;
 
