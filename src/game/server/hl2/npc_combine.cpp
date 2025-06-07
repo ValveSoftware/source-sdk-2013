@@ -1338,27 +1338,6 @@ Activity CNPC_Combine::NPC_TranslateActivity( Activity eNewActivity )
 		}
 	}
 
-    // ugly hack for ar2 anims
-    switch ( eNewActivity )
-    {
-        case ACT_RUN_AR2:
-            eNewActivity = ACT_RUN_RIFLE;
-            break;
-        case ACT_RUN_AIM_AR2:
-        case ACT_RUN_AIM_AR2_STIMULATED:
-            eNewActivity = ACT_RUN_AIM_RIFLE;
-            break;
-        case ACT_WALK_AR2:
-            eNewActivity = ACT_WALK_RIFLE;
-            break;
-        case ACT_WALK_AIM_AR2:
-            eNewActivity = ACT_WALK_AIM_RIFLE;
-            break;
-        case ACT_IDLE_ANGRY_AR2:
-            eNewActivity = ACT_IDLE_ANGRY;
-            break;
-    }
-
 	return BaseClass::NPC_TranslateActivity( eNewActivity );
 }
 
