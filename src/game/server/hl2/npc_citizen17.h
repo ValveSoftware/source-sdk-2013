@@ -272,7 +272,9 @@ private:
 		SCHED_CITIZEN_PLAY_INSPECT_ACTIVITY = BaseClass::NEXT_SCHEDULE,
 		SCHED_CITIZEN_HEAL,
 		SCHED_CITIZEN_RANGE_ATTACK1_RPG,
+		SCHED_CITIZEN_FORCED_BALL_FIRE, 			// Copied from npc_combine.h for citizen alt-fire
 		SCHED_CITIZEN_AR2_ALTFIRE,					// Copied from npc_combine.h for citizen alt-fire
+		SCHED_CITIZEN_MOVE_TO_FORCED_BALL_LOS,		// Copied from npc_combine.h for citizen alt-fire
 		SCHED_CITIZEN_PATROL,
 		SCHED_CITIZEN_MOURN_PLAYER,
 		SCHED_CITIZEN_SIT_ON_TRAIN,
@@ -290,6 +292,9 @@ private:
 #ifdef HL2_EPISODIC
 		TASK_CIT_HEAL_TOSS,
 #endif
+		TASK_CIT_FACE_TOSS_DIR,
+		TASK_CIT_GET_PATH_TO_FORCED_BALL_LOS,
+		TASK_CIT_DEFER_SQUAD_GRENADES,
 		TASK_CIT_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET
 
 	};
@@ -328,6 +333,7 @@ private:
 	float			m_flTimeNextHealStare;	// Next time I'm allowed to heal a player who is staring at me.
 
 	// Copied from npc_combine.h
+	Vector			m_vecTossVelocity;
 	EHANDLE			m_hForcedEnergyBallTarget;
 	float			m_flNextEnergyBallCheck;	// Next time I'm allowed to alt-fire the AR2.
 	float			m_flNextAltFireTime;		// AR2 users only. Next time to begin considering alt-fire attack.

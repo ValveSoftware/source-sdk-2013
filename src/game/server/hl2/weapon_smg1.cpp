@@ -194,6 +194,8 @@ void CWeaponSMG1::FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, Vector 
 //-----------------------------------------------------------------------------
 void CWeaponSMG1::FireNPCSecondaryAttack( CBaseCombatCharacter *pOperator, Vector &vecShootOrigin, Vector &vecShootDir )
 {
+	// Borrowed from Firefight: Reloaded SDK2013 branch code
+	// Credit goes to Bitl
 	CAI_BaseNPC *pNPC = pOperator->MyNPCPointer();
 	if ( !pNPC )
 		return;
@@ -232,8 +234,8 @@ void CWeaponSMG1::FireNPCSecondaryAttack( CBaseCombatCharacter *pOperator, Vecto
 		m_flNextGrenadeCheck = gpGlobals->curtime + 6; // wait six seconds before even looking again to see if a grenade can be thrown.
 	}
 
-	// This is handled by m_iNumEnergyBalls in npc_citizen17.cpp
-	// m_iClip2--;
+	// This is also handled by m_iNumEnergyBalls in npc_citizen17.cpp
+	m_iClip2--;
 }
 
 //-----------------------------------------------------------------------------
@@ -282,23 +284,23 @@ void CWeaponSMG1::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatChar
 
 	switch( pEvent->event )
 	{
-	case EVENT_WEAPON_SMG1:
-		{
-			FireNPCPrimaryAttack( pOperator, vecShootOrigin, vecShootDir );
-		}
-		break;
+		case EVENT_WEAPON_SMG1:
+			{
+				FireNPCPrimaryAttack( pOperator, vecShootOrigin, vecShootDir );
+			}
+			break;
 
-	// Borrowed from Firefight: Reloaded SDK2013 branch code
-	// Credit goes to Bitl
-	case EVENT_WEAPON_AR2_ALTFIRE:
-		{
-			FireNPCSecondaryAttack( pOperator, vecShootOrigin, vecShootDir );
-		}
-		break;
+		// Borrowed from Firefight: Reloaded SDK2013 branch code
+		// Credit goes to Bitl
+		case EVENT_WEAPON_AR2_ALTFIRE:
+			{
+				FireNPCSecondaryAttack( pOperator, vecShootOrigin, vecShootDir );
+			}
+			break;
 
-	default:
-		BaseClass::Operator_HandleAnimEvent( pEvent, pOperator );
-		break;
+		default:
+			BaseClass::Operator_HandleAnimEvent( pEvent, pOperator );
+			break;
 	}
 }
 
@@ -451,22 +453,26 @@ int CWeaponSMG1::WeaponRangeAttack2Condition( )
 	// -----------------------
 	// If moving, don't check.
 	// -----------------------
-	if ( npcOwner->IsMoving())
+	if ( npcOwner->IsMoving() )
 		return COND_NONE;
 
 	CBaseEntity *pEnemy = npcOwner->GetEnemy();
 
-	if (!pEnemy)
+	// Don't check if we have no enemy.
+	if ( !pEnemy )
 		return COND_NONE;
 
 	Vector vecEnemyLKP = npcOwner->GetEnemyLKP();
-	if ( !( pEnemy->GetFlags() & FL_ONGROUND ) && pEnemy->GetWaterLevel() == 0 && vecEnemyLKP.z > (GetAbsOrigin().z + WorldAlignMaxs().z) )
+#if 0
+	// This is a broken check taken from npc_combine_s that doesn't even work
+	if ( !( pEnemy->GetMoveType() == MOVETYPE_FLY ) && pEnemy->GetWaterLevel() == 0 && vecEnemyLKP.z > (GetAbsOrigin().z + WorldAlignMaxs().z) )
 	{
 		//!!!BUGBUG - we should make this check movetype and make sure it isn't FLY? Players who jump a lot are unlikely to 
 		// be grenaded.
 		// don't throw grenades at anything that isn't on the ground!
 		return COND_NONE;
 	}
+#endif
 	
 	// --------------------------------------
 	//  Get target vector
@@ -491,7 +497,7 @@ int CWeaponSMG1::WeaponRangeAttack2Condition( )
 	{
 		// I don't want to blow myself up
 		m_flNextGrenadeCheck = gpGlobals->curtime + 1; // one full second.
-		return (COND_NONE);
+		return ( COND_NONE );
 	}
 
 	// ---------------------------------------------------------------------
@@ -506,7 +512,7 @@ int CWeaponSMG1::WeaponRangeAttack2Condition( )
 		{
 			// I might blow my own guy up. Don't throw a grenade and don't check again for a while.
 			m_flNextGrenadeCheck = gpGlobals->curtime + 1; // one full second.
-			return (COND_WEAPON_BLOCKED_BY_FRIEND);
+			return ( COND_WEAPON_BLOCKED_BY_FRIEND );
 		}
 	}
 
