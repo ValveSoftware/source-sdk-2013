@@ -411,7 +411,10 @@ void CNPC_Citizen::Precache()
 	PrecacheScriptSound( "NPC_Citizen.FootstepLeft" );
 	PrecacheScriptSound( "NPC_Citizen.FootstepRight" );
 	PrecacheScriptSound( "NPC_Citizen.Die" );
+	
+	// Needed for citizen AR2/SMG1 alt-fire.
 	PrecacheScriptSound( "Weapon_CombineGuard.Special1" );
+	PrecacheScriptSound( "Weapon_SMG1.Double" );
 
 	PrecacheInstancedScene( "scenes/Expressions/CitizenIdle.vcd" );
 	PrecacheInstancedScene( "scenes/Expressions/CitizenAlert_loop.vcd" );
@@ -2308,6 +2311,12 @@ void CNPC_Citizen::HandleAnimEvent( animevent_t *pEvent )
 			fakeEvent.pSource = this;
 			fakeEvent.event = EVENT_WEAPON_AR2_ALTFIRE;
 			GetActiveWeapon()->Operator_HandleAnimEvent( &fakeEvent, this );
+
+			// If we're holding an SMG1, play our alt-fire sound.
+			if ( GetActiveWeapon() && FClassnameIs(GetActiveWeapon(), "weapon_smg1") )
+			{
+				EmitSound( "Weapon_SMG1.Double" );
+			}
 
 			// Stop other squad members from combine balling for a while.
 			switch ( g_pGameRules->GetSkillLevel() ) {
