@@ -2264,24 +2264,14 @@ Activity CNPC_Citizen::NPC_TranslateActivity( Activity activity )
 
 	// !!!HACK - Citizens don't have the required animations for shotguns, 
 	// so trick them into using the rifle counterparts for now (sjb)
-	switch ( activity )
-	{
-		case ACT_RUN_AIM_AR2:
-			activity = ACT_RUN_AIM_AR2_STIMULATED;
-			break;
-		case ACT_RUN_AIM_SHOTGUN:
-			activity = ACT_RUN_AIM_RIFLE;
-			break;
-		case ACT_WALK_AIM_SHOTGUN:
-			activity = ACT_WALK_AIM_RIFLE;
-			break;
-		case ACT_IDLE_ANGRY_SHOTGUN:
-			activity = ACT_IDLE_ANGRY_SMG1;
-			break;
-		case ACT_RANGE_ATTACK_SHOTGUN_LOW:
-			activity = ACT_RANGE_ATTACK_SMG1_LOW;
-			break;
-	}
+	if (activity == ACT_RUN_AIM_SHOTGUN)
+		return ACT_RUN_AIM_RIFLE;
+	if (activity == ACT_WALK_AIM_SHOTGUN)
+		return ACT_WALK_AIM_RIFLE;
+	if (activity == ACT_IDLE_ANGRY_SHOTGUN)
+		return ACT_IDLE_ANGRY_SMG1;
+	if (activity == ACT_RANGE_ATTACK_SHOTGUN_LOW)
+		return ACT_RANGE_ATTACK_SMG1_LOW;
 
 	return BaseClass::NPC_TranslateActivity( activity );
 }
