@@ -62,7 +62,7 @@ ConVar	sk_citizen_heal_ally_min_pct	( "sk_citizen_heal_ally_min_pct",		"0.90");
 ConVar	sk_citizen_player_stare_time	( "sk_citizen_player_stare_time",		"1.0" );
 ConVar  sk_citizen_player_stare_dist	( "sk_citizen_player_stare_dist",		"72" );
 ConVar	sk_citizen_stare_heal_time		( "sk_citizen_stare_heal_time",			"5" );
-ConVar	sk_citizen_energy_balls			( "sk_citizen_energy_balls",			"3"	);
+ConVar	sk_citizen_grenades			( "sk_citizen_grenades",			"3"	);
 
 ConVar	g_ai_citizen_show_enemy( "g_ai_citizen_show_enemy", "0" );
 
@@ -324,16 +324,16 @@ BEGIN_DATADESC( CNPC_Citizen )
 	DEFINE_FIELD( 		m_flPlayerGiveAmmoTime, 	FIELD_TIME ),
 	DEFINE_KEYFIELD(	m_iszAmmoSupply, 			FIELD_STRING,	"ammosupply" ),
 	DEFINE_KEYFIELD(	m_iAmmoAmount, 				FIELD_INTEGER,	"ammoamount" ),
-	DEFINE_KEYFIELD(	m_iNumEnergyBalls,			FIELD_INTEGER,	"NumEnergyBalls" ),
-	DEFINE_FIELD(		m_hForcedEnergyBallTarget,	FIELD_EHANDLE ),
+	DEFINE_KEYFIELD(	m_iNumGrenades,				FIELD_INTEGER,	"NumGrenades" ),
+	DEFINE_FIELD(		m_hForcedGrenadeTarget,		FIELD_EHANDLE ),
 	DEFINE_FIELD( 		m_bRPGAvoidPlayer, 			FIELD_BOOLEAN ),
 	DEFINE_FIELD( 		m_bShouldPatrol, 			FIELD_BOOLEAN ),
 	DEFINE_FIELD( 		m_iszOriginalSquad, 		FIELD_STRING ),
 	DEFINE_FIELD( 		m_flTimeJoinedPlayerSquad,	FIELD_TIME ),
-	DEFINE_FIELD( 		m_bWasInPlayerSquad, FIELD_BOOLEAN ),
+	DEFINE_FIELD( 		m_bWasInPlayerSquad,		FIELD_BOOLEAN ),
 	DEFINE_FIELD( 		m_flTimeLastCloseToPlayer,	FIELD_TIME ),
 	DEFINE_EMBEDDED(	m_AutoSummonTimer ),
-	DEFINE_FIELD(		m_vAutoSummonAnchor, FIELD_POSITION_VECTOR ),
+	DEFINE_FIELD(		m_vAutoSummonAnchor,		FIELD_POSITION_VECTOR ),
 	DEFINE_KEYFIELD(	m_Type, 					FIELD_INTEGER,	"citizentype" ),
 	DEFINE_KEYFIELD(	m_ExpressionType,			FIELD_INTEGER,	"expressiontype" ),
 	DEFINE_FIELD(		m_iHead,					FIELD_INTEGER ),
@@ -360,7 +360,7 @@ BEGIN_DATADESC( CNPC_Citizen )
 	DEFINE_INPUTFUNC( FIELD_VOID,	"SetAmmoResupplierOn",	InputSetAmmoResupplierOn ),
 	DEFINE_INPUTFUNC( FIELD_VOID,	"SetAmmoResupplierOff",	InputSetAmmoResupplierOff ),
 	DEFINE_INPUTFUNC( FIELD_VOID,	"SpeakIdleResponse", InputSpeakIdleResponse ),
-	DEFINE_INPUTFUNC( FIELD_STRING,	"FireEnergyBallAtTarget",	InputFireEnergyBallAtTarget ),
+	DEFINE_INPUTFUNC( FIELD_STRING,	"FireGrenadeAtTarget",	InputFireGrenadeAtTarget ),
 
 #if HL2_EPISODIC
 	DEFINE_INPUTFUNC( FIELD_VOID,   "ThrowHealthKit", InputForceHealthKitToss ),
@@ -532,8 +532,8 @@ void CNPC_Citizen::Spawn()
 		pRPG->StopGuiding();
 	}
 
-	// Give our citizens this much energy balls per the skill config
-	m_iNumEnergyBalls = sk_citizen_energy_balls.GetFloat();
+	// Give our citizens this much energy balls/grenades per the skill config
+	m_iNumGrenades = sk_citizen_grenades.GetFloat();
 
 	m_flTimePlayerStare = FLT_MAX;
 
@@ -1005,10 +1005,11 @@ void CNPC_Citizen::GatherConditions()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //
-//			This is for energy ball attacks. As the test for ball attacks
-//			is expensive we don't want to do it every frame.  Return true
-//			if we meet minimum set of requirements and then test for actual
-//			throw later if we actually decide to do a grenade attack.
+//			This is for grenade and energy ball attacks. As the test for grenade
+//			and ball attacks is expensive we don't want to do it every frame.
+//			Return true if we meet minimum set of requirements and then test
+//			for actual shot later if we actually decide to do a grenade attack.
+// 
 // Input  :
 // Output :
 //-----------------------------------------------------------------------------
@@ -1033,11 +1034,11 @@ bool CNPC_Citizen::CanAltFireEnemy( bool bUseFreeKnowledge )
 	if ( !GetEnemy() )
 		return false;
 
-	if ( gpGlobals->curtime < m_flNextEnergyBallCheck )
+	if ( gpGlobals->curtime < m_flNextGrenadeCheck )
 		return false;
 
-	// Do we have enough energy balls?
-	if ( m_iNumEnergyBalls < 1 )
+	// Do we have enough energy balls or grenades?
+	if ( m_iNumGrenades < 1 )
 		return false;
 
 	CBaseEntity* pEnemy = GetEnemy();
@@ -1045,13 +1046,13 @@ bool CNPC_Citizen::CanAltFireEnemy( bool bUseFreeKnowledge )
 	Vector vecTarget;
 
 	// Determine what point we're shooting at
-	if (bUseFreeKnowledge)
+	if ( bUseFreeKnowledge )
 	{
-		vecTarget = GetEnemies()->LastKnownPosition(pEnemy) + (pEnemy->GetViewOffset() * 0.75);// approximates the chest
+		vecTarget = GetEnemies()->LastKnownPosition( pEnemy ) + ( pEnemy->GetViewOffset() * 0.75 );// approximates the chest
 	}
 	else
 	{
-		vecTarget = GetEnemies()->LastSeenPosition(pEnemy) + (pEnemy->GetViewOffset() * 0.75);// approximates the chest
+		vecTarget = GetEnemies()->LastSeenPosition( pEnemy ) + ( pEnemy->GetViewOffset() * 0.75 );// approximates the chest
 	}
 
 	// Trace a hull about the size of the combine ball (don't shoot through grates!)
@@ -1070,11 +1071,11 @@ bool CNPC_Citizen::CanAltFireEnemy( bool bUseFreeKnowledge )
 	// Trace a hull about the size of the combine ball.
 	UTIL_TraceHull( vShootPosition, vecTarget, mins, maxs, MASK_SHOT, this, COLLISION_GROUP_NONE, &tr );
 
-	float flLength = (vShootPosition - vecTarget).Length();
+	float flLength = ( vShootPosition - vecTarget ).Length();
 
 	flLength *= tr.fraction;
 
-	//If the ball can travel at least 65% of the distance to the player then let the NPC shoot it.
+	// If the grenade or ball can travel at least 65% of the distance to our target, then let the NPC shoot it.
 	if ( tr.fraction >= 0.65 && flLength > 128.0f )
 	{
 		// Target is valid
@@ -1082,9 +1083,9 @@ bool CNPC_Citizen::CanAltFireEnemy( bool bUseFreeKnowledge )
 		return true;
 	}
 
-	// Check again later
+	// Check again later.
 	m_vecAltFireTarget = vec3_origin;
-	m_flNextEnergyBallCheck = gpGlobals->curtime + 1.0f;
+	m_flNextGrenadeCheck = gpGlobals->curtime + 1.0f;
 	return false;
 }
 
@@ -1321,7 +1322,7 @@ int CNPC_Citizen::SelectSchedule()
 		return SCHED_CITIZEN_SIT_ON_TRAIN;
 	}
 
-	CWeaponRPG *pRPG = dynamic_cast<CWeaponRPG*>(GetActiveWeapon());
+	CWeaponRPG *pRPG = dynamic_cast<CWeaponRPG*>( GetActiveWeapon() );
 	if ( pRPG && pRPG->IsGuiding() )
 	{
 		DevMsg( "Citizen in select schedule but RPG is guiding?\n");
@@ -1338,31 +1339,31 @@ int CNPC_Citizen::SelectSchedule()
 		}
 	}
 
-	if ( m_hForcedEnergyBallTarget )
+	if ( m_hForcedGrenadeTarget )
 	{
-		if ( m_flNextEnergyBallCheck < gpGlobals->curtime )
+		if ( m_flNextGrenadeCheck < gpGlobals->curtime )
 		{
-			Vector vecTarget = m_hForcedEnergyBallTarget->WorldSpaceCenter();
+			Vector vecTarget = m_hForcedGrenadeTarget->WorldSpaceCenter();
 
-			if ( FVisible( m_hForcedEnergyBallTarget ) )
+			if ( FVisible( m_hForcedGrenadeTarget ) )
 			{
 				m_vecAltFireTarget = vecTarget;
-				m_hForcedEnergyBallTarget = NULL;
+				m_hForcedGrenadeTarget = NULL;
 				return SCHED_CITIZEN_AR2_ALTFIRE;
 			}
 			// If we can, throw a grenade at the target. 
 			// Ignore grenade count / distance / etc
 			if ( CanAltFireEnemy( true ) )
 			{
-				m_hForcedEnergyBallTarget = NULL;
-				return SCHED_CITIZEN_FORCED_BALL_FIRE;
+				m_hForcedGrenadeTarget = NULL;
+				return SCHED_CITIZEN_FORCED_GRENADE_FIRE;
 			}
 		}
 
-		// Can't throw at the target, so lets try moving to somewhere where I can see it
-		if ( !FVisible( m_hForcedEnergyBallTarget ) )
+		// Can't shoot a grenade at the target, so let's try moving to somewhere where I can see it
+		if ( !FVisible( m_hForcedGrenadeTarget ) )
 		{
-			return SCHED_CITIZEN_MOVE_TO_FORCED_BALL_LOS;
+			return SCHED_CITIZEN_MOVE_TO_FORCED_GREN_LOS;
 		}
 	}
 	
@@ -1660,7 +1661,7 @@ int CNPC_Citizen::SelectScheduleAttack()
 			return SCHED_RANGE_ATTACK1;
 		}
 
-		// Shoot an AR2 energy ball if not allowed to engage with weapon.
+		// Shoot an AR2 energy ball/SMG1 grenade if not allowed to engage with weapon.
 		if ( CanAltFireEnemy(true) )
 		{
 			if ( OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
@@ -1920,9 +1921,9 @@ void CNPC_Citizen::StartTask( const Task_t *pTask )
 	case TASK_CIT_FACE_TOSS_DIR:
 		break;
 
-	case TASK_CIT_GET_PATH_TO_FORCED_BALL_LOS:
+	case TASK_CIT_GET_PATH_TO_FORCED_GREN_LOS:
 		{
-			if ( !m_hForcedEnergyBallTarget )
+			if ( !m_hForcedGrenadeTarget )
 			{
 				TaskFail(FAIL_NO_ENEMY);
 				return;
@@ -1931,8 +1932,8 @@ void CNPC_Citizen::StartTask( const Task_t *pTask )
 			float flMaxRange = 2000;
 			float flMinRange = 0;
 
-			Vector vecEnemy = m_hForcedEnergyBallTarget->GetAbsOrigin();
-			Vector vecEnemyEye = vecEnemy + m_hForcedEnergyBallTarget->GetViewOffset();
+			Vector vecEnemy = m_hForcedGrenadeTarget->GetAbsOrigin();
+			Vector vecEnemyEye = vecEnemy + m_hForcedGrenadeTarget->GetViewOffset();
 
 			Vector posLos;
 			bool found = false;
@@ -1975,7 +1976,7 @@ void CNPC_Citizen::StartTask( const Task_t *pTask )
 
 					if( pCitizen )
 					{
-						pCitizen->m_flNextEnergyBallCheck = gpGlobals->curtime + 15;
+						pCitizen->m_flNextGrenadeCheck = gpGlobals->curtime + 15;
 					}
 
 					pSquadmate = m_pSquad->GetNextMember( &iter );
@@ -2191,9 +2192,9 @@ void CNPC_Citizen::RunTask( const Task_t *pTask )
 			break;
 		}
 
-		case TASK_CIT_GET_PATH_TO_FORCED_BALL_LOS:
+		case TASK_CIT_GET_PATH_TO_FORCED_GREN_LOS:
 		{
-			if ( !m_hForcedEnergyBallTarget )
+			if ( !m_hForcedGrenadeTarget )
 			{
 				TaskFail(FAIL_NO_ENEMY);
 				return;
@@ -2203,7 +2204,7 @@ void CNPC_Citizen::RunTask( const Task_t *pTask )
 			{
 				ClearTaskInterrupt();
 
-				Vector vecEnemy = m_hForcedEnergyBallTarget->GetAbsOrigin();
+				Vector vecEnemy = m_hForcedGrenadeTarget->GetAbsOrigin();
 				AI_NavGoal_t goal( m_vInterruptSavePosition, ACT_RUN, AIN_HULL_TOLERANCE );
 
 				GetNavigator()->SetGoal( goal, AIN_CLEAR_TARGET );
@@ -2343,7 +2344,7 @@ void CNPC_Citizen::HandleAnimEvent( animevent_t *pEvent )
 				break;
 			}
 
-			m_iNumEnergyBalls--;
+			m_iNumGrenades--;
 			
 			handledEvent = true;
 		}
@@ -4333,7 +4334,7 @@ void CNPC_Citizen::InputSpeakIdleResponse( inputdata_t &inputdata )
 // Purpose: If I'm a citizen that has an AR2, fire a ball at the target.
 // Input  : &inputdata - 
 //-----------------------------------------------------------------------------
-void CNPC_Citizen::InputFireEnergyBallAtTarget(inputdata_t& inputdata)
+void CNPC_Citizen::InputFireGrenadeAtTarget(inputdata_t& inputdata)
 {
 	// Ignore if we're inside a scripted sequence
 	if ( m_NPCState == NPC_STATE_SCRIPT && m_hCine )
@@ -4342,14 +4343,14 @@ void CNPC_Citizen::InputFireEnergyBallAtTarget(inputdata_t& inputdata)
 	CBaseEntity* pEntity = gEntList.FindEntityByName(NULL, inputdata.value.String(), NULL, inputdata.pActivator, inputdata.pCaller);
 	if (!pEntity)
 	{
-		DevMsg("%s (%s) received FireEnergyBallAtTarget input, but couldn't find target entity '%s'\n", GetClassname(), GetDebugName(), inputdata.value.String());
+		DevMsg("%s (%s) received FireGrenadeAtTarget input, but couldn't find target entity '%s'\n", GetClassname(), GetDebugName(), inputdata.value.String());
 		return;
 	}
 
-	m_hForcedEnergyBallTarget = pEntity;
-	m_flNextEnergyBallCheck = 0;
+	m_hForcedGrenadeTarget = pEntity;
+	m_flNextGrenadeCheck = 0;
 
-	ClearSchedule("Told to fire energy ball via input");
+	ClearSchedule("Told to fire grenade/energy ball via input");
 }
 
 //-----------------------------------------------------------------------------
@@ -4399,7 +4400,7 @@ AI_BEGIN_CUSTOM_NPC( npc_citizen, CNPC_Citizen )
 	DECLARE_TASK( TASK_CIT_HEAL_TOSS )
 #endif
 	DECLARE_TASK( TASK_CIT_FACE_TOSS_DIR )
-	DECLARE_TASK( TASK_CIT_GET_PATH_TO_FORCED_BALL_LOS )
+	DECLARE_TASK( TASK_CIT_GET_PATH_TO_FORCED_GREN_LOS )
 	DECLARE_TASK( TASK_CIT_DEFER_SQUAD_GRENADES )
 	DECLARE_TASK( TASK_CIT_PLAY_SEQUENCE_FACE_ALTFIRE_TARGET )
 
@@ -4505,7 +4506,7 @@ AI_BEGIN_CUSTOM_NPC( npc_citizen, CNPC_Citizen )
 	//=========================================================
 	DEFINE_SCHEDULE
 	(
-		SCHED_CITIZEN_FORCED_BALL_FIRE,
+		SCHED_CITIZEN_FORCED_GRENADE_FIRE,
 
 		"	Tasks"
 		"		TASK_STOP_MOVING					0"
@@ -4522,11 +4523,11 @@ AI_BEGIN_CUSTOM_NPC( npc_citizen, CNPC_Citizen )
 	//=========================================================
 	DEFINE_SCHEDULE
 	(
-		SCHED_CITIZEN_MOVE_TO_FORCED_BALL_LOS,
+		SCHED_CITIZEN_MOVE_TO_FORCED_GREN_LOS,
 
 		"	Tasks "
 		"		TASK_SET_TOLERANCE_DISTANCE					48"
-		"		TASK_CIT_GET_PATH_TO_FORCED_BALL_LOS		0"
+		"		TASK_CIT_GET_PATH_TO_FORCED_GREN_LOS		0"
 		"		TASK_SPEAK_SENTENCE							1"
 		"		TASK_RUN_PATH								0"
 		"		TASK_WAIT_FOR_MOVEMENT						0"
