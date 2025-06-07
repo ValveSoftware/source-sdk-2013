@@ -195,7 +195,7 @@ void CWeaponSMG1::FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, Vector 
 //-----------------------------------------------------------------------------
 void CWeaponSMG1::FireNPCSecondaryAttack( CBaseCombatCharacter *pOperator, Vector &vecShootOrigin, Vector &vecShootDir )
 {
-	// Borrowed from Firefight: Reloaded SDK2013 branch code
+	// Adapted from Firefight: Reloaded SDK 2013 SP branch code
 	// Credit goes to Bitl
 	CAI_BaseNPC *pNPC = pOperator->MyNPCPointer();
 	if ( !pNPC )
