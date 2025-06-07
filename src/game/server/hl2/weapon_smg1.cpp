@@ -12,6 +12,7 @@
 #include "player.h"
 #include "game.h"
 #include "in_buttons.h"
+#include "npc_combine.h"
 #include "grenade_ar2.h"
 #include "ai_memory.h"
 #include "soundent.h"
@@ -438,67 +439,64 @@ void CWeaponSMG1::SecondaryAttack( void )
 //-----------------------------------------------------------------------------
 int CWeaponSMG1::WeaponRangeAttack2Condition( )
 {
-	CAI_BaseNPC *npcOwner = GetOwner()->MyNPCPointer();
+	// Are we owned by someone? If not, don't do anything.
+	if ( !GetOwner() )
+		return ( COND_NONE );
 
-	// return COND_NONE;
-
-/*
-	// --------------------------------------------------------
-	// Assume things haven't changed too much since last time
-	// --------------------------------------------------------
-	if (gpGlobals->curtime < m_flNextGrenadeCheck )
-		return m_lastGrenadeCondition;
-*/
+	CAI_BaseNPC *pNPCOwner = GetOwner()->MyNPCPointer();
+	if ( !pNPCOwner )
+		return ( COND_NONE );
 
 	// -----------------------
 	// If moving, don't check.
 	// -----------------------
-	if ( npcOwner->IsMoving() )
-		return COND_NONE;
+	if ( pNPCOwner->IsMoving() )
+		return ( COND_NONE );
 
-	CBaseEntity *pEnemy = npcOwner->GetEnemy();
-
-	// Don't check if we have no enemy.
-	if ( !pEnemy )
-		return COND_NONE;
-
-	Vector vecEnemyLKP = npcOwner->GetEnemyLKP();
-#if 0
-	// This is a broken check taken from npc_combine_s that doesn't even work
-	if ( !( pEnemy->GetMoveType() == MOVETYPE_FLY ) && pEnemy->GetWaterLevel() == 0 && vecEnemyLKP.z > (GetAbsOrigin().z + WorldAlignMaxs().z) )
-	{
-		//!!!BUGBUG - we should make this check movetype and make sure it isn't FLY? Players who jump a lot are unlikely to 
-		// be grenaded.
-		// don't throw grenades at anything that isn't on the ground!
-		return COND_NONE;
-	}
-#endif
+	// Define our enemy.
+	CBaseEntity* pEnemy = pNPCOwner->GetEnemy();
+	Vector vecEnemyLKP = pNPCOwner->GetEnemyLKP();
 	
 	// --------------------------------------
 	//  Get target vector
 	// --------------------------------------
+	Vector vecSrc;
 	Vector vecTarget;
+
+	// Don't fire our grenade if we don't have an enemy.
+	if ( !pEnemy )
+		return ( COND_NONE );
+
 	if (random->RandomInt(0,1))
 	{
-		// magically know where they are
-		vecTarget = pEnemy->WorldSpaceCenter();
+		// Are we a Combine soldier? If so, we need to figure out what our own alt-fire target is.
+		CNPC_Combine *pSoldier = dynamic_cast<CNPC_Combine*>( pNPCOwner );
+		if ( pSoldier )
+		{
+			vecTarget = pSoldier->GetAltFireTarget();
+		}
+		// We're a Citizen or some other person that's using the SMG1 alt-fire. Just shoot directly at our target.
+		else {
+			// Magically know where they are...
+			vecTarget = pEnemy->BodyTarget( vecSrc );
+		}
 	}
 	else
 	{
-		// toss it to where you last saw them
+		// Toss it to where we last saw them.
 		vecTarget = vecEnemyLKP;
 	}
-	// vecTarget = m_vecEnemyLKP + (pEnemy->BodyTarget( GetLocalOrigin() ) - pEnemy->GetLocalOrigin());
-	// estimate position
-	// vecTarget = vecTarget + pEnemy->m_vecVelocity * 2;
 
-
-	if ( ( vecTarget - npcOwner->GetLocalOrigin() ).Length2D() <= COMBINE_MIN_GRENADE_CLEAR_DIST )
+	if ( ( vecTarget - pNPCOwner->GetLocalOrigin() ).Length2D() <= COMBINE_MIN_GRENADE_CLEAR_DIST )
 	{
-		// I don't want to blow myself up
+		// I don't want to blow myself up!
 		m_flNextGrenadeCheck = gpGlobals->curtime + 1; // one full second.
 		return ( COND_NONE );
 	}
+
+	
+	/*
+	// Grenade damage from friendlies vs. friendlies don't hurt others anyway. Commenting this out.
 
 	// ---------------------------------------------------------------------
 	// Are any friendlies near the intended grenade impact area?
@@ -508,7 +506,7 @@ int CWeaponSMG1::WeaponRangeAttack2Condition( )
 	while ( ( pTarget = gEntList.FindEntityInSphere( pTarget, vecTarget, COMBINE_MIN_GRENADE_CLEAR_DIST ) ) != NULL )
 	{
 		//Check to see if the default relationship is hatred, and if so intensify that
-		if ( npcOwner->IRelationType( pTarget ) == D_LI )
+		if (pNPCOwner->IRelationType( pTarget ) == D_LI )
 		{
 			// I might blow my own guy up. Don't throw a grenade and don't check again for a while.
 			m_flNextGrenadeCheck = gpGlobals->curtime + 1; // one full second.
@@ -516,12 +514,14 @@ int CWeaponSMG1::WeaponRangeAttack2Condition( )
 		}
 	}
 
+	*/
+
 	// ---------------------------------------------------------------------
 	// Check that throw is legal and clear
 	// ---------------------------------------------------------------------
 	// FIXME: speed is based on difficulty...
 
-	Vector vecToss = VecCheckThrow( this, npcOwner->GetLocalOrigin() + Vector(0,0,60), vecTarget, 600.0, 0.5 );
+	Vector vecToss = VecCheckThrow( this, pNPCOwner->GetLocalOrigin() + Vector(0,0,60), vecTarget, 600.0, 0.5 );
 	if ( vecToss != vec3_origin )
 	{
 		m_vecTossVelocity = vecToss;
