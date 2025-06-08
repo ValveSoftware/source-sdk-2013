@@ -1273,6 +1273,20 @@ void CBaseHudChat::StopMessageMode( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Allows to close the chat after clicking on text.
+//-----------------------------------------------------------------------------
+void CBaseHudChat::OnKeyCodeTyped(vgui::KeyCode code )
+{
+	if ( code == KEY_ESCAPE || code == KEY_ENTER )
+	{
+		StopMessageMode();
+		return;
+	}
+
+	BaseClass::OnKeyCodeTyped( code );
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CBaseHudChat::OnChatEntrySend( void )
