@@ -1297,7 +1297,7 @@ void CMultiPlayerAnimState::UpdateGestureLayer( CStudioHdr *pStudioHdr, GestureS
 	pGesture->m_pAnimLayer->m_flPrevCycle = pGesture->m_pAnimLayer->m_flCycle;
 	pGesture->m_pAnimLayer->m_flCycle = flCycle;
 
-	if( flPlaybackRate < 0.f ? ( flCycle < 0.f ) : ( flCycle > 1.f ) )
+	if ( flCycle < 0.f || flCycle > 1.f )
 	{
 		RunGestureSlotAnimEventsToCompletion( pGesture );
 
