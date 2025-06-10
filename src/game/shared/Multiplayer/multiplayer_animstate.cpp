@@ -1294,7 +1294,7 @@ void CMultiPlayerAnimState::UpdateGestureLayer( CStudioHdr *pStudioHdr, GestureS
 
 	flCycle += pPlayer->GetSequenceCycleRate( pStudioHdr, pGesture->m_pAnimLayer->m_nSequence ) * gpGlobals->frametime * flPlaybackRate * pGesture->m_pAnimLayer->m_flPlaybackRate;
 
-	pGesture->m_pAnimLayer->m_flPrevCycle = pGesture->m_pAnimLayer->m_flCycle;
+	pGesture->m_pAnimLayer->m_flPrevCycle = flPlaybackRate < 0.f ? 1.f - pGesture->m_pAnimLayer->m_flCycle : pGesture->m_pAnimLayer->m_flCycle;
 	pGesture->m_pAnimLayer->m_flCycle = flCycle;
 
 	if ( flCycle < 0.f || flCycle > 1.f )
