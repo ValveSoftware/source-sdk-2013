@@ -8393,10 +8393,12 @@ void BuildBigHeadTransformations( CBaseAnimating *pObject, CStudioHdr *hdr, Vect
 	// Scale the head.
 	MatrixScaleBy ( flScale, transform );
 
-	const int cMaxNumHelms = 2;
+	const int cMaxNumHelms = 4;
 	int iHelmIndex[cMaxNumHelms];
 	iHelmIndex[0] = pObject->LookupBone( "prp_helmet" );
 	iHelmIndex[1] = pObject->LookupBone( "prp_hat" );
+	iHelmIndex[2] = pObject->LookupBone( "prp_cig" );
+	iHelmIndex[3] = pObject->LookupBone( "prp_glasses" );
 
 	for ( int i = 0; i < cMaxNumHelms; i++ )
 	{
@@ -8443,6 +8445,20 @@ void BuildDecapitatedTransformations( CBaseAnimating *pObject, CStudioHdr *hdr, 
 		matrix3x4_t  &transformhelmet = pObject->GetBoneForWrite( iHelm );
 		MatrixScaleByZero ( transformhelmet );
 	}
+
+	iHelm = pObject->LookupBone( "prp_cig" );
+	if ( iHelm != -1 )
+	{
+		matrix3x4_t  &transformhelmet = pObject->GetBoneForWrite( iHelm );
+		MatrixScaleByZero ( transformhelmet );
+	}
+
+	iHelm = pObject->LookupBone( "prp_glasses" );
+	if ( iHelm != -1 )
+	{
+		matrix3x4_t  &transformhelmet = pObject->GetBoneForWrite( iHelm );
+		MatrixScaleByZero ( transformhelmet );
+	}
 }
 
 
@@ -8482,6 +8498,16 @@ void BuildNeckScaleTransformations( CBaseAnimating *pObject, CStudioHdr *hdr, Ve
 		{
 			matrix3x4_t  &cig_transform = pObject->GetBoneForWrite( iCig );
 			MatrixScaleByZero ( cig_transform );
+		}
+	}
+
+	if ( iClass == TF_CLASS_MEDIC )
+	{
+		int iGlasses = pObject->LookupBone( "prp_glasses" );
+		if ( iGlasses != -1 )
+		{
+			matrix3x4_t  &glasses_transform = pObject->GetBoneForWrite( iGlasses );
+			MatrixScaleByZero ( glasses_transform );
 		}
 	}
 
@@ -8542,7 +8568,7 @@ void AppendChildren_R( CUtlVector< const mstudiobone_t * > *pChildBones, const s
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void BuildTorsoScaleTransformations( CBaseAnimating *pObject, CStudioHdr *hdr, Vector *pos, Quaternion q[], const matrix3x4_t& cameraTransform, int boneMask, CBoneBitList &boneComputed, float flScale, int iClass )
+void BuildTorsoScaleTransformations( CBaseAnimating *pObject, CStudioHdr *hdr, Vector *pos, Quaternion q[], const matrix3x4_t& cameraTransform, int boneMask, CBoneBitList &boneComputed, float flScale )
 {
 	if ( !pObject || flScale == 1.f )
 		return;
@@ -8711,7 +8737,7 @@ void C_TFPlayer::BuildTransformations( CStudioHdr *hdr, Vector *pos, Quaternion 
 	m_BoneAccessor.SetWritableBones( BONE_USED_BY_ANYTHING );
 	float flHeadScale = m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) ? 1.5 : m_flHeadScale;
 	BuildBigHeadTransformations( this, hdr, pos, q, cameraTransform, boneMask, boneComputed, flHeadScale );
-	BuildTorsoScaleTransformations( this, hdr, pos, q, cameraTransform, boneMask, boneComputed, m_flTorsoScale, GetPlayerClass()->GetClassIndex() );
+	BuildTorsoScaleTransformations( this, hdr, pos, q, cameraTransform, boneMask, boneComputed, m_flTorsoScale );
 	BuildHandScaleTransformations( this, hdr, pos, q, cameraTransform, boneMask, boneComputed, m_flHandScale );
 
 	BuildFirstPersonMeathookTransformations( hdr, pos, q, cameraTransform, boneMask, boneComputed, "bip_head" );
@@ -8727,7 +8753,7 @@ void C_TFRagdoll::BuildTransformations( CStudioHdr *hdr, Vector *pos, Quaternion
 
 	m_BoneAccessor.SetWritableBones( BONE_USED_BY_ANYTHING );
 	BuildBigHeadTransformations( this, hdr, pos, q, cameraTransform, boneMask, boneComputed, m_flHeadScale );
-	BuildTorsoScaleTransformations( this, hdr, pos, q, cameraTransform, boneMask, boneComputed, m_flTorsoScale, GetClass() );
+	BuildTorsoScaleTransformations( this, hdr, pos, q, cameraTransform, boneMask, boneComputed, m_flTorsoScale );
 	BuildHandScaleTransformations( this, hdr, pos, q, cameraTransform, boneMask, boneComputed, m_flHandScale );
 
 	if ( IsDecapitation() && !m_bBaseTransform )
