@@ -405,6 +405,7 @@ private:
 
 protected:
 	CNetworkVar( bool, m_bAwake );
+	CBasePlayer *m_pLastHolder = nullptr;
 };
 
 
