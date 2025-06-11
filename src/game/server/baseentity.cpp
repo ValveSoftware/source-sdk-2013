@@ -1698,6 +1698,7 @@ int CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 		{
 			info.ScaleDamage( info.GetAttacker()->GetAttackDamageScale( this ) );
 		}
+
 		// Scale the damage by my own modifiers
 		info.ScaleDamage( GetReceivedDamageScale( info.GetAttacker() ? info.GetAttacker() : NULL ) );
 
