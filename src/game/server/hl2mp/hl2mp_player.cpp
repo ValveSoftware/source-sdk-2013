@@ -1486,45 +1486,57 @@ ReturnSpot:
 	return pSpot;
 } 
 
-
 CON_COMMAND( timeleft, "prints the time remaining in the match" )
 {
 	CHL2MP_Player *pPlayer = ToHL2MPPlayer( UTIL_GetCommandClient() );
 
-	int iTimeRemaining = (int)HL2MPRules()->GetMapRemainingTime();
-    
-	if ( iTimeRemaining == 0 )
+	int iTimeRemaining = ( int ) HL2MPRules()->GetMapRemainingTime();
+	int iFragLimit = fraglimit.GetInt();
+	int iTimeLimit = mp_timelimit.GetInt(); // Get the actual time limit set
+
+	if ( iTimeLimit == 0 )
 	{
-		if ( pPlayer )
+		if ( iFragLimit > 0 )
 		{
-			ClientPrint( pPlayer, HUD_PRINTTALK, "This game has no timelimit." );
+			ClientPrint( pPlayer, HUD_PRINTTALK, UTIL_VarArgs("No time limit. The map will change after a player reaches %d frags.", iFragLimit) );
 		}
 		else
 		{
-			Msg( "* No Time Limit *\n" );
+			ClientPrint( pPlayer, HUD_PRINTTALK, "No time limit." );
 		}
+		return;
+	}
+
+	if ( iTimeRemaining <= 0 )
+	{
+		ClientPrint( pPlayer, HUD_PRINTTALK, "Game is over!" );
+		return;
+	}
+
+	int iDays = iTimeRemaining / 86400;
+	int iHours = ( iTimeRemaining / 3600 ) % 24;
+	int iMinutes = ( iTimeRemaining / 60 ) % 60;
+	int iSeconds = iTimeRemaining % 60;
+
+	char stime[ 128 ];
+
+	if ( iTimeRemaining >= 86400 )
+		Q_snprintf( stime, sizeof( stime ), "Time left in map: %02d:%02d:%02d:%02d", iDays, iHours, iMinutes, iSeconds );
+	else if ( iTimeRemaining >= 3600 )
+		Q_snprintf( stime, sizeof( stime ), "Time left in map: %02d:%02d:%02d", iHours, iMinutes, iSeconds );
+	else
+		Q_snprintf( stime, sizeof( stime ), "Time left in map: %02d:%02d", iMinutes, iSeconds );
+
+	if ( iFragLimit > 0 )
+	{
+		char stimeWithFrags[ 64 ];
+		Q_snprintf( stimeWithFrags, sizeof( stimeWithFrags ), "%s, or after a player reaches %d frags", stime, iFragLimit );
+		ClientPrint( pPlayer, HUD_PRINTTALK, stimeWithFrags );
 	}
 	else
 	{
-		int iMinutes, iSeconds;
-		iMinutes = iTimeRemaining / 60;
-		iSeconds = iTimeRemaining % 60;
-
-		char minutes[8];
-		char seconds[8];
-
-		Q_snprintf( minutes, sizeof(minutes), "%d", iMinutes );
-		Q_snprintf( seconds, sizeof(seconds), "%2.2d", iSeconds );
-
-		if ( pPlayer )
-		{
-			ClientPrint( pPlayer, HUD_PRINTTALK, "Time left in map: %s1:%s2", minutes, seconds );
-		}
-		else
-		{
-			Msg( "Time Remaining:  %s:%s\n", minutes, seconds );
-		}
-	}	
+		ClientPrint( pPlayer, HUD_PRINTTALK, stime );
+	}
 }
 
 
