@@ -190,7 +190,7 @@ public:
 	bool	WeaponShouldBeLowered( void );
 	bool	Lower( void );
 
-	bool	CanHolster( void );
+	bool	CanHolster( void ) const;
 
 	virtual void Drop( const Vector &vecVelocity );
 

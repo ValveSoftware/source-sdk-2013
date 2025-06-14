@@ -1635,7 +1635,7 @@ bool CWeaponRPG::Deploy( void )
 	return BaseClass::Deploy();
 }
 
-bool CWeaponRPG::CanHolster( void )
+bool CWeaponRPG::CanHolster( void ) const
 {
 	//Can't have an active missile out
 	if ( m_hMissile != NULL )
