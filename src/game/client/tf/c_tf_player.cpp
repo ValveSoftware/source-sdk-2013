@@ -11611,25 +11611,22 @@ void C_TFPlayer::ClientAdjustVOPitch( int& pitch )
 		pitch *= 1.3f;
 	}
 	// Halloween voice futzery?
-	else
+	float flVoicePitchScale = 1.f;
+	CALL_ATTRIB_HOOK_FLOAT( flVoicePitchScale, voice_pitch_scale );
+
+	int iHalloweenVoiceSpell = 0;
+	if ( TF_IsHolidayActive( kHoliday_HalloweenOrFullMoon ) )
 	{
-		float flVoicePitchScale = 1.f;
-		CALL_ATTRIB_HOOK_FLOAT( flVoicePitchScale, voice_pitch_scale );
+		CALL_ATTRIB_HOOK_INT( iHalloweenVoiceSpell, halloween_voice_modulation );
+	}
 
-		int iHalloweenVoiceSpell = 0;
-		if ( TF_IsHolidayActive( kHoliday_HalloweenOrFullMoon ) )
-		{
-			CALL_ATTRIB_HOOK_INT( iHalloweenVoiceSpell, halloween_voice_modulation );
-		}
-
-		if ( iHalloweenVoiceSpell > 0 )
-		{
-			pitch *= 0.8f;
-		}
-		else if ( flVoicePitchScale != 1.f )
-		{
-			pitch *= flVoicePitchScale;
-		}
+	if ( iHalloweenVoiceSpell > 0 )
+	{
+		pitch *= 0.8f;
+	}
+	else if ( flVoicePitchScale != 1.f )
+	{
+		pitch *= flVoicePitchScale;
 	}
 }
 
