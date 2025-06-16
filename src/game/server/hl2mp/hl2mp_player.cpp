@@ -22,11 +22,12 @@
 #include "gamestats.h"
 #include "ammodef.h"
 #include "NextBot.h"
-
 #include "engine/IEngineSound.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 
 #include "ilagcompensationmanager.h"
+
+#include "hl2mp/weapon_physcannon.h"
 
 int g_iLastCitizenModel = 0;
 int g_iLastCombineModel = 0;
@@ -983,6 +984,24 @@ void CHL2MP_Player::ChangeTeam( int iTeam )
 	}
 
 	BaseClass::ChangeTeam( iTeam );
+
+	if ( iTeam == TEAM_SPECTATOR )
+	{
+		CBaseCombatWeapon *pWeapon = GetActiveWeapon();
+
+		if ( pWeapon && !pWeapon->Holster() )
+		{
+			CWeaponPhysCannon *physcannon = dynamic_cast< CWeaponPhysCannon * >( pWeapon );
+
+			if ( physcannon )
+			{
+				physcannon->KillUsage();
+				physcannon->Delete();
+			}
+		}
+		else
+			ForceDropOfCarriedPhysObjects( NULL );
+	}
 
 	m_flNextTeamChangeTime = gpGlobals->curtime + TEAM_CHANGE_INTERVAL;
 

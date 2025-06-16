@@ -633,7 +633,8 @@ int CPhysBox::DrawDebugTextOverlays(void)
 //-----------------------------------------------------------------------------
 void CPhysBox::InputWake( inputdata_t &inputdata )
 {
-	VPhysicsGetObject()->Wake();
+	if ( VPhysicsGetObject() != NULL )
+		VPhysicsGetObject()->Wake();
 }
 
 //-----------------------------------------------------------------------------
@@ -642,7 +643,8 @@ void CPhysBox::InputWake( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CPhysBox::InputSleep( inputdata_t &inputdata )
 {
-	VPhysicsGetObject()->Sleep();
+	if ( VPhysicsGetObject() != NULL )
+		VPhysicsGetObject()->Sleep();
 }
 
 //-----------------------------------------------------------------------------
@@ -705,7 +707,8 @@ void CPhysBox::InputForceDrop( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CPhysBox::Move( const Vector &direction )
 {
-	VPhysicsGetObject()->ApplyForceCenter( direction );
+	if ( VPhysicsGetObject() )
+		VPhysicsGetObject()->ApplyForceCenter( direction );
 }
 
 // Update the visible representation of the physic system's representation of this object

@@ -1045,16 +1045,13 @@ static ConCommand test_dispatcheffect("test_dispatcheffect", CC_Player_TestDispa
 void CC_Player_PhysSwap( void )
 {
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() );
-	
+
 	if ( pPlayer )
 	{
 		CBaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
 
 		if ( pWeapon )
 		{
-			// Tell the client to stop selecting weapons
-			engine->ClientCommand( UTIL_GetCommandClient()->edict(), "cancelselect" );
-
 			const char *strWeaponName = pWeapon->GetName();
 
 			if ( !Q_stricmp( strWeaponName, "weapon_physcannon" ) )
@@ -1069,7 +1066,7 @@ void CC_Player_PhysSwap( void )
 		}
 	}
 }
-static ConCommand physswap("phys_swap", CC_Player_PhysSwap, "Automatically swaps the current weapon for the physcannon and back again." );
+static ConCommand physswap( "phys_swap", CC_Player_PhysSwap, "Automatically swaps the current weapon for the physcannon and back again." );
 #endif
 
 //-----------------------------------------------------------------------------

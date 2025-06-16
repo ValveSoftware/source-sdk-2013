@@ -286,7 +286,7 @@ public:
 	bool	DropIfEntityHeld( CBaseEntity *pTarget );	// Drops its held entity if it matches the entity passed in
 	CGrabController &GetGrabController() { return m_grabController; }
 
-	bool	CanHolster( void );
+	bool	CanHolster( void ) const;
 	bool	Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	bool	Deploy( void );
 
@@ -294,6 +294,12 @@ public:
 
 	virtual void SetViewModel( void );
 	virtual const char *GetShootSound( int iIndex ) const;
+
+	void KillUsage()
+	{
+		ForceDrop();
+		DestroyEffects();
+	}
 	
 #ifndef CLIENT_DLL
 	CNetworkQAngle	( m_attachedAnglesPlayerSpace );

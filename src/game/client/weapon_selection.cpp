@@ -400,6 +400,38 @@ void CBaseHudWeaponSelection::UserCmd_Slot10(void)
 	SelectSlot( 10 );
 }
 
+void ClientInstantPhysSwap()
+{
+	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+	if ( !pPlayer )
+		return;
+
+	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
+	if ( !pWeapon )
+		return;
+
+	const char *strWeaponName = pWeapon->GetName();
+
+	if ( !Q_stricmp( strWeaponName, "weapon_physcannon" ) )
+	{
+		input->MakeWeaponSelection( pPlayer->GetLastWeapon() ); // back to previous weapon
+	}
+	else
+	{
+		for ( int i = 0; i < pPlayer->WeaponCount(); ++i )
+		{
+			C_BaseCombatWeapon *pWeapon = pPlayer->GetWeapon( i );
+			if ( pWeapon && !Q_stricmp( pWeapon->GetClassname(), "weapon_physcannon" ) ) // switch to physcannon
+			{
+				input->MakeWeaponSelection( pWeapon );
+				return;
+			}
+		}
+	}
+}
+
+static ConCommand cl_physswap( "phys_swap", ClientInstantPhysSwap, "Client-predicted physcannon swap for low-latency switching." );
+
 //-----------------------------------------------------------------------------
 // Purpose: returns true if the CHudMenu should take slot1, etc commands
 //-----------------------------------------------------------------------------

@@ -90,6 +90,7 @@
 #include "serverbenchmark_base.h"
 #include "querycache.h"
 #include "player_voice_listener.h"
+#include "hl2mp/weapon_physcannon.h"
 
 #ifdef TF_DLL
 #include "gc_clientsystem.h"
@@ -2766,6 +2767,21 @@ void CServerGameClients::ClientDisconnect( edict_t *pEdict )
 	CBasePlayer *player = ( CBasePlayer * )CBaseEntity::Instance( pEdict );
 	if ( player )
 	{
+		CBaseCombatWeapon *pWeapon = player->GetActiveWeapon();
+
+		if ( pWeapon && !pWeapon->Holster() )
+		{
+			CWeaponPhysCannon *physcannon = dynamic_cast< CWeaponPhysCannon * >( pWeapon );
+
+			if ( physcannon )
+			{
+				physcannon->KillUsage();
+				physcannon->Delete();
+			}
+		}
+		else
+			player->ForceDropOfCarriedPhysObjects( NULL );
+
 		if ( !g_fGameOver )
 		{
 			player->SetMaxSpeed( 0.0f );
