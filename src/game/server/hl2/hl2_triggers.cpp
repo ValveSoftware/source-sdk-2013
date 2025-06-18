@@ -228,6 +228,10 @@ void CTriggerWeaponDissolve::DissolveThink( void )
 	for ( int i = 0; i < numWeapons; i++ )
 	{
 		CBaseCombatWeapon *pWeapon = m_pWeapons[i];
+
+		if ( !pWeapon )
+			continue;
+
 		Vector vecConduit = GetConduitPoint( pWeapon );
 		
 		// The physcannon upgrades when this happens
@@ -271,7 +275,11 @@ void CTriggerWeaponDissolve::DissolveThink( void )
 		EmitSound( "WeaponDissolve.Beam" );
 
 		m_pWeapons.Remove( i );
+#if defined(HL2MP)
+		SetContextThink( &CTriggerWeaponDissolve::DissolveThink, gpGlobals->curtime + random->RandomFloat( 0.2f, 0.5f ), s_pDissolveThinkContext );
+#else
 		SetContextThink( &CTriggerWeaponDissolve::DissolveThink, gpGlobals->curtime + random->RandomFloat( 0.5f, 1.5f ), s_pDissolveThinkContext );
+#endif
 		return;
 	}
 
