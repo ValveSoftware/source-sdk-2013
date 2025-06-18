@@ -243,7 +243,7 @@ CBaseEntity* CBaseCombatWeapon::Respawn( void )
 		pNewWeapon->AddEffects( EF_NODRAW );// invisible for now
 		pNewWeapon->SetTouch( NULL );// no touch
 		pNewWeapon->SetThink( &CBaseCombatWeapon::AttemptToMaterialize );
-
+		pNewWeapon->AddEFlags( EFL_NO_PHYSCANNON_INTERACTION );
 		UTIL_DropToFloor( this, MASK_SOLID );
 
 		// not a typo! We want to know when the weapon the player just picked up should respawn! This new entity we created is the replacement,
@@ -641,6 +641,7 @@ void CBaseCombatWeapon::AttemptToMaterialize( void )
 	if ( time == 0 )
 	{
 		Materialize();
+		RemoveEFlags( EFL_NO_PHYSCANNON_INTERACTION );
 		return;
 	}
 
