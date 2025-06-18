@@ -45,6 +45,7 @@ public:
 
 		void Materialize( void );
 		virtual	int	ObjectCaps( void );
+		virtual void FallThink( void );
 	#endif
 
 	// All predicted weapons need to implement and return true
