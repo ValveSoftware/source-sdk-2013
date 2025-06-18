@@ -2766,6 +2766,7 @@ void CServerGameClients::ClientDisconnect( edict_t *pEdict )
 	CBasePlayer *player = ( CBasePlayer * )CBaseEntity::Instance( pEdict );
 	if ( player )
 	{
+		player->ForceDropOfCarriedPhysObjects( NULL );
 		if ( !g_fGameOver )
 		{
 			player->SetMaxSpeed( 0.0f );
