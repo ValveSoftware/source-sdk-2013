@@ -1026,7 +1026,8 @@ void CHL2MPRules::RestartGame()
 			pPlayer->GetActiveWeapon()->Holster();
 		}
 		pPlayer->RemoveAllItems( true );
-		respawn( pPlayer, false );
+		if ( pPlayer->GetTeamNumber() != TEAM_SPECTATOR )
+			respawn( pPlayer, false );
 		pPlayer->Reset();
 	}
 
