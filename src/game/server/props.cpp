@@ -2638,6 +2638,18 @@ bool CPhysicsProp::CanBePickedUpByPhyscannon( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Clear all flags after respawn
+//-----------------------------------------------------------------------------
+void CPhysicsProp::Break( CBaseEntity *pBreaker, const CTakeDamageInfo &info )
+{
+	m_bFirstCollisionAfterLaunch = false;
+	// Setup the think function to remove the flags
+	RegisterThinkContext( "PROP_CLEARFLAGS" );
+	SetContextThink( &CPhysicsProp::ClearFlagsThink, gpGlobals->curtime, "PROP_CLEARFLAGS" );
+	CBreakableProp::Break( pBreaker, info );
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 bool CPhysicsProp::OverridePropdata( void )
