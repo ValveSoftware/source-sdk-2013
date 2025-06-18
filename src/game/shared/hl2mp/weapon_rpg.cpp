@@ -454,7 +454,7 @@ void CMissile::IgniteThink( void )
 	SetModel("models/weapons/w_missile.mdl");
 	UTIL_SetSize( this, vec3_origin, vec3_origin );
  	RemoveSolidFlags( FSOLID_NOT_SOLID );
-
+	AddEFlags( EFL_NO_WATER_VELOCITY_CHANGE );
 	//TODO: Play opening sound
 
 	Vector vecForward;
