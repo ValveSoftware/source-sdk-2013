@@ -176,6 +176,11 @@ enum PlayerConnectedState
 	PlayerDisconnected,
 };
 
+enum
+{
+	EPlayerSuicideFlag_LockScore = 1 // Keep score during suicide
+};
+
 extern bool gInitHUD;
 extern ConVar *sv_cheats;
 
@@ -919,6 +924,8 @@ public:
 	int						GetNumWearables( void ) const { return m_hMyWearables.Count(); }
 #endif
 
+	int						m_iSuicideCustomKillFlags;
+
 private:
 
 	Activity				m_Activity;
@@ -998,7 +1005,6 @@ protected:
 	virtual int SpawnArmorValue( void ) const { return 0; }
 
 	float					m_fNextSuicideTime; // the time after which the player can next use the suicide command
-	int						m_iSuicideCustomKillFlags;
 
 	// Replay mode	
 	float					m_fDelay;			// replay delay in seconds

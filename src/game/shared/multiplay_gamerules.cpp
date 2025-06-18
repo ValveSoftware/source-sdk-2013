@@ -769,7 +769,10 @@ ConVarRef suitcharger( "sk_suitcharger" );
 		CBaseEntity *pKiller = info.GetAttacker();
 		CBasePlayer *pScorer = GetDeathScorer( pKiller, pInflictor, pVictim );
 		
-		pVictim->IncrementDeathCount( 1 );
+		if ( pVictim != pScorer || !FBitSet( pVictim->m_iSuicideCustomKillFlags, EPlayerSuicideFlag_LockScore ) )
+		{
+			pVictim->IncrementDeathCount( 1 );
+		}
 
 		// dvsents2: uncomment when removing all FireTargets
 		// variant_t value;
@@ -779,7 +782,7 @@ ConVarRef suitcharger( "sk_suitcharger" );
 		// Did the player kill himself?
 		if ( pVictim == pScorer )  
 		{			
-			if ( UseSuicidePenalty() )
+			if ( !FBitSet( pVictim->m_iSuicideCustomKillFlags, EPlayerSuicideFlag_LockScore ) && UseSuicidePenalty() ) 
 			{
 				// Players lose a frag for killing themselves
 				pVictim->IncrementFragCount( -1 );

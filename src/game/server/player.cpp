@@ -5437,23 +5437,20 @@ void CBasePlayer::CommitSuicide( bool bExplode /*= false*/, bool bForce /*= fals
 {
 	MDLCACHE_CRITICAL_SECTION();
 
-	if( !IsAlive() )
-		return;
-		
-	// prevent suiciding too often
-	if ( m_fNextSuicideTime > gpGlobals->curtime && !bForce )
-		return;
+	if ( IsAlive() && ( gpGlobals->curtime >= m_fNextSuicideTime || bForce ) )
+	{
+		// don't let them suicide for 5 seconds after suiciding
+		m_fNextSuicideTime = gpGlobals->curtime + 5;
 
-	// don't let them suicide for 5 seconds after suiciding
-	m_fNextSuicideTime = gpGlobals->curtime + 5;
+		int fDamage = DMG_PREVENT_PHYSICS_FORCE | ( bExplode ? ( DMG_BLAST | DMG_ALWAYSGIB ) : DMG_NEVERGIB );
 
-	int fDamage = DMG_PREVENT_PHYSICS_FORCE | ( bExplode ? ( DMG_BLAST | DMG_ALWAYSGIB ) : DMG_NEVERGIB );
+		// have the player kill themself
+		m_iHealth = 0;
+		CTakeDamageInfo info( this, this, 0, fDamage, m_iSuicideCustomKillFlags );
+		Event_Killed( info );
+		Event_Dying( info );
+	}
 
-	// have the player kill themself
-	m_iHealth = 0;
-	CTakeDamageInfo info( this, this, 0, fDamage, m_iSuicideCustomKillFlags );
-	Event_Killed( info );
-	Event_Dying( info );
 	m_iSuicideCustomKillFlags = 0;
 }
 
