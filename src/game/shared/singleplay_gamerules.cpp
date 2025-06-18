@@ -385,6 +385,11 @@ bool CSingleplayRules::Damage_ShouldNotBleed( int iDmgType )
 		return pWeapon->GetAbsOrigin();
 	}
 
+	QAngle CSingleplayRules::DefaultWeaponRespawnAngle( CBaseCombatWeapon *pWeapon )
+	{
+		return pWeapon->GetAbsAngles();
+	}
+
 	//=========================================================
 	// WeaponShouldRespawn - any conditions inhibiting the
 	// respawning of this weapon?
