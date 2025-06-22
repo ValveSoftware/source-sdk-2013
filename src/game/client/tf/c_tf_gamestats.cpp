@@ -98,9 +98,7 @@ const char *g_ItemEventNames[] =
 
 	// THESE STORED AS INTEGERS IN THE DATABASE SO THESE ARE NEW
 	"item_reset_counters",
-	"item_put_into_collection",
-
-	""	// IE_COUNT
+	"item_put_into_collection"
 };
 
 COMPILE_TIME_ASSERT( ARRAYSIZE( g_ItemEventNames ) == IE_COUNT );
