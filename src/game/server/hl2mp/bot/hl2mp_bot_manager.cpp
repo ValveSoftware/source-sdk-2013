@@ -245,10 +245,18 @@ void CHL2MPBotManager::MaintainBotQuota()
 			{
 				nHL2MPBotsOnGameTeams++;
 			}
+			else if ( !HL2MPRules()->IsTeamplay() && pPlayer->GetTeamNumber() == TEAM_UNASSIGNED )
+			{
+				nHL2MPBotsOnGameTeams++;
+			}
 		}
 		else
 		{
 			if ( pPlayer->GetTeamNumber() == TEAM_REBELS || pPlayer->GetTeamNumber() == TEAM_COMBINE )
+			{
+				nNonHL2MPBotsOnGameTeams++;
+			}
+			else if ( !HL2MPRules()->IsTeamplay() && pPlayer->GetTeamNumber() == TEAM_UNASSIGNED )
 			{
 				nNonHL2MPBotsOnGameTeams++;
 			}
@@ -484,7 +492,7 @@ CHL2MPBot* CHL2MPBotManager::GetAvailableBotFromPool()
 		if ( ( pBot->GetFlags() & FL_FAKECLIENT ) == 0 )
 			continue;
 
-		if ( pBot->GetTeamNumber() == TEAM_SPECTATOR || pBot->GetTeamNumber() == TEAM_UNASSIGNED )
+		if ( pBot->GetTeamNumber() == TEAM_SPECTATOR || ( HL2MPRules()->IsTeamplay() && pBot->GetTeamNumber() == TEAM_UNASSIGNED ) )
 		{
 			pBot->ClearAttribute( CHL2MPBot::QUOTA_MANANGED );
 			return pBot;
