@@ -9837,21 +9837,24 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 
 
-	CTFWeaponBase *pTFWeapon = GetKilleaterWeaponFromDamageInfo( &info );
-	if ( !pTFWeapon )
+	if ( pTFAttacker )
 	{
-		// Check Wearable instead like demoshields or manntreads
-		CTFWearable *pWearable = dynamic_cast< CTFWearable* >( info.GetWeapon() );
-		if ( pWearable )
+		CTFWeaponBase *pTFWeapon = GetKilleaterWeaponFromDamageInfo( &info );
+		if ( !pTFWeapon )
 		{
-			EconEntity_OnOwnerKillEaterEvent_Batched( pWearable, pTFAttacker, this, kKillEaterEvent_DamageDealt, info.GetDamage() );
-			EconEntity_OnOwnerKillEaterEvent_Batched( pWearable, pTFAttacker, this, kKillEaterEvent_PlayersHit, 1 );
+			// Check Wearable instead like demoshields or manntreads
+			CTFWearable *pWearable = dynamic_cast< CTFWearable* >( info.GetWeapon() );
+			if ( pWearable )
+			{
+				EconEntity_OnOwnerKillEaterEvent_Batched( pWearable, pTFAttacker, this, kKillEaterEvent_DamageDealt, info.GetDamage() );
+				EconEntity_OnOwnerKillEaterEvent_Batched( pWearable, pTFAttacker, this, kKillEaterEvent_PlayersHit, 1 );
+			}
 		}
-	}
-	else
-	{
-		EconEntity_OnOwnerKillEaterEvent_Batched( pTFWeapon, pTFAttacker, this, kKillEaterEvent_DamageDealt, info.GetDamage() );
-		EconEntity_OnOwnerKillEaterEvent_Batched( pTFWeapon, pTFAttacker, this, kKillEaterEvent_PlayersHit, 1 );
+		else
+		{
+			EconEntity_OnOwnerKillEaterEvent_Batched( pTFWeapon, pTFAttacker, this, kKillEaterEvent_DamageDealt, info.GetDamage() );
+			EconEntity_OnOwnerKillEaterEvent_Batched( pTFWeapon, pTFAttacker, this, kKillEaterEvent_PlayersHit, 1 );
+		}
 	}
 
 	if ( bTookDamage && m_Shared.InCond( TF_COND_GAS ) )
