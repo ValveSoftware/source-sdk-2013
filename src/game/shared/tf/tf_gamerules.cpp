@@ -7733,6 +7733,23 @@ bool CTFGameRules::ClientCommand( CBaseEntity *pEdict, const CCommand &args )
 	CTFPlayer *pPlayer = ToTFPlayer( pEdict );
 
 	const char *pcmd = args[0];
+	if ( FStrEq( pcmd, "voicemenu" ) )
+	{
+		if ( args.ArgC() < 3 )
+			return true;
+
+		CTFPlayer *pTFPlayer = dynamic_cast< CTFPlayer * >( pPlayer );
+
+		if ( pTFPlayer && pTFPlayer->ShouldRunRateLimitedVoiceCommand( pcmd ) )
+		{
+			int iMenu = atoi( args[1] );
+			int iItem = atoi( args[2] );
+
+			VoiceCommand( pTFPlayer, iMenu, iItem );
+		}
+
+		return true;
+	}
 
 	if ( IsInTournamentMode() == true && IsInPreMatch() == true )
 	{
