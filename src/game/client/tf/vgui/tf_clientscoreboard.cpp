@@ -513,12 +513,10 @@ void CTFClientScoreBoardDialog::OnCommand( const char *command )
 				if ( !pIssueKeyValues )
 					return;
 
-				const char* playerName = pIssueKeyValues->GetString("name", NULL);
-				if (playerName)
+				const char* pPlayerName = pIssueKeyValues->GetString("name", NULL);
+				if (pPlayerName)
 				{
-					char FixedPlayerName[128];
-					V_snprintf(FixedPlayerName, strlen(playerName) + 2 + 1, "\"%s\"", playerName);
-					engine->ClientCmd_Unrestricted(VarArgs("spec_player %s\n", FixedPlayerName));
+					engine->ClientCmd_Unrestricted(VarArgs("spec_player \"%s\"\n", pPlayerName));
 				}
 			}
 		}
