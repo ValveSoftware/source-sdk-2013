@@ -513,10 +513,20 @@ void CTFClientScoreBoardDialog::OnCommand( const char *command )
 				if ( !pIssueKeyValues )
 					return;
 
-				int playerIndex = pIssueKeyValues->GetInt( "playerIndex", 0 );
-				if ( playerIndex > 0 && playerIndex <= MAX_PLAYERS )
+				const char* playerName = pIssueKeyValues->GetString("name", NULL);
+				if (playerName)
 				{
-					engine->ClientCmd_Unrestricted( VarArgs( "spec_player %d\n", playerIndex ) );
+					char* FixedPlayerName = new char[strlen(playerName) + 2 + 1];
+					FixedPlayerName[0] = '\"';
+					for (int i = 1; i < strlen(playerName) + 2; ++i)
+					{
+						FixedPlayerName[i] = playerName[i - 1];
+					}
+					FixedPlayerName[strlen(playerName) + 1] = '\"';
+					FixedPlayerName[strlen(playerName) + 2] = '\0';
+
+					engine->ClientCmd_Unrestricted(VarArgs("spec_player %s\n", FixedPlayerName));
+					delete[] FixedPlayerName;
 				}
 			}
 		}
