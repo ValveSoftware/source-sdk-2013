@@ -516,17 +516,9 @@ void CTFClientScoreBoardDialog::OnCommand( const char *command )
 				const char* playerName = pIssueKeyValues->GetString("name", NULL);
 				if (playerName)
 				{
-					char* FixedPlayerName = new char[strlen(playerName) + 2 + 1];
-					FixedPlayerName[0] = '\"';
-					for (int i = 1; i < strlen(playerName) + 2; ++i)
-					{
-						FixedPlayerName[i] = playerName[i - 1];
-					}
-					FixedPlayerName[strlen(playerName) + 1] = '\"';
-					FixedPlayerName[strlen(playerName) + 2] = '\0';
-
+					char FixedPlayerName[128];
+					V_snprintf(FixedPlayerName, strlen(playerName) + 2 + 1, "\"%s\"", playerName);
 					engine->ClientCmd_Unrestricted(VarArgs("spec_player %s\n", FixedPlayerName));
-					delete[] FixedPlayerName;
 				}
 			}
 		}
