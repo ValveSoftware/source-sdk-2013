@@ -140,6 +140,8 @@ public:
 	virtual void			OnDemoRecordStart( char const* pDemoBaseName ) OVERRIDE {}
 	virtual void			OnDemoRecordStop() OVERRIDE {}
 
+	virtual void			RemoveFilesInPath( const char* pszPath ) const;
+
 protected:
 	CBaseViewport			*m_pViewport;
 

@@ -119,8 +119,6 @@ ConVar fov_desired( "fov_desired", "75", FCVAR_ARCHIVE | FCVAR_USERINFO, "Sets t
 #define TF_HIGHFIVE_HINT_MINTIMEBETWEEN	10.0f
 ConVar tf_highfive_hintcount( "tf_highfive_hintcount", "0", FCVAR_CLIENTDLL | FCVAR_DONTRECORD | FCVAR_ARCHIVE, "Counts the number of times the high five hint has been displayed", true, 0, false, 0 );
 
-ConVar tf_delete_temp_files( "tf_delete_temp_files", "1", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Delete custom player sprays and other temp files during shutdown" );
-
 ConVar tf_taunt_always_show_hint( "tf_taunt_always_show_hint", "1", FCVAR_CLIENTDLL );
 extern ConVar tf_allow_all_team_partner_taunt;
 extern ConVar tf_mvm_buybacks_method;
@@ -527,13 +525,6 @@ void ClientModeTFNormal::Init()
 //-----------------------------------------------------------------------------
 void ClientModeTFNormal::Shutdown()
 {
-	if ( tf_delete_temp_files.GetBool() )
-	{
-		RemoveFilesInPath( "materials/temp" );
-		RemoveFilesInPath( "download/user_custom" );
-		RemoveFilesInPath( "sound/temp" );
-	}
-
 	DestroyStatsSummaryPanel();
 }
 
@@ -1793,36 +1784,6 @@ void ClientModeTFNormal::AskFavoriteOrBlacklist() const
 				OnAskBlacklistDialogButtonPressed, NULL );
 		}
 	}
-}
-
-
-//----------------------------------------------------------------------------
-void ClientModeTFNormal::RemoveFilesInPath( const char *pszPath ) const
-{
-	FileFindHandle_t hFind = NULL;
-
-	const char *pszSearch = CFmtStr( "%s/*", pszPath );
-	char const *szFileName = g_pFullFileSystem->FindFirstEx( pszSearch, "MOD", &hFind );
-	while ( szFileName )
-	{
-		if ( szFileName[ 0 ] != '.' )
-		{
-			CFmtStr fmtFilename( "%s/%s", pszPath, szFileName );
-
-			if ( g_pFullFileSystem->IsDirectory( fmtFilename, "MOD" ) )
-			{
-				RemoveFilesInPath( fmtFilename );
-			}
-			else
-			{
-				g_pFullFileSystem->RemoveFile( fmtFilename, "MOD" );
-			}
-		}
-
-		szFileName = g_pFullFileSystem->FindNext( hFind );
-	}
-
-	g_pFullFileSystem->FindClose( hFind );
 }
 
 
