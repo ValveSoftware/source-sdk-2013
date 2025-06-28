@@ -526,6 +526,8 @@ void ClientModeTFNormal::Init()
 void ClientModeTFNormal::Shutdown()
 {
 	DestroyStatsSummaryPanel();
+
+	BaseClass::Shutdown();
 }
 
 void ClientModeTFNormal::InitViewport()
