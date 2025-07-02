@@ -8254,7 +8254,7 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 {
 	if ( m_takedamage != DAMAGE_YES )
 		return;
-	
+
 	CTFPlayer *pAttacker = ToTFPlayer( info.GetAttacker() );
 	if ( pAttacker )
 	{
@@ -8397,7 +8397,7 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 		// This does smaller splotches on the guy and splats blood on the world.
 		TraceBleed( info_modified.GetDamage(), vecDir, ptr, info_modified.GetDamageType() );
 	}
-	
+
 	AddMultiDamage( info_modified, this );
 }
 
