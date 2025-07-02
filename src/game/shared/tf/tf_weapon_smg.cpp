@@ -178,6 +178,11 @@ void CTFChargedSMG::SecondaryAttack()
 void CTFChargedSMG::ApplyOnHitAttributes( CBaseEntity *pVictimBaseEntity, CTFPlayer *pAttacker, const CTakeDamageInfo &info )
 {
 	BaseClass::ApplyOnHitAttributes( pVictimBaseEntity, pAttacker, info );
+
+	CTFPlayer* pVictim = ToTFPlayer(pVictimBaseEntity);
+	if (pVictim && pVictim->m_Shared.InCond(TF_COND_DISGUISED))
+		return;
+
 	if ( pAttacker )
 	{
 		CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );

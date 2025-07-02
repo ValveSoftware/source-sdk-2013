@@ -1010,13 +1010,16 @@ void CTFProjectile_Cleaver::OnHit( CBaseEntity *pOther )
 
 	CBaseEntity *pInflictor = GetLauncher();
 
-	float flLifeTime = gpGlobals->curtime - m_flCreationTime;
-	if ( flLifeTime >= FLIGHT_TIME_TO_REDUCE_COOLDOWN )
+	if (!pPlayer->m_Shared.InCond(TF_COND_DISGUISED))
 	{
-		auto pLauncher = dynamic_cast<CTFWeaponBase*>( pInflictor );
-		if ( pLauncher && pOwner != pPlayer && pLauncher->HasEffectBarRegeneration() )
+		float flLifeTime = gpGlobals->curtime - m_flCreationTime;
+		if (flLifeTime >= FLIGHT_TIME_TO_REDUCE_COOLDOWN)
 		{
-			pLauncher->DecrementBarRegenTime( 1.5f );
+			auto pLauncher = dynamic_cast<CTFWeaponBase*>(pInflictor);
+			if (pLauncher && pOwner != pPlayer && pLauncher->HasEffectBarRegeneration())
+			{
+				pLauncher->DecrementBarRegenTime(1.5f);
+			}
 		}
 	}
 
