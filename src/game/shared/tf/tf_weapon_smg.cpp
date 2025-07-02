@@ -180,13 +180,14 @@ void CTFChargedSMG::ApplyOnHitAttributes( CBaseEntity *pVictimBaseEntity, CTFPla
 	BaseClass::ApplyOnHitAttributes( pVictimBaseEntity, pAttacker, info );
 
 	CTFPlayer* pVictim = ToTFPlayer(pVictimBaseEntity);
+	bool bIsVictimDisguised = false;
 	if (pVictim && pVictim->m_Shared.InCond(TF_COND_DISGUISED))
-		return;
+		bIsVictimDisguised = true;
 
 	if ( pAttacker )
 	{
 		CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
-		if ( pPlayer && !pPlayer->m_Shared.InCond( TF_COND_ENERGY_BUFF ) )
+		if ( pPlayer && !pPlayer->m_Shared.InCond( TF_COND_ENERGY_BUFF ) && !bIsVictimDisguised)
 		{
 			float damage = info.GetDamage();
 			float flChargeRate = 0.0f;
