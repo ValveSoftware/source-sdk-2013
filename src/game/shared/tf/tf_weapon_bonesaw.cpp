@@ -87,7 +87,14 @@ void CTFBonesaw::DoMeleeDamage( CBaseEntity* ent, trace_t& trace )
 			CTFPlayer *pTFOwner = ToTFPlayer( GetOwnerEntity() );
 			if ( pTFOwner && pTFOwner->GetTeamNumber() != ent->GetTeamNumber() )
 			{
-				if (!ToTFPlayer(ent)->m_Shared.InCond(TF_COND_DISGUISED))
+				float MeleeDamage = 0.f;
+#ifndef CLIENT_DLL
+				int iCustomDamage = GetDamageCustom();
+				int iDmgType = DMG_MELEE | DMG_NEVERGIB | DMG_CLUB;
+				MeleeDamage = GetMeleeDamage(ent, &iDmgType, &iCustomDamage);
+#endif
+				if (!ToTFPlayer(ent)->m_Shared.InCond(TF_COND_DISGUISED) || 
+					(ent->GetHealth() - MeleeDamage <= 0.f))
 				{
 					int iDecaps = pTFOwner->m_Shared.GetDecapitations() + 1;
 

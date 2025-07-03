@@ -9102,7 +9102,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		CTFBonesaw *pBoneSaw = static_cast< CTFBonesaw* >( pWeapon );
 		if ( pBoneSaw->GetBonesawType() == BONESAW_UBER_SAVEDONDEATH )
 		{
-			if (!m_Shared.InCond(TF_COND_DISGUISED))
+			if (!m_Shared.InCond(TF_COND_DISGUISED) || (GetHealth() - info.GetDamage() <= 0.f))
 			{
 				// Spawn their spleen
 				CPhysicsProp* pRandomInternalOrgan = dynamic_cast<CPhysicsProp*>(CreateEntityByName("prop_physics_override"));
@@ -10522,6 +10522,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	outParams.bSelfBlastDmg = false;
 	outParams.bSendPreFeignDamage = false;
 	outParams.bPlayDamageReductionSound = false;
+	float flOldHealth = GetHealth();
 	float realDamage = info.GetDamage();
 	int iPreFeignDamage = realDamage;
 	if ( TFGameRules() )
@@ -10674,7 +10675,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		if ( pSniper && ( pSniper->IsZoomed() || ( pSniper->GetWeaponID() == TF_WEAPON_SNIPERRIFLE_CLASSIC ) ) )
 		{
 			float flJarateTime = pSniper->GetJarateTime();
-			if ( flJarateTime >= 1.f && !m_Shared.InCond(TF_COND_DISGUISED) )
+			if ( flJarateTime >= 1.f && (!m_Shared.InCond(TF_COND_DISGUISED) || (flOldHealth - realDamage <= 0.f)))
 			{
 				if ( !m_Shared.IsInvulnerable() && !m_Shared.InCond( TF_COND_PHASE ) && !m_Shared.InCond( TF_COND_PASSTIME_INTERCEPTION ) )
 				{
@@ -10839,7 +10840,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 				DispatchParticleEffect( "bot_impact_heavy", GetAbsOrigin(), vec3_angle );
 			}
 		}
-		else
+		else if (!m_Shared.InCond(TF_COND_DISGUISED))
 		{
 			CPVSFilter filter( vDamagePos );
 			TE_TFBlood( filter, 0.0, vDamagePos, -vecDir, entindex() );

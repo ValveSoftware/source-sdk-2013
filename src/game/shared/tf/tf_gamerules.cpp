@@ -6774,7 +6774,7 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 		{
 			int iAddCloakOnHit = 0;
 			CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFAttacker->GetActiveWeapon(), iAddCloakOnHit, add_cloak_on_hit );
-			if ( iAddCloakOnHit > 0 && !pVictim->m_Shared.InCond(TF_COND_DISGUISED))
+			if ( iAddCloakOnHit > 0 && (!pVictim->m_Shared.InCond(TF_COND_DISGUISED) || (pVictim->GetHealth() - flDamage <= 0.f)))
 			{
 				pTFAttacker->m_Shared.AddToSpyCloakMeter( iAddCloakOnHit, true );
 			}
@@ -7490,7 +7490,7 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 				}
 			}
 
-			if (pVictim && !pVictim->m_Shared.InCond(TF_COND_DISGUISED))
+			if (pVictim && (!pVictim->m_Shared.InCond(TF_COND_DISGUISED) || (pVictim->GetHealth() - flRealDamage <= 0.f)))
 			{
 				int iHypeOnDamage = 0;
 				CALL_ATTRIB_HOOK_INT_ON_OTHER(pTFAttacker, iHypeOnDamage, hype_on_damage);

@@ -1062,7 +1062,14 @@ void CTFProjectile_Cleaver::OnHit( CBaseEntity *pOther )
 	EmitSound( filter, entindex(), params );
 
 	CSingleUserRecipientFilter attackerFilter( pOwner );
-	EmitSound( attackerFilter, pOwner->entindex(), params );
+	if (!pPlayer->m_Shared.InCond(TF_COND_DISGUISED))
+	{
+		EmitSound( attackerFilter, pOwner->entindex(), params );
+	}
+	else
+	{
+		EmitSound(TF_WEAPON_CLEAVER_IMPACT_WORLD_SOUND);
+	}
 
 	RemoveCleaver();
 
