@@ -1359,7 +1359,7 @@ int CTFGameMovement::CheckStuck( void )
 		const Vector &originalPos = mv->GetAbsOrigin();
 		trace_t traceresult;
 
-		TracePlayerBBox( originalPos, originalPos, PlayerSolidMask(), COLLISION_GROUP_PLAYER_MOVEMENT, traceresult );
+		TracePlayerBBox( originalPos, originalPos, PlayerSolidMask() | CONTENTS_STUCK, COLLISION_GROUP_PLAYER_MOVEMENT, traceresult );
 
 #ifdef GAME_DLL
 		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && m_pTFPlayer && m_pTFPlayer->GetTeamNumber() == TF_TEAM_PVE_INVADERS )
@@ -1404,7 +1404,7 @@ int CTFGameMovement::CheckStuck( void )
 				m_isPassingThroughEnemies = true;
 
 				// verify position is now clear
-				TracePlayerBBox( originalPos, originalPos, PlayerSolidMask(), COLLISION_GROUP_PLAYER_MOVEMENT, traceresult );
+				TracePlayerBBox( originalPos, originalPos, PlayerSolidMask() | CONTENTS_STUCK, COLLISION_GROUP_PLAYER_MOVEMENT, traceresult );
 
 				if ( !traceresult.DidHit() )
 				{
@@ -1428,7 +1428,7 @@ int CTFGameMovement::CheckStuck( void )
 					tryPos = mv->GetAbsOrigin();
 					tryPos.z += shift;
 
-					TracePlayerBBox( tryPos, tryPos, PlayerSolidMask(), COLLISION_GROUP_PLAYER_MOVEMENT, traceresult );
+					TracePlayerBBox( tryPos, tryPos, PlayerSolidMask() | CONTENTS_STUCK, COLLISION_GROUP_PLAYER_MOVEMENT, traceresult );
 					if ( !traceresult.DidHit() || ( traceresult.m_pEnt && traceresult.m_pEnt->IsPlayer() ) )
 					{
 						// no longer stuck
@@ -2320,7 +2320,10 @@ void CTFGameMovement::TracePlayerBBox( const Vector& start, const Vector& end, u
 		return BaseClass::TracePlayerBBox( start, end, fMask, collisionGroup, pm );
 
 	Ray_t ray;
-	ray.Init( start, end, GetPlayerMins(), GetPlayerMaxs() );
+	Vector stuckModifier = (fMask & CONTENTS_STUCK ? Vector{ 1, 1, 1 } : Vector{ 0, 0, 0 });
+	Vector playerMins = GetPlayerMins() + stuckModifier;
+	Vector playerMaxs = GetPlayerMaxs() - stuckModifier;
+	ray.Init(start, end, playerMins, playerMaxs);
 	
 	CTraceFilterObject traceFilter( mv->m_nPlayerHandle.Get(), collisionGroup );
 
