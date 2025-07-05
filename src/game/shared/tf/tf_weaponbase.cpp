@@ -2090,8 +2090,11 @@ void CTFWeaponBase::IncrementAmmo( void )
 		{
 			if ( pPlayer && pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 )
 			{
-				m_iClip1 = MIN( ( m_iClip1 + 1 ), GetMaxClip1() );
-				pPlayer->RemoveAmmo( 1, m_iPrimaryAmmoType );
+				if ( m_iClip1 < GetMaxClip1() )
+				{
+					m_iClip1++;
+					pPlayer->RemoveAmmo( 1, m_iPrimaryAmmoType );
+				}
 			}
 		}
 	}
