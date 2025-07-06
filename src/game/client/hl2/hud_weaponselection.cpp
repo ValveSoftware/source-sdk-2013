@@ -699,10 +699,11 @@ void CHudWeaponSelection::Paint()
 												bSelected ? selectedColor : m_BoxColor, 
 												GetWeaponBoxAlpha( bSelected ), 
 												bDrawBucketNumber ? i + 1 : -1 );
+
+							// move down to the next bucket
+							ypos += (largeBoxTall + m_flBoxGap);
 						}
 
-						// move down to the next bucket
-						ypos += (largeBoxTall + m_flBoxGap);
 						bDrawBucketNumber = false;
 					}
 
