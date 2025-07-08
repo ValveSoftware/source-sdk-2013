@@ -85,6 +85,9 @@ ConVar hud_combattext_red( "hud_combattext_red", "255", FCVAR_USERINFO | FCVAR_A
 ConVar hud_combattext_green( "hud_combattext_green", "0", FCVAR_USERINFO | FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBOX );
 ConVar hud_combattext_blue( "hud_combattext_blue", "0", FCVAR_USERINFO | FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBOX );
 
+ConVar hud_accounttext_batching( "hud_metalaccounttext_batching", "1", FCVAR_USERINFO | FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBOX, "If set to 1, numbers that are too close together are merged.");
+ConVar hud_accounttext_batching_window( "hud_metalaccounttext_batching_window", "0.5", FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBOX, "Maximum delay between metal change events in order to batch numbers.", true, 0.1, true, 2.0 );
+
 ConVar tf_dingalingaling( "tf_dingalingaling", "0", FCVAR_ARCHIVE, "If set to 1, play a sound everytime you injure an enemy. The sound can be customized by replacing the 'tf/sound/ui/hitsound.wav' file." );
 ConVar tf_dingaling_volume( "tf_dingaling_volume", "0.75", FCVAR_ARCHIVE, "Desired volume of the hit sound.", true, 0.0, true, 1.0 );
 ConVar tf_dingaling_pitchmindmg( "tf_dingaling_pitchmindmg", "100", FCVAR_ARCHIVE, "Desired pitch of the hit sound when a minimal damage hit (<= 10 health) is done.", true, 1, true, 255 );
@@ -1025,8 +1028,8 @@ account_delta_t *CAccountPanel::OnAccountValueChanged( int iOldValue, int iNewVa
 		pNewDeltaItem->m_nHStart = m_flDeltaItemStartPos;
 		pNewDeltaItem->m_nHEnd = m_flDeltaItemEndPos;
 		pNewDeltaItem->m_bWorldSpace = false;
-		pNewDeltaItem->m_nSourceID = -1;
-		pNewDeltaItem->m_flBatchWindow = 0.f;
+		pNewDeltaItem->m_nSourceID = -type - 1;
+		pNewDeltaItem->m_flBatchWindow = hud_accounttext_batching.GetBool() ? hud_accounttext_batching_window.GetFloat() : 0.f;
 		pNewDeltaItem->m_bLargeFont = false;
 		pNewDeltaItem->m_eDataType = type;
 		pNewDeltaItem->m_wzText[0] = NULL;
