@@ -610,12 +610,12 @@ void CTargetID::PerformLayout( void )
 		iWidth += m_pAvatarImage->GetWide() + XRES( 2 );
 	}
 
-	int iTextW, iTextH;
+	int iTextW;
 	int iDataW, iDataH;
 
 	if ( m_pTargetNameLabel && m_pTargetDataLabel )
 	{
-		m_pTargetNameLabel->GetContentSize( iTextW, iTextH );
+		m_pTargetNameLabel->GetTextImage()->GetDrawWidth(iTextW);
 		m_pTargetDataLabel->GetContentSize( iDataW, iDataH );
 		iWidth += MAX(iTextW,iDataW);
 
