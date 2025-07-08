@@ -67,6 +67,8 @@ public:
 
 	vgui::SectionedListPanel *GetPlayerList( void ){ return m_pPlayerList; }
 
+	void InitializeInputScheme( bool bUseMouse );
+
 private:
 	void InitPlayerList( vgui::IScheme *pScheme );
 	void UpdatePlayerList();

@@ -863,6 +863,12 @@ void CTFClientScoreBoardDialog::InitializeInputScheme( void )
 		m_pPlayerListRed->GetScrollBar()->GetButton( 1 )->SetMouseInputEnabled( UseMouseMode() );
 		m_pPlayerListRed->GetScrollBar()->GetSlider()->SetMouseInputEnabled( UseMouseMode() );
 	}
+
+	// MvM
+	if ( m_bIsPVEMode )
+	{
+		m_pMvMScoreboard->InitializeInputScheme( UseMouseMode() );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2298,7 +2304,12 @@ SectionedListPanel *CTFClientScoreBoardDialog::GetSelectedPlayerList( void )
 	SectionedListPanel *pList = NULL;
 
 	// navigation
-	if ( m_pPlayerListBlue->GetSelectedItem() >= 0 )
+	if ( m_bIsPVEMode )
+	{
+		// only one list in MvM
+		pList = m_pMvMScoreboard->GetPlayerList();
+	}
+	else if ( m_pPlayerListBlue->GetSelectedItem() >= 0 )
 	{
 		pList = m_pPlayerListBlue;
 	}

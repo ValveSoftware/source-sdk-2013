@@ -1182,6 +1182,19 @@ void SectionedListPanel::SetProportional(bool state)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: passes on mouse input state to children
+//-----------------------------------------------------------------------------
+void SectionedListPanel::SetMouseInputEnabled( bool state )
+{
+	BaseClass::SetMouseInputEnabled( state );
+
+	FOR_EACH_LL( m_Items, i )
+	{
+		m_Items[ i ]->SetMouseInputEnabled( state );
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: sets whether or not the vertical scrollbar should ever be displayed
 //-----------------------------------------------------------------------------
 void SectionedListPanel::SetVerticalScrollbar(bool state)
