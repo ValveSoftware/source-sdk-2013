@@ -863,7 +863,7 @@ int CTriggerHurt::HurtAllTouchers( float dt )
 		}
 	}
 
-	if( m_damageModel == DAMAGEMODEL_DOUBLE_FORGIVENESS )
+	if( m_damageModel == DAMAGEMODEL_DOUBLE_FORGIVENESS || m_damageModel == DAMAGEMODEL_DOUBLE )
 	{
 		// Hurt someone! double the damage
 		m_flDamage *= 2.0f;
