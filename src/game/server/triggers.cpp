@@ -834,6 +834,12 @@ void CTriggerHurt::EndTouch( CBaseEntity *pOther )
 #define TRIGGER_HURT_FORGIVE_TIME	3.0f	// time in seconds
 int CTriggerHurt::HurtAllTouchers( float dt )
 {
+	// Reset the damage if it's time. (hence, the forgiveness)
+	if ( m_damageModel == DAMAGEMODEL_DOUBLE_FORGIVENESS && gpGlobals->curtime > m_flDmgResetTime )
+	{
+		m_flDamage = m_flOriginalDamage;
+	}
+
 	int hurtCount = 0;
 	// half second worth of damage
 	float fldmg = m_flDamage * dt;
@@ -859,32 +865,21 @@ int CTriggerHurt::HurtAllTouchers( float dt )
 
 	if( m_damageModel == DAMAGEMODEL_DOUBLE_FORGIVENESS )
 	{
-		if( hurtCount == 0 )
-		{
-			if( gpGlobals->curtime > m_flDmgResetTime  )
-			{
-				// Didn't hurt anyone. Reset the damage if it's time. (hence, the forgiveness)
-				m_flDamage = m_flOriginalDamage;
-			}
-		}
-		else
-		{
-			// Hurt someone! double the damage
-			m_flDamage *= 2.0f;
+		// Hurt someone! double the damage
+		m_flDamage *= 2.0f;
 
-			if( m_flDamage > m_flDamageCap )
-			{
-				// Clamp
-				m_flDamage = m_flDamageCap;
-			}
-
-			// Now, put the damage reset time into the future. The forgive time is how long the trigger
-			// must go without harming anyone in order that its accumulated damage be reset to the amount
-			// set by the level designer. This is a stop-gap for an exploit where players could hop through
-			// slime and barely take any damage because the trigger would reset damage anytime there was no
-			// one in the trigger when this function was called. (sjb)
-			m_flDmgResetTime = gpGlobals->curtime + TRIGGER_HURT_FORGIVE_TIME;
+		if( m_flDamage > m_flDamageCap )
+		{
+			// Clamp
+			m_flDamage = m_flDamageCap;
 		}
+
+		// Now, put the damage reset time into the future. The forgive time is how long the trigger
+		// must go without harming anyone in order that its accumulated damage be reset to the amount
+		// set by the level designer. This is a stop-gap for an exploit where players could hop through
+		// slime and barely take any damage because the trigger would reset damage anytime there was no
+		// one in the trigger when this function was called. (sjb)
+		m_flDmgResetTime = gpGlobals->curtime + TRIGGER_HURT_FORGIVE_TIME;
 	}
 
 	return hurtCount;
