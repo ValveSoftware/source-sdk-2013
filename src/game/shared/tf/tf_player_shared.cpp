@@ -12339,6 +12339,9 @@ bool CTFPlayer::CanPickupBuilding( CBaseObject *pPickupObject )
 	if ( pPickupObject->GetUpgradeLevel() != pPickupObject->GetHighestUpgradeLevel() )
 		return false;
 
+	if ( !IsAlive() )
+		return false;
+
 	if ( m_Shared.IsCarryingObject() )
 		return false;
 
