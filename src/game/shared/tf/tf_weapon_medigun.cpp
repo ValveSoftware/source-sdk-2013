@@ -458,6 +458,7 @@ bool CWeaponMedigun::Holster( CBaseCombatWeapon *pSwitchingTo )
 //-----------------------------------------------------------------------------
 void CWeaponMedigun::UpdateOnRemove( void )
 {
+	m_bHealing = false;
 	RemoveHealingTarget( true );
 	m_bAttacking = false;
 	m_bChargeRelease = false;
