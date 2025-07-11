@@ -88,13 +88,11 @@ static void *Launcher_GetProcAddress( void *pHandle, const char *pszName )
 
 static const AppId_t k_unSDK2013MPAppId = 243750;
 
-// #ifdef MOD_LAUNCHER
-// static const AppId_t k_unMyModAppid = MOD_APPID;
-// #else
-// static const AppId_t k_unMyModAppid = k_unSDK2013MPAppId;
-// #endif
-
-static const AppId_t k_unMyModAppid = 3554290;
+#ifdef MOD_LAUNCHER
+static const AppId_t k_unMyModAppid = MOD_APPID;
+#else
+static const AppId_t k_unMyModAppid = k_unSDK2013MPAppId;
+#endif
 
 static bool s_bInittedSteam = false;
 
