@@ -733,6 +733,7 @@ bool IsCreepWaveMode( void ) const;
 
 	bool IsUsingSpells( void ) const;
 	bool IsUsingGrapplingHook( void ) const;
+	bool ShouldProvidePowerupBottle( void );
 
 	bool IsTruceActive( void ) const; 
 

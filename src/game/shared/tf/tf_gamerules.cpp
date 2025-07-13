@@ -2124,7 +2124,7 @@ bool CTFGameRules::GameModeUsesUpgrades( void )
 	if ( m_nForceUpgrades == 1 )
 		return false;
 
-	if ( m_nForceUpgrades == 2 )
+	if ( m_nForceUpgrades == 2 || m_nForceUpgrades == 3 )
 		return true;
 
 	if ( IsMannVsMachineMode() || IsBountyMode() )
@@ -3699,6 +3699,12 @@ bool CTFGameRules::CanInitiateDuels( void )
 		return false;
 
 	return true;
+}
+
+//-----------------------------------------------------------------------------
+bool CTFGameRules::ShouldProvidePowerupBottle( void )
+{
+	return GameModeUsesUpgrades() && m_nForceUpgrades != 3;
 }
 
 //-----------------------------------------------------------------------------
