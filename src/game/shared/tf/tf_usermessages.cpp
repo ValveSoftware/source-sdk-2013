@@ -32,7 +32,7 @@ void RegisterUserMessages()
 
 	usermessages->Register( "SendAudio", -1 );	// play radion command
 
-	usermessages->Register( "VoiceMask", VOICE_MAX_PLAYERS_DW*4 * 2 + 1 );
+	usermessages->Register( "VoiceMask", VOICE_MAX_PLAYERS_DW * 4 * 3 + 1 );
 	usermessages->Register( "RequestState", 0 );
 
 	usermessages->Register( "Damage", -1 );		// for HUD damage indicators

@@ -317,7 +317,7 @@ void CDrawingPanel::FireGameEvent( IGameEvent *event )
 			// If a player is muted for voice, also mute them for lines because jerks gonna jerk.
 			if ( cl_mute_all_comms.GetBool() && ( iIndex != 0 ) )
 			{
-				if ( GetClientVoiceMgr() && GetClientVoiceMgr()->IsPlayerBlocked( iIndex ) )
+				if ( GetClientVoiceMgr() && GetClientVoiceMgr()->IsPlayerBlocked( iIndex, BANMGR_FLAG_VOICE | BANMGR_FLAG_CHAT ) )
 				{
 					ClearLines( iIndex );
 					return;
