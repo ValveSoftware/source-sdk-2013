@@ -645,6 +645,9 @@ bool CTFInventoryManager::SlotContainsBaseItems( EEquipType_t eType, int iSlot )
 
 		if ( TFGameRules() && TFGameRules()->IsUsingGrapplingHook() )
 			return true;
+
+		if ( TFGameRules() && TFGameRules()->ShouldProvidePowerupBottle() )
+			return true;
 	}
 	// Normal game
 	return iSlot < LOADOUT_POSITION_HEAD;
