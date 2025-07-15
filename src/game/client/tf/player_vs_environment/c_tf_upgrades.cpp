@@ -1197,11 +1197,11 @@ void CHudUpgradePanel::UpdateJoystickControls( void )
 	}
 
 	bool bUp = ::input->Joystick_GetForward() < 0.0f || ::input->Joystick_GetPitch() < 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_UP ) || vgui::input()->IsKeyDown( KEY_UP ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_DPAD_UP );
-	bool bDown = ::input->Joystick_GetForward() > 0.0f || ::input->Joystick_GetPitch() > 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_DOWN ) || vgui::input()->IsKeyDown( KEY_DOWN ) || vgui::input()->IsKeyDown(STEAMCONTROLLER_DPAD_DOWN);
+	bool bDown = ::input->Joystick_GetForward() > 0.0f || ::input->Joystick_GetPitch() > 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_DOWN ) || vgui::input()->IsKeyDown( KEY_DOWN ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_DPAD_DOWN );
 	bool bNavUpDownPressed = bUp || bDown;
 
-	bool bLeft = ::input->Joystick_GetSide() < 0.0f || ::input->Joystick_GetYaw() < 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_LEFT ) || vgui::input()->IsKeyDown( KEY_LEFT ) || vgui::input()->IsKeyDown(STEAMCONTROLLER_DPAD_LEFT);
-	bool bRight = ::input->Joystick_GetSide() > 0.0f || ::input->Joystick_GetYaw() > 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_RIGHT ) || vgui::input()->IsKeyDown( KEY_RIGHT ) || vgui::input()->IsKeyDown(STEAMCONTROLLER_DPAD_RIGHT);
+	bool bLeft = ::input->Joystick_GetSide() < 0.0f || ::input->Joystick_GetYaw() < 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_LEFT ) || vgui::input()->IsKeyDown( KEY_LEFT ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_DPAD_LEFT );
+	bool bRight = ::input->Joystick_GetSide() > 0.0f || ::input->Joystick_GetYaw() > 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_RIGHT ) || vgui::input()->IsKeyDown( KEY_RIGHT ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_DPAD_RIGHT );
 	bool bNavLeftRightPressed = bLeft || bRight;
 
 	bool bAccept = vgui::input()->IsKeyDown( KEY_XBUTTON_A ) || vgui::input()->IsKeyDown( KEY_ENTER ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_A );
