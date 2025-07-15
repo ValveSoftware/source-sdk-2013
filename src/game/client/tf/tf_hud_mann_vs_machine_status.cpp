@@ -851,7 +851,14 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 
 				if ( pPanel->m_pEnemyCountImageBG  )
 				{
-					pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrNormal );
+					if ( support[i].iFlags & MVM_CLASS_FLAG_MINIBOSS )
+					{
+						pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrMiniBoss );
+					}
+					else
+					{
+						pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrNormal );
+					}
 				}
 
 				if ( pPanel->m_pEnemyCountCritBG )

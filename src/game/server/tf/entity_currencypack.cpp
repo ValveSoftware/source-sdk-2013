@@ -210,15 +210,17 @@ void CCurrencyPack::ComeToRest( void )
 			}
 		}
 	}
+
 	// Or a func_respawnroom (robots can drop money in their own spawn)
 	for ( int i = 0; i < IFuncRespawnRoomAutoList::AutoList().Count(); i++ )
 	{
-		CFuncRespawnRoom *pRespawnRoom = static_cast<CFuncRespawnRoom*>( IFuncRespawnRoomAutoList::AutoList()[i] );
+		CFuncRespawnRoom *pRespawnRoom = static_cast<CFuncRespawnRoom *>( IFuncRespawnRoomAutoList::AutoList()[ i ] );
 		Vector vecMins, vecMaxs;
 		pRespawnRoom->GetCollideable()->WorldSpaceSurroundingBounds( &vecMins, &vecMaxs );
 		if ( IsPointInBox( GetCollideable()->GetCollisionOrigin(), vecMins, vecMaxs ) )
 		{
 			TFGameRules()->DistributeCurrencyAmount( m_nAmount );
+
 			m_bTouched = true;
 			UTIL_Remove( this );
 		}
