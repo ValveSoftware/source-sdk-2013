@@ -2325,7 +2325,7 @@ int	CTFClientScoreBoardDialog::HudElementKeyInput( int down, ButtonCode_t keynum
 
 	if ( tf_scoreboard_mouse_mode.GetInt() == 2 )
 	{
-		if ( !m_bMouseActivated && ( keynum == MOUSE_LEFT || keynum == MOUSE_RIGHT ) )
+		if ( !m_bMouseActivated && ( keynum == MOUSE_RIGHT ) )
 		{
 			m_bMouseActivated = true;
 			InitializeInputScheme();
