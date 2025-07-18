@@ -1453,6 +1453,11 @@ bool CTFPlayerAnimState::HandleJumping( Activity &idealActivity )
 		{
 			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWpn, flJumpMod, mod_jump_height_from_weapon );
 		}
+
+		if ( m_pTFPlayer->m_Shared.GetCarryingRuneType() == RUNE_AGILITY )
+		{
+			flJumpMod *= 1.8f;
+		}
 	}
 
 	if ( bValidAirWalkClass && ( vecVelocity.z > 300.0f * flJumpMod || m_bInAirWalk || m_pTFPlayer->GetGrapplingHookTarget() != NULL ) && !bInDuck )
