@@ -10733,7 +10733,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 			{
 				int iExplosiveShot = 0;
 				CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFAttacker, iExplosiveShot, explosive_sniper_shot );
-				if ( iExplosiveShot )
+				if ( iExplosiveShot && !m_Shared.IsInvulnerable() )
 				{
 					pSniper->ExplosiveHeadShot( pTFAttacker, this );
 				}
