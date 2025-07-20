@@ -3727,6 +3727,7 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropFloat( RECVINFO( m_flMvMLastDamageTime ) ),
 	RecvPropFloat( RECVINFO_NAME( m_flMvMLastDamageTime, "m_flLastDamageTime" ) ), // Renamed
 	RecvPropInt( RECVINFO( m_iSpawnCounter ) ),
+	RecvPropBool( RECVINFO( m_bFlipViewModels ) ),
 	RecvPropBool( RECVINFO( m_bArenaSpectator ) ),
 
 	RecvPropDataTable( RECVINFO_DT( m_AttributeManager ), 0, &REFERENCE_RECV_TABLE(DT_AttributeManager) ),

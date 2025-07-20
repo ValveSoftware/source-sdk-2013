@@ -662,6 +662,8 @@ public:
 	int				m_iSpawnCounter;
 	bool			m_bArenaSpectator;
 
+	bool			m_bFlipViewModels;
+
 	bool			m_bIsMiniBoss;
 	bool			m_bIsABot;
 	int				m_nBotSkill;

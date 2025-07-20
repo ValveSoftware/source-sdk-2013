@@ -982,7 +982,7 @@ public:
 
 	int					m_iOldStunFlags;
 
-	bool				m_bFlipViewModels;
+	CNetworkVar( bool, m_bFlipViewModels );
 	int					m_iBlastJumpState;
 	float				m_flBlastJumpLandTime;
 	bool				m_bTakenBlastDamageSinceLastMovement;
