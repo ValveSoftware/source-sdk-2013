@@ -2,7 +2,7 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-name: Windows
+name: Half Life 2 Deathmatch (Windows)
 on:
   push:
     branches: [ "master" ]
@@ -18,14 +18,14 @@ env:
 permissions:
   contents: read
 jobs:
-  build_windows:
+  build_windows_hl2mp:
     runs-on: windows-latest
     steps:
     - name: Checkout Files
       uses: actions/checkout@v4
     - name: Generate Visual Studio Projects
       working-directory: ./src/
-      run: ./createallprojects.bat
+      run: ./devtools/bin/vpc.exe /hl2mp /define:SOURCESDK +everything /mksln everything.sln
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
     - name: Build
