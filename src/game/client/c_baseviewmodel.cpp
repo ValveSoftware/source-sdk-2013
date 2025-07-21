@@ -95,19 +95,17 @@ void FormatViewModelAttachment( Vector &vOrigin, bool bInverse )
 #ifdef TF_CLIENT_DLL
 bool TeamFortress_ShouldFlipClientViewModel( void )
 {
-	bool bFlipViewModels = cl_flipviewmodels.GetBool();
-	
 	if ( IsLocalPlayerSpectator() )
 	{
 		// Use spectated client's handedness preference
 		C_TFPlayer *pSpecTarget = ToTFPlayer( UTIL_PlayerByIndex( GetSpectatorTarget() ) );
 		if ( pSpecTarget )
 		{
-			bFlipViewModels = pSpecTarget->m_bFlipViewModels;
+			return pSpecTarget->m_bFlipViewModels;
 		}
 	}
 
-	return bFlipViewModels;
+	return cl_flipviewmodels.GetBool();
 }
 #endif //TF_CLIENT_DLL
 

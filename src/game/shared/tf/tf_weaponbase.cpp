@@ -6774,7 +6774,7 @@ void CTFWeaponBase::AddStatTrakModel( CEconItemView *pItem, int nStatTrakType, A
 				pStatTrakEnt->m_nSkin = nSkin;
 				m_viewmodelStatTrakAddon = pStatTrakEnt;
 				
-				if ( IsViewModelFlipped() )
+				if ( TeamFortress_ShouldFlipClientViewModel() )
 				{
 					pStatTrakEnt->SetBodygroup( 1, 1 ); // use a special mirror-image stattrak module that appears correct for lefties
 					flScale *= -1.0f;					// flip scale
