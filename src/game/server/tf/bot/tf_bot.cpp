@@ -235,6 +235,18 @@ const char *GetRandomBotName( void )
 		"Kill Me",
 		"Glorified Toaster with Legs",
 
+		"Engineer Gaming",
+		"Stalemate Resolution Associate",
+		"Biru wa bakada", // Translates to: "Bill's an idiot!"
+		// Used Google Translate so might be slightly off
+		"Gordon Freeman",
+		"Your Inhuman Thoughts",
+		"G00D SH0T M8",
+		"I AM NOT A MORON!",
+		"12?45678",
+		"hl2.exe",
+		"Xx_B0TK1LL3R_xX",
+
 		NULL
 	};
 	static int nameCount = 0;
