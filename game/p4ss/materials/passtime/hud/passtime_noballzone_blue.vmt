@@ -1,0 +1,69 @@
+"UnlitGeneric"
+{
+	"$basetexture" "passtime/hud/passtime_noballzone_blue"
+	"$translucent" 1
+//	"$vertexcolor" "1"
+//	"$vertexalpha" "1"
+	"$nodecal" "1"
+	"%compiletrigger" 1
+	"%keywords" "tf"
+
+//	$alphatest 1
+//	$alphatestreference .5
+
+
+	"$playerdistance"	"0"
+	"$distanceclamped"	"0"
+	"$distanceinverted"	"0"
+	"$teammatch"		"0"
+	"$matchinverted"	"0"
+	"$endalpha"		"0"
+	"$one"			"2"
+	"$fadedistance"		"800"
+
+
+	"Proxies"
+	{
+		"PlayerProximity"
+		{
+			"resultVar" "$playerdistance"
+			"scale"  1.0
+		}	
+		"Clamp"
+		{
+			"srcVar1"	"$playerdistance"
+			"min"		"0"
+			"max"		"$fadedistance"
+			"resultVar" 	"$distanceclamped"
+		}
+		"Subtract"
+		{
+			"srcVar1"	"$fadedistance"
+			"srcVar2"	"$distanceclamped"
+			"resultVar"	"$distanceinverted"
+		}
+		"PlayerTeamMatch"
+		{
+			"resultVar"	"$teammatch"
+		}
+		"Subtract"
+		{
+			"srcVar1"	"$one"
+			"srcVar2"	"$teammatch"
+			"resultVar"	"$matchinverted"	
+		}
+		"Divide"
+		{
+			"srcVar1"	"$distanceinverted"
+			"srcVar2"	"$fadedistance"
+			"resultVar" 	"$endalpha"		
+		}
+		"Multiply"
+		{
+			"srcVar1"	"$endalpha"		
+			"srcVar2"	"$matchinverted"	
+			"resultVar" 	"$alpha"	
+		}
+	}
+}
+
