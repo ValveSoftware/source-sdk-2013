@@ -150,3 +150,7 @@ $Project "vvis_launcher"
 	"utils\vvis_launcher\vvis_launcher.vpc" [$WINDOWS]
 }
 
+$Project "sceneiagebuilder"
+{
+	"utils\sceneimagebuilder\sceneimagebuilder.vpc" [$WINDOWS]
+}

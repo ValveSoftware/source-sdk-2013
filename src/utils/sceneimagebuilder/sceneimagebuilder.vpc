@@ -1,0 +1,82 @@
+//-----------------------------------------------------------------------------
+//	SCENEIMAGEBUILDER.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+
+$Include "$SRCDIR\vpc_scripts\source_exe_con_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE,..\common,$SRCDIR\game\shared"
+		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE;SCENEIMAGEBUILDER"
+	}
+
+	$Linker
+	{
+		$AdditionalDependencies				"$BASE ws2_32.lib odbc32.lib odbccp32.lib winmm.lib comctl32.lib winmm.lib Msimg32.lib"
+		$EnableLargeAddresses				"Support Addresses Larger Than 2 Gigabytes (/LARGEADDRESSAWARE)" [$WIN32]
+	}
+}
+
+$Project "sceneimagebuilder"
+{
+	$Folder	"Source Files"
+	{
+		$File "sceneimagebuilder.cpp"
+
+		$Folder	"Common Files"
+		{
+			$File	"..\common\cmdlib.cpp"
+			$File	"$SRCDIR\public\filesystem_helpers.cpp"
+			$File	"$SRCDIR\public\filesystem_init.cpp"
+			$File	"$SRCDIR\public\interpolatortypes.cpp"
+			$File	"..\common\filesystem_tools.cpp"
+			$File	"..\common\tools_minidump.cpp"
+			$File	"..\common\scriplib.cpp"
+			$File	"$SRCDIR\game\shared\choreoevent.cpp"
+			$File	"$SRCDIR\game\shared\choreoactor.cpp"
+			$File	"$SRCDIR\game\shared\choreochannel.cpp"
+			$File	"$SRCDIR\game\shared\choreoevent.cpp"
+			$File	"$SRCDIR\game\shared\choreoscene.cpp"
+		}
+	}
+
+	$Folder	"Header Files"
+	{
+		$File "sceneimagebuilder.h"
+
+		$Folder	"Common header files"
+		{
+			$File	"..\common\scriplib.h"
+			$File	"..\common\cmdlib.h"
+			$File	"..\common\tools_minidump.h"
+			$File	"$SRCDIR\public\filesystem.h"
+			$File	"$SRCDIR\game\shared\sceneimage.h"
+			$File	"$SRCDIR\public\vstdlib\vstdlib.h"
+			$File	"$SRCDIR\public\filesystem_init.h"
+			$File	"$SRCDIR\public\interpolatortypes.h"
+			$File	"$SRCDIR\game\shared\choreoevent.h"
+			$File	"$SRCDIR\game\shared\choreoactor.h"
+			$File	"$SRCDIR\game\shared\choreochannel.h"
+			$File	"$SRCDIR\game\shared\choreoevent.h"
+			$File	"$SRCDIR\game\shared\choreoscene.h"
+		}
+	}
+
+	$Folder	"Link Libraries"
+	{
+		$Lib appframework
+		$Lib tier2
+		$Lib tier3
+		$Lib vstdlib
+		$Lib mathlib
+		$Lib choreoobjects
+		$Lib "$LIBCOMMON/lzma"
+	}
+}

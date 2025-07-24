@@ -59,7 +59,7 @@ $Group "everything"
 	"vtfdiff"
 	"vvis_dll"
 	"vvis_launcher"
-
+	"sceneimagebuilder"
 	"game_shader_generic_example"
 
 	// You probably don't want to override all shaders by default.
