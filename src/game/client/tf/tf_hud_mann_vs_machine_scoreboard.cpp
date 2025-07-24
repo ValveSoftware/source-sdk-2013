@@ -17,6 +17,8 @@ extern ConVar tf_mvm_respec_credit_goal;
 extern ConVar tf_mvm_respec_limit;
 extern ConVar tf_scoreboard_alt_class_icons;
 
+ConVar cl_mvm_scoreboard_player_always_first( "cl_mvm_scoreboard_player_always_first", "0", FCVAR_ARCHIVE, "Force the client to always be first on the MvM scoreboard." );
+
 DECLARE_BUILD_FACTORY( CMvMScoreboardEnemyInfo );
 
 //-----------------------------------------------------------------------------
@@ -186,6 +188,23 @@ void CTFHudMannVsMachineScoreboard::OnTick ()
 }
 
 //-----------------------------------------------------------------------------
+static bool SortPlayers(SectionedListPanel *list, int itemID1, int itemID2)
+{
+	KeyValues *pKeyValues = nullptr;
+
+	if (!cl_mvm_scoreboard_player_always_first.GetBool())
+		goto fallback;
+
+	pKeyValues = list->GetItemData(itemID1);
+	if (!pKeyValues)
+		goto fallback;
+
+	return pKeyValues->GetInt("playerIndex") == GetLocalPlayerIndex();
+fallback:
+	return itemID1 < itemID2;
+}
+
+//-----------------------------------------------------------------------------
 void CTFHudMannVsMachineScoreboard::InitPlayerList ( IScheme *pScheme ) 
 {
 	// Scoreboard
@@ -217,7 +236,7 @@ void CTFHudMannVsMachineScoreboard::InitPlayerList ( IScheme *pScheme )
 	m_pPlayerList->SetVerticalScrollbar( false );
 	m_pPlayerList->RemoveAll();
 	m_pPlayerList->RemoveAllSections();
-	m_pPlayerList->AddSection( 0, "Players" );
+	m_pPlayerList->AddSection( 0, "Players", SortPlayers );
 	m_pPlayerList->SetSectionAlwaysVisible( 0, true );
 	m_pPlayerList->SetSectionFgColor( 0, Color( 255, 255, 255, 255 ) );
 	m_pPlayerList->SetBgColor( Color( 0, 0, 0, 0 ) );
