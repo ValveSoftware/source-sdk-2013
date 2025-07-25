@@ -232,7 +232,7 @@ void CTFHudSpectatorExtras::OnTick()
 			}
 
 			// use actual name or disguised name?
-			int nNameIndex = pDisguiseTarget ? pDisguiseTarget->entindex() : i;
+			/*int nNameIndex = pDisguiseTarget ? pDisguiseTarget->entindex() : i;
 			g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( nNameIndex ), m_vecEntitiesToDraw[nVecIndex].m_wszName, sizeof( m_vecEntitiesToDraw[nVecIndex].m_wszName ) );
 			m_vecEntitiesToDraw[nVecIndex].m_wszName[5] = L'\0'; //truncate name to 5 characters
 			
@@ -242,6 +242,26 @@ void CTFHudSpectatorExtras::OnTick()
 				m_vecEntitiesToDraw[nVecIndex].m_wszName[i] = towupper(m_vecEntitiesToDraw[nVecIndex].m_wszName[i]);
 			}
 
+			*/
+
+			if ( pDisguiseTarget )
+			{
+				int nNameIndex = pDisguiseTarget->entindex();
+				g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( nNameIndex ), m_vecEntitiesToDraw[nVecIndex].m_wszName, sizeof( m_vecEntitiesToDraw[nVecIndex].m_wszName ) );
+			}
+			else
+			{
+				C_TFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+				if ( pTFPlayer )
+				{
+					g_pVGuiLocalize->ConvertANSIToUnicode( pTFPlayer->GetShortNick(), m_vecEntitiesToDraw[nVecIndex].m_wszName, sizeof( m_vecEntitiesToDraw[nVecIndex].m_wszName ) );
+				}
+				else
+				{
+					// Fallback to regular name if cast fails
+					g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( i ), m_vecEntitiesToDraw[nVecIndex].m_wszName, sizeof( m_vecEntitiesToDraw[nVecIndex].m_wszName ) );
+				}
+			}
 			m_vecEntitiesToDraw[nVecIndex].m_nNameWidth = UTIL_ComputeStringWidth( m_hNameFont, m_vecEntitiesToDraw[nVecIndex].m_wszName );
 
 			m_vecEntitiesToDraw[nVecIndex].m_nOffset = ( VEC_HULL_MAX_SCALED( pPlayer ).z );
