@@ -481,7 +481,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Montserrat Light"
+				"name"		"Montserrat SemiBold"
 				"tall"		"14"
 				"range"		"0x0000 0x017F" //	Basic Latin, Latin-1 Supplement, Latin Extended-A
 			}	
@@ -490,7 +490,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Tahoma"
+				"name"		"Montserrat SemiBold"
 				"tall"		"12"
 				"weight"	"500"
 				"underline" "1"
@@ -1406,7 +1406,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Verdana"
+				"name"		"Montserrat SemiBold"
 				"tall"		"6"
 				"weight"	"400"
 				"additive"	"0"
@@ -1417,7 +1417,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Verdana"
+				"name"		"Montserrat SemiBold"
 				"tall"		"8"
 				"tall_hidef"	"10"
 				"tall_lodef"	"14"
@@ -1430,10 +1430,10 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2 Secondary"
-				"tall"		"10"
+				"name"		"Montserrat SemiBold"
+				"tall"		"12"
 				"tall_hidef"	"12"
-				"tall_lodef"	"14"
+				"tall_lodef"	"12"
 				"weight"	"400"
 				"additive"	"0"
 				"antialias" "1"
@@ -1443,7 +1443,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2"
+				"name"		"Montserrat SemiBold"
 				"tall"		"14"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1455,7 +1455,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2 Secondary"
+				"name"		"Montserrat SemiBold"
 				"tall"		"20"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1467,7 +1467,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2 Secondary"
+				"name"		"Montserrat SemiBold"
 				"tall"		"20"
 				"tall_hidef"	"24"
 				"tall_lodef"	"24"
@@ -1481,7 +1481,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2 Secondary"
+				"name"		"Montserrat SemiBold"
 				"tall"		"14"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1493,7 +1493,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2 Secondary"
+				"name"		"Montserrat SemiBold"
 				"tall"		"20"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1505,7 +1505,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2 Secondary"
+				"name"		"Montserrat SemiBold"
 				"tall"		"34"
 				"tall_hidef"	"38"
 				"tall_lodef"	"38"
@@ -1520,7 +1520,7 @@ Scheme
  		{
 			"1"
 			{
-				"name"		"TF2"
+				"name"		"Montserrat SemiBold"
 				"tall"		"36"
 				"tall_hidef"	"48"
 				"weight"	"500"
@@ -1532,7 +1532,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2"
+				"name"		"Montserrat SemiBold"
 				"tall"		"52"
 				"tall_lodef"		"80"
 				"range" 	"0x0000 0x00FF"
@@ -1542,7 +1542,7 @@ Scheme
 			}
 			"2"
 			{
-				"name"		"TF2"
+				"name"		"Montserrat SemiBold"
 				"tall"		"72"
 				"tall_hidef"	"120"
 				"range" 	"0x0000 0x00FF"
@@ -1552,7 +1552,7 @@ Scheme
 			}
 			"3"
 			{
-				"name"		"TF2"
+				"name"		"Montserrat SemiBold"
 				"tall"		"100"
 				"range" 	"0x0000 0x00FF"
 				"weight"	"400"
@@ -1561,7 +1561,7 @@ Scheme
 			}
 			"4"
 			{
-				"name"		"TF2"
+				"name"		"Montserrat SemiBold"
 				"tall"		"140"
 				"range" 	"0x0000 0x00FF"
 				"weight"	"400"
@@ -1570,7 +1570,7 @@ Scheme
 			}
 			"5"
 			{
-				"name"		"TF2"
+				"name"		"Montserrat SemiBold"
 				"tall"		"180"
 				"range" 	"0x0000 0x00FF"
 				"weight"	"400"
@@ -1582,7 +1582,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2"
+				"name"		"Montserrat SemiBold"
 				"tall"		"36"
 				"weight"	"500"
 				"range"		"0x0000 0x007F"	//	Basic Latin
@@ -1594,7 +1594,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2 Secondary"
+				"name"		"Montserrat SemiBold"
 				"tall"		"14"
 				"weight"	"400"
 				"additive"	"0"
@@ -1605,7 +1605,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2 Secondary"
+				"name"		"Montserrat SemiBold"
 				"tall"		"20"
 				"weight"	"400"
 				"additive"	"0"
@@ -1616,7 +1616,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2 Secondary"
+				"name"		"Montserrat SemiBold"
 				"tall"		"14"
 				"weight"	"400"
 				"additive"	"0"
@@ -1627,7 +1627,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2 Secondary"
+				"name"		"Montserrat SemiBold"
 				"tall"		"10"
 				"weight"	"400"
 				"additive"	"0"
@@ -1638,7 +1638,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2 Secondary"
+				"name"		"Montserrat SemiBold"
 				"tall"		"7"
 				"weight"	"400"
 				"additive"	"0"
