@@ -3004,6 +3004,24 @@ Scheme
 				"tall"	"44"
 			}
 		}
+		"MontserratBlack10Shadow"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"10"
+				"dropshadow"	"1"
+			}
+		}
+		"MontserratBlack11Shadow"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"11"
+				"dropshadow"	"1"
+			}
+		}
 		"MontserratBlack12"
 		{
 			"1"
