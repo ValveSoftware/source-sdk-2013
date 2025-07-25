@@ -138,10 +138,10 @@ bool CTFTeamStatusPlayerPanel::Update( void )
 			}
 
 			// hide class info from the other team?
-			if ( !bSameTeamAsLocalPlayer )
+			/*if ( !bSameTeamAsLocalPlayer )
 			{
 				iClass = TF_CLASS_UNDEFINED;
-			}
+			}*/ //p4ss - removed
 		}
 
 		if ( m_iTeam != GetTeam() )
