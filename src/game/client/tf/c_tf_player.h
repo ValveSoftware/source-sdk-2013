@@ -980,7 +980,7 @@ private:
 // p4ss additions
  public:
 	const char *GetShortNick();
-
+	bool HasShortNick();
 	CNetworkString( m_sPlayerShortNick, 5 );
 
 private:
