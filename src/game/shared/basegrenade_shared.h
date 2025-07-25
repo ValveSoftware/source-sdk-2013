@@ -63,7 +63,7 @@ public:
 	virtual void		Detonate( void );
 	void				DetonateUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	void				TumbleThink( void );
-
+	virtual bool 		CanCollideWithTeammates() const { return false; }
 	virtual Vector		GetBlastForce() { return vec3_origin; }
 
 	virtual void		BounceSound( void );

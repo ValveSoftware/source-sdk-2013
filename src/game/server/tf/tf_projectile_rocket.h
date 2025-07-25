@@ -42,7 +42,7 @@ public:
 	virtual int		GetDamageCustom();
 	virtual bool	IsDeflectable() { return true; }
 	virtual void	Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
-
+	virtual bool CanCollideWithTeammates() const OVERRIDE { return false; }
 	void SetDirectHit( bool bDirectHit ){ m_bDirectHit = bDirectHit; }
 	virtual int		GetWeaponID( void ) const { return ( m_bDirectHit ? TF_WEAPON_ROCKETLAUNCHER_DIRECTHIT : TF_WEAPON_ROCKETLAUNCHER ); }
 
