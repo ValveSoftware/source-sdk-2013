@@ -1273,7 +1273,7 @@ bool CTFWeaponBase::Deploy( void )
 		}
 
 		int numHealers = pPlayer->m_Shared.GetNumHealers();
-		if ( numHealers == 0 )
+		if ( numHealers >= 1 )
 		{
 			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, flDeployTimeMultiplier, mod_medic_healed_deploy_time );
 		}
@@ -2292,7 +2292,7 @@ void CTFWeaponBase::SetReloadTimer( float flReloadTime )
 
 
 	int numHealers = pPlayer->m_Shared.GetNumHealers();
-	if ( numHealers == 1 )
+	if ( numHealers >= 1 )
 	{
 		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, flReloadTime, mult_reload_time_while_healed );
 	}
