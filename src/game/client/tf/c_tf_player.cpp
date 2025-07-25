@@ -222,6 +222,18 @@ ConVar tf_romevision_skip_prompt( "tf_romevision_skip_prompt", "0", FCVAR_ARCHIV
 
 ConVar tf_chat_particle( "tf_chat_particle", "1", FCVAR_ARCHIVE, "Show typing bubble above player heads" );
 
+// p4ss short nick convar
+#define P4SS_MAXNICK = 5
+
+static void NickChange_Callback ( IConVar *var, const char *pOldValue, float flOldValue )
+{
+	char nick[5];
+	Q_strncpy( nick, ( (ConVar *)var )->GetString(), 5 );
+	var->SetValue( nick );
+}
+
+ConVar p4ss_nick( "p4ss_nick", "", FCVAR_ARCHIVE | FCVAR_USERINFO, "Short version of your nickname", NickChange_Callback );
+
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
 #define BOMB_HAT_MODEL		"models/props_lakeside_event/bomb_temp_hat.mdl"
 #define BOMBONOMICON_MODEL  "models/props_halloween/bombonomicon.mdl"
@@ -3760,7 +3772,10 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropBool( RECVINFO( m_bLegacyPasstimeGunControls ) ),
 	RecvPropBool( RECVINFO( m_bReversedPasstimeGunControls ) ),
 	RecvPropBool( RECVINFO( m_bTyping ) ),
-END_RECV_TABLE()
+
+	// p4ss: net recv
+	RecvPropString( RECVINFO( m_sPlayerShortNick ) ), 
+	END_RECV_TABLE()
 
 
 BEGIN_PREDICTION_DATA( C_TFPlayer )

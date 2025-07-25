@@ -27,7 +27,7 @@
 #include "tf_item_inventory.h"
 #include "c_tf_mvm_boss_progress_user.h"
 #include "c_te_legacytempents.h"
-
+#include "playernet_vars.h"
 
 class C_MuzzleFlashModel;
 class C_BaseObject;
@@ -976,6 +976,14 @@ private:
 	float m_flTempForceDrawViewModelCycle  = 0.0f;
 
 	CNetworkVar( int, m_iPlayerSkinOverride );
+
+// p4ss additions
+ public:
+	const char *GetShortNick();
+
+	CNetworkString( m_sPlayerShortNick, 5 );
+
+private:
 };
 
 inline C_TFPlayer* ToTFPlayer( C_BaseEntity *pEntity )
@@ -1022,6 +1030,7 @@ protected:
 	PREVIEW_EFFECT m_nPreviewEffect;
 	int m_nTeam;
 	CMaterialReference	m_InvulnerableMaterial;
+
 };
 extern C_TFPlayerPreviewEffect g_PlayerPreviewEffect;
 

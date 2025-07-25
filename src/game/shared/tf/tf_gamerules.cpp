@@ -10249,6 +10249,11 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 
 	pTFPlayer->SetUseLegacyPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "pf_legacy_throw_controls" ) ) > 0 );
 	pTFPlayer->SetUseReversedPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "pf_reverse_throw_controls" ) ) > 0);
+
+	// p4ss short nickname
+	const char *newNick = engine->GetClientConVarValue( pPlayer->entindex(), "p4ss_nick" );
+	Q_strncpy( pTFPlayer->m_sPlayerShortNick.GetForModify(), newNick, 5 );
+
 }
 
 //-----------------------------------------------------------------------------

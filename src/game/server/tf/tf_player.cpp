@@ -846,6 +846,9 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	SendPropBool( SENDINFO( m_bLegacyPasstimeGunControls ) ),
 	SendPropBool( SENDINFO( m_bReversedPasstimeGunControls ) ),
 	SendPropBool( SENDINFO( m_bTyping ) ),
+
+	// p4ss: net send props
+	SendPropString( SENDINFO(m_sPlayerShortNick) ),
 END_SEND_TABLE()
 
 // -------------------------------------------------------------------------------- //
