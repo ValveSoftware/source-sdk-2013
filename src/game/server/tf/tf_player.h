@@ -1311,6 +1311,7 @@ public:
 	CountdownTimer m_playerMovementStuckTimer;			// for destroying stuck bots in MvM
 
 	QAngle				m_qPreviousChargeEyeAngle;		// Previous EyeAngles to compute deltas for legal mouse movement
+	int					m_nPreviousChargeCommandNumber;	// Previous command number for lag compensation
 private:
 
 	//=============================================================================
