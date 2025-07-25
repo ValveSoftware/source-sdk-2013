@@ -79,6 +79,8 @@ void cc_scoreboard_convar_changed( IConVar *pConVar, const char *pOldString, flo
 ConVar tf_scoreboard_ping_as_text( "tf_scoreboard_ping_as_text", "0", FCVAR_ARCHIVE, "Show ping values as text in the scoreboard.", cc_scoreboard_convar_changed );
 ConVar tf_scoreboard_alt_class_icons( "tf_scoreboard_alt_class_icons", "0", FCVAR_ARCHIVE, "Show alternate class icons in the scoreboard." );
 
+ConVar pf_scoreboard_use_nicks( "pf_scoreboard_use_nicks", "0", FCVAR_ARCHIVE, "Use short nicknames in the scoreboard instead of full names." );
+
 extern bool IsInCommentaryMode( void );
 extern bool DuelMiniGame_GetStats( C_TFPlayer **ppPlayer, uint32 &unMyScore, uint32 &unOpponentScore );
 extern void AddSubKeyNamed( KeyValues *pKeys, const char *pszName );
@@ -1383,10 +1385,18 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 			{
 				iDominationIndex = ( bDominating ? ( m_iImageDomDead[iActiveDominations] ) : 0 );
 			}
-
+    		C_TFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerByIndex( playerIndex ) );
 			KeyValues *pKeyValues = new KeyValues( "data" );
 			pKeyValues->SetInt( "playerIndex", playerIndex );
-			pKeyValues->SetString( "name", g_TF_PR->GetPlayerName( playerIndex ) );
+			if ( pf_scoreboard_use_nicks.GetBool() )
+			{
+				const char *pszShortName = pTFPlayer->GetShortNick();
+				pKeyValues->SetString( "name", pszShortName );
+			}
+			else
+			{
+				pKeyValues->SetString( "name", g_TF_PR->GetPlayerName( playerIndex ) );
+			}
 			pKeyValues->SetInt( "dominating", iDominationIndex );
 			pKeyValues->SetInt( "goals", g_TF_PR->GetP4ssScores( playerIndex ) );
 			pKeyValues->SetInt( "assists", g_TF_PR->GetP4ssAssists( playerIndex ) );
@@ -1394,7 +1404,6 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 			pKeyValues->SetInt( "saves", g_TF_PR->GetP4ssSaves( playerIndex ) );
 			pKeyValues->SetInt( "connected", 2 );
 
-			C_TFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerByIndex( playerIndex ) );
 
 			if ( pTFPlayer && pTFPlayer->GetActiveTFWeapon() )
 			{
@@ -1859,7 +1868,12 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails()
 	if ( engine->IsHLTV() )
 #endif
 	{
-		SetDialogVariable( "playername", g_TF_PR->GetPlayerName( playerIndex ) );
+    	C_TFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerByIndex( playerIndex ) );
+    	const char *pszPlayerName = g_TF_PR->GetPlayerName( playerIndex );
+		const char *pszShortName = pTFPlayer->GetShortNick();
+
+		SetDialogVariable( "shortname", pszShortName );
+    	SetDialogVariable( "playername", pszPlayerName );
 		return;
 	}
 
@@ -1978,7 +1992,14 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails()
 		}
 	}		
 
-	SetDialogVariable( "playername", g_TF_PR->GetPlayerName( playerIndex ) );
+	//SetDialogVariable( "playername", g_TF_PR->GetPlayerName( playerIndex ) );
+    	C_TFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerByIndex( playerIndex ) );
+    	const char *pszPlayerName = g_TF_PR->GetPlayerName( playerIndex );
+		const char *pszShortName = pTFPlayer->GetShortNick();
+
+		SetDialogVariable( "shortname", pszShortName );
+    	SetDialogVariable( "playername", pszPlayerName );
+		return;
 
 	Color clr = g_PR->GetTeamColor( g_PR->GetTeam( playerIndex ) );
 	m_pLabelPlayerName->SetFgColor( clr );
