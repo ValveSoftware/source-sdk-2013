@@ -148,7 +148,7 @@ float CTFWeaponBaseGrenadeProj::GetDamageRadius()
 void CTFWeaponBaseGrenadeProj::Precache( void )
 {
 	BaseClass::Precache();
-	PrecacheScriptSound( "Passtime.PipeBallTimer" );
+	PrecacheScriptSound( "Passtime.SoundQueueForPipe" );
 
 #ifndef CLIENT_DLL
 	PrecacheModel( NOGRENADE_SPRITE );
@@ -295,7 +295,7 @@ void CTFWeaponBaseGrenadeProj::Spawn( void )
 	SetThink( &CTFWeaponBaseGrenadeProj::DetonateThink );
 	CReliableBroadcastRecipientFilter filter;
 		soundQueuePipeTimer = CSoundEnvelopeController::GetController().SoundCreate( 
-			filter, entindex(), "Passtime.PipeBallTimer" );
+			filter, entindex(), "Passtime.SoundQueueForPipe" );
 	SetNextThink( gpGlobals->curtime + 0.2 );
 }
 

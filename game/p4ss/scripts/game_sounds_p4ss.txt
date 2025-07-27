@@ -18,7 +18,7 @@
 	"wave"			"p4ss/jack/ball_impact.wav"
 }
 
-"Passtime.PipeBallTimer"
+"Passtime.SoundQueueForPipe"
 {
 	"channel"	"CHAN_WEAPON"
 	"volume"	"1.0"
