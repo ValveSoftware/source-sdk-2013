@@ -4145,6 +4145,10 @@ bool CTFBot::ShouldFireCompressionBlast( void )
 		}
 	}
 
+	// if we use the shortstop, we shouldn't try to push enemy projectiles here.
+	CTFWeaponBase *myWeapon = m_Shared.GetActiveTFWeapon();
+	if ( myWeapon->IsWeapon( TF_WEAPON_HANDGUN_SCOUT_PRIMARY ) )
+		return false;
 
 	Vector vecEye = EyePosition();
 	Vector vecForward, vecRight, vecUp;

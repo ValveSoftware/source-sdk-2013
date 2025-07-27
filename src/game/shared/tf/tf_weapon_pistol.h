@@ -78,6 +78,7 @@ public:
 	virtual int		GetWeaponID( void ) const	{ return TF_WEAPON_HANDGUN_SCOUT_PRIMARY; }
 	virtual void	PlayWeaponShootSound( void );
 	virtual void	SecondaryAttack( void );
+	bool			CanUsePush();
 	virtual void	ItemPostFrame();
 	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo );
 	virtual void	Precache( void );

@@ -16,6 +16,7 @@
 #include "tf_weapon_flamethrower.h"
 #include "tf_weapon_sniperrifle.h"
 #include "tf_weapon_compound_bow.h"
+#include "tf_weapon_pistol.h"
 #include "bot/tf_bot.h"
 #include "bot/tf_bot_manager.h"
 #include "bot/behavior/tf_bot_behavior.h"
@@ -1365,6 +1366,18 @@ void CTFBotMainAction::FireWeaponAtEnemy( CTFBot *me )
 				  me->IsDistanceBetweenLessThan( threat->GetEntity(), me->GetMaxAttackRange() ) )
 		{
 			me->PressFireButton( tf_bot_fire_weapon_min_time.GetFloat() );
+		}
+
+		return;
+	}
+	else if ( myWeapon->IsWeapon( TF_WEAPON_HANDGUN_SCOUT_PRIMARY ) )
+	{
+		CTFPistol_ScoutPrimary *pPistolPrimary = assert_cast<CTFPistol_ScoutPrimary*>( myWeapon );
+		// watch for enemy projectiles heading our way
+		if ( pPistolPrimary->CanUsePush() && me->ShouldFireCompressionBlast() )
+		{
+			// bounce missiles with compression blast
+			me->PressAltFireButton();
 		}
 
 		return;
