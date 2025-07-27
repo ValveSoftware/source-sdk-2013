@@ -51,6 +51,10 @@ ActionResult< CTFBot >	CTFBotUseItem::Update( CTFBot *me, float interval )
 			me->PressFireButton();
 			m_cooldownTimer.Start( m_item->m_flNextPrimaryAttack - gpGlobals->curtime + 0.25f );
 		}
+		else
+		{
+			return Done( "Can't use our item at the moment" );
+		}
 	}
 	else // used
 	{
