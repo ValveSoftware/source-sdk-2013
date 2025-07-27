@@ -19150,7 +19150,7 @@ void CTFPlayer::DoTauntAttack( void )
 				if (flDot < 0.80)
 					continue;
 
-				CTFPlayer* pTarget = ToTFPlayer( pObjects[i] );
+				CTFPlayer *pTarget = ToTFPlayer( pObjects[i] );
 				if ( !pTarget )
 					continue;
 
@@ -19164,10 +19164,10 @@ void CTFPlayer::DoTauntAttack( void )
 				if ( tr.fraction < 1.0 )
 					continue;
 
-				CTFWeaponBase* pWeapon = GetActiveTFWeapon();
+				CTFWeaponBase *pWeapon = GetActiveTFWeapon();
 				if ( pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_STICKBOMB )
 				{
-					CTFStickBomb* pBomb = dynamic_cast<CTFStickBomb*>( pWeapon );
+					CTFStickBomb *pBomb = dynamic_cast<CTFStickBomb *>( pWeapon );
 					if ( pBomb )
 					{
 						if ( !pBomb->GetDetonated() )
