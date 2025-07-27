@@ -11357,12 +11357,28 @@ void C_TFPlayer::UpdateGlowColor( void )
 	}
 }
 
-ConVar p4ss_glow_healthcolor( "p4ss_glow_healthcolor", "1", FCVAR_ARCHIVE, "Enables health-based coloring of the teammate glow." );
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void C_TFPlayer::GetGlowEffectColor( float *r, float *g, float *b )
+void GlowColor_Callback( IConVar *var, const char *pOldValue, float flOldValue )
 {
+    for ( int i = 1; i <= gpGlobals->maxClients; ++i )
+    {
+        C_TFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+        if ( pPlayer )
+        {
+            pPlayer->UpdateGlowColor();
+			// changing glow convar previously needed a reloadscheme (or some other action) to show up
+			// since there's already an update function, we can just call it 
+        }
+    }
+}
+
+	ConVar pf_glow_healthcolor(
+	"pf_glow_healthcolor", "1", FCVAR_ARCHIVE,
+	"Enables health-based coloring of the teammate glow.", GlowColor_Callback );
+	//-----------------------------------------------------------------------------
+	// Purpose:
+	//-----------------------------------------------------------------------------
+	void C_TFPlayer::GetGlowEffectColor( float *r, float *g, float *b )
+	{
 #ifdef TF_CREEP_MODE
 	if ( TFGameRules() && TFGameRules()->IsCreepWaveMode() )
 	{
@@ -11411,7 +11427,7 @@ void C_TFPlayer::GetGlowEffectColor( float *r, float *g, float *b )
 		return;
 	}
 
-	if ( pLocalPlayer && p4ss_glow_healthcolor.GetBool() )
+	if ( pLocalPlayer && pf_glow_healthcolor.GetBool() )
 	{
 		float flHealth = (float)GetHealth() / (float)GetMaxHealth();
 
