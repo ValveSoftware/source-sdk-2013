@@ -327,6 +327,7 @@ public:
 	// TF-specific color values for GlowEffect
 	virtual void	GetGlowEffectColor( float *r, float *g, float *b );
 	void UpdateGlowColor( void );
+	virtual void 	GetHealthColor( float *r, float *g, float *b );
 
 	virtual const Vector&	GetRenderOrigin( void );
 

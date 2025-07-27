@@ -11465,6 +11465,30 @@ void GlowColor_Callback( IConVar *var, const char *pOldValue, float flOldValue )
 }
 
 
+void C_TFPlayer::GetHealthColor( float *r, float *g, float *b )
+{
+	float flHealth = (float)GetHealth() / (float)GetMaxHealth();
+
+    if ( flHealth > 0.6 )
+    {
+        *r = 0.33f;
+        *g = 0.75f;
+        *b = 0.23f;
+    }
+    else if( flHealth > 0.3 )
+    {
+        *r = 0.75f;
+        *g = 0.72f;
+        *b = 0.23f;
+    }
+    else
+    {
+        *r = 0.75f;
+        *g = 0.23f;
+        *b = 0.23f;
+    }
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
