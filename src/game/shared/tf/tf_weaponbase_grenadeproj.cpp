@@ -148,7 +148,7 @@ float CTFWeaponBaseGrenadeProj::GetDamageRadius()
 void CTFWeaponBaseGrenadeProj::Precache( void )
 {
 	BaseClass::Precache();
-	PrecacheScriptSound( "Passtime.SoundQueueForPipe" );
+	PrecacheScriptSound( "Passtime.SoundCueForPipe" );
 
 #ifndef CLIENT_DLL
 	PrecacheModel( NOGRENADE_SPRITE );
@@ -294,8 +294,8 @@ void CTFWeaponBaseGrenadeProj::Spawn( void )
 	// Setup the think and touch functions (see CBaseEntity).
 	SetThink( &CTFWeaponBaseGrenadeProj::DetonateThink );
 	CReliableBroadcastRecipientFilter filter;
-		soundQueuePipeTimer = CSoundEnvelopeController::GetController().SoundCreate( 
-			filter, entindex(), "Passtime.SoundQueueForPipe" );
+		soundCuePipeTimer = CSoundEnvelopeController::GetController().SoundCreate( 
+			filter, entindex(), "Passtime.SoundCueForPipe" );
 	SetNextThink( gpGlobals->curtime + 0.2 );
 }
 
@@ -457,7 +457,7 @@ void CTFWeaponBaseGrenadeProj::DetonateThink( void )
 
 	if ( gpGlobals->curtime > m_flDetonateTime - 0.4f && gpGlobals->curtime <= m_flDetonateTime - 0.3f)
 	{
-		CSoundEnvelopeController::GetController().Play( soundQueuePipeTimer, 1, PITCH_NORM);
+		CSoundEnvelopeController::GetController().Play( soundCuePipeTimer, 1, PITCH_NORM);
 	}
 	
 	SetNextThink( gpGlobals->curtime + 0.1 );
@@ -468,9 +468,9 @@ void CTFWeaponBaseGrenadeProj::DetonateThink( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseGrenadeProj::Detonate( void )
 {
-	if ( soundQueuePipeTimer )
+	if ( soundCuePipeTimer )
 	{
-		CSoundEnvelopeController::GetController().SoundDestroy( soundQueuePipeTimer );
+		CSoundEnvelopeController::GetController().SoundDestroy( soundCuePipeTimer );
 	}
 
 	trace_t		tr;

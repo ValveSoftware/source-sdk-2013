@@ -149,7 +149,7 @@ private:
 	float					m_flDestroyableTime;
 	bool					m_bIsMerasmusGrenade;
 
-	CSoundPatch				*soundQueuePipeTimer;
+	CSoundPatch				*soundCuePipeTimer;
 
 #endif
 };
