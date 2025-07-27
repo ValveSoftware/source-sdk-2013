@@ -4595,6 +4595,11 @@ Action< CTFBot > *CTFBot::OpportunisticallyUseWeaponAbilities( void )
 				{
 					return new CTFBotUseItem( lunchbox );
 				}
+				else if ( GetHealth() < GetMaxHealth() )
+				{
+					// we're a sandvich
+					return new CTFBotUseItem( lunchbox );
+				}
 			}
 		}
 		else if ( weapon->GetWeaponID() == TF_WEAPON_BAT_WOOD )
