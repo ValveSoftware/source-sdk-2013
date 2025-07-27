@@ -1390,6 +1390,8 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 			pKeyValues->SetInt( "playerIndex", playerIndex );
 			if ( pf_scoreboard_use_nicks.GetBool() )
 			{
+				if ( !pTFPlayer )
+					return;
 				const char *pszShortName = pTFPlayer->GetShortNick();
 				pKeyValues->SetString( "name", pszShortName );
 			}

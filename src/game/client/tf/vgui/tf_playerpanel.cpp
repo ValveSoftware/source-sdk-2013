@@ -347,7 +347,11 @@ void CTFPlayerPanel::Setup( int iPlayerIndex, CSteamID steamID, const char *pszP
 		m_steamID = steamID;
 		m_sPlayerName = pszPlayerName;
     	C_TFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerByIndex( iPlayerIndex ) );
-		const char *pszShortName = pTFPlayer->GetShortNick();
+		const char *pszShortName = "";
+		if ( pTFPlayer && g_PR && g_PR->IsConnected( iPlayerIndex ) )
+		{
+			pszShortName = pTFPlayer->GetShortNick();
+		}
 
 		SetDialogVariable( "shortname", pszShortName );
 		SetDialogVariable( "playername", m_sPlayerName );

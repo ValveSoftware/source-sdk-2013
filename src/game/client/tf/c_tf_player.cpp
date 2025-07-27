@@ -11752,20 +11752,28 @@ void C_TFPlayer::ClientAdjustVOPitch( int& pitch )
 
 bool C_TFPlayer::HasShortNick()
 {
+
+    if ( !g_PR || !g_PR->IsConnected( entindex() ) )
+        return false;
     const char *pszShortName = m_sPlayerShortNick.Get();
+
     return ( pszShortName && pszShortName[0] != '\0' );
 }
+
 //p4ss get
 const char *C_TFPlayer::GetShortNick()
 {
     static char szCapNick[5];
     const char *pszSourceName;
-    
+
     if ( HasShortNick() )
         pszSourceName = m_sPlayerShortNick.Get();
     else
         pszSourceName = g_TF_PR->GetPlayerName( entindex() );
-    
+
+    if ( !pszSourceName )
+        pszSourceName = ""; //null check
+
     Q_strncpy( szCapNick, pszSourceName, sizeof( szCapNick ) );
     
     for ( int i = 0; i < sizeof( szCapNick ) - 1 && szCapNick[i] != '\0'; i++ )
