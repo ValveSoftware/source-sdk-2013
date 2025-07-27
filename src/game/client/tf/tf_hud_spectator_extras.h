@@ -35,6 +35,8 @@ public:
 private:
 	void Reset( void );
 	void DrawBorder(int x, int y, int w, int h, Color color); // Helper function to draw consistent borders
+	void DrawArrow( int x, int y, Color arrowColor );
+	void DrawHealthBar( int x, int y, int width, int height, float healthPercent, Color healthColor, Color backgroundColor );
 	int m_nArrowTextureID;
 	int m_iTexture;
 	vgui::IBorder *m_pBorder;
