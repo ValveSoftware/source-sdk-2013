@@ -6077,7 +6077,7 @@ void CTFPlayerShared::EndCharge()
 }
 
 // New convar to control charge turn rate. Default is same as vanilla TF2.
-ConVar tf_charge_turn_rate("tf_charge_turn_rate", "0.45", FCVAR_REPLICATED | FCVAR_CHEAT, "Base turn rate cap for demoman charge in degrees per tick");
+ConVar tf_charge_turn_rate("tf_charge_turn_rate", "1.0", FCVAR_REPLICATED | FCVAR_CHEAT, "Base turn rate cap for demoman charge in degrees per tick");
 
 //-----------------------------------------------------------------------------
 // Purpose: Unified function to cap turning rate for charge regardless of input method
