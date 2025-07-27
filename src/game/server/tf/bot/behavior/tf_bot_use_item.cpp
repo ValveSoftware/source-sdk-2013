@@ -49,7 +49,7 @@ ActionResult< CTFBot >	CTFBotUseItem::Update( CTFBot *me, float interval )
 		{
 			// use it
 			me->PressFireButton();
-			m_cooldownTimer.Invalidate();
+			m_cooldownTimer.Start( m_item->m_flNextPrimaryAttack - gpGlobals->curtime + 0.25f );
 		}
 	}
 	else // used
