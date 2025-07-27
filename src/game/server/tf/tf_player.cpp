@@ -9114,7 +9114,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				pRandomInternalOrgan->KeyValue( "origin", buf );
 				Q_snprintf( buf, sizeof( buf ), "%.10f %.10f %.10f", GetAbsAngles().x, GetAbsAngles().y, GetAbsAngles().z );
 				pRandomInternalOrgan->KeyValue( "angles", buf );
-				if (TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS && BloodColor() == DONT_BLEED)
+				if ( TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS && BloodColor() == DONT_BLEED && TFObjectiveResource()->GetMvMEventPopfileType() != MVM_EVENT_POPFILE_HALLOWEEN )
 				{
 					//robots don't have spleens....
 					pRandomInternalOrgan->KeyValue( "model", "models/player/gibs/gibs_bolt.mdl" );
