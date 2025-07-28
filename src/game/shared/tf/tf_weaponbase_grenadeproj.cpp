@@ -305,6 +305,11 @@ void CTFWeaponBaseGrenadeProj::Spawn( void )
 #define TF_GRENADE_JUMP_RADIUS	146
 void CTFWeaponBaseGrenadeProj::Explode( trace_t *pTrace, int bitsDamageType )
 {
+	if ( soundCuePipeTimer )
+	{
+		CSoundEnvelopeController::GetController().SoundDestroy( soundCuePipeTimer );
+	}
+
 	if ( ShouldNotDetonate() )
 	{
 		Destroy();
@@ -468,10 +473,6 @@ void CTFWeaponBaseGrenadeProj::DetonateThink( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseGrenadeProj::Detonate( void )
 {
-	if ( soundCuePipeTimer )
-	{
-		CSoundEnvelopeController::GetController().SoundDestroy( soundCuePipeTimer );
-	}
 
 	trace_t		tr;
 	Vector		vecSpot;// trace starts here!
