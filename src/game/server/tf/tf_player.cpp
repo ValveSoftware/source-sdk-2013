@@ -18090,7 +18090,7 @@ void CTFPlayer::Taunt( taunts_t iTauntIndex, int iTauntConcept )
 		}
 		else if ( !V_stricmp( szResponse, "scenes/player/demoman/low/taunt04_v1.vcd" ) || !V_stricmp( szResponse, "scenes/player/demoman/low/taunt04_v2.vcd" ) )
 		{
-			m_flTauntAttackTime = gpGlobals->curtime + 3.9f;
+			m_flTauntAttackTime = gpGlobals->curtime + 3.87f;
 			m_iTauntAttack = TAUNTATK_DEMOMAN_CABER_SWING;
 		}
 	}
