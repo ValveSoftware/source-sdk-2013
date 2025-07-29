@@ -12548,8 +12548,14 @@ bool CTFPlayer::TryToPickupBuilding()
 		CTFWeaponBuilder *pBuilder = dynamic_cast<CTFWeaponBuilder*>(Weapon_OwnsThisID( TF_WEAPON_BUILDER ));
 		if ( pBuilder )
 		{
-			if ( GetActiveTFWeapon() == pBuilder )
-				SetActiveWeapon( NULL );
+			if ( pWeapon )
+			{
+				// Prevent weapon from attacking this frame after it's been holstered
+				pWeapon->m_flNextPrimaryAttack = gpGlobals->curtime + 0.1f;
+
+				if ( pWeapon == pBuilder )
+					SetActiveWeapon( NULL );
+			}
 
 			Weapon_Switch( pBuilder );
 			pBuilder->m_flNextSecondaryAttack = gpGlobals->curtime + 0.5f;
