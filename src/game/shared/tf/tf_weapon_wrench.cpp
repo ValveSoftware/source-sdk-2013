@@ -393,11 +393,25 @@ void CTFRobotArm::Precache()
 	PrecacheModel( g_HACK_GunslingerEngineerArmsOverride );
 }
 
+bool CTFRobotArm::Holster( CBaseCombatWeapon *pSwitchingTo )
+{
+	m_iComboCount = 0;
+	m_flLastComboHit = 0.f;
+	return BaseClass::Holster( pSwitchingTo );
+}
+
+bool CTFRobotArm::Deploy()
+{
+	m_iComboCount = 0;
+	m_flLastComboHit = 0.f;
+	return BaseClass::Deploy();
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
 #ifdef GAME_DLL
-void CTFRobotArm::Equip( CBaseCombatCharacter* pOwner )
+void CTFRobotArm::Equip( CBaseCombatCharacter *pOwner )
 {
 	BaseClass::Equip( pOwner );
 

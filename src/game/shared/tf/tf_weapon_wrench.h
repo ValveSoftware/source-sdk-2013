@@ -73,6 +73,9 @@ public:
 	CTFRobotArm();
 
 	virtual void		Precache();
+	
+	virtual bool		Holster( CBaseCombatWeapon *pSwitchingTo );
+	virtual bool		Deploy( void );
 
 #ifdef GAME_DLL
 	virtual void		Equip( CBaseCombatCharacter *pOwner );
