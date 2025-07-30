@@ -1093,6 +1093,9 @@ bool CHudTournamentSetup::ToggleState( ButtonCode_t code )
 
 	if ( !g_TF_PR )
 		return false;
+	
+	if ( GetLocalPlayerTeam() < FIRST_GAME_TEAM )
+		return false;
 
 	if ( code == KEY_F4 || code == STEAMCONTROLLER_F4 )
 	{
