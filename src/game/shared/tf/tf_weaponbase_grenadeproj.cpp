@@ -20,6 +20,7 @@
 #include "Sprite.h"
 #include "tf_fx.h"
 #include "halloween/merasmus/merasmus.h"
+#include "soundenvelope.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -147,6 +148,7 @@ float CTFWeaponBaseGrenadeProj::GetDamageRadius()
 void CTFWeaponBaseGrenadeProj::Precache( void )
 {
 	BaseClass::Precache();
+	PrecacheScriptSound( "Passtime.SoundCueForPipe" );
 
 #ifndef CLIENT_DLL
 	PrecacheModel( NOGRENADE_SPRITE );
@@ -291,6 +293,9 @@ void CTFWeaponBaseGrenadeProj::Spawn( void )
 
 	// Setup the think and touch functions (see CBaseEntity).
 	SetThink( &CTFWeaponBaseGrenadeProj::DetonateThink );
+	CReliableBroadcastRecipientFilter filter;
+		soundCuePipeTimer = CSoundEnvelopeController::GetController().SoundCreate( 
+			filter, entindex(), "Passtime.SoundCueForPipe" );
 	SetNextThink( gpGlobals->curtime + 0.2 );
 }
 
@@ -300,6 +305,11 @@ void CTFWeaponBaseGrenadeProj::Spawn( void )
 #define TF_GRENADE_JUMP_RADIUS	146
 void CTFWeaponBaseGrenadeProj::Explode( trace_t *pTrace, int bitsDamageType )
 {
+	if ( soundCuePipeTimer )
+	{
+		CSoundEnvelopeController::GetController().SoundDestroy( soundCuePipeTimer );
+	}
+
 	if ( ShouldNotDetonate() )
 	{
 		Destroy();
@@ -450,8 +460,12 @@ void CTFWeaponBaseGrenadeProj::DetonateThink( void )
 		return;
 	}
 
-
-	SetNextThink( gpGlobals->curtime + 0.2 );
+	if ( gpGlobals->curtime > m_flDetonateTime - 0.4f && gpGlobals->curtime <= m_flDetonateTime - 0.3f)
+	{
+		CSoundEnvelopeController::GetController().Play( soundCuePipeTimer, 1, PITCH_NORM);
+	}
+	
+	SetNextThink( gpGlobals->curtime + 0.1 );
 }
 
 //-----------------------------------------------------------------------------
@@ -459,6 +473,7 @@ void CTFWeaponBaseGrenadeProj::DetonateThink( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseGrenadeProj::Detonate( void )
 {
+
 	trace_t		tr;
 	Vector		vecSpot;// trace starts here!
 

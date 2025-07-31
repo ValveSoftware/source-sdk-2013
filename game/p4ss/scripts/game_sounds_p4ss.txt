@@ -17,3 +17,11 @@
 	"attenuation"	"0.5"
 	"wave"			"p4ss/jack/ball_impact.wav"
 }
+
+"Passtime.SoundCueForPipe"
+{
+	"channel"	"CHAN_WEAPON"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_74dB"
+	"wave"		")weapons/stickybomblauncher_det.wav"
+}
