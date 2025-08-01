@@ -916,10 +916,11 @@ static void SetPlayerHealthImagePanelVisibility( CTFPlayer *pPlayer, ETFCond eCo
 		pImagePanel->SetDrawColor( colorIfVisible );
 		
 		// Reposition ourselves and increase the offset if we are active
-		int x,y;
+		/*int x,y;
 		pImagePanel->GetPos( x, y );
 		pImagePanel->SetPos( nXOffset, y );
-		nXOffset += 100.f;
+		nXOffset += 100.f;*/ 
+		// p4ss: removed to allow status icon positioning in HudPlayerHealth.res
 	}
 }
 
