@@ -3073,6 +3073,26 @@ Scheme
 				"tall"	"20"
 			}
 		}
+		"MontserratBlack20Shadow"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"20"
+				"dropshadow"	"1"
+				"antialias" 	"1"
+			}
+		}
+		"MontserratBlack20Add"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"20"
+				"additive"	"1"
+				"antialias" 	"1"
+			}
+		}
 		"MontserratBlack22"
 		{
 			"1"
