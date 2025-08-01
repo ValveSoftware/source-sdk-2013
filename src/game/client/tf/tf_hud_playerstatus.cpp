@@ -36,6 +36,8 @@
 
 using namespace vgui;
 
+static void OnPlayerClassEnabledChanged( IConVar *var, const char *pOldValue, float flOldValue );
+ConVar cl_hud_playerclass_enabled( "cl_hud_playerclass_enabled", "1", FCVAR_ARCHIVE, "Enable the sprite (or model) of your player class on the HUD.", OnPlayerClassEnabledChanged );
 ConVar cl_hud_playerclass_use_playermodel( "cl_hud_playerclass_use_playermodel", "1", FCVAR_ARCHIVE, "Use player model in player class HUD." );
 ConVar cl_hud_critical_health_percentage( "cl_hud_critical_health_percentage", "0.49", FCVAR_ARCHIVE, "Percentage of health at which the health bar starts flashing.", 1, 0.0, 1, 1.0 );
 
@@ -176,6 +178,38 @@ void CTFHudPlayerClass::ApplySchemeSettings( IScheme *pScheme )
 	}
 
 	BaseClass::ApplySchemeSettings( pScheme );
+
+    if ( !cl_hud_playerclass_enabled.GetBool() )
+    {
+        SetPlayerClassVisible( false );
+    }
+}
+
+void CTFHudPlayerClass::SetPlayerClassVisible( bool bVisible )
+{
+    if ( !bVisible )
+    {
+        // Hide all player class elements
+        if ( m_pPlayerModelPanel )
+            m_pPlayerModelPanel->SetVisible( false );
+        if ( m_pPlayerModelPanelBG )
+            m_pPlayerModelPanelBG->SetVisible( false );
+        if ( m_pClassImage )
+            m_pClassImage->SetVisible( false );
+        if ( m_pClassImageBG )
+            m_pClassImageBG->SetVisible( false );
+        if ( m_pSpyImage )
+            m_pSpyImage->SetVisible( false );
+        if ( m_pSpyOutlineImage )
+            m_pSpyOutlineImage->SetVisible( false );
+    }
+	    else
+    {
+
+        m_nClass = TF_CLASS_UNDEFINED;
+        m_nTeam = TEAM_UNASSIGNED;
+        m_flNextThink = 0.0f;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -190,6 +224,9 @@ void CTFHudPlayerClass::OnThink()
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pPlayer )
 		return;
+
+    if ( !cl_hud_playerclass_enabled.GetBool() )
+        return;
 
 	bool bTeamChange = false;
 	// set our background colors
@@ -406,6 +443,22 @@ static void HudPlayerClassUsePlayerModelDialogCallback( bool bConfirmed, void *p
 	cl_hud_playerclass_use_playermodel.SetValue( bConfirmed );
 }
 
+static void OnPlayerClassEnabledChanged( IConVar *var, const char *pOldValue, float flOldValue )
+{
+    ConVarRef cl_hud_playerclass_enabled_ref( var );
+    bool bEnabled = cl_hud_playerclass_enabled_ref.GetBool();
+    
+    // Find the HUD element and update visibility
+    CTFHudPlayerStatus *pPlayerStatus = GET_HUDELEMENT( CTFHudPlayerStatus );
+    if ( pPlayerStatus )
+    {
+        CTFHudPlayerClass *pPlayerClass = pPlayerStatus->GetPlayerClassHUD();
+        if ( pPlayerClass )
+        {
+            pPlayerClass->SetPlayerClassVisible( bEnabled );
+        }
+    }
+}
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
