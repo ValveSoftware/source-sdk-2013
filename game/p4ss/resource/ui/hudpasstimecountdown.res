@@ -58,7 +58,7 @@
 			"font"			"MontserratBlack26"
 			"font_minmode"	"MontserratSemibold16"
 			"font_lodef"	"MontserratSemibold32"
-			"fgcolor_override"	"255 255 246 255"
+			"fgcolor_override"	"PFWhite"
 			"bgcolor_override"	"255 255 246 0"
 		"textinsetx"		"0"
 

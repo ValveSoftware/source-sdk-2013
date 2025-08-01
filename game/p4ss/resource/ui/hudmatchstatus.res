@@ -282,13 +282,10 @@
 		"ControlName"		"EditablePanel"
 		"fieldName"			"ObjectiveStatusTimePanel"
 		"xpos"				"c-55"
-		"ypos"				"0"	[$WIN32]
-		"ypos_minmode"		"-14"	[$WIN32]
-		"ypos"				"24"	[$X360]
+		"ypos"				"0"	
+		"ypos_minmode"		"0"	
 		"zpos"				"2"
 		"wide"				"110"
-		"wide_hidef"		"300"
-		"wide_lodef"		"300"
 		"tall"				"150"
 		"visible"			"0"
 		"enabled"			"1"
@@ -306,7 +303,7 @@
 			"xpos"					"cs-0.5"
 			"ypos"					"c-225"
 			"wide"					"130"
-			"ypos_minmode"			"0"
+			"ypos_minmode"			"c-222"
 			"delta_item_x"			"35"
 			"delta_item_start_y"	"12"
 			"delta_item_end_y"		"50"
@@ -321,9 +318,8 @@
 			"ControlName"		"CExLabel"
 			"fieldName"		"TimePanelValue"
 			"font"			"MontserratSemibold24"
-			"font_minmode"	"MontserratSemibold16"
-			"font_lodef"	"MontserratSemibold28"
-			"fgcolor"		"255 255 246 255"
+			"font_minmode"	"MontserratSemibold24"
+			"fgcolor"		"PFWhite"
 			"xpos"			"23"
 			"xpos_minmode"	"39"
 			"xpos_hidef"	"114"
@@ -348,11 +344,10 @@
 
 				"xpos"			"cs-0.5"
 				"ypos"			"c-60"
-				"ypos_minmode"	"12"
+				"ypos_minmode"	"c-62"
 				"tall"			"10"
 				"font"			"MontserratBlack14"
-				"font_minmode"	"MontserratSemibold16"
-				"font_lodef"	"MontserratSemibold16"
+				"font_minmode"	"MontserratBlack16Shadow"
 			}
 		}	
 
@@ -406,10 +401,12 @@
 
 		"team1_grow_dir" "west"
 		"team1_base_x"	"c-82"
+		"team1_base_x_minmode"	"c-40"
 		"team1_max_expand"	"133"
 
 		"team2_grow_dir" "east"
 		"team2_base_x"	"c82"
+		"team2_base_x_minmode"	"c40"
 		"team2_max_expand"	"133"
 
 		"playerpanels_kv"
@@ -444,10 +441,10 @@
 				"autoResize"	"1"
 				"pinCorner"		"0"
 				"visible"		"1"
-				"visible_minmode" "0"
+				"visible_minmode" "1"
 				"labelText"		"%shortname%"
 				"textAlignment"	"center"
-				"fgcolor" 		"255 255 246 255" 
+				"fgcolor" 		"PFWhite" 
 				"proportionaltoparent"	"1"
 				"wrap" "0"
 			}

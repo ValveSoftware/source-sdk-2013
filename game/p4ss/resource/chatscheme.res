@@ -29,6 +29,7 @@ Scheme
 		"PFGrey" 			"32 32 32 180"
 		"PFGreen" 			"152 191 100 255"
 		"PFGreenDim" 		"152 191 100 128"
+		"PFWhite"				"255 255 246 255"
 	}
 
 	///////////////////// BASE SETTINGS ////////////////////////
@@ -203,7 +204,7 @@ Scheme
 		NewGame.SelectionColor		"0 0 0 255"	[$X360]
 		NewGame.DisabledColor		"128 128 128 196"
 
-		TFColors.ChatTextYellow		"255 255 246 255"
+		TFColors.ChatTextYellow		"PFWhite"
 		TFColors.ChatTextTeamBlue	"153 204 255 255"
 		TFColors.ChatTextTeamRed	"255 63 53 255"
 	}

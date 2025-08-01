@@ -199,18 +199,20 @@
 		"xpos"			"c-150"
 		"ypos"			"r86"
 		
-		"xpos_minmode"	"c-120"
-		"ypos_minmode"	"r80"
+		"xpos_minmode"	"cs-0.5"
+		"ypos_minmode"	"r116"
 		
 		"zpos"			"0"
 		"wide"			"300"
 		"wide_minmode"	"240"
 		"tall"			"48"
+		"tall_minmode"	"40"
 		"visible"		"1"
 		"enabled"		"1"
 		"labelText"		""
 		"image"			"../hud/radar/bar"
 		"scaleImage"	"1"
+		
 		
 	}
 
@@ -223,8 +225,8 @@
 		"xpos"			"c-112"
 		"ypos"			"r62"
 		
-		"xpos_minmode"	"c-102"
-		"ypos_minmode"	"r56"
+		"xpos_minmode"	"c-82"
+		"ypos_minmode"	"r96"
 		
 		"visible"		"0"
 	}
@@ -238,8 +240,8 @@
 		"xpos"			"c112"
 		"ypos"			"r62"
 		
-		"xpos_minmode"	"c102"
-		"ypos_minmode"	"r56"
+		"xpos_minmode"	"c82"
+		"ypos_minmode"	"r96"
 		
 		"visible"		"0"
 	}	
