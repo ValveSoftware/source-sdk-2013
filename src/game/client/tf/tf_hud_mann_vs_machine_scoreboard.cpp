@@ -696,6 +696,9 @@ void CTFHudMannVsMachineScoreboard::UpdatePopFile( void )
 //-----------------------------------------------------------------------------
 void CTFHudMannVsMachineScoreboard::InitializeInputScheme( bool bUseMouse )
 {
+	if ( !IsVisible() || !m_pPlayerList )
+		return;
+
 	SetKeyBoardInputEnabled( false );
 	SetMouseInputEnabled( bUseMouse );
 	m_pPlayerList->SetEnabled( bUseMouse );
