@@ -1315,40 +1315,44 @@ void CServerGameDLL::PreClientUpdate( bool simulating )
 
 	if (!engine->IsDedicatedServer())
 	{
-		if (sv_showhitboxes.GetInt() == -1)
-			return;
-
-		if (sv_showhitboxes.GetInt() == 0)
+		if (developer.GetInt() >= 1)
 		{
-			// assume it's text
-			CBaseEntity* pEntity = NULL;
+			if (sv_showhitboxes.GetInt() == -1)
+				return;
 
-			while (1)
+			if (sv_showhitboxes.GetInt() == 0)
 			{
-				pEntity = gEntList.FindEntityByName(pEntity, sv_showhitboxes.GetString());
-				if (!pEntity)
-					break;
+				// assume it's text
+				CBaseEntity* pEntity = NULL;
 
-				CBaseAnimating* anim = dynamic_cast<CBaseAnimating*>(pEntity);
-
-				if (anim)
+				while (1)
 				{
-					anim->DrawServerHitboxes();
+					pEntity = gEntList.FindEntityByName(pEntity, sv_showhitboxes.GetString());
+					if (!pEntity)
+						break;
+
+					CBaseAnimating* anim = dynamic_cast<CBaseAnimating*>(pEntity);
+
+					if (anim)
+					{
+						anim->DrawServerHitboxes();
+					}
 				}
+				return;
 			}
-			return;
+
+			CBaseAnimating* anim = dynamic_cast<CBaseAnimating*>(CBaseEntity::Instance(engine->PEntityOfEntIndex(sv_showhitboxes.GetInt())));
+			if (!anim)
+				return;
+
+			anim->DrawServerHitboxes();
+
 		}
-
-		CBaseAnimating* anim = dynamic_cast<CBaseAnimating*>(CBaseEntity::Instance(engine->PEntityOfEntIndex(sv_showhitboxes.GetInt())));
-		if (!anim)
-			return;
-
-		anim->DrawServerHitboxes();
 
 	}
 	else
 	{
-		DevMsg("sv_showhitboxes only on allowed on listen servers");
+			DevMsg("sv_showhitboxes only on allowed on listen servers");
 	}
 
 }
