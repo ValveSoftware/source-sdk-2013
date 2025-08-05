@@ -203,7 +203,7 @@
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"border"		"TFThinLineBorder"
+		"border"		"PFSquareBorder"
 		
 		if_mvm
 		{
@@ -231,7 +231,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"BlueTeamLabel"
-		"font"			"Compacta20"
+		"font"			"MontserratSemibold16"
 		"labelText"		"%blueteamname%"
 		"textAlignment"		"center"
 		"xpos"			"0"
@@ -260,7 +260,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"BlueTeamScore"
-		"font"			"CompactaBlack36"
+		"font"			"MontserratBlack48"
 		"labelText"		"%blueteamscore%"
 		"textAlignment"		"center"
 		"xpos"			"14"
@@ -287,7 +287,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"BlueTeamScoreDropshadow"
-		"font"			"CompactaBlack36"
+		"font"			"MontserratBlack48"
 		"fgcolor"		"Black"
 		"labelText"		"%blueteamscore%"
 		"textAlignment"		"center"
@@ -315,7 +315,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"BlueTeamPlayerCount"
-		"font"			"Compacta16"
+		"font"			"MontserratSemibold16"
 		"labelText"		"%blueteamplayercount%"
 		"textAlignment"		"center"
 		"xpos"			"2"
@@ -357,7 +357,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"RedTeamLabel"
-		"font"			"Compacta20"
+		"font"			"MontserratSemibold16"
 		"labelText"		"%redteamname%"
 		"textAlignment"		"center"
 		"xpos"			"0"
@@ -386,7 +386,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"RedTeamScore"
-		"font"			"CompactaBlack36"
+		"font"			"MontserratBlack48"
 		"labelText"		"%redteamscore%"
 		"textAlignment"		"center"
 		"xpos"			"14"
@@ -413,7 +413,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"RedTeamScoreDropshadow"
-		"font"			"CompactaBlack36"
+		"font"			"MontserratBlack48"
 		"fgcolor"		"Black"
 		"labelText"		"%redteamscore%"
 		"textAlignment"		"center"
@@ -441,7 +441,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"RedTeamPlayerCount"
-		"font"			"Compacta16"
+		"font"			"MontserratSemibold16"
 		"labelText"		"%redteamplayercount%"
 		"textAlignment"		"center"
 		"xpos"			"2"
@@ -467,7 +467,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"ServerLabel"
-		"font"			"FuturaDemiCon12"
+		"font"			"MontserratSemibold12"
 		"labelText"		"%server%"
 		"textAlignment"	"west"
 		"xpos"			"11"
@@ -498,7 +498,7 @@
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"border"		"TFThinLineBorder"
+		"border"		"Blank"
 		"proportionaltoparent"	"1"
 		
 		if_mvm
@@ -519,7 +519,7 @@
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"border"		"TFFatLineBorderOpaque"
+		"border"		"PFSquareBorder"
 		"proportionaltoparent"	"1"
 
 		if_mvm
@@ -531,7 +531,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"ServerTimeLeftLabel"
-		"font"			"Compacta16"
+		"font"			"MontserratSemibold16"
 		"labelText"		"#Scoreboard_TimeLeftLabel"
 		"textAlignment"		"center"
 		"xpos"			"cs-0.5"
@@ -554,7 +554,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"ServerTimeLeftValue"
-		"font"			"Compacta20"
+		"font"			"MontserratSemibold16"
 		"labelText"		"%servertime%"
 		"textAlignment"	"center"
 		"xpos"			"cs-0.5"
@@ -566,7 +566,7 @@
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"fgcolor"		"BrightYellow"
+		"fgcolor"		"PFWhite"
 		"centerwrap"	"1"
 		"proportionaltoparent"	"1"
 		
@@ -579,7 +579,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"ServerTimeLeft"
-		"font"			"Compacta20"
+		"font"			"MontserratSemibold16"
 		"labelText"		"%servertimeleft%"
 		"textAlignment"	"east"
 		"xpos"			"cs-0.5"
@@ -650,17 +650,17 @@
 	{
 		"ControlName"		"ImagePanel"
 		"fieldName"		"VerticalLine"
-		"xpos"			"319"
-		"ypos"			"70"
-		"zpos"			"2"
-		"wide"			"2"
-		"tall"			"292"
+		"xpos"			"c14"
+		"ypos"			"163"
+		"zpos"			"40"
+		"wide"			"1"
+		"tall"			"157"
 		"autoResize"	"0"
 		"pinCorner"		"0"
-		"visible"		"0"
+		"visible"		"1"
 		"enabled"		"1"
 		"tabPosition"	"0"	
-		"fillcolor"		"0 0 0 153"
+		"fillcolor"		"PFWhite"
 		"PaintBackgroundType"	"0"
 		
 		if_mvm
@@ -683,7 +683,7 @@
 		"labeltext" "%spectators%"
 		"dulltext"		"0"
 		"brighttext"	"0"
-		"font"			"FuturaDemiCon12"
+		"font"			"MontserratSemibold12"
 		"textAlignment"	"east"
 		
 		"colors"
@@ -715,7 +715,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"SpectatorsInQueue"
-		"font"			"Compacta20"
+		"font"			"MontserratSemibold16"
 		"labelText"		"%waitingtoplay%"
 		"textAlignment"		"west"
 		"xpos"			"115"
@@ -747,9 +747,9 @@
 		"visible"		"1"
 		"enabled"		"1"
 		"tabPosition"	"0"	
-		"fillcolor"		"0 0 0 153"
+		"fillcolor"		"0 0 0 0"
 		"PaintBackgroundType"	"0"
-		"border"		"ComboBoxBorder"
+		"border"		"PFSquareBorder"
 		
 		if_mvm
 		{
@@ -927,7 +927,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"PlayerNameLabel"
-		"font"			"Compacta20"
+		"font"			"MontserratBlack20"
 		"labelText"		"%playername%"
 		"textAlignment"		"center"
 		"xpos"			"5"
@@ -939,7 +939,7 @@
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"border"		"TFThinLineBorder"
+		"border"		"Blank"
 		"textinsetx"	"40"
 		"auto_wide_tocontents"	"1"
 		
@@ -953,7 +953,7 @@
 	{
 		"ControlName"	"CAutoFittingLabel"
 		"fieldName"		"ServerLabelNew"
-		"font"			"FuturaDemiCon12"
+		"font"			"MontserratSemibold12"
 		"labelText"		"%server%"
 		"textAlignment"	"east"
 		"xpos"			"r275"
@@ -975,7 +975,7 @@
 	{
 		"ControlName"	"CAutoFittingLabel"
 		"fieldName"		"mapname"
-		"font"			"FuturaDemiCon12"
+		"font"			"MontserratSemibold12"
 		"labelText"		"%mapname%"
 		"textAlignment"	"east"
  		"xpos"			"r275"
@@ -1019,7 +1019,7 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"		"PlayerScoreLabel"
-		"font"		"Compacta20"
+		"font"		"MontserratSemibold16"
 		"labelText"		"%playerscore%"
 		"textAlignment"	"east"
 		"xpos"			"440"
@@ -1148,7 +1148,7 @@
 				"wrap"			"0"
 				"labelText"		"%playername%"
 				"textAlignment"	"east"
-				"font"			"FuturaDemiCon10"
+				"font"			"MontserratSemibold10"
 			}
 			"Score"
 			{
@@ -1165,7 +1165,7 @@
 				"pinCorner"		"0"
 				"visible"		"1"
 				"enabled"		"1"
-				"font"			"Compacta20"
+				"font"			"MontserratSemibold16"
 			}
 		}
 
@@ -1244,7 +1244,7 @@
 				"pinCorner"		"0"
 				"visible"		"1"
 				"enabled"		"1"
-				"font"			"FuturaDemiCon16"
+				"font"			"MontserratSemibold16"
 			}
 		}
 	}
@@ -1272,7 +1272,7 @@
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"gametype"
-			"font"			"Compacta20"
+			"font"			"MontserratSemibold16"
 			"labelText"		"%gametype%"
 			"textAlignment"		"east"
 			"xpos"			"435"
@@ -1291,7 +1291,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"KillsLabel"
-			"font"			"Compacta20"
+			"font"			"MontserratSemibold16"
 			"labelText"		"#TF_ScoreBoard_KillsLabel"
 			"textAlignment"		"east"
 			"xpos"			"c-260"
@@ -1308,7 +1308,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"Kills"
-			"font"			"Compacta20"
+			"font"			"MontserratSemibold16"
 			"labelText"		"%kills%"
 			"textAlignment"		"west"
 			"xpos"			"c-164"
@@ -1325,7 +1325,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"DeathsLabel"
-			"font"			"Compacta20"
+			"font"			"MontserratSemibold16"
 			"labelText"		"#TF_ScoreBoard_DeathsLabel"
 			"textAlignment"	"east"
 			"xpos"			"c-140"
@@ -1342,7 +1342,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"Deaths"
-			"font"			"Compacta20"
+			"font"			"MontserratSemibold16"
 			"labelText"		"%deaths%"
 			"textAlignment"	"west"
 			"xpos"			"c-44"
@@ -1359,7 +1359,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"AssistsLabel"
-			"font"			"Compacta20"
+			"font"			"MontserratSemibold16"
 			"labelText"		"#TF_ScoreBoard_AssistsLabel"
 			"textAlignment"		"east"
 			"xpos"			"c-20"
@@ -1376,7 +1376,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"Assists"
-			"font"			"Compacta20"
+			"font"			"MontserratSemibold16"
 			"labelText"		"%assists%"
 			"textAlignment"		"west"
 			"xpos"			"c76"
@@ -1393,7 +1393,7 @@
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"DamageLabel"
-			"font"			"Compacta20"
+			"font"			"MontserratSemibold16"
 			"labelText"		"#TF_Scoreboard_Damage"
 			"textAlignment"	"east"
 			"xpos"			"c100"
@@ -1410,7 +1410,7 @@
 		{
 			"ControlName"	"CExLabel"
 			"fieldName"		"Damage"
-			"font"			"Compacta20"
+			"font"			"MontserratSemibold16"
 			"labelText"		"%damage%"
 			"textAlignment"	"west"
 			"xpos"			"c196"
@@ -1441,7 +1441,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"CapturesLabel"
-			"font"			"Compacta20"
+			"font"			"MontserratSemibold16"
 			"labelText"		"Goals:"
 			"textAlignment"	"east"
 			"xpos"			"c-200"
@@ -1479,7 +1479,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"Captures"
-			"font"			"Compacta20"
+			"font"			"MontserratSemibold16"
 			"labelText"		"%captures%"
 			"textAlignment"	"west"
 			"xpos"			"c-104"

@@ -261,11 +261,11 @@ Scheme
 		Button.TextColor				"TanLight"
 		Button.BgColor					"TanDark"
 		Button.ArmedTextColor			"TanLight"
-		Button.ArmedBgColor				"TFOrange"
+		Button.ArmedBgColor				"PFGreenDim"
 		Button.SelectedTextColor		"TanLight"
-		Button.SelectedBgColor			"TFOrange"
+		Button.SelectedBgColor			"PFGreenDim"
 		Button.DepressedTextColor		"Black"
-		Button.DepressedBgColor			"TFOrange"
+		Button.DepressedBgColor			"PFGreen"
 
 		CheckButton.TextColor			"Yellow"
 		CheckButton.SelectedTextColor	"Yellow"
@@ -3158,6 +3158,15 @@ Scheme
 				"tall"	"40"
 			}
 		}
+		"MontserratBlack40Shadow"
+		{
+			"1"
+			{
+				"name"	"Montserrat Black"
+				"tall"	"40"
+				"dropshadow"	"1"
+			}
+		}
 		"MontserratBlack44"
 		{
 			"1"
@@ -3198,7 +3207,14 @@ Scheme
 				"tall"	"64"
 			}
 		}
-		
+		"MontserratSemibold12"
+		{
+			"1"
+			{
+				"name"	"Montserrat SemiBold"
+				"tall"	"12"
+			}
+		}
 		"MontserratSemibold16"
 		{
 			"1"
@@ -3214,6 +3230,14 @@ Scheme
 				"name"	"Montserrat SemiBold"
 				"tall"	"16"
 				"dropshadow"	"1"
+			}
+		}
+		"MontserratSemibold16SAA"
+		{
+			"1"
+			{
+				"name"	"Montserrat SemiBold"
+				"tall"	"16"
 			}
 		}
 		"MontserratSemibold20"
@@ -3255,6 +3279,7 @@ Scheme
 			{
 				"name"	"Montserrat Light"
 				"tall"	"6"
+				"antialias" "1"
 			}
 		}
 		"MontserratLight8"
@@ -3263,6 +3288,7 @@ Scheme
 			{
 				"name"	"Montserrat Light"
 				"tall"	"8"
+				"antialias" "1"
 			}
 		}
 		"MontserratLight12"
@@ -3271,6 +3297,7 @@ Scheme
 			{
 				"name"	"Montserrat Light"
 				"tall"	"12"
+				"antialias" "1"
 			}
 		}
 		"MontserratLight16"
@@ -3279,6 +3306,7 @@ Scheme
 			{
 				"name"	"Montserrat Light"
 				"tall"	"16"
+				"antialias" "1"
 			}
 		}
 		"MontserratLight20"
@@ -3287,6 +3315,7 @@ Scheme
 			{
 				"name"	"Montserrat Light"
 				"tall"	"20"
+				"antialias" "1"
 			}
 		}
 		"MenuGlyphs12"
@@ -3524,20 +3553,20 @@ Scheme
 		ButtonBorder
 		{
 			"inset" "0 0 0 0"
-			"backgroundtype" "2"
+			"backgroundtype" "0"
 		}
 
 		// this is the border used for default buttons (the button that gets pressed when you hit enter)
 		ButtonKeyFocusBorder
 		{
 			"inset" "0 0 0 0"
-			"backgroundtype" "2"
+			"backgroundtype" "0"
 		}
 
 		ButtonDepressedBorder
 		{
 			"inset" "0 0 0 0"
-			"backgroundtype" "2"
+			"backgroundtype" "0"
 		}
 
 		ComboBoxBorder
@@ -3752,10 +3781,10 @@ Scheme
 			"backgroundtype"		"2"
 			
 			"image"					"../hud/color_panel_red_opaque"
-			"src_corner_height"		"23"				// pixels inside the image
-			"src_corner_width"		"23"
-			"draw_corner_width"		"5"				// screen size of the corners ( and sides ), proportional
-			"draw_corner_height" 	"5"	
+			"src_corner_height"		"50"				// pixels inside the image
+			"src_corner_width"		"50"
+			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"4"	
 		}
 		TFFatLineBorderRedBGOpaque_Store
 		{
@@ -3818,11 +3847,12 @@ Scheme
 			"backgroundtype"		"2"
 			
 			"image"					"../hud/color_panel_blu_opaque"
-			"src_corner_height"		"23"				// pixels inside the image
-			"src_corner_width"		"23"
-			"draw_corner_width"		"5"				// screen size of the corners ( and sides ), proportional
-			"draw_corner_height" 	"5"	
+			"src_corner_height"		"50"				// pixels inside the image
+			"src_corner_width"		"50"
+			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"4"	
 		}
+
 		TFFatLineBorderClearBG
 		{
 			"bordertype"			"scalable_image"
@@ -3873,6 +3903,17 @@ Scheme
 					"offset" "0 0"
 				}
 			}
+		}
+		PFSquareBorder
+		{
+			"bordertype"		"scalable_image"
+			"backgroundtype"		"2"
+			"color"			"PFGrey"
+			"image"					"../hud/color_panel_pf"
+			"src_corner_height"		"23"
+			"src_corner_width"		"23"
+			"draw_corner_width"		"10"
+			"draw_corner_height" 	"10"	
 		}
 		OptionsCategoryBorder
 		{
