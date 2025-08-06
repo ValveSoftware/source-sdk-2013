@@ -247374,7 +247374,7 @@
 	}
 	"204"
 	{			//Authors: Jaguarfiend, nikeshoe92, Danmar33
-		"name"				"pass_arena2_b14b"
+		"name"				"pass_arena2_b15"
 		"localizedname"		"#P4SS_Map_Arena2"
 		"authors"			"#P4SS_Authors_Arena2"
 		"rolling_match_tags"
@@ -247388,7 +247388,7 @@
 	}
 	"205"
 	{			//Authors: kin
-		"name"				"pass_boutique_rc3c"
+		"name"				"pass_boutique_rc5"
 		"localizedname"		"#P4SS_Map_Boutique"
 		"authors"			"#P4SS_Authors_Boutique"
 		"rolling_match_tags"
@@ -247444,7 +247444,7 @@
 	}
 	"209"
 	{			//Authors: nikeshoe92
-		"name"				"pass_stadium_rc3"
+		"name"				"pass_stadium_rc5"
 		"localizedname"		"#P4SS_Map_Stadium"
 		"authors"			"#P4SS_Authors_Stadium"
 		"rolling_match_tags"
@@ -247458,7 +247458,7 @@
 	}
 	"210"
 	{			//Authors: nikeshoe92
-		"name"				"pass_stonework_rc2"
+		"name"				"pass_stonework_rc4"
 		"localizedname"		"#P4SS_Map_Stonework"
 		"authors"			"#P4SS_Authors_Stonework"
 		"rolling_match_tags"
@@ -247483,6 +247483,34 @@
 		{
 			"passtime"		"1"
 		}
+	}
+	"212"
+	{			//Authors: nikeshoe92
+		"name" "pass_amperage_a27"
+		"localizedname" "#P4SS_Map_Amperage"
+		"authors" "#P4SS_Authors_Amperage"
+			"rolling_match_tags"
+			{
+				"passtime"		"1"
+			}
+			"rolling_match_target_tags"
+			{
+				"passtime"		"1"
+			}
+	}
+	"213"
+	{			//Authors: nikeshoe92
+		"name" "pass_greenhouse_a27"
+		"localizedname" "#P4SS_Map_Greenhouse"
+		"authors" "#P4SS_Authors_Greenhouse"
+			"rolling_match_tags"
+			{
+				"passtime"		"1"
+			}
+			"rolling_match_target_tags"
+			{
+				"passtime"		"1"
+			}
 	}
 }
 	"steam_packages"
