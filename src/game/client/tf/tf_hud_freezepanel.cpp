@@ -409,7 +409,8 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 				}
 
 				// If our killer is using a powerup, show the details of that powerup
-				if ( pTFPlayerKiller && pTFPlayerKiller->m_Shared.IsCarryingRune() )
+				static ConVarRef sv_freezepanel_hide_rune( "sv_freezepanel_hide_rune" );
+				if ( pTFPlayerKiller && pTFPlayerKiller->m_Shared.IsCarryingRune() && !sv_freezepanel_hide_rune.GetBool() )
 				{
 					static CSchemaItemDefHandle rgPowerupItems [] =  { CSchemaItemDefHandle( "Powerup Strength" )
 																	 , CSchemaItemDefHandle( "Powerup Haste" )
@@ -460,7 +461,8 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 						}
 					}
 
-					if ( bShowItem )
+					static ConVarRef sv_freezepanel_hide_item( "sv_freezepanel_hide_item" );
+					if ( bShowItem && !sv_freezepanel_hide_item.GetBool() )
 					{
 						Label* pItemLabel = m_pItemPanel->FindControl<Label>( "ItemLabel" );
 						CEconItemView *pItemToShow = pWeapon->GetAttributeContainer()->GetItem();

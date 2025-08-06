@@ -884,6 +884,8 @@ ConVar tf_mvm_respec_credit_goal( "tf_mvm_respec_credit_goal", "2000", FCVAR_CHE
 ConVar tf_mvm_buybacks_method( "tf_mvm_buybacks_method", "0", FCVAR_REPLICATED | FCVAR_HIDDEN, "When set to 0, use the traditional, currency-based system.  When set to 1, use finite, charge-based system.", true, 0.0, true, 1.0 );
 ConVar tf_mvm_buybacks_per_wave( "tf_mvm_buybacks_per_wave", "3", FCVAR_REPLICATED | FCVAR_HIDDEN, "The fixed number of buybacks players can use per-wave." );
 
+ConVar sv_freezepanel_hide_item( "sv_freezepanel_hide_item", "0", FCVAR_REPLICATED, "If non-zero items will not show in the death freeze panel" );
+ConVar sv_freezepanel_hide_rune( "sv_freezepanel_hide_rune", "0", FCVAR_REPLICATED, "If non-zero runes will not show in the death freeze panel" );
 
 #ifdef GAME_DLL
 enum { kMVM_CurrencyPackMinSize = 1, };
