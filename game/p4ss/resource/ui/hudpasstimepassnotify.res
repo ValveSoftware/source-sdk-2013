@@ -145,7 +145,7 @@ Resource/UI/HudPasstimePassNotify.res
 		visible 					1
 		enabled 					1
 		scaleImage 					1
-		image 						"../passtime/hud/passtime_pass_to_me_prompt"
+		image 						"../hud/pass_bubble_full"
 		pin_to_sibling 				TextBox
 		pin_corner_to_sibling 		1
 		pin_to_sibling_corner 		0

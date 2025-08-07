@@ -837,14 +837,18 @@ bool C_PasstimePlayerReticle::Update()
 	return true;
 }
 
+ConVar pf_whistle_healthcolor( "pf_whistle_healthcolor", "0", FCVAR_ARCHIVE, "Sets whether the ask for ball speech bubble uses the player's health color." );
 //-----------------------------------------------------------------------------
 // C_PasstimeAskForBallReticle
 //-----------------------------------------------------------------------------
 C_PasstimeAskForBallReticle::C_PasstimeAskForBallReticle( C_TFPlayer *pPlayer )
 {
 	m_hPlayer.Set( pPlayer );
-	AddSprite( CreateReticleSprite( "passtime/hud/passtime_pass_to_me_prompt", 128, 0 ) );
+
+	AddSprite( CreateReticleSprite( "hud/pass_bubble_top", 128, 0 ) );
+	AddSprite( CreateReticleSprite( "hud/pass_bubble", 128, 0 ) );
 	SetRgba( 0, 255, 255, 255, 200 );
+	SetRgba( 1, 255, 255, 255, 200 );
 }
 
 //-----------------------------------------------------------------------------
@@ -892,8 +896,23 @@ bool C_PasstimeAskForBallReticle::Update()
 	auto flScale = RemapValClamped( flDist, 1024.0f, 4096.0f, 40, 200 );
 	SetAllScales( flScale );
 	SetAllOrigins( vecTarget );
+
 	SetAllNormals( -MainViewForward() );
-	SetRgba( 0, 255, 255, 255, (((int)(gpGlobals->curtime * 10)) & 1 ? 200 : 0) );
+	//SetRgba( 0, 255, 255, 255, (((int)(gpGlobals->curtime * 10)) & 1 ? 200 : 0) );
+	float r, g, b;
+	if (pPlayer && pf_whistle_healthcolor.GetBool())
+		{
+			pPlayer->GetHealthColor( &r, &g, &b );
+		}
+	else
+		{
+			r = 255;
+			g = 255;
+			b = 255;
+		}
+	
+	SetRgba( 0, 255, 255, 255, 255 );
+	SetRgba( 1, r*255, g*255, b*255, 200 );
 	return true;
 }
 
