@@ -1410,6 +1410,38 @@ CON_COMMAND_F( bot_teleport_to_me, "Teleport the specified bot to your location.
         botVector[i]->Teleport( &vecPos, &vecAng, NULL );
     }
 }
+
+CON_COMMAND_F( bot_teleport_to_aim, "Teleport the specified bot to your location. Usage: bot_teleport_to_aim <bot name or index>", FCVAR_CHEAT )
+{
+    CUtlVector< CTFPlayer* > botVector;
+    GetBotsFromCommand( args, 2, "Usage: bot_teleport_to_aim <bot name or index>", &botVector );
+    if ( botVector.IsEmpty() )
+        return;
+
+    CBasePlayer *pPlayer = UTIL_GetCommandClient();
+    if ( !pPlayer )
+        return;
+
+    trace_t tr;
+    Vector forward;
+    pPlayer->EyeVectors( &forward );
+    UTIL_TraceLine(
+        pPlayer->EyePosition(),
+        pPlayer->EyePosition() + forward * MAX_TRACE_LENGTH,
+        MASK_SOLID,
+        pPlayer,
+        COLLISION_GROUP_NONE,
+        &tr
+    );
+
+    Vector vecPos = (tr.fraction < 1.0f) ? tr.endpos : (pPlayer->EyePosition() + forward * MAX_TRACE_LENGTH);
+    QAngle vecAng = pPlayer->EyeAngles();
+
+    FOR_EACH_VEC( botVector, i )
+    {
+        botVector[i]->Teleport( &vecPos, &vecAng, NULL );
+    }
+}
 //------------------------------------------------------------------------------
 // Purpose: Force the specified bot to create & equip an item
 //------------------------------------------------------------------------------
