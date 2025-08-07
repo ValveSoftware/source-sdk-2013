@@ -1628,3 +1628,72 @@ void CPasstimeBall::KillMagnetSound()
 		m_pCloseToTarget = 0;
 	}
 }
+
+CON_COMMAND_F( pf_tpball_here, "Teleport the ball into your hands.", FCVAR_CHEAT )
+{
+    CBasePlayer *pPlayer = UTIL_GetCommandClient();
+    if ( !pPlayer )
+        return;
+
+    CPasstimeBall *pBall = nullptr;
+    for ( CBaseEntity *pEnt = gEntList.FirstEnt(); pEnt != nullptr; pEnt = gEntList.NextEnt(pEnt) )
+    {
+        pBall = dynamic_cast<CPasstimeBall*>(pEnt);
+        if ( pBall )
+            break;
+    }
+
+    if ( !pBall )
+    {
+        Msg("No passtime ball found!\n");
+        return;
+    }
+
+	if ( pBall->GetTeamNumber() != TEAM_UNASSIGNED )
+	{
+		pBall->ChangeTeam(TEAM_UNASSIGNED);
+	}
+    Vector vecPos = pPlayer->GetAbsOrigin();
+    QAngle vecAng = pPlayer->EyeAngles();
+
+	pBall->Teleport( &vecPos, &vecAng, nullptr );
+}
+
+CON_COMMAND_F( pf_tpball_there, "Teleport the ball to your aim position.", FCVAR_CHEAT )
+{
+    CBasePlayer *pPlayer = UTIL_GetCommandClient();
+    if ( !pPlayer )
+        return;
+
+    CPasstimeBall *pBall = nullptr;
+    for ( CBaseEntity *pEnt = gEntList.FirstEnt(); pEnt != nullptr; pEnt = gEntList.NextEnt(pEnt) )
+    {
+        pBall = dynamic_cast<CPasstimeBall*>(pEnt);
+        if ( pBall )
+            break;
+    }
+
+    if ( !pBall )
+    {
+        Msg("No passtime ball found!\n");
+        return;
+    }
+
+    trace_t tr;
+    Vector forward;
+    pPlayer->EyeVectors( &forward );
+    UTIL_TraceLine(
+        pPlayer->EyePosition(),
+        pPlayer->EyePosition() + forward * MAX_TRACE_LENGTH,
+        MASK_SOLID,
+        pPlayer,
+        COLLISION_GROUP_NONE,
+        &tr
+    );
+
+    Vector vecPos = (tr.fraction < 1.0f) ? tr.endpos : (pPlayer->EyePosition() + forward * MAX_TRACE_LENGTH);
+    QAngle vecAng = pPlayer->EyeAngles();
+
+	pBall->Teleport( &vecPos, &vecAng, nullptr );
+
+	}
