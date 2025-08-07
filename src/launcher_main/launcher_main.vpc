@@ -47,7 +47,8 @@ $Configuration
 
 	$Linker
 	{
-		$SystemLibraries				"SDL2" [$MOD_LAUNCHER && $LINUXALL]
+		// $SystemLibraries				"SDL2" [$MOD_LAUNCHER && $LINUXALL]
+		$SystemLibraries				"SDL2" [$LINUXALL] // lucy: this doesn't link on Linux with mod_launcher disabled?
 	}
 }
 

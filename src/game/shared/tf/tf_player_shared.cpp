@@ -6077,7 +6077,11 @@ void CTFPlayerShared::EndCharge()
 }
 
 // New convar to control charge turn rate. Default is same as vanilla TF2.
-ConVar tf_charge_turn_rate("tf_charge_turn_rate", "0.45", FCVAR_REPLICATED | FCVAR_CHEAT, "Base turn rate cap for demoman charge in degrees per tick");
+ConVar tf_charge_turn_rate("tf_charge_turn_rate", "1.0", FCVAR_REPLICATED | FCVAR_CHEAT, "Base turn rate cap for demoman charge in degrees per tick");
+
+// Debug convars for charge turn capping
+ConVar tf_charge_turn_debug("tf_charge_turn_debug", "0", FCVAR_REPLICATED | FCVAR_CHEAT, "Debug charge turn capping: 1=basic, 2=verbose");
+ConVar tf_charge_turn_debug_client("tf_charge_turn_debug_client", "0", FCVAR_REPLICATED | FCVAR_CHEAT, "Debug client-side charge turn capping");
 
 //-----------------------------------------------------------------------------
 // Purpose: Unified function to cap turning rate for charge regardless of input method
@@ -6087,7 +6091,13 @@ ConVar tf_charge_turn_rate("tf_charge_turn_rate", "0.45", FCVAR_REPLICATED | FCV
 float CTFPlayerShared::CapChargeTurnRate(float flYawDelta) const
 {
 	if (!InCond(TF_COND_SHIELD_CHARGE))
+	{
+		if (tf_charge_turn_debug_client.GetBool() && fabs(flYawDelta) > 0.01f)
+		{
+			DevMsg("[CLIENT] Not charging, yaw delta %.2f passed through\n", flYawDelta);
+		}
 		return flYawDelta;
+	}
 
 	// Base turn rate cap in degrees per tick
 	float flBaseCap = tf_charge_turn_rate.GetFloat();
@@ -6097,11 +6107,80 @@ float CTFPlayerShared::CapChargeTurnRate(float flYawDelta) const
 
 	float flMaxYawDelta = flBaseCap * gpGlobals->frametime / TICK_INTERVAL;
 	
+	if (tf_charge_turn_debug_client.GetBool())
+	{
+		DevMsg("[CLIENT] Charging: yaw delta %.2f, max allowed %.2f (cap %.2f, frametime %.4f)\n", 
+			flYawDelta, flMaxYawDelta, flBaseCap, gpGlobals->frametime);
+	}
+	
 	// Apply the cap
 	if (flYawDelta > flMaxYawDelta)
+	{
+		if (tf_charge_turn_debug_client.GetBool())
+			DevMsg("[CLIENT] Capped positive yaw: %.2f -> %.2f\n", flYawDelta, flMaxYawDelta);
 		return flMaxYawDelta;
+	}
 	else if (flYawDelta < -flMaxYawDelta)
+	{
+		if (tf_charge_turn_debug_client.GetBool())
+			DevMsg("[CLIENT] Capped negative yaw: %.2f -> %.2f\n", flYawDelta, -flMaxYawDelta);
 		return -flMaxYawDelta;
+	}
+	
+	return flYawDelta;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Lag-compensated version for server-side turn rate capping
+// Input:   Raw yaw change in degrees, time delta between commands
+// Output:  Capped yaw change in degrees
+//-----------------------------------------------------------------------------
+float CTFPlayerShared::CapChargeTurnRate(float flYawDelta, float flTimeDelta) const
+{
+	if (!InCond(TF_COND_SHIELD_CHARGE))
+	{
+		if (tf_charge_turn_debug.GetInt() >= 2 && fabs(flYawDelta) > 0.01f)
+		{
+			DevMsg("[SERVER] Not charging, yaw delta %.2f passed through (timeDelta %.4f)\n", flYawDelta, flTimeDelta);
+		}
+		return flYawDelta;
+	}
+
+	// Base turn rate cap in degrees per tick
+	float flBaseCap = tf_charge_turn_rate.GetFloat();
+
+	// Apply charge_turn_control attribute
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER(m_pOuter, flBaseCap, charge_turn_control);
+
+	// Use the actual time delta instead of server frametime for proper lag compensation
+	float flMaxYawDelta = flBaseCap * flTimeDelta / TICK_INTERVAL;
+	
+	if (tf_charge_turn_debug.GetInt() >= 1)
+	{
+		DevMsg("[SERVER] Charging: yaw delta %.2f, max allowed %.2f (cap %.2f, timeDelta %.4f, ticks %.1f)\n", 
+			flYawDelta, flMaxYawDelta, flBaseCap, flTimeDelta, flTimeDelta / TICK_INTERVAL);
+	}
+	
+	// Apply the cap
+	if (flYawDelta > flMaxYawDelta)
+	{
+		if (tf_charge_turn_debug.GetInt() >= 1)
+			DevMsg("[SERVER] LAG COMP CAPPED positive yaw: %.2f -> %.2f (saved %.2f degrees)\n", 
+				flYawDelta, flMaxYawDelta, flYawDelta - flMaxYawDelta);
+		return flMaxYawDelta;
+	}
+	else if (flYawDelta < -flMaxYawDelta)
+	{
+		if (tf_charge_turn_debug.GetInt() >= 1)
+			DevMsg("[SERVER] LAG COMP CAPPED negative yaw: %.2f -> %.2f (saved %.2f degrees)\n", 
+				flYawDelta, -flMaxYawDelta, fabs(flYawDelta) - flMaxYawDelta);
+		return -flMaxYawDelta;
+	}
+	
+	if (tf_charge_turn_debug.GetInt() >= 2)
+	{
+		DevMsg("[SERVER] No capping needed, yaw delta %.2f within limit %.2f\n", flYawDelta, flMaxYawDelta);
+	}
 	
 	return flYawDelta;
 }

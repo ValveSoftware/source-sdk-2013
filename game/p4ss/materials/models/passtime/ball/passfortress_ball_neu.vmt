@@ -1,23 +1,27 @@
-VertexLitGeneric
+PBR
 {
-	$basetexture		"models/passtime/ball/passfortress_ball_albedo_neu"
-	$bumpmap			"models/passtime/ball/passfortress_ball_bump"
-
-	$envmap						"env_cubemap"
-	$envmaptint					"[.4 .525 .275]"
-	$envmapfresnel				.1
+	">=DX90"
+	{
+        $basetexture      "models/passtime/ball/pf_albedo"
+        $bumpmap          "models/passtime/ball/pf_norm"
+        $mraotexture      "models/passtime/ball/pf_mrao"
+	$emissiontexture  "models/passtime/ball/pf_emitneu"
+	$useenvambient 1
+	$useparallax  0
+        $envmap           "env_cubemap"
+        $model            1
+	}
+	
+	"<DX90"
+	{
+	$model            1
+        $basetexture      "models/passtime/ball/dx8_albedo"
+        $bumpmap          "models/passtime/ball/dx8_norm"
+	$envmaptint					"[.2 .3 .2]"
+	$envmapfresnel				1
 	$normalmapalphaenvmapmask	1
-
-	$phong 1
-	$phongalbedotint			1
-	//$phongtint					"[1 1 1]"
-	$phongexponenttexture		"models/passtime/ball/passfortress_ball_phong"
-	$phongexponentfactor		16
-	$phongboost					15
-	$phongfresnelranges			"[0.2 1 1]"
-	
-	$selfillum					0
-	$selfillummask				"models/passtime/ball/passfortress_ball_emit"
-	
-	$lightwarptexture 			"models/buildables/sentry1/Sentry1_lightwarp"
+	$selfillum					1
+	$selfillummask  "models/passtime/ball/pf_emitneu"
+        $envmap           "env_cubemap"
+	}
 }

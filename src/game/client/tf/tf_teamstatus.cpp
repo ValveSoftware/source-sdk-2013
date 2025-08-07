@@ -60,7 +60,7 @@ bool CTFTeamStatusPlayerPanel::Update( void )
 		return false;
 
 	C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
-	if ( !pLocalPlayer || ( pLocalPlayer->GetTeamNumber() < FIRST_GAME_TEAM ) )
+	if ( !pLocalPlayer )
 		return false;
 
 	bool bChanged = false;
@@ -526,10 +526,6 @@ bool CTFTeamStatus::ShouldDraw( void )
 	if ( !pPlayer )
 		return false;
 
-	int iLocalTeam = g_TF_PR->GetTeam( pPlayer->entindex() );
-	if ( iLocalTeam < FIRST_GAME_TEAM )
-		return false;
-
 	if ( TFGameRules() )
 	{
 		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
@@ -591,8 +587,6 @@ void CTFTeamStatus::RecalculatePlayerPanels( void )
 
 	int iPanel = 0;
 	bool bNeedsLayout = false;
-	int iLocalTeam = g_TF_PR->GetTeam( pPlayer->entindex() );
-	if ( iLocalTeam >= FIRST_GAME_TEAM )
 	{
 		for ( int i = 1; i <= MAX_PLAYERS; i++ )
 		{

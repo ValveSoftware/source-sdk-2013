@@ -531,6 +531,7 @@ public:
 	float	GetDemomanChargeMeter() const		{ return m_flChargeMeter; }
 	void	EndCharge( void ); 
 	float	CapChargeTurnRate(float flYawDelta) const;
+	float	CapChargeTurnRate(float flYawDelta, float flTimeDelta) const;
 	void	SetDemomanChargeMeter( float val )  { m_flChargeMeter = Clamp( val, 0.0f, 100.0f); }
 	void	CalcChargeCrit( bool bForceCrit=false );
 	bool	HasDemoShieldEquipped() const;

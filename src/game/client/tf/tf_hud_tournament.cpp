@@ -580,13 +580,6 @@ void CHudTournament::OnTick( void )
 				m_bShouldBeVisible = true;
 				PreparePanel();
 
-				if ( !TFGameRules()->IsInArenaMode() )
-				{
-					if ( !pLocalPlayer->IsAlive() )
-					{
-						m_bShouldBeVisible = false;
-					}
-				}
 			}
 			else
 			{
@@ -1100,6 +1093,9 @@ bool CHudTournamentSetup::ToggleState( ButtonCode_t code )
 
 	if ( !g_TF_PR )
 		return false;
+	
+	if ( GetLocalPlayerTeam() < FIRST_GAME_TEAM )
+		return false;
 
 	if ( code == KEY_F4 || code == STEAMCONTROLLER_F4 )
 	{
@@ -1179,7 +1175,7 @@ void CHudTournamentSetup::OnTick( void )
 		return;
 
 	int iLocalTeam = g_TF_PR->GetTeam( pLocalPlayer->entindex() );
-	if ( iLocalTeam <= LAST_SHARED_TEAM || TFGameRules()->State_Get() == GR_STATE_GAME_OVER )
+	if ( TFGameRules()->State_Get() == GR_STATE_GAME_OVER )
 	{
 		SetVisible( false );
 		return;

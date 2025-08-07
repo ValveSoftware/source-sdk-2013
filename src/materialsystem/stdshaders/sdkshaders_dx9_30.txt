@@ -8,3 +8,5 @@
 //
 
 // There are no examples of such shaders in the SDK, but add yours here.
+pbr_vs30.fxc
+pbr_ps30.fxc

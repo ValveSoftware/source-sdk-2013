@@ -1090,6 +1090,7 @@ CTFPlayer::CTFPlayer()
 	SetRespawnOverride( -1.f, NULL_STRING );
 
 	m_qPreviousChargeEyeAngle.Init();
+	m_nPreviousChargeCommandNumber = 0;
 
 	m_vHalloweenKartPush.Zero();
 	m_flHalloweenKartPushEventTime = 0.f;
