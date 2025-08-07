@@ -1126,6 +1126,11 @@ int	CTFFreezePanel::HudElementKeyInput( int down, ButtonCode_t keynum, const cha
 				engine->ClientCmd( "extendfreeze" );
 				view->FreezeFrame( 3.0f );
 
+				// Hide StatPanel here as a workaround for not hiding in time for freezecam screenshots
+				CTFStatPanel* pStatPanel = GET_HUDELEMENT(CTFStatPanel);
+				if (pStatPanel && pStatPanel->IsVisible())
+					pStatPanel->SetVisible(false);
+
 				//Hide the reminder panel
 				m_flShowSnapshotReminderAt = 0;
 				ShowSnapshotPanel( false );
