@@ -102,12 +102,23 @@ void GetBotsFromCommand( const CCommand &args, int iArgsRequired, const char *ps
 		}
 		return;
 	}
+    char *endptr = nullptr;
+    int idx = strtol(pszBotName, &endptr, 10);
+    if (endptr && *endptr == '\0' && idx > 0 && idx <= gpGlobals->maxClients)
+    {
+        CTFPlayer *pBot = ToTFPlayer( UTIL_PlayerByIndex( idx ) );
+        if ( pBot && pBot->IsFakeClient() )
+        {
+            botVector->AddToTail( pBot );
+            return;
+        }
+    }
 
 	// get the bot's player object
 	CTFPlayer *pBot = ToTFPlayer( UTIL_PlayerByName( pszBotName ) );
 	if ( !pBot || !pBot->IsFakeClient() )
 	{
-		Msg( "No bot with name %s\n", args[1] );
+		Msg( "No bot with name or index %s\n", args[1] );
 		return;
 	}
 
@@ -1380,6 +1391,25 @@ CON_COMMAND_F( bot_teleport, "Teleport the specified bot to the specified positi
 	
 }
 
+CON_COMMAND_F( bot_teleport_to_me, "Teleport the specified bot to your location. Usage: bot_teleport_to_me <bot name or index>", FCVAR_CHEAT )
+{
+    CUtlVector< CTFPlayer* > botVector;
+    GetBotsFromCommand( args, 2, "Usage: bot_teleport_to_me <bot name>", &botVector );
+    if ( botVector.IsEmpty() )
+        return;
+
+    CBasePlayer *pPlayer = UTIL_GetCommandClient();
+    if ( !pPlayer )
+        return;
+
+    Vector vecPos = pPlayer->GetAbsOrigin();
+    QAngle vecAng = pPlayer->EyeAngles();
+
+    FOR_EACH_VEC( botVector, i )
+    {
+        botVector[i]->Teleport( &vecPos, &vecAng, NULL );
+    }
+}
 //------------------------------------------------------------------------------
 // Purpose: Force the specified bot to create & equip an item
 //------------------------------------------------------------------------------
