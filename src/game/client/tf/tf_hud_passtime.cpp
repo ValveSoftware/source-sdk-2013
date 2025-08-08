@@ -635,12 +635,12 @@ void CTFHudPasstimeEventText::Tick()
 		{
 			SetAlpha( 1 );
 			auto msg = m_queue.RemoveAtHead();
-			DevMsg( "m_pTitleLabel: %s", m_pTitleLabel ? "true" : "false" );
-			DevMsg( "m_pTitleLabelShadow: %s", m_pTitleLabelShadow ? "true" : "false" );
-			DevMsg( "m_pDetailLabel: %s", m_pDetailLabel ? "true" : "false" );
-			DevMsg( "m_pDetailLabelShadow: %s", m_pDetailLabelShadow ? "true" : "false" );
-			DevMsg( "m_pBonusLabel: %s", m_pBonusLabel ? "true" : "false" );
-			DevMsg( "m_pBonusLabelShadow: %s", m_pBonusLabelShadow ? "true" : "false" );
+			// DevMsg( "m_pTitleLabel: %s", m_pTitleLabel ? "true" : "false" );
+			// DevMsg( "m_pTitleLabelShadow: %s", m_pTitleLabelShadow ? "true" : "false" );
+			// DevMsg( "m_pDetailLabel: %s", m_pDetailLabel ? "true" : "false" );
+			// DevMsg( "m_pDetailLabelShadow: %s", m_pDetailLabelShadow ? "true" : "false" );
+			// DevMsg( "m_pBonusLabel: %s", m_pBonusLabel ? "true" : "false" );
+			// DevMsg( "m_pBonusLabelShadow: %s", m_pBonusLabelShadow ? "true" : "false" );
 			if ( m_pTitleLabel && m_pTitleLabelShadow )
 			{
 				SetLabelText( m_pTitleLabel, msg.title );
