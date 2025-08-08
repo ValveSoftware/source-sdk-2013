@@ -660,6 +660,11 @@ int main( int argc, char *argv[] )
 
 	new_argv.push_back(NULL);
 
+	// Lucy: For compatibility with SDL3's SDL2 compat layer.
+	// Otherwise, it will try to use the Wayland video driver
+	// which is not supported by the game.
+	setenv("SDL_VIDEODRIVER", "x11", 1);
+
 	execvp( szExecutable, new_argv.data() );
 
 	return 0;
