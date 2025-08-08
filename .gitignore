@@ -1,5 +1,9 @@
 # Files to ignore when considering what GIT should commit.
 
+# EXTRA: Remove CMake artifacts when compiling from other branches
+build/*
+build_container/*
+
 # Ignore SteamPipe build details
 steam/*
 steam/
