@@ -31,6 +31,7 @@ ConVar pf_tag_bgalpha( "pf_tag_bgalpha", "160", FCVAR_ARCHIVE, "Set the alpha va
 ConVar pf_tag_healthbars_bgalpha( "pf_tag_healthbars_bgalpha", "160", FCVAR_ARCHIVE, "Set the alpha value for the health bar background." );
 ConVar pf_tag_healthbars_size( "pf_tag_healthbars_size", "6", FCVAR_ARCHIVE, "Set the size of the health bar." );
 ConVar pf_tag_arrow_healthcolor( "pf_tag_arrow_healthcolor", "0", FCVAR_ARCHIVE, "Use health-based coloring for the health bar arrow." );
+ConVar p4ss_xray_enemy( "p4ss_xray_enemy", "0", FCVAR_NOTIFY, "Enable seeing enemy nametags." );
 DECLARE_HUDELEMENT( CTFHudSpectatorExtras );
 
 //-----------------------------------------------------------------------------
@@ -146,7 +147,9 @@ void CTFHudSpectatorExtras::OnTick()
 	{
 		bool bShowEveryone = ( bIsHLTV || 
 							   ( ( nLocalPlayerTeam == TEAM_SPECTATOR ) && tf_spec_xray.GetBool() ) ||
-							   ( ( nLocalPlayerTeam >= FIRST_GAME_TEAM ) && ( pLocalPlayer->GetObserverMode() > OBS_MODE_FREEZECAM ) && ( tf_spec_xray.GetInt() > 1 ) ) );
+							   ( ( nLocalPlayerTeam >= FIRST_GAME_TEAM ) && ( pLocalPlayer->GetObserverMode() > OBS_MODE_FREEZECAM ) && ( tf_spec_xray.GetInt() > 1 ) ) ||
+							   ( pLocalPlayer->m_Shared.HasPasstimeBall() && tf_spec_xray.GetBool() )
+							   );
 
 		// loop through the players
 		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
@@ -234,17 +237,9 @@ void CTFHudSpectatorExtras::OnTick()
 			}
 
 			// use actual name or disguised name?
-			/*int nNameIndex = pDisguiseTarget ? pDisguiseTarget->entindex() : i;
+			int nNameIndex = pDisguiseTarget ? pDisguiseTarget->entindex() : i;
 			g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( nNameIndex ), m_vecEntitiesToDraw[nVecIndex].m_wszName, sizeof( m_vecEntitiesToDraw[nVecIndex].m_wszName ) );
-			m_vecEntitiesToDraw[nVecIndex].m_wszName[5] = L'\0'; //truncate name to 5 characters
-			
-			// Convert truncated name to uppercase
-			for (int i = 0; i < 5 && m_vecEntitiesToDraw[nVecIndex].m_wszName[i] != L'\0'; i++)
-			{
-				m_vecEntitiesToDraw[nVecIndex].m_wszName[i] = towupper(m_vecEntitiesToDraw[nVecIndex].m_wszName[i]);
-			}
 
-			*/
 
 			if ( pDisguiseTarget )
 			{
@@ -441,6 +436,8 @@ void CTFHudSpectatorExtras::GetNameAndBorderColor( C_BaseEntity *pEntity, Color 
 
 void CTFHudSpectatorExtras::DrawHealthBar( int x, int y, int width, int height, float healthPercent, Color healthColor, Color backgroundColor )
 {
+
+	
     int xHealthPos = x - ( width / 2 );
 
     // health bar bg
@@ -498,6 +495,16 @@ void CTFHudSpectatorExtras::Paint()
 		C_BaseEntity *pEnt = cl_entitylist->GetEnt( nEntIndex );
 		if ( !pEnt )
 			continue;
+        C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+        int nLocalPlayerTeam = pLocalPlayer ? pLocalPlayer->GetTeamNumber() : TEAM_UNASSIGNED;
+        int nEntityTeam = pEnt->GetTeamNumber();
+        bool bIsEnemy = (nLocalPlayerTeam >= FIRST_GAME_TEAM) && (nEntityTeam >= FIRST_GAME_TEAM) && (nEntityTeam != nLocalPlayerTeam);
+
+        // settings for enemy nametags (ball holder only)
+		if ( !p4ss_xray_enemy.GetBool() && bIsEnemy )
+			continue;
+
+		bool bDrawHealthBar = pf_tag_healthbars.GetBool() && !bIsEnemy;
 
 		Vector vecPos = pEnt->GetAbsOrigin();
 		vecPos.z += m_vecEntitiesToDraw[i].m_nOffset;
@@ -518,7 +525,7 @@ void CTFHudSpectatorExtras::Paint()
 			int nHeight = fontAscent; // height of nametag bg
 
 			int nTotalHeight = nHeight;
-			if ( pf_tag_healthbars.GetBool() )
+			if ( bDrawHealthBar )
 			{
 				nTotalHeight += nHealthHeight + 1;
 				// nHeight is just the "name part", nTotalHeight includes the health bar
@@ -543,11 +550,11 @@ void CTFHudSpectatorExtras::Paint()
 			vgui::surface()->DrawPrintText( m_vecEntitiesToDraw[i].m_wszName, wcslen( m_vecEntitiesToDraw[i].m_wszName ), vgui::FONT_DRAW_ADDITIVE );
 
 			C_TFPlayer *pPlayer = ToTFPlayer( pEnt );
-			if ( !pf_tag_healthbars.GetBool() )
-			{
+            if ( !bDrawHealthBar )
+            {
 				int yArrowPos = iY - nNameOffset + nHeight - 1;
 				Color arrowColor;
-				if (pPlayer && pf_tag_arrow_healthcolor.GetBool())
+				if (pPlayer && pf_tag_arrow_healthcolor.GetBool() && !bIsEnemy)
 				{
 					float r, g, b;
 					pPlayer->GetHealthColor( &r, &g, &b );
@@ -584,7 +591,10 @@ void CTFHudSpectatorExtras::Paint()
 				arrowColor = nameAndBorderColor;
 
 			Color healthBarBackground( 0, 0, 0, pf_tag_healthbars_bgalpha.GetInt() );
-			DrawHealthBar( iX, yHealthPos, healthBarWidth, nHealthHeight, m_vecEntitiesToDraw[i].m_flHealth, healthBarColor, healthBarBackground );
+			if (!bIsEnemy)
+			{
+				DrawHealthBar( iX, yHealthPos, healthBarWidth, nHealthHeight, m_vecEntitiesToDraw[i].m_flHealth, healthBarColor, healthBarBackground );
+			}
 			int arrowYPos = yHealthPos + nHealthHeight + 1;
 			DrawArrow( iX, arrowYPos, arrowColor );
 
