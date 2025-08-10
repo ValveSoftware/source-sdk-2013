@@ -28,6 +28,7 @@
 #include "tf_weapon_medigun.h"
 #include "func_respawnroom.h"
 #include "soundenvelope.h"
+#include "tf_projectile_energy_ball.h"
 
 #include "econ_entity_creation.h"
 
