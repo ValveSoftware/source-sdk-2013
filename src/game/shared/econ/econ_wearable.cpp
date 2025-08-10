@@ -473,7 +473,7 @@ public:
 		
 		if ( !econ_allow_paint_tint.GetBool() )
 		{
-			m_pResult->SetVecValue( 1.f, 1.f, 1.f );
+			m_pResult->SetVecValue( 0, 0, 0 );
 			return;
 		}
 		
