@@ -4171,12 +4171,61 @@ bool CTFBot::ShouldFireCompressionBlast( void )
 		if ( pObject->IsPlayer() )
 			continue;
 
-		// is this something I want to deflect?
-		if ( !pObject->IsDeflectable() )
+		bool bSeesProjectile = false;
+
+		CTFBaseRocket *pBaseRocket = dynamic_cast< CTFBaseRocket * >( pObject );
+		if ( pBaseRocket )
+		{
+			// is this something I want to deflect?
+			if ( pBaseRocket->IsDeflectable() )
+			{
+				bSeesProjectile = true;
+			}
+		}
+
+		if ( !bSeesProjectile )
+		{
+			CTFGrenadePipebombProjectile *pBaseGrenade = dynamic_cast< CTFGrenadePipebombProjectile * >( pObject );
+			if ( pBaseGrenade )
+			{
+				// is this something I want to deflect?
+				if ( pBaseGrenade->IsDeflectable() )
+				{
+					bSeesProjectile = true;
+				}
+			}
+		}
+
+		// we can't deflect it.
+		if ( !bSeesProjectile )
 			continue;
 
-		if ( FClassnameIs( pObject, "tf_projectile_rocket" ) || FClassnameIs( pObject, "tf_projectile_energy_ball" ) )
+		if ( bSeesProjectile )
 		{
+			// on hard or expert, we're not restricted to what projectiles we should reflect.
+			// on lower difficulties, only deflect rockets or energy balls.
+			if ( !IsDifficulty( CTFBot::HARD ) && !IsDifficulty( CTFBot::EXPERT ) )
+			{
+				bool bCanReflectThisProj = false;
+
+				CTFProjectile_Rocket *pRocket = dynamic_cast< CTFProjectile_Rocket * >( pObject );
+				if ( pRocket )
+				{
+					bCanReflectThisProj = true;
+				}
+				else
+				{
+					CTFProjectile_EnergyBall *pBall = dynamic_cast< CTFProjectile_EnergyBall * >( pObject );
+					if ( pBall )
+					{
+						bCanReflectThisProj = true;
+					}
+				}
+
+				if ( !bCanReflectThisProj )
+					continue;
+			}
+
 			// is it headed right for me?
 			Vector vecThemUnitVel = pObject->GetAbsVelocity();
 			vecThemUnitVel.z = 0.0f;
@@ -4185,16 +4234,12 @@ bool CTFBot::ShouldFireCompressionBlast( void )
 			Vector horzForward( vecForward.x, vecForward.y, 0.0f );
 			horzForward.NormalizeInPlace();
 
-			if ( DotProduct( horzForward, vecThemUnitVel ) > -tf_bot_pyro_deflect_tolerance.GetFloat() )
+			if ( DotProduct( horzForward, vecThemUnitVel ) > 0 )
 				continue;
+
+			// bounce it!
+			return true;
 		}
-
-		// can I see it?
-		if ( !GetVisionInterface()->IsLineOfSightClear( pObject->WorldSpaceCenter() ) )
-			continue;
-
-		// bounce it!
-		return true;
 	}
 
 	return false;
