@@ -459,7 +459,7 @@ RenderGroup_t CEconWearable::GetRenderGroup()
 	return BaseClass::GetRenderGroup();
 }
 
-ConVar econ_allow_painted_items( "econ_allow_painted_items", "1", FCVAR_ARCHIVE );
+ConVar econ_allow_painted_items( "econ_allow_painted_items", "1", FCVAR_CLIENTDLL | FCVAR_ARCHIVE );
 
 //-----------------------------------------------------------------------------
 // Purpose: Wearable tint colors
