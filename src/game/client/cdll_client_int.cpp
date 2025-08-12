@@ -331,12 +331,14 @@ class IMoveHelper;
 
 void DispatchHudText( const char *pszName );
 
-static ConVar s_CV_ShowParticleCounts("showparticlecounts", "0", 0, "Display number of particles drawn per frame");
-static ConVar s_cl_team("cl_team", "default", FCVAR_USERINFO|FCVAR_ARCHIVE, "Default team when joining a game");
-static ConVar s_cl_class("cl_class", "default", FCVAR_USERINFO|FCVAR_ARCHIVE, "Default class when joining a game");
+static ConVar s_CV_ShowParticleCounts( "showparticlecounts", "0", 0, "Display number of particles drawn per frame" );
+static ConVar s_cl_team( "cl_team", "default", FCVAR_USERINFO|FCVAR_ARCHIVE, "Default team when joining a game" );
+static ConVar s_cl_class( "cl_class", "default", FCVAR_USERINFO|FCVAR_ARCHIVE, "Default class when joining a game" );
+
+ConVar cl_no_texture_stream( "cl_no_texture_stream", "0", FCVAR_ARCHIVE );
 
 #ifdef HL1MP_CLIENT_DLL
-static ConVar s_cl_load_hl1_content("cl_load_hl1_content", "0", FCVAR_ARCHIVE, "Mount the content from Half-Life: Source if possible");
+static ConVar s_cl_load_hl1_content( "cl_load_hl1_content", "0", FCVAR_ARCHIVE, "Mount the content from Half-Life: Source if possible" );
 #endif
 
 ConVar r_lightmap_bicubic_set( "r_lightmap_bicubic_set", "0", FCVAR_ARCHIVE | FCVAR_HIDDEN, "Hack to get this convar to be re-set on first launch." );
@@ -897,6 +899,12 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 #ifndef NO_STEAM
 	ClientSteamContext().Activate();
 #endif
+
+	// if -no_texture_stream isn't enabled, append the parm if we're using the cvar
+	if ( cl_no_texture_stream.GetBool() && !CommandLine()->CheckParm( "-no_texture_stream" ) )
+	{
+		CommandLine()->AppendParm( "-no_texture_stream", "1" );
+	}
 
 	// We aren't happy unless we get all of our interfaces.
 	// please don't collapse this into one monolithic boolean expression (impossible to debug)
