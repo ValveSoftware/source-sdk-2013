@@ -903,7 +903,7 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	// if -no_texture_stream isn't enabled, append the parm if we're using the cvar
 	if ( cl_no_texture_stream.GetBool() && !CommandLine()->CheckParm( "-no_texture_stream" ) )
 	{
-		CommandLine()->AppendParm( "-no_texture_stream", "1" );
+		CommandLine()->AppendParm( "-no_texture_stream", NULL );
 	}
 
 	// We aren't happy unless we get all of our interfaces.
