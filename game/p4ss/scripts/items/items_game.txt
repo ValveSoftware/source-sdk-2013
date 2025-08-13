@@ -1,4 +1,4 @@
-"items_game"
+hat "items_game"
 {
 	"game_info"
 	{
@@ -35861,11 +35861,6 @@
 				"dmg taken from fire reduced"
 				{
 					"attribute_class"	"mult_dmgtaken_from_fire"
-					"value"			"0.8"
-				}
-				"dmg taken from blast reduced"
-				{
-					"attribute_class"	"mult_dmgtaken_from_explosions"
 					"value"			"0.8"
 				}
 				"allowed in medieval mode"
