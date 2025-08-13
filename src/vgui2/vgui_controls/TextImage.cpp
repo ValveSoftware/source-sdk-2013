@@ -6,6 +6,7 @@
 //=============================================================================//
 
 #include <string.h>
+#include <new>
 #include <stdio.h>
 #include <ctype.h>
 #include <assert.h>
@@ -210,15 +211,25 @@ void TextImage::SetText(const wchar_t *unicode, bool bClearUnlocalizedSymbol)
 	if (_textLen >= _textBufferLen)
 	{
 		delete [] _utext;
+		_utext = nullptr;
 		_textBufferLen = (short)(_textLen + 1);
-		_utext = new wchar_t[_textBufferLen];
+		_utext = new (std::nothrow) wchar_t[_textBufferLen];
+		if (!_utext)
+		{
+			_textBufferLen = 0;
+			_textLen = 0;
+			return;
+		}
 	}
 
 	m_LineBreaks.RemoveAll();
 	m_LineXIndent.RemoveAll();
 
 	// store the text as unicode
-	wcscpy(_utext, unicode);
+	if (_utext)
+	{
+		wcscpy(_utext, unicode);
+	}
 
 	m_bRecalculateTruncation = true;
 }
