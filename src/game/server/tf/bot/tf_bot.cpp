@@ -28,6 +28,7 @@
 #include "tf_weapon_medigun.h"
 #include "func_respawnroom.h"
 #include "soundenvelope.h"
+#include "tf_weapon_pistol.h"
 
 #include "econ_entity_creation.h"
 
@@ -4121,7 +4122,7 @@ bool CTFBot::ShouldFireCompressionBlast( void )
 			{
 				if ( myWeapon->IsWeapon( TF_WEAPON_HANDGUN_SCOUT_PRIMARY ) )
 				{
-					isAtRange = IsRangeLessThan( pushVictim, 50.0f );
+					isAtRange = IsRangeLessThan( pushVictim, SCOUTPRIMARY_MINPUSHDIST );
 				}
 				else
 				{
