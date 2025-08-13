@@ -1,4 +1,4 @@
-hat "items_game"
+"items_game"
 {
 	"game_info"
 	{
