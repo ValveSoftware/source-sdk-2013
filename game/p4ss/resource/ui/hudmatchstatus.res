@@ -199,7 +199,7 @@
 	{
 		"fieldName"		"RoundCounter"
 		"xpos"			"cs-0.5"
-		"ypos"			"-2"
+		"ypos"			"28"
 		"zpos"			"1"		
 		"wide"			"300"
 		"tall"			"100"
@@ -281,90 +281,56 @@
 	{
 		"ControlName"		"EditablePanel"
 		"fieldName"			"ObjectiveStatusTimePanel"
-		"xpos"				"c-55"
-		"ypos"				"0"	
-		"ypos_minmode"		"0"	
+		"xpos"					"cs-0.5"
+		"ypos"					"c-225"
 		"zpos"				"2"
-		"wide"				"110"
+		"wide"					"130"
 		"tall"				"150"
 		"visible"			"0"
-		"enabled"			"1"
-		"delta_item_x"			"22"	[$WIN32]
-		"delta_item_x"			"115"	[$X360]
-		"delta_item_start_y"	"50"
-		"delta_item_end_y"		"70"
+		"enbled"			"1"
+		"delta_item_x"			"35"
+		"delta_item_start_y"	"12"
+		"delta_item_end_y"		"50"
 		"PositiveColor"			"0 255 0 255"
 		"NegativeColor"			"255 0 0 255"
 		"delta_lifetime"		"1.5"
-		"delta_item_font"		"MontserratSemibold28"
-
-		if_match
-		{
-			"xpos"					"cs-0.5"
-			"ypos"					"c-225"
-			"wide"					"130"
-			"ypos_minmode"			"c-222"
-			"delta_item_x"			"35"
-			"delta_item_start_y"	"12"
-			"delta_item_end_y"		"50"
-			"PositiveColor"			"0 255 0 255"
-			"NegativeColor"			"255 0 0 255"
-			"delta_lifetime"		"1.5"
-			"delta_item_font"		"MontserratSemibold24"
-		}
+		"delta_item_font"		"MontserratSemibold24"
 		
 		"TimePanelValue"
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"TimePanelValue"
-			"font"			"MontserratSemibold24"
-			"font_minmode"	"MontserratSemibold24"
+			"font"			"MontserratBlack14"
+			"font_minmode"	"MontserratBlack16Shadow"
 			"fgcolor"		"PFWhite"
-			"xpos"			"23"
-			"xpos_minmode"	"39"
+			"xpos"			"cs-0.5"
 			"xpos_hidef"	"114"
 			"xpos_lodef"	"114"
-			"ypos"			"11"
-			"ypos_minmode"	"6"
+			"ypos"			"c-60"
 			"ypos_hidef"	"15"
 			"ypos_lodef"	"18"
 			"zpos"			"3"
 			"wide"			"32"
-			"wide_minmode"	"30"
 			"wide_lodef"	"50"
-			"tall"			"31"
+			"tall"			"10"
 			"visible"		"1"
 			"enabled"		"1"
 			"textAlignment"		"center"
 			"labelText"		"0:00"
-
-			if_match
-			{
-				"proportionaltoparent"	"1"
-
-				"xpos"			"cs-0.5"
-				"ypos"			"c-60"
-				"ypos_minmode"	"c-62"
-				"tall"			"10"
-				"font"			"MontserratBlack14"
-				"font_minmode"	"MontserratBlack16Shadow"
-			}
+			"proportionaltoparent"	"1"
 		}	
 
 	"GreyBG"
-		{
+	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GreyBG"
 		"xpos"			"0"
 		"ypos"			"0"
-		"xpos_minmode"	"c-92"
-		"ypos_minmode"	"r68"
 		"zpos"			"0"
 		"wide"			"32"
 		"tall"			"10"
-		"wide_minmode"	"184"
-		"tall_minmode"	"64"
 		"visible"		"1"
+		"visible_minmode"		"0" //Wasn't showing in minmode. Intentional? Changed to a simple visible value
 		"enabled"		"1"
 		"image"			"../hud/greybg"
 		"scaleImage"	"1"	
@@ -372,12 +338,12 @@
 		"pin_to_sibling" "TimePanelValue"
 		"pin_corner_to_sibling" "PIN_TOPLEFT"
 		"pin_to_sibling_corner" "PIN_TOPLEFT"
-		}
+	}
 	"SetupLabel"
 	{
-	"ControlName" "CExLabel"
-	"fieldName" "SetupLabel"
-	"font" "MontserratBlack12"
+		"ControlName" "CExLabel"
+		"fieldName" "SetupLabel"
+		"font" "MontserratBlack12"
 	}
 
 	}
@@ -402,18 +368,18 @@
 		"team1_grow_dir" "west"
 		"team1_base_x"	"c-82"
 		"team1_base_x_minmode"	"c-40"
-		"team1_max_expand"	"133"
+		"team1_max_expand"	"253"
 
 		"team2_grow_dir" "east"
 		"team2_base_x"	"c82"
 		"team2_base_x_minmode"	"c40"
-		"team2_max_expand"	"133"
+		"team2_max_expand"	"253"
 
 		"playerpanels_kv"
 		{
 			"visible"		"1"
 			"wide"			"18"
-			"tall"			"24"
+			"tall"			"34"
 			"zpos"			"1"
 
 			"color_portrait_bg_red"	"130 40 40 255"
@@ -434,7 +400,7 @@
 				"fieldName"		"playername"
 				"font"			"MontserratBlack11Shadow"
 				"xpos"			"cs-0.5"
-				"ypos"			"r14"
+				"ypos"			"r22"
 				"zpos"			"7"
 				"wide"			"30"
 				"tall"			"14"
@@ -470,7 +436,7 @@
 				"ControlName"	"CTFClassImage"
 				"fieldName"		"classimage"
 				"xpos"			"cs-0.5"
-				"ypos"			"c-11"
+				"ypos"			"cs-1.09"
 				"zpos"			"3"
 				"wide"			"14"
 				"tall"			"14"
@@ -593,10 +559,10 @@
 			{
 				"ControlName"	"CExLabel"
 				"fieldName"		"respawntime"
-				"font"			"PlayerPanelPlayerName"
+				"font"			"MontserratBlack11Shadow"
 				"xpos"			"cs-0.5"
-				"ypos"			"0"
-				"zpos"			"5"
+				"ypos"			"17"
+				"zpos"			"10"
 				"wide"			"f0"
 				"tall"			"19"
 				"autoResize"	"0"

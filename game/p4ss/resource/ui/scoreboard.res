@@ -537,7 +537,7 @@
 		"xpos"			"cs-0.5"
 		"ypos"			"2"
 		"zpos"			"2"
-		"wide"			"72"
+		"wide"			"100"
 		"tall"			"10"
 		"autoResize"	"0"
 		"pinCorner"		"0"

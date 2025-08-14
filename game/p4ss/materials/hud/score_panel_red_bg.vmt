@@ -1,0 +1,37 @@
+"UnlitGeneric"
+{	
+	"$translucent" 1
+	"$baseTexture" "HUD\PFRed"
+	"$detail" ""
+	$detailscale 0
+	$detailblendmode 0
+	$distancealphafromdetail 0
+	"$alpha" "0.7"
+
+	// give it a slight outer soft edge
+	$softedges 0
+	$edgesoftnessstart 0
+	$edgesoftnessend 0
+	$scaleedgesoftnessbasedonscreenres 1
+
+	// give it a white outline
+	$outline 0
+
+	// and a drop shadow
+	$glow 0
+	$glowcolor "[0 0 0]"
+	$glowalpha 0
+	$glowstart 0
+	$glowend 0
+	$glowx -0
+	$glowy -0
+
+
+	"$vertexcolor" 1
+	$distancealpha 1
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"%keywords" "tf"
+}
+
+

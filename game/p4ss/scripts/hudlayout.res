@@ -10,7 +10,7 @@
 		"wide"	"f0"
 		"tall"	"480"
 	}
-
+	
 	HudWeaponAmmo
 	{
 		"fieldName" "HudWeaponAmmo"
@@ -211,7 +211,7 @@
 	CHealthAccountPanel
 	{
 		"fieldName"				"CHealthAccountPanel"
-		"xpos"					"76"
+		"xpos"					"82"
 		"xpos_minmode"			"61"
 		"ypos"					"r152"
 		"ypos_minmode"			"r134"
@@ -498,7 +498,7 @@
 		"visible" "1"
 		"enabled" "1"
 		"xpos"	 "r640"	[$WIN32]
-		"ypos"	 "3"	[$WIN32]
+		"ypos"	 "34"	[$WIN32]
 		"xpos"	 "r672"	[$X360]
 		"ypos"	 "35"	[$X360]
 		"wide"	 "628"
@@ -511,14 +511,14 @@
 		"CornerRadius"	  "0"
 		"RightJustify"	  "1"	// If 1, draw notices from the right
 		
-		"TextFont"		"MontserratSemibold16"
+		"TextFont"		"MontserratSemibold12"
 		
 		"TeamBlue"		"HUDBlueTeamSolid"
 		"TeamRed"		"HUDRedTeamSolid"
 		"IconColor"		"HudWhite"
 		"LocalPlayerColor"	"HUDBlack"
 
-		"BaseBackgroundColor"	"32 32 32 0"		[$WIN32]
+		"BaseBackgroundColor"	"32 32 32 230"		[$WIN32]
 		"LocalBackgroundColor"	"255 255 246 180"	[$WIN32]
 		"BaseBackgroundColor"	"32 32 32 255"		[$X360]
 		"LocalBackgroundColor"	"0 0 0 255"		[$X360]
