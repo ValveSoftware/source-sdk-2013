@@ -231,8 +231,8 @@ void CHudDeathNotice::FireGameEvent( KeyValues * event)
 	if ( !victim_name )
 		victim_name = "";
 
-	Q_strncpy( rgDeathNoticeList[i].szKiller, killer_name, MAX_PLAYER_NAME_LENGTH_WITHOUT_NULL );
-	Q_strncpy( rgDeathNoticeList[i].szVictim, victim_name, MAX_PLAYER_NAME_LENGTH_WITHOUT_NULL );
+	Q_strncpy( rgDeathNoticeList[i].szKiller, killer_name, MAX_PLAYER_NAME_LENGTH );
+	Q_strncpy( rgDeathNoticeList[i].szVictim, victim_name, MAX_PLAYER_NAME_LENGTH );
 
 	if ( killer == victim || killer == 0 )
 		rgDeathNoticeList[i].iSuicide = true;
