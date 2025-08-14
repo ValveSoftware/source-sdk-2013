@@ -1,0 +1,15 @@
+//Disable deathcam snapshot reminder
+
+event HudSnapShotReminderIn
+{
+}
+
+//MATCH STATUS - disable anims
+
+event TeamStatus_PlayerDead
+{
+}
+
+event TeamStatus_PlayerAlive
+{
+}
