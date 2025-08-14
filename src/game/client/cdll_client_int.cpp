@@ -877,6 +877,11 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	InitCRTMemDebug();
 	MathLib_Init( 2.2f, 2.2f, 0.0f, 2.0f );
 
+	// if -no_texture_stream isn't enabled, append the parm if we're using the cvar
+	if ( cl_no_texture_stream.GetBool() && !CommandLine()->CheckParm( "-no_texture_stream" ) )
+	{
+		CommandLine()->AppendParm( "-no_texture_stream", "1" );
+	}
 
 #ifdef SIXENSE
 	g_pSixenseInput = new SixenseInput;
@@ -899,12 +904,6 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 #ifndef NO_STEAM
 	ClientSteamContext().Activate();
 #endif
-
-	// if -no_texture_stream isn't enabled, append the parm if we're using the cvar
-	if ( cl_no_texture_stream.GetBool() && !CommandLine()->CheckParm( "-no_texture_stream" ) )
-	{
-		CommandLine()->AppendParm( "-no_texture_stream", "1" );
-	}
 
 	// We aren't happy unless we get all of our interfaces.
 	// please don't collapse this into one monolithic boolean expression (impossible to debug)
