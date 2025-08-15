@@ -11,36 +11,50 @@
 		"enabled"		"1"
 		"tabPosition"		"0"
 	}
+	
+	"ReinforcementsAnchor"
+	{	
+		"ControlName"			"ImagePanel"
+		"fieldName"				"ReinforcementsAnchor"
+		"xpos"					"cs-0.5"
+		"ypos"					"348"
+		"zpos"					"5"
+		"wide"					"100"
+		"tall"					"24"
+		"autoResize"			"0"
+		"pinCorner"				"0"
+		"visible"				"0"
+		"enabled"				"1"
+		"tabPosition"			"0"	
+		"fillcolor"				"0 0 0 0"
+		"PaintBackgroundType"	"0"
+	}
 	"ReinforcementsLabel"
 	{
-		"ControlName"		"CExLabel"
+		"controlname" "CExLabel2"
 		"fieldName"		"ReinforcementsLabel"
-		"xpos"			"c-300"	[$WIN32]
-		"xpos_minmode"	"0"
-		"xpos"			"c-200"	[$X360]
-		"ypos"			"50"	[$WIN32]
-		"ypos_minmode"	"3"		[$WIN32]
-		"ypos"			"67"	[$X360]
-		"ypos_hidef"	"79"
-		"ypos_lodef"	"85"
-		"wide"			"600"	[$WIN32]
-		"wide_minmode"	"300"
-		"wide"			"400"	[$X360]
+		"xpos"			"0"	[$WIN32]
+		"ypos"			"0"	[$WIN32]
+		"zpos"			"4"
+		"wide"			"200"	[$WIN32]
 		"tall"			"18"
-		"tall_hidef"		"23"
-		"autoResize"		"0"
-		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"labelText"		"#game_respawntime_in_secs"
-		"textAlignment"		"center"
-		"textAlignment_minmode"		"west"
-		"use_proportional_insets_minmode"	"1"
-		"textinsetx_minmode"				"5"
+		"labeltext" "#game_respawntime_in_secs"
+		"textAlignment"	"center"
+		"dulltext"		"0"
+		"brighttext"	"0"
 		"font"			"MontserratSemibold22"
-		"font_minmode"			"MontserratSemibold16"
+		"textinsetx"	"40"
+		"border"		"TFFatLineBorder"
+		
+		"bgcolor_override"	"0 0 0 0"
+		"auto_wide_tocontents"	"1"
+		
+		"pin_to_sibling"	"ReinforcementsAnchor"
+		"pin_corner_to_sibling"		"4"
+		"pin_to_sibling_corner"		"4"
 	}
-	
 
 	"BuyBackLabel"
 	{

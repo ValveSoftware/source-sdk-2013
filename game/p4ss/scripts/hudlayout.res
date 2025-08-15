@@ -17,9 +17,9 @@
 		"visible" "1"
 		"enabled" "1"
 		"xpos"	"r172"	
-		"xpos_minmode"	"r372"	
+		"xpos_minmode"	"c54"	
 		"ypos"	"r66"	
-		"ypos_minmode"	"r180"	
+		"ypos_minmode"	"c60"	
 		"wide"	"100"
 		"tall"	"100"
 	
@@ -199,8 +199,6 @@
 		"xpos"					"r162"	[$WIN32]
 		"ypos"					"r152"	[$WIN32]
 		"ypos_minmode"			"r134"	[$WIN32]
-		"xpos"					"r194"	[$X360]
-		"ypos"					"r174"	[$X360]
 		"wide"					"116"
 		"tall"  				"180"
 		"visible" 				"1"
@@ -212,9 +210,9 @@
 	{
 		"fieldName"				"CHealthAccountPanel"
 		"xpos"					"82"
-		"xpos_minmode"			"61"
-		"ypos"					"r152"
-		"ypos_minmode"			"r134"
+		"xpos_minmode"			"c-165"
+		"ypos"					"r162"
+		"ypos_minmode"			"c0"
 		"wide"					"116"
 		"tall"  				"180"
 		"visible" 				"1"
@@ -1178,6 +1176,7 @@
 		"enabled"				"1"
 		"xpos"					"c-320"
 		"ypos"					"300"
+		"ypos_minmode"					"280"
 		"wide"					"640"
 		"tall"					"100"
 	}

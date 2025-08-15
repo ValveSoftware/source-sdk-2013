@@ -204,6 +204,7 @@
 		"wide"			"300"
 		"tall"			"100"
 		"visible"		"1"
+		
 		"enabled"		"1"
 	}	
 
