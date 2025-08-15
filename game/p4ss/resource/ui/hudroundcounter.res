@@ -18,6 +18,7 @@
 		"indicator_max_wide"	"30"
 		"indicator_max_wide_minmode"	"20"
 
+
 		"RoundIndicatorPanel_kv"
 		{
 			"ypos"				"4"
