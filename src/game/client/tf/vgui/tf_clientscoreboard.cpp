@@ -896,7 +896,7 @@ void CTFClientScoreBoardDialog::InitPlayerList( SectionedListPanel *pPlayerList 
 	pPlayerList->SetBgColor( Color( 0, 0, 0, 0 ) );
 	pPlayerList->SetBorder( NULL );
 
-	// pPlayerList->AddColumnToSection( 0, "medal", "", SectionedListPanel::COLUMN_IMAGE | SectionedListPanel::COLUMN_CENTER, m_iMedalColumnWidth );
+	pPlayerList->AddColumnToSection( 0, "medal", "", SectionedListPanel::COLUMN_IMAGE | SectionedListPanel::COLUMN_CENTER, m_iMedalColumnWidth );
 
 	// Avatars are always displayed at 32x32 regardless of resolution
 	if ( ShowAvatars() )
@@ -907,17 +907,6 @@ void CTFClientScoreBoardDialog::InitPlayerList( SectionedListPanel *pPlayerList 
 	
 	// the player avatar is always a fixed size, so as we change resolutions we need to vary the size of the name column to adjust the total width of all the columns
 	m_nExtraSpace = pPlayerList->GetWide() - m_iMedalColumnWidth - m_iAvatarWidth - m_iSpacerWidth - m_iNameWidth - m_iKillstreakWidth - m_iKillstreakImageWidth - m_iNemesisWidth - m_iNemesisWidth - (m_iScoreWidth * 4) - m_iClassWidth - m_iPingWidth - m_iSpacerWidth - ( 2 * SectionedListPanel::COLUMN_DATA_INDENT ); // the SectionedListPanel will indent the columns on either end by SectionedListPanel::COLUMN_DATA_INDENT 
-
-	// i dont know why and dont want to know why but anything over 1440p scales the medal column width to -1114130
-	// this is not proper solution but medal width never gets scaled past 25 so this is probably fine
-	if ( m_iMedalColumnWidth < 25 )
-	{
-		m_iMedalColumnWidth = 25;
-	}
-
-	#ifdef DEBUG
-	DevMsg("tf_clientscoreboard: m_iMedalColumnWidth: %d, m_iAvatarWidth: %d, m_iSpacerWidth: %d, m_iNameWidth: %d, m_iKillstreakWidth: %d, m_iKillstreakImageWidth: %d, m_iNemesisWidth: %d, m_iNemesisWidth: %d, m_iScoreWidth: %d, m_iClassWidth: %d, m_iPingWidth: %d, m_iSpacerWidth: %d\n", m_iMedalColumnWidth, m_iAvatarWidth, m_iSpacerWidth, m_iNameWidth, m_iKillstreakWidth, m_iKillstreakImageWidth, m_iNemesisWidth, m_iNemesisWidth, m_iScoreWidth, m_iClassWidth, m_iPingWidth, m_iSpacerWidth);
-	#endif
 
 	pPlayerList->AddColumnToSection( 0, "name", "#TF_Scoreboard_Name", 0, m_iNameWidth + m_nExtraSpace );
 	pPlayerList->AddColumnToSection( 0, "killstreak", "", SectionedListPanel::COLUMN_RIGHT, m_iKillstreakWidth );
