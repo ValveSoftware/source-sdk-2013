@@ -14,7 +14,7 @@ $Configuration
 {
 	$General
 	{
-		$AdditionalProjectDependencies			"gcsdk"
+		$AdditionalProjectDependencies			"gcsdk" [!$SOURCESDK] // lucy: stop warn spew when building PF
 	}
 }
 
