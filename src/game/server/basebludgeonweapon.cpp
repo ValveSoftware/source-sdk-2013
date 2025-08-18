@@ -178,10 +178,6 @@ void CBaseHLBludgeonWeapon::Hit( trace_t &traceHit, Activity nHitActivity, bool 
 		// Play hit sound
 		WeaponSound( MELEE_HIT );
 	}
-	else {
-		// Play hit world sound
-		WeaponSound( MELEE_HIT_WORLD );
-	}
 
 	// Apply an impact effect
 	ImpactEffect( traceHit );
