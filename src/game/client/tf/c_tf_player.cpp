@@ -1696,7 +1696,10 @@ bool CSpyInvisProxy::Init( IMaterial *pMaterial, KeyValues* pKeyValues )
 	return ( bInvis && bTint );
 }
 
-ConVar tf_teammate_max_invis( "tf_teammate_max_invis", "0.95", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+ConVar tf_teammate_max_invis( "tf_teammate_max_invis", "0.75", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+
+Vector cloakTintRed = Vector( 1.0f, 0.5f, 0.4f );
+Vector cloakTintBlue = Vector( 0.4f, 0.5f, 1.0f );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -1728,22 +1731,21 @@ void CSpyInvisProxy::OnBind( C_BaseEntity *pBaseEntity )
 	}
 	else
 	{
-		float r = 1.0f, g = 1.0f, b = 1.0f;
+		Vector vecColor{ 1.0f, 1.0f, 1.0f };
 		fInvis = pPlayer->GetEffectiveInvisibilityLevel();
 
 		switch( pPlayer->GetTeamNumber() )
 		{
 		case TF_TEAM_RED:
-			r = 1.0; g = 0.5; b = 0.4;
+			vecColor = cloakTintRed;
 			break;
-
 		case TF_TEAM_BLUE:
 		default:
-			r = 0.4; g = 0.5; b = 1.0;
+			vecColor = cloakTintBlue;
 			break;
 		}
 
-		m_pCloakColorTint->SetVecValue( r, g, b );
+		m_pCloakColorTint->SetVecValue( vecColor.Base(), 3 );
 	}
 
 	m_pPercentInvisible->SetFloatValue( fInvis );
@@ -6790,7 +6792,8 @@ float C_TFPlayer::GetEffectiveInvisibilityLevel( void )
 	}
 
 	// stomp invis level with taunt invis if there's one
-	if ( IsTaunting() )
+	// boba: unused attribute, adds needless expense to GetEffectiveInvisibilityLevel() every frame
+	/*if (IsTaunting())
 	{
 		float flTauntInvis = 0.f;
 		CALL_ATTRIB_HOOK_FLOAT( flTauntInvis, taunt_attr_player_invis_percent );
@@ -6798,7 +6801,7 @@ float C_TFPlayer::GetEffectiveInvisibilityLevel( void )
 		{
 			flPercentInvisible = flTauntInvis;
 		}
-	}
+	}*/
 
 	return flPercentInvisible;
 }
