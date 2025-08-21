@@ -4072,9 +4072,8 @@ bool CTFBot::ScriptIsWeaponRestricted( HSCRIPT script ) const
 //
 bool CTFBot::ShouldFireCompressionBlast( void )
 {
-	if ( m_CompressionBlastTimer.HasStarted() )
+	if ( !m_CompressionBlastTimer.IsElapsed() )
 	{
-		// no reflection in training mode
 		return false;
 	}
 	
