@@ -1363,7 +1363,14 @@ void CTFBotMainAction::FireWeaponAtEnemy( CTFBot *me )
 			
 			if ( !me->m_CompressionBlastTimer.HasStarted() )
 			{
-				me->m_CompressionBlastTimer.Start( RandomFloat( 0.5f, 1.0f ) );
+				if ( me->IsDifficulty( CTFBot::EXPERT ) )
+				{
+					me->m_CompressionBlastTimer.Start( RandomFloat( 0.25f, 0.5f ) );
+				}
+				else
+				{
+					me->m_CompressionBlastTimer.Start( RandomFloat( 0.5f, 1.0f ) );
+				}
 			}
 		}
 		else if ( threat->GetTimeSinceLastSeen() < 1.0f && 
