@@ -4076,6 +4076,11 @@ bool CTFBot::ShouldFireCompressionBlast( void )
 	{
 		return false;
 	}
+	else
+	{
+		// invalidate the timer when we go for another blast.
+		m_CompressionBlastTimer.Invalidate();
+	}
 	
 	if ( TFGameRules()->IsInTraining() )
 	{
