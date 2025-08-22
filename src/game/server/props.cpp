@@ -41,6 +41,7 @@
 #include "physics_collisionevent.h"
 #include "gamestats.h"
 #include "vehicle_base.h"
+#include "physics_saverestore.h"
 
 #ifdef TF_DLL
 #include "nav_mesh/tf_nav_mesh.h"
@@ -6098,6 +6099,7 @@ bool UTIL_CreateScaledPhysObject( CBaseAnimating *pInstance, float flScale )
 
 	pInstance->VPhysicsDestroyObject();
 	pInstance->VPhysicsSetObject( pNewObject );
+	g_pPhysSaveRestoreManager->AssociateModel( pNewObject, pInstance->GetModelIndex() );
 
 	// Increase our model bounds
 	const model_t *pModel = modelinfo->GetModel( pInstance->GetModelIndex() );
