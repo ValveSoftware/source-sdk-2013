@@ -478,7 +478,7 @@ bool ScriptPreInstanceSpawn( CScriptScope *pScriptScope, CBaseEntity *pChild, st
 
 void ScriptPostSpawn( CScriptScope *pScriptScope, CBaseEntity **ppEntities, int nEntities )
 {
-	if ( !pScriptScope->IsInitialized() )
+	if ( !g_pScriptVM || !pScriptScope->IsInitialized() )
 		return;
 
 	HSCRIPT hPostSpawnFunc = pScriptScope->LookupFunction( "PostSpawn" );
@@ -548,6 +548,9 @@ CBaseEntity *ScriptCreateEntityFromTable( const char *pszName, HSCRIPT hSpawnTab
 //-----------------------------------------------------------------------------
 CPointScriptTemplate::~CPointScriptTemplate()
 {
+	if ( !g_pScriptVM )
+		return;
+
 	if ( m_hTemplateSpawnTable )
 	{
 		g_pScriptVM->ReleaseScope( m_hTemplateSpawnTable );
@@ -580,6 +583,9 @@ void CPointScriptTemplate::Spawn( void )
 //-----------------------------------------------------------------------------
 void CPointScriptTemplate::SetGroupSpawnTables( HSCRIPT templateSpawnTable, HSCRIPT groupSpawnTables )
 {
+	if ( !g_pScriptVM )
+		return;
+
 	m_hTemplateSpawnTable = g_pScriptVM->ReferenceScope( templateSpawnTable );
 	m_hGroupSpawnTables = g_pScriptVM->ReferenceScope( groupSpawnTables );
 }
@@ -589,6 +595,9 @@ void CPointScriptTemplate::SetGroupSpawnTables( HSCRIPT templateSpawnTable, HSCR
 //-----------------------------------------------------------------------------
 void CPointScriptTemplate::AddTemplate( const char *pClassname, HSCRIPT spawnTable )
 {
+	if ( !g_pScriptVM )
+		return;
+
 	scriptTemplate_t newTemplate;
 	newTemplate.szClassname = MAKE_STRING( pClassname );
 	newTemplate.hSpawnTable = g_pScriptVM->ReferenceScope( spawnTable );

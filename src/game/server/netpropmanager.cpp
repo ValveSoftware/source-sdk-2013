@@ -1055,6 +1055,9 @@ void CNetPropManager::SetPropBoolArray( HSCRIPT hEnt, const char *pszProperty, b
 //-----------------------------------------------------------------------------
 bool CNetPropManager::GetPropInfo( HSCRIPT hEnt, const char *pszProperty, int element, HSCRIPT hTable )
 {
+	if ( !g_pScriptVM )
+		return false;
+
 	CBaseEntity *pBaseEntity = ToEnt( hEnt );
 	if ( !pBaseEntity || !hTable )
 		return false;
@@ -1080,7 +1083,7 @@ bool CNetPropManager::GetPropInfo( HSCRIPT hEnt, const char *pszProperty, int el
 //-----------------------------------------------------------------------------
 void CNetPropManager::StoreSendPropValue( SendProp *pSendProp, CBaseEntity *pBaseEntity, int iOffset, int iElement, HSCRIPT hTable )
 {
-	if ( !hTable )
+	if ( !hTable || !g_pScriptVM )
 		return;
 
 	const char *pszPropName = pSendProp->GetName();
@@ -1167,7 +1170,7 @@ void CNetPropManager::StoreSendPropValue( SendProp *pSendProp, CBaseEntity *pBas
 //-----------------------------------------------------------------------------
 void CNetPropManager::StoreDataPropValue( typedescription_t *pTypeDesc, CBaseEntity *pBaseEntity, int iOffset, int iElement, HSCRIPT hTable )
 {
-	if ( !hTable )
+	if ( !hTable || !g_pScriptVM )
 		return;
 
 	const char *pszPropName = pTypeDesc->fieldName;
@@ -1278,7 +1281,7 @@ void CNetPropManager::StoreDataPropValue( typedescription_t *pTypeDesc, CBaseEnt
 //-----------------------------------------------------------------------------
 void CNetPropManager::CollectNestedSendProps( SendTable *pSendTable, CBaseEntity *pBaseEntity, int iOffset, HSCRIPT hTable )
 {
-	if ( !hTable )
+	if ( !hTable || !g_pScriptVM )
 		return;
 
 	for ( int nPropIdx = 0; nPropIdx < pSendTable->GetNumProps(); nPropIdx++ )
@@ -1326,7 +1329,7 @@ void CNetPropManager::CollectNestedSendProps( SendTable *pSendTable, CBaseEntity
 //-----------------------------------------------------------------------------
 void CNetPropManager::CollectNestedDataMaps( datamap_t *pMap, CBaseEntity *pBaseEntity, int iOffset, HSCRIPT hTable )
 {
-	if ( !hTable )
+	if ( !hTable || !g_pScriptVM )
 		return;
 
 	while ( pMap )

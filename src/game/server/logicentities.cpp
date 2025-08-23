@@ -35,6 +35,9 @@ public:
 
 	void RunVScripts()
 	{
+		if ( !g_pScriptVM )
+			return;
+
 		/*
 			EntityGroup <- [];
 			function __AppendToScriptGroup( name ) 

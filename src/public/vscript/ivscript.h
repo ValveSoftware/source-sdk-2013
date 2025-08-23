@@ -868,6 +868,9 @@ public:
 
 	bool Init( const char *pszName )
 	{
+		if ( !GetVM() )
+			return false;
+
 		m_hScope = GetVM()->CreateScope( pszName );
 		return ( m_hScope != NULL );
 	}
@@ -884,6 +887,9 @@ public:
 
 	bool InitGlobal()
 	{
+		if ( !GetVM() )
+			return false;
+
 		Assert( 0 ); // todo [3/24/2008 tom]
 		m_hScope = GetVM()->CreateScope( "" );
 		return ( m_hScope != NULL );
@@ -916,7 +922,7 @@ public:
 		IScriptVM *pVM = GetVM();
 		for ( int i = 0; i < m_FuncHandles.Count(); i++ )
 		{
-			if ( *m_FuncHandles[i] )
+			if ( pVM && *m_FuncHandles[i] )
 				pVM->ReleaseFunction( *m_FuncHandles[i] );
 			*m_FuncHandles[i] = INVALID_HSCRIPT;
 		}
@@ -928,20 +934,26 @@ public:
 		return ( m_hScope != INVALID_HSCRIPT ) ? m_hScope : NULL;
 	}
 
-	bool ValueExists( const char *pszKey )																							{ return GetVM()->ValueExists( m_hScope, pszKey ); }
-	bool SetValue( const char *pszKey, const ScriptVariant_t &value )																{ return GetVM()->SetValue(m_hScope, pszKey, value ); }
-	bool GetValue( const char *pszKey, ScriptVariant_t *pValue )																	{ return GetVM()->GetValue(m_hScope, pszKey, pValue ); }
-	void ReleaseValue( ScriptVariant_t &value )																						{ GetVM()->ReleaseValue( value ); }
-	bool ClearValue( const char *pszKey)																							{ return GetVM()->ClearValue( m_hScope, pszKey ); }
+	bool ValueExists( const char *pszKey )																							{ return GetVM() ? GetVM()->ValueExists( m_hScope, pszKey ) : false; }
+	bool SetValue( const char *pszKey, const ScriptVariant_t &value )																{ return GetVM() ? GetVM()->SetValue(m_hScope, pszKey, value ) : false; }
+	bool GetValue( const char *pszKey, ScriptVariant_t *pValue )																	{ return GetVM() ? GetVM()->GetValue(m_hScope, pszKey, pValue ) : false; }
+	void ReleaseValue( ScriptVariant_t &value )																						{ if (GetVM()) GetVM()->ReleaseValue( value ); }
+	bool ClearValue( const char *pszKey)																							{ return GetVM() ? GetVM()->ClearValue( m_hScope, pszKey ) : false; }
 
 	ScriptStatus_t Run( HSCRIPT hScript )
 	{
+		if ( !GetVM())
+			return SCRIPT_ERROR;
+
 		InvalidateCachedValues();
 		return GetVM()->Run( hScript, m_hScope );
 	}
 
 	ScriptStatus_t Run( const char *pszScriptText, const char *pszScriptName = NULL )
 	{
+		if ( !GetVM())
+			return SCRIPT_ERROR;
+
 		InvalidateCachedValues();
 		HSCRIPT hScript = GetVM()->CompileScript( pszScriptText, pszScriptName );
 		if ( hScript )
@@ -960,16 +972,25 @@ public:
 
 	HSCRIPT LookupFunction( const char *pszFunction, bool bNoDelegation = false )
 	{
+		if ( !GetVM())
+			return INVALID_HSCRIPT;
+
 		return GetVM()->LookupFunction( pszFunction, m_hScope, bNoDelegation );
 	}
 
 	void ReleaseFunction( HSCRIPT hScript )
 	{
+		if ( !GetVM() )
+			return;
+
 		GetVM()->ReleaseFunction( hScript );
 	}
 
 	bool FunctionExists( const char *pszFunction )
 	{
+		if ( !GetVM())
+			return false;
+
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		GetVM()->ReleaseFunction( hFunction );
 		return ( hFunction != NULL ) ;
@@ -986,12 +1007,18 @@ public:
 
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn = NULL )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		return GetVM()->ExecuteFunction( hFunction, NULL, 0, pReturn, m_hScope, true );
 	}
 
 	template <typename ARG_TYPE_1>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[1]; args[0] = arg1;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -999,6 +1026,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[2]; args[0] = arg1; args[1] = arg2;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -1006,6 +1036,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[3]; args[0] = arg1; args[1] = arg2; args[2] = arg3;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -1013,6 +1046,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[4]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -1020,6 +1056,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[5]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -1027,6 +1066,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[6]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -1034,6 +1076,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[7]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -1041,6 +1086,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[8]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -1048,6 +1096,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8, typename ARG_TYPE_9>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8, ARG_TYPE_9 arg9 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[9]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8; args[8] = arg9;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -1055,6 +1106,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8, typename ARG_TYPE_9, typename ARG_TYPE_10>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8, ARG_TYPE_9 arg9, ARG_TYPE_10 arg10 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[10]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8; args[8] = arg9; args[9] = arg10;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -1062,6 +1116,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8, typename ARG_TYPE_9, typename ARG_TYPE_10, typename ARG_TYPE_11>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8, ARG_TYPE_9 arg9, ARG_TYPE_10 arg10, ARG_TYPE_11 arg11 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[11]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8; args[8] = arg9; args[9] = arg10; args[10] = arg11;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -1069,6 +1126,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8, typename ARG_TYPE_9, typename ARG_TYPE_10, typename ARG_TYPE_11, typename ARG_TYPE_12>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8, ARG_TYPE_9 arg9, ARG_TYPE_10 arg10, ARG_TYPE_11 arg11, ARG_TYPE_12 arg12 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[12]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8; args[8] = arg9; args[9] = arg10; args[10] = arg11; args[11] = arg12;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -1076,6 +1136,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8, typename ARG_TYPE_9, typename ARG_TYPE_10, typename ARG_TYPE_11, typename ARG_TYPE_12, typename ARG_TYPE_13>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8, ARG_TYPE_9 arg9, ARG_TYPE_10 arg10, ARG_TYPE_11 arg11, ARG_TYPE_12 arg12, ARG_TYPE_13 arg13 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[13]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8; args[8] = arg9; args[9] = arg10; args[10] = arg11; args[11] = arg12; args[12] = arg13;
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
@@ -1083,12 +1146,18 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8, typename ARG_TYPE_9, typename ARG_TYPE_10, typename ARG_TYPE_11, typename ARG_TYPE_12, typename ARG_TYPE_13, typename ARG_TYPE_14>
 	ScriptStatus_t Call( HSCRIPT hFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8, ARG_TYPE_9 arg9, ARG_TYPE_10 arg10, ARG_TYPE_11 arg11, ARG_TYPE_12 arg12, ARG_TYPE_13 arg13, ARG_TYPE_14 arg14 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[14]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8; args[8] = arg9; args[9] = arg10; args[10] = arg11; args[11] = arg12; args[12] = arg13; args[13] = arg14; 
 		return GetVM()->ExecuteFunction( hFunction, args, ARRAYSIZE(args), pReturn, m_hScope, true );
 	}
 
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn = NULL )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
 			return SCRIPT_ERROR;
@@ -1100,6 +1169,9 @@ public:
 	template <typename ARG_TYPE_1>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[1]; args[0] = arg1;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1112,6 +1184,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[2]; args[0] = arg1; args[1] = arg2;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1124,6 +1199,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[3]; args[0] = arg1; args[1] = arg2; args[2] = arg3;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1136,6 +1214,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[4]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1148,6 +1229,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[5]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1160,6 +1244,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[6]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1172,6 +1259,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[7]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1184,6 +1274,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[8]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1196,6 +1289,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8, typename ARG_TYPE_9>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8, ARG_TYPE_9 arg9 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[9]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8; args[8] = arg9;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1208,6 +1304,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8, typename ARG_TYPE_9, typename ARG_TYPE_10>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8, ARG_TYPE_9 arg9, ARG_TYPE_10 arg10 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[10]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8; args[8] = arg9; args[9] = arg10;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1220,6 +1319,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8, typename ARG_TYPE_9, typename ARG_TYPE_10, typename ARG_TYPE_11>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8, ARG_TYPE_9 arg9, ARG_TYPE_10 arg10, ARG_TYPE_11 arg11 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[11]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8; args[8] = arg9; args[9] = arg10; args[10] = arg11;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1232,6 +1334,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8, typename ARG_TYPE_9, typename ARG_TYPE_10, typename ARG_TYPE_11, typename ARG_TYPE_12>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8, ARG_TYPE_9 arg9, ARG_TYPE_10 arg10, ARG_TYPE_11 arg11, ARG_TYPE_12 arg12 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[12]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8; args[8] = arg9; args[9] = arg10; args[10] = arg11; args[11] = arg12;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1244,6 +1349,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8, typename ARG_TYPE_9, typename ARG_TYPE_10, typename ARG_TYPE_11, typename ARG_TYPE_12, typename ARG_TYPE_13>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8, ARG_TYPE_9 arg9, ARG_TYPE_10 arg10, ARG_TYPE_11 arg11, ARG_TYPE_12 arg12, ARG_TYPE_13 arg13 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[13]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8; args[8] = arg9; args[9] = arg10; args[10] = arg11; args[11] = arg12; args[12] = arg13;
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )
@@ -1256,6 +1364,9 @@ public:
 	template <typename ARG_TYPE_1, typename ARG_TYPE_2, typename	ARG_TYPE_3,	typename ARG_TYPE_4, typename ARG_TYPE_5, typename ARG_TYPE_6, typename ARG_TYPE_7, typename ARG_TYPE_8, typename ARG_TYPE_9, typename ARG_TYPE_10, typename ARG_TYPE_11, typename ARG_TYPE_12, typename ARG_TYPE_13, typename ARG_TYPE_14>
 	ScriptStatus_t Call( const char *pszFunction, ScriptVariant_t *pReturn, ARG_TYPE_1 arg1, ARG_TYPE_2 arg2, ARG_TYPE_3 arg3, ARG_TYPE_4 arg4, ARG_TYPE_5 arg5, ARG_TYPE_6 arg6, ARG_TYPE_7 arg7, ARG_TYPE_8 arg8, ARG_TYPE_9 arg9, ARG_TYPE_10 arg10, ARG_TYPE_11 arg11, ARG_TYPE_12 arg12, ARG_TYPE_13 arg13, ARG_TYPE_14 arg14 )
 	{
+		if ( !GetVM() )
+			return SCRIPT_ERROR;
+
 		ScriptVariant_t args[14]; args[0] = arg1; args[1] = arg2; args[2] = arg3; args[3] = arg4; args[4] = arg5; args[5] = arg6; args[6] = arg7; args[7] = arg8; args[8] = arg9; args[9] = arg10; args[10] = arg11; args[11] = arg12; args[12] = arg13; args[13] = arg14; 
 		HSCRIPT hFunction = GetVM()->LookupFunction( pszFunction, m_hScope );
 		if ( !hFunction )

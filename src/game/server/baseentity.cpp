@@ -462,7 +462,7 @@ CBaseEntity::~CBaseEntity( )
 
 	VPhysicsDestroyObject();
 
-	if ( m_hScriptInstance )
+	if ( g_pScriptVM && m_hScriptInstance )
 	{
 		g_pScriptVM->RemoveInstance( m_hScriptInstance );
 		m_hScriptInstance = NULL;
@@ -1704,7 +1704,7 @@ int CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 
 		//Msg("%s took %.2f Damage, at %.2f\n", GetClassname(), info.GetDamage(), gpGlobals->curtime );
 
-		if ( ScriptHookEnabled( "OnTakeDamage" ) )
+		if ( ScriptHookEnabled( "OnTakeDamage" ) && g_pScriptVM )
 		{
 			IScriptVM *pVM = g_pScriptVM;
 
@@ -2525,7 +2525,7 @@ void CBaseEntity::UpdateOnRemove( void )
 		m_nModelIndex = -1;
 	}
 
-	if ( m_hScriptInstance )
+	if ( g_pScriptVM && m_hScriptInstance )
 	{
 		g_pScriptVM->RemoveInstance( m_hScriptInstance );
 		m_hScriptInstance = NULL;
@@ -4422,7 +4422,7 @@ bool CBaseEntity::AcceptInput( const char *szInputName, CBaseEntity *pActivator,
 						bool bCallInputFunc = true; // Always assume default behavior (do call the input function)
 						ScriptVariant_t functionReturn;
 
-						if ( m_ScriptScope.IsInitialized() )
+						if (g_pScriptVM && m_ScriptScope.IsInitialized() )
 						{
 							char szScriptFunctionName[255];
 							Q_strcpy( szScriptFunctionName, "Input" );
@@ -4442,7 +4442,7 @@ bool CBaseEntity::AcceptInput( const char *szInputName, CBaseEntity *pActivator,
 							(this->*pfnInput)( data );
 						}
 					
-						if ( m_ScriptScope.IsInitialized() )
+						if ( g_pScriptVM && m_ScriptScope.IsInitialized() )
 						{
 							g_pScriptVM->ClearValue( "activator" );
 							g_pScriptVM->ClearValue( "caller" );
@@ -5473,7 +5473,7 @@ HSCRIPT CBaseEntity::ScriptGetModelKeyValues( void )
 	const char *pszModelName = modelinfo->GetModelName( GetModel() );
 	const char *pBuffer = modelinfo->GetModelKeyValueText( GetModel() ) ;
 
-	if ( pModelKeyValues->LoadFromBuffer( pszModelName, pBuffer ) )
+	if ( g_pScriptVM && pModelKeyValues->LoadFromBuffer( pszModelName, pBuffer ) )
 	{
 		// UNDONE: how does destructor get called on this
 		m_pScriptModelKeyValues = new CScriptKeyValues( pModelKeyValues );
@@ -5572,6 +5572,9 @@ void ConsoleFireTargets( CBasePlayer *pPlayer, const char *name)
 //------------------------------------------------------------------------------
 void DumpScriptScope( CBasePlayer* pPlayer, const char *name)
 {
+	if ( !g_pScriptVM )
+		return;
+
 	CBaseEntity *pEntity = NULL;
 	while ( (pEntity = GetNextCommandEntity( pPlayer, name, pEntity )) != NULL )
 	{
@@ -5593,6 +5596,12 @@ void DumpScriptScope( CBasePlayer* pPlayer, const char *name)
 // ent_call is used to call a function on current target, or on a name pattern match
 void CC_Ent_Call( const CCommand& args )
 {
+	if ( !g_pScriptVM )
+	{
+		Warning("Scripting is disabled (-noscripting)\n");
+		return;
+	}
+
     if (args.ArgC() >= 1)
     {
         const char *entname = args.ArgC() > 2 ? args[2] : "";
@@ -5601,7 +5610,7 @@ void CC_Ent_Call( const CCommand& args )
         while ( (pEntity = GetNextCommandEntity( pPlayer, entname, pEntity )) != NULL )
         {
             ScriptVariant_t rval;
-            if (!pEntity->CallScriptFunction( args[1], &rval, true ) )
+            if ( !pEntity->CallScriptFunction( args[1], &rval, true ) )
             { 
                 HSCRIPT hFunc;
                 hFunc = g_pScriptVM->LookupFunction( args[1] );
@@ -7206,6 +7215,9 @@ void CBaseEntity::InputFireUser4( inputdata_t& inputdata )
 //---------------------------------------------------------
 void CBaseEntity::InputRunScriptFile( inputdata_t& inputdata )
 {
+	if ( !g_pScriptVM )
+		return;
+
 	if( !ValidateScriptScope() )
 	{
 		DevMsg("\n***\nFAILED to create private ScriptScope. ABORTING script\n***\n");
@@ -7234,6 +7246,9 @@ void CBaseEntity::InputRunScriptFile( inputdata_t& inputdata )
 //---------------------------------------------------------
 void CBaseEntity::RunScriptCodeInput( inputdata_t &inputdata, const char *pszCode )
 {
+	if ( !g_pScriptVM )
+		return;
+
 	if( !ValidateScriptScope() )
 	{
 		DevMsg("\n***\nFAILED to create private ScriptScope. ABORTING script\n***\n");
@@ -7325,6 +7340,9 @@ float g_debugCounter = 0;
 bool CBaseEntity::CallScriptFunction( const char *pFunctionName, ScriptVariant_t *pFunctionReturn, bool bNoDelegation )
 {
 	START_VMPROFILE
+
+	if ( !g_pScriptVM )
+		return false;
 
 	if( !ValidateScriptScope() )
 	{
@@ -7496,6 +7514,9 @@ HSCRIPT CBaseEntity::ScriptNextMovePeer( void )
 //-----------------------------------------------------------------------------
 bool CBaseEntity::RunScriptFile( const char *pScriptFile, bool bUseRootScope )
 {
+	if ( !g_pScriptVM )
+		return false;
+
 	if( !ValidateScriptScope() )
 	{
 		DevMsg("\n***\nFAILED to create private ScriptScope. ABORTING script\n***\n");
@@ -7518,6 +7539,9 @@ bool CBaseEntity::RunScriptFile( const char *pScriptFile, bool bUseRootScope )
 //-----------------------------------------------------------------------------
 bool CBaseEntity::RunScript( const char *pScriptText, const char *pDebugFilename )
 {
+	if ( !g_pScriptVM )
+		return false;
+
 	if( !ValidateScriptScope() )
 	{
 		DevMsg("\n***\nFAILED to create private ScriptScope. ABORTING script\n***\n");
@@ -8252,6 +8276,9 @@ void CBaseEntity::SUB_FadeOut( void  )
 //-----------------------------------------------------------------------------
 HSCRIPT CBaseEntity::GetScriptInstance()
 {
+	if ( !g_pScriptVM )
+		return INVALID_HSCRIPT;
+
 	if ( !m_hScriptInstance )
 	{
 		if ( m_iszScriptId == NULL_STRING )
@@ -8311,7 +8338,7 @@ bool CBaseEntity::ValidateScriptScope()
 //-----------------------------------------------------------------------------
 void CBaseEntity::RunVScripts()
 {
-	if( m_iszVScripts == NULL_STRING )
+	if( m_iszVScripts == NULL_STRING || !g_pScriptVM )
 	{
 		return;
 	}
@@ -8388,7 +8415,7 @@ void CBaseEntity::RunVScripts()
 //--------------------------------------------------------------------------------------------------
 void CBaseEntity::RunPrecacheScripts( void )
 {
-	if( m_iszVScripts == NULL_STRING )
+	if( m_iszVScripts == NULL_STRING || !g_pScriptVM )
 	{
 		return;
 	}
@@ -8403,7 +8430,7 @@ void CBaseEntity::RunPrecacheScripts( void )
 
 void CBaseEntity::RunOnPostSpawnScripts( void )
 {
-	if( m_iszVScripts == NULL_STRING )
+	if( m_iszVScripts == NULL_STRING || !g_pScriptVM )
 	{
 		return;
 	}

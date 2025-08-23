@@ -3167,6 +3167,9 @@ HSCRIPT CNavMesh::ScriptGetNearestNavArea( const Vector &pos, float maxDist, boo
 //--------------------------------------------------------------------------------------------------------
 bool CNavMesh::ScriptGetNavAreasFromBuildPath( HSCRIPT hStartArea, HSCRIPT hGoalArea, const Vector &goalPos, float maxPathLength, int teamID, bool ignoreNavBlockers, HSCRIPT hTable )
 {
+	if ( !g_pScriptVM )
+		return false;
+
 	CNavArea *startArea = ToNavArea( hStartArea );
 	CNavArea *goalArea = ToNavArea( hGoalArea );
 	bool bInvalidPos = ( goalPos == Vector(0,0,0) );
@@ -3220,6 +3223,9 @@ void CNavMesh::ScriptUnregisterAvoidanceObstacle( HSCRIPT hEntity )
 //-----------------------------------------------------------------------------
 void CNavMesh::ScriptGetNavAreasOverlappingEntityExtent( HSCRIPT hEntity, HSCRIPT hTable )
 {
+	if ( !g_pScriptVM )
+		return;
+
 	CBaseEntity *pEntity = ToEnt( hEntity );
 	if ( !pEntity || !IsValid( hTable ) )
 		return;
@@ -3264,6 +3270,9 @@ float CNavMesh::ScriptNavAreaTravelDistance( HSCRIPT hStartArea, HSCRIPT hGoalAr
 //--------------------------------------------------------------------------------------------------------
 void CNavMesh::GetAllAreas( HSCRIPT hTable )
 {
+	if ( !g_pScriptVM )
+		return;
+
 	FOR_EACH_VEC( TheNavAreas, it )
 	{
 		CNavArea *area = TheNavAreas[ it ];
@@ -3277,7 +3286,7 @@ void CNavMesh::GetAllAreas( HSCRIPT hTable )
 //--------------------------------------------------------------------------------------------------------
 void CNavMesh::GetNavAreasInRadius( const Vector &pos, float radius, HSCRIPT hTable )
 {
-	if ( !hTable )
+	if ( !hTable || !g_pScriptVM )
 		return;
 		
 	NavAreaCollector collector;
@@ -3307,7 +3316,7 @@ HSCRIPT CNavMesh::FindNavAreaAlongRay( const Vector &start, const Vector &end, H
 //--------------------------------------------------------------------------------------------------------
 void CNavMesh::GetObstructingEntities( HSCRIPT hTable )
 {
-	if ( !hTable )
+	if ( !hTable || !g_pScriptVM )
 		return;
 
 	const CUtlVector< INavAvoidanceObstacle* >& vecObstructions = TheNavMesh->GetObstructions();
@@ -3325,6 +3334,9 @@ void CNavMesh::GetObstructingEntities( HSCRIPT hTable )
 //--------------------------------------------------------------------------------------------------------
 void CNavMesh::GetAreasWithAttributes( int bits, HSCRIPT hTable )
 {
+	if ( !g_pScriptVM )
+		return;
+
 	FOR_EACH_VEC( TheNavAreas, it )
 	{
 		CNavArea *area = TheNavAreas[ it ];

@@ -4817,6 +4817,12 @@ void PrecacheInstancedScene( char const *pszScene )
 
 HSCRIPT ScriptCreateSceneEntity( const char* pszScene )
 {
+	if ( !g_pScriptVM )
+	{
+		Warning( "Scripting is disabled (-noscripting)\n" );
+		return NULL;
+	}
+
 	if ( IsEntityCreationAllowedInScripts() == false )
 	{
 		Warning( "VScript error: A script attempted to create a scene entity mid-game. Entity creation from scripts is only allowed during map init.\n" );

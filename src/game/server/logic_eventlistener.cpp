@@ -114,15 +114,17 @@ void CLogicEventListener::FireGameEvent( IGameEvent *event )
 		{
 			HSCRIPT entityTable = m_ScriptScope;
 			IScriptVM* vm = m_ScriptScope.GetVM();
-
-			ScriptVariant_t table;
-			vm->CreateTable( table );
+			if ( vm )
 			{
-				CScriptEventTableWriter tableWriter( vm, table );
-				event->ForEventData( &tableWriter );
+				ScriptVariant_t table;
+				vm->CreateTable( table );
+				{
+					CScriptEventTableWriter tableWriter( vm, table );
+					event->ForEventData( &tableWriter );
+				}
+				vm->SetValue( entityTable, "event_data", table );
+				vm->ReleaseValue( table );
 			}
-			vm->SetValue( entityTable, "event_data", table );
-			vm->ReleaseValue( table );
 		}
 
 		m_OnEventFired.FireOutput( NULL, NULL );

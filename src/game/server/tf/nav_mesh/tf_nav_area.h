@@ -215,7 +215,7 @@ inline HSCRIPT ToHScript( CTFNavArea *pArea )
 template <> ScriptClassDesc_t *GetScriptDesc<CTFNavArea>( CTFNavArea * );
 inline CTFNavArea *ToNavArea( HSCRIPT hScript )
 {
-	return ( IsValid( hScript ) ) ? (CTFNavArea *)g_pScriptVM->GetInstanceValue( hScript, GetScriptDescForClass(CTFNavArea) ) : NULL;
+	return ( IsValid( hScript ) && g_pScriptVM ) ? (CTFNavArea *)g_pScriptVM->GetInstanceValue( hScript, GetScriptDescForClass(CTFNavArea) ) : NULL;
 }
 
 inline float CTFNavArea::GetTravelDistanceToBombTarget( void ) const

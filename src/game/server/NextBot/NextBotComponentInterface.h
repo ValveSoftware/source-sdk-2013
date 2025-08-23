@@ -110,7 +110,7 @@ inline HSCRIPT ToHScript( INextBotComponent *pNextBotComponent )
 template <> ScriptClassDesc_t *GetScriptDesc<INextBotComponent>( INextBotComponent * );
 inline INextBotComponent *ToNextBotComponent( HSCRIPT hScript )
 {
-	return ( IsValid( hScript ) ) ? (INextBotComponent *)g_pScriptVM->GetInstanceValue( hScript, GetScriptDescForClass( INextBotComponent ) ) : NULL;
+	return ( IsValid( hScript ) && g_pScriptVM ) ? (INextBotComponent *)g_pScriptVM->GetInstanceValue( hScript, GetScriptDescForClass( INextBotComponent ) ) : NULL;
 }
 
 #endif // _NEXT_BOT_COMPONENT_INTERFACE_H_

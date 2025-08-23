@@ -4474,6 +4474,9 @@ bool CTFBot::HasTag( const char *tag )
 //---------------------------------------------------------------------------------------------
 void CTFBot::ScriptGetAllTags( HSCRIPT hTable )
 {
+	if ( !g_pScriptVM )
+		return;
+
 	for ( int i = 0; i < m_tags.Count(); i++ )
 	{
 		g_pScriptVM->SetValue( hTable, CFmtStr( "%d", i ), m_tags[ i ] );

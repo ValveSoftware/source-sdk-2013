@@ -101,7 +101,7 @@ END_SCRIPTDESC();
 
 HSCRIPT CTFNavArea::GetScriptInstance()
 {
-	if ( !m_hScriptInstance )
+	if ( g_pScriptVM && !m_hScriptInstance )
 	{
 		m_hScriptInstance = g_pScriptVM->RegisterInstance( GetScriptDesc(), this );
 	}
@@ -111,7 +111,7 @@ HSCRIPT CTFNavArea::GetScriptInstance()
 //-----------------------------------------------------------------------------
 void CTFNavArea::ScriptGetAdjacentAreas( int dir, HSCRIPT hTable )
 {
-	if ( dir >= NUM_DIRECTIONS || !IsValid( hTable ) )
+	if ( !g_pScriptVM || dir >= NUM_DIRECTIONS || !IsValid( hTable ) )
 		return;
 
 	const NavConnectVector *pConnections = GetAdjacentAreas( (NavDirType)dir );
@@ -147,7 +147,7 @@ HSCRIPT CTFNavArea::ScriptGetRandomAdjacentArea( int dir )
 //-----------------------------------------------------------------------------
 void CTFNavArea::ScriptGetIncomingConnections( int dir, HSCRIPT hTable )
 {
-	if ( dir >= NUM_DIRECTIONS || !IsValid( hTable ) )
+	if ( !g_pScriptVM || dir >= NUM_DIRECTIONS || !IsValid( hTable ) )
 		return;
 
 	const NavConnectVector *pConnections = GetIncomingConnections( (NavDirType)dir );
@@ -298,7 +298,7 @@ bool CTFNavArea::ScriptIsCoplanar( HSCRIPT hArea ) const
 //-----------------------------------------------------------------------------
 void CTFNavArea::ScriptGetElevatorAreas( HSCRIPT hTable )
 {
-	if ( !IsValid( hTable ) )
+	if ( !g_pScriptVM || !IsValid( hTable ) )
 		return;
 
 	const NavConnectVector &pElevatorAreas = GetElevatorAreas();

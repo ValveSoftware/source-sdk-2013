@@ -5381,7 +5381,7 @@ void CBasePlayer::OnRestore( void )
 
 	m_nBodyPitchPoseParam = LookupPoseParameter( "body_pitch" );
 
-	if ( gpGlobals->eLoadType == MapLoad_Transition )
+	if ( gpGlobals->eLoadType == MapLoad_Transition && g_pScriptVM )
 	{
 		g_pScriptVM->SetValue( "player", GetScriptInstance() );
 	}

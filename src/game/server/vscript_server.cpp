@@ -283,6 +283,9 @@ public:
 
 	void GetOutputTable( HSCRIPT hEntity, const char *szOutputName, HSCRIPT hOutputTable, int element )
 	{
+		if ( !g_pScriptVM )
+			return;
+
 		CBaseEntity *pBaseEntity = ToEnt( hEntity );
 		if ( !pBaseEntity || !hOutputTable || element < 0 )
 			return;
@@ -684,6 +687,9 @@ void CVScriptGameEventListener::Init()
 }
 void CVScriptGameEventListener::FireGameEvent( IGameEvent *event )
 {
+	if ( !g_pScriptVM )
+		return;
+
 	// Pass all keyvales as a table of parameters
 	HSCRIPT paramsTable = ScriptTableFromKeyValues( g_pScriptVM, event->GetDataKeys() );
 	RunGameEventCallbacks( event->GetName(), paramsTable );
@@ -721,7 +727,7 @@ bool CVScriptGameEventListener::FireScriptHook( const char *pszHookName, HSCRIPT
 void CVScriptGameEventListener::RunGameEventCallbacks( const char* szName, HSCRIPT params )
 {
 	Assert( szName );
-	if ( !szName )
+	if ( !szName || !g_pScriptVM )
 		return;
 
 	if ( m_RunGameEventCallbacksFunc == INVALID_HSCRIPT )
@@ -736,7 +742,7 @@ void CVScriptGameEventListener::RunGameEventCallbacks( const char* szName, HSCRI
 void CVScriptGameEventListener::RunScriptHookCallbacks( const char* szName, HSCRIPT params )
 {
 	Assert( szName );
-	if ( !szName )
+	if ( !szName || !g_pScriptVM )
 		return;
 
 	if ( m_ScriptHookCallbacksFunc == INVALID_HSCRIPT )
@@ -750,6 +756,9 @@ void CVScriptGameEventListener::RunScriptHookCallbacks( const char* szName, HSCR
 
 void CVScriptGameEventListener::CollectGameEventCallbacksInScope( HSCRIPT scope )
 {
+	if ( !g_pScriptVM )
+		return;
+
 	if ( m_CollectGameEventCallbacksFunc == INVALID_HSCRIPT )
 		m_CollectGameEventCallbacksFunc = g_pScriptVM->LookupFunction( "__CollectGameEventCallbacks" );
 
@@ -905,6 +914,9 @@ END_SCRIPTDESC();
 
 HSCRIPT CScriptKeyValues::ScriptFindKey( const char *pszName )
 {
+	if ( !g_pScriptVM )
+		return NULL;
+
 	KeyValues *pKeyValues = m_pKeyValues->FindKey(pszName);
 	if ( pKeyValues == NULL )
 		return NULL;
@@ -918,6 +930,9 @@ HSCRIPT CScriptKeyValues::ScriptFindKey( const char *pszName )
 
 HSCRIPT CScriptKeyValues::ScriptGetFirstSubKey( void )
 {
+	if ( !g_pScriptVM )
+		return NULL;
+
 	KeyValues *pKeyValues = m_pKeyValues->GetFirstSubKey();
 	if ( pKeyValues == NULL )
 		return NULL;
@@ -931,6 +946,9 @@ HSCRIPT CScriptKeyValues::ScriptGetFirstSubKey( void )
 
 HSCRIPT CScriptKeyValues::ScriptGetNextKey( void )
 {
+	if ( !g_pScriptVM )
+		return NULL;
+
 	KeyValues *pKeyValues = m_pKeyValues->GetNextKey();
 	if ( pKeyValues == NULL )
 		return NULL;
@@ -1059,6 +1077,9 @@ static const char *GetMapName()
 
 static const char *DoUniqueString( const char *pszBase )
 {
+	if ( !g_pScriptVM )
+		return "";
+
 	static char szBuf[512];
 	g_pScriptVM->GenerateUniqueKey( pszBase, szBuf, ARRAYSIZE(szBuf) );
 	return szBuf;
@@ -1140,7 +1161,7 @@ bool ScriptFireScriptHook( const char* szName, HSCRIPT params )
 
 bool ScriptSendGlobalGameEvent( const char *szName, HSCRIPT params )
 {
-	if ( !szName || !*szName )
+	if ( !szName || !*szName || !g_pScriptVM )
 		return false;
 
 	IGameEvent *event = gameeventmanager->CreateEvent( szName );
@@ -1211,6 +1232,9 @@ QAngle RotateOrientation( QAngle posAngles, QAngle entAngles )
 //-----------------------------------------------------------------------------
 static void ParseTable( CBaseEntity *pEntity, HSCRIPT spawn_table, const char *pKeyNameOverride = NULL )
 {
+	if ( !g_pScriptVM )
+		return;
+
 	ScriptVariant_t vKey, vValue;
 	int nIter = 0;
 	int num_entries = g_pScriptVM->GetNumTableEntries( spawn_table );
@@ -1304,6 +1328,9 @@ static HSCRIPT Script_SpawnEntityFromTable( const char *pszName, HSCRIPT spawn_t
 //-----------------------------------------------------------------------------
 static bool Script_SpawnEntityGroupFromTable( HSCRIPT groupSpawnTables )
 {
+	if ( !g_pScriptVM )
+		return false;
+
 	int nIter = 0;
 	ScriptVariant_t vKey, vValue, vClassname, vSpawnTable;
 	int nEntities = g_pScriptVM->GetNumTableEntries( groupSpawnTables );
@@ -1466,7 +1493,7 @@ void SetupScriptRecipientFilter( CScriptRecipientFilter& filter, EScriptRecipien
 
 static void Script_EmitSoundEx( HSCRIPT params )
 {
-	if ( !params )
+	if ( !params || !g_pScriptVM )
 		return;
 
 	CBaseEntity *pOutputEntity = NULL;
@@ -1509,6 +1536,9 @@ static void Script_EmitSoundEx( HSCRIPT params )
 //-----------------------------------------------------------------------------
 static bool Script_PrecacheItemFromTable( HSCRIPT hSpawnTable )
 {
+	if ( !g_pScriptVM )
+		return false;
+
 	ScriptVariant_t vClassname;
 	if ( !g_pScriptVM->GetValue( hSpawnTable, "classname", &vClassname ) )
 	{
@@ -1778,6 +1808,9 @@ static const char *Script_FileToString( const char *pszFileName )
 
 void TraceToScriptVM( HSCRIPT hTable, Vector vStart, Vector vEnd, trace_t& tr )
 {
+	if ( !g_pScriptVM )
+		return;
+
 	g_pScriptVM->SetValue( hTable, "fraction", tr.fraction );
 	g_pScriptVM->SetValue( hTable, "hit", (tr.fraction != 1.0 || tr.startsolid ));
 	g_pScriptVM->SetValue( hTable, "plane_normal", tr.plane.normal );
@@ -1801,6 +1834,9 @@ void TraceToScriptVM( HSCRIPT hTable, Vector vStart, Vector vEnd, trace_t& tr )
 // Inputs: start, end, mask, ignore  -- outputs: pos, fraction, hit, enthit, startsolid
 static bool Script_TraceLineEx( HSCRIPT hTable )
 {
+	if ( !g_pScriptVM )
+		return false;
+
 	int mask = MASK_VISIBLE_AND_NPCS;
 	int coll = COLLISION_GROUP_NONE;
 	ScriptVariant_t rval;
@@ -1839,6 +1875,9 @@ static bool Script_TraceLineEx( HSCRIPT hTable )
 // Inputs: start, end, hullmin, hullmax, mask, ignore  -- outputs: pos, fraction, hit, enthit, startsolid
 static bool Script_TraceHull( HSCRIPT hTable )
 {
+	if ( !g_pScriptVM )
+		return false;
+
 	int mask = MASK_VISIBLE_AND_NPCS;
 	int coll = COLLISION_GROUP_NONE;
 	ScriptVariant_t rval;
@@ -2081,7 +2120,7 @@ static bool Script_IsSoundPrecached( const char *soundname )
 
 static void Script_GetLocalTime( HSCRIPT hTable )
 {
-	if ( !hTable )
+	if ( !hTable || !g_pScriptVM )
 		return;
 
 	tm timeValue;
@@ -2158,7 +2197,7 @@ static void DoRecordAchievementEvent( const char *pszAchievementname, int iPlaye
 
 bool DoIncludeScript( const char *pszScript, HSCRIPT hScope )
 {
-	if ( !VScriptRunScript( pszScript, hScope, true ) )
+	if ( g_pScriptVM && !VScriptRunScript( pszScript, hScope, true ) )
 	{
 		g_pScriptVM->RaiseException( CFmtStr( "Failed to include script \"%s\"", ( pszScript ) ? pszScript : "unknown" ) );
 		return false;
@@ -3532,7 +3571,7 @@ void VScriptServerTerm()
 {
 	if( g_pScriptVM != NULL )
 	{
-		if( g_pScriptVM )
+		if( g_pScriptVM && scriptmanager )
 		{
 			scriptmanager->DestroyVM( g_pScriptVM );
 			g_pScriptVM = NULL;
@@ -3603,6 +3642,12 @@ CON_COMMAND_F( script_debug, "Toggle the in-game script debug features", FCVAR_C
 {
 	if ( !UTIL_IsCommandIssuedByServerAdmin() )
 		return;
+
+	if ( !g_pScriptVM )
+	{
+		Msg("Scripting disabled or no server running\n");
+		return;
+	}
 
 	if ( tolower(*args[1]) == 'w'/*atch*/ )
 	{
@@ -4101,7 +4146,7 @@ public:
 			if ( pEnt->m_hScriptInstance )
 			{
 				ScriptVariant_t variant;
-				if ( g_pScriptVM->GetValue( STRING(pEnt->m_iszScriptId), &variant ) && variant.GetType() == FIELD_HSCRIPT)
+				if ( g_pScriptVM && g_pScriptVM->GetValue( STRING(pEnt->m_iszScriptId), &variant ) && variant.GetType() == FIELD_HSCRIPT)
 				{
 					pEnt->m_ScriptScope.Init( variant, false );
 					pEnt->RunPrecacheScripts();

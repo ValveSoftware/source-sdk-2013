@@ -260,7 +260,7 @@ template <> ScriptClassDesc_t *GetScriptDesc<CBaseEntity>( CBaseEntity * );
 inline CBaseEntity *ToEnt( HSCRIPT hScript )
 {
 
-	return ( hScript ) ? (CBaseEntity *)g_pScriptVM->GetInstanceValue( hScript, GetScriptDescForClass(CBaseEntity) ) : NULL;
+	return ( hScript && g_pScriptVM ) ? (CBaseEntity *)g_pScriptVM->GetInstanceValue( hScript, GetScriptDescForClass(CBaseEntity) ) : NULL;
 }
 
 template <typename T>

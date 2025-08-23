@@ -34,7 +34,7 @@ INextBotComponent::~INextBotComponent()
 
 HSCRIPT INextBotComponent::GetScriptInstance()
 {
-	if ( !m_hScriptInstance )
+	if ( g_pScriptVM && !m_hScriptInstance )
 	{
 		m_hScriptInstance = g_pScriptVM->RegisterInstance( this->GetScriptDesc(), this );
 	}

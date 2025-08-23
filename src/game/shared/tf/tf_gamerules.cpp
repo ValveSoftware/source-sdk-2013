@@ -22388,6 +22388,9 @@ void	ScriptForceEscortPushLogic( int nState )					{ TFGameRules()->ForceEscortPu
 
 void CTFGameRules::RegisterScriptFunctions()
 {
+	if ( !g_pScriptVM )
+		return;
+
 	TF_GAMERULES_SCRIPT_FUNC( GetRoundState,							"Get current round state. See Constants.ERoundState" );
 	TF_GAMERULES_SCRIPT_FUNC( IsInWaitingForPlayers,					"Are we waiting for some stragglers?" );
 	TF_GAMERULES_SCRIPT_FUNC( GetWinningTeam,							"Who won!" );
