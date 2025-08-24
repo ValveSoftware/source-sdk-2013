@@ -425,7 +425,7 @@ bool CTFWeaponBaseMelee::DoSwingTraceInternal( trace_t &trace, bool bCleave, CUt
 	Vector vecSwingEnd = vecSwingStart + vecForward * fSwingRange;
 
 	// only hit teammates if friendly fire is on.
-	bool bDontHitTeammates = ( !friendlyfire.GetBool() );
+	bool bDontHitTeammates = !friendlyfire.GetBool();
 	CTraceFilterIgnoreTeammates ignoreTeammatesFilter( pPlayer, COLLISION_GROUP_NONE, pPlayer->GetTeamNumber() );
 
 	if ( bCleave )
