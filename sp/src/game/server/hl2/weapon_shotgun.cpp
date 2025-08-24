@@ -308,6 +308,8 @@ bool CWeaponShotgun::StartReload( void )
 	pOwner->m_flNextAttack = gpGlobals->curtime;
 	m_flNextPrimaryAttack = gpGlobals->curtime + SequenceDuration();
 
+	DisableIronsights();
+
 	m_bInReload = true;
 	return true;
 }

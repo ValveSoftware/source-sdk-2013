@@ -129,7 +129,9 @@ public:
 	bool					bShowUsageHint;							// if true, then when you receive the weapon, show a hint about it
 
 // SERVER DLL
-
+	Vector					vecIronsightPosOffset;
+	QAngle					angIronsightAngOffset;
+	float					flIronsightFOVOffset;
 };
 
 // The weapon parse function

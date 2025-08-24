@@ -177,6 +177,8 @@ private:
 	CBaseViewModel( const CBaseViewModel & ); // not defined, not accessible
 
 #endif
+	
+	void		CalcIronsights(Vector &pos, QAngle &ang);
 
 private:
 	CNetworkVar( int, m_nViewModelIndex );		// Which viewmodel is it?
