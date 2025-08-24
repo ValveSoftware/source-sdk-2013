@@ -18,7 +18,6 @@
 #include "tf_gcmessages.h"
 
 #include "tf_weapon_wrench.h"
-#include "tf_weapon_flamethrower.h"
 
 #include "passtime_convars.h"
 
