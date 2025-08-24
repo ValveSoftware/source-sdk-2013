@@ -18,6 +18,7 @@
 #include "tf_gcmessages.h"
 
 #include "tf_weapon_wrench.h"
+#include "tf_weapon_flamethrower.h"
 
 #include "passtime_convars.h"
 
@@ -5932,6 +5933,7 @@ bool CTFWeaponBase::DeflectEntity( CBaseEntity *pTarget, CTFPlayer *pOwner, Vect
 			Vector vecDir = pTarget->WorldSpaceCenter() - vecEye;
 			VectorNormalize( vecDir );
 			float flVel = 50.0f * CTFWeaponBase::DeflectionForce( pTarget->CollisionProp()->OBBSize(), 90, 12.0f );
+			CALL_ATTRIB_HOOK_FLOAT( flVel, airblast_pushback_scale );
 			pPhysicsObject->ApplyForceOffset( vecDir * flVel, vecEye );
 		}
 		return true;
@@ -5962,6 +5964,7 @@ bool CTFWeaponBase::DeflectEntity( CBaseEntity *pTarget, CTFPlayer *pOwner, Vect
 		pPhysicsObject->GetVelocity( &vecVel, &angularimp );
 	}
 	float flVel = vecVel.Length();
+	CALL_ATTRIB_HOOK_FLOAT( flVel, airblast_pushback_scale );
 	vecVel = flVel * vecDir;
 	if ( pPhysicsObject )
 	{
