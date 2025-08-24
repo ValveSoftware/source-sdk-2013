@@ -424,9 +424,8 @@ bool CTFWeaponBaseMelee::DoSwingTraceInternal( trace_t &trace, bool bCleave, CUt
 	Vector vecSwingStart = pPlayer->Weapon_ShootPosition();
 	Vector vecSwingEnd = vecSwingStart + vecForward * fSwingRange;
 
-	// In MvM, melee hits from the robot team wont hit teammates to ensure mobs of melee bots don't 
-	// swarm so tightly they hit each other and no-one else
-	bool bDontHitTeammates = pPlayer->GetTeamNumber() == TF_TEAM_PVE_INVADERS && TFGameRules()->IsMannVsMachineMode();
+	// only hit teammates if friendly fire is on.
+	bool bDontHitTeammates = ( !friendlyfire.GetBool() );
 	CTraceFilterIgnoreTeammates ignoreTeammatesFilter( pPlayer, COLLISION_GROUP_NONE, pPlayer->GetTeamNumber() );
 
 	if ( bCleave )
