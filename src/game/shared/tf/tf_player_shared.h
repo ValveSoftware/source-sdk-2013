@@ -645,6 +645,9 @@ public:
 
 	void SetDecapitations( int iVal )	{ m_iDecapitations = iVal; }
 	int GetDecapitations( void ) const	{ return m_iDecapitations; }
+	
+	void SetOldMeleeTrace( bool bVal )	{ m_bOldMeleeTrace = bVal; }
+	bool IsOldMeleeTrace( void ) const	{ return m_bOldMeleeTrace; }
 
 	void SetStreak( ETFStreak streak_type, int iVal )		{ m_nStreaks.Set( streak_type, iVal ); }
 	int GetStreak( ETFStreak streak_type ) const		{ return m_nStreaks[streak_type]; }
@@ -960,6 +963,8 @@ private:
 	CNetworkVar( int, m_nTeamTeleporterUsed ); // for disguised spies using enemy teleporters
 	CHandle<CTFPlayer>	m_hDesiredDisguiseTarget;
 	int m_iDisguiseAmmo;
+	
+	CNetworkVar(bool, m_bOldMeleeTrace);
 
 	bool m_bEnableSeparation;		// Keeps separation forces on when player stops moving, but still penetrating
 	Vector m_vSeparationVelocity;	// Velocity used to keep player separate from teammates

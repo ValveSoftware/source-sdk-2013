@@ -501,9 +501,14 @@ bool CTFWeaponBaseMelee::DoSwingTraceInternal( trace_t &trace, bool bCleave, CUt
 
 	if ( !bOldTraceBehavior )
 	{
-		int iOldTraceBehavior = 0;
-		CALL_ATTRIB_HOOK_INT( iOldTraceBehavior, set_old_melee_trace_behavior );
-		bOldTraceBehavior = ( iOldTraceBehavior != 0 );
+		bOldTraceBehavior = pPlayer->m_Shared.IsOldMeleeTrace();
+
+		if ( !bOldTraceBehavior )
+		{
+			int iOldTraceBehavior = 0;
+			CALL_ATTRIB_HOOK_INT( iOldTraceBehavior, set_old_melee_trace_behavior );
+			bOldTraceBehavior = ( iOldTraceBehavior != 0 );
+		}
 	}
 
 	// only hit teammates if friendly fire is on.

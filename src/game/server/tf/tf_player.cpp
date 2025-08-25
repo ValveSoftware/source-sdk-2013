@@ -643,6 +643,9 @@ BEGIN_ENT_SCRIPTDESC( CTFPlayer, CBaseMultiplayerPlayer , "Team Fortress 2 Playe
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetBonusPoints, "GetBonusPoints", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptResetScores, "ResetScores", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptIsParachuteEquipped, "IsParachuteEquipped", "" )
+	
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsOldMeleeTrace, "IsOldMeleeTrace", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetOldMeleeTrace, "SetOldMeleeTrace", "" )
 
 	DEFINE_SCRIPTFUNC( GetCurrency, "Get player's cash for game modes with upgrades, ie. MvM" )
 	DEFINE_SCRIPTFUNC( SetCurrency, "Set player's cash for game modes with upgrades, ie. MvM" )
