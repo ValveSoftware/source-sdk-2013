@@ -319,7 +319,7 @@ void CGlowObjectManager::GlowObjectDefinition_t::DrawModel()
 
 		while ( pAttachment != NULL )
 		{
-			if ( !g_GlowObjectManager.HasGlowEffect( pAttachment ) && pAttachment->ShouldDraw() )
+			if ( !g_GlowObjectManager.HasGlowEffect( pAttachment ) && pAttachment->ShouldDraw() && pAttachment->CanGlow() )
 			{
 				pAttachment->DrawModel( STUDIO_RENDER );
 			}

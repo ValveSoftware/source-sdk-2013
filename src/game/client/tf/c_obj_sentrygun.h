@@ -38,6 +38,7 @@ public:
 	static C_SentrygunShield* Create( const char* pszModelName );
 
 	virtual void ClientThink();
+	virtual bool CanGlow() const OVERRIDE { return false; }
 
 	void StartFadeOut( float flDuration );
 
