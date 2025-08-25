@@ -17,6 +17,7 @@
 #include "tf_passtime_logic.h"
 // Client specific.
 #else
+#include "c_tf_passtime_logic.h"
 #include "c_tf_gamestats.h"
 #include "c_tf_player.h"
 // NVNT haptics system interface
@@ -388,6 +389,70 @@ void CTFWeaponBaseMelee::ItemPostFrame()
 	BaseClass::ItemPostFrame();
 }
 
+class CTraceFilterIgnoreTeammatesMelee : public CTraceFilterSimple
+{
+public:
+	// It does have a base, but we'll never network anything below here..
+	DECLARE_CLASS( CTraceFilterIgnoreTeammatesMelee, CTraceFilterSimple );
+
+	CTraceFilterIgnoreTeammatesMelee( const IHandleEntity* passentity, int collisionGroup, int iIgnoreTeam )
+		: CTraceFilterSimple( passentity, collisionGroup ), m_iIgnoreTeam( iIgnoreTeam )
+	{
+	}
+
+	virtual bool ShouldHitEntity( IHandleEntity* pServerEntity, int contentsMask )
+	{
+		CBaseEntity *pEntity = EntityFromEntityHandle( pServerEntity );
+		const CBaseEntity *pPassEntity = EntityFromEntityHandle( GetPassEntity() );
+		CBaseEntity *pPassNonConst = const_cast< CBaseEntity * >( pPassEntity );
+
+		if ( ( pEntity->IsPlayer() || pEntity->IsCombatItem() ) && ( pEntity->GetTeamNumber() == m_iIgnoreTeam || m_iIgnoreTeam == TEAM_ANY ) )
+		{
+			// first, evaluate passtime logic
+			if ( g_pPasstimeLogic )
+			{
+				CTFPlayer *pTFTargetPlayer = ToTFPlayer( pEntity );
+
+				if ( pTFTargetPlayer && pTFTargetPlayer->m_Shared.HasPasstimeBall() )
+				{
+					return BaseClass::ShouldHitEntity( pServerEntity, contentsMask );
+				}
+			}
+
+			if ( pPassNonConst )
+			{
+				// now, check the player we passed in.
+				CTFPlayer *pTFPassPlayer = static_cast< CTFPlayer * >( pPassNonConst );
+
+				if ( pTFPassPlayer )
+				{
+					CTFWeaponBase *pWeapon = pTFPassPlayer->GetActiveTFWeapon();
+
+					if ( pWeapon )
+					{
+						// attributes
+						int iSpeedBuffOnHit = 0;
+						CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iSpeedBuffOnHit, speed_buff_ally );
+
+						int nGiveHealthOnHit = 0;
+						CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, nGiveHealthOnHit, add_give_health_to_teammate_on_hit );
+
+						if ( ( iSpeedBuffOnHit != 0 ) || ( nGiveHealthOnHit != 0 ) )
+						{
+							return BaseClass::ShouldHitEntity( pServerEntity, contentsMask );
+						}
+					}
+				}
+			}
+
+			return false;
+		}
+
+		return BaseClass::ShouldHitEntity( pServerEntity, contentsMask );
+	}
+
+	int m_iIgnoreTeam;
+};
 
 bool CTFWeaponBaseMelee::DoSwingTraceInternal( trace_t &trace, bool bCleave, CUtlVector< trace_t >* pTargetTraceVector )
 {
@@ -426,7 +491,7 @@ bool CTFWeaponBaseMelee::DoSwingTraceInternal( trace_t &trace, bool bCleave, CUt
 
 	// only hit teammates if friendly fire is on.
 	bool bDontHitTeammates = !friendlyfire.GetBool();
-	CTraceFilterIgnoreTeammates ignoreTeammatesFilter( pPlayer, COLLISION_GROUP_NONE, pPlayer->GetTeamNumber() );
+	CTraceFilterIgnoreTeammatesMelee ignoreTeammatesFilter( pPlayer, COLLISION_GROUP_NONE, pPlayer->GetTeamNumber() );
 
 	if ( bCleave )
 	{
