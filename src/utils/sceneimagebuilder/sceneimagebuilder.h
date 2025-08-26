@@ -23,10 +23,21 @@
 class CSceneImageBuilderApp : public CTier3SteamApp, public ISceneImage
 {
 private:
-	CSceneImage sceneImage;
 	typedef CTier3SteamApp BaseClass;
 
+private:
+	CSceneImage m_SceneImage;
+	bool m_bPause = false;
+	bool m_bQuiet = false;
+	bool m_bLog = false;
+
+private:
+	void ParseCommandline();
+	void HitKeyToContinue();
+	void PrintUsage();
+	void PrintHeader();
 	virtual bool SetupSearchPaths();
+
 public:
 	virtual bool CreateSceneImageFile(CUtlBuffer& targetBuffer, char const* pchModPath, bool bLittleEndian, bool bQuiet, ISceneCompileStatus* Status) override;
 	virtual bool PreInit();

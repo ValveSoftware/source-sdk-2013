@@ -21,29 +21,9 @@
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Global vars 
-//-----------------------------------------------------------------------------
-bool g_bBuilVcd  = false;
-bool g_bPause    = true;
-bool g_bQuiet    = false;
-bool g_bLog      = false;
-
-
-//-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-static void HitKeyToContinue()
-{
-    if (g_bPause)
-    {
-        system("pause");
-    }
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-static void PrintHeader()
+void CSceneImageBuilderApp::PrintHeader()
 {
     Msg("Valve Software - sceneimagebuilder.exe (Build: %s %s)\n", __DATE__, __TIME__);
 }
@@ -52,27 +32,38 @@ static void PrintHeader()
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-static void PrintUsage()
+void CSceneImageBuilderApp::PrintUsage()
 {
     Msg("\n"
         "Usage: sceneimagebuilder.exe [options] -game <path>\n"
-        "Example: D:\\dota 2\\bin\\win64\\sceneimagebuilder.exe -l -nopause -game \"D:\\dota 2\"\n"
+        "Example: D:\\dota 2\\bin\\win64\\sceneimagebuilder.exe -l -pause -game \"D:\\dota 2\"\n"
         "   -game <path>:    Path of the game folder to \'gameinfo.txt\'. (e.g: C:\\Half Life 2\\hl2)\n"
         "   -? or -help:     Prints help.\n"
         "   -v or -verbose:  Turn on verbose output.\n"
         "   -l:              log to file log.txt\n"
-        "   -nopause:        Dont pause at end of processing.\n"
-        "   -quiet:          Prints only escensial messagues.\n"
+        "   -pause:          Pause at end of processing.\n"
+        "   -quiet:          Prints only essential messages.\n"
         "\n"
     );
     HitKeyToContinue();
     exit(-1);
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-static void ParseCommandline()
+void CSceneImageBuilderApp::HitKeyToContinue()
+{
+    if (m_bPause)
+        system("pause");
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CSceneImageBuilderApp::ParseCommandline()
 {
     if (CommandLine()->ParmCount() < 2)
     {
@@ -87,7 +78,11 @@ static void ParseCommandline()
         {
             switch (pParm[1])
             {
-            case 'h' || '?': 
+            case 'h': 
+                PrintUsage();
+                break;
+
+            case '?': 
                 PrintUsage();
                 break;
 
@@ -96,29 +91,29 @@ static void ParseCommandline()
                 {
                     qprintf("Verbose mode enabled\n");
                     verbose = true;
-                    g_bQuiet = false;
+                    m_bQuiet = false;
                 }
                 break;
 
-            case 'n': 
-                if (!Q_stricmp(pParm, "-nopause"))
+            case 'p': 
+                if (!Q_stricmp(pParm, "-pause"))
                 {
                     qprintf("No pause enabled.\n");
-                    g_bPause = false;
+                    m_bPause = true;
                 }
                 break;
             case 'l':
                 if (!Q_stricmp(pParm, "-l"))
                 {
                     qprintf("log mode enabled.\n");
-                    g_bLog = true;
+                    m_bLog = true;
                 }
             case 'q':
                 if (!Q_stricmp(pParm, "-quiet"))
                 {
                     qprintf("Quiet mode enabled.\n");
                     verbose = false;
-                    g_bQuiet = true;
+                    m_bQuiet = true;
                 }
                 break;
 
@@ -135,7 +130,7 @@ static void ParseCommandline()
                         }
                         else
                         {
-                            V_strcpy(gamedir, gamePath);
+                            V_strcpy_safe(gamedir, gamePath);
                         }
                     }
                     else
@@ -202,7 +197,7 @@ void CSceneImageBuilderApp::Destroy()
 bool CSceneImageBuilderApp::PreInit()
 {
     char szTempGameDir[MAX_PATH];
-    V_strcpy(szTempGameDir, gamedir);
+    V_strcpy_safe(szTempGameDir, gamedir);
     V_StripTrailingSlash(szTempGameDir);
 
     if (!CTier3SteamApp::PreInit())
@@ -223,10 +218,10 @@ bool CSceneImageBuilderApp::PreInit()
         return false;
     }
     
-    if(g_bLog)
+    if(m_bLog)
     {
         char szLogFile[MAX_PATH];
-        V_snprintf(szLogFile, sizeof(szLogFile), "%s\\%s\\%s.log", szTempGameDir, SCENESRC_DIR, "sceneimagebuilder");
+        V_sprintf_safe(szLogFile, "%s\\%s\\%s.log", szTempGameDir, SCENESRC_DIR, "sceneimagebuilder");
         remove(szLogFile);
         SetSpewFunctionLogFile(szLogFile);
     }
@@ -250,7 +245,7 @@ void CSceneImageBuilderApp::PostShutdown()
 //-----------------------------------------------------------------------------
 bool CSceneImageBuilderApp::CreateSceneImageFile(CUtlBuffer& targetBuffer, char const* pchModPath, bool bLittleEndian, bool bQuiet, ISceneCompileStatus* Status)
 {
-    bool bSuccess = sceneImage.CreateSceneImageFile(targetBuffer, pchModPath, bLittleEndian, bQuiet, Status);
+    bool bSuccess = m_SceneImage.CreateSceneImageFile(targetBuffer, pchModPath, bLittleEndian, bQuiet, Status);
     return bSuccess;
 }
 
@@ -263,17 +258,17 @@ void CSceneImageBuilderApp::SceneBuild()
     CUtlBuffer	targetBuffer;
     char szSceneCompiledPath[MAX_PATH], szSceneFile[128], szTempGameDir[1024]; /*gamedir without the blackslash*/
     
-    V_snprintf(szSceneFile, sizeof(szSceneFile), "%s\\%s", SCENESRC_DIR, SCENEIMAGE_FILE);
-    V_strcpy(szTempGameDir, gamedir);
+    V_sprintf_safe(szSceneFile, "%s\\%s", SCENESRC_DIR, SCENEIMAGE_FILE);
+    V_strcpy_safe(szTempGameDir, gamedir);
     V_StripTrailingSlash(szTempGameDir);
 
-    V_snprintf(szSceneCompiledPath, sizeof(szSceneCompiledPath), "%s\\%s", szTempGameDir, szSceneFile);
+    V_sprintf_safe(szSceneCompiledPath, "%s\\%s", szTempGameDir, szSceneFile);
 
     qprintf("Game path: %s\n", szTempGameDir);
     qprintf("Scene source (.vcd): %s\\%s\\*.vcd\n", szTempGameDir, SCENESRC_DIR);
     qprintf("Scene compiled (.image): %s\n", szSceneCompiledPath);
 
-    if (g_pSceneImage->CreateSceneImageFile(targetBuffer, szTempGameDir, true, g_bQuiet, NULL))
+    if (g_pSceneImage->CreateSceneImageFile(targetBuffer, szTempGameDir, true, m_bQuiet, NULL))
     {
         Msg("Writting compiled Scene file: %s... ", szSceneCompiledPath);
 
@@ -313,7 +308,6 @@ int CSceneImageBuilderApp::Main()
     PostShutdown();
 
     Msg("--> Done in %.2f seconds.\n", Plat_FloatTime() - start);
-    HitKeyToContinue();
 
     return 0;
 }
@@ -323,3 +317,4 @@ int CSceneImageBuilderApp::Main()
 // Purpose: Main entry point 
 //-----------------------------------------------------------------------------
 DEFINE_CONSOLE_STEAM_APPLICATION_OBJECT(CSceneImageBuilderApp)
+
