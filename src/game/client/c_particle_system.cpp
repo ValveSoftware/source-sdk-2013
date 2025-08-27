@@ -33,6 +33,7 @@ protected:
 	int			m_iEffectIndex;
 	bool		m_bActive;
 	bool		m_bOldActive;
+	bool		m_bDestroyImmediately;
 	float		m_flStartTime;	// Time at which the effect started
 
 	enum { kMAXCONTROLPOINTS = 63 }; ///< actually one less than the total number of cpoints since 0 is assumed to be me
@@ -56,6 +57,7 @@ BEGIN_RECV_TABLE_NOBASE( C_ParticleSystem, DT_ParticleSystem )
 
 	RecvPropInt( RECVINFO( m_iEffectIndex ) ),
 	RecvPropBool( RECVINFO( m_bActive ) ),
+	RecvPropBool( RECVINFO( m_bDestroyImmediately ) ),
 	RecvPropFloat( RECVINFO( m_flStartTime ) ),
 
 	RecvPropArray3( RECVINFO_ARRAY(m_hControlPointEnts), RecvPropEHandle( RECVINFO( m_hControlPointEnts[0] ) ) ),
@@ -109,8 +111,15 @@ void C_ParticleSystem::PostDataUpdate( DataUpdateType_t updateType )
 			}
 			else
 			{
-						ParticleProp()->StopEmission();
-					}
+				if ( m_bDestroyImmediately )
+				{
+					ParticleProp()->StopEmissionAndDestroyImmediately();
+				}
+				else
+				{
+					ParticleProp()->StopEmission();
+				}
+			}
 		}
 	}
 }
@@ -273,9 +282,30 @@ void ParticleEffectStopCallback( const CEffectData &data )
 		C_BaseEntity *pEnt = C_BaseEntity::Instance( data.m_hEntity );
 		if ( pEnt )
 		{
-				pEnt->ParticleProp()->StopEmission();
-			}
+			pEnt->ParticleProp()->StopEmission();
 		}
 	}
+}
 
 DECLARE_CLIENT_EFFECT( "ParticleEffectStop", ParticleEffectStopCallback );
+
+
+//======================================================================================================================
+// PARTICLE SYSTEM STOP AND DESTROY EFFECT
+//======================================================================================================================
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void ParticleEffectDestroyImmediatelyCallback( const CEffectData& data )
+{
+	if ( data.m_hEntity.Get() )
+	{
+		C_BaseEntity* pEnt = C_BaseEntity::Instance( data.m_hEntity );
+		if ( pEnt )
+		{
+			pEnt->ParticleProp()->StopEmissionAndDestroyImmediately();
+		}
+	}
+}
+
+DECLARE_CLIENT_EFFECT( "ParticleEffectDestroyImmediately", ParticleEffectDestroyImmediatelyCallback );
