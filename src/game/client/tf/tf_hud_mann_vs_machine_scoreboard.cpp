@@ -94,6 +94,8 @@ CTFHudMannVsMachineScoreboard::CTFHudMannVsMachineScoreboard( Panel *parent, con
 	m_iDisplayedWave = -1;
 	m_bInitialized = false;
 
+	m_bScrollBarVisible = false;
+
 	m_iSquadSurplusTexture = 0;
 
 	Q_memset( m_iImageClass, NULL, sizeof( m_iImageClass ) );
@@ -184,6 +186,7 @@ void CTFHudMannVsMachineScoreboard::OnTick ()
 	UpdatePlayerList();
 	UpdateCreditStats();
 	UpdatePopFile();
+	AdjustForVisibleScrollbar();
 }
 
 //-----------------------------------------------------------------------------
@@ -716,5 +719,16 @@ void CTFHudMannVsMachineScoreboard::InitializeInputScheme( bool bUseMouse )
 		m_pPlayerList->GetScrollBar()->GetButton( 1 )->SetMouseInputEnabled( bUseMouse );
 		m_pPlayerList->GetScrollBar()->GetSlider()->SetMouseInputEnabled( bUseMouse );
 		m_pPlayerList->GetScrollBar()->SetMouseInputEnabled( bUseMouse );
+	}
+}
+
+//-----------------------------------------------------------------------------
+void CTFHudMannVsMachineScoreboard::AdjustForVisibleScrollbar( void )
+{
+	if ( m_pPlayerList && m_pPlayerList->GetScrollBar() && ( m_bScrollBarVisible != m_pPlayerList->GetScrollBar()->IsVisible() ) )
+	{
+		m_bScrollBarVisible = m_pPlayerList->GetScrollBar()->IsVisible();
+		int iScrollBarWidth = m_bScrollBarVisible ? m_pPlayerList->GetScrollBar()->GetWide() : 0;
+		m_pPlayerList->SetColumnWidthBySection( 0, "name", m_iNameWidth - iScrollBarWidth );
 	}
 }
