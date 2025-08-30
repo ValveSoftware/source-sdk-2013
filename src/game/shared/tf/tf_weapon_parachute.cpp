@@ -52,6 +52,7 @@ void CTFParachute::CreateBanner()
 		m_iParachuteAnimState = EParachuteRetracted_Idle;
 		int sequence = m_hBannerEntity->SelectWeightedSequence( ACT_PARACHUTE_RETRACT_IDLE );
 		m_hBannerEntity->ResetSequence( sequence );
+		m_flParachuteToIdleTime = -1;
 	}
 #endif // CLIENT_DLL
 }
