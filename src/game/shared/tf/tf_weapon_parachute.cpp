@@ -41,6 +41,9 @@ CTFParachute::CTFParachute()
 //-----------------------------------------------------------------------------
 void CTFParachute::CreateBanner()
 {
+	if ( m_hBannerEntity )
+		return;
+
 	BaseClass::CreateBanner();
 
 #ifdef CLIENT_DLL
@@ -91,37 +94,47 @@ void CTFParachute::ParachuteAnimThink( void )
 		bInCondition = false;
 	}
 
+	bool bIsDeployed = m_iParachuteAnimState == EParachuteDeployed || m_iParachuteAnimState == EParachuteDeployed_Idle;
+	int iAct = -1;
+
 	// Track Anim State
-	if ( m_iParachuteAnimState == EParachuteDeployed_Idle && !bInCondition )
+	if ( m_flParachuteToIdleTime < gpGlobals->curtime && m_flParachuteToIdleTime != -1 )
 	{
-		// retract
-		int sequence = m_hBannerEntity->SelectWeightedSequence( ACT_PARACHUTE_RETRACT );
-		m_hBannerEntity->ResetSequence( sequence );
-		m_flParachuteToIdleTime = m_hBannerEntity->SequenceDuration() + gpGlobals->curtime;
-
-		m_iParachuteAnimState = EParachuteRetracted;
-	}
-	else if ( m_iParachuteAnimState == EParachuteRetracted_Idle && bInCondition )
-	{
-		// deploy
-		int sequence = m_hBannerEntity->SelectWeightedSequence( ACT_PARACHUTE_DEPLOY );
-		m_hBannerEntity->ResetSequence( sequence );
-		m_flParachuteToIdleTime = m_hBannerEntity->SequenceDuration() + gpGlobals->curtime;
-		m_iParachuteAnimState = EParachuteDeployed;
+		if ( m_iParachuteAnimState == EParachuteDeployed )
+		{
+			iAct = ACT_PARACHUTE_DEPLOY_IDLE;
+			m_iParachuteAnimState = EParachuteDeployed_Idle;
+		}
+		else
+		{
+			iAct = ACT_PARACHUTE_RETRACT_IDLE;
+			m_iParachuteAnimState = EParachuteRetracted_Idle;
+		}
+		m_flParachuteToIdleTime = -1;
 	}
 
-	// To Idle
-	if ( m_iParachuteAnimState == EParachuteRetracted && m_flParachuteToIdleTime < gpGlobals->curtime )
+	if ( bIsDeployed != bInCondition )
 	{
-		int sequence = m_hBannerEntity->SelectWeightedSequence( ACT_PARACHUTE_RETRACT_IDLE );
-		m_hBannerEntity->ResetSequence( sequence );
-		m_iParachuteAnimState = EParachuteRetracted_Idle;
+		if ( bInCondition )
+		{
+			iAct = ACT_PARACHUTE_DEPLOY;
+			m_iParachuteAnimState = EParachuteDeployed;
+		}
+		else
+		{
+			iAct = ACT_PARACHUTE_RETRACT;
+			m_iParachuteAnimState = EParachuteRetracted;
+		}
 	}
-	else if ( m_iParachuteAnimState == EParachuteDeployed && m_flParachuteToIdleTime < gpGlobals->curtime )
+
+	if ( iAct != -1 )
 	{
-		int sequence = m_hBannerEntity->SelectWeightedSequence( ACT_PARACHUTE_DEPLOY_IDLE );
+		int sequence = m_hBannerEntity->SelectWeightedSequence( iAct );
 		m_hBannerEntity->ResetSequence( sequence );
-		m_iParachuteAnimState = EParachuteDeployed_Idle;
+		if ( m_iParachuteAnimState == EParachuteDeployed || m_iParachuteAnimState == EParachuteRetracted )
+		{
+			m_flParachuteToIdleTime = m_hBannerEntity->SequenceDuration() + gpGlobals->curtime;
+		}
 	}
 }
 
