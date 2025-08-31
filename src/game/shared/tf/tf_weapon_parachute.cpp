@@ -41,12 +41,13 @@ CTFParachute::CTFParachute()
 //-----------------------------------------------------------------------------
 void CTFParachute::CreateBanner()
 {
+#ifdef CLIENT_DLL
 	if ( m_hBannerEntity )
 		return;
 
 	BaseClass::CreateBanner();
 
-#ifdef CLIENT_DLL
+
 	if ( m_hBannerEntity )
 	{
 		m_iParachuteAnimState = EParachuteRetracted_Idle;
