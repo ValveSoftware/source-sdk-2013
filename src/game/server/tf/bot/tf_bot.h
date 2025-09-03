@@ -268,6 +268,7 @@ public:
 		FIRE_IMMUNE					= 1<<25,				// "" fire
 		PARACHUTE					= 1<<26,				// demo/soldier parachute when falling
 		PROJECTILE_SHIELD			= 1<<27,				// medic projectile shield
+		FORCE_DIFFICULTY_BASED_AIM	= 1<<28,				// force difficulty-based aim (for spy)
 	};
 	void SetAttribute( int attributeFlag );
 	void ClearAttribute( int attributeFlag );
