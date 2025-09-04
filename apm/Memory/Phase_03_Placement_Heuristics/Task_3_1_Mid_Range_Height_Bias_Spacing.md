@@ -23,12 +23,12 @@ Default behavior (seams OFF) remains unchanged.
 
 ## Build Results
 - Seams OFF (default): success
-  - Command: `cd src && ./buildallprojects release | tee ../.build_phase3_t3_1.out`
-  - Log: `.build_phase3_t3_1.out`
+  - Command: `cd src && ./buildallprojects release | tee ../buildlog/.build_phase3_t3_1.out`
+  - Log: `buildlog/.build_phase3_t3_1.out`
 - Seams ON (compile-time verification): success
   - Temporary define: `TF_BOT_ENGINEER_SEAMS=1` (header edit)
-  - Command: `cd src && ./buildallprojects release | tee ../.build_phase3_t3_1_seams_on.out`
-  - Log: `.build_phase3_t3_1_seams_on.out`
+  - Command: `cd src && ./buildallprojects release | tee ../buildlog/.build_phase3_t3_1_seams_on.out`
+  - Log: `buildlog/.build_phase3_t3_1_seams_on.out`
   - Reverted header to default OFF after build.
 
 ## Notes
@@ -58,11 +58,11 @@ Default behavior (seams OFF) remains unchanged.
 ### Build results (traces)
 - Seams ON: success
   - Header temporarily set `TF_BOT_ENGINEER_SEAMS=1`
-  - Command: `cd src && ./buildallprojects release | tee ../.build_phase3_t3_1_traces_seams_on.out`
-  - Log: `.build_phase3_t3_1_traces_seams_on.out`
+- Command: `cd src && ./buildallprojects release | tee ../buildlog/.build_phase3_t3_1_traces_seams_on.out`
+- Log: `buildlog/.build_phase3_t3_1_traces_seams_on.out`
 - Seams OFF: success (reverted header to default `0`)
-  - Command: `cd src && ./buildallprojects release | tee ../.build_phase3_t3_1_traces_seams_off.out`
-  - Log: `.build_phase3_t3_1_traces_seams_off.out`
+- Command: `cd src && ./buildallprojects release | tee ../buildlog/.build_phase3_t3_1_traces_seams_off.out`
+- Log: `buildlog/.build_phase3_t3_1_traces_seams_off.out`
 
 ### How to capture
 - Console: `developer 1`, optional `con_timestamp 1`

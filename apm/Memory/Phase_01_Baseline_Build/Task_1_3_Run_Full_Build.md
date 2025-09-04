@@ -14,11 +14,11 @@
 - Command attempted:
   - `cd src && ./devtools/bin/vpc /tf /linux64 /ninja /define:SOURCESDK +everything /mksln _vpc_/ninja/tf_release`
 - Error observed:
-  - `Segmentation fault (core dumped)` (see `.vpc_tf_release.out` at repo root)
+- `Segmentation fault (core dumped)` (see `buildlog/.vpc_tf_release.out`)
 - Validation:
   - Graph: `src/_vpc_/ninja/tf_release.ninja` MISSING
   - Artifacts: `game/mod_tf/bin/linux64/client.so` MISSING; `game/mod_tf/bin/linux64/server_srv` MISSING
-  - Build log: `src/../.build_tf_release.out` MISSING (build not started)
+- Build log: `src/../buildlog/.build_tf_release.out` MISSING (build not started)
   - Compile DB: `src/compile_commands.json` NOT GENERATED
 
 ## Issues
@@ -29,4 +29,3 @@
 - Re-run VPC inside the validated container toolchain from Task 1.2, then reattempt Ninja generation and build.
 - If crash persists in container, capture minimal repro (exact args) and investigate known VPC issues for this branch; consider pinning to a known-good VPC binary.
 - Once Ninja graph is generated, proceed with compile DB generation and full TF-only build; update findings.
-

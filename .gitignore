@@ -8,6 +8,9 @@ game/mod_tf/nextbot.debug.txt
 !game/mod_tf/nbdebuglogs/notes.txt
 !game/mod_tf/nbdebuglogs/bot-visuals-debug/.keep
 
+# Build logs folder
+buildlog/
+
 # Source SDK / build outputs
 # - Keep these succinct; Visual Studio and general tool junk is handled below.
 

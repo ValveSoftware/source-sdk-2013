@@ -21,10 +21,10 @@ Code References:
   - Hint-aware proximity: `kHintBiasRadius` replaced by `tf_bot_engineer_seams_hint_radius` (fallback 900 if <= 0); on proximity-fallback path, adds `tf_bot_engineer_seams_hint_bias_weight` to `hintBias` before thresholding.
 
 Build Results:
-- Command: `cd src && ./buildallprojects release | tee ../.build_phase3_t3_3.out`
+- Command: `cd src && ./buildallprojects release | tee ../buildlog/.build_phase3_t3_3.out`
 - Seams OFF parity: Preserved by guarding all changes under `TF_BOT_ENGINEER_SEAMS` and using no-op seam stubs; build succeeded.
 - Seams ON compile path: New cvars and usages compiled successfully (see build log).
-- Log: `.build_phase3_t3_3.out` indicates successful compile/link and copy of `server.so`.
+- Log: `buildlog/.build_phase3_t3_3.out` indicates successful compile/link and copy of `server.so`.
 
 Notes:
 - No behavior changes when seams are disabled at compile time.

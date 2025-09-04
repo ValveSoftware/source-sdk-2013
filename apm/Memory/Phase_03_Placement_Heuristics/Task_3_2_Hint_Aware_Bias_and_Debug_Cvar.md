@@ -15,7 +15,7 @@ Key Changes:
 - Debug: gated `DevMsg` logs showing preferred/other counts and nearest hint vs chosen area center.
 
 Build Results:
-- Command: `cd src && ./buildallprojects release | tee ../.build_phase3_t3_2.out`
+- Command: `cd src && ./buildallprojects release | tee ../buildlog/.build_phase3_t3_2.out`
 - Outcome: Build succeeded. Artifacts updated under `game/mod_tf/bin/linux64/server.so`.
 - Seams default: No build script changes; guarded code compiles as before. Debug traces remain off by default.
 

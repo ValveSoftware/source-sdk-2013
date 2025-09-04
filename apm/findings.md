@@ -35,4 +35,4 @@
 - Graph: src/_vpc_/ninja/tf_release.ninja missing
 - Artifacts: mod_tf client.so/server_srv missing
 - Compile DB: src/compile_commands.json not generated
-- Notes: VPC segfault on graph generation (`devtools/bin/vpc /tf /linux64 /ninja /define:SOURCESDK +everything /mksln _vpc_/ninja/tf_release`). See `.vpc_tf_release.out` for stderr.
+- Notes: VPC segfault on graph generation (`devtools/bin/vpc /tf /linux64 /ninja /define:SOURCESDK +everything /mksln _vpc_/ninja/tf_release`). See `buildlog/.vpc_tf_release.out` for stderr.

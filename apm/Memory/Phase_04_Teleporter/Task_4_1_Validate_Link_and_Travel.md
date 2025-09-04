@@ -33,11 +33,10 @@ Behavioral Notes:
 - With seams on, only local flags and debug logs are set/emitted; no destruction/redeploy yet. T4.2 will consume these flags.
 
 Build Results:
-- Command: `cd src && ./buildallprojects release | tee ../.build_phase4_t4_1.out`
+- Command: `cd src && ./buildallprojects release | tee ../buildlog/.build_phase4_t4_1.out`
 - Outcome: Success. `server_tf` objects compiled and `server.so` linked and copied.
-- Log: `.build_phase4_t4_1.out`
+- Log: `buildlog/.build_phase4_t4_1.out`
 
 Verification Tips:
 - Enable logging: `developer 1; tf_bot_engineer_seams_debug 1; con_logfile nbdebuglogs/nextbot.debug.txt`
 - Grep marker: `[TF-ENG seam] Teleporter link check` to find per-state prints.
-
