@@ -119,6 +119,14 @@ _vpc_/
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+# Local, non-repo APM framework clone (keep out of this repo)
+APM-c-management/
+
+# Editor junk
+.vscode/
+*.swp
+*.swo
+
 # Mono auto generated files
 mono_crash.*
 
