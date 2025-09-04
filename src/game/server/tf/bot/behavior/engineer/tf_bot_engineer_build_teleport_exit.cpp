@@ -7,6 +7,9 @@
 #include "nav_mesh.h"
 #include "tf_player.h"
 #include "bot/behavior/engineer/tf_bot_engineer_seams.h"
+#if TF_BOT_ENGINEER_SEAMS
+extern ConVar tf_bot_engineer_seams_debug;
+#endif
 #include "tf_obj.h"
 #include "tf_obj_sentrygun.h"
 #include "tf_weapon_builder.h"
@@ -52,6 +55,40 @@ ActionResult< CTFBot >	CTFBotEngineerBuildTeleportExit::OnStart( CTFBot *me, Act
 //---------------------------------------------------------------------------------------------
 ActionResult< CTFBot >	CTFBotEngineerBuildTeleportExit::Update( CTFBot *me, float interval )
 {
+#if TF_BOT_ENGINEER_SEAMS
+	// If both entrance and exit exist, validate link and estimate travel delta
+	CObjectTeleporter *entrance = (CObjectTeleporter *)me->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_ENTRANCE );
+	CObjectTeleporter *exit = (CObjectTeleporter *)me->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_EXIT );
+	if ( entrance && exit )
+	{
+		entrance->UpdateLastKnownArea();
+		exit->UpdateLastKnownArea();
+		CTFNavArea *entrArea = (CTFNavArea *)entrance->GetLastKnownArea();
+		CTFNavArea *exitArea = (CTFNavArea *)exit->GetLastKnownArea();
+		float travelDelta = 0.0f;
+		if ( entrArea && exitArea )
+		{
+			float incA = entrArea->GetIncursionDistance( me->GetTeamNumber() );
+			float incB = exitArea->GetIncursionDistance( me->GetTeamNumber() );
+			travelDelta = fabsf( incA - incB );
+		}
+		else
+		{
+			travelDelta = ( entrance->GetAbsOrigin() - exit->GetAbsOrigin() ).Length();
+		}
+
+		bool isValid = Seam_TeleporterIsValid( entrance, exit );
+		bool shouldRedeploy = Seam_TeleporterShouldRedeploy( entrance, exit, travelDelta );
+
+		if ( developer.GetBool() )
+		{
+			if ( tf_bot_engineer_seams_debug.GetBool() )
+			{
+				DevMsg( "[TF-ENG seam] Teleporter link check (Exit): valid=%d redeploy=%d travelDelta=%.1f\n", (int)isValid, (int)shouldRedeploy, travelDelta );
+			}
+		}
+	}
+#endif
 	if ( me->GetTimeSinceLastInjury() < 1.0f )
 	{
 		return Done( "Ouch! I'm under attack" );
@@ -187,4 +224,3 @@ EventDesiredResult< CTFBot > CTFBotEngineerBuildTeleportExit::OnStuck( CTFBot *m
 
 	return TryContinue();
 }
-

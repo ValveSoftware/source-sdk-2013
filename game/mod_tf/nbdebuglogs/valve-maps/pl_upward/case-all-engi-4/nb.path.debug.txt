@@ -1,0 +1,365 @@
+09/04/2025 - 14:07:14: "con_notifytime" = "8"
+09/04/2025 - 14:07:14:  - How long to display recent console text to the upper part of the game window
+09/04/2025 - 14:07:19: FCVAR_CHEAT cvars reverted to defaults.
+09/04/2025 - 14:07:19: FCVAR_CHEAT cvars reverted to defaults.
+09/04/2025 - 14:07:19: maxplayers set to 24
+09/04/2025 - 14:07:19: TODO: Refusing to discard 240747 bytes
+09/04/2025 - 14:07:19: Unknown command "setmaster"
+09/04/2025 - 14:07:19: maxplayers set to 25
+09/04/2025 - 14:07:19: TODO: Refusing to discard 240747 bytes
+09/04/2025 - 14:07:19: ---- Host_NewGame ----
+09/04/2025 - 14:07:19: Spawn Server: pl_upward
+09/04/2025 - 14:07:19: TODO: Refusing to discard 240747 bytes
+09/04/2025 - 14:07:19: TODO: Refusing to discard 240747 bytes
+09/04/2025 - 14:07:19: Error: Material "___fillrate_0" uses unknown shader "FillRate"
+09/04/2025 - 14:07:19: Error: Material "___debugnormalmap_1" uses unknown shader "DebugNormalMap"
+09/04/2025 - 14:07:19: Error: Material "___debugdrawenvmapmask_2" uses unknown shader "DebugDrawEnvmapMask"
+09/04/2025 - 14:07:19: Error: Material "___debugdepth_3" uses unknown shader "DebugDepth"
+09/04/2025 - 14:07:19: Error: Material "___debugdepth_4" uses unknown shader "DebugDepth"
+09/04/2025 - 14:07:20: Error: Material "debug/debugluxels" uses unknown shader "DebugLuxels"
+09/04/2025 - 14:07:21: A custom HDR cubemap "materials/models/player/shared/eye-reflection-cubemap-.hdr.vtf": cannot be found on disk.
+This really should have a HDR version, trying a fall back to a non-HDR version.
+09/04/2025 - 14:07:28: A custom HDR cubemap "materials/models/player/shared/eye-reflection-cubemap-.hdr.vtf": cannot be found on disk.
+This really should have a HDR version, trying a fall back to a non-HDR version.
+09/04/2025 - 14:07:28: Legacy game DLL may not support terrain vphysics collisions with this BSP!
+09/04/2025 - 14:07:36: Set Gravity 800.0 (0.250 tolerance)
+09/04/2025 - 14:07:36: Error loading cfg/vscript_convar_allowlist.txt
+09/04/2025 - 14:07:36: VSCRIPT: Started VScript virtual machine using script language 'Squirrel'
+09/04/2025 - 14:07:36: Script not found (scripts/vscripts/mapspawn.nut) 
+09/04/2025 - 14:07:36: Loading AI graph
+09/04/2025 - 14:07:36: Step 1 loading
+09/04/2025 - 14:07:36: Checking version
+09/04/2025 - 14:07:36: Passed first ver check
+09/04/2025 - 14:07:36: Got version 37
+09/04/2025 - 14:07:36: Map version 173
+09/04/2025 - 14:07:36: Done version checks
+09/04/2025 - 14:07:36: Finishing load
+09/04/2025 - 14:07:36: Set motd from file 'cfg/motd_default.txt'.  ('cfg/motd.txt' was not found.)
+09/04/2025 - 14:07:36: Set motd_text from file 'cfg/motd_text_default.txt'.  ('cfg/motd_text.txt' was not found.)
+09/04/2025 - 14:07:36: SV_ActivateServer: setting tickrate to 66.7
+09/04/2025 - 14:07:36: Created class baseline: 31 classes, 15302 bytes.
+09/04/2025 - 14:07:36: 25 player server started
+09/04/2025 - 14:07:36: 'listenserver.cfg' not present; not executing.
+09/04/2025 - 14:07:36: 'pl_upward.cfg' not present; not executing.
+09/04/2025 - 14:07:36: FakeIP allocation succeeded: 169.254.189.172:37328, 37329
+09/04/2025 - 14:07:36: CTFGCServerSystem - removing listener to old Steam ID [A:1:249381915:46950]
+09/04/2025 - 14:07:36: Stringtable modelprecache compression: 27901 -> 13272 bytes: 0.13ms
+09/04/2025 - 14:07:36: Stringtable soundprecache compression: 91879 -> 40119 bytes: 0.35ms
+09/04/2025 - 14:07:36: Stringtable instancebaseline compression: 15475 -> 3610 bytes: 0.03ms
+09/04/2025 - 14:07:36: Stringtable ParticleEffectNames compression: 62993 -> 47185 bytes: 0.30ms
+09/04/2025 - 14:07:36: Stringtable Scenes compression: 47474 -> 21863 bytes: 0.19ms
+09/04/2025 - 14:07:38: "Mario9501<139><[U:1:160780617]><>" STEAM USERID validated
+09/04/2025 - 14:07:38: 
+Team Fortress
+Map: pl_upward
+Players: 1 / 25
+Build: 2000
+Server Number: 12
+
+09/04/2025 - 14:07:38: Client reached server_spawn.
+09/04/2025 - 14:07:38: Recognizing MM server id [A:1:250564635:46950]
+09/04/2025 - 14:07:38: Attemped to precache unknown particle system "Explosion_bubbles"!
+09/04/2025 - 14:07:38: Attemped to precache unknown particle system "bomibomicon_ring"!
+09/04/2025 - 14:07:38: The server is using sv_pure -1 (no file checking).
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/physics/metal/metal_grenade_roll_loop1.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/weapons/timer.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/items/pyro_guitar_solo_with_verb.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/player/sniper_taunt_hawk.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/player/taunt_pyro_twirl.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/player/taunt_yeti_standee_spy_swing1.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/player/taunt_yeti_standee_spy_swing2.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/player/cyoa_pda_dial1.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/player/cyoa_pda_dial2.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/player/cyoa_pda_dial3.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/player/cyoa_pda_dial4.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/player/cyoa_pda_dial5.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/ui/quest_status_complete.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/weapons/shotgun_cock.wav came from. Not playing.
+09/04/2025 - 14:07:38: Cannot figure out which search path sound/weapons/airstrike_fail.wav came from. Not playing.
+09/04/2025 - 14:07:38: Initializing renderer...
+09/04/2025 - 14:07:39: Voice_Init: Using Steam voice optimal sample rate 24000
+09/04/2025 - 14:07:42: Sending full update to Client Mario9501
+09/04/2025 - 14:07:43: Mario9501 connected
+09/04/2025 - 14:07:43: Attemped to precache unknown particle system "Explosion_bubbles"!
+09/04/2025 - 14:07:43: Attemped to precache unknown particle system "Explosion_bubbles"!
+09/04/2025 - 14:07:43: Attemped to precache unknown particle system "bomibomicon_ring"!
+09/04/2025 - 14:07:43: Attemped to precache unknown particle system "bomibomicon_ring"!
+09/04/2025 - 14:07:44: Set Gravity 800.0 (0.250 tolerance)
+09/04/2025 - 14:07:44: TODO: Refusing to discard 240747 bytes
+09/04/2025 - 14:07:44: Signon traffic "CLIENT":  incoming 158.005 KB, outgoing 9.117 KB
+09/04/2025 - 14:07:44: Queued Material System: ENABLED!
+09/04/2025 - 14:07:44: Soundscape: Upward.Outside
+09/04/2025 - 14:07:44: Redownloading all lightmaps
+09/04/2025 - 14:07:45: R_RedownloadAllLightmaps took 143.676 msec!
+09/04/2025 - 14:07:48: CTFNavMesh: 2617 nav areas in mesh.
+09/04/2025 - 14:07:49: Soundscape: Upward.Outside
+09/04/2025 - 14:07:49: [TF-ENG seam] Height bias: preferred=206, others=117 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:07:49: [TF-ENG seam] CollectBuildAreas: kept_areas=323 total_surface=1768212
+09/04/2025 - 14:07:49: [TF-ENG seam] SelectBuildLocation: selected area center=(2201,-677,6) random_point=(2209,-700,5)
+09/04/2025 - 14:07:49: [TF-ENG seam] Height bias: preferred=206, others=117 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:07:49: [TF-ENG seam] CollectBuildAreas: kept_areas=323 total_surface=1768212
+09/04/2025 - 14:07:49: [TF-ENG seam] SelectBuildLocation: selected area center=(312,-1725,251) random_point=(347,-1758,246)
+09/04/2025 - 14:07:51: Soundscape: Upward.Inside
+09/04/2025 - 14:07:55: Soundscape: Upward.Outside
+09/04/2025 - 14:07:55: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:07:56: Soundscape: Upward.Outside
+09/04/2025 - 14:07:57: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:07:58: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:00: Soundscape: Upward.Outside
+09/04/2025 - 14:08:01: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:02: Soundscape: Upward.Outside
+09/04/2025 - 14:08:07: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:08:07: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:08:07: [TF-ENG seam] SelectBuildLocation: selected area center=(1675,-1575,162) random_point=(1722,-1595,171)
+09/04/2025 - 14:08:07: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:08:07: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:08:07: [TF-ENG seam] SelectBuildLocation: selected area center=(712,-1575,129) random_point=(672,-1487,129)
+09/04/2025 - 14:08:08: Soundscape: Upward.Outside
+09/04/2025 - 14:08:10: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:10: Soundscape: Upward.Outside
+09/04/2025 - 14:08:10: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:10: Soundscape: Upward.Outside
+09/04/2025 - 14:08:10: Soundscape: Upward.Outside
+09/04/2025 - 14:08:10: Soundscape: Upward.Outside
+09/04/2025 - 14:08:11: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:11: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:12: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:13: Soundscape: Upward.Outside
+09/04/2025 - 14:08:13: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:14: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:14: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:08:14: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:08:14: [TF-ENG seam] SelectBuildLocation: selected area center=(1012,-1550,129) random_point=(1060,-1539,129)
+09/04/2025 - 14:08:14: PathFollower: OnMoveToFailure( FAIL_FELL_OFF )
+09/04/2025 - 14:08:15: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:15: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:08:15: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:16: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:16: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:17: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:18: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:18: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:19: CTFNavMesh: 2617 nav areas in mesh.
+09/04/2025 - 14:08:19: Soundscape: Upward.Inside
+09/04/2025 - 14:08:19: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:08:19: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:08:19: [TF-ENG seam] SelectBuildLocation: selected area center=(138,-2638,202) random_point=(138,-2400,230)
+09/04/2025 - 14:08:19: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:08:19: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:08:19: [TF-ENG seam] SelectBuildLocation: selected area center=(1725,-1088,22) random_point=(1709,-1004,10)
+09/04/2025 - 14:08:25: Soundscape: Upward.Outside
+09/04/2025 - 14:08:26: Soundscape: Upward.Outside
+09/04/2025 - 14:08:30: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:08:30: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:08:30: [TF-ENG seam] SelectBuildLocation: selected area center=(1525,-1988,50) random_point=(1524,-1964,55)
+09/04/2025 - 14:08:30: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:08:30: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:08:30: [TF-ENG seam] SelectBuildLocation: selected area center=(1012,-1875,133) random_point=(955,-1904,134)
+09/04/2025 - 14:08:30: Soundscape: Upward.Outside
+09/04/2025 - 14:08:33: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:33: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:34: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:34: Soundscape: Upward.Inside
+09/04/2025 - 14:08:34: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:35: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:35: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:35: Soundscape: Upward.Inside
+09/04/2025 - 14:08:37: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:37: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:37: Soundscape: Upward.Inside
+09/04/2025 - 14:08:39: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:39: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:39: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:39: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:41: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:41: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:42: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:43: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:43: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:43: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:44: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:44: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:45: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:45: Soundscape: Upward.Inside
+09/04/2025 - 14:08:46: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:46: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:48: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:48: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:08:48: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:48: Soundscape: Upward.Outside
+09/04/2025 - 14:08:49: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:49: Soundscape: Upward.Inside
+09/04/2025 - 14:08:49: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:08:50: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:51: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:51: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:51: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:51: Soundscape: Upward.Inside
+09/04/2025 - 14:08:52: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:52: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:53: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:53: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:53: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:54: Soundscape: Upward.Outside
+09/04/2025 - 14:08:54: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:55: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:55: Soundscape: Upward.Inside
+09/04/2025 - 14:08:55: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:55: Soundscape: Upward.Inside
+09/04/2025 - 14:08:56: Soundscape: Upward.Inside
+09/04/2025 - 14:08:56: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:56: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:57: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:57: Soundscape: Upward.Outside
+09/04/2025 - 14:08:58: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:58: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:08:59: Soundscape: Upward.Inside
+09/04/2025 - 14:08:59: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:08:59: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:00: Soundscape: Upward.Outside
+09/04/2025 - 14:09:00: Soundscape: Upward.Inside
+09/04/2025 - 14:09:00: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:01: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:01: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:02: Soundscape: Upward.Inside
+09/04/2025 - 14:09:02: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:02: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:02: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:03: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:03: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:04: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:04: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:04: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:04: Soundscape: Upward.Outside
+09/04/2025 - 14:09:05: Soundscape: Upward.Inside
+09/04/2025 - 14:09:05: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:05: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:05: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:06: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:07: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:07: Soundscape: Upward.Inside
+09/04/2025 - 14:09:07: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:08: Soundscape: Upward.Inside
+09/04/2025 - 14:09:08: Soundscape: Upward.Inside
+09/04/2025 - 14:09:08: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:09: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:09: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:09: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:10: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:11: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:11: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:12: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:12: Soundscape: Upward.Inside
+09/04/2025 - 14:09:12: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:12: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:13: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:14: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:14: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:14: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:15: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:15: Soundscape: Upward.Inside
+09/04/2025 - 14:09:15: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:15: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:15: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:16: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:16: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:17: Soundscape: Upward.Inside
+09/04/2025 - 14:09:17: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:17: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:18: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:18: Soundscape: Upward.Outside
+09/04/2025 - 14:09:18: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:18: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:19: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:19: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:20: Soundscape: Upward.Inside
+09/04/2025 - 14:09:20: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:20: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:20: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:21: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:21: Soundscape: Upward.Inside
+09/04/2025 - 14:09:21: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:22: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:22: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:22: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:22: Soundscape: Upward.Inside
+09/04/2025 - 14:09:23: Soundscape: Upward.Inside
+09/04/2025 - 14:09:23: Soundscape: Upward.Inside
+09/04/2025 - 14:09:23: Soundscape: Upward.Inside
+09/04/2025 - 14:09:23: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:23: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:23: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:23: Soundscape: Upward.Inside
+09/04/2025 - 14:09:24: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:24: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:24: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:25: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:25: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:25: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:26: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:26: Soundscape: Upward.Inside
+09/04/2025 - 14:09:27: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:27: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:28: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:28: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:28: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:29: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:29: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:29: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:30: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:30: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:30: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:30: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:31: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:31: Soundscape: Upward.Inside
+09/04/2025 - 14:09:32: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:33: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:33: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:35: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:36: RageQuit killed Nobody with obj_sentrygun3.
+09/04/2025 - 14:09:37: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:37: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:37: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:39: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:39: Can't use cheat command nb_debug in multiplayer, unless the server has sv_cheats set to 1.
+09/04/2025 - 14:09:40: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:41: PathFollower: path to my goal is blocked by something
+09/04/2025 - 14:09:41: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:43: PathFollower: OnMoveToSuccess
+09/04/2025 - 14:09:43: RageQuit killed Ze Ubermensch with obj_sentrygun3.
+09/04/2025 - 14:09:44: Invalid debug type 'localmotive'
+09/04/2025 - 14:09:48: Soundscape: Upward.Inside
+09/04/2025 - 14:09:50: Soundscape: Upward.Inside
+09/04/2025 - 14:09:50: Soundscape: Upward.Inside
+09/04/2025 - 14:09:54: Soundscape: Upward.Inside
+09/04/2025 - 14:10:01: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:10:01: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:10:01: [TF-ENG seam] SelectBuildLocation: selected area center=(1750,-2300,7) random_point=(1790,-2298,5)
+09/04/2025 - 14:10:02: Soundscape: Upward.Inside
+09/04/2025 - 14:10:04: Soundscape: Upward.Inside
+09/04/2025 - 14:10:04: Soundscape: Upward.Inside
+09/04/2025 - 14:10:05: Soundscape: Upward.Outside
+09/04/2025 - 14:10:05: Soundscape: Upward.Inside
+09/04/2025 - 14:10:09: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:10:09: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:10:09: [TF-ENG seam] SelectBuildLocation: selected area center=(812,-1838,129) random_point=(775,-1873,129)
+09/04/2025 - 14:10:09: Soundscape: Upward.Inside
+09/04/2025 - 14:10:20: Soundscape: Upward.Outside
+09/04/2025 - 14:10:21: Soundscape: Upward.Outside
+09/04/2025 - 14:10:24: Soundscape: Upward.Outside
+09/04/2025 - 14:10:24: Soundscape: Upward.Outside
+09/04/2025 - 14:10:24: Soundscape: Upward.Outside
+09/04/2025 - 14:10:27: RageQuit killed Ze Ubermensch with obj_sentrygun3.
+09/04/2025 - 14:10:30: Soundscape: Upward.Outside
+09/04/2025 - 14:10:31:  0:Stopped sound weapons/sentry_scan3.wav
+09/04/2025 - 14:10:31:  6:Stopped sound weapons/dispenser_heal.wav
+09/04/2025 - 14:10:31:  1:Stopped sound weapons/wrench_swing.wav
+09/04/2025 - 14:10:31:  5:Stopped sound weapons/sentry_scan3.wav
+09/04/2025 - 14:10:31:  7:Stopped sound weapons/teleporter_spin.wav
+09/04/2025 - 14:10:31: Queued Material System: DISABLED!
+09/04/2025 - 14:10:31: Dropped CRITRAWKETS from server (Server shutting down)
+09/04/2025 - 14:10:31: Dropped Ze Ubermensch from server (Server shutting down)
+09/04/2025 - 14:10:31: Dropped RageQuit from server (Server shutting down)
+09/04/2025 - 14:10:31: Dropped Nobody from server (Server shutting down)
+09/04/2025 - 14:10:31: Dropped Mario9501 from server (Server shutting down)
+09/04/2025 - 14:10:31: TODO: Refusing to discard 240747 bytes

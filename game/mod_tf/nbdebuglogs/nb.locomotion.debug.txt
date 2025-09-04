@@ -1,0 +1,4 @@
+09/04/2025 - 16:21:30: ===== LOG START ===== [APM] 
+09/04/2025 - 16:21:30: [APM] nbdebuglogs/nb.locomotion.debug.txt is now being logged 
+09/04/2025 - 16:21:30: [APM] 
+09/04/2025 - 16:21:30: NB debug=locomotion -> nbdebuglogs/nb.locomotion.debug.txt 

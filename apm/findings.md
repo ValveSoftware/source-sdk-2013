@@ -23,6 +23,13 @@
   - Tip: enable with `developer 1`, `nb_debug 1`, and `con_logfile <path>`; grep markers include gameplay actions (e.g., "EngineerMoveToBuild") and our seam traces "[TF-ENG seam]" when seams are ON.
   - nb_debug usage: valid types are `behavior`, `look_at`, `vision`, `path`, `locomotion`. Use `nb_debug <type>` to enable and `nb_debug` (no args) to disable. Invalid forms like `nb_debug 1` print `Invalid debug type 'x'`.
 
+- [2025-09-04] Debug workflow + logging infra: ADDED — Autoexec + itemtest wiring for reliable NextBot logging.
+  - Aliases: deferred (loads `map_background itemtest`) and live (in-map) toggles for nb_debug types; keypad binds (NP 1–7, 0).
+  - Fresh start: NumPad 0 routes to `nbdebuglogs/.null.nbdebug.txt`, kicks bots, clears, re-applies the selected logfile, adds start tag + `status` (captures map).
+  - Default logs now under `nbdebuglogs/`; added placeholders to ensure dirs exist (`nbdebuglogs/bot-visuals-debug/.keep`, `.null.nbdebug.txt`).
+  - Unknown command backslash spam fixed by removing nested alias quoting.
+  - Map info appended at each log start via `status`.
+
 - [2025-09-04] Baseline build (TF-only, release): FAIL
 - Env: ninja 1.11.1; podman 4.9.3; vpc build Feb 05 2025
 - Graph: src/_vpc_/ninja/tf_release.ninja missing

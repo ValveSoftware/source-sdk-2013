@@ -1,0 +1,9 @@
+[APM] Null sink logfile. Safe to ignore.
+09/04/2025 - 16:19:39: Dropped MoreGun from server (Kicked from server)
+09/04/2025 - 16:19:39: Dropped Big Mean Muther Hubbard from server (Kicked from server)
+09/04/2025 - 16:19:39: Dropped Crazed Gunman from server (Kicked from server)
+09/04/2025 - 16:19:39: Dropped Poopy Joe from server (Kicked from server)
+09/04/2025 - 16:21:42: Dropped Freakin' Unbelievable from server (Kicked from server)
+09/04/2025 - 16:21:42: Dropped The Administrator from server (Kicked from server)
+09/04/2025 - 16:21:42: Dropped Archimedes! from server (Kicked from server)
+09/04/2025 - 16:21:42: Dropped It's Filthy in There! from server (Kicked from server)

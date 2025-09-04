@@ -1,0 +1,2 @@
+Note 1: for LOOK_AT debug info only use 2 bots as it spams the console with too much text.
+Note 2: Keep nb_debug types in seprate txt files to help keep track of debug info for nextbots: Behavior, Look_AT, PATH, LOCOMOTION, and Vision are ones that can give info.

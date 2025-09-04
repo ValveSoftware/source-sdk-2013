@@ -12,6 +12,12 @@
 #include "bot/behavior/engineer/tf_bot_engineer_build_teleport_entrance.h"
 #include "bot/behavior/engineer/tf_bot_engineer_move_to_build.h"
 #include "bot/behavior/tf_bot_get_ammo.h"
+// Guarded Engineer behavior seams (header-only; default off)
+#include "bot/behavior/engineer/tf_bot_engineer_seams.h"
+
+#if TF_BOT_ENGINEER_SEAMS
+extern ConVar tf_bot_engineer_seams_debug;
+#endif
 
 extern ConVar tf_bot_path_lookahead_range;
 
@@ -28,6 +34,41 @@ ActionResult< CTFBot >	CTFBotEngineerBuildTeleportEntrance::OnStart( CTFBot *me,
 //---------------------------------------------------------------------------------------------
 ActionResult< CTFBot >	CTFBotEngineerBuildTeleportEntrance::Update( CTFBot *me, float interval )
 {
+	#if TF_BOT_ENGINEER_SEAMS
+	// If both entrance and exit exist, validate link and estimate travel delta
+	CObjectTeleporter *entrance = (CObjectTeleporter *)me->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_ENTRANCE );
+	CObjectTeleporter *exit = (CObjectTeleporter *)me->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_EXIT );
+	if ( entrance && exit )
+	{
+		entrance->UpdateLastKnownArea();
+		exit->UpdateLastKnownArea();
+		CTFNavArea *entrArea = (CTFNavArea *)entrance->GetLastKnownArea();
+		CTFNavArea *exitArea = (CTFNavArea *)exit->GetLastKnownArea();
+		float travelDelta = 0.0f;
+		if ( entrArea && exitArea )
+		{
+			float incA = entrArea->GetIncursionDistance( me->GetTeamNumber() );
+			float incB = exitArea->GetIncursionDistance( me->GetTeamNumber() );
+			travelDelta = fabsf( incA - incB );
+		}
+		else
+		{
+			travelDelta = ( entrance->GetAbsOrigin() - exit->GetAbsOrigin() ).Length();
+		}
+
+		bool isValid = Seam_TeleporterIsValid( entrance, exit );
+		bool shouldRedeploy = Seam_TeleporterShouldRedeploy( entrance, exit, travelDelta );
+
+		if ( developer.GetBool() )
+		{
+			if ( tf_bot_engineer_seams_debug.GetBool() )
+			{
+				DevMsg( "[TF-ENG seam] Teleporter link check (Entrance): valid=%d redeploy=%d travelDelta=%.1f\n", (int)isValid, (int)shouldRedeploy, travelDelta );
+			}
+		}
+	}
+	#endif
+
 	CTeamControlPoint *point = me->GetMyControlPoint();
 	CCaptureZone *zone = me->GetFlagCaptureZone();
 	if ( !point && !zone )

@@ -1,0 +1,1865 @@
+09/04/2025 - 14:00:02: FCVAR_CHEAT cvars reverted to defaults.
+09/04/2025 - 14:00:02: FCVAR_CHEAT cvars reverted to defaults.
+09/04/2025 - 14:00:02: maxplayers set to 24
+09/04/2025 - 14:00:02: TODO: Refusing to discard 240747 bytes
+09/04/2025 - 14:00:02: Unknown command "setmaster"
+09/04/2025 - 14:00:02: maxplayers set to 25
+09/04/2025 - 14:00:02: TODO: Refusing to discard 240747 bytes
+09/04/2025 - 14:00:02: ---- Host_NewGame ----
+09/04/2025 - 14:00:03: Spawn Server: pl_upward
+09/04/2025 - 14:00:03: TODO: Refusing to discard 240747 bytes
+09/04/2025 - 14:00:03: TODO: Refusing to discard 240747 bytes
+09/04/2025 - 14:00:03: Error: Material "___fillrate_0" uses unknown shader "FillRate"
+09/04/2025 - 14:00:03: Error: Material "___debugnormalmap_1" uses unknown shader "DebugNormalMap"
+09/04/2025 - 14:00:03: Error: Material "___debugdrawenvmapmask_2" uses unknown shader "DebugDrawEnvmapMask"
+09/04/2025 - 14:00:03: Error: Material "___debugdepth_3" uses unknown shader "DebugDepth"
+09/04/2025 - 14:00:03: Error: Material "___debugdepth_4" uses unknown shader "DebugDepth"
+09/04/2025 - 14:00:03: Error: Material "debug/debugluxels" uses unknown shader "DebugLuxels"
+09/04/2025 - 14:00:05: A custom HDR cubemap "materials/models/player/shared/eye-reflection-cubemap-.hdr.vtf": cannot be found on disk.
+This really should have a HDR version, trying a fall back to a non-HDR version.
+09/04/2025 - 14:00:12: A custom HDR cubemap "materials/models/player/shared/eye-reflection-cubemap-.hdr.vtf": cannot be found on disk.
+This really should have a HDR version, trying a fall back to a non-HDR version.
+09/04/2025 - 14:00:13: Legacy game DLL may not support terrain vphysics collisions with this BSP!
+09/04/2025 - 14:00:20: Set Gravity 800.0 (0.250 tolerance)
+09/04/2025 - 14:00:20: Error loading cfg/vscript_convar_allowlist.txt
+09/04/2025 - 14:00:20: VSCRIPT: Started VScript virtual machine using script language 'Squirrel'
+09/04/2025 - 14:00:20: Script not found (scripts/vscripts/mapspawn.nut) 
+09/04/2025 - 14:00:20: Loading AI graph
+09/04/2025 - 14:00:20: Step 1 loading
+09/04/2025 - 14:00:20: Checking version
+09/04/2025 - 14:00:20: Passed first ver check
+09/04/2025 - 14:00:20: Got version 37
+09/04/2025 - 14:00:20: Map version 173
+09/04/2025 - 14:00:20: Done version checks
+09/04/2025 - 14:00:20: Finishing load
+09/04/2025 - 14:00:20: Set motd from file 'cfg/motd_default.txt'.  ('cfg/motd.txt' was not found.)
+09/04/2025 - 14:00:20: Set motd_text from file 'cfg/motd_text_default.txt'.  ('cfg/motd_text.txt' was not found.)
+09/04/2025 - 14:00:20: SV_ActivateServer: setting tickrate to 66.7
+09/04/2025 - 14:00:20: Created class baseline: 31 classes, 15302 bytes.
+09/04/2025 - 14:00:20: 25 player server started
+09/04/2025 - 14:00:20: 'listenserver.cfg' not present; not executing.
+09/04/2025 - 14:00:20: 'pl_upward.cfg' not present; not executing.
+09/04/2025 - 14:00:20: FakeIP allocation succeeded: 169.254.167.170:12080, 12081
+09/04/2025 - 14:00:20: CTFGCServerSystem - removing listener to old Steam ID [A:1:25677851:46950]
+09/04/2025 - 14:00:20: Stringtable modelprecache compression: 27901 -> 13272 bytes: 0.10ms
+09/04/2025 - 14:00:20: Stringtable soundprecache compression: 91879 -> 40119 bytes: 0.33ms
+09/04/2025 - 14:00:20: Stringtable instancebaseline compression: 15475 -> 3610 bytes: 0.02ms
+09/04/2025 - 14:00:20: Stringtable ParticleEffectNames compression: 62993 -> 47185 bytes: 0.32ms
+09/04/2025 - 14:00:20: Stringtable Scenes compression: 47474 -> 21863 bytes: 0.15ms
+09/04/2025 - 14:00:22: "Mario9501<129><[U:1:160780617]><>" STEAM USERID validated
+09/04/2025 - 14:00:22: 
+Team Fortress
+Map: pl_upward
+Players: 1 / 25
+Build: 2000
+Server Number: 10
+
+09/04/2025 - 14:00:22: Client reached server_spawn.
+09/04/2025 - 14:00:22: Recognizing MM server id [A:1:26155035:46950]
+09/04/2025 - 14:00:22: Attemped to precache unknown particle system "Explosion_bubbles"!
+09/04/2025 - 14:00:22: Attemped to precache unknown particle system "bomibomicon_ring"!
+09/04/2025 - 14:00:22: The server is using sv_pure -1 (no file checking).
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/physics/metal/metal_grenade_roll_loop1.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/weapons/timer.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/items/pyro_guitar_solo_with_verb.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/player/sniper_taunt_hawk.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/player/taunt_pyro_twirl.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/player/taunt_yeti_standee_spy_swing1.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/player/taunt_yeti_standee_spy_swing2.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/player/cyoa_pda_dial1.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/player/cyoa_pda_dial2.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/player/cyoa_pda_dial3.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/player/cyoa_pda_dial4.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/player/cyoa_pda_dial5.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/ui/quest_status_complete.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/weapons/shotgun_cock.wav came from. Not playing.
+09/04/2025 - 14:00:22: Cannot figure out which search path sound/weapons/airstrike_fail.wav came from. Not playing.
+09/04/2025 - 14:00:22: Initializing renderer...
+09/04/2025 - 14:00:23: Voice_Init: Using Steam voice optimal sample rate 24000
+09/04/2025 - 14:00:26: Sending full update to Client Mario9501
+09/04/2025 - 14:00:26: Mario9501 connected
+09/04/2025 - 14:00:26: Attemped to precache unknown particle system "Explosion_bubbles"!
+09/04/2025 - 14:00:26: Attemped to precache unknown particle system "Explosion_bubbles"!
+09/04/2025 - 14:00:26: Attemped to precache unknown particle system "bomibomicon_ring"!
+09/04/2025 - 14:00:26: Attemped to precache unknown particle system "bomibomicon_ring"!
+09/04/2025 - 14:00:28: Set Gravity 800.0 (0.250 tolerance)
+09/04/2025 - 14:00:28: TODO: Refusing to discard 240747 bytes
+09/04/2025 - 14:00:28: Signon traffic "CLIENT":  incoming 157.984 KB, outgoing 9.073 KB
+09/04/2025 - 14:00:28: Queued Material System: ENABLED!
+09/04/2025 - 14:00:28: Soundscape: Upward.Outside
+09/04/2025 - 14:00:28: Redownloading all lightmaps
+09/04/2025 - 14:00:28: R_RedownloadAllLightmaps took 104.495 msec!
+09/04/2025 - 14:00:32: 7.89: player(#2):: START MainAction  (Starting Action)
+09/04/2025 - 14:00:32: 7.89: player(#2)::  STARTING MainAction
+09/04/2025 - 14:00:32: 7.89: player(#2):: START TacticalMonitor  (Starting child Action)
+09/04/2025 - 14:00:32: 7.89: player(#2)::  STARTING TacticalMonitor
+09/04/2025 - 14:00:32: 7.89: player(#2):: START ScenarioMonitor  (Starting child Action)
+09/04/2025 - 14:00:32: 7.89: player(#2)::  STARTING ScenarioMonitor
+09/04/2025 - 14:00:32: 7.89: player(#2):: START EngineerBuild  (Starting child Action)
+09/04/2025 - 14:00:32: 7.89: player(#2)::  STARTING EngineerBuild
+09/04/2025 - 14:00:32: 7.89: player(#2):: START EngineerBuildTeleportEntrance  (Starting child Action)
+09/04/2025 - 14:00:32: 7.89: player(#2)::  STARTING EngineerBuildTeleportEntrance
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: 7.90: player(#2)::  ENDING MainAction
+09/04/2025 - 14:00:32: 7.90: player(#2)::  ENDING TacticalMonitor
+09/04/2025 - 14:00:32: 7.90: player(#2)::  ENDING ScenarioMonitor
+09/04/2025 - 14:00:32: 7.90: player(#2)::  ENDING EngineerBuild
+09/04/2025 - 14:00:32: 7.90: player(#2)::  ENDING EngineerBuildTeleportEntrance
+09/04/2025 - 14:00:32: CTFNavMesh: 2617 nav areas in mesh.
+09/04/2025 - 14:00:32: 7.90: player(#2):: START MainAction  (Starting Action)
+09/04/2025 - 14:00:32: 7.90: player(#2)::  STARTING MainAction
+09/04/2025 - 14:00:32: 7.90: player(#2):: START TacticalMonitor  (Starting child Action)
+09/04/2025 - 14:00:32: 7.90: player(#2)::  STARTING TacticalMonitor
+09/04/2025 - 14:00:32: 7.90: player(#2):: START ScenarioMonitor  (Starting child Action)
+09/04/2025 - 14:00:32: 7.90: player(#2)::  STARTING ScenarioMonitor
+09/04/2025 - 14:00:32: 7.90: player(#2):: START EngineerBuild  (Starting child Action)
+09/04/2025 - 14:00:32: 7.90: player(#2)::  STARTING EngineerBuild
+09/04/2025 - 14:00:32: 7.90: player(#2):: START EngineerBuildTeleportEntrance  (Starting child Action)
+09/04/2025 - 14:00:32: 7.90: player(#2)::  STARTING EngineerBuildTeleportEntrance
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: Soundscape: Upward.Outside
+09/04/2025 - 14:00:32: 8.14: player(#3):: START MainAction  (Starting Action)
+09/04/2025 - 14:00:32: 8.14: player(#3)::  STARTING MainAction
+09/04/2025 - 14:00:32: 8.14: player(#3):: START TacticalMonitor  (Starting child Action)
+09/04/2025 - 14:00:32: 8.14: player(#3)::  STARTING TacticalMonitor
+09/04/2025 - 14:00:32: 8.14: player(#3):: START ScenarioMonitor  (Starting child Action)
+09/04/2025 - 14:00:32: 8.14: player(#3)::  STARTING ScenarioMonitor
+09/04/2025 - 14:00:32: 8.14: player(#3):: START EngineerBuild  (Starting child Action)
+09/04/2025 - 14:00:32: 8.14: player(#3)::  STARTING EngineerBuild
+09/04/2025 - 14:00:32: 8.14: player(#3):: START EngineerBuildTeleportEntrance  (Starting child Action)
+09/04/2025 - 14:00:32: 8.14: player(#3)::  STARTING EngineerBuildTeleportEntrance
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:33: 8.40: player(#4):: START MainAction  (Starting Action)
+09/04/2025 - 14:00:33: 8.40: player(#4)::  STARTING MainAction
+09/04/2025 - 14:00:33: 8.40: player(#4):: START TacticalMonitor  (Starting child Action)
+09/04/2025 - 14:00:33: 8.40: player(#4)::  STARTING TacticalMonitor
+09/04/2025 - 14:00:33: 8.40: player(#4):: START ScenarioMonitor  (Starting child Action)
+09/04/2025 - 14:00:33: 8.40: player(#4)::  STARTING ScenarioMonitor
+09/04/2025 - 14:00:33: 8.40: player(#4):: START EngineerBuild  (Starting child Action)
+09/04/2025 - 14:00:33: 8.40: player(#4)::  STARTING EngineerBuild
+09/04/2025 - 14:00:33: 8.40: player(#4):: START EngineerBuildTeleportEntrance  (Starting child Action)
+09/04/2025 - 14:00:33: 8.40: player(#4)::  STARTING EngineerBuildTeleportEntrance
+09/04/2025 - 14:00:33: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:33: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:33: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:33: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:33: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:33: 8.65: player(#5)::   (Starting Action)
+09/04/2025 - 14:00:33: START 8.65: player(#5):: MainAction STARTING MainAction
+09/04/2025 - 14:00:33: 
+09/04/2025 - 14:00:33: 8.65: player(#5):: 8.65: player(#5):: START START TacticalMonitorScenarioMonitor  (Starting child Action)
+09/04/2025 - 14:00:33:   (Starting child Action)
+09/04/2025 - 14:00:33: 8.65: player(#5):: 8.65: player(#5)::  STARTING  STARTING TacticalMonitorScenarioMonitor
+09/04/2025 - 14:00:33: 8.65: player(#5):: START EngineerBuild8.65: player(#5)::   (Starting child Action)
+09/04/2025 - 14:00:33:  STARTING EngineerBuild8.65: player(#5):: 
+09/04/2025 - 14:00:33: START EngineerBuildTeleportEntrance  (Starting child Action)
+09/04/2025 - 14:00:33: 8.65: player(#5)::  STARTING EngineerBuildTeleportEntrance
+09/04/2025 - 14:00:33: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:33: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:33: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:33: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:33: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:00:34: 9.91: player(#5):: EngineerBuildTeleportEntrance CHANGE_TO EngineerMoveToBuild  (Too far from our spawn room to build teleporter entrance)
+09/04/2025 - 14:00:34: 9.91: player(#5)::  ENDING EngineerBuildTeleportEntrance
+09/04/2025 - 14:00:34: 9.91: player(#5)::  STARTING EngineerMoveToBuild
+09/04/2025 - 14:00:34: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:00:34: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:00:34: [TF-ENG seam] SelectBuildLocation: selected area center=(1812,-1075,7) random_point=(1797,-1083,8)
+09/04/2025 - 14:00:34: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:00:34: 9.93: player(#3):: EngineerBuildTeleportEntrance CHANGE_TO   (Too far from our spawn room to build teleporter entrance)
+09/04/2025 - 14:00:34: EngineerMoveToBuild9.93: player(#3)::  ENDING EngineerBuildTeleportEntrance9.93: player(#3):: 
+09/04/2025 - 14:00:34:  STARTING EngineerMoveToBuild
+09/04/2025 - 14:00:34: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:00:34: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:00:34: [TF-ENG seam] SelectBuildLocation: selected area center=(1300,-1400,129) random_point=(1325,-1432,128)
+09/04/2025 - 14:00:34: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:00:39: Soundscape: Upward.Outside
+09/04/2025 - 14:00:39: Soundscape: Upward.Outside
+09/04/2025 - 14:00:43: Soundscape: Upward.Outside
+09/04/2025 - 14:00:46: Soundscape: Upward.Inside
+09/04/2025 - 14:00:48: Soundscape: Upward.Inside
+09/04/2025 - 14:00:50: Soundscape: Upward.Inside
+09/04/2025 - 14:00:50: 25.99: player(#5):: EngineerMoveToBuild CHANGE_TO EngineerBuilding ENDING   (Reached my build location)
+09/04/2025 - 14:00:50: EngineerMoveToBuild25.99: player(#5):: 
+09/04/2025 - 14:00:50: 25.99: player(#5)::  STARTING MainAction(EngineerBuilding TacticalMonitor(
+09/04/2025 - 14:00:50:  ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) )) 
+
+09/04/2025 - 14:00:50: 26.10: player(#5):: EngineerBuildingEngineerBuilding caused  to SUSPEND_FOR EngineerBuildSentryGun  (Building a Sentry)
+09/04/2025 - 14:00:50: 26.10: player(#5)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:00:50: 26.10: player(#5):: EngineerBuildSentryGun STARTING 
+09/04/2025 - 14:00:50: MainAction( ScenarioMonitor( TacticalMonitor( EngineerBuild(EngineerBuilding  EngineerBuildSentryGun<<) ) ) )
+
+09/04/2025 - 14:00:51: 26.30: player(#2):: EngineerBuildTeleportEntrance CHANGE_TO EngineerBuildTeleportEntranceEngineerMoveToBuild
+09/04/2025 - 14:00:51:   (Too far from our spawn room to build teleporter entrance)
+09/04/2025 - 14:00:51: 26.30: player(#2):: 26.30: player(#2)::  STARTING  ENDING EngineerMoveToBuild
+09/04/2025 - 14:00:51: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:00:51: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:00:51: [TF-ENG seam] SelectBuildLocation: selected area center=(1788,-1150,16) random_point=(1779,-1154,17)
+09/04/2025 - 14:00:51: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:00:51: 26.52: player(#5)::  ENDING EngineerBuildSentryGun
+09/04/2025 - 14:00:51: 26.52: player(#5):: EngineerBuildSentryGun DONE, RESUME EngineerBuilding  (Sentry built)
+09/04/2025 - 14:00:51: 26.52: player(#5)::  RESUMING EngineerBuildingMainAction(
+09/04/2025 - 14:00:51:  TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:00:51: 26.59: player(#4):: EngineerBuildTeleportEntrance CHANGE_TO EngineerMoveToBuild  (Too far from our spawn room to build teleporter entrance)
+09/04/2025 - 14:00:51: 26.59: player(#4)::  ENDING 26.59: player(#4):: EngineerBuildTeleportEntrance STARTING 
+09/04/2025 - 14:00:51: EngineerMoveToBuild
+09/04/2025 - 14:00:51: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:00:51: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:00:51: [TF-ENG seam] SelectBuildLocation: selected area center=(1650,-1638,137) random_point=(1628,-1636,129)
+09/04/2025 - 14:00:51: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:00:54: 29.68: player(#3):: EngineerMoveToBuild CHANGE_TO EngineerBuilding  (Reached my build location)
+09/04/2025 - 14:00:54: 29.68: player(#3)::  ENDING EngineerMoveToBuild
+09/04/2025 - 14:00:54: 29.68: player(#3)::  STARTING 
+09/04/2025 - 14:00:54: EngineerBuildingMainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:00:54: 29.79: player(#3)::  caused EngineerBuildingEngineerBuilding to SUSPEND_FOR EngineerBuildSentryGun  (Building a Sentry)
+09/04/2025 - 14:00:54: 29.79: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:00:54: 29.79: player(#3)::  STARTING EngineerBuildSentryGun
+09/04/2025 - 14:00:54: MainAction( TacticalMonitor( EngineerBuild( ScenarioMonitor( EngineerBuildSentryGun<<EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:00:55: 30.84: player(#3)::  ENDING EngineerBuildSentryGun
+09/04/2025 - 14:00:55: 30.84: player(#3)::  DONE, RESUME EngineerBuilding  (Sentry built)
+09/04/2025 - 14:00:55: 30.84: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:00:55: MainAction( TacticalMonitor( ScenarioMonitor(EngineerBuildSentryGun EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:00:57: 32.61: player(#5):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR GetAmmo  (Grabbing nearby ammo)
+09/04/2025 - 14:00:57: 32.61: player(#5)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:00:57: 32.61: player(#5)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:00:57: 32.61: player(#5)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:00:57: 32.61: player(#5)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:00:57: 32.61: player(#5)::  STARTING GetAmmo
+09/04/2025 - 14:00:57: MainAction( GetAmmo<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:00:58: Soundscape: Upward.Inside
+09/04/2025 - 14:01:00: Soundscape: Upward.Inside
+09/04/2025 - 14:01:00: Soundscape: Upward.Inside
+09/04/2025 - 14:01:00: 35.67: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR GetAmmo  (Grabbing nearby ammo)
+09/04/2025 - 14:01:00: 35.67: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:01:00: 35.67: player(#3)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:01:00: 35.67: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:01:00: 35.67: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:01:00: 35.67: player(#3)::  STARTING GetAmmo
+09/04/2025 - 14:01:00: MainAction( GetAmmo<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:00: 36.18: player(#5)::  ENDING GetAmmo
+09/04/2025 - 14:01:00: GetAmmo36.18: player(#5)::  DONE, RESUME TacticalMonitor  (My path became invalid)
+09/04/2025 - 14:01:00: 36.18: player(#5)::  RESUMING TacticalMonitor
+09/04/2025 - 14:01:00: 36.18: player(#5)::  RESUMING ScenarioMonitor
+09/04/2025 - 14:01:00: 36.18: player(#5)::  RESUMING EngineerBuild
+09/04/2025 - 14:01:00: 36.18: player(#5)::  RESUMING EngineerBuilding
+09/04/2025 - 14:01:00: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild(
+
+09/04/2025 - 14:01:00:  EngineerBuilding ) ) ) )Soundscape: Upward.Inside
+09/04/2025 - 14:01:04:  ENDING 39.34: player(#3):: GetAmmo39.34: player(#3):: 
+09/04/2025 - 14:01:04: GetAmmoTacticalMonitor DONE, RESUME   (My path became invalid)
+09/04/2025 - 14:01:04: 39.34: player(#3):: 39.34: player(#3)::  RESUMING  RESUMING TacticalMonitorEngineerBuilding
+09/04/2025 - 14:01:04: 
+09/04/2025 - 14:01:04: 39.34: player(#3):: MainAction( RESUMING  TacticalMonitor(ScenarioMonitor ScenarioMonitor(
+09/04/2025 - 14:01:04:  EngineerBuild(39.34: player(#3)::  EngineerBuilding  RESUMING ) EngineerBuild) 
+09/04/2025 - 14:01:04: ) )
+
+09/04/2025 - 14:01:05: 40.90: player(#5):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR GetAmmo  (Grabbing nearby ammo)
+09/04/2025 - 14:01:05: 40.90: player(#5)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:01:05: 40.90: player(#5)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:01:05: 40.90: player(#5)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:01:05: 40.90: player(#5)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:01:05: 40.90: player(#5)::  STARTING GetAmmo
+09/04/2025 - 14:01:05: MainAction( GetAmmo<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:06: Soundscape: Upward.Inside
+09/04/2025 - 14:01:08: Soundscape: Upward.Inside
+09/04/2025 - 14:01:09: 44.59: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR GetAmmo  (Grabbing nearby ammo)
+09/04/2025 - 14:01:09: 44.59: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:01:09: 44.59: player(#3)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:01:09: 44.59: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:01:09: 44.59: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:01:09: 44.59: player(#3)::  STARTING GetAmmo
+09/04/2025 - 14:01:09: MainAction( GetAmmo<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:10: Soundscape: Upward.Outside
+09/04/2025 - 14:01:11: 46.26: player(#5)::  ENDING GetAmmo
+09/04/2025 - 14:01:11: 46.26: player(#5):: GetAmmo DONE, RESUME TacticalMonitor  (My path became invalid)
+09/04/2025 - 14:01:11:  RESUMING 46.26: player(#5):: TacticalMonitor
+09/04/2025 - 14:01:11: 46.26: player(#5)::  RESUMING ScenarioMonitor46.26: player(#5):: 
+09/04/2025 - 14:01:11:  RESUMING EngineerBuild
+09/04/2025 - 14:01:11:  RESUMING 46.26: player(#5):: EngineerBuilding
+09/04/2025 - 14:01:11: MainAction()  TacticalMonitor() ScenarioMonitor(
+
+09/04/2025 - 14:01:11:  EngineerBuild( EngineerBuilding ) ) Soundscape: Upward.Inside
+09/04/2025 - 14:01:13: Soundscape: Upward.Inside
+09/04/2025 - 14:01:13: 49.11: player(#3)::  ENDING 
+09/04/2025 - 14:01:13: GetAmmo49.11: player(#3):: GetAmmo DONE, RESUME TacticalMonitor49.11: player(#3)::   (My ammo is full)
+09/04/2025 - 14:01:13:  RESUMING TacticalMonitor49.11: player(#3):: 
+09/04/2025 - 14:01:13:  RESUMING ScenarioMonitor
+09/04/2025 - 14:01:13:  RESUMING 49.11: player(#3):: EngineerBuild
+09/04/2025 - 14:01:13: 49.11: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:01:13: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuilding  EngineerBuild() ) ) 
+
+09/04/2025 - 14:01:13: )Soundscape: Upward.Inside
+09/04/2025 - 14:01:18: 53.72: player(#5):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR GetAmmo  (Grabbing nearby ammo)
+09/04/2025 - 14:01:18: 53.72: player(#5)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:01:18: 53.72: player(#5)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:01:18: 53.72: player(#5)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:01:18: 53.72: player(#5)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:01:18: 53.72: player(#5)::  STARTING GetAmmo
+09/04/2025 - 14:01:18: MainAction( GetAmmo<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:19: Soundscape: Upward.Inside
+09/04/2025 - 14:01:22: 57.70: player(#5)::  ENDING GetAmmo
+09/04/2025 - 14:01:22: 57.70: player(#5)::  DONE, RESUME GetAmmoTacticalMonitor  (My path became invalid)
+09/04/2025 - 14:01:22: 57.70: player(#5):: 
+09/04/2025 - 14:01:22:  RESUMING 57.70: player(#5):: TacticalMonitor RESUMING ScenarioMonitor
+09/04/2025 - 14:01:22: 57.70: player(#5):: EngineerBuild RESUMING 
+09/04/2025 - 14:01:22: 57.70: player(#5)::  RESUMING EngineerBuilding
+09/04/2025 - 14:01:22: MainAction( EngineerBuild( TacticalMonitor( EngineerBuilding  ScenarioMonitor() ) ) )
+
+09/04/2025 - 14:01:22: 57.93: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR GetAmmo  (Grabbing nearby ammo)
+09/04/2025 - 14:01:22: 57.93: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:01:22: 57.93: player(#3)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:01:22: 57.93: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:01:22: 57.93: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:01:22: 57.93: player(#3)::  STARTING GetAmmo
+09/04/2025 - 14:01:22: MainAction( GetAmmo<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:25: Soundscape: Upward.Inside
+09/04/2025 - 14:01:26: 61.50: player(#3):: 61.50: player(#3):: GetAmmo ENDING  DONE, RESUME GetAmmoTacticalMonitor
+09/04/2025 - 14:01:26:   (My path became invalid)
+09/04/2025 - 14:01:26: TacticalMonitor61.50: player(#3):: 
+09/04/2025 - 14:01:26:  RESUMING 61.50: player(#3)::  RESUMING 
+09/04/2025 - 14:01:26: ScenarioMonitor61.50: player(#3):: 
+09/04/2025 - 14:01:26:  RESUMING 61.50: player(#3):: EngineerBuilding RESUMING 
+09/04/2025 - 14:01:26: EngineerBuildMainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:27: 62.53: player(#5):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR GetAmmo  (Grabbing nearby ammo)
+09/04/2025 - 14:01:27: 62.53: player(#5)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:01:27: 62.53: player(#5)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:01:27: 62.53: player(#5)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:01:27: 62.53: player(#5)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:01:27: 62.53: player(#5)::  STARTING GetAmmo
+09/04/2025 - 14:01:27: MainAction( GetAmmo<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:28: Soundscape: Upward.Inside
+09/04/2025 - 14:01:30: Soundscape: Upward.Inside
+09/04/2025 - 14:01:31:  to SUSPEND_FOR 66.54: player(#3):: EngineerBuildDispenserEngineerBuilding  (Building a Dispenser)
+09/04/2025 - 14:01:31:  caused 66.54: player(#3):: EngineerBuilding SUSPENDING EngineerBuilding
+09/04/2025 - 14:01:31: 66.54: player(#3)::  STARTING EngineerBuildDispenser
+09/04/2025 - 14:01:31: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildDispenser<<EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:31: 66.64: player(#3):: EngineerBuildDispenser caused EngineerBuildDispenser to SUSPEND_FOR GetAmmo  (Need more metal to build)
+09/04/2025 - 14:01:31: 66.64: player(#3)::  SUSPENDING EngineerBuildDispenser
+09/04/2025 - 14:01:31: 66.64: player(#3)::  STARTING GetAmmo
+09/04/2025 - 14:01:31: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( GetAmmo<<EngineerBuildDispenser<<EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:31: Soundscape: Upward.Outside
+09/04/2025 - 14:01:32: 67.68: player(#5)::  ENDING 
+09/04/2025 - 14:01:32: GetAmmo67.68: player(#5):: GetAmmo DONE, RESUME TacticalMonitor  (My path became invalid)
+09/04/2025 - 14:01:32: 67.68: player(#5)::  RESUMING TacticalMonitor
+09/04/2025 - 14:01:32: 67.68: player(#5)::  RESUMING ScenarioMonitor
+09/04/2025 - 14:01:32: 67.68: player(#5)::  RESUMING 
+09/04/2025 - 14:01:32: EngineerBuild67.68: player(#5)::  RESUMING EngineerBuilding
+09/04/2025 - 14:01:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:33: Soundscape: Upward.Inside
+09/04/2025 - 14:01:34: Soundscape: Upward.Inside
+09/04/2025 - 14:01:35: 71.16: player(#3)::  ENDING GetAmmo
+09/04/2025 - 14:01:35: 71.16: player(#3):: GetAmmo DONE, RESUME EngineerBuildDispenser  (My ammo is full)
+09/04/2025 - 14:01:35: 71.16: player(#3):: EngineerBuildDispenser RESUMING 
+09/04/2025 - 14:01:35: MainAction( EngineerBuild( TacticalMonitor( EngineerBuildDispenser<< ScenarioMonitor(EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:36: Soundscape: Upward.Inside
+09/04/2025 - 14:01:37: 72.93: player(#5):: EngineerBuildingEngineerBuilding caused  to SUSPEND_FOR 72.93: player(#5):: EngineerBuildDispenser SUSPENDING   (Building a Dispenser)
+09/04/2025 - 14:01:37: EngineerBuilding
+09/04/2025 - 14:01:37: 
+09/04/2025 - 14:01:37: MainAction(72.93: player(#5)::  TacticalMonitor( STARTING  ScenarioMonitor(EngineerBuildDispenser EngineerBuild( EngineerBuildDispenser<<) EngineerBuilding )) 
+
+09/04/2025 - 14:01:37: ) EngineerBuildDispenser73.03: player(#5)::  caused EngineerBuildDispenser to SUSPEND_FOR GetAmmo  (Need more metal to build)
+09/04/2025 - 14:01:37: 73.03: player(#5)::  SUSPENDING EngineerBuildDispenser
+09/04/2025 - 14:01:37: 73.03: player(#5):: GetAmmo STARTING 
+09/04/2025 - 14:01:37: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( GetAmmo<<EngineerBuildDispenser<<EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:38: Soundscape: Upward.Inside
+09/04/2025 - 14:01:40:  ENDING 76.20: player(#3):: EngineerBuildDispenser
+09/04/2025 - 14:01:40: EngineerBuildDispenser76.20: player(#3)::  DONE, RESUME EngineerBuilding76.20: player(#3)::   (Dispenser built)
+09/04/2025 - 14:01:40:  RESUMING EngineerBuildingMainAction(
+09/04/2025 - 14:01:40:  TacticalMonitor( ScenarioMonitor( EngineerBuild()  EngineerBuilding )) 
+
+09/04/2025 - 14:01:40: ) 76.31: player(#3):: EngineerBuilding caused EngineerBuilding to SUSPEND_FOR   (Building teleporter exit)
+09/04/2025 - 14:01:41: EngineerBuildTeleportExit76.31: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:01:41: 76.31: player(#3):: EngineerBuildTeleportExit STARTING 
+09/04/2025 - 14:01:41: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportExit<<) EngineerBuilding ) ) )
+
+09/04/2025 - 14:01:41: 77.03: player(#5)::  ENDING GetAmmo77.03: player(#5):: 
+09/04/2025 - 14:01:41: GetAmmo DONE, RESUME   (My path became invalid)
+09/04/2025 - 14:01:41: EngineerBuildDispenser77.03: player(#5):: EngineerBuildDispenser RESUMING 
+09/04/2025 - 14:01:41: MainAction( TacticalMonitor( EngineerBuild( ScenarioMonitor( EngineerBuildDispenser<<EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:42: 77.88: player(#3)::  ENDING 
+09/04/2025 - 14:01:42: EngineerBuildTeleportExit77.88: player(#3):: EngineerBuildTeleportExit DONE, RESUME EngineerBuilding  (Teleport exit built)
+09/04/2025 - 14:01:42: 77.88: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:01:42: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild() EngineerBuilding 
+
+09/04/2025 - 14:01:42: ) ) ) Soundscape: Upward.Inside
+09/04/2025 - 14:01:47: 83.11: player(#5)::  ENDING EngineerBuildDispenser
+09/04/2025 - 14:01:47: 83.11: player(#5):: EngineerBuildDispenser DONE, RESUME EngineerBuilding  (Can't find a place to build a Dispenser)
+09/04/2025 - 14:01:47: 83.11: player(#5)::  RESUMING EngineerBuilding
+09/04/2025 - 14:01:47:  TacticalMonitor(MainAction( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:48: EngineerBuilding83.22: player(#5)::  caused EngineerBuilding  (Building a Dispenser)
+09/04/2025 - 14:01:48:  to SUSPEND_FOR 83.22: player(#5):: EngineerBuildDispenser SUSPENDING 83.22: player(#5):: EngineerBuilding STARTING 
+09/04/2025 - 14:01:48: EngineerBuildDispenser
+09/04/2025 - 14:01:48: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildDispenser<<) EngineerBuilding ) ) )
+
+09/04/2025 - 14:01:49:  ENDING 84.72: player(#5):: EngineerBuildDispenser
+09/04/2025 - 14:01:49: 84.72: player(#5):: EngineerBuildDispenser DONE, RESUME EngineerBuilding  (Dispenser built)
+09/04/2025 - 14:01:49:  RESUMING 84.72: player(#5):: EngineerBuilding
+09/04/2025 - 14:01:49: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) )) 
+
+09/04/2025 - 14:01:50: 86.07: player(#2):: EngineerMoveToBuild caused EngineerMoveToBuild to SUSPEND_FOR RetreatToCover  (Retreating to a safe place to build my teleporter exit)
+09/04/2025 - 14:01:50: 86.07: player(#2)::  SUSPENDING EngineerMoveToBuild
+09/04/2025 - 14:01:50: 86.07: player(#2)::  STARTING RetreatToCover
+09/04/2025 - 14:01:50:  TacticalMonitor(MainAction( ScenarioMonitor( EngineerBuild()  RetreatToCover<<) EngineerMoveToBuild ) )
+
+09/04/2025 - 14:01:51: 86.38: player(#2):: RetreatToCover CHANGE_TO 86.38: player(#2):: EngineerBuildTeleportExit ENDING   (Doing given action now that I'm in cover)
+09/04/2025 - 14:01:51: RetreatToCover
+09/04/2025 - 14:01:51: 86.38: player(#2)::  STARTING EngineerBuildTeleportExit
+09/04/2025 - 14:01:51: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportExit<<EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:01:53: Soundscape: Upward.Outside
+09/04/2025 - 14:01:53: 88.41: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR GetAmmo  (Grabbing nearby ammo)
+09/04/2025 - 14:01:53: 88.41: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:01:53: 88.41: player(#3)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:01:53: 88.41: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:01:53: 88.41: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:01:53: 88.41: player(#3)::  STARTING GetAmmo
+09/04/2025 - 14:01:53: MainAction( GetAmmo<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:53: Soundscape: Upward.Inside
+09/04/2025 - 14:01:53: Soundscape: Upward.Outside
+09/04/2025 - 14:01:54:  ENDING 89.53: player(#2):: EngineerBuildTeleportExit
+09/04/2025 - 14:01:54: 89.53: player(#2):: 89.53: player(#2):: EngineerBuildTeleportExit RESUMING  DONE, RESUME EngineerMoveToBuildEngineerMoveToBuild
+09/04/2025 - 14:01:54:   (Taking too long - giving up)
+09/04/2025 - 14:01:54: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild()  EngineerMoveToBuild ) ) )
+
+09/04/2025 - 14:01:54: 89.83: player(#4):: EngineerMoveToBuild caused EngineerMoveToBuild to SUSPEND_FOR RetreatToCover89.83: player(#4)::   (Retreating to a safe place to build my teleporter exit)
+09/04/2025 - 14:01:54:  SUSPENDING EngineerMoveToBuild
+09/04/2025 - 14:01:54: 89.83: player(#4)::  STARTING RetreatToCover
+09/04/2025 - 14:01:54: MainAction( TacticalMonitor( EngineerBuild( ScenarioMonitor( RetreatToCover<<EngineerMoveToBuild ) 
+
+09/04/2025 - 14:01:54: ) ) )90.17: player(#2):: EngineerMoveToBuildEngineerMoveToBuild to SUSPEND_FOR  caused RetreatToCover  (Retreating to a safe place to build my teleporter exit)
+09/04/2025 - 14:01:54: 90.17: player(#2):: EngineerMoveToBuild SUSPENDING 
+09/04/2025 - 14:01:54: 90.17: player(#2)::  STARTING RetreatToCover
+09/04/2025 - 14:01:54: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( RetreatToCover<<EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:01:55: RetreatToCover90.36: player(#4)::  CHANGE_TO   (Doing given action now that I'm in cover)
+09/04/2025 - 14:01:55: EngineerBuildTeleportExit90.36: player(#4)::  ENDING RetreatToCover
+09/04/2025 - 14:01:55:  STARTING 90.36: player(#4):: EngineerBuildTeleportExit
+09/04/2025 - 14:01:55: ) MainAction()  TacticalMonitor() ScenarioMonitor(
+
+09/04/2025 - 14:01:55:  EngineerBuild( EngineerBuildTeleportExit<<EngineerMoveToBuild )  ENDING 90.78: player(#4):: EngineerBuildTeleportExit
+09/04/2025 - 14:01:55: 90.78: player(#4):: EngineerBuildTeleportExit DONE, RESUME 90.78: player(#4):: EngineerMoveToBuild RESUMING   (Teleport exit built)
+09/04/2025 - 14:01:55: EngineerMoveToBuild
+09/04/2025 - 14:01:55: MainAction( TacticalMonitor()  ScenarioMonitor()  EngineerBuild()  EngineerMoveToBuild )
+
+09/04/2025 - 14:01:56: 91.53: player(#2)::  CHANGE_TO RetreatToCoverEngineerBuildTeleportExit  (Doing given action now that I'm in cover)
+09/04/2025 - 14:01:56: 91.53: player(#2)::  ENDING RetreatToCover
+09/04/2025 - 14:01:56: 91.53: player(#2):: EngineerBuildTeleportExit STARTING 
+09/04/2025 - 14:01:56:  EngineerBuild(MainAction( EngineerBuildTeleportExit<< TacticalMonitor(EngineerMoveToBuild  ScenarioMonitor() ) ) )
+
+09/04/2025 - 14:01:56:  ENDING 91.95: player(#2):: EngineerBuildTeleportExit
+09/04/2025 - 14:01:56: 91.95: player(#2):: EngineerBuildTeleportExitEngineerMoveToBuild DONE, RESUME   (Teleport exit built)
+09/04/2025 - 14:01:56:  RESUMING 91.95: player(#2):: EngineerMoveToBuild
+09/04/2025 - 14:01:56: MainAction()  TacticalMonitor() ScenarioMonitor(
+
+09/04/2025 - 14:01:56:  EngineerBuild( EngineerMoveToBuild ) )  ENDING 92.19: player(#3):: GetAmmo92.19: player(#3):: 
+09/04/2025 - 14:01:56: GetAmmo DONE, RESUME TacticalMonitor  (My path became invalid)
+09/04/2025 - 14:01:56:  RESUMING 92.19: player(#3):: TacticalMonitor92.19: player(#3):: 
+09/04/2025 - 14:01:56:  RESUMING ScenarioMonitor92.19: player(#3):: 
+09/04/2025 - 14:01:56:  RESUMING EngineerBuild
+09/04/2025 - 14:01:56: 92.19: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:01:56: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:01:57: 92.29: player(#3):: TacticalMonitorScenarioMonitor caused 
+09/04/2025 - 14:01:57: TacticalMonitor92.29: player(#3)::  to SUSPEND_FOR  SUSPENDING RetreatToCoverEngineerBuild  (Backing off)
+09/04/2025 - 14:01:57: 
+09/04/2025 - 14:01:57: 92.29: player(#3):: 92.29: player(#3)::  SUSPENDING  SUSPENDING TacticalMonitorEngineerBuilding
+09/04/2025 - 14:01:57: 
+09/04/2025 - 14:01:57: 92.29: player(#3):: 92.29: player(#3)::  SUSPENDING  STARTING RetreatToCover
+09/04/2025 - 14:01:57: MainAction(TacticalMonitor( RetreatToCover<< ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:00: Soundscape: Upward.Outside
+09/04/2025 - 14:02:01: Soundscape: Upward.Outside
+09/04/2025 - 14:02:01: 96.60: player(#3):: RetreatToCover ENDING 
+09/04/2025 - 14:02:01: 96.60: player(#3):: RetreatToCover DONE, RESUME TacticalMonitor RESUMING   (Been in cover long enough)
+09/04/2025 - 14:02:01: EngineerBuild96.60: player(#3):: 
+09/04/2025 - 14:02:01:  RESUMING 96.60: player(#3):: TacticalMonitor RESUMING 
+09/04/2025 - 14:02:01: EngineerBuilding96.60: player(#3):: 
+09/04/2025 - 14:02:01:  RESUMING MainAction(ScenarioMonitor TacticalMonitor(
+09/04/2025 - 14:02:01:  ScenarioMonitor(96.60: player(#3)::  EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:02: 97.60: No health nearby
+09/04/2025 - 14:02:02: 97.92: player(#4):: MainAction reponded to EVENT OnKilled with I died!
+09/04/2025 - 14:02:02: CHANGE_TO Dead 97.92: player(#4)::  CHANGE_TO MainActionDead  (I died!)
+09/04/2025 - 14:02:02: 97.92: player(#4)::  ENDING 
+09/04/2025 - 14:02:02: MainAction97.92: player(#4)::  ENDING 
+09/04/2025 - 14:02:02: TacticalMonitor97.92: player(#4):: 
+09/04/2025 - 14:02:02:  ENDING 97.92: player(#4):: ScenarioMonitor ENDING 
+09/04/2025 - 14:02:02: EngineerMoveToBuild97.92: player(#4):: 
+09/04/2025 - 14:02:02:  ENDING 97.92: player(#4):: EngineerBuild STARTING 
+09/04/2025 - 14:02:02: DeadDead
+
+09/04/2025 - 14:02:02: Kaboom! killed 0xDEADBEEF with obj_sentrygun3.
+09/04/2025 - 14:02:03: 98.37: player(#5):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR GetAmmo  (Grabbing nearby ammo)
+09/04/2025 - 14:02:03: 98.37: player(#5)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:02:03:  SUSPENDING 98.37: player(#5):: ScenarioMonitor
+09/04/2025 - 14:02:03: 98.37: player(#5):: EngineerBuild SUSPENDING 
+09/04/2025 - 14:02:03: EngineerBuilding98.37: player(#5):: 
+09/04/2025 - 14:02:03:  SUSPENDING 98.37: player(#5)::  STARTING GetAmmo
+09/04/2025 - 14:02:03: MainAction( GetAmmo<<TacticalMonitor( ScenarioMonitor( EngineerBuild()  EngineerBuilding ) ) )
+
+09/04/2025 - 14:02:03: 98.99: player(#2):: TacticalMonitorTacticalMonitor caused  to SUSPEND_FOR GetHealth  (Grabbing nearby health)
+09/04/2025 - 14:02:03: 98.99: player(#2):: 98.99: player(#2)::  SUSPENDING  SUSPENDING ScenarioMonitorTacticalMonitor
+09/04/2025 - 14:02:03: 
+09/04/2025 - 14:02:03: 98.99: player(#2)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:02:03: 98.99: player(#2)::  SUSPENDING EngineerMoveToBuild
+09/04/2025 - 14:02:03: 98.99: player(#2)::  STARTING GetHealth
+09/04/2025 - 14:02:03: MainAction(TacticalMonitor( GetHealth<< ScenarioMonitor( EngineerMoveToBuild  EngineerBuild() ) ) )
+
+09/04/2025 - 14:02:03: 99.19: player(#2):: GetHealth ENDING 
+09/04/2025 - 14:02:03: 99.19: player(#2):: GetHealth DONE, RESUME TacticalMonitor  (An enemy is closer to it)
+09/04/2025 - 14:02:03: 99.19: player(#2)::  RESUMING TacticalMonitor
+09/04/2025 - 14:02:03: 99.19: player(#2)::  RESUMING ScenarioMonitor
+09/04/2025 - 14:02:03: 99.19: player(#2)::  RESUMING 
+09/04/2025 - 14:02:03: EngineerBuild99.19: player(#2)::  RESUMING MainAction(EngineerMoveToBuild TacticalMonitor(
+09/04/2025 - 14:02:03:  ScenarioMonitor( EngineerBuild()  EngineerMoveToBuild ) ) )
+
+09/04/2025 - 14:02:04: 99.40: No health nearby
+09/04/2025 - 14:02:04: 99.63: player(#2):: MainAction CHANGE_TO Dead reponded to EVENT OnKilled with I died!
+09/04/2025 - 14:02:04: Kaboom! killed Mann Co. with obj_sentrygun3.
+09/04/2025 - 14:02:04: 99.75: player(#2)::  CHANGE_TO MainActionDead  (I died!)
+09/04/2025 - 14:02:04: 99.75: player(#2)::  ENDING MainAction
+09/04/2025 - 14:02:04: 99.75: player(#2)::  ENDING TacticalMonitor
+09/04/2025 - 14:02:04: ScenarioMonitor99.75: player(#2):: 
+09/04/2025 - 14:02:04:  ENDING 99.75: player(#2):: 99.75: player(#2)::  ENDING  ENDING EngineerBuildEngineerMoveToBuild
+09/04/2025 - 14:02:04: 
+09/04/2025 - 14:02:04: Dead99.75: player(#2):: 
+09/04/2025 - 14:02:04:  STARTING Dead
+
+09/04/2025 - 14:02:04: 99.75: player(#3):: 99.75: player(#3)::  SUSPENDING TacticalMonitorTacticalMonitor caused 
+09/04/2025 - 14:02:04: TacticalMonitor99.75: player(#3)::  to SUSPEND_FOR  SUSPENDING UseTeleporterScenarioMonitor  (Using nearby teleporter)
+09/04/2025 - 14:02:04: 
+09/04/2025 - 14:02:04: 99.75: player(#3):: 
+09/04/2025 - 14:02:04:  SUSPENDING 99.75: player(#3):: EngineerBuild SUSPENDING EngineerBuilding
+09/04/2025 - 14:02:04: 99.75: player(#3)::  UseTeleporter<< STARTING TacticalMonitor(UseTeleporter ScenarioMonitor(
+09/04/2025 - 14:02:04:  EngineerBuild(MainAction( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:05: 100.28: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:05: 100.28: player(#3)::  DONE, RESUME TacticalMonitor  (Successful teleport)
+09/04/2025 - 14:02:05: 100.28: player(#3)::  RESUMING TacticalMonitor
+09/04/2025 - 14:02:05: 100.28: player(#3):: UseTeleporter RESUMING 
+09/04/2025 - 14:02:05: ScenarioMonitor100.28: player(#3)::  RESUMING EngineerBuild
+09/04/2025 - 14:02:05: 100.28: player(#3):: MainAction( RESUMING  TacticalMonitor(EngineerBuilding ScenarioMonitor(
+09/04/2025 - 14:02:05:  EngineerBuild( EngineerBuilding ) ) )) 
+
+09/04/2025 - 14:02:05: 101.11: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR   (Using nearby teleporter)
+09/04/2025 - 14:02:05: UseTeleporter101.11: player(#3)::  SUSPENDING TacticalMonitor101.11: player(#3):: 
+09/04/2025 - 14:02:05:  SUSPENDING 
+09/04/2025 - 14:02:05: ScenarioMonitor101.11: player(#3)::  SUSPENDING EngineerBuild101.11: player(#3):: 
+09/04/2025 - 14:02:05:  SUSPENDING MainAction(EngineerBuilding UseTeleporter<<
+09/04/2025 - 14:02:05: TacticalMonitor(101.11: player(#3)::  ScenarioMonitor( STARTING  EngineerBuild(UseTeleporter EngineerBuilding 
+09/04/2025 - 14:02:05: ) ) ) )
+
+09/04/2025 - 14:02:06:  ENDING 101.22: player(#3):: UseTeleporter
+09/04/2025 - 14:02:06: UseTeleporter101.22: player(#3)::  DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:06: 101.22: player(#3)::  RESUMING TacticalMonitor101.22: player(#3):: 
+09/04/2025 - 14:02:06:  RESUMING 101.22: player(#3):: ScenarioMonitor RESUMING 
+09/04/2025 - 14:02:06: EngineerBuild
+09/04/2025 - 14:02:06: 101.22: player(#3):: EngineerBuilding RESUMING 
+09/04/2025 - 14:02:06:  TacticalMonitor(MainAction( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:06: 102.15: player(#5):: 102.15: player(#5)::  ENDING GetAmmoGetAmmo DONE, RESUME 
+09/04/2025 - 14:02:06: TacticalMonitor  (My path became invalid)
+09/04/2025 - 14:02:06: 102.15: player(#5)::  RESUMING 102.15: player(#5):: TacticalMonitor RESUMING 
+09/04/2025 - 14:02:06: EngineerBuilding102.15: player(#5):: 
+09/04/2025 - 14:02:06:  RESUMING MainAction(ScenarioMonitor TacticalMonitor(
+09/04/2025 - 14:02:06:  ScenarioMonitor(102.15: player(#5)::  EngineerBuild( RESUMING  EngineerBuilding EngineerBuild) 
+09/04/2025 - 14:02:06: ) ) )
+
+09/04/2025 - 14:02:06: 102.17: player(#3):: 102.17: player(#3)::  SUSPENDING TacticalMonitorTacticalMonitor caused 
+09/04/2025 - 14:02:06: TacticalMonitor102.17: player(#3)::  to SUSPEND_FOR  SUSPENDING UseTeleporterScenarioMonitor  (Using nearby teleporter)
+09/04/2025 - 14:02:06: 
+09/04/2025 - 14:02:06: 102.17: player(#3)::  SUSPENDING EngineerBuild102.17: player(#3):: 
+09/04/2025 - 14:02:06:  SUSPENDING EngineerBuilding
+09/04/2025 - 14:02:06: 102.17: player(#3)::  STARTING UseTeleporter
+09/04/2025 - 14:02:06: MainAction( UseTeleporter<<TacticalMonitor()  ScenarioMonitor() EngineerBuild(
+
+09/04/2025 - 14:02:06:  EngineerBuilding ) ) 102.27: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:07: 102.27: player(#3):: 102.27: player(#3)::  RESUMING UseTeleporterTacticalMonitor DONE, RESUME 
+09/04/2025 - 14:02:07: TacticalMonitor102.27: player(#3)::   (Teleporter is not available)
+09/04/2025 - 14:02:07:  RESUMING ScenarioMonitor102.27: player(#3):: 
+09/04/2025 - 14:02:07:  RESUMING 
+09/04/2025 - 14:02:07: EngineerBuild102.27: player(#3)::  RESUMING EngineerBuildingMainAction(
+09/04/2025 - 14:02:07:  TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:07: Soundscape: Upward.Outside
+09/04/2025 - 14:02:08: 103.53: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:08: 103.53: player(#3)::  SUSPENDING 
+09/04/2025 - 14:02:08: TacticalMonitor103.53: player(#3)::  SUSPENDING ScenarioMonitor103.53: player(#3):: 
+09/04/2025 - 14:02:08:  SUSPENDING EngineerBuild
+09/04/2025 - 14:02:08: 103.53: player(#3)::  SUSPENDING MainAction(EngineerBuilding UseTeleporter<<
+09/04/2025 - 14:02:08: TacticalMonitor(103.53: player(#3)::  ScenarioMonitor( STARTING  EngineerBuild(UseTeleporter EngineerBuilding 
+09/04/2025 - 14:02:08: ) ) ) )
+
+09/04/2025 - 14:02:08: 103.63: player(#3):: UseTeleporter ENDING 
+09/04/2025 - 14:02:08: 103.63: player(#3):: 103.63: player(#3):: UseTeleporter RESUMING  DONE, RESUME TacticalMonitorTacticalMonitor
+09/04/2025 - 14:02:08:   (Teleporter is not available)
+09/04/2025 - 14:02:08: 103.63: player(#3)::  RESUMING 103.63: player(#3):: ScenarioMonitor RESUMING 
+09/04/2025 - 14:02:08: EngineerBuild
+09/04/2025 - 14:02:08: 103.63: player(#3):: EngineerBuilding RESUMING 
+09/04/2025 - 14:02:08: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:09: TacticalMonitor104.79: player(#3)::  caused TacticalMonitor to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:09: 104.79: player(#3)::  SUSPENDING 
+09/04/2025 - 14:02:09: TacticalMonitor104.79: player(#3)::  SUSPENDING ScenarioMonitor104.79: player(#3):: 
+09/04/2025 - 14:02:09:  SUSPENDING EngineerBuild
+09/04/2025 - 14:02:09: 104.79: player(#3)::  SUSPENDING EngineerBuilding104.79: player(#3):: 
+09/04/2025 - 14:02:09:  STARTING UseTeleporter
+09/04/2025 - 14:02:09: MainAction(TacticalMonitor( UseTeleporter<< ScenarioMonitor( EngineerBuilding  EngineerBuild() ) ) )
+
+09/04/2025 - 14:02:09: UseTeleporter104.89: player(#3)::  DONE, RESUME  ENDING TacticalMonitorUseTeleporter  (Teleporter is not available)
+09/04/2025 - 14:02:09: 
+09/04/2025 - 14:02:09: 104.89: player(#3):: 104.89: player(#3)::  RESUMING TacticalMonitor
+09/04/2025 - 14:02:09: 104.89: player(#3):: 104.89: player(#3)::  RESUMING  RESUMING ScenarioMonitorEngineerBuilding
+09/04/2025 - 14:02:09: 
+09/04/2025 - 14:02:09: MainAction(104.89: player(#3)::  TacticalMonitor( RESUMING  ScenarioMonitor(EngineerBuild EngineerBuild(
+09/04/2025 - 14:02:09:  EngineerBuilding 
+
+09/04/2025 - 14:02:09: ) ) ) )105.94: player(#3):: TacticalMonitorTacticalMonitor caused  to SUSPEND_FOR UseTeleporter105.94: player(#3)::   (Using nearby teleporter)
+09/04/2025 - 14:02:10:  SUSPENDING TacticalMonitor105.94: player(#3):: 
+09/04/2025 - 14:02:10:  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:02:10: 105.94: player(#3)::  SUSPENDING EngineerBuild105.94: player(#3):: 
+09/04/2025 - 14:02:10:  SUSPENDING EngineerBuildingMainAction(
+09/04/2025 - 14:02:10:  UseTeleporter<<105.94: player(#3):: TacticalMonitor( STARTING  ScenarioMonitor(UseTeleporter EngineerBuild(
+09/04/2025 - 14:02:10:  EngineerBuilding ) ) 
+
+09/04/2025 - 14:02:10: ) )106.05: player(#3):: UseTeleporter ENDING 
+09/04/2025 - 14:02:10: 106.05: player(#3):: UseTeleporter DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:10:  RESUMING 106.05: player(#3):: TacticalMonitor
+09/04/2025 - 14:02:10: 106.05: player(#3)::  RESUMING ScenarioMonitor
+09/04/2025 - 14:02:10: 106.05: player(#3)::  RESUMING  RESUMING EngineerBuildEngineerBuilding
+09/04/2025 - 14:02:10: 
+09/04/2025 - 14:02:10: 106.05: player(#3):: MainAction( TacticalMonitor()  ScenarioMonitor() EngineerBuild(
+
+09/04/2025 - 14:02:10:  EngineerBuilding ) ) 107.20: player(#3):: TacticalMonitor  (Using nearby teleporter)
+09/04/2025 - 14:02:11:  caused 107.20: player(#3):: TacticalMonitor SUSPENDING  to SUSPEND_FOR TacticalMonitorUseTeleporter
+09/04/2025 - 14:02:11: 107.20: player(#3):: 
+09/04/2025 - 14:02:11:  SUSPENDING 107.20: player(#3):: ScenarioMonitor SUSPENDING EngineerBuild
+09/04/2025 - 14:02:11: 107.20: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:02:11: 107.20: player(#3)::  STARTING UseTeleporter
+09/04/2025 - 14:02:11: MainAction( UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:12: 107.31: player(#3)::  ENDING UseTeleporter107.31: player(#3):: 
+09/04/2025 - 14:02:12: UseTeleporterTacticalMonitor DONE, RESUME   (Teleporter is not available)
+09/04/2025 - 14:02:12: 107.31: player(#3)::  RESUMING  RESUMING TacticalMonitorEngineerBuild
+09/04/2025 - 14:02:12: 
+09/04/2025 - 14:02:12: 107.31: player(#3):: 107.31: player(#3)::  RESUMING  RESUMING ScenarioMonitorEngineerBuilding
+09/04/2025 - 14:02:12: 
+09/04/2025 - 14:02:12: 107.31: player(#3):: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:13: 109.03: player(#4)::  ENDING Dead
+09/04/2025 - 14:02:13: 109.03: player(#4):: MainActionSTART   (Starting Action)
+09/04/2025 - 14:02:13: 109.03: player(#4)::  STARTING MainAction
+09/04/2025 - 14:02:13: START 109.03: player(#4):: TacticalMonitor  (Starting child Action)
+09/04/2025 - 14:02:13: 109.03: player(#4)::  STARTING 109.03: player(#4):: TacticalMonitorSTART 
+09/04/2025 - 14:02:13: ScenarioMonitor  (Starting child Action)
+09/04/2025 - 14:02:13: 109.03: player(#4)::  STARTING ScenarioMonitor109.03: player(#4):: 
+09/04/2025 - 14:02:13: START   (Starting child Action)
+09/04/2025 - 14:02:13: EngineerBuild109.03: player(#4):: EngineerBuild STARTING 
+09/04/2025 - 14:02:13: 109.03: player(#4):: START EngineerBuildTeleportEntrance  (Starting child Action)
+09/04/2025 - 14:02:13: 109.03: player(#4)::  STARTING EngineerBuildTeleportEntrance
+09/04/2025 - 14:02:13: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )MainAction(
+
+09/04/2025 - 14:02:13:  TacticalMonitor( ScenarioMonitor()  EngineerBuild()  EngineerBuildTeleportEntrance )) 
+
+09/04/2025 - 14:02:13:  EngineerBuildTeleportEntrance MainAction()  TacticalMonitor()  ScenarioMonitor()  EngineerBuild()
+
+09/04/2025 - 14:02:13: MainAction()  TacticalMonitor() ScenarioMonitor(
+
+09/04/2025 - 14:02:13:  EngineerBuild(MainAction( EngineerBuildTeleportEntrance  TacticalMonitor()  ScenarioMonitor()  EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:02:13: 109.10: player(#3):: TacticalMonitorTacticalMonitor caused  to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:13: 109.10: player(#3):: TacticalMonitor SUSPENDING 
+09/04/2025 - 14:02:13:  SUSPENDING 109.10: player(#3):: ScenarioMonitor
+09/04/2025 - 14:02:13: 109.10: player(#3)::  SUSPENDING 
+09/04/2025 - 14:02:13: EngineerBuild109.10: player(#3)::  SUSPENDING MainAction(EngineerBuilding UseTeleporter<<
+09/04/2025 - 14:02:13: TacticalMonitor(109.10: player(#3)::  ScenarioMonitor( STARTING  EngineerBuild(UseTeleporter EngineerBuilding 
+09/04/2025 - 14:02:13: ) ) ) )
+
+09/04/2025 - 14:02:13: 109.20: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:13: UseTeleporter109.20: player(#3)::  DONE, RESUME  RESUMING TacticalMonitorTacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:13: 
+09/04/2025 - 14:02:13: 109.20: player(#3):: 109.20: player(#3)::  RESUMING ScenarioMonitorMainAction(
+09/04/2025 - 14:02:13:  TacticalMonitor(109.20: player(#3)::  ScenarioMonitor( RESUMING  EngineerBuild(EngineerBuild EngineerBuilding 
+09/04/2025 - 14:02:13: ) 109.20: player(#3):: )  RESUMING ) EngineerBuilding)
+09/04/2025 - 14:02:13: 
+
+09/04/2025 - 14:02:15: TacticalMonitor110.25: player(#3)::  caused TacticalMonitor to SUSPEND_FOR UseTeleporter SUSPENDING   (Using nearby teleporter)
+09/04/2025 - 14:02:15: ScenarioMonitor110.25: player(#3):: 
+09/04/2025 - 14:02:15:  SUSPENDING 110.25: player(#3):: TacticalMonitor SUSPENDING 
+09/04/2025 - 14:02:15: EngineerBuild110.25: player(#3):: 
+09/04/2025 - 14:02:15: 110.25: player(#3)::  SUSPENDING 110.25: player(#3):: EngineerBuilding STARTING 
+09/04/2025 - 14:02:15: UseTeleporter
+09/04/2025 - 14:02:15:  UseTeleporter<<MainAction(TacticalMonitor( ScenarioMonitor( EngineerBuilding  EngineerBuild() ) ) )
+
+09/04/2025 - 14:02:15: 110.35: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:15: 110.35: player(#3):: UseTeleporter  (Teleporter is not available)
+09/04/2025 - 14:02:15:  DONE, RESUME 110.35: player(#3):: TacticalMonitor RESUMING 110.35: player(#3):: TacticalMonitor RESUMING 
+09/04/2025 - 14:02:15: ScenarioMonitor
+09/04/2025 - 14:02:15: 110.35: player(#3):: 110.35: player(#3)::  RESUMING  RESUMING EngineerBuildEngineerBuilding
+09/04/2025 - 14:02:15: 
+09/04/2025 - 14:02:15: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:17: 112.24: player(#3)::  caused TacticalMonitorTacticalMonitor to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:17: 112.24: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:02:17: 112.24: player(#3)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:02:17: 112.24: player(#3):: EngineerBuild SUSPENDING 
+09/04/2025 - 14:02:17: 112.24: player(#3)::  SUSPENDING  STARTING EngineerBuildingUseTeleporter
+09/04/2025 - 14:02:17: 
+09/04/2025 - 14:02:17: 112.24: player(#3):: MainAction( EngineerBuild( UseTeleporter<< EngineerBuilding TacticalMonitor()  ScenarioMonitor() ) )
+
+09/04/2025 - 14:02:17: 112.33: player(#5):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR GetAmmo  (Grabbing nearby ammo)
+09/04/2025 - 14:02:17: 112.33: player(#5):: TacticalMonitor SUSPENDING 
+09/04/2025 - 14:02:17: 112.33: player(#5):: 112.33: player(#5)::  SUSPENDING  STARTING ScenarioMonitorGetAmmo
+09/04/2025 - 14:02:17: 
+09/04/2025 - 14:02:17: 112.33: player(#5)::  SUSPENDING MainAction(EngineerBuild GetAmmo<<
+09/04/2025 - 14:02:17: TacticalMonitor(112.33: player(#5)::  ScenarioMonitor( SUSPENDING  EngineerBuild(EngineerBuilding EngineerBuilding 
+09/04/2025 - 14:02:17: ) ) ) )
+
+09/04/2025 - 14:02:17: 112.35: player(#3)::  ENDING 
+09/04/2025 - 14:02:17: TacticalMonitorUseTeleporter  (Teleporter is not available)
+09/04/2025 - 14:02:17: 112.35: player(#3):: 112.35: player(#3):: UseTeleporter RESUMING  DONE, RESUME TacticalMonitor
+09/04/2025 - 14:02:17: 112.35: player(#3):: ScenarioMonitor RESUMING 
+09/04/2025 - 14:02:17:  RESUMING 112.35: player(#3):: EngineerBuild
+09/04/2025 - 14:02:17: 112.35: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:02:17:  TacticalMonitor(MainAction( ScenarioMonitor( EngineerBuild( EngineerBuilding )) 
+
+09/04/2025 - 14:02:17: ) ) 113.04: player(#2)::  ENDING 
+09/04/2025 - 14:02:17: Dead113.04: player(#2):: START   (Starting Action)
+09/04/2025 - 14:02:17: MainAction113.04: player(#2)::  STARTING MainAction113.04: player(#2):: 
+09/04/2025 - 14:02:17: START TacticalMonitor  (Starting child Action)
+09/04/2025 - 14:02:17: 113.04: player(#2)::  STARTING TacticalMonitor
+09/04/2025 - 14:02:17: 113.04: player(#2):: START ScenarioMonitor  (Starting child Action)
+09/04/2025 - 14:02:17: 113.04: player(#2)::  STARTING ScenarioMonitor
+09/04/2025 - 14:02:17: START 113.04: player(#2):: EngineerBuild
+09/04/2025 - 14:02:17:   (Starting child Action)
+09/04/2025 - 14:02:17: 113.04: player(#2):: 113.04: player(#2):: START  STARTING EngineerBuildTeleportEntranceEngineerBuild  (Starting child Action)
+09/04/2025 - 14:02:17: 113.04: player(#2):: EngineerBuildTeleportEntrance STARTING 
+09/04/2025 - 14:02:17: MainAction( TacticalMonitor()  ScenarioMonitor()  EngineerBuild()  EngineerBuildTeleportEntrance )
+
+09/04/2025 - 14:02:17: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) MainAction()  TacticalMonitor() ScenarioMonitor(
+
+09/04/2025 - 14:02:17:  EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )MainAction(
+
+09/04/2025 - 14:02:17:  TacticalMonitor( ScenarioMonitor( EngineerBuild(MainAction( EngineerBuildTeleportEntrance  TacticalMonitor()  ScenarioMonitor()  EngineerBuild()  EngineerBuildTeleportEntrance )) ) 
+
+09/04/2025 - 14:02:17: ) )
+
+09/04/2025 - 14:02:18: EngineerBuildTeleportEntrance113.76: player(#4)::  caused EngineerBuildTeleportEntrance to SUSPEND_FOR GetAmmo  (Refilling ammo)
+09/04/2025 - 14:02:18: 113.76: player(#4)::  SUSPENDING EngineerBuildTeleportEntrance STARTING 
+09/04/2025 - 14:02:18: GetAmmo113.76: player(#4):: 
+09/04/2025 - 14:02:18: MainAction( EngineerBuild( TacticalMonitor( GetAmmo<< ScenarioMonitor(EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:02:18: 114.13: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:18: 114.13: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:02:18:  SUSPENDING 114.13: player(#3):: ScenarioMonitor
+09/04/2025 - 14:02:18: 114.13: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:02:18: 114.13: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:02:18: 114.13: player(#3):: MainAction( STARTING  UseTeleporter<<UseTeleporterTacticalMonitor(
+09/04/2025 - 14:02:18:  ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:19: 114.24: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:19: UseTeleporter114.24: player(#3)::  DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:19: 114.24: player(#3):: 114.24: player(#3)::  RESUMING  RESUMING TacticalMonitorScenarioMonitor
+09/04/2025 - 14:02:19: 
+09/04/2025 - 14:02:19: 114.24: player(#3)::  RESUMING EngineerBuild
+09/04/2025 - 14:02:19:  RESUMING 114.24: player(#3):: EngineerBuilding
+09/04/2025 - 14:02:19: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) 
+
+09/04/2025 - 14:02:19: )115.60: player(#3):: TacticalMonitor caused TacticalMonitor  (Using nearby teleporter)
+09/04/2025 - 14:02:20:  to SUSPEND_FOR 115.60: player(#3):: UseTeleporter SUSPENDING EngineerBuildingTacticalMonitor
+09/04/2025 - 14:02:20: 
+09/04/2025 - 14:02:20: 115.60: player(#3):: 115.60: player(#3)::  STARTING  SUSPENDING UseTeleporterScenarioMonitor
+09/04/2025 - 14:02:20: 
+09/04/2025 - 14:02:20: MainAction(115.60: player(#3)::  UseTeleporter<< SUSPENDING TacticalMonitor(EngineerBuild ScenarioMonitor(
+09/04/2025 - 14:02:20:  EngineerBuild(115.60: player(#3)::  EngineerBuilding  SUSPENDING ) ) ) )
+
+09/04/2025 - 14:02:20: 115.71: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:20: UseTeleporter115.71: player(#3)::  DONE, RESUME 115.71: player(#3):: TacticalMonitor RESUMING   (Teleporter is not available)
+09/04/2025 - 14:02:20: TacticalMonitorScenarioMonitor
+09/04/2025 - 14:02:20: 
+09/04/2025 - 14:02:20: 115.71: player(#3):: 115.71: player(#3)::  RESUMING  RESUMING 
+09/04/2025 - 14:02:20: EngineerBuild115.71: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:02:20: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:21: 116.32: player(#5)::  ENDING GetAmmo
+09/04/2025 - 14:02:21: 116.32: player(#5):: GetAmmoTacticalMonitor DONE, RESUME   (Ammo I was going for has been taken)
+09/04/2025 - 14:02:21: 116.32: player(#5)::  RESUMING TacticalMonitor116.32: player(#5):: 
+09/04/2025 - 14:02:21:  RESUMING ScenarioMonitor
+09/04/2025 - 14:02:21: 116.32: player(#5)::  RESUMING EngineerBuild
+09/04/2025 - 14:02:21: 116.32: player(#5)::  RESUMING EngineerBuilding
+09/04/2025 - 14:02:21: MainAction( TacticalMonitor( EngineerBuild( ScenarioMonitor( EngineerBuilding ) ) )) 
+
+09/04/2025 - 14:02:21: TacticalMonitor116.97: player(#3)::  caused   (Using nearby teleporter)
+09/04/2025 - 14:02:21: TacticalMonitor116.97: player(#3)::  to SUSPEND_FOR  SUSPENDING UseTeleporterTacticalMonitor
+09/04/2025 - 14:02:21: 116.97: player(#3)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:02:21: 116.97: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:02:21: 116.97: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:02:21: 116.97: player(#3)::  STARTING UseTeleporterMainAction(
+09/04/2025 - 14:02:21:  UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:21: 117.07: player(#3)::  ENDING 117.07: player(#3):: UseTeleporter RESUMING 
+09/04/2025 - 14:02:21: TacticalMonitor117.07: player(#3):: 
+09/04/2025 - 14:02:21: UseTeleporter117.07: player(#3)::  DONE, RESUME  RESUMING TacticalMonitorScenarioMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:21: 
+09/04/2025 - 14:02:21: 117.07: player(#3)::  RESUMING  RESUMING EngineerBuildingEngineerBuild
+09/04/2025 - 14:02:21: 
+09/04/2025 - 14:02:21: MainAction(117.07: player(#3)::  TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) )) 
+
+09/04/2025 - 14:02:22:  ENDING 117.75: player(#4):: GetAmmo117.75: player(#4):: 
+09/04/2025 - 14:02:22:  RESUMING 117.75: player(#4):: EngineerBuildTeleportEntranceGetAmmo
+09/04/2025 - 14:02:22:  DONE, RESUME MainAction(EngineerBuildTeleportEntrance TacticalMonitor(  (My ammo is full)
+09/04/2025 - 14:02:22:  ScenarioMonitor()  EngineerBuild() EngineerBuildTeleportEntrance 
+
+09/04/2025 - 14:02:22: ) ) EngineerBuildTeleportEntrance117.85: player(#4)::  CHANGE_TO EngineerMoveToBuild  (Teleport entrance built)
+09/04/2025 - 14:02:22:  ENDING 117.85: player(#4):: EngineerBuildTeleportEntrance
+09/04/2025 - 14:02:22: 117.85: player(#4)::  STARTING EngineerMoveToBuild
+09/04/2025 - 14:02:22: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:02:22: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:02:22: [TF-ENG seam] SelectBuildLocation: selected area center=(875,-1188,332) random_point=(875,-1197,337)
+09/04/2025 - 14:02:22: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:02:23: 118.75: player(#3)::  caused TacticalMonitorTacticalMonitorUseTeleporter to SUSPEND_FOR   (Using nearby teleporter)
+09/04/2025 - 14:02:23: 118.75: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:02:23: 118.75: player(#3)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:02:23: 118.75: player(#3)::  SUSPENDING 118.75: player(#3):: EngineerBuild SUSPENDING 
+09/04/2025 - 14:02:23: EngineerBuilding
+09/04/2025 - 14:02:23: 118.75: player(#3):: 
+09/04/2025 - 14:02:23:  STARTING MainAction(UseTeleporter UseTeleporter<<) TacticalMonitor()  ScenarioMonitor()  EngineerBuild() EngineerBuilding 
+
+09/04/2025 - 14:02:23: 118.86: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:23: 118.86: player(#3):: UseTeleporter DONE, RESUME   (Teleporter is not available)
+09/04/2025 - 14:02:23: TacticalMonitor118.86: player(#3):: 118.86: player(#3)::  RESUMING  RESUMING TacticalMonitorScenarioMonitor
+09/04/2025 - 14:02:23: 
+09/04/2025 - 14:02:23: 118.86: player(#3)::  RESUMING 118.86: player(#3):: EngineerBuild RESUMING 
+09/04/2025 - 14:02:23: EngineerBuilding) 
+09/04/2025 - 14:02:23: ) MainAction()  TacticalMonitor() ScenarioMonitor(
+
+09/04/2025 - 14:02:23:  EngineerBuild( EngineerBuilding 118.92: player(#2)::  caused EngineerBuildTeleportEntranceEngineerBuildTeleportEntrance to SUSPEND_FOR GetAmmo  (Refilling ammo)
+09/04/2025 - 14:02:23: 118.92: player(#2):: MainAction( SUSPENDING  TacticalMonitor(EngineerBuildTeleportEntrance ScenarioMonitor(
+09/04/2025 - 14:02:23:  EngineerBuild(118.92: player(#2)::  GetAmmo<< STARTING EngineerBuildTeleportEntrance GetAmmo) 
+09/04/2025 - 14:02:23: ) ) )
+
+09/04/2025 - 14:02:25: 120.33: player(#3):: TacticalMonitor caused  to SUSPEND_FOR TacticalMonitorUseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:25: 120.33: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:02:25: 120.33: player(#3)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:02:25: 120.33: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:02:25:  SUSPENDING 120.33: player(#3):: EngineerBuilding
+09/04/2025 - 14:02:25:  STARTING 120.33: player(#3):: UseTeleporter
+09/04/2025 - 14:02:25: MainAction( UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:25: 120.43: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:25: 120.43: player(#3):: UseTeleporter DONE, RESUME   (Teleporter is not available)
+09/04/2025 - 14:02:25: TacticalMonitor120.43: player(#3):: 120.43: player(#3)::  RESUMING  RESUMING TacticalMonitorScenarioMonitor
+09/04/2025 - 14:02:25: 
+09/04/2025 - 14:02:25: 120.43: player(#3)::  RESUMING EngineerBuildEngineerBuilding
+09/04/2025 - 14:02:25: 
+09/04/2025 - 14:02:25: 120.43: player(#3):: MainAction( RESUMING  TacticalMonitor()  ScenarioMonitor()  EngineerBuild() EngineerBuilding 
+
+09/04/2025 - 14:02:25: ) UseTeleporter122.01: player(#3)::   (Using nearby teleporter)
+09/04/2025 - 14:02:26: TacticalMonitor122.01: player(#3)::  caused  SUSPENDING TacticalMonitorTacticalMonitor to SUSPEND_FOR 
+09/04/2025 - 14:02:26:  SUSPENDING 122.01: player(#3):: ScenarioMonitor SUSPENDING 
+09/04/2025 - 14:02:26: EngineerBuild122.01: player(#3):: 
+09/04/2025 - 14:02:26:  SUSPENDING 122.01: player(#3):: EngineerBuilding122.01: player(#3):: 
+09/04/2025 - 14:02:26:  STARTING UseTeleporterMainAction(
+09/04/2025 - 14:02:26:  UseTeleporter<< EngineerBuilding TacticalMonitor()  ScenarioMonitor()  EngineerBuild() )
+
+09/04/2025 - 14:02:26:  ENDING 122.11: player(#3):: UseTeleporter
+09/04/2025 - 14:02:26: 122.11: player(#3):: UseTeleporter DONE, RESUME   (Teleporter is not available)
+09/04/2025 - 14:02:26: TacticalMonitor122.11: player(#3)::  RESUMING TacticalMonitor
+09/04/2025 - 14:02:26: 122.11: player(#3)::  RESUMING ScenarioMonitor122.11: player(#3):: 
+09/04/2025 - 14:02:26:  RESUMING 122.11: player(#3):: EngineerBuilding RESUMING 
+09/04/2025 - 14:02:26: EngineerBuildMainAction(
+09/04/2025 - 14:02:26:  TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:28:  ENDING 123.43: player(#2):: GetAmmo
+09/04/2025 - 14:02:28: 123.43: player(#2):: GetAmmo DONE, RESUME EngineerBuildTeleportEntrance  (My ammo is full)
+09/04/2025 - 14:02:28: 123.43: player(#2)::  RESUMING 
+09/04/2025 - 14:02:28: EngineerBuildTeleportEntranceMainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:02:28: 123.54: player(#2):: EngineerBuildTeleportEntrance CHANGE_TO EngineerMoveToBuild123.54: player(#2)::   (Teleport entrance built)
+09/04/2025 - 14:02:28:  ENDING EngineerBuildTeleportEntrance
+09/04/2025 - 14:02:28: 123.54: player(#2):: EngineerMoveToBuild STARTING 
+09/04/2025 - 14:02:28: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:02:28: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:02:28: [TF-ENG seam] SelectBuildLocation: selected area center=(1012,-1550,129) random_point=(1030,-1469,130)
+09/04/2025 - 14:02:28: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:02:28: 123.69: player(#3):: TacticalMonitor caused TacticalMonitorUseTeleporter to SUSPEND_FOR   (Using nearby teleporter)
+09/04/2025 - 14:02:28:  SUSPENDING 123.69: player(#3):: TacticalMonitor
+09/04/2025 - 14:02:28: 123.69: player(#3):: ScenarioMonitor SUSPENDING 
+09/04/2025 - 14:02:28:  SUSPENDING 123.69: player(#3):: EngineerBuild
+09/04/2025 - 14:02:28: 123.69: player(#3):: 
+09/04/2025 - 14:02:28:  SUSPENDING MainAction(EngineerBuilding UseTeleporter<<
+09/04/2025 - 14:02:28: TacticalMonitor(123.69: player(#3)::  ScenarioMonitor( STARTING  EngineerBuild(UseTeleporter EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:28: 123.79: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:28: 123.79: player(#3):: 123.79: player(#3):: UseTeleporter RESUMING  DONE, RESUME TacticalMonitorTacticalMonitor
+09/04/2025 - 14:02:28:   (Teleporter is not available)
+09/04/2025 - 14:02:28: 123.79: player(#3)::  RESUMING ScenarioMonitor
+09/04/2025 - 14:02:28: 123.79: player(#3)::  RESUMING ) EngineerBuild) 
+09/04/2025 - 14:02:28: ) 123.79: player(#3):: ) RESUMING 
+
+09/04/2025 - 14:02:28: EngineerBuilding
+09/04/2025 - 14:02:28: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding 125.16: player(#3):: TacticalMonitor125.16: player(#3)::  caused  SUSPENDING TacticalMonitorTacticalMonitor to SUSPEND_FOR 
+09/04/2025 - 14:02:29: UseTeleporter125.16: player(#3)::   (Using nearby teleporter)
+09/04/2025 - 14:02:29:  SUSPENDING ScenarioMonitor125.16: player(#3):: 
+09/04/2025 - 14:02:29:  SUSPENDING EngineerBuild
+09/04/2025 - 14:02:29: 125.16: player(#3):: 125.16: player(#3)::  STARTING  SUSPENDING UseTeleporterEngineerBuilding
+09/04/2025 - 14:02:29: 
+09/04/2025 - 14:02:29: MainAction()  UseTeleporter<<) TacticalMonitor() ScenarioMonitor(
+
+09/04/2025 - 14:02:29:  EngineerBuild( EngineerBuilding ) 125.26: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:30: 125.26: player(#3):: UseTeleporter DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:30:  RESUMING 125.26: player(#3):: TacticalMonitor
+09/04/2025 - 14:02:30: 125.26: player(#3):: ScenarioMonitor RESUMING 
+09/04/2025 - 14:02:30: 125.26: player(#3)::  RESUMING EngineerBuild
+
+09/04/2025 - 14:02:30: 
+09/04/2025 - 14:02:30: 125.26: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:02:30: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )126.84: player(#3)::  to SUSPEND_FOR TacticalMonitorUseTeleporter caused   (Using nearby teleporter)
+09/04/2025 - 14:02:31: TacticalMonitor126.84: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:02:31: 126.84: player(#3):: ScenarioMonitor SUSPENDING 
+09/04/2025 - 14:02:31: 126.84: player(#3)::  SUSPENDING EngineerBuild SUSPENDING 
+09/04/2025 - 14:02:31: EngineerBuilding126.84: player(#3):: 
+09/04/2025 - 14:02:31: 126.84: player(#3)::  STARTING MainAction(UseTeleporter UseTeleporter<<
+09/04/2025 - 14:02:31: TacticalMonitor( ScenarioMonitor( EngineerBuild()  EngineerBuilding ) ) )
+
+09/04/2025 - 14:02:31: 126.94: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:31: 126.94: player(#3)::   (Teleporter is not available)
+09/04/2025 - 14:02:31: UseTeleporter126.94: player(#3)::  DONE, RESUME  RESUMING TacticalMonitorTacticalMonitor
+09/04/2025 - 14:02:31: 126.94: player(#3)::  RESUMING ScenarioMonitor
+09/04/2025 - 14:02:31: MainAction(126.94: player(#3)::  TacticalMonitor( RESUMING  ScenarioMonitor(EngineerBuild EngineerBuild(
+09/04/2025 - 14:02:31:  EngineerBuilding 126.94: player(#3):: )  RESUMING ) EngineerBuilding) 
+09/04/2025 - 14:02:31: )
+
+09/04/2025 - 14:02:32: 127.99: player(#3):: TacticalMonitorTacticalMonitor caused  to SUSPEND_FOR   (Using nearby teleporter)
+09/04/2025 - 14:02:32: UseTeleporter127.99: player(#3):: TacticalMonitor SUSPENDING 
+09/04/2025 - 14:02:32: ScenarioMonitor127.99: player(#3):: 
+09/04/2025 - 14:02:32:  SUSPENDING 127.99: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:02:32:  STARTING 127.99: player(#3):: UseTeleporter SUSPENDING 
+09/04/2025 - 14:02:32: EngineerBuildingMainAction(
+09/04/2025 - 14:02:32:  UseTeleporter<<127.99: player(#3):: TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:32:  ENDING 128.10: player(#3):: UseTeleporter
+09/04/2025 - 14:02:32: 128.10: player(#3)::  DONE, RESUME UseTeleporterTacticalMonitor128.10: player(#3)::   (Teleporter is not available)
+09/04/2025 - 14:02:32:  RESUMING TacticalMonitor
+09/04/2025 - 14:02:32: 128.10: player(#3)::  RESUMING ScenarioMonitorEngineerBuild
+09/04/2025 - 14:02:32: 
+09/04/2025 - 14:02:32: 128.10: player(#3):: 128.10: player(#3)::  RESUMING  RESUMING EngineerBuilding
+09/04/2025 - 14:02:32: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:33: 128.46: player(#4):: TacticalMonitor caused 128.46: player(#4):: TacticalMonitor SUSPENDING  to SUSPEND_FOR TacticalMonitorRetreatToCover
+09/04/2025 - 14:02:33:   (Backing off)
+09/04/2025 - 14:02:33: 128.46: player(#4)::  SUSPENDING  SUSPENDING ScenarioMonitorEngineerBuild
+09/04/2025 - 14:02:33: 
+09/04/2025 - 14:02:33: 128.46: player(#4):: 128.46: player(#4)::  SUSPENDING EngineerMoveToBuild
+09/04/2025 - 14:02:33: 128.46: player(#4)::  STARTING RetreatToCover
+09/04/2025 - 14:02:33: MainAction( ScenarioMonitor( RetreatToCover<< EngineerBuild(TacticalMonitor( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:02:34: 129.25: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:34: 129.25: player(#3)::  SUSPENDING TacticalMonitor129.25: player(#3):: 
+09/04/2025 - 14:02:34:  SUSPENDING 129.25: player(#3):: EngineerBuild SUSPENDING 
+09/04/2025 - 14:02:34: ScenarioMonitor129.25: player(#3):: 
+09/04/2025 - 14:02:34:  SUSPENDING 
+09/04/2025 - 14:02:34: EngineerBuilding129.25: player(#3):: 
+09/04/2025 - 14:02:34:  STARTING MainAction(UseTeleporter UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:34:  ENDING 129.36: player(#3):: UseTeleporter
+09/04/2025 - 14:02:34: 129.36: player(#3):: UseTeleporter DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:34: TacticalMonitor129.36: player(#3):: 
+09/04/2025 - 14:02:34:  RESUMING 129.36: player(#3):: 
+09/04/2025 - 14:02:34:  RESUMING 129.36: player(#3):: ScenarioMonitor RESUMING EngineerBuild
+09/04/2025 - 14:02:34: 129.36: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:02:34: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:34: 129.93: player(#4):: reponded to EVENT OnKilled with MainAction CHANGE_TO Dead I died!
+09/04/2025 - 14:02:34: 129.93: player(#4):: MainAction  (I died!)
+09/04/2025 - 14:02:34:  CHANGE_TO 129.93: player(#4):: Dead ENDING MainAction
+09/04/2025 - 14:02:34: 129.93: player(#4)::  ENDING RetreatToCover
+09/04/2025 - 14:02:34: 129.93: player(#4)::  ENDING TacticalMonitor
+09/04/2025 - 14:02:34: ScenarioMonitor129.93: player(#4):: 
+09/04/2025 - 14:02:34:  ENDING 129.93: player(#4)::  ENDING  ENDING EngineerMoveToBuildEngineerBuild
+09/04/2025 - 14:02:34: 
+09/04/2025 - 14:02:34: 129.93: player(#4):: 129.93: player(#4)::  STARTING Dead
+09/04/2025 - 14:02:34: Dead
+
+09/04/2025 - 14:02:34: Kaboom! killed 0xDEADBEEF with obj_sentrygun3.
+09/04/2025 - 14:02:36: 131.25: player(#3):: TacticalMonitorUseTeleporter caused   (Using nearby teleporter)
+09/04/2025 - 14:02:36: TacticalMonitor131.25: player(#3)::  to SUSPEND_FOR  SUSPENDING 
+09/04/2025 - 14:02:36: TacticalMonitor131.25: player(#3):: ScenarioMonitor SUSPENDING 
+09/04/2025 - 14:02:36: 131.25: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:02:36: 131.25: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:02:36: 131.25: player(#3)::  STARTING UseTeleporter
+09/04/2025 - 14:02:36: MainAction( UseTeleporter<< ScenarioMonitor(TacticalMonitor( EngineerBuild()  EngineerBuilding ) ) )
+
+09/04/2025 - 14:02:36: 
+09/04/2025 - 14:02:36: 131.35: player(#3):: 131.35: player(#3)::  ENDING UseTeleporterUseTeleporter DONE, RESUME TacticalMonitor131.35: player(#3)::   (Teleporter is not available)
+09/04/2025 - 14:02:36:  RESUMING TacticalMonitor
+09/04/2025 - 14:02:36:  RESUMING 131.35: player(#3):: ScenarioMonitor
+09/04/2025 - 14:02:36: EngineerBuild131.35: player(#3):: 
+09/04/2025 - 14:02:36:  RESUMING 131.35: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:02:36: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:37: 132.51: player(#3):: TacticalMonitorTacticalMonitor caused  to SUSPEND_FOR   (Using nearby teleporter)
+09/04/2025 - 14:02:37: UseTeleporter132.51: player(#3)::  SUSPENDING 132.51: player(#3):: TacticalMonitor SUSPENDING 
+09/04/2025 - 14:02:37: ScenarioMonitor132.51: player(#3):: 
+09/04/2025 - 14:02:37:  SUSPENDING 132.51: player(#3):: EngineerBuild SUSPENDING 
+09/04/2025 - 14:02:37: EngineerBuilding
+09/04/2025 - 14:02:37: 132.51: player(#3)::  STARTING UseTeleporterMainAction(
+09/04/2025 - 14:02:37:  UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:37: 
+09/04/2025 - 14:02:37: 133.14: player(#3):: 133.14: player(#3)::  ENDING UseTeleporterUseTeleporter DONE, RESUME  RESUMING TacticalMonitorTacticalMonitor  (Successful teleport)
+09/04/2025 - 14:02:37: 
+09/04/2025 - 14:02:37: 133.14: player(#3):: 133.14: player(#3):: ScenarioMonitor RESUMING 
+09/04/2025 - 14:02:37: 133.14: player(#3)::  RESUMING 
+09/04/2025 - 14:02:37: EngineerBuild133.14: player(#3)::  RESUMING 
+09/04/2025 - 14:02:37: EngineerBuildingMainAction( TacticalMonitor( ScenarioMonitor(
+
+09/04/2025 - 14:02:37:  EngineerBuild( EngineerBuilding ) ) ) )134.50: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:39: 134.50: player(#3)::  SUSPENDING TacticalMonitor134.50: player(#3):: 
+09/04/2025 - 14:02:39:  SUSPENDING 
+09/04/2025 - 14:02:39: ScenarioMonitor134.50: player(#3)::  SUSPENDING 
+09/04/2025 - 14:02:39: EngineerBuild134.50: player(#3)::  SUSPENDING EngineerBuilding134.50: player(#3):: 
+09/04/2025 - 14:02:39:  STARTING UseTeleporter
+09/04/2025 - 14:02:39: MainAction( UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:39: 134.57: player(#2):: TacticalMonitor caused TacticalMonitorRetreatToCover to SUSPEND_FOR   (Backing off)
+09/04/2025 - 14:02:39:  SUSPENDING 134.57: player(#2):: TacticalMonitor
+09/04/2025 - 14:02:39: 134.57: player(#2)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:02:39: 134.57: player(#2)::  SUSPENDING EngineerBuild STARTING 
+09/04/2025 - 14:02:39: RetreatToCover134.57: player(#2):: 
+09/04/2025 - 14:02:39:  SUSPENDING EngineerMoveToBuild
+09/04/2025 - 14:02:39: 134.57: player(#2):: MainAction(TacticalMonitor( RetreatToCover<< ScenarioMonitor( EngineerBuild()  EngineerMoveToBuild ) ) )
+
+09/04/2025 - 14:02:39: 134.61: player(#3)::  ENDING UseTeleporter134.61: player(#3):: 
+09/04/2025 - 14:02:39: UseTeleporter DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:39: 134.61: player(#3)::  RESUMING TacticalMonitor
+09/04/2025 - 14:02:39: 134.61: player(#3)::  RESUMING ScenarioMonitor
+09/04/2025 - 14:02:39: 134.61: player(#3)::  RESUMING EngineerBuild
+09/04/2025 - 14:02:39: 134.61: player(#3)::  RESUMING EngineerBuildingMainAction(
+09/04/2025 - 14:02:39:  TacticalMonitor( ScenarioMonitor( EngineerBuilding  EngineerBuild() ) ) )
+
+09/04/2025 - 14:02:40: 136.08: player(#3):: TacticalMonitorTacticalMonitor caused  to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:40: 136.08: player(#3):: 136.08: player(#3)::  SUSPENDING  SUSPENDING TacticalMonitorScenarioMonitor
+09/04/2025 - 14:02:40: 
+09/04/2025 - 14:02:40:  SUSPENDING 136.08: player(#3):: EngineerBuild
+09/04/2025 - 14:02:40: 136.08: player(#3)::  SUSPENDING 
+09/04/2025 - 14:02:40: EngineerBuilding136.08: player(#3):: UseTeleporter STARTING 
+09/04/2025 - 14:02:40:  ScenarioMonitor(MainAction( EngineerBuild( UseTeleporter<< EngineerBuilding TacticalMonitor() ) )) 
+
+09/04/2025 - 14:02:40: MainAction 136.17: player(#2):: reponded to EVENT OnKilled with I died!
+09/04/2025 - 14:02:40: CHANGE_TO Dead 136.18: player(#3):: 136.18: player(#3)::  ENDING UseTeleporterUseTeleporter DONE, RESUME 
+09/04/2025 - 14:02:40: TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:40: 136.18: player(#3):: 136.18: player(#3)::  RESUMING  RESUMING ScenarioMonitorTacticalMonitor
+09/04/2025 - 14:02:40: 
+09/04/2025 - 14:02:40: 136.18: player(#3)::  RESUMING EngineerBuild
+09/04/2025 - 14:02:40: 136.18: player(#3)::  RESUMING MainAction(EngineerBuilding TacticalMonitor(
+09/04/2025 - 14:02:40:  ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:40: Kaboom! killed Mann Co. with obj_sentrygun3.
+09/04/2025 - 14:02:41: 136.27: player(#2):: MainActionDead CHANGE_TO   (I died!)
+09/04/2025 - 14:02:41:  ENDING 136.27: player(#2):: MainAction
+09/04/2025 - 14:02:41: 136.27: player(#2)::  ENDING RetreatToCover
+09/04/2025 - 14:02:41: 136.27: player(#2)::  ENDING TacticalMonitor
+09/04/2025 - 14:02:41: 136.27: player(#2)::  ENDING 136.27: player(#2):: ScenarioMonitor ENDING 
+09/04/2025 - 14:02:41: EngineerBuild
+09/04/2025 - 14:02:41: 136.27: player(#2)::  ENDING EngineerMoveToBuild
+09/04/2025 - 14:02:41: 136.27: player(#2)::  STARTING DeadDead
+09/04/2025 - 14:02:41: 
+
+09/04/2025 - 14:02:42: TacticalMonitor137.55: player(#3)::  caused TacticalMonitor to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:42: 137.55: player(#3)::  SUSPENDING TacticalMonitor SUSPENDING 
+09/04/2025 - 14:02:42: 137.55: player(#3):: ScenarioMonitor
+09/04/2025 - 14:02:42: 137.55: player(#3):: 137.55: player(#3)::  STARTING  SUSPENDING UseTeleporterEngineerBuild
+09/04/2025 - 14:02:42: 
+09/04/2025 - 14:02:42: MainAction(137.55: player(#3)::  UseTeleporter<< SUSPENDING TacticalMonitor(EngineerBuilding ScenarioMonitor(
+09/04/2025 - 14:02:42:  EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:42: 137.65: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:42: UseTeleporter137.65: player(#3)::  DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:42: 137.65: player(#3)::  RESUMING TacticalMonitor
+09/04/2025 - 14:02:42:  RESUMING 137.65: player(#3):: ScenarioMonitor
+09/04/2025 - 14:02:42: 137.65: player(#3)::  RESUMING EngineerBuild
+09/04/2025 - 14:02:42: 137.65: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:02:42: MainAction( TacticalMonitor( EngineerBuild( ScenarioMonitor( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:44: TacticalMonitor139.23: player(#3)::  caused TacticalMonitorUseTeleporter to SUSPEND_FOR   (Using nearby teleporter)
+09/04/2025 - 14:02:44: 139.23: player(#3)::  SUSPENDING 139.23: player(#3):: TacticalMonitor SUSPENDING 
+09/04/2025 - 14:02:44: ScenarioMonitor
+09/04/2025 - 14:02:44:  SUSPENDING 139.23: player(#3):: EngineerBuild
+09/04/2025 - 14:02:44: 139.23: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:02:44: 139.23: player(#3)::  STARTING UseTeleporterMainAction(
+09/04/2025 - 14:02:44:  UseTeleporter<<TacticalMonitor()  ScenarioMonitor() EngineerBuild(
+
+09/04/2025 - 14:02:44:  EngineerBuilding ) )  ENDING 139.33: player(#3):: UseTeleporter
+09/04/2025 - 14:02:44: 139.33: player(#3):: UseTeleporter139.33: player(#3)::  DONE, RESUME  RESUMING TacticalMonitorTacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:44: 
+09/04/2025 - 14:02:44: 139.33: player(#3):: 139.33: player(#3)::  RESUMING  RESUMING EngineerBuildScenarioMonitor
+09/04/2025 - 14:02:44: 
+09/04/2025 - 14:02:44: 139.33: player(#3)::  RESUMING EngineerBuildingMainAction(
+09/04/2025 - 14:02:44:  TacticalMonitor( EngineerBuild( ScenarioMonitor( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:45: 141.01: player(#3)::  to SUSPEND_FOR TacticalMonitorUseTeleporter caused   (Using nearby teleporter)
+09/04/2025 - 14:02:45: TacticalMonitor141.01: player(#3)::  SUSPENDING TacticalMonitor141.01: player(#3):: 
+09/04/2025 - 14:02:45:  SUSPENDING 
+09/04/2025 - 14:02:45: ScenarioMonitor141.01: player(#3)::  SUSPENDING EngineerBuildMainAction(
+09/04/2025 - 14:02:45:  UseTeleporter<<141.01: player(#3):: TacticalMonitor( SUSPENDING  ScenarioMonitor(EngineerBuilding EngineerBuild(
+09/04/2025 - 14:02:45:  EngineerBuilding 141.01: player(#3):: )  STARTING ) UseTeleporter) 
+09/04/2025 - 14:02:45: )
+
+09/04/2025 - 14:02:45: 141.07: player(#4)::  ENDING Dead
+09/04/2025 - 14:02:45: 141.07: player(#4):: START MainAction  (Starting Action)
+09/04/2025 - 14:02:45: 141.07: player(#4):: 
+09/04/2025 - 14:02:45:  STARTING 141.07: player(#4):: MainActionSTART TacticalMonitor  (Starting child Action)
+09/04/2025 - 14:02:45: 141.07: player(#4)::  STARTING 
+09/04/2025 - 14:02:45: TacticalMonitor141.07: player(#4):: START ScenarioMonitor141.07: player(#4)::   (Starting child Action)
+09/04/2025 - 14:02:45:  STARTING ScenarioMonitor
+09/04/2025 - 14:02:45: EngineerBuild141.07: player(#4)::   (Starting child Action)
+09/04/2025 - 14:02:45: START 141.07: player(#4):: 
+09/04/2025 - 14:02:45:  STARTING 141.07: player(#4):: START EngineerBuildEngineerBuildTeleportEntrance  (Starting child Action)
+09/04/2025 - 14:02:45: 141.07: player(#4)::  STARTING EngineerBuildTeleportEntrance
+09/04/2025 - 14:02:45: MainAction()  TacticalMonitor() ScenarioMonitor(
+
+09/04/2025 - 14:02:45:  EngineerBuild(MainAction( EngineerBuildTeleportEntrance  TacticalMonitor()  ScenarioMonitor()  EngineerBuild( EngineerBuildTeleportEntrance )  ScenarioMonitor()  EngineerBuild()  EngineerBuildTeleportEntrance )) 
+
+09/04/2025 - 14:02:45: ) MainAction()  TacticalMonitor()
+
+09/04/2025 - 14:02:45: MainAction( TacticalMonitor( ScenarioMonitor( ScenarioMonitor( EngineerBuild( EngineerBuild( EngineerBuildTeleportEntrance  EngineerBuildTeleportEntrance ) ) ) ) ) ) ))
+
+09/04/2025 - 14:02:45: 
+
+09/04/2025 - 14:02:45: MainAction( TacticalMonitor( ENDING 141.12: player(#3):: UseTeleporter
+09/04/2025 - 14:02:45: 141.12: player(#3):: UseTeleporter  (Teleporter is not available)
+09/04/2025 - 14:02:45:  DONE, RESUME 141.12: player(#3):: TacticalMonitor RESUMING TacticalMonitorEngineerBuild
+09/04/2025 - 14:02:45: 
+09/04/2025 - 14:02:45: 141.12: player(#3):: 141.12: player(#3)::  RESUMING  RESUMING ScenarioMonitorEngineerBuilding
+09/04/2025 - 14:02:45: 
+09/04/2025 - 14:02:45: 141.12: player(#3):: MainAction( RESUMING  TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) 
+
+09/04/2025 - 14:02:45: ) )141.18: player(#4)::  CHANGE_TO EngineerBuildTeleportEntranceEngineerMoveToBuild  (Teleport entrance built)
+09/04/2025 - 14:02:45: EngineerMoveToBuild141.18: player(#4):: 
+09/04/2025 - 14:02:45:  ENDING EngineerBuildTeleportEntrance
+09/04/2025 - 14:02:45: 141.18: player(#4)::  STARTING [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:02:45: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:02:45: [TF-ENG seam] SelectBuildLocation: selected area center=(875,-1934,288) random_point=(872,-1901,288)
+09/04/2025 - 14:02:45: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:02:47: 142.90: player(#3)::  SUSPENDING TacticalMonitorTacticalMonitor caused 
+09/04/2025 - 14:02:47: TacticalMonitor142.90: player(#3)::  to SUSPEND_FOR  SUSPENDING UseTeleporterScenarioMonitor  (Using nearby teleporter)
+09/04/2025 - 14:02:47: 
+09/04/2025 - 14:02:47: 142.90: player(#3):: 142.90: player(#3)::  SUSPENDING  SUSPENDING EngineerBuildingEngineerBuild
+09/04/2025 - 14:02:47: 
+09/04/2025 - 14:02:47: 142.90: player(#3):: 142.90: player(#3)::  STARTING UseTeleporter
+09/04/2025 - 14:02:47:  UseTeleporter<<MainAction(TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:47: 143.01: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:47: 143.01: player(#3):: UseTeleporter DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:47: 143.01: player(#3)::  RESUMING TacticalMonitor
+09/04/2025 - 14:02:47: 143.01: player(#3):: 143.01: player(#3)::  RESUMING  RESUMING EngineerBuildingScenarioMonitor
+09/04/2025 - 14:02:47: 
+09/04/2025 - 14:02:47: MainAction(143.01: player(#3)::  TacticalMonitor( RESUMING  ScenarioMonitor(EngineerBuild EngineerBuild(
+09/04/2025 - 14:02:47:  EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:48: 144.16: player(#3)::  caused TacticalMonitorTacticalMonitor to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:48: 144.16: player(#3)::  SUSPENDING TacticalMonitor144.16: player(#3):: 
+09/04/2025 - 14:02:48:  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:02:48: 144.16: player(#3):: EngineerBuild SUSPENDING 
+09/04/2025 - 14:02:48: 144.16: player(#3):: 144.16: player(#3)::  STARTING  SUSPENDING UseTeleporterEngineerBuilding
+09/04/2025 - 14:02:48: 
+09/04/2025 - 14:02:48: MainAction( UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) )) 
+
+09/04/2025 - 14:02:48: ) 145.17: player(#4):: TacticalMonitorTacticalMonitor caused  to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:49: TacticalMonitor145.17: player(#4):: 
+09/04/2025 - 14:02:49:  SUSPENDING 145.17: player(#4):: 145.17: player(#4)::  SUSPENDING  SUSPENDING ScenarioMonitorEngineerBuild
+09/04/2025 - 14:02:49: 
+09/04/2025 - 14:02:49: 145.17: player(#4)::  SUSPENDING EngineerMoveToBuild
+09/04/2025 - 14:02:49: 145.17: player(#4)::  STARTING UseTeleporter
+09/04/2025 - 14:02:49: MainAction( UseTeleporter<<TacticalMonitor()  ScenarioMonitor() EngineerBuild(
+
+09/04/2025 - 14:02:49:  EngineerMoveToBuild ) )  ENDING 145.53: player(#3):: UseTeleporter
+09/04/2025 - 14:02:50: 145.53: player(#3):: UseTeleporter DONE, RESUME TacticalMonitor  (Successful teleport)
+09/04/2025 - 14:02:50:  RESUMING 145.53: player(#3):: TacticalMonitor
+09/04/2025 - 14:02:50: 145.53: player(#3):: 145.53: player(#3)::  RESUMING  RESUMING EngineerBuildScenarioMonitor
+09/04/2025 - 14:02:50: 
+09/04/2025 - 14:02:50: 145.53: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:02:50: MainAction( EngineerBuilding  TacticalMonitor()  ScenarioMonitor()  EngineerBuild() )
+
+09/04/2025 - 14:02:50: 145.95: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:50:  SUSPENDING 145.95: player(#3):: TacticalMonitor
+09/04/2025 - 14:02:50: EngineerBuild145.95: player(#3):: 
+09/04/2025 - 14:02:50:  SUSPENDING 145.95: player(#3):: ScenarioMonitor SUSPENDING 
+09/04/2025 - 14:02:50: EngineerBuilding145.95: player(#3):: 
+09/04/2025 - 14:02:50:  SUSPENDING 145.95: player(#3)::  UseTeleporter<< STARTING TacticalMonitor(UseTeleporter ScenarioMonitor(
+09/04/2025 - 14:02:50:  EngineerBuild(MainAction( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:50: 146.05: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:50: TacticalMonitor146.05: player(#3)::   (Teleporter is not available)
+09/04/2025 - 14:02:50: UseTeleporter146.05: player(#3)::  DONE, RESUME  RESUMING  RESUMING TacticalMonitorEngineerBuild
+09/04/2025 - 14:02:50: 
+09/04/2025 - 14:02:50: 146.05: player(#3):: 146.05: player(#3)::  RESUMING  RESUMING ScenarioMonitorEngineerBuilding
+09/04/2025 - 14:02:50: 
+09/04/2025 - 14:02:50: 146.05: player(#3):: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:51: 146.85: player(#4)::  ENDING UseTeleporter
+09/04/2025 - 14:02:51: 146.85: player(#4):: UseTeleporter DONE, RESUME   (Successful teleport)
+09/04/2025 - 14:02:51: TacticalMonitor146.85: player(#4)::  RESUMING TacticalMonitor
+09/04/2025 - 14:02:51: 146.85: player(#4)::  RESUMING 146.85: player(#4):: ScenarioMonitor RESUMING 
+09/04/2025 - 14:02:51: EngineerBuild
+09/04/2025 - 14:02:51: 146.85: player(#4):: EngineerMoveToBuild RESUMING 
+09/04/2025 - 14:02:51:  EngineerMoveToBuild MainAction()  TacticalMonitor()  ScenarioMonitor()  EngineerBuild()
+
+09/04/2025 - 14:02:52: 147.42: player(#3)::  caused TacticalMonitorTacticalMonitor to SUSPEND_FOR UseTeleporter147.42: player(#3)::   (Using nearby teleporter)
+09/04/2025 - 14:02:52:  SUSPENDING TacticalMonitor
+09/04/2025 - 14:02:52: 147.42: player(#3):: 
+09/04/2025 - 14:02:52:  SUSPENDING 147.42: player(#3):: ScenarioMonitor SUSPENDING 
+09/04/2025 - 14:02:52: EngineerBuilding147.42: player(#3):: 
+09/04/2025 - 14:02:52:  SUSPENDING 147.42: player(#3):: EngineerBuild STARTING UseTeleporter
+09/04/2025 - 14:02:52: MainAction( UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) 
+
+09/04/2025 - 14:02:52: ) ) ENDING 147.52: player(#3):: UseTeleporter
+09/04/2025 - 14:02:52: UseTeleporter147.52: player(#3)::  DONE, RESUME TacticalMonitor
+09/04/2025 - 14:02:52:   (Teleporter is not available)
+09/04/2025 - 14:02:52: 147.52: player(#3):: 147.52: player(#3)::  RESUMING  RESUMING ScenarioMonitorTacticalMonitor
+09/04/2025 - 14:02:52: 147.52: player(#3)::  RESUMING EngineerBuild
+09/04/2025 - 14:02:52: 147.52: player(#3)::  EngineerBuilding  RESUMING ) EngineerBuilding) 
+09/04/2025 - 14:02:52: ) MainAction() TacticalMonitor(
+
+09/04/2025 - 14:02:52:  ScenarioMonitor( EngineerBuild(148.89: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR   (Using nearby teleporter)
+09/04/2025 - 14:02:53: UseTeleporter148.89: player(#3):: 
+09/04/2025 - 14:02:53:  SUSPENDING 148.89: player(#3):: TacticalMonitor SUSPENDING ScenarioMonitor148.89: player(#3):: 
+09/04/2025 - 14:02:53:  SUSPENDING EngineerBuild
+09/04/2025 - 14:02:53: 
+09/04/2025 - 14:02:53: 148.89: player(#3):: 148.89: player(#3)::  SUSPENDING  STARTING EngineerBuildingUseTeleporterMainAction(
+09/04/2025 - 14:02:53:  UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:53: 148.99: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:02:53: 148.99: player(#3):: UseTeleporter DONE, RESUME   (Teleporter is not available)
+09/04/2025 - 14:02:53: TacticalMonitor148.99: player(#3)::  RESUMING 148.99: player(#3):: TacticalMonitor RESUMING 
+09/04/2025 - 14:02:53: ScenarioMonitor
+09/04/2025 - 14:02:53: 148.99: player(#3)::  RESUMING  RESUMING EngineerBuildingEngineerBuild
+09/04/2025 - 14:02:53: 
+09/04/2025 - 14:02:53: MainAction(148.99: player(#3)::  TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:53: 149.08: player(#2):: Dead ENDING 
+09/04/2025 - 14:02:53: 149.08: player(#2)::  STARTING START MainActionMainAction
+09/04/2025 - 14:02:53:   (Starting Action)
+09/04/2025 - 14:02:53: 149.08: player(#2):: 149.08: player(#2):: START TacticalMonitor  (Starting child Action)
+09/04/2025 - 14:02:53:  STARTING 149.08: player(#2):: TacticalMonitor
+09/04/2025 - 14:02:53: START 149.08: player(#2):: ScenarioMonitorScenarioMonitor  (Starting child Action)
+09/04/2025 - 14:02:53: 
+09/04/2025 - 14:02:53: 149.08: player(#2):: 149.08: player(#2)::  STARTING START EngineerBuild  (Starting child Action)
+09/04/2025 - 14:02:53: 149.08: player(#2)::  STARTING EngineerBuild149.08: player(#2):: 
+09/04/2025 - 14:02:53: START   (Starting child Action)
+09/04/2025 - 14:02:53: EngineerBuildTeleportEntrance149.08: player(#2)::  STARTING  TacticalMonitor(EngineerBuildTeleportEntrance ScenarioMonitor(
+09/04/2025 - 14:02:53:  EngineerBuild(MainAction( EngineerBuildTeleportEntrance ) ) ) ) )) 
+
+09/04/2025 - 14:02:53: )MainAction(
+
+09/04/2025 - 14:02:53:  TacticalMonitor(MainAction( ScenarioMonitor( TacticalMonitor( EngineerBuild( ScenarioMonitor( EngineerBuildTeleportEntrance  EngineerBuild()  EngineerBuildTeleportEntrance ) ) ) ) )) 
+
+09/04/2025 - 14:02:53: )MainAction(
+
+09/04/2025 - 14:02:53:  TacticalMonitor(MainAction( ScenarioMonitor( TacticalMonitor( EngineerBuild( ScenarioMonitor( EngineerBuildTeleportEntrance  EngineerBuild()  EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:02:53: 149.19: player(#2):: EngineerBuildTeleportEntrance CHANGE_TO EngineerMoveToBuild  (Teleport entrance built)
+09/04/2025 - 14:02:53:  ENDING 149.19: player(#2):: EngineerBuildTeleportEntrance
+09/04/2025 - 14:02:53: 149.19: player(#2)::  STARTING EngineerMoveToBuild
+09/04/2025 - 14:02:53: [TF-ENG seam] Height bias: preferred=207, others=119 (after range/spacing rejects: range=0, spacing=0)
+09/04/2025 - 14:02:53: [TF-ENG seam] CollectBuildAreas: kept_areas=326 total_surface=2024188
+09/04/2025 - 14:02:53: [TF-ENG seam] SelectBuildLocation: selected area center=(1725,-1088,22) random_point=(1763,-1055,11)
+09/04/2025 - 14:02:53: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:02:55: TacticalMonitor150.58: player(#3)::  caused TacticalMonitor to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:55: 150.58: player(#3)::  SUSPENDING 150.58: player(#3):: TacticalMonitor SUSPENDING 
+09/04/2025 - 14:02:55: ScenarioMonitor
+09/04/2025 - 14:02:55: 150.58: player(#3)::  SUSPENDING  STARTING EngineerBuildUseTeleporter
+09/04/2025 - 14:02:55: 
+09/04/2025 - 14:02:55: 150.58: player(#3):: MainAction( SUSPENDING  UseTeleporter<<EngineerBuildingTacticalMonitor(
+09/04/2025 - 14:02:55:  ScenarioMonitor(150.58: player(#3)::  EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:55: 150.69: player(#3):: UseTeleporter ENDING 
+09/04/2025 - 14:02:55:   (Teleporter is not available)
+09/04/2025 - 14:02:55: 150.69: player(#3):: 150.69: player(#3):: UseTeleporter RESUMING  DONE, RESUME TacticalMonitorTacticalMonitor
+09/04/2025 - 14:02:55:  RESUMING 150.69: player(#3):: ScenarioMonitor
+09/04/2025 - 14:02:55: 150.69: player(#3):: 150.69: player(#3)::  RESUMING  RESUMING EngineerBuildEngineerBuilding
+09/04/2025 - 14:02:55: 
+09/04/2025 - 14:02:55: MainAction( ScenarioMonitor( TacticalMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:56: TacticalMonitor151.85: player(#3)::  caused  to SUSPEND_FOR TacticalMonitorUseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:02:56: 151.85: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:02:56:  SUSPENDING 151.85: player(#3):: ScenarioMonitor
+09/04/2025 - 14:02:56: 151.85: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:02:56: 151.85: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:02:56: 151.85: player(#3)::  STARTING 
+09/04/2025 - 14:02:56: UseTeleporterMainAction( UseTeleporter<< EngineerBuilding TacticalMonitor()  ScenarioMonitor()  EngineerBuild() )
+
+09/04/2025 - 14:02:56: 151.95: player(#3):: 151.95: player(#3)::  ENDING UseTeleporterUseTeleporter DONE, RESUME 
+09/04/2025 - 14:02:56: TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:56: 151.95: player(#3)::  RESUMING ScenarioMonitorTacticalMonitor
+09/04/2025 - 14:02:56: 
+09/04/2025 - 14:02:56: 151.95: player(#3):: 151.95: player(#3)::  RESUMING  RESUMING EngineerBuild
+09/04/2025 - 14:02:56: 151.95: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:02:56: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:56: EngineerMoveToBuild151.99: player(#4)::  CHANGE_TO 151.99: player(#4):: EngineerBuilding ENDING   (Reached my build location)
+09/04/2025 - 14:02:56: EngineerMoveToBuild
+09/04/2025 - 14:02:56: 151.99: player(#4)::  STARTING EngineerBuilding
+09/04/2025 - 14:02:56: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:56: EngineerBuilding152.10: player(#4)::  caused  to SUSPEND_FOR EngineerBuildingEngineerBuildSentryGun  (Building a Sentry)
+09/04/2025 - 14:02:56: 152.10: player(#4)::  SUSPENDING 
+09/04/2025 - 14:02:56: EngineerBuilding152.10: player(#4)::  STARTING 
+09/04/2025 - 14:02:56: EngineerBuildSentryGunMainAction( EngineerBuildSentryGun<< TacticalMonitor(EngineerBuilding  ScenarioMonitor()  EngineerBuild() ) )
+
+09/04/2025 - 14:02:57: 152.24: player(#2):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR UseTeleporter152.24: player(#2)::   (Using nearby teleporter)
+09/04/2025 - 14:02:57:  SUSPENDING 
+09/04/2025 - 14:02:57: TacticalMonitor152.24: player(#2)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:02:57: 152.24: player(#2):: 152.24: player(#2)::  SUSPENDING  SUSPENDING EngineerBuildEngineerMoveToBuild
+09/04/2025 - 14:02:57: 
+09/04/2025 - 14:02:57: 152.24: player(#2)::  STARTING UseTeleporterMainAction(
+09/04/2025 - 14:02:57:  UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild()  EngineerMoveToBuild ) ) )
+
+09/04/2025 - 14:02:57: 152.34: player(#2)::  ENDING 152.34: player(#2):: UseTeleporterUseTeleporter
+09/04/2025 - 14:02:57:  DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:57: 152.34: player(#2)::  RESUMING TacticalMonitor152.34: player(#2):: 
+09/04/2025 - 14:02:57:  RESUMING 
+09/04/2025 - 14:02:57: ScenarioMonitor152.34: player(#2):: EngineerBuild RESUMING 
+09/04/2025 - 14:02:57: 152.34: player(#2)::  RESUMING EngineerMoveToBuild
+09/04/2025 - 14:02:57: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:02:57: 152.52: player(#4)::  ENDING EngineerBuildSentryGunEngineerBuildSentryGun DONE, RESUME 
+09/04/2025 - 14:02:57: EngineerBuilding152.52: player(#4)::   (Sentry built)
+09/04/2025 - 14:02:57: 152.52: player(#4):: EngineerBuilding RESUMING 
+09/04/2025 - 14:02:57: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:57: 153.10: player(#3):: TacticalMonitor caused  to SUSPEND_FOR TacticalMonitorUseTeleporter153.10: player(#3)::   (Using nearby teleporter)
+09/04/2025 - 14:02:57:  SUSPENDING TacticalMonitor
+09/04/2025 - 14:02:57: 
+09/04/2025 - 14:02:57: 153.10: player(#3):: MainAction( SUSPENDING  UseTeleporter<<ScenarioMonitorTacticalMonitor(
+09/04/2025 - 14:02:57:  ScenarioMonitor(153.10: player(#3)::  EngineerBuild( SUSPENDING  EngineerBuilding EngineerBuild) 
+09/04/2025 - 14:02:57: ) 153.10: player(#3):: )  SUSPENDING )EngineerBuilding
+
+09/04/2025 - 14:02:57: 
+09/04/2025 - 14:02:57: 153.10: player(#3)::  STARTING UseTeleporter153.21: player(#3):: UseTeleporter ENDING 
+09/04/2025 - 14:02:57: 153.21: player(#3):: UseTeleporter DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:57: 153.21: player(#3):: 153.21: player(#3)::  RESUMING  RESUMING ScenarioMonitorTacticalMonitor
+09/04/2025 - 14:02:57: 
+09/04/2025 - 14:02:57: 153.21: player(#3)::  RESUMING EngineerBuild
+09/04/2025 - 14:02:57: EngineerBuilding153.21: player(#3):: 
+09/04/2025 - 14:02:57:  RESUMING MainAction( ScenarioMonitor( TacticalMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:58: 153.91: player(#2):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR 153.91: player(#2):: UseTeleporter SUSPENDING   (Using nearby teleporter)
+09/04/2025 - 14:02:58: TacticalMonitor
+09/04/2025 - 14:02:58:  SUSPENDING 153.91: player(#2):: ScenarioMonitor153.91: player(#2):: 
+09/04/2025 - 14:02:58:  SUSPENDING 
+09/04/2025 - 14:02:58: EngineerBuild153.91: player(#2)::  SUSPENDING EngineerMoveToBuild153.91: player(#2):: 
+09/04/2025 - 14:02:58:  STARTING UseTeleporter
+09/04/2025 - 14:02:58: MainAction( UseTeleporter<<TacticalMonitor()  ScenarioMonitor()  EngineerBuild()  EngineerMoveToBuild )
+
+09/04/2025 - 14:02:58:  ENDING 154.02: player(#2):: UseTeleporter
+09/04/2025 - 14:02:58: 154.02: player(#2)::  DONE, RESUME UseTeleporterTacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:58: 154.02: player(#2)::  RESUMING 154.02: player(#2):: TacticalMonitor RESUMING 
+09/04/2025 - 14:02:58: ScenarioMonitor
+09/04/2025 - 14:02:58:  RESUMING 154.02: player(#2):: EngineerBuild
+09/04/2025 - 14:02:58: 154.02: player(#2)::  RESUMING EngineerMoveToBuildMainAction(
+09/04/2025 - 14:02:58:  TacticalMonitor()  ScenarioMonitor()  EngineerBuild()  EngineerMoveToBuild )
+
+09/04/2025 - 14:02:59: 154.26: player(#3)::  caused TacticalMonitorTacticalMonitor to SUSPEND_FOR   (Using nearby teleporter)
+09/04/2025 - 14:02:59: UseTeleporter154.26: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:02:59: 154.26: player(#3)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:02:59: 154.26: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:02:59: 154.26: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:02:59: 154.26: player(#3)::  STARTING UseTeleporter
+09/04/2025 - 14:02:59: MainAction( UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:02:59:  ENDING 154.36: player(#3):: UseTeleporter
+09/04/2025 - 14:02:59: UseTeleporter154.36: player(#3)::  DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:02:59: 154.36: player(#3)::  RESUMING TacticalMonitor
+09/04/2025 - 14:02:59: 154.36: player(#3)::  RESUMING ScenarioMonitor154.36: player(#3):: 
+09/04/2025 - 14:02:59:  RESUMING EngineerBuild
+09/04/2025 - 14:02:59: 154.36: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:02:59: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:00: TacticalMonitor155.38: player(#2)::  caused  to SUSPEND_FOR TacticalMonitorUseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:03:00: 155.38: player(#2)::  SUSPENDING 
+09/04/2025 - 14:03:00: TacticalMonitor155.38: player(#2)::  SUSPENDING ScenarioMonitor155.38: player(#2):: 
+09/04/2025 - 14:03:00:  SUSPENDING 155.38: player(#2):: EngineerMoveToBuild SUSPENDING 
+09/04/2025 - 14:03:00: EngineerBuild155.38: player(#2):: 
+09/04/2025 - 14:03:00:  STARTING 
+09/04/2025 - 14:03:00: UseTeleporterMainAction( UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:03:00: 155.94: player(#3):: TacticalMonitor caused  to SUSPEND_FOR TacticalMonitorUseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:03:00: 155.94: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:03:00: 155.94: player(#3):: ScenarioMonitor SUSPENDING 
+09/04/2025 - 14:03:00:  SUSPENDING 155.94: player(#3):: EngineerBuild
+09/04/2025 - 14:03:00: 155.94: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:03:00: 155.94: player(#3)::  STARTING UseTeleporter
+09/04/2025 - 14:03:00: MainAction( UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:00: 156.04: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:03:00: 156.04: player(#3):: UseTeleporterTacticalMonitor DONE, RESUME   (Teleporter is not available)
+09/04/2025 - 14:03:00: EngineerBuilding156.04: player(#3):: 
+09/04/2025 - 14:03:00:  RESUMING MainAction(TacticalMonitor TacticalMonitor(
+09/04/2025 - 14:03:00:  ScenarioMonitor(156.04: player(#3)::  EngineerBuild( RESUMING  EngineerBuilding ScenarioMonitor) 
+09/04/2025 - 14:03:00: ) 156.04: player(#3):: )  RESUMING )EngineerBuild
+
+09/04/2025 - 14:03:00: 
+09/04/2025 - 14:03:00: 156.04: player(#3)::  RESUMING 157.17: player(#2)::  ENDING UseTeleporter
+09/04/2025 - 14:03:01: 157.17: player(#2):: TacticalMonitorUseTeleporter  (Successful teleport)
+09/04/2025 - 14:03:01:  DONE, RESUME 157.17: player(#2)::  RESUMING TacticalMonitor157.17: player(#2):: 
+09/04/2025 - 14:03:01:  RESUMING ScenarioMonitor157.17: player(#2):: 
+09/04/2025 - 14:03:01:  RESUMING 
+09/04/2025 - 14:03:01: EngineerBuild157.17: player(#2)::  RESUMING MainAction(EngineerMoveToBuild TacticalMonitor(
+09/04/2025 - 14:03:01:  ScenarioMonitor( EngineerMoveToBuild  EngineerBuild() ) ) )
+
+09/04/2025 - 14:03:02: 157.51: player(#3):: TacticalMonitorTacticalMonitor caused  to SUSPEND_FOR  SUSPENDING UseTeleporterTacticalMonitor  (Using nearby teleporter)
+09/04/2025 - 14:03:02: 
+09/04/2025 - 14:03:02: 157.51: player(#3):: 157.51: player(#3)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:03:02: 157.51: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:03:02: 157.51: player(#3):: 
+09/04/2025 - 14:03:02:  SUSPENDING 157.51: player(#3):: EngineerBuilding STARTING UseTeleporter
+09/04/2025 - 14:03:02: TacticalMonitor(MainAction( ScenarioMonitor( UseTeleporter<< EngineerBuild()  EngineerBuilding )) 
+
+09/04/2025 - 14:03:02: )  ENDING 157.62: player(#3):: UseTeleporter
+09/04/2025 - 14:03:02: 157.62: player(#3)::  DONE, RESUME UseTeleporterTacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:03:02: 157.62: player(#3)::  RESUMING 157.62: player(#3):: TacticalMonitor RESUMING 
+09/04/2025 - 14:03:02: ScenarioMonitor
+09/04/2025 - 14:03:02:  RESUMING 157.62: player(#3):: EngineerBuild
+09/04/2025 - 14:03:02: 157.62: player(#3):: MainAction( RESUMING  TacticalMonitor(EngineerBuilding ScenarioMonitor(
+09/04/2025 - 14:03:02:  EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:04: 159.35: player(#4):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR GetAmmo  (Grabbing nearby ammo)
+09/04/2025 - 14:03:04: 159.35: player(#4)::  SUSPENDING TacticalMonitorScenarioMonitor
+09/04/2025 - 14:03:04: 
+09/04/2025 - 14:03:04: 159.35: player(#4):: 159.35: player(#4)::  SUSPENDING  SUSPENDING 
+09/04/2025 - 14:03:04: EngineerBuild159.35: player(#4):: 
+09/04/2025 - 14:03:04:  STARTING 159.35: player(#4):: GetAmmo SUSPENDING 
+09/04/2025 - 14:03:04: EngineerBuildingMainAction( GetAmmo<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:04: 159.40: player(#3):: TacticalMonitor caused  to SUSPEND_FOR TacticalMonitorUseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:03:04: 159.40: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:03:04: 159.40: player(#3)::  SUSPENDING 159.40: player(#3):: ScenarioMonitor SUSPENDING 
+09/04/2025 - 14:03:04: EngineerBuildUseTeleporter
+09/04/2025 - 14:03:04: 
+09/04/2025 - 14:03:04: 159.40: player(#3):: MainAction( SUSPENDING  UseTeleporter<<EngineerBuildingTacticalMonitor(
+09/04/2025 - 14:03:04:  ScenarioMonitor(159.40: player(#3)::  EngineerBuild( STARTING  EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:04: 159.51: player(#3):: UseTeleporter ENDING 
+09/04/2025 - 14:03:04: 159.51: player(#3):: UseTeleporter DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:03:04: 159.51: player(#3)::  RESUMING 
+09/04/2025 - 14:03:04: TacticalMonitor159.51: player(#3)::  RESUMING ScenarioMonitor RESUMING 
+09/04/2025 - 14:03:04: EngineerBuild159.51: player(#3):: 
+09/04/2025 - 14:03:04: 159.51: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:03:04: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:04: 159.97: player(#4):: GetAmmo ENDING 
+09/04/2025 - 14:03:04: 159.97: player(#4)::  DONE, RESUME GetAmmoTacticalMonitor  (Ammo I was going for has been taken)
+09/04/2025 - 14:03:04: 159.97: player(#4)::  RESUMING 159.97: player(#4):: TacticalMonitor RESUMING 
+09/04/2025 - 14:03:04: EngineerBuild159.97: player(#4):: 
+09/04/2025 - 14:03:04:  RESUMING 159.97: player(#4):: ScenarioMonitor RESUMING 
+09/04/2025 - 14:03:04: EngineerBuilding
+09/04/2025 - 14:03:04: MainAction( TacticalMonitor( ScenarioMonitor()  EngineerBuild()  EngineerBuilding )) 
+
+09/04/2025 - 14:03:04: 160.08: player(#4):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR GetAmmo  (Grabbing nearby ammo)
+09/04/2025 - 14:03:04: 160.08: player(#4)::  SUSPENDING 
+09/04/2025 - 14:03:04: TacticalMonitor160.08: player(#4):: ScenarioMonitor SUSPENDING 
+09/04/2025 - 14:03:04: 160.08: player(#4)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:03:04: 160.08: player(#4):: EngineerBuilding SUSPENDING 
+09/04/2025 - 14:03:04: 160.08: player(#4)::  STARTING GetAmmo
+09/04/2025 - 14:03:04: MainAction( ScenarioMonitor( GetAmmo<< EngineerBuild(TacticalMonitor( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:05: 160.66: player(#3):: TacticalMonitorTacticalMonitor caused  to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:03:05:  SUSPENDING 160.66: player(#3):: TacticalMonitor
+09/04/2025 - 14:03:05: 160.66: player(#3):: 160.66: player(#3)::  STARTING  SUSPENDING UseTeleporterScenarioMonitor
+09/04/2025 - 14:03:05: 
+09/04/2025 - 14:03:05: MainAction(160.66: player(#3)::  UseTeleporter<< SUSPENDING TacticalMonitor(EngineerBuild ScenarioMonitor(
+09/04/2025 - 14:03:05:  EngineerBuild(160.66: player(#3)::  EngineerBuilding  SUSPENDING ) EngineerBuilding) 
+09/04/2025 - 14:03:05: ) )
+
+09/04/2025 - 14:03:05: 160.77: player(#3)::  ENDING UseTeleporter160.77: player(#3):: 
+09/04/2025 - 14:03:05: UseTeleporterTacticalMonitor DONE, RESUME   (Teleporter is not available)
+09/04/2025 - 14:03:05: 160.77: player(#3)::  RESUMING 160.77: player(#3):: TacticalMonitor RESUMING 
+09/04/2025 - 14:03:05: ScenarioMonitorEngineerBuild
+09/04/2025 - 14:03:05: 
+09/04/2025 - 14:03:05: 160.77: player(#3):: 160.77: player(#3)::  RESUMING  RESUMING MainAction(EngineerBuilding TacticalMonitor(
+09/04/2025 - 14:03:05:  ScenarioMonitor( EngineerBuilding  EngineerBuild() ) )) 
+
+09/04/2025 - 14:03:06: TacticalMonitor161.82: player(#3)::  caused TacticalMonitor161.82: player(#3)::  to SUSPEND_FOR  SUSPENDING UseTeleporterTacticalMonitor  (Using nearby teleporter)
+09/04/2025 - 14:03:06: 
+09/04/2025 - 14:03:06: 161.82: player(#3)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:03:06:  SUSPENDING 161.82: player(#3):: EngineerBuild
+09/04/2025 - 14:03:06: 161.82: player(#3):: 161.82: player(#3)::  STARTING  SUSPENDING UseTeleporterEngineerBuilding
+09/04/2025 - 14:03:06: 
+09/04/2025 - 14:03:06: MainAction( UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:06: 161.93: player(#3):: UseTeleporter ENDING 
+09/04/2025 - 14:03:06: UseTeleporter161.93: player(#3)::  DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:03:06:  RESUMING 161.93: player(#3):: TacticalMonitor
+09/04/2025 - 14:03:06: 161.93: player(#3)::  RESUMING ScenarioMonitor
+09/04/2025 - 14:03:06: 161.93: player(#3)::  RESUMING MainAction(EngineerBuild TacticalMonitor(
+09/04/2025 - 14:03:06:  ScenarioMonitor(161.93: player(#3)::  EngineerBuild( RESUMING  EngineerBuilding EngineerBuilding) 
+09/04/2025 - 14:03:06: ) ) )
+
+09/04/2025 - 14:03:07: MainAction reponded to EVENT OnKilled with CHANGE_TO Dead I died!
+09/04/2025 - 14:03:07: 162.27: player(#4):: Kaboom! killed 0xDEADBEEF with obj_sentrygun3.
+09/04/2025 - 14:03:07: MainAction162.29: player(#4)::  CHANGE_TO 162.29: player(#4):: Dead ENDING   (I died!)
+09/04/2025 - 14:03:07: GetAmmo162.29: player(#4):: 
+09/04/2025 - 14:03:07:  ENDING 162.29: player(#4):: MainAction ENDING 
+09/04/2025 - 14:03:07: TacticalMonitor
+09/04/2025 - 14:03:07: 162.29: player(#4):: 162.29: player(#4)::  ENDING  ENDING ScenarioMonitorEngineerBuild
+09/04/2025 - 14:03:07: 
+09/04/2025 - 14:03:07: 162.29: player(#4)::  ENDING EngineerBuilding
+09/04/2025 - 14:03:07:  STARTING 162.29: player(#4):: Dead
+09/04/2025 - 14:03:07: Dead
+
+09/04/2025 - 14:03:08: TacticalMonitor163.26: player(#2)::  caused TacticalMonitor to SUSPEND_FOR RetreatToCover  (Backing off)
+09/04/2025 - 14:03:08: 163.26: player(#2)::  SUSPENDING TacticalMonitor163.26: player(#2):: 
+09/04/2025 - 14:03:08:  SUSPENDING 
+09/04/2025 - 14:03:08: ScenarioMonitor163.26: player(#2)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:03:08: 163.26: player(#2)::  SUSPENDING EngineerMoveToBuild
+09/04/2025 - 14:03:08: 163.26: player(#2)::  STARTING RetreatToCover
+09/04/2025 - 14:03:08: MainAction( RetreatToCover<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:03:08: TacticalMonitor163.29: player(#3)::  caused UseTeleporterTacticalMonitor  (Using nearby teleporter)
+09/04/2025 - 14:03:08:  to SUSPEND_FOR 163.29: player(#3)::  SUSPENDING TacticalMonitor163.29: player(#3):: 
+09/04/2025 - 14:03:08:  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:03:08: 163.29: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:03:08: 163.29: player(#3)::  SUSPENDING EngineerBuilding
+09/04/2025 - 14:03:08: 163.29: player(#3)::  STARTING  UseTeleporter<<UseTeleporterTacticalMonitor(
+09/04/2025 - 14:03:08:  ScenarioMonitor(MainAction( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:08: 163.39: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:03:08: 163.39: player(#3)::  DONE, RESUME UseTeleporterTacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:03:08: 163.39: player(#3):: 163.39: player(#3)::  RESUMING  RESUMING ScenarioMonitorTacticalMonitor
+09/04/2025 - 14:03:08: 
+09/04/2025 - 14:03:08: 163.39: player(#3)::  RESUMING  ScenarioMonitor(EngineerBuild EngineerBuild(
+09/04/2025 - 14:03:08:  EngineerBuilding 163.39: player(#3):: )  RESUMING ) EngineerBuilding) 
+09/04/2025 - 14:03:08: )MainAction(
+
+09/04/2025 - 14:03:08:  TacticalMonitor(164.76: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:03:09: 164.76: player(#3)::  SUSPENDING TacticalMonitor
+09/04/2025 - 14:03:09: 164.76: player(#3)::  SUSPENDING ScenarioMonitor164.76: player(#3):: 
+09/04/2025 - 14:03:09:  SUSPENDING EngineerBuild164.76: player(#3):: 
+09/04/2025 - 14:03:09:  SUSPENDING EngineerBuilding
+09/04/2025 - 14:03:09: 164.76: player(#3)::  STARTING  EngineerBuilding UseTeleporter) 
+09/04/2025 - 14:03:09: ) MainAction()  UseTeleporter<<)TacticalMonitor(
+
+09/04/2025 - 14:03:09:  ScenarioMonitor( EngineerBuild(164.79: player(#2):: MainAction reponded to EVENT OnKilled with CHANGE_TO Dead I died!
+09/04/2025 - 14:03:09: Kaboom! killed Mann Co. with obj_sentrygun3.
+09/04/2025 - 14:03:09: MainAction164.83: player(#2)::  CHANGE_TO RetreatToCoverDead
+09/04/2025 - 14:03:09:   (I died!)
+09/04/2025 - 14:03:09: 164.83: player(#2):: 164.83: player(#2)::  ENDING  ENDING TacticalMonitorMainAction
+09/04/2025 - 14:03:09: 
+09/04/2025 - 14:03:09: 164.83: player(#2):: 164.83: player(#2)::  ENDING  ENDING ScenarioMonitor
+09/04/2025 - 14:03:09:  ENDING 164.83: player(#2):: EngineerBuild
+09/04/2025 - 14:03:09: 164.83: player(#2):: 
+09/04/2025 - 14:03:09:  ENDING 164.83: player(#2):: EngineerMoveToBuild STARTING 
+09/04/2025 - 14:03:09: DeadDead
+
+09/04/2025 - 14:03:09: 164.86: player(#3):: UseTeleporter ENDING 
+09/04/2025 - 14:03:09: 164.86: player(#3)::   (Teleporter is not available)
+09/04/2025 - 14:03:09: UseTeleporter164.86: player(#3)::  DONE, RESUME  RESUMING TacticalMonitorTacticalMonitor
+09/04/2025 - 14:03:09:  RESUMING 164.86: player(#3):: ScenarioMonitor
+09/04/2025 - 14:03:09: 164.86: player(#3)::  RESUMING EngineerBuild164.86: player(#3):: 
+09/04/2025 - 14:03:09:  RESUMING EngineerBuilding
+09/04/2025 - 14:03:09: MainAction()  TacticalMonitor()  ScenarioMonitor() EngineerBuild(
+
+09/04/2025 - 14:03:09:  EngineerBuilding ) TacticalMonitor166.23: player(#3)::  caused TacticalMonitor to SUSPEND_FOR UseTeleporter166.23: player(#3)::   (Using nearby teleporter)
+09/04/2025 - 14:03:11:  SUSPENDING TacticalMonitor
+09/04/2025 - 14:03:11: 166.23: player(#3):: 
+09/04/2025 - 14:03:11:  SUSPENDING 166.23: player(#3):: ScenarioMonitor STARTING 
+09/04/2025 - 14:03:11: UseTeleporter166.23: player(#3):: 
+09/04/2025 - 14:03:11:  SUSPENDING MainAction(EngineerBuild UseTeleporter<<
+09/04/2025 - 14:03:11: TacticalMonitor(166.23: player(#3)::  ScenarioMonitor( SUSPENDING  EngineerBuild(EngineerBuilding EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:11: 166.33: player(#3):: UseTeleporter ENDING 
+09/04/2025 - 14:03:11: 166.33: player(#3):: UseTeleporterTacticalMonitor DONE, RESUME   (Teleporter is not available)
+09/04/2025 - 14:03:11: 166.33: player(#3):: TacticalMonitor RESUMING 
+09/04/2025 - 14:03:11: 166.33: player(#3)::  RESUMING ScenarioMonitor166.33: player(#3):: 
+09/04/2025 - 14:03:11:  RESUMING MainAction(EngineerBuild TacticalMonitor(
+09/04/2025 - 14:03:11:  ScenarioMonitor(166.33: player(#3)::  EngineerBuild( RESUMING  EngineerBuilding EngineerBuilding) 
+09/04/2025 - 14:03:11: ) ) )
+
+09/04/2025 - 14:03:12: TacticalMonitor167.91: player(#3)::  caused TacticalMonitor to SUSPEND_FOR   (Using nearby teleporter)
+09/04/2025 - 14:03:12: UseTeleporter167.91: player(#3):: TacticalMonitor SUSPENDING 
+09/04/2025 - 14:03:12: 167.91: player(#3)::  SUSPENDING  SUSPENDING EngineerBuildingScenarioMonitor
+09/04/2025 - 14:03:12: 
+09/04/2025 - 14:03:12: 167.91: player(#3):: 167.91: player(#3)::  STARTING  SUSPENDING UseTeleporterEngineerBuild
+09/04/2025 - 14:03:12: 
+09/04/2025 - 14:03:12: MainAction(167.91: player(#3)::  UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:14:  ENDING 169.27: player(#3):: UseTeleporter
+09/04/2025 - 14:03:14: 169.27: player(#3):: UseTeleporter DONE, RESUME TacticalMonitor169.27: player(#3)::   (Successful teleport)
+09/04/2025 - 14:03:14:  RESUMING TacticalMonitor169.27: player(#3):: 
+09/04/2025 - 14:03:14:  RESUMING ScenarioMonitor
+09/04/2025 - 14:03:14: 169.27: player(#3)::  EngineerBuild( RESUMING  EngineerBuilding EngineerBuild) 
+09/04/2025 - 14:03:14: ) 169.27: player(#3):: )  RESUMING )EngineerBuilding
+
+09/04/2025 - 14:03:14: 
+09/04/2025 - 14:03:14: MainAction( TacticalMonitor( ScenarioMonitor(169.80: player(#3):: TacticalMonitorTacticalMonitor to SUSPEND_FOR  caused UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:03:14:  SUSPENDING 169.80: player(#3):: ScenarioMonitor SUSPENDING 
+09/04/2025 - 14:03:14: TacticalMonitor169.80: player(#3):: 
+09/04/2025 - 14:03:14:  SUSPENDING 169.80: player(#3):: EngineerBuild
+09/04/2025 - 14:03:14: 
+09/04/2025 - 14:03:14: 169.80: player(#3):: 169.80: player(#3)::  SUSPENDING  STARTING EngineerBuildingUseTeleporter
+09/04/2025 - 14:03:14: MainAction( UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:14: 169.90: player(#3):: 169.90: player(#3)::  ENDING UseTeleporterUseTeleporter DONE, RESUME 
+09/04/2025 - 14:03:14: TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:03:14: 169.90: player(#3)::  RESUMING TacticalMonitor169.90: player(#3):: 
+09/04/2025 - 14:03:14:  RESUMING ScenarioMonitor
+09/04/2025 - 14:03:14: 169.90: player(#3)::  RESUMING EngineerBuild
+09/04/2025 - 14:03:14: 169.90: player(#3)::  RESUMING EngineerBuilding
+09/04/2025 - 14:03:14: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:15: 170.96: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR UseTeleporter  (Using nearby teleporter)
+09/04/2025 - 14:03:15: 170.96: player(#3):: 170.96: player(#3)::  SUSPENDING  SUSPENDING TacticalMonitorScenarioMonitor
+09/04/2025 - 14:03:15: 
+09/04/2025 - 14:03:15: 170.96: player(#3):: 170.96: player(#3)::  SUSPENDING  SUSPENDING EngineerBuildEngineerBuilding
+09/04/2025 - 14:03:15: 
+09/04/2025 - 14:03:15: 170.96: player(#3):: MainAction( STARTING  UseTeleporter<<UseTeleporterTacticalMonitor(
+09/04/2025 - 14:03:15:  ScenarioMonitor( EngineerBuilding  EngineerBuild() ) ) 
+
+09/04/2025 - 14:03:15: )171.06: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:03:15: 171.06: player(#3):: UseTeleporterTacticalMonitor DONE, RESUME   (Teleporter is not available)
+09/04/2025 - 14:03:15: 171.06: player(#3):: 171.06: player(#3)::  RESUMING  RESUMING ScenarioMonitorTacticalMonitor
+09/04/2025 - 14:03:15: 
+09/04/2025 - 14:03:15: 171.06: player(#3)::  RESUMING MainAction(EngineerBuild TacticalMonitor(
+09/04/2025 - 14:03:15:  ScenarioMonitor(171.06: player(#3)::  EngineerBuild( RESUMING  EngineerBuilding EngineerBuilding) 
+09/04/2025 - 14:03:15: ) ) )
+
+09/04/2025 - 14:03:17: TacticalMonitor172.85: player(#3)::  caused TacticalMonitor172.85: player(#3)::  to SUSPEND_FOR  SUSPENDING UseTeleporterTacticalMonitor  (Using nearby teleporter)
+09/04/2025 - 14:03:17: 
+09/04/2025 - 14:03:17: ScenarioMonitor172.85: player(#3):: 
+09/04/2025 - 14:03:17:  SUSPENDING 172.85: player(#3)::  SUSPENDING EngineerBuild
+09/04/2025 - 14:03:17: 172.85: player(#3):: EngineerBuilding SUSPENDING 
+09/04/2025 - 14:03:17: 172.85: player(#3)::  STARTING UseTeleporter
+09/04/2025 - 14:03:17: MainAction( UseTeleporter<<TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:17:  ENDING 172.95: player(#3):: UseTeleporter
+09/04/2025 - 14:03:17: 172.95: player(#3)::   (Teleporter is not available)
+09/04/2025 - 14:03:17: UseTeleporter172.95: player(#3)::  DONE, RESUME  RESUMING TacticalMonitorTacticalMonitor
+09/04/2025 - 14:03:17: 172.95: player(#3)::  RESUMING ScenarioMonitor
+09/04/2025 - 14:03:17: 172.95: player(#3):: EngineerBuild RESUMING 
+09/04/2025 - 14:03:17: 172.95: player(#3)::  RESUMING EngineerBuildingMainAction(
+09/04/2025 - 14:03:17:  TacticalMonitor()  ScenarioMonitor()  EngineerBuild() EngineerBuilding 
+
+09/04/2025 - 14:03:17: ) 173.11: player(#4)::  ENDING Dead
+09/04/2025 - 14:03:17: 173.11: player(#4):: 173.11: player(#4):: START START TacticalMonitorMainAction  (Starting child Action)
+09/04/2025 - 14:03:17:   (Starting Action)
+09/04/2025 - 14:03:17: 173.11: player(#4):: 173.11: player(#4)::  STARTING  STARTING TacticalMonitorMainAction
+09/04/2025 - 14:03:17: 
+09/04/2025 - 14:03:17: 173.11: player(#4):: START ScenarioMonitor173.11: player(#4)::   (Starting child Action)
+09/04/2025 - 14:03:17:  STARTING 173.11: player(#4):: ScenarioMonitorSTART 
+09/04/2025 - 14:03:17: EngineerBuild  (Starting child Action)
+09/04/2025 - 14:03:17: 173.11: player(#4):: 173.11: player(#4)::  STARTING START EngineerBuildEngineerBuildTeleportEntrance
+09/04/2025 - 14:03:17:   (Starting child Action)
+09/04/2025 - 14:03:17: 173.11: player(#4)::  STARTING EngineerBuildTeleportEntranceMainAction(
+09/04/2025 - 14:03:17:  TacticalMonitor( TacticalMonitor( ScenarioMonitor( ScenarioMonitor( EngineerBuild( EngineerBuild( EngineerBuildTeleportEntrance  EngineerBuildTeleportEntrance ) ) ) ) ) ) ))
+
+09/04/2025 - 14:03:17: 
+
+09/04/2025 - 14:03:17: MainAction(MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuild( EngineerBuildTeleportEntrance  EngineerBuildTeleportEntrance ) ) ) ) ) ) ))
+
+09/04/2025 - 14:03:17: 
+
+09/04/2025 - 14:03:17: MainAction(MainAction( TacticalMonitor( TacticalMonitor( ScenarioMonitor( ScenarioMonitor( EngineerBuild( EngineerBuildTeleportEntrance ) ) ) )
+
+09/04/2025 - 14:03:18: EngineerBuildTeleportEntrance173.22: player(#4)::  CHANGE_TO EngineerMoveToBuild  (Teleport entrance built)
+09/04/2025 - 14:03:18: 173.22: player(#4)::  ENDING EngineerBuildTeleportEntrance
+09/04/2025 - 14:03:18: 173.22: player(#4)::  STARTING EngineerMoveToBuild
+09/04/2025 - 14:03:18: [TF-ENG seam] Spacing reject: dist=239.4 < min=400.0 at (638,-1975,129)
+09/04/2025 - 14:03:18: [TF-ENG seam] Spacing reject: dist=372.9 < min=400.0 at (712,-1575,129)
+09/04/2025 - 14:03:18: [TF-ENG seam] Spacing reject: dist=238.3 < min=400.0 at (675,-1775,129)
+09/04/2025 - 14:03:18: [TF-ENG seam] Height bias: preferred=194, others=109 (after range/spacing rejects: range=0, spacing=23)
+09/04/2025 - 14:03:18: [TF-ENG seam] CollectBuildAreas: kept_areas=303 total_surface=1614466
+09/04/2025 - 14:03:18: [TF-ENG seam] SelectBuildLocation: selected area center=(562,-1512,136) random_point=(544,-1453,132)
+09/04/2025 - 14:03:18: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:03:18:   (Going back to my existing sentry nest)
+09/04/2025 - 14:03:18: 173.32: player(#4):: 173.32: player(#4):: EngineerMoveToBuild ENDING  CHANGE_TO EngineerMoveToBuildEngineerBuilding
+09/04/2025 - 14:03:18: 
+09/04/2025 - 14:03:18: 173.32: player(#4):: MainAction( STARTING  TacticalMonitor(EngineerBuilding ScenarioMonitor()  EngineerBuild() EngineerBuilding 
+
+09/04/2025 - 14:03:18: ) ) 174.10: player(#3):: TacticalMonitor caused TacticalMonitor to SUSPEND_FOR UseTeleporter174.10: player(#3)::   (Using nearby teleporter)
+09/04/2025 - 14:03:18:  SUSPENDING TacticalMonitor
+09/04/2025 - 14:03:18: 174.10: player(#3)::  SUSPENDING ScenarioMonitor
+09/04/2025 - 14:03:18:  SUSPENDING 174.10: player(#3):: EngineerBuild
+09/04/2025 - 14:03:18: 174.10: player(#3):: EngineerBuilding SUSPENDING 
+09/04/2025 - 14:03:18: 174.10: player(#3):: UseTeleporter STARTING 
+09/04/2025 - 14:03:18:  UseTeleporter<<MainAction(TacticalMonitor( ScenarioMonitor( EngineerBuilding  EngineerBuild() ) ) )
+
+09/04/2025 - 14:03:18: 174.21: player(#3)::  ENDING UseTeleporter174.21: player(#3):: 
+09/04/2025 - 14:03:18: UseTeleporter DONE, RESUME TacticalMonitor  (Teleporter is not available)
+09/04/2025 - 14:03:18: 174.21: player(#3):: 
+09/04/2025 - 14:03:18:  RESUMING 174.21: player(#3):: TacticalMonitor RESUMING ScenarioMonitor174.21: player(#3):: 
+09/04/2025 - 14:03:18:  RESUMING 
+09/04/2025 - 14:03:18: EngineerBuild174.21: player(#3):: EngineerBuilding RESUMING 
+09/04/2025 - 14:03:18: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild()  EngineerBuilding ) ) )
+
+09/04/2025 - 14:03:20: 175.57: player(#3)::  caused TacticalMonitorTacticalMonitor to SUSPEND_FOR   (Using nearby teleporter)
+09/04/2025 - 14:03:20: UseTeleporter175.57: player(#3)::  SUSPENDING 
+09/04/2025 - 14:03:20: TacticalMonitor175.57: player(#3)::  SUSPENDING 
+09/04/2025 - 14:03:20: ScenarioMonitor175.57: player(#3)::  SUSPENDING EngineerBuildMainAction(
+09/04/2025 - 14:03:20:  UseTeleporter<<175.57: player(#3):: TacticalMonitor( SUSPENDING  ScenarioMonitor(EngineerBuilding EngineerBuild(
+09/04/2025 - 14:03:20:  EngineerBuilding 175.57: player(#3):: )  STARTING ) UseTeleporter) 
+09/04/2025 - 14:03:20: )
+
+09/04/2025 - 14:03:20: 175.68: player(#3)::  ENDING UseTeleporter
+09/04/2025 - 14:03:20: 175.68: player(#3):: UseTeleporterTacticalMonitor DONE, RESUME   (Teleporter is not available)
+09/04/2025 - 14:03:20: 175.68: player(#3)::  RESUMING 
+09/04/2025 - 14:03:20: TacticalMonitor175.68: player(#3)::  RESUMING ScenarioMonitor
+09/04/2025 - 14:03:20: 175.68: player(#3):: EngineerBuild RESUMING 
+09/04/2025 - 14:03:20: 175.68: player(#3)::  RESUMING 
+09/04/2025 - 14:03:20: EngineerBuildingMainAction( EngineerBuilding  TacticalMonitor()  ScenarioMonitor()  EngineerBuild() )
+
+09/04/2025 - 14:03:21:  ENDING 177.12: player(#2):: Dead
+09/04/2025 - 14:03:21:   (Starting Action)
+09/04/2025 - 14:03:21: 177.12: player(#2):: 177.12: player(#2):: START  STARTING MainActionMainAction
+09/04/2025 - 14:03:21: START 177.12: player(#2):: TacticalMonitor177.12: player(#2)::   (Starting child Action)
+09/04/2025 - 14:03:21:  STARTING TacticalMonitor
+09/04/2025 - 14:03:21: 177.12: player(#2)::   (Starting child Action)
+09/04/2025 - 14:03:21: START 177.12: player(#2):: ScenarioMonitor STARTING   (Starting child Action)
+09/04/2025 - 14:03:21: EngineerBuild177.12: player(#2):: 
+09/04/2025 - 14:03:21:  STARTING 177.12: player(#2):: ScenarioMonitorSTART 
+09/04/2025 - 14:03:21: EngineerBuildTeleportEntrance177.12: player(#2)::   (Starting child Action)
+09/04/2025 - 14:03:21: START 177.12: player(#2):: EngineerBuild STARTING EngineerBuildTeleportEntranceMainAction(
+09/04/2025 - 14:03:21:  TacticalMonitor( ScenarioMonitor( EngineerBuild(MainAction( EngineerBuildTeleportEntrance  TacticalMonitor()  ScenarioMonitor()  EngineerBuild()  EngineerBuildTeleportEntrance )) 
+
+09/04/2025 - 14:03:21: ) )  ScenarioMonitor() EngineerBuild(
+
+09/04/2025 - 14:03:21:  EngineerBuildTeleportEntrance MainAction()  TacticalMonitor()  ScenarioMonitor()  EngineerBuild() EngineerBuildTeleportEntrance ) 
+
+09/04/2025 - 14:03:21: ) MainAction()  TacticalMonitor() ScenarioMonitor(
+
+09/04/2025 - 14:03:21:  EngineerBuild(MainAction( EngineerBuildTeleportEntrance  TacticalMonitor() ) ) )
+
+09/04/2025 - 14:03:22: 177.22: player(#2):: EngineerBuildTeleportEntranceEngineerBuildTeleportEntrance
+09/04/2025 - 14:03:22:  CHANGE_TO 177.22: player(#2):: EngineerMoveToBuild STARTING   (Teleport entrance built)
+09/04/2025 - 14:03:22: EngineerMoveToBuild177.22: player(#2):: 
+09/04/2025 - 14:03:22:  ENDING [TF-ENG seam] Spacing reject: dist=239.4 < min=400.0 at (638,-1975,129)
+09/04/2025 - 14:03:22: [TF-ENG seam] Spacing reject: dist=372.9 < min=400.0 at (712,-1575,129)
+09/04/2025 - 14:03:22: [TF-ENG seam] Spacing reject: dist=238.3 < min=400.0 at (675,-1775,129)
+09/04/2025 - 14:03:22: [TF-ENG seam] Height bias: preferred=194, others=109 (after range/spacing rejects: range=0, spacing=23)
+09/04/2025 - 14:03:22: [TF-ENG seam] CollectBuildAreas: kept_areas=303 total_surface=1614466
+09/04/2025 - 14:03:22: [TF-ENG seam] SelectBuildLocation: selected area center=(2400,-1425,369) random_point=(2378,-1431,369)
+09/04/2025 - 14:03:22: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerMoveToBuild ) ) ) )
+
+09/04/2025 - 14:03:22: 177.68: player(#3):: TacticalMonitorTacticalMonitor caused  to SUSPEND_FOR  SUSPENDING UseTeleporterTacticalMonitor  (Using nearby teleporter)
+09/04/2025 - 14:03:22: 
+09/04/2025 - 14:03:22: 177.68: player(#3):: 177.68: player(#3):: 177.68: player(#3)::  SUSPENDING  SUSPENDING ScenarioMonitorEngineerBuild
+09/04/2025 - 14:03:22: 
+09/04/2025 - 14:03:22: 177.68: player(#3)::  SUSPENDING EngineerBuilding STARTING 
+09/04/2025 - 14:03:22: UseTeleporter177.68: player(#3):: 
+09/04/2025 - 14:03:22: MainAction(TacticalMonitor( UseTeleporter<< ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) )
+
+09/04/2025 - 14:03:22: 177.78: player(#3)::  ENDING 
+09/04/2025 - 14:03:22: UseTeleporter177.78: player(#3):: UseTeleporter DONE, RESUME TacticalMonitor177.78: player(#3)::   (Teleporter is not available)
+09/04/2025 - 14:03:22:  RESUMING 
+09/04/2025 - 14:03:22: TacticalMonitor177.78: player(#3):: 
+09/04/2025 - 14:03:22:  RESUMING 177.78: player(#3):: EngineerBuild RESUMING 
+09/04/2025 - 14:03:22: ScenarioMonitor177.78: player(#3)::  RESUMING 
+
+09/04/2025 - 14:03:22: EngineerBuilding
+09/04/2025 - 14:03:22: MainAction( TacticalMonitor( ScenarioMonitor( EngineerBuild( EngineerBuilding ) ) ) ) 0:Stopped sound player/footsteps/wood1.wav
+09/04/2025 - 14:03:23:  1:Stopped sound player/footsteps/concrete1.wav
+09/04/2025 - 14:03:23:  2:Stopped sound weapons/sentry_scan.wav
+09/04/2025 - 14:03:23:  3:Stopped sound weapons/wrench_swing.wav
+09/04/2025 - 14:03:23:  4:Stopped sound weapons/dispenser_heal.wav
+09/04/2025 - 14:03:23:  5:Stopped sound weapons/sentry_scan3.wav
+09/04/2025 - 14:03:23:  6:Stopped sound weapons/sentry_scan3.wav
+09/04/2025 - 14:03:23:  7:Stopped sound weapons/dispenser_heal.wav
+09/04/2025 - 14:03:23:  8:Stopped sound weapons/teleporter_spin.wav
+09/04/2025 - 14:03:23:  9:Stopped sound weapons/teleporter_spin.wav
+09/04/2025 - 14:03:23: 10:Stopped sound weapons/wrench_swing.wav
+09/04/2025 - 14:03:23: 11:Stopped sound weapons/teleporter_spin.wav
+09/04/2025 - 14:03:23: 12:Stopped sound player/footsteps/dirt3.wav
+09/04/2025 - 14:03:23: Queued Material System: DISABLED!
+09/04/2025 - 14:03:23: 178.39: player(#2)::  ENDING MainAction
+09/04/2025 - 14:03:23: 178.39: player(#2)::  ENDING TacticalMonitor
+09/04/2025 - 14:03:23: 178.39: player(#2)::  ENDING ScenarioMonitor
+09/04/2025 - 14:03:23: 178.39: player(#2)::  ENDING EngineerBuild
+09/04/2025 - 14:03:23: 178.39: player(#2)::  ENDING EngineerMoveToBuild
+09/04/2025 - 14:03:23: 178.39: player(#3)::  ENDING MainAction
+09/04/2025 - 14:03:23: 178.39: player(#3)::  ENDING TacticalMonitor
+09/04/2025 - 14:03:23: 178.39: player(#3)::  ENDING ScenarioMonitor
+09/04/2025 - 14:03:23: 178.39: player(#3)::  ENDING EngineerBuild
+09/04/2025 - 14:03:23: 178.39: player(#3)::  ENDING EngineerBuilding
+09/04/2025 - 14:03:23: 178.39: player(#4)::  ENDING MainAction
+09/04/2025 - 14:03:23: 178.39: player(#4)::  ENDING TacticalMonitor
+09/04/2025 - 14:03:23: 178.39: player(#4)::  ENDING ScenarioMonitor
+09/04/2025 - 14:03:23: 178.39: player(#4)::  ENDING EngineerBuild
+09/04/2025 - 14:03:23: 178.39: player(#4)::  ENDING EngineerBuilding
+09/04/2025 - 14:03:23: 178.39: player(#5)::  ENDING MainAction
+09/04/2025 - 14:03:23: 178.39: player(#5)::  ENDING TacticalMonitor
+09/04/2025 - 14:03:23: 178.39: player(#5)::  ENDING ScenarioMonitor
+09/04/2025 - 14:03:23: 178.39: player(#5)::  ENDING EngineerBuild
+09/04/2025 - 14:03:23: 178.39: player(#5)::  ENDING EngineerBuilding
+09/04/2025 - 14:03:23: Dropped SomeDude from server (Server shutting down)
+09/04/2025 - 14:03:23: Dropped 0xDEADBEEF from server (Server shutting down)
+09/04/2025 - 14:03:23: Dropped Kaboom! from server (Server shutting down)
+09/04/2025 - 14:03:23: Dropped Mann Co. from server (Server shutting down)
+09/04/2025 - 14:03:23: Dropped Mario9501 from server (Server shutting down)
+09/04/2025 - 14:03:23: TODO: Refusing to discard 240747 bytes

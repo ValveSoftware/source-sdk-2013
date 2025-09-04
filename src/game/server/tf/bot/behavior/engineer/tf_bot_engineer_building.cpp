@@ -27,6 +27,12 @@
 // Guarded Engineer behavior seams (header-only; default off)
 #include "bot/behavior/engineer/tf_bot_engineer_seams.h"
 
+#if TF_BOT_ENGINEER_SEAMS
+extern ConVar tf_bot_engineer_seams_debug;
+// Minimum useful travel distance between teleporter ends (fallback heuristic)
+ConVar tf_bot_engineer_seams_min_teleport_travel( "tf_bot_engineer_seams_min_teleport_travel", "3000", FCVAR_CHEAT, "Minimum useful teleporter travel distance" );
+#endif
+
 
 ConVar tf_bot_engineer_retaliate_range( "tf_bot_engineer_retaliate_range", "750", FCVAR_CHEAT, "If attacker who destroyed sentry is closer than this, attack. Otherwise, retreat" );
 ConVar tf_bot_engineer_exit_near_sentry_range( "tf_bot_engineer_exit_near_sentry_range", "2500", FCVAR_CHEAT, "Maximum travel distance between a bot's Sentry gun and its Teleporter Exit" );
@@ -279,6 +285,50 @@ ActionResult< CTFBot >	CTFBotEngineerBuilding::Update( CTFBot *me, float interva
 	CObjectDispenser *myDispenser = (CObjectDispenser *)me->GetObjectOfType( OBJ_DISPENSER );
 	CObjectTeleporter *myTeleportEntrance = (CObjectTeleporter *)me->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_ENTRANCE );
 	CObjectTeleporter *myTeleportExit = (CObjectTeleporter *)me->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_EXIT );
+
+#if TF_BOT_ENGINEER_SEAMS
+	// Guarded: Validate teleporter link and estimate travel distance. Only log/set local flags; no behavior change here.
+	bool seam_TeleporterLinkInvalid = false;
+	bool seam_TeleporterShouldRedeploy = false;
+	float seam_TeleporterTravelDelta = 0.0f;
+	if ( myTeleportEntrance && myTeleportExit )
+	{
+		myTeleportEntrance->UpdateLastKnownArea();
+		myTeleportExit->UpdateLastKnownArea();
+		CTFNavArea *entrArea = (CTFNavArea *)myTeleportEntrance->GetLastKnownArea();
+		CTFNavArea *exitArea = (CTFNavArea *)myTeleportExit->GetLastKnownArea();
+		if ( entrArea && exitArea )
+		{
+			float incA = entrArea->GetIncursionDistance( me->GetTeamNumber() );
+			float incB = exitArea->GetIncursionDistance( me->GetTeamNumber() );
+			seam_TeleporterTravelDelta = fabsf( incA - incB );
+		}
+		else
+		{
+			seam_TeleporterTravelDelta = ( myTeleportEntrance->GetAbsOrigin() - myTeleportExit->GetAbsOrigin() ).Length();
+		}
+
+		bool isValid = Seam_TeleporterIsValid( myTeleportEntrance, myTeleportExit );
+		bool shouldRedeploy = Seam_TeleporterShouldRedeploy( myTeleportEntrance, myTeleportExit, seam_TeleporterTravelDelta );
+
+		// Interpret seam returns; apply simple fallback using cvar if no redeploy guidance
+		seam_TeleporterLinkInvalid = !isValid;
+		seam_TeleporterShouldRedeploy = shouldRedeploy;
+		if ( !seam_TeleporterShouldRedeploy )
+		{
+			if ( seam_TeleporterTravelDelta < tf_bot_engineer_seams_min_teleport_travel.GetFloat() )
+			{
+				seam_TeleporterShouldRedeploy = true;
+			}
+		}
+
+		if ( developer.GetBool() && tf_bot_engineer_seams_debug.GetBool() )
+		{
+			DevMsg( "[TF-ENG seam] Teleporter link check (Building): valid=%d redeploy=%d travelDelta=%.1f\n",
+				(int)!seam_TeleporterLinkInvalid, (int)seam_TeleporterShouldRedeploy, seam_TeleporterTravelDelta );
+		}
+	}
+#endif
 
 	bool isUnderAttack = ( me->GetTimeSinceLastInjury() < 1.0f );
 	isUnderAttack |= ( mySentry && ( mySentry->HasSapper() || mySentry->IsPlasmaDisabled() ) );
