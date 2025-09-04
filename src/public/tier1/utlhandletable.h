@@ -66,6 +66,11 @@ private:
 		}
 		unsigned int nIndex  : HandleBits;
 		unsigned int nSerial : 31 - HandleBits;
+		// This structure is bit-casted by reinterpreting memory, so make sure it's big enough to do so safely.
+		// It would likely be this size anyhow.
+#ifdef PLATFORM_64BITS
+		unsigned int dummy = 0;
+#endif
 	};
 
 	struct EntryType_t

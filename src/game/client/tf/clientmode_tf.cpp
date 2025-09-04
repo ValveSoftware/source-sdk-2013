@@ -1801,7 +1801,7 @@ void ClientModeTFNormal::RemoveFilesInPath( const char *pszPath ) const
 {
 	FileFindHandle_t hFind = NULL;
 
-	const char *pszSearch = CFmtStr( "%s/*", pszPath );
+	CFmtStr pszSearch( "%s/*", pszPath );
 	char const *szFileName = g_pFullFileSystem->FindFirstEx( pszSearch, "MOD", &hFind );
 	while ( szFileName )
 	{
