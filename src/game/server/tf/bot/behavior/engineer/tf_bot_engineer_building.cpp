@@ -24,6 +24,9 @@
 #include "bot/map_entities/tf_bot_hint_sentrygun.h"
 #include "NextBotUtil.h"
 
+// Guarded Engineer behavior seams (header-only; default off)
+#include "bot/behavior/engineer/tf_bot_engineer_seams.h"
+
 
 ConVar tf_bot_engineer_retaliate_range( "tf_bot_engineer_retaliate_range", "750", FCVAR_CHEAT, "If attacker who destroyed sentry is closer than this, attack. Otherwise, retreat" );
 ConVar tf_bot_engineer_exit_near_sentry_range( "tf_bot_engineer_exit_near_sentry_range", "2500", FCVAR_CHEAT, "Maximum travel distance between a bot's Sentry gun and its Teleporter Exit" );

@@ -6,6 +6,7 @@
 #include "cbase.h"
 #include "nav_mesh.h"
 #include "tf_player.h"
+#include "bot/behavior/engineer/tf_bot_engineer_seams.h"
 #include "tf_obj.h"
 #include "tf_obj_sentrygun.h"
 #include "tf_weapon_builder.h"
@@ -186,5 +187,4 @@ EventDesiredResult< CTFBot > CTFBotEngineerBuildTeleportExit::OnStuck( CTFBot *m
 
 	return TryContinue();
 }
-
 

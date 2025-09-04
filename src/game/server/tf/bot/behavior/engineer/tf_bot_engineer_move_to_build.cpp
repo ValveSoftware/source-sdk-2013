@@ -22,12 +22,25 @@
 
 #include "raid/tf_raid_logic.h"
 
+// Guarded Engineer behavior seams (header-only; default off)
+#include "bot/behavior/engineer/tf_bot_engineer_seams.h"
+
 
 extern ConVar tf_bot_path_lookahead_range;
 
 ConVar tf_bot_debug_sentry_placement( "tf_bot_debug_sentry_placement", "0", FCVAR_CHEAT );
 ConVar tf_bot_max_teleport_exit_travel_to_point( "tf_bot_max_teleport_exit_travel_to_point", "2500", FCVAR_CHEAT, "In an offensive engineer bot's tele exit is farther from the point than this, destroy it" );
 ConVar tf_bot_min_teleport_travel( "tf_bot_min_teleport_travel", "3000", FCVAR_CHEAT, "Minimum travel distance between teleporter entrance and exit before engineer bot will build one" );
+#if TF_BOT_ENGINEER_SEAMS
+// Lightweight guardable traces for seam heuristics
+ConVar tf_bot_engineer_seams_debug( "tf_bot_engineer_seams_debug", "0", FCVAR_CHEAT, "Debug Engineer seams heuristics" );
+// Tunable cvars for guarded placement heuristics (default-off behavior parity)
+ConVar tf_bot_engineer_seams_desired_range( "tf_bot_engineer_seams_desired_range", "0", FCVAR_CHEAT, "Desired max sentry placement range (0=default)" );
+ConVar tf_bot_engineer_seams_nest_spacing_min( "tf_bot_engineer_seams_nest_spacing_min", "0", FCVAR_CHEAT, "Minimum distance between friendly sentry nests (0=default)" );
+ConVar tf_bot_engineer_seams_height_bias_weight( "tf_bot_engineer_seams_height_bias_weight", "0", FCVAR_CHEAT, "Weight to prefer areas above the objective (0=disabled)" );
+ConVar tf_bot_engineer_seams_hint_radius( "tf_bot_engineer_seams_hint_radius", "900", FCVAR_CHEAT, "Proximity radius for hint-aware bias" );
+ConVar tf_bot_engineer_seams_hint_bias_weight( "tf_bot_engineer_seams_hint_bias_weight", "0", FCVAR_CHEAT, "Additional bias weight for hint proximity (0=none)" );
+#endif
 
 //--------------------------------------------------------------------------------------------------------
 static Vector s_pointCentroid;
@@ -134,6 +147,14 @@ void CTFBotEngineerMoveToBuild::CollectBuildAreas( CTFBot *me )
 
 	// collect all areas that can see the point
 	CUtlVector< CTFNavArea * > exposedAreaVector;
+
+#if TF_BOT_ENGINEER_SEAMS
+	int seam_range_rejects = 0;
+	int seam_spacing_rejects = 0;
+	const int kSeamMaxSamples = 3;
+	int seam_range_samples = 0;
+	int seam_spacing_samples = 0;
+#endif
 	for( i=0; i<pointAreaVector.Count(); ++i )
 	{
 		CTFAreaCollector collect;
@@ -174,8 +195,49 @@ void CTFBotEngineerMoveToBuild::CollectBuildAreas( CTFBot *me )
 
 				// ignore areas too far from the point for the sentry gun to reach
 				const float tolerance = 1.1f;
+#if TF_BOT_ENGINEER_SEAMS
+				float desiredMaxRange = SENTRY_MAX_RANGE * tolerance;
+				// Allow future tuning of desired placement range; if none provided, slightly prefer mid-range
+				{
+					float seamRange = Seam_DesiredPlacementRange( me, NULL );
+					if ( seamRange > 0.0f )
+					{
+						desiredMaxRange = seamRange * tolerance;
+					}
+					else
+					{
+						// If seam didn't provide, check guarded cvar for desired range
+						float cvarRange = tf_bot_engineer_seams_desired_range.GetFloat();
+						if ( cvarRange > 0.0f )
+						{
+							desiredMaxRange = cvarRange * tolerance;
+						}
+						else
+						{
+							// Nudge down the max range a bit to bias toward mid-range
+							desiredMaxRange *= 0.9f;
+						}
+					}
+				}
+				{
+					Vector toPoint = visibleArea->GetCenter() - pointCentroid;
+					if ( toPoint.IsLengthGreaterThan( desiredMaxRange ) )
+					{
+						seam_range_rejects++;
+						if ( seam_range_samples < kSeamMaxSamples )
+						{
+							seam_range_samples++;
+							DevMsg( "[TF-ENG seam] Range reject: len=%.1f > max=%.1f at (%.0f,%.0f,%.0f)\n",
+								toPoint.Length(), desiredMaxRange,
+								visibleArea->GetCenter().x, visibleArea->GetCenter().y, visibleArea->GetCenter().z );
+						}
+						continue;
+					}
+				}
+#else
 				if ( ( visibleArea->GetCenter() - pointCentroid ).IsLengthGreaterThan( SENTRY_MAX_RANGE * tolerance ) )
 					continue;
+#endif
 			}
 
 			// ignore areas that don't have clear line of FIRE (not sight)
@@ -184,8 +246,57 @@ void CTFBotEngineerMoveToBuild::CollectBuildAreas( CTFBot *me )
 			if ( !me->IsLineOfFireClear( visibleArea->GetCenter() + Vector( 0, 0, sentryEyeHeight ), pointCentroid + Vector( 0, 0, pointFlagHeight ) ) )
 				continue;
 
-			if ( !exposedAreaVector.HasElement( visibleArea ) )
-				exposedAreaVector.AddToTail( visibleArea );
+				// Optional nest spacing filter (guarded)
+
+#if TF_BOT_ENGINEER_SEAMS
+				{
+					float nestMin = Seam_NestSpacingMin( me );
+					if ( nestMin <= 0.0f )
+					{
+						// If seam didn't provide, check guarded cvar; fall back to 400
+						nestMin = tf_bot_engineer_seams_nest_spacing_min.GetFloat();
+						if ( nestMin <= 0.0f )
+						{
+							nestMin = 400.0f;
+						}
+					}
+					if ( nestMin > 0.0f )
+					{
+						bool tooCloseToNest = false;
+						float nestDist = 0.0f;
+						// Scan existing friendly sentry guns and avoid clustering
+						for ( CBaseEntity *ent = gEntList.FindEntityByClassname( NULL, "obj_sentrygun" ); ent; ent = gEntList.FindEntityByClassname( ent, "obj_sentrygun" ) )
+						{
+							CObjectSentrygun *pSentry = dynamic_cast< CObjectSentrygun * >( ent );
+							if ( pSentry && pSentry->GetTeamNumber() == me->GetTeamNumber() )
+							{
+								Vector d = pSentry->GetAbsOrigin() - visibleArea->GetCenter();
+								if ( d.IsLengthLessThan( nestMin ) )
+								{
+									nestDist = d.Length();
+									tooCloseToNest = true;
+									break;
+								}
+							}
+						}
+						if ( tooCloseToNest )
+						{
+							seam_spacing_rejects++;
+							if ( seam_spacing_samples < kSeamMaxSamples )
+							{
+								seam_spacing_samples++;
+								DevMsg( "[TF-ENG seam] Spacing reject: dist=%.1f < min=%.1f at (%.0f,%.0f,%.0f)\n",
+									nestDist, nestMin,
+									visibleArea->GetCenter().x, visibleArea->GetCenter().y, visibleArea->GetCenter().z );
+							}
+							continue;
+						}
+					}
+				}
+#endif
+
+				if ( !exposedAreaVector.HasElement( visibleArea ) )
+					exposedAreaVector.AddToTail( visibleArea );
 		}
 	}
 
@@ -193,6 +304,147 @@ void CTFBotEngineerMoveToBuild::CollectBuildAreas( CTFBot *me )
 	const float keepRatio = 1.0f; // 0.5f;
 	s_pointCentroid = pointCentroid;
 	exposedAreaVector.Sort( CompareRangeToPoint );
+
+#if TF_BOT_ENGINEER_SEAMS
+	// Light height bias: prefer areas with positive bias
+	if ( exposedAreaVector.Count() > 1 )
+	{
+		CUtlVector< CTFNavArea * > preferred;
+		CUtlVector< CTFNavArea * > others;
+		FOR_EACH_VEC( exposedAreaVector, itBias )
+		{
+			CTFNavArea *area = exposedAreaVector[ itBias ];
+			float bias = Seam_HeightBias( me, area->GetCenter() );
+			if ( bias == 0.0f )
+			{
+				// If seam didn't provide, use optional weighted bias; else parity 0/1
+				float weight = tf_bot_engineer_seams_height_bias_weight.GetFloat();
+				if ( weight > 0.0f )
+				{
+					bias = ( area->GetCenter().z > pointCentroid.z ) ? weight : 0.0f;
+				}
+				else
+				{
+					// Fallback: prefer areas slightly above the point centroid
+					bias = ( area->GetCenter().z > pointCentroid.z ) ? 1.0f : 0.0f;
+				}
+			}
+			if ( bias > 0.0f )
+				preferred.AddToTail( area );
+			else
+				others.AddToTail( area );
+		}
+		exposedAreaVector.RemoveAll();
+		FOR_EACH_VEC( preferred, ip )
+		{
+			exposedAreaVector.AddToTail( preferred[ ip ] );
+		}
+		FOR_EACH_VEC( others, io )
+		{
+			exposedAreaVector.AddToTail( others[ io ] );
+		}
+
+		DevMsg( "[TF-ENG seam] Height bias: preferred=%d, others=%d (after range/spacing rejects: range=%d, spacing=%d)\n",
+			preferred.Count(), others.Count(), seam_range_rejects, seam_spacing_rejects );
+	}
+#endif
+
+#if TF_BOT_ENGINEER_SEAMS
+	// Hint-aware bias: prefer areas near enabled, team-matching sentry hints
+	if ( exposedAreaVector.Count() > 1 )
+	{
+		CUtlVector< CTFBotHintSentrygun * > teamHints;
+		CTFBotHintSentrygun *sentryHint;
+		for ( sentryHint = static_cast< CTFBotHintSentrygun * >( gEntList.FindEntityByClassname( NULL, "bot_hint_sentrygun" ) );
+			  sentryHint;
+			  sentryHint = static_cast< CTFBotHintSentrygun * >( gEntList.FindEntityByClassname( sentryHint, "bot_hint_sentrygun" ) ) )
+		{
+			if ( sentryHint->IsAvailableForSelection( me ) )
+			{
+				teamHints.AddToTail( sentryHint );
+			}
+		}
+
+		if ( teamHints.Count() > 0 )
+		{
+			CUtlVector< CTFNavArea * > preferredByHint;
+			CUtlVector< CTFNavArea * > othersByHint;
+
+			// Proximity radius from guarded cvar with sane fallback
+			float hintRadius = tf_bot_engineer_seams_hint_radius.GetFloat();
+			if ( hintRadius <= 0.0f )
+			{
+				hintRadius = 900.0f; // default radius
+			}
+			FOR_EACH_VEC( exposedAreaVector, itHint )
+			{
+				CTFNavArea *area = exposedAreaVector[ itHint ];
+				Vector pos = area->GetCenter();
+
+				// Find nearest hint
+				CTFBotHintSentrygun *nearest = NULL;
+				float bestDistSqr = FLT_MAX;
+				FOR_EACH_VEC( teamHints, ih )
+				{
+					CTFBotHintSentrygun *h = teamHints[ ih ];
+					float d2 = ( h->GetAbsOrigin() - pos ).LengthSqr();
+					if ( d2 < bestDistSqr )
+					{
+						bestDistSqr = d2;
+						nearest = h;
+					}
+				}
+
+				float hintBias = 0.0f;
+				if ( nearest )
+				{
+					float seamBias = Seam_HintBias( me, nearest );
+					if ( seamBias != 0.0f )
+					{
+						// Use provided seam bias directly when present
+						hintBias = seamBias;
+					}
+					else
+					{
+						// Proximity fallback: positive within radius, stronger when closer
+						float bestDist = FastSqrt( bestDistSqr );
+						if ( bestDist < hintRadius )
+						{
+							hintBias = ( hintRadius - bestDist ) / hintRadius;
+						}
+						// Add simple global weight for hint proximity bias
+						hintBias += tf_bot_engineer_seams_hint_bias_weight.GetFloat();
+					}
+				}
+
+				if ( hintBias > 0.0f )
+				{
+					preferredByHint.AddToTail( area );
+				}
+				else
+				{
+					othersByHint.AddToTail( area );
+				}
+			}
+
+			exposedAreaVector.RemoveAll();
+			FOR_EACH_VEC( preferredByHint, ipb )
+			{
+				exposedAreaVector.AddToTail( preferredByHint[ ipb ] );
+			}
+			FOR_EACH_VEC( othersByHint, iob )
+			{
+				exposedAreaVector.AddToTail( othersByHint[ iob ] );
+			}
+
+			if ( tf_bot_engineer_seams_debug.GetBool() && developer.GetBool() )
+			{
+				DevMsg( "[TF-ENG seam] Hint bias: preferred=%d, others=%d, hints=%d\n",
+					preferredByHint.Count(), othersByHint.Count(), teamHints.Count() );
+			}
+		}
+	}
+#endif
 
 	for( i=0; i<exposedAreaVector.Count() * keepRatio; ++i )
 	{
@@ -214,6 +466,11 @@ void CTFBotEngineerMoveToBuild::CollectBuildAreas( CTFBot *me )
 			TheNavMesh->AddToSelectedSet( area );
 		}
 	}
+
+#if TF_BOT_ENGINEER_SEAMS
+	DevMsg( "[TF-ENG seam] CollectBuildAreas: kept_areas=%d total_surface=%.0f\n",
+		m_sentryAreaVector.Count(), m_totalSurfaceArea );
+#endif
 }
 
 
@@ -233,6 +490,10 @@ void CTFBotEngineerMoveToBuild::SelectBuildLocation( CTFBot *me )
 	if ( me->GetHomeArea() )
 	{
 		m_sentryBuildLocation = me->GetHomeArea()->GetCenter();
+#if TF_BOT_ENGINEER_SEAMS
+		DevMsg( "[TF-ENG seam] SelectBuildLocation: using home area at (%.0f,%.0f,%.0f)\n",
+			m_sentryBuildLocation.x, m_sentryBuildLocation.y, m_sentryBuildLocation.z );
+#endif
 		return;
 	}
 
@@ -263,6 +524,11 @@ void CTFBotEngineerMoveToBuild::SelectBuildLocation( CTFBot *me )
 		m_sentryBuildHint->SetPlayerOwner( me );
 		m_sentryBuildLocation = m_sentryBuildHint->GetAbsOrigin();
 
+#if TF_BOT_ENGINEER_SEAMS
+		DevMsg( "[TF-ENG seam] SelectBuildLocation: using sentry hint at (%.0f,%.0f,%.0f)\n",
+			m_sentryBuildLocation.x, m_sentryBuildLocation.y, m_sentryBuildLocation.z );
+#endif
+
 		return;
 	}
 
@@ -279,11 +545,44 @@ void CTFBotEngineerMoveToBuild::SelectBuildLocation( CTFBot *me )
 
 		soFar += area->GetSizeX() * area->GetSizeY();
 
-		if ( which < soFar )
-		{
-			m_sentryBuildLocation = area->GetRandomPoint();
-			return;
-		}
+			if ( which < soFar )
+			{
+				m_sentryBuildLocation = area->GetRandomPoint();
+#if TF_BOT_ENGINEER_SEAMS
+				DevMsg( "[TF-ENG seam] SelectBuildLocation: selected area center=(%.0f,%.0f,%.0f) random_point=(%.0f,%.0f,%.0f)\n",
+					area->GetCenter().x, area->GetCenter().y, area->GetCenter().z,
+					m_sentryBuildLocation.x, m_sentryBuildLocation.y, m_sentryBuildLocation.z );
+				// Optional coarse trace: nearest hint to chosen area
+				if ( tf_bot_engineer_seams_debug.GetBool() && developer.GetBool() )
+				{
+					CTFBotHintSentrygun *sentryHint;
+					CTFBotHintSentrygun *nearest = NULL;
+					float bestDistSqr = FLT_MAX;
+					for ( sentryHint = static_cast< CTFBotHintSentrygun * >( gEntList.FindEntityByClassname( NULL, "bot_hint_sentrygun" ) );
+						  sentryHint;
+						  sentryHint = static_cast< CTFBotHintSentrygun * >( gEntList.FindEntityByClassname( sentryHint, "bot_hint_sentrygun" ) ) )
+					{
+						if ( sentryHint->IsAvailableForSelection( me ) )
+						{
+							float d2 = ( sentryHint->GetAbsOrigin() - area->GetCenter() ).LengthSqr();
+							if ( d2 < bestDistSqr )
+							{
+								bestDistSqr = d2;
+								nearest = sentryHint;
+							}
+						}
+					}
+					if ( nearest )
+					{
+						Vector hc = nearest->GetAbsOrigin();
+						Vector ac = area->GetCenter();
+						DevMsg( "[TF-ENG seam] Hint trace: area_center=(%.0f,%.0f,%.0f) nearest_hint=(%.0f,%.0f,%.0f) dist=%.0f\n",
+							ac.x, ac.y, ac.z, hc.x, hc.y, hc.z, FastSqrt( bestDistSqr ) );
+					}
+				}
+#endif
+				return;
+			}
 	}
 
 	if ( !HushAsserts() )
