@@ -32,3 +32,7 @@ Index
   - 05 Upgrade/Repair Policy (Guarded)
   - 06 Validation & Findings
 
+## Phase 01 – Baseline Build & Branch Setup Summary
+> Delivered: T1.1 (branch created)
+> Outcome: Container toolchain OK; `vpc` `/ninja` segfaults outside script. `src/buildallprojects` generated Ninja graph + compile DB; build failed at HL2MP link. TF-only manual graph generation segfaulted.
+> Next: Use generated `sdk_everything_release.ninja` to build TF-only targets for baseline; consider pinning known-good `vpc`.

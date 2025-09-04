@@ -57,6 +57,7 @@ Preconditions & Dependencies
 - Build graph can be generated and compiled.
 - Test maps: CP, KotH, Escort for quick validation.
 - Toggle default: experimental seams disabled by default; enable locally for testing.
+- Canonical build path: use `src/buildallprojects` (containerized) to generate Ninja graph, compile DB, and build. Avoid direct `devtools/bin/vpc /ninja` calls (segfault observed in this branch).
 
 Success Metrics (Milestone 1)
 - Baseline parity with seams disabled (no behavioral regressions; builds pass).
