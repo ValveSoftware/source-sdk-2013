@@ -66,7 +66,7 @@ timeout "${RUN_TIMEOUT}s" "$LAUNCH_EXE" \
   +exec headless.cfg \
   +$NB_SET_ALIAS \
   +map "$MAP_NAME" \
-  +tf_bot_quota_mode fill +tf_bot_keep_class 1 +tf_bot_join_after_player 0 \
+  +tf_bot_quota_mode fill +tf_bot_keep_class_after_death 1 +tf_bot_join_after_player 0 \
   +tf_bot_force_class engineer +tf_bot_quota "$BOTS" +mp_waitingforplayers_cancel 1 \
   +tf_bot_engineer_seams_repair_health_frac "$REPAIR_FRAC" \
   $EXTRA_ARGS
