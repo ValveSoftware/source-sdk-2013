@@ -69,6 +69,9 @@ ActionResult< CTFBot >	CTFBotEngineerBuilding::OnStart( CTFBot *me, Action< CTFB
 
 	m_territoryRangeTimer.Invalidate();
 
+	// Rate-limit seam maintain-eval debug (guarded prints)
+	m_debugMaintainEvalTimer.Invalidate();
+
 	m_hasBuiltSentry = false;
 	m_isSentryOutOfPosition = false;
 	m_nearbyMetalStatus = NEARBY_METAL_UNKNOWN;
@@ -219,6 +222,17 @@ void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
 			if ( myDispenser->GetMaxHealth() > 0 )
 			{
 				dFrac = (float)myDispenser->GetHealth() / (float)myDispenser->GetMaxHealth();
+			}
+
+			// Optional low-noise trace to confirm maintain evaluation is running under guard
+			if ( developer.GetBool() && tf_bot_engineer_seams_debug.GetBool() && cvar > 0.0f )
+			{
+				if ( m_debugMaintainEvalTimer.IsElapsed() )
+				{
+					DevMsg( "[TF-ENG seam] Maintain eval: selUp=%d sentry=%.2f disp=%.2f cvar=%.2f seam=%d\n",
+						(int)selectedByUpgrade, sFrac, dFrac, cvar, (int)seamRepair );
+					m_debugMaintainEvalTimer.Start( 1.0f );
+				}
 			}
 
 			bool belowThresh = ( cvar > 0.0f ) && ( ( sFrac < cvar ) || ( dFrac < cvar ) );

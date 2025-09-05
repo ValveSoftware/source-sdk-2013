@@ -37,6 +37,7 @@ private:
     CountdownTimer m_dispenserRetryTimer;
     CountdownTimer m_teleportExitRetryTimer;
     CountdownTimer m_teleportRedeployCooldown;
+    CountdownTimer m_debugMaintainEvalTimer;
 
 	PathFollower m_path;
 
@@ -51,10 +52,10 @@ private:
 		NEARBY_METAL_EXISTS
 	};
 
-	NearbyMetalType m_nearbyMetalStatus;
+    NearbyMetalType m_nearbyMetalStatus;
 
-	CountdownTimer m_territoryRangeTimer;
-	bool m_isSentryOutOfPosition;
+    CountdownTimer m_territoryRangeTimer;
+    bool m_isSentryOutOfPosition;
 	bool CheckIfSentryIsOutOfPosition( CTFBot *me ) const;
 
 	void UpgradeAndMaintainBuildings( CTFBot *me );
