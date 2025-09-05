@@ -41,6 +41,8 @@ private:
     CountdownTimer m_debugMaintainEvalTimer;
     // Guarded: small cooldown to avoid rapid oscillation when interrupting repairs
     CountdownTimer m_repairInterruptCooldown;
+    // Guarded: small cooldown to avoid rapid weapon swap thrash during maintenance
+    CountdownTimer m_weaponPrioritizeCooldown;
 
 	PathFollower m_path;
 

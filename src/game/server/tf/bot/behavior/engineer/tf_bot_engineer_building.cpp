@@ -54,6 +54,11 @@ ConVar tf_bot_engineer_seams_repair_interrupt_window( "tf_bot_engineer_seams_rep
 ConVar tf_bot_engineer_seams_repair_interrupt_attack( "tf_bot_engineer_seams_repair_interrupt_attack", "0", FCVAR_CHEAT, "If 1, briefly switch to attack behavior; else just pause wrenching" );
 ConVar tf_bot_engineer_seams_repair_interrupt_cooldown( "tf_bot_engineer_seams_repair_interrupt_cooldown", "2.0", FCVAR_CHEAT, "Cooldown between interrupts (sec)" );
 
+// Guarded controls for combat weapon prioritization while maintaining
+ConVar tf_bot_engineer_seams_weapon_prioritize( "tf_bot_engineer_seams_weapon_prioritize", "0", FCVAR_CHEAT, "Enable weapon prioritization (shotgun/pistol) while maintaining" );
+ConVar tf_bot_engineer_seams_weapon_shotgun_range( "tf_bot_engineer_seams_weapon_shotgun_range", "450", FCVAR_CHEAT, "Range to prefer shotgun when hostile within range (HU)" );
+ConVar tf_bot_engineer_seams_weapon_pistol_range( "tf_bot_engineer_seams_weapon_pistol_range", "900", FCVAR_CHEAT, "Range to prefer pistol when hostile within range (HU)" );
+
 #endif // TF_BOT_ENGINEER_SEAMS
 
 
@@ -93,6 +98,8 @@ ActionResult< CTFBot >	CTFBotEngineerBuilding::OnStart( CTFBot *me, Action< CTFB
     m_teleportLinkCheckCooldown.Invalidate();
     // Guarded: allow immediate evaluation of repair interrupt
     m_repairInterruptCooldown.Invalidate();
+    // Guarded: weapon prioritize swap cooldown
+    m_weaponPrioritizeCooldown.Invalidate();
 
 	m_hasBuiltSentry = false;
 	m_isSentryOutOfPosition = false;
@@ -107,19 +114,107 @@ ActionResult< CTFBot >	CTFBotEngineerBuilding::OnStart( CTFBot *me, Action< CTFB
 // TODO: Upgrade/maintain nearby friendly buildings, too.
 void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
 {
-	CObjectSentrygun *mySentry = (CObjectSentrygun *)me->GetObjectOfType( OBJ_SENTRYGUN );
-	CObjectDispenser *myDispenser = (CObjectDispenser *)me->GetObjectOfType( OBJ_DISPENSER );
+    CObjectSentrygun *mySentry = (CObjectSentrygun *)me->GetObjectOfType( OBJ_SENTRYGUN );
+    CObjectDispenser *myDispenser = (CObjectDispenser *)me->GetObjectOfType( OBJ_DISPENSER );
 
 	if ( !mySentry )
 	{
 		return;
 	}
 
-	CBaseCombatWeapon *wrench = me->Weapon_GetSlot( TF_WPN_TYPE_MELEE );
-	if ( wrench )
-	{
-		me->Weapon_Switch( wrench );
-	}
+    CBaseCombatWeapon *wrench = me->Weapon_GetSlot( TF_WPN_TYPE_MELEE );
+
+#if TF_BOT_ENGINEER_SEAMS
+    // Guarded: optionally prioritize a combat weapon to hold while maintaining
+    bool seamHoldCombat = false;
+    CBaseCombatWeapon *seamDesiredWeapon = NULL;
+    float seamThreatDist = FLT_MAX;
+    bool seamInjuryRecent = false;
+    if ( tf_bot_engineer_seams_weapon_prioritize.GetBool() )
+    {
+        // Allow recent injury to trigger immediate prioritization window (T5.3 window)
+        float injWindow = tf_bot_engineer_seams_repair_interrupt_window.GetFloat();
+        if ( injWindow > 0.0f )
+        {
+            seamInjuryRecent = ( me->GetTimeSinceLastInjury() < injWindow );
+        }
+
+        const CKnownEntity *threat = me->GetVisionInterface()->GetPrimaryKnownThreat();
+        if ( threat && threat->IsVisibleRecently() )
+        {
+            // Compute distance to threat entity or last known position
+            if ( threat->GetEntity() )
+            {
+                seamThreatDist = me->GetDistanceBetween( threat->GetEntity() );
+            }
+            else
+            {
+                const Vector lastPos = threat->GetLastKnownPosition();
+                seamThreatDist = ( me->GetAbsOrigin() - lastPos ).Length();
+            }
+
+            const float shotgunRange = tf_bot_engineer_seams_weapon_shotgun_range.GetFloat();
+            const float pistolRange = tf_bot_engineer_seams_weapon_pistol_range.GetFloat();
+
+            if ( seamInjuryRecent || seamThreatDist <= pistolRange )
+            {
+                // Choose shotgun if very close, otherwise pistol (Engineer defaults)
+                if ( seamThreatDist <= shotgunRange )
+                {
+                    seamDesiredWeapon = me->Weapon_GetSlot( TF_WPN_TYPE_PRIMARY );
+                }
+                else
+                {
+                    seamDesiredWeapon = me->Weapon_GetSlot( TF_WPN_TYPE_SECONDARY );
+                }
+
+                if ( seamDesiredWeapon )
+                {
+                    seamHoldCombat = true;
+
+                    if ( developer.GetBool() && tf_bot_engineer_seams_debug.GetBool() )
+                    {
+                        DevMsg( "[TF-ENG seam] Weapon prioritize: dist=%.0f choose=%s inj_recent=%d srg=%.0f prg=%.0f\n",
+                                seamThreatDist,
+                                ( seamThreatDist <= shotgunRange ? "shotgun" : "pistol" ),
+                                (int)seamInjuryRecent,
+                                shotgunRange,
+                                pistolRange );
+                    }
+                }
+            }
+        }
+    }
+
+    // Apply weapon switch decision with mild cooldown to avoid flicker
+    if ( seamHoldCombat && seamDesiredWeapon )
+    {
+        if ( m_weaponPrioritizeCooldown.IsElapsed() )
+        {
+            if ( me->GetActiveWeapon() != seamDesiredWeapon )
+            {
+                me->Weapon_Switch( seamDesiredWeapon );
+            }
+            m_weaponPrioritizeCooldown.Start( 0.5f );
+        }
+    }
+    else
+    {
+        // Default baseline: keep wrench out while maintaining
+        if ( wrench )
+        {
+            if ( me->GetActiveWeapon() != wrench )
+            {
+                me->Weapon_Switch( wrench );
+            }
+        }
+    }
+#else
+    if ( wrench )
+    {
+        me->Weapon_Switch( wrench );
+    }
+#endif
 
 	const float tooFarRange = 75.0f;
 
@@ -146,13 +241,21 @@ void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
 
 			m_path.Update( me );
 		}
-		else
-		{
-			// we are in position - work on our buildings
-			me->StopLookingAroundForEnemies();
-			me->GetBodyInterface()->AimHeadTowards( mySentry->WorldSpaceCenter(), IBody::CRITICAL, 1.0f, NULL, "Work on my Sentry" );
-			me->PressFireButton();
-		}
+        else
+        {
+            // we are in position - work on our buildings
+            me->StopLookingAroundForEnemies();
+            me->GetBodyInterface()->AimHeadTowards( mySentry->WorldSpaceCenter(), IBody::CRITICAL, 1.0f, NULL, "Work on my Sentry" );
+#if TF_BOT_ENGINEER_SEAMS
+            // Only press if wielding the wrench to avoid unintended shooting
+            if ( me->GetActiveWeapon() == wrench )
+            {
+                me->PressFireButton();
+            }
+#else
+            me->PressFireButton();
+#endif
+        }
 
 		return;
 	}
@@ -416,9 +519,17 @@ void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
 		}
 #endif
 
-		me->StopLookingAroundForEnemies();
-		me->GetBodyInterface()->AimHeadTowards( workTarget->WorldSpaceCenter(), IBody::CRITICAL, 1.0f, NULL, "Work on my buildings" );
-		me->PressFireButton();
+        me->StopLookingAroundForEnemies();
+        me->GetBodyInterface()->AimHeadTowards( workTarget->WorldSpaceCenter(), IBody::CRITICAL, 1.0f, NULL, "Work on my buildings" );
+#if TF_BOT_ENGINEER_SEAMS
+        // Only press if wielding the wrench to avoid unintended shooting
+        if ( me->GetActiveWeapon() == wrench )
+        {
+            me->PressFireButton();
+        }
+#else
+        me->PressFireButton();
+#endif
 	}
 }
 
