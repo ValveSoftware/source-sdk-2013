@@ -29,14 +29,32 @@
 
 #if TF_BOT_ENGINEER_SEAMS
 extern ConVar tf_bot_engineer_seams_debug;
+
 // Minimum useful travel distance between teleporter ends (fallback heuristic)
 ConVar tf_bot_engineer_seams_min_teleport_travel( "tf_bot_engineer_seams_min_teleport_travel", "3000", FCVAR_CHEAT, "Minimum useful teleporter travel distance" );
+
 // Guarded controls for teleporter redeploy behavior
 ConVar tf_bot_engineer_seams_teleport_redeploy( "tf_bot_engineer_seams_teleport_redeploy", "0", FCVAR_CHEAT, "Enable guarded teleporter redeploy when invalid/suboptimal" );
 ConVar tf_bot_engineer_seams_teleport_redeploy_cooldown( "tf_bot_engineer_seams_teleport_redeploy_cooldown", "15", FCVAR_CHEAT, "Cooldown before attempting another teleporter redeploy (seconds)" );
+
 // Guarded control for repair-first policy under health fraction threshold
 ConVar tf_bot_engineer_seams_repair_health_frac( "tf_bot_engineer_seams_repair_health_frac", "0", FCVAR_CHEAT, "Health fraction below which repair takes priority (0=disabled)" );
-#endif
+
+// Guarded link-check rate limit to reduce noise/work
+ConVar tf_bot_engineer_seams_teleport_link_check_cooldown( "tf_bot_engineer_seams_teleport_link_check_cooldown", "2", FCVAR_CHEAT, "Cooldown between teleporter link checks (seconds)" );
+
+// Guarded controls for maintenance metal reserve and upgrade cap
+ConVar tf_bot_engineer_seams_metal_reserve( "tf_bot_engineer_seams_metal_reserve", "0", FCVAR_CHEAT, "Minimum metal to keep in reserve (0=disabled)" );
+ConVar tf_bot_engineer_seams_upgrade_cap( "tf_bot_engineer_seams_upgrade_cap", "0", FCVAR_CHEAT, "Max upgrade level to target (0=disabled, 1..3)" );
+
+// Guarded controls for threat-aware repair/upgrade interrupt
+ConVar tf_bot_engineer_seams_repair_interrupt( "tf_bot_engineer_seams_repair_interrupt", "0", FCVAR_CHEAT, "Enable repair/upgrade interrupt under nearby threat" );
+ConVar tf_bot_engineer_seams_repair_interrupt_range( "tf_bot_engineer_seams_repair_interrupt_range", "600", FCVAR_CHEAT, "Threat radius for repair interrupt" );
+ConVar tf_bot_engineer_seams_repair_interrupt_window( "tf_bot_engineer_seams_repair_interrupt_window", "1.5", FCVAR_CHEAT, "Recent injury window (sec) to consider interrupting" );
+ConVar tf_bot_engineer_seams_repair_interrupt_attack( "tf_bot_engineer_seams_repair_interrupt_attack", "0", FCVAR_CHEAT, "If 1, briefly switch to attack behavior; else just pause wrenching" );
+ConVar tf_bot_engineer_seams_repair_interrupt_cooldown( "tf_bot_engineer_seams_repair_interrupt_cooldown", "2.0", FCVAR_CHEAT, "Cooldown between interrupts (sec)" );
+
+#endif // TF_BOT_ENGINEER_SEAMS
 
 
 ConVar tf_bot_engineer_retaliate_range( "tf_bot_engineer_retaliate_range", "750", FCVAR_CHEAT, "If attacker who destroyed sentry is closer than this, attack. Otherwise, retreat" );
@@ -69,8 +87,12 @@ ActionResult< CTFBot >	CTFBotEngineerBuilding::OnStart( CTFBot *me, Action< CTFB
 
 	m_territoryRangeTimer.Invalidate();
 
-	// Rate-limit seam maintain-eval debug (guarded prints)
-	m_debugMaintainEvalTimer.Invalidate();
+    // Rate-limit seam maintain-eval debug (guarded prints)
+    m_debugMaintainEvalTimer.Invalidate();
+    // Rate-limit teleporter link check under guard
+    m_teleportLinkCheckCooldown.Invalidate();
+    // Guarded: allow immediate evaluation of repair interrupt
+    m_repairInterruptCooldown.Invalidate();
 
 	m_hasBuiltSentry = false;
 	m_isSentryOutOfPosition = false;
@@ -281,6 +303,115 @@ void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
 					DevMsg( "[TF-ENG seam] Repair priority: sentry=%.2f disp=%.2f chosen=%s cvar=%.2f seam=%d\n",
 						sFrac, dFrac, chosenStr, cvar, (int)seamRepair );
 				}
+			}
+		}
+
+		// Guarded: enforce metal reserve and upgrade cap when the baseline chose an upgrade target
+		if ( selectedByUpgrade )
+		{
+			// Compute effective reserve and caps
+			const int engMetal2 = me->GetAmmoCount( TF_AMMO_METAL );
+			int seamReserve = Seam_MetalReserve( me );
+			int capSentry = Seam_TargetUpgradeLevel( mySentry );
+			int capDisp = Seam_TargetUpgradeLevel( myDispenser );
+			int cvarReserve = tf_bot_engineer_seams_metal_reserve.GetInt();
+			int cvarCap = tf_bot_engineer_seams_upgrade_cap.GetInt();
+
+			int effectiveReserve = ( seamReserve > 0 ) ? seamReserve : cvarReserve;
+			// Determine cap for current work target
+			int effectiveCap = 0;
+			int targetLevel = 0;
+			const char *targetName = "unknown";
+			if ( workTarget == mySentry )
+			{
+				effectiveCap = ( capSentry > 0 ) ? capSentry : cvarCap;
+				targetLevel = mySentry->GetUpgradeLevel();
+				targetName = "sentry";
+			}
+			else if ( workTarget == myDispenser )
+			{
+				effectiveCap = ( capDisp > 0 ) ? capDisp : cvarCap;
+				targetLevel = myDispenser->GetUpgradeLevel();
+				targetName = "dispenser";
+			}
+
+			bool blockUpgrade = false;
+			// Reserve rule: block upgrades when at or below reserve
+			if ( effectiveReserve > 0 && engMetal2 <= effectiveReserve )
+			{
+				blockUpgrade = true;
+			}
+			// Cap rule: block if target is already at/above cap (1..3)
+			if ( !blockUpgrade && effectiveCap > 0 && effectiveCap <= 3 )
+			{
+				if ( targetLevel >= effectiveCap )
+				{
+					blockUpgrade = true;
+				}
+			}
+
+			// Trace-only: confirm evaluation is running even if not blocking
+			if ( developer.GetBool() && tf_bot_engineer_seams_debug.GetBool() )
+			{
+				if ( m_debugMaintainEvalTimer.IsElapsed() )
+				{
+					DevMsg( "[TF-ENG seam] Maintain eval (T5.2): selUp=%d metal=%d reserve=%d cap=%d target=%s lvl=%d block=%d\n",
+						(int)selectedByUpgrade, engMetal2, effectiveReserve, effectiveCap, targetName, targetLevel, (int)blockUpgrade );
+					m_debugMaintainEvalTimer.Start( 1.0f );
+				}
+			}
+
+			bool actionBlockedNoRepair = false;
+			if ( blockUpgrade )
+			{
+				// Prefer repair if anything is damaged; choose more damaged (prefer sentry on tie)
+				bool sentryDamaged = ( mySentry->GetHealth() < mySentry->GetMaxHealth() );
+				bool dispDamaged = ( myDispenser->GetHealth() < myDispenser->GetMaxHealth() );
+				if ( sentryDamaged || dispDamaged )
+				{
+					float sFrac2 = 1.0f;
+					float dFrac2 = 1.0f;
+					if ( mySentry->GetMaxHealth() > 0 )
+					{
+						sFrac2 = (float)mySentry->GetHealth() / (float)mySentry->GetMaxHealth();
+					}
+					if ( myDispenser->GetMaxHealth() > 0 )
+					{
+						dFrac2 = (float)myDispenser->GetHealth() / (float)myDispenser->GetMaxHealth();
+					}
+
+					if ( sentryDamaged && ( !dispDamaged || sFrac2 <= dFrac2 ) )
+					{
+						workTarget = mySentry;
+						targetName = "sentry";
+					}
+					else if ( dispDamaged )
+					{
+						workTarget = myDispenser;
+						targetName = "dispenser";
+					}
+				}
+				else
+				{
+					// Nothing to repair; block the upgrade by skipping action this frame
+					actionBlockedNoRepair = true;
+				}
+
+				if ( developer.GetBool() && tf_bot_engineer_seams_debug.GetBool() )
+				{
+					int dbgCap = effectiveCap;
+					DevMsg( "[TF-ENG seam] Upgrade blocked: reserve=%d metal=%d cap=%d target=%s lvl=%d selectedByUpgrade=%d\n",
+						effectiveReserve, engMetal2, dbgCap, targetName, targetLevel, (int)selectedByUpgrade );
+				}
+			}
+
+			// If the upgrade is blocked and nothing to repair, we skip firing below
+			if ( actionBlockedNoRepair )
+			{
+				// Aim but don't hit the wrench to avoid upgrading
+				me->StopLookingAroundForEnemies();
+				me->GetBodyInterface()->AimHeadTowards( workTarget->WorldSpaceCenter(), IBody::CRITICAL, 1.0f, NULL, "Hold upgrade due to reserve/cap" );
+				return; // no-op this cycle
 			}
 		}
 #endif
@@ -569,6 +700,32 @@ ActionResult< CTFBot >	CTFBotEngineerBuilding::Update( CTFBot *me, float interva
 
 		if ( m_nearbyMetalStatus == NEARBY_METAL_EXISTS )
 		{
+#if TF_BOT_ENGINEER_SEAMS
+			// Guarded: before maintaining/upgrading, optionally interrupt to defend if recently injured
+			if ( tf_bot_engineer_seams_repair_interrupt.GetBool() && m_repairInterruptCooldown.IsElapsed() )
+			{
+				bool recentInjury = ( me->GetTimeSinceLastInjury() < tf_bot_engineer_seams_repair_interrupt_window.GetFloat() );
+				if ( recentInjury )
+				{
+					m_repairInterruptCooldown.Start( tf_bot_engineer_seams_repair_interrupt_cooldown.GetFloat() );
+					if ( developer.GetBool() && tf_bot_engineer_seams_debug.GetBool() )
+					{
+						DevMsg( "[TF-ENG seam] Repair interrupt: injury=%d range=%.0f attack=%d\n",
+							(int)recentInjury,
+							tf_bot_engineer_seams_repair_interrupt_range.GetFloat(),
+							(int)tf_bot_engineer_seams_repair_interrupt_attack.GetBool() );
+					}
+
+					if ( tf_bot_engineer_seams_repair_interrupt_attack.GetBool() )
+					{
+						return SuspendFor( new CTFBotAttack, "Defend nest (threat interrupt)" );
+					}
+
+					// Otherwise, pause wrenching this frame to let attack layers act
+					return Continue();
+				}
+			}
+#endif
 			UpgradeAndMaintainBuildings( me );
 			return Continue();
 		}
@@ -647,6 +804,32 @@ ActionResult< CTFBot >	CTFBotEngineerBuilding::Update( CTFBot *me, float interva
 	}
 
 	// everything is built - maintain them
+#if TF_BOT_ENGINEER_SEAMS
+	// Guarded: before maintaining/upgrading, optionally interrupt to defend if recently injured
+	if ( tf_bot_engineer_seams_repair_interrupt.GetBool() && m_repairInterruptCooldown.IsElapsed() )
+	{
+		bool recentInjury = ( me->GetTimeSinceLastInjury() < tf_bot_engineer_seams_repair_interrupt_window.GetFloat() );
+		if ( recentInjury )
+		{
+			m_repairInterruptCooldown.Start( tf_bot_engineer_seams_repair_interrupt_cooldown.GetFloat() );
+			if ( developer.GetBool() && tf_bot_engineer_seams_debug.GetBool() )
+			{
+				DevMsg( "[TF-ENG seam] Repair interrupt: injury=%d range=%.0f attack=%d\n",
+					(int)recentInjury,
+					tf_bot_engineer_seams_repair_interrupt_range.GetFloat(),
+					(int)tf_bot_engineer_seams_repair_interrupt_attack.GetBool() );
+			}
+
+			if ( tf_bot_engineer_seams_repair_interrupt_attack.GetBool() )
+			{
+				return SuspendFor( new CTFBotAttack, "Defend nest (threat interrupt)" );
+			}
+
+			// Otherwise, pause wrenching this frame to let attack layers act
+			return Continue();
+		}
+	}
+#endif
 	UpgradeAndMaintainBuildings( me );
 
 	return Continue();

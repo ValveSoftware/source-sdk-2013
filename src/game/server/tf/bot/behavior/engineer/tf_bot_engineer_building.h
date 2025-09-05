@@ -37,7 +37,10 @@ private:
     CountdownTimer m_dispenserRetryTimer;
     CountdownTimer m_teleportExitRetryTimer;
     CountdownTimer m_teleportRedeployCooldown;
+    CountdownTimer m_teleportLinkCheckCooldown;
     CountdownTimer m_debugMaintainEvalTimer;
+    // Guarded: small cooldown to avoid rapid oscillation when interrupting repairs
+    CountdownTimer m_repairInterruptCooldown;
 
 	PathFollower m_path;
 
