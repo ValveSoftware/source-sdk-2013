@@ -36,3 +36,8 @@
 - Artifacts: mod_tf client.so/server_srv missing
 - Compile DB: src/compile_commands.json not generated
 - Notes: VPC segfault on graph generation (`devtools/bin/vpc /tf /linux64 /ninja /define:SOURCESDK +everything /mksln _vpc_/ninja/tf_release`). See `buildlog/.vpc_tf_release.out` for stderr.
+\n+- [2025-09-04] Headless NextBot runner: ADDED — `scripts/headless_test.sh` launches mod in `-textmode`, clears `game/mod_tf/nbheadlessdebuglogs/` each run, and captures per-mode logs. Uses `cfg/headless.cfg` which defers `nb_debug <type>` application until map load via `listenserver.cfg` to ensure proper activation. Example: `scripts/headless_test.sh pl_upward 8 behavior 180` (8 Engis, 3 min, behavior logs).
+
+- [2025-09-04] Map-load nb_debug application: FIXED — Added `cfg/listenserver.cfg` to apply any pending aliases after the map initializes for both interactive (`apm_nbdbg_pending`) and headless (`hd_nbdbg_pending`), addressing `nb_debug` having no effect if set before map load. Interactive debug config moved to `cfg/nbdebug.cfg`; minimal `cfg/autoexec.cfg` keeps universal settings only. Visual debugging preset in `cfg/nb_visual_debug.cfg`.
+
+- [2025-09-04] T5.1 Repair priority (guarded): VALIDATED — With `tf_bot_engineer_seams_repair_health_frac=1.5`, console shows repeated seam repair-priority lines confirming engagement under threshold: `[TF-ENG seam] Repair priority: sentry=1.00 disp=1.00 chosen=sentry cvar=1.50 seam=0`. Seams OFF or cvar=0 preserves baseline.

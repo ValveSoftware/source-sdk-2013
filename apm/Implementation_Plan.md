@@ -40,6 +40,10 @@ Phases and Tasks
 - Phase 5 — Upgrade/Repair Policy (Guarded)
   - T5.1 Prefer repair under health fraction threshold.
   - T5.2 Keep metal reserve; cap upgrade target level.
+  - T5.3 Threat-aware repair interrupt and combat response.
+  - T5.4 Combat weapon prioritization while maintaining nest (shotgun/pistol vs wrench).
+  - T5.5 Sapper triage: remove sapper vs attack spy (situational).
+  - T5.6 Cover micro while repairing (crouch/strafe bias, guarded).
 - Phase 6 — Validation & Findings
   - T6.1 Build with seams disabled (parity) and enabled (experiment).
   - T6.2 Smoke test on CP/KotH/Escort maps; log observations and next actions.

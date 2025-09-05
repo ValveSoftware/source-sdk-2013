@@ -27,15 +27,16 @@ public:
 	virtual const char *GetName( void ) const	{ return "EngineerBuilding"; };
 
 private:
-	CountdownTimer m_searchTimer;
-	CountdownTimer m_getAmmoTimer;
-	CountdownTimer m_repathTimer;
-	CountdownTimer m_buildTeleporterExitTimer;
+    CountdownTimer m_searchTimer;
+    CountdownTimer m_getAmmoTimer;
+    CountdownTimer m_repathTimer;
+    CountdownTimer m_buildTeleporterExitTimer;
 
 	int m_sentryTriesLeft;
 
-	CountdownTimer m_dispenserRetryTimer;
-	CountdownTimer m_teleportExitRetryTimer;
+    CountdownTimer m_dispenserRetryTimer;
+    CountdownTimer m_teleportExitRetryTimer;
+    CountdownTimer m_teleportRedeployCooldown;
 
 	PathFollower m_path;
 

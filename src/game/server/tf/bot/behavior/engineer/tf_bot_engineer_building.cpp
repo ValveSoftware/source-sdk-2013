@@ -31,6 +31,11 @@
 extern ConVar tf_bot_engineer_seams_debug;
 // Minimum useful travel distance between teleporter ends (fallback heuristic)
 ConVar tf_bot_engineer_seams_min_teleport_travel( "tf_bot_engineer_seams_min_teleport_travel", "3000", FCVAR_CHEAT, "Minimum useful teleporter travel distance" );
+// Guarded controls for teleporter redeploy behavior
+ConVar tf_bot_engineer_seams_teleport_redeploy( "tf_bot_engineer_seams_teleport_redeploy", "0", FCVAR_CHEAT, "Enable guarded teleporter redeploy when invalid/suboptimal" );
+ConVar tf_bot_engineer_seams_teleport_redeploy_cooldown( "tf_bot_engineer_seams_teleport_redeploy_cooldown", "15", FCVAR_CHEAT, "Cooldown before attempting another teleporter redeploy (seconds)" );
+// Guarded control for repair-first policy under health fraction threshold
+ConVar tf_bot_engineer_seams_repair_health_frac( "tf_bot_engineer_seams_repair_health_frac", "0", FCVAR_CHEAT, "Health fraction below which repair takes priority (0=disabled)" );
 #endif
 
 
@@ -161,23 +166,110 @@ void CTFBotEngineerBuilding::UpgradeAndMaintainBuildings( CTFBot *me )
 		m_searchTimer.Invalidate();
 
 		CBaseObject *workTarget = mySentry;
+		bool selectedByUpgrade = false; // true if baseline chose via upgrade preference rather than repair/urgent
 
 		if ( mySentry->HasSapper() || mySentry->IsPlasmaDisabled() )
+		{
 			workTarget = mySentry;
+		}
 		else if ( myDispenser->HasSapper() || myDispenser->IsPlasmaDisabled() )
+		{
 			workTarget = myDispenser;
+		}
 		else if ( mySentry->GetTimeSinceLastInjury() < 1.0f || mySentry->GetHealth() < mySentry->GetMaxHealth() )
+		{
 			workTarget = mySentry;
+		}
 		else if ( mySentry->IsBuilding() )
+		{
 			workTarget = mySentry;
+		}
 		else if ( myDispenser->IsBuilding() )
+		{
 			workTarget = myDispenser;
+		}
 		else if ( mySentry->GetUpgradeLevel() < 3 )
+		{
 			workTarget = mySentry;
+			selectedByUpgrade = true;
+		}
 		else if ( myDispenser->GetHealth() < myDispenser->GetMaxHealth() )
+		{
 			workTarget = myDispenser;
+		}
 		else if ( myDispenser->GetUpgradeLevel() < mySentry->GetUpgradeLevel() )
+		{
 			workTarget = myDispenser;
+			selectedByUpgrade = true;
+		}
+
+#if TF_BOT_ENGINEER_SEAMS
+		// Guarded: prefer repairing damaged buildings before upgrading, under threshold or seam policy
+		if ( selectedByUpgrade )
+		{
+			const int engMetal = me->GetAmmoCount( TF_AMMO_METAL );
+			bool seamRepair = Seam_ShouldRepairFirst( workTarget, engMetal );
+			float cvar = tf_bot_engineer_seams_repair_health_frac.GetFloat();
+			float sFrac = 1.0f;
+			float dFrac = 1.0f;
+			if ( mySentry->GetMaxHealth() > 0 )
+			{
+				sFrac = (float)mySentry->GetHealth() / (float)mySentry->GetMaxHealth();
+			}
+			if ( myDispenser->GetMaxHealth() > 0 )
+			{
+				dFrac = (float)myDispenser->GetHealth() / (float)myDispenser->GetMaxHealth();
+			}
+
+			bool belowThresh = ( cvar > 0.0f ) && ( ( sFrac < cvar ) || ( dFrac < cvar ) );
+			if ( seamRepair || belowThresh )
+			{
+				// Choose which to repair: prefer the one under threshold; if both, prefer sentry
+				CBaseObject *chosen = workTarget;
+				const char *chosenStr = "baseline";
+				if ( belowThresh )
+				{
+					if ( sFrac < cvar && dFrac < cvar )
+					{
+						chosen = mySentry;
+						chosenStr = "sentry";
+					}
+					else if ( sFrac < cvar )
+					{
+						chosen = mySentry;
+						chosenStr = "sentry";
+					}
+					else if ( dFrac < cvar )
+					{
+						chosen = myDispenser;
+						chosenStr = "dispenser";
+					}
+				}
+				else
+				{
+					// seamRepair requested but no threshold: repair whichever is more damaged; prefer sentry on tie
+					if ( sFrac <= dFrac )
+					{
+						chosen = mySentry;
+						chosenStr = "sentry";
+					}
+					else
+					{
+						chosen = myDispenser;
+						chosenStr = "dispenser";
+					}
+				}
+
+				workTarget = chosen;
+
+				if ( developer.GetBool() && tf_bot_engineer_seams_debug.GetBool() )
+				{
+					DevMsg( "[TF-ENG seam] Repair priority: sentry=%.2f disp=%.2f chosen=%s cvar=%.2f seam=%d\n",
+						sFrac, dFrac, chosenStr, cvar, (int)seamRepair );
+				}
+			}
+		}
+#endif
 
 		me->StopLookingAroundForEnemies();
 		me->GetBodyInterface()->AimHeadTowards( workTarget->WorldSpaceCenter(), IBody::CRITICAL, 1.0f, NULL, "Work on my buildings" );
@@ -326,6 +418,29 @@ ActionResult< CTFBot >	CTFBotEngineerBuilding::Update( CTFBot *me, float interva
 		{
 			DevMsg( "[TF-ENG seam] Teleporter link check (Building): valid=%d redeploy=%d travelDelta=%.1f\n",
 				(int)!seam_TeleporterLinkInvalid, (int)seam_TeleporterShouldRedeploy, seam_TeleporterTravelDelta );
+		}
+
+		// Guarded exit redeploy when link is invalid or travel is suboptimal
+		if ( tf_bot_engineer_seams_teleport_redeploy.GetBool() && myTeleportEntrance && myTeleportExit && m_teleportRedeployCooldown.IsElapsed() )
+		{
+			// Avoid redeploy if we are under immediate attack (match baseline criteria)
+			bool seam_isUnderAttack = ( me->GetTimeSinceLastInjury() < 1.0f );
+			seam_isUnderAttack |= ( mySentry && ( mySentry->HasSapper() || mySentry->IsPlasmaDisabled() ) );
+			seam_isUnderAttack |= ( myDispenser && ( myDispenser->HasSapper() || myDispenser->IsPlasmaDisabled() ) );
+
+			if ( !seam_isUnderAttack && ( seam_TeleporterLinkInvalid || seam_TeleporterShouldRedeploy ) )
+			{
+				// Detonate only the exit; entrance remains
+				myTeleportExit->DetonateObject();
+				// Start cooldown to prevent oscillation; exit retry timer behavior remains as-is
+				m_teleportRedeployCooldown.Start( tf_bot_engineer_seams_teleport_redeploy_cooldown.GetFloat() );
+
+				if ( developer.GetBool() && tf_bot_engineer_seams_debug.GetBool() )
+				{
+					DevMsg( "[TF-ENG seam] Teleporter redeploy: detonate exit (invalid=%d redeploy=%d travelDelta=%.1f)\n",
+						(int)seam_TeleporterLinkInvalid, (int)seam_TeleporterShouldRedeploy, seam_TeleporterTravelDelta );
+				}
+			}
 		}
 	}
 #endif
