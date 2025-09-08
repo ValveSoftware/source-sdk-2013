@@ -14,6 +14,7 @@
 #ifdef CLIENT_DLL
 	#include "c_tf_player.h"
 	#include "in_buttons.h"
+	#include "prediction.h"
 	#include "tf_hud_menu_eureka_teleport.h"
 	// NVNT haptics system interface
 	#include "haptics/ihaptics.h"
@@ -87,7 +88,7 @@ LINK_ENTITY_TO_CLASS( tf_wearable_robot_arm, CTFWearableRobotArm );
 // Purpose:
 //-----------------------------------------------------------------------------
 CTFWrench::CTFWrench()
-	: m_flNextReloadTime( 0.f )
+	: m_bReloadDown( false )
 {}
 
 
@@ -217,10 +218,15 @@ void CTFWrench::ItemPostFrame()
 		return;
 	}
 
-	// Just pressed reload?
-	if ( pOwner->m_afButtonPressed & IN_RELOAD && gpGlobals->curtime >= m_flNextReloadTime )
+	if ( !pOwner->IsLocalPlayer() || !prediction->IsFirstTimePredicted() )
 	{
-		m_flNextReloadTime = gpGlobals->curtime + 0.5f;
+		return;
+	}
+
+	// Just pressed reload?
+	if ( pOwner->m_nButtons & IN_RELOAD && !m_bReloadDown )
+	{
+		m_bReloadDown = true;
 		int iAltFireTeleportToSpawn = 0;
 		CALL_ATTRIB_HOOK_INT( iAltFireTeleportToSpawn, alt_fire_teleport_to_spawn );
 		if ( iAltFireTeleportToSpawn )
@@ -232,6 +238,10 @@ void CTFWrench::ItemPostFrame()
 				pTeleportMenu->WantsToTeleport();
 			}
 		}
+	}
+	else if ( !(pOwner->m_nButtons & IN_RELOAD) && m_bReloadDown )
+	{
+		m_bReloadDown = false;
 	}
 }
 #endif

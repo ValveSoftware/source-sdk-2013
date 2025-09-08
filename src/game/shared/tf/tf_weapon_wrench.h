@@ -55,7 +55,7 @@ public:
 
 
 private:
-	float				m_flNextReloadTime;
+	bool				m_bReloadDown;
 	CTFWrench( const CTFWrench & ) {}
 };
 
