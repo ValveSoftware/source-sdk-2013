@@ -78,19 +78,10 @@ class CHudVote;
 
 static vgui::HContext s_hVGuiContext = DEFAULT_VGUI_CONTEXT;
 
-#if !defined( _X360 ) && !defined( NO_STEAM )
-void OnSteamToastConVarChanged( IConVar* pCVar, const char* pszOldValue, float flOldValue );
-#endif
-
 ConVar cl_drawhud( "cl_drawhud", "1", FCVAR_CHEAT, "Enable the rendering of the hud" );
 ConVar hud_takesshots( "hud_takesshots", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Auto-save a scoreboard screenshot at the end of a map." );
 ConVar hud_freezecamhide( "hud_freezecamhide", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Hide the HUD during freeze-cam" );
 ConVar cl_show_num_particle_systems( "cl_show_num_particle_systems", "0", FCVAR_CLIENTDLL, "Display the number of active particle systems." );
-#if !defined( _X360 ) && !defined( NO_STEAM )
-ConVar cl_steam_overlay_toast_position( "cl_steam_overlay_toast_position", "0", FCVAR_ARCHIVE, "Which corner the Steam overlay notification toast should display itself in. 0 = k_EPositionTopLeft, 1 = k_EPositionTopRight, 2 = k_EPositionBottomLeft, 3 = k_EPositionBottomRight", OnSteamToastConVarChanged );
-ConVar cl_steam_overlay_toast_inset_horizontal( "cl_steam_overlay_toast_inset_horizontal", "0", FCVAR_ARCHIVE, "Steam overlay notification toast horizontal inset", true, 0.0f, true, 1.0f, OnSteamToastConVarChanged );
-ConVar cl_steam_overlay_toast_inset_vertical( "cl_steam_overlay_toast_inset_vertical", "0", FCVAR_ARCHIVE, "Steam overlay notification toast vertical inset", true, 0.0f, true, 1.0f, OnSteamToastConVarChanged );
-#endif
 
 extern ConVar v_viewmodel_fov;
 extern ConVar voice_modenable;
@@ -98,31 +89,6 @@ extern ConVar cl_enable_text_chat;
 
 extern bool IsInCommentaryMode( void );
 extern const char* GetWearLocalizationString( float flWear );
-
-#if !defined( _X360 ) && !defined( NO_STEAM )
-void SetSteamOverlayToastPosition( void )
-{
-	if( !SteamUtils() )
-		return;
-
-	const float k_flMaxRatio = .25f;
-
-	SteamUtils()->SetOverlayNotificationPosition( static_cast< ENotificationPosition >( cl_steam_overlay_toast_position.GetInt() ) );
-
-	int nWidth, nHeight;
-	engine->GetScreenSize( nWidth, nHeight );
-
-	int nHorizontalInset = ( int )( nWidth * ( k_flMaxRatio * cl_steam_overlay_toast_inset_horizontal.GetFloat() ) );
-	int nVerticalInset = ( int )( nHeight * ( k_flMaxRatio * cl_steam_overlay_toast_inset_vertical.GetFloat() ) );
-
-	SteamUtils()->SetOverlayNotificationInset( nHorizontalInset, nVerticalInset );
-}
-
-void OnSteamToastConVarChanged( IConVar* pCVar, const char* pszOldValue, float flOldValue )
-{
-	SetSteamOverlayToastPosition();
-}
-#endif
 
 CON_COMMAND( cl_reload_localization_files, "Reloads all localization files" )
 {

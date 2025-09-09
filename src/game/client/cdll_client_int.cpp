@@ -293,6 +293,36 @@ extern CViewRender g_DefaultViewRender;
 
 extern void StopAllRumbleEffects( void );
 
+#if !defined( _X360 ) && !defined( NO_STEAM )
+void OnSteamToastConVarChanged( IConVar *pCVar, const char *pszOldValue, float flOldValue );
+ConVar cl_steam_overlay_toast_position( "cl_steam_overlay_toast_position", "0", FCVAR_ARCHIVE, "Which corner the Steam overlay notification toast should display itself in. 0 = k_EPositionTopLeft, 1 = k_EPositionTopRight, 2 = k_EPositionBottomLeft, 3 = k_EPositionBottomRight", OnSteamToastConVarChanged );
+ConVar cl_steam_overlay_toast_inset_horizontal( "cl_steam_overlay_toast_inset_horizontal", "0", FCVAR_ARCHIVE, "Steam overlay notification toast horizontal inset", true, 0.0f, true, 1.0f, OnSteamToastConVarChanged );
+ConVar cl_steam_overlay_toast_inset_vertical( "cl_steam_overlay_toast_inset_vertical", "0", FCVAR_ARCHIVE, "Steam overlay notification toast vertical inset", true, 0.0f, true, 1.0f, OnSteamToastConVarChanged );
+
+void SetSteamOverlayToastPosition( void )
+{
+	if ( !SteamUtils() )
+		return;
+
+	const float k_flMaxRatio = .25f;
+
+	SteamUtils()->SetOverlayNotificationPosition( static_cast< ENotificationPosition >( cl_steam_overlay_toast_position.GetInt() ) );
+
+	int nWidth, nHeight;
+	engine->GetScreenSize( nWidth, nHeight );
+
+	int nHorizontalInset = ( int )( nWidth * ( k_flMaxRatio * cl_steam_overlay_toast_inset_horizontal.GetFloat() ) );
+	int nVerticalInset = ( int )( nHeight * ( k_flMaxRatio * cl_steam_overlay_toast_inset_vertical.GetFloat() ) );
+
+	SteamUtils()->SetOverlayNotificationInset( nHorizontalInset, nVerticalInset );
+}
+
+void OnSteamToastConVarChanged( IConVar *pCVar, const char *pszOldValue, float flOldValue )
+{
+	SetSteamOverlayToastPosition();
+}
+#endif
+
 static C_BaseEntityClassList *s_pClassLists = NULL;
 C_BaseEntityClassList::C_BaseEntityClassList()
 {
@@ -1184,12 +1214,6 @@ void CHLClient::PostInit()
 	}
 #endif
 
-#if !defined( _X360 ) && !defined( NO_STEAM )
-	// This needs to be called every time the game is launched since Steam doesn't save the updated position
-	extern void SetSteamOverlayToastPosition( void ); // from clientmode_shared.cpp
-	SetSteamOverlayToastPosition();
-#endif
-
 	if ( !r_lightmap_bicubic_set.GetBool() && materials )
 	{
 		MaterialAdapterInfo_t info{};
@@ -1280,6 +1304,10 @@ int CHLClient::HudVidInit( void )
 	gHUD.VidInit();
 
 	GetClientVoiceMgr()->VidInit();
+
+#if !defined( _X360 ) && !defined( NO_STEAM )
+	SetSteamOverlayToastPosition();
+#endif
 
 	return 1;
 }
