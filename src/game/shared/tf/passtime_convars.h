@@ -80,7 +80,10 @@ extern ConVar
 
 	p4ss_golden_goal,
 	p4ss_lock_eye_to_eye_los,
-	p4ss_whistle_more;
+	p4ss_whistle_more,
+	p4ss_heal_on_pass,
+	p4ss_heal_on_pass_flight_time,
+	p4ss_minicrit_protection_time;
 
 enum class EPasstimeExperiment_Telepass { 
 	None,
