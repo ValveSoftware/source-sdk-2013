@@ -76,6 +76,8 @@ extern ConVar
 	tf_passtime_pack_speed,
 	p4ss_med_cansplash,
 	p4ss_med_canpushball,
+	p4ss_med_canheadshot,
+	p4ss_med_damagefalloff,
 	tf_passtime_pack_hp_per_sec,
 
 	p4ss_golden_goal,

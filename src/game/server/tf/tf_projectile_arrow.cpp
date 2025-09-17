@@ -312,15 +312,34 @@ bool CTFProjectile_Arrow::CanHeadshot()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Healing bolt damage.
+bool CTFProjectile_HealingBolt::CanHeadshot() 
+{ 
+	return p4ss_med_canheadshot.GetBool();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Healing bolt damage. AKA Crossbow bolt damage
 //-----------------------------------------------------------------------------
 float CTFProjectile_Arrow::GetDamage()
 {
 	if ( m_iProjectileType == TF_PROJECTILE_HEALING_BOLT
 		|| m_iProjectileType == TF_PROJECTILE_FESTIVE_HEALING_BOLT
 	) {
-		float lifeTimeScale = RemapValClamped( gpGlobals->curtime - m_flInitTime, 0.0f, 0.6f, 0.5f, 1.0f );	
-		return m_flDamage * lifeTimeScale;
+		float lifeTimeScale;
+		// Negative falloff is the default value. (case -1)
+		switch ( p4ss_med_damagefalloff.GetInt() )
+		{
+			case -1:
+				 lifeTimeScale = RemapValClamped( gpGlobals->curtime - m_flInitTime, 0.0f, 0.6f, 0.5f, 1.0f );	
+				return m_flDamage * lifeTimeScale;
+
+			case 0: 
+				return m_flDamage;
+
+			case 1:
+				lifeTimeScale = RemapValClamped( gpGlobals->curtime - m_flInitTime, 0.0f, 0.6f, 0.0f, 0.5f );
+				return m_flDamage * (1.0f-lifeTimeScale);
+		}
 	}
 	return BaseClass::GetDamage();
 }

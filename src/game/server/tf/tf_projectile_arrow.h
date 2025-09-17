@@ -123,7 +123,7 @@ public:
 
 	virtual void	InitArrow( const QAngle &vecAngles, const float fSpeed, const float fGravity, ProjectileType_t projectileType, CBaseEntity *pOwner = NULL, CBaseEntity *pScorer = NULL ) OVERRIDE;
 
-	virtual bool CanHeadshot() { return false; }
+	virtual bool CanHeadshot();
 	virtual void ImpactTeamPlayer( CTFPlayer *pOther );
 	
 	virtual float GetCollideWithTeammatesDelay() const { return 0.f; }
