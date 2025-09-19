@@ -363,16 +363,19 @@ BEGIN_VS_SHADER(PBR, "PBR shader")
             }
 
             // Setting up vmt color
-            Vector color;
+            float color[4];
             if (bHasColor)
             {
-                params[info.baseColor]->GetVecValue(color.Base(), 3);
+                params[info.baseColor]->GetVecValue(color, 4);
             }
             else
             {
-                color = Vector{1.f, 1.f, 1.f};
+                color[0] = 1.0f;
+                color[1] = 1.0f;
+                color[2] = 1.0f;
+                color[3] = 1.0f;
             }
-            pShaderAPI->SetPixelShaderConstant(PSREG_SELFILLUMTINT, color.Base());
+            pShaderAPI->SetPixelShaderConstant(PSREG_SELFILLUMTINT, color);
 
             // Setting up environment map
             if (bHasEnvTexture)

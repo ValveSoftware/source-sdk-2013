@@ -7165,7 +7165,7 @@ void CTFPlayer::Resupply( void )
 	
 	// Save kill streaks for all weapons
 	CUtlVector<int> weaponStreaks;
-	for (int i = 0; i < TF_WEAPON_COUNT; i++)
+	for (int i = 0; i < MAX_WEAPONS; i++)
 	{
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon(i);
 		if (pWeapon)
@@ -7184,7 +7184,7 @@ void CTFPlayer::Resupply( void )
 	m_Shared.SetStreak( CTFPlayerShared::kTFStreak_Kills, iPlayerStreak );
 	
 	// Restore kill streaks for all weapons
-	for (int i = 0; i < TF_WEAPON_COUNT && i < weaponStreaks.Count(); i++)
+	for (int i = 0; i < MAX_WEAPONS && i < weaponStreaks.Count(); i++)
 	{
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon(i);
 		if (pWeapon)

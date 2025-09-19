@@ -454,11 +454,11 @@ void CTFPasstimeLogic::BallPower_PackThink()
 	m_flPackSpeed = 0.0f;
 	m_nPrevPackMemberBits = m_nPackMemberBits;
 	m_nPackMemberBits = 0;
-
+	
 	CTFPlayer *pCarrier = GetBallCarrier();
 
 	// Check if pack speed is active
-	if ( !tf_passtime_pack_speed.GetBool() || !IsGamestatePlayable() || !pCarrier )
+	if ( tf_passtime_pack_range.GetFloat() <= 0 || !IsGamestatePlayable() || !pCarrier )
 	{
 		m_nPackMemberBits = 0; // redundant assignment for clarity
 		ReplicatePackMemberBits();
@@ -487,8 +487,19 @@ void CTFPasstimeLogic::BallPower_PackThink()
 		}
 	}
 
-	// Apply marked for death if no teammates
-	if ( !bHasNearbyTeammate )
+	// Mini-crit conditions
+	if ( m_flBallLastReceived + p4ss_minicrit_protection_time.GetFloat() < gpGlobals->curtime || 
+		( pCarrier->InAirDueToExplosion() && ( m_flBallLastReceived + 0.15f < gpGlobals->curtime ) ) )
+	{
+		m_bProtActive = false;
+		pCarrier->m_Shared.AddCond( TF_COND_PASSTIME_PENALTY_DEBUFF, TICK_INTERVAL * 2 );
+	}
+	else if (bHasNearbyTeammate)
+	{
+		m_bProtActive = true;
+		m_flPackSpeed = flMaxMaxSpeed;
+	}
+	else if (!bHasNearbyTeammate && !m_bProtActive)
 	{
 		pCarrier->m_Shared.AddCond( TF_COND_PASSTIME_PENALTY_DEBUFF, TICK_INTERVAL * 2 );
 	}
@@ -505,6 +516,7 @@ void CTFPasstimeLogic::BallPower_PackThink()
 void CTFPasstimeLogic::BallPower_PackHealThink()
 {
 	SetContextThink( &CTFPasstimeLogic::BallPower_PackHealThink, gpGlobals->curtime + 1, "packheal" );
+	if (tf_passtime_pack_hp_per_sec.GetFloat() <= 0) return;
 
 	CTFPlayer *pCarrier = GetBallCarrier();
 	if ( !pCarrier )
@@ -548,6 +560,7 @@ void CTFPasstimeLogic::BallPower_PackHealThink()
 //-----------------------------------------------------------------------------
 float CTFPasstimeLogic::GetPackSpeed( CTFPlayer *pPlayer ) const
 {
+	if (tf_passtime_pack_speed.GetFloat() <= 0) return 0;
 	if ( pPlayer )
 	{
 		uint64 nMask = (uint64)1 << ( pPlayer->entindex() - 1 );
@@ -1868,6 +1881,11 @@ void CTFPasstimeLogic::OnBallGet()
 	}
 	if ( CTFPlayer *pPlayer = m_hBall->GetCarrier() )
 	{
+		if (m_hBall->GetPrevCarrier() != pPlayer)
+		{
+			m_flBallLastReceived = gpGlobals->curtime;
+			m_bProtActive = false;
+		}
 		m_onBallGetAny.FireOutput( pPlayer, this );
 		if ( pPlayer->GetTeamNumber() == TF_TEAM_RED )
 		{

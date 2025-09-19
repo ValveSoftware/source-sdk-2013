@@ -698,14 +698,19 @@ void CPasstimeBall::SetStateCarried( CTFPlayer *pCarrier )
 	pCarrier->m_Shared.SetHasPasstimeBall( true );
 	if ( pCarrier != m_hPrevCarrier )
 	{
+		float fPassTimeLength = gpGlobals->realtime - g_pPasstimeLogic->GetLastPassTime(pCarrier);
 		pCarrier->m_Shared.AddCond( TF_COND_SPEED_BOOST, tf_passtime_speedboost_on_get_ball_time.GetFloat() );
 
 		// Limit points by time so we can't just throw back and forth a ton for points.
 		// FIXME awarding points here and also in passtime_logic?
-		if ( gpGlobals->realtime - g_pPasstimeLogic->GetLastPassTime(pCarrier) > 6.0f ) // FIXME literal balance value
+		if ( fPassTimeLength > p4ss_heal_on_pass_flight_time.GetFloat() ) // FIXME literal balance value
 		{
-			CTF_GameStats.Event_PlayerAwardBonusPoints(pCarrier, 0, 5); // FIXME literal balance value
-			g_pPasstimeLogic->SetLastPassTime(pCarrier);
+			pCarrier->SetHealth(pCarrier->GetHealth() + p4ss_heal_on_pass.GetFloat());
+			if ( fPassTimeLength > 6.0f ) // FIXME literal balance value
+			{
+				CTF_GameStats.Event_PlayerAwardBonusPoints(pCarrier, 0, 5 ); // FIXME literal balance value
+				g_pPasstimeLogic->SetLastPassTime( pCarrier );
+			}
 		}
 	}
 	pCarrier->TeamFortress_SetSpeed();
@@ -1623,3 +1628,72 @@ void CPasstimeBall::KillMagnetSound()
 		m_pCloseToTarget = 0;
 	}
 }
+
+CON_COMMAND_F( pf_tpball_here, "Teleport the ball into your hands.", FCVAR_CHEAT )
+{
+    CBasePlayer *pPlayer = UTIL_GetCommandClient();
+    if ( !pPlayer )
+        return;
+
+    CPasstimeBall *pBall = nullptr;
+    for ( CBaseEntity *pEnt = gEntList.FirstEnt(); pEnt != nullptr; pEnt = gEntList.NextEnt(pEnt) )
+    {
+        pBall = dynamic_cast<CPasstimeBall*>(pEnt);
+        if ( pBall )
+            break;
+    }
+
+    if ( !pBall )
+    {
+        Msg("No passtime ball found!\n");
+        return;
+    }
+
+	if ( pBall->GetTeamNumber() != TEAM_UNASSIGNED )
+	{
+		pBall->ChangeTeam(TEAM_UNASSIGNED);
+	}
+    Vector vecPos = pPlayer->GetAbsOrigin();
+    QAngle vecAng = pPlayer->EyeAngles();
+
+	pBall->Teleport( &vecPos, &vecAng, nullptr );
+}
+
+CON_COMMAND_F( pf_tpball_there, "Teleport the ball to your aim position.", FCVAR_CHEAT )
+{
+    CBasePlayer *pPlayer = UTIL_GetCommandClient();
+    if ( !pPlayer )
+        return;
+
+    CPasstimeBall *pBall = nullptr;
+    for ( CBaseEntity *pEnt = gEntList.FirstEnt(); pEnt != nullptr; pEnt = gEntList.NextEnt(pEnt) )
+    {
+        pBall = dynamic_cast<CPasstimeBall*>(pEnt);
+        if ( pBall )
+            break;
+    }
+
+    if ( !pBall )
+    {
+        Msg("No passtime ball found!\n");
+        return;
+    }
+
+    trace_t tr;
+    Vector forward;
+    pPlayer->EyeVectors( &forward );
+    UTIL_TraceLine(
+        pPlayer->EyePosition(),
+        pPlayer->EyePosition() + forward * MAX_TRACE_LENGTH,
+        MASK_SOLID,
+        pPlayer,
+        COLLISION_GROUP_NONE,
+        &tr
+    );
+
+    Vector vecPos = (tr.fraction < 1.0f) ? tr.endpos : (pPlayer->EyePosition() + forward * MAX_TRACE_LENGTH);
+    QAngle vecAng = pPlayer->EyeAngles();
+
+	pBall->Teleport( &vecPos, &vecAng, nullptr );
+
+	}

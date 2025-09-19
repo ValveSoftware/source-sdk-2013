@@ -666,10 +666,9 @@ int main( int argc, char *argv[] )
 	// at the engine level (at least on Linux), there are texture/model bugs
 	// introduced since SDL3 makes breaking changes, and we
 	// don't have the engine code to Fix it.
-	if (SDL_MAJOR_VERSION >= 3) {
-		MessageBox( 0, "This mod does not support SDL version >= 3. Please recompile the mod with the correct SDL version installed.", "Launcher Error", MB_OK );
-		return 1;
-	}
+	#if SDL_MAJOR_VERSION >= 3
+	#error "This mod does not support SDL version >= 3. Please recompile the mod with the correct SDL version installed."
+	#endif
 
 	execvp( szExecutable, new_argv.data() );
 
