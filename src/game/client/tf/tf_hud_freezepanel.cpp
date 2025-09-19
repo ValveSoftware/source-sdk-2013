@@ -52,6 +52,9 @@ extern float g_flFreezeFlash;
 
 extern ConVar hud_freezecamhide;
 
+ConVar cl_freezepanel_hide_item( "cl_freezepanel_hide_item", "0", FCVAR_ARCHIVE, "If non-zero items will not show in the death freeze panel" );
+ConVar cl_freezepanel_hide_rune( "cl_freezepanel_hide_rune", "0", FCVAR_ARCHIVE, "If non-zero runes will not show in the death freeze panel" );
+
 bool IsTakingAFreezecamScreenshot( void )
 {
 	// Don't draw in freezecam, or when the game's not running
@@ -410,7 +413,7 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 
 				// If our killer is using a powerup, show the details of that powerup
 				static ConVarRef sv_freezepanel_hide_rune( "sv_freezepanel_hide_rune" );
-				if ( pTFPlayerKiller && pTFPlayerKiller->m_Shared.IsCarryingRune() && !sv_freezepanel_hide_rune.GetBool() )
+				if ( pTFPlayerKiller && pTFPlayerKiller->m_Shared.IsCarryingRune() && !sv_freezepanel_hide_rune.GetBool() && !cl_freezepanel_hide_rune.GetBool() )
 				{
 					static CSchemaItemDefHandle rgPowerupItems [] =  { CSchemaItemDefHandle( "Powerup Strength" )
 																	 , CSchemaItemDefHandle( "Powerup Haste" )
@@ -462,7 +465,7 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 					}
 
 					static ConVarRef sv_freezepanel_hide_item( "sv_freezepanel_hide_item" );
-					if ( bShowItem && !sv_freezepanel_hide_item.GetBool() )
+					if ( bShowItem && !sv_freezepanel_hide_item.GetBool() && !cl_freezepanel_hide_item.GetBool() )
 					{
 						Label* pItemLabel = m_pItemPanel->FindControl<Label>( "ItemLabel" );
 						CEconItemView *pItemToShow = pWeapon->GetAttributeContainer()->GetItem();
