@@ -60,7 +60,7 @@ public:
 	virtual void	AdjustDamageDirection( const CTakeDamageInfo &info, Vector &dir, CBaseEntity *pEnt );
 	void			ImpactSound( const char *pszSoundName, bool bLoudForAttacker = false );
 	virtual void	BreakArrow();
-	virtual void	ImpactTeamPlayer( CTFPlayer *pOther ) {}
+	virtual void	ImpactTeamPlayer( CTFPlayer *pOther, bool bHeadshot = false ) {}
 
 	void			FadeOut( int iTime );
 	void			RemoveThink();
@@ -124,7 +124,7 @@ public:
 	virtual void	InitArrow( const QAngle &vecAngles, const float fSpeed, const float fGravity, ProjectileType_t projectileType, CBaseEntity *pOwner = NULL, CBaseEntity *pScorer = NULL ) OVERRIDE;
 
 	virtual bool CanHeadshot();
-	virtual void ImpactTeamPlayer( CTFPlayer *pOther );
+	virtual void ImpactTeamPlayer( CTFPlayer *pOther, bool bHeadshot = false);
 	
 	virtual float GetCollideWithTeammatesDelay() const { return 0.f; }
 };
