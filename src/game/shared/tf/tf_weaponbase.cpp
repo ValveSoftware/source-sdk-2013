@@ -5030,7 +5030,7 @@ void CTFWeaponBase::ApplyOnHitAttributes( CBaseEntity *pVictimBaseEntity, CTFPla
 		}
 
 		// On hit attributes don't work when you shoot disguised spies
-		if ( pVictim->m_Shared.InCond( TF_COND_DISGUISED ) )
+		if ( pVictim->m_Shared.InCond( TF_COND_DISGUISED ) && pVictim->m_Shared.GetDisguiseTeam() != pVictim->GetTeamNumber() )
 			return;
 	}
 
