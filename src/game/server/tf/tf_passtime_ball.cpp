@@ -1272,6 +1272,18 @@ static bool IsGroundCollision( int index, const gamevcollisionevent_t *pEvent )
 		return false; // paranoia
 	}
 
+ 	// --- P4SS: Check for surfaceprop that makes the ball not go neutral ---
+    static int s_pfNoneutralIndex = -1;
+    if (s_pfNoneutralIndex == -1)
+    {
+        s_pfNoneutralIndex = physprops->GetSurfaceIndex("pf_noneutral");
+    }
+    if (pEvent->surfaceProps[otherindex] == s_pfNoneutralIndex)
+    {
+        return false;
+    }
+
+    // --- End custom surface property check ---
 	Vector vecNormal;
 	pEvent->pInternalData->GetSurfaceNormal( vecNormal );
 	return Vector( 0, 0, 1 ).Dot( vecNormal ) < -0.7f; // why is this backwards?
@@ -1621,7 +1633,7 @@ void CPasstimeBall::CreateMagnetSound()
 	{
 		CReliableBroadcastRecipientFilter filter;
 		m_pCloseToTarget =CSoundEnvelopeController::GetController().SoundCreate( filter, entindex(), "Passtime.BallMagnetLock" );
-		CSoundEnvelopeController::GetController().Play( m_pCloseToTarget, 2.5, PITCH_NORM );
+		CSoundEnvelopeController::GetController().Play( m_pCloseToTarget, 4, PITCH_NORM );
 	}
 }
 
