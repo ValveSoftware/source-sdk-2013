@@ -3629,6 +3629,31 @@ HSCRIPT CBaseCombatCharacter::ScriptGetLastKnownArea( void ) const
 #endif
 }	
 
+#ifndef TF_DLL
+void CBaseCombatCharacter::ScriptWeapon_Equip( HSCRIPT hWeapon )
+{
+	CBaseCombatWeapon *pCombatWeapon = ScriptToEntClass< CBaseCombatWeapon >( hWeapon );
+	if ( !pCombatWeapon )
+		return;
+
+	this->Weapon_Equip( pCombatWeapon );
+}
+
+void CBaseCombatCharacter::ScriptWeapon_Switch( HSCRIPT hWeapon )
+{
+	CBaseCombatWeapon *pCombatWeapon = ScriptToEntClass< CBaseCombatWeapon >( hWeapon );
+	if ( !pCombatWeapon )
+		return;
+
+	this->Weapon_Switch( pCombatWeapon );
+}
+
+#endif // tf_dll
+
 BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "Base combat characters." )
+#ifndef TF_DLL
+	DEFINE_SCRIPTFUNC_WRAPPED( Weapon_Equip, "" )
+	DEFINE_SCRIPTFUNC_WRAPPED( Weapon_Switch, "" )
+#endif
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetLastKnownArea, "GetLastKnownArea", "Return the last nav area occupied - NULL if unknown" )
 END_SCRIPTDESC();

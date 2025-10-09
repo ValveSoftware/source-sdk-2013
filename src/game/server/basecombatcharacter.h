@@ -407,6 +407,10 @@ public:
 
 	virtual CNavArea *GetLastKnownArea( void ) const		{ return m_lastNavArea; }		// return the last nav area the player occupied - NULL if unknown
 	HSCRIPT ScriptGetLastKnownArea( void ) const;
+#ifndef TF_DLL
+	void	ScriptWeapon_Equip( HSCRIPT hWeapon );
+	void	ScriptWeapon_Switch( HSCRIPT hWeapon );
+#endif
 	virtual bool IsAreaTraversable( const CNavArea *area ) const;							// return true if we can use the given area 
 	virtual void ClearLastKnownArea( void );
 	virtual void UpdateLastKnownArea( void );										// invoke this to update our last known nav area (since there is no think method chained to CBaseCombatCharacter)
