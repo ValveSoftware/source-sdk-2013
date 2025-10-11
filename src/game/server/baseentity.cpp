@@ -8510,7 +8510,7 @@ void CBaseEntity::SetCollisionBoundsFromModel()
 
 
 //------------------------------------------------------------------------------
-// Purpose: Create an NPC of the given type
+// Purpose: Create an entity of the given type
 //------------------------------------------------------------------------------
 void CC_Ent_Create( const CCommand& args )
 {

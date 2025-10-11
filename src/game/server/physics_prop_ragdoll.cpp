@@ -283,6 +283,11 @@ CRagdollProp::~CRagdollProp( void )
 
 void CRagdollProp::Precache( void )
 {
+	if (GetModelName() == NULL_STRING)
+	{
+		Msg("%s at (%.3f, %.3f, %.3f) has no model name!\n", GetClassname(), GetAbsOrigin().x, GetAbsOrigin().y, GetAbsOrigin().z);
+		return;
+	}
 	PrecacheModel( STRING( GetModelName() ) );
 	BaseClass::Precache();
 }
