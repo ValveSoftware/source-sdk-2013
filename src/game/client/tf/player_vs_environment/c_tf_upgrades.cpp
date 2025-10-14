@@ -34,6 +34,7 @@
 #include "tf_hud_statpanel.h"
 #include "tf_mann_vs_machine_stats.h"
 #include "c_tf_playerresource.h"
+#include "soundenvelope.h"
 
 #define UPGRADE_PANEL_LEVEL_LABEL_COUNT 10
 
@@ -41,6 +42,7 @@
 extern CAchievementMgr g_AchievementMgrTF;
 
 ConVar tf_mvm_tabs_discovered( "tf_mvm_tabs_discovered", "0", FCVAR_ARCHIVE, "Remember how many times players have clicked tabs." );
+ConVar tf_mvm_play_music( "tf_mvm_play_music", "0", FCVAR_ARCHIVE, "Play the cut MvM upgrade station music." );
 
 Color CUpgradeBuyPanel::m_rgbaDefaultFG( 0, 0, 0, 255 );
 Color CUpgradeBuyPanel::m_rgbaDefaultBG( 0, 0, 0, 255 );
@@ -614,9 +616,22 @@ void CHudUpgradePanel::OnTick( void )
 
 		if ( m_hPlayer )
 		{
-			if ( !m_hPlayer->m_Shared.IsInUpgradeZone() && !m_bInspectMode )
+			if ( !m_bInspectMode )
 			{
-				OnCommand( "cancel" );
+				if ( m_hPlayer->m_Shared.IsInUpgradeZone())
+				{
+					if ( !m_pMvMUpgradeMachineLoop && tf_mvm_play_music.GetBool() )
+					{
+						CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
+						CLocalPlayerFilter filter;
+						m_pMvMUpgradeMachineLoop = controller.SoundCreate( filter, m_hPlayer->entindex(), "music.mvm_upgrade_machine" );
+						controller.Play( m_pMvMUpgradeMachineLoop, 1.0, 100 );
+					}
+				}
+				else
+				{
+					OnCommand( "cancel" );
+				}
 			}
 
 			if ( m_pPlayerRespecButton && g_TF_PR && m_hPlayer )
@@ -1973,6 +1988,12 @@ void CHudUpgradePanel::OnCommand( const char *command )
 {
 	if ( !Q_stricmp( command, "close" ) )
 	{
+		if ( m_pMvMUpgradeMachineLoop )
+		{
+			CSoundEnvelopeController::GetController().SoundDestroy( m_pMvMUpgradeMachineLoop );
+			m_pMvMUpgradeMachineLoop = NULL;
+		}
+		
 		m_bShowUpgradeMenu = false;
 		m_bCancelUpgrades = false;
 		m_bOpenLoadout = false;
@@ -1991,6 +2012,12 @@ void CHudUpgradePanel::OnCommand( const char *command )
 	}
 	else if ( !Q_stricmp( command, "cancel" ) )
 	{
+		if ( m_pMvMUpgradeMachineLoop )
+		{
+			CSoundEnvelopeController::GetController().SoundDestroy( m_pMvMUpgradeMachineLoop );
+			m_pMvMUpgradeMachineLoop = NULL;
+		}
+		
 		m_bShowUpgradeMenu = false;
 		m_bCancelUpgrades = true;
 		m_bOpenLoadout = false;
