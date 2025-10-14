@@ -42,7 +42,7 @@
 extern CAchievementMgr g_AchievementMgrTF;
 
 ConVar tf_mvm_tabs_discovered( "tf_mvm_tabs_discovered", "0", FCVAR_ARCHIVE, "Remember how many times players have clicked tabs." );
-ConVar tf_mvm_play_music( "tf_mvm_play_music", "1", FCVAR_ARCHIVE, "Play the cut MvM upgrade station music." );
+ConVar tf_mvm_play_music( "tf_mvm_play_music", "1", FCVAR_ARCHIVE, "Play the MvM upgrade station music." );
 
 Color CUpgradeBuyPanel::m_rgbaDefaultFG( 0, 0, 0, 255 );
 Color CUpgradeBuyPanel::m_rgbaDefaultBG( 0, 0, 0, 255 );
