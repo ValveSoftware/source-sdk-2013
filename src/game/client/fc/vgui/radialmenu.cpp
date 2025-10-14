@@ -1,13 +1,7 @@
 // RadialMenu.cpp
-// From alien swarm
-// Edited for TF2 by Vvis 
+// From alien swarm and modified for TF2/Source SDK 2013 by Vvis 
 // (http://steamcommunity.com/profiles/76561199004586557 ) 
 // (https://github.com/Lambdagon/source-sdk-2013-radialmenu)
-// Codes a bit of a hot mess and was done in an afternoon. 
-// Might have some issues and the code is a bit of a mess but I am working on fixing this up
-// Will be cleaned up a bit more later on
-// Do we need some of these other alien swarm things? 
-// I feel like this can be stripped down a lot more. 
 
 #include "cbase.h"
 #include <string.h>
@@ -28,10 +22,7 @@
 #include "vgui/ISurface.h"
 #include "iclientmode.h"
 #include "tf_gamerules.h"
-#include "asw_vgui_ingame_panel.h"
 #include "c_tf_player.h"
-
-#include "polygonbutton.h"
 #include "radialmenu.h"
 #include "vgui/Cursor.h"
 #include "fmtstr.h"
@@ -57,7 +48,7 @@ static bool s_mouseMenuKeyHeld[ MAX_SPLITSCREEN_PLAYERS ];
 /**
  * A radial menu-specific subclass of CPolygonButton
  */
-class CRadialButton : public CPolygonButton, public CASW_VGUI_Ingame_Panel
+class CRadialButton : public CPolygonButton
 {
 	DECLARE_CLASS_SIMPLE( CRadialButton, CPolygonButton );
 
@@ -521,7 +512,7 @@ DECLARE_HUDELEMENT( CRadialMenu );
 
 //--------------------------------------------------------------------------------------------------------------
 CRadialMenu::CRadialMenu( const char *pElementName ) :
-CASW_HudElement( pElementName ), BaseClass( NULL, PANEL_RADIAL_MENU )
+CHudElement( pElementName ), BaseClass( NULL, PANEL_RADIAL_MENU )
 {
 	MEM_ALLOC_CREDIT();
 
@@ -962,19 +953,6 @@ void CRadialMenu::OnThink( void )
 {
 	if ( !IsMouseInputEnabled() || GetAlpha() <= 0 || m_fading )
 		return;
-
-	/*if ( TFGameRules() && TFGameRules()->GetGameState() != ASW_GS_INGAME )
-	{
-		StartFade();
-		return;
-	}*/
-
-	CTFPlayer *pMarine = CTFPlayer::GetLocalTFPlayer();
-	if ( pMarine )
-	{
-		// Vvis fix
-		//pMarine->SetFacingPoint( pMarine->GetAbsOrigin() + pMarine->Forward() * 30.0f, 0.25f );
-	}
 
 	bool armed = false;
 	for ( int i=0; i<NUM_BUTTON_DIRS; ++i )
@@ -1465,8 +1443,6 @@ void OpenRadialMenu( const char *menuName )
 
 	pMenu->ShowPanel( true );
 	pMenu->Update();
-
-	//ASWInput()->SetCameraFixed( true );
 }
 
 
@@ -1487,7 +1463,6 @@ CON_COMMAND( radialmenu, "Opens a radial menu" )
 		OpenRadialMenu( args[1] );
 	}
 }
-
 
 //--------------------------------------------------------------------------------------------------------
 void openradialmenu( const CCommand &args )
