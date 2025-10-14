@@ -11464,19 +11464,29 @@ void CTFPlayer::CheckSpellHalloweenDeathGhosts( const CTakeDamageInfo &info, CTF
 	if ( TF_IsHolidayActive( kHoliday_HalloweenOrFullMoon ) )
 	{
 		int iHalloweenDeathGhosts = 0;
-		CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
+		CTFWeaponBase* pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
 
-		// was this a wrangler kill?
-		if ( info.GetDamageCustom() == TF_DMG_CUSTOM_PLAYER_SENTRY )
+		if (info.GetDamageCustom() == TF_DMG_CUSTOM_PLAYER_SENTRY && iHalloweenDeathGhosts == 0) // Was the Wrangler used + spelled?
 		{
-			CTFLaserPointer* pLaserPointer = dynamic_cast<CTFLaserPointer *>( GetEntityForLoadoutSlot( LOADOUT_POSITION_SECONDARY ) );
-			if ( pLaserPointer )
+			CTFLaserPointer* pLaserPointer = dynamic_cast<CTFLaserPointer*>(GetEntityForLoadoutSlot(LOADOUT_POSITION_SECONDARY));
+			if (pLaserPointer)
 			{
-				pWeapon = pLaserPointer;
+				CALL_ATTRIB_HOOK_INT_ON_OTHER(pLaserPointer, iHalloweenDeathGhosts, halloween_death_ghosts);
 			}
 		}
+		if (iHalloweenDeathGhosts == 0) // Was the Sentry used & the Wrench is spelled?
+		{
+			CTFWrench* pWrench = dynamic_cast<CTFWrench*>(GetEntityForLoadoutSlot(LOADOUT_POSITION_MELEE));
+			if (pWrench)
+			{
+				CALL_ATTRIB_HOOK_INT_ON_OTHER(pWrench, iHalloweenDeathGhosts, halloween_death_ghosts);
+			}
+		}
+		if (iHalloweenDeathGhosts == 0) // This uses the actual weapon
+		{
+			CALL_ATTRIB_HOOK_INT_ON_OTHER(pWeapon, iHalloweenDeathGhosts, halloween_death_ghosts);
+		}
 
-		CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iHalloweenDeathGhosts, halloween_death_ghosts );
 		if ( iHalloweenDeathGhosts > 0 )
 		{
 			if ( pTFVictim->GetTeam()->GetTeamNumber() == TF_TEAM_BLUE )
