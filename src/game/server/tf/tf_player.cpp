@@ -21474,8 +21474,9 @@ bool CTFPlayer::TryToPickupDroppedWeapon()
 	if ( !CanAttack() )
 		return false;
 
-	if ( GetActiveWeapon() && ( GetActiveWeapon()->m_flNextPrimaryAttack > gpGlobals->curtime ) )
-		return false;
+	// Disabled to allow picking up weapons while reloading
+	// if ( GetActiveWeapon() && ( GetActiveWeapon()->m_flNextPrimaryAttack > gpGlobals->curtime ) )
+	// 	return false;
 
 	CTFDroppedWeapon *pDroppedWeapon = GetDroppedWeaponInRange();
 	if ( pDroppedWeapon && !pDroppedWeapon->IsMarkedForDeletion() )
