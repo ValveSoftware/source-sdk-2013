@@ -11466,22 +11466,28 @@ void CTFPlayer::CheckSpellHalloweenDeathGhosts( const CTakeDamageInfo &info, CTF
 		int iHalloweenDeathGhosts = 0;
 		CTFWeaponBase* pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
 
-		if (info.GetDamageCustom() == TF_DMG_CUSTOM_PLAYER_SENTRY && iHalloweenDeathGhosts == 0) // Was the Wrangler used + spelled?
+		if (IsPlayerClass(TF_CLASS_ENGINEER))
 		{
-			CTFLaserPointer* pLaserPointer = dynamic_cast<CTFLaserPointer*>(GetEntityForLoadoutSlot(LOADOUT_POSITION_SECONDARY));
-			if (pLaserPointer)
+			CObjectSentrygun* pSentry = dynamic_cast<CObjectSentrygun*>(info.GetInflictor());
+
+			if (info.GetDamageCustom() == TF_DMG_CUSTOM_PLAYER_SENTRY && iHalloweenDeathGhosts == 0) // Was the Wrangler used + spelled?
 			{
-				CALL_ATTRIB_HOOK_INT_ON_OTHER(pLaserPointer, iHalloweenDeathGhosts, halloween_death_ghosts);
+				CTFLaserPointer* pLaserPointer = dynamic_cast<CTFLaserPointer*>(GetEntityForLoadoutSlot(LOADOUT_POSITION_SECONDARY));
+				if (pLaserPointer)
+				{
+					CALL_ATTRIB_HOOK_INT_ON_OTHER(pLaserPointer, iHalloweenDeathGhosts, halloween_death_ghosts);
+				}
+			}
+			if (iHalloweenDeathGhosts == 0 && pSentry) // Was the Sentry used & the Wrench is spelled?
+			{
+				CTFWrench* pWrench = dynamic_cast<CTFWrench*>(GetEntityForLoadoutSlot(LOADOUT_POSITION_MELEE));
+				if (pWrench)
+				{
+					CALL_ATTRIB_HOOK_INT_ON_OTHER(pWrench, iHalloweenDeathGhosts, halloween_death_ghosts);
+				}
 			}
 		}
-		if (iHalloweenDeathGhosts == 0) // Was the Sentry used & the Wrench is spelled?
-		{
-			CTFWrench* pWrench = dynamic_cast<CTFWrench*>(GetEntityForLoadoutSlot(LOADOUT_POSITION_MELEE));
-			if (pWrench)
-			{
-				CALL_ATTRIB_HOOK_INT_ON_OTHER(pWrench, iHalloweenDeathGhosts, halloween_death_ghosts);
-			}
-		}
+
 		if (iHalloweenDeathGhosts == 0) // This uses the actual weapon
 		{
 			CALL_ATTRIB_HOOK_INT_ON_OTHER(pWeapon, iHalloweenDeathGhosts, halloween_death_ghosts);
@@ -15774,6 +15780,7 @@ void CTFPlayer::FeignDeath( const CTakeDamageInfo& info, bool bDeathnotice )
 		{
 			DropDeathCallingCard( pTFPlayer, this );
 		}
+
 
 		// Check for Halloween Death Ghosts
 		pTFPlayer->CheckSpellHalloweenDeathGhosts( info, this );
