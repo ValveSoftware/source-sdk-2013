@@ -85,6 +85,8 @@ static Vector WALL_MAX(WALL_OFFSET,WALL_OFFSET,WALL_OFFSET);
 bool CommentaryModeShouldSwallowInput( C_BasePlayer *pPlayer );
 
 extern ConVar default_fov;
+extern ConVar spec_fov;
+extern ConVar spec_chase_fov;
 #ifndef _XBOX
 extern ConVar sensitivity;
 #endif
@@ -1603,7 +1605,7 @@ void C_BasePlayer::CalcChaseCamView(Vector& eyeOrigin, QAngle& eyeAngles, float&
 	VectorCopy( viewangles, eyeAngles );
 	VectorCopy( viewpoint, eyeOrigin );
 
-	fov = GetFOV();
+	fov = spec_chase_fov.GetFloat();
 }
 
 void C_BasePlayer::CalcRoamingView(Vector& eyeOrigin, QAngle& eyeAngles, float& fov)
@@ -1640,7 +1642,9 @@ void C_BasePlayer::CalcRoamingView(Vector& eyeOrigin, QAngle& eyeAngles, float& 
 	GetPredictionErrorSmoothingVector( vSmoothOffset );
 	eyeOrigin += vSmoothOffset;
 
-	fov = GetFOV();
+	// Use spec_fov if set, otherwise use target's FOV
+	float flSpecFov = spec_fov.GetFloat();
+	fov = (flSpecFov < 0) ? GetFOV() : flSpecFov;
 }
 
 //-----------------------------------------------------------------------------
@@ -1745,7 +1749,9 @@ void C_BasePlayer::CalcInEyeCamView(Vector& eyeOrigin, QAngle& eyeAngles, float&
 		return;
 	}
 
-	fov = GetFOV();	// TODO use tragets FOV
+	// Use spec_fov if set, otherwise use target's FOV
+	float flSpecFov = spec_fov.GetFloat();
+	fov = (flSpecFov < 0) ? GetFOV() : flSpecFov;
 
 	m_flObserverChaseDistance = 0.0;
 

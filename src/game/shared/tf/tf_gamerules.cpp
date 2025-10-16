@@ -614,6 +614,10 @@ extern ConVar tf_vaccinator_uber_resist;
 extern ConVar tf_teleporter_fov_time;
 extern ConVar tf_teleporter_fov_start;
 
+// Spectator FOV control
+ConVar spec_fov("spec_fov", "-1", FCVAR_ARCHIVE | FCVAR_NOTIFY | FCVAR_REPLICATED, "Field of view for spectators. Set to -1 to use target's FOV", true, -1.0, true, 130.0);
+ConVar spec_chase_fov("spec_chase_fov", "90", FCVAR_ARCHIVE | FCVAR_NOTIFY | FCVAR_REPLICATED, "Field of view for third-person chase camera spectator mode", true, 70.0, true, 130.0);
+
 #ifdef GAME_DLL
 extern ConVar mp_holiday_nogifts;
 extern ConVar tf_debug_damage;
