@@ -11471,7 +11471,7 @@ void CTFPlayer::CheckSpellHalloweenDeathGhosts( const CTakeDamageInfo &info, CTF
 			CObjectSentrygun* pSentry = dynamic_cast<CObjectSentrygun*>( info.GetInflictor() );
 			CTFProjectile_SentryRocket* pSentryRockets = dynamic_cast<CTFProjectile_SentryRocket*>( info.GetInflictor() );
 
-			if ( ( info.GetDamageCustom() == TF_DMG_CUSTOM_PLAYER_SENTRY || pSentryRockets ) && iHalloweenDeathGhosts == 0 ) // Was the Wrangler used + spelled?
+			if ( ( info.GetDamageCustom() == TF_DMG_CUSTOM_PLAYER_SENTRY ) && iHalloweenDeathGhosts == 0 ) // Was the Wrangler used + spelled?
 			{
 				CTFLaserPointer* pLaserPointer = dynamic_cast<CTFLaserPointer*>( GetEntityForLoadoutSlot( LOADOUT_POSITION_SECONDARY ) );
 				if ( pLaserPointer )

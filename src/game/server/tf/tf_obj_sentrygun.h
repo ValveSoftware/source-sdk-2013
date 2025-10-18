@@ -241,6 +241,22 @@ public:
 	static CTFProjectile_SentryRocket *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL, CBaseEntity *pScorer = NULL );	
 
 	virtual void Spawn();
+
+	void SetPlayerControlledSentry(bool state) { m_bPlayerControlledSentry = state; }
+
+	virtual int GetDamageCustom() OVERRIDE
+	{
+		if (m_bPlayerControlledSentry)
+		{
+			return TF_DMG_CUSTOM_PLAYER_SENTRY;
+		}
+		else
+		{
+			return BaseClass::GetDamageCustom();
+		}
+	}
+private:
+	bool m_bPlayerControlledSentry;
 };
 
 #endif // TF_OBJ_SENTRYGUN_H
