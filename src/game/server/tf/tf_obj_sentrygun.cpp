@@ -2395,3 +2395,15 @@ void CTFProjectile_SentryRocket::Spawn()
 
 	ResetSequence( LookupSequence("idle") );
 }
+
+int CTFProjectile_SentryRocket::GetDamageCustom()
+{
+	if (m_bPlayerControlledSentry)
+	{
+		return TF_DMG_CUSTOM_PLAYER_SENTRY;
+	}
+	else
+	{
+		return BaseClass::GetDamageCustom();
+	}
+}
