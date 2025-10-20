@@ -224,7 +224,7 @@ public:
 	virtual void OnTick() OVERRIDE;
 	void	SetNeedsToLoad();
 	bool	LoadData();
-	void	LoadDataCompleted();
+	void	RemovePanelTick();
 
 	CExLabel	*GetNameLabel( void ) { return m_pItemNameLabel; }
 
@@ -289,6 +289,10 @@ public:
 private:
 	void	UpdateEquippedLabel( void );
 	void	CleanupNoItemWChars( void );
+
+	bool	bLoadingData = true;
+
+	void	DrawPaintImage(int iRGB0, int iRGB1);
 
 	bool	UpdateSeriesLabel();
 	bool	UpdateMatchesLabel();

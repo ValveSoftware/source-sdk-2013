@@ -3147,14 +3147,9 @@ void CItemModelPanel::UpdatePanels( void )
 			int iRGB0 = m_ItemData.GetModifiedRGBValue( false ),
 				iRGB1 = m_ItemData.GetModifiedRGBValue( true );
 
-			if ( !bIsEconTool && (iRGB0 != 0 || iRGB1 != 0))
+			if ( !bIsEconTool )
 			{
-				m_pPaintIcon->SetVisible( true );
-				m_pPaintIcon->m_colPaintColors.AddToTail( Color( clamp( (iRGB0 & 0xFF0000) >> 16, 0, 255 ), clamp( (iRGB0 & 0xFF00) >> 8, 0, 255 ), clamp( (iRGB0 & 0xFF), 0, 255 ), 255 ) );
-				if ( iRGB0 != iRGB1 )
-				{
-					m_pPaintIcon->m_colPaintColors.AddToTail( Color( clamp( (iRGB1 & 0xFF0000) >> 16, 0, 255 ), clamp( (iRGB1 & 0xFF00) >> 8, 0, 255 ), clamp( (iRGB1 & 0xFF), 0, 255 ), 255 ) );
-				}
+				DrawPaintImage(iRGB0, iRGB1);
 			}
 		}
 	}
@@ -3409,18 +3404,53 @@ void CItemModelPanel::SetModelIsHidden( bool bHideModel )
 	}
 }
 
+void CItemModelPanel::DrawPaintImage(int iRGB0, int iRGB1)
+{
+	if (iRGB0 != 0 || iRGB1 != 0)
+	{
+		m_pPaintIcon->SetVisible(true);
+		m_pPaintIcon->m_colPaintColors.AddToTail(Color(clamp((iRGB0 & 0xFF0000) >> 16, 0, 255), clamp((iRGB0 & 0xFF00) >> 8, 0, 255), clamp((iRGB0 & 0xFF), 0, 255), 255));
+		if (iRGB0 != iRGB1)
+		{
+			m_pPaintIcon->m_colPaintColors.AddToTail(Color(clamp((iRGB1 & 0xFF0000) >> 16, 0, 255), clamp((iRGB1 & 0xFF00) >> 8, 0, 255), clamp((iRGB1 & 0xFF), 0, 255), 255));
+		}
+	}
+}
+
+static CSchemaAttributeDefHandle pAttrDef_SpellColor("SPELL: set item tint RGB");
+
 void CItemModelPanel::OnTick()
 {
 	bool bStillWorking = LoadData();
-	if ( m_pContainedItemPanel )
+	if ( m_pContainedItemPanel && bLoadingData)
 	{
 		bStillWorking |= m_pContainedItemPanel->LoadData();
 	}
 
-	// If we're done working, we dont need to tick anymore
-	if ( !bStillWorking )
+	// If we're done working, lets check if the item is spelled and can change colors!
+	// If it is not, lets stop ticking the panel and act like normal.
+	if (!bStillWorking)
 	{
-		LoadDataCompleted();
+		bLoadingData = false;
+		if (!pAttrDef_SpellColor || !m_ItemData.FindAttribute(pAttrDef_SpellColor))
+		{
+			RemovePanelTick();
+		}
+		else if (m_pPaintIcon)
+		{
+			if (!m_bHideModel && !m_bHidePaintIcon)
+			{
+				// Empty out our list of paint colors. We may or may not put things back in -- an empty
+				// list at the end means "don't draw the paint icon".
+				m_pPaintIcon->m_colPaintColors.RemoveAll();
+
+				// Has the item been painted?
+				int iRGB0 = m_ItemData.GetModifiedRGBValue(false),
+					iRGB1 = m_ItemData.GetModifiedRGBValue(true);
+
+				DrawPaintImage(iRGB0, iRGB1);
+			}
+		}
 	}
 
 	BaseClass::OnTick();
@@ -3529,7 +3559,7 @@ bool CItemModelPanel::LoadData()
 	return bStillWorking;
 }
 
-void CItemModelPanel::LoadDataCompleted()
+void CItemModelPanel::RemovePanelTick()
 {
 	vgui::ivgui()->RemoveTickSignal( GetVPanel() );
 }
