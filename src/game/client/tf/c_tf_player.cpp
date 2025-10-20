@@ -9125,7 +9125,7 @@ CNewParticleEffect *C_TFPlayer::SpawnHalloweenSpellFootsteps( ParticleAttachment
 		kHalloweenSpell_RGBConstant_HHH			= 2,
 		kHalloweenSpell_RGBConstant_TeamColor	= 1,
 		kHalloweenSpell_RGB_Red					= 12073019,
-		kHalloweenSpell_RGB_Blue				= 5801378,
+		kHalloweenSpell_RGB_Blue				= 2192591,
 	};
 
 	if ( iHalloweenFootstepType == kHalloweenSpell_RGBConstant_HHH )
