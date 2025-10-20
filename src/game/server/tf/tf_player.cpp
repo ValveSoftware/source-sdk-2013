@@ -11488,6 +11488,32 @@ void CTFPlayer::CheckSpellHalloweenDeathGhosts( const CTakeDamageInfo &info, CTF
 				}
 			}
 		}
+		else if (IsPlayerClass(TF_CLASS_DEMOMAN))
+		{
+			if (info.GetDamageCustom() == TF_DMG_CUSTOM_CHARGE_IMPACT && iHalloweenDeathGhosts == 0) // Was the death due to the shield?
+			{
+				CTFWearableDemoShield* pShield = NULL;
+
+				// Find a shield wearable...
+				for (int i = 0; i < GetNumWearables(); ++i)
+				{
+					CEconWearable* pItem = GetWearable(i);
+					if (!pItem)
+						continue;
+
+					CTFWearableDemoShield* pTempShield = dynamic_cast<CTFWearableDemoShield*>(pItem);
+					if (!pTempShield)
+						continue;
+
+					pShield = pTempShield;
+				}
+
+				if (pShield)
+				{
+					CALL_ATTRIB_HOOK_INT_ON_OTHER(pShield, iHalloweenDeathGhosts, halloween_death_ghosts);
+				}
+			}
+		}
 
 		if (iHalloweenDeathGhosts == 0) // This uses the actual weapon
 		{
