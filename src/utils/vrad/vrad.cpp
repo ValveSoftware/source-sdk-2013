@@ -46,7 +46,8 @@ int area_sky_cameras[MAX_MAP_AREAS];
 
 entity_t	*face_entity[MAX_MAP_FACES];
 Vector		face_offset[MAX_MAP_FACES];		// for rotating bmodels
-int			fakeplanes;
+dplane_t 	fakeplanes[MAX_MAP_PLANES];
+int			numfakeplanes = 0;
 
 unsigned	numbounce = 100; // 25; /* Originally this was 8 */
 
@@ -601,12 +602,11 @@ void MakePatchForFace (int fn, winding_t *w)
 		dplane_t	*pl;
 
 		// origin offset faces must create new planes
-		if (numplanes + fakeplanes >= MAX_MAP_PLANES)
+		if (numfakeplanes >= MAX_MAP_PLANES)
 		{
-			Error ("numplanes + fakeplanes >= MAX_MAP_PLANES");
+			Error ("numfakeplanes >= MAX_MAP_PLANES");
 		}
-		pl = &dplanes[numplanes + fakeplanes];
-		fakeplanes++;
+		pl = &fakeplanes[numfakeplanes++];
 
 		*pl = *(patch->plane);
 		pl->dist += DotProduct (face_offset[fn], pl->normal);
