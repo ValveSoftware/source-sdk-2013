@@ -584,6 +584,9 @@ FixFaceEdges
 
 ==================
 */
+int g_numprimitives_overflow = 0;
+int g_numprimindices_overflow = 0;
+
 void FixFaceEdges (face_t **pList, face_t *f)
 {
 	int		p1, p2;
@@ -673,6 +676,17 @@ void FixFaceEdges (face_t **pList, face_t *f)
 			inIndices.AddToTail( i );
 		}
 		Triangulate_r( outIndices, inIndices, poly );
+
+		// maps with heavy use of detail brushes can overflow primitives
+		// but thats OK, the maps will still work without them
+		if ( ( g_numprimitives + 1 ) > MAX_MAP_PRIMITIVES
+			|| ( g_numprimindices + outIndices.Count() ) > MAX_MAP_PRIMINDICES )
+		{
+			g_numprimitives_overflow++;
+			g_numprimindices_overflow += outIndices.Count();
+			return;
+		}
+
 		dprimitive_t &newPrim = g_primitives[g_numprimitives];
 		f->firstPrimID = g_numprimitives;
 		g_numprimitives++;
@@ -683,10 +697,7 @@ void FixFaceEdges (face_t **pList, face_t *f)
 		newPrim.vertCount = 0;
 		newPrim.type = PRIM_TRILIST;
 		g_numprimindices += newPrim.indexCount;
-		if ( g_numprimitives > MAX_MAP_PRIMITIVES || g_numprimindices > MAX_MAP_PRIMINDICES )
-		{
-			Error("Too many t-junctions to fix up! (%d prims, max %d :: %d indices, max %d)\n", g_numprimitives, MAX_MAP_PRIMITIVES, g_numprimindices, MAX_MAP_PRIMINDICES );
-		}
+
 		for ( i = 0; i < outIndices.Count(); i++ )
 		{
 			g_primindices[newPrim.firstIndex + i] = outIndices[i];
@@ -784,6 +795,15 @@ face_t *FixTjuncs (node_t *headnode, face_t *pLeafFaceList)
 	return pLeafFaceList;
 }
 
+void EndTjuncs()
+{
+	if ( g_numprimindices_overflow > 0 || g_numprimitives_overflow > 0 )
+	{
+		Warning( "Exceeded max t-junctions fixup limit! (%d/%d primitives, %d/%d indices)\n",
+			g_numprimitives + g_numprimitives_overflow, MAX_MAP_PRIMITIVES,
+			g_numprimindices + g_numprimindices_overflow, MAX_MAP_PRIMINDICES );
+	}
+}
 
 //========================================================
 
