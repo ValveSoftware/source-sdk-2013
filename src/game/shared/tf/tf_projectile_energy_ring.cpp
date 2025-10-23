@@ -257,8 +257,11 @@ void CTFProjectile_EnergyRing::ProjectileTouch( CBaseEntity *pOther )
 	if ( bCombatEntity )
 	{
 		// Bison projectiles shouldn't collide with friendly things
-		if ( ShouldPenetrate() && ( pOther->InSameTeam( this ) || ( gpGlobals->curtime - m_flLastHitTime ) < tf_bison_tick_time.GetFloat() ) )
-			return;
+		if ((ShouldPenetrate() && (pOther->InSameTeam(this) || (gpGlobals->curtime - m_flLastHitTime) < tf_bison_tick_time.GetFloat())) || // Bison
+			(!ShouldPenetrate() && pOther->InSameTeam(this) && !CanCollideWithTeammates())) // Pomson
+		{
+			return; //Pass through
+		}
 
 		m_flLastHitTime = gpGlobals->curtime;
 
