@@ -197,7 +197,7 @@ void CTFPistol_ScoutPrimary::Push( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: Allows the Shortstop's shove to interrupt a reload
 // Input  :  - 
 //-----------------------------------------------------------------------------
 void CTFPistol_ScoutPrimary::ItemBusyFrame()
