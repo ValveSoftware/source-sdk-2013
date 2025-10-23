@@ -292,7 +292,7 @@ private:
 
 	bool	bLoadingData = true;
 
-	void	DrawPaintImage(int iRGB0, int iRGB1);
+	void	DrawPaintImage( int iRGB0, int iRGB1 );
 
 	bool	UpdateSeriesLabel();
 	bool	UpdateMatchesLabel();
