@@ -3149,7 +3149,7 @@ void CItemModelPanel::UpdatePanels( void )
 
 			if ( !bIsEconTool )
 			{
-				DrawPaintImage( iRGB0, iRGB1 );
+				SetupPaintData( iRGB0, iRGB1 );
 			}
 		}
 	}
@@ -3404,7 +3404,7 @@ void CItemModelPanel::SetModelIsHidden( bool bHideModel )
 	}
 }
 
-void CItemModelPanel::DrawPaintImage( int iRGB0, int iRGB1 )
+void CItemModelPanel::SetupPaintData( int iRGB0, int iRGB1 )
 {
 	if ( iRGB0 != 0 || iRGB1 != 0 )
 	{
@@ -3448,7 +3448,7 @@ void CItemModelPanel::OnTick()
 				int iRGB0 = m_ItemData.GetModifiedRGBValue( false ),
 					iRGB1 = m_ItemData.GetModifiedRGBValue( true );
 
-				DrawPaintImage( iRGB0, iRGB1 );
+				SetupPaintData( iRGB0, iRGB1 );
 			}
 		}
 	}
