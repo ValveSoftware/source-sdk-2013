@@ -421,10 +421,10 @@ void CTFGasManager::Update()
 		
 #ifdef GAME_DLL
 		// in a spawnroom while in a pre-game state?
-		bool bIsBeforeRound = (TFGameRules()->State_Get() == GR_STATE_PREGAME || 
+		bool bIsBeforeRound = ( TFGameRules()->State_Get() == GR_STATE_PREGAME || 
 								TFGameRules()->State_Get() == GR_STATE_PREROUND || 
 								TFGameRules()->InSetup() || 
-								TFGameRules()->IsInWaitingForPlayers());
+								TFGameRules()->IsInWaitingForPlayers() );
 		if ( bIsBeforeRound )
 		{
 			if ( PointsCrossRespawnRoomVisualizer( GetInitialPosition(), GetPointVec()[i]->m_vecPosition ) )
