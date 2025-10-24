@@ -29,6 +29,7 @@
 #include "tf_flame.h"
 #include "dt_utlvector_send.h"
 #include "collisionutils.h"
+#include "func_respawnroom.h"
 #endif
 
 
@@ -417,6 +418,26 @@ void CTFGasManager::Update()
 		{
 			bShouldRemove = true;
 		}
+		
+#ifdef GAME_DLL
+		// in a spawnroom while in a pre-game state?
+		bool bIsBeforeRound = (TFGameRules()->State_Get() == GR_STATE_PREGAME || 
+								TFGameRules()->State_Get() == GR_STATE_PREROUND || 
+								TFGameRules()->InSetup() || 
+								TFGameRules()->IsInWaitingForPlayers());
+		if ( bIsBeforeRound )
+		{
+			if ( PointsCrossRespawnRoomVisualizer( GetInitialPosition(), GetPointVec()[i]->m_vecPosition ) )
+			{
+				bShouldRemove = true;
+			}
+
+			if ( PointInRespawnRoom( NULL, GetPointVec()[i]->m_vecPosition ) )
+			{
+				bShouldRemove = true;
+			}
+		}
+#endif
 
 		if ( bShouldRemove )
 		{
