@@ -139,8 +139,6 @@ void CEntityBird::SpawnRandomBirds( void )
 			}
 		}
 	}
-
-	pFileKV->deleteThis();
 }
 
 
