@@ -56,6 +56,8 @@ public:
 
 	void	UpdatePreviewVisuals( void );
 
+	CUtlString GetPlayerModelOverride( void ) { return m_strPlayerModelOverride; }
+
 	// From IChoreoEventCallback
 	virtual void	StartEvent( float currenttime, CChoreoScene *scene, CChoreoEvent *event );
 	virtual void	EndEvent( float currenttime, CChoreoScene *scene, CChoreoEvent *event );
