@@ -638,7 +638,7 @@ bool CTFProjectile_Jar::PositionArrowOnBone( mstudiobbox_t *pBox, CBaseAnimating
 	if ( pBox->bone < 0 || pBox->bone >= pStudioHdr->numbones() )	// Bone index must be valid.
 		return false;
 
-	CBoneCache *pCache = pOtherAnim->GetBoneCache();
+	CBoneCache *pCache = pOtherAnim->GetBoneCache( pStudioHdr );
 	if ( !pCache )
 		return false;
 
