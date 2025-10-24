@@ -29,7 +29,6 @@
 #include "tf_flame.h"
 #include "dt_utlvector_send.h"
 #include "collisionutils.h"
-#include "func_respawnroom.h"
 #endif
 
 
@@ -364,12 +363,6 @@ bool CTFGasManager::ShouldCollide( CBaseEntity *pEnt ) const
 		return false;
 
 	if ( pEnt->GetTeamNumber() == GetTeamNumber() )
-		return false;
-	
-	if ( PointsCrossRespawnRoomVisualizer( GetInitialPosition(), pEnt->GetAbsOrigin() ) )
-		return false;
-
-	if ( PointInRespawnRoom( pEnt, pEnt->GetAbsOrigin() ) )
 		return false;
 
 	if ( TFGameRules() && TFGameRules()->IsTruceActive() )
