@@ -174,7 +174,7 @@ void CRagdoll::RagdollBone( C_BaseEntity *ent, mstudiobone_t *pbones, int boneCo
 	}
 }
 
-void CRagdoll::AcquireOrCopyBoneCache( matrix3x4_t* pOutBonesToWorld, int boneCount )
+void CRagdoll::AcquireOrCopyBoneCache( matrix3x4_t* pOutBonesToWorld, int boneCount, bool* boneSimulated )
 {
 	// acquire cache if not setup
 	if ( m_BoneCache.Count() != boneCount )
@@ -185,7 +185,8 @@ void CRagdoll::AcquireOrCopyBoneCache( matrix3x4_t* pOutBonesToWorld, int boneCo
 	// copy cache out if called again in same frame
 	else if ( gpGlobals->curtime == m_flBoneCacheTime )
 	{
-		memcpy( pOutBonesToWorld, m_BoneCache.Base(), boneCount * sizeof(matrix3x4_t) );
+		for ( int i = 0; i < boneCount; i++ )
+			if ( boneSimulated[i] ) pOutBonesToWorld[i] = m_BoneCache[i];
 	}
 	// copy out our cache and acquire the old one
 	else
@@ -193,7 +194,10 @@ void CRagdoll::AcquireOrCopyBoneCache( matrix3x4_t* pOutBonesToWorld, int boneCo
 		size_t uBoneDataSize = boneCount * sizeof(matrix3x4_t);
 		matrix3x4_t* pTempBoneData = (matrix3x4_t*)stackalloc( uBoneDataSize );
 		memcpy( pTempBoneData, pOutBonesToWorld, uBoneDataSize );
-		memcpy( pOutBonesToWorld, m_BoneCache.Base(), uBoneDataSize );
+
+		for ( int i = 0; i < boneCount; i++ )
+			if ( boneSimulated[i] ) pOutBonesToWorld[i] = m_BoneCache[i];
+
 		memcpy( m_BoneCache.Base(), pTempBoneData, uBoneDataSize );
 		m_flBoneCacheTime = gpGlobals->curtime;
 	}

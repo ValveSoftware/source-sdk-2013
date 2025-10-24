@@ -60,7 +60,7 @@ public:
 		bool bFixedConstraints=false );
 
 	virtual void RagdollBone( C_BaseEntity *ent, mstudiobone_t *pbones, int boneCount, bool *boneSimulated, CBoneAccessor &pBoneToWorld );
-	void    AcquireOrCopyBoneCache( matrix3x4_t* pBonesToWorld, int boneCount );
+	void    AcquireOrCopyBoneCache( matrix3x4_t* pBonesToWorld, int boneCount, bool* boneSimulated );
 	virtual const Vector& GetRagdollOrigin( );
 	virtual void GetRagdollBounds( Vector &theMins, Vector &theMaxs );
 	void	BuildRagdollBounds( C_BaseEntity *ent );
