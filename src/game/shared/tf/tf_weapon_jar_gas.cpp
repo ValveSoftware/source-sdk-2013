@@ -366,6 +366,20 @@ bool CTFGasManager::ShouldCollide( CBaseEntity *pEnt ) const
 
 	if ( pEnt->GetTeamNumber() == GetTeamNumber() )
 		return false;
+	
+	bool bIsBeforeRound = ( TFGameRules()->State_Get() == GR_STATE_PREGAME ||
+		TFGameRules()->State_Get() == GR_STATE_PREROUND ||
+		TFGameRules()->InSetup() ||
+		TFGameRules()->IsInWaitingForPlayers() );
+
+	if ( bIsBeforeRound )
+	{
+		if ( PointsCrossRespawnRoomVisualizer( GetInitialPosition(), pEnt->GetAbsOrigin() ) )
+			return false;
+
+		if ( PointInRespawnRoom( pEnt, pEnt->GetAbsOrigin() ) )
+			return false;
+	}
 
 	if ( TFGameRules() && TFGameRules()->IsTruceActive() )
 		return false;
