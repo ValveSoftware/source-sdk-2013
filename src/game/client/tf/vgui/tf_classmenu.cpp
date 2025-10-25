@@ -879,8 +879,7 @@ void CTFClassMenu::OnKeyCodePressed( KeyCode code )
 		SelectClass( iRemapIndexToClass[ TF_CLASS_RANDOM ] );
 		Go();
 	}
-
-	if ( code > KEY_0 && code <= KEY_9 )
+	else if ( code > KEY_0 && code <= KEY_9 )
 	{
 		const int iButton = code - KEY_0;
 		const int iClass = iRemapIndexToClass[ iButton ];
