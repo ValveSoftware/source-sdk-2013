@@ -875,6 +875,11 @@ void CTFClassMenu::OnKeyCodePressed( KeyCode code )
 {
 	m_KeyRepeat.KeyDown( code );
 
+	if ( code == KEY_0 || code == KEY_PAD_0 ) {
+		SelectClass( iRemapIndexToClass[ TF_CLASS_RANDOM ] );
+		Go();
+	}
+
 	if ( code > KEY_0 && code <= KEY_9 )
 	{
 		const int iButton = code - KEY_0;
