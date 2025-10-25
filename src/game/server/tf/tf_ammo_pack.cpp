@@ -353,9 +353,9 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 	// Do not scale building gibs
 	if (GetOwnerEntity() && !GetOwnerEntity()->IsBaseObject())
 	{
-		// Engineers drop their current metal amount, if less than 100 simply give the metal the Engineer had
-		int iMetal = m_iAmmo[TF_AMMO_METAL] < 100 ? m_iAmmo[TF_AMMO_METAL] : pPlayer->GetMaxAmmo(TF_AMMO_METAL);
-		GiveAmmo(ceil(iMetal * m_flAmmoRatio), TF_AMMO_METAL);
+		// Engineers drop their current metal amount, if less than 100 simply give the metal in the pack, scale otherwise
+		int iMetal = m_iAmmo[TF_AMMO_METAL] < 100 ? m_iAmmo[TF_AMMO_METAL] : pPlayer->GetMaxAmmo(TF_AMMO_METAL) * m_flAmmoRatio;
+		GiveAmmo(iMetal, TF_AMMO_METAL);
 	}
 
 	int iAmmoTaken = 0;
