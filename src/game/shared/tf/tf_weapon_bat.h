@@ -147,6 +147,7 @@ public:
 	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_GRENADE_STUNBALL; }
 	virtual const char *GetBallModelName( void ) const;
 	virtual const char *GetBallViewModelName( void ) const;
+	const char		   *GetTrailEffect( void ) const;
 
 	virtual bool		IsAllowedToExplode( void ) OVERRIDE { return false; }
 	virtual void		Explode( trace_t *pTrace, int bitsDamageType );

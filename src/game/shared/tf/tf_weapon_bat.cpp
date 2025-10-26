@@ -653,6 +653,12 @@ const char *CTFStunBall::GetBallViewModelName( void ) const
 
 
 //-----------------------------------------------------------------------------
+const char *CTFStunBall::GetTrailEffect( void ) const
+{
+	return ( GetTeamNumber() == TF_TEAM_RED ) ? "effects/baseballtrail_red.vmt" : "effects/baseballtrail_blu.vmt";
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Sets up initial properties.
 //-----------------------------------------------------------------------------
 void CTFStunBall::Spawn( void )
@@ -674,10 +680,9 @@ void CTFStunBall::Spawn( void )
 	// Draw the trail for the Baseball on spawn
 	if ( !m_pBallTrail )
 	{
-		const char *pTrailTeamName = ( GetTeamNumber() == TF_TEAM_RED ) ? "effects/baseballtrail_red.vmt" : "effects/baseballtrail_blu.vmt";
 		CSpriteTrail *pTempTrail = NULL;
 
-		pTempTrail = CSpriteTrail::SpriteTrailCreate( pTrailTeamName, GetAbsOrigin(), true );
+		pTempTrail = CSpriteTrail::SpriteTrailCreate( GetTrailEffect(), GetAbsOrigin(), true );
 		pTempTrail->FollowEntity( this );
 		pTempTrail->SetTransparency( kRenderTransAlpha, 255, 255, 255, STUNBALL_TRAIL_ALPHA, kRenderFxNone );
 		pTempTrail->SetStartWidth( 9 );
@@ -984,8 +989,7 @@ void CTFStunBall::Deflected( CBaseEntity* pDeflectedBy, Vector& vecDir )
 	BaseClass::Deflected( pDeflectedBy, vecDir );
 	if ( m_pBallTrail )
 	{
-		const char *pTrailTeamName = ( GetTeamNumber() == TF_TEAM_RED ) ? "effects/baseballtrail_red.vmt" : "effects/baseballtrail_blu.vmt";
-		m_pBallTrail->SetModel( pTrailTeamName );
+		m_pBallTrail->SetModel( GetTrailEffect() );
 	}
 }
 
