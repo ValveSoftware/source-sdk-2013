@@ -1013,11 +1013,11 @@ void CTFStunBall::CreateTrailParticles( void )
 {
 	if ( pEffectTrail )
 	{
-		ParticleProp()->StopEmission( pEffectTrail );
+		ParticleProp()->StopEmissionAndDestroyImmediately( pEffectTrail );
 	}
 	if ( pEffectCrit )
 	{
-		ParticleProp()->StopEmission( pEffectCrit );
+		ParticleProp()->StopEmissionAndDestroyImmediately( pEffectCrit );
 	}
 	pEffectTrail = ParticleProp()->Create( GetTrailParticleName(), PATTACH_ABSORIGIN_FOLLOW );
 	int iTeamNumber = GetTeamNumber();
