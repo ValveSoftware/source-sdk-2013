@@ -271,6 +271,11 @@ void CTFWeaponBaseMelee::PlaySwingSound( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseMelee::Swing( CTFPlayer *pPlayer )
 {
+	if ( m_flSmackTime>=m_flNextPrimaryAttack )
+	{
+		Smack();
+	}
+
 	CalcIsAttackCritical();
 
 #ifdef GAME_DLL
@@ -320,10 +325,6 @@ void CTFWeaponBaseMelee::Swing( CTFPlayer *pPlayer )
 #endif
 
 	m_flSmackTime = GetSmackTime( m_iWeaponMode );
-	if ( m_flSmackTime>=m_flNextPrimaryAttack )
-	{
-		m_flSmackTime = m_flNextPrimaryAttack - 0.01f;
-	}
 }
 
 //-----------------------------------------------------------------------------
