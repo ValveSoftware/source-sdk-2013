@@ -1313,6 +1313,14 @@ void CTFBall_Ornament::Explode( trace_t *pTrace, int bitsDamageType )
 
 	Vector vecOrigin = GetAbsOrigin();
 	CTFPlayer* pOwner = ToTFPlayer( GetOwnerEntity() );
+	if ( GetDeflected() )
+	{
+		CTFPlayer* pDeflector = ToTFPlayer( GetDeflectOwner() );
+		if ( pDeflector )
+		{
+			pOwner = pDeflector;
+		}
+	}
 
 	// sound effects
 	EmitSound_t params;
