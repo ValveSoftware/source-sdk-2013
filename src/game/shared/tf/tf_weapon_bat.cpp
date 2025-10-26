@@ -976,6 +976,19 @@ bool CTFStunBall::ShouldBallTouch( CBaseEntity *pOther )
 	return true;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Baseball was deflected.
+//-----------------------------------------------------------------------------
+void CTFStunBall::Deflected( CBaseEntity* pDeflectedBy, Vector& vecDir )
+{
+	BaseClass::Deflected( pDeflectedBy, vecDir );
+	if ( m_pBallTrail )
+	{
+		const char *pTrailTeamName = ( GetTeamNumber() == TF_TEAM_RED ) ? "effects/baseballtrail_red.vmt" : "effects/baseballtrail_blu.vmt";
+		m_pBallTrail->SetModel( pTrailTeamName );
+	}
+}
+
 // -- SERVER ONLY
 #endif
 

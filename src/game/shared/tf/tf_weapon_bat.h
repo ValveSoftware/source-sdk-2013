@@ -157,6 +157,7 @@ public:
 	virtual float		GetDamage( void );
 	virtual int			GetDamageType( void )				{ return DMG_CLUB; }
 	virtual Vector		GetDamageForce( void );
+	virtual void		Deflected( CBaseEntity* pDeflectedBy, Vector& vecDir ) OVERRIDE;
 
 	virtual float		GetShakeAmplitude( void )			{ return 0.0; }
 	virtual float		GetShakeRadius( void )				{ return 0.0; }
