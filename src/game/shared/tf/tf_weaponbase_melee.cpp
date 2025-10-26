@@ -271,7 +271,8 @@ void CTFWeaponBaseMelee::PlaySwingSound( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseMelee::Swing( CTFPlayer *pPlayer )
 {
-	if ( m_flSmackTime>=m_flNextPrimaryAttack )
+	// A previous smack could be pending, so do the smack before we forget about it
+	if ( m_flSmackTime >= m_flNextPrimaryAttack )
 	{
 		Smack();
 	}
