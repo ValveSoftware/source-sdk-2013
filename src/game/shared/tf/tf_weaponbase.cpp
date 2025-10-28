@@ -5904,6 +5904,9 @@ public:
 		if ( pEntity->IsBaseObject() )
 			return false;
 
+		if ( pEntity->IsBaseProjectile() )
+			return false;
+
 		if ( pEntity->IsCombatItem() )
 			return false;
 
