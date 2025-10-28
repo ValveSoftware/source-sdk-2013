@@ -171,12 +171,6 @@ void CHudInspectPanel::UserCmd_InspectTarget( void )
 			// Inspect a player
 			else if ( pTargetPlayer && ( pTargetPlayer->GetTeamNumber() != TF_TEAM_PVE_INVADERS ) )
 			{
-				if ( !GetClientModeTFNormal()->BIsFriendOrPartyMember( pTargetPlayer ) )
-				{
-					internalCenterPrint->Print( "#TF_Invalid_Inspect_Target" );
-					return;
-				}
-				
 				pUpgradePanel->InspectUpgradesForPlayer( pTargetPlayer );
 			}
 			// Inspect self
