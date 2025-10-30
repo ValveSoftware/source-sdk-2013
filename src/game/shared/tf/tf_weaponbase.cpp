@@ -980,7 +980,7 @@ void CTFWeaponBase::UpdateExtraWearables()
 				// Precaching may be needed here, because we allow virtually everything to be loaded on demand now.
 				pExtraWearableItem->PrecacheModel( pEconItemView->GetExtraWearableViewModel() );
 			}
-
+			pExtraWearableItem->SetDisguiseWearable(m_bDisguiseWeapon);
 			pExtraWearableItem->AddSpawnFlags( SF_NORESPAWN );
 			pExtraWearableItem->SetAlwaysAllow( true );
 			DispatchSpawn( pExtraWearableItem );
@@ -1006,6 +1006,7 @@ void CTFWeaponBase::UpdateExtraWearables()
 				pExtraWearableItem->PrecacheModel( pEconItemView->GetExtraWearableModel() );
 			}
 
+			pExtraWearableItem->SetDisguiseWearable(m_bDisguiseWeapon);
 			pExtraWearableItem->AddSpawnFlags( SF_NORESPAWN );
 			pExtraWearableItem->SetAlwaysAllow( true );
 			DispatchSpawn( pExtraWearableItem );

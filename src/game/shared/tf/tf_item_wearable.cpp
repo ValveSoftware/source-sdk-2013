@@ -553,6 +553,46 @@ bool CTFWearable::UpdateBodygroups( CBaseCombatCharacter* pOwner, int iState )
 		pTFOwner->m_Shared.SetDisguiseBody( iDisguiseBody );
 	}
 
+	//CEconEntity::UpdateBodygroups is broken for disguise weapons and wearables.
+	//Additionally it is missing most of the infrastructure needed to set up this function there. 
+	//As such, we set up the disguise weapon along with the other wearables since this is the only place 
+	//they are actually handled correctly.
+	if (pTFOwner->m_Shared.GetDisguiseWeapon())
+	{
+		CAttributeContainer* pCont = pTFOwner->m_Shared.GetDisguiseWeapon()->GetAttributeContainer();
+		if (!pCont)
+			return false;
+
+		CEconItemView* pItem = pCont->GetItem();
+		if (!pItem)
+			return false;
+
+		CTFPlayer* pDisguiseTarget = pTFOwner->m_Shared.GetDisguiseTarget();
+		if (!pDisguiseTarget)
+			return false;
+
+		const CEconItemDefinition* pItemDef = pItem->GetItemDefinition();
+		if (!pItemDef)
+			return false;
+
+		// Update our disguise bodygroup.
+		int iDisguiseBody = pTFOwner->m_Shared.GetDisguiseBody();
+
+		int iNumBodyGroups = pItemDef->GetNumModifiedBodyGroups(0); // we must use team 0
+		for (int i = 0; i < iNumBodyGroups; ++i)
+		{
+			int iBody = 0;
+			const char* pszBodyGroup = pItem->GetStaticData()->GetModifiedBodyGroup(0, i, iBody);
+			int iBodyGroup = pDisguiseTarget->FindBodygroupByName(pszBodyGroup);
+			if (iBodyGroup == -1)
+				continue;
+
+			::SetBodygroup(pDisguiseTarget->GetModelPtr(), iDisguiseBody, iBodyGroup, iState);
+		}
+
+		pTFOwner->m_Shared.SetDisguiseBody(iDisguiseBody);
+	}
+
 	CEconItemView *pItem = GetAttributeContainer() ? GetAttributeContainer()->GetItem() : NULL;
 	if ( pItem )
 	{		
