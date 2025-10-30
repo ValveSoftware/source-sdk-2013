@@ -7293,12 +7293,27 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pVictim, flRealDamage, mult_dmgtaken );
 		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pVictim->GetActiveTFWeapon(), flRealDamage, mult_dmgtaken_active );
 
-		if ( info.GetInflictor() && info.GetInflictor()->IsBaseObject() )
+		if ( info.GetInflictor() )
 		{
-			CObjectSentrygun* pSentry = dynamic_cast<CObjectSentrygun*>( info.GetInflictor() );
-			if ( pSentry )
+			if ( info.GetInflictor()->IsBaseObject() )
 			{
-				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pVictim, flRealDamage, dmg_from_sentry_reduced );
+				CObjectSentrygun* pSentry = dynamic_cast<CObjectSentrygun*>( info.GetInflictor() );
+				if ( pSentry )
+				{
+					CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pVictim, flRealDamage, dmg_from_sentry_reduced );
+				}
+			}
+			else
+			{
+				CTFProjectile_SentryRocket* pSentryRocket = dynamic_cast<CTFProjectile_SentryRocket*>( info.GetInflictor() );
+				if ( pSentryRocket && pSentryRocket->GetOwnerEntity() )
+				{
+					CObjectSentrygun* pSentry = dynamic_cast<CObjectSentrygun*>( pSentryRocket->GetOwnerEntity() );
+					if ( pSentry )
+					{
+						CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pVictim, flRealDamage, dmg_from_sentry_reduced );
+					}
+				}
 			}
 		}
 
