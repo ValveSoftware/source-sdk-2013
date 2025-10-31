@@ -770,11 +770,9 @@ void CTFAdvancedOptionsDialog::OnMessage( const KeyValues *pParams, vgui::VPANEL
 				continue;
 			case O_BOOL:
 			case O_BUTTON:
-			{
 				// Checkboxes and buttons handle display text themselves
 				( ( vgui::Label * )( pList->pControl ) )->GetText( wszDisplayText, sizeof( wszDisplayText ) );
 				break;
-			}
 			default:
 				pList->pPrompt->GetText( wszDisplayText, sizeof( wszDisplayText ) );
 				break;
