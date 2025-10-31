@@ -198,7 +198,7 @@ private:
 	virtual void OnKeyCodePressed(vgui::KeyCode code);
 
 private:
-	vgui::TextEntry		*m_pFilterPanel;
+	vgui::TextEntry		*m_pFilterField;
 	CInfoDescription	*m_pDescription;
 	mpcontrol_t			*m_pList;
 	vgui::PanelListPanel *m_pListPanel;

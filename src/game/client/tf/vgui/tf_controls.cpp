@@ -646,6 +646,8 @@ void CTFFooter::ClearButtons( void )
 #define DEFAULT_OPTIONS_FILE OPTIONS_DIR "/user_default.scr"
 #define OPTIONS_FILE OPTIONS_DIR "/user.scr"
 
+constexpr int k_cchFilterMaxLen = 64;
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -656,8 +658,8 @@ CTFAdvancedOptionsDialog::CTFAdvancedOptionsDialog(vgui::Panel *parent) : BaseCl
 	SetScheme(scheme);
 	SetProportional( true );
 
-	m_pFilterPanel = new vgui::TextEntry( this, "FilterPanel" );
-	m_pFilterPanel->AddActionSignalTarget( this );
+	m_pFilterField = new vgui::TextEntry( this, "FilterField" );
+	m_pFilterField->AddActionSignalTarget( this );
 
 	m_pListPanel = new vgui::PanelListPanel( this, "PanelListPanel" );
 
@@ -698,7 +700,7 @@ void CTFAdvancedOptionsDialog::ApplySchemeSettings( vgui::IScheme *pScheme )
 	LoadControlSettings("resource/ui/TFAdvancedOptionsDialog.res");
 	m_pListPanel->SetFirstColumnWidth( 0 );
 
-	m_pFilterPanel->SetMaximumCharCount( 32 );
+	m_pFilterField->SetMaximumCharCount( k_cchFilterMaxLen - 1 /*leave space for NULL terminator*/ );
 
 	CreateControls();
 }
@@ -726,19 +728,19 @@ void CTFAdvancedOptionsDialog::OnClose()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFAdvancedOptionsDialog::OnMessage( const KeyValues* pParams, vgui::VPANEL fromPanel )
+void CTFAdvancedOptionsDialog::OnMessage( const KeyValues *pParams, vgui::VPANEL fromPanel )
 {
-	if( !Q_stricmp( pParams->GetName(), "TextChanged" )
-		&& fromPanel == m_pFilterPanel->GetVPanel() )
+	if ( !Q_stricmp( pParams->GetName(), "TextChanged" )
+		 && fromPanel == m_pFilterField->GetVPanel() )
 	{
-		char szBuffer[ 32 ];
-		m_pFilterPanel->GetText( szBuffer, sizeof( szBuffer ) );
+		wchar_t wszFilterBuf[ k_cchFilterMaxLen ];
+		m_pFilterField->GetText( wszFilterBuf, sizeof( wszFilterBuf ) );
 
 		// Make everything visible if the filter field is empty
-		if( !Q_strcmp( szBuffer, "" ) )
+		if ( wszFilterBuf[ 0 ] == L'\0' )
 		{
-			mpcontrol_t* pList = m_pList;
-			while( pList )
+			mpcontrol_t *pList = m_pList;
+			while ( pList )
 			{
 				pList->SetVisible( true );
 				pList = pList->next;
@@ -748,17 +750,17 @@ void CTFAdvancedOptionsDialog::OnMessage( const KeyValues* pParams, vgui::VPANEL
 		}
 
 		bool bCategoryVisible = false;
-		mpcontrol_t* pCurrentCategory = NULL;
-		mpcontrol_t* pList = m_pList;
-		while( pList )
+		mpcontrol_t *pCurrentCategory = NULL;
+		mpcontrol_t *pList = m_pList;
+		while ( pList )
 		{
-			char szDisplayText[ 32 ];
+			wchar_t wszDisplayText[ k_cchFilterMaxLen ];
 
-			switch( pList->type )
+			switch ( pList->type )
 			{
 			case O_CATEGORY:
 				// When a new category is hit, we hide the previous one if it has no visible elements
-				if( pCurrentCategory )
+				if ( pCurrentCategory )
 					pCurrentCategory->SetVisible( bCategoryVisible );
 
 				// Set the current category to the new one and iterate to the next panel
@@ -770,16 +772,38 @@ void CTFAdvancedOptionsDialog::OnMessage( const KeyValues* pParams, vgui::VPANEL
 			case O_BUTTON:
 			{
 				// Checkboxes and buttons handle display text themselves
-				Label* pLabel = ( Label* )pList->pControl;
-				pLabel->GetText( szDisplayText, sizeof( szDisplayText ) );
+				( ( vgui::Label * )( pList->pControl ) )->GetText( wszDisplayText, sizeof( wszDisplayText ) );
 				break;
 			}
 			default:
-				pList->pPrompt->GetText( szDisplayText, sizeof( szDisplayText ) );
+				pList->pPrompt->GetText( wszDisplayText, sizeof( wszDisplayText ) );
 				break;
 			}
 
-			if( !Q_stristr( szDisplayText, szBuffer ) )
+			// Find a match
+			bool bMatch = false;
+			const wchar_t *pwchLetter = wszDisplayText;
+			while ( *pwchLetter != L'\0' )
+			{
+				const wchar_t *pwchSearch = pwchLetter;
+				const wchar_t *pwchTest = wszFilterBuf;
+				while ( *pwchTest != L'\0' )
+				{
+					if ( *pwchSearch == L'\0' )
+						break;
+					if ( towlower( *pwchSearch ) != towlower( *pwchTest ) )
+						break;
+					++pwchSearch; ++pwchTest;
+				}
+				if ( *pwchTest == L'\0' )
+				{
+					bMatch = true;
+					break;
+				}
+				++pwchLetter;
+			}
+
+			if ( !bMatch )
 			{
 				pList->SetVisible( false );
 			}
@@ -792,8 +816,8 @@ void CTFAdvancedOptionsDialog::OnMessage( const KeyValues* pParams, vgui::VPANEL
 			pList = pList->next;
 		}
 
-		// We need to do this check again in case there was no new category
-		if( pCurrentCategory )
+		// Do this check again for the last category
+		if ( pCurrentCategory )
 			pCurrentCategory->SetVisible( bCategoryVisible );
 
 		m_pListPanel->InvalidateLayout();
