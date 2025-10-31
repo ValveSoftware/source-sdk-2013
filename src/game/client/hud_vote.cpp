@@ -1472,9 +1472,19 @@ void CHudVote::MsgFunc_VoteStart( bf_read &msg )
 	char szParam1[k_MAX_VOTE_NAME_LENGTH] = { 0 };
 	msg.ReadString( szParam1, sizeof(szParam1) );
 
-	pVotePanel->m_bIsYesNoVote = msg.ReadByte();
+	pVotePanel->m_bIsYesNoVote = msg.ReadOneBit();
 	int iTargetEntIndex = msg.ReadByte();
 
+	// Duration of the vote
+	// Only set this if it exists, compatibility for plugins that don't send it
+	float flDuration = 0.f;
+	if ( msg.GetNumBytesLeft() )
+	{
+		flDuration = msg.ReadFloat();
+	}
+
+	pVotePanel->m_flStartTime = gpGlobals->curtime;
+	pVotePanel->m_flEndTime = gpGlobals->curtime + flDuration;
 	pVotePanel->m_flHideTime = -1.f;
 	pVotePanel->m_flVoteResultCycleTime = -1.f;
 	pVotePanel->m_bPlayerVoted = pVotePanel->m_iVoteCallerIdx == GetLocalPlayerIndex() && !sv_vote_holder_may_vote_no.GetBool();
@@ -1504,6 +1514,8 @@ void CHudVote::MsgFunc_VoteStart( bf_read &msg )
 	pVotePanel->m_pVoteActive->SetControlVisible( "Option2CountLabel", pVotePanel->m_bIsYesNoVote );
 	pVotePanel->m_pVoteActive->SetControlVisible( "Divider1", pVotePanel->m_bIsYesNoVote );
 	pVotePanel->m_pVoteActive->SetControlVisible( "Divider2", pVotePanel->m_bIsYesNoVote );
+
+	pVotePanel->m_pVoteActive->SetControlVisible( "TimeRemainingProgressBar", !!flDuration );
 
 	// Display vote caller's name
 	wchar_t wszCallerName[MAX_PLAYER_NAME_LENGTH];
@@ -1970,6 +1982,12 @@ void CHudVotePanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 
 	LoadControlSettings( "Resource/UI/VoteHud.res" );
 
+	m_pTimerProgressBar = FindControl< CircularProgressBar >( "TimeRemainingProgressBar", true );
+	if ( m_pTimerProgressBar )
+	{
+		m_pTimerProgressBar->SetProgressDirection( CircularProgressBar::PROGRESS_CCW );
+	}
+
 	m_pVoteActiveIssueLabel->GetPos( m_nVoteActiveIssueLabelX, m_nVoteActiveIssueLabelY );
 }
 
@@ -1988,6 +2006,8 @@ void CHudVotePanel::Init( void )
 	m_iVoteCallerIdx = -1;
 	m_nVoteTeamIndex = 0;
 	m_nVoteIdx = -1;
+	m_flStartTime = 0;
+	m_flEndTime = 0;
 
 	ListenForGameEvent( "vote_changed" );
 	ListenForGameEvent( "vote_options" );
@@ -2164,6 +2184,11 @@ void CHudVotePanel::OnThink()
 				m_pVoteActive->SetVisible( true );
 				pLocalPlayer->EmitSound("Vote.Created");
 			}
+		}
+
+		if ( m_pTimerProgressBar && m_pTimerProgressBar->IsVisible() )
+		{
+			m_pTimerProgressBar->SetProgress( 1.0f - ( ( gpGlobals->curtime - m_flStartTime ) / ( m_flEndTime - m_flStartTime ) ) );
 		}
 	}
 
