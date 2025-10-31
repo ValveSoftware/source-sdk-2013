@@ -735,6 +735,7 @@ void CTFAdvancedOptionsDialog::OnMessage( const KeyValues *pParams, vgui::VPANEL
 	{
 		wchar_t wszFilterBuf[ k_cchFilterMaxLen ];
 		m_pFilterField->GetText( wszFilterBuf, sizeof( wszFilterBuf ) );
+		wszFilterBuf[ k_cchFilterMaxLen - 1 ] = L'\0';
 
 		// Make everything visible if the filter field is empty
 		if ( wszFilterBuf[ 0 ] == L'\0' )
@@ -777,6 +778,7 @@ void CTFAdvancedOptionsDialog::OnMessage( const KeyValues *pParams, vgui::VPANEL
 				pList->pPrompt->GetText( wszDisplayText, sizeof( wszDisplayText ) );
 				break;
 			}
+			wszDisplayText[ k_cchFilterMaxLen - 1 ] = L'\0';
 
 			// Find a match
 			bool bMatch = false;
