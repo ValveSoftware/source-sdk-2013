@@ -257,20 +257,26 @@ void CTFStickBomb::Detonate( bool bTaunting )
 
 			TE_TFExplosion( filter, 0.0f, explosion, Vector(0,0,1), TF_WEAPON_GRENADELAUNCHER, pTFPlayer->entindex(), -1, SPECIAL1, iCustomParticleIndex );
 
-			int dmgType = DMG_BLAST | DMG_USEDISTANCEMOD;
+			int dmgType = DMG_BLAST | DMG_USEDISTANCEMOD | DMG_MELEE;
 			if ( IsCurrentAttackACrit() )
 				dmgType |= DMG_CRITICAL;
 			
 			float flDamage = 75.0f;
-			
-			// instantly kill the target if we're in a taunt.
+      
+      // instantly kill the target if we're in a taunt.
 			if ( bTaunting )
 			{
 				flDamage = TF_STICKBOMB_KILLTAUNT_DAMAGE;
 			}
+      
+			CALL_ATTRIB_HOOK_FLOAT( flDamage, mult_dmg );
 
 			CTakeDamageInfo info( pTFPlayer, pTFPlayer, this, explosion, explosion, flDamage, dmgType, TF_DMG_CUSTOM_STICKBOMB_EXPLOSION, &explosion );
-			CTFRadiusDamageInfo radiusinfo( &info, explosion, 100.f );
+			
+			float flRadius = 100.f;
+			CALL_ATTRIB_HOOK_FLOAT( flRadius, mult_explosion_radius );
+			
+			CTFRadiusDamageInfo radiusinfo( &info, explosion, flRadius );
 			TFGameRules()->RadiusDamage( radiusinfo );
 		}
 #endif
