@@ -456,6 +456,8 @@ BEGIN_PREDICTION_DATA_NO_BASE( CTFPlayerShared )
 	DEFINE_PRED_FIELD( m_nAirDucked, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_flDuckTimer, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_flInvisChangeCompleteTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_flLastStealthExposeTime, FIELD_FLOAT, 0 ),
+	DEFINE_PRED_FIELD( m_flStealthNextChangeTime, FIELD_INTEGER, 0 ),
 	DEFINE_PRED_FIELD( m_nDisguiseTeam, FIELD_INTEGER, FTYPEDESC_INSENDTABLE  ),
 	DEFINE_PRED_FIELD( m_nDisguiseClass, FIELD_INTEGER, FTYPEDESC_INSENDTABLE  ),
 	DEFINE_PRED_FIELD( m_nDisguiseSkinOverride, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
@@ -6949,19 +6951,23 @@ void CTFPlayerShared::OnRemoveTmpDamageBonus( void )
 void CTFPlayerShared::OnAddStealthed( void )
 {
 #ifdef CLIENT_DLL
-	if ( m_pOuter->GetPredictable() && ( !prediction->IsFirstTimePredicted() || m_bSyncingConditions ) )
-		return;
+	// Local player wants to predict the offhand weapon, but not the fancy effects multiple times!
+	// Other players always run everything
+	bool bFirstPrediction = !m_pOuter->GetPredictable() || ( prediction->IsFirstTimePredicted() && !m_bSyncingConditions );
 
-	if ( !InCond( TF_COND_FEIGN_DEATH ) )
+	if ( bFirstPrediction )
 	{
-		m_pOuter->EmitSound( "Player.Spy_Cloak" );
-	}
-	m_pOuter->RemoveAllDecals();
-	UpdateCritBoostEffect();
+		if ( !InCond( TF_COND_FEIGN_DEATH ) )
+		{
+			m_pOuter->EmitSound( "Player.Spy_Cloak" );
+		}
+		m_pOuter->RemoveAllDecals();
+		UpdateCritBoostEffect();
 
-	if ( m_pOuter->m_pTempShield && GetCarryingRuneType() == RUNE_RESIST )
-	{
-		RemoveResistShield( &m_pOuter->m_pTempShield, m_pOuter );
+		if ( m_pOuter->m_pTempShield && GetCarryingRuneType() == RUNE_RESIST )
+		{
+			RemoveResistShield( &m_pOuter->m_pTempShield, m_pOuter );
+		}
 	}
 #endif
 
@@ -6973,7 +6979,7 @@ void CTFPlayerShared::OnAddStealthed( void )
 		bSetInvisChangeTime = false;
 	}
 
-	if ( InCond( TF_COND_STEALTHED_USER_BUFF ) && m_pOuter->IsLocalPlayer() )
+	if ( bFirstPrediction && InCond( TF_COND_STEALTHED_USER_BUFF ) && m_pOuter->IsLocalPlayer() )
 	{
 		IMaterial *pMaterial = materials->FindMaterial( TF_SCREEN_OVERLAY_MATERIAL_STEALTH, TEXTURE_GROUP_CLIENT_EFFECTS, false );
 		if ( !IsErrorMaterial( pMaterial ) )
@@ -7020,11 +7026,14 @@ void CTFPlayerShared::OnAddStealthed( void )
 	m_pOuter->TeamFortress_SetSpeed();
 
 #ifdef CLIENT_DLL
-	// Remove water balloon effect if it on player
-	m_pOuter->ParticleProp()->StopParticlesNamed( "balloontoss_drip", true );
+	if ( bFirstPrediction )
+	{
+		// Remove water balloon effect if it on player
+		m_pOuter->ParticleProp()->StopParticlesNamed( "balloontoss_drip", true );
 
-	m_pOuter->UpdateSpyStateChange();
-	m_pOuter->UpdateKillStreakEffects( GetStreak( kTFStreak_Kills ) );
+		m_pOuter->UpdateSpyStateChange();
+		m_pOuter->UpdateKillStreakEffects( GetStreak( kTFStreak_Kills ) );
+	}
 #endif
 
 #ifdef GAME_DLL
@@ -7038,39 +7047,43 @@ void CTFPlayerShared::OnAddStealthed( void )
 void CTFPlayerShared::OnRemoveStealthed( void )
 {
 #ifdef CLIENT_DLL
-	if ( !m_bSyncingConditions )
-		return;
+	// Local player wants to predict the offhand weapon, but not the fancy effects multiple times!
+	// Other players always run everything
+	bool bFirstPrediction = !m_pOuter->GetPredictable() || ( prediction->IsFirstTimePredicted() && !m_bSyncingConditions );
 
-	CTFWeaponInvis *pWpn = (CTFWeaponInvis *) m_pOuter->Weapon_OwnsThisID( TF_WEAPON_INVIS );
+	if ( bFirstPrediction )
+	{
+		CTFWeaponInvis* pWpn = (CTFWeaponInvis*)m_pOuter->Weapon_OwnsThisID( TF_WEAPON_INVIS );
 
-	int iReducedCloak = 0;
-	CALL_ATTRIB_HOOK_INT_ON_OTHER( m_pOuter, iReducedCloak, set_quiet_unstealth );
-	if ( iReducedCloak == 1 )
-	{
-		m_pOuter->EmitSound( "Player.Spy_UnCloakReduced" );
-	}
-	else if ( pWpn && pWpn->HasFeignDeath() )
-	{
-		m_pOuter->EmitSound( "Player.Spy_UnCloakFeignDeath" );
-	}
-	else
-	{
-		m_pOuter->EmitSound( "Player.Spy_UnCloak" );
-	}
-	UpdateCritBoostEffect( kCritBoost_ForceRefresh );
-
-	if ( m_pOuter->IsLocalPlayer() && !InCond( TF_COND_STEALTHED_USER_BUFF_FADING ) )
-	{
-		IMaterial *pMaterial = view->GetScreenOverlayMaterial();
-		if ( pMaterial && FStrEq( pMaterial->GetName(), TF_SCREEN_OVERLAY_MATERIAL_STEALTH ) )
+		int iReducedCloak = 0;
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( m_pOuter, iReducedCloak, set_quiet_unstealth );
+		if ( iReducedCloak == 1 )
 		{
-			view->SetScreenOverlayMaterial( NULL );
+			m_pOuter->EmitSound( "Player.Spy_UnCloakReduced" );
 		}
-	}
+		else if ( pWpn && pWpn->HasFeignDeath() )
+		{
+			m_pOuter->EmitSound( "Player.Spy_UnCloakFeignDeath" );
+		}
+		else
+		{
+			m_pOuter->EmitSound( "Player.Spy_UnCloak" );
+		}
+		UpdateCritBoostEffect( kCritBoost_ForceRefresh );
 
-	if ( !m_pOuter->m_pTempShield && GetCarryingRuneType() == RUNE_RESIST )
-	{
-		AddResistShield( &m_pOuter->m_pTempShield, m_pOuter, TF_COND_RUNE_RESIST );
+		if ( m_pOuter->IsLocalPlayer() && !InCond( TF_COND_STEALTHED_USER_BUFF_FADING ) )
+		{
+			IMaterial* pMaterial = view->GetScreenOverlayMaterial();
+			if ( pMaterial && FStrEq( pMaterial->GetName(), TF_SCREEN_OVERLAY_MATERIAL_STEALTH ) )
+			{
+				view->SetScreenOverlayMaterial( NULL );
+			}
+		}
+
+		if ( !m_pOuter->m_pTempShield && GetCarryingRuneType() == RUNE_RESIST )
+		{
+			AddResistShield( &m_pOuter->m_pTempShield, m_pOuter, TF_COND_RUNE_RESIST );
+		}
 	}
 #else
 	if ( m_flCloakStartTime > 0 )
@@ -7104,8 +7117,11 @@ void CTFPlayerShared::OnRemoveStealthed( void )
 	m_bMotionCloak = false;
 
 #ifdef CLIENT_DLL
-	m_pOuter->UpdateSpyStateChange();
-	m_pOuter->UpdateKillStreakEffects( GetStreak( kTFStreak_Kills ) );
+	if ( bFirstPrediction )
+	{
+		m_pOuter->UpdateSpyStateChange();
+		m_pOuter->UpdateKillStreakEffects( GetStreak( kTFStreak_Kills ) );
+	}
 #endif
 
 }
