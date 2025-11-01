@@ -1420,8 +1420,6 @@ void CTFPlayerShared::OnPreDataChanged( void )
 	m_nOldDisguiseClass = GetDisguiseClass();
 	m_nOldDisguiseTeam = GetDisguiseTeam();
 	m_iOldMovementStunParity = m_iMovementStunParity;
-
-	SharedThink();
 }
 
 //-----------------------------------------------------------------------------
@@ -1483,8 +1481,6 @@ void CTFPlayerShared::OnDataChanged( void )
 	{
 		GetActiveTFWeapon()->SetWeaponVisible( false );
 	}
-
-	InvisibilityThink();
 }
 
 //-----------------------------------------------------------------------------
