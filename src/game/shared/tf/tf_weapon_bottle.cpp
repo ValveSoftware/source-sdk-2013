@@ -263,7 +263,7 @@ void CTFStickBomb::Detonate( bool bTaunting )
 			
 			float flDamage = 75.0f;
       
-      // instantly kill the target if we're in a taunt.
+			// instantly kill the target if we're in a taunt.
 			if ( bTaunting )
 			{
 				flDamage = TF_STICKBOMB_KILLTAUNT_DAMAGE;
