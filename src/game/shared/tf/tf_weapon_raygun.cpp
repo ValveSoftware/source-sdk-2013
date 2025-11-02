@@ -61,7 +61,7 @@ CTFRaygun::CTFRaygun()
 #ifdef GAME_DLL
 	// Goofyness to preserve demos.  Old demos wont have this set on the client
 	// so we'll know to use the old code path.
-	m_bUseNewProjectileCode = true;
+	m_bUseNewProjectileCode = false;
 #endif
 	m_flIrradiateTime = 0.f;
 	m_bEffectsThinking = false;

@@ -113,6 +113,21 @@ CTFProjectile_EnergyRing *CTFProjectile_EnergyRing::Create( CTFWeaponBaseGun *pL
 	Vector vecForward, vecRight, vecUp;
 	AngleVectors( vecAngles, &vecForward, &vecRight, &vecUp );
 
+	CTFRaygun* pRaygun = assert_cast<CTFRaygun*>(pLauncher);
+
+	if (pRaygun && pRaygun->GetWeaponID() == TF_WEAPON_RAYGUN)
+	{
+		pRing = static_cast<CTFProjectile_EnergyRing*>(CTFBaseProjectile::Create("tf_projectile_energy_ring", vecOrigin, vecAngles, pOwner,
+			1200.f, g_sModelIndexRing,
+			ENERGY_RING_DISPATCH_EFFECT, pScorer, bCritical, vColor1, vColor2));
+	}
+	else
+	{
+		pRing = static_cast<CTFProjectile_EnergyRing*>(CBaseEntity::Create("tf_projectile_energy_ring", vecOrigin, vecAngles, pOwner));
+	}
+
+
+
 	pRing = static_cast<CTFProjectile_EnergyRing*>( CBaseEntity::Create( "tf_projectile_energy_ring", vecOrigin, vecAngles, pOwner ) );
 	if ( !pRing )
 		return NULL;
