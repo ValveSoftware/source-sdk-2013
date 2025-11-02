@@ -519,8 +519,9 @@ void SnapRemainingVertsToSurface( CCoreDispInfo **ppListBase, ddispinfo_t *pBSPD
 void EmitDispLMAlphaAndNeighbors()
 {
 	int i;
+	float start = Plat_FloatTime();
 
-	Msg( "Finding displacement neighbors...\n" );
+	Msg( "Finding displacement neighbors... " );
 
 	// Build the CCoreDispInfos.
 	CUtlVector<dface_t*> faces;
@@ -582,8 +583,10 @@ void EmitDispLMAlphaAndNeighbors()
 	// be around onto the slightly-reduced mesh. This is so the engine's ray test code and 
 	// overlay code works right.
 	SnapRemainingVertsToSurface( g_CoreDispInfos.Base(), g_dispinfo.Base(), nummapdispinfo );
+	Msg("done(%.1fs)\n", (Plat_FloatTime() - start));
 
-	Msg( "Finding lightmap sample positions...\n" );
+	start = Plat_FloatTime();
+	Msg( "Finding lightmap sample positions... " );
 	for ( i=0; i < nummapdispinfo; i++ )
 	{
 		dface_t *pFace = faces[i];
@@ -594,6 +597,7 @@ void EmitDispLMAlphaAndNeighbors()
 
 		CalculateLightmapSamplePositions( pCoreDispInfo, pFace, g_DispLightmapSamplePositions );
 	}
+	Msg("done(%.1fs)\n", (Plat_FloatTime() - start));
 
 	StartPacifier( "Displacement Alpha : ");
 

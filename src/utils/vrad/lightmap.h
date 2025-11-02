@@ -18,6 +18,7 @@
 #include "mathlib/bumpvects.h"
 #include "bsplib.h"
 
+
 typedef struct
 {
 	dface_t		*faces[2];
@@ -25,13 +26,14 @@ typedef struct
 	qboolean	coplanar;
 } edgeshare_t;
 
+
 extern edgeshare_t	edgeshare[MAX_MAP_EDGES];
 
 
-//==============================================
-
+//------------------------------------------------------------------------
 // This is incremented each time BuildFaceLights and FinalLightFace
 // are called. It's used for a status bar in WorldCraft.
+//------------------------------------------------------------------------
 extern int g_iCurFace;
 
 extern int vertexref[MAX_MAP_VERTS];
@@ -50,8 +52,6 @@ struct faceneighbor_t
 
 extern faceneighbor_t faceneighbor[MAX_MAP_FACES];
 
-//==============================================
-
 
 struct sample_t
 {
@@ -66,6 +66,7 @@ struct sample_t
 	Vector		normal;
 	float		area;	
 };
+
 
 struct facelight_t
 {
@@ -88,8 +89,6 @@ extern facelight_t		facelight[MAX_MAP_FACES];
 extern int				numdlights;
 
 
-//==============================================
-
 struct lightinfo_t
 {
 	vec_t	facedist;
@@ -109,6 +108,7 @@ struct lightinfo_t
 	int		isflat;
 	int		hasbumpmap;
 };
+
 
 struct SSE_SampleInfo_t
 {
@@ -131,10 +131,11 @@ struct SSE_SampleInfo_t
 	FourVectors	m_PointNormals[ NUM_BUMP_VECTS + 1 ];
 };
 
+
 extern void InitLightinfo( lightinfo_t *l, int facenum );
 
-void FreeDLights();
 
+void FreeDLights();
 void ExportDirectLightsToWorldLights();
 
 

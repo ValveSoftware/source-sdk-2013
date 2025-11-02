@@ -42,8 +42,12 @@ void EmitPhysCollision();
 IPhysicsCollision *physcollision = NULL;
 extern IPhysicsSurfaceProps *physprops;
 
+
+//-----------------------------------------------------------------------------
 // a list of all of the materials in the world model
+//-----------------------------------------------------------------------------
 static CUtlVector<int> s_WorldPropList;
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Write key/value pairs out to a memory buffer
@@ -51,6 +55,8 @@ static CUtlVector<int> s_WorldPropList;
 CTextBuffer::CTextBuffer( void )
 {
 }
+
+
 CTextBuffer::~CTextBuffer( void )
 {
 }
@@ -61,6 +67,7 @@ void CTextBuffer::WriteText( const char *pText )
 	CopyData( pText, len );
 }
 
+
 void CTextBuffer::WriteIntKey( const char *pKeyName, int outputData )
 {
 	char tmp[1024];
@@ -68,12 +75,13 @@ void CTextBuffer::WriteIntKey( const char *pKeyName, int outputData )
 	// FAIL!
 	if ( strlen(pKeyName) > 1000 )
 	{
-		Msg("Error writing collision data %s\n", pKeyName );
+		Warning("Error writing collision data: %s\n", pKeyName );
 		return;
 	}
-	sprintf( tmp, "\"%s\" \"%d\"\n", pKeyName, outputData );
+	V_snprintf(tmp, sizeof(tmp), "\"%s\" \"%d\"\n", pKeyName, outputData);
 	CopyData( tmp, strlen(tmp) );
 }
+
 
 void CTextBuffer::WriteStringKey( const char *pKeyName, const char *outputData )
 {
@@ -83,6 +91,7 @@ void CTextBuffer::WriteStringKey( const char *pKeyName, const char *outputData )
 	CopyData( "\n", 1 );
 }
 
+
 void CTextBuffer::WriteFloatKey( const char *pKeyName, float outputData )
 {
 	char tmp[1024];
@@ -90,12 +99,13 @@ void CTextBuffer::WriteFloatKey( const char *pKeyName, float outputData )
 	// FAIL!
 	if ( strlen(pKeyName) > 1000 )
 	{
-		Msg("Error writing collision data %s\n", pKeyName );
+		Warning("Error writing collision data: %s\n", pKeyName );
 		return;
 	}
-	sprintf( tmp, "\"%s\" \"%f\"\n", pKeyName, outputData );
+	V_snprintf(tmp, sizeof(tmp), "\"%s\" \"%f\"\n", pKeyName, outputData);
 	CopyData( tmp, strlen(tmp) );
 }
+
 
 void CTextBuffer::WriteFloatArrayKey( const char *pKeyName, const float *outputData, int count )
 {
@@ -104,21 +114,22 @@ void CTextBuffer::WriteFloatArrayKey( const char *pKeyName, const float *outputD
 	// FAIL!
 	if ( strlen(pKeyName) > 1000 )
 	{
-		Msg("Error writing collision data %s\n", pKeyName );
+		Warning("Error writing collision data: %s\n", pKeyName );
 		return;
 	}
-	sprintf( tmp, "\"%s\" \"", pKeyName );
+	V_snprintf(tmp, sizeof(tmp), "\"%s\" \"", pKeyName);
 	for ( int i = 0; i < count; i++ )
 	{
 		char buf[80];
 
-		sprintf( buf, "%f ", outputData[i] );
+		V_snprintf(buf, sizeof(buf), "%f ", outputData[i]);
 		strcat( tmp, buf );
 	}
-	strcat( tmp, "\"\n" );
 
+	strcat( tmp, "\"\n" );
 	CopyData( tmp, strlen(tmp) );
 }
+
 
 void CTextBuffer::CopyStringQuotes( const char *pString )
 {
@@ -127,10 +138,12 @@ void CTextBuffer::CopyStringQuotes( const char *pString )
 	CopyData( "\"", 1 );
 }
 
+
 void CTextBuffer::Terminate( void )
 {
 	CopyData( "\0", 1 );
 }
+
 
 void CTextBuffer::CopyData( const char *pData, int len )
 {
@@ -149,7 +162,7 @@ void DumpCollideToGlView( CPhysCollide *pCollide, const char *pFilename )
 	if ( !pCollide )
 		return;
 
-	Msg("Writing %s...\n", pFilename );
+	Msg("Writing: %s\n", pFilename );
 	Vector *outVerts;
 	int vertCount = physcollision->CreateDebugMesh( pCollide, &outVerts );
 	FILE *fp = fopen( pFilename, "w" );
@@ -172,7 +185,7 @@ void DumpCollideToGlView( CPhysCollide *pCollide, const char *pFilename )
 
 void DumpCollideToPHY( CPhysCollide *pCollide, CTextBuffer *text,   const char *pFilename )
 {
-	Msg("Writing %s...\n", pFilename );
+	Msg("Writing: %s\n", pFilename );
 	FILE *fp = fopen( pFilename, "wb" );
 	phyheader_t header;
 	header.size = sizeof(header);
@@ -192,27 +205,31 @@ void DumpCollideToPHY( CPhysCollide *pCollide, CTextBuffer *text,   const char *
 	free( buf );
 }
 
+
 CPhysCollisionEntry::CPhysCollisionEntry( CPhysCollide *pCollide )
 {
 	m_pCollide = pCollide;
 }
+
 
 unsigned int CPhysCollisionEntry::GetCollisionBinarySize() 
 { 
 	return physcollision->CollideSize( m_pCollide ); 
 }
 
+
 unsigned int CPhysCollisionEntry::WriteCollisionBinary( char *pDest ) 
 { 
 	return physcollision->CollideWrite( pDest, m_pCollide );
 }
 
+
 void CPhysCollisionEntry::DumpCollideFileName( const char *pName, int modelIndex, CTextBuffer *pTextBuffer )
 {
 	char tmp[128];
-	sprintf( tmp, "%s%03d.phy", pName, modelIndex );
+	V_snprintf(tmp, sizeof(tmp), "%s%03d.phy", pName, modelIndex);
 	DumpCollideToPHY( m_pCollide, pTextBuffer, tmp );
-	sprintf( tmp, "%s%03d.txt", pName, modelIndex );
+	V_snprintf(tmp, sizeof(tmp), "%s%03d.txt", pName, modelIndex);
 	DumpCollideToGlView( m_pCollide, tmp );
 }
 
@@ -240,10 +257,12 @@ CPhysCollisionEntrySolid::CPhysCollisionEntrySolid( CPhysCollide *pCollide, cons
 	m_pMaterial = pMaterialName;
 }
 
+
 void CPhysCollisionEntrySolid::DumpCollide( CTextBuffer *pTextBuffer, int modelIndex, int collideIndex )
 {
 	DumpCollideFileName( "collide", modelIndex, pTextBuffer );
 }
+
 
 void CPhysCollisionEntrySolid::WriteToTextBuffer( CTextBuffer *pTextBuffer, int modelIndex, int collideIndex )
 {
@@ -280,12 +299,14 @@ CPhysCollisionEntryStaticSolid ::CPhysCollisionEntryStaticSolid ( CPhysCollide *
 {
 }
 
+
 void CPhysCollisionEntryStaticSolid::DumpCollide( CTextBuffer *pTextBuffer, int modelIndex, int collideIndex )
 {
 	char tmp[128];
-	sprintf( tmp, "static%02d", modelIndex );
+	V_snprintf(tmp, sizeof(tmp), "static%02d", modelIndex);
 	DumpCollideFileName( tmp, collideIndex, pTextBuffer );
 }
+
 
 void CPhysCollisionEntryStaticSolid::WriteToTextBuffer( CTextBuffer *pTextBuffer, int modelIndex, int collideIndex )
 {
@@ -295,18 +316,21 @@ void CPhysCollisionEntryStaticSolid::WriteToTextBuffer( CTextBuffer *pTextBuffer
 	pTextBuffer->WriteText( "}\n" );
 }
 
+
 CPhysCollisionEntryStaticMesh::CPhysCollisionEntryStaticMesh( CPhysCollide *pCollide, const char *pMaterialName )
 	: CPhysCollisionEntry( pCollide )
 {
 	m_pMaterial = pMaterialName;
 }
 
+
 void CPhysCollisionEntryStaticMesh::DumpCollide( CTextBuffer *pTextBuffer, int modelIndex, int collideIndex )
 {
 	char tmp[128];
-	sprintf( tmp, "mesh%02d", modelIndex );
+	V_snprintf(tmp, sizeof(tmp), "mesh%02d", modelIndex);
 	DumpCollideFileName( tmp, collideIndex, pTextBuffer );
 }
+
 
 void CPhysCollisionEntryStaticMesh::WriteToTextBuffer( CTextBuffer *pTextBuffer, int modelIndex, int collideIndex )
 {
@@ -314,6 +338,7 @@ void CPhysCollisionEntryStaticMesh::WriteToTextBuffer( CTextBuffer *pTextBuffer,
 	pTextBuffer->WriteIntKey( "index", collideIndex );
 	pTextBuffer->WriteText( "}\n" );
 }
+
 
 class CPhysCollisionEntryFluid : public CPhysCollisionEntry
 {
@@ -344,17 +369,20 @@ CPhysCollisionEntryFluid::CPhysCollisionEntryFluid( CPhysCollide *pCollide, cons
 	m_contentsMask = nContents;
 }
 
+
 CPhysCollisionEntryFluid::~CPhysCollisionEntryFluid()
 {
 	delete[] m_pSurfaceProp;
 }
 
+
 void CPhysCollisionEntryFluid::DumpCollide( CTextBuffer *pTextBuffer, int modelIndex, int collideIndex )
 {
 	char tmp[128];
-	sprintf( tmp, "water%02d", modelIndex );
+	V_snprintf(tmp, sizeof(tmp), "water%02d", modelIndex);
 	DumpCollideFileName( tmp, collideIndex, pTextBuffer );
 }
+
 
 void CPhysCollisionEntryFluid::WriteToTextBuffer( CTextBuffer *pTextBuffer, int modelIndex, int collideIndex )
 {
@@ -371,7 +399,10 @@ void CPhysCollisionEntryFluid::WriteToTextBuffer( CTextBuffer *pTextBuffer, int 
 	pTextBuffer->WriteText( "}\n" );
 }
 
+
+//-----------------------------------------------------------------------------
 // Get an index into the prop list of this prop (add it if necessary)
+//-----------------------------------------------------------------------------
 static int PropIndex( CUtlVector<int> &propList, int propIndex )
 {
 	for ( int i = 0; i < propList.Count(); i++ )
@@ -388,16 +419,19 @@ static int PropIndex( CUtlVector<int> &propList, int propIndex )
 	return 0;
 }
 
+
 int RemapWorldMaterial( int materialIndexIn )
 {
 	return PropIndex( s_WorldPropList, materialIndexIn );
 }
+
 
 typedef struct
 {
 	float normal[3];
 	float dist;
 } listplane_t;
+
 
 static void AddListPlane( CUtlVector<listplane_t> *list, float x, float y, float z, float d )
 {
@@ -409,6 +443,7 @@ static void AddListPlane( CUtlVector<listplane_t> *list, float x, float y, float
 
 	list->AddToTail( plane );
 }
+
 
 class CPlaneList
 {
@@ -446,6 +481,7 @@ public:
 	float						m_totalVolume;
 };
 
+
 CPlaneList::CPlaneList( float shrink, float merge )
 {
 	m_shrink = shrink;
@@ -473,7 +509,10 @@ void CPlaneList::AddConvex( CPhysConvex *pConvex )
 	}
 }
 
+
+//-----------------------------------------------------------------------------
 // Adds a single brush as a convex object
+//-----------------------------------------------------------------------------
 void CPlaneList::ReferenceBrush( int brushnumber )
 {
 	if ( !(dbrushes[brushnumber].contents & m_contentsMask) )
@@ -488,6 +527,7 @@ bool CPlaneList::IsBrushReferenced( int brushnumber )
 {
 	return m_brushAdded[brushnumber];
 }
+
 
 CPhysConvex *CPlaneList::BuildConvexForBrush( int brushnumber, float shrink, CPhysCollide *pCollideTest, float shrinkMinimum )
 {
@@ -530,6 +570,7 @@ CPhysConvex *CPlaneList::BuildConvexForBrush( int brushnumber, float shrink, CPh
 	}
 	return physcollision->ConvexFromPlanes( (float *)temp.Base(), temp.Count(), m_merge );
 }
+
 
 int CPlaneList::AddBrushes( void )
 {
@@ -583,9 +624,12 @@ int CPlaneList::GetFirstBrushSide()
 	return 0;
 }
 
+
+//-----------------------------------------------------------------------------
 // UNDONE: Try using this kind of algorithm if we run into precision problems.  
 // NOTE: ConvexFromPlanes will be doing a bunch of matrix inversions that can suffer
 // if plane normals are too close to each other...
+//-----------------------------------------------------------------------------
 #if 0
 void CPlaneList::AddBrushes( void )
 {
@@ -639,8 +683,11 @@ void CPlaneList::AddBrushes( void )
 }
 #endif
 
+
+//-----------------------------------------------------------------------------
 // If I have a list of leaves, make sure this leaf is in it.
 // Otherwise, process all leaves
+//-----------------------------------------------------------------------------
 bool CPlaneList::IsLeafReferenced( int leafIndex )
 {
 	if ( !m_leafList.Count() )
@@ -655,11 +702,15 @@ bool CPlaneList::IsLeafReferenced( int leafIndex )
 	return false;
 }
 
+
+//-----------------------------------------------------------------------------
 // Add a leaf to my list of interesting leaves
+//-----------------------------------------------------------------------------
 void CPlaneList::ReferenceLeaf( int leafIndex )
 {
 	m_leafList.AddToTail( leafIndex );
 }
+
 
 static void VisitLeaves_r( CPlaneList &planes, int node )
 {
@@ -687,9 +738,10 @@ static void VisitLeaves_r( CPlaneList &planes, int node )
 	}
 }
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------
+// Water leaf struct 
+//-----------------------------------------------------------------------------
 struct waterleaf_t
 {
 	Vector	surfaceNormal;
@@ -704,8 +756,9 @@ struct waterleaf_t
 };
 
 
-
+//-----------------------------------------------------------------------------
 // returns true if newleaf should appear before currentleaf in the list
+//-----------------------------------------------------------------------------
 static bool IsLowerLeaf( const waterleaf_t &newleaf, const waterleaf_t &currentleaf )
 {
 	if ( newleaf.hasSurface && currentleaf.hasSurface )
@@ -726,6 +779,7 @@ static bool IsLowerLeaf( const waterleaf_t &newleaf, const waterleaf_t &currentl
 
 	return false;
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose:   Water surfaces are stored in an RB tree and the tree is used to 
@@ -751,6 +805,7 @@ struct WaterTexInfo
 //	float		m_SubdivSize;
 };
 
+
 //-----------------------------------------------------------------------------
 // Purpose: Helper for RB tree operations ( we compare full mangled names )
 // Input  : src1 - 
@@ -775,6 +830,7 @@ float GetSubdivSizeForFogVolume( int fogVolumeID )
 }
 #endif
 
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *mapname - 
@@ -787,13 +843,14 @@ void GetWaterTextureName( char const *mapname, char const *materialname, int wat
 	char temp[ 512 ];
 
 	// Construct the full name (prepend mapname to reduce name collisions)
-	sprintf( temp, "maps/%s/%s_depth_%i", mapname, materialname, (int)waterdepth );
+	V_snprintf(temp, sizeof(temp), "maps/%s/%s_depth_%i", mapname, materialname, (int)waterdepth);
 
 	// Make sure it's lower case
 	strlwr( temp );
 
-	strcpy( fullname, temp );
+	V_strcpy( fullname, temp );
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Called to write procedural materials in the rb tree to the embedded
@@ -811,9 +868,10 @@ void EmitWaterMaterialFile( WaterTexInfo *wti )
 	
 	// Convert to string
 	char szDepth[ 32 ];
-	sprintf( szDepth, "%i", wti->m_nWaterDepth );
+	V_snprintf(szDepth, sizeof(szDepth), "%i", wti->m_nWaterDepth);
 	CreateMaterialPatch( wti->m_MaterialName.String(), waterTextureName, "$waterdepth", szDepth, PATCH_INSERT );
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Takes the texinfo_t referenced by the .vmt and the computed depth for the
@@ -846,7 +904,7 @@ int FindOrCreateWaterTexInfo( texinfo_t *pBaseInfo, float depth )
 	// Otherwise, fill in the rest of the data
 	lookup.m_nWaterDepth = (int)depth;
 	// Remember the current material name
-	sprintf( materialname, "%s", name );
+	V_snprintf(materialname, sizeof(materialname), "%s", name);
 	strlwr( materialname );
 	lookup.m_MaterialName = materialname;
 
@@ -871,7 +929,10 @@ int FindOrCreateWaterTexInfo( texinfo_t *pBaseInfo, float depth )
 	return g_WaterTexInfos[ idx ].m_nTexInfo;
 }
 
+
 extern node_t *dfacenodes[MAX_MAP_FACES];
+
+
 static void WriteFogVolumeIDs( dmodel_t *pModel )
 {
 	int i;
@@ -943,7 +1004,9 @@ static int FindOrCreateLeafWaterData( float surfaceZ, float minZ, int surfaceTex
 }
 
 
+//-----------------------------------------------------------------------------
 // Enumerate all leaves under node with contents in contentsMask and add them to list
+//-----------------------------------------------------------------------------
 void EnumLeaves_r( CUtlVector<node_t *> &list, node_t *node, int contentsMask )
 {
 	if ( node->planenum != PLANENUM_LEAF )
@@ -962,7 +1025,9 @@ void EnumLeaves_r( CUtlVector<node_t *> &list, node_t *node, int contentsMask )
 }
 
 
+//-----------------------------------------------------------------------------
 // Builds a waterleaf_t for the given leaf
+//-----------------------------------------------------------------------------
 static void BuildWaterLeaf( node_t *pLeafIn, waterleaf_t &waterLeafOut )
 {
 	waterLeafOut.pNode = pLeafIn;
@@ -1032,9 +1097,11 @@ static void InsertSortWaterLeaf( CUtlVector<waterleaf_t> &list, const waterleaf_
 }
 
 
+//-----------------------------------------------------------------------------
 // Flood fill the tree, finding neighboring water volumes and connecting them to this list
 // Cut groups that try to cross the surface.
 // Mark leaves that are in a group as "visited" so they won't be chosen by subsequent fills
+//-----------------------------------------------------------------------------
 static void Flood_FindConnectedWaterVolumes_r( CUtlVector<node_t *> &list, node_t *pLeaf, waterleaf_t &baseleaf, leafbitarray_t &visited )
 {
 	// already visited, or not the same water contents
@@ -1064,8 +1131,11 @@ static void Flood_FindConnectedWaterVolumes_r( CUtlVector<node_t *> &list, node_
 	}
 }
 
+
+//-----------------------------------------------------------------------------
 // UNDONE: This is a bit of a hack to avoid crashing when we can't find an
 // appropriate texinfo for a water model (to get physics properties)
+//-----------------------------------------------------------------------------
 int FirstWaterTexinfo( bspbrush_t *brushlist, int contents )
 {
 	while (brushlist)
@@ -1087,7 +1157,10 @@ int FirstWaterTexinfo( bspbrush_t *brushlist, int contents )
 	return 0;
 }
 
+
+//-----------------------------------------------------------------------------
 // This is a list of water data that will be turned into physics models 
+//-----------------------------------------------------------------------------
 struct watermodel_t
 {
 	int	modelIndex;
@@ -1099,10 +1172,14 @@ struct watermodel_t
 	int	fogVolumeIndex;
 };
 
+
 static CUtlVector<watermodel_t>	g_WaterModels;
 static CUtlVector<int>			g_WaterLeafList;
 
+
+//-----------------------------------------------------------------------------
 // Creates a list of watermodel_t for later processing by EmitPhysCollision
+//-----------------------------------------------------------------------------
 void EmitWaterVolumesForBSP( dmodel_t *pModel, node_t *node )
 {
 	CUtlVector<node_t *> leafListAnyWater;
@@ -1233,7 +1310,10 @@ static void ConvertWaterModelToPhysCollide( CUtlVector<CPhysCollisionEntry *> &c
 	}
 }
 
+
+//-----------------------------------------------------------------------------
 // compute a normal for a triangle of the given three points (points are clockwise, normal points out)
+//-----------------------------------------------------------------------------
 static Vector TriangleNormal( const Vector &p0, const Vector &p1, const Vector &p2 )
 {
 	Vector e0 = p1 - p0;
@@ -1245,7 +1325,9 @@ static Vector TriangleNormal( const Vector &p0, const Vector &p1, const Vector &
 }
 
 
+//-----------------------------------------------------------------------------
 // find the side of the brush with the normal closest to the given normal
+//-----------------------------------------------------------------------------
 static dbrushside_t *FindBrushSide( int brushIndex, const Vector &normal )
 {
 	dbrush_t *pbrush = &dbrushes[brushIndex];
@@ -1266,7 +1348,6 @@ static dbrushside_t *FindBrushSide( int brushIndex, const Vector &normal )
 
 	return out;
 }
-
 
 
 static void ConvertWorldBrushesToPhysCollide( CUtlVector<CPhysCollisionEntry *> &collisionList, float shrinkSize, float mergeTolerance, int contentsMask )
@@ -1310,7 +1391,10 @@ static void ConvertWorldBrushesToPhysCollide( CUtlVector<CPhysCollisionEntry *> 
 	}
 }
 
+
+//-----------------------------------------------------------------------------
 // adds any world, terrain, and water collision models to the collision list
+//-----------------------------------------------------------------------------
 static void BuildWorldPhysModel( CUtlVector<CPhysCollisionEntry *> &collisionList, float shrinkSize, float mergeTolerance )
 {
 	ConvertWorldBrushesToPhysCollide( collisionList, shrinkSize, mergeTolerance, MASK_SOLID );
@@ -1472,6 +1556,7 @@ static void ConvertModelToPhysCollide( CUtlVector<CPhysCollisionEntry *> &collis
 	collisionList.AddToTail( new CPhysCollisionEntrySolid( pCollide, pMaterial, mass ) );
 }
 
+
 static void ClearLeafWaterData( void )
 {
 	int i;
@@ -1484,6 +1569,7 @@ static void ClearLeafWaterData( void )
 }
 
 
+//-----------------------------------------------------------------------------
 // This is the only public entry to this file.
 // The global data touched in the file is:
 // from bsplib.h:
@@ -1495,6 +1581,7 @@ static void ClearLeafWaterData( void )
 //		dleafwaterdata		: This is an output from this file.
 // from vbsp.h:
 //		g_SurfaceProperties : This is an input to this file.
+//-----------------------------------------------------------------------------
 void EmitPhysCollision()
 {
 	ClearLeafWaterData();
@@ -1516,9 +1603,9 @@ void EmitPhysCollision()
 
 	int physModelCount = 0, totalSize = 0;
 
-	int start = Plat_FloatTime();
+	float start = Plat_FloatTime();
 
-	Msg("Building Physics collision data...\n" );
+	Msg("Building Physics collision data... " );
 
 	int i, j;
 	for ( i = 0; i < nummodels; i++ )
@@ -1650,7 +1737,7 @@ void EmitPhysCollision()
 	memcpy( ptr, &model, sizeof(model) );
 	ptr += sizeof(model);
 	Assert( (ptr-g_pPhysCollide) == g_PhysCollideSize);
-	Msg("done (%d) (%d bytes)\n", (int)(Plat_FloatTime() - start), g_PhysCollideSize );
+	Msg("done(%.1fs) (%d bytes)\n", (Plat_FloatTime() - start), g_PhysCollideSize );
 
 	// UNDONE: Collision models (collisionList) memory leak!
 }

@@ -12,14 +12,21 @@
 #pragma once
 #endif
 
+
 extern bool g_ReplaceMaterials;
 
+
+//-------------------------------------------------------------------------
 // Setup / Cleanup
+//-------------------------------------------------------------------------
 void LoadMaterialReplacementKeys( const char *gamedir, const char *mapname );
 void DeleteMaterialReplacementKeys( void );
 
+
+//-------------------------------------------------------------------------
 // Takes a material name and returns it's replacement, if there is one.
 // If there isn't a replacement, it returns the original.
+//-------------------------------------------------------------------------
 const char* ReplaceMaterialName( const char *name );
 
 #endif // MATERIALSUB_H

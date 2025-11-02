@@ -1477,11 +1477,11 @@ void CZipFile::SaveToBuffer( CUtlBuffer& buf )
 	int end = buf.TellPut();
 	if ( start + sizeEstimate < end )
 	{
-		Warning( "ZIP Output overshot buffer estimate: Estimated %i, actual %i\n", sizeEstimate, end - start );
+		Warning( "ZIP Output overshot buffer estimate: Estimated %i (bytes), actual %i (bytes)\n", sizeEstimate, end - start );
 	}
 	else
 	{
-		DevMsg( "Wrote ZIP buffer, estimated size %i, actual size %i\n", sizeEstimate, end - start );
+		DevMsg( "Wrote ZIP buffer, estimated size %i (bytes), actual size %i (bytes)\n", sizeEstimate, end - start );
 	}
 }
 

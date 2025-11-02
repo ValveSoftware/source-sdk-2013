@@ -13,10 +13,12 @@ int		c_nodes;
 int		c_nonvis;
 int		c_active_brushes;
 
+
+//--------------------------------------------------------------------------
 // if a brush just barely pokes onto the other side,
 // let it slide by without chopping
+//--------------------------------------------------------------------------
 #define	PLANESIDE_EPSILON	0.001
-//0.1
 
 
 void FindBrushInTree (node_t *node, int brushnum)
@@ -34,7 +36,6 @@ void FindBrushInTree (node_t *node, int brushnum)
 	FindBrushInTree (node->children[1], brushnum);
 }
 
-//==================================================
 
 /*
 ================
@@ -65,6 +66,7 @@ void DrawBrushList (bspbrush_t *brush, node_t *node)
 	GLS_EndScene ();
 }
 
+
 /*
 ================
 WriteBrushList
@@ -75,7 +77,7 @@ void WriteBrushList (char *name, bspbrush_t *brush, qboolean onlyvis)
 	int		i;
 	side_t	*s;
 
-	qprintf ("writing %s\n", name);
+	qprintf ("Writing: %s\n", name);
 	FileHandle_t f = g_pFileSystem->Open(name, "w");
 
 	for ( ; brush ; brush=brush->next)
@@ -94,6 +96,7 @@ void WriteBrushList (char *name, bspbrush_t *brush, qboolean onlyvis)
 	g_pFileSystem->Close (f);
 }
 
+
 void PrintBrush (bspbrush_t *brush)
 {
 	int		i;
@@ -105,6 +108,7 @@ void PrintBrush (bspbrush_t *brush)
 		Msg("\n");
 	}
 }
+
 
 /*
 ==================
@@ -129,6 +133,7 @@ void BoundBrush (bspbrush_t *brush)
 	}
 }
 
+
 Vector PointInsideBrush( bspbrush_t *brush )
 {
 	Vector insidePoint = vec3_origin;
@@ -151,6 +156,7 @@ Vector PointInsideBrush( bspbrush_t *brush )
 	}
 	return insidePoint;
 }
+
 
 /*
 ==================
@@ -191,6 +197,7 @@ void CreateBrushWindings (bspbrush_t *brush)
 	BoundBrush (brush);
 }
 
+
 /*
 ==================
 BrushFromBounds
@@ -223,6 +230,7 @@ bspbrush_t	*BrushFromBounds (Vector& mins, Vector& maxs)
 
 	return b;
 }
+
 
 /*
 ==================
@@ -272,6 +280,7 @@ vec_t BrushVolume (bspbrush_t *brush)
 	return volume;
 }
 
+
 /*
 ================
 CountBrushList
@@ -302,6 +311,7 @@ tree_t *AllocTree (void)
 
 	return tree;
 }
+
 
 /*
 ================
@@ -346,6 +356,7 @@ bspbrush_t *AllocBrush (int numsides)
 	return bb;
 }
 
+
 /*
 ================
 FreeBrush
@@ -380,6 +391,7 @@ void FreeBrushList (bspbrush_t *brushes)
 		FreeBrush (brushes);
 	}		
 }
+
 
 /*
 ==================
@@ -441,7 +453,6 @@ node_t	*PointInLeaf (node_t *node, Vector& point)
 	return node;
 }
 
-//========================================================
 
 /*
 ==============
@@ -495,6 +506,7 @@ int BrushBspBoxOnPlaneSide (const Vector& mins, const Vector& maxs, dplane_t *pl
 	return side;
 }
 
+
 /*
 ============
 QuickTestBrushToPlanenum
@@ -534,6 +546,7 @@ int	QuickTestBrushToPlanenum (bspbrush_t *brush, int planenum, int *numsplits)
 
 	return s;
 }
+
 
 /*
 ============
@@ -633,7 +646,6 @@ int	TestBrushToPlanenum (bspbrush_t *brush, int planenum,
 	return s;
 }
 
-//========================================================
 
 /*
 ================
@@ -745,7 +757,6 @@ qboolean WindingIsHuge (winding_t *w)
 	return false;
 }
 
-//============================================================
 
 /*
 ================
@@ -809,8 +820,6 @@ void RemoveAreaPortalBrushes_R( node_t *node )
 }
 
 
-//============================================================
-
 void CheckPlaneAgainstParents (int pnum, node_t *node)
 {
 	node_t	*p;
@@ -821,6 +830,7 @@ void CheckPlaneAgainstParents (int pnum, node_t *node)
 			Error ("Tried parent");
 	}
 }
+
 
 qboolean CheckPlaneAgainstVolume (int pnum, node_t *node)
 {
@@ -839,6 +849,7 @@ qboolean CheckPlaneAgainstVolume (int pnum, node_t *node)
 	return good;
 }
 
+
 /*
 ================
 SelectSplitSide
@@ -848,7 +859,6 @@ to partition the brushes with.
 Returns NULL if there are no valid planes to split with..
 ================
 */
-
 side_t *SelectSplitSide (bspbrush_t *brushes, node_t *node)
 {
 	int			value, bestvalue;
@@ -1035,6 +1045,7 @@ int BrushMostlyOnSide (bspbrush_t *brush, plane_t *plane)
 	return side;
 }
 
+
 /*
 ================
 SplitBrush
@@ -1043,8 +1054,6 @@ Generates two new brushes, leaving the original
 unchanged
 ================
 */
-
-
 void SplitBrush( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t **back )
 {
 	bspbrush_t	*b[2];
@@ -1329,8 +1338,6 @@ void SplitBrushList (bspbrush_t *brushes,
 BuildTree_r
 ================
 */
-
-
 node_t *BuildTree_r (node_t *node, bspbrush_t *brushes)
 {
 	node_t		*newnode;
@@ -1379,9 +1386,7 @@ node_t *BuildTree_r (node_t *node, bspbrush_t *brushes)
 
 	return node;
 }
-	  
 
-//===========================================================
 
 /*
 =================
@@ -1466,4 +1471,3 @@ p[0] = 0;
 #endif
 	return tree;
 }
-

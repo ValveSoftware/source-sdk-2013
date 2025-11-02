@@ -10,6 +10,8 @@
 #include "filesystem_tools.h"
 
 static CSysModule *pPhysicsModule = NULL;
+
+
 CreateInterfaceFn GetPhysicsFactory( void )
 {
 	if ( !pPhysicsModule )
@@ -21,6 +23,7 @@ CreateInterfaceFn GetPhysicsFactory( void )
 
 	return Sys_GetFactory( pPhysicsModule );
 }
+
 
 void PhysicsDLLPath( const char *pPathname )
 {

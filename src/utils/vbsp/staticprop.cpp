@@ -23,10 +23,13 @@
 #include "tier1/strtools.h"
 #include "KeyValues.h"
 
+
 static void SetCurrentModel( studiohdr_t *pStudioHdr );
 static void FreeCurrentModelVertexes();
 
+
 IPhysicsCollision *s_pPhysCollision = NULL;
+
 
 //-----------------------------------------------------------------------------
 // These puppies are used to construct the game lumps
@@ -68,12 +71,16 @@ struct ModelCollisionLookup_t
 	CPhysCollide* m_pCollide;
 };
 
+
 static bool ModelLess( ModelCollisionLookup_t const& src1, ModelCollisionLookup_t const& src2 )
 {
 	return src1.m_Name < src2.m_Name;
 }
 
+
 static CUtlRBTree<ModelCollisionLookup_t, unsigned short>	s_ModelCollisionCache( 0, 32, ModelLess );
+
+
 static CUtlVector<int>	s_LightingInfo;
 
 
@@ -98,6 +105,7 @@ enum isstaticprop_ret
 	RET_FAIL_NOT_MARKED_STATIC_PROP,
 	RET_FAIL_DYNAMIC,
 };
+
 
 isstaticprop_ret IsStaticProp( studiohdr_t* pHdr )
 {
@@ -127,7 +135,6 @@ isstaticprop_ret IsStaticProp( studiohdr_t* pHdr )
 //-----------------------------------------------------------------------------
 // Add static prop model to the list of models
 //-----------------------------------------------------------------------------
-
 static int AddStaticPropDictLump( char const* pModelName )
 {
 	StaticPropDictLump_t dictLump;
@@ -177,7 +184,7 @@ bool LoadStudioModel( char const* pModelName, char const* pEntityType, CUtlBuffe
 		}
 		else if ( isStaticProp == RET_FAIL_DYNAMIC )
 		{
-			Warning("Error! %s using model \"%s\", which must be used on a dynamic entity (i.e. prop_physics). Deleted.\n", pEntityType, pModelName );
+			Warning("Error! %s using model: \"%s\", which must be used on a dynamic entity (i.e. prop_physics). Deleted.\n", pEntityType, pModelName );
 		}
 		return false;
 	}
@@ -295,7 +302,7 @@ static CPhysCollide* GetCollisionModel( char const* pModelName )
 	{
 		static int propNum = 0;
 		char tmp[128];
-		sprintf( tmp, "staticprop%03d.txt", propNum );
+		V_snprintf(tmp, sizeof(tmp), "staticprop%03d.txt", propNum);
 		DumpCollideToGlView( lookup.m_pCollide, tmp );
 		++propNum;
 	}
@@ -310,7 +317,6 @@ static CPhysCollide* GetCollisionModel( char const* pModelName )
 //-----------------------------------------------------------------------------
 // Tests a single leaf against the static prop
 //-----------------------------------------------------------------------------
-
 static bool TestLeafAgainstCollide( int depth, int* pNodeList, 
 	Vector const& origin, QAngle const& angles, CPhysCollide* pCollide )
 {
@@ -350,10 +356,10 @@ static bool TestLeafAgainstCollide( int depth, int* pNodeList,
 	return (tr.startsolid != 0);
 }
 
+
 //-----------------------------------------------------------------------------
 // Find all leaves that intersect with this bbox + test against the static prop..
 //-----------------------------------------------------------------------------
-
 static void ComputeConvexHullLeaves_R( int node, int depth, int* pNodeList,
 	Vector const& mins, Vector const& maxs,
 	Vector const& origin, QAngle const& angles,	CPhysCollide* pCollide,
@@ -430,10 +436,10 @@ static void ComputeConvexHullLeaves_R( int node, int depth, int* pNodeList,
 	}
 }
 
+
 //-----------------------------------------------------------------------------
 // Places Static Props in the level
 //-----------------------------------------------------------------------------
-
 static void ComputeStaticPropLeaves( CPhysCollide* pCollide, Vector const& origin, 
 				QAngle const& angles, CUtlVector<unsigned short>& leafList )
 {
@@ -535,7 +541,6 @@ static void AddStaticPropToLump( StaticPropBuild_t const& build )
 //-----------------------------------------------------------------------------
 // Places static props in the lump
 //-----------------------------------------------------------------------------
-
 static void SetLumpData( )
 {
 	GameLumpHandle_t handle = g_GameLumps.GetGameLumpHandle(GAMELUMP_STATIC_PROPS);
@@ -566,9 +571,12 @@ static void SetLumpData( )
 //-----------------------------------------------------------------------------
 // Places Static Props in the level
 //-----------------------------------------------------------------------------
-
 void EmitStaticProps()
 {
+	float start = Plat_FloatTime();
+
+	Msg("Placing static props... ");
+
 	CreateInterfaceFn physicsFactory = GetPhysicsFactory();
 	if ( physicsFactory )
 	{
@@ -676,17 +684,21 @@ void EmitStaticProps()
 		// strip this ent from the .bsp file
 		entities[s_LightingInfo[i]].epairs = 0;
 	}
+	SetLumpData();
 
-
-	SetLumpData( );
+	Msg("done(%.1fs)\n", (Plat_FloatTime() - start));
 }
 
+
 static studiohdr_t *g_pActiveStudioHdr;
+
+
 static void SetCurrentModel( studiohdr_t *pStudioHdr )
 {
 	// track the correct model
 	g_pActiveStudioHdr = pStudioHdr;
 }
+
 
 static void FreeCurrentModelVertexes()
 {
@@ -698,6 +710,7 @@ static void FreeCurrentModelVertexes()
 		g_pActiveStudioHdr->SetVertexBase( NULL );
 	}
 }
+
 
 const vertexFileHeader_t * mstudiomodel_t::CacheVertexData( void * pModelData )
 {
@@ -724,7 +737,7 @@ const vertexFileHeader_t * mstudiomodel_t::CacheVertexData( void * pModelData )
 	fileHandle = g_pFileSystem->Open( fileName, "rb" );
 	if ( !fileHandle )
 	{
-		Error( "Unable to load vertex data \"%s\"\n", fileName );
+		Error( "Unable to load vertex data: \"%s\"\n", fileName );
 	}
 
 	// Get the file size
@@ -732,7 +745,7 @@ const vertexFileHeader_t * mstudiomodel_t::CacheVertexData( void * pModelData )
 	if (size == 0)
 	{
 		g_pFileSystem->Close( fileHandle );
-		Error( "Bad size for vertex data \"%s\"\n", fileName );
+		Error( "Bad size for vertex data: \"%s\"\n", fileName );
 	}
 
 	pVvdHdr = (vertexFileHeader_t *)malloc(size);
@@ -742,18 +755,17 @@ const vertexFileHeader_t * mstudiomodel_t::CacheVertexData( void * pModelData )
 	// check header
 	if (pVvdHdr->id != MODEL_VERTEX_FILE_ID)
 	{
-		Error("Error Vertex File %s id %d should be %d\n", fileName, pVvdHdr->id, MODEL_VERTEX_FILE_ID);
+		Error("Error Vertex File: %s id %d should be %d\n", fileName, pVvdHdr->id, MODEL_VERTEX_FILE_ID);
 	}
 	if (pVvdHdr->version != MODEL_VERTEX_FILE_VERSION)
 	{
-		Error("Error Vertex File %s version %d should be %d\n", fileName, pVvdHdr->version, MODEL_VERTEX_FILE_VERSION);
+		Error("Error Vertex File: %s version %d should be %d\n", fileName, pVvdHdr->version, MODEL_VERTEX_FILE_VERSION);
 	}
 	if (pVvdHdr->checksum != g_pActiveStudioHdr->checksum)
 	{
-		Error("Error Vertex File %s checksum %d should be %d\n", fileName, pVvdHdr->checksum, g_pActiveStudioHdr->checksum);
+		Error("Error Vertex File: %s checksum %d should be %d\n", fileName, pVvdHdr->checksum, g_pActiveStudioHdr->checksum);
 	}
 
 	g_pActiveStudioHdr->SetVertexBase( (void*)pVvdHdr );
 	return pVvdHdr;
 }
-

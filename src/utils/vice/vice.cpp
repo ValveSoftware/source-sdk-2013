@@ -38,14 +38,16 @@ static bool g_Decrypt = false;
 static char g_ICEKey[16];
 static char g_Extension[16];
 
+
 static void Pause( void )
 {
 	if( !g_NoPause )
 	{
-		printf( "Hit a key to continue\n" );
+		Msg( "Hit a key to continue\n" );
 		getch();
 	}
 }
+
 
 static void Exit(const char *msg)
 {
@@ -53,6 +55,7 @@ static void Exit(const char *msg)
 	Pause();
 	exit( -1 );
 }
+
 
 static void Usage( void )
 {
@@ -126,7 +129,7 @@ bool Process_File( char *pInputBaseName, int maxlen )
 
 	if( !g_Quiet )
 	{
-		printf( "output file: %s\n", pInputBaseName );
+		Msg( "output file: %s\n", pInputBaseName );
 	}
 
 	f = g_pFullFileSystem->Open(pInputBaseName, "wb", "vice" );

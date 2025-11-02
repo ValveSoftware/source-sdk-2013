@@ -24,6 +24,7 @@ public:
 
 CMacroTextureData *g_pGlobalMacroTextureData = NULL;
 
+
 // Which macro texture each map face uses.
 static CUtlDict<CMacroTextureData*, int> g_MacroTextureLookup;	// Stores a list of unique macro textures.
 static CUtlVector<CMacroTextureData*> g_FaceMacroTextures;		// Which macro texture each face wants to use.
@@ -161,6 +162,3 @@ void ApplyMacroTextures( int iFace, const Vector &vWorldPos, Vector &outLuxel )
 	if ( g_FaceMacroTextures[iFace] )
 		outLuxel *= SampleMacroTexture( g_FaceMacroTextures[iFace], vWorldPos );
 }
-
-
-

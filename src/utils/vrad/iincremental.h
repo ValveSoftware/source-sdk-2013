@@ -18,8 +18,9 @@
 
 typedef unsigned short IncrementalLightID;
 
-
+//------------------------------------------------------------------------
 // Incremental lighting manager.
+//------------------------------------------------------------------------
 class IIncremental
 {
 // IIncremental overrides.

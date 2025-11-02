@@ -1,9 +1,16 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
+//
+// Purpose: 
+//
+// $NoKeywords: $
+//=============================================================================//
+
 #include "vbsp.h"
 #include "map_shared.h"
 #include "fgdlib/fgdlib.h"
 #include "manifest.h"
 #include "windows.h"
+
 
 //-----------------------------------------------------------------------------
 // Purpose: default constructor
@@ -226,7 +233,9 @@ ChunkFileResult_t CManifest::LoadCordonsCallback( CChunkFile *pFile, CManifest *
 	return(eResult);
 }
 
+
 extern ChunkFileResult_t LoadSolidCallback(CChunkFile *pFile, LoadEntity_t *pLoadEntity);
+
 
 ChunkFileResult_t CManifest::LoadManifestCordoningPrefsCallback( CChunkFile *pFile, CManifest *pDoc )
 {
@@ -306,9 +315,9 @@ bool CManifest::LoadSubMaps( CMapFile *pMapFile, const char *pszFileName )
 	{
 		//		if ( m_Maps[ i ]->m_bTopLevelMap == false )
 		{
-			char		FileName[ MAX_PATH ];
+			char		FileName[MAX_PATH];
 
-			sprintf( FileName, "%s%s", m_InstancePath, m_Maps[ i ]->m_RelativeMapFileName );
+			V_snprintf(FileName, sizeof(FileName), "%s%s", m_InstancePath, m_Maps[i]->m_RelativeMapFileName);
 
 			InstanceEntity = &pMapFile->entities[ pMapFile->num_entities ];
 			pMapFile->num_entities++;
@@ -321,7 +330,7 @@ bool CManifest::LoadSubMaps( CMapFile *pMapFile, const char *pszFileName )
 			InstanceEntity->epairs = pEPair;
 
 			char temp[ 128 ];
-			sprintf( temp, "%d", GameData::NAME_FIXUP_NONE );
+			V_snprintf(temp, sizeof(temp), "%d", GameData::NAME_FIXUP_NONE);
 
 			pEPair = CreateEPair( "fixup_style", temp );
 			pEPair->next = InstanceEntity->epairs;
@@ -347,6 +356,7 @@ bool CManifest::LoadSubMaps( CMapFile *pMapFile, const char *pszFileName )
 	return true;
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : 
@@ -360,10 +370,10 @@ bool CManifest::LoadVMFManifestUserPrefs( const char *pszFileName )
 	UserNameSize = sizeof( UserName );
 	if ( GetUserName( UserName, &UserNameSize ) == 0 )
 	{
-		strcpy( UserPrefsFileName, "default" );
+		V_strcpy( UserPrefsFileName, "default" );
 	}
 
-	sprintf( UserPrefsFileName, "\\%s.vmm_prefs", UserName );
+	V_snprintf(UserPrefsFileName, sizeof(UserPrefsFileName), "\\%s.vmm_prefs", UserName);
 	V_StripExtension( pszFileName, FileName, sizeof( FileName ) );
 	strcat( FileName, UserPrefsFileName );
 

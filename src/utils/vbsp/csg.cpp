@@ -9,13 +9,9 @@
 #include "vbsp.h"
 
 /*
-
 tag all brushes with original contents
 brushes may contain multiple contents
 there will be no brush overlap after csg phase
-
-
-
 
 each side has a count of the other sides it splits
 
@@ -33,8 +29,6 @@ for all sides
 		if side splits side and splitside is on same child
 			cost++;
 }
-
-
   */
 
 void SplitBrush2( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t **back )
@@ -47,6 +41,7 @@ void SplitBrush2( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_
 		(*back)->sides[(*back)->numsides-1].texinfo = (*back)->sides[0].texinfo;	// not -1
 #endif
 }
+
 
 /*
 ===============
@@ -87,6 +82,7 @@ bspbrush_t *SubtractBrush (bspbrush_t *a, bspbrush_t *b)
 	}
 	return out;
 }
+
 
 /*
 ===============
@@ -158,6 +154,7 @@ qboolean BrushesDisjoint (bspbrush_t *a, bspbrush_t *b)
 
 int		minplanenums[3];
 int		maxplanenums[3];
+
 
 /*
 ===============
@@ -331,17 +328,20 @@ void CopyMatchingTexinfos( side_t *pDestSides, int numDestSides, const bspbrush_
 		{
 			texinfo_t *pTexInfo = &texinfo[pSide->texinfo];
 			dtexdata_t *pTexData = GetTexData( pTexInfo->texdata );
-			Msg("Found no matching plane for %s\n", TexDataStringTable_GetString( pTexData->nameStringTableID ) );
+			Warning("Found no matching plane for %s\n", TexDataStringTable_GetString( pTexData->nameStringTableID ) );
 		}
 	}
 }
 
+
+//-----------------------------------------------------------------------------
 // This is a hack to allow areaportals to work in water
 // It was done this way for ease of implementation.
 // This searches a brush list to find intersecting areaportals and water
 // If an areaportal is found inside water, then the water contents and 
 // texture information is copied over to the areaportal so that the 
 // resulting space has the same properties as the water (normal areaportals assume "empty" surroundings)
+//-----------------------------------------------------------------------------
 void FixupAreaportalWaterBrushes( bspbrush_t *pList )
 {
 	for ( bspbrush_t *pAreaportal = pList; pAreaportal; pAreaportal = pAreaportal->next )
@@ -456,6 +456,7 @@ bspbrush_t *AddBrushListToTail (bspbrush_t *list, bspbrush_t *tail)
 	return tail;
 }
 
+
 /*
 ===========
 CullList
@@ -497,7 +498,7 @@ void WriteBrushMap (char *name, bspbrush_t *list)
 	int		i;
 	winding_t	*w;
 
-	Msg("writing %s\n", name);
+	Msg("Writing: %s\n", name);
 	f = fopen (name, "w");
 	if (!f)
 		Error ("Can't write %s\b", name);
@@ -536,7 +537,7 @@ void WriteBrushVMF(char *name, bspbrush_t *list)
 	winding_t	*w;
 	Vector	u, v;
 
-	Msg("writing %s\n", name);
+	Msg("Writing: %s\n", name);
 	f = fopen (name, "w");
 	if (!f)
 		Error ("Can't write %s\b", name);

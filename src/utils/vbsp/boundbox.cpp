@@ -24,6 +24,7 @@ float V_rint(float f)
 		return 0.0f;
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -31,6 +32,7 @@ BoundBox::BoundBox(void)
 {
 	ResetBounds();
 }
+
 
 BoundBox::BoundBox(const Vector &mins, const Vector &maxs)
 {
@@ -282,4 +284,3 @@ void BoundBox::Rotate90(int axis)
 	bmins[e2] = tmp1;
 	bmaxs[e2] = tmp2;
 }
-

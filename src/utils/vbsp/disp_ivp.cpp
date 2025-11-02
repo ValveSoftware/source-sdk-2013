@@ -15,14 +15,15 @@
 #include "tier1/utlbuffer.h"
 #include "materialpatch.h"
 
+
 struct disp_grid_t
 {
 	int				gridIndex;
 	CUtlVector<int> dispList;
 };
 
-static CUtlVector<disp_grid_t> gDispGridList;
 
+static CUtlVector<disp_grid_t> gDispGridList;
 
 
 disp_grid_t &FindOrInsertGrid( int gridIndex )
@@ -44,10 +45,12 @@ disp_grid_t &FindOrInsertGrid( int gridIndex )
 	return gDispGridList[index];
 }
 
+
 // UNDONE: Tune these or adapt them to map size or triangle count?
 #define DISP_GRID_SIZEX	4096
 #define DISP_GRID_SIZEY	4096
 #define DISP_GRID_SIZEZ 8192
+
 
 int Disp_GridIndex( CCoreDispInfo *pDispInfo )
 {
@@ -68,11 +71,13 @@ int Disp_GridIndex( CCoreDispInfo *pDispInfo )
 	return MAKEID( gridX, gridY, gridZ, 0 );
 }
 
+
 void AddToGrid( int gridIndex, int dispIndex )
 {
 	disp_grid_t &grid = FindOrInsertGrid( gridIndex );
 	grid.dispList.AddToTail( dispIndex );
 }
+
 
 MaterialSystemMaterial_t GetMatIDFromDisp( mapdispinfo_t *pMapDisp )
 {
@@ -82,7 +87,9 @@ MaterialSystemMaterial_t GetMatIDFromDisp( mapdispinfo_t *pMapDisp )
 	return matID;
 }
 
+//-----------------------------------------------------------------------------
 // check this and disable virtual mesh if in use
+//-----------------------------------------------------------------------------
 bool Disp_HasPower4Displacements()
 {
 	for ( int i = 0; i < g_CoreDispInfos.Count(); i++ )
@@ -95,8 +102,11 @@ bool Disp_HasPower4Displacements()
 	return false;
 }
 
+
+//-----------------------------------------------------------------------------
 // adds all displacement faces as a series of convex objects
 // UNDONE: Only add the displacements for this model?
+//-----------------------------------------------------------------------------
 void Disp_AddCollisionModels( CUtlVector<CPhysCollisionEntry *> &collisionList, dmodel_t *pModel, int contentsMask)
 {
 	int dispIndex;
@@ -206,6 +216,7 @@ public:
 	int						m_indexCount;
 };
 
+
 CDispMeshEvent::CDispMeshEvent( unsigned short *pIndices, int indexCount, CCoreDispInfo *pDispInfo )
 {
 	m_pIndices = pIndices;
@@ -230,6 +241,7 @@ CDispMeshEvent::CDispMeshEvent( unsigned short *pIndices, int indexCount, CCoreD
 	}
 }
 
+
 void CDispMeshEvent::GetVirtualMesh( void *userData, virtualmeshlist_t *pList )
 {
 	Assert(userData==((void *)this));
@@ -245,6 +257,7 @@ void CDispMeshEvent::GetVirtualMesh( void *userData, virtualmeshlist_t *pList )
 	Q_memcpy( pList->indices, m_pIndices, sizeof(*m_pIndices) * indexCount );
 }
 
+
 void CDispMeshEvent::GetWorldspaceBounds( void *userData, Vector *pMins, Vector *pMaxs )
 {
 	Assert(userData==((void *)this));
@@ -255,6 +268,7 @@ void CDispMeshEvent::GetWorldspaceBounds( void *userData, Vector *pMins, Vector 
 	}
 }
 
+
 void CDispMeshEvent::GetTrianglesInSphere( void *userData, const Vector &center, float radius, virtualmeshtrianglelist_t *pList )
 {
 	Assert(userData==((void *)this));
@@ -264,6 +278,7 @@ void CDispMeshEvent::GetTrianglesInSphere( void *userData, const Vector &center,
 	Assert(m_indexCount < MAX_VIRTUAL_TRIANGLES*3);
 	Q_memcpy( pList->triangleIndices, m_pIndices, sizeof(*m_pIndices) * indexCount );
 }
+
 
 void Disp_BuildVirtualMesh( int contentsMask )
 {
@@ -356,4 +371,3 @@ void Disp_BuildVirtualMesh( int contentsMask )
 	g_pPhysDisp = new byte[g_PhysDispSize];
 	Q_memcpy( g_pPhysDisp, buf.Base(), g_PhysDispSize );
 }
-

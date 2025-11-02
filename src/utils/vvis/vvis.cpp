@@ -23,46 +23,32 @@
 #include "loadcmdline.h"
 #include "byteswap.h"
 
-
-int			g_numportals;
-int			portalclusters;
-
-char		inbase[32];
-
-portal_t	*portals;
-leaf_t		*leafs;
-
+double		g_VisRadius = 4096.0f * 4096.0f;
 int			c_portaltest, c_portalpass, c_portalcheck;
-
-byte		*uncompressedvis;
-
-byte		*vismap, *vismap_p, *vismap_end;	// past visfile
 int			originalvismapsize;
-
 int			leafbytes;				// (portalclusters+63)>>3
 int			leaflongs;
-
 int			portalbytes, portallongs;
-
+int			totalvis;
+int			g_numportals;
+int			portalclusters;
+char		inbase[32];
+portal_t	*portals;
+portal_t	*sorted_portals[MAX_MAP_PORTALS * 2];
+leaf_t		*leafs;
+byte		*uncompressedvis;
+byte		*vismap, *vismap_p, *vismap_end;	// past visfile
 bool		fastvis;
 bool		nosort;
-
-int			totalvis;
-
-portal_t	*sorted_portals[MAX_MAP_PORTALS*2];
-
 bool		g_bUseRadius = false;
-double		g_VisRadius = 4096.0f * 4096.0f;
-
 bool		g_bLowPriority = false;
 
-//=============================================================================
 
 void PlaneFromWinding (winding_t *w, plane_t *plane)
 {
 	Vector		v1, v2;
 
-// calc plane
+	// calc plane
 	VectorSubtract (w->points[2], w->points[1], v1);
 	VectorSubtract (w->points[0], w->points[1], v2);
 	CrossProduct (v2, v1, plane->normal);
@@ -91,12 +77,14 @@ winding_t *NewWinding (int points)
 	return w;
 }
 
+
 void pw(winding_t *w)
 {
 	int		i;
 	for (i=0 ; i<w->numpoints ; i++)
 		Msg ("(%5.1f, %5.1f, %5.1f)\n",w->points[i][0], w->points[i][1],w->points[i][2]);
 }
+
 
 void prl(leaf_t *l)
 {
@@ -113,8 +101,6 @@ void prl(leaf_t *l)
 	}
 }
 
-
-//=============================================================================
 
 /*
 =============
@@ -134,6 +120,7 @@ int PComp (const void *a, const void *b)
 	return 1;
 }
 
+
 void BuildTracePortals( int clusterStart )
 {
 	leaf_t *leaf = &leafs[g_TraceClusterStart];
@@ -143,6 +130,7 @@ void BuildTracePortals( int clusterStart )
 		sorted_portals[i] = leaf->portals[i];
 	}
 }
+
 
 void SortPortals (void)
 {
@@ -239,6 +227,7 @@ void ClusterMerge (int clusternum)
 	totalvis += numvis;
 }
 
+
 static int CompressAndCrosscheckClusterVis( int clusternum )
 {
 	int		optimized = 0;
@@ -324,6 +313,7 @@ void CalcVisTrace (void)
 	RunThreadsOnIndividual (g_numportals, true, PortalFlow);
 }
 
+
 /*
 ==================
 CalcVis
@@ -398,6 +388,7 @@ void SetPortalSphere (portal_t *p)
 	VectorCopy (total, p->origin);
 	p->radius = bestr;
 }
+
 
 /*
 ============
@@ -580,8 +571,9 @@ void CalcPAS (void)
 	int		count;
 	byte	uncompressed[MAX_MAP_LEAFS/8];
 	byte	compressed[MAX_MAP_LEAFS/8];
+	float start = Plat_FloatTime();
 
-	Msg ("Building PAS...\n");
+	Msg("Building Potentially Audible Set (PAS)... ");
 
 	count = 0;
 	for (i=0 ; i<portalclusters ; i++)
@@ -600,7 +592,7 @@ void CalcPAS (void)
 				// OR this pvs row into the phs
 				index = ((j<<3)+k);
 				if (index >= portalclusters)
-					Error ("Bad bit in PVS");	// pad bits should be 0
+					Error ("\nBad bit in PVS");	// pad bits should be 0
 				src = (long *)(uncompressedvis + index*leafbytes);
 				dest = (long *)uncompressed;
 				for (l=0 ; l<leaflongs ; l++)
@@ -624,16 +616,15 @@ void CalcPAS (void)
 		vismap_p += j;
 		
 		if (vismap_p > vismap_end)
-			Error ("Vismap expansion overflow");
+			Error ("\nVismap expansion overflow");
 
 		dvis->bitofs[i][DVIS_PAS] = (byte *)dest-vismap;
 
 		memcpy (dest, compressed, j);	
 	}
-
-	Msg ("Average clusters audible: %i\n", count/portalclusters);
+	Msg("done(%.1fs)\n", (Plat_FloatTime() - start));
+	Msg("Average clusters audible: %i\n", count/portalclusters);
 }
-
 
 
 static void GetBoundsForFace( int faceID, Vector &faceMin, Vector &faceMax )
@@ -655,6 +646,7 @@ static void GetBoundsForFace( int faceID, Vector &faceMin, Vector &faceMax )
 		AddPointToBounds( pVert1->point, faceMin, faceMax );	
 	}
 }
+
 
 // FIXME: should stick this in mathlib
 static float GetMinDistanceBetweenBoundingBoxes( const Vector &min1, const Vector &max1, 
@@ -688,6 +680,7 @@ static float GetMinDistanceBetweenBoundingBoxes( const Vector &min1, const Vecto
 	Assert( mag > 0.0f );
 	return mag;
 }
+
 
 static float CalcDistanceFromLeafToWater( int leafNum )
 {
@@ -792,6 +785,7 @@ static float CalcDistanceFromLeafToWater( int leafNum )
 	return minDist;
 }
 
+
 static void CalcDistanceFromLeavesToWater( void )
 {
 	int i;
@@ -800,6 +794,7 @@ static void CalcDistanceFromLeavesToWater( void )
 		g_LeafMinDistToWater[i] = ( unsigned short )CalcDistanceFromLeafToWater( i );
 	}
 }
+
 
 //-----------------------------------------------------------------------------
 // Using the PVS, compute the visible fog volumes from each leaf
@@ -902,6 +897,7 @@ float DetermineVisRadius( )
 
 	return flRadius;
 }
+
 
 void MarkLeavesAsRadial()
 {
@@ -1088,7 +1084,7 @@ int RunVVis( int argc, char **argv )
 	double		start, end;
 
 
-	Msg( "Valve Software - vvis.exe (%s)\n", __DATE__ );
+	Msg( "Valve Software - vvis.exe (%s)", __DATE__ );
 
 	verbose = false;
 
@@ -1112,6 +1108,8 @@ int RunVVis( int argc, char **argv )
 	V_strncpy( source, mapFile, sizeof( mapFile ) );
 	V_StripExtension( source, source, sizeof( source ) );
 
+	ThreadSetDefault();
+
 	if (i != argc - 1)
 	{
 		PrintUsage( argc, argv );
@@ -1127,7 +1125,7 @@ int RunVVis( int argc, char **argv )
 	{
 		// Setup the logfile.
 		char logFile[512];
-		_snprintf( logFile, sizeof(logFile), "%s.log", source );
+		V_snprintf( logFile, sizeof(logFile), "%s.log", source );
 		SetSpewFunctionLogFile( logFile );
 	}
 
@@ -1137,9 +1135,7 @@ int RunVVis( int argc, char **argv )
 		SetLowPriority();
 	}
 
-	ThreadSetDefault ();
-
-	Msg ("reading %s\n", mapFile);
+	Msg ("Reading: %s\n", mapFile);
 	LoadBSPFile (mapFile);
 	if (numnodes == 0 || numfaces == 0)
 		Error ("Empty map");
@@ -1163,23 +1159,23 @@ int RunVVis( int argc, char **argv )
 
 	if ( inbase[0] == 0 )
 	{
-		strcpy( portalfile, source );
+		V_strcpy( portalfile, source );
 	}
 	else
 	{
-		sprintf ( portalfile, "%s%s", inbase, argv[i] );
+		V_snprintf(portalfile, sizeof(portalfile), "%s%s", inbase, argv[i]);
 		Q_StripExtension( portalfile, portalfile, sizeof( portalfile ) );
 	}
 	strcat (portalfile, ".prt");
 
-	Msg ("reading %s\n", portalfile);
+	Msg ("Reading: %s\n", portalfile);
 	LoadPortals (portalfile);
 
 	// don't write out results when simply doing a trace
 	if ( g_TraceClusterStart < 0 )
 	{
-		CalcVis ();
-		CalcPAS ();
+		CalcVis();
+		CalcPAS();
 
 		// We need a mapping from cluster to leaves, since the PVS
 		// deals with clusters for both CalcVisibleFogVolumes and
@@ -1189,9 +1185,9 @@ int RunVVis( int argc, char **argv )
 		CalcDistanceFromLeavesToWater();
 
 		visdatasize = vismap_p - dvisdata;
-		Msg ("visdatasize:%i  compressed from %i\n", visdatasize, originalvismapsize*2);
+		Msg ("Visdatasize: %i compressed from %i\n", visdatasize, originalvismapsize*2);
 
-		Msg ("writing %s\n", mapFile);
+		Msg ("Writing: %s\n", mapFile);
 		WriteBSPFile (mapFile);
 	}
 	else
@@ -1206,7 +1202,7 @@ int RunVVis( int argc, char **argv )
 			Warning("Can't compile trace in MPI mode\n");
 		}
 #endif
-		CalcVisTrace ();
+		CalcVisTrace();
 		WritePortalTrace(source);
 	}
 
@@ -1254,8 +1250,10 @@ int main (int argc, char **argv)
 }
 
 
+//------------------------------------------------------------------------
 // When VVIS is used as a DLL (makes debugging vmpi vvis a lot easier), this is used to
 // get it going.
+//------------------------------------------------------------------------
 class CVVisDLL : public ILaunchableDLL
 {
 public:
@@ -1264,5 +1262,6 @@ public:
 		return ::main( argc, argv );
 	}
 };
+
 
 EXPOSE_SINGLE_INTERFACE( CVVisDLL, ILaunchableDLL, LAUNCHABLE_DLL_INTERFACE_VERSION );

@@ -80,11 +80,13 @@ static CUtlVector<DetailPropLightstylesLump_t>	s_DetailPropLightStyleLumpLDR;
 static CUtlVector<DetailPropLightstylesLump_t>	s_DetailPropLightStyleLumpHDR;
 static CUtlVector<DetailPropLightstylesLump_t> *s_pDetailPropLightStyleLump = &s_DetailPropLightStyleLumpLDR;
 
+
 //-----------------------------------------------------------------------------
 // An amount to add to each model to get to the model center
 //-----------------------------------------------------------------------------
 CUtlVector<Vector> g_ModelCenterOffset;
 CUtlVector<Vector> g_SpriteCenterOffset;
+
 
 void VRadDetailProps_SetHDRMode( bool bHDR )
 {
@@ -97,6 +99,7 @@ void VRadDetailProps_SetHDRMode( bool bHDR )
 		s_pDetailPropLightStyleLump = &s_DetailPropLightStyleLumpLDR;
 	}
 }
+
 
 //-----------------------------------------------------------------------------
 // Finds ambient sky lights
@@ -235,7 +238,6 @@ static void ComputeMaxDirectLighting( DetailObjectLump_t& prop, Vector* maxcolor
 //-----------------------------------------------------------------------------
 // Computes the ambient term from a particular surface
 //-----------------------------------------------------------------------------
-
 static void ComputeAmbientFromSurface( dface_t* pFace, directlight_t* pSkylight, 
 									   Vector& radcolor )
 {
@@ -262,7 +264,6 @@ static void ComputeAmbientFromSurface( dface_t* pFace, directlight_t* pSkylight,
 //-----------------------------------------------------------------------------
 // Computes the lightmap color at a particular point
 //-----------------------------------------------------------------------------
-
 static void ComputeLightmapColorFromAverage( dface_t* pFace, directlight_t* pSkylight, float scale, Vector pColor[MAX_LIGHTSTYLES] )
 {
 	texinfo_t* pTex = &texinfo[pFace->texinfo];
@@ -298,7 +299,6 @@ static void ComputeLightmapColorFromAverage( dface_t* pFace, directlight_t* pSky
 //-----------------------------------------------------------------------------
 // Returns true if the surface has bumped lightmaps
 //-----------------------------------------------------------------------------
-
 static bool SurfHasBumpedLightmaps( dface_t *pSurf )
 {
 	bool hasBumpmap = false;
@@ -313,7 +313,6 @@ static bool SurfHasBumpedLightmaps( dface_t *pSurf )
 //-----------------------------------------------------------------------------
 // Computes the lightmap color at a particular point
 //-----------------------------------------------------------------------------
-
 static void ComputeLightmapColorPointSample( dface_t* pFace, directlight_t* pSkylight, Vector2D const& luv, float scale, Vector pColor[MAX_LIGHTSTYLES] )
 {
 	// face unaffected by light
@@ -354,7 +353,6 @@ static void ComputeLightmapColorPointSample( dface_t* pFace, directlight_t* pSky
 //-----------------------------------------------------------------------------
 // Tests a particular node
 //-----------------------------------------------------------------------------
-
 class CLightSurface : public IBSPNodeEnumerator
 {
 public:
@@ -572,6 +570,7 @@ bool CastRayInLeaf( int iThread, const Vector &start, const Vector &end, int lea
 	return pFraction[0] != 1.0f ? true : false;
 }
 
+
 //-----------------------------------------------------------------------------
 // Computes ambient lighting along a specified ray.  
 // Ray represents a cone, tanTheta is the tan of the inner cone angle
@@ -616,6 +615,7 @@ void CalcRayAmbientLighting( int iThread, const Vector &vStart, const Vector &vE
 	}
 }
 
+
 //-----------------------------------------------------------------------------
 // Compute ambient lighting component at specified position.
 //-----------------------------------------------------------------------------
@@ -642,7 +642,7 @@ static void ComputeAmbientLightingAtPoint( int iThread, const Vector &origin, Ve
 		// Now that we've got a ray, see what surface we've hit
 		CalcRayAmbientLighting( iThread, origin, upend, tanTheta, color );
 
-//		DumpRayToGlView( ray, surfEnum.m_HitFrac, &color[0], "test.out" );
+		//DumpRayToGlView( ray, surfEnum.m_HitFrac, &color[0], "test.out" );
 	}
 
 	for ( j = 0; j < MAX_LIGHTSTYLES; ++j)
@@ -650,6 +650,7 @@ static void ComputeAmbientLightingAtPoint( int iThread, const Vector &origin, Ve
 		VectorMultiply( color[j], 255.0f / (float)NUMVERTEXNORMALS, color[j] );
 	}
 }
+
 
 //-----------------------------------------------------------------------------
 // Trace hemispherical rays from a vertex, accumulating indirect
@@ -749,6 +750,10 @@ void ComputeIndirectLightingAtPoint( Vector &position, Vector &normal, Vector &o
 	}
 }
 
+
+//-----------------------------------------------------------------------------
+// Computes Ambient lighting
+//-----------------------------------------------------------------------------
 static void ComputeAmbientLighting( int iThread, DetailObjectLump_t& prop, Vector color[MAX_LIGHTSTYLES] )
 {
 	Vector origin, normal;
@@ -779,7 +784,6 @@ static void ComputeAmbientLighting( int iThread, DetailObjectLump_t& prop, Vecto
 //-----------------------------------------------------------------------------
 // Computes lighting for a single detal prop
 //-----------------------------------------------------------------------------
-
 static void ComputeLighting( DetailObjectLump_t& prop, int iThread )
 {
 	// We're going to take the maximum of the ambient lighting and 
@@ -855,6 +859,7 @@ static void UnserializeModelDict( CUtlBuffer& buf )
 	}
 }
 
+
 static void UnserializeSpriteDict( CUtlBuffer& buf )
 {
 	// Get origin offset for each model...
@@ -926,11 +931,13 @@ static void WriteDetailLightingLump( int lumpID, int lumpVersion, CUtlVector<Det
 		buf.Put( lumpData.Base(), lightsize );
 }
 
+
 static void WriteDetailLightingLumps( void )
 {
 	WriteDetailLightingLump( GAMELUMP_DETAIL_PROP_LIGHTING, GAMELUMP_DETAIL_PROP_LIGHTING_VERSION, s_DetailPropLightStyleLumpLDR );
 	WriteDetailLightingLump( GAMELUMP_DETAIL_PROP_LIGHTING_HDR, GAMELUMP_DETAIL_PROP_LIGHTING_HDR_VERSION, s_DetailPropLightStyleLumpHDR );
 }
+
 
 // need to do this so that if we are building HDR data, the LDR data is intact, and vice versa.s
 void UnserializeDetailPropLighting( int lumpID, int lumpVersion, CUtlVector<DetailPropLightstylesLump_t> &lumpData )
@@ -958,7 +965,9 @@ void UnserializeDetailPropLighting( int lumpID, int lumpVersion, CUtlVector<Deta
 	buf.Get( lumpData.Base(), lightsize );
 }
 
+
 DetailObjectLump_t *g_pMPIDetailProps = NULL;
+
 
 #ifdef MPI
 void VMPI_ProcessDetailPropWU( int iThread, int iWorkUnit, MessageBuffer *pBuf )
@@ -1003,6 +1012,7 @@ void VMPI_ReceiveDetailPropWU( int iWorkUnit, MessageBuffer *pBuf, int iWorker )
 }
 #endif
 	
+
 //-----------------------------------------------------------------------------
 // Computes lighting for the detail props
 //-----------------------------------------------------------------------------

@@ -9,14 +9,12 @@
 #include "lightmap.h"
 
 
-
 static bool g_bFileError = false;
 
 
-// -------------------------------------------------------------------------------- //
+//--------------------------------------------------------------------------------
 // Static helpers.
-// -------------------------------------------------------------------------------- //
-
+//--------------------------------------------------------------------------------
 static bool CompareLights( dworldlight_t *a, dworldlight_t *b )
 {
 	static float flEpsilon = 1e-7;
@@ -50,12 +48,14 @@ void FileClose( long fp )
 		g_pFileSystem->Close( (FILE*)fp );
 }
 
-
+//-----------------------------------------------------------------------------
 // Returns true if there was an error reading from the file.
+//-----------------------------------------------------------------------------
 bool FileError()
 {
 	return g_bFileError;
 }
+
 
 static inline void FileRead( long fp, void *pOut, int size )
 {
@@ -97,10 +97,9 @@ IIncremental* GetIncremental()
 }
 
 
-// -------------------------------------------------------------------------------- //
+//--------------------------------------------------------------------------------
 // CIncremental.
-// -------------------------------------------------------------------------------- //
-
+//--------------------------------------------------------------------------------
 CIncremental::CIncremental()
 {
 	m_TotalMemory = 0;
@@ -377,6 +376,7 @@ void DecompressLightData( CUtlBuffer *pIn, CUtlVector<CLightValue> *pOut )
 #pragma warning (disable:4701)
 #endif
 
+
 void CompressLightData( 
 	CLightValue const *pValues, 
 	int nValues, 
@@ -420,6 +420,7 @@ void CompressLightData(
 #pragma warning (default:4701)
 #endif
 
+
 void MultiplyValues( CUtlVector<CLightValue> &values, float scale )
 {
 	for( int i=0; i < values.Count(); i++ )
@@ -427,10 +428,7 @@ void MultiplyValues( CUtlVector<CLightValue> &values, float scale )
 }
 
 
-void CIncremental::FinishFace(
-	IncrementalLightID lightID,
-	int iFace,
-	int iThread )
+void CIncremental::FinishFace(IncrementalLightID lightID, int iFace, int iThread )
 {
 	CIncLight *pLight = m_Lights[lightID];
 
@@ -712,10 +710,9 @@ void CIncremental::LinkLightsToFaces( CUtlVector<CFaceLightList> &faceLights )
 }
 
 
-// ------------------------------------------------------------------ //
+//------------------------------------------------------------------
 // CIncLight
-// ------------------------------------------------------------------ //
-
+//------------------------------------------------------------------
 CIncLight::CIncLight()
 {
 	memset( m_pCachedFaces, 0, sizeof(m_pCachedFaces) );

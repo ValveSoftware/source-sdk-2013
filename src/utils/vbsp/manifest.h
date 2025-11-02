@@ -13,9 +13,9 @@
 
 #include "boundbox.h"
 
-//
+//-------------------------------------------------------------------------
 // Each cordon is a named collection of bounding boxes.
-//
+//-------------------------------------------------------------------------
 struct Cordon_t
 {
 	inline Cordon_t()
@@ -28,6 +28,7 @@ struct Cordon_t
 	CUtlVector<BoundBox> m_Boxes;
 };
 
+
 class CManifestMap
 {
 public:
@@ -35,6 +36,7 @@ public:
 	char		m_RelativeMapFileName[ MAX_PATH ];
 	bool		m_bTopLevelMap;
 };
+
 
 class CManifest
 {
@@ -70,4 +72,5 @@ private:
 	entity_t						*m_CordoningMapEnt;
 };
 
-#endif // #ifndef __MANIFEST_H
+
+#endif // __MANIFEST_H 

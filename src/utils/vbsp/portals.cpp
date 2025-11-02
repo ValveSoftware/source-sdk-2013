@@ -18,6 +18,7 @@ int		c_peak_portals;
 int		c_boundary;
 int		c_boundary_sides;
 
+
 /*
 ===========
 AllocPortal
@@ -42,6 +43,7 @@ portal_t *AllocPortal (void)
 	return p;
 }
 
+
 void FreePortal (portal_t *p)
 {
 	if (p->winding)
@@ -51,7 +53,6 @@ void FreePortal (portal_t *p)
 	free (p);
 }
 
-//==============================================================
 
 /*
 ==============
@@ -99,6 +100,7 @@ int ClusterContents (node_t *node)
 		c &= ~CONTENTS_SOLID;
 	return c;
 }
+
 
 /*
 =============
@@ -164,6 +166,7 @@ qboolean Portal_EntityFlood (portal_t *p, int s)
 	return true;
 }
 
+
 qboolean Portal_AreaLeakFlood (portal_t *p, int s)
 {
 	if ( !Portal_EntityFlood( p, s ) )
@@ -178,8 +181,6 @@ qboolean Portal_AreaLeakFlood (portal_t *p, int s)
 	return true;
 }
 
-
-//=============================================================================
 
 int		c_tinyportals;
 
@@ -212,7 +213,7 @@ void RemovePortalFromNode (portal_t *portal, node_t *l)
 {
 	portal_t	**pp, *t;
 	
-// remove reference to the current portal
+	// remove reference to the current portal
 	pp = &l->portals;
 	while (1)
 	{
@@ -243,7 +244,6 @@ void RemovePortalFromNode (portal_t *portal, node_t *l)
 	}
 }
 
-//============================================================================
 
 void PrintPortal (portal_t *p)
 {
@@ -256,7 +256,10 @@ void PrintPortal (portal_t *p)
 		, w->p[i][1], w->p[i][2]);
 }
 
+
+//-----------------------------------------------------------------------------
 // because of water areaportals support, the areaportal may not be the only brush on this node
+//-----------------------------------------------------------------------------
 bspbrush_t *AreaportalBrushForNode( node_t *node )
 {
 	bspbrush_t *b = node->brushlist;
@@ -275,40 +278,43 @@ MakeHeadnodePortals
 The created portals will face the global outside_node
 ================
 */
+//-----------------------------------------------------------------------------
 // buffer space around sides of nodes
+//-----------------------------------------------------------------------------
 #define	SIDESPACE	8
-void MakeHeadnodePortals (tree_t *tree)
+void MakeHeadnodePortals(tree_t* tree)
 {
 	Vector		bounds[2];
 	int			i, j, n;
-	portal_t	*p, *portals[6];
-	plane_t		bplanes[6], *pl;
-	node_t *node;
+	portal_t* p, * portals[6];
+	plane_t		bplanes[6], * pl;
+	node_t* node;
 
 	node = tree->headnode;
 
-// pad with some space so there will never be null volume leafs
-	for (i=0 ; i<3 ; i++)
+	// pad with some space so there will never be null volume leafs
+	for (i = 0; i < 3; i++)
 	{
 		bounds[0][i] = tree->mins[i] - SIDESPACE;
 		bounds[1][i] = tree->maxs[i] + SIDESPACE;
 	}
-	
+
 	tree->outside_node.planenum = PLANENUM_LEAF;
 	tree->outside_node.brushlist = NULL;
 	tree->outside_node.portals = NULL;
 	tree->outside_node.contents = 0;
 
-	for (i=0 ; i<3 ; i++)
-		for (j=0 ; j<2 ; j++)
+	for (i = 0; i < 3; i++)
+	{
+		for (j = 0; j < 2; j++)
 		{
-			n = j*3 + i;
+			n = j * 3 + i;
 
-			p = AllocPortal ();
+			p = AllocPortal();
 			portals[n] = p;
-			
+
 			pl = &bplanes[n];
-			memset (pl, 0, sizeof(*pl));
+			memset(pl, 0, sizeof(*pl));
 			if (j)
 			{
 				pl->normal[i] = -1;
@@ -320,11 +326,12 @@ void MakeHeadnodePortals (tree_t *tree)
 				pl->dist = bounds[j][i];
 			}
 			p->plane = *pl;
-			p->winding = BaseWindingForPlane (pl->normal, pl->dist);
-			AddPortalToNodes (p, node, &tree->outside_node);
+			p->winding = BaseWindingForPlane(pl->normal, pl->dist);
+			AddPortalToNodes(p, node, &tree->outside_node);
 		}
-		
-// clip the basewindings by all the other planes
+	}
+
+	// clip the basewindings by all the other planes
 	for (i=0 ; i<6 ; i++)
 	{
 		for (j=0 ; j<6 ; j++)
@@ -336,8 +343,6 @@ void MakeHeadnodePortals (tree_t *tree)
 	}
 }
 
-//===================================================
-
 
 /*
 ================
@@ -346,6 +351,7 @@ BaseWindingForNode
 */
 #define	BASE_WINDING_EPSILON	0.001
 #define	SPLIT_WINDING_EPSILON	0.001
+
 
 winding_t	*BaseWindingForNode (node_t *node)
 {
@@ -379,7 +385,6 @@ winding_t	*BaseWindingForNode (node_t *node)
 	return w;
 }
 
-//============================================================
 
 /*
 ==================
@@ -478,9 +483,9 @@ void SplitNodePortals (node_t *node)
 		RemovePortalFromNode (p, p->nodes[0]);
 		RemovePortalFromNode (p, p->nodes[1]);
 
-//
-// cut the portal into two portals, one on each side of the cut plane
-//
+		//
+		// cut the portal into two portals, one on each side of the cut plane
+		//
 		ClipWindingEpsilon (p->winding, plane->normal, plane->dist,
 			SPLIT_WINDING_EPSILON, &frontwinding, &backwinding);
 
@@ -609,6 +614,7 @@ void MakeTreePortals_r (node_t *node)
 	MakeTreePortals_r (node->children[1]);
 }
 
+
 /*
 ==================
 MakeTreePortals
@@ -620,6 +626,7 @@ void MakeTreePortals (tree_t *tree)
 	MakeTreePortals_r (tree->headnode);
 }
 
+
 /*
 =========================================================
 
@@ -627,7 +634,6 @@ FLOOD ENTITIES
 
 =========================================================
 */
-
 //-----------------------------------------------------------------------------
 // Purpose: Floods outward from the given node, marking visited nodes with
 //			the number of hops from a node with an entity. If we ever mark
@@ -658,6 +664,7 @@ void FloodPortals_r (node_t *node, int dist)
 	}
 }
 
+
 void FloodAreaLeak_r( node_t *node, int dist )
 {
 	portal_t	*p;
@@ -679,6 +686,7 @@ void FloodAreaLeak_r( node_t *node, int dist )
 	}
 }
 
+
 void ClearOccupied_r( node_t *headnode )
 {
 	if ( !headnode )
@@ -689,11 +697,13 @@ void ClearOccupied_r( node_t *headnode )
 	ClearOccupied_r( headnode->children[1] );
 }
 
+
 void FloodAreaLeak( node_t *headnode, node_t *pFirstSide )
 {
 	ClearOccupied_r( headnode );
 	FloodAreaLeak_r( pFirstSide, 2 );
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: For the given entity at the given origin, finds the leaf node in the
@@ -733,6 +743,7 @@ qboolean PlaceOccupant (node_t *headnode, Vector& origin, entity_t *occupant)
 
 	return true;
 }
+
 
 /*
 =============
@@ -815,19 +826,19 @@ FLOOD AREAS
 
 =========================================================
 */
-
 int		c_areas;
 
 bool IsAreaportalNode( node_t *node )
 {
 	return ( node->contents & CONTENTS_AREAPORTAL ) ? true : false;
 }
+
+
 /*
 =============
 FloodAreas_r
 =============
 */
-
 void FloodAreas_r (node_t *node, portal_t *pSeeThrough)
 {
 	portal_t	*p;
@@ -884,6 +895,7 @@ void FloodAreas_r (node_t *node, portal_t *pSeeThrough)
 		FloodAreas_r (p->nodes[!s], p);
 	}
 }
+
 
 /*
 =============
@@ -1009,8 +1021,10 @@ void SetAreaPortalAreas_r (tree_t *tree, node_t *node)
 }
 
 
+//-----------------------------------------------------------------------------
 // Return a positive value between 0 and 2*PI telling the angle distance
 // from flBaseAngle to flTestAngle.
+//-----------------------------------------------------------------------------
 float AngleOffset( float flBaseAngle, float flTestAngle )
 {
 	while( flTestAngle > flBaseAngle )
@@ -1046,8 +1060,11 @@ int FindUniquePoints( const Vector2D *pPoints, int nPoints, int *indexMap, int n
 	return nUniquePoints;
 }
 
+
+//-----------------------------------------------------------------------------
 // Build a 2D convex hull of the set of points.
 // This essentially giftwraps the points as it walks around the perimeter.
+//-----------------------------------------------------------------------------
 int Convex2D( Vector2D const *pPoints, int nPoints, int *indices, int nMaxIndices )
 {
 	int nIndices = 0;
@@ -1155,6 +1172,7 @@ int Convex2D( Vector2D const *pPoints, int nPoints, int *indices, int nMaxIndice
 	return nIndices;
 }
 
+
 void FindPortalsLeadingToArea_R( 
 	node_t *pHeadNode, 
 	int iSrcArea, 
@@ -1222,8 +1240,7 @@ void EmitClipPortalGeometry( node_t *pHeadNode, portal_t *pPortal, int iSrcArea,
 	}
 
 	// Get the 2D convex hull.
-
-	//// First transform them into a plane.
+	// First transform them into a plane.
 	QAngle vAngles;
 	Vector vecs[3];
 
@@ -1269,7 +1286,9 @@ void EmitClipPortalGeometry( node_t *pHeadNode, portal_t *pPortal, int iSrcArea,
 }
 
 
+//-----------------------------------------------------------------------------
 // Sets node_t::area for non-leaf nodes (this allows an optimization in the renderer).
+//-----------------------------------------------------------------------------
 void SetNodeAreaIndices_R( node_t *node )
 {
 	// All leaf area indices should already be set.
@@ -1362,6 +1381,7 @@ void EmitAreaPortals (node_t *headnode)
 	qprintf ("%5i numareaportals\n", numareaportals);
 }
 
+
 /*
 =============
 FloodAreas
@@ -1371,20 +1391,20 @@ Mark each leaf with an area, bounded by CONTENTS_AREAPORTAL
 */
 void FloodAreas (tree_t *tree)
 {
-	int start = Plat_FloatTime();
+	float start = Plat_FloatTime();
 	qprintf ("--- FloodAreas ---\n");
-	Msg("Processing areas...");
+	Msg("Processing areas... ");
 	FindAreas_r (tree->headnode);
 	SetAreaPortalAreas_r (tree, tree->headnode);
 	qprintf ("%5i areas\n", c_areas);
-	Msg("done (%d)\n", (int)(Plat_FloatTime() - start) );
+	Msg("done(%.1fs)\n", (Plat_FloatTime() - start) );
 }
 
-//======================================================
 
 int		c_outside;
 int		c_inside;
 int		c_solid;
+
 
 void FillOutside_r (node_t *node)
 {
@@ -1411,6 +1431,7 @@ void FillOutside_r (node_t *node)
 		c_inside++;
 
 }
+
 
 /*
 =============
@@ -1485,8 +1506,6 @@ static void DisplayPortalError( portal_t *p, int viscontents )
 	Warning( "\n\n" );
 }
 
-
-//==============================================================
 
 /*
 ============
@@ -1616,6 +1635,7 @@ void MarkVisibleSides_r (node_t *node)
 
 }
 
+
 /*
 =============
 MarkVisibleSides
@@ -1681,4 +1701,3 @@ void MarkVisibleSides (tree_t *tree, mapbrush_t **ppBrushes, int nCount )
 	// set visible flags on the sides that are used by portals
 	MarkVisibleSides_r( tree->headnode );
 }
-

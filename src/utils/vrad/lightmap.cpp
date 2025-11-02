@@ -29,12 +29,13 @@ enum
 	NON_AMBIENT_ONLY = 0x2,
 };
 
+
 #define SMOOTHING_GROUP_HARD_EDGE	0xff000000
 
-//==========================================================================//
-// CNormalList.
-//==========================================================================//
 
+//==========================================================================
+// CNormalList.
+//==========================================================================
 // This class keeps a list of unique normals and provides a fast 
 class CNormalList
 {
@@ -70,10 +71,10 @@ faceneighbor_t faceneighbor[MAX_MAP_FACES];
 static directlight_t *gSkyLight = NULL;
 static directlight_t *gAmbient = NULL;
 
-//==========================================================================//
-// CNormalList implementation.
-//==========================================================================//
 
+//==========================================================================
+// CNormalList implementation.
+//==========================================================================
 CNormalList::CNormalList() : m_Normals( 128 )
 {
 	for( int i=0; i < sizeof(m_NormalGrid)/sizeof(m_NormalGrid[0][0][0]); i++ )
@@ -81,6 +82,7 @@ CNormalList::CNormalList() : m_Normals( 128 )
 		(&m_NormalGrid[0][0][0] + i)->SetGrowSize( 16 );
 	}
 }
+
 
 int CNormalList::FindOrAddNormal( Vector const &vNormal )
 {
@@ -111,6 +113,7 @@ int CNormalList::FindOrAddNormal( Vector const &vNormal )
 	return m_Normals.AddToTail( vNormal );
 }
 
+
 // FIXME: HACK until the plane normals are made more happy
 void GetBumpNormals( const float* sVect, const float* tVect, const Vector& flatNormal, 
 					 const Vector& phongNormal, Vector bumpNormals[NUM_BUMP_VECTS] )
@@ -119,6 +122,7 @@ void GetBumpNormals( const float* sVect, const float* tVect, const Vector& flatN
 	Vector ttmp( tVect[0], tVect[1], tVect[2] );
 	GetBumpNormals( stmp, ttmp, flatNormal, phongNormal, bumpNormals );
 }
+
 
 int EdgeVertex( dface_t *f, int edge )
 {
@@ -148,7 +152,7 @@ int EdgeVertex( dface_t *f, int edge )
   PairEdges
   ============
 */
-void PairEdges (void)
+void PairEdges(void)
 {
 	int		        i, j, k, n, m;
 	dface_t	        *f;
@@ -372,6 +376,7 @@ void SaveVertexNormals( void )
 	memcpy( g_vertnormals, normalList.m_Normals.Base(), sizeof(g_vertnormals[0]) * normalList.m_Normals.Size() );
 }
 
+
 /*
   =================================================================
 
@@ -379,8 +384,6 @@ void SaveVertexNormals( void )
 
   =================================================================
 */
-
-
 //-----------------------------------------------------------------------------
 // Purpose: Spits out an error message with information about a lightinfo_t.
 // Input  : s - Error message string.
@@ -411,7 +414,6 @@ void ErrorLightInfo(const char *s, lightinfo_t *l)
 		Warning("%s at (degenerate face)\n\tmaterial=%s\n", s, TexDataStringTable_GetString( dtexdata[tex->texdata].nameStringTableID ));
 	}
 }
-
 
 
 void CalcFaceVectors(lightinfo_t *l)
@@ -475,7 +477,6 @@ void CalcFaceVectors(lightinfo_t *l)
 }
 
 
-
 winding_t *LightmapCoordWindingForFace( lightinfo_t *l )
 {
 	int			i;
@@ -516,8 +517,6 @@ void WriteCoordWinding (FILE *out, lightinfo_t *l, winding_t *w, Vector& color )
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 void DumpFaces( lightinfo_t *pLightInfo, int ndxFace )
 {
 	static	FileHandle_t out;
@@ -571,8 +570,6 @@ void DumpFaces( lightinfo_t *pLightInfo, int ndxFace )
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 bool BuildFacesamplesAndLuxels_DoFast( lightinfo_t *pLightInfo, facelight_t *pFaceLight )
 {
 	// lightmap size
@@ -628,8 +625,7 @@ bool BuildFacesamplesAndLuxels_DoFast( lightinfo_t *pLightInfo, facelight_t *pFa
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+
 bool BuildSamplesAndLuxels_DoFast( lightinfo_t *pLightInfo, facelight_t *pFaceLight, int ndxFace )
 {
 	// build samples for a "face"
@@ -645,8 +641,6 @@ bool BuildSamplesAndLuxels_DoFast( lightinfo_t *pLightInfo, facelight_t *pFaceLi
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 bool BuildFacesamples( lightinfo_t *pLightInfo, facelight_t *pFaceLight )
 {
 	// lightmap size
@@ -799,7 +793,7 @@ bool BuildFacesamples( lightinfo_t *pLightInfo, facelight_t *pFaceLight )
 	// statistics - warning?!
 	if( pFaceLight->numsamples == 0 )
 	{
-		Msg( "no samples %d\n", pLightInfo->face - g_pFaces );
+		Warning( "no samples %d\n", pLightInfo->face - g_pFaces );
 	}
 
 	return true;
@@ -823,7 +817,6 @@ void FreeSampleWindings( facelight_t *fl )
 }
 
 
-
 //-----------------------------------------------------------------------------
 // Purpose: build the sample data for each lightmapped primitive type
 //-----------------------------------------------------------------------------
@@ -842,8 +835,6 @@ bool BuildSamples( lightinfo_t *pLightInfo, facelight_t *pFaceLight, int ndxFace
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 bool BuildFaceLuxels( lightinfo_t *pLightInfo, facelight_t *pFaceLight )
 {
 	// lightmap size
@@ -906,7 +897,7 @@ void CalcPoints( lightinfo_t *pLightInfo, facelight_t *pFaceLight, int ndxFace )
 	{
 		if( !BuildSamplesAndLuxels_DoFast( pLightInfo, pFaceLight, ndxFace ) )
 		{
-			Msg( "Face %d: (Fast)Error Building Samples and Luxels\n", ndxFace );
+			Warning( "Face %d: (Fast)Error Building Samples and Luxels\n", ndxFace );
 		}
 		return;
 	}
@@ -914,24 +905,23 @@ void CalcPoints( lightinfo_t *pLightInfo, facelight_t *pFaceLight, int ndxFace )
 	// build the samples
 	if( !BuildSamples( pLightInfo, pFaceLight, ndxFace ) )
 	{
-		Msg( "Face %d: Error Building Samples\n", ndxFace );
+		Warning( "Face %d: Error Building Samples\n", ndxFace );
 	}
 
 	// build the luxels
 	if( !BuildLuxels( pLightInfo, pFaceLight, ndxFace ) )
 	{
-		Msg( "Face %d: Error Building Luxels\n", ndxFace );
+		Warning( "Face %d: Error Building Luxels\n", ndxFace );
 	}
 }
 
-
-//==============================================================
 
 directlight_t	*activelights;
 directlight_t	*freelights;
 
 facelight_t		facelight[MAX_MAP_FACES];
 int				numdlights;
+
 
 /*
   ==================
@@ -954,16 +944,15 @@ entity_t *FindTargetEntity (char *target)
 }
 
 
-
 /*
   =============
   AllocDLight
   =============
 */
-
 int GetVisCache( int lastoffset, int cluster, byte *pvs );
 void SetDLightVis( directlight_t *dl, int cluster );
 void MergeDLightVis( directlight_t *dl, int cluster );
+
 
 directlight_t *AllocDLight( Vector& origin, bool bAddToList )
 {
@@ -988,11 +977,13 @@ directlight_t *AllocDLight( Vector& origin, bool bAddToList )
 	return dl;
 }
 
+
 void AddDLightToActiveList( directlight_t *dl )
 {
 	dl->next = activelights;
 	activelights = dl;
 }
+
 
 void FreeDLights()
 {
@@ -1018,6 +1009,7 @@ void SetDLightVis( directlight_t *dl, int cluster )
 
 	GetVisCache( -1, cluster, dl->pvs );
 }
+
 
 void MergeDLightVis( directlight_t *dl, int cluster )
 {
@@ -1052,6 +1044,7 @@ int LightForKey (entity_t *ent, char *key, Vector& intensity )
 
 	return LightForString( pLight, intensity );
 }
+
 
 int LightForString( char *pLight, Vector& intensity )
 {
@@ -1109,7 +1102,7 @@ int LightForString( char *pLight, Vector& intensity )
 			break;
 
 		default:
-			printf("unknown light specifier type - %s\n",pLight);
+			Msg("unknown light specifier type - %s\n",pLight);
 			return false;
 	}
 	// scale up source lights by scaling factor
@@ -1117,10 +1110,10 @@ int LightForString( char *pLight, Vector& intensity )
 	return true;
 }
 
+
 //-----------------------------------------------------------------------------
 // Various parsing methods
 //-----------------------------------------------------------------------------
-
 static void ParseLightGeneric( entity_t *e, directlight_t *dl )
 {
 	entity_t		*e2;
@@ -1168,6 +1161,7 @@ static void ParseLightGeneric( entity_t *e, directlight_t *dl )
 					 dl->light.intensity );
 }
 
+
 static void SetLightFalloffParams( entity_t * e, directlight_t * dl )
 {
 	float d50=FloatForKey( e, "_fifty_percent_distance" );
@@ -1185,7 +1179,7 @@ static void SetLightFalloffParams( entity_t * e, directlight_t * dl )
 		float a = 0, b = 1, c = 0;
 		if ( ! SolveInverseQuadraticMonotonic( 0, 1.0, d50, 2.0, d0, 256.0, a, b, c ))
 		{
-			Warning( "can't solve quadratic for light %f %f\n", d50, d0 );
+			Warning( "Can't solve quadratic for light %f %f\n", d50, d0 );
 		}
 		// it it possible that the parameters couldn't be used because of enforing monoticity. If so, rescale so at
 		// least the 50 percent value is right
@@ -1258,6 +1252,7 @@ static void SetLightFalloffParams( entity_t * e, directlight_t * dl )
 	}
 }
 
+
 static void ParseLightSpot( entity_t* e, directlight_t* dl )
 {
 	Vector dest;
@@ -1310,6 +1305,7 @@ static void ParseLightSpot( entity_t* e, directlight_t* dl )
 	SetLightFalloffParams(e,dl);
 }
 
+
 // NOTE: This is just a heuristic.  It traces a finite number of rays to find sky
 // NOTE: Full vis is necessary to make this 100% correct.
 bool CanLeafTraceToSky( int iLeaf )
@@ -1340,6 +1336,7 @@ bool CanLeafTraceToSky( int iLeaf )
 
 	return false;
 }
+
 
 void BuildVisForLightEnvironment( void )
 {
@@ -1462,6 +1459,7 @@ void BuildVisForLightEnvironment( void )
 	}
 }
 
+
 static char *ValueForKeyWithDefault (entity_t *ent, char *key, char *default_value = NULL)
 {
 	epair_t	*ep;
@@ -1471,6 +1469,7 @@ static char *ValueForKeyWithDefault (entity_t *ent, char *key, char *default_val
 			return ep->value;
 	return default_value;
 }
+
 
 static void ParseLightEnvironment( entity_t* e, directlight_t* dl )
 {
@@ -1485,7 +1484,7 @@ static void ParseLightEnvironment( entity_t* e, directlight_t* dl )
 	{
 		g_SunAngularExtent=atof(angle_str);
 		g_SunAngularExtent=sin((M_PI/180.0)*g_SunAngularExtent);
-		printf("sun extent from map=%f\n",g_SunAngularExtent);
+		Msg("Sun extent from map: %f\n",g_SunAngularExtent);
 	}
 	if ( !gSkyLight )
 	{
@@ -1519,6 +1518,7 @@ static void ParseLightEnvironment( entity_t* e, directlight_t* dl )
 	}
 }
 
+
 static void ParseLightPoint( entity_t* e, directlight_t* dl )
 {
 	Vector dest;
@@ -1532,13 +1532,16 @@ static void ParseLightPoint( entity_t* e, directlight_t* dl )
 	SetLightFalloffParams(e,dl);
 }
 
+
 /*
   =============
   CreateDirectLights
   =============
 */
 #define DIRECT_SCALE (100.0*100.0)
-void CreateDirectLights (void)
+
+
+void CreateDirectLights(void)
 {
 	unsigned        i;
 	CPatch	        *p = NULL;
@@ -1614,15 +1617,14 @@ void CreateDirectLights (void)
 	}
 
 	qprintf ("%i direct lights\n", numdlights);
-	// exit(1);
 }
+
 
 /*
   =============
   ExportDirectLightsToWorldLights
   =============
 */
-
 void ExportDirectLightsToWorldLights()
 {
 	directlight_t		*dl;
@@ -1657,6 +1659,7 @@ void ExportDirectLightsToWorldLights()
 	}
 }
 
+
 /*
   =============
   GatherSampleLight
@@ -1668,8 +1671,11 @@ void ExportDirectLightsToWorldLights()
 
 #define NSAMPLES_SUN_AREA_LIGHT 30							// number of samples to take for an
                                                             // non-point sun light
+															
 
+//-----------------------------------------------------------------------------
 // Helper function - gathers light from sun (emit_skylight)
+//-----------------------------------------------------------------------------
 void GatherSampleSkyLightSSE( SSE_sampleLightOutput_t &out, directlight_t *dl, int facenum, 
 							 FourVectors const& pos, FourVectors *pNormals, int normalCount, int iThread,
 							 int nLFlags, int static_prop_index_to_ignore,
@@ -1741,7 +1747,10 @@ void GatherSampleSkyLightSSE( SSE_sampleLightOutput_t &out, directlight_t *dl, i
 	}
 }
 
+
+//-----------------------------------------------------------------------------
 // Helper function - gathers light from ambient sky light
+//-----------------------------------------------------------------------------
 void GatherSampleAmbientSkySSE( SSE_sampleLightOutput_t &out, directlight_t *dl, int facenum, 
 							   FourVectors const& pos, FourVectors *pNormals, int normalCount, int iThread,
 							   int nLFlags, int static_prop_index_to_ignore,
@@ -1832,7 +1841,10 @@ void GatherSampleAmbientSkySSE( SSE_sampleLightOutput_t &out, directlight_t *dl,
 
 }
 
+
+//-----------------------------------------------------------------------------
 // Helper function - gathers light from area lights, spot lights, and point lights
+//-----------------------------------------------------------------------------
 void GatherSampleStandardLightSSE( SSE_sampleLightOutput_t &out, directlight_t *dl, int facenum, 
 								  FourVectors const& pos, FourVectors *pNormals, int normalCount, int iThread,
 								  int nLFlags, int static_prop_index_to_ignore,
@@ -1994,12 +2006,15 @@ void GatherSampleStandardLightSSE( SSE_sampleLightOutput_t &out, directlight_t *
 	}
 }
 
+
+//-----------------------------------------------------------------------------
 // returns dot product with normal and delta
 // dl - light
 // pos - position of sample
 // normal - surface normal of sample
 // out.m_flDot[] - returned dot products with light vector and each normal
 // out.m_flFalloff - amount of light falloff
+//-----------------------------------------------------------------------------
 void GatherSampleLightSSE( SSE_sampleLightOutput_t &out, directlight_t *dl, int facenum, 
 					   FourVectors const& pos, FourVectors *pNormals, int normalCount, int iThread,
 					   int nLFlags,
@@ -2047,6 +2062,7 @@ void GatherSampleLightSSE( SSE_sampleLightOutput_t &out, directlight_t *dl, int 
 	}
 
 }
+
 
 /*
   =============
@@ -2214,6 +2230,7 @@ void GetPhongNormal( int facenum, Vector const& spot, Vector& phongnormal )
 	}
 }
 
+
 void GetPhongNormal( int facenum, FourVectors const& spot, FourVectors& phongnormal )
 {
 	int	j;
@@ -2304,7 +2321,6 @@ void GetPhongNormal( int facenum, FourVectors const& spot, FourVectors& phongnor
 }
 
 
-
 int GetVisCache( int lastoffset, int cluster, byte *pvs )
 {
 	// get the PVS for the pos to limit the number of checks
@@ -2342,6 +2358,7 @@ int GetVisCache( int lastoffset, int cluster, byte *pvs )
 
 
 void BuildPatchLights( int facenum );
+
 
 void DumpSamples( int ndxFace, facelight_t *pFaceLight )
 {
@@ -2404,6 +2421,7 @@ static inline int FindLightstyle( dface_t* f, int lightstyle )
 
 	return -1;
 }
+
 
 static int FindOrAllocateLightstyleSamples( dface_t* f, facelight_t	*fl, int lightstyle, int numnormals )
 {
@@ -2485,6 +2503,7 @@ static void ComputeIlluminationPointAndNormalsSSE( lightinfo_t const& l, FourVec
 		pInfo->m_Clusters[i] = ClusterFromPoint( pos.Vec( i ) );
 }
 
+
 //-----------------------------------------------------------------------------
 // Iterates over all lights and computes lighting at up to 4 sample points
 //-----------------------------------------------------------------------------
@@ -2565,7 +2584,6 @@ static void GatherSampleLightAt4Points( SSE_SampleInfo_t& info, int sampleIdx, i
 }
 
 
-
 //-----------------------------------------------------------------------------
 // Iterates over all lights and computes lighting at a sample point
 //-----------------------------------------------------------------------------
@@ -2638,6 +2656,7 @@ static void ResampleLightAt4Points( SSE_SampleInfo_t& info, int lightStyleIndex,
 	}
 }
 
+
 bool PointsInWinding ( FourVectors const & point, winding_t *w, int &invalidBits )
 {
 	FourVectors edge, toPt, cross, testCross, p0, p1;
@@ -2676,6 +2695,7 @@ bool PointsInWinding ( FourVectors const & point, winding_t *w, int &invalidBits
 
 	return true;
 }
+
 
 //-----------------------------------------------------------------------------
 // Perform supersampling at a particular point
@@ -2833,6 +2853,7 @@ static void ComputeLightmapGradients( SSE_SampleInfo_t& info, bool const* pHasPr
 	}
 }
 
+
 //-----------------------------------------------------------------------------
 // ComputeLuxelIntensity...
 //-----------------------------------------------------------------------------
@@ -2851,6 +2872,7 @@ static inline void ComputeLuxelIntensity( SSE_SampleInfo_t& info, int sampleIdx,
 	}
 }
 
+
 //-----------------------------------------------------------------------------
 // Compute the maximum intensity based on all bumped lighting
 //-----------------------------------------------------------------------------
@@ -2861,6 +2883,7 @@ static void ComputeSampleIntensities( SSE_SampleInfo_t& info, LightingValue_t **
 		ComputeLuxelIntensity( info, i, ppLightSamples, pSampleIntensity );
 	}
 }
+
 
 //-----------------------------------------------------------------------------
 // Perform supersampling on a particular lightstyle
@@ -2976,6 +2999,7 @@ static void BuildSupersampleFaceLights( lightinfo_t& l, SSE_SampleInfo_t& info, 
 	}
 }
 
+
 void InitLightinfo( lightinfo_t *pl, int facenum )
 {
 	dface_t		*f;
@@ -3016,6 +3040,7 @@ void InitLightinfo( lightinfo_t *pl, int facenum )
 	}
 }
 
+
 static void InitSampleInfo( lightinfo_t const& l, int iThread, SSE_SampleInfo_t& info )
 {
 	info.m_LightmapWidth  = l.face->m_LightmapTextureSizeInLuxels[0]+1;
@@ -3055,6 +3080,7 @@ static void InitSampleInfo( lightinfo_t const& l, int iThread, SSE_SampleInfo_t&
 		}
 	}
 }
+
 
 void BuildFacelights (int iThread, int facenum)
 {
@@ -3194,6 +3220,7 @@ void BuildFacelights (int iThread, int facenum)
 	}
 
 }
+
 
 void BuildPatchLights( int facenum )
 {
@@ -3362,7 +3389,6 @@ void BuildPatchLights( int facenum )
   PrecompLightmapOffsets
   =============
 */
-
 void PrecompLightmapOffsets()
 {
     int facenum;
@@ -3421,7 +3447,10 @@ void PrecompLightmapOffsets()
 	pdlightdata->SetSize( lightdatasize );
 }
 
+
+//-----------------------------------------------------------------------------
 // Clamp the three values for bumped lighting such that we trade off directionality for brightness.
+//-----------------------------------------------------------------------------
 static void ColorClampBumped( Vector& color1, Vector& color2, Vector& color3 )
 {
 	Vector maxs;
@@ -3473,6 +3502,7 @@ static void ColorClampBumped( Vector& color1, Vector& color2, Vector& color3 )
 	if( color3[1] < 0.f ) color3[1] = 0.f;
 	if( color3[2] < 0.f ) color3[2] = 0.f;
 }
+
 
 static void LinearToBumpedLightmap(
 	const float		*linearColor, 
@@ -3546,6 +3576,7 @@ static void LinearToBumpedLightmap(
 	retBump3[2] = RoundFloatToByte( correctedBumpColor3[2] * 255.0f );
 }
 
+
 //-----------------------------------------------------------------------------
 // Convert a RGBExp32 to a RGBA8888
 // This matches the engine's conversion, so the lighting result is consistent.
@@ -3564,6 +3595,7 @@ void ConvertRGBExp32ToRGBA8888( const ColorRGBExp32 *pSrc, unsigned char *pDst, 
 		*_optOutLinear = linearColor;
 }
 
+
 //-----------------------------------------------------------------------------
 // Converts a RGBExp32 to a linear color value.
 //-----------------------------------------------------------------------------
@@ -3574,6 +3606,7 @@ void ConvertRGBExp32ToLinear(const ColorRGBExp32 *pSrc, Vector* pDst)
 	(*pDst)[1] = TexLightToLinear(((ColorRGBExp32 *)pSrc)->g, ((ColorRGBExp32 *)pSrc)->exponent);
 	(*pDst)[2] = TexLightToLinear(((ColorRGBExp32 *)pSrc)->b, ((ColorRGBExp32 *)pSrc)->exponent);
 }
+
 
 //-----------------------------------------------------------------------------
 // Converts a linear color value (suitable for combining linearly) to an RBGA8888 value expected by the engine.

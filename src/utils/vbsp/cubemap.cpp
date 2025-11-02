@@ -18,8 +18,6 @@
 #include "materialsystem/imaterialsystem.h"
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialvar.h"
-
-
 /*
 	Meager documentation for how the cubemaps are assigned.
 
@@ -50,11 +48,13 @@ struct PatchInfo_t
 	int m_pOrigin[3];
 };
 
+
 struct CubemapInfo_t
 {
 	int m_nTableId;
 	bool m_bSpecular;
 };
+
 
 static bool CubemapLessFunc( const CubemapInfo_t &lhs, const CubemapInfo_t &rhs )
 { 
@@ -64,7 +64,6 @@ static bool CubemapLessFunc( const CubemapInfo_t &lhs, const CubemapInfo_t &rhs 
 
 typedef CUtlVector<int> IntVector_t;
 static CUtlVector<IntVector_t> s_EnvCubemapToBrushSides;
-
 static CUtlVector<char *> s_DefaultCubemapNames;
 static char g_IsCubemapTexData[MAX_MAP_TEXDATA];
 
@@ -76,7 +75,6 @@ struct CubemapSideData_t
 };
 
 static CubemapSideData_t s_aCubemapSideData[MAX_MAP_BRUSHSIDES];
-
 
 
 inline bool SideHasCubemapAndWasntManuallyReferenced( int iSide )
@@ -95,6 +93,7 @@ void Cubemap_InsertSample( const Vector& origin, int size )
 	g_nCubemapSamples++;
 }
 
+
 static const char *FindSkyboxMaterialName( void )
 {
 	for( int i = 0; i < g_MainMap->num_entities; i++ )
@@ -108,6 +107,7 @@ static const char *FindSkyboxMaterialName( void )
 	return NULL;
 }
 
+
 static void BackSlashToForwardSlash( char *pname )
 {
 	while ( *pname ) {
@@ -116,6 +116,7 @@ static void BackSlashToForwardSlash( char *pname )
 		pname++;
 	}
 }
+
 
 static void ForwardSlashToBackSlash( char *pname )
 {
@@ -141,6 +142,7 @@ static const char *s_pDependentMaterialVar[] =
 
 	"",					// Always must be last
 };
+
 
 static const char *FindDependentMaterial( const char *pMaterialName, const char **ppMaterialVar = NULL )
 {
@@ -197,7 +199,7 @@ static bool LoadSrcVTFFiles( IVTFTexture *pSrcVTFTextures[6], const char *pSkybo
 	for( i = 0; i < 6; i++ )
 	{
 		char srcMaterialName[1024];
-		sprintf( srcMaterialName, "%s%s", pSkyboxMaterialBaseName, facingName[i] );
+		V_snprintf(srcMaterialName, sizeof(srcMaterialName), "%s%s", pSkyboxMaterialBaseName, facingName[i]);
 
 		IMaterial *pSkyboxMaterial = g_pMaterialSystem->FindMaterial( srcMaterialName, "skybox" );
 		//IMaterialVar *pSkyTextureVar = pSkyboxMaterial->FindVar( bHDR ? "$hdrbasetexture" : "$basetexture", NULL ); //, bHDR ? false : true );
@@ -433,11 +435,11 @@ void CreateDefaultCubemaps( bool bHDR )
 	char dstVTFFileName[1024];
 	if( bHDR )
 	{
-		sprintf( dstVTFFileName, "materials/maps/%s/cubemapdefault.hdr.vtf", mapbase );
+		V_snprintf(dstVTFFileName, sizeof(dstVTFFileName), "materials/maps/%s/cubemapdefault.hdr.vtf", mapbase);
 	}
 	else
 	{
-		sprintf( dstVTFFileName, "materials/maps/%s/cubemapdefault.vtf", mapbase );
+		V_snprintf(dstVTFFileName, sizeof(dstVTFFileName), "materials/maps/%s/cubemapdefault.vtf", mapbase);
 	}
 
 	CUtlBuffer outputBuf;
@@ -701,7 +703,9 @@ static int SideIDToIndex( int brushSideID )
 //-----------------------------------------------------------------------------
 void Cubemap_FixupBrushSidesMaterials( void )
 {
-	Msg( "fixing up env_cubemap materials on brush sides...\n" );
+	float start = Plat_FloatTime();
+
+	Msg( "Fixing up env_cubemap materials on brush sides... " );
 	Assert( s_EnvCubemapToBrushSides.Count() == g_nCubemapSamples );
 
 	int cubemapID;
@@ -715,7 +719,7 @@ void Cubemap_FixupBrushSidesMaterials( void )
 			int sideIndex = SideIDToIndex( brushSideID );
 			if( sideIndex < 0 )
 			{
-				Warning("env_cubemap pointing at deleted brushside near (%d, %d, %d)\n", 
+				Warning("\nenv_cubemap pointing at deleted brushside near (%d, %d, %d)\n", 
 					g_CubemapSamples[cubemapID].origin[0], g_CubemapSamples[cubemapID].origin[1], g_CubemapSamples[cubemapID].origin[2] );
 
 				continue;
@@ -737,6 +741,7 @@ void Cubemap_FixupBrushSidesMaterials( void )
 			}
 		}
 	}
+	Msg("done(%.1fs)\n", Plat_FloatTime() - start);
 }
 
 

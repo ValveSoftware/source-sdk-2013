@@ -24,6 +24,7 @@
 
 #define WEIGHT_EPS	0.00001f
 
+
 //-----------------------------------------------------------------------------
 // The radial_t data structure is used to accumulate irregularly spaced and irregularly 
 // shaped direct and indirect lighting samples into a uniformly spaced and shaped luxel grid.
@@ -73,4 +74,5 @@ radial_t *BuildPatchRadial( int facenum );
 // utilities
 bool FloatLess( float const& src1, float const& src2 );
 
-#endif
+
+#endif //RADIAL_H

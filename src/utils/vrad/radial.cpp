@@ -24,6 +24,7 @@ void WorldToLuxelSpace( lightinfo_t const *l, Vector const &world, Vector2D &coo
 	coord[1] = DotProduct( pos, l->worldToLuxelSpace[1] ) - l->face->m_LightmapTextureMinsInLuxels[1];
 }
 
+
 void LuxelSpaceToWorld( lightinfo_t const *l, float s, float t, Vector &world )
 {
 	Vector pos;
@@ -33,6 +34,7 @@ void LuxelSpaceToWorld( lightinfo_t const *l, float s, float t, Vector &world )
 	VectorMA( l->luxelOrigin, s, l->luxelToWorldSpace[0], pos );
 	VectorMA( pos, t, l->luxelToWorldSpace[1], world );
 }
+
 
 void WorldToLuxelSpace( lightinfo_t const *l, FourVectors const &world, FourVectors &coord )
 {
@@ -49,6 +51,7 @@ void WorldToLuxelSpace( lightinfo_t const *l, FourVectors const &world, FourVect
 	coord.z = Four_Zeros;
 }
 
+
 void LuxelSpaceToWorld( lightinfo_t const *l, fltx4 s, fltx4 t, FourVectors &world )
 {
 	world.DuplicateVector ( l->luxelOrigin );
@@ -64,7 +67,6 @@ void LuxelSpaceToWorld( lightinfo_t const *l, fltx4 s, fltx4 t, FourVectors &wor
 	st *= t;
 	world += st;
 }
-
 
 
 void AddDirectToRadial( radial_t *rad, 
@@ -234,6 +236,7 @@ void AddBouncedToRadial( radial_t *rad,
 	}
 }
 
+
 void PatchLightmapCoordRange( radial_t *rad, int ndxPatch, Vector2D &mins, Vector2D &maxs )
 {
 	winding_t	*w;
@@ -256,6 +259,7 @@ void PatchLightmapCoordRange( radial_t *rad, int ndxPatch, Vector2D &mins, Vecto
 	}
 }
 
+
 radial_t *AllocateRadial( int facenum )
 {
 	radial_t *rad;
@@ -270,6 +274,7 @@ radial_t *AllocateRadial( int facenum )
 
 	return rad;
 }
+
 
 void FreeRadial( radial_t *rad )
 {
@@ -539,6 +544,7 @@ bool SampleRadial( radial_t *rad, Vector& pnt, LightingValue_t light[NUM_BUMP_VE
 	return baseSampleOk;
 }
 
+
 bool FloatLess( float const& src1, float const& src2 )
 {
 	return src1 < src2;
@@ -596,6 +602,7 @@ void DumpLuxels( facelight_t *pFaceLight, Vector *luxelColors, int ndxFace )
 
 static FileHandle_t pFileLuxels[4] = { NULL, NULL, NULL, NULL };
 
+
 void DumpDispLuxels( int iFace, Vector &color, int iLuxel, int nBump )
 {
 	// Lock the thread and dump the luxel data.
@@ -610,7 +617,7 @@ void DumpDispLuxels( int iFace, Vector &color, int iLuxel, int nBump )
 	{
 		if ( pFileLuxels[iBump] == NULL )
 		{
-			sprintf( szFileName, "luxels_bump%d.txt", iBump );
+			V_snprintf(szFileName, sizeof(szFileName), "luxels_bump%d.txt", iBump);
 			pFileLuxels[iBump] = g_pFileSystem->Open( szFileName, "w" );
 		}
 	}
@@ -619,6 +626,7 @@ void DumpDispLuxels( int iFace, Vector &color, int iLuxel, int nBump )
 
 	ThreadUnlock();
 }
+
 
 void CloseDispLuxels()
 {
@@ -630,6 +638,7 @@ void CloseDispLuxels()
 		}
 	}
 }
+
 
 /*
 =============

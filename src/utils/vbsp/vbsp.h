@@ -6,9 +6,12 @@
 //
 //=============================================================================//
 
-#if !defined( VBSP_H )
+#ifndef VBSP_H
 #define VBSP_H
 
+#ifdef WIN32
+#pragma warning( disable: 4706 )
+#endif
 	   
 #include "cmdlib.h"
 #include "mathlib/vector.h"
@@ -20,9 +23,6 @@
 #include "utilmatlib.h"
 #include "ChunkFile.h"
 
-#ifdef WIN32
-#pragma warning( disable: 4706 )
-#endif
 
 class CUtlBuffer;
 
@@ -375,10 +375,10 @@ bool 	LoadMapFile( const char *pszFileName );
 int		GetVertexnum( Vector& v );
 bool Is3DSkyboxArea( int area );
 
+
 //=============================================================================
-
 // textures.c
-
+//=============================================================================
 struct textureref_t
 {
 	char	name[TEXTURE_NAME_LENGTH];
@@ -399,8 +399,6 @@ void LoadSurfaceProperties( void );
 
 int PointLeafnum ( dmodel_t* pModel, const Vector& p );
 
-//=============================================================================
-
 void FindGCD (int *v);
 
 mapbrush_t *Brush_LoadEntity (entity_t *ent);
@@ -413,26 +411,26 @@ void	CreateBrush (int brushnum);
 //=============================================================================
 // detail objects
 //=============================================================================
-
 void LoadEmitDetailObjectDictionary( char const* pGameDir );
 void EmitDetailObjects();
+
 
 //=============================================================================
 // static props
 //=============================================================================
-
 void EmitStaticProps();
 bool LoadStudioModel( char const* pFileName, char const* pEntityType, CUtlBuffer& buf );
 
-//=============================================================================
+
 //=============================================================================
 // procedurally created .vmt files
 //=============================================================================
-
 void EmitStaticProps();
 
-// draw.c
 
+//=============================================================================
+// draw.c
+//=============================================================================
 extern Vector	draw_mins, draw_maxs;
 extern bool g_bLightIfMissing;
 
@@ -443,10 +441,10 @@ void GLS_BeginScene (void);
 void GLS_Winding (winding_t *w, int code);
 void GLS_EndScene (void);
 
+
 //=============================================================================
-
 // csg
-
+//=============================================================================
 enum detailscreen_e
 {
 	FULL_DETAIL = 0,
@@ -458,10 +456,10 @@ enum detailscreen_e
 	
 #include "csg.h"
 
+
 //=============================================================================
-
 // brushbsp
-
+//=============================================================================
 void WriteBrushList (char *name, bspbrush_t *brush, qboolean onlyvis);
 
 bspbrush_t *CopyBrush (bspbrush_t *brush);
@@ -490,10 +488,10 @@ tree_t *BrushBSP (bspbrush_t *brushlist, Vector& mins, Vector& maxs);
 int BrushBspBoxOnPlaneSide (const Vector& mins, const Vector& maxs, dplane_t *plane);
 extern qboolean WindingIsTiny (winding_t *w);
 
+
 //=============================================================================
-
 // portals.c
-
+//=============================================================================
 int VisibleContents (int contents);
 
 void MakeHeadnodePortals (tree_t *tree);
@@ -512,33 +510,34 @@ void EmitAreaPortals (node_t *headnode);
 
 void MakeTreePortals (tree_t *tree);
 
+
 //=============================================================================
-
 // glfile.c
-
+//=============================================================================
 void OutputWinding (winding_t *w, FileHandle_t glview);
 void OutputWindingColor (winding_t *w, FileHandle_t glview, int r, int g, int b);
 void WriteGLView (tree_t *tree, char *source);
 void WriteGLViewFaces (tree_t *tree, const char *source);
 void WriteGLViewBrushList( bspbrush_t *pList, const char *pName );
+
+
 //=============================================================================
-
 // leakfile.c
-
+//=============================================================================
 void LeakFile (tree_t *tree);
 void AreaportalLeakFile( tree_t *tree, portal_t *pStartPortal, portal_t *pEndPortal, node_t *pStart );
 
+
 //=============================================================================
-
 // prtfile.c
-
+//=============================================================================
 void AddVisCluster( entity_t *pFuncVisCluster );
 void WritePortalFile (tree_t *tree);
 
+
 //=============================================================================
-
 // writebsp.c
-
+//=============================================================================
 void SetModelNumbers (void);
 void SetLightStyles (void);
 
@@ -551,10 +550,10 @@ void EndModel (void);
 extern	int firstmodeledge;
 extern	int	firstmodelface;
 
+
 //=============================================================================
-
 // faces.c
-
+//=============================================================================
 void MakeFaces (node_t *headnode);
 void MakeDetailFaces (node_t *headnode);
 face_t *FixTjuncs( node_t *headnode, face_t *pLeafFaceList );
@@ -570,9 +569,8 @@ extern face_t		*edgefaces[MAX_MAP_EDGES][2];
 
 
 //=============================================================================
-
 // tree.c
-
+//=============================================================================
 void FreeTree (tree_t *tree);
 void FreeTree_r (node_t *node);
 void PrintTree_r (node_t *node, int depth);
@@ -586,27 +584,34 @@ bool IsFuncOccluder( int entity_num );
 
 //=============================================================================
 // ivp.cpp
+//=============================================================================
 class CPhysCollide;
 void EmitPhysCollision();
 void DumpCollideToGlView( CPhysCollide *pCollide, const char *pFilename );
 void EmitWaterVolumesForBSP( dmodel_t *pModel, node_t *headnode );
 
+
 //=============================================================================
 // find + find or create the texdata 
+//=============================================================================
 int FindTexData( const char *pName );
 int FindOrCreateTexData( const char *pName );
 // Add a clone of an existing texdata with a new name
 int AddCloneTexData( dtexdata_t *pExistingTexData, char const *cloneTexDataName );
 int FindOrCreateTexInfo( const texinfo_t &searchTexInfo );
 int FindAliasedTexData( const char *pName, dtexdata_t *sourceTexture );
-int FindTexInfo( const texinfo_t &searchTexInfo );
+int 
+FindTexInfo( const texinfo_t &searchTexInfo );
 
 //=============================================================================
 // normals.c
+//=============================================================================
 void SaveVertexNormals( void );
+
 
 //=============================================================================
 // cubemap.cpp
+//=============================================================================
 void Cubemap_InsertSample( const Vector& origin, int size );
 void Cubemap_CreateDefaultCubemaps( void );
 void Cubemap_SaveBrushSides( const char *pSideListStr );
@@ -615,8 +620,10 @@ void Cubemap_AttachDefaultCubemapToSpecularSides( void );
 // Add skipped cubemaps that are referenced by the engine
 void Cubemap_AddUnreferencedCubemaps( void );
 
+
 //=============================================================================
 // overlay.cpp
+//=============================================================================
 #define OVERLAY_MAP_STRLEN			256
 
 struct mapoverlay_t
@@ -647,11 +654,10 @@ void OverlayTransition_AddFaceToLists( int iFace, side_t *pSide );
 void OverlayTransition_EmitOverlayFaces( void );
 void Overlay_Translate( mapoverlay_t *pOverlay, Vector &OriginOffset, QAngle &AngleOffset, matrix3x4_t &Matrix );
 
-//=============================================================================
 
 void RemoveAreaPortalBrushes_R( node_t *node );
 
 dtexdata_t *GetTexData( int index );
 
-#endif
+#endif //VBSP_H
 

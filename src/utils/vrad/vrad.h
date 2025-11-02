@@ -58,7 +58,6 @@ extern float g_MaxDispPatchRadius;
 //-----------------------------------------------------------------------------
 // forward declarations
 //-----------------------------------------------------------------------------
-
 struct Ray_t;
 
 #define		TRANSFER_EPSILON		0.0000001
@@ -304,16 +303,16 @@ extern RayTracingEnvironment g_RtEnv;
 
 #include "mpivrad.h"
 
-void MakeShadowSplits (void);
+void MakeShadowSplits(void);
 
 //==============================================
 
-void BuildVisMatrix (void);
+void BuildVisMatrix(void);
 void BuildClusterTable( void );
 void AddDispsToClusterTable( void );
-void FreeVisMatrix (void);
+void FreeVisMatrix(void);
 // qboolean CheckVisBit (unsigned int p1, unsigned int p2);
-void TouchVMFFile (void);
+void TouchVMFFile(void);
 
 //==============================================
 
@@ -353,13 +352,13 @@ extern char		source[MAX_PATH];
 extern CUtlVector<byte> g_FacesVisibleToLights;
 
 void MakeTnodes (dmodel_t *bm);
-void PairEdges (void);
+void PairEdges(void);
 
-void SaveVertexNormals( void );
+void SaveVertexNormals(void);
 
 qboolean IsIncremental(char *filename);
 int SaveIncremental(char *filename);
-int PartialHead (void);
+int PartialHead(void);
 void BuildFacelights (int facenum, int threadnum);
 void PrecompLightmapOffsets();
 void FinalLightFace (int threadnum, int facenum);
@@ -391,11 +390,11 @@ void TestLine_DoesHitSky( FourVectors const& start, FourVectors const& stop,
                           fltx4 *pFractionVisible, bool canRecurse = true, int static_prop_to_skip=-1, bool bDoDebug = false );
 
 // converts any marked brush entities to triangles for shadow casting
-void ExtractBrushEntityShadowCasters ( void );
-void AddBrushesForRayTrace ( void );
+void ExtractBrushEntityShadowCasters(void);
+void AddBrushesForRayTrace(void);
 
 void BaseLightForFace( dface_t *f, Vector& light, float *parea, Vector& reflectivity );
-void CreateDirectLights (void);
+void CreateDirectLights(void);
 void GetPhongNormal( int facenum, Vector const& spot, Vector& phongnormal );
 int LightForString( char *pLight, Vector& intensity );
 void MakeTransfer( int ndxPatch1, int ndxPatch2, transfer_t *all_transfers );
@@ -432,17 +431,15 @@ qboolean IsFog( dface_t * f );
 #define TEX_SPECIAL		(SURF_SKY|SURF_NOLIGHT)
 
 //=============================================================================
-
 // trace.cpp
-
+//=============================================================================
 bool AddDispCollTreesToWorld( void );
 int PointLeafnum( Vector const &point );
 float TraceLeafBrushes( int leafIndex, const Vector &start, const Vector &end, CBaseTrace &traceOut );
 
 //=============================================================================
-
 // dispinfo.cpp
-
+//=============================================================================
 struct SSE_sampleLightOutput_t
 {
 	fltx4 m_flDot[NUM_BUMP_VECTS+1];
@@ -450,7 +447,7 @@ struct SSE_sampleLightOutput_t
 	fltx4 m_flSunAmount;
 };
 
-#define GATHERLFLAGS_FORCE_FAST 1
+#define GATHERLFLAGS_FORCE_FAST		1
 #define GATHERLFLAGS_IGNORE_NORMALS 2
 
 // SSE Gather light stuff
@@ -478,7 +475,6 @@ void GatherSampleLightSSE( SSE_sampleLightOutput_t &out, directlight_t *dl, int 
 //-----------------------------------------------------------------------------
 // VRad Displacements
 //-----------------------------------------------------------------------------
-
 struct facelight_t;
 typedef struct radial_s radial_t;
 struct lightinfo_t;
@@ -578,7 +574,6 @@ extern int patchSamplesAdded;
 //-----------------------------------------------------------------------------
 // Computes lighting for the detail props
 //-----------------------------------------------------------------------------
-
 void ComputeDetailPropLighting( int iThread );
 void ComputeIndirectLightingAtPoint( Vector &position, Vector &normal, Vector &outColor, 
 									 int iThread, bool force_fast = false, bool bIgnoreNormals = false );

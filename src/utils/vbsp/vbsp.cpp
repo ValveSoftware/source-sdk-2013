@@ -146,6 +146,7 @@ node_t	*BlockTree (int xl, int yl, int xh, int yh)
 	return node;
 }
 
+
 /*
 ============
 ProcessBlock_Thread
@@ -201,13 +202,15 @@ ProcessWorldModel
 ============
 */
 void SplitSubdividedFaces( node_t *headnode ); // garymcthack
+
+
 void ProcessWorldModel (void)
 {
 	entity_t	*e;
 	tree_t		*tree = NULL;
 	qboolean	leaked;
 	int	optimize;
-	int			start;
+	float			start;
 
 	e = &entities[entity_num];
 
@@ -258,7 +261,7 @@ void ProcessWorldModel (void)
 		qprintf ("--------------------------------------------\n");
 
 		RunThreadsOnIndividual ((block_xh-block_xl+1)*(block_yh-block_yl+1),
-			!verbose, ProcessBlock_Thread);
+			true, ProcessBlock_Thread);
 
 		//
 		// build the division tree
@@ -321,11 +324,11 @@ void ProcessWorldModel (void)
 	RemoveAreaPortalBrushes_R( tree->headnode );
 
 	start = Plat_FloatTime();
-	Msg("Building Faces...");
+	Msg("Building Faces... ");
 	// this turns portals with one solid side into faces
 	// it also subdivides each face if necessary to fit max lightmap dimensions
 	MakeFaces (tree->headnode);
-	Msg("done (%d)\n", (int)(Plat_FloatTime() - start) );
+	Msg("done(%.1fs)\n", (Plat_FloatTime() - start) );
 
 	if (glview)
 	{
@@ -341,26 +344,28 @@ void ProcessWorldModel (void)
 	}
 
 	start = Plat_FloatTime();
-
-	Msg("FixTjuncs...\n");
+	Msg("FixTjuncs... ");
 	
 	// This unifies the vertex list for all edges (splits collinear edges to remove t-junctions)
 	// It also welds the list of vertices out of each winding/portal and rounds nearly integer verts to integer
 	pLeafFaceList = FixTjuncs (tree->headnode, pLeafFaceList);
+	Msg("done(%.1fs)\n", (Plat_FloatTime() - start));
 
 	// this merges all of the solid nodes that have separating planes
 	if (!noprune)
 	{
-		Msg("PruneNodes...\n");
+		start = Plat_FloatTime();
+		Msg("PruneNodes... ");
 		PruneNodes (tree->headnode);
 	}
+	Msg("done(%.1fs)\n", (Plat_FloatTime() - start));
 
 //	Msg( "SplitSubdividedFaces...\n" );
 //	SplitSubdividedFaces( tree->headnode );
-
-	Msg("WriteBSP...\n");
+	start = Plat_FloatTime();
+	Msg("WriteBSP... ");
 	WriteBSP (tree->headnode, pLeafFaceList);
-	Msg("done (%d)\n", (int)(Plat_FloatTime() - start) );
+	Msg("done(%.1fs)\n", (Plat_FloatTime() - start) );
 
 	if (!leaked)
 	{
@@ -370,6 +375,7 @@ void ProcessWorldModel (void)
 	FreeTree( tree );
 	FreeLeafFaces( pLeafFaceList );
 }
+
 
 /*
 ============
@@ -556,6 +562,7 @@ struct OccluderInfo_t
 	int m_nOccluderEntityIndex;
 };
 
+
 static CUtlVector< OccluderInfo_t > g_OccluderInfo;
 
 
@@ -599,7 +606,7 @@ static void EmitOccluderBrushes()
 
 		// NOTE: If you change the algorithm by which occluder numbers are allocated,
 		// then you must also change FixupOnlyEntsOccluderEntities() below
-		sprintf (str, "%i", nOccluder);
+		V_snprintf(str, sizeof(str), "%i", nOccluder);
 		SetKeyValue (&entities[entity_num], "occludernumber", str);
 
 		int nIndex = g_OccluderInfo.AddToTail();
@@ -738,7 +745,6 @@ void AssignOccluderAreas( tree_t *pTree )
 }
 
 
-
 //-----------------------------------------------------------------------------
 // Make sure the func_occluders have the appropriate data set
 //-----------------------------------------------------------------------------
@@ -753,7 +759,7 @@ void FixupOnlyEntsOccluderEntities()
 
 		// NOTE: If you change the algorithm by which occluder numbers are allocated above,
 		// then you must also change this
-		sprintf (str, "%i", nOccluder);
+		V_snprintf(str, sizeof(str), "%i", nOccluder);
 		SetKeyValue (&entities[entity_num], "occludernumber", str);
 		++nOccluder;
 	}
@@ -780,6 +786,7 @@ void MarkNoDynamicShadowSides()
 	}
 }
 
+
 //-----------------------------------------------------------------------------
 // Compute the 3D skybox areas
 //-----------------------------------------------------------------------------
@@ -801,6 +808,7 @@ static void Compute3DSkyboxAreas( node_t *headnode, CUtlVector<int>& areas )
 	}
 }
 
+
 bool Is3DSkyboxArea( int area )
 {
 	for ( int i = g_SkyAreas.Count(); --i >=0; )
@@ -819,7 +827,7 @@ ProcessModels
 */
 void ProcessModels (void)
 {
-	BeginBSPFile ();
+	BeginBSPFile();
 
 	// Mark sides that have no dynamic shadows.
 	MarkNoDynamicShadowSides();
@@ -860,7 +868,7 @@ void ProcessModels (void)
 
 	// Turn the skybox into a cubemap in case we don't build env_cubemap textures.
 	Cubemap_CreateDefaultCubemaps();
-	EndBSPFile ();
+	EndBSPFile();
 }
 
 
@@ -906,7 +914,10 @@ int RunVBSP( int argc, char **argv )
 
 	LoadCmdLineFromFile( argc, argv, mapbase, "vbsp" );
 
-	Msg( "Valve Software - vbsp.exe (%s)\n", __DATE__ );
+	Msg( "Valve Software - vbsp.exe (%s)", __DATE__ );
+	
+	ThreadSetDefault();
+	numthreads = 1;		// multiple threads aren't helping...
 
 	for (i=1 ; i<argc ; i++)
 	{
@@ -1276,12 +1287,9 @@ int RunVBSP( int argc, char **argv )
 		}
 	}
 
-	ThreadSetDefault ();
-	numthreads = 1;		// multiple threads aren't helping...
-
 	// Setup the logfile.
 	char logFile[512];
-	_snprintf( logFile, sizeof(logFile), "%s.log", source );
+	V_snprintf( logFile, sizeof(logFile), "%s.log", source );
 	SetSpewFunctionLogFile( logFile );
 
 	LoadPhysicsDLL();
@@ -1293,14 +1301,14 @@ int RunVBSP( int argc, char **argv )
 	Msg( "basegamedir: %s This is the base engine + base game directory (e.g. e:/hl2/hl2/, or d:/tf2/tf2/ )\n", basegamedir );
 #endif
 
-	sprintf( materialPath, "%smaterials", gamedir );
+	V_snprintf(materialPath, sizeof(materialPath), "%smaterials", gamedir);
 	InitMaterialSystem( materialPath, CmdLib_GetFileSystemFactory() );
-	Msg( "materialPath: %s\n", materialPath );
+	Msg( "Material path: %s\n", materialPath );
 
 	// delete portal and line files
-	sprintf (path, "%s.prt", source);
+	V_snprintf(path, sizeof(path), "%s.prt", source);
 	remove (path);
-	sprintf (path, "%s.lin", source);
+	V_snprintf(path, sizeof(path), "%s.lin", source);
 	remove (path);
 
 	strcpy (name, ExpandArg (argv[i]));	

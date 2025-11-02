@@ -11,11 +11,13 @@
 #include "KeyValues.h"
 #include "materialpatch.h"
 
+
 struct entitySideList_t
 {
 	int firstBrushSide;
 	int brushSideCount;
 };
+
 
 static bool SideIsNotDispAndHasDispMaterial( int iSide )
 {
@@ -32,6 +34,7 @@ static bool SideIsNotDispAndHasDispMaterial( int iSide )
 	return true;
 }
 
+
 static void BackSlashToForwardSlash( char *pname )
 {
 	while ( *pname ) {
@@ -40,6 +43,7 @@ static void BackSlashToForwardSlash( char *pname )
 		pname++;
 	}
 }
+
 
 //-----------------------------------------------------------------------------
 // Generate patched material name
@@ -58,6 +62,7 @@ static void GeneratePatchedMaterialName( const char *pMaterialName, char *pBuffe
 	Q_strlower( pBuffer );
 }
 
+
 static void RemoveKey( KeyValues *kv, const char *pSubKeyName )
 {
 	KeyValues *pSubKey = kv->FindKey( pSubKeyName );
@@ -67,6 +72,7 @@ static void RemoveKey( KeyValues *kv, const char *pSubKeyName )
 		pSubKey->deleteThis();
 	}
 }
+
 
 void CreateWorldVertexTransitionPatchedMaterial( const char *pOriginalMaterialName, const char *pPatchedMaterialName )
 {
@@ -94,6 +100,7 @@ void CreateWorldVertexTransitionPatchedMaterial( const char *pOriginalMaterialNa
 		WriteMaterialKeyValuesToPak( pPatchedMaterialName, kv );
 	}
 }
+
 
 int CreateBrushVersionOfWorldVertexTransitionMaterial( int originalTexInfo )
 {
@@ -151,6 +158,7 @@ int CreateBrushVersionOfWorldVertexTransitionMaterial( int originalTexInfo )
 	return nTexInfoID;
 }
 
+
 const char *GetShaderNameForTexInfo( int iTexInfo )
 {
 	texinfo_t *pTexInfo = &texinfo[iTexInfo];
@@ -160,6 +168,7 @@ const char *GetShaderNameForTexInfo( int iTexInfo )
 	const char *pShaderName = GetMaterialShaderName( hMaterial );
 	return pShaderName;
 }
+
 
 void WorldVertexTransitionFixup( void )
 {

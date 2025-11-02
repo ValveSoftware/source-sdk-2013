@@ -29,7 +29,6 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CVRadDLL, ILaunchableDLL, LAUNCHABLE_DLL_INTE
 // - converting ddispindices, ddispverts, g_dispinfo, and dlightdata to CUtlVector
 //		- 51 megs
 // ---------------------------------------------------------------------------- //
-
 class dat
 {
 public:
@@ -75,6 +74,7 @@ dat g_Dats[] =
 	DATENTRY(g_Overlays)
 };
 
+
 int CalcDatSize()
 {
 	int ret = 0;
@@ -102,9 +102,8 @@ int CalcDatSize()
 	return ret;
 }
 
+
 int g_TotalDatSize = CalcDatSize();
-
-
 
 
 int CVRadDLL::main( int argc, char **argv )
@@ -239,5 +238,3 @@ void CVRadDLL::Interrupt()
 {
 	g_bInterrupt = true;
 }
-
-

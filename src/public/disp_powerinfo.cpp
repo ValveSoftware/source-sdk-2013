@@ -12,10 +12,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-// ------------------------------------------------------------------------ //
-// Internal classes.
-// ------------------------------------------------------------------------ //
 
+//------------------------------------------------------------------------
+// Internal classes.
+//------------------------------------------------------------------------
 // These point at the vertices connecting to each of the [north,south,east,west] vertices.
 class CVertCorners
 {
@@ -25,12 +25,12 @@ public:
 };
 
 
-// ------------------------------------------------------------------------ //
+//------------------------------------------------------------------------
 // Globals.
-// ------------------------------------------------------------------------ //
-
+//------------------------------------------------------------------------
 // This points at vertices to the side of a node (north, south, east, west).
 static short g_SideVertMul[4][2] = { {1,0}, {0,1}, {-1,0}, {0,-1} };
+
 
 static CVertCorners g_SideVertCorners[4] =
 {
@@ -40,11 +40,14 @@ static CVertCorners g_SideVertCorners[4] =
 	{ {-1,-1}, {1,-1} }
 };
 
+
+//------------------------------------------------------------------------
 // This is used in loops on child nodes. The indices point at the nodes:
 // 0 = upper-right
 // 1 = upper-left
 // 2 = lower-left
 // 3 = lower-right
+//------------------------------------------------------------------------
 static CVertIndex g_ChildNodeIndexMul[4] = 
 { 
 	CVertIndex(1,1), 
@@ -52,6 +55,7 @@ static CVertIndex g_ChildNodeIndexMul[4] =
 	CVertIndex(-1,-1), 
 	CVertIndex(1,-1)
 };
+
 
 // These are multipliers on vertMul (not nodeMul).
 static CVertIndex g_ChildNodeDependencies[4][2] =
@@ -61,6 +65,7 @@ static CVertIndex g_ChildNodeDependencies[4][2] =
 	{ CVertIndex(-1,0), CVertIndex(0,-1) },
 	{ CVertIndex(0,-1), CVertIndex(1,0) }
 };
+
 
 // 2x2 rotation matrices for each orientation.
 static int g_OrientationRotations[4][2][2] =
@@ -79,10 +84,9 @@ static int g_OrientationRotations[4][2][2] =
 };	   
 
 
-// ------------------------------------------------------------------------ //
+//------------------------------------------------------------------------
 // Helper functions.
-// ------------------------------------------------------------------------ //
-
+//------------------------------------------------------------------------
 // Apply a 2D rotation to the specified CVertIndex around the specified centerpoint.
 static CVertIndex Transform2D(
 	int const mat[2][2],
@@ -98,9 +102,10 @@ static CVertIndex Transform2D(
 	return transformed + centerPoint;
 }
 
-
+//------------------------------------------------------------------------
 // Rotate a given CVertIndex with a specified orientation.
 // Do this with a lookup table eventually!
+//------------------------------------------------------------------------
 static void GetEdgeVertIndex( int sideLength, int iEdge, int iVert, CVertIndex &out )
 {
 	if( iEdge == NEIGHBOREDGE_RIGHT )
@@ -126,7 +131,9 @@ static void GetEdgeVertIndex( int sideLength, int iEdge, int iVert, CVertIndex &
 }
 
 
+//------------------------------------------------------------------------
 // Generate an index given a CVertIndex and the size of the displacement it resides in.
+//------------------------------------------------------------------------
 static int VertIndex( CVertIndex const &vert, int iMaxPower )
 {
 	return vert.y * ((1 << iMaxPower) + 1) + vert.x;
@@ -208,10 +215,9 @@ static void AddDependency(
 }
 
 
-// --------------------------------------------------------------------------------- //
+//------------------------------------------------------------------------
 // CTesselateWinding stuff.
-// --------------------------------------------------------------------------------- //
-
+//------------------------------------------------------------------------
 CTesselateVert::CTesselateVert( CVertIndex const &index, int iNode )
 	: m_Index( index )
 {
@@ -252,6 +258,7 @@ CTesselateVert g_TesselateVerts[] =
 	CTesselateVert( CVertIndex(1,-1),  CHILDNODE_LOWER_RIGHT)
 };
 
+
 CTesselateWinding g_TWinding =
 {
 	g_TesselateVerts,
@@ -260,10 +267,9 @@ CTesselateWinding g_TWinding =
 
 
 
-// --------------------------------------------------------------------------------- //
+//------------------------------------------------------------------------
 // CPowerInfo stuff.
-// --------------------------------------------------------------------------------- //
-
+//------------------------------------------------------------------------
 // Precalculated info about each particular displacement size.
 #define DECLARE_TABLES( size ) \
 	static CVertInfo	g_VertInfo_##size##x##size[ size*size ];				\
@@ -557,6 +563,7 @@ public:
 	}
 };
 
+
 static CPowerInfoInitializer g_PowerInfoInitializer;
 
 
@@ -568,10 +575,9 @@ const CPowerInfo* GetPowerInfo( int iPower )
 }
 
 
-// ------------------------------------------------------------------------------------------------ //
+//------------------------------------------------------------------------
 // CPowerInfo member function initialization.
-// ------------------------------------------------------------------------------------------------ //
-
+//------------------------------------------------------------------------
 const CVertIndex& CPowerInfo::GetCornerPointIndex( int iCorner ) const
 {
 	Assert( iCorner >= 0 && iCorner < 4 );

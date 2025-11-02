@@ -21,18 +21,16 @@
 
 class CBSPDispRayDistanceEnumerator;
 
-//=============================================================================
-//
+//-----------------------------------------------------------------------------
 // Displacement/Face List
-//
+//-----------------------------------------------------------------------------
 class CBSPDispFaceListEnumerator : public ISpatialLeafEnumerator, public IBSPTreeDataEnumerator
 {
 public:
 
-	//=========================================================================
-	//
+	//-----------------------------------------------------------------------------
 	// Construction/Deconstruction
-	//
+	//-----------------------------------------------------------------------------
 	CBSPDispFaceListEnumerator() {};
 	virtual ~CBSPDispFaceListEnumerator()
 	{
@@ -53,10 +51,9 @@ public:
 };
 
 
-//=============================================================================
-//
+//-----------------------------------------------------------------------------
 // RayEnumerator
-//
+//-----------------------------------------------------------------------------
 class CBSPDispRayEnumerator : public ISpatialLeafEnumerator, public IBSPTreeDataEnumerator
 {
 public:
@@ -67,18 +64,16 @@ public:
 	bool FASTCALL EnumerateElement( int userId, intp context );
 };
 
-//=============================================================================
-//
+//-----------------------------------------------------------------------------
 // VRad Displacement Manager
-//
+//-----------------------------------------------------------------------------
 class CVRadDispMgr : public IVRadDispMgr
 {
 public:
 
-	//=========================================================================
-	//
+	//-----------------------------------------------------------------------------
 	// Construction/Deconstruction
-	//
+	//-----------------------------------------------------------------------------
 	CVRadDispMgr();
 	virtual ~CVRadDispMgr();
 
@@ -123,10 +118,9 @@ public:
 	void StartTimer( const char *name );
 	void EndTimer( void );
 
-	//=========================================================================
-	//
+	//-----------------------------------------------------------------------------
 	// Enumeration Methods
-	//
+	//-----------------------------------------------------------------------------
 	bool DispRay_EnumerateLeaf( int ndxLeaf, int context );
 	bool DispRay_EnumerateElement( int userId, int context );
 	bool DispRayDistance_EnumerateElement( int userId, CBSPDispRayDistanceEnumerator* pEnum );
@@ -136,24 +130,21 @@ public:
 
 private:
 
-	//=========================================================================
-	//
+	//-----------------------------------------------------------------------------
 	// BSP Tree Helpers
-	//
+	//-----------------------------------------------------------------------------
 	void InsertDispIntoTree( int ndxDisp );
 	void RemoveDispFromTree( int ndxDisp );
 
-	//=========================================================================
-	//
+	//-----------------------------------------------------------------------------
 	// Displacement Data Loader (from .bsp)
-	//
+	//-----------------------------------------------------------------------------
 	void UnserializeDisps( void );
 	void DispBuilderInit( CCoreDispInfo *pBuilderDisp, dface_t *pFace, int ndxFace );
 
-	//=========================================================================
-	//
+	//-----------------------------------------------------------------------------
 	//  Sampling Helpers
-	//
+	//-----------------------------------------------------------------------------
 	void RadialLuxelBuild( CVRADDispColl *pDispTree, radial_t *pRadial, int ndxStyle, bool bBump );
 	void RadialLuxelAddSamples( int ndxFace, Vector const &luxelPt, Vector const &luxelNormal, float radius,
                                 radial_t *pRadial, int ndxRadial, bool bBump, int lightStyle );
@@ -201,8 +192,8 @@ private:
 //-----------------------------------------------------------------------------
 // Purpose: expose IVRadDispMgr to vrad
 //-----------------------------------------------------------------------------
-
 static CVRadDispMgr	s_DispMgr;
+
 
 IVRadDispMgr *StaticDispMgr( void )
 {
@@ -210,15 +201,14 @@ IVRadDispMgr *StaticDispMgr( void )
 }
 
 
-//=============================================================================
-//
-// Displacement/Face List
-//
-// ISpatialLeafEnumerator
+//-----------------------------------------------------------------------------
+// Displacement/Face List, ISpatialLeafEnumerator
+//-----------------------------------------------------------------------------
 bool CBSPDispFaceListEnumerator::EnumerateLeaf( int ndxLeaf, intp context ) 
 { 
 	return s_DispMgr.DispFaceList_EnumerateLeaf( ndxLeaf, context );
 }
+
 
 // IBSPTreeDataEnumerator
 bool FASTCALL CBSPDispFaceListEnumerator::EnumerateElement( int userId, intp context )
@@ -227,14 +217,14 @@ bool FASTCALL CBSPDispFaceListEnumerator::EnumerateElement( int userId, intp con
 }
 
 
-//=============================================================================
-//
+//-----------------------------------------------------------------------------
 // RayEnumerator
-//
+//-----------------------------------------------------------------------------
 bool CBSPDispRayEnumerator::EnumerateLeaf( int ndxLeaf, intp context )
 {
 	return s_DispMgr.DispRay_EnumerateLeaf( ndxLeaf, context );
 }
+
 
 bool FASTCALL CBSPDispRayEnumerator::EnumerateElement( int userId, intp context )
 {
@@ -245,7 +235,6 @@ bool FASTCALL CBSPDispRayEnumerator::EnumerateElement( int userId, intp context 
 //-----------------------------------------------------------------------------
 // Here's an enumerator that we use for testing against disps in a leaf...
 //-----------------------------------------------------------------------------
-
 class CBSPDispRayDistanceEnumerator : public IBSPTreeDataEnumerator
 {
 public:
@@ -267,6 +256,7 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// Constructor
 //-----------------------------------------------------------------------------
 CVRadDispMgr::CVRadDispMgr()
 {
@@ -275,6 +265,7 @@ CVRadDispMgr::CVRadDispMgr()
 
 
 //-----------------------------------------------------------------------------
+// Destructor
 //-----------------------------------------------------------------------------
 CVRadDispMgr::~CVRadDispMgr()
 {
@@ -314,6 +305,7 @@ void CVRadDispMgr::RemoveDispFromTree( int ndxDisp )
 
 
 //-----------------------------------------------------------------------------
+// Initializes CVRadDispMgr systems 
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::Init( void )
 {
@@ -326,6 +318,7 @@ void CVRadDispMgr::Init( void )
 
 
 //-----------------------------------------------------------------------------
+// Shutdown CVRadDispMgr
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::Shutdown( void )
 {
@@ -344,6 +337,7 @@ void CVRadDispMgr::Shutdown( void )
 
 
 //-----------------------------------------------------------------------------
+// Initializes a displacement surface
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::DispBuilderInit( CCoreDispInfo *pBuilderDisp, dface_t *pFace, int ndxFace )
 {
@@ -422,6 +416,7 @@ void CVRadDispMgr::DispBuilderInit( CCoreDispInfo *pBuilderDisp, dface_t *pFace,
 
 
 //-----------------------------------------------------------------------------
+// Unserialize displacements
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::UnserializeDisps( void ) 
 {
@@ -491,6 +486,7 @@ void CVRadDispMgr::UnserializeDisps( void )
 	builderDisps.Purge();
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: create a set of patches for each displacement surface to transfer
 //          bounced light around with
@@ -516,7 +512,10 @@ void CVRadDispMgr::MakePatches( void )
 	qprintf( "%i Displacements\n", nTreeCount );
 	qprintf( "%i Square Feet [%.2f Square Inches]\n", ( int )( flTotalArea / 144.0f ), flTotalArea );
 }
+
+
 //-----------------------------------------------------------------------------
+// Subdivides a patch
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::SubdividePatch( int iPatch )
 {
@@ -535,6 +534,7 @@ void CVRadDispMgr::SubdividePatch( int iPatch )
 }
 
 //-----------------------------------------------------------------------------
+// Initializes a ray test
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::StartRayTest( DispTested_t &dispTested )
 {
@@ -552,6 +552,7 @@ void CVRadDispMgr::StartRayTest( DispTested_t &dispTested )
 
 
 //-----------------------------------------------------------------------------
+// Clips a ray
 //-----------------------------------------------------------------------------
 bool CVRadDispMgr::ClipRayToDisp( DispTested_t &dispTested, Ray_t const &ray )
 {
@@ -567,6 +568,7 @@ bool CVRadDispMgr::ClipRayToDisp( DispTested_t &dispTested, Ray_t const &ray )
 
 
 //-----------------------------------------------------------------------------
+// Clips a ray inside a leaf
 //-----------------------------------------------------------------------------
 bool CVRadDispMgr::ClipRayToDispInLeaf( DispTested_t &dispTested, Ray_t const &ray, 
 										int ndxLeaf )
@@ -578,8 +580,7 @@ bool CVRadDispMgr::ClipRayToDispInLeaf( DispTested_t &dispTested, Ray_t const &r
 	return !m_pBSPTreeData->EnumerateElementsInLeaf( ndxLeaf, &m_EnumDispRay, ( int )&ctx );
 }
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+
 void CVRadDispMgr::ClipRayToDispInLeaf( DispTested_t &dispTested, Ray_t const &ray, 
 			int ndxLeaf, float& dist, dface_t*& pFace, Vector2D& luxelCoord )
 {
@@ -597,6 +598,7 @@ void CVRadDispMgr::ClipRayToDispInLeaf( DispTested_t &dispTested, Ray_t const &r
 	}
 }
 
+
 void CVRadDispMgr::ClipRayToDispInLeaf( DispTested_t &dispTested, Ray_t const &ray, 
 						 int ndxLeaf, float& dist, Vector *pNormal )
 {
@@ -612,6 +614,10 @@ void CVRadDispMgr::ClipRayToDispInLeaf( DispTested_t &dispTested, Ray_t const &r
 	}
 }
 
+
+//-----------------------------------------------------------------------------
+// Adds the triangles from each displacement collision tree to the ray tracing environment
+//-----------------------------------------------------------------------------
 void CVRadDispMgr::AddPolysForRayTrace( void )
 {
 	int nTreeCount = m_DispTrees.Size();
@@ -627,6 +633,7 @@ void CVRadDispMgr::AddPolysForRayTrace( void )
 
 
 //-----------------------------------------------------------------------------
+// Calculates the displacement surface normal and point for a given face
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::GetDispSurfNormal( int ndxFace, Vector &pt, Vector &ptNormal,
 									  bool bInside )
@@ -641,8 +648,8 @@ void CVRadDispMgr::GetDispSurfNormal( int ndxFace, Vector &pt, Vector &ptNormal,
 
 	if( bInside )
 	{
-		if( uv[0] < 0.0f || uv[0] > 1.0f ) { Msg( "Disp UV (%f) outside bounds!\n", uv[0] ); }
-		if( uv[1] < 0.0f || uv[1] > 1.0f ) { Msg( "Disp UV (%f) outside bounds!\n", uv[1] ); }
+		if( uv[0] < 0.0f || uv[0] > 1.0f ) { Warning( "Disp UV (%f) outside bounds!\n", uv[0] ); }
+		if( uv[1] < 0.0f || uv[1] > 1.0f ) { Warning( "Disp UV (%f) outside bounds!\n", uv[1] ); }
 	}
 
 	if( uv[0] < 0.0f ) { uv[0] = 0.0f; }
@@ -659,6 +666,7 @@ void CVRadDispMgr::GetDispSurfNormal( int ndxFace, Vector &pt, Vector &ptNormal,
 
 
 //-----------------------------------------------------------------------------
+// Gets the displacement tree for a given face
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::GetDispSurf( int ndxFace, CVRADDispColl **ppDispTree )
 {
@@ -668,6 +676,7 @@ void CVRadDispMgr::GetDispSurf( int ndxFace, CVRADDispColl **ppDispTree )
 
 
 //-----------------------------------------------------------------------------
+// Numerates elements in a leaf of the BSP tree
 //-----------------------------------------------------------------------------
 bool CVRadDispMgr::DispRay_EnumerateLeaf( int ndxLeaf, int context )
 {
@@ -676,6 +685,7 @@ bool CVRadDispMgr::DispRay_EnumerateLeaf( int ndxLeaf, int context )
 
 
 //-----------------------------------------------------------------------------
+// Enumerates a displacement element, checks if it has been tested, and performs a ray test
 //-----------------------------------------------------------------------------
 bool CVRadDispMgr::DispRay_EnumerateElement( int userId, int context )
 {
@@ -696,9 +706,10 @@ bool CVRadDispMgr::DispRay_EnumerateElement( int userId, int context )
 	return ( !dispTree.m_pDispTree->AABBTree_Ray( *pCtx->m_pRay, pCtx->m_pRay->InvDelta(), &trace, true ) );
 }
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------
+// Performs a ray test and updates the closest distance if the ray hits a closer point than previous tests
+//-----------------------------------------------------------------------------
 bool CVRadDispMgr::DispRayDistance_EnumerateElement( int userId, CBSPDispRayDistanceEnumerator* pCtx )
 {
 	DispCollTree_t &dispTree = m_DispTrees[userId];
@@ -748,10 +759,10 @@ bool CVRadDispMgr::DispRayDistance_EnumerateElement( int userId, CBSPDispRayDist
 	return true;
 }
 
+
 //-----------------------------------------------------------------------------
 // Test a ray against a particular dispinfo
 //-----------------------------------------------------------------------------
-
 /*
 float CVRadDispMgr::ClipRayToDisp( Ray_t const &ray, int dispinfo )
 {
@@ -764,7 +775,9 @@ float CVRadDispMgr::ClipRayToDisp( Ray_t const &ray, int dispinfo )
 }
 */
 
+
 //-----------------------------------------------------------------------------
+// Iterates through the faces of a leaf and adds any faces that aren't already in the face list
 //-----------------------------------------------------------------------------
 bool CVRadDispMgr::DispFaceList_EnumerateLeaf( int ndxLeaf, int context )
 {
@@ -798,6 +811,7 @@ bool CVRadDispMgr::DispFaceList_EnumerateLeaf( int ndxLeaf, int context )
 
 
 //-----------------------------------------------------------------------------
+// Adds a displacement tree to the list if it’s not already present
 //-----------------------------------------------------------------------------
 bool CVRadDispMgr::DispFaceList_EnumerateElement( int userId, int context )
 {
@@ -827,12 +841,13 @@ bool CVRadDispMgr::DispFaceList_EnumerateElement( int userId, int context )
 
 
 //-----------------------------------------------------------------------------
+// Gets lighting values for a sample
 //-----------------------------------------------------------------------------
 inline void GetSampleLight( facelight_t *pFaceLight, int ndxStyle, bool bBumped, 
 			                int ndxSample, LightingValue_t *pSampleLight )
 {
-//	SampleLight[0].Init( 20.0f, 10.0f, 10.0f );
-//	return;
+	//	SampleLight[0].Init( 20.0f, 10.0f, 10.0f );
+	//	return;
 
 	// get sample from bumped lighting data
 	if( bBumped )
@@ -851,6 +866,8 @@ inline void GetSampleLight( facelight_t *pFaceLight, int ndxStyle, bool bBumped,
 
 
 //-----------------------------------------------------------------------------
+// Adds light contribution from a sample to a specific point in a radial structure,
+// used for lighting calculations on displacement surfaces.
 //-----------------------------------------------------------------------------
 void AddSampleLightToRadial( Vector const &samplePos, Vector const &sampleNormal,
 							 LightingValue_t *pSampleLight, float sampleRadius2,
@@ -906,6 +923,7 @@ void AddSampleLightToRadial( Vector const &samplePos, Vector const &sampleNormal
 
 
 //-----------------------------------------------------------------------------
+// Check if displacements are neighbors
 //-----------------------------------------------------------------------------
 bool CVRadDispMgr::IsNeighbor( int iFace, int iNeighborFace )
 {
@@ -924,6 +942,8 @@ bool CVRadDispMgr::IsNeighbor( int iFace, int iNeighborFace )
 
 
 //-----------------------------------------------------------------------------
+// Accumulates the light contribution from multiple samples onto a specific point 
+// within a radial structure. This ensures smooth light distribution across the terrain.
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::RadialLuxelAddSamples( int ndxFace, Vector const &luxelPt, Vector const &luxelNormal, float radius,
 									      radial_t *pRadial, int ndxRadial, bool bBump, int lightStyle )
@@ -1003,6 +1023,7 @@ void CVRadDispMgr::RadialLuxelAddSamples( int ndxFace, Vector const &luxelPt, Ve
 
 
 //-----------------------------------------------------------------------------
+// Calculates lighting data for each radial luxel
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::RadialLuxelBuild( CVRADDispColl *pDispTree, radial_t *pRadial,
 								     int ndxStyle, bool bBump )
@@ -1029,6 +1050,7 @@ void CVRadDispMgr::RadialLuxelBuild( CVRADDispColl *pDispTree, radial_t *pRadial
 
 
 //-----------------------------------------------------------------------------
+// Allocates a radial structure for a given face and style and builds its luxels
 //-----------------------------------------------------------------------------
 radial_t *CVRadDispMgr::BuildLuxelRadial( int ndxFace, int ndxStyle, bool bBump )
 {
@@ -1054,6 +1076,7 @@ radial_t *CVRadDispMgr::BuildLuxelRadial( int ndxFace, int ndxStyle, bool bBump 
 
 
 //-----------------------------------------------------------------------------
+// Checks if a radial sample is valid by evaluating the weight of the luxel
 //-----------------------------------------------------------------------------
 bool CVRadDispMgr::SampleRadial( int ndxFace, radial_t *pRadial, Vector const &vPos, int ndxLxl,
 								 LightingValue_t *pLightSample, int sampleCount, bool bPatch )
@@ -1085,6 +1108,7 @@ bool CVRadDispMgr::SampleRadial( int ndxFace, radial_t *pRadial, Vector const &v
 
 
 //-----------------------------------------------------------------------------
+// Copies lighting data from a patch
 //-----------------------------------------------------------------------------
 void GetPatchLight( CPatch *pPatch, bool bBump, Vector *pPatchLight )
 {
@@ -1104,6 +1128,7 @@ extern void GetBumpNormals( const float* sVect, const float* tVect, const Vector
 extern void PreGetBumpNormalsForDisp( texinfo_t *pTexinfo, Vector &vecU, Vector &vecV, Vector &vecNormal );
 
 //-----------------------------------------------------------------------------
+// Adds lighting data from a patch to a radial
 //-----------------------------------------------------------------------------
 void AddPatchLightToRadial( Vector const &patchOrigin, Vector const &patchNormal,
 							Vector *pPatchLight, float patchRadius2,
@@ -1172,6 +1197,7 @@ void AddPatchLightToRadial( Vector const &patchOrigin, Vector const &patchNormal
 }
 
 //-----------------------------------------------------------------------------
+// Adds light data from a patch to a radial at a specific luxel (grid element)
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::RadialLuxelAddPatch( int ndxFace, Vector const &luxelPt, 
 									    Vector const &luxelNormal,  float radius, 
@@ -1247,6 +1273,9 @@ void CVRadDispMgr::RadialLuxelAddPatch( int ndxFace, Vector const &luxelPt,
 }
 
 
+//-----------------------------------------------------------------------------
+// Identifies patches that influence luxels within a specific radius
+//-----------------------------------------------------------------------------
 void CVRadDispMgr::GetInterestingPatchesForLuxels( 
 	int ndxFace,
 	CUtlVector<CPatch*> &interestingPatches,
@@ -1352,6 +1381,7 @@ void CVRadDispMgr::GetInterestingPatchesForLuxels(
 
 
 //-----------------------------------------------------------------------------
+// Builds a radial data structure for patch lighting
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::RadialPatchBuild( CVRADDispColl *pDispTree, radial_t *pRadial,
 									 bool bBump )
@@ -1387,6 +1417,7 @@ void CVRadDispMgr::RadialPatchBuild( CVRADDispColl *pDispTree, radial_t *pRadial
 }
 
 //-----------------------------------------------------------------------------
+// builds a radial patch for a given displacement face 
 //-----------------------------------------------------------------------------
 radial_t *CVRadDispMgr::BuildPatchRadial( int ndxFace, bool bBump )
 {
@@ -1412,6 +1443,7 @@ radial_t *CVRadDispMgr::BuildPatchRadial( int ndxFace, bool bBump )
 
 
 //-----------------------------------------------------------------------------
+// Checks if a given sample point is inside a solid area
 //-----------------------------------------------------------------------------
 bool SampleInSolid( sample_t *pSample )
 {
@@ -1421,6 +1453,7 @@ bool SampleInSolid( sample_t *pSample )
 
 
 //-----------------------------------------------------------------------------
+// inserts sample data into a hash table for each face
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::InsertSamplesDataIntoHashTable( void )
 {
@@ -1485,6 +1518,7 @@ void CVRadDispMgr::InsertSamplesDataIntoHashTable( void )
 
 
 //-----------------------------------------------------------------------------
+// Adds patch sample data to a hash table for light-bounced face
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::InsertPatchSampleDataIntoHashTable( void )
 {
@@ -1534,6 +1568,7 @@ void CVRadDispMgr::InsertPatchSampleDataIntoHashTable( void )
 
 
 //-----------------------------------------------------------------------------
+// Start Timer
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::StartTimer( const char *name )
 {
@@ -1543,6 +1578,7 @@ void CVRadDispMgr::StartTimer( const char *name )
 
 
 //-----------------------------------------------------------------------------
+// End Timer
 //-----------------------------------------------------------------------------
 void CVRadDispMgr::EndTimer( void )
 {
@@ -1550,11 +1586,12 @@ void CVRadDispMgr::EndTimer( void )
 	CCycleCount duration = m_Timer.GetDuration();
 	double seconds = duration.GetSeconds();
 
-	Msg( "Done<%1.4lf sec>\n", seconds );
+	Msg( "done(%.1fs)\n", seconds );
 }
 
 
 //-----------------------------------------------------------------------------
+// Generates displacement samples for a lightmap
 //-----------------------------------------------------------------------------
 bool CVRadDispMgr::BuildDispSamples( lightinfo_t *pLightInfo, facelight_t *pFaceLight, int ndxFace )
 {
@@ -1622,7 +1659,7 @@ bool CVRadDispMgr::BuildDispSamples( lightinfo_t *pLightInfo, facelight_t *pFace
 			}
 			else
 			{
-				Msg( "BuildDispSamples: WARNING - failed winding allocation\n" );
+				Warning( "BuildDispSamples: WARNING - failed winding allocation\n" );
 			}
 		}
 	}
@@ -1658,7 +1695,7 @@ bool CVRadDispMgr::BuildDispSamples( lightinfo_t *pLightInfo, facelight_t *pFace
 	// statistics - warning?!
 	if( pFaceLight->numsamples == 0 )
 	{
-		Msg( "BuildDispSamples: WARNING - no samples %d\n", pLightInfo->face - g_pFaces );
+		Warning( "BuildDispSamples: WARNING - no samples %llu\n", pLightInfo->face - g_pFaces );
 	}
 
 	return true;
@@ -1666,6 +1703,7 @@ bool CVRadDispMgr::BuildDispSamples( lightinfo_t *pLightInfo, facelight_t *pFace
 
 
 //-----------------------------------------------------------------------------
+// Computes the luxel positions and normals for a displacement surface
 //-----------------------------------------------------------------------------
 bool CVRadDispMgr::BuildDispLuxels( lightinfo_t *pLightInfo, facelight_t *pFaceLight, int ndxFace )
 {
@@ -1706,6 +1744,7 @@ bool CVRadDispMgr::BuildDispLuxels( lightinfo_t *pLightInfo, facelight_t *pFaceL
 
 
 //-----------------------------------------------------------------------------
+// Generates lightmap samples and luxels for a displacement surface
 //-----------------------------------------------------------------------------
 bool CVRadDispMgr::BuildDispSamplesAndLuxels_DoFast( lightinfo_t *pLightInfo, facelight_t *pFaceLight, int ndxFace )
 {

@@ -66,7 +66,7 @@ public:
 	//-----------------------------------------------------------------------------
 	void ReportWarning( const char *pWarningString )
 	{
-		printf( "Brush %i, Side %i: %s\n", m_brushID, m_sideIndex, pWarningString );
+		Warning( "Brush %i, Side %i: %s\n", m_brushID, m_sideIndex, pWarningString );
 	}
 
 private:

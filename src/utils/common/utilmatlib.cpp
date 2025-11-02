@@ -20,6 +20,7 @@
 #include "materialsystem/materialsystem_config.h"
 #include "mathlib/Mathlib.h"
 
+
 void LoadMaterialSystemInterface( CreateInterfaceFn fileSystemFactory )
 {
 	if( g_pMaterialSystem )
@@ -54,12 +55,14 @@ void LoadMaterialSystemInterface( CreateInterfaceFn fileSystemFactory )
 	}
 }
 
+
 void InitMaterialSystem( const char *materialBaseDirPath, CreateInterfaceFn fileSystemFactory )
 {
 	LoadMaterialSystemInterface( fileSystemFactory );
 	MaterialSystem_Config_t config;
 	g_pMaterialSystem->OverrideConfig( config, false );
 }
+
 
 void ShutdownMaterialSystem( )
 {
@@ -69,6 +72,7 @@ void ShutdownMaterialSystem( )
 		g_pMaterialSystem = NULL;
 	}
 }
+
 
 MaterialSystemMaterial_t FindMaterial( const char *materialName, bool *pFound, bool bComplain )
 {
@@ -84,6 +88,7 @@ MaterialSystemMaterial_t FindMaterial( const char *materialName, bool *pFound, b
 
 	return matHandle;
 }
+
 
 void GetMaterialDimensions( MaterialSystemMaterial_t materialHandle, int *width, int *height )
 {
@@ -107,6 +112,7 @@ void GetMaterialDimensions( MaterialSystemMaterial_t materialHandle, int *width,
 	}
 }
 
+
 void GetMaterialReflectivity( MaterialSystemMaterial_t materialHandle, float *reflectivityVect )
 {
 	IMaterial *material = ( IMaterial * )materialHandle;
@@ -126,6 +132,7 @@ void GetMaterialReflectivity( MaterialSystemMaterial_t materialHandle, float *re
 	}
 }
 
+
 int GetMaterialShaderPropertyBool( MaterialSystemMaterial_t materialHandle, int propID )
 {
 	IMaterial *material = ( IMaterial * )materialHandle;
@@ -142,6 +149,7 @@ int GetMaterialShaderPropertyBool( MaterialSystemMaterial_t materialHandle, int 
 		return 0;
 	}
 }
+
 
 int GetMaterialShaderPropertyInt( MaterialSystemMaterial_t materialHandle, int propID )
 {
@@ -161,6 +169,7 @@ int GetMaterialShaderPropertyInt( MaterialSystemMaterial_t materialHandle, int p
 	}
 }
 
+
 const char *GetMaterialVar( MaterialSystemMaterial_t materialHandle, const char *propertyName )
 {
 	IMaterial *material = ( IMaterial * )materialHandle;
@@ -176,6 +185,7 @@ const char *GetMaterialVar( MaterialSystemMaterial_t materialHandle, const char 
 		return NULL;
 	}
 }
+
 
 const char *GetMaterialShaderName( MaterialSystemMaterial_t materialHandle )
 {

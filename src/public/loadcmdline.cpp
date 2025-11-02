@@ -13,6 +13,7 @@
 // So we know whether or not we own argv's memory
 static bool sFoundConfigArgs = false;
 
+
 //-----------------------------------------------------------------------------
 // Purpose: Parses arguments and adds them to argv and argc
 //-----------------------------------------------------------------------------
@@ -66,6 +67,7 @@ static void AddArguments( int &argc, char **&argv, const char *str )
 	delete [] argList;
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: Loads additional commandline arguments from a config file for an app.
 //			Filesystem must be initialized before calling this function.
@@ -101,6 +103,7 @@ void LoadCmdLineFromFile( int &argc, char **&argv, const char *keyname, const ch
 
 	kv->deleteThis();
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Cleans up any memory allocated for the new argv.  Pass in the app's

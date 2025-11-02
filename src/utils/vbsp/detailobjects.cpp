@@ -29,6 +29,7 @@
 #include "byteswap.h"
 #include "writebsp.h"
 
+
 //-----------------------------------------------------------------------------
 // Information about particular detail object types
 //-----------------------------------------------------------------------------
@@ -36,6 +37,7 @@ enum
 {
 	MODELFLAG_UPRIGHT = 0x1,
 };
+
 
 struct DetailModel_t
 {
@@ -54,11 +56,13 @@ struct DetailModel_t
 	unsigned char m_SwayAmount;
 };
 
+
 struct DetailObjectGroup_t
 {
 	float	m_Alpha;
 	CUtlVector< DetailModel_t >	m_Models;
 };
+
 
 struct DetailObject_t
 {
@@ -72,6 +76,7 @@ struct DetailObject_t
 	}
 };
 
+
 static CUtlVector<DetailObject_t>	s_DetailObjectDict;
 
 
@@ -84,10 +89,12 @@ struct StaticPropLookup_t
 	bool		m_IsValid;
 };
 
+
 static bool StaticLess( StaticPropLookup_t const& src1, StaticPropLookup_t const& src2 )
 {
 	return src1.m_ModelName < src2.m_ModelName;
 }
+
 
 static CUtlRBTree< StaticPropLookup_t, unsigned short > s_StaticPropLookup( 0, 32, StaticLess );
 
@@ -390,6 +397,7 @@ static int AddDetailDictLump( const char* pModelName )
 	return s_DetailObjectDictLump.AddToTail( dictLump );
 }
 
+
 static int AddDetailSpriteDictLump( const Vector2D *pPos, const Vector2D *pTex )
 {
 	DetailSpriteDictLump_t dictLump;
@@ -524,6 +532,7 @@ static void AddDetailSpriteToLump( const Vector &vecOrigin, const QAngle &vecAng
 	objectLump.m_SwayAmount = iSwayAmount;
 }
 
+
 static void AddDetailSpriteToLump( const Vector &vecOrigin, const QAngle &vecAngles, DetailModel_t const& model, float flScale )
 {
 	AddDetailSpriteToLump( vecOrigin,
@@ -537,6 +546,7 @@ static void AddDetailSpriteToLump( const Vector &vecOrigin, const QAngle &vecAng
 		model.m_ShapeSize,
 		model.m_SwayAmount );
 }
+
 
 //-----------------------------------------------------------------------------
 // Got a detail! Place it on the surface...
@@ -957,7 +967,7 @@ void EmitDetailObjects()
 	EmitDetailModels();
 
 	// Done! Now lets add the lumps (destroy previous ones)
-	SetLumpData( );
+	SetLumpData();
 
 	if ( s_nDetailOverflow != 0 )
 	{

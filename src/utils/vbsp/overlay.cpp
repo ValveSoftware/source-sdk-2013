@@ -17,6 +17,7 @@ CUtlVector<mapoverlay_t> g_aMapOverlays;
 CUtlVector<mapoverlay_t> g_aMapWaterOverlays;
 
 //-----------------------------------------------------------------------------
+// Creates an overlay from an entity
 //-----------------------------------------------------------------------------
 int Overlay_GetFromEntity( entity_t *pMapEnt )
 {
@@ -101,7 +102,9 @@ int Overlay_GetFromEntity( entity_t *pMapEnt )
 	return iAccessorID;
 }
 
+
 //-----------------------------------------------------------------------------
+// Gets a side
 //-----------------------------------------------------------------------------
 side_t *GetSide( int nSideId )
 {
@@ -114,7 +117,9 @@ side_t *GetSide( int nSideId )
 	return NULL;
 }
 
+
 //-----------------------------------------------------------------------------
+// updates overlay side lists
 //-----------------------------------------------------------------------------
 void Overlay_UpdateSideLists( int StartIndex )
 {
@@ -140,7 +145,9 @@ void Overlay_UpdateSideLists( int StartIndex )
 	}
 }
 
+
 //-----------------------------------------------------------------------------
+// updates water overlay side lists
 //-----------------------------------------------------------------------------
 void OverlayTransition_UpdateSideLists( int StartIndex )
 {
@@ -166,7 +173,9 @@ void OverlayTransition_UpdateSideLists( int StartIndex )
 	}
 }
 
+
 //-----------------------------------------------------------------------------
+// Adds a face to the face lists of overlays linked to a given side
 //-----------------------------------------------------------------------------
 void Overlay_AddFaceToLists( int iFace, side_t *pSide )
 {
@@ -184,7 +193,9 @@ void Overlay_AddFaceToLists( int iFace, side_t *pSide )
 	}
 }
 
+
 //-----------------------------------------------------------------------------
+// Adds a face to the face lists of water overlays
 //-----------------------------------------------------------------------------
 void OverlayTransition_AddFaceToLists( int iFace, side_t *pSide )
 {
@@ -202,7 +213,9 @@ void OverlayTransition_AddFaceToLists( int iFace, side_t *pSide )
 	}
 }
 
+
 //-----------------------------------------------------------------------------
+// Emits overlays
 //-----------------------------------------------------------------------------
 void Overlay_EmitOverlayFace( mapoverlay_t *pMapOverlay )
 {
@@ -292,7 +305,9 @@ void Overlay_EmitOverlayFace( mapoverlay_t *pMapOverlay )
 	}
 }
 
+
 //-----------------------------------------------------------------------------
+//  converts mapoverlay_t into dwateroverlay_t for BSP compilation
 //-----------------------------------------------------------------------------
 void OverlayTransition_EmitOverlayFace( mapoverlay_t *pMapOverlay )
 {
@@ -300,7 +315,7 @@ void OverlayTransition_EmitOverlayFace( mapoverlay_t *pMapOverlay )
 	if ( g_nWaterOverlayCount >= MAX_MAP_WATEROVERLAYS )
 	{
 		Error ( "Too many water overlays!\nMAX_MAP_WATEROVERLAYS = %d", MAX_MAP_WATEROVERLAYS );
-		return;
+
 	}
 
 	dwateroverlay_t *pOverlay = &g_WaterOverlays[g_nWaterOverlayCount];
@@ -373,8 +388,9 @@ void OverlayTransition_EmitOverlayFace( mapoverlay_t *pMapOverlay )
 	}
 }
 
+
 //-----------------------------------------------------------------------------
-// Purpose:
+// Iterates through a list of overlays
 //-----------------------------------------------------------------------------
 void Overlay_EmitOverlayFaces( void )
 {
@@ -386,7 +402,7 @@ void Overlay_EmitOverlayFaces( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose:
+// Iterates through a list of water overlays
 //-----------------------------------------------------------------------------
 void OverlayTransition_EmitOverlayFaces( void )
 {

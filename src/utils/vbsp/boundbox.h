@@ -11,10 +11,11 @@
 #pragma once
 #endif
 
-
 #include "mathlib/vector.h"
 
+
 #define COORD_NOTINIT	((float)(99999.0))
+
 
 enum
 {
@@ -22,6 +23,7 @@ enum
 	AXIS_Y,
 	AXIS_Z
 };
+
 
 class BoundBox
 {

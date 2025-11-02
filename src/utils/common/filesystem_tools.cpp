@@ -30,27 +30,24 @@
 #include <tier0/memdbgon.h>
 
 
-// ---------------------------------------------------------------------------------------------------- //
+//----------------------------------------------------------------------------------------------------
 // Module interface.
-// ---------------------------------------------------------------------------------------------------- //
-
+//----------------------------------------------------------------------------------------------------
 IBaseFileSystem *g_pFileSystem = NULL;
-
 // These are only used for tools that need the search paths that the engine's file system provides.
 CSysModule			*g_pFullFileSystemModule = NULL;
 
-// ---------------------------------------------------------------------------
-//
+
+//----------------------------------------------------------------------------------------------------
 // These are the base paths that everything will be referenced relative to (textures especially)
 // All of these directories include the trailing slash
-//
-// ---------------------------------------------------------------------------
-
+//----------------------------------------------------------------------------------------------------
 // This is the the path of the initial source file (relative to the cwd)
 char		qdir[1024];
 
 // This is the base engine + mod-specific game dir (e.g. "c:\tf2\mytfmod\")
 char		gamedir[1024];	
+
 
 void FileSystem_SetupStandardDirectories( const char *pFilename, const char *pGameInfoPath )
 {

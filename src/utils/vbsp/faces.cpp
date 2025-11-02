@@ -14,14 +14,10 @@
 #include "mstristrip.h"
 #include "tier1/strtools.h"
 #include "materialpatch.h"
-/*
 
-  some faces will be removed before saving, but still form nodes:
-
-  the insides of sky volumes
-  meeting planes of different water current volumes
-
-*/
+//  some faces will be removed before saving, but still form nodes:
+//  the insides of sky volumes
+//  meeting planes of different water current volumes
 
 // undefine for dumb linear searches
 #define	USE_HASHING
@@ -64,11 +60,11 @@ float	g_maxLightmapDimension = 32;
 
 face_t *NewFaceFromFace (face_t *f);
 
+//-----------------------------------------------------------------------------
 // Used to speed up GetEdge2(). Holds a list of edges connected to each vert.
+//-----------------------------------------------------------------------------
 CUtlVector<int> g_VertEdgeList[MAX_MAP_VERTS];
 
-
-//===========================================================================
 
 typedef struct hashvert_s
 {
@@ -76,16 +72,14 @@ typedef struct hashvert_s
 	int		num;
 } hashvert_t;
 
+
 #define HASH_BITS	7
 #define	HASH_SIZE	(COORD_EXTENT>>HASH_BITS)
 
 
 int	vertexchain[MAX_MAP_VERTS];		// the next vertex in a hash chain
 int	hashverts[HASH_SIZE*HASH_SIZE];	// a vertex number, or 0 for no verts
-
 //face_t		*edgefaces[MAX_MAP_EDGES][2];
-
-//============================================================================
 
 
 unsigned HashVec (Vector& vec)
@@ -101,7 +95,10 @@ unsigned HashVec (Vector& vec)
 	return y*HASH_SIZE + x;
 }
 
+
 #ifdef USE_HASHING
+
+
 /*
 =============
 GetVertex
@@ -292,6 +289,7 @@ void EmitFaceVertexes (face_t **pListHead, face_t *f)
 	FaceFromSuperverts (pListHead, f, 0);
 }
 
+
 /*
 ==================
 EmitNodeFaceVertexes_r
@@ -318,6 +316,7 @@ void EmitNodeFaceVertexes_r (node_t *node)
 		EmitNodeFaceVertexes_r (node->children[i]);
 	}
 }
+
 
 void EmitLeafFaceVertexes( face_t **ppLeafFaceList )
 {
@@ -416,6 +415,7 @@ void FindEdgeVerts (Vector& v1, Vector& v2)
 }
 #endif
 
+
 /*
 ==========
 TestEdge
@@ -473,7 +473,9 @@ void TestEdge (vec_t start, vec_t end, int p1, int p2, int startvert)
 }
 
 
+//-----------------------------------------------------------------------------
 // stores the edges that each vert is part of
+//-----------------------------------------------------------------------------
 struct face_vert_table_t
 {
 	face_vert_table_t()
@@ -510,7 +512,10 @@ struct face_vert_table_t
 	int	edge1;
 };
 
+
+//-----------------------------------------------------------------------------
 // if these two verts share an edge, they must be collinear
+//-----------------------------------------------------------------------------
 bool IsDiagonal( const face_vert_table_t &v0, const face_vert_table_t &v1 )
 {
 	if ( v1.HasEdge(v0.edge0) || v1.HasEdge(v0.edge1) )
@@ -577,6 +582,7 @@ void Triangulate_r( CUtlVector<int> &out, const CUtlVector<int> &inIndices, cons
 	// didn't find a diagonal
 	Assert(0);
 }
+
 
 /*
 ==================
@@ -694,6 +700,7 @@ void FixFaceEdges (face_t **pList, face_t *f)
 	}
 }
 
+
 /*
 ==================
 FixEdges_r
@@ -730,13 +737,13 @@ void FixLeafFaceEdges( face_t **ppLeafFaceList )
 	}
 }
 
+
 /*
 ===========
 FixTjuncs
 
 ===========
 */
-
 face_t *FixTjuncs (node_t *headnode, face_t *pLeafFaceList)
 {
 	// snap and merge all vertexes
@@ -785,8 +792,6 @@ face_t *FixTjuncs (node_t *headnode, face_t *pLeafFaceList)
 }
 
 
-//========================================================
-
 int		c_faces;
 
 face_t	*AllocFace (void)
@@ -805,6 +810,7 @@ face_t	*AllocFace (void)
 	return f;
 }
 
+
 face_t *NewFaceFromFace (face_t *f)
 {
 	face_t	*newf;
@@ -816,6 +822,7 @@ face_t *NewFaceFromFace (face_t *f)
 	newf->w = NULL;
 	return newf;
 }
+
 
 void FreeFace (face_t *f)
 {
@@ -837,7 +844,6 @@ void FreeFaceList( face_t *pFaces )
 	}
 }
 
-//========================================================
 
 void GetEdge2_InitOptimizedList()
 {
@@ -927,7 +933,6 @@ FACE MERGING
 
 ===========================================================================
 */
-
 #define	CONTINUOUS_EPSILON	0.001
 
 /*
@@ -1037,6 +1042,7 @@ winding_t *TryMergeWinding (winding_t *f1, winding_t *f2, Vector& planenormal)
 	return newf;
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -1057,6 +1063,7 @@ bool OverlaysAreEqual( face_t *f1, face_t *f2 )
 	return true;
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -1071,6 +1078,7 @@ bool FaceOnWaterBrush( face_t *face )
 
 	return false;
 }
+
 
 /*
 =============
@@ -1117,6 +1125,7 @@ face_t *TryMerge (face_t *f1, face_t *f2, Vector& planenormal)
 	return newf;
 }
 
+
 /*
 ===============
 MergeFaceList
@@ -1155,7 +1164,6 @@ void MergeFaceList(face_t **pList)
 	}
 }
 
-//=====================================================================
 
 /*
 ===============
@@ -1238,6 +1246,7 @@ void SubdivideFace (face_t **pFaceList, face_t *f)
 	}
 }
 
+
 void SubdivideFaceList(face_t **pFaceList)
 {
 	face_t	*f;
@@ -1289,12 +1298,11 @@ static bool AssignBottomWaterMaterialToFace( face_t *f )
 }
 
 
-//===========================================================================
-
 int	c_nodefaces;
 
 static void SubdivideFaceBySubdivSize( face_t *f, float subdivsize );
 void SubdivideFaceBySubdivSize( face_t *f );
+
 
 /*
 ============
@@ -1303,6 +1311,7 @@ FaceFromPortal
 ============
 */
 extern int FindOrCreateTexInfo( const texinfo_t &searchTexInfo );
+
 
 face_t *FaceFromPortal (portal_t *p, int pside)
 {
@@ -1399,6 +1408,7 @@ face_t *FaceFromPortal (portal_t *p, int pside)
 	return f;
 }
 
+
 /*
 ===============
 MakeFaces_r
@@ -1451,7 +1461,9 @@ void MakeFaces_r (node_t *node)
 	}
 }
 
+
 typedef winding_t *pwinding_t;
+
 
 static void PrintWinding( winding_t *w )
 {
@@ -1462,6 +1474,7 @@ static void PrintWinding( winding_t *w )
 		Msg( "\t%f %f %f\n", w->p[i].x, w->p[i].y, w->p[i].z );
 	}
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Adds a winding to the current list of primverts
@@ -1504,13 +1517,15 @@ int AddWindingToPrimverts( const winding_t *w, unsigned short *pIndices, int ver
 }
 
 
-
 #pragma optimize( "g", off )
 #define USE_TRISTRIPS
 
+
+//-----------------------------------------------------------------------------
 // UNDONE: Should split this function into subdivide and primitive building parts
 // UNDONE: We should try building strips of shared verts for all water faces in a leaf
 //			since those will be drawn concurrently anyway.  It should be more efficient.
+//-----------------------------------------------------------------------------
 static void SubdivideFaceBySubdivSize( face_t *f, float subdivsize )
 {
 	// garymcthack - REFACTOR ME!!!
@@ -1724,6 +1739,7 @@ static void SubdivideFaceBySubdivSize( face_t *f, float subdivsize )
 	}
 }
 
+
 void SubdivideFaceBySubdivSize( face_t *f )
 {
 	if( f->numpoints == 0 || f->split[0] || f->split[1] || f->merged || !f->w )
@@ -1755,6 +1771,7 @@ void SubdivideFaceBySubdivSize( face_t *f )
 	}
 }
 
+
 void SplitSubdividedFaces_Node_r( node_t *node )
 {
 	if (node->planenum == PLANENUM_LEAF)
@@ -1774,6 +1791,7 @@ void SplitSubdividedFaces_Node_r( node_t *node )
 	SplitSubdividedFaces_Node_r( node->children[1] );
 }
 
+
 void SplitSubdividedFaces( face_t *pLeafFaceList, node_t *headnode )
 {
 	// deal with leaf faces.
@@ -1788,7 +1806,9 @@ void SplitSubdividedFaces( face_t *pLeafFaceList, node_t *headnode )
 	SplitSubdividedFaces_Node_r( headnode );
 }
 
+
 #pragma optimize( "", on )
+
 
 /*
 ============

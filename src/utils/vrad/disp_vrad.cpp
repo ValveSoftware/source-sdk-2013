@@ -327,6 +327,3 @@ void SmoothNeighboringDispSurfNormals( CCoreDispInfo **ppListBase, int listSize 
 
 	BlendEdges( ppListBase, listSize );
 }
-
-
-

@@ -16,6 +16,7 @@
 #include "tier0/dbg.h"
 #include "tier0/memdbgon.h"
 
+
 //-----------------------------------------------------------------------------
 // The BSP tree leaf data system
 //-----------------------------------------------------------------------------
@@ -104,11 +105,11 @@ private:
 //-----------------------------------------------------------------------------
 // Class factory
 //-----------------------------------------------------------------------------
-
 IBSPTreeData* CreateBSPTreeData()
 {
 	return new CBSPTreeData;
 }
+
 
 void DestroyBSPTreeData( IBSPTreeData* pTreeData )
 {
@@ -120,10 +121,10 @@ void DestroyBSPTreeData( IBSPTreeData* pTreeData )
 //-----------------------------------------------------------------------------
 // constructor, destructor
 //-----------------------------------------------------------------------------
-
 CBSPTreeData::CBSPTreeData()
 {
 }
+
 
 CBSPTreeData::~CBSPTreeData()
 {
@@ -133,7 +134,6 @@ CBSPTreeData::~CBSPTreeData()
 //-----------------------------------------------------------------------------
 // Level init, shutdown
 //-----------------------------------------------------------------------------
-
 void CBSPTreeData::Init( ISpatialQuery* pBSPTree )
 {
 	Assert( pBSPTree );
@@ -167,7 +167,6 @@ void CBSPTreeData::Shutdown()
 //-----------------------------------------------------------------------------
 // Creates a new handle
 //-----------------------------------------------------------------------------
-
 BSPTreeDataHandle_t CBSPTreeData::NewHandle( int userId )
 {
 	BSPTreeDataHandle_t handle = m_Handles.AddToTail();
@@ -180,13 +179,13 @@ BSPTreeDataHandle_t CBSPTreeData::NewHandle( int userId )
 //-----------------------------------------------------------------------------
 // Add/remove handle
 //-----------------------------------------------------------------------------
-
 BSPTreeDataHandle_t CBSPTreeData::Insert( int userId, Vector const& mins, Vector const& maxs )
 {
 	BSPTreeDataHandle_t handle = NewHandle( userId );
 	InsertIntoTree( handle, mins, maxs );
 	return handle;
 }
+
 
 void CBSPTreeData::Remove( BSPTreeDataHandle_t handle )
 {
@@ -230,15 +229,16 @@ bool CBSPTreeData::EnumerateLeaf( int leaf, intp context )
 	return true;
 }
 
+
 void CBSPTreeData::InsertIntoTree( BSPTreeDataHandle_t handle, Vector const& mins, Vector const& maxs )
 {
 	m_pBSPTree->EnumerateLeavesInBox( mins, maxs, this, handle );
 }
 
+
 //-----------------------------------------------------------------------------
 // Removes an element from the tree
 //-----------------------------------------------------------------------------
-
 void CBSPTreeData::RemoveFromTree( BSPTreeDataHandle_t handle )
 {
 	// Iterate over the list of all leaves the handle is in
@@ -299,6 +299,7 @@ int CBSPTreeData::CountElementsInLeaf( int leaf )
 	return nCount;
 }
 
+
 //-----------------------------------------------------------------------------
 // Enumerate elements in a particular leaf
 //-----------------------------------------------------------------------------
@@ -335,18 +336,20 @@ bool CBSPTreeData::EnumerateLeavesAtPoint( Vector const& pt, ISpatialLeafEnumera
 	return m_pBSPTree->EnumerateLeavesAtPoint( pt, pEnum, context );
 }
 
+
 bool CBSPTreeData::EnumerateLeavesInBox( Vector const& mins, Vector const& maxs, ISpatialLeafEnumerator* pEnum, intp context )
 {
 	return m_pBSPTree->EnumerateLeavesInBox( mins, maxs, pEnum, context );
 }
+
 
 bool CBSPTreeData::EnumerateLeavesInSphere( Vector const& center, float radius, ISpatialLeafEnumerator* pEnum, intp context )
 {
 	return m_pBSPTree->EnumerateLeavesInSphere( center, radius, pEnum, context );
 }
 
+
 bool CBSPTreeData::EnumerateLeavesAlongRay( Ray_t const& ray, ISpatialLeafEnumerator* pEnum, intp context )
 {
 	return m_pBSPTree->EnumerateLeavesAlongRay( ray, pEnum, context );
 }
-

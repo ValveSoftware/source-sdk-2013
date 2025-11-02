@@ -10,6 +10,11 @@
 
 int g_TraceClusterStart = -1;
 int g_TraceClusterStop = -1;
+int		c_fullskip;
+int		c_portalskip, c_leafskip;
+int		c_vistest, c_mighttest;
+int		c_chop, c_nochop;
+int		active;
 /*
 
   each portal will have a list of all possible to see from first portal
@@ -29,6 +34,7 @@ int g_TraceClusterStop = -1;
   void CalcMightSee (leaf_t *leaf, 
 */
 
+
 int CountBits (byte *bits, int numbits)
 {
 	int		i;
@@ -42,13 +48,6 @@ int CountBits (byte *bits, int numbits)
 	return c;
 }
 
-int		c_fullskip;
-int		c_portalskip, c_leafskip;
-int		c_vistest, c_mighttest;
-
-int		c_chop, c_nochop;
-
-int		active;
 
 #ifdef MPI
 extern bool g_bVMPIEarlyExit;
@@ -90,6 +89,7 @@ winding_t *AllocStackWinding (pstack_t *stack)
 	return NULL;
 }
 
+
 void FreeStackWinding (winding_t *w, pstack_t *stack)
 {
 	int		i;
@@ -104,16 +104,17 @@ void FreeStackWinding (winding_t *w, pstack_t *stack)
 	stack->freewindings[i] = 1;
 }
 
+
 /*
 ==============
 ChopWinding
 
 ==============
 */
-
 #ifdef _WIN32
 #pragma warning (disable:4701)
 #endif
+
 
 winding_t	*ChopWinding (winding_t *in, pstack_t *stack, plane_t *split)
 {
@@ -216,10 +217,10 @@ winding_t	*ChopWinding (winding_t *in, pstack_t *stack, plane_t *split)
 	return neww;
 }
 
+
 #ifdef _WIN32
 #pragma warning (default:4701)
 #endif
-
 /*
 ==============
 ClipToSeperators
@@ -382,6 +383,7 @@ public:
 	CThreadFastMutex	m_mutex;
 } g_PortalTrace;
 
+
 void WindingCenter (winding_t *w, Vector &center)
 {
 	int		i;
@@ -394,6 +396,7 @@ void WindingCenter (winding_t *w, Vector &center)
 	scale = 1.0/w->numpoints;
 	VectorScale (center, scale, center);
 }
+
 
 Vector ClusterCenter( int cluster )
 {
@@ -443,6 +446,7 @@ void DumpPortalTrace( pstack_t *pStack )
 	g_PortalTrace.m_list.AddToTail(mid);
 }
 
+
 void WritePortalTrace( const char *source )
 {
 	Vector	mid;
@@ -455,10 +459,10 @@ void WritePortalTrace( const char *source )
 		return;
 	}
 
-	sprintf (filename, "%s.lin", source);
+	V_snprintf(filename, sizeof(filename), "%s.lin", source);
 	linefile = fopen (filename, "w");
 	if (!linefile)
-		Error ("Couldn't open %s\n", filename);
+		Error ("Couldn't open: %s\n", filename);
 
 	for ( int i = 0; i < g_PortalTrace.m_list.Count(); i++ )
 	{
@@ -466,8 +470,9 @@ void WritePortalTrace( const char *source )
 		fprintf (linefile, "%f %f %f\n", p[0], p[1], p[2]);
 	}
 	fclose (linefile);
-	Warning("Wrote %s!!!\n", filename);
+	Warning("Wrote: %s!!!\n", filename);
 }
+
 
 /*
 ==================
@@ -661,17 +666,11 @@ void PortalFlow (int iThread, int portalnum)
 }
 
 
-/*
-===============================================================================
-
-This is a rough first-order aproximation that is used to trivially reject some
-of the final calculations.
-
-
-Calculates portalfront and portalflood bit vectors
-
-===============================================================================
-*/
+//------------------------------------------------------------------------
+// This is a rough first-order aproximation that is used to trivially reject some
+// of the final calculations.
+// Calculates portalfront and portalflood bit vectors
+//------------------------------------------------------------------------
 
 int		c_flood, c_vis;
 
@@ -705,6 +704,7 @@ void SimpleFlood (portal_t *srcportal, int leafnum)
 		SimpleFlood (srcportal, p->leaf);
 	}
 }
+
 
 /*
 ==============
@@ -804,21 +804,11 @@ void BasePortalVis (int iThread, int portalnum)
 }
 
 
-
-
-
-/*
-===============================================================================
-
-This is a second order aproximation 
-
-Calculates portalvis bit vector
-
-WAAAAAAY too slow.
-
-===============================================================================
-*/
-
+//------------------------------------------------------------------------
+// This is a second order aproximation 
+// Calculates portalvis bit vector
+// WAAAAAAY too slow.
+//------------------------------------------------------------------------
 /*
 ==================
 RecursiveLeafBitFlow
@@ -863,6 +853,7 @@ void RecursiveLeafBitFlow (int leafnum, byte *mightsee, byte *cansee)
 		RecursiveLeafBitFlow (p->leaf, newmight, cansee);
 	}	
 }
+
 
 /*
 ==============

@@ -13,15 +13,20 @@
 
 static int g_LastPacifierDrawn = -1;
 static bool g_bPacifierSuppressed = false;
+static float g_start;
+static float g_end;
 
 #define clamp(a,b,c) ( (a) > (c) ? (c) : ( (a) < (b) ? (b) : (a) ) )
 
+
 void StartPacifier( char const *pPrefix )
 {
+	g_start = Plat_FloatTime();
 	Msg( "%s", pPrefix );
 	g_LastPacifierDrawn = -1;
 	UpdatePacifier( 0.001f );
 }
+
 
 void UpdatePacifier( float flPercent )
 {
@@ -49,13 +54,15 @@ void UpdatePacifier( float flPercent )
 	}
 }
 
+
 void EndPacifier( bool bCarriageReturn )
 {
 	UpdatePacifier(1);
-	
-	if( bCarriageReturn && !g_bPacifierSuppressed )
-		Msg("\n");
+	g_end = Plat_FloatTime();
+	if (bCarriageReturn && !g_bPacifierSuppressed)
+		Msg(" (%.1fs)\n", g_end - g_start);
 }
+
 
 void SuppressPacifier( bool bSuppress )
 {

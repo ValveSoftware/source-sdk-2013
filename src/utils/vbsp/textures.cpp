@@ -26,6 +26,7 @@ bool g_bHasWater = false;
 
 extern qboolean onlyents;
 
+
 dtexdata_t *GetTexData( int index )
 {
 	if ( index < 0 )
@@ -33,6 +34,7 @@ dtexdata_t *GetTexData( int index )
 	Assert( !onlyents );
 	return &dtexdata[ index ];
 }
+
 
 static qboolean StringIsTrue( const char *str )
 {
@@ -46,6 +48,7 @@ static qboolean StringIsTrue( const char *str )
 	}
 	return false;
 }
+
 
 int	FindMiptex (const char *name)
 {
@@ -298,6 +301,7 @@ int	FindMiptex (const char *name)
 	return i;
 }
 
+
 /*
 ==================
 textureAxisFromPlane
@@ -312,6 +316,7 @@ Vector	baseaxis[18] =
 	Vector(0,1,0), Vector(1,0,0), Vector(0,0,-1),			// south wall
 	Vector(0,-1,0), Vector(1,0,0), Vector(0,0,-1)			// north wall
 };
+
 
 void TextureAxisFromPlane(plane_t *pln, Vector& xv, Vector& yv)
 {
@@ -335,7 +340,6 @@ void TextureAxisFromPlane(plane_t *pln, Vector& xv, Vector& yv)
 	VectorCopy (baseaxis[bestaxis*3+1], xv);
 	VectorCopy (baseaxis[bestaxis*3+2], yv);
 }
-
 
 
 int g_SurfaceProperties[MAX_MAP_TEXDATA];
@@ -364,6 +368,7 @@ int GetSurfaceProperties( MaterialSystemMaterial_t matID, const char *pMatName )
 	return surfaceIndex;
 }
 
+
 int GetSurfaceProperties2( MaterialSystemMaterial_t matID, const char *pMatName )
 {
 	const char *pPropString = NULL;
@@ -377,7 +382,7 @@ int GetSurfaceProperties2( MaterialSystemMaterial_t matID, const char *pMatName 
 			surfaceIndex = physprops->GetSurfaceIndex( pPropString );
 			if ( surfaceIndex < 0 )
 			{
-				Msg("Can't find surfacepropblend %s for material %s, using default\n", pPropString, pMatName );
+				Warning("Can't find surfacepropblend %s for material: %s, using default\n", pPropString, pMatName );
 				surfaceIndex = physprops->GetSurfaceIndex( "default" );
 			}
 		}
@@ -390,6 +395,7 @@ int GetSurfaceProperties2( MaterialSystemMaterial_t matID, const char *pMatName 
 
 	return surfaceIndex;
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Finds or adds a texdata for the specified name ( same as below except
@@ -431,7 +437,7 @@ int FindAliasedTexData( const char *pName_, dtexdata_t *sourceTexture )
 	matID = FindOriginalMaterial( TexDataStringTable_GetString( sourceTexture->nameStringTableID ), &found, false );
 	if( matID == MATERIAL_NOT_FOUND || (!found) )
 	{
-		qprintf( "WARNING: material not found: \"%s\"\n", pName );
+		Warning( "WARNING: material not found: \"%s\"\n", pName );
 		return -1;
 	}
 
@@ -460,7 +466,6 @@ int FindTexData( const char *pName )
 	}
 	return -1;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -494,7 +499,7 @@ int FindOrCreateTexData( const char *pName_ )
 	MaterialSystemMaterial_t matID = FindOriginalMaterial( pName, &bFound );
 	if ( matID == MATERIAL_NOT_FOUND || (!bFound) )
 	{
-		qprintf( "WARNING: material not found: \"%s\"\n", pName );
+		Warning( "WARNING: material not found: \"%s\"\n", pName );
 		return nOutput;
 	}
 
@@ -514,6 +519,7 @@ int FindOrCreateTexData( const char *pName_ )
 
 	return nOutput;
 }
+
 
 int AddCloneTexData( dtexdata_t *pExistingTexData, char const *cloneTexDataName )
 {
@@ -567,6 +573,7 @@ int FindOrCreateTexInfo( const texinfo_t &searchTexInfo )
 
 	return i;
 }
+
 
 int TexinfoForBrushTexture (plane_t *plane, brush_texture_t *bt, const Vector& origin)
 {
@@ -705,6 +712,8 @@ void LoadSurfacePropFile( const char *pMaterialFilename )
 
 	delete[] pText;
 }
+
+
 //-----------------------------------------------------------------------------
 // Purpose: Loads the surface properties database into the physics DLL
 //-----------------------------------------------------------------------------
@@ -733,5 +742,3 @@ void LoadSurfaceProperties( void )
 
 	manifest->deleteThis();
 }
-
-

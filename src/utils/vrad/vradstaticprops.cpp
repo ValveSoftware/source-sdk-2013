@@ -71,6 +71,7 @@ struct colorTexel_t
 
 };
 
+
 class CComputeStaticPropLightingResults
 {
 public:
@@ -84,7 +85,7 @@ public:
 	CUtlVector< CUtlVector<colorTexel_t>* > m_ColorTexelsArrays;
 };
 
-//-----------------------------------------------------------------------------
+
 struct Rasterizer
 {
 	struct Location
@@ -132,7 +133,7 @@ private:
 	CUtlVector< Location > mRasterizedLocations;
 };
 
-//-----------------------------------------------------------------------------
+
 inline Vector ComputeBarycentric( Vector2D _edgeC, Vector2D _edgeA, Vector2D _edgeB, float _dAA, float _dAB, float _dBB, float _invDenom )
 {
 	float dCA = _edgeC.Dot(_edgeA);
@@ -146,7 +147,7 @@ inline Vector ComputeBarycentric( Vector2D _edgeC, Vector2D _edgeA, Vector2D _ed
 	return retVal;
 }
 
-//-----------------------------------------------------------------------------
+
 void Rasterizer::Build()
 {
 	// For now, use the barycentric method. It's easy, I'm lazy. 
@@ -243,7 +244,6 @@ static void DumpLightmapLinear( const char* _dstFilename, const CUtlVector<color
 //-----------------------------------------------------------------------------
 // Vrad's static prop manager
 //-----------------------------------------------------------------------------
-
 class CVradStaticPropMgr : public IVradStaticPropMgr
 {
 public:
@@ -349,7 +349,6 @@ private:
 //-----------------------------------------------------------------------------
 // Expose IVradStaticPropMgr to vrad
 //-----------------------------------------------------------------------------
-
 static CVradStaticPropMgr	g_StaticPropMgr;
 IVradStaticPropMgr* StaticPropMgr()
 {
@@ -360,21 +359,21 @@ IVradStaticPropMgr* StaticPropMgr()
 //-----------------------------------------------------------------------------
 // constructor, destructor
 //-----------------------------------------------------------------------------
-
 CVradStaticPropMgr::CVradStaticPropMgr()
 {
 	// set to ignore static prop traces
 	m_bIgnoreStaticPropTrace = false;
 }
 
+
 CVradStaticPropMgr::~CVradStaticPropMgr()
 {
 }
 
+
 //-----------------------------------------------------------------------------
 // Makes sure the studio model is a static prop
 //-----------------------------------------------------------------------------
-
 bool IsStaticProp( studiohdr_t* pHdr )
 {
 	if (!(pHdr->flags & STUDIOHDR_FLAGS_STATIC_PROP))
@@ -402,7 +401,7 @@ static bool LoadFile( char const* pFileName, CUtlBuffer& buf )
 static char const* ConstructFileName( char const* pModelName )
 {
 	static char buf[1024];
-	sprintf( buf, "%s%s", gamedir, pModelName );
+	V_snprintf(buf, sizeof(buf), "%s%s", gamedir, pModelName);
 	return buf;
 }
 
@@ -460,14 +459,13 @@ CPhysCollide* ComputeConvexHull( studiohdr_t* pStudioHdr )
 //-----------------------------------------------------------------------------
 // Load studio model vertex data from a file...
 //-----------------------------------------------------------------------------
-
 bool LoadStudioModel( char const* pModelName, CUtlBuffer& buf )
 {
 	// No luck, gotta build it	
 	// Construct the file name...
 	if (!LoadFile( pModelName, buf ))
 	{
-		Warning("Error! Unable to load model \"%s\"\n", pModelName );
+		Warning("Error! Unable to load model: \"%s\"\n", pModelName );
 		return false;
 	}
 
@@ -475,7 +473,7 @@ bool LoadStudioModel( char const* pModelName, CUtlBuffer& buf )
 	if (strncmp ((const char *) buf.PeekGet(), "IDST", 4) &&
 		strncmp ((const char *) buf.PeekGet(), "IDAG", 4))
 	{
-		Warning("Error! Invalid model file \"%s\"\n", pModelName );
+		Warning("Error! Invalid model file: \"%s\"\n", pModelName );
 		return false;
 	}
 
@@ -485,13 +483,13 @@ bool LoadStudioModel( char const* pModelName, CUtlBuffer& buf )
 
 	if (pHdr->version != STUDIO_VERSION)
 	{
-		Warning("Error! Invalid model version \"%s\"\n", pModelName );
+		Warning("Error! Invalid model version: \"%s\"\n", pModelName );
 		return false;
 	}
 
 	if (!IsStaticProp(pHdr))
 	{
-		Warning("Error! To use model \"%s\"\n"
+		Warning("Error! To use model: \"%s\"\n"
 			"      as a static prop, it must be compiled with $staticprop!\n", pModelName );
 		return false;
 	}
@@ -502,6 +500,7 @@ bool LoadStudioModel( char const* pModelName, CUtlBuffer& buf )
 
 	return true;
 }
+
 
 bool LoadStudioCollisionModel( char const* pModelName, CUtlBuffer& buf )
 {
@@ -523,6 +522,7 @@ bool LoadStudioCollisionModel( char const* pModelName, CUtlBuffer& buf )
 	return true;
 }
 
+
 bool LoadVTXFile( char const* pModelName, const studiohdr_t *pStudioHdr, CUtlBuffer& buf )
 {
 	char	filename[MAX_PATH];
@@ -533,7 +533,7 @@ bool LoadVTXFile( char const* pModelName, const studiohdr_t *pStudioHdr, CUtlBuf
 
 	if ( !LoadFile( filename, buf ) )
 	{
-		Warning( "Error! Unable to load file \"%s\"\n", filename );
+		Warning( "Error! Unable to load file: \"%s\"\n", filename );
 		return false;
 	}
 
@@ -542,17 +542,18 @@ bool LoadVTXFile( char const* pModelName, const studiohdr_t *pStudioHdr, CUtlBuf
 	// Check that it's valid
 	if ( pVtxHdr->version != OPTIMIZED_MODEL_FILE_VERSION )
 	{
-		Warning( "Error! Invalid VTX file version: %d, expected %d \"%s\"\n", pVtxHdr->version, OPTIMIZED_MODEL_FILE_VERSION, filename );
+		Warning( "Error! Invalid VTX file version: %d, expected: %d \"%s\"\n", pVtxHdr->version, OPTIMIZED_MODEL_FILE_VERSION, filename );
 		return false;
 	}
 	if ( pVtxHdr->checkSum != pStudioHdr->checksum )
 	{
-		Warning( "Error! Invalid VTX file checksum: %d, expected %d \"%s\"\n", pVtxHdr->checkSum, pStudioHdr->checksum, filename );
+		Warning( "Error! Invalid VTX file checksum: %d, expected: %d \"%s\"\n", pVtxHdr->checkSum, pStudioHdr->checksum, filename );
 		return false;
 	}
 
 	return true;
 }
+
 
 //-----------------------------------------------------------------------------
 // Gets a vertex position from a strip index
@@ -574,7 +575,7 @@ void DumpCollideToGlView( vcollide_t *pCollide, const char *pFilename )
 	if ( !pCollide )
 		return;
 
-	Msg("Writing %s...\n", pFilename );
+	Msg("Writing: %s\n", pFilename );
 
 	FILE *fp = fopen( pFilename, "w" );
 	for (int i = 0; i < pCollide->solidCount; ++i)
@@ -1533,11 +1534,11 @@ void CVradStaticPropMgr::SerializeLighting()
 
 		if (g_bHDR)
 		{
-			sprintf( filename, "sp_hdr_%d.vhv", i );
+			V_snprintf(filename, sizeof(filename), "sp_hdr_%d.vhv", i);
 		}
 		else
 		{
-			sprintf( filename, "sp_%d.vhv", i );
+			V_snprintf(filename, sizeof(filename), "sp_%d.vhv", i);
 		}
 
 		int totalVertexes = 0;
@@ -1609,7 +1610,7 @@ void CVradStaticPropMgr::SerializeLighting()
 		if (m_StaticProps[i].m_Flags & STATIC_PROP_NO_PER_TEXEL_LIGHTING)
 			continue;
 
-		sprintf(filename, "texelslighting_%d.ppl", i);
+		V_snprintf(filename,sizeof(filename), "texelslighting_%d.ppl", i);
 
 		ImageFormat fmt = m_StaticProps[i].m_LightmapImageFormat;
 
@@ -2004,7 +2005,7 @@ void CVradStaticPropMgr::AddPolysForRayTrace( void )
 							{
 								// all tris expected to be discrete tri lists
 								// must fixme if stripping ever occurs
-								printf( "unexpected strips found\n" );
+								Msg("unexpected strips found\n");
 								Assert( 0 );
 								return;
 							}
@@ -2161,7 +2162,7 @@ void CVradStaticPropMgr::BuildTriList( CStaticProp &prop )
 						{
 							// all tris expected to be discrete tri lists
 							// must fixme if stripping ever occurs
-							printf( "unexpected strips found\n" );
+							Msg("unexpected strips found\n");
 							Assert( 0 );
 							return;
 						}
@@ -2194,7 +2195,7 @@ const vertexFileHeader_t * mstudiomodel_t::CacheVertexData( void *pModelData )
 	FileHandle_t fileHandle = g_pFileSystem->Open( fileName, "rb" );
 	if ( !fileHandle )
 	{
-		Error( "Unable to load vertex data \"%s\"\n", fileName );
+		Error( "Unable to load vertex data: \"%s\"\n", fileName );
 	}
 
 	// Get the file size
@@ -2202,7 +2203,7 @@ const vertexFileHeader_t * mstudiomodel_t::CacheVertexData( void *pModelData )
 	if ( vvdSize == 0 )
 	{
 		g_pFileSystem->Close( fileHandle );
-		Error( "Bad size for vertex data \"%s\"\n", fileName );
+		Error( "Bad size for vertex data: \"%s\"\n", fileName );
 	}
 
 	vertexFileHeader_t *pVvdHdr = (vertexFileHeader_t *)malloc( vvdSize );
@@ -2212,15 +2213,15 @@ const vertexFileHeader_t * mstudiomodel_t::CacheVertexData( void *pModelData )
 	// check header
 	if ( pVvdHdr->id != MODEL_VERTEX_FILE_ID )
 	{
-		Error("Error Vertex File %s id %d should be %d\n", fileName, pVvdHdr->id, MODEL_VERTEX_FILE_ID);
+		Error("Error Vertex File: %s id %d should be %d\n", fileName, pVvdHdr->id, MODEL_VERTEX_FILE_ID);
 	}
 	if ( pVvdHdr->version != MODEL_VERTEX_FILE_VERSION )
 	{
-		Error("Error Vertex File %s version %d should be %d\n", fileName, pVvdHdr->version, MODEL_VERTEX_FILE_VERSION);
+		Error("Error Vertex File: %s version %d should be %d\n", fileName, pVvdHdr->version, MODEL_VERTEX_FILE_VERSION);
 	}
 	if ( pVvdHdr->checksum != pActiveStudioHdr->checksum )
 	{
-		Error("Error Vertex File %s checksum %d should be %d\n", fileName, pVvdHdr->checksum, pActiveStudioHdr->checksum);
+		Error("Error Vertex File: %s checksum %d should be %d\n", fileName, pVvdHdr->checksum, pActiveStudioHdr->checksum);
 	}
 
 	// need to perform mesh relocation fixups
@@ -2228,7 +2229,7 @@ const vertexFileHeader_t * mstudiomodel_t::CacheVertexData( void *pModelData )
 	vertexFileHeader_t *pNewVvdHdr = (vertexFileHeader_t *)malloc( vvdSize );
 	if ( !pNewVvdHdr )
 	{
-		Error( "Error allocating %d bytes for Vertex File '%s'\n", vvdSize, fileName );
+		Error( "Error allocating %d bytes for Vertex File: '%s'\n", vvdSize, fileName );
 	}
 
 	// load vertexes and run fixups

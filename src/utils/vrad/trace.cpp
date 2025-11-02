@@ -5,17 +5,11 @@
 // $NoKeywords: $
 //
 //===========================================================================//
-// trace.c
-
-//=============================================================================
 
 #include "vrad.h"
 #include "trace.h"
 #include "Cmodel.h"
 #include "mathlib/vmatrix.h"
-
-
-//=============================================================================
 
 class CToolTrace : public CBaseTrace
 {
@@ -44,12 +38,9 @@ private:
 // so that the tests work out.
 #define		NEVER_UPDATED		-9999
 
-//=============================================================================
-
 bool DM_RayDispIntersectTest( CVRADDispColl *pTree, Vector& rayStart, Vector& rayEnd, CToolTrace *pTrace );
 void DM_ClipBoxToBrush( CToolTrace *trace, const Vector & mins, const Vector & maxs, const Vector& p1, const Vector& p2, dbrush_t *brush );
 
-//=============================================================================
 
 float TraceLeafBrushes( int leafIndex, const Vector &start, const Vector &end, CBaseTrace &traceOut )
 {
@@ -81,7 +72,9 @@ float TraceLeafBrushes( int leafIndex, const Vector &start, const Vector &end, C
 	return 1.0f;
 }
 
+
 DispTested_t s_DispTested[MAX_TOOL_THREADS+1];
+
 
 // this just uses the average coverage for the triangle
 class CCoverageCount : public ITransparentTriangleCallback
@@ -120,6 +113,7 @@ public:
 	fltx4 m_coverage;
 };
 
+
 // this will sample the texture to get a coverage at the ray intersection point
 class CCoverageCountTexture : public CCoverageCount
 {
@@ -147,6 +141,7 @@ public:
 		return 0xF != TestSignSIMD ( CmpEqSIMD ( AndSIMD( *pHitMask, onesMask ), *pHitMask ) );
 	}
 };
+
 
 void TestLine( const FourVectors& start, const FourVectors& stop,
                fltx4 *pFractionVisible, int static_prop_index_to_ignore )
@@ -178,7 +173,6 @@ void TestLine( const FourVectors& start, const FourVectors& stop,
 	if ( g_bTextureShadows )
 		*pFractionVisible = MinSIMD( *pFractionVisible, coverageCallback.GetFractionVisible() );
 }
-
 
 
 /*
@@ -349,6 +343,7 @@ void DM_ClipBoxToBrush( CToolTrace *trace, const Vector& mins, const Vector& max
 	}
 }
 
+
 void TestLine_DoesHitSky( FourVectors const& start, FourVectors const& stop,
 	fltx4 *pFractionVisible, bool canRecurse, int static_prop_to_skip, bool bDoDebug )
 {
@@ -429,9 +424,6 @@ void TestLine_DoesHitSky( FourVectors const& start, FourVectors const& stop,
 }
 
 
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 int PointLeafnum_r( const Vector &point, int ndxNode )
 {
 	// while loop here is to avoid recursion overhead
@@ -464,17 +456,15 @@ int PointLeafnum_r( const Vector &point, int ndxNode )
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 int PointLeafnum( const Vector &point )
 {
 	return PointLeafnum_r( point, 0 );
 }
 
+
 // this iterates the list of entities looking for _vradshadows 1
 // each brush entity containing this key is added to the raytracing environment
 // as a triangle soup model.
-
 dmodel_t *BrushmodelForEntity( entity_t *pEntity )
 {
 	const char *pModelname = ValueForKey( pEntity, "model" );
@@ -488,6 +478,7 @@ dmodel_t *BrushmodelForEntity( entity_t *pEntity )
 	}
 	return NULL;
 }
+
 
 void AddBrushToRaytraceEnvironment( dbrush_t *pBrush, const VMatrix &xform )
 {
@@ -532,7 +523,9 @@ void AddBrushToRaytraceEnvironment( dbrush_t *pBrush, const VMatrix &xform )
 }
 
 
+//-----------------------------------------------------------------------------
 // recurse the bsp and build a list of brushes at the leaves under this node
+//-----------------------------------------------------------------------------
 void GetBrushes_r( int node, CUtlVector<int> &list )
 {
 	if ( node < 0 )
@@ -573,8 +566,9 @@ void AddBrushes( dmodel_t *pModel, const VMatrix &xform )
 	}
 }
 
-
+//-----------------------------------------------------------------------------
 // Adds the brush entities that cast shadows to the raytrace environment
+//-----------------------------------------------------------------------------
 void ExtractBrushEntityShadowCasters()
 {
 	for ( int i = 0; i < num_entities; i++ )
@@ -591,6 +585,7 @@ void ExtractBrushEntityShadowCasters()
 		}
 	}
 }
+
 
 void AddBrushesForRayTrace( void )
 {

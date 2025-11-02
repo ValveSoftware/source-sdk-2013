@@ -17,8 +17,7 @@ int samplesAdded = 0;
 int patchSamplesAdded = 0;
 static unsigned short g_PatchIterationKey = 0;
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+
 bool SampleData_CompareFunc( SampleData_t const &src1, SampleData_t const &src2 )
 {
 	return ( ( src1.x == src2.x ) &&
@@ -27,8 +26,6 @@ bool SampleData_CompareFunc( SampleData_t const &src1, SampleData_t const &src2 
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 unsigned int SampleData_KeyFunc( SampleData_t const &src )
 {
 	return ( src.x + src.y + src.z );
@@ -41,9 +38,6 @@ CUtlHash<SampleData_t> g_SampleHashTable( SAMPLEHASH_NUM_BUCKETS,
 										  SampleData_CompareFunc, SampleData_KeyFunc );
 
 
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 UtlHashHandle_t SampleData_Find( sample_t *pSample )
 {
 	SampleData_t sampleData;	
@@ -55,8 +49,6 @@ UtlHashHandle_t SampleData_Find( sample_t *pSample )
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 UtlHashHandle_t SampleData_InsertIntoHashTable( sample_t *pSample, SampleHandle_t sampleHandle )
 {
 	SampleData_t sampleData;
@@ -78,8 +70,6 @@ UtlHashHandle_t SampleData_InsertIntoHashTable( sample_t *pSample, SampleHandle_
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 UtlHashHandle_t SampleData_AddSample( sample_t *pSample, SampleHandle_t sampleHandle )
 {
 
@@ -102,8 +92,6 @@ UtlHashHandle_t SampleData_AddSample( sample_t *pSample, SampleHandle_t sampleHa
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 void SampleData_Log( void )
 {
 	if( g_bLogHashData )
@@ -113,15 +101,8 @@ void SampleData_Log( void )
 }
 
 
-//=============================================================================
-//=============================================================================
-//
-// PatchSample Functions
-//
-//=============================================================================
-//=============================================================================
-
 //-----------------------------------------------------------------------------
+// PatchSample Functions
 //-----------------------------------------------------------------------------
 bool PatchSampleData_CompareFunc( PatchSampleData_t const &src1, PatchSampleData_t const &src2 )
 {
@@ -131,8 +112,6 @@ bool PatchSampleData_CompareFunc( PatchSampleData_t const &src1, PatchSampleData
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 unsigned int PatchSampleData_KeyFunc( PatchSampleData_t const &src )
 {
 	return ( src.x + src.y + src.z );
@@ -143,6 +122,7 @@ CUtlHash<PatchSampleData_t>	g_PatchSampleHashTable( SAMPLEHASH_NUM_BUCKETS,
 												    SAMPLEHASH_GROW_SIZE,
 													SAMPLEHASH_INIT_SIZE,
 													PatchSampleData_CompareFunc, PatchSampleData_KeyFunc );
+
 
 void GetPatchSampleHashXYZ( const Vector &vOrigin, int &x, int &y, int &z )
 {
@@ -168,8 +148,6 @@ unsigned short IncrementPatchIterationKey()
 }
 
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 void PatchSampleData_AddSample( CPatch *pPatch, int ndxPatch )
 {
 	int patchSampleMins[3], patchSampleMaxs[3];

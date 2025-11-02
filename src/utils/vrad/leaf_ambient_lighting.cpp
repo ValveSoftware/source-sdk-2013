@@ -17,6 +17,7 @@
 #include "vmpi.h"
 #include "vmpi_distribute_work.h"
 
+
 static TableVector g_BoxDirections[6] = 
 {
 	{  1,  0,  0 }, 
@@ -26,7 +27,6 @@ static TableVector g_BoxDirections[6] =
 	{  0,  0,  1 }, 
 	{  0,  0, -1 }, 
 };
-
 
 
 static void ComputeAmbientFromSurface( dface_t *surfID, dworldlight_t* pSkylight, 
@@ -274,6 +274,7 @@ private:
 	CUniformRandomStream m_random;
 };
 
+
 // gets a list of the planes pointing into a leaf
 void GetLeafBoundaryPlanes( CUtlVector<dplane_t> &list, int leafIndex )
 {
@@ -302,12 +303,14 @@ void GetLeafBoundaryPlanes( CUtlVector<dplane_t> &list, int leafIndex )
 	}
 }
 
+
 // this stores each sample of the ambient lighting
 struct ambientsample_t
 {
 	Vector pos;
 	Vector cube[6];
 };
+
 
 // add the sample to the list.  If we exceed the maximum number of samples, the worst sample will
 // be discarded.  This has the effect of converging on the best samples when enough are added.
@@ -381,7 +384,10 @@ void AddSampleToList( CUtlVector<ambientsample_t> &list, const Vector &samplePos
 	list.FastRemove( nearestNeighborIndex );
 }
 
+
+//-----------------------------------------------------------------------------
 // max number of units in gamma space of per-side delta
+//-----------------------------------------------------------------------------
 int CubeDeltaGammaSpace( Vector *pCube0, Vector *pCube1 )
 {
 	int maxDelta = 0;
@@ -399,8 +405,11 @@ int CubeDeltaGammaSpace( Vector *pCube0, Vector *pCube1 )
 	}
 	return maxDelta;
 }
+
+//-----------------------------------------------------------------------------
 // reconstruct the ambient lighting for a leaf at the given position in worldspace
 // optionally skip one of the entries in the list
+//-----------------------------------------------------------------------------
 void Mod_LeafAmbientColorAtPos( Vector *pOut, const Vector &pos, const CUtlVector<ambientsample_t> &list, int skipIndex )
 {
 	for ( int i = 0; i < 6; i++ )
@@ -428,6 +437,7 @@ void Mod_LeafAmbientColorAtPos( Vector *pOut, const Vector &pos, const CUtlVecto
 	}
 }
 
+
 // this samples the lighting at each sample and removes any unnecessary samples
 void CompressAmbientSampleList( CUtlVector<ambientsample_t> &list )
 {
@@ -446,6 +456,7 @@ void CompressAmbientSampleList( CUtlVector<ambientsample_t> &list )
 	}
 }
 
+
 // basically this is an intersection routine that returns a distance between the boxes
 float AABBDistance( const Vector &mins0, const Vector &maxs0, const Vector &mins1, const Vector &maxs1 )
 {
@@ -458,6 +469,7 @@ float AABBDistance( const Vector &mins0, const Vector &maxs0, const Vector &mins
 	}
 	return delta.Length();
 }
+
 
 // build a list of leaves from a query
 class CLeafList : public ISpatialLeafEnumerator
@@ -472,6 +484,7 @@ public:
 	CUtlVector<int> m_list;
 };
 
+
 // conver short[3] to vector
 static void LeafBounds( int leafIndex, Vector &mins, Vector &maxs )
 {
@@ -481,6 +494,7 @@ static void LeafBounds( int leafIndex, Vector &mins, Vector &maxs )
 		maxs[i] = dleafs[leafIndex].maxs[i];
 	}
 }
+
 
 // returns the index of the nearest leaf with ambient samples
 int NearestNeighborWithLight(int leafID)
@@ -510,6 +524,7 @@ int NearestNeighborWithLight(int leafID)
 	return bestIndex;
 }
 
+
 // maps a float to a byte fraction between min & max
 static byte Fixed8Fraction( float t, float tMin, float tMax )
 {
@@ -520,7 +535,9 @@ static byte Fixed8Fraction( float t, float tMin, float tMax )
 	return byte(frac+0.5f);
 }
 
+
 CUtlVector< CUtlVector<ambientsample_t> > g_LeafAmbientSamples;
+
 
 void ComputeAmbientForLeaf( int iThread, int leafID, CUtlVector<ambientsample_t> &list )
 {
@@ -565,6 +582,7 @@ void ComputeAmbientForLeaf( int iThread, int leafID, CUtlVector<ambientsample_t>
 	CompressAmbientSampleList( list );
 }
 
+
 static void ThreadComputeLeafAmbient( int iThread, void *pUserData )
 {
 	CUtlVector<ambientsample_t> list;
@@ -583,6 +601,7 @@ static void ThreadComputeLeafAmbient( int iThread, void *pUserData )
 		}
 	}
 }
+
 
 #ifdef MPI
 void VMPI_ProcessLeafAmbient( int iThread, uint64 iLeaf, MessageBuffer *pBuf )
@@ -617,6 +636,7 @@ void VMPI_ReceiveLeafAmbientResults( uint64 leafID, MessageBuffer *pBuf, int iWo
 	}
 }
 #endif
+
 
 void ComputePerLeafAmbientLighting()
 {
@@ -656,8 +676,9 @@ void ComputePerLeafAmbientLighting()
 		RunThreadsOn(numleafs, true, ThreadComputeLeafAmbient);
 	}
 
+	float start = Plat_FloatTime();
 	// now write out the data
-	Msg("Writing leaf ambient...");
+	Msg("Writing leaf ambient... ");
 	g_pLeafAmbientIndex->RemoveAll();
 	g_pLeafAmbientLighting->RemoveAll();
 	g_pLeafAmbientIndex->SetCount( numleafs );
@@ -706,6 +727,6 @@ void ComputePerLeafAmbientLighting()
 			g_pLeafAmbientIndex->Element(i).firstAmbientSample = refLeaf;
 		}
 	}
-	Msg("done\n");
+	Msg("done(%.1fs)\n", Plat_FloatTime() - start);
 }
 

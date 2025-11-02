@@ -12,13 +12,14 @@
 #include <assert.h>
 #include "DispColl_Common.h"
 
-//=============================================================================
-//
+//------------------------------------------------------------------------
 // VRAD specific collision
-//
+//------------------------------------------------------------------------
 #define VRAD_QUAD_SIZE			4
 
+
 struct CPatch;
+
 
 class CVRADDispColl : public CDispCollTree
 {

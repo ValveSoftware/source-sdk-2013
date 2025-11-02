@@ -187,6 +187,8 @@ face_t *FilterFacesIntoTree( tree_t *out, face_t *pFaces )
 //-----------------------------------------------------------------------------
 void TryMergeFaceList( face_t **pFaceList )
 {
+	float start = Plat_FloatTime();
+
 	face_t **pPlaneList = NULL;
 
 	// divide the list into buckets by plane number
@@ -241,7 +243,7 @@ void TryMergeFaceList( face_t **pFaceList )
 
 	if ( merged )
 	{
-		Msg("\nMerged %d detail faces...", merged );
+		Msg("\nMerged %d detail faces... done(%.1fs)", merged, Plat_FloatTime() - start);
 	}
 	delete[] pPlaneList;
 
@@ -272,7 +274,7 @@ void FilterBrushesIntoTree( tree_t *out, bspbrush_t *brushes )
 //-----------------------------------------------------------------------------
 face_t *MergeDetailTree( tree_t *worldtree, int brush_start, int brush_end )
 {
-	int			start;
+	float		start;
 	bspbrush_t	*detailbrushes = NULL;
 	face_t		*pFaces = NULL;
 	face_t		*pLeafFaceList = NULL;
@@ -282,23 +284,24 @@ face_t *MergeDetailTree( tree_t *worldtree, int brush_start, int brush_end )
 	if (detailbrushes)
 	{
 		start = Plat_FloatTime();
-		Msg("Chop Details...");
+		Msg("Chop Details... ");
 		// if there are detail brushes, chop them against each other
 		if (!nocsg)
 			detailbrushes = ChopBrushes (detailbrushes);
 
-		Msg("done (%d)\n", (int)(Plat_FloatTime() - start) );
+		Msg("done(%.1fs)\n", (Plat_FloatTime() - start));
 		// Now mark the visible sides so we can eliminate all detail brush sides
 		// that are covered by other detail brush sides
 		// NOTE: This still leaves detail brush sides that are covered by the world. (these are removed in the merge operation)
-		Msg("Find Visible Detail Sides...");
+		start = Plat_FloatTime();
+		Msg("Find Visible Detail Sides... ");
 		pFaces = ComputeVisibleBrushSides( detailbrushes );
 		TryMergeFaceList( &pFaces );
 		SubdivideFaceList( &pFaces );
-		Msg("done (%d)\n", (int)(Plat_FloatTime() - start) );
+		Msg("done(%.1fs)\n", (Plat_FloatTime() - start));
 
 		start = Plat_FloatTime();
-		Msg("Merging details...");
+		Msg("Merging details... ");
 		// Merge the detail solids and faces into the world tree
 		// Merge all of the faces into the world tree
 		pLeafFaceList = FilterFacesIntoTree( worldtree, pFaces );
@@ -307,7 +310,7 @@ face_t *MergeDetailTree( tree_t *worldtree, int brush_start, int brush_end )
 		FreeFaceList( pFaces );
 		FreeBrushList(detailbrushes);
 
-		Msg("done (%d)\n", (int)(Plat_FloatTime() - start) );
+		Msg("done(%.1fs)\n", (Plat_FloatTime() - start) );
 	}
 
 	return pLeafFaceList;
@@ -333,6 +336,7 @@ bool BrushBoxOverlap( bspbrush_t *p1, bspbrush_t *p2 )
 
 	return true;
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -462,8 +466,6 @@ face_t *MakeBrushFace( side_t *originalSide, winding_t *winding )
 // Output : face_t * - list of visible faces (some marked bad/split)
 //-----------------------------------------------------------------------------
 // assumes brushes were chopped!
-
-
 side_t *FindOriginalSide( mapbrush_t *mb, side_t *pBspSide )
 {
 	side_t *bestside = NULL;
@@ -499,7 +501,10 @@ side_t *FindOriginalSide( mapbrush_t *mb, side_t *pBspSide )
 	return bestside;
 }
 
+
+//-----------------------------------------------------------------------------
 // Get a list of brushes from pBrushList that could cut faces on the source brush
+//-----------------------------------------------------------------------------
 int GetListOfCutBrushes( CUtlVector<bspbrush_t *> &out, bspbrush_t *pSourceBrush, bspbrush_t *pBrushList )
 {
 	mapbrush_t *mb = pSourceBrush->original;
@@ -528,7 +533,10 @@ int GetListOfCutBrushes( CUtlVector<bspbrush_t *> &out, bspbrush_t *pSourceBrush
 	return out.Count();
 }
 
+
+//-----------------------------------------------------------------------------
 // Count the number of real (unsplit) faces in the list
+//-----------------------------------------------------------------------------
 static int CountFaceList( face_t *f )
 {
 	int count = 0;
@@ -542,8 +550,11 @@ static int CountFaceList( face_t *f )
 	return count;
 }
 
+
+//-----------------------------------------------------------------------------
 // Clips f to a list of potential cutting brushes
 // If f clips into new faces, returns the list of new faces in pOutputList
+//-----------------------------------------------------------------------------
 static void ClipFaceToBrushList( face_t *f, const CUtlVector<bspbrush_t *> &cutBrushes, face_t **pOutputList )
 {
 	*pOutputList = NULL;
@@ -598,7 +609,10 @@ static void ClipFaceToBrushList( face_t *f, const CUtlVector<bspbrush_t *> &cutB
 	}
 }
 
+
+//-----------------------------------------------------------------------------
 // Compute a list of faces that are visible on the detail brush sides
+//-----------------------------------------------------------------------------
 face_t *ComputeVisibleBrushSides( bspbrush_t *list )
 {
 	face_t *pTotalFaces = NULL;

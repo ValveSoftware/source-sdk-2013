@@ -17,6 +17,7 @@ static KeyValues *kv			= 0;
 static KeyValues *allMapKeys	= 0;
 static KeyValues *curMapKeys	= 0;
 
+
 //-----------------------------------------------------------------------------
 // Purpose: Loads the KeyValues file for materials replacements
 //-----------------------------------------------------------------------------
@@ -42,7 +43,7 @@ void LoadMaterialReplacementKeys( const char *gamedir, const char *mapname )
 	// Load the keyvalues file
 	kv = new KeyValues( "MaterialReplacements" );
 
-	Msg( "File path: %s", path );
+	Msg( "File path: %s\n", path );
 	if( !kv->LoadFromFile( g_pFileSystem, path ) )
 	{
 		Msg( "Failed to load KeyValues file!\n" );
@@ -61,6 +62,7 @@ void LoadMaterialReplacementKeys( const char *gamedir, const char *mapname )
 	allMapKeys->ChainKeyValue( curMapKeys );
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: Deletes all keys
 //-----------------------------------------------------------------------------
@@ -72,6 +74,7 @@ void DeleteMaterialReplacementKeys( void )
 		kv = 0;
 	}
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Replace the passed-in material name with a replacement name, if one exists

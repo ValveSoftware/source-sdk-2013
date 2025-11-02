@@ -128,7 +128,7 @@ void SetLowPriority()
 }
 
 
-void ThreadSetDefault (void)
+void ThreadSetDefault()
 {
 	SYSTEM_INFO info;
 
@@ -140,11 +140,11 @@ void ThreadSetDefault (void)
 			numthreads = 1;
 	}
 
-	Msg ("%i threads\n", numthreads);
+	Msg ("(Threads: %i)\n", numthreads);
 }
 
 
-void ThreadLock (void)
+void ThreadLock()
 {
 	if (!threaded)
 		return;
@@ -154,7 +154,7 @@ void ThreadLock (void)
 	enter = 1;
 }
 
-void ThreadUnlock (void)
+void ThreadUnlock()
 {
 	if (!threaded)
 		return;
@@ -227,7 +227,7 @@ RunThreadsOn
 */
 void RunThreadsOn( int workcnt, qboolean showpacifier, RunThreadsFn fn, void *pUserData )
 {
-	int		start, end;
+	float		start, end;
 
 	start = Plat_FloatTime();
 	dispatch = 0;
@@ -250,7 +250,7 @@ void RunThreadsOn( int workcnt, qboolean showpacifier, RunThreadsFn fn, void *pU
 	if (pacifier)
 	{
 		EndPacifier(false);
-		printf (" (%i)\n", end-start);
+		printf (" (%.1fs)\n", end - start);
 	}
 }
 

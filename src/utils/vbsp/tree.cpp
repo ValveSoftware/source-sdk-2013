@@ -9,7 +9,9 @@
 
 extern	int	c_nodes;
 
+
 void RemovePortalFromNode (portal_t *portal, node_t *l);
+
 
 node_t *NodeForPoint (node_t *node, Vector& origin)
 {
@@ -28,7 +30,6 @@ node_t *NodeForPoint (node_t *node, Vector& origin)
 
 	return node;
 }
-
 
 
 /*
@@ -59,6 +60,7 @@ void FreeTreePortals_r (node_t *node)
 	}
 	node->portals = NULL;
 }
+
 
 /*
 =============
@@ -111,7 +113,6 @@ void FreeTree (tree_t *tree)
 	free (tree);
 }
 
-//===============================================================
 
 void PrintTree_r (node_t *node, int depth)
 {
@@ -124,7 +125,7 @@ void PrintTree_r (node_t *node, int depth)
 	if (node->planenum == PLANENUM_LEAF)
 	{
 		if (!node->brushlist)
-			Msg ("NULL\n");
+			Warning("NULL\n");
 		else
 		{
 			for (bb=node->brushlist ; bb ; bb=bb->next)
@@ -203,5 +204,3 @@ void PruneNodes (node_t *node)
 	PruneNodes_r (node);
 	qprintf ("%5i pruned nodes\n", c_pruned);
 }
-
-//===========================================================

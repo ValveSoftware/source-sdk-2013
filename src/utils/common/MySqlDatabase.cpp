@@ -14,6 +14,7 @@ CMySqlDatabase::CMySqlDatabase()
 {
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: Destructor
 //			blocks until db process thread has stopped
@@ -31,6 +32,7 @@ CMySqlDatabase::~CMySqlDatabase()
 	::LeaveCriticalSection(&m_csThread);
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: Thread access function
 //-----------------------------------------------------------------------------
@@ -39,6 +41,7 @@ static DWORD WINAPI staticThreadFunc(void *param)
 	((CMySqlDatabase *)param)->RunThread();
 	return 0;
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Establishes connection to the database and sets up this object to handle db command
@@ -64,6 +67,7 @@ bool CMySqlDatabase::Initialize()
 
 	return true;
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Main thread loop
@@ -123,6 +127,7 @@ void CMySqlDatabase::RunThread()
 	::LeaveCriticalSection(&m_csThread);
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: Adds a database command to the queue, and wakes the db thread
 //-----------------------------------------------------------------------------
@@ -139,6 +144,7 @@ void CMySqlDatabase::AddCommandToQueue(ISQLDBCommand *cmd, ISQLDBReplyTarget *re
 	// signal the thread to start running
 	::SetEvent(m_hEvent);
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Dispatches responses to SQLDB queries
@@ -174,6 +180,7 @@ bool CMySqlDatabase::RunFrame()
 	return doneWork;
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: load info - returns the number of sql db queries waiting to be processed
 //-----------------------------------------------------------------------------
@@ -182,6 +189,7 @@ int CMySqlDatabase::QueriesInOutQueue()
 	// the queue names are from the DB point of view, not the server - thus the reversal
 	return m_InQueue.Count();
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: number of queries finished processing, waiting to be responded to

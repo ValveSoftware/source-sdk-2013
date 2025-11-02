@@ -987,7 +987,7 @@ bool CScriptLib::ReadFileToBuffer( const char *pSourceName, CUtlBuffer &buffer, 
 	{
 		if ( !bNoOpenFailureWarning )
 		{
-			Msg( "ReadFileToBuffer(): Error opening %s: %s\n", pSourceName, strerror( errno ) );
+			Warning( "ReadFileToBuffer(): Error opening %s: %s\n", pSourceName, strerror( errno ) );
 		}
 		return false;
 	}

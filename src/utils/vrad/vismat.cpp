@@ -63,6 +63,7 @@ private:
 	transfer_t *m_AllTransfers;
 };
 
+
 CTransferMaker::CTransferMaker( transfer_t *all_transfers ) :
 	m_AllTransfers( all_transfers ), m_nTests( 0 )
 {
@@ -71,12 +72,14 @@ CTransferMaker::CTransferMaker( transfer_t *all_transfers ) :
 	m_pRecieverPatches = (int *)calloc( 1, MAX_PATCHES * sizeof( int ) );
 }
 
+
 CTransferMaker::~CTransferMaker()
 {
 	free ( m_pResults );
 	free ( m_pShooterPatches );
 	free (m_pRecieverPatches );
 }
+
 
 void CTransferMaker::Finish()
 {
@@ -126,6 +129,7 @@ int ClusterFromPoint( Vector const& point )
 	
 	return leaf->cluster;
 }
+
 
 void PvsForOrigin (Vector& org, byte *pvs)
 {
@@ -248,7 +252,9 @@ struct ClusterDispList_t
 	CUtlVector<int>	dispFaces;
 };
 
+
 static CUtlVector<ClusterDispList_t> g_ClusterDispFaces;
+
 
 //-----------------------------------------------------------------------------
 // Helps us find all displacements associated with a particular cluster
@@ -375,7 +381,6 @@ BuildVisLeafs
   This is run by multiple threads
 ===========
 */
-
 transfer_t* BuildVisLeafs_Start()
 {
 	return (transfer_t *)calloc( 1,  MAX_PATCHES * sizeof( transfer_t ) );
@@ -465,7 +470,7 @@ void BuildVisLeafs( int threadnum, void *pUserData )
 BuildVisMatrix
 ==============
 */
-void BuildVisMatrix (void)
+void BuildVisMatrix(void)
 {
 #ifdef MPI
 	if ( g_bUseMPI )
@@ -479,7 +484,8 @@ void BuildVisMatrix (void)
 	}
 }
 
-void FreeVisMatrix (void)
+
+void FreeVisMatrix(void)
 {
 
 }

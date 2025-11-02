@@ -14,10 +14,11 @@
 #include "bspfile.h"
 #include "mathlib/anorms.h"
 
-
+//------------------------------------------------------------------------
 // Calculate the lighting at whatever surface the ray hits.
 // Note: this ADDS to the values already in color. So if you want absolute
 // values in there, then clear the values in color[] first.
+//------------------------------------------------------------------------
 void CalcRayAmbientLighting(
 	int iThread,
 	const Vector &vStart,
@@ -27,6 +28,7 @@ void CalcRayAmbientLighting(
 	);
 
 bool CastRayInLeaf( int iThread, const Vector &start, const Vector &end, int leafIndex, float *pFraction, Vector *pNormal );
+
 
 void ComputeDetailPropLighting( int iThread );
 

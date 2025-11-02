@@ -22,6 +22,7 @@
 
 #define UNINIT		-99999.0
 
+
 //-----------------------------------------------------------------------------
 // Clears the trace
 //-----------------------------------------------------------------------------
@@ -136,7 +137,6 @@ float IntersectRayWithTriangle( const Ray_t& ray,
 //-----------------------------------------------------------------------------
 // computes the barycentric coordinates of an intersection
 //-----------------------------------------------------------------------------
-
 bool ComputeIntersectionBarycentricCoordinates( const Ray_t& ray, 
 		const Vector& v1, const Vector& v2, const Vector& v3, float& u, float& v,
 		float *t )
@@ -183,10 +183,10 @@ bool ComputeIntersectionBarycentricCoordinates( const Ray_t& ray,
 	return true;
 }
 
+
 //-----------------------------------------------------------------------------
 // Intersects a plane with a triangle (requires barycentric definition)
 //-----------------------------------------------------------------------------
-
 int IntersectTriangleWithPlaneBarycentric( const Vector& org, const Vector& edgeU,
 		const Vector& edgeV, const Vector4D& plane, Vector2D* pIntersection )
 {
@@ -299,6 +299,7 @@ bool IsBoxIntersectingSphere( const Vector& boxMin, const Vector& boxMax,
 
 	return dmin < radius * radius;
 }
+
 
 bool IsBoxIntersectingSphereExtents( const Vector& boxCenter, const Vector& boxHalfDiag, 
 						const Vector& center, float radius )
@@ -433,12 +434,10 @@ bool IsRayIntersectingSphere( const Vector &vecRayOrigin, const Vector &vecRayDe
 
 
 //-----------------------------------------------------------------------------
-//
 // IntersectInfiniteRayWithSphere
 //
 // Returns whether or not there was an intersection. 
 // Returns the two intersection points
-//
 //-----------------------------------------------------------------------------
 bool IntersectInfiniteRayWithSphere( const Vector &vecRayOrigin, const Vector &vecRayDelta, 
 	const Vector &vecSphereCenter, float flRadius, float *pT1, float *pT2 )
@@ -485,12 +484,10 @@ bool IntersectInfiniteRayWithSphere( const Vector &vecRayOrigin, const Vector &v
 
 
 //-----------------------------------------------------------------------------
-//
 // IntersectRayWithSphere
 //
 // Returns whether or not there was an intersection. 
 // Returns the two intersection points, clamped to (0,1)
-//
 //-----------------------------------------------------------------------------
 bool IntersectRayWithSphere( const Vector &vecRayOrigin, const Vector &vecRayDelta, 
 	const Vector &vecSphereCenter, float flRadius, float *pT1, float *pT2 )
@@ -511,7 +508,9 @@ bool IntersectRayWithSphere( const Vector &vecRayOrigin, const Vector &vecRayDel
 }
 
 
+//-----------------------------------------------------------------------------
 // returns true if the sphere and cone intersect
+//-----------------------------------------------------------------------------
 // NOTE: cone sine/cosine are the half angle of the cone
 bool IsSphereIntersectingCone( const Vector &sphereCenter, float sphereRadius, const Vector &coneOrigin, const Vector &coneNormal, float coneSine, float coneCosine )
 {
@@ -530,7 +529,6 @@ bool IsSphereIntersectingCone( const Vector &sphereCenter, float sphereRadius, c
 	}
 	return false;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -607,11 +605,9 @@ bool IsBoxIntersectingBoxExtents( const Vector& boxCenter1, const Vector& boxHal
 
 
 //-----------------------------------------------------------------------------
-// 
 // IsOBBIntersectingOBB
 //
 // returns true if there's an intersection between two OBBs
-//
 //-----------------------------------------------------------------------------
 bool IsOBBIntersectingOBB( const Vector &vecOrigin1, const QAngle &vecAngles1, const Vector& boxMin1, const Vector& boxMax1, 
 						   const Vector &vecOrigin2, const QAngle &vecAngles2, const Vector& boxMin2, const Vector& boxMax2, float flTolerance )
@@ -636,6 +632,8 @@ bool IsOBBIntersectingOBB( const Vector &vecOrigin1, const QAngle &vecAngles1, c
 
 // NOTE: This is only very slightly faster on high end PCs and x360
 #define USE_SIMD_RAY_CHECKS 1
+
+
 //-----------------------------------------------------------------------------
 // returns true if there's an intersection between box and ray
 //-----------------------------------------------------------------------------
@@ -759,6 +757,7 @@ bool FASTCALL IsBoxIntersectingRay( const Vector& boxMin, const Vector& boxMax,
 	return true;
 #endif
 }
+
 
 //-----------------------------------------------------------------------------
 // returns true if there's an intersection between box and ray
@@ -887,6 +886,7 @@ bool FASTCALL IsBoxIntersectingRay( const Vector& boxMin, const Vector& boxMax,
 #endif
 }
 
+
 //-----------------------------------------------------------------------------
 // Intersects a ray with a aabb, return true if they intersect
 //-----------------------------------------------------------------------------
@@ -922,11 +922,10 @@ bool FASTCALL IsBoxIntersectingRay( const Vector& vecBoxMin, const Vector& vecBo
 }
 
 
+
 //-----------------------------------------------------------------------------
 // returns true if there's an intersection between box and ray (SIMD version)
 //-----------------------------------------------------------------------------
-
-
 #ifdef _X360
 bool FASTCALL IsBoxIntersectingRay( fltx4 boxMin, fltx4 boxMax, 
 								    fltx4 origin, fltx4 delta, fltx4 invDelta, // ray parameters
@@ -1080,6 +1079,7 @@ bool IntersectRayWithRay( const Ray_t &ray0, const Ray_t &ray1, float &t, float 
 	return false;
 }
 
+
 //-----------------------------------------------------------------------------
 // Intersects a ray with a plane, returns distance t along ray.
 //-----------------------------------------------------------------------------
@@ -1093,6 +1093,7 @@ float IntersectRayWithPlane( const Ray_t& ray, const cplane_t& plane )
 	return (plane.dist - DotProduct( ray.m_Start, plane.normal )) * denom;
 }
 
+
 float IntersectRayWithPlane( const Vector& org, const Vector& dir, const cplane_t& plane )
 {
 	float denom	= DotProduct( dir, plane.normal );
@@ -1103,6 +1104,7 @@ float IntersectRayWithPlane( const Vector& org, const Vector& dir, const cplane_
 	return (plane.dist - DotProduct( org, plane.normal )) * denom;
 }
 
+
 float IntersectRayWithPlane( const Vector& org, const Vector& dir, const Vector& normal, float dist )
 {
 	float denom	= DotProduct( dir, normal );
@@ -1112,6 +1114,7 @@ float IntersectRayWithPlane( const Vector& org, const Vector& dir, const Vector&
 	denom = 1.0f / denom;
 	return (dist - DotProduct( org, normal )) * denom;
 }
+
 
 float IntersectRayWithAAPlane( const Vector& vecStart, const Vector& vecEnd, int nAxis, float flSign, float flDist )
 {
@@ -1294,7 +1297,6 @@ bool IntersectRayWithOBB( const Vector &vecRayStart, const Vector &vecRayDelta,
 }
 
 
-
 //-----------------------------------------------------------------------------
 // Intersects a ray against an OBB
 //-----------------------------------------------------------------------------
@@ -1445,6 +1447,7 @@ inline void ComputeSupportMap( const Vector &vecDirection, int i1, int i2,
 	pDist[1 - nIndex] += vecBoxMins[i2] * vecDirection[i2];
 }
 
+
 //-----------------------------------------------------------------------------
 // Intersects a ray against an OBB
 //-----------------------------------------------------------------------------
@@ -1455,12 +1458,14 @@ static int s_ExtIndices[3][2] =
 	{ 0, 1 },
 };
 
+
 static int s_MatIndices[3][2] = 
 {
 	{ 1, 2 },
 	{ 2, 0 },
 	{ 1, 0 },
 };
+
 
 bool IntersectRayWithOBB( const Ray_t &ray, const matrix3x4_t &matOBBToWorld,
 	const Vector &vecOBBMins, const Vector &vecOBBMaxs, float flTolerance, CBaseTrace *pTrace )
@@ -1856,7 +1861,6 @@ void ResolveQuadratic( double tPlus, double tMinus,
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-
 QuadBarycentricRetval_t PointInQuadToBarycentric( const Vector &v1, const Vector &v2, 
 	const Vector &v3, const Vector &v4, const Vector &point, Vector2D &uv )
 {
@@ -2115,6 +2119,7 @@ static void ComputeCenterMatrix( const Vector& origin, const QAngle& angles,
 	worldCentroid += origin;
 	MatrixSetColumn( worldCentroid, 3, matrix );
 }
+
 
 static void ComputeCenterIMatrix( const Vector& origin, const QAngle& angles, 
 	const Vector& mins, const Vector& maxs, matrix3x4_t& matrix )
@@ -2600,6 +2605,7 @@ bool IsRayIntersectingOBB( const Ray_t &ray, const Vector& org, const QAngle& an
 	return true;
 }
 
+
 //--------------------------------------------------------------------------
 // Purpose:
 //
@@ -2615,6 +2621,7 @@ bool IsRayIntersectingOBB( const Ray_t &ray, const Vector& org, const QAngle& an
 //
 //--------------------------------------------------------------------------
 
+
 //-----------------------------------------------------------------------------
 // Purpose: find the minima and maxima of the 3 given values
 //-----------------------------------------------------------------------------
@@ -2626,6 +2633,7 @@ inline void FindMinMax( float v1, float v2, float v3, float &min, float &max )
 	if ( v3 < min ) { min = v3; }
 	if ( v3 > max ) { max = v3; }
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -2657,6 +2665,7 @@ inline bool AxisTestEdgeCrossX2( float flEdgeZ, float flEdgeY, float flAbsEdgeZ,
 	return true;
 }
 
+
 //--------------------------------------------------------------------------
 // Purpose:
 //--------------------------------------------------------------------------
@@ -2687,6 +2696,7 @@ inline bool AxisTestEdgeCrossX3( float flEdgeZ, float flEdgeY, float flAbsEdgeZ,
 	return true;
 }
 
+
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
 inline bool AxisTestEdgeCrossY2( float flEdgeZ, float flEdgeX, float flAbsEdgeZ, float flAbsEdgeX,
@@ -2716,6 +2726,7 @@ inline bool AxisTestEdgeCrossY2( float flEdgeZ, float flEdgeX, float flAbsEdgeZ,
 	return true;
 }
 
+
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
 inline bool AxisTestEdgeCrossY3( float flEdgeZ, float flEdgeX, float flAbsEdgeZ, float flAbsEdgeX,
@@ -2744,6 +2755,7 @@ inline bool AxisTestEdgeCrossY3( float flEdgeZ, float flEdgeX, float flAbsEdgeZ,
 
 	return true;
 }
+
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------

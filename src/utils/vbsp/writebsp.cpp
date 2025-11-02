@@ -19,21 +19,19 @@
 int		c_nofaces;
 int		c_facenodes;
 
+//------------------------------------------------------------------------
 // NOTE: This is a global used to link faces back to the tree node/portals they came from
 // it's used when filling water volumes
+//------------------------------------------------------------------------
 node_t *dfacenodes[MAX_MAP_FACES];
 
 
-/*
-=========================================================
-
-ONLY SAVE OUT PLANES THAT ARE ACTUALLY USED AS NODES
-
-=========================================================
-*/
-  
+//------------------------------------------------------------------------
+// ONLY SAVE OUT PLANES THAT ARE ACTUALLY USED AS NODES
+//------------------------------------------------------------------------ 
 void EmitFaceVertexes (face_t **list, face_t *f);
 void AssignOccluderAreas();
+
 
 /*
 ============
@@ -62,8 +60,6 @@ void EmitPlanes (void)
 	}
 }
 
-
-//========================================================
 
 void EmitMarkFace (dleaf_t *leaf_p, face_t *f)
 {
@@ -203,11 +199,11 @@ void EmitLeaf (node_t *node)
 	leaf_p->numleaffaces = numleaffaces - leaf_p->firstleafface;
 }
 
+
 // per face plane - original face "side" list
 side_t *pOrigFaceSideList[MAX_MAP_PLANES];
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+
 int CreateOrigFace( face_t *f )
 {
     int         i, j;
@@ -406,6 +402,7 @@ int FindOrCreateOrigFace( face_t *f )
     return index;
 }
 
+
 /*
 ==================
 EmitFace
@@ -545,6 +542,7 @@ void EmitLeafFaces( face_t *pLeafFaceList )
 	}
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: Free the list of faces stored at the leaves
 //-----------------------------------------------------------------------------
@@ -563,6 +561,7 @@ void FreeLeafFaces( face_t *pLeafFaceList )
 		count++;
 	}
 }
+
 
 /*
 ============
@@ -630,9 +629,9 @@ int EmitDrawNode_r (node_t *node)
 }
 
 
-//=========================================================
-
+//------------------------------------------------------------------------
 // This will generate a scratchpad file with the level's geometry in it and the noshadow faces drawn red.
+//------------------------------------------------------------------------
 // #define SCRATCHPAD_NO_SHADOW_FACES
 #if defined( SCRATCHPAD_NO_SHADOW_FACES )
 	#include "scratchpad_helpers.h"
@@ -661,18 +660,24 @@ void MarkNoShadowFaces()
 #endif
 }
 
+
 struct texinfomap_t
 {
 	int refCount;
 	int outputIndex;
 };
+
+
 struct texdatamap_t
 {
 	int refCount;
 	int outputIndex;
 };
 
+
+//------------------------------------------------------------------------
 // Find the best used texinfo to remap this brush side
+//------------------------------------------------------------------------
 int FindMatchingBrushSideTexinfo( int sideIndex, const texinfomap_t *pMap )
 {
 	dbrushside_t &side = dbrushsides[sideIndex];
@@ -695,7 +700,10 @@ int FindMatchingBrushSideTexinfo( int sideIndex, const texinfomap_t *pMap )
 	return side.texinfo;
 }
 
+
+//------------------------------------------------------------------------
 // Remove all unused texinfos and rebuild array
+//------------------------------------------------------------------------
 void ComapctTexinfoArray( texinfomap_t *pMap )
 {
 	CUtlVector<texinfo_t> old;
@@ -733,6 +741,7 @@ void ComapctTexinfoArray( texinfomap_t *pMap )
 	}
 }
 
+
 void CompactTexdataArray( texdatamap_t *pMap )
 {
 	CUtlVector<char>	oldStringData;
@@ -765,9 +774,11 @@ void CompactTexdataArray( texdatamap_t *pMap )
 	}
 }
 
+
 void CompactTexinfos()
 {
-	Msg("Compacting texture/material tables...\n");
+	float start = Plat_FloatTime();
+	Msg("Compacting texture/material tables... ");
 	texinfomap_t *texinfoMap = new texinfomap_t[texinfo.Count()];
 	texdatamap_t *texdataMap = new texdatamap_t[numtexdata];
 	memset( texinfoMap, 0, sizeof(texinfoMap[0])*texinfo.Count() );
@@ -881,13 +892,14 @@ void CompactTexinfos()
 			g_WaterOverlays[i].nTexInfo = texinfoMap[g_WaterOverlays[i].nTexInfo].outputIndex;
 		}
 	}
-
-	Msg("Reduced %d texinfos to %d\n", oldCount, texinfo.Count() );
-	Msg("Reduced %d texdatas to %d (%d bytes to %d)\n", oldTexdataCount, numtexdata, oldTexdataString, g_TexDataStringData.Count() );
+	Msg("done(%.1fs)\n", (Plat_FloatTime() - start));
+	Msg("   Reduced %d texinfos to %d\n", oldCount, texinfo.Count() );
+	Msg("   Reduced %d texdatas to %d (%d bytes to %d)\n", oldTexdataCount, numtexdata, oldTexdataString, g_TexDataStringData.Count() );
 
 	delete[] texinfoMap;
 	delete[] texdataMap;
 }
+
 
 /*
 ============
@@ -939,9 +951,6 @@ void WriteBSP (node_t *headnode, face_t *pLeafFaceList )
 }
 
 
-
-//===========================================================
-
 /*
 ============
 SetModelNumbers
@@ -961,12 +970,12 @@ void SetModelNumbers (void)
 
 		if ( !IsFuncOccluder(i) )
 		{
-			sprintf (value, "*%i", models);
+			V_snprintf(value, sizeof(value), "*%i", models);
 			models++;
 		}
 		else
 		{
-			sprintf (value, "");
+			V_snprintf(value, sizeof(value), "");
 		}
 		SetKeyValue (&entities[i], "model", value);
 	}
@@ -979,6 +988,8 @@ SetLightStyles
 ============
 */
 #define	MAX_SWITCHED_LIGHTS	32
+
+
 void SetLightStyles (void)
 {
 	int		stylenum;
@@ -1020,7 +1031,7 @@ void SetLightStyles (void)
 			strcpy (lighttargets[j], t);
 			stylenum++;
 		}
-		sprintf (value, "%i", 32 + j);
+		V_snprintf(value, sizeof(value), "%i", 32 + j);
 		char *pCurrentStyle = ValueForKey( e, "style" );
 		// the designer has set a default lightstyle as well as making the light switchable
 		if ( pCurrentStyle )
@@ -1036,6 +1047,7 @@ void SetLightStyles (void)
 	}
 
 }
+
 
 /*
 ============
@@ -1146,8 +1158,11 @@ void BeginBSPFile (void)
 #endif
 }
 
+
+//------------------------------------------------------------------------
 // We can't calculate this properly until vvis (since we need vis to do this), so we set
 // to zero everywhere by default.
+//------------------------------------------------------------------------
 static void ClearDistToClosestWater( void )
 {
 	int i;
@@ -1194,7 +1209,9 @@ void DiscoverMacroTextures()
 }
 
 
+//------------------------------------------------------------------------
 // Make sure that we have a water lod control entity if we have water in the map.
+//------------------------------------------------------------------------
 void EnsurePresenceOfWaterLODControlEntity( void )
 {
 	extern bool g_bHasWater;
@@ -1287,7 +1304,7 @@ void EndBSPFile (void)
 	char fileName[1024];
 	V_strncpy( fileName, source, sizeof( fileName ) );
 	V_DefaultExtension( fileName, ".bsp", sizeof( fileName ) );
-	Msg ("Writing %s\n", fileName);
+	Msg ("Writing: %s\n", fileName);
 	WriteBSPFile (fileName);
 }
 
@@ -1357,7 +1374,6 @@ void EndModel (void)
 }
 
 
-
 //-----------------------------------------------------------------------------
 // figure out which leaf a point is in
 //-----------------------------------------------------------------------------
@@ -1381,6 +1397,7 @@ static int PointLeafnum_r (const Vector& p, int num)
 
 	return -1 - num;
 }
+
 
 int PointLeafnum ( dmodel_t* pModel, const Vector& p )
 {
@@ -1541,13 +1558,11 @@ void ComputeBoundsNoSkybox( )
 		if (!strcmp(pEntity, "worldspawn"))
 		{
 			char	string[32];
-			sprintf (string, "%i %i %i", (int)mins[0], (int)mins[1], (int)mins[2]);
+			V_snprintf(string, sizeof(string), "%i %i %i", (int)mins[0], (int)mins[1], (int)mins[2]);
 			SetKeyValue (&entities[i], "world_mins", string);
-			sprintf (string, "%i %i %i", (int)maxs[0], (int)maxs[1], (int)maxs[2]);
+			V_snprintf(string, sizeof(string), "%i %i %i", (int)maxs[0], (int)maxs[1], (int)maxs[2]);
 			SetKeyValue (&entities[i], "world_maxs", string);
 			break;
 		}
 	}
 }
-
-

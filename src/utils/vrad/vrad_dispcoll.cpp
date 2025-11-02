@@ -20,6 +20,7 @@ float g_flMaxDispSampleSize = 512.0f;
 static FileHandle_t pDispFile = FILESYSTEM_INVALID_HANDLE;
 
 //-----------------------------------------------------------------------------
+// Constructor
 //-----------------------------------------------------------------------------
 CVRADDispColl::CVRADDispColl()
 {
@@ -36,6 +37,7 @@ CVRADDispColl::CVRADDispColl()
 }
 	
 //-----------------------------------------------------------------------------
+// Destructor
 //-----------------------------------------------------------------------------
 CVRADDispColl::~CVRADDispColl()
 {
@@ -44,6 +46,7 @@ CVRADDispColl::~CVRADDispColl()
 }
 
 //-----------------------------------------------------------------------------
+// Initializes the base class
 //-----------------------------------------------------------------------------
 bool CVRADDispColl::Create( CCoreDispInfo *pDisp )
 {
@@ -79,7 +82,7 @@ bool CVRADDispColl::Create( CCoreDispInfo *pDisp )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose:
+// Calculates the sample radius and patch radius for a displacement surface's luxels
 //-----------------------------------------------------------------------------
 void CVRADDispColl::CalcSampleRadius2AndBox( dface_t *pFace )
 {
@@ -166,14 +169,18 @@ void CVRADDispColl::GetMinorAxes( Vector const &vecNormal, int &nAxis0, int &nAx
 	}
 }
 
+
 //-----------------------------------------------------------------------------
+// Converts a 3D point (vecPlanePt) on the displacement surface to its corresponding 2D texture coordinate
 //-----------------------------------------------------------------------------
 void CVRADDispColl::BaseFacePlaneToDispUV( Vector const &vecPlanePt, Vector2D &dispUV )
 {
 	PointInQuadToBarycentric( m_vecSurfPoints[0], m_vecSurfPoints[3], m_vecSurfPoints[2], m_vecSurfPoints[1], vecPlanePt, dispUV );
 }
 
+
 //-----------------------------------------------------------------------------
+// Converts a 2D displacement UV coordinate
 //-----------------------------------------------------------------------------
 void CVRADDispColl::DispUVToSurfPoint( Vector2D const &dispUV, Vector &vecPoint, float flPushEps )
 {
@@ -208,8 +215,9 @@ void CVRADDispColl::DispUVToSurfPoint( Vector2D const &dispUV, Vector &vecPoint,
 	}
 }
 
+
 //-----------------------------------------------------------------------------
-// Purpose:
+// Computes a 3D point (vecPoint) from UV coordinates
 //-----------------------------------------------------------------------------
 void CVRADDispColl::DispUVToSurf_TriTLToBR( Vector &vecPoint, float flPushEps, 
 											float flU, float flV, int nSnapU, int nSnapV, 
@@ -263,8 +271,9 @@ void CVRADDispColl::DispUVToSurf_TriTLToBR( Vector &vecPoint, float flPushEps,
 	}
 }
 
+
 //-----------------------------------------------------------------------------
-// Purpose:
+// Computes a 3D point (vecPoint) from UV coordinates
 //-----------------------------------------------------------------------------
 void CVRADDispColl::DispUVToSurf_TriBLToTR( Vector &vecPoint, float flPushEps, 
 											float flU, float flV, int nSnapU, int nSnapV, 
@@ -318,7 +327,9 @@ void CVRADDispColl::DispUVToSurf_TriBLToTR( Vector &vecPoint, float flPushEps,
 	}
 }
 
+
 //-----------------------------------------------------------------------------
+// Computes the normal vector at a given displacement surface point
 //-----------------------------------------------------------------------------
 void CVRADDispColl::DispUVToSurfNormal( Vector2D const &dispUV, Vector &vecNormal )
 {
@@ -378,9 +389,9 @@ void CVRADDispColl::DispUVToSurfNormal( Vector2D const &dispUV, Vector &vecNorma
 	VectorNormalize( vecNormal );
 }
 
+
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Output : float
+// Creates a parent patch from the displacement surface
 //-----------------------------------------------------------------------------
 float CVRADDispColl::CreateParentPatches( void )
 {
@@ -413,10 +424,9 @@ float CVRADDispColl::CreateParentPatches( void )
 	return flArea;
 }
 
+
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : iParentPatch - 
-//			nLevel - 
+// Subdivides a parent patch into two child patches
 //-----------------------------------------------------------------------------
 void CVRADDispColl::CreateChildPatchesFromRoot( int iParentPatch, int *pChildPatch )
 {
@@ -520,10 +530,9 @@ void CVRADDispColl::CreateChildPatchesFromRoot( int iParentPatch, int *pChildPat
 	}
 }
 
+
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : flMinArea - 
-// Output : float
+// Recursively subdivides a patch into smaller child patches
 //-----------------------------------------------------------------------------
 void CVRADDispColl::CreateChildPatches( int iParentPatch, int nLevel )
 {
@@ -641,10 +650,9 @@ void CVRADDispColl::CreateChildPatches( int iParentPatch, int nLevel )
 	CreateChildPatches( iChildPatch[1], nNewLevel );
 }
 
+
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : flMinArea - 
-// Output : float
+// Handles the subdivision of a triangle into smaller triangles when the patch is sufficiently large
 //-----------------------------------------------------------------------------
 void CVRADDispColl::CreateChildPatchesSub( int iParentPatch )
 {
@@ -763,6 +771,10 @@ void CVRADDispColl::CreateChildPatchesSub( int iParentPatch )
 	CreateChildPatchesSub( iChildPatch[1] );
 }
 
+
+//-----------------------------------------------------------------------------
+// Takes a vector normal and returns an integer representing the type of the plane the normal corresponds to
+//-----------------------------------------------------------------------------
 int	PlaneTypeForNormal (Vector& normal)
 {
 	vec_t	ax, ay, az;
@@ -786,14 +798,9 @@ int	PlaneTypeForNormal (Vector& normal)
 	return PLANE_ANYZ;
 }
 
+
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : iPatch - 
-//			iParentPatch - 
-//			iChild - 
-//			*pPoints - 
-//			*pIndices - 
-//			&flArea - 
+// Initializes a parent patch object
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool CVRADDispColl::InitParentPatch( int iPatch, Vector *pPoints, float &flArea )
@@ -894,12 +901,9 @@ bool CVRADDispColl::InitParentPatch( int iPatch, Vector *pPoints, float &flArea 
 	return true;
 }
 
+
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pPatch - 
-//			*pPoints - 
-//			&vecNormal - 
-//			flArea - 
+// Initializes a patch object
 //-----------------------------------------------------------------------------
 bool CVRADDispColl::InitPatch( int iPatch, int iParentPatch, int iChild, Vector *pPoints, int *pIndices, float &flArea )
 {
@@ -1061,6 +1065,10 @@ bool CVRADDispColl::InitPatch( int iPatch, int iParentPatch, int iChild, Vector 
 	return true;
 }
 
+
+//-----------------------------------------------------------------------------
+// adds polygons to a ray tracing environment
+//-----------------------------------------------------------------------------
 void CVRADDispColl::AddPolysForRayTrace( void )
 {
 	if ( !( m_nContents & MASK_OPAQUE ) )

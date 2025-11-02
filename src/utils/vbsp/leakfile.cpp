@@ -17,8 +17,6 @@ LEAF FILE GENERATION
 Save out name.line for qe3 to read
 ==============================================================================
 */
-
-
 /*
 =============
 LeakFile
@@ -45,7 +43,7 @@ void LeakFile (tree_t *tree)
 	//
 	// write the points to the file
 	//
-	sprintf (filename, "%s.lin", source);
+	V_snprintf(filename, sizeof(filename), "%s.lin", source);
 	linefile = fopen (filename, "w");
 	if (!linefile)
 		Error ("Couldn't open %s\n", filename);
@@ -92,6 +90,7 @@ void LeakFile (tree_t *tree)
 	ColorSpewMessage( SPEW_MESSAGE, &red, "Entity %s (%.2f %.2f %.2f) leaked!\n", cl, origin[0], origin[1], origin[2] );
 }
 
+
 void AreaportalLeakFile( tree_t *tree, portal_t *pStartPortal, portal_t *pEndPortal, node_t *pStart )
 {
 	Vector	mid;
@@ -110,7 +109,7 @@ void AreaportalLeakFile( tree_t *tree, portal_t *pStartPortal, portal_t *pEndPor
 	//
 	// write the points to the file
 	//
-	sprintf (filename, "%s.lin", source);
+	V_snprintf(filename, sizeof(filename), "%s.lin", source);
 	linefile = fopen (filename, "w");
 	if (!linefile)
 		Error ("Couldn't open %s\n", filename);

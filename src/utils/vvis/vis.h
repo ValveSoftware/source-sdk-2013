@@ -13,11 +13,13 @@
 
 
 #define	MAX_PORTALS	65536
-
+#define MAX_POINTS_ON_WINDING	64
+#define	MAX_POINTS_ON_FIXED_WINDING	12
 #define	PORTALFILE	"PRT1"
 
 extern bool g_bUseRadius;			// prototyping TF2, "radius vis" solution
 extern double g_VisRadius;			// the radius for the TF2 "radius vis"
+
 
 struct plane_t
 {
@@ -25,8 +27,6 @@ struct plane_t
 	float		dist;
 };
 
-#define MAX_POINTS_ON_WINDING	64
-#define	MAX_POINTS_ON_FIXED_WINDING	12
 
 struct winding_t
 {
@@ -58,6 +58,7 @@ struct portal_t
 	int			nummightsee;	// bit count on portalflood for sort
 };
 
+
 struct leaf_t
 {
 	CUtlVector<portal_t *> portals;
@@ -85,6 +86,7 @@ struct threaddata_t
 	int			c_chains;
 	pstack_t	pstack_head;
 };
+
 
 extern	int			g_numportals;
 extern	int			portalclusters;

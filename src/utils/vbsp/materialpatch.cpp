@@ -17,11 +17,13 @@
 // case insensitive
 static CUtlSymbolTable s_SymbolTable( 0, 32, true );
 
+
 struct NameTranslationLookup_t
 {
 	CUtlSymbol m_OriginalFileName;
 	CUtlSymbol m_PatchFileName;
 };
+
 
 static bool NameTranslationLessFunc( NameTranslationLookup_t const& src1, 
 							  NameTranslationLookup_t const& src2 )
@@ -29,7 +31,9 @@ static bool NameTranslationLessFunc( NameTranslationLookup_t const& src1,
 	return src1.m_PatchFileName < src2.m_PatchFileName;
 }
 
+
 CUtlRBTree<NameTranslationLookup_t, int> s_MapPatchedMatToOriginalMat( 0, 256, NameTranslationLessFunc );
+
 
 void AddNewTranslation( const char *pOriginalMaterialName, const char *pNewMaterialName )
 {
@@ -40,6 +44,7 @@ void AddNewTranslation( const char *pOriginalMaterialName, const char *pNewMater
 
 	s_MapPatchedMatToOriginalMat.Insert( newEntry );
 }
+
 
 const char *GetOriginalMaterialNameForPatchedMaterial( const char *pPatchMaterialName )
 {
@@ -84,6 +89,7 @@ void CreateMaterialPatchRecursive( KeyValues *pOriginalKeyValues, KeyValues *pPa
 		CreateMaterialPatchRecursive( pScan, pPatchKeyValues->FindKey( pScan->GetName(), true ), nKeys, pInfo );
 	}
 }
+
 
 //-----------------------------------------------------------------------------
 // A version which allows you to patch multiple key values
@@ -180,6 +186,7 @@ static bool DoesMaterialHaveKey( KeyValues *pKeyValues, const char *pKeyName )
 	return false;
 }
 
+
 //-----------------------------------------------------------------------------
 // Scan material + all subsections for key/value pair
 //-----------------------------------------------------------------------------
@@ -198,6 +205,7 @@ static bool DoesMaterialHaveKeyValuePair( KeyValues *pKeyValues, const char *pKe
 	
 	return false;
 }
+
 
 //-----------------------------------------------------------------------------
 // Scan material + all subsections for key
@@ -220,6 +228,7 @@ bool DoesMaterialHaveKey( const char *pMaterialName, const char *pKeyName )
 	return retVal;
 }
 
+
 //-----------------------------------------------------------------------------
 // Scan material + all subsections for key/value pair
 //-----------------------------------------------------------------------------
@@ -240,6 +249,7 @@ bool DoesMaterialHaveKeyValuePair( const char *pMaterialName, const char *pKeyNa
 	kv->deleteThis();
 	return retVal;
 }
+
 
 //-----------------------------------------------------------------------------
 // Gets a material value from a material. Ignores all patches
@@ -324,6 +334,7 @@ static void InsertKeyValues( KeyValues &dst, KeyValues& src, bool bCheckForExist
 	}
 }
 
+
 static void ExpandPatchFile( KeyValues &keyValues )
 {
 	int nCount = 0;
@@ -371,6 +382,7 @@ static void ExpandPatchFile( KeyValues &keyValues )
 	}
 }
 
+
 KeyValues *LoadMaterialKeyValues( const char *pMaterialName, unsigned int nFlags )
 {
 	// Load the underlying file
@@ -392,6 +404,7 @@ KeyValues *LoadMaterialKeyValues( const char *pMaterialName, unsigned int nFlags
 
 	return kv;
 }
+
 
 void WriteMaterialKeyValuesToPak( const char *pMaterialName, KeyValues *kv )
 {

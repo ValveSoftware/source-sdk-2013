@@ -101,9 +101,9 @@ qboolean	do_extra = true;
 bool		debug_extra = false;
 qboolean	do_fast = false;
 qboolean	do_centersamples = false;
-int			extrapasses = 4;
-float		smoothing_threshold = 0.7071067; // cos(45.0*(M_PI/180)) 
+int			extrapasses = 4; 
 // Cosine of smoothing angle(in radians)
+float		smoothing_threshold = 0.7071067; // cos(45.0*(M_PI/180)) 
 float		coring = 1.0;	// Light threshold to force to blackness(minimizes lightmaps)
 qboolean	texscale = true;
 int			dlight_map = 0; // Setting to 1 forces direct lighting into different lightmap than radiosity
@@ -142,6 +142,7 @@ MISC
 
 int		leafparents[MAX_MAP_LEAFS];
 int		nodeparents[MAX_MAP_NODES];
+
 
 void MakeParents (int nodenum, int parent)
 {
@@ -182,6 +183,7 @@ typedef struct
 texlight_t	texlights[MAX_TEXLIGHTS];
 int			num_texlights;
 
+
 /*
 ============
 ReadLightFile
@@ -195,7 +197,7 @@ void ReadLightFile (char *filename)
 	FileHandle_t f = g_pFileSystem->Open( filename, "r" );
 	if (!f)
 	{
-		Warning("Warning: Couldn't open texlight file %s.\n", filename);
+		Warning("Warning: Couldn't open texlight file: %s.\n", filename);
 		return;
 	}
 
@@ -350,15 +352,13 @@ void LightForTexture( const char *name, Vector& result )
 	}
 }
 
+
 /*
 =======================================================================
 
 MAKE FACES
 
 =======================================================================
-*/
-
-/*
 =============
 WindingFromFace
 =============
@@ -390,6 +390,7 @@ winding_t	*WindingFromFace (dface_t *f, Vector& origin )
 
 	return w;
 }
+
 
 /*
 =============
@@ -670,7 +671,7 @@ entity_t *EntityForModel (int modnum)
 	char	*s;
 	char	name[16];
 
-	sprintf (name, "*%i", modnum);
+	V_snprintf(name, sizeof(name), "*%i", modnum);
 	// search the entities for one using modnum
 	for (i=0 ; i<num_entities ; i++)
 	{
@@ -682,12 +683,13 @@ entity_t *EntityForModel (int modnum)
 	return &entities[0];
 }
 
+
 /*
 =============
 MakePatches
 =============
 */
-void MakePatches (void)
+void MakePatches(void)
 {
 	int		    i, j;
 	dface_t	    *f;
@@ -735,6 +737,7 @@ void MakePatches (void)
 	StaticDispMgr()->MakePatches();
 }
 
+
 /*
 =======================================================================
 
@@ -742,8 +745,6 @@ SUBDIVIDE
 
 =======================================================================
 */
-
-
 //-----------------------------------------------------------------------------
 // Purpose: does this surface take/emit light
 //-----------------------------------------------------------------------------
@@ -923,7 +924,7 @@ void SubdividePatch( int ndxPatch )
 SubdividePatches
 =============
 */
-void SubdividePatches (void)
+void SubdividePatches(void)
 {
 	unsigned		i, num;
 
@@ -1044,8 +1045,6 @@ void SubdividePatches (void)
 	qprintf ("%i patches after subdivision\n", uiPatchCount);
 }
 
-
-//=====================================================================
 
 /*
 =============
@@ -1261,6 +1260,7 @@ void MakeScales ( int ndxPatch, transfer_t *all_transfers )
 	ThreadUnlock ();
 }
 
+
 /*
 =============
 WriteWorld
@@ -1274,7 +1274,7 @@ void WriteWorld (char *name, int iBump)
 
 	out = g_pFileSystem->Open( name, "w" );
 	if (!out)
-		Error ("Couldn't open %s", name);
+		Error ("Couldn't open: %s", name);
 
 	unsigned int uiPatchCount = g_Patches.Size();
 	for (j=0; j<uiPatchCount; j++)
@@ -1306,13 +1306,14 @@ void WriteWorld (char *name, int iBump)
 	g_pFileSystem->Close( out );
 }
 
+
 void WriteRTEnv (char *name)
 {
 	FileHandle_t out;
 
 	out = g_pFileSystem->Open( name, "w" );
 	if (!out)
-		Error ("Couldn't open %s", name);
+		Error ("Couldn't open: %s", name);
 
 	winding_t *triw = AllocWinding( 3 );
 	triw->numpoints = 3;
@@ -1333,6 +1334,7 @@ void WriteRTEnv (char *name)
 
 	g_pFileSystem->Close( out );
 }
+
 
 void WriteWinding (FileHandle_t out, winding_t *w, Vector& color )
 {
@@ -1366,6 +1368,7 @@ void WriteNormal( FileHandle_t out, Vector const &nPos, Vector const &nDir,
 		color.x / 256, color.y / 256, color.z / 256 );
 }
 
+
 void WriteLine( FileHandle_t out, const Vector &vecPos1, const Vector &vecPos2, const Vector &color )
 {
 	CmdLib_FPrintf( out, "2\n" );
@@ -1377,13 +1380,14 @@ void WriteLine( FileHandle_t out, const Vector &vecPos1, const Vector &vecPos2, 
 		color.x / 256, color.y / 256, color.z / 256 );
 }
 
+
 void WriteTrace( const char *pFileName, const FourRays &rays, const RayTracingResult& result )
 {
 	FileHandle_t out;
 
 	out = g_pFileSystem->Open( pFileName, "a" );
 	if (!out)
-		Error ("Couldn't open %s", pFileName);
+		Error ("Couldn't open: %s", pFileName);
 
 	// Draws rays
 	for ( int i = 0; i < 4; ++i )
@@ -1473,6 +1477,7 @@ void CollectLight( Vector& total )
 		}
 	}
 }
+
 
 /*
 =============
@@ -1650,7 +1655,7 @@ void GatherLight (int threadnum, void *pUserData)
 BounceLight
 =============
 */
-void BounceLight (void)
+void BounceLight(void)
 {
 	unsigned i;
 	Vector	added;
@@ -1720,12 +1725,11 @@ void BounceLight (void)
 		i++;
 		if ( g_bDumpPatches && !bouncing && i != 1)
 		{
-			sprintf (name, "bounce%i.txt", i);
+			V_snprintf(name, sizeof(name), "bounce%i.txt", i);
 			WriteWorld (name, 0);
 		}
 	}
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -1921,18 +1925,17 @@ void BuildFacesVisibleToLights( bool bAllVisible )
 }
 
 
-
-void MakeAllScales (void)
+void MakeAllScales(void)
 {
 	// determine visibility between patches
-	BuildVisMatrix ();
+	BuildVisMatrix();
 	
 	// release visibility matrix
-	FreeVisMatrix ();
+	FreeVisMatrix();
 
-	Msg("transfers %d, max %d\n", total_transfer, max_transfer );
+	Msg("Transfers %d, max %d\n", total_transfer, max_transfer );
 
-	qprintf ("transfer lists: %5.1f megs\n"
+	qprintf ("Transfer lists: %5.1f megs\n"
 		, (float)total_transfer * sizeof(transfer_t) / (1024*1024));
 }
 
@@ -2054,7 +2057,7 @@ bool RadWorld_Go()
 			for( int iBump = 0; iBump < 4; ++iBump )
 			{
 				char szName[64];
-				sprintf ( szName, "bounce0_%d.txt", iBump );
+				V_snprintf( szName, sizeof(szName), "bounce0_%d.txt", iBump );
 				WriteWorld( szName, iBump );
 			}
 		}
@@ -2076,7 +2079,7 @@ bool RadWorld_Go()
 		//
 		// displacement surface luxel accumulation (make threaded!!!)
 		//
-		StaticDispMgr()->StartTimer( "Build Patch/Sample Hash Table(s)....." );
+		StaticDispMgr()->StartTimer( "Build Patch/Sample Hash Table(s)... " );
 		StaticDispMgr()->InsertSamplesDataIntoHashTable();
 		StaticDispMgr()->InsertPatchSampleDataIntoHashTable();
 		StaticDispMgr()->EndTimer();
@@ -2101,9 +2104,11 @@ bool RadWorld_Go()
 	return true;
 }
 
+
 // declare the sample file pointer -- the whole debug print system should
 // be reworked at some point!!
 FileHandle_t pFileSamples[4][4];
+
 
 void LoadPhysicsDLL( void )
 {
@@ -2118,7 +2123,7 @@ void InitDumpPatchesFiles()
 		for ( int iBump = 0; iBump < 4; ++iBump )
 		{
 			char szFilename[MAX_PATH];
-			sprintf( szFilename, "samples_style%d_bump%d.txt", iStyle, iBump );
+			V_snprintf(szFilename, sizeof(szFilename), "samples_style%d_bump%d.txt", iStyle, iBump);
 			pFileSamples[iStyle][iBump] = g_pFileSystem->Open( szFilename, "w" );
 			if( !pFileSamples[iStyle][iBump] )
 			{
@@ -2128,11 +2133,15 @@ void InitDumpPatchesFiles()
 	}
 }
 
+
 extern IFileSystem *g_pOriginalPassThruFileSystem;
+
 
 void VRAD_LoadBSP( char const *pFilename )
 {
-	ThreadSetDefault ();
+	ThreadSetDefault();
+
+	Msg("\n      Valve Radiosity Simulator     \n");
 
 	g_flStartTime = Plat_FloatTime();
 
@@ -2157,7 +2166,7 @@ void VRAD_LoadBSP( char const *pFilename )
 	{
 		// Setup the logfile.
 		char logFile[512];
-		_snprintf( logFile, sizeof(logFile), "%s.log", source );
+		V_snprintf( logFile, sizeof(logFile), "%s.log", source );
 		SetSpewFunctionLogFile( logFile );
 	}
 
@@ -2190,11 +2199,11 @@ void VRAD_LoadBSP( char const *pFilename )
 	Q_DefaultExtension(incrementfile, ".r0", sizeof(incrementfile));
 	Q_DefaultExtension(source, ".bsp", sizeof( source ));
 
-	Msg( "Loading %s\n", source );
+	Msg( "Loading: %s\n", source );
 #ifdef MPI
 	VMPI_SetCurrentStage( "LoadBSPFile" );
 #endif
-	LoadBSPFile (source);
+	LoadBSPFile(source);
 
 	// Add this bsp to our search path so embedded resources can be found
 #ifdef MPI
@@ -2213,8 +2222,10 @@ void VRAD_LoadBSP( char const *pFilename )
 	}
 
 	// now, set whether or not static prop lighting is present
-	if (g_bStaticPropLighting)
-		g_LevelFlags |= g_bHDR? LVLFLAGS_BAKED_STATIC_PROP_LIGHTING_HDR : LVLFLAGS_BAKED_STATIC_PROP_LIGHTING_NONHDR;
+	if (g_bStaticPropLighting) 
+	{
+		g_LevelFlags |= g_bHDR ? LVLFLAGS_BAKED_STATIC_PROP_LIGHTING_HDR : LVLFLAGS_BAKED_STATIC_PROP_LIGHTING_NONHDR;
+	}
 	else
 	{
 		g_LevelFlags &= ~( LVLFLAGS_BAKED_STATIC_PROP_LIGHTING_HDR | LVLFLAGS_BAKED_STATIC_PROP_LIGHTING_NONHDR );
@@ -2244,7 +2255,7 @@ void VRAD_LoadBSP( char const *pFilename )
 
 	if (!visdatasize)
 	{
-		Msg("No vis information, direct lighting only.\n");
+		Warning("No vis information, direct lighting only.\n");
 		numbounce = 0;
 		ambient[0] = ambient[1] = ambient[2] = 0.1f;
 		dvis->numclusters = CountClusters();
@@ -2255,7 +2266,7 @@ void VRAD_LoadBSP( char const *pFilename )
 	//
 	// TODO: change the maxes to the amount from the bsp!!
 	//
-//	g_Patches.EnsureCapacity( MAX_PATCHES );
+	//	g_Patches.EnsureCapacity( MAX_PATCHES );
 
 	g_FacePatches.SetSize( MAX_MAP_FACES );
 	faceParents.SetSize( MAX_MAP_FACES );
@@ -2283,15 +2294,11 @@ void VRAD_LoadBSP( char const *pFilename )
 		WriteRTEnv("trace.txt");
 
 	// Build acceleration structure
-	printf ( "Setting up ray-trace acceleration structure... ");
+	Msg("Setting up ray-trace acceleration structure... ");
 	float start = Plat_FloatTime();
 	g_RtEnv.SetupAccelerationStructure();
 	float end = Plat_FloatTime();
-	printf ( "Done (%.2f seconds)\n", end-start );
-
-#if 0  // To test only k-d build
-	exit(0);
-#endif
+	Msg("done(%.1fs)\n", end-start);
 
 	RadWorld_Start();
 
@@ -2301,7 +2308,6 @@ void VRAD_LoadBSP( char const *pFilename )
 		if( !g_pIncremental->Init( source, incrementfile ) )
 		{
 			Error( "Unable to load incremental lighting file in %s.\n", incrementfile );
-			return;
 		}
 	}
 }
@@ -2324,7 +2330,9 @@ void VRAD_ComputeOtherLighting()
 	}
 }
 
+
 extern void CloseDispLuxels();
+
 
 void VRAD_Finish()
 {
@@ -2336,7 +2344,7 @@ void VRAD_Finish()
 		PrintBSPFileSizes();
 	}
 
-	Msg( "Writing %s\n", source );
+	Msg( "Writing: %s\n", source );
 #ifdef MPI
 	VMPI_SetCurrentStage( "WriteBSPFile" );
 #endif
@@ -2579,7 +2587,6 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 			{
 				g_SunAngularExtent=atof(argv[i]);
 				g_SunAngularExtent=sin((M_PI/180.0)*g_SunAngularExtent);
-				printf("sun extent=%f\n",g_SunAngularExtent);
 			}
 			else
 			{
@@ -2907,15 +2914,10 @@ void PrintUsage( int argc, char **argv )
 #endif
 }
 
+
 int RunVRAD( int argc, char **argv )
 {
-#if defined(_MSC_VER) && ( _MSC_VER >= 1310 )
-	Msg("Valve Software - vrad.exe SSE (" __DATE__ ")\n" );
-#else
-	Msg("Valve Software - vrad.exe (" __DATE__ ")\n" );
-#endif
-
-	Msg("\n      Valve Radiosity Simulator     \n");
+	Msg("Valve Software - vrad.exe SSE (%s)\n", __DATE__);
 
 	verbose = true;  // Originally FALSE
 
@@ -2981,8 +2983,3 @@ int VRAD_Main(int argc, char **argv)
 	
 	return RunVRAD( argc, argv );
 }
-
-
-
-
-

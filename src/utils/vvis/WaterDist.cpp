@@ -6,11 +6,13 @@
 
 #include "bsplib.h"
 
+
+//------------------------------------------------------------------------
 // input:
 // from bsplib.h:
 //		numleafs
 //		dleafs
-
+//------------------------------------------------------------------------
 void EmitDistanceToWaterInfo( void )
 {
 	int leafID;
@@ -24,7 +26,6 @@ void EmitDistanceToWaterInfo( void )
 		}
 
 		// Get the vis set for this leaf.
-		
 	}
 }
 
