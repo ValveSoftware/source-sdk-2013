@@ -65,7 +65,6 @@
 #include "c_tf_objective_resource.h"
 
 #include "quest_log_panel.h"
-#include "tf_matchmaking_dashboard.h"
 
 //#include "tf_overview.h"
 
@@ -447,11 +446,6 @@ void TFViewport::OnScreenSizeChanged( int iOldWide, int iOldTall )
 			}
 		}
 	}
-
-	// The dashboard can't listen for this directly because it's parenting is all
-	// over the place.  Reset the dashboard so it get sized correctly.
-	GetDashboardPanel().RecreateAll();
-	GetMMDashboard()->Reload();
 }
 
 //-----------------------------------------------------------------------------

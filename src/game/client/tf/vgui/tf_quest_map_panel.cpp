@@ -24,7 +24,6 @@
 #include "econ/econ_ui.h"
 #include "store/store_panel.h"
 #include "tf_item_inventory.h"
-#include "tf_matchmaking_dashboard.h"
 #include "tf_hud_mainmenuoverride.h"
 #include "c_tf_player.h"
 #include "vguicenterprint.h"
@@ -1122,15 +1121,6 @@ void CQuestMapPanel::UpdateStarsGlobalStatus()
 	EditablePanel* pGlobalStatus = FindControl< EditablePanel >( "GlobalStatus", true );
 	if ( pGlobalStatus )
 	{
-		auto lambdaSetTooltip = [&]( const char* pszPanelName, const char* pszLocToken )
-		{
-			Panel* pPanel = pGlobalStatus->FindChildByName( pszPanelName );
-			if ( !pPanel )
-				return;
-
-			pPanel->SetTooltip( GetDashboardTooltip( k_eSmallFont ), pszLocToken );
-		};
-
 		auto pRegionDef = GetProtoScriptObjDefManager()->GetTypedDefinition< CQuestMapRegion >( m_currentRegion );
 		bool bShowStars = false;
 		auto pStarTypeDef = pRegionDef->GetStarType();
@@ -1146,9 +1136,6 @@ void CQuestMapPanel::UpdateStarsGlobalStatus()
 		pGlobalStatus->SetControlVisible( "AvailableStarsLabel", bShowStars );
 		pGlobalStatus->SetControlVisible( "TotalStarsImage", bShowStars );
 		pGlobalStatus->SetControlVisible( "TotalStarsLabel", bShowStars );
-		lambdaSetTooltip( "BloodMoneyTooltip", "#TF_QuestMap_BloodMoney" );
-		lambdaSetTooltip( "StarsAvailableTooltip", "#TF_QuestMap_StarsAvailableTooltip" );
-		lambdaSetTooltip( "TotalStarsTooltip", "#TF_QuestMap_StarsTotalTooltip" );
 	}
 }
 

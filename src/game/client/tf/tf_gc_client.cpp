@@ -27,7 +27,6 @@
 #include "c_tf_notification.h"
 #include "tf_gc_shared.h"
 #include "tf_partyclient.h"
-#include "tf_matchmaking_dashboard.h"
 #include "tf_ladder_data.h"
 #include "tf_rating_data.h"
 #include "tf_quest_map.h"

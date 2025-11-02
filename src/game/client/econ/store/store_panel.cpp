@@ -30,7 +30,6 @@
 #include "tf_hud_statpanel.h"
 #include "rtime.h"
 #include "item_ad_panel.h"
-#include "tf_matchmaking_dashboard.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!

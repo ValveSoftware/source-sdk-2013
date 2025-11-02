@@ -27,7 +27,6 @@
 #include "store/v1/tf_store_panel.h"
 #include "store/v2/tf_store_panel2.h"
 #include "store/tf_store.h"
-#include "tf_matchmaking_dashboard.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

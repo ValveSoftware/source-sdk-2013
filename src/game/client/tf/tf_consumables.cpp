@@ -42,8 +42,6 @@
 #include "collection_crafting_panel.h"
 #include "clientmode_tf.h"
 #include "vgui_controls/AnimationController.h"
-#include "tf_matchmaking_dashboard_explanations.h"
-#include "tf_matchmaking_dashboard_parent_manager.h"
 #include "tf_shareddefs.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -706,7 +704,6 @@ public:
 		, m_nSourceItemID( pItem->GetID() )
 	{
 		TFModalStack()->PushModal( this );
-		GetMMDashboardParentManager()->AddPanel( this );
 
 		m_pIspectionPanel = new CTFItemInspectionPanel( this, "InspectionPanel" );
 		m_pIspectionPanel->SetOptions( false, true, true );
@@ -714,14 +711,12 @@ public:
 		if ( !tf_warpaint_explanation_viewed.GetBool() )
 		{
 			tf_warpaint_explanation_viewed.SetValue( true );
-			ShowDashboardExplanation( "WarPaintUse" );
 		}
 	}
 
 	virtual ~CTFPainkitConsumeDialog()
 	{
 		TFModalStack()->PopModal( this );
-		GetMMDashboardParentManager()->RemovePanel( this );
 	}
 
 	virtual void ApplySchemeSettings( IScheme *pScheme ) OVERRIDE

@@ -42,8 +42,6 @@
 #include "tf_lobby_container_frame_casual.h"
 #include "tf_badge_panel.h"
 #include "tf_quest_map_panel.h"
-#include "tf_matchmaking_dashboard_explanations.h"
-#include "tf_matchmaking_dashboard_comp_rank_tooltip.h"
 #include "tf_rating_data.h"
 #include "tf_progression.h"
 
@@ -56,7 +54,6 @@
 #include "vgui/ISystem.h"
 #include "mute_player_dialog.h"
 #include "tf_quest_map_utils.h"
-#include "tf_matchmaking_dashboard.h"
 #include "tf_pvp_rank_panel.h"
 
 #include "econ_paintkit.h"
@@ -646,9 +643,6 @@ void CHudMainMenuOverride::ApplySchemeSettings( IScheme *scheme )
 	ScheduleTrainingCheck( false );
 
 	PerformKeyRebindings();
-
-	GetMMDashboard();
-	GetCompRanksTooltip();
 }
 
 //-----------------------------------------------------------------------------
@@ -1748,17 +1742,6 @@ bool CHudMainMenuOverride::IsVisible( void )
 //-----------------------------------------------------------------------------
 CExplanationPopup* CHudMainMenuOverride::StartHighlightAnimation( mm_highlight_anims iAnim )
 {
-	switch( iAnim )
-	{
-		case MMHA_TUTORIAL:		return ShowDashboardExplanation( "TutorialHighlight" );
-		case MMHA_PRACTICE:		return ShowDashboardExplanation( "PracticeHighlight" );
-		case MMHA_NEWUSERFORUM:	return ShowDashboardExplanation( "NewUserForumHighlight" );
-		case MMHA_OPTIONS:		return ShowDashboardExplanation( "OptionsHighlightPanel" );
-		case MMHA_LOADOUT:		return ShowDashboardExplanation( "LoadoutHighlightPanel" );
-		case MMHA_STORE:		return ShowDashboardExplanation( "StoreHighlightPanel" );
-	}
-
-	Assert( false );
 	return NULL;
 }
 
@@ -2107,81 +2090,6 @@ void CHudMainMenuOverride::OnKeyCodePressed( KeyCode code )
 //-----------------------------------------------------------------------------
 void CHudMainMenuOverride::CheckTrainingStatus( void )
 {
-	bool bNeedsTraining = tf_training_has_prompted_for_training.GetInt() <= 0;
-	bool bNeedsPractice = tf_training_has_prompted_for_offline_practice.GetInt() <= 0;
-	bool bShowForum = tf_training_has_prompted_for_forums.GetInt() <= 0;
-	bool bShowOptions = tf_training_has_prompted_for_options.GetInt() <= 0;
-	bool bWasInTraining = m_bWasInTraining;
-	bool bDashboardSidePanels = GetMMDashboard()->BAnySidePanelsShowing();
-	m_bWasInTraining = false;
-
-	bool bShowLoadout = false;
-	if ( tf_training_has_prompted_for_loadout.GetInt() <= 0 )
-	{
-		// See if we have any items in our inventory.
-		int iNumItems = TFInventoryManager()->GetLocalTFInventory()->GetItemCount();
-		if ( iNumItems > 0 )
-		{
-			bShowLoadout = true;
-		}
-	}
-
-	if ( !tf_find_a_match_hint_viewed.GetBool() )
-	{
-		tf_find_a_match_hint_viewed.SetValue( true );
-		ShowDashboardExplanation( "FindAMatch" );
-	}
-	else if ( !bDashboardSidePanels && bShowLoadout )
-	{
-		tf_training_has_prompted_for_loadout.SetValue( 1 );
-		StartHighlightAnimation( MMHA_LOADOUT );
-	}
-	else if ( bDashboardSidePanels && bNeedsTraining)
-	{
-		tf_training_has_prompted_for_training.SetValue( 1 );
-
-		auto pExplanation = StartHighlightAnimation( MMHA_TUTORIAL );
-		pExplanation->AddActionSignalTarget( this );
-
-		if ( pExplanation )
-		{
-			if ( UTIL_HasLoadedAnyMap() )
-			{
-				pExplanation->SetDialogVariable( "highlighttext", g_pVGuiLocalize->Find( "#MMenu_TutorialHighlight_Title2" ) );
-			}
-			else
-			{
-				pExplanation->SetDialogVariable( "highlighttext", g_pVGuiLocalize->Find( "#MMenu_TutorialHighlight_Title" ) );
-			}
-		}
-
-		
-	}
-	else if ( bDashboardSidePanels && bWasInTraining && Training_IsComplete() == false && tf_training_has_prompted_for_training.GetInt() < 2 )
-	{
-		tf_training_has_prompted_for_training.SetValue( 2 );
-
-		auto pExplanation = StartHighlightAnimation( MMHA_TUTORIAL );
-		if ( pExplanation )
-		{
-			pExplanation->SetDialogVariable( "highlighttext", g_pVGuiLocalize->Find( "#MMenu_TutorialHighlight_Title3" ) );
-		}
-	}
-	else if ( bDashboardSidePanels && bNeedsPractice )
-	{
-		tf_training_has_prompted_for_offline_practice.SetValue( 1 );
-		StartHighlightAnimation( MMHA_PRACTICE );
-	}
-	else if ( bShowForum )
-	{
-		tf_training_has_prompted_for_forums.SetValue( 1 );
-		StartHighlightAnimation( MMHA_NEWUSERFORUM );
-	}
-	else if ( bShowOptions )
-	{
-		tf_training_has_prompted_for_options.SetValue( 1 );
-		StartHighlightAnimation( MMHA_OPTIONS );
-	}
 }
 
 void CHudMainMenuOverride::UpdateRankPanelType()
@@ -2217,13 +2125,6 @@ void CHudMainMenuOverride::UpdateRankPanelType()
 		 && GTFGCClientSystem()->BConnectedtoGC() )
 	{
 		bShowCompRankTooltip = true;
-	}
-
-	Panel* pRankTooltipPanel = FindChildByName( "RankTooltipPanel" );
-	if( pRankTooltipPanel )
-	{
-		pRankTooltipPanel->SetVisible( bShowCompRankTooltip );
-		pRankTooltipPanel->SetTooltip( GetCompRanksTooltip(), nullptr );
 	}
 }
 
