@@ -124,6 +124,7 @@ CPasstimeBall::CPasstimeBall()
 	m_flLastTeamChangeTime = 0;
 	m_flBeginCarryTime = 0;
 	m_flIdleRespawnTime = 0;
+	m_flThrowerCanPickupTime = 0;
 	m_bTrailActive = false;
 	m_pCloseToTarget = 0;
 	m_bPanacea = true;
@@ -569,6 +570,13 @@ void CPasstimeBall::SetStateFree()
 	SetSolid( SOLID_VPHYSICS );
 	SetSolidFlags( FSOLID_NOT_STANDABLE );
 	SetThrower( m_hCarrier );
+	
+	// Set cooldown for jack armor prevention
+	if ( tf_passtime_no_jack_armor.GetBool() && m_hCarrier )
+	{
+		m_flThrowerCanPickupTime = gpGlobals->curtime + tf_passtime_no_jack_armor_time.GetFloat();
+	}
+	
 	TFGameRules()->SetObjectiveObserverTarget( this );
 	VPhysicsGetObject()->EnableGravity( true );
 	VPhysicsGetObject()->Wake();
@@ -1596,6 +1604,12 @@ float CPasstimeBall::GetAirtimeSec() const
 float CPasstimeBall::GetAirtimeDistance() const 
 {
 	return m_flAirtimeDistance;
+}
+
+//-----------------------------------------------------------------------------
+float CPasstimeBall::GetThrowerCanPickupTime() const 
+{
+	return m_flThrowerCanPickupTime;
 }
 
 
