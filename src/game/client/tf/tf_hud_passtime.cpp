@@ -1080,7 +1080,7 @@ void CTFHudPasstimeBallStatus::ApplySchemeSettings( IScheme *pScheme )
 bool CTFHudPasstimeBallStatus::BShouldDraw() const
 {
 	CBasePlayer *pPlayer = CBasePlayer::GetLocalPlayer();
-	if ( !pPlayer || !pPlayer->IsAlive() || ( pPlayer->GetObserverMode() == OBS_MODE_FREEZECAM ) )
+	if ( !pPlayer || ( pPlayer->GetObserverMode() == OBS_MODE_FREEZECAM ) )
 	{
 		return false;
 	}
