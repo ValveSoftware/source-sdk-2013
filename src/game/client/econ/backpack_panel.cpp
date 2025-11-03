@@ -26,7 +26,6 @@
 #include "econ_item_tools.h"
 #include "econ_ui.h"
 #include "gc_clientsystem.h"
-#include "econ_store.h"
 #include "rtime.h"
 #include "econ_item_description.h"
 #include "dynamic_recipe_subpanel.h"
@@ -38,13 +37,10 @@
 #include "vgui_controls/MenuItem.h"
 #include "tf_duckleaderboard.h"
 #include "tf_item_inventory.h"
-#include "store/store_panel.h"
 #include "strange_count_transfer_panel.h"
 #include "collection_crafting_panel.h"
 #include "halloween_offering_panel.h"
-#include "store/v2/tf_store_preview_item2.h"
 #include "item_ad_panel.h"
-#include "client_community_market.h"
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
@@ -54,6 +50,15 @@ ConVar tf_trade_up_use_count( "tf_trade_up_use_count", "3", FCVAR_ARCHIVE | FCVA
 
 
 void UseConsumableItem( CEconItemView *pItem, vgui::Panel* pParent );
+
+//-----------------------------------------------------------------------------
+// Purpose: Simple struct for pairing a sort type with a localization string
+//-----------------------------------------------------------------------------
+struct ItemSortTypeData_t
+{
+	const char *szSortDesc; // localization string
+	uint32 iSortType;		// maps to the GC-specific sort value
+};
 
 const ItemSortTypeData_t g_BackpackSortTypes[] =
 {
@@ -421,7 +426,6 @@ CBackpackPanel::CBackpackPanel( vgui::Panel *parent, const char *panelName ) : C
 
 	m_nNumActivePages = 0;
 
-	m_pInspectCosmeticPanel = new CTFStorePreviewItemPanel2( this, "Resource/UI/econ/InspectionPanel_Cosmetic.res", "storepreviewitem", NULL );
 	m_pCollectionCraftPanel = NULL;
 	m_pHalloweenOfferingPanel = NULL;
 	m_pMannCoTradePanel = NULL;
@@ -514,13 +518,6 @@ void CBackpackPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	{
 		EditablePanel *pPage = vgui::SETUP_PANEL( new EditablePanel( this, CFmtStr( "page_%d", i ) ) );
 		m_Pages.AddToTail( pPage );
-	}
-
-	if ( m_pInspectCosmeticPanel )
-	{
-		// Force it to load it's scheme now, because it needs to be done before we set it's visibility below
-		m_pInspectCosmeticPanel->InvalidateLayout( false, true );
-		m_pInspectCosmeticPanel->SetVisible( false );
 	}
 }
 
@@ -903,12 +900,6 @@ void CBackpackPanel::CheckForQuickOpenKey()
 	if ( !m_hQuickOpenCrate )
 		return;
 
-	// We only want to continue if it's the transaction we're listening for
-	if ( EconUI()->GetStorePanel()->GetMostRecentSuccessfulTransactionID() != m_nQuickOpenTxn )
-	{
-		return;
-	}
-
 	CPlayerInventory *pInventory = InventoryManager()->GetLocalInventory();
 	if ( pInventory )
 	{
@@ -945,7 +936,6 @@ void CBackpackPanel::CheckForQuickOpenKey()
 				continue;
 
 			ApplyTool( this, pInvItem, m_hQuickOpenCrate );
-			CloseStoreStatusDialog();
 
 			m_hQuickOpenCrate = NULL;
 			m_nQuickOpenTxn = 0;
@@ -1012,11 +1002,6 @@ void CBackpackPanel::OnShowPanel( bool bVisible, bool bReturningFromArmory )
 		{
 			StopDrag( false );
 		}
-	}
-
-	if ( m_pInspectCosmeticPanel )
-	{
-		m_pInspectCosmeticPanel->SetVisible( false );
 	}
 
 	if ( m_pCollectionCraftPanel )
@@ -1688,87 +1673,7 @@ bool CanInventoryItemsApplyTo( const CEconItemView *pItem )
 
 	return false;
 }
-//-----------------------------------------------------------------------------
-bool CreateMarketPriceString( item_definition_index_t iDefIndex, wchar_t *pszString, int iBufferSize )
-{
-	// Get Market Price
-	steam_market_gc_identifier_t ident;
-	ident.m_unDefIndex = iDefIndex;
-	ident.m_unQuality = AE_UNIQUE;			// Get this from default item def?
 
-	const client_market_data_t *pClientMarketData = GetClientMarketData( ident );
-	if ( !pClientMarketData )
-		return false;
-
-	const ECurrency eCurrency = EconUI()->GetStorePanel()->GetCurrency();
-
-	// Set that price into the button
-	wchar_t pszCurrencyString[kLocalizedPriceSizeInChararacters];
-	MakeMoneyString( pszCurrencyString, ARRAYSIZE( pszCurrencyString ), pClientMarketData->m_unLowestPrice, eCurrency );
-
-	wchar_t pszConstructed[kLocalizedPriceSizeInChararacters];
-	g_pVGuiLocalize->ConstructString_safe( pszConstructed, g_pVGuiLocalize->Find( "#TF_MarketPrice" ), 1, pszCurrencyString );
-
-	// copy result;
-	V_wcsncpy( pszString, pszConstructed, iBufferSize );
-	return true;
-}
-//-----------------------------------------------------------------------------
-bool CreateStorePriceString( item_definition_index_t iDefIndex, wchar_t *pszString, int iBufferSize )
-{
-	// Get Market Price
-	steam_market_gc_identifier_t ident;
-	ident.m_unDefIndex = iDefIndex;
-	ident.m_unQuality = AE_UNIQUE;			// Get this from default item def?
-
-	// Get the price of the item
-	const econ_store_entry_t *pEntry = EconUI()->GetStorePanel()->GetPriceSheet()->GetEntry( iDefIndex );
-	if ( !pEntry )
-		return false;
-
-	const ECurrency eCurrency = EconUI()->GetStorePanel()->GetCurrency();
-
-	// Set that price into the button
-	wchar_t pszCurrencyString[kLocalizedPriceSizeInChararacters];
-	MakeMoneyString( pszCurrencyString, ARRAYSIZE( pszCurrencyString ), pEntry->GetCurrentPrice( eCurrency ), eCurrency );
-
-	wchar_t pszConstructed[kLocalizedPriceSizeInChararacters];
-	g_pVGuiLocalize->ConstructString_safe( pszConstructed, g_pVGuiLocalize->Find( "#TF_StorePrice" ), 1, pszCurrencyString );
-
-	// copy result;
-	V_wcsncpy( pszString, pszConstructed, iBufferSize );
-	return true;
-}
-//-----------------------------------------------------------------------------
-void CBackpackPanel::AddCommerceSubmenus( Menu *pSubMenu, item_definition_index_t iItemDef, const char* pszActionFmt )
-{
-	wchar_t wPriceListing[256];
-	// Store
-	if ( CreateStorePriceString( iItemDef, wPriceListing, sizeof( wPriceListing ) ) )
-	{
-		int nIndex = pSubMenu->AddMenuItem( "", new KeyValues( "Command", "command", CFmtStr( "%s%s%d", "store_", pszActionFmt, iItemDef ) ), this );
-		vgui::MenuItem *pMenuItem = pSubMenu->GetMenuItem( nIndex );
-		pMenuItem->SetText( wPriceListing );
-		pMenuItem->InvalidateLayout( true, false );
-	}
-	
-	// Market
-	if ( CreateMarketPriceString( iItemDef, wPriceListing, sizeof( wPriceListing ) ) )
-	{
-		int nIndex = pSubMenu->AddMenuItem( "", new KeyValues( "Command", "command", CFmtStr( "%s%s%d", "market_", pszActionFmt, iItemDef ) ), this );
-		vgui::MenuItem *pMenuItem = pSubMenu->GetMenuItem( nIndex );
-		pMenuItem->SetText( wPriceListing );
-		pMenuItem->InvalidateLayout( true, false );
-	}
-	else
-	{
-		int nIndex = pSubMenu->AddMenuItem( "", new KeyValues( "Command", "command", CFmtStr( "%s%s%d", "market_", pszActionFmt, iItemDef ) ), this );
-		vgui::MenuItem *pMenuItem = pSubMenu->GetMenuItem( nIndex );
-		pMenuItem->SetText( g_pVGuiLocalize->Find( "#TF_MarketUnavailable" ) );
-		pMenuItem->InvalidateLayout( true, false );
-	}
-
-}
 //-----------------------------------------------------------------------------
 void CBackpackPanel::AddPaintToContextMenu( Menu *pPaintSubMenu, item_definition_index_t iPaintDef, bool bAddCommerce )
 {
@@ -1821,58 +1726,6 @@ void CBackpackPanel::AddPaintToContextMenu( Menu *pPaintSubMenu, item_definition
 		pCustomPanel->SetWide( 30 );
 		pCustomPanel->m_colPaintColors.AddToTail( Color( clamp( ( unPaintRGB0 & 0xFF0000 ) >> 16, 0, 255 ), clamp( ( unPaintRGB0 & 0xFF00 ) >> 8, 0, 255 ), clamp( ( unPaintRGB0 & 0xFF ), 0, 255 ), 255 ) );
 		pCustomPanel->m_colPaintColors.AddToTail( Color( clamp( ( unPaintRGB1 & 0xFF0000 ) >> 16, 0, 255 ), clamp( ( unPaintRGB1 & 0xFF00 ) >> 8, 0, 255 ), clamp( ( unPaintRGB1 & 0xFF ), 0, 255 ), 255 ) );
-	}
-	else
-	{
-		// 
-		const char *pszContextMenuBorder = "NotificationDefault";
-		const char *pszContextMenuFont = "HudFontMediumSecondary";
-
-		Menu *pSubMenu = new Menu( this, "PaintSubMenu" );
-		pSubMenu->SetBorder( scheme()->GetIScheme( GetScheme() )->GetBorder( pszContextMenuBorder ) );
-		pSubMenu->SetFont( scheme()->GetIScheme( GetScheme() )->GetFont( pszContextMenuFont, IsProportional() ) );
-		int iPos = pPaintSubMenu->AddCascadingMenuItem( cBuff, this, pSubMenu );
-
-		CItemMaterialCustomizationIconPanel *pCustomPanel = new CItemMaterialCustomizationIconPanel( pPaintSubMenu, "paint" );
-		pCustomPanel->SetZPos( 100 );
-		pCustomPanel->SetPos( 0, iPos * pPaintSubMenu->GetMenuItemHeight() );
-		pCustomPanel->SetTall( 30 );
-		pCustomPanel->SetWide( 30 );
-		pCustomPanel->m_colPaintColors.AddToTail( Color( clamp( ( unPaintRGB0 & 0xFF0000 ) >> 16, 0, 255 ), clamp( ( unPaintRGB0 & 0xFF00 ) >> 8, 0, 255 ), clamp( ( unPaintRGB0 & 0xFF ), 0, 255 ), 255 ) );
-		pCustomPanel->m_colPaintColors.AddToTail( Color( clamp( ( unPaintRGB1 & 0xFF0000 ) >> 16, 0, 255 ), clamp( ( unPaintRGB1 & 0xFF00 ) >> 8, 0, 255 ), clamp( ( unPaintRGB1 & 0xFF ), 0, 255 ), 255 ) );
-
-		AddCommerceSubmenus( pSubMenu, iPaintDef, "paint" );
-	}
-}
-//
-// Add commerce context options for an item.  Adds 'Store' and 'Market' options if appropriate (and Pricing) other wise just click to use
-//
-void CBackpackPanel::AddCommerceToContextMenu( Menu *pMenu, const char* pszActionFmt, item_definition_index_t iItemDefIndex, bool bAddMarket, bool bAddStore )
-{
-	GameItemDefinition_t * pItemDef = dynamic_cast<GameItemDefinition_t*>( GEconItemSchema().GetItemDefinition( iItemDefIndex ) );
-	if ( !pItemDef )
-		return;
-
-	//
-	if ( !bAddMarket && !bAddStore )
-	{
-		int nIndex = pMenu->AddMenuItem( "", new KeyValues( "Command", "command", CFmtStr( "%s%d", pszActionFmt, iItemDefIndex ) ), this );
-		vgui::MenuItem *pMenuItem = pMenu->GetMenuItem( nIndex );
-		pMenuItem->SetText( g_pVGuiLocalize->Find( pItemDef->GetItemBaseName() ) );
-		pMenuItem->InvalidateLayout( true, false );
-	}
-	else
-	{
-		// 
-		const char *pszContextMenuBorder = "NotificationDefault";
-		const char *pszContextMenuFont = "HudFontMediumSecondary";
-
-		Menu *pSubMenu = new Menu( this, "CommerceSubMenu" );
-		pSubMenu->SetBorder( scheme()->GetIScheme( GetScheme() )->GetBorder( pszContextMenuBorder ) );
-		pSubMenu->SetFont( scheme()->GetIScheme( GetScheme() )->GetFont( pszContextMenuFont, IsProportional() ) );
-		pMenu->AddCascadingMenuItem( pItemDef->GetItemBaseName(), this, pSubMenu );
-
-		AddCommerceSubmenus( pSubMenu, iItemDefIndex, pszActionFmt );
 	}
 }
 
@@ -2235,38 +2088,6 @@ void CBackpackPanel::OpenContextMenu()
 						else
 						{
 							vecStoreParts.AddToTail( m_vecStrangeParts[i] );
-						}
-					}
-				}
-
-				if ( pStrangePartsSubMenu )
-				{
-					if ( vecOwnedParts.Count() > 0 )
-					{
-						// Add Header and loop
-						int nIndex = pStrangePartsSubMenu->AddMenuItem( "", new KeyValues( "Command", "command", "" ), this );
-						vgui::MenuItem *pMenuItem = pStrangePartsSubMenu->GetMenuItem( nIndex );
-						pMenuItem->SetText( g_pVGuiLocalize->Find( "#TF_Owned" ) );
-						pMenuItem->InvalidateLayout( true, false );
-
-						FOR_EACH_VEC( vecOwnedParts, i )
-						{
-							AddCommerceToContextMenu( pStrangePartsSubMenu, "strangepart_", vecOwnedParts[i], false, false );
-						}
-					}
-
-					pStrangePartsSubMenu->AddSeparator();
-					if ( vecStoreParts.Count() > 0 )
-					{
-						// Add Header and loop 
-						int nIndex = pStrangePartsSubMenu->AddMenuItem( "", new KeyValues( "Command", "command", "" ), this );
-						vgui::MenuItem *pMenuItem = pStrangePartsSubMenu->GetMenuItem( nIndex );
-						pMenuItem->SetText( g_pVGuiLocalize->Find( "#TF_Market" ) );
-						pMenuItem->InvalidateLayout( true, false );
-
-						FOR_EACH_VEC( vecStoreParts, i )
-						{
-							AddCommerceToContextMenu( pStrangePartsSubMenu, "strangepart_", vecStoreParts[i], true, false );
 						}
 					}
 				}
@@ -3343,7 +3164,6 @@ void CBackpackPanel::DoDescription()
 	static CSchemaItemDefHandle pItemDef_DescTag( "Description Tag" );
 	if ( !AttemptToUseItem( pItemDef_DescTag->GetDefinitionIndex() ) )
 	{
-		AttemptToShowItemInStore( pItemDef_DescTag->GetDefinitionIndex() );
 	}
 }
 
@@ -3355,7 +3175,6 @@ void CBackpackPanel::DoRename()
 	static CSchemaItemDefHandle pItemDef_NameTag( "Name Tag" );
 	if ( !AttemptToUseItem( pItemDef_NameTag->GetDefinitionIndex() ) )
 	{
-		AttemptToShowItemInStore( pItemDef_NameTag->GetDefinitionIndex() );
 	}
 }
 
@@ -3618,24 +3437,6 @@ void CBackpackPanel::DoRefurbishItem()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Deode by item
-//-----------------------------------------------------------------------------
-void CBackpackPanel::DoGetItemFromStore()
-{
-	SetupToolSelectionItem();
-
-	uint32 iDecoableItemDef = 0;
-	if ( GetDecodedByItemDefIndex( &m_ToolSelectionItem, &iDecoableItemDef ) )
-	{
-		// casting to the proper type since our econ system is dumb
-		const float& value_as_float = (float&)iDecoableItemDef;
-		CEconItemDefinition * pDefIndex = GetItemSchema()->GetItemDefinition( (int)value_as_float );
-
-		EconUI()->GetStorePanel()->AddToCartAndCheckoutImmediately( pDefIndex->GetDefinitionIndex() );
-	}
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Open End of the Line duck leaderboards
 //-----------------------------------------------------------------------------
 void CBackpackPanel::DoOpenDuckLeaderboards()
@@ -3760,26 +3561,6 @@ void CBackpackPanel::DoInspectModel()
 		CCharacterInfoPanel* pCharInfo = dynamic_cast< CCharacterInfoPanel* >( EconUI() );
 		pCharInfo->OpenToPaintkitPreview( vecSelected[0]->GetItem(), true, true );
 	}
-	else
-	{
-		bool bClassCanUse = false;
-		for ( int iClass = TF_FIRST_NORMAL_CLASS; iClass < TF_LAST_NORMAL_CLASS; ++iClass )
-		{
-			if ( pItem->GetStaticData()->CanBeUsedByClass( iClass ) )
-			{
-				m_pInspectCosmeticPanel->PreviewItem( iClass, pItem );
-				bClassCanUse = true;
-				break;
-			}
-		}
-
-		if ( !bClassCanUse )
-		{
-			m_pInspectCosmeticPanel->PreviewItem( TF_FIRST_NORMAL_CLASS, pItem );
-		}
-
-		m_pInspectCosmeticPanel->SetVisible( true );
-	}
 }
 
 void CBackpackPanel::DoPreviewPaintkitsOnItem()
@@ -3837,18 +3618,6 @@ void CBackpackPanel::OpenInspectModelPanelAndCopyItem( CEconItemView *pItemView 
 		CCharacterInfoPanel* pCharInfo = dynamic_cast< CCharacterInfoPanel* >( EconUI() );
 		pCharInfo->OpenToPaintkitPreview( pItemView, false, false );
 	}
-	else
-	{
-		for ( int iClass = TF_FIRST_NORMAL_CLASS; iClass < TF_LAST_NORMAL_CLASS; ++iClass )
-		{
-			if ( pItemView->GetStaticData()->CanBeUsedByClass( iClass ) )
-			{
-				m_pInspectCosmeticPanel->PreviewItemCopy( iClass, pItemView );
-				m_pInspectCosmeticPanel->SetVisible( true );
-				break;
-			}
-		}
-	}
 }
 
 CCollectionCraftingPanel* CBackpackPanel::GetCollectionCraftPanel()
@@ -3877,16 +3646,6 @@ void CBackpackPanel::DoBuyKeyAndOpenCrate()
 		return;
 
 	m_hQuickOpenCrate.SetItem( vecSelected.Head()->GetItem() );
-
-	uint32 iDecoableItemDef = 0;
-	if ( GetDecodedByItemDefIndex( m_hQuickOpenCrate, &iDecoableItemDef ) )
-	{
-		// casting to the proper type since our econ system is dumb
-		const float& value_as_float = (float&)iDecoableItemDef;
-		CEconItemDefinition * pDefIndex = GetItemSchema()->GetItemDefinition( (int)value_as_float );
-
-		EconUI()->GetStorePanel()->AddToCartAndCheckoutImmediately( pDefIndex->GetDefinitionIndex() );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -3938,15 +3697,6 @@ void CBackpackPanel::DoPaint( int nPaintItemIndex, bool bUseStore, bool bUseMark
 	{
 		AttemptToUseItem( nPaintItemIndex );
 	}
-
-	if ( bUseStore )
-	{
-		AttemptToShowItemInStore( nPaintItemIndex );
-	}
-	else if ( bUseMarket )
-	{
-		AttemptToShowItemInMarket( nPaintItemIndex );
-	}
 }
 //-----------------------------------------------------------------------------
 // Purpose: Given a strange part index, offer to use one or buy one (Market)
@@ -3956,11 +3706,6 @@ void CBackpackPanel::DoStrangePart( int nStrangePartIndex, bool bUseMarket )
 	if ( !bUseMarket )
 	{
 		AttemptToUseItem( nStrangePartIndex );
-	}
-
-	if ( bUseMarket )
-	{
-		AttemptToShowItemInMarket( nStrangePartIndex );
 	}
 }
 
@@ -3994,60 +3739,7 @@ bool CBackpackPanel::AttemptToUseItem( item_definition_index_t iItemDefIndex )
 	}
 	return false;
 }
-//-----------------------------------------------------------------------------
-void CBackpackPanel::AttemptToShowItemInStore( item_definition_index_t iItemDefIndex )
-{
-	CUtlVector< CItemModelPanel* > m_vecSelected;
-	GetSelectedPanels( SELECT_FIRST, m_vecSelected );
-	Assert( m_vecSelected.Count() );
-	if( !m_vecSelected.Count() )
-		return;
 
-	CEconItemView *pSelectedItem = m_vecSelected.Head()->GetItem();
-	Assert( pSelectedItem );
-	if ( !pSelectedItem )
-		return;
-
-	EconUI()->OpenStorePanel( iItemDefIndex, false );
-}
-//-----------------------------------------------------------------------------
-void CBackpackPanel::AttemptToShowItemInMarket( item_definition_index_t iItemDefIndex )
-{
-	CUtlVector< CItemModelPanel* > m_vecSelected;
-	GetSelectedPanels( SELECT_FIRST, m_vecSelected );
-	Assert( m_vecSelected.Count() );
-	if ( !m_vecSelected.Count() )
-		return;
-
-	CEconItemView *pSelectedItem = m_vecSelected.Head()->GetItem();
-	Assert( pSelectedItem );
-	if ( !pSelectedItem )
-		return;
-
-	CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemDefIndex );
-	Assert( pItemDef );
-	if ( !pItemDef )
-		return;
-
-	if ( !CBaseAdPanel::CheckForRequiredSteamComponents( "#StoreUpdate_SteamRequired", "#MMenu_OverlayRequired" ) )
-		return;
-
-	if ( pItemDef && steamapicontext && steamapicontext->SteamFriends() )
-	{
-		const char *pszPrefix = "";
-		if ( GetUniverse() == k_EUniverseBeta )
-		{
-			pszPrefix = "beta.";
-		}
-
-		static char pszItemName[256];
-		g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find( pItemDef->GetItemBaseName() ), pszItemName, sizeof( pszItemName ) );
-
-		char szURL[512];
-		V_snprintf( szURL, sizeof( szURL ), "http://%ssteamcommunity.com/market/listings/%d/%s", pszPrefix, engine->GetAppID(), pszItemName );
-		steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( szURL );
-	}
-}
 //-----------------------------------------------------------------------------
 // Purpose: Get the first, or all selected item model panels
 //-----------------------------------------------------------------------------

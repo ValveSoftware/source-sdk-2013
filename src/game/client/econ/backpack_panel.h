@@ -25,7 +25,6 @@ class CStrangeCountTransferPanel;
 class CCollectionCraftingPanel;
 class CHalloweenOfferingPanel;
 class CCraftCommonStatClockPanel;
-class CTFStorePreviewItemPanel2;
 
 //-----------------------------------------------------------------------------
 // An inventory screen that handles displaying the backpack
@@ -83,7 +82,6 @@ public:
 	MESSAGE_FUNC( DoShuffle, "Context_Shuffle" );
 	MESSAGE_FUNC( DoEditSlot, "Context_EditSlot" );
 	MESSAGE_FUNC( DoRefurbishItem, "Context_RefurbishItem" );
-	MESSAGE_FUNC( DoGetItemFromStore, "Context_GetItemFromStore" );
 	MESSAGE_FUNC( DoOpenDuckLeaderboards, "Context_OpenDuckLeaderboards" );
 	MESSAGE_FUNC( DoInspectModel, "Context_InspectModel" );
 	MESSAGE_FUNC( DoPreviewPaintkitsOnItem, "Context_PreviewPaintkitsOnItem" );
@@ -104,8 +102,6 @@ public:
 		SELECT_ALL
 	};
 	bool AttemptToUseItem( item_definition_index_t iItemDefIndex );
-	void AttemptToShowItemInStore( item_definition_index_t iItemDefIndex );
-	void AttemptToShowItemInMarket( item_definition_index_t iItemDefIndex );
 	void GetSelectedPanels( ESelection eSelection, CUtlVector< CItemModelPanel* >& m_vecSelected ) const;
 	virtual void OnCommand( const char *command );
 	virtual void OnTick( void );
@@ -174,8 +170,6 @@ protected:
 	void		SetPageButtonTextColorBasedOnContents();
 
 	void		AddPaintToContextMenu( Menu *pPaintSubMenu, item_definition_index_t iPaintDef, bool bAddCommerce );
-	void		AddCommerceToContextMenu( Menu *pMenu, const char* pszActionFmt, item_definition_index_t iItemDefIndex, bool bAddMarket, bool bAddStore );
-	void		AddCommerceSubmenus( Menu *pSubMenu, item_definition_index_t iItemDef, const char* pszActionFmt );
 	void		DoGiftToPlayer( );
 
 protected:
@@ -255,7 +249,6 @@ protected:
 	DHANDLE<CCollectionCraftingPanel> m_pCollectionCraftPanel;
 	DHANDLE<CHalloweenOfferingPanel> m_pHalloweenOfferingPanel;
 	DHANDLE<CCraftCommonStatClockPanel> m_pMannCoTradePanel;			// Make this Panel Generic
-	CTFStorePreviewItemPanel2 *m_pInspectCosmeticPanel;
 	vgui::Menu *m_pContextMenu;
 	CEconItemViewHandle m_hQuickOpenCrate;
 	uint64 m_nQuickOpenTxn;

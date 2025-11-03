@@ -24,9 +24,6 @@
 #include "econ_ui.h"
 #include "c_tf_gamestats.h"
 #include "tf_item_pickup_panel.h"
-#include "store/v1/tf_store_panel.h"
-#include "store/v2/tf_store_panel2.h"
-#include "store/tf_store.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -689,15 +686,6 @@ void CCharacterInfoPanel::Gamestats_ItemTransaction( int eventID, CEconItemView 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CCharacterInfoPanel::Gamestats_Store( int eventID, CEconItemView* item, const char* panelName, int classId, 
-			const cart_item_t* cartItem, int checkoutAttempts, const char* storeError, int totalPrice, int currencyCode )
-{
-	C_CTF_GameStats.Event_Store( eventID, item, panelName, classId, cartItem, checkoutAttempts, storeError, totalPrice, currencyCode );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CCharacterInfoPanel::SetExperimentValue( uint64 experimentValue )
 {
 	C_CTF_GameStats.SetExperimentValue( experimentValue );
@@ -738,85 +726,6 @@ CItemDiscardPanel *CCharacterInfoPanel::OpenItemDiscardPanel( void )
 	g_TFItemDiscardPanel->ShowPanel( true );
 
 	return g_TFItemDiscardPanel;
-}
-
-static vgui::DHANDLE<CTFBaseStorePanel> g_StorePanel;
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::CreateStorePanel( void )
-{
-	// Clean up previous store panel?
-	if ( g_StorePanel.Get() != NULL )
-	{
-		g_StorePanel->MarkForDeletion();
-	}
-
-	// Create the store panel
-	CTFBaseStorePanel *pStorePanel = NULL;
-	if ( ShouldUseNewStore() )
-	{
-		pStorePanel = new CTFStorePanel2( NULL );
-	}
-	else
-	{
-		pStorePanel = new CTFStorePanel1( NULL );
-	}
-
-	g_StorePanel = vgui::SETUP_PANEL( pStorePanel );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CStorePanel	*CCharacterInfoPanel::OpenStorePanel( int iItemDef, bool bAddToCart )
-{
-	return NULL;
-
-	// Make sure we've got the appropriate connections to Steam
-	if ( !steamapicontext || !steamapicontext->SteamUtils() )
-	{
-		OpenStoreStatusDialog( NULL, "#StoreUpdate_SteamRequired", true, false );
-		return NULL;
-	}
-
-	if ( !steamapicontext->SteamUtils()->IsOverlayEnabled() )
-	{
-		OpenStoreStatusDialog( NULL, "#StoreUpdate_OverlayRequired", true, false );
-		return NULL;
-	}
-
-	if ( !CStorePanel::IsPricesheetLoaded() )
-	{
-		OpenStoreStatusDialog( NULL, "#StoreUpdate_Loading", false, false );
-
-		CStorePanel::SetShouldShowWarnings( true );
-		CStorePanel::RequestPricesheet();
-		return NULL;
-	}
-
-	if ( !g_StorePanel )
-		return NULL;
-
-	engine->ClientCmd_Unrestricted( "gameui_activate" );
-
-	if ( iItemDef )
-	{
-		g_StorePanel->StartAtItemDef( iItemDef, bAddToCart );
-	}
-
-	g_StorePanel->ShowPanel( true );
-
-	return g_StorePanel;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CStorePanel	*CCharacterInfoPanel::GetStorePanel( void )
-{
-	return g_StorePanel;
 }
 
 //-----------------------------------------------------------------------------

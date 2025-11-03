@@ -36,7 +36,6 @@
 #include "tf_hud_mainmenuoverride.h"
 #include "econ_ui.h"
 #include "backpack_panel.h"
-#include "store/v1/tf_store_page.h"
 #include "econ_item_description.h"
 #include "weapon_selection.h"
 #include "collection_crafting_panel.h"
@@ -2273,11 +2272,6 @@ void CSelectPlayerForDuelDialog::ApplySchemeSettings( vgui::IScheme *pScheme )
 
 void CSelectPlayerForDuelDialog::SetupClassImage( const char *pImageControlName, int iClass )
 {
-	CStorePreviewClassIcon *pClassImage = dynamic_cast<CStorePreviewClassIcon*>( FindChildByName( pImageControlName ) );
-	if ( pClassImage )
-	{
-		pClassImage->SetClass( iClass );
-	}
 }
 
 void CSelectPlayerForDuelDialog::FireGameEvent( IGameEvent *event )

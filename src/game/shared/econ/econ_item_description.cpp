@@ -5,7 +5,6 @@
 #include "econ_item_interface.h"
 #include "econ_item_tools.h"
 #include "econ_holidays.h"
-#include "econ_store.h"
 #include "tier1/ilocalize.h"
 #include "localization_provider.h"
 #include "rtime.h"
@@ -19,9 +18,7 @@
 
 	#ifdef CLIENT_DLL
 		#include "gc_clientsystem.h"
-		#include "client_community_market.h"			// for Market data in tooltips
 		#include "econ_ui.h"							// for money-value-to-display-string formatting
-		#include "store/store_panel.h"					// for money-value-to-display-string formatting
 	#endif // CLIENT_DLL
 
 
@@ -3180,62 +3177,6 @@ void CEconItemDescription::Generate_FlagsAttributes( const CLocalizationProvider
 	const bool bHasToolEscrowUntilDate = pEconItem->FindAttribute( pAttrDef_ToolEscrowUntil, &unEscrowTime );
 	const bool bHasExpiringTimer = bHasTradableAfterDate || bHasToolEscrowUntilDate;
 
-#ifdef CLIENT_DLL
-	const bool bIsStoreItem = IsStorePreviewItem( pEconItem );
-	const bool bIsPreviewItem = pEconItem->GetFlags() & kEconItemFlagClient_Preview;
-
-	if ( bIsStoreItem || bIsPreviewItem )
-	{
-		{
-			// Does this item come with other packages on Steam?
-			const econ_store_entry_t *pStoreEntry = GetEconPriceSheet() ? GetEconPriceSheet()->GetEntry( pItemDef->GetDefinitionIndex() ) : NULL;
-			if ( pStoreEntry && pStoreEntry->GetGiftSteamPackageID() != 0 )
-			{
-				const char *pszSteamPackageLocalizationToken = GetItemSchema()->GetSteamPackageLocalizationToken( pStoreEntry->GetGiftSteamPackageID() );
-				if ( pszSteamPackageLocalizationToken )
-				{
-					vecLines.AddToTail( localized_localplayer_line_t( "#Attrib_Store_IncludesSteamGiftPackage", ATTRIB_COL_POSITIVE, pszSteamPackageLocalizationToken ) );
-					vecLines.AddToTail( localized_localplayer_line_t( NULL, ATTRIB_COL_POSITIVE ) );
-				}
-			}
-		
-			// While the above apply to store *and* preview items, the below only apply to store items.
-			if ( bIsStoreItem )
-			{
-				// Don't display this line for map stamps because they can't be traded.
-				if ( pItemDef && pItemDef->GetItemClass() && !FStrEq( pItemDef->GetItemClass(), "map_token" ) )
-				{
-					static CSchemaAttributeDefHandle pAttrib_CannotTrade( "cannot trade" );
-					Assert( pAttrib_CannotTrade );
-
-					// Some items cannot ever be traded, so don't indicate to the users that they'll be tradeable after a few days.
-					if ( !FindAttribute( pItemDef, pAttrib_CannotTrade ) )
-					{
-						vecLines.AddToTail( localized_localplayer_line_t( "#Attrib_Store_TradableAfterDate", ATTRIB_COL_NEGATIVE ) );
-					}
-
-					if ( pItemDef->GetEconTool() && pItemDef->GetEconTool()->RequiresToolEscrowPeriod() )
-					{
-						vecLines.AddToTail( localized_localplayer_line_t( "#Attrib_Store_ToolEscrowUntilDate", ATTRIB_COL_NEGATIVE ) );
-					}
-				}
-
-				if ( !pItemDef || (pItemDef->GetCapabilities() & ITEM_CAP_CAN_BE_CRAFTED_IF_PURCHASED) == 0 )
-				{
-					if ( pItemDef->IsBundle() )
-					{
-						vecLines.AddToTail( localized_localplayer_line_t( "#Attrib_CannotCraftWeapons", ATTRIB_COL_NEGATIVE ) );
-					}
-					else
-					{
-						vecLines.AddToTail( localized_localplayer_line_t( "#Attrib_CannotCraft", ATTRIB_COL_NEGATIVE ) );
-					}
-				}
-			}
-		}
-	}
-	else
-#endif // CLIENT_DLL	
 	if ( bHasExpiringTimer )
 	{
 		if ( unTradeTime > CRTime::RTime32TimeCur() )

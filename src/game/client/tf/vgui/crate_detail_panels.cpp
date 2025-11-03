@@ -258,24 +258,6 @@ void CInputStringForItemBackpackOverlayDialog::OnCommand( const char *command )
 			vgui::surface()->PlaySound( "ui/itemcrate_shuffle.wav" );
 		}
 	}
-	else if ( !Q_strnicmp( command, "getkey", 6 ) )
-	{
-		static CSchemaAttributeDefHandle pAttrDef_DecodedBy( "decoded by itemdefindex" );
-			
-		uint32 iDecodableItemDef = 0;
-		if ( m_Item.FindAttribute( pAttrDef_DecodedBy, &iDecodableItemDef ) )
-		{
-			// casting to the proper type since our econ system is dumb
-			const float& value_as_float = (float&)iDecodableItemDef;
-			EconUI()->CloseEconUI();
-			EconUI()->OpenStorePanel( (int)value_as_float, false );
-
-			// close ourselves
-			TFModalStack()->PopModal( this );
-			SetVisible( false );
-			MarkForDeletion();
-		}
-	}
 	else if ( !Q_strnicmp( command, "usekey", 6 ) )
 	{
 		if ( m_UseableKey.IsValid() )

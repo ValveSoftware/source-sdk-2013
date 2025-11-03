@@ -74,7 +74,6 @@ public:
 	bool		 ShouldShowExplanations( void ) { return true; }
 	void		 UpdateItemList( void );
 	void		 UpdateSelectedItem( void );
-	void		 AllowGotoStore( void ) { m_bAllowGotoStore = true; }
 
 	MESSAGE_FUNC_PTR( OnItemPanelEntered, "ItemPanelEntered", panel );
 	MESSAGE_FUNC_PTR( OnItemPanelExited, "ItemPanelExited", panel );
@@ -130,9 +129,6 @@ private:
 	vgui::EditablePanel				*m_pDataPanel;
 	CEconItemDetailsRichText			*m_pDataTextRichText;
 	CExButton						*m_pViewSetButton;
-
-	bool							m_bAllowGotoStore;
-	CExButton						*m_pStoreButton;
 
 	CPanelAnimationVar( int, m_iThumbnailRows, "thumbnails_rows", "1" );
 	CPanelAnimationVar( int, m_iThumbnailColumns, "thumbnails_columns", "1" );

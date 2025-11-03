@@ -13,7 +13,6 @@
 #include "econ_item_inventory.h"
 #include "backpack_panel.h"
 #include "item_pickup_panel.h"
-#include "store/store_panel.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -181,10 +180,6 @@ void CEconSampleRootUI::OnCommand( const char *command )
 	else if ( !Q_strnicmp( command, "armory", 6 ) )
 	{
 		OpenSubPanel( ECONUI_ARMORY );
-	}
-	else if ( !Q_strnicmp( command, "store", 5 ) )
-	{
-		EconUI()->OpenStorePanel( 0, false );	
 	}
 	else if ( !Q_strnicmp( command, "trading", 7 ) )
 	{
@@ -359,73 +354,6 @@ CItemDiscardPanel *CEconSampleRootUI::OpenItemDiscardPanel( void )
 	g_ItemDiscardPanel->ShowPanel( true );
 
 	return g_ItemDiscardPanel;
-}
-
-static vgui::DHANDLE<CStorePanel> g_StorePanel;
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconSampleRootUI::CreateStorePanel( void )
-{
-	// Clean up previous store panel?
-	if ( g_StorePanel.Get() != NULL )
-	{
-		g_StorePanel->MarkForDeletion();
-	}
-
-	// Create the store panel
-	g_StorePanel = vgui::SETUP_PANEL( new CStorePanel( NULL ) );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CStorePanel	*CEconSampleRootUI::OpenStorePanel( int iItemDef, bool bAddToCart )
-{
-	// Make sure we've got the appropriate connections to Steam
-	if ( !steamapicontext || !steamapicontext->SteamUtils() )
-	{
-		OpenStoreStatusDialog( NULL, "#StoreUpdate_SteamRequired", true, false );
-		return NULL;
-	}
-
-	if ( !steamapicontext->SteamUtils()->IsOverlayEnabled() )
-	{
-		OpenStoreStatusDialog( NULL, "#StoreUpdate_OverlayRequired", true, false );
-		return NULL;
-	}
-
-	if ( !CStorePanel::IsPricesheetLoaded() )
-	{
-		OpenStoreStatusDialog( NULL, "#StoreUpdate_Loading", false, false );
-
-		CStorePanel::SetShouldShowWarnings( true );
-		CStorePanel::RequestPricesheet();
-		return NULL;
-	}
-
-	if ( !g_StorePanel )
-		return NULL;
-
-	engine->ClientCmd_Unrestricted( "gameui_activate" );
-
-	if ( iItemDef )
-	{
-		g_StorePanel->StartAtItemDef( iItemDef, bAddToCart );
-	}
-
-	g_StorePanel->ShowPanel( true );
-
-	return g_StorePanel;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CStorePanel	*CEconSampleRootUI::GetStorePanel( void )
-{
-	return g_StorePanel;	
 }
 
 #ifdef _DEBUG

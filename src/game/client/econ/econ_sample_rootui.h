@@ -58,10 +58,6 @@ public:
 	// This is here so that games can customize the implementation of these panels.
 	CItemPickupPanel	*OpenItemPickupPanel( void );
 	CItemDiscardPanel	*OpenItemDiscardPanel( void );
-	// Store
-	virtual void		CreateStorePanel( void );
-	virtual CStorePanel	*OpenStorePanel( int iItemDef, bool bAddToCart );
-	virtual CStorePanel	*GetStorePanel( void );
 
 	// When the root UI is closed, send an "EconUIClosed" message to pListener.
 	virtual void		AddPanelCloseListener( vgui::Panel *pListener )	{ AssertMsg( 0, "Implement me!" ); }

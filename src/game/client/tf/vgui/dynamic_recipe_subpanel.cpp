@@ -617,12 +617,6 @@ void CDynamicRecipePanel::PerformLayout( void )
 {
 	BaseClass::PerformLayout();
 
-
-	if( m_pSortByComboBox )
-	{
-		m_pSortByComboBox->SetVisible( false );
-	}
-
 	UpdateModelPanels();
 
 	bool bNoMatches = m_nNumRecipeItems == 0;

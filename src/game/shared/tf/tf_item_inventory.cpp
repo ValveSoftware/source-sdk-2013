@@ -507,16 +507,6 @@ void CTFInventoryManager::AcknowledgeItem( CEconItemView *pItem, bool bMoveToBac
 		iMethod = 0;
 	EconUI()->Gamestats_ItemTransaction( IE_ITEM_RECEIVED, pItem, g_pszItemPickupMethodStringsUnloc[iMethod] );
 
-	if ( iMethod+1 == UNACK_ITEM_PREVIEW_ITEM_PURCHASED )
-	{
-		// If we found a purchased preview item, we want to refresh the store view to remove the discount indicator.
-		CStorePage* pStorePage = dynamic_cast<CStorePage*>( EconUI()->GetStorePanel()->GetActivePage() );
-		if ( pStorePage )
-		{
-			pStorePage->UpdateModelPanels();
-		}
-	}
-
 	// Move it to the first empty backpack position.
 	if ( bMoveToBackpack )
 	{

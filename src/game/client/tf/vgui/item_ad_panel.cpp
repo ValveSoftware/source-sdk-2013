@@ -8,9 +8,7 @@
 #include "item_ad_panel.h"
 #include "econ_item_system.h"
 #include "item_model_panel.h"
-#include "econ_store.h"
 #include "econ_ui.h"
-#include "store/store_panel.h"
 #include "tf_controls.h"
 #include "econ_item_description.h"
 #include "vgui/IInput.h"
@@ -37,20 +35,7 @@ void CBaseAdPanel::ApplySettings( KeyValues *inResourceData )
 
 bool CBaseAdPanel::CheckForRequiredSteamComponents( const char* pszSteamRequried, const char* pszOverlayRequired )
 {
-	// Make sure we've got the appropriate connections to Steam
-	if ( !steamapicontext || !steamapicontext->SteamUtils() )
-	{
-		OpenStoreStatusDialog( NULL, pszSteamRequried, true, false );
-		return false;
-	}
-
-	if ( !steamapicontext->SteamUtils()->IsOverlayEnabled() )
-	{
-		OpenStoreStatusDialog( NULL, pszOverlayRequired, true, false );
-		return false;
-	}
-
-	return true;
+	return false;
 }
 
 
@@ -195,25 +180,8 @@ void CItemAdPanel::SetupItemPanel()
 //-----------------------------------------------------------------------------
 void CItemAdPanel::OnTick()
 {
-	const CTFItemDefinition* pItemDef = GetItemDef();
-	bool bStoreIsReady = EconUI()->GetStorePanel() && EconUI()->GetStorePanel()->GetPriceSheet() && EconUI()->GetStorePanel()->GetCart() && steamapicontext && steamapicontext->SteamUser() && pItemDef;
-	if ( bStoreIsReady )
-	{
-		// Get the price of the item
-		const ECurrency eCurrency = EconUI()->GetStorePanel()->GetCurrency();
-		const econ_store_entry_t *pEntry = EconUI()->GetStorePanel()->GetPriceSheet()->GetEntry( pItemDef->GetDefinitionIndex() );
-		if ( pEntry )
-		{
-			item_price_t unPrice = pEntry->GetCurrentPrice( eCurrency );
-			// Set that price into the button
-			wchar_t wzLocalizedPrice[ kLocalizedPriceSizeInChararacters ];
-			MakeMoneyString( wzLocalizedPrice, ARRAYSIZE( wzLocalizedPrice ), unPrice, eCurrency );
-			SetDialogVariable( "price", wzLocalizedPrice );
-
-			// Don't need to tick anymore
-			vgui::ivgui()->RemoveTickSignal( GetVPanel() );
-		}
-	}
+	SetDialogVariable( "price", 0 );
+	vgui::ivgui()->RemoveTickSignal( GetVPanel() );
 }
 
 //-----------------------------------------------------------------------------
@@ -241,45 +209,6 @@ void CItemAdPanel::SetItemTooltip( CItemModelPanelToolTip* pItemToolTip )
 //-----------------------------------------------------------------------------
 void CItemAdPanel::OnCommand( const char *command )
 {
-	if ( FStrEq( "purchase", command ) )
-	{
-		if ( !CheckForRequiredSteamComponents( "#StoreUpdate_SteamRequired", "#MMenu_OverlayRequired" ) )
-			return;
-
-		const CTFItemDefinition* pItemDef = GetItemDef();
-		if ( pItemDef )
-		{
-			if ( EconUI()->GetStorePanel() && EconUI()->GetStorePanel()->GetPriceSheet() && EconUI()->GetStorePanel()->GetCart() && steamapicontext && steamapicontext->SteamUser() )
-			{
-				// Add a the item to the users cart and checkout
-				EconUI()->GetStorePanel()->GetCart()->EmptyCart();
-				AddItemToCartHelper( NULL, pItemDef->GetDefinitionIndex(), kCartItem_Purchase );
-				EconUI()->GetStorePanel()->InitiateCheckout( true );
-			}
-		}
-	}
-	else if ( FStrEq( "market", command ) ) 
-	{
-		if ( !CheckForRequiredSteamComponents( "#StoreUpdate_SteamRequired", "#MMenu_OverlayRequired" ) )
-			return;
-
-		const CTFItemDefinition* pItemDef = GetItemDef();
-		if ( pItemDef && steamapicontext && steamapicontext->SteamFriends() )
-		{
-			const char *pszPrefix = "";
-			if ( GetUniverse() == k_EUniverseBeta )
-			{
-				pszPrefix = "beta.";
-			}
-
-			static char pszItemName[256];
-			g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find ( pItemDef->GetItemBaseName() ) , pszItemName, sizeof(pszItemName) );
-
-			char szURL[512];
-			V_snprintf( szURL, sizeof(szURL), "http://%ssteamcommunity.com/market/listings/%d/%s", pszPrefix, engine->GetAppID(), pszItemName );
-			steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( szURL );
-		}
-	}
 }
 
 

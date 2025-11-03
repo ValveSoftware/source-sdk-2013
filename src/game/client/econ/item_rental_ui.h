@@ -16,7 +16,6 @@
 #include "econ_controls.h"
 #include "gc_clientsystem.h"
 #include "tool_items/tool_items.h"
-#include "store/store_panel.h"
 #include "vgui_controls/PropertySheet.h"
 #include "confirm_dialog.h"
 #include "econ_notifications.h"

@@ -16,7 +16,6 @@
 #include "tf_item_inventory.h"
 #include "econ_item_system.h"
 #include "iachievementmgr.h"
-#include "store/store_panel.h"
 #include "character_info_panel.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -63,8 +62,6 @@ CArmoryPanel::CArmoryPanel(Panel *parent, const char *panelName) : vgui::Editabl
 	m_pNextPageButton = NULL;
 	m_pPrevPageButton = NULL;
 	m_pViewSetButton = NULL;
-	m_pStoreButton = NULL;
-	m_bAllowGotoStore = false;
 
 	m_pDataPanel = new vgui::EditablePanel( this, "DataPanel" );
 	m_pDataTextRichText = NULL;
@@ -112,7 +109,6 @@ void CArmoryPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	m_pNextPageButton = dynamic_cast<CExButton*>( FindChildByName("NextPageButton") );
 	m_pPrevPageButton = dynamic_cast<CExButton*>( FindChildByName("PrevPageButton") );
 	m_pViewSetButton = dynamic_cast<CExButton*>( FindChildByName("ViewSetButton") );
-	m_pStoreButton = dynamic_cast<CExButton*>( FindChildByName("StoreButton") );
 
 	m_pDataTextRichText->SetURLClickedHandler( this );
 
@@ -342,16 +338,6 @@ void CArmoryPanel::OnCommand( const char *command )
 		InvalidateLayout( false, true );
 		SetTall( YRES(400) );
 		SetVisible( true );
-	}
-	else if ( !Q_stricmp( command, "openstore" ) )
-	{
-		// Only available in the loadout->catalog path. So we close down the character info, and move to the store.
-		// Bit of a hack.
-		EconUI()->CloseEconUI();
-
-		int iItemDef = m_SelectedItem.IsValid() ? m_SelectedItem.GetItemDefIndex() : 0;
-		EconUI()->OpenStorePanel( iItemDef, false );
-		return;
 	}
 	else if ( !Q_stricmp( command, "wiki" ) )
 	{
@@ -760,12 +746,6 @@ void CArmoryPanel::UpdateSelectedItem( void )
 				m_pViewSetButton->SetVisible( true );
 			}
 		}
-	}
-
-	if ( m_pStoreButton ) 
-	{
-		bool bShowStoreButton = m_bAllowGotoStore && EconUI()->GetStorePanel() && EconUI()->GetStorePanel()->GetPriceSheet() && EconUI()->GetStorePanel()->GetPriceSheet()->GetEntry( m_SelectedItem.GetItemDefIndex() );
-		m_pStoreButton->SetVisible( bShowStoreButton );
 	}
 }
 

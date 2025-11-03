@@ -61,18 +61,13 @@ public:
 
 	// Gamestats access (We should replace these with an Econ Gamestats)
 	virtual void		Gamestats_ItemTransaction( int eventID, CEconItemView *item, const char *pszReason = NULL, int iQuality = 0 ) = 0;
-	virtual void		Gamestats_Store( int eventID, CEconItemView* item=NULL, const char* panelName=NULL, 
-		int classId=0, const cart_item_t* in_cartItem=NULL, int in_checkoutAttempts=0, const char* storeError=NULL, int in_totalPrice=0, int in_currencyCode=0 ) = 0;
+	
 	virtual void		SetExperimentValue( uint64 experimentValue ) = 0;
 
 	// Open separate economy panels (they're not parented to the root EconUI)
 	// This is here so that games can customize the implementation of these panels.
 	virtual CItemPickupPanel	*OpenItemPickupPanel( void ) = 0;
 	virtual CItemDiscardPanel	*OpenItemDiscardPanel( void ) = 0;
-	// Store
-	virtual void				CreateStorePanel( void ) = 0;
-	virtual CStorePanel			*OpenStorePanel( int iItemDef, bool bAddToCart ) = 0;
-	virtual CStorePanel			*GetStorePanel( void ) = 0;
 
 	// When the root UI is closed, send an "EconUIClosed" message to pListener.
 	virtual void		AddPanelCloseListener( vgui::Panel *pListener ) = 0;

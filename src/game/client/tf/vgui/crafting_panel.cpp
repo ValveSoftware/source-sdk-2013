@@ -977,12 +977,6 @@ void CCraftingPanel::OnCommand( const char *command )
 		}
 		return;
 	}
-	else if ( !Q_stricmp( command, "upgrade" ) )
-	{
-		EconUI()->CloseEconUI();
-		EconUI()->OpenStorePanel( STOREPANEL_SHOW_UPGRADESTEPS, false );
-		return;
-	}
 	else if ( !Q_stricmp( command, "reloadscheme" ) )
 	{
 		InvalidateLayout( true, true );

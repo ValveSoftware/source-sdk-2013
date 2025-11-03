@@ -20,7 +20,6 @@
 #include "gcsdk/gcclientjob.h"
 #include "econ_item_system.h"
 #include <vgui_controls/AnimationController.h>
-#include "store/store_panel.h"
 #include "gc_clientsystem.h"
 #include <vgui_controls/ScrollBarSlider.h>
 #include "filesystem.h"
@@ -191,7 +190,6 @@ CHudMainMenuOverride::CHudMainMenuOverride( IViewPort *pViewPort ) : BaseClass( 
 
 	ListenForGameEvent( "gc_new_session" );
 	ListenForGameEvent( "item_schema_initialized" );
-	ListenForGameEvent( "store_pricesheet_updated" );
 	ListenForGameEvent( "gameui_activated" );
 	ListenForGameEvent( "party_updated" );
 	ListenForGameEvent( "server_spawn" );
@@ -330,8 +328,6 @@ void CHudMainMenuOverride::AttachToGameUI( void )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-ConVar tf_last_store_pricesheet_version( "tf_last_store_pricesheet_version", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE | FCVAR_DONTRECORD | FCVAR_HIDDEN );
-
 void CHudMainMenuOverride::FireGameEvent( IGameEvent *event )
 {
 	const char * type = event->GetName();
@@ -386,43 +382,6 @@ void CHudMainMenuOverride::FireGameEvent( IGameEvent *event )
 			// Parse the entries
 			GetMOTDManager().BInitMOTDEntries( pEntriesKV, &vecErrors );
 			GetMOTDManager().PurgeUnusedMOTDEntries( pEntriesKV );
-		}
-	}
-	else if ( Q_strcmp( type, "store_pricesheet_updated" ) == 0 )
-	{
-		// If the contents of the store have changed since the last time we went in and/or launched
-		// the game, change the button color so that players know there's new content available.
-		if ( EconUI() &&
-			 EconUI()->GetStorePanel() &&
-			 EconUI()->GetStorePanel()->GetPriceSheet() )
-		{
-			const CEconStorePriceSheet *pPriceSheet = EconUI()->GetStorePanel()->GetPriceSheet();
-
-			// The cvar system can't deal with integers that lose data when represented as floating point
-			// numbers. We don't really care about supreme accuracy for detecting changes -- worst case if
-			// we change the price sheet almost exactly 18 hours apart, some subset of players won't get the
-			// "new!" label and that's fine.
-			const uint32 unPriceSheetVersion = (uint32)pPriceSheet->GetVersionStamp() & 0xffff;
-
-			if ( unPriceSheetVersion != (uint32)tf_last_store_pricesheet_version.GetInt() )
-			{
-				tf_last_store_pricesheet_version.SetValue( (int)unPriceSheetVersion );
-
-				if ( m_pStoreHasNewItemsImage )
-				{
-					m_pStoreHasNewItemsImage->SetVisible( true );
-				}
-			}
-		}
-
-		// might as well do this here too
-		UpdatePromotionalCodes();
-
-		LoadCharacterImageFile();
-
-		if ( NeedsToChooseMostHelpfulFriend() )
-		{
-			NotifyNeedsToChooseMostHelpfulFriend();
 		}
 	}
 }
@@ -1921,10 +1880,6 @@ void CHudMainMenuOverride::OnCommand( const char *command )
 			case k_EUniverseDev:	steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( "http://csham.valvesoftware.com/tf.com/meetyourmatch" ); break;
 			}
 		}
-		else
-		{
-			OpenStoreStatusDialog( NULL, "#MMenu_OverlayRequired", true, false );
-		}
 		return;
 	}
 	else if ( FStrEq( "view_update_comic", command ) )
@@ -1938,10 +1893,6 @@ void CHudMainMenuOverride::OnCommand( const char *command )
 			case k_EUniverseBeta:	// Fall through
 			case k_EUniverseDev:	steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( "http://www.teamfortress.com/gargoyles_and_gravel" ); break;
 			}
-		}
-		else
-		{
-			OpenStoreStatusDialog( NULL, "#MMenu_OverlayRequired", true, false );
 		}
 		return;
 	}

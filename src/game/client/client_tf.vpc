@@ -145,54 +145,12 @@ $Project "Client (TF)"
 		{
 			$File	"econ\item_selection_panel.cpp"
 			$File	"econ\item_selection_panel.h"
-
-			$Folder	"Store"
-			{
-				$File	"econ\store\store_page_halloween.cpp"
-				$File	"econ\store\store_page_halloween.h"
-			}
 		}
 
 		$Folder "TF Economy Client Overrides"
 		{
 			$File	"tf\vgui\tf_item_pickup_panel.cpp"
 			$File	"tf\vgui\tf_item_pickup_panel.h"
-
-			$File	"tf\vgui\store\tf_store.cpp"
-			$File	"tf\vgui\store\tf_store.h"
-
-			$File	"tf\vgui\store\tf_store_panel_base.h"
-			$File	"tf\vgui\store\tf_store_panel_base.cpp"
-			$File	"tf\vgui\store\tf_store_page_base.cpp"
-			$File	"tf\vgui\store\tf_store_page_base.h"
-			$File	"tf\vgui\store\tf_store_preview_item_base.cpp"
-			$File	"tf\vgui\store\tf_store_preview_item_base.h"
-
-			$Folder "v1"
-			{
-				$File	"tf\vgui\store\v1\tf_store_page.cpp"
-				$File	"tf\vgui\store\v1\tf_store_page.h"
-				$File	"tf\vgui\store\v1\tf_store_panel.cpp"
-				$File	"tf\vgui\store\v1\tf_store_panel.h"
-				$File	"tf\vgui\store\v1\tf_store_preview_item.cpp"
-				$File	"tf\vgui\store\v1\tf_store_preview_item.h"
-				$File	"tf\vgui\store\v1\tf_store_page_maps.cpp"
-				$File	"tf\vgui\store\v1\tf_store_page_maps.h"
-			}
-
-			$Folder "v2"
-			{
-				$File	"tf\vgui\store\v2\tf_store_page2.cpp"
-				$File	"tf\vgui\store\v2\tf_store_page2.h"
-				$File	"tf\vgui\store\v2\tf_store_panel2.cpp"
-				$File	"tf\vgui\store\v2\tf_store_panel2.h"
-				$File	"tf\vgui\store\v2\tf_store_preview_item2.cpp"
-				$File	"tf\vgui\store\v2\tf_store_preview_item2.h"
-				$File	"tf\vgui\store\v2\tf_store_page_maps2.cpp"
-				$File	"tf\vgui\store\v2\tf_store_page_maps2.h"
-				$File	"tf\vgui\store\v2\tf_store_mapstamps_info_dialog.cpp"
-				$File	"tf\vgui\store\v2\tf_store_mapstamps_info_dialog.h"
-			}
 		}
 
 		$Folder	"TF"

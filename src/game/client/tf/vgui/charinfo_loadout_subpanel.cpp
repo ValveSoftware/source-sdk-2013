@@ -332,7 +332,6 @@ CCharInfoLoadoutSubPanel::CCharInfoLoadoutSubPanel(Panel *parent) : vgui::Proper
 	m_pCraftingPanel = new CCraftingPanel( this, "crafting_panel" );
 	m_pArmoryPanel = new CArmoryPanel( this, "armory_panel" );
 	m_pInspectPanel = new CTFItemInspectionPanel( this, "InspectionPanel" );
-	m_pArmoryPanel->AllowGotoStore();
 	m_pSelectLabel = NULL;
 	m_pLoadoutChangesLabel = NULL;
 	m_pNoSteamLabel = NULL;

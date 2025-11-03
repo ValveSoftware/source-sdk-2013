@@ -13,8 +13,6 @@
 #include "tf_gamestats_shared.h"
 #include "GameEventListener.h"
 #include "c_tf_player.h"
-#include "econ_store.h"
-#include "store/store_panel.h"
 
 class CTFPlayer;
 
@@ -132,23 +130,6 @@ public:
 
 	int		numAttempts;
 	int		recipeFound;
-};
-
-// Store Usage Tracking
-class TF_Gamestats_StoreEvent : public TF_Gamestats_ItemEvent
-{
-public:
-	TF_Gamestats_StoreEvent( int in_eventNum, CEconItemView* in_item, 
-		const char* in_panelName, int in_classId, const cart_item_t* in_cartItem,
-		int in_checkoutAttempts, const char* in_storeError, int in_totalPrice, int in_currencyCode );
-
-	int classId;
-	int cartQuantity;
-	int cartItemCost;
-	int currencyCode;
-	int checkoutAttempt;
-	const char* storeError;
-	const char* panelName;
 };
 
 // General client-subjective item transaction tracking.
@@ -285,8 +266,6 @@ public:
 	virtual void Event_PlayerFiredWeapon( C_TFPlayer *pPlayer, bool bCritical );
 	virtual void Event_Catalog( int eventID, const char* filter=NULL, CEconItemView* item=NULL );
 	virtual void Event_Crafting( int eventID, CEconItemView* item=NULL, int numAttempts=0, int recipeFound=0 );
-	virtual void Event_Store( int eventID, CEconItemView* item=NULL, const char* panelName=NULL, 
-		int classId=0, const cart_item_t* in_cartItem=NULL, int in_checkoutAttempts=0, const char* storeError=NULL, int in_totalPrice=0, int in_currencyCode=0 );
 	virtual void Event_ItemTransaction( int eventID, CEconItemView* item, const char* pszReason=NULL, int iQuality=0 );
 	virtual void Event_Trading( int eventID, CEconItemView* item=NULL, bool localPlayerIsPartyA=false,
 		uint64 steamIDPartyA=0, uint64 steamIDPartyB=0, int iTradeRequests=0, int iTradeAttempts=0 );
@@ -329,7 +308,6 @@ private:
 
 	CUtlVector<TF_Gamestats_CatalogEvent> m_vecCatalogEvents;
 	CUtlVector<TF_Gamestats_CraftingEvent> m_vecCraftingEvents;
-	CUtlVector<TF_Gamestats_StoreEvent> m_vecStoreEvents;
 	CUtlVector<TF_Gamestats_ItemTransactionEvent> m_vecItemTransactionEvents;
 	CUtlVector<TF_Gamestats_TradeEvent> m_vecTradeEvents;
 

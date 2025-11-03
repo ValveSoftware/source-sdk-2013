@@ -16,7 +16,6 @@
 #include "vgui_controls/TextImage.h"
 #include "vgui_controls/CheckButton.h"
 #include "econ_ui.h"
-#include "store/store_panel.h"
 #ifdef TF_CLIENT_DLL
 #include "tf_playerpanel.h"
 #include "item_ad_panel.h"
@@ -515,7 +514,6 @@ void CTFUpgradeBoxDialog::OnCommand( const char *command )
 
 		// Open the store, and show the upgrade advice
 		EconUI()->CloseEconUI();
-		EconUI()->OpenStorePanel( STOREPANEL_SHOW_UPGRADESTEPS, false );
 	}
 	else
 	{
