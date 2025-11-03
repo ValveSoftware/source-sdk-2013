@@ -16,7 +16,6 @@
 #include <vgui_controls/Button.h>
 #include "tf_controls.h"
 #include "tf_shareddefs.h"
-#include "item_pickup_panel.h"
 #include "class_loadout_panel.h"
 #include "charinfo_armory_subpanel.h"
 

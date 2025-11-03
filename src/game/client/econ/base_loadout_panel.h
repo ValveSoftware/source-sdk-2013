@@ -13,7 +13,6 @@
 
 #include "vgui_controls/EditablePanel.h"
 #include "econ_controls.h"
-#include "item_pickup_panel.h"
 #include "GameEventListener.h"
 #include "tf_item_card_panel.h"
 

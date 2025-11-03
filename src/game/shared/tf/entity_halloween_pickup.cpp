@@ -711,29 +711,6 @@ void CHalloweenGiftPickup::OnDataChanged( DataUpdateType_t updateType )
 		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 		if ( pLocalPlayer )
 		{
-			// Gift Added
-			if ( m_hTargetPlayer.Get() != NULL && m_pPreviousTargetPlayer == NULL && m_hTargetPlayer.Get() == pLocalPlayer  )
-			{
-				// Notification
-				CEconNotification *pNotification = new CEconNotification();
-				pNotification->SetText( "#TF_HalloweenItem_SoulAppeared" );
-				pNotification->SetLifetime( 5.0f );
-				pNotification->SetSoundFilename( "ui/halloween_loot_spawn.wav" );
-				NotificationQueue_Add( pNotification );
-				pLocalPlayer->EmitSound( "sf15.Merasmus.Gargoyle.Spawn" );
-			}
-			// Gift Despawned
-			if ( m_hTargetPlayer.Get() == NULL && m_pPreviousTargetPlayer != NULL && m_pPreviousTargetPlayer == pLocalPlayer )
-			{
-				// Notification
-				CEconNotification *pNotification = new CEconNotification();
-				pNotification->SetText( "#TF_HalloweenItem_SoulDisappeared" );
-				pNotification->SetLifetime( 5.0f );
-				pNotification->SetSoundFilename( "ui/halloween_loot_found.wav" );
-				NotificationQueue_Add( pNotification );
-				pLocalPlayer->EmitSound( "sf15.Merasmus.Gargoyle.Gone" );
-			}
-
 			m_pPreviousTargetPlayer = m_hTargetPlayer.Get();
 		}
 	}

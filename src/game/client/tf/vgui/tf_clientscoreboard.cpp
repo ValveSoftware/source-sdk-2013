@@ -40,7 +40,6 @@
 #include "vgui/IInput.h"
 #include "voice_status.h"
 #include "vgui_controls/ScrollBarSlider.h"
-#include "econ/econ_trading.h"
 #include "in_buttons.h"
 #include "tf_mapinfo.h"
 
@@ -543,34 +542,6 @@ void CTFClientScoreBoardDialog::OnCommand( const char *command )
 					{
 						steamapicontext->SteamFriends()->ActivateGameOverlayToUser( "friendadd", steamID );
 					}
-				}
-			}
-		}
-	}
-	else if ( !V_strcmp( command, "jointrade" ) )
-	{
-		SectionedListPanel *pList = GetSelectedPlayerList();
-		if ( pList )
-		{
-			int iSelectedItem = pList->GetSelectedItem();
-			if ( iSelectedItem >= 0 )
-			{
-				KeyValues *pIssueKeyValues = pList->GetItemData( iSelectedItem );
-				if ( !pIssueKeyValues )
-					return;
-
-				int playerIndex = pIssueKeyValues->GetInt( "playerIndex", 0 );
-				CBasePlayer *pTarget = UTIL_PlayerByIndex( playerIndex );
-				if ( pTarget && !( pTarget->IsBot() || pTarget->IsHLTV() ) )
-				{
-					// Prevent large UI popup during a match
-					if ( pTarget->GetTeamNumber() >= FIRST_GAME_TEAM )
-					{
-						if ( TFGameRules() && TFGameRules()->UsePlayerReadyStatusMode() && TFGameRules()->State_Get() == GR_STATE_RND_RUNNING )
-							return;
-					}
-
-					Trading_RequestTrade( playerIndex );
 				}
 			}
 		}

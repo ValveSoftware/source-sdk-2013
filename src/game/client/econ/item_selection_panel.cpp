@@ -699,73 +699,6 @@ struct RarityEconIdKey
 };
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-static int SortRarityEconIdKeysBackpack ( CEconItemView *const *a, CEconItemView *const *b )
-{
-	Assert( a );
-	Assert( *a );
-	Assert( b );
-	Assert( *b );
-
-	// Sorting by the backpack order doesn't need to check any subproperties like level because
-	// every item should have a unique backpack slot already/
-	return ExtractBackpackPositionFromBackend( (*a)->GetInventoryPosition() ) < ExtractBackpackPositionFromBackend( (*b)->GetInventoryPosition() )
-		? -1
-		: 1;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-static int SortRarityEconIdKeysAlphabetical_Views ( CEconItemView *const *a, CEconItemView *const *b )
-{
-	Assert( a );
-	Assert( *a );
-	Assert( b );
-	Assert( *b );
-
-	// First pass -- sort backpack items by user-visible display name.
-	// Note: locale-savvy string sorting uses wcscoll, not wcscmp
-	int iStrCmpRes = wcscoll( (*a)->GetItemName(), (*b)->GetItemName() );
-	if ( iStrCmpRes != 0 )
-		return iStrCmpRes;
-
-	// Sort by kill eater score as a last-ditch ordering attempt.
-	static CSchemaAttributeDefHandle pAttrDef_KillEaterScore( "kill eater" );
-
-	uint32 unKillEaterScoreA = 0,
-		   unKillEaterScoreB = 0;
-
-	(*a)->FindAttribute( pAttrDef_KillEaterScore, &unKillEaterScoreA );
-	(*b)->FindAttribute( pAttrDef_KillEaterScore, &unKillEaterScoreB );
-
-	// Our names match so sort by quality for similarly-named items.
-	if ( EconQuality_GetRarityScore( (EEconItemQuality)(*a)->GetItemQuality() ) < EconQuality_GetRarityScore( (EEconItemQuality)(*b)->GetItemQuality() ) ||
-		 unKillEaterScoreA < unKillEaterScoreB ||
-		(*a)->GetItemLevel() < (*b)->GetItemLevel() )
-	{
-		return -1;
-	}
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-static int SortRarityEconIdKeysAlphabetical ( const CEquippableItemsForSlotGenerator::CEquippableResult *a, const CEquippableItemsForSlotGenerator::CEquippableResult *b )
-{
-	return SortRarityEconIdKeysAlphabetical_Views( &a->m_pEconItemView, &b->m_pEconItemView );
-}
-
-//-----------------------------------------------------------------------------
-static int SortRarityEconIdKeysDate( const CEquippableItemsForSlotGenerator::CEquippableResult *a, const CEquippableItemsForSlotGenerator::CEquippableResult *b )
-{
-	return ( a->m_pEconItemView->GetID() > b->m_pEconItemView->GetID() ) ? -1 : ( a->m_pEconItemView->GetID() < b->m_pEconItemView->GetID() ) ? 1 : 0;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: figure out what items should be displayed to the user for a specific
 //			loadout and what order they should appear in.
 //-----------------------------------------------------------------------------
@@ -921,15 +854,6 @@ CEquippableItemsForSlotGenerator::CEquippableItemsForSlotGenerator( int iClass, 
 		{
 			m_vecDisplayItems.AddToTail( pEquippedItem );
 		}
-	}
-
-	// Remove duplicates and sort to put it into the order they'll be displayed to the user.
-	// Sort the items based on selection type
-	int iSortType = tf_item_selection_panel_sort_type.GetInt();
-	switch ( iSortType )
-	{
-		case 0:			m_vecDisplayItems.Sort( &SortRarityEconIdKeysDate );					break;
-		case 1:			m_vecDisplayItems.Sort( &SortRarityEconIdKeysAlphabetical );			break;
 	}
 }
 
@@ -1198,7 +1122,7 @@ void CItemCriteriaSelectionPanel::UpdateModelPanelsForSelection( void )
 	int iNumItems = TFInventoryManager()->GetLocalTFInventory()->GetMaxItemCount();
 	for ( int i = 1; i <= iNumItems; i++ )
 	{
-		CEconItemView *pItemData = TFInventoryManager()->GetItemByBackpackPosition(i);
+		CEconItemView *pItemData = NULL;
 		bool bAdd = false;
 		if ( pItemData && pItemData->IsValid() )
 		{
@@ -1249,9 +1173,6 @@ void CItemCriteriaSelectionPanel::UpdateModelPanelsForSelection( void )
 			vecDisplayItems.AddToTail( pItemData );
 		}
 	}
-
-	// Sort them alphabetically
-	vecDisplayItems.Sort( &SortRarityEconIdKeysAlphabetical_Views );
 
 	// Add an "Empty" item to the start
 	vecDisplayItems.AddToHead( NULL );

@@ -79,39 +79,23 @@ $Project
 			$File	"econ\econ_ui.h"
 			$File	"econ\base_loadout_panel.cpp"
 			$File	"econ\base_loadout_panel.h"
-			$File	"econ\trading_start_dialog.cpp"
-			$File	"econ\trading_start_dialog.h"
 			$File	"econ\iconrenderreceiver.h"
 			$File	"econ\item_model_panel.cpp"
 			$File	"econ\item_model_panel.h"
-			$File	"econ\item_pickup_panel.cpp"
-			$File	"econ\item_pickup_panel.h"
 			$File	"econ\confirm_dialog.cpp"
 			$File	"econ\confirm_dialog.h"
-			$File	"econ\confirm_delete_dialog.cpp"
-			$File	"econ\confirm_delete_dialog.h"
-			$File	"econ\item_confirm_delete_dialog.cpp"
-			$File	"econ\item_confirm_delete_dialog.h"
 			$File	"econ\item_style_select_dialog.cpp"
 			$File	"econ\item_style_select_dialog.h"
 			$File	"econ\econ_controls.cpp"
 			$File	"econ\econ_controls.h"
 			$File	"econ\econ_notifications.cpp"
 			$File	"econ\econ_notifications.h"
-			$File	"econ\item_rental_ui.cpp"
-			$File	"econ\item_rental_ui.h"
 			$File	"econ\local_steam_shared_object_listener.cpp"
 			$File	"econ\local_steam_shared_object_listener.h"
 			
 			// Temp UI to allow you to test
 			$File	"econ\econ_sample_rootui.cpp"
 			$File	"econ\econ_sample_rootui.h"
-			
-			$Folder	"Trading"
-			{
-				$File	"econ\econ_trading.cpp"
-				$File	"econ\econ_trading.h"
-			}
 			
 			$Folder "VGUI dependencies"
 			{

@@ -15,10 +15,6 @@
 #include "econ_item_constants.h"
 #include "tf_item_constants.h"
 
-#ifdef CLIENT_DLL
-#include "econ_notifications.h"
-#endif
-
 #define LOADOUT_SLOT_USE_BASE_ITEM		0
 
 namespace vgui
@@ -68,8 +64,6 @@ public:
 	bool				ClassLoadoutHasChanged( int iClass ) { return m_bLoadoutChanged[iClass]; }
 	void				ClearClassLoadoutChangeTracking( void );
 
-	virtual void		NotifyHasNewItems() { OnHasNewItems(); }
-
 #ifdef CLIENT_DLL
 	virtual ITexture	*GetWeaponSkinBaseLowRes( itemid_t nItemId, int iTeam ) const;
 
@@ -82,16 +76,11 @@ public:
 	void				EquipLocal(uint64 ulItemID, equipped_class_t unClass, equipped_slot_t unSlot);
 	void				UnequipLocal(uint64 ulItemID);
 
-	void				OnHasNewQuest();
-
 	static CEconItemView *GetFirstItemOfItemDef( item_definition_index_t nDefIndex, CPlayerInventory* pInventory = NULL );
 
 protected:
 	virtual void		SOCreated( const CSteamID & steamIDOwner, const GCSDK::CSharedObject *pObject, GCSDK::ESOCacheEvent eEvent ) OVERRIDE;
 #ifdef CLIENT_DLL
-	// Converts an old format inventory to the new format.
-	void				ConvertOldFormatInventoryToNew( void );
-
 	virtual void		PostSOUpdate( const CSteamID & steamIDOwner, GCSDK::ESOCacheEvent eEvent ) OVERRIDE;
 	virtual void		SOCacheSubscribed( const CSteamID & steamIDOwner, GCSDK::ESOCacheEvent eEvent ) OVERRIDE;
 
@@ -100,19 +89,6 @@ protected:
 	void				VerifyChangedLoadoutsAreValid();
 	void				VerifyLoadoutItemsAreValid( int iClass );
 #endif
-
-	virtual void		OnHasNewItems();
-	virtual void		ValidateInventoryPositions( void );
-
-	// Extracts the position that should be used to sort items in the inventory from the backend position.
-	// Necessary if your inventory packs a bunch of info into the position instead of using it just as a position.
-	virtual int			ExtractInventorySortPosition( uint32 iBackendPosition )
-	{ 
-		// Consider unack'd items as -1, so they get stacked up before the 0th slot item
-		if ( IsUnacknowledged(iBackendPosition) )
-			return -1;
-		return ExtractBackpackPositionFromBackend(iBackendPosition); 
-	}
 
 	virtual void		SOUpdated( const CSteamID & steamIDOwner, const GCSDK::CSharedObject *pObject, GCSDK::ESOCacheEvent eEvent ) OVERRIDE;
 
@@ -168,25 +144,6 @@ public:
 #ifdef CLIENT_DLL
 	virtual CPlayerInventory *GeneratePlayerInventoryObject() const { return new CTFPlayerInventory; }
 
-	//-----------------------------------------------------------------------
-	// CLIENT PICKUP UI HANDLING
-	//-----------------------------------------------------------------------
-
-	// Get the number of items picked up
-	virtual int			GetNumItemPickedUpItems( void );				
-
-	// Show the player a pickup screen with any items they've collected recently, if any
-	virtual bool		ShowItemsPickedUp( bool bForce = false, bool bReturnToGame = true, bool bNoPanel = false );
-
-	// Show the player a pickup screen with the items they've crafted
-	virtual void		ShowItemsCrafted( CUtlVector<itemid_t> *vecCraftedIndices );
-
-	// Force the player to discard an item to make room for a new item, if they have one
-	virtual bool		CheckForRoomAndForceDiscard( void );
-
-	// Tells the GC that the player has acknowledged an item and attempts to move it in to the first available BP slot
-	virtual void		AcknowledgeItem( CEconItemView *pItem, bool bMoveToBackpack = true );
-
 	// Gets called each frame
 	virtual void		Update( float frametime ) OVERRIDE;
 
@@ -234,8 +191,6 @@ public:
 	// Fills out pList with all inventory items that could fit into the specified loadout slot for a given class
 	int					GetAllUsableItemsForSlot( int iClass, int iSlot, CUtlVector<CEconItemView*> *pList );
 
-	virtual int			GetBackpackPositionFromBackend( uint32 iBackendPosition ) { return ExtractBackpackPositionFromBackend(iBackendPosition); }
-
 	virtual void		UpdateInventoryEquippedState(CPlayerInventory *pInventory, uint64 ulItemID, equipped_class_t unClass, equipped_slot_t unSlot);
 
 private:
@@ -244,76 +199,5 @@ private:
 };
 
 CTFInventoryManager *TFInventoryManager( void );
-
-
-
-#ifdef CLIENT_DLL
-//-----------------------------------------------------------------------------
-// Econ Notifications
-//-----------------------------------------------------------------------------
-class CEconNotification_HasNewItems : public CEconNotification
-{
-public:
-	CEconNotification_HasNewItems();
-	~CEconNotification_HasNewItems();
-
-	virtual void SetLifetime( float flSeconds )
-	{
-		m_flExpireTime = engine->Time() + flSeconds;
-	}
-
-	virtual float GetExpireTime() const
-	{
-		if ( m_flExpireTime != 0 )
-			return -1.0f;
-		return 0;
-	}
-
-	virtual float GetInGameLifeTime() const
-	{
-		return m_flExpireTime;
-	}
-
-	virtual void MarkForDeletion()
-	{
-		m_bHasTriggered = true;
-		CEconNotification::MarkForDeletion();
-	}
-
-	virtual EType NotificationType() { return eType_Trigger; }
-	virtual void Trigger()
-	{
-		m_bHasTriggered = true;
-		TFInventoryManager()->ShowItemsPickedUp( true );
-		MarkForDeletion();
-	}
-
-	virtual bool BShowInGameElements() const
-	{
-		return m_bShowInGame;
-	}
-
-	static bool IsNotificationType( CEconNotification *pNotification ) { return dynamic_cast<CEconNotification_HasNewItems *>( pNotification ) != NULL; }
-
-protected:
-
-	bool m_bHasTriggered;
-	bool m_bShowInGame;
-};
-
-//-----------------------------------------------------------------------------
-class CEconNotification_HasNewItemsOnKill : public CEconNotification_HasNewItems
-{
-public:
-	CEconNotification_HasNewItemsOnKill( int iVictimID );
-
-	virtual EType NotificationType() { return eType_Basic; }
-	virtual void Trigger() {}
-
-	static bool HasUnacknowledgedItems();
-	static bool IsNotificationType( CEconNotification *pNotification ) { return dynamic_cast<CEconNotification_HasNewItemsOnKill *>( pNotification ) != NULL; }
-};
-#endif
-
 
 #endif // TF_ITEM_INVENTORY_H

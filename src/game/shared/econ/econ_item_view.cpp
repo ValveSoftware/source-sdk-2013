@@ -232,7 +232,6 @@ CEconItemView::CEconItemView( void )
 	m_iEntityQuality = (int)AE_UNDEFINED;
 	m_iEntityLevel = 0;
 	SetItemID( INVALID_ITEM_ID );
-	m_iInventoryPosition = 0;
 	m_bInitialized = false;
 	m_bOnlyIterateItemViewAttributes = false;
 	m_iAccountID = 0;
@@ -370,7 +369,6 @@ CEconItemView& CEconItemView::operator=( const CEconItemView& src )
 	m_iEntityQuality = src.m_iEntityQuality;
 	m_iEntityLevel = src.m_iEntityLevel;
 	SetItemID( src.GetItemID() );
-	m_iInventoryPosition = src.m_iInventoryPosition;
 	m_bInitialized = src.m_bInitialized;
 	m_bOnlyIterateItemViewAttributes = src.m_bOnlyIterateItemViewAttributes;
 	m_iAccountID = src.m_iAccountID;

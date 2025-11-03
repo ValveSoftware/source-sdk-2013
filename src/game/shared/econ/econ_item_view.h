@@ -276,10 +276,6 @@ public:
 	uint32					GetAccountID( void ) const { return m_iAccountID; }
 	void					SetOverrideAccountID( uint32 nAccountID ) { m_iAccountID = nAccountID; }
 
-	// Access the inventory position of this item
-	void					SetInventoryPosition( uint32 iPosition ) { m_iInventoryPosition = iPosition; }
-	const uint32			GetInventoryPosition( void ) const { return m_iInventoryPosition; } 
-
 	// Return the model to use for model panels containing this item
 	const char				*GetInventoryModel( void );
 	// Return the image to use for model panels containing this item
@@ -373,9 +369,6 @@ protected:
 
 	// Account ID of the person who has this in their inventory
 	CNetworkVar( uint32,	m_iAccountID );
-
-	// Position inside the player's inventory
-	CNetworkVar( uint32,	m_iInventoryPosition );
 
 	// This is an alternate source of data, if this item models something that isn't in the SO cache.
 	CEconItemHandle			m_pNonSOEconItem;

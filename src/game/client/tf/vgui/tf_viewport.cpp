@@ -49,7 +49,6 @@
 #include "tf_mapinfomenu.h"
 #include "tf_roundinfo.h"
 
-#include "item_pickup_panel.h"
 #include "character_info_panel.h"
 #include "tf_hud_arena_winpanel.h"
 #include "tf_arenateammenu.h"

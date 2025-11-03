@@ -7,7 +7,6 @@
 
 #include "cbase.h"
 #include "base_loadout_panel.h"
-#include "item_confirm_delete_dialog.h"
 #include "vgui/ISurface.h"
 #include "gamestringpool.h"
 #include "iclientmode.h"

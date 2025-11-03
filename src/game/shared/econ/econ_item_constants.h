@@ -913,14 +913,6 @@ enum
 	kBackendPositionMask_FormatFlags	= (kBackendPosition_Unacked | kBackendPosition_NewFormat),
 };
 
-inline void SetBackpackPosition( uint32 *pPosition, uint32 iPackPosition )
-{
-	(*pPosition) = iPackPosition;
-
-	// Remove the unack'd flag
-	(*pPosition) &= ~kBackendPosition_Unacked;	
-}
-
 inline bool IsNewPositionFormat( uint32 iBackendPosition )
 {
 	return ( iBackendPosition & kBackendPosition_NewFormat ) != 0;

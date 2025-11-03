@@ -75,9 +75,7 @@ $Project "Server (TF)"
 			$File	"$SRCDIR\game\shared\tf\tf_item_inventory.h"
 			$File	"$SRCDIR\game\shared\tf\tf_item_wearable.cpp"
 			$File	"$SRCDIR\game\shared\tf\tf_item_wearable.h"
-			$File	"$SRCDIR\game\shared\econ\econ_claimcode.cpp"
-			$File	"$SRCDIR\game\shared\econ\econ_claimcode.h"
-
+			
 			$File	"$SRCDIR\game\shared\tf\tf_item_system.cpp"
 			$File	"$SRCDIR\game\shared\tf\tf_item_system.h"
 			$File	"$SRCDIR\game\shared\tf\tf_item_schema.cpp"

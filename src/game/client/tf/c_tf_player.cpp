@@ -4643,17 +4643,6 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 				if ( haptics )
 					haptics->SetNavigationClass("spectate");
 			}
-			else if ( m_iOldObserverMode < OBS_MODE_FIXED && GetObserverMode() >= OBS_MODE_FIXED )
-			{
-#if defined( REPLAY_ENABLED )
-				// If the player is entering a title for a replay, defer displaying the items screen until afterwards
-				if ( !IsReplayInputPanelVisible() )
-#endif
-				{
-					// Show items we've picked up when we exit freezecam, or after deathcam on suicide
-					TFInventoryManager()->ShowItemsPickedUp();
-				}
-			}
 
 			if ( m_iOldObserverMode == OBS_MODE_IN_EYE || GetObserverMode() == OBS_MODE_IN_EYE )
 			{

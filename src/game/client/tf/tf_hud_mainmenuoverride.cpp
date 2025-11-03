@@ -178,8 +178,6 @@ CHudMainMenuOverride::CHudMainMenuOverride( IViewPort *pViewPort ) : BaseClass( 
 	m_flCheckTrainingAt = 0;
 	m_bWasInTraining = false;
 
-	ScheduleItemCheck();
-
  	m_pToolTip = new CMainMenuToolTip( this );
  	m_pToolTipEmbeddedPanel = new vgui::EditablePanel( this, "TooltipPanel" );
 	m_pToolTipEmbeddedPanel->SetKeyBoardInputEnabled( false );
@@ -1045,8 +1043,6 @@ void CHudMainMenuOverride::OnUpdateMenu( void )
 	if ( bSomethingChanged )
 	{
 		InvalidateLayout();
-
-		ScheduleItemCheck();
 	}
 
 	if ( !bInGame && m_flCheckTrainingAt && m_flCheckTrainingAt < engine->Time() )
@@ -1054,13 +1050,6 @@ void CHudMainMenuOverride::OnUpdateMenu( void )
 		m_flCheckTrainingAt = 0;
 		CheckTrainingStatus();
 	}
-
-	if ( !bInGame && m_flCheckUnclaimedItems && m_flCheckUnclaimedItems < engine->Time() )
-	{
-		m_flCheckUnclaimedItems = 0;
-		CheckUnclaimedItems();
-	}
-
 
 	if ( m_pVRModeButton && m_pVRModeButton->IsVisible() )
 	{
@@ -1089,32 +1078,7 @@ void CHudMainMenuOverride::OnMainMenuStabilized()
 		gameeventmanager->FireEventClientSide( event );
 	}
 }
-
-//-----------------------------------------------------------------------------
-// Purpose: Check to see if we need to hound the player about unclaimed items.
-//-----------------------------------------------------------------------------
-void CHudMainMenuOverride::CheckUnclaimedItems()
-{
-	// Only do this if we don't have a notification about unclaimed items already.
-	for ( int i=0; i<NotificationQueue_GetNumNotifications(); i++ )
-	{
-		CEconNotification* pNotification = NotificationQueue_Get( i );
-		if ( pNotification )
-		{
-			if ( !Q_strcmp( pNotification->GetUnlocalizedText(), "TF_HasNewItems") )
-			{
-				return;
-			}
-		}
-	}
-
-	// Only provide a notification if there are items to pick up.
-	if ( TFInventoryManager()->GetNumItemPickedUpItems() == 0 )
-		return;
-
-	TFInventoryManager()->GetLocalTFInventory()->NotifyHasNewItems();
-}
-
+	
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------

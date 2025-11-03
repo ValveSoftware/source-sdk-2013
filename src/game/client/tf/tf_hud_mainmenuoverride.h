@@ -125,9 +125,6 @@ public:
 	MESSAGE_FUNC( OnMainMenuStabilized, "MainMenuStabilized" );
 
 	void		ScheduleTrainingCheck( bool bWasInTraining ) { m_flCheckTrainingAt = (engine->Time() + 1.5); m_bWasInTraining = bWasInTraining; }
-	void		ScheduleItemCheck( void ) { m_flCheckUnclaimedItems = (engine->Time() + 1.5); }
-
-	void		CheckUnclaimedItems();
 
 	void		OnTick();
 
@@ -210,8 +207,6 @@ private:
 
 	float					m_flCheckTrainingAt;
 	bool					m_bWasInTraining;
-
-	float					m_flCheckUnclaimedItems;
 
 	vgui::ImagePanel		*m_pBackground;
 

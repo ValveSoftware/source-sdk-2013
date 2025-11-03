@@ -14,7 +14,7 @@
 #include "econ_gcmessages.h"
 #include "econ_ui.h"
 #include "gc_clientsystem.h"
-#include "item_pickup_panel.h"
+#include "item_model_panel.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

@@ -20,9 +20,7 @@
 #include "econ_game_account_client.h"
 #include "ienginevgui.h"
 #include "econ_ui.h"
-#include "item_pickup_panel.h"
 #include "econ/econ_item_preset.h"
-#include "econ/confirm_dialog.h"
 #include "tf_xp_source.h"
 #include "tf_notification.h"
 #else
@@ -35,12 +33,11 @@
 #include "tf_duel_summary.h"
 #include "econ_contribution.h"
 #include "tf_player_info.h"
-#include "econ/econ_claimcode.h"
 #include "tf_wardata.h"
 #include "tf_ladder_data.h"
 #include "tf_rating_data.h"
+#include <vgui_controls/Controls.h>
 #endif
-
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -94,28 +91,6 @@ CBasePlayer *GetPlayerBySteamID( const CSteamID &steamID )
 	return NULL;
 }
 
-// Inventory Less function.
-// Used to sort the inventory items into their positions.
-bool CInventoryListLess::Less( const CEconItemView &src1, const CEconItemView &src2, void *pCtx )
-{
-	int iPos1 = src1.GetInventoryPosition();
-	int iPos2 = src2.GetInventoryPosition();
-
-	// Context can be specified to point to a func that extracts the position from the backend position.
-	// Necessary if your inventory packs a bunch of info into the position instead of using it just as a position.
-	if ( pCtx )
-	{
-		CPlayerInventory *pInv = (CPlayerInventory*)pCtx;
-		iPos1 = pInv->ExtractInventorySortPosition( iPos1 );
-		iPos2 = pInv->ExtractInventorySortPosition( iPos2 );
-	}
-
-	if ( iPos1 < iPos2 )
-		return true;
-
-	return false;
-}
-
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -127,9 +102,6 @@ CInventoryManager::CInventoryManager( void )
 #endif
 {
 #ifdef CLIENT_DLL
-	m_pkvItemClientAckFile = NULL;
-	m_bClientAckDirty = false;
-	m_iPredictedDiscards = 0;
 	m_flNextLoadPresetChange = 0.0f;
 #endif
 }
@@ -324,7 +296,6 @@ void CInventoryManager::PreInitGC()
 	REG_SHARED_OBJECT_SUBCLASS( CTFDuelSummary );
 	REG_SHARED_OBJECT_SUBCLASS( CTFMapContribution );
 	REG_SHARED_OBJECT_SUBCLASS( CTFPlayerInfo );
-	REG_SHARED_OBJECT_SUBCLASS( CEconClaimCode );
 	REG_SHARED_OBJECT_SUBCLASS( CSOTFLadderData );
 #endif
 
@@ -502,260 +473,9 @@ void CInventoryManager::RemovePendingRequest( CSteamID *pSteamID )
 }
 
 #ifdef CLIENT_DLL
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CInventoryManager::DropItem( itemid_t iItemID )
-{
-	static CSchemaAttributeDefHandle pAttrDef_NoDelete( "cannot delete" );
-
-	// Double check that this item can be delete
-	CEconItemView *pItem = GetLocalInventory()->GetInventoryItemByItemID( iItemID );
-	if ( !pItem || !pAttrDef_NoDelete || pItem->FindAttribute( pAttrDef_NoDelete ) )
-	{
-		return;
-	}
-	
-	GCSDK::CGCMsg<MsgGCDelete_t> msg( k_EMsgGCDelete );
-	msg.Body().m_unItemID = iItemID;
-	GCClientSystem()->BSendMessage( msg );
-
-	// Keep track of how many items we've discarded, but haven't received responses for.
-	m_iPredictedDiscards++;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Delete any items we can't find static data for. This can happen when we're testing
-//			internally, and then remove an item. Shouldn't ever happen in the wild.
-//-----------------------------------------------------------------------------
-int	CInventoryManager::DeleteUnknowns( CPlayerInventory *pInventory )
-{
-	// We need to manually walk the main inventory's SOC, because unknown items won't be in the inventory
-	GCSDK::CGCClientSharedObjectCache *pSOC = pInventory->GetSOC();
-	if ( pSOC )
-	{
-		int iBadItems = 0;
-		CGCClientSharedObjectTypeCache *pTypeCache = pSOC->FindTypeCache( CEconItem::k_nTypeID );
-		if( pTypeCache )
-		{
-			for( uint32 unItem = 0; unItem < pTypeCache->GetCount(); unItem++ )
-			{
-				CEconItem *pItem = (CEconItem *)pTypeCache->GetObject( unItem );
-				if ( pItem )
-				{
-					CEconItemDefinition *pData = ItemSystem()->GetStaticDataForItemByDefIndex( pItem->GetDefinitionIndex() );
-					if ( !pData )
-					{
-						DropItem( pItem->GetItemID() );
-						iBadItems++;
-					}
-				}
-			}
-		}
-		return iBadItems;
-	}		
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Tries to move the specified item into the player's backpack.
-//			FAILS if the backpack is full. Returns false in that case.
-//-----------------------------------------------------------------------------
-bool CInventoryManager::SetItemBackpackPosition( CEconItemView *pItem, uint32 iPosition, bool bForceUnequip, bool bAllowOverflow )
-{
-	CPlayerInventory *pInventory = GetLocalInventory();
-	if ( !pInventory )
-		return false;
-
-	const int iMaxItems = pInventory->GetMaxItemCount();
-	if ( !iPosition )
-	{
-		// Build a list of empty slots. We track extra slots beyond the backpack for overflow.
-		CUtlVector< bool > bFilledSlots;
-		bFilledSlots.SetSize( iMaxItems * 2 );
-		for ( int i = 0; i < bFilledSlots.Count(); ++i )
-		{
-			bFilledSlots[i] = false;
-		}
-		for ( int i = 0; i < pInventory->GetItemCount(); i++ )
-		{
-			CEconItemView *pTmpItem = pInventory->GetItem(i);
-			// Ignore the item we're moving.
-			if ( pTmpItem == pItem )
-				continue;
-
-			int iBackpackPos = GetBackpackPositionFromBackend( pTmpItem->GetInventoryPosition() );
-			if ( iBackpackPos >= 0 && iBackpackPos < bFilledSlots.Count() )
-			{
-				bFilledSlots[iBackpackPos] = true;
-			}
-		}
-
-		// Add predicted filled slots
-		for ( int i = 0; i < m_PredictedFilledSlots.Count(); i++ )
-		{
-			int iBackpackPos = m_PredictedFilledSlots[i];
-			if ( iBackpackPos >= 0 && iBackpackPos < bFilledSlots.Count() )
-			{
-				bFilledSlots[iBackpackPos] = true;
-			}
-		}
-
-		// Now find an empty slot
-		for ( int i = 1; i < bFilledSlots.Count(); i++ )
-		{
-			if ( !bFilledSlots[i] )
-			{
-				iPosition = i;
-				break;
-			}
-		}
-
-		if ( !iPosition )
-			return false;
-	}
-
-	if ( !bAllowOverflow && iPosition > (uint32)iMaxItems )
-		return false;
-
-	//Warning("Moved item %llu to backpack slot: %d\n", pItem->GetItemID(), iPosition );
-
-	uint32 iBackendPosition = bForceUnequip ? 0 : pItem->GetInventoryPosition();
-	SetBackpackPosition( &iBackendPosition, iPosition );
-	UpdateInventoryPosition( pInventory, pItem->GetItemID(), iBackendPosition );
-
-	m_PredictedFilledSlots.AddToTail( iPosition );
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CInventoryManager::MoveItemToBackpackPosition( CEconItemView *pItem, int iBackpackPosition )
-{
-	CEconItemView *pOldItem = GetItemByBackpackPosition( iBackpackPosition );
-	if ( pOldItem )
-	{
-		// Move the item in the new spot to our current spot
-		SetItemBackpackPosition( pOldItem, GetBackpackPositionFromBackend(pItem->GetInventoryPosition()) );
-
-		//Warning("Moved OLD item %llu to backpack slot: %d\n", pOldItem->GetItemID(), GetBackpackPositionFromBackend(iBackendPosition) );
-	}
-
-	// Move the item to the new spot
-	SetItemBackpackPosition( pItem, iBackpackPosition );
-
-	//Warning("Moved item %llu to backpack slot: %d\n", pItem->GetItemID(), iBackpackPosition );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-class CWaitForBackpackSortFinishDialog : public CGenericWaitingDialog
-{
-public:
-	CWaitForBackpackSortFinishDialog( vgui::Panel *pParent ) : CGenericWaitingDialog( pParent )
-	{
-	}
-
-protected:
-	virtual void OnTimeout()
-	{
-		InventoryManager()->SortBackpackFinished();
-	}
-};
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CInventoryManager::SortBackpackBy( uint32 iSortType )
-{
-	GCSDK::CProtoBufMsg<CMsgSortItems> msg( k_EMsgGCSortItems );
-	msg.Body().set_sort_type( iSortType );
-	GCClientSystem()->BSendMessage( msg );
-
-	ShowWaitingDialog( new CWaitForBackpackSortFinishDialog( NULL ), "#BackpackSortExplanation_Title", true, false, 3.0f );
-	m_bInBackpackSort = true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CInventoryManager::SortBackpackFinished( void )
-{
-	m_bInBackpackSort = false;
-
-	GetLocalInventory()->SendInventoryUpdateEvent();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: GC Msg handler to receive the sort finished message
-//-----------------------------------------------------------------------------
-class CGBackpackSortFinished : public GCSDK::CGCClientJob
-{
-public:
-	CGBackpackSortFinished( GCSDK::CGCClient *pClient ) : GCSDK::CGCClientJob( pClient ) {}
-
-	virtual bool BYieldingRunGCJob( GCSDK::IMsgNetPacket *pNetPacket )
-	{
-		CloseWaitingDialog();
-		InventoryManager()->SortBackpackFinished();
-		return true;
-	}
-
-};
-GC_REG_JOB( GCSDK::CGCClient, CGBackpackSortFinished, "CGBackpackSortFinished", k_EMsgGCBackpackSortFinished, GCSDK::k_EServerTypeGCClient );
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CInventoryManager::UpdateInventoryPosition( CPlayerInventory *pInventory, uint64 ulItemID, uint32 unNewInventoryPos )
-{
-	if ( !pInventory->GetInventoryItemByItemID( ulItemID ) )
-	{
-		Warning("Attempt to update inventory position failure: %s.\n", "could not find matching item ID");
-		return;
-	}
-	if ( !pInventory->GetSOCDataForItem( ulItemID ) )
-	{
-		Warning("Attempt to update inventory position failure: %s\n", "could not find SOC data for item");
-		return;
-	}
-
-	// In the incredibly rare case where the GC crashed while sorting our backpack, we won't have gotten
-	// a k_EMsgGCBackpackSortFinished message. Assume that if we're requesting a manual move of an item, we're not sorting anymore.
-	m_bInBackpackSort = false;
-
-	// TF has multiple ways of using the inventory position bits. For all inventory positions moving forward, assume
-	// they're in the new format.
-#if defined(TF_CLIENT_DLL) || defined(TF_DLL)
-	if ( unNewInventoryPos != 0 )
-	{
-		unNewInventoryPos |= kBackendPosition_NewFormat;
-	}
-#endif // defined(TF_CLIENT_DLL) || defined(TF_DLL)
-
-	// Queue a message to be sent to the GC
-	CMsgSetItemPositions_ItemPosition *pMsg = m_msgPendingSetItemPositions.add_item_positions();
-	pMsg->set_item_id( ulItemID );
-	pMsg->set_position( unNewInventoryPos );
-}
 
 void CInventoryManager::Update( float frametime )
 {
-
-	// Check if we have any pending item position changes that we need to flush out
-	if ( m_msgPendingSetItemPositions.item_positions_size() > 0 )
-	{
-		// !KLUDGE! It would be nice if we could just send this in one line instead of making a copy
-		CProtoBufMsg<CMsgSetItemPositions> msg( k_EMsgGCSetItemPositions );
-		msg.Body() = m_msgPendingSetItemPositions;
-		GCClientSystem()->BSendMessage( msg );
-
-		m_msgPendingSetItemPositions.Clear();
-	}
-
 	// Check if we have any pending account lookups to batch up
 	if ( m_msgPendingLookupAccountNames.accountids_size() > 0 )
 	{
@@ -793,328 +513,6 @@ void CInventoryManager::UpdateInventoryEquippedState( CPlayerInventory *pInvento
 	msg.Body().set_new_class( unClass );
 	msg.Body().set_new_slot( unSlot );
 	GCClientSystem()->BSendMessage( msg );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CInventoryManager::ShowItemsPickedUp( bool bForce, bool bReturnToGame, bool bNoPanel )
-{
-	CPlayerInventory *pLocalInv = GetLocalInventory();
-	if ( !pLocalInv )
-		return false;
-
-	// Don't bring it up if we're already browsing something in the gameUI
-	vgui::VPANEL gameuiPanel = enginevgui->GetPanel( PANEL_GAMEUIDLL );
-	if ( !bForce && vgui::ipanel()->IsVisible( gameuiPanel ) )
-		return false;
-
-	CUtlVector<CEconItemView*> aItemsFound;
-
-	// Go through the root inventory and find any items that are in the "found" position
-	int iCount = pLocalInv->GetItemCount();
-	for ( int i = 0; i < iCount; i++ )
-	{
-		CEconItemView *pTmp = pLocalInv->GetItem(i);
-		if ( !pTmp )
-			continue;
-
-		if ( pTmp->GetStaticData()->IsHidden() )
-			continue;
-
-		uint32 iPosition = pTmp->GetInventoryPosition();
-		if ( IsUnacknowledged(iPosition) == false )
-			continue;
-		if ( GetBackpackPositionFromBackend(iPosition) != 0 )
-			continue;
-
-		// Now make sure we haven't got a clientside saved ack for this item.
-		// This makes sure we don't show multiple pickups for items that we've found,
-		// but haven't been able to move out of unack'd position due to the GC being unavailable.
-		if ( HasBeenAckedByClient( pTmp ) )
-			continue;
-
-		aItemsFound.AddToTail( pTmp );
-	}
-
-	if ( !aItemsFound.Count() )
-		return CheckForRoomAndForceDiscard();
-
-	// We're not forcing the player to make room yet. Just show the pickup panel.
-	CItemPickupPanel *pItemPanel = bNoPanel ? NULL : EconUI()->OpenItemPickupPanel();
-
-	if ( pItemPanel )
-	{
-		pItemPanel->SetReturnToGame( bReturnToGame );
-	}
-
-	for ( int i = 0; i < aItemsFound.Count(); i++ )
-	{
-		if ( pItemPanel )
-		{
-			pItemPanel->AddItem( aItemsFound[i] );
-		}
-		else 
-		{
-			AcknowledgeItem( aItemsFound[i] );
-		}
-	}
-
-	if ( pItemPanel )
-	{
-		pItemPanel->MoveToFront();
-	}
-	else
-	{
-		SaveAckFile();
-	}
-
-	aItemsFound.Purge();
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CInventoryManager::CheckForRoomAndForceDiscard( void )
-{
-	CPlayerInventory *pLocalInv = GetLocalInventory();
-	if ( !pLocalInv )
-		return false;
-
-	// Go through the inventory and attempt to move any items outside the backpack into valid positions.
-	// Remember the first item that we failed to move, so we can force a discard later.
-	CEconItemView *pItem = NULL;
-	const int iMaxItems = pLocalInv->GetMaxItemCount();
-	int iCount = pLocalInv->GetItemCount();
-	for ( int i = 0; i < iCount; i++ )
-	{
-		CEconItemView *pTmp = pLocalInv->GetItem(i);
-		if ( !pTmp )
-			continue;
-
-		if ( pTmp->GetStaticData()->IsHidden() )
-			continue;
-
-		uint32 iPosition = pTmp->GetInventoryPosition();
-		if ( IsUnacknowledged(iPosition) || GetBackpackPositionFromBackend(iPosition) > iMaxItems )
-		{
-			if ( !SetItemBackpackPosition( pTmp, 0, false, false ) )
-			{
-				pItem = pTmp;
-				break;
-			}
-		}
-	}
-
-	// If we're not over the limit, we're done.
-	if ( ( iCount - m_iPredictedDiscards ) <= iMaxItems )
-		return false;
-
-	if ( !pItem )
-		return false;
-
-	// We're forcing the player to make room for items he's found. Bring up that panel with the first item over the limit.
-	CItemDiscardPanel *pDiscardPanel = EconUI()->OpenItemDiscardPanel();
-	pDiscardPanel->SetItem( pItem );
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Client Acknowledges an item and moves it in to the backpack
-//-----------------------------------------------------------------------------
-void CInventoryManager::AcknowledgeItem ( CEconItemView *pItem, bool bMoveToBackpack /* = true */ )
-{
-	SetAckedByClient( pItem );
-
-	int iMethod = GetUnacknowledgedReason( pItem->GetInventoryPosition() ) - 1;
-	if ( iMethod >= ARRAYSIZE( g_pszItemPickupMethodStringsUnloc ) || iMethod < 0 )
-		iMethod = 0;
-	EconUI()->Gamestats_ItemTransaction( IE_ITEM_RECEIVED, pItem, g_pszItemPickupMethodStringsUnloc[iMethod] );
-
-	// Then move it to the first empty backpack position
-	if ( bMoveToBackpack )
-	{
-		SetItemBackpackPosition( pItem, 0, false, true );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CEconItemView *CInventoryManager::GetItemByBackpackPosition( int iBackpackPosition )
-{
-	CPlayerInventory *pInventory = GetLocalInventory();
-	if ( !pInventory )
-		return NULL;
-
-	// Backpack positions start from 1
-	Assert( iBackpackPosition > 0 && iBackpackPosition <= pInventory->GetMaxItemCount() );
-	for ( int i = 0; i < pInventory->GetItemCount(); i++ )
-	{
-		CEconItemView *pItem = pInventory->GetItem(i);
-		if ( GetBackpackPositionFromBackend( pItem->GetInventoryPosition() ) == iBackpackPosition )
-			return pItem;
-	}
-
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CInventoryManager::HasBeenAckedByClient( CEconItemView *pItem )
-{
-	return ( GetAckKeyForItem( pItem ) != NULL );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CInventoryManager::SetAckedByClient( CEconItemView *pItem )
-{
-	VerifyAckFileLoaded();
-
-	static char szTmp[128];
-	Q_snprintf( szTmp, sizeof(szTmp), "%llu", pItem->GetItemID() );
-	m_pkvItemClientAckFile->SetInt( szTmp, 1 );
-
-	m_bClientAckDirty = true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CInventoryManager::SetAckedByGC( CEconItemView *pItem, bool bSave )
-{
-	KeyValues *pkvItem = GetAckKeyForItem( pItem );
-	if ( pkvItem )
-	{
-		m_pkvItemClientAckFile->RemoveSubKey( pkvItem );
-		pkvItem->deleteThis();
-
-		m_bClientAckDirty = true;
-
-		if ( bSave )
-		{
-			SaveAckFile();
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-KeyValues *CInventoryManager::GetAckKeyForItem( CEconItemView *pItem )
-{
-	VerifyAckFileLoaded();
-
-	static char szTmp[128];
-	Q_snprintf( szTmp, sizeof(szTmp), "%llu", pItem->GetItemID() );
-	return m_pkvItemClientAckFile->FindKey( szTmp );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CInventoryManager::VerifyAckFileLoaded( void )
-{
-	if ( m_pkvItemClientAckFile )
-		return;
-
-	m_pkvItemClientAckFile = new KeyValues( ITEM_CLIENTACK_FILE );
-
-	ISteamRemoteStorage *pRemoteStorage = SteamClient()?(ISteamRemoteStorage *)SteamClient()->GetISteamGenericInterface(
-		SteamAPI_GetHSteamUser(), SteamAPI_GetHSteamPipe(), STEAMREMOTESTORAGE_INTERFACE_VERSION ):NULL;
-
-	if ( pRemoteStorage )
-	{
-		if ( pRemoteStorage->FileExists(ITEM_CLIENTACK_FILE) )
-		{
-			int32 nFileSize = pRemoteStorage->GetFileSize( ITEM_CLIENTACK_FILE );
-
-			if ( nFileSize > 0 )
-			{
-				CUtlBuffer buf( 0, nFileSize );
-				if ( pRemoteStorage->FileRead( ITEM_CLIENTACK_FILE, buf.Base(), nFileSize ) == nFileSize )
-				{
-					buf.SeekPut( CUtlBuffer::SEEK_HEAD, nFileSize );
-					m_pkvItemClientAckFile->ReadAsBinary( buf );
-
-#ifdef _DEBUG
-					if ( item_debug_clientacks.GetBool() )
-					{
-						m_pkvItemClientAckFile->SaveToFile( g_pFullFileSystem, "cfg/tmp_readack.txt", "MOD" );
-					}
-#endif
-				}
-			}
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Clean up any item references that we no longer have items for.
-//			This ensures that if we delete an item on the backend, we remove it from the ack file.
-//-----------------------------------------------------------------------------
-void CInventoryManager::CleanAckFile( void )
-{
-	CPlayerInventory *pInventory = InventoryManager()->GetLocalInventory();
-	if ( !pInventory )
-		return;
-
-	if ( !pInventory->RetrievedInventoryFromSteam() )
-		return;
-
-	if ( m_pkvItemClientAckFile )
-	{
-		KeyValues *pKVItem = m_pkvItemClientAckFile->GetFirstSubKey();
-		while ( pKVItem != NULL )
-		{
-			itemid_t ulID = (itemid_t)Q_atoi64( pKVItem->GetName() );
-			if ( pInventory->GetInventoryItemByItemID(ulID) == NULL )
-			{
-				KeyValues *pTmp = pKVItem->GetNextKey();
-				m_pkvItemClientAckFile->RemoveSubKey( pKVItem );
-				pKVItem->deleteThis();
-
-				m_bClientAckDirty = true;
-
-				pKVItem = pTmp;
-			}
-			else
-			{
-				pKVItem = pKVItem->GetNextKey();
-			}
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CInventoryManager::SaveAckFile( void )
-{
-	if ( !m_bClientAckDirty )
-		return;
-	m_bClientAckDirty = false;
-
-	ISteamRemoteStorage *pRemoteStorage = SteamClient()?(ISteamRemoteStorage *)SteamClient()->GetISteamGenericInterface(
-		SteamAPI_GetHSteamUser(), SteamAPI_GetHSteamPipe(), STEAMREMOTESTORAGE_INTERFACE_VERSION ):NULL;
-
-	if ( pRemoteStorage )
-	{
-		CUtlBuffer buf;
-		m_pkvItemClientAckFile->WriteAsBinary( buf );
-		pRemoteStorage->FileWrite( ITEM_CLIENTACK_FILE, buf.Base(), buf.TellPut() );
-
-#ifdef _DEBUG
-		if ( item_debug_clientacks.GetBool() )
-		{
-			m_pkvItemClientAckFile->SaveToFile( g_pFullFileSystem, "cfg/tmp_saveack.txt", "MOD" );
-		}
-#endif
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1466,7 +864,7 @@ bool CPlayerInventory::AddEconItem( CEconItem * pItem, bool bUpdateAckFile, bool
 		return false;
 	}
 
-	int iIdx = m_aInventoryItems.Insert( newItem );
+	int iIdx = m_aInventoryItems.AddToTail( newItem );
 
 	DirtyItemHandles();
 
@@ -1482,38 +880,6 @@ bool CPlayerInventory::AddEconItem( CEconItem * pItem, bool bUpdateAckFile, bool
 	if ( GetPaintKitDefIndex( &newItem, &nPaintkitDefindex ) )
 	{
 		AddToMapVec( m_mapPaintkitsToItems, &m_aInventoryItems[iIdx], nPaintkitDefindex );
-	}
-
-	if ( bCheckForNewItems && InventoryManager()->GetLocalInventory() == this )
-	{
-		bool bNotify = IsUnacknowledged( pItem->GetInventoryToken() );
-		// ignore Halloween drops
-		bNotify &= pItem->GetOrigin() != kEconItemOrigin_HalloweenDrop;
-		// only notify for specific reasons
-		unacknowledged_item_inventory_positions_t reason = GetUnacknowledgedReason( pItem->GetInventoryToken() );
-		switch ( reason )
-		{
-			case UNACK_ITEM_UNKNOWN:
-			case UNACK_ITEM_DROPPED:
-			case UNACK_ITEM_SUPPORT:
-			case UNACK_ITEM_EARNED:
-			case UNACK_ITEM_REFUNDED:
-			case UNACK_ITEM_COLLECTION_REWARD:
-			case UNACK_ITEM_TRADED:
-			case UNACK_ITEM_GIFTED:
-			case UNACK_ITEM_QUEST_LOANER:
-			case UNACK_ITEM_CYOA_BLOOD_MONEY_PURCHASE:
-			case UNACK_ITEM_VIRAL_COMPETITIVE_BETA_PASS_SPREAD:
-				break;
-			default:
-				bNotify = false;
-				break;
-		}
-
-		if ( bNotify && !pItem->GetItemDefinition()->IsHidden() )
-		{
-			OnHasNewItems();
-		}		
 	}
 #endif
 	return true;
@@ -1602,17 +968,9 @@ void CPlayerInventory::SOUpdated( const CSteamID & steamIDOwner, const GCSDK::CS
 
 	if ( bChanged )
 	{
-		ResortInventory();
-
 		DirtyItemHandles();
 
-#ifdef CLIENT_DLL
-		// Client doesn't update inventory while items are moving in a backpack sort. Does it once at the sort end instead.
-		if ( !InventoryManager()->IsInBackpackSort() )
-#endif
-		{
-			SendInventoryUpdateEvent();
-		}
+		SendInventoryUpdateEvent();
 #ifdef _DEBUG
 		if ( item_inventory_debug.GetBool() )
 		{
@@ -1651,10 +1009,6 @@ void CPlayerInventory::SODestroyed( const CSteamID & steamIDOwner, const GCSDK::
 
 	CEconItem *pEconItem = (CEconItem *)pObject;
 	RemoveItem( pEconItem->GetItemID() );
-
-#ifdef CLIENT_DLL
-	InventoryManager()->OnItemDeleted( this );
-#endif
 
 	SendInventoryUpdateEvent();
 }
@@ -1704,22 +1058,8 @@ void CPlayerInventory::SOCacheSubscribed( const CSteamID & steamIDOwner, GCSDK::
 #ifdef CLIENT_DLL
 	if ( InventoryManager()->GetLocalInventory() == this )
 	{
-		// Only validate the local player inventory
-		ValidateInventoryPositions();
-
 		// tell the entire client that we're ready to look at items
 		CInventoryManager::SendItemSystemConnectedEvent();
-	}
-#endif
-
-	ResortInventory();
-
-#ifdef CLIENT_DLL
-	// Now that we've read all the items in, write out the ack file (only if we're the local inventory)
-	if ( InventoryManager()->GetLocalInventory() == this )
-	{
-		InventoryManager()->CleanAckFile();
-		InventoryManager()->SaveAckFile();
 	}
 #endif
 }
@@ -1732,33 +1072,10 @@ bool CInventoryManager::IsValidPlayerClass( equipped_class_t unClass )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Removes the script item associated with this econ item
-//-----------------------------------------------------------------------------
-void CPlayerInventory::ValidateInventoryPositions( void )
-{
-#ifdef TF2
-	if ( engine->GetAppID() == 520 )
-	{
-		TFInventoryManager()->DeleteUnknowns( this );
-	}
-#endif
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CPlayerInventory::ItemHasBeenUpdated( CEconItemView *pItem, bool bUpdateAckFile, bool bWriteAckFile )
 {
-#ifdef CLIENT_DLL
-	// Handle the clientside ack file
-	if ( bUpdateAckFile && !IsUnacknowledged(pItem->GetInventoryPosition()) )
-	{
-		if ( InventoryManager()->GetLocalInventory() == this )
-		{
-			InventoryManager()->SetAckedByGC( pItem, bWriteAckFile );
-		}
-	}
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1799,33 +1116,11 @@ void CPlayerInventory::SendInventoryUpdateEvent()
 //-----------------------------------------------------------------------------
 bool CPlayerInventory::FilloutItemFromEconItem( CEconItemView *pScriptItem, CEconItem *pEconItem )
 {
-	// We need to detect the case where items have been updated & moved bags / positions.
-	uint32 iOldPos = pScriptItem->GetInventoryPosition();
-	bool bWasInThisBag = ItemShouldBeIncluded( iOldPos );
-
-	// Ignore items that this inventory doesn't care about
-	if ( !ItemShouldBeIncluded( pEconItem->GetInventoryToken() ) )
-	{
-		// The item has been moved out of this bag. Ensure our derived inventory classes know.
-		if ( bWasInThisBag )
-		{
-			// We need to update it before it's removed.
-			ItemHasBeenUpdated( pScriptItem, false, false );
-
-			RemoveItem( pEconItem->GetItemID() );
-		}
-
-		return false;
-	}
-
 	pScriptItem->Init( pEconItem->GetDefinitionIndex(), pEconItem->GetQuality(), pEconItem->GetItemLevel(), pEconItem->GetAccountID() );
 	if ( !pScriptItem->IsValid() )
 		return false;
 
 	pScriptItem->SetItemID( pEconItem->GetItemID() );
-
-	pScriptItem->SetInventoryPosition( pEconItem->GetInventoryToken() );
-	OnItemChangedPosition( pScriptItem, iOldPos );
 
 #if BUILD_ITEM_NAME_AND_DESC
 	// Precache account names if we have any. We do this way in advance of any code that might
@@ -1958,28 +1253,6 @@ CEconItemView *CPlayerInventory::GetInventoryItemByOriginalID( itemid_t iOrigina
 	{
 		CEconItem *pItem = m_aInventoryItems[i].GetSOCData();
 		if ( pItem && pItem->GetOriginalID() == iOriginalID )
-		{
-			if ( pIndex )
-			{
-				*pIndex = i;
-			}
-
-			return &m_aInventoryItems[i];
-		}
-	}
-
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Finds the item in our inventory in the specified position
-//-----------------------------------------------------------------------------
-CEconItemView *CPlayerInventory::GetItemByPosition( int iPosition, int *pIndex )
-{
-	int iCount = m_aInventoryItems.Count();
-	for ( int i = 0; i < iCount; i++ )
-	{
-		if ( m_aInventoryItems[i].GetInventoryPosition() == (unsigned int)iPosition )
 		{
 			if ( pIndex )
 			{

@@ -147,12 +147,6 @@ $Project "Client (TF)"
 			$File	"econ\item_selection_panel.h"
 		}
 
-		$Folder "TF Economy Client Overrides"
-		{
-			$File	"tf\vgui\tf_item_pickup_panel.cpp"
-			$File	"tf\vgui\tf_item_pickup_panel.h"
-		}
-
 		$Folder	"TF"
 		{
 			$File	"$SRCDIR\game\shared\tf\tf_weapon_passtime_gun.cpp"
@@ -611,13 +605,7 @@ $Project "Client (TF)"
 				$File	"$SRCDIR\game\shared\tf\tf_weapon_rocketpack.cpp"
 				$File	"$SRCDIR\game\shared\tf\tf_weapon_rocketpack.h"
 			}
-
-			$Folder	"Economy"
-			{
-				$File	"$SRCDIR\game\shared\econ\econ_claimcode.cpp"
-				$File	"$SRCDIR\game\shared\econ\econ_claimcode.h"
-			}
-
+			
 			$Folder "Steam Workshop"
 			{
 				$File	"$SRCDIR\game\shared\workshop\ugc_utils.h"

@@ -89,11 +89,6 @@ public:
 	virtual void		Gamestats_ItemTransaction( int eventID, CEconItemView *item, const char *pszReason = NULL, int iQuality = 0 );
 	virtual void		SetExperimentValue( uint64 experimentValue );
 
-	// Open separate economy panels (they're not parented to the root EconUI)
-	// This is here so that games can customize the implementation of these panels.
-	virtual CItemPickupPanel	*OpenItemPickupPanel( void );
-	virtual CItemDiscardPanel	*OpenItemDiscardPanel( void );
-
 	// When the root UI is closed, send an "EconUIClosed" message to pListener.
 	virtual void		AddPanelCloseListener( vgui::Panel *pListener );
 

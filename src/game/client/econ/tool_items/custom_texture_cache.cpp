@@ -1137,7 +1137,6 @@ EResult CApplyCustomTextureJob::YieldingApplyTool()
 	}
 
 	// OK!
-	InventoryManager()->ShowItemsPickedUp( true );
 	return k_EResultOK;
 };
 

@@ -2278,11 +2278,6 @@ void CItemModelPanel::SetItem( const CEconItemView *pItem )
 			// If the item hasn't built its attribute string, go ahead and do that.
 			m_ItemData.SetGrayedOutReason( GetGreyedOutReason() );
 		}
-		else
-		{
-			// The rest of the data may match, but we still need the inventory position updates
-			m_ItemData.SetInventoryPosition( pItem->GetInventoryPosition() );
-		}
 
 		ShowContainedItemPanel( pItem );
 	}

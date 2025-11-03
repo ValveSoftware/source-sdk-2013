@@ -32,14 +32,6 @@ class CEconItemViewHandle;
 class ITexture;
 #endif
 
-// Inventory Less function.
-// Used to sort the inventory items into their positions.
-class CInventoryListLess
-{
-public:
-	bool Less( const CEconItemView &src1, const CEconItemView &src2, void *pCtx );
-};
-
 // A class that wants notifications when an inventory is updated
 class IInventoryUpdateListener : public GCSDK::ISharedObjectListener
 {
@@ -95,9 +87,6 @@ public:
 	// Finds the item in our inventory that matches the specified global original id
 	CEconItemView		*GetInventoryItemByOriginalID( itemid_t iOriginalID, int *pIndex = NULL );
 
-	// Finds the item in our inventory in the specified position
-	CEconItemView		*GetItemByPosition( int iPosition, int *pIndex = NULL );
-
 	// Finds the first item in our backpack with match itemdef
 	CEconItemView		*FindFirstItembyItemDef( item_definition_index_t iItemDef );
 
@@ -123,8 +112,6 @@ public:
 	// Access helpers
 	virtual void		SOClear();
 
-	virtual void		NotifyHasNewItems() {}
-
 	void				AddItemHandle( CEconItemViewHandle* pHandle );
 	void				RemoveItemHandle( CEconItemViewHandle* pHandle );
 
@@ -145,8 +132,6 @@ protected:
 	virtual void		RemoveItem( itemid_t iItemID );
 	bool				FilloutItemFromEconItem( CEconItemView *pScriptItem, CEconItem *pEconItem );
 	void				SendInventoryUpdateEvent();
-	virtual void		OnHasNewItems() {}
-	virtual void		OnItemChangedPosition( CEconItemView *pItem, uint32 iOldPos ) { return; }
 
 	virtual void		SOCreated( const CSteamID & steamIDOwner, const GCSDK::CSharedObject *pObject, GCSDK::ESOCacheEvent eEvent ) OVERRIDE;
 	virtual void		PreSOUpdate( const CSteamID & steamIDOwner, GCSDK::ESOCacheEvent eEvent ) OVERRIDE { /* do nothing */ }
@@ -155,9 +140,6 @@ protected:
 	virtual void		SODestroyed( const CSteamID & steamIDOwner, const GCSDK::CSharedObject *pObject, GCSDK::ESOCacheEvent eEvent ) OVERRIDE;
 	virtual void		SOCacheSubscribed( const CSteamID & steamIDOwner, GCSDK::ESOCacheEvent eEvent ) OVERRIDE;
 	virtual void		SOCacheUnsubscribed( const CSteamID & steamIDOwner, GCSDK::ESOCacheEvent eEvent ) OVERRIDE;
-
-	void				ResortInventory( void ) { m_aInventoryItems.RedoSort( true ); }
-	virtual void		ValidateInventoryPositions( void );
 
 	// Derived inventory hooks
 	virtual void		ItemHasBeenUpdated( CEconItemView *pItem, bool bUpdateAckFile, bool bWriteAckFile );
@@ -176,7 +158,7 @@ protected:
 	CUtlMap< uint32, CCopyableUtlVector< itemid_t > > m_mapPaintkitsToItems;
 
 	// The items the player has in his inventory, received from steam.
-	CUtlSortVector<CEconItemView,CInventoryListLess>		m_aInventoryItems;
+	CUtlVector<CEconItemView>		m_aInventoryItems;
 
 	int			m_iPendingRequests;
 	bool		m_bGotItemsFromSteam;
@@ -206,11 +188,6 @@ public:
 
 	void PreInitGC();
 	void PostInitGC();
-
-#ifdef CLIENT_DLL
-	void	DropItem( itemid_t iItemID );
-	int		DeleteUnknowns( CPlayerInventory *pInventory );
-#endif
 
 public:
 	//-----------------------------------------------------------------------
@@ -261,78 +238,13 @@ public:
 	virtual void				UpdateLocalInventory( void );
 	virtual CPlayerInventory	*GetLocalInventory( void ) { return NULL; }
 
-	// The local inventory is used to track discards & responses to. We need to
-	// make a decision about inventory space right after sending a delete request,
-	// so we predict the request will work.
-	void				OnItemDeleted( CPlayerInventory *pInventory ) { if ( pInventory == GetLocalInventory() ) m_iPredictedDiscards--; }
-
 	virtual void		PersonaName_Precache( uint32 unAccountID );
 	virtual const char *PersonaName_Get( uint32 unAccountID );
 	virtual void		PersonaName_Store( uint32 unAccountID, const char *pPersonaName );
 
 	static void			SendItemSystemConnectedEvent( void );
 
-	// Returns the item at the specified backpack position
-	virtual CEconItemView	*GetItemByBackpackPosition( int iBackpackPosition );
-
-	// Moves the item to the specified backpack position. If there's another item as that spot, it swaps positions with it.
-	virtual void		MoveItemToBackpackPosition( CEconItemView *pItem, int iBackpackPosition );
-
-	// Tries to set the item to the specified backpack position. Passing in 0 will find the first empty position.
-	// FAILS if the backpack is full, or if that spot isn't clear. Returns false in that case.
-	virtual bool		SetItemBackpackPosition( CEconItemView *pItem, uint32 iPosition = 0, bool bForceUnequip = false, bool bAllowOverflow = false );
-
-	// Sort the backpack items by the specified type
-	virtual void		SortBackpackBy( uint32 iSortType );
-	void				SortBackpackFinished( void );
-	bool				IsInBackpackSort( void ) { return m_bInBackpackSort; }
-
-	void				PredictedBackpackPosFilled( int iBackpackPos ) { m_PredictedFilledSlots.FindAndRemove( iBackpackPos ); }
-
-	// Tell the backend to move an item to a specified backend position
-	virtual void		UpdateInventoryPosition( CPlayerInventory *pInventory, uint64 ulItemID, uint32 unNewInventoryPos );
-
 	virtual void		UpdateInventoryEquippedState( CPlayerInventory *pInventory, uint64 ulItemID, equipped_class_t unClass, equipped_slot_t unSlot );
-
-
-	//-----------------------------------------------------------------------
-	// CLIENT PICKUP UI HANDLING
-	//-----------------------------------------------------------------------
-
-	// Get the number of items picked up
-	virtual int			GetNumItemPickedUpItems( void ) { return 0; }
-
-	// Show the player a pickup screen with any items they've collected recently, if any
-	virtual bool		ShowItemsPickedUp( bool bForce = false, bool bReturnToGame = true, bool bNoPanel = false );
-
-	// Show the player a pickup screen with the items they've crafted
-	virtual void		ShowItemsCrafted( CUtlVector<itemid_t> *vecCraftedIndices ) { return; }
-
-	// Force the player to discard an item to make room for a new item, if they have one.
-	// Returns true if the discard panel has been brought up, and the player will be forced to discard an item.
-	virtual bool		CheckForRoomAndForceDiscard( void );
-	
-	//-----------------------------------------------------------------------
-	// CLIENT ITEM PICKUP ACKNOWLEDGEMENT FILES
-	//
-	// This system avoids showing multiple pickups for items that we've found, but haven't been 
-	// able to move out of unack'd position due to the GC being unavailable. We keep a list of
-	// items we've ack'd in a client file, and don't re-show pickups for them. When a GC item
-	// update tells us the item has moved out of the unack'd position, we remove it from our file.
-	//-----------------------------------------------------------------------
-
-	virtual void		AcknowledgeItem ( CEconItemView *pItem, bool bMoveToBackpack = true );		// Client Acknowledges an item and moves it in to the backpack
-	bool				HasBeenAckedByClient( CEconItemView *pItem );		// Returns true if it's in our client file
-	void				SetAckedByClient( CEconItemView *pItem );			// Adds it to our client file
-	void				SetAckedByGC( CEconItemView *pItem, bool bSave );	// Removes it from our client file
-	KeyValues			*GetAckKeyForItem( CEconItemView *pItem );
-	void				CleanAckFile( void );
-	void				SaveAckFile( void );
-
-private:
-	void				VerifyAckFileLoaded( void );
-	KeyValues			*m_pkvItemClientAckFile;
-	bool				m_bClientAckDirty;
 
 private:
 	// As we move items around in batches (on pickups usually) we need to know what slots will be filled
@@ -370,17 +282,11 @@ protected:
 	bool			IsValidPlayerClass( equipped_class_t unClass );
 
 #ifdef CLIENT_DLL
-	// Keep track of the number of items we've tried to discard, but haven't recieved responses on
-	int			m_iPredictedDiscards;
-
 	typedef CUtlMap< uint32, CUtlString, int > tPersonaNamesByAccountID;
 	tPersonaNamesByAccountID m_mapPersonaNamesCache;
 
-	bool		m_bInBackpackSort;
-
 	float		m_flNextLoadPresetChange;
 
-	CMsgSetItemPositions m_msgPendingSetItemPositions;
 	CMsgLookupMultipleAccountNames m_msgPendingLookupAccountNames;
 
 	void OnPersonaStateChanged( PersonaStateChange_t *info );

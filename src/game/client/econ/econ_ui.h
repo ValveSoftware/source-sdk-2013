@@ -15,15 +15,12 @@ enum EconBaseUIPanels_t
 {
 	ECONUI_BASEUI = 0,
 	ECONUI_ARMORY,
-	ECONUI_TRADING,
 	ECONUI_LOADOUT,
 
 	ECONUI_FIRST_PANEL = ECONUI_BASEUI,
 	ECONUI_LAST_PANEL = ECONUI_LOADOUT
 };
 
-class CItemPickupPanel;
-class CItemDiscardPanel;
 namespace vgui
 {
 	class Panel;
@@ -52,11 +49,6 @@ public:
 	virtual void		Gamestats_ItemTransaction( int eventID, CEconItemView *item, const char *pszReason = NULL, int iQuality = 0 ) = 0;
 	
 	virtual void		SetExperimentValue( uint64 experimentValue ) = 0;
-
-	// Open separate economy panels (they're not parented to the root EconUI)
-	// This is here so that games can customize the implementation of these panels.
-	virtual CItemPickupPanel	*OpenItemPickupPanel( void ) = 0;
-	virtual CItemDiscardPanel	*OpenItemDiscardPanel( void ) = 0;
 
 	// When the root UI is closed, send an "EconUIClosed" message to pListener.
 	virtual void		AddPanelCloseListener( vgui::Panel *pListener ) = 0;

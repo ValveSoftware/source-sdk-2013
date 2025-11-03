@@ -23,7 +23,6 @@
 #include <vgui_controls/AnimationController.h>
 #include "econ_ui.h"
 #include "c_tf_gamestats.h"
-#include "tf_item_pickup_panel.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -235,18 +234,7 @@ void CCharacterInfoPanel::Close()
 	// If we're connected to a game server, we also close the game UI.
 	if ( engine->IsInGame() )
 	{
-		bool bClose = true;
-		if ( m_bCheckForRoomOnExit )
-		{
-			// Check to make sure the player has room for all his items. If not, bring up the discard panel. Otherwise, go away.
-			// We need to do this to catch players who used the "Change Loadout" button in the pickup panel, and may be out of room.
-			bClose = !TFInventoryManager()->CheckForRoomAndForceDiscard();
-		}
-
-		if ( bClose )
-		{
-			engine->ClientCmd_Unrestricted( "gameui_hide" );
-		}
+		engine->ClientCmd_Unrestricted( "gameui_hide" );
 	}
 
 	// Notify any listeners that we're closed
@@ -462,9 +450,6 @@ bool CCharacterInfoPanel::IsUIPanelVisible( EconBaseUIPanels_t iPanel )
 	case ECONUI_ARMORY:
 		return (GetArmoryPanel() && GetArmoryPanel()->IsVisible());
 
-	case ECONUI_TRADING:
-		break;
-
 	default:
 		Assert(0);
 		break;
@@ -613,43 +598,6 @@ void CCharacterInfoPanel::Gamestats_ItemTransaction( int eventID, CEconItemView 
 void CCharacterInfoPanel::SetExperimentValue( uint64 experimentValue )
 {
 	C_CTF_GameStats.SetExperimentValue( experimentValue );
-}
-
-static vgui::DHANDLE<CTFItemPickupPanel> g_TFItemPickupPanel;
-static vgui::DHANDLE<CTFItemDiscardPanel> g_TFItemDiscardPanel;
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CItemPickupPanel *CCharacterInfoPanel::OpenItemPickupPanel( void )
-{
-	if (!g_TFItemPickupPanel.Get())
-	{
-		g_TFItemPickupPanel = vgui::SETUP_PANEL( new CTFItemPickupPanel( NULL ) );
-		g_TFItemPickupPanel->InvalidateLayout( false, true );
-	}
-
-	engine->ClientCmd_Unrestricted( "gameui_activate" );
-	g_TFItemPickupPanel->ShowPanel( true );
-
-	return g_TFItemPickupPanel;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CItemDiscardPanel *CCharacterInfoPanel::OpenItemDiscardPanel( void )
-{
-	if (!g_TFItemDiscardPanel.Get())
-	{
-		g_TFItemDiscardPanel = vgui::SETUP_PANEL( new CTFItemDiscardPanel( NULL ) );
-		g_TFItemDiscardPanel->InvalidateLayout( false, true );
-	}
-
-	engine->ClientCmd_Unrestricted( "gameui_activate" );
-	g_TFItemDiscardPanel->ShowPanel( true );
-
-	return g_TFItemDiscardPanel;
 }
 
 //-----------------------------------------------------------------------------

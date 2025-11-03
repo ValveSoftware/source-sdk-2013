@@ -17,7 +17,6 @@
 #include "c_tf_objective_resource.h"
 #include "tf_gamerules.h"
 #include "tf_item_inventory.h"
-#include "trading_start_dialog.h"
 #include "gc_clientsystem.h"
 #include "tf_item_system.h"
 
@@ -494,10 +493,6 @@ void CCharInfoLoadoutSubPanel::OnCommand( const char *command )
 	else if ( !Q_strnicmp( command, "armory", 6 ) )
 	{
 		OpenToArmory();
-	}
-	else if ( !Q_strnicmp( command, "trading", 7 ) )
-	{
-		OpenTradingStartDialog( this );
 	}
 	else if ( FStrEq( command, "paintkit_preview" ) )
 	{

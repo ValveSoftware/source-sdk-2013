@@ -11,7 +11,6 @@
 #include <vgui/ILocalize.h>
 #include "ienginevgui.h"
 #include "econ_item_inventory.h"
-#include "item_pickup_panel.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -102,8 +101,6 @@ void CEconSampleRootUI::ShowPanel(bool bShow)
 		MoveToFront();
 		m_nVisiblePanel = ECONUI_BASEUI;
 		UpdateSubPanelVisibility();
-
-		InventoryManager()->ShowItemsPickedUp( true, false );
 	}
 }
 
@@ -139,18 +136,7 @@ void CEconSampleRootUI::OnCommand( const char *command )
 		// If we're connected to a game server, we also close the game UI.
 		if ( engine->IsInGame() )
 		{
-			bool bClose = true;
-			if ( m_bCheckForRoomOnExit )
-			{
-				// Check to make sure the player has room for all his items. If not, bring up the discard panel. Otherwise, go away.
-				// We need to do this to catch players who used the "Change Loadout" button in the pickup panel, and may be out of room.
-				bClose = !InventoryManager()->CheckForRoomAndForceDiscard();
-			}
-			
-			if ( bClose )
-			{
-				engine->ClientCmd_Unrestricted( "gameui_hide" );
-			}
+			engine->ClientCmd_Unrestricted( "gameui_hide" );
 		}
 	}
 	else if ( !Q_stricmp( command, "back" ) )
@@ -249,8 +235,6 @@ bool CEconSampleRootUI::IsUIPanelVisible( EconBaseUIPanels_t iPanel )
 	case ECONUI_ARMORY:
 		break;
 
-	case ECONUI_TRADING:
-		break;
 	case ECONUI_LOADOUT:
 		break;
 
@@ -288,43 +272,6 @@ void CEconSampleRootUI::UpdateSubPanelVisibility( void )
 	//m_pCraftingPanel->ShowPanel( m_iCurrentClassIndex, true, (m_iPrevShowingPanel == CHAP_ARMORY) );
 }
 
-static vgui::DHANDLE<CItemPickupPanel> g_ItemPickupPanel;
-static vgui::DHANDLE<CItemDiscardPanel> g_ItemDiscardPanel;
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CItemPickupPanel *CEconSampleRootUI::OpenItemPickupPanel( void )
-{
-	if (!g_ItemPickupPanel.Get())
-	{
-		g_ItemPickupPanel = vgui::SETUP_PANEL( new CItemPickupPanel( NULL ) );
-		g_ItemPickupPanel->InvalidateLayout( false, true );
-	}
-
-	engine->ClientCmd_Unrestricted( "gameui_activate" );
-	g_ItemPickupPanel->ShowPanel( true );
-
-	return g_ItemPickupPanel;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CItemDiscardPanel *CEconSampleRootUI::OpenItemDiscardPanel( void )
-{
-	if (!g_ItemDiscardPanel.Get())
-	{
-		g_ItemDiscardPanel = vgui::SETUP_PANEL( new CItemDiscardPanel( NULL ) );
-		g_ItemDiscardPanel->InvalidateLayout( false, true );
-	}
-
-	engine->ClientCmd_Unrestricted( "gameui_activate" );
-	g_ItemDiscardPanel->ShowPanel( true );
-
-	return g_ItemDiscardPanel;
-}
-
 #ifdef _DEBUG
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -335,21 +282,4 @@ void Open_EconUI( const CCommand &args )
 }
 ConCommand open_econui( "open_econui", Open_EconUI );
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void Open_EconUIBackpack( const CCommand &args )
-{
-	EconUI()->OpenEconUI( ECONUI_BACKPACK );	
-}
-ConCommand open_econui_backpack( "open_econui_backpack", Open_EconUIBackpack, "Open the backpack.", FCVAR_NONE );
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void Open_EconUICrafting( const CCommand &args )
-{
-	EconUI()->OpenEconUI( ECONUI_CRAFTING );	
-}
-ConCommand open_econui_crafting( "open_econui_crafting", Open_EconUICrafting, "Open the crafting screen.", FCVAR_NONE );
 #endif // _DEBUG
