@@ -12,13 +12,9 @@
 #include "tf_item_tools.h"
 #include "in_buttons.h"
 #include "econ_holidays.h"
-#include "tf_quest_map.h"
-#include "tf_quest_map_node.h"
-#include "econ_quests.h"
 #include "econ_paintkit.h"
 
 	#include "econ_item_system.h"
-	#include "tf_quest_restriction.h"
 	#include "engine/IEngineSound.h"
 
 	extern ISoundEmitterSystemBase *soundemitterbase;
@@ -1696,10 +1692,6 @@ bool CTFItemSchema::BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlStr
 	SCHEMA_INIT_SUBSTEP( BInitGameModes( pKVMaps, pVecErrors ) );
 	SCHEMA_INIT_SUBSTEP( BPostInitMaps( pVecErrors ) );
 
-	// This needs to happen BEFORE we get the quest objectives since they're going to reference these.
-	KeyValues *pKVQuestObjectiveConditions = pKVRawDefinition->FindKey( "quest_objective_conditions" );
-	SCHEMA_INIT_SUBSTEP( BInitQuestObjectiveConditions( pKVQuestObjectiveConditions, pVecErrors ) );
-
 	KeyValues* pKVWarDefs = pKVRawDefinition->FindKey( "war_definitions" );
 	SCHEMA_INIT_SUBSTEP( BInitWarDefs( pKVWarDefs, pVecErrors ) );
 
@@ -2153,40 +2145,6 @@ bool CTFItemSchema::BPostInitMaps( CUtlVector<CUtlString> *pVecErrors )
 	}
 
 	return true;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Inits data for quest objective conditions
-//-----------------------------------------------------------------------------
-bool CTFItemSchema::BInitQuestObjectiveConditions( KeyValues *pKVConditionsBlock, CUtlVector<CUtlString> *pVecErrors )
-{
-	m_mapQuestObjectiveConditions.PurgeAndDeleteElements();
-
-	SCHEMA_INIT_CHECK( pKVConditionsBlock != NULL, "No quest objective conditions block found!" );
-
-	FOR_EACH_TRUE_SUBKEY( pKVConditionsBlock, pKVCondition )
-	{
-		CQuestObjectiveConditionsDefinition *pNewCondition = new CQuestObjectiveConditionsDefinition();
-		SCHEMA_INIT_SUBSTEP( pNewCondition->BInitFromKV( pKVCondition, pVecErrors ) );
-
-		m_mapQuestObjectiveConditions.Insert( pNewCondition->GetDefIndex(), pNewCondition );
-	}
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Post init for all quest objective conditions
-//-----------------------------------------------------------------------------
-bool CTFItemSchema::BObjectiveConditionsPostInit( CUtlVector<CUtlString> *pVecErrors )
-{
-	FOR_EACH_MAP_FAST( m_mapQuestObjectiveConditions, i )
-	{
-		SCHEMA_INIT_SUBSTEP( m_mapQuestObjectiveConditions[ i ]->BPostInit( pVecErrors ) );
-	}
-
-	return SCHEMA_INIT_SUCCESS();
 }
 
 //-----------------------------------------------------------------------------

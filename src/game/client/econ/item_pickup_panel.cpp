@@ -23,7 +23,6 @@
 #ifdef TF_CLIENT_DLL
 #include "c_tf_freeaccount.h"
 #include "clientmode_tf.h"
-#include "quest_log_panel.h"
 #endif
 
 //-----------------------------------------------------------------------------

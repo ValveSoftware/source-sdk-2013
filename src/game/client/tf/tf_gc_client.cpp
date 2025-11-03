@@ -29,10 +29,7 @@
 #include "tf_partyclient.h"
 #include "tf_ladder_data.h"
 #include "tf_rating_data.h"
-#include "tf_quest_map.h"
-#include "tf_quest_map_node.h"
-#include "econ_quests.h"
-
+#include <tf_proto_script_obj_def.h>
 #include "econ_item_description.h"
 
 #include "tf_hud_disconnect_prompt.h"
@@ -157,9 +154,7 @@ void CTFGCClientSystem::PreInitGC()
 //		REG_SHARED_OBJECT_SUBCLASS( CTFBetaParticipation );
 		REG_SHARED_OBJECT_SUBCLASS( CTFPartyInvite );
 		REG_SHARED_OBJECT_SUBCLASS( CTFLobbyInvite );
-		REG_SHARED_OBJECT_SUBCLASS( CQuestMapNode );
 		REG_SHARED_OBJECT_SUBCLASS( CTFRatingData );
-		REG_SHARED_OBJECT_SUBCLASS( CQuestMapRewardPurchase );
 
 		m_bRegisteredSharedObjects = true;
 	}

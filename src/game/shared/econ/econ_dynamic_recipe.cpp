@@ -7,7 +7,6 @@
 
 #include "cbase.h"
 #include "econ_dynamic_recipe.h"
-	#include "quest_objective_manager.h"
 
 // This pattern was chosen to not be:
 //		- a valid string acceptable for user-input (ie., custom name)

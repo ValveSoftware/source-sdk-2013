@@ -45,7 +45,6 @@
 #include "store/v2/tf_store_preview_item2.h"
 #include "item_ad_panel.h"
 #include "client_community_market.h"
-#include "tf_quest_map_panel.h"
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
@@ -3738,7 +3737,6 @@ void CBackpackPanel::DoCraftCommonStatClock()
 //-----------------------------------------------------------------------------
 void CBackpackPanel::DoOpenConTracker()
 {
-	GetQuestMapPanel()->SetVisible( true );
 	EconUI()->CloseEconUI();
 }
 

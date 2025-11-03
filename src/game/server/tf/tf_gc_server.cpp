@@ -23,7 +23,6 @@
 #include "tf_player.h"
 #include "tf_voteissues.h"
 #include "player_vs_environment/tf_population_manager.h"
-#include "quest_objective_manager.h"
 #include "player_resource.h"
 #include "tf_player_resource.h"
 #include "tf_gamestats.h"

@@ -9,7 +9,6 @@
 #include "econ_controls.h"
 #include "tf_gc_client.h"
 #include "tf_gamerules.h"
-#include "tf_quest_map_utils.h"
 
 using namespace vgui;
 
@@ -99,7 +98,6 @@ void CTFDisconnectConfirmDialog::AddCancelCommand( const char *command )
 // Extern Helper to Build Dialog
 CTFDisconnectConfirmDialog *BuildDisconnectConfirmDialog ()
 {
-	bool bWorkingOnQuests = GetQuestMapHelper().GetActiveQuest() != NULL;
 	EAbandonGameStatus eAbandonStatus = GTFGCClientSystem()->GetCurrentServerAbandonStatus();
 	const char* pszTitle = NULL;
 	const char* pszBody = NULL;
@@ -111,16 +109,6 @@ CTFDisconnectConfirmDialog *BuildDisconnectConfirmDialog ()
 		pszTitle = "#TF_MM_Disconnect_Title";
 		pszBody = "#TF_MM_Disconnect";
 		pszConfirm = "#TF_MM_Rejoin_Leave";
-		break;
-	case k_EAbandonGameStatus_AbandonWithoutPenalty:
-		pszTitle = "#TF_MM_Abandon_Title";
-		pszBody = bWorkingOnQuests ? "TF_MM_Abandon_NoPenalty_Quests" : "#TF_MM_Abandon_NoPenalty";
-		pszConfirm = "#TF_MM_Rejoin_Leave";
-		break;
-	case k_EAbandonGameStatus_AbandonWithPenalty:
-		pszTitle = "#TF_MM_Abandon_Title";
-		pszBody = bWorkingOnQuests ? "TF_MM_Abandon_Quests" : "#TF_MM_Abandon";
-		pszConfirm = "#TF_MM_Rejoin_Abandon";
 		break;
 	}
 

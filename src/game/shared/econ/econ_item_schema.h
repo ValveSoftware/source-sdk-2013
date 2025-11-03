@@ -44,8 +44,6 @@ class CEconItemSchema;
 class CEconItem;
 class CEconSharedObjectCache;
 class CSOItemRecipe;
-class CQuestLootlist;
-class CQuestObjectiveDefinition;
 
 union attribute_data_union_t
 {
@@ -2795,7 +2793,6 @@ public:
 	virtual CEconItemDefinition				*CreateEconItemDefinition()			{ return new CEconItemDefinition; }
 	virtual CEconCraftingRecipeDefinition	*CreateCraftingRecipeDefinition()	{ return new CEconCraftingRecipeDefinition; }
 	virtual CEconStyleInfo					*CreateEconStyleInfo()				{ return new CEconStyleInfo; }
-	virtual CQuestObjectiveDefinition		*CreateQuestDefinition();
 
 	virtual IEconTool						*CreateEconToolImpl( const char *pszToolType, const char *pszUseString, const char *pszUsageRestriction, item_capabilities_t unCapabilities, KeyValues *pUsageKV );
 
@@ -2910,8 +2907,6 @@ private:
 
 	// Contains the list of item definitions read in from all data files.
 	ItemDefinitionMap_t									m_mapItems;
-
-	CUtlMap<int, CQuestObjectiveDefinition*, int >		m_mapQuestObjectives;
 
 	// A sorted version of the same map, for instances where we really want sorted data
 	SortedItemDefinitionMap_t							m_mapItemsSorted;

@@ -72,8 +72,6 @@ $Project
 			$File	"$SRCDIR\game\shared\econ\item_selection_criteria.h"
 			$File	"$SRCDIR\game\shared\econ\econ_dynamic_recipe.cpp"
 			$File	"$SRCDIR\game\shared\econ\econ_dynamic_recipe.h"
-			$File	"$SRCDIR\game\shared\econ\econ_quests.cpp"
-			$File	"$SRCDIR\game\shared\econ\econ_quests.h"
 			$File	"$SRCDIR\game\shared\econ\econ_paintkit.cpp"
 			$File	"$SRCDIR\game\shared\econ\econ_paintkit.h"
 			

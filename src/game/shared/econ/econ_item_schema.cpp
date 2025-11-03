@@ -36,8 +36,6 @@
 // Only used for startup testing.
 #include "econ_item_tools.h"
 
-#include "econ_quests.h"
-
 #if defined(CLIENT_DLL) || defined(GAME_DLL)
 	#include "econ_item_system.h"
 	#include "econ_item.h"
@@ -549,36 +547,7 @@ static int SortCollectionByRarity( item_definition_index_t const *a, item_defini
 	uint32 unPaintKitDefIndexA, unPaintKitDefIndexB;
 	if ( bIsRarityEqual && GetPaintKitDefIndex( pItemA, &unPaintKitDefIndexA ) && GetPaintKitDefIndex( pItemB, &unPaintKitDefIndexB ) )
 	{
-#ifdef CLIENT_DLL
-		// Sort by localized name
-		// paintkits sort by paintkit name
-		const CPaintKitDefinition* pPaintKitDefA = assert_cast< const CPaintKitDefinition* >( GetProtoScriptObjDefManager()->GetDefinition( ProtoDefID_t( DEF_TYPE_PAINTKIT_DEFINITION, unPaintKitDefIndexA ) ) );
-		const CPaintKitDefinition* pPaintKitDefB = assert_cast< const CPaintKitDefinition* >( GetProtoScriptObjDefManager()->GetDefinition( ProtoDefID_t( DEF_TYPE_PAINTKIT_DEFINITION, unPaintKitDefIndexB ) ) );
-
-		locchar_t pPaintKitStrA[MAX_ITEM_NAME_LENGTH];
-		locchar_t pPaintKitStrB[MAX_ITEM_NAME_LENGTH];
-
-		const wchar_t *wpszFormatString = g_pVGuiLocalize->Find( "#ToolPaintKit_ItemDescFormat" );
-		if ( !wpszFormatString )
-		{
-			wpszFormatString = L"%s1 %s2";
-		}
-		g_pVGuiLocalize->ConstructString_safe( pPaintKitStrA,
-				wpszFormatString,
-				2,
-				g_pVGuiLocalize->Find( pPaintKitDefA->GetDescriptionToken() ),
-				g_pVGuiLocalize->Find( pItemA->GetItemBaseName() ) );
-
-		g_pVGuiLocalize->ConstructString_safe( pPaintKitStrB,
-				wpszFormatString,
-				2,
-				g_pVGuiLocalize->Find( pPaintKitDefB->GetDescriptionToken() ),
-				g_pVGuiLocalize->Find( pItemB->GetItemBaseName() ) );
-
-		return V_wcscmp( pPaintKitStrA, pPaintKitStrB );
-#else
 		return 0;
-#endif
 	}
 
 	// If same Rarity, leave in current position?
@@ -3800,7 +3769,6 @@ CEconItemSchema::CEconItemSchema( )
 ,	m_mapQualities( DefLessFunc(int) )
 ,	m_mapAttributes( DefLessFunc(int) )
 ,	m_mapRecipes( DefLessFunc(int) )
-,	m_mapQuestObjectives( DefLessFunc(int) )
 ,	m_mapItemsSorted( DefLessFunc(int) )
 ,	m_mapToolsItems( DefLessFunc(int) )
 ,	m_mapPaintKitTools( DefLessFunc(uint32) )
@@ -3828,11 +3796,6 @@ CEconItemSchema::CEconItemSchema( )
 #endif
 {
 	Reset();
-}
-
-CQuestObjectiveDefinition *CEconItemSchema::CreateQuestDefinition()
-{
-	return new CQuestObjectiveDefinition; 
 }
 
 //-----------------------------------------------------------------------------
@@ -5274,7 +5237,6 @@ bool CEconItemSchema::BInitItems( KeyValues *pKVItems, CUtlVector<CUtlString> *p
 	m_mapPaintKitTools.Purge();
 	m_mapBaseItems.Purge();
 	m_vecBundles.Purge();
-	m_mapQuestObjectives.PurgeAndDeleteElements();
 
 #if defined(CLIENT_DLL) || defined(GAME_DLL)
 	if ( m_pDefaultItemDefinition )

@@ -31,17 +31,13 @@
 #include "materialsystem/imaterialsystem.h"
 #include "materialsystem/materialsystem_config.h"
 #include "tf_warinfopanel.h"
-#include "quest_log_panel.h"
 #include "tf_item_inventory.h"
-#include "quest_log_panel.h"
-#include "econ_quests.h"
 #include "tf_streams.h"
 #include "tf_matchmaking_shared.h"
 #include "tf_lobby_container_frame_comp.h"
 #include "tf_lobby_container_frame_mvm.h"
 #include "tf_lobby_container_frame_casual.h"
 #include "tf_badge_panel.h"
-#include "tf_quest_map_panel.h"
 #include "tf_rating_data.h"
 #include "tf_progression.h"
 
@@ -53,7 +49,6 @@
 #include "icommandline.h"
 #include "vgui/ISystem.h"
 #include "mute_player_dialog.h"
-#include "tf_quest_map_utils.h"
 #include "tf_pvp_rank_panel.h"
 
 #include "econ_paintkit.h"
@@ -748,15 +743,6 @@ void CHudMainMenuOverride::LoadCharacterImageFile( void )
 		if ( vecUseableCharacters.IsValidIndex( m_iCharacterImageIdx ) )
 		{
 			KeyValues *pCharacter = vecUseableCharacters[m_iCharacterImageIdx];
-
-			if ( IsFreeTrialAccount( ) && GetQuestMapPanel()->IsVisible() )
-			{
-				const char* text = pCharacter->GetString( "store_text" );
-				if ( text )
-				{
-					StartHighlightAnimation( MMHA_STORE )->SetDialogVariable( "highlighttext", g_pVGuiLocalize->Find( text ) );
-				}
-			}
 
 			const char* image_name = pCharacter->GetString( "image" );
 			m_pCharacterImagePanel->SetImage( image_name );
@@ -1459,24 +1445,6 @@ void CHudMainMenuOverride::SetMOTDVisible( bool bVisible )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-void CHudMainMenuOverride::SetQuestMapVisible( bool bVisible )
-{
-	return;
-
-	if ( bVisible )
-	{
-		GetQuestMapPanel()->InvalidateLayout( true );
-		SetMOTDVisible( false );
-		SetNotificationsPanelVisible( false );
-		//SetWatchStreamVisible( false );
-	}
-
-	GetQuestMapPanel()->SetVisible( bVisible );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
 //void CHudMainMenuOverride::SetWatchStreamVisible( bool bVisible )
 //{
 //	m_pWatchStreamsPanel->SetVisible( bVisible );
@@ -1615,7 +1583,6 @@ void CHudMainMenuOverride::SetNotificationsPanelVisible( bool bVisible )
 			m_pNotificationsScroller->GetScrollbar()->SetValue( 0 );
 
 			SetMOTDVisible( false );
-			SetQuestMapVisible( false );
 			//SetWatchStreamVisible( false );
 
 			m_pNotificationsShowPanel->SetVisible( false );
@@ -1935,18 +1902,10 @@ void CHudMainMenuOverride::OnCommand( const char *command )
 		pEditor->Exit_ShowDialogs();
 #endif // REPLAY_ENABLED
 	}
-	else if ( FStrEq( "questlog", command ) )
-	{
-		SetQuestMapVisible( !GetQuestMapPanel()->IsVisible() );
-	}
 	else if ( FStrEq( "watch_stream", command ) )
 	{
 		//SetWatchStreamVisible( !m_pWatchStreamsPanel->IsVisible() );
 		vgui::system()->ShellExecute( "open", "https://www.twitch.tv/directory/game/Team%20Fortress%202" );
-	}
-	else if ( FStrEq( "close_quest_map", command ) )
-	{
-		SetQuestMapVisible( false );
 	}
 	else if ( FStrEq( "view_update_page", command ) )
 	{

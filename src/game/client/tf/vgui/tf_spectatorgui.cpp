@@ -25,7 +25,6 @@
 #include "c_tf_playerresource.h"
 #include "playerspawncache.h"
 #include "econ_notifications.h"
-#include "tf_hud_item_progress_tracker.h"
 #include "tf_hud_target_id.h"
 #include "c_baseobject.h"
 #include "inputsystem/iinputsystem.h"
@@ -801,12 +800,6 @@ void CTFSpectatorGUI::ShowPanel(bool bShow)
 		CTFHudObjectiveStatus *pStatus = GET_HUDELEMENT( CTFHudObjectiveStatus );
 		CHudBuildingStatusContainer_Engineer *pEngBuilds = GET_NAMED_HUDELEMENT( CHudBuildingStatusContainer_Engineer, BuildingStatus_Engineer );
 		CHudBuildingStatusContainer_Spy *pSpyBuilds = GET_NAMED_HUDELEMENT( CHudBuildingStatusContainer_Spy, BuildingStatus_Spy );
-		CHudItemAttributeTracker *pAttribTrackers = GET_HUDELEMENT( CHudItemAttributeTracker );
-
-		if ( pAttribTrackers )
-		{
-			pAttribTrackers->InvalidateLayout();
-		}
 
 		if ( bShow )
 		{

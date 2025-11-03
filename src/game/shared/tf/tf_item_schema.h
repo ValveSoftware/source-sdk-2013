@@ -771,8 +771,6 @@ private:
 	bool BInitGameModes( KeyValues *pKVMaps, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitMaps( KeyValues *pKVMaps, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitMMCategories( KeyValues *pKVCategories, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitQuestObjectiveConditions( KeyValues *pKVConditionsBlock, CUtlVector<CUtlString> *pVecErrors );
-	bool BObjectiveConditionsPostInit( CUtlVector<CUtlString> *pVecErrors );
 	bool BInitWarDefs( KeyValues *pKVWarDefs, CUtlVector<CUtlString> *pVecErrors );
 
 	bool BPostInitMaps( CUtlVector<CUtlString> *pVecErrors );

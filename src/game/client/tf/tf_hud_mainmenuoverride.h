@@ -26,7 +26,6 @@
 #include "item_model_panel.h"
 #include "motd.h"
 #include "gcsdk/gcclientsdk.h"
-#include "quest_log_panel.h"
 #include "local_steam_shared_object_listener.h"
 
 
@@ -109,7 +108,6 @@ public:
 
 	void		 SetMOTDButtonVisible( bool bVisible );
 	void		 SetMOTDVisible( bool bVisible );
-	void		 SetQuestMapVisible( bool bVisible );
 //	void		 SetWatchStreamVisible( bool bVisible );
 	void		 UpdateMOTD( bool bNewMOTDs );
 	bool		 ReloadedAllMOTDs( void ) { return m_bReloadedAllMOTDs; }

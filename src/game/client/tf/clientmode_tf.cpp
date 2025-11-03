@@ -63,7 +63,6 @@
 #include "engine/IEngineSound.h"
 #include "tf_partyclient.h"
 
-#include "quest_objective_manager.h"
 #include "econ_item_system.h"
 #include "tf_mann_vs_machine_stats.h"
 #include "tf_hud_mann_vs_machine_status.h"
@@ -2472,35 +2471,6 @@ USER_MESSAGE( PlayerPickupWeapon )
 	if ( event )
 	{
 		gameeventmanager->FireEventClientSide( event );
-	}
-}
-
-USER_MESSAGE( QuestObjectiveCompleted )
-{
-	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
-
-	itemid_t itemID = (itemid_t)msg.ReadLongLong();
-	uint16 nPoints0 = msg.ReadByte();
-	uint16 nPoints1 = msg.ReadByte();
-	uint16 nPoints2 = msg.ReadByte();
-	uint32 nObjectiveDefIndex = msg.ReadWord();
-	uint16 nScorerUserID = msg.ReadByte();
-
-	QuestObjectiveManager()->UpdateFromServer( itemID, nPoints0, nPoints1, nPoints2 );
-	QuestObjectiveManager()->EnsureTrackersForPlayer( steamapicontext->SteamUser()->GetSteamID() );
-
-	// Passing a -1 means this is a ninja update where we don't want the fanfare
-	if ( nObjectiveDefIndex != (uint32)-1 )
-	{
-		IGameEvent *pEvent = gameeventmanager->CreateEvent( "quest_objective_completed" );
-		if ( pEvent )
-		{
-			pEvent->SetInt( "quest_item_id_low", itemID & 0xFFFFFFFF );
-			pEvent->SetInt( "quest_item_id_hi", itemID >> 32 );
-			pEvent->SetInt( "quest_objective_id", nObjectiveDefIndex );
-			pEvent->SetInt( "scorer_user_id", nScorerUserID );
-			gameeventmanager->FireEventClientSide( pEvent );
-		}	
 	}
 }
 

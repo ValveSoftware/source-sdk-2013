@@ -12,10 +12,6 @@
 
 #include "tf_proto_script_obj_def.h"
 
-#ifdef CLIENT_DLL
-#include "tf_quest_map_editor_panel.h"
-#endif
-
 //-----------------------------------------------------------------------------
 // CQuestObjectiveDefinition
 //-----------------------------------------------------------------------------

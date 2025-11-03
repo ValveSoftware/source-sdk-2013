@@ -7,7 +7,6 @@
 #include "gc_clientsystem.h"
 #include "econ_item_system.h"
 #include "econ_item_inventory.h"
-#include "quest_objective_manager.h"
 #ifdef GAME_DLL
 #include "tf_wartracker.h"
 #endif
@@ -195,9 +194,6 @@ void CGCClientSystem::LevelInitPreEntity()
 //-----------------------------------------------------------------------------
 void CGCClientSystem::LevelShutdownPostEntity()
 {
-#ifdef GAME_DLL
-	QuestObjectiveManager()->Shutdown();
-#endif
 }
 
 
@@ -230,7 +226,6 @@ void CGCClientSystem::SetupGC()
 	// Post-Init.
 	PostInitGC();
 	InventoryManager()->PostInitGC();
-	QuestObjectiveManager()->Initialize();
 
 #ifdef GAME_DLL
 	GetWarTrackerManager()->Initialize();

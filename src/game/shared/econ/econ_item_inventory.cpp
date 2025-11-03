@@ -39,7 +39,6 @@
 #include "tf_wardata.h"
 #include "tf_ladder_data.h"
 #include "tf_rating_data.h"
-#include "econ_quests.h"
 #endif
 
 
@@ -327,7 +326,6 @@ void CInventoryManager::PreInitGC()
 	REG_SHARED_OBJECT_SUBCLASS( CTFPlayerInfo );
 	REG_SHARED_OBJECT_SUBCLASS( CEconClaimCode );
 	REG_SHARED_OBJECT_SUBCLASS( CSOTFLadderData );
-	REG_SHARED_OBJECT_SUBCLASS( CQuest );
 #endif
 
 }

@@ -25,7 +25,6 @@
 #include "econ/econ_item_preset.h"
 #include "tf_shared_content_manager.h"
 #include "c_playerresource.h"
-#include "quest_log_panel.h"
 #include "backpack_panel.h"
 #include "materialsystem/itexture.h"
 
