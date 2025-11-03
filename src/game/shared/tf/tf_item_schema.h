@@ -172,54 +172,6 @@ private:
 	item_definition_index_t m_LoanerItemDef;
 };
 
-
-
-//-----------------------------------------------------------------------------
-// Wars
-//-----------------------------------------------------------------------------
-class CWarDefinition
-{
-public:
-
-	CWarDefinition();
-
-	bool BInitFromKV( KeyValues *pKV, CUtlVector<CUtlString> *pVecErrors );
-
-	struct CWarSideDefinition_t
-	{
-		CWarSideDefinition_t() 
-			: m_pszLeaderboardName( NULL )
-			, m_pszLocalizedName( NULL )
-			, m_nSideIndex( INVALID_WAR_SIDE )
-		{}
-
-		bool BInitFromKV( const char* pszContainingWarName, KeyValues *pKVSide, CUtlVector<CUtlString> *pVecErrors );
-
-		const char* m_pszLocalizedName;
-		const char* m_pszLeaderboardName;
-		war_side_t	m_nSideIndex;
-	};
-	typedef CUtlMap< war_side_t, CWarSideDefinition_t > SidesMap_t;
-
-	const SidesMap_t& GetSides() const { return m_mapSides; }
-	const CWarSideDefinition_t* GetSide( war_side_t nSide ) const;
-	war_definition_index_t GetDefIndex() const { return m_nDefIndex; }
-	const char* GetDefName() const { return m_pszDefName; }
-	bool IsActive() const;
-	bool IsValidSide( war_side_t nSide ) const;
-	RTime32 GetStartDate() const { return m_rtTimeStart; }
-	RTime32 GetEndDate() const { return m_rtTimeEnd; }
-private:
-
-	const char* m_pszLocalizedWarname;
-	const char* m_pszDefName;
-	SidesMap_t m_mapSides;
-	RTime32 m_rtTimeStart;
-	RTime32 m_rtTimeEnd;
-	war_definition_index_t m_nDefIndex;
-};
-typedef CUtlMap< war_definition_index_t, const CWarDefinition* > WarDefinitionMap_t;
-
 const char *GetPlayerClassName( int iClass );
 const char *GetPlayerClassLocalizationKey( int iClass );
 itemid_t GetAssociatedQuestID( const IEconItemInterface *pEconItem );
@@ -683,10 +635,6 @@ public:
 
 	const CQuestObjectiveConditionsDefinition* GetQuestObjectiveConditionByDefIndex( ObjectiveConditionDefIndex_t nDefIndex ) const;
 
-	const CWarDefinition *GetWarDefinitionByIndex( war_definition_index_t nDefIndex ) const;
-	const CWarDefinition *GetWarDefinitionByName( const char* pszDefName ) const;
-	const WarDefinitionMap_t& GetWarDefinitions() const { return m_mapWars; }
-
 	const CUtlVector<const char *>& GetClassUsabilityStrings() const { return m_vecClassUsabilityStrings; }
 	const CUtlVector<const char *>& GetLoadoutStrings( EEquipType_t eType ) const { return eType == EQUIP_TYPE_CLASS ? m_vecClassLoadoutStrings : m_vecAccountLoadoutStrings; }
 	const CUtlVector<const char *>& GetLoadoutStringsForDisplay( EEquipType_t eType ) const { return eType == EQUIP_TYPE_CLASS ? m_vecClassLoadoutStringsForDisplay : m_vecAccountLoadoutStringsForDisplay; }
@@ -769,7 +717,6 @@ private:
 	bool BInitGameModes( KeyValues *pKVMaps, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitMaps( KeyValues *pKVMaps, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitMMCategories( KeyValues *pKVCategories, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitWarDefs( KeyValues *pKVWarDefs, CUtlVector<CUtlString> *pVecErrors );
 
 	bool BPostInitMaps( CUtlVector<CUtlString> *pVecErrors );
 
@@ -789,8 +736,6 @@ private:
 	CUtlVector<MapDef_t*> m_vecMasterListOfMaps;
 	GameCategoryMap_t m_mapGameCategories;
 	MMGroupMap_t m_mapMMGroups;
-	WarDefinitionMap_t m_mapWars;
-
 };
 
 #endif // TFITEMSCHEMA_H

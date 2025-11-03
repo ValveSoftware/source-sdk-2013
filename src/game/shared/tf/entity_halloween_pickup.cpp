@@ -22,7 +22,6 @@
 #endif 
 
 #include "tf_shareddefs.h"
-#include "tf_duckleaderboard.h"
 
 
 #define TF_HALLOWEEN_PICKUP_RETURN_DELAY	10
@@ -419,81 +418,6 @@ bool CBonusDuckPickup::MyTouch( CBasePlayer *pPlayer )
 		{
 			TE_TFParticleEffect( pvsFilter, 0.0, STRING( m_iszParticle ), vecOrigin, vec3_angle );
 		}
-
-		if ( m_bSpecial )
-		{
-			CSingleUserRecipientFilter userfilter( pPlayer );
-			UserMessageBegin( userfilter, "BonusDucks" );
-			WRITE_BYTE( pPlayer->entindex() );
-			WRITE_BYTE( true );
-			MessageEnd();
-		}
-
-		// Notify User that they picked up a EOTL duck if the holiday is active
-		if ( pPlayer && TFGameRules() && TFGameRules()->IsHolidayActive( kHoliday_EOTL ) && !TFGameRules()->HaveCheatsBeenEnabledDuringLevel() )
-		{
-			int iFlags = m_iFlags;
-			if ( m_bSpecial )
-			{
-				iFlags |= DUCK_FLAG_BONUS;
-			}
-
-			// Send Message to Toucher and Creator if Creator is same team as toucher
-			// Tell your team you picked up a duck
-			// IsCreated, ID of Creator, ID of Victim, Count, IsGolden
-
-			// Message to Toucher
-			{
-				CSingleUserRecipientFilter userfilter( pPlayer );
-				UserMessageBegin( userfilter, "EOTLDuckEvent" );
-				WRITE_BYTE( false );
-				WRITE_BYTE( m_iCreatorId );
-				WRITE_BYTE( m_iVictimId );
-				WRITE_BYTE( pPlayer->entindex() );
-				WRITE_BYTE( GetTeamNumber() );
-				WRITE_BYTE( 1 );
-				WRITE_BYTE( iFlags );
-				MessageEnd();
-			}
-
-			// Notify Creator
-			if ( m_iCreatorId != pPlayer->entindex() )
-			{
-				CBasePlayer *pCreator = UTIL_PlayerByIndex( m_iCreatorId );
-				if ( pCreator && pCreator->InSameTeam( pPlayer ) )
-				{
-					CSingleUserRecipientFilter userfilter( pCreator );
-					UserMessageBegin( userfilter, "EOTLDuckEvent" );
-					WRITE_BYTE( false );
-					WRITE_BYTE( m_iCreatorId );
-					WRITE_BYTE( m_iVictimId );
-					WRITE_BYTE( pPlayer->entindex() );
-					WRITE_BYTE( GetTeamNumber() );
-					WRITE_BYTE( 1 );
-					WRITE_BYTE( iFlags );
-					MessageEnd();
-				}
-			}
-
-			// Notify Assister someone picked up their duck as well
-			if ( m_iAssisterId != -1 && m_iAssisterId != pPlayer->entindex() )
-			{
-				CBasePlayer *pAssister = UTIL_PlayerByIndex( m_iAssisterId );
-				if ( pAssister && pAssister->InSameTeam( pPlayer ) )
-				{
-					CSingleUserRecipientFilter userfilter( pAssister );
-					UserMessageBegin( userfilter, "EOTLDuckEvent" );
-					WRITE_BYTE( false );
-					WRITE_BYTE( m_iAssisterId );
-					WRITE_BYTE( m_iVictimId );
-					WRITE_BYTE( pPlayer->entindex() );
-					WRITE_BYTE( GetTeamNumber() );
-					WRITE_BYTE( 1 );
-					WRITE_BYTE( iFlags );
-					MessageEnd();
-				}
-			}
-		}
 	}
 
 	return bSuccess;
@@ -509,27 +433,6 @@ void CBonusDuckPickup::DropSingleInstance( Vector &vecLaunchVel, CBaseCombatChar
 //-----------------------------------------------------------------------------
 void CBonusDuckPickup::NotifyFadeOut( void )
 {
-	//// Notify User that they picked up a EOTL duck if the holiday is active
-	//if ( TFGameRules() && TFGameRules()->IsHolidayActive( kHoliday_EOTL ) )
-	//{
-	//	int iFlags = 0;
-	//	if ( m_bSpecial )
-	//	{
-	//		iFlags |= DUCK_FLAG_BONUS;
-	//	}
-	//	// Tell your team you picked up a duck
-	//	// IsCreated, ID of Creator, ID of Victim, Count, IsGolden
-	//	CTeamRecipientFilter userfilter( GetTeamNumber(), true );
-	//	UserMessageBegin( userfilter, "EOTLDuckEvent" );
-	//		WRITE_BYTE( false );
-	//		WRITE_BYTE( m_iCreatorId );
-	//		WRITE_BYTE( m_iVictimId );
-	//		WRITE_BYTE( 0 );
-	//		WRITE_BYTE( GetTeamNumber() );
-	//		WRITE_BYTE( 1 );
-	//		WRITE_BYTE( iFlags );
-	//	MessageEnd();
-	//}
 }
 //-----------------------------------------------------------------------------
 void CBonusDuckPickup::UpdateCollisionBounds()

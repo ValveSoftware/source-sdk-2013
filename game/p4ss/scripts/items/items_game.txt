@@ -247572,28 +247572,4 @@
 			"Nice Winter Key 2012"		"1"
 		}
 	}
-	"war_definitions"
-	{
-		"0"
-		{
-			"name"				"Pyro vs Heavy"		
-			"localized_name"	"#TF_War_PyroVsHeavy"
-			"start_time"		"2016-01-01 00:00:00"
-			"end_time"			"2016-08-15	00:00:00"
-
-			"sides"
-			{
-				"0"
-				{
-					"leaderboard_name"	"tf_complaunch_war_leaderboard_side_0"
-					"localized_name"	"#TF_War_HeavyVsPyro_SideHeavy"
-				}
-				"1"
-				{
-					"leaderboard_name"	"tf_complaunch_war_leaderboard_side_1"
-					"localized_name"	"#TF_War_HeavyVsPyro_SidePyro"
-				}
-			}
-		}
-	}
 }

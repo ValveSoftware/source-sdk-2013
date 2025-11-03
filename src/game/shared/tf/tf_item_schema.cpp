@@ -1606,7 +1606,6 @@ COMPILE_TIME_ASSERT( ARRAYSIZE( g_szWeaponTypeSubstrings ) == TF_WPN_TYPE_COUNT 
 
 CTFItemSchema::CTFItemSchema()
 	: m_mapQuestObjectiveConditions( DefLessFunc( ObjectiveConditionDefIndex_t ) )
-	, m_mapWars( DefLessFunc( WarDefinitionMap_t::KeyType_t ) )
 	, m_mapGameCategories( DefLessFunc( GameCategoryMap_t::KeyType_t ) )
 	, m_mapMMGroups( DefLessFunc( MMGroupMap_t::KeyType_t ) )
 {
@@ -1690,10 +1689,6 @@ bool CTFItemSchema::BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlStr
 	KeyValues *pKVMaps = pKVRawDefinition->FindKey( "maps" );
 	SCHEMA_INIT_SUBSTEP( BInitGameModes( pKVMaps, pVecErrors ) );
 	SCHEMA_INIT_SUBSTEP( BPostInitMaps( pVecErrors ) );
-
-	KeyValues* pKVWarDefs = pKVRawDefinition->FindKey( "war_definitions" );
-	SCHEMA_INIT_SUBSTEP( BInitWarDefs( pKVWarDefs, pVecErrors ) );
-
 
 #ifdef GAME_DLL
 	IGameEvent * event = gameeventmanager->CreateEvent( "schema_updated" );
@@ -2147,24 +2142,6 @@ bool CTFItemSchema::BPostInitMaps( CUtlVector<CUtlString> *pVecErrors )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Init all war definitions
-//-----------------------------------------------------------------------------
-bool CTFItemSchema::BInitWarDefs( KeyValues *pKVWarDefs, CUtlVector<CUtlString> *pVecErrors )
-{
-	m_mapWars.PurgeAndDeleteElements();
-
-	FOR_EACH_TRUE_SUBKEY( pKVWarDefs, pKVWar )
-	{
-		CWarDefinition* pNewWarDef = new CWarDefinition();
-		SCHEMA_INIT_SUBSTEP( pNewWarDef->BInitFromKV( pKVWar, pVecErrors ) );
-
-		m_mapWars.Insert( pNewWarDef->GetDefIndex(), pNewWarDef );
-	}
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Inits data for MVM maps / missions
 //-----------------------------------------------------------------------------
 bool CTFItemSchema::BInitMvmMissions( KeyValues *pKVMvmMaps, CUtlVector<CUtlString> *pVecErrors )
@@ -2337,27 +2314,6 @@ bool CTFItemSchema::BInitMvmTours( KeyValues *pKVMvmTours, CUtlVector<CUtlString
 const CQuestObjectiveConditionsDefinition* CTFItemSchema::GetQuestObjectiveConditionByDefIndex( ObjectiveConditionDefIndex_t nDefIndex ) const
 {
 	return GetDefinitionByDefIndex< CQuestObjectiveConditionsDefinition, ObjectiveConditionDefIndex_t >( m_mapQuestObjectiveConditions, nDefIndex );
-}
-
-
-//-----------------------------------------------------------------------------
-const CWarDefinition *CTFItemSchema::GetWarDefinitionByIndex( war_definition_index_t nDefIndex ) const
-{
-	return GetDefinitionByDefIndex< const CWarDefinition, war_definition_index_t >( m_mapWars, nDefIndex );
-}
-
-//-----------------------------------------------------------------------------
-const CWarDefinition *CTFItemSchema::GetWarDefinitionByName( const char* pszDefName ) const
-{
-	FOR_EACH_MAP_FAST( m_mapWars, i )
-	{
-		if ( !V_stricmp( pszDefName, m_mapWars[i]->GetDefName() ) )
-		{
-			return m_mapWars[i];
-		}
-	}
-
-	return NULL;
 }
 
 //-----------------------------------------------------------------------------

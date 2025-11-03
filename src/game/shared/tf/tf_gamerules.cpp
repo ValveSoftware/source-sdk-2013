@@ -143,7 +143,6 @@
 #include "econ_holidays.h"
 #include "rtime.h"
 #include "tf_revive.h"
-#include "tf_duckleaderboard.h"
 
 #include "passtime_convars.h"
 
@@ -1201,20 +1200,6 @@ static ConCommand randommap( "randommap", cc_RandomMap, "Changelevel to a random
 #endif	// GAME_DLL
 
 #ifdef GAME_DLL
-static bool PlayerHasDuckStreaks( CTFPlayer *pPlayer )
-{
-	CEconItemView *pActionItem = pPlayer->GetEquippedItemForLoadoutSlot( LOADOUT_POSITION_ACTION );
-	if ( !pActionItem )
-		return false;
-
-	// Duck Badge Cooldown is based on badge level.  Noisemaker is more like an easter egg
-	static CSchemaAttributeDefHandle pAttr_DuckStreaks( "duckstreaks active" );
-	uint32 iDuckStreaksActive = 0;
-
-	// Don't care about the level, just if the attribute is found
-	return FindAttribute_UnsafeBitwiseCast<attrib_value_t>( pActionItem, pAttr_DuckStreaks, &iDuckStreaksActive ) && iDuckStreaksActive > 0;
-}
-
 void ValidateCapturesPerRound( IConVar *pConVar, const char *oldValue, float flOldValue )
 {
 	ConVarRef var( pConVar );
@@ -11084,15 +11069,6 @@ void CTFGameRules::DropBonusDuck( const Vector& vPosition, CTFPlayer *pTFCreator
 		return;
 	}
 
-	static CSchemaAttributeDefHandle pAttr_DuckLevelBadge( "duck badge level" );
-
-	// Find Badge and increase number of ducks based on badge level (1 duck per 5 levels)
-	// Look through equipped items, if one is a duck badge use its level
-	int iDuckFlags = 0;
- 	if ( pTFCreator == NULL || bObjective )
-	{
-		iDuckFlags |= EDuckFlags::DUCK_FLAG_OBJECTIVE;
-	}
 	uint32 iDuckBadgeLevel = 0;
 
 	if ( pTFCreator )
@@ -11182,7 +11158,7 @@ void CTFGameRules::DropBonusDuck( const Vector& vPosition, CTFPlayer *pTFCreator
 				pDuckPickup->SetVictimId( iVictimId );
 				pDuckPickup->SetAssisterId( iAssisterId );
 				pDuckPickup->ChangeTeam( iDuckTeam );
-				pDuckPickup->SetDuckFlag( iDuckFlags );
+				pDuckPickup->SetDuckFlag( 0 );
 				// random chance to have a special duck appear
 				// Bonus duck implies atleast 1 Saxton
 				if ( bSpecial || ( RandomInt( 1, 100 ) <= tf_test_special_ducks.GetInt() ) )
@@ -11209,54 +11185,6 @@ void CTFGameRules::DropBonusDuck( const Vector& vPosition, CTFPlayer *pTFCreator
 						pDuckPickup->m_nSkin = iDuckTeam == TF_TEAM_RED ? 1 : 2;
 					}
 					pDuckPickup->SetModelScale( 0.7f );
-				}
-			}
-		}
-
-		// Update duckstreak count on player and assister if they have badges
-		if ( pTFCreator && PlayerHasDuckStreaks( pTFCreator ) )
-		{
-			pTFCreator->m_Shared.IncrementStreak( CTFPlayerShared::kTFStreak_Ducks, iDuckCount );
-		}
-		if ( pAssister && PlayerHasDuckStreaks( pAssister ) )
-		{
-			pAssister->m_Shared.IncrementStreak( CTFPlayerShared::kTFStreak_Ducks, iDuckCount );
-		}
-
-		// Duck UserMessage
-		if ( pTFCreator && pTFVictim && !TFGameRules()->HaveCheatsBeenEnabledDuringLevel() )
-		{
-			if ( IsHolidayActive( kHoliday_EOTL ) )
-			{
-				// Send a Message to Creator
-				{
-					// IsCreated, ID of Creator, ID of Victim, Count, IsGolden
-					CSingleUserRecipientFilter userfilter( pTFCreator );
-					UserMessageBegin( userfilter, "EOTLDuckEvent" );
-					WRITE_BYTE( true );
-					WRITE_BYTE( iCreatorId );
-					WRITE_BYTE( iVictimId );
-					WRITE_BYTE( 0 );
-					WRITE_BYTE( iDuckTeam );
-					WRITE_BYTE( iDuckCount );
-					WRITE_BYTE( iDuckFlags );
-					MessageEnd();
-				}
-
-				// To assister
-				if ( pAssister )
-				{
-					// IsCreated, ID of Creator, ID of Victim, Count, IsGolden
-					CSingleUserRecipientFilter userfilter( pAssister );
-					UserMessageBegin( userfilter, "EOTLDuckEvent" );
-					WRITE_BYTE( true );
-					WRITE_BYTE( pAssister->entindex() );
-					WRITE_BYTE( iVictimId );
-					WRITE_BYTE( 0 );
-					WRITE_BYTE( iDuckTeam );
-					WRITE_BYTE( iDuckCount );
-					WRITE_BYTE( iDuckFlags );
-					MessageEnd();
 				}
 			}
 		}
@@ -13123,11 +13051,6 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 			// Kill streak updating
 			if ( pTFPlayerVictim && pScorer && pTFPlayerVictim != pScorer )
 			{
-				// Propagate duckstreaks
-				event->SetInt( "duck_streak_victim", pTFPlayerVictim->m_Shared.GetStreak( CTFPlayerShared::kTFStreak_Ducks ) );
-				event->SetInt( "duck_streak_total", pScorer->m_Shared.GetStreak( CTFPlayerShared::kTFStreak_Ducks ) );
-				event->SetInt( "ducks_streaked", pScorer->m_Shared.GetLastDuckStreakIncrement() );
-
 				// Check if they have the appropriate attribute.
 				int iKillStreak = 0;
 				int iKills = 0;
@@ -13189,8 +13112,6 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 
 				if ( pAssister )
 				{
-					event->SetInt( "duck_streak_assist", pAssister->m_Shared.GetStreak( CTFPlayerShared::kTFStreak_Ducks ) );
-
 					// Only allow assists for Mediguns
 					CTFWeaponBase *pAssisterWpn = pAssister->GetActiveTFWeapon();
 					if ( pAssisterWpn && pAssister->IsPlayerClass( TF_CLASS_MEDIC ) )

@@ -14,7 +14,6 @@
 #include "econ_contribution.h"
 #include "tf_duel_summary.h"
 #include "gc_clientsystem.h"
-#include "tf_duckleaderboard.h"
 #include "tf_gamerules.h"
 #include "tf_matchmaking_shared.h"
 
@@ -79,11 +78,6 @@ void CLeaderboardInfo::RetrieveLeaderboardData()
 			SteamAPICall_t apicall = steamapicontext->SteamUserStats()->FindLeaderboard( CFmtStr( "contributions_%s", m_pLeaderboardName ) );
 			findLeaderboardCallback.Set( apicall, this, &CLeaderboardInfo::OnFindLeaderboard );
 		}
-		else if ( m_kLeaderboardType == kDuckLeaderboard || m_kLeaderboardType == kDuckStat )
-		{
-			SteamAPICall_t apicall = steamapicontext->SteamUserStats()->FindLeaderboard( m_pLeaderboardName );
-			findLeaderboardCallback.Set( apicall, this, &CLeaderboardInfo::OnFindLeaderboard );
-		}
 		else if ( m_kLeaderboardType == kLadderLeaderboard )
 		{
 			SteamAPICall_t apicall = steamapicontext->SteamUserStats()->FindLeaderboard( m_pLeaderboardName );
@@ -104,20 +98,6 @@ bool CLeaderboardInfo::DownloadLeaderboardData()
 		apicall = steamapicontext->SteamUserStats()->DownloadLeaderboardEntries( findLeaderboardResults.m_hSteamLeaderboard, k_ELeaderboardDataRequestGlobalAroundUser, -2, 2 );
 		downloadLeaderboardCallbackGlobalAroundUser.Set( apicall, this, &CLeaderboardInfo::OnLeaderboardScoresDownloadedGlobalAroundUser );
 		apicall = steamapicontext->SteamUserStats()->DownloadLeaderboardEntries( findLeaderboardResults.m_hSteamLeaderboard, k_ELeaderboardDataRequestFriends, 1, 5 );
-		downloadLeaderboardCallbackFriends.Set( apicall, this, &CLeaderboardInfo::OnLeaderboardScoresDownloadedFriends );
-		return true;
-	}
-
-	if ( m_kLeaderboardType == kDuckLeaderboard )
-	{
-		SteamAPICall_t apicall = steamapicontext->SteamUserStats()->DownloadLeaderboardEntries( findLeaderboardResults.m_hSteamLeaderboard, k_ELeaderboardDataRequestFriends, -6, 6 );
-		downloadLeaderboardCallbackFriends.Set( apicall, this, &CLeaderboardInfo::OnLeaderboardScoresDownloadedFriends );
-		return true;
-	}
-
-	if ( m_kLeaderboardType == kDuckStat )
-	{
-		SteamAPICall_t apicall = steamapicontext->SteamUserStats()->DownloadLeaderboardEntries( findLeaderboardResults.m_hSteamLeaderboard, k_ELeaderboardDataRequestFriends, 0, 0 );
 		downloadLeaderboardCallbackFriends.Set( apicall, this, &CLeaderboardInfo::OnLeaderboardScoresDownloadedFriends );
 		return true;
 	}
@@ -265,14 +245,6 @@ public:
 	// Gets called each frame
 	virtual void Update( float frametime )
 	{
-		if ( m_flNextUpdateDuckScoreTime > 0 && m_flNextUpdateDuckScoreTime <  Plat_FloatTime() )
-		{
-			if ( DownloadDuckLeaderboard() )
-			{
-				m_flNextUpdateDuckScoreTime = -1.0f;
-			}
-		}
-
 		if ( m_flNextLadderUpdateTime > 0.f && m_flNextLadderUpdateTime < Plat_FloatTime() )
 		{
 			if ( DownloadLadderLeaderboard() )
@@ -368,107 +340,6 @@ public:
 		return NULL;
 	}
 
-	// **************************************************************************************************************************
-	bool DownloadDuckLeaderboard()
-	{
-		bool bDownloading = false;
-		FOR_EACH_VEC( m_vecDuckInfo, i )
-		{
-			bDownloading |= m_vecDuckInfo[i]->DownloadLeaderboardData();
-		}
-		return bDownloading;
-	}
-
-	CLeaderboardInfo *GetDuckLeaderboard( const char* kName )
-	{
-		FOR_EACH_VEC( m_vecDuckInfo, i )
-		{
-			CLeaderboardInfo *pInfo = m_vecDuckInfo[i];
-			if ( strstr( kName, pInfo->GetLeaderboardName() ) != NULL )
-			{
-				return pInfo;
-			}
-		}
-
-		return NULL;
-	}
-
-	bool DuckUploadPendingScores()
-	{
-		return false;
-
-		//CSteamID localID;
-
-		//if ( !steamapicontext || !steamapicontext->SteamUser() )
-		//	return false;
-
-		//localID = steamapicontext->SteamUser()->GetSteamID();
-
-		//bool bUpdatedScores = false;
-		//for ( int i = 0; i < DUCK_NUM_LEADERBOARDS; ++i )
-		//{
-		//	CLeaderboardInfo *pLeaderboard = GetDuckLeaderboard( g_szDuckLeaderboardNames[i] );
-		//	
-		//	if ( pLeaderboard && pLeaderboard->IsLeaderboardFound() && pLeaderboard->HasPendingUpdate() )
-		//	{
-		//		pLeaderboard->SetHasPendingUpdate( false );
-		//		bUpdatedScores = true;
-
-		//		int iScoreCheck = RandomInt( INT_MAX / 2, INT_MAX );
-		//		// Tell the GC to update our duck contribution
-		//		GCSDK::CProtoBufMsg<CGCMsgGC_PlayerDuckLeaderboard_IndividualUpdate> msg( k_EMsgGC_DuckLeaderboard_IndividualUpdate );
-		//		msg.Body().set_score( pLeaderboard->GetMyScore() );
-		//		msg.Body().set_type( i );
-
-		//		MD5Context_t md5Context;
-		//		MD5Init( &md5Context );
-		//		
-		//		AccountID_t unAccountId = localID.GetAccountID();
-		//		int nScore = pLeaderboard->GetMyScore();
-
-		//		MD5Update( &md5Context, static_cast<const uint8 *>( (void *)&unAccountId ), sizeof( unAccountId ) );
-		//		MD5Update( &md5Context, static_cast<const uint8 *>( (void *)&nScore ), sizeof( nScore ) );
-		//		MD5Update( &md5Context, static_cast<const uint8 *>( (void *)&i ), sizeof( i ) );
-		//		MD5Update( &md5Context, static_cast<const uint8 *>( (void *)&TF_DUCK_ID ), sizeof( TF_DUCK_ID ) );
-		//		MD5Update( &md5Context, static_cast<const uint8 *>( (void *)&iScoreCheck ), sizeof( iScoreCheck ) );
-		//		
-		//		MD5Value_t md5Result;
-		//		MD5Final( &md5Result.bits[0], &md5Context );
-		//		msg.Body().set_score_id( &md5Result.bits[0], MD5_DIGEST_LENGTH );
-		//		msg.Body().set_score_check( iScoreCheck );
-		//		GCClientSystem()->BSendMessage( msg );
-		//	}
-		//}
-		//return bUpdatedScores;
-	}
-
-	void DuckUpdateScore( int iIncrement, EDuckLeaderboardTypes kLeaderboard )
-	{
-		// Get Current Score
-		CLeaderboardInfo *pLeaderboard = GetDuckLeaderboard( g_szDuckLeaderboardNames[kLeaderboard] );
-		int iCurrentScore = pLeaderboard->GetMyScore();	
-		int iNewScore = iCurrentScore + iIncrement;
-
-#ifdef CLIENT_DLL
-		int iOldLevel = iCurrentScore / DUCK_XP_SCALE;
-		int iNewLevel = iNewScore / DUCK_XP_SCALE;
-		
-		if ( iNewLevel > iOldLevel )
-		{
-			IGameEvent *event = gameeventmanager->CreateEvent( "duck_xp_level_up" );
-			if ( event )
-			{
-				event->SetInt( "level", iNewLevel );
-				gameeventmanager->FireEventClientSide( event );
-			}
-		}
-#endif
-
-		// Set my new score
-		pLeaderboard->SetMyScore( iNewScore );
-		pLeaderboard->SetHasPendingUpdate( true );
-	}
-
 	//-----------------------------------------------------------------------------
 	virtual bool Init()
 	{
@@ -500,17 +371,6 @@ public:
 		{
 			SteamAPICall_t apicall = steamapicontext->SteamUserStats()->FindLeaderboard( "duel_wins" );
 			m_findLeaderboardCallback.Set( apicall, this, &CMapInfoContainer::OnFindDuelLeaderboard );
-		}
-
-		// find duck leaderboards
-		for ( int i = 0; i < DUCK_NUM_LEADERBOARDS; i++ )
-		{
-			CLeaderboardInfo *pInfo = new CLeaderboardInfo( g_szDuckLeaderboardNames[ i ] );
-			pInfo->m_kLeaderboardType = i == 0 ? kDuckLeaderboard : kDuckStat;
-			m_vecDuckInfo.AddToTail( pInfo );
-
-			// retrieve leaderboard info
-			pInfo->RetrieveLeaderboardData();
 		}
 
 		// Ladder
@@ -577,132 +437,12 @@ bool Leaderboards_GetDuelWins( CUtlVector< LeaderboardEntry_t* > &scores, bool b
 	}
 	return false;
 }
-//-----------------------------------------------------------------------------
-// DUCKS
-void Leaderboards_GetDuckLeaderboardSteamIDs( CUtlVector< AccountID_t > &vecIds )
-{
-	vecIds.RemoveAll();
-	FOR_EACH_VEC( gMapInfoContainer.m_vecDuckInfo, i )
-	{
-		FOR_EACH_VEC( gMapInfoContainer.m_vecDuckInfo[i]->downloadedLeaderboardScoresFriends, iEntry )
-		{
-			vecIds.AddToHead( gMapInfoContainer.m_vecDuckInfo[i]->downloadedLeaderboardScoresFriends[iEntry]->m_steamIDUser.GetAccountID() );
-		}
-	}
-}
 
-bool Leaderboards_GetDuckLeaderboard( CUtlVector< LeaderboardEntry_t* > &scores, const char* kName )
-{
-	CLeaderboardInfo *pLeaderboard = gMapInfoContainer.GetDuckLeaderboard( kName );
-	if ( pLeaderboard && pLeaderboard->IsLeaderboardFound() )
-	{
-		scores = pLeaderboard->downloadedLeaderboardScoresFriends;
-		return true;
-	}
-	return false;
-}
-
-int Leaderboards_GetDuckLeaderboardTotalEntryCount( const char* kName )
-{
-	CLeaderboardInfo *pLeaderboard = gMapInfoContainer.GetDuckLeaderboard( kName );
-	if ( pLeaderboard )
-	{
-		return pLeaderboard->iNumLeaderboardEntries;
-	}
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-// DUCK Collected Message from Server
-#ifdef CLIENT_DLL
-USER_MESSAGE( EOTLDuckEvent )
-{
-	CBasePlayer *pLocalPlayer = CBasePlayer::GetLocalPlayer();
-	if ( !pLocalPlayer )
-		return;
-
-	if ( TFGameRules() && TFGameRules()->HaveCheatsBeenEnabledDuringLevel() )
-		return;
-
-	// IsCreated, ID of Creator, ID of Victim, Count, IsGolden
-	int iIsCreated	= (int)msg.ReadByte();
-	int iCreatorId	= (int)msg.ReadByte();
-	int iVictimId	= (int)msg.ReadByte();
-	int iToucherId	= (int)msg.ReadByte();
-	int iDuckTeam	= (int)msg.ReadByte();
-	int iCount		= (int)msg.ReadByte();
-	int iDuckFlags	= (int)msg.ReadByte();
-
-	iDuckTeam = 0;
-	iVictimId = 0;
-	//iDuckFlags = 0;
-
-	CBasePlayer *pCreator = UTIL_PlayerByIndex( iCreatorId );
-	//CBasePlayer *pVictim = UTIL_PlayerByIndex( iVictimId );
-	CBasePlayer *pToucher = UTIL_PlayerByIndex( iToucherId );
-
-	if ( !pCreator )
-	{
-		iDuckFlags |= DUCK_FLAG_OBJECTIVE;
-	}
-	// If you were picked up, you need a toucher
-	if ( iIsCreated == 0 && pToucher )
-	{
-		// if I picked them up
-		if ( pToucher == pLocalPlayer )
-		{
-			// Offense
-			if ( pCreator && pCreator->GetTeamNumber() == pLocalPlayer->GetTeamNumber() )
-			{
-				gMapInfoContainer.DuckUpdateScore( iCount, TF_DUCK_SCORING_PERSONAL_PICKUP_OFFENSE );
-				gMapInfoContainer.DuckUpdateScore( iCount * DUCK_XP_WEIGHT_OFFENSE, TF_DUCK_SCORING_OVERALL_RATING );
-			}
-			//defense
-			else if ( pCreator && pCreator->GetTeamNumber() != pLocalPlayer->GetTeamNumber() )
-			{
-				gMapInfoContainer.DuckUpdateScore( iCount, TF_DUCK_SCORING_PERSONAL_PICKUP_DEFENDED );
-				gMapInfoContainer.DuckUpdateScore( iCount * DUCK_XP_WEIGHT_DEFENSE, TF_DUCK_SCORING_OVERALL_RATING );
-			}
-
-			// objective
-			if ( iDuckFlags & DUCK_FLAG_OBJECTIVE )
-			{
-				gMapInfoContainer.DuckUpdateScore( iCount, TF_DUCK_SCORING_PERSONAL_PICKUP_OBJECTIVE );
-				gMapInfoContainer.DuckUpdateScore( iCount* DUCK_XP_WEIGHT_OBJECTIVE, TF_DUCK_SCORING_OVERALL_RATING );
-			}
-
-			// bonus
-			if ( iDuckFlags & DUCK_FLAG_BONUS )
-			{
-				gMapInfoContainer.DuckUpdateScore( iCount, TF_DUCK_SCORING_PERSONAL_BONUS_PICKUP );
-				gMapInfoContainer.DuckUpdateScore( iCount* DUCK_XP_WEIGHT_BONUS, TF_DUCK_SCORING_OVERALL_RATING );
-			}
-		}
-		// Teammate picks up a duck I made
-		else if ( pCreator && pCreator == pLocalPlayer && pCreator->GetTeamNumber() == pToucher->GetTeamNumber() )
-		{
-			gMapInfoContainer.DuckUpdateScore( iCount, TF_DUCK_SCORING_TEAM_PICKUP_MY_DUCKS );
-			gMapInfoContainer.DuckUpdateScore( iCount * DUCK_XP_WEIGHT_TEAMMATE, TF_DUCK_SCORING_OVERALL_RATING );
-		}
-	}
-	// Duck Created
-	else if ( iIsCreated != 0 )
-	{
-		// If this is the same as local player
-		if ( pLocalPlayer == pCreator )
-		{
-			gMapInfoContainer.DuckUpdateScore( iCount, TF_DUCK_SCORING_PERSONAL_GENERATION );
-			gMapInfoContainer.DuckUpdateScore( iCount * DUCK_XP_WEIGHT_GENERATION, TF_DUCK_SCORING_OVERALL_RATING );
-		}
-	}
-}
-#endif // CLIENT
 //-----------------------------------------------------------------------------
 
 void Leaderboards_Refresh()
 {
 	gMapInfoContainer.DownloadDuelLeaderboard();
-	gMapInfoContainer.DownloadDuckLeaderboard();
 	gMapInfoContainer.DownloadLadderLeaderboard();
 }
 

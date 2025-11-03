@@ -27,7 +27,6 @@
 #include "halloween/c_headless_hatman.h"
 #include "halloween/c_eyeball_boss.h"
 #include "halloween/c_merasmus.h"
-#include "tf_wardata.h"
 
 #if defined( REPLAY_ENABLED )
 #include "replay/ireplaysystem.h"

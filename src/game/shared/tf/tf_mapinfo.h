@@ -15,8 +15,6 @@
 enum ETFLeaderboardType
 {
 	kMapLeaderboard,
-	kDuckLeaderboard,
-	kDuckStat,
 	kLadderLeaderboard,
 };
 
@@ -96,20 +94,6 @@ bool MapInfo_DidPlayerDonate( uint32 unAccountID, const char *pLevelName );
  * return true if the duel wins leaderboard were retrieved, false otherwise
  */
 bool Leaderboards_GetDuelWins( CUtlVector< LeaderboardEntry_t* > &scores, bool bGlobal );
-
-// Get a list of AccountID's for all people on the Duck Leaderboards
-void Leaderboards_GetDuckLeaderboardSteamIDs( CUtlVector< AccountID_t > &vecIds );
-
-/**
- * Retrieve the duel wins leaderboard
- * @param scores
- * @param bGlobal
- * return true if the duel wins leaderboard were retrieved, false otherwise
- */
-bool Leaderboards_GetDuckLeaderboard( CUtlVector< LeaderboardEntry_t* > &scores, const char* kName );
-
-// Get total number of entries for a leaderboard type
-int Leaderboards_GetDuckLeaderboardTotalEntryCount( const char* kName );
 
 /**
  * Refreshes leaderboards not associated with maps

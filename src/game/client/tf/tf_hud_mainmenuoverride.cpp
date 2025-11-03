@@ -29,7 +29,6 @@
 #include "sourcevr/isourcevirtualreality.h"
 #include "materialsystem/imaterialsystem.h"
 #include "materialsystem/materialsystem_config.h"
-#include "tf_warinfopanel.h"
 #include "tf_item_inventory.h"
 #include "tf_streams.h"
 #include "tf_matchmaking_shared.h"
@@ -622,18 +621,6 @@ void CHudMainMenuOverride::LoadCharacterImageFile( void )
 	{
 		CUtlVector<KeyValues *> vecUseableCharacters;
 
-		const char* pszActiveWarName = NULL;
-		const WarDefinitionMap_t& mapWars = GetItemSchema()->GetWarDefinitions();
-		FOR_EACH_MAP_FAST( mapWars, i )
-		{
-			const CWarDefinition* pWarDef = mapWars[i];
-			if ( pWarDef->IsActive() )
-			{
-				pszActiveWarName = pWarDef->GetDefName();
-				break;
-			}
-		}
-
 		bool bActiveOperation = false;
 
 		// Uncomment if another operation happens
@@ -659,15 +646,7 @@ void CHudMainMenuOverride::LoadCharacterImageFile( void )
 
 			int iWeight = pCharacter->GetInt( "weight", 1 );
 
-			// If a War is active, that's all we want to show.  If not, then bias towards holidays
-			if ( pszActiveWarName != NULL )
-			{
-				if ( !FStrEq( pszAssociatedWar, pszActiveWarName ) )
-				{
-					iWeight = 0;
-				}
-			}
-			else if ( eHoliday != kHoliday_None )
+			if ( eHoliday != kHoliday_None )
 			{
 				iWeight = UTIL_IsHolidayActive( eHoliday ) ? MAX( iWeight, 6 ) : 0;
 			}

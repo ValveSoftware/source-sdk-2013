@@ -7,9 +7,6 @@
 #include "gc_clientsystem.h"
 #include "econ_item_system.h"
 #include "econ_item_inventory.h"
-#ifdef GAME_DLL
-#include "tf_wartracker.h"
-#endif
 //#include "gcsdk/msgprotobuf.h"
 
 #ifdef TF_CLIENT_DLL
@@ -226,10 +223,6 @@ void CGCClientSystem::SetupGC()
 	// Post-Init.
 	PostInitGC();
 	InventoryManager()->PostInitGC();
-
-#ifdef GAME_DLL
-	GetWarTrackerManager()->Initialize();
-#endif
 }
 
 

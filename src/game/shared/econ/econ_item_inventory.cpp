@@ -33,7 +33,6 @@
 #include "tf_duel_summary.h"
 #include "econ_contribution.h"
 #include "tf_player_info.h"
-#include "tf_wardata.h"
 #include "tf_ladder_data.h"
 #include "tf_rating_data.h"
 #include <vgui_controls/Controls.h>
@@ -292,7 +291,6 @@ void CInventoryManager::PreInitGC()
 
 #if defined(TF_CLIENT_DLL) || defined(TF_DLL)
 
-	REG_SHARED_OBJECT_SUBCLASS( CWarData );
 	REG_SHARED_OBJECT_SUBCLASS( CTFDuelSummary );
 	REG_SHARED_OBJECT_SUBCLASS( CTFMapContribution );
 	REG_SHARED_OBJECT_SUBCLASS( CTFPlayerInfo );
