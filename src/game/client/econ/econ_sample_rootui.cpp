@@ -11,7 +11,6 @@
 #include <vgui/ILocalize.h>
 #include "ienginevgui.h"
 #include "econ_item_inventory.h"
-#include "backpack_panel.h"
 #include "item_pickup_panel.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -52,9 +51,6 @@ CEconSampleRootUI::CEconSampleRootUI( vgui::Panel *parent ) : vgui::Frame(parent
 	SetProportional( true );
 
 	ListenForGameEvent( "gameui_hidden" );
-
-	// Create our subpanels
-	m_pBackpackPanel = new CBackpackPanel( this, "backpack_panel" );
 
 	// Start with just the base UI visible
 	m_nVisiblePanel = ECONUI_BASEUI;
@@ -169,14 +165,6 @@ void CEconSampleRootUI::OnCommand( const char *command )
 
 		OpenSubPanel( ECONUI_LOADOUT );
 	}
-	else if ( !Q_strnicmp( command, "backpack", 8 ) )
-	{
-		OpenSubPanel( ECONUI_BACKPACK );
-	}
-	else if ( !Q_strnicmp( command, "crafting", 8 ) )
-	{
-		OpenSubPanel( ECONUI_CRAFTING );
-	}
 	else if ( !Q_strnicmp( command, "armory", 6 ) )
 	{
 		OpenSubPanel( ECONUI_ARMORY );
@@ -225,13 +213,7 @@ IEconRootUI	*CEconSampleRootUI::OpenEconUI( int iDirectToPage, bool bCheckForInv
 	engine->ClientCmd_Unrestricted( "gameui_activate" );
 	ShowPanel( true );
 
-	if ( iDirectToPage == ECONUI_BACKPACK )
-	{
-	}
-	else if ( iDirectToPage == ECONUI_CRAFTING )
-	{
-	}
-	else if ( iDirectToPage == ECONUI_ARMORY )
+	if ( iDirectToPage == ECONUI_ARMORY )
 	{
 	}
 
@@ -263,13 +245,6 @@ bool CEconSampleRootUI::IsUIPanelVisible( EconBaseUIPanels_t iPanel )
 	{
 	case ECONUI_BASEUI:
 		return true;
-
-	case ECONUI_BACKPACK:
-		return (GetBackpackPanel() && GetBackpackPanel()->IsVisible());
-
-	case ECONUI_CRAFTING:
-		//return (GetCraftingPanel() && GetCraftingPanel()->IsVisible());
-		break;
 
 	case ECONUI_ARMORY:
 		break;
@@ -308,12 +283,6 @@ void CEconSampleRootUI::OpenTradingStartDialog( void )
 //-----------------------------------------------------------------------------
 void CEconSampleRootUI::UpdateSubPanelVisibility( void )
 {
-	bool bBackpackVisible = (m_nVisiblePanel == ECONUI_BACKPACK);
-	if ( m_pBackpackPanel->IsVisible() != bBackpackVisible )
-	{
-		m_pBackpackPanel->ShowPanel( false, bBackpackVisible );
-	}
-
 	//m_pClassLoadoutPanel->SetVisible( false );
 	//m_pArmoryPanel->SetVisible( false );
 	//m_pCraftingPanel->ShowPanel( m_iCurrentClassIndex, true, (m_iPrevShowingPanel == CHAP_ARMORY) );

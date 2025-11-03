@@ -17,9 +17,7 @@
 #include "tf_controls.h"
 #include "tf_shareddefs.h"
 #include "item_pickup_panel.h"
-#include "backpack_panel.h"
 #include "class_loadout_panel.h"
-#include "crafting_panel.h"
 #include "charinfo_armory_subpanel.h"
 
 #define NUM_CLASSES_IN_LOADOUT_PANEL		(TF_LAST_NORMAL_CLASS-1)		// We don't allow unlockables for the civilian
@@ -59,8 +57,6 @@ private:
 enum charinfo_activepanels_t
 {
 	CHAP_LOADOUT,
-	CHAP_BACKPACK,
-	CHAP_CRAFTING,
 	CHAP_ARMORY,
 	CHAP_PAINTKIT_PREVIEW,
 };
@@ -94,18 +90,13 @@ public:
 
 	void			SetClassIndex( int iClassIndex, bool bOpenClassLoadout );
 	void			SetTeamIndex( int iTeamIndex );
-	void			OpenToBackpack( void ) { OpenSubPanel( CHAP_BACKPACK ); }
-	void			OpenToCrafting( void ) { OpenSubPanel( CHAP_CRAFTING ); }
 	void			OpenToArmory( int iItemDef = 0 ) { m_iArmoryItemDef = iItemDef; OpenSubPanel( CHAP_ARMORY ); }
 	void			OpenToPaintkitPreview( CEconItemView* pItem, bool bFixedItem, bool bFixedPaintkit );
 	void			OpenSubPanel( charinfo_activepanels_t iPanel );
 	void			UpdateModelPanels( bool bOpenClassLoadout = true );
 
 	CClassLoadoutPanel	*GetClassLoadoutPanel( void ) { return m_pClassLoadoutPanel; }
-	CBackpackPanel	*GetBackpackPanel( void ) { return m_pBackpackPanel; }
-	CCraftingPanel	*GetCraftingPanel( void ) { return m_pCraftingPanel; }
 	CArmoryPanel	*GetArmoryPanel( void ) { return m_pArmoryPanel; }
-	CTFItemInspectionPanel* GetInspectionPanel( void ) { return m_pInspectPanel; }
 
 	void UpdateLabelFromClass( int nClass );
 	void UpdateLabelFromSubButton( int nButton );
@@ -125,8 +116,6 @@ public:
 	MESSAGE_FUNC( OnSelectionStarted, "SelectionStarted" );
 	MESSAGE_FUNC( OnSelectionEnded, "SelectionEnded" );
 	MESSAGE_FUNC( OnCancelSelection, "CancelSelection" );
-	MESSAGE_FUNC( OnOpenCrafting, "OpenCrafting" );
-	MESSAGE_FUNC( OnCraftingClosed, "CraftingClosed" );
 	MESSAGE_FUNC( OnArmoryClosed, "ArmoryClosed" );
 	MESSAGE_FUNC( OnCharInfoClosing, "CharInfoClosing" );
 
@@ -146,10 +135,7 @@ private:
 	charinfo_activepanels_t	m_iShowingPanel;
 	charinfo_activepanels_t	m_iPrevShowingPanel;
 	CClassLoadoutPanel	*m_pClassLoadoutPanel;
-	CBackpackPanel		*m_pBackpackPanel;
-	CCraftingPanel		*m_pCraftingPanel;
 	CArmoryPanel		*m_pArmoryPanel;
-	CTFItemInspectionPanel *m_pInspectPanel;
 	vgui::Label			*m_pSelectLabel;
 	vgui::Label			*m_pLoadoutChangesLabel;
 	vgui::Label			*m_pNoSteamLabel;

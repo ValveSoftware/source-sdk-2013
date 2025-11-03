@@ -1395,3 +1395,188 @@ bool CCrateLootListWrapper::BAttemptLineItemInitialization( const IEconItemInter
 		
 	return true;
 }
+
+#ifdef CLIENT_DLL
+#include "c_tf_player.h"
+#include "tf_gamerules.h"
+#include <tf_weapon_grapplinghook.h>
+#include <tf_item_powerup_bottle.h>
+
+// This is the command the user will execute.
+// We want this to happen on the client, before forwarding to the game server,
+// since we don't trust the game server.
+static void StartUseActionSlotItem( const CCommand &args )
+{
+	if ( !engine->IsInGame() )
+	{
+		return;
+	}
+
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if ( pLocalPlayer == NULL )
+	{
+		return;
+	}
+
+	pLocalPlayer->SetUsingActionSlot( true );
+
+	// Ghosts cant use action items!
+	if ( pLocalPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) )
+	{
+		return;
+	}
+
+	// If we're in Mann Vs MAchine, and we're dead, we can use this to respawn
+	// instantly.
+	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && pLocalPlayer->IsObserver() )
+	{
+		float flNextRespawn = TFGameRules()->GetNextRespawnWave(
+		pLocalPlayer->GetTeamNumber(), pLocalPlayer );
+		if ( flNextRespawn )
+		{
+			int iRespawnWait = ( flNextRespawn - gpGlobals->curtime );
+			if ( iRespawnWait > 1.0 )
+			{
+				engine->ClientCmd_Unrestricted( "td_buyback\n" );
+				return;
+			}
+		}
+	}
+
+	// trying to pick up a dropped weapon?
+	if ( pLocalPlayer->GetDroppedWeaponInRange() != NULL )
+	{
+		KeyValues *kv = new KeyValues( "+use_action_slot_item_server" );
+		engine->ServerCmdKeyValues( kv );
+		return;
+	}
+
+	if ( TFGameRules() && TFGameRules()->IsUsingGrapplingHook() )
+	{
+		CTFGrapplingHook *pGrapplingHook = dynamic_cast<CTFGrapplingHook *>(
+		pLocalPlayer->GetEntityForLoadoutSlot( LOADOUT_POSITION_ACTION ) );
+		if ( pGrapplingHook )
+		{
+			if ( pLocalPlayer->GetActiveTFWeapon() != pGrapplingHook )
+			{
+				pLocalPlayer->Weapon_Switch( pGrapplingHook );
+			}
+
+			KeyValues *kv = new KeyValues( "+use_action_slot_item_server" );
+			engine->ServerCmdKeyValues( kv );
+
+			return;
+		}
+	}
+
+	// otherwise, forward to game server
+	KeyValues *kv = new KeyValues( "+use_action_slot_item_server" );
+	engine->ServerCmdKeyValues( kv );
+}
+
+static ConCommand
+start_use_action_slot_item( "+use_action_slot_item", StartUseActionSlotItem, "Use the item in the action slot." );
+
+static void EndUseActionSlotItem( const CCommand &args )
+{
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if ( !pLocalPlayer )
+		return;
+
+	pLocalPlayer->SetUsingActionSlot( false );
+
+	if ( TFGameRules() && TFGameRules()->IsUsingGrapplingHook() && pLocalPlayer->GetActiveTFWeapon() )
+	{
+		// if we're using the hook, switch back to the last weapon
+		if ( pLocalPlayer->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_GRAPPLINGHOOK )
+		{
+			KeyValues *kv = new KeyValues( "-use_action_slot_item_server" );
+			engine->ServerCmdKeyValues( kv );
+
+			C_BaseCombatWeapon *pLastWeapon = pLocalPlayer->GetLastWeapon();
+
+			// switch away from the hook
+			if ( pLastWeapon && pLocalPlayer->Weapon_CanSwitchTo( pLastWeapon ) )
+			{
+				pLocalPlayer->Weapon_Switch( pLastWeapon );
+			}
+			else
+			{
+				// in case we failed to switch back to last weapon for some
+				// reason, just find the next best
+				pLocalPlayer->SwitchToNextBestWeapon( pLastWeapon );
+			}
+
+			return;
+		}
+	}
+
+	// tell the game server we let go of the button if this wasn't a GC item
+	KeyValues *kv = new KeyValues( "-use_action_slot_item_server" );
+	engine->ServerCmdKeyValues( kv );
+}
+
+static ConCommand end_use_action_slot_item( "-use_action_slot_item", EndUseActionSlotItem );
+
+static void StartContextAction( const CCommand &args )
+{
+	// Assume we're going to taunt
+	bool bDoTaunt = true;
+
+	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
+	{
+		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+		if ( pLocalPlayer )
+		{
+			CTFPowerupBottle *pPowerupBottle = dynamic_cast<CTFPowerupBottle *>( pLocalPlayer->GetEquippedWearableForLoadoutSlot( LOADOUT_POSITION_ACTION ) );
+			if ( pPowerupBottle && pPowerupBottle->GetNumCharges() > 0 )
+			{
+				// They're in MvM and have a bottle with a charge, so do an
+				// action instead
+				bDoTaunt = false;
+			}
+
+			if ( pLocalPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) &&
+				 pLocalPlayer->GetActiveTFWeapon() &&
+				 pLocalPlayer->GetActiveTFWeapon()->GetWeaponID() ==
+				 TF_WEAPON_MINIGUN )
+			{
+				int iRage = 0;
+				CALL_ATTRIB_HOOK_INT_ON_OTHER( pLocalPlayer, iRage,
+											   generate_rage_on_dmg );
+				if ( iRage )
+				{
+					if ( pLocalPlayer->m_Shared.GetRageMeter() >= 100.f &&
+						 !pLocalPlayer->m_Shared.IsRageDraining() )
+					{
+						// They have rage ready to go, do the taunt
+						bDoTaunt = true;
+					}
+				}
+			}
+		}
+	}
+
+	if ( bDoTaunt )
+	{
+		// Taunt
+		engine->ClientCmd_Unrestricted( "+taunt\n" );
+	}
+	else
+	{
+		// Action item
+		StartUseActionSlotItem( args );
+	}
+}
+
+static ConCommand start_context_action( "+context_action", StartContextAction, "Use the item in the action slot." );
+
+static void EndContextAction( const CCommand &args )
+{
+	// Undo both to be on the safe side
+	EndUseActionSlotItem( args );
+	engine->ClientCmd_Unrestricted( "-taunt\n" );
+}
+
+static ConCommand end_context_action( "-context_action", EndContextAction );
+#endif

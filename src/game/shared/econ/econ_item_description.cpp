@@ -3,12 +3,10 @@
 #include "cbase.h"
 #include "econ_item_description.h"
 #include "econ_item_interface.h"
-#include "econ_item_tools.h"
 #include "econ_holidays.h"
 #include "tier1/ilocalize.h"
 #include "localization_provider.h"
 #include "rtime.h"
-#include "econ_dynamic_recipe.h"
 #include "econ_paintkit.h"
 
 
@@ -379,9 +377,7 @@ void CEconItemDescription::GenerateDescriptionLines( const CLocalizationProvider
 		Generate_FriendlyHat( pLocalizationProvider, pEconItem );
 		Generate_SquadSurplusClaimedBy( pLocalizationProvider, pEconItem );
 		Generate_MvmChallenges( pLocalizationProvider, pEconItem );
-		Generate_DynamicRecipe( pLocalizationProvider, pEconItem );
 #endif // PROJECT_TF
-		Generate_XifierToolTargetItem( pLocalizationProvider, pEconItem );
 		Generate_LootListDesc( pLocalizationProvider, pEconItem );
 		Generate_EventDetail( pLocalizationProvider, pEconItem );
 		Generate_ItemSetDesc( pLocalizationProvider, pEconItem );
@@ -927,64 +923,6 @@ static void GenerateLocalizedFullItemName
 		}
 	}
 
-	// Generate tool application string
-	enum { kToolApplicationNameLength = 128, };
-	locchar_t szToolTargetNameName[ kToolApplicationNameLength ] = LOCCHAR("");
-	locchar_t szDynamicRecipeOutputName[ kToolApplicationNameLength ] = LOCCHAR("");
-
-	static CSchemaAttributeDefHandle pAttribDef_ToolTarget( "tool target item" );
-	if( pAttribDef_ToolTarget && pEconItem->GetItemDefinition()->GetItemClass() && !Q_stricmp( pEconItem->GetItemDefinition()->GetItemClass(), "tool" ) )
-	{
-		tmZone( TELEMETRY_LEVEL1, TMZF_NONE, "%s - Tool", __FUNCTION__ );
-		// It's a tool, see if it has a tool target item attribute
-		float flItemDef;
-		if ( FindAttribute_UnsafeBitwiseCast<attrib_value_t>( pEconItem, pAttribDef_ToolTarget, &flItemDef ) )
-		{
-			const item_definition_index_t unItemDef = flItemDef;
-
-			locchar_t szTargetItemName[ MAX_ITEM_NAME_LENGTH ] = LOCCHAR("Unknown Item");
-
-			// Get base name of target item
-			const CEconItemDefinition *pEconTargetDef = GetItemSchema()->GetItemDefinition( unItemDef );
-			if ( pEconTargetDef )
-			{
-				GetLocalizedBaseItemName( szTargetItemName, pLocalizationProvider, pEconTargetDef );
-			}
-
-			loc_scpy_safe( szToolTargetNameName,
-					   CConstructLocalizedString( pLocalizationProvider->Find( "ItemNameToolTargetNameFormat" ),
-					                              szTargetItemName ) );
-		}
-		else
-		{
-			CRecipeComponentMatchingIterator componentIterator( pEconItem, NULL );
-			pEconItem->IterateAttributes( &componentIterator );
-
-			// It only makes sense to mention the output if there's only 1 output
-			if( componentIterator.GetMatchingComponentOutputs().Count() == 1 )
-			{
-				CAttribute_DynamicRecipeComponent attribValue;
-				pEconItem->FindAttribute( componentIterator.GetMatchingComponentOutputs().Head(), &attribValue );
-
-				CEconItem tempItem;
-				if ( !DecodeItemFromEncodedAttributeString( attribValue, &tempItem ) )
-				{
-					AssertMsg2( 0, "%s: Unable to decode dynamic recipe output attribute on item %llu.", __FUNCTION__, pEconItem->GetID() );
-				}
-				else
-				{
-					locchar_t loc_ItemName[MAX_ITEM_NAME_LENGTH];
-					GenerateLocalizedFullItemName( loc_ItemName, pLocalizationProvider, &tempItem, k_EGenerateLocalizedFullItemName_Default, false );
-			
-					loc_scpy_safe( szDynamicRecipeOutputName,
-						   CConstructLocalizedString( pLocalizationProvider->Find( "ItemNameDynamicRecipeTargetNameFormat" ),
-													  loc_ItemName ) );
-				}
-			}
-		}
-	}
-
-
 	// PaintKit and Wear
 	if ( !bHasCustomName )
 	{
@@ -1018,8 +956,8 @@ static void GenerateLocalizedFullItemName
 									szItemName,
 									szLocalizedCraftIndex,
 									szLocalizedCrateSeries,
-									szToolTargetNameName,
-									szDynamicRecipeOutputName);
+									"",
+									"" );
 	}
 	else
 	{
@@ -2157,129 +2095,6 @@ void CEconItemDescription::Generate_SquadSurplusClaimedBy( const CLocalizationPr
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDescription::Generate_DynamicRecipe( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem )
-{
-	// Gather our attributes we care about
-	CRecipeComponentMatchingIterator componentIterator( pEconItem, NULL );
-	pEconItem->IterateAttributes( &componentIterator );
-
-	// Nothing to say, bail!
-	if( !componentIterator.GetMatchingComponentInputs().Count() && 
-		!componentIterator.GetMatchingComponentOutputs().Count() )
-	{
-		return;
-	}
-
-	// Add the no partial complete tag if the attribute exists
-	static CSchemaAttributeDefHandle pAttrib_NoPartialComplete( "recipe no partial complete" );
-	if ( pEconItem->FindAttribute( pAttrib_NoPartialComplete ) )
-	{
-		LocalizedAddDescLine( pLocalizationProvider, "TF_ItemDynamic_Recipe_No_Partial_Completion", ATTRIB_COL_POSITIVE, kDescLineFlag_Misc );
-	}
-
-	AddEmptyDescLine();
-
-	if ( componentIterator.GetMatchingComponentInputs().Count() )
-	{
-		// Print out item input header
-		LocalizedAddDescLine( pLocalizationProvider, "TF_ItemDynamic_Recipe_Inputs", ATTRIB_COL_NEUTRAL, kDescLineFlag_Misc );
-		// Print out inputs
-		FOR_EACH_VEC( componentIterator.GetMatchingComponentInputs(), i )
-		{
-			CAttribute_DynamicRecipeComponent attribValue;
-			pEconItem->FindAttribute( componentIterator.GetMatchingComponentInputs()[i], &attribValue );
-
-			const GameItemDefinition_t *pItemDef = dynamic_cast<GameItemDefinition_t *>( GetItemSchema()->GetItemDefinition( attribValue.def_index() ) );
-			if ( !pItemDef )
-				continue;
-
-			int nCount = attribValue.num_required() - attribValue.num_fulfilled();
-
-			// This is a completed component.  We don't want to show it (for now)
-			if( nCount == 0 )
-				continue;
-
-			CEconItem tempItem;
-			if ( !DecodeItemFromEncodedAttributeString( attribValue, &tempItem ) )
-			{
-				AssertMsg2( 0, "%s: Unable to decode dynamic recipe input attribute on item %llu.", __FUNCTION__, pEconItem->GetID() );
-				continue;
-			}
-
-			locchar_t lineItem[256];
-			locchar_t loc_ItemName[MAX_ITEM_NAME_LENGTH];
-			GenerateLocalizedFullItemName( loc_ItemName, pLocalizationProvider, &tempItem, k_EGenerateLocalizedFullItemName_Default, TF_ANTI_IDLEBOT_VERIFICATION_ONLY_ARG_BOOL_TRUE( m_pHashContext == NULL ) );
-
-			loc_sprintf_safe( lineItem,
-			                  ( LOCCHAR_FMT_LOCPRINTF LOCCHAR( " x %d" ) ),
-			                  loc_ItemName,
-			                  nCount
-			);
-
-			AddDescLine( lineItem, ATTRIB_COL_ITEMSET_MISSING, kDescLineFlag_Misc );
-		}
-
-		AddEmptyDescLine();
-	}
-
-	// Print out outputs
-	LocalizedAddDescLine( pLocalizationProvider, "TF_ItemDynamic_Recipe_Outputs", ATTRIB_COL_NEUTRAL, kDescLineFlag_Misc );
-	FOR_EACH_VEC( componentIterator.GetMatchingComponentOutputs(), i )
-	{
-		CAttribute_DynamicRecipeComponent attribValue;
-		pEconItem->FindAttribute( componentIterator.GetMatchingComponentOutputs()[i], &attribValue );
-
-		CEconItem tempItem;
-		if ( !DecodeItemFromEncodedAttributeString( attribValue, &tempItem ) )
-		{
-			AssertMsg2( 0, "%s: Unable to decode dynamic recipe output attribute on item %llu.", __FUNCTION__, pEconItem->GetID() );
-			continue;
-		}
-
-		locchar_t loc_ItemName[MAX_ITEM_NAME_LENGTH];
-		GenerateLocalizedFullItemName( loc_ItemName, pLocalizationProvider, &tempItem, k_EGenerateLocalizedFullItemName_Default, TF_ANTI_IDLEBOT_VERIFICATION_ONLY_ARG_BOOL_TRUE( m_pHashContext == NULL ) );
-
-		AddDescLine( loc_ItemName, /* this will be ignored: */ ATTRIB_COL_ITEMSET_MISSING, kDescLineFlag_Misc );
-
-		// Iterate through the attributes on this temp item and have it store the attributes that should affect
-		// this component's name.  Once we have that, have it fill out a temporary CEconItemDescription.
-		CRecipeNameAttributeDisplayer recipeAttributeIterator;
-		tempItem.IterateAttributes( &recipeAttributeIterator );
-		recipeAttributeIterator.SortAttributes();
-		CEconItemDescription tempDescription;
-		recipeAttributeIterator.Finalize( &tempItem, &tempDescription, pLocalizationProvider );
-
-		// Check if that temp CEconItemDescription has any attributes we want.  If so, steal them.
-		if ( tempDescription.m_vecDescLines.Count() > 0 )
-		{
-			locchar_t loc_Attribs[MAX_ITEM_NAME_LENGTH] = LOCCHAR("");
-
-			// Put the attributes on the next line in parenthesis
-			loc_scat_safe( loc_Attribs, LOCCHAR("(") );
-
-			// Put in each attribute
-			FOR_EACH_VEC( tempDescription.m_vecDescLines, j )
-			{
-				// Comma separated
-				if ( j > 0 )
-				{
-					loc_scat_safe( loc_Attribs, LOCCHAR(", ") );
-				}
-
-				loc_scat_safe( loc_Attribs, tempDescription.m_vecDescLines[j].sText.Get() );
-			}
-
-			loc_scat_safe( loc_Attribs, LOCCHAR(")") );
-
-			// Print out in the same color as the item name above
-			AddDescLine( loc_Attribs, /* this will be ignored: */ ATTRIB_COL_ITEMSET_MISSING, kDescLineFlag_Misc );
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
 void CEconItemDescription::Generate_UnusualifierEffectList( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem )
 {
 
@@ -2352,45 +2167,6 @@ const CEconItemDefinition *GetPaintItemDefinitionForPaintedItem( const IEconItem
 	}
 
 	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Specify target (strangifiers, etc that can only be applied to specific items)
-//-----------------------------------------------------------------------------
-void CEconItemDescription::Generate_XifierToolTargetItem( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem )
-{
-	Assert( pLocalizationProvider );
-	Assert( pEconItem );
-
-	// Make sure it's a tool of the appropriate type
-	const CEconTool_Xifier *pTool = pEconItem->GetItemDefinition()->GetTypedEconTool<CEconTool_Xifier>();
-	if ( pTool == NULL )
-		return;
-
-	// Make sure there is a specific target item
-	static CSchemaAttributeDefHandle pAttribDef_ToolTargetItem( "tool target item" );
-	float flItemDef;
-	if( pAttribDef_ToolTargetItem && FindAttribute_UnsafeBitwiseCast<attrib_value_t>( pEconItem, pAttribDef_ToolTargetItem, &flItemDef ) )
-	{
-		locchar_t szTargetItemName[ MAX_ITEM_NAME_LENGTH ] = LOCCHAR("Unknown Item");
-
-		// It's a tool, see if it has a tool target item attribute
-		const item_definition_index_t unItemDef = flItemDef;
-		const CEconItemDefinition *pEconTargetDef = GetItemSchema()->GetItemDefinition( unItemDef );
-
-		// Start with the base name.
-		if ( pEconTargetDef )
-		{
-			GetLocalizedBaseItemName( szTargetItemName, pLocalizationProvider, pEconTargetDef );
-		}
-
-		const char *pszDesc = pTool->GetItemDescToolTargetLocToken();
-		AssertMsg( pszDesc && *pszDesc, "%s: missing 'item_desc_tool_target' key", pTool->GetTypeName() );
-		AddDescLine( CConstructLocalizedString( pLocalizationProvider->Find( pszDesc ),
-					 szTargetItemName ),
-					 ATTRIB_COL_NEUTRAL,
-					 kDescLineFlag_Desc );
-	}
 }
 
 //-----------------------------------------------------------------------------

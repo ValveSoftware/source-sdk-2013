@@ -25,7 +25,6 @@
 #include "econ/econ_item_preset.h"
 #include "tf_shared_content_manager.h"
 #include "c_playerresource.h"
-#include "backpack_panel.h"
 #include "materialsystem/itexture.h"
 
 #include "tf_gc_client.h"
@@ -1087,10 +1086,6 @@ void CTFPlayerInventory::SOUpdated( const CSteamID & steamIDOwner, const GCSDK::
 
 	// Clear out any predicted backpack slots when items move into them
 	CEconItem *pEconItem = (CEconItem *)pObject;
-	if ( eEvent == eSOCacheEvent_Incremental )
-	{
-		EconUI()->GetBackpackPanel()->MarkItemIDDirty( pEconItem->GetItemID() );
-	}
 	int iBackpackPos = TFInventoryManager()->GetBackpackPositionFromBackend( pEconItem->GetInventoryToken() );
 	TFInventoryManager()->PredictedBackpackPosFilled( iBackpackPos );
 #endif // CLIENT_DLL

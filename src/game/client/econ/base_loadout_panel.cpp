@@ -106,8 +106,36 @@ void CBaseLoadoutPanel::ApplySettings( KeyValues *inResourceData )
 	}
 }
 
-extern const char *g_szItemBorders[AE_MAX_TYPES][5];
-extern ConVar cl_showbackpackrarities;
+// Array of borders for rarities. Three borders for each rarity: Base, Mouseover, and Selected
+const char *g_szItemBorders[][5] =
+{
+	{ "BackpackItemBorder",				"BackpackItemMouseOverBorder",				"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder",				"BackpackItemGreyedOutSelectedBorder"				},		// AE_NORMAL = 0
+	{ "BackpackItemBorder_1",			"BackpackItemMouseOverBorder_1",			"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_1",			"BackpackItemGreyedOutSelectedBorder_1"				},		// AE_RARITY1 = 1
+	{ "BackpackItemBorder_2",			"BackpackItemMouseOverBorder_2",			"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_2",			"BackpackItemGreyedOutSelectedBorder_2"				},		// AE_RARITY2 = 2
+	{ "BackpackItemBorder_Vintage",		"BackpackItemMouseOverBorder_Vintage",		"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_Vintage",		"BackpackItemGreyedOutSelectedBorder_Vintage"		},		// AE_VINTAGE = 3
+	{ "BackpackItemBorder_3",			"BackpackItemMouseOverBorder_3",			"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_3",			"BackpackItemGreyedOutSelectedBorder_3"				},		// AE_RARITY3
+	{ "BackpackItemBorder_4",			"BackpackItemMouseOverBorder_4",			"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_4",			"BackpackItemGreyedOutSelectedBorder_4"				},		// AE_RARITY4
+	{ "BackpackItemBorder_Unique",		"BackpackItemMouseOverBorder_Unique",		"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_Unique",		"BackpackItemGreyedOutSelectedBorder_Unique"		},		// AE_UNIQUE
+	{ "BackpackItemBorder_Community",	"BackpackItemMouseOverBorder_Community",	"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_Community",	"BackpackItemGreyedOutSelectedBorder_Community"		},		// AE_COMMUNITY
+	{ "BackpackItemBorder_Developer",	"BackpackItemMouseOverBorder_Developer",	"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_Developer",	"BackpackItemGreyedOutSelectedBorder_Developer"		},		// AE_DEVELOPER
+	{ "BackpackItemBorder_SelfMade",	"BackpackItemMouseOverBorder_SelfMade",		"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_SelfMade",		"BackpackItemGreyedOutSelectedBorder_SelfMade"		},		// AE_SELFMADE
+	{ "BackpackItemBorder_Customized",	"BackpackItemMouseOverBorder_Customized",	"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_Customized",	"BackpackItemGreyedOutSelectedBorder_Customized"	},		// AE_CUSTOMIZED
+	{ "BackpackItemBorder_Strange",		"BackpackItemMouseOverBorder_Strange",		"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_Strange",		"BackpackItemGreyedOutSelectedBorder_Strange"		},		// AE_STRANGE
+	{ "BackpackItemBorder_Completed",	"BackpackItemMouseOverBorder_Completed",	"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_Completed",	"BackpackItemGreyedOutSelectedBorder_Completed"		},		// AE_COMPLETED
+	{ "BackpackItemBorder_Haunted",		"BackpackItemMouseOverBorder_Haunted",		"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_Haunted",		"BackpackItemGreyedOutSelectedBorder_Haunted"		},		// AE_HAUNTED
+	{ "BackpackItemBorder_Collectors",	"BackpackItemMouseOverBorder_Collectors",	"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_Collectors",	"BackpackItemGreyedOutSelectedBorder_Collectors"	},		// AE_COLLECTORS
+
+	{ "BackpackItemBorder_PaintkitWeapon",	"BackpackItemMouseOverBorder_PaintkitWeapon",	"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_PaintkitWeapon",	"BackpackItemGreyedOutSelectedBorder_PaintkitWeapon"	},	// AE_Paintkit
+	{ "BackpackItemBorder_RarityDefault",	"BackpackItemMouseOverBorder_RarityDefault",	"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_RarityDefault",	"BackpackItemGreyedOutSelectedBorder_RarityDefault"		}, // AE_RARITY_DEFAULT,
+	{ "BackpackItemBorder_RarityCommon",	"BackpackItemMouseOverBorder_RarityCommon",		"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_RarityCommon",		"BackpackItemGreyedOutSelectedBorder_RarityCommon"		}, // AE_RARITY_COMMON,
+	{ "BackpackItemBorder_RarityUncommon",	"BackpackItemMouseOverBorder_RarityUncommon",	"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_RarityUncommon",	"BackpackItemGreyedOutSelectedBorder_RarityUncommon"	}, // AE_RARITY_UNCOMMON,
+	{ "BackpackItemBorder_RarityRare",		"BackpackItemMouseOverBorder_RarityRare",		"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_RarityRare",		"BackpackItemGreyedOutSelectedBorder_RarityRare"		}, // AE_RARITY_RARE,
+	{ "BackpackItemBorder_RarityMythical",	"BackpackItemMouseOverBorder_RarityMythical",	"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_RarityMythical",	"BackpackItemGreyedOutSelectedBorder_RarityMythical"	}, // AE_RARITY_MYTHICAL,
+	{ "BackpackItemBorder_RarityLegendary",	"BackpackItemMouseOverBorder_RarityLegendary",	"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_RarityLegendary",	"BackpackItemGreyedOutSelectedBorder_RarityLegendary"	}, // AE_RARITY_LEGENDARY,
+	{ "BackpackItemBorder_RarityAncient",	"BackpackItemMouseOverBorder_RarityAncient",	"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder_RarityAncient",	"BackpackItemGreyedOutSelectedBorder_RarityAncient"		}, // AE_RARITY_ANCIENT,
+};
+
+ConVar cl_showbackpackrarities( "cl_showbackpackrarities", "0", FCVAR_ARCHIVE, "0 = Show no backpack icon border colors. 1 = Show item rarities within the backpack. 2 = Show item rarities only for Market-listable items." );
 
 //-----------------------------------------------------------------------------
 // Purpose: 

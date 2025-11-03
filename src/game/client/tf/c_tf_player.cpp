@@ -9281,24 +9281,6 @@ extern ConVar tf_tournament_hide_domination_icons;
 //-----------------------------------------------------------------------------
 bool C_TFPlayer::ShouldShowDuelingIcon()
 {
-	if ( TFGameRules() && TFGameRules()->IsInTournamentMode() && tf_tournament_hide_domination_icons.GetBool() )
-		return false;
-
-	if ( m_PlayerClass.HasCustomModel() )
-		return false;
-
-	extern bool DuelMiniGame_IsDuelingLocalPlayer( C_TFPlayer *pPlayer );
-
-	// we should show the dueling effect on this player if he is dueling the local player,
-	// and is not dead, cloaked or disguised
-	if ( DuelMiniGame_IsDuelingLocalPlayer( this ) && g_PR && g_PR->IsConnected( entindex() ) )
-	{
-		bool bStealthed = m_Shared.IsStealthed();
-		bool bDisguised = m_Shared.InCond( TF_COND_DISGUISED );
-		if ( IsAlive() && !bStealthed && !bDisguised )
-			return true;
-	}
-
 	return false;
 }
 

@@ -23,7 +23,6 @@
 #include "econ_controls.h"
 
 class CEconItemView;
-class CBackpackPanel;
 
 #define ITEMPICKUP_NUM_MODELPANELS		5	// 1 in the center of the screen, 2 to each side to handle smooth sliding.
 #define ITEMPICKUP_MODELPANEL_CENTER	2	// Panel that's in the center of the queue
@@ -113,7 +112,6 @@ public:
 
 protected:
 	CItemModelPanel		*m_pModelPanel;
-	CBackpackPanel		*m_pBackpackPanel;
 	vgui::EditablePanel *m_pConfirmDeleteDialog;
 	vgui::Label			*m_pDiscardedLabel;
 	vgui::Label			*m_pDiscardedLabelCarat;

@@ -18,7 +18,6 @@
 #include "econ_item_inventory.h"
 #include "econ_item_constants.h"
 #include "item_confirm_delete_dialog.h"
-#include "backpack_panel.h"
 
 #ifdef TF_CLIENT_DLL
 #include "c_tf_freeaccount.h"
@@ -422,10 +421,6 @@ void CItemPickupPanel::AcknowledgeItems( void )
 
 	InventoryManager()->SaveAckFile();
 
-	// If we were crafting, and the craft panel is up, we return to that instead.
-	if ( EconUI()->IsUIPanelVisible( ECONUI_CRAFTING ) )
-		return;
-
 	// Check to make sure the player has room for all his items. If not, bring up the discard panel. Otherwise, go away.
 	if ( !InventoryManager()->CheckForRoomAndForceDiscard(  ) )
 	{
@@ -612,7 +607,6 @@ CItemDiscardPanel::CItemDiscardPanel( Panel *parent, bool bPopup ) : Frame( pare
 
 	m_pModelPanel = new CItemModelPanel( this, "modelpanel" );
 
-	m_pBackpackPanel = new CBackpackPanel( this, "backpack_panel" );
 	m_pConfirmDeleteDialog = NULL;
 
 	m_bDiscardedNewItem = false;
@@ -688,7 +682,6 @@ void CItemDiscardPanel::ShowPanel(bool bShow)
 	{
 		m_bDiscardedNewItem = false;
 		m_bMadeRoom = false;
-		m_pBackpackPanel->ShowPanel( 0, true );
 		InvalidateLayout();
 	}
 	else
@@ -817,8 +810,6 @@ void CItemDiscardPanel::OnConfirmDelete( KeyValues *data )
 			m_bDiscardedNewItem = true;
 			InvalidateLayout();
 		}
-
-		m_pBackpackPanel->RequestFocus();
 	}
 
 	m_pConfirmDeleteDialog = NULL;

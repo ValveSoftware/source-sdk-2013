@@ -1184,10 +1184,7 @@ public:
 	virtual bool CanBeUsedNow( const IEconItemInterface *pItem ) const { return true; }
 	virtual bool ShouldShowContainedItemPanel( const IEconItemInterface *pItem ) const { Assert( !"IEconTool::ShouldShowContainedItemPanel(): we don't expect this to be called on anything besides gifts!" ); return false; }
 	virtual bool ShouldDisplayAsUseableOnItemsInArmory() const { return true; }
-	virtual const char *GetUseCommandLocalizationToken( const IEconItemInterface *pItem, int i = 0 ) const;
 	virtual int GetUseCommandCount( const IEconItemInterface *pItem ) const { return 1; }
-	virtual const char* GetUseCommand( const IEconItemInterface *pItem, int i = 0 ) const;
-
 
 	// Client "do something" interface. At least one of these functions must be implemented or your tool
 	// won't do anything on the client. Some tools (ie., collections) will implement both because they
@@ -2793,8 +2790,6 @@ public:
 	virtual CEconItemDefinition				*CreateEconItemDefinition()			{ return new CEconItemDefinition; }
 	virtual CEconCraftingRecipeDefinition	*CreateCraftingRecipeDefinition()	{ return new CEconCraftingRecipeDefinition; }
 	virtual CEconStyleInfo					*CreateEconStyleInfo()				{ return new CEconStyleInfo; }
-
-	virtual IEconTool						*CreateEconToolImpl( const char *pszToolType, const char *pszUseString, const char *pszUsageRestriction, item_capabilities_t unCapabilities, KeyValues *pUsageKV );
 
 	virtual CItemSelectionCriteria			*CreateItemCriteria( const char *pszContext, KeyValues *pItemCriteriaKV, CUtlVector<CUtlString> *pVecErrors = NULL );
 	virtual random_attrib_t					*CreateRandomAttribute( const char *pszContext, KeyValues *pRandomAttributesKV, CUtlVector<CUtlString> *pVecErrors = NULL );

@@ -22,11 +22,8 @@
 #include "renderparm.h"
 #include "vgui_controls/ScalableImagePanel.h"
 #include "engine/IEngineSound.h"
-#include "econ/tool_items/tool_items.h"
 #include "econ_item_description.h"
-#include "econ_item_tools.h"
 #include "tool_items/custom_texture_cache.h"
-#include "econ_dynamic_recipe.h"
 #include "materialsystem/imaterialvar.h"
 #include "materialsystem/itexturecompositor.h"
 #include "bone_setup.h"
@@ -2471,115 +2468,6 @@ bool CItemModelPanel::UpdateSeriesLabel()
 	return false;
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: Read through a few items and see if they match the recipe's criteria
-//			Show elipses while still tallying.  Remove our tick once all items
-//			are tallied.
-//-----------------------------------------------------------------------------
-bool CItemModelPanel::CheckRecipeMatches()
-{
-	// Don't do this if either we or our parent are invisible
-	if( !IsVisible() || ( GetParent() && !GetParent()->IsVisible() ) )
-		return false;
-
-	const IEconTool* pTool = m_ItemData.GetStaticData()->GetEconTool();
-
-	// If this isnt a dynamic recipe tool, dont show or do any of this
-	if( !pTool 
-		|| V_stricmp( m_ItemData.GetStaticData()->GetEconTool()->GetTypeName() , "dynamic_recipe")
-		|| m_ItemData.GetStaticData()->GetDefaultLoadoutSlot() != INVALID_EQUIPPED_SLOT )
-	{
-		if( m_pMatchesLabel )
-		{
-			m_pMatchesLabel->SetVisible( false );
-		}
-
-		return false;
-	}
-
-	bool bStillWorking = true;
-	if( m_pMatchesLabel && m_bShowQuantity )
-	{
-		CPlayerInventory *pLocalInv = TFInventoryManager()->GetLocalInventory();
-		if ( pLocalInv == NULL )
-			return false;
-
-		// We still need to match recipe components
-		if ( m_nRecipeMatchingIndex < pLocalInv->GetItemCount() )
-			sai_NumLoadingRequests[LOADING_RECIPE_MATCHES]++;
-
-		if ( se_CurrentLoadingTask == LOADING_RECIPE_MATCHES )
-		{
-			// Go through our entire backpack and check for matches, but only go through a few at a time
-			while ( m_nRecipeMatchingIndex < pLocalInv->GetItemCount() && sm_flLoadingTimeThisFrame < tf_time_loading_item_panels.GetFloat() )
-			{
-				// Mark this time
-				float flTime = Plat_FloatTime();
-
-				CEconItemView *pItem = pLocalInv->GetItem( m_nRecipeMatchingIndex );
-				Assert( pItem );
-
-				// Check each item
-				CRecipeComponentMatchingIterator matchingIterator( &m_ItemData, pItem );
-				m_ItemData.IterateAttributes( &matchingIterator );
-				const CUtlVector< const CEconItemAttributeDefinition* >& matchingAttribs = matchingIterator.GetMatchingComponentInputs();
-				Assert( matchingAttribs.Count() <= 1 );
-				FOR_EACH_VEC( matchingAttribs, j )
-				{
-					CAttribute_DynamicRecipeComponent value;
-					const CEconItemAttributeDefinition* pAttrib = matchingAttribs[j];
-					attrib_definition_index_t nIndex = pAttrib->GetDefinitionIndex();
-					m_ItemData.FindAttribute( pAttrib, &value );
-
-					// Add this entry if it doesnt exist in out map yet
-					if( m_mapMatchingAttributes.Find( nIndex ) == m_mapMatchingAttributes.InvalidIndex() )
-					{
-						m_mapMatchingAttributes.Insert( nIndex );
-						m_mapMatchingAttributes[ m_mapMatchingAttributes.Find( nIndex ) ] = 0;
-					}
-
-					// Increment this value if it's less than the max needed
-					int &nCount = m_mapMatchingAttributes[ m_mapMatchingAttributes.Find( nIndex ) ];
-					if( (unsigned)nCount < ( value.num_required() - value.num_fulfilled() ) )
-					{
-						++nCount;
-					}
-				}
-
-				m_nRecipeMatchingIndex++;
-				// Accumulate time
-				sm_flLoadingTimeThisFrame += ( Plat_FloatTime() - flTime );
-			}
-		}
-
-		bStillWorking = m_nRecipeMatchingIndex != pLocalInv->GetItemCount();
-		wchar_t wszMatches[16]=L"...";
-		
-		if( !bStillWorking )
-		{
-			CRecipeComponentMatchingIterator matchingIterator( &m_ItemData, NULL );
-			m_ItemData.IterateAttributes( &matchingIterator );
-			int nTotalAttribs = matchingIterator.GetTotalInputs() - matchingIterator.GetInputsFulfilled();
-			int nMatchingAttribs = 0;
-
-			unsigned short index = m_mapMatchingAttributes.FirstInorder();
-			while( index != m_mapMatchingAttributes.InvalidIndex() )
-			{
-				nMatchingAttribs += m_mapMatchingAttributes[ index ];
-				index = m_mapMatchingAttributes.NextInorder( index );
-			}
-
-			// Fill out the actual number of matches
-			_snwprintf( wszMatches, ARRAYSIZE( wszMatches ), L"%i/%i", nMatchingAttribs, nTotalAttribs );
-		}
-	
-		m_pMatchesLabel->SetVisible( true );
-		m_pMatchesLabel->SetText( wszMatches );
-	}
-
-	return bStillWorking;
-}
-
 void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 {
 	if ( !m_bDescriptionDirty )
@@ -3456,7 +3344,7 @@ bool CItemModelPanel::LoadData()
 		se_CurrentLoadingTask = type;
 	}
 
-	bool bStillWorking = CheckRecipeMatches();
+	bool bStillWorking = false;
 
 	if ( !m_bHideModel && m_pModelPanel )
 	{
@@ -3489,7 +3377,6 @@ bool CItemModelPanel::LoadData()
 				sm_flLoadingTimeThisFrame += ( Plat_FloatTime() - flTime );
 			}
 
-			bStillWorking = m_pModelPanel->IsLoadingWeaponSkin() || m_pModelPanel->IsImageNotLoaded();
 			bImageLoaded = !bStillWorking;
 		}
 

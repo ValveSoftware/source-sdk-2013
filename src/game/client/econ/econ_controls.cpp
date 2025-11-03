@@ -14,7 +14,6 @@
 #include "vgui_controls/TextImage.h"
 #include "vgui_controls/PropertyPage.h"
 #include "econ_item_system.h"
-#include "econ_item_tools.h"
 #include "iachievementmgr.h"
 #include "econ_item_description.h"
 
@@ -1002,16 +1001,10 @@ void CEconItemDetailsRichText::UpdateDetailsForItem( const CEconItemDefinition *
 {
 	SetText( "" );
 
-	if ( !m_ToolList.Count() )
-	{
-		UpdateToolList();
-	}
-
 	DataText_AppendStoreFlags( pDef );
 	DataText_AppendItemData( pDef );
 	DataText_AppendAttributeData( pDef );
 	DataText_AppendUsageData( pDef );
-	DataText_AppendToolUsage( pDef );
 }
 
 //-----------------------------------------------------------------------------
@@ -1241,45 +1234,6 @@ void CEconItemDetailsRichText::DataText_AppendUsageData( const CEconItemDefiniti
 		}
 	}
 #endif // #if defined(TF_DLL) || defined(TF_CLIENT_DLL)
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDetailsRichText::DataText_AppendToolUsage( const CEconItemDefinition *pDef )
-{
-	// Loop through the tools, and list any that can be applied to this item
-	bool bFirstTool = true;
-	for ( int i = 0; i < m_ToolList.Count(); i++ )
-	{
-		const GameItemDefinition_t *pToolDef = dynamic_cast<const GameItemDefinition_t *>( GetItemSchema()->GetItemDefinition( m_ToolList[i] ) );
-
-		if ( !CEconSharedToolSupport::ToolCanApplyToDefinition( pToolDef, dynamic_cast<const GameItemDefinition_t *>( pDef ) ) )
-			continue;
-
-		if ( bFirstTool )
-		{
-			bFirstTool = false;
-			AddDataText( "#TF_Armory_Item_ToolUsage", false );
-		}
-		else
-		{
-			AddDataText( ", " );
-		}
-
-		// Create a link to the item
-		{
-			// we need an econ item view here for just the item name
-			CEconItemView tmpTool;
-			tmpTool.Init( m_ToolList[i], AE_USE_SCRIPT_VALUE, AE_USE_SCRIPT_VALUE, true );
-
-			InsertItemLink( tmpTool.GetItemName(), pToolDef->GetDefinitionIndex() );
-		}
-	}
-	if ( !bFirstTool )
-	{
-		AddDataText( ".\n" );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1535,56 +1489,6 @@ void CEconItemDetailsRichText::DataText_AppendSetData( const CEconItemDefinition
 				wchar_t *pLocText = g_pVGuiLocalize->Find( pItemSet->m_pszLocalizedName );
 				AddDataText( "#TF_Armory_Item_InSet_NoBonus", false, pLocText, NULL, m_bAllowItemSetLinks ? &pItemSet->m_iBundleItemDef : NULL );
 			}
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDetailsRichText::UpdateToolList( void )
-{
-	m_ToolList.Purge();
-
-	// Find all the tool types in our items list
-	const CEconItemSchema::ToolsItemDefinitionMap_t &mapItemDefs = ItemSystem()->GetItemSchema()->GetToolsItemDefinitionMap();
-	FOR_EACH_MAP( mapItemDefs, i )
-	{
-		const CEconItemDefinition *pDef = mapItemDefs[i];
-		if ( !pDef->GetItemClass() )
-			continue;
-
-		if ( !pDef->IsTool() )
-			continue;
-
-		const IEconTool *pEconTool = pDef->GetEconTool();
-		if ( !pEconTool )
-			continue;
-
-		if ( !pEconTool->ShouldDisplayAsUseableOnItemsInArmory() )
-			continue;
-
-		// Now make sure it doesn't have the same type as an existing tool
-		bool bAlreadyFound = false;
-		
-		FOR_EACH_VEC( m_ToolList, tool )
-		{
-			CEconItemDefinition *pOtherDef = ItemSystem()->GetStaticDataForItemByDefIndex( m_ToolList[tool] );
-			Assert( pOtherDef );
-				
-			const IEconTool *pOtherEconTool = pOtherDef->GetEconTool();
-			Assert( pOtherEconTool );
-				
-			bAlreadyFound = !V_strcmp( pEconTool->GetTypeName(), pOtherEconTool->GetTypeName() );
-			if ( bAlreadyFound )
-			{
-				break;
-			}
-		}
-		
-		if ( !bAlreadyFound )
-		{
-			m_ToolList.AddToTail( pDef->GetDefinitionIndex() );
 		}
 	}
 }

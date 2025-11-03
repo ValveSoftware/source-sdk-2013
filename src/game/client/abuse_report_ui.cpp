@@ -16,7 +16,6 @@
 #include "vgui_bitmappanel.h"
 #include "vgui_avatarimage.h"
 #include "gc_clientsystem.h"
-#include "econ/tool_items/tool_items.h"
 #include "econ/econ_gcmessages.h"
 #include "econ/confirm_dialog.h"
 #include "tool_items/custom_texture_cache.h"

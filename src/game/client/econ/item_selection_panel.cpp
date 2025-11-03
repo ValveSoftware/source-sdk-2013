@@ -75,14 +75,10 @@ CItemSelectionPanel::CItemSelectionPanel(Panel *parent) : CBaseLoadoutPanel(pare
 	m_pCaller = parent;
 	m_pSelectionItemModelPanelKVs = NULL;
 	m_pDuplicateLabelKVs = NULL;
-	m_bShowingEntireBackpack = false;
 	m_iItemsInSelection = 0;
 
 	m_bShowDuplicates = false;
-	m_bForceBackpack = false;
 	m_pOnlyAllowUniqueQuality = NULL;
-	m_pShowBackpack = NULL;
-	m_pShowSelection = NULL;
 	m_pNextPageButton = NULL;
 	m_pPrevPageButton = NULL;
 	m_pCurPageLabel = NULL;
@@ -123,8 +119,6 @@ void CItemSelectionPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 
 	m_pNoItemsInSelectionLabel = dynamic_cast<vgui::Label*>( FindChildByName("NoItemsLabel") );
 	m_pOnlyAllowUniqueQuality = dynamic_cast<vgui::CheckButton *>( FindChildByName("OnlyAllowUniqueQuality") );
-	m_pShowBackpack = dynamic_cast<CExButton*>( FindChildByName("ShowBackpack") );
-	m_pShowSelection = dynamic_cast<CExButton*>( FindChildByName("ShowSelection") );
 	m_pNextPageButton = dynamic_cast<CExButton*>( FindChildByName("NextPageButton") );
 	m_pPrevPageButton = dynamic_cast<CExButton*>( FindChildByName("PrevPageButton") );
 	m_pCurPageLabel = dynamic_cast<vgui::Label*>( FindChildByName("CurPageLabel") );
@@ -191,27 +185,24 @@ void CItemSelectionPanel::ApplyKVsToItemPanels( void )
 {
 	BaseClass::ApplyKVsToItemPanels();
 
-	if ( !m_bShowingEntireBackpack )
+	if ( m_pSelectionItemModelPanelKVs )
 	{
-		if ( m_pSelectionItemModelPanelKVs )
+		for ( int i = 0; i < m_pItemModelPanels.Count(); i++ )
 		{
-			for ( int i = 0; i < m_pItemModelPanels.Count(); i++ )
-			{
-				m_pItemModelPanels[i]->ApplySettings( m_pSelectionItemModelPanelKVs );
-				m_pItemModelPanels[i]->UpdatePanels();
-			}
+			m_pItemModelPanels[i]->ApplySettings( m_pSelectionItemModelPanelKVs );
+			m_pItemModelPanels[i]->UpdatePanels();
 		}
+	}
 
-		if ( m_pDuplicateLabelKVs )
+	if ( m_pDuplicateLabelKVs )
+	{
+		FOR_EACH_VEC( m_pDuplicateCountLabels, i )
 		{
-			FOR_EACH_VEC( m_pDuplicateCountLabels, i )
-			{
-				if ( !m_pDuplicateCountLabels[i]->IsVisible() )
-					continue;
+			if ( !m_pDuplicateCountLabels[i]->IsVisible() )
+				continue;
 
-				m_pDuplicateCountLabels[i]->ApplySettings( m_pDuplicateLabelKVs );
-				m_pDuplicateCountLabels[i]->SetMouseInputEnabled( false );
-			}
+			m_pDuplicateCountLabels[i]->ApplySettings( m_pDuplicateLabelKVs );
+			m_pDuplicateCountLabels[i]->SetMouseInputEnabled( false );
 		}
 	}
 }
@@ -225,12 +216,7 @@ void CItemSelectionPanel::PerformLayout( void )
 
 	for ( int i = 0; i < m_pItemModelPanels.Count(); i++ )
 	{
-		// In backpack mode we show empty slots. Otherwise we don't.
-		bool bVisible = m_bShowingEntireBackpack;
-		if ( !bVisible )
-		{
-			bVisible = (i < GetNumSlotsPerPage()) && ShouldItemPanelBeVisible( m_pItemModelPanels[i], i );
-		}
+		bool bVisible = (i < GetNumSlotsPerPage()) && ShouldItemPanelBeVisible( m_pItemModelPanels[i], i );
 		m_pItemModelPanels[i]->SetVisible( bVisible );
 
 		if ( bVisible )
@@ -250,9 +236,6 @@ void CItemSelectionPanel::PerformLayout( void )
 			m_pDuplicateCountLabels[i]->SetPos( iXPos, iYPos );
 		}
 	}
-
-	m_pShowBackpack->SetVisible( !m_bShowingEntireBackpack && !m_bForceBackpack );
-	m_pShowSelection->SetVisible( m_bShowingEntireBackpack && !m_bForceBackpack );
 
 	m_pNextPageButton->SetVisible( true );
 	m_pPrevPageButton->SetVisible( true );
@@ -306,18 +289,9 @@ void CItemSelectionPanel::OnCommand( const char *command )
 		UpdateModelPanels();
 		return;
 	}
-	else if ( !Q_strnicmp( command, "show_backpack", 8 ) )
-	{
-		m_bReapplyItemKVs = true;
-		m_bShowingEntireBackpack = true;
-		UpdateModelPanels();
-		//Repaint();
-		return;
-	}
 	else if ( !Q_strnicmp( command, "show_selection", 8 ) )
 	{
 		m_bReapplyItemKVs = true;
-		m_bShowingEntireBackpack = false;
 		UpdateModelPanels();
 		//Repaint();
 		return;
@@ -486,26 +460,13 @@ void CItemSelectionPanel::NotifySelectionReturned( CItemModelPanel *pItemPanel )
 //-----------------------------------------------------------------------------
 void CItemSelectionPanel::UpdateModelPanels( void )
 {
-	// If we're showing the whole backpack, go through the inventory like the backpack does.
-	if ( m_bShowingEntireBackpack )
-	{
-		UpdateModelPanelsForSelection();
+	// Clear the dupe counts.
+	m_DuplicateCounts.Purge();
+	UpdateModelPanelsForSelection();
 
-		if ( m_pNoItemsInSelectionLabel )
-		{
-			m_pNoItemsInSelectionLabel->SetVisible( false );
-		}
-	}
-	else
+	if ( m_pNoItemsInSelectionLabel )
 	{
-		// Clear the dupe counts.
-		m_DuplicateCounts.Purge();
-		UpdateModelPanelsForSelection();
-
-		if ( m_pNoItemsInSelectionLabel )
-		{
-			m_pNoItemsInSelectionLabel->SetVisible( m_iItemsInSelection == 0 );
-		}
+		m_pNoItemsInSelectionLabel->SetVisible( m_iItemsInSelection == 0 );
 	}
 
 	// Update the current backpack page
@@ -522,7 +483,7 @@ void CItemSelectionPanel::UpdateModelPanels( void )
 //-----------------------------------------------------------------------------
 void CItemSelectionPanel::UpdateDuplicateCounts( void )
 {
-	bool bShow = (m_bShowDuplicates && !m_bShowingEntireBackpack);
+	bool bShow = m_bShowDuplicates;
 	if ( !bShow )
 	{
 		FOR_EACH_VEC( m_pDuplicateCountLabels, i )
@@ -584,7 +545,7 @@ void CItemSelectionPanel::UpdateDuplicateCounts( void )
 void CItemSelectionPanel::CreateItemPanels( void )
 {
 	// Always create the maximum number of panels
-	int iNumPanels = BACKPACK_SLOTS_PER_PAGE;
+	int iNumPanels = SELECTION_DISPLAY_SLOTS_PER_PAGE;
 	if ( m_pItemModelPanels.Count() < iNumPanels )
 	{
 		for ( int i = m_pItemModelPanels.Count(); i < iNumPanels; i++ )
@@ -599,15 +560,7 @@ void CItemSelectionPanel::CreateItemPanels( void )
 //-----------------------------------------------------------------------------
 int CItemSelectionPanel::GetNumPages( void )
 {
-	int iNumItems = 0;
-	if ( m_bShowingEntireBackpack )
-	{
-		iNumItems = InventoryManager()->GetLocalInventory()->GetMaxItemCount();
-	}
-	else
-	{
-		iNumItems = m_iItemsInSelection;
-	}
+	int iNumItems = m_iItemsInSelection;
 
 	return (int)(ceil((float)iNumItems / (float)GetNumItemPanels()));
 }
@@ -1024,35 +977,15 @@ void CEquipSlotItemSelectionPanel::UpdateModelPanelsForSelection( void )
 													unUsedEquipRegionMask,
 													bShowEquippedItemFirst ? CEquippableItemsForSlotGenerator::kSlotGenerator_EquippedSpecialHandling : CEquippableItemsForSlotGenerator::kSlotGenerator_None );
 
+	// Copy the generated data back into our local structures.
+	DeepCopyMap( equippableItems.GetDuplicateCountMap(), &m_DuplicateCounts );
 
-	if( m_bShowingEntireBackpack )
+	const CEquippableItemsForSlotGenerator::EquippableResultsVec_t& allDisplayItems = equippableItems.GetDisplayItems();
+	for ( int i=0; i<allDisplayItems.Count(); ++i )
 	{
-		int iNumItems = TFInventoryManager()->GetLocalTFInventory()->GetMaxItemCount();
-		for ( int i = 1; i <= iNumItems; i++ )
+		if ( DoesItemPassSearchFilter( allDisplayItems[i].m_pEconItemView->GetDescription(), wscFilter ) )
 		{
-			CEconItemView *pItemData = TFInventoryManager()->GetItemByBackpackPosition(i);
-			if ( pItemData && pItemData->IsValid() )
-			{
-				if( !DoesItemPassSearchFilter( pItemData->GetDescription(), wscFilter ) )
-					continue;
-
-				CEquippableItemsForSlotGenerator::CEquippableResult& result = vecDisplayItems[ vecDisplayItems.AddToTail( pItemData ) ];
-				result.m_eDisplayType = GetItemNotSelectableReason( pItemData ) ? CEquippableItemsForSlotGenerator::kSlotDisplay_Invalid : CEquippableItemsForSlotGenerator::kSlotDisplay_Normal;
-			}
-		}
-	}
-	else
-	{
-		// Copy the generated data back into our local structures.
-		DeepCopyMap( equippableItems.GetDuplicateCountMap(), &m_DuplicateCounts );
-
-		const CEquippableItemsForSlotGenerator::EquippableResultsVec_t& allDisplayItems = equippableItems.GetDisplayItems();
-		for ( int i=0; i<allDisplayItems.Count(); ++i )
-		{
-			if ( DoesItemPassSearchFilter( allDisplayItems[i].m_pEconItemView->GetDescription(), wscFilter ) )
-			{
-				vecDisplayItems.AddToTail( allDisplayItems[i] );
-			}
+			vecDisplayItems.AddToTail( allDisplayItems[i] );
 		}
 	}
 
@@ -1110,15 +1043,8 @@ void CEquipSlotItemSelectionPanel::UpdateModelPanelsForSelection( void )
 		bool bShowEquipped = false;
 		if ( vecDisplayItems.Count() > iItemIndex )
 		{
-			const char* pszGreyOutReason = NULL;
-			if( m_bShowingEntireBackpack )
-			{
-				pszGreyOutReason = GetItemNotSelectableReason( vecDisplayItems[iItemIndex].m_pEconItemView );
-			}
-			else
-			{
-				pszGreyOutReason = vecDisplayItems[iItemIndex].m_eDisplayType == CEquippableItemsForSlotGenerator::kSlotDisplay_Normal ? NULL : "#Econ_GreyOutReason_EquipRegionConflict";
-			}
+			const char* pszGreyOutReason = vecDisplayItems[iItemIndex].m_eDisplayType == CEquippableItemsForSlotGenerator::kSlotDisplay_Normal ? NULL : "#Econ_GreyOutReason_EquipRegionConflict";
+
 			// Show equipped state on base items too
 			bShowEquipped = false;
 			// Check if this item is already equipped, potentially in another slot
@@ -1278,7 +1204,7 @@ void CItemCriteriaSelectionPanel::UpdateModelPanelsForSelection( void )
 		{
 			// If this is a valid item, we want to show this if we're showing our entire backpack
 			// or we doing the tailored list and this item matches.
-			if ( m_bShowingEntireBackpack || GetItemNotSelectableReason( pItemData ) == NULL )
+			if ( GetItemNotSelectableReason( pItemData ) == NULL )
 			{
 				// The item also needs to pass the text search filter as well
 				if( DoesItemPassSearchFilter( pItemData->GetDescription(), wscFilter ) )
@@ -1287,17 +1213,12 @@ void CItemCriteriaSelectionPanel::UpdateModelPanelsForSelection( void )
 				}
 			}
 		}
-		// When showing our entire backpack we take everything so long as we arent filtering
-		else if( wscFilter == NULL && m_bShowingEntireBackpack )
-		{
-			bAdd = true;
-		}
 
 		if( bAdd )
 		{
 			// For actual items see if we should stack.  Only do so if we're NOT showing
 			// the entire backpack
-			if( pItemData && !m_bShowingEntireBackpack )
+			if( pItemData )
 			{
 				// Has this item been modified by the user in some way? If so, always list,
 				// but don't add it to our duplicate count, or our "found indices" list.
@@ -1329,11 +1250,8 @@ void CItemCriteriaSelectionPanel::UpdateModelPanelsForSelection( void )
 		}
 	}
 
-	// Sort them alphabetically if not viewing entire backpack
-	if( !m_bShowingEntireBackpack )
-	{
-		vecDisplayItems.Sort( &SortRarityEconIdKeysAlphabetical_Views );
-	}
+	// Sort them alphabetically
+	vecDisplayItems.Sort( &SortRarityEconIdKeysAlphabetical_Views );
 
 	// Add an "Empty" item to the start
 	vecDisplayItems.AddToHead( NULL );
@@ -1387,61 +1305,6 @@ const char *CItemCriteriaSelectionPanel::GetItemNotSelectableReason( const CEcon
 	CTFItemDefinition *pItemData = pItem->GetStaticData();
 	return m_pCriteria->BEvaluate( pItemData ) ? NULL : "";
 }
-
-//=====================================================================================================================
-// CRAFTING SELECTION PANEL
-//=====================================================================================================================
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CCraftingItemSelectionPanel::CCraftingItemSelectionPanel(Panel *parent ) 
-	: CItemCriteriaSelectionPanel( parent, NULL, NULL, 0 )
-{
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCraftingItemSelectionPanel::UpdateOnShow( const CItemSelectionCriteria *pCriteria, bool bForceBackpack, itemid_t pExceptions[], int iNumExceptions )
-{
-	m_pCriteria = pCriteria;
-	UpdateExceptions( pExceptions, iNumExceptions );
-
-	if ( m_bShowingEntireBackpack != bForceBackpack )
-	{
-		SetCurrentPage( 0 );
-		m_bShowingEntireBackpack = bForceBackpack;
-		m_bReapplyItemKVs = true;
-	}
-	m_bForceBackpack = bForceBackpack;
-
-	if ( !m_bForceBackpack )
-	{
-		SetCurrentPage( 0 );
-	}
-
-	UpdateModelPanels();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-const char *CCraftingItemSelectionPanel::GetItemNotSelectableReason( const CEconItemView *pItem ) const
-{
-	if ( !pItem )
-		return NULL;
-
-	// Must not be marked no-craft
-	if ( !pItem->IsUsableInCrafting() )
-		return "#Econ_GreyOutReason_ItemNotCraftable";
-
-	// Are we filtering out items of non-unique quality that we might not want to accidentally craft?
-	if ( m_pOnlyAllowUniqueQuality && m_pOnlyAllowUniqueQuality->IsSelected() && pItem->GetQuality() != AE_UNIQUE )
-		return "#Econ_GreyOutReason_ItemSpecialQuality";
-
-	return BaseClass::GetItemNotSelectableReason( pItem );
-}
-
 
 //=====================================================================================================================
 // ACCOUNT SLOT ITEM SELECTION PANEL

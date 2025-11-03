@@ -12,9 +12,9 @@
 #include "econ_item_constants.h"
 #include "item_style_select_dialog.h"
 #include "econ_gcmessages.h"
-#include "backpack_panel.h"
 #include "econ_ui.h"
 #include "gc_clientsystem.h"
+#include "item_pickup_panel.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

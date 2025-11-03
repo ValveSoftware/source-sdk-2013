@@ -2,7 +2,6 @@
 
 #include "cbase.h"
 #include "econ_item_interface.h"
-#include "econ_item_tools.h"				// needed for CEconTool_WrappedGift definition for IsMarketable()
 #include "rtime.h"
 #include "econ_paintkit.h"
 #include "econ_item_schema.h"
@@ -280,11 +279,6 @@ bool IEconItemInterface::IsMarketable() const
 	// Initially, only TF2 supports listing items in the Marketplace.
 #if defined( TF_DLL ) || defined( TF_CLIENT_DLL ) || defined( TF_GC_DLL )
 	{
-		// User-created wrapped gifts are untradeable for the moment. This would provide a backdoor
-		// for users to sell anything they wanted, which is interesting but not what we want in
-		// the initial launch.
-		if ( pItemDef->GetTypedEconTool<CEconTool_WrappedGift>() )
-			return false;
 
 		// All other tools are listable. This includes keys, paints, backpack expanders, strange
 		// parts, Halloween spells, wedding rings, etc. It does not includes gifts (see above),
@@ -345,11 +339,6 @@ bool IEconItemInterface::IsMarketable() const
 		// Anything that is of limited quantity (ie limited promos)
 		static CSchemaAttributeDefHandle pAttrDef_IsLimited( "limited quantity item" );
 		if ( FindAttribute( pAttrDef_IsLimited ) )
-			return true;
-
-		// Allow the Giving items (not a wrapped_gift but a gift, ie Secret Saxton, Pile O Gifts, Pallet of Keys)
-		const CEconTool_Gift *pEconToolGift = pItemDef->GetTypedEconTool<CEconTool_Gift>();
-		if ( pEconToolGift )
 			return true;
 
 		// Unusual Cosmetics and Taunts

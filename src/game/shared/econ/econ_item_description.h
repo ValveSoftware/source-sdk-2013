@@ -233,10 +233,8 @@ private:
 	virtual void Generate_SaxxyAwardDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_MvmChallenges( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_SquadSurplusClaimedBy( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_DynamicRecipe( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_UnusualifierEffectList( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 #endif // PROJECT_TF
-	virtual void Generate_XifierToolTargetItem( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_Painted( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_Uses( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_LootListDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );

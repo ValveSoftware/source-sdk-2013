@@ -62,17 +62,11 @@ $Project
 			$File	"$SRCDIR\game\shared\econ\econ_item_schema.h"
 			$File	"$SRCDIR\game\shared\econ\econ_item_schema_private.cpp" [!$SOURCESDK]
 			$File	"$SRCDIR\game\shared\econ\econ_item_schema_sdk.cpp" [$SOURCESDK]
-			$File	"$SRCDIR\game\shared\econ\econ_item_tools.cpp"
-			$File	"$SRCDIR\game\shared\econ\econ_item_tools.h"
 			$File	"$SRCDIR\game\shared\econ\item_selection_criteria.cpp"
 			$File	"$SRCDIR\game\shared\econ\item_selection_criteria.h"
-			$File	"$SRCDIR\game\shared\econ\econ_dynamic_recipe.cpp"
-			$File	"$SRCDIR\game\shared\econ\econ_dynamic_recipe.h"
 			$File	"$SRCDIR\game\shared\econ\econ_paintkit.cpp"
 			$File	"$SRCDIR\game\shared\econ\econ_paintkit.h"
-			
-			$File	"$SRCDIR\game\client\econ\econ_consumables.cpp"
-			
+						
 			$File	"$SRCDIR\game\shared\gc_clientsystem.h"
 			$File	"$SRCDIR\game\shared\gc_clientsystem.cpp"
 			$File	"$SRCDIR\game\shared\gc_replicated_convars.cpp"
@@ -83,8 +77,6 @@ $Project
 		$Folder	"Economy Client"
 		{
 			$File	"econ\econ_ui.h"
-			$File	"econ\backpack_panel.cpp"
-			$File	"econ\backpack_panel.h"
 			$File	"econ\base_loadout_panel.cpp"
 			$File	"econ\base_loadout_panel.h"
 			$File	"econ\trading_start_dialog.cpp"
@@ -129,19 +121,8 @@ $Project
 			
 			$Folder	"tool_items"
 			{
-				$File	"econ\tool_items\tool_items.cpp"
-				$File	"econ\tool_items\tool_items.h"
-				$File	"econ\tool_items\rename_tool_ui.cpp"
-				$File	"econ\tool_items\rename_tool_ui.h"
-				$File	"econ\tool_items\decoder_ring_tool.cpp"
-				$File	"econ\tool_items\decoder_ring_tool.h"
-				$File	"econ\tool_items\paint_can_tool.cpp"
-				$File	"econ\tool_items\paint_can_tool.h"
 				$File	"econ\tool_items\custom_texture_cache.cpp"
 				$File	"econ\tool_items\custom_texture_cache.h"
-				$File	"econ\tool_items\custom_texture_tool.cpp"
-				$File	"econ\tool_items\gift_wrap_tool.cpp"
-				$File	"econ\tool_items\gift_wrap_tool.h"
 			}
 		}
 		

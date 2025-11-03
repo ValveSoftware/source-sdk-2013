@@ -82,7 +82,6 @@ ConVar tf_scoreboard_alt_class_icons( "tf_scoreboard_alt_class_icons", "0", FCVA
 ConVar pf_scoreboard_use_shortnames( "pf_scoreboard_use_shortnames", "0", FCVAR_ARCHIVE, "Use shortnames in place of player names in the scoreboard." );
 
 extern bool IsInCommentaryMode( void );
-extern bool DuelMiniGame_GetStats( C_TFPlayer **ppPlayer, uint32 &unMyScore, uint32 &unOpponentScore );
 extern void AddSubKeyNamed( KeyValues *pKeys, const char *pszName );
 
 extern ConVar cl_hud_playerclass_use_playermodel;
@@ -1866,23 +1865,8 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails()
 	}
 
 	uint32 unMyScore, unOpponentScore;
-	C_TFPlayer *pDuelingPartner = NULL;
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( pSelectedPlayer == pLocalPlayer && DuelMiniGame_GetStats( &pDuelingPartner, unMyScore, unOpponentScore ) )
-	{
-		PopulateDuelPanel( m_duelPanelLocalPlayer, pLocalPlayer, unMyScore );
-		PopulateDuelPanel( m_duelPanelOpponent, pDuelingPartner, unOpponentScore );
 
-		if ( m_pLocalPlayerStatsPanel->IsVisible() == true )
-		{
-			m_pLocalPlayerStatsPanel->SetVisible( false );
-		}
-		if ( m_pLocalPlayerDuelStatsPanel->IsVisible() == false )
-		{
-			m_pLocalPlayerDuelStatsPanel->SetVisible( true );
-		}
-	}
-	else
 	{
 		if ( m_pLocalPlayerStatsPanel->IsVisible() == false )
 		{

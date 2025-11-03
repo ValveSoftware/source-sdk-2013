@@ -17,7 +17,6 @@
 #include <vgui_controls/ComboBox.h>
 #include "tf_controls.h"
 #include "tf_shareddefs.h"
-#include "backpack_panel.h"
 #include "class_loadout_panel.h"
 
 enum armory_filters_t

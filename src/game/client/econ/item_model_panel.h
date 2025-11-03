@@ -294,8 +294,6 @@ private:
 	bool	UpdateMatchesLabel();
 	bool	UpdateQuantityLabel();
 
-	bool	CheckRecipeMatches();
-
 	int		GetAttribWide( int iMaxWide ) { return (m_iTextWide ? m_iTextWide : (iMaxWide - (ATTRIB_LABEL_INDENT * 2))); }
 
 	void	LoadResFileForCurrentItem( bool bForceLoad );

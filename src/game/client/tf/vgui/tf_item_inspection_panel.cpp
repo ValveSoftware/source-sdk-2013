@@ -10,7 +10,6 @@
 #include "navigationpanel.h"
 #include "gc_clientsystem.h"
 #include "econ_ui.h"
-#include "backpack_panel.h"
 #include "vgui_int.h"
 #include "cdll_client_int.h"
 #include "clientmode_tf.h"
@@ -31,39 +30,6 @@ using namespace vgui;
 
 ConVar tf_item_inspect_model_spin_rate( "tf_item_inspect_model_spin_rate", "30", FCVAR_ARCHIVE );
 ConVar tf_item_inspect_model_auto_spin( "tf_item_inspect_model_auto_spin", "1", FCVAR_ARCHIVE );
-
-
-// ********************************************************************************************************************************
-// Given proto data, create an inspect panel
-void Helper_LaunchPreviewWithPreviewDataBlock( CEconItemPreviewDataBlock const &protoData )
-{
-	// Create an econ item view
-	CEconItem econItem;
-	econItem.DeserializeFromProtoBufItem( protoData.econitem() );
-	
-	CEconItemView itemView;
-	itemView.Init( econItem.GetDefinitionIndex(), econItem.GetQuality(), econItem.GetItemLevel(), econItem.GetAccountID() );
-	itemView.SetNonSOEconItem( &econItem );
-
-	// Get the Backpack to tell the inspect panel to render
-	if ( EconUI() )
-	{
-		EconUI()->GetBackpackPanel()->OpenInspectModelPanelAndCopyItem( &itemView );
-	}
-}
-
-// ********************************************************************************************************************************
-// Open the inspection panel
-void Helper_LaunchPreview()
-{
-	// Get the Backpack to tell the inspect panel to render
-	if ( EconUI() )
-	{
-		CCharacterInfoPanel* pCharInfo = dynamic_cast< CCharacterInfoPanel* >( EconUI() );
-		EconUI()->OpenEconUI( ECONUI_BACKPACK );
-		pCharInfo->OpenToPaintkitPreview( NULL, false, false );
-	}
-}
 
 // ********************************************************************************************************************************
 // Request an item from the GC to inspect
@@ -87,21 +53,6 @@ static void Helper_RequestEconActionPreview( uint64 paramS, uint64 paramA, uint6
 	msg.Body().set_param_m( paramM );
 	GCClientSystem()->GetGCClient()->BSendMessage( msg );
 }
-
-// ********************************************************************************************************************************
-class CGCClient2GCEconPreviewDataBlockResponse : public GCSDK::CGCClientJob
-{
-public:
-	CGCClient2GCEconPreviewDataBlockResponse( GCSDK::CGCClient *pGCClient ) : GCSDK::CGCClientJob( pGCClient ) { }
-
-	virtual bool BYieldingRunJobFromMsg( GCSDK::IMsgNetPacket *pNetPacket )
-	{
-		GCSDK::CProtoBufMsg<CMsgGC_Client2GCEconPreviewDataBlockResponse> msg( pNetPacket );
-		Helper_LaunchPreviewWithPreviewDataBlock( msg.Body().iteminfo() );
-		return true;
-	}
-};
-GC_REG_JOB( GCSDK::CGCClient, CGCClient2GCEconPreviewDataBlockResponse, "CGCClient2GCEconPreviewDataBlockResponse", k_EMsgGC_Client2GCEconPreviewDataBlockResponse, GCSDK::k_EServerTypeGCClient );
 
 // ********************************************************************************************************************************
 CON_COMMAND_F( tf_econ_item_preview, "Preview an economy item", FCVAR_DONTRECORD | FCVAR_HIDDEN | FCVAR_CLIENTCMD_CAN_EXECUTE )

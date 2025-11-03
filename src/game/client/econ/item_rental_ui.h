@@ -15,7 +15,6 @@
 #include "vgui/ISurface.h"
 #include "econ_controls.h"
 #include "gc_clientsystem.h"
-#include "tool_items/tool_items.h"
 #include "vgui_controls/PropertySheet.h"
 #include "confirm_dialog.h"
 #include "econ_notifications.h"
@@ -46,20 +45,6 @@ public:
 	virtual EType NotificationType() { return eType_Trigger; }
 
 	virtual void Trigger();
-};
-
-class CEconPreviewItemBoughtNotification : public CEconPreviewNotification
-{
-public:
-	CEconPreviewItemBoughtNotification( uint64 ulSteamID, uint32 iItemDef ) : CEconPreviewNotification( ulSteamID, iItemDef ) {}
-
-	virtual EType NotificationType() { return eType_Trigger; }
-
-	virtual void Trigger()
-	{
-		EconUI()->OpenEconUI( ECONUI_BACKPACK );
-		MarkForDeletion();
-	}
 };
 
 #endif // ITEM_RENTAL_UI_H

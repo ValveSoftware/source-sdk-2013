@@ -752,8 +752,6 @@ public:
 
 	virtual bool							 BCanStrangeFilterApplyToStrangeSlotInItem( uint32 /*strange_event_restriction_t*/ unRestrictionType, uint32 unRestrictionValue, const IEconItemInterface *pItem, int iStrangeSlot, uint32 *out_pOptionalScoreType ) const;
 
-	virtual IEconTool						*CreateEconToolImpl( const char *pszToolType, const char *pszUseString, const char *pszUsageRestriction, item_capabilities_t unCapabilities, KeyValues *pUsageKV ) OVERRIDE;
-
 	virtual bool BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlString> *pVecErrors = NULL ) OVERRIDE;
 	virtual bool BPostSchemaInit( CUtlVector<CUtlString> *pVecErrors ) OVERRIDE;
 

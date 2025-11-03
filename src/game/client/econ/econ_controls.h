@@ -268,8 +268,6 @@ private:
 	void	DataText_AppendUsageData( const CEconItemDefinition *pBaseDef );
 	void	DataText_AppendAttributeData( const CEconItemDefinition *pDef );
 	void	DataText_AppendSetData( const CEconItemDefinition *pDef );
-	void	DataText_AppendToolUsage( const CEconItemDefinition *pDef );
-	void	UpdateToolList( void );
 
 private:
 	Color	m_colTextHighlight;
@@ -277,7 +275,6 @@ private:
 	Color	m_colLink;
 	bool	m_bAllowItemSetLinks;
 	vgui::HFont	m_hLinkFont;
-	CUtlVector<item_definition_index_t>	m_ToolList;
 
 	bool	m_bLimitedItem;
 };

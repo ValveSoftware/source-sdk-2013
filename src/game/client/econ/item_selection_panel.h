@@ -14,7 +14,6 @@
 #include "vgui_controls/EditablePanel.h"
 #include "econ_controls.h"
 #include "vgui_controls/ScrollableEditablePanel.h"
-#include "backpack_panel.h"
 #include "base_loadout_panel.h"
 
 class CItemModelPanel;
@@ -58,14 +57,14 @@ public:
 	virtual void OnKeyCodeTyped( vgui::KeyCode code) OVERRIDE;
 	MESSAGE_FUNC_PARAMS( OnButtonChecked, "CheckButtonChecked", pData );
 
-	virtual int	 GetNumItemPanels( void ) { return m_bShowingEntireBackpack ? BACKPACK_SLOTS_PER_PAGE : SELECTION_DISPLAY_SLOTS_PER_PAGE; };
+	virtual int	 GetNumItemPanels( void ) { return SELECTION_DISPLAY_SLOTS_PER_PAGE; };
 	virtual void PositionItemPanel( CItemModelPanel *pPanel, int iIndex );
 	virtual bool AllowSelection( void ) { return true; }
 	virtual bool AllowDragging( CItemModelPanel *panel ) { return false; }
 
-	virtual int	 GetNumSlotsPerPage( void ) OVERRIDE { return m_bShowingEntireBackpack ? BACKPACK_SLOTS_PER_PAGE : SELECTION_DISPLAY_SLOTS_PER_PAGE; }
-	virtual int	 GetNumColumns( void ) OVERRIDE { return m_bShowingEntireBackpack ? BACKPACK_COLUMNS : SELECTION_DISPLAY_COLUMNS; }
-	virtual int	 GetNumRows( void ) OVERRIDE { return m_bShowingEntireBackpack ? BACKPACK_ROWS : SELECTION_DISPLAY_ROWS; }
+	virtual int	 GetNumSlotsPerPage( void ) OVERRIDE { return SELECTION_DISPLAY_SLOTS_PER_PAGE; }
+	virtual int	 GetNumColumns( void ) OVERRIDE { return SELECTION_DISPLAY_COLUMNS; }
+	virtual int	 GetNumRows( void ) OVERRIDE { return SELECTION_DISPLAY_ROWS; }
 	virtual int	 GetNumPages( void ) OVERRIDE;
 	virtual void SetCurrentPage( int nNewPage ) OVERRIDE;
 
@@ -95,14 +94,9 @@ public:
 protected:
 	void	PostMessageSelectionReturned( itemid_t ulItemID );
 
-	bool							m_bShowingEntireBackpack;
-
 	KeyValues						*m_pSelectionItemModelPanelKVs;
 	KeyValues						*m_pDuplicateLabelKVs;
 	vgui::CheckButton				*m_pOnlyAllowUniqueQuality;
-	CExButton						*m_pShowBackpack;
-	CExButton						*m_pShowSelection;
-	bool							m_bForceBackpack;
 
 	CExButton						*m_pNextPageButton;
 	CExButton						*m_pPrevPageButton;
@@ -176,23 +170,6 @@ public:
 protected:
 	const CItemSelectionCriteria	*m_pCriteria;
 	CUtlVector<itemid_t>			m_Exceptions;
-};
-
-//-----------------------------------------------------------------------------
-// Purpose: Selection panel for crafting
-//-----------------------------------------------------------------------------
-class CCraftingItemSelectionPanel : public CItemCriteriaSelectionPanel
-{
-	DECLARE_CLASS_SIMPLE( CCraftingItemSelectionPanel, CItemCriteriaSelectionPanel );
-public:
-	CCraftingItemSelectionPanel(Panel *parent );
-
-	virtual const char *GetItemNotSelectableReason( const CEconItemView *pItem ) const;
-	virtual bool	ShouldDeleteOnClose( void ) { return false; }
-
-	void			UpdateOnShow( const CItemSelectionCriteria *pCriteria, bool bForceBackpack, itemid_t pExceptions[] = NULL, int iNumExceptions = 0 );
-
-	virtual bool	DisplayOnlyAllowUniqueQualityCheckbox() const { return true; }
 };
 
 //-----------------------------------------------------------------------------

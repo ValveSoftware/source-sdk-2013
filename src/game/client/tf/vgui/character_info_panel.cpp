@@ -276,20 +276,6 @@ void CCharacterInfoPanel::OnCommand( const char *command )
 {
 	if ( FStrEq( command, "back" ) )
 	{
-		// If we're inspecting an item, just close the inspection panel
-		if ( m_pLoadoutPanel->GetInspectionPanel()->IsVisible() )
-		{
-			m_pLoadoutPanel->GetInspectionPanel()->OnCommand( "close" );
-			// This is such a hack.  I don't have time to figure this out, so we're just going
-			// to special case this.  Don't "open" the CHAP_LOADOUT if the backback was up or
-			// else we'll get sucked back to CHAP_LOADOUT
-			if ( !m_pLoadoutPanel->GetBackpackPanel()->IsVisible() )
-			{
-				m_pLoadoutPanel->OpenSubPanel( CHAP_LOADOUT );
-			}
-			return;
-		}
-
 		// If we're at the base loadout page, or if we want to force it, close the dialog completely...
 		// NOTE: Right now we don't support closing from the item selection screen.
 		const int iShowingPanel = m_pLoadoutPanel->GetShowingPanel();
@@ -330,22 +316,6 @@ void CCharacterInfoPanel::OpenLoadoutToClass( int iClassIndex, bool bOpenClassLo
 	Assert(iClassIndex >= TF_CLASS_UNDEFINED && iClassIndex < TF_CLASS_COUNT); 
 	m_pLoadoutPanel->SetClassIndex( iClassIndex, bOpenClassLoadout );
 	m_pLoadoutPanel->SetTeamIndex( m_iDefaultTeam );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::OpenLoadoutToBackpack( void ) 
-{ 
-	m_pLoadoutPanel->OpenToBackpack();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::OpenLoadoutToCrafting( void ) 
-{ 
-	m_pLoadoutPanel->OpenToCrafting();
 }
 
 //-----------------------------------------------------------------------------
@@ -452,15 +422,7 @@ IEconRootUI	*CCharacterInfoPanel::OpenEconUI( int iDirectToPage, bool bCheckForI
 	engine->ClientCmd_Unrestricted( "gameui_activate" );
 	ShowPanel( true );
 
-	if ( iDirectToPage == ECONUI_BACKPACK )
-	{
-		OpenLoadoutToBackpack();
-	}
-	else if ( iDirectToPage == ECONUI_CRAFTING )
-	{
-		OpenLoadoutToCrafting();
-	}
-	else if ( iDirectToPage == ECONUI_ARMORY )
+	if ( iDirectToPage == ECONUI_ARMORY )
 	{
 		OpenLoadoutToArmory();
 	}
@@ -497,12 +459,6 @@ bool CCharacterInfoPanel::IsUIPanelVisible( EconBaseUIPanels_t iPanel )
 
 	switch ( iPanel )
 	{
-	case ECONUI_BACKPACK:
-		return (GetBackpackPanel() && GetBackpackPanel()->IsVisible());
-
-	case ECONUI_CRAFTING:
-		return (GetCraftingPanel() && GetCraftingPanel()->IsVisible());
-
 	case ECONUI_ARMORY:
 		return (GetArmoryPanel() && GetArmoryPanel()->IsVisible());
 
@@ -566,24 +522,6 @@ void Open_CharInfoDirect( const CCommand &args )
 	EconUI()->OpenEconUI( iClass );	
 }
 ConCommand open_charinfo_direct( "open_charinfo_direct", Open_CharInfoDirect, "Open the character info panel directly to the class you're currently playing.", FCVAR_NONE );
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void Open_CharInfoBackpack( const CCommand &args )
-{
-	EconUI()->OpenEconUI( ECONUI_BACKPACK );	
-}
-ConCommand open_charinfo_backpack( "open_charinfo_backpack", Open_CharInfoBackpack, "Open the character info panel directly to backpack.", FCVAR_NONE );
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void Open_CharInfoCrafting( const CCommand &args )
-{
-	EconUI()->OpenEconUI( ECONUI_CRAFTING );	
-}
-ConCommand open_charinfo_crafting( "open_charinfo_crafting", Open_CharInfoCrafting, "Open the character info panel directly to crafting screen.", FCVAR_NONE );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -653,20 +591,6 @@ CServerNotConnectedToSteamDialog *OpenServerNotConnectedToSteamDialog( vgui::Pan
 	return g_ServerNotConnectedPanel;
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CBackpackPanel *CCharacterInfoPanel::GetBackpackPanel( void ) 
-{ 
-	return m_pLoadoutPanel->GetBackpackPanel(); 
-}
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CCraftingPanel *CCharacterInfoPanel::GetCraftingPanel( void ) 
-{ 
-	return m_pLoadoutPanel->GetCraftingPanel(); 
-}
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

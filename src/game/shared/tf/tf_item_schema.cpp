@@ -9,7 +9,6 @@
 #include "game_item_schema.h"
 #include "schemainitutils.h"
 #include "tf_shareddefs.h"
-#include "tf_item_tools.h"
 #include "in_buttons.h"
 #include "econ_holidays.h"
 #include "econ_paintkit.h"
@@ -2604,34 +2603,3 @@ bool CTFItemSchema::BCanStrangeFilterApplyToStrangeSlotInItem( uint32 /*strange_
 
 	return true;
 }
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-IEconTool *CTFItemSchema::CreateEconToolImpl( const char *pszToolType, const char *pszUseString, const char *pszUsageRestriction, item_capabilities_t unCapabilities, KeyValues *pUsageKV )
-{
-	if ( pszToolType )
-	{
-		if ( !V_stricmp( pszToolType, "tf_spellbook_page" ) )
-		{
-			// Error checking -- make sure we aren't setting properties in the schema that we don't support.
-			if ( pszUsageRestriction )					return NULL;
-				
-			return new CEconTool_TFSpellbookPage( pszToolType, unCapabilities );
-		}
-
-		if ( !V_stricmp( pszToolType, "tf_event_enable" ) )
-		{
-			// Error checking -- make sure we aren't setting properties in the schema that we don't support.
-			if ( pszUsageRestriction )					return NULL;
-			if ( unCapabilities != ITEM_CAP_NONE )		return NULL;
-			if ( pUsageKV )								return NULL;
-
-			return new CEconTool_TFEventEnableHalloween( pszToolType, pszUseString );
-		}
-	}
-
-	return CEconItemSchema::CreateEconToolImpl( pszToolType, pszUseString, pszUsageRestriction, unCapabilities, pUsageKV );
-}
-
-

@@ -23,7 +23,6 @@
 #include "fmtstr.h"
 #include "tf_item_inventory.h"
 #include "item_confirm_delete_dialog.h"
-#include "backpack_panel.h"
 #include "econ_ui.h"
 #include "c_tf_player.h"
 #include "character_info_panel.h"
@@ -88,12 +87,6 @@ void CTFItemPickupPanel::OnCommand( const char *command )
 							iClass = -i;
 							break;
 						}
-					}
-
-					if ( iClass == TF_CLASS_UNDEFINED )
-					{
-						// Item's not usable by any class. Go to backpack.
-						iClass = ECONUI_BACKPACK;
 					}
 				}
 			}

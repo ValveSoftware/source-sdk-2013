@@ -20,8 +20,6 @@
 
 class CCharInfoLoadoutSubPanel;
 class CArmoryPanel;
-class CBackpackPanel;
-class CCraftingPanel;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -70,8 +68,6 @@ public:
 	virtual void OnThink();
 
 	void		 OpenLoadoutToClass( int iClassIndex, bool bOpenClassLoadout );
-	void		 OpenLoadoutToBackpack( void );
-	void		 OpenLoadoutToCrafting( void );
 	void		 OpenLoadoutToArmory( void );
 	void		 OpenToPaintkitPreview( CEconItemView* pItem, bool bFixedItem, bool bFixedPaintkit );
 	void		 SetCheckForRoomOnExit( bool bCheck ) { m_bCheckForRoomOnExit = bCheck; }
@@ -88,11 +84,6 @@ public:
 	virtual void		CloseEconUI( void );
 	virtual bool		IsUIPanelVisible( EconBaseUIPanels_t iPanel );
 	virtual void		SetPreventClosure( bool bPrevent ) OVERRIDE;
-
-	// Sub panel access.
-	// These are panels that are parented to the root EconUI.
-	virtual CBackpackPanel *GetBackpackPanel( void );
-	virtual CCraftingPanel *GetCraftingPanel( void );
 
 	// Gamestats access
 	virtual void		Gamestats_ItemTransaction( int eventID, CEconItemView *item, const char *pszReason = NULL, int iQuality = 0 );

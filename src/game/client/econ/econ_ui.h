@@ -14,8 +14,6 @@
 enum EconBaseUIPanels_t
 {
 	ECONUI_BASEUI = 0,
-	ECONUI_BACKPACK,
-	ECONUI_CRAFTING,
 	ECONUI_ARMORY,
 	ECONUI_TRADING,
 	ECONUI_LOADOUT,
@@ -24,12 +22,8 @@ enum EconBaseUIPanels_t
 	ECONUI_LAST_PANEL = ECONUI_LOADOUT
 };
 
-class CBackpackPanel;
-class CCraftingPanel;
 class CItemPickupPanel;
 class CItemDiscardPanel;
-class CStorePanel;
-struct cart_item_t;
 namespace vgui
 {
 	class Panel;
@@ -53,11 +47,6 @@ public:
 	// Some part of the EconUI might be in a state where they want to prevent the user
 	// from being able to close the EconUI (in the middle of a trade, for instance)
 	virtual void		SetPreventClosure( bool bPrevent ) = 0;
-
-	// Sub panel access.
-	// These are panels that are parented to the root EconUI.
-	virtual CBackpackPanel *GetBackpackPanel( void ) = 0;
-	virtual CCraftingPanel *GetCraftingPanel( void ) = 0;
 
 	// Gamestats access (We should replace these with an Econ Gamestats)
 	virtual void		Gamestats_ItemTransaction( int eventID, CEconItemView *item, const char *pszReason = NULL, int iQuality = 0 ) = 0;

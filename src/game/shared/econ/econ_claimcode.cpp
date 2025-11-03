@@ -7,7 +7,6 @@
 
 #include "cbase.h"
 
-#include "econ_item_tools.h"
 #include "econ_claimcode.h"
 
 using namespace GCSDK;

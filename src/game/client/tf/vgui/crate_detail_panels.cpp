@@ -13,7 +13,6 @@
 #include "econ_ui.h"
 #include <vgui/ISurface.h>
 #include "econ_item_inventory.h"
-#include "econ/tool_items/tool_items.h"
 
 #define SHUFFLE_TIME 5.f
 
@@ -256,18 +255,6 @@ void CInputStringForItemBackpackOverlayDialog::OnCommand( const char *command )
 			m_pTextEntry->SetVisible( false );
 
 			vgui::surface()->PlaySound( "ui/itemcrate_shuffle.wav" );
-		}
-	}
-	else if ( !Q_strnicmp( command, "usekey", 6 ) )
-	{
-		if ( m_UseableKey.IsValid() )
-		{
-			// Use the key
-			ApplyTool( GetParent(), &m_UseableKey, &m_Item );
-			// close ourselves
-			TFModalStack()->PopModal( this );
-			SetVisible( false );
-			MarkForDeletion();
 		}
 	}
 }
