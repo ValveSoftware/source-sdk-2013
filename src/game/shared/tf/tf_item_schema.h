@@ -704,11 +704,6 @@ public:
 	virtual bool BPostSchemaInit( CUtlVector<CUtlString> *pVecErrors ) OVERRIDE;
 
 	virtual RTime32 GetCustomExpirationDate( const char *pszExpirationDate ) const OVERRIDE;
-protected:
-#ifdef TF_CLIENT_DLL
-	virtual int CalculateNumberOfConcreteItems( const CEconItemDefinition *pItemDef );
-#endif // TF_CLIENT_DLL
-
 private:
 	void InitializeStringTable( const char **ppStringTable, unsigned int unStringCount, CUtlVector<const char *> *out_pvecStringTable );
 

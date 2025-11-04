@@ -19,7 +19,6 @@
 #include "vgui_controls/PHandle.h"
 
 class CCharInfoLoadoutSubPanel;
-class CArmoryPanel;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -68,16 +67,11 @@ public:
 	virtual void OnThink();
 
 	void		 OpenLoadoutToClass( int iClassIndex, bool bOpenClassLoadout );
-	void		 OpenLoadoutToArmory( void );
 	void		 OpenToPaintkitPreview( CEconItemView* pItem, bool bFixedItem, bool bFixedPaintkit );
 	void		 SetCheckForRoomOnExit( bool bCheck ) { m_bCheckForRoomOnExit = bCheck; }
 
 	void		 FireGameEvent( IGameEvent *event );
 	
-	CArmoryPanel   *GetArmoryPanel( void );
-
-	MESSAGE_FUNC_PARAMS( OnOpenArmoryDirect, "OpenArmoryDirect", data );
-
 	//---------------------------------------
 	// IEconRootUI
 	virtual IEconRootUI	*OpenEconUI( int iDirectToPage = 0, bool bCheckForInventorySpaceOnExit = false );

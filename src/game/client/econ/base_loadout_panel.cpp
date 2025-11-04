@@ -276,10 +276,10 @@ void CBaseLoadoutPanel::CreateItemPanels( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CBaseLoadoutPanel::ShowPanel( int iClass, bool bBackpack, bool bReturningFromArmory )
+void CBaseLoadoutPanel::ShowPanel( int iClass, bool bBackpack )
 {
 	bool bShow = (iClass != 0 || bBackpack);
-	OnShowPanel( bShow, bReturningFromArmory );
+	OnShowPanel( bShow );
 
 	SetVisible( bShow );
 
@@ -308,10 +308,7 @@ void CBaseLoadoutPanel::ShowPanel( int iClass, bool bBackpack, bool bReturningFr
 		}
 	}
 
-	if ( !bReturningFromArmory )
-	{
-		PostShowPanel( bShow );
-	}
+	PostShowPanel( bShow );
 }
 
 //-----------------------------------------------------------------------------

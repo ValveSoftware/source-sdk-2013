@@ -669,8 +669,6 @@ public:
 	void				PostInventoryApplication( void );
 	bool				ItemIsAllowed( CEconItemView *pItem );
 	void				RemovePlayerAttributes( bool bSetBonuses );
-	void				ApplySetBonuses( void );
-	void				GetActiveSets( CUtlVector<const CEconItemSetDefinition *> *pItemSets );
 	void				ValidateWeapons(  TFPlayerClassData_t *pData, bool bResetWeapons );
 	void				ValidateWearables( TFPlayerClassData_t *pData );
 	CEconItemView* GetLoadoutItem( int iClass, int iSlot, bool bReportWhitelistFails = false );

@@ -13053,20 +13053,6 @@ int CTFPlayer::GetNumActivePipebombs( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Fills out the vector with the sets that are currently active on this player
-//-----------------------------------------------------------------------------
-void CTFPlayer::GetActiveSets( CUtlVector<const CEconItemSetDefinition *> *pItemSets )
-{
-	pItemSets->Purge();
-
-	CSteamID steamIDForPlayer;
-	GetSteamID( &steamIDForPlayer );
-
-	TFInventoryManager()->GetActiveSets( pItemSets, steamIDForPlayer, GetPlayerClass()->GetClassIndex() );
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 bool CTFPlayer::CanMoveDuringTaunt()

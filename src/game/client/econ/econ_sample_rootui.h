@@ -58,7 +58,6 @@ public:
 protected:
 	void				OpenSubPanel( EconBaseUIPanels_t nPanel );
 	void				UpdateSubPanelVisibility( void );
-	void				OpenTradingStartDialog( void );
 
 private:
 	bool				m_bPreventClosure;

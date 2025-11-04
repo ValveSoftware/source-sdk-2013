@@ -372,8 +372,6 @@ public:
 	void			HolsterOffHandWeapon( void );
 	CTFWeaponBase*	GetOffHandWeapon( void ) { return m_hOffHandWeapon; }
 
-	void			GetActiveSets( CUtlVector<const CEconItemSetDefinition *> *pItemSets );
-
 	virtual int GetSkin();
 
 	float GetLastDamageTimeMvMOnly( void ) const { return m_flMvMLastDamageTime; }

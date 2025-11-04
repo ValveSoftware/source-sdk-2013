@@ -2341,9 +2341,7 @@ void CItemModelPanel::ShowContainedItemPanel( const CEconItemView *pItem )
 		if ( !pInteriorItem )
 			return;
 
-		const IEconTool *pEconTool = pItem->GetItemDefinition()
-								   ? pItem->GetItemDefinition()->GetEconTool()
-								   : NULL;
+		const IEconTool *pEconTool = NULL;
 		if ( !pEconTool )
 			return;
 
@@ -2717,18 +2715,7 @@ void CItemModelPanel::DirtyDescription()
 //-----------------------------------------------------------------------------
 bool CItemModelPanel::UpdateMatchesLabel()
 {
-	const IEconTool* pTool = m_ItemData.GetStaticData()->GetEconTool();
-
-	if( !pTool || Q_stricmp( m_ItemData.GetStaticData()->GetEconTool()->GetTypeName() , "dynamic_recipe") )
-	{
-		return false;
-	}
-
-	m_nRecipeMatchingIndex = 0;
-	m_mapMatchingAttributes.Purge();
-	SetNeedsToLoad();
-	
-	return true;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -2738,24 +2725,7 @@ bool CItemModelPanel::UpdateQuantityLabel()
 {
 	if ( m_pItemQuantityLabel )
 	{
-		bool bVisible = m_bShowQuantity && m_ItemData.GetStaticData() != NULL;
-		if ( bVisible )
-		{
-			const IEconTool *pEconTool = m_ItemData.GetStaticData()->GetEconTool();
-			if ( pEconTool && pEconTool->ShouldDisplayQuantity( &m_ItemData ) )
-			{
-				wchar_t wszQuantity[16]=L"";
-				_snwprintf( wszQuantity, ARRAYSIZE( wszQuantity ), L"%i", m_ItemData.GetQuantity() );
-				m_pItemQuantityLabel->SetVisible( true );
-				m_pItemQuantityLabel->SetText( wszQuantity );
-			}
-			else
-			{
-				bVisible = false;
-			}
-		}
-		m_pItemQuantityLabel->SetVisible( bVisible );
-
+		m_pItemQuantityLabel->SetVisible( false );
 		return true;
 	}
 
@@ -3023,14 +2993,11 @@ void CItemModelPanel::UpdatePanels( void )
 			if ( m_pPaintIcon->m_hUGCId != 0 )
 				m_pPaintIcon->SetVisible( true );
 
-			// Don't show paint icons on any tools, their icon contains the color
-			const bool bIsEconTool = m_ItemData.GetItemDefinition()->IsTool();
-
 			// Has the item been painted?
 			int iRGB0 = m_ItemData.GetModifiedRGBValue( false ),
 				iRGB1 = m_ItemData.GetModifiedRGBValue( true );
 
-			if ( !bIsEconTool && (iRGB0 != 0 || iRGB1 != 0))
+			if ( iRGB0 != 0 || iRGB1 != 0 )
 			{
 				m_pPaintIcon->SetVisible( true );
 				m_pPaintIcon->m_colPaintColors.AddToTail( Color( clamp( (iRGB0 & 0xFF0000) >> 16, 0, 255 ), clamp( (iRGB0 & 0xFF00) >> 8, 0, 255 ), clamp( (iRGB0 & 0xFF), 0, 255 ), 255 ) );

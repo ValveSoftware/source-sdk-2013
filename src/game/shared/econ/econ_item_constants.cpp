@@ -718,12 +718,6 @@ const char* GetCollectionCraftingInvalidReason( const IEconItemInterface *pTestI
 		return "#TF_CollectionCrafting_NoUnusual";
 	}
 
-	// Not allowed to be crafted?
-	if ( !pTestItem->IsUsableInCrafting() )
-	{
-		return "#TF_CollectionCrafting_NotCraftable";
-	}
-
 	// If another item was passed in, we have a few consistency checks to make
 	if ( pSourceItem )
 	{
@@ -801,11 +795,6 @@ const char* GetHalloweenOfferingInvalidReason( const IEconItemInterface *pTestIt
 		return "#TF_CollectionCrafting_NoItem";
 	}
 
-	if ( pTestItem->IsTemporaryItem() )
-	{
-		return "#TF_CollectionCrafting_NoItem";
-	}
-
 	// If you are a taunt or a cosmetic you are allowed
 	if ( pTestItem->GetItemDefinition()->GetLoadoutSlot( 0 ) == LOADOUT_POSITION_MISC || pTestItem->GetItemDefinition()->GetLoadoutSlot( 0 ) == LOADOUT_POSITION_TAUNT )
 	{
@@ -821,33 +810,6 @@ const char* GetHalloweenOfferingInvalidReason( const IEconItemInterface *pTestIt
 	// Do not allow Crates
 	if ( ( pItemDef->GetCapabilities() & ITEM_CAP_DECODABLE ) != 0 )
 	{
-		return "#TF_HalloweenOffering_Invalid";
-	}
-
-	// Cause of weird legacy items lets be explicit about what we allow
-	if ( pItemDef->IsTool() )
-	{
-		// ignore everything that is not a paint can tool
-		const IEconTool *pEconTool = pItemDef->GetEconTool();
-		if ( !pEconTool )
-			return "#TF_HalloweenOffering_Invalid";
-
-		const char *pToolType = pEconTool->GetTypeName();
-
-		if ( !V_strcmp( pToolType, "paint_can" ) ) 
-			return NULL;
-		else if ( !V_strcmp( pToolType, "strange_part" ) ) 
-			return NULL;
-		else if ( !V_strcmp( pToolType, "name" ) ) 
-			return NULL;
-		else if ( !V_strcmp( pToolType, "desc" ) ) 
-			return NULL;
-		else if ( !V_strcmp( pToolType, "killstreakifier" ) )
-			return NULL;
-		else if ( !V_strcmp( pToolType, "strangifier" ) )
-			return NULL;
-
-		// Not a tool we are allowing
 		return "#TF_HalloweenOffering_Invalid";
 	}
 
@@ -898,12 +860,6 @@ const char* GetCraftCommonStatClockInvalidReason( const class IEconItemInterface
 		return "#TF_CollectionCrafting_NoItem";
 	}
 
-	// Not allowed to be crafted?
-	if ( !pTestItem->IsUsableInCrafting() )
-	{
-		return "#TF_CollectionCrafting_NotCraftable";
-	}
-
 	// No self mades or community items
 	uint32 eQuality = pTestItem->GetQuality();
 	if ( eQuality == AE_SELFMADE || eQuality == AE_COMMUNITY )
@@ -920,9 +876,6 @@ const char* GetCraftCommonStatClockInvalidReason( const class IEconItemInterface
 
 	const CEconItemDefinition *pItemDef = pTestItem->GetItemDefinition();
 	if ( pItemDef == NULL )
-		return "#TF_CollectionCrafting_NoItem";
-
-	if ( pTestItem->IsTemporaryItem() )
 		return "#TF_CollectionCrafting_NoItem";
 
 	// Strange items.  Dont just check for strange quality, actually check for a strange attribute.

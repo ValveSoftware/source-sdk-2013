@@ -586,74 +586,6 @@ const GameItemDefinition_t *CEconItem::GetItemDefinition() const
 	return pTypedRet;
 }
 
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-bool CEconItem::IsTradable() const
-{
-	return !m_dirtyBits.m_bInUse 
-		&& IEconItemInterface::IsTradable();
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-void CEconItem::AdoptMoreRestrictedTradabilityFromItem( const CEconItem *pOther, uint32 nTradabilityFlagsToAccept /*= 0xFFFFFFFF*/ )
-{
-	if ( !pOther )
-		return;
-
-	int nOtherUntradability = pOther->GetUntradabilityFlags() & nTradabilityFlagsToAccept;
-	RTime32 otherUntradableTime = pOther->GetTradableAfterDateTime();
-	// Become untradable if the other item is untradable
-	AdoptMoreRestrictedTradability( nOtherUntradability, otherUntradableTime );
-}
-
-// --------------------------------------------------------------------------
-// Purpose:	Given untradability flags and a untradable time, set this item's
-//			untradability.  This does not clear existing untradabilty.
-// --------------------------------------------------------------------------
-void CEconItem::AdoptMoreRestrictedTradability( uint32 nTradabilityFlags, RTime32 nUntradableTime )
-{
-	static CSchemaAttributeDefHandle pAttrib_CannotTrade( "cannot trade" );
-	static CSchemaAttributeDefHandle pAttrib_TradableAfter( "tradable after date" );
-
-	if ( !pAttrib_CannotTrade || !pAttrib_TradableAfter )
-		return;
-
-	// We're already permanently untradable.  We can't get more untradable, so we're done.
-	if ( GetUntradabilityFlags() & k_Untradability_Permanent )
-		return;
-
-	if( nTradabilityFlags & k_Untradability_Permanent )
-	{
-		SetDynamicAttributeValue( pAttrib_CannotTrade, 0u );
-	}
-	else if ( nTradabilityFlags & k_Untradability_Temporary && nUntradableTime > GetTradableAfterDateTime() )
-	{
-		// Take the "tradable after date" if it's larger than ours
-		SetDynamicAttributeValue( pAttrib_TradableAfter, nUntradableTime );
-	}
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-bool CEconItem::IsMarketable() const
-{
-	return !m_dirtyBits.m_bInUse
-		&& IEconItemInterface::IsMarketable();
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-bool CEconItem::IsCommodity() const
-{
-	return !m_dirtyBits.m_bInUse
-		&& IEconItemInterface::IsCommodity();
-}
-
 void CEconItem::IterateAttributes( IEconItemAttributeIterator *pIterator ) const
 {
 	Assert( pIterator );
@@ -801,16 +733,6 @@ const char *CEconItem::GetIconURLLarge() const
 
 	return m_pszLargeIcon;
 }
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-bool CEconItem::IsUsableInCrafting() const
-{
-	return !m_dirtyBits.m_bInUse
-		&& IEconItemInterface::IsUsableInCrafting();
-}
-
 
 // --------------------------------------------------------------------------
 // Purpose:

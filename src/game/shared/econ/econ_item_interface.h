@@ -446,16 +446,6 @@ public:
 		return ::FindAttribute( this, pAttrDef, out_pValue );
 	}
 
-	// IEconItemInterface common implementation.
-	virtual bool IsTradable() const;
-	virtual int  GetUntradabilityFlags() const;
-	virtual bool IsCommodity() const;
-	virtual bool IsUsableInCrafting() const;
-	virtual bool IsMarketable() const;				// can this item be listed on the Marketplace?
-
-	bool IsTemporaryItem() const;					// returns whether this item is a temporary instance of an item that is not by nature temporary (ie., a preview item, an item with an attribute expiration timer)
-	RTime32 GetExpirationDate() const;				// will return RTime32( 0 ) if this item will not expire, otherwise the time that it will auto-delete itself; this looks at both static and dynamic ways of expiring timers
-
 	// IEconItemInterface interface.
 	virtual const GameItemDefinition_t *GetItemDefinition() const = 0;
 
@@ -485,15 +475,9 @@ public:
 	const char	*GetDefinitionString( const char *pszKeyName, const char *pszDefaultValue = "" ) const;
 	KeyValues *GetDefinitionKey( const char *pszKeyName ) const;
 
-	RTime32 GetTradableAfterDateTime() const;
-
 	virtual item_definition_index_t GetItemDefIndex() const { return GetItemDefinition() ? GetItemDefinition()->GetDefinitionIndex() : INVALID_ITEM_DEF_INDEX; }
 
 	virtual IMaterial* GetMaterialOverride( int iTeam ) = 0;
-
-protected:
-	bool IsPermanentlyUntradable() const;
-	bool IsTemporarilyUntradable() const;
 };
 
 bool GetPaintKitWear( const IEconItemInterface *pItem, float &flWear );

@@ -234,7 +234,7 @@ int CItemSlotPanel::GetNumItemPanels( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CItemSlotPanel::OnShowPanel( bool bVisible, bool bReturningFromArmory )
+void CItemSlotPanel::OnShowPanel( bool bVisible )
 {
 	if ( bVisible )
 	{

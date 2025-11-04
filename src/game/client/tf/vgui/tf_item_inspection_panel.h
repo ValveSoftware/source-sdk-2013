@@ -67,7 +67,6 @@ private:
 	item_definition_index_t m_nValidPaintkitsItemDefindex;
 	TextEntry* m_pSeedTextEntry;
 	Button* m_pRandomSeedButton;
-	Button* m_pMarketButton;
 
 	MESSAGE_FUNC_PARAMS( OnNavButtonSelected, "NavButtonSelected", pData );
 	MESSAGE_FUNC_PTR( OnRadioButtonChecked, "RadioButtonChecked", panel );

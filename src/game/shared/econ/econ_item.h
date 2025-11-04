@@ -283,10 +283,6 @@ public:
 
 	CEconItem &operator=( const CEconItem& rhs );
 
-	//called to determine if this item is tradable or not. This will return the time after which it can be traded. If 0 it can be traded. This is
-	//needed since the base implementation of this is protected
-	RTime32 GetTradableAfterDateTime() const		 { return IEconItemInterface::GetTradableAfterDateTime(); }
-
 	//called to set a tradable after date/time value onto this item (this avoids a lot of potential inefficiencies around this process)
 	void SetTradableAfterDateTime( RTime32 rtTime );
 
@@ -360,15 +356,6 @@ public:
 
 	virtual bool GetInUse() const;
 	void SetInUse( bool bInUse );
-
-	bool IsTradable() const;
-	bool IsMarketable() const;
-	bool IsCommodity() const;
-
-	void AdoptMoreRestrictedTradabilityFromItem( const CEconItem *pOther, uint32 nTradabilityFlagsToAccept = 0xFFFFFFFF );
-	void AdoptMoreRestrictedTradability( uint32 nTradabilityFlags, RTime32 nUntradableTime );
-	bool IsUsableInCrafting() const;
-
 
 	// --------------------------------------------------------------------------------------------
 	// Typed attributes. These are methods for accessing and setting values of attributes with

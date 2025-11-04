@@ -136,7 +136,6 @@ CTFItemInspectionPanel::CTFItemInspectionPanel( Panel* pPanel, const char *pszNa
 	m_pComboBoxValidItems = new ComboBox( m_pPaintkitPreviewContainer, "ComboBoxValidItems", 0, false );
 	m_pSeedTextEntry = new TextEntry( m_pPaintkitPreviewContainer, "SeedTextEntry" );
 	m_pRandomSeedButton = new Button( m_pPaintkitPreviewContainer, "NewSeedButton", (const char*)nullptr );
-	m_pMarketButton = new Button( m_pPaintkitPreviewContainer, "MarketButton", (const char*)nullptr );
 }
 
 //-----------------------------------------------------------------------------
@@ -381,7 +380,6 @@ void CTFItemInspectionPanel::SetItem( CEconItemView *pItem, bool bReset )
 	m_pWearSlider->SetEnabled( bPaintkit );
 	m_pSeedTextEntry->SetEnabled( bPaintkit );
 	m_pRandomSeedButton->SetEnabled( bPaintkit );
-	m_pMarketButton->SetEnabled( bPaintkit || ( pItem && pItem->IsMarketable() ) );
 
 	RecompositeItem();
 	m_pTeamColorNavPanel->UpdateButtonSelectionStates( 0 );

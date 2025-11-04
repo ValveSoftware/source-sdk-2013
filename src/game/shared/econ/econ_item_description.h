@@ -216,19 +216,15 @@ private:
 	
 	virtual void Generate_ItemName( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_ItemLevelDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_CraftTag( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_StyleDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_HolidayRestriction( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_QualityDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_ItemRarityDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_WearAmountDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_ItemDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_Bundle( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_GiftedBy( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 #ifdef PROJECT_TF
-	virtual void Generate_DuelingMedal( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_MapContributor( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_MapStampBundleTooltip( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_FriendlyHat( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_SaxxyAwardDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_MvmChallenges( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
@@ -237,15 +233,7 @@ private:
 #endif // PROJECT_TF
 	virtual void Generate_Painted( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_Uses( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_LootListDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_EventDetail( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_ItemSetDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_CollectionDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_BonusContentDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_ExpirationDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_MarketInformation( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_FlagsAttributes( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_DropPeriodDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	
 	virtual void Generate_VisibleAttributes( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_DirectX8Warning( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );

@@ -264,10 +264,8 @@ private:
 	void	AddDataText( const char *pszText, bool bAddPostLines = true, const wchar_t *wpszArg = NULL, const wchar_t *wpszArg2 = NULL, const int *pItemDefIndex = NULL );
 	void	DataText_AppendStoreFlags( const CEconItemDefinition *pDef );
 	void	DataText_AppendItemData( const CEconItemDefinition *pDef );
-	void	DataText_AppendBundleData( const CEconItemDefinition *pDef );
 	void	DataText_AppendUsageData( const CEconItemDefinition *pBaseDef );
 	void	DataText_AppendAttributeData( const CEconItemDefinition *pDef );
-	void	DataText_AppendSetData( const CEconItemDefinition *pDef );
 
 private:
 	Color	m_colTextHighlight;

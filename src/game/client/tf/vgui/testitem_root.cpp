@@ -427,7 +427,7 @@ int CTestItemRoot::FindReplaceableItemsForSelectedClass( CUtlVector<item_definit
 		static const bool bIsStaging = ( engine->GetAppID() == 810 );
 		if ( !bIsStaging )
 		{
-			if ( pDef->GetQuality() == AE_NORMAL || !pDef->ShouldShowInArmory() )
+			if ( pDef->GetQuality() == AE_NORMAL )
 				continue;
 		}
 

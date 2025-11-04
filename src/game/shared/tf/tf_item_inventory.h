@@ -162,9 +162,6 @@ public:
 	
 	CEconItemView		*GetItemInLoadoutForAccount( int nSlot, CSteamID *pID = NULL );
 
-	// Fills out the vector with the sets that are currently active on the specified player & class
-	void				GetActiveSets( CUtlVector<const CEconItemSetDefinition *> *pItemSets, CSteamID steamIDForPlayer, int iClass );
-
 	// We're generating a base item. We need to add the game-specific keys to the criteria so that it'll find the right base item.
 	virtual void		AddBaseItemCriteria( baseitemcriteria_t *pCriteria, CItemSelectionCriteria *pSelectionCriteria );
 	

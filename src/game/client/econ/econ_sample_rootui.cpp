@@ -151,20 +151,6 @@ void CEconSampleRootUI::OnCommand( const char *command )
 
 		OpenSubPanel( ECONUI_LOADOUT );
 	}
-	else if ( !Q_strnicmp( command, "armory", 6 ) )
-	{
-		OpenSubPanel( ECONUI_ARMORY );
-	}
-	else if ( !Q_strnicmp( command, "trading", 7 ) )
-	{
-// 		if ( IsFreeTrialAccount() )
-// 		{
-// 			ShowMessageBox( "#TF_Trial_CannotTrade_Title",  "#TF_Trial_CannotTrade_Text", "#GameUI_OK" );
-//			return;
-// 		}
-
-		OpenTradingStartDialog();
-	}
 	else
 	{
 		engine->ClientCmd( const_cast<char *>( command ) );
@@ -199,10 +185,6 @@ IEconRootUI	*CEconSampleRootUI::OpenEconUI( int iDirectToPage, bool bCheckForInv
 	engine->ClientCmd_Unrestricted( "gameui_activate" );
 	ShowPanel( true );
 
-	if ( iDirectToPage == ECONUI_ARMORY )
-	{
-	}
-
 	SetCheckForRoomOnExit( bCheckForInventorySpaceOnExit );
 
 	return this;
@@ -232,9 +214,6 @@ bool CEconSampleRootUI::IsUIPanelVisible( EconBaseUIPanels_t iPanel )
 	case ECONUI_BASEUI:
 		return true;
 
-	case ECONUI_ARMORY:
-		break;
-
 	case ECONUI_LOADOUT:
 		break;
 
@@ -258,18 +237,8 @@ void CEconSampleRootUI::OpenSubPanel( EconBaseUIPanels_t nPanel )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CEconSampleRootUI::OpenTradingStartDialog( void )
-{
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CEconSampleRootUI::UpdateSubPanelVisibility( void )
 {
-	//m_pClassLoadoutPanel->SetVisible( false );
-	//m_pArmoryPanel->SetVisible( false );
-	//m_pCraftingPanel->ShowPanel( m_iCurrentClassIndex, true, (m_iPrevShowingPanel == CHAP_ARMORY) );
 }
 
 #ifdef _DEBUG

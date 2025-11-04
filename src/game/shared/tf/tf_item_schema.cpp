@@ -113,17 +113,14 @@ bool CTFCraftingRecipeDefinition::ItemListMatchesInputs( CUtlVector<CEconItem*> 
 
 	int hack_iForcedClass = -1,
 		hack_iForcedSlot = LOADOUT_POSITION_INVALID;
-	const CEconItemSetDefinition *hack_pForcedItemSetDef = NULL;
 
 	int *iForcedClass = NULL,
 		*iForcedSlot = NULL;
-	const CEconItemSetDefinition **ppForcedItemSetDef = NULL;
 
 	if ( out_pkvCraftParams )
 	{
 		iForcedClass = &hack_iForcedClass;
 		iForcedSlot = &hack_iForcedSlot;
-		ppForcedItemSetDef = &hack_pForcedItemSetDef;
 	}
 
 	// If we require all items to be used by the same class, find the matching classes for all items
@@ -172,13 +169,7 @@ bool CTFCraftingRecipeDefinition::ItemListMatchesInputs( CUtlVector<CEconItem*> 
 
 				if ( iForcedClass && m_iCacheClassUsageForOutputFromItem == i )
 				{
-					// If the item def has a class_token_id key, we use that. Otherwise, we find a class that uses it.
-					const char *pszToken = pItemDef->GetClassToken();
-					if ( pszToken && pszToken[0] )
-					{
-						*iForcedClass = StringFieldToInt( pszToken, GetItemSchema()->GetClassUsabilityStrings() );
-					}
-					else if ( *iForcedClass == -1 )
+					if ( *iForcedClass == -1 )
 					{
 						const CBitVec<LOADOUT_COUNT> *pCU;
 						if ( m_bRequiresAllSameClass )
@@ -210,27 +201,9 @@ bool CTFCraftingRecipeDefinition::ItemListMatchesInputs( CUtlVector<CEconItem*> 
 					}
 				}
 
-				if ( ppForcedItemSetDef && m_iCacheSetForOutputFromItem == i )
-				{
-					// If they've passed in a set item, remember it's set index
-
-					// Abort if they somehow have an item here that doesn't have a set index
-					const CEconItemSetDefinition *pItemSetDef = pItemDef->GetItemSetDefinition();
-					if ( !pItemSetDef )
-						return false;
-
-					*ppForcedItemSetDef = pItemSetDef;
-				}
-
 				if ( iForcedSlot && m_iCacheSlotUsageForOutputFromItem == i )
 				{
-					// If the item def has a slot_token_id key, we use that. Otherwise, we find the first class that uses it.
-					const char *pszToken = pItemDef->GetSlotToken();
-					if ( pszToken && pszToken[0] )
-					{
-						*iForcedSlot = StringFieldToInt( pszToken, GetItemSchema()->GetLoadoutStrings( EQUIP_TYPE_CLASS ) );
-					}
-					else if ( *iForcedSlot == LOADOUT_POSITION_INVALID )
+					if ( *iForcedSlot == LOADOUT_POSITION_INVALID )
 					{
 						// If we have a forced class, we find the slot that class uses. Otherwise, we find the first slot used.
 						if ( iForcedClass )
@@ -283,11 +256,6 @@ bool CTFCraftingRecipeDefinition::ItemListMatchesInputs( CUtlVector<CEconItem*> 
 	{
 		out_pkvCraftParams->SetInt( "forced_class", hack_iForcedClass );
 		out_pkvCraftParams->SetInt( "forced_slot", hack_iForcedSlot );
-
-		if ( hack_pForcedItemSetDef )
-		{
-			out_pkvCraftParams->SetString( "forced_set_def_name", hack_pForcedItemSetDef->m_strName );
-		}
 	}
 
 	// We've only matched if there aren't any leftover items, or we're ignoring slop
@@ -358,13 +326,7 @@ bool CTFCraftingRecipeDefinition::CheckSubItemListAgainstBackpack( CUtlVector<CE
 			{
 				if ( m_iCacheClassUsageForOutputFromItem == i )
 				{
-					// If the item def has a class_token_id key, we use that. Otherwise, we find a class that uses it.
-					const char *pszToken = pItemDef->GetClassToken();
-					if ( pszToken && pszToken[0] )
-					{
-						iForcedClass = StringFieldToInt( pszToken, GetItemSchema()->GetClassUsabilityStrings() );
-					}
-					else if ( iForcedClass == -1 )
+					if ( iForcedClass == -1 )
 					{
 						const CBitVec<LOADOUT_COUNT> *pCU;
 						if ( m_bRequiresAllSameClass )
@@ -398,13 +360,7 @@ bool CTFCraftingRecipeDefinition::CheckSubItemListAgainstBackpack( CUtlVector<CE
 
 				if ( iForcedSlot && m_iCacheSlotUsageForOutputFromItem == i )
 				{
-					// If the item def has a slot_token_id key, we use that. Otherwise, we find the first class that uses it.
-					const char *pszToken = pItemDef->GetSlotToken();
-					if ( pszToken && pszToken[0] )
-					{
-						iForcedSlot = StringFieldToInt( pszToken, GetItemSchema()->GetLoadoutStrings( EQUIP_TYPE_CLASS ) );
-					}
-					else if ( iForcedSlot == LOADOUT_POSITION_INVALID )
+					if ( iForcedSlot == LOADOUT_POSITION_INVALID )
 					{
 						// If we have a forced class, we find the slot that class uses. Otherwise, we find the first slot used.
 						if ( iForcedClass )
@@ -2420,25 +2376,6 @@ const SchemaMMGroup_t* CTFItemSchema::GetMMGroup( EMatchmakingGroupType eCat ) c
 {
 	return GetDefinitionByDefIndex< SchemaMMGroup_t, EMatchmakingGroupType >( m_mapMMGroups, eCat );
 }
-
-#ifdef TF_CLIENT_DLL
-//-----------------------------------------------------------------------------
-// Purpose: Returns the number of actual "real" items referenced by the item definition
-// (i.e. items that would take up space in the backpack).  Overriding this here
-// to account for map stamps and any other TF-specific item types.
-//-----------------------------------------------------------------------------
-int CTFItemSchema::CalculateNumberOfConcreteItems( const CEconItemDefinition *pItemDef )
-{
-	AssertMsg( pItemDef, "NULL item definition!  This should not happen!" );
-	if ( !pItemDef )
-		return 0;
-
-	if ( pItemDef->GetItemClass() && !Q_strcmp( pItemDef->GetItemClass(), "map_token" ) )
-		return 0;
-
-	return CEconItemSchema::CalculateNumberOfConcreteItems( pItemDef );
-}
-#endif // TF_CLIENT_DLL
 
 RTime32 CTFItemSchema::GetCustomExpirationDate( const char *pszExpirationDate ) const
 {

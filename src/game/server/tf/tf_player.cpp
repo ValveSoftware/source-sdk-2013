@@ -5344,9 +5344,6 @@ void CTFPlayer::PostInventoryApplication( void )
 		m_Shared.DetermineDisguiseWeapon( false );
 	}
 
-	// Apply set bonuses.
-	ApplySetBonuses();
-
 	// Remove our disguise if we can't disguise.
 	if ( !CanDisguise() )
 	{
@@ -5618,34 +5615,6 @@ void CTFPlayer::RemovePlayerAttributes( bool bSetBonuses )
 		}
 	}
 	GetAttributeManager()->OnAttributeValuesChanged();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFPlayer::ApplySetBonuses( void )
-{
-	RemovePlayerAttributes( true );
-
-	CUtlVector<const CEconItemSetDefinition *> pActiveSets;
-	GetActiveSets( &pActiveSets );
-
-	FOR_EACH_VEC( pActiveSets, set )
-	{
-		for ( int i = 0; i < pActiveSets[set]->m_iAttributes.Count(); i++ )
-		{
-			const CEconItemAttributeDefinition *pAttrDef = GetItemSchema()->GetAttributeDefinition( pActiveSets[set]->m_iAttributes[i].m_iAttribDefIndex );	
-			if ( pAttrDef )
-			{
-				Assert( pAttrDef->GetAttributeType() );
-				Assert( pAttrDef->GetAttributeType()->BSupportsGameplayModificationAndNetworking() );		// is an assert instead of a check because we're in client code here -- this means someone set up a set with bad data
-				Assert( pAttrDef->BIsSetBonusAttribute() );
-
-				float flAttrValue = pActiveSets[set]->m_iAttributes[i].m_flValue;
-				GetAttributeList()->SetRuntimeAttributeValue( pAttrDef, flAttrValue );
-			}
-		}
-	}
 }
 
 #ifdef TF_RAID_MODE

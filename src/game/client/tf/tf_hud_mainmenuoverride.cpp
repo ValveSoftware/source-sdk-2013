@@ -1758,10 +1758,6 @@ void CHudMainMenuOverride::OnCommand( const char *command )
 	{
 		GetClientModeTFNormal()->GameUI()->SendMainMenuCommand( "engine training_showdlg" );
 	}
-	else if ( !Q_stricmp( command, "armory_open" ) )
-	{
-		GetClientModeTFNormal()->GameUI()->SendMainMenuCommand( "engine open_charinfo_armory" );
-	}
 	else if ( !Q_stricmp( command, "engine disconnect" ) && engine->IsInGame() && TFGameRules() && ( TFGameRules()->IsMannVsMachineMode() || TFGameRules()->IsCompetitiveMode() ) )
 	{
 		// If we're playing MvM, "New Game" should take us back to MvM matchmaking

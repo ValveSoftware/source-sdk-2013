@@ -262,18 +262,10 @@ void CImageButton::Paint()
 
 const char *g_pszSubButtonNames[CHSB_NUM_BUTTONS] =
 {
-	"ShowBackpackButton",	// CHSB_BACKPACK,
-	"ShowCraftingButton",	// CHSB_CRAFTING,
-	"ShowArmoryButton",		// CHSB_ARMORY,
-	"ShowTradeButton",		// CHSB_TRADING,
 	"ShowPaintkitsButton"	// CHSB_PAINTKITS
 };
 const char *g_pszSubButtonLabelNames[CHSB_NUM_BUTTONS] =
 {
-	"ShowBackpackLabel",	// CHSB_BACKPACK,
-	"ShowCraftingLabel",	// CHSB_CRAFTING,
-	"ShowArmoryLabel",		// CHSB_ARMORY,
-	"ShowTradeLabel",		// CHSB_TRADING,
 	"ShowPaintkitsLabel",	// CHSB_PAINTKITS
 };
 
@@ -327,7 +319,6 @@ CCharInfoLoadoutSubPanel::CCharInfoLoadoutSubPanel(Panel *parent) : vgui::Proper
 	m_iOverSubButton = -1;
 
 	m_pClassLoadoutPanel = new CClassLoadoutPanel( this );
-	m_pArmoryPanel = new CArmoryPanel( this, "armory_panel" );
 	m_pSelectLabel = NULL;
 	m_pLoadoutChangesLabel = NULL;
 	m_pNoSteamLabel = NULL;
@@ -429,7 +420,6 @@ void CCharInfoLoadoutSubPanel::OnSelectionEnded( void )
 void CCharInfoLoadoutSubPanel::OnCancelSelection( void )
 {
 	PostMessage( m_pClassLoadoutPanel, new KeyValues("CancelSelection") );
-	PostMessage( m_pArmoryPanel, new KeyValues("CancelSelection") );
 	RequestFocus();
 }
 
@@ -440,30 +430,12 @@ void CCharInfoLoadoutSubPanel::OnCharInfoClosing( void )
 {
 	switch ( m_iShowingPanel )
 	{
-	case CHAP_ARMORY:
-		PostMessage( m_pArmoryPanel, new KeyValues("Closing") );
-		break;
 	case CHAP_LOADOUT:
 		PostMessage( m_pClassLoadoutPanel, new KeyValues("Closing") );
 		break;
 	default: // Class loadout.
 		break;
 	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharInfoLoadoutSubPanel::OnArmoryClosed( void )
-{
-	// Return to whatever we were on before opening the armory
-	PostMessage( m_pArmoryPanel, new KeyValues("Closing") );
-	m_iShowingPanel = m_iPrevShowingPanel;
-	m_iPrevShowingPanel = CHAP_ARMORY;
-	m_flStartExplanationsAt = 0; 
-	m_iCurrentClassIndex = TF_CLASS_UNDEFINED; 
-	UpdateModelPanels();
-	RequestFocus();
 }
 
 //-----------------------------------------------------------------------------
@@ -489,10 +461,6 @@ void CCharInfoLoadoutSubPanel::OnCommand( const char *command )
 				return;
 			}
 		}
-	}
-	else if ( !Q_strnicmp( command, "armory", 6 ) )
-	{
-		OpenToArmory();
 	}
 	else if ( FStrEq( command, "paintkit_preview" ) )
 	{
@@ -629,21 +597,15 @@ void CCharInfoLoadoutSubPanel::UpdateModelPanels( bool bOpenClassLoadout )
 	int iLabelClassToSet = -1;
 	int iClassIndexToSet = 0;
 	
-	if ( m_iShowingPanel == CHAP_ARMORY )
-	{
-		m_pClassLoadoutPanel->SetVisible( false );
-		m_pArmoryPanel->ShowPanel( m_iArmoryItemDef );
-	}
-	else if ( m_iShowingPanel == CHAP_PAINTKIT_PREVIEW )
+	if ( m_iShowingPanel == CHAP_PAINTKIT_PREVIEW )
 	{
 	}
 	else
 	{
 		iClassIndexToSet = bOpenClassLoadout ? m_iCurrentClassIndex : TF_CLASS_UNDEFINED;
-		m_pArmoryPanel->SetVisible( false );
 		m_pClassLoadoutPanel->SetTeam( m_iCurrentTeamIndex );
 		m_pClassLoadoutPanel->SetClass( iClassIndexToSet );
-		m_pClassLoadoutPanel->ShowPanel( iClassIndexToSet, false, (m_iPrevShowingPanel == CHAP_ARMORY) );
+		m_pClassLoadoutPanel->ShowPanel( iClassIndexToSet, false );
 
 		iLabelClassToSet = m_iCurrentClassIndex;
 	}
@@ -882,33 +844,6 @@ void CCharInfoLoadoutSubPanel::UpdateLabelFromSubButton( int nButton )
 
 	switch ( nButton )
 	{
-	case CHSB_BACKPACK:
-		{
-			int iNumItems = TFInventoryManager()->GetLocalTFInventory()->GetItemCount();
-			if ( iNumItems == 1 )
-			{
-				const wchar_t *wszItemsName = g_pVGuiLocalize->Find( "#Loadout_OpenBackpackDesc1" );
-				m_pItemsLabel->SetText( wszItemsName );
-			}
-			else
-			{
-				wchar_t wzCount[10];
-				_snwprintf( wzCount, ARRAYSIZE( wzCount ), L"%d", iNumItems );
-				wchar_t	wTemp[32];
-				g_pVGuiLocalize->ConstructString_safe( wTemp, g_pVGuiLocalize->Find("Loadout_OpenBackpackDesc"), 1, wzCount );
-				m_pItemsLabel->SetText( wTemp );
-			}
-		}
-		break;
-	case CHSB_CRAFTING:
-		m_pItemsLabel->SetText( g_pVGuiLocalize->Find( "Loadout_OpenCraftingDesc" ) );
-		break;
-	case CHSB_ARMORY:
-		m_pItemsLabel->SetText( g_pVGuiLocalize->Find( "Loadout_OpenArmoryDesc" ) );
-		break;
-	case CHSB_TRADING:
-		m_pItemsLabel->SetText( g_pVGuiLocalize->Find( "Loadout_OpenTradingDesc" ) );
-		break;
 	case CHSB_PAINTKITS:
 		m_pItemsLabel->SetText( g_pVGuiLocalize->Find( "Loadout_OpenPaintkitPreview" ) );
 		break;

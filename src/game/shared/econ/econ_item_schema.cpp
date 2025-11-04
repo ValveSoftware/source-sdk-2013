@@ -184,63 +184,6 @@ static void ParseCapability( item_capabilities_t &capsBitfield, KeyValues* pEntr
 	}
 }
 
-
-//-----------------------------------------------------------------------------
-// Purpose: CEconItemSeriesDefinition
-//-----------------------------------------------------------------------------
-CEconItemSeriesDefinition::CEconItemSeriesDefinition( void )
-	: m_nValue( INT_MAX )
-{
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:	Copy constructor
-//-----------------------------------------------------------------------------
-CEconItemSeriesDefinition::CEconItemSeriesDefinition( const CEconItemSeriesDefinition &that )
-{
-	( *this ) = that;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:	Operator=
-//-----------------------------------------------------------------------------
-CEconItemSeriesDefinition &CEconItemSeriesDefinition::operator=( const CEconItemSeriesDefinition &rhs )
-{
-	m_nValue = rhs.m_nValue;
-	m_strName = rhs.m_strName;
-
-	return *this;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:	Initialize the quality definition
-// Input:	pKVQuality - The KeyValues representation of the quality
-//			schema - The overall item schema for this attribute
-//			pVecErrors - An optional vector that will contain error messages if 
-//				the init fails.
-// Output:	True if initialization succeeded, false otherwise
-//-----------------------------------------------------------------------------
-bool CEconItemSeriesDefinition::BInitFromKV( KeyValues *pKVSeries, CUtlVector<CUtlString> *pVecErrors /* = NULL */ )
-{
-
-	m_nValue = pKVSeries->GetInt( "value", -1 );
-	m_strName = pKVSeries->GetName();
-	
-	m_strLockKey = pKVSeries->GetString( "loc_key" );
-	m_strUiFile = pKVSeries->GetString( "ui" );
-
-	// Check for required fields
-	SCHEMA_INIT_CHECK(
-		NULL != pKVSeries->FindKey( "value" ),
-		"Quality definition %s: Missing required field \"value\"", pKVSeries->GetName() );
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -360,152 +303,6 @@ bool CEconColorDefinition::BInitFromKV( KeyValues *pKVColor, CUtlVector<CUtlStri
 
 
 	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
-// 
-//-----------------------------------------------------------------------------
-CEconItemSetDefinition::CEconItemSetDefinition( void )
-	: m_strName( NULL )
-	, m_pszLocalizedName( NULL )
-	, m_iBundleItemDef( INVALID_ITEM_DEF_INDEX )
-	, m_bIsHiddenSet( false )
-{
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:	Copy constructor
-//-----------------------------------------------------------------------------
-CEconItemSetDefinition::CEconItemSetDefinition( const CEconItemSetDefinition &that )
-{
-	(*this) = that;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:	Operator=
-//-----------------------------------------------------------------------------
-CEconItemSetDefinition &CEconItemSetDefinition::operator=( const CEconItemSetDefinition &other )
-{
-	m_strName = other.m_strName;
-	m_pszLocalizedName = other.m_pszLocalizedName;
-	m_iItemDefs = other.m_iItemDefs;
-	m_iAttributes = other.m_iAttributes;
-	m_iBundleItemDef = other.m_iBundleItemDef;
-	m_bIsHiddenSet = other.m_bIsHiddenSet;
-
-	return *this;
-}
-
-//-----------------------------------------------------------------------------
-// 
-//-----------------------------------------------------------------------------
-bool CEconItemSetDefinition::BInitFromKV( KeyValues *pKVItemSet, CUtlVector<CUtlString> *pVecErrors )
-{
-	m_strName = pKVItemSet->GetName();
-
-	m_iBundleItemDef = INVALID_ITEM_DEF_INDEX;
-	const char *pszBundleName = pKVItemSet->GetString( "store_bundle" );
-	if ( pszBundleName && pszBundleName[0] )
-	{
-		const CEconItemDefinition *pDef = GetItemSchema()->GetItemDefinitionByName( pszBundleName );
-		if ( pDef )
-		{
-			m_iBundleItemDef = pDef->GetDefinitionIndex();
-		}
-
-		SCHEMA_INIT_CHECK( 
-			pDef != NULL,
-			"Item set %s: Bundle definition \"%s\" was not found", m_strName.Get(), pszBundleName );
-	}
-
-	m_pszLocalizedName = pKVItemSet->GetString( "name", NULL );
-	m_bIsHiddenSet = pKVItemSet->GetBool( "is_hidden_set", false );
-
-	KeyValues *pKVItems = pKVItemSet->FindKey( "items" );
-	if ( pKVItems )
-	{
-		FOR_EACH_SUBKEY( pKVItems, pKVItem )
-		{
-			const char *pszName = pKVItem->GetName();
-
-			CEconItemDefinition *pDef = GetItemSchema()->GetItemDefinitionByName( pszName );
-
-			SCHEMA_INIT_CHECK( 
-				pDef != NULL,
-				"Item set %s: Item definition \"%s\" was not found", m_strName.Get(), pszName );
-
-			const item_definition_index_t unDefIndex = pDef->GetDefinitionIndex();
-
-			SCHEMA_INIT_CHECK(
-				!m_iItemDefs.IsValidIndex( m_iItemDefs.Find( unDefIndex ) ),
-				"Item set %s: item definition \"%s\" appears multiple times", m_strName.Get(), pszName );
-			SCHEMA_INIT_CHECK(
-				!pDef->GetItemSetDefinition(),
-				"Item set %s: item definition \"%s\" specified in multiple item sets", m_strName.Get(), pszName );
-
-			m_iItemDefs.AddToTail( unDefIndex );
-			pDef->SetItemSetDefinition( this );
-
-			// FIXME: hack to work around crafting item criteria
-			pDef->GetRawDefinition()->SetString( "item_set", m_strName );
-		}
-	}
-
-	KeyValues *pKVAttributes = pKVItemSet->FindKey( "attributes" );
-	if ( pKVAttributes )
-	{
-		FOR_EACH_SUBKEY( pKVAttributes, pKVAttribute )
-		{
-			const char *pszName = pKVAttribute->GetName();
-
-			const CEconItemAttributeDefinition *pAttrDef = GetItemSchema()->GetAttributeDefinitionByName( pszName );
-			SCHEMA_INIT_CHECK( 
-				pAttrDef != NULL,
-				"Item set %s: Attribute definition \"%s\" was not found", m_strName.Get(), pszName );
-			SCHEMA_INIT_CHECK(
-				pAttrDef->BIsSetBonusAttribute(),
-				"Item set %s: Attribute definition \"%s\" is not a set bonus attribute", m_strName.Get(), pszName );
-
-			int iIndex = m_iAttributes.AddToTail();
-			m_iAttributes[iIndex].m_iAttribDefIndex = pAttrDef->GetDefinitionIndex();
-			m_iAttributes[iIndex].m_flValue = pKVAttribute->GetFloat( "value" );
-		}
-	}
-
-	// Sanity check.
-	SCHEMA_INIT_CHECK( m_pszLocalizedName != NULL,
-	                   "Item set %s: Set contains no localized name", m_strName.Get() );
-	SCHEMA_INIT_CHECK( m_iItemDefs.Count() > 0,
-	                   "Item set %s: Set contains no items", m_strName.Get() );
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
-// 
-//-----------------------------------------------------------------------------
-void CEconItemSetDefinition::IterateAttributes( class IEconItemAttributeIterator *pIterator ) const
-{
-	FOR_EACH_VEC( m_iAttributes, i )
-	{
-		const itemset_attrib_t& itemsetAttrib = m_iAttributes[i];
-
-		const CEconItemAttributeDefinition *pAttrDef = GetItemSchema()->GetAttributeDefinition( itemsetAttrib.m_iAttribDefIndex );
-		if ( !pAttrDef )
-			continue;
-
-		const ISchemaAttributeType *pAttrType = pAttrDef->GetAttributeType();
-		Assert( pAttrType );
-
-		// We know (and assert) that we only need 32 bits of data to store this attribute
-		// data. We don't know anything about the type but we'll let the type handle it
-		// below.
-		attribute_data_union_t value;
-		value.asFloat = itemsetAttrib.m_flValue;
-
-		if ( !pAttrType->OnIterateAttributeValue( pIterator, pAttrDef, value ) )
-			return;
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2048,7 +1845,6 @@ CEconItemAttributeDefinition::CEconItemAttributeDefinition( void )
 	m_iEffectType( ATTRIB_EFFECT_NEUTRAL ),
 	m_iDescriptionFormat( 0 ),
 	m_pszDescriptionString( NULL ),
-	m_pszArmoryDesc( NULL ),
 	m_pszDefinitionName( NULL ),
 	m_pszAttributeClass( NULL ),
 	m_ItemDefinitionTag( INVALID_ECON_TAG_HANDLE ),
@@ -2084,7 +1880,6 @@ CEconItemAttributeDefinition &CEconItemAttributeDefinition::operator=( const CEc
 	m_iEffectType = rhs.m_iEffectType;
 	m_iDescriptionFormat = rhs.m_iDescriptionFormat;
 	m_pszDescriptionString = rhs.m_pszDescriptionString;
-	m_pszArmoryDesc = rhs.m_pszArmoryDesc;
 	m_pszDefinitionName = rhs.m_pszDefinitionName;
 	m_pszAttributeClass = rhs.m_pszAttributeClass;
 	m_ItemDefinitionTag = rhs.m_ItemDefinitionTag;
@@ -2100,19 +1895,16 @@ CEconItemAttributeDefinition &CEconItemAttributeDefinition::operator=( const CEc
 		// Re-assign string pointers
 		m_pszDefinitionName = m_pKVAttribute->GetString("name");
 		m_pszDescriptionString = m_pKVAttribute->GetString( "description_string", NULL );
-		m_pszArmoryDesc = m_pKVAttribute->GetString( "armory_desc", NULL );
 		m_pszAttributeClass = m_pKVAttribute->GetString( "attribute_class", NULL );
 
 		Assert( V_strcmp( m_pszDefinitionName, rhs.m_pszDefinitionName ) == 0 );
 		Assert( V_strcmp( m_pszDescriptionString, rhs.m_pszDescriptionString ) == 0 );
-		Assert( V_strcmp( m_pszArmoryDesc, rhs.m_pszArmoryDesc ) == 0 );
 		Assert( V_strcmp( m_pszAttributeClass, rhs.m_pszAttributeClass ) == 0 );
 	}
 	else
 	{
 		Assert( m_pszDefinitionName == NULL );
 		Assert( m_pszDescriptionString == NULL );
-		Assert( m_pszArmoryDesc == NULL );
 		Assert( m_pszAttributeClass == NULL );
 	}
 	return *this;
@@ -2154,7 +1946,6 @@ bool CEconItemAttributeDefinition::BInitFromKV( KeyValues *pKVAttribute, CUtlVec
 	m_iEffectType = (attrib_effect_types_t)StringFieldToInt( m_pKVAttribute->GetString("effect_type"), g_EffectTypes, ARRAYSIZE(g_EffectTypes) );
 	m_iDescriptionFormat = StringFieldToInt( m_pKVAttribute->GetString("description_format"), g_AttributeDescriptionFormats, ARRAYSIZE(g_AttributeDescriptionFormats) );
 	m_pszDescriptionString = m_pKVAttribute->GetString( "description_string", NULL );
-	m_pszArmoryDesc = m_pKVAttribute->GetString( "armory_desc", NULL );
 	m_pszAttributeClass = m_pKVAttribute->GetString( "attribute_class", NULL );
 	m_bInstanceData = pKVAttribute->GetBool( "instance_data", false );
 
@@ -2226,27 +2017,16 @@ CEconItemDefinition::CEconItemDefinition( void )
 m_bEnabled( false ),
 m_unMinItemLevel( 1 ),
 m_unMaxItemLevel( 1 ),
-m_iArmoryRemap( 0 ),
-m_iStoreRemap( 0 ),
 m_nItemQuality( k_unItemQuality_Any ),
 m_nForcedItemQuality( k_unItemQuality_Any ),
 m_nDefaultDropQuantity( 1 ),
 m_bLoadOnDemand( false ),
-m_pTool( NULL ),
-m_rtExpiration( 0 ),
-m_BundleInfo( NULL ),
-#ifdef TF_CLIENT_DLL
-m_unNumConcreteItems( 0 ),
-#endif // TF_CLIENT_DLL
 m_nPopularitySeed( 0 ),
 m_pszDefinitionName( NULL ),
 m_pszItemClassname( NULL ),
-m_pszClassToken( NULL ),
-m_pszSlotToken( NULL ),
 m_pszItemBaseName( NULL ),
 m_pszItemTypeName( NULL ),
 m_pszItemDesc( NULL ),
-m_pszArmoryDesc( NULL ),
 m_pszInventoryModel( NULL ),
 m_pszInventoryImage( NULL ),
 m_pszHolidayRestriction( NULL ),
@@ -2267,28 +2047,17 @@ m_bActAsWearable( false ),
 m_bActAsWeapon( false ),
 m_iDropType( 1 ),
 m_bHidden( false ),
-m_bShouldShowInArmory( false ),
-m_bIsPackBundle( false ),
-m_pOwningPackBundle( NULL ),
-m_bIsPackItem( false ),
 m_bBaseItem( false ),
 m_pszItemLogClassname( NULL ),
 m_pszItemIconClassname( NULL ),
 m_pszDatabaseAuditTable( NULL ),
 m_bImported( false ),
-m_pItemSetDef( NULL ),
 m_pItemCollectionDef( NULL ),
-m_pszArmoryRemap( NULL ),
-m_pszStoreRemap( NULL ),
 m_unSetItemRemapDefIndex( INVALID_ITEM_DEF_INDEX ),
-m_pszXifierRemapClass( NULL ),
 m_pszBaseFunctionalItemName( NULL ),
 m_pszParticleSuffix( NULL ),
 m_pszCollectionReference( NULL ),
 m_nItemRarity( k_unItemRarity_Any ),
-m_unItemSeries( 0 ),
-m_bValidForShuffle( false ),
-m_bValidForSelfMade( true ),
 m_nRemappedDefIndex( INVALID_ITEM_DEF_INDEX )
 {
 	for ( int team = 0; team < TEAM_VISUAL_SECTIONS; team++ )
@@ -2311,8 +2080,6 @@ CEconItemDefinition::~CEconItemDefinition( void )
 	if ( m_pKVItem )
 		m_pKVItem->deleteThis();
 	m_pKVItem = NULL;
-	delete m_pTool;
-	delete m_BundleInfo;
 	delete m_pDictIcons;
 }
 
@@ -3051,54 +2818,13 @@ bool CEconItemDefinition::BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString
 			"Item definition %s: Undefined item_rarity \"%s\"", GetDefinitionName(), m_pKVItem->GetString( "item_rarity" ) );
 	}
 
-	if ( m_pKVItem->FindKey( "item_series" ) )
-	{
-		// Make sure this is a valid series
-		SCHEMA_INIT_CHECK(
-			GetItemSchema()->BGetItemSeries( m_pKVItem->GetString( "item_series" ), &m_unItemSeries ),
-			"Item definition %s: Undefined item_series \"%s\"", GetDefinitionName(), m_pKVItem->GetString( "item_series" ) );
-	}
-
 	// Get the item class
 	m_pszItemClassname = m_pKVItem->GetString( "item_class", NULL );
-
-	m_pszClassToken = m_pKVItem->GetString( "class_token_id", NULL );
-	m_pszSlotToken = m_pKVItem->GetString( "slot_token_id", NULL );
-
-	// expiration data
-	const char *pchExpiration = m_pKVItem->GetString( "expiration_date", NULL );
-	if( pchExpiration && pchExpiration[0] )
-	{
-		if ( pchExpiration[0] == '!' )
-		{
-			m_rtExpiration = GetItemSchema()->GetCustomExpirationDate( &pchExpiration[1] );
-			SCHEMA_INIT_CHECK(
-				m_rtExpiration != k_RTime32Nil,
-				"Unknown/malformed expiration_date string \"%s\" in item %s.", pchExpiration, m_pszDefinitionName );
-		}
-		else
-		{
-			m_rtExpiration = CRTime::RTime32FromFmtString( "YYYY-MM-DD hh:mm:ss" , pchExpiration );
-
-			// Check that if we convert back to a string, we get the same value.  Emit an error, but don't fail in the game code
-			char rtimeBuf[k_RTimeRenderBufferSize];
-			if ( Q_strcmp( CRTime::RTime32ToString( m_rtExpiration, rtimeBuf ), pchExpiration ) != 0 )
-			{
-#if ( defined( _MSC_VER ) && _MSC_VER >= 1900 )
-#define timezone _timezone
-#define daylight _daylight
-#endif
-				Assert( false );
-				Warning( "Malformed expiration_date \"%s\" for expiration_date in item %s.  Must be of the form \"YYYY-MM-DD hh:mm:ss\".  Input: %s Output: %s InputTime: %u LocalTime: %u Timezone: %lu\n", pchExpiration, m_pszDefinitionName, pchExpiration, rtimeBuf, m_rtExpiration, CRTime::RTime32TimeCur(), timezone );
-			}				
-		}
-	}
 
 	// Display data
 	m_pszItemBaseName = m_pKVItem->GetString( "item_name", "" ); // non-NULL to ensure we can sort
 	m_pszItemTypeName = m_pKVItem->GetString( "item_type_name", "" ); // non-NULL to ensure we can sort
 	m_pszItemDesc = m_pKVItem->GetString( "item_description", NULL );
-	m_pszArmoryDesc = m_pKVItem->GetString( "armory_desc", NULL );
 	m_pszInventoryModel = m_pKVItem->GetString( "model_inventory", NULL );
 	m_pszInventoryImage = m_pKVItem->GetString( "image_inventory", NULL );
 
@@ -3135,35 +2861,16 @@ bool CEconItemDefinition::BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString
 	m_bFlipViewModel = m_pKVItem->GetInt( "flip_viewmodel", 0 ) != 0;
 	m_bActAsWearable = m_pKVItem->GetInt( "act_as_wearable", 0 ) != 0;
 	m_bActAsWeapon = m_pKVItem->GetInt( "act_as_weapon", 0 ) != 0;
-	m_bIsTool = m_pKVItem->GetBool( "is_tool", 0 ) || ( GetItemClass() && !V_stricmp( GetItemClass(), "tool" ) );
 	m_iDropType = StringFieldToInt( m_pKVItem->GetString("drop_type"), g_szDropTypeStrings, ARRAYSIZE(g_szDropTypeStrings) );
 	m_pszCollectionReference = m_pKVItem->GetString( "collection_reference", NULL );
 
 	// Creation data
 	m_bHidden = m_pKVItem->GetInt( "hidden", 0 ) != 0;
-	m_bShouldShowInArmory = m_pKVItem->GetInt( "show_in_armory", 0 ) != 0;
 	m_bBaseItem = m_pKVItem->GetInt( "baseitem", 0 ) != 0;
 	m_pszItemLogClassname = m_pKVItem->GetString( "item_logname", NULL );
 	m_pszItemIconClassname = m_pKVItem->GetString( "item_iconname", NULL );
 	m_pszDatabaseAuditTable = m_pKVItem->GetString( "database_audit_table", NULL );
 	m_bImported = m_pKVItem->FindKey( "import_from" ) != NULL;
-
-	// Bundle
-	KeyValues *pBundleDataKV = m_pKVItem->FindKey( "bundle" );
-	if ( pBundleDataKV )
-	{
-		m_BundleInfo = new bundleinfo_t();
-		FOR_EACH_SUBKEY( pBundleDataKV, pKVCurItem )
-		{
-			CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinitionByName( pKVCurItem->GetName() );
-			SCHEMA_INIT_CHECK( pItemDef != NULL, "Unable to find item definition '%s' for bundle '%s'.", pKVCurItem->GetName(), m_pszDefinitionName );
-
-			m_BundleInfo->vecItemDefs.AddToTail( pItemDef );
-		}
-
-		// Only check for pack bundle if the item is actually a bundle - note that we could do this programatically by checking that all items in the bundle are flagged as a "pack item" - but for now the bundle needs to be explicitly flagged as a pack bundle.
-		m_bIsPackBundle = m_pKVItem->GetInt( "is_pack_bundle", 0 ) != 0;
-	}
 
 	// capabilities
 	m_iCapabilities = (item_capabilities_t)ITEM_CAP_DEFAULT;
@@ -3195,16 +2902,8 @@ bool CEconItemDefinition::BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString
 		m_unSetItemRemapDefIndex = GetDefinitionIndex();
 	}
 
-	// cache item map names
-	m_pszArmoryRemap = m_pKVItem->GetString( "armory_remap", NULL );
-	m_pszStoreRemap = m_pKVItem->GetString( "store_remap", NULL );
-
-	m_pszXifierRemapClass = m_pKVItem->GetString( "xifier_class_remap", NULL );
 	m_pszBaseFunctionalItemName = m_pKVItem->GetString( "base_item_name", "" );
 	m_pszParticleSuffix = m_pKVItem->GetString( "particle_suffix", NULL );
-
-	m_bValidForShuffle = m_pKVItem->GetBool( "valid_for_shuffle", false );
-	m_bValidForSelfMade = m_pKVItem->GetBool( "valid_for_self_made", true );
 
 	m_pszRemappedDefItemName = m_pKVItem->GetString( "remapped_item_def_index", NULL );
 
@@ -3332,11 +3031,6 @@ bool CEconItemDefinition::BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString
 
 bool CEconItemDefinition::BPostInit( CUtlVector<CUtlString> *pVecErrors /*= NULL*/ )
 {
-	const IEconTool *pTool = GetEconTool();
-	if ( pTool && !const_cast<IEconTool *>( pTool )->BFinishInitialization() )
-	{
-	}
-
 	if ( m_pszRemappedDefItemName )
 	{
 		const CEconItemDefinition *pDef = GetItemSchema()->GetItemDefinitionByName( m_pszRemappedDefItemName );
@@ -3409,41 +3103,6 @@ bool static_attrib_t::BInitFromKV_SingleLine( const char *pszContext, KeyValues 
 			!pAttrDef->BIsSetBonusAttribute(),
 			"Context '%s': Attribute \"%s\" is a set bonus attribute and not supported here", pszContext, pKVAttribute->GetName() );
 
-	}
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-
-
-bool CEconItemDefinition::BInitItemMappings( CUtlVector<CUtlString> *pVecErrors )
-{
-	// Armory remapping
-	if ( m_pszArmoryRemap && m_pszArmoryRemap[0] )
-	{
-		const CEconItemDefinition *pDef = GetItemSchema()->GetItemDefinitionByName( m_pszArmoryRemap );
-		if ( pDef )
-		{
-			m_iArmoryRemap = pDef->GetDefinitionIndex();
-		}
-
-		SCHEMA_INIT_CHECK( 
-			pDef != NULL,
-			"Item %s: Armory remap definition \"%s\" was not found", m_pszItemBaseName, m_pszArmoryRemap );
-	}
-
-	// Store remapping
-	if ( m_pszStoreRemap && m_pszStoreRemap[0] )
-	{
-		const CEconItemDefinition *pDef = GetItemSchema()->GetItemDefinitionByName( m_pszStoreRemap );
-		if ( pDef )
-		{
-			m_iStoreRemap = pDef->GetDefinitionIndex();
-		}
-
-		SCHEMA_INIT_CHECK(
-			pDef != NULL,
-			"Item %s: Store remap definition \"%s\" was not found", m_pszItemBaseName, m_pszStoreRemap );
 	}
 
 	return SCHEMA_INIT_SUCCESS();
@@ -3731,7 +3390,6 @@ const CEconItemDefinition *CForeignAppImports::FindMapping( uint16 unForeignDefI
 CEconItemSchema::CEconItemSchema( )
 : 	m_unResetCount( 0 )
 ,	m_pKVRawDefinition( NULL )
-,	m_mapItemSeries( DefLessFunc(int) )
 ,	m_mapRarities( DefLessFunc(int) )
 ,	m_mapQualities( DefLessFunc(int) )
 ,	m_mapAttributes( DefLessFunc(int) )
@@ -3744,7 +3402,6 @@ CEconItemSchema::CEconItemSchema( )
 #if defined(CLIENT_DLL) || defined(GAME_DLL)
 ,	m_pDefaultItemDefinition( NULL )
 #endif
-,	m_dictItemSets( k_eDictCompareTypeCaseInsensitive )
 ,	m_dictItemCollections( k_eDictCompareTypeCaseInsensitive )
 ,	m_dictOperationDefinitions( k_eDictCompareTypeCaseInsensitive )
 ,   m_dictLootLists( k_eDictCompareTypeCaseInsensitive )
@@ -3978,7 +3635,6 @@ void CEconItemSchema::Reset( void )
 	m_mapBaseItems.Purge();
 	m_mapRecipes.PurgeAndDeleteElements();
 	m_vecTimedRewards.Purge();
-	m_dictItemSets.PurgeAndDeleteElements();
 	m_dictLootLists.PurgeAndDeleteElements();
 	m_dictItemCriteriaTemplates.PurgeAndDeleteElements();
 	m_dictRandomAttributeTemplates.PurgeAndDeleteElements();
@@ -4332,14 +3988,6 @@ bool CEconItemSchema::BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlS
 	// still makes sense to initialize it at this point.
 	SCHEMA_INIT_SUBSTEP( BInitAttributeTypes( pVecErrors ) );
 
-	// Initialize the item series block
-	KeyValues *pKVItemSeries = pKVRawDefinition->FindKey( "item_series_types" );
-	SCHEMA_INIT_CHECK( NULL != pKVItemSeries, "Required key \"item_series_types\" missing.\n" );
-	if ( NULL != pKVItemSeries )
-	{
-		SCHEMA_INIT_SUBSTEP( BInitItemSeries( pKVItemSeries, pVecErrors ) );
-	}
-
 	// Initialize the rarity block
 	KeyValues *pKVRarities = pKVRawDefinition->FindKey( "rarities" );
 	KeyValues *pKVRarityWeights = pKVRawDefinition->FindKey( "rarities_lootlist_weights" );
@@ -4417,10 +4065,6 @@ bool CEconItemSchema::BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlS
 	// Verify base item names are proper in item schema
 	SCHEMA_INIT_SUBSTEP( BVerifyBaseItemNames( pVecErrors ) );
 
-	// Parse the item_sets block.
-	KeyValues *pKVItemSets = pKVRawDefinition->FindKey( "item_sets" );
-	SCHEMA_INIT_SUBSTEP( BInitItemSets( pKVItemSets, pVecErrors ) );
-	
 	// Particles
 	KeyValues *pKVParticleSystems = pKVRawDefinition->FindKey( "attribute_controlled_attached_particles" );
 	SCHEMA_INIT_SUBSTEP( BInitAttributeControlledParticleSystems( pKVParticleSystems, pVecErrors ) );
@@ -4458,19 +4102,11 @@ bool CEconItemSchema::BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlS
 		SCHEMA_INIT_SUBSTEP( BInitOperationDefinitions( pKVGameInfo, pKVOperationDefinitions, pVecErrors ) );
 	}
 
-#if   defined( CLIENT_DLL ) || defined( GAME_DLL )
-	KeyValues *pKVArmoryData = pKVRawDefinition->FindKey( "armory_data" );
-	SCHEMA_INIT_SUBSTEP( BInitArmoryData( pKVArmoryData, pVecErrors ) );
-#endif // GC_DLL
-
 	// Parse any achievement rewards
 	KeyValues *pKVAchievementRewards = pKVRawDefinition->FindKey( "achievement_rewards" );
 	SCHEMA_INIT_SUBSTEP( BInitAchievementRewards( pKVAchievementRewards, pVecErrors ) );
 
 #ifdef TF_CLIENT_DLL
-	// Compute the number of concrete items, for each item, and cache for quick access
-	SCHEMA_INIT_SUBSTEP( BInitConcreteItemCounts( pVecErrors ) );
-
 	// We don't have access to Steam's full library of app data on the client so initialize whichever packages
 	// we want to reference.
 	KeyValues *pKVSteamPackages = pKVRawDefinition->FindKey( "steam_packages" );
@@ -4582,33 +4218,6 @@ bool CEconItemSchema::BInitDefinitionPrefabs( KeyValues *pKVPrefabs, CUtlVector<
 			"Duplicate prefab name (%s)", pszPrefabName );
 
 		m_dictDefinitionPrefabs.Insert( pszPrefabName, pKVPrefab->MakeCopy() );
-	}
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:	Initializes the Item Series section of the schema
-//-----------------------------------------------------------------------------
-bool CEconItemSchema::BInitItemSeries( KeyValues *pKVSeries, CUtlVector<CUtlString> *pVecErrors )
-{
-	// initialize the item definitions
-	if ( NULL != pKVSeries)
-	{
-		FOR_EACH_TRUE_SUBKEY( pKVSeries, pKVItem )
-		{
-			int nSeriesIndex = pKVItem->GetInt( "value" );
-			int nMapIndex = m_mapItemSeries.Find( nSeriesIndex );
-
-			// Make sure the item index is correct because we use this index as a reference
-			SCHEMA_INIT_CHECK(
-				!m_mapItemSeries.IsValidIndex( nMapIndex ),
-				"Duplicate item series value (%d)", nSeriesIndex );
-
-			nMapIndex = m_mapItemSeries.Insert( nMapIndex );
-			SCHEMA_INIT_SUBSTEP( m_mapItemSeries[nMapIndex].BInitFromKV( pKVItem, pVecErrors ) );
-		}
 	}
 
 	return SCHEMA_INIT_SUCCESS();
@@ -4996,47 +4605,10 @@ bool CEconItemSchema::BInitItems( KeyValues *pKVItems, CUtlVector<CUtlString> *p
 				m_mapItemsSorted.Insert( nItemIndex, pItemDef );
 				SCHEMA_INIT_SUBSTEP( m_mapItems[nMapIndex]->BInitFromKV( pKVItem, pVecErrors ) );
 
-				// Cache off Tools references
-				if ( pItemDef->IsTool() )
-				{
-					m_mapToolsItems.Insert( nItemIndex, pItemDef );
-
-					// found paintkit tool, add to paintkit map
-					if ( pItemDef->GetEconTool() && !V_strcmp( pItemDef->GetEconTool()->GetTypeName(), "paintkit" ) )
-					{
-						uint32 unPaintKitDefIndex;
-						SCHEMA_INIT_CHECK( GetPaintKitDefIndex( pItemDef, &unPaintKitDefIndex ), "PaintKit Item [%d] is missing paintkit def index attr", pItemDef->GetDefinitionIndex() );
-						int iMapIndex = m_mapPaintKitTools.Find( unPaintKitDefIndex );
-						SCHEMA_INIT_CHECK( iMapIndex == m_mapPaintKitTools.InvalidIndex(), "Duplicate paintkit def index [%d]. Trying to add to item [%d], but item [%d] already has it.",
-											unPaintKitDefIndex, pItemDef->GetDefinitionIndex(), m_mapPaintKitTools[ iMapIndex ]->GetDefinitionIndex() );
-
-						m_mapPaintKitTools.Insert( unPaintKitDefIndex, pItemDef );
-					}
-				}
-
 				if ( pItemDef->IsBaseItem() )
 				{
 					m_mapBaseItems.Insert( nItemIndex, pItemDef );
 				}
-
-				// Cache off bundles for the link phase below.
-				if ( pItemDef->IsBundle() )
-				{
-					// Cache off the item def for the bundle, since we'll need both the bundle info and the item def index later.
-					m_vecBundles.AddToTail( pItemDef );
-
-					// If the bundle is a pack bundle, mark all the contained items as pack items / link to the owning pack bundle
-					if ( pItemDef->IsPackBundle() )
-					{
-						const bundleinfo_t *pBundleInfo = pItemDef->GetBundleInfo();
-						FOR_EACH_VEC( pBundleInfo->vecItemDefs, iCurItem )
-						{
-							CEconItemDefinition *pCurItemDef = pBundleInfo->vecItemDefs[ iCurItem ];
-							SCHEMA_INIT_CHECK( NULL == pCurItemDef->m_pOwningPackBundle, "Pack item \"%s\" included in more than one pack bundle - not allowed!", pCurItemDef->GetDefinitionName() );
-							pCurItemDef->m_pOwningPackBundle = pItemDef;
-						}
-					}
-				}	
 			}
 		}
 	}
@@ -5055,54 +4627,7 @@ bool CEconItemSchema::BInitItems( KeyValues *pKVItems, CUtlVector<CUtlString> *p
 			"Item definition %s: Duplicate name on index %d", pItemDef->GetDefinitionName(), m_mapItems.Key( i ) );
 		if( !rbItemNames.IsValidIndex( iIndex ) )
 			rbItemNames.Insert( m_mapItems[i]->GetDefinitionName() );
-
-		// Link up armory and store mappings for the item
-		SCHEMA_INIT_SUBSTEP( pItemDef->BInitItemMappings( pVecErrors ) );
 	}
-
-#ifdef DOTA
-	// Go through all regular (ie non-pack) bundles and ensure that if any pack items are included, *all* pack items in the owning pack bundle are included
-	FOR_EACH_VEC( m_vecBundles, iBundle )
-	{
-		const CEconItemDefinition *pBundleItemDef = m_vecBundles[ iBundle ];
-		if ( pBundleItemDef->IsPackBundle() )
-			continue;
-
-		// Go through all items in the bundle and look for pack items
-		const bundleinfo_t *pBundle = pBundleItemDef->GetBundleInfo();
-		if ( pBundle )
-		{
-			FOR_EACH_VEC( pBundle->vecItemDefs, iContainedBundleItem )
-			{
-				// Get the associated pack bundle
-				const CEconItemDefinition *pContainedBundleItemDef = pBundle->vecItemDefs[ iContainedBundleItem ];
-
-				// Ignore non-pack items
-				if ( !pContainedBundleItemDef || !pContainedBundleItemDef->IsPackItem() )
-					continue;
-
-				// Get the pack bundle that contains this particular pack item
-				const CEconItemDefinition *pOwningPackBundleItemDef = pContainedBundleItemDef->GetOwningPackBundle();
-
-				// Make sure all items in the owning pack bundle are in pBundleItemDef's bundle info (pBundle)
-				const bundleinfo_t *pOwningPackBundle = pOwningPackBundleItemDef->GetBundleInfo();
-				FOR_EACH_VEC( pOwningPackBundle->vecItemDefs, iCurPackBundleItem )
-				{
-					CEconItemDefinition *pCurPackBundleItem = pOwningPackBundle->vecItemDefs[ iCurPackBundleItem ];
-					if ( !pBundle->vecItemDefs.HasElement( pCurPackBundleItem ) )
-					{
-						SCHEMA_INIT_CHECK(
-							false,
-							"The bundle \"%s\" contains some, but not all pack items required specified by pack bundle \"%s.\"",
-							pBundleItemDef->GetDefinitionName(),
-							pOwningPackBundleItemDef->GetDefinitionName()
-					   );
-					}
-				}
-			}
-		}
-	}
-#endif
 
 	return SCHEMA_INIT_SUCCESS();
 }
@@ -5130,51 +4655,6 @@ bool CEconItemSchema::DeleteItemDefinition( int iDefIndex )
 	return false;
 }
 #endif
-
-//-----------------------------------------------------------------------------
-// Purpose:	Parses the Item Sets section.
-//-----------------------------------------------------------------------------
-bool CEconItemSchema::BInitItemSets( KeyValues *pKVItemSets, CUtlVector<CUtlString> *pVecErrors )
-{
-	m_dictItemSets.RemoveAll();
-
-	if ( NULL != pKVItemSets )
-	{
-		FOR_EACH_TRUE_SUBKEY( pKVItemSets, pKVItemSet )
-		{
-			const char* setName = pKVItemSet->GetName();
-
-			SCHEMA_INIT_CHECK( setName != NULL, "All itemsets must have names." );
-			SCHEMA_INIT_CHECK( m_dictItemSets.Find( setName ) == m_dictItemSets.InvalidIndex(), "Duplicate itemset name (%s) found!", setName );
-
-			int idx = m_dictItemSets.Insert( setName, new CEconItemSetDefinition );
-			SCHEMA_INIT_SUBSTEP( m_dictItemSets[idx]->BInitFromKV( pKVItemSet, pVecErrors ) );
-		}
-
-		// Once we've initialized all of our item sets, loop through all of our item definitions looking
-		// for pseudo set items. For example, the Festive Holy Mackerel is a different item definition from
-		// the regular Holy Mackerel, but for set completion and set listing purposes, we want it to show
-		// as part of the base set.
-		FOR_EACH_MAP_FAST( m_mapItems, i )
-		{
-			CEconItemDefinition *pItemDef = m_mapItems[i];
-			Assert( pItemDef );
-
-			// Items that point to themselves are the base set items and got initialized as part of the
-			// set initialization above.
-			if ( pItemDef->GetSetItemRemap() == pItemDef->GetDefinitionIndex() )
-				continue;
-
-			// Which item are we stealing set information from?
-			const CEconItemDefinition *pRemappedSetItemDef = GetItemDefinition( pItemDef->GetSetItemRemap() );
-			AssertMsg( pRemappedSetItemDef, "Somehow got through item and set initialization but have a broken set remap item!" );
-
-			pItemDef->SetItemSetDefinition( pRemappedSetItemDef->GetItemSetDefinition() );
-		}
-	}
-
-	return SCHEMA_INIT_SUCCESS();
-}
 
 //-----------------------------------------------------------------------------
 bool CEconItemSchema::BVerifyBaseItemNames( CUtlVector<CUtlString> *pVecErrors )
@@ -5681,48 +5161,6 @@ bool CEconItemSchema::BInitLootlistJobTemplates( KeyValues *pKVLootlistJobTempla
 
 #ifdef TF_CLIENT_DLL
 //-----------------------------------------------------------------------------
-// Purpose: Go through all items and cache the number of concrete items in each.
-//-----------------------------------------------------------------------------
-bool CEconItemSchema::BInitConcreteItemCounts( CUtlVector<CUtlString> *pVecErrors )
-{
-	FOR_EACH_MAP_FAST( m_mapItems, i )
-	{
-		CEconItemDefinition *pItemDef = m_mapItems[ i ];
-		pItemDef->m_unNumConcreteItems = CalculateNumberOfConcreteItems( pItemDef );
-	}
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Returns the number of actual "real" items referenced by the item definition
-// (i.e. items that would take up space in the inventory)
-//-----------------------------------------------------------------------------
-int CEconItemSchema::CalculateNumberOfConcreteItems( const CEconItemDefinition *pItemDef )
-{
-	AssertMsg( pItemDef, "NULL item definition!  This should not happen!" );
-	if ( !pItemDef )
-		return 0;
-
-	if ( pItemDef->IsBundle() )
-	{
-		uint32 unNumConcreteItems = 0;
-		
-		const bundleinfo_t *pBundle = pItemDef->GetBundleInfo();
-		Assert( pBundle );
-
-		FOR_EACH_VEC( pBundle->vecItemDefs, i )
-		{
-			unNumConcreteItems += CalculateNumberOfConcreteItems( pBundle->vecItemDefs[i] );
-		}
-
-		return unNumConcreteItems;
-	}
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
 bool CEconItemSchema::BInitSteamPackageLocalizationToken( KeyValues *pKVSteamPackages, CUtlVector<CUtlString> *pVecErrors )
@@ -6109,66 +5547,7 @@ void CEconItemSchema::ItemTesting_DiscardTestDefinition( int iDef )
 	m_mapItems.Remove( iDef );
 	m_mapItemsSorted.Remove( iDef );
 }
-
-//-----------------------------------------------------------------------------
-// Purpose:	Initializes the armory data section of the schema
-//-----------------------------------------------------------------------------
-bool CEconItemSchema::BInitArmoryData( KeyValues *pKVArmoryData, CUtlVector<CUtlString> *pVecErrors )
-{
-	m_dictArmoryItemDataStrings.RemoveAll();
-	m_dictArmoryAttributeDataStrings.RemoveAll();
-	if ( NULL != pKVArmoryData )
-	{
-		KeyValues *pKVItemTypes = pKVArmoryData->FindKey( "armory_item_types" );
-		if ( pKVItemTypes )
-		{
-			FOR_EACH_SUBKEY( pKVItemTypes, pKVEntry )
-			{
-				const char *pszDataKey = pKVEntry->GetName();
-				const CUtlConstString sLocString( pKVEntry->GetString() );
-				m_dictArmoryItemTypesDataStrings.Insert( pszDataKey, sLocString );
-			}
-		}
-
-		pKVItemTypes = pKVArmoryData->FindKey( "armory_item_classes" );
-		if ( pKVItemTypes )
-		{
-			FOR_EACH_SUBKEY( pKVItemTypes, pKVEntry )
-			{
-				const char *pszDataKey = pKVEntry->GetName();
-				const CUtlConstString sLocString( pKVEntry->GetString() );
-				m_dictArmoryItemClassesDataStrings.Insert( pszDataKey, sLocString );
-			}
-		}
-
-		KeyValues *pKVAttribs = pKVArmoryData->FindKey( "armory_attributes" );
-		if ( pKVAttribs )
-		{
-			FOR_EACH_SUBKEY( pKVAttribs, pKVEntry )
-			{
-				const char *pszDataKey = pKVEntry->GetName();
-				const CUtlConstString sLocString( pKVEntry->GetString() );
-				m_dictArmoryAttributeDataStrings.Insert( pszDataKey, sLocString );
-			}
-		}
-
-		KeyValues *pKVItems = pKVArmoryData->FindKey( "armory_items" );
-		if ( pKVItems )
-		{
-			FOR_EACH_SUBKEY( pKVItems, pKVEntry )
-			{
-				const char *pszDataKey = pKVEntry->GetName();
-				const CUtlConstString sLocString( pKVEntry->GetString() );
-				m_dictArmoryItemDataStrings.Insert( pszDataKey, sLocString );
-			}
-		}
-	}
-	return SCHEMA_INIT_SUCCESS();
-}
 #endif
-
-
-
 
 //-----------------------------------------------------------------------------
 // Purpose:	Returns the achievement award that matches the provided defindex or NULL
@@ -6322,30 +5701,6 @@ int CEconItemSchema::GetRarityIndex( const char* pszRarity )
 		return pRarity->GetDBValue();
 	else
 		return 0;
-}
-
-//-----------------------------------------------------------------------------
-bool CEconItemSchema::BGetItemSeries( const char* pchName, uint8 *nItemSeries ) const
-{
-	FOR_EACH_MAP_FAST( m_mapItemSeries, i )
-	{
-		if ( 0 == Q_stricmp( m_mapItemSeries[i].GetName(), pchName ) )
-		{
-			*nItemSeries = m_mapItemSeries[i].GetDBValue();
-			return true;
-		}
-	}
-
-	return false;
-}
-
-//-----------------------------------------------------------------------------
-const CEconItemSeriesDefinition *CEconItemSchema::GetItemSeriesDefinition( int iSeries ) const
-{
-	int iIndex = m_mapItemSeries.Find( iSeries );
-	if ( m_mapItemSeries.IsValidIndex( iIndex ) )
-		return &m_mapItemSeries[iIndex];
-	return NULL;
 }
 
 //-----------------------------------------------------------------------------

@@ -17,7 +17,6 @@
 #include "tf_controls.h"
 #include "tf_shareddefs.h"
 #include "class_loadout_panel.h"
-#include "charinfo_armory_subpanel.h"
 
 #define NUM_CLASSES_IN_LOADOUT_PANEL		(TF_LAST_NORMAL_CLASS-1)		// We don't allow unlockables for the civilian
 
@@ -56,16 +55,11 @@ private:
 enum charinfo_activepanels_t
 {
 	CHAP_LOADOUT,
-	CHAP_ARMORY,
 	CHAP_PAINTKIT_PREVIEW,
 };
 
 enum charinfosubbuttons_t
 {
-	CHSB_BACKPACK,
-	CHSB_CRAFTING,
-	CHSB_ARMORY,
-	CHSB_TRADING,
 	CHSB_PAINTKITS,
 
 	CHSB_NUM_BUTTONS
@@ -89,13 +83,11 @@ public:
 
 	void			SetClassIndex( int iClassIndex, bool bOpenClassLoadout );
 	void			SetTeamIndex( int iTeamIndex );
-	void			OpenToArmory( int iItemDef = 0 ) { m_iArmoryItemDef = iItemDef; OpenSubPanel( CHAP_ARMORY ); }
 	void			OpenToPaintkitPreview( CEconItemView* pItem, bool bFixedItem, bool bFixedPaintkit );
 	void			OpenSubPanel( charinfo_activepanels_t iPanel );
 	void			UpdateModelPanels( bool bOpenClassLoadout = true );
 
 	CClassLoadoutPanel	*GetClassLoadoutPanel( void ) { return m_pClassLoadoutPanel; }
-	CArmoryPanel	*GetArmoryPanel( void ) { return m_pArmoryPanel; }
 
 	void UpdateLabelFromClass( int nClass );
 	void UpdateLabelFromSubButton( int nButton );
@@ -115,7 +107,6 @@ public:
 	MESSAGE_FUNC( OnSelectionStarted, "SelectionStarted" );
 	MESSAGE_FUNC( OnSelectionEnded, "SelectionEnded" );
 	MESSAGE_FUNC( OnCancelSelection, "CancelSelection" );
-	MESSAGE_FUNC( OnArmoryClosed, "ArmoryClosed" );
 	MESSAGE_FUNC( OnCharInfoClosing, "CharInfoClosing" );
 
 private:
@@ -134,7 +125,6 @@ private:
 	charinfo_activepanels_t	m_iShowingPanel;
 	charinfo_activepanels_t	m_iPrevShowingPanel;
 	CClassLoadoutPanel	*m_pClassLoadoutPanel;
-	CArmoryPanel		*m_pArmoryPanel;
 	vgui::Label			*m_pSelectLabel;
 	vgui::Label			*m_pLoadoutChangesLabel;
 	vgui::Label			*m_pNoSteamLabel;
@@ -149,7 +139,6 @@ private:
 	Color				m_ItemColorNone;
 	Color				m_ItemColor;
 	float				m_flStartExplanationsAt;
-	int					m_iArmoryItemDef;
 
 	CPanelAnimationVarAliasType( int, m_iSelectLabelY, "selectlabely_default", "0", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iSelectLabelOnChangesY, "selectlabely_onchanges", "0", "proportional_int" );

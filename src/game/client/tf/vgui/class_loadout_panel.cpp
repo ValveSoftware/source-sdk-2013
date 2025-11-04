@@ -724,7 +724,7 @@ void CClassLoadoutPanel::OnNavigateFrom( const char* panelName )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CClassLoadoutPanel::OnShowPanel( bool bVisible, bool bReturningFromArmory )
+void CClassLoadoutPanel::OnShowPanel( bool bVisible )
 {
 	if ( bVisible )
 	{
@@ -1298,17 +1298,6 @@ public:
 		if ( pAttrDef->IsHidden() )
 			return true;
 
-		if ( !m_bForceAdd )
-		{
-			const char *pDesc = pAttrDef->GetArmoryDescString();
-			if ( !pDesc || !pDesc[0] )
-				return true;
-
-			// If we have the "on_wearer" key, we're a passive attribute
-			if ( !Q_stristr(pDesc, "on_wearer") )
-				return true;
-		}
-
 		// Now see if we're already in the list
 		FOR_EACH_VEC( (*m_pList), i )
 		{
@@ -1358,20 +1347,6 @@ void CClassLoadoutPanel::UpdatePassiveAttributes( void )
 		{
 			CAttributeIterator_AddPassiveAttribsToPassiveList attrItPassives( &vecAttribsToPrint, false );
 			pItemData->IterateAttributes( &attrItPassives );
-		}
-	}
-
-	// Then add any set bonuses
-	if ( steamapicontext && steamapicontext->SteamUser() )
-	{
-		CSteamID localSteamID = steamapicontext->SteamUser()->GetSteamID();
-		CUtlVector<const CEconItemSetDefinition *> pActiveSets;
-		TFInventoryManager()->GetActiveSets( &pActiveSets, localSteamID, m_iCurrentClassIndex );
-
-		FOR_EACH_VEC( pActiveSets, set )
-		{
-			CAttributeIterator_AddPassiveAttribsToPassiveList attrItSetPassives( &vecAttribsToPrint, true );
-			pActiveSets[set]->IterateAttributes( &attrItSetPassives );
 		}
 	}
 

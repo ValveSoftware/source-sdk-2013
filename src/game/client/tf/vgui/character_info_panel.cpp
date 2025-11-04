@@ -13,7 +13,6 @@
 #include "baseviewport.h"
 #include "iclientmode.h"
 #include "charinfo_loadout_subpanel.h"
-#include "charinfo_armory_subpanel.h"
 #include "ienginevgui.h"
 #include "tf_hud_statpanel.h"
 #include "c_tf_player.h"
@@ -309,27 +308,11 @@ void CCharacterInfoPanel::OpenLoadoutToClass( int iClassIndex, bool bOpenClassLo
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CCharacterInfoPanel::OpenLoadoutToArmory( void ) 
-{ 
-	m_pLoadoutPanel->OpenToArmory();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CCharacterInfoPanel::OpenToPaintkitPreview( CEconItemView* pItem, bool bFixedItem, bool bFixedPaintkit )
 {
 	m_pLoadoutPanel->OpenToPaintkitPreview( pItem, bFixedItem, bFixedPaintkit );
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::OnOpenArmoryDirect( KeyValues *data )
-{
-	int iItemDef = data->GetInt( "itemdef", 0 );
-	m_pLoadoutPanel->OpenToArmory( iItemDef );
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -410,11 +393,7 @@ IEconRootUI	*CCharacterInfoPanel::OpenEconUI( int iDirectToPage, bool bCheckForI
 	engine->ClientCmd_Unrestricted( "gameui_activate" );
 	ShowPanel( true );
 
-	if ( iDirectToPage == ECONUI_ARMORY )
-	{
-		OpenLoadoutToArmory();
-	}
-	else if ( iDirectToPage < 0 )
+	if ( iDirectToPage < 0 )
 	{
 		// Negative numbers go directly to the class loadout
 		OpenLoadoutToClass( -(iDirectToPage), true );
@@ -442,19 +421,6 @@ void CCharacterInfoPanel::CloseEconUI( void )
 //-----------------------------------------------------------------------------
 bool CCharacterInfoPanel::IsUIPanelVisible( EconBaseUIPanels_t iPanel )
 {
-	if ( !IsVisible() )
-		return false;
-
-	switch ( iPanel )
-	{
-	case ECONUI_ARMORY:
-		return (GetArmoryPanel() && GetArmoryPanel()->IsVisible());
-
-	default:
-		Assert(0);
-		break;
-	}
-
 	return false;
 }
 
@@ -507,16 +473,6 @@ void Open_CharInfoDirect( const CCommand &args )
 	EconUI()->OpenEconUI( iClass );	
 }
 ConCommand open_charinfo_direct( "open_charinfo_direct", Open_CharInfoDirect, "Open the character info panel directly to the class you're currently playing.", FCVAR_NONE );
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void Open_CharInfoArmory( const CCommand &args )
-{
-	EconUI()->OpenEconUI( ECONUI_ARMORY );	
-}
-ConCommand open_charinfo_armory( "open_charinfo_armory", Open_CharInfoArmory, "Open the character info panel directly to armory.", FCVAR_NONE );
-
 
 //================================================================================================================================
 // NOT CONNECTED TO STEAM WARNING DIALOG
@@ -574,14 +530,6 @@ CServerNotConnectedToSteamDialog *OpenServerNotConnectedToSteamDialog( vgui::Pan
 	g_ServerNotConnectedPanel->SetMouseInputEnabled(true);
 	TFModalStack()->PushModal( g_ServerNotConnectedPanel );
 	return g_ServerNotConnectedPanel;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CArmoryPanel *CCharacterInfoPanel::GetArmoryPanel( void ) 
-{ 
-	return m_pLoadoutPanel->GetArmoryPanel(); 
 }
 
 //-----------------------------------------------------------------------------

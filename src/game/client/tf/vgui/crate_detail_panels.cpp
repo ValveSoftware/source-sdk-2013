@@ -135,7 +135,7 @@ void CInputStringForItemBackpackOverlayDialog::CreateItemPanels()
 		virtual void OnIterate( item_definition_index_t unItemDefIndex ) OVERRIDE
 		{
 			const CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( unItemDefIndex );
-			if ( pItemDef && pItemDef->BValidForShuffle() )
+			if ( pItemDef )
 			{
 				m_pVecItemDefs->AddToTail( unItemDefIndex );
 			}
