@@ -3179,10 +3179,7 @@ bool CTFWeaponBase::ShouldDraw( void )
 			if ( pTFOwner->m_Shared.InCond( TF_COND_DISGUISED ) )
 			{
 				int iLocalPlayerTeam = pLocalPlayer->GetTeamNumber();
-				if ( pLocalPlayer->m_bIsCoaching && pLocalPlayer->m_hStudent )
-				{
-					iLocalPlayerTeam = pLocalPlayer->m_hStudent->GetTeamNumber();
-				}
+
 				// If we are disguised we may want to draw the disguise weapon.
 				if ( iLocalPlayerTeam != pOwner->GetTeamNumber() && (iLocalPlayerTeam != TEAM_SPECTATOR) )
 				{

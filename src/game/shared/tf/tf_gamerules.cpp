@@ -1219,28 +1219,6 @@ void ValidateCapturesPerRound( IConVar *pConVar, const char *oldValue, float flO
 	}
 }
 
-static void Coaching_Start( CTFPlayer *pCoach, CTFPlayer *pStudent )
-{
-	pCoach->SetIsCoaching( true );
-	pCoach->ForceChangeTeam( TEAM_SPECTATOR );
-	pCoach->SetObserverTarget( pStudent );
-	pCoach->StartObserverMode( OBS_MODE_CHASE );
-	pCoach->SetStudent( pStudent );
-	pStudent->SetCoach( pCoach );
-}
-
-static void Coaching_Stop( CTFPlayer *pCoach )
-{
-	CTFPlayer *pStudent = pCoach->GetStudent();
-	if ( pStudent )
-	{
-		pStudent->SetCoach( NULL );
-	}
-	pCoach->SetIsCoaching( false );
-	pCoach->SetStudent( NULL );
-	pCoach->ForceChangeTeam( TEAM_SPECTATOR );
-}
-
 #endif	
 
 ConVar tf_flag_caps_per_round( "tf_flag_caps_per_round", "3", FCVAR_REPLICATED, "Number of captures per round on CTF and PASS Time maps. Set to 0 to disable.", true, 0, false, 0
@@ -3217,8 +3195,7 @@ int CTFGameRules::GetCostForUpgrade( CMannVsMachineUpgrades *pUpgrade, int iItem
 //-----------------------------------------------------------------------------
 CTFGameRules::CTFGameRules()
 #ifdef GAME_DLL
-	: m_mapCoachToStudentMap( DefLessFunc(uint32) )
-	, m_mapTeleportLocations( DefLessFunc(string_t) )
+	: m_mapTeleportLocations( DefLessFunc(string_t) )
 	, m_bMapCycleNeedsUpdate( false )
 	, m_flSafeToLeaveTimer( -1.f )
 	, m_flCompModeRespawnPlayersAtMatchStart( -1.f )
@@ -5331,13 +5308,6 @@ void CTFGameRules::SetupOnRoundRunning( void )
 			{
 				pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_ROUND_START );
 			}
-		}
-
-		// warp the coach to student
-		if ( pPlayer->GetStudent() )
-		{
-			pPlayer->SetObserverTarget( pPlayer->GetStudent() );
-			pPlayer->StartObserverMode( OBS_MODE_CHASE );
 		}
 
 		if ( FNullEnt( pPlayer->edict() ) )
@@ -7666,20 +7636,6 @@ bool CTFGameRules::TFVoiceManager( CBasePlayer *pListener, CBasePlayer *pTalker 
 {
 	if ( pTalker && pTalker->BHaveChatSuspensionInCurrentMatch() )
 		return false;
-
-	// check coaching--we only want coaches and students to talk and listen to each other!
-	CTFPlayer* pTFListener = (CTFPlayer*)pListener;
-	CTFPlayer* pTFTalker = (CTFPlayer*)pTalker;
-	if ( pTFListener->GetStudent() || pTFListener->GetCoach() || 
-			pTFTalker->GetStudent() || pTFTalker->GetCoach() )
-	{
-		if ( pTFListener->GetStudent() == pTFTalker || pTFTalker->GetStudent() == pTFListener ||
-				pTFListener->GetCoach() == pTalker || pTFTalker->GetCoach() == pTFListener )
-		{
-			return true;
-		}
-		return false;
-	}
 
 	// Always allow teams to hear each other in TD mode
 	if ( IsMannVsMachineMode() )
@@ -10045,14 +10001,8 @@ const char *CTFGameRules::GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer )
 
 	const char *pszFormat = NULL;
 
-	// coach?
-	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
-	if ( pTFPlayer && pTFPlayer->IsCoaching() )
-	{
-		pszFormat = "TF_Chat_Coach";
-	}
 	// team only
-	else if ( bTeamOnly == true )
+	if ( bTeamOnly == true )
 	{
 		if ( pPlayer->GetTeamNumber() == TEAM_SPECTATOR )
 		{
@@ -19145,49 +19095,6 @@ static bool CanFindBallSpawnLocation( const Vector& vSearchOrigin, Vector *out_p
 
 void CTFGameRules::OnPlayerSpawned( CTFPlayer *pPlayer )
 {
-	// coach?
-	CSteamID steamIDForPlayer;
-	if ( pPlayer->GetSteamID( &steamIDForPlayer ) )
-	{
-		// find out if we are supposed to coach
-		int idx = m_mapCoachToStudentMap.Find( steamIDForPlayer.GetAccountID() );
-		if ( m_mapCoachToStudentMap.IsValidIndex( idx ) )
-		{
-			// find student
-			uint32 studentAccountID = m_mapCoachToStudentMap[idx];
-			CSteamID steamIDForStudent;
-			for ( int i = 1; i <= gpGlobals->maxClients; i++ )
-			{
-				CTFPlayer *pPotentialStudent = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-				if ( NULL == pPotentialStudent )
-				{
-					continue;
-				}
-				// is this the student?
-				if ( pPotentialStudent->GetSteamID( &steamIDForStudent ) && steamIDForStudent.GetAccountID() == studentAccountID )
-				{
-					Coaching_Start( pPlayer, pPotentialStudent );
-					// @todo (Tom Bui): Not sure this is required--nothing seems to use it
-					// engine->ClientCommand( pPlayer->edict(), "cl_spec_mode %d", OBS_MODE_IN_EYE );
-					// finally, notify the GC
-					GCSDK::CProtoBufMsg< CMsgTFCoaching_CoachJoined > msg( k_EMsgGCCoaching_CoachJoined );
-					msg.Body().set_account_id_coach( steamIDForPlayer.GetAccountID() );
-					GCClientSystem()->BSendMessage( msg );
-					break;
-				}
-			}
-			// remove from the map now so the coach can join later as a normal player if they DC
-			m_mapCoachToStudentMap.RemoveAt( idx );
-		}
-	}
-	// warp coach to student?
-	if ( pPlayer->GetCoach() )
-	{
-		// warp the coach to student
-		pPlayer->GetCoach()->SetObserverTarget( pPlayer );
-		pPlayer->GetCoach()->StartObserverMode( OBS_MODE_CHASE );
-	}
-
 	// notify training
 	if ( m_hTrainingModeLogic )
 	{
@@ -19248,41 +19155,6 @@ void CTFGameRules::OnPlayerSpawned( CTFPlayer *pPlayer )
 #endif
 }
 
-
-class CGCCoaching_CoachJoining : public GCSDK::CGCClientJob
-{
-public:
-	CGCCoaching_CoachJoining( GCSDK::CGCClient *pClient ) : GCSDK::CGCClientJob( pClient ) {}
-
-	virtual bool BYieldingRunGCJob( GCSDK::IMsgNetPacket *pNetPacket )
-	{
-		GCSDK::CProtoBufMsg< CMsgTFCoaching_CoachJoining > msg( pNetPacket );
-		if ( TFGameRules() )
-		{
-			TFGameRules()->OnCoachJoining( msg.Body().account_id_coach(), msg.Body().account_id_student() );
-		}
-		return true;
-	}
-};
-GC_REG_JOB( GCSDK::CGCClient, CGCCoaching_CoachJoining, "CGCCoaching_CoachJoining", k_EMsgGCCoaching_CoachJoining, GCSDK::k_EServerTypeGCClient );
-
-class CGCCoaching_RemoveCurrentCoach : public GCSDK::CGCClientJob
-{
-public:
-	CGCCoaching_RemoveCurrentCoach( GCSDK::CGCClient *pClient ) : GCSDK::CGCClientJob( pClient ) {}
-
-	virtual bool BYieldingRunGCJob( GCSDK::IMsgNetPacket *pNetPacket )
-	{
-		GCSDK::CProtoBufMsg< CMsgTFCoaching_RemoveCurrentCoach > msg( pNetPacket );
-		if ( TFGameRules() )
-		{
-			TFGameRules()->OnRemoveCoach( msg.Body().account_id_coach() );
-		}
-		return true;
-	}
-};
-GC_REG_JOB( GCSDK::CGCClient, CGCCoaching_RemoveCurrentCoach, "CGCCoaching_RemoveCurrentCoach", k_EMsgGCCoaching_RemoveCurrentCoach, GCSDK::k_EServerTypeGCClient );
-
 class CGCUseServerModificationItemJob : public GCSDK::CGCClientJob
 {
 public:
@@ -19335,101 +19207,6 @@ public:
 	}
 };
 GC_REG_JOB( GCSDK::CGCClient, CGCUpdateServerModificationItemStateJob, "CGCUpdateServerModificationItemStateJob", k_EMsgGC_GameServer_ModificationItemState, GCSDK::k_EServerTypeGCClient );
-
-#ifdef _DEBUG
-CON_COMMAND( coaching_stop, "Stop coaching" )
-{
-	CTFPlayer* pCoach = ToTFPlayer( UTIL_GetListenServerHost() );
-	Coaching_Stop( pCoach );
-}
-
-CON_COMMAND( coaching_remove_coach, "Remove current coach" )
-{
-	CTFPlayer* pStudent = ToTFPlayer( UTIL_GetListenServerHost() );
-	CTFPlayer *pCoach = pStudent->GetCoach();
-	if ( pCoach )
-	{
-		Coaching_Stop( pCoach );
-	}
-}
-
-CON_COMMAND( coaching_force_coach, "Force self as coach" )
-{
-	CTFPlayer* pCoachPlayer = ToTFPlayer( UTIL_GetListenServerHost() );
-	if ( pCoachPlayer && TFGameRules() )
-	{
-		for ( int i = 1 ; i <= gpGlobals->maxClients ; i++ )
-		{
-			CTFPlayer *pStudentPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-			if ( pStudentPlayer != pCoachPlayer )
-			{
-				Coaching_Start( pCoachPlayer, pStudentPlayer );
-				break;
-			}
-		}
-	}
-}
-
-CON_COMMAND( coaching_force_student, "Force self as student" )
-{
-	CTFPlayer* pStudentPlayer = ToTFPlayer( UTIL_GetListenServerHost() );
-	if ( pStudentPlayer && TFGameRules() )
-	{
-		for ( int i = 1 ; i <= gpGlobals->maxClients ; i++ )
-		{
-			CTFPlayer *pCoachPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-			if ( pCoachPlayer != pStudentPlayer )
-			{
-				Coaching_Start( pCoachPlayer, pStudentPlayer );
-				break;
-			}
-		}
-	}
-}
-#endif
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFGameRules::OnCoachJoining( uint32 unCoachAccountID, uint32 unStudentAccountID )
-{
-	m_mapCoachToStudentMap.Insert( unCoachAccountID, unStudentAccountID );
-	// see if the coach is on the server already
-	CSteamID steamIDForCoach;
-	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
-	{
-		CTFPlayer *pPotentialCoach = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-		if ( NULL == pPotentialCoach )
-		{
-			continue;
-		}
-		// coach is here, force them to respawn, which will set them up as a coach
-		if ( pPotentialCoach->GetSteamID( &steamIDForCoach ) && steamIDForCoach.GetAccountID() == unCoachAccountID )
-		{
-			pPotentialCoach->ForceRespawn();
-			return;
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFGameRules::OnRemoveCoach( uint32 unCoachAccountID )
-{
-	m_mapCoachToStudentMap.Remove( unCoachAccountID );
-	for ( int i = 1 ; i <= gpGlobals->maxClients ; i++ )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-		CSteamID steamID;
-		if ( pPlayer && pPlayer->GetSteamID( &steamID ) && steamID.GetAccountID() == unCoachAccountID )
-		{
-			Coaching_Stop( pPlayer );
-			return;
-		}
-	}
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: Activates 100% crits for an entire team for a short period of time

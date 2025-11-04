@@ -731,10 +731,6 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayer, DT_TFLocalPlayerExclusive )
 	SendPropFloat( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 8, SPROP_CHANGES_OFTEN, -90.0f, 90.0f ),
 	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 10, SPROP_CHANGES_OFTEN ),
 
-	SendPropBool( SENDINFO( m_bIsCoaching ) ),
-	SendPropEHandle( SENDINFO( m_hCoach ) ),
-	SendPropEHandle( SENDINFO( m_hStudent ) ),
-
 	SendPropInt( SENDINFO( m_nCurrency ), -1, SPROP_VARINT ),
 	SendPropInt( SENDINFO( m_nExperienceLevel ), 7, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_nExperienceLevelProgress ), 7, SPROP_UNSIGNED ),
@@ -857,83 +853,6 @@ void cc_CreatePredictionError_f()
 }
 ConCommand cc_CreatePredictionError( "CreatePredictionError", cc_CreatePredictionError_f, "Create a prediction error", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
-// -------------------------------------------------------------------------------- //
-
-enum eCoachCommand
-{
-	kCoachCommand_Look = 1, // slot1
-	kCoachCommand_Go,		// slot2
-	kCoachCommand_Attack,
-	kCoachCommand_Defend,
-	kNumCoachCommands,
-};
-
-/**
- * Handles a command from the coach
- */
-static void HandleCoachCommand( CTFPlayer *pPlayer, eCoachCommand command )
-{
-	if ( pPlayer && pPlayer->IsCoaching() && pPlayer->GetStudent() && command < kNumCoachCommands )
-	{
-		const float kMaxRateCoachCommands = 1.0f;
-		float flLastCoachCommandDelta = gpGlobals->curtime - pPlayer->m_flLastCoachCommand;
-		if ( flLastCoachCommandDelta < kMaxRateCoachCommands && flLastCoachCommandDelta > 0.0f )
-		{
-			return;
-		}
-		pPlayer->m_flLastCoachCommand = gpGlobals->curtime;
-		IGameEvent *pEvent = gameeventmanager->CreateEvent( "show_annotation" );
-		if ( pEvent )
-		{
-			Vector vForward;
- 			AngleVectors( pPlayer->EyeAngles(), &vForward );
-
-			trace_t	trace;
-			CTraceFilterSimple filter( pPlayer->GetStudent(), COLLISION_GROUP_NONE );
-			UTIL_TraceLine( pPlayer->EyePosition(), pPlayer->EyePosition() + vForward * MAX_TRACE_LENGTH, MASK_SOLID, &filter, &trace );
-
-			CBaseEntity *pHitEntity = trace.m_pEnt && trace.m_pEnt->IsWorld() == false && trace.m_pEnt != pPlayer->GetStudent() ? trace.m_pEnt : NULL;
-			pEvent->SetInt( "id", pPlayer->entindex() );
-			pEvent->SetFloat( "worldPosX", trace.endpos.x );
-			pEvent->SetFloat( "worldPosY", trace.endpos.y );
-			pEvent->SetFloat( "worldPosZ", trace.endpos.z );
-			pEvent->SetFloat( "worldNormalX", trace.plane.normal.x );
-			pEvent->SetFloat( "worldNormalY", trace.plane.normal.y );
-			pEvent->SetFloat( "worldNormalZ", trace.plane.normal.z );
-			pEvent->SetFloat( "lifetime", 10.0f );
-			if ( pHitEntity )
-			{
-				pEvent->SetInt( "follow_entindex", pHitEntity->entindex() );
-			}
-			pEvent->SetInt( "visibilityBitfield", ( 1 << pPlayer->entindex() | 1 << pPlayer->GetStudent()->entindex() ) );
-			pEvent->SetBool( "show_distance", true );
-			pEvent->SetBool( "show_effect", true );
-
-			switch ( command )
-			{
-			case kCoachCommand_Attack:	
-				pEvent->SetString( "text", pHitEntity ? "#TF_Coach_AttackThis" : "#TF_Coach_AttackHere" ); 
-				pEvent->SetString( "play_sound", "coach/coach_attack_here.wav" );
-				break;
-			case kCoachCommand_Defend:	
-				pEvent->SetString( "text", pHitEntity ? "#TF_Coach_DefendThis" : "#TF_Coach_DefendHere" ); 
-				pEvent->SetString( "play_sound", "coach/coach_defend_here.wav" );
-				break;
-			case kCoachCommand_Look:	
-				pEvent->SetString( "text", pHitEntity ? "#TF_Coach_LookAt" : "#TF_Coach_LookHere" ); 
-				pEvent->SetString( "play_sound", "coach/coach_look_here.wav" );
-				break;
-			case kCoachCommand_Go:
-				pEvent->SetString( "text", pHitEntity ? "#TF_Coach_GoToThis" : "#TF_Coach_GoHere" ); 
-				pEvent->SetString( "play_sound", "coach/coach_go_here.wav" );
-				break;
-			}
-			gameeventmanager->FireEvent( pEvent );
-		}
-
-	}
-};
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -956,7 +875,6 @@ CTFPlayer::CTFPlayer()
 	m_pStateInfo = NULL;
 	m_lifeState = LIFE_DEAD; // Start "dead".
 	m_iMaxSentryKills = 0;
-	m_flLastCoachCommand = 0;
 
 	m_flNextTimeCheck = gpGlobals->curtime;
 	m_flSpawnTime = 0;
@@ -2306,9 +2224,6 @@ void CTFPlayer::CheckForIdle( void )
 		if ( IsFakeClient() )
 			return;
 
-		if ( IsCoaching() && GetStudent() != NULL )
-			return;
-
 		if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
 			return;
 
@@ -2697,38 +2612,6 @@ void CTFPlayer::PostThink()
 	{
 		m_flTauntAttackTime = 0;
 		DoTauntAttack();
-	}
-
-	// if we are coaching, then capture events for adding annotations
-	if ( m_bIsCoaching && m_hStudent )
-	{
-		if ( ( m_afButtonPressed & ( IN_ATTACK | IN_ATTACK2 ) ) != 0 )
-		{
-			if ( m_afButtonPressed & IN_ATTACK )
-			{
-				HandleCoachCommand( this, kCoachCommand_Attack );
-			}
-			else if ( m_afButtonPressed & IN_ATTACK2 )
-			{
-				HandleCoachCommand( this, kCoachCommand_Defend );
-			}
-		}
-		if ( m_hStudent->GetTeamNumber() != TEAM_SPECTATOR )
-		{
-			// tether coach to student--if the coach gets too far, move them toward the student
-			Vector vecTarget = m_hStudent->GetAbsOrigin();
-			Vector vecDelta = GetAbsOrigin() - vecTarget;
-			float flDistance = vecDelta.Length();
-			const float kInchesToMeters = 0.0254f;
-			const float kMetersToInches = 1.0f / kInchesToMeters;
-			const float kMaxDistanceToStudent = 30;
-			int distance = RoundFloatToInt( flDistance * kInchesToMeters );
-			if ( distance > kMaxDistanceToStudent )
-			{
-				VectorNormalize( vecDelta );
-				SetAbsOrigin( vecTarget + vecDelta * ( kMaxDistanceToStudent * kMetersToInches ) );
-			}
-		}
 	}
 
 	if ( TFGameRules()->IsMannVsMachineMode() )
@@ -3515,18 +3398,10 @@ CON_COMMAND_F( verifyloadout, "Cause the server to verify the player's items on 
 //-----------------------------------------------------------------------------
 int	CTFPlayer::ShouldTransmit( const CCheckTransmitInfo *pInfo )
 {
-	// always send information to student or client
+	// always send information to client
 	if ( pInfo->m_pClientEnt )
 	{
-		if ( m_hStudent && m_hStudent == CBaseEntity::Instance( pInfo->m_pClientEnt ) )
-		{
-			return FL_EDICT_ALWAYS;
-		}
-		else if ( m_hCoach && m_hCoach == CBaseEntity::Instance( pInfo->m_pClientEnt ) )
-		{
-			return FL_EDICT_ALWAYS;
-		}
-		else if ( TFGameRules() && TFGameRules()->IsPasstimeMode() )
+		if ( TFGameRules() && TFGameRules()->IsPasstimeMode() )
 		{
 			// TODO it should be possible to restrict this further based on
 			// the values of tf_passtime_player_reticles_friends/enemies
@@ -3546,18 +3421,7 @@ int	CTFPlayer::ShouldTransmit( const CCheckTransmitInfo *pInfo )
 //-----------------------------------------------------------------------------
 void CTFPlayer::SetupVisibility( CBaseEntity *pViewEntity, unsigned char *pvs, int pvssize )
 {
-	// coach can only "see" what the student "sees"
-	if ( m_bIsCoaching && m_hStudent )
-	{
-		Vector org;
-		org = m_hStudent->EyePosition();
-
-		engine->AddOriginToPVS( org );
-	}
-	else
-	{
-		BaseClass::SetupVisibility( pViewEntity, pvs, pvssize );
-	}
+	BaseClass::SetupVisibility( pViewEntity, pvs, pvssize );
 
 	int area = pViewEntity ? pViewEntity->NetworkProp()->AreaNum() : NetworkProp()->AreaNum();
 	PointCameraSetupVisibility( this, area, pvs, pvssize );
@@ -6203,9 +6067,6 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		return;
 	}
 
-	if ( IsCoaching() && ( iTeam != TEAM_SPECTATOR ) )
-		return;
-
 #ifdef TF_RAID_MODE
 	if ( TFGameRules()->IsRaidMode() )
 	{
@@ -6429,15 +6290,8 @@ void CTFPlayer::ForceChangeTeam( int iTeamNum, bool bFullTeamSwitch )
 	// can't change teams if in a duel
 	if ( DuelMiniGame_IsInDuel( this ) )
 	{
-		if ( !m_bIsCoaching )
-			return;
-
 		DuelMiniGame_NotifyPlayerChangedTeam( this, iTeamNum, true );
 	}
-
-	// can't change teams if coaching
-	if ( m_bIsCoaching && m_hStudent != NULL && iTeamNum != TEAM_SPECTATOR )
-		return;
 
 	RemoveAllOwnedEntitiesFromWorld( true );
 	
@@ -6521,12 +6375,6 @@ void CTFPlayer::ChangeTeam( int iTeamNum, bool bAutoTeam, bool bSilent, bool bAu
 
 	// Not allowed to change teams in bumper kart
 	if ( m_Shared.InCond( TF_COND_HALLOWEEN_KART ) )
-	{
-		return;
-	}
-
-	// can only be on TEAM_SPECTATOR when coaching
-	if ( IsCoaching() && ( iTeamNum >= FIRST_GAME_TEAM ) )
 	{
 		return;
 	}
@@ -6676,9 +6524,6 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName, bool bAllowSpaw
 			return;
 		}
 	}
-
-	if ( IsCoaching() )
-		return;
 
 	if ( GetTeamNumber() == TEAM_UNASSIGNED )
 		return;
@@ -7828,10 +7673,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	}
 	else if ( FStrEq( pcmd, "spec_next" ) ) // chase next player
 	{
-		if ( m_bIsCoaching )
-		{
-			return true;
-		}
 // 		if ( !ShouldRunRateLimitedCommand( args ) )
 // 			return true;
 
@@ -7840,10 +7681,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	}
 	else if ( FStrEq( pcmd, "spec_prev" ) ) // chase prev player
 	{
-		if ( m_bIsCoaching )
-		{
-			return true;
-		}
 // 		if ( !ShouldRunRateLimitedCommand( args ) )
 // 			return true;
 
@@ -7882,7 +7719,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			if ( !pMatchDesc || pMatchDesc->BAllowTeamChange() )
 			{
 				bool bPreventCustomGameModeChange = ( IsCustomGameMode() && ( GetTeamNumber() >= FIRST_GAME_TEAM ) );
-				if ( !IsCoaching() && !bPreventCustomGameModeChange )
+				if ( !bPreventCustomGameModeChange )
 				{
 					int iTeam = GetAutoTeam();
 					ChangeTeam( iTeam, true, false );
@@ -7896,15 +7733,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		}
 
 		return true;
-	}
-	else if ( FStrEq( pcmd, "coach_command" ) )
-	{
-		if ( m_bIsCoaching && m_hStudent && args.ArgC() > 1 )
-		{
-			eCoachCommand command = (eCoachCommand)atoi( args[1] );
-			HandleCoachCommand( this, command );
-			return true;
-		}
 	}
 	else if ( FStrEq( pcmd, "boo" ) && m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) )
 	{
@@ -13240,17 +13068,6 @@ void CTFPlayer::DisplayLocalItemStatus( CTFGoal *pGoal )
 #endif
 }
 
-void CTFPlayer::SetIsCoaching( bool bIsCoaching )
-{ 
-	m_bIsCoaching = bIsCoaching;
-
-	if ( !bIsCoaching )
-	{
-		// reset our last action time so we don't get kicked for being idle while we were coaching
-		m_flLastAction = gpGlobals->curtime;
-	}
-}
-
 //=========================================================================
 // Called when the player disconnects from the server.
 void CTFPlayer::TeamFortress_ClientDisconnected( void )
@@ -13275,18 +13092,6 @@ void CTFPlayer::TeamFortress_ClientDisconnected( void )
 
 	if ( GetTeamVoteController() )
 		GetTeamVoteController()->OnPlayerDisconnected( this );
-
-	// cleanup coaching
-	if ( GetCoach() )
-	{
-		GetCoach()->SetIsCoaching( false );
-		GetCoach()->SetStudent( NULL );
-	}
-	else if ( GetStudent() )
-	{
-		SetIsCoaching( false );
-		GetStudent()->SetCoach( NULL );
-	}
 
 	if ( TFGameRules() && TFGameRules()->IsPowerupMode()  )
 	{
@@ -16277,10 +16082,6 @@ bool CTFPlayer::IsValidObserverTarget( CBaseEntity * target )
 	if ( !target || ( target == this ) )
 		return false;
 
-	// if we are coaching, the target is always valid
-	if ( ( m_hStudent == target ) && target->IsPlayer() )
-		return true;
-
 	if ( TFGameRules()->IsPasstimeMode() && ( target == TFGameRules()->GetObjectiveObserverTarget() ) )
 		return true;
 
@@ -16574,12 +16375,6 @@ void CTFPlayer::ValidateCurrentObserverTarget( void )
 
 		if ( player->m_lifeState == LIFE_DEAD || player->m_lifeState == LIFE_DYING )
 		{
-			// if we are coaching, don't switch
-			if ( m_hStudent == m_hObserverTarget )
-			{
-				return;
-			}
-
 			// Once we're past the pause after death, find a new target
 			if ( (player->GetDeathTime() + DEATH_ANIMATION_TIME ) < gpGlobals->curtime )
 			{
@@ -16607,12 +16402,7 @@ void CTFPlayer::ValidateCurrentObserverTarget( void )
 //-----------------------------------------------------------------------------
 void CTFPlayer::CheckObserverSettings()
 {
-	// make sure we are always observing the student
-	if ( m_hObserverTarget && m_hStudent && m_hStudent != m_hObserverTarget )
-	{
-		SetObserverTarget( m_hStudent );
-	}
-	else if ( TFGameRules() )
+	if ( TFGameRules() )
 	{
 		// is there a current entity that is the required spectator target?
 		if ( TFGameRules()->GetRequiredObserverTarget() )
@@ -19646,14 +19436,6 @@ CTeamControlPoint *CTFPlayer::SelectClosestControlPointByTravelDistance( CUtlVec
 //-----------------------------------------------------------------------------
 bool CTFPlayer::CanHearAndReadChatFrom( CBasePlayer *pPlayer )
 {
-	// always can hear coach
-	if ( m_hCoach && m_hCoach == pPlayer )
-		return true;
-
-	// always can hear student
-	if ( m_hStudent && m_hStudent == pPlayer )
-		return true;
-
 	// can always hear the console unless we're ignoring all chat
 	if ( !pPlayer )
 		return m_iIgnoreGlobalChat != CHAT_IGNORE_ALL;
@@ -19697,12 +19479,6 @@ bool CTFPlayer::CanBeAutobalanced()
 		return false;
 
 	if ( IsBot() )
-		return false;
-
-	if ( IsCoaching() )
-		return false;
-
-	if ( GetCoach() )
 		return false;
 
 	if ( m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) )

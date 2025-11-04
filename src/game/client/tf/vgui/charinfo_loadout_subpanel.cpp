@@ -10,7 +10,6 @@
 #include "vgui/ISurface.h"
 #include "vgui/IInput.h"
 #include "vgui/ILocalize.h"
-#include "c_tf_freeaccount.h"
 #include "c_tf_player.h"
 #include "confirm_dialog.h"
 #include "gamestringpool.h"

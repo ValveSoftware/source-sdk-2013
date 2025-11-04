@@ -367,8 +367,6 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 			 || TFGameRules()->State_Get() == GR_STATE_GAME_OVER
 			 // [msmith] Don't allow the player to switch teams when in training.
 			 || TFGameRules()->IsInTraining() 
-			 // or if they are coaching
-			 || C_TFPlayer::GetLocalTFPlayer()->m_bIsCoaching
 			 || bDisallowChange
 			)
 		{
@@ -382,9 +380,6 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 
 			return;
 		}
-
-		extern void Coaching_CheckIfEligibleForCoaching();
-		Coaching_CheckIfEligibleForCoaching();
 
 		gViewPortInterface->ShowPanel( PANEL_CLASS_RED, false );
 		gViewPortInterface->ShowPanel( PANEL_CLASS_BLUE, false );

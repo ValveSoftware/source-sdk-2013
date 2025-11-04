@@ -647,10 +647,7 @@ public:
 	CNetworkHandle( C_TFItem, m_hItem );
 
 	CNetworkHandle( C_TFWeaponBase, m_hOffHandWeapon );
-	CNetworkHandle( C_TFPlayer, m_hCoach );
-	CNetworkHandle( C_TFPlayer, m_hStudent );
 
-	CGlowObject		*m_pStudentGlowEffect;
 	CGlowObject		*m_pPowerupGlowEffect;
 
 	int				m_iOldPlayerClass;	// Used to detect player class changes
@@ -672,7 +669,6 @@ public:
 	int				m_nOldBotSkill;
 	bool			m_bSaveMeParity;
 	bool			m_bOldSaveMeParity;
-	bool			m_bIsCoaching;
 
 private:
 	void			UpdateTauntItem();

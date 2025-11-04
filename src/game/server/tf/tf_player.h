@@ -564,15 +564,6 @@ public:
 	bool InAirDueToExplosion( void ) { return (!(GetFlags() & FL_ONGROUND) && (GetWaterLevel() == WL_NotInWater) && ( (m_iBlastJumpState != 0) ) || m_Shared.InCond( TF_COND_ROCKETPACK ) ); }
 	bool InAirDueToKnockback( void ) { return (!(GetFlags() & FL_ONGROUND) && (GetWaterLevel() == WL_NotInWater) && ( (m_iBlastJumpState != 0) || m_Shared.InCond( TF_COND_KNOCKED_INTO_AIR ) || m_Shared.InCond( TF_COND_GRAPPLINGHOOK ) || m_Shared.InCond( TF_COND_GRAPPLINGHOOK_SAFEFALL ) ) ); }
 
-	bool IsCoaching() const { return m_bIsCoaching; }
-	void SetIsCoaching( bool bIsCoaching );
-
-	void SetCoach( CTFPlayer *pCoach ) { m_hCoach = pCoach; }
-	CTFPlayer* GetCoach() const { return m_hCoach; }
-
-	void SetStudent( CTFPlayer *pStudent ) { m_hStudent = pStudent; }
-	CTFPlayer* GetStudent() const { return m_hStudent; }
-
 	void DoNoiseMaker(); // Halloween event item support.
 
 	bool IsWormsGearEquipped( void ) const;
@@ -637,11 +628,6 @@ public:
 	int m_flNextTimeCheck;		// Next time the player can execute a "timeleft" command
 
 	CNetworkVar( bool, m_bSaveMeParity );
-	
-	CNetworkVar( bool, m_bIsCoaching);
-	CNetworkHandle( CTFPlayer, m_hCoach );
-	CNetworkHandle( CTFPlayer, m_hStudent );
-	float	m_flLastCoachCommand;
 
 	CNetworkVar( bool, m_bIsABot );
 	CNetworkVar( int, m_nBotSkill );

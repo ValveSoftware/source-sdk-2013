@@ -1249,11 +1249,6 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 		return;
 
 	int localteam = pLocalTFPlayer->GetTeamNumber();
-	if ( pLocalTFPlayer->m_bIsCoaching && pLocalTFPlayer->m_hStudent )
-	{
-		localteam = pLocalTFPlayer->m_hStudent->GetTeamNumber();
-	}
-
 	bool bMadeSelection = false;
 
 	for ( int playerIndex = 1; playerIndex <= MAX_PLAYERS; playerIndex++ )
@@ -1635,27 +1630,13 @@ void CTFClientScoreBoardDialog::UpdateSpectatorList()
 	{
 		if ( ShouldShowAsSpectator( playerIndex ) )
 		{
-			C_TFPlayer *pPlayer = (C_TFPlayer*)UTIL_PlayerByIndex( playerIndex );
-			if ( pPlayer && pPlayer->m_bIsCoaching && pPlayer->m_hStudent )
+			if ( nSpectators > 0 )
 			{
-				if ( nCoaches > 0 )
-				{
-					Q_strncat( szCoachList, ", ", ARRAYSIZE( szCoachList ) );
-				}
-
-				Q_strncat( szCoachList, g_PR->GetPlayerName( playerIndex ), ARRAYSIZE( szCoachList ) );
-				nCoaches++;
+				Q_strncat( szSpectatorList, ", ", ARRAYSIZE( szSpectatorList ) );
 			}
-			else
-			{
-				if ( nSpectators > 0 )
-				{
-					Q_strncat( szSpectatorList, ", ", ARRAYSIZE( szSpectatorList ) );
-				}
 
-				Q_strncat( szSpectatorList, g_PR->GetPlayerName( playerIndex ), ARRAYSIZE( szSpectatorList ) );
-				nSpectators++;
-			}
+			Q_strncat( szSpectatorList, g_PR->GetPlayerName( playerIndex ), ARRAYSIZE( szSpectatorList ) );
+			nSpectators++;
 		}
 	}
 

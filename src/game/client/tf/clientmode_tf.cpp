@@ -130,7 +130,6 @@ extern ConVar sc_look_sensitivity_scale;
 
 extern bool TournamentHudElementKeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
 extern bool ArenaClassLayoutKeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
-extern bool CoachingHandlesKeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
 extern bool ItemTestHandlesKeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
 extern bool ShouldScoreBoardHandleKeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
 
@@ -341,10 +340,8 @@ void CTFModeManager::LevelShutdown( void )
 	g_pClientMode->LevelShutdown();
 
 	extern void CL_Training_LevelShutdown();
-	extern void CL_Coaching_LevelShutdown();
 	extern void CL_Halloween_LevelShutdown();
 	CL_Training_LevelShutdown();
-	CL_Coaching_LevelShutdown();
 	CL_Halloween_LevelShutdown();
 }
 
@@ -1473,11 +1470,6 @@ int	ClientModeTFNormal::HudElementKeyInput( int down, ButtonCode_t keynum, const
 		return 0;
 	}
 
-	if ( CoachingHandlesKeyInput( down, keynum, pszCurrentBinding ) )
-	{
-		return 0;
-	}
-
 	if ( ItemTestHandlesKeyInput( down, keynum, pszCurrentBinding ) )
 	{
 		return 0;
@@ -1595,21 +1587,7 @@ int ClientModeTFNormal::HandleSpectatorKeyInput( int down, ButtonCode_t keynum, 
 	}
 #endif
 
-	// @note Tom Bui: Coaching, so override all input
-	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();	
-	if ( pLocalPlayer && pLocalPlayer->m_bIsCoaching  )
-	{
-		if ( down && pszCurrentBinding && Q_strcmp( pszCurrentBinding, "+jump" ) == 0 )
-		{
-			engine->ClientCmd( "spec_mode" );
-			return 0;
-		}
-		return 1;
-	}
-	else
-	{
-		return BaseClass::HandleSpectatorKeyInput( down, keynum, pszCurrentBinding );
-	}
+	return BaseClass::HandleSpectatorKeyInput( down, keynum, pszCurrentBinding );
 }
 
 bool ClientModeTFNormal::DoPostScreenSpaceEffects( const CViewSetup *pSetup )

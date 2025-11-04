@@ -124,11 +124,6 @@ protected:
 	bool					m_bPrevTournamentMode;
 	float					m_flNextPlayerPanelUpdate;
 
-	// Coaching
-	bool					m_bCoaching;
-	CAvatarImagePanel		*m_pAvatar;
-	CTFSpectatorGUIHealth	*m_pStudentHealth;
-
 	CPanelAnimationVarAliasType( int, m_iTeam1PlayerBaseOffsetX, "team1_player_base_offset_x", "0", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTeam1PlayerBaseX, "team1_player_base_x", "0", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTeam1PlayerBaseY, "team1_player_base_y", "0", "proportional_int" );

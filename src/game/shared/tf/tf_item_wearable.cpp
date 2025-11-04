@@ -346,10 +346,6 @@ bool CTFWearable::ShouldDraw()
 		if ( m_bDisguiseWearable && pLocalPlayer )
 		{
 			int iLocalPlayerTeam = pLocalPlayer->GetTeamNumber();
-			if ( pLocalPlayer->m_bIsCoaching && pLocalPlayer->m_hStudent )
-			{
-				iLocalPlayerTeam = pLocalPlayer->m_hStudent->GetTeamNumber();
-			}
 
 			// This wearable is a part of our disguise -- we might want to draw it.
 			if ( GetEnemyTeam( pOwner->GetTeamNumber() ) != iLocalPlayerTeam )

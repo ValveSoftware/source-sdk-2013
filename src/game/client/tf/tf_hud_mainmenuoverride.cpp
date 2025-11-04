@@ -13,7 +13,6 @@
 #include "rtime.h"
 #include "tf_gcmessages.h"
 #include "econ_notifications.h"
-#include "c_tf_freeaccount.h"
 #include "econ_gcmessages.h"
 #include "econ_item_inventory.h"
 #include "gcsdk/gcclient.h"

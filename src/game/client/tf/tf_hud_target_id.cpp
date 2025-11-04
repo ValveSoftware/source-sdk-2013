@@ -1211,11 +1211,6 @@ bool CSpectatorTargetID::ShouldDraw( void )
 		 pLocalTFPlayer->GetObserverMode() == OBS_MODE_FREEZECAM )
 		return false;
 
-	if ( pLocalTFPlayer->m_bIsCoaching )
-	{
-		return false;
-	}
-
 	// Hide panel for freeze-cam screenshot?
 	extern bool IsTakingAFreezecamScreenshot();
 	extern ConVar hud_freezecamhide;

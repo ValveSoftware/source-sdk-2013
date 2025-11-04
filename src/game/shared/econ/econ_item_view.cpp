@@ -34,7 +34,6 @@
 #include "econ_contribution.h"
 #include "tf_player_info.h"
 #include "tf_gcmessages.h"
-#include "c_tf_freeaccount.h"
 #include "c_tf_player.h"
 
 static ConVar tf_hide_custom_decals( "tf_hide_custom_decals", "0", FCVAR_ARCHIVE );
