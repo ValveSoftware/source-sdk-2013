@@ -156,286 +156,11 @@ DECLARE_BUILD_FACTORY( CMatchHistoryEntryPanel );
 
 extern Color s_colorChallengeHeader;
 
-DECLARE_BUILD_FACTORY( CLadderLobbyLeaderboard );
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CLadderLobbyLeaderboard::CLadderLobbyLeaderboard( Panel *pParent, const char *pszPanelName )
-	: CTFLeaderboardPanel( pParent, pszPanelName )
-{
-	m_pScoreList = new vgui::EditablePanel( this, "ScoreList" );
-	m_pScoreListScroller = new vgui::ScrollableEditablePanel( this, m_pScoreList, "ScoreListScroller" );
-	m_pScoreListScroller->AddActionSignalTarget( this );
-
-	m_pszLeaderboardName = GetMatchGroupLeaderboardName( k_eMatchGroupLeaderboard_Ladder6v6 );
-
-	m_bIsDataValid = false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Cleanu dynamically allocated panels
-//-----------------------------------------------------------------------------
-CLadderLobbyLeaderboard::~CLadderLobbyLeaderboard()
-{
-	FOR_EACH_VEC( m_vecLeaderboardEntries, i )
-	{
-		m_vecLeaderboardEntries[ i ]->MarkForDeletion();
-	}
-	m_vecLeaderboardEntries.Purge();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CLadderLobbyLeaderboard::ApplySchemeSettings( vgui::IScheme *pScheme )
-{
-	BaseClass::ApplySchemeSettings( pScheme );
-
-	LoadControlSettings( "Resource/UI/econ/LobbyLeaderboard.res" );
-
-	FOR_EACH_VEC( m_vecLeaderboardEntries, i )
-	{
-		m_vecLeaderboardEntries[i]->ApplySchemeSettings( pScheme );
-		m_vecLeaderboardEntries[i]->LoadControlSettings( "Resource/UI/LeaderboardEntryRank.res" );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CLadderLobbyLeaderboard::OnCommand( const char *command )
-{
-	if ( V_strnicmp( command, "stream", 6 ) == 0 )
-	{
-		if ( V_strlen( command ) > 7 )
-		{
-			const char *pszURL = command + 7;
-			if ( Q_strncmp( pszURL, "http://", 7 ) != 0 && Q_strncmp( pszURL, "https://", 8 ) != 0 )
-			{
-				Warning( "Invalid URL '%s'\n", pszURL );
-			}
-			else
-			{
-				vgui::system()->ShellExecute( "open", pszURL );
-			}
-		}
-		return;
-	}
-	else if ( FStrEq( "local", command ) )
-	{
-		UpdateLeaderboards();
-	}
-
-	BaseClass::OnCommand( command );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Update data when its dirty. 
-//-----------------------------------------------------------------------------
-void CLadderLobbyLeaderboard::OnThink()
-{
-	if ( m_bDataDirty )
-	{
-		UpdateLeaderboards();
-		m_bDataDirty = false;
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CLadderLobbyLeaderboard::GetLeaderboardData( CUtlVector< LeaderboardEntry_t* >& scores )
-{
-	CUtlVector< LeaderboardEntry_t* > vecLadderScores;
-	if ( Leaderboards_GetLadderLeaderboard( vecLadderScores, m_pszLeaderboardName, false ) )
-	{
-		scores.AddVectorToTail( vecLadderScores );
-		return true;
-	}
-
-	return false;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CLadderLobbyLeaderboard::SOCreated( const CSteamID & steamIDOwner, const CSharedObject *pObject, ESOCacheEvent eEvent )
-{
-	if ( pObject->GetTypeID() != CTFRatingData::k_nTypeID )
-		return;
-
-	m_bDataDirty = true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CLadderLobbyLeaderboard::SOUpdated( const CSteamID & steamIDOwner, const CSharedObject *pObject, ESOCacheEvent eEvent )
-{
-	if ( pObject->GetTypeID() != CTFRatingData::k_nTypeID )
-		return;
-
-	m_bDataDirty = true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CLadderLobbyLeaderboard::UpdateLeaderboards()
-{
-	CUtlVector< LeaderboardEntry_t* > scores;
-	m_bIsDataValid = GetLeaderboardData( scores );
-	if ( !m_bIsDataValid )
-	{
-		FOR_EACH_VEC( m_vecLeaderboardEntries, i )
-		{
-			m_vecLeaderboardEntries[ i ]->MarkForDeletion();
-		}
-		m_vecLeaderboardEntries.Purge();
-		return false;
-	}
-
-	bool bAnyAdded = false;
-	while( m_vecLeaderboardEntries.Count() > scores.Count() )
-	{
-		m_vecLeaderboardEntries.Tail()->MarkForDeletion();
-		m_vecLeaderboardEntries.RemoveMultipleFromTail( 1 );
-	}
-
-	while( m_vecLeaderboardEntries.Count() < scores.Count() )
-	{
-		bAnyAdded = true;
-		m_vecLeaderboardEntries.AddToTail( new vgui::EditablePanel( m_pScoreList, "LeaderboardEntry" ) );
-	}
-
-	if ( bAnyAdded )
-	{
-		InvalidateLayout( true, true );
-	}
-
-	int nScoreListHeight = scores.Count() * m_yEntryStep;
-	int nScrollerWidth, nScrollerHeight;
-	m_pScoreListScroller->GetSize( nScrollerWidth, nScrollerHeight );
-
-	m_pScoreList->SetSize( nScrollerWidth, Max( nScoreListHeight, nScrollerHeight ) );
-
-	m_pScoreList->InvalidateLayout( true );
-	m_pScoreListScroller->InvalidateLayout( true );
-	m_pScoreListScroller->GetScrollbar()->InvalidateLayout( true );
-	static int nScrollWidth = m_pScoreListScroller->GetScrollbar()->GetWide();
-	m_pScoreListScroller->GetScrollbar()->SetWide( nScrollWidth>>1 );
-	if ( m_pScoreListScroller->GetScrollbar()->GetButton( 0 ) &&
-			m_pScoreListScroller->GetScrollbar()->GetButton( 1 ) )
-	{
-		m_pScoreListScroller->GetScrollbar()->GetButton( 0 )->SetVisible( false );
-		m_pScoreListScroller->GetScrollbar()->GetButton( 1 )->SetVisible( false );
-	}
-
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( k_eTFMatchGroup_Ladder_6v6 );
-
-	FOR_EACH_VEC( m_vecLeaderboardEntries, i )
-	{
-		EditablePanel *pContainer = m_vecLeaderboardEntries[i];
-		if ( !pContainer )
-			continue;
-
-		Color colorToUse = i % 2 == 1 ? m_OddTextColor : m_EvenTextColor;
-
-		// Make sure we have scores
-		if ( i >= scores.Count() )
-		{
-			pContainer->SetVisible( false );
-			continue;
-		}
-
-		const LeaderboardEntry_t *pLeaderboardEntry = scores[i];
-		const CSteamID &steamID = pLeaderboardEntry->m_steamIDUser;
-		int nRank = clamp( pLeaderboardEntry->m_nScore / 1000000, 0, pMatchDesc->m_pProgressionDesc->GetNumLevels() - 1 );
-
-		// If your rank is 0, then you're in placement.  Skip placement folks.
-		if ( nRank == 0 )
-		{
-			pContainer->SetVisible( false );
-			continue;
-		}
-
-		pContainer->SetVisible( true );
-		pContainer->SetPos( 0, i * m_yEntryStep );
-
-#ifdef TWITCH_LEADERBOARD
-		TwitchTvAccountInfo_t *pTwitchInfo = StreamManager()->GetTwitchTvAccountInfo( steamID.ConvertToUint64() );
-		ETwitchTvState_t twitchState = pTwitchInfo ? pTwitchInfo->m_eTwitchTvState : k_ETwitchTvState_Error;
-		// still waiting for twitch info to load
-		if ( twitchState <= k_ETwitchTvState_Loading )
-			return false;
-#endif // TWITCH_LEADERBOARD
-
-		bool bIsLocalPlayer = steamapicontext && steamapicontext->SteamUser() && steamapicontext->SteamUser()->GetSteamID() == steamID;
-		pContainer->SetDialogVariable( "position", "" );
-		pContainer->SetDialogVariable( "username", InventoryManager()->PersonaName_Get( steamID.GetAccountID() ) );
-
-		CExLabel *pNameText = dynamic_cast< CExLabel* >( pContainer->FindChildByName( "UserName" ) );
-		if ( pNameText )
-		{
-			pNameText->SetColorStr( bIsLocalPlayer ? m_LocalPlayerTextColor : colorToUse );
-		}
-
-		CAvatarImagePanel *pAvatar = dynamic_cast< CAvatarImagePanel* >( pContainer->FindChildByName( "AvatarImage" ) );
-		if ( pAvatar )
-		{
-			pAvatar->SetShouldDrawFriendIcon( false );
-			pAvatar->SetPlayer( steamID, k_EAvatarSize32x32 );
-		}
-
-		CTFBadgePanel *pRankImage = dynamic_cast< CTFBadgePanel* >( pContainer->FindChildByName( "RankImage" ) );
-		if ( pRankImage )
-		{
-			// We don't want to show people who are still in placement on the leaderboard.
-			if ( nRank == 0 )
-				continue;
-			auto& levelInfo = pMatchDesc->m_pProgressionDesc->GetLevelByNumber( nRank );
-			pRankImage->SetupBadge( pMatchDesc, levelInfo, pLeaderboardEntry->m_steamIDUser, nRank == 0 );
-
-			wchar_t wszOutString[ 128 ];
-			char szLocalized[512];
-			wchar_t wszCount[ 16 ];
-			_snwprintf( wszCount, ARRAYSIZE( wszCount ), L"%d", levelInfo.m_nLevelNum );
-			const wchar_t *wpszFormat = g_pVGuiLocalize->Find( pMatchDesc->m_pProgressionDesc->m_pszLevelToken );
-			g_pVGuiLocalize->ConstructString_safe( wszOutString, wpszFormat, 2, wszCount, g_pVGuiLocalize->Find( levelInfo.m_pszLevelTitle ) );
-			g_pVGuiLocalize->ConvertUnicodeToANSI( wszOutString, szLocalized, sizeof( szLocalized ) );
-
-			pRankImage->SetMouseInputEnabled( true );
-			pRankImage->SetVisible( true );
-		}
-
-		CExImageButton *pStreamImage = dynamic_cast< CExImageButton* >( pContainer->FindChildByName( "StreamImageButton" ) );
-		if ( pStreamImage )
-		{
-#ifdef TWITCH_LEADERBOARD
-			if ( twitchState == k_ETwitchTvState_Linked )
-			{
-				pStreamImage->SetVisible( true );
-				pStreamImage->SetCommand( CFmtStr( "stream %s", pTwitchInfo->m_sTwitchTvChannel.String() ) );
-			}
-			else
-#endif // TWITCH_LEADERBOARD
-			{
-				pStreamImage->SetVisible( false );
-				pStreamImage->SetCommand( "" );
-			}
-		}
-	}
-
-	return true;
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 CCompStatsPanel::CCompStatsPanel( vgui::Panel *pParent, const char* pszName ) 
 	: BaseClass( pParent, pszName )
-	, m_pCompetitiveModeLeaderboard( NULL )
 	, m_pMatchHistoryScroller( NULL )
 	, m_eMatchSortMethod( SORT_BY_DATE )
 	, m_bDescendingMatchHistorySort( true )
@@ -473,12 +198,7 @@ void CCompStatsPanel::OnCommand( const char *command )
 		return;
 	}
 	else if ( FStrEq( command, "show_leaderboards" ) )
-	{
-		if ( m_pCompetitiveModeLeaderboard )
-		{
-			m_pCompetitiveModeLeaderboard->SetVisible( true );
-		}
-		 
+	{		 
 		SetControlVisible( "MatchHistoryCategories", false, true );
 		SetControlVisible( "MatchHistoryContainer", false, true );
 
@@ -487,11 +207,6 @@ void CCompStatsPanel::OnCommand( const char *command )
 	else if ( FStrEq( command, "show_match_history" ) )
 	{
 		m_bMatchDataForLocalPlayerDirty = true;
-
-		if ( m_pCompetitiveModeLeaderboard )
-		{
-			m_pCompetitiveModeLeaderboard->SetVisible( false );
-		}
 
 		SetControlVisible( "MatchHistoryCategories", true, true );
 		SetControlVisible( "MatchHistoryContainer", true, true );
@@ -605,7 +320,6 @@ void CCompStatsPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	LoadControlSettings( "Resource/UI/CompStats.res" );
 
 	EditablePanel* pPlaylistBGPanel = FindControl< EditablePanel >( "PlaylistBGPanel", true );
-	m_pCompetitiveModeLeaderboard = pPlaylistBGPanel->FindControl< CLadderLobbyLeaderboard >( "Leaderboard", true );
 
 	m_pMatchHistoryScroller = pPlaylistBGPanel->FindControl< CScrollableList >( "MatchHistoryContainer" );
 }

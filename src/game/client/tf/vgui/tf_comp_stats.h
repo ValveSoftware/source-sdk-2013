@@ -27,42 +27,6 @@ namespace vgui
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CLadderLobbyLeaderboard : public CTFLeaderboardPanel
-							  , public CLocalSteamSharedObjectListener
-{
-	DECLARE_CLASS_SIMPLE( CLadderLobbyLeaderboard, CTFLeaderboardPanel );
-public:
-
-	CLadderLobbyLeaderboard( Panel *pParent, const char *pszPanelName );
-	virtual ~CLadderLobbyLeaderboard();
-
-	//-----------------------------------------------------------------------------
-	// Purpose: Create leaderboard panels
-	//-----------------------------------------------------------------------------
-	virtual void ApplySchemeSettings( vgui::IScheme *pScheme ) OVERRIDE;
-	virtual void OnCommand( const char *command ) OVERRIDE;
-	virtual void OnThink() OVERRIDE;
-
-	virtual bool GetLeaderboardData( CUtlVector< LeaderboardEntry_t* >& scores );
-	virtual bool UpdateLeaderboards();
-
-	bool IsDataValid( void ) { return m_bIsDataValid; }
-
-	virtual void SOCreated( const CSteamID & steamIDOwner, const CSharedObject *pObject, ESOCacheEvent eEvent ) OVERRIDE;
-	virtual void SOUpdated( const CSteamID & steamIDOwner, const CSharedObject *pObject, ESOCacheEvent eEvent ) OVERRIDE;
-
-private:
-	const char *m_pszLeaderboardName;
-	bool m_bIsDataValid;
-	bool m_bDataDirty = true;
-
-	vgui::ScrollableEditablePanel *m_pScoreListScroller;
-	EditablePanel *m_pScoreList;
-};
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 class CCompStatsPanel : public EditablePanel
 					  , public CLocalSteamSharedObjectListener
 					  , public CGameEventListener
@@ -99,9 +63,6 @@ private:
 	CPanelAnimationVarAliasType( int, m_iHasPassWidth, "has_pass_width", "12", "proportional_int" );
 
 	CUtlVector<vgui::Label *> m_vecSearchCriteriaLabels;
-
-	// leaderboards
-	CLadderLobbyLeaderboard *m_pCompetitiveModeLeaderboard;
 
 	vgui::HFont m_fontMedalsCount;
 

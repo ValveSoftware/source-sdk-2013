@@ -71,7 +71,6 @@ private:
 	void UpdateControls();
 	void ClearMapLabel();
 	void ShowMapInfo( bool bShowMapInfo, bool bIsMVM = false, bool bBackgroundOverride = false );
-	void UpdateLeaderboard();
 	void InitBarChartComboBox( vgui::ComboBox *pComboBox );
 	void SetValueAsClass( const char *pDialogVariable, int iValue, int iPlayerClass );
 	void DisplayBarValue( int iChart, int iClass, ClassStats_t &stats, TFStatType_t statType, StatDisplay_t flags, float flMaxValue );	
@@ -92,7 +91,6 @@ private:
 	CTFImagePanel	*m_pTipImage;
 	vgui::Label		*m_pTipText;
 	vgui::EditablePanel *m_pMapInfoPanel;
-	vgui::Panel		*m_pLeaderboardTitle;
 
 	vgui::ImagePanel *m_pMainBackground;
 	void UpdateMainBackground( void ); 
@@ -121,11 +119,7 @@ private:
 	TFStatType_t m_statBarGraph[2];					// what stat is displayed in the left hand and right hand bar graphs
 	StatDisplay_t m_displayBarGraph[2];				// the display type for the left hand and right hand bar graphs
 
-	bool m_bShowingLeaderboard;
 	bool m_bLoadingCommunityMap;
-	int m_xStartLeaderboard;
-	int m_yStartLeaderboard;
-	CUtlVector< vgui::EditablePanel* > m_vecLeaderboardEntries;
 
 #ifdef _X360
 	bool m_bShowBackButton;
