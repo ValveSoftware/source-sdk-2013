@@ -159,18 +159,24 @@ CTFPlayer *CPasstimeBall::GetThrower() const
 }
 
 //-----------------------------------------------------------------------------
+CTFPlayer *CPasstimeBall::GetLastThrower() const 
+{ 
+	return m_hLastThrower.Get(); 
+}
+
+//-----------------------------------------------------------------------------
 void CPasstimeBall::SetThrower( CTFPlayer *pPlayer ) 
 { 
-	m_hThrower = pPlayer; 
-	if ( !pPlayer )
+	m_hThrower = pPlayer;
+	if ( pPlayer )
 	{
-		ChangeTeam( TEAM_UNASSIGNED );
+		m_hLastThrower = pPlayer; // Track for jack armor cooldown
+		ChangeTeam( pPlayer->GetTeamNumber() );
 	}
 	else 
 	{
-		ChangeTeam( pPlayer->GetTeamNumber() );
+		ChangeTeam( TEAM_UNASSIGNED );
 	}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -782,6 +788,8 @@ void CPasstimeBall::SetStateCarried( CTFPlayer *pCarrier )
 		m_hPrevCarrier = m_hCarrier;
 	}
 	m_hCarrier = pCarrier;
+	m_hLastThrower = 0; // Clear jack armor cooldown when someone picks up ball
+	m_flThrowerCanPickupTime = 0;
 	ChangeTeam( pCarrier->GetTeamNumber() );
 }
 
@@ -791,6 +799,8 @@ void CPasstimeBall::MoveToSpawner( const Vector &pos )
 	MoveTo( pos, Vector( 0,0,0 ) );
 	m_bTouchedSinceSpawn = false;
 	m_hPrevCarrier = 0;
+	m_hLastThrower = 0; // Clear jack armor cooldown on respawn
+	m_flThrowerCanPickupTime = 0;
 }
 
 //-----------------------------------------------------------------------------

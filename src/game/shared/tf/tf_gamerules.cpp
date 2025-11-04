@@ -5740,6 +5740,14 @@ int CTFRadiusDamageInfo::ApplyToEntity( CBaseEntity *pEntity )
 		UTIL_TraceLine( vecSrc, vecSpot, MASK_RADIUS_DAMAGE, &filterSelf, &tr );
 	}
 
+	// If we hit the passtime ball, trace through it (prevents jack armor)
+	if ( tr.fraction != 1.f && tr.m_pEnt && FClassnameIs( tr.m_pEnt, "passtime_ball" ) && tr.m_pEnt != pEntity )
+	{
+		filterPlayers.SetPassEntity( tr.m_pEnt );
+		CTraceFilterChain filterBall( &filterPlayers, &filterCombatItems );
+		UTIL_TraceLine( vecSrc, vecSpot, MASK_RADIUS_DAMAGE, &filterBall, &tr );
+	}
+
 	// If we don't trace the whole way to the target, and we didn't hit the target entity, we're blocked
 	if ( tr.fraction != 1.f && tr.m_pEnt != pEntity )
 	{

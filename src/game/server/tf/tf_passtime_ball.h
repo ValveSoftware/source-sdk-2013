@@ -42,6 +42,7 @@ public:
 	CTFPlayer *GetCarrier() const;
 	CTFPlayer *GetPrevCarrier() const;
 	CTFPlayer *GetThrower() const;
+	CTFPlayer *GetLastThrower() const;
 	int GetCollisionCount() const;
 	int GetCarryDuration() const;
 
@@ -109,6 +110,7 @@ private:
 	
 	EState m_eState;
 	CHandle<CTFPlayer> m_hThrower;
+	CHandle<CTFPlayer> m_hLastThrower; // persists after SetThrower(0) for jack armor cooldown
 	EHANDLE m_hBlocker;
 	CSpriteTrail *m_pTrail;
 	bool m_bTrailActive;
