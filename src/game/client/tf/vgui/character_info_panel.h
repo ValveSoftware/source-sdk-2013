@@ -66,7 +66,6 @@ public:
 	virtual void OnThink();
 
 	void		 OpenLoadoutToClass( int iClassIndex, bool bOpenClassLoadout );
-	void		 OpenToPaintkitPreview( CEconItemView* pItem, bool bFixedItem, bool bFixedPaintkit );
 
 	void		 FireGameEvent( IGameEvent *event );
 

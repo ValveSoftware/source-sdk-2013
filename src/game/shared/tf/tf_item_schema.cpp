@@ -11,7 +11,6 @@
 #include "tf_shareddefs.h"
 #include "in_buttons.h"
 #include "econ_holidays.h"
-#include "econ_paintkit.h"
 
 	#include "econ_item_system.h"
 	#include "engine/IEngineSound.h"
@@ -838,7 +837,6 @@ bool CTFTauntInfo::BInitFromKV( KeyValues *pKV, CUtlVector<CUtlString> *pVecErro
 //-----------------------------------------------------------------------------
 void CTFItemDefinition::InternalInitialize()
 {
-	m_bValidPaintkitsGenerated = false;
 	m_eEquipType = EQUIP_TYPE_INVALID;
 	m_iDefaultLoadoutSlot = LOADOUT_POSITION_INVALID;
 	m_iAnimationSlot = -1;
@@ -1267,29 +1265,6 @@ bool CTFItemDefinition::IsContentStreamable() const
     }
 	return item_enable_content_streaming.GetBool()
 		&& CEconItemDefinition::IsContentStreamable();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Lazy-populate m_vecValidPaintkitDefs with all of the paintkits that
-//			can be applied to this item def.
-//-----------------------------------------------------------------------------
-const CUtlVector< uint32 >& CTFItemDefinition::GetValidPaintkits() const
-{
-	if ( !m_bValidPaintkitsGenerated )
-	{
-		m_bValidPaintkitsGenerated = true;
-		auto& mapDefs = GetProtoScriptObjDefManager()->GetDefinitionMapForType( DEF_TYPE_PAINTKIT_DEFINITION );
-		FOR_EACH_MAP_FAST( mapDefs, i )
-		{
-			const CPaintKitDefinition* pDef = (const CPaintKitDefinition*)mapDefs[ i ];
-			if ( pDef->CanApplyToItem( GetDefinitionIndex() ) )
-			{
-				m_vecValidPaintkitDefs.AddToTail( pDef->GetDefIndex() );
-			}
-		}
-	}
-
-	return m_vecValidPaintkitDefs;
 }
 
 //-----------------------------------------------------------------------------

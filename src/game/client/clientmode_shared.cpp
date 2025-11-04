@@ -89,7 +89,6 @@ extern ConVar voice_modenable;
 extern ConVar cl_enable_text_chat;
 
 extern bool IsInCommentaryMode( void );
-extern const char* GetWearLocalizationString( float flWear );
 
 CON_COMMAND( cl_reload_localization_files, "Reloads all localization files" )
 {
@@ -1387,12 +1386,6 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 				// If items have rarity
 				if ( pItemRarity )
 				{
-					// Weapon Wear
-					if ( !IsWearableSlot( pItemDefinition->GetDefaultLoadoutSlot() ) )
-					{
-						loc_scpy_safe(szWear, CConstructLocalizedString( g_pVGuiLocalize->Find("TFUI_InvTooltip_ItemFound_Wear"), g_pVGuiLocalize->Find(GetWearLocalizationString(flWear) ) ) );
-					}
-
 					// Rarity / grade
 					loc_scpy_safe(szRarity, CConstructLocalizedString(g_pVGuiLocalize->Find("TFUI_InvTooltip_ItemFound_Rarity"), g_pVGuiLocalize->Find(pItemRarity->GetLocKey() ) ) );
 				}

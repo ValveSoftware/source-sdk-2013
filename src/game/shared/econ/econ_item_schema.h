@@ -255,32 +255,6 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-class CEconItemCollectionDefinition
-{
-public:
-	CEconItemCollectionDefinition( void );
-	~CEconItemCollectionDefinition( void ) {}
-
-	bool	BInitFromKV( KeyValues *pKVItemCollection, CUtlVector<CUtlString> *pVecErrors = NULL );
-	bool	BPostSchemaInit( CUtlVector<CUtlString> *pVecErrors );
-
-	uint8	GetMinRarity() const { return m_iRarityMin; }
-	uint8	GetMaxRarity() const { return m_iRarityMax; }
-
-public:
-	CUtlString							    m_strName;
-	const char							   *m_pszLocalizedName;
-	const char							   *m_pszLocalizedDesc;
-	CUtlVector<item_definition_index_t>		m_iItemDefs;
-
-private:
-	bool	m_bIsReferenceCollection;
-
-	uint8	m_iRarityMin;
-	uint8	m_iRarityMax;
-};
-
-//-----------------------------------------------------------------------------
 class CEconOperationDefinition
 {
 public:
@@ -1212,9 +1186,6 @@ public:
 	const char	*GetBaseFunctionalItemName() const	{ return m_pszBaseFunctionalItemName; }
 	const char *GetParticleSuffix() const			{ return m_pszParticleSuffix; }
 
-	const CEconItemCollectionDefinition *GetItemCollectionDefinition( void ) const { return m_pItemCollectionDef; }
-	void  SetItemCollectionDefinition( const CEconItemCollectionDefinition *pItemCollectionDef ) { Assert( !m_pItemCollectionDef ); m_pItemCollectionDef = pItemCollectionDef; }
-
 	perteamvisuals_t	*GetPerTeamVisual( int iTeam ) const	{ return m_PerTeamVisuals[iTeam]; }
 
 	void AddSteamWorkshopContributor( uint32 unAccountID ) { if ( m_vecSteamWorkshopContributors.InvalidIndex() == m_vecSteamWorkshopContributors.Find( unAccountID ) ) { m_vecSteamWorkshopContributors.AddToTail( unAccountID ); } }
@@ -1432,9 +1403,6 @@ private:
 
 	// This is a weapon that sits in a wearable slot (Action)
 	bool			m_bActAsWeapon;
-
-	// The set this item is a member of
-	const CEconItemCollectionDefinition *m_pItemCollectionDef;
 
 	// A list of per-team visual data used to modify base model for visual recognition
 	perteamvisuals_t	*m_PerTeamVisuals[TEAM_VISUAL_SECTIONS];
@@ -2466,16 +2434,9 @@ public:
 	typedef CUtlMap<int, CEconCraftingRecipeDefinition*, int > RecipeDefinitionMap_t;
 	const RecipeDefinitionMap_t &GetRecipeDefinitionMap() const { return m_mapRecipes; }
 
-	typedef CUtlDict<CEconItemCollectionDefinition*> ItemCollectionMap_t;
-	const ItemCollectionMap_t &GetItemCollections() const { return m_dictItemCollections; }
-
 	typedef CUtlDict<CEconOperationDefinition*> OperationDefinitionMap_t;
 	const OperationDefinitionMap_t &GetOperationDefinitions() const { return m_dictOperationDefinitions; }
 	const CEconOperationDefinition* GetOperationByName( const char* pszName ) const;
-
-	typedef CUtlMap< uint32, const CEconItemDefinition* > PaintKitItemDefinitionMap_t;
-	const CEconItemDefinition *GetPaintKitItemDefinition( uint32 unPaintKitDefIndex ) const;
-	const CEconItemCollectionDefinition *GetPaintKitCollectionFromItem( const IEconItemInterface *pItem, uint32 *pUnPaintKitDefIndex = NULL ) const;
 	
 	const CTimedItemRewardDefinition* GetTimedReward( eTimedRewardType type ) const;
 
@@ -2526,8 +2487,6 @@ public:
 	virtual const char* GetRarityLocKey( uint8 iRarity );
 	virtual const char* GetRarityColor( uint8 iRarity );
 	virtual int GetRarityIndex( const char* pszRarity );
-
-	const CEconItemCollectionDefinition *GetCollectionByName( const char* pCollectionName );
 
 	CEconItemDefinition *GetItemDefinition( int iItemIndex );
 	const CEconItemDefinition *GetItemDefinition( int iItemIndex ) const;
@@ -2645,8 +2604,6 @@ private:
 	bool BInitRecipes( KeyValues *pKVRecipes, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitLootLists( KeyValues *pKVLootLists, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitRevolvingLootLists( KeyValues *pKVRevolvingLootLists, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitItemCollections( KeyValues *pKVItemSets, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitCollectionReferences( CUtlVector<CUtlString> *pVecErrors );
 	bool BInitOperationDefinitions( KeyValues *pKVGameInfo, KeyValues *pOperations, CUtlVector<CUtlString> *pVecErrors );
 
 #ifdef TF_CLIENT_DLL
@@ -2719,9 +2676,6 @@ private:
 	// List of all the tool items, is a sublist of mapItems
 	ToolsItemDefinitionMap_t							m_mapToolsItems;
 
-	// List of all paintkit tool item definitions
-	PaintKitItemDefinitionMap_t							m_mapPaintKitTools;
-
 	// List of all base items, is a sublist of mapItems
 	BaseItemDefinitionMap_t								m_mapBaseItems;
 
@@ -2735,9 +2689,6 @@ private:
 
 	// Contains the list of item recipes read in from all data files.
 	RecipeDefinitionMap_t								m_mapRecipes;
-
-	// Contains the list of item sets.
-	ItemCollectionMap_t									m_dictItemCollections;
 
 	OperationDefinitionMap_t							m_dictOperationDefinitions;
 

@@ -7,8 +7,6 @@
 #include "tier1/ilocalize.h"
 #include "localization_provider.h"
 #include "rtime.h"
-#include "econ_paintkit.h"
-
 
 	#ifndef EXTERNALTESTS_DLL
 		#include "econ_item_inventory.h"
@@ -33,8 +31,6 @@
 #ifdef VPROF_ENABLED
 	static const char *g_pszEconDescriptionVprofGroup = _T("Econ Description");
 #endif
-
-extern const char *GetWearLocalizationString( float flWear );
 
 // --------------------------------------------------------------------------
 // Local Helper
@@ -325,9 +321,7 @@ void CEconItemDescription::GenerateDescriptionLines( const CLocalizationProvider
 	m_vecDescLines.Purge();
 
 	Generate_ItemName( pLocalizationProvider, pEconItem );
-	Generate_ItemRarityDesc( pLocalizationProvider, pEconItem );
 	Generate_ItemLevelDesc( pLocalizationProvider, pEconItem );
-	//Generate_WearAmountDesc( pLocalizationProvider, pEconItem );
 
 	// If we decide that for performance reasons some descriptions only want the name/description
 	// information and not all the details, this is the block to skip over.
@@ -351,7 +345,6 @@ void CEconItemDescription::GenerateDescriptionLines( const CLocalizationProvider
 		Generate_MvmChallenges( pLocalizationProvider, pEconItem );
 		Generate_UnusualifierEffectList( pLocalizationProvider, pEconItem );
 #endif // PROJECT_TF
-		Generate_DirectX8Warning( pLocalizationProvider, pEconItem );
 	}
 
 	// Certain information (tradeability, etc.) used to only get displayed if we were the owning player, or
@@ -521,23 +514,6 @@ void Econ_ConcatPaintKitName( locchar_t( &out_pItemName )[MAX_ITEM_NAME_LENGTH],
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------
-void Econ_ConcatPaintKitWear( locchar_t( &out_pItemName )[MAX_ITEM_NAME_LENGTH], const CLocalizationProvider *pLocalizationProvider, float flWear )
-{
-	if ( flWear <= 0.0 )
-	{
-	}
-
-	locchar_t tempName[MAX_ITEM_NAME_LENGTH];
-	loc_scpy_safe( tempName, out_pItemName );
-
-	g_pVGuiLocalize->ConstructString_safe( out_pItemName,
-		LOCCHAR( "%s1 (%s2)" ),
-		2,
-		tempName,
-		pLocalizationProvider->Find( GetWearLocalizationString( flWear ) ) 
-	);
-}
-// ---------------------------------------------------------------------------------------------------------------------------
 static bool GetLocalizedBaseItemName( locchar_t (&szItemName)[MAX_ITEM_NAME_LENGTH], const CLocalizationProvider *pLocalizationProvider, const CEconItemDefinition *pEconItemDefinition )
 {
 	if ( pEconItemDefinition->GetItemBaseName() )
@@ -589,19 +565,6 @@ static void GenerateLocalizedFullItemName
 	bool bIgnoreQuality = false;
 	bool bHasCustomName = false;
 	uint32 unPaintKitDefIndex = 0;
-	bool bIsPaintKitItem = GetPaintKitDefIndex( pEconItem, &unPaintKitDefIndex );
-	if ( bIsPaintKitItem )
-	{
-		if ( eFlagsMask == k_EGenerateLocalizedFullItemName_Default )
-		{
-			bIgnoreWear = true;
-
-			if ( ( unQuality != AE_STRANGE ) && ( unQuality != AE_SELFMADE ) )
-			{
-				bIgnoreQuality = true;
-			}
-		}
-	}
 
 	// Figure out which localization pattern we're using. By default we assume we're using the common "[Quality] [Item Name]"
 	// format, but if we're a unique item with an article we'll change this later on.
@@ -866,28 +829,6 @@ static void GenerateLocalizedFullItemName
 		}
 	}
 
-	// PaintKit and Wear
-	if ( !bHasCustomName )
-	{
-		if ( bIsPaintKitItem )
-		{
-			tmZone( TELEMETRY_LEVEL1, TMZF_NONE, "%s - Paintkit", __FUNCTION__ );
-			// find paintkit name
-			const CPaintKitDefinition* pPaintKitDef = assert_cast< const CPaintKitDefinition* >( GetProtoScriptObjDefManager()->GetDefinition( ProtoDefID_t( DEF_TYPE_PAINTKIT_DEFINITION, unPaintKitDefIndex ) ) );
-			locchar_t *pPaintKitStr = pPaintKitDef ? pLocalizationProvider->FindSafe( pPaintKitDef->GetDescriptionToken() ) : NULL;
-
-			Econ_ConcatPaintKitName( szItemName, pPaintKitStr, pLocalizationProvider, pEconItemDefinition );
-			if ( !bIgnoreWear )
-			{
-				float flWear = 0;
-				if ( GetPaintKitWear( pEconItem, flWear ) )
-				{
-					Econ_ConcatPaintKitWear( szItemName, pLocalizationProvider, flWear );
-				}
-			}
-		}
-	}
-
 	locchar_t *pNameLocalizationFormat = pLocalizationProvider->Find( pszLocalizationPattern );
 
 	if ( pNameLocalizationFormat )
@@ -1019,44 +960,6 @@ bool CEconItemDescription::BGenerate_ItemLevelDesc_StrangeNameAndStats( const CL
 	CStrangeRankLocalizationGenerator RankGenerator( pLocalizationProvider, pEconItem, TF_ANTI_IDLEBOT_VERIFICATION_ONLY_ARG_BOOL_TRUE( m_pHashContext == NULL ) );
 	if ( !RankGenerator.IsValid() )
 		return false;
-	
-	// For Collection Items
-	if ( GetPaintKitDefIndex( pEconItem ) )
-	{
-		AddDescLine( CConstructLocalizedString( pLocalizationProvider->Find( "Attrib_stattrakmodule" ), RankGenerator.GetRankLocalized() ), 
-			ATTRIB_COL_STRANGE, 
-			kDescLineFlag_Misc 
-		);
-		
-		// Are we tracking alternate stats as well?
-		for ( int i = 0; i < GetKillEaterAttrCount(); i++ )
-		{
-			const CEconItemAttributeDefinition *pKillEaterAltAttrDef = GetKillEaterAttr_Score( i ),
-				*pKillEaterAltScoreTypeAttrDef = GetKillEaterAttr_Type( i );
-			if ( !pKillEaterAltAttrDef || !pKillEaterAltScoreTypeAttrDef )
-				continue;
-
-			uint32 unKillEaterAltScore;
-			if ( !pEconItem->FindAttribute( pKillEaterAltAttrDef, &unKillEaterAltScore ) )
-				continue;
-
-			// Older items can optionally not specify a type attribute at all and have an implicit "I'm tracking
-			// kills" zeroth attribute. We require a score type for any slot besides that.
-			if ( i != 0 && !pEconItem->FindAttribute( pKillEaterAltScoreTypeAttrDef ) )
-				continue;
-
-			const uint32 unKillEaterAltType = GetScoreTypeForKillEaterAttr( pEconItem, pKillEaterAltScoreTypeAttrDef );
-
-			AddDescLine( CConstructLocalizedString( pLocalizationProvider->Find( "ItemTypeDescKillEaterAltv2" ),
-				unKillEaterAltScore,
-				GetLocalizedStringForKillEaterTypeAttr( pLocalizationProvider, unKillEaterAltType ),
-				*CStrangeRestrictionAttrWrapper( pLocalizationProvider, GetLocalizedStringForStrangeRestrictionAttr( pLocalizationProvider, pEconItem, i ) ) ),
-				ATTRIB_COL_LEVEL,
-				kDescLineFlag_Misc );		// strange item scores past the first are not considered part of the type
-		}
-
-		return true;
-	} // End Collection Items
 
 	// Normal old way
 
@@ -1270,10 +1173,6 @@ void CEconItemDescription::Generate_ItemLevelDesc( const CLocalizationProvider *
 	if ( BGenerate_ItemLevelDesc_StrangeNameAndStats( pLocalizationProvider, pEconItem, locTypename ) )
 		return;
 
-	// Not strange, but if you are paint kitted or have a collection reference dont create this
-	if ( GetPaintKitDefIndex( pEconItem ) || pItemDef->GetCollectionReference() )
-		return;
-
 	// If we didn't generate a fancy strange name, we fall back to our default behavior.
 	Generate_ItemLevelDesc_Default( pLocalizationProvider, pEconItem, locTypename );
 }
@@ -1375,58 +1274,6 @@ void CEconItemDescription::Generate_QualityDesc( const CLocalizationProvider *pL
 	}
 
 	LocalizedAddDescLine( pLocalizationProvider, pszQualityDescLocalizationKey, ATTRIB_COL_NEUTRAL, kDescLineFlag_Misc );
-}
-
-//-----------------------------------------------------------------------------
-void CEconItemDescription::Generate_ItemRarityDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem )
-{
-	const CEconItemDefinition* pItemDef = pEconItem->GetItemDefinition();
-	const CEconItemRarityDefinition* pItemRarity = GetItemSchema()->GetRarityDefinition( pEconItem->GetRarity() );
-	if ( !pItemRarity )
-		return;
-	
-	const char *pszTooltip = "TFUI_InvTooltip_Rarity";
-
-	attrib_colors_t colorRarity = pItemRarity->GetAttribColor();
-
-	const locchar_t *loc_RarityText = pLocalizationProvider->Find( pItemRarity->GetLocKey() );
-	const locchar_t *locTypename = pLocalizationProvider->Find( pItemDef->GetItemTypeName() );
-	const locchar_t *loc_WearText = LOCCHAR("");
-
-	float flWear = 0;
-	if ( GetPaintKitWear( pEconItem, flWear ) )
-	{
-		loc_WearText = pLocalizationProvider->Find( GetWearLocalizationString( flWear ) );
-	}
-	else
-	{
-		pszTooltip = "TFUI_InvTooltip_RarityNoWear";
-	}
-
-	AddDescLine( CConstructLocalizedString( pLocalizationProvider->Find( pszTooltip ), loc_RarityText, locTypename, loc_WearText ), colorRarity, kDescLineFlag_Misc );
-}
-
-
-//-----------------------------------------------------------------------------
-void CEconItemDescription::Generate_WearAmountDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem )
-{
-	if ( !GetPaintKitDefIndex( pEconItem ) )
-		return;
-
-	Assert( pLocalizationProvider );
-	Assert( pEconItem );
-
-	float flWear = 0;
-	if ( GetPaintKitWear( pEconItem, flWear ) )
-	{
-		locchar_t loc_WearText[MAX_ATTRIBUTE_DESCRIPTION_LENGTH];
-		
-		loc_scpy_safe( loc_WearText, pLocalizationProvider->Find( "#TFUI_InvTooltip_Wear" ) );
-		loc_scat_safe( loc_WearText, LOCCHAR( " " ) );
-		loc_scat_safe( loc_WearText, pLocalizationProvider->Find( GetWearLocalizationString( flWear ) ) );
-
-		AddDescLine( loc_WearText, ATTRIB_COL_NEUTRAL, kDescLineFlag_Misc );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1969,8 +1816,6 @@ void CEconItemDescription::Generate_FlagsAttributes( const CLocalizationProvider
 {
 	Assert( pLocalizationProvider );
 	Assert( pEconItem );
-
-	const CEconItemDefinition *pItemDef = pEconItem->GetItemDefinition();
 	
 	CUtlVector<localized_localplayer_line_t> vecLines;
 
@@ -2072,25 +1917,6 @@ void CEconItemDescription::Generate_VisibleAttributes( const CLocalizationProvid
 	pEconItem->IterateAttributes( &AttributeDisplayer );
 	AttributeDisplayer.SortAttributes();
 	AttributeDisplayer.Finalize( pEconItem, this, pLocalizationProvider );
-}
-
-// --------------------------------------------------------------------------
-void CEconItemDescription::Generate_DirectX8Warning( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem )
-{
-#ifdef CLIENT_DLL
-	static ConVarRef mat_dxlevel( "mat_dxlevel" );
-	const CEconItemDefinition *pEconItemDefinition = pEconItem->GetItemDefinition();
-	// If less than 90, we�re in DX8 mode. 
-	// Display warning if you are looking at a painthit item or case
-	if ( mat_dxlevel.GetInt() < 90 && pEconItemDefinition && ( pEconItemDefinition->GetItemCollectionDefinition() || pEconItemDefinition->GetCollectionReference() ) )
-	{
-		AddEmptyDescLine();
-		AddDescLine( pLocalizationProvider->Find( "#Attrib_DirectX8Warning" ),
-			ATTRIB_COL_NEGATIVE,
-			kDescLineFlag_Misc );
-	}
-
-#endif
 }
 
 

@@ -219,8 +219,6 @@ private:
 	virtual void Generate_StyleDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_HolidayRestriction( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_QualityDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_ItemRarityDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_WearAmountDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_ItemDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_GiftedBy( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 #ifdef PROJECT_TF
@@ -236,7 +234,6 @@ private:
 	virtual void Generate_FlagsAttributes( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	
 	virtual void Generate_VisibleAttributes( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_DirectX8Warning( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 
 	// Helpers for the above.
 	virtual void Generate_ItemLevelDesc_Default( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem, const locchar_t *locTypename );

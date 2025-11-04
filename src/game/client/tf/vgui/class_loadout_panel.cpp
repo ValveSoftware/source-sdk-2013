@@ -1062,13 +1062,6 @@ void CClassLoadoutPanel::SetBorderForItem( CItemModelPanel *pItemPanel, bool bMo
 		{
 			iRarity = pItemPanel->GetItem()->GetItemQuality();
 
-			uint8 nRarity = pItemPanel->GetItem()->GetRarity();
-			if ( ( nRarity != k_unItemRarity_Any ) && ( iRarity != AE_SELFMADE ) && ( iRarity != AE_UNUSUAL ) )
-			{
-				// translate this quality to rarity
-				iRarity = nRarity + AE_RARITY_DEFAULT;
-			}
-
 			if ( iRarity > 0 )
 			{
 				if ( bMouseOver || pItemPanel->IsSelected() )

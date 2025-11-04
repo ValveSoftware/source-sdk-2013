@@ -111,7 +111,6 @@
 #include "tf_item_powerup_bottle.h"
 #include <vgui_controls/AnimationController.h>
 #include "tf_weapon_rocketpack.h"
-#include "econ_paintkit.h"
 #include "soundstartparams.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 
@@ -3528,91 +3527,6 @@ public:
 
 			return;
 		}
-
-		// Start the composite. 
-		KeyValues* rootKV = NULL;
-		float flWear = 0;
-		if ( !GetPaintKitWear( pItem, flWear ) )
-		{
-			return;
-		}
-		int nWear = EconWear_ToIntCategory( flWear );
-
-		uint32 unPaintKitDefIndex = uint32(-1);
-		if ( !GetPaintKitDefIndex( pItem, &unPaintKitDefIndex ) )
-		{
-			return;
-		}
-
-
-		const GameItemDefinition_t* tfItemDef = pItem->GetItemDefinition();
-		if ( tfItemDef )
-		{
-			const CPaintKitDefinition* pDef = assert_cast< const CPaintKitDefinition* >( GetProtoScriptObjDefManager()->GetDefinition( ProtoDefID_t( DEF_TYPE_PAINTKIT_DEFINITION, unPaintKitDefIndex ) ) );
-			if ( pDef )
-			{
-				rootKV = pDef->GetItemPaintKitDefinitionKV( tfItemDef->GetRemappedItemDefIndex(), nWear );
-			}
-		}
-
-		uint32 nCompositeFlags = 0;
-
-		if ( rootKV )
-		{
-			uint64 seed = pItem->GetOriginalID();
-			static CSchemaAttributeDefHandle pAttr_CustomPaintKitSeedLo( "custom_paintkit_seed_lo" );
-			static CSchemaAttributeDefHandle pAttr_CustomPaintKitSeedHi( "custom_paintkit_seed_hi" );
-
-			uint32 unLowVal, unHighVal;
-			const bool bHasLowVal = pItem->FindAttribute( pAttr_CustomPaintKitSeedLo, &unLowVal ),
-					   bHasHighVal = pItem->FindAttribute( pAttr_CustomPaintKitSeedHi, &unHighVal );
-
-			// We should have both, or neither.  We should never have just one
-			Assert( bHasLowVal == bHasHighVal );
-
-			// override the seed if we have custom attr
-			if ( bHasLowVal && bHasHighVal )
-			{
-				seed = ((uint64)unHighVal << 32) | (uint64)unLowVal;
-			}
-
-
-			Assert( pItem->GetTeamNumber() != TEAM_UNASSIGNED );
-			int teamNum = pItem->GetTeamNumber() != TEAM_UNASSIGNED ? pItem->GetTeamNumber() : TF_TEAM_RED;
-
-			char finalItemName[_MAX_PATH];
-			V_sprintf_safe( finalItemName, "%d_%d_wear_%02d", pItem->GetItemDefIndex(), unPaintKitDefIndex, nWear );
-
-			SafeAssign( &pWeaponSkinBaseCompositor, materials->NewTextureCompositor( desiredW, desiredH, finalItemName, teamNum, seed, rootKV, nCompositeFlags ) );
-			if ( pWeaponSkinBaseCompositor )
-			{
-				pWeaponSkinBaseCompositor->ScheduleResolve();
-				pItem->SetWeaponSkinGeneration( m_nGeneration );
-				pItem->SetWeaponSkinGenerationTeam( teamNum );
-
-				if ( pWeaponSkinBaseCompositor->GetResolveStatus() != ECRS_Complete )
-				{
-					// Normal case
-					pItem->SetWeaponSkinBaseCompositor( pWeaponSkinBaseCompositor );
-
-					// Try to sub out the low res, if it's ready.
-					ITexture* pTex = GetWeaponSkinBaseLowRes( cbPlayerIsLocalPlayer, pItem->GetItemID(), pItem->GetTeamNumber() );
-					if ( pTex )
-						setter.SetTexture( pTex );
-				}
-				else 
-				{
-					// Had a cache hit, so add the texture here.
-					pWeaponSkinBase = pWeaponSkinBaseCompositor->GetResultTexture();
-					pItem->SetWeaponSkinBase( pWeaponSkinBase );
-					setter.SetTexture( pWeaponSkinBase );
-				}
-
-				SafeRelease( pWeaponSkinBaseCompositor );
-				return;
-			} 
-		}
-
 	}
 
 	virtual void Release() { delete this; }

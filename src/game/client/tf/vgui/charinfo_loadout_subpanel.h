@@ -55,7 +55,6 @@ private:
 enum charinfo_activepanels_t
 {
 	CHAP_LOADOUT,
-	CHAP_PAINTKIT_PREVIEW,
 };
 
 enum charinfosubbuttons_t
@@ -83,7 +82,6 @@ public:
 
 	void			SetClassIndex( int iClassIndex, bool bOpenClassLoadout );
 	void			SetTeamIndex( int iTeamIndex );
-	void			OpenToPaintkitPreview( CEconItemView* pItem, bool bFixedItem, bool bFixedPaintkit );
 	void			OpenSubPanel( charinfo_activepanels_t iPanel );
 	void			UpdateModelPanels( bool bOpenClassLoadout = true );
 

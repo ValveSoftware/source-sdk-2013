@@ -671,24 +671,6 @@ const char* CEconItem::FindIconURL( bool bLarge ) const
 	//		  a match is found.  Once items are more composable, we'll want
 	//		  to keep adding all the components together to get the fully
 	//		  composed icon (ie. add the strange token, and the festive token, etc.)
-	uint32 unPaintKitDefIndex;
-	if ( GetPaintKitDefIndex( this, &unPaintKitDefIndex ) )
-	{
-		float flWear = 0;
-		GetPaintKitWear( this, flWear );
-		int iWearIndex = EconWear_ToIntCategory( flWear );
-		const char* pszFmtStr = bIsFestivized ? "paintkit%d_item%d_wear%d_festive" : "paintkit%d_item%d_wear%d";
-
-		// do we have a remap? use that instead
-		if ( pDef->GetDefinitionIndex() != pDef->GetRemappedItemDefIndex() )
-		{
-			pDef = GetItemSchema()->GetItemDefinition( pDef->GetRemappedItemDefIndex() );
-		}
-
-		const char* pszValue = pDef->GetIconURL( CFmtStr( pszFmtStr, unPaintKitDefIndex, pDef->GetRemappedItemDefIndex(), iWearIndex ) );
-		if ( pszValue )
-			return pszValue;
-	}
 
 	const CEconStyleInfo *pStyle = pDef->GetStyleInfo( GetStyle() );
 	if ( pStyle )

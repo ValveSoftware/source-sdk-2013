@@ -22,8 +22,7 @@
 #include "materialsystem/imaterialsystem.h"
 #include "materialsystem/itexture.h"
 #include "materialsystem/itexturecompositor.h"
-
-#include "econ_paintkit.h"
+#include <tf_proto_script_obj_def.h>
 
 #if ( defined( _MSC_VER ) && _MSC_VER >= 1900 )
 #define timezone _timezone
@@ -301,207 +300,6 @@ bool CEconColorDefinition::BInitFromKV( KeyValues *pKVColor, CUtlVector<CUtlStri
 		!m_strColorName.IsEmpty(),
 		"Quality definition %s: missing \"color_name\"", GetName() );
 
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
-CEconItemCollectionDefinition::CEconItemCollectionDefinition( void )
-	: m_strName( NULL )
-	, m_pszLocalizedName( NULL )
-	, m_pszLocalizedDesc( NULL )
-	, m_iRarityMin( k_unItemRarity_Any )
-	, m_iRarityMax( k_unItemRarity_Any )
-{
-}
-
-//-----------------------------------------------------------------------------
-// 
-
-//-----------------------------------------------------------------------------
-static int SortCollectionByRarity( item_definition_index_t const *a, item_definition_index_t const *b )
-{
-	Assert( a );
-	Assert( *a );
-	Assert( b );
-	Assert( *b );
-
-	CEconItemDefinition *pItemA = GetItemSchema()->GetItemDefinition( *a );
-	CEconItemDefinition *pItemB = GetItemSchema()->GetItemDefinition( *b );
-
-	if ( !pItemA || !pItemB )
-	{
-		AssertMsg( 0, "ItemDef Doesn't exist for sorting" );
-		return 1;
-	}
-
-	bool bIsRarityEqual = ( pItemA->GetRarity() == pItemB->GetRarity() );
-	
-	// If same Rarity, leave in current position?
-	uint32 unPaintKitDefIndexA, unPaintKitDefIndexB;
-	if ( bIsRarityEqual && GetPaintKitDefIndex( pItemA, &unPaintKitDefIndexA ) && GetPaintKitDefIndex( pItemB, &unPaintKitDefIndexB ) )
-	{
-		return 0;
-	}
-
-	// If same Rarity, leave in current position?
-	if ( bIsRarityEqual )
-		return 0;
-
-	return ( pItemA->GetRarity() > pItemB->GetRarity() ) ? -1 : 1;
-}
-
-
-//-----------------------------------------------------------------------------
-bool CEconItemCollectionDefinition::BInitFromKV( KeyValues *pKVPItemCollection, CUtlVector<CUtlString> *pVecErrors )
-{
-	m_strName = pKVPItemCollection->GetName();
-
-	m_pszLocalizedName = pKVPItemCollection->GetString( "name", NULL );
-	m_pszLocalizedDesc = pKVPItemCollection->GetString( "description", NULL );
-
-	m_bIsReferenceCollection = pKVPItemCollection->GetBool( "is_reference_collection", false );
-
-	KeyValues *pKVItems = pKVPItemCollection->FindKey( "items" );
-
-	// Create a 'lootlist' from this collection
-	KeyValues *pCollectionLootList = NULL;
-	bool bIsLootList = false;
-	if ( !m_bIsReferenceCollection )
-	{
-		pCollectionLootList = new KeyValues( m_strName );
-	}
-
-	if ( pKVItems )
-	{
-		// Traverse rarity items and set rarity
-		// Create a lootlist if applicable
-		FOR_EACH_TRUE_SUBKEY( pKVItems, pKVRarity )
-		{
-			bIsLootList = true;
-			// Get the Rarity Value
-			const CEconItemRarityDefinition *pRarity = GetItemSchema()->GetRarityDefinitionByName( pKVRarity->GetName() );
-			SCHEMA_INIT_CHECK( pRarity != NULL, "Item collection %s: Rarity type \"%s\" was not found", m_strName.Get(), pKVRarity->GetName() );
-			
-			// Create a lootlist
-			if ( !m_bIsReferenceCollection )
-			{
-				CFmtStr lootlistname( "%s_%s", m_strName.Get(), pRarity->GetName() );
-				const char *pszName = V_strdup( lootlistname.Get() );
-				pKVRarity->SetInt( "rarity", pRarity->GetDBValue() );
-				SCHEMA_INIT_CHECK( GetItemSchema()->BInsertLootlist( pszName, pKVRarity, pVecErrors ), "Invalid collection lootlist %s", pszName );
-				KeyValues *pTempRarityKey = pKVRarity->FindKey( "rarity" );
-				Assert( pTempRarityKey );
-				pKVRarity->RemoveSubKey( pTempRarityKey );
-				pTempRarityKey->deleteThis();
-				pCollectionLootList->SetInt( pszName, pRarity->GetLootlistWeight() );
-			}
-
-			// Items in the Rarity
-			FOR_EACH_VALUE( pKVRarity, pKVItem )
-			{
-				const char *pszName = pKVItem->GetName();
-
-				CEconItemDefinition *pDef = GetItemSchema()->GetItemDefinitionByName( pszName );
-
-				SCHEMA_INIT_CHECK(
-					pDef != NULL,
-					"Item set %s: Item definition \"%s\" was not found", m_strName.Get(), pszName );
-
-				const item_definition_index_t unDefIndex = pDef->GetDefinitionIndex();
-
-				SCHEMA_INIT_CHECK(
-					!m_iItemDefs.IsValidIndex( m_iItemDefs.Find( unDefIndex ) ),
-					"Item Collection %s: item definition \"%s\" appears multiple times", m_strName.Get(), pszName );
-
-				m_iItemDefs.AddToTail( unDefIndex );
-
-				// Collection Reference
-				if ( !m_bIsReferenceCollection )
-				{
-					SCHEMA_INIT_CHECK(
-						!pDef->GetItemCollectionDefinition(),
-						"Item Collection %s: item definition \"%s\" specified in multiple item sets", m_strName.Get(), pszName );
-					pDef->SetItemCollectionDefinition( this );
-				}
-
-				// Item Rarity
-				pDef->SetRarity( pRarity->GetDBValue() );
-			}
-		}
-
-		// Loose Items
-		FOR_EACH_VALUE( pKVItems, pKVItem )
-		{
-			const char *pszName = pKVItem->GetName();
-
-			CEconItemDefinition *pDef = GetItemSchema()->GetItemDefinitionByName( pszName );
-
-			SCHEMA_INIT_CHECK(
-				pDef != NULL,
-				"Item set %s: Item definition \"%s\" was not found", m_strName.Get(), pszName );
-
-			const item_definition_index_t unDefIndex = pDef->GetDefinitionIndex();
-
-			SCHEMA_INIT_CHECK(
-				!m_iItemDefs.IsValidIndex( m_iItemDefs.Find( unDefIndex ) ),
-				"Item Collection %s: item definition \"%s\" appears multiple times", m_strName.Get(), pszName );
-			
-			m_iItemDefs.AddToTail( unDefIndex );
-
-			if ( !m_bIsReferenceCollection )
-			{
-				SCHEMA_INIT_CHECK(
-					!pDef->GetItemCollectionDefinition(),
-					"Item Collection %s: item definition \"%s\" specified in multiple item sets", m_strName.Get(), pszName );
-				pDef->SetItemCollectionDefinition( this );
-			}
-		}
-	}
-
-	if ( !m_bIsReferenceCollection && bIsLootList )
-	{
-		// Insert collection lootlist
-		GetItemSchema()->BInsertLootlist( m_strName, pCollectionLootList, pVecErrors );
-	}
-
-	if ( pCollectionLootList )
-	{
-		pCollectionLootList->deleteThis();
-	}
-
-	// Sanity check.
-	SCHEMA_INIT_CHECK( m_pszLocalizedName != NULL,
-		"Item Collection %s: Collection contains no localized name", m_strName.Get() );
-	SCHEMA_INIT_CHECK( m_pszLocalizedDesc != NULL,
-		"Item Collection %s: Collection contains no localized description", m_strName.Get() );
-	SCHEMA_INIT_CHECK( m_iItemDefs.Count() > 0,
-		"Item Collection %s: Collection contains no items", m_strName.Get() );
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
-bool CEconItemCollectionDefinition::BPostSchemaInit( CUtlVector<CUtlString> *pVecErrors )
-{
-	// Sort by Rarity
-	m_iItemDefs.Sort( &SortCollectionByRarity );
-
-	// Sorted high to low
-	m_iRarityMax = GetItemSchema()->GetItemDefinition( m_iItemDefs[ 0 ] )->GetRarity();
-	m_iRarityMin = GetItemSchema()->GetItemDefinition( m_iItemDefs[ m_iItemDefs.Count() - 1] )->GetRarity();
-	// Verify that there is no gaps in the Rarity (would cause crafting problems and makes no sense)
-
-	if ( !m_bIsReferenceCollection )
-	{
-		int iRarityVerify = m_iRarityMax;
-		FOR_EACH_VEC( m_iItemDefs, i )
-		{
-			int iNextRarity = GetItemSchema()->GetItemDefinition( m_iItemDefs[i] )->GetRarity();
-			SCHEMA_INIT_CHECK( iRarityVerify - iNextRarity <= 1, "Items in Collection %s: Have a gap in rarity tiers", m_strName.Get() );
-			iRarityVerify = iNextRarity;
-		}
-	}
 
 	return SCHEMA_INIT_SUCCESS();
 }
@@ -2052,7 +1850,6 @@ m_pszItemLogClassname( NULL ),
 m_pszItemIconClassname( NULL ),
 m_pszDatabaseAuditTable( NULL ),
 m_bImported( false ),
-m_pItemCollectionDef( NULL ),
 m_unSetItemRemapDefIndex( INVALID_ITEM_DEF_INDEX ),
 m_pszBaseFunctionalItemName( NULL ),
 m_pszParticleSuffix( NULL ),
@@ -3396,13 +3193,11 @@ CEconItemSchema::CEconItemSchema( )
 ,	m_mapRecipes( DefLessFunc(int) )
 ,	m_mapItemsSorted( DefLessFunc(int) )
 ,	m_mapToolsItems( DefLessFunc(int) )
-,	m_mapPaintKitTools( DefLessFunc(uint32) )
 ,	m_mapBaseItems( DefLessFunc(int) )
 ,	m_unVersion( 0 )
 #if defined(CLIENT_DLL) || defined(GAME_DLL)
 ,	m_pDefaultItemDefinition( NULL )
 #endif
-,	m_dictItemCollections( k_eDictCompareTypeCaseInsensitive )
 ,	m_dictOperationDefinitions( k_eDictCompareTypeCaseInsensitive )
 ,   m_dictLootLists( k_eDictCompareTypeCaseInsensitive )
 ,	m_mapRevolvingLootLists( DefLessFunc(int) )
@@ -3631,7 +3426,6 @@ void CEconItemSchema::Reset( void )
 	m_mapQualities.Purge();
 	m_mapItemsSorted.Purge();
 	m_mapToolsItems.Purge();
-	m_mapPaintKitTools.Purge();
 	m_mapBaseItems.Purge();
 	m_mapRecipes.PurgeAndDeleteElements();
 	m_vecTimedRewards.Purge();
@@ -4076,14 +3870,6 @@ bool CEconItemSchema::BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlS
 	// Reset our loot lists.
 	m_dictLootLists.RemoveAll();
 
-	// Init Item Collections - Must be before lootlists since collections are lootlists themselves and are referenced by lootlists
-	KeyValues *pKVItemCollections = pKVRawDefinition->FindKey( "item_collections" );
-	if ( NULL != pKVItemCollections )
-	{
-		SCHEMA_INIT_SUBSTEP( BInitItemCollections( pKVItemCollections, pVecErrors ) );
-	}
-
-
 	// Parse the client loot lists block (everywhere)
 	KeyValues *pKVClientLootLists = pKVRawDefinition->FindKey( "client_loot_lists" );
 	SCHEMA_INIT_SUBSTEP( BInitLootLists( pKVClientLootLists, pVecErrors ) );
@@ -4091,9 +3877,6 @@ bool CEconItemSchema::BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlS
 	// Parse the revolving loot lists block
 	KeyValues *pKVRevolvingLootLists = pKVRawDefinition->FindKey( "revolving_loot_lists" );
 	SCHEMA_INIT_SUBSTEP( BInitRevolvingLootLists( pKVRevolvingLootLists, pVecErrors ) );
-
-	// Init Items that may reference Collections
-	SCHEMA_INIT_SUBSTEP( BInitCollectionReferences( pVecErrors ) );
 
 	// Validate Operation Pass	
 	KeyValues *pKVOperationDefinitions = pKVRawDefinition->FindKey( "operations" );
@@ -4557,7 +4340,6 @@ bool CEconItemSchema::BInitItems( KeyValues *pKVItems, CUtlVector<CUtlString> *p
 	m_mapItems.PurgeAndDeleteElements();
 	m_mapItemsSorted.Purge();
 	m_mapToolsItems.Purge();
-	m_mapPaintKitTools.Purge();
 	m_mapBaseItems.Purge();
 	m_vecBundles.Purge();
 
@@ -4676,73 +4458,6 @@ bool CEconItemSchema::BVerifyBaseItemNames( CUtlVector<CUtlString> *pVecErrors )
 	}
 
 	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
-bool CEconItemSchema::BInitItemCollections( KeyValues *pKVItemCollections, CUtlVector<CUtlString> *pVecErrors )
-{
-	m_dictItemCollections.Purge();
-
-	if ( NULL != pKVItemCollections )
-	{
-		FOR_EACH_TRUE_SUBKEY( pKVItemCollections, pKVItemCollection )
-		{
-			const char* setName = pKVItemCollection->GetName();
-
-			SCHEMA_INIT_CHECK( setName != NULL, "All item collections must have names." );
-			SCHEMA_INIT_CHECK( m_dictItemCollections.Find( setName ) == m_dictItemCollections.InvalidIndex(), "Duplicate item collection name (%s) found!", setName );
-
-			int idx = m_dictItemCollections.Insert( setName, new CEconItemCollectionDefinition );
-			SCHEMA_INIT_SUBSTEP( m_dictItemCollections[idx]->BInitFromKV( pKVItemCollection, pVecErrors ) );
-		}
-	}
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
-bool CEconItemSchema::BInitCollectionReferences( CUtlVector<CUtlString> *pVecErrors )
-{
-	FOR_EACH_MAP_FAST( m_mapItems, i )
-	{
-		CEconItemDefinition *pItemDef = m_mapItems[i];
-		const char *pszCollectionName = pItemDef->GetCollectionReference();
-		if ( pszCollectionName )
-		{
-			// Find the collection
-			bool bFound = false;
-			for ( int iCollectionIndex = m_dictItemCollections.First(); m_dictItemCollections.IsValidIndex( iCollectionIndex ); iCollectionIndex = m_dictItemCollections.Next( iCollectionIndex ) )
-			{
-				const char * pszTemp = m_dictItemCollections[iCollectionIndex]->m_strName;
-
-				if ( !V_strcmp( pszTemp, pszCollectionName) )
-				{
-					bFound = true;
-					pItemDef->SetItemCollectionDefinition( m_dictItemCollections[iCollectionIndex] );
-					break;
-				}
-			}
-			SCHEMA_INIT_CHECK( bFound == true, "Collection %s referenced by item %s not found", pszCollectionName, pItemDef->GetDefinitionName() );
-		}
-	}
-
-	return SCHEMA_INIT_SUCCESS();
-}
-//-----------------------------------------------------------------------------
-const CEconItemCollectionDefinition *CEconItemSchema::GetCollectionByName( const char* pCollectionName )
-{
-	if ( !pCollectionName )
-		return NULL;
-
-	for ( int iCollectionIndex = m_dictItemCollections.First(); m_dictItemCollections.IsValidIndex( iCollectionIndex ); iCollectionIndex = m_dictItemCollections.Next( iCollectionIndex ) )
-	{
-		const char * pszTemp = m_dictItemCollections[iCollectionIndex]->m_strName;
-		if ( !V_strcmp( pszTemp, pCollectionName ) )
-		{
-			return m_dictItemCollections[iCollectionIndex];
-		}
-	}
-	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -6064,14 +5779,6 @@ bool CEconItemSchema::BPostSchemaInit( CUtlVector<CUtlString> *pVecErrors )
 		}
 	}
 
-	for ( int idx = m_dictItemCollections.First(); m_dictItemCollections.IsValidIndex( idx ); idx = m_dictItemCollections.Next( idx ) )
-	{
-		if ( !m_dictItemCollections[idx]->BPostSchemaInit( pVecErrors ) )
-		{
-			bAllSuccess = false;
-		}
-	}
-
 	// make sure all lootlist are valid
 	for ( int idx = m_dictLootLists.First(); m_dictLootLists.IsValidIndex( idx ); idx = m_dictLootLists.Next( idx ) )
 	{
@@ -6177,47 +5884,5 @@ bool ItemHasUnusualAttribute( const IEconItemInterface *pItem, const CEconItemAt
 	}
 	
 	return false;
-}
-
-bool IsPaintKitTool( const CEconItemDefinition *pItemDef )
-{
-	static CSchemaItemDefHandle pPaintkitToolItemDef( "Paintkit" );
-	return pItemDef->GetRemappedItemDefIndex() == pPaintkitToolItemDef->GetDefinitionIndex();
-}
-
-
-const CEconItemDefinition *CEconItemSchema::GetPaintKitItemDefinition( uint32 unPaintKitDefIndex ) const
-{
-	int iIndex = m_mapPaintKitTools.Find( unPaintKitDefIndex );
-	if ( iIndex != m_mapPaintKitTools.InvalidIndex() )
-	{
-		return m_mapPaintKitTools[ iIndex ];
-	}
-
-	return NULL;
-}
-
-
-const CEconItemCollectionDefinition *CEconItemSchema::GetPaintKitCollectionFromItem( const IEconItemInterface *pItem, uint32 *pUnPaintKitDefIndex /*= NULL*/ ) const
-{
-	Assert( pItem );
-	
-	const CEconItemCollectionDefinition *pCollection = NULL;
-	uint32 unPaintKitDef;
-	if ( GetPaintKitDefIndex( pItem, &unPaintKitDef ) )
-	{
-		const CEconItemDefinition *pPaintKitItemDef = GetPaintKitItemDefinition( unPaintKitDef );
-		if ( pPaintKitItemDef )
-		{
-			pCollection = pPaintKitItemDef->GetItemCollectionDefinition();
-		}
-
-		if ( pUnPaintKitDefIndex )
-		{
-			*pUnPaintKitDefIndex = unPaintKitDef;
-		}
-	}
-
-	return pCollection;
 }
 

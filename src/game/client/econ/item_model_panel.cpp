@@ -23,7 +23,6 @@
 #include "vgui_controls/ScalableImagePanel.h"
 #include "engine/IEngineSound.h"
 #include "econ_item_description.h"
-#include "tool_items/custom_texture_cache.h"
 #include "materialsystem/imaterialvar.h"
 #include "materialsystem/itexturecompositor.h"
 #include "bone_setup.h"
@@ -67,20 +66,6 @@ CItemMaterialCustomizationIconPanel::~CItemMaterialCustomizationIconPanel()
 // Custom painting
 void CItemMaterialCustomizationIconPanel::PaintBackground( void )
 {
-	// Draw custom texture, if we have one
-	if ( m_hUGCId != 0 )
-	{
-		// Request it from the cache, and get filename, if it's downloaded
-		// and ready
-		int iCustomTexture = GetCustomTextureGuiHandle( m_hUGCId );
-		if ( iCustomTexture != 0 )
-		{
-			surface()->DrawSetTexture( iCustomTexture );
-			DrawQuad( 0, 1 );
-			surface()->DrawSetColor(COLOR_WHITE);
-		}
-	}
-
 	for ( int i = 0; i < m_colPaintColors.Size(); i++ )
 	{
 		const Color& c = m_colPaintColors[i];
@@ -315,8 +300,6 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 
 	static CSchemaAttributeDefHandle pAttr_is_festivized( "is_festivized" );
 	m_bIsFestivized = pAttr_is_festivized && m_pItem->FindAttribute( pAttr_is_festivized );
-
-	m_bIsPaintKitItem = GetPaintKitDefIndex( m_pItem );
 
 	m_bUseRenderTargetAsIcon = ShouldUseRenderTargetAsIcon();
 
@@ -553,11 +536,7 @@ bool CEmbeddedItemModelPanel::IsLoadingWeaponSkin( void ) const
 
 	if ( m_pItem && m_pItem->IsValid() )
 	{
-		if ( m_bWeaponAllowInspect && m_bIsPaintKitItem )
-		{
-			return m_pItem->GetWeaponSkinBaseCompositor() != NULL || !m_pCachedWeaponIcon || !m_pCachedWeaponIcon->GetTexture();
-		}
-		else if ( UseRenderTargetAsIcon() )
+		if ( UseRenderTargetAsIcon() )
 		{
 			return !m_pCachedWeaponIcon || !m_pCachedWeaponIcon->GetTexture();
 		}
@@ -971,11 +950,7 @@ void CEmbeddedItemModelPanel::Paint( void )
 
 	// check if we should cache rt from this frame to a texture
 	bool bShouldCacheToTexture = !m_pCachedWeaponIcon && !m_bForceUseModel;
-	if ( m_bIsPaintKitItem )
-	{
-		bShouldCacheToTexture &= bDrawWeaponWithSkin;
-	}
-	else
+
 	{
 		bShouldCacheToTexture &= UseRenderTargetAsIcon();
 	}
@@ -983,18 +958,8 @@ void CEmbeddedItemModelPanel::Paint( void )
 	// copy the rendered weapon skin from the render target
 	if ( bShouldCacheToTexture )
 	{
-		uint64 nPaintKitDef = 0; m_pItem->GetID();
-
-		// Include our paintkit defindex, incase we don't have a SO-backed item (meaning GetID() will
-		// return the same thing for all instances).
-		attrib_value_t val;
-		if ( GetPaintKitDefIndex( m_pItem, &val ) )
-		{
-			nPaintKitDef = val;
-		}
-
 		char buffer[_MAX_PATH];
-		V_sprintf_safe( buffer, "proc/icon/item%d_id%lld%lld_w%d_h%d", m_pItem->GetItemDefIndex(), m_pItem->GetID(), nPaintKitDef, iWidth, iHeight );
+		V_sprintf_safe( buffer, "proc/icon/item%d_id%lld%lld_w%d_h%d", m_pItem->GetItemDefIndex(), m_pItem->GetID(), 0, iWidth, iHeight );
 		SafeAssign( &m_pCachedWeaponIcon, new CIconRenderReceiver() );
 
 		// If the icon still exists in the material system, don't bother regenerating it.
@@ -1361,9 +1326,6 @@ CItemModelPanel::CItemModelPanel( vgui::Panel *parent, const char *name ) : vgui
 	m_pPaintIcon = NULL;
 	m_pTF2Icon = NULL;
 	m_pItemAttribLabel = NULL;
-	m_pItemCollectionNameLabel = NULL;
-	m_pItemCollectionListLabel = NULL;
-	m_pItemCollectionHighlight = NULL;
 	m_pItemEquippedLabel = NULL;
 	m_pItemQuantityLabel = NULL;
 	m_pVisionRestrictionImage = NULL;
@@ -1374,7 +1336,6 @@ CItemModelPanel::CItemModelPanel( vgui::Panel *parent, const char *name ) : vgui
 	m_pMainContentContainer = NULL;
 	m_pLoadingSpinner = NULL;
 //	m_ItemData = NULL;
-	m_nCollectionItemLoaded = LOADED_COLLECTION_NONE;
 	m_pFontNameSmallest = vgui::INVALID_FONT;
 	m_pFontNameSmall = vgui::INVALID_FONT;
 	m_pFontNameLarge = vgui::INVALID_FONT;
@@ -1434,8 +1395,6 @@ void CItemModelPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	m_pModelPanel = NULL;
 	m_pItemNameLabel = NULL;
 	m_pItemAttribLabel = NULL;
-	m_pItemCollectionNameLabel = NULL;
-	m_pItemCollectionListLabel = NULL;
 	m_pItemEquippedLabel = NULL;
 	m_pItemQuantityLabel = NULL;
 	m_pVisionRestrictionImage = NULL;
@@ -1457,7 +1416,6 @@ void CItemModelPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	m_pContainedItemPanel = NULL;
 	m_pMainContentContainer = NULL;
 	m_pLoadingSpinner = NULL;
-	m_nCollectionItemLoaded = LOADED_COLLECTION_NONE;
 	LoadResFileForCurrentItem( true );
 
 	m_pFontNameSmallest = pScheme->GetFont( "ItemFontNameSmallest", true );
@@ -1508,52 +1466,13 @@ void CItemModelPanel::LoadResFileForCurrentItem( bool bForceLoad )
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
 	const CEconItemView *pItem = GetItem();
 
-	bool bCollectionMouseover = false;
-	if ( m_bIsMouseOverPanel && pItem )
 	{
-		const CEconItemCollectionDefinition *pCollection = pItem->GetItemDefinition()->GetItemCollectionDefinition();
-		if ( !pCollection )
-		{
-			// see if this is part of paintkit collection
-			pCollection = GetItemSchema()->GetPaintKitCollectionFromItem( pItem );
-		}
-
-		bCollectionMouseover = pCollection != NULL;
-	}
-
-	if ( bCollectionMouseover )
-	{
-		float flInspect = 0;
-		static CSchemaAttributeDefHandle pAttrib_WeaponAllowInspect( "weapon_allow_inspect" );
-		if ( FindAttribute_UnsafeBitwiseCast<attrib_value_t>( GetItem(), pAttrib_WeaponAllowInspect, &flInspect ) && flInspect != 0.f )
-		{
-			if ( bForceLoad || m_nCollectionItemLoaded != LOADED_COLLECTION_WEAPON )
-			{
-				tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s ItemModelPanelCollectionItem", __FUNCTION__ );
-				LoadControlSettings( "Resource/UI/econ/ItemModelPanelCollectionItem.res" );
-				m_nCollectionItemLoaded = LOADED_COLLECTION_WEAPON;
-			}
-		}
-		else
-		{
-			if ( bForceLoad || m_nCollectionItemLoaded != LOADED_COLLECTION_COSMETIC )
-			{
-				tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s ItemModelPanelCollectionCosmeticItem", __FUNCTION__ );
-				LoadControlSettings( "Resource/UI/econ/ItemModelPanelCollectionCosmeticItem.res" );
-				m_nCollectionItemLoaded = LOADED_COLLECTION_COSMETIC;
-			}
-		}
-		m_bHideModel = false; // Hack
-	}
-	else
-	{
-		if ( bForceLoad || m_nCollectionItemLoaded != LOADED_COLLECTION_NONE )
+		if ( bForceLoad )
 		{
 			tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s ItemModelPanel", __FUNCTION__ );
 			LoadControlSettings( "Resource/UI/econ/ItemModelPanel.res" );
 		}
 		m_bHideModel = m_bHideModelDefault;
-		m_nCollectionItemLoaded = LOADED_COLLECTION_NONE;
 	}
 	
 	m_pModelPanel = dynamic_cast<CEmbeddedItemModelPanel*>( FindChildByName( "itemmodelpanel", true ) );
@@ -1565,9 +1484,6 @@ void CItemModelPanel::LoadResFileForCurrentItem( bool bForceLoad )
 
 	m_pItemNameLabel = dynamic_cast<CExLabel*>( FindChildByName( "namelabel", true ) );
 	m_pItemAttribLabel = dynamic_cast<vgui::Label*>( FindChildByName( "attriblabel", true ) );
-	m_pItemCollectionNameLabel = dynamic_cast<CExLabel*>( FindChildByName( "collectionnamelabel", true ) );
-	m_pItemCollectionListLabel = dynamic_cast<vgui::Label*>( FindChildByName( "collectionlistlabel", true ) );
-	m_pItemCollectionHighlight = dynamic_cast<vgui::EditablePanel*>( FindChildByName( "collectionhighlight", true ) );
 	m_pItemEquippedLabel = dynamic_cast<vgui::Label*>( FindChildByName( "equippedlabel", true ) );
 	m_pItemQuantityLabel = dynamic_cast<vgui::Label*>( FindChildByName( "quantitylabel", true ) );
 	m_pVisionRestrictionImage = dynamic_cast<vgui::ImagePanel*>( FindChildByName( "vision_restriction_icon", true ) );
@@ -1665,27 +1581,6 @@ void CItemModelPanel::LoadResFileForCurrentItem( bool bForceLoad )
 		m_pItemAttribLabel->InvalidateLayout( true, true );
 	}
 
-	if ( m_pItemCollectionNameLabel )
-	{
-		m_pItemCollectionNameLabel->SetMouseInputEnabled( false );
-		m_pItemCollectionNameLabel->AddActionSignalTarget( this );
-		m_pItemCollectionNameLabel->InvalidateLayout( true, true );
-	}
-
-	if ( m_pItemCollectionListLabel )
-	{
-		m_pItemCollectionListLabel->SetMouseInputEnabled( false );
-		m_pItemCollectionListLabel->AddActionSignalTarget( this );
-		m_pItemCollectionListLabel->InvalidateLayout( true, true );
-	}
-
-	if ( m_pItemCollectionHighlight )
-	{
-		m_pItemCollectionHighlight->SetMouseInputEnabled( false );
-		m_pItemCollectionHighlight->AddActionSignalTarget( this );
-		m_pItemCollectionHighlight->InvalidateLayout( true, true );
-	}
-
 	m_pContainedItemPanel = dynamic_cast<CItemModelPanel*>( FindChildByName( "contained_item_panel", true ) );
 
 	// Josh: Avoid infinitely creating contained item panels whenever layout
@@ -1758,27 +1653,11 @@ void CItemModelPanel::PerformLayout( void )
 		m_pItemNameLabel->SizeToContents();
 		m_pItemAttribLabel->SizeToContents();
 
-		if ( m_pItemCollectionNameLabel )
-		{
-			m_pItemCollectionNameLabel->InvalidateLayout( true );
-			m_pItemCollectionNameLabel->SizeToContents();
-		}
-			
-		if ( m_pItemCollectionListLabel )
-		{
-			m_pItemCollectionListLabel->InvalidateLayout( true );
-			m_pItemCollectionListLabel->SizeToContents();
-		}
-
 		// "" strings still size themselves as one font-heighth tall, but 0 wide. If there's no
 		// text in the attribute, we want 0 tall as well, so we don't get blank lines.
-		int iCollectionTall = m_pItemCollectionListLabel ? m_pItemCollectionListLabel->GetTall() : 0;
 		int iAttribTall = (m_pItemAttribLabel->GetWide() ? m_pItemAttribLabel->GetTall() : 0);
-		iAttribTall = Max( iAttribTall, iCollectionTall );
 
 		int iNameTall = m_pItemNameLabel->GetTall();
-
-		int iCollectionNameTall = m_pItemCollectionNameLabel ? m_pItemCollectionNameLabel->GetTall() : 0;
 
 		if ( m_bAttribOnly )
 		{
@@ -1794,10 +1673,6 @@ void CItemModelPanel::PerformLayout( void )
 		{
 			m_pItemNameLabel->SetSize( iTextW, iNameTall );
 			m_pItemAttribLabel->SetSize( iTextW, (m_pItemAttribLabel->GetWide() ? m_pItemAttribLabel->GetTall() : 0) );
-			if ( m_pItemCollectionNameLabel )
-				m_pItemCollectionNameLabel->SetSize( iTextW, iCollectionNameTall );
-			if ( m_pItemCollectionListLabel )
-				m_pItemCollectionListLabel->SetSize( iTextW, iCollectionTall );
 		}
 		else if ( m_bTextCenter )
 		{
@@ -1817,7 +1692,6 @@ void CItemModelPanel::PerformLayout( void )
 		m_pItemAttribLabel->SizeToContents();
 		
 		// Reget sizes, wtf
-		iCollectionTall = m_pItemCollectionListLabel ? m_pItemCollectionListLabel->GetTall() : 0;
 		iAttribTall = ( m_pItemAttribLabel->GetWide() ? m_pItemAttribLabel->GetTall() : 0 );
 		// HACK: Now we resize it again. Sets our height properly. Ridiculous. 
 		m_pItemAttribLabel->SetSize( iTextW, iAttribTall );
@@ -1838,18 +1712,13 @@ void CItemModelPanel::PerformLayout( void )
 			if ( !m_bHideModel )
 			{
 				//h = MAX( h, (iModelT + (iModelY * 2)) );
-				h = Max( h + iModelT + iModelY, m_iTextYPos + iCollectionNameTall + iCollectionTall + m_iHPadding);
+				h = Max( h + iModelT + iModelY, m_iTextYPos + m_iHPadding);
 				iLabelOffset = iModelT + iModelY;
 			}
 		}
 
 		// If we don't have a specific X pos, or attrib width, indent ourselves
 		int iTextXPos = (m_iTextXPos || m_iTextWide) ? m_iTextXPos : ATTRIB_LABEL_INDENT;
-
-		if ( iCollectionNameTall && iCollectionTall && m_iTextXPosCollection )
-		{
-			iTextXPos = m_iTextXPosCollection;
-		}
 
 		// Position the name label now we know where our attrib label is
 		// If we've got a Y pos, use it. Otherwise, stack up from the bottom of the panel.
@@ -1865,10 +1734,6 @@ void CItemModelPanel::PerformLayout( void )
 		{
 			m_pItemNameLabel->SetPos( iTextXPos, m_iTextYPos + iLabelOffset );
 			m_pItemAttribLabel->SetPos( iTextXPos, m_iTextYPos + iNameTall + iLabelOffset);
-			if ( m_pItemCollectionNameLabel )
-				m_pItemCollectionNameLabel->SetPos( m_iCollectionListXPos, m_iTextYPos );
-			if ( m_pItemCollectionListLabel )
-				m_pItemCollectionListLabel->SetPos( m_iCollectionListXPos, m_iTextYPos + iCollectionNameTall );
 		}
 		else if ( m_bTextCenter )
 		{
@@ -1891,24 +1756,6 @@ void CItemModelPanel::PerformLayout( void )
 
 		if ( m_bResizeToText )
 		{
-			const CEconItemView *pItem = GetItem();
-			if ( m_bIsMouseOverPanel && pItem && !m_bHideCollectionPanel )
-			{
-				const CEconItemCollectionDefinition *pCollection = pItem->GetItemDefinition()->GetItemCollectionDefinition();
-				if ( !pCollection )
-				{
-					pCollection = GetItemSchema()->GetPaintKitCollectionFromItem( pItem );
-				}
-
-				if ( pCollection && m_pItemCollectionListLabel && m_pItemCollectionNameLabel && m_pItemCollectionHighlight )
-				{
-					m_pItemCollectionListLabel->SizeToContents();
-					m_pItemCollectionNameLabel->SizeToContents();
-					int iContentW = Max( m_pItemCollectionNameLabel->GetWide(), m_pItemCollectionListLabel->GetWide() );
-					w = iContentW + m_iCollectionListXPos + m_iTextXPosCollection;
-					m_pItemCollectionHighlight->SetWide( iContentW );
-				}
-			}
 			SetSize( w, h );
 		}
 	}
@@ -1964,18 +1811,6 @@ void CItemModelPanel::PerformLayout( void )
 		{
 			m_pItemAttribLabel->SetVisible( false );
 		}
-		if ( m_pItemCollectionNameLabel )
-		{
-			m_pItemCollectionNameLabel->SetVisible( false );
-		}
-		if ( m_pItemCollectionListLabel )
-		{
-			m_pItemCollectionListLabel->SetVisible( false );
-		}
-		if ( m_pItemCollectionHighlight )
-		{
-			m_pItemCollectionHighlight->SetVisible( false );
-		}
 	}
 
 	BaseClass::PerformLayout();
@@ -2012,14 +1847,6 @@ void CItemModelPanel::OnSizeChanged( int newWide, int newTall )
 	if ( m_pItemAttribLabel && m_pItemAttribLabel->GetTextImage() )
 	{
 		m_pItemAttribLabel->GetTextImage()->RecalculateNewLinePositions();
-	}
-	if ( m_pItemCollectionNameLabel && m_pItemCollectionNameLabel->GetTextImage() )
-	{
-		m_pItemCollectionNameLabel->GetTextImage()->RecalculateNewLinePositions();
-	}
-	if ( m_pItemCollectionListLabel && m_pItemCollectionListLabel->GetTextImage() )
-	{
-		m_pItemCollectionListLabel->GetTextImage()->RecalculateNewLinePositions();
 	}
 }
 
@@ -2068,56 +1895,32 @@ void CItemModelPanel::ResizeLabels( void )
 		}
 		m_pItemNameLabel->InvalidateLayout( true, true );
 		m_pItemAttribLabel->InvalidateLayout( true, true );
-		if ( m_pItemCollectionNameLabel )
-			m_pItemCollectionNameLabel->InvalidateLayout( true, true );
-		if ( m_pItemCollectionListLabel )
-			m_pItemCollectionListLabel->InvalidateLayout( true, true );
 
 		switch ( m_iForceTextSize )
 		{
 		case 1:
 			m_pItemNameLabel->SetFont( m_pFontNameLarge );
 			m_pItemAttribLabel->SetFont( m_pFontAttribLarge );
-			if ( m_pItemCollectionNameLabel )
-				m_pItemCollectionNameLabel->SetFont( m_pFontNameLarge );
-			if ( m_pItemCollectionListLabel )
-				m_pItemCollectionListLabel->SetFont( m_pFontAttribLarge );
 			break;
 
 		case 2:
 			m_pItemNameLabel->SetFont( m_pFontNameSmall );
 			m_pItemAttribLabel->SetFont( m_pFontAttribSmall );
-			if ( m_pItemCollectionNameLabel )
-				m_pItemCollectionNameLabel->SetFont( m_pFontNameSmall );
-			if ( m_pItemCollectionListLabel )
-				m_pItemCollectionListLabel->SetFont( m_pFontAttribSmall );
 			break;
 
 		case 3:
 			m_pItemNameLabel->SetFont( m_pFontNameSmallest );
 			m_pItemAttribLabel->SetFont( m_pFontAttribSmallest );
-			if ( m_pItemCollectionNameLabel )
-				m_pItemCollectionNameLabel->SetFont( m_pFontNameSmallest );
-			if ( m_pItemCollectionListLabel )
-				m_pItemCollectionListLabel->SetFont( m_pFontAttribSmallest );
 			break;
 
 		case 4:
 			m_pItemNameLabel->SetFont( m_pFontNameLarger );
 			m_pItemAttribLabel->SetFont( m_pFontAttribLarger );
-			if ( m_pItemCollectionNameLabel )
-				m_pItemCollectionNameLabel->SetFont( m_pFontNameLarger );
-			if ( m_pItemCollectionListLabel )
-				m_pItemCollectionListLabel->SetFont( m_pFontAttribLarger );
 			break;
 		}
 
 		m_pItemNameLabel->SizeToContents();
 		m_pItemAttribLabel->SizeToContents();
-		if ( m_pItemCollectionNameLabel )
-			m_pItemCollectionNameLabel->SizeToContents();
-		if ( m_pItemCollectionListLabel )
-			m_pItemCollectionListLabel->SizeToContents();
 	}
 	else
 	{
@@ -2137,17 +1940,6 @@ void CItemModelPanel::ResizeLabels( void )
 		m_pItemNameLabel->SizeToContents();
 		m_pItemAttribLabel->SetFont( m_pFontAttribLarge );
 		m_pItemAttribLabel->SizeToContents();
-		if ( m_pItemCollectionNameLabel )
-		{
-			m_pItemCollectionNameLabel->SetFont( m_pFontNameLarge );
-			m_pItemCollectionNameLabel->SetCenterWrap( false );
-			m_pItemCollectionNameLabel->SizeToContents();	
-		}
-		if ( m_pItemCollectionListLabel )
-		{
-			m_pItemCollectionListLabel->SetFont( m_pFontAttribLarge );
-			m_pItemCollectionListLabel->SizeToContents();
-		}
 
 		if ( !m_bResizeToText )
 		{
@@ -2541,17 +2333,10 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 
 	if ( m_pItemNameLabel )
 	{
-		uint8 nRarity = m_ItemData.GetRarity();
-		const char* pszRarityColor = GetItemSchema()->GetRarityColor( nRarity );
-
 		// Set the name to the quality color
 		// Rarity Econ Colorization
 		EEconItemQuality eQuality = (EEconItemQuality)m_ItemData.GetItemQuality();
-		if ( pszRarityColor && ( eQuality != AE_SELFMADE ) && ( eQuality != AE_UNUSUAL ) )
-		{
-			m_pItemNameLabel->SetColorStr( pszRarityColor );
-		}
-		else 
+
 		{
 			const char *pszQualityColorString = EconQuality_GetColorString( eQuality );
 			if ( m_ItemData.IsValid() && !m_bStandardTextColor && pszQualityColorString )
@@ -2563,27 +2348,13 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 				m_pItemNameLabel->SetColorStr( m_OrgItemTextColor );
 			}
 		}
+
 		m_pItemNameLabel->SetVisible( !m_bAttribOnly );
 	}
 
 	if ( m_pItemAttribLabel )
 	{
 		m_pItemAttribLabel->SetVisible( !m_bNameOnly );
-	}
-
-	bool bCollectionVisible = m_bHideCollectionPanel ? false : !m_bNameOnly;
-
-	if ( m_pItemCollectionNameLabel )
-	{
-		m_pItemCollectionNameLabel->SetVisible( bCollectionVisible );
-	}
-	if ( m_pItemCollectionListLabel )
-	{
-		m_pItemCollectionListLabel->SetVisible( bCollectionVisible );
-	}
-	if ( m_pItemCollectionHighlight )
-	{
-		m_pItemCollectionHighlight->SetVisible( bCollectionVisible );
 	}
 
 	InvalidateLayout( true );
@@ -2595,27 +2366,10 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 		vgui::TextImage *pAttrTextImage = m_pItemAttribLabel->GetTextImage();
 		pAttrTextImage->ClearColorChangeStream();
 
-		vgui::TextImage *pCollectionNameTextImage = m_pItemCollectionNameLabel ? m_pItemCollectionNameLabel->GetTextImage() : NULL;
-		if ( pCollectionNameTextImage )
-			pCollectionNameTextImage->ClearColorChangeStream();
-
-		vgui::TextImage *pCollectionListTextImage = m_pItemCollectionListLabel ? m_pItemCollectionListLabel->GetTextImage() : NULL;
-		if ( pCollectionListTextImage )
-			pCollectionListTextImage->ClearColorChangeStream();
-
 		vgui::IScheme *pScheme = scheme()->GetIScheme( GetScheme() );
 
 		Color prevAttrColor(0,0,0);
-		Color prevCollectionColor(0,0,0);
 		unsigned int unCurrentAttrTextStreamIndex = 0;
-		unsigned int unCurrentCollectionNameTextStreamIndex = 0;
-		unsigned int unCurrentCollectionListTextStreamIndex = 0;
-		int iCollectionLineCount = 0;
-
-		if ( m_pItemCollectionHighlight )
-		{
-			m_pItemCollectionHighlight->SetVisible( false );
-		}
 
 		for ( unsigned int i = 0; i < pDescription->GetLineCount(); i++ )
 		{
@@ -2633,47 +2387,6 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 			if ( ( line.unMetaType & kDescLineFlag_Name ) != 0 )
 				continue;
 
-			// collection
-			int fontHeight = surface()->GetFontTall( m_pFontAttribSmall );
-			if ( ( line.unMetaType & (kDescLineFlag_Collection | kDescLineFlag_CollectionName | kDescLineFlag_CollectionCurrentItem ) ) != 0 && pCollectionNameTextImage && pCollectionListTextImage )
-			{
-				bool bIsCollectionName = ( line.unMetaType & kDescLineFlag_CollectionName ) != 0;
-				vgui::TextImage *pTextImage = bIsCollectionName ? pCollectionNameTextImage : pCollectionListTextImage;
-				unsigned int &unCurrentCollectionTextStreamIndex = bIsCollectionName ? unCurrentCollectionNameTextStreamIndex : unCurrentCollectionListTextStreamIndex;
-
-				bool bIsCurrentItem = ( line.unMetaType & kDescLineFlag_CollectionCurrentItem ) != 0;
-				// use bg color as text color for current item for a better highlight
-				Color col = bIsCurrentItem ? Color( 0, 0, 0, 255 ) : pScheme->GetColor( GetColorNameForAttribColor( line.eColor ), Color( 255, 255, 255, 255 ) );
-				// Output a color change if necessary.
-				if ( i == 0 || prevCollectionColor != col )
-				{
-					pTextImage->AddColorChange( col, unCurrentCollectionTextStreamIndex );
-					prevCollectionColor = col;
-				}
-
-				unCurrentCollectionTextStreamIndex += StringFuncs<locchar_t>::Length( line.sText.Get() ) + 1;	// add one character to deal with newlines
-
-				if ( bIsCollectionName )
-				{
-					continue;
-				}
-
-				// Current line highlight
-				if ( bIsCurrentItem && m_pItemCollectionHighlight )
-				{
-					// use text color as bg color for the current item for a better highlight
-					Color bgColor = pScheme->GetColor( GetColorNameForAttribColor( line.eColor ), Color( 255, 255, 255, 255 ) );
-
-					// Get the current ypos
-					int x, y;
-					m_pItemCollectionListLabel->GetPos( x, y );
-					m_pItemCollectionHighlight->SetPos( x, y + iCollectionLineCount * fontHeight );
-					m_pItemCollectionHighlight->SetBgColor( bgColor );
-					m_pItemCollectionHighlight->SetVisible( bCollectionVisible );
-				}
-				iCollectionLineCount++;
-			}
-			else 
 			{
 				Color col = pScheme->GetColor( GetColorNameForAttribColor( line.eColor ), Color( 255, 255, 255, 255 ) );
 

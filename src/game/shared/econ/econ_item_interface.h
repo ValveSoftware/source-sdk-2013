@@ -458,7 +458,6 @@ public:
 	virtual int				GetQuantity() const = 0;
 	virtual uint32			GetItemLevel() const = 0;
 	virtual bool			GetInUse() const = 0;			// is this item in use somewhere in the backend? (ie., cross-game trading)
-	uint8		GetRarity() const;
 	EEconItemQuality GetMarketQuality() const;
 	bool					BIsStrange() const;
 	bool					BIsUnusual() const;
@@ -480,28 +479,7 @@ public:
 	virtual IMaterial* GetMaterialOverride( int iTeam ) = 0;
 };
 
-bool GetPaintKitWear( const IEconItemInterface *pItem, float &flWear );
-
-template <typename TAttributeContainerType>
-bool GetPaintKitDefIndex( const TAttributeContainerType *pAttrContainer, uint32 *punPaintKitDefIndex = NULL )
-{
-	static CSchemaAttributeDefHandle pAttrDef_PaintKitProtoDefIndex( "paintkit_proto_def_index" );
-	uint32 unPaintKitDefIndex;
-	if ( pAttrDef_PaintKitProtoDefIndex && FindAttribute_UnsafeBitwiseCast<attrib_value_t>( pAttrContainer, pAttrDef_PaintKitProtoDefIndex, &unPaintKitDefIndex ) )
-	{
-		if ( punPaintKitDefIndex )
-		{
-			*punPaintKitDefIndex = unPaintKitDefIndex;
-		}
-		return true;
-	}
-
-	return false;
-}
-
 bool GetStattrak( const IEconItemInterface *pItem, CAttribute_String *pAttrModule = NULL );
-const char *GetPaintKitMaterialOverride( const IEconItemInterface *pItem );
-const CEconItemCollectionDefinition* GetCollection( const IEconItemInterface* pItem );
 
 //-----------------------------------------------------------------------------
 // Purpose: Classes that want default behavior for GetMaterialOverride, which 
@@ -533,17 +511,12 @@ public:
 		{
 			m_bInitMaterialOverride[ iTeam ] = true;
 
-			// always use paintkit first
-			const char *pszMaterialOverride = GetPaintKitMaterialOverride( this );
-			if ( !pszMaterialOverride )
-			{
-				if ( !this->GetItemDefinition() )
-					return NULL;
+			if ( !this->GetItemDefinition() )
+				return NULL;
 
-				pszMaterialOverride = this->GetItemDefinition()->GetMaterialOverride( iTeam );
-				if ( pszMaterialOverride == NULL )
-					return NULL;
-			}
+			const char *pszMaterialOverride = this->GetItemDefinition()->GetMaterialOverride( iTeam );
+			if ( pszMaterialOverride == NULL )
+				return NULL;
 
 			m_materialOverrides[ iTeam ].Init( pszMaterialOverride, TEXTURE_GROUP_CLIENT_EFFECTS );
 			return m_materialOverrides[ iTeam ];

@@ -125,15 +125,6 @@ void CItemAdPanel::PerformLayout()
 	int nNameLabelTall = 0;
 	if ( pNameLabel )
 	{
-		// Set the name to the quality color
-		// Rarity Econ Colorization
-		const char* pszRarityColor = GetItemSchema()->GetRarityColor( m_item.GetRarity() );
-		EEconItemQuality eQuality = (EEconItemQuality)m_item.GetItemQuality();
-		if ( pszRarityColor && eQuality != AE_SELFMADE )
-		{
-			pNameLabel->SetColorStr( pszRarityColor );
-		}
-
 		pNameLabel->SizeToContents();
 		nNameLabelTall = pNameLabel->GetTall();
 		pNameLabel->SetTall( nNameLabelTall + YRES( 2 ) );

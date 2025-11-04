@@ -868,17 +868,10 @@ bool CPlayerInventory::AddEconItem( CEconItem * pItem, bool bUpdateAckFile, bool
 	ItemHasBeenUpdated( &m_aInventoryItems[iIdx], bUpdateAckFile, bWriteAckFile );
 
 #ifdef CLIENT_DLL
-
 	// Update map of item defs to items
 	AddToMapVec( m_mapItemDefsToItems, &m_aInventoryItems[iIdx], newItem.GetItemDefIndex() );
-
-	// Update map of paintkits to items
-	uint32 nPaintkitDefindex = 0;
-	if ( GetPaintKitDefIndex( &newItem, &nPaintkitDefindex ) )
-	{
-		AddToMapVec( m_mapPaintkitsToItems, &m_aInventoryItems[iIdx], nPaintkitDefindex );
-	}
 #endif
+
 	return true;
 }
 
@@ -1197,14 +1190,6 @@ void CPlayerInventory::RemoveItem( itemid_t iItemID )
 		// Update map of item defs to items
 		RemoveItemFromVecMap( m_mapItemDefsToItems, pItem, pItem->GetItemDefIndex() );
 		
-		// Update map of paintkits to items
-		uint32 nPaintkitDefindex = 0;
-		if ( GetPaintKitDefIndex( pItem, &nPaintkitDefindex ) )
-		{
-			RemoveItemFromVecMap( m_mapPaintkitsToItems, pItem, nPaintkitDefindex );
-		}
-
-
 		m_aInventoryItems.Remove(iIndex);
 
 #ifdef _DEBUG

@@ -197,17 +197,6 @@ int EconQuality_GetRarityScore( EEconItemQuality eQuality )
 }
 
 //-----------------------------------------------------------------------------
-const char *g_pchWearAmountStrings[] =
-{
-	"#TFUI_InvTooltip_None",
-	"#TFUI_InvTooltip_FactoryNew",
-	"#TFUI_InvTooltip_MinimalWear",
-	"#TFUI_InvTooltip_FieldTested",
-	"#TFUI_InvTooltip_WellWorn",
-	"#TFUI_InvTooltip_BattleScared"
-};
-
-//-----------------------------------------------------------------------------
 int EconWear_ToIntCategory( float flWear )
 {
 	if ( flWear <= 0.2f )
@@ -245,12 +234,6 @@ float EconStrange_FromStrangeBucket( int value )
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
-const char *GetWearLocalizationString( float flWear )
-{
-	int nIndex = EconWear_ToIntCategory( flWear );
-	return g_pchWearAmountStrings[ nIndex ];
-}
 //-----------------------------------------------------------------------------
 bool EconWear_IsValidValue( int nWear )
 {
@@ -635,110 +618,6 @@ bool BIsItemStrange( const IEconItemInterface *pItem )
 
 //-----------------------------------------------------------------------------
 // Purpose: Get a localization token that describes why an item is not usable
-//			in the trade-up crafting.  Returns NULL if no reason.  Can pass in
-//			another item to compare against, which causes extra consistency checks
-//-----------------------------------------------------------------------------
-const char* GetCollectionCraftingInvalidReason( const IEconItemInterface *pTestItem, const IEconItemInterface *pSourceItem )
-{
-	if ( !pTestItem )
-	{
-		return "#TF_CollectionCrafting_NoItem";
-	}
-
-	uint32 nPaintkitDefindex = 0;
-	bool bIsPaintkit = GetPaintKitDefIndex( pTestItem, &nPaintkitDefindex );
-
-	// Needs to have a collection
-	const CEconItemCollectionDefinition* pTestCollection = GetCollection( pTestItem );
-	if ( !pTestCollection )
-	{
-		return "#TF_CollectionCrafting_NoCollection";
-	}
-
-	const CEconItemDefinition* pEffectiveItemDef = pTestItem->GetItemDefinition();
-
-	// Make sure this item is a part of the collection it claims to be in
-	{
-		item_definition_index_t nThisDefIndex = pTestItem->GetItemDefIndex();
-		bool bFound = false;
-		for( int i=0; i < pTestCollection->m_iItemDefs.Count() && !bFound; ++i )
-		{
-			bFound |= pTestCollection->m_iItemDefs[i] == nThisDefIndex;
-
-			// Paintkit items get extra checks.  We want to test if the item has a 
-			// paintkit defindex that corresponds to the paintkit defindex of one
-			// of the items in the collection.  That is, if you have a Pizza Minigun,
-			// then it's technically within the collection that contains the
-			// Pizza War Paint.
-			if ( !bIsPaintkit )
-				continue;
-			
-			uint32 nCollectionItemPaintkitDefindex = 0;
-			const CEconItemDefinition* pCollectionItemDef = GetItemSchema()->GetItemDefinition( pTestCollection->m_iItemDefs[i] );
-			if ( !GetPaintKitDefIndex( pCollectionItemDef, &nCollectionItemPaintkitDefindex ) )
-				continue;
-
-			if ( nCollectionItemPaintkitDefindex == nPaintkitDefindex )
-			{
-				// This is our source War Paint
-				bFound = true;
-				pEffectiveItemDef = pCollectionItemDef;			
-			}
-		}
-
-		if ( !bFound )
-		{
-			return "#TF_CollectionCrafting_NoCollection";
-		}
-	}
-	 
-	// Needs rarity
-	uint8 nRarity = pTestItem->GetRarity();
-	if( nRarity == k_unItemRarity_Any )
-	{
-		return "#TF_CollectionCrafting_NoRarity";
-	}
-
-	// Can't use items with rarity at the "top" of a collection (what would they craft into?)
-	if ( nRarity == pTestCollection->GetMaxRarity() )
-	{
-		return "#TF_CollectionCrafting_MaxRarity";
-	}
-
-	// No self mades or community items
-	uint32 eQuality = pTestItem->GetQuality();
-	if ( eQuality == AE_SELFMADE || eQuality == AE_COMMUNITY )
-	{
-		return "#TF_CollectionCrafting_NoUnusual";
-	}
-
-	// Don't let unusuals be crafted
-	if ( pTestItem->BIsUnusual() )
-	{
-		return "#TF_CollectionCrafting_NoUnusual";
-	}
-
-	// If another item was passed in, we have a few consistency checks to make
-	if ( pSourceItem )
-	{
-		// Need to have the same rarity
-		if ( nRarity != pSourceItem->GetRarity() )
-		{
-			return "#TF_CollectionCrafting_MismatchRarity";
-		}
-
-		// Need to have the same strangeness
-		if ( BIsItemStrange( pSourceItem ) != BIsItemStrange( pTestItem ) )
-		{
-			return "#TF_CollectionCrafting_MismatchStrange";
-		}
-	}
-
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Get a localization token that describes why an item is not usable
 //			in the Halloween Offering.  Returns NULL if no reason.  Can pass in
 //			another item to compare against, which causes extra consistency checks
 //-----------------------------------------------------------------------------
@@ -886,13 +765,6 @@ const char* GetCraftCommonStatClockInvalidReason( const class IEconItemInterface
 		{
 			return NULL;
 		}
-	}
-
-	// Needs Rarity
-	uint8 nRarity = pTestItem->GetRarity();
-	if ( nRarity != k_unItemRarity_Any && nRarity > 1 ) // do not allow default nor common rarity
-	{
-		return NULL;
 	}
 
 	return "#TF_MannCoTrade_ItemInvalid";

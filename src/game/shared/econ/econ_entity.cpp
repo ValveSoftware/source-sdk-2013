@@ -1042,13 +1042,10 @@ void CEconEntity::OnDataChanged( DataUpdateType_t updateType )
 		}
 #endif
 
-		// if we have paintkit material override, stomp all material override
-		const char *pszPaintKitMaterialOverride = GetPaintKitMaterialOverride( pItem );
-
 		// Find & cache for easy leaf code usage
 		for ( int team = 0; team < TEAM_VISUAL_SECTIONS; team++ )
 		{
-			const char *pszMaterial = pszPaintKitMaterialOverride ? pszPaintKitMaterialOverride : pItem->GetStaticData()->GetMaterialOverride( team );
+			const char *pszMaterial = pItem->GetStaticData()->GetMaterialOverride( team );
 			if ( pszMaterial )
 			{
 				m_MaterialOverrides[team].Init( pszMaterial, TEXTURE_GROUP_CLIENT_EFFECTS );

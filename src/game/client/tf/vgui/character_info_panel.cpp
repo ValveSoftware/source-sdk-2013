@@ -300,15 +300,6 @@ void CCharacterInfoPanel::OpenLoadoutToClass( int iClassIndex, bool bOpenClassLo
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CCharacterInfoPanel::OpenToPaintkitPreview( CEconItemView* pItem, bool bFixedItem, bool bFixedPaintkit )
-{
-	m_pLoadoutPanel->OpenToPaintkitPreview( pItem, bFixedItem, bFixedPaintkit );
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CCharacterInfoPanel::OnKeyCodeTyped(vgui::KeyCode code)
 {
 	if ( code == KEY_ESCAPE )

@@ -49,7 +49,6 @@
 #include "mute_player_dialog.h"
 #include "tf_pvp_rank_panel.h"
 
-#include "econ_paintkit.h"
 #include "ienginevgui.h"
 
 

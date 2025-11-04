@@ -462,51 +462,6 @@ void CCharInfoLoadoutSubPanel::OnCommand( const char *command )
 			}
 		}
 	}
-	else if ( FStrEq( command, "paintkit_preview" ) )
-	{
-		// When opening from the charinfo panel, just show a random weapon
-		CUtlVector< CTFItemDefinition* > vecWeaponDefs;
-
-		// Dig up all the weapons
-		const CEconItemSchema::ItemDefinitionMap_t& mapItemDefs = ItemSystem()->GetItemSchema()->GetItemDefinitionMap();
-		FOR_EACH_MAP_FAST( mapItemDefs, i )
-		{
-			CTFItemDefinition *pData = assert_cast< CTFItemDefinition* >( mapItemDefs[i] );
-
-			if ( pData->GetDefaultLoadoutSlot() == LOADOUT_POSITION_PRIMARY ||
-				 pData->GetDefaultLoadoutSlot() == LOADOUT_POSITION_SECONDARY ||
-				 pData->GetDefaultLoadoutSlot() == LOADOUT_POSITION_MELEE )
-			{
-
-				float flInspect = 0;
-				static CSchemaAttributeDefHandle pAttrib_WeaponAllowInspect( "weapon_allow_inspect" );
-				if ( FindAttribute_UnsafeBitwiseCast<attrib_value_t>( pData, pAttrib_WeaponAllowInspect, &flInspect ) )
-				{
-					vecWeaponDefs.AddToTail( pData );
-				}
-			}
-		}
-
-		Assert( vecWeaponDefs.Count() );
-		if ( vecWeaponDefs.Count() )
-		{
-			// Randomly pick one that supports paintkits.  We don't want to do GetValidPaintkits() in the above
-			// loop because it causes the CTFItemDefinition to populate its valid paintkits list, which isn't cheap
-			int nSafeguard = 0;
-			int nRandomIndex = 0;
-			do 
-			{
-				nRandomIndex = RandomInt( 0, vecWeaponDefs.Count() - 1 );
-				++nSafeguard;
-			} while ( vecWeaponDefs[ nRandomIndex ]->GetValidPaintkits().IsEmpty() && nSafeguard < 100 );
-
-			// Open up the inspection panel with the random weapon we've chosen
-			CEconItemView itemTemp;
-			itemTemp.Init( vecWeaponDefs[ nRandomIndex ]->GetDefinitionIndex(), AE_UNIQUE, AE_USE_SCRIPT_VALUE, true );
-
-			OpenToPaintkitPreview( &itemTemp, false, false );
-		}
-	}
 	else if ( !Q_stricmp( command, "show_explanations" ) )
 	{
 		if ( !m_flStartExplanationsAt )
@@ -569,11 +524,6 @@ void CCharInfoLoadoutSubPanel::SetTeamIndex( int iTeam )
 }
 
 
-void CCharInfoLoadoutSubPanel::OpenToPaintkitPreview( CEconItemView* pItem, bool bFixedItem, bool bFixedPaintkit )
-{
-	OpenSubPanel( CHAP_PAINTKIT_PREVIEW );
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -596,11 +546,7 @@ void CCharInfoLoadoutSubPanel::UpdateModelPanels( bool bOpenClassLoadout )
 {
 	int iLabelClassToSet = -1;
 	int iClassIndexToSet = 0;
-	
-	if ( m_iShowingPanel == CHAP_PAINTKIT_PREVIEW )
-	{
-	}
-	else
+
 	{
 		iClassIndexToSet = bOpenClassLoadout ? m_iCurrentClassIndex : TF_CLASS_UNDEFINED;
 		m_pClassLoadoutPanel->SetTeam( m_iCurrentTeamIndex );

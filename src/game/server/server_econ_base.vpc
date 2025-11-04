@@ -61,8 +61,6 @@ $Project
 			$File	"$SRCDIR\game\shared\econ\econ_item_schema_sdk.cpp" [$SOURCESDK]
 			$File	"$SRCDIR\game\shared\econ\item_selection_criteria.cpp"
 			$File	"$SRCDIR\game\shared\econ\item_selection_criteria.h"
-			$File	"$SRCDIR\game\shared\econ\econ_paintkit.cpp"
-			$File	"$SRCDIR\game\shared\econ\econ_paintkit.h"
 
 
 			$File	"$SRCDIR\game\shared\gc_clientsystem.h"

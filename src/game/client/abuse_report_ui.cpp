@@ -18,7 +18,6 @@
 #include "gc_clientsystem.h"
 #include "econ/econ_gcmessages.h"
 #include "econ/confirm_dialog.h"
-#include "tool_items/custom_texture_cache.h"
 
 vgui::DHANDLE<CAbuseReportDlg> g_AbuseReportDlg;
 
@@ -40,10 +39,6 @@ CAbuseReportDlg::CAbuseReportDlg( vgui::Panel *parent, AbuseIncidentData_t *pInc
 , m_pScreenShotBitmap( NULL )
 , m_pAvatarImage( NULL )
 , m_pNoAvatarLabel( NULL )
-, m_pCustomTextureImagePanel( NULL )
-, m_pNoCustomTexturesLabel( NULL )
-, m_pCustomTextureNextButton( NULL )
-, m_pCustomTexturePrevButton( NULL )
 , m_iUserImageIndex( 0 )
 , m_pIncidentData( pIncidentData )
 {
@@ -86,20 +81,6 @@ void CAbuseReportDlg::OnCommand( const char *command )
 		OnSubmitReport();
 		return;
 	}
-	if ( !Q_stricmp( command, "nextcustomtexture" ) )
-	{
-		++m_iUserImageIndex;
-		UpdateCustomTextures();
-		return;
-	}
-
-	if ( !Q_stricmp( command, "prevcustomtexture" ) )
-	{
-		--m_iUserImageIndex;
-		UpdateCustomTextures();
-		return;
-	}
-
 }
 
 void CAbuseReportDlg::MakeModal()
@@ -141,45 +122,6 @@ void CAbuseReportDlg::PerformLayout()
 	// @todo setup 
 }
 
-class CCustomTextureImagePanel : public vgui::Panel
-{
-public:
-	CCustomTextureImagePanel( Panel *parent, const char *panelName ) : vgui::Panel( parent, panelName )
-	{
-		m_ugcHandle = 0;
-	}
-
-	uint64 m_ugcHandle;
-
-	virtual void Paint()
-	{
-		if ( m_ugcHandle == 0 )
-		{
-			return;
-		}
-		int iTextureHandle = GetCustomTextureGuiHandle( m_ugcHandle );
-		if ( iTextureHandle <= 0)
-		{
-			return;
-		}
-
-		vgui::surface()->DrawSetColor(COLOR_WHITE);
-		vgui::surface()->DrawSetTexture( iTextureHandle );
-		int iWide, iTall;
-		GetSize( iWide, iTall );
-		
-		vgui::Vertex_t verts[4];
-		verts[0].Init( Vector2D(     0,	    0 ), Vector2D( 0.0f, 0.0f ) );
-		verts[1].Init( Vector2D( iWide,     0 ), Vector2D( 1.0f, 0.0f ) );
-		verts[2].Init( Vector2D( iWide, iTall ), Vector2D( 1.0f, 1.0f ) );
-		verts[3].Init( Vector2D(     0,	iTall ), Vector2D( 0.0f, 1.0f ) );
-
-		vgui::surface()->DrawTexturedPolygon( 4, verts );	
-		vgui::surface()->DrawSetColor(COLOR_WHITE);
-	}
-
-};
-
 class CAbuseReportScreenShotPanel : public CBitmapPanel
 {
 public:
@@ -218,7 +160,6 @@ void CAbuseReportDlg::ApplySchemeSettings( vgui::IScheme *pScheme )
 	EditablePanel::ApplySchemeSettings( pScheme );
 
 	m_pScreenShotBitmap = new CAbuseReportScreenShotPanel( this, "ScreenShotBitmap" );
-	m_pCustomTextureImagePanel = new CCustomTextureImagePanel( this, "CustomTextureImage" );
 
 	LoadControlSettings( GetResFilename() );
 
@@ -261,15 +202,6 @@ void CAbuseReportDlg::ApplySchemeSettings( vgui::IScheme *pScheme )
 
 	m_pNoAvatarLabel = FindChildByName( "NoAvatarLabel", true );
 	Assert( m_pNoAvatarLabel );
-
-	m_pNoCustomTexturesLabel = FindChildByName( "NoCustomTexturesLabel", true );
-	Assert( m_pNoCustomTexturesLabel );
-
-	m_pCustomTextureNextButton = dynamic_cast<vgui::Button *>(FindChildByName( "CustomTextureNextButton", true ));
-	Assert( m_pCustomTextureNextButton );
-
-	m_pCustomTexturePrevButton = dynamic_cast<vgui::Button *>(FindChildByName( "CustomTexturePrevButton", true ));
-	Assert( m_pCustomTexturePrevButton );
 
 	m_pPlayerCombo = dynamic_cast<vgui::ComboBox *>(FindChildByName( "PlayerComboBox", true ));
 	Assert( m_pPlayerCombo );
@@ -512,7 +444,6 @@ void CAbuseReportDlg::ContentTypeChanged()
 	}
 
 	UpdateAvatarImage();
-	UpdateCustomTextures();
 
 	// Populate abuse type
 	if ( m_pAbuseTypeCombo )
@@ -666,57 +597,6 @@ void  CAbuseReportDlg::UpdateAvatarImage()
 		m_pAvatarImage->SetVisible( false );
 		m_pNoAvatarLabel->SetVisible( false );
 	}
-}
-
-void  CAbuseReportDlg::UpdateCustomTextures()
-{
-	if ( m_pCustomTextureImagePanel == NULL || m_pNoCustomTexturesLabel == NULL || m_pCustomTextureNextButton == NULL || m_pCustomTexturePrevButton == NULL )
-	{
-		Assert( m_pCustomTextureImagePanel );
-		Assert( m_pNoCustomTexturesLabel );
-		Assert( m_pCustomTextureNextButton );
-		Assert( m_pCustomTexturePrevButton );
-		return;
-	}
-
-	const AbuseIncidentData_t::PlayerData_t *pAccused = GetAccusedPlayerPtr();
-	bool bShowScrollButtons = false;
-	if ( GetAbuseContentType() == k_EAbuseReportContentUGCImage && pAccused != NULL )
-	{
-		int iSelectedCustomImage = GetSelectedCustomImage();
-
-		if ( iSelectedCustomImage >= 0 )
-		{
-
-			// Currently the only thing we support...
-			Assert( pAccused->m_vecImages[ iSelectedCustomImage].m_eType == AbuseIncidentData_t::k_PlayerImageType_UGC );
-
-			m_pCustomTextureImagePanel->m_ugcHandle = pAccused->m_vecImages[ iSelectedCustomImage].m_hUGCHandle;
-
-			m_pCustomTextureImagePanel->SetVisible( true );
-			m_pNoCustomTexturesLabel->SetVisible( false );
-
-			int n = pAccused->m_vecImages.Count();
-			if ( n > 1 )
-			{
-				bShowScrollButtons = true;
-				m_pCustomTextureNextButton->SetEnabled( iSelectedCustomImage < n-1 );
-				m_pCustomTexturePrevButton->SetEnabled( iSelectedCustomImage > 0 );
-			}
-		}
-		else
-		{
-			m_pCustomTextureImagePanel->SetVisible( false );
-			m_pNoCustomTexturesLabel->SetVisible( true );
-		}
-	}
-	else
-	{
-		m_pCustomTextureImagePanel->SetVisible( false );
-		m_pNoCustomTexturesLabel->SetVisible( false );
-	}
-	m_pCustomTextureNextButton->SetVisible( bShowScrollButtons );
-	m_pCustomTexturePrevButton->SetVisible( bShowScrollButtons );
 }
 
 int CAbuseReportDlg::GetSelectedCustomImage()
