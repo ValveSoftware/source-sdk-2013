@@ -451,14 +451,10 @@ public:
 
 	virtual itemid_t		GetID() const = 0;				// intentionally not called GetItemID to avoid stomping non-virtual GetItemID() on CEconItem
 	virtual uint32			GetAccountID() const = 0;
-	virtual int32			GetQuality() const = 0;
 	virtual style_index_t	GetStyle() const = 0;
 	virtual uint8			GetFlags() const = 0;
 	virtual eEconItemOrigin GetOrigin() const = 0;
-	virtual int				GetQuantity() const = 0;
-	virtual uint32			GetItemLevel() const = 0;
 	virtual bool			GetInUse() const = 0;			// is this item in use somewhere in the backend? (ie., cross-game trading)
-	EEconItemQuality GetMarketQuality() const;
 	bool					BIsStrange() const;
 	bool					BIsUnusual() const;
 

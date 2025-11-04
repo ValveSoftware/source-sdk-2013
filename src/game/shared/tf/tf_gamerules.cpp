@@ -11223,31 +11223,6 @@ static kill_eater_event_t g_eRobotClassKillEvents[] =
 };
 COMPILE_TIME_ASSERT( ARRAYSIZE( g_eRobotClassKillEvents ) == (TF_LAST_NORMAL_CLASS - TF_FIRST_NORMAL_CLASS) );
 
-static bool BHasWearableOfSpecificQualityEquipped( /*const*/ CTFPlayer *pTFPlayer, EEconItemQuality eQuality )
-{
-	Assert( pTFPlayer );
-
-	// Fire the kill eater event on all wearables
-	for ( int i = 0; i < pTFPlayer->GetNumWearables(); ++i )
-	{
-		CTFWearable *pWearableItem = dynamic_cast<CTFWearable *>( pTFPlayer->GetWearable( i ) );
-		if ( !pWearableItem )
-			continue;
-
-		if ( !pWearableItem->GetAttributeContainer() )
-			continue;
-
-		CEconItemView *pEconItemView = pWearableItem->GetAttributeContainer()->GetItem();
-		if ( !pEconItemView )
-			continue;
-
-		if ( pEconItemView->GetQuality() == eQuality )
-			return true;
-	}
-
-	return false;
-}
-
 void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &info )
 {
 	// Find the killer & the scorer
@@ -11701,12 +11676,6 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 				if ( pTFPlayerScorer->IsAlive() && (pTFPlayerScorer->GetAbsOrigin() - pTFPlayerVictim->GetAbsOrigin()).Length() >= 2000.0f )
 				{
 					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_LongDistanceKill );
-				}
-
-				// Optional: also track kills where the victim was wearing at least one unusual-quality item.
-				if ( BHasWearableOfSpecificQualityEquipped( pTFPlayerVictim, AE_UNUSUAL ) )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_PlayersWearingUnusualKill );
 				}
 
 				// Optional: also track kills where the victim was on fire at the time that they died. We can't check the condition flag

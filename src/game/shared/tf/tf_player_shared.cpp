@@ -3910,17 +3910,6 @@ CTFPlayerShared::taunt_particle_state_t CTFPlayerShared::GetClientTauntParticleD
 					}
 				}
 			}
-
-			// do community_sparkle effect if this is a self-made or community item
-			const int iQualityParticleType = pTauntItem->GetQualityParticleType();
-			if ( iQualityParticleType > 0 )
-			{
-				const attachedparticlesystem_t *pParticleSystem = GetItemSchema()->GetAttributeControlledParticleSystem( iQualityParticleType );
-				if ( pParticleSystem )
-				{
-					return taunt_particle_state_t( pParticleSystem->pszSystemName, pParticleSystem->fRefireTime );
-				}
-			}
 		}
 	}
 

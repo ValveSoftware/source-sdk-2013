@@ -414,56 +414,6 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 					}
 				}
 
-				// Stattrak
-				CAttribute_String attrModule;
-				if ( GetStattrak( m_pItem, &attrModule ) )
-				{
-					// Allow for already strange items
-					bool bIsStrange = false;
-					if ( m_pItem->GetQuality() == AE_STRANGE || m_pItem->GetItemQuality() == AE_STRANGE )
-					{
-						bIsStrange = true;
-					}
-
-					if ( !bIsStrange )
-					{
-						// Go over the attributes of the item, if it has any strange attributes the item is strange and don't apply
-						for ( int i = 0; i < GetKillEaterAttrCount(); i++ )
-						{
-							if ( m_pItem->FindAttribute( GetKillEaterAttr_Score( i ) ) )
-							{
-								bIsStrange = true;
-								break;
-							}
-						}
-					}
-
-					if ( bIsStrange )
-					{
-						static CSchemaAttributeDefHandle pAttr_moduleScale( "weapon_stattrak_module_scale" );
-						// Does it have a stat track module
-						m_flStatTrackScale = 1.0f;
-						uint32 unFloatAsUint32 = 1;
-						if ( m_pItem->FindAttribute( pAttr_moduleScale, &unFloatAsUint32 ) )
-						{
-							m_flStatTrackScale = (float&)unFloatAsUint32;
-						}
-
-						MDLHandle_t hStatTrackMDL = mdlcache->FindMDL( attrModule.value().c_str() );
-						if ( mdlcache->IsErrorModel( hStatTrackMDL ) )
-						{
-							hStatTrackMDL = MDLHANDLE_INVALID;
-						}
-						m_StatTrackModel.m_MDL.SetMDL( hStatTrackMDL );
-						mdlcache->Release( hStatTrackMDL ); // counterbalance addref from within FindMDL
-
-						m_StatTrackModel.m_MDL.m_pProxyData = static_cast<IClientRenderable*>(pItem);
-						m_StatTrackModel.m_bDisabled = false;
-						m_StatTrackModel.m_MDL.m_nSequence = ACT_IDLE;
-						SetIdentityMatrix( m_StatTrackModel.m_MDLToWorld );
-					}
-				}
-
 				int iTeam = GetLocalPlayerTeam(),
 					iSkin = iTeam;
 
@@ -939,9 +889,6 @@ void CEmbeddedItemModelPanel::Paint( void )
 		m_bRenderToTexture = false;
 	}
 
-	// make sure the weapon skin is ready before we render the model
-	bool bDrawWeaponWithSkin = bIsLoadingWeaponSkin && m_pCachedWeaponIcon == NULL && m_pItem->GetWeaponSkinBase();
-
 	m_pItem->SetWeaponSkinBaseCreateFlags( TEX_COMPOSITE_CREATE_FLAGS_NO_COMPRESSION | TEX_COMPOSITE_CREATE_FLAGS_NO_MIPMAPS );
 
 	BaseClass::Paint();
@@ -1048,13 +995,6 @@ bool CEmbeddedItemModelPanel::UpdateParticle(
 		return false;
 
 	attachedparticlesystem_t *pParticleSystem = NULL;
-
-	// do community_sparkle effect if this is a community item?
-	const int iQualityParticleType = m_pItem->GetQualityParticleType();
-	if ( iQualityParticleType > 0 )
-	{
-		pParticleSystem = GetItemSchema()->GetAttributeControlledParticleSystem( iQualityParticleType );
-	}
 
 	if ( !pParticleSystem )
 	{
@@ -1329,7 +1269,6 @@ CItemModelPanel::CItemModelPanel( vgui::Panel *parent, const char *name ) : vgui
 	m_pItemEquippedLabel = NULL;
 	m_pItemQuantityLabel = NULL;
 	m_pVisionRestrictionImage = NULL;
-	m_pIsStrangeImage = NULL;
 	m_pIsUnusualImage = NULL;
 	m_pIsLoanerImage = NULL;
 	m_pSeriesLabel = NULL;
@@ -1398,7 +1337,6 @@ void CItemModelPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	m_pItemEquippedLabel = NULL;
 	m_pItemQuantityLabel = NULL;
 	m_pVisionRestrictionImage = NULL;
-	m_pIsStrangeImage = NULL;
 	m_pIsUnusualImage = NULL;
 	m_pIsLoanerImage = NULL;
 	m_pSeriesLabel = NULL;
@@ -1464,7 +1402,6 @@ void CItemModelPanel::ApplySettings( KeyValues *inResourceData )
 void CItemModelPanel::LoadResFileForCurrentItem( bool bForceLoad )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
-	const CEconItemView *pItem = GetItem();
 
 	{
 		if ( bForceLoad )
@@ -1488,7 +1425,6 @@ void CItemModelPanel::LoadResFileForCurrentItem( bool bForceLoad )
 	m_pItemQuantityLabel = dynamic_cast<vgui::Label*>( FindChildByName( "quantitylabel", true ) );
 	m_pVisionRestrictionImage = dynamic_cast<vgui::ImagePanel*>( FindChildByName( "vision_restriction_icon", true ) );
 
-	m_pIsStrangeImage = dynamic_cast<vgui::ImagePanel*>( FindChildByName( "is_strange_icon", true ) );
 	m_pIsUnusualImage = dynamic_cast<vgui::ImagePanel*>( FindChildByName( "is_unusual_icon", true ) );
 	m_pIsLoanerImage = dynamic_cast<vgui::ImagePanel*>( FindChildByName( "is_loaner_icon", true ) );
 
@@ -1511,11 +1447,6 @@ void CItemModelPanel::LoadResFileForCurrentItem( bool bForceLoad )
 	{
 		m_pVisionRestrictionImage->SetKeyBoardInputEnabled( false );
 		m_pVisionRestrictionImage->SetMouseInputEnabled( false );
-	}
-	if ( m_pIsStrangeImage )
-	{
-		m_pIsStrangeImage->SetKeyBoardInputEnabled( false );
-		m_pIsStrangeImage->SetMouseInputEnabled( false );
 	}
 	if ( m_pIsUnusualImage )
 	{
@@ -1784,11 +1715,6 @@ void CItemModelPanel::PerformLayout( void )
 		m_pIsUnusualImage->SetPos( xpos - m_pIsUnusualImage->GetWide(), ypos );
 		ypos += m_pIsUnusualImage->GetTall() * 0.9;
 	}
-	if ( m_pIsStrangeImage && m_pIsStrangeImage->IsVisible() )
-	{
-		m_pIsStrangeImage->SetPos( xpos - m_pIsStrangeImage->GetWide(), ypos );
-		ypos += m_pIsStrangeImage->GetTall() * 0.9;
-	}
 	if ( m_pIsLoanerImage && m_pIsLoanerImage->IsVisible() )
 	{
 		m_pIsLoanerImage->SetPos( xpos - m_pIsLoanerImage->GetWide(), ypos );
@@ -2048,7 +1974,6 @@ void CItemModelPanel::SetItem( const CEconItemView *pItem )
 
 				// Our current item is a base item. Our new item needs to be base too, and match item indices and quality
 				bMatch &= ( m_ItemData.GetItemDefIndex() == pItem->GetItemDefIndex() ) &&
-						  ( m_ItemData.GetItemQuality() == pItem->GetItemQuality() ) &&
 						  ( m_ItemData.GetSOCData() == pItem->GetSOCData() );
 			}
 		}
@@ -2171,16 +2096,9 @@ void CItemModelPanel::HideContainedItemPanel()
 void CItemModelPanel::SetEconItem( CEconItem* pItem )
 {
 	m_ItemData.SetItemDefIndex( pItem->GetDefinitionIndex() );
-	m_ItemData.SetItemQuality( pItem->GetQuality() );
-	m_ItemData.SetItemLevel( pItem->GetItemLevel() );
 	m_ItemData.SetItemID( pItem->GetItemID() );
 	m_ItemData.SetNonSOEconItem( pItem );
 	m_ItemData.SetInitialized( true );
-
-#ifdef CLIENT_DLL
-	m_ItemData.SetIsTradeItem( false );
-	m_ItemData.SetItemQuantity( pItem->GetQuantity() );
-#endif
 
 	m_ItemData.GetAttributeList()->DestroyAllAttributes();
 
@@ -2333,22 +2251,7 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 
 	if ( m_pItemNameLabel )
 	{
-		// Set the name to the quality color
-		// Rarity Econ Colorization
-		EEconItemQuality eQuality = (EEconItemQuality)m_ItemData.GetItemQuality();
-
-		{
-			const char *pszQualityColorString = EconQuality_GetColorString( eQuality );
-			if ( m_ItemData.IsValid() && !m_bStandardTextColor && pszQualityColorString )
-			{
-				m_pItemNameLabel->SetColorStr( pszQualityColorString );
-			}
-			else
-			{
-				m_pItemNameLabel->SetColorStr( m_OrgItemTextColor );
-			}
-		}
-
+		m_pItemNameLabel->SetColorStr( "QualityColorNormal" );
 		m_pItemNameLabel->SetVisible( !m_bAttribOnly );
 	}
 
@@ -2528,10 +2431,6 @@ void CItemModelPanel::HideAllModifierIcons()
 	if ( m_pVisionRestrictionImage )
 	{
 		m_pVisionRestrictionImage->SetVisible( false );
-	}
-	if ( m_pIsStrangeImage )
-	{
-		m_pIsStrangeImage->SetVisible( false );
 	}
 	if ( m_pIsUnusualImage )
 	{
@@ -2856,47 +2755,6 @@ void CItemModelPanel::UpdatePanels( void )
 				m_pVisionRestrictionImage->SetVisible( false );
 				break;
 #endif
-		}
-	}
-
-	// Strange Icon
-	if ( m_pIsStrangeImage )
-	{
-		m_pIsStrangeImage->SetVisible( false );
-
-		if ( !m_bIsMouseOverPanel )
-		{
-			// Allow for already strange items
-			bool bIsStrange = false;
-			if ( m_ItemData.GetQuality() == AE_STRANGE )
-			{
-				bIsStrange = true;
-			}
-
-			if ( !bIsStrange )
-			{
-				// Go over the attributes of the item, if it has any strange attributes the item is strange and don't apply
-				for ( int i = 0; i < GetKillEaterAttrCount(); i++ )
-				{
-					if ( m_ItemData.FindAttribute( GetKillEaterAttr_Score( i ) ) )
-					{
-						bIsStrange = true;
-						break;
-					}
-				}
-			}
-			if ( bIsStrange )
-			{
-				if ( GetStattrak( &m_ItemData ) )
-				{
-					m_pIsStrangeImage->SetImage( "viewmode_statclock" );
-				}
-				else
-				{
-					m_pIsStrangeImage->SetImage( "viewmode_strange" );
-				}
-				m_pIsStrangeImage->SetVisible( true );
-			}
 		}
 	}
 	

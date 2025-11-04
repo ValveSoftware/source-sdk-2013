@@ -506,44 +506,6 @@ const int k_nCustomImageSize = 128;
 const int k_nMaxCustomImageFileSize = k_nCustomImageSize*k_nCustomImageSize*4 + 4*1024; // Is this about right?
 
 //-----------------------------------------------------------------------------
-// Purpose: Quality types of items
-//-----------------------------------------------------------------------------
-typedef int32 entityquality_t;
-enum EEconItemQuality
-{
-	AE_UNDEFINED = -1,
-
-	AE_NORMAL           = 0,
-	AE_RARITY1          = 1,  // Genuine
-	AE_RARITY2          = 2,  // Customized (unused)
-	AE_VINTAGE          = 3,  // Vintage has to stay at 3 for backwards compatibility
-	AE_RARITY3          = 4,  // Artisan
-	AE_UNUSUAL          = 5,  // Unusual
-	AE_UNIQUE           = 6,
-	AE_COMMUNITY        = 7,
-	AE_DEVELOPER        = 8,
-	AE_SELFMADE         = 9,
-	AE_CUSTOMIZED       = 10, // (unused)
-	AE_STRANGE          = 11,
-	AE_COMPLETED        = 12,
-	AE_HAUNTED          = 13,
-	AE_COLLECTORS       = 14,
-	AE_PAINTKITWEAPON   = 15,
-
-	AE_RARITY_DEFAULT   = 16,
-	AE_RARITY_COMMON    = 17,
-	AE_RARITY_UNCOMMON  = 18,
-	AE_RARITY_RARE      = 19,
-	AE_RARITY_MYTHICAL  = 20,
-	AE_RARITY_LEGENDARY = 21,
-	AE_RARITY_ANCIENT   = 22,
-
-	AE_MAX_TYPES,
-	AE_DEPRECATED_UNIQUE = 3,
-};
-
-
-//-----------------------------------------------------------------------------
 // Purpose: colors used in the display of attributes
 //-----------------------------------------------------------------------------
 enum attrib_colors_t
@@ -579,20 +541,9 @@ enum attrib_colors_t
 
 #define AE_USE_SCRIPT_VALUE			9999		// Can't be -1, due to unsigned ints used on the backend
 
-const char *EconQuality_GetQualityString( EEconItemQuality eQuality );
-const char *EconQuality_GetColorString( EEconItemQuality eQuality );
-const char *EconQuality_GetLocalizationString( EEconItemQuality eQuality );
-EEconItemQuality EconQuality_GetQualityFromString( const char* pszQuality );
-
-// Sort order for rarities
-int EconQuality_GetRarityScore( EEconItemQuality eQuality );
-
 extern attrib_colors_t GetAttribColorIndexForName( const char* pszName );
 extern const char *GetColorNameForAttribColor( attrib_colors_t unAttribColor );
 extern const char *GetHexColorForAttribColor( attrib_colors_t unAttribColor );
-
-// Utility function that'll get you an item quality from a string
-entityquality_t GetItemQualityFromString( const char *sQuality );
 
 enum recipecategories_t
 {

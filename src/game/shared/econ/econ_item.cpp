@@ -161,10 +161,7 @@ CEconItem &CEconItem::operator=( const CEconItem& rhs )
 	SetOriginalID( rhs.GetOriginalID() );
 	m_unAccountID = rhs.m_unAccountID;
 	m_unDefIndex = rhs.m_unDefIndex;
-	m_unLevel = rhs.m_unLevel;
-	m_nQuality = rhs.m_nQuality;
 	m_unInventory = rhs.m_unInventory;
-	SetQuantity( rhs.GetQuantity() );
 	m_unFlags = rhs.m_unFlags;
 	m_unOrigin = rhs.m_unOrigin;
 	m_unStyle = rhs.m_unStyle;
@@ -240,32 +237,6 @@ void CEconItem::SetOriginalID( itemid_t ulOriginalID )
 	{
 		EnsureCustomDataExists();
 		m_pCustomData->m_ulOriginalID = ulOriginalID;
-	}
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-int CEconItem::GetQuantity() const
-{
-	if ( m_pCustomData != NULL )
-		return m_pCustomData->m_unQuantity;
-	return 1;
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-void CEconItem::SetQuantity( uint16 unQuantity )
-{
-	if ( m_pCustomData )
-	{
-		m_pCustomData->m_unQuantity = unQuantity;
-	}
-	else if ( unQuantity > 1 )
-	{
-		EnsureCustomDataExists();
-		m_pCustomData->m_unQuantity = unQuantity;
 	}
 }
 
@@ -1058,10 +1029,7 @@ void CEconItem::SerializeToProtoBufItem( CSOEconItem &msgItem ) const
 		msgItem.set_original_id( GetOriginalID() );
 	msgItem.set_account_id( m_unAccountID );
 	msgItem.set_def_index( m_unDefIndex );
-	msgItem.set_level( m_unLevel );
-	msgItem.set_quality( m_nQuality );
 	msgItem.set_inventory( m_unInventory );	
-	msgItem.set_quantity( GetQuantity() );
 	msgItem.set_flags( m_unFlags );
 	msgItem.set_origin( m_unOrigin );
 	msgItem.set_style( m_unStyle );
@@ -1136,10 +1104,7 @@ void CEconItem::DeserializeFromProtoBufItem( const CSOEconItem &msgItem )
 	SetOriginalID( msgItem.has_original_id() ? msgItem.original_id() : m_ulID );
 	m_unAccountID = msgItem.account_id();
 	m_unDefIndex = msgItem.def_index();
-	m_unLevel = msgItem.level();
-	m_nQuality = msgItem.quality();
 	m_unInventory = msgItem.inventory();
-	SetQuantity( msgItem.quantity() );
 	m_unFlags = msgItem.flags();
 	m_unOrigin = msgItem.origin();
 	m_unStyle = msgItem.style();

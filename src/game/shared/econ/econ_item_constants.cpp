@@ -10,193 +10,6 @@
 #include "tier0/memdbgon.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-const char *g_szQualityStrings[] =
-{
-	"Normal",
-	"rarity1",		// Genuine
-	"rarity2",		// Customized
-	"vintage",		// Vintage has to stay at 3 for backwards compatibility
-	"rarity3",		// Well-Designed
-	"rarity4",		// Unusual
-	"Unique",
-	"community",
-	"developer",
-	"selfmade",
-	"customized",
-	"strange",
-	"completed",
-	"haunted",
-	"collectors",
-	"paintkitWeapon",
-
-	"default",		// AE_RARITY_DEFAULT,
-	"common",		// AE_RARITY_COMMON,
-	"uncommon",		// AE_RARITY_UNCOMMON,
-	"rare",			// AE_RARITY_RARE,
-	"mythical",		// AE_RARITY_MYTHICAL,
-	"legendary",	// AE_RARITY_LEGENDARY,
-	"ancient",		// AE_RARITY_ANCIENT,
-};
-
-COMPILE_TIME_ASSERT( ARRAYSIZE( g_szQualityStrings ) == AE_MAX_TYPES );
-
-const char *EconQuality_GetQualityString( EEconItemQuality eQuality )
-{
-	// This is a runtime check and not an assert because we could theoretically bounce the GC with new
-	// qualities while the client is running.
-	if ( eQuality >= 0 && eQuality < AE_MAX_TYPES )
-		return g_szQualityStrings[ eQuality ];
-
-	return NULL;
-}
-
-EEconItemQuality EconQuality_GetQualityFromString( const char* pszQuality )
-{
-	// Convert to lowercase
-	CUtlString strLoweredInput( pszQuality );
-	strLoweredInput.ToLower();
-
-	// Guaranteed with the compile time assert above that AE_MAX_TYPES is
-	// the size of the string qualities
-	for( int i = 0; i < AE_MAX_TYPES; ++i )
-	{
-		// Convert to lowercase
-		CUtlString strLoweredQuality( g_szQualityStrings[i] );
-		strLoweredQuality.ToLower();
-
-		if( !Q_stricmp( strLoweredInput.Get(), strLoweredQuality.Get() ) )
-			return EEconItemQuality(i);
-	}
-
-	return AE_UNDEFINED;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-const char *g_szQualityColorStrings[] =
-{
-	"QualityColorNormal",
-	"QualityColorrarity1",
-	"QualityColorrarity2",
-	"QualityColorVintage",
-	"QualityColorrarity3",
-	"QualityColorrarity4",				// AE_UNUSUAL
-	"QualityColorUnique",
-	"QualityColorCommunity",
-	"QualityColorDeveloper",
-	"QualityColorSelfMade",
-	"QualityColorSelfMadeCustomized",
-	"QualityColorStrange",
-	"QualityColorCompleted",
-	"QualityColorHaunted",				// AE_HAUNTED
-	"QualityColorCollectors",			// AE_COLLECTORS
-	"QualityColorPaintkitWeapon",		// AE_PAINTKITWEAPON
-
-	"ItemRarityDefault"		, // AE_RARITY_DEFAULT,
-	"ItemRarityCommon"		, // AE_RARITY_COMMON,
-	"ItemRarityUncommon"	, // AE_RARITY_UNCOMMON,
-	"ItemRarityRare"		, // AE_RARITY_RARE,
-	"ItemRarityMythical"	, // AE_RARITY_MYTHICAL,
-	"ItemRarityLegendary"	, // AE_RARITY_LEGENDARY,
-	"ItemRarityAncient"		, // AE_RARITY_ANCIENT,
-};
-
-COMPILE_TIME_ASSERT( ARRAYSIZE( g_szQualityColorStrings ) == AE_MAX_TYPES );
-
-const char *EconQuality_GetColorString( EEconItemQuality eQuality )
-{
-	if ( eQuality >= 0 && eQuality < AE_MAX_TYPES )
-		return g_szQualityColorStrings[ eQuality ];
-
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-const char *g_szQualityLocalizationStrings[] =
-{
-	"#Normal",
-	"#rarity1",		// Genuine
-	"#rarity2",
-	"#vintage",
-	"#rarity3",		// Artisan
-	"#rarity4",		// Unusual
-	"#unique",
-	"#community",
-	"#developer",
-	"#selfmade",
-	"#customized",
-	"#strange",
-	"#completed",
-	"#haunted",
-	"#collectors",
-	"#paintkitWeapon",
-
-	"#Rarity_Default",
-	"#Rarity_Common",
-	"#Rarity_Uncommon",
-	"#Rarity_Rare",
-	"#Rarity_Mythical",
-	"#Rarity_Legendary",
-	"#Rarity_Ancient"
-};
-
-COMPILE_TIME_ASSERT( ARRAYSIZE( g_szQualityLocalizationStrings ) == AE_MAX_TYPES );
-
-const char *EconQuality_GetLocalizationString( EEconItemQuality eQuality )
-{
-	if ( eQuality >= 0 && eQuality < AE_MAX_TYPES )
-		return g_szQualityLocalizationStrings[ eQuality ];
-
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Sort order for rarities
-// Small Numbers sort to front
-//-----------------------------------------------------------------------------
-int g_nRarityScores[] =
-{
-	15,		// AE_NORMAL,
-	10,		// AE_RARITY1,	// Geniune
-	102,	// AE_RARITY2,	// Customized (unused)
-	11,		// AE_VINTAGE,
-	101,	// AE_RARITY3,	// Artisan (unused)
-	0,		// AE_UNUSUAL,
-	14,		// AE_UNIQUE,
-	-1,		// AE_COMMUNITY,
-	-3,		// AE_DEVELOPER,
-	-2,		// AE_SELFMADE,
-	100,	// AE_CUSTOMIZED,		// Unused
-	9,		// AE_STRANGE,
-	103,	// AE_COMPLETED,		// Unused
-	13,		// AE_HAUNTED
-	12,		// AE_COLLECTORS
-	8,		// AE_PAINTKITWEAPON
-	7,		// AE_RARITY_DEFAULT,
-	6,		// AE_RARITY_COMMON,
-	5,		// AE_RARITY_UNCOMMON,
-	4,		// AE_RARITY_RARE,
-	3,		// AE_RARITY_MYTHICAL,
-	2,		// AE_RARITY_LEGENDARY,
-	1,		// AE_RARITY_ANCIENT,
-};
-COMPILE_TIME_ASSERT( ARRAYSIZE( g_nRarityScores ) == AE_MAX_TYPES );
-
-//-----------------------------------------------------------------------------
-int EconQuality_GetRarityScore( EEconItemQuality eQuality )
-{
-	if ( eQuality >= 0 && eQuality < AE_MAX_TYPES )
-		return g_nRarityScores[ eQuality ];
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
 int EconWear_ToIntCategory( float flWear )
 {
 	if ( flWear <= 0.2f )
@@ -302,17 +115,6 @@ const char *GetHexColorForAttribColor( attrib_colors_t unAttribColor )
 	return g_AttribColorDefs[unAttribColor]
 	     ? g_AttribColorDefs[unAttribColor]->GetHexColor()
 		 : "#ebe2ca";
-}
-
-entityquality_t GetItemQualityFromString( const char *sQuality )
-{
-	for ( int i = 0; i < AE_MAX_TYPES; i++ )
-	{
-		if ( !Q_strnicmp( sQuality, g_szQualityStrings[i], 16 ) )
-			return (entityquality_t)i;
-	}
-
-	return AE_NORMAL;
 }
 
 const char *g_szRecipeCategoryStrings[] =
@@ -635,13 +437,6 @@ const char* GetHalloweenOfferingInvalidReason( const IEconItemInterface *pTestIt
 		return "#TF_CollectionCrafting_NoItem";
 	}
 
-	// No self mades or community items
-	uint32 eQuality = pTestItem->GetQuality();
-	if ( eQuality == AE_SELFMADE || eQuality == AE_COMMUNITY )
-	{
-		return "#TF_CollectionCrafting_NoUnusual";
-	}
-
 	// This is how we test for unusuals.  Don't let unusuals be crafted
 	static CSchemaAttributeDefHandle pAttrDef_ParticleEffect( "attach particle effect" );
 	if ( pTestItem->FindAttribute( pAttrDef_ParticleEffect ) )
@@ -700,23 +495,6 @@ const char* GetHalloweenOfferingInvalidReason( const IEconItemInterface *pTestIt
 		|| pTestItem->GetItemDefinition()->GetLoadoutSlot( 0 ) == LOADOUT_POSITION_PDA
 		|| pTestItem->GetItemDefinition()->GetLoadoutSlot( 0 ) == LOADOUT_POSITION_PDA2
 	) {
-		// Must be strange, genuine, vintage, haunted or paintkit (ie a marketable weapon)
-		eQuality = pTestItem->GetQuality();
-		if ( eQuality == AE_RARITY1 
-			|| eQuality == AE_VINTAGE 
-			|| eQuality == AE_HAUNTED
-			|| eQuality == AE_COLLECTORS 
-			|| eQuality == AE_PAINTKITWEAPON 
-		) {
-			return NULL;
-		}
-
-		// Weapons with rarity are allowed
-		uint8 nRarity = pTestItem->GetItemDefinition()->GetRarity();
-		if ( nRarity != k_unItemRarity_Any )
-		{
-			return NULL;
-		}
 
 		// Strange items.  Dont just check for strange quality, actually check for a strange attribute.
 		// See if we've got any strange attributes.
@@ -738,11 +516,6 @@ const char* GetCraftCommonStatClockInvalidReason( const class IEconItemInterface
 	{
 		return "#TF_CollectionCrafting_NoItem";
 	}
-
-	// No self mades or community items
-	uint32 eQuality = pTestItem->GetQuality();
-	if ( eQuality == AE_SELFMADE || eQuality == AE_COMMUNITY )
-		return "#TF_CollectionCrafting_NoUnusual";
 
 	// This is how we test for unusuals.  Don't let unusuals be crafted
 	static CSchemaAttributeDefHandle pAttrDef_ParticleEffect( "attach particle effect" );

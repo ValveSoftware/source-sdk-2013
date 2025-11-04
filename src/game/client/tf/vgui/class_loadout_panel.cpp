@@ -1039,8 +1039,6 @@ void CClassLoadoutPanel::OnClosing( void )
 	}
 }
 
-extern const char *g_szItemBorders[AE_MAX_TYPES][5];
-extern ConVar cl_showbackpackrarities;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1056,36 +1054,14 @@ void CClassLoadoutPanel::SetBorderForItem( CItemModelPanel *pItemPanel, bool bMo
 		pszBorder = "EconItemBorder";
 	}
 	else
-	{
-		int iRarity = 0;
-		if ( pItemPanel->HasItem() && cl_showbackpackrarities.GetBool() )
+	{		
+		if ( bMouseOver || pItemPanel->IsSelected() )
 		{
-			iRarity = pItemPanel->GetItem()->GetItemQuality();
-
-			if ( iRarity > 0 )
-			{
-				if ( bMouseOver || pItemPanel->IsSelected() )
-				{
-					pszBorder = g_szItemBorders[iRarity][1];
-				}
-				else
-				{
-					pszBorder = g_szItemBorders[iRarity][0];
-				}
-			}
+			pszBorder = "LoadoutItemMouseOverBorder";
 		}
-		
-		
-		if ( iRarity == 0 )
+		else
 		{
-			if ( bMouseOver || pItemPanel->IsSelected() )
-			{
-				pszBorder = "LoadoutItemMouseOverBorder";
-			}
-			else
-			{
-				pszBorder = "EconItemBorder";
-			}
+			pszBorder = "EconItemBorder";
 		}
 	}
 

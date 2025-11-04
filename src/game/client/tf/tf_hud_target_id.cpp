@@ -950,11 +950,11 @@ void CTargetID::UpdateID( void )
 							_snwprintf( wszChargeLevel, ARRAYSIZE( wszChargeLevel ) - 1, L"%.0f", pDroppedWeapon->GetChargeLevel() * 100 );
 							wszChargeLevel[ARRAYSIZE( wszChargeLevel ) - 1] = '\0';
 
-							g_pVGuiLocalize->ConstructString_safe( sIDString, L"%s1 (%s2%)", 2, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pDroppedEconItem->GetItemDefinition(), pDroppedEconItem->GetItemQuality() ).GetFullName(), wszChargeLevel );
+							g_pVGuiLocalize->ConstructString_safe( sIDString, L"%s1 (%s2%)", 2, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pDroppedEconItem->GetItemDefinition(), L"" ).GetFullName(), wszChargeLevel );
 						}
 						else
 						{
-							g_pVGuiLocalize->ConstructString_safe( sIDString, L"%s1", 1, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pDroppedEconItem->GetItemDefinition(), pDroppedEconItem->GetItemQuality() ).GetFullName() );
+							g_pVGuiLocalize->ConstructString_safe( sIDString, L"%s1", 1, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pDroppedEconItem->GetItemDefinition(), L"" ).GetFullName() );
 						}
 
 						locchar_t wszPlayerName [128];
@@ -964,15 +964,6 @@ void CTargetID::UpdateID( void )
 						{
 							g_pVGuiLocalize->ConvertANSIToUnicode( pOwner->GetPlayerName(), wszPlayerName, sizeof(wszPlayerName) );
 							g_pVGuiLocalize->ConstructString_safe( sDataString, g_pVGuiLocalize->Find( "#TF_WhoDropped" ), 1, wszPlayerName );
-
-							// Get the rarity color
-							vgui::IScheme *pScheme = vgui::scheme()->GetIScheme( GetScheme() );
-							if ( pScheme )
-							{
-								const char* pszColorName = GetItemSchema()->GetRarityColor( pDroppedEconItem->GetItemDefinition()->GetRarity() );
-								pszColorName = pszColorName ? pszColorName : "TanLight";
-								colorName = pScheme->GetColor( pszColorName, Color( 255, 255, 255, 255 ) );
-							}
 						}
 					}
 					else if ( pLocalTFPlayer->InSameTeam( pEnt ) )

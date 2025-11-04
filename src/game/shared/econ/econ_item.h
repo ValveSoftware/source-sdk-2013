@@ -306,17 +306,8 @@ public:
 	uint32 GetDefinitionIndex() const { return m_unDefIndex; }
 	void SetDefinitionIndex( uint32 unDefinitionIndex ) { m_unDefIndex = unDefinitionIndex; }
 
-	uint32 GetItemLevel() const { return m_unLevel; }
-	void SetItemLevel( uint32 unItemLevel ) { m_unLevel = unItemLevel; }
-
-	int32 GetQuality() const { return m_nQuality; }
-	void SetQuality( int32 nQuality ) { m_nQuality = nQuality; }
-
 	uint32 GetInventoryToken() const { return m_unInventory; }
 	void SetInventoryToken( uint32 unToken ) { m_unInventory = unToken; }
-
-	int GetQuantity() const;
-	void SetQuantity( uint16 unQuantity );
 
 	uint8 GetFlags() const { return m_unFlags; }
 	void SetFlags( uint8 unFlags ) { m_unFlags = unFlags; }
@@ -534,8 +525,6 @@ public:
 	uint32 m_unAccountID;					// Item Owner
 	uint32 m_unInventory;					// App managed int representing inventory placement
 	item_definition_index_t m_unDefIndex;	// Item definition index
-	uint8 m_unLevel;						// Item Level
-	uint8 m_nQuality;						// Item quality (rarity)
 	uint8 m_unFlags;						// Flags
 	uint8 m_unOrigin;						// Origin (eEconItemOrigin)
 	style_index_t m_unStyle;				// Style
@@ -561,7 +550,6 @@ public:
 	CEconItemCustomData()
 		: m_pInteriorItem( NULL )
 		, m_ulOriginalID( INVALID_ITEM_ID )
-		, m_unQuantity( 1 )
 		, m_vecAttributes( /* grow size: */ 1, /* init size: */ 0 )
 		, m_vecEquipped( /* grow size: */ 1, /* init size: */ 0 )
 	{}
@@ -571,7 +559,6 @@ public:
 	CUtlVector< CEconItem::attribute_t > m_vecAttributes;
 	CEconItem* m_pInteriorItem;
 	uint64 m_ulOriginalID;	// Original Item ID
-	uint16 m_unQuantity;	// Consumable stack count (ammo, money, etc)	
 
 	CUtlVector<CEconItem::EquippedInstance_t> m_vecEquipped;
 

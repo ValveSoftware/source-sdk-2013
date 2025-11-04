@@ -43,9 +43,8 @@ bool CBaseAdPanel::CheckForRequiredSteamComponents( const char* pszSteamRequried
 //-----------------------------------------------------------------------------
 CItemAdPanel::CItemAdPanel( Panel *parent, const char *panelName, item_definition_index_t itemDefIndex )
 	: BaseClass( parent, panelName )
-	, m_bShowMarketButton( true )
 {
-	m_item.Init( itemDefIndex, AE_UNIQUE, 1, 1 );
+	m_item.Init( itemDefIndex, 1 );
 	SetDialogVariable( "price", "..." );
 }
 
@@ -73,13 +72,6 @@ void CItemAdPanel::ApplySettings( KeyValues *inResourceData )
 		m_bShowItemName = inResourceData->GetBool( "show_name", true );
 		m_bShowAdText = inResourceData->GetBool( "show_ad_text", true );
 		m_bShowBackground = inResourceData->GetBool( "show_background", true );
-		m_bShowMarketButton = inResourceData->GetBool( "show_market", true ); // Default to showing market
-	}
-
-	if ( !m_bShowMarketButton )
-	{
-		// Tick every second as we try to get our price from the store
-		vgui::ivgui()->AddTickSignal( GetVPanel(), 1000 );
 	}
 }
 
@@ -110,15 +102,6 @@ void CItemAdPanel::PerformLayout()
 		}
 
 		pScrollableItemText->InvalidateLayout( true );
-	}
-
-	CExButton* pBuyButton = FindControl< CExButton >( "BuyButton", true );
-	CExButton* pMarketButton = FindControl< CExButton >( "MarketButton", true );
-	if ( pBuyButton && pMarketButton )
-	{
-		
-		pBuyButton->SetVisible( !m_bShowMarketButton );
-		pMarketButton->SetVisible( m_bShowMarketButton );
 	}
 
 	CExLabel* pNameLabel = FindControl< CExLabel >( "ItemName", true );

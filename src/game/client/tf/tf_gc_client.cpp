@@ -1165,63 +1165,6 @@ bool CTFGCClientSystem::BIsBannedFromMatchmaking( EMMPenaltyPool ePool, CRTime* 
 	return false;
 }
 
-
-#ifdef USE_MVM_TOUR
-bool CTFGCClientSystem::BGetLocalPlayerBadgeInfoForTour( int iTourIndex, uint32 *pnBadgeLevel, uint32 *pnCompletedChallenges )
-{
-	Assert( iTourIndex >= 0 );
-	Assert( iTourIndex < GetItemSchema()->GetMvmTours().Count() );
-	Assert( pnBadgeLevel );
-	Assert( pnCompletedChallenges );
-
-	*pnBadgeLevel = 0;
-	*pnCompletedChallenges = 0;
-
-	CPlayerInventory *pLocalInv = TFInventoryManager()->GetLocalInventory();
-	if ( pLocalInv == NULL )
-		return false;
-
-	// We can't search for a badge without knowing which attribute to look for.
-	static CSchemaAttributeDefHandle pAttribDef_MvmChallengeCompleted( CTFItemSchema::k_rchMvMChallengeCompletedMaskAttribName );
-	Assert( pAttribDef_MvmChallengeCompleted );
-	if ( !pAttribDef_MvmChallengeCompleted )
-		return false;
-
-	if ( iTourIndex < 0 || iTourIndex >= GetItemSchema()->GetMvmTours().Count() )
-	{
-		AssertMsg1( false, "Invalid tour index %d", iTourIndex );
-		return false;
-	}
-	const CEconItemDefinition *pBadgeDef = GetItemSchema()->GetMvmTours()[iTourIndex].m_pBadgeItemDef;
-	if ( pBadgeDef == NULL )
-	{
-		Assert( pBadgeDef );
-		return false;
-	}
-
-	for ( int i = 0 ; i < pLocalInv->GetItemCount() ; ++i )
-	{
-		CEconItemView *pBadge = pLocalInv->GetItem( i );
-		Assert( pBadge );
-		if ( pBadge->GetItemDefinition() != pBadgeDef )
-			continue;
-
-		if ( !pBadge->FindAttribute( pAttribDef_MvmChallengeCompleted, pnCompletedChallenges ) )
-		{
-			AssertMsg( false, "Badge missing challenges completed attribute?" );
-			*pnCompletedChallenges = 0;
-		}
-
-		extern uint32 GetItemDescriptionDisplayLevel( const IEconItemInterface *pEconItem );
-		*pnBadgeLevel = GetItemDescriptionDisplayLevel( pBadge );
-		return true;
-	}
-
-	return false;
-}
-
-#endif // USE_MVM_TOUR
-
 void CTFGCClientSystem::AbandonCurrentMatch()
 {
 	Msg( "Sending request to abandon current match\n" );

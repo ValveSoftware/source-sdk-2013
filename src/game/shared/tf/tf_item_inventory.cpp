@@ -132,7 +132,7 @@ void CTFInventoryManager::GenerateBaseItems( void )
 	for ( int it = iStart; it != mapItems.InvalidIndex(); it = mapItems.NextInorder( it ) )
 	{
 		CEconItemView *pItem = new CEconItemView;
-		pItem->Init( mapItems[it]->GetDefinitionIndex(), AE_USE_SCRIPT_VALUE, AE_USE_SCRIPT_VALUE, false );
+		pItem->Init( mapItems[it]->GetDefinitionIndex(), NULL );
 		m_pBaseLoadoutItems.AddToTail( pItem );
 	}
 }

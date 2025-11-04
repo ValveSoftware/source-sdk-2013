@@ -2838,7 +2838,7 @@ void CTFGameStats::Event_PlayerLoadoutChanged( CTFPlayer *pPlayer, bool bForceRe
 	// if this is the first time through, class is invalid and we dont want to report anything
 
 	// Table updated, using v2
-	KeyValues* pKVData = new KeyValues( "TF2ServerPlayerLoadoutv2" );
+	KeyValuesAD pKVData( "TF2ServerPlayerLoadoutv2" );
 	
 	int iSlotCount = LOADOUT_POSITION_MISC2 + 1;
 	for ( int iSlot = 0; iSlot < iSlotCount; ++iSlot )
@@ -2847,7 +2847,6 @@ void CTFGameStats::Event_PlayerLoadoutChanged( CTFPlayer *pPlayer, bool bForceRe
 		bIsInit |= iDefIndex != INVALID_ITEM_DEF_INDEX;
 
 		pKVData->SetInt( CFmtStr("SlotDef%d", iSlot), iDefIndex );
-		pKVData->SetInt( CFmtStr("SlotQuality%d", iSlot), stats.loadoutStats.iLoadoutItemQualities[ iSlot ] );
 		pKVData->SetInt( CFmtStr("SlotStyle%d", iSlot), stats.loadoutStats.iLoadoutItemStyles[ iSlot ] );
 
 		// Check to see if the item actually changed
@@ -2862,9 +2861,8 @@ void CTFGameStats::Event_PlayerLoadoutChanged( CTFPlayer *pPlayer, bool bForceRe
 		bActuallyChanged |= stats.loadoutStats.iLoadoutItemDefIndices[ iSlot ] != iItemDef;
 
 		// Set the new items
-		int iItemQuality = pItem ? pItem->GetItemQuality() : AE_UNDEFINED;
 		style_index_t iItemStyle = pItem ? pItem->GetStyle() : 0;
-		stats.loadoutStats.SetItemDef( iSlot, iItemDef, iItemQuality, iItemStyle );
+		stats.loadoutStats.SetItemDef( iSlot, iItemDef, iItemStyle );
 	}
 
 	pKVData->SetInt( "ID", ++m_iLoadoutChangesCount );

@@ -2126,26 +2126,6 @@ public:
 	void OnBind( void *pC_BaseEntity )
 	{
 		Assert( m_pResult );
-		if ( pC_BaseEntity )
-		{
-			C_BaseEntity *pEntity = BindArgToEntity( pC_BaseEntity );
-			if ( pEntity )
-			{
-				CEconEntity *pItem = dynamic_cast< CEconEntity* >( pEntity );
-				if ( pItem )
-				{
-					CEconItemView *pScriptItem = pItem->GetAttributeContainer()->GetItem();
-					if ( pScriptItem && pScriptItem->GetStaticData() )
-					{
-						if ( pScriptItem->GetItemQuality() == AE_COMMUNITY )
-						{
-							m_pResult->SetIntValue( 1 );
-							return;
-						}
-					}
-				}
-			}
-		}
 
 		m_pResult->SetIntValue( 0 );
 
@@ -4736,7 +4716,7 @@ void C_TFPlayer::UpdateTauntItem()
 	{
 		if ( m_iTauntItemDefIndex != INVALID_ITEM_DEF_INDEX )
 		{
-			m_TauntEconItemView.Init( m_iTauntItemDefIndex, AE_UNIQUE, 1 );
+			m_TauntEconItemView.Init( m_iTauntItemDefIndex );
 		}
 		else
 		{
@@ -9606,7 +9586,7 @@ void C_TFPlayer::GetTargetIDDataString( bool bIsDisguised, OUT_Z_BYTECAP(iMaxLen
 		_snwprintf( wszChargeLevel, ARRAYSIZE(wszChargeLevel) - 1, L"%.0f", MedicGetChargeLevel( &pMedigun ) * 100 );
 		wszChargeLevel[ ARRAYSIZE(wszChargeLevel)-1 ] = '\0';
 
-		if ( pMedigun && pMedigun->GetAttributeContainer()->GetItem() && pMedigun->GetAttributeContainer()->GetItem()->GetItemQuality() != AE_NORMAL )
+		if ( pMedigun && pMedigun->GetAttributeContainer()->GetItem() && pMedigun->GetAttributeContainer()->GetItem()->GetStaticData() && pMedigun->GetAttributeContainer()->GetItem()->GetStaticData()->IsBaseItem() )
 		{
 			g_pVGuiLocalize->ConstructString( sDataString, iMaxLenInBytes, g_pVGuiLocalize->Find( "#TF_playerid_mediccharge_wpn" ), 2, wszChargeLevel, pMedigun->GetAttributeContainer()->GetItem()->GetItemName() );
 		}

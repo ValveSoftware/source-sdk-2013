@@ -27,14 +27,13 @@ class CItemModelPanel;
 //-----------------------------------------------------------------------------
 struct item_stack_type_t
 {
-	item_stack_type_t() : m_nDefIndex( INVALID_ITEM_DEF_INDEX ), m_nQuality( (uint8)-1 ) { }
-	item_stack_type_t( item_definition_index_t nDefIndex, uint8 nQuality ) : m_nDefIndex( nDefIndex ), m_nQuality( nQuality ) { }
+	item_stack_type_t() : m_nDefIndex( INVALID_ITEM_DEF_INDEX ) { }
+	item_stack_type_t( item_definition_index_t nDefIndex ) : m_nDefIndex( nDefIndex ) { }
 
-	bool operator<( const item_stack_type_t& other ) const { return m_nDefIndex < other.m_nDefIndex || m_nQuality < other.m_nQuality; }
-	bool operator==( const item_stack_type_t& other ) const { return m_nDefIndex == other.m_nDefIndex && m_nQuality == other.m_nQuality; }
+	bool operator<( const item_stack_type_t& other ) const { return m_nDefIndex < other.m_nDefIndex; }
+	bool operator==( const item_stack_type_t& other ) const { return m_nDefIndex == other.m_nDefIndex; }
 
 	item_definition_index_t m_nDefIndex;
-	uint8 m_nQuality;
 };
 
 class CItemSelectionPanel : public CBaseLoadoutPanel

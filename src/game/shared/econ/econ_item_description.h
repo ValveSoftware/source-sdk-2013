@@ -218,7 +218,6 @@ private:
 	virtual void Generate_ItemLevelDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_StyleDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_HolidayRestriction( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_QualityDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_ItemDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_GiftedBy( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 #ifdef PROJECT_TF
@@ -230,14 +229,12 @@ private:
 	virtual void Generate_UnusualifierEffectList( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 #endif // PROJECT_TF
 	virtual void Generate_Painted( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_Uses( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_FlagsAttributes( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	
 	virtual void Generate_VisibleAttributes( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 
 	// Helpers for the above.
 	virtual void Generate_ItemLevelDesc_Default( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem, const locchar_t *locTypename );
-	virtual bool BGenerate_ItemLevelDesc_StrangeNameAndStats( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem, const locchar_t *locTypename );		// returns true if generated a level/desc based on strange stats or false if nothing was generated
 	const locchar_t *GetLocalizedStringForStrangeRestrictionAttr( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem, int iAttrIndex ) const;
 
 	// Internal data.
@@ -334,21 +331,7 @@ enum EGenerateLocalizedFullItemNameFlag_t
 class CEconItemLocalizedFullNameGenerator
 {
 public:
-	CEconItemLocalizedFullNameGenerator( const CLocalizationProvider *pLocalizationProvider, const CEconItemDefinition *pItemDef, bool bUseingHashContext = true, entityquality_t eQuality = AE_UNIQUE );
-
-	const locchar_t *GetFullName() const { return m_loc_LocalizedItemName; }
-
-private:
-	locchar_t m_loc_LocalizedItemName[ MAX_ITEM_NAME_LENGTH ];
-};
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-class CEconItemLocalizedMarketNameGenerator
-{
-public:
-	CEconItemLocalizedMarketNameGenerator( const CLocalizationProvider *pLocalizationProvider, IEconItemInterface *pItem, bool bUseingHashContext = true );
+	CEconItemLocalizedFullNameGenerator( const CLocalizationProvider *pLocalizationProvider, const CEconItemDefinition *pItemDef, bool bUseingHashContext = true );
 
 	const locchar_t *GetFullName() const { return m_loc_LocalizedItemName; }
 

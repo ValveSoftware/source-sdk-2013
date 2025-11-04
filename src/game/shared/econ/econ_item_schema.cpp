@@ -184,111 +184,6 @@ static void ParseCapability( item_capabilities_t &capsBitfield, KeyValues* pEntr
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Constructor
-//-----------------------------------------------------------------------------
-CEconItemQualityDefinition::CEconItemQualityDefinition( void )
-:	m_nValue( INT_MAX )
-,	m_bCanSupportSet( false )
-{
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:	Copy constructor
-//-----------------------------------------------------------------------------
-CEconItemQualityDefinition::CEconItemQualityDefinition( const CEconItemQualityDefinition &that )
-{
-	(*this) = that;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:	Operator=
-//-----------------------------------------------------------------------------
-CEconItemQualityDefinition &CEconItemQualityDefinition::operator=( const CEconItemQualityDefinition &rhs )
-{
-	m_nValue = rhs.m_nValue; 
-	m_strName =	rhs.m_strName; 
-	m_bCanSupportSet = rhs.m_bCanSupportSet;
-
-	return *this;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:	Initialize the quality definition
-// Input:	pKVQuality - The KeyValues representation of the quality
-//			schema - The overall item schema for this attribute
-//			pVecErrors - An optional vector that will contain error messages if 
-//				the init fails.
-// Output:	True if initialization succeeded, false otherwise
-//-----------------------------------------------------------------------------
-bool CEconItemQualityDefinition::BInitFromKV( KeyValues *pKVQuality, CUtlVector<CUtlString> *pVecErrors /* = NULL */ )
-{
-
-	m_nValue = pKVQuality->GetInt( "value", -1 );
-	m_strName = pKVQuality->GetName();	
-	m_bCanSupportSet = pKVQuality->GetBool( "canSupportSet" );
-
-	// Check for required fields
-	SCHEMA_INIT_CHECK( 
-		NULL != pKVQuality->FindKey( "value" ), 
-		"Quality definition %s: Missing required field \"value\"", pKVQuality->GetName() );
-
-#if defined(CLIENT_DLL) || defined(GAME_DLL)
-	return SCHEMA_INIT_SUCCESS();
-#endif // GC_DLL
-
-	// Check for data consistency
-	SCHEMA_INIT_CHECK( 
-		0 != Q_stricmp( GetName(), "any" ), 
-		"Quality definition any: The quality name \"any\" is a reserved keyword and cannot be used." );
-
-	SCHEMA_INIT_CHECK( 
-		m_nValue != k_unItemQuality_Any, 
-		"Quality definition %s: Invalid value (%d). It is reserved for Any", GetName(), k_unItemQuality_Any );
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
-// CEconItemRarityDefinition
-//-----------------------------------------------------------------------------
-CEconItemRarityDefinition::CEconItemRarityDefinition( void )
-	: m_nValue( INT_MAX )
-	, m_nLootlistWeight( 0 )
-{
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:	Initialize the rarity definition
-//-----------------------------------------------------------------------------
-bool CEconItemRarityDefinition::BInitFromKV( KeyValues *pKVRarity, KeyValues *pKVRarityWeights, CEconItemSchema &pschema, CUtlVector<CUtlString> *pVecErrors /* = NULL */ )
-{
-	m_nValue = pKVRarity->GetInt( "value", -1 );
-	m_strName = pKVRarity->GetName();
-	m_strLocKey = pKVRarity->GetString( "loc_key" );
-	m_strWepLocKey = pKVRarity->GetString( "loc_key_weapon" );
-
-	m_iAttribColor = GetAttribColorIndexForName( pKVRarity->GetString( "color" ) );
-	m_strDropSound = pKVRarity->GetString( "drop_sound" );
-	m_strNextRarity = pKVRarity->GetString( "next_rarity" ); // Not required.
-
-	//
-
-	// Check for required fields
-	SCHEMA_INIT_CHECK(
-		NULL != pKVRarity->FindKey( "value" ),
-		"Rarity definition %s: Missing required field \"value\"", pKVRarity->GetName() );
-
-	SCHEMA_INIT_CHECK(
-		NULL != pKVRarity->FindKey( "loc_key" ),
-		"Rarity definition %s: Missing required field \"loc_key\"", pKVRarity->GetName() );
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
 bool CEconColorDefinition::BInitFromKV( KeyValues *pKVColor, CUtlVector<CUtlString> *pVecErrors /* = NULL */ )
@@ -1813,11 +1708,6 @@ bool CEconItemAttributeDefinition::BInitFromKV( KeyValues *pKVAttribute, CUtlVec
 CEconItemDefinition::CEconItemDefinition( void )
 :	m_pKVItem( NULL ),
 m_bEnabled( false ),
-m_unMinItemLevel( 1 ),
-m_unMaxItemLevel( 1 ),
-m_nItemQuality( k_unItemQuality_Any ),
-m_nForcedItemQuality( k_unItemQuality_Any ),
-m_nDefaultDropQuantity( 1 ),
 m_bLoadOnDemand( false ),
 m_nPopularitySeed( 0 ),
 m_pszDefinitionName( NULL ),
@@ -1850,11 +1740,9 @@ m_pszItemLogClassname( NULL ),
 m_pszItemIconClassname( NULL ),
 m_pszDatabaseAuditTable( NULL ),
 m_bImported( false ),
-m_unSetItemRemapDefIndex( INVALID_ITEM_DEF_INDEX ),
 m_pszBaseFunctionalItemName( NULL ),
 m_pszParticleSuffix( NULL ),
 m_pszCollectionReference( NULL ),
-m_nItemRarity( k_unItemRarity_Any ),
 m_nRemappedDefIndex( INVALID_ITEM_DEF_INDEX )
 {
 	for ( int team = 0; team < TEAM_VISUAL_SECTIONS; team++ )
@@ -1889,7 +1777,6 @@ bool CEconItemDefinition::BInitFromTestItemKVs( int iNewDefIndex, KeyValues *pKV
 	// The KeyValues are stored in the player entity, so we can cache our name there
 
 	m_nDefIndex = iNewDefIndex;
-	m_unSetItemRemapDefIndex = m_nDefIndex;
 
 	bool bTestingExistingItem = pKVItem->GetBool( "test_existing_item", false );
 	if ( !bTestingExistingItem )
@@ -2573,18 +2460,8 @@ bool CEconItemDefinition::BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString
 #endif
 
 	m_nDefIndex = Q_atoi( m_pKVItem->GetName() );
-	m_unMinItemLevel = (uint32)m_pKVItem->GetInt( "min_ilevel", GetItemSchema()->GetMinLevel() );
-	m_unMaxItemLevel = (uint32)m_pKVItem->GetInt( "max_ilevel", GetItemSchema()->GetMaxLevel() );
-	m_nDefaultDropQuantity = m_pKVItem->GetInt( "default_drop_quantity", 1 );
 
 	m_nPopularitySeed = m_pKVItem->GetInt( "popularity_seed", 0 );
-
-
-#if defined(CLIENT_DLL) || defined(GAME_DLL)
-	// We read this manually here in the game dlls. The GC reads it below while checking the global schema.
-	GetItemSchema()->BGetItemQualityFromName( m_pKVItem->GetString( "item_quality" ), &m_nItemQuality );
-	GetItemSchema()->BGetItemQualityFromName( m_pKVItem->GetString( "forced_item_quality" ), &m_nForcedItemQuality );
-#endif
 
 	// Check for required fields
 	SCHEMA_INIT_CHECK( 
@@ -2605,15 +2482,6 @@ bool CEconItemDefinition::BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString
 		"Item definition %s: \"max_ilevel\" must be greater than or equal to 0", GetDefinitionName() );
 
 	// Check for consistency
-
-	// Rarity
-	// Get Index from this string and save the index
-	if ( m_pKVItem->FindKey( "item_rarity" ) )
-	{
-		SCHEMA_INIT_CHECK(
-			GetItemSchema()->BGetItemRarityFromName( m_pKVItem->GetString( "item_rarity" ), &m_nItemRarity ),
-			"Item definition %s: Undefined item_rarity \"%s\"", GetDefinitionName(), m_pKVItem->GetString( "item_rarity" ) );
-	}
 
 	// Get the item class
 	m_pszItemClassname = m_pKVItem->GetString( "item_class", NULL );
@@ -2684,20 +2552,6 @@ bool CEconItemDefinition::BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString
 
 	// item_set
 	SCHEMA_INIT_CHECK( (!m_pKVItem->GetString( "item_set", NULL )), "Item definition '%s' specifies deprecated \"item_set\" field. Items sets are now specified only in the set itself, not on the definition.", GetDefinitionName() );
-
-	const char *pszSetItemRemapDefIndexName = m_pKVItem->GetString( "set_item_remap", NULL );
-	if ( pszSetItemRemapDefIndexName )
-	{
-		const CEconItemDefinition *pRemapItemDef = GetItemSchema()->GetItemDefinitionByName( pszSetItemRemapDefIndexName );
-		m_unSetItemRemapDefIndex = pRemapItemDef ? pRemapItemDef->GetDefinitionIndex() : INVALID_ITEM_DEF_INDEX;
-
-		SCHEMA_INIT_CHECK( m_unSetItemRemapDefIndex != INVALID_ITEM_DEF_INDEX, "Unable to find set item remap definition '%s' for '%s'.", pszSetItemRemapDefIndexName, GetDefinitionName() );
-		SCHEMA_INIT_CHECK( m_unSetItemRemapDefIndex != GetDefinitionIndex(), "Unable to set set item remap for definition '%s' to itself.", GetDefinitionName() );
-	}
-	else
-	{
-		m_unSetItemRemapDefIndex = GetDefinitionIndex();
-	}
 
 	m_pszBaseFunctionalItemName = m_pKVItem->GetString( "base_item_name", "" );
 	m_pszParticleSuffix = m_pKVItem->GetString( "particle_suffix", NULL );
@@ -2914,15 +2768,6 @@ const char* CEconItemDefinition::GetIconURL( const char* pszKey ) const
 	}
 
 	return (*m_pDictIcons)[ idx ];
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Generate and return a random level according to whatever leveling
-//			curve this definition uses.
-//-----------------------------------------------------------------------------
-uint32 CEconItemDefinition::RollItemLevel( void ) const
-{
-	return RandomInt( GetMinLevel(), GetMaxLevel() );
 }
 
 const char *CEconItemDefinition::GetFirstSaleDate() const
@@ -3187,12 +3032,9 @@ const CEconItemDefinition *CForeignAppImports::FindMapping( uint16 unForeignDefI
 CEconItemSchema::CEconItemSchema( )
 : 	m_unResetCount( 0 )
 ,	m_pKVRawDefinition( NULL )
-,	m_mapRarities( DefLessFunc(int) )
-,	m_mapQualities( DefLessFunc(int) )
 ,	m_mapAttributes( DefLessFunc(int) )
 ,	m_mapRecipes( DefLessFunc(int) )
 ,	m_mapItemsSorted( DefLessFunc(int) )
-,	m_mapToolsItems( DefLessFunc(int) )
 ,	m_mapBaseItems( DefLessFunc(int) )
 ,	m_unVersion( 0 )
 #if defined(CLIENT_DLL) || defined(GAME_DLL)
@@ -3209,7 +3051,6 @@ CEconItemSchema::CEconItemSchema( )
 ,	m_pDelayedSchemaData( NULL )
 #endif
 ,	m_mapKillEaterScoreTypes( DefLessFunc( unsigned int ) )
-,	m_mapCommunityMarketDefinitionIndexRemap( DefLessFunc( item_definition_index_t ) )
 #ifdef CLIENT_DLL
 ,	m_mapSteamPackageLocalizationTokens( DefLessFunc( uint32 ) )
 #endif
@@ -3411,8 +3252,6 @@ void CEconItemSchema::Reset( void )
 	m_unFirstValidAccountItemSlot = 0;
 	m_unLastValidAccountItemSlot = 0;
 	m_unNumItemPresets = 0;
-	m_unMinLevel = 0;
-	m_unMaxLevel = 0;
 	m_unVersion = 0;
 	m_unSumQualityWeights = 0;
 	FOR_EACH_VEC( m_vecAttributeTypes, i )
@@ -3422,10 +3261,7 @@ void CEconItemSchema::Reset( void )
 	m_vecAttributeTypes.Purge();
 	m_mapItems.PurgeAndDeleteElements();
 	m_mapItems.Purge();
-	m_mapRarities.Purge();
-	m_mapQualities.Purge();
 	m_mapItemsSorted.Purge();
-	m_mapToolsItems.Purge();
 	m_mapBaseItems.Purge();
 	m_mapRecipes.PurgeAndDeleteElements();
 	m_vecTimedRewards.Purge();
@@ -3465,7 +3301,6 @@ void CEconItemSchema::Reset( void )
 	m_vecItemLevelingData.PurgeAndDeleteElements();
 
 	m_dictStringTable.PurgeAndDeleteElements();
-	m_mapCommunityMarketDefinitionIndexRemap.Purge();
 }
 
 
@@ -3753,9 +3588,6 @@ bool CEconItemSchema::BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlS
 {
 	double flInitSchemaTime = Plat_FloatTime();
 
-	m_unMinLevel = pKVRawDefinition->GetInt( "item_level_min", 0 );
-	m_unMaxLevel = pKVRawDefinition->GetInt( "item_level_max", 0 );
-
 	m_unVersion = CalculateKeyValuesVersion( pKVRawDefinition );
 
 
@@ -3781,24 +3613,6 @@ bool CEconItemSchema::BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlS
 	// Initialize our attribute types. We don't actually pull this data from the schema right now but it
 	// still makes sense to initialize it at this point.
 	SCHEMA_INIT_SUBSTEP( BInitAttributeTypes( pVecErrors ) );
-
-	// Initialize the rarity block
-	KeyValues *pKVRarities = pKVRawDefinition->FindKey( "rarities" );
-	KeyValues *pKVRarityWeights = pKVRawDefinition->FindKey( "rarities_lootlist_weights" );
-	SCHEMA_INIT_CHECK( NULL != pKVRarities, "Required key \"rarities\" missing.\n" );
-	if ( NULL != pKVRarities )
-	{
-		SCHEMA_INIT_SUBSTEP( BInitRarities( pKVRarities, pKVRarityWeights, pVecErrors ) );
-	}
-
-	// Initialize the qualities block
-	KeyValues *pKVQualities = pKVRawDefinition->FindKey( "qualities" );
-	SCHEMA_INIT_CHECK( NULL != pKVQualities, "Required key \"qualities\" missing.\n" );
-
-	if ( NULL != pKVQualities )
-	{
-		SCHEMA_INIT_SUBSTEP( BInitQualities( pKVQualities, pVecErrors ) );
-	}
 
 	// Initialize the colors block
 	KeyValues *pKVColors = pKVRawDefinition->FindKey( "colors" );
@@ -3908,10 +3722,6 @@ bool CEconItemSchema::BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlS
 	KeyValues *pKVStringTables = pKVRawDefinition->FindKey( "string_lookups" );
 	SCHEMA_INIT_SUBSTEP( BInitStringTables( pKVStringTables, pVecErrors ) );
 
-	// Initialize the community Market remaps, if present
-	KeyValues *pKVCommunityMarketRemaps = pKVRawDefinition->FindKey( "community_market_item_remaps" );
-	SCHEMA_INIT_SUBSTEP( BInitCommunityMarketRemaps( pKVCommunityMarketRemaps, pVecErrors ) );
-
 	double flTotalTime = Plat_FloatTime() - flInitSchemaTime;
 
 #ifdef GAME_DLL
@@ -4001,79 +3811,6 @@ bool CEconItemSchema::BInitDefinitionPrefabs( KeyValues *pKVPrefabs, CUtlVector<
 			"Duplicate prefab name (%s)", pszPrefabName );
 
 		m_dictDefinitionPrefabs.Insert( pszPrefabName, pKVPrefab->MakeCopy() );
-	}
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:	Initializes the rarity section of the schema
-//-----------------------------------------------------------------------------
-bool CEconItemSchema::BInitRarities( KeyValues *pKVRarities, KeyValues *pKVRarityWeights, CUtlVector<CUtlString> *pVecErrors )
-{
-	// initialize the item definitions
-	if ( NULL != pKVRarities )
-	{
-		FOR_EACH_TRUE_SUBKEY( pKVRarities, pKVRarity )
-		{
-			int nRarityIndex = pKVRarity->GetInt( "value" );
-			int nMapIndex = m_mapRarities.Find( nRarityIndex );
-
-			// Make sure the item index is correct because we use this index as a reference
-			SCHEMA_INIT_CHECK(
-				!m_mapRarities.IsValidIndex( nMapIndex ),
-				"Duplicate rarity value (%d)", nRarityIndex );
-
-			nMapIndex = m_mapRarities.Insert( nRarityIndex );
-			SCHEMA_INIT_SUBSTEP( m_mapRarities[nMapIndex].BInitFromKV( pKVRarity, pKVRarityWeights, *this, pVecErrors ) );
-		}
-	}
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:	Initializes the qualities section of the schema
-// Input:	pKVQualities - The qualities section of the KeyValues 
-//				representation of the schema
-//			pVecErrors - An optional vector that will contain error messages if 
-//				the init fails.
-// Output:	True if initialization succeeded, false otherwise
-//-----------------------------------------------------------------------------
-bool CEconItemSchema::BInitQualities( KeyValues *pKVQualities, CUtlVector<CUtlString> *pVecErrors )
-{
-	// initialize the item definitions
-	if ( NULL != pKVQualities )
-	{
-		FOR_EACH_TRUE_SUBKEY( pKVQualities, pKVQuality )
-		{
-			int nQualityIndex = pKVQuality->GetInt( "value" );
-			int nMapIndex = m_mapQualities.Find( nQualityIndex );
-
-			// Make sure the item index is correct because we use this index as a reference
-			SCHEMA_INIT_CHECK( 
-				!m_mapQualities.IsValidIndex( nMapIndex ),
-				"Duplicate quality value (%d)", nQualityIndex );
-
-			nMapIndex = m_mapQualities.Insert( nQualityIndex );
-			SCHEMA_INIT_SUBSTEP( m_mapQualities[nMapIndex].BInitFromKV( pKVQuality, pVecErrors ) );
-		}
-	}
-
-	// Check the integrity of the quality definitions
-
-	// Check for duplicate quality names
-	CUtlRBTree<const char *> rbQualityNames( CaselessStringLessThan );
-	rbQualityNames.EnsureCapacity( m_mapQualities.Count() );
-	FOR_EACH_MAP_FAST( m_mapQualities, i )
-	{
-		int iIndex = rbQualityNames.Find( m_mapQualities[i].GetName() );
-		SCHEMA_INIT_CHECK( 
-			!rbQualityNames.IsValidIndex( iIndex ),
-			"Quality definition %d: Duplicate quality name %s", m_mapQualities[i].GetDBValue(), m_mapQualities[i].GetName() );
-
-		if( !rbQualityNames.IsValidIndex( iIndex ) )
-			rbQualityNames.Insert( m_mapQualities[i].GetName() );
 	}
 
 	return SCHEMA_INIT_SUCCESS();
@@ -4339,7 +4076,6 @@ bool CEconItemSchema::BInitItems( KeyValues *pKVItems, CUtlVector<CUtlString> *p
 {
 	m_mapItems.PurgeAndDeleteElements();
 	m_mapItemsSorted.Purge();
-	m_mapToolsItems.Purge();
 	m_mapBaseItems.Purge();
 	m_vecBundles.Purge();
 
@@ -5095,48 +4831,6 @@ bool CEconItemSchema::BInitStringTables( KeyValues *pKVStringTables, CUtlVector<
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-bool CEconItemSchema::BInitCommunityMarketRemaps( KeyValues *pKVCommunityMarketRemaps, CUtlVector<CUtlString> *pVecErrors )
-{
-	m_mapCommunityMarketDefinitionIndexRemap.Purge();
-
-	if ( NULL != pKVCommunityMarketRemaps )
-	{
-		FOR_EACH_SUBKEY( pKVCommunityMarketRemaps, pKVRemapBase )
-		{
-			const char *pszBaseDefName = pKVRemapBase->GetName();
-			const CEconItemDefinition *pBaseItemDef = GetItemSchema()->GetItemDefinitionByName( pszBaseDefName );
-			SCHEMA_INIT_CHECK( pBaseItemDef != NULL, "Unknown Market remap base definition '%s'.", pszBaseDefName );
-
-			FOR_EACH_SUBKEY( pKVRemapBase, pKVRemap )
-			{
-				const char *pszDefName = pKVRemap->GetName();
-				const CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinitionByName( pszDefName );
-				SCHEMA_INIT_CHECK( pItemDef != NULL, "Unknown Market remap definition '%s' (under '%s').", pszDefName, pszBaseDefName );
-				SCHEMA_INIT_CHECK( m_mapCommunityMarketDefinitionIndexRemap.Find( pItemDef->GetDefinitionIndex() ) == m_mapCommunityMarketDefinitionIndexRemap.InvalidIndex(), "Duplicate Market remap definition '%s'.\n", pszDefName );
-
-				m_mapCommunityMarketDefinitionIndexRemap.Insert( pItemDef->GetDefinitionIndex(), pBaseItemDef->GetDefinitionIndex() );
-			}
-		}
-	}
-
-	return SCHEMA_INIT_SUCCESS();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-item_definition_index_t CEconItemSchema::GetCommunityMarketRemappedDefinitionIndex( item_definition_index_t unSearchItemDef ) const
-{
-	CommunityMarketDefinitionRemapMap_t::IndexType_t index = m_mapCommunityMarketDefinitionIndexRemap.Find( unSearchItemDef );
-	if ( index == m_mapCommunityMarketDefinitionIndexRemap.InvalidIndex() )
-		return unSearchItemDef;
-
-	return m_mapCommunityMarketDefinitionIndexRemap[index];
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
 const ISchemaAttributeType *CEconItemSchema::GetAttributeType( const char *pszAttrTypeName ) const
 {
 	FOR_EACH_VEC( m_vecAttributeTypes, i )
@@ -5277,145 +4971,6 @@ const AchievementAward_t *CEconItemSchema::GetAchievementRewardByDefIndex( uint1
 			return m_mapAchievementRewardsByData[nIndex];
 	}
 	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:	Gets a rarity value for a name.
-//-----------------------------------------------------------------------------
-bool CEconItemSchema::BGetItemRarityFromName( const char *pchName, uint8 *nRarity ) const
-{
-	if ( 0 == Q_stricmp( "any", pchName ) )
-	{
-		*nRarity = k_unItemRarity_Any;
-		return true;
-	}
-
-	FOR_EACH_MAP_FAST( m_mapRarities, i )
-	{
-		if ( 0 == Q_stricmp( m_mapRarities[i].GetName(), pchName ) )
-		{
-			*nRarity = m_mapRarities[i].GetDBValue();
-			return true;
-		}
-	}
-
-	return false;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:	Gets a quality value for a name.
-// Input:	pchName - The name to translate.
-//			nQuality - (out)The quality number for this name, if found.
-// Output:	True if the string matched a quality for this schema, false otherwise.
-//-----------------------------------------------------------------------------
-bool CEconItemSchema::BGetItemQualityFromName( const char *pchName, uint8 *nQuality ) const
-{
-	if ( 0 == Q_stricmp( "any", pchName ) )
-	{
-		*nQuality = k_unItemQuality_Any;
-		return true;
-	}
-
-	FOR_EACH_MAP_FAST( m_mapQualities, i )
-	{
-		if ( 0 == Q_stricmp( m_mapQualities[i].GetName(), pchName ) )
-		{
-			*nQuality = m_mapQualities[i].GetDBValue();
-			return true;
-		}
-	}
-
-	return false;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:	Gets a quality definition for an index
-// Input:	nQuality - The quality to get.
-// Output:	A pointer to the desired definition, or NULL if it is not found.
-//-----------------------------------------------------------------------------
-const CEconItemQualityDefinition *CEconItemSchema::GetQualityDefinition( int nQuality ) const
-{ 
-	int iIndex = m_mapQualities.Find( nQuality );
-	if ( m_mapQualities.IsValidIndex( iIndex ) )
-		return &m_mapQualities[iIndex]; 
-	return NULL;
-}
-
-const CEconItemQualityDefinition *CEconItemSchema::GetQualityDefinitionByName( const char *pszDefName ) const
-{
-	FOR_EACH_MAP_FAST( m_mapQualities, i )
-	{
-		if ( V_stricmp( pszDefName, m_mapQualities[i].GetName()) == 0 )
-			return &m_mapQualities[i]; 
-	}
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// ItemRarity
-//-----------------------------------------------------------------------------
-const CEconItemRarityDefinition *CEconItemSchema::GetRarityDefinitionByMapIndex( int nRarityIndex ) const
-{
-	if ( m_mapRarities.IsValidIndex( nRarityIndex ) )
-		return &m_mapRarities[nRarityIndex];
-
-	return NULL;
-}
-//-----------------------------------------------------------------------------
-const CEconItemRarityDefinition *CEconItemSchema::GetRarityDefinition( int nRarity ) const
-{
-	int iIndex = m_mapRarities.Find( nRarity );
-	if ( m_mapRarities.IsValidIndex( iIndex ) )
-		return &m_mapRarities[iIndex];
-	return NULL;
-}
-//-----------------------------------------------------------------------------
-const CEconItemRarityDefinition *CEconItemSchema::GetRarityDefinitionByName( const char *pszDefName ) const
-{
-	FOR_EACH_MAP_FAST( m_mapRarities, i )
-	{
-		if ( !strcmp( pszDefName, m_mapRarities[i].GetName() ) )
-			return &m_mapRarities[i];
-	}
-	return NULL;
-}
-//-----------------------------------------------------------------------------
-const char* CEconItemSchema::GetRarityName( uint8 iRarity )
-{
-	const CEconItemRarityDefinition* pItemRarity = GetRarityDefinition( iRarity );
-	if ( !pItemRarity )
-		return NULL;
-	else
-		return pItemRarity->GetName();
-}
-//-----------------------------------------------------------------------------
-const char* CEconItemSchema::GetRarityLocKey( uint8 iRarity )
-{
-	const CEconItemRarityDefinition* pItemRarity = GetRarityDefinition( iRarity );
-	if ( !pItemRarity )
-		return NULL;
-	else
-		return pItemRarity->GetLocKey();
-}
-//-----------------------------------------------------------------------------
-const char* CEconItemSchema::GetRarityColor( uint8 iRarity )
-{
-	const CEconItemRarityDefinition* pItemRarity = GetRarityDefinition( iRarity );
-	if ( !pItemRarity )
-		return NULL;
-	else
-		return GetColorNameForAttribColor( pItemRarity->GetAttribColor() );
-}
-//-----------------------------------------------------------------------------
-int CEconItemSchema::GetRarityIndex( const char* pszRarity )
-{
-	const CEconItemRarityDefinition* pRarity = GetRarityDefinitionByName( pszRarity );
-	if ( pRarity )
-		return pRarity->GetDBValue();
-	else
-		return 0;
 }
 
 //-----------------------------------------------------------------------------

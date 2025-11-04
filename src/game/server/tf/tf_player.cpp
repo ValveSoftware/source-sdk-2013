@@ -4373,34 +4373,8 @@ bool CTFPlayer::ItemsMatch( TFPlayerClassData_t *pData, CEconItemView *pCurWeapo
 
 	// If we already have a weapon in this slot but is not the same type, nuke it (changed classes)
 	// We don't need to do this for non-base items because they've already been verified above.
-	bool bHasNonBaseWeapon = pNewWeaponItem ? pNewWeaponItem->GetItemQuality() != AE_NORMAL : false;
-	if ( bHasNonBaseWeapon )
 	{
-		// If the item isn't the one we're supposed to have, nuke it
-		if ( pCurWeaponItem->GetItemID() != pNewWeaponItem->GetItemID() )
-		{
-			/*
-			Msg("Removing %s because its global index (%d) doesn't match the loadout's (%d)\n", pWeapon->GetDebugName(), 
-				pCurWeaponItem->GetItemID(),
-				pNewWeaponItem->GetItemID() );
-			*/
-			return false;
-		}
-
-		// Some items create different entities when wielded by different classes. If so, we need to say
-		// the items don't match so the item gets recreated as the right entity.
-		if ( pWpnEntity )
-		{
-			const char *pszCurWeaponClass	   = pWpnEntity->GetClassname(),
-					   *pszNewWeaponTransClass = TranslateWeaponEntForClass( pNewWeaponItem->GetStaticData()->GetItemClass(), GetPlayerClass()->GetClassIndex() );
-
-			if ( !pszCurWeaponClass || !pszNewWeaponTransClass || Q_stricmp( pszCurWeaponClass, pszNewWeaponTransClass ) )
-				return false;
-		}
-	}
-	else
-	{
-		if ( pCurWeaponItem->GetItemQuality() != AE_NORMAL || (pCurWeaponItem->GetItemDefIndex() != pNewWeaponItem->GetItemDefIndex()) )
+		if ( pCurWeaponItem->GetItemDefIndex() != pNewWeaponItem->GetItemDefIndex() )
 		{
 			//Msg("Removing %s because it's not the right type for the class.\n", pWeapon->GetDebugName() );
 			return false;
@@ -4911,7 +4885,7 @@ CEconItemView *CTFPlayer::GetLoadoutItem( int iClass, int iSlot, bool bReportWhi
 
 	// Check to see if this item passes the tournament rules (in whitelist/or normal quality).
 	// If it doesn't, we fall back to the base item for the loadout slot.
-	if ( (pItem && pItem->IsValid()) && (pItem->GetItemQuality() != AE_NORMAL) && !pItem->GetStaticData()->IsAllowedInMatch() && TFGameRules()->IsInTournamentMode() )
+	if ( (pItem && pItem->IsValid()) && !pItem->GetStaticData()->IsAllowedInMatch() && TFGameRules()->IsInTournamentMode() )
 	{
 		if ( bReportWhitelistFails )
 		{
@@ -5410,47 +5384,10 @@ void CTFPlayer::ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData )
 
 			// Do we have a custom weapon in this slot?
 			CEconItemView *pItem = TFInventoryManager()->GetItemInLoadoutForClass( GetPlayerClass()->GetClassIndex(), iLoadoutSlot, &steamIDForPlayer );
-			bool bHasNonBaseWeapon = pItem ? pItem->GetItemQuality() != AE_NORMAL : false;
 
 			if ( pWeapon )
 			{
-				bool bShouldRemove = false;
-
-				if ( pItem )
-				{
-					// If the item isn't the one we're supposed to have, nuke it
-					if ( pWeapon->GetAttributeContainer()->GetItem()->GetItemID() != pItem->GetItemID() )
-					{
-						bShouldRemove = true;
-
-						/*
-						Msg("Removing %s because its global index (%d) doesn't match the loadout's (%d)\n", pWeapon->GetDebugName(), 
-						pWeapon->GetAttributeContainer()->GetItem()->GetItemID(),
-						pItem->GetItemID() );
-						*/
-					}
-				}
-				else
-				{
-					// We should have a base item in our loadout.
-					if ( pWeapon->GetAttributeContainer()->GetItem()->GetItemQuality() != AE_NORMAL )
-					{
-						bShouldRemove = true;
-						//Msg("Removing %s because it's a non-base item, and the loadout specifies a base item.\n", pWeapon->GetDebugName() );
-					}
-				}
-
-				// If we already have a weapon in this slot but is not the same type, nuke it (changed classes)
-				// We don't do this if the weapon in this slot isn't a base item, because items like the flaregun
-				// don't have matching weaponIDs, yet they shouldn't be removed. The inventory system has already
-				// ensured that the weapon is valid in this slot.
-				if ( !bShouldRemove && pWeapon->GetWeaponID() != iWeaponID && !bHasNonBaseWeapon )
-				{
-					bShouldRemove = true;
-					//Msg("Removing %s because it's not the right type for the class.\n", pWeapon->GetDebugName() );
-				}
-
-				if ( bShouldRemove )
+				if ( pWeapon->GetAttributeContainer()->GetItem()->GetItemID() != pItem->GetItemID() )
 				{
 					Weapon_Detach( pWeapon );
 					UTIL_Remove( pWeapon );
@@ -5458,10 +5395,7 @@ void CTFPlayer::ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData )
 				}
 			}
 
-			if ( !bHasNonBaseWeapon )
-			{
-				pWeapon = dynamic_cast<CTFWeaponBase*>(Weapon_OwnsThisID( iWeaponID ));
-			}
+			pWeapon = dynamic_cast<CTFWeaponBase*>(Weapon_OwnsThisID( iWeaponID ));
 
 			if ( pWeapon )
 			{
@@ -5570,7 +5504,6 @@ CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, int iSubType, const 
 	{
 		// Generate a base item of the specified type
 		CItemSelectionCriteria criteria;
-		criteria.SetQuality( AE_NORMAL );
 		criteria.BAddCondition( "name", k_EOperator_String_EQ, pszName, true );
 		pItem = ItemGeneration()->GenerateRandomItem( &criteria, GetAbsOrigin(), vec3_angle, pszName );
 	}
@@ -17110,12 +17043,6 @@ void CTFPlayer::DoNoiseMaker( void )
 	if ( !pItem )
 		return;
 
-	int iUnlimitedQuantity = 0;
-	CALL_ATTRIB_HOOK_INT( iUnlimitedQuantity, unlimited_quantity );
-
-	if ( pItem->GetItemQuantity() <= 0 && !iUnlimitedQuantity )
-		return;
-
 	perteamvisuals_t* vis = pItem->GetStaticData()->GetPerTeamVisual( 0 );
 	if ( !vis )
 		return;
@@ -19341,7 +19268,7 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 		}
 
 		CEconItemView *pItem = pActiveWeapon->GetAttributeContainer()->GetItem();
-		if ( pItem && pItem->GetItemQuality() != AE_NORMAL )
+		if ( pItem )
 		{
 			criteriaSet.AppendCriteria( "item_name", pItem->GetStaticData()->GetDefinitionName() );
 			criteriaSet.AppendCriteria( "item_type_name", pItem->GetStaticData()->GetItemTypeName() );
@@ -21259,7 +21186,7 @@ void CTFPlayer::ItemTesting_Start( KeyValues *pKV )
 		ItemSystem()->GetItemSchema()->ItemTesting_CreateTestDefinition( iReplacedItemDef, iNewDef, m_ItemsToTest[iNewItem].pKV );
 
 		// Build our test script item 
-		m_ItemsToTest[iNewItem].scriptItem.Init( iNewDef, AE_USE_SCRIPT_VALUE, AE_USE_SCRIPT_VALUE, false );
+		m_ItemsToTest[iNewItem].scriptItem.Init( iNewDef );
 		if ( !m_ItemsToTest[iNewItem].scriptItem.GetStaticData() )
 			return;
 

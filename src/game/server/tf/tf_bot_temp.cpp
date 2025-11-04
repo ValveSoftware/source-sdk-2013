@@ -1451,8 +1451,6 @@ void BotGenerateAndWearItem( CTFPlayer *pBot, const char *itemName )
 		return;
 
 	CItemSelectionCriteria criteria;
-	criteria.SetItemLevel( AE_USE_SCRIPT_VALUE );
-	criteria.SetQuality( AE_USE_SCRIPT_VALUE );
 	criteria.BAddCondition( "name", k_EOperator_String_EQ, itemName, true );
 
 	CBaseEntity *pItem = ItemGeneration()->GenerateRandomItem( &criteria, pBot->GetAbsOrigin(), vec3_angle );

@@ -1106,7 +1106,7 @@ void CPlayerInventory::SendInventoryUpdateEvent()
 //-----------------------------------------------------------------------------
 bool CPlayerInventory::FilloutItemFromEconItem( CEconItemView *pScriptItem, CEconItem *pEconItem )
 {
-	pScriptItem->Init( pEconItem->GetDefinitionIndex(), pEconItem->GetQuality(), pEconItem->GetItemLevel(), pEconItem->GetAccountID() );
+	pScriptItem->Init( pEconItem->GetDefinitionIndex(), pEconItem->GetAccountID() );
 	if ( !pScriptItem->IsValid() )
 		return false;
 

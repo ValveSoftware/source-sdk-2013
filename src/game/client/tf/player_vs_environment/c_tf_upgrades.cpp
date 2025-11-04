@@ -938,7 +938,7 @@ void CHudUpgradePanel::CreateItemModelPanel( int iLoadoutSlot )
 			// Nothing in action slot or non-bottle in action slot
 			// Show a disabled powerup bottle instead
 			CEconItemView *pItemData = new CEconItemView();
-			pItemData->Init( pItemDef_PowerupCanteen->GetDefinitionIndex(), AE_UNIQUE, AE_USE_SCRIPT_VALUE, true );
+			pItemData->Init( pItemDef_PowerupCanteen->GetDefinitionIndex(), 1 );
 			pItemData->SetClientItemFlags( kEconItemFlagClient_Preview | kEconItemFlagClient_StoreItem );
 
 			pItemPanel->SetItem( pItemData );

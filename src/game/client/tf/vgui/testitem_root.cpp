@@ -418,18 +418,8 @@ int CTestItemRoot::FindReplaceableItemsForSelectedClass( CUtlVector<item_definit
 		// Never show:
 		//	- Hidden items
 		//	- Items that don't have fixed qualities
-		if ( !pDef || pDef->IsHidden() || pDef->GetQuality() == k_unItemQuality_Any )
+		if ( !pDef || pDef->IsHidden() )
 			continue;
-
-		// Only show in staging (internal dev branch):
-		//	- Normal quality items
-		//	- Items that haven't asked to be shown in the armory
-		static const bool bIsStaging = ( engine->GetAppID() == 810 );
-		if ( !bIsStaging )
-		{
-			if ( pDef->GetQuality() == AE_NORMAL )
-				continue;
-		}
 
 		// Make sure it's the right type of item
 		int iDefSlot = pDef->GetDefaultLoadoutSlot();

@@ -525,7 +525,7 @@ void CItemSelectionPanel::UpdateDuplicateCounts( void )
 			continue;
 		}
 
-		int iIndex = m_DuplicateCounts.Find( item_stack_type_t( pItem->GetItemDefIndex(), pItem->GetQuality() ) );
+		int iIndex = m_DuplicateCounts.Find( item_stack_type_t( pItem->GetItemDefIndex() ) );
 		if ( iIndex == m_DuplicateCounts.InvalidIndex() || m_DuplicateCounts[iIndex] <= 1 )
 		{
 			m_pDuplicateCountLabels[i]->SetVisible( false );
@@ -670,31 +670,23 @@ bool CEquipSlotItemSelectionPanel::ShouldItemPanelBeVisible( CItemModelPanel *pP
 // Used to sort/verify uniqueness of user-facing items.
 struct RarityEconIdKey
 {
-	int m_iQualitySort;
 	item_definition_index_t m_defIndex;
-	uint32 m_unKillEaterScore;
 
 	RarityEconIdKey ( )
-		: m_iQualitySort( -1 )
-		, m_defIndex( INVALID_ITEM_DEF_INDEX )
-		, m_unKillEaterScore( 0 )
+		: m_defIndex( INVALID_ITEM_DEF_INDEX )
 	{
 		//
 	}
 
-	RarityEconIdKey ( int iQuality, item_definition_index_t defIndex, uint32 unKillEaterScore )
-		: m_iQualitySort( EconQuality_GetRarityScore( (EEconItemQuality)iQuality ) )
-		, m_defIndex( defIndex )
-		, m_unKillEaterScore( unKillEaterScore )
+	RarityEconIdKey ( item_definition_index_t defIndex )
+		: m_defIndex( defIndex )
 	{
 		//
 	}
 
 	bool operator< ( const RarityEconIdKey& rhs ) const
 	{
-		return m_defIndex < rhs.m_defIndex
-			|| m_iQualitySort < rhs.m_iQualitySort
-			|| m_unKillEaterScore < rhs.m_unKillEaterScore;
+		return m_defIndex < rhs.m_defIndex;
 	}
 };
 
@@ -746,9 +738,6 @@ CEquippableItemsForSlotGenerator::CEquippableItemsForSlotGenerator( int iClass, 
 	HighestLevelMap_t mapHighestLevel;
 	SetDefLessFunc( mapHighestLevel );
 
-	// We also prevent items with different kill eater scores from stacking.
-	static CSchemaAttributeDefHandle pAttrDef_KillEaterScore( "kill eater" );
-
 	// Iterate over the list of all the items that we consider as potential display candidates.
 	for ( int i = 0; i < iNumItems; i++ )
 	{
@@ -757,7 +746,7 @@ CEquippableItemsForSlotGenerator::CEquippableItemsForSlotGenerator( int iClass, 
 		// Before doing any sort of culling, count the number of unique instances of this particular
 		// definition.
 		{
-			const item_stack_type_t stackType( pItem->GetItemDefIndex(), pItem->GetQuality() );
+			const item_stack_type_t stackType( pItem->GetItemDefIndex() );
 			DuplicateCountMap_t::IndexType_t iIndex = m_DuplicateCountsMap.Find( stackType );
 			if ( iIndex == m_DuplicateCountsMap.InvalidIndex() )
 			{
@@ -807,12 +796,9 @@ CEquippableItemsForSlotGenerator::CEquippableItemsForSlotGenerator( int iClass, 
 		// This code does make the assumption that nothing in the key will be able to affect the display type.
 		// (ie., a higher-level item will never be equippable where a lower-level item is not)
 		{
-			uint32 unKillEaterScore = 0;
-			pItem->FindAttribute( pAttrDef_KillEaterScore, &unKillEaterScore );
-
-			RarityEconIdKey keyEconId( pItem->GetItemQuality(), pItem->GetItemDefIndex(), unKillEaterScore );
+			RarityEconIdKey keyEconId( pItem->GetItemDefIndex() );
 			HighestLevelMap_t::IndexType_t iIndex = mapHighestLevel.Find( keyEconId );
-			if ( iIndex == mapHighestLevel.InvalidIndex() || pItem->GetItemLevel() > mapHighestLevel[iIndex].m_pEconItemView->GetItemLevel() )
+			if ( iIndex == mapHighestLevel.InvalidIndex() )
 			{
 				mapHighestLevel.InsertOrReplace( keyEconId, CEquippableItemsForSlotGenerator::CEquippableResult( pItem, eDisplayType ) );
 			}
@@ -1153,7 +1139,7 @@ void CItemCriteriaSelectionPanel::UpdateModelPanelsForSelection( void )
 					continue;
 				}
 
-				item_stack_type_t stackType( iDefIndex, pItemData->GetQuality() );
+				item_stack_type_t stackType( iDefIndex );
 				int iIndex = m_DuplicateCounts.Find( stackType );
 				if ( iIndex == m_DuplicateCounts.InvalidIndex() )
 				{

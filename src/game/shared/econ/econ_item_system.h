@@ -52,14 +52,11 @@ public:
 	}
 
 	// Select and return a random item's definition index matching the specified criteria
-	item_definition_index_t	GenerateRandomItem( CItemSelectionCriteria *pCriteria, entityquality_t *outEntityQuality );
+	item_definition_index_t	GenerateRandomItem( CItemSelectionCriteria *pCriteria );
 
 	// Select and return the base item definition index for a class's load-out slot 
 	// Note: baseitemcriteria_t is game-specific and/or may not exist!
 	virtual item_definition_index_t GenerateBaseItem( struct baseitemcriteria_t *pCriteria ) { return INVALID_ITEM_DEF_INDEX; }
-
-	// Return a random item quality
-	entityquality_t GetRandomQualityForItem( bool bPreventUnique = false );
 
 	// Decrypt the item files and return the keyvalue
 	bool	DecryptItemFiles( KeyValues *pKV, const char *pName );		

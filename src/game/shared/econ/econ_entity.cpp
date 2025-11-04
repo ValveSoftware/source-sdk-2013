@@ -261,8 +261,7 @@ void CEconEntity::DebugDescribe( void )
 	Msg("============================================\n");
 	char tempstr[1024];
 // FIXME:	ILocalize::ConvertUnicodeToANSI( pScriptItem->GetItemName(), tempstr, sizeof(tempstr) );
-	const char *pszQualityString = EconQuality_GetQualityString( (EEconItemQuality)pScriptItem->GetItemQuality() );
-	Msg("%s \"%s\" (level %d)\n", pszQualityString ? pszQualityString : "[unknown]", tempstr, pScriptItem->GetItemLevel() );
+	Msg("[unknown] \"%s\"\n", tempstr );
 	// FIXME: ILocalize::ConvertUnicodeToANSI( pScriptItem->GetAttributeDescription(), tempstr, sizeof(tempstr) );
 	Msg("%s", tempstr );
 	Msg("\n============================================\n");
@@ -1428,14 +1427,6 @@ void CEconEntity::GetEconParticleSystems( CUtlVector<const attachedparticlesyste
 		for ( int i = 0; i < iStaticParticleCount; i++ )
 		{
 			out_pvecParticleSystems->AddToTail( pItemDef->GetAttachedParticleData( GetTeamNumber(), i ) );
-		}
-
-		// Do we have a particle effect that goes along with our specific quality? Self-made
-		// and community items have a sparkle, for example.
-		const int iQualityParticleType = pEconItemView->GetQualityParticleType();
-		if ( iQualityParticleType > 0 )
-		{
-			out_pvecParticleSystems->AddToTail( GetItemSchema()->GetAttributeControlledParticleSystem( iQualityParticleType ) );
 		}
 	}
 

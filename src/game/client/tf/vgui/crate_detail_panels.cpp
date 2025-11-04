@@ -176,8 +176,6 @@ void CInputStringForItemBackpackOverlayDialog::CreateItemPanels()
 
 		CEconItemView item;
 		item.SetItemDefIndex( itemDef );
-		item.SetItemQuality( AE_UNIQUE );	// Unique by default
-		item.SetItemLevel( 0 ); // Hide this?
 		item.SetInitialized( true );
 		item.SetItemOriginOverride( kEconItemOrigin_Invalid );
 

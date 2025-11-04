@@ -200,11 +200,9 @@ public:
 
 	// IEconItemInterface implementation.
 	virtual itemid_t		GetID() const { return GetItemID(); }
-	virtual int32			GetQuality() const;
 	virtual style_index_t	GetStyle() const;
 	virtual uint8			GetFlags() const;
 	virtual eEconItemOrigin GetOrigin() const;
-	virtual int				GetQuantity() const;
 	uint64					GetOriginalID() const { return GetSOCData() ? GetSOCData()->GetOriginalID() : 0; }
 
 	virtual const char	   *GetCustomName() const;
@@ -223,7 +221,7 @@ public:
 
 	// Initialize from the specified data
 	// client will load SO cache as needed
-	void					Init( int iDefIndex, int iQuality, int iLevel, uint32 iAccountID = 0 );
+	void					Init( int iDefIndex, uint32 iAccountID = 0 );
 	void					SetInitialized( bool bInit ) { m_bInitialized = bInit; }
 
 	// Get the static data contained in this item's definition
@@ -247,16 +245,7 @@ public:
 	void					SetItemDefIndex( item_definition_index_t iIndex ) { m_iItemDefinitionIndex = iIndex; MarkDescriptionDirty(); }
 	virtual					item_definition_index_t	GetItemDefIndex( void ) const { return m_iItemDefinitionIndex; }
 
-	// Set & Get the quality & level of this item.
-	void					SetItemQuality( int iQuality ) { m_iEntityQuality = iQuality; MarkDescriptionDirty(); }
-	int						GetItemQuality( void ) const { return m_iEntityQuality; }
-	void					SetItemLevel( uint32 unLevel ) { m_iEntityLevel = unLevel; MarkDescriptionDirty(); }
-	uint32					GetItemLevel( void ) const { return m_iEntityLevel; }
-
-	int						GetItemQuantity() const;
 #ifdef CLIENT_DLL
-	void					SetIsTradeItem( bool bIsTradeItem ) { m_bIsTradeItem = bIsTradeItem; MarkDescriptionDirty(); }
-	void					SetItemQuantity( int iQuantity ) { m_iEntityQuantity = iQuantity; MarkDescriptionDirty(); }
 	void					SetClientItemFlags( uint8 unFlags );
 
 	void					SetItemStyleOverride( style_index_t unNewStyleOverride );
@@ -316,9 +305,6 @@ public:
 	bool					IsEquippedForClass( equipped_class_t unClass ) const { return GetSOCData() && GetSOCData()->IsEquippedForClass( unClass ); }
 	equipped_slot_t			GetEquippedPositionForClass( equipped_class_t unClass ) const { return GetSOCData() ? GetSOCData()->GetEquippedPositionForClass( unClass ) : INVALID_EQUIPPED_SLOT; }
 
-	// Attached particle systems
-	int						GetQualityParticleType() const;
-
 	int						GetSkin( int iTeam, bool bViewmodel = false ) const;
 
 public:
@@ -356,12 +342,6 @@ protected:
 	// Index of the item definition in the item script file.
 	CNetworkVar( item_definition_index_t,	m_iItemDefinitionIndex );	
 
-	// The quality of this item.
-	CNetworkVar( int,		m_iEntityQuality );
-
-	// The level of this item.
-	CNetworkVar( uint32,	m_iEntityLevel );
-
 	// The global index of this item, worldwide.
 	itemid_t			m_iItemID;
 	CNetworkVar( uint32,	m_iItemIDHigh );
@@ -375,8 +355,6 @@ protected:
 
 #if defined( CLIENT_DLL )
 	// exist on the client only
-	bool					m_bIsTradeItem;
-	int						m_iEntityQuantity;
 	uint8					m_unClientFlags;
 	
 	// clients have the ability to force a style on an item view -- this is used for store previews,
