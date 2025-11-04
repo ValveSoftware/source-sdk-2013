@@ -10,7 +10,6 @@
 #include "vgui_controls/TextImage.h"
 #include "econ_gcmessages.h"
 #include "gc_clientsystem.h"
-#include "econ_ui.h"
 #include <vgui/ISurface.h>
 #include "econ_item_inventory.h"
 

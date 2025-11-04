@@ -9,7 +9,6 @@
 #include "item_model_panel.h"
 #include "navigationpanel.h"
 #include "gc_clientsystem.h"
-#include "econ_ui.h"
 #include "vgui_int.h"
 #include "cdll_client_int.h"
 #include "clientmode_tf.h"

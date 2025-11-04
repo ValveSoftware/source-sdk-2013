@@ -11,7 +11,6 @@
 #pragma once
 #endif
 
-#include "econ_ui.h"
 #include "vgui_controls/PropertyDialog.h"
 #include "tf_shareddefs.h"
 #include "GameEventListener.h"
@@ -51,7 +50,7 @@ public:
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CCharacterInfoPanel : public vgui::PropertyDialog, public IEconRootUI, public CGameEventListener
+class CCharacterInfoPanel : public vgui::PropertyDialog, public CGameEventListener
 {
 	DECLARE_CLASS_SIMPLE( CCharacterInfoPanel, vgui::PropertyDialog );
 public:
@@ -68,19 +67,10 @@ public:
 
 	void		 OpenLoadoutToClass( int iClassIndex, bool bOpenClassLoadout );
 	void		 OpenToPaintkitPreview( CEconItemView* pItem, bool bFixedItem, bool bFixedPaintkit );
-	void		 SetCheckForRoomOnExit( bool bCheck ) { m_bCheckForRoomOnExit = bCheck; }
 
 	void		 FireGameEvent( IGameEvent *event );
-	
-	//---------------------------------------
-	// IEconRootUI
-	virtual IEconRootUI	*OpenEconUI( int iDirectToPage = 0, bool bCheckForInventorySpaceOnExit = false );
-	virtual void		CloseEconUI( void );
-	virtual bool		IsUIPanelVisible( EconBaseUIPanels_t iPanel );
-	virtual void		SetPreventClosure( bool bPrevent ) OVERRIDE;
 
 	// Gamestats access
-	virtual void		Gamestats_ItemTransaction( int eventID, CEconItemView *item, const char *pszReason = NULL, int iQuality = 0 );
 	virtual void		SetExperimentValue( uint64 experimentValue );
 
 	// When the root UI is closed, send an "EconUIClosed" message to pListener.
@@ -98,7 +88,6 @@ private:
 
 	vgui::Panel					*m_pNotificationsPresentPanel;
 	CCharInfoLoadoutSubPanel	*m_pLoadoutPanel;
-	bool						m_bCheckForRoomOnExit;
 	bool						m_bPreventClosure;
 	int							m_iClosePanel;
 	int							m_iDefaultTeam;

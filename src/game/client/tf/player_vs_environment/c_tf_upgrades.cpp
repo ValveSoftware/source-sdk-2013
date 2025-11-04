@@ -27,7 +27,6 @@
 #include "c_tf_objective_resource.h"
 #include "vgui/IInput.h"
 #include "tf_tips.h"
-#include "econ_ui.h"
 #include "econ_item_preset.h"
 #include "gc_clientsystem.h"
 #include "achievementmgr.h"

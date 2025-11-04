@@ -18,7 +18,6 @@
 #include "tf_gc_client.h"
 #include "tf_party.h"
 #include "tf_item_inventory.h"
-#include "econ_ui.h"
 
 #include "vgui_controls/Tooltip.h"
 #include "vgui_controls/PropertyDialog.h"

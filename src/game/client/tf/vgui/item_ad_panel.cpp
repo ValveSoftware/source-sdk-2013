@@ -8,7 +8,6 @@
 #include "item_ad_panel.h"
 #include "econ_item_system.h"
 #include "item_model_panel.h"
-#include "econ_ui.h"
 #include "tf_controls.h"
 #include "econ_item_description.h"
 #include "vgui/IInput.h"

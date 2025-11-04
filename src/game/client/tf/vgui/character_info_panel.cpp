@@ -20,7 +20,6 @@
 #include "econ_notifications.h"
 #include <vgui/ILocalize.h>
 #include <vgui_controls/AnimationController.h>
-#include "econ_ui.h"
 #include "c_tf_gamestats.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -47,11 +46,6 @@ CCharacterInfoPanel* GetCharInfoPanel( bool bRecreate )
 CON_COMMAND( reload_char_info, "Reloads the char info panel" )
 {
 	GetCharInfoPanel( true );
-}
-
-IEconRootUI* EconUI( void )
-{
-	return GetCharInfoPanel( false );
 }
 
 //-----------------------------------------------------------------------------
@@ -103,7 +97,6 @@ CCharacterInfoPanel::CCharacterInfoPanel( Panel *parent ) : PropertyDialog(paren
 
 	m_pNotificationsPresentPanel = NULL;
 	m_bPreventClosure = false;
-	m_iClosePanel = ECONUI_BASEUI;
 	m_iDefaultTeam = TF_TEAM_RED;
 }
 
@@ -181,7 +174,6 @@ void CCharacterInfoPanel::ShowPanel(bool bShow)
 		m_pLoadoutPanel->OnCharInfoClosing();
 
 		// Clear this out so it doesn't affect anything the next time the econ UI is opened
-		m_iClosePanel = ECONUI_BASEUI;
 		m_iDefaultTeam = TF_TEAM_RED;
 	}
 
@@ -383,70 +375,6 @@ void CCharacterInfoPanel::OnThink()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-IEconRootUI	*CCharacterInfoPanel::OpenEconUI( int iDirectToPage, bool bCheckForInventorySpaceOnExit )
-{
-	if ( IsLayoutInvalid() )
-	{
-		MakeReadyForUse();
-	}
-
-	engine->ClientCmd_Unrestricted( "gameui_activate" );
-	ShowPanel( true );
-
-	if ( iDirectToPage < 0 )
-	{
-		// Negative numbers go directly to the class loadout
-		OpenLoadoutToClass( -(iDirectToPage), true );
-	}
-
-	SetCheckForRoomOnExit( bCheckForInventorySpaceOnExit );
-
-	return this;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::CloseEconUI( void )
-{
-	if ( IsVisible() )
-	{
-		ShowPanel( false );
-		NotifyListenersOfCloseEvent();
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CCharacterInfoPanel::IsUIPanelVisible( EconBaseUIPanels_t iPanel )
-{
-	return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void Open_CharInfo( const CCommand &args )
-{
-	EconUI()->OpenEconUI();
-}
-ConCommand open_charinfo( "open_charinfo", Open_CharInfo, "Open the character info panel", FCVAR_NONE );
-
-void CCharacterInfoPanel::SetPreventClosure( bool bPrevent )
-{ 
-	m_bPreventClosure = bPrevent;
-
-	Panel* pBackButton = FindChildByName( "BackButton" );
-	if ( pBackButton )
-	{
-		pBackButton->SetEnabled( !bPrevent );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void Open_CharInfoDirect( const CCommand &args )
 {
 	// If we're in-game, start by opening the class we're currently playing
@@ -470,8 +398,25 @@ void Open_CharInfoDirect( const CCommand &args )
 		iClass = -atoi( args.Arg( 1 ) );
 	}
 
-	EconUI()->OpenEconUI( iClass );	
+	CCharacterInfoPanel *pPanel = GetCharInfoPanel( false );
+	if ( !pPanel )
+		return;
+
+	if ( pPanel->IsLayoutInvalid() )
+	{
+		pPanel->MakeReadyForUse();
+	}
+
+	engine->ClientCmd_Unrestricted( "gameui_activate" );
+	pPanel->ShowPanel( true );
+
+	if ( iClass < 0 )
+	{
+		// Negative numbers go directly to the class loadout
+		pPanel->OpenLoadoutToClass( -( iClass ), true );
+	}
 }
+ConCommand open_charinfo( "open_charinfo", Open_CharInfoDirect, "Open the character info panel", FCVAR_NONE );
 ConCommand open_charinfo_direct( "open_charinfo_direct", Open_CharInfoDirect, "Open the character info panel directly to the class you're currently playing.", FCVAR_NONE );
 
 //================================================================================================================================
@@ -535,14 +480,6 @@ CServerNotConnectedToSteamDialog *OpenServerNotConnectedToSteamDialog( vgui::Pan
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CCharacterInfoPanel::Gamestats_ItemTransaction( int eventID, CEconItemView *item, const char *pszReason, int iQuality )
-{
-	C_CTF_GameStats.Event_ItemTransaction( eventID, item, pszReason, iQuality );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CCharacterInfoPanel::SetExperimentValue( uint64 experimentValue )
 {
 	C_CTF_GameStats.SetExperimentValue( experimentValue );
@@ -566,10 +503,6 @@ void CCharacterInfoPanel::AddPanelCloseListener( vgui::Panel *pListener )
 //-----------------------------------------------------------------------------
 void CCharacterInfoPanel::SetClosePanel( int iPanel )
 {
-	AssertMsg( ( iPanel < 0 && IsValidTFPlayerClass( -iPanel ) ) ||
-		( iPanel >= ECONUI_FIRST_PANEL && iPanel <= ECONUI_LAST_PANEL ),
-		"Panel out of range!"
-	);
 	m_iClosePanel = iPanel;
 }
 

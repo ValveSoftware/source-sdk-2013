@@ -234,6 +234,9 @@ equipped_preset_t CLoadoutPresetPanel::GetSelectedPresetID() const
 //-----------------------------------------------------------------------------
 void CLoadoutPresetPanel::UpdatePresetButtonStates()
 {
+	if ( !steamapicontext || !steamapicontext->SteamUser() )
+		return;
+
 	equipped_preset_t unEquippedPresetID = GetSelectedPresetID();
 
 	CSteamID localSteamID = steamapicontext->SteamUser()->GetSteamID();

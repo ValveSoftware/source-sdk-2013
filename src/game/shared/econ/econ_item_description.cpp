@@ -16,7 +16,6 @@
 
 	#ifdef CLIENT_DLL
 		#include "gc_clientsystem.h"
-		#include "econ_ui.h"							// for money-value-to-display-string formatting
 	#endif // CLIENT_DLL
 
 

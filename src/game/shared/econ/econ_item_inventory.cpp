@@ -19,7 +19,6 @@
 #include <igameevents.h>
 #include "econ_game_account_client.h"
 #include "ienginevgui.h"
-#include "econ_ui.h"
 #include "econ/econ_item_preset.h"
 #include "tf_xp_source.h"
 #include "tf_notification.h"

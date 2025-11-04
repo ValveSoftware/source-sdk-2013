@@ -12,7 +12,6 @@
 #include "econ_item_constants.h"
 #include "item_style_select_dialog.h"
 #include "econ_gcmessages.h"
-#include "econ_ui.h"
 #include "gc_clientsystem.h"
 #include "item_model_panel.h"
 
@@ -186,8 +185,6 @@ void CStyleSelectDialog::OnComboBoxApplication()
 		msg.Body().m_unItemID = pItem->GetItemID();
 		msg.Body().m_iStyle = iNewStyle;
 		GCClientSystem()->BSendMessage( msg );
-
-		EconUI()->Gamestats_ItemTransaction( IE_ITEM_CHANGED_STYLE, pItem, pszStyleName /* stored unlocalized here intentionally */, iNewStyle );
 
 		// Tell our parent about the change
 		if ( pItem && pItem->IsValid() )

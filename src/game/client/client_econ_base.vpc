@@ -76,7 +76,6 @@ $Project
 		}
 		$Folder	"Economy Client"
 		{
-			$File	"econ\econ_ui.h"
 			$File	"econ\base_loadout_panel.cpp"
 			$File	"econ\base_loadout_panel.h"
 			$File	"econ\iconrenderreceiver.h"
@@ -92,10 +91,6 @@ $Project
 			$File	"econ\econ_notifications.h"
 			$File	"econ\local_steam_shared_object_listener.cpp"
 			$File	"econ\local_steam_shared_object_listener.h"
-			
-			// Temp UI to allow you to test
-			$File	"econ\econ_sample_rootui.cpp"
-			$File	"econ\econ_sample_rootui.h"
 			
 			$Folder "VGUI dependencies"
 			{

@@ -641,9 +641,6 @@ void CHudMainMenuOverride::LoadCharacterImageFile( void )
 
 			EHoliday eHoliday = (EHoliday)UTIL_GetHolidayForString( pCharacter->GetString( "holiday_restriction" ) );
 
-
-			const char* pszAssociatedWar = pCharacter->GetString( "war_restriction" );
-
 			int iWeight = pCharacter->GetInt( "weight", 1 );
 
 			if ( eHoliday != kHoliday_None )
