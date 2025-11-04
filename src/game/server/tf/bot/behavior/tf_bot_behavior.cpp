@@ -1373,14 +1373,13 @@ void CTFBotMainAction::FireWeaponAtEnemy( CTFBot *me )
 	else if ( myWeapon->IsWeapon( TF_WEAPON_HANDGUN_SCOUT_PRIMARY ) )
 	{
 		CTFPistol_ScoutPrimary *pPistolPrimary = assert_cast<CTFPistol_ScoutPrimary*>( myWeapon );
-		// watch for enemy projectiles heading our way
+		// watch for enemies heading our way
 		if ( pPistolPrimary->CanUsePush() && me->ShouldFireCompressionBlast() )
 		{
-			// bounce missiles with compression blast
+			// push enemies back with shortstop shove
 			me->PressAltFireButton();
+			return;
 		}
-
-		return;
 	}
 
 	float threatRange = ( threat->GetEntity()->GetAbsOrigin() - me->GetAbsOrigin() ).Length();
