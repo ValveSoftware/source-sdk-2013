@@ -9815,24 +9815,6 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		}
 	}
 
-
-	CTFWeaponBase *pTFWeapon = GetKilleaterWeaponFromDamageInfo( &info );
-	if ( !pTFWeapon )
-	{
-		// Check Wearable instead like demoshields or manntreads
-		CTFWearable *pWearable = dynamic_cast< CTFWearable* >( info.GetWeapon() );
-		if ( pWearable )
-		{
-			EconEntity_OnOwnerKillEaterEvent_Batched( pWearable, pTFAttacker, this, kKillEaterEvent_DamageDealt, info.GetDamage() );
-			EconEntity_OnOwnerKillEaterEvent_Batched( pWearable, pTFAttacker, this, kKillEaterEvent_PlayersHit, 1 );
-		}
-	}
-	else
-	{
-		EconEntity_OnOwnerKillEaterEvent_Batched( pTFWeapon, pTFAttacker, this, kKillEaterEvent_DamageDealt, info.GetDamage() );
-		EconEntity_OnOwnerKillEaterEvent_Batched( pTFWeapon, pTFAttacker, this, kKillEaterEvent_PlayersHit, 1 );
-	}
-
 	if ( bTookDamage && m_Shared.InCond( TF_COND_GAS ) )
 	{
 		CTFPlayer *pTFGasTosser = dynamic_cast< CTFPlayer* >( m_Shared.GetConditionProvider( TF_COND_GAS ) );
@@ -10056,9 +10038,6 @@ bool CTFPlayer::CheckBlockBackstab( CTFPlayer *pTFAttacker )
 		{
 			if ( pEntity->IsWearable() )
 			{
-				// Yay stats.
-				EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( pEntity ), this, pTFAttacker, kKillEaterEvent_BackstabAbsorbed );
-
 				// Unequip.
 				CTFWearable *pItem = dynamic_cast<CTFWearable *>( pEntity );
 				pItem->Break();
@@ -11629,7 +11608,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 				{
 					ghostinfo.SetDamageCustom( TF_DMG_CUSTOM_KART );
 					pRecentDamager->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_DOOMSDAY_KILL_KARTS );
-					HatAndMiscEconEntities_OnOwnerKillEaterEvent( pRecentDamager, this, kKillEaterEvent_Halloween_UnderworldKills );
 				}
 			}
 			// if no recent damager, check for HHH
@@ -11770,10 +11748,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 
 		if ( bCharged )
 		{
-			// Had an ubercharge ready at death?
-			CEconEntity *pVictimEconWeapon = dynamic_cast<CEconEntity *>( GetActiveTFWeapon() );
-			EconEntity_OnOwnerKillEaterEventNoPartner( pVictimEconWeapon, this, kKillEaterEvent_NEGATIVE_UbersDropped );
-
 			bElectrocuted = true;
 			if ( pPlayerAttacker )
 			{
@@ -11872,10 +11846,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 			if ( m_Shared.GetCarriedObject() != NULL )
 			{
 				m_Shared.GetCarriedObject()->Killed( info );
-
-				// Killeater event for being killed while carrying a building
-				CEconEntity *pVictimEconWeapon = dynamic_cast<CEconEntity *>( Weapon_OwnsThisID( TF_WEAPON_WRENCH ) );
-				EconEntity_OnOwnerKillEaterEventNoPartner( pVictimEconWeapon, this, kKillEaterEvent_NEGATIVE_DeathsWhileCarryingBuilding );
 			}
 		}
 	}
@@ -12318,35 +12288,10 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 						pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SNIPER_BOW_KILL_FLAGCARRIER );
 					}
 				}
-
-				// Handle the "you killed someone with the flag" event. We can't handle this with the usual block
-				// in PlayerKilled() because by that point we've forgotten that we had the flag.
-				EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( pKillerWeapon ), pPlayerAttacker, this, kKillEaterEvent_DefenderKill );
 			}
 		}
 	}
 
-	CTFWeaponBase* pActiveWeapon = GetActiveTFWeapon();
-	if( pActiveWeapon  )
-	{
-		CEconEntity *pVictimEconWeapon = dynamic_cast<CEconEntity *>( pActiveWeapon );
-
-		EconEntity_OnOwnerKillEaterEventNoPartner( pVictimEconWeapon, this, kKillEaterEvent_NEGATIVE_Deaths );
-
-		// Check if we died from environmental damage
-		CBaseTrigger *pTrigger = dynamic_cast< CBaseTrigger *>( info.GetInflictor() );
-		if ( pTrigger )
-		{
-			EconEntity_OnOwnerKillEaterEventNoPartner( pVictimEconWeapon, this, kKillEaterEvent_NEGATIVE_DeathsFromEnvironment );
-		}
-		
-		// Check if we died from fall damage
-		if( info.GetDamageType() == DMG_FALL )
-		{
-			EconEntity_OnOwnerKillEaterEventNoPartner( pVictimEconWeapon, this, kKillEaterEvent_NEGATIVE_DeathsFromCratering );
-		}
-	}
-	
 	ClearZoomOwner();
 
 	m_vecLastDeathPosition = GetAbsOrigin();
@@ -15746,12 +15691,6 @@ void CTFPlayer::FeignDeath( const CTakeDamageInfo& info, bool bDeathnotice )
 
 	// Create a ragdoll.
 	CreateFeignDeathRagdoll( info, bGib, bBurning, bDisguised );
-
-	// Note that we succeeded for stats tracking.
-	EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( GetEntityForLoadoutSlot( LOADOUT_POSITION_PDA2 ) ),
-									  this,
-									  pTFPlayer,			// in this case the "victim" is the person doing the damage
-									  kKillEaterEvent_DeathsFeigned );
 }
 
 //-----------------------------------------------------------------------------
@@ -17750,9 +17689,6 @@ void CTFPlayer::OnTauntSucceeded( const char* pszSceneName, int iTauntIndex /*= 
 	SetTauntYaw( GetAbsAngles()[YAW] );
 
 	m_vecTauntStartPosition = GetAbsOrigin();
-
-	// Strange Taunts
-	EconItemInterface_OnOwnerKillEaterEventNoPartner( &m_TauntEconItemView, this, kKillEaterEvent_TauntsPerformed );
 }
 
 //-----------------------------------------------------------------------------

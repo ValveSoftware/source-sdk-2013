@@ -267,18 +267,7 @@ void CTFItemInspectionPanel::SetItem( CEconItemView *pItem, bool bReset )
 	RecompositeItem();
 	SetControlVisible( "ShowPreviewControlsButton", false, true );
 }
-//-----------------------------------------------------------------------------
-void CTFItemInspectionPanel::SetSpecialAttributesOnly( bool bSpecialOnly ) 
-{ 
-	if ( m_pItemNamePanel )
-	{
-		if ( bSpecialOnly )
-		{
-			m_pItemNamePanel->SetNameOnly( false );
-		}
-		m_pItemNamePanel->SetSpecialAttributesOnly( bSpecialOnly ); 
-	}
-}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------

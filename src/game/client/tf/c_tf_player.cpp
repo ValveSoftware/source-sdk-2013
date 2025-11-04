@@ -231,8 +231,6 @@ void	SetupHeadLabelMaterials( void );
 extern CBaseEntity *BreakModelCreateSingle( CBaseEntity *pOwner, breakmodel_t *pModel, const Vector &position, 
 										   const QAngle &angles, const Vector &velocity, const AngularImpulse &angVelocity, int nSkin, const breakablepropparams_t &params );
 
-extern int EconWear_ToIntCategory( float flWear );
-
 const char *g_pszHeadGibs[] =
 {
 	"",
@@ -3064,8 +3062,6 @@ public:
 	virtual bool Init( IMaterial *pMaterial, KeyValues *pKeyValues );
 	virtual void OnBind( void *pC_BaseEntity );
 
-	virtual bool HelperOnBindGetStatTrakScore( void *pC_BaseEntity, int *piScore );
-
 private:
 	CFloatInput	m_flDisplayDigit; // the particular digit we want to display
 	CFloatInput	m_flTrimZeros;
@@ -3086,90 +3082,9 @@ bool CStatTrakDigitProxy::Init( IMaterial *pMaterial, KeyValues *pKeyValues )
 	return true;
 }
 
-bool CStatTrakDigitProxy::HelperOnBindGetStatTrakScore( void *pC_BaseEntity, int *piScore )
-{
-	if ( !pC_BaseEntity )
-		return false;
-
-	if ( !piScore )
-		return false;
-
-	bool bReturnValue = false;
-	uint32 unScore = 0;
-	C_BaseEntity *pEntity = BindArgToEntity( pC_BaseEntity );
-	if ( pEntity )
-	{
-		// StatTrak modules are children of their accompanying viewmodels
-		C_ViewmodelAttachmentModel *pViewModel = dynamic_cast<C_ViewmodelAttachmentModel*>( pEntity->GetMoveParent() );
-		if ( pViewModel )
-		{
-			//C_TFPlayer *pPlayer = ToTFPlayer( pViewModel->GetOwnerEntity() );
-			//if ( pPlayer )
-			CTFWeaponBase *pWeap = dynamic_cast<CTFWeaponBase*>( pViewModel->GetOwnerEntity() );
-			if ( pWeap )
-			{
-				
-				// Use the strange prefix if the weapon has one.
-				if ( pWeap->GetAttributeContainer()->GetItem()->FindAttribute( GetKillEaterAttr_Score( 0 ), &unScore ) )
-				{
-					*piScore = unScore;
-					bReturnValue = true;
-				}
-			}
-		}
-	}
-	else
-	{
-		// No Base entity, may be a straight econ item view (item model panel)
-		IClientRenderable *pRend = (IClientRenderable *)pC_BaseEntity;
-		if ( pRend )
-		{
-			const CEconItemView *pItem = dynamic_cast< CEconItemView* >( pRend );
-			if ( pItem && pItem->FindAttribute( GetKillEaterAttr_Score( 0 ), &unScore ) )
-			{
-				*piScore = unScore;
-				bReturnValue = true;
-			}
-		}
-	}
-	return bReturnValue;
-}
-
-
 void CStatTrakDigitProxy::OnBind( void *pC_BaseEntity )
 {
-	int nKillEaterAltScore = 0;
-
-	bool bHasScoreToDisplay = HelperOnBindGetStatTrakScore( pC_BaseEntity, &nKillEaterAltScore );
-	if ( !bHasScoreToDisplay )
-	{	// Error?
-		//SetFloatResult( (int)fmod( gpGlobals->curtime, 10.0f ) );
-		SetFloatResult( 0 );
-		return;
-	}
-
-
-	int iDesiredDigit = (int)m_flDisplayDigit.GetFloat();
-
-	// trim preceding zeros
-	if ( m_flTrimZeros.GetFloat() > 0 )
-	{
-		if ( pow( 10.0f, iDesiredDigit ) > nKillEaterAltScore )
-		{
-			SetFloatResult( 10.0f ); //assumed blank frame
-			return;
-		}
-	}
-
-	// get the [0-9] value of the digit we want
-	int iDigitCount = MIN( iDesiredDigit, 10 );
-	for ( int i = 0; i < iDigitCount; i++ )
-	{
-		nKillEaterAltScore /= 10;
-	}
-	nKillEaterAltScore %= 10;
-
-	SetFloatResult( nKillEaterAltScore );
+	SetFloatResult( 0 );
 }
 
 EXPOSE_INTERFACE( CStatTrakDigitProxy, IMaterialProxy, "StatTrakDigit" IMATERIAL_PROXY_INTERFACE_VERSION );

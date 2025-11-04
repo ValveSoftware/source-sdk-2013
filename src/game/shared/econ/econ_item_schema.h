@@ -515,9 +515,7 @@ enum
 // Coloring for attribute lines
 enum attrib_effect_types_t
 {
-	ATTRIB_EFFECT_UNUSUAL = 0,
-	ATTRIB_EFFECT_STRANGE,
-	ATTRIB_EFFECT_NEUTRAL,
+	ATTRIB_EFFECT_NEUTRAL, // == 0
 	ATTRIB_EFFECT_POSITIVE,
 	ATTRIB_EFFECT_NEGATIVE,
 	
@@ -557,7 +555,6 @@ public:
 	bool		IsHidden( void ) const						{ return m_bHidden; }
 	bool		BForceWebSchemaOutput( void ) const			{ return m_bWebSchemaOutputForced; }
 	bool		BIsSetBonusAttribute( void ) const			{ return m_bIsSetBonus; }
-	bool		CanAffectMarketName( void ) const			{ return m_bCanAffectMarketName; }
 	bool		CanAffectRecipeComponentName( void ) const	{ return m_bCanAffectRecipeComponentName; }
 	bool		IsStoredAsInteger( void ) const				{ return m_bStoredAsInteger; }
 	bool		IsStoredAsFloat( void ) const				{ return !m_bStoredAsInteger; }
@@ -646,10 +643,6 @@ private:
 
 	// The class name of this attribute. Used in creation, and to hook the attribute into the actual code that uses it.
 	const char	*m_pszAttributeClass;
-
-	// Allowed to affect the market bucketization name.  We dont want things like the strange level to affect the name,
-	// but we do want things like crate series number and strangifier targets to get their own buckets.
-	bool		m_bCanAffectMarketName;
 
 	// Allowed to list itself in the name of an item in the recipe component description.
 	bool		m_bCanAffectRecipeComponentName;
@@ -2432,8 +2425,6 @@ public:
 	virtual CItemSelectionCriteria			*CreateItemCriteria( const char *pszContext, KeyValues *pItemCriteriaKV, CUtlVector<CUtlString> *pVecErrors = NULL );
 	virtual random_attrib_t					*CreateRandomAttribute( const char *pszContext, KeyValues *pRandomAttributesKV, CUtlVector<CUtlString> *pVecErrors = NULL );
 	virtual CLootlistJob					*CreateLootlistJob( const char *pszContext, KeyValues *pLootlistJobKV, CUtlVector<CUtlString> *pVecErrors = NULL );
-
-	virtual bool							BCanStrangeFilterApplyToStrangeSlotInItem( uint32 /*strange_event_restriction_t*/ unRestrictionType, uint32 unRestrictionValue, const IEconItemInterface *pItem, int iStrangeSlot, uint32 *out_pOptionalScoreType ) const;
 
 	bool BInsertLootlist( const char *pListName, KeyValues *pKVLootList, CUtlVector<CUtlString> *pVecErrors );
 

@@ -269,20 +269,6 @@ void CEconItemDescription::YieldingCacheDescriptionData( const CLocalizationProv
 		YieldingFillOutAccountPersonaName( pLocalizationProvider, vecSteamAccountIDs[i] );
 	}
 
-	// Look up the persona names for each account referencing an attribute indirectly (ie., just stuffed
-	// into 32 bits).
-	for ( int i = 0; i < GetKillEaterAttrCount(); i++ )
-	{
-		uint32 unRestrictionType;
-		if ( pEconItem->FindAttribute( GetKillEaterAttr_Restriction(i), &unRestrictionType ) &&
-			 unRestrictionType == kStrangeEventRestriction_VictimSteamAccount )
-		{
-			uint32 unAccountID;
-			DbgVerify( pEconItem->FindAttribute( GetKillEaterAttr_RestrictionValue(i), &unAccountID ) );
-			YieldingFillOutAccountPersonaName( pLocalizationProvider, unAccountID );
-		}
-	}
-
 #ifdef PROJECT_TF
 	uint32 unAccountID = pEconItem->GetAccountID();
 
@@ -382,106 +368,6 @@ void CEconItemDescription::GenerateDescriptionLines( const CLocalizationProvider
 bool ShouldDisplayCraftCounterValue( int iValue )
 {
 	return iValue > 0 && iValue <= 100;
-}
-
-// This function will return the localized string (ie., "Face-Melting") for a specific item based
-// on the score it has accumulated.
-
-class CStrangeRankLocalizationGenerator
-{
-public:
-	CStrangeRankLocalizationGenerator( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem, bool bHashContextOff );
-
-	bool IsValid() const { return m_bValid; }
-
-	const locchar_t *GetRankLocalized() const { Assert( m_bValid ); return m_loc_Rank; }
-	const locchar_t *GetRankSecondaryLocalized() const { Assert( m_bValid ); return m_loc_SecondaryRank; }
-
-	uint32 GetStrangeType() const { Assert( m_bValid ); return m_unType; }
-	uint32 GetStrangeScore() const { Assert( m_bValid ); return m_unScore; }
-	uint32 GetUsedStrangeSlot() const { Assert( m_bValid ); return m_unUsedStrangeSlot; }
-
-private:
-	bool m_bValid;
-
-	const locchar_t *m_loc_Rank;
-	const locchar_t *m_loc_SecondaryRank;
-
-	uint32 m_unType;
-	uint32 m_unScore;
-	uint32 m_unUsedStrangeSlot;
-};
-
-CStrangeRankLocalizationGenerator::CStrangeRankLocalizationGenerator( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem, bool bHashContextOff )
-	: m_bValid( false )
-	, m_loc_Rank( NULL )
-	, m_loc_SecondaryRank( NULL )
-	, m_unType( kKillEaterEvent_PlayerKill )
-	, m_unScore( 0 )
-	, m_unUsedStrangeSlot( 0 )
-{
-	Assert( pLocalizationProvider );
-	Assert( pEconItem );
-
-	static CSchemaAttributeDefHandle pAttrDef_StrangeScoreSelector( "strange score selector" );
-
-	// Do we have a strange score selector attribute? If so, the value of this attribute will tell us which strange
-	// attribute we're actually going to use to generate a name. Leaving this value as 0 will fall back to the
-	// default behavior of looking at the base "kill eater" attribute.
-	if ( pEconItem->FindAttribute( pAttrDef_StrangeScoreSelector, &m_unUsedStrangeSlot ) )
-	{
-		// Make sure the value we pulled from the database is within range.
-		m_unUsedStrangeSlot = MIN( m_unUsedStrangeSlot, static_cast<uint32>( GetKillEaterAttrCount() ) );
-	}
-
-
-	// Use the strange prefix if the weapon has one.
-	if ( !pEconItem->FindAttribute( GetKillEaterAttr_Score( m_unUsedStrangeSlot ), &m_unScore ) )
-		return;
-
-	// What type of event are we tracking and how does it describe itself?
-	m_unType = GetScoreTypeForKillEaterAttr( pEconItem, GetKillEaterAttr_Type( m_unUsedStrangeSlot ) );
-
-	const char *pszLevelingDataName = GetItemSchema()->GetKillEaterScoreTypeLevelingDataName( m_unType );
-	if ( !pszLevelingDataName )
-	{
-		pszLevelingDataName = KILL_EATER_RANK_LEVEL_BLOCK_NAME;
-	}
-
-	uint32 uUsedScore = m_unScore;
-
-	// For TF - Strange Scores reset on Trade, sharing that information is actually misleading so we'll always display base strange name
-
-	const CItemLevelingDefinition *pLevelDef = GetItemSchema()->GetItemLevelForScore( pszLevelingDataName, uUsedScore );
-	if ( !pLevelDef )
-		return;
-
-	// Primary rank established!
-	m_loc_Rank = pLocalizationProvider->Find( pLevelDef->GetNameLocalizationKey() );
-	m_bValid = true;
-
-	// Does this score slot have a restriction that adds additional text somewhere in the localization token?
-	uint32 unFilterType;
-	uint32 unFilterValue;
-	if ( pEconItem->FindAttribute( GetKillEaterAttr_Restriction( m_unUsedStrangeSlot ), &unFilterType ) &&
-		 pEconItem->FindAttribute( GetKillEaterAttr_RestrictionValue( m_unUsedStrangeSlot ), &unFilterValue ) )
-	{
-		// Game-specific code doesn't belong here. "We're shipping soon" hack fun!
-#ifdef PROJECT_TF
-		if ( unFilterType == kStrangeEventRestriction_Map )
-		{
-			const MapDef_t *pMap = GetItemSchema()->GetMasterMapDefByIndex( unFilterValue );
-			if ( pMap && pMap->pszStrangePrefixLocKey )
-			{
-				m_loc_SecondaryRank = pLocalizationProvider->Find( pMap->pszStrangePrefixLocKey );
-			}
-		}
-		else if (unFilterType == kStrangeEventRestriction_Competitive)
-		{
-			m_loc_SecondaryRank = pLocalizationProvider->Find( "TF_StrangeFilter_Prefix_Competitive" );
-		}
-#endif // PROJECT_TF
-	}
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------
@@ -731,39 +617,6 @@ private:
 	CConstructLocalizedString m_str;
 };
 
-const locchar_t *CEconItemDescription::GetLocalizedStringForStrangeRestrictionAttr( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem, int iAttrIndex ) const
-{
-	uint32 unRestrictionType;
-	uint32 unRestrictionValue;
-	if ( !pEconItem->FindAttribute( GetKillEaterAttr_Restriction( iAttrIndex ), &unRestrictionType ) ||
-		 !pEconItem->FindAttribute( GetKillEaterAttr_RestrictionValue( iAttrIndex ), &unRestrictionValue ) ||
-		 unRestrictionType == kStrangeEventRestriction_None )
-	{
-		return NULL;
-	}
-
-	switch ( unRestrictionType )
-	{
-#ifdef PROJECT_TF
-	case kStrangeEventRestriction_Map:
-	{
-		const MapDef_t *pMap = GetItemSchema()->GetMasterMapDefByIndex( unRestrictionValue );
-		if ( pMap )
-			return pLocalizationProvider->Find( pMap->pszMapNameLocKey );
-	}
-	case kStrangeEventRestriction_Competitive:
-	{
-		return pLocalizationProvider->Find( "ItemTypeDescStrangeFilterCompetitive" );
-	}
-#endif // PROJECT_TF
-
-	case kStrangeEventRestriction_VictimSteamAccount:
-		return FindAccountPersonaName( unRestrictionValue );
-	}
-
-	return NULL;
-}
-
 void CEconItemDescription::Generate_ItemLevelDesc_Default( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem, const locchar_t *locTypename )
 {
 	item_definition_index_t usDefIndex = pEconItem->GetItemDefIndex();
@@ -989,7 +842,7 @@ void CEconItemDescription::Generate_MapContributor( const CLocalizationProvider 
 		if ( vecContributions.Count() > 0 )
 		{
 			// Add header like "Silver:" to show the level of contribution for each of the maps following.
-			LocalizedAddDescLine( pLocalizationProvider, kDonationLevels[i], ATTRIB_COL_ITEMSET_NAME, kDescLineFlag_Misc );
+			LocalizedAddDescLine( pLocalizationProvider, kDonationLevels[i], ATTRIB_COL_NEUTRAL, kDescLineFlag_Misc );
 
 			// Add a label showing the map names and number of contributions for each map.
 			locchar_t tempDescription[MAX_ITEM_DESCRIPTION_LENGTH] = { 0 };
@@ -1451,8 +1304,6 @@ static attrib_colors_t GetAttributeDefaultColor( const CEconItemAttributeDefinit
 	case ATTRIB_EFFECT_NEUTRAL:			return ATTRIB_COL_NEUTRAL;
 	case ATTRIB_EFFECT_POSITIVE:		return ATTRIB_COL_POSITIVE;
 	case ATTRIB_EFFECT_NEGATIVE:		return ATTRIB_COL_NEGATIVE;
-	case ATTRIB_EFFECT_STRANGE:			return ATTRIB_COL_STRANGE;
-	case ATTRIB_EFFECT_UNUSUAL:			return ATTRIB_COL_UNUSUAL;
 	}
 
 	// we don't know
@@ -1666,29 +1517,6 @@ void CEconItemDescription::AddAttributeDescription( const CLocalizationProvider 
 	// Is this an attribute that needs a custom wrapper around the default attribute text? (ie.,
 	// if our string was "Damage +10%" we want that to be "(only on Hightower: Damage +10%)")
 	attrib_colors_t eDefaultAttribColor = GetAttributeDefaultColor( pAttribDef );
-
-#ifdef TF_CLIENT_DLL
-	enum
-	{
-		kUserGeneratedAttributeType_None				= 0,
-		kUserGeneratedAttributeType_MVMEngineering		= 1,
-		kUserGeneratedAttributeType_HalloweenSpell		= 2
-	};
-
-	// On TF, these user-generated attributes can be from upgrade cards which only apply in MvM.
-	// We then colorize them based on whether they'll be active, with the caveat that out-of-game
-	// views always say yes (GC, loadout when not on a server, etc.).
-	if ( pAttribDef->GetUserGenerationType() == kUserGeneratedAttributeType_MVMEngineering && TFGameRules() && !TFGameRules()->IsMannVsMachineMode() )
-	{
-		eDefaultAttribColor = ATTRIB_COL_ITEMSET_MISSING;
-	}
-	// They can also be from Halloween spells. These are intended to expire after Halloween in any
-	// event, but for display purposes they'll appear in grey unless the holiday is active.
-	else if ( pAttribDef->GetUserGenerationType() == kUserGeneratedAttributeType_HalloweenSpell && !EconHolidays_IsHolidayActive( kHoliday_Halloween, CRTime::RTime32TimeCur() ) )
-	{
-		eDefaultAttribColor = ATTRIB_COL_ITEMSET_MISSING;
-	}
-#endif // TF_CLIENT_DLL
 
 	AddDescLine( AttrDesc.GetDescription().Get(),
 				 eOverrideDisplayColor != NUM_ATTRIB_COLORS ?					// are we overriding the output color?

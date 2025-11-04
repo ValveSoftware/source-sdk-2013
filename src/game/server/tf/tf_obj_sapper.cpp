@@ -634,19 +634,6 @@ void CObjectSapper::Killed( const CTakeDamageInfo &info )
 		}
 	}
 
-	// Optional: if a weapon was used to destroy this sapper, we give the weapon an opportunity
-	//			 to adjust its stats.
-	{
-		CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
-		if ( pWeapon )
-		{
-			EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( info.GetWeapon() ),		// econ entity
-											  pWeapon->GetTFPlayerOwner(),							// scorer
-											  GetOwner(),											// victim
-											  kKillEaterEvent_SapperDestroyed );
-		}
-	}
-
 	CBaseObject *pParent = GetParentObject();
 	if ( pParent )
 	{

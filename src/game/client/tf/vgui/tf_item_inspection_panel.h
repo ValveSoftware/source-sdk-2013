@@ -38,7 +38,6 @@ public:
 	void SetItemCopy( CEconItemView *pItem, bool bReset = true );
 	void SetOptions( bool bFixedItem, bool bFixedPaintkit, bool bConsumptionMode );
 	void Reset();
-	void SetSpecialAttributesOnly( bool bSpecialOnly );
 
 private:
 	// we always want to copy item with SetItemCopy to make sure that we use high res skin

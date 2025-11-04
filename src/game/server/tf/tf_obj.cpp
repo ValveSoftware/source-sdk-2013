@@ -2422,21 +2422,6 @@ void CBaseObject::Killed( const CTakeDamageInfo &info )
 		CTF_GameStats.Event_PlayerDestroyedBuilding( pScorer, this );
 		pScorer->Event_KilledOther(this, info);
 
-		// Also track stats for strange sappers.
-		if ( pSapper )
-		{
-			CTFPlayer *pSapperOwner = pSapper->GetOwner();
-			Assert( pSapperOwner );
-
-			if ( pSapperOwner )
-			{
-				EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( pSapperOwner->GetEntityForLoadoutSlot( LOADOUT_POSITION_BUILDING ) ),
-												  pSapperOwner,
-												  GetOwner(),
-												  kKillEaterEvent_BuildingSapped );
-			}
-		}
-
 		// Check for Demo achievement:
 		// Kill an Engineer building that you can't see with a direct hit from a Grenade Launcher
 
@@ -2495,22 +2480,6 @@ void CBaseObject::Killed( const CTakeDamageInfo &info )
 	{
 		// Do an explosion.
 		Explode();
-	}
-
-	// Stats tracking for strange items.
-	if ( info.GetWeapon() )
-	{
-		EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( info.GetWeapon() ),
-										  pScorer,
-										  GetOwner(),
-										  kKillEaterEvent_BuildingDestroyed );
-	}
-	else if ( pScorer && GetOwner() )
-	{
-		//  we still want strange cosmetics to count buildings destroyed
-		HatAndMiscEconEntities_OnOwnerKillEaterEvent( pScorer,
-													  GetOwner(),
-													  kKillEaterEvent_BuildingDestroyed );
 	}
 
 	UTIL_Remove( this );

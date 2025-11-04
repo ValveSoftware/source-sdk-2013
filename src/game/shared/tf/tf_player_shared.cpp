@@ -2621,13 +2621,6 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 											event->SetInt( "amount", m_aHealers[i].flHealedLastSecond );
 											gameeventmanager->FireEvent( event );
 										}
-
-										// Can we figure out which item is doing this healing?
-										if ( pHealScorer )
-										{
-											// Can be Mediguns or anything that gives off 'heal' buff like amputator aoe heal
-											EconEntity_OnOwnerKillEaterEvent_Batched( pHealScorer->GetActiveTFWeapon(), pHealScorer, m_pOuter, kKillEaterEvent_AllyHealingDone, m_aHealers[i].flHealedLastSecond );
-										}
 									}
 
 									m_aHealers[i].flHealedLastSecond = 0;
@@ -6949,13 +6942,6 @@ void CTFPlayerShared::OnRemoveBurning( void )
 
 	m_pOuter->ClearBurnFromBehindAttackers();
 
-	// If we were on fire and now we're not, and we're still alive, then give ourself some credit
-	// for surviving this fire if we have any items that track it.
-	if ( m_nPlayerState == TF_STATE_ACTIVE )
-	{
-		HatAndMiscEconEntities_OnOwnerKillEaterEventNoParter( m_pOuter, kKillEaterEvent_FiresSurvived );
-	}
-
 	if ( InCond( TF_COND_HEALING_DEBUFF ) )
 	{
 		RemoveCond( TF_COND_HEALING_DEBUFF );
@@ -7138,17 +7124,6 @@ void CTFPlayerShared::OnRemoveStealthed( void )
 #else
 	if ( m_flCloakStartTime > 0 )
 	{
-		// Calc a time and report every minute
-		float flCloaktime = ( gpGlobals->curtime - m_flCloakStartTime );
-		if ( flCloaktime > 0 )
-		{
-			EconEntity_OnOwnerKillEaterEventNoPartner( 
-				dynamic_cast<CEconEntity *>( m_pOuter->GetEntityForLoadoutSlot( LOADOUT_POSITION_PDA2 ) ),
-				m_pOuter,
-				kKillEaterEvent_TimeCloaked,
-				(int)flCloaktime
-			);
-		}
 		m_flCloakStartTime = 0;
 	}
 

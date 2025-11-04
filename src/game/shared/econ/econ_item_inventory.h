@@ -251,9 +251,6 @@ private:
 	// by items we've moved, and haven't received a response from Steam.
 	CUtlVector<int>				m_PredictedFilledSlots;
 #endif
-	
-public:
-	virtual int			GetBackpackPositionFromBackend( uint32 iBackendPosition ) { return ExtractBackpackPositionFromBackend(iBackendPosition); }
 
 private:
 	//-----------------------------------------------------------------------

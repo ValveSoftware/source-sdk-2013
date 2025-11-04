@@ -9,6 +9,7 @@
 #include "tf_shareddefs.h"
 #include "ammodef.h"
 #include "tf_gamerules.h"
+#include "tf_weaponbase.h"
 #include "explode.h"
 #include "tf_gamestats.h"
 

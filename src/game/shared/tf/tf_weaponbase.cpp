@@ -6078,14 +6078,6 @@ void CTFWeaponBase::ApplyItemRegen( void )
 	}
 }
 
-
-kill_eater_event_t CTFWeaponBase::GetKillEaterKillEventType() const
-{
-	uint32 unEventType = kKillEaterEvent_PlayerKill;
-	CALL_ATTRIB_HOOK_INT( unEventType, kill_eater_kill_type );
-	return (kill_eater_event_t)unEventType;
-}
-
 #endif // GAME_DLL
 
 bool CTFWeaponBase::IsSilentKiller()

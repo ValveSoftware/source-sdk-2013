@@ -62,7 +62,6 @@ CMOTDManager CHudMainMenuOverride::m_MOTDManager;
 void AddSubKeyNamed( KeyValues *pKeys, const char *pszName );
 
 extern const char *g_sImagesBlue[];
-extern int EconWear_ToIntCategory( float flWear );
 
 void cc_tf_safemode_toggle( IConVar *pConVar, const char *pOldString, float flOldValue )
 {

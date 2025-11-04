@@ -875,18 +875,6 @@ void CObjectDispenser::StopHealing( CBaseEntity *pOther )
 			if ( GetBuilder() && pOther != GetBuilder() && flHealingDone > 0 )
 			{
 				GetBuilder()->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_DISPENSER_HEAL_GRIND, floor( flHealingDone ) );
-
-				if ( GetBuilder()->GetTeam() == pOther->GetTeam() )
-				{
-					// Strange Health Provided to Allies
-					EconEntity_OnOwnerKillEaterEvent( 
-						dynamic_cast<CEconEntity *>( GetBuilder()->GetEntityForLoadoutSlot( LOADOUT_POSITION_PDA ) ),
-						GetBuilder(),
-						pPlayer,
-						kKillEaterEvent_HealingProvided,
-						(int)flHealingDone
-					);
-				}
 			}
 		}
 	}

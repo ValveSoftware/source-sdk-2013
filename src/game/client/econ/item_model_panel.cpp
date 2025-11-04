@@ -2207,16 +2207,7 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 				if ( !m_bIsMouseOverPanel && line.unMetaType & kDescLineFlag_MouseOverPanel )
 					continue;
 
-				// m_bSpecialAttributesOnly, only show purple and orange text, ignore rest
-				if ( m_bSpecialAttributesOnly )
-				{
-					if ( line.eColor == ATTRIB_COL_UNUSUAL || line.eColor == ATTRIB_COL_STRANGE )
-					{
-						V_wcscat_safe( wszAttribBuffer, unWrittenLines++ == 0 ? L"" : L"\n" );					// add empty lines everywhere except before the first line
-						V_wcscat_safe( wszAttribBuffer, line.sText.Get() );
-					}	
-				}
-				else if ( ( line.unMetaType & kDescLineFlag_CollectionName ) != 0 )
+				if ( ( line.unMetaType & kDescLineFlag_CollectionName ) != 0 )
 				{
 					// Ignore name spacers
 					if ( !( line.unMetaType & kDescLineFlag_Empty) )
@@ -2292,15 +2283,6 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 
 			{
 				Color col = pScheme->GetColor( GetColorNameForAttribColor( line.eColor ), Color( 255, 255, 255, 255 ) );
-
-				// m_bSpecialAttributesOnly, only show purple and orange text, ignore rest
-				if ( m_bSpecialAttributesOnly )
-				{
-					if ( ( line.eColor != ATTRIB_COL_UNUSUAL && line.eColor != ATTRIB_COL_STRANGE ) )
-					{
-						continue;
-					}
-				}
 
 				// Output a color change if necessary.
 				if ( i == 0 || prevAttrColor != col )

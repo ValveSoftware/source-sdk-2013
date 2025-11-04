@@ -1050,18 +1050,6 @@ void CTFTankBoss::Explode( void )
 					}
 				}
 			}
-
-			// strange part credit? (this logic isn't so correct -- it'll try to grant the credit to the active
-			// weapon of anyone who damaged the tank, *not* the weapon that actually did the damage, as we don't
-			// track that)
-			FOR_EACH_VEC( m_vecDamagers, i )
-			{
-				CTFPlayer *pTFPlayer = dynamic_cast< CTFPlayer* >( m_vecDamagers[i].hEntity.Get() );
-				if ( !pTFPlayer )
-					continue;
-
-				EconEntity_OnOwnerKillEaterEventNoPartner( pTFPlayer->GetActiveTFWeapon(), pTFPlayer, kKillEaterEvent_TanksDestroyed );
-			}
 		}
 	}
 }

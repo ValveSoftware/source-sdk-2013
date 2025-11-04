@@ -264,12 +264,6 @@ void CTFPlayerResource::UpdateConnectedPlayer( int iIndex, CBasePlayer *pPlayer 
 		{
 			MannVsMachineStats_PlayerEvent_PointsChanged( pTFPlayer, nDelta );
 		}
-		else
-		{
-			// Kill eater points-scored tracking.  Increment all equipped items with this kill eater type.  
-			// We only do this when we're NOT in MvM
-			HatAndMiscEconEntities_OnOwnerKillEaterEventNoParter( pTFPlayer, kKillEaterEvent_PointsScored, nDelta );
-		}
 	}
 		
 	

@@ -235,8 +235,6 @@ void CTFMiniGame::ScorePointsForTeam( int nTeamNum, int nPoints )
 
 		for ( auto pPlayer : vecPlayers )
 		{
-			HatAndMiscEconEntities_OnOwnerKillEaterEventNoParter( pPlayer, kKillEaterEvent_Halloween_MinigamesWon );
-
 			IGameEvent *pEvent = gameeventmanager->CreateEvent( "minigame_won" );
 			if ( pEvent )
 			{
@@ -352,8 +350,6 @@ void CTFMiniGame::UpdateDeadPlayers( int nTeam, COutputEvent& eventWin, COutputE
 
 		for ( auto pPlayer : vecEnemyPlayers )
 		{
-			HatAndMiscEconEntities_OnOwnerKillEaterEventNoParter( pPlayer, kKillEaterEvent_Halloween_MinigamesWon );
-
 			IGameEvent *pEvent = gameeventmanager->CreateEvent( "minigame_won" );
 			if ( pEvent )
 			{

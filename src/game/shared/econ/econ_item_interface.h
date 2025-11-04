@@ -455,7 +455,6 @@ public:
 	virtual uint8			GetFlags() const = 0;
 	virtual eEconItemOrigin GetOrigin() const = 0;
 	virtual bool			GetInUse() const = 0;			// is this item in use somewhere in the backend? (ie., cross-game trading)
-	bool					BIsStrange() const;
 	bool					BIsUnusual() const;
 
 	virtual const char	   *GetCustomName() const = 0;		// get a user-generated name, if present, otherwise NULL; return value is UTF8

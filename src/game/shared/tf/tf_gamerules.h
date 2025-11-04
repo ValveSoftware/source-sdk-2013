@@ -1134,8 +1134,6 @@ private:
 	CountdownTimer m_doomsdaySetupTimer;	// used for Halloween 2014 Announcer Setup VO in sd_doomsday_event
 	CountdownTimer m_doomsdayTicketsTimer;	// Used on sd_doomsday_event to nag players about picking up the tickets
 
-	float m_flNextStrangeEventProcessTime;
-
 	bool m_bMapForcedTruceDuringBossFight;
 	float m_flNextHalloweenGiftUpdateTime;
 #else

@@ -14,11 +14,6 @@ const char	*IEconItemInterface::GetDefinitionString( const char *pszKeyName, con
 	return pszDefaultValue;
 }
 
-bool IEconItemInterface::BIsStrange() const
-{
-	return BIsItemStrange( this );
-}
-
 bool IEconItemInterface::BIsUnusual() const
 {
 	return ItemHasUnusualAttribute( this );

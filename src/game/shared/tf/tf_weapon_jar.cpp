@@ -369,24 +369,6 @@ void JarExplode( int iEntIndex, CTFPlayer *pAttacker, CBaseEntity *pOriginalWeap
 						pPlayer->m_Shared.StunPlayer( flDuration, flStun, TF_STUN_MOVEMENT, pAttacker );
 					}
 
-					// Stats tracking?
-					if ( cond == TF_COND_URINE || cond == TF_COND_MAD_MILK || cond == TF_COND_GAS )
-					{
-						if ( TFGameRules() && TFGameRules()->IsPVEModeActive() )
-						{
-							// These if statements are intentionally split to avoid falling through to the normal kKillEaterEvent_PeeVictims event if we're in
-							// IsPVEModeActive() but not a robot, or don't have the stun.
-							if ( pPlayer->GetTeamNumber() == TF_TEAM_PVE_INVADERS && flStun != 1.0f )
-							{
-								EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( pWeapon ), pAttacker, pPlayer, kKillEaterEvent_RobotsSlowed );
-							}
-						}
-						else
-						{
-							EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( pWeapon ), pAttacker, pPlayer, kKillEaterEvent_PeeVictims );
-						}
-					}
-
 					// Tell the clients involved in the jarate
 					CRecipientFilter involved_filter;
 					involved_filter.AddRecipient( pPlayer );

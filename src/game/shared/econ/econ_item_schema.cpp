@@ -118,8 +118,6 @@ const char *g_AttributeDescriptionFormats[] =
 
 const char *g_EffectTypes[NUM_EFFECT_TYPES] =
 {
-	"unusual",		// ATTRIB_EFFECT_UNUSUAL,
-	"strange",		// ATTRIB_EFFECT_STRANGE,
 	"neutral",		// ATTRIB_EFFECT_NEUTRAL = 0,
 	"positive",		// ATTRIB_EFFECT_POSITIVE,
 	"negative",		// ATTRIB_EFFECT_NEGATIVE,
@@ -1541,7 +1539,6 @@ CEconItemAttributeDefinition::CEconItemAttributeDefinition( void )
 	m_pszDefinitionName( NULL ),
 	m_pszAttributeClass( NULL ),
 	m_ItemDefinitionTag( INVALID_ECON_TAG_HANDLE ),
-	m_bCanAffectMarketName( false ),
 	m_bCanAffectRecipeComponentName( false )
   , m_iszAttributeClass( NULL_STRING )
 {
@@ -1576,7 +1573,6 @@ CEconItemAttributeDefinition &CEconItemAttributeDefinition::operator=( const CEc
 	m_pszDefinitionName = rhs.m_pszDefinitionName;
 	m_pszAttributeClass = rhs.m_pszAttributeClass;
 	m_ItemDefinitionTag = rhs.m_ItemDefinitionTag;
-	m_bCanAffectMarketName = rhs.m_bCanAffectMarketName;
 	m_bCanAffectRecipeComponentName = rhs.m_bCanAffectRecipeComponentName;
 	m_iszAttributeClass = rhs.m_iszAttributeClass;
 
@@ -1633,7 +1629,6 @@ bool CEconItemAttributeDefinition::BInitFromKV( KeyValues *pKVAttribute, CUtlVec
 	m_bWebSchemaOutputForced = m_pKVAttribute->GetInt( "force_output_description", 0 ) != 0;
 	m_bStoredAsInteger = m_pKVAttribute->GetInt( "stored_as_integer", 0 ) != 0;
 	m_bIsSetBonus = m_pKVAttribute->GetBool( "is_set_bonus", false );
-	m_bCanAffectMarketName = m_pKVAttribute->GetBool( "can_affect_market_name", false );
 	m_bCanAffectRecipeComponentName = m_pKVAttribute->GetBool( "can_affect_recipe_component_name", false );
 	m_iUserGenerationType = m_pKVAttribute->GetInt( "is_user_generated", 0 );
 	m_iEffectType = (attrib_effect_types_t)StringFieldToInt( m_pKVAttribute->GetString("effect_type"), g_EffectTypes, ARRAYSIZE(g_EffectTypes) );
@@ -5196,61 +5191,6 @@ bool CEconItemSchema::SetupPreviewItemDefinition( KeyValues *pKV )
 	return pItemDef->BInitFromKV( pKV );
 }
 #endif // defined(CLIENT_DLL) || defined(GAME_DLL)
-
-
-bool CEconItemSchema::BCanStrangeFilterApplyToStrangeSlotInItem( uint32 /*strange_event_restriction_t*/ unRestrictionType, uint32 unRestrictionValue, const IEconItemInterface *pItem, int iStrangeSlot, uint32 *out_pOptionalScoreType ) const
-{
-	Assert( unRestrictionType != kStrangeEventRestriction_None );
-
-	// Do we have a type for this slot? If not, move on, with the exception: all user-custom scores
-	// we expect to have types, but certain weapons may not specify a base type and just use
-	// kills implicitly.
-	uint32 unStrangeScoreTypeBits = kKillEaterEvent_PlayerKill;
-	if ( !pItem->FindAttribute( GetKillEaterAttr_Type( iStrangeSlot ), &unStrangeScoreTypeBits ) && iStrangeSlot != 0 )
-		return false;
-
-	// Do we have a restriction already in this slot? If so, move on.
-	if ( pItem->FindAttribute( GetKillEaterAttr_Restriction( iStrangeSlot ) ) )
-		return false;
-
-	// We've found an open slot. Make sure that adding our restriction to this slot
-	// won't result in a duplicate score-type/restriction-type entry.
-	for ( int j = 0; j < GetKillEaterAttrCount(); j++ )
-	{
-		// Don't compare against ourself.
-		if ( iStrangeSlot == j )
-			continue;
-
-		// Ignore this entry if we don't have a score type or if the score type differs from
-		// our search criteria above.
-		uint32 unAltStrangeScoreType;
-		if ( !pItem->FindAttribute( GetKillEaterAttr_Type( j ), &unAltStrangeScoreType ) ||
-			 unAltStrangeScoreType != unStrangeScoreTypeBits )
-		{
-			continue;
-		}
-
-		// This entry does have the same type, so tag us as a duplicate if we also have the same
-		// restriction that we're trying to apply.
-		uint32 unAltRestrictionType;
-		uint32 unAltRestrictionValue;
-		if ( pItem->FindAttribute( GetKillEaterAttr_Restriction( j ), &unAltRestrictionType ) &&
-			 unAltRestrictionType == unRestrictionType &&
-			 pItem->FindAttribute( GetKillEaterAttr_RestrictionValue( j ), &unAltRestrictionValue ) &&
-			 unAltRestrictionValue == unRestrictionValue )
-		{
-			return false;
-		}
-	}	
-
-	if ( out_pOptionalScoreType )
-	{
-		*out_pOptionalScoreType = *(float *)&unStrangeScoreTypeBits;
-	}
-
-	// Everything seems alright.
-	return true;
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: Ensure that all of our internal structures are consistent, and

@@ -1079,7 +1079,6 @@ void CWeaponMedigun::UberchargeChunkDeployed()
 			return;
 
 		CTF_GameStats.Event_PlayerInvulnerable( pOwner );
-		EconEntity_OnOwnerKillEaterEvent( this, pOwner, ToTFPlayer( m_hHealingTarget ), kKillEaterEvent_UberActivated );
 	}
 }
 #endif // GAME_DLL
@@ -1879,8 +1878,6 @@ void CWeaponMedigun::SecondaryAttack( void )
 	{
 		// Award assist point
 		CTF_GameStats.Event_PlayerInvulnerable( pOwner );
-		// Award strange assist score
-		EconEntity_OnOwnerKillEaterEvent( this, pOwner, ToTFPlayer( m_hHealingTarget ), kKillEaterEvent_UberActivated );
 	}
 	
 	// STAGING_MEDIC

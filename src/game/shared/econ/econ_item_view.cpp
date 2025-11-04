@@ -658,38 +658,6 @@ style_index_t CEconItemView::GetItemStyle() const
 		return fStyleOverride;
 	}
 
-	static CSchemaAttributeDefHandle pAttrDef_ItemStyleStrange( "style changes on strange level" );
-	uint32 iMaxStyle = 0;
-	if ( pAttrDef_ItemStyleStrange && FindAttribute( pAttrDef_ItemStyleStrange, &iMaxStyle ) )
-	{
-		// Use the strange prefix if the weapon has one.
-		uint32 unScore = 0;
-		if ( !FindAttribute( GetKillEaterAttr_Score( 0 ), &unScore ) )
-			return 0;
-
-		// What type of event are we tracking and how does it describe itself?
-		uint32 unKillEaterEventType = 0;
-		// This will overwrite our default 0 value if we have a value set but leave it if not.
-		float fKillEaterEventType;
-		if ( FindAttribute_UnsafeBitwiseCast<attrib_value_t>( this, GetKillEaterAttr_Type( 0 ), &fKillEaterEventType ) )
-		{
-			unKillEaterEventType = fKillEaterEventType;
-		}
-
-		const char *pszLevelingDataName = GetItemSchema()->GetKillEaterScoreTypeLevelingDataName( unKillEaterEventType );
-		if ( !pszLevelingDataName )
-		{
-			pszLevelingDataName = KILL_EATER_RANK_LEVEL_BLOCK_NAME;
-		}
-
-		const CItemLevelingDefinition *pLevelDef = GetItemSchema()->GetItemLevelForScore( pszLevelingDataName, unScore );
-		if ( !pLevelDef )
-			return 0;
-
-		return Min( pLevelDef->GetLevel(), iMaxStyle );
-	}
-
-
 	CEconItem *pSOCData = GetSOCData();
 	if ( pSOCData )
 		return pSOCData->GetStyle();

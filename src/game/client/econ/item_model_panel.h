@@ -273,7 +273,6 @@ public:
 	void	SetSkin( int iSkin );
 	void	SetItemStyle( style_index_t unStyle ) { m_ItemData.SetItemStyleOverride( unStyle ); }
 	void	SetNameOnly( bool bNameOnly ) { m_bNameOnly = bNameOnly; }
-	void	SetSpecialAttributesOnly( bool bSpecialOnly ) { m_bSpecialAttributesOnly = bSpecialOnly; }
 
 	CEmbeddedItemModelPanel::InventoryImageType_t	GetInventoryImageType() /*const*/													 { return m_pModelPanel->GetInventoryImageType(); }
 	void											SetInventoryImageType( CEmbeddedItemModelPanel::InventoryImageType_t eNewImageType ) { m_pModelPanel->SetInventoryImageType( eNewImageType ); }
@@ -356,8 +355,6 @@ private:
 	vgui::ScalableImagePanel	*m_pTF2Icon;
 
 	CItemModelPanel *m_pContainedItemPanel;
-
-	CPanelAnimationVar( bool, m_bSpecialAttributesOnly, "special_attributes_only", "0" );
 
 	CPanelAnimationVarAliasType( int, m_iModelXPos, "model_xpos", "0", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iModelYPos, "model_ypos", "0", "proportional_int" );

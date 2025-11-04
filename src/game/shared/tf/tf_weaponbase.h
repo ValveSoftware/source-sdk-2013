@@ -414,8 +414,6 @@ class CTFWeaponBase : public CBaseCombatWeapon, public IHasOwner, public IHasGen
 	virtual float	GetJarateTime() { return 0.f; }
 
 	void			ApplyItemRegen( void );
-
-	kill_eater_event_t GetKillEaterKillEventType() const;
 #endif
 
 	// Utility.
