@@ -351,11 +351,11 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 	GiveAmmo( ceil( iMaxSecondary * m_flAmmoRatio ), TF_AMMO_SECONDARY );
 
 	// Do not scale building gibs
-	if (GetOwnerEntity() && !GetOwnerEntity()->IsBaseObject())
+	if ( GetOwnerEntity() && !GetOwnerEntity()->IsBaseObject() )
 	{
-		// Engineers drop their current metal amount, ammo packs with something other than 100 metal should give the metal amount
-		int iMetal = m_iAmmo[TF_AMMO_METAL] != 100 ? m_iAmmo[TF_AMMO_METAL] : pPlayer->GetMaxAmmo(TF_AMMO_METAL) * m_flAmmoRatio;
-		GiveAmmo(iMetal, TF_AMMO_METAL);
+		// Scale current metal amount to match map ammo boxes, unless it contains an Engineer's leftover metal
+		int iMetal = m_iAmmo[TF_AMMO_METAL] == 100 ? pPlayer->GetMaxAmmo(TF_AMMO_METAL) : m_iAmmo[TF_AMMO_METAL];
+		GiveAmmo( ceil( iMetal * m_flAmmoRatio), TF_AMMO_METAL );
 	}
 
 	int iAmmoTaken = 0;
