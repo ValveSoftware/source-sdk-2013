@@ -394,34 +394,13 @@ void CEconItemDescription::Generate_ItemName( const CLocalizationProvider *pLoca
 	Assert( pLocalizationProvider );
 	Assert( pEconItem );
 
-	// If this item has a custom name, use it instead of doing our crazy name compositing based on quality,
-	// type, etc.
-	const char *utf8_CustomName = pEconItem->GetCustomName();
+	locchar_t loc_ItemName[MAX_ITEM_NAME_LENGTH];
 
-	if ( utf8_CustomName && utf8_CustomName[0] )
-	{
-		locchar_t loc_CustomName[ MAX_ITEM_NAME_LENGTH ];
-		pLocalizationProvider->ConvertUTF8ToLocchar( utf8_CustomName, loc_CustomName, sizeof( loc_CustomName ) );
+	EGenerateLocalizedFullItemNameFlag_t eNameFlag = k_EGenerateLocalizedFullItemName_Default;
 
-		// Store it in the item name, wrapped in quotes to prevent item name spoofing
-		// We use two single quotes, because the double quote isn't very visible in the TF2 font
-		locchar_t loc_CustomNameWithQuotes[ MAX_ITEM_NAME_LENGTH ];
-		loc_scpy_safe( loc_CustomNameWithQuotes, LOCCHAR("''") );
-		loc_scat_safe( loc_CustomNameWithQuotes, loc_CustomName );
-		loc_scat_safe( loc_CustomNameWithQuotes, LOCCHAR("''") );
+	GenerateLocalizedFullItemName( loc_ItemName, pLocalizationProvider, pEconItem, eNameFlag, TF_ANTI_IDLEBOT_VERIFICATION_ONLY_ARG_BOOL_TRUE( m_pHashContext == NULL ) );
 
-		AddDescLine( loc_CustomNameWithQuotes, /* this will be ignored: */ ATTRIB_COL_LEVEL, kDescLineFlag_Name );
-	}
-	else
-	{
-		locchar_t loc_ItemName[MAX_ITEM_NAME_LENGTH];
-
-		EGenerateLocalizedFullItemNameFlag_t eNameFlag = k_EGenerateLocalizedFullItemName_Default;
-
-		GenerateLocalizedFullItemName( loc_ItemName, pLocalizationProvider, pEconItem, eNameFlag, TF_ANTI_IDLEBOT_VERIFICATION_ONLY_ARG_BOOL_TRUE( m_pHashContext == NULL ) );
-
-		AddDescLine( loc_ItemName, /* this will be ignored: */ ATTRIB_COL_LEVEL, kDescLineFlag_Name );
-	}
+	AddDescLine( loc_ItemName, /* this will be ignored: */ ATTRIB_COL_LEVEL, kDescLineFlag_Name );
 }
 
 // --------------------------------------------------------------------------
@@ -474,22 +453,6 @@ void CEconItemDescription::Generate_ItemDesc( const CLocalizationProvider *pLoca
 {
 	Assert( pLocalizationProvider );
 	Assert( pEconItem );
-
-	// Show the custom description if it has one.
-	const char *utf8_CustomDesc = pEconItem->GetCustomDesc();
-	if ( utf8_CustomDesc && utf8_CustomDesc[0] )
-	{
-		locchar_t loc_CustomDesc[ MAX_ITEM_DESC_LENGTH ];
-		pLocalizationProvider->ConvertUTF8ToLocchar( utf8_CustomDesc, loc_CustomDesc, sizeof( loc_CustomDesc ) );
-
-		locchar_t loc_CustomDescWithQuotes[ MAX_ITEM_DESC_LENGTH ];
-		loc_scpy_safe( loc_CustomDescWithQuotes, LOCCHAR("''") );
-		loc_scat_safe( loc_CustomDescWithQuotes, loc_CustomDesc );
-		loc_scat_safe( loc_CustomDescWithQuotes, LOCCHAR("''") );
-
-		AddDescLine( loc_CustomDescWithQuotes, ATTRIB_COL_NEUTRAL, kDescLineFlag_Desc | kDescLineFlag_UserProvided );
-		return;
-	}
 
 	// No custom description -- see if the item has a default description as part of the definition.
 	const GameItemDefinition_t *pItemDef = pEconItem->GetItemDefinition();

@@ -3248,7 +3248,7 @@ void CEconItemSchema::Validate( CValidator &validator, const char *pchName )
 	}
 
 	ValidateObj( m_mapItems );
-
+	
 	FOR_EACH_MAP_FAST( m_mapItems, i )
 	{
 		ValidateObj( m_mapItems[i] );

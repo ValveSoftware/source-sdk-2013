@@ -290,26 +290,6 @@ static void SetCustomNameOrDescAttribute( CEconItem *pItem, const CEconItemAttri
 // --------------------------------------------------------------------------
 // Purpose:
 // --------------------------------------------------------------------------
-const char *CEconItem::GetCustomName() const
-{
-	static CSchemaAttributeDefHandle pAttrDef_CustomName( "custom name attr" );
-
-	return GetCustomNameOrAttributeDesc( this, pAttrDef_CustomName );
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-void CEconItem::SetCustomName( const char *pName )
-{
-	static CSchemaAttributeDefHandle pAttrDef_CustomName( "custom name attr" );
-
-	SetCustomNameOrDescAttribute( this, pAttrDef_CustomName, pName );
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
 bool CEconItem::IsEquipped() const
 {
 	for ( int i = 0; i < GetEquippedInstanceCount(); i++ )
@@ -499,25 +479,6 @@ const CEconItem::EquippedInstance_t &CEconItem::GetEquippedInstance( int iIdx ) 
 		return m_pCustomData->m_vecEquipped[iIdx];
 	else
 		return m_EquipInstanceSingleton;
-}
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-const char *CEconItem::GetCustomDesc() const
-{
-	static CSchemaAttributeDefHandle pAttrDef_CustomDesc( "custom desc attr" );
-
-	return GetCustomNameOrAttributeDesc( this, pAttrDef_CustomDesc );
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-void CEconItem::SetCustomDesc( const char *pDesc )
-{
-	static CSchemaAttributeDefHandle pAttrDef_CustomDesc( "custom desc attr" );
-
-	SetCustomNameOrDescAttribute( this, pAttrDef_CustomDesc, pDesc );
 }
 
 // --------------------------------------------------------------------------
@@ -739,41 +700,6 @@ void CEconItem::SetDynamicMaxTimeAttributeValue( const CEconItemAttributeDefinit
 // --------------------------------------------------------------------------
 // Purpose: 
 // --------------------------------------------------------------------------
-void CEconItem::SetTradableAfterDateTime( RTime32 rtTime )
-{
-	//don't bother if the time is in the past (this also covers the 0 case)
-	if( rtTime < CRTime::RTime32TimeCur() )
-		return;
-
-	//the attribute we are going to assign
-	static CSchemaAttributeDefHandle pAttrib_TradableAfter( "tradable after date" );
-	if( !pAttrib_TradableAfter )
-		return;
-
-	//see if we have a STATIC cannot trade attribute (ignore dynamic, because that could change and be used
-	// to short out the trade restriction). 
-
-	//This is currently disabled so we can measure whether or not this is beneficial and if the savings justifies the corner case risk this exposes - JohnO 1/12/15
-	/*
-	const GameItemDefinition_t* pItemDef = GetItemDefinition();
-	if( pItemDef )
-	{
-		static CSchemaAttributeDefHandle pAttrib_CannotTrade( "cannot trade" );
-		uint32 unCannotTrade = 0;
-		if( ::FindAttribute( pItemDef, pAttrib_CannotTrade, &unCannotTrade ) )
-		{
-			return;
-		}
-	}
-	*/
-
-	//now set it to the maximum time
-	SetDynamicMaxTimeAttributeValue( pAttrib_TradableAfter, rtTime );
-}
-
-// --------------------------------------------------------------------------
-// Purpose: 
-// --------------------------------------------------------------------------
 void CEconItem::RemoveDynamicAttribute( const CEconItemAttributeDefinition *pAttrDef )
 {
 	Assert( pAttrDef );
@@ -836,45 +762,12 @@ CEconItem* CEconItem::GetInteriorItem()
 }
 
 // --------------------------------------------------------------------------
-// Purpose: This item has been traded. Give it an opportunity to update any internal
-//			properties in response.
-// --------------------------------------------------------------------------
-void CEconItem::OnTraded( uint32 unTradabilityDelaySeconds )
-{
-	// if Steam wants us to impose a tradability delay on the item
-	if ( unTradabilityDelaySeconds != 0 )
-	{
-		RTime32 rtTradableAfter = ( ( CRTime::RTime32TimeCur() / k_nSecondsPerDay ) * k_nSecondsPerDay ) + unTradabilityDelaySeconds;
-		SetTradableAfterDateTime( rtTradableAfter );
-	}
-	else
-	{
-		// If we have a "tradable after date" attribute and we were just traded, remove the date
-		// limit as we're obviously past it.
-		static CSchemaAttributeDefHandle pAttrib_TradableAfter( "tradable after date" );
-		RemoveDynamicAttribute( pAttrib_TradableAfter );
-	}
-
-	OnTransferredOwnership();
-}
-
-// --------------------------------------------------------------------------
 // Purpose: Ownership of this item has changed, so do whatever things are necessary
 // --------------------------------------------------------------------------
 void CEconItem::OnTransferredOwnership()
 {
 	// Free accounts have the ability to trade any item out that they received in a trade.
 	SetFlag( kEconItemFlag_CanBeTradedByFreeAccounts );
-}
-
-// --------------------------------------------------------------------------
-// Purpose: This item has been traded. Give it an opportunity to update any internal
-//			properties in response.
-// --------------------------------------------------------------------------
-void CEconItem::OnReceivedFromMarket( bool bFromRollback )
-{
-	OnTransferredOwnership();
-
 }
 
 // --------------------------------------------------------------------------
@@ -1016,18 +909,6 @@ void CEconItem::SerializeToProtoBufItem( CSOEconItem &msgItem ) const
 
 	if ( m_pCustomData )
 	{
-		const char *pszCustomName = GetCustomName();
-		if ( pszCustomName )
-		{
-			msgItem.set_custom_name( pszCustomName );
-		}
-
-		const char *pszCustomDesc = GetCustomDesc();
-		if ( pszCustomDesc )
-		{
-			msgItem.set_custom_desc( pszCustomDesc );
-		}
-
 		const CEconItem *pInteriorItem = GetInteriorItem();
 		if ( pInteriorItem )
 		{
@@ -1060,18 +941,6 @@ void CEconItem::DeserializeFromProtoBufItem( const CSOEconItem &msgItem )
 	m_unStyle = msgItem.style();
 
 	m_dirtyBits.m_bInUse = msgItem.in_use() ? 1 : 0;
-
-	// set name if any
-	if( msgItem.has_custom_name() )
-	{
-		SetCustomName( msgItem.custom_name().c_str() );
-	}
-
-	// set desc if any
-	if( msgItem.has_custom_desc() )
-	{
-		SetCustomDesc( msgItem.custom_desc().c_str() );
-	}
 
 	// read the attributes
 	for( int nAttr = 0; nAttr < msgItem.attribute_size(); nAttr++ )

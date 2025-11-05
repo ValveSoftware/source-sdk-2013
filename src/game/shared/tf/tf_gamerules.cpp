@@ -3355,15 +3355,6 @@ void CTFGameRules::Activate()
 	}
 #endif // TF_RAID_MODE
 
-	// This is beta content if this map has "beta" as a tag in the schema
-	{
-		const MapDef_t* pMap = GetItemSchema()->GetMasterMapDefByName( STRING( gpGlobals->mapname ) );
-		if ( pMap && pMap->vecTags.HasElement( GetItemSchema()->GetHandleForTag( "beta" ) ) )
-		{
-			tf_beta_content.SetValue( 1 );
-		}
-	}
-
 	if ( !Q_strncmp( STRING( gpGlobals->mapname ), "tc_", 3 )  )
 	{
 		tf_gamemode_tc.SetValue( 1 );
@@ -10559,14 +10550,7 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 			if ( !pEconItemView )
 				continue;
 
-			if ( pEconItemView->GetCustomName() )
-			{
-				sAssisterOverrideDesc = CFmtStr( "%c%s", iKillerHasPetItem == 2 ? kHorriblePyroVisionHack_KillAssisterType_CustomName_First : kHorriblePyroVisionHack_KillAssisterType_CustomName, pEconItemView->GetCustomName() );
-			}
-			else
-			{
-				sAssisterOverrideDesc = CFmtStr( "%c%s", iKillerHasPetItem == 2 ? kHorriblePyroVisionHack_KillAssisterType_LocalizationString_First : kHorriblePyroVisionHack_KillAssisterType_LocalizationString, pEconItemView->GetItemDefinition()->GetItemBaseName() ).Get();
-			}
+			sAssisterOverrideDesc = CFmtStr( "%c%s", iKillerHasPetItem == 2 ? kHorriblePyroVisionHack_KillAssisterType_LocalizationString_First : kHorriblePyroVisionHack_KillAssisterType_LocalizationString, pEconItemView->GetItemDefinition()->GetItemBaseName() ).Get();
 			break;
 		}
 	}

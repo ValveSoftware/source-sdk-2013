@@ -283,9 +283,6 @@ public:
 
 	CEconItem &operator=( const CEconItem& rhs );
 
-	//called to set a tradable after date/time value onto this item (this avoids a lot of potential inefficiencies around this process)
-	void SetTradableAfterDateTime( RTime32 rtTime );
-
 	// IEconItemInterface interface.
 	const GameItemDefinition_t *GetItemDefinition() const;
 public:
@@ -325,12 +322,6 @@ public:
 
 	const char *GetIconURLSmall() const;
 	const char *GetIconURLLarge() const;
-
-	const char *GetCustomName() const;
-	void SetCustomName( const char *pName );
-
-	const char *GetCustomDesc() const;
-	void SetCustomDesc( const char *pDesc );
 
 	bool IsEquipped() const;
 	bool IsEquippedForClass( equipped_class_t unClass ) const;
@@ -474,9 +465,6 @@ public:
 	const CEconItem* GetInteriorItem() const { return const_cast<CEconItem *>(this)->GetInteriorItem(); }
 
 	const CEconItemCustomData* GetCustomData() const { return m_pCustomData; }
-
-	void OnTraded( uint32 unTradabilityDelaySeconds );
-	void OnReceivedFromMarket( bool bFromRollback );
 
 protected:
 

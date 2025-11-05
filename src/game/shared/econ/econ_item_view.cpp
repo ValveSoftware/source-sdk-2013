@@ -434,22 +434,6 @@ eEconItemOrigin CEconItemView::GetOrigin() const
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-const char *CEconItemView::GetCustomName() const
-{
-	return GetSOCData() ? GetSOCData()->GetCustomName() : NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-const char *CEconItemView::GetCustomDesc() const
-{
-	return GetSOCData() ? GetSOCData()->GetCustomDesc() : NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CEconItemView::IterateAttributes( class IEconItemAttributeIterator *pIterator ) const
 {
 	Assert( pIterator );

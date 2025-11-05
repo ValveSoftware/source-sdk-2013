@@ -454,9 +454,6 @@ public:
 	virtual style_index_t	GetStyle() const = 0;
 	virtual eEconItemOrigin GetOrigin() const = 0;
 
-	virtual const char	   *GetCustomName() const = 0;		// get a user-generated name, if present, otherwise NULL; return value is UTF8
-	virtual const char	   *GetCustomDesc() const = 0;		// get a user-generated flavor text, if present, otherwise NULL; return value is UTF8
-
 	// IEconItemInterface attribute iteration interface. This is not meant to be used for
 	// attribute lookup! This is meant for anything that requires iterating over the full
 	// attribute list.

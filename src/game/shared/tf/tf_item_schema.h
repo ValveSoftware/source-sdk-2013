@@ -319,17 +319,14 @@ typedef uint32 MapDefIndex_t;
 
 struct MapDef_t
 {
-	MapDef_t( const char* pszMapStampDefName )
-		: mapStampDef( pszMapStampDefName )
-		, m_nStatsIdentifier( (MapDefIndex_t)-1 )
+	MapDef_t()
+		: m_nStatsIdentifier( (MapDefIndex_t)-1 )
 	{}
 
-	CSchemaItemDefHandle mapStampDef;
 	MapDefIndex_t m_nDefIndex;
 	const char* pszMapName;
 	const char* pszMapNameLocKey;
 	const char* pszAuthorsLocKey;		// if set, will be considered a community map in the UI
-	const char* pszStrangePrefixLocKey;
 
 	// The m_nStatsIdentifier field is used when looking up a map in a user's gamestats.
 	// It's a relic from the quickplay days and how the maps were defined in the schema back then.
@@ -341,48 +338,6 @@ struct MapDef_t
 	map_identifier_t m_nStatsIdentifier;
 	map_identifier_t GetStatsIdentifier() const { return m_nStatsIdentifier == -1 ? (m_nDefIndex << 16) : m_nStatsIdentifier; }
 	bool IsCommunityMap() const { return pszAuthorsLocKey != NULL; }
-	CUtlVector<econ_tag_handle_t>	vecTags;
-	// The rolling match tags for this map.  When a rolling match vote happens, only allow voting on
-	// maps that have at least one matching tag with this map.
-	struct WeightedNextMapCandidates_t
-	{
-		MapDefIndex_t	m_nDefIndex;
-		float			m_flWeight;
-	};
-	CUtlVector< WeightedNextMapCandidates_t >		m_vecRollingMatchMaps;
-	void AddMapAsTargetWithWeight( const WeightedNextMapCandidates_t& target )
-	{
-		FOR_EACH_VEC( m_vecRollingMatchMaps, i )
-		{
-			if ( m_vecRollingMatchMaps[ i ].m_nDefIndex == target.m_nDefIndex )
-			{
-				m_vecRollingMatchMaps[ i ].m_flWeight = Max( m_vecRollingMatchMaps[ i ].m_flWeight, target.m_flWeight );
-				return;
-			}
-		}
-
-		m_vecRollingMatchMaps.AddToTail( target );
-	}
-
-	CUtlVector< econ_tag_handle_t >	m_vecRollingMatchTags;
-	bool BHasRollingMatchTag( econ_tag_handle_t tag ) const 
-	{
-		FOR_EACH_VEC( m_vecRollingMatchTags, i )
-		{
-			if ( m_vecRollingMatchTags[ i ] == tag )
-				return true;
-		}
-
-		return false;
-	}
-
-	struct WeightedNextMapTargets_t
-	{
-		econ_tag_handle_t	m_tag;
-		float				m_flWeight;
-	};
-	CUtlVector< WeightedNextMapTargets_t >	m_vecRollingMatchTargets;
-
 };
 
 //-----------------------------------------------------------------------------

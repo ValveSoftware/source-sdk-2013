@@ -1245,8 +1245,7 @@ bool CTFItemSchema::BInitMaps( KeyValues *pKVMaps, CUtlVector<CUtlString> *pVecE
 
 	FOR_EACH_TRUE_SUBKEY( pKVMaps, pKVMap )
 	{
-		const char* pszMapStampname = pKVMap->GetString( "maptoken", "" );
-		MapDef_t* pMap = new MapDef_t( pszMapStampname );
+		MapDef_t* pMap = new MapDef_t();
 
 		pMap->pszMapName = pKVMap->GetString( "name", NULL );
 		SCHEMA_INIT_CHECK( pMap->pszMapName != NULL,
@@ -1254,44 +1253,7 @@ bool CTFItemSchema::BInitMaps( KeyValues *pKVMaps, CUtlVector<CUtlString> *pVecE
 	
 		pMap->m_nDefIndex				= V_atoi( pKVMap->GetName() );
 		pMap->pszMapNameLocKey			= pKVMap->GetString( "localizedname", NULL );
-
-		SCHEMA_INIT_CHECK( (pMap->mapStampDef == NULL) == (pszMapStampname[0] == '\0'),
-			"BInitGameModes(): unable to find map stamp definition '%s' for map '%s'.", pszMapStampname, pMap->pszMapName );
-				
-		pMap->pszMapNameLocKey			= pKVMap->GetString( "localizedname", NULL );
 		pMap->pszAuthorsLocKey			= pKVMap->GetString( "authors", NULL );
-		pMap->pszStrangePrefixLocKey	= pKVMap->GetString( "strangeprefixtoken", NULL );
-		pMap->m_nStatsIdentifier		= pKVMap->GetInt( "statsidentifier", -1 );
-
-		// initialize from optional "tags" block
-		KeyValues *pKVTags = pKVMap->FindKey( "tags" );
-		if ( pKVTags )
-		{
-			FOR_EACH_SUBKEY( pKVTags, pKVTag )
-			{
-				pMap->vecTags.AddToTail( GetHandleForTag( pKVTag->GetName() ) );
-			}
-		}
-
-		// Init rolling match tags
-		pKVTags = pKVMap->FindKey( "rolling_match_tags" );
-		if ( pKVTags )
-		{
-			FOR_EACH_SUBKEY( pKVTags, pKVTag )
-			{
-				pMap->m_vecRollingMatchTags.AddToTail( GetHandleForTag( pKVTag->GetName() ) );
-			}
-		}
-		
-		// Init rolling match targets
-		pKVTags = pKVMap->FindKey( "rolling_match_target_tags" );
-		if ( pKVTags )
-		{
-			FOR_EACH_SUBKEY( pKVTags, pKVTag )
-			{
-				pMap->m_vecRollingMatchTargets.AddToTail( { GetHandleForTag( pKVTag->GetName() ), pKVTag->GetFloat( "weight", 1.f ) } );
-			}
-		}
 
 		m_vecMasterListOfMaps.AddToTail( pMap );
 	}

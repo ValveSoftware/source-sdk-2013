@@ -205,9 +205,6 @@ public:
 	virtual eEconItemOrigin GetOrigin() const;
 	uint64					GetOriginalID() const { return GetSOCData() ? GetSOCData()->GetOriginalID() : 0; }
 
-	virtual const char	   *GetCustomName() const;
-	virtual const char	   *GetCustomDesc() const;
-
 	virtual bool			GetInUse() const { return GetSOCData() ? GetSOCData()->GetInUse() : false; }
 
 	virtual void			IterateAttributes( class IEconItemAttributeIterator *pIterator ) const OVERRIDE;
