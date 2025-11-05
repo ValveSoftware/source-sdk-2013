@@ -353,9 +353,11 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 	// Do not scale building gibs
 	if ( GetOwnerEntity() && !GetOwnerEntity()->IsBaseObject() )
 	{
-		// Scale current metal amount to match map ammo boxes, unless it contains an Engineer's leftover metal
-		int iMetal = m_iAmmo[TF_AMMO_METAL] == 100 ? pPlayer->GetMaxAmmo(TF_AMMO_METAL) : m_iAmmo[TF_AMMO_METAL];
-		GiveAmmo( ceil( iMetal * m_flAmmoRatio), TF_AMMO_METAL );
+		int iMetalRatio = pPlayer->GetMaxAmmo(TF_AMMO_METAL) / 200;
+
+		// Scale metal given
+		int iMetal = m_iAmmo[TF_AMMO_METAL] == 100 ? ceil( pPlayer->GetMaxAmmo(TF_AMMO_METAL) * m_flAmmoRatio ) : ceil( m_iAmmo[TF_AMMO_METAL] * iMetalRatio );
+		GiveAmmo( iMetal, TF_AMMO_METAL );
 	}
 
 	int iAmmoTaken = 0;
