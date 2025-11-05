@@ -95,8 +95,6 @@ private:
 	vgui::ImagePanel *m_pMainBackground;
 	void UpdateMainBackground( void ); 
 
-	vgui::EditablePanel	*m_pContributedPanel;
-
 #ifdef _X360
 	CTFFooter		*m_pFooter;
 #else

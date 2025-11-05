@@ -191,10 +191,6 @@ void CTFAmmoPack::InitAmmoPack( CTFPlayer *pPlayer, CTFWeaponBase *pWeapon, int 
 
 void CTFAmmoPack::MakeHolidayPack( void )
 {
-	// don't want special ammo packs during a competitive match
-	if ( TFGameRules()->IsMatchTypeCompetitive() )
-		return;
-
 	// Only do this on the halloween maps.
 	if ( TFGameRules()->IsHolidayActive( kHoliday_Halloween ) 
 		&& TFGameRules()->IsHolidayMap( kHoliday_Halloween ) 

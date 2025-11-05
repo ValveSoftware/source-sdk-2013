@@ -1100,13 +1100,6 @@ void CTFPlayerShared::AddCond( ETFCond eCond, float flDuration /* = PERMANENT_CO
 	}
 #endif
 
-	// sanity check to prevent servers from adding these conditions when they shouldn't
-	if ( ( eCond == TF_COND_COMPETITIVE_WINNER ) || ( eCond == TF_COND_COMPETITIVE_LOSER ) )
-	{
-		if ( TFGameRules() && !TFGameRules()->ShowMatchSummary() )
-			return;
-	}
-
 	// Which bitfield are we tracking this condition variable in? Which bit within
 	// that variable will we track it as?
 	CConditionVars<int> cPlayerCond( m_nPlayerCond.m_Value, m_nPlayerCondEx.m_Value, m_nPlayerCondEx2.m_Value, m_nPlayerCondEx3.m_Value, m_nPlayerCondEx4.m_Value, eCond );
@@ -4046,12 +4039,6 @@ void CTFPlayerShared::OnRemoveTaunting( void )
 
 	m_pOuter->HandleWeaponSlotAfterTaunt();
 #else
-	CSteamID steamIDForPlayer;
-	m_pOuter->GetSteamID( &steamIDForPlayer );
-
-	int nMapDonationAmount = MapInfo_GetDonationAmount( steamIDForPlayer.GetAccountID(), engine->GetLevelName() );
-	m_pOuter->SetFootStamps( nMapDonationAmount );
-
 	if ( m_pOuter->m_pTauntEffect )
 	{
 		m_pOuter->ParticleProp()->StopEmissionAndDestroyImmediately( m_pOuter->m_pTauntEffect );
@@ -10742,10 +10729,6 @@ bool CTFPlayer::CanPlayerMove() const
 	if ( GetMoveType() == MOVETYPE_NOCLIP )
 		return true;
 
-	// No one can move when in a final countdown transition.
-	if ( TFGameRules() && TFGameRules()->BInMatchStartCountdown() )
-		return false;
-
 	if ( IsViewingCYOAPDA() )
 		return false;
 
@@ -10762,21 +10745,6 @@ bool CTFPlayer::CanPlayerMove() const
 	}
 
 	bool bInRoundRestart = TFGameRules() && TFGameRules()->InRoundRestart();
-	if ( bInRoundRestart && TFGameRules()->IsCompetitiveMode() )
-	{
-		if ( TFGameRules()->GetRoundsPlayed() > 0 )
-		{
-			if ( gpGlobals->curtime < TFGameRules()->GetPreroundCountdownTime() )
-			{
-				bFreezeOnRestart = true;
-			}
-		}
-		else
-		{
-			bFreezeOnRestart = false;
-		}
-	}
-
 	bool bNoMovement = bInRoundRestart && bFreezeOnRestart;
 
 	return !bNoMovement;
@@ -13021,16 +12989,6 @@ int CTFPlayer::GetNumActivePipebombs( void )
 //-----------------------------------------------------------------------------
 bool CTFPlayer::CanMoveDuringTaunt()
 {
-
-	if ( TFGameRules() && TFGameRules()->IsCompetitiveMode() )
-	{
-		if ( ( TFGameRules()->GetRoundRestartTime() > -1.f ) && ( (int)( TFGameRules()->GetRoundRestartTime() - gpGlobals->curtime ) <= mp_tournament_readymode_countdown.GetInt() ) )
-			return false;
-
-		if ( TFGameRules()->PlayersAreOnMatchSummaryStage() )
-			return false;
-	}
-
 	if ( m_Shared.InCond( TF_COND_HALLOWEEN_KART ) )
 		return true;
 
@@ -13582,10 +13540,6 @@ bool CTFPlayerShared::IsLoser( void )
 		return true;
 
 	if ( !TFGameRules() )
-		return false;
-
-	// No loser mode in competitive
-	if ( TFGameRules()->IsMatchTypeCompetitive() )
 		return false;
 
 	if ( TFGameRules()->State_Get() != GR_STATE_TEAM_WIN )

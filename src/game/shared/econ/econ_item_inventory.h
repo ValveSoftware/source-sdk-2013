@@ -101,11 +101,6 @@ public:
 	// Necessary if your inventory packs a bunch of info into the position instead of using it just as a position.
 	virtual int			ExtractInventorySortPosition( uint32 iBackendPosition ) { return iBackendPosition; }
 
-	// Recipe access
-	int									 GetRecipeCount( void ) const;
-	const CEconCraftingRecipeDefinition *GetRecipeDef( int iIndex );
-	const CEconCraftingRecipeDefinition *GetRecipeDefByDefIndex( uint16 iDefIndex );
-
 	// Item previews
 	virtual int			GetPreviewItemDef( void ) const { return 0; };
 

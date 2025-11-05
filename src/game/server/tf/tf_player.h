@@ -1530,8 +1530,6 @@ public:
 
 	virtual bool IsTruceValidForEnt( void ) const OVERRIDE;
 
-	virtual bool BHaveChatSuspensionInCurrentMatch() OVERRIDE;
-
 	void StartPowerupModeDominant( bool bIsAlreadyDominant );
 	void EndPowerupModeDominant( void );
 

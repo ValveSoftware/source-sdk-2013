@@ -61,7 +61,6 @@
 #include "tf_hud_menu_taunt_selection.h"
 #include "tf_hud_inspectpanel.h"
 #include "engine/IEngineSound.h"
-#include "tf_partyclient.h"
 
 #include "econ_item_system.h"
 #include "tf_mann_vs_machine_stats.h"
@@ -72,7 +71,6 @@
 #include "steamworks_gamestats.h"
 #include "confirm_dialog.h"
 #include "ServerBrowser/blacklisted_server_manager.h"
-#include "tf_quickplay_shared.h"
 #include "sourcevr/isourcevirtualreality.h"
 #include "client_virtualreality.h"
 
@@ -743,7 +741,7 @@ void ClientModeTFNormal::FireGameEvent( IGameEvent *event )
 		// Make sure they're not doing a dead ringer fake death
 		if ( ( event->GetInt( "death_flags" ) & TF_DEATH_FEIGN_DEATH ) == 0 )
 		{
-			if ( TFGameRules() && ( TFGameRules()->State_Get() == GR_STATE_RND_RUNNING ) && ( TFGameRules()->IsMannVsMachineMode() || TFGameRules()->IsCompetitiveMode() ) )
+			if ( TFGameRules() && ( TFGameRules()->State_Get() == GR_STATE_RND_RUNNING ) && ( TFGameRules()->IsMannVsMachineMode() ) )
 			{
 				C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 				if ( pLocalPlayer )
@@ -899,24 +897,19 @@ void ClientModeTFNormal::FireGameEvent( IGameEvent *event )
 
 		m_flNextAllowedHighFiveHintTime = 0.0f;
 
-		// Play Sound and flash window if joining a game from a lobby
-		CTFGSLobby *pLobby = GTFGCClientSystem()->GetLobby();
-		if ( pLobby )
-		{
-			engine->FlashWindow();
+		engine->FlashWindow();
 
+		{
+			// If minimized, Blink and play noise
+			if ( engine->IsActiveApp() )
 			{
-				// If minimized, Blink and play noise
-				if ( engine->IsActiveApp() )
-				{
-					vgui::surface()->PlaySound( "ui/vote_started.wav" );
-				}
-				else
-				{
-					char fullpath[ 512 ];
-					g_pFullFileSystem->RelativePathToFullPath( "sound/ui/vote_started.wav", "GAME", fullpath, sizeof( fullpath ) );
-					PlayOutOfGameSound( fullpath );
-				}
+				vgui::surface()->PlaySound( "ui/vote_started.wav" );
+			}
+			else
+			{
+				char fullpath[ 512 ];
+				g_pFullFileSystem->RelativePathToFullPath( "sound/ui/vote_started.wav", "GAME", fullpath, sizeof( fullpath ) );
+				PlayOutOfGameSound( fullpath );
 			}
 		}
 
@@ -1694,12 +1687,6 @@ void ClientModeTFNormal::AskFavoriteOrBlacklist() const
 
 				if ( !netAdr.IsValid() || netAdr.IsReservedAdr() )
 					return;
-
-				// Don't offer this for Valve servers, either
-				if ( GTFGCClientSystem()->BIsIPRecentMatchServer( netAdr ) )
-				{
-					return;
-				}
 			}
 
 			// is this server already a favorite?
@@ -1745,8 +1732,7 @@ void ClientModeTFNormal::AskFavoriteOrBlacklist() const
 			blackList.LoadServersFromFile( BLACKLIST_DEFAULT_SAVE_FILE, false );
 
 			netadr_t lastServer( GetLastConnectedServerIP(), (unsigned short)GetLastConnectedServerPort() );
-			if ( ( !blackList.CanServerBeBlacklisted( lastServer.GetIPHostByteOrder(), lastServer.GetPort(), GetLastConnectedServerName() )
-			       || GTFGCClientSystem()->BIsIPRecentMatchServer( lastServer ) )
+			if ( ( !blackList.CanServerBeBlacklisted( lastServer.GetIPHostByteOrder(), lastServer.GetPort(), GetLastConnectedServerName() ) )
 			     && !cl_ask_blacklist_for_any_server.GetBool() )
 			{
 				// don't bother - this server is not blacklistable
@@ -2043,7 +2029,6 @@ void ClientModeTFNormal::UpdateSteamRichPresence() const
 	bool bConnected = ( m_eConnectState == k_eConnectState_Connected );
 	bool bConnecting = ( m_eConnectState == k_eConnectState_Connecting );
 	// BConnectedToMatchServer includes the connecting state
-	bool bInMatch = GTFGCClientSystem()->BConnectedToMatchServer( false );
 
 	//
 	// Set 'currentmap'
@@ -2065,39 +2050,10 @@ void ClientModeTFNormal::UpdateSteamRichPresence() const
 	//   MM match you cannot directly join)
 	//
 	// Note that AdvertiseGame() happens as soon as we begin connecting
-	if ( ( bInMatch || ( !bConnected && !bConnecting ) ) && steamapicontext->SteamUser() )
-	{
-		// If they have an MM match, or if they're just on the menus, direct joiners to join their party, they cannot
-		// join the server directly.
-		CFmtStr strConnect( "+tf_party_request_join_user %llu",
-		                    steamapicontext->SteamUser()->GetSteamID().ConvertToUint64() );
-
-		engine->SetRichPresenceConnect( strConnect );
-	}
-	else
-	{
-		// Otherwise, no connect string.  If they're connected, the engine will handle updating this
-		// correctly.
-		engine->SetRichPresenceConnect( nullptr );
-	}
-
-	//
-	// Set 'steam_player_group' and 'steam_player_group_size'
-	//
-	if ( GTFPartyClient()->BHaveActiveParty() )
-	{
-		pSteamFriends->SetRichPresence( "steam_player_group",
-		                                CFmtStr( "party_%llu", GTFPartyClient()->GetActivePartyID() ) );
-		// Only tell steam about online party members, since offline members may still be on steam, but their rich
-		// presence won't attest to their membership in this party.
-		pSteamFriends->SetRichPresence( "steam_player_group_size",
-		                                CFmtStr( "%d", GTFPartyClient()->CountNumOnlinePartyMembers() ) );
-	}
-	else
-	{
-		pSteamFriends->SetRichPresence( "steam_player_group", nullptr );
-		pSteamFriends->SetRichPresence( "steam_player_group_size", nullptr );
-	}
+	// 
+	// Otherwise, no connect string.  If they're connected, the engine will handle updating this
+	// correctly.
+	engine->SetRichPresenceConnect( nullptr );
 
 	//
 	// Set 'state'
@@ -2106,33 +2062,9 @@ void ClientModeTFNormal::UpdateSteamRichPresence() const
 
 	// Used below for building 'status'
 	const char *pszState = nullptr;
-	const char *pszMatchGroupLoc = nullptr;
 
-	// Playing -- MM Match
-	if ( bInMatch )
-	{
-		ETFMatchGroup eMatchGroup = GTFGCClientSystem()->GetLiveMatchGroup();
-		auto *pDesc = GetMatchGroupDescription( eMatchGroup );
-		const char *pLoc = pDesc ? pDesc->GetRichPresenceLocToken() : nullptr;
-		if ( pLoc )
-		{
-			pszMatchGroupLoc = pLoc;
-			if ( pszPrettyMap && pszPrettyMap[0] )
-				{ pszState = "PlayingMatchGroup"; }
-			else
-				{ pszState = "LoadingMatchGroup"; }
-		}
-		else
-		{
-			// Nameless match group
-			if ( pszPrettyMap && pszPrettyMap[0] )
-				{ pszState = "PlayingGeneric"; }
-			else
-				{ pszState = "LoadingGeneric"; }
-		}
-	}
 	// Playing -- community server
-	else if ( bConnecting || bConnected )
+	if ( bConnecting || bConnected )
 	{
 		// In a server, but partyclient doesn't know about it -- set community server
 		if ( pszPrettyMap && pszPrettyMap[0] )
@@ -2140,40 +2072,12 @@ void ClientModeTFNormal::UpdateSteamRichPresence() const
 		else
 			{ pszState = "LoadingCommunity"; }
 	}
-	// Main menu -- searching for a match
-	else if ( GTFPartyClient()->BInStandbyQueue() || GTFPartyClient()->BInAnyMatchQueue() )
-	{
-		// If we're searching for just one group, use the more specific message
-		bool bSpecificQueue = ( !GTFPartyClient()->BInStandbyQueue() &&
-		                        GTFPartyClient()->GetNumQueuedMatchGroups() == 1 );
-
-		const char *pMatchLoc = nullptr;
-		if ( bSpecificQueue )
-		{
-			// Set 'matchgrouploc' used for this field
-			ETFMatchGroup eMatchGroup = GTFPartyClient()->GetQueuedMatchGroupByIdx( 0 );
-			auto *pDesc = GetMatchGroupDescription( eMatchGroup );
-			pMatchLoc = pDesc ? pDesc->GetRichPresenceLocToken() : nullptr;
-
-			if ( pMatchLoc )
-				{ pszMatchGroupLoc = pMatchLoc; }
-			else
-				{ bSpecificQueue = false; }
-		}
-
-		if ( bSpecificQueue )
-			{ pszState = "SearchingMatchGroup"; }
-		else
-			{ pszState = "SearchingGeneric"; }
-	}
-	// Main menu -- not searching
 	else
 	{
 		pszState = "MainMenu";
 	}
 
 	pSteamFriends->SetRichPresence( "state", pszState );
-	pSteamFriends->SetRichPresence( "matchgrouploc", pszMatchGroupLoc );
 
 	//
 	// 'steam_display' embeds our state and matchgrouploc set above.
@@ -2186,8 +2090,8 @@ void ClientModeTFNormal::UpdateSteamRichPresence() const
 	// If we're connecting or connected, the source engine called AdvertiseGame() which shows a this-server status we
 	// don't want to override -- except if we're in a match which cannot be ad-hoc joined.
 	wchar_t wzStatus[256] = { 0 };
-	if ( ( bInMatch || ( !bConnecting && !bConnected ) ) &&
-	     BuildRichPresenceStatus( wzStatus, pszState, pszMatchGroupLoc, pszPrettyMap ))
+	if ( ( ( !bConnecting && !bConnected ) ) &&
+	     BuildRichPresenceStatus( wzStatus, pszState, pszPrettyMap ))
 	{
 			char szStatus[256] = { 0 };
 			V_UnicodeToUTF8( wzStatus, szStatus, sizeof( szStatus ) );
@@ -2202,7 +2106,6 @@ void ClientModeTFNormal::UpdateSteamRichPresence() const
 //----------------------------------------------------------------------------
 bool ClientModeTFNormal::BuildRichPresenceStatusDirect( wchar_t *pwzOutStatus, size_t uOutSizeBytes,
                                                         const char *pszState,
-                                                        const char *pszMatchGroupLocTokenSuffix,
                                                         const char *pszPrettyMapName )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
@@ -2216,17 +2119,6 @@ bool ClientModeTFNormal::BuildRichPresenceStatusDirect( wchar_t *pwzOutStatus, s
 	if ( !pwzStateToken )
 		{ return false; }
 
-	wchar_t *pwzMatchGroupLocToken = nullptr;
-	if ( pszMatchGroupLocTokenSuffix && pszMatchGroupLocTokenSuffix[0] )
-	{
-		pwzMatchGroupLocToken = g_pVGuiLocalize->Find( CFmtStr( "#TF_RichPresence_MatchGroup_%s",
-		                                                        pszMatchGroupLocTokenSuffix ) );
-		if ( !pwzMatchGroupLocToken )
-			{ return false; }
-	}
-
-	pKV->SetWString( "matchgrouploc_token", pwzMatchGroupLocToken ? pwzMatchGroupLocToken : L"" );
-	pKV->SetString( "matchgrouploc", pszMatchGroupLocTokenSuffix ? pszMatchGroupLocTokenSuffix : "" );
 	pKV->SetString( "state", pszState ? pszState : "" );
 	pKV->SetString( "currentmap", pszPrettyMapName ? pszPrettyMapName : "" );
 
@@ -2277,11 +2169,6 @@ void ClientModeTFNormal::OnDemoRecordStop()
 	BaseClass::OnDemoRecordStop();
 }
 
-bool ClientModeTFNormal::BCanSendPartyChatMessages() const
-{
-	return GTFPartyClient()->BHaveActiveParty();
-}
-
 bool ClientModeTFNormal::BIsFriendOrPartyMember( C_TFPlayer *pPlayer )
 {
 	player_info_t pi;
@@ -2292,15 +2179,6 @@ bool ClientModeTFNormal::BIsFriendOrPartyMember( C_TFPlayer *pPlayer )
 	EFriendRelationship eRelationship = steamapicontext->SteamFriends()->GetFriendRelationship( targetSteamID );
 	if ( eRelationship == k_EFriendRelationshipFriend )
 		return true;
-
-	if ( GTFPartyClient()->BHaveActiveParty() )
-	{
-		for ( int nSlot = 0; nSlot < GTFPartyClient()->GetNumPartyMembers(); ++nSlot )
-		{
-			if ( targetSteamID == GTFPartyClient()->GetPartyMember( nSlot ) )
-				return true;
-		}
-	}
 
 	return false;
 }

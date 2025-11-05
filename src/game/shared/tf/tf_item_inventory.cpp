@@ -27,7 +27,7 @@
 #include "materialsystem/itexture.h"
 
 #include "tf_gc_client.h"
-
+#include <tier3/mdlutils.h>
 #else
 #include "tf_player.h"
 #endif

@@ -15,7 +15,6 @@
 #include "hudelement.h"
 #include "basemodelpanel.h"
 #include "tf_teamstatus.h"
-#include "tf_matchmaking_shared.h"
 
 using namespace vgui;
 
@@ -94,8 +93,6 @@ public:
 
 private:
 
-	void ShowMatchStartDoors();
-	void ShowRoundSign( int nRoundNumber );
 	void InitPlayerList( SectionedListPanel *pPlayerList, int nTeam );
 	void UpdatePlayerList();
 	void UpdatePlayerAvatar( int playerIndex, KeyValues *kv );
@@ -104,10 +101,7 @@ private:
 
 	CRoundCounterPanel	*m_pRoundCounter;
 	class CTFHudTimeStatus	*m_pTimePanel;
-	CModelPanel			*m_pRoundSignModel;
 	CTFTeamStatus		*m_pTeamStatus;
-	CModelPanel			*m_pMatchStartModelPanel;
-	ETFMatchGroup			m_eMatchGroupSettings;
 
 	vgui::EditablePanel			*m_pBlueTeamPanel;
 	vgui::SectionedListPanel	*m_pPlayerListBlue;

@@ -8,7 +8,6 @@
 #include "tf_hud_mann_vs_machine_scoreboard.h"
 #include <filesystem.h>
 #include <time.h>
-#include "tf_lobby_server.h"
 
 using namespace vgui;
 
@@ -372,40 +371,6 @@ void CTFHudMannVsMachineScoreboard::UpdatePlayerList ()
 
 		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
 		{
-			CTFGSLobby *pLobby = GTFGCClientSystem()->GetLobby();
-			if ( pLobby )
-			{
-				int nTourNo = 0;
-				int bSurplusEnabled = false;
-				int idxMember = pLobby->GetMemberIndexBySteamID( GetSteamIDForPlayerIndex( playerIndex ) );
-				if ( idxMember >= 0 )
-				{
-					ConstTFLobbyPlayer member = pLobby->GetMemberDetails( idxMember );
-					// I guess they could be on standby to join the match while being themselves ad-hoc or something
-					// bizarre?
-					bSurplusEnabled = member.BMatchPlayer() && member.GetSquadSurplus();
-					nTourNo = member.GetBadgeLevel();
-				}
-
-				if ( bSurplusEnabled )
-				{
-					pKeyValues->SetInt( "squad_surplus", m_iSquadSurplusTexture );
-				}
-				else
-				{
-					pKeyValues->SetInt( "squad_surplus", 0 );
-				}
-
-				if ( nTourNo > 0 )
-				{
-					pKeyValues->SetString( "tour_no", ConvertScoreboardValueToString( nTourNo ) );
-				}
-				else
-				{
-					pKeyValues->SetString( "tour_no", "" );
-				}
-			}
-
 			// int nTeam = g_PR->GetTeam( playerIndex );
 			// int nTeamDamage = g_TF_PR->GetTeamDamage( nTeam );
 			// int nTeamTankDamage = g_TF_PR->GetTeamDamageBoss( nTeam );

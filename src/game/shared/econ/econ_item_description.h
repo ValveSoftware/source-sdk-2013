@@ -41,13 +41,6 @@ enum EDescriptionLineMetaFlags
 	kDescLineFlag_Attribute	= 0x008,						// some sort of gameplay-affecting attribute
 	kDescLineFlag_Misc		= 0x010,						// not an attribute, not name/level
 	kDescLineFlag_Empty		= 0x020,						// line with no content that needs to be displayed; meant for spacing
-	kDescLineFlag_Set		= 0x040,						// this line is associated with item sets somehow
-	kDescLineFlag_LimitedUse= 0x080,						// this is a limited use item
-	kDescLineFlag_SetName	= 0x100,						// this line is the title for an item set
-	kDescLineFlag_Collection			= 0x200,			// this line is associated with item collections
-	kDescLineFlag_CollectionCurrentItem	= 0x400,			// this line is the current item being describe
-	kDescLineFlag_CollectionName		= 0x800,			// this line is the collection name
-	kDescLineFlag_CaseBonusContent		= 0x1000,			// this line is the case bonus content
 	kDescLineFlag_MouseOverPanel		= 0x2000,			// this line is for mouse over panel only
 	kDescLineFlag_UserProvided			= 0x4000,			// user-generated content
 
@@ -189,13 +182,6 @@ public:
 		CUtlVector<attrib_iterator_value_t> m_vecAttributes;
 	};
 
-	class CRecipeNameAttributeDisplayer : public CVisibleAttributeDisplayer
-	{
-	public:
-		virtual bool OnIterateAttributeValue( const CEconItemAttributeDefinition *pAttrDef, attrib_value_t value ) OVERRIDE;
-	};
-
-
 	bool HasUnknownPlayer( ) const
 	{
 		return m_bUnknownPlayer;	
@@ -217,24 +203,9 @@ private:
 	virtual void Generate_ItemName( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_ItemLevelDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_StyleDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_HolidayRestriction( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	virtual void Generate_ItemDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_GiftedBy( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-#ifdef PROJECT_TF
-	virtual void Generate_MapContributor( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_FriendlyHat( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_SaxxyAwardDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_MvmChallenges( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_SquadSurplusClaimedBy( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_UnusualifierEffectList( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-#endif // PROJECT_TF
-	virtual void Generate_Painted( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-	virtual void Generate_FlagsAttributes( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
 	
 	virtual void Generate_VisibleAttributes( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem );
-
-	// Helpers for the above.
-	virtual void Generate_ItemLevelDesc_Default( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem, const locchar_t *locTypename );
 
 	// Internal data.
 	void YieldingFillOutAccountPersonaName( const CLocalizationProvider *pLocalizationProvider, uint32 unAccountID );
@@ -319,9 +290,7 @@ private:
 enum EGenerateLocalizedFullItemNameFlag_t
 {
 	k_EGenerateLocalizedFullItemName_Default = 0,
-	k_EGenerateLocalizedFullItemName_WithPaintWear = ( 1 << 0 ),
 	k_EGenerateLocalizedFullItemName_WithoutCustomName = ( 1 << 1 ),
-	k_EGenerateLocalizedFullItemName_WithoutQuality = ( 1 << 2 ),
 };
 
 //-----------------------------------------------------------------------------

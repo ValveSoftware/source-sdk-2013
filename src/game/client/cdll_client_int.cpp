@@ -114,7 +114,6 @@
 #include "particle_parse.h"
 #if defined( TF_CLIENT_DLL )
 #include "rtime.h"
-#include "tf_hud_disconnect_prompt.h"
 #include "../engine/audio/public/sound.h"
 #include "tf_shared_content_manager.h"
 #include "tf_gamerules.h"
@@ -2731,10 +2730,6 @@ bool CHLClient::DisconnectAttempt( void )
 {
 	bool bRet = false;
 
-#if defined( TF_CLIENT_DLL )
-	bRet = HandleDisconnectAttempt();
-#endif
-
 	return bRet;
 }
 
@@ -2745,13 +2740,6 @@ bool CHLClient::IsConnectedUserInfoChangeAllowed( IConVar *pCvar )
 
 bool CHLClient::BHaveChatSuspensionInCurrentMatch()
 {
-#if defined( TF_CLIENT_DLL )
-	if ( GTFGCClientSystem() )
-	{
-		return GTFGCClientSystem()->BHaveChatSuspensionInCurrentMatch();
-	}
-#endif // TF_CLIENT_DLL 
-
 	return false;
 }
 

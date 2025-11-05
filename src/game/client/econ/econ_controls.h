@@ -255,26 +255,15 @@ public:
 
 	void	UpdateDetailsForItem( const CEconItemDefinition *pDef );
 
-	void	AllowItemSetLinks( bool bAllow )	{ m_bAllowItemSetLinks = bAllow; }
-
-	void	SetLimitedItem( bool bLimited ) { m_bLimitedItem = bLimited; }
-
 private:
 	void	InsertItemLink( const wchar_t *pwzItemName, int nItemIndex, Color *pColorOverride = NULL );
 	void	AddDataText( const char *pszText, bool bAddPostLines = true, const wchar_t *wpszArg = NULL, const wchar_t *wpszArg2 = NULL, const int *pItemDefIndex = NULL );
-	void	DataText_AppendStoreFlags( const CEconItemDefinition *pDef );
-	void	DataText_AppendItemData( const CEconItemDefinition *pDef );
 	void	DataText_AppendUsageData( const CEconItemDefinition *pBaseDef );
-	void	DataText_AppendAttributeData( const CEconItemDefinition *pDef );
 
 private:
 	Color	m_colTextHighlight;
-	Color	m_colItemSet;
 	Color	m_colLink;
-	bool	m_bAllowItemSetLinks;
 	vgui::HFont	m_hLinkFont;
-
-	bool	m_bLimitedItem;
 };
 
 

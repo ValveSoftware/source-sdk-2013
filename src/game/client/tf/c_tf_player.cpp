@@ -3800,11 +3800,6 @@ C_TFPlayer::~C_TFPlayer()
 	if ( IsLocalPlayer() )
 	{
 		g_ItemEffectMeterManager.ClearExistingMeters();
-
-		if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		{
-			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( "CompetitiveGame_RestoreChatWindow", false );
-		}
 	}
 }
 
@@ -5228,9 +5223,6 @@ void C_TFPlayer::TurnOnTauntCam( void )
 	if ( !IsLocalPlayer() )
 		return;
 
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		return;
-
 	m_flTauntCamTargetDist = ( m_flTauntCamTargetDist != 0.0f ) ? m_flTauntCamTargetDist : tf_tauntcam_dist.GetFloat();
 	m_flTauntCamTargetDistUp = ( m_flTauntCamTargetDistUp != 0.0f ) ? m_flTauntCamTargetDistUp : 0.f;
 
@@ -5282,9 +5274,6 @@ void C_TFPlayer::TurnOnTauntCam_Finish( void )
 //-----------------------------------------------------------------------------
 void C_TFPlayer::TurnOffTauntCam( void )
 {
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		return;
-
 	// We want to interpolate back into the guy's head.
 	if ( g_ThirdPersonManager.GetForcedThirdPerson() == false )
 	{
@@ -5307,9 +5296,6 @@ void C_TFPlayer::TurnOffTauntCam_Finish( void )
 {
 	if ( !IsLocalPlayer() )
 		return;	
-
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		return;
 
 	const Vector& vecOffset = g_ThirdPersonManager.GetCameraOffsetAngles();
 	tf_tauntcam_pitch.SetValue( vecOffset[PITCH] - m_angTauntPredViewAngles[PITCH] );
@@ -7802,9 +7788,6 @@ void C_TFPlayer::CreateSaveMeEffect( MedicCallerType nType /*= CALLER_TYPE_NORMA
 	if ( IsLocalPlayer() && InFirstPersonView() )
 		return;
 
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		return;
-
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
 	// If I'm disguised as the enemy, play to all players
@@ -7918,9 +7901,6 @@ void C_TFPlayer::CreateTauntWithMeEffect()
 {
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pLocalPlayer || this == pLocalPlayer )
-		return;
-
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
 		return;
 
 	if ( !m_pTauntWithMeEffect )
@@ -8597,17 +8577,6 @@ bool C_TFPlayer::CanShowClassMenu( void )
 		{
 			return !m_bArenaSpectator;
 		}
-
-		// Dont allow the change class menu to come up when we're doing the doors and things.  There's really weird
-		// sorting issues that go on even though the class menu is supposed to draw under the match status panel.
-		if ( TFGameRules()->IsCompetitiveMode() )
-		{
-			float flRestartTime = TFGameRules()->GetRoundRestartTime() - gpGlobals->curtime;
-			if ( flRestartTime > 0.f && flRestartTime < 10.f )
-			{
-				return false;
-			}
-		}
 	}
 	
 	return ( GetTeamNumber() > LAST_SHARED_TEAM );
@@ -8621,7 +8590,7 @@ bool C_TFPlayer::CanShowTeamMenu( void )
 	if ( IsHLTV() )
 		return false;
 
-	if ( TFGameRules() && ( TFGameRules()->IsCompetitiveMode() || TFGameRules()->IsPowerupMode() ) )
+	if ( TFGameRules() && TFGameRules()->IsPowerupMode() )
 	
 		return false;
 
@@ -9185,9 +9154,6 @@ bool C_TFPlayer::IsAllowedToSwitchWeapons( void )
 	if ( TFGameRules() )
 	{
 		if ( TFGameRules()->IsPasstimeMode() && m_Shared.HasPasstimeBall() )
-			return false;
-
-		if ( TFGameRules()->ShowMatchSummary() )
 			return false;
 	}
 
@@ -10829,66 +10795,7 @@ void C_TFPlayer::FireGameEvent( IGameEvent *event )
 			m_hRevivePrompt = NULL;
 		}
 	}
-	else if ( FStrEq( event->GetName(), "player_changeclass" ) )
-	{
-		if ( TFGameRules() && TFGameRules()->IsMatchTypeCompetitive() )
-		{
-			if ( g_PR &&
-				pLocalPlayer &&
-				pLocalPlayer == this &&
-				TFGameRules() &&
-				TFGameRules()->IsCompetitiveMode() &&
-				TFGameRules()->State_Get() == GR_STATE_RND_RUNNING )
-			{
-				CBaseHudChat *pHudChat = (CBaseHudChat*)GET_HUDELEMENT( CHudChat );
-				if ( pHudChat )
-				{
-					C_BasePlayer *pEventPlayer = UTIL_PlayerByUserId( event->GetInt( "userid" ) );
-					if ( pEventPlayer && pLocalPlayer->GetTeamNumber() == g_PR->GetTeam( pEventPlayer->entindex() ) )
-					{
-						int nClassID = event->GetInt( "class" );
-						if ( nClassID >= 0 && nClassID < ARRAYSIZE( g_aPlayerClassNames ) )
-						{
-							wchar_t wszPlayerName[MAX_PLAYER_NAME_LENGTH];
-							g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( pEventPlayer->entindex() ), wszPlayerName, sizeof( wszPlayerName ) );
 
-							wchar_t wszLocalized[100];
-							g_pVGuiLocalize->ConstructString_safe( wszLocalized, g_pVGuiLocalize->Find( "#TF_Class_Change" ), 2, wszPlayerName, g_pVGuiLocalize->Find( g_aPlayerClassNames[nClassID] ) );
-
-							char szLocalized[100];
-							g_pVGuiLocalize->ConvertUnicodeToANSI( wszLocalized, szLocalized, sizeof( szLocalized ) );
-
-							pHudChat->ChatPrintf( pLocalPlayer->entindex(), CHAT_FILTER_NAMECHANGE, "%s", szLocalized );
-						}
-					}
-				}
-			}
-		}
-	}
-	else if ( FStrEq( event->GetName(), "player_abandoned_match" ) )
-	{
-		if ( pLocalPlayer && pLocalPlayer == this )
-		{
-			wchar_t wzNotification[1024] = L"";
-			const wchar_t *pwzTitle = g_pVGuiLocalize->Find( "#TF_Competitive_Abandoned" );
-			g_pVGuiLocalize->ConstructString_safe( wzNotification, pwzTitle, 0 );
-			
-			if ( event->GetBool( "game_over" ) )
-			{
-				ShowMessageBox( "#TF_Competitive_AbandonedTitle", wzNotification, "#GameUI_OK" );
-			}
-			else
-			{
-				CBaseHudChat *pHudChat = (CBaseHudChat*)GET_HUDELEMENT( CHudChat );
-				if ( pHudChat )
-				{
-					char szLocalized[1024];
-					g_pVGuiLocalize->ConvertUnicodeToANSI( wzNotification, szLocalized, sizeof( szLocalized ) );
-					pHudChat->ChatPrintf( pLocalPlayer->entindex(), CHAT_FILTER_SERVERMSG, "%s", szLocalized );
-				}
-			}
-		}
-	}
 	BaseClass::FireGameEvent( event );
 }
 

@@ -605,69 +605,6 @@ void YieldingAddAuditRecord( GCSDK::CSQLAccess *sqlAccess, uint64 ulItemID, uint
 bool YieldingAddItemToDatabase( CEconItem *pItem, const CSteamID & steamID, EItemAction eAction, uint32 unData );
 
 //-----------------------------------------------------------------------------
-// Purpose: wrap the idea of "get a loot list from this item"; some loot lists
-//			are static definitions and some are temporary heap-allocated objects
-//			and this means you don't care which you're dealing with until we
-//			come up with a better interface
-//-----------------------------------------------------------------------------
-class CCrateLootListWrapper
-{
-public:
-	CCrateLootListWrapper( const IEconItemInterface *pEconItem )
-		: m_pLootList( NULL )
-		, m_unAuditDetailData( 0 )
-		, m_bIsDynamicallyAllocatedLootList( false )
-	{
-		Assert( pEconItem );
-
-		if ( !BAttemptCrateSeriesInitialization( pEconItem )
-		  && !BAttemptLootListStringInitialization( pEconItem )
-		  && !BAttemptLineItemInitialization( pEconItem ) )
-		{
-			// We don't actually have anything to do here. We'll return NULL when someone asks for our
-			// loot list and we're done.
-		}
-	}
-
-	~CCrateLootListWrapper()
-	{
-		if ( m_bIsDynamicallyAllocatedLootList )
-		{
-			delete m_pLootList;
-		}
-	}
-
-	const IEconLootList *GetEconLootList() const
-	{
-		return m_pLootList;
-	}
-
-	uint32 GetAuditDetailData() const
-	{
-		return m_unAuditDetailData;
-	}
-	
-private:
-	CCrateLootListWrapper( const CCrateLootListWrapper& );		// intentionally unimplemented
-	void operator=( const CCrateLootListWrapper& );				// intentionally unimplemented
-
-private:
-	// Look for an attribute that specifies a crate series.
-	MUST_CHECK_RETURN bool BAttemptCrateSeriesInitialization( const IEconItemInterface *pEconItem );
-
-	// Look for an attribute that specifies a loot list by string name.
-	MUST_CHECK_RETURN bool BAttemptLootListStringInitialization( const IEconItemInterface *pEconItem );
-
-	// Look for a line-item-per-attribute list.
-	MUST_CHECK_RETURN bool BAttemptLineItemInitialization( const IEconItemInterface *pEconItem );
-
-private:
-	const IEconLootList *m_pLootList;
-	uint32 m_unAuditDetailData;
-	bool m_bIsDynamicallyAllocatedLootList;
-};
-
-//-----------------------------------------------------------------------------
 // Purpose: Maintains a handle to an CEconItem.  If the item gets deleted, this
 //			handle will return NULL when dereferenced
 //-----------------------------------------------------------------------------

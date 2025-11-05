@@ -452,10 +452,7 @@ public:
 	virtual itemid_t		GetID() const = 0;				// intentionally not called GetItemID to avoid stomping non-virtual GetItemID() on CEconItem
 	virtual uint32			GetAccountID() const = 0;
 	virtual style_index_t	GetStyle() const = 0;
-	virtual uint8			GetFlags() const = 0;
 	virtual eEconItemOrigin GetOrigin() const = 0;
-	virtual bool			GetInUse() const = 0;			// is this item in use somewhere in the backend? (ie., cross-game trading)
-	bool					BIsUnusual() const;
 
 	virtual const char	   *GetCustomName() const = 0;		// get a user-generated name, if present, otherwise NULL; return value is UTF8
 	virtual const char	   *GetCustomDesc() const = 0;		// get a user-generated flavor text, if present, otherwise NULL; return value is UTF8
@@ -473,8 +470,6 @@ public:
 
 	virtual IMaterial* GetMaterialOverride( int iTeam ) = 0;
 };
-
-bool GetStattrak( const IEconItemInterface *pItem, CAttribute_String *pAttrModule = NULL );
 
 //-----------------------------------------------------------------------------
 // Purpose: Classes that want default behavior for GetMaterialOverride, which 

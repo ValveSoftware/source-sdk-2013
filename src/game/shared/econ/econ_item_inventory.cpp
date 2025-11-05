@@ -20,7 +20,6 @@
 #include "econ_game_account_client.h"
 #include "ienginevgui.h"
 #include "econ/econ_item_preset.h"
-#include "tf_xp_source.h"
 #include "tf_notification.h"
 #else
 #include "props_shared.h"
@@ -32,8 +31,6 @@
 #include "tf_duel_summary.h"
 #include "econ_contribution.h"
 #include "tf_player_info.h"
-#include "tf_ladder_data.h"
-#include "tf_rating_data.h"
 #include <vgui_controls/Controls.h>
 #endif
 
@@ -283,8 +280,6 @@ void CInventoryManager::PreInitGC()
 #if defined (CLIENT_DLL)
 	REG_SHARED_OBJECT_SUBCLASS( CEconGameAccountClient );
 	REG_SHARED_OBJECT_SUBCLASS( CEconItemPerClassPresetData );
-	REG_SHARED_OBJECT_SUBCLASS( CSOTFMatchResultPlayerInfo );
-	REG_SHARED_OBJECT_SUBCLASS( CXPSource );
 	REG_SHARED_OBJECT_SUBCLASS( CTFNotification );
 #endif
 
@@ -293,7 +288,6 @@ void CInventoryManager::PreInitGC()
 	REG_SHARED_OBJECT_SUBCLASS( CTFDuelSummary );
 	REG_SHARED_OBJECT_SUBCLASS( CTFMapContribution );
 	REG_SHARED_OBJECT_SUBCLASS( CTFPlayerInfo );
-	REG_SHARED_OBJECT_SUBCLASS( CSOTFLadderData );
 #endif
 
 }
@@ -1325,61 +1319,6 @@ CON_COMMAND_F( item_deleteall, "WARNING: Removes all of the items in your invent
 	InventoryManager()->UpdateLocalInventory();
 }
 #endif
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int CPlayerInventory::GetRecipeCount() const
-{
-	const CUtlMap<int, CEconCraftingRecipeDefinition *, int>& mapRecipes = ItemSystem()->GetItemSchema()->GetRecipeDefinitionMap();
-
-	return mapRecipes.Count();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-const CEconCraftingRecipeDefinition *CPlayerInventory::GetRecipeDef( int iIndex )
-{
-	if ( !m_pSOCache )
-		return NULL;
-
-	if ( iIndex < 0 || iIndex >= GetRecipeCount() )
-		return NULL;
-
-	const CEconItemSchema::RecipeDefinitionMap_t& mapRecipes = GetItemSchema()->GetRecipeDefinitionMap();
-	
-	// Store off separate index for "number of items iterated over" in case something
-	// deletes from the recipes map out from under us.
-	int j = 0;
-	FOR_EACH_MAP_FAST( mapRecipes, i )
-	{
-		if ( j == iIndex )
-			return mapRecipes[i];
-
-		j++;
-	}
-
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-const CEconCraftingRecipeDefinition *CPlayerInventory::GetRecipeDefByDefIndex( uint16 iDefIndex )
-{
-	if ( !m_pSOCache )
-		return NULL;
-
-	// check always-known recipes
-	const CUtlMap<int, CEconCraftingRecipeDefinition *, int>& mapRecipes = ItemSystem()->GetItemSchema()->GetRecipeDefinitionMap();
-	int i = mapRecipes.Find( iDefIndex );
-	if ( i != mapRecipes.InvalidIndex() )
-		return mapRecipes[i];
-
-	// there are no more SO recipes
-	return NULL;
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: 

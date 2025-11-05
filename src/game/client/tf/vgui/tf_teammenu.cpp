@@ -350,16 +350,6 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 		if ( !C_TFPlayer::GetLocalTFPlayer() )
 			return;
 
-		bool bDisallowChange = false;
-		if ( C_TFPlayer::GetLocalTFPlayer()->GetTeamNumber() >= FIRST_GAME_TEAM )
-		{
-			const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-			if ( pMatchDesc && !pMatchDesc->BAllowTeamChange() )
-			{
-				bDisallowChange = true;
-			}
-		}
-
 		if ( ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN
 			   && C_TFPlayer::GetLocalTFPlayer()->GetTeamNumber() != TFGameRules()->GetWinningTeam()
 			   && C_TFPlayer::GetLocalTFPlayer()->GetTeamNumber() != TEAM_SPECTATOR 
@@ -367,7 +357,6 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 			 || TFGameRules()->State_Get() == GR_STATE_GAME_OVER
 			 // [msmith] Don't allow the player to switch teams when in training.
 			 || TFGameRules()->IsInTraining() 
-			 || bDisallowChange
 			)
 		{
 			SetVisible( false );

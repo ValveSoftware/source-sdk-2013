@@ -111,12 +111,6 @@ void CTFHudSpectatorExtras::OnTick()
 	if ( !g_PR )
 		return;
 
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-	{
-		Reset();
-		return;
-	}
-
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pLocalPlayer )
 		return;

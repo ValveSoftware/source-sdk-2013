@@ -11,7 +11,6 @@
 #include "tf_gamestats.h"
 #include "tf_gamerules.h"
 #include <coordsize.h>
-#include "tf_matchmaking_shared.h"
 
 #include "tf_mann_vs_machine_stats.h"
 #include "player_vs_environment/tf_population_manager.h"
@@ -50,11 +49,8 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayerResource, DT_TFPlayerResource )
 	SendPropArray3( SENDINFO_ARRAY3( m_iStreaks ), SendPropInt( SENDINFO_ARRAY( m_iStreaks ), -1, SPROP_UNSIGNED | SPROP_VARINT ) ),
 	SendPropArray3( SENDINFO_ARRAY3( m_iUpgradeRefundCredits ), SendPropInt( SENDINFO_ARRAY( m_iUpgradeRefundCredits ), -1, SPROP_UNSIGNED | SPROP_VARINT ) ),
 	SendPropArray3( SENDINFO_ARRAY3( m_iBuybackCredits ), SendPropInt( SENDINFO_ARRAY( m_iBuybackCredits ), -1, SPROP_UNSIGNED | SPROP_VARINT ) ),
-	SendPropInt( SENDINFO( m_iPartyLeaderRedTeamIndex ), -1, SPROP_UNSIGNED | SPROP_VARINT ),
-	SendPropInt( SENDINFO( m_iPartyLeaderBlueTeamIndex ), -1, SPROP_UNSIGNED | SPROP_VARINT ),
 	SendPropInt( SENDINFO( m_iEventTeamStatus ), -1, SPROP_UNSIGNED | SPROP_VARINT ),
 	SendPropArray3( SENDINFO_ARRAY3( m_iPlayerClassWhenKilled ), SendPropInt( SENDINFO_ARRAY( m_iPlayerClassWhenKilled ), 5, SPROP_UNSIGNED ) ),
-	SendPropArray3( SENDINFO_ARRAY3( m_iConnectionState ), SendPropInt( SENDINFO_ARRAY( m_iConnectionState ), 3, SPROP_UNSIGNED ) ),
 	SendPropArray3( SENDINFO_ARRAY3( m_flConnectTime ), SendPropTime( SENDINFO_ARRAY( m_flConnectTime ) ) ),
 END_SEND_TABLE()
 
@@ -68,9 +64,6 @@ CTFPlayerResource::CTFPlayerResource( void )
 	ListenForGameEvent( "mvm_wave_complete" );
 
 	m_flNextDamageAndHealingSend = 0.f;
-
-	m_iPartyLeaderRedTeamIndex = 0;
-	m_iPartyLeaderBlueTeamIndex = 0;
 	m_iEventTeamStatus = 0;
 }
 
@@ -92,39 +85,6 @@ void CTFPlayerResource::FireGameEvent( IGameEvent * event )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerResource::SetPartyLeaderIndex( int iTeam, int iIndex )
-{
-	Assert( iIndex >= 0 && iIndex <= MAX_PLAYERS );
-
-	switch( iTeam )
-	{
-	case TF_TEAM_RED:
-		m_iPartyLeaderRedTeamIndex = iIndex;
-		break;
-	case TF_TEAM_BLUE:
-		m_iPartyLeaderBlueTeamIndex = iIndex;
-		break;
-	default:
-		break;
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int CTFPlayerResource::GetPartyLeaderIndex( int iTeam )
-{
-	if ( iTeam == TF_TEAM_RED )
-		return m_iPartyLeaderRedTeamIndex;
-	else if ( iTeam == TF_TEAM_BLUE )
-		return m_iPartyLeaderBlueTeamIndex;
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CTFPlayerResource::UpdatePlayerData( void )
 {
 	m_vecRedPlayers.RemoveAll();
@@ -133,74 +93,9 @@ void CTFPlayerResource::UpdatePlayerData( void )
 
 	BaseClass::UpdatePlayerData();
 
-	// check if player is still part of the match
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pMatch && TFGameRules() )
-	{
-		for ( int i=0; i<pMatch->GetNumTotalMatchPlayers(); ++i )
-		{
-			AssertMsg( m_vecFreeSlots.Count() > 0, "There should always be free slots for player to join" );
-
-			CMatchInfo::PlayerMatchData_t *pData = pMatch->GetMatchDataForPlayer( i );
-			uint32 unAccountID = pData->steamID.GetAccountID();
-			int iTeam = TFGameRules()->GetGameTeamForGCTeam( pData->eGCTeam );
-			CUtlVector< uint32 >* pVecPlayers = iTeam == TF_TEAM_RED ? &m_vecRedPlayers : &m_vecBluePlayers;
-
-			// add players that are not yet connected to the server
-			if ( !pData->bDropped && pVecPlayers->Find( unAccountID ) == pVecPlayers->InvalidIndex() && m_vecFreeSlots.Count() > 0 )
-			{
-				int iIndex = m_vecFreeSlots[0];
-				m_vecFreeSlots.Remove( 0 );
-
-				AssertMsg( m_iAccountID[iIndex] == 0, "No account should be assigned to this slot" );
-
-				Init( iIndex );
-				m_iAccountID.Set( iIndex, unAccountID );
-				m_bValid.Set( iIndex, 1 );
-				m_iTeam.Set( iIndex, iTeam );
-				m_iConnectionState.Set( iIndex, pData->GetConnectionState() );
-			}
-		}
-
-		// do we need to set m_bValid on these?
-		if ( GTFGCClientSystem()->BLateJoinEligible() )
-		{
-			int iTeamSize = pMatch->GetCanonicalMatchSize() / 2;
-
-			int iRedWaiting = iTeamSize-m_vecRedPlayers.Count();
-			for ( int i=0; i<iRedWaiting && m_vecFreeSlots.Count() > 0; ++i )
-			{
-				int iIndex = m_vecFreeSlots[0];
-				m_vecFreeSlots.Remove( 0 );
-
-				AssertMsg( m_iAccountID[iIndex] == 0, "No account should be assigned to this slot" );
-
-				m_iTeam.Set( iIndex, TF_TEAM_RED );
-				m_iConnectionState.Set( iIndex, MM_WAITING_FOR_PLAYER );
-			}
-
-			int iBlueWaiting = iTeamSize-m_vecBluePlayers.Count();
-			for ( int i=0; i<iBlueWaiting && m_vecFreeSlots.Count() > 0; ++i )
-			{
-				int iIndex = m_vecFreeSlots[0];
-				m_vecFreeSlots.Remove( 0 );
-
-				AssertMsg( m_iAccountID[iIndex] == 0, "No account should be assigned to this slot" );
-
-				m_iTeam.Set( iIndex, TF_TEAM_BLUE );
-				m_iConnectionState.Set( iIndex, MM_WAITING_FOR_PLAYER );
-			}
-		}
-	}
-
 	if ( gpGlobals->curtime > m_flNextDamageAndHealingSend )
 	{
 		m_flNextDamageAndHealingSend = gpGlobals->curtime + STATS_SEND_FREQUENCY;
-	}
-
-	if ( pMatch && m_iEventTeamStatus != (int)pMatch->m_unEventTeamStatus )
-	{
-		m_iEventTeamStatus = pMatch->m_unEventTeamStatus;
 	}
 }
 
@@ -318,25 +213,6 @@ void CTFPlayerResource::UpdateConnectedPlayer( int iIndex, CBasePlayer *pPlayer 
 
 	int iTeam = pPlayer->GetTeamNumber();
 
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pMatch )
-	{
-		CMatchInfo::PlayerMatchData_t *pData = pMatch->GetMatchDataForPlayer( steamID );
-		if ( pData )
-		{
-			int iGCTeam = TFGameRules()->GetGameTeamForGCTeam( pData->eGCTeam );
-
-			// if the team hasn't been set yet in-game, we want to show them on the
-			// team the GC has assigned them to instead of spectator or unassigned
-			if ( ( iTeam == TEAM_UNASSIGNED ) || ( iTeam == TEAM_SPECTATOR ) )
-			{
-				m_iTeam.Set( iIndex, iGCTeam );
-			}
-
-			iTeam = iGCTeam;
-		}
-	}
-
 	CUtlVector< uint32 >* pVecPlayers = ( iTeam == TF_TEAM_RED ) ? &m_vecRedPlayers : ( ( iTeam == TF_TEAM_BLUE ) ? &m_vecBluePlayers : NULL );
 	if ( pVecPlayers )
 	{
@@ -345,8 +221,6 @@ void CTFPlayerResource::UpdateConnectedPlayer( int iIndex, CBasePlayer *pPlayer 
 			pVecPlayers->AddToTail( steamID.GetAccountID() );
 		}
 	}
-
-	m_iConnectionState.Set( iIndex, MM_CONNECTED );
 }
 
 
@@ -355,43 +229,7 @@ void CTFPlayerResource::UpdateConnectedPlayer( int iIndex, CBasePlayer *pPlayer 
 //-----------------------------------------------------------------------------
 void CTFPlayerResource::UpdateDisconnectedPlayer( int iIndex )
 {
-	// cache accountID to see if we should preserve this account
-	uint32 unAccountID = m_iAccountID[iIndex];
-
 	BaseClass::UpdateDisconnectedPlayer( iIndex );
-
-	// preserve if player is still in part of the match, and still gone
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pMatch )
-	{
-		CSteamID steamID( unAccountID, GetUniverse(), k_EAccountTypeIndividual );
-		if ( steamID.IsValid() )
-		{
-			CBasePlayer *pPlayer = (CBasePlayer*)UTIL_PlayerBySteamID( steamID );
-			CMatchInfo::PlayerMatchData_t *pData = pMatch->GetMatchDataForPlayer( steamID );
-			// Skip if they're connected
-			if ( pData && ( !pPlayer || !pPlayer->IsConnected() ) )
-			{
-				if ( !pData->bDropped )
-				{
-					int iTeam = TFGameRules()->GetGameTeamForGCTeam( pData->eGCTeam );
-					m_iConnectionState.Set( iIndex, pData->GetConnectionState() );
-					// re-apply the accountID to keep the data
-					m_iAccountID.Set( iIndex, unAccountID );
-					m_iTeam.Set( iIndex, iTeam );
-					m_bValid.Set( iIndex, 1 );
-
-					CUtlVector< uint32 >* pVecPlayers = iTeam == TF_TEAM_RED ? &m_vecRedPlayers : &m_vecBluePlayers;
-					pVecPlayers->AddToTail( unAccountID );
-					return;
-				}
-			}
-		}
-	}
-	
-	// free up the slot if we're not preserving it
-	m_iConnectionState.Set( iIndex, MM_DISCONNECTED );
-	m_vecFreeSlots.AddToTail( iIndex );
 }
 
 
@@ -416,7 +254,6 @@ void CTFPlayerResource::Init( int iIndex )
 	m_iPlayerClass.Set( iIndex, TF_CLASS_UNDEFINED );
 	m_iActiveDominations.Set( iIndex, 0 );
 	m_iPlayerClassWhenKilled.Set( iIndex, TF_CLASS_UNDEFINED );
-	m_iConnectionState.Set( iIndex, MM_DISCONNECTED );
 	m_bValid.Set( iIndex, 0 );
 	m_iP4ssScores.Set( iIndex, 0 );
 	m_iP4ssAssists.Set( iIndex, 0 );

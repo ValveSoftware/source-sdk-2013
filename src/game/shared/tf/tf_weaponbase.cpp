@@ -5772,10 +5772,6 @@ bool CTFWeaponBase::AreRandomCritsEnabled( void )
 	{
 		if ( TFGameRules()->IsPowerupMode() )
 			return false;
-
-		const IMatchGroupDescription *pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-		if ( pMatchDesc )
-			return pMatchDesc->BUsesRandomCrits();
 	}
 
 	return tf_weapon_criticals.GetBool();
@@ -6125,101 +6121,6 @@ void CTFWeaponBase::UpdateWeaponBodyGroups( CTFPlayer* pPlayer, bool bHandleDepl
 		pWpn->UpdateBodygroups( pPlayer, 1 );
 	}
 }
-
-
-#ifdef CLIENT_DLL
-//-----------------------------------------------------------------------------
-// Purpose: Weapon Level Notification
-//-----------------------------------------------------------------------------
-class CTFKillEaterNotification : public CEconNotification
-{
-public:
-	CTFKillEaterNotification( const CSteamID& KillerID, const wchar_t *wszWeaponName, const wchar_t *wszLevelName )
-		: CEconNotification() 
-	{
-		SetLifetime( 20.0f );
-
-		SetSteamID( KillerID );
-
-		SetText( "#TF_HUD_Event_KillEater_Leveled" );
-
-		AddStringToken( "weapon_name", wszWeaponName );
-
-		AddStringToken( "rank_name", wszLevelName );
-
-		SetSoundFilename( "misc/happy_birthday.wav" );
-	}
-
-	virtual EType NotificationType() { return eType_Basic; }
-};
-
-//-----------------------------------------------------------------------------
-// Purpose: GC Msg handler to receive the server response that we've killed a player.
-//-----------------------------------------------------------------------------
-class CGCPlayerKilledResponse : public GCSDK::CGCClientJob
-{
-public:
-	CGCPlayerKilledResponse( GCSDK::CGCClient *pClient ) : GCSDK::CGCClientJob( pClient ) {}
-
-	virtual bool BYieldingRunGCJob( GCSDK::IMsgNetPacket *pNetPacket )
-	{
-		GCSDK::CProtoBufMsg<CMsgGCIncrementKillCountResponse> msg( pNetPacket );
-
-		if ( !steamapicontext || !steamapicontext->SteamFriends() || !steamapicontext->SteamUser() || !steamapicontext->SteamUtils() )
-			return true;
-
-		item_definition_index_t unItemDef = msg.Body().item_def();
-		const CEconItemDefinition* pItemDef = ItemSystem()->GetStaticDataForItemByDefIndex( unItemDef );
-		if ( !pItemDef )
-			return true;
-
-		const char *pszKillerName = InventoryManager()->PersonaName_Get( msg.Body().killer_account_id() );
-		if ( !pszKillerName )
-			return true;
-
-		wchar_t wszPlayerName[1024];
-		g_pVGuiLocalize->ConvertANSIToUnicode( pszKillerName, wszPlayerName, sizeof(wszPlayerName) );
-
-		wchar_t* wszWeaponName = g_pVGuiLocalize->Find( pItemDef->GetItemBaseName() );
-
-		uint32 unLevelBlock = msg.Body().level_type();
-		const char *pszLevelBlockName = GetItemSchema()->GetKillEaterScoreTypeLevelingDataName( unLevelBlock );
-		
-		const CItemLevelingDefinition *pLevelDef = GetItemSchema()->GetItemLevelForScore( pszLevelBlockName, msg.Body().num_kills() );
-		if ( !pLevelDef )
-			return true;
-
-		wchar_t* wszLevelName = g_pVGuiLocalize->Find( pLevelDef->GetNameLocalizationKey() );
-
-		// Kyle says: the notifications were annoying people so instead of doing a full
-		//			  flashy thing we display a HUD message for everyone except the guy whose
-		//			  weapon it is. Basically, *you* get the flashy notification that your
-		//			  weapon leveled up, but everyone else just gets the HUD text.
-		if ( steamapicontext->SteamUser()->GetSteamID().GetAccountID() == msg.Body().killer_account_id() )
-		{
-			NotificationQueue_Add( new CTFKillEaterNotification( CSteamID( msg.Body().killer_account_id(), GetUniverse(), k_EAccountTypeIndividual ), wszWeaponName, wszLevelName ) );
-		}
-
-		// Everyone gets the HUD notification text.
-		CBaseHudChat *pHUDChat = (CBaseHudChat *)GET_HUDELEMENT( CHudChat );
-		if ( pHUDChat )
-		{
-			wchar_t wszNotification[1024]=L"";
-			g_pVGuiLocalize->ConstructString_safe( wszNotification, 
-				g_pVGuiLocalize->Find( "#TF_HUD_Event_KillEater_Leveled_Chat" ), 
-				3, wszPlayerName, wszWeaponName, wszLevelName );
-
-			char szAnsi[1024];
-			g_pVGuiLocalize->ConvertUnicodeToANSI( wszNotification, szAnsi, sizeof(szAnsi) );
-
-			pHUDChat->Printf( CHAT_FILTER_NONE, "%s", szAnsi );
-		}
-
-		return true;
-	}
-};
-GC_REG_JOB( GCSDK::CGCClient, CGCPlayerKilledResponse, "CGCPlayerKilledResponse", k_EMsgGC_IncrementKillCountResponse, GCSDK::k_EServerTypeGCClient );
-#endif
 
 bool WeaponID_IsSniperRifle( int iWeaponID )
 {

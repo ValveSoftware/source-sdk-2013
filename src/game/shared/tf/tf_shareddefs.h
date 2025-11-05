@@ -12,7 +12,6 @@
 
 #include "shareddefs.h"
 #include "mp_shareddefs.h"
-#include "tf_matchmaking_shared.h"
 
 // Using MAP_DEBUG mode?
 #ifdef MAP_DEBUG
@@ -170,8 +169,6 @@ enum
 #define PANEL_ARENA_TEAM	"arenateampanel"
 
 #define PANEL_PVE_WIN		"pvewinpanel"
-
-#define PANEL_GIVEAWAY_ITEM		"giveaway_item"
 
 #define PANEL_MAINMENUOVERRIDE	"MainMenuOverride"
 
@@ -2804,15 +2801,6 @@ enum StatMedal_t
 #define SF_TEAMSPAWN_PYRO		64
 #define	SF_TEAMSPAWN_SPY		128
 #define	SF_TEAMSPAWN_ENGINEER	256
-
-enum MM_PlayerConnectionState_t
-{
-	MM_DISCONNECTED = 0,
-	MM_CONNECTED,
-	MM_CONNECTING, // the server knows that this player is coming
-	MM_LOADING, // loading into the server
-	MM_WAITING_FOR_PLAYER
-};
 
 enum AttributeMeter_Type_t
 {

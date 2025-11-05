@@ -83,9 +83,6 @@ $Project "Server (TF)"
 
 			$File	"$SRCDIR\game\shared\tf\tf_proto_script_obj_def.h"
 			$File	"$SRCDIR\game\shared\tf\tf_proto_script_obj_def.cpp"
-
-			$File	"$SRCDIR\game\shared\tf\tf_ladder_data.h"
-			$File	"$SRCDIR\game\shared\tf\tf_ladder_data.cpp"
 		}
 
 		$Folder "Steam Workshop"
@@ -944,33 +941,8 @@ $Project "Server (TF)"
 			{
 				$File	"$SRCDIR\game\server\tf\tf_gc_server.cpp"
 				$File	"$SRCDIR\game\server\tf\tf_gc_server.h"
-				$File	"$SRCDIR\game\shared\lobby.cpp"
-				$File	"$SRCDIR\game\shared\lobby.h"
-				$File	"$SRCDIR\game\shared\tf\tf_lobby_server.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_lobby_server.h"
-				$File	"$SRCDIR\game\shared\tf\tf_lobby_shared.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_lobby_shared.h"
-				$File	"$SRCDIR\game\shared\tf\tf_party.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_party.h"
-				$File	"$SRCDIR\game\shared\tf\tf_matchmaking_shared.h"
-				$File	"$SRCDIR\game\shared\tf\tf_matchmaking_shared.cpp"
 				$File	"$SRCDIR\game\shared\tf\tf_gc_shared.h"
 				$File	"$SRCDIR\game\shared\tf\tf_gc_shared.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_match_description.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_match_description.h"
-				$File	"$SRCDIR\game\shared\tf\tf_match_description_shared.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_match_description_shared.h"
-				$File	"$SRCDIR\game\shared\tf\tf_match_description_casual.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_match_description_comp.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_match_description_mvm.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_progression.h"
-				$File	"$SRCDIR\game\shared\tf\tf_progression.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_progression_description.h"
-				$File	"$SRCDIR\game\shared\tf\tf_progression_description.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_progression_description_casual.h"
-				$File	"$SRCDIR\game\shared\tf\tf_progression_description_casual.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_progression_description_comp.h"
-				$File	"$SRCDIR\game\shared\tf\tf_progression_description_comp.cpp"
 			}
 		}
 

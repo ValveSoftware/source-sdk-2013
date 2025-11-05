@@ -1270,7 +1270,6 @@ CItemModelPanel::CItemModelPanel( vgui::Panel *parent, const char *name ) : vgui
 	m_pItemQuantityLabel = NULL;
 	m_pVisionRestrictionImage = NULL;
 	m_pIsUnusualImage = NULL;
-	m_pIsLoanerImage = NULL;
 	m_pSeriesLabel = NULL;
 	m_pMainContentContainer = NULL;
 	m_pLoadingSpinner = NULL;
@@ -1338,7 +1337,6 @@ void CItemModelPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	m_pItemQuantityLabel = NULL;
 	m_pVisionRestrictionImage = NULL;
 	m_pIsUnusualImage = NULL;
-	m_pIsLoanerImage = NULL;
 	m_pSeriesLabel = NULL;
 	m_pMatchesLabel = NULL;
 	m_pPaintIcon = NULL;
@@ -1426,7 +1424,6 @@ void CItemModelPanel::LoadResFileForCurrentItem( bool bForceLoad )
 	m_pVisionRestrictionImage = dynamic_cast<vgui::ImagePanel*>( FindChildByName( "vision_restriction_icon", true ) );
 
 	m_pIsUnusualImage = dynamic_cast<vgui::ImagePanel*>( FindChildByName( "is_unusual_icon", true ) );
-	m_pIsLoanerImage = dynamic_cast<vgui::ImagePanel*>( FindChildByName( "is_loaner_icon", true ) );
 
 	m_pSeriesLabel = dynamic_cast<vgui::Label*>( FindChildByName( "serieslabel", true ) );
 	m_pMatchesLabel = dynamic_cast<vgui::Label*>( FindChildByName( "matcheslabel", true ) );
@@ -1452,11 +1449,6 @@ void CItemModelPanel::LoadResFileForCurrentItem( bool bForceLoad )
 	{
 		m_pIsUnusualImage->SetKeyBoardInputEnabled( false );
 		m_pIsUnusualImage->SetMouseInputEnabled( false );
-	}
-	if ( m_pIsLoanerImage )
-	{
-		m_pIsLoanerImage->SetKeyBoardInputEnabled( false );
-		m_pIsLoanerImage->SetMouseInputEnabled( false );
 	}
 
 	if ( m_pSeriesLabel )
@@ -1715,12 +1707,6 @@ void CItemModelPanel::PerformLayout( void )
 		m_pIsUnusualImage->SetPos( xpos - m_pIsUnusualImage->GetWide(), ypos );
 		ypos += m_pIsUnusualImage->GetTall() * 0.9;
 	}
-	if ( m_pIsLoanerImage && m_pIsLoanerImage->IsVisible() )
-	{
-		m_pIsLoanerImage->SetPos( xpos - m_pIsLoanerImage->GetWide(), ypos );
-		ypos += m_pIsLoanerImage->GetTall() * 0.9;
-	}
-	
 
 	if ( m_pItemNameLabel )
 	{
@@ -2199,28 +2185,11 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 			{
 				const econ_item_description_line_t& line = pDescription->GetLine(i);
 
-				// skip the bonus content for mouse over panel
-				if ( m_bIsMouseOverPanel && line.unMetaType & kDescLineFlag_CaseBonusContent )
-					continue;
-
 				// skip mouse over panel only line
 				if ( !m_bIsMouseOverPanel && line.unMetaType & kDescLineFlag_MouseOverPanel )
 					continue;
 
-				if ( ( line.unMetaType & kDescLineFlag_CollectionName ) != 0 )
-				{
-					// Ignore name spacers
-					if ( !( line.unMetaType & kDescLineFlag_Empty) )
-					{
-						V_wcscat_safe( wszCollectionNameBuffer, line.sText.Get() );
-					}
-				}
-				else if ( ( line.unMetaType & kDescLineFlag_Collection ) != 0 )
-				{		
-					V_wcscat_safe( wszCollectionListBuffer, unWrittenCollectionLines++ == 0 ? L"" : L"\n" );					// add empty lines everywhere except before the first line
-					V_wcscat_safe( wszCollectionListBuffer, line.sText.Get() );
-				}
-				else if ( (line.unMetaType & kDescLineFlag_Name ) == 0 )
+				if ( (line.unMetaType & kDescLineFlag_Name ) == 0 )
 				{
 					V_wcscat_safe( wszAttribBuffer, unWrittenLines++ == 0 ? L"" : L"\n" );					// add empty lines everywhere except before the first line
 					V_wcscat_safe( wszAttribBuffer, line.sText.Get() );
@@ -2268,10 +2237,6 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 		for ( unsigned int i = 0; i < pDescription->GetLineCount(); i++ )
 		{
 			const econ_item_description_line_t& line = pDescription->GetLine(i);
-
-			// skip the bonus content for mouse over panel
-			if ( m_bIsMouseOverPanel && line.unMetaType & kDescLineFlag_CaseBonusContent )
-				continue;
 
 			// skip mouse over panel only line
 			if ( !m_bIsMouseOverPanel && line.unMetaType & kDescLineFlag_MouseOverPanel )
@@ -2417,10 +2382,6 @@ void CItemModelPanel::HideAllModifierIcons()
 	if ( m_pIsUnusualImage )
 	{
 		m_pIsUnusualImage->SetVisible( false );
-	}
-	if ( m_pIsLoanerImage )
-	{
-		m_pIsLoanerImage->SetVisible( false );
 	}
 	if ( m_pSeriesLabel )
 	{
@@ -2679,34 +2640,6 @@ void CItemModelPanel::UpdatePanels( void )
 		if ( !m_bModelOnly && pData )
 		{
 			nVisionFilterFlags = pData->GetVisionFilterFlags();
-
-			// Add support for all the holidays and "vision" mode restrictions
-			if ( pData->GetHolidayRestriction() )
-			{
-				int iHolidayRestriction = UTIL_GetHolidayForString( pData->GetHolidayRestriction() );
-				switch ( iHolidayRestriction )
-				{
-				default:
-				case kHoliday_None:
-				case kHoliday_TFBirthday:
-				case kHoliday_Christmas:
-				case kHoliday_Valentines:
-				case kHoliday_MeetThePyro:
-				case kHoliday_AprilFools:
-				case kHoliday_EOTL:
-				case kHoliday_CommunityUpdate:
-					break;
-
-				case kHoliday_Halloween:
-				case kHoliday_FullMoon:
-				case kHoliday_HalloweenOrFullMoon:
-				case kHoliday_HalloweenOrFullMoonOrValentines:
-					#ifdef TF_CLIENT_DLL
-						nVisionFilterFlags |= TF_VISION_FILTER_HALLOWEEN;
-					#endif
-					break;
-				}
-			}
 		}
 
 		switch ( nVisionFilterFlags )
@@ -2755,16 +2688,6 @@ void CItemModelPanel::UpdatePanels( void )
 				m_pIsUnusualImage->SetImage( "viewmode_unusual" );
 				m_pIsUnusualImage->SetVisible( true );
 			}
-		}
-	}
-
-	if ( m_pIsLoanerImage )
-	{
-		m_pIsLoanerImage->SetVisible( false );
-		if ( !m_bIsMouseOverPanel && GetAssociatedQuestID( &m_ItemData ) != INVALID_ITEM_ID )
-		{
-			m_pIsLoanerImage->SetImage( "viewmode_loaner" );
-			m_pIsLoanerImage->SetVisible( true );
 		}
 	}
 

@@ -160,7 +160,6 @@ void CTFStatsSummaryPanel::Init( void )
 	m_pTipText = new vgui::Label( this, "TipText", "" );
 	m_pMapInfoPanel = NULL;
 	m_pMainBackground = NULL;
-	m_pContributedPanel = NULL;
 
 #ifdef _X360
 	m_pFooter = new CTFFooter( this, "Footer" );
@@ -342,8 +341,6 @@ void CTFStatsSummaryPanel::UpdateMainBackground( void )
 		m_pMainBackground = dynamic_cast<ImagePanel *>( FindChildByName( "MainBackground" ) );
 		if ( m_pMainBackground )
 		{
-			const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GTFGCClientSystem()->GetLiveMatchGroup() );
-
 			// determine if we're in widescreen or not and select the appropriate image
 			int screenWide, screenTall;
 			surface()->GetScreenSize( screenWide, screenTall );
@@ -357,10 +354,6 @@ void CTFStatsSummaryPanel::UpdateMainBackground( void )
 			else if ( engine->IsLoadingDemo() || engine->IsPlayingDemo() || engine->IsSkippingPlayback() )
 			{
 				m_pMainBackground->SetImage( bIsWidescreen ? "../console/replay_loading_widescreen" : "../console/replay_loading" );
-			}
-			else if ( pMatchDesc && pMatchDesc->GetMapLoadBackgroundOverride( bIsWidescreen ) ) // Use match override if we have one
-			{
-				m_pMainBackground->SetImage( pMatchDesc->GetMapLoadBackgroundOverride( bIsWidescreen ) );
 			}
 			else
 			{
@@ -424,11 +417,6 @@ void CTFStatsSummaryPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	}
 	m_pClassComboBox->ActivateItemByRow( 0 );
 
-	if ( m_pMapInfoPanel )
-	{
-		m_pContributedPanel = dynamic_cast< vgui::EditablePanel* >( m_pMapInfoPanel->FindChildByName( "ContributedLabel" ) );
-	}
-
 	SetDefaultSelections();
 	UpdateDialog();
 
@@ -487,11 +475,6 @@ void CTFStatsSummaryPanel::ClearMapLabel()
 	{
 		pLabel->SetVisible( false );
 	}
-
-	if ( m_pContributedPanel )
-	{
-		m_pContributedPanel->SetVisible( false );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -531,31 +514,6 @@ void CTFStatsSummaryPanel::OnMapLoad( const char *pMapName )
 	bool bIsMVM = ( pMapName && !Q_strncmp( pMapName, "mvm_", 4 ) );
 	bool bIsMVMBackground = false;
 	const char *pszBackgroundOverride = NULL;
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GTFGCClientSystem()->GetLiveMatchGroup() );
-	if ( pMatchDesc )
-	{
-		int screenWide, screenTall;
-		surface()->GetScreenSize( screenWide, screenTall );
-		float aspectRatio = (float)screenWide/(float)screenTall;
-		bool bWideScreen = aspectRatio >= 1.5999f;
-
-		// Check if there's a widescreen override
-		if( bWideScreen )
-		{
-			pszBackgroundOverride = pMatchDesc->GetMapLoadBackgroundOverride( true );
-			if ( pszBackgroundOverride )
-			{
-				// Success!  We're done
-				bWidescreenBackground = true;
-			}
-		}
-		
-		if ( !bWideScreen && !pszBackgroundOverride )
-		{
-			pszBackgroundOverride = pMatchDesc->GetMapLoadBackgroundOverride( false );
-		}
-		
-	}
 	
 	if ( bIsMVM && !pszBackgroundOverride )
 	{
@@ -672,16 +630,6 @@ void CTFStatsSummaryPanel::OnMapLoad( const char *pMapName )
 			}
 
 			m_bLoadingCommunityMap = bIsCommunityMap;
-
-			if ( m_pContributedPanel && steamapicontext && steamapicontext->SteamUser() && steamapicontext->SteamFriends() )
-			{
-				int iDonationAmount = MapInfo_GetDonationAmount( steamapicontext->SteamUser()->GetSteamID().GetAccountID(), pMapName );
-				m_pContributedPanel->SetVisible( iDonationAmount != 0 );
-				if ( iDonationAmount != 0 )
-				{
-					m_pContributedPanel->SetDialogVariable( "playername", steamapicontext->SteamFriends()->GetPersonaName() );
-				}
-			}
 		}
 	}
 }

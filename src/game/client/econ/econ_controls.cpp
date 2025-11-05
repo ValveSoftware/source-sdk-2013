@@ -961,8 +961,6 @@ void CExRichText::OnTick()
 //-----------------------------------------------------------------------------
 CEconItemDetailsRichText::CEconItemDetailsRichText( vgui::Panel *parent, const char *panelName )
 :	BaseClass( parent, panelName ),
-	m_bAllowItemSetLinks( false ),
-	m_bLimitedItem( false ),
 	m_hLinkFont( INVALID_FONT )
 {
 }
@@ -975,11 +973,9 @@ void CEconItemDetailsRichText::ApplySettings( KeyValues *inResourceData )
 	BaseClass::ApplySettings( inResourceData );
 
 	const char *pszHighlightColor = inResourceData->GetString( "highlight_color", "Orange" );
-	const char *pszItemSetColor = inResourceData->GetString( "itemset_color", "Blue" );
 	const char *pszLinkColor = inResourceData->GetString( "link_color", "LightOrange" );
 	IScheme *pScheme = scheme()->GetIScheme( GetScheme() );
 	m_colTextHighlight = pScheme->GetColor( pszHighlightColor, Color( 255, 255, 255, 255 ) );
-	m_colItemSet = pScheme->GetColor( pszItemSetColor, Color( 255, 255, 255, 255 ) );
 	m_colLink = pScheme->GetColor( pszLinkColor, Color( 255, 255, 255, 255 ) );
 	m_hLinkFont = pScheme->GetFont( "Link", true );
 }
@@ -1001,9 +997,6 @@ void CEconItemDetailsRichText::UpdateDetailsForItem( const CEconItemDefinition *
 {
 	SetText( "" );
 
-	DataText_AppendStoreFlags( pDef );
-	DataText_AppendItemData( pDef );
-	DataText_AppendAttributeData( pDef );
 	DataText_AppendUsageData( pDef );
 }
 
@@ -1041,7 +1034,6 @@ void CEconItemDetailsRichText::AddDataText( const char *pszText, bool bAddPostLi
 		{
 			STATE_COLOR_NORMAL = 1,
 			STATE_COLOR_HINT,
-			STATE_COLOR_ITEMSET,
 			STATE_LINK_START,
 			STATE_LINK_STOP,
 		};
@@ -1070,10 +1062,6 @@ void CEconItemDetailsRichText::AddDataText( const char *pszText, bool bAddPostLi
 				break;
 			case STATE_COLOR_HINT:
 				newColor = m_colTextHighlight;
-				bSetText = true;
-				break;
-			case STATE_COLOR_ITEMSET:
-				newColor = m_colItemSet;
 				bSetText = true;
 				break;
 			case STATE_LINK_START:
@@ -1220,76 +1208,6 @@ void CEconItemDetailsRichText::DataText_AppendUsageData( const CEconItemDefiniti
 #endif // #if defined(TF_DLL) || defined(TF_CLIENT_DLL)
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDetailsRichText::DataText_AppendStoreFlags( const CEconItemDefinition *pDef )
-{
-	if ( !ItemSystem() || !ItemSystem()->GetItemSchema() )
-		return;
-
-	const bool bHolidayRestriction = pDef->GetHolidayRestriction() != NULL && V_strlen( pDef->GetHolidayRestriction() ) > 0;
-	if ( bHolidayRestriction )
-	{
-		wchar_t *pRestrictedText = g_pVGuiLocalize->Find( "#Store_HolidayRestrictionText" );
-
-		if ( pRestrictedText )
-		{
-			InsertColorChange( Color( 200, 80, 60, 255 ) );
-			InsertString( pRestrictedText );
-			InsertString( L".\n\n" );
-		}
-	}
-
-	if ( m_bLimitedItem )
-	{
-		wchar_t *pLocText = bHolidayRestriction
-						  ? g_pVGuiLocalize->Find( "#TF_Armory_Item_Limited_Holiday" )
-						  : g_pVGuiLocalize->Find( "#TF_Armory_Item_Limited" );
-		
-		if ( pLocText )
-		{
-			InsertColorChange( Color( 255, 140, 0, 255 ) );
-			InsertString ( pLocText );
-			InsertString( L"\n\n" );
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDetailsRichText::DataText_AppendItemData( const CEconItemDefinition *pDef )
-{
-	if ( !GetItemSchema() )
-		return;
-
-	// Can this item be earned by an achievement?
-	const AchievementAward_t *pAchievementAward = GetItemSchema()->GetAchievementRewardByDefIndex( pDef->GetDefinitionIndex() );
-	if( pAchievementAward )
-	{
-		wchar_t *pszAchName = ACHIEVEMENT_LOCALIZED_NAME_FROM_STR( pAchievementAward->m_sNativeName.String() );
-		if ( pszAchName )
-		{
-			AddDataText( "#TF_Armory_Item_AchievementReward", true, pszAchName );
-		}
-	}
-
-	// Is this a Holiday item?
-	if ( pDef->GetHolidayRestriction() )
-	{
-		AddDataText( "#TF_Armory_Item_HolidayRestriction" );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDetailsRichText::DataText_AppendAttributeData( const CEconItemDefinition *pDef )
-{
-	if ( !ItemSystem() || !ItemSystem()->GetItemSchema() )
-		return;
-}
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

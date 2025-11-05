@@ -18,7 +18,6 @@
 #include "tf_hud_mann_vs_machine_scoreboard.h"
 
 class CAvatarImagePanel;
-class CTFBadgePanel;
 //class CTFStatsGraph;
 
 //-----------------------------------------------------------------------------
@@ -81,7 +80,6 @@ private:
 	void InitializeInputScheme( void );
 
 	void AdjustForVisibleScrollbar( void );
-	void UpdateBadgePanels( CUtlVector<CTFBadgePanel*> &pBadgePanels, vgui::SectionedListPanel *pPlayerList );
 
 	virtual void FireGameEvent( IGameEvent *event );
 
@@ -172,9 +170,6 @@ private:
 	CAvatarImagePanel			*m_pBlueLeaderAvatarImage;
 	EditablePanel				*m_pBlueLeaderAvatarBG;
 	vgui::ImagePanel			*m_pBlueTeamImage;
-
-	CUtlVector< CTFBadgePanel* > m_pBlueBadgePanels;
-	CUtlVector< CTFBadgePanel* > m_pRedBadgePanels;
 
 	CHandle< C_TFPlayer >		m_hSelectedPlayer;
 	bool						m_bUsePlayerModel;

@@ -112,7 +112,6 @@
 #include "player_resource.h"
 #include "tf_player_resource.h"
 #include "gcsdk/gcclient_sharedobjectcache.h"
-#include "tf_party.h"
 #include "passtime_convars.h"
 
 #ifdef TF_RAID_MODE
@@ -285,7 +284,6 @@ extern ConVar sv_maxunlag;
 extern ConVar tf_allow_taunt_switch;
 extern ConVar weapon_medigun_chargerelease_rate;
 extern ConVar tf_scout_energydrink_consume_rate;
-extern ConVar tf_mm_trusted;
 extern ConVar mp_spectators_restricted;
 extern ConVar mp_teams_unbalance_limit;
 extern ConVar tf_tournament_classchange_allowed;
@@ -2224,9 +2222,6 @@ void CTFPlayer::CheckForIdle( void )
 		if ( IsFakeClient() )
 			return;
 
-		if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-			return;
-
 		if ( TFGameRules()->State_Get() == GR_STATE_BETWEEN_RNDS )
 			return;
 
@@ -3486,8 +3481,7 @@ void CTFPlayer::Spawn()
 	}
 
 	// If they're spawning into the world as fresh meat, give them items and stuff.
-	bool bMatchSummary = TFGameRules() && TFGameRules()->ShowMatchSummary();
-	if ( m_Shared.InState( TF_STATE_ACTIVE ) || bMatchSummary )
+	if ( m_Shared.InState( TF_STATE_ACTIVE ) )
 	{
 		// remove our disguise each time we spawn
 		if ( m_Shared.InCond( TF_COND_DISGUISED ) )
@@ -3495,10 +3489,8 @@ void CTFPlayer::Spawn()
 			m_Shared.RemoveDisguise();
 		}
 
-		if ( !bMatchSummary )
-		{
-			EmitSound( "Player.Spawn" );
-		}
+		EmitSound( "Player.Spawn" );
+
 		m_bRespawning = true;
 		InitClass();
 		m_bRespawning = false;
@@ -3782,29 +3774,6 @@ void CTFPlayer::Spawn()
 	if ( pResource )
 	{
 		pResource->SetPlayerClassWhenKilled( entindex(), TF_CLASS_UNDEFINED );
-	}
-
-	if ( TFGameRules()->State_Get() == GR_STATE_BETWEEN_RNDS )
-	{
-		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-		if ( pMatchDesc && pMatchDesc->BUsesAutoReady() )
-		{
-			TFGameRules()->PlayerReadyStatus_UpdatePlayerState( this, true );
-		}
-	}
-
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pMatch )
-	{
-		CSteamID steamID;
-		GetSteamID( &steamID );
-
-		// This client entered a running match
-		CMatchInfo::PlayerMatchData_t *pMatchPlayer = pMatch->GetMatchDataForPlayer( steamID );
-		if ( pMatchPlayer && TFGameRules() && TFGameRules()->State_Get() == GR_STATE_RND_RUNNING )
-		{
-			pMatchPlayer->bPlayed = true;
-		}
 	}
 
 	if ( m_nMaxHealthDrainBucket )
@@ -4273,15 +4242,6 @@ bool CTFPlayer::ItemIsAllowed( CEconItemView *pItem )
 	if ( V_stristr( pItem->GetItemDefinition()->GetDefinitionName(), "passtime" ) )
 	{
 		return TFGameRules() && TFGameRules()->IsPasstimeMode();
-	}
-
-	// Holiday Restriction
-	CEconItemDefinition* pData = pItem->GetStaticData();
-	if ( TFGameRules() && pData && pData->GetHolidayRestriction() )
-	{
-		int iHolidayRestriction = UTIL_GetHolidayForString( pData->GetHolidayRestriction() );
-		if ( iHolidayRestriction != kHoliday_None && !TFGameRules()->IsHolidayActive( iHolidayRestriction ) )
-			return false;
 	}
 
 	if ( TFGameRules()->InStalemate() && mp_stalemate_meleeonly.GetBool() )
@@ -5516,10 +5476,8 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 	}
 #endif // TF_RAID_MODE
 
-	bool bMatchSummary = TFGameRules() && TFGameRules()->ShowMatchSummary();
-
 	// See if the map is asking to force this player to spawn at a specific location
-	if ( GetRespawnLocationOverride() && !bMatchSummary )
+	if ( GetRespawnLocationOverride() )
 	{
 		if ( SelectSpawnSpotByName( GetRespawnLocationOverride(), pSpot ) )
 		{
@@ -5576,7 +5534,6 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 //-----------------------------------------------------------------------------
 bool CTFPlayer::SelectSpawnSpotByType( const char *pEntClassName, CBaseEntity* &pSpot )
 {
-	bool bMatchSummary = TFGameRules()->ShowMatchSummary();
 	CBaseEntity *pMatchSummaryFallback = NULL;
 
 	// Get an initial spawn point.
@@ -5625,19 +5582,6 @@ bool CTFPlayer::SelectSpawnSpotByType( const char *pEntClassName, CBaseEntity* &
 
 	next_spawn_point:;
 
-		// Let's save off a fallback spot for competitive mode
-		if ( bMatchSummary && !pMatchSummaryFallback )
-		{
-			CTFTeamSpawn *pCTFSpawn = dynamic_cast<CTFTeamSpawn*>( pSpot );
-			if ( pCTFSpawn )
-			{
-				if ( ( pCTFSpawn->GetTeamNumber() == pCTFSpawn->GetTeamNumber() ) && ( pCTFSpawn->GetMatchSummaryType() == PlayerTeamSpawn_MatchSummary_None ) )
-				{
-					pMatchSummaryFallback = pCTFSpawn;
-				}
-			}
-		}
-
 		// Get the next spawning point to check.
 		pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
 
@@ -5660,13 +5604,6 @@ bool CTFPlayer::SelectSpawnSpotByType( const char *pEntClassName, CBaseEntity* &
 	} 
 	// Continue until a valid spawn point is found or we hit the start.
 	while ( pSpot != pFirstSpot );
-
-	// Return a fallback spot for competitive mode
-	if ( bMatchSummary && pMatchSummaryFallback )
-	{
-		pSpot = pMatchSummaryFallback;
-		return true;
-	}
 
 	return false;
 }
@@ -5976,19 +5913,7 @@ bool CTFPlayer::ShouldForceAutoTeam( void )
 	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
 		return true;
 
-	if ( TFGameRules() && TFGameRules()->IsCompetitiveMode() )
-		return true;
-
-	bool bForce = false;
-
-	// On official servers, and in normal game modes, see if we should re-assign returning players
-	if ( TFGameRules() && TFGameRules()->IsDefaultGameMode() )
-	{
-		int nTimeSinceLast = TFGameRules()->PlayerHistory_GetTimeSinceLastSeen( this );
-		bForce = ( tf_mm_trusted.GetBool() && nTimeSinceLast > 0 && nTimeSinceLast < 60 );
-	}
-
-	return bForce;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -6001,13 +5926,7 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 
 	if ( GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_BLUE )
 	{
-		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-		if ( pMatchDesc && !pMatchDesc->BAllowTeamChange() )
-		{
-			ClientPrint( this, HUD_PRINTCENTER, "#TF_Ladder_NoTeamChange" );
-			return;
-		}
-		else if ( TFGameRules()->ArePlayersInHell() || TFGameRules()->IsPowerupMode() )
+		if ( TFGameRules()->ArePlayersInHell() || TFGameRules()->IsPowerupMode() )
 		{
 			ClientPrint( this, HUD_PRINTCENTER, "#TF_CantChangeTeamNow" );
 			return;
@@ -6131,7 +6050,7 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		}
 
 		// Deny spectator access if it would unbalance the teams
-		if ( ( mp_spectators_restricted.GetBool() || tf_mm_trusted.GetBool() ) && TFGameRules() && !TFGameRules()->IsMannVsMachineMode() )
+		if ( ( mp_spectators_restricted.GetBool() ) && TFGameRules() && !TFGameRules()->IsMannVsMachineMode() )
 		{
 			if ( GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_BLUE )
 			{
@@ -6507,24 +6426,6 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName, bool bAllowSpaw
 // 		return;
 // 	}
 
-	if ( TFGameRules()->IsCompetitiveMode() )
-	{
-		if ( !tf_tournament_classchange_allowed.GetBool() && 
-			 TFGameRules()->State_Get() == GR_STATE_RND_RUNNING )
-		{
-			ClientPrint( this, HUD_PRINTCENTER, "#TF_Ladder_NoClassChangeRound" );
-			return;
-		}
-
-		if ( !tf_tournament_classchange_ready_allowed.GetBool() && 
-			 TFGameRules()->State_Get() == GR_STATE_BETWEEN_RNDS && 
-			 TFGameRules()->IsPlayerReady( entindex() ) )
-		{
-			ClientPrint( this, HUD_PRINTCENTER, "#TF_Ladder_NoClassChangeReady" );
-			return;
-		}
-	}
-
 	if ( GetTeamNumber() == TEAM_UNASSIGNED )
 		return;
 
@@ -6638,23 +6539,6 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName, bool bAllowSpaw
 			// We failed to find a random class. Bring up the class menu again.
 			ShowViewPortPanel( ( GetTeamNumber() == TF_TEAM_RED ) ? PANEL_CLASS_RED : PANEL_CLASS_BLUE );
 			return;
-		}
-	}
-
-	if ( TFGameRules() && TFGameRules()->State_Get() == GR_STATE_RND_RUNNING )
-	{
-		// Bit field of classes played during the game
-		CSteamID steamID;
-		GetSteamID( &steamID );
-
-		CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-		if ( pMatch )
-		{
-			CMatchInfo::PlayerMatchData_t *pMatchPlayer = pMatch->GetMatchDataForPlayer( steamID );
-			if ( pMatchPlayer )
-			{
-				pMatchPlayer->UpdateClassesPlayed( GetPlayerClass()->GetClassIndex() );
-			}
 		}
 	}
 
@@ -7715,19 +7599,15 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	{
 		if ( ShouldRunRateLimitedCommand( args ) )
 		{
-			const IMatchGroupDescription *pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-			if ( !pMatchDesc || pMatchDesc->BAllowTeamChange() )
+			bool bPreventCustomGameModeChange = ( IsCustomGameMode() && ( GetTeamNumber() >= FIRST_GAME_TEAM ) );
+			if ( !bPreventCustomGameModeChange )
 			{
-				bool bPreventCustomGameModeChange = ( IsCustomGameMode() && ( GetTeamNumber() >= FIRST_GAME_TEAM ) );
-				if ( !bPreventCustomGameModeChange )
-				{
-					int iTeam = GetAutoTeam();
-					ChangeTeam( iTeam, true, false );
+				int iTeam = GetAutoTeam();
+				ChangeTeam( iTeam, true, false );
 
-					if ( iTeam > LAST_SHARED_TEAM )
-					{
-						ShowViewPortPanel( ( iTeam == TF_TEAM_RED ) ? PANEL_CLASS_RED : PANEL_CLASS_BLUE );
-					}
+				if ( iTeam > LAST_SHARED_TEAM )
+				{
+					ShowViewPortPanel( ( iTeam == TF_TEAM_RED ) ? PANEL_CLASS_RED : PANEL_CLASS_BLUE );
 				}
 			}
 		}
@@ -7804,60 +7684,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 
 		return true;
 	}
-	else if ( FStrEq( "next_map_vote", pcmd ) )
-	{
-		CTFGameRules::EUserNextMapVote eVoteState = (CTFGameRules::EUserNextMapVote)atoi( args[1] );
-		switch( eVoteState )
-		{
-		case CTFGameRules::USER_NEXT_MAP_VOTE_MAP_0:
-		case CTFGameRules::USER_NEXT_MAP_VOTE_MAP_1:
-		case CTFGameRules::USER_NEXT_MAP_VOTE_MAP_2:
-			// Valid
-			break;
-		default:
-			// Invalid
-			Assert( false );
-			return true;
-		}
-
-		// No flip flop!
-		if ( TFGameRules()->PlayerNextMapVoteState( entindex() ) != CTFGameRules::USER_NEXT_MAP_VOTE_UNDECIDED )
-			return true;
-
-		// Needs to do next-map voting
-		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-		if ( !pMatchDesc || !pMatchDesc->BUsesMapVoteAfterMatchEnds() )
-			return true;
-
-		if ( TFGameRules()->State_Get() != GR_STATE_GAME_OVER )
-			return true;
-
-		CMatchInfo* pMatch = GTFGCClientSystem()->GetMatch();
-		if ( !pMatch )
-			return true;
-
-		TFGameRules()->SetPlayerNextMapVote( entindex(), eVoteState );
-		DevMsg( "Settings player %d to rematch vote state %d.\n", entindex(), eVoteState );
-		
-		return true;
-	}
-
-//	Disabled to avoid an exploit in pass time
-/*	else if ( FStrEq( "cyoa_pda_open", pcmd ) )
-	{
-		bool bOpen = atoi( args[1] ) != 0;
-
-		if ( bOpen && IsTaunting() )
-		{
-			ClientPrint( this, HUD_PRINTCENTER, "#TF_CYOA_PDA_Taunting" );
-		}
-		else
-		{
-			m_bViewingCYOAPDA.Set( bOpen );
-			TeamFortress_SetSpeed();
-		}
-		return true;
-	}*/
 
 	return BaseClass::ClientCommand( args );
 }
@@ -9979,9 +9805,6 @@ void CTFPlayer::CommitSuicide( bool bExplode /* = false */, bool bForce /*= fals
 	{
 		return;
 	}
-
-	if ( TFGameRules()->ShowMatchSummary() )
-		return;
 
 	// No suicide while a ghost!
 	if ( m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) )
@@ -13439,10 +13262,7 @@ bool CTFPlayer::SetObserverMode(int mode)
 		return false;
 
 	if ( mode < OBS_MODE_NONE || mode >= NUM_OBSERVER_MODES )
-		return false;
-
-	if ( TFGameRules()->ShowMatchSummary() )
-		return false;
+		return false;;
 
 	// Skip over OBS_MODE_POI if we're not in Passtime mode
 	if ( mode == OBS_MODE_POI )
@@ -13481,13 +13301,6 @@ bool CTFPlayer::SetObserverMode(int mode)
 
 	// this is the old behavior, still supported for community servers
 	bool bAllowSpecModeChange = TFGameRules()->IsInTournamentMode() ? TFGameRules()->IsMannVsMachineMode() : true;
-
-	// new behavior for Valve casual, competitive, and mvm matches
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-	if ( pMatchDesc )
-	{
-		bAllowSpecModeChange = pMatchDesc->BAllowSpectatorModeChange();
-	}
 
 	if ( !bAllowSpecModeChange )
 	{
@@ -16087,16 +15900,7 @@ bool CTFPlayer::IsValidObserverTarget( CBaseEntity * target )
 
 	if ( !target->IsPlayer() )
 	{
-		bool bStrictRules = false;
-		const IMatchGroupDescription *pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-		if ( pMatchDesc )
-		{
-			bStrictRules = pMatchDesc->BUsesStrictSpectatorRules();
-		}
-		else
-		{
-			bStrictRules = ( TFGameRules()->IsInTournamentMode() && !TFGameRules()->IsMannVsMachineMode() );
-		}
+		bool bStrictRules = TFGameRules()->IsInTournamentMode() && !TFGameRules()->IsMannVsMachineMode();
 
 		if ( bStrictRules )
 		{
@@ -16896,9 +16700,6 @@ bool CTFPlayer::IsAllowedToInitiateTauntWithPartner( const CEconItemView *pEconI
 {
 	Vector vecEnd;
 	float flTolerance;
-
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		return true;
 
 	bool ret = FindOpenTauntPartnerPosition( pEconItemView, vecEnd, &flTolerance );
 
@@ -19139,9 +18940,7 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 	criteriaSet.AppendCriteria( "RoundsPlayed", UTIL_VarArgs( "%d", TFGameRules()->GetRoundsPlayed() ) );
 
 	// Is this a 6v6 match?
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	bool bIsComp6v6 = ( pMatch && pMatch->m_eMatchGroup == k_eTFMatchGroup_Ladder_6v6 );
-	criteriaSet.AppendCriteria( "IsComp6v6", bIsComp6v6 ? "1" : "0" );
+	criteriaSet.AppendCriteria( "IsComp6v6", "0" );
 
 	bool bIsCompWinner = m_Shared.InCond( TF_COND_COMPETITIVE_WINNER );
 	criteriaSet.AppendCriteria( "IsCompWinner",  bIsCompWinner ? "1" : "0" );
@@ -22016,10 +21815,6 @@ void CTFPlayer::PlayReadySound( void )
 			{
 				pszFormat = "%s.ReadyMvM";
 			}
-			else if ( TFGameRules()->IsCompetitiveMode() )
-			{
-				pszFormat = "%s.ReadyComp";
-			}
 
 			CFmtStr goYell( pszFormat, g_aPlayerClassNames_NonLocalized[ m_Shared.GetDesiredPlayerClassIndex() ] );
 			TFGameRules()->BroadcastSound( iTeam, goYell, 0, this );
@@ -22547,27 +22342,6 @@ bool CTFPlayer::IsTruceValidForEnt( void ) const
 		return false;
 
 	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CTFPlayer::BHaveChatSuspensionInCurrentMatch()
-{
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pMatch )
-	{
-		CSteamID steamID;
-		GetSteamID( &steamID );
-
-		CMatchInfo::PlayerMatchData_t *pMatchPlayer = pMatch->GetMatchDataForPlayer( steamID );
-		if ( pMatchPlayer && pMatchPlayer->bChatSuspension )
-		{
-			return true;
-		}
-	}
-
-	return false;
 }
 
 //-----------------------------------------------------------------------------

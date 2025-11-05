@@ -484,11 +484,6 @@ void CTFPlayerAnimState::Update( float eyeYaw, float eyePitch )
 			}
 #endif
 		}
-		else if ( TFGameRules()->PlayersAreOnMatchSummaryStage() )
-		{
-			m_bForceAimYaw = true;
-			m_flEyeYaw = pTFPlayer->GetTauntYaw();
-		}
 		
 		if ( !bIsImmobilized || bInTaunt || bInKart )
 		{

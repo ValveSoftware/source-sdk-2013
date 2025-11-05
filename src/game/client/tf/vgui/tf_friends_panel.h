@@ -37,8 +37,6 @@ public:
 
 	const CSteamID& GetFriendSteamID() const { return m_steamID; }
 
-	MESSAGE_FUNC( DoInviteToParty, "Context_InviteParty" );
-	MESSAGE_FUNC( DoJoinParty, "Context_JoinParty" );
 	MESSAGE_FUNC( DoJoinServer, "Context_JoinServer" );
 	MESSAGE_FUNC( DoSendMessage, "Context_SendMessage" );
 

@@ -16,8 +16,6 @@
 #include "econ_controls.h"
 #include "vgui/ISurface.h"
 #include "tf_hud_arena_player_count.h"
-#include "tf_match_description.h"
-#include "tf_matchmaking_shared.h"
 
 using namespace vgui;
 extern ConVar tf_hud_show_servertimelimit;
@@ -929,9 +927,6 @@ bool CTFHudKothTimeStatus::ShouldDraw()
 {
 	if ( TFGameRules() )
 	{
-		if ( TFGameRules()->ShowMatchSummary() )
-			return false;
-
 		if ( TFGameRules()->IsInKothMode() && !TeamplayRoundBasedRules()->IsInWaitingForPlayers() )
 		{
 			C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();

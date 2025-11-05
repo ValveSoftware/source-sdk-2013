@@ -33,7 +33,6 @@
 #include "tf_playerpanel.h"
 
 #include "tf_gc_client.h"
-#include "tf_lobby_server.h"
 
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
@@ -94,32 +93,6 @@ bool CTFPlayerPanel::Update( void )
 	m_bPlayerReadyModeActive = ( !bObserver &&
 								 TFGameRules()->UsePlayerReadyStatusMode() &&
 								 TFGameRules()->State_Get() == GR_STATE_BETWEEN_RNDS );
-
-	CTFGSLobby *pLobby = GTFGCClientSystem()->GetLobby();
-	if ( pLobby )
-	{
-		int idxMember = pLobby->GetMemberIndexBySteamID( m_steamID );
-		if ( idxMember >= 0 )
-		{
-			ConstTFLobbyPlayer member = pLobby->GetMemberDetails( idxMember );
-			// Keep this updated
-			m_nGCTeam = member.GetTeam();
-
-			RTime32 rtLastConnect = member.GetLastConnectTime();
-			if ( !m_iPlayerIndex && rtLastConnect != 0 )
-			{
-				int iDisconnectTimeRemaining = CRTime::RTime32DateAdd( rtLastConnect, 180, k_ETimeUnitSecond ) - CRTime::RTime32TimeCur();
-				if ( iDisconnectTimeRemaining <= 0 )
-				{
-					flRespawnWait = -1.0f; // Or handle disconnected state differently?
-				}
-				else
-				{
-					flRespawnWait = (float)iDisconnectTimeRemaining; // Keep as float
-				}
-			}
-		}
-	}
 
 	if ( IsVisible() != bVisible )
 	{

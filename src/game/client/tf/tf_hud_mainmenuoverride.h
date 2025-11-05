@@ -36,12 +36,7 @@ using namespace GCSDK;
 
 class CExButton;
 class HTML;
-class CSaxxyAwardsPanel;
 class CTFStreamListPanel;
-class CLobbyContainerFrame_Comp;
-class CLobbyContainerFrame_MvM;
-class CLobbyContainerFrame_Casual;
-class CPvPRankPanel;
 
 enum mm_button_styles
 {
@@ -115,8 +110,6 @@ public:
 	RTime32		 GetLastMOTDRequestTime( void ) { return m_nLastMOTDRequestAt; }
 	ELanguage	 GetLastMOTDRequestLanguage( void ) { return m_nLastMOTDRequestLanguage; }
 
-	void		 UpdatePromotionalCodes( void );
-
 	void		 CheckTrainingStatus( void );
 	CExplanationPopup*	 StartHighlightAnimation( mm_highlight_anims iAnim );
 
@@ -148,7 +141,6 @@ private:
 
 	bool		CheckAndWarnForPREC( void );
 	void		StopUpdateGlow();
-	void		UpdateRankPanelVisibility();
 
 private:
 
@@ -196,8 +188,6 @@ private:
 	bool					m_bIsDisconnectText;
 
 	CExButton				*m_pBackToReplaysButton;
-	ImagePanel				*m_pStoreHasNewItemsImage;
-	CExButton				*m_pStoreButton;
 
 	CExButton				*m_pVRModeButton;
 	vgui::Panel				*m_pVRModeBackground;
@@ -228,8 +218,6 @@ private:
 	vgui::EditablePanel		*m_pToolTipEmbeddedPanel;
 
 	EditablePanel	*m_pWatchStreamButton;
-	EditablePanel	*m_pQuestLogButton;
-	EditablePanel	*m_pEventPromoContainer;
 	EditablePanel	*m_pSafeModeContainer;
 
 	vgui::DHANDLE<CMutePlayerDialog> m_hMutePlayerDialog;
@@ -239,10 +227,6 @@ private:
 	bool m_bStabilizedInitialLayout;
 	bool m_bBackgroundUsesCharacterImages;
 	const char* m_pszForcedCharacterImage = NULL;
-
-	CPvPRankPanel*	m_pRankPanel = NULL;
-	CPvPRankPanel*	m_pRankModelPanel = NULL;
-	vgui::Menu*		m_pRankTypeMenu = NULL;
 
 	CPanelAnimationVarAliasType( int, m_iButtonXOffset, "button_x_offset", "0", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iButtonY, "button_y", "0", "proportional_int" );

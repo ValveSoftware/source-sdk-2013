@@ -72,7 +72,6 @@ CTFWearable::CTFWearable() : CEconWearable()
 	m_bDisguiseWearable = false;
 	m_hWeaponAssociatedWith = NULL;
 #if defined( CLIENT_DLL )
-	m_eParticleSystemVisibility = kParticleSystemVisibility_Undetermined;
 	m_nWorldModelIndex = 0;
 #endif
 
@@ -145,11 +144,6 @@ static int CalcBodyGroup( CBaseCombatCharacter* pOwner, CEconItemView *pItem, co
 	if ( !Q_strnicmp( ccbgd.pFuncName, "test", ARRAYSIZE( "test" ) ) )
 	{
 		return tf_test_hat_bodygroup.GetInt();
-	}
-	else if ( !Q_strnicmp( ccbgd.pFuncName, "map_contributor", ARRAYSIZE( "map_contributor" ) ) )
-	{
-		int iDonationAmount = MapInfo_GetDonationAmount( pItem->GetAccountID(), engine->GetLevelName() );
-		return MIN( iDonationAmount / 25, 4 );
 	}
 #endif
 	return 0;
@@ -426,23 +420,7 @@ bool CTFWearable::ShouldDrawParticleSystems( void )
 		return false;
 	}
 
-	if ( m_eParticleSystemVisibility == kParticleSystemVisibility_Undetermined )
-	{
-		static CSchemaItemDefHandle pItemDef_MapLoverHat( "World Traveler" );
-
-		m_eParticleSystemVisibility = kParticleSystemVisibility_Shown;
-
-		const CEconItemView *pItem = GetAttributeContainer()->GetItem();
-		if ( pItem && pItem->GetStaticData() == pItemDef_MapLoverHat )
-		{
-			if ( MapInfo_DidPlayerDonate( pItem->GetAccountID(), engine->GetLevelName() ) == false )
-			{
-				m_eParticleSystemVisibility = kParticleSystemVisibility_Hidden;
-			}
-		}
-	}
-
-	return m_eParticleSystemVisibility == kParticleSystemVisibility_Shown;
+	return true;
 }
 
 int CTFWearable::GetWorldModelIndex( void )
@@ -729,17 +707,6 @@ void CTFWearable::UnEquip( CBasePlayer* pOwner )
 //-----------------------------------------------------------------------------
 bool CTFWearable::CanEquip( CBaseEntity *pOther )
 {
-	CEconItemView *pItem = GetAttributeContainer()->GetItem();
-	if ( pItem && TFGameRules() )
-	{
-		CEconItemDefinition* pData = pItem->GetStaticData();
-		if ( pData && pData->GetHolidayRestriction() )
-		{
-			int iHolidayRestriction = UTIL_GetHolidayForString( pData->GetHolidayRestriction() );
-			if ( iHolidayRestriction != kHoliday_None && !TFGameRules()->IsHolidayActive( iHolidayRestriction ) )
-				return false;
-		}		
-	}
 	return true;
 }
 

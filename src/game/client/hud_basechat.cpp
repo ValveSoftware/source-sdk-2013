@@ -1186,7 +1186,6 @@ void CBaseHudChat::StartMessageMode( int iMessageModeType )
 	{
 		case MM_SAY:		pszPrompt = g_pVGuiLocalize->Find( "#chat_say" ); break;
 		case MM_SAY_TEAM:	pszPrompt = g_pVGuiLocalize->Find( "#chat_say_team" ); break;
-		case MM_SAY_PARTY:	pszPrompt = g_pVGuiLocalize->Find( "#chat_party" ); break;
 	}
 
 	if ( pszPrompt )
@@ -1199,7 +1198,6 @@ void CBaseHudChat::StartMessageMode( int iMessageModeType )
 		{
 			case MM_SAY:		m_pChatInput->SetPrompt( L"Say :" ); break;
 			case MM_SAY_TEAM:	m_pChatInput->SetPrompt( L"Say (TEAM) :" ); break;
-			case MM_SAY_PARTY:	m_pChatInput->SetPrompt( L"Say (PARTY) :" ); break;
 		}
 	}
 	
@@ -1643,7 +1641,6 @@ This is a very long string that I am going to attempt to paste into the cs hud c
 		{
 			case MM_SAY: pszCmd = "say"; break;
 			case MM_SAY_TEAM: pszCmd = "say_team"; break;
-			case MM_SAY_PARTY: pszCmd = "say_party"; break;
 		}
 		Q_snprintf( szbuf, sizeof(szbuf), "%s \"%s\"", pszCmd, ansi );
 

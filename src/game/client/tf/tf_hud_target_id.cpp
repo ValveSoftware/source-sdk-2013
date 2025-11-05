@@ -509,12 +509,6 @@ bool CTargetID::ShouldDraw( void )
 		return false;
 	}
 
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-	{
-		UpdateFloatingHealthIconVisibility( false );
-		return false;
-	}
-
 	C_TFPlayer *pLocalTFPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pLocalTFPlayer )
 	{
@@ -1541,9 +1535,6 @@ bool CFloatingHealthIcon::IsVisible( void )
 
 	//if ( pLocalTFPlayer->GetObserverMode() == OBS_MODE_FREEZECAM )
 	if ( pLocalTFPlayer->GetObserverMode() > OBS_MODE_NONE )
-		return false;
-
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
 		return false;
 
 	return BaseClass::IsVisible();

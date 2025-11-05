@@ -27,14 +27,10 @@
 #include "filesystem.h" // for temp passtime local stats logging
 #include "passtime_convars.h"
 
-#include "tf_matchmaking_shared.h"
-
 #include "gc_clientsystem.h"
 #include "tf_gcmessages.h"
 #include "rtime.h"
 #include "team_train_watcher.h"
-
-extern ConVar tf_mm_trusted;
 
 // Must run with -gamestats to be able to turn on/off stats with ConVar below.
 static ConVar tf_stats_nogameplaycheck( "tf_stats_nogameplaycheck", "0", FCVAR_NONE , "Disable normal check for valid gameplay, send stats regardless." );
@@ -446,9 +442,6 @@ void CTFGameStats::ResetRoundStats()
 //-----------------------------------------------------------------------------
 void CTFGameStats::IncrementStat( CTFPlayer *pPlayer, TFStatType_t statType, int iValue )
 {
-	if ( TFGameRules() && TFGameRules()->IsCompetitiveMode() && TFGameRules()->State_Get() != GR_STATE_RND_RUNNING )
-		return;
-
 	PlayerStats_t &stats = m_aPlayerStats[pPlayer->entindex()];
 	stats.statsCurrentLife.m_iStat[statType] += iValue;
 	stats.statsCurrentRound.m_iStat[statType] += iValue;
@@ -739,17 +732,6 @@ void CTFGameStats::Event_PlayerHealedOther( CTFPlayer *pPlayer, float amount )
 //-----------------------------------------------------------------------------
 void CTFGameStats::Event_PlayerHealedOtherAssist( CTFPlayer *pPlayer, float amount ) 
 {
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pPlayer && pMatch )
-	{
-		// Anti-farming in official matchmaking modes
-		if ( gpGlobals->curtime - pPlayer->GetLastDamageReceivedTime() > 90.f ||
-			 gpGlobals->curtime - pPlayer->GetLastEntityDamagedTime() > 90.f )
-		{
-			return;
-		}
-	}
-
 	Assert ( pPlayer );
 
 	// make sure value is sane
@@ -923,17 +905,6 @@ void CTFGameStats::Event_PlayerStunBall( CTFPlayer *pAttacker, bool bSpecial )
 //-----------------------------------------------------------------------------
 void CTFGameStats::Event_PlayerAwardBonusPoints( CTFPlayer *pPlayer, CBaseEntity *pSource, int nCount )
 {
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pPlayer && pMatch )
-	{
-		// Anti-farming in official matchmaking modes
-		if ( gpGlobals->curtime - pPlayer->GetLastDamageReceivedTime() > 90.f ||
-			 gpGlobals->curtime - pPlayer->GetLastEntityDamagedTime() > 90.f )
-		{
-			 return;
-		}
-	}
-
 	IncrementStat( pPlayer, TFSTAT_BONUS_POINTS, nCount );
 
 	// This event ends up drawing a combattext number

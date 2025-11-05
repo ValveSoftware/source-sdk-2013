@@ -881,11 +881,7 @@ bool CTFBot::GetWeightDesiredClassToSpawn( CUtlVector< ETFClass > &vecClassToSpa
 	// assume offense
 	ClassSelectionInfo *desiredRoster = offenseRoster;
 
-	if ( TFGameRules()->IsMatchTypeCompetitive() )
-	{
-		desiredRoster = compRoster;
-	}
-	else if ( TFGameRules()->IsInKothMode() )
+	if ( TFGameRules()->IsInKothMode() )
 	{
 		CTeamControlPoint *point = GetMyControlPoint();
 		if ( point )
@@ -1082,11 +1078,7 @@ ETFClass CTFBot::GetPresetClassToSpawn() const
 	// assume offense
 	ETFClass *desiredRoster = offenseRoster;
 
-	if ( TFGameRules()->IsMatchTypeCompetitive() )
-	{
-		desiredRoster = compRoster;
-	}
-	else if ( TFGameRules()->IsInKothMode() )
+	if ( TFGameRules()->IsInKothMode() )
 	{
 		CTeamControlPoint *point = GetMyControlPoint();
 		if ( point )

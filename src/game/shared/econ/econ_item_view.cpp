@@ -1795,11 +1795,7 @@ bool DoesItemPassSearchFilter( const IEconItemDescription *pDescription, const w
 		for ( unsigned int i = 0; i < pDescription->GetLineCount(); i++ )
 		{
 			const econ_item_description_line_t& line = pDescription->GetLine(i);
-
-			if ( !(line.unMetaType & ( kDescLineFlag_Collection | kDescLineFlag_CollectionCurrentItem ) ) )
-			{
-				V_wcscat_safe( wszBuffer, line.sText.Get() );
-			}
+			V_wcscat_safe( wszBuffer, line.sText.Get() );	
 		}
 
 		V_wcslower( wszBuffer );

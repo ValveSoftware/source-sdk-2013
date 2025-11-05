@@ -688,16 +688,6 @@ int	ClientModeShared::KeyInput( int down, ButtonCode_t keynum, const char *pszCu
 		}
 		return 0;
 	}
-	else if ( pszCurrentBinding &&
-		( Q_strcmp( pszCurrentBinding, "messagemode3" ) == 0 ||
-			  Q_strcmp( pszCurrentBinding, "say_party" ) == 0 ) )
-	{
-		if ( down && BCanSendPartyChatMessages() )
-		{
-			StartMessageMode( MM_SAY_PARTY );
-		}
-		return 0;
-	}
 	
 	// If we're voting...
 #ifdef VOTING_ENABLED
@@ -840,17 +830,12 @@ void ClientModeShared::StartMessageMode( int iMessageModeType )
 	}
 	
 #if defined( TF_CLIENT_DLL )
-	bool bSuspensionInMatch = GTFGCClientSystem() && GTFGCClientSystem()->BHaveChatSuspensionInCurrentMatch();
-	if ( !cl_enable_text_chat.GetBool() || bSuspensionInMatch )
+	if ( !cl_enable_text_chat.GetBool() )
 	{
 		CBaseHudChat *pHUDChat = ( CBaseHudChat * ) GET_HUDELEMENT( CHudChat );
 		if ( pHUDChat )
 		{
 			const char *pszReason = "#TF_Chat_Disabled";
-			if ( bSuspensionInMatch )
-			{
-				pszReason = "#TF_Chat_Unavailable";
-			}
 
 			char szLocalized[100];
 			g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find( pszReason ), szLocalized, sizeof( szLocalized ) );

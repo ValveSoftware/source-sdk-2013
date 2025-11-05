@@ -911,7 +911,7 @@ bool CTFSpectatorGUI::InTournamentGUI( void )
 		bOverride = true;
 	}
 
-	return ( TFGameRules()->IsInTournamentMode() && !TFGameRules()->IsCompetitiveMode() && ( cl_use_tournament_specgui.GetBool() || bOverride ) );
+	return ( TFGameRules()->IsInTournamentMode() && ( cl_use_tournament_specgui.GetBool() || bOverride ) );
 }
 
 //-----------------------------------------------------------------------------
