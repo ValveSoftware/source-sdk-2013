@@ -41,6 +41,7 @@
 			// that's used when writing to the "mod" path.
 			mod+mod_write		|gameinfo_path|.
 			game+game_write		|gameinfo_path|.
+			vgui+vgui_write		|gameinfo_path|.
 			default_write_path	|gameinfo_path|.
 			gamebin				|gameinfo_path|bin
 
