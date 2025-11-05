@@ -25,6 +25,8 @@
 
 ConVar tf_weapon_criticals_melee( "tf_weapon_criticals_melee", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "Controls random crits for melee weapons. 0 - Melee weapons do not randomly crit. 1 - Melee weapons can randomly crit only if tf_weapon_criticals is also enabled. 2 - Melee weapons can always randomly crit regardless of the tf_weapon_criticals setting." );
 
+ConVar tf_shield_charge_range_extend("tf_shield_charge_range_extend", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "Controls whether Demoman's shield charges extend melee range.\n0 - Attacks started during a charge will not have their melee range modified. 1 - Attacks started during a charge will have an extended melee range.");
+
 //=============================================================================
 //
 // TFWeaponBase Melee tables.
@@ -164,7 +166,8 @@ bool CTFWeaponBaseMelee::Holster( CBaseCombatWeapon *pSwitchingTo )
 int	CTFWeaponBaseMelee::GetSwingRange( void )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
-	if ( pOwner && pOwner->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
+	int shield_charge_range_extend = tf_shield_charge_range_extend.GetInt();
+	if ( pOwner && ( pOwner->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) || ( IsCurrentAttackDuringDemoCharge() && shield_charge_range_extend ) ) )
 	{
 		return 128;
 	}
