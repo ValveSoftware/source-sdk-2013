@@ -25,7 +25,7 @@
 
 ConVar tf_weapon_criticals_melee( "tf_weapon_criticals_melee", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "Controls random crits for melee weapons. 0 - Melee weapons do not randomly crit. 1 - Melee weapons can randomly crit only if tf_weapon_criticals is also enabled. 2 - Melee weapons can always randomly crit regardless of the tf_weapon_criticals setting." );
 
-ConVar tf_shield_charge_melee_range("tf_shield_charge_melee_range", "128", FCVAR_REPLICATED | FCVAR_NOTIFY, "The range of a melee attack performed during a shield charge. Set to 0 for no change.");
+ConVar tf_shield_charge_melee_range("tf_shield_charge_melee_range", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "The range of a melee attack performed during a shield charge. Set to 0 for no change.");
 
 //=============================================================================
 //
