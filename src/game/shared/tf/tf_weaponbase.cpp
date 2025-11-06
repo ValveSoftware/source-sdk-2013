@@ -2086,11 +2086,19 @@ void CTFWeaponBase::IncrementAmmo( void )
 		{
 			Energy_Recharge();
 		}
-		else if ( !CheckReloadMisfire() ) 
+		else if ( pPlayer && pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 )
 		{
-			if ( pPlayer && pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && m_iClip1 < GetMaxClip1() )
+			bool bMisFire = CheckReloadMisfire();
+			bool bCanLoad = !bMisFire && m_iClip1 < GetMaxClip1();
+			
+			if ( bCanLoad )
 			{
 				m_iClip1++;
+			}
+
+			// Remove ammo if it is either a misfire or we actually reloaded
+			if ( bMisFire || bCanLoad )
+			{
 				pPlayer->RemoveAmmo( 1, m_iPrimaryAmmoType );
 			}
 		}
