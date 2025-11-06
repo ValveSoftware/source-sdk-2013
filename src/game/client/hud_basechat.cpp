@@ -1277,7 +1277,7 @@ void CBaseHudChat::StopMessageMode( void )
 //-----------------------------------------------------------------------------
 void CBaseHudChat::OnKeyCodeTyped(vgui::KeyCode code )
 {
-	if ( code == KEY_ESCAPE || code == KEY_ENTER )
+	if ( code == KEY_ESCAPE )
 	{
 		StopMessageMode();
 		return;
