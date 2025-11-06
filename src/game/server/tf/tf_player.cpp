@@ -8250,7 +8250,7 @@ float CTFPlayer::GetObjectBuildSpeedMultiplier( int iObjectType, bool bIsRedeplo
 		break;
 
 	case OBJ_DISPENSER:
-		CALL_ATTRIB_HOOK_FLOAT( flBuildRate, teleporter_build_rate_multiplier );
+		CALL_ATTRIB_HOOK_FLOAT( flBuildRate, dispenser_build_rate_multiplier );
 		flBuildRate += bIsRedeploy ? 3.0 : 0.0f;
 		break;
 	}
