@@ -1299,27 +1299,6 @@ CEconItem	*CPlayerInventory::GetSOCDataForItem( itemid_t iItemID )
 	return (CEconItem *)m_pSOCache->FindSharedObject( soIndex );
 }
 
-#if defined (_DEBUG) && defined(CLIENT_DLL)
-CON_COMMAND_F( item_deleteall, "WARNING: Removes all of the items in your inventory.", FCVAR_CHEAT )
-{
-	CPlayerInventory *pInventory = InventoryManager()->GetLocalInventory();
-	if ( !pInventory )
-		return;
-
-	int iCount = pInventory->GetItemCount();
-	for ( int i = 0; i < iCount; i++ )
-	{
-		CEconItemView *pItem = pInventory->GetItem(i);
-		if ( pItem )
-		{
-			InventoryManager()->DropItem( pItem->GetItemID() );
-		}
-	}
-
-	InventoryManager()->UpdateLocalInventory();
-}
-#endif
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

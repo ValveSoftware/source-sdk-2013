@@ -1246,17 +1246,6 @@ CON_COMMAND_F( item_dumpinv_sv, "Dumps the contents of a specified server invent
 }
 #endif
 
-#ifdef _DEBUG
-#if defined(CLIENT_DLL)
-CON_COMMAND_F( item_deleteunknowns, "Deletes all items in your inventory that we don't have static data for. Useful for removing items that have been removed from the backend.", FCVAR_CHEAT )
-{
-	int iDeleted = TFInventoryManager()->DeleteUnknowns( InventoryManager()->GetLocalInventory() );
-	Msg("Deleted %d unknown items.\n", iDeleted);
-}
-#endif
-#endif
-
-
 #if defined( TF_CLIENT_DLL )
 CON_COMMAND( load_itempreset, "Equip all items for a given preset on the player." )
 {
