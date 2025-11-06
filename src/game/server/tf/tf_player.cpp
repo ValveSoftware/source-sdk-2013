@@ -815,6 +815,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 
 	SendPropFloat( SENDINFO( m_flMvMLastDamageTime ), 16, SPROP_ROUNDUP ),
 	SendPropInt( SENDINFO( m_iSpawnCounter ) ),
+	SendPropBool( SENDINFO( m_bFlipViewModels ) ),
 	SendPropBool( SENDINFO( m_bArenaSpectator ) ),
 	SendPropFloat( SENDINFO( m_flHeadScale ) ),
 	SendPropFloat( SENDINFO( m_flTorsoScale ) ),
@@ -5949,8 +5950,9 @@ void CTFPlayer::HandleAnimEvent( animevent_t *pEvent )
 		char szAttrName[128];
 		float flVal;
 		float flDuration;
-		if ( sscanf( pEvent->options, "%s %f %f", szAttrName, &flVal, &flDuration ) == 3 )
+		if ( sscanf( pEvent->options, "%127s %f %f", szAttrName, &flVal, &flDuration ) == 3 )
 		{
+			szAttrName[ ARRAYSIZE(szAttrName) - 1 ] = '\0';
 			Assert( flDuration > 0.f );
 			AddCustomAttribute( szAttrName, flVal, flDuration );
 		}
@@ -7341,7 +7343,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	if ( FStrEq( pcmd, "jointeam" ) )
 	{
 		// don't let them spam the server with changes
-		if ( GetNextChangeTeamTime() > gpGlobals->curtime )
+		if ( GetNextChangeTeamTime() > gpGlobals->curtime && GetTeamNumber() != TEAM_UNASSIGNED )
 			return true;
 
 		SetNextChangeTeamTime( gpGlobals->curtime + 2.0f );  // limit to one change every 2 secs
