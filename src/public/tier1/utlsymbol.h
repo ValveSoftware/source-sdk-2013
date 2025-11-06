@@ -194,9 +194,11 @@ public:
 
 	CUtlSymbol Find( const char* pString ) const
 	{
-		m_lock.LockForRead();
+		// CUtlSymbolTable::Find() writes to m_pUserSearchString,
+		// so this needs to be a write lock.
+		m_lock.LockForWrite();
 		CUtlSymbol result = CUtlSymbolTable::Find( pString );
-		m_lock.UnlockRead();
+		m_lock.UnlockWrite();
 		return result;
 	}
 
