@@ -357,11 +357,6 @@ void JarExplode( int iEntIndex, CTFPlayer *pAttacker, CBaseEntity *pOriginalWeap
 
 				if ( pAttacker )
 				{
-					if ( pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->m_Shared.GetPercentInvisible() == 1.0f )
-					{
-						pAttacker->AwardAchievement( ACHIEVEMENT_TF_SNIPER_JARATE_REVEAL_SPY );
-					}
-
 					float flStun = 1.0f;
 					CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pAttacker, flStun, applies_snare_effect );
 					if ( flStun != 1.0f )

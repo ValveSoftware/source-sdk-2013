@@ -429,20 +429,6 @@ CTFPlayerInventory::~CTFPlayerInventory()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerInventory::CheckSaxtonMaskAchievement( const CEconItem *pEconItem )
-{
-	if ( pEconItem )
-	{
-		if ( pEconItem->GetDefinitionIndex() == 277 && pEconItem->GetOrigin() == kEconItemOrigin_Crafted )	// Saxton mask is item index 277
-		{
-			g_AchievementMgrTF.OnAchievementEvent( ACHIEVEMENT_TF_HALLOWEEN_CRAFT_SAXTON_MASK );
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CTFPlayerInventory::UpdateCachedServerLoadoutItems()
 {
 	V_memcpy( m_CachedServerLoadoutItems, m_LoadoutItems, sizeof( itemid_t ) * ARRAYSIZE( m_CachedServerLoadoutItems ) * ARRAYSIZE( m_CachedServerLoadoutItems[0] ) );
@@ -648,85 +634,6 @@ void CTFPlayerInventory::SOUpdated( const CSteamID & steamIDOwner, const GCSDK::
 void CTFPlayerInventory::SOCreated( const CSteamID & steamIDOwner, const GCSDK::CSharedObject *pObject, GCSDK::ESOCacheEvent eEvent )
 {
 	BaseClass::SOCreated( steamIDOwner, pObject, eEvent );
-
-	if ( pObject->GetTypeID() != CEconItem::k_nTypeID )
-		return;
-
-	CEconItem *pEconItem = (CEconItem *)pObject;
- //	CEconItem *pEconItem = assert_cast<CEconItem*>( pObject );
-
-#ifdef CLIENT_DLL
-	if ( InventoryManager()->GetLocalInventory() == this && GetOwner() == steamIDOwner )
-	{
-		if ( pObject->GetTypeID() == CEconItem::k_nTypeID )
-		{
-			CheckSaxtonMaskAchievement( (CEconItem*)pObject );
-		}
-	}
-
-//	CSteamID ownerSteamID( pEconItem->GetAccountID(), GetUniverse(), k_EAccountTypeIndividual );
-//	if ( ownerSteamID == ClientSteamContext().GetLocalPlayerSteamID() )
-//	{
-//		CheckSaxtonMaskAchievement( pEconItem );
-//	}
-
-	static CSchemaItemDefHandle pItemDef_HardyLaurel( "The Hardy Laurel" );
-	if ( pEconItem->GetItemDefinition() == pItemDef_HardyLaurel )
-	{
-		if ( TFSharedContentManager() )
-		{
-			TFSharedContentManager()->OfferSharedVision( TF_VISION_FILTER_ROME, pEconItem->GetAccountID() );
-		}
-	}
- #else
-	// Summer 2015 Operation Pass so players can display the coin
-	// remove this when we have a coin equip slot
-	static CSchemaItemDefHandle pItemDef_Summer2015Operation( "Activated Summer 2015 Operation Pass" );
-	if ( pEconItem->GetItemDefinition() == pItemDef_Summer2015Operation )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerBySteamID( GetOwner() ) );
-		if ( pPlayer )
-		{
-			pPlayer->SetCampaignMedalActive( CAMPAIGN_MEDAL_SUMMER2015 );
-		}
-	}
-
-	// Invasion Community Update Pass so players can display the coin
-	// remove this when we have a coin equip slot
-	static CSchemaItemDefHandle pItemDef_InvasionPass( "Activated Invasion Pass" );
-	if ( pEconItem->GetItemDefinition() == pItemDef_InvasionPass )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerBySteamID( GetOwner() ) );
-		if ( pPlayer )
-		{
-			pPlayer->SetCampaignMedalActive( CAMPAIGN_MEDAL_INVASION );
-		}
-	}
-
-	// Halloween Pass so players can display the coin
-	// remove this when we have a coin equip slot
-	static CSchemaItemDefHandle pItemDef_HalloweenPass( "Activated Halloween Pass" );
-	if ( pEconItem->GetItemDefinition() == pItemDef_HalloweenPass )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerBySteamID( GetOwner() ) );
-		if ( pPlayer )
-		{
-			pPlayer->SetCampaignMedalActive( CAMPAIGN_MEDAL_HALLOWEEN );
-		}
-	}
-
-	// Winter2016 Pass so players can display the stamp
-	// remove this when we have a coin equip slot
-	static CSchemaItemDefHandle pItemDef_Winter2016Pass( "Activated Operation Tough Break Pass" );
-	if ( pEconItem->GetItemDefinition() == pItemDef_Winter2016Pass )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerBySteamID( GetOwner() ) );
-		if ( pPlayer )
-		{
-			pPlayer->SetCampaignMedalActive( CAMPAIGN_MEDAL_WINTER2016 );
-		}
-	}
-#endif
 }
 
 //-----------------------------------------------------------------------------

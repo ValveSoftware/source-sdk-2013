@@ -833,7 +833,6 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	SendPropBool( SENDINFO( m_bUsingActionSlot ) ),
 	SendPropFloat( SENDINFO( m_flInspectTime ) ),
 	SendPropFloat( SENDINFO( m_flHelpmeButtonPressTime ) ),
-	SendPropInt( SENDINFO( m_iCampaignMedals ) ),
 	SendPropInt( SENDINFO( m_iPlayerSkinOverride ) ),
 	SendPropBool( SENDINFO( m_bViewingCYOAPDA ) ),
 	SendPropBool( SENDINFO( m_bRegenerating ) ),
@@ -922,7 +921,6 @@ CTFPlayer::CTFPlayer()
 	m_bFlipViewModels = false;
 	m_iBlastJumpState = 0;
 	m_flBlastJumpLandTime = 0;
-	m_fMaxHealthTime = -1;
 	m_iHealthBefore = 0;
 
 	m_iTeamChanges = 0;
@@ -934,8 +932,6 @@ CTFPlayer::CTFPlayer()
 	m_nExperienceLevel = 1;
 	m_nExperiencePoints = 0;
 	m_nExperienceLevelProgress = 0;
-
-	SetDefLessFunc( m_Cappers );		// Tracks victims for demo achievement
 
  	//=============================================================================
 	// HPE_BEGIN:
@@ -1017,7 +1013,6 @@ CTFPlayer::CTFPlayer()
 	m_flGhostLastHitByKartTime = 0.f;
 
 	m_flVehicleReverseTime = FLT_MAX;
-	m_iCampaignMedals = 0;
 
 	m_bPasstimeBallSlippery = false;
 	m_flNextScorePointForPD = -1;
@@ -1219,9 +1214,6 @@ void CTFPlayer::TFPlayerThink()
 
 					if ( TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
 					{
-						// achievement for me!
-						AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_DOOMSDAY_RESPAWN_TEAMMATES );
-
 						IGameEvent *pEvent = gameeventmanager->CreateEvent( "respawn_ghost" );
 						if ( pEvent )
 						{
@@ -8681,55 +8673,6 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	m_lastDamageAmount = info.GetDamage();
 	m_LastDamageType = info.GetDamageType();
 
-	if ( m_LastDamageType & DMG_FALL )
-	{
-		if ( ( m_lastDamageAmount > m_iLeftGroundHealth ) && ( m_lastDamageAmount < GetHealth() ) )
-		{
-			// we gained health in the air, and it saved us from death.
-			// if any medics are healing us, they get an achievement
-			int iNumHealers = m_Shared.GetNumHealers();
-			for ( int i=0;i<iNumHealers;i++ )
-			{
-				CTFPlayer *pMedic = ToTFPlayer( m_Shared.GetHealerByIndex(i) );
-
-				// if its a medic healing us
-				if ( pMedic && pMedic->IsPlayerClass( TF_CLASS_MEDIC ) )
-				{
-					pMedic->AwardAchievement( ACHIEVEMENT_TF_MEDIC_SAVE_FALLING_TEAMMATE );
-				}
-			}
-		}
-	}
-
-	// Check for Demo Achievement:
-	// Kill a Heavy from full health with one detonation
-	if ( IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-	{
-		if ( pTFAttacker && pTFAttacker->IsPlayerClass( TF_CLASS_DEMOMAN ) )
-		{
-			if ( pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_PIPEBOMBLAUNCHER )
-			{
-				// We're at full health
-				if ( m_iHealthBefore >= GetMaxHealth() )
-				{
-					// Record the time
-					m_fMaxHealthTime = gpGlobals->curtime;
-				}
-
-				// If we're still being hit in the same time window
-				if ( m_fMaxHealthTime == gpGlobals->curtime )
-				{
-					// Check if the damage is fatal
-					int iDamage = info.GetDamage();
-					if ( m_iHealth - iDamage <= 0 )
-					{
-						pTFAttacker->AwardAchievement( ACHIEVEMENT_TF_DEMOMAN_KILL_X_HEAVIES_FULLHP_ONEDET );
-					}
-				}
-			}
-		}
-	}
-	
 	if ( pTFAttacker && pTFAttacker->IsPlayerClass( TF_CLASS_MEDIC ) && pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_BONESAW )
 	{
 		CTFBonesaw *pBoneSaw = static_cast< CTFBonesaw* >( pWeapon );
@@ -10751,107 +10694,6 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 			}
 		}
 
-		// Check for CP_Foundry achievements
-		if ( FStrEq( "cp_foundry", STRING( gpGlobals->mapname ) ) )
-		{
-			if ( pTFVictim && ( pTFVictim->GetTeamNumber() != GetTeamNumber() ) )
-			{
-				if ( pTFVictim->IsCapturingPoint() )
-				{
-					if ( info.GetDamageType() & DMG_CRITICAL )
-					{
-						AwardAchievement( ACHIEVEMENT_TF_MAPS_FOUNDRY_KILL_CAPPING_ENEMY );
-					}
-				}
-
-				if ( InAchievementZone( pTFVictim ) )
-				{
-					IGameEvent *event = gameeventmanager->CreateEvent( "player_killed_achievement_zone" );
-					if ( event )
-					{
-						event->SetInt( "attacker", entindex() );
-						event->SetInt( "victim", pTFVictim->entindex() );
-						gameeventmanager->FireEvent( event );
-					}
-				}
-			}
-		}
-		
-		// Check for SD_Doomsday achievements		
-		if ( FStrEq( "sd_doomsday", STRING( gpGlobals->mapname ) ) )
-		{
-			if ( pTFVictim && ( pTFVictim->GetTeamNumber() != GetTeamNumber() ) )
-			{
-				// find the flag in the map
-				CCaptureFlag *pFlag = NULL;
-				for ( int i=0; i<ICaptureFlagAutoList::AutoList().Count(); ++i )
-				{
-					pFlag = static_cast< CCaptureFlag* >( ICaptureFlagAutoList::AutoList()[i] );
-					if ( !pFlag->IsDisabled() )
-					{
-						break;
-					}
-				}
-
-				// was the victim in an achievement zone?
-				CAchievementZone *pZone = InAchievementZone( pTFVictim );
-				if ( pZone )
-				{
-					int iZoneID = pZone->GetZoneID();
-					if ( iZoneID == 0 )
-					{
-						if ( pFlag && pFlag->IsHome() )
-						{
-							AwardAchievement( ACHIEVEMENT_TF_MAPS_DOOMSDAY_DENY_NEUTRAL_PICKUP );
-						}
-					}
-					else
-					{
-						IGameEvent *event = gameeventmanager->CreateEvent( "player_killed_achievement_zone" );
-						if ( event )
-						{
-							event->SetInt( "attacker", entindex() );
-							event->SetInt( "victim", pTFVictim->entindex() );
-							event->SetInt( "zone_id", iZoneID );
-							gameeventmanager->FireEvent( event );
-						}
-					}
-				}
-
-				// check the flag carrier to see if the victim has recently damaged them
-				if ( pFlag && pFlag->IsStolen() )
-				{
-					CTFPlayer *pFlagCarrier = ToTFPlayer( pFlag->GetOwnerEntity() );
-					if ( pFlagCarrier && ( pFlagCarrier->GetTeamNumber() == GetTeamNumber() ) )
-					{
-						// has the victim damaged the flag carrier in the last 3 seconds?
-						if ( pFlagCarrier->m_AchievementData.IsDamagerInHistory( pTFVictim, 3.0 ) )
-						{
-							AwardAchievement( ACHIEVEMENT_TF_MAPS_DOOMSDAY_DEFEND_CARRIER );
-						}
-					}
-				}
-			}
-		}
-
-		// Check for CP_Snakewater achievement
-		if ( FStrEq( "cp_snakewater_final1", STRING( gpGlobals->mapname ) ) )
-		{
-			if ( pTFVictim && ( pTFVictim->GetTeamNumber() != GetTeamNumber() ) )
-			{
-				if ( InAchievementZone( pTFVictim ) )
-				{
-					IGameEvent *event = gameeventmanager->CreateEvent( "player_killed_achievement_zone" );
-					if ( event )
-					{
-						event->SetInt( "attacker", entindex() );
-						event->SetInt( "victim", pTFVictim->entindex() );
-						gameeventmanager->FireEvent( event );
-					}
-				}
-			}
-		}
-
 		if ( IsPlayerClass( TF_CLASS_DEMOMAN ) )
 		{
 			if ( pVictim->GetTeamNumber() != GetTeamNumber() )
@@ -10882,78 +10724,6 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 							gameeventmanager->FireEvent( event );
 						}
 					}
-
-					if ( pTFVictim )
-					{
-						// could the attacker see this player when the charge started?
-						if ( m_Shared.m_hPlayersVisibleAtChargeStart.Find( pTFVictim ) == m_Shared.m_hPlayersVisibleAtChargeStart.InvalidIndex() )
-						{
-							AwardAchievement( ACHIEVEMENT_TF_DEMOMAN_KILL_PLAYER_YOU_DIDNT_SEE );
-						}
-					}
-				}
-
-				// Demoman achievement:  Kill at least 3 players capping or pushing the cart with the same detonation
-				CTriggerAreaCapture *pAreaTrigger = pTFVictim->GetControlPointStandingOn();
-				if ( pAreaTrigger )
-				{
-					CTeamControlPoint *pCP = pAreaTrigger->GetControlPoint();
-					if ( pCP )
-					{
-						if ( pCP->GetOwner() == GetTeamNumber() )
-						{
-							if ( GetActiveTFWeapon() && ( GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_PIPEBOMBLAUNCHER ) )
-							{
-								// Add victim to our list
-								int iIndex = m_Cappers.Find( pTFVictim->GetUserID() );
-								if ( iIndex != m_Cappers.InvalidIndex() )
-								{
-									// they're already in our list
-									m_Cappers[iIndex] = gpGlobals->curtime;
-								}
-								else
-								{
-									// we need to add them
-									m_Cappers.Insert( pTFVictim->GetUserID(), gpGlobals->curtime );
-								}
-								// Did we get three?
-								if ( m_Cappers.Count() >= 3 )
-								{
-									// Traverse the list, comparing the recorded time to curtime
-									int iHitCount = 0;
-									FOR_EACH_MAP_FAST ( m_Cappers, cIndex )
-									{
-										// For each match, increment counter
-										if ( gpGlobals->curtime <= m_Cappers[cIndex] + 0.1f )
-										{
-											iHitCount++;
-										}
-										else
-										{
-											m_Cappers.Remove( cIndex );
-										}
-										
-										// If we hit 3, award and purge the group
-										if ( iHitCount >= 3 )
-										{
-											AwardAchievement( ACHIEVEMENT_TF_DEMOMAN_KILL_X_CAPPING_ONEDET );
-											m_Cappers.RemoveAll();
-										}					
-									}
-								}
-							}
-						}
-						// Kill players defending "x" times
-						else
-						{
-							// If we're able to cap the point...
-							if ( TeamplayGameRules()->TeamMayCapturePoint( GetTeamNumber(), pCP->GetPointIndex() ) && 
-								TeamplayGameRules()->PlayerMayCapturePoint( this, pCP->GetPointIndex() ) )
-							{
-								AwardAchievement( ACHIEVEMENT_TF_DEMOMAN_KILL_X_DEFENDING );
-							}
-						}
-					}
 				}
 			}
 		}
@@ -10975,18 +10745,6 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 		for ( int i=0; i<m_Shared.m_nNumHealers; i++ )
 		{
 			m_Shared.m_aHealers[i].iKillsWhileBeingHealed++;
-			if ( IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-			{
-				if ( m_Shared.m_aHealers[i].iKillsWhileBeingHealed >= 5 && m_Shared.m_aHealers[i].bDispenserHeal )
-				{
-					// We got five kills while being healed by this dispenser. Reward the engineer with an achievement!
-					CTFPlayer *pHealScorer = ToTFPlayer( m_Shared.m_aHealers[i].pHealScorer );
-					if ( pHealScorer && pHealScorer->IsPlayerClass( TF_CLASS_ENGINEER ) )
-					{
-						pHealScorer->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_HEAVY_ASSIST );
-					}
-				}
-			}
 		}
 
 		OnKilledOther_Effects( pVictim, info );
@@ -11192,17 +10950,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		static CSchemaItemDefHandle congaTaunt( "Conga Taunt" );
 		if ( GetTauntEconItemView() )
 		{
-			if ( GetTauntEconItemView()->GetItemDefinition() == dosidoTaunt )
-			{
-				if ( pKillerWeapon && ( pKillerWeapon->GetTFWpnData().m_iWeaponType == TF_WPN_TYPE_MELEE ) )
-				{
-					if ( pPlayerAttacker )
-					{
-						pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_TAUNT_DOSIDO_MELLE_KILL );
-					}
-				}
-			}
-			else if ( GetTauntEconItemView()->GetItemDefinition() == congaTaunt )
+			if ( GetTauntEconItemView()->GetItemDefinition() == congaTaunt )
 			{
 				if ( pPlayerAttacker )
 				{
@@ -11229,19 +10977,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		// Create a puff right where we died to mask the ghost spawning in
 		DispatchParticleEffect( "ghost_appearation", PATTACH_ABSORIGIN, this );
 
-		// Check for achievement
-		if ( info.GetDamageCustom() == TF_DMG_CUSTOM_TRIGGER_HURT )
-		{
-			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_HIGHTOWER ) )
-			{
-				CTFPlayer *pRecentDamager = TFGameRules()->GetRecentDamager( this, 1, 5.0 );
-				if ( pRecentDamager )
-				{
-					pRecentDamager->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_HELLTOWER_ENVIRONMENTAL_KILLS );
-				}
-			}
-		}
-
 		CTFPlayer *pRecentDamager = ( pPlayerAttacker == this ) ? TFGameRules()->GetRecentDamager( this, 0, 5.0 ) : pPlayerAttacker;
 		CTakeDamageInfo ghostinfo = info;
 
@@ -11258,7 +10993,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 				if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
 				{
 					ghostinfo.SetDamageCustom( TF_DMG_CUSTOM_KART );
-					pRecentDamager->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_DOOMSDAY_KILL_KARTS );
 				}
 			}
 			// if no recent damager, check for HHH
@@ -11370,25 +11104,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	CTFPlayer *pOriginalBurner = m_Shared.GetOriginalBurnAttacker();
 	CTFPlayer *pLastBurner = m_Shared.GetBurnAttacker();
 
-	if ( m_aBurnFromBackAttackers.Count() > 0 )
-	{
-		CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>(info.GetWeapon());
-		if ( pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_FLAMETHROWER )
-		{
-			for ( int i = 0; i < m_aBurnFromBackAttackers.Count(); i++ )
-			{
-				CTFPlayer *pBurner = ToTFPlayer( m_aBurnFromBackAttackers[i].Get() );
-
-				if ( pBurner )
-				{
-					pBurner->AwardAchievement( ACHIEVEMENT_TF_PYRO_KILL_FROM_BEHIND );
-				}
-			}
-		}
-
-		ClearBurnFromBehindAttackers();
-	}
-
 	if ( IsPlayerClass( TF_CLASS_MEDIC ) )
 	{
 		CWeaponMedigun* pMedigun = assert_cast<CWeaponMedigun*>( Weapon_OwnsThisID( TF_WEAPON_MEDIGUN ) );
@@ -11402,22 +11117,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 			bElectrocuted = true;
 			if ( pPlayerAttacker )
 			{
-				if ( pPlayerAttacker->IsPlayerClass( TF_CLASS_SCOUT ) )
-				{
-					pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SCOUT_KILL_CHARGED_MEDICS );
-				}
-				else if ( pPlayerAttacker->IsPlayerClass( TF_CLASS_SNIPER ) )
-				{
-					pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SNIPER_KILL_CHARGED_MEDIC );
-				}
-				else if ( pPlayerAttacker->IsPlayerClass( TF_CLASS_SPY ) )
-				{
-					if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BACKSTAB )
-					{
-						pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SPY_BACKSTAB_MEDIC_CHARGED );
-					}
-				}
-
 				CTF_GameStats.Event_PlayerAwardBonusPoints( pPlayerAttacker, this, 20 );
 			}
 		}
@@ -11451,45 +11150,9 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 			gameeventmanager->FireEvent( event );
 		}
 	}
-	else if ( IsPlayerClass( TF_CLASS_SOLDIER ) || IsPlayerClass( TF_CLASS_DEMOMAN ) )
-	{
-		if ( pPlayerAttacker && pPlayerAttacker->IsPlayerClass( TF_CLASS_SNIPER ) && RocketJumped() && !GetGroundEntity() ) 
-		{
-			if ( pKillerWeapon )
-			{
-				if ( WeaponID_IsSniperRifleOrBow( pKillerWeapon->GetWeaponID() ) )
-				{
-					pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SNIPER_KILL_RJER );
-				}
 
-				if ( pKillerWeapon->GetWeaponID() == TF_WEAPON_SNIPERRIFLE_CLASSIC )
-				{
-					if ( ( info.GetDamageCustom() == TF_DMG_CUSTOM_HEADSHOT ) && ( info.GetDamageType() & DMG_CRITICAL ) )
-					{
-						if ( pPlayerAttacker->m_Shared.IsAiming() == false )
-						{
-							pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SNIPER_CLASSIC_RIFLE_HEADSHOT_JUMPER );
-						}
-					}
-				}
-			}
-		}
-	}
 	else if ( IsPlayerClass( TF_CLASS_ENGINEER ) )
 	{
-		if ( pPlayerAttacker && pPlayerAttacker->IsPlayerClass( TF_CLASS_SOLDIER ) )
-		{
-			// Has Engineer worked on his sentrygun recently?
-			CBaseObject	*pSentry = GetObjectOfType( OBJ_SENTRYGUN );
-			if ( pSentry && m_AchievementData.IsTargetInHistory( pSentry, 4.0 ) )
-			{
-				if ( pSentry->m_AchievementData.CountDamagersWithinTime( 3.0 ) > 0 )
-				{
-					pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SOLDIER_KILL_ENGY );
-				}
-			}
-		}
-
 		if ( m_Shared.IsCarryingObject() )
 		{
 			CTakeDamageInfo info( pPlayerAttacker, pPlayerAttacker, NULL, vec3_origin, GetAbsOrigin(), 0, DMG_GENERIC );
@@ -11500,158 +11163,13 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 			}
 		}
 	}
-	else if ( IsPlayerClass( TF_CLASS_SNIPER ) )
-	{
-		if ( pPlayerAttacker )
-		{
-			if ( GetActiveTFWeapon() && ( GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_SNIPERRIFLE_CLASSIC ) )
-			{
-				if ( pKillerWeapon && ( pKillerWeapon->GetTFWpnData().m_iWeaponType == TF_WPN_TYPE_MELEE ) )
-				{
-					pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_MELEE_KILL_CLASSIC_RIFLE_SNIPER );
-				}
-			}
-		}
-	}
 
 	if ( pPlayerAttacker )
 	{
-		if ( pPlayerAttacker->IsPlayerClass( TF_CLASS_SOLDIER ) )
-		{
-			if ( pPlayerAttacker->RocketJumped() || (gpGlobals->curtime - pPlayerAttacker->m_flBlastJumpLandTime) < 1 )
-			{
-				if ( pKillerWeapon && pKillerWeapon->GetWeaponID() == TF_WEAPON_SHOVEL )
-				{
-					CTFShovel *pShovel = static_cast< CTFShovel* >( pKillerWeapon );
-					if ( pShovel && pShovel->GetShovelType() == SHOVEL_DAMAGE_BOOST )
-					{
-						pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SOLDIER_RJ_EQUALIZER_KILL );
-					}
-				}
-			}
-		}
-		else if ( pPlayerAttacker->IsPlayerClass( TF_CLASS_SNIPER ) )
-		{
-			if ( pKillerWeapon && WeaponID_IsSniperRifle( pKillerWeapon->GetWeaponID() ) && pPlayerAttacker->m_Shared.IsAiming() == false )
-			{
-				pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SNIPER_KILL_UNSCOPED );
-			}
-
-			if ( pKillerWeapon && ( pKillerWeapon->GetWeaponID() == TF_WEAPON_SNIPERRIFLE_CLASSIC ) )
-			{
-				if ( ( info.GetDamageCustom() == TF_DMG_CUSTOM_HEADSHOT ) && ( info.GetDamageType() & DMG_CRITICAL ) )
-				{
-					if ( pPlayerAttacker->m_Shared.IsAiming() == false )
-					{
-						pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SNIPER_CLASSIC_RIFLE_NOSCOPE_HEADSHOT );
-					}
-				}
-			}
-		}
-		else if ( pPlayerAttacker->IsPlayerClass( TF_CLASS_SPY ) )
-		{
-			CTriggerAreaCapture *pAreaTrigger = GetControlPointStandingOn();
-			if ( pAreaTrigger )
-			{
-				CTeamControlPoint *pCP = pAreaTrigger->GetControlPoint();
-				if ( pCP )
-				{
-					if ( pCP->GetOwner() == GetTeamNumber() )
-					{
-						// killed on a control point owned by my team
-						pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SPY_KILL_CP_DEFENDERS );
-					}
-					else
-					{
-						// killed on a control point NOT owned by my team, was it a backstab?
-						if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BACKSTAB )
-						{
-							// was i able to capture the control point?
-							if ( TeamplayGameRules()->TeamMayCapturePoint( GetTeamNumber(), pCP->GetPointIndex() ) && 
-								 TeamplayGameRules()->PlayerMayCapturePoint( this, pCP->GetPointIndex() ) )
-							{
-								pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SPY_BACKSTAB_CAPPING_ENEMIES );
-							}
-						}
-					}
-				}
-			}
-
-			if ( IsPlayerClass( TF_CLASS_ENGINEER ) )
-			{
-				//m_AchievementData.CountTargetsWithinTime
-				int iHistory = 0;
-				EntityHistory_t *pHistory = m_AchievementData.GetTargetHistory( iHistory );
-
-				while ( pHistory )
-				{
-					if ( pHistory->hEntity && pHistory->hEntity->IsBaseObject() && m_AchievementData.IsTargetInHistory( pHistory->hEntity, 1.0f ) )
-					{
-						CBaseObject *pObject = dynamic_cast<CBaseObject *>( pHistory->hEntity.Get() );
-					
-						if ( pObject->ObjectType() == OBJ_SENTRYGUN )
-						{
-							pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SPY_KILL_WORKING_ENGY );
-							break;
-						}
-					}
-
-					iHistory++;
-					pHistory = m_AchievementData.GetTargetHistory( iHistory );
-				}
-			}
-		}
-		else if ( pPlayerAttacker->IsPlayerClass( TF_CLASS_DEMOMAN ) )
-		{
-			// Kill "x" players with a direct pipebomb hit
-			if ( pPlayerAttacker->GetActiveTFWeapon() && ( pPlayerAttacker->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_GRENADELAUNCHER ) )
-			{
-				CBaseEntity *pInflictor = info.GetInflictor();
-		
-				if ( pInflictor && pInflictor->IsPlayer() == false )
-				{
-					CTFGrenadePipebombProjectile *pBaseGrenade = dynamic_cast< CTFGrenadePipebombProjectile* >( pInflictor );
-
-					if ( pBaseGrenade && pBaseGrenade->m_bTouched != true )
-					{
-						pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_DEMOMAN_KILL_X_WITH_DIRECTPIPE );
-					}
-				}
-			}
-		}
-		else if ( pPlayerAttacker->IsPlayerClass( TF_CLASS_ENGINEER ) )
-		{
-			// give achievement for killing someone who was recently damaged by our sentry
-			// note that we don't check to see if the sentry is still alive
-			if ( pKillerWeapon &&
-				( pKillerWeapon->GetWeaponID() == TF_WEAPON_SENTRY_REVENGE ||
-				  pKillerWeapon->GetWeaponID() == TF_WEAPON_SHOTGUN_PRIMARY ||
-				  pKillerWeapon->GetWeaponID() == TF_WEAPON_SHOTGUN_BUILDING_RESCUE ) )
-			{
-				if ( m_AchievementData.IsSentryDamagerInHistory( pPlayerAttacker, 5.0 ) )
-				{
-					pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_SHOTGUN_KILL_PREV_SENTRY_TARGET );
-				}
-			}
-		}
-
 		// Revenge Crits for Diamondback
 		if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BACKSTAB )
 		{
 			pPlayerAttacker->m_Shared.IncrementRevengeCrits();
-		}
-	}
-
-	// Check for CP_Foundry achievement
-	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_TRIGGER_HURT )
-	{
-		if ( FStrEq( "cp_foundry", STRING( gpGlobals->mapname ) ) )
-		{
-			CTFPlayer *pRecentDamager = TFGameRules()->GetRecentDamager( this, 1, 5.0 );
-			if ( pRecentDamager )
-			{
-				pRecentDamager->AwardAchievement( ACHIEVEMENT_TF_MAPS_FOUNDRY_PUSH_INTO_CAULDRON );
-			}
 		}
 	}
 
@@ -11710,16 +11228,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		{
 			if ( FStrEq( "mvm_mannhattan", STRING( gpGlobals->mapname ) ) )
 			{
-				CTFBot *pBot = dynamic_cast< CTFBot* >( this );
-				if ( pBot )
-				{
-					// kill gate bots
-					if ( pBot->HasTag( "bot_gatebot" ) )
-					{
-						pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_MVM_MAPS_MANNHATTAN_BOMB_BOT_GRIND );
-					}
-				}
-
 				// kill stunned bots
 				if ( m_Shared.InCond( TF_COND_MVM_BOT_STUN_RADIOWAVE ) )
 				{
@@ -11927,19 +11435,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 				gameeventmanager->FireEvent( event );
 			}
 			CTF_GameStats.Event_PlayerDefendedPoint( pPlayerAttacker );
-
-			if ( !CTFPlayerDestructionLogic::GetRobotDestructionLogic() || ( CTFPlayerDestructionLogic::GetRobotDestructionLogic()->GetType() != CTFPlayerDestructionLogic::TYPE_PLAYER_DESTRUCTION ) )
-			{
-				if ( pPlayerAttacker && pPlayerAttacker->IsPlayerClass( TF_CLASS_SNIPER ) )
-				{
-					CTFWeaponBase *pKillerWeapon = dynamic_cast < CTFWeaponBase * > ( info.GetWeapon() );
-
-					if ( pKillerWeapon && pKillerWeapon->GetWeaponID() == TF_WEAPON_COMPOUND_BOW )
-					{
-						pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_SNIPER_BOW_KILL_FLAGCARRIER );
-					}
-				}
-			}
 		}
 	}
 
@@ -12115,10 +11610,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	if ( pPlayerAttacker && pPlayerAttacker->m_Shared.InCond( TF_COND_HALLOWEEN_TINY ) && !pPlayerAttacker->m_Shared.InCond( TF_COND_HALLOWEEN_KART ) )
 	{
 		info_modified.SetDamageCustom( TF_DMG_CUSTOM_SPELL_TINY );
-		if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
-		{
-			pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_DOOMSDAY_TINY_SMASHER );
-		}
 	}
 
 	if ( TFGameRules() && TFGameRules()->IsPowerupMode() )
@@ -12341,53 +11832,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 			{
 				obj->DetonateObject();
 			}		
-		}
-	}
-
-	// Achievement checks
-	if ( pPlayerAttacker )
-	{
-		// ACHIEVEMENT_TF_MEDIC_KILL_HEALED_SPY - medic kills a spy he has been healing
-		if ( IsPlayerClass( TF_CLASS_SPY ) && pPlayerAttacker->IsPlayerClass( TF_CLASS_MEDIC ) )
-		{
-			// if we were killed by a medic, see if he healed us most recently
-
-			for ( int i=0;i<pPlayerAttacker->WeaponCount();i++ )
-			{
-				CTFWeaponBase *pWpn = ( CTFWeaponBase *)pPlayerAttacker->GetWeapon( i );
-
-				if ( pWpn == NULL )
-					continue;
-
-				if ( pWpn->GetWeaponID() == TF_WEAPON_MEDIGUN )
-				{
-					CWeaponMedigun *pMedigun = dynamic_cast< CWeaponMedigun * >( pWpn );
-					if ( pMedigun )
-					{
-						if ( pMedigun->GetMostRecentHealTarget() == this )
-						{
-							pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_MEDIC_KILL_HEALED_SPY );
-						}
-					}
-				}
-			}
-		}
-
-		if ( bBurning && pPlayerAttacker->IsPlayerClass( TF_CLASS_PYRO ) )
-		{
-			// ACHIEVEMENT_TF_PYRO_KILL_MULTIWEAPONS - Pyro kills previously ignited target with other weapon
-			CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>(info.GetWeapon());
-
-			if ( ( pOriginalBurner == pPlayerAttacker || pLastBurner == pPlayerAttacker ) && pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_SHOTGUN_PYRO )
-			{
-				pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_PYRO_KILL_MULTIWEAPONS );
-			}
-
-			// ACHIEVEMENT_TF_PYRO_KILL_TEAMWORK - Pyro kills an enemy previously ignited by another Pyro
-			if ( pOriginalBurner != pPlayerAttacker )
-			{
-				pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_PYRO_KILL_TEAMWORK );
-			}
 		}
 	}
 
@@ -14938,47 +14382,6 @@ void CTFPlayer::OnBurnOther( CTFPlayer *pTFPlayerVictim, CTFWeaponBase *pWeapon 
 			break;
 		}
 	}
-
-	// see if we've burned enough players in time window to satisfy achievement
-	if ( m_aBurnOtherTimes.Count() >= ACHIEVEMENT_BURN_VICTIMS )
-	{
-		AwardAchievement( ACHIEVEMENT_TF_BURN_PLAYERSINMINIMIMTIME );
-	}
-
-	// ACHIEVEMENT_TF_PYRO_KILL_SPIES - Awarded for igniting enemy spies who have active sappers on friendly building
-	if ( pTFPlayerVictim->IsPlayerClass(TF_CLASS_SPY))
-	{
-		CBaseObject	*pSapper = pTFPlayerVictim->GetObjectOfType( OBJ_ATTACHMENT_SAPPER, 0 );
-		if ( pSapper )
-		{
-			AwardAchievement( ACHIEVEMENT_TF_PYRO_KILL_SPIES );
-		}
-	}
-
-	// ACHIEVEMENT_TF_PYRO_BURN_RJ_SOLDIER - Pyro ignited a rocket jumping soldier in mid-air
-	if ( pTFPlayerVictim->IsPlayerClass(TF_CLASS_SOLDIER) )
-	{
-		if ( pTFPlayerVictim->RocketJumped() && !pTFPlayerVictim->GetGroundEntity() )
-		{
-			AwardAchievement( ACHIEVEMENT_TF_PYRO_BURN_RJ_SOLDIER );
-		}
-	}
-
-	// ACHIEVEMENT_TF_PYRO_DEFEND_POINTS - Pyro kills targets capping control points
-	CTriggerAreaCapture *pAreaTrigger = pTFPlayerVictim->GetControlPointStandingOn();
-	if ( pAreaTrigger )
-	{
-		CTeamControlPoint *pCP = pAreaTrigger->GetControlPoint();
-		if ( pCP && pCP->GetOwner() == GetTeamNumber() )
-		{
-			if ( TeamplayGameRules()->TeamMayCapturePoint( pTFPlayerVictim->GetTeamNumber(), pCP->GetPointIndex() ) && 
-				TeamplayGameRules()->PlayerMayCapturePoint( pTFPlayerVictim, pCP->GetPointIndex() ) )
-			{
-				AwardAchievement( ACHIEVEMENT_TF_PYRO_DEFEND_POINTS );
-			}
-		}
-	}
-
 	// ACHIEVEMENT_TF_MEDIC_ASSIST_PYRO
 	// if we're invuln, let the medic know that we burned someone
 	if ( m_Shared.InCond( TF_COND_INVULNERABLE ) || m_Shared.InCond( TF_COND_INVULNERABLE_WEARINGOFF ) )
@@ -16273,42 +15676,11 @@ void CTFPlayer::Touch( CBaseEntity *pOther )
 
 	if ( pVictim )
 	{
-		// ACHIEVEMENT_TF_SPY_BUMP_CLOAKED_SPY
-		if ( !m_Shared.IsAlly( pVictim ) )
-		{
-			if ( IsPlayerClass( TF_CLASS_SPY ) && pVictim->IsPlayerClass( TF_CLASS_SPY ) )
-			{
-				if ( m_Shared.InCond( TF_COND_STEALTHED ) && pVictim->m_Shared.InCond( TF_COND_STEALTHED ) )
-				{
-					AwardAchievement( ACHIEVEMENT_TF_SPY_BUMP_CLOAKED_SPY );
-				}
-			}
-		}
-
 		CheckUncoveringSpies( pVictim );
 
 		// ACHIEVEMENT_TF_HEAVY_BLOCK_INVULN_HEAVY
 		if ( !m_Shared.IsAlly( pVictim ) )
 		{
-			if ( IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) && pVictim->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-			{
-				CTFTeam *pTeam = GetGlobalTFTeam( GetTeamNumber() );
-				if ( pTeam && pTeam->GetRole() == TEAM_ROLE_DEFENDERS )
-				{
-					if ( m_Shared.InCond( TF_COND_INVULNERABLE ) || m_Shared.InCond( TF_COND_INVULNERABLE_WEARINGOFF ) )
-					{
-						if ( pVictim->m_Shared.InCond( TF_COND_INVULNERABLE ) || pVictim->m_Shared.InCond( TF_COND_INVULNERABLE_WEARINGOFF ) )
-						{
-							float flMaxSpeed = 50.0f * 50.0f;
-							if ( ( GetAbsVelocity().LengthSqr() < flMaxSpeed ) && ( pVictim->GetAbsVelocity().LengthSqr() < flMaxSpeed ) )
-							{
-								AwardAchievement( ACHIEVEMENT_TF_HEAVY_BLOCK_INVULN_HEAVY );
-							}
-						}
-					}
-				}
-			}
-
 			// ****************************************************************************************************************
 			// Halloween Karts
 			if ( m_Shared.InCond( TF_COND_HALLOWEEN_KART ) && m_flHalloweenKartPushEventTime < gpGlobals->curtime )
@@ -17048,42 +16420,6 @@ bool CTFPlayer::PlayTauntSceneFromItem( const CEconItemView *pEconItemView )
 			}
 		}
 
-		// check for achievement
-		static CSchemaItemDefHandle congaTaunt( "Conga Taunt" );
-		if ( pEconItemView->GetItemDefinition() == congaTaunt )
-		{
-			CUtlVector< CTFPlayer * > vecPlayers;
-			CollectPlayers( &vecPlayers, TF_TEAM_RED, COLLECT_ONLY_LIVING_PLAYERS );
-			CollectPlayers( &vecPlayers, TF_TEAM_BLUE, COLLECT_ONLY_LIVING_PLAYERS, APPEND_PLAYERS );
-
-			CUtlVector< CTFPlayer * > vecCongaLine;
-
-			FOR_EACH_VEC( vecPlayers, i )
-			{
-				CTFPlayer *pPlayer = vecPlayers[i];
-				if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_TAUNTING ) )
-				{
-					// is this player doing the Conga?
-					if ( pPlayer->GetTauntEconItemView() && ( pPlayer->GetTauntEconItemView()->GetItemDefinition() == congaTaunt ) )
-					{
-						vecCongaLine.AddToTail( pPlayer );
-					}
-				}
-			}
-
-			if ( vecCongaLine.Count() >= 10 )
-			{
-				FOR_EACH_VEC( vecCongaLine, i )
-				{
-					CTFPlayer *pPlayer = vecCongaLine[i];
-					if ( pPlayer )
-					{
-						pPlayer->AwardAchievement( ACHIEVEMENT_TF_TAUNT_CONGA_LINE );
-					}
-				}
-			}
-		}
-
 		// override FOV
 		m_iPreTauntFOV = GetFOV();
 		if ( pTauntData->GetFOV() != 0 )
@@ -17423,13 +16759,6 @@ void CTFPlayer::Taunt( taunts_t iTauntIndex, int iTauntConcept )
 			{
 				m_flTauntAttackTime = gpGlobals->curtime + 1.0;
 				m_iTauntAttack = TAUNTATK_HEAVY_EAT;
-
-				// Only count sandviches for "eat 100 sandviches" achievement
-				CTFLunchBox *pLunchbox = (CTFLunchBox*)pActiveWeapon;
-				if ( ( pLunchbox->GetLunchboxType() == LUNCHBOX_STANDARD ) || ( pLunchbox->GetLunchboxType() == LUNCHBOX_STANDARD_ROBO ) || ( pLunchbox->GetLunchboxType() == LUNCHBOX_STANDARD_FESTIVE ) )
-				{
-					AwardAchievement( ACHIEVEMENT_TF_HEAVY_EAT_SANDWICHES );
-				}
 			}
 		}
 	}
@@ -18306,14 +17635,6 @@ void CTFPlayer::DoTauntAttack( void )
 
 					// The end of the list moves overwrites the one we just picked
 					nRandomPick[ nRand ] = nRandomPick[ i ];
-				}
-			}
-
-			if ( iTauntAttack == TAUNTATK_PYRO_ARMAGEDDON )
-			{
-				if ( nBurnCount >= 3 )
-				{
-					AwardAchievement( ACHIEVEMENT_TF_PYRO_IGNITE_WITH_RAINBOW );
 				}
 			}
 		}
@@ -19693,16 +19014,6 @@ int	CTFPlayer::CalculateTeamBalanceScore( void )
 //-----------------------------------------------------------------------------
 void CTFPlayer::AwardAchievement( int iAchievement, int iCount )
 {
-	if ( TFGameRules()->State_Get() >= GR_STATE_TEAM_WIN )
-	{
-		// allow the Helltower loot island achievement during the bonus time
-		if ( iAchievement != ACHIEVEMENT_TF_HALLOWEEN_HELLTOWER_SKULL_ISLAND_REWARD )
-		{
-			// reject in endround
-			return;
-		}
-	}
-
 	BaseClass::AwardAchievement( iAchievement, iCount );
 }
 
@@ -19882,50 +19193,6 @@ medigun_charge_types CTFPlayer::GetChargeEffectBeingProvided( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: ACHIEVEMENT_TF_MEDIC_ASSIST_HEAVY handler
-//-----------------------------------------------------------------------------
-void CTFPlayer::HandleAchievement_Medic_AssistHeavy( CTFPlayer *pPunchVictim )
-{
-	if ( !pPunchVictim )
-	{
-		// reset
-		m_aPunchVictims.RemoveAll();
-		return;
-	}
-
-	// we assisted punching this guy, while invuln
-
-	// if this is a new unique punch victim
-	if ( m_aPunchVictims.Find( pPunchVictim ) == m_aPunchVictims.InvalidIndex() )
-	{
-		m_aPunchVictims.AddToTail( pPunchVictim );
-
-		if ( m_aPunchVictims.Count() >= 2 )
-		{
-			AwardAchievement( ACHIEVEMENT_TF_MEDIC_ASSIST_HEAVY );
-		}
-	}	
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: ACHIEVEMENT_TF_PYRO_KILL_FROM_BEHIND handler
-//-----------------------------------------------------------------------------
-void CTFPlayer::HandleAchievement_Pyro_BurnFromBehind( CTFPlayer *pBurner )
-{
-	if ( !pBurner )
-	{
-		// reset
-		m_aBurnFromBackAttackers.RemoveAll();
-		return;
-	}
-
-	if ( m_aBurnFromBackAttackers.Find( pBurner ) == m_aBurnFromBackAttackers.InvalidIndex() )
-	{
-		m_aBurnFromBackAttackers.AddToTail( pBurner );
-	}	
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFPlayer::ResetPerRoundStats( void )
@@ -20087,37 +19354,12 @@ void CTFPlayer::Internal_HandleMapEvent( inputdata_t &inputdata )
 		{
 			if ( GetTeamNumber() == TF_TEAM_PVE_INVADERS )
 			{
-				if ( FStrEq( inputdata.value.String(), "banana" ) )
-				{
-					CTFPlayer *pRecentDamager = TFGameRules()->GetRecentDamager( this, 0, 5.0 );
-					if ( pRecentDamager && ( pRecentDamager->GetTeamNumber() == TF_TEAM_PVE_DEFENDERS ) )
-					{
-						pRecentDamager->AwardAchievement( ACHIEVEMENT_TF_MVM_MAPS_MANNHATTAN_MYSTERY );
-					}
-				}
-				else if ( FStrEq( inputdata.value.String(), "pit" ) )
+				if ( FStrEq( inputdata.value.String(), "pit" ) )
 				{
 					IGameEvent *event = gameeventmanager->CreateEvent( "mvm_mannhattan_pit" );
 					if ( event )
 					{
 						gameeventmanager->FireEvent( event );
-					}
-				}
-			}
-		}
-	}
-	else if ( FStrEq( "mvm_rottenburg", STRING( gpGlobals->mapname ) ) )
-	{
-		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
-		{
-			if ( GetTeamNumber() == TF_TEAM_PVE_INVADERS )
-			{
-				if ( FStrEq( inputdata.value.String(), "pit" ) )
-				{
-					CTFPlayer *pRecentDamager = TFGameRules()->GetRecentDamager( this, 0, 5.0 );
-					if ( pRecentDamager && ( pRecentDamager->GetTeamNumber() == TF_TEAM_PVE_DEFENDERS ) )
-					{
-						pRecentDamager->AwardAchievement( ACHIEVEMENT_TF_MVM_MAPS_ROTTENBURG_PIT_GRIND );
 					}
 				}
 			}
@@ -20132,15 +19374,6 @@ void CTFPlayer::Internal_HandleMapEvent( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CTFPlayer::IgnitePlayer()
 {
-	if ( FStrEq( "sd_doomsday", STRING( gpGlobals->mapname ) ) )
-	{
-		CTFPlayer *pRecentDamager = TFGameRules()->GetRecentDamager( this, 0, 5.0 );
-		if ( pRecentDamager && ( pRecentDamager->GetTeamNumber() != GetTeamNumber() ) )
-		{
-			pRecentDamager->AwardAchievement( ACHIEVEMENT_TF_MAPS_DOOMSDAY_PUSH_INTO_EXHAUST );
-		}
-	}
-
 	m_Shared.Burn( this, NULL );
 }
 
@@ -20289,26 +19522,6 @@ void CTFPlayer::InputTriggerLootIslandAchievement( inputdata_t &inputdata )
 {
 	if ( TFGameRules() && TFGameRules()->IsHolidayActive( kHoliday_Halloween ) )
 	{
-		if ( TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_VIADUCT ) )
-		{
-			AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_LOOT_ISLAND );
-		}
-		else if ( TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_LAKESIDE ) )
-		{
-			AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_MERASMUS_COLLECT_LOOT );
-		}
-		else if ( TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_HIGHTOWER ) )
-		{
-			// the other maps require a min number of players before the boss appears but this one doesn't
-			// so we need to have at least 1 player on the enemy team before granting the achievement
-			CUtlVector< CTFPlayer* > playerVector;
-			CollectHumanPlayers( &playerVector, ( GetTeamNumber() == TF_TEAM_RED ) ? TF_TEAM_BLUE : TF_TEAM_RED );
-			if ( playerVector.Count() >= 1 )
-			{
-				AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_HELLTOWER_SKULL_ISLAND_REWARD );
-			}
-		}
-
 		IGameEvent *pEvent = gameeventmanager->CreateEvent( "escape_hell" );
 		if ( pEvent )
 		{
@@ -21281,19 +20494,6 @@ void CTFPlayer::AcceptTauntWithPartner( CTFPlayer *initiator )
 
 	initiator->m_bInitTaunt = false;
 	pInitiatorExpresser->DisallowMultipleScenes();
-
-	// check for taunt achievements
-	if ( TFGameRules() && ( TFGameRules()->GetGameType() == TF_GAMETYPE_CP ) )
-	{
-		if ( !IsBot() && !initiator->IsBot() && ( GetTeamNumber() == initiator->GetTeamNumber() ) )
-		{
-			if ( IsCapturingPoint() && initiator->IsCapturingPoint() )
-			{
-				AwardAchievement( ACHIEVEMENT_TF_TAUNT_WHILE_CAPPING );
-				initiator->AwardAchievement( ACHIEVEMENT_TF_TAUNT_WHILE_CAPPING );
-			}
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------

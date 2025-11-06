@@ -580,30 +580,6 @@ void CTFTankBoss::Event_Killed( const CTakeDamageInfo &info )
 
 	Explode();
 
-	// check for MvM achievement
-	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
-	{
-		if ( FStrEq( "mvm_rottenburg", STRING( gpGlobals->mapname ) ) )
-		{
-			CLogicRelay *pLogicRelay = dynamic_cast< CLogicRelay* >( gEntList.FindEntityByName( NULL, "Barricade_Achievement_Check" ) );
-			if ( pLogicRelay && !pLogicRelay->IsDisabled() )
-			{
-				CUtlVector<CTFPlayer *> playerVector;
-				CollectPlayers( &playerVector, TF_TEAM_PVE_DEFENDERS );
-				FOR_EACH_VEC( playerVector, i )
-				{
-					if ( !playerVector[i] )
-						continue;
-
-					if ( playerVector[i]->IsBot() )
-						continue;
-
-					playerVector[i]->AwardAchievement( ACHIEVEMENT_TF_MVM_MAPS_ROTTENBURG_TANK );
-				}
-			}
-		}
-	}
-
 	BaseClass::Event_Killed( info );
 }
 
@@ -1006,50 +982,6 @@ void CTFTankBoss::Explode( void )
 		if ( event )
 		{
 			gameeventmanager->FireEvent( event );
-		}
-
-		if ( TFGameRules()->IsMannVsMachineMode() )
-		{
-			// ACHIEVEMENT_TF_MVM_DESTROY_TANK_WHILE_DEPLOYING
-			if ( m_isDroppingBomb )
-			{
-				// short delay so you only get the achievement if the bomb doors have opened/closed and it's ready to deploy
-				if ( gpGlobals->curtime - m_flDroppingStart > 5.8f )
-				{
-					// anyone who has damaged the tank since the deploy anim began will get the achievement
-					float flWindow = gpGlobals->curtime - m_flDroppingStart;
-
-					for ( int i = 0; i < m_vecDamagers.Count(); i++ )
-					{
-						// get the achievement if you have damaged the tank since the deploy anim began
-						if ( ( gpGlobals->curtime - m_vecDamagers[i].flTimeDamage ) < flWindow )
-						{
-							CTFPlayer *pTFPlayer = dynamic_cast< CTFPlayer* >( m_vecDamagers[i].hEntity.Get() );
-							if ( pTFPlayer )
-							{
-								pTFPlayer->AwardAchievement( ACHIEVEMENT_TF_MVM_DESTROY_TANK_WHILE_DEPLOYING );
-							}
-						}
-					}
-				}
-			}
-
-			// ACHIEVEMENT_TF_MVM_DESTROY_TANK_QUICKLY
-			if ( ( gpGlobals->curtime - m_flSpawnTime ) < MVM_DESTROY_TANK_QUICKLY_TIME )
-			{
-				for ( int i = 0; i < m_vecDamagers.Count(); i++ )
-				{
-					// get the achievement if you have damaged the tank since the deploy anim began
-					if ( ( gpGlobals->curtime - m_vecDamagers[i].flTimeDamage ) < MVM_DESTROY_TANK_QUICKLY_TIME )
-					{
-						CTFPlayer *pTFPlayer = dynamic_cast< CTFPlayer* >( m_vecDamagers[i].hEntity.Get() );
-						if ( pTFPlayer )
-						{
-							pTFPlayer->AwardAchievement( ACHIEVEMENT_TF_MVM_DESTROY_TANK_QUICKLY );
-						}
-					}
-				}
-			}
 		}
 	}
 }

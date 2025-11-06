@@ -249,23 +249,6 @@ void CTFBotMissionSuicideBomber::Detonate( CTFBot *me )
 		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
 		{
 			TFGameRules()->HaveAllPlayersSpeakConceptIfAllowed( MP_CONCEPT_MVM_SENTRY_BUSTER_DOWN, TF_TEAM_PVE_DEFENDERS );
-
-			// ACHIEVEMENT_TF_MVM_KILL_SENTRY_BUSTER
-			for ( int iDamager = 0 ; iDamager < MAX_ACHIEVEMENT_HISTORY_SLOTS ; iDamager ++ )
-			{	
-				EntityHistory_t *damagerHistory = me->m_AchievementData.GetDamagerHistory( iDamager );
-				if ( damagerHistory )
-				{
-					if ( damagerHistory->hEntity && ( gpGlobals->curtime - damagerHistory->flTimeDamage <= 5.0f ) )
-					{
-						CTFPlayer *pRecentDamager = ToTFPlayer( damagerHistory->hEntity );
-						if ( pRecentDamager )
-						{
-							pRecentDamager->AwardAchievement( ACHIEVEMENT_TF_MVM_KILL_SENTRY_BUSTER );
-						}
-					}
-				}
-			}
 		}
 	}
 

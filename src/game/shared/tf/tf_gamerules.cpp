@@ -164,29 +164,12 @@ static int g_TauntCamRagdollAchievements[] =
 	0,		// TF_CLASS_SNIPER,
 	0,		// TF_CLASS_SOLDIER,
 	0,		// TF_CLASS_DEMOMAN,
-	ACHIEVEMENT_TF_MEDIC_FREEZECAM_RAGDOLL,		// TF_CLASS_MEDIC,
+	0,		// TF_CLASS_MEDIC,
 	0,		// TF_CLASS_HEAVYWEAPONS,
 	0,		// TF_CLASS_PYRO,
-	ACHIEVEMENT_TF_SPY_FREEZECAM_FLICK,		// TF_CLASS_SPY,
+	0,		// TF_CLASS_SPY,
 	0,		// TF_CLASS_ENGINEER,
 
-	0,		// TF_CLASS_CIVILIAN,
-	0,		// TF_CLASS_COUNT_ALL,
-};
-
-static int g_TauntCamAchievements[] = 
-{
-	0,		// TF_CLASS_UNDEFINED
-
-	0,		// TF_CLASS_SCOUT,	
-	ACHIEVEMENT_TF_SNIPER_FREEZECAM_HAT,		// TF_CLASS_SNIPER,
-	ACHIEVEMENT_TF_SOLDIER_FREEZECAM_GIBS,		// TF_CLASS_SOLDIER,		(extra check to count the number of gibs onscreen)
-	ACHIEVEMENT_TF_DEMOMAN_FREEZECAM_SMILE,		// TF_CLASS_DEMOMAN,
-	0,		// TF_CLASS_MEDIC,
-	ACHIEVEMENT_TF_HEAVY_FREEZECAM_TAUNT,		// TF_CLASS_HEAVYWEAPONS,  (there's an extra check on this one to see if we're also invuln)
-	ACHIEVEMENT_TF_PYRO_FREEZECAM_TAUNTS,		// TF_CLASS_PYRO,
-	0,		// TF_CLASS_SPY,
-	ACHIEVEMENT_TF_ENGINEER_FREEZECAM_TAUNT,	// TF_CLASS_ENGINEER,
 	0,		// TF_CLASS_CIVILIAN,
 	0,		// TF_CLASS_COUNT_ALL,
 };
@@ -197,9 +180,9 @@ static int g_TauntCamAchievements2[] =
 	0,		// TF_CLASS_UNDEFINED
 
 	0,		// TF_CLASS_SCOUT,	
-	ACHIEVEMENT_TF_SNIPER_FREEZECAM_WAVE,		// TF_CLASS_SNIPER,
-	ACHIEVEMENT_TF_SOLDIER_FREEZECAM_TAUNT,		// TF_CLASS_SOLDIER,
-	ACHIEVEMENT_TF_DEMOMAN_FREEZECAM_RUMP,		// TF_CLASS_DEMOMAN,
+	0,		// TF_CLASS_SNIPER,
+	0,		// TF_CLASS_SOLDIER,
+	0,		// TF_CLASS_DEMOMAN,
 	0,		// TF_CLASS_MEDIC,
 	0,		// TF_CLASS_HEAVYWEAPONS,
 	0,		// TF_CLASS_PYRO,
@@ -5324,13 +5307,6 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 				pVictim->SpeakConceptIfAllowed( MP_CONCEPT_HURT );
 			}
 
-			// If this is critical explosive damage, and the Medic giving us invuln triggered 
-			// it in the last second, he's earned himself an achievement. 
-			if ( (bitsDamage & DMG_CRITICAL) && (bitsDamage & DMG_BLAST) )
-			{
-				pVictim->m_Shared.CheckForAchievement( ACHIEVEMENT_TF_MEDIC_SAVE_TEAMMATE );
-			}
-
 			return false;
 		}
 	}
@@ -6563,109 +6539,6 @@ CTFGameRules::~CTFGameRules()
 //-----------------------------------------------------------------------------
 void CTFGameRules::CheckTauntAchievement( CTFPlayer *pAchiever, int nGibs, int *pTauntCamAchievements )
 {
-	if ( !pAchiever || !pAchiever->GetPlayerClass() )
-		return;
-
-	int iClass = pAchiever->GetPlayerClass()->GetClassIndex();
-	if ( pTauntCamAchievements[ iClass ] )
-	{
-		bool bAwardAchievement = true;
-
-		// for the Heavy achievement, the player needs to also be invuln
-		if ( iClass == TF_CLASS_HEAVYWEAPONS && pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_HEAVY_FREEZECAM_TAUNT )
-		{
-			if ( !pAchiever->m_Shared.InCond( TF_COND_INVULNERABLE_WEARINGOFF ) && !pAchiever->m_Shared.InCond( TF_COND_INVULNERABLE ) )
-			{
-				bAwardAchievement = false;
-			}
-		}
-
-		// for the Spy achievement, we must be in the cig lighter taunt
-		if ( iClass == TF_CLASS_SPY && pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_SPY_FREEZECAM_FLICK )
-		{
-			if ( pAchiever->GetActiveTFWeapon() && pAchiever->GetActiveTFWeapon()->GetWeaponID() != TF_WEAPON_PDA_SPY )
-			{
-				bAwardAchievement = false;
-			}
-		}
-
-		// for the two Sniper achievements, we need to check for specific taunts
-		if ( iClass == TF_CLASS_SNIPER )
-		{
-			if ( pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_SNIPER_FREEZECAM_HAT )
-			{
-				if ( pAchiever->GetActiveTFWeapon() && pAchiever->GetActiveTFWeapon()->GetWeaponID() != TF_WEAPON_CLUB )
-				{
-					bAwardAchievement = false;
-				}
-			}
-			else if ( pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_SNIPER_FREEZECAM_WAVE  )
-			{
-				if ( pAchiever->GetActiveTFWeapon() && WeaponID_IsSniperRifle( pAchiever->GetActiveTFWeapon()->GetWeaponID() ) )
-				{
-					bAwardAchievement = false;
-				}
-			}
-		}
-
-		// For the Soldier achievements, we need to be doing a specific taunt, or have enough gibs onscreen
-		if ( iClass == TF_CLASS_SOLDIER )
-		{
-			if ( pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_SOLDIER_FREEZECAM_TAUNT )
-			{
-				if ( pAchiever->GetActiveTFWeapon() && pAchiever->GetActiveTFWeapon()->GetWeaponID() != TF_WEAPON_SHOTGUN_SOLDIER )
-				{
-					bAwardAchievement = false;
-				}
-			}
-			else if ( pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_SOLDIER_FREEZECAM_GIBS )
-			{
-				// Need at least 3 gibs on-screen
-				if ( nGibs < 3 )
-				{
-					bAwardAchievement = false;
-				}
-			}
-		}
-
-		// for the two Demoman achievements, we need to check for specific taunts
-		if ( iClass == TF_CLASS_DEMOMAN )
-		{
-			if ( pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_DEMOMAN_FREEZECAM_SMILE )
-			{
-				if ( pAchiever->GetActiveTFWeapon() && pAchiever->GetActiveTFWeapon()->GetWeaponID() != TF_WEAPON_GRENADELAUNCHER )
-				{
-					bAwardAchievement = false;
-				}
-			}
-			else if ( pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_DEMOMAN_FREEZECAM_RUMP )
-			{
-				if ( pAchiever->GetActiveTFWeapon() && pAchiever->GetActiveTFWeapon()->GetAttributeContainer() )
-				{
-					// Needs to be the Scottish Defender
-					CEconItemView *pItem = pAchiever->GetActiveTFWeapon()->GetAttributeContainer()->GetItem();
-					if ( pItem && pItem->IsValid() && pItem->GetItemDefIndex() != 130 )	// Scottish Defender is item index 130
-					{
-						bAwardAchievement = false;
-					}
-				}
-			}
-		}
-
-		// for the Engineer achievement, we must be in the guitar taunt
-		if ( iClass == TF_CLASS_ENGINEER && pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_ENGINEER_FREEZECAM_TAUNT )
-		{
-			if ( pAchiever->GetActiveTFWeapon() && pAchiever->GetActiveTFWeapon()->GetWeaponID() != TF_WEAPON_SENTRY_REVENGE )
-			{
-				bAwardAchievement = false;
-			}
-		}
-
-		if ( bAwardAchievement )
-		{
-			pAchiever->AwardAchievement( pTauntCamAchievements[ iClass ] );
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -9276,12 +9149,6 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 				{
 					pOwner->SetMaxSentryKills( iKills );
 				}
-
-				// if we just got 10 kills with one sentry, tell the owner's client, which will award achievement if it doesn't have it already
-				if ( iKills == 10 )
-				{
-					pOwner->AwardAchievement( ACHIEVEMENT_TF_GET_TURRETKILLS );
-				}
 			}
 		}
 	}
@@ -9374,11 +9241,6 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 				if ( pMultiplayerPlayer->GetTeamNumber() == pArea->GetOwningTeam() )
 				{
 					int iDefenderKills = pAssister->GetPerLifeCounterKV( "medic_defender_kills" );
-
-					if ( ++iDefenderKills == 3 )
-					{
-						pAssister->AwardAchievement( ACHIEVEMENT_TF_MEDIC_ASSIST_CAPTURER );
-					}
 
 					pAssister->SetPerLifeCounterKV( "medic_defender_kills", iDefenderKills );
 				}
@@ -9485,81 +9347,6 @@ void CTFGameRules::PlayerKilledCheckAchievements( CTFPlayer *pAttacker, CTFPlaye
 {
 	if ( !pAttacker || !pVictim )
 		return;
-
-	// HEAVY WEAPONS GUY
-	if ( pAttacker->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-	{
-		if ( GetGameType() == TF_GAMETYPE_CP )
-		{
-			// ACHIEVEMENT_TF_HEAVY_DEFEND_CONTROL_POINT
-			CTriggerAreaCapture *pAreaTrigger = pAttacker->GetControlPointStandingOn();
-			if ( pAreaTrigger )
-			{
-				CTeamControlPoint *pCP = pAreaTrigger->GetControlPoint();
-				if ( pCP )
-				{
-					if ( pCP->GetOwner() == pAttacker->GetTeamNumber() )
-					{
-						// no suicides!
-						if ( pAttacker != pVictim )
-						{
-							pAttacker->AwardAchievement( ACHIEVEMENT_TF_HEAVY_DEFEND_CONTROL_POINT );
-						}
-					}
-				}
-			}
-
-			// ACHIEVEMENT_TF_HEAVY_KILL_CAPPING_ENEMIES
-			pAreaTrigger = pVictim->GetControlPointStandingOn();
-			if ( pAreaTrigger )
-			{
-				CTeamControlPoint *pCP = pAreaTrigger->GetControlPoint();
-				if ( pCP )
-				{
-					if ( pCP->GetOwner() == pAttacker->GetTeamNumber() && 
-						 TeamMayCapturePoint( pVictim->GetTeamNumber(), pCP->GetPointIndex() ) &&
-						 PlayerMayCapturePoint( pVictim, pCP->GetPointIndex() ) )
-					{
-						pAttacker->AwardAchievement( ACHIEVEMENT_TF_HEAVY_KILL_CAPPING_ENEMIES );
-					}
-				}
-			}
-		}
-
-		// ACHIEVEMENT_TF_HEAVY_CLEAR_STICKYBOMBS
-		if ( pVictim->IsPlayerClass( TF_CLASS_DEMOMAN ) )
-		{
-			int iPipes = pVictim->GetNumActivePipebombs();
-
-			for (int i = 0; i < iPipes; i++)
-			{
-				pAttacker->AwardAchievement( ACHIEVEMENT_TF_HEAVY_CLEAR_STICKYBOMBS );
-			}
-		}
-
-		// ACHIEVEMENT_TF_HEAVY_DEFEND_MEDIC
-		int i;
-		int iNumHealers = pAttacker->m_Shared.GetNumHealers();
-		for ( i = 0 ; i < iNumHealers ; i++ )
-		{
-			CTFPlayer *pMedic = ToTFPlayer( pAttacker->m_Shared.GetHealerByIndex( i ) );
-			if ( pMedic && pMedic->m_AchievementData.IsDamagerInHistory( pVictim, 3.0 ) )
-			{
-				pAttacker->AwardAchievement( ACHIEVEMENT_TF_HEAVY_DEFEND_MEDIC );
-				break; // just award it once for each kill...even if the victim attacked more than one medic attached to the killer
-			}
-		}
-
-		// ACHIEVEMENT_TF_HEAVY_STAND_NEAR_DISPENSER
-		for ( i = 0 ; i < iNumHealers ; i++ )
-		{
-			if ( pAttacker->m_Shared.HealerIsDispenser( i ) )
-			{
-				pAttacker->AwardAchievement( ACHIEVEMENT_TF_HEAVY_STAND_NEAR_DISPENSER );
-				break; // just award it once for each kill...even if the attacker is being healed by more than one dispenser
-			}
-		}
-	}
 
 	int i;
 	int iNumHealers = pAttacker->m_Shared.GetNumHealers();
@@ -10773,22 +10560,6 @@ void CTFGameRules::ClientDisconnected( edict_t *pClient )
 	CTFPlayer *pPlayer = ToTFPlayer( GetContainingEntity( pClient ) );
 	if ( pPlayer )
 	{
-		// ACHIEVEMENT_TF_PYRO_DOMINATE_LEAVESVR - Pyro causes a dominated player to leave the server
-		for ( int i = 1; i <= gpGlobals->maxClients ; i++ )
-		{
-			if ( pPlayer->m_Shared.IsPlayerDominatingMe(i) )
-			{
-				CTFPlayer *pDominatingPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-				if ( pDominatingPlayer && pDominatingPlayer != pPlayer )
-				{
-					if ( pDominatingPlayer->IsPlayerClass(TF_CLASS_PYRO) )
-					{
-						pDominatingPlayer->AwardAchievement( ACHIEVEMENT_TF_PYRO_DOMINATE_LEAVESVR );
-					}
-				}
-			}
-		}
-
 		// Notify gamestats that the player left.
 		CTF_GameStats.Event_PlayerDisconnectedTF( pPlayer );
 
@@ -12633,38 +12404,7 @@ void CTFGameRules::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValu
 	char const *pszCommand = pKeyValues->GetName();
 	if ( pszCommand && pszCommand[0] )
 	{
-		if ( FStrEq( pszCommand, "FreezeCamTaunt" ) )
-		{
-			CTFPlayer *pAchiever = ToTFPlayer( UTIL_PlayerByUserId( pKeyValues->GetInt( "achiever" ) ) );
-			if ( pAchiever )
-			{
-				const char *pszCommand = pKeyValues->GetString( "command" );
-				if ( pszCommand && pszCommand[0] )
-				{
-					int nGibs = pKeyValues->GetInt( "gibs" );
-
-					if ( FStrEq( pszCommand, "freezecam_taunt" ) )
-					{	
-						CheckTauntAchievement( pAchiever, nGibs, g_TauntCamAchievements );
-						CheckTauntAchievement( pAchiever, nGibs, g_TauntCamAchievements2 );
-					}
-					else if ( FStrEq( pszCommand, "freezecam_tauntrag" ) )
-					{	
-						CheckTauntAchievement( pAchiever, nGibs, g_TauntCamRagdollAchievements );
-					}
-					else if ( FStrEq( pszCommand, "freezecam_tauntgibs" ) )
-					{	
-						CheckTauntAchievement( pAchiever, nGibs, g_TauntCamAchievements );
-					}
-					else if ( FStrEq( pszCommand, "freezecam_tauntsentry" ) )
-					{
-						// Maybe should also require a taunt? Currently too easy to get?
-						pAchiever->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_FREEZECAM_SENTRY );
-					}
-				}
-			}
-		}
-		else if ( FStrEq( pszCommand, "UsingVRHeadset" ) )
+		if ( FStrEq( pszCommand, "UsingVRHeadset" ) )
 		{
 			static CSchemaItemDefHandle pItemDef_OculusRiftHeadset( "The TF2VRH" );
 
@@ -13071,31 +12811,6 @@ void CTFGameRules::PlayHelltowerAnnouncerVO( int iRedLine, int iBlueLine )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFGameRules::CheckHelltowerCartAchievement( int iTeam )
-{
-	if ( IsHalloweenScenario( HALLOWEEN_SCENARIO_HIGHTOWER ) )
-	{
-		CUtlVector< CTFPlayer * > playerVector;
-		CollectPlayers( &playerVector, iTeam );
-
-		FOR_EACH_VEC( playerVector, i )
-		{
-			CTFPlayer *pPlayer = playerVector[i];
-			if ( pPlayer && ( pPlayer->GetObserverMode() <= OBS_MODE_DEATHCAM ) ) // they might be killed by the explosion, so check if they are OBS_MODE_NONE OR OBS_MODE_DEATHCAM
-			{
-				CTriggerAreaCapture *pAreaTrigger = pPlayer->GetControlPointStandingOn();
-				if ( pAreaTrigger && pAreaTrigger->TeamCanCap( iTeam ) )
-				{
-					pPlayer->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_HELLTOWER_KILL_BROTHERS );
-				}
-			}
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CTFGameRules::HandleMapEvent( inputdata_t &inputdata )
 {
 	if ( FStrEq( "sd_doomsday", STRING( gpGlobals->mapname ) ) )
@@ -13141,7 +12856,6 @@ void CTFGameRules::HandleMapEvent( inputdata_t &inputdata )
 		}
 		else if ( FStrEq( pszEvent, "red_capture" ) )
 		{
-			CheckHelltowerCartAchievement( TF_TEAM_RED );
 			if ( RandomFloat( 0, 1 ) < HELLTOWER_RARE_LINE_CHANCE )
 			{
 				PlayHelltowerAnnouncerVO( HELLTOWER_VO_RED_WIN_RARE, HELLTOWER_VO_BLUE_LOSE_RARE );
@@ -13153,7 +12867,6 @@ void CTFGameRules::HandleMapEvent( inputdata_t &inputdata )
 		}
 		else if ( FStrEq( pszEvent, "blue_capture" ) )
 		{
-			CheckHelltowerCartAchievement( TF_TEAM_BLUE );
 			if ( RandomFloat( 0, 1 ) < HELLTOWER_RARE_LINE_CHANCE )
 			{
 				PlayHelltowerAnnouncerVO( HELLTOWER_VO_RED_LOSE_RARE, HELLTOWER_VO_BLUE_WIN_RARE );
@@ -15524,11 +15237,6 @@ void CTFGameRules::FireGameEvent( IGameEvent *event )
 			{
 				CTF_GameStats.Event_PlayerCapturedPoint( pPlayer );	
 
-				if ( pPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) && GetGameType() == TF_GAMETYPE_ESCORT )
-				{
-					pPlayer->AwardAchievement( ACHIEVEMENT_TF_HEAVY_PAYLOAD_CAP_GRIND );
-				}
-
 				// Give money and experience
 				int nAmount = CalculateCurrencyAmount_ByType( TF_CURRENCY_CAPTURED_OBJECTIVE );
 				DistributeCurrencyAmount( nAmount, pPlayer, false );
@@ -15547,8 +15255,6 @@ void CTFGameRules::FireGameEvent( IGameEvent *event )
 		int iPlayerIndex = event->GetInt( "blocker" );
 		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( iPlayerIndex ) );
 		CTF_GameStats.Event_PlayerDefendedPoint( pPlayer );
-
-		pPlayer->m_Shared.CheckForAchievement( ACHIEVEMENT_TF_MEDIC_CHARGE_BLOCKER );
 	}	
 	else if ( !Q_strcmp( eventName, "teamplay_round_win" ) )
 	{
@@ -15590,14 +15296,6 @@ void CTFGameRules::FireGameEvent( IGameEvent *event )
 
 				int nAmount = CalculateCurrencyAmount_ByType( TF_CURRENCY_ESCORT_REWARD );
 				DistributeCurrencyAmount( ( nAmount * iPoints ), pPlayer, false );
-
-				if ( pPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) && GetGameType() == TF_GAMETYPE_ESCORT )
-				{
-					for ( int i = 0 ; i < iPoints ; i++ )
-					{
-						pPlayer->AwardAchievement( ACHIEVEMENT_TF_HEAVY_PAYLOAD_CAP_GRIND );
-					}
-				}
 			}
 		}
 	}

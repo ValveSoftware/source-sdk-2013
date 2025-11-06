@@ -984,9 +984,6 @@ private:
 
 #ifdef GAME_DLL
 
-	
-	void CheckHelltowerCartAchievement( int iTeam );
-
 	Vector2D	m_vecPlayerPositions[MAX_PLAYERS_ARRAY_SAFE];
 
 	CUtlVector<CHandle<CHealthKit> > m_hDisabledHealthKits;	

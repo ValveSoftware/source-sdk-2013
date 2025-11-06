@@ -153,14 +153,6 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 					}
 				}
 
-				if ( pTFPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-				{
-					UserMessageBegin( user, "UpdateAchievement" );
-					WRITE_SHORT( ACHIEVEMENT_TF_HEAVY_HEAL_MEDIKITS );
-					WRITE_SHORT( nHealthGiven );
-					MessageEnd();
-				}
-
 				pTFPlayer->m_Shared.HealthKitPickupEffects( nHealthGiven );
 
 				CTF_GameStats.Event_PlayerHealthkitPickup( pTFPlayer );

@@ -782,13 +782,6 @@ CEquippableItemsForSlotGenerator::CEquippableItemsForSlotGenerator( int iClass, 
 			continue;
 		}
 
-		// Has this item been modified by the user in some way? If so, always list.
-		if ( ShouldItemNotStack( pItem ) )
-		{
-			m_vecDisplayItems.AddToTail( CEquippableItemsForSlotGenerator::CEquippableResult( pItem, eDisplayType ) );
-			continue;
-		}
-
 		// Throw this item into the running map of the highest level item of this type we've seen so far.
 		// "Of this type" means "has a matching rarity and item definition index", so uniques will be sorted
 		// differently from unusuals, but both will show their highest-level item.
@@ -1133,12 +1126,6 @@ void CItemCriteriaSelectionPanel::UpdateModelPanelsForSelection( void )
 				// Has this item been modified by the user in some way? If so, always list,
 				// but don't add it to our duplicate count, or our "found indices" list.
 				item_definition_index_t iDefIndex = pItemData->GetItemDefIndex();
-				if ( ShouldItemNotStack( pItemData ) )
-				{
-					vecDisplayItems.AddToTail( pItemData );
-					continue;
-				}
-
 				item_stack_type_t stackType( iDefIndex );
 				int iIndex = m_DuplicateCounts.Find( stackType );
 				if ( iIndex == m_DuplicateCounts.InvalidIndex() )

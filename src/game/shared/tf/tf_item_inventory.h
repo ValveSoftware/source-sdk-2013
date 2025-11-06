@@ -94,7 +94,6 @@ protected:
 
 #ifdef CLIENT_DLL
 private:
-	void				CheckSaxtonMaskAchievement( const CEconItem *pEconItem );
 	void				UpdateCachedServerLoadoutItems();
 	void				UpdateRealTFLoadoutItems();
 #endif // CLIENT_DLL

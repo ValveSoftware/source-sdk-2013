@@ -220,8 +220,6 @@ bool CHalloweenPickup::MyTouch( CBasePlayer *pPlayer )
 			CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
 			if ( pTFPlayer )
 			{
-				pTFPlayer->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_DOOMSDAY_COLLECT_DUCKS );
-
 				IGameEvent *pEvent = gameeventmanager->CreateEvent( "halloween_duck_collected" );
 				if ( pEvent )
 				{
@@ -593,11 +591,6 @@ bool CHalloweenGiftPickup::MyTouch( CBasePlayer *pPlayer )
 		TFGameRules()->DropHalloweenSoulPack( 1, vecOrigin, pPlayer, TEAM_SPECTATOR );
 	}
 
-	// Achievement
-	if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_MANN_MANOR ) )
-	{
-		pTFPlayer->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_COLLECT_GOODY_BAG );
-	}
 	return true;
 }
 

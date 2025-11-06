@@ -570,8 +570,6 @@ void CHudUpgradePanel::SetActive( bool bActive )
 
 		// Tick once right away to get the currency updated
 		OnTick();
-
-		m_bAwardMaxSlotAchievement = false;
 	}
 	else if ( !bActive && IsActive() )
 	{
@@ -1602,11 +1600,6 @@ void CHudUpgradePanel::UpdateButtonStates( int nCurrentMoney, int nUpgrade /*= 0
 
 		bool bSoldFinalPowerUp = false;
 
-		// Achievement tracking
-		int nUpgradesAtMax = 0;
-		int nUpgrades = pItemSlotBuyPanel->upgradeBuyPanels.Count();
-		bool bIsResistMax[4] = { 0 };
-
 		FOR_EACH_VEC( pItemSlotBuyPanel->upgradeBuyPanels, i )
 		{
 			CUpgradeBuyPanel *pUpgradeBuyPanel = pItemSlotBuyPanel->upgradeBuyPanels[ i ];
@@ -1648,103 +1641,6 @@ void CHudUpgradePanel::UpdateButtonStates( int nCurrentMoney, int nUpgrade /*= 0
 			}
 
 			pUpgradeBuyPanel->UpdateImages( nCurrentMoney );
-
-			// Check if the upgrade will be maxed when considering purchases
-			bool bMax = false;
-			if ( pUpgradeBuyPanel->m_nPurchases + pUpgradeBuyPanel->m_nCurrentStep == pUpgradeBuyPanel->m_SkillTreeImages.Count() )
-			{
-				nUpgradesAtMax++;
-				bMax = true;
-			}
-
-			// For ACHIEVEMENT_TF_MVM_MAX_PLAYER_RESISTANCES
-			if ( bMax && m_iWeaponSlotBeingUpgraded == -1 )
-			{
-				// This is ugly - I blame time vs workload
-				if ( pUpgradeBuyPanel->m_szAttribName )
-				{
-					CEconItemAttributeDefinition *pAttribDef = ItemSystem()->GetStaticDataForAttributeByName( pUpgradeBuyPanel->m_szAttribName );
-					if ( pAttribDef )
-					{
-						switch ( pAttribDef->GetDefinitionIndex() )
-						{
-						case 60:	// "dmg taken from fire reduced"
-							{
-								bIsResistMax[0] = true;
-								break;
-							}
-						case 62:	// "dmg taken from crit reduced"
-							{
-								bIsResistMax[1] = true;
-								break;
-							}
-						case 64:	// "dmg taken from blast reduced"
-							{
-								bIsResistMax[2] = true;
-								break;
-							}
-						case 66:	// "dmg taken from bullets reduced"
-							{
-								bIsResistMax[3] = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// Check for ACHIEVEMENT_TF_MVM_MAX_PRIMARY_UPGRADES
-		if ( nUpgrades && nUpgrades == nUpgradesAtMax )
-		{
-			if ( m_hPlayer )
-			{
-				// Some spies may perceive the knife as their primary, while others
-				// might think it's their pistol - which is actually a secondary
-				if ( m_hPlayer->IsPlayerClass( TF_CLASS_SPY ) )
-				{
-					if ( m_iWeaponSlotBeingUpgraded == LOADOUT_POSITION_MELEE ||
-						 m_iWeaponSlotBeingUpgraded == LOADOUT_POSITION_SECONDARY )
-					{
-						m_bAwardMaxSlotAchievement = true;
-					}
-				}
-				// Some engineers may perceive the sentry as their primary, so allow it
-				else if ( m_hPlayer->IsPlayerClass( TF_CLASS_ENGINEER ) )
-				{
-					CEconEntity *pEntity = NULL;
-					CTFPlayerSharedUtils::GetEconItemViewByLoadoutSlot( m_hPlayer, m_iWeaponSlotBeingUpgraded, &pEntity );
-					CTFWeaponBase *pWeapon = dynamic_cast< CTFWeaponBase* >( pEntity );
-					if ( pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_PDA_ENGINEER_BUILD )
-					{
-						m_bAwardMaxSlotAchievement = true;
-					}
-				}
-
-				// Everyone else
-				if ( m_iWeaponSlotBeingUpgraded == LOADOUT_POSITION_PRIMARY )
-				{
-					m_bAwardMaxSlotAchievement = true;
-				}
-			}
-		}
-		else
-		{
-			m_bAwardMaxSlotAchievement = false;
-		}
-
-		// Check for ACHIEVEMENT_TF_MVM_MAX_PLAYER_RESISTANCES
-		if ( m_iWeaponSlotBeingUpgraded == -1 )
-		{
-			m_bAwardMaxResistAchievement = true;
-			for ( int i = 0; i < ARRAYSIZE( bIsResistMax ); i++ )
-			{
-				if ( !bIsResistMax[i] )
-				{
-					m_bAwardMaxResistAchievement = false;
-					break;
-				}
-			}
 		}
 
 		if ( m_iWeaponSlotBeingUpgraded == LOADOUT_POSITION_ACTION && !bSellAllowed && bSoldFinalPowerUp )
@@ -1975,17 +1871,6 @@ void CHudUpgradePanel::OnCommand( const char *command )
 		m_bShowUpgradeMenu = false;
 		m_bCancelUpgrades = false;
 		m_bOpenLoadout = false;
-
-		// See if we need to award achievements
-		if ( m_bAwardMaxSlotAchievement )
-		{
-			g_AchievementMgrTF.AwardAchievement( ACHIEVEMENT_TF_MVM_MAX_PRIMARY_UPGRADES );
-		}
-		if ( m_bAwardMaxResistAchievement )
-		{
-			g_AchievementMgrTF.AwardAchievement( ACHIEVEMENT_TF_MVM_MAX_PLAYER_RESISTANCES );
-		}
-
 		return;
 	}
 	else if ( !Q_stricmp( command, "cancel" ) )

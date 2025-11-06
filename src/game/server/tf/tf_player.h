@@ -906,11 +906,6 @@ public:
 
 	// Achievements
 	void				AwardAchievement( int iAchievement, int iCount = 1 );
-	void				HandleAchievement_Medic_AssistHeavy( CTFPlayer *pPunchVictim );
-	void				HandleAchievement_Pyro_BurnFromBehind( CTFPlayer *pBurner );
-
-	void				ClearPunchVictims( void ) { m_aPunchVictims.RemoveAll(); }
-	void				ClearBurnFromBehindAttackers( void ) { m_aBurnFromBackAttackers.RemoveAll(); }
 
 	int					RocketJumped( void ) { return m_iBlastJumpState & TF_PLAYER_ROCKET_JUMPED; }
 	int					StickyJumped( void ) { return m_iBlastJumpState & TF_PLAYER_STICKY_JUMPED; }
@@ -1233,8 +1228,6 @@ public:
 
 private:
 	// Achievement data
-	CUtlVector<EHANDLE> m_aPunchVictims;
-	CUtlVector<EHANDLE> m_aBurnFromBackAttackers;
 	int					m_iLeftGroundHealth;	// health we were at the last time we left the ground
 
 	float				m_flTeamJoinTime;
@@ -1242,8 +1235,6 @@ private:
 	bool				m_bJustPlayed;
 	int					m_iPreviousteam;
 	bool				m_bGibbedOnLastDeath;
-	CUtlMap<int, float> m_Cappers;		
-	float				m_fMaxHealthTime;
 
 	// Feign death.
 	bool				m_bGoingFeignDeath;
@@ -1445,9 +1436,6 @@ public:
 	bool CanPickupDroppedWeapon( const CTFDroppedWeapon *pWeapon );
 	CTFDroppedWeapon* GetDroppedWeaponInRange();
 
-	bool HasCampaignMedal( int iMedal );
-	void SetCampaignMedalActive( int iMedal ){ m_iCampaignMedals |= iMedal; }
-
 	void InspectButtonPressed();
 	void InspectButtonReleased();
 	bool IsInspecting() const;
@@ -1493,8 +1481,6 @@ private:
 	CNetworkVar( bool, m_bViewingCYOAPDA );
 
 	CUtlVector< CHandle< CTFWeaponBase > > m_hDisguiseWeaponList; // copy disguise target weapons to this list
-
-	CNetworkVar( int, m_iCampaignMedals );
 
 	float m_flNextScorePointForPD;
 

@@ -352,11 +352,6 @@ void CTFCondition_CritBoost::OnAdded()
 {
 #ifdef CLIENT_DLL
 	GetOuter()->m_Shared.UpdateCritBoostEffect();
-
-	if ( GetOuter()->IsLocalPlayer() && GetOuter()->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-	{
-		g_AchievementMgrTF.OnAchievementEvent( ACHIEVEMENT_TF_HEAVY_RECEIVE_UBER_GRIND );
-	}
 #endif
 }
 

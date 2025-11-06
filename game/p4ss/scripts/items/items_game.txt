@@ -13928,7 +13928,7 @@
 		"localizedname"		"#TF_Map_Unknown"
 		"statsidentifier"		"0"
 	}
-	"50"
+	"1"
 	{
 		"name"		"pass_brickyard"
 		"localizedname"		"#TF_Map_pass_brickyard"
@@ -13942,7 +13942,7 @@
 			"passtime"	"1"
 		}
 	}
-	"51"
+	"2"
 	{
 		"name"		"pass_timbertown"
 		"localizedname"		"#TF_Map_pass_timbertown"
@@ -13956,7 +13956,7 @@
 			"passtime"	"1"
 		}
 	}
-	"52"
+	"3"
 	{
 		"name"		"pass_district"
 		"localizedname"		"#TF_Map_pass_district"
@@ -13970,7 +13970,7 @@
 			"passtime"	"1"
 		}
 	}
-	"204"
+	"4"
 	{			//Authors: Jaguarfiend, nikeshoe92, Danmar33
 		"name"				"pass_arena2_b15"
 		"localizedname"		"#P4SS_Map_Arena2"
@@ -13984,7 +13984,7 @@
 			"passtime"		"1"
 		}
 	}
-	"205"
+	"5"
 	{			//Authors: kin
 		"name"				"pass_boutique_rc5"
 		"localizedname"		"#P4SS_Map_Boutique"
@@ -13998,7 +13998,7 @@
 			"passtime"		"1"
 		}
 	}
-	"206"
+	"6"
 	{			//Authors: kingfin, Berry, Crowbar, Lacry, Taxicat, nikeshoe92, Harlen 'UEAK' Crash
 		"name"				"pass_maple_a10"
 		"localizedname"		"#P4SS_Map_Maple"
@@ -14012,7 +14012,7 @@
 			"passtime"		"1"
 		}
 	}
-	"207"
+	"7"
 	{			//Authors: Shears, Danmar33
 		"name"				"pass_plexiglass_b6"
 		"localizedname"		"#P4SS_Map_Plexiglass"
@@ -14026,7 +14026,7 @@
 			"passtime"		"1"
 		}
 	}
-	"208"
+	"8"
 	{			//Authors: DropKnock, Sean 'Heyo' Cutino, EArkham, Aeon 'Void' Bollig
 		"name"				"pass_ruin_a14"
 		"localizedname"		"#P4SS_Map_Ruin"
@@ -14040,7 +14040,7 @@
 			"passtime"		"1"
 		}
 	}
-	"209"
+	"9"
 	{			//Authors: nikeshoe92
 		"name"				"pass_stadium_rc5"
 		"localizedname"		"#P4SS_Map_Stadium"
@@ -14054,7 +14054,7 @@
 			"passtime"		"1"
 		}
 	}
-	"210"
+	"10"
 	{			//Authors: nikeshoe92
 		"name"				"pass_stonework_rc4"
 		"localizedname"		"#P4SS_Map_Stonework"
@@ -14068,7 +14068,7 @@
 			"passtime"		"1"
 		}
 	}
-	"211"
+	"11"
 	{			//Authors: kingfin, Speakers, Freyja, EArkham, Aeon 'Void' Bollig, Exactol
 		"name"				"pass_torii_a7"
 		"localizedname"		"#P4SS_Map_Torii"
@@ -14082,7 +14082,7 @@
 			"passtime"		"1"
 		}
 	}
-	"212"
+	"12"
 	{			//Authors: nikeshoe92
 		"name" "pass_amperage_a27"
 		"localizedname" "#P4SS_Map_Amperage"
@@ -14096,7 +14096,7 @@
 				"passtime"		"1"
 			}
 	}
-	"213"
+	"13"
 	{			//Authors: nikeshoe92
 		"name" "pass_greenhouse_a27"
 		"localizedname" "#P4SS_Map_Greenhouse"

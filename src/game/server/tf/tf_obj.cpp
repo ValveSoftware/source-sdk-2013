@@ -2011,10 +2011,6 @@ int CBaseObject::OnTakeDamage( const CTakeDamageInfo &info )
 	if ( flDamage )
 	{
 		m_iLifetimeDamage += floor( Min( flDamage, m_flHealth ) );
-		if ( m_iLifetimeDamage > tf_obj_damage_tank_achievement_amount.GetInt() && GetBuilder() )
-		{
-			GetBuilder()->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_TANK_DAMAGE );
-		}
 
 		// Recheck our death possibility, because our objects may have all been blown off us by now
 		bWillDieButCant = ( bFriendlyObjectsAttached ) && IsDamageFatal( m_flHealth, flDamage );
@@ -2348,9 +2344,6 @@ void CBaseObject::Killed( const CTakeDamageInfo &info )
 		if ( pAssister )
 		{
 			CTF_GameStats.Event_AssistDestroyBuilding( pAssister, this );
-
-			// Also increment the SapBuildings grind achievement
-			pAssister->AwardAchievement( ACHIEVEMENT_TF_SPY_SAPPER_GRIND );
 		}
 	}
 	else if ( pScorer )
@@ -2421,27 +2414,6 @@ void CBaseObject::Killed( const CTakeDamageInfo &info )
 
 		CTF_GameStats.Event_PlayerDestroyedBuilding( pScorer, this );
 		pScorer->Event_KilledOther(this, info);
-
-		// Check for Demo achievement:
-		// Kill an Engineer building that you can't see with a direct hit from a Grenade Launcher
-
-		if ( pScorer && pScorer->IsPlayerClass( TF_CLASS_DEMOMAN) )
-		{
-			if ( pScorer->GetActiveTFWeapon() && ( pScorer->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_GRENADELAUNCHER) )
-			{
-				if ( pInflictor && pInflictor->IsPlayer() == false )
-				{
-					CTFGrenadePipebombProjectile *pBaseGrenade = dynamic_cast< CTFGrenadePipebombProjectile* >( pInflictor );
-					if ( pBaseGrenade && pBaseGrenade->m_bTouched == false )
-					{
-						if ( pScorer->FVisible( this ) == false )
-						{
-							pScorer->AwardAchievement( ACHIEVEMENT_TF_DEMOMAN_KILL_BUILDING_DIRECT_HIT );
-						}
-					}
-				}
-			}
-		}
 	}
 	else
 	{
@@ -2947,11 +2919,6 @@ int CBaseObject::Command_Repair( CTFPlayer *pActivator, float flAmount, float fl
 
 		if ( iRepairAmount > 0 )
 		{
-			if ( pActivator != GetBuilder() )
-			{
-				pActivator->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_REPAIR_TEAM_GRIND, iRepairAmount );
-			}
-
 			// This will spawn a large "+" particle over the object
 			if ( bSendEvent )
 			{

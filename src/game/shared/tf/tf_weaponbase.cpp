@@ -5989,8 +5989,6 @@ bool CTFWeaponBase::DeflectEntity( CBaseEntity *pTarget, CTFPlayer *pOwner, Vect
 	VectorAngles( vecDir, newAngles );
 	pTarget->SetAbsAngles( newAngles );
 
-	pOwner->AwardAchievement( ACHIEVEMENT_TF_PYRO_REFLECT_PROJECTILES );
-
 	CDisablePredictionFiltering disabler;
 	DispatchParticleEffect( "deflect_fx", PATTACH_ABSORIGIN_FOLLOW, pTarget );
 

@@ -1288,11 +1288,6 @@ public:
 					{
 						CReliableBroadcastRecipientFilter filter;
 						UTIL_SayText2Filter( filter, attackerVector[i].m_attacker, false, "#TF_Halloween_Merasmus_Killers", attackerVector[i].m_attacker->GetPlayerName() );
-
-						if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_LAKESIDE ) )
-						{
-							attackerVector[i].m_attacker->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_MERASMUS_KILL );
-						}
 					}
 				}
 

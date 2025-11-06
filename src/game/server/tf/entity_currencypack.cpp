@@ -296,12 +296,6 @@ bool CCurrencyPack::MyTouch( CBasePlayer *pPlayer )
 				event->SetInt( "currency", m_nAmount );
 				gameeventmanager->FireEvent( event );
 			}
-
-			// is the money blinking and about to burn up?
-			if ( m_blinkCount > 0 )
-			{
-				pTFTouchPlayer->AwardAchievement( ACHIEVEMENT_TF_MVM_PICKUP_MONEY_ABOUT_TO_EXPIRE );
-			}
 		}
 
 		CReliableBroadcastRecipientFilter filter;

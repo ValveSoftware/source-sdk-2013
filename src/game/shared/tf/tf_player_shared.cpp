@@ -658,14 +658,6 @@ CTFPlayer *GetRuneCarrier( RuneTypes_t type, int iTeam = TEAM_ANY )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFPlayer::HasCampaignMedal( int iMedal )
-{ 
-	return ( ( m_iCampaignMedals & iMedal ) != 0 );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 bool CTFPlayer::IsAllowedToTaunt( void )
 {
 	if ( !IsAlive() )
@@ -2730,18 +2722,6 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 		}
 		else if ( m_flAfterburnDuration <= 0.f || m_pOuter->GetWaterLevel() >= WL_Waist )
 		{
-			// If we're underwater, put the fire out
-			if ( m_pOuter->GetWaterLevel() >= WL_Waist )
-			{
-				// General achievement for jumping into water while you're on fire
-				m_pOuter->AwardAchievement( ACHIEVEMENT_TF_FIRE_WATERJUMP );
-
-				// Pyro achievement for forcing players into water
-				if ( m_hBurnAttacker )
-				{
-					m_hBurnAttacker->AwardAchievement( ACHIEVEMENT_TF_PYRO_FORCE_WATERJUMP );
-				}
-			}
 
 			RemoveCond( TF_COND_BURNING );
 
@@ -3417,11 +3397,6 @@ void CTFPlayerShared::OnAddInvulnerable( void )
 		if ( !IsErrorMaterial( pMaterial ) )
 		{
 			view->SetScreenOverlayMaterial( pMaterial );
-		}
-
-		if ( m_pOuter->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-		{
-			g_AchievementMgrTF.OnAchievementEvent( ACHIEVEMENT_TF_HEAVY_RECEIVE_UBER_GRIND );
 		}
 	}
 #else
@@ -6927,8 +6902,6 @@ void CTFPlayerShared::OnRemoveBurning( void )
 	m_hOriginalBurnAttacker = NULL;
 	m_hBurnWeapon = NULL;
 
-	m_pOuter->ClearBurnFromBehindAttackers();
-
 	if ( InCond( TF_COND_HEALING_DEBUFF ) )
 	{
 		RemoveCond( TF_COND_HEALING_DEBUFF );
@@ -7711,23 +7684,6 @@ void CTFPlayerShared::SetPlayerDominatingMe( CTFPlayer *pPlayer, bool bDominated
 {
 	int iPlayerIndex = pPlayer->entindex();
 	m_bPlayerDominatingMe.Set( iPlayerIndex, bDominated );
-
-#ifdef GAME_DLL
-	if ( bDominated )
-	{
-		CTFPlayer *pDominatingPlayer = ToTFPlayer( pPlayer );
-		if ( pDominatingPlayer && pDominatingPlayer->IsPlayerClass( TF_CLASS_MEDIC ) )
-		{
-			CBaseEntity *pHealedEntity = pPlayer->MedicGetHealTarget();
-			CTFPlayer *pHealedPlayer = ToTFPlayer( pHealedEntity );
-
-			if ( pHealedPlayer && pHealedPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-			{
-				pHealedPlayer->AwardAchievement( ACHIEVEMENT_TF_HEAVY_EARN_MEDIC_DOMINATION );
-			}
-		}
-	}
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -9362,38 +9318,6 @@ EHANDLE CTFPlayerShared::GetFirstHealer()
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::CheckForAchievement( int iAchievement )
 {
-	if ( iAchievement == ACHIEVEMENT_TF_MEDIC_SAVE_TEAMMATE || 
-		(iAchievement == ACHIEVEMENT_TF_MEDIC_CHARGE_BLOCKER && InCond( TF_COND_INVULNERABLE ) ) )
-	{
-		// ACHIEVEMENT_TF_MEDIC_SAVE_TEAMMATE : We were just saved from death by invuln. See if any medics deployed
-		// their charge on us recently, and if so, give them the achievement.
-
-		// ACHIEVEMENT_TF_MEDIC_CHARGE_BLOCKER: We just blocked a capture, and we're invuln. Whoever's invulning us gets the achievement.
-
-		for ( int i = 0; i < m_aHealers.Count(); i++ )
-		{
-			CTFPlayer *pPlayer = ToTFPlayer( m_aHealers[i].pHealer );
-			if ( !pPlayer )
-				continue;
-
-			if ( !pPlayer->IsPlayerClass(TF_CLASS_MEDIC) )
-				continue;
-
-			CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
-			if ( !pWpn )
-				continue;
-
-			CWeaponMedigun *pMedigun = dynamic_cast<CWeaponMedigun*>(pWpn);
-			if ( pMedigun && pMedigun->IsReleasingCharge() )
-			{
-				// Save teammate requires us to have deployed the charge within the last second
-				if ( iAchievement != ACHIEVEMENT_TF_MEDIC_SAVE_TEAMMATE || (gpGlobals->curtime - pMedigun->GetReleaseStartedAt()) < 1.0 )
-				{
-					pPlayer->AwardAchievement( iAchievement );
-				}
-			}
-		}
-	}
 }
 
 #endif // GAME_DLL
@@ -9557,23 +9481,6 @@ void CTFPlayerShared::RecordDamageEvent( const CTakeDamageInfo &info, bool bKill
 					if ( bKill )
 					{
 						m_DamageEvents[iDamage].nKills++;
-
-						if ( m_pOuter->IsPlayerClass( TF_CLASS_DEMOMAN ) )
-						{
-							// Make sure the previous & the current are stickybombs, and go with it.
-							if ( m_DamageEvents[iDamage].nDamageType == info.GetDamageType() &&
-								m_DamageEvents[iDamage].nDamageType == g_aWeaponDamageTypes[TF_WEAPON_PIPEBOMBLAUNCHER] )
-							{
-								if ( TFGameRules()->IsMannVsMachineMode() && m_DamageEvents[iDamage].nKills >= 10 )
-								{
-									m_pOuter->AwardAchievement( ACHIEVEMENT_TF_MVM_DEMO_GROUP_KILL );
-								}
-								else if ( m_DamageEvents[iDamage].nKills >= 3 )
-								{
-									m_pOuter->AwardAchievement( ACHIEVEMENT_TF_DEMOMAN_KILL3_WITH_DETONATION );
-								}
-							}
-						}
 					}
 
 					// Take the max damage done in the time frame.
@@ -9605,25 +9512,6 @@ void CTFPlayerShared::RecordDamageEvent( const CTakeDamageInfo &info, bool bKill
 	m_DamageEvents[iIndex].nKills = bKill;
 
 //	Msg( "Damage Event: D:%f, T:%f\n", m_DamageEvents[iIndex].flDamage, m_DamageEvents[iIndex].flTime );
-
-	if ( TFGameRules()->IsMannVsMachineMode() && m_pOuter->IsPlayerClass( TF_CLASS_SNIPER ) )
-	{
-		int nKillCount = 0;
-		int nDamageCount = m_DamageEvents.Count();
-		for ( int iDamage = 0; iDamage < nDamageCount; ++iDamage )
-		{
-			// Did it happen very recently?
-			if ( ( gpGlobals->curtime - m_DamageEvents[iDamage].flTime ) < CRIT_DAMAGE_TIME )
-			{
-				nKillCount += m_DamageEvents[iDamage].nKills;
-			}
-		}
-
-		if ( nKillCount >= 4 )
-		{
-			m_pOuter->AwardAchievement( ACHIEVEMENT_TF_MVM_SNIPER_KILL_GROUP );
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -13897,25 +13785,6 @@ void CTFPlayerShared::PulseRageBuff( ERageBuffSlot eBuffSlot )
 		}
 #endif
 	}
-
-#ifdef CLIENT_DLL
-	if ( nBuffedFriends >= 5 )
-	{
-		g_AchievementMgrTF.OnAchievementEvent( ACHIEVEMENT_TF_SOLDIER_BUFF_FRIENDS );
-	}
-#else
-	// ACHIEVEMENT_TF_MVM_SOLDIER_BUFF_TEAM
-	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
-	{
-		if ( ( m_pOuter->GetTeamNumber() == TF_TEAM_PVE_DEFENDERS ) && m_pOuter->IsPlayerClass( TF_CLASS_SOLDIER ) )
-		{
-			if ( nBuffedPlayers >= 5 )
-			{
-				m_pOuter->AwardAchievement( ACHIEVEMENT_TF_MVM_SOLDIER_BUFF_TEAM );
-			}
-		}
-	}
-#endif
 }
 
 //-----------------------------------------------------------------------------

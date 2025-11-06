@@ -498,7 +498,7 @@ void CTFGameStats::SendStatsToPlayer( CTFPlayer *pPlayer, bool bIsAlive )
 	for ( int i = 0; i < GetItemSchema()->GetMapCount(); i++ )
 	{
 		const MapDef_t *pMapDef = GetItemSchema()->GetMasterMapDefByIndex( i );
-		if ( V_strcmp( pMapDef->pszMapName, gpGlobals->mapname.ToCStr() ) == 0 )
+		if ( pMapDef && V_strcmp( pMapDef->pszMapName, gpGlobals->mapname.ToCStr() ) == 0 )
 		{
 			iStat = 0;
 			iSendBits = 0;
@@ -676,17 +676,6 @@ void CTFGameStats::Event_PlayerLeachedHealth( CTFPlayer *pPlayer, bool bDispense
 	// make sure value is sane
 	Assert( amount >= 0 );
 	Assert( amount < 1000 );
-
-	if ( !bDispenserHeal )
-	{
-		// If this was a heal by enemy medic and the first such heal that the server is aware of for this player,
-		// send an achievement event to client.  On the client, it will award achievement if player doesn't have it yet
-		PlayerStats_t &stats = m_aPlayerStats[pPlayer->entindex()];
-		if ( 0 == stats.statsAccumulated.m_iStat[TFSTAT_HEALTHLEACHED] )
-		{
-			pPlayer->AwardAchievement( ACHIEVEMENT_TF_GET_HEALED_BYENEMY );
-		}
-	}
 
 	IncrementStat( pPlayer, TFSTAT_HEALTHLEACHED, (int) amount );
 }
