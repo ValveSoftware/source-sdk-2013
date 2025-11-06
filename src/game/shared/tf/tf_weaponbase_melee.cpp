@@ -168,7 +168,14 @@ int	CTFWeaponBaseMelee::GetSwingRange( void )
 	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
 	if ( pOwner && ( pOwner->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) || ( IsCurrentAttackDuringDemoCharge() && tf_shield_charge_melee_range.GetInt() ) ) )
 	{
-		return tf_shield_charge_melee_range.GetInt();
+		if (tf_shield_charge_melee_range.GetInt())
+		{
+			return tf_shield_charge_melee_range.GetInt();
+		}
+		else
+		{
+			return 128;
+		}
 	}
 	else
 	{
