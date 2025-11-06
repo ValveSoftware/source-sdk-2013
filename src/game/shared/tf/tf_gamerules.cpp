@@ -980,7 +980,7 @@ static bool BIsCvarIndicatingHolidayIsActive( int iCvarValue, /*EHoliday*/ int e
 #ifdef GAME_DLL
 bool IsCustomGameMode( const char *pszMapName )
 {
-	return ( StringHasPrefix( pszMapName, "vsh_" ) || StringHasPrefix( pszMapName, "zi_" ) );
+	return ( MapHasPrefix( pszMapName, "vsh_" ) || MapHasPrefix( pszMapName, "zi_" ) );
 }
 
 bool IsCustomGameMode()
@@ -1107,7 +1107,13 @@ ConVar tf_competitive_required_late_join_confirm_timeout( "tf_competitive_requir
 
 ConVar tf_gamemode_community ( "tf_gamemode_community", "0", FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DEVELOPMENTONLY );
 
+ConVar tf_voice_command_suspension_mode( "tf_voice_command_suspension_mode", "2", FCVAR_REPLICATED, "0 = None | 1 = No Voice Commands | 2 = Rate Limited" );
+
 #ifdef GAME_DLL
+
+ConVar tf_voice_command_suspension_rate_limit_bucket_count( "tf_voice_command_suspension_rate_limit_bucket_count", "5" ); // Bucket size of 5.
+ConVar tf_voice_command_suspension_rate_limit_bucket_refill_rate( "tf_voice_command_suspension_rate_limit_bucket_refill_rate", "6" ); // 6s
+
 void cc_powerup_mode( IConVar *pConVar, const char *pOldString, float flOldValue )
 {
 	ConVarRef var( pConVar );
@@ -1129,11 +1135,11 @@ void cc_powerup_mode( IConVar *pConVar, const char *pOldString, float flOldValue
 }
 
 ConVar tf_powerup_mode( "tf_powerup_mode", "0", FCVAR_NOTIFY, "Enable/disable powerup mode. Not compatible with Mann Vs Machine mode", cc_powerup_mode );
-ConVar tf_powerup_mode_imbalance_delta( "tf_powerup_mode_imbalance_delta", "24", FCVAR_CHEAT, "Powerup kill score lead one team must have before imbalance measures are initiated" );
-ConVar tf_powerup_mode_imbalance_consecutive_min_players( "tf_powerup_mode_imbalance_consecutive_min_players", "10", FCVAR_CHEAT, "Minimum number of players on the server before consecutive imbalance measures trigger team balancing" );
-ConVar tf_powerup_mode_imbalance_consecutive_time( "tf_powerup_mode_imbalance_consecutive_time", "1200", FCVAR_CHEAT, "Teams are balanced if consecutive imbalance measures for the same team are triggered in less time (seconds)" );
-ConVar tf_powerup_mode_dominant_multiplier( "tf_powerup_mode_dominant_multiplier", "3", FCVAR_CHEAT, "The multiple by which a player must exceed the median kills by in order to be considered dominant" );
-ConVar tf_powerup_mode_killcount_timer_length( "tf_powerup_mode_killcount_timer_length", "300", FCVAR_CHEAT, "How long to wait between kill count tests that determine if a player is dominating" ); //should be a multiple of 60 because we use this to calculate an integer
+ConVar tf_powerup_mode_imbalance_delta( "tf_powerup_mode_imbalance_delta", "24", FCVAR_REPLICATED, "Powerup kill score lead one team must have before imbalance measures are initiated" );
+ConVar tf_powerup_mode_imbalance_consecutive_min_players( "tf_powerup_mode_imbalance_consecutive_min_players", "10", FCVAR_REPLICATED, "Minimum number of players on the server before consecutive imbalance measures trigger team balancing" );
+ConVar tf_powerup_mode_imbalance_consecutive_time( "tf_powerup_mode_imbalance_consecutive_time", "1200", FCVAR_REPLICATED, "Teams are balanced if consecutive imbalance measures for the same team are triggered in less time (seconds)" );
+ConVar tf_powerup_mode_dominant_multiplier( "tf_powerup_mode_dominant_multiplier", "3", FCVAR_REPLICATED, "The multiple by which a player must exceed the median kills by in order to be considered dominant" );
+ConVar tf_powerup_mode_killcount_timer_length( "tf_powerup_mode_killcount_timer_length", "300", FCVAR_REPLICATED, "How long to wait between kill count tests that determine if a player is dominating" ); //should be a multiple of 60 because we use this to calculate an integer
 
 ConVar tf_skillrating_update_interval( "tf_skillrating_update_interval", "180", FCVAR_ARCHIVE, "How often to update the GC and OGS." );
 
@@ -3510,7 +3516,7 @@ void CTFGameRules::Precache( void )
 		CMerasmus::PrecacheMerasmus();
 	}
 
-	if ( StringHasPrefix( STRING( gpGlobals->mapname ), "mvm_" ) )
+	if ( MapHasPrefix( STRING( gpGlobals->mapname ), "mvm_" ) )
 	{
 		CTFPlayer::PrecacheMvM();
 	}
@@ -4297,7 +4303,7 @@ void CTFGameRules::Activate()
 		tf_gamemode_mvm.SetValue( 1 );
 		m_nGameType.Set( TF_GAMETYPE_MVM );
 	}
-	else if ( StringHasPrefix( STRING( gpGlobals->mapname ), "sd_" ) )
+	else if ( MapHasPrefix( STRING( gpGlobals->mapname ), "sd_" ) )
 	{
 		m_bPlayingSpecialDeliveryMode.Set( true );
 		tf_gamemode_sd.SetValue( 1 );
@@ -10127,7 +10133,12 @@ VoiceCommandMenuItem_t *CTFGameRules::VoiceCommand( CBaseMultiplayerPlayer *pPla
 	if ( pTFPlayer )
 	{
 		if ( pTFPlayer->BHaveChatSuspensionInCurrentMatch() )
-			return NULL;
+		{
+			if ( tf_voice_command_suspension_mode.GetInt() == 1 )
+			{
+				return NULL;
+			}
+		}
 
 		if ( pTFPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) )
 		{
@@ -16967,7 +16978,7 @@ int CTFGameRules::CalcPlayerScore( RoundStats_t *pRoundStats, CTFPlayer *pPlayer
 					( pRoundStats->m_iStat[TFSTAT_TELEPORTS] / TF_SCORE_TELEPORTS_PER_POINT ) +
 					( pRoundStats->m_iStat[TFSTAT_INVULNS] / TF_SCORE_INVULN ) +
 					( pRoundStats->m_iStat[TFSTAT_REVENGE] / TF_SCORE_REVENGE ) +
-					( pRoundStats->m_iStat[TFSTAT_BONUS_POINTS] / TF_SCORE_BONUS_POINT_DIVISOR );
+					( pRoundStats->m_iStat[TFSTAT_BONUS_POINTS] / TF_SCORE_BONUS_POINT_DIVISOR ) +
 					( pRoundStats->m_iStat[TFSTAT_CURRENCY_COLLECTED] / TF_SCORE_CURRENCY_COLLECTED );
 
 	if ( pPlayer )

@@ -331,6 +331,9 @@ public:
 	void SetBehaviorFlag( unsigned int flags );
 	void ClearBehaviorFlag( unsigned int flags );
 	bool IsBehaviorFlagSet( unsigned int flags ) const;
+	void ScriptSetBehaviorFlag( int flags ) { this->SetBehaviorFlag( (unsigned int)flags ); }
+	void ScriptClearBehaviorFlag( int flags ) { this->ClearBehaviorFlag( (unsigned int)flags ); }
+	bool ScriptIsBehaviorFlagSet( int flags ) const { return this->IsBehaviorFlagSet( (unsigned int)flags ); }
 
 	bool FindSplashTarget( CBaseEntity *target, float maxSplashRadius, Vector *splashTarget ) const;
 
@@ -358,11 +361,11 @@ public:
 	CBaseEntity *GetMissionTarget( void ) const;
 	void SetMissionString( CUtlString string );
 	CUtlString *GetMissionString( void );
-	void ScriptSetMission( unsigned int mission, bool resetBehaviorSystem = true ) { this->SetMission( (MissionType)mission, resetBehaviorSystem ); }
-	void ScriptSetPrevMission( unsigned int mission ) { this->SetPrevMission( (MissionType)mission ); }
-	unsigned int ScriptGetMission( void ) const { return (unsigned int)this->GetMission(); }
-	unsigned int ScriptGetPrevMission( void ) const { return (unsigned int)this->GetPrevMission(); }
-	bool ScriptHasMission( unsigned int mission ) const { return this->HasMission( (MissionType)mission ); }
+	void ScriptSetMission( int mission, bool resetBehaviorSystem = true ) { this->SetMission( (MissionType)mission, resetBehaviorSystem ); }
+	void ScriptSetPrevMission( int mission ) { this->SetPrevMission( (MissionType)mission ); }
+	int ScriptGetMission( void ) const { return (int)this->GetMission(); }
+	int ScriptGetPrevMission( void ) const { return (int)this->GetPrevMission(); }
+	bool ScriptHasMission( int mission ) const { return this->HasMission( (MissionType)mission ); }
 	void ScriptSetMissionTarget( HSCRIPT hTarget ) { this->SetMissionTarget( ToEnt( hTarget ) ); }
 	HSCRIPT ScriptGetMissionTarget( void ) const { return ToHScript( this->GetMissionTarget() ); }
 
