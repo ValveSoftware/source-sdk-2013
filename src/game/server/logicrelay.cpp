@@ -115,6 +115,10 @@ void CLogicRelay::InputCancelPending( inputdata_t &inputdata )
 	{
 		g_EventQueue.CancelEvents( this );
 	}
+	else
+	{
+		Warning("Entity %s - (%s) is attempting to CancelPending itself. This is not allowed!\n", this->GetEntityName(), this->GetClassname());
+	}
 
 	// Stop waiting; allow another Trigger.
 	m_bWaitForRefire = false;
