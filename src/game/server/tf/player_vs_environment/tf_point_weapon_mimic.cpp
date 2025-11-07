@@ -149,6 +149,7 @@ void CTFPointWeaponMimic::Fire()
 {
 	Assert( m_nWeaponType >= 0 && m_nWeaponType < WEAPON_TYPES );
 
+	EmitSound( m_pzsFireSound );
 	switch( m_nWeaponType )
 	{
 	case WEAPON_STANDARD_ROCKET:
