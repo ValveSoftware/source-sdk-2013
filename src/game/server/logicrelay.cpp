@@ -110,7 +110,11 @@ void CLogicRelay::InputEnableRefire( inputdata_t &inputdata )
 //------------------------------------------------------------------------------
 void CLogicRelay::InputCancelPending( inputdata_t &inputdata )
 { 
-	g_EventQueue.CancelEvents( this );
+	// We don't want to allow the logic relay to cancelpending itself. This will eventually lead to a crash!
+	if ( inputdata.pCaller != this )
+	{
+		g_EventQueue.CancelEvents( this );
+	}
 
 	// Stop waiting; allow another Trigger.
 	m_bWaitForRefire = false;
