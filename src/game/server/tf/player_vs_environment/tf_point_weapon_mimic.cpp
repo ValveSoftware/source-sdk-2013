@@ -149,6 +149,7 @@ void CTFPointWeaponMimic::Fire()
 {
 	Assert( m_nWeaponType >= 0 && m_nWeaponType < WEAPON_TYPES );
 
+	PrecacheScriptSound( m_pzsFireSound );
 	EmitSound( m_pzsFireSound );
 	switch( m_nWeaponType )
 	{
