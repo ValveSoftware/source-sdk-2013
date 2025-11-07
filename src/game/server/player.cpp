@@ -5037,6 +5037,7 @@ void CBasePlayer::Spawn( void )
 
 	// Shared spawning code..
 	SharedSpawn();
+	SetViewEntity( this );
 	
 	SetSimulatedEveryTick( true );
 	SetAnimatedEveryTick( true );
