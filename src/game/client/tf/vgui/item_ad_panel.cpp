@@ -276,7 +276,7 @@ void CItemAdPanel::OnCommand( const char *command )
 			g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find ( pItemDef->GetItemBaseName() ) , pszItemName, sizeof(pszItemName) );
 
 			char szURL[512];
-			V_snprintf( szURL, sizeof(szURL), "http://%ssteamcommunity.com/market/listings/%d/%s", pszPrefix, engine->GetAppID(), pszItemName );
+			V_snprintf( szURL, sizeof(szURL), "https://%ssteamcommunity.com/market/listings/%d/%s", pszPrefix, engine->GetAppID(), pszItemName );
 			steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( szURL );
 		}
 	}

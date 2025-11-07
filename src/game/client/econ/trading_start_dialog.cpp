@@ -290,7 +290,7 @@ bool CTradingStartDialog::ExtractSteamIDFromURL( char *inputURL )
 	int iLen = Q_strlen(inputURL);
 
 	// First, see if it's a profile link. If it is, clip the SteamID from it.
-	const char *pszProfilePrepend = ( localUniverse == k_EUniversePublic ) ? "http://steamcommunity.com/profiles/" : "http://beta.steamcommunity.com/profiles/";
+	const char *pszProfilePrepend = ( localUniverse == k_EUniversePublic ) ? "https://steamcommunity.com/profiles/" : "https://beta.steamcommunity.com/profiles/";
 	int iProfilePrependLen = Q_strlen(pszProfilePrepend);
 	if ( Q_strnicmp( pszProfilePrepend, inputURL, iProfilePrependLen ) == 0 )
 	{
@@ -308,7 +308,7 @@ bool CTradingStartDialog::ExtractSteamIDFromURL( char *inputURL )
 	else
 	{
 		// If it's an id link, we download it and extract the steam ID from it.
-		const char *pszIDPrepend = ( localUniverse == k_EUniversePublic ) ? "http://steamcommunity.com/id/" : "http://beta.steamcommunity.com/id/";
+		const char *pszIDPrepend = ( localUniverse == k_EUniversePublic ) ? "https://steamcommunity.com/id/" : "https://beta.steamcommunity.com/id/";
 		int iIDPrependLen = Q_strlen(pszIDPrepend);
 		if ( Q_strnicmp( pszIDPrepend, inputURL, iIDPrependLen ) == 0 )
 		{

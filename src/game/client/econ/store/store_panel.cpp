@@ -1642,7 +1642,7 @@ void CStoreCart::AddToCart( const econ_store_entry_t *pEntry, const char* pszPag
 			g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find( pItemDef->GetItemBaseName() ), pszItemName, sizeof( pszItemName ) );
 
 			char szURL[512];
-			V_sprintf_safe( szURL, "http://%ssteamcommunity.com/market/listings/%d/%s", pszPrefix, engine->GetAppID(), pszItemName );
+			V_sprintf_safe( szURL, "https://%ssteamcommunity.com/market/listings/%d/%s", pszPrefix, engine->GetAppID(), pszItemName );
 			steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( szURL );
 		}
 		return;

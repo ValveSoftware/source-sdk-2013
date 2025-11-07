@@ -544,7 +544,7 @@ const char* UniverseToCommunityURL( EUniverse universe )
 	default: // return public if we don't have a better guess.
 	case k_EUniversePublic: return "https://steamcommunity.com";
 	case k_EUniverseBeta: return "https://beta.steamcommunity.com";
-	case k_EUniverseDev: return "https://localhost/community";
+	case k_EUniverseDev: return "http://localhost/community";
 	}
 
 	// Should never get here.
