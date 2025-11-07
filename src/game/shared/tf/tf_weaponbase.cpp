@@ -656,7 +656,7 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 	int iHandModelIndex = 0;
 	if ( pPlayer )
 	{
-		//CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, iHandModelIndex, override_hand_model_index );		// this is a cleaner way of doing it, but...
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, iHandModelIndex, override_hand_model_index );		// this is a cleaner way of doing it, but...
 		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, iHandModelIndex, wrench_builds_minisentry );			// ...the gunslinger is the only thing that uses this attribute for now
 	}
 
@@ -2257,19 +2257,19 @@ void CTFWeaponBase::SetReloadTimer( float flReloadTime )
 	CALL_ATTRIB_HOOK_FLOAT( flReloadTime, fast_reload );
 	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, flReloadTime, hwn_mult_reload_time );
 
-	//int iPanicAttack = 0;
-	//CALL_ATTRIB_HOOK_INT( iPanicAttack, panic_attack );
-	//if ( iPanicAttack ) 
-	//{
-	//	if ( pPlayer->GetHealth() < pPlayer->GetMaxHealth() * 0.33f )
-	//	{
-	//		flReloadTime *= 0.3f;
-	//	}
-	//	else if ( pPlayer->GetHealth() < pPlayer->GetMaxHealth() * 0.66f )
-	//	{
-	//		flReloadTime *= 0.6f;
-	//	}
-	//}
+	int iPanicAttack = 0;
+	CALL_ATTRIB_HOOK_INT( iPanicAttack, panic_attack );
+	if ( iPanicAttack ) 
+	{
+		if ( pPlayer->GetHealth() < pPlayer->GetMaxHealth() * 0.33f )
+		{
+			flReloadTime *= 0.3f;
+		}
+		else if ( pPlayer->GetHealth() < pPlayer->GetMaxHealth() * 0.66f )
+		{
+			flReloadTime *= 0.6f;
+		}
+	}
 
 	// Haste Powerup Rune adds multiplier to reload time.
 	if ( pPlayer->m_Shared.GetCarryingRuneType() == RUNE_HASTE )
@@ -5316,15 +5316,14 @@ void CTFWeaponBase::ApplyOnHitAttributes( CBaseEntity *pVictimBaseEntity, CTFPla
 	}
 
 	// Damage bonus on hit
-	// Disabled because we have no attributes that use it
-	/*
+	
 	float flAddDamageDoneBonusOnHit = 0;
 	CALL_ATTRIB_HOOK_FLOAT( flAddDamageDoneBonusOnHit, addperc_ondmgdone_tmpbuff );
 	if ( flAddDamageDoneBonusOnHit )
 	{
 		pAttacker->m_Shared.AddTmpDamageBonus( flAddDamageDoneBonusOnHit, 10.0 );
 	}
-	*/
+	
 
 	if ( pVictim )
 	{

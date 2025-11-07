@@ -14085,31 +14085,31 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound, EAmmoS
 	// ammo.
 	if ( iAmmoIndex != TF_AMMO_METAL )
 	{
-		//int iAmmoBecomesHealth = 0;
-		//CALL_ATTRIB_HOOK_INT( iAmmoBecomesHealth, ammo_becomes_health );
-		//if ( iAmmoBecomesHealth == 1 )
-		//{
-		//	// Ammo from ground pickups is converted to health.
-		//	if ( eAmmoSource == kAmmoSource_Pickup )
-		//	{
-		//		int iTakenHealth = TakeHealth( iCount, DMG_GENERIC );
-		//		if ( iTakenHealth > 0 )
-		//		{
-		//			if ( !bSuppressSound )
-		//			{
-		//				EmitSound( "BaseCombatCharacter.AmmoPickup" );
-		//			}
-		//			m_Shared.HealthKitPickupEffects( iCount );
-		//		}
-		//		return iTakenHealth;
-		//	}
+		int iAmmoBecomesHealth = 0;
+		CALL_ATTRIB_HOOK_INT( iAmmoBecomesHealth, ammo_becomes_health );
+		if ( iAmmoBecomesHealth == 1 )
+		{
+			// Ammo from ground pickups is converted to health.
+			if ( eAmmoSource == kAmmoSource_Pickup )
+			{
+				int iTakenHealth = TakeHealth( iCount, DMG_GENERIC );
+				if ( iTakenHealth > 0 )
+				{
+					if ( !bSuppressSound )
+					{
+						EmitSound( "BaseCombatCharacter.AmmoPickup" );
+					}
+					m_Shared.HealthKitPickupEffects( iCount );
+				}
+				return iTakenHealth;
+			}
 
-		//	// Ammo from the cart or engineer dispensers is flatly ignored.
-		//	if ( eAmmoSource == kAmmoSource_DispenserOrCart )
-		//		return 0;
+			// Ammo from the cart or engineer dispensers is flatly ignored.
+			if ( eAmmoSource == kAmmoSource_DispenserOrCart )
+				return 0;
 
-		//	Assert( eAmmoSource == kAmmoSource_Resupply );
-		//}
+			Assert( eAmmoSource == kAmmoSource_Resupply );
+		}
 
 		// Items that rely on timers to refill ammo use these attributes
 		// Prevents "touch supply closet and spam the thing" scenario.

@@ -8201,7 +8201,7 @@ void CTFPlayerShared::Disguise( int nTeam, int nClass, CTFPlayer* pDesiredTarget
 
 	// Start the think to complete our disguise
 	float flTimeToDisguise = TF_TIME_TO_DISGUISE;
-	//CALL_ATTRIB_HOOK_INT_ON_OTHER( m_pOuter, iTimeToDisguise, disguise_speed_penalty ); // Unused Attr
+	CALL_ATTRIB_HOOK_INT_ON_OTHER( m_pOuter, iTimeToDisguise, disguise_speed_penalty );
 
 	// STAGING_SPY
 	// Quick disguise if you already disguised

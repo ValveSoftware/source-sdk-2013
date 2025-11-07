@@ -6244,21 +6244,21 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 					}
 
 					//// Some weapons minicrit *any* target in the air, regardless of how they got there.
-					//int iMiniCritAirborneDeploy = 0;
-					//CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iMiniCritAirborneDeploy, mini_crit_airborne_deploy );
-					//if ( iMiniCritAirborneDeploy > 0 &&
-					//	 pWeapon &&
-					//	 ( gpGlobals->curtime - pWeapon->GetLastDeployTime() ) < iMiniCritAirborneDeploy &&
-					//	 //
+					int iMiniCritAirborneDeploy = 0;
+					CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iMiniCritAirborneDeploy, mini_crit_airborne_deploy );
+					if ( iMiniCritAirborneDeploy > 0 &&
+						 pWeapon &&
+						 ( gpGlobals->curtime - pWeapon->GetLastDeployTime() ) < iMiniCritAirborneDeploy &&
+						 
 
-					//	 pVictim && !( pVictim->GetFlags() & FL_ONGROUND ) &&
-					//	 ( pVictim->GetWaterLevel() == WL_NotInWater ) )
-					//{
-					//	bAllSeeCrit = true;
-					//	info.SetCritType( CTakeDamageInfo::CRIT_MINI );
-					//	eBonusEffect = kBonusEffect_MiniCrit;
-					//	break;
-					//}
+						 pVictim && !( pVictim->GetFlags() & FL_ONGROUND ) &&
+						 ( pVictim->GetWaterLevel() == WL_NotInWater ) )
+					{
+						bAllSeeCrit = true;
+						info.SetCritType( CTakeDamageInfo::CRIT_MINI );
+						eBonusEffect = kBonusEffect_MiniCrit;
+						break;
+					}
 				}
 			}
 
