@@ -3225,7 +3225,7 @@ void CTriggerCamera::Enable( void )
 //-----------------------------------------------------------------------------
 void CTriggerCamera::Disable( void )
 {
-	if ( m_hPlayer && m_hPlayer->IsAlive() )
+	if ( m_hPlayer )
 	{
 		if ( HasSpawnFlags( SF_CAMERA_PLAYER_NOT_SOLID ) )
 		{
