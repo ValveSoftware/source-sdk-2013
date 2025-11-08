@@ -1232,16 +1232,16 @@ float CTFFlameThrower::GetDeflectionRadius() const
 {
 	float fMultiplier = 1.0f;
 
-	int iChargedAirblast = 0;
-	CALL_ATTRIB_HOOK_INT( iChargedAirblast, set_charged_airblast );
-	if ( iChargedAirblast != 0 )
-	{
-		 fMultiplier *= RemapValClamped( ( gpGlobals->curtime - m_flChargeBeginTime ),
-											  0.0f,
-											  GetChargeMaxTime(),
-											  AIRBLAST_CHARGE_MULT_MIN,
-											  AIRBLAST_CHARGE_MULT_MAX );
-	}
+	//int iChargedAirblast = 0;
+	//CALL_ATTRIB_HOOK_INT( iChargedAirblast, set_charged_airblast );
+	//if ( iChargedAirblast != 0 )
+	//{
+	//	 fMultiplier *= RemapValClamped( ( gpGlobals->curtime - m_flChargeBeginTime ),
+	//										  0.0f,
+	//										  GetChargeMaxTime(),
+	//										  AIRBLAST_CHARGE_MULT_MIN,
+	//										  AIRBLAST_CHARGE_MULT_MAX );
+	//}
 
 	// Allow custom attributes to scale the deflection size.
 	CALL_ATTRIB_HOOK_FLOAT( fMultiplier, deflection_size_multiplier );
