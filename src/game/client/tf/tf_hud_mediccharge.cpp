@@ -251,6 +251,7 @@ void CHudMedicChargeMeter::OnTick( void )
 
 			// We want to count full bars
 			SetDialogVariable( "charge_count", int(floor(flCharge / flChunkSize)) );
+			SetDialogVariable( "charge", (int)( flCharge * 100 ) );
 		}
 		else if ( m_pChargeMeter )	// Regular uber
 		{
