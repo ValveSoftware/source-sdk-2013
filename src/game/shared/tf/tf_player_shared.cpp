@@ -36,8 +36,8 @@
 
 // Client specific.
 #ifdef CLIENT_DLL
-#include "c_tf_player.h"
 #include "c_baseviewmodel.h"
+#include "c_tf_player.h"
 #include "c_te_effect_dispatch.h"
 #include "c_tf_fx.h"
 #include "soundenvelope.h"
@@ -3135,11 +3135,6 @@ void CTFPlayerShared::ConditionThink( void )
 					}
 #endif
 				}
-			}
-			else
-			{
-				// RocketPack not found, may have been unequipped, or we may be a Medic who inherited the cond
-				RemoveCond( TF_COND_ROCKETPACK );
 			}
 		}
 	}

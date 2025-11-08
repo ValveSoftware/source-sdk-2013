@@ -23,7 +23,7 @@
 #include <tier0/memdbgon.h>
 
 ConVar tf_explanations_charinfo_armory_panel( "tf_explanations_charinfo_armory_panel", "0", FCVAR_ARCHIVE, "Whether the user has seen explanations for this panel." );
-ConVar tf_armory_page_skip( "tf_armory_page_skip", "10", FCVAR_ARCHIVE, "Number of pages to skip in the Mann Co. Catalogue.", true, 1, true, 100 );
+ConVar tf_armory_page_skip( "tf_armory_page_skip", "10", FCVAR_ARCHIVE, "Number of pages to skip in the Mann Co. Catalog", true, 1, true, 100 );
 
 const char *g_szArmoryFilterStrings[ARMFILT_TOTAL] =
 {
@@ -308,61 +308,61 @@ void CArmoryPanel::OnClosing()
 //-----------------------------------------------------------------------------
 void CArmoryPanel::OnCommand( const char *command )
 {
-	if (!Q_stricmp(command, "prevpage"))
+	if ( !Q_stricmp( command, "prevpage" ) )
 	{
-		if (m_iFilterPage > 0)
+		if ( m_iFilterPage > 0 )
 		{
 			m_iFilterPage--;
 		}
 		else
 		{
-			m_iFilterPage = ceil(m_FilteredItemList.Count() / (float)(m_iThumbnailRows * m_iThumbnailColumns)) - 1;
+			m_iFilterPage = ceil( m_FilteredItemList.Count() / (float)( m_iThumbnailRows * m_iThumbnailColumns ) ) - 1;
 		}
 		UpdateItemList();
 		UpdateSelectedItem();
 	}
-	else if (!Q_stricmp(command, "prevpageskip"))
+	else if ( !Q_stricmp( command, "prevpageskip" ) )
 	{
-		for (int i = 0; i < tf_armory_page_skip.GetInt(); i++)
+		for ( int i = 0; i < tf_armory_page_skip.GetInt(); i++ )
 		{
-			if (m_iFilterPage > 0)
+			if ( m_iFilterPage > 0 )
 			{
 				m_iFilterPage--;
 			}
 			else
 			{
-				m_iFilterPage = ceil(m_FilteredItemList.Count() / (float)(m_iThumbnailRows * m_iThumbnailColumns)) - 1;
+				m_iFilterPage = ceil( m_FilteredItemList.Count() / (float)( m_iThumbnailRows * m_iThumbnailColumns ) ) - 1;
 			}
 		}
 		UpdateItemList();
 		UpdateSelectedItem();
 	}
-	else if (!Q_stricmp(command, "skiptostart"))
+	else if ( !Q_stricmp( command, "skiptostart" ) )
 	{
 		m_iFilterPage = 0;
 		UpdateItemList();
 		UpdateSelectedItem();
 	}
-	else if (!Q_stricmp(command, "nextpage"))
+	else if ( !Q_stricmp( command, "nextpage" ) )
 	{
 		m_iFilterPage++;
-		if (m_iFilterPage > ceil(m_FilteredItemList.Count() / (float)(m_iThumbnailRows * m_iThumbnailColumns)) - 1)
+		if ( m_iFilterPage > ceil( m_FilteredItemList.Count() / (float)( m_iThumbnailRows * m_iThumbnailColumns ) ) - 1 )
 		{
 			m_iFilterPage = 0;
 		}
 		UpdateItemList();
 		UpdateSelectedItem();
 	}
-	else if (!Q_stricmp(command, "nextpageskip"))
+	else if ( !Q_stricmp( command, "nextpageskip" ) )
 	{
-		uint32 unNumPages = ceil(m_FilteredItemList.Count() / (float)(m_iThumbnailRows * m_iThumbnailColumns));
-		m_iFilterPage = ((m_iFilterPage + tf_armory_page_skip.GetInt()) % unNumPages);
+		uint32 unNumPages = ceil( m_FilteredItemList.Count() / (float)( m_iThumbnailRows * m_iThumbnailColumns ) );
+		m_iFilterPage = ( ( m_iFilterPage + tf_armory_page_skip.GetInt() ) % unNumPages );
 		UpdateItemList();
 		UpdateSelectedItem();
 	}
-	else if (!Q_stricmp(command, "skiptoend"))
+	else if ( !Q_stricmp( command, "skiptoend" ) )
 	{
-		m_iFilterPage = ceil(m_FilteredItemList.Count() / (float)(m_iThumbnailRows * m_iThumbnailColumns)) - 1;
+		m_iFilterPage = ceil( m_FilteredItemList.Count() / (float)( m_iThumbnailRows * m_iThumbnailColumns ) ) - 1;
 		UpdateItemList();
 		UpdateSelectedItem();
 	}
@@ -400,7 +400,7 @@ void CArmoryPanel::OnCommand( const char *command )
 				ELanguage iLang = PchLanguageToELanguage( uilanguage );
 
 				char szURL[512];
-				Q_snprintf( szURL, sizeof(szURL), "https://wiki.teamfortress.com/scripts/itemredirect.php?id=%d&lang=%s", m_SelectedItem.GetItemDefIndex(), GetLanguageICUName( iLang ) );
+				Q_snprintf( szURL, sizeof( szURL ), "https://wiki.teamfortress.com/scripts/itemredirect.php?id=%d&lang=%s", m_SelectedItem.GetItemDefIndex(), GetLanguageICUName( iLang ) );
 				steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( szURL );
 
 				C_CTF_GameStats.Event_Catalog( IE_ARMORY_BROWSE_WIKI, NULL, &m_SelectedItem );
