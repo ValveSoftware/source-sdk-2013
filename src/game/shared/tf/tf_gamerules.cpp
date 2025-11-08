@@ -14949,17 +14949,6 @@ void CTFGameRules::RoundRespawn( void )
 	{
 		m_bHasSpawnedSoccerBall[i] = false;
 	}
-	
-	// Reset the player's view entity as they would no longer be using a camera at this point
-	for ( int i = 0; i < MAX_PLAYERS; i++ )
-	{
-		CBasePlayer *pPlayer = UTIL_PlayerByIndex(i);
-		
-		if ( pPlayer )
-		{
-			pPlayer->SetViewEntity( pPlayer );
-		}
-	}
 
 	// remove any buildings, grenades, rockets, etc. the player put into the world
 	RemoveAllProjectilesAndBuildings();
