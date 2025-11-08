@@ -81,7 +81,7 @@ void CPointCamera::Spawn( void )
 // Purpose: Transmit only to players who are in PVS of the camera and its link
 //			See PointCameraSetupVisibility
 //-----------------------------------------------------------------------------
-int CPointCamera::ShouldTransmit( const CCheckTransmitInfo* pInfo )
+int CPointCamera::ShouldTransmit( const CCheckTransmitInfo *pInfo )
 {
 	if ( m_bitsTransmitPlayers.IsBitSet( pInfo->m_pClientEnt->m_EdictIndex ) )
 		return FL_EDICT_ALWAYS;

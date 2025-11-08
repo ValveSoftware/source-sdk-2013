@@ -92,6 +92,8 @@ BEGIN_ENT_SCRIPTDESC( CEconEntity, CBaseAnimating, "Econ Entity" )
 END_SCRIPTDESC();
 #endif
 
+#ifdef TF_CLIENT_DLL
+#endif
 
 
 #ifdef CLIENT_DLL

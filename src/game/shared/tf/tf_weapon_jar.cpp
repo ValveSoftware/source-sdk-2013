@@ -209,7 +209,7 @@ void CTFJar::TossJarThink( void )
 	if ( pProjectile->ExplodesOnHit() )
 	{
 		Vector vecEnd = pProjectile->GetAbsOrigin() + ( vecVelocity.Normalized() * 32.0f );
-		UTIL_TraceHull( pProjectile->GetAbsOrigin(), vecEnd, -Vector(8, 8, 8), Vector(8, 8, 8), MASK_SOLID_BRUSHONLY, &traceFilter, &trace );
+		UTIL_TraceHull( pProjectile->GetAbsOrigin(), vecEnd, -Vector( 8, 8, 8 ), Vector( 8, 8, 8 ), MASK_SOLID_BRUSHONLY, &traceFilter, &trace );
 
 		if ( trace.fraction < 1.0 )
 		{

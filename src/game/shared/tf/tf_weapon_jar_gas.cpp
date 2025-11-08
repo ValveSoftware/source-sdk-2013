@@ -364,7 +364,7 @@ bool CTFGasManager::ShouldCollide( CBaseEntity *pEnt ) const
 
 	if ( pEnt->GetTeamNumber() == GetTeamNumber() )
 		return false;
-	
+
 	if ( TFGameRules() && TFGameRules()->IsTruceActive() )
 		return false;
 

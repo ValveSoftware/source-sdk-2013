@@ -2817,7 +2817,6 @@ void CEconItemDescription::Generate_CollectionDesc( const CLocalizationProvider 
 	if ( !pItemDef )
 		return;
 
-
 	// Adding a check for if the collection we are browsing contains cosmetics or decorated weapons.
 	// We can handle decorated weapons the same as cosmetics, since they have proper schema entries
 	bool bIsHatOrDecorated = false;
@@ -2829,8 +2828,10 @@ void CEconItemDescription::Generate_CollectionDesc( const CLocalizationProvider 
 	if ( GetPaintKitDefIndex( pEconItem, &nPaintkitDefindex ) )
 	{
 		auto pPaintkitItemDef = GetItemSchema()->GetPaintKitItemDefinition( nPaintkitDefindex );
-		if (pPaintkitItemDef == NULL) 
+		if ( pPaintkitItemDef == NULL )
+		{
 			bIsHatOrDecorated = true;
+		}
 		pItemDef = pPaintkitItemDef ? pPaintkitItemDef : pItemDef;
 	}
 

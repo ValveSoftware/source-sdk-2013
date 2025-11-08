@@ -1858,8 +1858,8 @@ bool CTFPasstimeLogic::ParseSetSection( const char *pStr, SetSectionParams &s ) 
 	{
 		return false;
 	}
-	pszStartName[ ARRAYSIZE(pszStartName) - 1 ] = '\0';
-	pszEndName[ ARRAYSIZE(pszEndName) - 1 ] = '\0';
+	pszStartName[ ARRAYSIZE( pszStartName ) - 1 ] = '\0';
+	pszEndName[ ARRAYSIZE( pszEndName ) - 1 ] = '\0';
 
 	s.pSectionStart = dynamic_cast<CPathTrack*>( gEntList.FindEntityByName( 0, pszStartName ) );
 	s.pSectionEnd = dynamic_cast<CPathTrack*>( gEntList.FindEntityByName( 0, pszEndName ) );
