@@ -43,7 +43,7 @@ void CBlacklistedServerManager::Reset( void )
 //-----------------------------------------------------------------------------
 int CBlacklistedServerManager::LoadServersFromFile( const char *pszFilename, bool bResetTimes )
 {
-	KeyValues *pKV = new KeyValues( "serverblacklist" );
+	KeyValuesAD pKV( "serverblacklist" );
 	if ( !pKV->LoadFromFile( g_pFullFileSystem, pszFilename, "MOD" ) )
 		return 0;
 
@@ -74,8 +74,6 @@ int CBlacklistedServerManager::LoadServersFromFile( const char *pszFilename, boo
 			++count;
 		}
 	}
-
-	pKV->deleteThis();
 
 	return count;
 }

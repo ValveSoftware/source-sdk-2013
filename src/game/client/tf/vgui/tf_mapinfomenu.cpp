@@ -489,11 +489,11 @@ void CTFMapInfoMenu::LoadMapPage()
 
 			if( !g_pVGuiLocalize->Find( mapInfoKey ) )
 			{
-				if ( StringHasPrefix( m_szMapName, "vsh_" ) )
+				if ( MapHasPrefix( m_szMapName, "vsh_" ) )
 				{
 					pszDescription = "#default_vsh_description";
 				}
-				else if ( StringHasPrefix( m_szMapName, "zi_" ) )
+				else if ( MapHasPrefix( m_szMapName, "zi_" ) )
 				{
 					pszDescription = "#default_zi_description";
 				}
