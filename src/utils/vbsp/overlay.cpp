@@ -206,6 +206,7 @@ void OverlayTransition_AddFaceToLists( int iFace, side_t *pSide )
 //-----------------------------------------------------------------------------
 void Overlay_EmitOverlayFace( mapoverlay_t *pMapOverlay )
 {
+
  	Assert( g_nOverlayCount < MAX_MAP_OVERLAYS );
 	if ( g_nOverlayCount >= MAX_MAP_OVERLAYS )
 	{
@@ -296,6 +297,7 @@ void Overlay_EmitOverlayFace( mapoverlay_t *pMapOverlay )
 //-----------------------------------------------------------------------------
 void OverlayTransition_EmitOverlayFace( mapoverlay_t *pMapOverlay )
 {
+
 	Assert( g_nWaterOverlayCount < MAX_MAP_WATEROVERLAYS );
 	if ( g_nWaterOverlayCount >= MAX_MAP_WATEROVERLAYS )
 	{
@@ -378,6 +380,7 @@ void OverlayTransition_EmitOverlayFace( mapoverlay_t *pMapOverlay )
 //-----------------------------------------------------------------------------
 void Overlay_EmitOverlayFaces( void )
 {
+
 	int nMapOverlayCount = g_aMapOverlays.Count();
 	for( int iMapOverlay = 0; iMapOverlay < nMapOverlayCount; ++iMapOverlay )
 	{
@@ -390,6 +393,7 @@ void Overlay_EmitOverlayFaces( void )
 //-----------------------------------------------------------------------------
 void OverlayTransition_EmitOverlayFaces( void )
 {
+
 	int nMapOverlayCount = g_aMapWaterOverlays.Count();
 	for( int iMapOverlay = 0; iMapOverlay < nMapOverlayCount; ++iMapOverlay )
 	{
