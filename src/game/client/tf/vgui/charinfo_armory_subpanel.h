@@ -112,8 +112,6 @@ private:
 	armory_filters_t				m_CurrentFilter;
 	armory_filters_t				m_OldFilter;
 	int								m_iFilterPage;
-	CExButton						*m_pNextPageButton;
-	CExButton						*m_pPrevPageButton;
 	CUtlVector<item_definition_index_t>	m_FilteredItemList;
 	CUtlVector<item_definition_index_t>	m_CustomFilteredList;
 

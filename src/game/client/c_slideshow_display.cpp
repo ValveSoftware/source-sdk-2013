@@ -267,7 +267,7 @@ void C_SlideshowDisplay::BuildSlideShowImagesList( void )
 		char szFullFileName[_MAX_PATH];
 		Q_snprintf( szFullFileName, sizeof( szFullFileName ), "materials/vgui/%s/%s", m_szSlideshowDirectory, szMatFileName );
 
-		KeyValues *pMaterialKeys = new KeyValues( "material" );
+		KeyValuesAD pMaterialKeys( "material" );
 		bool bLoaded = pMaterialKeys->LoadFromFile( g_pFullFileSystem, szFullFileName, NULL );
 
 		if ( bLoaded )
