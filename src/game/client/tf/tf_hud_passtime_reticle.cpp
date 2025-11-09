@@ -397,7 +397,7 @@ void C_PasstimePassReticle::ReloadSprites()
 
 bool C_PasstimePassReticle::Update()
 {
-	if ( !g_pPasstimeLogic || !g_pPasstimeLogic->GetBall() || IsLocalPlayerSpectator() )
+	if ( !g_pPasstimeLogic || !g_pPasstimeLogic->GetBall() )
 	{
 		return false;
 	}
@@ -408,7 +408,7 @@ bool C_PasstimePassReticle::Update()
 		return false;
 	}
 
-	if ( (pBallCarrier != C_BasePlayer::GetLocalPlayer()) )
+	if ( !IsLocalPlayerSpectator() && (pBallCarrier != C_BasePlayer::GetLocalPlayer()) )
 	{
 		return false;
 	}
