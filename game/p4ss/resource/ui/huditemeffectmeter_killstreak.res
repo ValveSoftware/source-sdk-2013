@@ -151,4 +151,5 @@
 		"font"					"MontserratBlack32"
 		"font_minmode"			"MontserratBlack28"
 		"fgcolor"				"TanDark"
+	}
 }
