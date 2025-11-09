@@ -941,94 +941,50 @@ C_PasstimeBallPredictionReticle::C_PasstimeBallPredictionReticle()
 
 bool C_PasstimeBallPredictionReticle::Update()
 {
-    if (!g_pPasstimeLogic || !g_pPasstimeLogic->GetBall() || !pf_ball_floor_enabled.GetBool())
-    {
+    if ( !pf_ball_floor_enabled.GetBool() )
         return false;
-    }
 
-    C_BaseEntity* pBallEntity = g_pPasstimeLogic->GetBall();
-    C_PasstimeBall* pBall = dynamic_cast<C_PasstimeBall*>(pBallEntity);
-    if (pBall && pBall->GetCarrier())
-    {
-        // Ball is being carried, don't show the floor indicator
+    if ( !g_pPasstimeLogic )
         return false;
-    }
 
-    static Vector vBallSpawnPos;
-    static bool bSpawnPosSet = false;
-
-	if (pBall && !pBall->GetCarrier() && pBall->IsEffectActive(EF_NODRAW) && bSpawnPosSet) {
-		bSpawnPosSet = false;
-	}
-
-    if (!bSpawnPosSet && pBall && !pBall->IsEffectActive(EF_NODRAW)) {
-        vBallSpawnPos = pBall->WorldSpaceCenter();
-        bSpawnPosSet = true;
-    }
-
-    if (pBall) {
-        Vector velocity = pBall->GetAbsVelocity();
-        float speed = velocity.Length();
-		Vector ballPos2D = pBall->WorldSpaceCenter();
-		Vector spawnPos2D = vBallSpawnPos;
-		ballPos2D.z = 0;
-		spawnPos2D.z = 0;
-		float distFromSpawn = (ballPos2D - spawnPos2D).Length();
-
-        // If the ball is close to spawn and barely moving, suppress indicator
-        if (speed < 10.0f && distFromSpawn < 32.0f) {
-            return false;
-        }
-    }
-
-    C_BaseEntity* pTarget = 0;
-    bool bHomingActive = false;
-    bool bHaveTarget = g_pPasstimeLogic->GetBallReticleTarget(&pTarget, &bHomingActive);
-    
-    if (!bHaveTarget || !pTarget)
-    {
-        // We don't have a target, use neutral color
+    // We need a ball that wants to be drawn that isn't being carried, but has been carried at least once.
+    auto ball = g_pPasstimeLogic->GetBall();
+    if ( !ball || ball->IsEffectActive(EF_NODRAW) || ball->GetCarrier() || !ball->GetPrevCarrier() )
         return false;
-    }
-    
-    // Get team color based on target (same as ball reticle)
-    Color teamColor = GetTeamColor(pTarget->GetTeamNumber());
 
-    Vector ballPosition = pBall->WorldSpaceCenter();
-    
+    auto teamColor = GetTeamColor(ball->GetTeamNumber());
+    auto ballPosition = ball->WorldSpaceCenter();
+
     // Trace down to find the floor
     trace_t tr;
-    UTIL_TraceLine(ballPosition, ballPosition - Vector(0, 0, 5000), MASK_SOLID, pBall, COLLISION_GROUP_NONE, &tr);
-    
-    if (tr.fraction < 1.0f)
-    {
-        Vector floorPos = tr.endpos + Vector(0, 0, 1); // Slightly above the floor to prevent z-fighting
-        
-        SetAllOrigins(floorPos);
-        SetAllNormals(tr.plane.normal); // Orient sprite to floor normal
-        
-        float distFromFloor = (ballPosition - floorPos).Length();
-		float alpha = 255.0f; 
-		alpha = RemapValClamped(distFromFloor, 16.0f, 1000.0f, 0, 255);
-		SetAllAlphas(alpha);
-        
-        SetRgba(0, teamColor.r(), teamColor.g(), teamColor.b(), alpha);
-		SetRgba(1, 255, 255, 255, alpha);
+    UTIL_TraceLine(ballPosition, ballPosition - Vector(0, 0, 5000), MASK_SOLID, ball, COLLISION_GROUP_NONE, &tr);
 
-		float scale;
-		if (distFromFloor <= 1000.0f) {
-			scale = RemapValClamped(distFromFloor, 16.0f, 1000.0f, 1.0f, 0.1f) * 128.0f;
-		} else {
-			scale = RemapValClamped(distFromFloor, 1000.0f, 8192.0f, 0.1f, 0.05f) * 128.0f;
-		}
+    if ( tr.fraction >= 1.0f )
+        return false;
 
-		SetScale(1, 128.0f);
-		SetScale(0, scale);
-        
-        return true;
-    }
-    
-    return false;
+    auto floorPos = tr.endpos + Vector(0, 0, 1); // Slightly above the floor to prevent z-fighting
+
+    SetAllOrigins(floorPos);
+    SetAllNormals(tr.plane.normal); // Orient sprite to floor normal
+
+    auto distFromFloor = (ballPosition - floorPos).Length();
+	auto alpha = RemapValClamped(distFromFloor, 16.0f, 1000.0f, 0, 255);
+	SetAllAlphas(alpha);
+
+    SetRgba(0, teamColor.r(), teamColor.g(), teamColor.b(), alpha);
+	SetRgba(1, 255, 255, 255, alpha);
+
+	float scale;
+	if (distFromFloor <= 1000.0f) {
+		scale = RemapValClamped(distFromFloor, 16.0f, 1000.0f, 1.0f, 0.1f) * 128.0f;
+	} else {
+		scale = RemapValClamped(distFromFloor, 1000.0f, 8192.0f, 0.1f, 0.05f) * 128.0f;
+	}
+
+	SetScale(1, 128.0f);
+	SetScale(0, scale);
+
+    return true;
 }
 
 void C_PasstimeBallPredictionReticle::ReloadSprites()
