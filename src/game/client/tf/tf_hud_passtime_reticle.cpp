@@ -611,26 +611,33 @@ ConVar pf_crosshair_outer_teamcolored( "pf_crosshair_outer_teamcolored", "0", FC
 
 void C_PasstimeBounceReticle::Show( const Vector &vec, const Vector &normal )
 {
-	auto *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	auto nTeamNumber = pLocalPlayer->GetTeamNumber();
+	int nTeamNumber = 0;
+	if ( g_pPasstimeLogic )
+	{
+		if ( auto ball = g_pPasstimeLogic->GetBall() )
+		{
+			if ( auto carrier = ball->GetCarrier() )
+				nTeamNumber = carrier->GetTeamNumber();
+		}
+	}
 
 	SetOrigin( 0, vec );
 	SetOrigin( 1, vec );//+ (normal * 16) );
 	SetNormal( 0, normal );
 	SetNormal( 1, -MainViewForward() );
+
 	int r = 200, g = 200, b = 200;
+
 	if ( g_BounceReticleDirty )
 	{
 		ReloadSprites();
 		g_BounceReticleDirty = false;
 	}
-	if ( pf_crosshair_inner_teamcolored.GetBool() )
+
+	if ( pf_crosshair_inner_teamcolored.GetBool() && nTeamNumber )
 	{
-		if ( nTeamNumber )
-		{
-			Color teamColor = GetTeamColor( nTeamNumber );
-			SetRgba( 0, teamColor.r(), teamColor.g(), teamColor.b(), pf_crosshair_inner_a.GetInt() );
-		}
+		Color teamColor = GetTeamColor( nTeamNumber );
+		SetRgba( 0, teamColor.r(), teamColor.g(), teamColor.b(), pf_crosshair_inner_a.GetInt() );
 	}
 	else
 	{
@@ -638,20 +645,16 @@ void C_PasstimeBounceReticle::Show( const Vector &vec, const Vector &normal )
 		SetRgba( 0, r, g, b, pf_crosshair_inner_a.GetInt() );
 	}
 	
-	if ( pf_crosshair_outer_teamcolored.GetBool() )
+	if ( pf_crosshair_outer_teamcolored.GetBool() && nTeamNumber )
 	{
-		if ( nTeamNumber )
-		{
-			Color teamColor = GetTeamColor( nTeamNumber );
-			SetRgba( 1, teamColor.r(), teamColor.g(), teamColor.b(), pf_crosshair_inner_a.GetInt() );
-		}
+		Color teamColor = GetTeamColor( nTeamNumber );
+		SetRgba( 1, teamColor.r(), teamColor.g(), teamColor.b(), pf_crosshair_outer_a.GetInt() );
 	}
 	else
 	{
 		sscanf( pf_crosshair_outer_color.GetString(), "%d %d %d", &r, &g, &b );
 		SetRgba( 1, r, g, b, pf_crosshair_outer_a.GetInt() );
 	}
-	
 }
 
 void C_PasstimeBounceReticle::ReloadSprites()
