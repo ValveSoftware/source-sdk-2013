@@ -20,7 +20,7 @@
 		"xpos_minmode"	"c54"	
 		"ypos"	"r66"	
 		"ypos_minmode"	"c60"	
-		"wide"	"100"
+		"wide"	"110"
 		"tall"	"100"
 	
 	}
