@@ -13663,6 +13663,15 @@ void CTFPlayer::StateEnterWELCOME( void )
 		}
 
 		m_bSeenRoundInfo = false;
+
+		if ( ShouldForceAutoTeam() && GetTeamNumber() == TEAM_UNASSIGNED )
+		{
+			// Players are not considered to be on a team until they click continue on the MOTD screen
+			// Players not on a team do not show up in the vote UI, malicious players are currently clogging up slots and avoiding vote kicks by never clicking continue
+			// MvM already has a specific fix for this by allowing players to kick unassigned players but that doesn't work in regular modes, this is a proper fix for all modes
+			int iTeam = GetAutoTeam();
+			ChangeTeam( iTeam, true, false );
+		}
 	}
 
 }

@@ -296,6 +296,15 @@ void CTFMapInfoMenu::OnCommand( const char *command )
 					engine->ClientCmd( "team_ui_setup" );
 				}
 			}
+			else
+			{
+				CTFPlayer* pPlayer = dynamic_cast< CTFPlayer* >( C_BasePlayer::GetLocalPlayer() );
+				C_TFPlayerClass* pClass = pPlayer ? pPlayer->GetPlayerClass() : NULL;
+				if ( pClass && pClass->GetClassIndex() == TF_CLASS_UNDEFINED )
+				{
+					m_pViewPort->ShowPanel( ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE ) ? PANEL_CLASS_BLUE : PANEL_CLASS_RED, true );
+				}
+			}
 
 			UTIL_IncrementMapKey( "viewed" );
 		}
