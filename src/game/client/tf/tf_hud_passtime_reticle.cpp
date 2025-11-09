@@ -286,14 +286,16 @@ bool C_PasstimeGoalReticle::Update()
 
 	// don't show if ball isn't being carried by local player
 	auto *pEnt = g_pPasstimeLogic->GetBall()->GetCarrier();
-	if ( !pEnt || (pEnt != C_BasePlayer::GetLocalPlayer()) )
+	if ( !pEnt )
 	{
 		return false;
 	}
 
+	if ( !IsLocalPlayerSpectator() && pEnt != C_BasePlayer::GetLocalPlayer() )
+		return false;
+
 	auto *pGoal = m_hGoal.Get();
-	if ( !g_pPasstimeLogic || !g_pPasstimeLogic->GetBall() || IsLocalPlayerSpectator() 
-		|| !pGoal || pGoal->BGoalTriggerDisabled() || (pGoal->GetTeamNumber() != pEnt->GetTeamNumber()) )
+	if ( !pGoal || pGoal->BGoalTriggerDisabled() || (pGoal->GetTeamNumber() != pEnt->GetTeamNumber()) )
 	{
 		return false;
 	}
