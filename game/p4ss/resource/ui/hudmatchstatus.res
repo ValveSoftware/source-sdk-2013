@@ -414,6 +414,7 @@
 				"fgcolor" 		"PFWhite" 
 				"proportionaltoparent"	"1"
 				"wrap" "0"
+				"allcaps"		"1"
 			}
 			"playernameBG"
 			{

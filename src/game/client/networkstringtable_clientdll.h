@@ -29,4 +29,6 @@ extern INetworkStringTable *g_pStringTableServerPopFiles;
 extern INetworkStringTable *g_pStringTableServerMapCycleMvM;
 #endif
 
+extern INetworkStringTable *g_pStringTablePlayerShortNames;
+
 #endif // NETWORKSTRINGTABLE_CLIENTDLL_H
