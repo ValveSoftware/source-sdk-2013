@@ -2844,7 +2844,7 @@ void CAI_ChangeHintGroup::InputActivate( inputdata_t &inputdata )
 #define SF_CAMERA_PLAYER_SNAP_TO		16
 #define SF_CAMERA_PLAYER_NOT_SOLID		32
 #define SF_CAMERA_PLAYER_INTERRUPT		64
-#define SF_CAMERA_PLAYER_INVULN			128
+#define SF_CAMERA_PLAYER_NO_INVULN		128
 
 
 //-----------------------------------------------------------------------------
@@ -3097,7 +3097,7 @@ void CTriggerCamera::Enable( void )
 	m_nPlayerButtons = pPlayer->m_nButtons;
 
 	m_nOldTakeDamage = m_hPlayer->m_takedamage;
-	if ( HasSpawnFlags( SF_CAMERA_PLAYER_INVULN ) )
+	if ( !HasSpawnFlags( SF_CAMERA_PLAYER_NO_INVULN ) )
 	{
 		// Make the player invulnerable while under control of the camera.  This will prevent situations where the player dies while under camera control but cannot restart their game due to disabled player inputs.
 		m_hPlayer->m_takedamage = DAMAGE_NO;
