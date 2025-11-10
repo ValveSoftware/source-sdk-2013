@@ -166,12 +166,12 @@ bool CTFWeaponBaseMelee::Holster( CBaseCombatWeapon *pSwitchingTo )
 int	CTFWeaponBaseMelee::GetSwingRange( void )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
-	if (pOwner && pOwner->m_Shared.InCond(TF_COND_SHIELD_CHARGE))
+	if ( pOwner && pOwner->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 	{
 		// mvm bots that can attack while charging
 		return 128;
 	}
-	else if (IsCurrentAttackDuringDemoCharge() && tf_shield_charge_melee_range.GetInt())
+	else if ( IsCurrentAttackDuringDemoCharge() && tf_shield_charge_melee_range.GetInt() > 0 )
 	{
 		return tf_shield_charge_melee_range.GetInt();
 	}
