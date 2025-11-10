@@ -737,10 +737,8 @@
 		"fieldName" "HudVoiceSelfStatus"
 		"visible" "1"
 		"enabled" "1"
-		"xpos" "r42" 	[$WIN32]
-		"ypos" "355"	[$WIN32]
-		"xpos" "r75"	[$X360]
-		"ypos" "375"	[$X360]
+		"xpos" "50" 	[$WIN32]
+		"ypos" "360"	[$WIN32]
 		"wide" "32"
 		"tall" "32"
 	}
@@ -750,7 +748,7 @@
 		"fieldName" "HudVoiceStatus"
 		"visible" "1"
 		"enabled" "1"
-		"xpos" "r145" [$WIN32]
+		"xpos" "r155" [$WIN32]
 		"ypos" "0" [$WIN32]
 		"xpos" "r210" [$X360]
 		"ypos" "0" [$X360]
@@ -758,18 +756,23 @@
 		"tall" "400"
 
 		"item_wide"	"135"
+		"item_tall"	"20"
 		
-		"show_avatar"		"0"
+		"show_avatar"		"1"
+		"avatar_xpos"		"-9"
+		"avatar_ypos"		"1"
+		"avatar_wide"		"18"
+		"avatar_tall"		"18"
 		
 		"show_dead_icon"	"1"
-		"dead_xpos"			"1"
-		"dead_ypos"			"0"
+		"dead_xpos"			"19"
+		"dead_ypos"			"3"
 		"dead_wide"			"16"
 		"dead_tall"			"16"
 		
-		"show_voice_icon"	"1"
+		"show_voice_icon"	"0"
 		"icon_ypos"			"0"
-		"icon_xpos"			"15"
+		"icon_xpos"			"0"
 		"icon_tall"			"16"
 		"icon_wide"			"16"
 		
