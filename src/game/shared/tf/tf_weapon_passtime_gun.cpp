@@ -1147,25 +1147,15 @@ CPasstimeGun::LaunchParams CPasstimeGun::CalcLaunch( CTFPlayer *pPlayer, bool bH
 //-----------------------------------------------------------------------------
 void CPasstimeGun::ClientThink()
 {
-	if ( !IsActiveByLocalPlayer() && !IsLocalPlayerSpectator() )
+	if ( m_pBounceReticle )
 	{
-		if ( m_pBounceReticle )
-		{
+		// doing this in ItemPostFrame makes the position jittery for some reason, 
+		// and doing it in ClientThink works better. Not entirely sure why, but I 
+		// assume it's something to do with order of operations, or possibly prediction.
+		if ( ( IsActiveByLocalPlayer() || IsLocalPlayerSpectator() ) && (m_eThrowState == THROWSTATE_CHARGING || m_eThrowState == THROWSTATE_CHARGED) )
+			UpdateThrowArch();
+		else
 			m_pBounceReticle->Hide();
-		}
-		return;
-	}
-
-	// doing this in ItemPostFrame makes the position jittery for some reason, 
-	// and doing it in ClientThink works better. Not entirely sure why, but I 
-	// assume it's something to do with order of operations, or possibly prediction.
-	if ( !IsLocalPlayerSpectator() && ((m_eThrowState == THROWSTATE_CHARGING) || (m_eThrowState == THROWSTATE_CHARGED)) )
-	{
-		UpdateThrowArch();
-	}
-	else if ( (IsLocalPlayerSpectator() || (m_eThrowState != THROWSTATE_THROWN)) && m_pBounceReticle )
-	{
-		m_pBounceReticle->Hide();
 	}
 }
 
