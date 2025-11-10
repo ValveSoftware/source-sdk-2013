@@ -1368,8 +1368,8 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"AssistsLabel"
-			"font"			"MontserratSemibold16"
-			"labelText"		"#TF_ScoreBoard_AssistsLabel"
+			"font"			"MontserratSemibold12"
+			"labelText"		"#P4SS_Scoreboard_KillAssists"
 			"textAlignment"		"center"
 			"xpos"			"cs0"
 			"ypos"			"r45"
