@@ -17,7 +17,7 @@
 		"ControlName"			"ImagePanel"
 		"fieldName"				"ReinforcementsAnchor"
 		"xpos"					"cs-0.5"
-		"ypos"					"348"
+		"ypos"					"362"
 		"zpos"					"5"
 		"wide"					"100"
 		"tall"					"24"
