@@ -3242,8 +3242,11 @@ void CTriggerCamera::Disable( void )
 		{
 			((CBasePlayer*)m_hPlayer.Get())->GetActiveWeapon()->RemoveEffects( EF_NODRAW );
 		}
-		//return the player to previous takedamage state
-		m_hPlayer->m_takedamage = m_nOldTakeDamage;
+		// return the player to previous takedamage state if the camera has enabled invulnerability
+		if ( !HasSpawnFlags( SF_CAMERA_PLAYER_NO_INVULN ) )
+		{
+			m_hPlayer->m_takedamage = m_nOldTakeDamage;
+		}
 	}
 
 	m_state = USE_OFF;
