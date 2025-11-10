@@ -298,7 +298,7 @@ void CTFMapInfoMenu::OnCommand( const char *command )
 			}
 			else
 			{
-				CTFPlayer* pPlayer = dynamic_cast< CTFPlayer* >( C_BasePlayer::GetLocalPlayer() );
+				CTFPlayer* pPlayer = ToTFPlayer( C_BasePlayer::GetLocalPlayer() );
 				C_TFPlayerClass* pClass = pPlayer ? pPlayer->GetPlayerClass() : NULL;
 				if ( pClass && pClass->GetClassIndex() == TF_CLASS_UNDEFINED )
 				{
