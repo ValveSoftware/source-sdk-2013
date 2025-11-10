@@ -977,13 +977,6 @@ private:
 	float m_flTempForceDrawViewModelCycle  = 0.0f;
 
 	CNetworkVar( int, m_iPlayerSkinOverride );
-
-// p4ss additions
- public:
-	const char *GetShortNick();
-	bool HasShortNick();
-	CNetworkString( m_sPlayerShortNick, 5 );
-
 private:
 };
 

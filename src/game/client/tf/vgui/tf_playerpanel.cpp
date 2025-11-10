@@ -327,34 +327,35 @@ void CTFPlayerPanel::SetPlayerIndex( int iIndex )
 	}
 	else
 	{
-		Setup( iIndex, GetSteamIDForPlayerIndex( iIndex ), g_TF_PR->GetPlayerName( iIndex ) );
+		Setup( iIndex, GetSteamIDForPlayerIndex( iIndex ), g_TF_PR->GetPlayerName( iIndex ), TEAM_INVALID, GetPlayerShortName( iIndex ) );
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerPanel::Setup( int iPlayerIndex, CSteamID steamID, const char *pszPlayerName, int nLobbyTeam /*= TEAM_INVALID*/ )
+void CTFPlayerPanel::Setup( int iPlayerIndex, CSteamID steamID, const char *pszPlayerName, int nLobbyTeam /*= TEAM_INVALID*/, const wchar_t* pwszShortName /*=NULL*/ )
 {
 	if ( pszPlayerName == NULL )
 		pszPlayerName = "";
+
+	if ( pwszShortName == NULL )
+		pwszShortName = L"";
+
 	if ( m_iPlayerIndex != iPlayerIndex
 		|| m_steamID != steamID
-		|| Q_strcmp( m_sPlayerName, pszPlayerName ) )
+		|| m_sPlayerName != pszPlayerName
+		|| m_wszPlayerShortName != pwszShortName )
 	{
 		Reset();
 		m_iPlayerIndex = iPlayerIndex;
 		m_steamID = steamID;
 		m_sPlayerName = pszPlayerName;
-    	C_TFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerByIndex( iPlayerIndex ) );
-		const char *pszShortName = "";
-		if ( pTFPlayer && g_PR && g_PR->IsConnected( iPlayerIndex ) )
-		{
-			pszShortName = pTFPlayer->GetShortNick();
-		}
-
-		SetDialogVariable( "shortname", pszShortName );
 		SetDialogVariable( "playername", m_sPlayerName );
+
+		m_wszPlayerShortName = pwszShortName;
+		SetDialogVariable( "shortname", m_wszPlayerShortName );
+
 		m_nGCTeam = nLobbyTeam;
 	}
 

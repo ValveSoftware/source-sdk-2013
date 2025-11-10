@@ -175,8 +175,6 @@ private:
 
 	void OnBallFreeSelf( C_TFPlayer *pOwner, C_TFPlayer *pAttacker );
 	void OnBallFreeOther( C_TFPlayer *pOwner, C_TFPlayer *pAttacker );
-	void OnBallGetOther( int iPlayer );
-	void OnBallGetSelf( int iPlayer );
 	void OnBallScore();
 	bool TryForceBallFree();
 	bool TryForceBallGet();

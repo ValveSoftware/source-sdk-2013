@@ -1584,15 +1584,8 @@ bool CTFHudPasstimeBallStatus::TryForceBallGet()
 		{
 			continue;
 		}
-		
-		if ( g_TF_PR->IsLocalPlayer( iPlayer ) )
-		{
-			OnBallGetSelf( iPlayer );
-		}
-		else
-		{
-			OnBallGetOther( iPlayer );
-		}
+
+		OnBallGet( iPlayer );
 
 		return true;
 	}
@@ -1627,16 +1620,29 @@ bool CTFHudPasstimeBallStatus::TryForceBallFree()
 //-----------------------------------------------------------------------------
 void CTFHudPasstimeBallStatus::OnBallGet( int getterIndex )
 {
-	Assert( m_bInitialized && g_PR );
+	Assert( m_bInitialized );
+	Assert( g_PR );
 
-	if ( g_PR->IsLocalPlayer( getterIndex ) )
+	if ( !m_pProgressBallCarrierName )
+		return;
+
+	wchar_t wszFinalText[128];
+	wchar_t *pwszFormatString = g_pVGuiLocalize->Find( "#TF_Passtime_CarrierName" );
+	if ( !pwszFormatString )
 	{
-		OnBallGetSelf( getterIndex );
+		pwszFormatString = L"%s1";
 	}
-	else
+
+	const wchar_t *pwszName = L"";
+	if ( getterIndex > 0 )
 	{
-		OnBallGetOther( getterIndex );
+		pwszName = GetPlayerShortName( getterIndex );
 	}
+
+	g_pVGuiLocalize->ConstructString_safe( wszFinalText, pwszFormatString, 1, pwszName );
+
+	m_pProgressBallCarrierName->SetText( wszFinalText );
+	m_pProgressBallCarrierName->SetVisible( true );
 }
 
 //-----------------------------------------------------------------------------
@@ -1776,52 +1782,6 @@ void CTFHudPasstimeBallStatus::OnBallFreeSelf( C_TFPlayer *pOwner,
 	if ( m_pProgressBallCarrierName )
 	{
 		m_pProgressBallCarrierName->SetVisible( false );
-	}
-}
-
-//-----------------------------------------------------------------------------
-void CTFHudPasstimeBallStatus::OnBallGetOther( int iPlayer )
-{
-	Assert( m_bInitialized );	
-	Assert( g_PR );
-
-	wchar_t wszFinalText[128];
-	wchar_t wszPlayerName[MAX_PLAYER_NAME_LENGTH];
-	wchar_t *pwszFormatString = g_pVGuiLocalize->Find( "#TF_Passtime_CarrierName" );
-	if ( !pwszFormatString )
-	{
-		pwszFormatString = L"%s1";
-	}
-	g_pVGuiLocalize->ConvertANSIToUnicode( ( iPlayer > 0 ) ? g_PR->GetPlayerName( iPlayer ) : "", wszPlayerName, sizeof( wszPlayerName ) );
-	g_pVGuiLocalize->ConstructString_safe( wszFinalText, pwszFormatString, 1, wszPlayerName );
-
-	if ( m_pProgressBallCarrierName )
-	{
-		m_pProgressBallCarrierName->SetText( wszFinalText );
-		m_pProgressBallCarrierName->SetVisible( true );
-	}
-}
-
-//-----------------------------------------------------------------------------
-void CTFHudPasstimeBallStatus::OnBallGetSelf( int iPlayer )
-{
-	Assert( m_bInitialized );	
-	Assert( g_PR );
-
-	wchar_t wszFinalText[128];
-	wchar_t wszPlayerName[MAX_PLAYER_NAME_LENGTH];
-	wchar_t *pwszFormatString = g_pVGuiLocalize->Find( "#TF_Passtime_CarrierName" );
-	if ( !pwszFormatString )
-	{
-		pwszFormatString = L"%s1";
-	}
-	g_pVGuiLocalize->ConvertANSIToUnicode( ( iPlayer > 0 ) ? g_PR->GetPlayerName( iPlayer ) : "", wszPlayerName, sizeof( wszPlayerName ) );
-	g_pVGuiLocalize->ConstructString_safe( wszFinalText, pwszFormatString, 1, wszPlayerName );
-
-	if ( m_pProgressBallCarrierName )
-	{
-		m_pProgressBallCarrierName->SetText( wszFinalText );
-		m_pProgressBallCarrierName->SetVisible( true );
 	}
 }
 

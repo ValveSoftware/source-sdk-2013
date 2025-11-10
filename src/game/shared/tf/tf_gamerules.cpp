@@ -884,6 +884,8 @@ ConVar tf_mvm_respec_credit_goal( "tf_mvm_respec_credit_goal", "2000", FCVAR_CHE
 ConVar tf_mvm_buybacks_method( "tf_mvm_buybacks_method", "0", FCVAR_REPLICATED | FCVAR_HIDDEN, "When set to 0, use the traditional, currency-based system.  When set to 1, use finite, charge-based system.", true, 0.0, true, 1.0 );
 ConVar tf_mvm_buybacks_per_wave( "tf_mvm_buybacks_per_wave", "3", FCVAR_REPLICATED | FCVAR_HIDDEN, "The fixed number of buybacks players can use per-wave." );
 
+#define P4SS_SHORTNAME_MAX_CHARS 4
+ConVar pf_shortname( "pf_shortname", "", FCVAR_ARCHIVE | FCVAR_USERINFO, "Shortened user name" );
 
 #ifdef GAME_DLL
 enum { kMVM_CurrencyPackMinSize = 1, };
@@ -10204,6 +10206,32 @@ void CTFGameRules::ChangePlayerName( CTFPlayer *pPlayer, const char *pszNewName 
 	pPlayer->SetPlayerName( pszNewName );
 }
 
+template <size_t len>
+void SetupPlayerShortName( wchar_t ( &buffer )[len] )
+{
+	// Trim trailing space
+	size_t length = len;
+	while ( length > 0  && ( buffer[length - 1] == L'\0' || iswspace( buffer[length - 1] ) ) )
+		buffer[ --length ] = L'\0';
+
+	// Trim leading space
+	int skip = 0;
+	while ( skip < length && iswspace( buffer[skip] ) )
+		++skip;
+
+	if ( skip > 0 )
+	{
+		wchar_t *pDst = buffer;
+		wchar_t *pSrc = buffer + skip;
+
+		while ( ( *pDst++ = *pSrc++ ) != L'\0' );
+	}
+
+	// Convert to Uppercase
+	for ( wchar_t *p = buffer; *p; ++p )
+		*p = towupper( *p );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -10250,10 +10278,15 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	pTFPlayer->SetUseLegacyPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "pf_legacy_throw_controls" ) ) > 0 );
 	pTFPlayer->SetUseReversedPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "pf_reverse_throw_controls" ) ) > 0);
 
-	// p4ss short nickname
-	const char *newNick = engine->GetClientConVarValue( pPlayer->entindex(), "p4ss_nick" );
-	Q_strncpy( pTFPlayer->m_sPlayerShortNick.GetForModify(), newNick, 5 );
+	const char *pszPlayerShortName = engine->GetClientConVarValue( pPlayer->entindex(), "pf_shortname" );
+	if ( !pszPlayerShortName || !pszPlayerShortName[0] )
+		pszPlayerShortName = pPlayer->GetPlayerName();
 
+	wchar_t wszPlayerShortname[P4SS_SHORTNAME_MAX_CHARS + 1] = { 0 };
+	g_pVGuiLocalize->ConvertANSIToUnicode( pszPlayerShortName, wszPlayerShortname, sizeof( wszPlayerShortname ) );
+	SetupPlayerShortName( wszPlayerShortname );
+	
+	g_pStringTablePlayerShortNames->SetStringUserData( pPlayer->entindex() - 1, sizeof( wszPlayerShortname), wszPlayerShortname );
 }
 
 //-----------------------------------------------------------------------------
@@ -13329,6 +13362,8 @@ void CTFGameRules::ClientDisconnected( edict_t *pClient )
 			}
 		}
 	}
+
+	g_pStringTablePlayerShortNames->SetStringUserData( engine->IndexOfEdict( pClient ) - 1, 0, NULL );
 }
 
 // Falling damage stuff.

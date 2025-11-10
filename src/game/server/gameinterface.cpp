@@ -226,6 +226,8 @@ INetworkStringTable *g_pStringTableServerPopFiles = NULL;
 INetworkStringTable *g_pStringTableServerMapCycleMvM = NULL;
 #endif
 
+INetworkStringTable *g_pStringTablePlayerShortNames = NULL;
+
 CStringTableSaveRestoreOps g_VguiScreenStringOps;
 
 // Holds global variables shared between engine and game.
@@ -1453,6 +1455,8 @@ void CServerGameDLL::CreateNetworkStringTables( void )
 	g_pStringTableServerMapCycleMvM = networkstringtable->CreateStringTable( "ServerMapCycleMvM", 128 );
 #endif
 
+	g_pStringTablePlayerShortNames = networkstringtable->CreateStringTable( "PlayerShortNames", 1 << ABSOLUTE_PLAYER_LIMIT_DW );
+
 	bool bPopFilesValid = true;
 	(void)bPopFilesValid; // Avoid unreferenced variable warning
 
@@ -1466,7 +1470,8 @@ void CServerGameDLL::CreateNetworkStringTables( void )
 			g_pStringTableMaterials &&
 			g_pStringTableInfoPanel &&
 			g_pStringTableClientSideChoreoScenes &&
-			g_pStringTableServerMapCycle && 
+			g_pStringTableServerMapCycle &&
+			g_pStringTablePlayerShortNames &&
 			bPopFilesValid
 			);
 
@@ -1481,6 +1486,11 @@ void CServerGameDLL::CreateNetworkStringTables( void )
 
 	// Set up save/load utilities for string tables
 	g_VguiScreenStringOps.Init( g_pStringTableVguiScreen );
+
+	for ( int i = 0; i < gpGlobals->maxClients; i++ )
+	{
+		g_pStringTablePlayerShortNames->AddString( true, CNumStr( i ) ); // matching indices
+	}
 }
 
 CSaveRestoreData *CServerGameDLL::SaveInit( int size )
