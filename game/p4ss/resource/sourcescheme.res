@@ -51,6 +51,11 @@ Scheme
 	}
 	BaseSettings
 	{
+	
+		//seemingly absent from vanilla file
+		SectionedListPanel.SelectedBgColor				"TFOrangeBright" 	//keybind menu selected
+		SectionedListPanel.OutOfFocusSelectedBgColor	"TFOrangeBright" 	//keybind menu selected, out of focus
+		
 		// scheme-specific colors
 		Border.Bright					"TFTanLightDark"	// the lit side of a control
 		Border.Dark						"TFTanLightDark"		// the dark/unlit side of a control
