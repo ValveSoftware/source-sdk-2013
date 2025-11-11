@@ -303,7 +303,6 @@ item_definition_index_t CEconItemSystem::GenerateRandomItem( CItemSelectionCrite
 	CUtlVector<item_definition_index_t> vecMatches;
 	const CEconItemSchema::ItemDefinitionMap_t &mapDefs = m_itemSchema.GetItemDefinitionMap();
 
-HackMakeValidList:
 	FOR_EACH_MAP_FAST( mapDefs, i )
 	{
 		if ( pCriteria->BEvaluate( mapDefs[i] ) )
