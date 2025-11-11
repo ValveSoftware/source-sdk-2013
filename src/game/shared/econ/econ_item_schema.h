@@ -44,8 +44,6 @@ class CEconItemSchema;
 class CEconItem;
 class CEconSharedObjectCache;
 class CSOItemRecipe;
-class CQuestLootlist;
-class CQuestObjectiveDefinition;
 
 union attribute_data_union_t
 {
@@ -144,123 +142,6 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-// Item Series
-//-----------------------------------------------------------------------------
-class CEconItemSeriesDefinition
-{
-public:
-	CEconItemSeriesDefinition( void );
-	CEconItemSeriesDefinition( const CEconItemSeriesDefinition &that );
-	CEconItemSeriesDefinition &operator=( const CEconItemSeriesDefinition& rhs );
-
-	~CEconItemSeriesDefinition( void ) { }
-
-	bool		BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString> *pVecErrors = NULL );
-
-	int32		GetDBValue( void ) const			{ return m_nValue; }
-	const char	*GetName( void ) const				{ return !m_strName.IsEmpty() ? m_strName.String() : "unknown"; }
-	const char	*GetLocKey( void ) const			{ return !m_strLockKey.IsEmpty() ? m_strLockKey.String() : "unknown"; }
-	const char	*GetUiFile( void ) const			{ return !m_strUiFile.IsEmpty() ? m_strUiFile.String() : "unknown"; }
-
-private:
-
-	// The value that the game/DB will know this series by
-	int32		m_nValue;
-
-	CUtlString	m_strName;			// Key Name
-	CUtlString	m_strLockKey;		// Localization key
-	CUtlString	m_strUiFile;		// Ui File (.res file)
-};
-//-----------------------------------------------------------------------------
-// CEconItemRarityDefinition
-//-----------------------------------------------------------------------------
-class CEconItemRarityDefinition
-{
-public:
-	CEconItemRarityDefinition( void );
-	
-	~CEconItemRarityDefinition( void ) { }
-
-	bool		BInitFromKV( KeyValues *pKVItem, KeyValues *pKVRarityWeights, CEconItemSchema &pschema, CUtlVector<CUtlString> *pVecErrors = NULL );
-
-	int32		GetDBValue( void ) const			{ return m_nValue; }
-	const char	*GetName( void ) const				{ return !m_strName.IsEmpty() ? m_strName.String() : "unknown"; }
-	const char  *GetLocKey( void ) const			{ return m_strLocKey.String(); }
-	const char  *GetWepLocKey( void ) const			{ return m_strWepLocKey.String(); }
-	const char  *GetDropSound( void ) const			{ return m_strDropSound.String(); }
-	attrib_colors_t		GetAttribColor( void ) const		{ return m_iAttribColor; }
-	const char	*GetNextRarity( void ) const		{ return m_strNextRarity.String(); }
-	int32		GetLootlistWeight( void ) const		{ return m_nLootlistWeight; }
-
-private:
-
-	// The value that the game/DB will know this rarity by
-	int32		m_nValue;
-
-	attrib_colors_t		m_iAttribColor;
-
-	// The English name of the rarity
-	CUtlString	m_strName;
-
-	// The localization key for this rarity.
-	CUtlString  m_strLocKey;
-	// The localization key for this rarity, for weapons.
-	CUtlString  m_strWepLocKey;
-
-	// The loot list name associated with this rarity.
-	CUtlString  m_strDropSound;
-
-	CUtlString  m_strNextRarity;
-
-	int32		m_nLootlistWeight;
-
-};
-
-//-----------------------------------------------------------------------------
-// CEconItemQualityDefinition
-// Template Definition of a randomly created item
-//-----------------------------------------------------------------------------
-class CEconItemQualityDefinition
-{
-public:
-	CEconItemQualityDefinition( void );
-	CEconItemQualityDefinition( const CEconItemQualityDefinition &that );
-	CEconItemQualityDefinition &operator=( const CEconItemQualityDefinition& rhs );
-
-	~CEconItemQualityDefinition( void ) { }
-
-	bool		BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString> *pVecErrors = NULL );
-
-
-	int32		GetDBValue( void ) const			{ return m_nValue; }
-	const char	*GetName( void ) const				{ return !m_strName.IsEmpty() ? m_strName.Get() : "unknown"; }
-	bool		CanSupportSet( void ) const			{ return m_bCanSupportSet; }
-	const char	*GetHexColor( void ) const			{ return !m_strHexColor.IsEmpty() ? m_strHexColor.Get() : "B2B2B2"; }
-
-#ifdef DBGFLAG_VALIDATE
-	void Validate( CValidator &validator, const char *pchName )
-	{
-		VALIDATE_SCOPE();
-		ValidateObj( m_strName );
-	}
-#endif // DBGFLAG_VALIDATE
-
-private:
-
-	// The value that the game/DB will know this quality by
-	int32			m_nValue;
-
-	// The English name of the quality
-	CUtlConstString	m_strName;
-
-	// if this is true the support tool is allowed to set this quality level on any item
-	bool			m_bCanSupportSet;
-
-	// A hex string representing the color this quality should display as. Used primarily for display on the Web.
-	CUtlConstString	m_strHexColor;
-};
-
-//-----------------------------------------------------------------------------
 // CEconColorDefinition
 //-----------------------------------------------------------------------------
 class CEconColorDefinition
@@ -284,392 +165,7 @@ private:
 	CUtlConstString m_strHexColor;
 };
 
-//-----------------------------------------------------------------------------
-// CEconItemSetDefinition
-// Definition of an item set
-//-----------------------------------------------------------------------------
-class CEconItemSetDefinition
-{
-public:
-	CEconItemSetDefinition( void );
-	CEconItemSetDefinition( const CEconItemSetDefinition &that );
-	CEconItemSetDefinition &operator=( const CEconItemSetDefinition& rhs );
-
-	~CEconItemSetDefinition( void ) {}
-
-	bool	BInitFromKV( KeyValues *pKVItemSet, CUtlVector<CUtlString> *pVecErrors = NULL );
-
-	void	IterateAttributes( class IEconItemAttributeIterator *pIterator ) const;
-
-public:
-
-	CUtlString							    m_strName;
-	const char							   *m_pszLocalizedName;
-	CUtlVector<item_definition_index_t>		m_iItemDefs;
-	int										m_iBundleItemDef;	// Item def of the store bundle for this set, if any
-	bool									m_bIsHiddenSet;		// If true, this set and any bonuses will only be visible if the whole set is equipped.
-
-	struct itemset_attrib_t
-	{
-		attrib_definition_index_t		m_iAttribDefIndex;
-		float							m_flValue;
-	};
-	CUtlVector<itemset_attrib_t>	m_iAttributes;
-};
-
-//-----------------------------------------------------------------------------
-class CEconItemCollectionDefinition
-{
-public:
-	CEconItemCollectionDefinition( void );
-	~CEconItemCollectionDefinition( void ) {}
-
-	bool	BInitFromKV( KeyValues *pKVItemCollection, CUtlVector<CUtlString> *pVecErrors = NULL );
-	bool	BPostSchemaInit( CUtlVector<CUtlString> *pVecErrors );
-
-	uint8	GetMinRarity() const { return m_iRarityMin; }
-	uint8	GetMaxRarity() const { return m_iRarityMax; }
-
-public:
-	CUtlString							    m_strName;
-	const char							   *m_pszLocalizedName;
-	const char							   *m_pszLocalizedDesc;
-	CUtlVector<item_definition_index_t>		m_iItemDefs;
-
-private:
-	bool	m_bIsReferenceCollection;
-
-	uint8	m_iRarityMin;
-	uint8	m_iRarityMax;
-};
-
-//-----------------------------------------------------------------------------
-class CEconOperationDefinition
-{
-public:
-	CEconOperationDefinition( void );
-	~CEconOperationDefinition( void );
-
-	bool	BInitFromKV( KeyValues *pKVOperation, CUtlVector<CUtlString> *pVecErrors = NULL );
-
-	const char *GetName() const { return m_pszName; }
-	operation_definition_index_t GetOperationID() const { return m_unOperationID; }
-	item_definition_index_t GetRequiredItemDefIndex() const { return m_unRequiredItemDefIndex; }
-	item_definition_index_t GetGatewayItemDefIndex() const { return m_unGatewayItemDefIndex; }
-
-	KeyValues *GetKVP() { return m_pKVItem; }
-
-	// use the date that we stop giving things to players as expiry date
-	bool	IsExpired() const { return CRTime::RTime32TimeCur() > GetStopGivingToPlayerDate(); }
-	bool	IsActive() const { return CRTime::RTime32TimeCur() >= GetStartDate() && !IsExpired(); }
-
-	const char *GetQuestLogOverrideResFile() const { return m_pszQuestLogResFile; }
-	const char *GetQuestListOverrideResFile() const { return m_pszQuestListResFile; }
-
-	RTime32	GetStartDate() const { return m_OperationStartDate; }
-	RTime32 GetStopGivingToPlayerDate() const { return m_StopGivingToPlayerDate; }
-	RTime32 GetStopAddingToQueueDate() const { return m_StopAddingToQueueDate; }
-	RTime32 GetStopContractsDate() const { return m_ContractProgressEndDate; }
-
-	const char *GetOperationLootlist() const { return m_pszOperationLootList; }
-	bool	IsCampaign() const { return m_bIsCampaign; }
-	bool	UsesCredits() const { return m_bUsesCredits; }
-	uint32	GetMaxDropCount() const { return m_unMaxDropCount; }
-
-	int32 GetKillEaterEventType_Contracts() const { return m_nKillEaterEventType_Contracts; }
-	int32 GetKillEaterEventType_Points() const { return m_nKillEaterEventType_Points; }
-
-
-private:
-	const char			*m_pszName;
-	operation_definition_index_t	m_unOperationID;
-
-	// things operation periodically drops
-	const char			*m_pszOperationLootList;
-	bool				m_bIsCampaign;
-	bool				m_bUsesCredits;
-	int32				m_nKillEaterEventType_Contracts;
-	int32				m_nKillEaterEventType_Points;
-	uint32				m_unMaxDropCount;
-
-	const char			*m_pszQuestLogResFile;
-	const char			*m_pszQuestListResFile;
-
-	item_definition_index_t m_unRequiredItemDefIndex;
-	item_definition_index_t m_unGatewayItemDefIndex; // Defindex of the item users need to acquire in order to get the required item.  Could be the required item itself.
-
-	RTime32				m_OperationStartDate;		// when the operation starts and gives out rewards
-	RTime32				m_StopGivingToPlayerDate;	// when the operation stops giving quests to player
-	RTime32				m_StopAddingToQueueDate;	// when the operation stops adding more quests to the bucket
-	RTime32				m_ContractProgressEndDate;	// When players can no longer accept or work on Contracts associated with this operation
-
-
-	KeyValues				   *m_pKVItem;
-};
-
-
-//-----------------------------------------------------------------------------
-// CEconLootListDefinition
-// Definition of a loot list
-//-----------------------------------------------------------------------------
-class IEconLootList
-{
-public:
-	virtual ~IEconLootList() { }
-
-	MUST_CHECK_RETURN virtual bool BPublicListContents() const = 0;
-	MUST_CHECK_RETURN virtual const char *GetLootListHeaderLocalizationKey() const = 0;
-	MUST_CHECK_RETURN virtual const char *GetLootListFooterLocalizationKey() const = 0;
-	MUST_CHECK_RETURN virtual const char *GetLootListCollectionReference() const = 0;
-
-	class IEconLootListIterator
-	{
-	public:
-		virtual ~IEconLootListIterator() { }
-		virtual void OnIterate( item_definition_index_t unItemDefIndex ) = 0;
-	};
-
-	virtual void EnumerateUserFacingPotentialDrops( IEconLootListIterator *pIt ) const = 0;
-
-};
-
-struct drop_period_t
-{
-	bool IsValidForTime( const RTime32& time ) const;
-
-	RTime32		m_DropStartDate;
-	RTime32		m_DropEndDate;
-};
-
-struct drop_item_t
-{
-	int m_iItemOrLootlistDef;			// negative values indicate nested loot lists
-	float m_flWeight;
-	drop_period_t m_dropPeriod;
-};
-
 typedef CUtlVector< CItemSelectionCriteria* > ItemSelectionCriteriaVec_t;
-
-struct lootlist_attrib_t
-{
-	lootlist_attrib_t()
-		:	m_pVecCriteria( NULL ),
-			m_flWeight( 1.f ),
-			m_bAllowDuplicate( false )
-	{
-	}
-
-	static_attrib_t	m_staticAttrib;
-	ItemSelectionCriteriaVec_t *m_pVecCriteria; // this points to the one in random_attrib_t
-	float	m_flWeight;
-	bool	m_bAllowDuplicate;
-
-	bool BInitFromKV( const char *pszContext, KeyValues *pKVKey, CEconItemSchema &pschema, CUtlVector<CUtlString> *pVecErrors );
-	bool BHasAnyCriteria() const { return m_pVecCriteria != NULL; }
-	bool BItemPassAllCriteria( const CEconItemDefinition* pItemDef ) const;
-};
-
-typedef CUtlVector< lootlist_attrib_t > LootListAttributeVec_t;
-
-
-struct random_attrib_t
-{
-	random_attrib_t()
-	{
-	}
-
-	~random_attrib_t()
-	{
-	}
-
-	float				m_flTotalAttributeWeight;
-	LootListAttributeVec_t m_RandomAttributes;
-	ItemSelectionCriteriaVec_t m_vecCriteria;
-
-};
-
-class CEconLootListDefinition;
-
-struct loot_list_additional_drop_t
-{
-
-	bool		m_bPremiumOnly;
-	const char *m_pszOwnerName;
-	const char *m_pszLootListDefName;
-	int		    m_iRequiredHolidayIndex;
-	drop_period_t m_dropPeriod;
-};
-
-class CLootlistJob
-{
-public:
-	CLootlistJob( const char *pszOwnerName );
-	~CLootlistJob();
-	bool BInitFromKV( const char *pszContext, KeyValues *pKVKey, CEconItemSchema &pschema, CUtlVector<CUtlString> *pVecErrors );
-	bool BPostInit( CUtlVector<CUtlString> *pVecErrors );
-
-	struct RandomAttributeInfo_t
-	{
-		random_attrib_t* m_pRandomAttributes;
-		bool m_bFromTemplate;
-	};
-	const CUtlVector< RandomAttributeInfo_t >& GetAttributes() const { return m_vecAttributes; }
-	const CUtlVector<loot_list_additional_drop_t>& GetAdditionalDrops() const { return m_vecAdditionalDrops; }
-
-
-private:
-	bool AddRandomAtrributes( KeyValues *pRandomAttributesKV, CEconItemSchema &pschema, CUtlVector<CUtlString> *pVecErrors = NULL );
-	bool AddRandomAttributesFromTemplates( KeyValues *pRandomAttributesKV, CEconItemSchema &pschema, CUtlVector<CUtlString> *pVecErrors = NULL );
-
-	const char *		m_pszOwnerName;
-	float				m_flChanceToRunJob;
-
-	CUtlVector< RandomAttributeInfo_t > m_vecAttributes;
-	CUtlVector< loot_list_additional_drop_t > m_vecAdditionalDrops;
-};
-
-class CEconLootListDefinition : public IEconLootList
-{
-public:
-
-	virtual ~CEconLootListDefinition();
-	
-	bool BInitFromKV( KeyValues *pKVLootList, CEconItemSchema &pschema, CUtlVector<CUtlString> *pVecErrors );
-	bool BPostInit( CUtlVector<CUtlString> *pVecErrors );
-
-	const char *GetName() const { return m_strName; }
-	virtual const char *GetLootListHeaderLocalizationKey() const OVERRIDE { return m_pszLootListHeader; }
-	virtual const char *GetLootListFooterLocalizationKey() const OVERRIDE { return m_pszLootListFooter; }
-	virtual const char *GetLootListCollectionReference() const OVERRIDE { return m_pszCollectionReference; }
-		
-	const CUtlVector<drop_item_t>& GetLootListContents() const { return m_DropList; }
-
-	const CUtlVector<CLootlistJob*>& GetLootlistJobs() const { return m_jobs; }
-
-	virtual void EnumerateUserFacingPotentialDrops( IEconLootListIterator *pIt ) const OVERRIDE;
-
-	virtual bool BPublicListContents() const OVERRIDE
-	{
-		return m_bPublicListContents;
-	}
-
-
-private:
-
-	CUtlString			 m_strName;
-	const char			*m_pszLootListHeader;
-	const char			*m_pszLootListFooter;
-	const char			*m_pszCollectionReference;
-	CUtlVector<drop_item_t> m_DropList;
-
-	bool				m_bPublicListContents;	// do not show loot list contents to users (ie., when listing crate contents on Steam)
-
-	bool AddLootlistJob( KeyValues *pLootlistJobKV, CEconItemSchema &pschema, CUtlVector<CUtlString> *pVecErrors = NULL );
-
-	CUtlVector<CLootlistJob*>						m_jobs;
-
-};
-
-struct LootListInfo_t
-{
-	CUtlVector< random_attrib_t* > m_vecAttributes;
-	CUtlVector< item_definition_index_t > m_vecItems;
-	CUtlVector< item_definition_index_t > m_vecAdditionalItems;
-};
-bool GetClientLootListInfo( const CEconLootListDefinition *pLootList, LootListInfo_t &lootListInfo );
-bool GetClientLootListInfo( const char *pszLootListName, LootListInfo_t &lootListInfo );
-bool GetClientLootListInfo( const IEconItemInterface *pEconItem, LootListInfo_t &lootListInfo );
-
-//-----------------------------------------------------------------------------
-// CEconCraftingRecipeDefinition
-// Template Definition of an item recipe
-//-----------------------------------------------------------------------------
-class CEconCraftingRecipeDefinition
-{
-public:
-	CEconCraftingRecipeDefinition( void );
-	virtual ~CEconCraftingRecipeDefinition( void ) { }
-
-	bool		BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString> *pVecErrors = NULL );
-
-
-	virtual void CopyPolymorphic( const CEconCraftingRecipeDefinition *pSourceDef ) { *this = *pSourceDef; }
-
-	void		SetDefinitionIndex( uint32 iIndex ) { m_nDefIndex = iIndex; }
-	int32		GetDefinitionIndex( void ) const	{ return m_nDefIndex; }
-	const char	*GetName( void ) const				{ return !m_strName.IsEmpty() ? m_strName.String() : "unknown"; }
-	const char	*GetName_A( void ) const				{ return !m_strN_A.IsEmpty() ? m_strN_A.String() : "unknown"; }
-	const char	*GetDescInputs( void ) const				{ return !m_strDescInputs.IsEmpty() ? m_strDescInputs.String() : "unknown"; }
-	const char	*GetDescOutputs( void ) const				{ return !m_strDescOutputs.IsEmpty() ? m_strDescOutputs.String() : "unknown"; }
-
-	const char	*GetDescI_A( void ) const				{ return !m_strDI_A.IsEmpty() ? m_strDI_A.String() : "unknown"; }
-	const char	*GetDescI_B( void ) const				{ return !m_strDI_B.IsEmpty() ? m_strDI_B.String() : "unknown"; }
-	const char	*GetDescI_C( void ) const				{ return !m_strDI_C.IsEmpty() ? m_strDI_C.String() : "unknown"; }
-	const char	*GetDescO_A( void ) const				{ return !m_strDO_A.IsEmpty() ? m_strDO_A.String() : "unknown"; }
-	const char	*GetDescO_B( void ) const				{ return !m_strDO_B.IsEmpty() ? m_strDO_B.String() : "unknown"; }
-	const char	*GetDescO_C( void ) const				{ return !m_strDO_C.IsEmpty() ? m_strDO_C.String() : "unknown"; }
-
-	bool		IsDisabled( void ) const { return m_bDisabled; }
-	bool		RequiresAllSameClass( void ) { return m_bRequiresAllSameClass; }
-	bool		RequiresAllSameSlot( void ) { return m_bRequiresAllSameSlot; }
-	bool		IsPremiumAccountOnly( void ) const { return m_bPremiumAccountOnly; }
-	recipecategories_t	GetCategory( void ) const { return m_iCategory; }
-	int			GetTotalInputItemsRequired( void ) const;
-	int			GetTotalOutputItems( void ) const { return m_OutputItemsCriteria.Count(); }
-
-	// Returns true if the vector contains a set of items that matches the inputs for this recipe
-	virtual bool ItemListMatchesInputs( CUtlVector<CEconItem*> *vecCraftingItems, KeyValues *out_pCraftParams = NULL, bool bIgnoreSlop = false, CUtlVector<uint64> *vecChosenItems = NULL ) const;
-
-	const CUtlVector<CItemSelectionCriteria> *GetInputItems( void ) const { return &m_InputItemsCriteria; }
-	const CUtlVector<uint32>				 &GetInputItemDupeCounts( void ) const { return m_InputItemDupeCounts; }
-	const CUtlVector<CItemSelectionCriteria> &GetOutputItems( void ) const { return m_OutputItemsCriteria; }
-
-#ifdef DBGFLAG_VALIDATE
-	void Validate( CValidator &validator, const char *pchName )
-	{
-		VALIDATE_SCOPE();
-		ValidateObj( m_InputItemsCriteria );
-		ValidateObj( m_InputItemDupeCounts );
-		ValidateObj( m_OutputItemsCriteria );
-	}
-#endif // DBGFLAG_VALIDATE
-
-	// Serializes the criteria to and from messages
-	bool		BSerializeToMsg( CSOItemRecipe & msg ) const;
-	bool		BDeserializeFromMsg( const CSOItemRecipe & msg );
-
-protected:
-	// The number used to refer to this definition in the DB
-	int32		m_nDefIndex;
-
-	// Localization key strings
-	CUtlString	m_strName; 
-	CUtlString	m_strN_A; 
-	CUtlString	m_strDescInputs; 
-	CUtlString	m_strDescOutputs; 
-	CUtlString	m_strDI_A;
-	CUtlString	m_strDI_B;
-	CUtlString	m_strDI_C;
-	CUtlString	m_strDO_A;
-	CUtlString	m_strDO_B;
-	CUtlString	m_strDO_C;
-
-	bool		m_bDisabled;
-	bool		m_bRequiresAllSameClass;
-	bool		m_bRequiresAllSameSlot;
-	int			m_iCacheClassUsageForOutputFromItem;
-	int			m_iCacheSlotUsageForOutputFromItem;
-	int			m_iCacheSetForOutputFromItem;
-	bool		m_bPremiumAccountOnly;
-	recipecategories_t	m_iCategory;
-
-	// The list of items that a required to make this recipe
-	CUtlVector<CItemSelectionCriteria>	m_InputItemsCriteria;
-	CUtlVector<uint32>					m_InputItemDupeCounts;
-
-	// The list of items that are generated by this recipe
-	CUtlVector<CItemSelectionCriteria>	m_OutputItemsCriteria;
-};
 
 //-----------------------------------------------------------------------------
 // Purpose: Attribute definition details
@@ -693,9 +189,7 @@ enum
 // Coloring for attribute lines
 enum attrib_effect_types_t
 {
-	ATTRIB_EFFECT_UNUSUAL = 0,
-	ATTRIB_EFFECT_STRANGE,
-	ATTRIB_EFFECT_NEUTRAL,
+	ATTRIB_EFFECT_NEUTRAL, // == 0
 	ATTRIB_EFFECT_POSITIVE,
 	ATTRIB_EFFECT_NEGATIVE,
 	
@@ -735,7 +229,6 @@ public:
 	bool		IsHidden( void ) const						{ return m_bHidden; }
 	bool		BForceWebSchemaOutput( void ) const			{ return m_bWebSchemaOutputForced; }
 	bool		BIsSetBonusAttribute( void ) const			{ return m_bIsSetBonus; }
-	bool		CanAffectMarketName( void ) const			{ return m_bCanAffectMarketName; }
 	bool		CanAffectRecipeComponentName( void ) const	{ return m_bCanAffectRecipeComponentName; }
 	bool		IsStoredAsInteger( void ) const				{ return m_bStoredAsInteger; }
 	bool		IsStoredAsFloat( void ) const				{ return !m_bStoredAsInteger; }
@@ -745,7 +238,6 @@ public:
 	uint32		GetAssetClassBucket() const			{ return m_unAssetClassBucket; }
 	int			GetDescriptionFormat( void ) const			{ return m_iDescriptionFormat; }
 	const char *GetDescriptionString( void ) const			{ return m_pszDescriptionString; }
-	const char *GetArmoryDescString( void ) const			{ return m_pszArmoryDesc; }
 	const char *GetAttributeClass( void ) const				{ return m_pszAttributeClass; }
 	econ_tag_handle_t GetItemDefinitionTag( void ) const	{ return m_ItemDefinitionTag; }
 	attrib_effect_types_t GetEffectType( void ) const		{ return m_iEffectType; }
@@ -820,18 +312,11 @@ private:
 	int			m_iDescriptionFormat;
 	const char	*m_pszDescriptionString;
 
-	// Contains information on how to describe items with this attribute in the Armory
-	const char	*m_pszArmoryDesc;
-
 	// Used to allow unique items to specify attributes by name.
 	const char	*m_pszDefinitionName;
 
 	// The class name of this attribute. Used in creation, and to hook the attribute into the actual code that uses it.
 	const char	*m_pszAttributeClass;
-
-	// Allowed to affect the market bucketization name.  We dont want things like the strange level to affect the name,
-	// but we do want things like crate series number and strangifier targets to get their own buckets.
-	bool		m_bCanAffectMarketName;
 
 	// Allowed to list itself in the name of an item in the recipe component description.
 	bool		m_bCanAffectRecipeComponentName;
@@ -1137,12 +622,6 @@ enum item_capabilities_t
 enum { ITEM_CAP_DEFAULT		 = ITEM_CAP_CAN_CRAFT_MARK | ITEM_CAP_CAN_BE_RESTORED | ITEM_CAP_CAN_USE_STRANGE_PARTS | ITEM_CAP_CAN_CARD_UPGRADE | ITEM_CAP_CAN_STRANGIFY | ITEM_CAP_CAN_KILLSTREAKIFY | ITEM_CAP_CAN_CONSUME | ITEM_CAP_CAN_GIFT_WRAP };	// what are the default capabilities on an item?
 enum { ITEM_CAP_TOOL_DEFAULT = ITEM_CAP_NONE };																										// what are the default capabilities of a tool?
 
-struct bundleinfo_t
-{
-	CUtlVector<CEconItemDefinition *> vecItemDefs;
-};
-
-
 #ifdef CLIENT_DLL
 namespace vgui
 {
@@ -1185,11 +664,7 @@ public:
 #ifdef CLIENT_DLL
 	virtual bool CanBeUsedNow( const IEconItemInterface *pItem ) const { return true; }
 	virtual bool ShouldShowContainedItemPanel( const IEconItemInterface *pItem ) const { Assert( !"IEconTool::ShouldShowContainedItemPanel(): we don't expect this to be called on anything besides gifts!" ); return false; }
-	virtual bool ShouldDisplayAsUseableOnItemsInArmory() const { return true; }
-	virtual const char *GetUseCommandLocalizationToken( const IEconItemInterface *pItem, int i = 0 ) const;
 	virtual int GetUseCommandCount( const IEconItemInterface *pItem ) const { return 1; }
-	virtual const char* GetUseCommand( const IEconItemInterface *pItem, int i = 0 ) const;
-
 
 	// Client "do something" interface. At least one of these functions must be implemented or your tool
 	// won't do anything on the client. Some tools (ie., collections) will implement both because they
@@ -1243,8 +718,6 @@ public:
 	virtual void	CopyPolymorphic( const CEconItemDefinition *pSourceDef ) { *this = *pSourceDef; }
 #endif
 
-	bool		BInitItemMappings( CUtlVector<CUtlString> *pVecErrors );
-
 	void		BInitVisualBlockFromKV( KeyValues *pKVItem, CUtlVector<CUtlString> *pVecErrors = NULL );
 	void		BInitStylesBlockFromKV( KeyValues *pKVStyles, perteamvisuals_t *pVisData, CUtlVector<CUtlString> *pVecErrors );
 
@@ -1259,68 +732,30 @@ public:
 	const char	*GetItemBaseName( void ) const		{ return m_pszItemBaseName; }
 	const char	*GetBrassModelOverride( void ) const{ return m_pszBrassModelOverride; }
 	const char	*GetItemTypeName( void ) const		{ return m_pszItemTypeName; }
-	uint8		GetMinLevel( void ) const			{ return m_unMinItemLevel; }
-	uint8		GetMaxLevel( void ) const			{ return m_unMaxItemLevel; }
-	uint8		GetItemSeries( void ) const			{ return m_unItemSeries; }
-	uint8		GetQuality( void ) const			{ return m_nItemQuality; }
-	void		SetRarity( uint8 nRarity )			{ Assert( m_nItemRarity == k_unItemRarity_Any ); m_nItemRarity = nRarity; } 
-	uint8		GetRarity( void ) const				{ return m_nItemRarity; }
-	uint8		GetForcedQuality( void ) const		{ return m_nForcedItemQuality; }
-	uint16		GetDefaultDropQuantity( void ) const	{ return m_nDefaultDropQuantity; }
 	KeyValues	*GetRawDefinition( void ) const		{ return m_pKVItem; }
 	const char	*GetDefinitionString( const char *pszKeyName, const char *pszDefaultValue = "" ) const;
 	KeyValues	*GetDefinitionKey( const char *pszKeyName ) const;
 	const CUtlVector<static_attrib_t> &GetStaticAttributes( void ) const	{ return m_vecStaticAttributes; }
-#ifdef TF_CLIENT_DLL
-	uint32		GetNumConcreteItems() const			{ return m_unNumConcreteItems; }
-#endif // TF_CLIENT_DLL
 
 	// Data accessing
 	bool		IsHidden( void ) const				{ return m_bHidden; }
 	bool		IsImported( void ) const			{ return m_bImported; }
 	bool		IsAllowedInMatch( void ) const		{ return m_bAllowedInThisMatch; }
 	bool		IsBaseItem( void ) const			{ return m_bBaseItem; }
-	bool		IsBundle( void ) const				{ return m_BundleInfo != NULL; }
 	bool		HasProperName( void ) const			{ return m_bProperName; }
-	const char	*GetClassToken( void ) const		{ return m_pszClassToken; }
-	const char	*GetSlotToken( void ) const			{ return m_pszSlotToken; }
 	bool		ShouldAttachToHands( void ) const	{ return m_bAttachToHands; }
 	bool		ShouldAttachToHandsVMOnly( void ) const	{ return m_bAttachToHandsVMOnly; }
 	bool		ShouldFlipViewmodels( void ) const	{ return m_bFlipViewModel; }
 	int			GetInventoryImagePosition( int iIndex ) const	{ Assert( iIndex >= 0 && iIndex < 2); return m_iInventoryImagePosition[iIndex]; }
 	int			GetInventoryImageSize( int iIndex ) const	{ Assert( iIndex >= 0 && iIndex < 2); return m_iInventoryImageSize[iIndex]; }
 	int			GetDropType( void ) const			{ return m_iDropType; }
-	const char	*GetHolidayRestriction( void ) const	{ return m_pszHolidayRestriction; }
 	int			GetVisionFilterFlags( void ) const	{ return m_nVisionFilterFlags; }
 	int			GetSubType( void ) const	{ return m_iSubType; }
 	item_capabilities_t GetCapabilities( void ) const { return m_iCapabilities; }
-	int			GetArmoryRemap( void ) const		{ return m_iArmoryRemap; }
-	int			GetStoreRemap( void ) const			{ return m_iStoreRemap; }
-	item_definition_index_t GetSetItemRemap() const { return m_unSetItemRemapDefIndex; }		// what def index do we consider ourself for purposes of determining "is an item equipped that satisfies this set slot?" (ie., Festive Huntsman -> Huntsman); default is to point to itself
-	const char *GetXifierRemapClass() const			{ return m_pszXifierRemapClass; }
 	const char	*GetBaseFunctionalItemName() const	{ return m_pszBaseFunctionalItemName; }
 	const char *GetParticleSuffix() const			{ return m_pszParticleSuffix; }
 
-	const CEconItemSetDefinition *GetItemSetDefinition( void ) const { return m_pItemSetDef; }
-	void		SetItemSetDefinition( const CEconItemSetDefinition *pItemSetDef ) { Assert( !m_pItemSetDef ); m_pItemSetDef = pItemSetDef; }
-
-	const CEconItemCollectionDefinition *GetItemCollectionDefinition( void ) const { return m_pItemCollectionDef; }
-	void  SetItemCollectionDefinition( const CEconItemCollectionDefinition *pItemCollectionDef ) { Assert( !m_pItemCollectionDef ); m_pItemCollectionDef = pItemCollectionDef; }
-
 	perteamvisuals_t	*GetPerTeamVisual( int iTeam ) const	{ return m_PerTeamVisuals[iTeam]; }
-
-	bool IsTool() const									{ return m_bIsTool; }
-	const IEconTool	*GetEconTool() const				{ return m_pTool; }
-	template < class T >
-	const T *GetTypedEconTool() const					{ return dynamic_cast<const T *>( GetEconTool() ); }
-
-	const bundleinfo_t *GetBundleInfo( void ) const { return m_BundleInfo; }
-	virtual int GetBundleItemCount( void ) const { return m_BundleInfo ? m_BundleInfo->vecItemDefs.Count() : 0; }
-	virtual int GetBundleItem( int iIndex ) const { return m_BundleInfo ? m_BundleInfo->vecItemDefs[iIndex]->GetDefinitionIndex() : -1; }
-
-	// Is this item contained in any bundles? GetContainingBundles() gets the CEconItemDefinitions for those bundles.
-	const CUtlVector< const CEconItemDefinition * > &GetContainingBundles() const { return m_vecContainingBundleItemDefs; }
-	uint32 GetContainingBundleCount() const { return m_vecContainingBundleItemDefs.Count(); }
 
 	void AddSteamWorkshopContributor( uint32 unAccountID ) { if ( m_vecSteamWorkshopContributors.InvalidIndex() == m_vecSteamWorkshopContributors.Find( unAccountID ) ) { m_vecSteamWorkshopContributors.AddToTail( unAccountID ); } }
 	const CUtlVector< uint32 > &GetSteamWorkshopContributors() const { return m_vecSteamWorkshopContributors; }
@@ -1340,7 +775,6 @@ public:
 	const char	*GetBasePlayerDisplayModel() const				{ return m_pszBaseDisplayModel; }
 	int			GetDefaultSkin() const							{ return m_iDefaultSkin; }
 	const char  *GetWorldDisplayModel() const					{ return m_pszWorldDisplayModel; }
-	const char  *GetCollectionReference() const					{ return m_pszCollectionReference; }
 
 	// Some weapons need a custom model for icon generation. If this value is not present, the world model is used.
 	virtual const char  *GetIconDisplayModel()	const;
@@ -1349,19 +783,10 @@ public:
 	const char	*GetExtraWearableViewModel( void ) const		{ return m_pszWorldExtraWearableViewModel; }
 	const char  *GetVisionFilteredDisplayModel() const			{ return m_pszVisionFilteredDisplayModel; }
 	const char	*GetItemDesc( void ) const						{ return m_pszItemDesc; }
-	const char	*GetArmoryDescString( void ) const				{ return m_pszArmoryDesc; }
-	RTime32		GetExpirationDate( void ) const					{ return m_rtExpiration; }
-	bool		ShouldShowInArmory( void ) const				{ return m_bShouldShowInArmory; }
 	bool		IsActingAsAWearable( void ) const				{ return m_bActAsWearable; }
 	bool		IsActingAsAWeapon( void ) const					{ return m_bActAsWeapon; }
 	bool		GetHideBodyGroupsDeployedOnly( void ) const		{ return m_bHideBodyGroupsDeployedOnly; }
-	bool		IsPackBundle( void ) const						{ return m_bIsPackBundle; }
-	bool		IsPackItem( void ) const						{ return m_bIsPackItem; }
-	CEconItemDefinition	*GetOwningPackBundle()					{ return m_pOwningPackBundle; }
-	const CEconItemDefinition	*GetOwningPackBundle() const	{ return m_pOwningPackBundle; }
 	const char	*GetDatabaseAuditTableName( void ) const		{ return m_pszDatabaseAuditTable; }
-
-	void SetIsPackItem( bool bIsPackItem ) { m_bIsPackItem = bIsPackItem; }
 
 	equip_region_mask_t GetEquipRegionMask( void ) const { return m_unEquipRegionMask; }
 	equip_region_mask_t GetEquipRegionConflictMask( void ) const { return m_unEquipRegionConflictMask; }
@@ -1369,11 +794,6 @@ public:
 	// Dynamic modification during gameplay
 	void		SetAllowedInMatch( bool bAllowed )	{ m_bAllowedInThisMatch = bAllowed; }
 	void		SetHasBeenLoaded( bool bLoaded )	{ m_bHasBeenLoaded = bLoaded; }
-
-	// Generate and return a random level according to whatever leveling curve this definition uses.
-	uint32		RollItemLevel( void ) const;
-
-	const char *GetFirstSaleDate( void ) const;
 
 	void		IterateAttributes( class IEconItemAttributeIterator *pIterator ) const;
 
@@ -1438,12 +858,6 @@ public:
 
 	bool					HasEconTag( econ_tag_handle_t tag ) const { return m_vecTags.IsValidIndex( m_vecTags.Find( tag ) ); }
 
-	bool					BValidForShuffle( void ) const { return m_bValidForShuffle; }
-	bool					BValidForSelfMade( void ) const { return m_bValidForSelfMade; }
-
-	const CUtlVector<CLootlistJob*>& GetLootlistJobs() const { return m_jobs; }
-
-
 #if defined(CLIENT_DLL) || defined(GAME_DLL)
 	int						GetStyleSkin( style_index_t unStyle, int iTeam, bool bViewmodel ) const;
 	const char*				GetStyleInventoryImage( style_index_t unStyle ) const;
@@ -1476,21 +890,6 @@ private:
 	// False if this definition has been turned off and we're not using it to generate items
 	bool		m_bEnabled;
 
-	// These values specify the range of item levels that an item based off this definition can be generated within.
-	uint8		m_unMinItemLevel;
-	uint8		m_unMaxItemLevel;
-
-	// This specifies an item quality that items from this definition must be set to. Used mostly to specify unique item definitions.
-	uint8		m_nItemQuality;
-	uint8		m_nForcedItemQuality;
-	uint8		m_nItemRarity;
-
-	// Default drop quantity
-	uint16		m_nDefaultDropQuantity;
-
-	// Item Series
-	uint8		m_unItemSeries;
-
 	// Static attributes (ones that are always on these items)
 	CUtlVector<static_attrib_t> m_vecStaticAttributes;
 
@@ -1511,9 +910,6 @@ private:
 
 	// The item's non-attribute description.
 	const char		*m_pszItemDesc;
-
-	// expiration time
-	RTime32			m_rtExpiration;
 
 	// The .mdl file used for this item when it's displayed in inventory-style boxes.
 	const char		*m_pszInventoryModel;
@@ -1541,8 +937,6 @@ private:
 	const char		*m_pszWorldExtraWearableViewModel;	// Some weapons attach an extra wearable view model item to the player
 	const char		*m_pszVisionFilteredDisplayModel;	// Some weapons display differently depending on the viewer's filters
 
-	const char		*m_pszCollectionReference;			// Reference a colletion
-
 	// If set, we use the base hands model for a viewmodel, and bonemerge the above player model
 	bool			m_bAttachToHands;
 	bool			m_bAttachToHandsVMOnly;
@@ -1556,26 +950,13 @@ private:
 	// This is a weapon that sits in a wearable slot (Action)
 	bool			m_bActAsWeapon;
 
-	// Is this Item a tool
-	bool			m_bIsTool;
-
-	// The set this item is a member of
-	const CEconItemSetDefinition *m_pItemSetDef;
-	const CEconItemCollectionDefinition *m_pItemCollectionDef;
-
 	// A list of per-team visual data used to modify base model for visual recognition
 	perteamvisuals_t	*m_PerTeamVisuals[TEAM_VISUAL_SECTIONS];
 
 	// Optional override for specifying a custom shell ejection model
 	const char		*m_pszBrassModelOverride;
 
-	IEconTool		*m_pTool;
-	bundleinfo_t	*m_BundleInfo;
 	item_capabilities_t m_iCapabilities;
-
-#ifdef TF_CLIENT_DLL
-	uint32			m_unNumConcreteItems;		// This is the number of items that will actually end up in a user's inventory - this can be 0 for some items (e.g. map stamps in TF), 1 for a "regular" item, or many for bundles, etc.
-#endif // TF_CLIENT_DLL
 
 	CUtlDict< CUtlString >*	m_pDictIcons;
 
@@ -1598,23 +979,8 @@ private:
 	const char		*m_pszDatabaseAuditTable;
 
 	bool			m_bHidden;
-	bool			m_bShouldShowInArmory;
 	bool			m_bBaseItem;
 	bool			m_bImported;
-
-	// A pack bundle is a bundle that contains items that are not for sale individually
-	bool			m_bIsPackBundle;
-	
-	// A pack item is an item which is not for sale individually and is only for sale as part of a pack bundle. A 'regular' bundle can only include a pack bundle by explicitly including all of the pack bundle's items individually.
-	// If this pointer is non-NULL, this item is considered to be a pack item (see CEconItemDefinition::IsPackItem()).
-	CEconItemDefinition	*m_pOwningPackBundle;
-	bool				m_bIsPackItem;
-
-	// Contains information on how to describe items with this attribute in the Armory
-	const char		*m_pszArmoryDesc;
-
-	// Temporary(?) solution to allow xifiers to work on botkiller and festive variants of weapons
-	const char		*m_pszXifierRemapClass;
 
 	// Base item name -- used for grouping weapon functionality
 	const char		*m_pszBaseFunctionalItemName;
@@ -1623,27 +989,10 @@ private:
 	const char		*m_pszParticleSuffix;
 
 	// ---------------------------------------------
-	// Remapping data for armory/store
-	// ---------------------------------------------
-	int				m_iArmoryRemap;
-	int				m_iStoreRemap;
-	const char		*m_pszArmoryRemap;
-	const char		*m_pszStoreRemap;
-
-	// ---------------------------------------------
-	// Crafting related data
-	// ---------------------------------------------
-	const char		*m_pszClassToken;
-	const char		*m_pszSlotToken;
-
-	// ---------------------------------------------
 	// Gameplay related data
 	// ---------------------------------------------
 	// How to behave when the player wearing the item dies.
 	int				m_iDropType;
-
-	// Holiday restriction. Item only has an appearance when the holiday is in effect.
-	const char		*m_pszHolidayRestriction;
 
 	// Meet the pyro makes some items invisible unless you're wearing Pyro Goggles
 	int				m_nVisionFilterFlags;
@@ -1657,21 +1006,9 @@ private:
 	equip_region_mask_t	m_unEquipRegionMask;			// which equip regions does this item cover directly
 	equip_region_mask_t m_unEquipRegionConflictMask;	// which equip regions does equipping this item prevent from having something in them
 
-	item_definition_index_t m_unSetItemRemapDefIndex;	// reference to the definition index we want to consider this item for set matching purposes; see GetSetItemRemap()
-
-
-	CUtlVector<CLootlistJob*>						m_jobs;
-
-	// False if this definition is not allowed to be part of a shuffled crate's contents
-	bool		m_bValidForShuffle;
-
-	// False if this definition should not grant self-made items
-	bool		m_bValidForSelfMade;
-
 protected:
 	// Protected to allow subclasses to add/remove game-specific tags.
 	CUtlVector<econ_tag_handle_t>	m_vecTags;
-	CUtlVector<const CEconItemDefinition *> m_vecContainingBundleItemDefs;	// Item definition indices for any bundles which contain this item
 	CUtlVector<uint32> m_vecSteamWorkshopContributors;
 
 	friend class CEconItemSchema;
@@ -2253,119 +1590,6 @@ inline int CEconItemDefinition::GetBestVisualTeamData( int iTeam ) const
 }
 #endif // defined(CLIENT_DLL) || defined(GAME_DLL)
 
-//-----------------------------------------------------------------------------
-// CTimedItemRewardDefinition
-// Describes a periodic item reward
-//-----------------------------------------------------------------------------
-class CTimedItemRewardDefinition
-{
-public:
-	CTimedItemRewardDefinition( void );
-	CTimedItemRewardDefinition( const CTimedItemRewardDefinition &that );
-	CTimedItemRewardDefinition &operator=( const CTimedItemRewardDefinition& rhs );
-
-	~CTimedItemRewardDefinition( void ) { }
-
-	bool		BInitFromKV( KeyValues *pKVTimedReward, CUtlVector<CUtlString> *pVecErrors = NULL );
-
-	uint32		GetRandomFrequency( void ) const	{ return RandomFloat( m_unMinFreq, m_unMaxFreq ); }
-	uint32		GetMinFrequency( void ) const		{ return m_unMinFreq; }
-	uint32		GetMaxFrequency( void ) const		{ return m_unMaxFreq; }
-	float		GetChance( void ) const				{ return m_flChance; }
-	const CItemSelectionCriteria &GetCriteria( void ) const		{ return m_criteria; }
-	const CEconLootListDefinition *GetLootList( void ) const	{ return m_pLootList; }
-
-	bool BHasRequiredItem() const { return m_iRequiredItemDef != INVALID_ITEM_DEF_INDEX; }
-	item_definition_index_t GetRequiredItem() const { return m_iRequiredItemDef; }
-
-#ifdef DBGFLAG_VALIDATE
-	void Validate( CValidator &validator, const char *pchName )
-	{
-		VALIDATE_SCOPE();
-		ValidateObj( m_criteria );
-	}
-#endif // DBGFLAG_VALIDATE
-
-private:
-	// Frequency of how often the item is awarded
-	uint32		m_unMinFreq;
-	uint32		m_unMaxFreq;
-
-	// The chance, between 0 and 1, that the item is rewarded
-	float		m_flChance;
-
-	// The criteria to use to select the item to reward
-	CItemSelectionCriteria m_criteria;
-	// Alternatively, the loot_list to use instead
-	const CEconLootListDefinition *m_pLootList;
-
-	item_definition_index_t m_iRequiredItemDef;
-};
-
-
-//-----------------------------------------------------------------------------
-// CItemLevelingDefinition
-//-----------------------------------------------------------------------------
-class CItemLevelingDefinition
-{
-public:
-	CItemLevelingDefinition( void );
-	CItemLevelingDefinition( const CItemLevelingDefinition &that );
-	CItemLevelingDefinition &operator=( const CItemLevelingDefinition& rhs );
-
-	~CItemLevelingDefinition( void );
-
-	bool		BInitFromKV( KeyValues *pKVItemLevel, const char *pszLevelBlockName, CUtlVector<CUtlString> *pVecErrors = NULL );
-
-	uint32		GetLevel( void ) const { return m_unLevel; }
-	uint32		GetRequiredScore( void ) const { return m_unRequiredScore; }
-	const char *GetNameLocalizationKey( void ) const { return m_pszLocalizedName_LocalStorage; }
-
-private:
-	uint32		m_unLevel;
-	uint32		m_unRequiredScore;
-	char	   *m_pszLocalizedName_LocalStorage;
-};
-
-//-----------------------------------------------------------------------------
-// AchievementAward_t
-// Holds the item to give away and the Data value to audit it with ( for cross
-// game achievements)
-//-----------------------------------------------------------------------------
-struct AchievementAward_t
-{
-	AchievementAward_t( const AchievementAward_t & rhs )
-		: m_sNativeName( rhs.m_sNativeName ),
-		m_unSourceAppId( rhs.m_unSourceAppId ),
-		m_unAuditData( rhs.m_unAuditData )
-	{
-		m_vecDefIndex.CopyArray( rhs.m_vecDefIndex.Base(), rhs.m_vecDefIndex.Count() );
-	}
-	AchievementAward_t(  ) {}
-
-	CUtlString m_sNativeName;
-	AppId_t m_unSourceAppId;
-	uint32 m_unAuditData;
-	CUtlVector<uint16> m_vecDefIndex;
-};
-
-enum eTimedRewardType
-{
-	kTimedRewards_RegularDrop,
-	kTimedRewards_SupplyCrate,
-	kTimedRewards_FreeTrialDrop,
-	kTimedRewards_RecipeDrop,
-	kTimedRewards_EventDrop02,
-	kNumTimedRewards
-};
-
-struct kill_eater_score_type_t
-{
-	const char *m_pszTypeString;
-	const char *m_pszLevelBlockName;
-	bool		m_bAllowBotVictims;			// if true, we don't check for a valid Steam ID on the client before sending or a valid session on the GC before incrementing
-};
-
 // Index-to-string table, currently used for attribute value string lookups.
 struct schema_string_table_entry_t
 {
@@ -2507,9 +1731,6 @@ public:
 // CEconItemSchema
 // Defines the way econ items can be used in a game
 //-----------------------------------------------------------------------------
-typedef CUtlDict<CUtlConstString, int> ArmoryStringDict_t;
-typedef CUtlDict< CUtlVector<CItemLevelingDefinition> * > LevelBlockDict_t;
-typedef CUtlMap<unsigned int, kill_eater_score_type_t>	KillEaterScoreMap_t;
 typedef CUtlDict< CUtlVector< schema_string_table_entry_t > * >	SchemaStringTableDict_t;
 
 struct attr_type_t
@@ -2594,9 +1815,6 @@ public:
 	uint32				GetNumAllowedItemPresets() const					{ return kMaxItemPresetCount; }
 	bool				IsValidPreset( equipped_preset_t unPreset ) const	{ return unPreset <= GetNumAllowedItemPresets(); }
 
-	uint32				GetMinLevel() const									{ return m_unMinLevel; }
-	uint32				GetMaxLevel() const									{ return m_unMaxLevel; }
-
 	// Accessors to the underlying sections
 	typedef CUtlHashMapLarge<int, CEconItemDefinition*>	ItemDefinitionMap_t;
 	const ItemDefinitionMap_t &GetItemDefinitionMap() const { return m_mapItems; }
@@ -2604,17 +1822,8 @@ public:
 	typedef CUtlMap<int, CEconItemDefinition*, int>	SortedItemDefinitionMap_t;
 	const SortedItemDefinitionMap_t &GetSortedItemDefinitionMap() const { return m_mapItemsSorted; }
 
-	typedef CUtlMap<int, CEconItemDefinition*, int>	ToolsItemDefinitionMap_t;
-	const ToolsItemDefinitionMap_t &GetToolsItemDefinitionMap() const { return m_mapToolsItems; }
-
 	typedef CUtlMap<int, CEconItemDefinition*, int>	BaseItemDefinitionMap_t;
 	const BaseItemDefinitionMap_t &GetBaseItemDefinitionMap() const { return m_mapBaseItems; }
-
-	typedef CUtlDict<CEconLootListDefinition *>	LootListDefinitionMap_t;
-	const LootListDefinitionMap_t &GetLootLists() const { return m_dictLootLists; }
-
-	typedef CUtlMap<int, CUtlString> RevolvingLootListDefinitionMap_t;
-	const RevolvingLootListDefinitionMap_t  &GetRevolvingLootLists() const { return m_mapRevolvingLootLists; }
 
 	typedef CUtlDict<int> BodygroupStateMap_t;
 	const BodygroupStateMap_t  &GetDefaultBodygroupStateMap() const { return m_dictDefaultBodygroupState; }
@@ -2630,40 +1839,7 @@ public:
 	bool SetupPreviewItemDefinition( KeyValues *pKV );
 #endif
 
-	const CUtlMap<int, CEconItemQualityDefinition, int > &GetQualityDefinitionMap() const { return m_mapQualities; }
 	const CUtlMap<int, CEconItemAttributeDefinition, int > &GetAttributeDefinitionMap() const { return m_mapAttributes; }
-
-	typedef CUtlMap<int, CEconCraftingRecipeDefinition*, int > RecipeDefinitionMap_t;
-	const RecipeDefinitionMap_t &GetRecipeDefinitionMap() const { return m_mapRecipes; }
-
-	typedef CUtlDict<CEconItemSetDefinition*> ItemSetMap_t;
-	const ItemSetMap_t &GetItemSets() const { return m_dictItemSets; }
-
-	typedef CUtlDict<CEconItemCollectionDefinition*> ItemCollectionMap_t;
-	const ItemCollectionMap_t &GetItemCollections() const { return m_dictItemCollections; }
-
-	typedef CUtlDict<CEconOperationDefinition*> OperationDefinitionMap_t;
-	const OperationDefinitionMap_t &GetOperationDefinitions() const { return m_dictOperationDefinitions; }
-	const CEconOperationDefinition* GetOperationByName( const char* pszName ) const;
-
-	typedef CUtlMap< uint32, const CEconItemDefinition* > PaintKitItemDefinitionMap_t;
-	const CEconItemDefinition *GetPaintKitItemDefinition( uint32 unPaintKitDefIndex ) const;
-	const CEconItemCollectionDefinition *GetPaintKitCollectionFromItem( const IEconItemInterface *pItem, uint32 *pUnPaintKitDefIndex = NULL ) const;
-	
-
-#if defined(CLIENT_DLL) || defined(GAME_DLL)
-	const ArmoryStringDict_t	&GetArmoryDataItemClasses() const { return m_dictArmoryItemClassesDataStrings; }
-	const ArmoryStringDict_t	&GetArmoryDataItemTypes() const { return m_dictArmoryItemTypesDataStrings; }
-	const ArmoryStringDict_t	&GetArmoryDataItems() const { return m_dictArmoryItemDataStrings; }
-	const ArmoryStringDict_t	&GetArmoryDataAttributes() const { return m_dictArmoryAttributeDataStrings; }
-#endif
-
-	const CTimedItemRewardDefinition* GetTimedReward( eTimedRewardType type ) const;
-
-	const CEconLootListDefinition* GetLootListByName( const char* pListName, int *out_piIndex = NULL ) const;
-	const CEconLootListDefinition* GetLootListByIndex( int iIdx ) const { return m_dictLootLists.IsValidIndex(iIdx) ? m_dictLootLists[iIdx] : NULL; }
-
-	uint8 GetDefaultQuality() const { return AE_UNIQUE; }
 
 	void AssignDefaultBodygroupState( const char *pszBodygroupName, int iValue );
 
@@ -2693,52 +1869,22 @@ private:
 	int GetEquipRegionIndexByName( const char *pRegionName ) const;
 
 public:
-	// Common lookup methods
-	bool BGetItemQualityFromName( const char *pchName, uint8 *nQuality ) const;
-	const CEconItemQualityDefinition *GetQualityDefinition( int nQuality ) const;
-	const CEconItemQualityDefinition *GetQualityDefinitionByName( const char *pszDefName ) const;
-
-	bool BGetItemRarityFromName( const char* pchName, uint8 *nRarity ) const;
-	const CEconItemRarityDefinition *GetRarityDefinitionByMapIndex( int nRarityIndex ) const;
-	const CEconItemRarityDefinition *GetRarityDefinition( int nRarity ) const;
-	const CEconItemRarityDefinition *GetRarityDefinitionByName( const char *pszDefName ) const;
-	virtual int GetRarityDefinitionCount( void ) const { return m_mapRarities.Count(); }
-	virtual const char* GetRarityName( uint8 iRarity );
-	virtual const char* GetRarityLocKey( uint8 iRarity );
-	virtual const char* GetRarityColor( uint8 iRarity );
-	virtual int GetRarityIndex( const char* pszRarity );
-
-	const CEconItemCollectionDefinition *GetCollectionByName( const char* pCollectionName );
-
-	virtual int GetItemSeriesDefinitionCount( void ) const { return m_mapItemSeries.Count(); }
-	bool BGetItemSeries( const char* pchName, uint8 *nItemSeries ) const;
-	const CEconItemSeriesDefinition *GetItemSeriesDefinition( int nRarity ) const;
-
 	CEconItemDefinition *GetItemDefinition( int iItemIndex );
 	const CEconItemDefinition *GetItemDefinition( int iItemIndex ) const;
 	CEconItemAttributeDefinition *GetAttributeDefinition( int iAttribIndex );
 	const CEconItemAttributeDefinition *GetAttributeDefinition( int iAttribIndex ) const;
 	CEconItemAttributeDefinition *GetAttributeDefinitionByName( const char *pszDefName );
 	const CEconItemAttributeDefinition *GetAttributeDefinitionByName( const char *pszDefName ) const;
-	CEconCraftingRecipeDefinition *GetRecipeDefinition( int iRecipeIndex );
 	CEconColorDefinition *GetColorDefinitionByName( const char *pszDefName );
 	const CEconColorDefinition *GetColorDefinitionByName( const char *pszDefName ) const;
-#ifdef CLIENT_DLL
-	const char *GetSteamPackageLocalizationToken( uint32 unPackageId ) const;
-#endif // CLIENT_DLL
 	
 	bool BCanGSCreateItems( uint32 unIP ) const;
-	const AchievementAward_t *GetAchievementRewardByDefIndex( uint16 usDefIndex ) const;
-	bool BHasAchievementRewards( void ) const { return (m_dictAchievementRewards.Count() > 0); }
 
 	static CUtlString ComputeAchievementName( AppId_t unAppID, const char *pchNativeAchievementName );
 
 	// Iterating over the item definitions. Game needs this to precache data.
 	CEconItemDefinition *GetItemDefinitionByName( const char *pszDefName );
 	const CEconItemDefinition *GetItemDefinitionByName( const char *pszDefName ) const;
-
-	random_attrib_t *GetRandomAttributeTemplateByName( const char *pszAttrTemplateName ) const;
-	CLootlistJob *GetLootlistJobTemplateByName( const char *pszLootlistJobTemplateName ) const;
 
 	attachedparticlesystem_t* GetAttributeControlledParticleSystem( int id );
 	attachedparticlesystem_t* FindAttributeControlledParticleSystem( const char *pchSystemName );
@@ -2754,26 +1900,8 @@ public:
 #endif // CLIENT_DLL
 
 
-	item_definition_index_t GetCommunityMarketRemappedDefinitionIndex( item_definition_index_t unSearchItemDef ) const;
-
 	const CUtlVector<attr_type_t>& GetAttributeTypes() const { return m_vecAttributeTypes; }
 	const ISchemaAttributeType *GetAttributeType( const char *pszAttrTypeName ) const;
-
-	const LevelBlockDict_t&	GetItemLevelingDataDict() const { return m_vecItemLevelingData; }
-
-	const CUtlVector<CItemLevelingDefinition> *GetItemLevelingData( const char *pszLevelBlockName ) const
-	{
-		LevelBlockDict_t::IndexType_t i = m_vecItemLevelingData.Find( pszLevelBlockName );
-		if ( i == LevelBlockDict_t::InvalidIndex() )
-			return NULL;
-
-		return m_vecItemLevelingData[i];
-	}
-
-	const CItemLevelingDefinition *GetItemLevelForScore( const char *pszLevelBlockName, uint32 unScore ) const;
-	const char *GetKillEaterScoreTypeLocString( uint32 unScoreType ) const;
-	const char *GetKillEaterScoreTypeLevelingDataName( uint32 unScoreType ) const;
-	bool GetKillEaterScoreTypeAllowsBotVictims( uint32 unScoreType ) const;
 
 #if defined(CLIENT_DLL) || defined(GAME_DLL)
 	void		ItemTesting_CreateTestDefinition( int iCloneFromItemDef, int iNewDef, KeyValues *pNewKV );
@@ -2793,81 +1921,37 @@ public:
 public:
 	// Subclass interface.
 	virtual CEconItemDefinition				*CreateEconItemDefinition()			{ return new CEconItemDefinition; }
-	virtual CEconCraftingRecipeDefinition	*CreateCraftingRecipeDefinition()	{ return new CEconCraftingRecipeDefinition; }
 	virtual CEconStyleInfo					*CreateEconStyleInfo()				{ return new CEconStyleInfo; }
-	virtual CQuestObjectiveDefinition		*CreateQuestDefinition();
 
-	virtual IEconTool						*CreateEconToolImpl( const char *pszToolType, const char *pszUseString, const char *pszUsageRestriction, item_capabilities_t unCapabilities, KeyValues *pUsageKV );
-
-	virtual CItemSelectionCriteria			*CreateItemCriteria( const char *pszContext, KeyValues *pItemCriteriaKV, CUtlVector<CUtlString> *pVecErrors = NULL );
-	virtual random_attrib_t					*CreateRandomAttribute( const char *pszContext, KeyValues *pRandomAttributesKV, CUtlVector<CUtlString> *pVecErrors = NULL );
-	virtual CLootlistJob					*CreateLootlistJob( const char *pszContext, KeyValues *pLootlistJobKV, CUtlVector<CUtlString> *pVecErrors = NULL );
-
-	virtual bool							BCanStrangeFilterApplyToStrangeSlotInItem( uint32 /*strange_event_restriction_t*/ unRestrictionType, uint32 unRestrictionValue, const IEconItemInterface *pItem, int iStrangeSlot, uint32 *out_pOptionalScoreType ) const;
-
-	bool BInsertLootlist( const char *pListName, KeyValues *pKVLootList, CUtlVector<CUtlString> *pVecErrors );
-
+	virtual CItemSelectionCriteria			*CreateItemCriteria( const char *pszContext, KeyValues *pItemCriteriaKV, CUtlVector<CUtlString> *pVecErrors = NULL );	
 protected:
 	virtual void Reset( void );
 
 	virtual bool BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlString> *pVecErrors = NULL );
 	virtual bool BPostSchemaInit( CUtlVector<CUtlString> *pVecErrors );
-#ifdef TF_CLIENT_DLL
-	virtual int CalculateNumberOfConcreteItems( const CEconItemDefinition *pItemDef );	// Let derived classes handle custom item types
-#endif // TF_CLIENT_DLL
 
 private:
 	bool BInitGameInfo( KeyValues *pKVGameInfo, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitAttributeTypes( CUtlVector<CUtlString> *pVecErrors );
 	bool BInitDefinitionPrefabs( KeyValues *pKVPrefabs, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitItemSeries( KeyValues *pKVSeries, CUtlVector<CUtlString> *pVecErrors );
 	bool BVerifyBaseItemNames( CUtlVector<CUtlString> *pVecErrors );
-	bool BInitRarities( KeyValues *pKVRarities, KeyValues *pKVRarityWeights, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitQualities( KeyValues *pKVAttributes, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitColors( KeyValues *pKVColors, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitAttributes( KeyValues *pKVAttributes, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitEquipRegions( KeyValues *pKVEquipRegions, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitEquipRegionConflicts( KeyValues *pKVEquipRegions, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitItems( KeyValues *pKVAttributes, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitItemSets( KeyValues *pKVItemSets, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitTimedRewards( KeyValues *pKVTimeRewards, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitAchievementRewards( KeyValues *pKVTimeRewards, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitItemCriteriaTemplates( KeyValues *pKVItemCriteriaTemplates, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitRandomAttributeTemplates( KeyValues *pKVRandomAttributeTemplates, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitLootlistJobTemplates( KeyValues *pKVLootlistJobTemplates, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitRecipes( KeyValues *pKVRecipes, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitLootLists( KeyValues *pKVLootLists, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitRevolvingLootLists( KeyValues *pKVRevolvingLootLists, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitItemCollections( KeyValues *pKVItemSets, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitCollectionReferences( CUtlVector<CUtlString> *pVecErrors );
-	bool BInitOperationDefinitions( KeyValues *pKVGameInfo, KeyValues *pOperations, CUtlVector<CUtlString> *pVecErrors );
 
-#ifdef TF_CLIENT_DLL
-	bool BInitConcreteItemCounts( CUtlVector<CUtlString> *pVecErrors );
-	bool BInitSteamPackageLocalizationToken( KeyValues *pKVSteamPackages, CUtlVector<CUtlString> *pVecErrors );
-#endif // TF_CLIENT_DLL
-	bool BInitItemLevels( KeyValues *pKVItemLevels, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitKillEaterScoreTypes( KeyValues *pKVItemLevels, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitStringTables( KeyValues *pKVStringTables, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitCommunityMarketRemaps( KeyValues *pKVCommunityMarketRemaps, CUtlVector<CUtlString> *pVecErrors );
 
 	bool BInitAttributeControlledParticleSystems( KeyValues *pKVParticleSystems, CUtlVector<CUtlString> *pVecErrors );
 
 #if defined(CLIENT_DLL) || defined(GAME_DLL)
-	bool BInitArmoryData( KeyValues *pKVArmoryData, CUtlVector<CUtlString> *pVecErrors );
 #else
 	bool BInitExperiements( KeyValues *pKVExperiments, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitForeignImports( CUtlVector<CUtlString> *pVecErrors );
 
 	CForeignAppImports *FindOrAddAppImports( AppId_t unAppID );
 #endif
-
-	bool BVerifyLootListItemDropDates( const CEconLootListDefinition* pLootList, CUtlVector<CUtlString> *pVecErrors ) const;
-	bool BRecurseiveVerifyLootListItemDropDates(  const CEconLootListDefinition* pLootList, const CEconLootListDefinition* pRootLootList, CUtlVector<CUtlString> *pVecErrors ) const;
-
-	// Note: this returns pointers to the inside of a vector and/or NULL. Pointers are not intended to be
-	// saved off and used later.
-	const kill_eater_score_type_t *FindKillEaterScoreType( uint32 unScoreType ) const;
 
 	uint32			m_unResetCount;
 
@@ -2889,38 +1973,17 @@ private:
 	// Number of allowed presets
 	uint32			m_unNumItemPresets;
 
-	// Allowable range of item levels for this app
-	uint32			m_unMinLevel;
-	uint32			m_unMaxLevel;
-
 	// Total value of all the weights of the qualities
 	uint32			m_unSumQualityWeights;
 
 	// Name-to-implementation list of all unique attribute types (ie., "wide strange score").
 	CUtlVector<attr_type_t>								m_vecAttributeTypes;
 
-	// Contains the list of rarity definitions
-	CUtlMap<int, CEconItemSeriesDefinition, int >		m_mapItemSeries;
-
-	// Contains the list of rarity definitions
-	CUtlMap<int, CEconItemRarityDefinition, int >		m_mapRarities;
-
-	// Contains the list of item definitions read in from all data files.
-	CUtlMap<int, CEconItemQualityDefinition, int >		m_mapQualities;
-
 	// Contains the list of item definitions read in from all data files.
 	ItemDefinitionMap_t									m_mapItems;
 
-	CUtlMap<int, CQuestObjectiveDefinition*, int >		m_mapQuestObjectives;
-
 	// A sorted version of the same map, for instances where we really want sorted data
 	SortedItemDefinitionMap_t							m_mapItemsSorted;
-
-	// List of all the tool items, is a sublist of mapItems
-	ToolsItemDefinitionMap_t							m_mapToolsItems;
-
-	// List of all paintkit tool item definitions
-	PaintKitItemDefinitionMap_t							m_mapPaintKitTools;
 
 	// List of all base items, is a sublist of mapItems
 	BaseItemDefinitionMap_t								m_mapBaseItems;
@@ -2932,36 +1995,6 @@ private:
 
 	// Contains the list of attribute definitions read in from all data files.
 	CUtlMap<int, CEconItemAttributeDefinition, int >	m_mapAttributes;
-
-	// Contains the list of item recipes read in from all data files.
-	RecipeDefinitionMap_t								m_mapRecipes;
-
-	// Contains the list of item sets.
-	ItemSetMap_t										m_dictItemSets;
-	ItemCollectionMap_t									m_dictItemCollections;
-
-	OperationDefinitionMap_t							m_dictOperationDefinitions;
-
-	// Revolving loot lists.
-	CUtlMap<int, CUtlString>							m_mapRevolvingLootLists;
-
-	// Contains the list of loot lists.
-	LootListDefinitionMap_t								m_dictLootLists;
-
-	// List of events that award items based on time played
-	CUtlVector<CTimedItemRewardDefinition>				m_vecTimedRewards;
-
-	// list of items that will be awarded from achievements
-	CUtlDict< AchievementAward_t *, int >				m_dictAchievementRewards;
-	CUtlMap< uint32, AchievementAward_t * >				m_mapAchievementRewardsByData;
-
-	CUtlDict< CItemSelectionCriteria* >					m_dictItemCriteriaTemplates;
-
-	// list of random attribute templates
-	CUtlDict< random_attrib_t * >						m_dictRandomAttributeTemplates;
-
-	// list of lootlist job templates
-	CUtlDict< CLootlistJob * >							m_dictLootlistJobTemplates;
 
 	// Contains information for attribute attached particle systems
 	CUtlMap<int, attachedparticlesystem_t >				m_mapAttributeControlledParticleSystems;
@@ -2988,30 +2021,9 @@ private:
 	// Various definitions can have any number of unique tags associated with them.
 	EconTagDict_t										m_dictTags;
 
-
-	// List of item leveling data.
-	KillEaterScoreMap_t									m_mapKillEaterScoreTypes;
-
 	SchemaStringTableDict_t m_dictStringTable;
 
-	typedef CUtlMap< item_definition_index_t, item_definition_index_t, item_definition_index_t > CommunityMarketDefinitionRemapMap_t;
-	CommunityMarketDefinitionRemapMap_t					m_mapCommunityMarketDefinitionIndexRemap;
-
-#ifdef CLIENT_DLL
-	// Steam-package-ID-to-localization-token map, used for modifying tooltips in the store.
-	typedef CUtlMap< uint32, const char * > SteamPackageLocalizationTokenMap_t;
-	SteamPackageLocalizationTokenMap_t					m_mapSteamPackageLocalizationTokens;
-#endif // CLIENT_DLL
-
-	LevelBlockDict_t m_vecItemLevelingData;
-
 #if defined(CLIENT_DLL) || defined(GAME_DLL)
-	// Contains Armory data key->localization string mappings
-	ArmoryStringDict_t m_dictArmoryItemTypesDataStrings;
-	ArmoryStringDict_t m_dictArmoryItemClassesDataStrings;
-	ArmoryStringDict_t m_dictArmoryAttributeDataStrings;
-	ArmoryStringDict_t m_dictArmoryItemDataStrings;
-
 	// Used for delaying the parsing of the item schema until its safe to swap out the back end data.
 	IDelayedSchemaData *m_pDelayedSchemaData;
 #endif
@@ -3099,12 +2111,6 @@ inline const CEconItemDefinition *CSchemaFieldHandle<CEconItemDefinition>::GetTy
 }
 
 template < >
-inline const CEconLootListDefinition *CSchemaFieldHandle<CEconLootListDefinition>::GetTypedRef( void ) const
-{
-	return GEconItemSchema().GetLootListByName( m_szName );
-}
-
-template < >
 inline const attachedparticlesystem_t *CSchemaFieldHandle<attachedparticlesystem_t>::GetTypedRef( void ) const
 {
 	return GEconItemSchema().FindAttributeControlledParticleSystem( m_szName );
@@ -3113,21 +2119,8 @@ inline const attachedparticlesystem_t *CSchemaFieldHandle<attachedparticlesystem
 typedef CSchemaFieldHandle<CEconColorDefinition>			CSchemaColorDefHandle;
 typedef CSchemaFieldHandle<CEconItemAttributeDefinition>	CSchemaAttributeDefHandle;
 typedef CSchemaFieldHandle<CEconItemDefinition>				CSchemaItemDefHandle;
-typedef CSchemaFieldHandle<CEconLootListDefinition>			CSchemaLootListDefHandle;
 typedef CSchemaFieldHandle<attachedparticlesystem_t>		CSchemaParticleHandle;
 
-
-struct steam_market_gc_identifier_t
-{
-	item_definition_index_t m_unDefIndex;
-	uint8 m_unQuality;
-
-	bool operator<( const struct steam_market_gc_identifier_t& b ) const
-	{
-		return (m_unDefIndex < b.m_unDefIndex)
-			|| ((m_unDefIndex == b.m_unDefIndex) && (m_unQuality < b.m_unQuality));
-	}
-};
 
 // Implementation reliant on earlier class content.
 inline const CEconItemAttributeDefinition *static_attrib_t::GetAttributeDefinition() const
@@ -3147,34 +2140,6 @@ inline const ISchemaAttributeType *static_attrib_t::GetAttributeType() const
 // Utility function to convert datafile strings to ints.
 int StringFieldToInt( const char *szValue, const char **pValueStrings, int iNumStrings, bool bDontAssert = false );
 int StringFieldToInt( const char *szValue, const CUtlVector<const char *>& vecValueStrings, bool bDontAssert = false );
-
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-class CAttributeLineItemLootList : public IEconLootList
-{
-public:
-	static CSchemaAttributeDefHandle s_pAttrDef_RandomDropLineItems[4];
-	static CSchemaAttributeDefHandle s_pAttrDef_RandomDropLineItemFooterDesc;
-
-public:
-	CAttributeLineItemLootList( const IEconItemInterface *pEconItem )
-		: m_pEconItem( pEconItem )
-	{
-		//
-	}
-
-	virtual void EnumerateUserFacingPotentialDrops( IEconLootListIterator *pIt ) const OVERRIDE;
-	virtual bool BPublicListContents() const OVERRIDE { return true; }		// any attribute data that clients have is public to them
-	virtual const char *GetLootListHeaderLocalizationKey() const OVERRIDE;
-	virtual const char *GetLootListFooterLocalizationKey() const OVERRIDE;
-	virtual const char *GetLootListCollectionReference() const OVERRIDE;
-	
-
-private:
-	const IEconItemInterface *m_pEconItem;
-};
 
 void MergeDefinitionPrefab( KeyValues *pKVWriteItem, KeyValues *pKVSourceItem );
 bool IsUnusualAttribute( const CEconItemAttributeDefinition *pAttrDef );

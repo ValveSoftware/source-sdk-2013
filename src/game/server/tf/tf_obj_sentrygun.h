@@ -210,9 +210,6 @@ private:
 	CNetworkHandle( CTFPlayer, m_hAutoAimTarget );
 	float m_flAutoAimStartTime;
 
-	// for achievement: ACHIEVEMENT_TF_ENGINEER_MANUAL_SENTRY_ABSORB_DMG
-	int m_iLifetimeShieldedDamage;
-
 	DECLARE_DATADESC();
 
 	CountdownTimer m_inCombatThrottleTimer;

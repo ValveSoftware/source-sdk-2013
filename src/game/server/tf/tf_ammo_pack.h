@@ -12,6 +12,9 @@
 
 #include "items.h"
 
+class CTFPlayer;
+class CTFWeaponBase;
+
 typedef enum
 {	
 	AP_NORMAL = 0,

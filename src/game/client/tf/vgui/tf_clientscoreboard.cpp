@@ -40,7 +40,6 @@
 #include "vgui/IInput.h"
 #include "voice_status.h"
 #include "vgui_controls/ScrollBarSlider.h"
-#include "econ/econ_trading.h"
 #include "in_buttons.h"
 #include "tf_mapinfo.h"
 
@@ -56,7 +55,6 @@
 #include "econ_item_system.h"
 #include "tf_mann_vs_machine_stats.h"
 #include "player_vs_environment/c_tf_upgrades.h"
-#include "tf_badge_panel.h"
 
 
 using namespace vgui;
@@ -82,7 +80,6 @@ ConVar tf_scoreboard_alt_class_icons( "tf_scoreboard_alt_class_icons", "0", FCVA
 ConVar pf_scoreboard_use_shortnames( "pf_scoreboard_use_shortnames", "0", FCVAR_ARCHIVE, "Use shortnames in place of player names in the scoreboard." );
 
 extern bool IsInCommentaryMode( void );
-extern bool DuelMiniGame_GetStats( C_TFPlayer **ppPlayer, uint32 &unMyScore, uint32 &unOpponentScore );
 extern void AddSubKeyNamed( KeyValues *pKeys, const char *pszName );
 
 extern ConVar cl_hud_playerclass_use_playermodel;
@@ -401,12 +398,6 @@ void CTFClientScoreBoardDialog::ApplySchemeSettings( vgui::IScheme *pScheme )
 //-----------------------------------------------------------------------------
 void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 {
-	if ( bShow )
-	{
-		if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-			return;
-	}
-
 	// Catch the case where we call ShowPanel before ApplySchemeSettings, eg when
 	// going from windowed <-> fullscreen
 	if ( m_pImageList == NULL )
@@ -544,34 +535,6 @@ void CTFClientScoreBoardDialog::OnCommand( const char *command )
 					{
 						steamapicontext->SteamFriends()->ActivateGameOverlayToUser( "friendadd", steamID );
 					}
-				}
-			}
-		}
-	}
-	else if ( !V_strcmp( command, "jointrade" ) )
-	{
-		SectionedListPanel *pList = GetSelectedPlayerList();
-		if ( pList )
-		{
-			int iSelectedItem = pList->GetSelectedItem();
-			if ( iSelectedItem >= 0 )
-			{
-				KeyValues *pIssueKeyValues = pList->GetItemData( iSelectedItem );
-				if ( !pIssueKeyValues )
-					return;
-
-				int playerIndex = pIssueKeyValues->GetInt( "playerIndex", 0 );
-				CBasePlayer *pTarget = UTIL_PlayerByIndex( playerIndex );
-				if ( pTarget && !( pTarget->IsBot() || pTarget->IsHLTV() ) )
-				{
-					// Prevent large UI popup during a match
-					if ( pTarget->GetTeamNumber() >= FIRST_GAME_TEAM )
-					{
-						if ( TFGameRules() && TFGameRules()->UsePlayerReadyStatusMode() && TFGameRules()->State_Get() == GR_STATE_RND_RUNNING )
-							return;
-					}
-
-					Trading_RequestTrade( playerIndex );
 				}
 			}
 		}
@@ -957,8 +920,6 @@ void CTFClientScoreBoardDialog::Update()
 	MoveToCenterOfScreen();
 	UpdateServerTimeLeft();
 	AdjustForVisibleScrollbar();
-	UpdateBadgePanels( m_pRedBadgePanels, m_pPlayerListRed );
-	UpdateBadgePanels( m_pBlueBadgePanels, m_pPlayerListBlue );
 
 	float flNextUpdate = 1.0f;
 	if ( UseMouseMode() )
@@ -1101,149 +1062,6 @@ void CTFClientScoreBoardDialog::AdjustForVisibleScrollbar( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::UpdateBadgePanels( CUtlVector<CTFBadgePanel*> &pBadgePanels, vgui::SectionedListPanel *pPlayerList )
-{
-	int iNumPanels = 0;
-
-	if ( tf_show_all_scoreboard_elements.GetBool() )
-	{
-		int parentTall = pPlayerList->GetTall();
-		CTFBadgePanel *pPanel = NULL;
-
-		for ( int i = 0; i < pPlayerList->GetItemCount(); i++ )
-		{
-			KeyValues* pKeyValues = pPlayerList->GetItemData( i );
-			if ( !pKeyValues )
-				continue;
-
-			//int iPlayerIndex = pKeyValues->GetInt( "playerIndex" );
-			{
-				if ( iNumPanels >= pBadgePanels.Count() )
-				{
-					pPanel = new CTFBadgePanel( this, "BadgePanel" );
-					pPanel->MakeReadyForUse();
-					pPanel->SetVisible( true );
-					pPanel->SetZPos( 9999 );
-					pBadgePanels.AddToTail( pPanel );
-				}
-				else
-				{
-					pPanel = pBadgePanels[iNumPanels];
-				}
-
-				int x, y, wide, tall;
-				pPlayerList->GetMaxCellBounds( i, 0, x, y, wide, tall );
-
-				wide = m_iMedalWidth;
-
-				if ( y + tall > parentTall )
-					continue;
-
-				if ( !pPanel->IsVisible() )
-				{
-					pPanel->SetVisible( true );
-				}
-
-				int xParent, yParent;
-				pPlayerList->GetPos( xParent, yParent );
-
-				int nPanelXPos, nPanelYPos, nPanelWide, nPanelTall;
-				pPanel->GetBounds( nPanelXPos, nPanelYPos, nPanelWide, nPanelTall );
-
-				if ( ( nPanelXPos != xParent + x )
-					|| ( nPanelYPos != yParent + y )
-					|| ( nPanelWide != wide )
-					|| ( nPanelTall != tall ) )
-				{
-					pPanel->SetBounds( xParent + x, yParent + y, wide, tall );
-					pPanel->InvalidateLayout( true, true );
-				}
-
-				pPanel->SetupDummyBadge( 100, false );
-				iNumPanels++;
-			}
-		}
-	}
-	else
-	{
-		const IMatchGroupDescription *pMatchDesc = TFGameRules() ? GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() ) : NULL;
-		if ( pMatchDesc && pPlayerList )
-		{
-			if ( TFGameRules()->IsMatchTypeCasual() )
-			{
-				int parentTall = pPlayerList->GetTall();
-				CTFBadgePanel *pPanel = NULL;
-
-				for ( int i = 0; i < pPlayerList->GetItemCount(); i++ )
-				{
-					KeyValues *pKeyValues = pPlayerList->GetItemData( i );
-					if ( !pKeyValues )
-						continue;
-
-					int iPlayerIndex = pKeyValues->GetInt( "playerIndex" );
-					const CSteamID steamID = GetSteamIDForPlayerIndex( iPlayerIndex );
-					if ( steamID.IsValid() )
-					{
-						if ( iNumPanels >= pBadgePanels.Count() )
-						{
-							pPanel = new CTFBadgePanel( this, "BadgePanel" );
-							pPanel->MakeReadyForUse();
-							pPanel->SetVisible( true );
-							pPanel->SetZPos( 9999 );
-							pBadgePanels.AddToTail( pPanel );
-						}
-						else
-						{
-							pPanel = pBadgePanels[iNumPanels];
-						}
-
-						int x, y, wide, tall;
-						pPlayerList->GetMaxCellBounds( i, 0, x, y, wide, tall );
-
-						if ( y + tall > parentTall )
-							continue;
-
-						if ( !pPanel->IsVisible() )
-						{
-							pPanel->SetVisible( true );
-						}
-
-						int xParent, yParent;
-						pPlayerList->GetPos( xParent, yParent );
-
-						int nPanelXPos, nPanelYPos, nPanelWide, nPanelTall;
-						pPanel->GetBounds( nPanelXPos, nPanelYPos, nPanelWide, nPanelTall );
-
-						if ( ( nPanelXPos != xParent + x )
-							|| ( nPanelYPos != yParent + y )
-							|| ( nPanelWide != wide )
-							|| ( nPanelTall != tall ) )
-						{
-							pPanel->SetBounds( xParent + x, yParent + y, wide, tall );
-							pPanel->InvalidateLayout( true, true );
-						}
-
-						pPanel->SetupBadge( pMatchDesc, steamID );
-						iNumPanels++;
-					}
-				}
-			}
-		}
-	}
-
-	// hide any unused images
-	for ( int i = iNumPanels; i < pBadgePanels.Count(); i++ )
-	{
-		if ( pBadgePanels[i]->IsVisible() )
-		{
-			pBadgePanels[i]->SetVisible( false );
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Updates the player list
 //-----------------------------------------------------------------------------
 void CTFClientScoreBoardDialog::UpdatePlayerList()
@@ -1279,11 +1097,6 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 		return;
 
 	int localteam = pLocalTFPlayer->GetTeamNumber();
-	if ( pLocalTFPlayer->m_bIsCoaching && pLocalTFPlayer->m_hStudent )
-	{
-		localteam = pLocalTFPlayer->m_hStudent->GetTeamNumber();
-	}
-
 	bool bMadeSelection = false;
 
 	for ( int playerIndex = 1; playerIndex <= MAX_PLAYERS; playerIndex++ )
@@ -1303,39 +1116,6 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 			}
 			if ( !pPlayerList )
 				continue;
-
-			MM_PlayerConnectionState_t eConnectionState = g_TF_PR->GetPlayerConnectionState( playerIndex );
-			const wchar_t *pwszFormat = NULL;
-			if ( eConnectionState == MM_DISCONNECTED )
-			{
-				pwszFormat = g_pVGuiLocalize->Find( "#TF_MM_PlayerLostConnection" );
-			}
-			else if ( ( eConnectionState == MM_CONNECTING ) || ( eConnectionState == MM_LOADING ) )
-			{
-				pwszFormat = g_pVGuiLocalize->Find( "#TF_MM_PlayerConnecting" );
-			}
-
-			if ( pwszFormat )
-			{
-				KeyValues *pKV = new KeyValues( "data" );
-				pKV->SetInt( "playerIndex", playerIndex );
-				pKV->SetInt( "connected", 1 );
-
-				// HOLY CHEESEBALL BUSY INDICATOR
-				const wchar_t *pwszEllipses = &L"....."[4 - ( (unsigned)Plat_FloatTime() % 5U )];
-				wchar_t wszLocalized[512];
-				g_pVGuiLocalize->ConstructString_safe( wszLocalized, pwszFormat, 1, pwszEllipses );
-				pKV->SetWString( "name", wszLocalized );
-
-				int itemID = pPlayerList->AddItem( 0, pKV );
-				pPlayerList->SetItemFgColor( itemID, ( eConnectionState == MM_DISCONNECTED ) ? Color( 208, 147, 7, 255 ) : Color( 76, 107, 34, 255 ) );
-				pPlayerList->SetItemBgColor( itemID, Color( 0, 0, 0, 80 ) );
-				pPlayerList->SetItemFont( itemID, m_hScoreFontSmallest );
-
-				pKV->deleteThis();
-
-				continue;
-			}
 
 			int iActiveDominations = g_TF_PR->GetActiveDominations( playerIndex );
 
@@ -1589,47 +1369,6 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 
 			pKeyValues->deleteThis();
 		}
-		else
-		{
-			MM_PlayerConnectionState_t eConnectionState = g_TF_PR->GetPlayerConnectionState( playerIndex );
-			if ( eConnectionState == MM_WAITING_FOR_PLAYER )
-			{
-				SectionedListPanel *pPlayerList = NULL;
-				int nTeam = g_PR->GetTeam( playerIndex );
-				switch ( nTeam )
-				{
-				case TF_TEAM_BLUE:
-					pPlayerList = m_pPlayerListBlue;
-					break;
-				case TF_TEAM_RED:
-					pPlayerList = m_pPlayerListRed;
-					break;
-				}
-				if ( pPlayerList )
-				{
-					const wchar_t *pwszFormat = g_pVGuiLocalize->Find( "#TF_MM_LookingForPlayer" );
-					if ( pwszFormat )
-					{
-						KeyValues *pKV = new KeyValues( "data" );
-						pKV->SetInt( "playerIndex", playerIndex );
-						pKV->SetInt( "connected", 0 );
-
-						// HOLY CHEESEBALL BUSY INDICATOR
-						const wchar_t *pwszEllipses = &L"....."[4 - ( (unsigned)Plat_FloatTime() % 5U )];
-						wchar_t wszLocalized[512];
-						g_pVGuiLocalize->ConstructString_safe( wszLocalized, pwszFormat, 1, pwszEllipses );
-						pKV->SetWString( "name", wszLocalized );
-
-						int itemID = pPlayerList->AddItem( 0, pKV );
-						pPlayerList->SetItemFgColor( itemID, Color( 120, 120, 120, 255 ) );
-						pPlayerList->SetItemBgColor( itemID, Color( 0, 0, 0, 80 ) );
-						pPlayerList->SetItemFont( itemID, m_hScoreFontSmallest );
-
-						pKV->deleteThis();
-					}
-				}
-			}
-		}
 	}
 
 	// If we're on spectator, find a default selection
@@ -1665,27 +1404,13 @@ void CTFClientScoreBoardDialog::UpdateSpectatorList()
 	{
 		if ( ShouldShowAsSpectator( playerIndex ) )
 		{
-			C_TFPlayer *pPlayer = (C_TFPlayer*)UTIL_PlayerByIndex( playerIndex );
-			if ( pPlayer && pPlayer->m_bIsCoaching && pPlayer->m_hStudent )
+			if ( nSpectators > 0 )
 			{
-				if ( nCoaches > 0 )
-				{
-					Q_strncat( szCoachList, ", ", ARRAYSIZE( szCoachList ) );
-				}
-
-				Q_strncat( szCoachList, g_PR->GetPlayerName( playerIndex ), ARRAYSIZE( szCoachList ) );
-				nCoaches++;
+				Q_strncat( szSpectatorList, ", ", ARRAYSIZE( szSpectatorList ) );
 			}
-			else
-			{
-				if ( nSpectators > 0 )
-				{
-					Q_strncat( szSpectatorList, ", ", ARRAYSIZE( szSpectatorList ) );
-				}
 
-				Q_strncat( szSpectatorList, g_PR->GetPlayerName( playerIndex ), ARRAYSIZE( szSpectatorList ) );
-				nSpectators++;
-			}
+			Q_strncat( szSpectatorList, g_PR->GetPlayerName( playerIndex ), ARRAYSIZE( szSpectatorList ) );
+			nSpectators++;
 		}
 	}
 
@@ -1866,23 +1591,8 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails()
 	}
 
 	uint32 unMyScore, unOpponentScore;
-	C_TFPlayer *pDuelingPartner = NULL;
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( pSelectedPlayer == pLocalPlayer && DuelMiniGame_GetStats( &pDuelingPartner, unMyScore, unOpponentScore ) )
-	{
-		PopulateDuelPanel( m_duelPanelLocalPlayer, pLocalPlayer, unMyScore );
-		PopulateDuelPanel( m_duelPanelOpponent, pDuelingPartner, unOpponentScore );
 
-		if ( m_pLocalPlayerStatsPanel->IsVisible() == true )
-		{
-			m_pLocalPlayerStatsPanel->SetVisible( false );
-		}
-		if ( m_pLocalPlayerDuelStatsPanel->IsVisible() == false )
-		{
-			m_pLocalPlayerDuelStatsPanel->SetVisible( true );
-		}
-	}
-	else
 	{
 		if ( m_pLocalPlayerStatsPanel->IsVisible() == false )
 		{

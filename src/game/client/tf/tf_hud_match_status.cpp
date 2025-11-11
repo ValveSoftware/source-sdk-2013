@@ -22,10 +22,8 @@
 #include "game_controls/spectatorgui.h"
 #include "c_tf_playerresource.h"
 #include "tf_gc_client.h"
-#include "tf_match_description.h"
 #include "tf_hud_tournament.h"
 #include "tf_classmenu.h"
-#include "tf_rating_data.h"
 
 extern ConVar mp_winlimit;
 extern ConVar mp_tournament_stopwatch;
@@ -270,18 +268,14 @@ CTFHudMatchStatus::CTFHudMatchStatus(const char *pElementName)
 	, BaseClass(NULL, "HudMatchStatus")
 	, m_pTimePanel( NULL )
 	, m_bUseMatchHUD( false )
-	, m_eMatchGroupSettings( k_eTFMatchGroup_Invalid )
 {
 	Panel *pParent = g_pClientMode->GetViewport();
 	SetParent(pParent);
 
 	SetHiddenBits( HIDEHUD_MISCSTATUS | HIDEHUD_MATCH_STATUS );
 
-	m_pMatchStartModelPanel = new CModelPanel( this, "MatchDoors" );
-
 	m_pRoundCounter = new CRoundCounterPanel( this, "RoundCounter" );
 	m_pTimePanel = new CTFHudTimeStatus( this, "ObjectiveStatusTimePanel" );
-	m_pRoundSignModel = new CModelPanel( this, "RoundSignModel" );
 	m_pTeamStatus = new CTFTeamStatus( this, "TeamStatus" );
 
 	m_pBlueTeamPanel = new vgui::EditablePanel( this, "BlueTeamPanel" );
@@ -357,15 +351,6 @@ void CTFHudMatchStatus::ApplySchemeSettings(IScheme *pScheme)
 	{
 		pConditions = new KeyValues( "conditions" );
 		AddSubKeyNamed( pConditions, "if_match" );
-
-		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GTFGCClientSystem()->GetLiveMatchGroup() );
-		if ( pMatchDesc )
-		{
-			if ( pMatchDesc->GetMatchSize() > 12 )
-			{
-				AddSubKeyNamed( pConditions, "if_large" );
-			}
-		}
 	}
 
 	// load control settings...
@@ -416,12 +401,6 @@ bool CTFHudMatchStatus::IsVisible( void )
 
 bool CTFHudMatchStatus::ShouldDraw( void )
 {
-	// Force to draw during match summary so the doors show up.  This panel 
-	// will try to hide itself if you're dead, but we want to ignore that
-	// behavior and force us to draw.
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		  return true;
-
 	if ( gViewPortInterface->GetActivePanel() )
 		return false;
 
@@ -442,13 +421,6 @@ void CTFHudMatchStatus::OnThink()
 	if ( bUseMatchHUD != m_bUseMatchHUD )
 	{
 		m_bUseMatchHUD = bUseMatchHUD;
-		bReload = true;
-	}
-
-	ETFMatchGroup eCurrentGroup = TFGameRules()->GetCurrentMatchGroup();
-	if ( eCurrentGroup != m_eMatchGroupSettings )
-	{
-		m_eMatchGroupSettings = eCurrentGroup;
 		bReload = true;
 	}
 
@@ -498,7 +470,7 @@ void CTFHudMatchStatus::OnThink()
 			}
 		}
 
-		if ( bDisplayTimer && !TFGameRules()->ShowMatchSummary() )
+		if ( bDisplayTimer )
 		{
 			if ( !TFGameRules()->IsInKothMode() )
 			{
@@ -549,14 +521,6 @@ void CTFHudMatchStatus::FireGameEvent( IGameEvent * event )
 	if ( !ShouldUseMatchHUD() )
 		return;
 
-	if ( FStrEq("teamplay_round_start", event->GetName() ) )
-	{
-		// Drop the round sign right when the match starts on rounds > 1
-		if ( TFGameRules()->GetRoundsPlayed() > 0 )
-		{
-			ShowRoundSign( TFGameRules()->GetRoundsPlayed() );
-		}
-	}
 	else if ( FStrEq( "restart_timer_time", event->GetName() ) )
 	{
 		HandleCountdown( event->GetInt( "time" ) );
@@ -572,31 +536,6 @@ void CTFHudMatchStatus::FireGameEvent( IGameEvent * event )
 		{
 			m_pRedTeamPanel->SetVisible( false );
 		}
-
-		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-
-		// FIX: Refresh versus doors so late-joiners do not see the wrong skin
-		int nSkin = 0;
-		int nSubModel = 0;
-		if (pMatchDesc->BGetRoundDoorParameters(nSkin, nSubModel))
-		{
-			m_pMatchStartModelPanel->SetBodyGroup( "logos", nSubModel );
-			m_pMatchStartModelPanel->UpdateModel();
-			m_pMatchStartModelPanel->SetSkin( nSkin );
-		}
-
-		bool bForceDoors = false;
-		if ( bForceDoors || ( pMatchDesc && pMatchDesc->BUsesPostRoundDoors() ) )
-		{
-			if ( TFGameRules() && TFGameRules()->MapHasMatchSummaryStage() && ( bForceDoors || pMatchDesc->BUseMatchSummaryStage() ) )
-			{
-				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMatchStatus_ShowMatchWinDoors", false );
-			}
-			else
-			{
-				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMatchStatus_ShowMatchWinDoors_NoOpen", false );
-			}
-		}
 	}
 }
 
@@ -607,139 +546,12 @@ void CTFHudMatchStatus::HandleCountdown( int nTime )
 
 	switch ( nTime )
 	{
-	case 2:
-		// Drop the round sign with 2 seconds to go on the 1st round
-		if ( TFGameRules()->GetRoundsPlayed() == 0 )
-		{
-			ShowRoundSign( TFGameRules()->GetRoundsPlayed() );
-		}
-		break;
 	case 10:
-		if ( TFGameRules()->GetRoundsPlayed() == 0 )
-		{
-			ShowMatchStartDoors();
-		}
-		else
-		{
-			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMatchStatus_ShowCountdown", false );
-		}
+		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMatchStatus_ShowCountdown", false );
 		break;
 	}
 }
 
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFHudMatchStatus::ShowMatchStartDoors()
-{
-	if ( TFGameRules()->GetCurrentMatchGroup() == k_eTFMatchGroup_Invalid )
-		return;
-
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-
-	int nSkin = 0;
-	int nSubModel = 0;
-	if ( pMatchDesc->BGetRoundDoorParameters( nSkin, nSubModel ) )
-	{
-		UpdatePlayerList();
-		UpdateTeamInfo();
-
-		if ( m_pMatchStartModelPanel->m_hModel == NULL )
-		{
-			m_pMatchStartModelPanel->UpdateModel();
-		}
-
-		m_pMatchStartModelPanel->SetBodyGroup( "logos", nSubModel );
-		m_pMatchStartModelPanel->UpdateModel();
-		m_pMatchStartModelPanel->SetSkin( nSkin );
-
-		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMatchStatus_ShowMatchStartDoors", false );
-
-		bool bUsesStickyRanks = pMatchDesc->BUsesStickyRanks();
-		SetControlVisible( "RankUpLabel", bUsesStickyRanks, true );
-		SetControlVisible( "RankUpShadowLabel", bUsesStickyRanks, true );
-
-		// For competitive games that use sticky ratings, we want to show a "You'll rank up if you win!" message
-		// at the beginning of a match would trigger a rank up if the user wins.
-		if ( bUsesStickyRanks )
-		{
-			auto pRating = CTFRatingData::YieldingGetPlayerRatingDataBySteamID( SteamUser()->GetSteamID(), pMatchDesc->GetCurrentDisplayRating() );
-			auto pRank = CTFRatingData::YieldingGetPlayerRatingDataBySteamID( SteamUser()->GetSteamID(), pMatchDesc->GetCurrentDisplayRank() );
-			bool bInPlacement = pMatchDesc->BLocalPlayerIsInPlacement();
-
-			if ( bInPlacement && pMatchDesc->GetNumPlacementMatchesToGo( steamapicontext->SteamUser()->GetSteamID() ) == 1 )
-			{
-				// For exiting placement, put up a message that indicates so
-				SetDialogVariable( "rank_possibility", g_pVGuiLocalize->Find( "#TF_MM_PlacementMatch" ) );
-				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMatchStatus_ShowRankMatch", false );
-			}
-			else if ( !bInPlacement && pRank && pRating )
-			{
-				// Make sure their new rank is above their current rating, meaning they're trending
-				// towards a rank-up and not a rank-down
-				uint32 nRankForNewRating = pMatchDesc->m_pProgressionDesc->GetLevelForRating( pRating->GetRatingData().unRatingPrimary ).m_nDisplayLevel;
-				bool bTrendingUp = nRankForNewRating > pRank->GetRatingData().unRatingPrimary;
-
-				// So long as your secondary (games in this rank) is >= 4 (meaning this game will push you into the requisite 5)
-				// and your tertiary (games since rank change) is >= 9 (meaning this game will push you into the requisite 10),
-				// then you're on the threshold of a rank up.  You could have secondary 6 and tertiary 11, meaning you lost a couple
-				// times while on the threshold, but the message is still valid.
-				bool bOnRankUpThreshold = pRank->GetRatingData().unRatingSecondary >= (k_nLadder_MinGamesInThresholdToRank - 1) &&
-					pRank->GetRatingData().unRatingTertiary >= (k_nLadder_MinGamesBetweenRankChanges - 1);
-
-				if ( bTrendingUp && bOnRankUpThreshold )
-				{
-					SetDialogVariable( "rank_possibility", g_pVGuiLocalize->Find( "#TF_MM_RankUpMatch" ) );
-					g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMatchStatus_ShowRankMatch", false );
-				}
-			}
-		}
-
-		// Hide the class selection panel.  It sorts weird with the doors, and we dont have time to figure out why.
-		gViewPortInterface->ShowPanel( PANEL_CLASS_RED, false );
-		gViewPortInterface->ShowPanel( PANEL_CLASS_BLUE, false );
-
-		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-		if ( pLocalPlayer )
-		{
-			pLocalPlayer->EmitSound( pMatchDesc->GetMatchStartSound() );
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Show the round sign with the specified round number
-//-----------------------------------------------------------------------------
-void CTFHudMatchStatus::ShowRoundSign( int nRoundNumber )
-{
-	if ( TFGameRules()->GetCurrentMatchGroup() == k_eTFMatchGroup_Invalid )
-		return;
-
-	if ( !m_pRoundSignModel || !m_pRoundSignModel->m_pModelInfo )
-		return;
-
-	Assert( TFGameRules()->GetRoundsPlayed() >= 0 && TFGameRules()->GetRoundsPlayed() <= 6 );
-
-	int nSkin = 0;
-	int nBodyGroup = 0;
-	if ( GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() )->BGetRoundStartBannerParameters( nSkin, nBodyGroup ) )
-	{
-		if ( m_pRoundSignModel->m_hModel == NULL )
-		{
-			m_pRoundSignModel->UpdateModel();
-		}
-
-		// Change the skin and bodygroup to be correct for the mode and round
-		m_pRoundSignModel->SetBodyGroup( "logos", nBodyGroup );
-		m_pRoundSignModel->m_pModelInfo->m_nSkin = nSkin;
-		// Make the model actually update with the new look
-		m_pRoundSignModel->SetPanelDirty();
-		m_pRoundSignModel->UpdateModel();
-		// Play the sign drop anim
-		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence(this, "HudTournament_ShowRoundSign", false);
-	}
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: Used for sorting players

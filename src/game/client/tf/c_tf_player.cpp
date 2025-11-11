@@ -111,7 +111,6 @@
 #include "tf_item_powerup_bottle.h"
 #include <vgui_controls/AnimationController.h>
 #include "tf_weapon_rocketpack.h"
-#include "econ_paintkit.h"
 #include "soundstartparams.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 
@@ -231,8 +230,6 @@ void	SetupHeadLabelMaterials( void );
 
 extern CBaseEntity *BreakModelCreateSingle( CBaseEntity *pOwner, breakmodel_t *pModel, const Vector &position, 
 										   const QAngle &angles, const Vector &velocity, const AngularImpulse &angVelocity, int nSkin, const breakablepropparams_t &params );
-
-extern int EconWear_ToIntCategory( float flWear );
 
 const char *g_pszHeadGibs[] =
 {
@@ -2127,26 +2124,6 @@ public:
 	void OnBind( void *pC_BaseEntity )
 	{
 		Assert( m_pResult );
-		if ( pC_BaseEntity )
-		{
-			C_BaseEntity *pEntity = BindArgToEntity( pC_BaseEntity );
-			if ( pEntity )
-			{
-				CEconEntity *pItem = dynamic_cast< CEconEntity* >( pEntity );
-				if ( pItem )
-				{
-					CEconItemView *pScriptItem = pItem->GetAttributeContainer()->GetItem();
-					if ( pScriptItem && pScriptItem->GetStaticData() )
-					{
-						if ( pScriptItem->GetItemQuality() == AE_COMMUNITY )
-						{
-							m_pResult->SetIntValue( 1 );
-							return;
-						}
-					}
-				}
-			}
-		}
 
 		m_pResult->SetIntValue( 0 );
 
@@ -3085,8 +3062,6 @@ public:
 	virtual bool Init( IMaterial *pMaterial, KeyValues *pKeyValues );
 	virtual void OnBind( void *pC_BaseEntity );
 
-	virtual bool HelperOnBindGetStatTrakScore( void *pC_BaseEntity, int *piScore );
-
 private:
 	CFloatInput	m_flDisplayDigit; // the particular digit we want to display
 	CFloatInput	m_flTrimZeros;
@@ -3107,90 +3082,9 @@ bool CStatTrakDigitProxy::Init( IMaterial *pMaterial, KeyValues *pKeyValues )
 	return true;
 }
 
-bool CStatTrakDigitProxy::HelperOnBindGetStatTrakScore( void *pC_BaseEntity, int *piScore )
-{
-	if ( !pC_BaseEntity )
-		return false;
-
-	if ( !piScore )
-		return false;
-
-	bool bReturnValue = false;
-	uint32 unScore = 0;
-	C_BaseEntity *pEntity = BindArgToEntity( pC_BaseEntity );
-	if ( pEntity )
-	{
-		// StatTrak modules are children of their accompanying viewmodels
-		C_ViewmodelAttachmentModel *pViewModel = dynamic_cast<C_ViewmodelAttachmentModel*>( pEntity->GetMoveParent() );
-		if ( pViewModel )
-		{
-			//C_TFPlayer *pPlayer = ToTFPlayer( pViewModel->GetOwnerEntity() );
-			//if ( pPlayer )
-			CTFWeaponBase *pWeap = dynamic_cast<CTFWeaponBase*>( pViewModel->GetOwnerEntity() );
-			if ( pWeap )
-			{
-				
-				// Use the strange prefix if the weapon has one.
-				if ( pWeap->GetAttributeContainer()->GetItem()->FindAttribute( GetKillEaterAttr_Score( 0 ), &unScore ) )
-				{
-					*piScore = unScore;
-					bReturnValue = true;
-				}
-			}
-		}
-	}
-	else
-	{
-		// No Base entity, may be a straight econ item view (item model panel)
-		IClientRenderable *pRend = (IClientRenderable *)pC_BaseEntity;
-		if ( pRend )
-		{
-			const CEconItemView *pItem = dynamic_cast< CEconItemView* >( pRend );
-			if ( pItem && pItem->FindAttribute( GetKillEaterAttr_Score( 0 ), &unScore ) )
-			{
-				*piScore = unScore;
-				bReturnValue = true;
-			}
-		}
-	}
-	return bReturnValue;
-}
-
-
 void CStatTrakDigitProxy::OnBind( void *pC_BaseEntity )
 {
-	int nKillEaterAltScore = 0;
-
-	bool bHasScoreToDisplay = HelperOnBindGetStatTrakScore( pC_BaseEntity, &nKillEaterAltScore );
-	if ( !bHasScoreToDisplay )
-	{	// Error?
-		//SetFloatResult( (int)fmod( gpGlobals->curtime, 10.0f ) );
-		SetFloatResult( 0 );
-		return;
-	}
-
-
-	int iDesiredDigit = (int)m_flDisplayDigit.GetFloat();
-
-	// trim preceding zeros
-	if ( m_flTrimZeros.GetFloat() > 0 )
-	{
-		if ( pow( 10.0f, iDesiredDigit ) > nKillEaterAltScore )
-		{
-			SetFloatResult( 10.0f ); //assumed blank frame
-			return;
-		}
-	}
-
-	// get the [0-9] value of the digit we want
-	int iDigitCount = MIN( iDesiredDigit, 10 );
-	for ( int i = 0; i < iDigitCount; i++ )
-	{
-		nKillEaterAltScore /= 10;
-	}
-	nKillEaterAltScore %= 10;
-
-	SetFloatResult( nKillEaterAltScore );
+	SetFloatResult( 0 );
 }
 
 EXPOSE_INTERFACE( CStatTrakDigitProxy, IMaterialProxy, "StatTrakDigit" IMATERIAL_PROXY_INTERFACE_VERSION );
@@ -3528,91 +3422,6 @@ public:
 
 			return;
 		}
-
-		// Start the composite. 
-		KeyValues* rootKV = NULL;
-		float flWear = 0;
-		if ( !GetPaintKitWear( pItem, flWear ) )
-		{
-			return;
-		}
-		int nWear = EconWear_ToIntCategory( flWear );
-
-		uint32 unPaintKitDefIndex = uint32(-1);
-		if ( !GetPaintKitDefIndex( pItem, &unPaintKitDefIndex ) )
-		{
-			return;
-		}
-
-
-		const GameItemDefinition_t* tfItemDef = pItem->GetItemDefinition();
-		if ( tfItemDef )
-		{
-			const CPaintKitDefinition* pDef = assert_cast< const CPaintKitDefinition* >( GetProtoScriptObjDefManager()->GetDefinition( ProtoDefID_t( DEF_TYPE_PAINTKIT_DEFINITION, unPaintKitDefIndex ) ) );
-			if ( pDef )
-			{
-				rootKV = pDef->GetItemPaintKitDefinitionKV( tfItemDef->GetRemappedItemDefIndex(), nWear );
-			}
-		}
-
-		uint32 nCompositeFlags = 0;
-
-		if ( rootKV )
-		{
-			uint64 seed = pItem->GetOriginalID();
-			static CSchemaAttributeDefHandle pAttr_CustomPaintKitSeedLo( "custom_paintkit_seed_lo" );
-			static CSchemaAttributeDefHandle pAttr_CustomPaintKitSeedHi( "custom_paintkit_seed_hi" );
-
-			uint32 unLowVal, unHighVal;
-			const bool bHasLowVal = pItem->FindAttribute( pAttr_CustomPaintKitSeedLo, &unLowVal ),
-					   bHasHighVal = pItem->FindAttribute( pAttr_CustomPaintKitSeedHi, &unHighVal );
-
-			// We should have both, or neither.  We should never have just one
-			Assert( bHasLowVal == bHasHighVal );
-
-			// override the seed if we have custom attr
-			if ( bHasLowVal && bHasHighVal )
-			{
-				seed = ((uint64)unHighVal << 32) | (uint64)unLowVal;
-			}
-
-
-			Assert( pItem->GetTeamNumber() != TEAM_UNASSIGNED );
-			int teamNum = pItem->GetTeamNumber() != TEAM_UNASSIGNED ? pItem->GetTeamNumber() : TF_TEAM_RED;
-
-			char finalItemName[_MAX_PATH];
-			V_sprintf_safe( finalItemName, "%d_%d_wear_%02d", pItem->GetItemDefIndex(), unPaintKitDefIndex, nWear );
-
-			SafeAssign( &pWeaponSkinBaseCompositor, materials->NewTextureCompositor( desiredW, desiredH, finalItemName, teamNum, seed, rootKV, nCompositeFlags ) );
-			if ( pWeaponSkinBaseCompositor )
-			{
-				pWeaponSkinBaseCompositor->ScheduleResolve();
-				pItem->SetWeaponSkinGeneration( m_nGeneration );
-				pItem->SetWeaponSkinGenerationTeam( teamNum );
-
-				if ( pWeaponSkinBaseCompositor->GetResolveStatus() != ECRS_Complete )
-				{
-					// Normal case
-					pItem->SetWeaponSkinBaseCompositor( pWeaponSkinBaseCompositor );
-
-					// Try to sub out the low res, if it's ready.
-					ITexture* pTex = GetWeaponSkinBaseLowRes( cbPlayerIsLocalPlayer, pItem->GetItemID(), pItem->GetTeamNumber() );
-					if ( pTex )
-						setter.SetTexture( pTex );
-				}
-				else 
-				{
-					// Had a cache hit, so add the texture here.
-					pWeaponSkinBase = pWeaponSkinBaseCompositor->GetResultTexture();
-					pItem->SetWeaponSkinBase( pWeaponSkinBase );
-					setter.SetTexture( pWeaponSkinBase );
-				}
-
-				SafeRelease( pWeaponSkinBaseCompositor );
-				return;
-			} 
-		}
-
 	}
 
 	virtual void Release() { delete this; }
@@ -3669,10 +3478,6 @@ BEGIN_RECV_TABLE_NOBASE( C_TFPlayer, DT_TFLocalPlayerExclusive )
 
 	RecvPropFloat( RECVINFO( m_angEyeAngles[0] ) ),
 	RecvPropFloat( RECVINFO( m_angEyeAngles[1] ) ),
-
-	RecvPropBool( RECVINFO( m_bIsCoaching ) ),
-	RecvPropEHandle( RECVINFO( m_hCoach ) ),
-	RecvPropEHandle( RECVINFO( m_hStudent ) ),
 
 	RecvPropInt( RECVINFO( m_nCurrency ) ),
 	RecvPropInt( RECVINFO( m_nExperienceLevel ) ),
@@ -3883,10 +3688,6 @@ C_TFPlayer::C_TFPlayer() :
 	m_flLastDuckJumpInterp = 0.0f;
 	m_flDuckJumpInterp = 0.0f;
 
-	m_bIsCoaching = false;
-	m_pStudentGlowEffect = NULL;
-	m_pPowerupGlowEffect = NULL;
-
 	m_nBotSkill = -1;
 	m_nOldBotSkill = -1;
 	m_nOldMaxHealth = -1;
@@ -3999,11 +3800,6 @@ C_TFPlayer::~C_TFPlayer()
 	if ( IsLocalPlayer() )
 	{
 		g_ItemEffectMeterManager.ClearExistingMeters();
-
-		if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		{
-			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( "CompetitiveGame_RestoreChatWindow", false );
-		}
 	}
 }
 
@@ -4410,12 +4206,6 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 	{
 		UpdateGlowColor();
 	}
-	bool bNeedsStudentGlow = m_hCoach && m_hCoach->IsLocalPlayer() && m_hCoach->m_bIsCoaching;
-	bool bHasStudentGlow = m_pStudentGlowEffect != NULL;
-	if ( bNeedsStudentGlow != bHasStudentGlow )
-	{
-		UpdateGlowEffect();
-	}
 
 	if ( TFGameRules() && TFGameRules()->IsPowerupMode() )
 	{
@@ -4643,17 +4433,6 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 				if ( haptics )
 					haptics->SetNavigationClass("spectate");
 			}
-			else if ( m_iOldObserverMode < OBS_MODE_FIXED && GetObserverMode() >= OBS_MODE_FIXED )
-			{
-#if defined( REPLAY_ENABLED )
-				// If the player is entering a title for a replay, defer displaying the items screen until afterwards
-				if ( !IsReplayInputPanelVisible() )
-#endif
-				{
-					// Show items we've picked up when we exit freezecam, or after deathcam on suicide
-					TFInventoryManager()->ShowItemsPickedUp();
-				}
-			}
 
 			if ( m_iOldObserverMode == OBS_MODE_IN_EYE || GetObserverMode() == OBS_MODE_IN_EYE )
 			{
@@ -4833,7 +4612,7 @@ void C_TFPlayer::UpdateTauntItem()
 	{
 		if ( m_iTauntItemDefIndex != INVALID_ITEM_DEF_INDEX )
 		{
-			m_TauntEconItemView.Init( m_iTauntItemDefIndex, AE_UNIQUE, 1 );
+			m_TauntEconItemView.Init( m_iTauntItemDefIndex );
 		}
 		else
 		{
@@ -5243,29 +5022,6 @@ void C_TFPlayer::CalcInEyeCamView( Vector& eyeOrigin, QAngle& eyeAngles, float& 
 	QAngle myEyeAngles;
 	VectorCopy( EyeAngles(), myEyeAngles );
 	BaseClass::CalcInEyeCamView( eyeOrigin, eyeAngles, fov );
-
-	/*
-	// if we are coaching, we override the eye angles with our original ones
-	// @note Tom Bui: we don't try to capture the "up" button event, because that doesn't seem so reliable
-	if ( m_bIsCoaching )
-	{
-		const float kLerpTime = 1.0f;
-		if ( ( m_nButtons & IN_JUMP ) != 0 )
-		{
-			VectorCopy( myEyeAngles, eyeAngles );
-			engine->SetViewAngles( eyeAngles );
-			m_flCoachLookAroundLerpTime = kLerpTime;
-			m_angCoachLookAroundEyeAngles = myEyeAngles;
-		}
-		else if ( m_flCoachLookAroundLerpTime > 0 )
-		{
-			m_flCoachLookAroundLerpTime -= gpGlobals->frametime;
-			float flPercent = ( kLerpTime - m_flCoachLookAroundLerpTime / kLerpTime );
-			eyeAngles = Lerp( flPercent, m_angCoachLookAroundEyeAngles, eyeAngles );
-			engine->SetViewAngles( eyeAngles );
-		}
-	}
-	*/
 }
 
 //-----------------------------------------------------------------------------
@@ -5320,12 +5076,6 @@ bool C_TFPlayer::IsEnemyPlayer( void )
 		return false;
 
 	int iTeam = pLocalPlayer->GetTeamNumber();
-
-	// if we are coaching, use the team of the student
-	if ( pLocalPlayer->m_hStudent && pLocalPlayer->m_bIsCoaching )
-	{
-		iTeam = pLocalPlayer->m_hStudent->GetTeamNumber();
-	}
 
 	switch( iTeam )
 	{
@@ -5473,9 +5223,6 @@ void C_TFPlayer::TurnOnTauntCam( void )
 	if ( !IsLocalPlayer() )
 		return;
 
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		return;
-
 	m_flTauntCamTargetDist = ( m_flTauntCamTargetDist != 0.0f ) ? m_flTauntCamTargetDist : tf_tauntcam_dist.GetFloat();
 	m_flTauntCamTargetDistUp = ( m_flTauntCamTargetDistUp != 0.0f ) ? m_flTauntCamTargetDistUp : 0.f;
 
@@ -5527,9 +5274,6 @@ void C_TFPlayer::TurnOnTauntCam_Finish( void )
 //-----------------------------------------------------------------------------
 void C_TFPlayer::TurnOffTauntCam( void )
 {
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		return;
-
 	// We want to interpolate back into the guy's head.
 	if ( g_ThirdPersonManager.GetForcedThirdPerson() == false )
 	{
@@ -5552,9 +5296,6 @@ void C_TFPlayer::TurnOffTauntCam_Finish( void )
 {
 	if ( !IsLocalPlayer() )
 		return;	
-
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		return;
 
 	const Vector& vecOffset = g_ThirdPersonManager.GetCameraOffsetAngles();
 	tf_tauntcam_pitch.SetValue( vecOffset[PITCH] - m_angTauntPredViewAngles[PITCH] );
@@ -8047,9 +7788,6 @@ void C_TFPlayer::CreateSaveMeEffect( MedicCallerType nType /*= CALLER_TYPE_NORMA
 	if ( IsLocalPlayer() && InFirstPersonView() )
 		return;
 
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		return;
-
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
 	// If I'm disguised as the enemy, play to all players
@@ -8163,9 +7901,6 @@ void C_TFPlayer::CreateTauntWithMeEffect()
 {
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pLocalPlayer || this == pLocalPlayer )
-		return;
-
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
 		return;
 
 	if ( !m_pTauntWithMeEffect )
@@ -8842,17 +8577,6 @@ bool C_TFPlayer::CanShowClassMenu( void )
 		{
 			return !m_bArenaSpectator;
 		}
-
-		// Dont allow the change class menu to come up when we're doing the doors and things.  There's really weird
-		// sorting issues that go on even though the class menu is supposed to draw under the match status panel.
-		if ( TFGameRules()->IsCompetitiveMode() )
-		{
-			float flRestartTime = TFGameRules()->GetRoundRestartTime() - gpGlobals->curtime;
-			if ( flRestartTime > 0.f && flRestartTime < 10.f )
-			{
-				return false;
-			}
-		}
 	}
 	
 	return ( GetTeamNumber() > LAST_SHARED_TEAM );
@@ -8866,7 +8590,7 @@ bool C_TFPlayer::CanShowTeamMenu( void )
 	if ( IsHLTV() )
 		return false;
 
-	if ( TFGameRules() && ( TFGameRules()->IsCompetitiveMode() || TFGameRules()->IsPowerupMode() ) )
+	if ( TFGameRules() && TFGameRules()->IsPowerupMode() )
 	
 		return false;
 
@@ -9281,24 +9005,6 @@ extern ConVar tf_tournament_hide_domination_icons;
 //-----------------------------------------------------------------------------
 bool C_TFPlayer::ShouldShowDuelingIcon()
 {
-	if ( TFGameRules() && TFGameRules()->IsInTournamentMode() && tf_tournament_hide_domination_icons.GetBool() )
-		return false;
-
-	if ( m_PlayerClass.HasCustomModel() )
-		return false;
-
-	extern bool DuelMiniGame_IsDuelingLocalPlayer( C_TFPlayer *pPlayer );
-
-	// we should show the dueling effect on this player if he is dueling the local player,
-	// and is not dead, cloaked or disguised
-	if ( DuelMiniGame_IsDuelingLocalPlayer( this ) && g_PR && g_PR->IsConnected( entindex() ) )
-	{
-		bool bStealthed = m_Shared.IsStealthed();
-		bool bDisguised = m_Shared.InCond( TF_COND_DISGUISED );
-		if ( IsAlive() && !bStealthed && !bDisguised )
-			return true;
-	}
-
 	return false;
 }
 
@@ -9448,9 +9154,6 @@ bool C_TFPlayer::IsAllowedToSwitchWeapons( void )
 	if ( TFGameRules() )
 	{
 		if ( TFGameRules()->IsPasstimeMode() && m_Shared.HasPasstimeBall() )
-			return false;
-
-		if ( TFGameRules()->ShowMatchSummary() )
 			return false;
 	}
 
@@ -9721,7 +9424,7 @@ void C_TFPlayer::GetTargetIDDataString( bool bIsDisguised, OUT_Z_BYTECAP(iMaxLen
 		_snwprintf( wszChargeLevel, ARRAYSIZE(wszChargeLevel) - 1, L"%.0f", MedicGetChargeLevel( &pMedigun ) * 100 );
 		wszChargeLevel[ ARRAYSIZE(wszChargeLevel)-1 ] = '\0';
 
-		if ( pMedigun && pMedigun->GetAttributeContainer()->GetItem() && pMedigun->GetAttributeContainer()->GetItem()->GetItemQuality() != AE_NORMAL )
+		if ( pMedigun && pMedigun->GetAttributeContainer()->GetItem() && pMedigun->GetAttributeContainer()->GetItem()->GetStaticData() && pMedigun->GetAttributeContainer()->GetItem()->GetStaticData()->IsBaseItem() )
 		{
 			g_pVGuiLocalize->ConstructString( sDataString, iMaxLenInBytes, g_pVGuiLocalize->Find( "#TF_playerid_mediccharge_wpn" ), 2, wszChargeLevel, pMedigun->GetAttributeContainer()->GetItem()->GetItemName() );
 		}
@@ -10064,11 +9767,6 @@ bool C_TFPlayer::InSameDisguisedTeam( CBaseEntity *pEnt )
 		return false;
 
 	int iMyApparentTeam = GetTeamNumber();
-	
-	if ( m_bIsCoaching && m_hStudent )
-	{
-		iMyApparentTeam = m_hStudent->GetTeamNumber();
-	}
 
 	if ( m_Shared.InCond( TF_COND_DISGUISED ) )
 	{
@@ -11097,66 +10795,7 @@ void C_TFPlayer::FireGameEvent( IGameEvent *event )
 			m_hRevivePrompt = NULL;
 		}
 	}
-	else if ( FStrEq( event->GetName(), "player_changeclass" ) )
-	{
-		if ( TFGameRules() && TFGameRules()->IsMatchTypeCompetitive() )
-		{
-			if ( g_PR &&
-				pLocalPlayer &&
-				pLocalPlayer == this &&
-				TFGameRules() &&
-				TFGameRules()->IsCompetitiveMode() &&
-				TFGameRules()->State_Get() == GR_STATE_RND_RUNNING )
-			{
-				CBaseHudChat *pHudChat = (CBaseHudChat*)GET_HUDELEMENT( CHudChat );
-				if ( pHudChat )
-				{
-					C_BasePlayer *pEventPlayer = UTIL_PlayerByUserId( event->GetInt( "userid" ) );
-					if ( pEventPlayer && pLocalPlayer->GetTeamNumber() == g_PR->GetTeam( pEventPlayer->entindex() ) )
-					{
-						int nClassID = event->GetInt( "class" );
-						if ( nClassID >= 0 && nClassID < ARRAYSIZE( g_aPlayerClassNames ) )
-						{
-							wchar_t wszPlayerName[MAX_PLAYER_NAME_LENGTH];
-							g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( pEventPlayer->entindex() ), wszPlayerName, sizeof( wszPlayerName ) );
 
-							wchar_t wszLocalized[100];
-							g_pVGuiLocalize->ConstructString_safe( wszLocalized, g_pVGuiLocalize->Find( "#TF_Class_Change" ), 2, wszPlayerName, g_pVGuiLocalize->Find( g_aPlayerClassNames[nClassID] ) );
-
-							char szLocalized[100];
-							g_pVGuiLocalize->ConvertUnicodeToANSI( wszLocalized, szLocalized, sizeof( szLocalized ) );
-
-							pHudChat->ChatPrintf( pLocalPlayer->entindex(), CHAT_FILTER_NAMECHANGE, "%s", szLocalized );
-						}
-					}
-				}
-			}
-		}
-	}
-	else if ( FStrEq( event->GetName(), "player_abandoned_match" ) )
-	{
-		if ( pLocalPlayer && pLocalPlayer == this )
-		{
-			wchar_t wzNotification[1024] = L"";
-			const wchar_t *pwzTitle = g_pVGuiLocalize->Find( "#TF_Competitive_Abandoned" );
-			g_pVGuiLocalize->ConstructString_safe( wzNotification, pwzTitle, 0 );
-			
-			if ( event->GetBool( "game_over" ) )
-			{
-				ShowMessageBox( "#TF_Competitive_AbandonedTitle", wzNotification, "#GameUI_OK" );
-			}
-			else
-			{
-				CBaseHudChat *pHudChat = (CBaseHudChat*)GET_HUDELEMENT( CHudChat );
-				if ( pHudChat )
-				{
-					char szLocalized[1024];
-					g_pVGuiLocalize->ConvertUnicodeToANSI( wzNotification, szLocalized, sizeof( szLocalized ) );
-					pHudChat->ChatPrintf( pLocalPlayer->entindex(), CHAT_FILTER_SERVERMSG, "%s", szLocalized );
-				}
-			}
-		}
-	}
 	BaseClass::FireGameEvent( event );
 }
 
@@ -11284,15 +10923,6 @@ void C_TFPlayer::UpdateGlowEffect( void )
 
 	BaseClass::UpdateGlowEffect();
 
-	// create a new effect if we have a coach
-	if ( m_hCoach && m_hCoach->IsLocalPlayer() && m_hCoach->m_bIsCoaching )
-	{
-		float r, g, b;
-		GetGlowEffectColor( &r, &g, &b );
-
-		m_pStudentGlowEffect = new CGlowObject( this, Vector( r, g, b ), 1.0, true );
-	}
-
 	// create a power up effect if needed
 	if ( ShouldShowPowerupGlowEffect() )
 	{
@@ -11306,12 +10936,6 @@ void C_TFPlayer::UpdateGlowEffect( void )
 void C_TFPlayer::DestroyGlowEffect( void )
 {
 	BaseClass::DestroyGlowEffect();
-
-	if ( m_pStudentGlowEffect )
-	{
-		delete m_pStudentGlowEffect;
-		m_pStudentGlowEffect = NULL;
-	}
 
 	if ( m_pPowerupGlowEffect )
 	{

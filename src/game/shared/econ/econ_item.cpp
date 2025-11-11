@@ -22,7 +22,6 @@ using namespace GCSDK;
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-extern int EconWear_ToIntCategory( float flWear );
 /*static*/ const schema_attribute_stat_bucket_t *CSchemaAttributeStats::m_pHead;
 
 //-----------------------------------------------------------------------------
@@ -161,10 +160,7 @@ CEconItem &CEconItem::operator=( const CEconItem& rhs )
 	SetOriginalID( rhs.GetOriginalID() );
 	m_unAccountID = rhs.m_unAccountID;
 	m_unDefIndex = rhs.m_unDefIndex;
-	m_unLevel = rhs.m_unLevel;
-	m_nQuality = rhs.m_nQuality;
 	m_unInventory = rhs.m_unInventory;
-	SetQuantity( rhs.GetQuantity() );
 	m_unFlags = rhs.m_unFlags;
 	m_unOrigin = rhs.m_unOrigin;
 	m_unStyle = rhs.m_unStyle;
@@ -246,32 +242,6 @@ void CEconItem::SetOriginalID( itemid_t ulOriginalID )
 // --------------------------------------------------------------------------
 // Purpose:
 // --------------------------------------------------------------------------
-int CEconItem::GetQuantity() const
-{
-	if ( m_pCustomData != NULL )
-		return m_pCustomData->m_unQuantity;
-	return 1;
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-void CEconItem::SetQuantity( uint16 unQuantity )
-{
-	if ( m_pCustomData )
-	{
-		m_pCustomData->m_unQuantity = unQuantity;
-	}
-	else if ( unQuantity > 1 )
-	{
-		EnsureCustomDataExists();
-		m_pCustomData->m_unQuantity = unQuantity;
-	}
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
 static const char *GetCustomNameOrAttributeDesc( const CEconItem *pItem, const CEconItemAttributeDefinition *pAttrDef )
 {
 	if ( !pAttrDef )
@@ -315,26 +285,6 @@ static void SetCustomNameOrDescAttribute( CEconItem *pItem, const CEconItemAttri
 	attrStr.set_value( pszNewValue );
 
 	pItem->SetDynamicAttributeValue( pAttrDef, attrStr );
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-const char *CEconItem::GetCustomName() const
-{
-	static CSchemaAttributeDefHandle pAttrDef_CustomName( "custom name attr" );
-
-	return GetCustomNameOrAttributeDesc( this, pAttrDef_CustomName );
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-void CEconItem::SetCustomName( const char *pName )
-{
-	static CSchemaAttributeDefHandle pAttrDef_CustomName( "custom name attr" );
-
-	SetCustomNameOrDescAttribute( this, pAttrDef_CustomName, pName );
 }
 
 // --------------------------------------------------------------------------
@@ -530,25 +480,6 @@ const CEconItem::EquippedInstance_t &CEconItem::GetEquippedInstance( int iIdx ) 
 	else
 		return m_EquipInstanceSingleton;
 }
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-const char *CEconItem::GetCustomDesc() const
-{
-	static CSchemaAttributeDefHandle pAttrDef_CustomDesc( "custom desc attr" );
-
-	return GetCustomNameOrAttributeDesc( this, pAttrDef_CustomDesc );
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-void CEconItem::SetCustomDesc( const char *pDesc )
-{
-	static CSchemaAttributeDefHandle pAttrDef_CustomDesc( "custom desc attr" );
-
-	SetCustomNameOrDescAttribute( this, pAttrDef_CustomDesc, pDesc );
-}
 
 // --------------------------------------------------------------------------
 // Purpose:
@@ -584,74 +515,6 @@ const GameItemDefinition_t *CEconItem::GetItemDefinition() const
 	AssertMsg( pRet == pTypedRet, "Item definition of inappropriate type." );
 
 	return pTypedRet;
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-bool CEconItem::IsTradable() const
-{
-	return !m_dirtyBits.m_bInUse 
-		&& IEconItemInterface::IsTradable();
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-void CEconItem::AdoptMoreRestrictedTradabilityFromItem( const CEconItem *pOther, uint32 nTradabilityFlagsToAccept /*= 0xFFFFFFFF*/ )
-{
-	if ( !pOther )
-		return;
-
-	int nOtherUntradability = pOther->GetUntradabilityFlags() & nTradabilityFlagsToAccept;
-	RTime32 otherUntradableTime = pOther->GetTradableAfterDateTime();
-	// Become untradable if the other item is untradable
-	AdoptMoreRestrictedTradability( nOtherUntradability, otherUntradableTime );
-}
-
-// --------------------------------------------------------------------------
-// Purpose:	Given untradability flags and a untradable time, set this item's
-//			untradability.  This does not clear existing untradabilty.
-// --------------------------------------------------------------------------
-void CEconItem::AdoptMoreRestrictedTradability( uint32 nTradabilityFlags, RTime32 nUntradableTime )
-{
-	static CSchemaAttributeDefHandle pAttrib_CannotTrade( "cannot trade" );
-	static CSchemaAttributeDefHandle pAttrib_TradableAfter( "tradable after date" );
-
-	if ( !pAttrib_CannotTrade || !pAttrib_TradableAfter )
-		return;
-
-	// We're already permanently untradable.  We can't get more untradable, so we're done.
-	if ( GetUntradabilityFlags() & k_Untradability_Permanent )
-		return;
-
-	if( nTradabilityFlags & k_Untradability_Permanent )
-	{
-		SetDynamicAttributeValue( pAttrib_CannotTrade, 0u );
-	}
-	else if ( nTradabilityFlags & k_Untradability_Temporary && nUntradableTime > GetTradableAfterDateTime() )
-	{
-		// Take the "tradable after date" if it's larger than ours
-		SetDynamicAttributeValue( pAttrib_TradableAfter, nUntradableTime );
-	}
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-bool CEconItem::IsMarketable() const
-{
-	return !m_dirtyBits.m_bInUse
-		&& IEconItemInterface::IsMarketable();
-}
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-bool CEconItem::IsCommodity() const
-{
-	return !m_dirtyBits.m_bInUse
-		&& IEconItemInterface::IsCommodity();
 }
 
 void CEconItem::IterateAttributes( IEconItemAttributeIterator *pIterator ) const
@@ -690,37 +553,6 @@ style_index_t CEconItem::GetStyle() const
 		return fStyleOverride;
 	}
 
-	static CSchemaAttributeDefHandle pAttrDef_ItemStyleStrange( "style changes on strange level" );
-	uint32 iMaxStyle = 0;
-	if ( pAttrDef_ItemStyleStrange && FindAttribute( pAttrDef_ItemStyleStrange, &iMaxStyle ) )
-	{
-		// Use the strange prefix if the weapon has one.
-		uint32 unScore = 0;
-		if ( !FindAttribute( GetKillEaterAttr_Score( 0 ), &unScore ) )
-			return 0;
-
-		// What type of event are we tracking and how does it describe itself?
-		uint32 unKillEaterEventType = 0;
-		// This will overwrite our default 0 value if we have a value set but leave it if not.
-		float fKillEaterEventType;
-		if ( FindAttribute_UnsafeBitwiseCast<attrib_value_t>( this, GetKillEaterAttr_Type( 0 ), &fKillEaterEventType ) )
-		{
-			unKillEaterEventType = fKillEaterEventType;
-		}
-
-		const char *pszLevelingDataName = GetItemSchema()->GetKillEaterScoreTypeLevelingDataName( unKillEaterEventType );
-		if ( !pszLevelingDataName )
-		{
-			pszLevelingDataName = KILL_EATER_RANK_LEVEL_BLOCK_NAME;
-		}
-
-		const CItemLevelingDefinition *pLevelDef = GetItemSchema()->GetItemLevelForScore( pszLevelingDataName, unScore );
-		if ( !pLevelDef )
-			return 0;
-
-		return Min( pLevelDef->GetLevel(), iMaxStyle );
-	}
-
 	return m_unStyle;
 }
 
@@ -739,24 +571,6 @@ const char* CEconItem::FindIconURL( bool bLarge ) const
 	//		  a match is found.  Once items are more composable, we'll want
 	//		  to keep adding all the components together to get the fully
 	//		  composed icon (ie. add the strange token, and the festive token, etc.)
-	uint32 unPaintKitDefIndex;
-	if ( GetPaintKitDefIndex( this, &unPaintKitDefIndex ) )
-	{
-		float flWear = 0;
-		GetPaintKitWear( this, flWear );
-		int iWearIndex = EconWear_ToIntCategory( flWear );
-		const char* pszFmtStr = bIsFestivized ? "paintkit%d_item%d_wear%d_festive" : "paintkit%d_item%d_wear%d";
-
-		// do we have a remap? use that instead
-		if ( pDef->GetDefinitionIndex() != pDef->GetRemappedItemDefIndex() )
-		{
-			pDef = GetItemSchema()->GetItemDefinition( pDef->GetRemappedItemDefIndex() );
-		}
-
-		const char* pszValue = pDef->GetIconURL( CFmtStr( pszFmtStr, unPaintKitDefIndex, pDef->GetRemappedItemDefIndex(), iWearIndex ) );
-		if ( pszValue )
-			return pszValue;
-	}
 
 	const CEconStyleInfo *pStyle = pDef->GetStyleInfo( GetStyle() );
 	if ( pStyle )
@@ -801,16 +615,6 @@ const char *CEconItem::GetIconURLLarge() const
 
 	return m_pszLargeIcon;
 }
-
-// --------------------------------------------------------------------------
-// Purpose:
-// --------------------------------------------------------------------------
-bool CEconItem::IsUsableInCrafting() const
-{
-	return !m_dirtyBits.m_bInUse
-		&& IEconItemInterface::IsUsableInCrafting();
-}
-
 
 // --------------------------------------------------------------------------
 // Purpose:
@@ -896,41 +700,6 @@ void CEconItem::SetDynamicMaxTimeAttributeValue( const CEconItemAttributeDefinit
 // --------------------------------------------------------------------------
 // Purpose: 
 // --------------------------------------------------------------------------
-void CEconItem::SetTradableAfterDateTime( RTime32 rtTime )
-{
-	//don't bother if the time is in the past (this also covers the 0 case)
-	if( rtTime < CRTime::RTime32TimeCur() )
-		return;
-
-	//the attribute we are going to assign
-	static CSchemaAttributeDefHandle pAttrib_TradableAfter( "tradable after date" );
-	if( !pAttrib_TradableAfter )
-		return;
-
-	//see if we have a STATIC cannot trade attribute (ignore dynamic, because that could change and be used
-	// to short out the trade restriction). 
-
-	//This is currently disabled so we can measure whether or not this is beneficial and if the savings justifies the corner case risk this exposes - JohnO 1/12/15
-	/*
-	const GameItemDefinition_t* pItemDef = GetItemDefinition();
-	if( pItemDef )
-	{
-		static CSchemaAttributeDefHandle pAttrib_CannotTrade( "cannot trade" );
-		uint32 unCannotTrade = 0;
-		if( ::FindAttribute( pItemDef, pAttrib_CannotTrade, &unCannotTrade ) )
-		{
-			return;
-		}
-	}
-	*/
-
-	//now set it to the maximum time
-	SetDynamicMaxTimeAttributeValue( pAttrib_TradableAfter, rtTime );
-}
-
-// --------------------------------------------------------------------------
-// Purpose: 
-// --------------------------------------------------------------------------
 void CEconItem::RemoveDynamicAttribute( const CEconItemAttributeDefinition *pAttrDef )
 {
 	Assert( pAttrDef );
@@ -993,63 +762,12 @@ CEconItem* CEconItem::GetInteriorItem()
 }
 
 // --------------------------------------------------------------------------
-// Purpose: This item has been traded. Give it an opportunity to update any internal
-//			properties in response.
-// --------------------------------------------------------------------------
-void CEconItem::OnTraded( uint32 unTradabilityDelaySeconds )
-{
-	// if Steam wants us to impose a tradability delay on the item
-	if ( unTradabilityDelaySeconds != 0 )
-	{
-		RTime32 rtTradableAfter = ( ( CRTime::RTime32TimeCur() / k_nSecondsPerDay ) * k_nSecondsPerDay ) + unTradabilityDelaySeconds;
-		SetTradableAfterDateTime( rtTradableAfter );
-	}
-	else
-	{
-		// If we have a "tradable after date" attribute and we were just traded, remove the date
-		// limit as we're obviously past it.
-		static CSchemaAttributeDefHandle pAttrib_TradableAfter( "tradable after date" );
-		RemoveDynamicAttribute( pAttrib_TradableAfter );
-	}
-
-	OnTransferredOwnership();
-}
-
-// --------------------------------------------------------------------------
 // Purpose: Ownership of this item has changed, so do whatever things are necessary
 // --------------------------------------------------------------------------
 void CEconItem::OnTransferredOwnership()
 {
-	// Reset all our strange scores.
-	for ( int i = 0; i < GetKillEaterAttrCount(); i++ )
-	{
-		const CEconItemAttributeDefinition *pAttrDef = GetKillEaterAttr_Score(i);
-
-		// Skip over any attributes our schema doesn't understand. We ideally wouldn't ever
-		// have this happen but if it does we don't want to ignore other valid attributes.
-		if ( !pAttrDef )
-			continue;
-
-		// Ignore any attributes we don't have on this item.
-		if ( !FindAttribute( pAttrDef ) )
-			continue;
-
-		// Zero out the value of this stat attribute.
-		SetDynamicAttributeValue( pAttrDef, 0u );
-	}
-
 	// Free accounts have the ability to trade any item out that they received in a trade.
 	SetFlag( kEconItemFlag_CanBeTradedByFreeAccounts );
-}
-
-// --------------------------------------------------------------------------
-// Purpose: This item has been traded. Give it an opportunity to update any internal
-//			properties in response.
-// --------------------------------------------------------------------------
-void CEconItem::OnReceivedFromMarket( bool bFromRollback )
-{
-	OnTransferredOwnership();
-
 }
 
 // --------------------------------------------------------------------------
@@ -1154,10 +872,7 @@ void CEconItem::SerializeToProtoBufItem( CSOEconItem &msgItem ) const
 		msgItem.set_original_id( GetOriginalID() );
 	msgItem.set_account_id( m_unAccountID );
 	msgItem.set_def_index( m_unDefIndex );
-	msgItem.set_level( m_unLevel );
-	msgItem.set_quality( m_nQuality );
 	msgItem.set_inventory( m_unInventory );	
-	msgItem.set_quantity( GetQuantity() );
 	msgItem.set_flags( m_unFlags );
 	msgItem.set_origin( m_unOrigin );
 	msgItem.set_style( m_unStyle );
@@ -1194,18 +909,6 @@ void CEconItem::SerializeToProtoBufItem( CSOEconItem &msgItem ) const
 
 	if ( m_pCustomData )
 	{
-		const char *pszCustomName = GetCustomName();
-		if ( pszCustomName )
-		{
-			msgItem.set_custom_name( pszCustomName );
-		}
-
-		const char *pszCustomDesc = GetCustomDesc();
-		if ( pszCustomDesc )
-		{
-			msgItem.set_custom_desc( pszCustomDesc );
-		}
-
 		const CEconItem *pInteriorItem = GetInteriorItem();
 		if ( pInteriorItem )
 		{
@@ -1232,27 +935,12 @@ void CEconItem::DeserializeFromProtoBufItem( const CSOEconItem &msgItem )
 	SetOriginalID( msgItem.has_original_id() ? msgItem.original_id() : m_ulID );
 	m_unAccountID = msgItem.account_id();
 	m_unDefIndex = msgItem.def_index();
-	m_unLevel = msgItem.level();
-	m_nQuality = msgItem.quality();
 	m_unInventory = msgItem.inventory();
-	SetQuantity( msgItem.quantity() );
 	m_unFlags = msgItem.flags();
 	m_unOrigin = msgItem.origin();
 	m_unStyle = msgItem.style();
 
 	m_dirtyBits.m_bInUse = msgItem.in_use() ? 1 : 0;
-
-	// set name if any
-	if( msgItem.has_custom_name() )
-	{
-		SetCustomName( msgItem.custom_name().c_str() );
-	}
-
-	// set desc if any
-	if( msgItem.has_custom_desc() )
-	{
-		SetCustomDesc( msgItem.custom_desc().c_str() );
-	}
 
 	// read the attributes
 	for( int nAttr = 0; nAttr < msgItem.attribute_size(); nAttr++ )
@@ -1320,78 +1008,187 @@ void CEconItem::EnsureCustomDataExists()
 	}
 }
 
+#ifdef CLIENT_DLL
+#include "c_tf_player.h"
+#include "tf_gamerules.h"
+#include <tf_weapon_grapplinghook.h>
+#include <tf_item_powerup_bottle.h>
 
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-bool CCrateLootListWrapper::BAttemptCrateSeriesInitialization( const IEconItemInterface *pEconItem )
+// This is the command the user will execute.
+// We want this to happen on the client, before forwarding to the game server,
+// since we don't trust the game server.
+static void StartUseActionSlotItem( const CCommand &args )
 {
-	Assert( m_pLootList == NULL );
-
-	// Find out what series this crate belongs to.
-	static CSchemaAttributeDefHandle pAttr_CrateSeries( "set supply crate series" );
-	if ( !pAttr_CrateSeries )
-		return false;
-
-	int iCrateSeries;
+	if ( !engine->IsInGame() )
 	{
-		float fCrateSeries;		// crate series ID is stored as a float internally because we hate ourselves
-		if ( !FindAttribute_UnsafeBitwiseCast<attrib_value_t>( pEconItem, pAttr_CrateSeries, &fCrateSeries ) || fCrateSeries == 0.0f )
-			return false;
-
-		iCrateSeries = fCrateSeries;
+		return;
 	}
 
-	// Our index is an index into the revolving-loot-lists list. From that list we'll be able to
-	// get a loot list name, which we'll use to look up the actual contents.
-	const CEconItemSchema::RevolvingLootListDefinitionMap_t& mapRevolvingLootLists = GetItemSchema()->GetRevolvingLootLists();
-	int idx = mapRevolvingLootLists.Find( iCrateSeries );
-	if ( !mapRevolvingLootLists.IsValidIndex( idx ) )
-		return false;
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if ( pLocalPlayer == NULL )
+	{
+		return;
+	}
 
-	const char *pszLootList = mapRevolvingLootLists.Element( idx );
+	pLocalPlayer->SetUsingActionSlot( true );
 
-	// Get the loot list.
-	m_pLootList = GetItemSchema()->GetLootListByName( pszLootList );
-	m_unAuditDetailData = iCrateSeries;
-		
-	return m_pLootList != NULL;
+	// Ghosts cant use action items!
+	if ( pLocalPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) )
+	{
+		return;
+	}
+
+	// If we're in Mann Vs MAchine, and we're dead, we can use this to respawn
+	// instantly.
+	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && pLocalPlayer->IsObserver() )
+	{
+		float flNextRespawn = TFGameRules()->GetNextRespawnWave(
+		pLocalPlayer->GetTeamNumber(), pLocalPlayer );
+		if ( flNextRespawn )
+		{
+			int iRespawnWait = ( flNextRespawn - gpGlobals->curtime );
+			if ( iRespawnWait > 1.0 )
+			{
+				engine->ClientCmd_Unrestricted( "td_buyback\n" );
+				return;
+			}
+		}
+	}
+
+	// trying to pick up a dropped weapon?
+	if ( pLocalPlayer->GetDroppedWeaponInRange() != NULL )
+	{
+		KeyValues *kv = new KeyValues( "+use_action_slot_item_server" );
+		engine->ServerCmdKeyValues( kv );
+		return;
+	}
+
+	if ( TFGameRules() && TFGameRules()->IsUsingGrapplingHook() )
+	{
+		CTFGrapplingHook *pGrapplingHook = dynamic_cast<CTFGrapplingHook *>(
+		pLocalPlayer->GetEntityForLoadoutSlot( LOADOUT_POSITION_ACTION ) );
+		if ( pGrapplingHook )
+		{
+			if ( pLocalPlayer->GetActiveTFWeapon() != pGrapplingHook )
+			{
+				pLocalPlayer->Weapon_Switch( pGrapplingHook );
+			}
+
+			KeyValues *kv = new KeyValues( "+use_action_slot_item_server" );
+			engine->ServerCmdKeyValues( kv );
+
+			return;
+		}
+	}
+
+	// otherwise, forward to game server
+	KeyValues *kv = new KeyValues( "+use_action_slot_item_server" );
+	engine->ServerCmdKeyValues( kv );
 }
 
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-bool CCrateLootListWrapper::BAttemptLootListStringInitialization( const IEconItemInterface *pEconItem )
+static ConCommand
+start_use_action_slot_item( "+use_action_slot_item", StartUseActionSlotItem, "Use the item in the action slot." );
+
+static void EndUseActionSlotItem( const CCommand &args )
 {
-	Assert( m_pLootList == NULL );
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if ( !pLocalPlayer )
+		return;
 
-	// Find out what series this crate belongs to.
-	static CSchemaAttributeDefHandle pAttr_LootListName( "loot list name" );
-	if ( !pAttr_LootListName )
-		return false;
+	pLocalPlayer->SetUsingActionSlot( false );
 
-	CAttribute_String str;
-	if ( !pEconItem->FindAttribute( pAttr_LootListName, &str ) )
-		return false;
+	if ( TFGameRules() && TFGameRules()->IsUsingGrapplingHook() && pLocalPlayer->GetActiveTFWeapon() )
+	{
+		// if we're using the hook, switch back to the last weapon
+		if ( pLocalPlayer->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_GRAPPLINGHOOK )
+		{
+			KeyValues *kv = new KeyValues( "-use_action_slot_item_server" );
+			engine->ServerCmdKeyValues( kv );
 
-	m_pLootList = GetItemSchema()->GetLootListByName( str.value().c_str() );
+			C_BaseCombatWeapon *pLastWeapon = pLocalPlayer->GetLastWeapon();
 
-	return m_pLootList != NULL;
+			// switch away from the hook
+			if ( pLastWeapon && pLocalPlayer->Weapon_CanSwitchTo( pLastWeapon ) )
+			{
+				pLocalPlayer->Weapon_Switch( pLastWeapon );
+			}
+			else
+			{
+				// in case we failed to switch back to last weapon for some
+				// reason, just find the next best
+				pLocalPlayer->SwitchToNextBestWeapon( pLastWeapon );
+			}
+
+			return;
+		}
+	}
+
+	// tell the game server we let go of the button if this wasn't a GC item
+	KeyValues *kv = new KeyValues( "-use_action_slot_item_server" );
+	engine->ServerCmdKeyValues( kv );
 }
 
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-bool CCrateLootListWrapper::BAttemptLineItemInitialization( const IEconItemInterface *pEconItem )
+static ConCommand end_use_action_slot_item( "-use_action_slot_item", EndUseActionSlotItem );
+
+static void StartContextAction( const CCommand &args )
 {
-	Assert( m_pLootList == NULL );
+	// Assume we're going to taunt
+	bool bDoTaunt = true;
 
-	// Do we have at least one line item specified?
-	if ( !pEconItem->FindAttribute( CAttributeLineItemLootList::s_pAttrDef_RandomDropLineItems[0] ) )
-		return false;
+	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
+	{
+		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+		if ( pLocalPlayer )
+		{
+			CTFPowerupBottle *pPowerupBottle = dynamic_cast<CTFPowerupBottle *>( pLocalPlayer->GetEquippedWearableForLoadoutSlot( LOADOUT_POSITION_ACTION ) );
+			if ( pPowerupBottle && pPowerupBottle->GetNumCharges() > 0 )
+			{
+				// They're in MvM and have a bottle with a charge, so do an
+				// action instead
+				bDoTaunt = false;
+			}
 
-	m_pLootList = new CAttributeLineItemLootList( pEconItem );
-	m_bIsDynamicallyAllocatedLootList = true;
-		
-	return true;
+			if ( pLocalPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) &&
+				 pLocalPlayer->GetActiveTFWeapon() &&
+				 pLocalPlayer->GetActiveTFWeapon()->GetWeaponID() ==
+				 TF_WEAPON_MINIGUN )
+			{
+				int iRage = 0;
+				CALL_ATTRIB_HOOK_INT_ON_OTHER( pLocalPlayer, iRage,
+											   generate_rage_on_dmg );
+				if ( iRage )
+				{
+					if ( pLocalPlayer->m_Shared.GetRageMeter() >= 100.f &&
+						 !pLocalPlayer->m_Shared.IsRageDraining() )
+					{
+						// They have rage ready to go, do the taunt
+						bDoTaunt = true;
+					}
+				}
+			}
+		}
+	}
+
+	if ( bDoTaunt )
+	{
+		// Taunt
+		engine->ClientCmd_Unrestricted( "+taunt\n" );
+	}
+	else
+	{
+		// Action item
+		StartUseActionSlotItem( args );
+	}
 }
+
+static ConCommand start_context_action( "+context_action", StartContextAction, "Use the item in the action slot." );
+
+static void EndContextAction( const CCommand &args )
+{
+	// Undo both to be on the safe side
+	EndUseActionSlotItem( args );
+	engine->ClientCmd_Unrestricted( "-taunt\n" );
+}
+
+static ConCommand end_context_action( "-context_action", EndContextAction );
+#endif

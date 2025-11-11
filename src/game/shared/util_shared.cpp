@@ -1414,20 +1414,6 @@ const char* UTIL_GetActiveHolidayString()
 //-----------------------------------------------------------------------------
 const char* UTIL_GetActiveOperationString()
 {
-#if defined( TF_DLL ) || defined( TF_CLIENT_DLL )
-	if ( GetItemSchema() )
-	{
-		FOR_EACH_DICT_FAST( GetItemSchema()->GetOperationDefinitions(), iOperation )
-		{
-			CEconOperationDefinition *pOperation = GetItemSchema()->GetOperationDefinitions()[iOperation];
-			if ( !pOperation || !pOperation->IsActive() || !pOperation->IsCampaign() )
-				continue;
-
-			return pOperation->GetName();
-		}
-	}
-#endif
-
 	return NULL;
 }
 

@@ -446,35 +446,13 @@ public:
 		return ::FindAttribute( this, pAttrDef, out_pValue );
 	}
 
-	// IEconItemInterface common implementation.
-	virtual bool IsTradable() const;
-	virtual int  GetUntradabilityFlags() const;
-	virtual bool IsCommodity() const;
-	virtual bool IsUsableInCrafting() const;
-	virtual bool IsMarketable() const;				// can this item be listed on the Marketplace?
-
-	bool IsTemporaryItem() const;					// returns whether this item is a temporary instance of an item that is not by nature temporary (ie., a preview item, an item with an attribute expiration timer)
-	RTime32 GetExpirationDate() const;				// will return RTime32( 0 ) if this item will not expire, otherwise the time that it will auto-delete itself; this looks at both static and dynamic ways of expiring timers
-
 	// IEconItemInterface interface.
 	virtual const GameItemDefinition_t *GetItemDefinition() const = 0;
 
 	virtual itemid_t		GetID() const = 0;				// intentionally not called GetItemID to avoid stomping non-virtual GetItemID() on CEconItem
 	virtual uint32			GetAccountID() const = 0;
-	virtual int32			GetQuality() const = 0;
 	virtual style_index_t	GetStyle() const = 0;
-	virtual uint8			GetFlags() const = 0;
 	virtual eEconItemOrigin GetOrigin() const = 0;
-	virtual int				GetQuantity() const = 0;
-	virtual uint32			GetItemLevel() const = 0;
-	virtual bool			GetInUse() const = 0;			// is this item in use somewhere in the backend? (ie., cross-game trading)
-	uint8		GetRarity() const;
-	EEconItemQuality GetMarketQuality() const;
-	bool					BIsStrange() const;
-	bool					BIsUnusual() const;
-
-	virtual const char	   *GetCustomName() const = 0;		// get a user-generated name, if present, otherwise NULL; return value is UTF8
-	virtual const char	   *GetCustomDesc() const = 0;		// get a user-generated flavor text, if present, otherwise NULL; return value is UTF8
 
 	// IEconItemInterface attribute iteration interface. This is not meant to be used for
 	// attribute lookup! This is meant for anything that requires iterating over the full
@@ -485,39 +463,10 @@ public:
 	const char	*GetDefinitionString( const char *pszKeyName, const char *pszDefaultValue = "" ) const;
 	KeyValues *GetDefinitionKey( const char *pszKeyName ) const;
 
-	RTime32 GetTradableAfterDateTime() const;
-
 	virtual item_definition_index_t GetItemDefIndex() const { return GetItemDefinition() ? GetItemDefinition()->GetDefinitionIndex() : INVALID_ITEM_DEF_INDEX; }
 
 	virtual IMaterial* GetMaterialOverride( int iTeam ) = 0;
-
-protected:
-	bool IsPermanentlyUntradable() const;
-	bool IsTemporarilyUntradable() const;
 };
-
-bool GetPaintKitWear( const IEconItemInterface *pItem, float &flWear );
-
-template <typename TAttributeContainerType>
-bool GetPaintKitDefIndex( const TAttributeContainerType *pAttrContainer, uint32 *punPaintKitDefIndex = NULL )
-{
-	static CSchemaAttributeDefHandle pAttrDef_PaintKitProtoDefIndex( "paintkit_proto_def_index" );
-	uint32 unPaintKitDefIndex;
-	if ( pAttrDef_PaintKitProtoDefIndex && FindAttribute_UnsafeBitwiseCast<attrib_value_t>( pAttrContainer, pAttrDef_PaintKitProtoDefIndex, &unPaintKitDefIndex ) )
-	{
-		if ( punPaintKitDefIndex )
-		{
-			*punPaintKitDefIndex = unPaintKitDefIndex;
-		}
-		return true;
-	}
-
-	return false;
-}
-
-bool GetStattrak( const IEconItemInterface *pItem, CAttribute_String *pAttrModule = NULL );
-const char *GetPaintKitMaterialOverride( const IEconItemInterface *pItem );
-const CEconItemCollectionDefinition* GetCollection( const IEconItemInterface* pItem );
 
 //-----------------------------------------------------------------------------
 // Purpose: Classes that want default behavior for GetMaterialOverride, which 
@@ -549,17 +498,12 @@ public:
 		{
 			m_bInitMaterialOverride[ iTeam ] = true;
 
-			// always use paintkit first
-			const char *pszMaterialOverride = GetPaintKitMaterialOverride( this );
-			if ( !pszMaterialOverride )
-			{
-				if ( !this->GetItemDefinition() )
-					return NULL;
+			if ( !this->GetItemDefinition() )
+				return NULL;
 
-				pszMaterialOverride = this->GetItemDefinition()->GetMaterialOverride( iTeam );
-				if ( pszMaterialOverride == NULL )
-					return NULL;
-			}
+			const char *pszMaterialOverride = this->GetItemDefinition()->GetMaterialOverride( iTeam );
+			if ( pszMaterialOverride == NULL )
+				return NULL;
 
 			m_materialOverrides[ iTeam ].Init( pszMaterialOverride, TEXTURE_GROUP_CLIENT_EFFECTS );
 			return m_materialOverrides[ iTeam ];

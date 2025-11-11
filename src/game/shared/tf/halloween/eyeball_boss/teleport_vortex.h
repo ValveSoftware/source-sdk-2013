@@ -17,6 +17,7 @@
 	#include "c_baseanimating.h"
 #else
 	#include "baseanimating.h"
+	class CTFPlayer;
 #endif
 
 enum EVortexState

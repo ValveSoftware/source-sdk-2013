@@ -185,24 +185,6 @@ void CReplayInputPanel::OnCommand( const char *command )
 		SetVisible( false );
 		TFModalStack()->PopModal( this );
 		MarkForDeletion();
-
-		// This logic is perhaps a smidge of a hack.  We have to be careful about executing "gameui_hide"
-		// since it will hide the item pickup panel.  If there are no items to be picked up, we can safely
-		// hide the gameui panel, but we have to call CheckForRoomAndForceDiscard() (as ShowItemsPickedUp()
-		// does if no items are picked up).  Otherwise, skip the "gameui_hide" call and show the item pickup
-		// panel.
-#if defined( TF_CLIENT_DLL )
-		if ( TFInventoryManager()->GetNumItemPickedUpItems() == 0 )
-		{
-			TFInventoryManager()->CheckForRoomAndForceDiscard();
-			engine->ClientCmd_Unrestricted( "gameui_hide" );
-		}
-		else if ( bLocalPlayerDead )
-		{
-			// Now show the items pickup screen if player's dead
-			TFInventoryManager()->ShowItemsPickedUp();
-		}
-#endif
 	}
 
 	BaseClass::OnCommand( command );

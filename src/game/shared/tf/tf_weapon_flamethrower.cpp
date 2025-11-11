@@ -1290,9 +1290,6 @@ void ExtinguishPlayer( CEconEntity *pExtinguisher, CTFPlayer *pOwner, CTFPlayer 
 		gameeventmanager->FireEvent( event, true );
 	}
 
-	// stats
-	EconEntity_OnOwnerKillEaterEvent( pExtinguisher, pOwner, pTarget, kKillEaterEvent_BurningAllyExtinguished );
-
 	UTIL_LogPrintf( "\"%s<%i><%s><%s>\" triggered \"player_extinguished\" against \"%s<%i><%s><%s>\" with \"%s\" (attacker_position \"%d %d %d\") (victim_position \"%d %d %d\")\n",    
 				pOwner->GetPlayerName(), pOwner->GetUserID(), pOwner->GetNetworkIDString(), pOwner->GetTeam()->GetName(),
 				pTarget->GetPlayerName(), pTarget->GetUserID(), pTarget->GetNetworkIDString(), pTarget->GetTeam()->GetName(),
@@ -1956,7 +1953,6 @@ bool CTFFlameThrower::DeflectEntity( CBaseEntity *pTarget, CTFPlayer *pOwner, Ve
 		else
 		{
 			pTarget->EmitSound( "Weapon_FlameThrower.AirBurstAttackDeflect" );
-			EconEntity_OnOwnerKillEaterEvent( this, pOwner, pTFPlayerVictim, kKillEaterEvent_ProjectileReflect );
 		}
 	}
 	return bDeflected;
@@ -3056,36 +3052,11 @@ void CTFFlameEntity::OnCollide( CBaseEntity *pOther )
 
 	if ( pOther && pOther->IsPlayer() )
 	{
-		CTFPlayer *pVictim = ToTFPlayer( pOther );
 		if ( IsBehindTarget( pOther ) )
 		{
 			if ( m_bCritFromBehind == true )
 			{
 				iDamageType |= DMG_CRITICAL;
-			}
-
-			if ( pVictim )
-			{
-				pVictim->HandleAchievement_Pyro_BurnFromBehind( ToTFPlayer( pAttacker ) );
-			}
-		}
-
-		// Pyro-specific
-		if ( pAttacker->IsPlayer() && pVictim )
-		{
-			CTFPlayer *pPlayerAttacker = ToTFPlayer( pAttacker );
-			if ( pPlayerAttacker && pPlayerAttacker->IsPlayerClass( TF_CLASS_PYRO ) )
-			{
-				// burn the victim while taunting?
-				if ( pVictim->m_Shared.InCond( TF_COND_TAUNTING ) )
-				{
-					static CSchemaItemDefHandle flipTaunt( "Flippin' Awesome Taunt" );
-					// if I'm the one being flipped, and getting lit on fire
-					if ( !pVictim->IsTauntInitiator() && pVictim->GetTauntEconItemView() && pVictim->GetTauntEconItemView()->GetItemDefinition() == flipTaunt )
-					{
-						pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_PYRO_IGNITE_PLAYER_BEING_FLIPPED );
-					}
-				}
 			}
 		}
 	}

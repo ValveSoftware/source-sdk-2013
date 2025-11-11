@@ -137,12 +137,7 @@ void CTFDemoSupport::Update( float frametime )
 	{
 		if ( !m_bRecording && !m_bAlreadyAutoRecordedOnce )
 		{
-			if ( ds_enable.GetInt() == 1 )
-			{
-				if ( TFGameRules() && !TFGameRules()->IsCompetitiveMode() )
-					return;
-			}
-			else if ( ds_enable.GetInt() == 3 )
+			if ( ds_enable.GetInt() == 3 )
 			{
 				if ( !mp_tournament.GetBool() )
 					return;

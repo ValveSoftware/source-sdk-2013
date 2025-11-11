@@ -61,14 +61,6 @@ const int STREAK_MIN_DUCKS = 10;
 static int MinStreakForType( CTFPlayerShared::ETFStreak eStreakType )
 {
 	bool bIsMvM = TFGameRules() && TFGameRules()->IsMannVsMachineMode();
-	if ( eStreakType == CTFPlayerShared::kTFStreak_Ducks )
-	{
-		return STREAK_MIN_DUCKS;
-	}
-	if ( eStreakType == CTFPlayerShared::kTFStreak_Duck_levelup )
-	{
-		return 1;
-	}
 	if ( bIsMvM )
 	{
 		return STREAK_MIN_MVM;
@@ -107,7 +99,6 @@ private:
 	int m_nLabelYPos;
 
 	CHudTexture *m_iconKillStreak;
-	CHudTexture *m_iconDuckStreak;
 };
 
 //-----------------------------------------------------------------------------
@@ -123,7 +114,6 @@ CTFStreakNotice::CTFStreakNotice( const char *pName ) : CHudElement( pName ), vg
 	m_nCurrStreakType = (CTFPlayerShared::ETFStreak)0;
 
 	m_iconKillStreak = gHUD.GetIcon( "leaderboard_streak" );
-	m_iconDuckStreak = gHUD.GetIcon( "eotl_duck" );
 }
 
 //-----------------------------------------------------------------------------
@@ -182,7 +172,7 @@ void CTFStreakNotice::Paint( void )
 
 	// Move labels down when in spectator
 	C_TFPlayer *pPlayer = CTFPlayer::GetLocalTFPlayer();
-	CHudTexture *pIcon = ( m_nCurrStreakType == CTFPlayerShared::kTFStreak_Ducks || m_nCurrStreakType == CTFPlayerShared::kTFStreak_Duck_levelup ) ? m_iconDuckStreak : m_iconKillStreak;
+	CHudTexture *pIcon = m_iconKillStreak;
 	if ( pPlayer && pIcon )
 	{
 		int nYOffset = ( pPlayer->GetObserverMode() > OBS_MODE_FREEZECAM ? YRES(40) : 0 );
@@ -223,12 +213,12 @@ void CTFStreakNotice::StreakEnded( CTFPlayerShared::ETFStreak eStreakType, int i
 	bool bSelfKill = false;
 	if ( iKillerID == iVictimID )
 	{
-		wzMsg = g_pVGuiLocalize->Find( ( eStreakType == CTFPlayerShared::kTFStreak_Ducks ) ? "#Msg_DuckStreakEndSelf" : "#Msg_KillStreakEndSelf" );
+		wzMsg = g_pVGuiLocalize->Find( "#Msg_KillStreakEndSelf" );
 		bSelfKill = true;
 	}
 	else
 	{
-		wzMsg = g_pVGuiLocalize->Find( ( eStreakType == CTFPlayerShared::kTFStreak_Ducks ) ? "#Msg_DuckStreakEnd" : "#Msg_KillStreakEnd" );
+		wzMsg = g_pVGuiLocalize->Find( "#Msg_KillStreakEnd" );
 	}
 	
 	if ( !wzMsg )
@@ -330,34 +320,7 @@ void CTFStreakNotice::StreakUpdated( CTFPlayerShared::ETFStreak eStreakType, int
 
 	// Is this message worth responding to
 	int iStreakTier = 0;
-	if ( eStreakType == CTFPlayerShared::kTFStreak_Ducks)
-	{
-		// Notices at 15, 30, then increments of 50. We may increment by multiple ducks per kill, so check if we passed over a milestone.
-		if ( iStreak >= 15 && ( iStreak - iStreakIncrement < 15 ) )
-		{
-			iStreakTier = 1;
-			iStreak = 15;
-		}
-		else if ( iStreak >= 30 && ( iStreak - iStreakIncrement <30 ) )
-		{
-			iStreakTier = 2;
-			iStreak = 30;
-		}
-		else if ( iStreak > 50 && iStreak % 50 < iStreakIncrement )
-		{
-			iStreakTier = Min( 2 + ( iStreak / 50 ), 5 );
-			iStreak -= iStreak % 50;
-		}
-		else
-		{
-			return;
-		}
-	}
-	else if ( eStreakType == CTFPlayerShared::kTFStreak_Duck_levelup )
-	{
-		iStreakTier = 5;
-	}
-	else if ( bIsMvM )
+	if ( bIsMvM )
 	{
 		if ( iStreak % iStreakMin != 0 )
 			return;
@@ -398,50 +361,7 @@ void CTFStreakNotice::StreakUpdated( CTFPlayerShared::ETFStreak eStreakType, int
 	const wchar_t *wzMsg = NULL;
 	const char *pszSoundName = "Game.KillStreak";
 	Color cCustomColor(235, 226, 202, 255);
-	if ( eStreakType == CTFPlayerShared::kTFStreak_Ducks )
-	{
-		// Duckstreak tiers
-		switch ( iStreakTier )
-		{
-		case 1:
-			// TODO duckier colors?
-			cCustomColor = Color( 112, 176, 74, 255);		// Green
-			wzMsg = g_pVGuiLocalize->Find( "#Msg_DuckStreak1" );
-			//pszSoundName = "Announcer.DuckStreak_Level1";
-			break;
-		case 2:
-			cCustomColor = Color( 207, 106, 50, 255);		// Orange
-			wzMsg = g_pVGuiLocalize->Find( "#Msg_DuckStreak2" );
-			//pszSoundName = "Announcer.DuckStreak_Level2";
-			break;
-		case 3:
-			cCustomColor = Color( 134, 80, 172, 255);		// Purple
-			wzMsg = g_pVGuiLocalize->Find( "#Msg_DuckStreak3" );
-			//pszSoundName = "Announcer.DuckStreak_Level3";
-			break;
-		case 4:
-			cCustomColor = Color(255, 215, 0, 255);			// Gold
-			wzMsg = g_pVGuiLocalize->Find( "#Msg_DuckStreak4" );
-			//pszSoundName = "Announcer.DuckStreak_Level4";
-			break;
-		default:
-			cCustomColor = Color(255, 215, 0, 255);			// Still Gold
-			wzMsg = g_pVGuiLocalize->Find( "#Msg_DuckStreak5" );
-			//pszSoundName = "Announcer.DuckStreak_Level4";
-			break;
-		}
-	}
-	else if ( eStreakType == CTFPlayerShared::kTFStreak_Duck_levelup )
-	{
-		cCustomColor = Color( 255, 215, 0, 255 );			// Gold
-		switch ( RandomInt( 1, 3 ) )
-		{
-			case 1:		wzMsg = g_pVGuiLocalize->Find( "#Msg_DuckLevelup1" );	break;
-			case 2:		wzMsg = g_pVGuiLocalize->Find( "#Msg_DuckLevelup2" );	break;
-			default:	wzMsg = g_pVGuiLocalize->Find( "#Msg_DuckLevelup3" );	break;
-		}
-	}
-	else
+
 	{
 		// Killstreak tiers
 		switch ( iStreakTier )
@@ -549,19 +469,7 @@ void CTFStreakNotice::StreakUpdated( CTFPlayerShared::ETFStreak eStreakType, int
 //-----------------------------------------------------------------------------
 bool CTFStreakNotice::IsCurrentStreakHigherPriority( CTFPlayerShared::ETFStreak eStreakType, int iStreak )
 {
-	// duck level ups are highest priority
-	if ( eStreakType == CTFPlayerShared::kTFStreak_Duck_levelup )
-		return false;
-
 	if ( !m_nCurrStreakCount )
-		return false;
-
-	// Ducks never override kills
-	if ( m_nCurrStreakType == CTFPlayerShared::kTFStreak_Kills && eStreakType == CTFPlayerShared::kTFStreak_Ducks )
-		return true;
-
-	// But kills always override ducks
-	if ( m_nCurrStreakType == CTFPlayerShared::kTFStreak_Ducks && eStreakType == CTFPlayerShared::kTFStreak_Kills )
 		return false;
 
 	// Don't stomp a higher streak with a lower, unless it's been around long enough
@@ -627,8 +535,6 @@ private:
 
 	CHudTexture		*m_iconDomination;
 	CHudTexture		*m_iconKillStreak;
-	CHudTexture		*m_iconDuckStreak;
-	CHudTexture		*m_iconDuckStreakDNeg;
 	CHudTexture		*m_iconKillStreakDNeg;
 
 	CPanelAnimationVar( Color, m_clrBlueText, "TeamBlue", "153 204 255 255" );
@@ -674,8 +580,6 @@ void CTFHudDeathNotice::ApplySchemeSettings( vgui::IScheme *scheme )
 	
 	m_iconKillStreak = gHUD.GetIcon( "leaderboard_streak" );
 	m_iconKillStreakDNeg = gHUD.GetIcon( "leaderboard_streak_dneg" );
-	m_iconDuckStreak = gHUD.GetIcon( "eotl_duck" );
-	m_iconDuckStreakDNeg = gHUD.GetIcon( "eotl_duck_dneg" );
 	m_pStreakNotice = new CTFStreakNotice( "KillStreakNotice" );
 }
 
@@ -759,14 +663,6 @@ void CTFHudDeathNotice::PlayRivalrySounds( int iKillerIndex, int iVictimIndex, i
 //-----------------------------------------------------------------------------
 void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 {
-	const char * pszEventName = event->GetName();
-	if ( FStrEq( "duck_xp_level_up", pszEventName ) )
-	{
-		int level = event->GetInt( "level" );
-		AddStreakMsg( CTFPlayerShared::kTFStreak_Duck_levelup, GetLocalPlayerIndex(), level, 1, -1, 0 );
-		return;
-	}
-
 	BaseClass::FireGameEvent( event );
 }
 
@@ -1175,8 +1071,6 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 
 		int iKillStreakTotal = event->GetInt( "kill_streak_total" );
 		int iKillStreakWep = event->GetInt( "kill_streak_wep" );
-		int iDuckStreakTotal = event->GetInt( "duck_streak_total" );
-		int iDucksThisKill = event->GetInt( "ducks_streaked" );
 
 		// if the active weapon is kill streak
 		C_TFPlayer* pKiller = ToTFPlayer( UTIL_PlayerByIndex( iKillerID ) );
@@ -1209,14 +1103,6 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 				msg.iconPostKillerName = m_iconKillStreak;
 			}
 		}
-		else if ( iDuckStreakTotal > 0 && iDucksThisKill )
-		{
-			// Duckstreak icon (always lower priority)
-			wchar_t wzCount[10];
-			_snwprintf( wzCount, ARRAYSIZE( wzCount ), L"%d", iDuckStreakTotal );
-			g_pVGuiLocalize->ConstructString_safe( msg.wzPreKillerText, g_pVGuiLocalize->Find("#Duck_Streak"), 1, wzCount );
-			msg.iconPostKillerName = msg.bLocalPlayerInvolved ? m_iconDuckStreakDNeg : m_iconDuckStreak;
-		}
 
 		// Check to see if we want a extra notification
 		// Attempt to display these in order of descending priority
@@ -1236,23 +1122,6 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		{
 			AddStreakEndedMsg( CTFPlayerShared::kTFStreak_Kills, iKillerID, iVictimID, iKillStreakVictim, iDeathNoticeMsg );
 		}
-
-		// Ducks
-		int iDuckStreakAssist = event->GetInt( "duck_streak_assist" );
-		int iDuckStreakVictim = event->GetInt( "duck_streak_victim" );
-		int iDuckStreakIncrement = event->GetInt( "ducks_streaked" );
-
-		AddStreakMsg( CTFPlayerShared::kTFStreak_Ducks, iKillerID, iDuckStreakTotal, iDuckStreakIncrement, iVictimID, iDeathNoticeMsg );
-		if ( pAssister && iDuckStreakAssist > 0 && iDucksThisKill )
-		{
-			AddStreakMsg( CTFPlayerShared::kTFStreak_Ducks, iAssisterID, iDuckStreakAssist, iDuckStreakIncrement, iVictimID, iDeathNoticeMsg );
-		}
-
-		if ( pVictim && iDuckStreakVictim > 2 )
-		{
-			AddStreakEndedMsg( CTFPlayerShared::kTFStreak_Ducks, iKillerID, iVictimID, iDuckStreakVictim, iDeathNoticeMsg );
-		}
-
 		// STAGING ONLY test
 		// If Local Player killed someone and they have an item waiting, let them know
 	} 

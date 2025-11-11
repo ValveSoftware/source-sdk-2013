@@ -111,29 +111,9 @@ const char *CItemSelectionCriteria::GetFieldForFirstConditionOfType( EItemCriter
 //-----------------------------------------------------------------------------
 bool CItemSelectionCriteria::BInitFromKV( KeyValues *pKVCriteria )
 {
-	// Read in the base fields
-	if ( pKVCriteria->FindKey( "level" ) )
-	{
-		SetItemLevel( pKVCriteria->GetInt( "level" ) );
-	}
-
-	if ( pKVCriteria->FindKey( "quality" ) )
-	{
-		uint8 nQuality;
-		if ( !GetItemSchema()->BGetItemQualityFromName( pKVCriteria->GetString( "quality" ), &nQuality ) )
-			return false;
-
-		SetQuality( nQuality );
-	}
-
 	if ( pKVCriteria->FindKey( "inventoryPos" ) )
 	{
 		SetInitialInventory( pKVCriteria->GetInt( "inventoryPos" ) );
-	}
-
-	if ( pKVCriteria->FindKey( "quantity" ) )
-	{
-		SetInitialQuantity( pKVCriteria->GetInt( "quantity" ) );
 	}
 
 	if ( pKVCriteria->FindKey( "ignore_enabled" ) )
@@ -313,22 +293,6 @@ bool CItemSelectionCriteria::BEvaluate( const CEconItemDefinition* pItemDef ) co
 	if ( !m_bIgnoreEnabledFlag && !pItemDef->BEnabled() )
 		return false;
 
-	// Filter against level
-	if ( BItemLevelSet() && (GetItemLevel() != AE_USE_SCRIPT_VALUE) &&
-		( GetItemLevel() < pItemDef->GetMinLevel() || GetItemLevel() > pItemDef->GetMaxLevel() ) )
-		return false;
-
-	// Filter against quality
-	if ( BQualitySet() && (GetQuality() != AE_USE_SCRIPT_VALUE) )
-	{
-		if ( GetQuality() != pItemDef->GetQuality() )
-		{
-			// Filter out item defs that have a non-any quality if we have a non-matching & non-any quality criteria
-			if ( k_unItemQuality_Any != GetQuality() && k_unItemQuality_Any != pItemDef->GetQuality() )
-				return false;
-		}
-	}
-
 	// Filter against the additional conditions
 	FOR_EACH_VEC( m_vecConditions, i )
 	{
@@ -498,12 +462,7 @@ bool CItemSelectionCriteria::CFloatCondition::BSerializeToMsg( CSOItemCriteriaCo
 //-----------------------------------------------------------------------------
 bool CItemSelectionCriteria::BSerializeToMsg( CSOItemCriteria & msg ) const
 {
-	msg.set_item_level( m_unItemLevel );
-	msg.set_item_quality( m_nItemQuality );
-	msg.set_item_level_set( m_bItemLevelSet );
-	msg.set_item_quality_set( m_bQualitySet );
 	msg.set_initial_inventory( m_unInitialInventory );
-	msg.set_initial_quantity( m_unInitialQuantity );
 	msg.set_ignore_enabled_flag( m_bIgnoreEnabledFlag );
 	msg.set_tags( m_strTags );
 	msg.set_equip_regions( m_strEquipRegions );
@@ -524,12 +483,7 @@ bool CItemSelectionCriteria::BSerializeToMsg( CSOItemCriteria & msg ) const
 //-----------------------------------------------------------------------------
 bool CItemSelectionCriteria::BDeserializeFromMsg( const CSOItemCriteria & msg )
 {
-	m_unItemLevel = msg.item_level();
-	m_nItemQuality = msg.item_quality();
-	m_bItemLevelSet = msg.item_level_set();
-	m_bQualitySet = msg.item_quality_set();
 	m_unInitialInventory = msg.initial_inventory();
-	m_unInitialQuantity = msg.initial_quantity();
 	m_bIgnoreEnabledFlag = msg.ignore_enabled_flag();
 
 	SetTags( msg.tags().c_str() );

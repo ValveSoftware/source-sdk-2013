@@ -94,15 +94,12 @@ private:
 
 	ImagePanel *m_pBackground;
 	ImagePanel *m_pGrime;
-	ImagePanel *m_pRarityBackgroundOverlay;
 	EditablePanel *m_pMainContainer;
 	
 	EditablePanel *m_pCardTop;
 	CEmbeddedItemModelPanel *m_pItemModel;
 
-	EditablePanel *m_pRarityContainer;
 	Label *m_pItemName;
-	Label *m_pRarityName;
 
 	EditablePanel *m_pInfoContainer;
 	Label *m_pClassLabel;

@@ -15,16 +15,8 @@
 #include "econ_item_schema.h"
 #include "tf_item_constants.h"
 #include "tf_shareddefs.h"
-#include "tf_matchmaking_shared.h"
 
 #include "util_shared.h"
-
-class CQuestMapDefinition;
-class CQuestMapNodeDefinition;
-class CQuest;
-class CQuestThemeDefinition;
-class CQuestObjectiveConditionsDefinition;
-class CQuestDefinition;
 
 const int k_iMvmMissionIndex_Any = -1;
 const int k_iMvmMissionIndex_NotInSchema = -2;
@@ -151,78 +143,8 @@ private:
 	float			m_flCameraDistUp;
 };
 
-
-
-//-----------------------------------------------------------------------------
-// CTFRequiredQuestItemsSet
-//-----------------------------------------------------------------------------
-class CTFRequiredQuestItemsSet
-{
-public:
-	CTFRequiredQuestItemsSet( void ) {}
-
-	bool BInitFromKV( KeyValues *pKV, CUtlVector<CUtlString> *pVecErrors = NULL );
-	bool BPostInit( CUtlVector<CUtlString> *pVecErrors = NULL );
-	
-	bool OwnsRequiredItems( const CUtlVector< item_definition_index_t >& vecOwnedItemDefs ) const;
-	const item_definition_index_t& GetLoanerItemDef() const { return m_LoanerItemDef; }
-
-private:
-	CUtlVector< item_definition_index_t > m_vecQualifyingItemDefs;
-	item_definition_index_t m_LoanerItemDef;
-};
-
-
-
-//-----------------------------------------------------------------------------
-// Wars
-//-----------------------------------------------------------------------------
-class CWarDefinition
-{
-public:
-
-	CWarDefinition();
-
-	bool BInitFromKV( KeyValues *pKV, CUtlVector<CUtlString> *pVecErrors );
-
-	struct CWarSideDefinition_t
-	{
-		CWarSideDefinition_t() 
-			: m_pszLeaderboardName( NULL )
-			, m_pszLocalizedName( NULL )
-			, m_nSideIndex( INVALID_WAR_SIDE )
-		{}
-
-		bool BInitFromKV( const char* pszContainingWarName, KeyValues *pKVSide, CUtlVector<CUtlString> *pVecErrors );
-
-		const char* m_pszLocalizedName;
-		const char* m_pszLeaderboardName;
-		war_side_t	m_nSideIndex;
-	};
-	typedef CUtlMap< war_side_t, CWarSideDefinition_t > SidesMap_t;
-
-	const SidesMap_t& GetSides() const { return m_mapSides; }
-	const CWarSideDefinition_t* GetSide( war_side_t nSide ) const;
-	war_definition_index_t GetDefIndex() const { return m_nDefIndex; }
-	const char* GetDefName() const { return m_pszDefName; }
-	bool IsActive() const;
-	bool IsValidSide( war_side_t nSide ) const;
-	RTime32 GetStartDate() const { return m_rtTimeStart; }
-	RTime32 GetEndDate() const { return m_rtTimeEnd; }
-private:
-
-	const char* m_pszLocalizedWarname;
-	const char* m_pszDefName;
-	SidesMap_t m_mapSides;
-	RTime32 m_rtTimeStart;
-	RTime32 m_rtTimeEnd;
-	war_definition_index_t m_nDefIndex;
-};
-typedef CUtlMap< war_definition_index_t, const CWarDefinition* > WarDefinitionMap_t;
-
 const char *GetPlayerClassName( int iClass );
 const char *GetPlayerClassLocalizationKey( int iClass );
-itemid_t GetAssociatedQuestID( const IEconItemInterface *pEconItem );
 
 class CTFItemDefinition : public CEconItemDefinition
 {
@@ -268,7 +190,6 @@ public:
 	bool		IsContentStreamable() const;
 	const char* GetAdTextToken() const { return m_pszAdText; }
 	const char* GetAdResFile() const { return m_pszAdResFile; }
-	const CUtlVector< uint32 >& GetValidPaintkits() const;
 
 	CTFTauntInfo *GetTauntData() const { return m_pTauntData; }
 
@@ -276,8 +197,6 @@ public:
 	bool		HasDetailedIcon() const { return m_bHasDetailedIcon; }
 	bool		CanBackpackInspect() const { return m_bCanBackpackInspect; }
 #endif // CLIENT_DLL
-
-	bool		IsChanceRestricted() const { return m_bChanceRestricted; }
 
 private:
 	void InternalInitialize();
@@ -300,10 +219,6 @@ private:
 	CBitVec<LOADOUT_COUNT> m_vbClassUsability;
 	int				m_iLoadoutSlots[LOADOUT_COUNT];		// Slot that each class places the item into.
 	EEquipType_t	m_eEquipType;
-	bool			m_bChanceRestricted = false;
-
-	mutable CUtlVector< uint32 > m_vecValidPaintkitDefs;
-	mutable bool m_bValidPaintkitsGenerated;
 
 #ifdef CLIENT_DLL
 	bool			m_bHasDetailedIcon;
@@ -336,22 +251,6 @@ private:
 	// The .mdl file used for this item when it's being carried by a player.
 	const char		*m_pszPlayerDisplayModel[2][LOADOUT_COUNT];
 };
-
-class CTFCraftingRecipeDefinition : public CEconCraftingRecipeDefinition
-{
-public:
-	virtual bool ItemListMatchesInputs( CUtlVector<CEconItem*> *vecCraftingItems, KeyValues *out_pkvCraftParams, bool bIgnoreSlop, CUtlVector<uint64> *vecChosenItems ) const OVERRIDE;
-
-	// A client function for testing to see if the contents of the player's backpack can match against this recipe.
-	// Broken out into a separate function so we don't run the risk of its thorny logic introducing bugs into the backend crafting logic.
-	bool CanMatchAgainstBackpack( CUtlVector<CEconItem*> *vecAllItems, CUtlVector<CEconItem*> vecItemsByClass[LOADOUT_COUNT], CUtlVector<CEconItem*> vecItemsBySlot[ CLASS_LOADOUT_POSITION_COUNT ], CUtlVector<uint64> *vecChosenItems ) const;
-
-private:
-	bool CheckSubItemListAgainstBackpack( CUtlVector<CEconItem*> *vecCraftingItems, CUtlVector<uint64> *vecChosenItems ) const;
-};
-
-
-
 
 //-----------------------------------------------------------------------------
 // MvMMap_t
@@ -414,89 +313,20 @@ struct MvMTour_t
 	bool m_bIsNew;
 };
 
-//-----------------------------------------------------------------------------
-// Maps
-//-----------------------------------------------------------------------------
-
-enum EGameCategory
-{
-	kGameCategory_Escort = 0,
-	kGameCategory_CTF,
-	kGameCategory_AttackDefense,
-	kGameCategory_Koth,
-	kGameCategory_CP,
-	kGameCategory_EscortRace,
-	kGameCategory_EventMix,
-	kGameCategory_SD,
-	kGameCategory_Quickplay,
-	kGameCategory_Event247,
-	kGameCategory_Arena,
-	kGameCategory_RobotDestruction,
-	kGameCategory_Powerup,
-	kGameCategory_Featured,
-	kGameCategory_Passtime,
-	kGameCategory_Community_Update,
-	kGameCategory_Misc,
-	kGameCategory_Competitive_6v6,
-	kGameCategory_Other,
-	kGameCategory_Halloween,
-	kGameCategory_Competitive_12v12,
-	kGameCategory_Christmas,
-
-	// Note: Don't reorder this list.  Only add to the end
-
-	eNumGameCategories,
-};
-
 typedef uint32 map_identifier_t;
-
-enum eQuickplayMatchType
-{
-	kQuickplay_AdvancedUsersOnly,
-	kQuickplay_AllUsers,				// everyone
-	kQuickplay_Disabled,				// no-one
-
-	kQuickplayTypeCount
-};
-
-enum EMatchmakingGroupType
-{
-	kMatchmakingType_None = -1,
-
-	kMatchmakingType_SpecialEvents,
-	kMatchmakingType_Core,
-	kMatchmakingType_Alternative,
-	kMatchmakingType_Competitive_6v6,
-	kMatchmakingType_Competitive_12v12,
-
-	kMatchmakingTypeCount
-};
-
-enum EMatchmakingGameModeRestrictionType
-{
-	kMatchmakingGameModeRestrictionType_None = -1,
-
-	kMatchmakingGameModeRestrictionType_Holiday,
-	kMatchmakingGameModeRestrictionType_Operation,
-
-	kMatchmakingGameModeRestrictionTypeCount
-};
 
 typedef uint32 MapDefIndex_t;
 
 struct MapDef_t
 {
-	MapDef_t( const char* pszMapStampDefName )
-		: mapStampDef( pszMapStampDefName )
-		, m_nStatsIdentifier( (MapDefIndex_t)-1 )
+	MapDef_t()
+		: m_nStatsIdentifier( (MapDefIndex_t)-1 )
 	{}
 
-	CSchemaItemDefHandle mapStampDef;
 	MapDefIndex_t m_nDefIndex;
 	const char* pszMapName;
 	const char* pszMapNameLocKey;
 	const char* pszAuthorsLocKey;		// if set, will be considered a community map in the UI
-	const char* pszStrangePrefixLocKey;
 
 	// The m_nStatsIdentifier field is used when looking up a map in a user's gamestats.
 	// It's a relic from the quickplay days and how the maps were defined in the schema back then.
@@ -508,158 +338,7 @@ struct MapDef_t
 	map_identifier_t m_nStatsIdentifier;
 	map_identifier_t GetStatsIdentifier() const { return m_nStatsIdentifier == -1 ? (m_nDefIndex << 16) : m_nStatsIdentifier; }
 	bool IsCommunityMap() const { return pszAuthorsLocKey != NULL; }
-	CUtlVector< EGameCategory > m_vecAssociatedGameCategories;
-	CUtlVector<econ_tag_handle_t>	vecTags;
-	// The rolling match tags for this map.  When a rolling match vote happens, only allow voting on
-	// maps that have at least one matching tag with this map.
-	struct WeightedNextMapCandidates_t
-	{
-		MapDefIndex_t	m_nDefIndex;
-		float			m_flWeight;
-	};
-	CUtlVector< WeightedNextMapCandidates_t >		m_vecRollingMatchMaps;
-	void AddMapAsTargetWithWeight( const WeightedNextMapCandidates_t& target )
-	{
-		FOR_EACH_VEC( m_vecRollingMatchMaps, i )
-		{
-			if ( m_vecRollingMatchMaps[ i ].m_nDefIndex == target.m_nDefIndex )
-			{
-				m_vecRollingMatchMaps[ i ].m_flWeight = Max( m_vecRollingMatchMaps[ i ].m_flWeight, target.m_flWeight );
-				return;
-			}
-		}
-
-		m_vecRollingMatchMaps.AddToTail( target );
-	}
-
-	CUtlVector< econ_tag_handle_t >	m_vecRollingMatchTags;
-	bool BHasRollingMatchTag( econ_tag_handle_t tag ) const 
-	{
-		FOR_EACH_VEC( m_vecRollingMatchTags, i )
-		{
-			if ( m_vecRollingMatchTags[ i ] == tag )
-				return true;
-		}
-
-		return false;
-	}
-
-	struct WeightedNextMapTargets_t
-	{
-		econ_tag_handle_t	m_tag;
-		float				m_flWeight;
-	};
-	CUtlVector< WeightedNextMapTargets_t >	m_vecRollingMatchTargets;
-
 };
-
-struct SchemaMMGameModeRestriction_t
-{
-	SchemaMMGameModeRestriction_t()
-	{
-		m_eType = kMatchmakingGameModeRestrictionType_None;
-		m_nValue = -1;
-	}
-
-	EMatchmakingGameModeRestrictionType	m_eType;
-	int									m_nValue;
-	CUtlString							m_strValue;
-};
-
-struct SchemaMMGroup_t;
-struct SchemaGameCategory_t
-{
-	SchemaGameCategory_t()
-		: m_eGameCategory( eNumGameCategories )
-		, m_pszLocalizedName( NULL )
-		, m_pMMGroup( NULL )
-		, m_pszLocalizedDesc( NULL )
-		, m_pszListImage( NULL )
-	{}
-
-	SchemaGameCategory_t( const SchemaGameCategory_t& other )
-	{
-		m_eGameCategory = other.m_eGameCategory;
-		m_pMMGroup = other.m_pMMGroup;
-		m_pszLocalizedName = other.m_pszLocalizedName;
-		m_pszLocalizedDesc = other.m_pszLocalizedDesc;
-		m_pszListImage = other.m_pszListImage;
-		m_vecMaps.Purge();
-		m_vecMaps.CopyArray( other.m_vecMaps.Base(), other.m_vecMaps.Count() );
-		m_vecRestrictions.Purge();
-		m_vecRestrictions.CopyArray( other.m_vecRestrictions.Base(), other.m_vecRestrictions.Count() );
-	}
-
-	~SchemaGameCategory_t()
-	{}
-
-	void AddMap( const MapDef_t *pMap, bool bEnabled )
-	{
-		if ( !pMap )
-			return;
-
-		m_vecMaps.AddToTail( pMap );
-
-		if ( bEnabled )
-		{
-			m_vecEnabledMaps.AddToTail( pMap );
-		}
-	}
-
-	const MapDef_t *GetRandomMap( void ) const
-	{
-		Assert( m_vecEnabledMaps.Count() );
-		return m_vecEnabledMaps[RandomInt( 0, m_vecEnabledMaps.Count() - 1 )];
-	}
-
-	bool PassesRestrictions() const;
-
-	//void SerializeToKVs( KeyValues* pKV );
-
-	EGameCategory					 m_eGameCategory;
-	const SchemaMMGroup_t*			 m_pMMGroup;
-	const char*						 m_pszName;
-	const char*						 m_pszLocalizedName;
-	const char*						 m_pszLocalizedDesc;
-	const char*						 m_pszListImage;
-	const char*						 m_pszMMType;
-	CUtlVector< const MapDef_t* > m_vecEnabledMaps;
-	CUtlVector< SchemaMMGameModeRestriction_t >	m_vecRestrictions;
-	CUtlVector< const MapDef_t* > m_vecMaps;
-};
-typedef CUtlMap< EGameCategory, SchemaGameCategory_t* > GameCategoryMap_t;
-
-struct SchemaMMGroup_t
-{
-	SchemaMMGroup_t()
-		: m_eMMGroup( kMatchmakingType_None )
-		, m_pszLocalizedName( NULL )
-		, m_nMaxExcludes( 0 )
-	{}
-
-	SchemaMMGroup_t( const SchemaMMGroup_t& other )
-	{
-		m_eMMGroup = other.m_eMMGroup;
-		m_pszLocalizedName = other.m_pszLocalizedName;
-		m_nMaxExcludes = other.m_nMaxExcludes;
-		m_vecModes.Purge();
-		m_vecModes.CopyArray( other.m_vecModes.Base(), other.m_vecModes.Count() );
-	}
-
-	bool IsCategoryValid() const;
-
-	~SchemaMMGroup_t()
-	{}
-
-	EMatchmakingGroupType					m_eMMGroup;
-	const char*								m_pszName;
-	const char*								m_pszLocalizedName;
-	int										m_nMaxExcludes;
-	CBitVec<ETFMatchGroup_ARRAYSIZE>		m_bitsValidMMGroups;
-	CUtlVector< const SchemaGameCategory_t* >	m_vecModes;
-};
-typedef CUtlMap< EMatchmakingGroupType, SchemaMMGroup_t* > MMGroupMap_t;
-
 
 //-----------------------------------------------------------------------------
 // CTFItemSchema
@@ -676,17 +355,6 @@ public:
 		return (CTFItemDefinition *)GetItemDefinition( iItemIndex );
 	}
 
-	CTFCraftingRecipeDefinition *GetTFCraftingRecipeDefinition( int iRecipeIndex )
-	{
-		return (CTFCraftingRecipeDefinition *)GetRecipeDefinition( iRecipeIndex );
-	}
-
-	const CQuestObjectiveConditionsDefinition* GetQuestObjectiveConditionByDefIndex( ObjectiveConditionDefIndex_t nDefIndex ) const;
-
-	const CWarDefinition *GetWarDefinitionByIndex( war_definition_index_t nDefIndex ) const;
-	const CWarDefinition *GetWarDefinitionByName( const char* pszDefName ) const;
-	const WarDefinitionMap_t& GetWarDefinitions() const { return m_mapWars; }
-
 	const CUtlVector<const char *>& GetClassUsabilityStrings() const { return m_vecClassUsabilityStrings; }
 	const CUtlVector<const char *>& GetLoadoutStrings( EEquipType_t eType ) const { return eType == EQUIP_TYPE_CLASS ? m_vecClassLoadoutStrings : m_vecAccountLoadoutStrings; }
 	const CUtlVector<const char *>& GetLoadoutStringsForDisplay( EEquipType_t eType ) const { return eType == EQUIP_TYPE_CLASS ? m_vecClassLoadoutStringsForDisplay : m_vecAccountLoadoutStringsForDisplay; }
@@ -700,9 +368,6 @@ public:
 	static const char k_rchMvMChallengeCompletedMaskAttribName[];
 	static const char k_rchLadderPassItemDefName[];
 	 
-	static const char *GetMvMBadgeContractPointsAttributeName( EMvMChallengeDifficulty difficulty );
-	static const char *GetMvMBadgeContractLevelAttributeName( EMvMChallengeDifficulty difficulty );
-
 	const CUtlVector<MvMMap_t>& GetMvmMaps() const { return m_vecMvMMaps; }
 	const CUtlVector<MvMMission_t>& GetMvmMissions() const { return m_vecMvMMissions; }
 	const CUtlVector<MvMTour_t>& GetMvmTours() const { return m_vecMvMTours; }
@@ -738,45 +403,22 @@ public:
 	const MapDef_t *GetMasterMapDefByName( const char *pszSearchName ) const;
 	const MapDef_t *GetMasterMapDefByIndex( MapDefIndex_t unIndex ) const;
 	const CUtlVector<MapDef_t*>& GetMasterMapsList() const { return m_vecMasterListOfMaps; }
-	const GameCategoryMap_t& GetGameCategoryMap() const { return m_mapGameCategories; }
-	const SchemaGameCategory_t* GetGameCategory( EGameCategory eType ) const;
-	const MMGroupMap_t& GetMMGroupMap() const { return m_mapMMGroups; }
-	const SchemaMMGroup_t* GetMMGroup( EMatchmakingGroupType eCat ) const;
-
 
 public:
 	// CEconItemSchema interface.
 	virtual CEconItemDefinition				*CreateEconItemDefinition()			{ return new CTFItemDefinition; }
-	virtual CEconCraftingRecipeDefinition	*CreateCraftingRecipeDefinition()	{ return new CTFCraftingRecipeDefinition; }
 	virtual CEconStyleInfo					*CreateEconStyleInfo()				{ return new CTFStyleInfo; }
-
-	virtual bool							 BCanStrangeFilterApplyToStrangeSlotInItem( uint32 /*strange_event_restriction_t*/ unRestrictionType, uint32 unRestrictionValue, const IEconItemInterface *pItem, int iStrangeSlot, uint32 *out_pOptionalScoreType ) const;
-
-	virtual IEconTool						*CreateEconToolImpl( const char *pszToolType, const char *pszUseString, const char *pszUsageRestriction, item_capabilities_t unCapabilities, KeyValues *pUsageKV ) OVERRIDE;
 
 	virtual bool BInitSchema( KeyValues *pKVRawDefinition, CUtlVector<CUtlString> *pVecErrors = NULL ) OVERRIDE;
 	virtual bool BPostSchemaInit( CUtlVector<CUtlString> *pVecErrors ) OVERRIDE;
 
 	virtual RTime32 GetCustomExpirationDate( const char *pszExpirationDate ) const OVERRIDE;
-protected:
-#ifdef TF_CLIENT_DLL
-	virtual int CalculateNumberOfConcreteItems( const CEconItemDefinition *pItemDef );
-#endif // TF_CLIENT_DLL
-
 private:
 	void InitializeStringTable( const char **ppStringTable, unsigned int unStringCount, CUtlVector<const char *> *out_pvecStringTable );
 
 	bool BInitMvmMissions( KeyValues *pKVMvmMaps, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitMvmTours( KeyValues *pKVMvmTours, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitGameModes( KeyValues *pKVMaps, CUtlVector<CUtlString> *pVecErrors );
 	bool BInitMaps( KeyValues *pKVMaps, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitMMCategories( KeyValues *pKVCategories, CUtlVector<CUtlString> *pVecErrors );
-	bool BInitQuestObjectiveConditions( KeyValues *pKVConditionsBlock, CUtlVector<CUtlString> *pVecErrors );
-	bool BObjectiveConditionsPostInit( CUtlVector<CUtlString> *pVecErrors );
-	bool BInitWarDefs( KeyValues *pKVWarDefs, CUtlVector<CUtlString> *pVecErrors );
-
-	bool BPostInitMaps( CUtlVector<CUtlString> *pVecErrors );
-
 
 	CUtlVector<const char *> m_vecClassUsabilityStrings;
 	CUtlVector<const char *> m_vecClassLoadoutStrings;
@@ -788,13 +430,8 @@ private:
 	CUtlVector<MvMMap_t> m_vecMvMMaps;
 	CUtlVector<MvMMission_t> m_vecMvMMissions;
 	CUtlVector<MvMTour_t> m_vecMvMTours;
-	CUtlMap< ObjectiveConditionDefIndex_t, CQuestObjectiveConditionsDefinition* > m_mapQuestObjectiveConditions;
 
 	CUtlVector<MapDef_t*> m_vecMasterListOfMaps;
-	GameCategoryMap_t m_mapGameCategories;
-	MMGroupMap_t m_mapMMGroups;
-	WarDefinitionMap_t m_mapWars;
-
 };
 
 #endif // TFITEMSCHEMA_H

@@ -10,7 +10,6 @@
 #include "takedamageinfo.h"
 #include "tf_gamerules.h"
 #include "filesystem.h"
-#include "tf_matchmaking_shared.h"
 
 //-----------------------------------------------------------------------------
 // Teams.

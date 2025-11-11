@@ -2509,15 +2509,6 @@ void CTFPasstimeLogic::SecretRoom_Solve()
 			variant_t(), 0.0f, this, this );
 	}
 
-	// achieves
-	for ( auto id : m_SecretRoom_playersThatTouchedRoom )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerBySteamID( id ) );
-		if ( pPlayer )
-		{
-			pPlayer->AwardAchievement( ACHIEVEMENT_TF_PASS_TIME_HAT );
-		}
-	}
 	m_SecretRoom_playersThatTouchedRoom.RemoveAll(); // paranoia
 }
 

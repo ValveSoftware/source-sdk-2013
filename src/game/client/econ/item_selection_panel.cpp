@@ -75,14 +75,10 @@ CItemSelectionPanel::CItemSelectionPanel(Panel *parent) : CBaseLoadoutPanel(pare
 	m_pCaller = parent;
 	m_pSelectionItemModelPanelKVs = NULL;
 	m_pDuplicateLabelKVs = NULL;
-	m_bShowingEntireBackpack = false;
 	m_iItemsInSelection = 0;
 
 	m_bShowDuplicates = false;
-	m_bForceBackpack = false;
 	m_pOnlyAllowUniqueQuality = NULL;
-	m_pShowBackpack = NULL;
-	m_pShowSelection = NULL;
 	m_pNextPageButton = NULL;
 	m_pPrevPageButton = NULL;
 	m_pCurPageLabel = NULL;
@@ -123,8 +119,6 @@ void CItemSelectionPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 
 	m_pNoItemsInSelectionLabel = dynamic_cast<vgui::Label*>( FindChildByName("NoItemsLabel") );
 	m_pOnlyAllowUniqueQuality = dynamic_cast<vgui::CheckButton *>( FindChildByName("OnlyAllowUniqueQuality") );
-	m_pShowBackpack = dynamic_cast<CExButton*>( FindChildByName("ShowBackpack") );
-	m_pShowSelection = dynamic_cast<CExButton*>( FindChildByName("ShowSelection") );
 	m_pNextPageButton = dynamic_cast<CExButton*>( FindChildByName("NextPageButton") );
 	m_pPrevPageButton = dynamic_cast<CExButton*>( FindChildByName("PrevPageButton") );
 	m_pCurPageLabel = dynamic_cast<vgui::Label*>( FindChildByName("CurPageLabel") );
@@ -191,27 +185,24 @@ void CItemSelectionPanel::ApplyKVsToItemPanels( void )
 {
 	BaseClass::ApplyKVsToItemPanels();
 
-	if ( !m_bShowingEntireBackpack )
+	if ( m_pSelectionItemModelPanelKVs )
 	{
-		if ( m_pSelectionItemModelPanelKVs )
+		for ( int i = 0; i < m_pItemModelPanels.Count(); i++ )
 		{
-			for ( int i = 0; i < m_pItemModelPanels.Count(); i++ )
-			{
-				m_pItemModelPanels[i]->ApplySettings( m_pSelectionItemModelPanelKVs );
-				m_pItemModelPanels[i]->UpdatePanels();
-			}
+			m_pItemModelPanels[i]->ApplySettings( m_pSelectionItemModelPanelKVs );
+			m_pItemModelPanels[i]->UpdatePanels();
 		}
+	}
 
-		if ( m_pDuplicateLabelKVs )
+	if ( m_pDuplicateLabelKVs )
+	{
+		FOR_EACH_VEC( m_pDuplicateCountLabels, i )
 		{
-			FOR_EACH_VEC( m_pDuplicateCountLabels, i )
-			{
-				if ( !m_pDuplicateCountLabels[i]->IsVisible() )
-					continue;
+			if ( !m_pDuplicateCountLabels[i]->IsVisible() )
+				continue;
 
-				m_pDuplicateCountLabels[i]->ApplySettings( m_pDuplicateLabelKVs );
-				m_pDuplicateCountLabels[i]->SetMouseInputEnabled( false );
-			}
+			m_pDuplicateCountLabels[i]->ApplySettings( m_pDuplicateLabelKVs );
+			m_pDuplicateCountLabels[i]->SetMouseInputEnabled( false );
 		}
 	}
 }
@@ -225,12 +216,7 @@ void CItemSelectionPanel::PerformLayout( void )
 
 	for ( int i = 0; i < m_pItemModelPanels.Count(); i++ )
 	{
-		// In backpack mode we show empty slots. Otherwise we don't.
-		bool bVisible = m_bShowingEntireBackpack;
-		if ( !bVisible )
-		{
-			bVisible = (i < GetNumSlotsPerPage()) && ShouldItemPanelBeVisible( m_pItemModelPanels[i], i );
-		}
+		bool bVisible = (i < GetNumSlotsPerPage()) && ShouldItemPanelBeVisible( m_pItemModelPanels[i], i );
 		m_pItemModelPanels[i]->SetVisible( bVisible );
 
 		if ( bVisible )
@@ -250,9 +236,6 @@ void CItemSelectionPanel::PerformLayout( void )
 			m_pDuplicateCountLabels[i]->SetPos( iXPos, iYPos );
 		}
 	}
-
-	m_pShowBackpack->SetVisible( !m_bShowingEntireBackpack && !m_bForceBackpack );
-	m_pShowSelection->SetVisible( m_bShowingEntireBackpack && !m_bForceBackpack );
 
 	m_pNextPageButton->SetVisible( true );
 	m_pPrevPageButton->SetVisible( true );
@@ -306,18 +289,9 @@ void CItemSelectionPanel::OnCommand( const char *command )
 		UpdateModelPanels();
 		return;
 	}
-	else if ( !Q_strnicmp( command, "show_backpack", 8 ) )
-	{
-		m_bReapplyItemKVs = true;
-		m_bShowingEntireBackpack = true;
-		UpdateModelPanels();
-		//Repaint();
-		return;
-	}
 	else if ( !Q_strnicmp( command, "show_selection", 8 ) )
 	{
 		m_bReapplyItemKVs = true;
-		m_bShowingEntireBackpack = false;
 		UpdateModelPanels();
 		//Repaint();
 		return;
@@ -486,26 +460,13 @@ void CItemSelectionPanel::NotifySelectionReturned( CItemModelPanel *pItemPanel )
 //-----------------------------------------------------------------------------
 void CItemSelectionPanel::UpdateModelPanels( void )
 {
-	// If we're showing the whole backpack, go through the inventory like the backpack does.
-	if ( m_bShowingEntireBackpack )
-	{
-		UpdateModelPanelsForSelection();
+	// Clear the dupe counts.
+	m_DuplicateCounts.Purge();
+	UpdateModelPanelsForSelection();
 
-		if ( m_pNoItemsInSelectionLabel )
-		{
-			m_pNoItemsInSelectionLabel->SetVisible( false );
-		}
-	}
-	else
+	if ( m_pNoItemsInSelectionLabel )
 	{
-		// Clear the dupe counts.
-		m_DuplicateCounts.Purge();
-		UpdateModelPanelsForSelection();
-
-		if ( m_pNoItemsInSelectionLabel )
-		{
-			m_pNoItemsInSelectionLabel->SetVisible( m_iItemsInSelection == 0 );
-		}
+		m_pNoItemsInSelectionLabel->SetVisible( m_iItemsInSelection == 0 );
 	}
 
 	// Update the current backpack page
@@ -522,7 +483,7 @@ void CItemSelectionPanel::UpdateModelPanels( void )
 //-----------------------------------------------------------------------------
 void CItemSelectionPanel::UpdateDuplicateCounts( void )
 {
-	bool bShow = (m_bShowDuplicates && !m_bShowingEntireBackpack);
+	bool bShow = m_bShowDuplicates;
 	if ( !bShow )
 	{
 		FOR_EACH_VEC( m_pDuplicateCountLabels, i )
@@ -564,7 +525,7 @@ void CItemSelectionPanel::UpdateDuplicateCounts( void )
 			continue;
 		}
 
-		int iIndex = m_DuplicateCounts.Find( item_stack_type_t( pItem->GetItemDefIndex(), pItem->GetQuality() ) );
+		int iIndex = m_DuplicateCounts.Find( item_stack_type_t( pItem->GetItemDefIndex() ) );
 		if ( iIndex == m_DuplicateCounts.InvalidIndex() || m_DuplicateCounts[iIndex] <= 1 )
 		{
 			m_pDuplicateCountLabels[i]->SetVisible( false );
@@ -584,7 +545,7 @@ void CItemSelectionPanel::UpdateDuplicateCounts( void )
 void CItemSelectionPanel::CreateItemPanels( void )
 {
 	// Always create the maximum number of panels
-	int iNumPanels = BACKPACK_SLOTS_PER_PAGE;
+	int iNumPanels = SELECTION_DISPLAY_SLOTS_PER_PAGE;
 	if ( m_pItemModelPanels.Count() < iNumPanels )
 	{
 		for ( int i = m_pItemModelPanels.Count(); i < iNumPanels; i++ )
@@ -599,15 +560,7 @@ void CItemSelectionPanel::CreateItemPanels( void )
 //-----------------------------------------------------------------------------
 int CItemSelectionPanel::GetNumPages( void )
 {
-	int iNumItems = 0;
-	if ( m_bShowingEntireBackpack )
-	{
-		iNumItems = InventoryManager()->GetLocalInventory()->GetMaxItemCount();
-	}
-	else
-	{
-		iNumItems = m_iItemsInSelection;
-	}
+	int iNumItems = m_iItemsInSelection;
 
 	return (int)(ceil((float)iNumItems / (float)GetNumItemPanels()));
 }
@@ -717,100 +670,25 @@ bool CEquipSlotItemSelectionPanel::ShouldItemPanelBeVisible( CItemModelPanel *pP
 // Used to sort/verify uniqueness of user-facing items.
 struct RarityEconIdKey
 {
-	int m_iQualitySort;
 	item_definition_index_t m_defIndex;
-	uint32 m_unKillEaterScore;
 
 	RarityEconIdKey ( )
-		: m_iQualitySort( -1 )
-		, m_defIndex( INVALID_ITEM_DEF_INDEX )
-		, m_unKillEaterScore( 0 )
+		: m_defIndex( INVALID_ITEM_DEF_INDEX )
 	{
 		//
 	}
 
-	RarityEconIdKey ( int iQuality, item_definition_index_t defIndex, uint32 unKillEaterScore )
-		: m_iQualitySort( EconQuality_GetRarityScore( (EEconItemQuality)iQuality ) )
-		, m_defIndex( defIndex )
-		, m_unKillEaterScore( unKillEaterScore )
+	RarityEconIdKey ( item_definition_index_t defIndex )
+		: m_defIndex( defIndex )
 	{
 		//
 	}
 
 	bool operator< ( const RarityEconIdKey& rhs ) const
 	{
-		return m_defIndex < rhs.m_defIndex
-			|| m_iQualitySort < rhs.m_iQualitySort
-			|| m_unKillEaterScore < rhs.m_unKillEaterScore;
+		return m_defIndex < rhs.m_defIndex;
 	}
 };
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-static int SortRarityEconIdKeysBackpack ( CEconItemView *const *a, CEconItemView *const *b )
-{
-	Assert( a );
-	Assert( *a );
-	Assert( b );
-	Assert( *b );
-
-	// Sorting by the backpack order doesn't need to check any subproperties like level because
-	// every item should have a unique backpack slot already/
-	return ExtractBackpackPositionFromBackend( (*a)->GetInventoryPosition() ) < ExtractBackpackPositionFromBackend( (*b)->GetInventoryPosition() )
-		? -1
-		: 1;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-static int SortRarityEconIdKeysAlphabetical_Views ( CEconItemView *const *a, CEconItemView *const *b )
-{
-	Assert( a );
-	Assert( *a );
-	Assert( b );
-	Assert( *b );
-
-	// First pass -- sort backpack items by user-visible display name.
-	// Note: locale-savvy string sorting uses wcscoll, not wcscmp
-	int iStrCmpRes = wcscoll( (*a)->GetItemName(), (*b)->GetItemName() );
-	if ( iStrCmpRes != 0 )
-		return iStrCmpRes;
-
-	// Sort by kill eater score as a last-ditch ordering attempt.
-	static CSchemaAttributeDefHandle pAttrDef_KillEaterScore( "kill eater" );
-
-	uint32 unKillEaterScoreA = 0,
-		   unKillEaterScoreB = 0;
-
-	(*a)->FindAttribute( pAttrDef_KillEaterScore, &unKillEaterScoreA );
-	(*b)->FindAttribute( pAttrDef_KillEaterScore, &unKillEaterScoreB );
-
-	// Our names match so sort by quality for similarly-named items.
-	if ( EconQuality_GetRarityScore( (EEconItemQuality)(*a)->GetItemQuality() ) < EconQuality_GetRarityScore( (EEconItemQuality)(*b)->GetItemQuality() ) ||
-		 unKillEaterScoreA < unKillEaterScoreB ||
-		(*a)->GetItemLevel() < (*b)->GetItemLevel() )
-	{
-		return -1;
-	}
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-static int SortRarityEconIdKeysAlphabetical ( const CEquippableItemsForSlotGenerator::CEquippableResult *a, const CEquippableItemsForSlotGenerator::CEquippableResult *b )
-{
-	return SortRarityEconIdKeysAlphabetical_Views( &a->m_pEconItemView, &b->m_pEconItemView );
-}
-
-//-----------------------------------------------------------------------------
-static int SortRarityEconIdKeysDate( const CEquippableItemsForSlotGenerator::CEquippableResult *a, const CEquippableItemsForSlotGenerator::CEquippableResult *b )
-{
-	return ( a->m_pEconItemView->GetID() > b->m_pEconItemView->GetID() ) ? -1 : ( a->m_pEconItemView->GetID() < b->m_pEconItemView->GetID() ) ? 1 : 0;
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: figure out what items should be displayed to the user for a specific
@@ -860,9 +738,6 @@ CEquippableItemsForSlotGenerator::CEquippableItemsForSlotGenerator( int iClass, 
 	HighestLevelMap_t mapHighestLevel;
 	SetDefLessFunc( mapHighestLevel );
 
-	// We also prevent items with different kill eater scores from stacking.
-	static CSchemaAttributeDefHandle pAttrDef_KillEaterScore( "kill eater" );
-
 	// Iterate over the list of all the items that we consider as potential display candidates.
 	for ( int i = 0; i < iNumItems; i++ )
 	{
@@ -871,7 +746,7 @@ CEquippableItemsForSlotGenerator::CEquippableItemsForSlotGenerator( int iClass, 
 		// Before doing any sort of culling, count the number of unique instances of this particular
 		// definition.
 		{
-			const item_stack_type_t stackType( pItem->GetItemDefIndex(), pItem->GetQuality() );
+			const item_stack_type_t stackType( pItem->GetItemDefIndex() );
 			DuplicateCountMap_t::IndexType_t iIndex = m_DuplicateCountsMap.Find( stackType );
 			if ( iIndex == m_DuplicateCountsMap.InvalidIndex() )
 			{
@@ -907,13 +782,6 @@ CEquippableItemsForSlotGenerator::CEquippableItemsForSlotGenerator( int iClass, 
 			continue;
 		}
 
-		// Has this item been modified by the user in some way? If so, always list.
-		if ( ShouldItemNotStack( pItem ) )
-		{
-			m_vecDisplayItems.AddToTail( CEquippableItemsForSlotGenerator::CEquippableResult( pItem, eDisplayType ) );
-			continue;
-		}
-
 		// Throw this item into the running map of the highest level item of this type we've seen so far.
 		// "Of this type" means "has a matching rarity and item definition index", so uniques will be sorted
 		// differently from unusuals, but both will show their highest-level item.
@@ -921,12 +789,9 @@ CEquippableItemsForSlotGenerator::CEquippableItemsForSlotGenerator( int iClass, 
 		// This code does make the assumption that nothing in the key will be able to affect the display type.
 		// (ie., a higher-level item will never be equippable where a lower-level item is not)
 		{
-			uint32 unKillEaterScore = 0;
-			pItem->FindAttribute( pAttrDef_KillEaterScore, &unKillEaterScore );
-
-			RarityEconIdKey keyEconId( pItem->GetItemQuality(), pItem->GetItemDefIndex(), unKillEaterScore );
+			RarityEconIdKey keyEconId( pItem->GetItemDefIndex() );
 			HighestLevelMap_t::IndexType_t iIndex = mapHighestLevel.Find( keyEconId );
-			if ( iIndex == mapHighestLevel.InvalidIndex() || pItem->GetItemLevel() > mapHighestLevel[iIndex].m_pEconItemView->GetItemLevel() )
+			if ( iIndex == mapHighestLevel.InvalidIndex() )
 			{
 				mapHighestLevel.InsertOrReplace( keyEconId, CEquippableItemsForSlotGenerator::CEquippableResult( pItem, eDisplayType ) );
 			}
@@ -968,15 +833,6 @@ CEquippableItemsForSlotGenerator::CEquippableItemsForSlotGenerator( int iClass, 
 		{
 			m_vecDisplayItems.AddToTail( pEquippedItem );
 		}
-	}
-
-	// Remove duplicates and sort to put it into the order they'll be displayed to the user.
-	// Sort the items based on selection type
-	int iSortType = tf_item_selection_panel_sort_type.GetInt();
-	switch ( iSortType )
-	{
-		case 0:			m_vecDisplayItems.Sort( &SortRarityEconIdKeysDate );					break;
-		case 1:			m_vecDisplayItems.Sort( &SortRarityEconIdKeysAlphabetical );			break;
 	}
 }
 
@@ -1024,35 +880,15 @@ void CEquipSlotItemSelectionPanel::UpdateModelPanelsForSelection( void )
 													unUsedEquipRegionMask,
 													bShowEquippedItemFirst ? CEquippableItemsForSlotGenerator::kSlotGenerator_EquippedSpecialHandling : CEquippableItemsForSlotGenerator::kSlotGenerator_None );
 
+	// Copy the generated data back into our local structures.
+	DeepCopyMap( equippableItems.GetDuplicateCountMap(), &m_DuplicateCounts );
 
-	if( m_bShowingEntireBackpack )
+	const CEquippableItemsForSlotGenerator::EquippableResultsVec_t& allDisplayItems = equippableItems.GetDisplayItems();
+	for ( int i=0; i<allDisplayItems.Count(); ++i )
 	{
-		int iNumItems = TFInventoryManager()->GetLocalTFInventory()->GetMaxItemCount();
-		for ( int i = 1; i <= iNumItems; i++ )
+		if ( DoesItemPassSearchFilter( allDisplayItems[i].m_pEconItemView->GetDescription(), wscFilter ) )
 		{
-			CEconItemView *pItemData = TFInventoryManager()->GetItemByBackpackPosition(i);
-			if ( pItemData && pItemData->IsValid() )
-			{
-				if( !DoesItemPassSearchFilter( pItemData->GetDescription(), wscFilter ) )
-					continue;
-
-				CEquippableItemsForSlotGenerator::CEquippableResult& result = vecDisplayItems[ vecDisplayItems.AddToTail( pItemData ) ];
-				result.m_eDisplayType = GetItemNotSelectableReason( pItemData ) ? CEquippableItemsForSlotGenerator::kSlotDisplay_Invalid : CEquippableItemsForSlotGenerator::kSlotDisplay_Normal;
-			}
-		}
-	}
-	else
-	{
-		// Copy the generated data back into our local structures.
-		DeepCopyMap( equippableItems.GetDuplicateCountMap(), &m_DuplicateCounts );
-
-		const CEquippableItemsForSlotGenerator::EquippableResultsVec_t& allDisplayItems = equippableItems.GetDisplayItems();
-		for ( int i=0; i<allDisplayItems.Count(); ++i )
-		{
-			if ( DoesItemPassSearchFilter( allDisplayItems[i].m_pEconItemView->GetDescription(), wscFilter ) )
-			{
-				vecDisplayItems.AddToTail( allDisplayItems[i] );
-			}
+			vecDisplayItems.AddToTail( allDisplayItems[i] );
 		}
 	}
 
@@ -1110,15 +946,8 @@ void CEquipSlotItemSelectionPanel::UpdateModelPanelsForSelection( void )
 		bool bShowEquipped = false;
 		if ( vecDisplayItems.Count() > iItemIndex )
 		{
-			const char* pszGreyOutReason = NULL;
-			if( m_bShowingEntireBackpack )
-			{
-				pszGreyOutReason = GetItemNotSelectableReason( vecDisplayItems[iItemIndex].m_pEconItemView );
-			}
-			else
-			{
-				pszGreyOutReason = vecDisplayItems[iItemIndex].m_eDisplayType == CEquippableItemsForSlotGenerator::kSlotDisplay_Normal ? NULL : "#Econ_GreyOutReason_EquipRegionConflict";
-			}
+			const char* pszGreyOutReason = vecDisplayItems[iItemIndex].m_eDisplayType == CEquippableItemsForSlotGenerator::kSlotDisplay_Normal ? NULL : "#Econ_GreyOutReason_EquipRegionConflict";
+
 			// Show equipped state on base items too
 			bShowEquipped = false;
 			// Check if this item is already equipped, potentially in another slot
@@ -1272,13 +1101,13 @@ void CItemCriteriaSelectionPanel::UpdateModelPanelsForSelection( void )
 	int iNumItems = TFInventoryManager()->GetLocalTFInventory()->GetMaxItemCount();
 	for ( int i = 1; i <= iNumItems; i++ )
 	{
-		CEconItemView *pItemData = TFInventoryManager()->GetItemByBackpackPosition(i);
+		CEconItemView *pItemData = NULL;
 		bool bAdd = false;
 		if ( pItemData && pItemData->IsValid() )
 		{
 			// If this is a valid item, we want to show this if we're showing our entire backpack
 			// or we doing the tailored list and this item matches.
-			if ( m_bShowingEntireBackpack || GetItemNotSelectableReason( pItemData ) == NULL )
+			if ( GetItemNotSelectableReason( pItemData ) == NULL )
 			{
 				// The item also needs to pass the text search filter as well
 				if( DoesItemPassSearchFilter( pItemData->GetDescription(), wscFilter ) )
@@ -1287,28 +1116,17 @@ void CItemCriteriaSelectionPanel::UpdateModelPanelsForSelection( void )
 				}
 			}
 		}
-		// When showing our entire backpack we take everything so long as we arent filtering
-		else if( wscFilter == NULL && m_bShowingEntireBackpack )
-		{
-			bAdd = true;
-		}
 
 		if( bAdd )
 		{
 			// For actual items see if we should stack.  Only do so if we're NOT showing
 			// the entire backpack
-			if( pItemData && !m_bShowingEntireBackpack )
+			if( pItemData )
 			{
 				// Has this item been modified by the user in some way? If so, always list,
 				// but don't add it to our duplicate count, or our "found indices" list.
 				item_definition_index_t iDefIndex = pItemData->GetItemDefIndex();
-				if ( ShouldItemNotStack( pItemData ) )
-				{
-					vecDisplayItems.AddToTail( pItemData );
-					continue;
-				}
-
-				item_stack_type_t stackType( iDefIndex, pItemData->GetQuality() );
+				item_stack_type_t stackType( iDefIndex );
 				int iIndex = m_DuplicateCounts.Find( stackType );
 				if ( iIndex == m_DuplicateCounts.InvalidIndex() )
 				{
@@ -1327,12 +1145,6 @@ void CItemCriteriaSelectionPanel::UpdateModelPanelsForSelection( void )
 
 			vecDisplayItems.AddToTail( pItemData );
 		}
-	}
-
-	// Sort them alphabetically if not viewing entire backpack
-	if( !m_bShowingEntireBackpack )
-	{
-		vecDisplayItems.Sort( &SortRarityEconIdKeysAlphabetical_Views );
 	}
 
 	// Add an "Empty" item to the start
@@ -1387,61 +1199,6 @@ const char *CItemCriteriaSelectionPanel::GetItemNotSelectableReason( const CEcon
 	CTFItemDefinition *pItemData = pItem->GetStaticData();
 	return m_pCriteria->BEvaluate( pItemData ) ? NULL : "";
 }
-
-//=====================================================================================================================
-// CRAFTING SELECTION PANEL
-//=====================================================================================================================
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CCraftingItemSelectionPanel::CCraftingItemSelectionPanel(Panel *parent ) 
-	: CItemCriteriaSelectionPanel( parent, NULL, NULL, 0 )
-{
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCraftingItemSelectionPanel::UpdateOnShow( const CItemSelectionCriteria *pCriteria, bool bForceBackpack, itemid_t pExceptions[], int iNumExceptions )
-{
-	m_pCriteria = pCriteria;
-	UpdateExceptions( pExceptions, iNumExceptions );
-
-	if ( m_bShowingEntireBackpack != bForceBackpack )
-	{
-		SetCurrentPage( 0 );
-		m_bShowingEntireBackpack = bForceBackpack;
-		m_bReapplyItemKVs = true;
-	}
-	m_bForceBackpack = bForceBackpack;
-
-	if ( !m_bForceBackpack )
-	{
-		SetCurrentPage( 0 );
-	}
-
-	UpdateModelPanels();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-const char *CCraftingItemSelectionPanel::GetItemNotSelectableReason( const CEconItemView *pItem ) const
-{
-	if ( !pItem )
-		return NULL;
-
-	// Must not be marked no-craft
-	if ( !pItem->IsUsableInCrafting() )
-		return "#Econ_GreyOutReason_ItemNotCraftable";
-
-	// Are we filtering out items of non-unique quality that we might not want to accidentally craft?
-	if ( m_pOnlyAllowUniqueQuality && m_pOnlyAllowUniqueQuality->IsSelected() && pItem->GetQuality() != AE_UNIQUE )
-		return "#Econ_GreyOutReason_ItemSpecialQuality";
-
-	return BaseClass::GetItemNotSelectableReason( pItem );
-}
-
 
 //=====================================================================================================================
 // ACCOUNT SLOT ITEM SELECTION PANEL

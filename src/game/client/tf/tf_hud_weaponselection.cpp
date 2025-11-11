@@ -296,11 +296,6 @@ bool CHudWeaponSelection::ShouldDraw()
 
 	}
 
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-	{
-		bShouldDraw = false;
-	}
-
 	if ( CTFMinigameLogic::GetMinigameLogic() && CTFMinigameLogic::GetMinigameLogic()->GetActiveMinigame() )
 	{
 		bShouldDraw = false;

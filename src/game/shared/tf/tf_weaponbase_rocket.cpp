@@ -547,12 +547,6 @@ void CTFBaseRocket::CheckForStunOnImpact( CTFPlayer* pTarget )
 	pTarget->SetAbsVelocity( vec3_origin );
 	pTarget->m_Shared.StunPlayer( flStunTime, flStunAmount, TF_STUN_MOVEMENT | TF_STUN_NO_EFFECTS, pAttacker );
 
-	if ( TFGameRules()->IsMannVsMachineMode() && pTarget->IsBot() && ( pAttacker->GetTeamNumber() == TF_TEAM_PVE_DEFENDERS ) )
-	{
-		pAttacker->AwardAchievement( ACHIEVEMENT_TF_MVM_ROCKET_SPECIALIST_STUN_GRIND );
-	}
-
-
 	// Effect
 	CPVSFilter filter( GetAbsOrigin() );
 	TE_TFParticleEffect( filter, 0.0, "mvm_soldier_shockwave", GetAbsOrigin(), QAngle( 0, 0, 0 ) );

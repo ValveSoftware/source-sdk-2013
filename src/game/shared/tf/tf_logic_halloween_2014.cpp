@@ -235,8 +235,6 @@ void CTFMiniGame::ScorePointsForTeam( int nTeamNum, int nPoints )
 
 		for ( auto pPlayer : vecPlayers )
 		{
-			HatAndMiscEconEntities_OnOwnerKillEaterEventNoParter( pPlayer, kKillEaterEvent_Halloween_MinigamesWon );
-
 			IGameEvent *pEvent = gameeventmanager->CreateEvent( "minigame_won" );
 			if ( pEvent )
 			{
@@ -352,8 +350,6 @@ void CTFMiniGame::UpdateDeadPlayers( int nTeam, COutputEvent& eventWin, COutputE
 
 		for ( auto pPlayer : vecEnemyPlayers )
 		{
-			HatAndMiscEconEntities_OnOwnerKillEaterEventNoParter( pPlayer, kKillEaterEvent_Halloween_MinigamesWon );
-
 			IGameEvent *pEvent = gameeventmanager->CreateEvent( "minigame_won" );
 			if ( pEvent )
 			{
@@ -441,15 +437,7 @@ void CTFHalloweenMinigame::FireGameEvent( IGameEvent * event )
 
 void CTFHalloweenMinigame::InternalHandleInputScore( inputdata_t &inputdata )
 {
-	CPropSoccerBall *pSoccerBall = dynamic_cast< CPropSoccerBall* >( inputdata.pActivator );
-	if ( pSoccerBall )
-	{
-		CTFPlayer *pTFPlayer = pSoccerBall->GetLastToucher();
-		if ( pTFPlayer && TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
-		{
-			pTFPlayer->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_DOOMSDAY_SCORE_GOALS );
-		}
-	}
+
 }
 
 void CTFHalloweenMinigame::TeleportAllPlayers()

@@ -104,14 +104,6 @@ EventDesiredResult< CEyeballBoss > CEyeballBossBehavior::OnKilled( CEyeballBoss 
 				}
 			}
 
-			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_VIADUCT ) )
-			{
-				if ( !me->WasSpawnedByCheats() )
-				{
-					attackerVector[i].m_attacker->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_EYEBOSS_KILL );
-				}
-			}
-
 			me->LogPlayerInteraction( "eyeball_killer", attackerVector[i].m_attacker );
 		}
 	}

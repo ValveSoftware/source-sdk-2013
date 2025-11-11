@@ -469,10 +469,6 @@ bool CHudItemEffectMeter::ShouldDraw( void )
 	{
 		bShouldDraw = false;
 	}
-	else if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-	{
-		bShouldDraw = false;
-	}
 	else if ( IsEnabled() )
 	{
 		bShouldDraw = CHudElement::ShouldDraw();
@@ -1629,11 +1625,6 @@ bool CHudItemEffectMeter_Weapon<CTFSpellBook>::ShouldDraw( void )
 		return true;
 	}
 	
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-	{
-		return false;
-	}
-
 	return CHudItemEffectMeter::ShouldDraw();
 }
 

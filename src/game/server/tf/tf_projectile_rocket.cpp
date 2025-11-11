@@ -126,19 +126,6 @@ int	CTFProjectile_Rocket::GetDamageCustom()
 void CTFProjectile_Rocket::RocketTouch( CBaseEntity *pOther )
 {
 	BaseClass::RocketTouch( pOther );
-		
-	if (m_bCritical && pOther && pOther->IsPlayer())
-	{		
-		CTFPlayer *pHitPlayer = ToTFPlayer( pOther );
-		int iHitPlayerTeamNumber = pHitPlayer->GetTeamNumber();
-		int iRocketTeamNumber = BaseClass::GetTeamNumber();
-
-		if (pHitPlayer->IsPlayerClass(TF_CLASS_HEAVYWEAPONS) && !pHitPlayer->m_Shared.InCond( TF_COND_INVULNERABLE)
-			&& pHitPlayer->IsAlive() && iHitPlayerTeamNumber != iRocketTeamNumber)
-		{
-			pHitPlayer->AwardAchievement( ACHIEVEMENT_TF_HEAVY_SURVIVE_CROCKET );
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------

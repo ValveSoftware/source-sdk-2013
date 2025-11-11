@@ -225,17 +225,6 @@ public:
 					{
 						CReliableBroadcastRecipientFilter filter;
 						UTIL_SayText2Filter( filter, attackerVector[i].m_attacker, false, "#TF_Halloween_Boss_Killers", attackerVector[i].m_attacker->GetPlayerName() );
-
-						if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_MANN_MANOR ) )
-						{
-							// killing the boss with a melee weapon is a separate achievement
-							if ( attackerVector[i].m_wasLastHitFromMeleeWeapon )
-							{
-								attackerVector[i].m_attacker->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_BOSS_KILL_MELEE );
-							}
-
-							attackerVector[i].m_attacker->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_BOSS_KILL );
-						}
 					}
 				}
 			}

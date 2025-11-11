@@ -114,7 +114,6 @@
 #include "particle_parse.h"
 #if defined( TF_CLIENT_DLL )
 #include "rtime.h"
-#include "tf_hud_disconnect_prompt.h"
 #include "../engine/audio/public/sound.h"
 #include "tf_shared_content_manager.h"
 #include "tf_gamerules.h"
@@ -144,11 +143,6 @@
 #ifdef USES_ECON_ITEMS
 #include "econ_item_system.h"
 #endif // USES_ECON_ITEMS
-
-#if defined( TF_CLIENT_DLL )
-#include "econ/tool_items/custom_texture_cache.h"
-
-#endif
 
 #if defined ( DISCORD_RPC )
 // Discord RPC
@@ -1081,7 +1075,6 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	IGameSystem::Add( SteamShareSystem() );
 
 	#if defined( TF_CLIENT_DLL )
-	IGameSystem::Add( CustomTextureToolCacheGameSystem() );
 	IGameSystem::Add( TFSharedContentManager() );
 	#endif
 
@@ -2737,10 +2730,6 @@ bool CHLClient::DisconnectAttempt( void )
 {
 	bool bRet = false;
 
-#if defined( TF_CLIENT_DLL )
-	bRet = HandleDisconnectAttempt();
-#endif
-
 	return bRet;
 }
 
@@ -2751,13 +2740,6 @@ bool CHLClient::IsConnectedUserInfoChangeAllowed( IConVar *pCvar )
 
 bool CHLClient::BHaveChatSuspensionInCurrentMatch()
 {
-#if defined( TF_CLIENT_DLL )
-	if ( GTFGCClientSystem() )
-	{
-		return GTFGCClientSystem()->BHaveChatSuspensionInCurrentMatch();
-	}
-#endif // TF_CLIENT_DLL 
-
 	return false;
 }
 

@@ -528,13 +528,6 @@ void CSpectatorGUI::OnThink()
 				gViewPortInterface->ShowPanel( PANEL_SCOREBOARD, m_bSpecScoreboard );
 			}
 		}
-
-#ifdef TF_CLIENT_DLL
-		if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		{
-			SetVisible( false );
-		}
-#endif
 	}
 }
 

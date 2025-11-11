@@ -9,7 +9,6 @@
 
 #include "tier1/util_misc.h"
 #include "tf_proto_script_obj_def.h"
-#include "tf_quest_map_node.h"
 #include <google/protobuf/text_format.h>
 #include "filesystem.h"
 #include "tier2/p4helpers.h"

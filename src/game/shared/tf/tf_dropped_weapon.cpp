@@ -152,60 +152,6 @@ void CTFDroppedWeapon::OnDataChanged( DataUpdateType_t updateType )
 		// if its startrak attach a model to it
 		if ( m_Item.GetItemID() != INVALID_ITEM_ID )
 		{
-			int iStrangeType = -1;
-			for ( int i = 0; i < GetKillEaterAttrCount(); i++ )
-			{
-				if ( m_Item.FindAttribute( GetKillEaterAttr_Score( i ) ) )
-				{
-					iStrangeType = i;
-					break;
-				}
-			}
-
-			// It's strange, does it have module as well?
-			if ( iStrangeType != -1 )
-			{
-				CAttribute_String attrModule;
-				if ( GetStattrak( &m_Item, &attrModule ) )
-				{
-					static CSchemaAttributeDefHandle pAttr_moduleScale( "weapon_stattrak_module_scale" );
-					// Does it have a stat track module
-					float flScale = 1.0f;
-					uint32 unFloatAsUint32 = 1;
-					if ( m_Item.FindAttribute( pAttr_moduleScale, &unFloatAsUint32 ) )
-					{
-						flScale = (float&)unFloatAsUint32;
-					}
-
-					C_BaseAnimating *pStatTrakEnt = new class C_BaseAnimating;
-					if ( pStatTrakEnt && pStatTrakEnt->InitializeAsClientEntity( attrModule.value().c_str(), RENDER_GROUP_OPAQUE_ENTITY ) )
-					{
-						pStatTrakEnt->AddEffects( EF_BONEMERGE );
-						pStatTrakEnt->AddEffects( EF_BONEMERGE_FASTCULL );
-
-						m_worldmodelStatTrakAddon = pStatTrakEnt;
-						pStatTrakEnt->SetParent( this );
-						pStatTrakEnt->SetLocalOrigin( vec3_origin );
-						pStatTrakEnt->UpdatePartitionListEntry();
-						pStatTrakEnt->CollisionProp()->MarkPartitionHandleDirty();
-						pStatTrakEnt->SetModelScale( flScale );
-						pStatTrakEnt->UpdateVisibility();
-
-						pStatTrakEnt->SetBodygroup( 1, 1 );
-
-						pStatTrakEnt->m_nSkin = m_Item.GetTeamNumber();	// Use the "Sad" skin
-
-						//pStatTrakEnt->SetModelScale( 2.0f );
-						//	//if ( !cl_righthand.GetBool() )
-						//	//{
-						//	//	pStatTrakEnt->SetBodygroup( 0, 1 ); // use a special mirror-image stattrak module that appears correct for lefties
-						//	//}
-
-						RemoveEffects( EF_NODRAW );
-					}
-				}
-			}
-
 			// Normal Attached models (ie festive lights)
 			const CEconItemDefinition *pItemDef = m_Item.GetItemDefinition();
 			if ( pItemDef )
@@ -332,13 +278,6 @@ IMaterial *CTFDroppedWeapon::GetEconWeaponMaterialOverride( int iTeam )
 void CTFDroppedWeapon::SetupParticleEffect()
 {
 	attachedparticlesystem_t *pParticleSystem = NULL;
-
-	// do community_sparkle effect if this is a community item?
-	const int iQualityParticleType = m_Item.GetQualityParticleType();
-	if ( iQualityParticleType > 0 )
-	{
-		pParticleSystem = GetItemSchema()->GetAttributeControlledParticleSystem( iQualityParticleType );
-	}
 
 	if ( !pParticleSystem )
 	{

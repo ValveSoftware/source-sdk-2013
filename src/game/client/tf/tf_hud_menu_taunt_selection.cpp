@@ -324,9 +324,6 @@ void CHudMenuTauntSelection::UpdateItemModelPanels()
 		pItemModelPanel->SetNoItemText( "#Hud_Menu_Taunt_NoItem" );
 
 		int iRarity = 0;
-		if ( pOwnedItemInSlot && pOwnedItemInSlot->IsValid() )
-			iRarity = pOwnedItemInSlot->GetItemQuality();
-
 		const char *pszBorder = g_szItemBorders[iRarity][0];
 		
 		IBorder *pBorder = pScheme->GetBorder( pszBorder );
