@@ -906,7 +906,7 @@ void CEmbeddedItemModelPanel::Paint( void )
 	if ( bShouldCacheToTexture )
 	{
 		char buffer[_MAX_PATH];
-		V_sprintf_safe( buffer, "proc/icon/item%d_id%lld%lld_w%d_h%d", m_pItem->GetItemDefIndex(), m_pItem->GetID(), 0, iWidth, iHeight );
+		V_sprintf_safe( buffer, "proc/icon/item%d_id%lld%lld_w%d_h%d", m_pItem->GetItemDefIndex(), m_pItem->GetID(), (uint64)0, iWidth, iHeight );
 		SafeAssign( &m_pCachedWeaponIcon, new CIconRenderReceiver() );
 
 		// If the icon still exists in the material system, don't bother regenerating it.
