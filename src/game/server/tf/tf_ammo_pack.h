@@ -12,6 +12,7 @@
 
 #include "items.h"
 
+class CTFPlayer;
 class CTFWeaponBase;
 
 typedef enum
