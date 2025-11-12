@@ -2868,6 +2868,25 @@ Scheme
 
 		//////////////// Custom Font Definitions :D////////////////
 
+
+		"TeamSelectPlayerCount"
+		{
+			"1"
+			{
+				"name"	"E1234"
+				"tall"	"30"
+			}
+		}
+		
+		"TeamSelectPlayerCountDotted"
+		{
+			"1"
+			{
+				"name"	"Minecart LCD"
+				"tall"	"38"
+			}
+		}
+		
 		"Compacta14"
 		{
 			"1"
@@ -6346,6 +6365,11 @@ Scheme
 		{
 				"font"	"resource/fonts/Montserrat-Light.ttf"
 				"name"	"Montserrat Light"
+		}
+		"25"
+		{
+				"font"	"resource/fonts/Minecart-LCD.ttf"
+				"name"	"Minecart LCD"
 		}
 	}
 }

@@ -414,5 +414,10 @@ Scheme
 				"font"	"resource/fonts/Montserrat-Light.ttf"
 				"name"	"Montserrat Light"
 		}
+		"25"
+		{
+				"font"	"resource/fonts/Minecart-LCD.ttf"
+				"name"	"Minecart LCD"
+		}
 	}
 }
