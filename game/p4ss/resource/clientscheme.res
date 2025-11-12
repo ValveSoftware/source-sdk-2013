@@ -2867,16 +2867,6 @@ Scheme
 		}
 
 		//////////////// Custom Font Definitions :D////////////////
-
-
-		"TeamSelectPlayerCount"
-		{
-			"1"
-			{
-				"name"	"E1234"
-				"tall"	"30"
-			}
-		}
 		
 		"TeamSelectPlayerCountDotted"
 		{
