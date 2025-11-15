@@ -1,0 +1,27 @@
+screenspace_general
+{
+	$pixshader "sepia_ps20"
+
+	$basetexture "_rt_FullFrameFB"
+
+	$x360appchooser 1
+	$ignorez        1
+	$fix_fb         32768
+
+	// Sepia strength: 0.0 = no sepia (original colors), 1.0 = full sepia tone
+	$c0_x     1.0
+
+	"<dx90"
+	{
+		$no_draw 1
+	}
+
+	Proxies
+	{
+		Equals
+		{
+			srcVar1			$fix_fb
+			resultVar		$flags2
+		}
+	}
+}
