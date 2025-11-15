@@ -218,6 +218,15 @@ Scheme
 		"PFDarkGreen"			"62 76 41 255"
 		"PFGreenDim" 			"152 191 101 128"
 		"PFWhite"				"255 255 246 255"
+		
+		"PFBluTeam"                "72 121 171 255"
+		"PFBlueTeamDark"        "39 73 108 255"
+		"PFRedTeam"                "185 65 65 255"
+		"PFRedTeamDark"            "131 38 38 255"
+		"PFBluTeamTransparent"            "72 121 171 180"
+		"PFBlueTeamDarkTransparent"        "39 73 108 180"
+		"PFRedTeamTransparent"            "185 65 65 180"
+		"PFRedTeamDarkTransparent"        "131 38 38 180"
 	}
 
 	///////////////////// BASE SETTINGS ////////////////////////
