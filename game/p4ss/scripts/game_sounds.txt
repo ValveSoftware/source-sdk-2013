@@ -716,7 +716,7 @@
 "Ambient.Siren"
 {
 	"channel"		"CHAN_AUTO"
-	"volume"		"VOL_NORM"
+	"volume"		".3"
 	"soundlevel"	"SNDLVL_NONE"
 	"pitch"			"PITCH_NORM"
 	"wave"			"passtime/horn_big.wav"
