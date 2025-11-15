@@ -264,7 +264,7 @@
 		"brighttext"	"0"
 		"wrap"			"0"
 		"font"			"MontserratSemibold20"
-		"fgcolor"		"black"
+		"fgcolor"		"PFWhite"
 	}
 	
 	"TeamMenuSpectate"
