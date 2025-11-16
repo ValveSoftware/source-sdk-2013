@@ -32,15 +32,16 @@
 			// folder.
 			//
 			// Note that this folder is scanned only when the game is booted.
-			game+mod	mod_tf/custom/*
+			game+mod+custom_mod	mod_tf/custom/*
 			// Enable this if you want to load your TF custom content.
-			//game+mod	|appid_440|tf/custom/*
+			//game+mod+custom_mod	|appid_440|tf/custom/*
 
 			// Now search loose files.  We'll set the directory containing the gameinfo.txt file
 			// as the first "mod" search path (after any user customizations).  This is also the one
 			// that's used when writing to the "mod" path.
 			mod+mod_write		|gameinfo_path|.
 			game+game_write		|gameinfo_path|.
+			vgui				|gameinfo_path|.
 			default_write_path	|gameinfo_path|.
 			gamebin				|gameinfo_path|bin
 
