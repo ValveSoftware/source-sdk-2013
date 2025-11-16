@@ -7000,7 +7000,7 @@ void CTFPlayerShared::OnAddStealthed( void )
 
 #ifdef CLIENT_DLL
 	// Remove water balloon effect if it on player
-	m_pOuter->ParticleProp()->StopParticlesNamed( "balloontoss_drip", true );
+	// m_pOuter->ParticleProp()->StopParticlesNamed( "balloontoss_drip", true );
 
 	m_pOuter->UpdateSpyStateChange();
 	m_pOuter->UpdateKillStreakEffects( GetStreak( kTFStreak_Kills ) );
