@@ -11490,14 +11490,11 @@ void CTFPlayer::CheckSpellHalloweenDeathGhosts( const CTakeDamageInfo &info, CTF
 		CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iHalloweenDeathGhosts, halloween_death_ghosts );
 		if ( iHalloweenDeathGhosts > 0 )
 		{
-			if ( pTFVictim->GetTeam()->GetTeamNumber() == TF_TEAM_BLUE )
-			{
-				DispatchParticleEffect( "halloween_player_death_blue", pTFVictim->GetAbsOrigin() + Vector( 0, 0, 32 ), vec3_angle );
-			}
-			else if ( pTFVictim->GetTeam()->GetTeamNumber() == TF_TEAM_RED )
-			{
-				DispatchParticleEffect( "halloween_player_death", pTFVictim->GetAbsOrigin() + Vector( 0, 0, 32 ), vec3_angle );
-			}
+			const char* pszParticle = (pTFVictim->GetTeam()->GetTeamNumber() == TF_TEAM_BLUE) ? 
+				"halloween_player_death_blue" : "halloween_player_death";
+			
+			CPVSFilter filter( pTFVictim->GetAbsOrigin() );
+			TE_TFParticleEffect( filter, 0.0, pszParticle, pTFVictim->GetAbsOrigin() + Vector( 0, 0, 32 ), vec3_angle );
 		}
 	}
 }
