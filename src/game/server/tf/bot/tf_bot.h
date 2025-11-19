@@ -491,6 +491,7 @@ public:
 
 	bool ShouldReEvaluateCurrentClass( void ) const;
 	void ReEvaluateCurrentClass( void );
+	bool IsEnemy( const CBaseEntity* ) const;
 
 private:
 	CTFBotLocomotion	*m_locomotor;
