@@ -20,6 +20,7 @@
 
 #if defined(TF_CLIENT_DLL)
 #include "c_tf_player.h"
+#include "c_baseviewmodel.h"
 #include "tf_gamerules.h"
 #include "c_playerresource.h"
 #include "tf_shareddefs.h"
@@ -92,7 +93,6 @@ END_SCRIPTDESC();
 #endif
 
 #ifdef TF_CLIENT_DLL
-extern ConVar cl_flipviewmodels;
 #endif
 
 
@@ -857,7 +857,7 @@ int C_ViewmodelAttachmentModel::InternalDrawModel( int flags )
 {
 #ifdef TF_CLIENT_DLL
 	CMatRenderContextPtr pRenderContext( materials );
-	if ( cl_flipviewmodels.GetBool() != m_bAlwaysFlip )
+	if ( TeamFortress_ShouldFlipClientViewModel() != m_bAlwaysFlip )
 	{
 		pRenderContext->CullMode( MATERIAL_CULLMODE_CW );
 	}
