@@ -1,25 +1,31 @@
 param
 (
-    [ Parameter( Mandatory=$true ) ][ string ]$sFileName,
-    [ Parameter( Mandatory=$true ) ][ string ]$sObjName
+    [ Parameter( Mandatory = $true ) ][ string ]$sFileName,
+    [ Parameter( Mandatory = $true ) ][ string ]$sObjName
 )
 
 $Bytes = [ System.IO.File ]::ReadAllBytes( $sFileName )
 
-Write-Host "static unsigned char $sObjName[] = {"
-Write-Host "    " -NoNewline
+Write-Output "static unsigned char $sObjName[] = {"
 
+$sLine = "    "
 for ( $i = 0; $i -lt $Bytes.Length; $i++ )
 {
     $Byte = $Bytes[ $i ]
-    Write-Host ( "0x{0:x2}," -f $Byte ) -NoNewline
+
+    if ( ( $i % 20 ) -ne 0 )
+    {
+        $sLine += " "
+    }
+    $sLine += ( "0x{0:x2}," -f $Byte )
 
     if ( ( $i % 20 ) -eq 19 )
     {
-        Write-Host ""
-        Write-Host "    " -NoNewline
+        Write-Output $sLine
+        $sLine = "    "
     }
 }
 
-Write-Host "0x00"
-Write-Host "};"
+$sLine += " 0x00"
+Write-Output $sLine
+Write-Output "};"

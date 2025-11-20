@@ -45,7 +45,7 @@ $Configuration	"Release"
 
 $CustomBuildStep "nut"
 {
-	$CommandLine	"powershell $SRCDIR\devtools\bin\texttoarray.ps1 $(InputPath) g_Script_$(InputName)> $(InputName)_nut.h" [$WINDOWS]
+	$CommandLine	"powershell -NoProfile -ExecutionPolicy Bypass -File $SRCDIR\devtools\bin\texttoarray.ps1 $(InputPath) g_Script_$(InputName)> $(InputName)_nut.h" [$WINDOWS]
 	$CommandLine	"sh $SRCDIR\devtools\bin\texttoarray.sh $(InputPath) g_Script_$(InputName)> $(InputName)_nut.h" [$POSIX]
 	$Description	"$(InputFileName) produces $(InputName)_nut.h"
 	$Outputs		"$(InputName)_nut.h"
