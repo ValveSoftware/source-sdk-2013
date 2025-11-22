@@ -9669,6 +9669,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		}
 	}
 	
+	bool bFeignDeath = false;
 	if ( IsPlayerClass( TF_CLASS_SPY ) && ( inputInfo.GetDamageCustom() != TF_DMG_CUSTOM_TELEFRAG ) && ( inputInfo.GetDamageCustom() != TF_DMG_CUSTOM_CROC ) )
 	{
 		// Trigger feign death if the player has it prepped...
@@ -9677,7 +9678,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			m_Shared.SetFeignDeathReady( false );
 			if ( !m_Shared.InCond( TF_COND_TAUNTING ) )
 			{
-				SpyDeadRingerDeath( info );
+				bFeignDeath = SpyDeadRingerDeath( info );
 
 				if ( pTFAttacker )
 				{
@@ -9739,12 +9740,12 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		bool bDisguised = m_Shared.InCond( TF_COND_DISGUISED ) && pTFAttacker && ( m_Shared.GetDisguiseTeam() == pTFAttacker->GetTeamNumber() );
 		bool bFish = ( pWeapon->GetWeaponID() == TF_WEAPON_BAT_FISH );
 
-		if ( m_iHealth <= 0 )
+		if ( m_iHealth <= 0 || bFeignDeath )
 		{
 			info.SetDamageCustom( bFish ? TF_DMG_CUSTOM_FISH_KILL : TF_DMG_CUSTOM_SLAP_KILL );
 		}
 
-		if ( m_iHealth <= 0 || !bDisguised )
+		if ( m_iHealth <= 0 || bFeignDeath || !bDisguised )
 		{
 			// Do you ever find yourself typing "fish damage override" into a million-lines-of-code project and
 			// wondering about the world? Because I do.
@@ -9754,7 +9755,15 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iFishDamageOverride, fish_damage_override );
 			}
 
+			if ( bFeignDeath )
+			{
+				m_bGoingFeignDeath = true;
+			}
 			TFGameRules()->DeathNotice( this, info, bFish ? ( iFishDamageOverride ? "fish_notice__arm" : "fish_notice" ) : "slap_notice" );
+			if ( bFeignDeath )
+			{
+				m_bGoingFeignDeath = false;
+			}
 		}
 	}
 
@@ -15670,19 +15679,19 @@ void CTFPlayer::DestroyRagdoll( void )
 // Purpose: The player appears to die, creating a corpse and silently stealthing.
 //			Occurs when a player takes damage with the dead ringer active
 //-----------------------------------------------------------------------------
-void CTFPlayer::SpyDeadRingerDeath( const CTakeDamageInfo& info )
+bool CTFPlayer::SpyDeadRingerDeath( const CTakeDamageInfo& info )
 {
 	// Can't feign death if we're actually dead or if we're not a spy.
 	if ( !IsAlive() || !IsPlayerClass( TF_CLASS_SPY ) )
-		return;
+		return false;
 
 	// Can't feign death if we're already stealthed.
 	if ( m_Shared.InCond( TF_COND_STEALTHED ) )
-		return;
+		return false;
 
 	// Can't feign death if we aren't at full cloak energy.
 	if ( !CanGoInvisible( true ) || ( m_Shared.GetSpyCloakMeter() < 100.0f ) )
-		return;
+		return false;
 
 	m_Shared.SetSpyCloakMeter( 50.0f );
 
@@ -15693,6 +15702,7 @@ void CTFPlayer::SpyDeadRingerDeath( const CTakeDamageInfo& info )
 	// Go feign death.
 	m_Shared.AddCond( TF_COND_FEIGN_DEATH, tf_feign_death_duration.GetFloat() );
 	m_bGoingFeignDeath = false;
+	return true;
 }
 
 //-----------------------------------------------------------------------------

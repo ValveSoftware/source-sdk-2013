@@ -442,7 +442,7 @@ public:
 	bool WasGibbedOnLastDeath( void ) { return m_bGibbedOnLastDeath; }
 
 	// Feign Death
-	void SpyDeadRingerDeath( const CTakeDamageInfo& info );
+	bool SpyDeadRingerDeath( const CTakeDamageInfo& info );
 	void FeignDeath( const CTakeDamageInfo& info, bool bDeathnotice );
 	void CreateFeignDeathRagdoll( const CTakeDamageInfo& info, bool bGib, bool bBurning, bool bDisguised );
 
