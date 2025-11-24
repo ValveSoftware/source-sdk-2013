@@ -13344,6 +13344,7 @@ int CTFPlayerShared::GetSequenceForDeath( CBaseAnimating* pRagdoll, bool bBurnin
 
 	switch ( nCustomDeath )
 	{
+	case TF_DMG_CUSTOM_HEADSHOT_FLYINGBURN:
 	case TF_DMG_CUSTOM_HEADSHOT_DECAPITATION:
 	case TF_DMG_CUSTOM_TAUNTATK_BARBARIAN_SWING:
 	case TF_DMG_CUSTOM_DECAPITATION:

@@ -1161,6 +1161,11 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 				msg.wzInfoText[ 0 ] = 0;
 				break;
 			}
+		case TF_DMG_CUSTOM_HEADSHOT_FLYINGBURN:
+			// special-case if the player is headshot by a burning arrow as the killing blow
+			Q_strncpy( msg.szIcon, "d_huntsman_flyingburn_headshot", ARRAYSIZE( msg.szIcon ) );
+			msg.wzInfoText[0] = 0;
+			break;
 		default:
 			break;
 		}

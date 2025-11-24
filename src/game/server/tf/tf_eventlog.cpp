@@ -105,6 +105,7 @@ protected:
  
  				switch( iCustomDamage )
  				{
+ 				case TF_DMG_CUSTOM_HEADSHOT_FLYINGBURN:
 				case TF_DMG_CUSTOM_HEADSHOT_DECAPITATION:
  				case TF_DMG_CUSTOM_HEADSHOT:
  					pszCustom = "headshot";
