@@ -12481,15 +12481,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 					}
 					else if ( *iWeaponID == TF_WEAPON_COMPOUND_BOW )
 					{
-						CTFProjectile_Arrow* pArrow = dynamic_cast<CTFProjectile_Arrow*>( pBaseRocket );
-						if ( pArrow && pArrow->IsAlight() )
-						{
-							killer_weapon_name = "deflect_huntsman_flyingburn";
-						}
-						else
-						{
-							killer_weapon_name = "deflect_arrow";
-						}
+						killer_weapon_name = "deflect_arrow";
 					}
 					else if ( *iWeaponID == TF_WEAPON_SHOTGUN_BUILDING_RESCUE )
 					{
