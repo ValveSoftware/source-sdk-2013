@@ -715,6 +715,7 @@ void CTFPlayerModelPanel::SwitchHeldItemTo( CEconItemView *pItem )
 	}
 
 	// update poseparam
+	SetPoseParameters( NULL, 0 );
 	if ( pItem->GetStaticData()->GetNumPlayerPoseParameters( m_iTeam ) > 0 )
 	{
 		for ( int iPlayerPoseParam=0; iPlayerPoseParam < pItem->GetStaticData()->GetNumPlayerPoseParameters( m_iTeam ); ++iPlayerPoseParam )
@@ -722,10 +723,6 @@ void CTFPlayerModelPanel::SwitchHeldItemTo( CEconItemView *pItem )
 			poseparamtable_t *pPoseParam = pItem->GetStaticData()->GetPlayerPoseParameters( m_iTeam, iPlayerPoseParam );
 			SetPoseParameterByName( pPoseParam->strName, pPoseParam->flValue );
 		}
-	}
-	else
-	{
-		SetPoseParameterByName( "r_hand_grip", 0.f );
 	}
 
 	// Clear out taunt particles
