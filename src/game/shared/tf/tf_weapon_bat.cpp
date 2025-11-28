@@ -1312,15 +1312,7 @@ void CTFBall_Ornament::Explode( trace_t *pTrace, int bitsDamageType )
 	}
 
 	Vector vecOrigin = GetAbsOrigin();
-	CTFPlayer* pOwner = ToTFPlayer( GetOwnerEntity() );
-	if ( GetDeflected() )
-	{
-		CTFPlayer* pDeflector = ToTFPlayer( GetDeflectOwner() );
-		if ( pDeflector )
-		{
-			pOwner = pDeflector;
-		}
-	}
+	CTFPlayer* pOwner = ToTFPlayer( GetThrower() );
 
 	// sound effects
 	EmitSound_t params;
@@ -1338,7 +1330,7 @@ void CTFBall_Ornament::Explode( trace_t *pTrace, int bitsDamageType )
 
 	// Do radius damage
 	Vector vecBlastForce(0.0f, 0.0f, 0.0f);
-	CTakeDamageInfo info( this, GetThrower(), m_hLauncher, vecBlastForce, GetAbsOrigin(), flExplodeDamage, bitsDamageType, TF_DMG_CUSTOM_BASEBALL, &vecOrigin );
+	CTakeDamageInfo info( this, pOwner, m_hLauncher, vecBlastForce, GetAbsOrigin(), flExplodeDamage, bitsDamageType, TF_DMG_CUSTOM_BASEBALL, &vecOrigin );
 	CTFRadiusDamageInfo radiusinfo( &info, vecOrigin, DEFAULT_ORNAMENT_EXPLODE_RADIUS, nullptr, 0.0f, 0.0f );
 	TFGameRules()->RadiusDamage( radiusinfo );
 
