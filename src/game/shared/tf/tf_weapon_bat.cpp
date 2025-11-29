@@ -720,7 +720,7 @@ void CTFStunBall::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 	if ( !pPlayer )
 		return;
 
-	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
+	CTFPlayer *pOwner = ToTFPlayer( GetThrower() );
 	if ( !pOwner )
 		return;
 
@@ -782,7 +782,7 @@ void CTFStunBall::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 
 	CBaseEntity *pInflictor = GetLauncher();
 	CTakeDamageInfo info;
-	info.SetAttacker( GetOwnerEntity() );
+	info.SetAttacker( pOwner );
 	info.SetInflictor( pInflictor ); 
 	info.SetWeapon( pInflictor );
 	info.SetDamage( ( flLifeTimeRatio >= 1.f ) ? GetDamage() * 1.5f : GetDamage() );
@@ -838,7 +838,7 @@ void CTFStunBall::PipebombTouch( CBaseEntity *pOther )
 	if ( !ShouldBallTouch( pOther ) )
 		return;
 
-	CTFPlayer* pOwner = ToTFPlayer( GetOwnerEntity() );
+	CTFPlayer* pOwner = ToTFPlayer( GetThrower() );
 	if ( !pOwner )
 		return;
 
@@ -893,7 +893,7 @@ void CTFStunBall::PipebombTouch( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 void CTFStunBall::VPhysicsCollision( int index, gamevcollisionevent_t *pEvent )
 {
-	CTFPlayer* pOwner = ToTFPlayer( GetOwnerEntity() );
+	CTFPlayer* pOwner = ToTFPlayer( GetThrower() );
 	bool bWasTouched = m_bTouched;
 	BaseClass::VPhysicsCollision( index, pEvent );
 	if ( pOwner && !bWasTouched && m_bTouched )
@@ -939,7 +939,7 @@ void CTFStunBall::RemoveBallTrail( void )
 //-----------------------------------------------------------------------------
 bool CTFStunBall::ShouldBallTouch( CBaseEntity *pOther )
 {
-	CTFPlayer* pOwner = ToTFPlayer( GetOwnerEntity() );
+	CTFPlayer* pOwner = ToTFPlayer( GetThrower() );
 	if ( !pOwner )
 		return false;
 
@@ -1174,7 +1174,7 @@ void CTFBall_Ornament::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 	if ( !pPlayer )
 		return;
 
-	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
+	CTFPlayer *pOwner = ToTFPlayer( GetThrower() );
 	if ( !pOwner )
 		return;
 
@@ -1210,7 +1210,7 @@ void CTFBall_Ornament::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 
 	CBaseEntity *pInflictor = GetLauncher();
 	CTakeDamageInfo info;
-	info.SetAttacker( GetOwnerEntity() );
+	info.SetAttacker( pOwner );
 	info.SetInflictor( pInflictor ); 
 	info.SetWeapon( pInflictor );
 	info.SetDamage( GetDamage() );
