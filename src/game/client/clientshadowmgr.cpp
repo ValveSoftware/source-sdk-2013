@@ -2200,7 +2200,7 @@ void CClientShadowMgr::ComputeExtraClipPlanes( IClientRenderable* pRenderable,
 				return false;
 
 			C_BaseEntity *pEntity = EntityFromEntityHandle( pHandleEntity );
-			if ( pEntity && !pEntity->ShouldReceiveProjectedTextures( SHADOW_FLAGS_PROJECTED_TEXTURE_TYPE_MASK ) )
+			if ( pEntity && !pEntity->ShouldReceiveProjectedTextures( SHADOW_FLAGS_SHADOW ) )
 				return false;
 
 			return true;
