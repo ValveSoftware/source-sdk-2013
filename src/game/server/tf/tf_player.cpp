@@ -4717,7 +4717,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			if ( !pWeapon || !pWeapon->CanBeSelected() || !Weapon_Switch( pWeapon ) )
 			{
 				pWeapon = dynamic_cast<CTFWeaponBase*>( GetEntityForLoadoutSlot( LOADOUT_POSITION_SECONDARY ) );
-				if ( !pWeapon || pWeapon->CanBeSelected() || !Weapon_Switch( pWeapon ) )
+				if ( !pWeapon || !pWeapon->CanBeSelected() || !Weapon_Switch( pWeapon ) )
 				{
 					pWeapon = dynamic_cast<CTFWeaponBase*>( GetEntityForLoadoutSlot( LOADOUT_POSITION_MELEE ) );
 					Weapon_Switch( pWeapon );
