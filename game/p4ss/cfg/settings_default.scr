@@ -52,7 +52,7 @@ DESCRIPTION SERVER_OPTIONS
 	{
 		"#Valve_Hostname"
 		{ STRING }
-		{ "4v4 PASS Time" }
+		{ "PASS Fortress server" }
 	}
 
 	"maxplayers"
