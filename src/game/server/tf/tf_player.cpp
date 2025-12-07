@@ -203,6 +203,8 @@ ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_DEVELO
 
 ConVar tf_allow_player_use( "tf_allow_player_use", "0", FCVAR_NOTIFY, "Allow players to execute +use while playing." );
 
+ConVar tf_allow_sliding_taunt( "tf_allow_sliding_taunt", "0", FCVAR_NONE, "1 - Allow player to slide for a bit after taunting" );
+
 ConVar tf_deploying_bomb_time( "tf_deploying_bomb_time", "1.90", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Time to deploy bomb before the point of no return." );
 ConVar tf_deploying_bomb_delay_time( "tf_deploying_bomb_delay_time", "0.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Time to delay before deploying bomb." );
 
@@ -17740,7 +17742,9 @@ void CTFPlayer::OnTauntSucceeded( const char* pszSceneName, int iTauntIndex /*= 
 	m_Shared.m_iTauntIndex = iTauntIndex;
 	m_Shared.m_iTauntConcept.Set( iTauntConcept );
 	m_flTauntStartTime = gpGlobals->curtime;
-	m_flTauntNextStartTime = m_flTauntStartTime + flDuration;
+
+	if ( !tf_allow_sliding_taunt.GetBool() )
+		m_flTauntNextStartTime = m_flTauntStartTime + flDuration;
 
 	const itemid_t unTauntSourceItemID = m_TauntEconItemView.IsValid() ? m_TauntEconItemView.GetItemID() : INVALID_ITEM_ID;
 	m_Shared.m_unTauntSourceItemID_Low = unTauntSourceItemID & 0xffffffff;
@@ -17770,7 +17774,10 @@ void CTFPlayer::OnTauntSucceeded( const char* pszSceneName, int iTauntIndex /*= 
 	m_angTauntCamera = EyeAngles();
 
 	// Slam velocity to zero.
-	SetAbsVelocity( vec3_origin );
+	if ( !tf_allow_sliding_taunt.GetBool() )
+	{
+		SetAbsVelocity( vec3_origin );
+	}
 
 	// play custom set taunt particle if we have a full set equipped
 	if ( IsPlayerClass( TF_CLASS_SPY ) )

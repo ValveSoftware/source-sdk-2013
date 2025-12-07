@@ -157,8 +157,6 @@ ConVar tf_damage_events_track_for( "tf_damage_events_track_for", "30",  FCVAR_DE
 
 extern ConVar tf_halloween_giant_health_scale;
 
-ConVar tf_allow_sliding_taunt( "tf_allow_sliding_taunt", "0", FCVAR_NONE, "1 - Allow player to slide for a bit after taunting" );
-
 #endif // GAME_DLL
 
 
@@ -13014,14 +13012,6 @@ bool CTFPlayer::CanMoveDuringTaunt()
 
 	if ( m_Shared.InCond( TF_COND_TAUNTING ) || m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER ) )
 	{
-#ifdef GAME_DLL
-		if ( tf_allow_sliding_taunt.GetBool() )
-		{
-			return true;
-		}
-#endif // GAME_DLL
-
-
 		if ( m_bAllowMoveDuringTaunt )
 		{
 			return true;
