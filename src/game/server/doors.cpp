@@ -31,6 +31,21 @@
 
 #define CLOSE_AREAPORTAL_THINK_CONTEXT "CloseAreaportalThink"
 
+#ifdef HL1_DLL
+//-----------------------------------------------------------------------------
+// Purpose: Button sound table. Used by CBaseDoor in HL1Port
+// 			to get 'touched' door lock/unlock sounds
+// Input  : sound - index of sound to look up.
+// Output : Returns a pointer to the corresponding sound file.
+//-----------------------------------------------------------------------------
+string_t MakeButtonSound( int sound )
+{ 
+	char tmp[1024];
+	Q_snprintf( tmp, sizeof(tmp), "Buttons.snd%d", sound );
+	return AllocPooledString(tmp);
+}
+#endif
+
 BEGIN_DATADESC( CBaseDoor )
 
 	DEFINE_KEYFIELD( m_vecMoveDir, FIELD_VECTOR, "movedir" ),
@@ -537,6 +552,25 @@ void CBaseDoor::SetToggleState( int state )
 //-----------------------------------------------------------------------------
 void CBaseDoor::Precache( void )
 {
+#ifdef HL1_DLL
+	if( m_ls.sLockedSound != NULL_STRING && strlen((char*)STRING(m_ls.sLockedSound)) < 4 )
+	{
+		// Too short to be ANYTHING ".wav", so it must be an old button index.
+		// Call appropriate button soundscript to respect the designer's original 
+		// selection, so we don't get unresponsive doors.
+		m_ls.sLockedSound = MakeButtonSound( (int)m_bLockedSound );
+		PrecacheScriptSound(m_ls.sLockedSound.ToCStr());
+	}
+	if( m_ls.sUnlockedSound != NULL_STRING && strlen((char*)STRING(m_ls.sUnlockedSound)) < 4 )
+	{
+		// Too short to be ANYTHING ".wav", so it must be an old button index.
+		// Call appropriate button soundscript to respect the designer's original 
+		// selection, so we don't get unresponsive doors.
+		m_ls.sUnlockedSound = MakeButtonSound( (int)m_bUnlockedSound );
+		PrecacheScriptSound(m_ls.sUnlockedSound.ToCStr());
+	}
+#endif//HL1_DLL
+
 	//Fill in a default value if necessary
 	if ( IsRotatingDoor() )
 	{
@@ -554,16 +588,6 @@ void CBaseDoor::Precache( void )
 #endif
 		UTIL_ValidateSoundName( m_ls.sUnlockedSound,"DoorSound.Null" );
 	}
-
-#ifdef HL1_DLL
-	if( m_ls.sLockedSound != NULL_STRING && strlen((char*)STRING(m_ls.sLockedSound)) < 4 )
-	{
-		// Too short to be ANYTHING ".wav", so it must be an old index into a long-lost
-		// array of sound choices. slam it to a known "deny" sound. We lose the designer's
-		// original selection, but we don't get unresponsive doors.
-		m_ls.sLockedSound = AllocPooledString("buttons/button2.wav");
-	}
-#endif//HL1_DLL
 
 	//Precache them all
 	PrecacheScriptSound( (char *) STRING(m_NoiseMoving) );
