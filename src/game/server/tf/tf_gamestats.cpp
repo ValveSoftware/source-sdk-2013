@@ -1070,7 +1070,7 @@ void CTFGameStats::Event_PlayerDamage( CBasePlayer *pBasePlayer, const CTakeDama
 			IncrementStat( pAttacker, TFSTAT_BLASTDAMAGE, iDamageTaken );
 		}
 		// Ranged stats
-		if ( !( info.GetDamageType() & DMG_MELEE ) && !( info.GetDamageType() & DMG_STICKBOMB ) )
+		if ( !( info.GetDamageType() & DMG_MELEE ) )
 		{
 			IncrementStat( pAttacker, TFSTAT_DAMAGE_RANGED, iDamageTaken );
 
