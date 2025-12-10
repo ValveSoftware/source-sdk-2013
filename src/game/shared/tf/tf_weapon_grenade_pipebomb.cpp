@@ -987,7 +987,7 @@ int CTFGrenadePipebombProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 				vecForce *= tf_grenade_forcefrom_buckshot.GetFloat();
 				bBreakPipes = true;
 			}
-			else if ( info.GetDamageType() &  DMG_BLAST )
+			else if ( info.GetDamageType() & DMG_BLAST )
 			{
 				// if we're also supposed to ignite then just destroy the sticky bomb (Cow Mangler alt-fire)
 				if ( info.GetDamageType() & DMG_IGNITE )
