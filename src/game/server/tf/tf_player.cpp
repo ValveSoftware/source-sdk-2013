@@ -17742,9 +17742,7 @@ void CTFPlayer::OnTauntSucceeded( const char* pszSceneName, int iTauntIndex /*= 
 	m_Shared.m_iTauntIndex = iTauntIndex;
 	m_Shared.m_iTauntConcept.Set( iTauntConcept );
 	m_flTauntStartTime = gpGlobals->curtime;
-
-	if ( !tf_allow_sliding_taunt.GetBool() )
-		m_flTauntNextStartTime = m_flTauntStartTime + flDuration;
+	m_flTauntNextStartTime = m_flTauntStartTime + flDuration;
 
 	const itemid_t unTauntSourceItemID = m_TauntEconItemView.IsValid() ? m_TauntEconItemView.GetItemID() : INVALID_ITEM_ID;
 	m_Shared.m_unTauntSourceItemID_Low = unTauntSourceItemID & 0xffffffff;
