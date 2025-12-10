@@ -967,13 +967,13 @@ int CTFGrenadePipebombProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 	bool bSameTeam = ( info.GetAttacker()->GetTeamNumber() == GetTeamNumber() );
 	if ( !bSameTeam && CanTakeDamage() )
 	{
-		if ( m_bTouched && HasStickyEffects() && ( info.GetDamageType() & (DMG_BULLET|DMG_BUCKSHOT|DMG_BLAST|DMG_SONIC|DMG_MELEE) ) )
+		if ( m_bTouched && HasStickyEffects() && ( info.GetDamageType() & ( DMG_BULLET | DMG_BUCKSHOT | DMG_BLAST | DMG_SONIC | DMG_MELEE | DMG_STICKBOMB ) ) )
 		{
 			Vector vecForce = info.GetDamageForce();
 
 			bool bBreakPipes = false;
 
-			if ( info.GetDamageType() & (DMG_BULLET|DMG_MELEE) )
+			if ( info.GetDamageType() & ( DMG_BULLET | DMG_MELEE ) )
 			{
 				vecForce *= tf_grenade_forcefrom_bullet.GetFloat();
 				bBreakPipes = true;
@@ -987,7 +987,7 @@ int CTFGrenadePipebombProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 				vecForce *= tf_grenade_forcefrom_buckshot.GetFloat();
 				bBreakPipes = true;
 			}
-			else if ( info.GetDamageType() & DMG_BLAST )
+			else if ( info.GetDamageType() & ( DMG_BLAST | DMG_STICKBOMB ) )
 			{
 				// if we're also supposed to ignite then just destroy the sticky bomb (Cow Mangler alt-fire)
 				if ( info.GetDamageType() & DMG_IGNITE )
