@@ -558,7 +558,7 @@ void CBaseDoor::Precache( void )
 		// Too short to be ANYTHING ".wav", so it must be an old button index.
 		// Call appropriate button soundscript to respect the designer's original 
 		// selection, so we don't get unresponsive doors.
-		m_ls.sLockedSound = MakeButtonSound( (int)m_bLockedSound );
+		m_ls.sLockedSound = MakeButtonSound( (int)m_ls.sLockedSound );
 		PrecacheScriptSound(m_ls.sLockedSound.ToCStr());
 	}
 	if( m_ls.sUnlockedSound != NULL_STRING && strlen((char*)STRING(m_ls.sUnlockedSound)) < 4 )
@@ -566,7 +566,7 @@ void CBaseDoor::Precache( void )
 		// Too short to be ANYTHING ".wav", so it must be an old button index.
 		// Call appropriate button soundscript to respect the designer's original 
 		// selection, so we don't get unresponsive doors.
-		m_ls.sUnlockedSound = MakeButtonSound( (int)m_bUnlockedSound );
+		m_ls.sUnlockedSound = MakeButtonSound( (int)m_ls.sUnlockedSound );
 		PrecacheScriptSound(m_ls.sUnlockedSound.ToCStr());
 	}
 #endif//HL1_DLL
