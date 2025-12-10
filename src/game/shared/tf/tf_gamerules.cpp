@@ -7258,7 +7258,7 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 				outParams.bPlayDamageReductionSound = CheckMedicResist( TF_COND_MEDIGUN_SMALL_BULLET_RESIST, TF_COND_MEDIGUN_UBER_BULLET_RESIST, pVictim, flRawDamage, flDamageBase, bCrit, flDamageBonus );
 			}
 
-			if ( info.GetDamageType() & DMG_MELEE )
+			if ( info.GetDamageType() & DMG_MELEE || info.GetDamageType() & DMG_STICKBOMB )
 			{
 				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pVictim, flDamageBase, mult_dmgtaken_from_melee );
 			}
