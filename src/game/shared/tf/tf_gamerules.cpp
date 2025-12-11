@@ -7374,7 +7374,7 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 
 		if ( pVictim && pVictim->GetActiveTFWeapon() && !iAttackIgnoresResists )
 		{
-			if ( info.GetDamageType() & (DMG_CLUB) )
+			if ( info.GetDamageType() & (DMG_CLUB) || ( info.GetDamageCustom() == TF_DMG_CUSTOM_STICKBOMB_EXPLOSION ) )
 			{
 				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pVictim->GetActiveTFWeapon(), flRealDamage, dmg_from_melee );
 			}
