@@ -267,6 +267,7 @@ void CTFStickBomb::Smack( void )
 			}
 
 			float flDamage = GetBlastDamage( &dmgType );
+
 			CTakeDamageInfo info( pTFPlayer, pTFPlayer, this, explosion, explosion, flDamage, dmgType, TF_DMG_CUSTOM_STICKBOMB_EXPLOSION, &explosion );
 
 			float flRadius = 100.0f;
