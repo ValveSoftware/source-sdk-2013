@@ -259,12 +259,26 @@ void CTFStickBomb::Smack( void )
 				dmgType |= DMG_CRITICAL;
 
 			float flDamage = 75.0f;
-			CALL_ATTRIB_HOOK_FLOAT( flDamage, mult_dmg );
+
+			float flAdjDamage = flDamage;
+			CALL_ATTRIB_HOOK_FLOAT( flAdjDamage, mult_dmg );
+
+			if ( flAdjDamage != flDamage )
+			{
+				flDamage = flAdjDamage;
+			}
 
 			CTakeDamageInfo info( pTFPlayer, pTFPlayer, this, explosion, explosion, flDamage, dmgType, TF_DMG_CUSTOM_STICKBOMB_EXPLOSION, &explosion );
 
-			float flRadius = 100.f;
-			CALL_ATTRIB_HOOK_FLOAT( flRadius, mult_explosion_radius );
+			float flRadius = 100.0f;
+
+			float flAdjRadius = flRadius;
+			CALL_ATTRIB_HOOK_FLOAT( flAdjRadius, mult_explosion_radius );
+
+			if ( flAdjRadius != flRadius )
+			{
+				flRadius = flAdjRadius;
+			}
 
 			CTFRadiusDamageInfo radiusinfo( &info, explosion, flRadius );
 			TFGameRules()->RadiusDamage( radiusinfo );
