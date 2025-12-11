@@ -19136,7 +19136,7 @@ void CTFPlayer::DoTauntAttack( void )
 			pLoser->TakeDamage( CTakeDamageInfo( pWinner, pWinner, NULL, 999, DMG_GENERIC, 0 ) );
 		}
 	}
-  else if ( iTauntAttack == TAUNTATK_ENGINEER_TRICKSHOT )
+	else if ( iTauntAttack == TAUNTATK_ENGINEER_TRICKSHOT )
 	{
 		// Engineer "Texan Trickshot" attack
 		Vector vecForward;
