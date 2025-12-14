@@ -7,28 +7,28 @@ Scheme
 	// this is a list of all the colors used by the scheme
 	Colors
 	{
-	    "TFDarkBrown"               "60 56 53 255"
-	    "TFDarkBrownTransparent"    "60 56 53 190"
-	    "TFTanBright"               "236 227 203 150"
-	    "TFTanLight"                "201 188 162 150"
-	    "TFTanMedium"               "131 121 104 150"
+	    "TFDarkBrown"               "54 54 54 255" //Lighter grey from PF website
+	    "TFDarkBrownTransparent"    "54 54 54 190"
+	    "TFTanBright"               "236 236 236 150"
+	    "TFTanLight"                "201 201 201 150"
+	    "TFTanMedium"               "131 131 131 150"
 	    
-	    "TFTanLightBright"          "229 223 211 90"
-	    "TFTanLightDark"            "96 90 78 90"
+	    "TFTanLightBright"          "229 229 229 90"
+	    "TFTanLightDark"            "96 96 96 90"
 	    
 	    "TFOrangeBright"            "152 191 100 255"
 	    
-	    "TFTextBright"              "251 236 203 150"
-	    "TFTextLight"               "201 188 162 255"
-	    "TFTextMedium"              "131 121 104 255"
-	    "TFTextMediumDark"          "104 96 83 255"
-	    "TFTextBlack"               "42 39 37 255"
-	    "TFTextDull"                "131 121 104 255"
+	    "TFTextBright"              "251 251 251 150"
+	    "TFTextLight"               "201 201 201 255"
+	    "TFTextMedium"              "131 131 131 255"
+	    "TFTextMediumDark"          "104 104 104 255"
+	    "TFTextBlack"               "42 42 42 255"
+	    "TFTextDull"                "131 131 131 255"
 
 	    "TFMediumBrown"		"69 64 58 255"
 
-	    "QuickListBGDeselected"		"69 64 58 255"
-	    "QuickListBGSelected"               "131 121 104 150"
+	    "QuickListBGDeselected"		"42 51 28 255" //simplified list deselected
+	    "QuickListBGSelected"               "62 76 41 255" //simplified list selected
 	    
 	    "Blank"				"0 0 0 0"
 	    
@@ -36,12 +36,26 @@ Scheme
 		"ControlBG"			"76 88 68 255"		// background color of controls
 		"ControlDarkBG"		"90 106 80 255"		// darker background color; used for background of scrollbars
 		"WindowBG"			"62 70 55 255"		// background color of text edit panes (chat, text entries, etc.)
-		"SelectionBG"		"90 84 75 255"	// background color of any selected text or menu item
-		"SelectionBG2"		"69 64 57 255"		// selection background in window w/o focus
-		"ListBG"			"39 36 34 255"		// background of server browser, buddy list, etc.
+		"SelectionBG"		"62 76 41 255"	// background color of any selected text or menu item
+		"SelectionBG2"		"42 51 28 255"		// selection background in window w/o focus
+		"ListBG"			"32 32 32 255"		// background of server browser, buddy list, etc.
+		
+		//PASS Fortress Colors :3
+		"PureWhite"				"255 255 255 255"
+		"PureBlack"				"0 0 0 255"
+		"PFGrey" 				"32 32 32 180"
+		"PFGreen"				"152 191 101 255"
+		"PFDarkGreen"			"62 76 41 255"
+		"PFGreenDim" 			"152 191 101 128"
+		"PFWhite"				"255 255 246 255"
 	}
 	BaseSettings
 	{
+	
+		//seemingly absent from vanilla file
+		SectionedListPanel.SelectedBgColor				"TFOrangeBright" 	//keybind menu selected
+		SectionedListPanel.OutOfFocusSelectedBgColor	"TFOrangeBright" 	//keybind menu selected, out of focus
+		
 		// scheme-specific colors
 		Border.Bright					"TFTanLightDark"	// the lit side of a control
 		Border.Dark						"TFTanLightDark"		// the dark/unlit side of a control
@@ -77,8 +91,8 @@ Scheme
 		RadioButton.SelectedTextColor	"TFTextBright"
 		RadioButton.ArmedTextColor	"TFTextMedium"
 		
-		Frame.BgColor					"TFDarkBrown"
-		Frame.OutOfFocusBgColor			"TFDarkBrownTransparent"
+		Frame.BgColor					"Blank"
+		Frame.OutOfFocusBgColor			"Blank"
 		FrameGrip.Color1				"TFTanMedium"
 		FrameGrip.Color2				"TFDarkBrown"
 		FrameTitleButton.FgColor		"TFTanBright"
@@ -156,7 +170,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"TF2 Build"
+				"name"		"Montserrat SemiBold"
 				"tall"		"35"
 				"tall_lodef"	"40"
 				"weight"	"500"
@@ -172,6 +186,18 @@ Scheme
 				"name"		"Verdana"
 				"tall"		"14"
 				"weight"	"500"
+			}
+		}
+		
+		"DefaultLarge"
+		{
+			"1"
+			{
+				"name"		"Montserrat Black" [!$POSIX]
+				"name"		"Montserrat Black" [$POSIX]
+				"tall"		"30"
+				"weight"	"0"
+				"antialias"	"1"
 			}
 		}
 
@@ -264,6 +290,21 @@ Scheme
 
 	}
 	
+	Borders
+	{
+		FrameBorder
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"0"
+			
+			"image"					"../hud/color_panel_brown_opaque"
+			"src_corner_height"		"10"				// pixels inside the image
+			"src_corner_width"		"10"
+			"draw_corner_width"		"8"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"8"	
+		}
+	}
+	
 	CustomFontFiles
 	{
 		"6" 
@@ -335,5 +376,48 @@ Scheme
 		"15"		"resource/linux_fonts/LiberationSans-Bold.ttf"
 		"16"		"resource/linux_fonts/LiberationMono-Regular.ttf"
 		"17"		"resource/linux_fonts/FiraSans-Regular.ttf"
+		
+		//Bobby Joe's Custom Fonts Installation :D
+		
+		"18"	//Compacta Regular
+		{
+				"font"	"resource/fonts/Compacta-BT.ttf"
+				"name"	"Compacta BT"
+		}
+		"19"	//Compacta Black
+		{
+				"font"	"resource/fonts/Compacta-BT-Black.ttf"
+				"name"	"Compacta BT Black"
+		}
+		"20"	//Glyphs font
+		{
+				"font"	"resource/fonts/TF2-Glyphs.ttf"
+				"name"	"Bobby's TF2 Glyphs"
+		}
+		"21"
+		{
+				"font"	"resource/fonts/Futura-Condensed-Demi.ttf"
+				"name"	"Futura Condensed Demi Regular"
+		}
+		"22"
+		{
+				"font"	"resource/fonts/Montserrat-Black.ttf"
+				"name"	"Montserrat Black"
+		}
+		"23"
+		{
+				"font"	"resource/fonts/Montserrat-SemiBold.ttf"
+				"name"	"Montserrat SemiBold"
+		}
+		"24"
+		{
+				"font"	"resource/fonts/Montserrat-Light.ttf"
+				"name"	"Montserrat Light"
+		}
+		"25"
+		{
+				"font"	"resource/fonts/Minecart-LCD.ttf"
+				"name"	"Minecart LCD"
+		}
 	}
 }

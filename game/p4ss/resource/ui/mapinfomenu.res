@@ -15,14 +15,82 @@
 		"enabled"		"1"
 	}
 	
+	"CustomShaderOverlay" //REQUIRES COLOR CORRECTION TO BE ENABLED. OTHERWISE WE GET A BLACKSCREEN. Someone get a coder! Force the setting on for all players?
+	{
+		"ControlName"	"ImagePanel"
+		"xpos"		    "0"
+		"ypos"		    "0"
+		"zpos"		    "-10000"
+		"wide"		    "f0"
+		"tall"		    "480"
+		"scaleimage"	"1"
+		"image"			"../shaders/sepia"
+	}
+	
+	"BGDarken"
+	{
+		"ControlName"	"ImagePanel"
+		"fieldName"		"BGDarken"
+		"xpos"			"0"
+		"ypos"			"0"
+		"zpos"			"-10"
+		"wide"			"f0"
+		"tall"			"f0"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+		"tabPosition"	"0"	
+		"image"			"../hud/blank"
+		"tileImage"		"1"
+		"PaintBackgroundType"	"0"
+		"fillcolor"		"0 0 0 50"
+	}	
+	
+	"Modulate"
+	{
+		"ControlName"	"ImagePanel"
+		"fieldName"		"Modulate"
+		"xpos"			"0"
+		"ypos"			"0"
+		"zpos"			"-12"
+		"wide"			"f0"
+		"tall"			"f0"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+		"tabPosition"	"0"	
+		"image"			"../hud/modulate"
+		"tileImage"		"1"
+		"PaintBackgroundType"	"0"
+		"drawcolor"		"100 140 70 255"
+	}
+	
+ 	"MainBG"
+	{
+		"ControlName"		"EditablePanel"
+		"fieldName"		"MainBG"
+		"xpos"			"cs-0.5"
+		"ypos"			"c-120"
+		"zpos"			"-1"
+		"wide"			"480"
+		"tall"			"210"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+		"border"		"PFSquareBorder"
+	}	
+	
 	"MapInfoTitle"
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"MapInfoTitle"
-		"xpos"			"c-230"
-		"ypos"			"120"
+		"xpos"			"c-220"
+		"ypos"			"130"
 		"zpos"			"1"
-		"wide"			"300"
+		"wide"			"440"
 		"tall"			"44"
 		"autoResize"	"3"
 		"pinCorner"		"0"
@@ -41,7 +109,7 @@
 		"xpos"			"0"
 		"ypos"			"-33"
 		"zpos"			"1"
-		"wide"			"260"
+		"wide"			"440"
 		"tall"			"16"
 		"autoResize"	"0"
 		"pinCorner"		"0"
@@ -53,7 +121,6 @@
 		"fgcolor"		"Gray"
 		"pin_to_sibling" "MapInfoTitle"
 		"pin_corner_to_sibling" "PIN_TOPLEFT"
-
 	}	
 	
 	"MapInfoText"
@@ -61,11 +128,11 @@
 		"ControlName"	"CExRichText"
 		"fieldName"		"MapInfoText"
 		"font"			"MontserratSemibold12"
-		"xpos"			"c-234"
+		"xpos"			"c-224"
 		"ypos"			"190"
 		"zpos"			"3"
-		"wide"			"300"
-		"tall"			"200"
+		"wide"			"240"
+		"tall"			"130"
 		"autoResize"	"3"
 		"pinCorner"		"0"
 		"visible"		"1"
@@ -207,22 +274,19 @@
 		"fieldName"		"ShadedBar"
 		"xpos"			"0"
 		"ypos"			"r50"
-		"ypos_lodef"			"r74"
-		"ypos_hidef"			"r65"
 		"zpos"			"5"
 		"wide"			"f0"
 		"tall"			"50"
-		"tall_lodef"			"74"
-		"tall_hidef"			"65"
 		"autoResize"	"0"
 		"pinCorner"		"0"
-		"visible"		"0"
+		"visible"		"1"
 		"enabled"		"1"
 		"tabPosition"	"0"	
-		"image"			"loadout_bottom_gradient"
+		"image"			"../hud/blank"
 		"tileImage"		"1"
 		"PaintBackgroundType"	"0"
-	}	
+		"fillcolor"		"32 32 32 255"
+	}			
 
 	"Footer" [$X360]
 	{

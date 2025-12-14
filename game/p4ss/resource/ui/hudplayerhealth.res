@@ -5,7 +5,7 @@
 	{
 		"ControlName"	"EditablePanel"
 		"fieldName"		"HudPlayerHealth"
-		"xpos"			"c-430"	
+		"xpos"			"2"	
 		"xpos_minmode"	"c-250"	
 		"ypos"			"r132"
 		"ypos_minmode"	"r200"
@@ -45,7 +45,7 @@
 		"xpos_minmode"	"1"
 		"ypos"			"2"
 		"ypos_minmode"	"1"
-		"zpos"			"3"
+		"zpos"			"2"
 		"wide"			"84"
 		"wide_minmode"	"26"
 		"tall"			"84"
@@ -54,6 +54,28 @@
 		"enabled"		"1"
 		"image"			"../hud/health_bg"
 		"scaleImage"	"1"
+		
+		"pin_to_sibling" 	"PlayerStatusHealthImage"
+		
+	}	
+	
+	"PlayerStatusHealthImageBG2"
+	{
+		"ControlName"	"ImagePanel"
+		"fieldName"		"PlayerStatusHealthImageBG2"
+		"xpos"			"0"
+		"ypos"			"0"
+		"zpos"			"3"
+		"wide"			"80"
+		"wide_minmode"	"24"
+		"tall"			"80"
+		"tall_minmode"	"24"
+		"visible"		"1"
+		"enabled"		"1"
+		"image"			"../hud/health_color"
+		"scaleImage"	"1"
+		"drawcolor"        "32 32 32 255"   
+		"alpha"			"1"
 		
 		"pin_to_sibling" 	"PlayerStatusHealthImage"
 		
@@ -81,14 +103,14 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"PlayerStatusHealthValue"
-		"xpos"			"-16"
+		"xpos"			"-3"
 		"xpos_minmode"	"-28"
 		"ypos"			"-31"
 		"ypos_minmode"	"-1"
 		"zpos"			"5"
-		"wide"			"50"
-		"wide_minmode"	"80"
-		"tall"			"18"
+		"wide"			"75"
+		"wide_minmode"	"130"
+		"tall"			"19"
 		"tall_minmode"	"24"
 		"visible"		"1"
 		"enabled"		"1"
@@ -97,7 +119,7 @@
 		"textAlignment_minmode" "west"	
 		"font"			"MontserratBlack26"
 		"font_minmode"			"MontserratBlack44"
-		"fgcolor"		"PFGrey"
+		"fgcolor"		"128 128 128 255"
 		"fgcolor_minmode"	"PFWhite"
 		"pin_to_sibling" 	"PlayerStatusHealthImage"
 	}
@@ -106,14 +128,14 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"PlayerStatusHealthValueShadow"
-		"xpos"			"-1"
+		"xpos"			"14"
 		"xpos_minmode"	"-1"
 		"ypos"			"-1"
 		"ypos_minmode"	"-1"
 		"zpos"			"5"
-		"wide"			"50"
-		"wide_minmode"	"80"
-		"tall"			"18"
+		"wide"			"75"
+		"wide_minmode"	"130"
+		"tall"			"19"
 		"tall_minmode"	"24"
 		"visible"		"0"
 		"visible_minmode" "1"
@@ -123,7 +145,8 @@
 		"textAlignment_minmode" "west"
 		"font"			"MontserratBlack26"
 		"font_minmode"			"MontserratBlack44"
-		"fgcolor"		"PFGrey"
+		"fgcolor"		"32 32 32 255"
+		"fgcolor_minmode"	"PFGrey"
 		"pin_to_sibling" 	"PlayerStatusHealthValue"
 	}
 
@@ -213,7 +236,7 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"PlayerStatusMarkedForDeathImage"
-		"xpos"			"85"
+		"xpos"			"99"
 		"xpos_minmode"	"70"
 		"ypos"			"0"
 		"zpos"			"7"
@@ -229,7 +252,7 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"PlayerStatusMarkedForDeathSilentImage"
-		"xpos"			"85"
+		"xpos"			"99"
 		"xpos_minmode"	"44"
 		"ypos"			"0"
 		"ypos_minmode"	"32"
@@ -246,7 +269,7 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"PlayerStatus_MedicUberBulletResistImage"
-		"xpos"			"85"
+		"xpos"			"99"
 		"xpos_minmode"	"70"
 		"ypos"			"0"
 		"zpos"			"7"
@@ -262,7 +285,7 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"PlayerStatus_MedicUberBlastResistImage"
-		"xpos"			"85"
+		"xpos"			"99"
 		"xpos_minmode"	"70"
 		"ypos"			"0"
 		"zpos"			"7"
@@ -278,7 +301,7 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"PlayerStatus_MedicUberFireResistImage"
-		"xpos"			"85"
+		"xpos"			"99"
 		"xpos_minmode"	"70"
 		"ypos"			"0"
 		"zpos"			"7"
@@ -295,7 +318,7 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"PlayerStatus_MedicSmallBulletResistImage"
-		"xpos"			"85"
+		"xpos"			"99"
 		"xpos_minmode"	"70"
 		"ypos"			"0"
 		"zpos"			"7"
@@ -311,7 +334,7 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"PlayerStatus_MedicSmallBlastResistImage"
-		"xpos"			"85"
+		"xpos"			"99"
 		"xpos_minmode"	"70"
 		"ypos"			"0"
 		"zpos"			"7"
@@ -327,7 +350,7 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"PlayerStatus_MedicSmallFireResistImage"
-		"xpos"			"85"
+		"xpos"			"99"
 		"xpos_minmode"	"70"
 		"ypos"			"0"
 		"zpos"			"7"

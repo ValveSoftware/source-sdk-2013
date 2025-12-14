@@ -218,6 +218,15 @@ Scheme
 		"PFDarkGreen"			"62 76 41 255"
 		"PFGreenDim" 			"152 191 101 128"
 		"PFWhite"				"255 255 246 255"
+		
+		"PFBluTeam"                "72 121 171 255"
+		"PFBlueTeamDark"        "39 73 108 255"
+		"PFRedTeam"                "185 65 65 255"
+		"PFRedTeamDark"            "131 38 38 255"
+		"PFBluTeamTransparent"            "72 121 171 180"
+		"PFBlueTeamDarkTransparent"        "39 73 108 180"
+		"PFRedTeamTransparent"            "185 65 65 180"
+		"PFRedTeamDarkTransparent"        "131 38 38 180"
 	}
 
 	///////////////////// BASE SETTINGS ////////////////////////
@@ -374,7 +383,7 @@ Scheme
 		SectionedListPanel.SelectedTextColor			"Black"
 		SectionedListPanel.SelectedBgColor				"Red"
 		SectionedListPanel.OutOfFocusSelectedTextColor	"Black"
-		SectionedListPanel.OutOfFocusSelectedBgColor	"255 255 255 32"
+		SectionedListPanel.OutOfFocusSelectedBgColor	"152 191 101 32"
 
 		Slider.NobColor				"108 108 108 255"
 		Slider.TextColor			"127 140 127 255"
@@ -2867,7 +2876,16 @@ Scheme
 		}
 
 		//////////////// Custom Font Definitions :D////////////////
-
+		
+		"TeamSelectPlayerCountDotted"
+		{
+			"1"
+			{
+				"name"	"Minecart LCD"
+				"tall"	"38"
+			}
+		}
+		
 		"Compacta14"
 		{
 			"1"
@@ -6346,6 +6364,11 @@ Scheme
 		{
 				"font"	"resource/fonts/Montserrat-Light.ttf"
 				"name"	"Montserrat Light"
+		}
+		"25"
+		{
+				"font"	"resource/fonts/Minecart-LCD.ttf"
+				"name"	"Minecart LCD"
 		}
 	}
 }

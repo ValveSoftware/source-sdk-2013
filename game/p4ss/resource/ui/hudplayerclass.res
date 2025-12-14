@@ -87,7 +87,7 @@
 		"ypos_minmode"		"r40"	[$WIN32]
 		"xpos"			"41"	[$X360]
 		"ypos"			"r82"	[$X360]
-		"zpos"			"6"		
+		"zpos"			"0"		
 		"wide"			"80"
 		"tall"			"50"
 		"visible"		"1"
