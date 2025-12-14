@@ -24,6 +24,7 @@
 #include "engine/IEngineSound.h"
 #include "vscript_utils.h"
 #include "netpropmanager.h"
+#include "networkstringtable_gamedll.h"
 #include "client.h"
 #include "tier0/vcrmode.h"
 #include "in_buttons.h"
@@ -2286,6 +2287,35 @@ static float ScriptTraceLinePlayersIncluded( const Vector &vecStart, const Vecto
 	}
 }
 
+static INetworkStringTable * g_scriptDownloadables = NULL;
+static void AddToDownloadables( const char * pszFilePath )
+{
+	// TODO: Make this more SDK-like. This relies on the engine's internals, which while aren't gonna change any time soon, aren't documented by the SDK.
+	if ( !pszFilePath || !*pszFilePath ) {
+		Warning( "VScript error: AddToDownloadables was passed a null/empty string." );
+		return;
+	}
+	if ( Q_IsAbsolutePath( pszFilePath ) ) {
+		Warning( "VScript error: AddToDownloadables was passed an absolute path." );
+		return;
+	}
+	if ( V_strstr( pszFilePath, "..") ) {
+		Warning( "VScript error: AddToDownloadables was passed a path containing .." );
+		return;
+	}
+	if ( g_scriptDownloadables == NULL )
+		g_scriptDownloadables = networkstringtable->FindTable( "downloadables" );
+	g_scriptDownloadables->AddString( true, pszFilePath );
+}
+
+static bool IsInDownloadables( const char * pszFilePath )
+{
+	// Ditto as above.
+	if ( g_scriptDownloadables == NULL )
+		g_scriptDownloadables = networkstringtable->FindTable( "downloadables" );
+	return g_scriptDownloadables->FindStringIndex( pszFilePath ) != INVALID_STRING_INDEX;
+}
+
 #include "usermessages.h"
 
 #if defined ( PORTAL2 )
@@ -2599,6 +2629,9 @@ bool VScriptServerInit()
 				ScriptRegisterFunction( g_pScriptVM, GetDeveloperLevel, "Gets the level of 'developer'" );
 				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptDispatchParticleEffect, "DispatchParticleEffect", "Dispatches a one-off particle system" );
 				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptSetSkyboxTexture, "SetSkyboxTexture", "Sets the current skybox texture" );
+
+				ScriptRegisterFunctionNamed( g_pScriptVM, AddToDownloadables, "AddToDownloadables", "Add a filepath to the download list. The filepath's existence is not checked, and will silently fail even when downloaded." );
+				ScriptRegisterFunctionNamed( g_pScriptVM, IsInDownloadables, "IsInDownloadables", "Return if a filepath is already in the download list. This includes filepaths not added by VScript." );
 
 #if defined ( PORTAL2 )
 				ScriptRegisterFunction( g_pScriptVM, SetDucking, "Set the level of an audio ducking channel" );
