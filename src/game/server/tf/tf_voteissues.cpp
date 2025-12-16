@@ -937,7 +937,7 @@ bool CNextLevelIssue::RequestCallVote( int iEntIndex, const char *pszDetails, vo
 		return false;
 
 	// TFGameRules created vote
-	if ( sv_vote_issue_nextlevel_choicesmode.GetBool() && iEntIndex == 99 )
+	if ( sv_vote_issue_nextlevel_choicesmode.GetBool() && iEntIndex == DEDICATED_SERVER )
 	{
 		// Invokes a UI down stream
 		if ( Q_strcmp( pszDetails, "" ) == 0 )
