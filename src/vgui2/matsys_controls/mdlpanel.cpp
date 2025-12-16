@@ -337,7 +337,7 @@ void CMDLPanel::DrawCollisionModel()
 	CStudioHdr &studioHdr = *m_RootMDL.m_pStudioHdr;
 
 	matrix3x4_t pBoneToWorld[MAXSTUDIOBONES];
-	m_RootMDL.m_MDL.SetUpBones( m_RootMDL.m_MDLToWorld, MAXSTUDIOBONES, pBoneToWorld );
+	SetupBones( pBoneToWorld );
 
 	// PERFORMANCE: Just parse the script each frame.  It's fast enough for tools.  If you need
 	// this to go faster then cache off the bone index mapping in an array like HLMV does
@@ -459,7 +459,7 @@ void CMDLPanel::OnPaint3D()
 	SetupFlexWeights();
 
 	matrix3x4_t *pBoneToWorld = g_pStudioRender->LockBoneMatrices( studioHdr.numbones() );
-	m_RootMDL.m_MDL.SetUpBones( m_RootMDL.m_MDLToWorld, studioHdr.numbones(), pBoneToWorld, m_PoseParameters, m_SequenceLayers, m_nNumSequenceLayers );
+	SetupBones( pBoneToWorld );
 	g_pStudioRender->UnlockBoneMatrices();
 
 	IMaterial* pOverrideMaterial = GetOverrideMaterial( m_RootMDL.m_MDL.GetMDL() );
@@ -980,4 +980,58 @@ void CMDLPanel::ValidateMDLs()
 			m_aMergeMDLs[iMerge].m_unMdlCacheSerial = uMdlCacheSerial;
 		}
 	}
+}
+
+void CMDLPanel::SetupBones( matrix3x4_t *pmatBoneToWorld )
+{
+	CMDL             &mdl = m_RootMDL.m_MDL;
+	const CStudioHdr *pStudioHdr = m_RootMDL.m_pStudioHdr;
+
+	QAngle angRenderAngles;
+	Vector vecRenderOrigin;
+	MatrixAngles( m_RootMDL.m_MDLToWorld, angRenderAngles, vecRenderOrigin );
+
+	IBoneSetup boneSetup( pStudioHdr, BONE_USED_BY_ANYTHING_AT_LOD( mdl.m_nLOD ), m_PoseParameters );
+
+	Vector     pos[ MAXSTUDIOBONES ];
+	Quaternion q[ MAXSTUDIOBONES ];
+	boneSetup.InitPose( pos, q );
+
+	int   nFrameCount = Studio_MaxFrame( pStudioHdr, mdl.m_nSequence, m_PoseParameters );
+	float flCycle = ( mdl.m_flTime * mdl.m_flPlaybackRate ) / nFrameCount;
+	flCycle -= ( int )flCycle;
+
+	CIKContext auto_ik;
+	auto_ik.Init( pStudioHdr, angRenderAngles, vecRenderOrigin, mdl.m_flTime, 0, BONE_USED_BY_ANYTHING_AT_LOD( mdl.m_nLOD ) );
+
+	boneSetup.AccumulatePose( pos, q, mdl.m_nSequence, flCycle, 1.f, mdl.m_flTime, &auto_ik );
+
+	for ( int i = 0; i < m_nNumSequenceLayers; i++ )
+	{
+		nFrameCount = Studio_MaxFrame( pStudioHdr, m_SequenceLayers[ i ].m_nSequenceIndex, m_PoseParameters );
+		if ( m_SequenceLayers[ i ].m_bNoLoop )
+		{
+			if ( m_SequenceLayers[ i ].m_flCycleBeganAt == 0.f )
+				m_SequenceLayers[ i ].m_flCycleBeganAt = mdl.m_flTime;
+
+			float flElapsedTime = mdl.m_flTime - m_SequenceLayers[ i ].m_flCycleBeganAt;
+			flCycle = ( flElapsedTime * mdl.m_flPlaybackRate ) / nFrameCount;
+		}
+		else
+		{
+			flCycle = ( mdl.m_flTime * mdl.m_flPlaybackRate ) / nFrameCount;
+		}
+		flCycle -= ( int )flCycle;
+
+		boneSetup.AccumulatePose( pos, q, m_SequenceLayers[ i ].m_nSequenceIndex, flCycle,
+								  m_SequenceLayers[ i ].m_flWeight, mdl.m_flTime, &auto_ik );
+	}
+
+	boneSetup.CalcAutoplaySequences( pos, q, mdl.m_flTime, &auto_ik );
+
+	CBoneBitList boneComputed;
+	auto_ik.SolveDependencies( pos, q, pmatBoneToWorld, boneComputed );
+
+	Studio_RunBoneFlexDrivers( mdl.m_pFlexControls, pStudioHdr, pos, pmatBoneToWorld, m_RootMDL.m_MDLToWorld );
+	Studio_BuildMatrices( pStudioHdr, angRenderAngles, vecRenderOrigin, pos, q, -1, 1.f, pmatBoneToWorld, BONE_USED_BY_ANYTHING_AT_LOD( mdl.m_nLOD ) );
 }
