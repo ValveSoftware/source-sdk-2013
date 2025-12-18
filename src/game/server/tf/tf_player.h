@@ -735,6 +735,7 @@ public:
 	bool				IsTauntForceMovingForward() const { return m_bTauntForceMoveForward; }
 	float				GetTauntMoveAcceleration() const { return m_flTauntMoveAccelerationTime; }
 	float				GetTauntMoveSpeed() const { return m_flTauntForceMoveForwardSpeed; }
+	float				GetTauntTurnSpeed() const { return m_flTauntTurnSpeed; }
 	float				GetTauntTurnAccelerationTime() const { return m_flTauntTurnAccelerationTime; }
 	virtual int			GetAllowedTauntPartnerTeam() const;
 	CEconItemView		*GetTauntEconItemView() { return m_TauntEconItemView.IsValid() ? &m_TauntEconItemView : NULL; }
