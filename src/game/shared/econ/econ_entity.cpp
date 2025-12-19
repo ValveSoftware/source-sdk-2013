@@ -1246,7 +1246,7 @@ void CEconEntity::UpdateParticleSystems( void )
 		// Make sure the entity we're attaching to is being drawn
 		CTFWeaponBase *pWeapon = dynamic_cast< CTFWeaponBase* >( this );
 		C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
-		if ( pLocalPlayer && pLocalPlayer == GetOwnerEntity() && pLocalPlayer->GetViewModel() && pLocalPlayer->GetViewModel()->GetWeapon() == pWeapon && !C_BasePlayer::ShouldDrawLocalPlayer() )
+		if ( pLocalPlayer && pLocalPlayer == GetOwnerEntity() && pLocalPlayer->GetViewModel() && pLocalPlayer->GetViewModel()->GetWeapon() == pWeapon && !C_BasePlayer::ShouldDrawLocalPlayer() && pLocalPlayer->IsAlive() )
 		{
 			nVisible = PARTICLE_SYSTEM_STATE_VISIBLE_VM;
 		}
