@@ -6051,6 +6051,9 @@ void CAboveWaterView::CRefractionView::Draw()
 	g_pPortalRender->WaterRenderingHandler_PreRefraction();
 #endif
 
+	// Move camera 4u down to remove visible refraction gap
+	origin.z -= 4.f;
+
 	// Store off view origin and angles and set the new view
 	int nSaveViewID = CurrentViewID();
 	SetupCurrentView( origin, angles, VIEW_REFRACTION );
