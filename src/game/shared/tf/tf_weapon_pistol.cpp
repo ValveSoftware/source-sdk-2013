@@ -12,6 +12,7 @@
 #ifdef CLIENT_DLL
 #include "c_tf_player.h"
 #include "c_tf_gamestats.h"
+#include "prediction.h"
 // Server specific.
 #else
 #include "tf_player.h"
@@ -110,7 +111,44 @@ void CTFPistol_ScoutPrimary::SecondaryAttack( void )
 	m_flNextSecondaryAttack = gpGlobals->curtime + 1.5f;
 	m_flPushTime = gpGlobals->curtime + 0.2f;	// Anim delay
 
-	EmitSound( "Weapon_Hands.Push" );
+#ifdef CLIENT_DLL
+	if ( !prediction->InPrediction() || prediction->IsFirstTimePredicted() )
+#endif
+	{
+		EmitSound( "Weapon_Hands.Push" );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFPistol_ScoutPrimary::Reload( void )
+{
+	// allow reloading 0.5 secs early, since the full 1.5-sec delay looks awkward
+	if ( ( m_flNextSecondaryAttack - 0.5f ) > gpGlobals->curtime )
+		return false;
+
+	return BaseClass::Reload();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFPistol_ScoutPrimary::ShouldAbortReload()
+{
+	if ( BaseClass::ShouldAbortReload() )
+		return true;
+
+	// allow aborting reloads with alt-fire
+
+	if ( m_flNextSecondaryAttack > gpGlobals->curtime )
+		return false;
+
+	CBasePlayer *pOwner = GetPlayerOwner();
+	if ( !pOwner )
+		return false;
+
+	return pOwner->m_nButtons & IN_ATTACK2;
 }
 
 //-----------------------------------------------------------------------------

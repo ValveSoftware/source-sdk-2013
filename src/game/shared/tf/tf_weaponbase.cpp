@@ -1841,6 +1841,15 @@ bool CTFWeaponBase::IsReloading() const
 	return m_iReloadMode != TF_RELOAD_START;
 }
 
+bool CTFWeaponBase::ShouldAbortReload() //const
+{
+	CBasePlayer *pOwner = GetPlayerOwner();
+	if ( !pOwner )
+		return false;
+
+	return ( pOwner->m_nButtons & IN_ATTACK ) && Clip1() > 0;
+}
+
 bool CTFWeaponBase::UsesCenterFireProjectile( void ) const
 {
 	int nCenterFireProjectile = 0;
@@ -2377,7 +2386,7 @@ void CTFWeaponBase::ItemBusyFrame( void )
 	}
 
 	// Interrupt a reload on reload singly weapons.
-	if ( ( pOwner->m_nButtons & IN_ATTACK ) && Clip1() > 0 )
+	if ( ShouldAbortReload() )
 	{
 		bool bAbortReload = false;
 		if ( m_bReloadsSingly )

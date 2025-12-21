@@ -379,6 +379,7 @@ class CTFWeaponBase : public CBaseCombatWeapon, public IHasOwner, public IHasGen
 	void SendReloadEvents();
 	virtual bool IsReloading() const;			// is the weapon reloading right now?
 	virtual float GetReloadSpeedScale() const { return 1.f; }
+	virtual bool ShouldAbortReload();// const;
 
 	virtual bool AutoFiresFullClip( void ) const OVERRIDE;
 	bool AutoFiresFullClipAllAtOnce( void ) const;
