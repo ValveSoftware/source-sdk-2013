@@ -588,14 +588,15 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 
 		data->lastBoingPos = goalBasePosition;
 
-		float speed = vel.NormalizeInPlace();
-		if ( speed < 0.00001f )
+				float speed;
+		if ( vel.IsZero() )
 		{
 			vel = Vector( 0, 0, 1.0f );
 			speed = 0.0f;
 		}
 		else
 		{
+			speed = vel.NormalizeInPlace();
 			speed /= deltaT;
 		}
 
@@ -674,9 +675,6 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 				boingSide = CrossProduct( data->boingDir, Vector( 0, 0, 1.0f ) );
 			}
 			boingSide.NormalizeInPlace();
-			
-				if (data->boingDir.IsZero()) data->boingDir = Vector(0, 0, 1);
-			if (boingSide.IsZero()) boingSide = Vector(1, 0, 0);
 			
 			Vector boingOtherSide = CrossProduct( data->boingDir, boingSide );
 
