@@ -674,7 +674,10 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 				boingSide = CrossProduct( data->boingDir, Vector( 0, 0, 1.0f ) );
 			}
 			boingSide.NormalizeInPlace();
-
+			
+				if (data->boingDir.IsZero()) data->boingDir = Vector(0, 0, 1);
+			if (boingSide.IsZero()) boingSide = Vector(1, 0, 0);
+			
 			Vector boingOtherSide = CrossProduct( data->boingDir, boingSide );
 
 			matrix3x4_t xfrmToBoingCoordsMX;
