@@ -416,7 +416,7 @@ void CTFProjectile_Flare::Explode_Air( trace_t *pTrace, int bitsDamageType, bool
 			nSound = SPECIAL3;
 		}
 
-		CTakeDamageInfo info( this, pAttacker, m_hLauncher, vec3_origin, vecOrigin, GetDamage(), bitsDamageType | DMG_HALF_FALLOFF, TF_DMG_CUSTOM_FLARE_EXPLOSION );
+		CTakeDamageInfo info( this, pAttacker, GetOriginalLauncher(), vec3_origin, vecOrigin, GetDamage(), bitsDamageType | DMG_HALF_FALLOFF, TF_DMG_CUSTOM_FLARE_EXPLOSION );
 		CTFRadiusDamageInfo radiusinfo( &info, vecOrigin, flRadius, NULL, TF_FLARE_RADIUS_FOR_FJS );
 		TFGameRules()->RadiusDamage( radiusinfo );
 	}
