@@ -222,7 +222,7 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 
 	CTFPlayer *pTFVictim = ToTFPlayer( pOther );
 
-	CTFFlareGun *pFlareGun = dynamic_cast< CTFFlareGun* >( GetLauncher() );
+	CTFFlareGun *pFlareGun = dynamic_cast< CTFFlareGun* >( GetOriginalLauncher() );
 	if ( pFlareGun )
 	{
 		if ( pFlareGun->GetFlareGunType() == FLAREGUN_SCORCHSHOT )
