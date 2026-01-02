@@ -9243,6 +9243,12 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	// We do this here, after damage modify rules to ensure distance falloff calculations have already been made before we pass that damage back to the attacker
 	if ( pTFAttacker && m_Shared.GetCarryingRuneType() == RUNE_REFLECT && pTFAttacker != this && !pTFAttacker->m_Shared.IsInvulnerable() && pTFAttacker->IsAlive() )
 	{
+		// Don't receive reflected damage if you are also carrying Reflect (prevents a stack overflow in a game with two Reflect players).
+		if ( info.GetDamageCustom() == TF_DMG_CUSTOM_RUNE_REFLECT )
+		{
+			return 0;
+		}
+
 		CTakeDamageInfo dmg = info;
 		CTFProjectile_SentryRocket *sentryRocket = dynamic_cast<CTFProjectile_SentryRocket *>( info.GetInflictor() );
 
@@ -10664,12 +10670,6 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	if ( flBleedingTime > 0 && pTFAttacker )
 	{
 		m_Shared.MakeBleed( pTFAttacker, dynamic_cast< CTFWeaponBase * >( info.GetWeapon() ), flBleedingTime );
-	}
-
-	// Don't recieve reflected damage if you are carrying Reflect (prevents a loop in a game with two Reflect players)
-	if ( ( info.GetDamageType() & TF_DMG_CUSTOM_RUNE_REFLECT ) && m_Shared.GetCarryingRuneType() == RUNE_REFLECT )
-	{
-		return 0;
 	}
 
 	CTFWeaponBase *pTFWeapon = dynamic_cast< CTFWeaponBase * >( info.GetWeapon() );
