@@ -11268,7 +11268,7 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 					flRefill *= 0.2;
 				}
 
-				if ( flRefill > 0 && ((info.GetDamageType() & DMG_MELEE) || ( info.GetDamageCustom() == TF_DMG_CUSTOM_CHARGE_IMPACT ) ) )
+				if ( flRefill > 0 && ((info.GetDamageType() & DMG_MELEE) || ( info.GetDamageCustom() == TF_DMG_CUSTOM_CHARGE_IMPACT ) || (info.GetDamageCustom() == TF_DMG_CUSTOM_TAUNTATK_BARBARIAN_SWING)) )
 				{
 					m_Shared.SetDemomanChargeMeter( m_Shared.GetDemomanChargeMeter() + flRefill * 100.0f );
 				}
@@ -12307,7 +12307,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	{
 		int iDropHealthOnKill = 0;
 		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayerAttacker, iDropHealthOnKill, drop_health_pack_on_kill );
-		if ( iDropHealthOnKill == 1 )
+		if ( iDropHealthOnKill == 1 && info.GetDamageCustom() != TF_DMG_CUSTOM_SUICIDE)
 		{
 			DropHealthPack( info, true );
 		}
@@ -14868,6 +14868,25 @@ CBaseObject	*CTFPlayer::GetObjectOfType( int iObjectType, int iObjectMode ) cons
 	return NULL;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::GetObjectsOfType(CUtlVector<CBaseObject*>& vecOut, int iObjectType) const
+{
+	int iNumObjects = GetObjectCount();
+	for (int i = 0; i < iNumObjects; i++)
+	{
+		CBaseObject* pObj = GetObject(i);
+
+		if (!pObj)
+			continue;
+
+		if (pObj->GetType() != iObjectType)
+			continue;
+
+		vecOut.AddToTail(pObj);
+	}
+}
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

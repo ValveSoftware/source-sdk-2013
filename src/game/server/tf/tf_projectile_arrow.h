@@ -45,9 +45,11 @@ public:
 
 	// IScorer interface
 	virtual CBasePlayer *GetScorer( void );
+	virtual CBasePlayer* GetOriginalScorer(void);
 	virtual CBasePlayer *GetAssistant( void ) { return NULL; }
 
 	void			SetScorer( CBaseEntity *pScorer );
+	void			SetOriginalScorer(CBaseEntity* pScorer);
 	void			SetCritical( bool bCritical ) { m_bCritical = bCritical; }
 
 	virtual float	GetDamage();
@@ -85,7 +87,7 @@ public:
 	void SetApplyMilkOnHit() { m_bApplyMilkOnHit = true; }
 
 private:
-
+	CBaseHandle		m_OriginalScorer;
 	CBaseHandle		m_Scorer;
 
 	float			m_flImpactTime;

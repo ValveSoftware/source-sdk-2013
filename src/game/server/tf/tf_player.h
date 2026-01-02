@@ -398,6 +398,8 @@ public:
 
 	CBaseObject	*GetObject( int index ) const;
 	CBaseObject	*GetObjectOfType( int iObjectType, int iObjectMode = 0 ) const;
+	void GetObjectsOfType(CUtlVector<CBaseObject*>& vecOut, int iObjectType) const;
+
 	int	GetObjectCount( void ) const;
 	int GetNumObjects( int iObjectType, int iObjectMode = 0 );
 	void RemoveAllObjects( bool bExplodeBuildings = false );

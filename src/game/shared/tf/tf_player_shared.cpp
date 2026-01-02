@@ -10096,10 +10096,14 @@ void CTFPlayer::ModifyDamageInfo( CTakeDamageInfo *pInfo, const CBaseEntity *pTa
 			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetActiveWeapon(), flDamageMod, mult_dmg_bullet_vs_sentry_target );
 			if ( flDamageMod > 1.f )
 			{
-				CObjectSentrygun *pSentry = dynamic_cast<CObjectSentrygun*>( GetObjectOfType( OBJ_SENTRYGUN ) );
-				if ( pSentry && ( pSentry->GetTarget() == pTarget ) )
-				{
-					pInfo->SetDamage( pInfo->GetDamage() * flDamageMod );
+				CUtlVector<CBaseObject*> activeSentries;
+				GetObjectsOfType(activeSentries, OBJ_SENTRYGUN);
+				FOR_EACH_VEC(activeSentries, i) {
+					CObjectSentrygun* pSentry = dynamic_cast<CObjectSentrygun*>(activeSentries[i]);
+					if (pSentry && (pSentry->GetTarget() == pTarget)) {
+						pInfo->SetDamage(pInfo->GetDamage() * flDamageMod);
+						break;
+					}
 				}
 			}
 		}
