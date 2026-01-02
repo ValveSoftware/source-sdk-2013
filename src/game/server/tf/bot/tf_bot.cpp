@@ -2171,7 +2171,7 @@ CCaptureZone *CTFBot::GetFlagCaptureZone( void ) const
 	for( int i=0; i<ICaptureZoneAutoList::AutoList().Count(); ++i )
 	{
 		CCaptureZone *zone = static_cast< CCaptureZone* >( ICaptureZoneAutoList::AutoList()[i] );
-		if ( zone->GetTeamNumber() != GetEnemyTeam(GetTeamNumber()) )
+		if ( !zone->IsDisabled() && zone->GetTeamNumber() != GetEnemyTeam(GetTeamNumber()) )
 		{
 			return zone;
 		}
