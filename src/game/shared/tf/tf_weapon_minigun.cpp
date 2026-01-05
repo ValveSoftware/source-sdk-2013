@@ -435,6 +435,12 @@ void CTFMinigun::SharedAttack()
 		}
 	}
 
+	if ( m_iWeaponState == AC_STATE_FIRING || m_iWeaponState == AC_STATE_SPINNING )
+	{
+		// make sure both primary and secondary fire will spin down at identical times
+		SetWeaponIdleTime( gpGlobals->curtime + 0.01 );
+	}
+
 	if ( pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 )
 	{
 		if ( m_iWeaponState > AC_STATE_STARTFIRING )
