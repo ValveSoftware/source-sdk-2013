@@ -593,9 +593,9 @@ void CTFProjectile_Jar::VPhysicsCollision( int index, gamevcollisionevent_t *pEv
 		OnHitWorld();
 	}
 
-	// Break if we hit the world.
-	bool bIsDynamicProp = ( NULL != dynamic_cast<CDynamicProp *>( pHitEntity ) );
-	if ( ExplodesOnHit() && pHitEntity && ( pHitEntity->IsWorld() || bIsDynamicProp ) )
+	// Break if we hit anything that isn't a player (the world, doors, etc).
+	// bool bIsDynamicProp = ( NULL != dynamic_cast<CDynamicProp *>( pHitEntity ) );
+	if ( ExplodesOnHit() && pHitEntity && ( !pHitEntity->IsPlayer() ) )
 	{
 		// Explode immediately next frame. (Can't explode in the collision callback.)
 		m_vCollisionVelocity = pEvent->preVelocity[index];
