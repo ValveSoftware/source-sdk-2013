@@ -2366,14 +2366,27 @@ void CTFWeaponBase::ItemBusyFrame( void )
 		return;
 	}
 
+	bool bDoSpecialSkill = false;
+
 	if ( ( pOwner->m_nButtons & IN_ATTACK2 ) && /*m_bInReload == false &&*/ m_bInAttack2 == false )
 	{
-		pOwner->DoClassSpecialSkill();
+		bDoSpecialSkill = true;
 		m_bInAttack2 = true;
 	}
 	else if ( !(pOwner->m_nButtons & IN_ATTACK2) && m_bInAttack2 )
 	{
 		m_bInAttack2 = false;
+	}
+
+	// always let demoman detonate their stickybombs
+	if ( ( pOwner->m_nButtons & IN_ATTACK2 ) && pOwner->GetNumActivePipebombs() != 0 )
+	{
+		bDoSpecialSkill = true;
+	}
+
+	if ( bDoSpecialSkill )
+	{
+		pOwner->DoClassSpecialSkill();
 	}
 
 	// Interrupt a reload on reload singly weapons.
@@ -5752,9 +5765,15 @@ bool CTFWeaponBase::CanPerformSecondaryAttack() const
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
 
-	// Demo shields are allowed to charge whenever
-	if ( pOwner->m_Shared.HasDemoShieldEquipped() )
-		return true;
+	if ( pOwner )
+	{
+		if ( pOwner->GetNumActivePipebombs() != 0 )
+			return true;
+
+		// Demo shields are allowed to charge whenever
+		if ( pOwner->m_Shared.HasDemoShieldEquipped() )
+			return true;
+	}
 
 	return BaseClass::CanPerformSecondaryAttack();
 }
