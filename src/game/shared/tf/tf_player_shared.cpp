@@ -2377,13 +2377,16 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 		float flTimeSinceDamage = gpGlobals->curtime - m_pOuter->GetLastDamageReceivedTime();
 		float flScale = RemapValClamped( flTimeSinceDamage, 10.f, 15.f, 1.f, 3.f );
 		float flAttribModScale = 1.f;
-		
+
+		float flOverhealActiveMod = 1.f;
+
 		// Any attributes affecting heal rate?
 		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( m_pOuter, flAttribModScale, mult_health_fromhealers );
 		CTFWeaponBase *pActiveWeapon = m_pOuter->GetActiveTFWeapon();
 		if ( pActiveWeapon )
 		{
 			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pActiveWeapon, flAttribModScale, mult_health_fromhealers_penalty_active );
+			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pActiveWeapon, flOverhealActiveMod, mult_patient_overheal_penalty_active );
 		}
 
 		float flCurOverheal = (float)m_pOuter->GetHealth() / (float)m_pOuter->GetMaxHealth();
@@ -2418,14 +2421,16 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 				AddToSpyCloakMeter( gpGlobals->frametime * m_aHealers[i].flAmount );	
 			}
 
+			float flOverhealBonus = 1.f + ( m_aHealers[i].flOverhealBonus - 1.f ) * flOverhealActiveMod;
+
 			// Don't heal over the healer's overheal bonus
-			if ( flCurOverheal >= m_aHealers[i].flOverhealBonus )
+			if ( flCurOverheal >= flOverhealBonus )
 			{
 				bHealActual = false;
 			}
 
 			// Same overheal check, but for fake health
-			if ( InCond( TF_COND_DISGUISED ) && flCurDisguiseOverheal >= m_aHealers[i].flOverhealBonus )
+			if ( InCond( TF_COND_DISGUISED ) && flCurDisguiseOverheal >= flOverhealBonus )
 			{
 				// Fake over-heal
 				bHealDisguise = false;
