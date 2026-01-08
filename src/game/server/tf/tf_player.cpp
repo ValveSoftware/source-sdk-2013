@@ -4041,6 +4041,8 @@ void CTFPlayer::Regenerate( bool bRefillHealthAndAmmo /*= true*/ )
 
 	if ( bRefillHealthAndAmmo )
 	{
+		m_flLastDamageTime = 0.f;
+
 		if ( m_Shared.InCond( TF_COND_BURNING ) )
 		{
 			m_Shared.RemoveCond( TF_COND_BURNING );
