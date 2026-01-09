@@ -5781,9 +5781,6 @@ int CTFRadiusDamageInfo::ApplyToEntity( CBaseEntity *pEntity )
 		UTIL_TraceLine( vecSrc, vecSpot, MASK_RADIUS_DAMAGE, &filterSelf, &tr );
 	}
 
-	NDebugOverlay::Line( tr.startpos, tr.endpos, 255, 0, 0, true, 3 );
-	NDebugOverlay::Line( tr.endpos, vecSpot, 96, 0, 0, true, 3 );
-
 	// If we don't trace the whole way to the target, and we didn't hit the target entity, we're blocked
 	if ( tr.fraction != 1.f && tr.m_pEnt != pEntity )
 	{
@@ -5809,8 +5806,6 @@ int CTFRadiusDamageInfo::ApplyToEntity( CBaseEntity *pEntity )
 		trace_t	trStep;
 		UTIL_TraceLine( vecStartPos, vecTarget, MASK_RADIUS_DAMAGE, &filter, &trStep );
 
-		NDebugOverlay::Line( trStep.startpos, trStep.endpos, 0, 128, 255, true, 3 );
-
 		if ( trStep.fraction == 1.f || trStep.plane.normal.z < 0.7 )
 			// don't splash if we can't find walkable ground
 			// this stops Soldiers from splashing high-ground targets by shooting at the edge of the ledge from below
@@ -5827,13 +5822,8 @@ int CTFRadiusDamageInfo::ApplyToEntity( CBaseEntity *pEntity )
 		// trace up from the floor to simulate step up
 		UTIL_TraceLine( vecStartPos, vecTarget, MASK_RADIUS_DAMAGE, &filter, &trStep );
 
-		NDebugOverlay::Line( trStep.startpos, trStep.endpos, 0, 255, 255, true, 3 );
-
 		// check if explosion can see target from this raised position
 		UTIL_TraceLine( trStep.endpos, vecSpot, MASK_RADIUS_DAMAGE, &filter, &trStep );
-
-		NDebugOverlay::Line( trStep.startpos, trStep.endpos, 0, 255, 0, true, 3 );
-		NDebugOverlay::Line( trStep.endpos, vecSpot, 0, 128, 0, true, 3 );
 
 		if ( trStep.startsolid || trStep.fraction != 1.f && trStep.m_pEnt != pEntity )
 			// target is still blocked
