@@ -324,7 +324,11 @@ void CTFHudPlayerClass::OnThink()
 					m_pCarryingWeaponPanel->SetDialogVariable( "carrying", wszLocString );
 
 					// Get and set the rarity color of the weapon
-					const char* pszColorName = GetItemSchema()->GetRarityColor( pItem->GetItemDefinition()->GetRarity() );
+					const char* pszColorName = GetItemSchema()->GetRarityColor( pItem->GetRarity() );
+					if (pItem->GetItemQuality() == AE_SELFMADE)
+					{
+						pszColorName = EconQuality_GetColorString( AE_SELFMADE );
+					}
 					pszColorName = pszColorName ? pszColorName : "TanLight";
 					if ( pszColorName )
 					{

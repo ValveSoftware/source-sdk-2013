@@ -137,7 +137,7 @@ void CBaseLoadoutPanel::SetBorderForItem( CItemModelPanel *pItemPanel, bool bMou
 		{
 			iRarity = pItemPanel->GetItem()->GetItemQuality() ;
 
-			uint8 nRarity = pItemPanel->GetItem()->GetItemDefinition()->GetRarity();
+			uint8 nRarity = pItemPanel->GetItem()->GetRarity();
 			if ( ( nRarity != k_unItemRarity_Any ) && ( iRarity != AE_SELFMADE ) && ( iRarity != AE_UNUSUAL ) )
 			{
 				// translate this quality to rarity
