@@ -89,7 +89,7 @@ public:
 	virtual bool		ShowPercentSymbol( void )	{ return false; }
 
 	virtual int			GetNumProgressBar( void ) const { return 1; }
-	virtual Color		GetProgressBarColor( void )	{ return Color( 255, 255, 255, 255 ); }
+	virtual Color		GetProgressBarColor( void )	{ return Color( m_ProgressBar_FgColor ); }
 	virtual Color		GetLabelTextColor( void )	{ return Color( 255, 255, 255, 255 ); }
 
 	// Override this to update some field on the panel when state changes
@@ -145,7 +145,7 @@ public:
 	virtual bool		ShouldFlash( void ) { return false; }
 
 	virtual int			GetNumProgressBar( void ) const OVERRIDE { return 1; }
-	virtual Color		GetProgressBarColor( void ) OVERRIDE { return Color( 255, 255, 255, 255 ); }
+	virtual Color		GetProgressBarColor( void ) OVERRIDE { return Color( m_ProgressBar_FgColor ); }
 	virtual Color		GetLabelTextColor( void ) OVERRIDE { return Color( 255, 255, 255, 255 ); }
 	virtual int			GetState( void ) OVERRIDE { return -1; }
 
