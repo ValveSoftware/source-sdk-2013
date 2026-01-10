@@ -191,7 +191,7 @@ void CTFDroppedWeapon::OnDataChanged( DataUpdateType_t updateType )
 						pStatTrakEnt->SetModelScale( flScale );
 						pStatTrakEnt->UpdateVisibility();
 
-						pStatTrakEnt->SetBodygroup( 1, 1 );
+						pStatTrakEnt->SetBodygroup( 0, 0 );
 
 						pStatTrakEnt->m_nSkin = m_Item.GetTeamNumber();	// Use the "Sad" skin
 
