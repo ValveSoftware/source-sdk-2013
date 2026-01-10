@@ -6753,7 +6753,12 @@ void CTFWeaponBase::AddStatTrakModel( CEconItemView *pItem, int nStatTrakType, A
 
 	// Skin
 	int nSkin = pItem->GetTeamNumber() - TF_TEAM_RED;
-	if ( pItem->GetAccountID() != holderAcctId )
+	uint32 statVal = 0;
+	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetKilleaterValueByEvent(pItem, kKillEaterEvent_RobotsDestroyed, statVal) ) // If item has Robots Destroyed counter, display robot icon in MvM mode
+	{
+		nSkin += 4;
+	}
+	else if ( pItem->GetAccountID() != holderAcctId ) // Do not need to worry about this in MvM mode as weapons cannot be dropped there
 	{
 		nSkin += 2;	// sad skin
 	}
