@@ -3727,6 +3727,7 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropFloat( RECVINFO( m_flMvMLastDamageTime ) ),
 	RecvPropFloat( RECVINFO_NAME( m_flMvMLastDamageTime, "m_flLastDamageTime" ) ), // Renamed
 	RecvPropInt( RECVINFO( m_iSpawnCounter ) ),
+	RecvPropBool( RECVINFO( m_bFlipViewModels ) ),
 	RecvPropBool( RECVINFO( m_bArenaSpectator ) ),
 
 	RecvPropDataTable( RECVINFO_DT( m_AttributeManager ), 0, &REFERENCE_RECV_TABLE(DT_AttributeManager) ),
@@ -6050,7 +6051,7 @@ void C_TFPlayer::ClientThink()
 		// 
 		// Passtime ask for ball button
 		//
-	    if ( m_nButtons & IN_ATTACK3 )
+	    if ( m_afButtonPressed & IN_ATTACK3 )
 	    {
 		    engine->ClientCmd("voicemenu 1 8");
 	    }
@@ -9125,7 +9126,7 @@ CNewParticleEffect *C_TFPlayer::SpawnHalloweenSpellFootsteps( ParticleAttachment
 		kHalloweenSpell_RGBConstant_HHH			= 2,
 		kHalloweenSpell_RGBConstant_TeamColor	= 1,
 		kHalloweenSpell_RGB_Red					= 12073019,
-		kHalloweenSpell_RGB_Blue				= 5801378,
+		kHalloweenSpell_RGB_Blue				= 2192591,
 	};
 
 	if ( iHalloweenFootstepType == kHalloweenSpell_RGBConstant_HHH )
@@ -11610,26 +11611,24 @@ void C_TFPlayer::ClientAdjustVOPitch( int& pitch )
 	{
 		pitch *= 1.3f;
 	}
+
 	// Halloween voice futzery?
-	else
+	float flVoicePitchScale = 1.f;
+	CALL_ATTRIB_HOOK_FLOAT( flVoicePitchScale, voice_pitch_scale );
+
+	int iHalloweenVoiceSpell = 0;
+	if ( TF_IsHolidayActive( kHoliday_HalloweenOrFullMoon ) )
 	{
-		float flVoicePitchScale = 1.f;
-		CALL_ATTRIB_HOOK_FLOAT( flVoicePitchScale, voice_pitch_scale );
+		CALL_ATTRIB_HOOK_INT( iHalloweenVoiceSpell, halloween_voice_modulation );
+	}
 
-		int iHalloweenVoiceSpell = 0;
-		if ( TF_IsHolidayActive( kHoliday_HalloweenOrFullMoon ) )
-		{
-			CALL_ATTRIB_HOOK_INT( iHalloweenVoiceSpell, halloween_voice_modulation );
-		}
-
-		if ( iHalloweenVoiceSpell > 0 )
-		{
-			pitch *= 0.8f;
-		}
-		else if ( flVoicePitchScale != 1.f )
-		{
-			pitch *= flVoicePitchScale;
-		}
+	if ( iHalloweenVoiceSpell > 0 )
+	{
+		pitch *= 0.8f;
+	}
+	else if ( flVoicePitchScale != 1.f )
+	{
+		pitch *= flVoicePitchScale;
 	}
 }
 

@@ -71,14 +71,14 @@ private:
 	bool				IsTransitionCompleted( void ) const;
 	void				WaitToLaunch( void );
 
+	void				RocketLaunchPlayer( CTFPlayer *pPlayer, const Vector& vecForce, bool bIsPassenger );
+	Vector				CalcRocketForceFromPlayer( CTFPlayer *pPlayer );
 #ifdef GAME_DLL
 	void				SetEnabled( bool bEnabled );
 	void				PassengerDelayLaunchThink( void );
-	void				RocketLaunchPlayer( CTFPlayer *pPlayer, const Vector& vecForce, bool bIsPassenger );
-	Vector				CalcRocketForceFromPlayer( CTFPlayer *pPlayer );
 #else
 	void				CleanupParticles( void );
-#endif // GAME_DLL
+#endif // CLIENT_DLL
 
 	CNetworkVar( float, m_flInitLaunchTime );
 	CNetworkVar( float, m_flLaunchTime );
