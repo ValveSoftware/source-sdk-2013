@@ -114,6 +114,8 @@
 #include "econ_paintkit.h"
 #include "soundstartparams.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
+#include "tf_gc_client.h"
+#include "tf_lobby_server.h"
 
 
 #if defined( REPLAY_ENABLED )
@@ -220,6 +222,7 @@ ConVar tf_taunt_first_person( "tf_taunt_first_person", "0", FCVAR_NONE, "1 = tau
 ConVar tf_romevision_opt_in( "tf_romevision_opt_in", "0", FCVAR_ARCHIVE, "Enable Romevision in Mann vs. Machine mode when available." );
 ConVar tf_romevision_skip_prompt( "tf_romevision_skip_prompt", "0", FCVAR_ARCHIVE, "If nonzero, skip the prompt about sharing Romevision." );
 
+ConVar tf_mvm_tour_mute_threshold( "tf_mvm_tour_mute_threshold", "0", FCVAR_ARCHIVE, "Mute players below a certain tour count in Mann vs. Machine mode." );
 
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
 #define BOMB_HAT_MODEL		"models/props_lakeside_event/bomb_temp_hat.mdl"
@@ -9873,6 +9876,31 @@ void C_TFPlayer::UpdateWearables()
 	{
 		pWeapon->UpdateVisibility();
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Game-specific chat filtering
+//-----------------------------------------------------------------------------
+bool C_TFPlayer::CanHearAndReadChatFrom( C_BasePlayer *pPlayer )
+{
+	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
+	{
+		// Mute players below a certain tour count in Mann Up
+		if ( tf_mvm_tour_mute_threshold.GetInt() > 0 )
+		{
+			CTFGSLobby *pLobby = GTFGCClientSystem()->GetLobby();
+			if ( pLobby && IsMannUpGroup( pLobby->GetMatchGroup() ) )
+			{
+				int idx = pLobby->GetMemberIndexBySteamID( GetSteamIDForPlayerIndex( pPlayer->entindex() ) );
+				if ( idx >= 0 )
+				{
+					if ( pLobby->GetMemberDetails( idx ).GetBadgeLevel() < ( uint32_t )tf_mvm_tour_mute_threshold.GetInt() )
+						return false;
+				}
+			}
+		}
+	}
+	return BaseClass::CanHearAndReadChatFrom( pPlayer );
 }
 
 //-----------------------------------------------------------------------------

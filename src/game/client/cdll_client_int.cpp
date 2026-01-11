@@ -357,6 +357,11 @@ public:
 	// ingame voice manipulation
 	bool IsPlayerGameVoiceMuted(int playerIndex)
 	{
+		C_BasePlayer *pSelf = C_BasePlayer::GetLocalPlayer();
+		C_BasePlayer *pOther = UTIL_PlayerByIndex( playerIndex );
+		if ( pSelf && pOther && !pSelf->CanHearAndReadChatFrom( pOther ) )
+			return true;
+
 		return GetClientVoiceMgr()->IsPlayerBlocked(playerIndex);
 	}
 
