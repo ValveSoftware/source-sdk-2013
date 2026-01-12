@@ -129,6 +129,7 @@ public:
 
 	virtual void FireGameEvent( IGameEvent *event ) OVERRIDE;
 
+	void AddEurekaEffectCooldown();
 protected:
 	CNetworkVar( int, m_iState );
 	CNetworkVar( float, m_flRechargeTime );
@@ -167,6 +168,8 @@ private:
 	void SpawnBread( const CTFPlayer* pTeleportingPlayer );
 
 	CUtlStringList m_teleportWhereName;
+
+	float m_flEurekaEffectCooldown;
 };
 
 #endif // TF_OBJ_TELEPORTER_H

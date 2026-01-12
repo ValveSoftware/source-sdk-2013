@@ -1610,6 +1610,7 @@ void CTFPlayer::TFPlayerThink()
 			if ( m_eEurekaTeleportTarget == EUREKA_TELEPORT_TELEPORTER_EXIT && pTeleExit && ( pTeleExit->GetState() != TELEPORTER_STATE_BUILDING ) )
 			{
 				pTeleExit->RecieveTeleportingPlayer( this );
+				pTeleExit->AddEurekaEffectCooldown();
 			}
 			else
 			{
