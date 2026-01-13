@@ -3314,6 +3314,9 @@ struct TextureVarSetter
 	ITexture* m_pTexture;
 };
 
+// Convar to force full resolution paintkit textures in situations they normally wouldn't (world model, other player's skins)
+ConVar  tf_paintkit_force_fullres("tf_paintkit_force_fullres", "0", FCVAR_NONE, "Display full resolution paintkit textures on weapons.");
+
 //-----------------------------------------------------------------------------
 // Purpose: Used for weapon skins.
 //-----------------------------------------------------------------------------
@@ -3422,7 +3425,7 @@ public:
 
 		// if we're not using high res, check if we should down res
 		// We may force low res for some composites. 
-		if ( pItem->ShouldWeaponSkinUseLowRes() || ( !pItem->ShouldWeaponSkinUseHighRes() && !cbPlayerIsLocalPlayer ) )
+		if ( ( !tf_paintkit_force_fullres.GetBool() ) && ( pItem->ShouldWeaponSkinUseLowRes() || ( !pItem->ShouldWeaponSkinUseHighRes() && !cbPlayerIsLocalPlayer ) ) )
 		{
 			const int cDropMips = 2;
 			desiredW = Max( 1, desiredW >> cDropMips );
