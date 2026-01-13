@@ -6754,7 +6754,7 @@ void CTFWeaponBase::AddStatTrakModel( CEconItemView *pItem, int nStatTrakType, A
 	// Skin
 	int nSkin = pItem->GetTeamNumber() - TF_TEAM_RED;
 	uint32 statVal = 0;
-	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetKilleaterValueByEvent(pItem, kKillEaterEvent_RobotsDestroyed, statVal) ) // If item has Robots Destroyed counter, display robot icon in MvM mode
+	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetKilleaterValueByEvent(pItem, kKillEaterEvent_RobotsDestroyed, &statVal) ) // If item has Robots Destroyed counter, display robot icon in MvM mode
 	{
 		nSkin += 4;
 	}
