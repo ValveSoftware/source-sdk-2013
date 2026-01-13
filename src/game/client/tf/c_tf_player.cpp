@@ -3136,7 +3136,7 @@ bool CStatTrakDigitProxy::HelperOnBindGetStatTrakScore( void *pC_BaseEntity, int
 
 					// If we are in MvM mode, overwrite with Robots Destroyed count (if item is tracking this)
 					if (TFGameRules() && TFGameRules()->IsMannVsMachineMode()
-						&& GetKilleaterValueByEvent(pWeap->GetAttributeContainer()->GetItem(), kKillEaterEvent_RobotsDestroyed, &unScore))
+						&& GetKilleaterValueByEvent(pWeap->GetAttributeContainer()->GetItem(), kKillEaterEvent_RobotsDestroyed, unScore))
 					{
 						*piScore = unScore;
 					}
