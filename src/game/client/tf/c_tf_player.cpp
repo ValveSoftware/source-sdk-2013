@@ -3170,6 +3170,31 @@ bool CStatTrakDigitProxy::HelperOnBindGetStatTrakScore( void *pC_BaseEntity, int
 				}
 			}
 		}
+		else
+		{
+			CTFWeaponBase* pWeap = NULL;
+
+			// Check if it's an attachment model (world model)
+			C_TFWeaponAttachmentModel* pAttachment = dynamic_cast<C_TFWeaponAttachmentModel*>(pEntity);
+			if (pAttachment)
+			{
+				// StatTrak will be child of world model it is attached to
+				C_BaseEntity* pParent = pAttachment->GetMoveParent();
+				if (pParent)
+				{
+					pWeap = dynamic_cast<CTFWeaponBase*>(pParent);
+				}
+			}
+			if (pWeap)
+			{
+				CEconItemView* pItem = pWeap->GetAttributeContainer()->GetItem();
+				if (pItem && pItem->FindAttribute(GetKillEaterAttr_Score(0), &unScore))
+				{
+					*piScore = unScore;
+					bReturnValue = true;
+				}
+			}
+		}
 	}
 	else
 	{
