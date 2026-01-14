@@ -3314,7 +3314,7 @@ struct TextureVarSetter
 	ITexture* m_pTexture;
 };
 
-// Convar to force full resolution paintkit textures in situations they normally wouldn't (world model, other player's skins)
+// Convar to force full resolution paintkit textures in situations they normally wouldn't (world model, other players' skins)
 ConVar  tf_paintkit_force_fullres("tf_paintkit_force_fullres", "0", FCVAR_NONE, "Display full resolution paintkit textures on weapons.");
 
 //-----------------------------------------------------------------------------
