@@ -16,4 +16,8 @@
 #include "utlvector.h"
 #include "baseviewmodel_shared.h"
 
+#ifdef TF_CLIENT_DLL
+bool TeamFortress_ShouldFlipClientViewModel( void );
+#endif //TF_CLIENT_DLL
+
 #endif // C_BASEVIEWMODEL_H

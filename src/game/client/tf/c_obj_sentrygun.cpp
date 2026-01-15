@@ -758,9 +758,9 @@ const char* C_ObjectSentrygun::GetStatusName() const
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-C_SentrygunShield* C_SentrygunShield::Create( const char* pszModelName )
+C_SentrygunShield *C_SentrygunShield::Create( const char *pszModelName )
 {
-	C_SentrygunShield* pShield = new C_SentrygunShield();
+	C_SentrygunShield *pShield = new C_SentrygunShield();
 	if ( !pShield )
 		return NULL;
 
