@@ -96,6 +96,7 @@ public:
 	virtual void Paint( void );
 	virtual void PaintBackground( void );
 	virtual void OnTick( void );
+	virtual void GetRechargingTeleporter( void );
 
 	virtual void PerformLayout( void );
 

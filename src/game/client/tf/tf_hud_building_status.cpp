@@ -1004,6 +1004,25 @@ void CBuildingStatusItem_TeleporterEntrance::OnTick( void )
 			float flChargeTime = pTeleporter->GetChargeTime();
 			m_pRechargeTimer->SetProgress( 1.0 - ( flChargeTime / flMaxRecharge ) );
 		}
+		else
+		{
+			// Check if teleporter exit is recharging (two-way teleporters)
+			C_TFPlayer* pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+			if (pLocalPlayer)
+			{
+				C_ObjectTeleporter* pExitTeleporter = static_cast<C_ObjectTeleporter*>(
+					pLocalPlayer->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_EXIT )
+					);
+
+				if ( pExitTeleporter && pExitTeleporter->GetState() == TELEPORTER_STATE_RECHARGING )
+				{
+					// Update the recharge using the exit's data
+					float flMaxRecharge = pExitTeleporter->GetCurrentRechargeDuration();
+					float flChargeTime = pExitTeleporter->GetChargeTime();
+					m_pRechargeTimer->SetProgress( 1.0 - ( flChargeTime / flMaxRecharge ) );
+				}
+			}
+		}
 	}
 
 	BaseClass::OnTick();
@@ -1025,6 +1044,23 @@ void CBuildingStatusItem_TeleporterEntrance::PerformLayout( void )
 	}
 
 	bool bRecharging = ( pTeleporter->GetState() == TELEPORTER_STATE_RECHARGING );
+
+	// If entrance isn't recharging, check if exit is recharging
+	if ( !bRecharging )
+	{
+		C_TFPlayer* pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+		if ( pLocalPlayer )
+		{
+			C_ObjectTeleporter* pExitTeleporter = static_cast<C_ObjectTeleporter*>(
+				pLocalPlayer->GetObjectOfType( OBJ_TELEPORTER, MODE_TELEPORTER_EXIT )
+				);
+
+			if ( pExitTeleporter )
+			{
+				bRecharging = ( pExitTeleporter->GetState() == TELEPORTER_STATE_RECHARGING );
+			}
+		}
+	}
 
 	m_pChargingPanel->SetVisible( bRecharging );
 	m_pFullyChargedPanel->SetVisible( !bRecharging );
