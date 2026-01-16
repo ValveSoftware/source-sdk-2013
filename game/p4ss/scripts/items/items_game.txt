@@ -4827,6 +4827,7 @@
 				"can_deal_damage"		"1"
 				"can_deal_gib_damage"	"1"
 				"can_be_equipped_by_soldier_or_demo"	"1"
+				"can_deal_taunt_damage"		"1"
 			}
 			// "show_in_armory"	"1"
 			"baseitem" "1"
@@ -4872,6 +4873,11 @@
 				{
 					"attribute_class"	"mult_crit_chance"
 					"value"	"0"
+				}
+				"special taunt"
+				{
+					"attribute_class"	"special_taunt"
+					"value" "1"
 				}
 			}
 		}

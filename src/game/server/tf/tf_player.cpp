@@ -16913,6 +16913,11 @@ void CTFPlayer::Taunt( taunts_t iTauntIndex, int iTauntConcept )
 			m_flTauntAttackTime = gpGlobals->curtime + 2.55f;
 			m_iTauntAttack = TAUNTATK_DEMOMAN_BARBARIAN_SWING;
 		}
+		else if ( !V_strnicmp( szResponse, "scenes/player/demoman/low/taunt04", 29 ) ) //caber has 2 animations taunt04_v1.vcd & taunt04_v2.vcd
+		{
+			m_flTauntAttackTime = gpGlobals->curtime + 3.83f;
+			m_iTauntAttack = TAUNTATK_DEMOMAN_CABER;
+		}
 	}
 	else if ( IsPlayerClass( TF_CLASS_ENGINEER ) )
 	{
@@ -17764,6 +17769,62 @@ void CTFPlayer::DoTauntAttack( void )
 				vecForward = (WorldSpaceCenter() - pEnt->WorldSpaceCenter());
 				VectorNormalize( vecForward );
 				pEnt->TakeDamage( CTakeDamageInfo( this, this, GetActiveTFWeapon(), vecForward * 12000, WorldSpaceCenter(), 500.0f, DMG_CLUB, TF_DMG_CUSTOM_TAUNTATK_BARBARIAN_SWING ) );
+			}
+		}
+	}
+	else if ( iTauntAttack == TAUNTATK_DEMOMAN_CABER)
+	{
+		//Demomans caber taunt
+		//explodes like the soldiers escape plan taunt if it hits anything
+		//if the caber is broken we just do the normal melee attack on our target
+
+		Vector vecForward;
+		AngleVectors( EyeAngles(), &vecForward );
+		Vector vecEnd = EyePosition() + vecForward * 72;
+
+		trace_t tr;
+		UTIL_TraceLine( EyePosition(), vecEnd, MASK_SOLID & ~CONTENTS_HITBOX, this, COLLISION_GROUP_PLAYER, &tr );
+
+		if ( tr.fraction < 1.0 )
+		{
+			CTFWeaponBase *pWeapon = GetActiveTFWeapon();
+			if ( pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_STICKBOMB )
+			{
+				CTFStickBomb *pCaber = dynamic_cast<CTFStickBomb*>( pWeapon );
+				if ( pCaber )
+				{
+					CBaseEntity *pEnt = tr.m_pEnt;
+
+					if ( !pCaber->GetDetonated() )
+					{
+						//if we hit a teammate we shouldnt explode
+						if ( pEnt && pEnt->IsPlayer() &&
+							 pEnt->GetTeamNumber() > LAST_SHARED_TEAM &&
+							 pEnt->GetTeamNumber() == GetTeamNumber() )
+							return;
+
+						//we need to set the caber to exploded
+						//for the droped weapon pickup or if we survive the taunt
+						pCaber->SetDetonated( 1 );
+						pCaber->SwitchBodyGroups();
+
+						CPVSFilter filter( tr.endpos );
+						TE_TFExplosion(filter, 0.0f, tr.endpos, Vector( 0, 0, 1 ), TF_WEAPON_GRENADELAUNCHER, entindex() );
+
+						CTakeDamageInfo info(this, this, GetActiveTFWeapon(), vec3_origin, tr.endpos, 230.f, DMG_BLAST | DMG_USEDISTANCEMOD, TF_DMG_CUSTOM_STICKBOMB_EXPLOSION, &tr.endpos );
+						CTFRadiusDamageInfo radiusinfo( &info, tr.endpos, 100.f );
+						TFGameRules()->RadiusDamage( radiusinfo );
+					}
+					else
+					{
+						if ( pEnt && pEnt->IsPlayer() &&
+							 pEnt->GetTeamNumber() > LAST_SHARED_TEAM &&
+							 pEnt->GetTeamNumber() != GetTeamNumber() )
+						{
+							pCaber->DoMeleeDamage( pEnt, tr );
+						}
+					}
+				}
 			}
 		}
 	}
