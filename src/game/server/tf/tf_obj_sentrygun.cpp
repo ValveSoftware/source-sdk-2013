@@ -1356,7 +1356,7 @@ bool CObjectSentrygun::FireRocket()
 
 		QAngle angAimDir;
 		VectorAngles( vecAimDir, angAimDir );
-		CTFProjectile_SentryRocket *pProjectile = CTFProjectile_SentryRocket::Create( vecSrc, angAimDir, this, GetBuilder() );
+		CTFProjectile_SentryRocket *pProjectile = CTFProjectile_SentryRocket::Create( vecSrc, angAimDir, this, GetBuilder(), this );
 		if ( pProjectile )
 		{
 			int iDamage = 100;
@@ -2365,13 +2365,14 @@ END_NETWORK_TABLE()
 //-----------------------------------------------------------------------------
 // Purpose: Creation
 //-----------------------------------------------------------------------------
-CTFProjectile_SentryRocket *CTFProjectile_SentryRocket::Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CBaseEntity *pScorer )
+CTFProjectile_SentryRocket *CTFProjectile_SentryRocket::Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CBaseEntity *pScorer, CBaseEntity *pLauncher )
 {
-	CTFProjectile_SentryRocket *pRocket = static_cast<CTFProjectile_SentryRocket*>( CTFBaseRocket::Create( NULL, "tf_projectile_sentryrocket", vecOrigin, vecAngles, pOwner ) );
+	CTFProjectile_SentryRocket *pRocket = static_cast<CTFProjectile_SentryRocket*>( CTFBaseRocket::Create( pLauncher, "tf_projectile_sentryrocket", vecOrigin, vecAngles, pOwner ) );
 
 	if ( pRocket )
 	{
 		pRocket->SetScorer( pScorer );
+		pRocket->SetLauncher( pLauncher );
 	}
 
 	return pRocket;
