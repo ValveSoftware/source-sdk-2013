@@ -1269,6 +1269,14 @@ void CTFPlayerModelPanel::UpdatePreviewVisuals()
 		SetMDLSkinForTeam( GetMergeMDL( m_MergeMDL ), GetPreviewItem( m_pHeldItem ), m_iTeam );
 	}
 
+	// Set the StatTrack model skin
+	if ( !m_StatTrackModel.m_bDisabled )
+	{
+		int iSkin = 0;
+		iSkin = m_iTeam == TF_TEAM_RED ? 0 : 1;
+		m_StatTrackModel.m_MDL.m_nSkin = iSkin;
+	}
+
 	// Set the skin for all other equipped items (wearables, etc).
 	for ( int i=0; i<m_vecDynamicAssetsLoaded.Count(); i++ )
 	{
