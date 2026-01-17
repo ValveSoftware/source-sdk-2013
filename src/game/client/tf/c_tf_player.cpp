@@ -7035,6 +7035,15 @@ void C_TFPlayer::UpdateIDTarget()
 
 	if ( tr.m_pEnt && tr.m_pEnt->IsPlayer() )
 	{
+		trace_t trShot;
+		// use the shot mask to replicate the medigun's trace
+		UTIL_TraceLine( vecStart, vecEnd, MASK_SHOT, this, COLLISION_GROUP_NONE, &trShot );
+
+		if ( trShot.fraction != 1.0 && trShot.m_pEnt && trShot.m_pEnt->IsPlayer() && ( !tr.startsolid || tr.m_pEnt != trShot.m_pEnt ) )
+		{
+			tr = trShot;
+		}
+
 		// It's okay to start solid against enemies because we sometimes press right against them
 		bIsEnemyPlayer = GetTeamNumber() != tr.m_pEnt->GetTeamNumber();
 	}
