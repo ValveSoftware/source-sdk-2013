@@ -1190,11 +1190,11 @@ void CHudUpgradePanel::UpdateUpgradeButtons( void )
 
 void CHudUpgradePanel::UpdateJoystickControls( void )
 {
-	static ConVarRef joystick( "joystick" );
-	if ( !joystick.IsValid() || !joystick.GetBool() )
-	{
-		return;
-	}
+	//static ConVarRef joystick( "joystick" );
+	//if ( !joystick.IsValid() || !joystick.GetBool() )
+	//{
+	//	return;
+	//}
 
 	bool bUp = ::input->Joystick_GetForward() < 0.0f || ::input->Joystick_GetPitch() < 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_UP ) || vgui::input()->IsKeyDown( KEY_UP ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_DPAD_UP );
 	bool bDown = ::input->Joystick_GetForward() > 0.0f || ::input->Joystick_GetPitch() > 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_DOWN ) || vgui::input()->IsKeyDown( KEY_DOWN ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_DPAD_DOWN );
@@ -1340,6 +1340,10 @@ void CHudUpgradePanel::UpdateJoystickControls( void )
 		{
 			OnCommand( "close" );
 		}
+		else if ( bRespec )
+		{
+			OnCommand( "respec" );
+		}
 		else if ( bNext )
 		{
 			OnCommand( "next" );
@@ -1347,10 +1351,6 @@ void CHudUpgradePanel::UpdateJoystickControls( void )
 		else if ( bPrev )
 		{
 			OnCommand( "prev" );
-		}
-		else if ( bRespec )
-		{
-			OnCommand( "respec" );
 		}
 	}
 }
