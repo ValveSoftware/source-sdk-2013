@@ -764,6 +764,7 @@ void CMDLPicker::WriteBackbackVMTFiles( const char *pAssetName )
 			g_pFullFileSystem->FPrintf( fileHandle, "{\n" );
 			g_pFullFileSystem->FPrintf( fileHandle, "	\"$baseTexture\" \"%s\"\n", pBaseTextureName );
 			g_pFullFileSystem->FPrintf( fileHandle, "	$translucent 1\n" );
+			g_pFullFileSystem->FPrintf(fileHandle, "	$vertexcolor 1\n");
 			g_pFullFileSystem->FPrintf( fileHandle, "}\n" );
 
 			g_pFullFileSystem->Close( fileHandle );
