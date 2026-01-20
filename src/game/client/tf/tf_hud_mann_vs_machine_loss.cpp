@@ -152,7 +152,7 @@ void CMvMWaveLossPanel::OnCommand( const char *command )
 void CMvMWaveLossPanel::ShowPanel()
 {
 	SetVisible( true );
-	SetKeyBoardInputEnabled( false );
+	SetKeyBoardInputEnabled( true );
 	SetMouseInputEnabled( true );
 	MoveToFront();
 
@@ -248,6 +248,20 @@ void CMvMWaveLossPanel::ShowPanel()
 	
 	hint1
 	hint2*/
+}
+
+void CMvMWaveLossPanel::OnKeyCodePressed( vgui::KeyCode code )
+{
+	ButtonCode_t nButtonCode = GetBaseButtonCode( code );
+
+	if ( nButtonCode == STEAMCONTROLLER_A || nButtonCode == STEAMCONTROLLER_B )
+	{
+		OnCommand( "continue" );
+	}
+	else if ( nButtonCode == STEAMCONTROLLER_X )
+	{
+		OnCommand( "vote_restart" );
+	}
 }
 
 void CMvMWaveLossPanel::SetCaptainCanteenImage( vgui::ImagePanel *panel, const char *pchImage, int nNewX )
