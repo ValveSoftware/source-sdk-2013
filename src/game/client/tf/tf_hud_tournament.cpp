@@ -299,14 +299,46 @@ void CHudTournament::PreparePanel( void )
 					pszLabelText = "Tournament_Instructions_Waiting";
 				}
 
-				SetDialogVariable( "readylabel", g_pVGuiLocalize->Find( pszLabelText ) );
+				if ( pszLabelText == "Tournament_Instructions_Ready" )
+				{
+					// Lets get the currently bound ready up button and display it to the user
+					wchar_t wszLocalized[100];
+					wchar_t wszKey[25];
+					const char* key = engine->Key_LookupBinding("player_ready_toggle");
+					if (!key)
+					{
+						key = "< not bound >";
+					}
+
+					g_pVGuiLocalize->ConvertANSIToUnicode(key, wszKey, sizeof(wszKey));
+					g_pVGuiLocalize->ConstructString_safe(wszLocalized, g_pVGuiLocalize->Find("Tournament_Instructions_Ready"), 1, wszKey);
+					SetDialogVariable("readylabel", wszLocalized);
+				}
+				else
+				{
+					SetDialogVariable("readylabel", g_pVGuiLocalize->Find(pszLabelText));
+				}
+
+				// SetDialogVariable( "readylabel", g_pVGuiLocalize->Find( pszLabelText ) );
 				SetDialogVariable( "tournamentstatelabel", g_pVGuiLocalize->Find( "Tournament_WaitingForTeam" ) );
 				SetPlayerPanelsVisible( true );
 				m_pModeImage->SetVisible( m_bCompetitiveMode );
 			}
 			else
 			{
-				SetDialogVariable( "readylabel", g_pVGuiLocalize->Find( "Tournament_Instructions" ) );
+				// Lets get the currently bound ready up button and display it to the user
+				wchar_t wszLocalized[100];
+				wchar_t wszKey[25];
+				const char* key = engine->Key_LookupBinding("player_ready_toggle");
+				if (!key)
+				{
+					key = "< not bound >";
+				}
+
+				//SetDialogVariable( "readylabel", g_pVGuiLocalize->Find( "Tournament_Instructions" ) ); // old code
+				g_pVGuiLocalize->ConvertANSIToUnicode(key, wszKey, sizeof(wszKey));
+				g_pVGuiLocalize->ConstructString_safe( wszLocalized, g_pVGuiLocalize->Find( "Tournament_Instructions" ), 1, wszKey );
+				SetDialogVariable("readylabel", wszLocalized);
 				SetDialogVariable( "tournamentstatelabel", g_pVGuiLocalize->Find( "Tournament_WaitingForTeams" ) );
 				SetPlayerPanelsVisible( false );
 				m_pModeImage->SetVisible( false );
@@ -357,7 +389,19 @@ void CHudTournament::PreparePanel( void )
 					}
 					else
 					{
-						SetDialogVariable( "readylabel", g_pVGuiLocalize->Find( "Tournament_Instructions_Ready" ) );
+						// Lets get the currently bound ready up button and display it to the user
+						wchar_t wszLocalized[100];
+						wchar_t wszKey[25];
+						const char* key = engine->Key_LookupBinding("player_ready_toggle");
+						if (!key)
+						{
+							key = "< not bound >";
+						}
+
+						// SetDialogVariable( "readylabel", g_pVGuiLocalize->Find( "Tournament_Instructions_Ready" ) ); old code
+						g_pVGuiLocalize->ConvertANSIToUnicode(key, wszKey, sizeof(wszKey));
+						g_pVGuiLocalize->ConstructString_safe(wszLocalized, g_pVGuiLocalize->Find("Tournament_Instructions_Ready"), 1, wszKey);
+						SetDialogVariable("readylabel", wszLocalized);
 					}
 				}
 				else
@@ -1090,6 +1134,28 @@ void CHudTournamentSetup::OnCommand( const char *command )
 	}
 }
 
+void CHudTournamentSetup::TogglePlayerReadiness()
+{
+	if (TFGameRules() && TFGameRules()->UsePlayerReadyStatusMode())
+	{
+		int nReady = (TFGameRules()->IsPlayerReady(GetLocalPlayerIndex())) ? 0 : 1;
+		char szCommand[64];
+		Q_snprintf(szCommand, sizeof(szCommand), "tournament_player_readystate %d", nReady);
+		engine->ClientCmd_Unrestricted(szCommand);
+	}
+	else
+	{
+		if (IsMouseInputEnabled())
+		{
+			DisableInput();
+		}
+		else
+		{
+			EnableInput();
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1101,29 +1167,29 @@ bool CHudTournamentSetup::ToggleState( ButtonCode_t code )
 	if ( !g_TF_PR )
 		return false;
 
-	if ( code == KEY_F4 || code == STEAMCONTROLLER_F4 )
-	{
-		if ( TFGameRules() && TFGameRules()->UsePlayerReadyStatusMode() )
-		{
-			int nReady = ( TFGameRules()->IsPlayerReady( GetLocalPlayerIndex() ) ) ? 0 : 1;
-			char szCommand[64];
-			Q_snprintf( szCommand, sizeof( szCommand ), "tournament_player_readystate %d", nReady );
-			engine->ClientCmd_Unrestricted( szCommand );
-		}
-		else
-		{
-			if ( IsMouseInputEnabled() )
-			{
-				DisableInput();
-				return true;
-			}
-			else
-			{
-				EnableInput();
-				return true;
-			}
-		}
-	}
+	//if ( code == KEY_F4 || code == STEAMCONTROLLER_F4 ) // stupid hard-coded thing
+	//{
+	//	//if ( TFGameRules() && TFGameRules()->UsePlayerReadyStatusMode() )
+	//	//{
+	//	//	int nReady = ( TFGameRules()->IsPlayerReady( GetLocalPlayerIndex() ) ) ? 0 : 1;
+	//	//	char szCommand[64];
+	//	//	Q_snprintf( szCommand, sizeof( szCommand ), "tournament_player_readystate %d", nReady );
+	//	//	engine->ClientCmd_Unrestricted( szCommand );
+	//	//}
+	//	//else
+	//	//{
+	//	//	if ( IsMouseInputEnabled() )
+	//	//	{
+	//	//		DisableInput();
+	//	//		return true;
+	//	//	}
+	//	//	else
+	//	//	{
+	//	//		EnableInput();
+	//	//		return true;
+	//	//	}
+	//	//}
+	//}
 
 	if ( IsMouseInputEnabled() )
 	{
@@ -1590,7 +1656,8 @@ CON_COMMAND( player_ready_toggle, "Toggle player ready state" )
 		CHudTournamentSetup *pTournamentPanel = dynamic_cast< CHudTournamentSetup* >( GET_HUDELEMENT( CHudTournamentSetup ) );
 		if ( pTournamentPanel )
 		{
-			pTournamentPanel->ToggleState( KEY_F4 );
+			// pTournamentPanel->ToggleState( KEY_F4 );
+			pTournamentPanel->TogglePlayerReadiness();
 		}
 	}
 }
