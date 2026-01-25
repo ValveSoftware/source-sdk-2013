@@ -1401,9 +1401,25 @@ COLLISION_GROUP_WEAPON, &result );
 			}
 
 			CTFPlayer *attackerPlayer = dynamic_cast<CTFPlayer *>(attacker);
+			
+			//we need to to this conversion
+			//so the icons are matching with the weapons
+			CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase*>( attackerPlayer->Weapon_OwnsThisID(iWeaponID) );
+			if ( pWeapon )
+			{
+				CEconItemView *pItem = pWeapon->GetAttributeContainer()->GetItem();
+
+				if ( pItem )
+				{
+					if ( pItem->GetStaticData()->GetIconClassname() )
+					{
+						weaponname = pItem->GetStaticData()->GetIconClassname();
+					}
+				}
+			}
 
 			// P4SS: this may cause issues later for things like pipes but we will try it out and see
-			if ( distance < 10.0f )
+			if ( distance < 10.0f || info.GetDamageType() & DMG_MELEE )
 			{
 				if ( didSplashGoal && attackerPlayer && ballThrower && attackerPlayer->GetTeamNumber() != ballThrower->GetTeamNumber() )
 				{
