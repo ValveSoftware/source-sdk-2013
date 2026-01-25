@@ -2412,6 +2412,17 @@ void CTFGameRules::PlayerReadyStatus_UpdatePlayerState( CTFPlayer *pTFPlayer, bo
 		m_bPlayerReadyBefore[nEntIndex] = true;
 	}
 }
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFGameRules::StartTournamentMatch( void )
+{
+	SetInWaitingForPlayers( false );
+	RoundRespawn();
+	State_Transition( GR_STATE_RESTART );
+	ResetPlayerAndTeamReadyState();
+}
 #endif // GAME_DLL
 
 //-----------------------------------------------------------------------------

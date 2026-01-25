@@ -633,6 +633,7 @@ bool IsCreepWaveMode( void ) const;
 	void PlayerReadyStatus_ResetState( void );
 	void PlayerReadyStatus_UpdatePlayerState( CTFPlayer *pTFPlayer, bool bState );
 #endif // GAME_DLL
+	void StartTournamentMatch( void );
 
 	bool IsDefaultGameMode( void );		// The absence of arena, mvm, tournament mode, etc
 

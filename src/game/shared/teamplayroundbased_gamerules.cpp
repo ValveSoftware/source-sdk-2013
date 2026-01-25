@@ -1663,7 +1663,7 @@ void CTeamplayRoundBasedRules::CheckReadyRestart( void )
 				{
 					TFGameRules()->SetSwitchTeams( false );
 				}
-
+				TFGameRules()->StartTournamentMatch();
 				return;
 			}
 		}
