@@ -62,6 +62,7 @@ private:
 	ImageVector m_vecBlueWinIndicators;
 
 	bool m_bCountDirty;
+	bool m_bScoreReset; //Reset the scores next time we invalidate the layout
 
 	CPanelAnimationVarAliasType( int, m_nStartingWidth, "starting_width", "10", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_nWidthPerRound, "width_per_round", "10", "proportional_int" );

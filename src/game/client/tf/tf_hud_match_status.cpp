@@ -58,11 +58,15 @@ CRoundCounterPanel::CRoundCounterPanel( Panel *parent, const char *panelName )
 	, m_pRoundWinIndicatorRedKV( NULL )
 	, m_pRoundWinIndicatorBlueKV( NULL )
 	, m_bCountDirty( false )
+	, m_bScoreReset( false )
 {
 	ListenForGameEvent( "winlimit_changed" );
 	ListenForGameEvent( "winpanel_show_scores" );
 	ListenForGameEvent( "stop_watch_changed" );
 	ListenForGameEvent( "teamplay_round_start" );
+	ListenForGameEvent( "teamplay_game_over" );
+	ListenForGameEvent( "tf_game_over" );
+	ListenForGameEvent( "teamplay_round_restart_seconds" );
 }
 
 //-----------------------------------------------------------------------------
@@ -189,6 +193,16 @@ void CRoundCounterPanel::PerformLayout()
 	if ( !pTeams[ TF_TEAM_RED ] || !pTeams[ TF_TEAM_BLUE ] )
 		return;
 
+	int iScoreRed = pTeams[TF_TEAM_RED]->m_iScore;
+	int iScoreBlue = pTeams[TF_TEAM_BLUE]->m_iScore;
+	if ( m_bScoreReset && !m_bCountDirty )
+	{
+		iScoreRed = 0;
+		iScoreBlue = 0;
+
+		m_bScoreReset = false;
+	}
+
 	// Layout the round indicators
 	LayoutPanels( m_vecBlueRoundIndicators, EAlignment::ALIGN_WEST, (GetWide() / 2) - m_nIndicatorStartOffset, m_nIndicatorPanelStep );
 	VisibleCondition( m_vecBlueRoundIndicators, mp_winlimit.GetInt() );
@@ -196,9 +210,9 @@ void CRoundCounterPanel::PerformLayout()
 	VisibleCondition( m_vecRedRoundIndicators, mp_winlimit.GetInt() );
 	// Layout the win indicators
 	LayoutPanels( m_vecBlueWinIndicators, EAlignment::ALIGN_WEST, (GetWide() / 2) - m_nIndicatorStartOffset, m_nIndicatorPanelStep );
-	VisibleCondition( m_vecBlueWinIndicators, Min( mp_winlimit.GetInt(), pTeams[ TF_TEAM_BLUE ]->m_iScore ) );
+	VisibleCondition( m_vecBlueWinIndicators, Min( mp_winlimit.GetInt(), iScoreBlue ) );
 	LayoutPanels( m_vecRedWinIndicators, EAlignment::ALIGN_EAST, (GetWide() / 2) + m_nIndicatorStartOffset, m_nIndicatorPanelStep );
-	VisibleCondition( m_vecRedWinIndicators, Min( mp_winlimit.GetInt(), pTeams[ TF_TEAM_RED ]->m_iScore ) );
+	VisibleCondition( m_vecRedWinIndicators, Min( mp_winlimit.GetInt(), iScoreRed ) );
 }
 
 void CRoundCounterPanel::OnThink()
@@ -214,7 +228,7 @@ void CRoundCounterPanel::OnThink()
 
 		if ( nNumVisible != mp_winlimit.GetInt() )
 		{
-			InvalidateLayout();
+			InvalidateLayout( true );
 			m_bCountDirty = false;
 		}
 	}
@@ -226,8 +240,14 @@ void CRoundCounterPanel::FireGameEvent(IGameEvent * event )
 	{
 		m_bCountDirty = true;
 	}
+	else if ( FStrEq( event->GetName(), "teamplay_game_over" ) // Reset the scores when the match ends for them to not carry over to the next one
+			|| FStrEq( event->GetName(), "tf_game_over" )
+			|| FStrEq( event->GetName(), "teamplay_round_restart_seconds") ) // Reset the scores as well on game restart
+	{
+		m_bScoreReset = true;
+	}
 	else if ( FStrEq( event->GetName(), "winpanel_show_scores" ) // Conditionally hide the win markers
-		   || FStrEq( event->GetName(), "stop_watch_changed" )		// Match the timing of the win panel "Ding!" when the scores update
+		   || FStrEq( event->GetName(), "stop_watch_changed" )		// Match the timing of the win panel "Ding!" when the scores update 
 		   || FStrEq( event->GetName(), "teamplay_round_start" ) ) // Make sure we're accurate when the round starts in case the hud event didnt happen
 	{
 		InvalidateLayout( true );
