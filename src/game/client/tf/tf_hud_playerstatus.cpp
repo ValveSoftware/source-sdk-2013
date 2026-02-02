@@ -41,6 +41,8 @@ ConVar cl_hud_playerclass_use_playermodel( "cl_hud_playerclass_use_playermodel",
 
 ConVar cl_hud_playerclass_playermodel_showed_confirm_dialog( "cl_hud_playerclass_playermodel_showed_confirm_dialog", "0", FCVAR_ARCHIVE | FCVAR_HIDDEN );
 
+ConVar cl_hud_playerclass_display_weapon_info( "cl_hud_playerclass_display_weapon_info", "0", FCVAR_ARCHIVE, "Display your weapon's details (custom name, strange scores) in player class HUD." );
+
 extern ConVar tf_max_health_boost;
 
 
@@ -307,6 +309,9 @@ void CTFHudPlayerClass::OnThink()
 		// Don't show if we're disguised (the panels overlap)
 		bool bShowCarryingWeaponPanel = m_nDisguiseClass == TF_CLASS_UNDEFINED;
 
+		// Used to check if we need to add an additional line for extra info (owner name, strange count)
+		bool bAddExtraLine = false;
+
 		if ( pPlayer->GetActiveTFWeapon() && pPlayer->GetActiveTFWeapon()->GetAttributeContainer() )
 		{
 			CEconItemView* pItem = pPlayer->GetActiveTFWeapon()->GetAttributeContainer()->GetItem();
@@ -314,8 +319,10 @@ void CTFHudPlayerClass::OnThink()
 			{
 				CSteamID playerSteamID;
 				pPlayer->GetSteamID( &playerSteamID );
+				bool bOwnsWeapon = ( playerSteamID.GetAccountID() == pItem->GetAccountID() );
+
 				// We're holding a weapon we dont own!
-				if ( playerSteamID.GetAccountID() != pItem->GetAccountID() && m_pCarryingLabel )
+				if ( !bOwnsWeapon && m_pCarryingLabel )
 				{
 					locchar_t wszLocString [128];
 
@@ -331,45 +338,109 @@ void CTFHudPlayerClass::OnThink()
 						m_pCarryingLabel->SetColorStr( pszColorName );
 					}
 
-					bool bHasOwner = false;
 					locchar_t wszPlayerName [128];
 					CBasePlayer *pOwner = GetPlayerByAccountID( pItem->GetAccountID() );
 					// Bots will not work here, so don't fill this out if there's no owner
 					if ( pOwner )
 					{
 						// Fill out the actual owner's name
-						locchar_t wszStolenString[128];
+						locchar_t wszStolenString [128];
 						g_pVGuiLocalize->ConvertANSIToUnicode( pOwner->GetPlayerName(), wszPlayerName, sizeof(wszPlayerName) );
 						g_pVGuiLocalize->ConstructString_safe( wszStolenString, g_pVGuiLocalize->Find( "TF_WhoDropped" ), 1, wszPlayerName );
 						m_pCarryingOwnerLabel->SetText( wszStolenString );
-						bHasOwner = true;
+						bAddExtraLine = true;
 					}
 					else
 					{
 						m_pCarryingOwnerLabel->SetText( "" );
 					}
-					
-					int nMaxWide = 0, nMaxTall = 0;
-					// Resize the panel to just be the width of whichever label is longer
-					int nTall, nWide;
-					m_pCarryingLabel->SizeToContents();
-					m_pCarryingLabel->GetContentSize( nWide, nTall );
-					nMaxWide = Max( nMaxWide, nWide );
-					nMaxTall = Max( nMaxTall, nTall );
+				}
+				// NEW: We're holding our own weapon! Display custom name and/or strange count
+				// Currently disabled in Mann Vs Machine as many panels overlap
+				else if ( ( TFGameRules() && !TFGameRules()->IsMannVsMachineMode() ) && bOwnsWeapon && m_pCarryingLabel && cl_hud_playerclass_display_weapon_info.GetBool() )
+				{
+					locchar_t wszLocString [128];
 
-					m_pCarryingOwnerLabel->SizeToContents();
-					m_pCarryingOwnerLabel->GetContentSize( nWide, nTall );
-					nMaxWide = Max( nMaxWide, nWide );
-					nMaxTall = Max( nMaxTall, nTall );
+					// Construct and set the weapon's name
+					g_pVGuiLocalize->ConstructString_safe( wszLocString, L"%s1", 1, pItem->GetItemName() );
+					m_pCarryingWeaponPanel->SetDialogVariable( "carrying", wszLocString );
 
-					m_pCarryingBG->SetWide( nMaxWide + ( m_pCarryingLabel->GetXPos() * 2 ) );
-					m_pCarryingBG->SetTall( bHasOwner ? m_pCarryingOwnerLabel->GetYPos() + m_pCarryingOwnerLabel->GetTall() + YRES( 2 )
-													  : m_pCarryingLabel->GetYPos() + m_pCarryingLabel->GetTall() + YRES( 2 ) );
+					// Get and set the rarity color of the weapon
+					const char* pszColorName = GetItemSchema()->GetRarityColor( pItem->GetItemDefinition()->GetRarity() );
+					pszColorName = pszColorName ? pszColorName : "TanLight";
+					if ( pszColorName )
+					{
+						m_pCarryingLabel->SetColorStr( pszColorName );
+					}
+
+					// If weapon is strange... retool to show strange count in owner label!
+					uint32 unScore = 0;
+					if ( pItem && pItem->FindAttribute( GetKillEaterAttr_Score(0), &unScore ) )
+					{
+						locchar_t wszKillCountString [128];
+						bAddExtraLine = true;
+
+						// Try formatting as a simple string first to debug
+						wchar_t wszNumber [32];
+						V_snwprintf( wszNumber, sizeof(wszNumber) / sizeof(wchar_t), L"%d", (int)unScore );
+
+
+						// Extracting strange count type value to get the right localized string
+						uint32 unKillEaterType = 0;
+						bool bFoundUniqueKillEaterType = pItem->FindAttribute( GetKillEaterAttr_Type(0), &unKillEaterType );
+
+						float flValue;
+						// Need to convert pulled attribute so we can use to pull localization key from schema. This works :)
+						memcpy( &flValue, &unKillEaterType, sizeof(float) );
+						unKillEaterType = (uint32)flValue;
+
+						// Get the localization key for this strange count type
+						const char* pszLocalizedKey = GetItemSchema()->GetKillEaterScoreTypeLocString( unKillEaterType );
+
+						// Look up the localized string
+						const wchar_t* pwszLocalizedName = pszLocalizedKey ? g_pVGuiLocalize->Find( pszLocalizedKey ) : NULL;
+
+						if ( pszLocalizedKey != NULL )
+						{
+							g_pVGuiLocalize->ConstructString_safe( wszKillCountString,
+								L"%s1: %s2",
+								2,
+								g_pVGuiLocalize->Find( pszLocalizedKey ),
+								wszNumber );
+
+							m_pCarryingOwnerLabel->SetText( wszKillCountString );
+						}
+						else
+						{
+							m_pCarryingOwnerLabel->SetText( "" );
+						}
+					}
+					else
+					{
+						m_pCarryingOwnerLabel->SetText("");
+					}
 				}
 				else
 				{
 					bShowCarryingWeaponPanel = false;	
 				}
+
+				int nMaxWide = 0, nMaxTall = 0;
+				// Resize the panel to just be the width of whichever label is longer
+				int nTall, nWide;
+				m_pCarryingLabel->SizeToContents();
+				m_pCarryingLabel->GetContentSize(nWide, nTall);
+				nMaxWide = Max(nMaxWide, nWide);
+				nMaxTall = Max(nMaxTall, nTall);
+
+				m_pCarryingOwnerLabel->SizeToContents();
+				m_pCarryingOwnerLabel->GetContentSize(nWide, nTall);
+				nMaxWide = Max(nMaxWide, nWide);
+				nMaxTall = Max(nMaxTall, nTall);
+
+				m_pCarryingBG->SetWide(nMaxWide + (m_pCarryingLabel->GetXPos() * 2));
+				m_pCarryingBG->SetTall(bAddExtraLine ? m_pCarryingOwnerLabel->GetYPos() + m_pCarryingOwnerLabel->GetTall() + YRES(2)
+					: m_pCarryingLabel->GetYPos() + m_pCarryingLabel->GetTall() + YRES(2));
 			}
 		}
 		else
