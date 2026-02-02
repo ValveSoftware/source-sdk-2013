@@ -729,7 +729,7 @@ bool CHudItemEffectMeter_Weapon<CTFWeaponBase>::IsEnabled( void )
 {
 	C_TFPlayer *pTFPlayer = C_TFPlayer::GetLocalTFPlayer();
 
-	if ( pTFPlayer )
+	if ( pTFPlayer && ( !pTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) ) )
 	{
 		int iKillStreak = 0;
 		CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFPlayer, iKillStreak, killstreak_tier );
