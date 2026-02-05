@@ -326,7 +326,7 @@ CItemModelPanel *CBaseLoadoutPanel::FindBestPanelNavigationForDirection( const C
 	for ( int j = 0; j < m_pItemModelPanels.Count(); j++ )
 	{
 		CItemModelPanel *pTempPanel = m_pItemModelPanels[ j ];
-		if ( !pTempPanel || pTempPanel == pCurrentPanel )
+		if ( !pTempPanel || pTempPanel == pCurrentPanel || !pTempPanel->IsVisible() )
 			continue;
 
 		// Get temp center position
@@ -399,7 +399,7 @@ void CBaseLoadoutPanel::LinkModelPanelControllerNavigation( bool bForceRelink )
 			if ( pBestPanel )
 			{
 				pCurrentPanel->SetNavUp( pBestPanel->GetName() );
-				pBestPanel->SetNavDown( pCurrentPanel->GetName() );
+				//pBestPanel->SetNavDown( pCurrentPanel->GetName() );
 			}
 		}
 
@@ -409,7 +409,7 @@ void CBaseLoadoutPanel::LinkModelPanelControllerNavigation( bool bForceRelink )
 			if ( pBestPanel )
 			{
 				pCurrentPanel->SetNavDown( pBestPanel->GetName() );
-				pBestPanel->SetNavUp( pCurrentPanel->GetName() );
+				//pBestPanel->SetNavUp( pCurrentPanel->GetName() );
 			}
 		}
 
@@ -419,7 +419,7 @@ void CBaseLoadoutPanel::LinkModelPanelControllerNavigation( bool bForceRelink )
 			if ( pBestPanel )
 			{
 				pCurrentPanel->SetNavLeft( pBestPanel->GetName() );
-				pBestPanel->SetNavRight( pCurrentPanel->GetName() );
+				//pBestPanel->SetNavRight( pCurrentPanel->GetName() );
 			}
 		}
 
@@ -429,7 +429,7 @@ void CBaseLoadoutPanel::LinkModelPanelControllerNavigation( bool bForceRelink )
 			if ( pBestPanel )
 			{
 				pCurrentPanel->SetNavRight( pBestPanel->GetName() );
-				pBestPanel->SetNavLeft( pCurrentPanel->GetName() );
+				//pBestPanel->SetNavLeft( pCurrentPanel->GetName() );
 			}
 		}
 	}
