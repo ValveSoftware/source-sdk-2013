@@ -47,6 +47,225 @@
 // PASS Fortress replacements
 //-----------------------------------------------------------------------------
 
+"Announcer.RoundBegins10Seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*p4ss/merasmus/merasmus_10sec.wav"
+}
+
+"Announcer.RoundBegins1Seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*p4ss/merasmus/merasmus_1sec.wav"
+}
+
+"Announcer.RoundBegins20Seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"misc/null.wav"
+}
+
+"Announcer.RoundBegins2Seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*p4ss/merasmus/merasmus_2sec.wav"
+}
+
+"Announcer.RoundBegins30Seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*passtime/horn_air2.wav"
+}
+
+"Announcer.RoundBegins3Seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*p4ss/merasmus/merasmus_3sec.wav"
+}
+
+"Announcer.RoundBegins4Seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*p4ss/merasmus/merasmus_4sec.wav"
+}
+
+"Announcer.RoundBegins5Seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*p4ss/merasmus/merasmus_5sec.wav"
+}
+
+"Announcer.RoundBegins60Seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*passtime/horn_air1.wav"
+}
+
+"Announcer.RoundEnds10seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*passtime/horn_air3.wav"
+}
+
+"Announcer.RoundEnds1seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*p4ss/merasmus/merasmus_1sec.wav"
+}
+
+"Announcer.RoundEnds20seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"misc/null.wav"
+}
+
+"Announcer.RoundEnds2minutes"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"misc/null.wav"
+}
+
+"Announcer.RoundEnds2seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*p4ss/merasmus/merasmus_2sec.wav"
+}
+
+"Announcer.RoundEnds30seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*passtime/horn_air2.wav"
+}
+
+"Announcer.RoundEnds3seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*p4ss/merasmus/merasmus_3sec.wav"
+}
+
+"Announcer.RoundEnds4seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*p4ss/merasmus/merasmus_4sec.wav"
+}
+
+"Announcer.RoundEnds5minutes"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*passtime/horn_air4.wav"
+}
+
+"Announcer.RoundEnds5seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*p4ss/merasmus/merasmus_5sec.wav"
+}
+
+"Announcer.RoundEnds60seconds"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NONE"
+
+	"wave"			"*passtime/horn_air1.wav"
+}
 
 "Soldier.AutoCappedIntelligence01"
 {
@@ -1054,226 +1273,6 @@
 	"soundlevel"	"SNDLVL_65dB"
 
 	"wave"			"vo/announcer_defend_intel.mp3"
-}
-
-"Announcer.RoundBegins10Seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_begins_10sec.mp3"
-}
-
-"Announcer.RoundBegins1Seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_begins_1sec.mp3"
-}
-
-"Announcer.RoundBegins20Seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_begins_20sec.mp3"
-}
-
-"Announcer.RoundBegins2Seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_begins_2sec.mp3"
-}
-
-"Announcer.RoundBegins30Seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_begins_30sec.mp3"
-}
-
-"Announcer.RoundBegins3Seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_begins_3sec.mp3"
-}
-
-"Announcer.RoundBegins4Seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_begins_4sec.mp3"
-}
-
-"Announcer.RoundBegins5Seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_begins_5sec.mp3"
-}
-
-"Announcer.RoundBegins60Seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_begins_60sec.mp3"
-}
-
-"Announcer.RoundEnds10seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_ends_10sec.mp3"
-}
-
-"Announcer.RoundEnds1seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_ends_1sec.mp3"
-}
-
-"Announcer.RoundEnds20seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_ends_20sec.mp3"
-}
-
-"Announcer.RoundEnds2minutes"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_ends_2min.mp3"
-}
-
-"Announcer.RoundEnds2seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_ends_2sec.mp3"
-}
-
-"Announcer.RoundEnds30seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_ends_30sec.mp3"
-}
-
-"Announcer.RoundEnds3seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_ends_3sec.mp3"
-}
-
-"Announcer.RoundEnds4seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_ends_4sec.mp3"
-}
-
-"Announcer.RoundEnds5minutes"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_ends_5min.mp3"
-}
-
-"Announcer.RoundEnds5seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_ends_5sec.mp3"
-}
-
-"Announcer.RoundEnds60seconds"
-{
-	"channel"		"CHAN_VOICE2"
-	"volume"		"VOL_NORM"
-	"pitch"			"PITCH_NORM"
-
-	"soundlevel"	"SNDLVL_NONE"
-
-	"wave"			"vo/announcer_ends_60sec.mp3"
 }
 
 "Announcer.RoundEnds6seconds"

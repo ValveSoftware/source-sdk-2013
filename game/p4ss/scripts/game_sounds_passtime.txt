@@ -215,6 +215,48 @@
 	}
 }
 
+"Passtime.Merasmus.Deathbomb"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"0.5"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"rndwave"
+	{
+		"wave"	"*p4ss/merasmus/disgusting.wav"
+	}
+}
+
+"Passtime.Merasmus.Why"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"0.5"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"rndwave"
+	{
+		"wave"	"*p4ss/merasmus/why.wav"
+	}
+}
+
+"Passtime.Merasmus.Overtime"
+{
+	"channel"		"CHAN_VOICE2"
+	"volume"		"0.5"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"rndwave"
+	{
+		"wave"	"*p4ss/merasmus/overtime1.wav"
+		"wave"	"*p4ss/merasmus/overtime2.wav"
+		"wave"	"*p4ss/merasmus/overtime3.wav"
+		"wave"	"*p4ss/merasmus/overtime4.wav"
+		"wave"	"*p4ss/merasmus/overtime5.wav"
+		"wave"	"*p4ss/merasmus/overtime6.wav"
+		"wave"	"*p4ss/merasmus/overtime7.wav"
+	}
+}
+
 "Passtime.AskForBall"
 {
 	"channel"		"CHAN_AUTO"

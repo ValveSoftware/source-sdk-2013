@@ -47,6 +47,38 @@
 //	SNDLVL_140dB	= 140,	// 0.2
 //	SNDLVL_150dB	= 150,	// 0.2
 
+
+//-----------------------------------------------------------------------------
+// PASS Fortress replacements
+//-----------------------------------------------------------------------------
+
+"Game.YourTeamLost"
+{
+	"channel"	"CHAN_AUTO"
+	"volume"	"1"
+	"soundlevel"	"SNDLVL_140dB"
+	"pitch"		"PITCH_NORM"
+
+	"rndwave"
+	{
+		"wave"	"*p4ss/merasmus/your_team_lost1.wav"
+		"wave"	"*p4ss/merasmus/your_team_lost2.wav"
+		"wave"	"*p4ss/merasmus/your_team_lost3.wav"
+	}
+}
+
+"Game.YourTeamWon"
+{
+	"channel"	"CHAN_AUTO"
+	"volume"	"1"
+	"soundlevel"	"SNDLVL_140dB"
+	"pitch"		"PITCH_NORM"
+
+	"wave"		"#misc/your_team_won.mp3"	[$WIN32]
+}
+
+//END OF PASS FORTRESS EDITS
+
 "vox/null"
 {
 	"channel"		"CHAN_STATIC"
@@ -775,28 +807,6 @@
 		"wave"	"vo/announcer_overtime3.mp3"
 		"wave"	"vo/announcer_overtime4.mp3"
 	}
-}
-
-"Game.YourTeamLost"
-{
-	"channel"	"CHAN_AUTO"
-	"volume"	"1"
-	"soundlevel"	"SNDLVL_140dB"
-	"pitch"		"PITCH_NORM"
-
-	"wave"		"#misc/your_team_lost.mp3"	[$WIN32]
-	"wave"		"#misc/your_team_lost.wav"	[$X360]
-}
-
-"Game.YourTeamWon"
-{
-	"channel"	"CHAN_AUTO"
-	"volume"	"1"
-	"soundlevel"	"SNDLVL_140dB"
-	"pitch"		"PITCH_NORM"
-
-	"wave"		"#misc/your_team_won.mp3"	[$WIN32]
-	"wave"		"#misc/your_team_won.wav"	[$X360]
 }
 
 "Game.Revenge"
