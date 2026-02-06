@@ -411,8 +411,8 @@ bool CTFDroppedWeapon::IsVisibleToTargetID( void ) const
 //-----------------------------------------------------------------------------
 CTFDroppedWeapon *CTFDroppedWeapon::Create( CTFPlayer *pLastOwner, const Vector &vecOrigin, const QAngle &vecAngles, const char *pszModelName, const CEconItemView *pItem )
 {
-	// don't drop weapon in MVM
-	if ( TFGameRules()->IsMannVsMachineMode() )
+	// don't drop weapon in MVM or in pass time
+	if ( TFGameRules()->IsMannVsMachineMode() || TFGameRules()->IsPasstimeMode() )
 		return NULL;
 
 	int nNumRemoved = 0;

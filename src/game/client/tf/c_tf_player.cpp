@@ -950,7 +950,6 @@ void C_TFRagdoll::CreateTFRagdoll()
 		AngularImpulse angularImpulse( RandomFloat( 0.0f, 120.0f ), RandomFloat( 0.0f, 120.0f ), 0.0 );
 		breakablepropparams_t breakParams( m_vecRagdollOrigin, GetRenderAngles(), m_vecRagdollVelocity, angularImpulse );
 		breakParams.impactEnergyScale = 1.0f;
-		pPlayer->DropPartyHat( breakParams, m_vecRagdollVelocity.GetForModify() );
 	}
 
 	const char *materialOverrideFilename = NULL;
@@ -2493,12 +2492,6 @@ CEconItemView *GetEconItemViewFromProxyEntity( void *pEntity )
 		if ( pViewModel && pViewModel->GetWeapon() )
 		{
 			return pViewModel->GetWeapon()->GetAttributeContainer()->GetItem();
-		}
-
-		CTFDroppedWeapon *pDroppedWeapon = dynamic_cast<CTFDroppedWeapon*>( pBaseEntity );
-		if ( pDroppedWeapon && pDroppedWeapon->GetItem() && pDroppedWeapon->GetItem()->GetItemDefIndex() != INVALID_ITEM_DEF_INDEX )
-		{
-			return pDroppedWeapon->GetItem();
 		}
 	}
 	// No direct entity, might be a EconItem (PlayerModelPanels)
@@ -7152,34 +7145,6 @@ void C_TFPlayer::CreatePlayerGibs( const Vector &vecOrigin, const Vector &vecVel
 			CheckAndUpdateGibType();
 			m_hFirstGib = CreateGibsFromList( m_aGibs, nModelIndex, NULL, breakParams, this, -1 , false, true, &m_hSpawnedGibs, bBurning );
 		}
-		DropPartyHat( breakParams, vecBreakVelocity );
-	}
-	else
-	{
-		// Gib up the player's clothing.
-		for ( int i=0; i<GetNumWearables(); ++i )
-		{
-			C_TFWearable *pItem = dynamic_cast<C_TFWearable*> (GetWearable(i));
-
-			if ( !pItem )
-				continue;
-
-			// Don't try to drop items which haven't loaded yet
-			if ( !pItem->GetModel() || !pItem->GetModelPtr() )
-				continue;
-
-			// Only drop wearable gibs for wearables that are flagged as droppable.
-			if ( pItem->GetDropType() != ITEM_DROP_TYPE_DROP )
-				continue;
-
-			if ( pItem->IsDisguiseWearable() && !bDisguiseGibs )
-				continue;
-
-			if ( !pItem->IsDisguiseWearable() && bDisguiseGibs )
-				continue;
-
-			DropWearable( pItem, breakParams );
-		}
 	}
 }
 
@@ -9826,8 +9791,6 @@ void C_TFPlayer::CreateBoneAttachmentsFromWearables( C_TFRagdoll *pRagdoll, bool
 
 		pItem->OnWearerDeath();
 
-		if ( pItem->GetDropType() >= ITEM_DROP_TYPE_DROP )
-			continue;
 
 		CAttributeContainer *pCont		   = pItem->GetAttributeContainer();
 		CEconItemView		*pEconItemView = pCont ? pCont->GetItem() : NULL;
