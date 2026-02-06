@@ -3770,9 +3770,10 @@ void CEconItemDescription::LocalizedAddDescLine( const CLocalizationProvider *pL
 class CGameItemDefinition_EconItemInterfaceWrapper : public CMaterialOverrideContainer< IEconItemInterface >
 {
 public:
-	CGameItemDefinition_EconItemInterfaceWrapper( const CEconItemDefinition *pEconItemDefinition, entityquality_t eQuality )
+	CGameItemDefinition_EconItemInterfaceWrapper( const CEconItemDefinition *pEconItemDefinition, entityquality_t eQuality, uint32 nPaintkitDefIndex )
 		: m_pEconItemDefinition( pEconItemDefinition )
 		, m_eQuality( eQuality )
+		, m_nPaintkitDefIndex(nPaintkitDefIndex)
 	{
 		Assert( m_pEconItemDefinition );
 	}
@@ -3791,6 +3792,7 @@ public:
 
 	virtual const char	   *GetCustomName() const { return NULL; }
 	virtual const char	   *GetCustomDesc() const { return NULL; }
+	virtual uint32			GetPaintkitDefIndex() const { return m_nPaintkitDefIndex; }
 
 	// IEconItemInterface attribute iteration interface. This is not meant to be used for
 	// attribute lookup! This is meant for anything that requires iterating over the full
@@ -3800,21 +3802,31 @@ public:
 		Assert( pIterator );
 
 		m_pEconItemDefinition->IterateAttributes( pIterator );
+
+		if (m_nPaintkitDefIndex != 0)
+		{
+			static CSchemaAttributeDefHandle pAttrDef_PaintKitProtoDefIndex( "paintkit_proto_def_index" );
+			if (pAttrDef_PaintKitProtoDefIndex)
+			{
+				pIterator->OnIterateAttributeValue(pAttrDef_PaintKitProtoDefIndex, (attrib_value_t)m_nPaintkitDefIndex);
+			}
+		}
 	}
 
 private:
 	const CEconItemDefinition *m_pEconItemDefinition;
 	entityquality_t m_eQuality;
+	uint32 m_nPaintkitDefIndex;
 };
 
 // --------------------------------------------------------------------------
 // Purpose:
 // --------------------------------------------------------------------------
-CEconItemLocalizedFullNameGenerator::CEconItemLocalizedFullNameGenerator( const CLocalizationProvider *pLocalizationProvider, const CEconItemDefinition *pItemDef, bool bUseProperName, entityquality_t eQuality )
+CEconItemLocalizedFullNameGenerator::CEconItemLocalizedFullNameGenerator( const CLocalizationProvider *pLocalizationProvider, const CEconItemDefinition *pItemDef, bool bUseProperName, entityquality_t eQuality, uint32 nPaintkitDefIndex )
 {
 	Assert( pItemDef );
 
-	CGameItemDefinition_EconItemInterfaceWrapper EconItemDefinitionWrapper( pItemDef, eQuality );
+	CGameItemDefinition_EconItemInterfaceWrapper EconItemDefinitionWrapper( pItemDef, eQuality, nPaintkitDefIndex );
 	GenerateLocalizedFullItemName( m_loc_LocalizedItemName, pLocalizationProvider, &EconItemDefinitionWrapper, k_EGenerateLocalizedFullItemName_Default, bUseProperName );
 }
 

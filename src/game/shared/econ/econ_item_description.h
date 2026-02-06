@@ -351,7 +351,7 @@ enum EGenerateLocalizedFullItemNameFlag_t
 class CEconItemLocalizedFullNameGenerator
 {
 public:
-	CEconItemLocalizedFullNameGenerator( const CLocalizationProvider *pLocalizationProvider, const CEconItemDefinition *pItemDef, bool bUseingHashContext = true, entityquality_t eQuality = AE_UNIQUE );
+	CEconItemLocalizedFullNameGenerator( const CLocalizationProvider* pLocalizationProvider, const CEconItemDefinition* pItemDef, bool bUseingHashContext = false, entityquality_t eQuality = AE_UNIQUE, uint32 nPaintkitDefIndex = 0 );
 
 	const locchar_t *GetFullName() const { return m_loc_LocalizedItemName; }
 

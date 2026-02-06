@@ -314,13 +314,17 @@ void CTFHudPlayerClass::OnThink()
 			{
 				CSteamID playerSteamID;
 				pPlayer->GetSteamID( &playerSteamID );
+
+				uint32 unPaintKitIndexNum = 0;
+				bool hasPaintKitIndex = GetPaintKitDefIndex( pItem, &unPaintKitIndexNum );
+
 				// We're holding a weapon we dont own!
 				if ( playerSteamID.GetAccountID() != pItem->GetAccountID() && m_pCarryingLabel )
 				{
 					locchar_t wszLocString [128];
 
 					// Construct and set the weapon's name
-					g_pVGuiLocalize->ConstructString_safe( wszLocString, L"%s1", 1, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pItem->GetItemDefinition(), pItem->GetItemQuality() ).GetFullName() );
+					g_pVGuiLocalize->ConstructString_safe( wszLocString, L"%s1", 1, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pItem->GetItemDefinition(), true, pItem->GetItemQuality(), ( hasPaintKitIndex ? unPaintKitIndexNum : 0 ) ).GetFullName() );
 					m_pCarryingWeaponPanel->SetDialogVariable( "carrying", wszLocString );
 
 					// Get and set the rarity color of the weapon
