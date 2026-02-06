@@ -223,7 +223,21 @@
 	"soundlevel"	"SNDLVL_NONE"
 	"rndwave"
 	{
-		"wave"	"*p4ss/merasmus/disgusting.wav"
+		"wave"	"*p4ss/merasmus/deathbomb1.wav"
+		"wave"	"*p4ss/merasmus/deathbomb2.wav"
+		"wave"	"*p4ss/merasmus/deathbomb3.wav"
+		"wave"	"*p4ss/merasmus/deathbomb4.wav"
+		"wave"	"*p4ss/merasmus/deathbomb5.wav"
+		"wave"	"*p4ss/merasmus/deathbomb6.wav"
+		"wave"	"*p4ss/merasmus/deathbomb7.wav"
+		"wave"	"*p4ss/merasmus/deathbomb8.wav"
+		"wave"	"*p4ss/merasmus/deathbomb9.wav"
+		"wave"	"*p4ss/merasmus/deathbomb10.wav"
+		"wave"	"*p4ss/merasmus/deathbomb11.wav"
+		"wave"	"*p4ss/merasmus/deathbomb12.wav"
+		"wave"	"*p4ss/merasmus/deathbomb13.wav"
+		"wave"	"*p4ss/merasmus/deathbomb14.wav"
+		"wave"	"*p4ss/merasmus/deathbomb15.wav"
 	}
 }
 

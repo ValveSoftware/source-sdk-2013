@@ -49,13 +49,13 @@
 
 "Announcer.RoundBegins10Seconds"
 {
-	"channel"		"CHAN_VOICE2"
+	"channel"		"CHAN_STATIC"
 	"volume"		"VOL_NORM"
 	"pitch"			"PITCH_NORM"
 
 	"soundlevel"	"SNDLVL_NONE"
 
-	"wave"			"*p4ss/merasmus/merasmus_10sec.wav"
+	"wave"			"misc/null.wav"
 }
 
 "Announcer.RoundBegins1Seconds"
@@ -71,7 +71,7 @@
 
 "Announcer.RoundBegins20Seconds"
 {
-	"channel"		"CHAN_VOICE2"
+	"channel"		"CHAN_STATIC"
 	"volume"		"VOL_NORM"
 	"pitch"			"PITCH_NORM"
 
@@ -170,7 +170,7 @@
 
 "Announcer.RoundEnds20seconds"
 {
-	"channel"		"CHAN_VOICE2"
+	"channel"		"CHAN_STATIC"
 	"volume"		"VOL_NORM"
 	"pitch"			"PITCH_NORM"
 
@@ -181,7 +181,7 @@
 
 "Announcer.RoundEnds2minutes"
 {
-	"channel"		"CHAN_VOICE2"
+	"channel"		"CHAN_STATIC"
 	"volume"		"VOL_NORM"
 	"pitch"			"PITCH_NORM"
 
