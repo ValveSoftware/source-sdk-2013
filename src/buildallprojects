@@ -17,7 +17,7 @@ else
     elif [[ "$1" == "release" ]]; then
         export VPC_NINJA_BUILD_MODE="release"
     else
-        echo "Usage: $0 [debug|release]"
+        echo "Usage: $0 [debug|release] [clean] [playtest]"
         exit 1
     fi
 fi
@@ -32,8 +32,15 @@ if [[ $# -ge 2 ]]; then
 fi
 
 
+playtest=""
+if [[ $# -ge 3 ]]; then
+    if [[ "$3" == "playtest" ]]; then
+        playtest="/define:PLAYTEST"
+    fi
+fi
+
 if [[ ! -e "$solution_out.ninja" ]] || [[ "$should_clean" = true ]]; then
-    devtools/bin/vpc /tf /linux64 /ninja /define:SOURCESDK +everything /mksln "$solution_out"
+    devtools/bin/vpc /tf /linux64 /ninja /define:SOURCESDK $playtest +everything /mksln "$solution_out"
 
     # Generate compile commands.
     ninja -f "$solution_out.ninja" -t compdb > compile_commands.json
