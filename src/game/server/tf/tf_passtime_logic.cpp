@@ -1017,7 +1017,7 @@ void CTFPasstimeLogic::SpawnBallAtRandomSpawnerThink()
 		SetContextThink( &CTFPasstimeLogic::SpawnBallAtRandomSpawnerThink, gpGlobals->curtime + 1, "spawnball" );
 	}
 
-	if ( (int)m_pRespawnCountdown->GetTimeRemain() == 10 )
+	if ( (int)m_pRespawnCountdown->GetTimeRemain() == 11 )
 	{
 		// P4SS: hud show countdown timer
 		CBroadcastRecipientFilter filter;
