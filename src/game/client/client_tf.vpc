@@ -151,8 +151,10 @@ $Project "Client (TF)"
 			$File	"tf\c_tf_passtime_ball.h"
 			$File	"tf\c_tf_passtime_logic.cpp"
 			$File	"tf\c_tf_passtime_logic.h"
-			$File "tf\p4ssutils.cpp"
-			$File "tf\p4ssutils.h"
+			$File	"tf\p4ssutils.cpp"
+			$File	"tf\p4ssutils.h"
+			$File	"tf\pf_hud_buildinfo.cpp"
+			$File	"tf\pf_hud_buildinfo.h"
 			$File	"tf\tf_hud_passtime.cpp"
 			$File	"tf\tf_hud_passtime.h"
 			$File	"tf\tf_hud_passtime_ball_countdown.cpp"
@@ -778,4 +780,6 @@ $Project "Client (TF)"
 		$File "$SRCDIR\..\game\tf\resource\ClientScheme.res"
 	}
 }
+
+
 

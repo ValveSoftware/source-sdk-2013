@@ -43,6 +43,9 @@ fi
 sed -i "s|/my_mod/src|$THIS_DIR|g" compile_commands.json
 sed -i "s|_vpc_/ninja/debug/$THIS_DIR|_vpc_/ninja/debug|g" compile_commands.json
 
-ninja -f "$solution_out.ninja" -j$(nproc)
+# This is disgusting.
+touch buildinfo/dummy.dummy
+
+ninja -f "$solution_out.ninja"
 
 popd > /dev/null

@@ -1,0 +1,106 @@
+/// buildinfo.vpc
+/// Purpose: Dynamically generate a string at build time corresponding to 
+/// build properties and details.
+
+$Macro SRCDIR		".."
+$include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+
+$Configuration
+{
+    // This is evil, but we have to because otherwise
+    // VS doesn't think anything's changed.
+    $PreBuildEvent [$WINDOWS]
+    {
+        $CommandLine        "python $SRCDIR/devtools/dummyfile.py > $SRCDIR/buildinfo/dummy.cpp"
+        $Description        "WINDOWS: Creating dummyfile for this build, in case you didn't have it."
+    }
+    $PostBuildEvent [$WINDOWS]
+    {
+        $CommandLine        "python $SRCDIR/devtools/dummyfile.py > $SRCDIR/buildinfo/dummy.cpp"
+        $Description        "WINDOWS: Creating dummyfile for next build."
+    }
+}
+
+$Project "Build Info"
+{
+    $Folder "Public Header Files"
+    {
+        $DynamicFile "$SRCDIR\public\buildinfo\buildinfo.h"
+    }
+    $Folder "Source Files"
+    {
+        $File "$SRCDIR\devtools\genbuildinfo.py"
+        $File "$SRCDIR\devtools\dummyfile.py"
+    }
+    $Folder "Codegen"
+    {
+        $DynamicFile "$SRCDIR\buildinfo\dummy.cpp" [$WINDOWS] // Otherwise VS doesn't rebuild on Windows.
+        $File "$SRCDIR\buildinfo\dummy.dummy" // Fake file. Included to make a rebuild.
+        {
+            $Configuration
+            {
+                $CustomBuildStep
+                {
+                    $Description        "Creating buildinfo..."
+                    $CommandLine        "python $SRCDIR/devtools/genbuildinfo.py > $SRCDIR/buildinfo/buildinfo.gen.cpp" " && " \
+                                        "python $SRCDIR/devtools/dummyfile.py > $SRCDIR/buildinfo/dummy.dummy"
+                    $Outputs            "$SRCDIR\buildinfo\buildinfo.gen.cpp"
+                }               
+            }
+        }
+        $DynamicFile "$SRCDIR\buildinfo\buildinfo.gen.cpp"
+        {
+            $Configuration
+            {
+                $Compiler
+                {
+                    $Create/UsePrecompiledHeader    "Not Using Precompiled Headers" [$WINDOWS]
+                }
+            }
+        }
+    }
+    //$Folder "Windows Codegen" [$WINDOWS]
+    //{
+    //    $DynamicFile "$SRCDIR\buildinfo\dummy.cpp" 
+    //    {
+    //        $Configuration
+	//		{
+	//			$Compiler 
+	//			{
+	//				$Create/UsePrecompiledHeader	"Not Using Precompiled Headers" [$WINDOWS]
+	//			}
+	//		}
+    //    }
+    //}
+//
+    //$Folder "Linux Codegen" [$POSIX]
+    //{
+    //    // lucy: This is the most evil line in the entire
+    //    // codebase
+    //    // This file is always modified, so ninja will always
+    //    // recompile it
+    //    $File "/proc/self/environ"
+    //    {
+    //        $Configuration 
+    //        {
+    //            $CustomBuildStep
+    //            {
+	//                $CommandLine "python $SRCDIR/devtools/genbuildinfo.py > $SRCDIR/game/client/generated_p4ss/buildinfo.gen.cpp"
+    //                $Outputs    "$SRCDIR\public\buildinfo\buildinfo.h"
+	//                $Description   "Generating build info..."
+    //            }
+    //        }
+    //    }
+    //}
+}
+
+//$Configuration
+//{
+//    $PreBuildEvent [$WINDOWS]
+//	{
+//		$CommandLine		"python $SRCDIR/devtools/genbuildinfo.py > $SRCDIR/public/buildinfo/buildinfo.h" "\n" \
+//                            "python $SRCDIR/devtools/dummyfile.py > $SRCDIR/buildinfo/dummy.cpp"
+//        $Description        "Generating buildinfo..."
+//	}
+
+
