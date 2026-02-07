@@ -1,4 +1,4 @@
-"Resource/UI/HudPasstimeTeamScore.res"
+"resource/ui/hudpasstimeteamscore.res"
 {
 	"HudTeamScore"
 	{

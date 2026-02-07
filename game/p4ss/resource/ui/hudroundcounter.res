@@ -1,4 +1,4 @@
-"Resource/UI/HudRoundCounter.res"
+"resource/ui/hudroundcounter.res"
 {
 	"RoundCounter"
 	{

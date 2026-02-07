@@ -1,4 +1,4 @@
-"Resource/UI/TextWindow.res"
+"resource/ui/textwindow.res"
 {
 	"info"
 	{
@@ -62,7 +62,7 @@
 		"visible"		"1"
 		"enabled"		"1"
 		"tabPosition"	"0"	
-		"image"			"../hud/modulate"
+		"image"			"../hud/blank"
 		"tileImage"		"1"
 		"PaintBackgroundType"	"0"
 		"drawcolor"		"100 140 70 255"

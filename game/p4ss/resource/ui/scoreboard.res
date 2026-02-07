@@ -1,4 +1,4 @@
-"Resource/UI/Scoreboard.res"
+"resource/ui/scoreboard.res"
 {
 
 //Possibly broken in 4:3. MvM completely broken but who cares.

@@ -1,4 +1,4 @@
-"Resource/UI/notifications/notify_passtime_howto.res"
+"resource/ui/notifications/notify_passtime_howto.res"
 {
 	"Notification_Background"
 	{

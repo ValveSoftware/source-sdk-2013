@@ -1,4 +1,4 @@
-"Resource/UI/HudMatchStatus.res"
+"resource/ui/hudmatchstatus.res"
 {
 	"HudMatchStatus"
 	{
