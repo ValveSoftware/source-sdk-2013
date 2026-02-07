@@ -1177,12 +1177,11 @@
 		"fieldName"				"HudStopWatch"
 		"visible"				"1"
 		"enabled"				"1"
-		"xpos"					"c-160"
-		"ypos"					"5"
-		"ypos_minmode"				"15"
-		"ypos_lodef"				"75"
+		"xpos"					"cs-0.5"
+		"ypos"					"r75"
 		"wide"					"125"
 		"tall"					"70"
+		"proportionaltoparent"	"1"
 	}
 	
 	NotificationPanel
