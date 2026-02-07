@@ -1531,5 +1531,18 @@
 		"mouseinputenabled"		"0"
 		"alpha"					"100"
 	}
+	
+	"HudSpeedo"
+	{
+		"fieldName"		"HudSpeedo"
+		"visible"		"1"
+		"enabled"		"1"
+		"xpos"			"cs-0.5"
+		"ypos"			"r160"
+		"zpos"			"1"
+		"wide"			"110"
+		"tall"			"50"
+
+	}	
 }
 
