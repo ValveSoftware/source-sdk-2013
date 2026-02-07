@@ -295,7 +295,7 @@ int	CTFWearable::InternalDrawModel( int flags )
 	}
 
 	bool bUseInvulnMaterial = ( pOwner && pOwner->m_Shared.IsInvulnerable() && 
-							    ( !pOwner->m_Shared.InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGED ) || gpGlobals->curtime < pOwner->GetLastDamageTimeMvMOnly() + 2.0f ) );
+								( !pOwner->m_Shared.InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGED ) || gpGlobals->curtime < pOwner->GetLastDamageTimeMvMOnly() + 2.0f ) );
 
 	if ( bUseInvulnMaterial && (flags & STUDIO_RENDER) )
 	{

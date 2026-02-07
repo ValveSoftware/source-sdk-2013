@@ -10632,9 +10632,10 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	}
 
 	m_flLastDamageTime = gpGlobals->curtime; // not networked
-	if ( TFGameRules()->IsMannVsMachineMode() )
+	if ( TFGameRules()->IsMannVsMachineMode() || m_Shared.InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGED ) )
 	{
 		// We only need damage time networked while in MvM
+		// also set it if victim has INVULNERABLE_HIDE_UNLESS_DAMAGED
 		m_flMvMLastDamageTime = gpGlobals->curtime;
 	}
 

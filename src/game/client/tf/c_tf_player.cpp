@@ -8334,7 +8334,9 @@ bool C_TFPlayer::IsOverridingViewmodel( void )
 		pPlayer = assert_cast<C_TFPlayer*>(pLocalPlayer->GetObserverTarget());
 	}
 
-	if ( pPlayer->m_Shared.IsInvulnerable() )
+	bool bUseInvulnMaterial = ( pPlayer->m_Shared.IsInvulnerable() && 
+								( !pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGED ) || gpGlobals->curtime < pPlayer->GetLastDamageTimeMvMOnly() + 2.0f ) );
+	if ( bUseInvulnMaterial )
 		return true;
 
 	return BaseClass::IsOverridingViewmodel();
@@ -8369,7 +8371,9 @@ int	C_TFPlayer::DrawOverriddenViewmodel( C_BaseViewModel *pViewmodel, int flags 
 		pPlayer = assert_cast<C_TFPlayer*>(pLocalPlayer->GetObserverTarget());
 	}
 
-	if ( pPlayer->m_Shared.IsInvulnerable() )
+	bool bUseInvulnMaterial = ( pPlayer->m_Shared.IsInvulnerable() && 
+								( !pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGED ) || gpGlobals->curtime < pPlayer->GetLastDamageTimeMvMOnly() + 2.0f ) );
+	if ( bUseInvulnMaterial )
 	{
 		if ( flags & STUDIO_RENDER )
 		{
