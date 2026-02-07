@@ -1,4 +1,4 @@
-"Resource/UI/HudTournament.res"
+"resource/ui/hudtournament.res"
 {
 	HudTournament
 	{

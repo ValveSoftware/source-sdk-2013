@@ -1,4 +1,4 @@
-"Resource/UI/HudPasstimeCountdown.res"
+"resource/ui/hudpasstimecountdown.res"
 {
 	"HudPasstimeCountdown"
 	{

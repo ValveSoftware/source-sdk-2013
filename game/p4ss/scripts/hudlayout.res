@@ -1,4 +1,4 @@
-"Resource/HudLayout.res"
+"resource/hudlayout.res"
 {
 	HudBuildInfo
 	{

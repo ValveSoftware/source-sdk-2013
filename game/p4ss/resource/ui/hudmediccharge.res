@@ -1,4 +1,4 @@
-"Resource/UI/HudMedicCharge.res"
+"resource/ui/hudmediccharge.res"
 {	
 	"Background"
 	{

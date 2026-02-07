@@ -1,4 +1,4 @@
-"Resource/UI/TargetID.res"
+"resource/ui/targetid.res"
 {
 	"TargetIDBG"
 	{

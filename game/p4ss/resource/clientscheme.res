@@ -6204,7 +6204,7 @@ Scheme
 		"2" "resource/tfd.ttf"
 		"3"
 		{
-			"font" "resource/TF2.ttf"
+			"font" "resource/tf2.ttf"
 			"name" "TF2"
 			"russian"
 			{
@@ -6217,7 +6217,7 @@ Scheme
 		}
 		"4" 
 		{
-			"font" "resource/TF2Secondary.ttf"
+			"font" "resource/tf2secondary.ttf"
 			"name" "TF2 Secondary"
 			"russian"
 			{
@@ -6230,7 +6230,7 @@ Scheme
 		}
 		"5" 
 		{
-			"font" "resource/TF2Professor.ttf"
+			"font" "resource/tf2professor.ttf"
 			"name" "TF2 Professor"
 			"russian"
 			{
@@ -6243,7 +6243,7 @@ Scheme
 		}	
 		"6" 
 		{
-			"font" "resource/TF2Build.ttf"
+			"font" "resource/tf2build.ttf"
 			"name" "TF2 Build"
 			"russian"
 			{
@@ -6319,55 +6319,55 @@ Scheme
 				"range" "0x0000 0x007E"
 			}
 		}
-		"10"		"resource/linux_fonts/DejaVuSans.ttf"
-		"11"		"resource/linux_fonts/DejaVuSans-Bold.ttf"
-		"12"		"resource/linux_fonts/DejaVuSans-BoldOblique.ttf"
-		"13"		"resource/linux_fonts/DejaVuSans-Oblique.ttf"
-		"14"		"resource/linux_fonts/LiberationSans-Regular.ttf"
-		"15"		"resource/linux_fonts/LiberationSans-Bold.ttf"
-		"16"		"resource/linux_fonts/LiberationMono-Regular.ttf"
-		"17"		"resource/linux_fonts/FiraSans-Regular.ttf"
+		"10"		"resource/linux_fonts/dejavusans.ttf"
+		"11"		"resource/linux_fonts/dejavusans-bold.ttf"
+		"12"		"resource/linux_fonts/dejavusans-boldoblique.ttf"
+		"13"		"resource/linux_fonts/dejavusans-oblique.ttf"
+		"14"		"resource/linux_fonts/liberationsans-regular.ttf"
+		"15"		"resource/linux_fonts/liberationsans-bold.ttf"
+		"16"		"resource/linux_fonts/liberationmono-regular.ttf"
+		"17"		"resource/linux_fonts/firasans-regular.ttf"
 		
 		//Bobby Joe's Custom Fonts Installation :D
 		
 		"18"	//Compacta Regular
 		{
-				"font"	"resource/fonts/Compacta-BT.ttf"
+				"font"	"resource/fonts/compacta-bt.ttf"
 				"name"	"Compacta BT"
 		}
 		"19"	//Compacta Black
 		{
-				"font"	"resource/fonts/Compacta-BT-Black.ttf"
+				"font"	"resource/fonts/compacta-bt-black.ttf"
 				"name"	"Compacta BT Black"
 		}
 		"20"	//Glyphs font
 		{
-				"font"	"resource/fonts/TF2-Glyphs.ttf"
+				"font"	"resource/fonts/tf2-glyphs.ttf"
 				"name"	"Bobby's TF2 Glyphs"
 		}
 		"21"
 		{
-				"font"	"resource/fonts/Futura-Condensed-Demi.ttf"
+				"font"	"resource/fonts/futura-condensed-demi.ttf"
 				"name"	"Futura Condensed Demi Regular"
 		}
 		"22"
 		{
-				"font"	"resource/fonts/Montserrat-Black.ttf"
+				"font"	"resource/fonts/montserrat-black.ttf"
 				"name"	"Montserrat Black"
 		}
 		"23"
 		{
-				"font"	"resource/fonts/Montserrat-SemiBold.ttf"
+				"font"	"resource/fonts/montserrat-semibold.ttf"
 				"name"	"Montserrat SemiBold"
 		}
 		"24"
 		{
-				"font"	"resource/fonts/Montserrat-Light.ttf"
+				"font"	"resource/fonts/montserrat-light.ttf"
 				"name"	"Montserrat Light"
 		}
 		"25"
 		{
-				"font"	"resource/fonts/Minecart-LCD.ttf"
+				"font"	"resource/fonts/minecart-lcd.ttf"
 				"name"	"Minecart LCD"
 		}
 	}

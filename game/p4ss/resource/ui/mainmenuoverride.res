@@ -2,7 +2,7 @@
 //Some elements cannot be disabled with visible and enabled set to 0.
 //These elements are set in the sky, remove the last four 9999's to reenable them.
 
-"Resource/UI/MainMenuOverride.res"
+"resource/ui/mainmenuoverride.res"
 {
 	MainMenuOverride
 	{

@@ -1,4 +1,4 @@
-"Resource/UI/HudBuildInfo.res"
+"resource/ui/hudbuildinfo.res"
 {
     "BuildTextLabel"
 	{
