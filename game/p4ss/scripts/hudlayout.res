@@ -1178,7 +1178,7 @@
 		"visible"				"1"
 		"enabled"				"1"
 		"xpos"					"cs-0.5"
-		"ypos"					"r75"
+		"ypos"					"r55"
 		"wide"					"125"
 		"tall"					"70"
 		"proportionaltoparent"	"1"
