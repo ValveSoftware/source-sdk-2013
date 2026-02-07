@@ -58,7 +58,7 @@
 	"channel"	"CHAN_STATIC"
 	"volume"	".25"
 	"soundlevel"  "SNDLVL_50dB"
-	"wave"	"items\pumpkin_drop.wav"
+	"wave"	"common/null.wav"
 }
 
 //END OF PASS FORTRESS EDITS
