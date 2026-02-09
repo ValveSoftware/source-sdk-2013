@@ -312,8 +312,8 @@ void CTFBaseProjectile::PostDataUpdate( DataUpdateType_t type )
 //-----------------------------------------------------------------------------
 int CTFBaseProjectile::DrawModel( int flags )
 {
-	// During the first 0.2 seconds of our life, don't draw ourselves.
-	if ( gpGlobals->curtime - m_flSpawnTime < 0.01f )
+	// During the first 0.1 seconds of our life, don't draw ourselves.
+	if ( gpGlobals->curtime - m_flSpawnTime < 0.1f )
 		return 0;
 
 	return BaseClass::DrawModel( flags );

@@ -379,7 +379,7 @@ void CTFGrenadePipebombProjectile::Simulate( void )
 int CTFGrenadePipebombProjectile::DrawModel( int flags )
 {
 	// m_flCreationTime?
-	if ( gpGlobals->curtime - m_flSpawnTime < 0.01f )
+	if ( gpGlobals->curtime - m_flSpawnTime < 0.05f )
 		return 0;
 
 	return BaseClass::DrawModel( flags );
