@@ -12,6 +12,7 @@
 #include "tf_item.h"
 #include "entity_capture_flag.h"
 #include "tf_weapon_medigun.h"
+#include "tf_weapon_passtime_gun.h"
 #include "tf_weapon_pipebomblauncher.h"
 #include "tf_weapon_invis.h"
 #include "tf_weapon_sniperrifle.h"
@@ -11577,6 +11578,18 @@ void CTFPlayer::SelectItem( const char *pstr, int iSubType /*= 0*/ )
 
 	if( GetObserverMode() != OBS_MODE_NONE )
 		return;// Observers can't select things.
+
+	CTFWeaponBase *pActiveWeapon = GetActiveTFWeapon();
+	if ( pActiveWeapon && pActiveWeapon->GetWeaponID() == TF_WEAPON_PASSTIME_GUN )
+	{
+		if ( m_Shared.HasPasstimeBall() )
+		{
+			auto *pPasstimeGun = static_cast<CPasstimeGun*>( pActiveWeapon );
+			pPasstimeGun->SetBufferedSwitchWeapon( pItem );
+			return;
+		}
+	}
+
 
 	if ( !Weapon_ShouldSelectItem( pItem ) )
 		return;
