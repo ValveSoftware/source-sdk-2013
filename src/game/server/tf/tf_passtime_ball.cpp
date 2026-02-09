@@ -500,6 +500,8 @@ CPasstimeBall::~CPasstimeBall()
 	{
 		CSoundEnvelopeController::GetController().SoundDestroy( m_pBeepLoop );
 	}
+
+	KillMagnetSound();
 }
 
 //-----------------------------------------------------------------------------
@@ -661,6 +663,8 @@ void CPasstimeBall::SetStateOutOfPlay()
 		CSoundEnvelopeController::GetController().SoundDestroy( m_pBeepLoop );
 		m_pBeepLoop = 0;
 	}
+
+	KillMagnetSound();
 
 	//
 	// Bookeeping
