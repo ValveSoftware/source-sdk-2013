@@ -9207,7 +9207,10 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 	if ( m_iHealthBefore != GetHealth() )
 	{
-		PainSound( info );
+		if ( !p4ss_mute_rocket_jump_groan.GetBool() && !bIsSoldierRocketJumping )
+		{
+			PainSound( info );
+		}
 	}
 
 	// Detect drops below 25% health and restart expression, so that characters look worried.
