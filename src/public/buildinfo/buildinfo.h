@@ -1,3 +1,9 @@
+#ifndef BUILDINFO_BUILDINFO_H
+#define BUILDINFO_BUILDINFO_H
+
+#ifdef _WIN32
+#pragma once
+#endif
 // This header corresponds to generated cpp.
 // Do not edit it without also editing the codegen scripts
 // (located in devtools).
@@ -14,3 +20,5 @@ extern const char* g_szbuildDate;
 
 // OS used to build this. If Linux, shows kernel version too.
 extern const char* g_szbuildOs;
+
+#endif // BUILDINFO_BUILDINFO_H
