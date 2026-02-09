@@ -9118,8 +9118,8 @@ bool C_TFPlayer::IsAllowedToSwitchWeapons( void )
 
 	if ( TFGameRules() )
 	{
-		if ( TFGameRules()->IsPasstimeMode() && m_Shared.HasPasstimeBall() )
-			return false;
+// 		if ( TFGameRules()->IsPasstimeMode() && m_Shared.HasPasstimeBall() )
+// 			return false;
 	}
 
 	// Can't weapon switch during a taunt.
