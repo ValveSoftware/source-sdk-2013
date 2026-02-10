@@ -65,6 +65,11 @@ $Project "mathlib"
 	"mathlib\mathlib.vpc"
 }
 
+$Project "matsys_controls"
+{
+	"vgui2\matsys_controls\matsys_controls.vpc"
+}
+
 $Project "motionmapper"
 {
 	"utils\motionmapper\motionmapper.vpc" [$WINDOWS]

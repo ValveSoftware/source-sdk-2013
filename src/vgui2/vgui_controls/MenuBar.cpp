@@ -223,13 +223,11 @@ void MenuBar::OnMenuClose()
 //-----------------------------------------------------------------------------
 #ifdef PLATFORM_64BITS
 void MenuBar::OnCursorEnteredMenuButton(vgui::Panel* VPanel)
-{
-	VPANEL menuButton = (VPANEL)VPanel;
 #else
-void Menu::OnCursorEnteredMenuItem(int VPanel)
+void MenuBar::OnCursorEnteredMenuButton(int VPanel)
+#endif
 {
 	VPANEL menuButton = (VPANEL)VPanel;
-#endif
 	// see if we had a menu open
 	for ( int i = 0; i < m_pMenuButtons.Count(); i++)
 	{
