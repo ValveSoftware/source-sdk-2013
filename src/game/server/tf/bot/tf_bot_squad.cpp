@@ -202,7 +202,7 @@ float CTFBotSquad::GetSlowestMemberIdealSpeed( bool includeLeader ) const
 
 
 //----------------------------------------------------------------------
-// Return the maximum formation error of the squad's memebers.
+// Return the maximum formation error of the squad's members.
 float CTFBotSquad::GetMaxSquadFormationError( void ) const
 {
 	float maxError = 0.0f;
