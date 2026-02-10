@@ -87,9 +87,7 @@ extern ConVar
 	p4ss_whistle_more,
 	p4ss_heal_on_pass,
 	p4ss_heal_on_pass_flight_time,
-	p4ss_minicrit_protection_time,
-
-	p4ss_mute_rocket_jump_groan;
+	p4ss_minicrit_protection_time;
 
 enum class EPasstimeExperiment_Telepass { 
 	None,

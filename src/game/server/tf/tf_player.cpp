@@ -277,6 +277,8 @@ extern ConVar sv_vote_allow_spectators;
 ConVar sv_vote_late_join_time( "sv_vote_late_join_time", "90", FCVAR_NONE, "Grace period after the match starts before players who join the match receive a vote-creation cooldown" );
 ConVar sv_vote_late_join_cooldown( "sv_vote_late_join_cooldown", "300", FCVAR_NONE, "Length of the vote-creation cooldown when joining the server after the grace period has expired" );
 
+ConVar	p4ss_mute_rocket_jump_groan	( "p4ss_mute_rocket_jump_groan","1", FCVAR_USERINFO, "Mutes rocket jump pain groan on client side." );
+
 extern ConVar tf_feign_death_duration;
 extern ConVar spec_freeze_time;
 extern ConVar spec_freeze_traveltime;
@@ -9207,10 +9209,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 	if ( m_iHealthBefore != GetHealth() )
 	{
-		if ( !p4ss_mute_rocket_jump_groan.GetBool() && !bIsSoldierRocketJumping )
-		{
-			PainSound( info );
-		}
+		PainSound( info );
 	}
 
 	// Detect drops below 25% health and restart expression, so that characters look worried.
@@ -14157,6 +14156,12 @@ void CTFPlayer::PainSound( const CTakeDamageInfo &info )
 	float flPainLength = 0;
 
 	bool bAttackerIsPlayer = ( info.GetAttacker() && info.GetAttacker()->IsPlayer() );
+	bool bIsSoldierRocketJumping = ( IsPlayerClass( TF_CLASS_SOLDIER ) && ( info.GetAttacker() == this ) && !( GetFlags() & FL_ONGROUND ) && !( GetFlags() & FL_INWATER ) ) && ( info.GetDamageType() & DMG_BLAST );
+	
+	if ( p4ss_mute_rocket_jump_groan.GetBool() && bIsSoldierRocketJumping )
+		{
+			return;
+		}
 
 	CMultiplayer_Expresser *pExpresser = GetMultiplayerExpresser();
 	Assert( pExpresser );
