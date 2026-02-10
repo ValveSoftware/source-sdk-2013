@@ -557,7 +557,7 @@ void CParticleProperty::UpdateControlPoint( ParticleEffectList_t *pEffect, int i
 #ifdef TF_CLIENT_DLL
 
 	CBaseEntity *pWearable = (CBaseEntity*) pPoint->hEntity.Get();
-	if ( pWearable && GetAttribInterface( pWearable ) && !pWearable->IsPlayer() && V_strcmp( pWearable->GetClassname(), "tf_wearable" ) == 0 )
+	if ( pWearable && GetAttribInterface( pWearable ) && !pWearable->IsPlayer() )
 	{
 		C_BaseAnimating *pAnimating = pPoint->hEntity->GetBaseAnimating();
 		if ( pAnimating )
@@ -581,9 +581,9 @@ void CParticleProperty::UpdateControlPoint( ParticleEffectList_t *pEffect, int i
 			CALL_ATTRIB_HOOK_INT_ON_OTHER( pAnimating, bIsUnusualStatic, set_attached_particle_static );
 			if ( pWearableHdr && pFollowHdr && ( bIsUnusual || bIsUnusualStatic ) )
 			{
-				CUtlVector<unsigned char> BoneMergeBits;	// One bit for each bone. The bit is set if the bone gets merged.
-				BoneMergeBits.SetSize( pWearableHdr->numbones() / 8 + 1 );
-				memset( BoneMergeBits.Base(), 0, BoneMergeBits.Count() );
+				CBitVec<MAXSTUDIOBONES> BoneMergeBits;	// One bit for each bone. The bit is set if the bone gets merged.
+				BoneMergeBits.Resize( pWearableHdr->numbones() / 8 + 1 );
+				memset( BoneMergeBits.Base(), 0, sizeof(BoneMergeBits) );
 
 				mstudiobone_t *pWearableBones = pWearableHdr->pBone( 0 );
 
@@ -598,7 +598,7 @@ void CParticleProperty::UpdateControlPoint( ParticleEffectList_t *pEffect, int i
 					BoneNames.AddToTail( sBoneName );
 					ParentBones.AddToTail( parentBoneIndex );
 
-					BoneMergeBits[i>>3] |= ( 1 << ( i & 7 ) );
+					BoneMergeBits.Set( i );
 
 					if ( ( pFollowHdr->boneFlags( parentBoneIndex ) & BONE_USED_BY_BONE_MERGE ) == 0 )
 					{
