@@ -14157,11 +14157,6 @@ void CTFPlayer::PainSound( const CTakeDamageInfo &info )
 
 	bool bAttackerIsPlayer = ( info.GetAttacker() && info.GetAttacker()->IsPlayer() );
 	bool bIsSoldierRocketJumping = ( IsPlayerClass( TF_CLASS_SOLDIER ) && ( info.GetAttacker() == this ) && !( GetFlags() & FL_ONGROUND ) && !( GetFlags() & FL_INWATER ) ) && ( info.GetDamageType() & DMG_BLAST );
-	
-	if ( p4ss_mute_rocket_jump_groan.GetBool() && bIsSoldierRocketJumping )
-		{
-			return;
-		}
 
 	CMultiplayer_Expresser *pExpresser = GetMultiplayerExpresser();
 	Assert( pExpresser );
@@ -14193,7 +14188,7 @@ void CTFPlayer::PainSound( const CTakeDamageInfo &info )
 	}
 
 	// speak a louder pain concept to just the attacker
-	if ( bAttackerIsPlayer )
+	if ( bAttackerIsPlayer && !( p4ss_mute_rocket_jump_groan.GetBool() && bIsSoldierRocketJumping ) )
 	{
 		CSingleUserRecipientFilter attackerFilter( ToBasePlayer( info.GetAttacker() ) );
 		SpeakConceptIfAllowed( MP_CONCEPT_PLAYER_ATTACKER_PAIN, "damagecritical:1", szResponse, AI_Response::MAX_RESPONSE_NAME, &attackerFilter );
