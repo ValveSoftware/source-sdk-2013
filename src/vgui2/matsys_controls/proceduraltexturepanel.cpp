@@ -16,6 +16,9 @@
 using namespace vgui;
 
 
+int CProceduralTexturePanel::s_nTextureSerial = 0;
+
+
 //-----------------------------------------------------------------------------
 // constructor
 //-----------------------------------------------------------------------------
@@ -51,26 +54,13 @@ bool CProceduralTexturePanel::Init( int nWidth, int nHeight, bool bAllocateImage
 	m_TextureSubRect.height = nHeight;
 
 	char pTemp[512];
-	Q_snprintf( pTemp, 512, "__%s", GetName() );
+	Q_snprintf( pTemp, 512, "__%s_%d", GetName(), s_nTextureSerial++ );
 
-	ITexture *pTex = NULL;
-	if ( MaterialSystem()->IsTextureLoaded( pTemp ) )
-	{
-		pTex = MaterialSystem()->FindTexture( pTemp, TEXTURE_GROUP_VGUI );
-		Assert( pTex );
-
-		pTex->AddRef();
-	}
-	else
-	{
-		pTex = MaterialSystem()->CreateProceduralTexture( pTemp, TEXTURE_GROUP_VGUI,
+	m_ProceduralTexture.InitProceduralTexture( pTemp, TEXTURE_GROUP_VGUI,
 				m_nWidth, m_nHeight, IMAGE_FORMAT_BGRX8888, 
 				TEXTUREFLAGS_CLAMPS | TEXTUREFLAGS_CLAMPT | TEXTUREFLAGS_NOMIP | 
 				TEXTUREFLAGS_NOLOD | TEXTUREFLAGS_PROCEDURAL | TEXTUREFLAGS_SINGLECOPY );
-		Assert( pTex );
-	}
-	pTex->SetTextureRegenerator( this );
-	m_ProceduralTexture.Init( pTex );
+	m_ProceduralTexture->SetTextureRegenerator( this );
 
 	KeyValues *pVMTKeyValues = new KeyValues( "UnlitGeneric" );
 	pVMTKeyValues->SetString( "$basetexture", pTemp );
@@ -109,12 +99,16 @@ void CProceduralTexturePanel::CleanUp()
 		m_nTextureID = -1;
 	}
 
-	if ( (ITexture*)m_ProceduralTexture )
+	if ( m_ProceduralMaterial.IsValid() )
+	{
+		m_ProceduralMaterial.Shutdown();
+	}
+
+	if ( m_ProceduralTexture.IsValid() )
 	{
 		m_ProceduralTexture->SetTextureRegenerator( NULL );
+		m_ProceduralTexture.Shutdown();
 	}
-	m_ProceduralTexture.Shutdown();
-	m_ProceduralMaterial.Shutdown();
 
 	if ( m_pImageBuffer )
 	{
