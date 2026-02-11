@@ -103,6 +103,12 @@ void CProceduralTexturePanel::MaintainProportions( bool bEnable )
 //-----------------------------------------------------------------------------
 void CProceduralTexturePanel::CleanUp()
 {
+	if ( MatSystemSurface() && m_nTextureID != -1 )
+	{
+		MatSystemSurface()->DestroyTextureID( m_nTextureID );
+		m_nTextureID = -1;
+	}
+
 	if ( (ITexture*)m_ProceduralTexture )
 	{
 		m_ProceduralTexture->SetTextureRegenerator( NULL );
