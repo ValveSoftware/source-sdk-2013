@@ -277,7 +277,7 @@ extern ConVar sv_vote_allow_spectators;
 ConVar sv_vote_late_join_time( "sv_vote_late_join_time", "90", FCVAR_NONE, "Grace period after the match starts before players who join the match receive a vote-creation cooldown" );
 ConVar sv_vote_late_join_cooldown( "sv_vote_late_join_cooldown", "300", FCVAR_NONE, "Length of the vote-creation cooldown when joining the server after the grace period has expired" );
 
-ConVar	p4ss_mute_rocket_jump_groan	( "p4ss_mute_rocket_jump_groan","1", FCVAR_USERINFO, "Mutes rocket jump pain groan on client side." );
+ConVar	pf_mute_rocket_jump_groan	( "pf_mute_rocket_jump_groan","1", FCVAR_USERINFO, "Mutes rocket jump pain groan on client side." );
 
 extern ConVar tf_feign_death_duration;
 extern ConVar spec_freeze_time;
@@ -14188,7 +14188,7 @@ void CTFPlayer::PainSound( const CTakeDamageInfo &info )
 	}
 
 	// speak a louder pain concept to just the attacker
-	if ( bAttackerIsPlayer && !( p4ss_mute_rocket_jump_groan.GetBool() && bIsSoldierRocketJumping ) )
+	if ( bAttackerIsPlayer && !( pf_mute_rocket_jump_groan.GetBool() && bIsSoldierRocketJumping ) )
 	{
 		CSingleUserRecipientFilter attackerFilter( ToBasePlayer( info.GetAttacker() ) );
 		SpeakConceptIfAllowed( MP_CONCEPT_PLAYER_ATTACKER_PAIN, "damagecritical:1", szResponse, AI_Response::MAX_RESPONSE_NAME, &attackerFilter );
