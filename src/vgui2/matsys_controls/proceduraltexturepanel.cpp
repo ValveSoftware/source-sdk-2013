@@ -66,7 +66,7 @@ bool CProceduralTexturePanel::Init( int nWidth, int nHeight, bool bAllocateImage
 	pVMTKeyValues->SetString( "$basetexture", pTemp );
 	pVMTKeyValues->SetInt( "$nocull", 1 );
 	pVMTKeyValues->SetInt( "$nodebug", 1 );
-	m_ProceduralMaterial.Init( MaterialSystem()->CreateMaterial( pTemp, pVMTKeyValues ));
+	m_ProceduralMaterial.Init( pTemp, pVMTKeyValues );
 
 	m_nTextureID = MatSystemSurface()->CreateNewTextureID( false );
 	MatSystemSurface()->DrawSetTextureMaterial( m_nTextureID, m_ProceduralMaterial );
