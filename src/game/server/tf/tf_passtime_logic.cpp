@@ -1926,6 +1926,7 @@ void CTFPasstimeLogic::InputTimeUp( inputdata_t &input )
 	if ( ( iPointDifference <= iMaxPossibleScoreGain ) && !ShouldEndOvertime() )
 	{
 		m_pRespawnCountdown->Disable();
+		TFGameRules()->SetOvertime( true );
 		TFGameRules()->BroadcastSound( 255, "Passtime.Merasmus.Overtime" );
 		ThinkExpiredTimer();
 	}
