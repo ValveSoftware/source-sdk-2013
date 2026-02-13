@@ -2437,8 +2437,10 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 				if ( pTFHealer )
 				{
 					// Quick fix never lets health decay, even when they're at or above max overheal
+					// In Mann vs. Machine, never decay overheal because Scouts can get >500 overheal
 					CWeaponMedigun *pMedigun = dynamic_cast< CWeaponMedigun* >( pTFHealer->GetActiveTFWeapon() );
-					if ( pMedigun && pMedigun->GetMedigunType() == MEDIGUN_QUICKFIX )
+					if ( pMedigun && ( pMedigun->GetMedigunType() == MEDIGUN_QUICKFIX || 
+						( TFGameRules() && TFGameRules()->IsMannVsMachineMode() ) ) )
 					{
 						bDecayHealth = false;
 						bDecayDisguiseHealth = false;
