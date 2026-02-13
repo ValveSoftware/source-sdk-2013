@@ -6467,8 +6467,8 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 		}
 	}
 
-	// Use defense buffs if it's not a backstab or direct crush damage (telefrage, etc.)
-	if ( pVictim && info.GetDamageCustom() != TF_DMG_CUSTOM_BACKSTAB && ( info.GetDamageType() & DMG_CRUSH ) == 0 )
+	// Use defense buffs if it's not a backstab, Half-Zatoichi duel kill, or direct crush damage (telefrags, etc.)
+	if ( pVictim && info.GetDamageCustom() != TF_DMG_CUSTOM_BACKSTAB && ( info.GetDamageType() & DMG_CRUSH ) == 0 && ( pTFAttacker && !pTFAttacker->GetActiveTFWeapon()->IsHonorBound() && !pVictim->GetActiveTFWeapon()->IsHonorBound() ) )
 	{
 		if ( pVictim->m_Shared.InCond( TF_COND_DEFENSEBUFF ) )
 		{
