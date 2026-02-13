@@ -561,7 +561,7 @@ float CTFKatana::GetMeleeDamage( CBaseEntity *pTarget, int* piDamageType, int* p
 			// If our victim is wielding the weapon we're looking for, bump the damage way up.
 			if ( pTFPlayerTarget->GetActiveTFWeapon() && pTFPlayerTarget->GetActiveTFWeapon()->IsHonorBound() )
 			{
-				fDamage = MAX( fDamage, pTFPlayerTarget->GetHealth() * 5 );
+				fDamage = MAX( fDamage, pTFPlayerTarget->GetHealth() * 3 );
 				*piDamageType |= DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE;
 			}
 		}
