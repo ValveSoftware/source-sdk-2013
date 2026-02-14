@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <cstdio>
 #include "p4ssutils.h"
+#include "strtools.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -681,20 +682,23 @@ void CTFHudPasstimeEventText::Tick()
 			// DevMsg( "m_pBonusLabelShadow: %s", m_pBonusLabelShadow ? "true" : "false" );
 			if ( m_pTitleLabel && m_pTitleLabelShadow )
 			{
-				SetLabelText( m_pTitleLabel, msg.title );
 				P4ss::ColorTextP4ss( m_pTitleLabel->GetTextImage(), msg.title, msg.team);
+
+				SetLabelText( m_pTitleLabel, msg.title );
 				SetLabelText( m_pTitleLabelShadow, msg.title );
 			}
 			if ( m_pDetailLabel && m_pDetailLabelShadow)
 			{
-				SetLabelText( m_pDetailLabel, msg.detail );
 				P4ss::ColorTextP4ss( m_pDetailLabel->GetTextImage(), msg.detail, msg.team );
+
+				SetLabelText( m_pDetailLabel, msg.detail );
 				SetLabelText( m_pDetailLabelShadow, msg.detail );
 			}
 			if ( m_pBonusLabel && m_pBonusLabelShadow )
 			{
-				SetLabelText( m_pBonusLabel, msg.bonus );
 				P4ss::ColorTextP4ss( m_pBonusLabel->GetTextImage(), msg.bonus, msg.team );
+
+				SetLabelText( m_pBonusLabel, msg.bonus );
 				SetLabelText( m_pBonusLabelShadow, msg.bonus );
 			}
 			EnterState( State::In, HudPasstimeEventText::flInSec );
