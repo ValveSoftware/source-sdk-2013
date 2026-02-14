@@ -150,6 +150,10 @@
 
 #endif
 
+#ifdef DISCORD_ENABLED
+#include "discordrpc.h"
+#endif
+
 
 extern vgui::IInputInternal *g_InputInternal;
 
@@ -217,6 +221,10 @@ IReplayPerformanceController *g_pReplayPerformanceController = NULL;
 IEngineReplay *g_pEngineReplay = NULL;
 IEngineClientReplay *g_pEngineClientReplay = NULL;
 IReplaySystem *g_pReplay = NULL;
+#endif
+
+#ifdef DISCORD_ENABLED
+DiscordRPC discordRPC;
 #endif
 
 IHaptics* haptics = NULL;// NVNT haptics system interface singleton
@@ -1116,6 +1124,10 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 		RegisterSecureLaunchProcessFunc( pfnUnsafeCmdLineProcessor );
 	}
 
+#ifdef DISCORD_ENABLED
+	discordRPC.Init();
+#endif
+
 	return true;
 }
 
@@ -1240,6 +1252,10 @@ void CHLClient::Shutdown( void )
 	ParticleMgr()->Term();
 	
 	vgui::BuildGroup::ClearResFileCache();
+
+#ifdef DISCORD_ENABLED
+	discordRPC.Shutdown();
+#endif
 
 #ifndef NO_STEAM
 	ClientSteamContext().Shutdown();
@@ -1623,6 +1639,10 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 	ParticleMgr()->LevelInit();
 
 	hudlcd->SetGlobalStat( "(mapname)", pMapName );
+	
+#ifdef DISCORD_ENABLED
+	discordRPC.SetStatus_Game( pMapName );
+#endif
 
 	C_BaseTempEntity::ClearDynamicTempEnts();
 	clienteffects->Flush();
@@ -1751,6 +1771,10 @@ void CHLClient::LevelShutdown( void )
 	StopAllRumbleEffects();
 
 	gHUD.LevelShutdown();
+
+#ifdef DISCORD_ENABLED
+	discordRPC.SetStatus_Menu();
+#endif
 
 	internalCenterPrint->Clear();
 
