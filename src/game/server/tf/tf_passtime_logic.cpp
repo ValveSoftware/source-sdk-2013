@@ -924,6 +924,12 @@ bool CTFPasstimeLogic::BCanPlayerPickUpBall( CTFPlayer *pPlayer, HudNotification
 		return false;
 	}
 
+	// Check for jack armor cooldown - use GetLastThrower() which persists even after ball is neutralized
+	if ( tf_passtime_no_jack_armor.GetBool() && pBall->GetLastThrower() == pPlayer )
+	{
+		if ( gpGlobals->curtime < pBall->GetThrowerCanPickupTime() ) return false;
+	}
+
 	return true;
 }
 

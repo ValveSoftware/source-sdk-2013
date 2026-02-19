@@ -124,6 +124,7 @@ CPasstimeBall::CPasstimeBall()
 	m_flLastTeamChangeTime = 0;
 	m_flBeginCarryTime = 0;
 	m_flIdleRespawnTime = 0;
+	m_flThrowerCanPickupTime = 0;
 	m_bTrailActive = false;
 	m_pCloseToTarget = 0;
 	m_bPanacea = true;
@@ -158,18 +159,24 @@ CTFPlayer *CPasstimeBall::GetThrower() const
 }
 
 //-----------------------------------------------------------------------------
+CTFPlayer *CPasstimeBall::GetLastThrower() const 
+{ 
+	return m_hLastThrower.Get(); 
+}
+
+//-----------------------------------------------------------------------------
 void CPasstimeBall::SetThrower( CTFPlayer *pPlayer ) 
 { 
-	m_hThrower = pPlayer; 
-	if ( !pPlayer )
+	m_hThrower = pPlayer;
+	if ( pPlayer )
 	{
-		ChangeTeam( TEAM_UNASSIGNED );
+		m_hLastThrower = pPlayer; // Track for jack armor cooldown
+		ChangeTeam( pPlayer->GetTeamNumber() );
 	}
 	else 
 	{
-		ChangeTeam( pPlayer->GetTeamNumber() );
+		ChangeTeam( TEAM_UNASSIGNED );
 	}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -571,6 +578,13 @@ void CPasstimeBall::SetStateFree()
 	SetSolid( SOLID_VPHYSICS );
 	SetSolidFlags( FSOLID_NOT_STANDABLE );
 	SetThrower( m_hCarrier );
+	
+	// Set cooldown for jack armor prevention
+	if ( tf_passtime_no_jack_armor.GetBool() && m_hCarrier )
+	{
+		m_flThrowerCanPickupTime = gpGlobals->curtime + tf_passtime_no_jack_armor_time.GetFloat();
+	}
+	
 	TFGameRules()->SetObjectiveObserverTarget( this );
 	VPhysicsGetObject()->EnableGravity( true );
 	VPhysicsGetObject()->Wake();
@@ -778,6 +792,8 @@ void CPasstimeBall::SetStateCarried( CTFPlayer *pCarrier )
 		m_hPrevCarrier = m_hCarrier;
 	}
 	m_hCarrier = pCarrier;
+	m_hLastThrower = 0; // Clear jack armor cooldown when someone picks up ball
+	m_flThrowerCanPickupTime = 0;
 	ChangeTeam( pCarrier->GetTeamNumber() );
 }
 
@@ -787,6 +803,8 @@ void CPasstimeBall::MoveToSpawner( const Vector &pos )
 	MoveTo( pos, Vector( 0,0,0 ) );
 	m_bTouchedSinceSpawn = false;
 	m_hPrevCarrier = 0;
+	m_hLastThrower = 0; // Clear jack armor cooldown on respawn
+	m_flThrowerCanPickupTime = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1628,6 +1646,12 @@ float CPasstimeBall::GetAirtimeSec() const
 float CPasstimeBall::GetAirtimeDistance() const 
 {
 	return m_flAirtimeDistance;
+}
+
+//-----------------------------------------------------------------------------
+float CPasstimeBall::GetThrowerCanPickupTime() const 
+{
+	return m_flThrowerCanPickupTime;
 }
 
 

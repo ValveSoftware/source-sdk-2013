@@ -90,3 +90,6 @@ PASSTIME_CONVAR( p4ss_whistle_more, 1, "Allows users to whistle in more use case
 PASSTIME_CONVAR( p4ss_heal_on_pass, 0, "How many HP you recieve when ball is passed to you." );
 PASSTIME_CONVAR( p4ss_heal_on_pass_flight_time, 2, "How many seconds between passes for a pass to heal." );
 PASSTIME_CONVAR( p4ss_minicrit_protection_time, 3, "How many seconds you are protected from minicrits after picking up the ball." );
+
+PASSTIME_CONVAR( tf_passtime_no_jack_armor, 1, "Prevents ball thrower from immediately grabbing the ball." );
+PASSTIME_CONVAR( tf_passtime_no_jack_armor_time, 0.25f, "How many seconds the thrower must wait before picking up the ball again." );
