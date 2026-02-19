@@ -1,6 +1,6 @@
 #base "base_notification.res"
 
-"Resource/UI/notifications/notify_passtime_no_invuln.res"
+"resource/ui/notifications/notify_passtime_no_invuln.res"
 {	
 	"Notification_Background"
 	{

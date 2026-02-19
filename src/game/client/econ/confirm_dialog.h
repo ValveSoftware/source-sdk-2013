@@ -129,25 +129,6 @@ private:
 	bool	m_bPlayedSound;
 };
 
-// A dialog with an upgrade button that takes them to the mann co store
-class CTFUpgradeBoxDialog : public CTFMessageBoxDialog
-{
-	DECLARE_CLASS_SIMPLE( CTFUpgradeBoxDialog, CTFMessageBoxDialog );
-public:
-	CTFUpgradeBoxDialog( const char *pTitle, const char *pText, const char *pConfirmBtnText, GenericConfirmDialogCallback callback, vgui::Panel *parent ) 
-		:  CTFMessageBoxDialog( pTitle, pText, pConfirmBtnText, callback, parent ) {}
-
-	CTFUpgradeBoxDialog( const char *pTitle, const wchar_t *pText, const char *pConfirmBtnText, GenericConfirmDialogCallback callback, vgui::Panel *parent )
-		:  CTFMessageBoxDialog( pTitle, pText, pConfirmBtnText, callback, parent ) {}
-
-	virtual const char *GetResFile()
-	{
-		return "Resource/UI/UpgradeBoxDialog.res";
-	}
-	virtual void OnCommand( const char *command );
-};
-
-
 // An implementation of the Confirm Dialog with a persistant "opt out" checkbox stored via ConVar
 class CTFGenericConfirmOptOutDialog : public CTFGenericConfirmDialog
 {
@@ -237,8 +218,6 @@ CTFGenericConfirmDialog *ShowConfirmDialog( const char *pTitle, const char *pTex
 CTFMessageBoxDialog *ShowMessageBox( const char *pTitle, const char *pText, const char *pConfirmBtnText = "#GameUI_OK", GenericConfirmDialogCallback callback = NULL, vgui::Panel *parent = NULL, void *pContext = NULL );
 CTFMessageBoxDialog *ShowMessageBox( const char *pTitle, const wchar_t *pText, const char *pConfirmBtnText = "#GameUI_OK", GenericConfirmDialogCallback callback = NULL, vgui::Panel *parent = NULL, void *pContext = NULL );
 CTFMessageBoxDialog *ShowMessageBox( const char *pTitle, const char *pText, KeyValues *pKeyValues, const char *pConfirmBtnText = "#GameUI_OK", GenericConfirmDialogCallback callback = NULL, vgui::Panel *parent = NULL, void *pContext = NULL );
-CTFMessageBoxDialog *ShowUpgradeMessageBox( const char *pTitle, const char *pText );
-CTFMessageBoxDialog *ShowUpgradeMessageBox( const char *pTitle, const char *pText, const char *pConfirmBtnText, GenericConfirmDialogCallback callback, vgui::Panel *parent = NULL, void *pContext = NULL );
 
 //-----------------------------------------------------------------------------
 CTFMessageBoxDialogWithSound *ShowMessageBoxWithSound( const char *pTitle, const char *pText, const char *pszSound, float flDelay = 0.0, const char *pConfirmBtnText = "#GameUI_OK", GenericConfirmDialogCallback callback = NULL, vgui::Panel *parent = NULL, void *pContext = NULL );

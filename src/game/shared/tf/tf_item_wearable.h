@@ -86,14 +86,6 @@ private:
 #endif // GAME_DLL
 
 #if defined( CLIENT_DLL )
-	enum eParticleSystemVisibility
-	{
-		kParticleSystemVisibility_Undetermined,
-		kParticleSystemVisibility_Shown,
-		kParticleSystemVisibility_Hidden,
-	};
-	eParticleSystemVisibility m_eParticleSystemVisibility;
-
 	short		m_nWorldModelIndex;
 #endif
 };

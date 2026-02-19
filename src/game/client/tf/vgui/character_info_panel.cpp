@@ -13,7 +13,6 @@
 #include "baseviewport.h"
 #include "iclientmode.h"
 #include "charinfo_loadout_subpanel.h"
-#include "charinfo_armory_subpanel.h"
 #include "ienginevgui.h"
 #include "tf_hud_statpanel.h"
 #include "c_tf_player.h"
@@ -21,13 +20,7 @@
 #include "econ_notifications.h"
 #include <vgui/ILocalize.h>
 #include <vgui_controls/AnimationController.h>
-#include "econ_ui.h"
 #include "c_tf_gamestats.h"
-#include "tf_item_pickup_panel.h"
-#include "store/v1/tf_store_panel.h"
-#include "store/v2/tf_store_panel2.h"
-#include "store/tf_store.h"
-#include "tf_matchmaking_dashboard.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -53,11 +46,6 @@ CCharacterInfoPanel* GetCharInfoPanel( bool bRecreate )
 CON_COMMAND( reload_char_info, "Reloads the char info panel" )
 {
 	GetCharInfoPanel( true );
-}
-
-IEconRootUI* EconUI( void )
-{
-	return GetCharInfoPanel( false );
 }
 
 //-----------------------------------------------------------------------------
@@ -109,7 +97,6 @@ CCharacterInfoPanel::CCharacterInfoPanel( Panel *parent ) : PropertyDialog(paren
 
 	m_pNotificationsPresentPanel = NULL;
 	m_bPreventClosure = false;
-	m_iClosePanel = ECONUI_BASEUI;
 	m_iDefaultTeam = TF_TEAM_RED;
 }
 
@@ -187,7 +174,6 @@ void CCharacterInfoPanel::ShowPanel(bool bShow)
 		m_pLoadoutPanel->OnCharInfoClosing();
 
 		// Clear this out so it doesn't affect anything the next time the econ UI is opened
-		m_iClosePanel = ECONUI_BASEUI;
 		m_iDefaultTeam = TF_TEAM_RED;
 	}
 
@@ -239,18 +225,7 @@ void CCharacterInfoPanel::Close()
 	// If we're connected to a game server, we also close the game UI.
 	if ( engine->IsInGame() )
 	{
-		bool bClose = true;
-		if ( m_bCheckForRoomOnExit )
-		{
-			// Check to make sure the player has room for all his items. If not, bring up the discard panel. Otherwise, go away.
-			// We need to do this to catch players who used the "Change Loadout" button in the pickup panel, and may be out of room.
-			bClose = !TFInventoryManager()->CheckForRoomAndForceDiscard();
-		}
-
-		if ( bClose )
-		{
-			engine->ClientCmd_Unrestricted( "gameui_hide" );
-		}
+		engine->ClientCmd_Unrestricted( "gameui_hide" );
 	}
 
 	// Notify any listeners that we're closed
@@ -280,20 +255,6 @@ void CCharacterInfoPanel::OnCommand( const char *command )
 {
 	if ( FStrEq( command, "back" ) )
 	{
-		// If we're inspecting an item, just close the inspection panel
-		if ( m_pLoadoutPanel->GetInspectionPanel()->IsVisible() )
-		{
-			m_pLoadoutPanel->GetInspectionPanel()->OnCommand( "close" );
-			// This is such a hack.  I don't have time to figure this out, so we're just going
-			// to special case this.  Don't "open" the CHAP_LOADOUT if the backback was up or
-			// else we'll get sucked back to CHAP_LOADOUT
-			if ( !m_pLoadoutPanel->GetBackpackPanel()->IsVisible() )
-			{
-				m_pLoadoutPanel->OpenSubPanel( CHAP_LOADOUT );
-			}
-			return;
-		}
-
 		// If we're at the base loadout page, or if we want to force it, close the dialog completely...
 		// NOTE: Right now we don't support closing from the item selection screen.
 		const int iShowingPanel = m_pLoadoutPanel->GetShowingPanel();
@@ -334,47 +295,6 @@ void CCharacterInfoPanel::OpenLoadoutToClass( int iClassIndex, bool bOpenClassLo
 	Assert(iClassIndex >= TF_CLASS_UNDEFINED && iClassIndex < TF_CLASS_COUNT); 
 	m_pLoadoutPanel->SetClassIndex( iClassIndex, bOpenClassLoadout );
 	m_pLoadoutPanel->SetTeamIndex( m_iDefaultTeam );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::OpenLoadoutToBackpack( void ) 
-{ 
-	m_pLoadoutPanel->OpenToBackpack();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::OpenLoadoutToCrafting( void ) 
-{ 
-	m_pLoadoutPanel->OpenToCrafting();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::OpenLoadoutToArmory( void ) 
-{ 
-	m_pLoadoutPanel->OpenToArmory();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::OpenToPaintkitPreview( CEconItemView* pItem, bool bFixedItem, bool bFixedPaintkit )
-{
-	m_pLoadoutPanel->OpenToPaintkitPreview( pItem, bFixedItem, bFixedPaintkit );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::OnOpenArmoryDirect( KeyValues *data )
-{
-	int iItemDef = data->GetInt( "itemdef", 0 );
-	m_pLoadoutPanel->OpenToArmory( iItemDef );
 }
 
 //-----------------------------------------------------------------------------
@@ -446,104 +366,6 @@ void CCharacterInfoPanel::OnThink()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-IEconRootUI	*CCharacterInfoPanel::OpenEconUI( int iDirectToPage, bool bCheckForInventorySpaceOnExit )
-{
-	if ( IsLayoutInvalid() )
-	{
-		MakeReadyForUse();
-	}
-
-	engine->ClientCmd_Unrestricted( "gameui_activate" );
-	ShowPanel( true );
-
-	if ( iDirectToPage == ECONUI_BACKPACK )
-	{
-		OpenLoadoutToBackpack();
-	}
-	else if ( iDirectToPage == ECONUI_CRAFTING )
-	{
-		OpenLoadoutToCrafting();
-	}
-	else if ( iDirectToPage == ECONUI_ARMORY )
-	{
-		OpenLoadoutToArmory();
-	}
-	else if ( iDirectToPage < 0 )
-	{
-		// Negative numbers go directly to the class loadout
-		OpenLoadoutToClass( -(iDirectToPage), true );
-	}
-
-	SetCheckForRoomOnExit( bCheckForInventorySpaceOnExit );
-
-	return this;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::CloseEconUI( void )
-{
-	if ( IsVisible() )
-	{
-		ShowPanel( false );
-		NotifyListenersOfCloseEvent();
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CCharacterInfoPanel::IsUIPanelVisible( EconBaseUIPanels_t iPanel )
-{
-	if ( !IsVisible() )
-		return false;
-
-	switch ( iPanel )
-	{
-	case ECONUI_BACKPACK:
-		return (GetBackpackPanel() && GetBackpackPanel()->IsVisible());
-
-	case ECONUI_CRAFTING:
-		return (GetCraftingPanel() && GetCraftingPanel()->IsVisible());
-
-	case ECONUI_ARMORY:
-		return (GetArmoryPanel() && GetArmoryPanel()->IsVisible());
-
-	case ECONUI_TRADING:
-		break;
-
-	default:
-		Assert(0);
-		break;
-	}
-
-	return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void Open_CharInfo( const CCommand &args )
-{
-	EconUI()->OpenEconUI();
-}
-ConCommand open_charinfo( "open_charinfo", Open_CharInfo, "Open the character info panel", FCVAR_NONE );
-
-void CCharacterInfoPanel::SetPreventClosure( bool bPrevent )
-{ 
-	m_bPreventClosure = bPrevent;
-
-	Panel* pBackButton = FindChildByName( "BackButton" );
-	if ( pBackButton )
-	{
-		pBackButton->SetEnabled( !bPrevent );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void Open_CharInfoDirect( const CCommand &args )
 {
 	// If we're in-game, start by opening the class we're currently playing
@@ -567,37 +389,26 @@ void Open_CharInfoDirect( const CCommand &args )
 		iClass = -atoi( args.Arg( 1 ) );
 	}
 
-	EconUI()->OpenEconUI( iClass );	
+	CCharacterInfoPanel *pPanel = GetCharInfoPanel( false );
+	if ( !pPanel )
+		return;
+
+	if ( pPanel->IsLayoutInvalid() )
+	{
+		pPanel->MakeReadyForUse();
+	}
+
+	engine->ClientCmd_Unrestricted( "gameui_activate" );
+	pPanel->ShowPanel( true );
+
+	if ( iClass < 0 )
+	{
+		// Negative numbers go directly to the class loadout
+		pPanel->OpenLoadoutToClass( -( iClass ), true );
+	}
 }
+ConCommand open_charinfo( "open_charinfo", Open_CharInfoDirect, "Open the character info panel", FCVAR_NONE );
 ConCommand open_charinfo_direct( "open_charinfo_direct", Open_CharInfoDirect, "Open the character info panel directly to the class you're currently playing.", FCVAR_NONE );
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void Open_CharInfoBackpack( const CCommand &args )
-{
-	EconUI()->OpenEconUI( ECONUI_BACKPACK );	
-}
-ConCommand open_charinfo_backpack( "open_charinfo_backpack", Open_CharInfoBackpack, "Open the character info panel directly to backpack.", FCVAR_NONE );
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void Open_CharInfoCrafting( const CCommand &args )
-{
-	EconUI()->OpenEconUI( ECONUI_CRAFTING );	
-}
-ConCommand open_charinfo_crafting( "open_charinfo_crafting", Open_CharInfoCrafting, "Open the character info panel directly to crafting screen.", FCVAR_NONE );
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void Open_CharInfoArmory( const CCommand &args )
-{
-	EconUI()->OpenEconUI( ECONUI_ARMORY );	
-}
-ConCommand open_charinfo_armory( "open_charinfo_armory", Open_CharInfoArmory, "Open the character info panel directly to armory.", FCVAR_NONE );
-
 
 //================================================================================================================================
 // NOT CONNECTED TO STEAM WARNING DIALOG
@@ -660,164 +471,9 @@ CServerNotConnectedToSteamDialog *OpenServerNotConnectedToSteamDialog( vgui::Pan
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CBackpackPanel *CCharacterInfoPanel::GetBackpackPanel( void ) 
-{ 
-	return m_pLoadoutPanel->GetBackpackPanel(); 
-}
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CCraftingPanel *CCharacterInfoPanel::GetCraftingPanel( void ) 
-{ 
-	return m_pLoadoutPanel->GetCraftingPanel(); 
-}
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CArmoryPanel *CCharacterInfoPanel::GetArmoryPanel( void ) 
-{ 
-	return m_pLoadoutPanel->GetArmoryPanel(); 
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::Gamestats_ItemTransaction( int eventID, CEconItemView *item, const char *pszReason, int iQuality )
-{
-	C_CTF_GameStats.Event_ItemTransaction( eventID, item, pszReason, iQuality );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::Gamestats_Store( int eventID, CEconItemView* item, const char* panelName, int classId, 
-			const cart_item_t* cartItem, int checkoutAttempts, const char* storeError, int totalPrice, int currencyCode )
-{
-	C_CTF_GameStats.Event_Store( eventID, item, panelName, classId, cartItem, checkoutAttempts, storeError, totalPrice, currencyCode );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CCharacterInfoPanel::SetExperimentValue( uint64 experimentValue )
 {
 	C_CTF_GameStats.SetExperimentValue( experimentValue );
-}
-
-static vgui::DHANDLE<CTFItemPickupPanel> g_TFItemPickupPanel;
-static vgui::DHANDLE<CTFItemDiscardPanel> g_TFItemDiscardPanel;
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CItemPickupPanel *CCharacterInfoPanel::OpenItemPickupPanel( void )
-{
-	if (!g_TFItemPickupPanel.Get())
-	{
-		g_TFItemPickupPanel = vgui::SETUP_PANEL( new CTFItemPickupPanel( NULL ) );
-		g_TFItemPickupPanel->InvalidateLayout( false, true );
-	}
-
-	engine->ClientCmd_Unrestricted( "gameui_activate" );
-	g_TFItemPickupPanel->ShowPanel( true );
-
-	return g_TFItemPickupPanel;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CItemDiscardPanel *CCharacterInfoPanel::OpenItemDiscardPanel( void )
-{
-	if (!g_TFItemDiscardPanel.Get())
-	{
-		g_TFItemDiscardPanel = vgui::SETUP_PANEL( new CTFItemDiscardPanel( NULL ) );
-		g_TFItemDiscardPanel->InvalidateLayout( false, true );
-	}
-
-	engine->ClientCmd_Unrestricted( "gameui_activate" );
-	g_TFItemDiscardPanel->ShowPanel( true );
-
-	return g_TFItemDiscardPanel;
-}
-
-static vgui::DHANDLE<CTFBaseStorePanel> g_StorePanel;
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharacterInfoPanel::CreateStorePanel( void )
-{
-	// Clean up previous store panel?
-	if ( g_StorePanel.Get() != NULL )
-	{
-		g_StorePanel->MarkForDeletion();
-	}
-
-	// Create the store panel
-	CTFBaseStorePanel *pStorePanel = NULL;
-	if ( ShouldUseNewStore() )
-	{
-		pStorePanel = new CTFStorePanel2( NULL );
-	}
-	else
-	{
-		pStorePanel = new CTFStorePanel1( NULL );
-	}
-
-	g_StorePanel = vgui::SETUP_PANEL( pStorePanel );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CStorePanel	*CCharacterInfoPanel::OpenStorePanel( int iItemDef, bool bAddToCart )
-{
-	return NULL;
-
-	// Make sure we've got the appropriate connections to Steam
-	if ( !steamapicontext || !steamapicontext->SteamUtils() )
-	{
-		OpenStoreStatusDialog( NULL, "#StoreUpdate_SteamRequired", true, false );
-		return NULL;
-	}
-
-	if ( !steamapicontext->SteamUtils()->IsOverlayEnabled() )
-	{
-		OpenStoreStatusDialog( NULL, "#StoreUpdate_OverlayRequired", true, false );
-		return NULL;
-	}
-
-	if ( !CStorePanel::IsPricesheetLoaded() )
-	{
-		OpenStoreStatusDialog( NULL, "#StoreUpdate_Loading", false, false );
-
-		CStorePanel::SetShouldShowWarnings( true );
-		CStorePanel::RequestPricesheet();
-		return NULL;
-	}
-
-	if ( !g_StorePanel )
-		return NULL;
-
-	engine->ClientCmd_Unrestricted( "gameui_activate" );
-
-	if ( iItemDef )
-	{
-		g_StorePanel->StartAtItemDef( iItemDef, bAddToCart );
-	}
-
-	g_StorePanel->ShowPanel( true );
-
-	return g_StorePanel;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CStorePanel	*CCharacterInfoPanel::GetStorePanel( void )
-{
-	return g_StorePanel;
 }
 
 //-----------------------------------------------------------------------------
@@ -838,10 +494,6 @@ void CCharacterInfoPanel::AddPanelCloseListener( vgui::Panel *pListener )
 //-----------------------------------------------------------------------------
 void CCharacterInfoPanel::SetClosePanel( int iPanel )
 {
-	AssertMsg( ( iPanel < 0 && IsValidTFPlayerClass( -iPanel ) ) ||
-		( iPanel >= ECONUI_FIRST_PANEL && iPanel <= ECONUI_LAST_PANEL ),
-		"Panel out of range!"
-	);
 	m_iClosePanel = iPanel;
 }
 

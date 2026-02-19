@@ -53,7 +53,6 @@ CHudTFCrosshair::CHudTFCrosshair( const char *pName ) :
 	m_iCrosshairTextureID = -1;
 	m_iBallIndicatorTextureID = -1;
 	m_szPreviousBallIndicator[0] = '\0';
-	m_flTimeToHideUntil = -1.f;
 
 	ListenForGameEvent( "restart_timer_time" );
 }
@@ -84,9 +83,6 @@ bool CHudTFCrosshair::ShouldDraw( void )
 	if ( CTFMinigameLogic::GetMinigameLogic() && CTFMinigameLogic::GetMinigameLogic()->GetActiveMinigame() )
 		return false;
 
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		return false;
-
 	// turn off if the local player is a ghost
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( pPlayer )
@@ -97,9 +93,6 @@ bool CHudTFCrosshair::ShouldDraw( void )
 		if ( pPlayer->IsTaunting() )
 			return false;
 	}
-
-	if ( m_flTimeToHideUntil > gpGlobals->curtime )
-		return false;
 
 	return BaseClass::ShouldDraw();
 }
@@ -121,7 +114,6 @@ void CHudTFCrosshair::LevelShutdown( void )
 		delete m_pBallIndicatorMaterial;
 		m_pBallIndicatorMaterial = NULL;
 	}
-	m_flTimeToHideUntil = -1.f;
 }
 
 //-----------------------------------------------------------------------------
@@ -138,29 +130,6 @@ void CHudTFCrosshair::Init()
 	{
 		m_iBallIndicatorTextureID = vgui::surface()->CreateNewTextureID();
 	}
-
-	m_flTimeToHideUntil = -1.f;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CHudTFCrosshair::FireGameEvent( IGameEvent * event )
-{
-	if ( FStrEq( "restart_timer_time", event->GetName() ) )
-	{
-		if ( TFGameRules() && TFGameRules()->IsCompetitiveMode() )
-		{
-			int nTime = event->GetInt( "time" );
-			if ( ( nTime <= 10 ) && ( nTime > 0 ) )
-			{
-				m_flTimeToHideUntil = gpGlobals->curtime + nTime;
-				return;
-			}
-		}
-	}
-
-	m_flTimeToHideUntil = -1.f;
 }
 
 //-----------------------------------------------------------------------------

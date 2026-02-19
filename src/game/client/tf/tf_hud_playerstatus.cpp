@@ -357,16 +357,8 @@ void CTFHudPlayerClass::OnThink()
 					locchar_t wszLocString [128];
 
 					// Construct and set the weapon's name
-					g_pVGuiLocalize->ConstructString_safe( wszLocString, L"%s1", 1, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pItem->GetItemDefinition(), pItem->GetItemQuality() ).GetFullName() );
+					g_pVGuiLocalize->ConstructString_safe( wszLocString, L"%s1", 1, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pItem->GetItemDefinition(), "" ).GetFullName() );
 					m_pCarryingWeaponPanel->SetDialogVariable( "carrying", wszLocString );
-
-					// Get and set the rarity color of the weapon
-					const char* pszColorName = GetItemSchema()->GetRarityColor( pItem->GetItemDefinition()->GetRarity() );
-					pszColorName = pszColorName ? pszColorName : "TanLight";
-					if ( pszColorName )
-					{
-						m_pCarryingLabel->SetColorStr( pszColorName );
-					}
 
 					bool bHasOwner = false;
 					locchar_t wszPlayerName [128];
@@ -1145,9 +1137,6 @@ bool CTFHudPlayerStatus::ShouldDraw( void )
 		return false;
 
 	if ( CTFMinigameLogic::GetMinigameLogic() && CTFMinigameLogic::GetMinigameLogic()->GetActiveMinigame() )
-		return false;
-
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
 		return false;
 
 	return CHudElement::ShouldDraw();

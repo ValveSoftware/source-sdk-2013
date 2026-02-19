@@ -150,29 +150,7 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 							CTF_GameStats.Event_PlayerAwardBonusPoints( pOwner, pTFPlayer, 10 );
 							CTF_GameStats.Event_PlayerHealedOtherAssist( pOwner, nHealthGiven );
 						}
-
-						if ( pOwner->Weapon_OwnsThisID( TF_WEAPON_LUNCHBOX ) && pOwner->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-						{
-							CEconEntity *pEconItem = dynamic_cast<CEconEntity *>( pOwner->GetEntityForLoadoutSlot( LOADOUT_POSITION_SECONDARY ) );
-							if ( pEconItem )
-							{
-								EconEntity_OnOwnerKillEaterEvent( pEconItem, pOwner, pTFPlayer, kKillEaterEvent_AllyHealingDone, nHealthGiven );
-
-								if ( pTFPlayer->m_Shared.InCond( TF_COND_BURNING ) )
-								{
-									EconEntity_OnOwnerKillEaterEvent( pEconItem, pOwner, pTFPlayer, kKillEaterEvent_BurningAllyExtinguished );
-								}
-							}
-						}
 					}
-				}
-
-				if ( pTFPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-				{
-					UserMessageBegin( user, "UpdateAchievement" );
-					WRITE_SHORT( ACHIEVEMENT_TF_HEAVY_HEAL_MEDIKITS );
-					WRITE_SHORT( nHealthGiven );
-					MessageEnd();
 				}
 
 				pTFPlayer->m_Shared.HealthKitPickupEffects( nHealthGiven );

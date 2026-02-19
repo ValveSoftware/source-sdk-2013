@@ -867,28 +867,6 @@ void CObjectDispenser::StopHealing( CBaseEntity *pOther )
 {
 	if ( RemoveHealingTarget( pOther ) )
 	{
-		CTFPlayer *pPlayer = ToTFPlayer( pOther );
-
-		if ( pPlayer )
-		{
-			float flHealingDone = pPlayer->m_Shared.StopHealing( this );
-			if ( GetBuilder() && pOther != GetBuilder() && flHealingDone > 0 )
-			{
-				GetBuilder()->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_DISPENSER_HEAL_GRIND, floor( flHealingDone ) );
-
-				if ( GetBuilder()->GetTeam() == pOther->GetTeam() )
-				{
-					// Strange Health Provided to Allies
-					EconEntity_OnOwnerKillEaterEvent( 
-						dynamic_cast<CEconEntity *>( GetBuilder()->GetEntityForLoadoutSlot( LOADOUT_POSITION_PDA ) ),
-						GetBuilder(),
-						pPlayer,
-						kKillEaterEvent_HealingProvided,
-						(int)flHealingDone
-					);
-				}
-			}
-		}
 	}
 }
 
@@ -973,12 +951,6 @@ void CObjectDispenser::AddHealingTarget( CBaseEntity *pOther )
 	EHANDLE hOther = pOther;
 	m_hHealingTargets.AddToTail( hOther );
 	NetworkStateChanged();
-
-	// check how many healing targets we now have and possibly award an achievement
-	if ( m_hHealingTargets.Count() >= 3 && GetBuilder() )
-	{
-		GetBuilder()->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_DISPENSER_HEAL_GROUP );
-	}
 }
 
 //-----------------------------------------------------------------------------

@@ -12,7 +12,6 @@
 #include "tier3/tier3.h"
 #ifdef CLIENT_DLL
 #include "c_tf_player.h"
-#include "item_pickup_panel.h"
 #include "KeyValues.h"
 #include "filesystem.h"
 #include "character_info_panel.h"
@@ -25,12 +24,10 @@
 #include "econ/econ_item_preset.h"
 #include "tf_shared_content_manager.h"
 #include "c_playerresource.h"
-#include "quest_log_panel.h"
-#include "backpack_panel.h"
 #include "materialsystem/itexture.h"
 
 #include "tf_gc_client.h"
-
+#include <tier3/mdlutils.h>
 #else
 #include "tf_player.h"
 #endif
@@ -49,118 +46,6 @@
 using namespace GCSDK;
 
 #define LOCAL_LOADOUT_FILE		"cfg/local_loadout.txt"
-
-#ifdef CLIENT_DLL
-//-----------------------------------------------------------------------------
-CEconNotification_HasNewItems::CEconNotification_HasNewItems() : CEconNotification()
-{
-	m_bHasTriggered = false;
-	m_flExpireTime = -1.0f;		// Does not initially expire
-
-	m_bShowInGame = false;
-
-	// Check to see if any items are not drops, if so show in game
-	// do not show in game if the new items are only drops
-	CPlayerInventory *pLocalInv = InventoryManager()->GetLocalInventory();
-	if ( pLocalInv )
-	{
-		// Go through the root inventory and find any items that are in the "found" position
-		int iCount = pLocalInv->GetItemCount();
-		for ( int i = 0; i < iCount; i++ )
-		{
-			CEconItemView *pTmp = pLocalInv->GetItem(i);
-			if ( !pTmp )
-				continue;
-
-			if ( pTmp->GetStaticData()->IsHidden() )
-				continue;
-
-			uint32 iPosition = pTmp->GetInventoryPosition();
-			if ( IsUnacknowledged(iPosition) == false )
-				continue;
-			if ( InventoryManager()->GetBackpackPositionFromBackend(iPosition) != 0 )
-				continue;
-
-			// Now make sure we haven't got a clientside saved ack for this item.
-			if ( InventoryManager()->HasBeenAckedByClient( pTmp ) )
-				continue;
-
-			// If item is not a drop we want to show the notification otherwise they'll get the notification on death
-			int iFoundMethod = GetUnacknowledgedReason( iPosition );
-			if ( iFoundMethod > UNACK_ITEM_DROPPED )
-			{
-				m_bShowInGame = true;
-				break;
-			}
-		}
-	}
-}
-	
-
-CEconNotification_HasNewItems::~CEconNotification_HasNewItems()
-{
-	if ( !m_bHasTriggered )
-	{
-		m_bHasTriggered = true;
-		TFInventoryManager()->ShowItemsPickedUp( true, true, true );
-	}
-}
-
-//-----------------------------------------------------------------------------
-CEconNotification_HasNewItemsOnKill::CEconNotification_HasNewItemsOnKill( int iVictimID )
-{
-	m_bHasTriggered = false;
-	SetLifetime( 3.0f );
-	SetText( "#TF_EnemyDroppedItem" );
-
-	wchar_t wszPlayerName[MAX_PLAYER_NAME_LENGTH];
-	g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( iVictimID ), wszPlayerName, sizeof( wszPlayerName ) );
-	AddStringToken( "victim", wszPlayerName );
-
-	m_bShowInGame = true;
-}
-
-/*static*/ bool CEconNotification_HasNewItemsOnKill::HasUnacknowledgedItems () 
-{
-	// Check to see if any items are not drops, if so show in game
-	// do not show in game if the new items are only drops
-	CPlayerInventory *pLocalInv = InventoryManager()->GetLocalInventory();
-	if ( pLocalInv )
-	{
-		// Go through the root inventory and find any items that are in the "found" position
-		int iCount = pLocalInv->GetItemCount();
-		for ( int i = 0; i < iCount; i++ )
-		{
-			CEconItemView *pTmp = pLocalInv->GetItem( i );
-			if ( !pTmp )
-				continue;
-
-			if ( pTmp->GetStaticData()->IsHidden() )
-				continue;
-
-			uint32 iPosition = pTmp->GetInventoryPosition();
-			if ( IsUnacknowledged( iPosition ) == false )
-				continue;
-			if ( InventoryManager()->GetBackpackPositionFromBackend( iPosition ) != 0 )
-				continue;
-
-			// Now make sure we haven't got a clientside saved ack for this item.
-			if ( InventoryManager()->HasBeenAckedByClient( pTmp ) )
-				continue;
-
-			// If item is not a drop we want to show the notification otherwise they'll get the notification on death
-			int iFoundMethod = GetUnacknowledgedReason( iPosition );
-			if ( iFoundMethod > UNACK_ITEM_DROPPED )
-			{
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -247,7 +132,7 @@ void CTFInventoryManager::GenerateBaseItems( void )
 	for ( int it = iStart; it != mapItems.InvalidIndex(); it = mapItems.NextInorder( it ) )
 	{
 		CEconItemView *pItem = new CEconItemView;
-		pItem->Init( mapItems[it]->GetDefinitionIndex(), AE_USE_SCRIPT_VALUE, AE_USE_SCRIPT_VALUE, false );
+		pItem->Init( mapItems[it]->GetDefinitionIndex(), NULL );
 		m_pBaseLoadoutItems.AddToTail( pItem );
 	}
 }
@@ -322,10 +207,6 @@ int	CTFInventoryManager::GetAllUsableItemsForSlot( int iClass, int iSlot, CUtlVe
 		if ( iSlot >= 0 && pItem->GetStaticData()->GetLoadoutSlot( iClass ) != iSlot )
 			continue;
 
-		// Ignore unpack'd items
-		if ( IsUnacknowledged( pItem->GetInventoryPosition() ) )
-			continue;
-
 		pList->AddToTail( m_LocalInventory.GetItem(i) );
 	}
 
@@ -397,133 +278,6 @@ CTFPlayerInventory *CTFInventoryManager::GetInventoryForPlayer( const CSteamID &
 }
 
 #ifdef CLIENT_DLL
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int CTFInventoryManager::GetNumItemPickedUpItems( void )
-{
-	int iResult = 0;
-	int iCount = m_LocalInventory.GetItemCount();
-	for ( int i = 0; i < iCount; i++ )
-	{
-		if ( IsUnacknowledged( m_LocalInventory.GetItem(i)->GetInventoryPosition() ) && !m_LocalInventory.GetItem(i)->GetStaticData()->IsHidden() )
-		{
-			++iResult;
-		}
-	}
-	return iResult;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CTFInventoryManager::ShowItemsPickedUp( bool bForce, bool bReturnToGame, bool bNoPanel )
-{
-	// don't show new items in training, unless forced to do so
-	// i.e. purchased something or traded...
-	if ( bForce == false && TFGameRules() && ( TFGameRules()->IsInTraining() || TFGameRules()->IsCompetitiveMode() ) )
-	{
-		return false;
-	}
-
-	// Don't bring it up if we're already browsing something in the gameUI
-	vgui::VPANEL gameuiPanel = enginevgui->GetPanel( PANEL_GAMEUIDLL );
-	if ( !bForce && vgui::ipanel()->IsVisible( gameuiPanel ) )
-		return false;
-
-	CUtlVector<CEconItemView*> aItemsFound;
-
-	// Go through the root inventory and find any items that are in the "found" position
-	int iCount = m_LocalInventory.GetItemCount();
-	for ( int i = 0; i < iCount; i++ )
-	{
-		CEconItemView *pTmp = m_LocalInventory.GetItem(i);
-		if ( !pTmp )
-			continue;
-
-		if ( pTmp->GetStaticData()->IsHidden() )
-			continue;
-
-		uint32 iPosition = pTmp->GetInventoryPosition();
-		if ( IsUnacknowledged(iPosition) == false )
-			continue;
-		if ( GetBackpackPositionFromBackend(iPosition) != 0 )
-			continue;
-
-		// Now make sure we haven't got a clientside saved ack for this item.
-		// This makes sure we don't show multiple pickups for items that we've found,
-		// but haven't been able to move out of unack'd position due to the GC being unavailable.
-		if ( HasBeenAckedByClient( pTmp ) )
-			continue;
-
-		aItemsFound.AddToTail( pTmp );
-	}
-
-	if ( !aItemsFound.Count() )
-		return CheckForRoomAndForceDiscard();
-
-	// We're not forcing the player to make room yet. Just show the pickup panel.
-	NotificationQueue_Remove( &CEconNotification_HasNewItems::IsNotificationType );
-	CItemPickupPanel *pItemPanel = bNoPanel ? NULL : EconUI()->OpenItemPickupPanel();
-
-	if ( pItemPanel )
-	{
-		pItemPanel->SetReturnToGame( bReturnToGame );
-	}
-
-	// Only acknowledge items if there is no panel
-	// Panel will make calls to acknowledge items itself 
-	for ( int i = 0; i < aItemsFound.Count(); i++ )
-	{
-		if ( pItemPanel )
-		{
-			pItemPanel->AddItem( aItemsFound[i] );
-		}
-		else 
-		{
-			AcknowledgeItem( aItemsFound[i] );
-		}
-	}
-
-	if ( pItemPanel )
-	{
-		pItemPanel->MoveToFront();
-	}
-	else
-	{
-		SaveAckFile();
-	}
-	
-	aItemsFound.Purge();
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-void CTFInventoryManager::AcknowledgeItem( CEconItemView *pItem, bool bMoveToBackpack /* = true */ )
-{
-	SetAckedByClient( pItem );
-
-	int iMethod = GetUnacknowledgedReason( pItem->GetInventoryPosition() ) - 1;
-	if ( iMethod >= ARRAYSIZE( g_pszItemPickupMethodStringsUnloc ) || iMethod < 0 )
-		iMethod = 0;
-	EconUI()->Gamestats_ItemTransaction( IE_ITEM_RECEIVED, pItem, g_pszItemPickupMethodStringsUnloc[iMethod] );
-
-	if ( iMethod+1 == UNACK_ITEM_PREVIEW_ITEM_PURCHASED )
-	{
-		// If we found a purchased preview item, we want to refresh the store view to remove the discount indicator.
-		CStorePage* pStorePage = dynamic_cast<CStorePage*>( EconUI()->GetStorePanel()->GetActivePage() );
-		if ( pStorePage )
-		{
-			pStorePage->UpdateModelPanels();
-		}
-	}
-
-	// Move it to the first empty backpack position.
-	if ( bMoveToBackpack )
-	{
-		SetItemBackpackPosition( pItem, 0, false, true );
-	}
-}
 
 void CTFInventoryManager::Update( float frametime )
 {
@@ -533,93 +287,6 @@ void CTFInventoryManager::Update( float frametime )
 	BaseClass::Update( frametime );
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFInventoryManager::ShowItemsCrafted( CUtlVector<itemid_t> *vecCraftedIndices )
-{
-	CUtlVector<CEconItemView*> aItemsFound;
-	FOR_EACH_VEC( *vecCraftedIndices, i )
-	{
-		CEconItemView *pItem = m_LocalInventory.GetInventoryItemByItemID( vecCraftedIndices->Element(i) );
-		if ( pItem )
-		{
-			// Now make sure we haven't got a clientside saved ack for this item.
-			// This makes sure we don't show multiple pickups for items that we've found,
-			// but haven't been able to move out of unack'd position due to the GC being unavailable.
-			if ( !HasBeenAckedByClient( pItem ) )
-			{
-				aItemsFound.AddToTail( pItem );
-			}
-		}
-	}
-
-	if ( !aItemsFound.Count() )
-		return;
-
-	NotificationQueue_Remove( &CEconNotification_HasNewItems::IsNotificationType );
-	CItemPickupPanel *pItemPanel = EconUI()->OpenItemPickupPanel();
-	for ( int i = 0; i < aItemsFound.Count(); i++ )
-	{
-		pItemPanel->AddItem( aItemsFound[i] );
-
-		SetAckedByClient( aItemsFound[i] );
-
-#ifdef CLIENT_DLL
-		EconUI()->Gamestats_ItemTransaction( IE_ITEM_RECEIVED, aItemsFound[i], "crafted" );
-#endif
-
-		// Then move it to the first empty backpack position
-		SetItemBackpackPosition( aItemsFound[i], 0, false, true );
-	}
-	SaveAckFile();
-	pItemPanel->MoveToFront();
-
-	aItemsFound.Purge();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CTFInventoryManager::CheckForRoomAndForceDiscard( void )
-{
-	// Go through the inventory and attempt to move any items outside the backpack into valid positions.
-	// Remember the first item that we failed to move, so we can force a discard later.
-	CEconItemView *pItem = NULL;
-	const int iMaxItems = m_LocalInventory.GetMaxItemCount();
-	int iCount = m_LocalInventory.GetItemCount();
-	for ( int i = 0; i < iCount; i++ )
-	{
-		CEconItemView *pTmp = m_LocalInventory.GetItem(i);
-		if ( !pTmp )
-			continue;
-
-		if ( pTmp->GetStaticData()->IsHidden() )
-			continue;
-
-		uint32 iPosition = pTmp->GetInventoryPosition();
-		if ( IsUnacknowledged(iPosition) || GetBackpackPositionFromBackend(iPosition) > iMaxItems )
-		{
-			if ( !SetItemBackpackPosition( pTmp, 0, false, false ) )
-			{
-				pItem = pTmp;
-				break;
-			}
-		}
-	}
-
-	// If we're not over the limit, we're done.
-	if ( ( iCount - m_iPredictedDiscards ) <= iMaxItems )
-		return false;
-
-	if ( !pItem )
-		return false;
-
-	// We're forcing the player to make room for items he's found. Bring up that panel with the first item over the limit.
-	CItemDiscardPanel *pDiscardPanel = EconUI()->OpenItemDiscardPanel();
-	pDiscardPanel->SetItem( pItem );
-	return true;
-}
 #endif
 
 bool CTFInventoryManager::SlotContainsBaseItems( EEquipType_t eType, int iSlot )
@@ -716,104 +383,6 @@ CEconItemView *CTFInventoryManager::GetBaseItemForClass( int iClass, int iSlot )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Fills out the vector with the sets that are currently active on the specified player & class
-//-----------------------------------------------------------------------------
-void CTFInventoryManager::GetActiveSets( CUtlVector<const CEconItemSetDefinition *> *pItemSets, CSteamID steamIDForPlayer, int iClass )
-{
-	pItemSets->Purge();
-
-	CEconItemSchema *pSchema = ItemSystem()->GetItemSchema();
-	if ( !pSchema )
-		return;
-
-	// Loop through all the items we have equipped, and build a list of only set items
-	// Accumulate a list of our equipped set items.
-	CUtlVector<CEconItemView*> equippedSetItems;
-	for ( int i = 0; i < CLASS_LOADOUT_POSITION_COUNT; i++ )
-	{
-		CEconItemView *pItem = NULL;
-
-#ifdef GAME_DLL
-		// On the server we need to look at what the player actually has equipped
-		// because they might be on a tournament server that's using an item_whitelist
-		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerBySteamID( steamIDForPlayer ) );
-		if ( pPlayer && pPlayer->Inventory() )
-		{
-			pItem = pPlayer->GetEquippedItemForLoadoutSlot( i );
-		}
-#else
-		pItem = TFInventoryManager()->GetItemInLoadoutForClass( iClass, i, &steamIDForPlayer );
-#endif		
-
-		if ( !pItem )
-			continue;
-
-		CEconItemDefinition* pData = pItem->GetStaticData();
-		if ( !pData )
-			continue;
-
-		// Ignore items that don't have set bonuses.
-		if ( !pData->GetItemSetDefinition() )
-			continue;
-
-		// Make sure this item isn't failing a Holiday restriction before giving out the set bonus!
-		if ( pData->GetHolidayRestriction() )
-		{
-			int iHolidayRestriction = UTIL_GetHolidayForString( pData->GetHolidayRestriction() );
-			if ( iHolidayRestriction != kHoliday_None && (!TFGameRules() || !TFGameRules()->IsHolidayActive( iHolidayRestriction )) )
-				continue;
-		}
-
-		equippedSetItems.AddToTail( pItem );
-	}
-
-	// Find out which sets to apply.
-	CUtlVector<const char*> testedSets;
-	for ( int inv = 0; inv < equippedSetItems.Count(); inv++ )
-	{
-		CEconItemView *pItem = equippedSetItems[inv];
-		if ( !pItem )
-			continue;
-
-		const CEconItemSetDefinition *pItemSet = pItem->GetStaticData()->GetItemSetDefinition();
-		if ( !pItemSet )
-			continue;
-
-		if ( testedSets.HasElement( pItemSet->m_strName ) )
-			continue; // Don't try to apply set bonuses we have already tested.
-
-		testedSets.AddToTail( pItemSet->m_strName );
-
-		// Count how much of this set we have equipped.
-		int iSetItemsEquipped = 0;
-		for ( int i=0; i<pItemSet->m_iItemDefs.Count(); i++ )
-		{
-			unsigned int iIndex = pItemSet->m_iItemDefs[i];
-
-			for ( int j=0; j<equippedSetItems.Count(); j++ )
-			{
-				const CEconItemView *pTestItem = equippedSetItems[j];
-				const item_definition_index_t unEquippedItemSetDefIndex = pTestItem->GetItemDefinition()->GetSetItemRemap();
-
-				if ( iIndex == unEquippedItemSetDefIndex )
-				{
-					iSetItemsEquipped++;
-					break;
-				}
-			}
-		}
-
-		// Note: this logic will break if we ever have sets that have misc-slot items where we can have multiple items
-		// of the same type with different remaps equipped.
-		if ( iSetItemsEquipped == pItemSet->m_iItemDefs.Count() )
-		{
-			// The entire set is equipped. 
-			pItemSets->AddToTail( pItemSet );
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: We're generating a base item. We need to add the game-specific keys to the criteria so that it'll find the right base item.
 //-----------------------------------------------------------------------------
 void CTFInventoryManager::AddBaseItemCriteria( baseitemcriteria_t *pCriteria, CItemSelectionCriteria *pSelectionCriteria )
@@ -822,31 +391,11 @@ void CTFInventoryManager::AddBaseItemCriteria( baseitemcriteria_t *pCriteria, CI
 	pSelectionCriteria->BAddCondition( "item_slot", k_EOperator_String_EQ, ItemSystem()->GetItemSchema()->GetLoadoutStrings( EEquipType_t::EQUIP_TYPE_CLASS )[pCriteria->iSlot], true );
 }
 
-
-//=======================================================================================================================
-// TF PLAYER INVENTORY
-//=======================================================================================================================
-// Inventory Less function.
-// Used to sort the inventory items into their positions.
-class CTFInventoryListLess
-{
-public:
-	bool Less( const CEconItemView &src1, const CEconItemView &src2, void *pCtx )
-	{
-		if ( src1.GetInventoryPosition() > src2.GetInventoryPosition() )
-			return true;
-
-		return false;
-	}
-};
-
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 CTFPlayerInventory::CTFPlayerInventory()
 {
-	m_aInventoryItems.SetLessContext( this );
 #ifdef CLIENT_DLL
 	for ( int i = 0; i < TF_TEAM_COUNT; ++i ) 
 		m_CachedBaseTextureLowRes[ i ].SetLessFunc( DefLessFunc( itemid_t ) );
@@ -877,20 +426,6 @@ CTFPlayerInventory::~CTFPlayerInventory()
 
 
 #ifdef CLIENT_DLL
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFPlayerInventory::CheckSaxtonMaskAchievement( const CEconItem *pEconItem )
-{
-	if ( pEconItem )
-	{
-		if ( pEconItem->GetDefinitionIndex() == 277 && pEconItem->GetOrigin() == kEconItemOrigin_Crafted )	// Saxton mask is item index 277
-		{
-			g_AchievementMgrTF.OnAchievementEvent( ACHIEVEMENT_TF_HALLOWEEN_CRAFT_SAXTON_MASK );
-		}
-	}
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1091,168 +626,7 @@ void CTFPlayerInventory::UnequipLocal(uint64 ulItemID)
 void CTFPlayerInventory::SOUpdated( const CSteamID & steamIDOwner, const GCSDK::CSharedObject *pObject, GCSDK::ESOCacheEvent eEvent )
 {
 	BaseClass::SOUpdated( steamIDOwner, pObject, eEvent );
-
-#ifdef CLIENT_DLL
-	if ( pObject->GetTypeID() != CEconItem::k_nTypeID )
-		return;
-
-	// Clear out any predicted backpack slots when items move into them
-	CEconItem *pEconItem = (CEconItem *)pObject;
-	if ( eEvent == eSOCacheEvent_Incremental )
-	{
-		EconUI()->GetBackpackPanel()->MarkItemIDDirty( pEconItem->GetItemID() );
-	}
-	int iBackpackPos = TFInventoryManager()->GetBackpackPositionFromBackend( pEconItem->GetInventoryToken() );
-	TFInventoryManager()->PredictedBackpackPosFilled( iBackpackPos );
-#endif // CLIENT_DLL
 }
-
-void CTFPlayerInventory::OnHasNewItems()
-{
-	BaseClass::OnHasNewItems();
-#ifdef CLIENT_DLL
-	if ( TFGameRules() && TFGameRules()->IsInTraining() )
-		return;
-
-	NotificationQueue_Remove( &CEconNotification_HasNewItems::IsNotificationType );
-	CEconNotification_HasNewItems *pNotification = new CEconNotification_HasNewItems();
-	pNotification->SetText( "TF_HasNewItems" );
-	pNotification->SetLifetime( 7.0f );
-	NotificationQueue_Add( pNotification );	
-#endif
-}
-
-void CTFPlayerInventory::OnHasNewQuest()
-{
-#ifdef CLIENT_DLL
-
-#endif
-}
-
-#ifdef _DEBUG
-#ifdef CLIENT_DLL
-CON_COMMAND( cl_newitem_test, "Tests the new item ui notification." )
-{
-	if ( steamapicontext == NULL || steamapicontext->SteamUser() == NULL )
-		return;
-
-	CEconNotification_HasNewItems *pNotification = new CEconNotification_HasNewItems();
-	pNotification->SetText( "TF_HasNewItems" );
-	pNotification->SetLifetime( 7.0f );
-	NotificationQueue_Add( pNotification );
-}
-#endif
-#endif // _DEBUG
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFPlayerInventory::ValidateInventoryPositions( void )
-{
-	BaseClass::ValidateInventoryPositions();
-
-#ifdef CLIENT_DLL
-	bool bHasNewItems = false;
-	const int iMaxItems = GetMaxItemCount();
-	// First, check for duplicate positions
-	int iCount = m_aInventoryItems.Count();
-	for ( int i = iCount-1; i >= 0; i-- )
-	{
-		CEconItemView *pEconItemView = &m_aInventoryItems[i];
-
-		CheckSaxtonMaskAchievement( pEconItemView->GetSOCData() );
-
-		uint32 iPosition = pEconItemView->GetInventoryPosition();
-
-		// Waiting to be acknowledged?
-		if ( IsUnacknowledged(iPosition) )
-		{
-			if ( !pEconItemView->GetStaticData()->IsHidden() )
-			{
-				bHasNewItems = true;
-			}
-			continue;
-		}
-
-		bool bInvalidSlot = false;
-		if ( !IsNewPositionFormat(iPosition) )
-		{
-			ConvertOldFormatInventoryToNew();
-			break;
-		}
-
-		// Inside the backpack?
-		if ( i < (iCount-1) )
-		{
-			// We're not in an invalid slot yet. But if we're in the same position as another item, we should be moved too.
-			int iPos1 = TFInventoryManager()->GetBackpackPositionFromBackend(iPosition);
-			int iPos2 = TFInventoryManager()->GetBackpackPositionFromBackend(m_aInventoryItems[i+1].GetInventoryPosition());
-			if ( iPos1 == iPos2 )
-			{
-				Warning("WARNING: Found item in a duplicate backpack position. Moving to the backpack end.\n" );
-				bInvalidSlot = true;
-			}
-		}
-
-		// Make sure it's not outside the backpack extents
-		if ( !bInvalidSlot )
-		{
-			bInvalidSlot = (TFInventoryManager()->GetBackpackPositionFromBackend(iPosition) > iMaxItems);
-		}
-
-		if ( bInvalidSlot  )
-		{
-			// The item is NOT hidden and is in an invalid slot. Move it back to the backpack.
-			if ( pEconItemView->GetItemDefinition() && !pEconItemView->GetItemDefinition()->IsHidden() && !TFInventoryManager()->SetItemBackpackPosition( pEconItemView, 0, true ) )
-			{
-				// We failed to move it to the backpack, because the player has no room.
-				// Force them to "refind" the item, which will make them throw something out.
-				TFInventoryManager()->UpdateInventoryPosition( this, pEconItemView->GetItemID(), GetUnacknowledgedPositionFor(UNACK_ITEM_DROPPED) );
-			}
-		}
-
-		// Make sure it isn't equipped by any invalid classes.
-		for ( int j = TF_FIRST_NORMAL_CLASS; j <= TF_LAST_NORMAL_CLASS; j++ )
-		{
-			if ( !pEconItemView->GetStaticData()->CanBeUsedByClass( j ) &&
-				 pEconItemView->IsEquippedForClass( j ) )
-			{
-				// Unequip this item from this class.
-				InventoryManager()->UpdateInventoryEquippedState( this, INVALID_ITEM_ID, j, pEconItemView->GetEquippedPositionForClass( j ) );
-			}
-		}
-	}
-
-	if ( bHasNewItems )
-	{
-		OnHasNewItems();
-	}
-#endif
-}
-
-#ifdef CLIENT_DLL
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFPlayerInventory::ConvertOldFormatInventoryToNew( void )
-{
-	uint32 iBackpackPos = 1;
-
-	// Loop through all items in the inventory. Move them all to the backpack, and in order.
-	int iCount = m_aInventoryItems.Count();
-	for ( int i = 0; i < iCount; i++ )
-	{
-		uint32 iPosition = m_aInventoryItems[i].GetInventoryPosition();
-
-		// Waiting to be acknowledged?
-		if ( IsUnacknowledged(iPosition) )
-			continue;
-
-		TFInventoryManager()->SetItemBackpackPosition( &m_aInventoryItems[i], iBackpackPos, true );
-		iBackpackPos++;
-	}
-}
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Creates a script item and associates it with this econ item
@@ -1260,85 +634,6 @@ void CTFPlayerInventory::ConvertOldFormatInventoryToNew( void )
 void CTFPlayerInventory::SOCreated( const CSteamID & steamIDOwner, const GCSDK::CSharedObject *pObject, GCSDK::ESOCacheEvent eEvent )
 {
 	BaseClass::SOCreated( steamIDOwner, pObject, eEvent );
-
-	if ( pObject->GetTypeID() != CEconItem::k_nTypeID )
-		return;
-
-	CEconItem *pEconItem = (CEconItem *)pObject;
- //	CEconItem *pEconItem = assert_cast<CEconItem*>( pObject );
-
-#ifdef CLIENT_DLL
-	if ( InventoryManager()->GetLocalInventory() == this && GetOwner() == steamIDOwner )
-	{
-		if ( pObject->GetTypeID() == CEconItem::k_nTypeID )
-		{
-			CheckSaxtonMaskAchievement( (CEconItem*)pObject );
-		}
-	}
-
-//	CSteamID ownerSteamID( pEconItem->GetAccountID(), GetUniverse(), k_EAccountTypeIndividual );
-//	if ( ownerSteamID == ClientSteamContext().GetLocalPlayerSteamID() )
-//	{
-//		CheckSaxtonMaskAchievement( pEconItem );
-//	}
-
-	static CSchemaItemDefHandle pItemDef_HardyLaurel( "The Hardy Laurel" );
-	if ( pEconItem->GetItemDefinition() == pItemDef_HardyLaurel )
-	{
-		if ( TFSharedContentManager() )
-		{
-			TFSharedContentManager()->OfferSharedVision( TF_VISION_FILTER_ROME, pEconItem->GetAccountID() );
-		}
-	}
- #else
-	// Summer 2015 Operation Pass so players can display the coin
-	// remove this when we have a coin equip slot
-	static CSchemaItemDefHandle pItemDef_Summer2015Operation( "Activated Summer 2015 Operation Pass" );
-	if ( pEconItem->GetItemDefinition() == pItemDef_Summer2015Operation )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerBySteamID( GetOwner() ) );
-		if ( pPlayer )
-		{
-			pPlayer->SetCampaignMedalActive( CAMPAIGN_MEDAL_SUMMER2015 );
-		}
-	}
-
-	// Invasion Community Update Pass so players can display the coin
-	// remove this when we have a coin equip slot
-	static CSchemaItemDefHandle pItemDef_InvasionPass( "Activated Invasion Pass" );
-	if ( pEconItem->GetItemDefinition() == pItemDef_InvasionPass )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerBySteamID( GetOwner() ) );
-		if ( pPlayer )
-		{
-			pPlayer->SetCampaignMedalActive( CAMPAIGN_MEDAL_INVASION );
-		}
-	}
-
-	// Halloween Pass so players can display the coin
-	// remove this when we have a coin equip slot
-	static CSchemaItemDefHandle pItemDef_HalloweenPass( "Activated Halloween Pass" );
-	if ( pEconItem->GetItemDefinition() == pItemDef_HalloweenPass )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerBySteamID( GetOwner() ) );
-		if ( pPlayer )
-		{
-			pPlayer->SetCampaignMedalActive( CAMPAIGN_MEDAL_HALLOWEEN );
-		}
-	}
-
-	// Winter2016 Pass so players can display the stamp
-	// remove this when we have a coin equip slot
-	static CSchemaItemDefHandle pItemDef_Winter2016Pass( "Activated Operation Tough Break Pass" );
-	if ( pEconItem->GetItemDefinition() == pItemDef_Winter2016Pass )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerBySteamID( GetOwner() ) );
-		if ( pPlayer )
-		{
-			pPlayer->SetCampaignMedalActive( CAMPAIGN_MEDAL_WINTER2016 );
-		}
-	}
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1361,7 +656,7 @@ void CTFPlayerInventory::DumpInventoryToConsole( bool bRoot )
 	Msg("   Num items: %d\n", iCount );
 	for ( int i = 0; i < iCount; i++ )
 	{
-		Msg("      %s (ID %llu) at backpack slot %d\n", m_aInventoryItems[i].GetStaticData()->GetDefinitionName(), m_aInventoryItems[i].GetItemID(), TFInventoryManager()->GetBackpackPositionFromBackend( m_aInventoryItems[i].GetInventoryPosition() ) );
+		Msg("      %s (ID %llu) at backpack slot %d\n", m_aInventoryItems[i].GetStaticData()->GetDefinitionName(), m_aInventoryItems[i].GetItemID(), 0 );
 
 		int iEquipped = 0;
 		for ( equipped_class_t eq = TF_FIRST_NORMAL_CLASS; eq < TF_LAST_NORMAL_CLASS; eq++ )
@@ -1717,16 +1012,6 @@ void CTFPlayerInventory::ItemHasBeenUpdated( CEconItemView *pItem, bool bUpdateA
 		if ( bThisClassLoadoutChanged )
 		{
 			m_bLoadoutChanged[iClass] = true;
-
-#ifdef CLIENT_DLL
-			// if we can inspect this item, it has unique skin.
-			// draw it once per team to tell the system to generate unique skin
-			if ( bLocalInv && GetPaintKitDefIndex( pItem ) )
-			{
-				SkinRequest_t req = { TF_TEAM_RED, pItem->GetItemID(), MDLHANDLE_INVALID };
-				m_vecWeaponSkinRequestList.AddToTail( req );
-			}
-#endif // CLIENT_DLL
 		}
 	}
 
@@ -1799,14 +1084,6 @@ bool CTFPlayerInventory::AddEconItem( CEconItem * pItem, bool bUpdateAckFile, bo
 {
 	if ( BaseClass::AddEconItem( pItem, bUpdateAckFile, bWriteAckFile, bCheckForNewItems ) )
 	{
-		if ( bCheckForNewItems && InventoryManager()->GetLocalInventory() == this )
-		{
-			if ( IsUnacknowledged( pItem->GetInventoryToken() ) )
-			{
-				OnHasNewQuest();
-			}
-		}
-
 		return true;
 	}
 
@@ -1968,17 +1245,6 @@ CON_COMMAND_F( item_dumpinv_sv, "Dumps the contents of a specified server invent
 	pInventory->DumpInventoryToConsole( true );
 }
 #endif
-
-#ifdef _DEBUG
-#if defined(CLIENT_DLL)
-CON_COMMAND_F( item_deleteunknowns, "Deletes all items in your inventory that we don't have static data for. Useful for removing items that have been removed from the backend.", FCVAR_CHEAT )
-{
-	int iDeleted = TFInventoryManager()->DeleteUnknowns( InventoryManager()->GetLocalInventory() );
-	Msg("Deleted %d unknown items.\n", iDeleted);
-}
-#endif
-#endif
-
 
 #if defined( TF_CLIENT_DLL )
 CON_COMMAND( load_itempreset, "Equip all items for a given preset on the player." )

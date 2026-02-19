@@ -1,4 +1,4 @@
-#base "SourceSchemeBase.res"
+#base "sourceschemebase.res"
 
 Scheme
 {
@@ -753,7 +753,7 @@ Scheme
 	{
 		"6" 
 		{
-			"font" "resource/TF2Build.ttf"
+			"font" "resource/tf2build.ttf"
 			"name" "TF2 Build"
 			"turkish"
 			{
@@ -812,13 +812,13 @@ Scheme
 				"range" "0x0000 0x0451"
 			}	
 		}
-		"10"		"resource/linux_fonts/DejaVuSans.ttf"
-		"11"		"resource/linux_fonts/DejaVuSans-Bold.ttf"
-		"12"		"resource/linux_fonts/DejaVuSans-BoldOblique.ttf"
-		"13"		"resource/linux_fonts/DejaVuSans-Oblique.ttf"
-		"14"		"resource/linux_fonts/LiberationSans-Regular.ttf"
-		"15"		"resource/linux_fonts/LiberationSans-Bold.ttf"
-		"16"		"resource/linux_fonts/LiberationMono-Regular.ttf"
-		"17"		"resource/linux_fonts/FiraSans-Regular.ttf"
+		"10"		"resource/linux_fonts/dejavusans.ttf"
+		"11"		"resource/linux_fonts/dejavusans-bold.ttf"
+		"12"		"resource/linux_fonts/dejavusans-boldoblique.ttf"
+		"13"		"resource/linux_fonts/dejavusans-oblique.ttf"
+		"14"		"resource/linux_fonts/liberationsans-regular.ttf"
+		"15"		"resource/linux_fonts/liberationsans-bold.ttf"
+		"16"		"resource/linux_fonts/liberationmono-regular.ttf"
+		"17"		"resource/linux_fonts/firasans-regular.ttf"
 	}
 }

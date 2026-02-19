@@ -739,11 +739,6 @@ void CTFFlameManager::OnCollide( CBaseEntity *pEnt, int iPointIndex )
 				{
 					iDamageType |= DMG_CRITICAL;
 				}
-
-				if ( pVictim )
-				{
-					pVictim->HandleAchievement_Pyro_BurnFromBehind( ToTFPlayer( pAttacker ) );
-				}
 			}
 
 			// Pyro-specific
@@ -752,17 +747,6 @@ void CTFFlameManager::OnCollide( CBaseEntity *pEnt, int iPointIndex )
 				CTFPlayer *pPlayerAttacker = ToTFPlayer( pAttacker );
 				if ( pPlayerAttacker && pPlayerAttacker->IsPlayerClass( TF_CLASS_PYRO ) )
 				{
-					// burn the victim while taunting?
-					if ( pVictim->m_Shared.InCond( TF_COND_TAUNTING ) )
-					{
-						static CSchemaItemDefHandle flipTaunt( "Flippin' Awesome Taunt" );
-						// if I'm the one being flipped, and getting lit on fire
-						if ( !pVictim->IsTauntInitiator() && pVictim->GetTauntEconItemView() && pVictim->GetTauntEconItemView()->GetItemDefinition() == flipTaunt )
-						{
-							pPlayerAttacker->AwardAchievement( ACHIEVEMENT_TF_PYRO_IGNITE_PLAYER_BEING_FLIPPED );
-						}
-					}
-
 					pVictim->m_Shared.AddCond( TF_COND_HEALING_DEBUFF, 2.f, pAttacker );
 				}
 			}

@@ -1238,14 +1238,6 @@ bool CTFSpellBook::CastSpell( CTFPlayer *pPlayer, int iSpellIndex )
 		if ( !pSpellData)
 			return false;
 
-		if ( IsRareSpell( iSpellIndex ) )
-		{
-			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_HIGHTOWER ) )
-			{
-				pPlayer->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_HELLTOWER_RARE_SPELL );
-			}
-		}
-
 		// Save off what we cast for jar think
 		m_iPreviouslyCastSpell = m_iSelectedSpellIndex;
 

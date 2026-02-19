@@ -564,15 +564,6 @@ public:
 	bool InAirDueToExplosion( void ) { return (!(GetFlags() & FL_ONGROUND) && (GetWaterLevel() == WL_NotInWater) && ( (m_iBlastJumpState != 0) ) || m_Shared.InCond( TF_COND_ROCKETPACK ) ); }
 	bool InAirDueToKnockback( void ) { return (!(GetFlags() & FL_ONGROUND) && (GetWaterLevel() == WL_NotInWater) && ( (m_iBlastJumpState != 0) || m_Shared.InCond( TF_COND_KNOCKED_INTO_AIR ) || m_Shared.InCond( TF_COND_GRAPPLINGHOOK ) || m_Shared.InCond( TF_COND_GRAPPLINGHOOK_SAFEFALL ) ) ); }
 
-	bool IsCoaching() const { return m_bIsCoaching; }
-	void SetIsCoaching( bool bIsCoaching );
-
-	void SetCoach( CTFPlayer *pCoach ) { m_hCoach = pCoach; }
-	CTFPlayer* GetCoach() const { return m_hCoach; }
-
-	void SetStudent( CTFPlayer *pStudent ) { m_hStudent = pStudent; }
-	CTFPlayer* GetStudent() const { return m_hStudent; }
-
 	void DoNoiseMaker(); // Halloween event item support.
 
 	bool IsWormsGearEquipped( void ) const;
@@ -637,11 +628,6 @@ public:
 	int m_flNextTimeCheck;		// Next time the player can execute a "timeleft" command
 
 	CNetworkVar( bool, m_bSaveMeParity );
-	
-	CNetworkVar( bool, m_bIsCoaching);
-	CNetworkHandle( CTFPlayer, m_hCoach );
-	CNetworkHandle( CTFPlayer, m_hStudent );
-	float	m_flLastCoachCommand;
 
 	CNetworkVar( bool, m_bIsABot );
 	CNetworkVar( int, m_nBotSkill );
@@ -669,8 +655,6 @@ public:
 	void				PostInventoryApplication( void );
 	bool				ItemIsAllowed( CEconItemView *pItem );
 	void				RemovePlayerAttributes( bool bSetBonuses );
-	void				ApplySetBonuses( void );
-	void				GetActiveSets( CUtlVector<const CEconItemSetDefinition *> *pItemSets );
 	void				ValidateWeapons(  TFPlayerClassData_t *pData, bool bResetWeapons );
 	void				ValidateWearables( TFPlayerClassData_t *pData );
 	CEconItemView* GetLoadoutItem( int iClass, int iSlot, bool bReportWhitelistFails = false );
@@ -922,11 +906,6 @@ public:
 
 	// Achievements
 	void				AwardAchievement( int iAchievement, int iCount = 1 );
-	void				HandleAchievement_Medic_AssistHeavy( CTFPlayer *pPunchVictim );
-	void				HandleAchievement_Pyro_BurnFromBehind( CTFPlayer *pBurner );
-
-	void				ClearPunchVictims( void ) { m_aPunchVictims.RemoveAll(); }
-	void				ClearBurnFromBehindAttackers( void ) { m_aBurnFromBackAttackers.RemoveAll(); }
 
 	int					RocketJumped( void ) { return m_iBlastJumpState & TF_PLAYER_ROCKET_JUMPED; }
 	int					StickyJumped( void ) { return m_iBlastJumpState & TF_PLAYER_STICKY_JUMPED; }
@@ -1249,8 +1228,6 @@ public:
 
 private:
 	// Achievement data
-	CUtlVector<EHANDLE> m_aPunchVictims;
-	CUtlVector<EHANDLE> m_aBurnFromBackAttackers;
 	int					m_iLeftGroundHealth;	// health we were at the last time we left the ground
 
 	float				m_flTeamJoinTime;
@@ -1258,8 +1235,6 @@ private:
 	bool				m_bJustPlayed;
 	int					m_iPreviousteam;
 	bool				m_bGibbedOnLastDeath;
-	CUtlMap<int, float> m_Cappers;		
-	float				m_fMaxHealthTime;
 
 	// Feign death.
 	bool				m_bGoingFeignDeath;
@@ -1461,9 +1436,6 @@ public:
 	bool CanPickupDroppedWeapon( const CTFDroppedWeapon *pWeapon );
 	CTFDroppedWeapon* GetDroppedWeaponInRange();
 
-	bool HasCampaignMedal( int iMedal );
-	void SetCampaignMedalActive( int iMedal ){ m_iCampaignMedals |= iMedal; }
-
 	void InspectButtonPressed();
 	void InspectButtonReleased();
 	bool IsInspecting() const;
@@ -1510,8 +1482,6 @@ private:
 
 	CUtlVector< CHandle< CTFWeaponBase > > m_hDisguiseWeaponList; // copy disguise target weapons to this list
 
-	CNetworkVar( int, m_iCampaignMedals );
-
 	float m_flNextScorePointForPD;
 
 	float m_flLastRuneChargeUpdate;
@@ -1546,8 +1516,6 @@ public:
 
 	virtual bool IsTruceValidForEnt( void ) const OVERRIDE;
 
-	virtual bool BHaveChatSuspensionInCurrentMatch() OVERRIDE;
-
 	void StartPowerupModeDominant( bool bIsAlreadyDominant );
 	void EndPowerupModeDominant( void );
 
@@ -1559,14 +1527,6 @@ public:
 
 	virtual bool BCanCallVote() OVERRIDE;
 	bool m_bFirstSpawnAndCanCallVote = false;
-
-
-public:
-	const char *GetShortNick();
-
-	CNetworkString( m_sPlayerShortNick, 5 );
-private:
-
 };
 
 //-----------------------------------------------------------------------------

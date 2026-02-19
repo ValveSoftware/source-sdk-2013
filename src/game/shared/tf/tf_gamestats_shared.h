@@ -444,7 +444,6 @@ struct LoadoutStats_t
 	void Reset()
 	{
 		V_memset( iLoadoutItemDefIndices, INVALID_ITEM_DEF_INDEX, sizeof( iLoadoutItemDefIndices ) );
-		V_memset( iLoadoutItemQualities, AE_UNDEFINED, sizeof( iLoadoutItemQualities ) );
 		V_memset( iLoadoutItemStyles, 0, sizeof( iLoadoutItemStyles ) );
 		
 		flStartTime = 0;
@@ -457,15 +456,13 @@ struct LoadoutStats_t
 		flStartTime = gpGlobals->curtime;
 	}
 
-	void SetItemDef ( int iSlot, itemid_t iItemDef, entityquality_t iItemQuality, style_index_t iStyle )
+	void SetItemDef ( int iSlot, itemid_t iItemDef, style_index_t iStyle )
 	{
 		iLoadoutItemDefIndices[iSlot] = iItemDef;
-		iLoadoutItemQualities[iSlot] = iItemQuality;
 		iLoadoutItemStyles[iSlot] = iStyle;
 	}
 
 	item_definition_index_t iLoadoutItemDefIndices[CLASS_LOADOUT_POSITION_COUNT];
-	entityquality_t iLoadoutItemQualities[CLASS_LOADOUT_POSITION_COUNT];
 	style_index_t iLoadoutItemStyles[CLASS_LOADOUT_POSITION_COUNT];
 	float flStartTime;
 	int iClass;

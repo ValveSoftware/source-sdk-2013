@@ -21,7 +21,7 @@
 //-----------------------------------------------------------------------------
 
 class CReplayBrowserBasePage;
-class CConfirmDeleteDialog;
+class CConfirmDialog;
 class CExButton;
 
 //-----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ public:
 	void			AttemptToDeleteReplayItem( Panel *pHandler, ReplayItemHandle_t hReplayItem, IReplayItemManager *pItemManager, int iPerformance );
 
 	CReplayBrowserBasePage		*m_pReplaysPage;
-	CConfirmDeleteDialog		*m_pConfirmDeleteDialog;
+	CConfirmDialog				*m_pConfirmDeleteDialog;
 
 	struct DeleteInfo_t
 	{

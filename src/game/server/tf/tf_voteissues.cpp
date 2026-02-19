@@ -27,11 +27,9 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-extern ConVar tf_mm_trusted;
 extern ConVar mp_autoteambalance;
 extern ConVar tf_classlimit;
 extern ConVar sv_vote_quorum_ratio;
-extern ConVar tf_mm_strict;
 
 static bool VotableMap( const char *pszMapName )
 {
@@ -179,15 +177,6 @@ void CKickIssue::ExecuteCommand( void )
 	// rejoined as ad-hoc while it was going on.
 	engine->ServerCommand( CFmtStr( "kickid \"%s\" %s\n", m_steamIDVoteTarget.Render(), g_pszVoteKickString ) );
 
-	if ( tf_mm_strict.GetInt() == 1 )
-	{
-		// If we're in strict match mode, we're done.
-		//
-		// If the GC does send them back here, banning them would put them in a broken rejoin state. The matchmaker
-		// should just not re-match you to somewhere you got kicked from.
-		return;
-	}
-
 	// If we're not in strict mode they might be here as or be able to rejoin as an adhoc player -- ban.
 	// Technically the GC might send them back here for *new* match if they get kicked as ad-hoc, the current match ends, etc.
 	engine->ServerCommand( CFmtStr( "banid %d \"%s\"\n", sv_vote_kick_ban_duration.GetInt(), m_steamIDVoteTarget.Render() ) );
@@ -270,32 +259,6 @@ bool CKickIssue::RequestCallVote( int iEntIndex, const char *pszDetails, vote_cr
 			return false;
 	}
 
-	// If we have a match, the match system does special handling of votekicks.
-	if ( GTFGCClientSystem()->GetLiveMatch() )
-	{
-		CTFGCServerSystem::EVoteKickRequest eKickRequest;
-		eKickRequest = GTFGCClientSystem()->PlayerRequestVoteKick( m_steamIDVoteCaller, m_steamIDVoteTarget, m_eKickReason );
-		switch ( eKickRequest )
-		{
-			case CTFGCServerSystem::eVoteKick_Allow:
-			{
-				break; // Continue
-			}
-			case CTFGCServerSystem::eVoteKick_Deny:
-			{
-				nFailCode = VOTE_FAILED_KICK_DENIED_BY_GC;
-				return false;
-			}
-			case CTFGCServerSystem::eVoteKick_Handled:
-			{
-				// Special fail code that tells the vote system we'll handle this -- the match system will start a vote
-				// if allowed later.
-				nFailCode = VOTE_FAILED_REQUEST_HANDLED_BY_ISSUE;
-				return false;
-			}
-		}
-	}
-
 	// MvM
 	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
 	{
@@ -315,28 +278,6 @@ bool CKickIssue::RequestCallVote( int iEntIndex, const char *pszDetails, vote_cr
 		if ( pTFVoteTarget )
 		{
 			float flTimeConnected = gpGlobals->curtime - pTFVoteTarget->GetConnectionTime();
-
-			// See if we have a lobby...
-			if ( !bFakeClient )
-			{
-				CMatchInfo::PlayerMatchData_t *pMatchPlayerTarget = GTFGCClientSystem()->GetLiveMatchPlayer( m_steamIDVoteTarget );
-				CMatchInfo::PlayerMatchData_t *pMatchPlayerCaller = GTFGCClientSystem()->GetLiveMatchPlayer( m_steamIDVoteCaller );
-				if ( pMatchPlayerTarget )
-				{
-					// Use this time instead (prevents disconnect avoidance)
-					flTimeConnected = CRTime::RTime32TimeCur() - pMatchPlayerTarget->rtJoinedMatch;
-
-					// TODO Now that we have this piped through the GC maybe it should just be doing this
-					if ( sv_vote_issue_kick_limit_mvm.GetInt() )
-					{
-						if ( pMatchPlayerCaller && pMatchPlayerCaller->nVoteKickAttempts > (uint32)sv_vote_issue_kick_limit_mvm.GetInt() )
-						{
-							nFailCode = VOTE_FAILED_KICK_LIMIT_REACHED;
-							return false;
-						}
-					}
-				}
-			}
 
 			if ( flTimeConnected < sv_vote_issue_kick_min_connect_time_mvm.GetFloat() )
 			{
@@ -398,15 +339,6 @@ void CKickIssue::OnVoteFailed( int iEntityHoldingVote )
 		if ( sv_vote_issue_kick_namelock_duration.GetFloat() > 0 )
 		{
 			CVoteController::AddPlayerToNameLockedList( m_steamIDVoteTarget, sv_vote_issue_kick_namelock_duration.GetFloat(), m_hPlayerTarget->GetUserID() );
-		}
-
-		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
-		{
-			CMatchInfo::PlayerMatchData_t *pMatchPlayerCaller = GTFGCClientSystem()->GetLiveMatchPlayer( m_steamIDVoteCaller );
-			if ( pMatchPlayerCaller )
-			{
-				pMatchPlayerCaller->nVoteKickAttempts++;
-			}
 		}
 	}
 
@@ -473,55 +405,10 @@ CBaseIssue::EVoteAction CKickIssue::ProcessResults( const CUtlVector <const char
                                                     int nHighestCountOption,
                                                     int nTotalVotes, int nPotentialVoters )
 {
-	//
-	// In match mode, we submit the results to the match system which then records it has a votekick pending.  We then
-	// return eVoteAction_Wait until it has done something with it, and just return pass/fail on this vote based on if
-	// the match system decided to kick them.  In that mode, we just don't do anything in Execute() (it owns the vote
-	// from thereon)
-	//
-	CMatchInfo *pLiveMatch = GTFGCClientSystem()->GetLiveMatch();
-
-	// If they were ever present in the match we want to submit this to the match system, even if they are now dropped,
-	// so it can determine if they should be penalized anyway.  For ad-hoc players, even in match mode, we'll just kick
-	// them ourselves, the match system doesn't need to care.
-	bool bTargetInMatch = pLiveMatch && pLiveMatch->GetMatchDataForPlayer( m_steamIDVoteTarget );
-
-	if ( m_bSubmittedToMatchSystem )
-	{
-		// Submitted to match system and returned wait, see if match system finished handling it
-		if ( GTFGCClientSystem()->BVoteKickPending( m_steamIDVoteTarget ) )
-		{
-			return eVoteAction_Wait;
-		}
-		else
-		{
-			// No longer a pending vote kick at the match level, see if this guy was kicked or not and pass/fail the
-			// vote based on that.
-			bool bKicked = GTFGCClientSystem()->BPlayerWasVoteKicked( m_steamIDVoteTarget );
-			return bKicked ? eVoteAction_Pass : eVoteAction_Fail;
-		}
-	}
-	else if ( bTargetInMatch )
-	{
-		// See what the default result would be
-		EVoteAction eDefault = CBaseIssue::ProcessResults( vecOptions, arVoteCountByOption, mapVotesBySteamID,
-		                                                   nHighestCountOption, nTotalVotes, nPotentialVoters );
-		bool bWouldPass = ( eDefault == eVoteAction_Pass );
-
-		// Match, but haven't submitted this (first time called, since no other options stall)
-		GTFGCClientSystem()->SubmitVoteKickResults( m_steamIDVoteCaller, m_steamIDVoteTarget,
-		                                            m_eKickReason, mapVotesBySteamID, bWouldPass );
-		m_bSubmittedToMatchSystem = true;
-		// Wait and check back
-		return eVoteAction_Wait;
-	}
-	else
-	{
-		// Non-match player, including possibly an ad-hoc player in a mixed match mode like bootcamp, do the normal
-		// thing
-		return CBaseIssue::ProcessResults( vecOptions, arVoteCountByOption, mapVotesBySteamID, nHighestCountOption,
-		                                   nTotalVotes, nPotentialVoters );
-	}
+	// Non-match player, including possibly an ad-hoc player in a mixed match mode like bootcamp, do the normal
+	// thing
+	return CBaseIssue::ProcessResults( vecOptions, arVoteCountByOption, mapVotesBySteamID, nHighestCountOption,
+		                                nTotalVotes, nPotentialVoters );
 }
 
 //-----------------------------------------------------------------------------
@@ -1304,13 +1191,6 @@ bool CMannVsMachineChangeChallengeIssue::IsEnabled( void )
 	// Only allow in MvM
 	if ( TFGameRules() && !TFGameRules()->IsMannVsMachineMode() )
 		return false;
-
-	// But prevent on MannUp (Valve) servers
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pMatch && pMatch->m_eMatchGroup == k_eTFMatchGroup_MvM_MannUp )
-	{
-		return false;
-	}
 
 	return sv_vote_issue_mvm_challenge_allowed.GetBool();
 }

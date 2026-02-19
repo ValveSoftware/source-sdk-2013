@@ -11,6 +11,7 @@
 #pragma once
 #endif
 
+#include "player_resource.h"
 #include "tf_player_shared.h"
 
 class CTFPlayerResource : public CPlayerResource, public CGameEventListener
@@ -30,8 +31,6 @@ public:
 
 	int	GetTotalScore( int iIndex );
 
-	void SetPartyLeaderIndex( int iTeam, int iIndex );
-	int GetPartyLeaderIndex( int iTeam );
 	void SetEventTeamStatus( int iValue ) { m_iEventTeamStatus = iValue; }
 	uint32 GetEventTeamStatus( void ) { return m_iEventTeamStatus; }
 
@@ -71,12 +70,9 @@ protected:
 	CNetworkArray( int, m_iUpgradeRefundCredits, MAX_PLAYERS_ARRAY_SAFE );
 	CNetworkArray( int, m_iBuybackCredits, MAX_PLAYERS_ARRAY_SAFE );
 
-	CNetworkVar( int, m_iPartyLeaderRedTeamIndex );
-	CNetworkVar( int, m_iPartyLeaderBlueTeamIndex );
 	CNetworkVar( int, m_iEventTeamStatus );
 
 	CNetworkArray( int, m_iPlayerClassWhenKilled, MAX_PLAYERS_ARRAY_SAFE );
-	CNetworkArray( MM_PlayerConnectionState_t, m_iConnectionState, MAX_PLAYERS_ARRAY_SAFE );
 
 	CNetworkArray( float, m_flConnectTime, MAX_PLAYERS_ARRAY_SAFE );
 

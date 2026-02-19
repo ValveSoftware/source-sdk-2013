@@ -336,8 +336,5 @@ bool CTFHudObjectiveStatus::ShouldDraw()
 		return false;
 	}
 
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		return false;
-
 	return CHudElement::ShouldDraw();
 }

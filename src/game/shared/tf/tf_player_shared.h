@@ -273,9 +273,7 @@ public:
 	{
 		kTFStreak_Kills				= 0,
 		kTFStreak_KillsAll			= 1,	// Counts all kills not just attr based killstreak.  For Data collection purposes
-		kTFStreak_Ducks				= 2,
-		kTFStreak_Duck_levelup		= 3, 
-		kTFStreak_COUNT				= 4,
+		kTFStreak_COUNT				= 2,
 	};
 
 	enum EKartStateFlags
@@ -651,15 +649,10 @@ public:
 	int GetStreak( ETFStreak streak_type ) const		{ return m_nStreaks[streak_type]; }
 	int IncrementStreak( ETFStreak streak_type, int iVal )
 	{
-		// Track duck streak steps so we can put deltas in the event
-		if ( streak_type == kTFStreak_Ducks )
-			m_nLastDuckStreakIncrement = iVal;
 		m_nStreaks.Set( streak_type, m_nStreaks[streak_type] + iVal );
 		return m_nStreaks[streak_type];
 	}
 	void ResetStreaks( void )	{ for ( int streak_type = 0; streak_type < kTFStreak_COUNT; streak_type++ ) { m_nStreaks.Set( streak_type, 0 ); } }
-
-	int GetLastDuckStreakIncrement( void ) const	{ return m_nLastDuckStreakIncrement; }
 
 	void SetRevengeCrits( int iVal );
 	int GetRevengeCrits( void ) const { return m_iRevengeCrits; }
@@ -1159,8 +1152,6 @@ private:
 	int m_iOldDecapitations;
 
 	CNetworkArray( int, m_nStreaks, kTFStreak_COUNT );
-
-	int m_nLastDuckStreakIncrement;
 
 	int m_iOldKillStreak;
 	int m_iOldKillStreakWepSlot;

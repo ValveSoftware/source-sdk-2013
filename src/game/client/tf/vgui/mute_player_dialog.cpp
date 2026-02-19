@@ -61,22 +61,19 @@ void CMutePlayerDialog::ApplySchemeSettings( vgui::IScheme *pScheme )
 	{
 		m_pPlayerList->DeleteAllItems();
 
-		m_pPlayerList->AddColumnHeader( 0, "medal", "", m_iMedalWidth, ListPanel::COLUMN_IMAGE );
-
 		// Avatars are always displayed at 32x32 regardless of resolution
-		m_pPlayerList->AddColumnHeader( 1, "avatar", "", m_iAvatarWidth, ListPanel::COLUMN_IMAGE );
+		m_pPlayerList->AddColumnHeader( 0, "avatar", "", m_iAvatarWidth, ListPanel::COLUMN_IMAGE );
 
 		// The player avatar is always a fixed size, so as we change resolutions we need to vary the size of the name column to adjust the total width of all the columns
-		m_nExtraSpace = m_pPlayerList->GetWide() - m_iMedalWidth - m_iAvatarWidth - m_iNameWidth - m_iScoreWidth - m_iTimeWidth - m_iStatusWidth;
+		m_nExtraSpace = m_pPlayerList->GetWide() - m_iAvatarWidth - m_iNameWidth - m_iScoreWidth - m_iTimeWidth - m_iStatusWidth;
 
-		m_pPlayerList->AddColumnHeader( 2, "name", "#TF_Scoreboard_Name", m_iNameWidth + m_nExtraSpace );
-		m_pPlayerList->AddColumnHeader( 3, "score", "#TF_Scoreboard_Score", m_iScoreWidth );
-		m_pPlayerList->AddColumnHeader( 4, "time", "#TF_Connected", m_iTimeWidth );
-		m_pPlayerList->AddColumnHeader( 5, "status", "", m_iStatusWidth );
+		m_pPlayerList->AddColumnHeader( 1, "name", "#TF_Scoreboard_Name", m_iNameWidth + m_nExtraSpace );
+		m_pPlayerList->AddColumnHeader( 2, "score", "#TF_Scoreboard_Score", m_iScoreWidth );
+		m_pPlayerList->AddColumnHeader( 3, "time", "#TF_Connected", m_iTimeWidth );
+		m_pPlayerList->AddColumnHeader( 4, "status", "", m_iStatusWidth );
 
 		// doesn't make sense to sort with the images
 		m_pPlayerList->SetColumnSortable( 0, false );
-		m_pPlayerList->SetColumnSortable( 1, false );
 
 		m_pPlayerList->SetImageList( m_pImageList, false );
 		m_pPlayerList->SetVisible( true );
@@ -100,9 +97,6 @@ void CMutePlayerDialog::Activate()
 		{
 			if ( g_PR->IsConnected( playerIndex ) || g_PR->IsValid( playerIndex ) )
 			{
-				if ( g_TF_PR->GetPlayerConnectionState( playerIndex ) != MM_CONNECTED )
-					continue;
-
 				// No need to add local player
 				if ( engine->GetLocalPlayer() == playerIndex )
 					continue;
@@ -171,8 +165,6 @@ void CMutePlayerDialog::Activate()
 	RefreshPlayerStatus();
 
 	m_pPlayerList->InvalidateLayout( true );
-
-	UpdateBadgePanels();
 
 	m_pPlayerList->SetSingleSelectedItem( m_pPlayerList->GetItemIDFromRow( 0 ) );
 	OnItemSelected();
@@ -313,93 +305,7 @@ void CMutePlayerDialog::OnItemSelected()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CMutePlayerDialog::UpdateBadgePanels()
-{
-	int iNumPanels = 0;
-
-	const IMatchGroupDescription *pMatchDesc = TFGameRules() ? GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() ) : NULL;
-	if ( pMatchDesc && m_pPlayerList )
-	{
-		if ( TFGameRules()->IsMatchTypeCasual() )
-		{
-			int parentTall = m_pPlayerList->GetTall();
-			CTFBadgePanel *pPanel = NULL;
-
-			for ( int i = 0; i < m_pPlayerList->GetItemCount(); i++ )
-			{
-				KeyValues *pKeyValues = m_pPlayerList->GetItem( m_pPlayerList->GetItemIDFromRow( i ) );
-				if ( !pKeyValues )
-					continue;
-
-				int iPlayerIndex = pKeyValues->GetInt( "index" );
-				const CSteamID steamID = GetSteamIDForPlayerIndex( iPlayerIndex );
-				if ( steamID.IsValid() )
-				{
-					if ( iNumPanels >= m_pBadgePanels.Count() )
-					{
-						pPanel = new CTFBadgePanel( this, "BadgePanel" );
-						pPanel->MakeReadyForUse();
-						pPanel->SetVisible( true );
-						pPanel->SetZPos( 9999 );
-						m_pBadgePanels.AddToTail( pPanel );
-					}
-					else
-					{
-						pPanel = m_pBadgePanels[iNumPanels];
-					}
-
-					int x, y, wide, tall;
-					m_pPlayerList->GetCellBounds( i, 0, x, y, wide, tall );
-
-					if ( y + tall > parentTall )
-						continue;
-
-					if ( !pPanel->IsVisible() )
-					{
-						pPanel->SetVisible( true );
-					}
-
-					int xParent, yParent;
-					m_pPlayerList->GetPos( xParent, yParent );
-
-					int nPanelXPos, nPanelYPos, nPanelWide, nPanelTall;
-					pPanel->GetBounds( nPanelXPos, nPanelYPos, nPanelWide, nPanelTall );
-
-					if ( ( nPanelXPos != xParent + x )
-						|| ( nPanelYPos != yParent + y )
-						|| ( nPanelWide != wide )
-						|| ( nPanelTall != tall ) )
-					{
-						pPanel->SetBounds( xParent + x, yParent + y, wide, tall );
-						pPanel->InvalidateLayout( true, true );
-					}
-
-					pPanel->SetupBadge( pMatchDesc, steamID );
-					iNumPanels++;
-				}
-			}
-		}
-	}
-
-	// hide any unused images
-	for ( int i = iNumPanels; i < m_pBadgePanels.Count(); i++ )
-	{
-		if ( m_pBadgePanels[i]->IsVisible() )
-		{
-			m_pBadgePanels[i]->SetVisible( false );
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CMutePlayerDialog::OnThink()
 {
-	if ( IsVisible() )
-	{
-		UpdateBadgePanels();
-	}
-
 	BaseClass::OnThink();
 }

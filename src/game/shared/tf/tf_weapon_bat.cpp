@@ -758,16 +758,6 @@ void CTFStunBall::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 		if ( pPlayer->GetWaterLevel() != WL_Eyes )
 		{
 			pPlayer->m_Shared.StunPlayer( flStunDuration, flStunAmount, iStunFlags, pOwner );
-
-			if ( pPlayer->GetUserID() == m_iOriginalOwnerID )
-			{
-				// We just stunned a scout with their own ball.
-				// Give the player an achievement for this.
-				if ( pOwner->IsPlayerClass( TF_CLASS_SCOUT ) )
-				{
-					pOwner->AwardAchievement( ACHIEVEMENT_TF_SCOUT_STUN_SCOUT_WITH_THEIR_BALL );
-				}
-			}
 		}
 	}
 

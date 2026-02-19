@@ -95,9 +95,6 @@ bool CHudDemomanChargeMeter::ShouldDraw( void )
 	if ( CTFMinigameLogic::GetMinigameLogic() && CTFMinigameLogic::GetMinigameLogic()->GetActiveMinigame() )
 		return false;
 
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-		return false;
-
 	return CHudElement::ShouldDraw();
 }
 

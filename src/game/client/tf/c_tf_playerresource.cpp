@@ -11,7 +11,6 @@
 #include "hud.h"
 #include "tf_gamerules.h"
 #include "tf_gc_client.h"
-#include "tf_lobby_server.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -46,11 +45,8 @@ IMPLEMENT_CLIENTCLASS_DT( C_TF_PlayerResource, DT_TFPlayerResource, CTFPlayerRes
 	RecvPropArray3( RECVINFO_ARRAY( m_iStreaks ), RecvPropInt( RECVINFO_ARRAY( m_iStreaks ) ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_iUpgradeRefundCredits ), RecvPropInt( RECVINFO( m_iUpgradeRefundCredits[0] ) ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_iBuybackCredits ), RecvPropInt( RECVINFO( m_iBuybackCredits[0] ) ) ),
-	RecvPropInt( RECVINFO( m_iPartyLeaderRedTeamIndex ) ),
-	RecvPropInt( RECVINFO( m_iPartyLeaderBlueTeamIndex ) ),
 	RecvPropInt( RECVINFO( m_iEventTeamStatus ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_iPlayerClassWhenKilled ), RecvPropInt( RECVINFO( m_iPlayerClassWhenKilled[0] ) ) ),
-	RecvPropArray3( RECVINFO_ARRAY( m_iConnectionState ), RecvPropInt( RECVINFO( m_iConnectionState[0] ) ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_flConnectTime ), RecvPropTime( RECVINFO( m_flConnectTime[0] ) ) ),
 END_RECV_TABLE()
 
@@ -65,8 +61,6 @@ C_TF_PlayerResource::C_TF_PlayerResource()
 	m_Colors[TF_TEAM_RED] = COLOR_RED;
 	m_Colors[TF_TEAM_BLUE] = COLOR_BLUE;
 
-	m_iPartyLeaderRedTeamIndex = 0;
-	m_iPartyLeaderBlueTeamIndex = 0;
 	m_iEventTeamStatus = 0;
 
 	ResetPlayerScoreStats();
@@ -107,17 +101,6 @@ int C_TF_PlayerResource::GetTeam( int iIndex )
 	}
 
 	return iTeam;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-MM_PlayerConnectionState_t C_TF_PlayerResource::GetPlayerConnectionState( int iIndex ) const 
-{
-	if ( !iIndex || ( iIndex > MAX_PLAYERS ) )
-		return MM_DISCONNECTED;
-
-	return m_iConnectionState[iIndex];
 }
 
 //-----------------------------------------------------------------------------

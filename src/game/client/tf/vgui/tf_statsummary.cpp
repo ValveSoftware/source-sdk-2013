@@ -132,7 +132,6 @@ void DestroyStatsSummaryPanel()
 //-----------------------------------------------------------------------------
 CTFStatsSummaryPanel::CTFStatsSummaryPanel() 
   : BaseClass( NULL, "TFStatsSummary", vgui::scheme()->LoadSchemeFromFile( "Resource/ClientScheme.res", "ClientScheme" ) )
-  ,	m_bShowingLeaderboard( false )
   , m_bLoadingCommunityMap( false )
 {
 	Init();
@@ -161,8 +160,6 @@ void CTFStatsSummaryPanel::Init( void )
 	m_pTipText = new vgui::Label( this, "TipText", "" );
 	m_pMapInfoPanel = NULL;
 	m_pMainBackground = NULL;
-	m_pLeaderboardTitle = NULL;
-	m_pContributedPanel = NULL;
 
 #ifdef _X360
 	m_pFooter = new CTFFooter( this, "Footer" );
@@ -268,11 +265,6 @@ void CTFStatsSummaryPanel::PerformLayout()
 void CTFStatsSummaryPanel::OnThink()
 {
 	BaseClass::OnThink();
-
-	if ( m_bShowingLeaderboard )
-	{
-		UpdateLeaderboard();
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -349,8 +341,6 @@ void CTFStatsSummaryPanel::UpdateMainBackground( void )
 		m_pMainBackground = dynamic_cast<ImagePanel *>( FindChildByName( "MainBackground" ) );
 		if ( m_pMainBackground )
 		{
-			const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GTFGCClientSystem()->GetLiveMatchGroup() );
-
 			// determine if we're in widescreen or not and select the appropriate image
 			int screenWide, screenTall;
 			surface()->GetScreenSize( screenWide, screenTall );
@@ -364,10 +354,6 @@ void CTFStatsSummaryPanel::UpdateMainBackground( void )
 			else if ( engine->IsLoadingDemo() || engine->IsPlayingDemo() || engine->IsSkippingPlayback() )
 			{
 				m_pMainBackground->SetImage( bIsWidescreen ? "../console/replay_loading_widescreen" : "../console/replay_loading" );
-			}
-			else if ( pMatchDesc && pMatchDesc->GetMapLoadBackgroundOverride( bIsWidescreen ) ) // Use match override if we have one
-			{
-				m_pMainBackground->SetImage( pMatchDesc->GetMapLoadBackgroundOverride( bIsWidescreen ) );
 			}
 			else
 			{
@@ -400,19 +386,6 @@ void CTFStatsSummaryPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	// set the background image
 	UpdateMainBackground();
 
-	m_pMapInfoPanel = dynamic_cast< EditablePanel *>( FindChildByName( "MapInfo" ) );
-	m_vecLeaderboardEntries.RemoveAll();
-	if ( m_pMapInfoPanel )
-	{
-		for ( int i = 0; i < 10; ++ i )
-		{
-			vgui::EditablePanel *pEntryUI = new vgui::EditablePanel( m_pMapInfoPanel, "LeaderboardEntry" );
-			pEntryUI->ApplySchemeSettings( pScheme );
-			pEntryUI->LoadControlSettings( "Resource/UI/LeaderboardEntry.res" );
-			m_vecLeaderboardEntries.AddToTail( pEntryUI );
-		}
-	}
-
 	// get the dimensions and position of a left-hand bar and a right-hand bar so we can do bar sizing later
 	Panel *pLHBar = m_pPlayerData->FindChildByName( "ClassBar1A" );
 	Panel *pRHBar = m_pPlayerData->FindChildByName( "ClassBar1B" );
@@ -443,11 +416,6 @@ void CTFStatsSummaryPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 		m_pClassComboBox->AddItem( g_aPlayerClassNames[iClass], pKeyValues );
 	}
 	m_pClassComboBox->ActivateItemByRow( 0 );
-
-	if ( m_pMapInfoPanel )
-	{
-		m_pContributedPanel = dynamic_cast< vgui::EditablePanel* >( m_pMapInfoPanel->FindChildByName( "ContributedLabel" ) );
-	}
 
 	SetDefaultSelections();
 	UpdateDialog();
@@ -507,11 +475,6 @@ void CTFStatsSummaryPanel::ClearMapLabel()
 	{
 		pLabel->SetVisible( false );
 	}
-
-	if ( m_pContributedPanel )
-	{
-		m_pContributedPanel->SetVisible( false );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -551,31 +514,6 @@ void CTFStatsSummaryPanel::OnMapLoad( const char *pMapName )
 	bool bIsMVM = ( pMapName && !Q_strncmp( pMapName, "mvm_", 4 ) );
 	bool bIsMVMBackground = false;
 	const char *pszBackgroundOverride = NULL;
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GTFGCClientSystem()->GetLiveMatchGroup() );
-	if ( pMatchDesc )
-	{
-		int screenWide, screenTall;
-		surface()->GetScreenSize( screenWide, screenTall );
-		float aspectRatio = (float)screenWide/(float)screenTall;
-		bool bWideScreen = aspectRatio >= 1.5999f;
-
-		// Check if there's a widescreen override
-		if( bWideScreen )
-		{
-			pszBackgroundOverride = pMatchDesc->GetMapLoadBackgroundOverride( true );
-			if ( pszBackgroundOverride )
-			{
-				// Success!  We're done
-				bWidescreenBackground = true;
-			}
-		}
-		
-		if ( !bWideScreen && !pszBackgroundOverride )
-		{
-			pszBackgroundOverride = pMatchDesc->GetMapLoadBackgroundOverride( false );
-		}
-		
-	}
 	
 	if ( bIsMVM && !pszBackgroundOverride )
 	{
@@ -595,9 +533,6 @@ void CTFStatsSummaryPanel::OnMapLoad( const char *pMapName )
 	}
 	
 	ShowMapInfo( true, bIsMVM, ( pszBackgroundOverride != NULL ) );
-
-	m_xStartLeaderboard = 0;
-	m_yStartLeaderboard = 0;
 
 	// If we're loading a background map, don't display anything
 	// HACK: Client doesn't get gpGlobals->eLoadType, so just do string compare for now.
@@ -674,19 +609,9 @@ void CTFStatsSummaryPanel::OnMapLoad( const char *pMapName )
 			m_pMapInfoPanel->SetDialogVariable( "map_leaderboard_title", "" );
 			m_pMapInfoPanel->SetDialogVariable( "title", "" );
 			m_pMapInfoPanel->SetDialogVariable( "authors", "" );
-
-			FOR_EACH_VEC( m_vecLeaderboardEntries, i )
-			{
-				EditablePanel *pContainer = dynamic_cast< EditablePanel* >( m_vecLeaderboardEntries[i] );
-				if ( pContainer )
-				{
-					pContainer->SetVisible( false );
-				}
-			}
 		}
 		else
 		{
-			m_pLeaderboardTitle = NULL;
 			// add authors
 			if ( m_pMapInfoPanel )
 			{
@@ -695,156 +620,18 @@ void CTFStatsSummaryPanel::OnMapLoad( const char *pMapName )
 					m_pMapInfoPanel->SetDialogVariable( "title", g_pVGuiLocalize->Find( "#TF_MapAuthors_Community_Title" ) );
 					m_pMapInfoPanel->SetDialogVariable( "map_leaderboard_title", "" );
 					m_pMapInfoPanel->SetDialogVariable( "authors", g_pVGuiLocalize->Find( pAuthors ) ); 
-					m_pLeaderboardTitle = m_pMapInfoPanel->FindChildByName( "MapLeaderboardTitle" );
 				}
 				else
 				{
 					m_pMapInfoPanel->SetDialogVariable( "title", g_pVGuiLocalize->Find( "#TF_DuelLeaderboard_Title" ) );
 					m_pMapInfoPanel->SetDialogVariable( "map_leaderboard_title", "" );
 					m_pMapInfoPanel->SetDialogVariable( "authors", "" );
-					m_pLeaderboardTitle = m_pMapInfoPanel->FindChildByName( "Title" );
 				}
 			}
-			if ( m_pLeaderboardTitle )
-			{
-				m_pLeaderboardTitle->GetPos( m_xStartLeaderboard, m_yStartLeaderboard );
-				m_yStartLeaderboard += m_pLeaderboardTitle->GetTall();
-			}
 
-			//  request leaderboard data
-			m_bShowingLeaderboard = true;
-			if ( bIsCommunityMap )
-			{
-				MapInfo_RefreshLeaderboard( pMapName );
-			}
-			else
-			{
-				Leaderboards_Refresh();
-			}
 			m_bLoadingCommunityMap = bIsCommunityMap;
-
-			if ( m_pContributedPanel && steamapicontext && steamapicontext->SteamUser() && steamapicontext->SteamFriends() )
-			{
-				int iDonationAmount = MapInfo_GetDonationAmount( steamapicontext->SteamUser()->GetSteamID().GetAccountID(), pMapName );
-				m_pContributedPanel->SetVisible( iDonationAmount != 0 );
-				if ( iDonationAmount != 0 )
-				{
-					m_pContributedPanel->SetDialogVariable( "playername", steamapicontext->SteamFriends()->GetPersonaName() );
-				}
-			}
-
-			UpdateLeaderboard();
 		}
 	}
-}
-
-void CTFStatsSummaryPanel::UpdateLeaderboard()
-{
-	if ( m_pMapInfoPanel == NULL || steamapicontext == NULL || steamapicontext->SteamUserStats() == NULL || steamapicontext->SteamUser() == NULL )
-		return;
-
-	const int kMaxVisible_Supporters = 5;
-	const int kIdeallyNumVisible_Supporters = 3;
-	const int kMaxVisible_DuelWins = 10;
-	const int kIdeallyNumVisible_DuelWins = 5;
-
-	//  retrieve scores
-	CUtlVector< LeaderboardEntry_t* > scores;
-	bool bVisible = true;
-	int iNumLeaderboardEntries = 0;
-	if ( m_bLoadingCommunityMap )
-	{
-		bVisible = MapInfo_GetLeaderboardInfo( engine->GetLevelName(), scores, iNumLeaderboardEntries, kIdeallyNumVisible_Supporters );
-		wchar_t wzNumEntriesString[256];
-		_snwprintf( wzNumEntriesString, ARRAYSIZE( wzNumEntriesString ), L"%i", iNumLeaderboardEntries );
-		wchar_t wzTitle[256];
-		g_pVGuiLocalize->ConstructString_safe( wzTitle, g_pVGuiLocalize->Find( "#TF_MapDonators_Title" ), 1, wzNumEntriesString );
-		m_pMapInfoPanel->SetDialogVariable( "map_leaderboard_title", wzTitle );
-	}
-	else
-	{
-		bVisible = Leaderboards_GetDuelWins( scores, false );
-		if ( bVisible && scores.Count() < kIdeallyNumVisible_DuelWins )
-		{
-			bVisible = Leaderboards_GetDuelWins( scores, true ) && scores.Count() > 0;
-		}
-		// show old stats
-		m_pPlayerData->SetVisible( bVisible == false );
-		if ( m_pMapInfoPanel )
-		{
-			vgui::Panel* pInfoBG = m_pMapInfoPanel->FindChildByName( "InfoBG" );
-			if ( pInfoBG )
-			{
-				pInfoBG->SetVisible( bVisible );
-			}
-		}
-	}
-
-	const int kMaxVisible = m_bLoadingCommunityMap ? kMaxVisible_Supporters : kMaxVisible_DuelWins;
-
-	// try to show local player in relation to the people in the list
-	if ( bVisible && scores.Count() > 0 && steamapicontext && steamapicontext->SteamUser() && steamapicontext->SteamUserStats() )
-	{
-		int iLocalPlayerIdx = -1;
-		CSteamID localSteamID = steamapicontext->SteamUser()->GetSteamID();
-		FOR_EACH_VEC( scores, i )
-		{
-			const LeaderboardEntry_t *leaderboardEntry = scores[i];
-			if ( leaderboardEntry->m_steamIDUser == localSteamID )
-			{
-				iLocalPlayerIdx = i;
-				break;
-			}
-		}
-		// local player is in the list, but is outside the visible range
-		// so we want to move them to the last spot
-		// and move the closest person above them as well
-		if ( iLocalPlayerIdx >= kMaxVisible )
-		{
-			LeaderboardEntry_t *entryLocalPlayer = scores[iLocalPlayerIdx];
-			LeaderboardEntry_t *closestPlayer = scores[iLocalPlayerIdx - 1];
-			scores[kMaxVisible - 1] = entryLocalPlayer;
-			scores[kMaxVisible - 2] = closestPlayer;
-		}
-	}
-
-	// set avatars and names
-	int x = m_xStartLeaderboard;
-	int y = m_yStartLeaderboard;
-	FOR_EACH_VEC( m_vecLeaderboardEntries, i )
-	{
-		EditablePanel *pContainer = dynamic_cast< EditablePanel* >( m_vecLeaderboardEntries[i] );
-		if ( pContainer )
-		{
-			bool bIsEntryVisible = bVisible && i < scores.Count() && i < kMaxVisible;
-			pContainer->SetVisible( bIsEntryVisible );
-			pContainer->SetPos( x, y );
-			y += pContainer->GetTall();
-			if ( bIsEntryVisible )
-			{
-				const LeaderboardEntry_t *leaderboardEntry = scores[i];
-				const CSteamID &steamID = leaderboardEntry->m_steamIDUser;
-				pContainer->SetDialogVariable( "username", CFmtStr( "%d. %s - %d", leaderboardEntry->m_nGlobalRank, InventoryManager()->PersonaName_Get( steamID.GetAccountID() ), leaderboardEntry->m_nScore ) );
-				CAvatarImagePanel *pAvatar = dynamic_cast< CAvatarImagePanel* >( pContainer->FindChildByName( "AvatarImage" ) );
-				if ( pAvatar )
-				{
-					pAvatar->SetShouldDrawFriendIcon( false );
-					pAvatar->SetPlayer( steamID, k_EAvatarSize32x32 );
-				}
-			}								
-		}			
-	}
-
-	if ( m_pLeaderboardTitle )
-	{
-		bool bShowTitle = bVisible && scores.Count() > 0;
-		if ( m_pLeaderboardTitle->IsVisible() != bShowTitle )
-		{
-			m_pLeaderboardTitle->SetVisible( bShowTitle );
-		}
-	}
-
-	m_bShowingLeaderboard = bVisible;
 }
 
 //-----------------------------------------------------------------------------
@@ -1479,7 +1266,6 @@ void CTFStatsSummaryPanel::OnActivate()
 {
 	ClearMapLabel();
 
-	m_bShowingLeaderboard = false;
 	m_bLoadingCommunityMap = false;
 	ShowMapInfo( false );
 

@@ -507,6 +507,8 @@ CPasstimeBall::~CPasstimeBall()
 	{
 		CSoundEnvelopeController::GetController().SoundDestroy( m_pBeepLoop );
 	}
+
+	KillMagnetSound();
 }
 
 //-----------------------------------------------------------------------------
@@ -675,6 +677,8 @@ void CPasstimeBall::SetStateOutOfPlay()
 		CSoundEnvelopeController::GetController().SoundDestroy( m_pBeepLoop );
 		m_pBeepLoop = 0;
 	}
+
+	KillMagnetSound();
 
 	//
 	// Bookeeping
@@ -1290,6 +1294,18 @@ static bool IsGroundCollision( int index, const gamevcollisionevent_t *pEvent )
 		return false; // paranoia
 	}
 
+ 	// --- P4SS: Check for surfaceprop that makes the ball not go neutral ---
+    static int s_pfNoneutralIndex = -1;
+    if (s_pfNoneutralIndex == -1)
+    {
+        s_pfNoneutralIndex = physprops->GetSurfaceIndex("pf_noneutral");
+    }
+    if (pEvent->surfaceProps[otherindex] == s_pfNoneutralIndex)
+    {
+        return false;
+    }
+
+    // --- End custom surface property check ---
 	Vector vecNormal;
 	pEvent->pInternalData->GetSurfaceNormal( vecNormal );
 	return Vector( 0, 0, 1 ).Dot( vecNormal ) < -0.7f; // why is this backwards?
@@ -1419,9 +1435,25 @@ COLLISION_GROUP_WEAPON, &result );
 			}
 
 			CTFPlayer *attackerPlayer = dynamic_cast<CTFPlayer *>(attacker);
+			
+			//we need to to this conversion
+			//so the icons are matching with the weapons
+			CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase*>( attackerPlayer->Weapon_OwnsThisID(iWeaponID) );
+			if ( pWeapon )
+			{
+				CEconItemView *pItem = pWeapon->GetAttributeContainer()->GetItem();
+
+				if ( pItem )
+				{
+					if ( pItem->GetStaticData()->GetIconClassname() )
+					{
+						weaponname = pItem->GetStaticData()->GetIconClassname();
+					}
+				}
+			}
 
 			// P4SS: this may cause issues later for things like pipes but we will try it out and see
-			if ( distance < 10.0f )
+			if ( distance < 10.0f || info.GetDamageType() & DMG_MELEE )
 			{
 				if ( didSplashGoal && attackerPlayer && ballThrower && attackerPlayer->GetTeamNumber() != ballThrower->GetTeamNumber() )
 				{
@@ -1629,7 +1661,7 @@ void CPasstimeBall::CreateMagnetSound()
 	{
 		CReliableBroadcastRecipientFilter filter;
 		m_pCloseToTarget =CSoundEnvelopeController::GetController().SoundCreate( filter, entindex(), "Passtime.BallMagnetLock" );
-		CSoundEnvelopeController::GetController().Play( m_pCloseToTarget, 2.5, PITCH_NORM );
+		CSoundEnvelopeController::GetController().Play( m_pCloseToTarget, 4, PITCH_NORM );
 	}
 }
 

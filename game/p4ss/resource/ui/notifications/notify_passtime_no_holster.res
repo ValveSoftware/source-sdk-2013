@@ -1,6 +1,6 @@
 #base "base_notification.res"
 
-"Resource/UI/notifications/notify_passtime_no_holster.res"
+"resource/ui/notifications/notify_passtime_no_holster.res"
 {	
 	"Notification_Background"
 	{

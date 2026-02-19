@@ -370,6 +370,7 @@ CTFHudFlagObjectives::CTFHudFlagObjectives( Panel *parent, const char *name ) : 
 	m_pSpecCarriedImage = NULL;
 	m_pPoisonImage = NULL;
 	m_pPoisonTimeLabel = NULL;
+	m_pCapturePoint = NULL;
 
 	m_pRedFlag = new CTFFlagStatus( this, "RedFlag" );
 	m_pBlueFlag = new CTFFlagStatus( this, "BlueFlag" );

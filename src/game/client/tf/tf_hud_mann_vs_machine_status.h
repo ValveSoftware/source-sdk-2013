@@ -318,15 +318,13 @@ public:
 	void ShowWaveSummary ( int nWaveNumber );
 	void MVMVictory( bool bIsKicking, int bTime );
 	void MVMServerKickTimeUpdate( int bTime );
-	void MVMVictoryGCResponse( CMsgMvMVictoryInfo &pData );
 
 	void ForceVictoryRefresh();
 
-	void ReopenVictoryPanel( void );
 
 	bool IsVictoryPanelVisible()
 	{
-		return m_pVictoryContainer && m_pVictoryContainer->IsVictoryPanelVisible();
+		return m_pVictorySplash && m_pVictorySplash->IsVisible();
 	}
 
 	virtual GameActionSet_t GetPreferredActionSet() { return IsActive() ? (IsVictoryPanelVisible() ? GAME_ACTION_SET_MENUCONTROLS : CHudElement::GetPreferredActionSet()) : GAME_ACTION_SET_NONE; }
@@ -346,7 +344,6 @@ private:
 	CWaveCompleteSummaryPanel *m_pWaveCompletePanel;
 
 	CVictorySplash *m_pVictorySplash;
-	CMvMVictoryPanelContainer *m_pVictoryContainer;
 	CMvMWaveLossPanel *m_pWaveLossPanel;
 
 	vgui::EditablePanel *m_pServerChangeMessage;

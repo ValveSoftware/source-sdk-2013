@@ -1,6 +1,6 @@
 "GameInfo"
 {
-	game					"4v4 PASS Time"
+	game					"PASS Fortress"
 	type 					multiplayer_only
 	nomodels				1
 	nohimodel 				1

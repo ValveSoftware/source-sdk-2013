@@ -597,6 +597,29 @@ CBasePlayer *UTIL_GetLocalPlayer( void )
 	return UTIL_PlayerByIndex( 1 );
 }
 
+int UTIL_GetListenServerHostPlayerIndex()
+{
+	// Find the first player that isn't HLTV or replay -- they are the host.
+	int index;
+	for( index = 1; index <= gpGlobals->maxClients; index++ )
+	{
+		player_info_t pi;
+		if ( !engine->GetPlayerInfo( index, &pi ) )
+			break;
+
+		bool isHltvOrReplay = pi.ishltv;
+
+#if defined( REPLAY_ENABLED )
+		isHltvOrReplay |= pi.isreplay;
+#endif
+
+		if ( !isHltvOrReplay )
+			break;
+	}
+
+	return index;
+}
+
 //
 // Get the local player on a listen server - this is for multiplayer use only
 // 
@@ -610,7 +633,7 @@ CBasePlayer *UTIL_GetListenServerHost( void )
 		return NULL;
 	}
 
-	return UTIL_PlayerByIndex( 1 );
+	return UTIL_PlayerByIndex( UTIL_GetListenServerHostPlayerIndex() );
 }
 
 
@@ -626,25 +649,7 @@ bool UTIL_IsCommandIssuedByServerAdmin( void )
 	if ( engine->IsDedicatedServer() && issuingPlayerIndex > 0 )
 		return false;
 
-#if defined( REPLAY_ENABLED )
-	// entity 1 is replay?
-	player_info_t pi;
-	bool bPlayerIsReplay = engine->GetPlayerInfo( 1, &pi ) && pi.isreplay;
-#else
-	bool bPlayerIsReplay = false;
-#endif
-
-	if ( bPlayerIsReplay )
-	{
-		if ( issuingPlayerIndex > 2 )
-			return false;
-	}
-	else if ( issuingPlayerIndex > 1 )
-	{
-		return false;
-	}
-
-	return true;
+	return issuingPlayerIndex <= UTIL_GetListenServerHostPlayerIndex();
 }
 
 
