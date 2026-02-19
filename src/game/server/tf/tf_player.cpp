@@ -887,7 +887,8 @@ CTFPlayer::CTFPlayer()
 	m_iLastSkin = -1;
 
 	m_bHudClassAutoKill = false;
-	m_bMedigunAutoHeal = false;
+	m_bMedigunAutoHeal  = false;
+	m_bWantsResupply    = false;
 
 	m_vecLastDeathPosition = Vector( FLT_MAX, FLT_MAX, FLT_MAX );
 
@@ -2230,7 +2231,8 @@ void CTFPlayer::CheckForIdle( void )
 
 		m_bIsAFK = false;
 
-		if ( !cbMoving && PointInRespawnRoom( this, WorldSpaceCenter() ) )
+		bool bInRespawnRoom = PointInRespawnRoom( this, WorldSpaceCenter() );
+		if ( !cbMoving && bInRespawnRoom )
 		{
 			m_flTimeInSpawn += TICK_INTERVAL;
 		}
@@ -6818,13 +6820,25 @@ void CTFPlayer::Resupply( void )
 	m_iLastWeaponSlot = iLastWeapon;
 }
 
-void CC_Resupply( void )
+void CC_StartResupply( void )
 {
 	CTFPlayer *pPlayer = ToTFPlayer( UTIL_GetCommandClient() );
-
-	pPlayer->Resupply();
+	if ( pPlayer )
+	{
+		pPlayer->m_bWantsResupply = true;
+	}
 }
-static ConCommand resupply( "resupply", CC_Resupply, "Resupply and respawn if inside a spawnroom" );
+static ConCommand start_resupply( "+resupply", CC_StartResupply, "Hold to resupply when entering a respawn room" );
+
+void CC_EndResupply( void )
+{
+	CTFPlayer *pPlayer = ToTFPlayer( UTIL_GetCommandClient() );
+	if ( pPlayer )
+	{
+		pPlayer->m_bWantsResupply = false;
+	}
+}
+static ConCommand end_resupply( "-resupply", CC_EndResupply );
 
 class CGC_RespawnPostLoadoutChange : public GCSDK::CGCClientJob
 {

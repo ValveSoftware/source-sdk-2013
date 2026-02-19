@@ -145,6 +145,13 @@ void CFuncRespawnRoom::RespawnRoomTouch(CBaseEntity *pOther)
 			// Drop your powerup rune when entering a respawn room. 
 			// False parameter ensures rune isn't unintentionally 'thrown' into the respawn room
 			pPlayer->DropRune( false );
+			
+			// Handle buffered resupply while in spawn room
+			if ( pPlayer->m_bWantsResupply && pPlayer->IsAlive() )
+			{
+				pPlayer->Resupply();
+				pPlayer->m_bWantsResupply = false;
+			}
 		}
 	}
 }
