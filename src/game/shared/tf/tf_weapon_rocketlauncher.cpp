@@ -313,19 +313,7 @@ CBaseEntity *CTFRocketLauncher::FireProjectile( CTFPlayer *pPlayer )
 	{
 		iProjectile = GetWeaponProjectileType();
 	}
-	if ( pPlayer->IsPlayerClass( TF_CLASS_SOLDIER ) && IsCurrentAttackARandomCrit() && ( iProjectile == TF_PROJECTILE_ROCKET ) )
-	{
-		// Track consecutive crit shots for achievements
-		m_iConsecutiveCrits++;
-		if ( m_iConsecutiveCrits == 2 )
-		{
-			pPlayer->AwardAchievement( ACHIEVEMENT_TF_SOLDIER_SHOOT_MULT_CRITS );
-		}
-	}
-	else
-	{
-		m_iConsecutiveCrits = 0;
-	}
+
 	m_bIsOverloading = false;
 #endif
 
@@ -421,14 +409,7 @@ void CTFRocketLauncher_AirStrike::OnPlayerKill( CTFPlayer *pVictim, const CTakeD
 	{
 		iDecap += pVictim->m_Shared.GetDecapitations();
 	}
-	pOwner->m_Shared.SetDecapitations( iDecap );	
-
-	int iClipSizeOnKills = 0;
-	CALL_ATTRIB_HOOK_INT( iClipSizeOnKills, clipsize_increase_on_kill );
-	if ( iClipSizeOnKills && ( iDecap >= iClipSizeOnKills ) )
-	{
-		pOwner->AwardAchievement( ACHIEVEMENT_TF_SOLDIER_AIRSTRIKE_MAX_CLIP );
-	}
+	pOwner->m_Shared.SetDecapitations( iDecap );
 }
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 #endif

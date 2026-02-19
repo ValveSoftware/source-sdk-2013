@@ -11,8 +11,6 @@
 #include "vgui_avatarimage.h"
 #include "vgui_controls/Menu.h"
 #include "vgui/IInput.h"
-#include "tf_partyclient.h"
-#include "tf_party.h"
 #include "ienginevgui.h"
 #include "clientmode_tf.h"
 
@@ -79,7 +77,7 @@ void CSteamFriendPanel::OnCommand( const char *command )
 		m_pContextMenu = new Menu( this, "ContextMenu" );
 		MenuBuilder contextMenuBuilder( m_pContextMenu, this );
 		const char *pszContextMenuBorder = "NotificationDefault";
-		const char *pszContextMenuFont = "HudFontMediumSecondary";
+		const char *pszContextMenuFont = "MontserratLight20";
 		m_pContextMenu->SetBorder( scheme()->GetIScheme( GetScheme() )->GetBorder( pszContextMenuBorder ) );
 		m_pContextMenu->SetFont( scheme()->GetIScheme( GetScheme() )->GetFont( pszContextMenuFont, IsProportional() ) );
 
@@ -93,23 +91,12 @@ void CSteamFriendPanel::OnCommand( const char *command )
 				{
 					contextMenuBuilder.AddMenuItem( "#TF_Friends_JoinServer", new KeyValues( "Context_JoinServer" ), "server" );
 				}
-
-				// You can join someone if you're not in a party, or in a party of just you
-				if ( GTFPartyClient()->BCanRequestToJoinPlayer( m_steamID ) && GTFPartyClient()->GetNumPartyMembers() == 1 )
-				{
-					contextMenuBuilder.AddMenuItem( "#TF_Friends_JoinParty", new KeyValues( "Context_JoinParty" ), "party" );
-				}
 			}
 		}
 
 		EPersonaState eState = steamapicontext->SteamFriends()->GetFriendPersonaState( m_steamID );
 		if ( eState != k_EPersonaStateOffline )
 		{
-			// You can always invite your online friends
-			if ( GTFPartyClient()->BCanInvitePlayer( m_steamID ) )
-			{
-				contextMenuBuilder.AddMenuItem( "#TF_Friends_InviteParty", new KeyValues( "Context_InviteParty" ), "party" );
-			}
 			contextMenuBuilder.AddMenuItem( "#TF_Friends_SendMessage", new KeyValues( "Context_SendMessage" ), "chat" );
 		}
 
@@ -123,20 +110,9 @@ void CSteamFriendPanel::OnCommand( const char *command )
 	}
 }
 
-void CSteamFriendPanel::DoJoinParty()
-{
-	// TODO(Universal Parties): We should pass bExpectingExistingInvite when we are doing so
-	GTFPartyClient()->BRequestJoinPlayer( m_steamID, /* bExpectingExistingInvite */ false );
-}
-
 void CSteamFriendPanel::DoJoinServer()
 {
 	// TODO: Prompt to disconnect, potentially, then join
-}
-
-void CSteamFriendPanel::DoInviteToParty()
-{
-	GTFPartyClient()->BInvitePlayerToParty( m_steamID, false );
 }
 
 void CSteamFriendPanel::DoSendMessage()
@@ -146,8 +122,8 @@ void CSteamFriendPanel::DoSendMessage()
 
 void CSteamFriendPanel::UpdateControls()
 {
-	const Color& colorInTF2 = vgui::scheme()->GetIScheme( GetScheme() )->GetColor( "CreditsGreen", Color( 255, 255, 255, 255 ) );
-	const Color& colorOnline = vgui::scheme()->GetIScheme( GetScheme() )->GetColor( "ProgressBarBlue", Color( 255, 255, 255, 255 ) );
+	const Color& colorInTF2 = vgui::scheme()->GetIScheme( GetScheme() )->GetColor( "PFGreen", Color( 255, 255, 255, 255 ) );
+	const Color& colorOnline = vgui::scheme()->GetIScheme( GetScheme() )->GetColor( "PartyMember1", Color( 255, 255, 255, 255 ) );
 	const Color& colorOther = vgui::scheme()->GetIScheme( GetScheme() )->GetColor( "QuestMap_InactiveGrey", Color( 255, 255, 255, 255 ) );
 
 	CUtlString strName = "...";
@@ -169,12 +145,10 @@ void CSteamFriendPanel::UpdateControls()
 			if ( gameInfo.m_gameID.AppID() == (uint32)engine->GetAppID() )
 			{
 				const char *pszRichState = pSteamFriends->GetFriendRichPresence( m_steamID, "state" );
-				const char *pszRichMatchGroupLoc = pSteamFriends->GetFriendRichPresence( m_steamID, "matchgrouploc" );
 				const char *pszRichMap = pSteamFriends->GetFriendRichPresence( m_steamID, "currentmap" );
 				// If they have at least state, see if we can build a status from the keys
 				if ( pszRichState && pszRichState[0] &&
-				     GetClientModeTFNormal()->BuildRichPresenceStatus( wzRichPresenceBuf, pszRichState,
-				                                                       pszRichMatchGroupLoc, pszRichMap ) )
+				     GetClientModeTFNormal()->BuildRichPresenceStatus( wzRichPresenceBuf, pszRichState, pszRichMap ) )
 				{
 					pwzStatus = wzRichPresenceBuf;
 				}

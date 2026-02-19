@@ -27,7 +27,7 @@
 #include "tf_item_inventory.h"
 #include "c_tf_mvm_boss_progress_user.h"
 #include "c_te_legacytempents.h"
-
+#include "playernet_vars.h"
 
 class C_MuzzleFlashModel;
 class C_BaseObject;
@@ -327,6 +327,7 @@ public:
 	// TF-specific color values for GlowEffect
 	virtual void	GetGlowEffectColor( float *r, float *g, float *b );
 	void UpdateGlowColor( void );
+	virtual void 	GetHealthColor( float *r, float *g, float *b );
 
 	virtual const Vector&	GetRenderOrigin( void );
 
@@ -370,8 +371,6 @@ public:
 	void			SetOffHandWeapon( CTFWeaponBase *pWeapon );
 	void			HolsterOffHandWeapon( void );
 	CTFWeaponBase*	GetOffHandWeapon( void ) { return m_hOffHandWeapon; }
-
-	void			GetActiveSets( CUtlVector<const CEconItemSetDefinition *> *pItemSets );
 
 	virtual int GetSkin();
 
@@ -648,10 +647,7 @@ public:
 	CNetworkHandle( C_TFItem, m_hItem );
 
 	CNetworkHandle( C_TFWeaponBase, m_hOffHandWeapon );
-	CNetworkHandle( C_TFPlayer, m_hCoach );
-	CNetworkHandle( C_TFPlayer, m_hStudent );
 
-	CGlowObject		*m_pStudentGlowEffect;
 	CGlowObject		*m_pPowerupGlowEffect;
 
 	int				m_iOldPlayerClass;	// Used to detect player class changes
@@ -673,7 +669,6 @@ public:
 	int				m_nOldBotSkill;
 	bool			m_bSaveMeParity;
 	bool			m_bOldSaveMeParity;
-	bool			m_bIsCoaching;
 
 private:
 	void			UpdateTauntItem();
@@ -976,6 +971,7 @@ private:
 	float m_flTempForceDrawViewModelCycle  = 0.0f;
 
 	CNetworkVar( int, m_iPlayerSkinOverride );
+private:
 };
 
 inline C_TFPlayer* ToTFPlayer( C_BaseEntity *pEntity )
@@ -1022,6 +1018,7 @@ protected:
 	PREVIEW_EFFECT m_nPreviewEffect;
 	int m_nTeam;
 	CMaterialReference	m_InvulnerableMaterial;
+
 };
 extern C_TFPlayerPreviewEffect g_PlayerPreviewEffect;
 

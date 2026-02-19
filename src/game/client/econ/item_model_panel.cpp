@@ -22,11 +22,7 @@
 #include "renderparm.h"
 #include "vgui_controls/ScalableImagePanel.h"
 #include "engine/IEngineSound.h"
-#include "econ/tool_items/tool_items.h"
 #include "econ_item_description.h"
-#include "econ_item_tools.h"
-#include "tool_items/custom_texture_cache.h"
-#include "econ_dynamic_recipe.h"
 #include "materialsystem/imaterialvar.h"
 #include "materialsystem/itexturecompositor.h"
 #include "bone_setup.h"
@@ -70,20 +66,6 @@ CItemMaterialCustomizationIconPanel::~CItemMaterialCustomizationIconPanel()
 // Custom painting
 void CItemMaterialCustomizationIconPanel::PaintBackground( void )
 {
-	// Draw custom texture, if we have one
-	if ( m_hUGCId != 0 )
-	{
-		// Request it from the cache, and get filename, if it's downloaded
-		// and ready
-		int iCustomTexture = GetCustomTextureGuiHandle( m_hUGCId );
-		if ( iCustomTexture != 0 )
-		{
-			surface()->DrawSetTexture( iCustomTexture );
-			DrawQuad( 0, 1 );
-			surface()->DrawSetColor(COLOR_WHITE);
-		}
-	}
-
 	for ( int i = 0; i < m_colPaintColors.Size(); i++ )
 	{
 		const Color& c = m_colPaintColors[i];
@@ -319,8 +301,6 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 	static CSchemaAttributeDefHandle pAttr_is_festivized( "is_festivized" );
 	m_bIsFestivized = pAttr_is_festivized && m_pItem->FindAttribute( pAttr_is_festivized );
 
-	m_bIsPaintKitItem = GetPaintKitDefIndex( m_pItem );
-
 	m_bUseRenderTargetAsIcon = ShouldUseRenderTargetAsIcon();
 
 	if ( !m_bModelIsHidden )
@@ -434,56 +414,6 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 					}
 				}
 
-				// Stattrak
-				CAttribute_String attrModule;
-				if ( GetStattrak( m_pItem, &attrModule ) )
-				{
-					// Allow for already strange items
-					bool bIsStrange = false;
-					if ( m_pItem->GetQuality() == AE_STRANGE || m_pItem->GetItemQuality() == AE_STRANGE )
-					{
-						bIsStrange = true;
-					}
-
-					if ( !bIsStrange )
-					{
-						// Go over the attributes of the item, if it has any strange attributes the item is strange and don't apply
-						for ( int i = 0; i < GetKillEaterAttrCount(); i++ )
-						{
-							if ( m_pItem->FindAttribute( GetKillEaterAttr_Score( i ) ) )
-							{
-								bIsStrange = true;
-								break;
-							}
-						}
-					}
-
-					if ( bIsStrange )
-					{
-						static CSchemaAttributeDefHandle pAttr_moduleScale( "weapon_stattrak_module_scale" );
-						// Does it have a stat track module
-						m_flStatTrackScale = 1.0f;
-						uint32 unFloatAsUint32 = 1;
-						if ( m_pItem->FindAttribute( pAttr_moduleScale, &unFloatAsUint32 ) )
-						{
-							m_flStatTrackScale = (float&)unFloatAsUint32;
-						}
-
-						MDLHandle_t hStatTrackMDL = mdlcache->FindMDL( attrModule.value().c_str() );
-						if ( mdlcache->IsErrorModel( hStatTrackMDL ) )
-						{
-							hStatTrackMDL = MDLHANDLE_INVALID;
-						}
-						m_StatTrackModel.m_MDL.SetMDL( hStatTrackMDL );
-						mdlcache->Release( hStatTrackMDL ); // counterbalance addref from within FindMDL
-
-						m_StatTrackModel.m_MDL.m_pProxyData = static_cast<IClientRenderable*>(pItem);
-						m_StatTrackModel.m_bDisabled = false;
-						m_StatTrackModel.m_MDL.m_nSequence = ACT_IDLE;
-						SetIdentityMatrix( m_StatTrackModel.m_MDLToWorld );
-					}
-				}
-
 				int iTeam = GetLocalPlayerTeam(),
 					iSkin = iTeam;
 
@@ -556,11 +486,7 @@ bool CEmbeddedItemModelPanel::IsLoadingWeaponSkin( void ) const
 
 	if ( m_pItem && m_pItem->IsValid() )
 	{
-		if ( m_bWeaponAllowInspect && m_bIsPaintKitItem )
-		{
-			return m_pItem->GetWeaponSkinBaseCompositor() != NULL || !m_pCachedWeaponIcon || !m_pCachedWeaponIcon->GetTexture();
-		}
-		else if ( UseRenderTargetAsIcon() )
+		if ( UseRenderTargetAsIcon() )
 		{
 			return !m_pCachedWeaponIcon || !m_pCachedWeaponIcon->GetTexture();
 		}
@@ -963,9 +889,6 @@ void CEmbeddedItemModelPanel::Paint( void )
 		m_bRenderToTexture = false;
 	}
 
-	// make sure the weapon skin is ready before we render the model
-	bool bDrawWeaponWithSkin = bIsLoadingWeaponSkin && m_pCachedWeaponIcon == NULL && m_pItem->GetWeaponSkinBase();
-
 	m_pItem->SetWeaponSkinBaseCreateFlags( TEX_COMPOSITE_CREATE_FLAGS_NO_COMPRESSION | TEX_COMPOSITE_CREATE_FLAGS_NO_MIPMAPS );
 
 	BaseClass::Paint();
@@ -974,11 +897,7 @@ void CEmbeddedItemModelPanel::Paint( void )
 
 	// check if we should cache rt from this frame to a texture
 	bool bShouldCacheToTexture = !m_pCachedWeaponIcon && !m_bForceUseModel;
-	if ( m_bIsPaintKitItem )
-	{
-		bShouldCacheToTexture &= bDrawWeaponWithSkin;
-	}
-	else
+
 	{
 		bShouldCacheToTexture &= UseRenderTargetAsIcon();
 	}
@@ -986,18 +905,8 @@ void CEmbeddedItemModelPanel::Paint( void )
 	// copy the rendered weapon skin from the render target
 	if ( bShouldCacheToTexture )
 	{
-		uint64 nPaintKitDef = 0; m_pItem->GetID();
-
-		// Include our paintkit defindex, incase we don't have a SO-backed item (meaning GetID() will
-		// return the same thing for all instances).
-		attrib_value_t val;
-		if ( GetPaintKitDefIndex( m_pItem, &val ) )
-		{
-			nPaintKitDef = val;
-		}
-
 		char buffer[_MAX_PATH];
-		V_sprintf_safe( buffer, "proc/icon/item%d_id%lld%lld_w%d_h%d", m_pItem->GetItemDefIndex(), m_pItem->GetID(), nPaintKitDef, iWidth, iHeight );
+		V_sprintf_safe( buffer, "proc/icon/item%d_id%lld%lld_w%d_h%d", m_pItem->GetItemDefIndex(), m_pItem->GetID(), (uint64)0, iWidth, iHeight );
 		SafeAssign( &m_pCachedWeaponIcon, new CIconRenderReceiver() );
 
 		// If the icon still exists in the material system, don't bother regenerating it.
@@ -1086,13 +995,6 @@ bool CEmbeddedItemModelPanel::UpdateParticle(
 		return false;
 
 	attachedparticlesystem_t *pParticleSystem = NULL;
-
-	// do community_sparkle effect if this is a community item?
-	const int iQualityParticleType = m_pItem->GetQualityParticleType();
-	if ( iQualityParticleType > 0 )
-	{
-		pParticleSystem = GetItemSchema()->GetAttributeControlledParticleSystem( iQualityParticleType );
-	}
 
 	if ( !pParticleSystem )
 	{
@@ -1364,20 +1266,14 @@ CItemModelPanel::CItemModelPanel( vgui::Panel *parent, const char *name ) : vgui
 	m_pPaintIcon = NULL;
 	m_pTF2Icon = NULL;
 	m_pItemAttribLabel = NULL;
-	m_pItemCollectionNameLabel = NULL;
-	m_pItemCollectionListLabel = NULL;
-	m_pItemCollectionHighlight = NULL;
 	m_pItemEquippedLabel = NULL;
 	m_pItemQuantityLabel = NULL;
 	m_pVisionRestrictionImage = NULL;
-	m_pIsStrangeImage = NULL;
 	m_pIsUnusualImage = NULL;
-	m_pIsLoanerImage = NULL;
 	m_pSeriesLabel = NULL;
 	m_pMainContentContainer = NULL;
 	m_pLoadingSpinner = NULL;
 //	m_ItemData = NULL;
-	m_nCollectionItemLoaded = LOADED_COLLECTION_NONE;
 	m_pFontNameSmallest = vgui::INVALID_FONT;
 	m_pFontNameSmall = vgui::INVALID_FONT;
 	m_pFontNameLarge = vgui::INVALID_FONT;
@@ -1437,14 +1333,10 @@ void CItemModelPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	m_pModelPanel = NULL;
 	m_pItemNameLabel = NULL;
 	m_pItemAttribLabel = NULL;
-	m_pItemCollectionNameLabel = NULL;
-	m_pItemCollectionListLabel = NULL;
 	m_pItemEquippedLabel = NULL;
 	m_pItemQuantityLabel = NULL;
 	m_pVisionRestrictionImage = NULL;
-	m_pIsStrangeImage = NULL;
 	m_pIsUnusualImage = NULL;
-	m_pIsLoanerImage = NULL;
 	m_pSeriesLabel = NULL;
 	m_pMatchesLabel = NULL;
 	m_pPaintIcon = NULL;
@@ -1460,7 +1352,6 @@ void CItemModelPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	m_pContainedItemPanel = NULL;
 	m_pMainContentContainer = NULL;
 	m_pLoadingSpinner = NULL;
-	m_nCollectionItemLoaded = LOADED_COLLECTION_NONE;
 	LoadResFileForCurrentItem( true );
 
 	m_pFontNameSmallest = pScheme->GetFont( "ItemFontNameSmallest", true );
@@ -1509,54 +1400,14 @@ void CItemModelPanel::ApplySettings( KeyValues *inResourceData )
 void CItemModelPanel::LoadResFileForCurrentItem( bool bForceLoad )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
-	const CEconItemView *pItem = GetItem();
 
-	bool bCollectionMouseover = false;
-	if ( m_bIsMouseOverPanel && pItem )
 	{
-		const CEconItemCollectionDefinition *pCollection = pItem->GetItemDefinition()->GetItemCollectionDefinition();
-		if ( !pCollection )
-		{
-			// see if this is part of paintkit collection
-			pCollection = GetItemSchema()->GetPaintKitCollectionFromItem( pItem );
-		}
-
-		bCollectionMouseover = pCollection != NULL;
-	}
-
-	if ( bCollectionMouseover )
-	{
-		float flInspect = 0;
-		static CSchemaAttributeDefHandle pAttrib_WeaponAllowInspect( "weapon_allow_inspect" );
-		if ( FindAttribute_UnsafeBitwiseCast<attrib_value_t>( GetItem(), pAttrib_WeaponAllowInspect, &flInspect ) && flInspect != 0.f )
-		{
-			if ( bForceLoad || m_nCollectionItemLoaded != LOADED_COLLECTION_WEAPON )
-			{
-				tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s ItemModelPanelCollectionItem", __FUNCTION__ );
-				LoadControlSettings( "Resource/UI/econ/ItemModelPanelCollectionItem.res" );
-				m_nCollectionItemLoaded = LOADED_COLLECTION_WEAPON;
-			}
-		}
-		else
-		{
-			if ( bForceLoad || m_nCollectionItemLoaded != LOADED_COLLECTION_COSMETIC )
-			{
-				tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s ItemModelPanelCollectionCosmeticItem", __FUNCTION__ );
-				LoadControlSettings( "Resource/UI/econ/ItemModelPanelCollectionCosmeticItem.res" );
-				m_nCollectionItemLoaded = LOADED_COLLECTION_COSMETIC;
-			}
-		}
-		m_bHideModel = false; // Hack
-	}
-	else
-	{
-		if ( bForceLoad || m_nCollectionItemLoaded != LOADED_COLLECTION_NONE )
+		if ( bForceLoad )
 		{
 			tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s ItemModelPanel", __FUNCTION__ );
 			LoadControlSettings( "Resource/UI/econ/ItemModelPanel.res" );
 		}
 		m_bHideModel = m_bHideModelDefault;
-		m_nCollectionItemLoaded = LOADED_COLLECTION_NONE;
 	}
 	
 	m_pModelPanel = dynamic_cast<CEmbeddedItemModelPanel*>( FindChildByName( "itemmodelpanel", true ) );
@@ -1568,16 +1419,11 @@ void CItemModelPanel::LoadResFileForCurrentItem( bool bForceLoad )
 
 	m_pItemNameLabel = dynamic_cast<CExLabel*>( FindChildByName( "namelabel", true ) );
 	m_pItemAttribLabel = dynamic_cast<vgui::Label*>( FindChildByName( "attriblabel", true ) );
-	m_pItemCollectionNameLabel = dynamic_cast<CExLabel*>( FindChildByName( "collectionnamelabel", true ) );
-	m_pItemCollectionListLabel = dynamic_cast<vgui::Label*>( FindChildByName( "collectionlistlabel", true ) );
-	m_pItemCollectionHighlight = dynamic_cast<vgui::EditablePanel*>( FindChildByName( "collectionhighlight", true ) );
 	m_pItemEquippedLabel = dynamic_cast<vgui::Label*>( FindChildByName( "equippedlabel", true ) );
 	m_pItemQuantityLabel = dynamic_cast<vgui::Label*>( FindChildByName( "quantitylabel", true ) );
 	m_pVisionRestrictionImage = dynamic_cast<vgui::ImagePanel*>( FindChildByName( "vision_restriction_icon", true ) );
 
-	m_pIsStrangeImage = dynamic_cast<vgui::ImagePanel*>( FindChildByName( "is_strange_icon", true ) );
 	m_pIsUnusualImage = dynamic_cast<vgui::ImagePanel*>( FindChildByName( "is_unusual_icon", true ) );
-	m_pIsLoanerImage = dynamic_cast<vgui::ImagePanel*>( FindChildByName( "is_loaner_icon", true ) );
 
 	m_pSeriesLabel = dynamic_cast<vgui::Label*>( FindChildByName( "serieslabel", true ) );
 	m_pMatchesLabel = dynamic_cast<vgui::Label*>( FindChildByName( "matcheslabel", true ) );
@@ -1599,20 +1445,10 @@ void CItemModelPanel::LoadResFileForCurrentItem( bool bForceLoad )
 		m_pVisionRestrictionImage->SetKeyBoardInputEnabled( false );
 		m_pVisionRestrictionImage->SetMouseInputEnabled( false );
 	}
-	if ( m_pIsStrangeImage )
-	{
-		m_pIsStrangeImage->SetKeyBoardInputEnabled( false );
-		m_pIsStrangeImage->SetMouseInputEnabled( false );
-	}
 	if ( m_pIsUnusualImage )
 	{
 		m_pIsUnusualImage->SetKeyBoardInputEnabled( false );
 		m_pIsUnusualImage->SetMouseInputEnabled( false );
-	}
-	if ( m_pIsLoanerImage )
-	{
-		m_pIsLoanerImage->SetKeyBoardInputEnabled( false );
-		m_pIsLoanerImage->SetMouseInputEnabled( false );
 	}
 
 	if ( m_pSeriesLabel )
@@ -1666,27 +1502,6 @@ void CItemModelPanel::LoadResFileForCurrentItem( bool bForceLoad )
 		m_pItemAttribLabel->SetMouseInputEnabled( false );
 		m_pItemAttribLabel->AddActionSignalTarget( this );
 		m_pItemAttribLabel->InvalidateLayout( true, true );
-	}
-
-	if ( m_pItemCollectionNameLabel )
-	{
-		m_pItemCollectionNameLabel->SetMouseInputEnabled( false );
-		m_pItemCollectionNameLabel->AddActionSignalTarget( this );
-		m_pItemCollectionNameLabel->InvalidateLayout( true, true );
-	}
-
-	if ( m_pItemCollectionListLabel )
-	{
-		m_pItemCollectionListLabel->SetMouseInputEnabled( false );
-		m_pItemCollectionListLabel->AddActionSignalTarget( this );
-		m_pItemCollectionListLabel->InvalidateLayout( true, true );
-	}
-
-	if ( m_pItemCollectionHighlight )
-	{
-		m_pItemCollectionHighlight->SetMouseInputEnabled( false );
-		m_pItemCollectionHighlight->AddActionSignalTarget( this );
-		m_pItemCollectionHighlight->InvalidateLayout( true, true );
 	}
 
 	m_pContainedItemPanel = dynamic_cast<CItemModelPanel*>( FindChildByName( "contained_item_panel", true ) );
@@ -1761,27 +1576,11 @@ void CItemModelPanel::PerformLayout( void )
 		m_pItemNameLabel->SizeToContents();
 		m_pItemAttribLabel->SizeToContents();
 
-		if ( m_pItemCollectionNameLabel )
-		{
-			m_pItemCollectionNameLabel->InvalidateLayout( true );
-			m_pItemCollectionNameLabel->SizeToContents();
-		}
-			
-		if ( m_pItemCollectionListLabel )
-		{
-			m_pItemCollectionListLabel->InvalidateLayout( true );
-			m_pItemCollectionListLabel->SizeToContents();
-		}
-
 		// "" strings still size themselves as one font-heighth tall, but 0 wide. If there's no
 		// text in the attribute, we want 0 tall as well, so we don't get blank lines.
-		int iCollectionTall = m_pItemCollectionListLabel ? m_pItemCollectionListLabel->GetTall() : 0;
 		int iAttribTall = (m_pItemAttribLabel->GetWide() ? m_pItemAttribLabel->GetTall() : 0);
-		iAttribTall = Max( iAttribTall, iCollectionTall );
 
 		int iNameTall = m_pItemNameLabel->GetTall();
-
-		int iCollectionNameTall = m_pItemCollectionNameLabel ? m_pItemCollectionNameLabel->GetTall() : 0;
 
 		if ( m_bAttribOnly )
 		{
@@ -1797,10 +1596,6 @@ void CItemModelPanel::PerformLayout( void )
 		{
 			m_pItemNameLabel->SetSize( iTextW, iNameTall );
 			m_pItemAttribLabel->SetSize( iTextW, (m_pItemAttribLabel->GetWide() ? m_pItemAttribLabel->GetTall() : 0) );
-			if ( m_pItemCollectionNameLabel )
-				m_pItemCollectionNameLabel->SetSize( iTextW, iCollectionNameTall );
-			if ( m_pItemCollectionListLabel )
-				m_pItemCollectionListLabel->SetSize( iTextW, iCollectionTall );
 		}
 		else if ( m_bTextCenter )
 		{
@@ -1820,7 +1615,6 @@ void CItemModelPanel::PerformLayout( void )
 		m_pItemAttribLabel->SizeToContents();
 		
 		// Reget sizes, wtf
-		iCollectionTall = m_pItemCollectionListLabel ? m_pItemCollectionListLabel->GetTall() : 0;
 		iAttribTall = ( m_pItemAttribLabel->GetWide() ? m_pItemAttribLabel->GetTall() : 0 );
 		// HACK: Now we resize it again. Sets our height properly. Ridiculous. 
 		m_pItemAttribLabel->SetSize( iTextW, iAttribTall );
@@ -1841,18 +1635,13 @@ void CItemModelPanel::PerformLayout( void )
 			if ( !m_bHideModel )
 			{
 				//h = MAX( h, (iModelT + (iModelY * 2)) );
-				h = Max( h + iModelT + iModelY, m_iTextYPos + iCollectionNameTall + iCollectionTall + m_iHPadding);
+				h = Max( h + iModelT + iModelY, m_iTextYPos + m_iHPadding);
 				iLabelOffset = iModelT + iModelY;
 			}
 		}
 
 		// If we don't have a specific X pos, or attrib width, indent ourselves
 		int iTextXPos = (m_iTextXPos || m_iTextWide) ? m_iTextXPos : ATTRIB_LABEL_INDENT;
-
-		if ( iCollectionNameTall && iCollectionTall && m_iTextXPosCollection )
-		{
-			iTextXPos = m_iTextXPosCollection;
-		}
 
 		// Position the name label now we know where our attrib label is
 		// If we've got a Y pos, use it. Otherwise, stack up from the bottom of the panel.
@@ -1868,10 +1657,6 @@ void CItemModelPanel::PerformLayout( void )
 		{
 			m_pItemNameLabel->SetPos( iTextXPos, m_iTextYPos + iLabelOffset );
 			m_pItemAttribLabel->SetPos( iTextXPos, m_iTextYPos + iNameTall + iLabelOffset);
-			if ( m_pItemCollectionNameLabel )
-				m_pItemCollectionNameLabel->SetPos( m_iCollectionListXPos, m_iTextYPos );
-			if ( m_pItemCollectionListLabel )
-				m_pItemCollectionListLabel->SetPos( m_iCollectionListXPos, m_iTextYPos + iCollectionNameTall );
 		}
 		else if ( m_bTextCenter )
 		{
@@ -1894,24 +1679,6 @@ void CItemModelPanel::PerformLayout( void )
 
 		if ( m_bResizeToText )
 		{
-			const CEconItemView *pItem = GetItem();
-			if ( m_bIsMouseOverPanel && pItem && !m_bHideCollectionPanel )
-			{
-				const CEconItemCollectionDefinition *pCollection = pItem->GetItemDefinition()->GetItemCollectionDefinition();
-				if ( !pCollection )
-				{
-					pCollection = GetItemSchema()->GetPaintKitCollectionFromItem( pItem );
-				}
-
-				if ( pCollection && m_pItemCollectionListLabel && m_pItemCollectionNameLabel && m_pItemCollectionHighlight )
-				{
-					m_pItemCollectionListLabel->SizeToContents();
-					m_pItemCollectionNameLabel->SizeToContents();
-					int iContentW = Max( m_pItemCollectionNameLabel->GetWide(), m_pItemCollectionListLabel->GetWide() );
-					w = iContentW + m_iCollectionListXPos + m_iTextXPosCollection;
-					m_pItemCollectionHighlight->SetWide( iContentW );
-				}
-			}
 			SetSize( w, h );
 		}
 	}
@@ -1940,17 +1707,6 @@ void CItemModelPanel::PerformLayout( void )
 		m_pIsUnusualImage->SetPos( xpos - m_pIsUnusualImage->GetWide(), ypos );
 		ypos += m_pIsUnusualImage->GetTall() * 0.9;
 	}
-	if ( m_pIsStrangeImage && m_pIsStrangeImage->IsVisible() )
-	{
-		m_pIsStrangeImage->SetPos( xpos - m_pIsStrangeImage->GetWide(), ypos );
-		ypos += m_pIsStrangeImage->GetTall() * 0.9;
-	}
-	if ( m_pIsLoanerImage && m_pIsLoanerImage->IsVisible() )
-	{
-		m_pIsLoanerImage->SetPos( xpos - m_pIsLoanerImage->GetWide(), ypos );
-		ypos += m_pIsLoanerImage->GetTall() * 0.9;
-	}
-	
 
 	if ( m_pItemNameLabel )
 	{
@@ -1966,18 +1722,6 @@ void CItemModelPanel::PerformLayout( void )
 		if ( m_pItemAttribLabel )
 		{
 			m_pItemAttribLabel->SetVisible( false );
-		}
-		if ( m_pItemCollectionNameLabel )
-		{
-			m_pItemCollectionNameLabel->SetVisible( false );
-		}
-		if ( m_pItemCollectionListLabel )
-		{
-			m_pItemCollectionListLabel->SetVisible( false );
-		}
-		if ( m_pItemCollectionHighlight )
-		{
-			m_pItemCollectionHighlight->SetVisible( false );
 		}
 	}
 
@@ -2015,14 +1759,6 @@ void CItemModelPanel::OnSizeChanged( int newWide, int newTall )
 	if ( m_pItemAttribLabel && m_pItemAttribLabel->GetTextImage() )
 	{
 		m_pItemAttribLabel->GetTextImage()->RecalculateNewLinePositions();
-	}
-	if ( m_pItemCollectionNameLabel && m_pItemCollectionNameLabel->GetTextImage() )
-	{
-		m_pItemCollectionNameLabel->GetTextImage()->RecalculateNewLinePositions();
-	}
-	if ( m_pItemCollectionListLabel && m_pItemCollectionListLabel->GetTextImage() )
-	{
-		m_pItemCollectionListLabel->GetTextImage()->RecalculateNewLinePositions();
 	}
 }
 
@@ -2071,56 +1807,32 @@ void CItemModelPanel::ResizeLabels( void )
 		}
 		m_pItemNameLabel->InvalidateLayout( true, true );
 		m_pItemAttribLabel->InvalidateLayout( true, true );
-		if ( m_pItemCollectionNameLabel )
-			m_pItemCollectionNameLabel->InvalidateLayout( true, true );
-		if ( m_pItemCollectionListLabel )
-			m_pItemCollectionListLabel->InvalidateLayout( true, true );
 
 		switch ( m_iForceTextSize )
 		{
 		case 1:
 			m_pItemNameLabel->SetFont( m_pFontNameLarge );
 			m_pItemAttribLabel->SetFont( m_pFontAttribLarge );
-			if ( m_pItemCollectionNameLabel )
-				m_pItemCollectionNameLabel->SetFont( m_pFontNameLarge );
-			if ( m_pItemCollectionListLabel )
-				m_pItemCollectionListLabel->SetFont( m_pFontAttribLarge );
 			break;
 
 		case 2:
 			m_pItemNameLabel->SetFont( m_pFontNameSmall );
 			m_pItemAttribLabel->SetFont( m_pFontAttribSmall );
-			if ( m_pItemCollectionNameLabel )
-				m_pItemCollectionNameLabel->SetFont( m_pFontNameSmall );
-			if ( m_pItemCollectionListLabel )
-				m_pItemCollectionListLabel->SetFont( m_pFontAttribSmall );
 			break;
 
 		case 3:
 			m_pItemNameLabel->SetFont( m_pFontNameSmallest );
 			m_pItemAttribLabel->SetFont( m_pFontAttribSmallest );
-			if ( m_pItemCollectionNameLabel )
-				m_pItemCollectionNameLabel->SetFont( m_pFontNameSmallest );
-			if ( m_pItemCollectionListLabel )
-				m_pItemCollectionListLabel->SetFont( m_pFontAttribSmallest );
 			break;
 
 		case 4:
 			m_pItemNameLabel->SetFont( m_pFontNameLarger );
 			m_pItemAttribLabel->SetFont( m_pFontAttribLarger );
-			if ( m_pItemCollectionNameLabel )
-				m_pItemCollectionNameLabel->SetFont( m_pFontNameLarger );
-			if ( m_pItemCollectionListLabel )
-				m_pItemCollectionListLabel->SetFont( m_pFontAttribLarger );
 			break;
 		}
 
 		m_pItemNameLabel->SizeToContents();
 		m_pItemAttribLabel->SizeToContents();
-		if ( m_pItemCollectionNameLabel )
-			m_pItemCollectionNameLabel->SizeToContents();
-		if ( m_pItemCollectionListLabel )
-			m_pItemCollectionListLabel->SizeToContents();
 	}
 	else
 	{
@@ -2140,17 +1852,6 @@ void CItemModelPanel::ResizeLabels( void )
 		m_pItemNameLabel->SizeToContents();
 		m_pItemAttribLabel->SetFont( m_pFontAttribLarge );
 		m_pItemAttribLabel->SizeToContents();
-		if ( m_pItemCollectionNameLabel )
-		{
-			m_pItemCollectionNameLabel->SetFont( m_pFontNameLarge );
-			m_pItemCollectionNameLabel->SetCenterWrap( false );
-			m_pItemCollectionNameLabel->SizeToContents();	
-		}
-		if ( m_pItemCollectionListLabel )
-		{
-			m_pItemCollectionListLabel->SetFont( m_pFontAttribLarge );
-			m_pItemCollectionListLabel->SizeToContents();
-		}
 
 		if ( !m_bResizeToText )
 		{
@@ -2259,7 +1960,6 @@ void CItemModelPanel::SetItem( const CEconItemView *pItem )
 
 				// Our current item is a base item. Our new item needs to be base too, and match item indices and quality
 				bMatch &= ( m_ItemData.GetItemDefIndex() == pItem->GetItemDefIndex() ) &&
-						  ( m_ItemData.GetItemQuality() == pItem->GetItemQuality() ) &&
 						  ( m_ItemData.GetSOCData() == pItem->GetSOCData() );
 			}
 		}
@@ -2280,11 +1980,6 @@ void CItemModelPanel::SetItem( const CEconItemView *pItem )
 
 			// If the item hasn't built its attribute string, go ahead and do that.
 			m_ItemData.SetGrayedOutReason( GetGreyedOutReason() );
-		}
-		else
-		{
-			// The rest of the data may match, but we still need the inventory position updates
-			m_ItemData.SetInventoryPosition( pItem->GetInventoryPosition() );
 		}
 
 		ShowContainedItemPanel( pItem );
@@ -2349,9 +2044,7 @@ void CItemModelPanel::ShowContainedItemPanel( const CEconItemView *pItem )
 		if ( !pInteriorItem )
 			return;
 
-		const IEconTool *pEconTool = pItem->GetItemDefinition()
-								   ? pItem->GetItemDefinition()->GetEconTool()
-								   : NULL;
+		const IEconTool *pEconTool = NULL;
 		if ( !pEconTool )
 			return;
 
@@ -2389,16 +2082,9 @@ void CItemModelPanel::HideContainedItemPanel()
 void CItemModelPanel::SetEconItem( CEconItem* pItem )
 {
 	m_ItemData.SetItemDefIndex( pItem->GetDefinitionIndex() );
-	m_ItemData.SetItemQuality( pItem->GetQuality() );
-	m_ItemData.SetItemLevel( pItem->GetItemLevel() );
 	m_ItemData.SetItemID( pItem->GetItemID() );
 	m_ItemData.SetNonSOEconItem( pItem );
 	m_ItemData.SetInitialized( true );
-
-#ifdef CLIENT_DLL
-	m_ItemData.SetIsTradeItem( false );
-	m_ItemData.SetItemQuantity( pItem->GetQuantity() );
-#endif
 
 	m_ItemData.GetAttributeList()->DestroyAllAttributes();
 
@@ -2471,115 +2157,6 @@ bool CItemModelPanel::UpdateSeriesLabel()
 	return false;
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: Read through a few items and see if they match the recipe's criteria
-//			Show elipses while still tallying.  Remove our tick once all items
-//			are tallied.
-//-----------------------------------------------------------------------------
-bool CItemModelPanel::CheckRecipeMatches()
-{
-	// Don't do this if either we or our parent are invisible
-	if( !IsVisible() || ( GetParent() && !GetParent()->IsVisible() ) )
-		return false;
-
-	const IEconTool* pTool = m_ItemData.GetStaticData()->GetEconTool();
-
-	// If this isnt a dynamic recipe tool, dont show or do any of this
-	if( !pTool 
-		|| V_stricmp( m_ItemData.GetStaticData()->GetEconTool()->GetTypeName() , "dynamic_recipe")
-		|| m_ItemData.GetStaticData()->GetDefaultLoadoutSlot() != INVALID_EQUIPPED_SLOT )
-	{
-		if( m_pMatchesLabel )
-		{
-			m_pMatchesLabel->SetVisible( false );
-		}
-
-		return false;
-	}
-
-	bool bStillWorking = true;
-	if( m_pMatchesLabel && m_bShowQuantity )
-	{
-		CPlayerInventory *pLocalInv = TFInventoryManager()->GetLocalInventory();
-		if ( pLocalInv == NULL )
-			return false;
-
-		// We still need to match recipe components
-		if ( m_nRecipeMatchingIndex < pLocalInv->GetItemCount() )
-			sai_NumLoadingRequests[LOADING_RECIPE_MATCHES]++;
-
-		if ( se_CurrentLoadingTask == LOADING_RECIPE_MATCHES )
-		{
-			// Go through our entire backpack and check for matches, but only go through a few at a time
-			while ( m_nRecipeMatchingIndex < pLocalInv->GetItemCount() && sm_flLoadingTimeThisFrame < tf_time_loading_item_panels.GetFloat() )
-			{
-				// Mark this time
-				float flTime = Plat_FloatTime();
-
-				CEconItemView *pItem = pLocalInv->GetItem( m_nRecipeMatchingIndex );
-				Assert( pItem );
-
-				// Check each item
-				CRecipeComponentMatchingIterator matchingIterator( &m_ItemData, pItem );
-				m_ItemData.IterateAttributes( &matchingIterator );
-				const CUtlVector< const CEconItemAttributeDefinition* >& matchingAttribs = matchingIterator.GetMatchingComponentInputs();
-				Assert( matchingAttribs.Count() <= 1 );
-				FOR_EACH_VEC( matchingAttribs, j )
-				{
-					CAttribute_DynamicRecipeComponent value;
-					const CEconItemAttributeDefinition* pAttrib = matchingAttribs[j];
-					attrib_definition_index_t nIndex = pAttrib->GetDefinitionIndex();
-					m_ItemData.FindAttribute( pAttrib, &value );
-
-					// Add this entry if it doesnt exist in out map yet
-					if( m_mapMatchingAttributes.Find( nIndex ) == m_mapMatchingAttributes.InvalidIndex() )
-					{
-						m_mapMatchingAttributes.Insert( nIndex );
-						m_mapMatchingAttributes[ m_mapMatchingAttributes.Find( nIndex ) ] = 0;
-					}
-
-					// Increment this value if it's less than the max needed
-					int &nCount = m_mapMatchingAttributes[ m_mapMatchingAttributes.Find( nIndex ) ];
-					if( (unsigned)nCount < ( value.num_required() - value.num_fulfilled() ) )
-					{
-						++nCount;
-					}
-				}
-
-				m_nRecipeMatchingIndex++;
-				// Accumulate time
-				sm_flLoadingTimeThisFrame += ( Plat_FloatTime() - flTime );
-			}
-		}
-
-		bStillWorking = m_nRecipeMatchingIndex != pLocalInv->GetItemCount();
-		wchar_t wszMatches[16]=L"...";
-		
-		if( !bStillWorking )
-		{
-			CRecipeComponentMatchingIterator matchingIterator( &m_ItemData, NULL );
-			m_ItemData.IterateAttributes( &matchingIterator );
-			int nTotalAttribs = matchingIterator.GetTotalInputs() - matchingIterator.GetInputsFulfilled();
-			int nMatchingAttribs = 0;
-
-			unsigned short index = m_mapMatchingAttributes.FirstInorder();
-			while( index != m_mapMatchingAttributes.InvalidIndex() )
-			{
-				nMatchingAttribs += m_mapMatchingAttributes[ index ];
-				index = m_mapMatchingAttributes.NextInorder( index );
-			}
-
-			// Fill out the actual number of matches
-			_snwprintf( wszMatches, ARRAYSIZE( wszMatches ), L"%i/%i", nMatchingAttribs, nTotalAttribs );
-		}
-	
-		m_pMatchesLabel->SetVisible( true );
-		m_pMatchesLabel->SetText( wszMatches );
-	}
-
-	return bStillWorking;
-}
-
 void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 {
 	if ( !m_bDescriptionDirty )
@@ -2608,37 +2185,11 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 			{
 				const econ_item_description_line_t& line = pDescription->GetLine(i);
 
-				// skip the bonus content for mouse over panel
-				if ( m_bIsMouseOverPanel && line.unMetaType & kDescLineFlag_CaseBonusContent )
-					continue;
-
 				// skip mouse over panel only line
 				if ( !m_bIsMouseOverPanel && line.unMetaType & kDescLineFlag_MouseOverPanel )
 					continue;
 
-				// m_bSpecialAttributesOnly, only show purple and orange text, ignore rest
-				if ( m_bSpecialAttributesOnly )
-				{
-					if ( line.eColor == ATTRIB_COL_UNUSUAL || line.eColor == ATTRIB_COL_STRANGE )
-					{
-						V_wcscat_safe( wszAttribBuffer, unWrittenLines++ == 0 ? L"" : L"\n" );					// add empty lines everywhere except before the first line
-						V_wcscat_safe( wszAttribBuffer, line.sText.Get() );
-					}	
-				}
-				else if ( ( line.unMetaType & kDescLineFlag_CollectionName ) != 0 )
-				{
-					// Ignore name spacers
-					if ( !( line.unMetaType & kDescLineFlag_Empty) )
-					{
-						V_wcscat_safe( wszCollectionNameBuffer, line.sText.Get() );
-					}
-				}
-				else if ( ( line.unMetaType & kDescLineFlag_Collection ) != 0 )
-				{		
-					V_wcscat_safe( wszCollectionListBuffer, unWrittenCollectionLines++ == 0 ? L"" : L"\n" );					// add empty lines everywhere except before the first line
-					V_wcscat_safe( wszCollectionListBuffer, line.sText.Get() );
-				}
-				else if ( (line.unMetaType & kDescLineFlag_Name ) == 0 )
+				if ( (line.unMetaType & kDescLineFlag_Name ) == 0 )
 				{
 					V_wcscat_safe( wszAttribBuffer, unWrittenLines++ == 0 ? L"" : L"\n" );					// add empty lines everywhere except before the first line
 					V_wcscat_safe( wszAttribBuffer, line.sText.Get() );
@@ -2660,49 +2211,13 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 
 	if ( m_pItemNameLabel )
 	{
-		uint8 nRarity = m_ItemData.GetRarity();
-		const char* pszRarityColor = GetItemSchema()->GetRarityColor( nRarity );
-
-		// Set the name to the quality color
-		// Rarity Econ Colorization
-		EEconItemQuality eQuality = (EEconItemQuality)m_ItemData.GetItemQuality();
-		if ( pszRarityColor && ( eQuality != AE_SELFMADE ) && ( eQuality != AE_UNUSUAL ) )
-		{
-			m_pItemNameLabel->SetColorStr( pszRarityColor );
-		}
-		else 
-		{
-			const char *pszQualityColorString = EconQuality_GetColorString( eQuality );
-			if ( m_ItemData.IsValid() && !m_bStandardTextColor && pszQualityColorString )
-			{
-				m_pItemNameLabel->SetColorStr( pszQualityColorString );
-			}
-			else
-			{
-				m_pItemNameLabel->SetColorStr( m_OrgItemTextColor );
-			}
-		}
+		m_pItemNameLabel->SetColorStr( "QualityColorNormal" );
 		m_pItemNameLabel->SetVisible( !m_bAttribOnly );
 	}
 
 	if ( m_pItemAttribLabel )
 	{
 		m_pItemAttribLabel->SetVisible( !m_bNameOnly );
-	}
-
-	bool bCollectionVisible = m_bHideCollectionPanel ? false : !m_bNameOnly;
-
-	if ( m_pItemCollectionNameLabel )
-	{
-		m_pItemCollectionNameLabel->SetVisible( bCollectionVisible );
-	}
-	if ( m_pItemCollectionListLabel )
-	{
-		m_pItemCollectionListLabel->SetVisible( bCollectionVisible );
-	}
-	if ( m_pItemCollectionHighlight )
-	{
-		m_pItemCollectionHighlight->SetVisible( bCollectionVisible );
 	}
 
 	InvalidateLayout( true );
@@ -2714,35 +2229,14 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 		vgui::TextImage *pAttrTextImage = m_pItemAttribLabel->GetTextImage();
 		pAttrTextImage->ClearColorChangeStream();
 
-		vgui::TextImage *pCollectionNameTextImage = m_pItemCollectionNameLabel ? m_pItemCollectionNameLabel->GetTextImage() : NULL;
-		if ( pCollectionNameTextImage )
-			pCollectionNameTextImage->ClearColorChangeStream();
-
-		vgui::TextImage *pCollectionListTextImage = m_pItemCollectionListLabel ? m_pItemCollectionListLabel->GetTextImage() : NULL;
-		if ( pCollectionListTextImage )
-			pCollectionListTextImage->ClearColorChangeStream();
-
 		vgui::IScheme *pScheme = scheme()->GetIScheme( GetScheme() );
 
 		Color prevAttrColor(0,0,0);
-		Color prevCollectionColor(0,0,0);
 		unsigned int unCurrentAttrTextStreamIndex = 0;
-		unsigned int unCurrentCollectionNameTextStreamIndex = 0;
-		unsigned int unCurrentCollectionListTextStreamIndex = 0;
-		int iCollectionLineCount = 0;
-
-		if ( m_pItemCollectionHighlight )
-		{
-			m_pItemCollectionHighlight->SetVisible( false );
-		}
 
 		for ( unsigned int i = 0; i < pDescription->GetLineCount(); i++ )
 		{
 			const econ_item_description_line_t& line = pDescription->GetLine(i);
-
-			// skip the bonus content for mouse over panel
-			if ( m_bIsMouseOverPanel && line.unMetaType & kDescLineFlag_CaseBonusContent )
-				continue;
 
 			// skip mouse over panel only line
 			if ( !m_bIsMouseOverPanel && line.unMetaType & kDescLineFlag_MouseOverPanel )
@@ -2752,58 +2246,8 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 			if ( ( line.unMetaType & kDescLineFlag_Name ) != 0 )
 				continue;
 
-			// collection
-			int fontHeight = surface()->GetFontTall( m_pFontAttribSmall );
-			if ( ( line.unMetaType & (kDescLineFlag_Collection | kDescLineFlag_CollectionName | kDescLineFlag_CollectionCurrentItem ) ) != 0 && pCollectionNameTextImage && pCollectionListTextImage )
-			{
-				bool bIsCollectionName = ( line.unMetaType & kDescLineFlag_CollectionName ) != 0;
-				vgui::TextImage *pTextImage = bIsCollectionName ? pCollectionNameTextImage : pCollectionListTextImage;
-				unsigned int &unCurrentCollectionTextStreamIndex = bIsCollectionName ? unCurrentCollectionNameTextStreamIndex : unCurrentCollectionListTextStreamIndex;
-
-				bool bIsCurrentItem = ( line.unMetaType & kDescLineFlag_CollectionCurrentItem ) != 0;
-				// use bg color as text color for current item for a better highlight
-				Color col = bIsCurrentItem ? Color( 0, 0, 0, 255 ) : pScheme->GetColor( GetColorNameForAttribColor( line.eColor ), Color( 255, 255, 255, 255 ) );
-				// Output a color change if necessary.
-				if ( i == 0 || prevCollectionColor != col )
-				{
-					pTextImage->AddColorChange( col, unCurrentCollectionTextStreamIndex );
-					prevCollectionColor = col;
-				}
-
-				unCurrentCollectionTextStreamIndex += StringFuncs<locchar_t>::Length( line.sText.Get() ) + 1;	// add one character to deal with newlines
-
-				if ( bIsCollectionName )
-				{
-					continue;
-				}
-
-				// Current line highlight
-				if ( bIsCurrentItem && m_pItemCollectionHighlight )
-				{
-					// use text color as bg color for the current item for a better highlight
-					Color bgColor = pScheme->GetColor( GetColorNameForAttribColor( line.eColor ), Color( 255, 255, 255, 255 ) );
-
-					// Get the current ypos
-					int x, y;
-					m_pItemCollectionListLabel->GetPos( x, y );
-					m_pItemCollectionHighlight->SetPos( x, y + iCollectionLineCount * fontHeight );
-					m_pItemCollectionHighlight->SetBgColor( bgColor );
-					m_pItemCollectionHighlight->SetVisible( bCollectionVisible );
-				}
-				iCollectionLineCount++;
-			}
-			else 
 			{
 				Color col = pScheme->GetColor( GetColorNameForAttribColor( line.eColor ), Color( 255, 255, 255, 255 ) );
-
-				// m_bSpecialAttributesOnly, only show purple and orange text, ignore rest
-				if ( m_bSpecialAttributesOnly )
-				{
-					if ( ( line.eColor != ATTRIB_COL_UNUSUAL && line.eColor != ATTRIB_COL_STRANGE ) )
-					{
-						continue;
-					}
-				}
 
 				// Output a color change if necessary.
 				if ( i == 0 || prevAttrColor != col )
@@ -2834,18 +2278,7 @@ void CItemModelPanel::DirtyDescription()
 //-----------------------------------------------------------------------------
 bool CItemModelPanel::UpdateMatchesLabel()
 {
-	const IEconTool* pTool = m_ItemData.GetStaticData()->GetEconTool();
-
-	if( !pTool || Q_stricmp( m_ItemData.GetStaticData()->GetEconTool()->GetTypeName() , "dynamic_recipe") )
-	{
-		return false;
-	}
-
-	m_nRecipeMatchingIndex = 0;
-	m_mapMatchingAttributes.Purge();
-	SetNeedsToLoad();
-	
-	return true;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -2855,24 +2288,7 @@ bool CItemModelPanel::UpdateQuantityLabel()
 {
 	if ( m_pItemQuantityLabel )
 	{
-		bool bVisible = m_bShowQuantity && m_ItemData.GetStaticData() != NULL;
-		if ( bVisible )
-		{
-			const IEconTool *pEconTool = m_ItemData.GetStaticData()->GetEconTool();
-			if ( pEconTool && pEconTool->ShouldDisplayQuantity( &m_ItemData ) )
-			{
-				wchar_t wszQuantity[16]=L"";
-				_snwprintf( wszQuantity, ARRAYSIZE( wszQuantity ), L"%i", m_ItemData.GetQuantity() );
-				m_pItemQuantityLabel->SetVisible( true );
-				m_pItemQuantityLabel->SetText( wszQuantity );
-			}
-			else
-			{
-				bVisible = false;
-			}
-		}
-		m_pItemQuantityLabel->SetVisible( bVisible );
-
+		m_pItemQuantityLabel->SetVisible( false );
 		return true;
 	}
 
@@ -2963,17 +2379,9 @@ void CItemModelPanel::HideAllModifierIcons()
 	{
 		m_pVisionRestrictionImage->SetVisible( false );
 	}
-	if ( m_pIsStrangeImage )
-	{
-		m_pIsStrangeImage->SetVisible( false );
-	}
 	if ( m_pIsUnusualImage )
 	{
 		m_pIsUnusualImage->SetVisible( false );
-	}
-	if ( m_pIsLoanerImage )
-	{
-		m_pIsLoanerImage->SetVisible( false );
 	}
 	if ( m_pSeriesLabel )
 	{
@@ -3140,14 +2548,11 @@ void CItemModelPanel::UpdatePanels( void )
 			if ( m_pPaintIcon->m_hUGCId != 0 )
 				m_pPaintIcon->SetVisible( true );
 
-			// Don't show paint icons on any tools, their icon contains the color
-			const bool bIsEconTool = m_ItemData.GetItemDefinition()->IsTool();
-
 			// Has the item been painted?
 			int iRGB0 = m_ItemData.GetModifiedRGBValue( false ),
 				iRGB1 = m_ItemData.GetModifiedRGBValue( true );
 
-			if ( !bIsEconTool && (iRGB0 != 0 || iRGB1 != 0))
+			if ( iRGB0 != 0 || iRGB1 != 0 )
 			{
 				m_pPaintIcon->SetVisible( true );
 				m_pPaintIcon->m_colPaintColors.AddToTail( Color( clamp( (iRGB0 & 0xFF0000) >> 16, 0, 255 ), clamp( (iRGB0 & 0xFF00) >> 8, 0, 255 ), clamp( (iRGB0 & 0xFF), 0, 255 ), 255 ) );
@@ -3235,34 +2640,6 @@ void CItemModelPanel::UpdatePanels( void )
 		if ( !m_bModelOnly && pData )
 		{
 			nVisionFilterFlags = pData->GetVisionFilterFlags();
-
-			// Add support for all the holidays and "vision" mode restrictions
-			if ( pData->GetHolidayRestriction() )
-			{
-				int iHolidayRestriction = UTIL_GetHolidayForString( pData->GetHolidayRestriction() );
-				switch ( iHolidayRestriction )
-				{
-				default:
-				case kHoliday_None:
-				case kHoliday_TFBirthday:
-				case kHoliday_Christmas:
-				case kHoliday_Valentines:
-				case kHoliday_MeetThePyro:
-				case kHoliday_AprilFools:
-				case kHoliday_EOTL:
-				case kHoliday_CommunityUpdate:
-					break;
-
-				case kHoliday_Halloween:
-				case kHoliday_FullMoon:
-				case kHoliday_HalloweenOrFullMoon:
-				case kHoliday_HalloweenOrFullMoonOrValentines:
-					#ifdef TF_CLIENT_DLL
-						nVisionFilterFlags |= TF_VISION_FILTER_HALLOWEEN;
-					#endif
-					break;
-				}
-			}
 		}
 
 		switch ( nVisionFilterFlags )
@@ -3295,47 +2672,6 @@ void CItemModelPanel::UpdatePanels( void )
 #endif
 		}
 	}
-
-	// Strange Icon
-	if ( m_pIsStrangeImage )
-	{
-		m_pIsStrangeImage->SetVisible( false );
-
-		if ( !m_bIsMouseOverPanel )
-		{
-			// Allow for already strange items
-			bool bIsStrange = false;
-			if ( m_ItemData.GetQuality() == AE_STRANGE )
-			{
-				bIsStrange = true;
-			}
-
-			if ( !bIsStrange )
-			{
-				// Go over the attributes of the item, if it has any strange attributes the item is strange and don't apply
-				for ( int i = 0; i < GetKillEaterAttrCount(); i++ )
-				{
-					if ( m_ItemData.FindAttribute( GetKillEaterAttr_Score( i ) ) )
-					{
-						bIsStrange = true;
-						break;
-					}
-				}
-			}
-			if ( bIsStrange )
-			{
-				if ( GetStattrak( &m_ItemData ) )
-				{
-					m_pIsStrangeImage->SetImage( "viewmode_statclock" );
-				}
-				else
-				{
-					m_pIsStrangeImage->SetImage( "viewmode_strange" );
-				}
-				m_pIsStrangeImage->SetVisible( true );
-			}
-		}
-	}
 	
 	// Unusual Icon
 	if ( m_pIsUnusualImage )
@@ -3352,16 +2688,6 @@ void CItemModelPanel::UpdatePanels( void )
 				m_pIsUnusualImage->SetImage( "viewmode_unusual" );
 				m_pIsUnusualImage->SetVisible( true );
 			}
-		}
-	}
-
-	if ( m_pIsLoanerImage )
-	{
-		m_pIsLoanerImage->SetVisible( false );
-		if ( !m_bIsMouseOverPanel && GetAssociatedQuestID( &m_ItemData ) != INVALID_ITEM_ID )
-		{
-			m_pIsLoanerImage->SetImage( "viewmode_loaner" );
-			m_pIsLoanerImage->SetVisible( true );
 		}
 	}
 
@@ -3456,7 +2782,7 @@ bool CItemModelPanel::LoadData()
 		se_CurrentLoadingTask = type;
 	}
 
-	bool bStillWorking = CheckRecipeMatches();
+	bool bStillWorking = false;
 
 	if ( !m_bHideModel && m_pModelPanel )
 	{
@@ -3489,7 +2815,6 @@ bool CItemModelPanel::LoadData()
 				sm_flLoadingTimeThisFrame += ( Plat_FloatTime() - flTime );
 			}
 
-			bStillWorking = m_pModelPanel->IsLoadingWeaponSkin() || m_pModelPanel->IsImageNotLoaded();
 			bImageLoaded = !bStillWorking;
 		}
 

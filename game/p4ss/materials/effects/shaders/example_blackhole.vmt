@@ -1,0 +1,77 @@
+screenspace_general
+{
+	$pixshader "example_blackhole_ps20"
+
+	$basetexture "_rt_FullFrameFB"
+	$texture1    ""
+	$texture2    ""
+	$texture3    ""
+
+	$x360appchooser 1
+	$ignorez        1
+	$fix_fb         32768
+	"<dx90"
+	{
+		$no_draw 1
+	}
+		
+	$copyalpha                 1
+	$alpha_blend_color_overlay 0
+	$alpha_blend               0
+	$linearwrite               0
+	$linearread_basetexture    0
+	$linearread_texture1       0
+	$linearread_texture2       0
+	$linearread_texture3       0
+
+	$c0_x     0.0    // player origin X
+	$c0_y     0.0    // player origin Y
+	$c0_z     0.0    // player origin Z
+	$c1_x     16.0   // target origin X
+	$c1_y     650.0  // target origin Y
+	$c1_z     4.0    // target origin Z
+	$c1_w	  384.0  // target radius
+	$c2_x     0.0    // target color R
+	$c2_y     0.0    // target color G
+	$c2_z     0.0    // target color B
+	$c2_w     1.0    // target color A
+	
+	$pos     "[0 0 0]"
+	$zero     0.0
+	
+	Proxies
+	{
+		Equals
+		{
+			srcVar1			$fix_fb
+			resultVar		$flags2
+		}
+		PlayerPosition
+		{
+			scale			 1
+			resultVar		"$pos"
+		}
+		// split into X Y Z components
+		Clamp
+		{
+			srcVar1			 $zero
+			min				"$pos[0]"
+			max				"$pos[0]"
+			resultVar		 $c0_x
+		}
+		Clamp
+		{
+			srcVar1			 $zero
+			min				"$pos[1]"
+			max				"$pos[1]"
+			resultVar		 $c0_y
+		}	
+		Clamp
+		{
+			srcVar1			 $zero
+			min				"$pos[2]"
+			max				"$pos[2]"
+			resultVar		 $c0_z
+		}
+	}
+}

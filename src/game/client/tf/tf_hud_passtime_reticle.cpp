@@ -14,6 +14,7 @@
 #include "c_tf_player.h"
 #include "view.h"
 #include "c_tf_playerresource.h"
+#include "igameevents.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -36,6 +37,8 @@ void ReloadAllPlayerReticles();
 void ReloadAllPassReticles();
 void ReloadBallReticle();
 void ReloadBounceReticle();
+void PrecacheAllReticleMaterials();
+void PrecacheReticleMaterial( const char *pMaterialName );
 static bool g_BounceReticleDirty = false;
 //-----------------------------------------------------------------------------
 // C_PasstimeReticle
@@ -175,7 +178,7 @@ void C_PasstimeBallReticle::InitializeSprites()
 
 	if ( !pBallOutlineA || strlen(pBallOutlineA) == 0 )
 	{
-		pBallOutlineA = "passtime/hud/passtime_ball_reticle_piece_1"; 
+		pBallOutlineA = "reticles/p1fix"; 
 	}
 	else if ( strnicmp( pBallOutlineA, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -185,7 +188,7 @@ void C_PasstimeBallReticle::InitializeSprites()
 	}
 	if ( !pBallOutlineB || strlen(pBallOutlineB) == 0 )
 	{
-		pBallOutlineB = "passtime/hud/passtime_ball_reticle_piece_2"; 
+		pBallOutlineB = "reticles/p2fix"; 
 	}
 	else if ( strnicmp( pBallOutlineB, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -201,6 +204,7 @@ void C_PasstimeBallReticle::InitializeSprites()
 C_PasstimeBallReticle::C_PasstimeBallReticle()
 {
 	InitializeSprites();
+	PrecacheAllReticleMaterials();
 }
 
 //-----------------------------------------------------------------------------
@@ -262,8 +266,8 @@ C_PasstimeGoalReticle::C_PasstimeGoalReticle( C_FuncPasstimeGoal *pGoal )
 {
 	Assert( pGoal );
 	m_hGoal.Set( pGoal );
-	AddSprite( CreateReticleSprite( "passtime/hud/passtime_ball_reticle_piece_1", 256, 50 ) );
-	AddSprite( CreateReticleSprite( "passtime/hud/passtime_ball_reticle_piece_2", 128, 0 ) );
+	AddSprite( CreateReticleSprite( "reticles/p1fix", 256, 50 ) );
+	AddSprite( CreateReticleSprite( "reticles/p2fix", 128, 0 ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -282,14 +286,16 @@ bool C_PasstimeGoalReticle::Update()
 
 	// don't show if ball isn't being carried by local player
 	auto *pEnt = g_pPasstimeLogic->GetBall()->GetCarrier();
-	if ( !pEnt || (pEnt != C_BasePlayer::GetLocalPlayer()) )
+	if ( !pEnt )
 	{
 		return false;
 	}
 
+	if ( !IsLocalPlayerSpectator() && pEnt != C_BasePlayer::GetLocalPlayer() )
+		return false;
+
 	auto *pGoal = m_hGoal.Get();
-	if ( !g_pPasstimeLogic || !g_pPasstimeLogic->GetBall() || IsLocalPlayerSpectator() 
-		|| !pGoal || pGoal->BGoalTriggerDisabled() || (pGoal->GetTeamNumber() != pEnt->GetTeamNumber()) )
+	if ( !pGoal || pGoal->BGoalTriggerDisabled() || (pGoal->GetTeamNumber() != pEnt->GetTeamNumber()) )
 	{
 		return false;
 	}
@@ -342,7 +348,7 @@ void C_PasstimePassReticle::InitializeSprites()
 
 	if ( !innerTeammateSprite || strlen(innerTeammateSprite) == 0 )
 	{
-		innerTeammateSprite = "passtime/hud/passtime_ball_reticle_passlock"; 
+		innerTeammateSprite = "reticles/plfix"; 
 	}
 	else if ( strnicmp( innerTeammateSprite, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -352,7 +358,7 @@ void C_PasstimePassReticle::InitializeSprites()
 	}
 	if ( !outerTeammateSprite1 || strlen(outerTeammateSprite1) == 0 )
 	{
-		outerTeammateSprite1 = "passtime/hud/passtime_ball_reticle_piece_1"; 
+		outerTeammateSprite1 = "reticles/p1fix"; 
 	}
 	else if ( strnicmp( outerTeammateSprite1, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -362,7 +368,7 @@ void C_PasstimePassReticle::InitializeSprites()
 	}
 	if ( !outerTeammateSprite2 || strlen(outerTeammateSprite2) == 0 )
 	{
-		outerTeammateSprite2 = "passtime/hud/passtime_ball_reticle_piece_2"; 
+		outerTeammateSprite2 = "reticles/p2fix"; 
 	}
 	else if ( strnicmp( outerTeammateSprite2, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -391,7 +397,7 @@ void C_PasstimePassReticle::ReloadSprites()
 
 bool C_PasstimePassReticle::Update()
 {
-	if ( !g_pPasstimeLogic || !g_pPasstimeLogic->GetBall() || IsLocalPlayerSpectator() )
+	if ( !g_pPasstimeLogic || !g_pPasstimeLogic->GetBall() )
 	{
 		return false;
 	}
@@ -402,7 +408,7 @@ bool C_PasstimePassReticle::Update()
 		return false;
 	}
 
-	if ( (pBallCarrier != C_BasePlayer::GetLocalPlayer()) )
+	if ( !IsLocalPlayerSpectator() && (pBallCarrier != C_BasePlayer::GetLocalPlayer()) )
 	{
 		return false;
 	}
@@ -568,7 +574,7 @@ void C_PasstimeBounceReticle::InitializeSprites()
 	//sets the default files for if the user inputs "" 
 	if (!pInnerBounceSprite || strlen(pInnerBounceSprite) == 0)
     {
-        pInnerBounceSprite = "passtime/hud/passtime_ball_reticle_passlock"; 
+        pInnerBounceSprite = "reticles/plfix"; 
     }
 	else if ( strnicmp( pInnerBounceSprite, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -578,7 +584,7 @@ void C_PasstimeBounceReticle::InitializeSprites()
 	}
     if (!pOuterBounceSprite || strlen(pOuterBounceSprite) == 0)
     {
-        pOuterBounceSprite = "passtime/hud/passtime_ball_reticle_piece_1"; 
+        pOuterBounceSprite = "reticles/p1fix"; 
     }
 	else if ( strnicmp( pOuterBounceSprite, defaultFolder, strlen( defaultFolder ) ) != 0 )
 	{
@@ -607,26 +613,33 @@ ConVar pf_crosshair_outer_teamcolored( "pf_crosshair_outer_teamcolored", "0", FC
 
 void C_PasstimeBounceReticle::Show( const Vector &vec, const Vector &normal )
 {
-	auto *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	auto nTeamNumber = pLocalPlayer->GetTeamNumber();
+	int nTeamNumber = 0;
+	if ( g_pPasstimeLogic )
+	{
+		if ( auto ball = g_pPasstimeLogic->GetBall() )
+		{
+			if ( auto carrier = ball->GetCarrier() )
+				nTeamNumber = carrier->GetTeamNumber();
+		}
+	}
 
 	SetOrigin( 0, vec );
 	SetOrigin( 1, vec );//+ (normal * 16) );
 	SetNormal( 0, normal );
 	SetNormal( 1, -MainViewForward() );
+
 	int r = 200, g = 200, b = 200;
+
 	if ( g_BounceReticleDirty )
 	{
 		ReloadSprites();
 		g_BounceReticleDirty = false;
 	}
-	if ( pf_crosshair_inner_teamcolored.GetBool() )
+
+	if ( pf_crosshair_inner_teamcolored.GetBool() && nTeamNumber )
 	{
-		if ( nTeamNumber )
-		{
-			Color teamColor = GetTeamColor( nTeamNumber );
-			SetRgba( 0, teamColor.r(), teamColor.g(), teamColor.b(), pf_crosshair_inner_a.GetInt() );
-		}
+		Color teamColor = GetTeamColor( nTeamNumber );
+		SetRgba( 0, teamColor.r(), teamColor.g(), teamColor.b(), pf_crosshair_inner_a.GetInt() );
 	}
 	else
 	{
@@ -634,20 +647,16 @@ void C_PasstimeBounceReticle::Show( const Vector &vec, const Vector &normal )
 		SetRgba( 0, r, g, b, pf_crosshair_inner_a.GetInt() );
 	}
 	
-	if ( pf_crosshair_outer_teamcolored.GetBool() )
+	if ( pf_crosshair_outer_teamcolored.GetBool() && nTeamNumber )
 	{
-		if ( nTeamNumber )
-		{
-			Color teamColor = GetTeamColor( nTeamNumber );
-			SetRgba( 1, teamColor.r(), teamColor.g(), teamColor.b(), pf_crosshair_inner_a.GetInt() );
-		}
+		Color teamColor = GetTeamColor( nTeamNumber );
+		SetRgba( 1, teamColor.r(), teamColor.g(), teamColor.b(), pf_crosshair_outer_a.GetInt() );
 	}
 	else
 	{
 		sscanf( pf_crosshair_outer_color.GetString(), "%d %d %d", &r, &g, &b );
 		SetRgba( 1, r, g, b, pf_crosshair_outer_a.GetInt() );
 	}
-	
 }
 
 void C_PasstimeBounceReticle::ReloadSprites()
@@ -833,14 +842,18 @@ bool C_PasstimePlayerReticle::Update()
 	return true;
 }
 
+ConVar pf_whistle_healthcolor( "pf_whistle_healthcolor", "0", FCVAR_ARCHIVE, "Sets whether the ask for ball speech bubble uses the player's health color." );
 //-----------------------------------------------------------------------------
 // C_PasstimeAskForBallReticle
 //-----------------------------------------------------------------------------
 C_PasstimeAskForBallReticle::C_PasstimeAskForBallReticle( C_TFPlayer *pPlayer )
 {
 	m_hPlayer.Set( pPlayer );
-	AddSprite( CreateReticleSprite( "passtime/hud/passtime_pass_to_me_prompt", 128, 0 ) );
+
+	AddSprite( CreateReticleSprite( "hud/pass_bubble_top", 128, 0 ) );
+	AddSprite( CreateReticleSprite( "hud/pass_bubble", 128, 0 ) );
 	SetRgba( 0, 255, 255, 255, 200 );
+	SetRgba( 1, 255, 255, 255, 200 );
 }
 
 //-----------------------------------------------------------------------------
@@ -888,11 +901,99 @@ bool C_PasstimeAskForBallReticle::Update()
 	auto flScale = RemapValClamped( flDist, 1024.0f, 4096.0f, 40, 200 );
 	SetAllScales( flScale );
 	SetAllOrigins( vecTarget );
+
 	SetAllNormals( -MainViewForward() );
-	SetRgba( 0, 255, 255, 255, (((int)(gpGlobals->curtime * 10)) & 1 ? 200 : 0) );
+	//SetRgba( 0, 255, 255, 255, (((int)(gpGlobals->curtime * 10)) & 1 ? 200 : 0) );
+	float r, g, b;
+	if (pPlayer && pf_whistle_healthcolor.GetBool())
+		{
+			pPlayer->GetHealthColor( &r, &g, &b );
+		}
+	else
+		{
+			r = 255;
+			g = 255;
+			b = 255;
+		}
+	
+	SetRgba( 0, 255, 255, 255, 255 );
+	SetRgba( 1, r*255, g*255, b*255, 200 );
 	return true;
 }
 
+
+//-----------------------------------------------------------------------------
+// C_PasstimeBallPredictionReticle
+//-----------------------------------------------------------------------------
+ConVar pf_ball_floor_enabled("pf_ball_floor_enabled", "1", FCVAR_ARCHIVE, "Enables/disables the floor indicator sprite.");
+
+void C_PasstimeBallPredictionReticle::InitializeSprites()
+{
+    const char* pFloorSprite = "reticles/pf";
+	const char* pFloorSpriteOuter = "reticles/b2";
+
+    AddSprite(CreateReticleSprite(pFloorSprite, 128, 200)); // Floor indicator sprite, inner section
+	AddSprite(CreateReticleSprite(pFloorSpriteOuter, 128, 0)); // Floor indicator sprite, outer section
+}
+
+C_PasstimeBallPredictionReticle::C_PasstimeBallPredictionReticle()
+{
+    InitializeSprites();
+}
+
+bool C_PasstimeBallPredictionReticle::Update()
+{
+    if ( !pf_ball_floor_enabled.GetBool() )
+        return false;
+
+    if ( !g_pPasstimeLogic )
+        return false;
+
+    // We need a ball that wants to be drawn that isn't being carried, but has been carried at least once.
+    auto ball = g_pPasstimeLogic->GetBall();
+    if ( !ball || ball->IsEffectActive(EF_NODRAW) || ball->GetCarrier() || !ball->GetPrevCarrier() )
+        return false;
+
+    auto teamColor = GetTeamColor(ball->GetTeamNumber());
+    auto ballPosition = ball->WorldSpaceCenter();
+
+    // Trace down to find the floor
+    trace_t tr;
+    UTIL_TraceLine(ballPosition, ballPosition - Vector(0, 0, 5000), MASK_SOLID, ball, COLLISION_GROUP_NONE, &tr);
+
+    if ( tr.fraction >= 1.0f )
+        return false;
+
+    auto floorPos = tr.endpos + Vector(0, 0, 1); // Slightly above the floor to prevent z-fighting
+
+    SetAllOrigins(floorPos);
+    SetAllNormals(tr.plane.normal); // Orient sprite to floor normal
+
+    auto distFromFloor = (ballPosition - floorPos).Length();
+	auto alpha = RemapValClamped(distFromFloor, 16.0f, 1000.0f, 0, 255);
+	SetAllAlphas(alpha);
+
+    SetRgba(0, teamColor.r(), teamColor.g(), teamColor.b(), alpha);
+	SetRgba(1, 255, 255, 255, alpha);
+
+	float scale;
+	if (distFromFloor <= 1000.0f) {
+		scale = RemapValClamped(distFromFloor, 16.0f, 1000.0f, 1.0f, 0.1f) * 128.0f;
+	} else {
+		scale = RemapValClamped(distFromFloor, 1000.0f, 8192.0f, 0.1f, 0.05f) * 128.0f;
+	}
+
+	SetScale(1, 128.0f);
+	SetScale(0, scale);
+
+    return true;
+}
+
+void C_PasstimeBallPredictionReticle::ReloadSprites()
+{
+	C_PasstimeReticle::ReloadSprites();
+	InitializeSprites(); 
+}
 //-----------------------------------------------------------------------------
 // Functions
 //-----------------------------------------------------------------------------
@@ -931,6 +1032,7 @@ void OnCrosshairSettingsChanged(IConVar* pConVar, const char* pOldValue, float f
         strcmp(pConVarName, "pf_crosshair_outer_scale") == 0 ||
         strcmp(pConVarName, "pf_crosshair_outer_spinspeed") == 0)
     {
+		PrecacheReticleMaterial(((ConVar*)pConVar)->GetString());
 		g_BounceReticleDirty = true;
 		ReloadBounceReticle();
     }
@@ -965,6 +1067,7 @@ void OnCrosshairSettingsChanged(IConVar* pConVar, const char* pOldValue, float f
 		g = clamp( g, 0, 255 );
 		b = clamp( b, 0, 255 );
 	}
+
 }
 
 void ReloadAllPlayerReticles()
@@ -1008,6 +1111,42 @@ void ReloadBallReticle()
 	{
 		g_pPasstimeLogic->GetBallReticle()->ReloadSprites();
 	}
+}
+
+void PrecacheReticleMaterial(const char* pMaterialName)
+{
+    if (!pMaterialName || strlen(pMaterialName) == 0)
+        return;
+
+    static char fullPath[256];
+    const char* defaultFolder = "reticles/";
+
+	if (strnicmp(pMaterialName, "passtime/", 9) != 0 && 
+        strnicmp(pMaterialName, defaultFolder, strlen(defaultFolder)) != 0)
+    {
+        snprintf(fullPath, sizeof(fullPath), "%s%s", defaultFolder, pMaterialName);
+        pMaterialName = fullPath;
+    }
+
+    // Precache the material
+    PrecacheMaterial(pMaterialName);
+    DevMsg("Precached reticle material: %s\n", pMaterialName);
+}
+
+void PrecacheAllReticleMaterials()
+{
+    PrecacheReticleMaterial("passtime/hud/passtime_ball_reticle_piece_1");
+    PrecacheReticleMaterial("passtime/hud/passtime_ball_reticle_piece_2");
+    PrecacheReticleMaterial("passtime/hud/passtime_ball_reticle_passlock");
+    PrecacheReticleMaterial("passtime/hud/passtime_teamicon_red");
+    PrecacheReticleMaterial("passtime/hud/passtime_teamicon_blue");
+    PrecacheReticleMaterial(pf_ball_outline_1_file.GetString());
+    PrecacheReticleMaterial(pf_ball_outline_2_file.GetString());
+    PrecacheReticleMaterial(pf_crosshair_teammate_inner.GetString());
+	PrecacheReticleMaterial(pf_crosshair_teammate_outer_1.GetString());
+	PrecacheReticleMaterial(pf_crosshair_teammate_outer_2.GetString());
+	PrecacheReticleMaterial(pf_crosshair_inner_file.GetString());
+	PrecacheReticleMaterial(pf_crosshair_outer_file.GetString());
 }
 
 #ifdef CLIENT_DLL

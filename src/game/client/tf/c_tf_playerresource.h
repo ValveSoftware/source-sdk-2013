@@ -73,8 +73,6 @@ public:
 
 	int GetPlayerClassWhenKilled( int iIndex ) { return GetArrayValue( iIndex, m_iPlayerClassWhenKilled, TF_CLASS_UNDEFINED ); }
 
-	MM_PlayerConnectionState_t GetPlayerConnectionState( int iIndex ) const;
-
 	float GetConnectTime( int iIndex ) { return ( IsConnected( iIndex ) ? m_flConnectTime[iIndex] : 0.f ); }
 	
 protected:
@@ -117,7 +115,6 @@ private:
 	int		m_iEventTeamStatus;
 
 	int		m_iPlayerClassWhenKilled[MAX_PLAYERS_ARRAY_SAFE];
-	MM_PlayerConnectionState_t	m_iConnectionState[MAX_PLAYERS_ARRAY_SAFE];
 	float	m_flConnectTime[MAX_PLAYERS_ARRAY_SAFE];
 
 	struct PlayerScoreboardStats_t

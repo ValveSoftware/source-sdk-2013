@@ -26,7 +26,6 @@
 #include "etwprof.h"
 
 extern ConVar tf_mvm_skill;
-extern ConVar tf_mm_trusted;
 extern ConVar tf_mvm_respec_limit;
 extern ConVar tf_mvm_respec_credit_goal;
 extern ConVar tf_mvm_buybacks_method;
@@ -339,14 +338,6 @@ void CPopulationManager::Spawn( void )
 //-------------------------------------------------------------------------
 void CPopulationManager::FireGameEvent( IGameEvent *event )
 {
-	const char *pEventName = event->GetName();
-
-	if ( V_strcmp( "pve_win_panel", pEventName ) == 0 )
-	{
-		// Always release people even if the match isn't ending
-		// XXX(JohnS): This is just how the code was, but why wouldn't the match be ending?
-		MarkAllCurrentPlayersSafeToLeave();
-	}
 }
 
 //-------------------------------------------------------------------------
@@ -368,7 +359,7 @@ void CPopulationManager::PlayerDoneViewingLoot( const CTFPlayer* pPlayer )
 		if ( flTimeRemaining > flMinTime )
 		{
 			// Figure out if this is restart or kick to lobby time
-			float flReduceTimeBy = ( tf_mm_trusted.GetBool() == true || tf_mvm_disconnect_on_victory.GetBool() == true ) 
+			float flReduceTimeBy = ( tf_mvm_disconnect_on_victory.GetBool() == true ) 
 								 ? tf_mvm_victory_disconnect_time.GetFloat()
 								 : tf_mvm_victory_reset_time.GetFloat();
 
@@ -691,18 +682,7 @@ void CPopulationManager::Update( void )
 	{
 		if ( m_flMapRestartTime < gpGlobals->curtime )
 		{
-			if ( tf_mvm_disconnect_on_victory.GetBool() )
-			{
-				// Shut down the managed match now, ask GC to return players to lobbies.
-				if ( !TFGameRules()->IsManagedMatchEnded() )
-				{
-					TFGameRules()->EndManagedMvMMatch( /* bKickPlayersToParties */ true );
-				}
-			}
-			else
-			{
-				CycleMission();
-			}
+			CycleMission();
 		}
 
 		// If players haven't left via the GC returning them to parties by now, due to connection issues/GC down, etc,
@@ -744,15 +724,6 @@ void CPopulationManager::Update( void )
 //-------------------------------------------------------------------------
 void CPopulationManager::GameRulesThink( void )
 {
-	// If we reach zero players in managed match mode, drop the match (but otherwise just hang out in our current state,
-	// in bootcamp servers ad-hoc players may want to rejoin and keep playing/etc.., server hibernation will handle
-	// shutting down the game if desired)
-	CMatchInfo *pLiveMatch = GTFGCClientSystem()->GetLiveMatch();
-	if ( pLiveMatch && !TFGameRules()->IsManagedMatchEnded() && pLiveMatch->GetNumActiveMatchPlayers() == 0 )
-	{
-		Log( "No players remaining, ending managed MvM\n" );
-		TFGameRules()->EndManagedMvMMatch( /* bSendVictory */ false );
-	}
 }
 
 //-------------------------------------------------------------------------
@@ -1185,10 +1156,6 @@ void CPopulationManager::WaveEnd( bool bSuccess )
 	// Treat completed waves as rounds for the purposes of TF stats
 	CTF_GameStats.ResetRoundStats();
 
-	// Completing any wave removes everyone's obligation to stay in MvM matches.  Because that's how it was when I got
-	// here.
-	MarkAllCurrentPlayersSafeToLeave();
-
 	if ( bSuccess )
 	{
 		if ( m_bBonusRound )
@@ -1237,7 +1204,7 @@ void CPopulationManager::WaveEnd( bool bSuccess )
 		if ( (int)m_iCurrentWaveIndex >= m_waveVector.Count() && !IsInEndlessWaves() )
 		{
 			// Restart the Map after a time delay
-			if ( tf_mm_trusted.GetBool() == true || tf_mvm_disconnect_on_victory.GetBool() == true )
+			if ( tf_mvm_disconnect_on_victory.GetBool() == true )
 			{
 				m_flMapRestartTime = gpGlobals->curtime + tf_mvm_victory_disconnect_time.GetFloat();
 			}
@@ -1653,23 +1620,6 @@ void CPopulationManager::AdjustMinPlayerSpawnTime( void )
 }
 
 //-------------------------------------------------------------------------
-void CPopulationManager::MarkAllCurrentPlayersSafeToLeave()
-{
-	// If we have a match, mark everyone currently in the match safe to leave.
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( !pMatch )
-		{ return; }
-
-	// Mark everyone that was meant to be in the match safe to leave now, not just those who were actually present,
-	// mirroring old behavior (we are usually using this to release every current player from obligations to stay)
-	int total = pMatch->GetNumTotalMatchPlayers();
-	for ( int idx = 0; idx < total; idx++ )
-	{
-		pMatch->GetMatchDataForPlayer( idx )->MarkAlwaysSafeToLeave();
-	}
-}
-
-//-------------------------------------------------------------------------
 void CPopulationManager::MvMVictory()
 {
 	// Give "Bonus_Time Buff"
@@ -1707,10 +1657,8 @@ void CPopulationManager::MvMVictory()
 	{
 		WRITE_BYTE((uint8)tf_mvm_victory_reset_time.GetFloat());
 	}
-	MessageEnd();
 
-	// Note that because MvM is weird, we can have multiple victories per one match, as players can keep going
-	GTFGCClientSystem()->SendMvMVictoryResult();
+	MessageEnd();
 }
 
 //-------------------------------------------------------------------------

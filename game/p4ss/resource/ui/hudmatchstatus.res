@@ -1,4 +1,4 @@
-"Resource/UI/HudMatchStatus.res"
+"resource/ui/hudmatchstatus.res"
 {
 	"HudMatchStatus"
 	{
@@ -62,7 +62,7 @@
 	{	
 		"ControlName"	"CExLabel"
 		"fieldName"		"CountdownLabel"
-		"font"			"HudFontGiant"
+		"font"			"MontserratSemibold32"
 		"xpos"			"cs-0.5"
 		"ypos"			"cs-0.1"
 		"wide"			"40"
@@ -89,7 +89,7 @@
 	{	
 		"ControlName"	"CExLabel"
 		"fieldName"		"CountdownLabelShadow"
-		"font"			"HudFontGiant"
+		"font"			"MontserratSemibold32"
 		"xpos"			"cs-0.48"
 		"ypos"			"cs-0.08"
 		"wide"			"40"
@@ -102,7 +102,7 @@
 		"wrap"			"0"
 		"labelText"		"%countdown%"
 		"textAlignment"	"center"
-		"fgcolor"		"Black"
+		"fgcolor"		"PFGrey"
 		"proportionaltoparent"	"1"
 
 	
@@ -199,11 +199,12 @@
 	{
 		"fieldName"		"RoundCounter"
 		"xpos"			"cs-0.5"
-		"ypos"			"-2"
+		"ypos"			"28"
 		"zpos"			"1"		
 		"wide"			"300"
 		"tall"			"100"
 		"visible"		"1"
+		
 		"enabled"		"1"
 	}	
 
@@ -214,7 +215,7 @@
 	{
 		"ControlName"		"EditablePanel"
 		"fieldName"			"BGFrame"
-		"xpos"				"cs-0.5"
+		"xpos"				"9999"
 		"ypos"				"-5"
 		"zpos"				"0"
 		"wide"				"365"
@@ -227,6 +228,7 @@
 		if_match
 		{
 			"visible"		"0"
+			"enabled" "0"
 		}
 	}
 
@@ -234,7 +236,7 @@
 	{	
 		"ControlName"	"CExLabel"
 		"fieldName"		"RankUpLabel"
-		"font"			"HudFontMediumSmallBold"
+		"font"			"MontserratBlack24"
 		"xpos"			"cs-0.5"
 		"ypos"			"80"
 		"wide"			"600"
@@ -257,7 +259,7 @@
 	{	
 		"ControlName"	"CExLabel"
 		"fieldName"		"RankUpShadowLabel"
-		"font"			"HudFontMediumSmallBold"
+		"font"			"MontserratBlack24"
 		"xpos"			"cs-0.5+2"
 		"ypos"			"80+2"
 		"wide"			"600"
@@ -280,88 +282,78 @@
 	{
 		"ControlName"		"EditablePanel"
 		"fieldName"			"ObjectiveStatusTimePanel"
-		"xpos"				"c-55"
-		"xpos_hidef"		"c-150"
-		"xpos_lodef"		"c-150"
-		"ypos"				"0"	[$WIN32]
-		"ypos_minmode"		"-14"	[$WIN32]
-		"ypos"				"24"	[$X360]
+		"xpos"					"cs-0.5"
+		"ypos"					"c-225"
 		"zpos"				"2"
-		"wide"				"110"
-		"wide_hidef"		"300"
-		"wide_lodef"		"300"
+		"wide"					"130"
 		"tall"				"150"
 		"visible"			"0"
-		"enabled"			"1"
-		"delta_item_x"			"22"	[$WIN32]
-		"delta_item_x"			"115"	[$X360]
-		"delta_item_start_y"	"50"
-		"delta_item_end_y"		"70"
+		"enbled"			"1"
+		"delta_item_x"			"35"
+		"delta_item_start_y"	"12"
+		"delta_item_end_y"		"50"
 		"PositiveColor"			"0 255 0 255"
 		"NegativeColor"			"255 0 0 255"
 		"delta_lifetime"		"1.5"
-		"delta_item_font"		"HudFontMedium"
-
-		if_match
-		{
-			"xpos"					"cs-0.5"
-			"wide"					"130"
-			"ypos_minmode"			"0"
-			"delta_item_x"			"35"
-			"delta_item_start_y"	"12"
-			"delta_item_end_y"		"50"
-			"PositiveColor"			"0 255 0 255"
-			"NegativeColor"			"255 0 0 255"
-			"delta_lifetime"		"1.5"
-			"delta_item_font"		"HudFontMediumSmall"
-		}
+		"delta_item_font"		"MontserratSemibold24"
 		
 		"TimePanelValue"
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"TimePanelValue"
-			"font"			"HudFontMediumSmall"
-			"font_minmode"	"HudFontSmall"
-			"font_lodef"	"HudFontMedium"
-			"fgcolor"		"TanLight"
-			"xpos"			"23"
-			"xpos_minmode"	"39"
+			"font"			"MontserratBlack14"
+			"font_minmode"	"MontserratBlack16Shadow"
+			"fgcolor"		"PFWhite"
+			"xpos"			"cs-0.5"
 			"xpos_hidef"	"114"
 			"xpos_lodef"	"114"
-			"ypos"			"11"
-			"ypos_minmode"	"6"
+			"ypos"			"c-60"
 			"ypos_hidef"	"15"
 			"ypos_lodef"	"18"
 			"zpos"			"3"
-			"wide"			"45"
-			"wide_minmode"	"30"
+			"wide"			"32"
 			"wide_lodef"	"50"
-			"tall"			"31"
+			"tall"			"10"
 			"visible"		"1"
 			"enabled"		"1"
 			"textAlignment"		"center"
 			"labelText"		"0:00"
-
-			if_match
-			{
-				"proportionaltoparent"	"1"
-
-				"xpos"			"cs-0.5"
-				"ypos"			"12"
-				"ypos_minmode"	"12"
-				"tall"			"10"
-				"font"			"HudFontSmall"
-				"font_minmode"	"HudFontSmall"
-				"font_lodef"	"HudFontSmall"
-			}
+			"proportionaltoparent"	"1"
 		}	
+
+	"GreyBG"
+	{
+		"ControlName"	"ImagePanel"
+		"fieldName"		"GreyBG"
+		"xpos"			"0"
+		"ypos"			"0"
+		"zpos"			"0"
+		"wide"			"32"
+		"tall"			"10"
+		"visible"		"1"
+		"visible_minmode"		"0" //Wasn't showing in minmode. Intentional? Changed to a simple visible value
+		"enabled"		"1"
+		"image"			"../hud/greybg"
+		"scaleImage"	"1"	
+			// "proportionaltoparent" "1"
+		"pin_to_sibling" "TimePanelValue"
+		"pin_corner_to_sibling" "PIN_TOPLEFT"
+		"pin_to_sibling_corner" "PIN_TOPLEFT"
+	}
+	"SetupLabel"
+	{
+		"ControlName" "CExLabel"
+		"fieldName" "SetupLabel"
+		"font" "MontserratBlack12"
+	}
+
 	}
 	"TeamStatus"
 	{
 		"ControlName"	"CTFTeamStatus"
 		"fieldName"		"TeamStatus"
 		"xpos"			"0"
-		"ypos"			"0"
+		"ypos"			"c-234"
 		"zpos"			"2"
 		"wide"			"f0"
 		"tall"			"75"
@@ -369,30 +361,32 @@
 		"enabled"		"1"
 
 
-		"max_size"	"19"
+		"max_size"	"24"
 
-		"6v6_gap"	"4"
+		"6v6_gap"	"0"
 		"12v12_gap"	"1"
 
 		"team1_grow_dir" "west"
-		"team1_base_x"	"c-45"
-		"team1_max_expand"	"133"
+		"team1_base_x"	"c-82"
+		"team1_base_x_minmode"	"c-40"
+		"team1_max_expand"	"253"
 
 		"team2_grow_dir" "east"
-		"team2_base_x"	"c47"
-		"team2_max_expand"	"133"
+		"team2_base_x"	"c82"
+		"team2_base_x_minmode"	"c40"
+		"team2_max_expand"	"253"
 
 		"playerpanels_kv"
 		{
-			"visible"		"0"
-			"wide"			"25"
-			"tall"			"50"
+			"visible"		"1"
+			"wide"			"18"
+			"tall"			"34"
 			"zpos"			"1"
 
-			"color_portrait_bg_red"	"119 62 61 255"
-			"color_portrait_bg_blue"	"62 81 101 255"
-			"color_portrait_bg_red_dead"	"79 54 52 255"
-			"color_portrait_bg_blue_dead"	"44 49 51 255"
+			"color_portrait_bg_red"	"130 40 40 255"
+			"color_portrait_bg_blue"	"48 93 122 255"
+			"color_portrait_bg_red_dead"	"33 22 22 255"
+			"color_portrait_bg_blue_dead"	"22 22 33 255"
 			"color_bar_health_high"	"84 191 58 255"
 			"color_bar_health_med"	"191 183 58 255"
 			"percentage_health_med"	"0.6"
@@ -405,28 +399,52 @@
 			{
 				"ControlName"	"CExLabel"
 				"fieldName"		"playername"
-				"font"			"DefaultVerySmall"
-				"xpos"			"5"
-				"ypos"			"24"
-				"zpos"			"5"
-				"wide"			"50"
-				"tall"			"8"
-				"autoResize"	"0"
+				"font"			"MontserratBlack11Shadow"
+				"xpos"			"cs-0.5"
+				"ypos"			"r22"
+				"zpos"			"7"
+				"wide"			"30"
+				"tall"			"14"
+				"autoResize"	"1"
 				"pinCorner"		"0"
-				"visible"		"0"
+				"visible"		"1"
+				"visible_minmode" "1"
+				"labelText"		"%shortname%"
+				"textAlignment"	"center"
+				"fgcolor" 		"PFWhite" 
+				"proportionaltoparent"	"1"
+				"wrap" "0"
+				"allcaps"		"1"
 			}
+			"playernameBG"
+			{
+				"ControlName"	"EditablePanel"
+				"fieldName"		"playernameBG"
+				"font"			"MontserratBlack12Shadow"
+				"xpos"			"cs-0.5"
+				"ypos"			"0"
+				"zpos"			"-15"
+				"visible"		"1"
+				"enabled"		"1"
+				"wide"			"18"
+				"tall"			"18"
+				"bgcolor_override"	"0 0 0 120"
+				"proportionaltoparent"	"1"
+								"PaintBackgroundType"	"0"
+			}
+
 			"classimage"
 			{
 				"ControlName"	"CTFClassImage"
 				"fieldName"		"classimage"
 				"xpos"			"cs-0.5"
-				"ypos"			"0"
+				"ypos"			"cs-1.09"
 				"zpos"			"3"
-				"wide"			"19"
-				"tall"			"19"
+				"wide"			"14"
+				"tall"			"14"
 				"visible"		"1"
 				"enabled"		"1"
-				"image"			"../hud/class_scoutred"
+				"image"			"../vgui/class_portraits/class_scoutred"
 				"scaleImage"	"1"	
 				"proportionaltoparent"	"1"
 			}
@@ -434,25 +452,27 @@
 			{
 				"ControlName"		"Panel"
 				"fieldName"		"classimagebg"
-				"xpos"			"0"
-				"ypos"			"0"
-				"zpos"			"2"
-				"wide"			"f0"
-				"tall"			"19"
-				"visible"		"1"
-				"enabled"		"1"
+				"xpos"					"cs-0.5"
+				"ypos"					"1"
+				"zpos"					"-10"
+				"wide"					"16"
+				"tall"					"16"
+				"visible"				"1"
+				"enabled"				"1"
 				"PaintBackgroundType"	"0"
+				"alpha" 				"200"
 				"proportionaltoparent"	"1"
 			}
+
 			"healthbar"
 			{	
 				"ControlName"			"ContinuousProgressBar"
 				"fieldName"				"healthbar"
 				"font"					"Default"																		
-				"xpos"					"0"
-				"ypos"					"19"
+				"xpos"					"cs-0.5"
+				"ypos"					"r0"
 				"zpos"					"5"
-				"wide"					"f0"
+				"wide"					"16"
 				"tall"					"2"				
 				"autoResize"			"0"
 				"pinCorner"				"0"
@@ -461,7 +481,7 @@
 				"textAlignment"			"Left"
 				"dulltext"				"0"
 				"brighttext"			"0"
-				"bgcolor_override"	   "80 80 80 255"
+				"bgcolor_override"	   "PFGrey"
 				"proportionaltoparent"	"1"
 			}
 			"overhealbar"
@@ -469,11 +489,11 @@
 				"ControlName"			"ContinuousProgressBar"
 				"fieldName"				"overhealbar"
 				"font"					"Default"																		
-				"xpos"					"0"
-				"ypos"					"19"
+				"xpos"					"1"
+				"ypos"					"r0"
 				"zpos"					"6"
-				"wide"					"f0"
-				"tall"					"2"				
+				"wide"					"40"
+				"tall"					"3"				
 				"autoResize"			"0"
 				"pinCorner"				"0"
 				"visible"				"1"
@@ -482,7 +502,7 @@
 				"dulltext"				"0"
 				"brighttext"			"0"
 				"bgcolor_override"	   "0 0 0 0"
-				"fgcolor_override"	   "255 255 255 160"
+				"fgcolor_override"	   "255 255 255 200"
 				"proportionaltoparent"	"1"
 			}
 			"HealthIcon"
@@ -498,7 +518,7 @@
 				"enabled"			"1"	
 				"HealthBonusPosAdj"	"10"
 				"HealthDeathWarning"		"0.49"
-				"TFFont"					"HudFontSmallest"
+				"TFFont"					"MontserratSemibold12"
 				"HealthDeathWarningColor"	"HUDDeathWarning"
 				"TextColor"					"HudOffWhite"
 			}
@@ -541,10 +561,10 @@
 			{
 				"ControlName"	"CExLabel"
 				"fieldName"		"respawntime"
-				"font"			"PlayerPanelPlayerName"
+				"font"			"MontserratBlack11Shadow"
 				"xpos"			"cs-0.5"
-				"ypos"			"0"
-				"zpos"			"5"
+				"ypos"			"17"
+				"zpos"			"10"
 				"wide"			"f0"
 				"tall"			"19"
 				"autoResize"	"0"
@@ -671,7 +691,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"BlueTeamLabel"
-			"font"			"CompMatchStartTeamNames"
+			"font"			"MontserratSemibold16"
 			"labelText"		"%blueteamname%"
 			"textAlignment"		"center"
 			"xpos"			"48"
@@ -809,7 +829,7 @@
 		{
 			"ControlName"		"CExLabel"
 			"fieldName"		"RedTeamLabel"
-			"font"			"CompMatchStartTeamNames"
+			"font"			"MontserratSemibold16"
 			"labelText"		"%redteamname%"
 			"textAlignment"		"center"
 			"xpos"			"5"

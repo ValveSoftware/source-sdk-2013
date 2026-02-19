@@ -43,7 +43,7 @@ public:
 	int GetBallPower() const { return m_iBallPower; }
 	C_PasstimeReticle* GetPassReticle() const { return m_pPassReticle; }
 	C_PasstimeReticle* GetBallReticle() const { return m_pBallReticle; }
-
+	C_PasstimeReticle *GetBallFloorReticle() const { return m_pBallFloorReticle; }
 
 private:
 	bool GetImportantEntities( C_PasstimeBall **ppBall, C_TFPlayer **ppCarrier, C_TFPlayer **ppHomingTarget ) const;
@@ -54,6 +54,7 @@ private:
 
 	C_PasstimeReticle *m_pBallReticle;
 	CUtlVector<C_PasstimeReticle*> m_pGoalReticles;
+	C_PasstimeReticle *m_pBallFloorReticle;
 	C_PasstimeReticle *m_pPassReticle;
 	CNewParticleEffect *m_apPackBeams[MAX_PLAYERS_ARRAY_SAFE];
 	bool m_bPlayerIsPackMember[MAX_PLAYERS_ARRAY_SAFE];

@@ -210,12 +210,6 @@ void CTFBuffItem::BlowHorn( void )
 			pPlayer->EmitSound( "Weapon_BattalionsBackup.HornRed" );
 		}
 	}
-
-	// Strange Tracking
-	if ( !pPlayer->IsBot() )
-	{
-		EconEntity_OnOwnerKillEaterEventNoPartner( dynamic_cast<CEconEntity *>( this ), pPlayer, kKillEaterEvent_BannersDeployed );
-	}
 #endif
 
 	m_bPlayingHorn = true;

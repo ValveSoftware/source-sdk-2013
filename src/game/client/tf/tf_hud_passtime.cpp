@@ -65,41 +65,79 @@ static const char *GetProgressBallImageForTeam( C_BaseEntity *pEnt )
 	}
 	return GetProgressBallImageForTeam( pEnt->GetTeamNumber() );
 }
-
+ConVar pf_radar_self_portrait( "pf_radar_self_portrait", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Show the player's portrait on the radar." );
 //-----------------------------------------------------------------------------
 static const char *GetPlayerProgressPortrait( C_TFPlayer *pPlayer )
 {
+
 	if ( !pPlayer )
 	{
 		return "../passtime/hud/portrait_scout_red";
 	}
 
 	int iTeam = pPlayer->GetTeamNumber();
+
+	if ( !pf_radar_self_portrait.GetBool() && pPlayer )
+	{
+		if ( iTeam == TF_TEAM_RED )
+		{
+			return "../hud/radar/self_red";
+		}
+		else if ( iTeam == TF_TEAM_BLUE )
+		{
+			return "../hud/radar/self_blu";
+		}
+		else
+		{
+			return "../passtime/hud/portrait_scout_red";
+		}
+	}
+
 	int iClass = pPlayer->GetPlayerClass()->GetClassIndex();
 
-	switch(iClass)
-	{
-		case TF_CLASS_SOLDIER:
-			return (iTeam == TF_TEAM_RED) ? "../passtime/hud/portrait_soldier_red"	: "../passtime/hud/portrait_soldier_blu";
-		case TF_CLASS_SCOUT:
-			return (iTeam == TF_TEAM_RED) ? "../passtime/hud/portrait_scout_red"		: "../passtime/hud/portrait_scout_blu";
-		case TF_CLASS_SNIPER:
-			return (iTeam == TF_TEAM_RED) ? "../passtime/hud/portrait_sniper_red"		: "../passtime/hud/portrait_sniper_blu";
-		case TF_CLASS_DEMOMAN:
-			return (iTeam == TF_TEAM_RED) ? "../passtime/hud/portrait_demo_red"		: "../passtime/hud/portrait_demo_blu";
-		case TF_CLASS_MEDIC:
-			return (iTeam == TF_TEAM_RED) ? "../passtime/hud/portrait_medic_red"		: "../passtime/hud/portrait_medic_blu";
-		case TF_CLASS_HEAVYWEAPONS:
-			return (iTeam == TF_TEAM_RED) ? "../passtime/hud/portrait_heavy_red"		: "../passtime/hud/portrait_heavy_blu";
-		case TF_CLASS_PYRO:
-			return (iTeam == TF_TEAM_RED) ? "../passtime/hud/portrait_pyro_red"		: "../passtime/hud/portrait_pyro_blu";
-		case TF_CLASS_SPY:
-			return (iTeam == TF_TEAM_RED) ? "../passtime/hud/portrait_spy_red"		: "../passtime/hud/portrait_spy_blu";
-		case TF_CLASS_ENGINEER:
-			return (iTeam == TF_TEAM_RED) ? "../passtime/hud/portrait_eng_red"		: "../passtime/hud/portrait_eng_blu";
-		default:
-			return (iTeam == TF_TEAM_RED) ? "../passtime/hud/portrait_scout_red"		: "../passtime/hud/portrait_scout_blu";
-	}
+			switch ( iClass )
+			{
+			case TF_CLASS_SOLDIER:
+				return ( iTeam == TF_TEAM_RED )
+					   ? "../passtime/hud/portrait_soldier_red"
+					   : "../passtime/hud/portrait_soldier_blu";
+			case TF_CLASS_SCOUT:
+				return ( iTeam == TF_TEAM_RED )
+					   ? "../passtime/hud/portrait_scout_red"
+					   : "../passtime/hud/portrait_scout_blu";
+			case TF_CLASS_SNIPER:
+				return ( iTeam == TF_TEAM_RED )
+					   ? "../passtime/hud/portrait_sniper_red"
+					   : "../passtime/hud/portrait_sniper_blu";
+			case TF_CLASS_DEMOMAN:
+				return ( iTeam == TF_TEAM_RED )
+					   ? "../passtime/hud/portrait_demo_red"
+					   : "../passtime/hud/portrait_demo_blu";
+			case TF_CLASS_MEDIC:
+				return ( iTeam == TF_TEAM_RED )
+					   ? "../passtime/hud/portrait_medic_red"
+					   : "../passtime/hud/portrait_medic_blu";
+			case TF_CLASS_HEAVYWEAPONS:
+				return ( iTeam == TF_TEAM_RED )
+					   ? "../passtime/hud/portrait_heavy_red"
+					   : "../passtime/hud/portrait_heavy_blu";
+			case TF_CLASS_PYRO:
+				return ( iTeam == TF_TEAM_RED )
+					   ? "../passtime/hud/portrait_pyro_red"
+					   : "../passtime/hud/portrait_pyro_blu";
+			case TF_CLASS_SPY:
+				return ( iTeam == TF_TEAM_RED )
+					   ? "../passtime/hud/portrait_spy_red"
+					   : "../passtime/hud/portrait_spy_blu";
+			case TF_CLASS_ENGINEER:
+				return ( iTeam == TF_TEAM_RED )
+					   ? "../passtime/hud/portrait_eng_red"
+					   : "../passtime/hud/portrait_eng_blu";
+			default:
+				return ( iTeam == TF_TEAM_RED )
+					   ? "../passtime/hud/portrait_scout_red"
+					   : "../passtime/hud/portrait_scout_blu";
+			}
 }
 
 //-----------------------------------------------------------------------------
@@ -635,12 +673,12 @@ void CTFHudPasstimeEventText::Tick()
 		{
 			SetAlpha( 1 );
 			auto msg = m_queue.RemoveAtHead();
-			DevMsg( "m_pTitleLabel: %s", m_pTitleLabel ? "true" : "false" );
-			DevMsg( "m_pTitleLabelShadow: %s", m_pTitleLabelShadow ? "true" : "false" );
-			DevMsg( "m_pDetailLabel: %s", m_pDetailLabel ? "true" : "false" );
-			DevMsg( "m_pDetailLabelShadow: %s", m_pDetailLabelShadow ? "true" : "false" );
-			DevMsg( "m_pBonusLabel: %s", m_pBonusLabel ? "true" : "false" );
-			DevMsg( "m_pBonusLabelShadow: %s", m_pBonusLabelShadow ? "true" : "false" );
+			// DevMsg( "m_pTitleLabel: %s", m_pTitleLabel ? "true" : "false" );
+			// DevMsg( "m_pTitleLabelShadow: %s", m_pTitleLabelShadow ? "true" : "false" );
+			// DevMsg( "m_pDetailLabel: %s", m_pDetailLabel ? "true" : "false" );
+			// DevMsg( "m_pDetailLabelShadow: %s", m_pDetailLabelShadow ? "true" : "false" );
+			// DevMsg( "m_pBonusLabel: %s", m_pBonusLabel ? "true" : "false" );
+			// DevMsg( "m_pBonusLabelShadow: %s", m_pBonusLabelShadow ? "true" : "false" );
 			if ( m_pTitleLabel && m_pTitleLabelShadow )
 			{
 				SetLabelText( m_pTitleLabel, msg.title );
@@ -1042,7 +1080,7 @@ void CTFHudPasstimeBallStatus::ApplySchemeSettings( IScheme *pScheme )
 bool CTFHudPasstimeBallStatus::BShouldDraw() const
 {
 	CBasePlayer *pPlayer = CBasePlayer::GetLocalPlayer();
-	if ( !pPlayer || !pPlayer->IsAlive() || ( pPlayer->GetObserverMode() == OBS_MODE_FREEZECAM ) )
+	if ( !pPlayer || ( pPlayer->GetObserverMode() == OBS_MODE_FREEZECAM ) )
 	{
 		return false;
 	}
@@ -1315,7 +1353,25 @@ void CTFHudPasstimeBallStatus::OnTickVisible( C_TFPlayer *pLocalPlayer, C_Passti
 		// Player pips
 		{
 			pIcon->SetVisible( true );
-			if ( iEntTeam == TF_TEAM_RED )
+			if ( g_TF_PR->IsLocalPlayer( iEntIndex ) || ( pLocalPlayer->IsObserver() && ( pPlayer == pSpecTarget ) ) )
+			{
+
+				if ( iEntTeam == TF_TEAM_RED )
+				{
+					int iX = Lerp( flProgressFrac, m_iXBlueProgress, m_iXRedProgress ) - (pIcon->GetWide() / 2);
+					int iY = Lerp( flProgressFrac, m_iYBlueProgress, m_iYRedProgress ) - pIcon->GetTall() - iActualBarHalfHeight;
+					pIcon->SetPos( iX, iY );
+					pIcon->SetImage( "../hud/radar/self_red" );
+				}
+				else if ( iEntTeam == TF_TEAM_BLUE )
+				{
+					int iX = Lerp( flProgressFrac, m_iXBlueProgress, m_iXRedProgress ) - (pIcon->GetWide() / 2);
+					int iY = Lerp( flProgressFrac, m_iYBlueProgress, m_iYRedProgress ) + iActualBarHalfHeight;
+					pIcon->SetPos( iX, iY );
+					pIcon->SetImage( "../hud/radar/self_blu" );
+				}
+			}
+			else if ( iEntTeam == TF_TEAM_RED )
 			{
 				int iX = Lerp( flProgressFrac, m_iXBlueProgress, m_iXRedProgress ) - (pIcon->GetWide() / 2);
 				int iY = Lerp( flProgressFrac, m_iYBlueProgress, m_iYRedProgress ) - pIcon->GetTall() - iActualBarHalfHeight;
@@ -1332,7 +1388,7 @@ void CTFHudPasstimeBallStatus::OnTickVisible( C_TFPlayer *pLocalPlayer, C_Passti
 		}
 
 		// Local player image
-		if ( g_TF_PR->IsLocalPlayer( iEntIndex ) || ( pLocalPlayer->IsObserver() && ( pPlayer == pSpecTarget ) ) )
+		/*if ( g_TF_PR->IsLocalPlayer( iEntIndex ) || ( pLocalPlayer->IsObserver() && ( pPlayer == pSpecTarget ) ) )
 		{
 			if ( m_pSelfPlayerIcon )
 			{
@@ -1351,14 +1407,14 @@ void CTFHudPasstimeBallStatus::OnTickVisible( C_TFPlayer *pLocalPlayer, C_Passti
 				m_pSelfPlayerIcon->SetVisible( true );
 				m_pSelfPlayerIcon->SetPos( iX, iY );
 			}
-		}
+		}*/
 	}
 
 	//
 	// Refresh goal icons if necessary
 	//
 	bool bReadyToFindGoals = (g_pPasstimeLogic->GetNumSections() > 0);
-	if ( !m_bGoalsFound && bReadyToFindGoals ) 
+	if ( !m_bGoalsFound && bReadyToFindGoals )
 	{
 		// release any existing handles to goals
 		for ( auto i = 0; i < NumGoalIcons; ++i )
@@ -1528,15 +1584,8 @@ bool CTFHudPasstimeBallStatus::TryForceBallGet()
 		{
 			continue;
 		}
-		
-		if ( g_TF_PR->IsLocalPlayer( iPlayer ) )
-		{
-			OnBallGetSelf( iPlayer );
-		}
-		else
-		{
-			OnBallGetOther( iPlayer );
-		}
+
+		OnBallGet( iPlayer );
 
 		return true;
 	}
@@ -1571,16 +1620,29 @@ bool CTFHudPasstimeBallStatus::TryForceBallFree()
 //-----------------------------------------------------------------------------
 void CTFHudPasstimeBallStatus::OnBallGet( int getterIndex )
 {
-	Assert( m_bInitialized && g_PR );
+	Assert( m_bInitialized );
+	Assert( g_PR );
 
-	if ( g_PR->IsLocalPlayer( getterIndex ) )
+	if ( !m_pProgressBallCarrierName )
+		return;
+
+	wchar_t wszFinalText[128];
+	wchar_t *pwszFormatString = g_pVGuiLocalize->Find( "#TF_Passtime_CarrierName" );
+	if ( !pwszFormatString )
 	{
-		OnBallGetSelf( getterIndex );
+		pwszFormatString = L"%s1";
 	}
-	else
+
+	const wchar_t *pwszName = L"";
+	if ( getterIndex > 0 )
 	{
-		OnBallGetOther( getterIndex );
+		pwszName = GetPlayerShortName( getterIndex );
 	}
+
+	g_pVGuiLocalize->ConstructString_safe( wszFinalText, pwszFormatString, 1, pwszName );
+
+	m_pProgressBallCarrierName->SetText( wszFinalText );
+	m_pProgressBallCarrierName->SetVisible( true );
 }
 
 //-----------------------------------------------------------------------------
@@ -1720,52 +1782,6 @@ void CTFHudPasstimeBallStatus::OnBallFreeSelf( C_TFPlayer *pOwner,
 	if ( m_pProgressBallCarrierName )
 	{
 		m_pProgressBallCarrierName->SetVisible( false );
-	}
-}
-
-//-----------------------------------------------------------------------------
-void CTFHudPasstimeBallStatus::OnBallGetOther( int iPlayer )
-{
-	Assert( m_bInitialized );	
-	Assert( g_PR );
-
-	wchar_t wszFinalText[128];
-	wchar_t wszPlayerName[MAX_PLAYER_NAME_LENGTH];
-	wchar_t *pwszFormatString = g_pVGuiLocalize->Find( "#TF_Passtime_CarrierName" );
-	if ( !pwszFormatString )
-	{
-		pwszFormatString = L"%s1";
-	}
-	g_pVGuiLocalize->ConvertANSIToUnicode( ( iPlayer > 0 ) ? g_PR->GetPlayerName( iPlayer ) : "", wszPlayerName, sizeof( wszPlayerName ) );
-	g_pVGuiLocalize->ConstructString_safe( wszFinalText, pwszFormatString, 1, wszPlayerName );
-
-	if ( m_pProgressBallCarrierName )
-	{
-		m_pProgressBallCarrierName->SetText( wszFinalText );
-		m_pProgressBallCarrierName->SetVisible( true );
-	}
-}
-
-//-----------------------------------------------------------------------------
-void CTFHudPasstimeBallStatus::OnBallGetSelf( int iPlayer )
-{
-	Assert( m_bInitialized );	
-	Assert( g_PR );
-
-	wchar_t wszFinalText[128];
-	wchar_t wszPlayerName[MAX_PLAYER_NAME_LENGTH];
-	wchar_t *pwszFormatString = g_pVGuiLocalize->Find( "#TF_Passtime_CarrierName" );
-	if ( !pwszFormatString )
-	{
-		pwszFormatString = L"%s1";
-	}
-	g_pVGuiLocalize->ConvertANSIToUnicode( ( iPlayer > 0 ) ? g_PR->GetPlayerName( iPlayer ) : "", wszPlayerName, sizeof( wszPlayerName ) );
-	g_pVGuiLocalize->ConstructString_safe( wszFinalText, pwszFormatString, 1, wszPlayerName );
-
-	if ( m_pProgressBallCarrierName )
-	{
-		m_pProgressBallCarrierName->SetText( wszFinalText );
-		m_pProgressBallCarrierName->SetVisible( true );
 	}
 }
 

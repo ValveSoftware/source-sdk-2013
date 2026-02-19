@@ -32,10 +32,10 @@ Resource/UI/HudPasstimePassNotify.res
 	{
 		ControlName 				EditablePanel
 		fieldName 					TextBox
-		xpos 						c-85
+		xpos 						c-78
 		ypos 						43
 		zpos 						1
-		wide 						173
+		wide 						156
 		tall 						26
 		visible 					1
 		enabled 					1
@@ -46,11 +46,11 @@ Resource/UI/HudPasstimePassNotify.res
 		{
 			ControlName 			CExLabel
 			fieldName 				TextInPassRange
-			font 					HudFontMediumSmallBold
-			xpos 					-64
+			font 					MontserratBlack22
+			xpos 					0
 			ypos 					0
 			zpos 					3
-			wide 					300
+			wide 					156
 			tall 					26
 			visible 				1
 			enabled 				1
@@ -64,11 +64,11 @@ Resource/UI/HudPasstimePassNotify.res
 		{
 			ControlName 			CExLabel
 			fieldName 				TextLockedOn
-			font 					HudFontMediumSmallBold
-			xpos 					-64
+			font 					MontserratBlack22
+			xpos 					0
 			ypos 					0
 			zpos 					3
-			wide 					300
+			wide 					156
 			tall 					26
 			visible 				1
 			enabled 				1
@@ -82,11 +82,11 @@ Resource/UI/HudPasstimePassNotify.res
 		{
 			ControlName 			CExLabel
 			fieldName 				TextPassIncoming
-			font 					HudFontMediumSmallBold
-			xpos 					-64
+			font 					MontserratBlack22
+			xpos 					0
 			ypos 					0
 			zpos 					3
-			wide 					300
+			wide 					158
 			tall 					26
 			visible 				1
 			enabled 				1
@@ -100,7 +100,7 @@ Resource/UI/HudPasstimePassNotify.res
 		{
 			ControlName 			CExLabel
 			fieldName 				TextPlayerName
-			font 					HudFontSmall
+			font 					MontserratSemibold16
 			xpos 					-64
 			ypos 					30
 			zpos 					3
@@ -145,7 +145,7 @@ Resource/UI/HudPasstimePassNotify.res
 		visible 					1
 		enabled 					1
 		scaleImage 					1
-		image 						"../passtime/hud/passtime_pass_to_me_prompt"
+		image 						"../hud/pass_bubble_full"
 		pin_to_sibling 				TextBox
 		pin_corner_to_sibling 		1
 		pin_to_sibling_corner 		0

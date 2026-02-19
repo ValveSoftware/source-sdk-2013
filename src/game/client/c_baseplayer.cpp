@@ -1926,13 +1926,6 @@ void C_BasePlayer::ThirdPersonSwitch( bool bThirdperson )
 		return false;
 	}
 
-#ifdef TF_CLIENT_DLL
-	if ( TFGameRules() && TFGameRules()->IsCompetitiveMode() && TFGameRules()->PlayersAreOnMatchSummaryStage() )
-	{
-		return false;
-	}
-#endif
-
 	int ObserverMode = pLocalPlayer->GetObserverMode();
 	if ( ( ObserverMode == OBS_MODE_NONE ) || ( ObserverMode == OBS_MODE_IN_EYE ) )
 	{

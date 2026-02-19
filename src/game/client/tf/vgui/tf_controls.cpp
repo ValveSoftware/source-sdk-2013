@@ -2219,8 +2219,6 @@ void CTFLogoPanel::Paint()
 	BaseClass::Paint();
 }
 
-#include "tf_matchmaking_dashboard_parent_manager.h"
-
 class CScrollingIndicatorPanel : public EditablePanel
 {
 public:
@@ -2242,7 +2240,6 @@ public:
 		SetScheme(scheme);
 
 		LoadControlSettings( "resource/ui/XPSourcePanel.res" );
-		GetMMDashboardParentManager()->AddPanel( this );
 		SetMouseInputEnabled( false );
 
 		PostMessage( GetVPanel(), new KeyValues( "Start" ), flDelay );
@@ -2260,7 +2257,6 @@ public:
 
 	virtual ~CScrollingIndicatorPanel()
 	{
-		GetMMDashboardParentManager()->RemovePanel( this );
 	}
 
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme ) OVERRIDE
@@ -2448,13 +2444,11 @@ class CGenericSwoop : public CControlPointIconSwoop
 
 		SetZPos( 50000 );
 		SetRotation( bDown ? ROTATED_UNROTATED : ROTATED_FLIPPED );
-		GetMMDashboardParentManager()->AddPanel( this );
 		PostMessage( this, new KeyValues( "StartSwoop" ), flSwoopTime );
 	}
 
 	virtual ~CGenericSwoop()
 	{
-		GetMMDashboardParentManager()->RemovePanel( this );
 	}
 
 	MESSAGE_FUNC( MsgStartSwoop, "StartSwoop" )

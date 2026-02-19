@@ -115,55 +115,11 @@ void C_TFTeam::UpdateTeamName( void )
 	const wchar_t *pwzName = NULL;
 	if ( TFGameRules() && TFGameRules()->IsInTournamentMode() && ( ( m_iTeamNum == TF_TEAM_RED ) || ( m_iTeamNum == TF_TEAM_BLUE ) ) )
 	{
-		if ( TFGameRules()->IsCompetitiveMode() )
+		const char *pTemp = ( m_iTeamNum == TF_TEAM_BLUE ) ? mp_tournament_blueteamname.GetString() : mp_tournament_redteamname.GetString();
+		if ( pTemp && pTemp[0] )
 		{
-			if ( g_TF_PR && ( g_TF_PR->HasPremadeParties() || g_TF_PR->GetEventTeamStatus() ) )
-			{
-				wchar_t wszTempName[MAX_TEAM_NAME_LENGTH];
-				wchar_t *pFormat = g_pVGuiLocalize->Find( "#TF_Team_PartyLeader" );
-				if ( !pFormat )
-				{
-					pFormat = L"%s";
-				}
-
-				if ( g_TF_PR->GetEventTeamStatus() )
-				{
-					//	GetEventTeamStatus() returns a value in the following range
-					// 	enum WarMatch
-					// 	{
-					// 		NOPE = 0;
-					// 		INVADERS_ARE_PYRO = 1;
-					// 		INVADERS_ARE_HEAVY = 2;
-					// 	};
-					const char *pszTeamName = ( m_iTeamNum == TF_TEAM_BLUE ) ? 
-											  ( g_TF_PR->GetEventTeamStatus() == 1 ? "#TF_Pyro" : "#TF_HWGuy" ) :
-											  ( g_TF_PR->GetEventTeamStatus() == 1 ? "#TF_HWGuy" : "#TF_Pyro" );
-					wchar_t *pwzWarTeam = g_pVGuiLocalize->Find( pszTeamName );
-					V_swprintf_safe( m_wzTeamname, pFormat, pwzWarTeam );
-					m_bUsingCustomTeamName = true;
-					return;
-				}
-				else
-				{
-					int iPlayerIndex = ( m_iTeamNum == TF_TEAM_RED ) ? g_TF_PR->GetPartyLeaderRedTeamIndex() : g_TF_PR->GetPartyLeaderBlueTeamIndex();
-					if ( g_TF_PR->IsConnected( iPlayerIndex ) )
-					{
-						g_pVGuiLocalize->ConvertANSIToUnicode( UTIL_SafeName( g_TF_PR->GetPlayerName( iPlayerIndex ) ), wszTempName, sizeof( wszTempName ) );
-						V_swprintf_safe( m_wzTeamname, pFormat, wszTempName );
-						m_bUsingCustomTeamName = true;
-						return;
-					}
-				}
-			}
-		}
-		else
-		{
-			const char *pTemp = ( m_iTeamNum == TF_TEAM_BLUE ) ? mp_tournament_blueteamname.GetString() : mp_tournament_redteamname.GetString();
-			if ( pTemp && pTemp[0] )
-			{
-				g_pVGuiLocalize->ConvertANSIToUnicode( pTemp, m_wzTeamname, sizeof( m_wzTeamname ) );
-				return;
-			}
+			g_pVGuiLocalize->ConvertANSIToUnicode( pTemp, m_wzTeamname, sizeof( m_wzTeamname ) );
+			return;
 		}
 	}
 

@@ -33,7 +33,6 @@
 #include "tf_playerpanel.h"
 
 #include "tf_gc_client.h"
-#include "tf_lobby_server.h"
 
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
@@ -95,32 +94,6 @@ bool CTFPlayerPanel::Update( void )
 								 TFGameRules()->UsePlayerReadyStatusMode() &&
 								 TFGameRules()->State_Get() == GR_STATE_BETWEEN_RNDS );
 
-	CTFGSLobby *pLobby = GTFGCClientSystem()->GetLobby();
-	if ( pLobby )
-	{
-		int idxMember = pLobby->GetMemberIndexBySteamID( m_steamID );
-		if ( idxMember >= 0 )
-		{
-			ConstTFLobbyPlayer member = pLobby->GetMemberDetails( idxMember );
-			// Keep this updated
-			m_nGCTeam = member.GetTeam();
-
-			RTime32 rtLastConnect = member.GetLastConnectTime();
-			if ( !m_iPlayerIndex && rtLastConnect != 0 )
-			{
-				int iDisconnectTimeRemaining = CRTime::RTime32DateAdd( rtLastConnect, 180, k_ETimeUnitSecond ) - CRTime::RTime32TimeCur();
-				if ( iDisconnectTimeRemaining <= 0 )
-				{
-					flRespawnWait = -1.0f; // Or handle disconnected state differently?
-				}
-				else
-				{
-					flRespawnWait = (float)iDisconnectTimeRemaining; // Keep as float
-				}
-			}
-		}
-	}
-
 	if ( IsVisible() != bVisible )
 	{
 		SetVisible( bVisible );
@@ -160,12 +133,12 @@ bool CTFPlayerPanel::Update( void )
 				}
 
 				// Hide class info from the other team?
-				if ( !bObserver && 
+				/*if ( !bObserver && 
 					 TFGameRules()->IsCompetitiveMode() && 
 					 GetTeam() != g_TF_PR->GetTeam( pLocalPlayer->entindex() ) )
 				{
 					iClass = TF_CLASS_UNDEFINED;
-				}
+				}*/ //p4ss - removed
 			}
 
 			// Update live state
@@ -327,26 +300,35 @@ void CTFPlayerPanel::SetPlayerIndex( int iIndex )
 	}
 	else
 	{
-		Setup( iIndex, GetSteamIDForPlayerIndex( iIndex ), g_TF_PR->GetPlayerName( iIndex ) );
+		Setup( iIndex, GetSteamIDForPlayerIndex( iIndex ), g_TF_PR->GetPlayerName( iIndex ), TEAM_INVALID, GetPlayerShortName( iIndex ) );
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerPanel::Setup( int iPlayerIndex, CSteamID steamID, const char *pszPlayerName, int nLobbyTeam /*= TEAM_INVALID*/ )
+void CTFPlayerPanel::Setup( int iPlayerIndex, CSteamID steamID, const char *pszPlayerName, int nLobbyTeam /*= TEAM_INVALID*/, const wchar_t* pwszShortName /*=NULL*/ )
 {
 	if ( pszPlayerName == NULL )
 		pszPlayerName = "";
+
+	if ( pwszShortName == NULL )
+		pwszShortName = L"";
+
 	if ( m_iPlayerIndex != iPlayerIndex
 		|| m_steamID != steamID
-		|| Q_strcmp( m_sPlayerName, pszPlayerName ) )
+		|| m_sPlayerName != pszPlayerName
+		|| m_wszPlayerShortName != pwszShortName )
 	{
 		Reset();
 		m_iPlayerIndex = iPlayerIndex;
 		m_steamID = steamID;
 		m_sPlayerName = pszPlayerName;
 		SetDialogVariable( "playername", m_sPlayerName );
+
+		m_wszPlayerShortName = pwszShortName;
+		SetDialogVariable( "shortname", m_wszPlayerShortName );
+
 		m_nGCTeam = nLobbyTeam;
 	}
 

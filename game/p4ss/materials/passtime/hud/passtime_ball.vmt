@@ -1,0 +1,12 @@
+"UnlitGeneric"
+{
+	"$basetexture" "passtime/hud/passtime_ball"
+	"$translucent" 1
+	"$vertexcolor" 1
+	"$vertexalpha" 1
+	"$ignorez" 1
+	"$nofog" 1
+	"$nocull" 1
+
+	"$spriteorientation" 4
+}

@@ -36,6 +36,8 @@
 
 using namespace vgui;
 
+static void OnPlayerClassEnabledChanged( IConVar *var, const char *pOldValue, float flOldValue );
+ConVar cl_hud_playerclass_enabled( "cl_hud_playerclass_enabled", "1", FCVAR_ARCHIVE, "Enable the sprite (or model) of your player class on the HUD.", OnPlayerClassEnabledChanged );
 ConVar cl_hud_playerclass_use_playermodel( "cl_hud_playerclass_use_playermodel", "1", FCVAR_ARCHIVE, "Use player model in player class HUD." );
 ConVar cl_hud_critical_health_percentage( "cl_hud_critical_health_percentage", "0.49", FCVAR_ARCHIVE, "Percentage of health at which the health bar starts flashing.", 1, 0.0, 1, 1.0 );
 
@@ -176,6 +178,38 @@ void CTFHudPlayerClass::ApplySchemeSettings( IScheme *pScheme )
 	}
 
 	BaseClass::ApplySchemeSettings( pScheme );
+
+    if ( !cl_hud_playerclass_enabled.GetBool() )
+    {
+        SetPlayerClassVisible( false );
+    }
+}
+
+void CTFHudPlayerClass::SetPlayerClassVisible( bool bVisible )
+{
+    if ( !bVisible )
+    {
+        // Hide all player class elements
+        if ( m_pPlayerModelPanel )
+            m_pPlayerModelPanel->SetVisible( false );
+        if ( m_pPlayerModelPanelBG )
+            m_pPlayerModelPanelBG->SetVisible( false );
+        if ( m_pClassImage )
+            m_pClassImage->SetVisible( false );
+        if ( m_pClassImageBG )
+            m_pClassImageBG->SetVisible( false );
+        if ( m_pSpyImage )
+            m_pSpyImage->SetVisible( false );
+        if ( m_pSpyOutlineImage )
+            m_pSpyOutlineImage->SetVisible( false );
+    }
+	    else
+    {
+
+        m_nClass = TF_CLASS_UNDEFINED;
+        m_nTeam = TEAM_UNASSIGNED;
+        m_flNextThink = 0.0f;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -190,6 +224,9 @@ void CTFHudPlayerClass::OnThink()
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pPlayer )
 		return;
+
+    if ( !cl_hud_playerclass_enabled.GetBool() )
+        return;
 
 	bool bTeamChange = false;
 	// set our background colors
@@ -320,16 +357,8 @@ void CTFHudPlayerClass::OnThink()
 					locchar_t wszLocString [128];
 
 					// Construct and set the weapon's name
-					g_pVGuiLocalize->ConstructString_safe( wszLocString, L"%s1", 1, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pItem->GetItemDefinition(), pItem->GetItemQuality() ).GetFullName() );
+					g_pVGuiLocalize->ConstructString_safe( wszLocString, L"%s1", 1, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pItem->GetItemDefinition(), "" ).GetFullName() );
 					m_pCarryingWeaponPanel->SetDialogVariable( "carrying", wszLocString );
-
-					// Get and set the rarity color of the weapon
-					const char* pszColorName = GetItemSchema()->GetRarityColor( pItem->GetItemDefinition()->GetRarity() );
-					pszColorName = pszColorName ? pszColorName : "TanLight";
-					if ( pszColorName )
-					{
-						m_pCarryingLabel->SetColorStr( pszColorName );
-					}
 
 					bool bHasOwner = false;
 					locchar_t wszPlayerName [128];
@@ -406,6 +435,22 @@ static void HudPlayerClassUsePlayerModelDialogCallback( bool bConfirmed, void *p
 	cl_hud_playerclass_use_playermodel.SetValue( bConfirmed );
 }
 
+static void OnPlayerClassEnabledChanged( IConVar *var, const char *pOldValue, float flOldValue )
+{
+    ConVarRef cl_hud_playerclass_enabled_ref( var );
+    bool bEnabled = cl_hud_playerclass_enabled_ref.GetBool();
+    
+    // Find the HUD element and update visibility
+    CTFHudPlayerStatus *pPlayerStatus = GET_HUDELEMENT( CTFHudPlayerStatus );
+    if ( pPlayerStatus )
+    {
+        CTFHudPlayerClass *pPlayerClass = pPlayerStatus->GetPlayerClassHUD();
+        if ( pPlayerClass )
+        {
+            pPlayerClass->SetPlayerClassVisible( bEnabled );
+        }
+    }
+}
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -916,10 +961,11 @@ static void SetPlayerHealthImagePanelVisibility( CTFPlayer *pPlayer, ETFCond eCo
 		pImagePanel->SetDrawColor( colorIfVisible );
 		
 		// Reposition ourselves and increase the offset if we are active
-		int x,y;
+		/*int x,y;
 		pImagePanel->GetPos( x, y );
 		pImagePanel->SetPos( nXOffset, y );
-		nXOffset += 100.f;
+		nXOffset += 100.f;*/ 
+		// p4ss: removed to allow status icon positioning in HudPlayerHealth.res
 	}
 }
 
@@ -1091,9 +1137,6 @@ bool CTFHudPlayerStatus::ShouldDraw( void )
 		return false;
 
 	if ( CTFMinigameLogic::GetMinigameLogic() && CTFMinigameLogic::GetMinigameLogic()->GetActiveMinigame() )
-		return false;
-
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
 		return false;
 
 	return CHudElement::ShouldDraw();

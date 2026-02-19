@@ -10,7 +10,6 @@
 #include "takedamageinfo.h"
 #include "tf_gamerules.h"
 #include "filesystem.h"
-#include "tf_matchmaking_shared.h"
 
 //-----------------------------------------------------------------------------
 // Teams.
@@ -1053,6 +1052,7 @@ static const char* taunt_attack_name[] =
 	"TAUNTATK_ALLCLASS_GUITAR_RIFF",
 	"TAUNTATK_MEDIC_HEROIC_TAUNT",
 	"TAUNTATK_PYRO_GASBLAST",
+	"TAUNTATK_DEMOMAN_CABER",
 
 	//
 	// INSERT NEW ITEMS HERE TO AVOID BREAKING DEMOS

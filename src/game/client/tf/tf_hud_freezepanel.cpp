@@ -27,7 +27,6 @@
 #include "halloween/c_headless_hatman.h"
 #include "halloween/c_eyeball_boss.h"
 #include "halloween/c_merasmus.h"
-#include "tf_wardata.h"
 
 #if defined( REPLAY_ENABLED )
 #include "replay/ireplaysystem.h"
@@ -432,8 +431,6 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 					// Create a fake, temp item to show the powerup
 					CEconItemView item;
 					item.SetItemDefIndex( itemDef->GetDefinitionIndex() );
-					item.SetItemQuality( AE_UNIQUE );	// Unique by default
-					item.SetItemLevel( 0 ); // Hide this?
 					item.SetInitialized( true );
 					item.SetItemOriginOverride( kEconItemOrigin_Invalid );
 
@@ -445,22 +442,7 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 				{
 					// If our killer is using an item, display its stats.
 					CTFWeaponBase *pWeapon = pTFPlayerKiller ? pTFPlayerKiller->GetActiveTFWeapon() : NULL;
-					bool bShowItem = false;
 					if ( pWeapon )
-					{
-						bShowItem = pWeapon->GetAttributeContainer()->GetItem()->GetItemQuality() != AE_NORMAL;
-						if ( bShowItem )
-						{
-							CTFStatPanel *pStatPanel = GET_HUDELEMENT( CTFStatPanel );
-							if ( pStatPanel && pStatPanel->IsVisible() )
-							{
-								// Stat panel overrides.
-								bShowItem = false;
-							}
-						}
-					}
-
-					if ( bShowItem )
 					{
 						Label* pItemLabel = m_pItemPanel->FindControl<Label>( "ItemLabel" );
 						CEconItemView *pItemToShow = pWeapon->GetAttributeContainer()->GetItem();

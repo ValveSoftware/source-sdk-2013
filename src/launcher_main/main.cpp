@@ -660,6 +660,16 @@ int main( int argc, char *argv[] )
 
 	new_argv.push_back(NULL);
 
+	// lucy: To stop me from accidentally
+	// updating my SDL version.
+	// ...The reason we don't support this is because
+	// at the engine level (at least on Linux), there are texture/model bugs
+	// introduced since SDL3 makes breaking changes, and we
+	// don't have the engine code to Fix it.
+	#if SDL_MAJOR_VERSION >= 3
+	#error "This mod does not support SDL version >= 3. Please recompile the mod with the correct SDL version installed."
+	#endif
+
 	execvp( szExecutable, new_argv.data() );
 
 	return 0;

@@ -22,11 +22,9 @@ item_definition_index_t CTFItemSystem::GenerateBaseItem( baseitemcriteria_t *pCr
 		return INVALID_ITEM_DEF_INDEX;
 
 	CItemSelectionCriteria criteria;
-	criteria.SetQuality( AE_NORMAL );
-	criteria.SetItemLevel( 1 );
 	criteria.BAddCondition( "baseitem", k_EOperator_String_EQ, "1", true );
 	InventoryManager()->AddBaseItemCriteria( pCriteria, &criteria );
-	int iChosenItem = GenerateRandomItem( &criteria, NULL );
+	int iChosenItem = GenerateRandomItem( &criteria );
 	return iChosenItem;
 }
 

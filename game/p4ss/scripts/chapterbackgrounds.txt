@@ -1,0 +1,14 @@
+"chapters"
+{
+	1	"background_arena2"		// Arena
+	2	"background_stadium"	// Stadium
+	//3	"background_mvm"        // 
+	//4	"background_2fort"      // 
+}
+"BackgroundMaps"
+{
+	1	"background_arena2"     // Arena
+	2	"background_stadium"  // Stadium
+	//3	"background_mvm"        // 
+	//4	"background_2fort"      // 
+}

@@ -724,11 +724,7 @@ void CVoteSetupDialog::OnItemSelected( vgui::Panel *panel )
 				{
 					if ( !g_PR->IsConnected( iPlayerIndex ) )
 						continue;
-#ifdef TF_CLIENT_DLL
-					MM_PlayerConnectionState_t eConnectionState = g_TF_PR->GetPlayerConnectionState( iPlayerIndex );
-					if ( eConnectionState != MM_CONNECTED )
-						continue;
-#endif // TF_CLIENT_DLL
+
 					if ( iPlayerIndex == iLocalPlayerIndex )
 						continue;
 

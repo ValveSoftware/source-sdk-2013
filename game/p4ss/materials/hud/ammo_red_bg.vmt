@@ -1,0 +1,13 @@
+"UnlitGeneric"
+{
+	"$translucent" 1
+	"$baseTexture" "hud\ammo_red"
+
+	"$vertexcolor" 1
+	"$vertexalpha" 1
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"%keywords" "tf"
+	"$alpha" "0.7"
+}
+

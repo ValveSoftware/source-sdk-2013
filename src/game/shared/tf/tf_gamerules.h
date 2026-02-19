@@ -25,7 +25,6 @@
 #include "gamevars_shared.h"
 #include "GameEventListener.h"
 #include "tf_gamestats_shared.h"
-#include "tf_match_description.h"
 
 #ifdef CLIENT_DLL
 #include "c_tf_player.h"
@@ -184,7 +183,7 @@ public:
 	void	StateEnterBetweenRounds( void );
 	void	StateEnterPreRound( void );
 	void	StateExitPreRound( void );
-	void	MatchSummaryStart( void );
+	void	MatchSummaryStart();
 	void	TruceStart( void );
 	void	TruceEnd( void );
 
@@ -510,8 +509,6 @@ public:
 
 	int				GetRoundState() { return (int)State_Get(); }
 
-	bool			InMatchStartCountdown() { return BInMatchStartCountdown(); }
-
 protected:
 
 	virtual void LoadMapCycleFile( void ) OVERRIDE;
@@ -623,34 +620,10 @@ bool IsCreepWaveMode( void ) const;
 	bool IsPowerupMode( void ) { return m_bPowerupMode; }
 	void SetPowerupMode( bool bValue );
 
-#ifdef GAME_DLL
-	// Managed competitive matches should go through the End/StopCompetitiveMatch path
-	void EndManagedMvMMatch( bool bKickPlayersToParties );
-#endif
-
 	// Competitive games
 	bool IsCommunityGameMode( void ) const;
-	bool IsCompetitiveMode( void ) const;			// means we're using competitive/casual matchmaking
-	bool IsMatchTypeCasual( void ) const;
-	bool IsMatchTypeCompetitive( void ) const;
-	// Are we showing the match-start-countdown doors right now
-	bool BInMatchStartCountdown() const;
-#ifdef GAME_DLL
-	void SyncMatchSettings();
-	// ! Check return
-	bool StartManagedMatch();
-	void SetCompetitiveMode( bool bValue );
-#endif
-	void StartCompetitiveMatch( void );
-	void StopCompetitiveMatch( CMsgGC_Match_Result_Status nCode );
-	void EndCompetitiveMatch( void );
-	void ManageCompetitiveMode( void );
-	bool ReportMatchResultsToGC( CMsgGC_Match_Result_Status nCode );
 	bool MatchmakingShouldUseStopwatchMode( void );
 	bool IsAttackDefenseMode( void );
-
-	ETFMatchGroup GetCurrentMatchGroup() const;
-	bool IsManagedMatchEnded() const;
 
 	bool UsePlayerReadyStatusMode( void );
 	bool PlayerReadyStatus_HaveMinPlayersToEnable( void );
@@ -660,6 +633,7 @@ bool IsCreepWaveMode( void ) const;
 	void PlayerReadyStatus_ResetState( void );
 	void PlayerReadyStatus_UpdatePlayerState( CTFPlayer *pTFPlayer, bool bState );
 #endif // GAME_DLL
+	void StartTournamentMatch( void );
 
 	bool IsDefaultGameMode( void );		// The absence of arena, mvm, tournament mode, etc
 
@@ -701,7 +675,7 @@ bool IsCreepWaveMode( void ) const;
 	bool IsPlayingSpecialDeliveryMode( void ) const { return m_bPlayingSpecialDeliveryMode; }
 	bool IsPlayingRobotDestructionMode( void ) const { return m_bPlayingRobotDestructionMode; }
 
-	virtual bool AllowThirdPersonCamera( void ) { return ( IsInMedievalMode() || ShowMatchSummary() ); }
+	virtual bool AllowThirdPersonCamera( void ) { return ( IsInMedievalMode() ); }
 
 	// Bonus rounds
 	CBonusRoundLogic *GetBonusLogic( void ) { return m_hBonusLogic.Get(); }
@@ -737,44 +711,10 @@ bool IsCreepWaveMode( void ) const;
 
 	bool IsTruceActive( void ) const; 
 
-	bool MapHasMatchSummaryStage( void ){ return m_bMapHasMatchSummaryStage; }
-	bool PlayersAreOnMatchSummaryStage( void ){ return m_bPlayersAreOnMatchSummaryStage; }
-
-	bool ShowMatchSummary( void ){ return m_bShowMatchSummary; }
-
 	bool HaveStopWatchWinner( void ) { return m_bStopWatchWinner; }
 
 	int GetGameTeamForGCTeam( TF_GC_TEAM nGCTeam );
 	TF_GC_TEAM GetGCTeamForGameTeam( int nGameTeam );
-
-	enum ENextMapVotingState
-	{
-		NEXT_MAP_VOTE_STATE_NONE,
-		NEXT_MAP_VOTE_STATE_WAITING_FOR_USERS_TO_VOTE,
-		NEXT_MAP_VOTE_STATE_MAP_CHOSEN_PAUSE,
-	};
-
-	enum EUserNextMapVote
-	{
-		USER_NEXT_MAP_VOTE_MAP_0 = 0,
-		USER_NEXT_MAP_VOTE_MAP_1,
-		USER_NEXT_MAP_VOTE_MAP_2,
-		USER_NEXT_MAP_VOTE_UNDECIDED,
-
-		NUM_VOTE_STATES
-	};
-
-	EUserNextMapVote GetWinningVote( int (&nVotes)[ EUserNextMapVote::NUM_VOTE_STATES ] ) const;
-	EUserNextMapVote PlayerNextMapVoteState( int nIndex ) const { return m_ePlayerWantsRematch.Get( nIndex ); }
-	ENextMapVotingState GetCurrentNextMapVotingState() const { return m_eRematchState; }
-	MapDefIndex_t GetNextMapVoteOption( int nIndex ) const { return m_nNextMapVoteOptions.Get( nIndex ); }
-	
-#ifdef GAME_DLL
-	void KickPlayersNewMatchIDRequestFailed();
-
-	void CheckAndSetPartyLeader( CTFPlayer *pTFPlayer, int iTeam );
-#endif // GAME_DLL
-
 
 #ifdef GAME_DLL
 	void RequestClientInventory( CSteamID steamID );
@@ -810,9 +750,6 @@ bool IsCreepWaveMode( void ) const;
 
 	virtual void	GetTeamGlowColor( int nTeam, float &r, float &g, float &b );
 
-	virtual bool ShouldConfirmOnDisconnect();
-
-	bool ShouldShowPreRoundDoors() const;
 	bool RecievedBaseline() const { return m_bRecievedBaseline; }
 
 #else
@@ -932,8 +869,6 @@ bool IsCreepWaveMode( void ) const;
 	void	OnDispenserBuilt( CBaseEntity *dispenser );
 	void	OnDispenserDestroyed( CBaseEntity *dispenser );
 	void	OnPlayerSpawned( CTFPlayer *pPlayer );
-	void	OnCoachJoining( uint32 unCoachAccountID, uint32 unStudentAccountID );
-	void 	OnRemoveCoach( uint32 unCoachAccountID );
 
 	//Arena
 	void		AddPlayerToQueue( CTFPlayer *pPlayer );
@@ -967,8 +902,6 @@ bool IsCreepWaveMode( void ) const;
 	virtual bool StopWatchShouldBeTimedWin( void ) OVERRIDE;
 
 public:
-	void SetPlayerNextMapVote( int nIndex, EUserNextMapVote eState ) { m_ePlayerWantsRematch.Set( nIndex, eState ); }
-
 	CTrainingModeLogic *GetTrainingModeLogic() { return m_hTrainingModeLogic; }
 	CTFHolidayEntity *GetHolidayLogic() const { return m_hHolidayLogic; }
 
@@ -1029,17 +962,11 @@ public:
 	void DropHalloweenSoulPackToTeam( int nAmount, const Vector& vecPosition, int nTeamNumber, int nSourceTeam );
 	void DropHalloweenSoulPack( int nAmount, const Vector& vecSource, CBaseEntity *pTarget, int nSourceTeam );
 
-	void MatchSummaryStart( void );
-	void MatchSummaryEnd( void );
-
 	int GetTeamAssignmentOverride( CTFPlayer *pTFPlayer, int iDesiredTeam, bool bAutoBalance = false );
 private:
 
-	void ChooseNextMapVoteOptions();
-
 	int DefaultFOV( void ) { return 75; }
 	int GetDuckSkinForClass( int nTeam, int nClass ) const;
-	void MatchSummaryTeleport();
 
 	void StopWatchShouldBeTimedWin_Calculate( void );
 	
@@ -1057,9 +984,6 @@ private:
 
 
 #ifdef GAME_DLL
-
-	
-	void CheckHelltowerCartAchievement( int iTeam );
 
 	Vector2D	m_vecPlayerPositions[MAX_PLAYERS_ARRAY_SAFE];
 
@@ -1106,10 +1030,6 @@ private:
 	CHandle<CTFBotRoster> m_hBlueBotRoster;
 	CHandle<CTFBotRoster> m_hRedBotRoster;
 
-	// coaching
-	typedef CUtlMap<uint32, uint32> tCoachToStudentMap;
-	tCoachToStudentMap m_mapCoachToStudentMap;
-
 	// Automatic vote called near the end of a map
 	bool	m_bVoteCalled;
 	bool	m_bServerVoteOnReset;
@@ -1117,8 +1037,6 @@ private:
 
 	CUtlVector< CHandle< CCPTimerLogic > > m_CPTimerEnts;
 	float	m_flCapInProgressBuffer;
-
-	float	m_flMatchSummaryTeleportTime;
 
 #ifdef TF_RAID_MODE
 	CHandle< CRaidLogic >		m_hRaidLogic;
@@ -1133,8 +1051,6 @@ private:
 	CountdownTimer m_helltowerTimer;		// used for Halloween 2013 Announcer VO in plr_hightower_event
 	CountdownTimer m_doomsdaySetupTimer;	// used for Halloween 2014 Announcer Setup VO in sd_doomsday_event
 	CountdownTimer m_doomsdayTicketsTimer;	// Used on sd_doomsday_event to nag players about picking up the tickets
-
-	float m_flNextStrangeEventProcessTime;
 
 	bool m_bMapForcedTruceDuringBossFight;
 	float m_flNextHalloweenGiftUpdateTime;
@@ -1188,7 +1104,6 @@ private:
 	CNetworkVar( bool, m_bHaveMinPlayersToEnableReady );
 
 	CNetworkVar( bool, m_bBountyModeEnabled );
-	CNetworkVar( bool, m_bCompetitiveMode );
 	CNetworkVar( float, m_flGravityMultiplier );
 	CNetworkVar( int, m_nMatchGroupType );
 	CNetworkVar( bool, m_bMatchEnded );
@@ -1208,8 +1123,6 @@ private:
 	float	m_flNextFlagAlarm;
 	float	m_flNextFlagAlert;
 
-	float	m_flSafeToLeaveTimer;
-
 	CBaseEntity *m_pUpgrades;
 #endif
 
@@ -1220,16 +1133,7 @@ private:
 
 	CNetworkString( m_pszCustomUpgradesFile, MAX_PATH );
 
-	CNetworkVar( bool, m_bShowMatchSummary );
-	CNetworkVar( bool, m_bMapHasMatchSummaryStage );
-	CNetworkVar( bool, m_bPlayersAreOnMatchSummaryStage );
 	CNetworkVar( bool, m_bStopWatchWinner );
-	// This is called m_ePlayerWantsRematch because we initially had rematches, but now we
-	// let players vote on the next map instead.  Can't rename this variable, so we're just
-	// going to use with the wrong name
-	CNetworkArray( EUserNextMapVote, m_ePlayerWantsRematch, MAX_PLAYERS_ARRAY_SAFE );
-	CNetworkVar( ENextMapVotingState, m_eRematchState );
-	CNetworkArray( MapDefIndex_t, m_nNextMapVoteOptions, 3 );
 
 	float		m_flCTFCaptureBonusTime;
 public:
@@ -1415,9 +1319,6 @@ public:
 
 	CUtlVector< Vector > *GetHalloweenSpawnLocations() { return &m_halloweenGiftSpawnLocations; }
 
-	bool BAttemptMapVoteRollingMatch();
-	bool BIsManagedMatchEndImminent( void );
-
 	float CheckPowerupModeDominantDisconnect( CSteamID steamID );
 	void PowerupModeDominantDisconnect( CSteamID steamID, float flRemoveDominantConditionTime );
 
@@ -1462,7 +1363,6 @@ private:
 	bool	m_bMapCycleNeedsUpdate;
 
 	CUtlVector< Vector > m_halloweenGiftSpawnLocations;		// vector of valid gift spawn locations from the map
-	float	m_flCompModeRespawnPlayersAtMatchStart;
 
 	CHandle< CEntitySoldierStatue > m_hSoldierStatue = nullptr;
 

@@ -27,21 +27,6 @@ void OpenVoiceMenu( int index )
 	if ( !pPlayer->IsAlive() || pPlayer->IsObserver() )
 		return;
 
-#if defined ( TF_CLIENT_DLL )
-	if ( GTFGCClientSystem() && GTFGCClientSystem()->BHaveChatSuspensionInCurrentMatch() )
-	{
-		CBaseHudChat *pHUDChat = ( CBaseHudChat * ) GET_HUDELEMENT( CHudChat );
-		if ( pHUDChat )
-		{
-			char szLocalized[100];
-			g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find( "#TF_Voice_Unavailable" ), szLocalized, sizeof( szLocalized ) );
-			pHUDChat->ChatPrintf( 0, CHAT_FILTER_NONE, "%s ", szLocalized );
-		}
-		
-		return;
-	}
-#endif // TF_CLIENT_DLL 
-
 	CHudMenu *pMenu = (CHudMenu *) gHUD.FindElement( "CHudMenu" );
 	if ( !pMenu )
 		return;

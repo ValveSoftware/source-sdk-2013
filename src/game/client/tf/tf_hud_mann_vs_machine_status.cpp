@@ -1625,7 +1625,6 @@ CHudElement( pElementName ), BaseClass( NULL, "HudMannVsMachineStatus" )
 	m_pWaveCompletePanel = new CWaveCompleteSummaryPanel( this, "WaveCompleteSummaryPanel" );
 
 	m_pVictorySplash = new CVictorySplash( this, "VictorySplash" );
-	m_pVictoryContainer = new CMvMVictoryPanelContainer( this, "VictoryPanelContainer" );
 	
 	m_pWaveLossPanel = new CMvMWaveLossPanel ( this, "WaveLossPanel" );
 
@@ -1780,11 +1779,6 @@ void CTFHudMannVsMachineStatus::OnTick( void )
 	if ( !TFGameRules() || !TFGameRules()->IsMannVsMachineMode() )
 		return;
 
-	if ( m_pVictoryContainer->IsVisible() )
-	{
-		m_pVictoryContainer->OnTick();
-	}
-
 	if ( !IsVisible() || !TFObjectiveResource() )
 		return;
 
@@ -1878,7 +1872,6 @@ void CTFHudMannVsMachineStatus::OnTick( void )
 	{
 		m_bInVictorySplash = false;
 		m_pVictorySplash->SetVisible( false );
-		m_pVictoryContainer->ShowVictoryPanel( false );
 	}
 
 	m_pVictorySplash->SetVisible( m_bInVictorySplash && TFGameRules()->State_Get() == GR_STATE_GAME_OVER );
@@ -1955,19 +1948,10 @@ void CTFHudMannVsMachineStatus::MVMServerKickTimeUpdate( int nTime )
 	m_flServerEndTime = gpGlobals->curtime + (float)nTime;
 }
 //-----------------------------------------------------------------------------
-void CTFHudMannVsMachineStatus::MVMVictoryGCResponse( CMsgMvMVictoryInfo &pData )
-{
-	m_pVictoryContainer->MannUpServerResponse( pData );
-}
 
 void CTFHudMannVsMachineStatus::ForceVictoryRefresh()
 {
 	InvalidateLayout( false, true );
-}
-
-void CTFHudMannVsMachineStatus::ReopenVictoryPanel( void )
-{
-	m_pVictoryContainer->ShowVictoryPanel( true );
 }
 
 //-----------------------------------------------------------------------------

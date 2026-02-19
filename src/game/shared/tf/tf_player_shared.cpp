@@ -12,6 +12,7 @@
 #include "tf_item.h"
 #include "entity_capture_flag.h"
 #include "tf_weapon_medigun.h"
+#include "tf_weapon_passtime_gun.h"
 #include "tf_weapon_pipebomblauncher.h"
 #include "tf_weapon_invis.h"
 #include "tf_weapon_sniperrifle.h"
@@ -658,14 +659,6 @@ CTFPlayer *GetRuneCarrier( RuneTypes_t type, int iTeam = TEAM_ANY )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFPlayer::HasCampaignMedal( int iMedal )
-{ 
-	return ( ( m_iCampaignMedals & iMedal ) != 0 );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 bool CTFPlayer::IsAllowedToTaunt( void )
 {
 	if ( !IsAlive() )
@@ -1099,13 +1092,6 @@ void CTFPlayerShared::AddCond( ETFCond eCond, float flDuration /* = PERMANENT_CO
 		return;
 	}
 #endif
-
-	// sanity check to prevent servers from adding these conditions when they shouldn't
-	if ( ( eCond == TF_COND_COMPETITIVE_WINNER ) || ( eCond == TF_COND_COMPETITIVE_LOSER ) )
-	{
-		if ( TFGameRules() && !TFGameRules()->ShowMatchSummary() )
-			return;
-	}
 
 	// Which bitfield are we tracking this condition variable in? Which bit within
 	// that variable will we track it as?
@@ -2621,13 +2607,6 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 											event->SetInt( "amount", m_aHealers[i].flHealedLastSecond );
 											gameeventmanager->FireEvent( event );
 										}
-
-										// Can we figure out which item is doing this healing?
-										if ( pHealScorer )
-										{
-											// Can be Mediguns or anything that gives off 'heal' buff like amputator aoe heal
-											EconEntity_OnOwnerKillEaterEvent_Batched( pHealScorer->GetActiveTFWeapon(), pHealScorer, m_pOuter, kKillEaterEvent_AllyHealingDone, m_aHealers[i].flHealedLastSecond );
-										}
 									}
 
 									m_aHealers[i].flHealedLastSecond = 0;
@@ -2744,18 +2723,6 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 		}
 		else if ( m_flAfterburnDuration <= 0.f || m_pOuter->GetWaterLevel() >= WL_Waist )
 		{
-			// If we're underwater, put the fire out
-			if ( m_pOuter->GetWaterLevel() >= WL_Waist )
-			{
-				// General achievement for jumping into water while you're on fire
-				m_pOuter->AwardAchievement( ACHIEVEMENT_TF_FIRE_WATERJUMP );
-
-				// Pyro achievement for forcing players into water
-				if ( m_hBurnAttacker )
-				{
-					m_hBurnAttacker->AwardAchievement( ACHIEVEMENT_TF_PYRO_FORCE_WATERJUMP );
-				}
-			}
 
 			RemoveCond( TF_COND_BURNING );
 
@@ -3432,11 +3399,6 @@ void CTFPlayerShared::OnAddInvulnerable( void )
 		{
 			view->SetScreenOverlayMaterial( pMaterial );
 		}
-
-		if ( m_pOuter->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-		{
-			g_AchievementMgrTF.OnAchievementEvent( ACHIEVEMENT_TF_HEAVY_RECEIVE_UBER_GRIND );
-		}
 	}
 #else
 	// remove any persistent damaging conditions
@@ -3910,17 +3872,6 @@ CTFPlayerShared::taunt_particle_state_t CTFPlayerShared::GetClientTauntParticleD
 					}
 				}
 			}
-
-			// do community_sparkle effect if this is a self-made or community item
-			const int iQualityParticleType = pTauntItem->GetQualityParticleType();
-			if ( iQualityParticleType > 0 )
-			{
-				const attachedparticlesystem_t *pParticleSystem = GetItemSchema()->GetAttributeControlledParticleSystem( iQualityParticleType );
-				if ( pParticleSystem )
-				{
-					return taunt_particle_state_t( pParticleSystem->pszSystemName, pParticleSystem->fRefireTime );
-				}
-			}
 		}
 	}
 
@@ -4064,12 +4015,6 @@ void CTFPlayerShared::OnRemoveTaunting( void )
 
 	m_pOuter->HandleWeaponSlotAfterTaunt();
 #else
-	CSteamID steamIDForPlayer;
-	m_pOuter->GetSteamID( &steamIDForPlayer );
-
-	int nMapDonationAmount = MapInfo_GetDonationAmount( steamIDForPlayer.GetAccountID(), engine->GetLevelName() );
-	m_pOuter->SetFootStamps( nMapDonationAmount );
-
 	if ( m_pOuter->m_pTauntEffect )
 	{
 		m_pOuter->ParticleProp()->StopEmissionAndDestroyImmediately( m_pOuter->m_pTauntEffect );
@@ -6079,6 +6024,10 @@ void CTFPlayerShared::EndCharge()
 // New convar to control charge turn rate. Default is same as vanilla TF2.
 ConVar tf_charge_turn_rate("tf_charge_turn_rate", "1.0", FCVAR_REPLICATED | FCVAR_CHEAT, "Base turn rate cap for demoman charge in degrees per tick");
 
+// Debug convars for charge turn capping
+ConVar tf_charge_turn_debug("tf_charge_turn_debug", "0", FCVAR_REPLICATED | FCVAR_CHEAT, "Debug charge turn capping: 1=basic, 2=verbose");
+ConVar tf_charge_turn_debug_client("tf_charge_turn_debug_client", "0", FCVAR_REPLICATED | FCVAR_CHEAT, "Debug client-side charge turn capping");
+
 //-----------------------------------------------------------------------------
 // Purpose: Unified function to cap turning rate for charge regardless of input method
 // Input:   Raw yaw change in degrees
@@ -6087,7 +6036,13 @@ ConVar tf_charge_turn_rate("tf_charge_turn_rate", "1.0", FCVAR_REPLICATED | FCVA
 float CTFPlayerShared::CapChargeTurnRate(float flYawDelta) const
 {
 	if (!InCond(TF_COND_SHIELD_CHARGE))
+	{
+		if (tf_charge_turn_debug_client.GetBool() && fabs(flYawDelta) > 0.01f)
+		{
+			DevMsg("[CLIENT] Not charging, yaw delta %.2f passed through\n", flYawDelta);
+		}
 		return flYawDelta;
+	}
 
 	// Base turn rate cap in degrees per tick
 	float flBaseCap = tf_charge_turn_rate.GetFloat();
@@ -6097,11 +6052,80 @@ float CTFPlayerShared::CapChargeTurnRate(float flYawDelta) const
 
 	float flMaxYawDelta = flBaseCap * gpGlobals->frametime / TICK_INTERVAL;
 	
+	if (tf_charge_turn_debug_client.GetBool())
+	{
+		DevMsg("[CLIENT] Charging: yaw delta %.2f, max allowed %.2f (cap %.2f, frametime %.4f)\n", 
+			flYawDelta, flMaxYawDelta, flBaseCap, gpGlobals->frametime);
+	}
+	
 	// Apply the cap
 	if (flYawDelta > flMaxYawDelta)
+	{
+		if (tf_charge_turn_debug_client.GetBool())
+			DevMsg("[CLIENT] Capped positive yaw: %.2f -> %.2f\n", flYawDelta, flMaxYawDelta);
 		return flMaxYawDelta;
+	}
 	else if (flYawDelta < -flMaxYawDelta)
+	{
+		if (tf_charge_turn_debug_client.GetBool())
+			DevMsg("[CLIENT] Capped negative yaw: %.2f -> %.2f\n", flYawDelta, -flMaxYawDelta);
 		return -flMaxYawDelta;
+	}
+	
+	return flYawDelta;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Lag-compensated version for server-side turn rate capping
+// Input:   Raw yaw change in degrees, time delta between commands
+// Output:  Capped yaw change in degrees
+//-----------------------------------------------------------------------------
+float CTFPlayerShared::CapChargeTurnRate(float flYawDelta, float flTimeDelta) const
+{
+	if (!InCond(TF_COND_SHIELD_CHARGE))
+	{
+		if (tf_charge_turn_debug.GetInt() >= 2 && fabs(flYawDelta) > 0.01f)
+		{
+			DevMsg("[SERVER] Not charging, yaw delta %.2f passed through (timeDelta %.4f)\n", flYawDelta, flTimeDelta);
+		}
+		return flYawDelta;
+	}
+
+	// Base turn rate cap in degrees per tick
+	float flBaseCap = tf_charge_turn_rate.GetFloat();
+
+	// Apply charge_turn_control attribute
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER(m_pOuter, flBaseCap, charge_turn_control);
+
+	// Use the actual time delta instead of server frametime for proper lag compensation
+	float flMaxYawDelta = flBaseCap * flTimeDelta / TICK_INTERVAL;
+	
+	if (tf_charge_turn_debug.GetInt() >= 1)
+	{
+		DevMsg("[SERVER] Charging: yaw delta %.2f, max allowed %.2f (cap %.2f, timeDelta %.4f, ticks %.1f)\n", 
+			flYawDelta, flMaxYawDelta, flBaseCap, flTimeDelta, flTimeDelta / TICK_INTERVAL);
+	}
+	
+	// Apply the cap
+	if (flYawDelta > flMaxYawDelta)
+	{
+		if (tf_charge_turn_debug.GetInt() >= 1)
+			DevMsg("[SERVER] LAG COMP CAPPED positive yaw: %.2f -> %.2f (saved %.2f degrees)\n", 
+				flYawDelta, flMaxYawDelta, flYawDelta - flMaxYawDelta);
+		return flMaxYawDelta;
+	}
+	else if (flYawDelta < -flMaxYawDelta)
+	{
+		if (tf_charge_turn_debug.GetInt() >= 1)
+			DevMsg("[SERVER] LAG COMP CAPPED negative yaw: %.2f -> %.2f (saved %.2f degrees)\n", 
+				flYawDelta, -flMaxYawDelta, fabs(flYawDelta) - flMaxYawDelta);
+		return -flMaxYawDelta;
+	}
+	
+	if (tf_charge_turn_debug.GetInt() >= 2)
+	{
+		DevMsg("[SERVER] No capping needed, yaw delta %.2f within limit %.2f\n", flYawDelta, flMaxYawDelta);
+	}
 	
 	return flYawDelta;
 }
@@ -6879,15 +6903,6 @@ void CTFPlayerShared::OnRemoveBurning( void )
 	m_hOriginalBurnAttacker = NULL;
 	m_hBurnWeapon = NULL;
 
-	m_pOuter->ClearBurnFromBehindAttackers();
-
-	// If we were on fire and now we're not, and we're still alive, then give ourself some credit
-	// for surviving this fire if we have any items that track it.
-	if ( m_nPlayerState == TF_STATE_ACTIVE )
-	{
-		HatAndMiscEconEntities_OnOwnerKillEaterEventNoParter( m_pOuter, kKillEaterEvent_FiresSurvived );
-	}
-
 	if ( InCond( TF_COND_HEALING_DEBUFF ) )
 	{
 		RemoveCond( TF_COND_HEALING_DEBUFF );
@@ -7070,17 +7085,6 @@ void CTFPlayerShared::OnRemoveStealthed( void )
 #else
 	if ( m_flCloakStartTime > 0 )
 	{
-		// Calc a time and report every minute
-		float flCloaktime = ( gpGlobals->curtime - m_flCloakStartTime );
-		if ( flCloaktime > 0 )
-		{
-			EconEntity_OnOwnerKillEaterEventNoPartner( 
-				dynamic_cast<CEconEntity *>( m_pOuter->GetEntityForLoadoutSlot( LOADOUT_POSITION_PDA2 ) ),
-				m_pOuter,
-				kKillEaterEvent_TimeCloaked,
-				(int)flCloaktime
-			);
-		}
 		m_flCloakStartTime = 0;
 	}
 
@@ -7681,23 +7685,6 @@ void CTFPlayerShared::SetPlayerDominatingMe( CTFPlayer *pPlayer, bool bDominated
 {
 	int iPlayerIndex = pPlayer->entindex();
 	m_bPlayerDominatingMe.Set( iPlayerIndex, bDominated );
-
-#ifdef GAME_DLL
-	if ( bDominated )
-	{
-		CTFPlayer *pDominatingPlayer = ToTFPlayer( pPlayer );
-		if ( pDominatingPlayer && pDominatingPlayer->IsPlayerClass( TF_CLASS_MEDIC ) )
-		{
-			CBaseEntity *pHealedEntity = pPlayer->MedicGetHealTarget();
-			CTFPlayer *pHealedPlayer = ToTFPlayer( pHealedEntity );
-
-			if ( pHealedPlayer && pHealedPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-			{
-				pHealedPlayer->AwardAchievement( ACHIEVEMENT_TF_HEAVY_EARN_MEDIC_DOMINATION );
-			}
-		}
-	}
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -9332,38 +9319,6 @@ EHANDLE CTFPlayerShared::GetFirstHealer()
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::CheckForAchievement( int iAchievement )
 {
-	if ( iAchievement == ACHIEVEMENT_TF_MEDIC_SAVE_TEAMMATE || 
-		(iAchievement == ACHIEVEMENT_TF_MEDIC_CHARGE_BLOCKER && InCond( TF_COND_INVULNERABLE ) ) )
-	{
-		// ACHIEVEMENT_TF_MEDIC_SAVE_TEAMMATE : We were just saved from death by invuln. See if any medics deployed
-		// their charge on us recently, and if so, give them the achievement.
-
-		// ACHIEVEMENT_TF_MEDIC_CHARGE_BLOCKER: We just blocked a capture, and we're invuln. Whoever's invulning us gets the achievement.
-
-		for ( int i = 0; i < m_aHealers.Count(); i++ )
-		{
-			CTFPlayer *pPlayer = ToTFPlayer( m_aHealers[i].pHealer );
-			if ( !pPlayer )
-				continue;
-
-			if ( !pPlayer->IsPlayerClass(TF_CLASS_MEDIC) )
-				continue;
-
-			CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
-			if ( !pWpn )
-				continue;
-
-			CWeaponMedigun *pMedigun = dynamic_cast<CWeaponMedigun*>(pWpn);
-			if ( pMedigun && pMedigun->IsReleasingCharge() )
-			{
-				// Save teammate requires us to have deployed the charge within the last second
-				if ( iAchievement != ACHIEVEMENT_TF_MEDIC_SAVE_TEAMMATE || (gpGlobals->curtime - pMedigun->GetReleaseStartedAt()) < 1.0 )
-				{
-					pPlayer->AwardAchievement( iAchievement );
-				}
-			}
-		}
-	}
 }
 
 #endif // GAME_DLL
@@ -9527,23 +9482,6 @@ void CTFPlayerShared::RecordDamageEvent( const CTakeDamageInfo &info, bool bKill
 					if ( bKill )
 					{
 						m_DamageEvents[iDamage].nKills++;
-
-						if ( m_pOuter->IsPlayerClass( TF_CLASS_DEMOMAN ) )
-						{
-							// Make sure the previous & the current are stickybombs, and go with it.
-							if ( m_DamageEvents[iDamage].nDamageType == info.GetDamageType() &&
-								m_DamageEvents[iDamage].nDamageType == g_aWeaponDamageTypes[TF_WEAPON_PIPEBOMBLAUNCHER] )
-							{
-								if ( TFGameRules()->IsMannVsMachineMode() && m_DamageEvents[iDamage].nKills >= 10 )
-								{
-									m_pOuter->AwardAchievement( ACHIEVEMENT_TF_MVM_DEMO_GROUP_KILL );
-								}
-								else if ( m_DamageEvents[iDamage].nKills >= 3 )
-								{
-									m_pOuter->AwardAchievement( ACHIEVEMENT_TF_DEMOMAN_KILL3_WITH_DETONATION );
-								}
-							}
-						}
 					}
 
 					// Take the max damage done in the time frame.
@@ -9575,25 +9513,6 @@ void CTFPlayerShared::RecordDamageEvent( const CTakeDamageInfo &info, bool bKill
 	m_DamageEvents[iIndex].nKills = bKill;
 
 //	Msg( "Damage Event: D:%f, T:%f\n", m_DamageEvents[iIndex].flDamage, m_DamageEvents[iIndex].flTime );
-
-	if ( TFGameRules()->IsMannVsMachineMode() && m_pOuter->IsPlayerClass( TF_CLASS_SNIPER ) )
-	{
-		int nKillCount = 0;
-		int nDamageCount = m_DamageEvents.Count();
-		for ( int iDamage = 0; iDamage < nDamageCount; ++iDamage )
-		{
-			// Did it happen very recently?
-			if ( ( gpGlobals->curtime - m_DamageEvents[iDamage].flTime ) < CRIT_DAMAGE_TIME )
-			{
-				nKillCount += m_DamageEvents[iDamage].nKills;
-			}
-		}
-
-		if ( nKillCount >= 4 )
-		{
-			m_pOuter->AwardAchievement( ACHIEVEMENT_TF_MVM_SNIPER_KILL_GROUP );
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -10699,10 +10618,6 @@ bool CTFPlayer::CanPlayerMove() const
 	if ( GetMoveType() == MOVETYPE_NOCLIP )
 		return true;
 
-	// No one can move when in a final countdown transition.
-	if ( TFGameRules() && TFGameRules()->BInMatchStartCountdown() )
-		return false;
-
 	if ( IsViewingCYOAPDA() )
 		return false;
 
@@ -10719,21 +10634,6 @@ bool CTFPlayer::CanPlayerMove() const
 	}
 
 	bool bInRoundRestart = TFGameRules() && TFGameRules()->InRoundRestart();
-	if ( bInRoundRestart && TFGameRules()->IsCompetitiveMode() )
-	{
-		if ( TFGameRules()->GetRoundsPlayed() > 0 )
-		{
-			if ( gpGlobals->curtime < TFGameRules()->GetPreroundCountdownTime() )
-			{
-				bFreezeOnRestart = true;
-			}
-		}
-		else
-		{
-			bFreezeOnRestart = false;
-		}
-	}
-
 	bool bNoMovement = bInRoundRestart && bFreezeOnRestart;
 
 	return !bNoMovement;
@@ -11678,6 +11578,18 @@ void CTFPlayer::SelectItem( const char *pstr, int iSubType /*= 0*/ )
 
 	if( GetObserverMode() != OBS_MODE_NONE )
 		return;// Observers can't select things.
+
+	CTFWeaponBase *pActiveWeapon = GetActiveTFWeapon();
+	if ( pActiveWeapon && pActiveWeapon->GetWeaponID() == TF_WEAPON_PASSTIME_GUN )
+	{
+		if ( m_Shared.HasPasstimeBall() )
+		{
+			auto *pPasstimeGun = static_cast<CPasstimeGun*>( pActiveWeapon );
+			pPasstimeGun->SetBufferedSwitchWeapon( pItem );
+			return;
+		}
+	}
+
 
 	if ( !Weapon_ShouldSelectItem( pItem ) )
 		return;
@@ -12974,34 +12886,10 @@ int CTFPlayer::GetNumActivePipebombs( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Fills out the vector with the sets that are currently active on this player
-//-----------------------------------------------------------------------------
-void CTFPlayer::GetActiveSets( CUtlVector<const CEconItemSetDefinition *> *pItemSets )
-{
-	pItemSets->Purge();
-
-	CSteamID steamIDForPlayer;
-	GetSteamID( &steamIDForPlayer );
-
-	TFInventoryManager()->GetActiveSets( pItemSets, steamIDForPlayer, GetPlayerClass()->GetClassIndex() );
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 bool CTFPlayer::CanMoveDuringTaunt()
 {
-
-	if ( TFGameRules() && TFGameRules()->IsCompetitiveMode() )
-	{
-		if ( ( TFGameRules()->GetRoundRestartTime() > -1.f ) && ( (int)( TFGameRules()->GetRoundRestartTime() - gpGlobals->curtime ) <= mp_tournament_readymode_countdown.GetInt() ) )
-			return false;
-
-		if ( TFGameRules()->PlayersAreOnMatchSummaryStage() )
-			return false;
-	}
-
 	if ( m_Shared.InCond( TF_COND_HALLOWEEN_KART ) )
 		return true;
 
@@ -13555,10 +13443,6 @@ bool CTFPlayerShared::IsLoser( void )
 	if ( !TFGameRules() )
 		return false;
 
-	// No loser mode in competitive
-	if ( TFGameRules()->IsMatchTypeCompetitive() )
-		return false;
-
 	if ( TFGameRules()->State_Get() != GR_STATE_TEAM_WIN )
 	{
 		if ( IsLoserStateStunned() )
@@ -13914,25 +13798,6 @@ void CTFPlayerShared::PulseRageBuff( ERageBuffSlot eBuffSlot )
 		}
 #endif
 	}
-
-#ifdef CLIENT_DLL
-	if ( nBuffedFriends >= 5 )
-	{
-		g_AchievementMgrTF.OnAchievementEvent( ACHIEVEMENT_TF_SOLDIER_BUFF_FRIENDS );
-	}
-#else
-	// ACHIEVEMENT_TF_MVM_SOLDIER_BUFF_TEAM
-	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
-	{
-		if ( ( m_pOuter->GetTeamNumber() == TF_TEAM_PVE_DEFENDERS ) && m_pOuter->IsPlayerClass( TF_CLASS_SOLDIER ) )
-		{
-			if ( nBuffedPlayers >= 5 )
-			{
-				m_pOuter->AwardAchievement( ACHIEVEMENT_TF_MVM_SOLDIER_BUFF_TEAM );
-			}
-		}
-	}
-#endif
 }
 
 //-----------------------------------------------------------------------------

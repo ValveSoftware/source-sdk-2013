@@ -12,6 +12,7 @@
 
 #include "hudelement.h"
 #include <vgui_controls/EditablePanel.h>
+#include <vgui/IBorder.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -26,12 +27,19 @@ public:
 	virtual bool	ShouldDraw( void ) OVERRIDE;
 	virtual void	OnTick() OVERRIDE;
 	virtual void	Paint() OVERRIDE;
+	virtual void	ApplySchemeSettings(vgui::IScheme *pScheme) OVERRIDE;
 
 	void RemoveEntity( int nRemove );
+	void GetNameAndBorderColor( C_BaseEntity *pEntity, Color &outColor );
 
 private:
 	void Reset( void );
-
+	void DrawBorder(int x, int y, int w, int h, Color color); // Helper function to draw consistent borders
+	void DrawArrow( int x, int y, Color arrowColor );
+	void DrawHealthBar( int x, int y, int width, int height, float healthPercent, Color healthColor, Color backgroundColor );
+	int m_nArrowTextureID;
+	int m_iTexture;
+	vgui::IBorder *m_pBorder;
 	typedef struct
 	{
 		int m_nEntIndex;
@@ -44,7 +52,7 @@ private:
 	} spec_extra_t;
 
 	CUtlVector< spec_extra_t > m_vecEntitiesToDraw;
-	CPanelAnimationVar( vgui::HFont, m_hNameFont, "player_name_font", "SpectatorVerySmall" );
+	CPanelAnimationVar( vgui::HFont, m_hNameFont, "player_name_font", "NametagSmall" );
 };
 
 #endif // TF_HUD_SPECTATOR_EXTRAS_H

@@ -1,0 +1,7 @@
+hudanimations_manifest
+{
+
+"file" "scripts/hudanimations.txt"
+"file" "scripts/hudanimations_pf.txt" //has priority over default anims
+"file" "scripts/hudanimations_tf.txt"
+}

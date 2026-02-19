@@ -1,6 +1,6 @@
 "GameInfo"
 {
-	game					"4v4 PASS Time"
+	game					"PASS Fortress"
 	type 					multiplayer_only
 	nomodels				1
 	nohimodel 				1
@@ -32,14 +32,14 @@
 			// folder.
 			//
 			// Note that this folder is scanned only when the game is booted.
-			game+mod	p4ss/custom/*
+			game+mod+vgui	p4ss/custom/*
 			// Enable this if you want to load your TF custom content.
 			//game+mod	|appid_440|tf/custom/*
 
 			// Now search loose files.  We'll set the directory containing the gameinfo.txt file
 			// as the first "mod" search path (after any user customizations).  This is also the one
 			// that's used when writing to the "mod" path.
-			mod+mod_write		|gameinfo_path|.
+			mod+mod_write+vgui		|gameinfo_path|.
 			game+game_write		|gameinfo_path|.
 			default_write_path	|gameinfo_path|.
 			gamebin				|gameinfo_path|bin

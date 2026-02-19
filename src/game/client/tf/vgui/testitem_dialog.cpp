@@ -22,7 +22,6 @@
 #include "vgui_controls/FileOpenDialog.h"
 #include "econ_item_system.h"
 #include "testitem_root.h"
-#include "econ_item_tools.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -587,10 +586,6 @@ void CTestItemDialog::SetupPaintColorComboBox( void )
 	FOR_EACH_MAP( mapItemDefs, i )
 	{
 		const CEconItemDefinition *pDef = mapItemDefs[i];
-
-		const CEconTool_PaintCan *pEconToolPaintCan = pDef->GetTypedEconTool<CEconTool_PaintCan>();
-		if ( !pEconToolPaintCan )
-			continue;
 
 		pKeyValues->SetInt( "paintcan_index", pDef->GetDefinitionIndex() );
 		m_pPaintColorComboBox->AddItem( g_pVGuiLocalize->Find( pDef->GetItemBaseName() ), pKeyValues );

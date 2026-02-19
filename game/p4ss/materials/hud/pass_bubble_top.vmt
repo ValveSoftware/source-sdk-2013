@@ -1,0 +1,13 @@
+"UnlitGeneric"
+{
+	"$basetexture" "hud/pass_bubble_top"
+	"$translucent" 1
+	
+	"$vertexcolor" 0
+	"$vertexalpha" 0
+	"$ignorez" 1
+	"$nofog" 1
+	"$nocull" 1
+
+	"$spriteorientation" 4
+}

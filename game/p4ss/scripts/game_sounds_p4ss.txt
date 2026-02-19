@@ -1,18 +1,18 @@
 "Passtime.BallMagnetLock"
 {
 	"channel"		"CHAN_WEAPON"
-	"volume"		"1"
-	"pitch"			"90,110"
-	"soundlevel"	"SNDLVL_GUNFIRE"
-	"attenuation"	"0.5"
-	"wave"			"p4ss/jack/jack_lock.wav"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+
+	"attenuation"	"1"
+	"wave"			")p4ss/jack/jack_lock.wav"
 }
 
 "Passtime.BallMagnetImpact"
 {
-	"channel"		"CHAN_WEAPON"
-	"volume"		"1"
-	"pitch"			"90,110"
+	"channel"		"CHAN_AUTO"
+	"volume"		"0.85"
+	"pitch"			"PITCH_NORM"
 	"soundlevel"	"SNDLVL_GUNFIRE"
 	"attenuation"	"0.5"
 	"wave"			"p4ss/jack/ball_impact.wav"

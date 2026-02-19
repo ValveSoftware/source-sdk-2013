@@ -12,7 +12,7 @@
 // 	PIN_CENTER_LEFT,
 // };
 
-"Resource/UI/HudPasstimeBallStatus.res"
+"resource/ui/hudpasstimeballstatus.res"
 {	
 	"HudPasstimeBallStatus"
 	{
@@ -50,7 +50,7 @@
 		"ControlName"	"CExLabel"
 		"fieldName"		"EventTitleLabel"
 		"dropshadow"	"1"
-		"font"			"HudFontMediumSmallBold"
+		"font"			"MontserratBlack24"
 		"xpos"			"0"
 		"ypos"			"90"
 		"zpos"			"3"
@@ -60,9 +60,9 @@
 		"enabled"		"1"
 		"textAlignment"	"center"
 		"labelText"		"A TEAM STOLE THE BALL"
-		"fgcolor_override"	"224 217 197 255"
+		"fgcolor_override"	"White"
 		"border"				""
-		"textinsetx"		"30"
+		"textinsetx"		"0"
 		"auto_wide_tocontents"	"1"
 		"pin_to_sibling"		"EventTitleAnchor"
 		"pin_corner_to_sibling"	"4"
@@ -74,7 +74,7 @@
 		"ControlName"	"CExLabel"
 		"fieldName"		"EventTitleLabelShadow"
 		"dropshadow"	"1"
-		"font"			"HudFontMediumSmallBold"
+		"font"			"MontserratBlack24"
 		"xpos"			"1"
 		"ypos"			"91"
 		"zpos"			"2"
@@ -84,9 +84,9 @@
 		"enabled"		"1"
 		"textAlignment"	"center"
 		"labelText"		"A TEAM STOLE THE BALL"
-		"fgcolor" "TanDark"
+		"fgcolor" 		"PFGrey"
 		"border"				""
-		"textinsetx"		"30"
+		"textinsetx"		"0"
 		"auto_wide_tocontents"	"1"
 		"pin_to_sibling"		"EventTitleAnchor"
 		"pin_corner_to_sibling"	"4"
@@ -97,9 +97,9 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"EventDetailLabel"
-		"font"			"HudFontSmallestBold"
+		"font"			"MontserratSemiBold16"
 		"dropshadow"	"1"
-		"xpos"			"0"
+		"xpos"			"4"
 		"ypos"			"0"
 		"zpos"			"3"
 		"wide"			"f"
@@ -108,9 +108,9 @@
 		"enabled"		"1"
 		"textAlignment"	"center"
 		"labelText"		"A TEAM STOLE THE BALL"
-		"fgcolor_override"	"224 217 197 255"
+		"fgcolor_override"	"White"
 		"border"				""
-		"textinsetx"		"30"
+		"textinsetx"		"0"
 		"auto_wide_tocontents"	"1"
 		
 		"pin_to_sibling"		"EventTitleLabel"
@@ -122,8 +122,8 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"EventDetailLabelShadow"
-		"font"			"HudFontSmallestBold"
-		"xpos"			"1"
+		"font"			"MontserratSemiBold16"
+		"xpos"			"5"
 		"ypos"			"1"
 		"zpos"			"2"
 		"wide"			"f"
@@ -132,9 +132,9 @@
 		"enabled"		"1"
 		"textAlignment"	"center"
 		"labelText"		"A TEAM STOLE THE BALL"
-		"fgcolor" "TanDark"
+		"fgcolor" 		"PFGrey"
 		"border"				""
-		"textinsetx"		"30"
+		"textinsetx"		"0"
 		"auto_wide_tocontents"	"1"
 		
 		"pin_to_sibling"		"EventTitleLabel"
@@ -147,7 +147,7 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"EventBonusLabel"
-		"font"			"HudFontSmallBold"
+		"font"			"MontserratBlack14"
 		"dropshadow"	"1"
 		"xpos"			"0"
 		"ypos"			"9999" //Disabled the critboost notification
@@ -171,7 +171,7 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"EventBonusLabelShadow"
-		"font"			"HudFontSmallBold"
+		"font"			"MontserratBlack14"
 		"dropshadow"	"1"
 		"xpos"			"0"
 		"ypos"			"9999" //Disabled the critboost notification
@@ -196,21 +196,24 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"ProgressLevelBar"	
-		"xpos"			"c-190"
+		"xpos"			"c-150"
 		"ypos"			"r86"
 		
-		"xpos_minmode"	"c-140"
-		"ypos_minmode"	"r80"
+		"xpos_minmode"	"cs-0.5"
+		"ypos_minmode"	"r116"
 		
 		"zpos"			"0"
-		"wide"			"380"
-		"wide_minmode"	"280"
+		"wide"			"300"
+		"wide_minmode"	"240"
 		"tall"			"48"
+		"tall_minmode"	"40"
 		"visible"		"1"
 		"enabled"		"1"
 		"labelText"		""
-		"image"			"../passtime/hud/passtime_ballcontrol_bar"
+		"image"			"../hud/radar/bar"
 		"scaleImage"	"1"
+		
+		
 	}
 
 	"BlueProgressEnd"
@@ -219,11 +222,11 @@
 		// might be padded for npot reasons.
 		"ControlName" 	"Panel"
 		"fieldName"		"BlueProgressEnd"
-		"xpos"			"c-152"
+		"xpos"			"c-112"
 		"ypos"			"r62"
 		
-		"xpos_minmode"	"c-112"
-		"ypos_minmode"	"r56"
+		"xpos_minmode"	"c-82"
+		"ypos_minmode"	"r96"
 		
 		"visible"		"0"
 	}
@@ -234,11 +237,11 @@
 		// might be padded for npot reasons.
 		"ControlName"	"Panel"
 		"fieldName"		"RedProgressEnd"
-		"xpos"			"c152"
+		"xpos"			"c112"
 		"ypos"			"r62"
 		
-		"xpos_minmode"	"c112"
-		"ypos_minmode"	"r56"
+		"xpos_minmode"	"c82"
+		"ypos_minmode"	"r96"
 		
 		"visible"		"0"
 	}	
@@ -247,7 +250,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GoalBlue0"	
-		"xpos"			"c-162"
+		//"xpos"			"c-162"
+		"xpos"			"9999"
 		"ypos"			"r72"
 		"zpos"			"1"									
 		"wide"			"17"
@@ -266,7 +270,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GoalBlue1"	
-		"xpos"			"c-132"
+		//"xpos"			"c-132"
+		"xpos"			"9999"
 		"ypos"			"r72"
 		"zpos"			"1"									
 		"wide"			"17"
@@ -285,7 +290,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GoalBlue2"	
-		"xpos"			"c-102"
+		//"xpos"			"c-102"
+		"xpos"			"9999"
 		"ypos"			"r72"
 		"zpos"			"1"									
 		"wide"			"17"
@@ -305,7 +311,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GoalRed0"	
-		"xpos"			"c146"
+		//"xpos"			"c146"
+		"xpos"			"9999"
 		"ypos"			"r72"
 		"zpos"			"1"									
 		"wide"			"17"
@@ -324,7 +331,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GoalRed1"
-		"xpos"			"c116"
+		//"xpos"			"c116"
+		"xpos"			"9999"
 		"ypos"			"r72"
 		"zpos"			"1"									
 		"wide"			"17"
@@ -344,7 +352,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"GoalRed2"
-		"xpos"			"c86"
+		//"xpos"			"c86"
+		"xpos"			"9999"
 		"ypos"			"r72"
 		"zpos"			"1"									
 		"wide"			"17"
@@ -366,8 +375,8 @@
 		"xpos"			"0"
 		"ypos"			"0"
 		"zpos"			"10"
-		"wide"			"42"
-		"tall"			"42"
+		"wide"			"20"
+		"tall"			"20"
 		"autoResize"	"0"
 		"pinCorner"		"0"
 		"visible"		"1"
@@ -400,12 +409,12 @@
 	{
 		"ControlName"			"Label"
 		"fieldName"				"ProgressBallCarrierName"
-		"font"				"HudFontSmallestBold"
+		"font"					"MontserratBlack14Shadow"
 		"visible"				"1"
 		"enabled"				"1"
 		"zpos"					"0"
 		"xpos"					"0"
-		"ypos"					"-417"
+		"ypos"					"-22"
 		
 		"wide"					"180"
 		"wide_minmode"			"125"		
@@ -415,16 +424,18 @@
 		"dulltext"				"0"
 		"brighttext"			"1"
 		"labelText"				"NameOfCarrier"
-		"border"				"TFFatLineBorder"
-		"auto_wide_tocontents"	"0"
+		"border"				""
+		"auto_wide_tocontents"	"1"
 		"textinsetx"			"20"
-		
-		"pin_to_sibling"	"CarrierAnchor"
+		"fgcolor_override"	"255 255 246 200"
+		//"bgcolor_override"	"0 0 0 110"
+		"pin_to_sibling"	"ProgressBallIcon"
 		"pin_corner_to_sibling"		"4"
 		"pin_to_sibling_corner"		"4"
+		"allcaps"					"1"
 	}
 	
-	
+
 		//What does this do?
 	"CarrierAnchor"
 	{	

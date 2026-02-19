@@ -6,13 +6,6 @@
 #include "cbase.h"
 #include "tf_wearable_campaign_item.h"
 
-#ifdef GAME_DLL
-#include "econ_quests.h"
-#include "quest_objective_manager.h"
-#include "tf_quest_map_utils.h"
-#endif // GAME_DLL
-
-
 LINK_ENTITY_TO_CLASS( tf_wearable_campaign_item, CTFWearableCampaignItem );
 PRECACHE_REGISTER( tf_wearable_campaign_item );
 
@@ -152,44 +145,7 @@ void CTFWearableCampaignItem::FireGameEvent( IGameEvent *event )
 #ifdef GAME_DLL
 	const char *pszEvent = event->GetName();
 
-	if ( FStrEq( pszEvent, "quest_progress" ) )
-	{
-		// is this message about us?
-		if ( GetOwnerEntity() && GetOwnerEntity()->IsPlayer() )
-		{
-			int nOwnerUserID = event->GetInt( "owner" );
-			int nType = event->GetInt( "type" );
-			CBasePlayer *pOwner = dynamic_cast< CBasePlayer * >( GetOwnerEntity() );
-			if ( pOwner && ( pOwner->GetUserID() == nOwnerUserID ) )
-			{
-				bool bAssist = ( nOwnerUserID != event->GetInt( "scorer" ) );
-				bool bCompleted = event->GetBool( "completed" );
-
-				switch ( nType )
-				{
-				default:
-				case QUEST_POINTS_NOVICE:
-					m_nState = ( bCompleted ? WEARABLE_STATE_COMPLETED_NOVICE : ( bAssist ? WEARABLE_STATE_SCORE_ASSIST_NOVICE : WEARABLE_STATE_SCORE_NOVICE ) );
-					break;
-				case QUEST_POINTS_ADVANCED:
-					m_nState = ( bCompleted ? WEARABLE_STATE_COMPLETED_ADVANCED : ( bAssist ? WEARABLE_STATE_SCORE_ASSIST_ADVANCED : WEARABLE_STATE_SCORE_ADVANCED ) );
-					break;
-				case QUEST_POINTS_EXPERT:
-					m_nState = ( bCompleted ? WEARABLE_STATE_COMPLETED_EXPERT : ( bAssist ? WEARABLE_STATE_SCORE_ASSIST_EXPERT : WEARABLE_STATE_SCORE_EXPERT ) );
-					break;
-				}
-
-				// add some delay before we EvaluateState again so the "score" state will be visible and then turn off
-				SetContextThink( &CTFWearableCampaignItem::EvaluateState, gpGlobals->curtime + 1.f, "WearableEvaluateState" );
-
-				// tell client to add the effects
-				EntityMessageBegin( this, true );
-					WRITE_BYTE( m_nState );
-				MessageEnd();
-			}
-		}
-	}
-	else if ( FStrEq( pszEvent, "player_spawn" )
+	if ( FStrEq( pszEvent, "player_spawn" )
 		   || FStrEq( pszEvent, "inventory_updated" )
 		   || FStrEq( pszEvent, "localplayer_changeclass" )
 		   || FStrEq( pszEvent, "schema_updated" )
@@ -236,25 +192,7 @@ void CTFWearableCampaignItem::SOEventInternal( const CSteamID & steamIDOwner, co
 //-----------------------------------------------------------------------------
 void CTFWearableCampaignItem::EvaluateState( void )
 {
-	CQuestMapHelper questMapHelper( m_steamIDOwner );
-
-	const CQuest* pQuest = questMapHelper.GetActiveQuest();
-	bool bActiveQuest = false;
-
-	if ( pQuest && m_hOwner.Get() )
-	{
-		const CQuestItemTracker* pItemTracker = QuestObjectiveManager()->GetTypedTracker< CQuestItemTracker* >( pQuest->GetID() );
-		InvalidReasonsContainer_t invalidReasons;
-		if ( pItemTracker )
-		{
-			if ( pItemTracker->GetNumInactiveObjectives( m_hOwner.Get(), invalidReasons ) != pItemTracker->GetObjectiveTrackers().Count() )
-			{
-				bActiveQuest = true;
-			}
-		}
-	}
-
-	m_nState = ( bActiveQuest ? WEARABLE_STATE_IDLE : WEARABLE_STATE_OFF );
+	m_nState = WEARABLE_STATE_OFF;
 }
 
 //-----------------------------------------------------------------------------
@@ -282,7 +220,6 @@ void CTFWearableCampaignItem::UpdateListenerStatus( bool bShouldListen )
 	// game events
 	if ( bShouldListen )
 	{
-		ListenForGameEvent( "quest_progress" );
 		ListenForGameEvent( "player_spawn" );
 		ListenForGameEvent( "inventory_updated" );
 		ListenForGameEvent( "localplayer_changeclass" );

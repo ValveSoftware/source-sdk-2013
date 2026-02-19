@@ -482,13 +482,6 @@ void CTFBotManager::MaintainBotQuota()
 				CTFBot::DifficultyType skill = pBot->GetDifficulty();
 				CreateBotName( pBot->GetTeamNumber(), pBot->GetPlayerClass()->GetClassIndex(), skill, name, sizeof( name ) );
 				engine->SetFakeClientConVarValue( pBot->edict(), "name", name );
-
-				// Keep track of any bots we add during a match
-				CMatchInfo *pMatchInfo = GTFGCClientSystem()->GetMatch();
-				if ( pMatchInfo )
-				{
-					pMatchInfo->m_nBotsAdded++;
-				}
 			}
 		}
 	}

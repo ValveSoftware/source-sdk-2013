@@ -4,11 +4,14 @@ $Conditional "MOD_LAUNCHER" "1"
 
 $Include "launcher_main.vpc"
 
+$Macro MOD_APPID "3554290" [!$PLAYTEST] // Replace with your appid if you ship on Steam.
+$Macro MOD_APPID "3655900" [$PLAYTEST]
+
 $Configuration
 {
 	$Compiler
 	{
-		$PreprocessorDefinitions	"$BASE;MOD_APPID=3554290" // Replace with your appid if you ship on Steam.
+		$PreprocessorDefinitions	"$BASE;MOD_APPID=$MOD_APPID" 
 	}
 }
 

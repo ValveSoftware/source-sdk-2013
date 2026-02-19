@@ -1,14 +1,17 @@
-"Resource/UI/HudPasstimeCountdown.res"
+"resource/ui/hudpasstimecountdown.res"
 {
 	"HudPasstimeCountdown"
 	{
 		"fieldName"		"HudPasstimeCountdown"
 		"visible"		"1"
 		"enabled"		"1"
-		"xpos"			"162"	[$WIN32]
-		"ypos"			"r52"	[$WIN32]
-		"wide"			"100"
+		"xpos"			"cs-0.5"	[$WIN32]
+		"ypos"			"r94"	[$WIN32]
+		"ypos_minmode"	"r127"
+		"zpos"			"20"
+		"wide"			"20"
 		"tall"			"50"
+
 	}	
 
 	"background"
@@ -19,11 +22,9 @@
 		"ypos"			"6"
 		"zpos"			"0"
 		"wide"			"76"
-		"wide_minmode"	"56"
 		"tall"			"38"
-		"visible"		"1"
-		"visible_minmode"	"0"
-		"enabled"		"1"
+		"visible"		"0"
+		"enabled"		"0"
 		"image"			"../hud/misc_ammo_area_blue"
 		"scaleImage"	"1"	
 		"teambg_2"		"../hud/misc_ammo_area_red"
@@ -36,12 +37,10 @@
 	{
 			"ControlName"	"CExLabel"
 			"fieldName"		"CountdownLabel"
-			"xpos"			"50"
-			"xpos_minmode"	"42"
-			"ypos"			"18"
-			"ypos_minmode"	"12"
-			"zpos"			"2"
-			"wide"			"35"
+			"xpos"			"0"	
+			"ypos"			"0"
+			"zpos"			"3"
+			"wide"			"20"
 			"tall"			"20"
 			"tall_lodef"	"28"
 			"autoResize"	"1"
@@ -50,11 +49,14 @@
 			"enabled"		"1"
 			"tabPosition"	"0"
 			"labelText"		"#P4SS_Countdown"
-			"textAlignment"	"west"
+			"textAlignment"	"center"
 			"dulltext"		"0"
 			"brighttext"	"0"
-			"font"			"HudFontMedium"
-			"font_minmode"	"HudFontSmall"
-			"font_lodef"	"HudFontMediumBig"
+			"font"			"MontserratBlack26"
+			"font_lodef"	"MontserratSemibold32"
+			"fgcolor_override"	"PFWhite"
+			"bgcolor_override"	"255 255 246 0"
+			"textinsetx"		"0"
 	}
+
 }

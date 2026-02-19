@@ -36,11 +36,9 @@
 #define ABSOLUTE_PLAYER_LIMIT 255  // not 256, so we can send the limit as a byte 
 #define ABSOLUTE_PLAYER_LIMIT_DW	( (ABSOLUTE_PLAYER_LIMIT/32) + 1 )
 
-// Steam allows 32 visible characters for account names
-// MAX_PLAYER_NAME_LENGTH is the buffer size including null terminator
-// MAX_PLAYER_NAME_LENGTH_WITHOUT_NULL is the maximum number of characters without null terminator
-#define MAX_PLAYER_NAME_LENGTH		33  // 32 chars + null terminator
-#define MAX_PLAYER_NAME_LENGTH_WITHOUT_NULL	32  // matches Steam's limit
+// a player name may have 31 chars + 0 on the PC.
+// the 360 only allows 15 char + 0, but stick with the larger PC size for cross-platform communication
+#define MAX_PLAYER_NAME_LENGTH		32
 
 #ifdef _X360
 #define MAX_PLAYERS_PER_CLIENT		XUSER_MAX_COUNT	// Xbox 360 supports 4 players per console

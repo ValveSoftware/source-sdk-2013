@@ -42,6 +42,7 @@ public:
 	CTFPlayer *GetCarrier() const;
 	CTFPlayer *GetPrevCarrier() const;
 	CTFPlayer *GetThrower() const;
+	CTFPlayer *GetLastThrower() const;
 	int GetCollisionCount() const;
 	int GetCarryDuration() const;
 
@@ -77,6 +78,7 @@ public:
 
 	float GetAirtimeSec() const;
 	float GetAirtimeDistance() const;
+	float GetThrowerCanPickupTime() const;
 
 	void StartLagCompensation( CBasePlayer *player, CUserCmd *cmd );
 	void FinishLagCompensation( CBasePlayer *player );
@@ -108,6 +110,7 @@ private:
 	
 	EState m_eState;
 	CHandle<CTFPlayer> m_hThrower;
+	CHandle<CTFPlayer> m_hLastThrower; // persists after SetThrower(0) for jack armor cooldown
 	EHANDLE m_hBlocker;
 	CSpriteTrail *m_pTrail;
 	bool m_bTrailActive;
@@ -126,6 +129,7 @@ private:
 	float m_flLastTeamChangeTime; // for stats
 	float m_flBeginCarryTime;
 	float m_flIdleRespawnTime;
+	float m_flThrowerCanPickupTime; // for jack armor prevention
 
 	CUtlVector<CBaseEntity*> m_mapGoals; 
 

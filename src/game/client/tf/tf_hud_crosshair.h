@@ -30,15 +30,15 @@ public:
 
 protected:
 	virtual void Paint() OVERRIDE;
-	virtual void FireGameEvent( IGameEvent * event ) OVERRIDE;
 
 private:
 	int					m_iCrosshairTextureID;
 	int					m_iBallIndicatorTextureID;
 	IVguiMatInfo		*m_pCrosshairMaterial;
+	IVguiMatInfo		*m_pBallIndicatorMaterial;
 
 	char				m_szPreviousCrosshair[256];	// name of the current crosshair
-	float				m_flTimeToHideUntil;
+	char				m_szPreviousBallIndicator[256];	// name of the current ball indicator
 };
 
 

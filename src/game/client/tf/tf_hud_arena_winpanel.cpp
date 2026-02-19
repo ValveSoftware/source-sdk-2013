@@ -253,10 +253,7 @@ void CTFArenaWinPanel::FireGameEvent( IGameEvent * event )
 			break;
 
 		case WINREASON_STALEMATE:
-			if ( !TFGameRules() || !TFGameRules()->IsCompetitiveMode() )
-			{
-				g_pVGuiLocalize->ConstructString_safe( wzWinReason, g_pVGuiLocalize->Find( "#Winreason_Stalemate" ), 0 );
-			}
+			g_pVGuiLocalize->ConstructString_safe( wzWinReason, g_pVGuiLocalize->Find( "#Winreason_Stalemate" ), 0 );
 			break;	
 
 			default:

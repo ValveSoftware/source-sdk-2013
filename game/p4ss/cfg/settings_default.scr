@@ -44,7 +44,7 @@ DESCRIPTION SERVER_OPTIONS
     "exec"
     {
         "#P4SS_Config_File"
-        { LIST "None (server.cfg)" "server" "RGL.gg" "p4ss_rgl_pt_push" }
+        { LIST "#P4SS_Config_None" "server" "#P4ss_Config_RGL" "p4ss_rgl_pt_push" }
         { "1" }
     }
 
@@ -52,7 +52,7 @@ DESCRIPTION SERVER_OPTIONS
 	{
 		"#Valve_Hostname"
 		{ STRING }
-		{ "4v4 PASS Time" }
+		{ "PASS Fortress server" }
 	}
 
 	"maxplayers"

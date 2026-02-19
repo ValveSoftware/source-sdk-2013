@@ -349,6 +349,8 @@ CTFHudPasstimePlayerOffscreenArrow::CTFHudPasstimePlayerOffscreenArrow( vgui::Pa
 {
 }
 
+extern ConVar pf_whistle_healthcolor;
+ConVar pf_whistle_offscreen_alpha( "pf_whistle_offscreen_alpha", "128", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Alpha value for the offscreen whistle arrow." );
 //-----------------------------------------------------------------------------
 C_BaseEntity *CTFHudPasstimePlayerOffscreenArrow::PreparePaint( 
 	vgui::ImagePanel *pImage, C_TFPlayer *pLocalPlayer ) 
@@ -364,7 +366,21 @@ C_BaseEntity *CTFHudPasstimePlayerOffscreenArrow::PreparePaint(
 		return NULL;
 	}
 
-	SetAlpha( 128 );
-	pImage->SetImage( "../passtime/hud/passtime_pass_to_me_prompt" );
+	float r, g, b;
+	if (pPlayer && pf_whistle_healthcolor.GetBool())
+		{
+			pPlayer->GetHealthColor( &r, &g, &b );
+		}
+	else
+		{
+			r = 255;
+			g = 255;
+			b = 255;
+		}
+	SetAlpha( 255 );
+	int alpha = pf_whistle_offscreen_alpha.GetInt();
+	pImage->SetDrawColor( Color( r*255, g*255, b*255, alpha ) );
+	pImage->SetImage( "../hud/pass_bubble_full" );
+
 	return pPlayer;
 }

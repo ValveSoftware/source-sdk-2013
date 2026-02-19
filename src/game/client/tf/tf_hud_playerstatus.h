@@ -51,6 +51,7 @@ public:
 
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
 	virtual void Reset();
+    void SetPlayerClassVisible( bool bVisible );
 
 public: // IGameEventListener Interface
 	virtual void FireGameEvent( IGameEvent * event );
@@ -229,7 +230,7 @@ public:
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
 	virtual void Reset();
 	virtual bool ShouldDraw( void ) OVERRIDE;
-
+    CTFHudPlayerClass* GetPlayerClassHUD() { return m_pHudPlayerClass; }
 private:
 
 	CTFHudPlayerClass	*m_pHudPlayerClass;

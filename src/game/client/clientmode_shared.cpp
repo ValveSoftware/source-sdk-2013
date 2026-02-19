@@ -89,7 +89,6 @@ extern ConVar voice_modenable;
 extern ConVar cl_enable_text_chat;
 
 extern bool IsInCommentaryMode( void );
-extern const char* GetWearLocalizationString( float flWear );
 
 CON_COMMAND( cl_reload_localization_files, "Reloads all localization files" )
 {
@@ -689,16 +688,6 @@ int	ClientModeShared::KeyInput( int down, ButtonCode_t keynum, const char *pszCu
 		}
 		return 0;
 	}
-	else if ( pszCurrentBinding &&
-		( Q_strcmp( pszCurrentBinding, "messagemode3" ) == 0 ||
-			  Q_strcmp( pszCurrentBinding, "say_party" ) == 0 ) )
-	{
-		if ( down && BCanSendPartyChatMessages() )
-		{
-			StartMessageMode( MM_SAY_PARTY );
-		}
-		return 0;
-	}
 	
 	// If we're voting...
 #ifdef VOTING_ENABLED
@@ -841,17 +830,12 @@ void ClientModeShared::StartMessageMode( int iMessageModeType )
 	}
 	
 #if defined( TF_CLIENT_DLL )
-	bool bSuspensionInMatch = GTFGCClientSystem() && GTFGCClientSystem()->BHaveChatSuspensionInCurrentMatch();
-	if ( !cl_enable_text_chat.GetBool() || bSuspensionInMatch )
+	if ( !cl_enable_text_chat.GetBool() )
 	{
 		CBaseHudChat *pHUDChat = ( CBaseHudChat * ) GET_HUDELEMENT( CHudChat );
 		if ( pHUDChat )
 		{
 			const char *pszReason = "#TF_Chat_Disabled";
-			if ( bSuspensionInMatch )
-			{
-				pszReason = "#TF_Chat_Unavailable";
-			}
 
 			char szLocalized[100];
 			g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find( pszReason ), szLocalized, sizeof( szLocalized ) );
@@ -1303,128 +1287,6 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 			}
 		}
 	}
-#if defined( TF_CLIENT_DLL )
-	else if ( Q_strcmp( "item_found", eventname ) == 0 )
-	{
-		int iPlayerIndex = event->GetInt( "player" );
-		entityquality_t iItemQuality = event->GetInt( "quality" );
-		int iMethod = event->GetInt( "method" );
-		int iItemDef = event->GetInt( "itemdef" );
-		bool bIsStrange = event->GetInt( "isstrange" );
-		bool bIsUnusual = event->GetInt( "isunusual" );
-		float flWear = event->GetFloat( "wear" );
-
-		C_BasePlayer *pPlayer = UTIL_PlayerByIndex( iPlayerIndex );
-		const GameItemDefinition_t *pItemDefinition = dynamic_cast<GameItemDefinition_t *>( GetItemSchema()->GetItemDefinition( iItemDef ) );
-
-		if ( !pPlayer || !pItemDefinition || pItemDefinition->IsHidden() )
-			return;
-
-		if ( g_PR )
-		{
-			wchar_t wszPlayerName[MAX_PLAYER_NAME_LENGTH];
-			g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( iPlayerIndex ), wszPlayerName, sizeof( wszPlayerName ) );
-
-			if ( iMethod < 0 || iMethod >= ARRAYSIZE( g_pszItemFoundMethodStrings ) )
-			{
-				iMethod = 0;
-			}
-
-			const char *pszLocString = g_pszItemFoundMethodStrings[iMethod];
-			if ( pszLocString )
-			{
-				wchar_t wszItemFound[256];
-				_snwprintf( wszItemFound, ARRAYSIZE( wszItemFound ), L"%ls", g_pVGuiLocalize->Find( pszLocString ) );
-
-				wchar_t *colorMarker = wcsstr( wszItemFound, L"::" );
-				const CEconItemRarityDefinition* pItemRarity = GetItemSchema()->GetRarityDefinition( pItemDefinition->GetRarity() );
-
-				if ( colorMarker )
-				{	
-					if ( pItemRarity )
-					{
-						attrib_colors_t colorRarity = pItemRarity->GetAttribColor();
-						vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
-						vgui::IScheme *pScheme = vgui::scheme()->GetIScheme( scheme );
-						Color color = pScheme->GetColor( GetColorNameForAttribColor( colorRarity ), Color( 255, 255, 255, 255 ) );
-						hudChat->SetCustomColor( color );
-					}
-					else
-					{
-						const char *pszQualityColorString = EconQuality_GetColorString( (EEconItemQuality)iItemQuality );
-						if ( pszQualityColorString )
-						{
-							hudChat->SetCustomColor( pszQualityColorString );
-						}
-					}
-
-					*(colorMarker+1) = COLOR_CUSTOM;
-				}
-
-				// TODO: Update the localization strings to only have two format parameters since that's all we need.
-				locchar_t wszLocalizedString[256];
-
-				locchar_t szItemname[64] = LOCCHAR( "" );
-				locchar_t szRarity[64] = LOCCHAR( "" );
-				locchar_t szWear[64] = LOCCHAR( "" );
-				locchar_t szStrange[64] = LOCCHAR( "" );
-				locchar_t szUnusual[64] = LOCCHAR( "" );
-
-				loc_scpy_safe(
-					szItemname, 
-					CConstructLocalizedString(g_pVGuiLocalize->Find("TFUI_InvTooltip_ItemFound_Itemname"), 
-					CEconItemLocalizedFullNameGenerator(GLocalizationProvider(), pItemDefinition, iItemQuality).GetFullName() )
-				);
-
-				/*g_pVGuiLocalize->ConstructString_safe( 
-					szItemname, 
-					LOCCHAR( "%s1 " ),
-					1, 
-					CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pItemDefinition, iItemQuality ).GetFullName()
-				);*/
-
-				locchar_t tempName[MAX_ITEM_NAME_LENGTH];
-				// If items have rarity
-				if ( pItemRarity )
-				{
-					// Weapon Wear
-					if ( !IsWearableSlot( pItemDefinition->GetDefaultLoadoutSlot() ) )
-					{
-						loc_scpy_safe(szWear, CConstructLocalizedString( g_pVGuiLocalize->Find("TFUI_InvTooltip_ItemFound_Wear"), g_pVGuiLocalize->Find(GetWearLocalizationString(flWear) ) ) );
-					}
-
-					// Rarity / grade
-					loc_scpy_safe(szRarity, CConstructLocalizedString(g_pVGuiLocalize->Find("TFUI_InvTooltip_ItemFound_Rarity"), g_pVGuiLocalize->Find(pItemRarity->GetLocKey() ) ) );
-				}
-
-				if ( bIsUnusual )
-				{
-					loc_scpy_safe(szUnusual, CConstructLocalizedString(g_pVGuiLocalize->Find("TFUI_InvTooltip_ItemFound_Unusual"), g_pVGuiLocalize->Find("rarity4")));
-				}
-
-				if ( bIsStrange )
-				{
-					loc_scpy_safe(szStrange, CConstructLocalizedString(g_pVGuiLocalize->Find("TFUI_InvTooltip_ItemFound_Strange"), g_pVGuiLocalize->Find("strange")));
-				}
-
-				// // Strange Unusual Item Grade 		
-				loc_scpy_safe( wszLocalizedString, CConstructLocalizedString( g_pVGuiLocalize->Find( "TFUI_InvTooltip_ItemFound" ), szStrange, szUnusual, szItemname, szRarity, szWear ) );
-
-				loc_scpy_safe( tempName, wszLocalizedString );
-				g_pVGuiLocalize->ConstructString_safe(
-					wszLocalizedString,
-					wszItemFound,
-					3,
-					wszPlayerName, tempName, L"" );
-
-				char szLocalized[256];
-				g_pVGuiLocalize->ConvertUnicodeToANSI( wszLocalizedString, szLocalized, sizeof( szLocalized ) );
-
-				hudChat->ChatPrintf( iPlayerIndex, CHAT_FILTER_SERVERMSG, "%s", szLocalized );
-			}
-		}		
-	}
-#endif
 #if defined( REPLAY_ENABLED )
 	else if ( !V_strcmp( "replay_servererror", eventname ) )
 	{

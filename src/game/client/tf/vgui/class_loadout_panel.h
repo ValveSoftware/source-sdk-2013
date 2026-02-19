@@ -71,7 +71,7 @@ public:
 	virtual void AddNewItemPanel( int iPanelIndex ) OVERRIDE;
 	virtual void UpdateModelPanels( void );
 	virtual int	 GetNumItemPanels( void ) { return NUM_ITEM_PANELS_IN_LOADOUT; };
-	virtual void OnShowPanel( bool bVisible, bool bReturningFromArmory );
+	virtual void OnShowPanel( bool bVisible );
 	virtual void PostShowPanel( bool bVisible );
 	virtual void OnKeyCodePressed( vgui::KeyCode code ) OVERRIDE;
 	virtual void OnNavigateTo( const char* panelName ) OVERRIDE;

@@ -9,6 +9,7 @@
 #include "tf_shareddefs.h"
 #include "ammodef.h"
 #include "tf_gamerules.h"
+#include "tf_weaponbase.h"
 #include "explode.h"
 #include "tf_gamestats.h"
 
@@ -190,10 +191,6 @@ void CTFAmmoPack::InitAmmoPack( CTFPlayer *pPlayer, CTFWeaponBase *pWeapon, int 
 
 void CTFAmmoPack::MakeHolidayPack( void )
 {
-	// don't want special ammo packs during a competitive match
-	if ( TFGameRules()->IsMatchTypeCompetitive() )
-		return;
-
 	// Only do this on the halloween maps.
 	if ( TFGameRules()->IsHolidayActive( kHoliday_Halloween ) 
 		&& TFGameRules()->IsHolidayMap( kHoliday_Halloween ) 
@@ -355,10 +352,6 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 	for ( int i=0;i<TF_AMMO_COUNT;i++ )
 	{
 		int iAmmoGiven = pPlayer->GiveAmmo( m_iAmmo[i], i );
-		if ( iAmmoGiven > 0 && i == TF_AMMO_METAL && m_bObjGib && pPlayer->IsPlayerClass( TF_CLASS_ENGINEER ) )
-		{
-			pPlayer->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_WASTE_METAL_GRIND, iAmmoGiven );
-		}
 		iAmmoTaken += iAmmoGiven;
 	}
 

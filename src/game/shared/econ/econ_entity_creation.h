@@ -40,7 +40,7 @@ public:
 
 private:
 	// Create a new instance of the chosen item
-	CBaseEntity *SpawnItem( int iChosenItem, const Vector &vecAbsOrigin, const QAngle &vecAbsAngles, int iItemLevel, entityquality_t entityQuality, const char *pszOverrideClassName );
+	CBaseEntity *SpawnItem( int iChosenItem, const Vector &vecAbsOrigin, const QAngle &vecAbsAngles, const char *pszOverrideClassName );
 	CBaseEntity *SpawnItem( const CEconItemView *pData, const Vector &vecAbsOrigin, const QAngle &vecAbsAngles, const char *pszOverrideClassName );
 	CBaseEntity *PostSpawnItem( CBaseEntity *pItem, IHasAttributes *pItemInterface, const Vector &vecAbsOrigin, const QAngle &vecAbsAngles );
 };

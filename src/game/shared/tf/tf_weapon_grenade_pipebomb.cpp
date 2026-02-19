@@ -378,7 +378,8 @@ void CTFGrenadePipebombProjectile::Simulate( void )
 //-----------------------------------------------------------------------------
 int CTFGrenadePipebombProjectile::DrawModel( int flags )
 {
-	if ( gpGlobals->curtime < ( m_flCreationTime + 0.1 ) )
+	// m_flCreationTime?
+	if ( gpGlobals->curtime - m_flSpawnTime < 0.05f )
 		return 0;
 
 	return BaseClass::DrawModel( flags );
@@ -662,12 +663,6 @@ bool CTFGrenadePipebombProjectile::DetonateStickies()
 		iStickiesRemoved++;
 
 		bDetonateSticky = true;
-	}
-
-	CTFPlayer *pOwner = ToTFPlayer( GetThrower() );
-	if ( iStickiesRemoved && pOwner )
-	{
-		pOwner->AwardAchievement( ACHIEVEMENT_TF_DEMOMAN_DESTROY_X_STICKYBOMBS, iStickiesRemoved );
 	}
 
 	return bDetonateSticky;
@@ -1013,25 +1008,6 @@ int CTFGrenadePipebombProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 							{
 								event->SetInt( "userid", pPlayer->GetUserID() );
 								gameeventmanager->FireEvent( event );
-							}
-
-							if ( pPlayer->IsPlayerClass( TF_CLASS_ENGINEER ) )
-							{
-								// If we are near a building, award achievement progress.
-								CTFTeam *pTeam = pPlayer->GetTFTeam();
-								if ( pTeam )
-								{
-									for ( int i=0; i<pTeam->GetNumObjects(); i++ )
-									{
-										CBaseObject *pObject = pTeam->GetObject(i);
-										if ( pObject && pObject->GetAbsOrigin().DistTo( GetAbsOrigin() ) < 100 &&
-											pObject->ObjectType() != OBJ_ATTACHMENT_SAPPER )
-										{
-											pPlayer->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_DESTROY_STICKIES, 1 );
-											break; // Only one award per sticky.
-										}
-									}
-								}
 							}
 						}
 

@@ -10,6 +10,7 @@
 // Client specific.
 #ifdef CLIENT_DLL
 #include "c_tf_player.h"
+#include "cdll_bounded_cvars.h"
 // Server specific.
 #else
 #include "soundent.h"
@@ -190,13 +191,27 @@ void CTFWeaponBaseGrenadeProj::OnDataChanged( DataUpdateType_t type )
 		interpolator.ClearHistory();
 		float changeTime = GetLastChangeTime( LATCH_SIMULATION_VAR );
 
+#if 0
 		// Add a sample 1 second back.
 		Vector vCurOrigin = GetLocalOrigin() - m_vInitialVelocity;
-		interpolator.AddToHead( changeTime - 1.0, &vCurOrigin, false );
+		interpolator.AddToHead( changeTime - 1.0f, &vCurOrigin, false );
 
 		// Add the current sample.
 		vCurOrigin = GetLocalOrigin();
 		interpolator.AddToHead( changeTime, &vCurOrigin, false );
+#else
+		// NEW SETUP: slowly transition to the future pos we'll get in the next update,
+		// reflecting our latest data NOW where the client is seeing, so they always can see the latest.
+		// Add a sample 1 second back.
+		const float flLerp = GetClientInterpAmount();
+		Vector vCurOrigin = GetLocalOrigin();
+		interpolator.AddToHead(changeTime - flLerp, &vCurOrigin, false);
+
+		// Add a sample a tick later. This isn't exactly when we'll get our next update, but it's close enough.
+		const float flTick = gpGlobals->interval_per_tick - 0.001f;
+		vCurOrigin += m_vInitialVelocity * flTick;
+		interpolator.AddToHead(changeTime + flTick, &vCurOrigin, false);
+#endif
 	}
 }
 

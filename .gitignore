@@ -1,5 +1,9 @@
 # Files to ignore when considering what GIT should commit.
 
+# EXTRA: Remove CMake artifacts when compiling from other branches
+build/*
+build_container/*
+
 # Ignore SteamPipe build details
 steam/*
 steam/
@@ -19,8 +23,13 @@ game/p4ss/videoconfig_linux.cfg
 game/p4ss/ServerConfig.vdf
 src/.ninja*
 src/compile_commands.json
+src/buildinfo/dummy.dummy
+src/buildinfo/dummy.cpp
+src/buildinfo/buildinfo.gen.cpp
+!src/public/buildinfo/buildinfo.h
 steam_appid.txt
 game/p4ss/trainingprogress.txt
+
 
 # Visual Studio
 *.suo
@@ -547,6 +556,8 @@ src/lib/public/linux64/tier1.a
 src/lib/public/linux64/vgui_controls.a
 src/lib/public/linux64/mathlib.a
 src/lib/public/linux64/raytrace.a
+src/lib/public/linux64/buildinfo.a
+
 
 game/p4ss/bin/linux64/game_shader_generic_example.so
 
@@ -562,3 +573,5 @@ game/p4ss/cfg/settings.scr
 game/p4ss/screenshots/
 game/p4ss/screenshots/*
 .vscode/tasks.json
+.windsurf
+game/p4ss/glshaders.cfg

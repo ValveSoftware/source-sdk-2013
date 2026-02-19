@@ -24,7 +24,14 @@ using namespace vgui;
 
 ConVar tf_spec_xray_disable( "tf_spec_xray_disable", "0", FCVAR_ARCHIVE, "Disable the spectator xray mode." );
 ConVar tf_enable_glows_after_respawn( "tf_enable_glows_after_respawn", "1", FCVAR_ARCHIVE, "Enable teammate glow effects after respawn." );
-
+// p4ss convars
+ConVar pf_tag_healthbars( "pf_tag_healthbars", "1", FCVAR_ARCHIVE, "Enable health bars above teammates." );
+ConVar pf_tag_healthbars_healthcolor( "pf_tag_healthbars_healthcolor", "0", FCVAR_ARCHIVE, "Use health-based coloring for health bars." );
+ConVar pf_tag_bgalpha( "pf_tag_bgalpha", "160", FCVAR_ARCHIVE, "Set the alpha value for the nametag background." );
+ConVar pf_tag_healthbars_bgalpha( "pf_tag_healthbars_bgalpha", "160", FCVAR_ARCHIVE, "Set the alpha value for the health bar background." );
+ConVar pf_tag_healthbars_size( "pf_tag_healthbars_size", "6", FCVAR_ARCHIVE, "Set the size of the health bar." );
+ConVar pf_tag_arrow_healthcolor( "pf_tag_arrow_healthcolor", "0", FCVAR_ARCHIVE, "Use health-based coloring for the health bar arrow." );
+ConVar p4ss_xray_enemy( "p4ss_xray_enemy", "0", FCVAR_NOTIFY, "Enable seeing enemy nametags." );
 DECLARE_HUDELEMENT( CTFHudSpectatorExtras );
 
 //-----------------------------------------------------------------------------
@@ -36,6 +43,10 @@ CTFHudSpectatorExtras::CTFHudSpectatorExtras( const char *pszElementName ) : CHu
 	SetParent( pParent );
 
 	SetHiddenBits( 0 );
+
+	// Create and load the arrow texture
+	m_nArrowTextureID = vgui::surface()->CreateNewTextureID();
+	vgui::surface()->DrawSetTextureFile( m_nArrowTextureID, "vgui/arrow", true, true );
 
 	vgui::ivgui()->AddTickSignal( GetVPanel(), 100 );
 }
@@ -100,12 +111,6 @@ void CTFHudSpectatorExtras::OnTick()
 	if ( !g_PR )
 		return;
 
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-	{
-		Reset();
-		return;
-	}
-
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pLocalPlayer )
 		return;
@@ -136,7 +141,9 @@ void CTFHudSpectatorExtras::OnTick()
 	{
 		bool bShowEveryone = ( bIsHLTV || 
 							   ( ( nLocalPlayerTeam == TEAM_SPECTATOR ) && tf_spec_xray.GetBool() ) ||
-							   ( ( nLocalPlayerTeam >= FIRST_GAME_TEAM ) && ( pLocalPlayer->GetObserverMode() > OBS_MODE_FREEZECAM ) && ( tf_spec_xray.GetInt() > 1 ) ) );
+							   ( ( nLocalPlayerTeam >= FIRST_GAME_TEAM ) && ( pLocalPlayer->GetObserverMode() > OBS_MODE_FREEZECAM ) && ( tf_spec_xray.GetInt() > 1 ) ) ||
+							   ( pLocalPlayer->m_Shared.HasPasstimeBall() && tf_spec_xray.GetBool() )
+							   );
 
 		// loop through the players
 		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
@@ -225,7 +232,10 @@ void CTFHudSpectatorExtras::OnTick()
 
 			// use actual name or disguised name?
 			int nNameIndex = pDisguiseTarget ? pDisguiseTarget->entindex() : i;
-			g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( nNameIndex ), m_vecEntitiesToDraw[nVecIndex].m_wszName, sizeof( m_vecEntitiesToDraw[nVecIndex].m_wszName ) );
+
+			const wchar_t *pwszShortName = GetPlayerShortName( nNameIndex );
+			V_wcscpy_safe( m_vecEntitiesToDraw[nVecIndex].m_wszName, pwszShortName );
+
 			m_vecEntitiesToDraw[nVecIndex].m_nNameWidth = UTIL_ComputeStringWidth( m_hNameFont, m_vecEntitiesToDraw[nVecIndex].m_wszName );
 
 			m_vecEntitiesToDraw[nVecIndex].m_nOffset = ( VEC_HULL_MAX_SCALED( pPlayer ).z );
@@ -363,6 +373,79 @@ void CTFHudSpectatorExtras::OnTick()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFHudSpectatorExtras::ApplySchemeSettings(IScheme *pScheme)
+{
+	BaseClass::ApplySchemeSettings(pScheme);
+	m_pBorder = pScheme->GetBorder("TFFatLineBorderClearBG");
+}
+
+// Helper function to draw a clean border
+void CTFHudSpectatorExtras::DrawBorder(int x, int y, int w, int h, Color color)
+{
+	vgui::surface()->DrawSetColor(color);
+	vgui::surface()->DrawOutlinedRect(x, y, x + w, y + h);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Get the color for names and borders
+//-----------------------------------------------------------------------------
+void CTFHudSpectatorExtras::GetNameAndBorderColor( C_BaseEntity *pEntity, Color &outColor )
+{
+	if ( !pEntity )
+		return;
+
+	// Default to team colors
+	float r, g, b;
+	int nTeam = pEntity->GetTeamNumber();
+
+	if ( !engine->IsHLTV() && ( GetLocalPlayerTeam() >= FIRST_GAME_TEAM ) )
+	{
+		C_TFPlayer *pPlayer = ToTFPlayer( pEntity );
+		if ( pPlayer && pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && ( pPlayer->GetTeamNumber() != GetLocalPlayerTeam() ) )
+		{
+			nTeam = pPlayer->m_Shared.GetDisguiseTeam();
+		}
+	}
+
+	TFGameRules()->GetTeamGlowColor( nTeam, r, g, b );
+	outColor.SetColor( r * 255, g * 255, b * 255, 255 );
+}
+
+void CTFHudSpectatorExtras::DrawHealthBar( int x, int y, int width, int height, float healthPercent, Color healthColor, Color backgroundColor )
+{
+
+	
+    int xHealthPos = x - ( width / 2 );
+
+    // health bar bg
+    vgui::surface()->DrawSetColor( backgroundColor );
+    vgui::surface()->DrawFilledRect( 
+        xHealthPos,
+        y,
+        xHealthPos + width - 1,
+        y + height
+    );
+
+    // health bar fill
+    vgui::surface()->DrawSetColor( healthColor );
+    float fillWidth = (float)width * healthPercent;
+    vgui::surface()->DrawFilledRect( 
+        xHealthPos,
+        y,
+        xHealthPos + fillWidth - 1,
+        y + height
+    );
+}
+
+void CTFHudSpectatorExtras::DrawArrow( int x, int y, Color arrowColor )
+{
+    vgui::surface()->DrawSetColor( arrowColor );
+    vgui::surface()->DrawSetTexture( m_nArrowTextureID );
+    vgui::surface()->DrawTexturedRect( x - 10, y, x + 10, y + 20 );
+}
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFHudSpectatorExtras::Paint()
 {
 	BaseClass::Paint();
@@ -373,9 +456,9 @@ void CTFHudSpectatorExtras::Paint()
 	if ( tf_spec_xray_disable.GetBool() )
 		return;
 
-	int nNameOffset = 35;
-	int nHealthWidth = 70;
-	int nHealthHeight = 6;
+	// height above the head for the top of the whole nametag block
+	int nNameOffset = 50;
+	int nHealthHeight = pf_tag_healthbars_size.GetInt(); 
 
 	FOR_EACH_VEC( m_vecEntitiesToDraw, i )
 	{
@@ -389,6 +472,16 @@ void CTFHudSpectatorExtras::Paint()
 		C_BaseEntity *pEnt = cl_entitylist->GetEnt( nEntIndex );
 		if ( !pEnt )
 			continue;
+        C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+        int nLocalPlayerTeam = pLocalPlayer ? pLocalPlayer->GetTeamNumber() : TEAM_UNASSIGNED;
+        int nEntityTeam = pEnt->GetTeamNumber();
+        bool bIsEnemy = (nLocalPlayerTeam >= FIRST_GAME_TEAM) && (nEntityTeam >= FIRST_GAME_TEAM) && (nEntityTeam != nLocalPlayerTeam);
+
+        // settings for enemy nametags (ball holder only)
+		if ( !p4ss_xray_enemy.GetBool() && bIsEnemy )
+			continue;
+
+		bool bDrawHealthBar = pf_tag_healthbars.GetBool() && !bIsEnemy;
 
 		Vector vecPos = pEnt->GetAbsOrigin();
 		vecPos.z += m_vecEntitiesToDraw[i].m_nOffset;
@@ -397,22 +490,91 @@ void CTFHudSpectatorExtras::Paint()
 		Vector vecWorld( vecPos.x, vecPos.y, vecPos.z );
 		if ( GetVectorInHudSpace( vecWorld, iX, iY ) )
 		{
- 			// draw the name
- 			vgui::surface()->DrawSetTextFont( m_hNameFont );
-			vgui::surface()->DrawSetTextPos( iX - ( m_vecEntitiesToDraw[i].m_nNameWidth / 2 ), iY - nNameOffset );
-			vgui::surface()->DrawSetTextColor( m_vecEntitiesToDraw[i].m_clrGlowColor );
-			vgui::surface()->DrawPrintText( m_vecEntitiesToDraw[i].m_wszName, wcslen( m_vecEntitiesToDraw[i].m_wszName ), vgui::FONT_DRAW_NONADDITIVE );
+			Color nameAndBorderColor;
+			GetNameAndBorderColor( pEnt, nameAndBorderColor );
+			int fontHeight = vgui::surface()->GetFontTall( m_hNameFont );
+			int fontAscent = vgui::surface()->GetFontAscent( m_hNameFont, 'A' ); // "true" height of glyphs
 
-			int xHealthPos = iX - 35;
-			int yHealthPos = iY - 10;
+			int nHeightPadding = 0;
+			int nWidthPadding = 6;
 
-			// draw the health bar background
-			vgui::surface()->DrawSetColor( Color( 127, 127, 127, 255 ) );
-			vgui::surface()->DrawFilledRect( xHealthPos, yHealthPos, xHealthPos + nHealthWidth, yHealthPos + nHealthHeight );
+			int nWidth = m_vecEntitiesToDraw[i].m_nNameWidth + nWidthPadding; 
+			int nHeight = fontAscent; // height of nametag bg
 
-			// draw the health bar
-			vgui::surface()->DrawSetColor( m_vecEntitiesToDraw[i].m_clrGlowColor );
-			vgui::surface()->DrawFilledRect( xHealthPos, yHealthPos, xHealthPos + ( nHealthWidth * m_vecEntitiesToDraw[i].m_flHealth ), yHealthPos + nHealthHeight );
+			int nTotalHeight = nHeight;
+			if ( bDrawHealthBar )
+			{
+				nTotalHeight += nHealthHeight + 1;
+				// nHeight is just the "name part", nTotalHeight includes the health bar
+			}
+
+			// draw the background
+			vgui::surface()->DrawSetColor( Color( 0, 0, 0, pf_tag_bgalpha.GetInt() ) );
+			vgui::surface()->DrawFilledRect( 
+				iX - ( nWidth / 2 ),
+				iY - nNameOffset,
+				iX + ( nWidth / 2 ),
+				iY - nNameOffset + nTotalHeight
+			);
+
+			int fontSpacing = fontHeight - fontAscent;
+			int textYPos = iY - nNameOffset - (fontSpacing / 2);
+
+			// draw the name label
+			vgui::surface()->DrawSetTextFont( m_hNameFont );
+			vgui::surface()->DrawSetTextPos( iX - ( m_vecEntitiesToDraw[i].m_nNameWidth / 2 ), textYPos );
+			vgui::surface()->DrawSetTextColor( nameAndBorderColor );
+			vgui::surface()->DrawPrintText( m_vecEntitiesToDraw[i].m_wszName, wcslen( m_vecEntitiesToDraw[i].m_wszName ), vgui::FONT_DRAW_ADDITIVE );
+
+			C_TFPlayer *pPlayer = ToTFPlayer( pEnt );
+            if ( !bDrawHealthBar )
+            {
+				int yArrowPos = iY - nNameOffset + nHeight - 1;
+				Color arrowColor;
+				if (pPlayer && pf_tag_arrow_healthcolor.GetBool() && !bIsEnemy)
+				{
+					float r, g, b;
+					pPlayer->GetHealthColor( &r, &g, &b );
+					arrowColor = Color( r * 255, g * 255, b * 255, 255 );
+				}
+				else
+					arrowColor = nameAndBorderColor;
+
+				DrawArrow( iX, yArrowPos, arrowColor );
+				continue;
+			} //early exit for if health bars are off 
+
+			int yHealthPos = iY - nNameOffset + nHeight - 2;
+			int healthBarWidth = m_vecEntitiesToDraw[i].m_nNameWidth; // match name width exactly
+
+			Color healthBarColor;
+			if (pPlayer && pf_tag_healthbars_healthcolor.GetBool())
+			{
+				float r, g, b;
+				pPlayer->GetHealthColor( &r, &g, &b );
+				healthBarColor = Color( r * 255, g * 255, b * 255, 255 );
+			}
+			else
+				healthBarColor = nameAndBorderColor;
+
+			Color arrowColor;
+			if (pPlayer && pf_tag_arrow_healthcolor.GetBool())
+			{
+				float r, g, b;
+				pPlayer->GetHealthColor( &r, &g, &b );
+				arrowColor = Color( r * 255, g * 255, b * 255, 255 );
+			}
+			else
+				arrowColor = nameAndBorderColor;
+
+			Color healthBarBackground( 0, 0, 0, pf_tag_healthbars_bgalpha.GetInt() );
+			if (!bIsEnemy)
+			{
+				DrawHealthBar( iX, yHealthPos, healthBarWidth, nHealthHeight, m_vecEntitiesToDraw[i].m_flHealth, healthBarColor, healthBarBackground );
+			}
+			int arrowYPos = yHealthPos + nHealthHeight + 1;
+			DrawArrow( iX, arrowYPos, arrowColor );
+
 		}
 	}
 }

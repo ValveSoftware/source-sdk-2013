@@ -319,6 +319,8 @@ void CTFSteamStats::UploadStats()
 	for ( int i = 0; i < GetItemSchema()->GetMapCount(); i++ )
 	{
 		const MapDef_t* pMap = GetItemSchema()->GetMasterMapDefByIndex( i );
+		if ( !pMap )
+			continue;
 
 		// Set generic stats:
 		MapStats_t &mapStats = CTFStatPanel::GetMapStats( pMap->GetStatsIdentifier() );

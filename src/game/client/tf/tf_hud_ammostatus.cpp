@@ -41,7 +41,34 @@ DECLARE_HUDELEMENT( CTFHudWeaponAmmo );
 
 static ConVar hud_low_ammo_warning_threshold( "hud_lowammowarning_threshold", "0.40", FCVAR_CLIENTDLL | FCVAR_DEVELOPMENTONLY, "Percentage threshold at which the low ammo warning will become visible." );
 static ConVar hud_low_ammo_warning_max_pos_adjust( "hud_lowammowarning_maxposadjust", "5", FCVAR_CLIENTDLL | FCVAR_DEVELOPMENTONLY, "Maximum pixel amount to increase the low ammo warning image." );
+static CTFWeaponBase *GetAmmoDisplayWeapon( C_TFPlayer *pPlayer )
+{
+    if ( !pPlayer )
+        return nullptr;
 
+    CTFWeaponBase *pActive = pPlayer->GetActiveTFWeapon();
+    if ( pActive && pActive->GetWeaponID() == TF_WEAPON_PASSTIME_GUN )
+    {
+        // Find a weapon in slot 0 (primary)
+        for ( int i = 0; i < pPlayer->WeaponCount(); ++i )
+        {
+            CBaseCombatWeapon *pWpn = pPlayer->GetWeapon( i );
+            if ( !pWpn )
+                continue;
+
+            if ( CTFWeaponBase *pTFWpn = dynamic_cast<CTFWeaponBase *>( pWpn ) )
+            {
+                // Prefer slot == 0
+                if ( pTFWpn->GetSlot() == 0 )
+                    return pTFWpn;
+            }
+        }
+        // Fallback: if no primary found, just don't show (or show nothing)
+        return nullptr;
+    }
+
+    return pActive;
+}
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -127,8 +154,8 @@ bool CTFHudWeaponAmmo::ShouldDraw( void )
 		return false;
 	}
 
-	CTFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
-
+	//CTFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
+    CTFWeaponBase *pWeapon = GetAmmoDisplayWeapon( pPlayer );
 	if ( !pWeapon )
 	{
 		return false;
@@ -138,6 +165,8 @@ bool CTFHudWeaponAmmo::ShouldDraw( void )
 	{
 		return false;
 	}
+
+
 
 	// Don't show for weapons that don't use any ammo
 	if ( !pWeapon->UsesPrimaryAmmo() )
@@ -154,9 +183,6 @@ bool CTFHudWeaponAmmo::ShouldDraw( void )
 		return false;
 
 	if ( CTFMinigameLogic::GetMinigameLogic() && CTFMinigameLogic::GetMinigameLogic()->GetActiveMinigame() )
-		return false;
-
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
 		return false;
 
 	return CHudElement::ShouldDraw();
@@ -249,7 +275,9 @@ void CTFHudWeaponAmmo::OnThink()
 {
 	// Get the player and active weapon.
 	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-	C_BaseCombatWeapon *pWeapon = GetActiveWeapon();
+	//C_BaseCombatWeapon *pWeapon = GetActiveWeapon();
+    C_TFPlayer *pTFPlayer = C_TFPlayer::GetLocalTFPlayer();
+    CTFWeaponBase *pWeapon = GetAmmoDisplayWeapon( pTFPlayer );
 
 	if ( m_flNextThink < gpGlobals->curtime )
 	{

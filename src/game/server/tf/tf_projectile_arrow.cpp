@@ -312,15 +312,34 @@ bool CTFProjectile_Arrow::CanHeadshot()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Healing bolt damage.
+bool CTFProjectile_HealingBolt::CanHeadshot() 
+{ 
+	return p4ss_med_canheadshot.GetBool();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Healing bolt damage. AKA Crossbow bolt damage
 //-----------------------------------------------------------------------------
 float CTFProjectile_Arrow::GetDamage()
 {
 	if ( m_iProjectileType == TF_PROJECTILE_HEALING_BOLT
 		|| m_iProjectileType == TF_PROJECTILE_FESTIVE_HEALING_BOLT
 	) {
-		float lifeTimeScale = RemapValClamped( gpGlobals->curtime - m_flInitTime, 0.0f, 0.6f, 0.5f, 1.0f );	
-		return m_flDamage * lifeTimeScale;
+		float lifeTimeScale;
+		// Negative falloff is the default value. (case -1)
+		switch ( p4ss_med_crossbow_damagefalloff.GetInt() )
+		{
+			case -1:
+				 lifeTimeScale = RemapValClamped( gpGlobals->curtime - m_flInitTime, 0.0f, 0.6f, 0.5f, 1.0f );	
+				return m_flDamage * lifeTimeScale;
+
+			case 0: 
+				return m_flDamage;
+
+			case 1:
+				lifeTimeScale = RemapValClamped( gpGlobals->curtime - m_flInitTime, 0.0f, 0.6f, 0.0f, 0.5f );
+				return m_flDamage * (1.0f-lifeTimeScale);
+		}
 	}
 	return BaseClass::GetDamage();
 }
@@ -542,7 +561,7 @@ bool CTFProjectile_Arrow::StrikeTarget( mstudiobbox_t *pBox, CBaseEntity *pOther
 			// Heal
 			if ( bApplyEffect )
 			{
-				ImpactTeamPlayer( dynamic_cast<CTFPlayer*>( pOther ) );
+				ImpactTeamPlayer( dynamic_cast<CTFPlayer*>( pOther ), bHeadshot );
 			}
 		}
 	}
@@ -713,11 +732,6 @@ int	CTFProjectile_Arrow::GetArrowSkin() const
 //-----------------------------------------------------------------------------
 void CTFProjectile_Arrow::OnArrowMissAllPlayers()
 {
-	CTFPlayer* pOwner = ToTFPlayer( GetOwnerEntity() );
-	if( pOwner && pOwner->IsPlayerClass( TF_CLASS_SNIPER ) )
-	{
-		EconEntity_OnOwnerKillEaterEventNoPartner( assert_cast<CEconEntity *>( m_hLauncher.Get() ), pOwner, kKillEaterEvent_NEGATIVE_SniperShotsMissed );
-	}
 }
 
 
@@ -1232,7 +1246,7 @@ void CTFProjectile_HealingBolt::InitArrow( const QAngle &vecAngles, const float 
 //-----------------------------------------------------------------------------
 // Purpose: Healing bolt heal.
 //-----------------------------------------------------------------------------
-void CTFProjectile_HealingBolt::ImpactTeamPlayer( CTFPlayer *pOther )
+void CTFProjectile_HealingBolt::ImpactTeamPlayer( CTFPlayer *pOther, bool bHeadshot )
 {
 	if ( !pOther )
 		return;
@@ -1252,7 +1266,8 @@ void CTFProjectile_HealingBolt::ImpactTeamPlayer( CTFPlayer *pOther )
 			return;
 	}
 
-	float flHealth = GetDamage() * 2.0f;
+	float flHealth = GetDamage() * p4ss_med_crossbow_heal_mult.GetFloat();
+	if (bHeadshot) flHealth *= 2;
 
 
 	// Scale this if needed
@@ -1321,8 +1336,6 @@ void CTFProjectile_HealingBolt::ImpactTeamPlayer( CTFPlayer *pOther )
 		pMedigun->AddCharge( ( iActualHealed / flGainRate ) * gpGlobals->frametime );
 	}
 	pOther->m_Shared.AddCond( TF_COND_HEALTH_OVERHEALED, 1.2f );
-
-	EconEntity_OnOwnerKillEaterEvent_Batched( dynamic_cast<CEconEntity *>( GetLauncher() ), pOwner, pOther, kKillEaterEvent_AllyHealingDone, flHealth );
 }
 
 

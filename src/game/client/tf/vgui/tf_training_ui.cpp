@@ -14,6 +14,7 @@
 #include "tf_hud_mainmenuoverride.h"
 #include "tf_gamerules.h"
 #include "econ/confirm_dialog.h"
+#include <vgui_controls/ComboBox.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

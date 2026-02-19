@@ -13,8 +13,6 @@
 #include "tf_gamestats_shared.h"
 #include "GameEventListener.h"
 #include "c_tf_player.h"
-#include "econ_store.h"
-#include "store/store_panel.h"
 
 class CTFPlayer;
 
@@ -88,98 +86,6 @@ struct TF_Gamestats_AchievementEvent_t
 	int		eventTime;
 	int		achievementNum;
 	const char* achievementID;
-};
-
-// Item event baseclass.
-class TF_Gamestats_ItemEvent
-{
-public:
-	TF_Gamestats_ItemEvent( int in_eventNum, CEconItemView* in_item );
-
-	int		eventNum;
-	int		eventTime;
-	const char* eventID;
-
-	item_definition_index_t itemDefIndex;
-	itemid_t itemID;
-	const char* itemName;
-	char itemNameBuf[512];
-	bool bUseNameBuf;
-
-	const char* GetItemName()
-	{
-		if ( bUseNameBuf )
-			return itemNameBuf;
-		else
-			return itemName;
-	}
-};
-
-// Mann Co Catalog Usage Tracking
-class TF_Gamestats_CatalogEvent : public TF_Gamestats_ItemEvent
-{
-public:
-	TF_Gamestats_CatalogEvent( int in_eventNum, CEconItemView* in_item, const char* in_filter );
-
-	const char* catalogFilter;
-};
-
-// Crafting System Usage Tracking
-class TF_Gamestats_CraftingEvent : public TF_Gamestats_ItemEvent
-{
-public:
-	TF_Gamestats_CraftingEvent( int in_eventNum, CEconItemView* in_item, int in_numAttempts, int in_recipe );
-
-	int		numAttempts;
-	int		recipeFound;
-};
-
-// Store Usage Tracking
-class TF_Gamestats_StoreEvent : public TF_Gamestats_ItemEvent
-{
-public:
-	TF_Gamestats_StoreEvent( int in_eventNum, CEconItemView* in_item, 
-		const char* in_panelName, int in_classId, const cart_item_t* in_cartItem,
-		int in_checkoutAttempts, const char* in_storeError, int in_totalPrice, int in_currencyCode );
-
-	int classId;
-	int cartQuantity;
-	int cartItemCost;
-	int currencyCode;
-	int checkoutAttempt;
-	const char* storeError;
-	const char* panelName;
-};
-
-// General client-subjective item transaction tracking.
-class TF_Gamestats_ItemTransactionEvent : public TF_Gamestats_ItemEvent
-{
-public:
-	TF_Gamestats_ItemTransactionEvent( int in_eventNum, CEconItemView* in_item, const char* in_reason, int in_quality );
-
-	const char* reason;
-	int itemQuality;
-};
-
-// Trade Usage Tracking
-class TF_Gamestats_TradeEvent : public TF_Gamestats_ItemEvent
-{
-public:
-	TF_Gamestats_TradeEvent( int eventID, CEconItemView* item, bool localPlayerIsPartyA,
-		uint64 steamIDPartyA, uint64 steamIDPartyB, int iTradeRequests, int iTradeAttempts );
-	TF_Gamestats_TradeEvent( int eventID, uint64 steamIDRequested, int iTradeRequests, int iTradeAttempts );
-	TF_Gamestats_TradeEvent( int eventID, int iTradeRequests, const char* reason, int iTradeAttempts );
-
-	bool localPlayerPartyMatters;
-	bool localPlayerIsPartyA;
-	uint64 steamIDPartyA;
-	uint64 steamIDPartyB;
-
-	uint64 steamIDRequested;
-	int tradeRequests;
-	int tradeAttempts;
-
-	const char* reason;
 };
 
 // Matchmaking stats
@@ -283,16 +189,6 @@ public:
 	virtual void Event_AchievementProgress( int achievementID, const char* achievementName );
 	virtual void Event_PlayerHurt( IGameEvent* event /*player_hurt*/ );
 	virtual void Event_PlayerFiredWeapon( C_TFPlayer *pPlayer, bool bCritical );
-	virtual void Event_Catalog( int eventID, const char* filter=NULL, CEconItemView* item=NULL );
-	virtual void Event_Crafting( int eventID, CEconItemView* item=NULL, int numAttempts=0, int recipeFound=0 );
-	virtual void Event_Store( int eventID, CEconItemView* item=NULL, const char* panelName=NULL, 
-		int classId=0, const cart_item_t* in_cartItem=NULL, int in_checkoutAttempts=0, const char* storeError=NULL, int in_totalPrice=0, int in_currencyCode=0 );
-	virtual void Event_ItemTransaction( int eventID, CEconItemView* item, const char* pszReason=NULL, int iQuality=0 );
-	virtual void Event_Trading( int eventID, CEconItemView* item=NULL, bool localPlayerIsPartyA=false,
-		uint64 steamIDPartyA=0, uint64 steamIDPartyB=0, int iTradeRequests=0, int iTradeAttempts=0 );
-	virtual void Event_Trading( int eventID, uint64 steamIDRequested=0, int iTradeRequests=0, int iTradeAttempts=0 );
-	virtual void Event_Trading( int eventID, int iTradeRequests=0, const char* reason=NULL, int iTradeAttempts=0 );
-	virtual void Event_Trading( TF_Gamestats_TradeEvent& event );
 
 	virtual void FireGameEvent( IGameEvent * event );
 
@@ -326,12 +222,6 @@ private:
 	TF_Gamestats_LevelStats_t		m_currentMap;
 	CUtlVector<TF_Gamestats_AchievementEvent_t>	m_vecAchievementEvents;
 	CUtlMap<int, TF_Gamestats_WeaponInfo_t>	m_mapWeaponInfo;
-
-	CUtlVector<TF_Gamestats_CatalogEvent> m_vecCatalogEvents;
-	CUtlVector<TF_Gamestats_CraftingEvent> m_vecCraftingEvents;
-	CUtlVector<TF_Gamestats_StoreEvent> m_vecStoreEvents;
-	CUtlVector<TF_Gamestats_ItemTransactionEvent> m_vecItemTransactionEvents;
-	CUtlVector<TF_Gamestats_TradeEvent> m_vecTradeEvents;
 
 	uint64 m_ulExperimentValue;
 

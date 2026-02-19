@@ -152,7 +152,6 @@ private:
 	void					RemoveHealingTarget( bool bStopHealingSelf = false );
 	bool					HealingTarget( CBaseEntity *pTarget );
 	bool					AllowedToHealTarget( CBaseEntity *pTarget );
-	void					CheckAchievementsOnHealTarget( void );
 	void					StartHealingTarget( CBaseEntity *pTarget );
 	void					StopHealingOwner( void );
 

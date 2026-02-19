@@ -205,24 +205,6 @@ void CTFFists::OnEntityHit( CBaseEntity *pEntity, CTakeDamageInfo *info )
 	if ( pHitPlayer->GetTeamNumber() == pPlayer->GetTeamNumber() )
 		return;
 
-	if ( pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE ) )
-	{
-		int iNumHealers = pPlayer->m_Shared.GetNumHealers();
-
-		// for each medic healing me
-		for ( int i=0;i<iNumHealers;i++ )
-		{
-			CTFPlayer *pMedic = ToTFPlayer( pPlayer->m_Shared.GetHealerByIndex( i ) );
-
-			// if it's a medic and that medic is releasing charge
-			if ( pMedic && pMedic->GetChargeEffectBeingProvided() == MEDIGUN_CHARGE_INVULN )
-			{
-				// they are invulning me - add pEntity to their list of people punched 
-				pMedic->HandleAchievement_Medic_AssistHeavy( pHitPlayer );
-			}
-		}
-	}
-
 	// If we've killed someone, check to see for the unique fist kill response
 	if ( !pEntity->IsAlive() )
 	{

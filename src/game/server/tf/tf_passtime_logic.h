@@ -108,6 +108,8 @@ private:
 	float m_flNextCrowdReactionTime;
 	uint64 m_nPackMemberBits;
 	uint64 m_nPrevPackMemberBits;
+	float m_flBallLastReceived;
+	bool m_bProtActive;
 
 	// outputs
 	COutputEvent m_onBallFree;

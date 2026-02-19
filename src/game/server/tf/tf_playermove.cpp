@@ -12,6 +12,7 @@
 #include "ipredictionsystem.h"
 #include "tf_player.h"
 
+extern ConVar tf_charge_turn_debug;
 
 static CMoveData g_MoveData;
 CMoveData *g_pMoveData = &g_MoveData;
@@ -81,29 +82,68 @@ void CTFPlayerMove::SetupMove( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 			}
 		}
 
-		// Server-side charge turn capping
+		// Server-side charge turn capping with proper lag compensation
 		if ( pTFPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 		{
-			// Calculate yaw delta between current view and the previous charge view angle.
-			float flYawDelta = AngleDiff( ucmd->viewangles[YAW], pTFPlayer->m_qPreviousChargeEyeAngle[YAW] );
+			// Cache the original (unmodified) view angles for history tracking
+			QAngle qOriginalViewAngles = ucmd->viewangles;
+			// Calculate yaw delta between current raw view and the previous *raw* charge view angle.
+			float flYawDelta = AngleDiff( qOriginalViewAngles[YAW], pTFPlayer->m_qPreviousChargeEyeAngle[YAW] );
 			
-			// Clamp the yaw change using the unified function.
-			float flCappedYawDelta = pTFPlayer->m_Shared.CapChargeTurnRate( flYawDelta );
+			// Calculate the actual time difference between user commands for proper lag compensation
+			float flTimeDelta = TICK_INTERVAL;
+			int nCommandDiff = 1;
+			if ( pTFPlayer->m_nPreviousChargeCommandNumber > 0 )
+			{
+				nCommandDiff = ucmd->command_number - pTFPlayer->m_nPreviousChargeCommandNumber;
+				if ( nCommandDiff > 0 && nCommandDiff < 64 ) // Sanity check to prevent overflow issues
+				{
+					flTimeDelta = nCommandDiff * TICK_INTERVAL;
+				}
+				else
+				{
+					nCommandDiff = 1; // Fallback to single tick
+				}
+			}
+			
+			if ( tf_charge_turn_debug.GetInt() >= 1 )
+			{
+				DevMsg("[PLAYERMOVE] Player charging: cmd %d->%d (diff %d), yaw %.2f->%.2f (delta %.2f), timeDelta %.4f\n",
+					pTFPlayer->m_nPreviousChargeCommandNumber, ucmd->command_number, nCommandDiff,
+					pTFPlayer->m_qPreviousChargeEyeAngle[YAW], ucmd->viewangles[YAW], flYawDelta, flTimeDelta);
+			}
+			
+			// Clamp the yaw change using the unified function with proper time delta.
+			float flCappedYawDelta = pTFPlayer->m_Shared.CapChargeTurnRate( flYawDelta, flTimeDelta );
 
 			// Only clamp if the yaw difference exceeds the cap by more than the tolerance.
 			if ( fabs(flYawDelta) > tf_charge_turn_tolerance.GetFloat() * fabs(flCappedYawDelta) )
 			{
+				if ( tf_charge_turn_debug.GetInt() >= 1 )
+				{
+					DevMsg("[PLAYERMOVE] APPLYING SERVER CLAMP: yaw %.2f -> %.2f (tolerance %.2f exceeded)\n",
+						ucmd->viewangles[YAW], pTFPlayer->m_qPreviousChargeEyeAngle[YAW] + flCappedYawDelta, tf_charge_turn_tolerance.GetFloat());
+				}
 				// Adjust the view angle based on the capped delta.
 				ucmd->viewangles[YAW] = pTFPlayer->m_qPreviousChargeEyeAngle[YAW] + flCappedYawDelta;
 				pTFPlayer->SnapEyeAngles( ucmd->viewangles );
 			}
+			else if ( tf_charge_turn_debug.GetInt() >= 2 )
+			{
+				DevMsg("[PLAYERMOVE] No server clamp needed: delta %.2f within tolerance of capped %.2f\n", flYawDelta, flCappedYawDelta);
+			}
 			
-			// Store the current view angle for the next tick.
+			// Store the **final applied** eye angle (post-clamp) so that next tick's
+			// comparison reflects what the player actually saw on the server. This
+			// avoids small opposite-direction deltas that appear when we kept the
+			// unclamped value.
 			pTFPlayer->m_qPreviousChargeEyeAngle = ucmd->viewangles;
+			pTFPlayer->m_nPreviousChargeCommandNumber = ucmd->command_number;
 		}
 		else
 		{
 			pTFPlayer->m_qPreviousChargeEyeAngle = pTFPlayer->EyeAngles();
+			pTFPlayer->m_nPreviousChargeCommandNumber = 0; // Reset for next charge
 		}
 	}
 

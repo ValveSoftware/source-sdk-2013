@@ -1,0 +1,5 @@
+"UnlitGeneric"
+{
+	"$basetexture" "hud/radar/self_blu"
+	"$translucent" 1
+}

@@ -16,10 +16,13 @@
 // Server specific.
 #ifdef GAME_DLL
 #include "smoke_trail.h"
+class CTFPlayer;
 #endif
 
 #ifdef CLIENT_DLL
 #define CTFBaseRocket C_TFBaseRocket
+class C_TFPlayer;
+#define CTFPlayer C_TFPlayer
 #endif
 
 #define TF_ROCKET_RADIUS_FOR_RJS	(110.0f * 1.1f)	// radius * TF scale up factor (121) - Used when applying damage to attacker.
