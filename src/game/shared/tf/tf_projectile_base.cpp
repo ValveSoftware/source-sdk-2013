@@ -5,6 +5,7 @@
 //=============================================================================//
 #include "cbase.h"
 #include "tf_projectile_base.h"
+
 #include "effect_dispatch_data.h"
 #include "tf_shareddefs.h"
 #include "tf_gamerules.h"
@@ -20,6 +21,7 @@
 #include "c_te_effect_dispatch.h"
 #include "input.h"
 #include "c_tf_player.h"
+#include "cdll_bounded_cvars.h"
 #define CRecipientFilter C_RecipientFilter
 #else
 #include "tf_player.h"
@@ -270,6 +272,7 @@ void CTFBaseProjectile::PostDataUpdate( DataUpdateType_t type )
 
 		float flChangeTime = GetLastChangeTime( LATCH_SIMULATION_VAR );
 
+#if 0
 		// Add a sample 1 second back.
 		Vector vCurOrigin = GetLocalOrigin() - m_vInitialVelocity;
 		interpolator.AddToHead( flChangeTime - 1.0f, &vCurOrigin, false );
@@ -281,7 +284,25 @@ void CTFBaseProjectile::PostDataUpdate( DataUpdateType_t type )
 		vCurOrigin = GetLocalOrigin();
 		interpolator.AddToHead( flChangeTime, &vCurOrigin, false );
 
-		rotInterpolator.AddToHead( flChangeTime - 1.0, &vCurAngles, false );
+		rotInterpolator.AddToHead( flChangeTime, &vCurAngles, false );
+#else
+		// NEW SETUP: slowly transition to the future pos we'll get in the next update,
+		// reflecting our latest data NOW where the client is seeing, so they always can see the latest.
+		// Add a sample 1 second back.
+		const float flLerp = GetClientInterpAmount();
+		Vector vCurOrigin = GetLocalOrigin();
+		interpolator.AddToHead(flChangeTime - flLerp, &vCurOrigin, false);
+
+		QAngle vCurAngles = GetLocalAngles();
+		rotInterpolator.AddToHead(flChangeTime - flLerp, &vCurAngles, false);
+
+		// Add a sample a tick later. This isn't exactly when we'll get our next update, but it's close enough.
+		const float flTick = gpGlobals->interval_per_tick - 0.001f;
+		vCurOrigin += m_vInitialVelocity * flTick;
+		interpolator.AddToHead(flChangeTime + flTick, &vCurOrigin, false);
+
+		rotInterpolator.AddToHead(flChangeTime + flTick, &vCurAngles, false);
+#endif
 	}
 }
 
@@ -291,7 +312,7 @@ void CTFBaseProjectile::PostDataUpdate( DataUpdateType_t type )
 //-----------------------------------------------------------------------------
 int CTFBaseProjectile::DrawModel( int flags )
 {
-	// During the first 0.2 seconds of our life, don't draw ourselves.
+	// During the first 0.1 seconds of our life, don't draw ourselves.
 	if ( gpGlobals->curtime - m_flSpawnTime < 0.1f )
 		return 0;
 

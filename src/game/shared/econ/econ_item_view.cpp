@@ -34,7 +34,6 @@
 #include "econ_contribution.h"
 #include "tf_player_info.h"
 #include "tf_gcmessages.h"
-#include "c_tf_freeaccount.h"
 #include "c_tf_player.h"
 
 static ConVar tf_hide_custom_decals( "tf_hide_custom_decals", "0", FCVAR_ARCHIVE );
@@ -180,12 +179,10 @@ END_DATADESC()
 BEGIN_NETWORK_TABLE_NOBASE( CEconItemView, DT_ScriptCreatedItem )
 #if !defined( CLIENT_DLL )
 	SendPropInt( SENDINFO( m_iItemDefinitionIndex ), 20, SPROP_UNSIGNED ),
-	SendPropInt( SENDINFO( m_iEntityLevel ), 8 ),
 	//SendPropInt( SENDINFO( m_iItemID ), 64, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iItemIDHigh ), 32, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iItemIDLow ), 32, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iAccountID ), 32, SPROP_UNSIGNED ),
-	SendPropInt( SENDINFO( m_iEntityQuality ), 5 ),
 	SendPropBool( SENDINFO( m_bInitialized ) ),
 	SendPropBool( SENDINFO( m_bOnlyIterateItemViewAttributes) ),
 	SendPropDataTable(SENDINFO_DT(m_AttributeList), &REFERENCE_SEND_TABLE(DT_AttributeList)),
@@ -193,12 +190,10 @@ BEGIN_NETWORK_TABLE_NOBASE( CEconItemView, DT_ScriptCreatedItem )
 	SendPropDataTable(SENDINFO_DT( m_NetworkedDynamicAttributesForDemos ), &REFERENCE_SEND_TABLE( DT_AttributeList ) ),
 #else
 	RecvPropInt( RECVINFO( m_iItemDefinitionIndex ) ),
-	RecvPropInt( RECVINFO( m_iEntityLevel ) ),
 	//RecvPropInt( RECVINFO( m_iItemID ) ),
 	RecvPropInt( RECVINFO( m_iItemIDHigh ) ),
 	RecvPropInt( RECVINFO( m_iItemIDLow ) ),
 	RecvPropInt( RECVINFO( m_iAccountID ) ),
-	RecvPropInt( RECVINFO( m_iEntityQuality ) ),
 	RecvPropBool( RECVINFO( m_bInitialized ) ),
 	RecvPropBool( RECVINFO( m_bOnlyIterateItemViewAttributes ) ),
 	RecvPropDataTable(RECVINFO_DT(m_AttributeList), 0, &REFERENCE_RECV_TABLE(DT_AttributeList)),
@@ -209,8 +204,6 @@ END_NETWORK_TABLE()
 
 BEGIN_DATADESC_NO_BASE( CEconItemView )
 	DEFINE_FIELD( m_iItemDefinitionIndex, FIELD_INTEGER ),
-	DEFINE_FIELD( m_iEntityQuality, FIELD_INTEGER ),
-	DEFINE_FIELD( m_iEntityLevel, FIELD_INTEGER ),
 	DEFINE_FIELD( m_iItemID, FIELD_INTEGER ),
 	//	DEFINE_FIELD( m_wszItemName, FIELD_STRING ),		Regenerated post-save
 	//	DEFINE_FIELD( m_szItemName, FIELD_STRING ),		Regenerated post-save
@@ -229,10 +222,7 @@ END_DATADESC()
 CEconItemView::CEconItemView( void )
 {
 	m_iItemDefinitionIndex = INVALID_ITEM_DEF_INDEX;
-	m_iEntityQuality = (int)AE_UNDEFINED;
-	m_iEntityLevel = 0;
 	SetItemID( INVALID_ITEM_ID );
-	m_iInventoryPosition = 0;
 	m_bInitialized = false;
 	m_bOnlyIterateItemViewAttributes = false;
 	m_iAccountID = 0;
@@ -242,8 +232,6 @@ CEconItemView::CEconItemView( void )
 	m_bHasPaintOverride = false;
 	m_flOverrideIndex = 0.f;
 #if defined( CLIENT_DLL )
-	m_bIsTradeItem = false;
-	m_iEntityQuantity = 1;
 	m_unClientFlags = 0;
 	m_unOverrideStyle = INVALID_STYLE_INDEX;
 	m_unOverrideOrigin = kEconItemOrigin_Max;
@@ -311,7 +299,7 @@ CEconItemView::CEconItemView( const CEconItemView &src )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CEconItemView::Init( int iDefIndex, int iQuality, int iLevel, uint32 iAccountID )
+void CEconItemView::Init( int iDefIndex, uint32 iAccountID )
 {
 	m_AttributeList.Init();
 	m_NetworkedDynamicAttributesForDemos.Init();
@@ -328,35 +316,6 @@ void CEconItemView::Init( int iDefIndex, int iQuality, int iLevel, uint32 iAccou
 	m_bInitialized = true;
 	m_iAccountID = iAccountID;
 
-	if ( iQuality == AE_USE_SCRIPT_VALUE )
-	{
-		m_iEntityQuality = pData->GetQuality();
-
-		// Kyle says: this is a horrible hack because AE_UNDEFINED will get stuffed into a uint8 when
-		// loaded into the item definition, but then read back out into a regular int here.
-		if ( m_iEntityQuality == (uint8)AE_UNDEFINED )
-		{
-			m_iEntityQuality = (int)AE_NORMAL;
-		}
-	}
-	else if ( iQuality == k_unItemQuality_Any )
-	{
-		m_iEntityQuality = (int)AE_RARITY1;
-	}
-	else
-	{
-		m_iEntityQuality = iQuality;
-	}
-
-	if ( iLevel == AE_USE_SCRIPT_VALUE )
-	{
-		m_iEntityLevel = pData->RollItemLevel();
-	}
-	else
-	{
-		m_iEntityLevel = iLevel;
-	}
-
 	// We made changes to quality, level, etc. so mark the description as dirty.
 	MarkDescriptionDirty();
 }
@@ -367,10 +326,7 @@ void CEconItemView::Init( int iDefIndex, int iQuality, int iLevel, uint32 iAccou
 CEconItemView& CEconItemView::operator=( const CEconItemView& src )
 {
 	m_iItemDefinitionIndex = src.m_iItemDefinitionIndex;
-	m_iEntityQuality = src.m_iEntityQuality;
-	m_iEntityLevel = src.m_iEntityLevel;
 	SetItemID( src.GetItemID() );
-	m_iInventoryPosition = src.m_iInventoryPosition;
 	m_bInitialized = src.m_bInitialized;
 	m_bOnlyIterateItemViewAttributes = src.m_bOnlyIterateItemViewAttributes;
 	m_iAccountID = src.m_iAccountID;
@@ -381,8 +337,6 @@ CEconItemView& CEconItemView::operator=( const CEconItemView& src )
 	m_flOverrideIndex = 0.f;
 #ifdef CLIENT_DLL
 	m_iLastGeneratedTeamSkin = src.m_iLastGeneratedTeamSkin;
-	m_bIsTradeItem = src.m_bIsTradeItem;
-	m_iEntityQuantity = src.m_iEntityQuantity;
 	m_unClientFlags = src.m_unClientFlags;
 	m_unOverrideStyle = src.m_unOverrideStyle;
 	m_unOverrideOrigin = src.m_unOverrideOrigin;
@@ -443,22 +397,6 @@ GameItemDefinition_t *CEconItemView::GetStaticData( void ) const
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int32 CEconItemView::GetQuality() const
-{
-	return GetSOCData()
-		 ? GetSOCData()->GetQuality()
-#ifdef TF_CLIENT_DLL
-		 : GetFlags() & kEconItemFlagClient_StoreItem
-		 ? AE_UNIQUE
-#endif
-		 : GetOrigin() != kEconItemOrigin_Invalid
-		 ? GetItemQuality()
-		 : AE_NORMAL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 style_index_t CEconItemView::GetStyle() const
 {
 	return GetItemStyle();
@@ -491,30 +429,6 @@ eEconItemOrigin CEconItemView::GetOrigin() const
 #endif//CLIENT_DLL
 
 	return GetSOCData() ? GetSOCData()->GetOrigin() : kEconItemOrigin_Invalid;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int CEconItemView::GetQuantity() const
-{
-	return GetItemQuantity();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-const char *CEconItemView::GetCustomName() const
-{
-	return GetSOCData() ? GetSOCData()->GetCustomName() : NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-const char *CEconItemView::GetCustomDesc() const
-{
-	return GetSOCData() ? GetSOCData()->GetCustomDesc() : NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -711,23 +625,6 @@ void CEconItemView::SetGrayedOutReason( const char *pszGrayedOutReason )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CEconItemView::GetItemQuantity() const
-{
-	CEconItem *pSOCData = GetSOCData();
-	if ( pSOCData )
-	{
-		return pSOCData->GetQuantity();
-	}
-#ifdef CLIENT_DLL
-	return m_iEntityQuantity;
-#else
-	return 1;
-#endif
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 style_index_t CEconItemView::GetItemStyle() const
 {
 
@@ -743,38 +640,6 @@ style_index_t CEconItemView::GetItemStyle() const
 	{
 		return fStyleOverride;
 	}
-
-	static CSchemaAttributeDefHandle pAttrDef_ItemStyleStrange( "style changes on strange level" );
-	uint32 iMaxStyle = 0;
-	if ( pAttrDef_ItemStyleStrange && FindAttribute( pAttrDef_ItemStyleStrange, &iMaxStyle ) )
-	{
-		// Use the strange prefix if the weapon has one.
-		uint32 unScore = 0;
-		if ( !FindAttribute( GetKillEaterAttr_Score( 0 ), &unScore ) )
-			return 0;
-
-		// What type of event are we tracking and how does it describe itself?
-		uint32 unKillEaterEventType = 0;
-		// This will overwrite our default 0 value if we have a value set but leave it if not.
-		float fKillEaterEventType;
-		if ( FindAttribute_UnsafeBitwiseCast<attrib_value_t>( this, GetKillEaterAttr_Type( 0 ), &fKillEaterEventType ) )
-		{
-			unKillEaterEventType = fKillEaterEventType;
-		}
-
-		const char *pszLevelingDataName = GetItemSchema()->GetKillEaterScoreTypeLevelingDataName( unKillEaterEventType );
-		if ( !pszLevelingDataName )
-		{
-			pszLevelingDataName = KILL_EATER_RANK_LEVEL_BLOCK_NAME;
-		}
-
-		const CItemLevelingDefinition *pLevelDef = GetItemSchema()->GetItemLevelForScore( pszLevelingDataName, unScore );
-		if ( !pLevelDef )
-			return 0;
-
-		return Min( pLevelDef->GetLevel(), iMaxStyle );
-	}
-
 
 	CEconItem *pSOCData = GetSOCData();
 	if ( pSOCData )
@@ -1068,23 +933,6 @@ const char *CEconItemView::GetVisionFilteredDisplayModel() const
 		return NULL;
 
 	return pData->GetVisionFilteredDisplayModel();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int CEconItemView::GetQualityParticleType() const
-{
-	static CSchemaParticleHandle pSparkleSystem( "community_sparkle" );
-	
-	CEconItem* pItem = GetSOCData();
-	if ( !pItem )
-		return 0;
-
-	if( GetSOCData()->GetQuality() == AE_SELFMADE || GetSOCData()->GetQuality() == AE_COMMUNITY )
-		return pSparkleSystem ? pSparkleSystem->nSystemID : 0;
-	else
-		return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1931,11 +1779,7 @@ bool DoesItemPassSearchFilter( const IEconItemDescription *pDescription, const w
 		for ( unsigned int i = 0; i < pDescription->GetLineCount(); i++ )
 		{
 			const econ_item_description_line_t& line = pDescription->GetLine(i);
-
-			if ( !(line.unMetaType & ( kDescLineFlag_Collection | kDescLineFlag_CollectionCurrentItem ) ) )
-			{
-				V_wcscat_safe( wszBuffer, line.sText.Get() );
-			}
+			V_wcscat_safe( wszBuffer, line.sText.Get() );	
 		}
 
 		V_wcslower( wszBuffer );

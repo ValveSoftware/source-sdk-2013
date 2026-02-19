@@ -416,12 +416,6 @@ bool IsFixedWeaponSpreadEnabled( CTFWeaponBase *pWeapon /*= NULL*/ )
 {
 	bool bFixedSpread = tf_use_fixed_weaponspreads.GetBool();
 
-	const IMatchGroupDescription *pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-	if ( pMatchDesc )
-	{
-		bFixedSpread = pMatchDesc->BUsesFixedWeaponSpread();
-	}
-
 	if ( pWeapon && !bFixedSpread )
 	{
 		int iFixedSpread = 0;

@@ -724,7 +724,7 @@ void CClassLoadoutPanel::OnNavigateFrom( const char* panelName )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CClassLoadoutPanel::OnShowPanel( bool bVisible, bool bReturningFromArmory )
+void CClassLoadoutPanel::OnShowPanel( bool bVisible )
 {
 	if ( bVisible )
 	{
@@ -1039,8 +1039,6 @@ void CClassLoadoutPanel::OnClosing( void )
 	}
 }
 
-extern const char *g_szItemBorders[AE_MAX_TYPES][5];
-extern ConVar cl_showbackpackrarities;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1056,43 +1054,14 @@ void CClassLoadoutPanel::SetBorderForItem( CItemModelPanel *pItemPanel, bool bMo
 		pszBorder = "EconItemBorder";
 	}
 	else
-	{
-		int iRarity = 0;
-		if ( pItemPanel->HasItem() && cl_showbackpackrarities.GetBool() )
+	{		
+		if ( bMouseOver || pItemPanel->IsSelected() )
 		{
-			iRarity = pItemPanel->GetItem()->GetItemQuality();
-
-			uint8 nRarity = pItemPanel->GetItem()->GetRarity();
-			if ( ( nRarity != k_unItemRarity_Any ) && ( iRarity != AE_SELFMADE ) && ( iRarity != AE_UNUSUAL ) )
-			{
-				// translate this quality to rarity
-				iRarity = nRarity + AE_RARITY_DEFAULT;
-			}
-
-			if ( iRarity > 0 )
-			{
-				if ( bMouseOver || pItemPanel->IsSelected() )
-				{
-					pszBorder = g_szItemBorders[iRarity][1];
-				}
-				else
-				{
-					pszBorder = g_szItemBorders[iRarity][0];
-				}
-			}
+			pszBorder = "LoadoutItemMouseOverBorder";
 		}
-		
-		
-		if ( iRarity == 0 )
+		else
 		{
-			if ( bMouseOver || pItemPanel->IsSelected() )
-			{
-				pszBorder = "LoadoutItemMouseOverBorder";
-			}
-			else
-			{
-				pszBorder = "EconItemBorder";
-			}
+			pszBorder = "EconItemBorder";
 		}
 	}
 
@@ -1298,17 +1267,6 @@ public:
 		if ( pAttrDef->IsHidden() )
 			return true;
 
-		if ( !m_bForceAdd )
-		{
-			const char *pDesc = pAttrDef->GetArmoryDescString();
-			if ( !pDesc || !pDesc[0] )
-				return true;
-
-			// If we have the "on_wearer" key, we're a passive attribute
-			if ( !Q_stristr(pDesc, "on_wearer") )
-				return true;
-		}
-
 		// Now see if we're already in the list
 		FOR_EACH_VEC( (*m_pList), i )
 		{
@@ -1358,20 +1316,6 @@ void CClassLoadoutPanel::UpdatePassiveAttributes( void )
 		{
 			CAttributeIterator_AddPassiveAttribsToPassiveList attrItPassives( &vecAttribsToPrint, false );
 			pItemData->IterateAttributes( &attrItPassives );
-		}
-	}
-
-	// Then add any set bonuses
-	if ( steamapicontext && steamapicontext->SteamUser() )
-	{
-		CSteamID localSteamID = steamapicontext->SteamUser()->GetSteamID();
-		CUtlVector<const CEconItemSetDefinition *> pActiveSets;
-		TFInventoryManager()->GetActiveSets( &pActiveSets, localSteamID, m_iCurrentClassIndex );
-
-		FOR_EACH_VEC( pActiveSets, set )
-		{
-			CAttributeIterator_AddPassiveAttribsToPassiveList attrItSetPassives( &vecAttribsToPrint, true );
-			pActiveSets[set]->IterateAttributes( &attrItSetPassives );
 		}
 	}
 

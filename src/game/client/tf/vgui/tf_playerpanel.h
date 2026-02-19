@@ -36,6 +36,7 @@ class CTFPlayerPanel : public vgui::EditablePanel
 	DECLARE_CLASS_SIMPLE( CTFPlayerPanel, vgui::EditablePanel );
 public:
 	CTFPlayerPanel( vgui::Panel *parent, const char *name );
+	virtual ~CTFPlayerPanel() = default;
 
 	virtual void	Reset( void );
 	virtual void	ApplySchemeSettings( vgui::IScheme *pScheme );
@@ -43,7 +44,7 @@ public:
 	virtual bool	Update( void );
 	void	SetPlayerIndex( int iIndex );
 	int		GetPlayerIndex( void ) { return m_iPlayerIndex; }
-	void	Setup( int iPlayerIndex, CSteamID steamID, const char *pszPlayerName, int nLobbyTeam = TEAM_INVALID );
+	void	Setup( int iPlayerIndex, CSteamID steamID, const char *pszPlayerName, int nLobbyTeam = TEAM_INVALID, const wchar_t* pwszShortName = L"" );
 	void	SetSpecIndex( int iIndex );
 	int		GetSpecIndex( void ) { return m_iSpecIndex; }
 	virtual void	UpdateBorder( void );
@@ -71,6 +72,7 @@ protected:
 	int						m_iPrevState;
 	bool					m_bPlayerReadyModeActive;
 	int						m_nGCTeam;
+	CUtlConstWideString		m_wszPlayerShortName;
 };
 
 

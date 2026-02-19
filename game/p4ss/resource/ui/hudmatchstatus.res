@@ -1,4 +1,4 @@
-"Resource/UI/HudMatchStatus.res"
+"resource/ui/hudmatchstatus.res"
 {
 	"HudMatchStatus"
 	{
@@ -204,6 +204,7 @@
 		"wide"			"300"
 		"tall"			"100"
 		"visible"		"1"
+		
 		"enabled"		"1"
 	}	
 
@@ -413,6 +414,7 @@
 				"fgcolor" 		"PFWhite" 
 				"proportionaltoparent"	"1"
 				"wrap" "0"
+				"allcaps"		"1"
 			}
 			"playernameBG"
 			{

@@ -1,4 +1,4 @@
-"Resource/UI/SpectatorTournament.res"
+"resource/ui/spectatortournament.res"
 {
 	"specgui"
 	{
@@ -270,29 +270,49 @@
 		"visible"		"0"
 		"ypos"			"480"
 	}
+	
+	"ReinforcementsAnchor"
+	{	
+		"ControlName"			"ImagePanel"
+		"fieldName"				"ReinforcementsAnchor"
+		"xpos"					"cs-0.5"
+		"ypos"					"348"
+		"zpos"					"5"
+		"wide"					"100"
+		"tall"					"24"
+		"autoResize"			"0"
+		"pinCorner"				"0"
+		"visible"				"0"
+		"enabled"				"1"
+		"tabPosition"			"0"	
+		"fillcolor"				"0 0 0 0"
+		"PaintBackgroundType"	"0"
+	}
 	"ReinforcementsLabel"
 	{
-		"ControlName"		"CExLabel"
+		"controlname" "CExLabel2"
 		"fieldName"		"ReinforcementsLabel"
-		"xpos"			"c-150"
-		"ypos"			"32"
-		"wide"			"300"
+		"xpos"			"0"	[$WIN32]
+		"ypos"			"0"	[$WIN32]
+		"zpos"			"4"
+		"wide"			"200"	[$WIN32]
 		"tall"			"18"
-		"autoResize"		"0"
-		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"labelText"		"#game_respawntime_in_secs"
-		"textAlignment"		"center"
-		"font"			"MontserratSemibold16"
+		"labeltext" "#game_respawntime_in_secs"
+		"textAlignment"	"center"
+		"dulltext"		"0"
+		"brighttext"	"0"
+		"font"			"MontserratSemibold22"
+		"textinsetx"	"40"
+		"border"		"TFFatLineBorder"
 		
-		if_mvm
-		{
-			"xpos"			"c-190"
-			"ypos"			"1"
-			"wide"			"380"
-			"textAlignment"		"center"
-		}
+		"bgcolor_override"	"0 0 0 0"
+		"auto_wide_tocontents"	"1"
+		
+		"pin_to_sibling"	"ReinforcementsAnchor"
+		"pin_corner_to_sibling"		"4"
+		"pin_to_sibling_corner"		"4"
 	}
 	"BuyBackLabel"
 	{

@@ -153,7 +153,6 @@ private:
 	bool					m_bModelIsHidden;
 
 	bool					m_bIsFestivized;
-	bool					m_bIsPaintKitItem;
 	bool					m_bUseRenderTargetAsIcon; // same as m_bUseItemRenderTarget but set by attribute instead of res file
 
 	void					CleanUpCachedWeaponIcon();
@@ -274,7 +273,6 @@ public:
 	void	SetSkin( int iSkin );
 	void	SetItemStyle( style_index_t unStyle ) { m_ItemData.SetItemStyleOverride( unStyle ); }
 	void	SetNameOnly( bool bNameOnly ) { m_bNameOnly = bNameOnly; }
-	void	SetSpecialAttributesOnly( bool bSpecialOnly ) { m_bSpecialAttributesOnly = bSpecialOnly; }
 
 	CEmbeddedItemModelPanel::InventoryImageType_t	GetInventoryImageType() /*const*/													 { return m_pModelPanel->GetInventoryImageType(); }
 	void											SetInventoryImageType( CEmbeddedItemModelPanel::InventoryImageType_t eNewImageType ) { m_pModelPanel->SetInventoryImageType( eNewImageType ); }
@@ -294,8 +292,6 @@ private:
 	bool	UpdateMatchesLabel();
 	bool	UpdateQuantityLabel();
 
-	bool	CheckRecipeMatches();
-
 	int		GetAttribWide( int iMaxWide ) { return (m_iTextWide ? m_iTextWide : (iMaxWide - (ATTRIB_LABEL_INDENT * 2))); }
 
 	void	LoadResFileForCurrentItem( bool bForceLoad );
@@ -311,26 +307,13 @@ private:
 		NUM_LOADING_TYPES
 	};
 
-	enum eLoadedCollectionType_t
-	{
-		LOADED_COLLECTION_NONE,
-		LOADED_COLLECTION_WEAPON,
-		LOADED_COLLECTION_COSMETIC
-	};
-
 	vgui::DHANDLE<CEmbeddedItemModelPanel>	m_pModelPanel;
 	CExLabel			*m_pItemNameLabel;
 	vgui::Label			*m_pItemAttribLabel;
-	CExLabel			*m_pItemCollectionNameLabel;
-	vgui::Label			*m_pItemCollectionListLabel;
-	vgui::EditablePanel *m_pItemCollectionHighlight;
-	eLoadedCollectionType_t	m_nCollectionItemLoaded;
 	vgui::Label			*m_pItemEquippedLabel;
 	vgui::Label			*m_pItemQuantityLabel;
 	vgui::ImagePanel	*m_pVisionRestrictionImage;
-	vgui::ImagePanel	*m_pIsStrangeImage;
 	vgui::ImagePanel	*m_pIsUnusualImage;
-	vgui::ImagePanel	*m_pIsLoanerImage;
 	vgui::Label			*m_pSeriesLabel;
 	vgui::Label			*m_pMatchesLabel;
 	vgui::EditablePanel *m_pMainContentContainer;
@@ -372,8 +355,6 @@ private:
 
 	CItemModelPanel *m_pContainedItemPanel;
 
-	CPanelAnimationVar( bool, m_bSpecialAttributesOnly, "special_attributes_only", "0" );
-
 	CPanelAnimationVarAliasType( int, m_iModelXPos, "model_xpos", "0", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iModelYPos, "model_ypos", "0", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iModelWide, "model_wide", "0", "proportional_int" );
@@ -413,7 +394,6 @@ private:
 	CPanelAnimationVarAliasType( int, m_iBaseTall, "tall", "0", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iCollectionListXPos, "collection_list_xpos", "0", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTextXPosCollection, "text_xpos_collection", "0", "proportional_int" );
-	CPanelAnimationVar( bool, m_bHideCollectionPanel, "hide_collection_panel", "0" );
 	CPanelAnimationVar( bool, m_bHideModifierIcons, "hide_modifier_icons", "0" );
 
 	bool m_bFakeButton;

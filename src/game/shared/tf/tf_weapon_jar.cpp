@@ -357,34 +357,11 @@ void JarExplode( int iEntIndex, CTFPlayer *pAttacker, CBaseEntity *pOriginalWeap
 
 				if ( pAttacker )
 				{
-					if ( pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->m_Shared.GetPercentInvisible() == 1.0f )
-					{
-						pAttacker->AwardAchievement( ACHIEVEMENT_TF_SNIPER_JARATE_REVEAL_SPY );
-					}
-
 					float flStun = 1.0f;
 					CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pAttacker, flStun, applies_snare_effect );
 					if ( flStun != 1.0f )
 					{
 						pPlayer->m_Shared.StunPlayer( flDuration, flStun, TF_STUN_MOVEMENT, pAttacker );
-					}
-
-					// Stats tracking?
-					if ( cond == TF_COND_URINE || cond == TF_COND_MAD_MILK || cond == TF_COND_GAS )
-					{
-						if ( TFGameRules() && TFGameRules()->IsPVEModeActive() )
-						{
-							// These if statements are intentionally split to avoid falling through to the normal kKillEaterEvent_PeeVictims event if we're in
-							// IsPVEModeActive() but not a robot, or don't have the stun.
-							if ( pPlayer->GetTeamNumber() == TF_TEAM_PVE_INVADERS && flStun != 1.0f )
-							{
-								EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( pWeapon ), pAttacker, pPlayer, kKillEaterEvent_RobotsSlowed );
-							}
-						}
-						else
-						{
-							EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( pWeapon ), pAttacker, pPlayer, kKillEaterEvent_PeeVictims );
-						}
 					}
 
 					// Tell the clients involved in the jarate

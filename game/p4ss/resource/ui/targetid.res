@@ -1,4 +1,4 @@
-"Resource/UI/TargetID.res"
+"resource/ui/targetid.res"
 {
 	"TargetIDBG"
 	{
@@ -79,9 +79,9 @@
 		"font"			"MontserratBlack14"
 		"font_minmode"	"TFFontLarge"
 		"xpos"			"8"
-		"xpos_minmode"	"30"
+		"xpos_minmode"	"8"
 		"ypos"			"5"
-		"ypos_minmode"	"5"
+		"ypos_minmode"	"3"
 		"zpos"			"1"
 		"wide"			"640"
 		"tall"			"24"
@@ -101,11 +101,9 @@
 		"font"			"MontserratSemibold12"
 		"font_minmode"	"MontserratSemibold12"
 		"xpos"			"8"
-		"xpos_minmode"	"30"
+		"xpos_minmode"	"28"
 		"ypos"			"17"	[$WIN32]
-		"ypos_minmode"	"12"	[$WIN32]
-		"ypos"			"22"	[$X360]
-		"ypos_hidef"		"25"	[$X360]
+		"ypos_minmode"	"13"	[$WIN32]
 		"zpos"			"1"
 		"wide"			"280"
 		"tall"			"15"
@@ -117,6 +115,8 @@
 		"textAlignment"		"Left"
 		"dulltext"		"0"
 		"brighttext"		"0"
+		"textinsetx"	"0"
+		"textinsetx_minmode"	"3"
 	}
 	"SpectatorGUIHealth"
 	{
@@ -127,6 +127,7 @@
 		"ypos"			"2"
 		"ypos_minmode"	"0"
 		"wide"			"32"
+		"wide_minmode"	"25"
 		"tall"			"32"
 		"visible"		"0"
 		"enabled"		"0"	
@@ -141,8 +142,8 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"AmmoIcon"
-		"xpos"			"40"
-		"xpos_minmode"	"38"
+		"xpos"			"42"
+		"xpos_minmode"	"36"
 		"ypos"			"20"
 		"ypos_minmode"	"16"
 		"zpos"			"12"
@@ -150,8 +151,9 @@
 		"tall"			"8"
 		"visible"		"0"
 		"enabled"		"1"
-		"image"			"../hud/leaderboard_class_heavy"
+		"image"			"../hud/hud_obj_status_ammo_64"
 		"scaleImage"	"1"
+		"drawcolor"		"TanLight"
 	}
 	
 	"KillStreakIcon"

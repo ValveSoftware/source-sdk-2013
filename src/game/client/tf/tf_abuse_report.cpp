@@ -13,7 +13,6 @@
 #include "tf_hud_mainmenuoverride.h"
 #include "tf_gcmessages.h"
 #include "c_tf_player.h"
-#include "tf_quickplay_shared.h"
 #include "tf_gc_client.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -93,8 +92,7 @@ bool CTFAbuseReportManager::CreateAndPopulateIncident()
 	}
 
 	// Check if we can report abuse against the game server.
-	if (m_pIncidentData->m_adrGameServer.IsValid() &&
-	    !GTFGCClientSystem()->BIsIPRecentMatchServer( m_pIncidentData->m_adrGameServer ) )
+	if (m_pIncidentData->m_adrGameServer.IsValid() )
 	{
 		m_pIncidentData->m_bCanReportGameServer = true;
 	}

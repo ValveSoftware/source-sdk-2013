@@ -16,7 +16,6 @@
 #include "etwprof.h"
 
 extern ConVar tf_mvm_skill;
-extern ConVar tf_mm_trusted;
 
 extern ConVar tf_populator_debug;
 extern ConVar tf_populator_active_buffer_range;

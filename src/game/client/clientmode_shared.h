@@ -146,7 +146,6 @@ protected:
 	void			DisplayReplayReminder();
 
 private:
-	virtual bool	BCanSendPartyChatMessages() const { return false; }
 	virtual void	UpdateReplayMessages();
 
 	void			ClearReplayMessageList();

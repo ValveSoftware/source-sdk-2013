@@ -114,7 +114,6 @@
 #include "particle_parse.h"
 #if defined( TF_CLIENT_DLL )
 #include "rtime.h"
-#include "tf_hud_disconnect_prompt.h"
 #include "../engine/audio/public/sound.h"
 #include "tf_shared_content_manager.h"
 #include "tf_gamerules.h"
@@ -144,11 +143,6 @@
 #ifdef USES_ECON_ITEMS
 #include "econ_item_system.h"
 #endif // USES_ECON_ITEMS
-
-#if defined( TF_CLIENT_DLL )
-#include "econ/tool_items/custom_texture_cache.h"
-
-#endif
 
 #if defined ( DISCORD_RPC )
 // Discord RPC
@@ -288,6 +282,8 @@ INetworkStringTable *g_pStringTableServerMapCycle = NULL;
 INetworkStringTable *g_pStringTableServerPopFiles = NULL;
 INetworkStringTable *g_pStringTableServerMapCycleMvM = NULL;
 #endif
+
+INetworkStringTable *g_pStringTablePlayerShortNames = NULL;
 
 static CGlobalVarsBase dummyvars( true );
 // So stuff that might reference gpGlobals during DLL initialization won't have a NULL pointer.
@@ -1079,7 +1075,6 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	IGameSystem::Add( SteamShareSystem() );
 
 	#if defined( TF_CLIENT_DLL )
-	IGameSystem::Add( CustomTextureToolCacheGameSystem() );
 	IGameSystem::Add( TFSharedContentManager() );
 	#endif
 
@@ -1800,6 +1795,8 @@ void CHLClient::ResetStringTablePointers()
 	g_pStringTableServerPopFiles = NULL;
 	g_pStringTableServerMapCycleMvM = NULL;
 #endif
+
+    g_pStringTablePlayerShortNames = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -2051,6 +2048,10 @@ void CHLClient::InstallStringTableCallback( const char *tableName )
 		g_pStringTableServerMapCycleMvM = networkstringtable->FindTable( tableName );
 	}
 #endif
+	else if ( !Q_strcasecmp( tableName, "PlayerShortNames" ) )
+	{
+		g_pStringTablePlayerShortNames = networkstringtable->FindTable( tableName );
+	}
 
 	InstallStringTableCallback_GameRules();
 }
@@ -2729,10 +2730,6 @@ bool CHLClient::DisconnectAttempt( void )
 {
 	bool bRet = false;
 
-#if defined( TF_CLIENT_DLL )
-	bRet = HandleDisconnectAttempt();
-#endif
-
 	return bRet;
 }
 
@@ -2743,13 +2740,6 @@ bool CHLClient::IsConnectedUserInfoChangeAllowed( IConVar *pCvar )
 
 bool CHLClient::BHaveChatSuspensionInCurrentMatch()
 {
-#if defined( TF_CLIENT_DLL )
-	if ( GTFGCClientSystem() )
-	{
-		return GTFGCClientSystem()->BHaveChatSuspensionInCurrentMatch();
-	}
-#endif // TF_CLIENT_DLL 
-
 	return false;
 }
 
@@ -2785,3 +2775,13 @@ CSteamID GetSteamIDForPlayerIndex( int iPlayerIndex )
 }
 
 #endif
+
+const wchar_t* GetPlayerShortName( int iPlayerIndex )
+{
+	const wchar_t *value = static_cast<const wchar_t*>( g_pStringTablePlayerShortNames->GetStringUserData( iPlayerIndex - 1, NULL ) );
+	Assert(value);
+	if ( !value || !value[0] )
+		return L"";
+
+	return value;
+}

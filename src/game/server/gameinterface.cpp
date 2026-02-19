@@ -99,9 +99,6 @@
 #include "tf_gamerules.h"
 #include "player_vs_environment/tf_population_manager.h"
 #include "workshop/maps_workshop.h"
-
-extern ConVar tf_mm_trusted;
-extern ConVar tf_mm_servermode;
 #endif
 
 #ifdef USE_NAV_MESH
@@ -225,6 +222,8 @@ INetworkStringTable *g_pStringTableServerMapCycle = NULL;
 INetworkStringTable *g_pStringTableServerPopFiles = NULL;
 INetworkStringTable *g_pStringTableServerMapCycleMvM = NULL;
 #endif
+
+INetworkStringTable *g_pStringTablePlayerShortNames = NULL;
 
 CStringTableSaveRestoreOps g_VguiScreenStringOps;
 
@@ -1453,6 +1452,8 @@ void CServerGameDLL::CreateNetworkStringTables( void )
 	g_pStringTableServerMapCycleMvM = networkstringtable->CreateStringTable( "ServerMapCycleMvM", 128 );
 #endif
 
+	g_pStringTablePlayerShortNames = networkstringtable->CreateStringTable( "PlayerShortNames", 1 << ABSOLUTE_PLAYER_LIMIT_DW );
+
 	bool bPopFilesValid = true;
 	(void)bPopFilesValid; // Avoid unreferenced variable warning
 
@@ -1466,7 +1467,8 @@ void CServerGameDLL::CreateNetworkStringTables( void )
 			g_pStringTableMaterials &&
 			g_pStringTableInfoPanel &&
 			g_pStringTableClientSideChoreoScenes &&
-			g_pStringTableServerMapCycle && 
+			g_pStringTableServerMapCycle &&
+			g_pStringTablePlayerShortNames &&
 			bPopFilesValid
 			);
 
@@ -1481,6 +1483,11 @@ void CServerGameDLL::CreateNetworkStringTables( void )
 
 	// Set up save/load utilities for string tables
 	g_VguiScreenStringOps.Init( g_pStringTableVguiScreen );
+
+	for ( int i = 0; i < gpGlobals->maxClients; i++ )
+	{
+		g_pStringTablePlayerShortNames->AddString( true, CNumStr( i ) ); // matching indices
+	}
 }
 
 CSaveRestoreData *CServerGameDLL::SaveInit( int size )
@@ -1852,10 +1859,6 @@ bool CServerGameDLL::ShouldHideServer( void )
 	if ( gpGlobals->eLoadType == MapLoad_Background )
 		return true;
 
-	#if defined( TF_DLL )
-		if ( GTFGCClientSystem()->ShouldHideServer() )
-			return true;
-	#endif
 	return false;
 }
 
@@ -1878,13 +1881,8 @@ void CServerGameDLL::InvalidateMdlCache()
 // interface to the new GC based lobby system
 IServerGCLobby *CServerGameDLL::GetServerGCLobby()
 {
-#ifdef TF_DLL
-	return GTFGCClientSystem();
-#else	
 	return NULL;
-#endif
 }
-
 
 void CServerGameDLL::SetServerHibernation( bool bHibernating )
 {
@@ -1895,10 +1893,6 @@ void CServerGameDLL::SetServerHibernation( bool bHibernating )
 	{
 		ASWGameRules()->OnServerHibernating();
 	}
-#endif
-
-#ifdef TF_DLL
-	GTFGCClientSystem()->SetHibernation( bHibernating );
 #endif
 }
 
@@ -1922,30 +1916,7 @@ const char *CServerGameDLL::GetServerBrowserMapOverride()
 
 const char *CServerGameDLL::GetServerBrowserGameData()
 {
-	CUtlString sResult;
-
-#ifdef TF_DLL
-	sResult.Format( "tf_mm_trusted:%d,tf_mm_servermode:%d", tf_mm_trusted.GetInt(), tf_mm_servermode.GetInt() );
-
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( !pMatch )
-	{
-		sResult.Append( ",lobby:0" );
-	}
-	else
-	{
-		sResult.Append( CFmtStr( ",lobby:%016llx", pMatch->m_nLobbyID ) );
-	}
-	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
-	{
-		bool bMannup = pMatch && pMatch->m_eMatchGroup == k_eTFMatchGroup_MvM_MannUp;
-		sResult.Append( CFmtStr( ",mannup:%d", (int)bMannup ) );
-	}
-#endif
-
-	static char rchResult[2048];
-	V_strcpy_safe( rchResult, sResult );
-	return rchResult;
+	return "";
 }
 
 //-----------------------------------------------------------------------------
@@ -2722,25 +2693,6 @@ void CServerGameClients::ClientActive( edict_t *pEdict, bool bLoadGame )
 	CBasePlayer *pPlayer = ( CBasePlayer * )CBaseEntity::Instance( pEdict );
 	CSoundEnvelopeController::GetController().CheckLoopingSoundsForPlayer( pPlayer );
 	SceneManager_ClientActive( pPlayer );
-
-	#if defined( TF_DLL )
-		Assert( pPlayer );
-		if ( pPlayer && !pPlayer->IsFakeClient() && !pPlayer->IsHLTV() && !pPlayer->IsReplay() )
-		{
-			CSteamID steamID;
-			if ( pPlayer->GetSteamID( &steamID ) )
-			{
-				GTFGCClientSystem()->ClientActive( steamID );
-			}
-			else
-			{
-				if ( !pPlayer->IsReplay() && !pPlayer->IsHLTV() )
-				{
-					Log("WARNING: ClientActive, but we don't know his SteamID?\n");
-				}
-			}
-		}
-	#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2801,23 +2753,6 @@ void CServerGameClients::ClientDisconnect( edict_t *pEdict )
 		// Make sure anything we "own" is simulated by the server from now on
 		player->ClearPlayerSimulationList();
 #endif
-		#if defined( TF_DLL )
-			if ( !player->IsFakeClient() )
-			{
-				CSteamID steamID;
-				if ( player->GetSteamID( &steamID ) )
-				{
-					GTFGCClientSystem()->ClientDisconnected( steamID );
-				}
-				else
-				{
-					if ( !player->IsReplay() && !player->IsHLTV() )
-					{
-						Log("WARNING: ClientDisconnected, but we don't know his SteamID?\n");
-					}
-				}
-			}
-		#endif
 	}
 }
 

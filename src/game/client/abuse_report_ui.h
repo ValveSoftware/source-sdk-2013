@@ -54,8 +54,6 @@ protected:
 	vgui::Button *m_pScreenShot;
 	vgui::CheckButton *m_pScreenShotAttachCheckButton;
 
-	vgui::Button *m_pCustomTextureNextButton;
-	vgui::Button *m_pCustomTexturePrevButton;
 	vgui::Button *m_pOffensiveImage;
 
 	vgui::TextEntry		*m_pDescriptionTextEntry;
@@ -73,9 +71,6 @@ protected:
 	CAvatarImagePanel	*m_pAvatarImage;
 	vgui::Panel		*m_pNoAvatarLabel;
 
-	CCustomTextureImagePanel *m_pCustomTextureImagePanel;
-	vgui::Panel		*m_pNoCustomTexturesLabel;
-
 	AbuseIncidentData_t *m_pIncidentData;
 
 	int m_iUserImageIndex;
@@ -88,7 +83,6 @@ protected:
 	void PlayerChanged();
 	void ContentTypeChanged();
 	void UpdateAvatarImage();
-	void UpdateCustomTextures();
 
 	virtual void OnSubmitReport();
 };

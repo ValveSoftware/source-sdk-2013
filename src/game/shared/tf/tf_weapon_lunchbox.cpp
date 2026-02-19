@@ -324,12 +324,6 @@ void CTFLunchBox::DrainAmmo( bool bForceCooldown )
 		StartEffectBarRegen();
 	}
 
-	// Strange Tracking.  Only go through if we have ammo at this point.
-	if ( !pOwner->IsBot() && pOwner->GetAmmoCount( m_iPrimaryAmmoType ) > 0 )
-	{
-		EconEntity_OnOwnerKillEaterEventNoPartner( dynamic_cast<CEconEntity *>( this ), pOwner, kKillEaterEvent_FoodEaten );
-	}
-
 	pOwner->RemoveAmmo( 1, m_iPrimaryAmmoType );
 #else
 	

@@ -63,9 +63,17 @@ protected:
 	virtual void Spawn() OVERRIDE;
 	virtual void Equip( CBaseCombatCharacter *pOwner ) OVERRIDE;
 	virtual void Precache() OVERRIDE;
-	virtual bool CanHolster() const OVERRIDE;
-	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo ) OVERRIDE;
-	virtual void WeaponReset() OVERRIDE;
+	virtual bool			CanHolster() const;
+	virtual bool			Holster( CBaseCombatWeapon *pSwitchingTo );
+	virtual void			WeaponReset();
+	
+public:
+	void					SetBufferedSwitchWeapon( CBaseCombatWeapon *pWeapon ) { m_hBufferedSwitchWeapon = pWeapon; }
+	CBaseCombatWeapon*		GetBufferedSwitchWeapon() const { return m_hBufferedSwitchWeapon; }
+
+private:
+	CNetworkHandle( CBaseCombatWeapon, m_hBufferedSwitchWeapon );
+protected:
 	virtual bool CanCharge() OVERRIDE;
 	virtual float GetChargeMaxTime() OVERRIDE;
 	virtual void UpdateOnRemove() OVERRIDE;

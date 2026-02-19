@@ -26,7 +26,6 @@
 #include "tf_weaponbase.h"
 #include "tf_weapon_sniperrifle.h"
 #include "tf_gamerules.h"
-#include "backpack_panel.h"
 #include "baseviewport.h"
 extern ConVar _cl_classmenuopen;
 extern const char *COM_GetModDirectory();

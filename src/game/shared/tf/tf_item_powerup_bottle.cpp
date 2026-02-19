@@ -283,16 +283,6 @@ void CTFPowerupBottle::ReapplyProvision( void )
 						if ( !pWeapon )
 							continue;
 
-						// ACHIEVEMENT_TF_MVM_USE_AMMO_BOTTLE
-						if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
-						{
-							if ( ( pWeapon->UsesPrimaryAmmo() && !pWeapon->HasPrimaryAmmo() ) ||
-								( pWeapon->UsesSecondaryAmmo() && !pWeapon->HasSecondaryAmmo() ) )
-							{
-								pTFPlayer->AwardAchievement( ACHIEVEMENT_TF_MVM_USE_AMMO_BOTTLE ); 
-							}
-						}
-
 						pWeapon->GiveDefaultAmmo();
 
 						if ( iShareBottle && pHealTarget )
@@ -460,8 +450,6 @@ bool CTFPowerupBottle::Use()
 #ifdef GAME_DLL
 		if ( pOwner )
 		{
-			EconEntity_OnOwnerKillEaterEventNoPartner( dynamic_cast<CEconEntity *>( this ), pOwner, kKillEaterEvent_PowerupBottlesUsed );
-
 			// we consumed an upgrade - forget it
 			pOwner->ForgetFirstUpgradeForItem( GetAttributeContainer()->GetItem() );
 		}

@@ -17,6 +17,7 @@
 
 #ifdef GAME_DLL
 class CTFPlayer;
+class CTFWeaponBase;
 #endif // GAME_DLL
 
 DECLARE_AUTO_LIST( IDroppedWeaponAutoList );

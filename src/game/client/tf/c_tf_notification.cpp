@@ -159,11 +159,6 @@ void CClientNotification::Update( const CTFNotification* notification )
 
 }
 
-void CClientNotification::GCAcknowledge() {
-
-	GTFGCClientSystem()->AcknowledgeNotification( m_unAccountID, m_ulNotificationID );
-}
-
 void CClientNotification::Deleted()
 {
 	if ( m_bSupportMessage )
@@ -172,8 +167,6 @@ void CClientNotification::Deleted()
 		           "Support messages should only be able to be triggered, not deleted" );
 		return;
 	}
-
-	GCAcknowledge();
 }
 
 void CClientNotification::Expired()
@@ -219,7 +212,6 @@ void CClientNotification::OnDialogAcknowledged()
 		return;
 	}
 
-	GCAcknowledge();
 	MarkForDeletion();
 }
 

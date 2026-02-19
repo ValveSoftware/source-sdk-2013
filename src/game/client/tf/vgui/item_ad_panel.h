@@ -61,7 +61,6 @@ private:
 
 	virtual void SetupItemPanel();
 
-	bool m_bShowMarketButton;
 	bool m_bShowItemName = true;
 	bool m_bShowAdText = true;
 	bool m_bShowBackground = true;

@@ -1,4 +1,4 @@
-"Resource/UI/HudAmmoWeapons.res"
+"resource/ui/hudammoweapons.res"
 {
 	"HudWeaponAmmoBG"
 	{
@@ -46,13 +46,15 @@
 	{
 		"ControlName"	"ImagePanel"
 		"fieldName"		"HudWeaponLowAmmoImage"
-		"xpos"			"4"
-		"xpos_minmode"	"28"
-		"ypos"			"0"
+		"xpos"			"12"
+		"xpos_minmode"	"18"
+		"ypos"			"-12"
 		"ypos_minmode"	"7"
 		"zpos"			"0"
-		"wide"			"90"
-		"tall"			"45"
+		"wide"			"92"
+		"wide_minmode"	"90"
+		"tall"			"62"
+		"tall_minmode"	"45"
 		"visible"		"0"
 		"enabled"		"1"
 		"image"			"../hud/ammo_red_bg"

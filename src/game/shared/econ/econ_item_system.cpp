@@ -214,7 +214,7 @@ CON_COMMAND_F( item_show_whitelistable_definitions, "Lists the item definitions 
 	FOR_EACH_MAP( mapItemDefs, i )
 	{
 		const CEconItemDefinition *pItemDef = mapItemDefs[i];
-		if ( pItemDef && pItemDef->GetQuality() != AE_NORMAL && !pItemDef->IsHidden() )
+		if ( pItemDef && !pItemDef->IsHidden() )
 		{
 			Msg("   '%s'\n", pItemDef->GetDefinitionName() );
 		}
@@ -295,21 +295,14 @@ void CEconItemSystem::ParseItemSchemaFile( const char *pFilename )
 //-----------------------------------------------------------------------------
 // Purpose: Generate a random item matching the specified criteria
 //-----------------------------------------------------------------------------
-item_definition_index_t CEconItemSystem::GenerateRandomItem( CItemSelectionCriteria *pCriteria, entityquality_t *outEntityQuality )
+item_definition_index_t CEconItemSystem::GenerateRandomItem( CItemSelectionCriteria *pCriteria )
 {
-	// First, pick a random item quality (use the one passed in first)
-	if ( !pCriteria->BQualitySet() )
-	{
-		pCriteria->SetQuality( GetRandomQualityForItem() );
-	}
-
 	pCriteria->SetIgnoreEnabledFlag( true );
 
 	// Determine which item templates match the criteria
 	CUtlVector<item_definition_index_t> vecMatches;
 	const CEconItemSchema::ItemDefinitionMap_t &mapDefs = m_itemSchema.GetItemDefinitionMap();
 
-HackMakeValidList:
 	FOR_EACH_MAP_FAST( mapDefs, i )
 	{
 		if ( pCriteria->BEvaluate( mapDefs[i] ) )
@@ -322,12 +315,6 @@ HackMakeValidList:
 	int iValidItems = vecMatches.Count();
 	if ( !iValidItems )
 	{
-		// If we were searching for a unique item, drop back to a non-unique
-		if ( pCriteria->GetQuality() == AE_UNIQUE )
-		{
-			pCriteria->SetQuality( GetRandomQualityForItem( true ) );
-			goto HackMakeValidList;
-		}
 		return INVALID_ITEM_DEF_INDEX;
 	}
 
@@ -339,45 +326,7 @@ HackMakeValidList:
 	if ( !pItemDef )
 		return INVALID_ITEM_DEF_INDEX;
 
-	// If we haven't specified an entity quality, we want to use the item's specified one
-	if ( pCriteria->GetQuality() == AE_USE_SCRIPT_VALUE )
-	{
-		int32 iScriptQuality = pItemDef->GetQuality();
-		pCriteria->SetQuality( iScriptQuality == AE_UNDEFINED ? GetRandomQualityForItem( true ) : iScriptQuality );
-	}
-
-	// If we haven't specified an item level, we want to use the item's specified one.
-	if ( !pCriteria->BItemLevelSet() )
-	{
-		pCriteria->SetItemLevel( RandomInt( pItemDef->GetMinLevel(), pItemDef->GetMaxLevel() ) );
-	}
-
-	if ( outEntityQuality )
-	{
-		*outEntityQuality = pCriteria->GetQuality();
-	}
 	return iChosenItem;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Return a random quality for the item specified
-//-----------------------------------------------------------------------------
-entityquality_t CEconItemSystem::GetRandomQualityForItem( bool bPreventUnique )
-{
-	// Start on the rarest, and work backwards
-	if ( !bPreventUnique )
-	{
-		if ( RandomFloat(0,1) < item_quality_chance_unique.GetFloat() )
-			return AE_UNIQUE;
-	}
-
-	if ( RandomFloat(0,1) < item_quality_chance_rare.GetFloat() )
-		return AE_RARITY2;
-
-	if ( RandomFloat(0,1) < item_quality_chance_common.GetFloat() )
-		return AE_RARITY1;
-
-	return AE_NORMAL;
 }
 
 static ISteamHTTP *GetISteamHTTP()

@@ -37,7 +37,6 @@ public:
 
 private:
 	void OnDialogAcknowledged();
-	void GCAcknowledge();
 
 	uint64 m_ulNotificationID;
 	uint32 m_unAccountID;

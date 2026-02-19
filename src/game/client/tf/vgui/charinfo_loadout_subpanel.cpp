@@ -10,14 +10,12 @@
 #include "vgui/ISurface.h"
 #include "vgui/IInput.h"
 #include "vgui/ILocalize.h"
-#include "c_tf_freeaccount.h"
 #include "c_tf_player.h"
 #include "confirm_dialog.h"
 #include "gamestringpool.h"
 #include "c_tf_objective_resource.h"
 #include "tf_gamerules.h"
 #include "tf_item_inventory.h"
-#include "trading_start_dialog.h"
 #include "gc_clientsystem.h"
 #include "tf_item_system.h"
 
@@ -263,18 +261,10 @@ void CImageButton::Paint()
 
 const char *g_pszSubButtonNames[CHSB_NUM_BUTTONS] =
 {
-	"ShowBackpackButton",	// CHSB_BACKPACK,
-	"ShowCraftingButton",	// CHSB_CRAFTING,
-	"ShowArmoryButton",		// CHSB_ARMORY,
-	"ShowTradeButton",		// CHSB_TRADING,
 	"ShowPaintkitsButton"	// CHSB_PAINTKITS
 };
 const char *g_pszSubButtonLabelNames[CHSB_NUM_BUTTONS] =
 {
-	"ShowBackpackLabel",	// CHSB_BACKPACK,
-	"ShowCraftingLabel",	// CHSB_CRAFTING,
-	"ShowArmoryLabel",		// CHSB_ARMORY,
-	"ShowTradeLabel",		// CHSB_TRADING,
 	"ShowPaintkitsLabel",	// CHSB_PAINTKITS
 };
 
@@ -328,11 +318,6 @@ CCharInfoLoadoutSubPanel::CCharInfoLoadoutSubPanel(Panel *parent) : vgui::Proper
 	m_iOverSubButton = -1;
 
 	m_pClassLoadoutPanel = new CClassLoadoutPanel( this );
-	m_pBackpackPanel = new CBackpackPanel( this, "backpack_panel" );
-	m_pCraftingPanel = new CCraftingPanel( this, "crafting_panel" );
-	m_pArmoryPanel = new CArmoryPanel( this, "armory_panel" );
-	m_pInspectPanel = new CTFItemInspectionPanel( this, "InspectionPanel" );
-	m_pArmoryPanel->AllowGotoStore();
 	m_pSelectLabel = NULL;
 	m_pLoadoutChangesLabel = NULL;
 	m_pNoSteamLabel = NULL;
@@ -434,9 +419,6 @@ void CCharInfoLoadoutSubPanel::OnSelectionEnded( void )
 void CCharInfoLoadoutSubPanel::OnCancelSelection( void )
 {
 	PostMessage( m_pClassLoadoutPanel, new KeyValues("CancelSelection") );
-	PostMessage( m_pBackpackPanel, new KeyValues("CancelSelection") );
-	PostMessage( m_pCraftingPanel, new KeyValues("CancelSelection") );
-	PostMessage( m_pArmoryPanel, new KeyValues("CancelSelection") );
 	RequestFocus();
 }
 
@@ -447,57 +429,12 @@ void CCharInfoLoadoutSubPanel::OnCharInfoClosing( void )
 {
 	switch ( m_iShowingPanel )
 	{
-	case CHAP_CRAFTING:
-		PostMessage( m_pCraftingPanel, new KeyValues("Closing") );
-		break;
-	case CHAP_BACKPACK:
-		break;
-	case CHAP_ARMORY:
-		PostMessage( m_pArmoryPanel, new KeyValues("Closing") );
-		break;
 	case CHAP_LOADOUT:
 		PostMessage( m_pClassLoadoutPanel, new KeyValues("Closing") );
 		break;
 	default: // Class loadout.
 		break;
 	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharInfoLoadoutSubPanel::OnOpenCrafting( void )
-{
-	OpenToCrafting();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharInfoLoadoutSubPanel::OnCraftingClosed( void )
-{
-	PostMessage( m_pCraftingPanel, new KeyValues("Closing") );
-	m_iShowingPanel = CHAP_LOADOUT;
-	m_iPrevShowingPanel = CHAP_CRAFTING;
-	m_flStartExplanationsAt = 0; 
-	m_iCurrentClassIndex = TF_CLASS_UNDEFINED; 
-	UpdateModelPanels();
-	RequestFocus();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCharInfoLoadoutSubPanel::OnArmoryClosed( void )
-{
-	// Return to whatever we were on before opening the armory
-	PostMessage( m_pArmoryPanel, new KeyValues("Closing") );
-	m_iShowingPanel = m_iPrevShowingPanel;
-	m_iPrevShowingPanel = CHAP_ARMORY;
-	m_flStartExplanationsAt = 0; 
-	m_iCurrentClassIndex = TF_CLASS_UNDEFINED; 
-	UpdateModelPanels();
-	RequestFocus();
 }
 
 //-----------------------------------------------------------------------------
@@ -522,67 +459,6 @@ void CCharInfoLoadoutSubPanel::OnCommand( const char *command )
 				SetClassIndex( nClassIndex, true );
 				return;
 			}
-		}
-	}
-	else if ( !Q_strnicmp( command, "backpack", 8 ) )
-	{
-		OpenToBackpack();
-	}
-	else if ( !Q_strnicmp( command, "crafting", 8 ) )
-	{
-		OpenToCrafting();
-	}
-	else if ( !Q_strnicmp( command, "armory", 6 ) )
-	{
-		OpenToArmory();
-	}
-	else if ( !Q_strnicmp( command, "trading", 7 ) )
-	{
-		OpenTradingStartDialog( this );
-	}
-	else if ( FStrEq( command, "paintkit_preview" ) )
-	{
-		// When opening from the charinfo panel, just show a random weapon
-		CUtlVector< CTFItemDefinition* > vecWeaponDefs;
-
-		// Dig up all the weapons
-		const CEconItemSchema::ItemDefinitionMap_t& mapItemDefs = ItemSystem()->GetItemSchema()->GetItemDefinitionMap();
-		FOR_EACH_MAP_FAST( mapItemDefs, i )
-		{
-			CTFItemDefinition *pData = assert_cast< CTFItemDefinition* >( mapItemDefs[i] );
-
-			if ( pData->GetDefaultLoadoutSlot() == LOADOUT_POSITION_PRIMARY ||
-				 pData->GetDefaultLoadoutSlot() == LOADOUT_POSITION_SECONDARY ||
-				 pData->GetDefaultLoadoutSlot() == LOADOUT_POSITION_MELEE )
-			{
-
-				float flInspect = 0;
-				static CSchemaAttributeDefHandle pAttrib_WeaponAllowInspect( "weapon_allow_inspect" );
-				if ( FindAttribute_UnsafeBitwiseCast<attrib_value_t>( pData, pAttrib_WeaponAllowInspect, &flInspect ) )
-				{
-					vecWeaponDefs.AddToTail( pData );
-				}
-			}
-		}
-
-		Assert( vecWeaponDefs.Count() );
-		if ( vecWeaponDefs.Count() )
-		{
-			// Randomly pick one that supports paintkits.  We don't want to do GetValidPaintkits() in the above
-			// loop because it causes the CTFItemDefinition to populate its valid paintkits list, which isn't cheap
-			int nSafeguard = 0;
-			int nRandomIndex = 0;
-			do 
-			{
-				nRandomIndex = RandomInt( 0, vecWeaponDefs.Count() - 1 );
-				++nSafeguard;
-			} while ( vecWeaponDefs[ nRandomIndex ]->GetValidPaintkits().IsEmpty() && nSafeguard < 100 );
-
-			// Open up the inspection panel with the random weapon we've chosen
-			CEconItemView itemTemp;
-			itemTemp.Init( vecWeaponDefs[ nRandomIndex ]->GetDefinitionIndex(), AE_UNIQUE, AE_USE_SCRIPT_VALUE, true );
-
-			OpenToPaintkitPreview( &itemTemp, false, false );
 		}
 	}
 	else if ( !Q_stricmp( command, "show_explanations" ) )
@@ -647,19 +523,6 @@ void CCharInfoLoadoutSubPanel::SetTeamIndex( int iTeam )
 }
 
 
-void CCharInfoLoadoutSubPanel::OpenToPaintkitPreview( CEconItemView* pItem, bool bFixedItem, bool bFixedPaintkit )
-{
-	if ( m_pInspectPanel->IsLayoutInvalid() )
-		m_pInspectPanel->InvalidateLayout( true, true );
-
-	if ( pItem )
-	{
-		m_pInspectPanel->SetOptions( bFixedItem, bFixedPaintkit, false );
-		m_pInspectPanel->SetItemCopy( pItem );
-	}
-	OpenSubPanel( CHAP_PAINTKIT_PREVIEW );
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -683,44 +546,11 @@ void CCharInfoLoadoutSubPanel::UpdateModelPanels( bool bOpenClassLoadout )
 	int iLabelClassToSet = -1;
 	int iClassIndexToSet = 0;
 
-	if ( m_iShowingPanel == CHAP_CRAFTING )
-	{
-		m_pClassLoadoutPanel->SetVisible( false );
-		m_pBackpackPanel->SetVisible( false );
-		m_pArmoryPanel->SetVisible( false );
-		m_pCraftingPanel->ShowPanel( m_iCurrentClassIndex, true, (m_iPrevShowingPanel == CHAP_ARMORY) );
-		m_pInspectPanel->SetVisible( false );
-	}
-	else if ( m_iShowingPanel == CHAP_BACKPACK )
-	{
-		m_pClassLoadoutPanel->SetVisible( false );
-		m_pCraftingPanel->SetVisible( false );
-		m_pArmoryPanel->SetVisible( false );
-		m_pBackpackPanel->ShowPanel( m_iCurrentClassIndex, true, (m_iPrevShowingPanel == CHAP_ARMORY) );
-		m_pInspectPanel->SetVisible( false );
-	}
-	else if ( m_iShowingPanel == CHAP_ARMORY )
-	{
-		m_pClassLoadoutPanel->SetVisible( false );
-		m_pCraftingPanel->SetVisible( false );
-		m_pBackpackPanel->SetVisible( false );
-		m_pArmoryPanel->ShowPanel( m_iArmoryItemDef );
-		m_pInspectPanel->SetVisible( false );
-	}
-	else if ( m_iShowingPanel == CHAP_PAINTKIT_PREVIEW )
-	{
-		m_pInspectPanel->SetVisible( true );
-	}
-	else
 	{
 		iClassIndexToSet = bOpenClassLoadout ? m_iCurrentClassIndex : TF_CLASS_UNDEFINED;
-		m_pArmoryPanel->SetVisible( false );
-		m_pBackpackPanel->SetVisible( false );
-		m_pCraftingPanel->SetVisible( false );
-		m_pInspectPanel->SetVisible( false );
 		m_pClassLoadoutPanel->SetTeam( m_iCurrentTeamIndex );
 		m_pClassLoadoutPanel->SetClass( iClassIndexToSet );
-		m_pClassLoadoutPanel->ShowPanel( iClassIndexToSet, false, (m_iPrevShowingPanel == CHAP_ARMORY) );
+		m_pClassLoadoutPanel->ShowPanel( iClassIndexToSet, false );
 
 		iLabelClassToSet = m_iCurrentClassIndex;
 	}
@@ -959,33 +789,6 @@ void CCharInfoLoadoutSubPanel::UpdateLabelFromSubButton( int nButton )
 
 	switch ( nButton )
 	{
-	case CHSB_BACKPACK:
-		{
-			int iNumItems = TFInventoryManager()->GetLocalTFInventory()->GetItemCount();
-			if ( iNumItems == 1 )
-			{
-				const wchar_t *wszItemsName = g_pVGuiLocalize->Find( "#Loadout_OpenBackpackDesc1" );
-				m_pItemsLabel->SetText( wszItemsName );
-			}
-			else
-			{
-				wchar_t wzCount[10];
-				_snwprintf( wzCount, ARRAYSIZE( wzCount ), L"%d", iNumItems );
-				wchar_t	wTemp[32];
-				g_pVGuiLocalize->ConstructString_safe( wTemp, g_pVGuiLocalize->Find("Loadout_OpenBackpackDesc"), 1, wzCount );
-				m_pItemsLabel->SetText( wTemp );
-			}
-		}
-		break;
-	case CHSB_CRAFTING:
-		m_pItemsLabel->SetText( g_pVGuiLocalize->Find( "Loadout_OpenCraftingDesc" ) );
-		break;
-	case CHSB_ARMORY:
-		m_pItemsLabel->SetText( g_pVGuiLocalize->Find( "Loadout_OpenArmoryDesc" ) );
-		break;
-	case CHSB_TRADING:
-		m_pItemsLabel->SetText( g_pVGuiLocalize->Find( "Loadout_OpenTradingDesc" ) );
-		break;
 	case CHSB_PAINTKITS:
 		m_pItemsLabel->SetText( g_pVGuiLocalize->Find( "Loadout_OpenPaintkitPreview" ) );
 		break;

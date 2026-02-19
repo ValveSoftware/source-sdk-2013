@@ -60,13 +60,7 @@ class CItemSelectionCriteria
 public:
 	// Constructors and destructor
 	CItemSelectionCriteria() : 
-	  m_bItemLevelSet( false ),
-		  m_unItemLevel( 0 ),
-		  m_bQualitySet( false ),
-		  m_nItemQuality( k_unItemQuality_Any ), 
 		  m_unInitialInventory( 0 ),
-		  m_bInitialQuantitySet( false ),
-		  m_unInitialQuantity( 1 ),
 		  m_bIgnoreEnabledFlag( false ),
 		  m_unEquipRegionMask( 0 )
 	  { 
@@ -77,18 +71,9 @@ public:
 	  ~CItemSelectionCriteria();
 
 	  // Accessors and Settors
-	  bool			BItemLevelSet( void ) const					{ return m_bItemLevelSet; }
-	  uint32		GetItemLevel( void ) const					{ Assert( m_bItemLevelSet ); return m_unItemLevel; }
-	  void			SetItemLevel( uint32 unLevel )				{ m_unItemLevel = unLevel; m_bItemLevelSet = true; }
-	  bool			BQualitySet( void ) const					{ return m_bQualitySet; }
-	  int32			GetQuality( void ) const					{ Assert( m_bQualitySet ); return m_nItemQuality; }
-	  void			SetQuality( int32 nQuality )				{ m_nItemQuality = nQuality; m_bQualitySet = true; }
 	  uint32		GetInitialInventory( void ) const			{ return m_unInitialInventory; }
 	  void			SetInitialInventory( uint32 unInventory )	{ m_unInitialInventory = unInventory; }
-	  bool			BInitialQuantitySet( void ) const			{ return m_bQualitySet; }
-	  uint32		GetInitialQuantity( void ) const			{ Assert( m_bQualitySet ); return m_unInitialQuantity; }
-	  void			SetInitialQuantity( uint32 unQuantity )		{ m_unInitialQuantity = unQuantity; m_bInitialQuantitySet = true; }
-	  void			SetIgnoreEnabledFlag( bool bIgnore )		{ m_bIgnoreEnabledFlag = bIgnore; }
+	 void			SetIgnoreEnabledFlag( bool bIgnore )		{ m_bIgnoreEnabledFlag = bIgnore; }
 
 	  // Tags
 	  void			SetTags( const char *pszTags );
@@ -262,22 +247,8 @@ private:
 		CUtlString			m_sValue;
 	};
 
-	// True if item level is specified in this criteria
-	bool			m_bItemLevelSet;
-	// The level of the item to generate
-	uint32			m_unItemLevel;
-	// True if quality is specified in this criteria
-	bool			m_bQualitySet;
-	// The quality of the item to generate
-	int32			m_nItemQuality;
 	// The initial inventory token of the item
 	uint32			m_unInitialInventory;
-	// True if initial quantity is specified in this criteria.
-	bool			m_bInitialQuantitySet;
-	// The initial quantity of the item
-	uint32			m_unInitialQuantity;
-	// Enforced explicit quality matching
-	bool			m_bForcedQualityMatch;
 	// Ignoring enabled flag (used when crafting)
 	bool			m_bIgnoreEnabledFlag;
 

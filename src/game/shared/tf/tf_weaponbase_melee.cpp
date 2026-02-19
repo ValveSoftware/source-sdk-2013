@@ -651,8 +651,6 @@ bool CTFWeaponBaseMelee::OnSwingHit( trace_t &trace )
 			{
 				pTargetPlayer->m_Shared.AddCond( TF_COND_SPEED_BOOST, 2.f );
 				pPlayer->m_Shared.AddCond( TF_COND_SPEED_BOOST, 3.6f );		// give the soldier a bit of additional time to allow them to keep up better with faster classes
-
-				EconEntity_OnOwnerKillEaterEvent( this, pPlayer, pTargetPlayer, kKillEaterEvent_TeammatesWhipped );	// Strange
 			}
 
 			// Give health to teammates on hit
@@ -764,27 +762,6 @@ void CTFWeaponBaseMelee::Smack( void )
 	}
 
 #if !defined (CLIENT_DLL)
-
-	// ACHIEVEMENT_TF_MEDIC_BONESAW_NOMISSES
-	if ( GetWeaponID() == TF_WEAPON_BONESAW )
-	{
-		int iCount = pPlayer->GetPerLifeCounterKV( "medic_bonesaw_hits" );
-
-		if ( bHitEnemyPlayer )
-		{
-			if ( ++iCount >= 5 )
-			{
-				pPlayer->AwardAchievement( ACHIEVEMENT_TF_MEDIC_BONESAW_NOMISSES );
-			}
-		}
-		else
-		{
-			iCount = 0;
-		}
-
-		pPlayer->SetPerLifeCounterKV( "medic_bonesaw_hits", iCount );
-	}
-
 	lagcompensation->FinishLagCompensation( pPlayer );
 #endif
 }
@@ -891,12 +868,6 @@ void CTFWeaponBaseMelee::DoMeleeDamage( CBaseEntity* ent, trace_t& trace, float 
 			{
 				// force victim to laugh!
 				pVictimPlayer->Taunt( TAUNT_MISC_ITEM, MP_CONCEPT_TAUNT_LAUGH );
-
-				// strange stat tracking
-				EconEntity_OnOwnerKillEaterEvent( this,
-												  ToTFPlayer( GetOwner() ),
-												  pVictimPlayer,
-												  kKillEaterEvent_PlayerTickle );
 			}
 		}
 

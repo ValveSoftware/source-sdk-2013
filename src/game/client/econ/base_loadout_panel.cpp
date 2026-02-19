@@ -7,7 +7,6 @@
 
 #include "cbase.h"
 #include "base_loadout_panel.h"
-#include "item_confirm_delete_dialog.h"
 #include "vgui/ISurface.h"
 #include "gamestringpool.h"
 #include "iclientmode.h"
@@ -18,7 +17,6 @@
 #include "vgui_controls/CheckButton.h"
 #include "vgui_controls/ComboBox.h"
 #include "vgui/IInput.h"
-#include "econ_ui.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -106,8 +104,11 @@ void CBaseLoadoutPanel::ApplySettings( KeyValues *inResourceData )
 	}
 }
 
-extern const char *g_szItemBorders[AE_MAX_TYPES][5];
-extern ConVar cl_showbackpackrarities;
+// Array of borders for rarities. Three borders for each rarity: Base, Mouseover, and Selected
+const char *g_szItemBorders[][5] =
+{
+	{ "BackpackItemBorder",				"BackpackItemMouseOverBorder",				"BackpackItemSelectedBorder",	"BackpackItemGreyedOutBorder",				"BackpackItemGreyedOutSelectedBorder"				},		// AE_NORMAL = 0
+};
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -133,17 +134,6 @@ void CBaseLoadoutPanel::SetBorderForItem( CItemModelPanel *pItemPanel, bool bMou
 	else
 	{
 		int iRarity = 0;
-		if ( pItemPanel->HasItem() && cl_showbackpackrarities.GetBool() ) 
-		{
-			iRarity = pItemPanel->GetItem()->GetItemQuality() ;
-
-			uint8 nRarity = pItemPanel->GetItem()->GetItemDefinition()->GetRarity();
-			if ( ( nRarity != k_unItemRarity_Any ) && ( iRarity != AE_SELFMADE ) && ( iRarity != AE_UNUSUAL ) )
-			{
-				// translate this quality to rarity
-				iRarity = nRarity + AE_RARITY_DEFAULT;
-			}
-		}
 
 		if ( pItemPanel->IsSelected() )
 		{
@@ -249,10 +239,10 @@ void CBaseLoadoutPanel::CreateItemPanels( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CBaseLoadoutPanel::ShowPanel( int iClass, bool bBackpack, bool bReturningFromArmory )
+void CBaseLoadoutPanel::ShowPanel( int iClass, bool bBackpack )
 {
 	bool bShow = (iClass != 0 || bBackpack);
-	OnShowPanel( bShow, bReturningFromArmory );
+	OnShowPanel( bShow );
 
 	SetVisible( bShow );
 
@@ -281,10 +271,7 @@ void CBaseLoadoutPanel::ShowPanel( int iClass, bool bBackpack, bool bReturningFr
 		}
 	}
 
-	if ( !bReturningFromArmory )
-	{
-		PostShowPanel( bShow );
-	}
+	PostShowPanel( bShow );
 }
 
 //-----------------------------------------------------------------------------

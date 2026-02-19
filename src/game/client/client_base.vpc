@@ -1256,6 +1256,7 @@ $Project
 	$Folder	"Link Libraries"
 	{
 		$Lib		bitmap
+		$Lib		buildinfo // REAL dependency.
 		$Lib		choreoobjects
 		$Lib		dmxloader
 		$Lib		mathlib

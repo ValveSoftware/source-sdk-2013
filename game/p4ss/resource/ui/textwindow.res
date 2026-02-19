@@ -1,4 +1,4 @@
-"Resource/UI/TextWindow.res"
+"resource/ui/textwindow.res"
 {
 	"info"
 	{
@@ -16,14 +16,82 @@
 		"settitlebarvisible"	"0"
 	}
 	
+	"CustomShaderOverlay" //REQUIRES COLOR CORRECTION TO BE ENABLED. OTHERWISE WE GET A BLACKSCREEN. Someone get a coder! Force the setting on for all players?
+	{
+		"ControlName"	"ImagePanel"
+		"xpos"		    "0"
+		"ypos"		    "0"
+		"zpos"		    "-10000"
+		"wide"		    "f0"
+		"tall"		    "480"
+		"scaleimage"	"1"
+		"image"			"../shaders/sepia"
+	}
+	
+	"BGDarken"
+	{
+		"ControlName"	"ImagePanel"
+		"fieldName"		"BGDarken"
+		"xpos"			"0"
+		"ypos"			"0"
+		"zpos"			"-10"
+		"wide"			"f0"
+		"tall"			"f0"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+		"tabPosition"	"0"	
+		"image"			"../hud/blank"
+		"tileImage"		"1"
+		"PaintBackgroundType"	"0"
+		"fillcolor"		"0 0 0 50"
+	}	
+	
+	"Modulate"
+	{
+		"ControlName"	"ImagePanel"
+		"fieldName"		"Modulate"
+		"xpos"			"0"
+		"ypos"			"0"
+		"zpos"			"-12"
+		"wide"			"f0"
+		"tall"			"f0"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+		"tabPosition"	"0"	
+		"image"			"../hud/blank"
+		"tileImage"		"1"
+		"PaintBackgroundType"	"0"
+		"drawcolor"		"100 140 70 255"
+	}
+	
+ 	"MainBG"
+	{
+		"ControlName"		"EditablePanel"
+		"fieldName"		"MainBG"
+		"xpos"			"cs-0.5"
+		"ypos"			"cs-0.5"
+		"zpos"			"-1"
+		"wide"			"480"
+		"tall"			"300"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+		"border"		"PFSquareBorder"
+	}	
+	
 	"TFMessageTitle"
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"TFMessageTitle"
-		"xpos"			"c-184"
-		"ypos"			"95"
+		"xpos"			"cs-0.5"
+		"ypos"			"110"
 		"zpos"			"1"
-		"wide"			"420"
+		"wide"			"440"
 		"tall"			"24"
 		"autoResize"	"0"
 		"pinCorner"		"0"
@@ -35,6 +103,7 @@
 		"brighttext"	"0"
 		"font"			"MontserratBlack40Shadow"
 		"fgcolor"		"White"
+		"proportionaltoparent"	"1"
 	}	
 
 	"TextMessage"
@@ -50,11 +119,11 @@
 		"ControlName"	"CExRichText"
 		"fieldName"		"TFTextMessage"
 		"font"			"MontserratSemibold16"
-		"xpos"			"c-184"
-		"ypos"			"125"
+		"xpos"			"cs-0.5"
+		"ypos"			"140"
 		"zpos"			"1"
-		"wide"			"415"
-		"tall"			"240"
+		"wide"			"440"
+		"tall"			"230"
 		"autoResize"	"3"
 		"pinCorner"		"0"
 		"visible"		"1"
@@ -62,6 +131,7 @@
 		"paintborder"	"0"
 		"textAlignment"	"northwest"
 		"fgcolor"		"Gray"
+		"proportionaltoparent"	"1"
 	}
 
 	"HTMLMessage"
@@ -144,13 +214,14 @@
 		"tall"			"50"
 		"autoResize"	"0"
 		"pinCorner"		"0"
-		"visible"		"0"
-		"enabled"		"0"
+		"visible"		"1"
+		"enabled"		"1"
 		"tabPosition"	"0"	
-		"image"			"loadout_bottom_gradient"
+		"image"			"../hud/blank"
 		"tileImage"		"1"
 		"PaintBackgroundType"	"0"
-	}						
+		"fillcolor"		"32 32 32 255"
+	}					
 	
 	"MessageTitle"
 	{

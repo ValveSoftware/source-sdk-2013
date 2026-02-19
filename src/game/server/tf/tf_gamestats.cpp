@@ -27,14 +27,10 @@
 #include "filesystem.h" // for temp passtime local stats logging
 #include "passtime_convars.h"
 
-#include "tf_matchmaking_shared.h"
-
 #include "gc_clientsystem.h"
 #include "tf_gcmessages.h"
 #include "rtime.h"
 #include "team_train_watcher.h"
-
-extern ConVar tf_mm_trusted;
 
 // Must run with -gamestats to be able to turn on/off stats with ConVar below.
 static ConVar tf_stats_nogameplaycheck( "tf_stats_nogameplaycheck", "0", FCVAR_NONE , "Disable normal check for valid gameplay, send stats regardless." );
@@ -446,9 +442,6 @@ void CTFGameStats::ResetRoundStats()
 //-----------------------------------------------------------------------------
 void CTFGameStats::IncrementStat( CTFPlayer *pPlayer, TFStatType_t statType, int iValue )
 {
-	if ( TFGameRules() && TFGameRules()->IsCompetitiveMode() && TFGameRules()->State_Get() != GR_STATE_RND_RUNNING )
-		return;
-
 	PlayerStats_t &stats = m_aPlayerStats[pPlayer->entindex()];
 	stats.statsCurrentLife.m_iStat[statType] += iValue;
 	stats.statsCurrentRound.m_iStat[statType] += iValue;
@@ -505,7 +498,7 @@ void CTFGameStats::SendStatsToPlayer( CTFPlayer *pPlayer, bool bIsAlive )
 	for ( int i = 0; i < GetItemSchema()->GetMapCount(); i++ )
 	{
 		const MapDef_t *pMapDef = GetItemSchema()->GetMasterMapDefByIndex( i );
-		if ( V_strcmp( pMapDef->pszMapName, gpGlobals->mapname.ToCStr() ) == 0 )
+		if ( pMapDef && V_strcmp( pMapDef->pszMapName, gpGlobals->mapname.ToCStr() ) == 0 )
 		{
 			iStat = 0;
 			iSendBits = 0;
@@ -684,17 +677,6 @@ void CTFGameStats::Event_PlayerLeachedHealth( CTFPlayer *pPlayer, bool bDispense
 	Assert( amount >= 0 );
 	Assert( amount < 1000 );
 
-	if ( !bDispenserHeal )
-	{
-		// If this was a heal by enemy medic and the first such heal that the server is aware of for this player,
-		// send an achievement event to client.  On the client, it will award achievement if player doesn't have it yet
-		PlayerStats_t &stats = m_aPlayerStats[pPlayer->entindex()];
-		if ( 0 == stats.statsAccumulated.m_iStat[TFSTAT_HEALTHLEACHED] )
-		{
-			pPlayer->AwardAchievement( ACHIEVEMENT_TF_GET_HEALED_BYENEMY );
-		}
-	}
-
 	IncrementStat( pPlayer, TFSTAT_HEALTHLEACHED, (int) amount );
 }
 
@@ -739,17 +721,6 @@ void CTFGameStats::Event_PlayerHealedOther( CTFPlayer *pPlayer, float amount )
 //-----------------------------------------------------------------------------
 void CTFGameStats::Event_PlayerHealedOtherAssist( CTFPlayer *pPlayer, float amount ) 
 {
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pPlayer && pMatch )
-	{
-		// Anti-farming in official matchmaking modes
-		if ( gpGlobals->curtime - pPlayer->GetLastDamageReceivedTime() > 90.f ||
-			 gpGlobals->curtime - pPlayer->GetLastEntityDamagedTime() > 90.f )
-		{
-			return;
-		}
-	}
-
 	Assert ( pPlayer );
 
 	// make sure value is sane
@@ -923,17 +894,6 @@ void CTFGameStats::Event_PlayerStunBall( CTFPlayer *pAttacker, bool bSpecial )
 //-----------------------------------------------------------------------------
 void CTFGameStats::Event_PlayerAwardBonusPoints( CTFPlayer *pPlayer, CBaseEntity *pSource, int nCount )
 {
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pPlayer && pMatch )
-	{
-		// Anti-farming in official matchmaking modes
-		if ( gpGlobals->curtime - pPlayer->GetLastDamageReceivedTime() > 90.f ||
-			 gpGlobals->curtime - pPlayer->GetLastEntityDamagedTime() > 90.f )
-		{
-			 return;
-		}
-	}
-
 	IncrementStat( pPlayer, TFSTAT_BONUS_POINTS, nCount );
 
 	// This event ends up drawing a combattext number
@@ -2838,7 +2798,7 @@ void CTFGameStats::Event_PlayerLoadoutChanged( CTFPlayer *pPlayer, bool bForceRe
 	// if this is the first time through, class is invalid and we dont want to report anything
 
 	// Table updated, using v2
-	KeyValues* pKVData = new KeyValues( "TF2ServerPlayerLoadoutv2" );
+	KeyValuesAD pKVData( "TF2ServerPlayerLoadoutv2" );
 	
 	int iSlotCount = LOADOUT_POSITION_MISC2 + 1;
 	for ( int iSlot = 0; iSlot < iSlotCount; ++iSlot )
@@ -2847,7 +2807,6 @@ void CTFGameStats::Event_PlayerLoadoutChanged( CTFPlayer *pPlayer, bool bForceRe
 		bIsInit |= iDefIndex != INVALID_ITEM_DEF_INDEX;
 
 		pKVData->SetInt( CFmtStr("SlotDef%d", iSlot), iDefIndex );
-		pKVData->SetInt( CFmtStr("SlotQuality%d", iSlot), stats.loadoutStats.iLoadoutItemQualities[ iSlot ] );
 		pKVData->SetInt( CFmtStr("SlotStyle%d", iSlot), stats.loadoutStats.iLoadoutItemStyles[ iSlot ] );
 
 		// Check to see if the item actually changed
@@ -2862,9 +2821,8 @@ void CTFGameStats::Event_PlayerLoadoutChanged( CTFPlayer *pPlayer, bool bForceRe
 		bActuallyChanged |= stats.loadoutStats.iLoadoutItemDefIndices[ iSlot ] != iItemDef;
 
 		// Set the new items
-		int iItemQuality = pItem ? pItem->GetItemQuality() : AE_UNDEFINED;
 		style_index_t iItemStyle = pItem ? pItem->GetStyle() : 0;
-		stats.loadoutStats.SetItemDef( iSlot, iItemDef, iItemQuality, iItemStyle );
+		stats.loadoutStats.SetItemDef( iSlot, iItemDef, iItemStyle );
 	}
 
 	pKVData->SetInt( "ID", ++m_iLoadoutChangesCount );

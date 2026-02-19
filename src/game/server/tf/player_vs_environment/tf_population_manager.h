@@ -96,8 +96,6 @@ public:
 	int GetTotalPopFileCurrency( void );
 
 	void AdjustMinPlayerSpawnTime( void );
-
-	void MarkAllCurrentPlayersSafeToLeave();
 	void MvMVictory( void );
 	void PlayerDoneViewingLoot( const CTFPlayer* pPlayer );
 

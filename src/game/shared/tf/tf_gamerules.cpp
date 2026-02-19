@@ -17,8 +17,6 @@
 #include "tf_weapon_grenadelauncher.h"
 #include "tf_logic_robot_destruction.h"
 #include "tf_logic_player_destruction.h"
-#include "tf_matchmaking_shared.h"
-#include "tf_progression_description.h"
 
 #ifdef CLIENT_DLL
 	#include <game/client/iviewport.h>
@@ -124,7 +122,6 @@
 	#include "tf_weapon_invis.h"
 	#include "tf_gc_server.h"
 	#include "gcsdk/msgprotobuf.h"
-	#include "tf_party.h"
 	#include "tf_autobalance.h"
 	#include "player_voice_listener.h"
 #endif
@@ -143,7 +140,6 @@
 #include "econ_holidays.h"
 #include "rtime.h"
 #include "tf_revive.h"
-#include "tf_duckleaderboard.h"
 
 #include "passtime_convars.h"
 
@@ -168,29 +164,12 @@ static int g_TauntCamRagdollAchievements[] =
 	0,		// TF_CLASS_SNIPER,
 	0,		// TF_CLASS_SOLDIER,
 	0,		// TF_CLASS_DEMOMAN,
-	ACHIEVEMENT_TF_MEDIC_FREEZECAM_RAGDOLL,		// TF_CLASS_MEDIC,
+	0,		// TF_CLASS_MEDIC,
 	0,		// TF_CLASS_HEAVYWEAPONS,
 	0,		// TF_CLASS_PYRO,
-	ACHIEVEMENT_TF_SPY_FREEZECAM_FLICK,		// TF_CLASS_SPY,
+	0,		// TF_CLASS_SPY,
 	0,		// TF_CLASS_ENGINEER,
 
-	0,		// TF_CLASS_CIVILIAN,
-	0,		// TF_CLASS_COUNT_ALL,
-};
-
-static int g_TauntCamAchievements[] = 
-{
-	0,		// TF_CLASS_UNDEFINED
-
-	0,		// TF_CLASS_SCOUT,	
-	ACHIEVEMENT_TF_SNIPER_FREEZECAM_HAT,		// TF_CLASS_SNIPER,
-	ACHIEVEMENT_TF_SOLDIER_FREEZECAM_GIBS,		// TF_CLASS_SOLDIER,		(extra check to count the number of gibs onscreen)
-	ACHIEVEMENT_TF_DEMOMAN_FREEZECAM_SMILE,		// TF_CLASS_DEMOMAN,
-	0,		// TF_CLASS_MEDIC,
-	ACHIEVEMENT_TF_HEAVY_FREEZECAM_TAUNT,		// TF_CLASS_HEAVYWEAPONS,  (there's an extra check on this one to see if we're also invuln)
-	ACHIEVEMENT_TF_PYRO_FREEZECAM_TAUNTS,		// TF_CLASS_PYRO,
-	0,		// TF_CLASS_SPY,
-	ACHIEVEMENT_TF_ENGINEER_FREEZECAM_TAUNT,	// TF_CLASS_ENGINEER,
 	0,		// TF_CLASS_CIVILIAN,
 	0,		// TF_CLASS_COUNT_ALL,
 };
@@ -201,9 +180,9 @@ static int g_TauntCamAchievements2[] =
 	0,		// TF_CLASS_UNDEFINED
 
 	0,		// TF_CLASS_SCOUT,	
-	ACHIEVEMENT_TF_SNIPER_FREEZECAM_WAVE,		// TF_CLASS_SNIPER,
-	ACHIEVEMENT_TF_SOLDIER_FREEZECAM_TAUNT,		// TF_CLASS_SOLDIER,
-	ACHIEVEMENT_TF_DEMOMAN_FREEZECAM_RUMP,		// TF_CLASS_DEMOMAN,
+	0,		// TF_CLASS_SNIPER,
+	0,		// TF_CLASS_SOLDIER,
+	0,		// TF_CLASS_DEMOMAN,
 	0,		// TF_CLASS_MEDIC,
 	0,		// TF_CLASS_HEAVYWEAPONS,
 	0,		// TF_CLASS_PYRO,
@@ -641,13 +620,11 @@ extern ConVar tf_debug_damage;
 extern ConVar tf_damage_range;
 extern ConVar tf_damage_disablespread;
 extern ConVar tf_populator_damage_multiplier;
-extern ConVar tf_mm_trusted;
 extern ConVar tf_weapon_criticals;
 extern ConVar tf_weapon_criticals_melee;
 extern ConVar mp_idledealmethod;
 extern ConVar mp_idlemaxtime;
 
-extern ConVar tf_mm_strict;
 extern ConVar mp_autoteambalance;
 
 // STAGING_SPY
@@ -884,6 +861,8 @@ ConVar tf_mvm_respec_credit_goal( "tf_mvm_respec_credit_goal", "2000", FCVAR_CHE
 ConVar tf_mvm_buybacks_method( "tf_mvm_buybacks_method", "0", FCVAR_REPLICATED | FCVAR_HIDDEN, "When set to 0, use the traditional, currency-based system.  When set to 1, use finite, charge-based system.", true, 0.0, true, 1.0 );
 ConVar tf_mvm_buybacks_per_wave( "tf_mvm_buybacks_per_wave", "3", FCVAR_REPLICATED | FCVAR_HIDDEN, "The fixed number of buybacks players can use per-wave." );
 
+#define P4SS_SHORTNAME_MAX_CHARS 4
+ConVar pf_shortname( "pf_shortname", "", FCVAR_ARCHIVE | FCVAR_USERINFO, "Shortened user name" );
 
 #ifdef GAME_DLL
 enum { kMVM_CurrencyPackMinSize = 1, };
@@ -1025,17 +1004,6 @@ bool TF_IsHolidayActive( /*EHoliday*/ int eHoliday )
 	return UTIL_IsHolidayActive( eHoliday );
 }
 
-#ifdef CLIENT_DLL
-bool BInEndOfMatch()
-{
-	const bool bInEndOfMatch = TFGameRules() &&
-		TFGameRules()->State_Get() == GR_STATE_GAME_OVER &&
-		GTFGCClientSystem()->BConnectedToMatchServer( false );
-
-	return bInEndOfMatch;
-}
-#endif
-
 #ifdef TF_CREEP_MODE
 ConVar tf_gamemode_creep_wave( "tf_gamemode_creep_wave", "0", FCVAR_REPLICATED | FCVAR_NOTIFY );
 ConVar tf_creep_wave_player_respawn_time( "tf_creep_wave_player_respawn_time", "10", FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_CHEAT, "How long it takes for a player to respawn with his team after death." );
@@ -1052,7 +1020,7 @@ ConVar tf_creep_wave_player_respawn_time( "tf_creep_wave_player_respawn_time", "
 
 ConVar hide_server( "hide_server", "0", FCVAR_GAMEDLL, "Whether the server should be hidden from the master server" );
 
-ConVar mp_waitingforplayers_time( "mp_waitingforplayers_time", (IsX360()?"15":"30"), FCVAR_GAMEDLL | WAITING_FOR_PLAYERS_FLAGS, "WaitingForPlayers time length in seconds" );
+ConVar mp_waitingforplayers_time( "mp_waitingforplayers_time", "0", FCVAR_GAMEDLL | WAITING_FOR_PLAYERS_FLAGS, "WaitingForPlayers time length in seconds" );
 
 ConVar tf_gamemode_arena ( "tf_gamemode_arena", "0", FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DEVELOPMENTONLY );
 ConVar tf_gamemode_cp ( "tf_gamemode_cp", "0", FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DEVELOPMENTONLY );
@@ -1199,20 +1167,6 @@ static ConCommand randommap( "randommap", cc_RandomMap, "Changelevel to a random
 #endif	// GAME_DLL
 
 #ifdef GAME_DLL
-static bool PlayerHasDuckStreaks( CTFPlayer *pPlayer )
-{
-	CEconItemView *pActionItem = pPlayer->GetEquippedItemForLoadoutSlot( LOADOUT_POSITION_ACTION );
-	if ( !pActionItem )
-		return false;
-
-	// Duck Badge Cooldown is based on badge level.  Noisemaker is more like an easter egg
-	static CSchemaAttributeDefHandle pAttr_DuckStreaks( "duckstreaks active" );
-	uint32 iDuckStreaksActive = 0;
-
-	// Don't care about the level, just if the attribute is found
-	return FindAttribute_UnsafeBitwiseCast<attrib_value_t>( pActionItem, pAttr_DuckStreaks, &iDuckStreaksActive ) && iDuckStreaksActive > 0;
-}
-
 void ValidateCapturesPerRound( IConVar *pConVar, const char *oldValue, float flOldValue )
 {
 	ConVarRef var( pConVar );
@@ -1230,28 +1184,6 @@ void ValidateCapturesPerRound( IConVar *pConVar, const char *oldValue, float flO
 			pTeam->SetFlagCaptures( 0 );
 		}
 	}
-}
-
-static void Coaching_Start( CTFPlayer *pCoach, CTFPlayer *pStudent )
-{
-	pCoach->SetIsCoaching( true );
-	pCoach->ForceChangeTeam( TEAM_SPECTATOR );
-	pCoach->SetObserverTarget( pStudent );
-	pCoach->StartObserverMode( OBS_MODE_CHASE );
-	pCoach->SetStudent( pStudent );
-	pStudent->SetCoach( pCoach );
-}
-
-static void Coaching_Stop( CTFPlayer *pCoach )
-{
-	CTFPlayer *pStudent = pCoach->GetStudent();
-	if ( pStudent )
-	{
-		pStudent->SetCoach( NULL );
-	}
-	pCoach->SetIsCoaching( false );
-	pCoach->SetStudent( NULL );
-	pCoach->ForceChangeTeam( TEAM_SPECTATOR );
 }
 
 #endif	
@@ -1421,21 +1353,13 @@ BEGIN_NETWORK_TABLE_NOBASE( CTFGameRules, DT_TFGameRules )
 	RecvPropInt( RECVINFO( m_halloweenScenario ) ),
 	RecvPropBool( RECVINFO( m_bHelltowerPlayersInHell ) ),
 	RecvPropBool( RECVINFO( m_bIsUsingSpells ) ),
-	RecvPropBool( RECVINFO( m_bCompetitiveMode ), 0, RecvProxy_CompetitiveMode ),
 	RecvPropInt( RECVINFO( m_nMatchGroupType ) ),
 	RecvPropBool( RECVINFO( m_bMatchEnded ) ),
 	RecvPropBool( RECVINFO( m_bPowerupMode ) ),
 	RecvPropString( RECVINFO( m_pszCustomUpgradesFile ) ),
 	RecvPropBool( RECVINFO( m_bTruceActive ) ),
-	RecvPropBool( RECVINFO( m_bShowMatchSummary ), 0, RecvProxy_MatchSummary ),
-	RecvPropBool( RECVINFO_NAME( m_bShowMatchSummary, "m_bShowCompetitiveMatchSummary" ), 0, RecvProxy_MatchSummary ),     // Renamed
 	RecvPropBool( RECVINFO( m_bTeamsSwitched ) ),
-	RecvPropBool( RECVINFO( m_bMapHasMatchSummaryStage ) ),
-	RecvPropBool( RECVINFO( m_bPlayersAreOnMatchSummaryStage ) ),
 	RecvPropBool( RECVINFO( m_bStopWatchWinner ) ),
-	RecvPropArray3( RECVINFO_ARRAY(m_ePlayerWantsRematch), RecvPropInt( RECVINFO(m_ePlayerWantsRematch[0]), 0, RecvProxy_PlayerVotedForMap ) ),
-	RecvPropInt( RECVINFO( m_eRematchState ) ),
-	RecvPropArray3( RECVINFO_ARRAY(m_nNextMapVoteOptions), RecvPropInt( RECVINFO(m_nNextMapVoteOptions[0]), 0, RecvProxy_NewMapVoteStateChanged ) ),
 
 	RecvPropInt( RECVINFO( m_nForceUpgrades ) ),
 	RecvPropInt( RECVINFO( m_nForceEscortPushLogic ) ),
@@ -1491,20 +1415,12 @@ BEGIN_NETWORK_TABLE_NOBASE( CTFGameRules, DT_TFGameRules )
 	SendPropInt( SENDINFO( m_halloweenScenario ) ),
 	SendPropBool( SENDINFO( m_bHelltowerPlayersInHell ) ),
 	SendPropBool( SENDINFO( m_bIsUsingSpells ) ),
-	SendPropBool( SENDINFO( m_bCompetitiveMode ) ),
 	SendPropBool( SENDINFO( m_bPowerupMode ) ),
-	SendPropInt( SENDINFO( m_nMatchGroupType ) ),
 	SendPropBool( SENDINFO( m_bMatchEnded ) ),
 	SendPropString( SENDINFO( m_pszCustomUpgradesFile ) ),
 	SendPropBool( SENDINFO( m_bTruceActive ) ),
-	SendPropBool( SENDINFO( m_bShowMatchSummary ) ),
 	SendPropBool( SENDINFO( m_bTeamsSwitched ) ),
-	SendPropBool( SENDINFO( m_bMapHasMatchSummaryStage ) ),
-	SendPropBool( SENDINFO( m_bPlayersAreOnMatchSummaryStage ) ),
 	SendPropBool( SENDINFO( m_bStopWatchWinner ) ),
-	SendPropArray3( SENDINFO_ARRAY3(m_ePlayerWantsRematch), SendPropInt( SENDINFO_ARRAY(m_ePlayerWantsRematch), -1, SPROP_UNSIGNED | SPROP_VARINT ) ),
-	SendPropInt( SENDINFO( m_eRematchState ) ),
-	SendPropArray3( SENDINFO_ARRAY3(m_nNextMapVoteOptions), SendPropInt( SENDINFO_ARRAY(m_nNextMapVoteOptions), -1, SPROP_UNSIGNED | SPROP_VARINT ) ),
 
 	SendPropInt( SENDINFO( m_nForceUpgrades ) ),
 	SendPropInt( SENDINFO( m_nForceEscortPushLogic ) ),
@@ -2171,552 +2087,7 @@ bool CTFGameRules::IsCommunityGameMode( void ) const
 	return tf_gamemode_community.GetBool();
 }
 
-bool CTFGameRules::IsCompetitiveMode( void ) const
-{
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-	if ( pMatchDesc )
-	{
-		return pMatchDesc->GetMatchType() == MATCH_TYPE_COMPETITIVE
-			|| pMatchDesc->GetMatchType() == MATCH_TYPE_CASUAL;
-	}
-
-	return false;
-}
-
-bool CTFGameRules::IsMatchTypeCasual( void ) const
-{
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-	if ( pMatchDesc )
-	{
-		return ( pMatchDesc->GetMatchType() == MATCH_TYPE_CASUAL );
-	}
-
-	return false;
-}
-
-bool CTFGameRules::IsMatchTypeCompetitive( void ) const
-{
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-	if ( pMatchDesc )
-	{
-		return ( pMatchDesc->GetMatchType() == MATCH_TYPE_COMPETITIVE );
-	}
-
-	return false;
-}
-
-bool CTFGameRules::BInMatchStartCountdown() const
-{
-	if ( IsCompetitiveMode() )
-	{
-		float flTime = GetRoundRestartTime();
-		if ( ( flTime > 0.f ) && ( (int)( flTime - gpGlobals->curtime ) <= mp_tournament_readymode_countdown.GetInt() ) )
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-ETFMatchGroup CTFGameRules::GetCurrentMatchGroup() const
-{
-
 #ifdef GAME_DLL
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	return pMatch ? pMatch->m_eMatchGroup : k_eTFMatchGroup_Invalid;
-#else
-	// Client
-	// We only care about what the server says if we are in an MM match.  We pass false
-	// into BConnectedToMatch because we want the match group of the server EVEN IF
-	// the match is over, but we're still connected.
-	return GTFGCClientSystem()->BConnectedToMatchServer( false ) ? (ETFMatchGroup)m_nMatchGroupType.Get() : k_eTFMatchGroup_Invalid;
-#endif
-}
-
-bool CTFGameRules::IsManagedMatchEnded() const
-{
-#ifdef GAME_DLL
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	return !pMatch || pMatch->BMatchTerminated();
-#else
-	// Client
-	// We only care about what the server says if we are in an MM match.  (Note that the GC client system calls this to
-	// determine if an MM server considers the match over, so beware circular logic)
-	return !GTFGCClientSystem()->BConnectedToMatchServer( true ) || m_bMatchEnded;
-#endif
-}
-
-#ifdef GAME_DLL
-//-----------------------------------------------------------------------------
-void CTFGameRules::SyncMatchSettings()
-{
-	// These mirror the MatchInfo for the client's sake.
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-
-	m_nMatchGroupType.Set( pMatch ? pMatch->m_eMatchGroup : k_eTFMatchGroup_Invalid );
-	m_bMatchEnded.Set( IsManagedMatchEnded() );
-}
-
-//-----------------------------------------------------------------------------
-bool CTFGameRules::StartManagedMatch()
-{
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( !pMatch )
-	{
-		Warning( "Starting a managed match with no match info\n" );
-		return false;
-	}
-
-	// Cleanup
-	m_eRematchState = NEXT_MAP_VOTE_STATE_NONE;
-
-	/// Sync these before level change, so there's no race condition where clients may connect during/before the
-	/// changelevel and see that the match is ended or wrong.
-	SyncMatchSettings();
-
-	// Change the the correct map from the match.  If no match specified, perform a fresh load of the current map
-	const char *pszMap = pMatch->GetMatchMap();
-	if ( !pszMap )
-	{
-		pszMap = STRING( gpGlobals->mapname );
-		Warning( "Managed match did not specify map, using current map (%s)\n", pszMap );
-	}
-
-	engine->ServerCommand( CFmtStr( "changelevel %s\n", pszMap ) );
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFGameRules::SetCompetitiveMode( bool bValue )
-{
-	m_bCompetitiveMode.Set( bValue );
-	//// Competitive mode is only supported on official servers.
-	//// It requires matchmaking, and doesn't allow ad-hoc connections.
-	//// If cheats are ever enabled, we force this mode off.
-
-	//tf_mm_trusted.SetValue( bValue );
-	//mp_tournament.SetValue( bValue );
-	//mp_tournament_readymode.SetValue( bValue );
-
-	//// No ad-hoc connections
-	//tf_mm_strict.SetValue( bValue );
-
-	//if ( bValue )
-	//{
-	//	engine->ServerCommand( "exec server_ladder.cfg\n" );
-
-	//	Assert( tf_mm_servermode.GetInt() == 1 );
-	//}
-
-	//// Any state toggle is a reset (so don't spam this call)
-	//State_Transition( GR_STATE_PREROUND );
-	//SetInWaitingForPlayers( bValue );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFGameRules::StartCompetitiveMatch( void )
-{
-	m_flSafeToLeaveTimer = -1.f;
-
-	SetInWaitingForPlayers( false );
-	RoundRespawn();
-	State_Transition( GR_STATE_RESTART );
-	ResetPlayerAndTeamReadyState();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Stops a match for some specified reason
-//-----------------------------------------------------------------------------
-void CTFGameRules::StopCompetitiveMatch( CMsgGC_Match_Result_Status nCode )
-{
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	int nActiveMatchPlayers = pMatch->GetNumActiveMatchPlayers();
-	if ( BAttemptMapVoteRollingMatch() &&
-		nCode == CMsgGC_Match_Result_Status_MATCH_SUCCEEDED &&
-		nActiveMatchPlayers > 0 )
-	{
-		ChooseNextMapVoteOptions();
-	}
-	else
-	{
-		// If we're not attempting a rolling match, end it
-		// TODO ROLLING MATCHES: If we bail between now and RequestNewMatchForLobby, we need to call this or we'll get stuck.
-		if ( !IsManagedMatchEnded() )
-		{
-			GTFGCClientSystem()->EndManagedMatch();
-			Assert( IsManagedMatchEnded() );
-			m_bMatchEnded.Set( true );
-		}
-	}
-
-	if ( nCode == CMsgGC_Match_Result_Status_MATCH_SUCCEEDED )
-	{
-		IGameEvent *winEvent = gameeventmanager->CreateEvent( "competitive_victory" );
-		if ( winEvent )
-		{
-			gameeventmanager->FireEvent( winEvent );
-		}
-
-		//
-		// This determines new ratings and creates the GC messages
-		//
-
-		CMatchInfo *pInfo = GTFGCClientSystem()->GetMatch();
-		if ( pInfo )
-		{
-			pInfo->CalculateMatchSkillRatingAdjustments( m_iWinningTeam );
-
-			// Performance ranking with medals is currently server-side
-			if ( pInfo->CalculatePlayerMatchRankData() )
-			{
-				// Send scoreboard event with final data
-				int nPlayers = pInfo->GetNumTotalMatchPlayers();
-				for ( int idx = 0; idx < nPlayers; idx++ )
-				{
-					IGameEvent *pEvent = gameeventmanager->CreateEvent( "competitive_stats_update" );
-					if ( pEvent )
-					{
-						CMatchInfo::PlayerMatchData_t *pMatchRankData = pInfo->GetMatchDataForPlayer( idx );
-
-						CBasePlayer *pPlayer = UTIL_PlayerBySteamID( pMatchRankData->steamID );
-						if ( !pPlayer )
-							continue;
-
-						pEvent->SetInt( "index", pPlayer->entindex() );
-						pEvent->SetInt( "score_rank", pMatchRankData ? pMatchRankData->nScoreMedal : 0 );		// medal won (if any)
-						pEvent->SetInt( "kills_rank", pMatchRankData ? pMatchRankData->nKillsMedal : 0 );		//
-						pEvent->SetInt( "damage_rank", pMatchRankData ? pMatchRankData->nDamageMedal : 0 );		//
-						pEvent->SetInt( "healing_rank", pMatchRankData ? pMatchRankData->nHealingMedal : 0 );	//
-						pEvent->SetInt( "support_rank", pMatchRankData ? pMatchRankData->nSupportMedal : 0 );	//
-						gameeventmanager->FireEvent( pEvent );
-					}
-				}
-			}
-		}
-		else
-		{
-			Warning( "CalculatePlayerMatchRankData(): General failure (investigate).\n" );
-		}
-
-		ReportMatchResultsToGC( nCode );
-	}
-	else if ( nCode == CMsgGC_Match_Result_Status_MATCH_FAILED_ABANDON )
-	{
-		// This generates a "safe to leave" notification on clients
-		IGameEvent *pEvent = gameeventmanager->CreateEvent( "player_abandoned_match" );
-		if ( pEvent )
-		{
-			pEvent->SetBool( "game_over", ( tf_competitive_abandon_method.GetBool() || State_Get() == GR_STATE_BETWEEN_RNDS ) );
-			gameeventmanager->FireEvent( pEvent );
-		}
-
-		ReportMatchResultsToGC( nCode );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Fully completes the match
-//-----------------------------------------------------------------------------
-void CTFGameRules::EndCompetitiveMatch( void )
-{
-	MatchSummaryEnd();
-
-	Log( "Competitive match ended.  Kicking all players.\n" );
-	engine->ServerCommand( "kickall #TF_Competitive_Disconnect\n" );
-
-	// Prepare for next match
-	g_fGameOver = false;
-	if ( !IsCommunityGameMode() )
-		m_bAllowBetweenRounds = true;
-	State_Transition( GR_STATE_RESTART );
-	SetInWaitingForPlayers( true );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Called during CTFGameRules::Think()
-//-----------------------------------------------------------------------------
-void CTFGameRules::ManageCompetitiveMode( void )
-{
-	if ( !IsCompetitiveMode() )
-		return;
-
-	// Bring this back when we ship?
-// 	// Security check
-// 	if ( !tf_skillrating_debug.GetBool() )
-// 	{
-// 		m_bCompetitiveMode &= tf_mm_trusted.GetBool() &&
-// 							  IsInTournamentMode() &&
-// 							  !HaveCheatsBeenEnabledDuringLevel();
-// 	}
-
-	// We lost trusted status
-	if ( !tf_mm_trusted.GetBool() )
-	{
-		m_nMatchGroupType.Set( k_eTFMatchGroup_Invalid );
-		StopCompetitiveMatch( CMsgGC_Match_Result_Status_MATCH_FAILED_TRUSTED );
-		UTIL_ClientPrintAll( HUD_PRINTCENTER, "#TF_Matchmaking_Exit_Competitive_Mode" );
-		Log( "Server lost trusted status.  Exiting Competitive Mode!" );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-bool CTFGameRules::ReportMatchResultsToGC( CMsgGC_Match_Result_Status nCode )
-{
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( !pMatch )
-		return false;
-
-	GCSDK::CProtoBufMsg< CMsgGC_Match_Result > *pMsg = new GCSDK::CProtoBufMsg< CMsgGC_Match_Result >( k_EMsgGC_Match_Result );
-
-	pMsg->Body().set_match_id( pMatch->m_nMatchID );
-	pMsg->Body().set_match_group( pMatch->m_eMatchGroup );
-	pMsg->Body().set_status( nCode );
-	pMsg->Body().set_duration( CTF_GameStats.m_currentMap.m_Header.m_iTotalTime + ( gpGlobals->curtime - m_flRoundStartTime ) );
-
-	CTeam *pTeam = GetGlobalTeam( TF_TEAM_RED );
-	pMsg->Body().set_red_score( pTeam ? pTeam->GetScore() : (uint32)-1 );
-	pTeam = GetGlobalTeam( TF_TEAM_BLUE );
-	pMsg->Body().set_blue_score( pTeam ? pTeam->GetScore() : (uint32)-1 );
-	Assert( m_iWinningTeam >= 0 );
-	pMsg->Body().set_winning_team( Max( 0, (int)m_iWinningTeam ) );
-	const MapDef_t *pMap = GetItemSchema()->GetMasterMapDefByName( STRING( gpGlobals->mapname ) );
-	pMsg->Body().set_map_index( ( pMap ) ? pMap->m_nDefIndex : 0 );
-	pMsg->Body().set_game_type( 1 );	// TODO: eMapGameType
-
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( pMatch->m_eMatchGroup );
-	if( !pMatchDesc || !pMatchDesc->m_pProgressionDesc )
-		return false;
-
-	int nTotalScore = 0;
-
-	CTFPlayerResource *pTFResource = dynamic_cast< CTFPlayerResource* >( g_pPlayerResource );
-	if ( pTFResource )
-	{
-		pTFResource->UpdatePlayerData();
-
-		for ( int i=0; i < MAX_PLAYERS; ++i )
-		{
-			nTotalScore += pTFResource->GetTotalScore( i );
-		}
-	}
-
-	float flBlueScoreRatio = 0.5f;
-
-	const CTFTeam* pTFTeamRed = GetGlobalTFTeam( TF_TEAM_RED );
-	const CTFTeam* pTFTeamBlue = GetGlobalTFTeam( TF_TEAM_BLUE );
-
-	// Figure out how much XP to give each team based on the game mode played
-	if ( HasMultipleTrains() )
-	{
-		// In PLR we want to use the distance along the tracks each of the 
-		// trains were at the end of each round
-		flBlueScoreRatio = RemapValClamped( pTFTeamBlue->GetTotalPLRTrackPercentTraveled(), 0.f, pTFTeamBlue->GetTotalPLRTrackPercentTraveled() + pTFTeamRed->GetTotalPLRTrackPercentTraveled(), 0.f, 1.f );
-	}
-	else if ( !m_bPlayingKoth && !m_bPowerupMode && ( tf_gamemode_cp.GetInt() || tf_gamemode_sd.GetInt() || tf_gamemode_payload.GetInt() ) )
-	{
-		// Rounds Won
-		// CP -	Points can flow back and forever, so we can't count total caps. And the
-		//		state of the game is always the same at match end, so rounds won is our
-		//		only real metric.
-		// SD -	A flag cap is a round, so we could count caps or rounds here.  Again, the
-		//		flag can go back and forth forever, but the match end state is always the same.
-		// PL - Count the points captured by each team.  We do this A/D style where each team has
-		//		a chance to score points.
-		flBlueScoreRatio = RemapValClamped( pTFTeamBlue->GetScore(), 0.f, pTFTeamBlue->GetScore() + pTFTeamRed->GetScore() , 0.f, 1.f );
-	}
-	else if ( tf_gamemode_ctf.GetInt() || m_bPowerupMode || tf_gamemode_passtime.GetInt() )
-	{
-		// Flag captures
-		// Mannpower is a variant of CTF and Passtime effectively is CTF. In all of these modes
-		// we don't use rounds so our best metric is individual flag captures.
-		flBlueScoreRatio = RemapValClamped( pTFTeamBlue->GetTotalFlagCaptures(), 0.f, pTFTeamBlue->GetTotalFlagCaptures() + pTFTeamRed->GetTotalFlagCaptures(), 0.f, 1.f );
-	}
-	else if ( m_bPlayingKoth )
-	{
-		// Time capped
-		// Looking at the capped time for each team will let us give xp in a fair way.  We can
-		// actually get as close as 50/50
-		float flBlueTimeCapped = pTFTeamBlue->GetKOTHTime();
-		float flRedTiemCapped = pTFTeamRed->GetKOTHTime();
-
-		flBlueScoreRatio = RemapValClamped( flBlueTimeCapped, 0.f, flBlueTimeCapped + flRedTiemCapped, 0.f, 1.f );
-	}
-	else if ( tf_gamemode_rd.GetInt() || tf_gamemode_pd.GetInt() )
-	{
-		CTFRobotDestructionLogic* pRDLogic = CTFRobotDestructionLogic::GetRobotDestructionLogic();
-
-		// Count bottles/cores scored by each team
-		flBlueScoreRatio = RemapValClamped( pRDLogic->GetScore( TF_TEAM_BLUE ), 0.f, pRDLogic->GetScore( TF_TEAM_BLUE ) + pRDLogic->GetScore( TF_TEAM_RED ), 0.f, 1.f );
-	}
-	else if ( tf_gamemode_tc.GetInt() )
-	{
-		CTeamControlPointMaster *pMaster = g_hControlPointMasters.Count() ? g_hControlPointMasters[0] : NULL;
-		
-		int nBlueMiniRounds = 0;
-		int nRedMiniRounds = 0;
-
-		// Use the number of mini-rounds won by each team
-		for( int i=0; i < pMaster->GetNumRounds(); ++ i )
-		{
-			const CTeamControlPointRound* pRound = pMaster->GetRoundByIndex( i );
-			if ( pRound->RoundOwnedByTeam( TF_TEAM_RED ) )
-			{
-				++nRedMiniRounds;
-			}
-			else if ( pRound->RoundOwnedByTeam( TF_TEAM_BLUE ) )
-			{
-				++nBlueMiniRounds;
-			}
-			else
-			{
-				Assert( false );
-			}
-		}
-
-
-		flBlueScoreRatio = RemapValClamped( nBlueMiniRounds, 0.f, nBlueMiniRounds + nRedMiniRounds, 0.f, 1.f );
-	}
-	else
-	{
-		Assert( !"Game mode not handled for team XP bonus!" );
-	}
-
-	const float flRedScoreRatio = 1.f - flBlueScoreRatio;
-	const int nBlueTeamObjectiveBonus = flBlueScoreRatio * nTotalScore;
-	const int nRedTeamObjectiveBonus = flRedScoreRatio * nTotalScore;
-
-	// Player info
-	for ( int idxPlayer = 0; idxPlayer < pMatch->GetNumTotalMatchPlayers(); idxPlayer++ )
-	{
-		CMatchInfo::PlayerMatchData_t *pMatchPlayer = pMatch->GetMatchDataForPlayer( idxPlayer );
-		if ( !pMatchPlayer->steamID.BIndividualAccount() )
-		{
-			Assert( false );
-			continue;
-		}
-
-		CTFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerBySteamID( pMatchPlayer->steamID ) );
-		PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats( pTFPlayer );
-
-		CMsgGC_Match_Result_Player *pMsgPlayer = pMsg->Body().add_players();
-		int nTeam = GetGameTeamForGCTeam( pMatchPlayer->eGCTeam );
-		pMsgPlayer->set_steam_id( pMatchPlayer->steamID.ConvertToUint64() );
-		pMsgPlayer->set_team( nTeam );
-		if ( pTFResource && pTFPlayer )
-		{
-			pMsgPlayer->set_score( pTFResource->GetTotalScore( pTFPlayer->entindex() ) );
-		}
-		else
-		{
-			// They left
-		}
-
-		int nPing = 0;
-		int nPacketLoss = 0;
-		if ( pTFPlayer )
-		{
-			UTIL_GetPlayerConnectionInfo( pTFPlayer->entindex(), nPing, nPacketLoss );
-		}
-		pMsgPlayer->set_ping( nPing );
-		uint32 unPlayerFlags = 0U;
-		if ( pMatchPlayer->bDropped )
-		{
-			unPlayerFlags |= MATCH_FLAG_PLAYER_LEAVER;
-		}
-		if ( pMatchPlayer->bLateJoin )
-		{
-			unPlayerFlags |= MATCH_FLAG_PLAYER_LATEJOIN;
-		}
-		if ( pMatchPlayer->BDropWasAbandon() )
-		{
-			unPlayerFlags |= MATCH_FLAG_PLAYER_ABANDONER;
-		}
-		if ( pMatchPlayer->bPlayed )
-		{
-			unPlayerFlags |= MATCH_FLAG_PLAYER_PLAYED;
-		}
-		if ( !pMatchPlayer->bEverConnected )
-		{
-			unPlayerFlags |= MATCH_FLAG_PLAYER_NEVER_CONNECTED;
-		}
-		if ( !pMatchPlayer->bEverActive )
-		{
-			unPlayerFlags |= MATCH_FLAG_PLAYER_NEVER_ACTIVE;
-		}
-		if ( !pMatchPlayer->bEverDisconnected )
-		{
-			unPlayerFlags |= MATCH_FLAG_PLAYER_NEVER_DISCONNECTED;
-		}
-
-		pMsgPlayer->set_flags( unPlayerFlags );
-		// server-side skill system
-		pMsgPlayer->set_classes_played( pMatchPlayer->unClassesPlayed );
-		pMsgPlayer->set_kills( pStats ? pStats->statsAccumulated.m_iStat[TFSTAT_KILLS] : 0 );
-		pMsgPlayer->set_damage( pStats ? pStats->statsAccumulated.m_iStat[TFSTAT_DAMAGE] : 0 );
-		pMsgPlayer->set_healing( pStats ? pStats->statsAccumulated.m_iStat[TFSTAT_HEALING] : 0 );
-		pMsgPlayer->set_support( pStats ? CalcPlayerSupportScore( &pStats->statsAccumulated, pTFPlayer->entindex() ) : 0 );
-		pMsgPlayer->set_score_medal( pMatchPlayer->nScoreMedal );
-		pMsgPlayer->set_kills_medal( pMatchPlayer->nKillsMedal );
-		pMsgPlayer->set_damage_medal( pMatchPlayer->nDamageMedal );
-		pMsgPlayer->set_healing_medal( pMatchPlayer->nHealingMedal );
-		pMsgPlayer->set_support_medal( pMatchPlayer->nSupportMedal );
-		pMsgPlayer->set_rank( pMatchPlayer->nRank );
-		pMsgPlayer->set_deaths( pStats ? pStats->statsAccumulated.m_iStat[TFSTAT_DEATHS] : 0 );
-		pMsgPlayer->set_original_party_id( pMatchPlayer->uOriginalPartyID );
-		uint32 unLeaveTime = ( pMatchPlayer && ( pMatchPlayer->bDropped || pMatchPlayer->BDropWasAbandon() ) ) ? 
-							   pMatchPlayer->GetLastActiveEventTime() : 0u;
-		pMsgPlayer->set_leave_time( unLeaveTime );
-		pMsgPlayer->set_leave_reason( pMatchPlayer->GetDropReason() );
-		pMsgPlayer->set_connect_time( pMatchPlayer->rtJoinedMatch );
-
-		// Somebody won! Match finish bonus
-		if ( nCode == CMsgGC_Match_Result_Status_MATCH_SUCCEEDED )
-		{
-			// Give points based on team performance
-			int nPerformanceScore = RemapValClamped( pMsgPlayer->score(), 0, nTotalScore / 24, 0, nTeam == TF_TEAM_RED ? nRedTeamObjectiveBonus : nBlueTeamObjectiveBonus );
-			pMatch->GiveXPRewardToPlayerForAction( pMatchPlayer->steamID, CMsgTFXPSource::SOURCE_OBJECTIVE_BONUS, nPerformanceScore );
-		
-			// Everyone gets base completion points
-			int nCompletionScore = RemapValClamped( pMsgPlayer->score(), 0, nTotalScore / 24, 0, nTotalScore );
-			pMatch->GiveXPRewardToPlayerForAction( pMatchPlayer->steamID, CMsgTFXPSource::SOURCE_COMPLETED_MATCH, nCompletionScore );
-		}
-
-		// Copy any pending XP sources they had ready to send up
-		for( int i=0; i < pMatchPlayer->GetXPSources().sources_size(); ++i )
-		{
-			CMsgTFXPSource* pXPSource = pMsgPlayer->add_xp_breakdown();
-			pXPSource->CopyFrom( pMatchPlayer->GetXPSources().sources( i ) );
-		}
-	}
-
-	pMsg->Body().set_win_reason( GetWinReason() );
-	uint32 unMatchFlags = 0u;
-
-	if ( pMatch->m_uLobbyFlags & LOBBY_FLAG_LOWPRIORITY )
-	{
-		unMatchFlags |= MATCH_FLAG_LOWPRIORITY;
-	}
-
-	if ( pMatch->m_uLobbyFlags & LOBBY_FLAG_REMATCH )
-	{
-		unMatchFlags |= MATCH_FLAG_REMATCH;
-	}
-
-	pMsg->Body().set_flags( unMatchFlags );
-	pMsg->Body().set_bots( pMatch->m_nBotsAdded );
-
-	GTFGCClientSystem()->SendCompetitiveMatchResult( pMsg );
-
-	return true;
-}
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -2759,22 +2130,6 @@ void CTFGameRules::SetPowerupMode( bool bValue )
 	m_bPowerupMode = bValue;
 }
 
-#ifdef GAME_DLL
-//-----------------------------------------------------------------------------
-void CTFGameRules::EndManagedMvMMatch( bool bKickPlayersToParties )
-{
-	// Primarily a pass through so we can ensure our match end state is sync'd -- CPopulationManager manages most of the
-	// MvM meta round state
-	if ( !IsManagedMatchEnded() )
-	{
-		GTFGCClientSystem()->EndManagedMatch();
-		Assert( IsManagedMatchEnded() );
-		m_bMatchEnded.Set( true );
-	}
-}
-#endif // GAME_DLL
-
-
 #endif // STAGING_ONLY
 
 //-----------------------------------------------------------------------------
@@ -2783,9 +2138,6 @@ void CTFGameRules::EndManagedMvMMatch( bool bKickPlayersToParties )
 bool CTFGameRules::UsePlayerReadyStatusMode( void )
 {
 	if ( IsMannVsMachineMode() )
-		return true;
-
-	if ( IsCompetitiveMode() )
 		return true;
 
 	if ( mp_tournament.GetBool() && mp_tournament_readymode.GetBool() )
@@ -2799,12 +2151,6 @@ bool CTFGameRules::UsePlayerReadyStatusMode( void )
 //-----------------------------------------------------------------------------
 bool CTFGameRules::PlayerReadyStatus_HaveMinPlayersToEnable( void )
 {
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-
-	// we always have enough players if the match wants players to autoready
-	if ( pMatchDesc && pMatchDesc->BUsesAutoReady() )
-		return true;
-
 #ifdef GAME_DLL
 	// Count connected players
 	int nNumPlayers = 0;
@@ -2832,13 +2178,7 @@ bool CTFGameRules::PlayerReadyStatus_HaveMinPlayersToEnable( void )
 
 	// Default
 	int nMinPlayers = 1;
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-
-	if ( pMatch && !pMatch->BMatchTerminated() && pMatchDesc->BRequiresCompleteMatches() )
-	{
-		nMinPlayers = pMatch->GetCanonicalMatchSize();
-	}
-	else if ( IsMannVsMachineMode() &&
+	if ( IsMannVsMachineMode() &&
 	          ( engine->IsDedicatedServer() || ( !engine->IsDedicatedServer() && nNumPlayers > 1 ) ) )
 	{
 		nMinPlayers = tf_mvm_min_players_to_start.GetInt();
@@ -2862,44 +2202,6 @@ bool CTFGameRules::PlayerReadyStatus_ArePlayersOnTeamReady( int iTeam )
 {
 	if ( IsMannVsMachineMode() && iTeam == TF_TEAM_PVE_INVADERS )
 		return true;
-
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pMatch )
-	{
-		int nMatchPlayers = pMatch->GetNumTotalMatchPlayers();
-		if ( nMatchPlayers <= 0 )
-			return false;
-
-		int iPlayerReadyCount = 0;
-		for ( int i = 0; i < nMatchPlayers; i++ )
-		{
-			CMatchInfo::PlayerMatchData_t *pPlayerData = pMatch->GetMatchDataForPlayer( i );
-			if ( !pPlayerData->bDropped && GetGameTeamForGCTeam( pPlayerData->eGCTeam ) == iTeam )
-			{
-				CBasePlayer *pPlayer = UTIL_PlayerBySteamID( pPlayerData->steamID );
-				// XXX(JohnS): Not quite valid yet, We let them join first onto spectate, which is probably a bit
-				//             confusing
-				//
-				// AssertMsg( !pPlayer || ToTFPlayer( pPlayer )->GetTeamNumber() == GetGameTeamForGCTeam( pPlayerData->eGCTeam ),
-				//            "Player's GC assigned team does not match their current team" );
-				if ( !pPlayer || !m_bPlayerReady[ pPlayer->entindex() ] )
-					return false;
-
-				iPlayerReadyCount++;
-			}
-		}
-
-		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-		if ( pMatchDesc && pMatchDesc->BUsesAutoReady() )
-		{
-			return iPlayerReadyCount > 0 || pMatch->GetNumTotalMatchPlayers() == 1 ;
-		}
-		else
-		{
-			int iTeamSize = IsMannVsMachineMode() ? pMatch->GetCanonicalMatchSize() : pMatch->GetCanonicalMatchSize() / 2;
-			return iPlayerReadyCount >= iTeamSize;
-		}
-	}
 
 	// Non-match
 	bool bAtLeastOneReady = false;
@@ -2928,9 +2230,6 @@ bool CTFGameRules::PlayerReadyStatus_ArePlayersOnTeamReady( int iTeam )
 //-----------------------------------------------------------------------------
 bool CTFGameRules::PlayerReadyStatus_ShouldStartCountdown( void )
 {
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-
-
 	if ( IsMannVsMachineMode() )
 	{
 		if ( !IsTeamReady( TF_TEAM_PVE_DEFENDERS ) && m_flRestartRoundTime >= gpGlobals->curtime + mp_tournament_readymode_countdown.GetInt() )
@@ -2942,12 +2241,6 @@ bool CTFGameRules::PlayerReadyStatus_ShouldStartCountdown( void )
 				return true;
 			}
 		}
-	}
-	else if ( pMatch &&
-	          PlayerReadyStatus_ArePlayersOnTeamReady( TF_TEAM_RED ) &&
-	          PlayerReadyStatus_ArePlayersOnTeamReady( TF_TEAM_BLUE ) )
-	{
-		return true;
 	}
 	else if ( IsTeamReady( TF_TEAM_RED ) && IsTeamReady( TF_TEAM_BLUE ) )
 	{
@@ -3038,7 +2331,7 @@ void CTFGameRules::PlayerReadyStatus_UpdatePlayerState( CTFPlayer *pTFPlayer, bo
 	}
 	else
 	{
-		if ( IsMannVsMachineMode() || IsCompetitiveMode() )
+		if ( IsMannVsMachineMode() )
 		{
 			// Reduce timer as each player hits Ready, but only once per-player
 			if ( !m_bPlayerReadyBefore[nEntIndex] && m_flRestartRoundTime > gpGlobals->curtime + 60.f )
@@ -3067,8 +2360,7 @@ void CTFGameRules::PlayerReadyStatus_UpdatePlayerState( CTFPlayer *pTFPlayer, bo
 		}
 
 		// Unofficial modes set team ready state here
-		CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-		if ( !pMatch && !IsMannVsMachineMode() )
+		if ( !IsMannVsMachineMode() )
 		{
 			int nRed = 0;
 			int nRedCount = 0;
@@ -3120,6 +2412,17 @@ void CTFGameRules::PlayerReadyStatus_UpdatePlayerState( CTFPlayer *pTFPlayer, bo
 		m_bPlayerReadyBefore[nEntIndex] = true;
 	}
 }
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFGameRules::StartTournamentMatch( void )
+{
+	SetInWaitingForPlayers( false );
+	RoundRespawn();
+	State_Transition( GR_STATE_RESTART );
+	ResetPlayerAndTeamReadyState();
+}
 #endif // GAME_DLL
 
 //-----------------------------------------------------------------------------
@@ -3134,9 +2437,6 @@ bool CTFGameRules::IsDefaultGameMode( void )
 		return false;
 
 	if ( IsInMedievalMode() )
-		return false;
-
-	if ( IsCompetitiveMode() )
 		return false;
 
 	if ( IsInTournamentMode() )
@@ -3230,12 +2530,8 @@ int CTFGameRules::GetCostForUpgrade( CMannVsMachineUpgrades *pUpgrade, int iItem
 //-----------------------------------------------------------------------------
 CTFGameRules::CTFGameRules()
 #ifdef GAME_DLL
-	: m_mapCoachToStudentMap( DefLessFunc(uint32) )
-	, m_flNextStrangeEventProcessTime( g_flStrangeEventBatchProcessInterval )
-	, m_mapTeleportLocations( DefLessFunc(string_t) )
+	: m_mapTeleportLocations( DefLessFunc(string_t) )
 	, m_bMapCycleNeedsUpdate( false )
-	, m_flSafeToLeaveTimer( -1.f )
-	, m_flCompModeRespawnPlayersAtMatchStart( -1.f )
 	, m_bMapForcedTruceDuringBossFight( false )
 	, m_flNextHalloweenGiftUpdateTime( -1 )
 #else
@@ -3411,31 +2707,13 @@ CTFGameRules::CTFGameRules()
 
 	m_pszCustomUpgradesFile.GetForModify()[0] = '\0';
 
-	m_bShowMatchSummary.Set( false );
-	m_bMapHasMatchSummaryStage.Set( false );
-	m_bPlayersAreOnMatchSummaryStage.Set( false );
-
 	m_bUseMatchHUD = false;
 	m_bUsePreRoundDoors = false;
 
 	m_nMatchGroupType.Set( k_eTFMatchGroup_Invalid );
 	m_bMatchEnded.Set( true );
 
-	for ( int i = 1; i <= MAX_PLAYERS; i++ )
-	{
-		m_ePlayerWantsRematch.Set( i, USER_NEXT_MAP_VOTE_UNDECIDED );
-	}
-
-	m_eRematchState = NEXT_MAP_VOTE_STATE_NONE;
-
 #ifdef GAME_DLL
-
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pMatch )
-	{
-		SyncMatchSettings();
-	}
-
 	for ( int i = 0; i < TF_TEAM_COUNT; i++ )
 	{
 		m_bHasSpawnedSoccerBall[i] = false;
@@ -3550,16 +2828,6 @@ void CTFGameRules::LevelInitPostEntity( void )
 		// Ask Halloween System if there are any locations
 		AddHalloweenGiftPositionsForMap( STRING(gpGlobals->mapname), m_halloweenGiftSpawnLocations );
 	}
-
-	m_flMatchSummaryTeleportTime = -1.f;
-
-
-	const IMatchGroupDescription *pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-	if ( pMatchDesc )
-	{
-		pMatchDesc->InitGameRulesSettingsPostEntity();
-	}
-
 #endif // GAME_DLL
 }
 
@@ -3631,16 +2899,7 @@ bool CTFGameRules::ShouldDrawHeadLabels()
 {
 	if ( IsInTournamentMode() )
 	{
-		bool bConnectedToMatchServer = false;
-#ifdef CLIENT_DLL
-		bConnectedToMatchServer = GTFGCClientSystem() && GTFGCClientSystem()->BConnectedToMatchServer( false );
-#else
-		bConnectedToMatchServer = GTFGCClientSystem() && GTFGCClientSystem()->GetMatch();
-#endif
-		if ( !bConnectedToMatchServer )
-		{
-			return false;
-		}
+		return false;
 	}
 
 	return BaseClass::ShouldDrawHeadLabels();
@@ -3702,20 +2961,10 @@ int CTFGameRules::GetGameTeamForGCTeam( TF_GC_TEAM nGCTeam )
 {
 	if ( nGCTeam == TF_GC_TEAM_INVADERS )
 	{
-		if ( IsCompetitiveMode() )
-		{
-			return ( m_bTeamsSwitched ) ? TF_TEAM_RED : TF_TEAM_BLUE;
-		}
-
 		return TF_TEAM_BLUE;
 	}
 	else if ( nGCTeam == TF_GC_TEAM_DEFENDERS )
 	{
-		if ( IsCompetitiveMode() )
-		{
-			return ( m_bTeamsSwitched ) ? TF_TEAM_BLUE : TF_TEAM_RED;
-		}
-
 		return TF_TEAM_RED;
 	}
 
@@ -3729,176 +2978,17 @@ TF_GC_TEAM CTFGameRules::GetGCTeamForGameTeam( int nGameTeam )
 {
 	if ( nGameTeam == TF_TEAM_BLUE )
 	{
-		if ( IsCompetitiveMode() )
-		{
-			return ( m_bTeamsSwitched ) ? TF_GC_TEAM_DEFENDERS : TF_GC_TEAM_INVADERS;
-		}
-
 		return TF_GC_TEAM_INVADERS;
 	}
 	else if ( nGameTeam == TF_TEAM_RED )
 	{
-		if ( IsCompetitiveMode() )
-		{
-			return ( m_bTeamsSwitched ) ? TF_GC_TEAM_INVADERS : TF_GC_TEAM_DEFENDERS;
-		}
-
 		return TF_GC_TEAM_DEFENDERS;
 	}
 
 	return TF_GC_TEAM_NOTEAM;
 }
 
-CTFGameRules::EUserNextMapVote CTFGameRules::GetWinningVote( int (&nVotes)[ EUserNextMapVote::NUM_VOTE_STATES ] ) const
-{
-	// We assume "undecided" is the index just after the last vote option
-	COMPILE_TIME_ASSERT( USER_NEXT_MAP_VOTE_UNDECIDED == NEXT_MAP_VOTE_OPTIONS );
-	memset( nVotes, 0, sizeof( nVotes ) );
-	int nTotalPlayers = 0;
-
-	// Tally up votes.  
-	for( int iPlayerIndex = 1 ; iPlayerIndex <= MAX_PLAYERS; iPlayerIndex++ )
-	{
-#ifdef CLIENT_DLL
-
-		if ( !g_PR || !g_PR->IsConnected( iPlayerIndex ) ) 
-			continue;
-
-#else // GAME_DLL
-		// We care about those that are still here.  If you leave, you don't count towards the vote total
-		CTFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerByIndex( iPlayerIndex ) );
-		if ( !pTFPlayer || pTFPlayer->IsBot() )
-			continue;
-
-
-		if ( !pTFPlayer->IsConnected() )
-			continue;		
-
-		CSteamID steamID;
-		pTFPlayer->GetSteamID( &steamID );
-
-		// People without parties *should* be getting a new one soon.  Count them as undecided
-		// until their party shows up and they're allowed to make a real vote.
-		CTFParty* pParty = GTFGCClientSystem()->GetPartyForPlayer( steamID );
-		if ( !pParty )
-		{
-			++nVotes[ EUserNextMapVote::USER_NEXT_MAP_VOTE_UNDECIDED ];
-			++nTotalPlayers;
-			continue;
-		}
-
-		const CMatchInfo* pMatch = GTFGCClientSystem()->GetMatch();
-		Assert( pMatch );
-		if ( !pMatch )
-		{
-			continue;
-		}
-
-		// Need to be a match players
-		const CMatchInfo::PlayerMatchData_t* pPlayerMatchData = pMatch->GetMatchDataForPlayer( steamID );
-		Assert( pPlayerMatchData );
-		if ( !pPlayerMatchData )
-		{
-			// How'd you get here?
-			continue;
-		}
-#endif
-
-		nTotalPlayers++;
-		nVotes[ TFGameRules()->PlayerNextMapVoteState( iPlayerIndex ) ]++;
-	}
-
-	if ( nVotes[ USER_NEXT_MAP_VOTE_UNDECIDED ] == nTotalPlayers )
-	{
-		return USER_NEXT_MAP_VOTE_UNDECIDED;
-	}
-	else
-	{
-		EUserNextMapVote eWinningVote = USER_NEXT_MAP_VOTE_MAP_0;
-
-		for( int i = 0; i < NEXT_MAP_VOTE_OPTIONS; ++i )
-		{
-			// The current map is in slot 0.  >= so we favor change.  
-			eWinningVote = nVotes[ i ] >= nVotes[ eWinningVote ] 
-						 ? (EUserNextMapVote)i
-						 : eWinningVote;
-		}
-
-		return eWinningVote;
-	}	
-}
-
 #ifdef GAME_DLL
-void CTFGameRules::KickPlayersNewMatchIDRequestFailed()
-{
-	Assert( m_eRematchState == NEXT_MAP_VOTE_STATE_MAP_CHOSEN_PAUSE );
-
-	// Let everyone know the rematch failed.
-	if ( m_eRematchState == NEXT_MAP_VOTE_STATE_MAP_CHOSEN_PAUSE )
-	{
-		CBroadcastRecipientFilter filter;
-		UTIL_ClientPrintFilter( filter, HUD_PRINTTALK, "#TF_Matchmaking_RollingQueue_NewRematch_GCFail" );
-
-		IGameEvent *pEvent = gameeventmanager->CreateEvent( "rematch_failed_to_create" );
-		if ( pEvent )
-		{
-			gameeventmanager->FireEvent( pEvent );
-		}
-	}
-
-	// The GC failed to get a new MatchID for us.  Let's clear out and reset.
-	engine->ServerCommand( "kickall #TF_Competitive_Disconnect\n" );
-
-	// Tell the GC System to end the managed match mode -- we skipped this in StopCompetitiveMatch so we could roll the
-	// managed match into a new one.
-	Assert( !IsManagedMatchEnded() );
-	if ( !IsManagedMatchEnded() )
-	{
-		GTFGCClientSystem()->EndManagedMatch();
-		Assert( IsManagedMatchEnded() );
-		m_bMatchEnded.Set( true );
-	}
-
-	// Prepare for next match
-	g_fGameOver = false;
-	if ( !IsCommunityGameMode() )
-		m_bAllowBetweenRounds = true;
-	State_Transition( GR_STATE_RESTART );
-	SetInWaitingForPlayers( true );
-}
-
-//-----------------------------------------------------------------------------
-void CTFGameRules::CheckAndSetPartyLeader( CTFPlayer *pTFPlayer, int iTeam )
-{
-	if ( !pTFPlayer )
-		return;
-
-	Assert( iTeam >= FIRST_GAME_TEAM );
-	if ( iTeam < FIRST_GAME_TEAM )
-		return;
-
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( !pMatch )
-		return;
-
-	CSteamID steamID;
-	if ( !pTFPlayer->GetSteamID( &steamID ) )
-		return;
-
-	// TODO:  Whenever a lobby is updated, look at the CTFLobbyPlayers and see if
-	//		  everyone has the same partyID and then set whoever is the leader to
-	//		  have their name be the team name
-
-	//CMatchInfo::PlayerMatchData_t *pMatchPlayer = pMatch->GetMatchDataForPlayer( steamID );
-	//if ( pMatchPlayer && pMatchPlayer->bPremadeLeader )
-	//{
-	//	CTFPlayerResource *pResource = dynamic_cast< CTFPlayerResource* >( g_pPlayerResource );
-	//	if ( pResource )
-	//	{
-	//		pResource->SetPartyLeaderIndex( iTeam, pTFPlayer->entindex() );
-	//	}
-	//}
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: Sets current boss victim
@@ -4259,15 +3349,6 @@ void CTFGameRules::Activate()
 	}
 #endif // TF_RAID_MODE
 
-	// This is beta content if this map has "beta" as a tag in the schema
-	{
-		const MapDef_t* pMap = GetItemSchema()->GetMasterMapDefByName( STRING( gpGlobals->mapname ) );
-		if ( pMap && pMap->vecTags.HasElement( GetItemSchema()->GetHandleForTag( "beta" ) ) )
-		{
-			tf_beta_content.SetValue( 1 );
-		}
-	}
-
 	if ( !Q_strncmp( STRING( gpGlobals->mapname ), "tc_", 3 )  )
 	{
 		tf_gamemode_tc.SetValue( 1 );
@@ -4447,36 +3528,12 @@ void CTFGameRules::Activate()
 		tf_gamemode_misc.SetValue( 1 );
 	}
 
-	CBaseEntity *pStageLogic = gEntList.FindEntityByName( NULL, "competitive_stage_logic_case" );
-	if ( pStageLogic )
-	{
-		m_bMapHasMatchSummaryStage.Set( true );
-	}
-
-	m_bCompetitiveMode.Set( false );
-
-	const IMatchGroupDescription *pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-	if ( pMatchDesc )
-	{
-		pMatchDesc->InitGameRulesSettings();
-	}
-
 	CLogicMannPower *pLogicMannPower = dynamic_cast< CLogicMannPower* > ( gEntList.FindEntityByClassname( NULL, "tf_logic_mannpower" ) );
 	tf_powerup_mode.SetValue( pLogicMannPower ? 1 : 0 );
 
 	if ( !IsInTraining() && IsHolidayActive( kHoliday_Soldier ) )
 	{
 		CreateSoldierStatue();
-	}
-
-	if ( IsCompetitiveMode() && IsCustomGameMode() )
-	{
-		m_bAwaitingReadyRestart.Set( false );
-		tf_gamemode_community.SetValue( 1 );
-		tf_gamemode_misc.SetValue( 1 );
-		mp_tournament.SetValue( false );
-		mp_tournament_readymode.SetValue( false );
-		SetAllowBetweenRounds( false );
 	}
 }
 
@@ -4780,15 +3837,6 @@ void SpawnRunes( void )
 
 void CTFGameRules::RespawnPlayers( bool bForceRespawn, bool bTeam, int iTeam )
 {
-	// Skip the respawn at the beginning of a round in casual/comp mode since we already
-	// handled it when the pre-round doors closed over the players' views
-	if ( IsCompetitiveMode() && ( GetRoundsPlayed() == 0 ) && bForceRespawn && ( State_Get() == GR_STATE_BETWEEN_RNDS || State_Get() == GR_STATE_PREROUND ) )
-	{
-		CTeamControlPointMaster *pMaster = g_hControlPointMasters.Count() ? g_hControlPointMasters[0] : NULL;
-		if ( !pMaster || !pMaster->PlayingMiniRounds() || ( pMaster->GetCurrentRoundIndex() == 0 ) )
-			return;
-	}
-
 	BaseClass::RespawnPlayers( bForceRespawn, bTeam, iTeam );
 }
 
@@ -4976,8 +4024,6 @@ void CTFGameRules::SetupOnRoundStart( void )
 			}
 		}
 	}
-
-	m_flMatchSummaryTeleportTime = -1.f;
 }
 
 //-----------------------------------------------------------------------------
@@ -5335,47 +4381,13 @@ void CTFGameRules::SetupOnRoundRunning( void )
 		}
 		else if ( !IsHalloweenScenario( HALLOWEEN_SCENARIO_DOOMSDAY ) )
 		{
-			// Use comp voice lines only for 6v6.  The guys talk about "Sixes" a lot, so it doesn't make sense to
-			// use in other competitive modes.
-			if ( GetCurrentMatchGroup() == k_eTFMatchGroup_Ladder_6v6 )
-			{
-				pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_ROUND_START_COMP );
-			}
-			else
-			{
-				pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_ROUND_START );
-			}
-		}
-
-		// warp the coach to student
-		if ( pPlayer->GetStudent() )
-		{
-			pPlayer->SetObserverTarget( pPlayer->GetStudent() );
-			pPlayer->StartObserverMode( OBS_MODE_CHASE );
+			pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_ROUND_START );
 		}
 
 		if ( FNullEnt( pPlayer->edict() ) )
 			continue;
 
 		pPlayer->m_Shared.ResetRoundScores();
-
-		// Store the class they started the round as (tf_player captures everything after this)
-		if ( pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM )
-		{
-			CSteamID steamID;
-			pPlayer->GetSteamID( &steamID );
-
-			CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-			if ( pMatch )
-			{
-				CMatchInfo::PlayerMatchData_t *pMatchPlayer = pMatch->GetMatchDataForPlayer( steamID );
-				if ( pMatchPlayer )
-				{
-					pMatchPlayer->UpdateClassesPlayed( pPlayer->GetPlayerClass()->GetClassIndex() );
-					pMatchPlayer->bPlayed = true;
-				}
-			}
-		}
 	}
 
 	if ( IsPlayingSpecialDeliveryMode() && !IsInWaitingForPlayers() )
@@ -5396,29 +4408,6 @@ void CTFGameRules::SetupOnRoundRunning( void )
 			event->SetInt( "advanced", g_pPopulationManager->IsAdvancedPopFile() ? 1 : 0 );
 			gameeventmanager->FireEvent( event );
 		}
-	}
-
-	if ( IsCompetitiveMode() && !( GetActiveRoundTimer() && ( GetActiveRoundTimer()->GetSetupTimeLength() > 0 ) ) )
-	{
-		// Announcer VO
-		if ( ( TFTeamMgr()->GetTeam( TF_TEAM_BLUE )->GetScore() == ( mp_winlimit.GetInt() - 1 ) ) &&
-			 ( TFTeamMgr()->GetTeam( TF_TEAM_RED )->GetScore() == ( mp_winlimit.GetInt() - 1 ) ) )
-		{
-			BroadcastSound( 255, "Announcer.CompFinalGameBeginsFight" );
-		}
-		else
-		{
-			BroadcastSound( 255, "Announcer.CompGameBeginsFight" );
-		}
-	}
-
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-	if ( pMatch && IsMatchTypeCompetitive() )
-	{
-		static ConVarRef tf_bot_quota( "tf_bot_quota" );
-		tf_bot_quota.SetValue( (int)pMatch->GetCanonicalMatchSize() );
-		static ConVarRef tf_bot_quota_mode( "tf_bot_quota_mode" );
-		tf_bot_quota_mode.SetValue( "fill" );
 	}
 
 	if ( m_hGamerulesProxy )
@@ -6159,17 +5148,6 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 					flDamage += Max( 400.f, flDamage );
 				}
 			}
-			else if( pTFAttacker && pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_CANNON && ( info.GetDamageType() & DMG_BLAST ) )
-			{
-				CTFGrenadeLauncher* pGrenadeLauncher = static_cast<CTFGrenadeLauncher*>( pWeapon );
-				if( pGrenadeLauncher->IsDoubleDonk( pVictim ) )
-				{
-					info.SetCritType( CTakeDamageInfo::CRIT_MINI );
-					eBonusEffect = kBonusEffect_DoubleDonk;
-					flDamage = Max( flDamage, info.GetMaxDamage() ); // Double donk victims score max damage
-					EconEntity_OnOwnerKillEaterEvent( pGrenadeLauncher, pTFAttacker, pVictim, kKillEaterEvent_DoubleDonks );
-				}
-			}
 			else if ( pTFAttacker && pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_FLAME_BALL && info.GetDamageCustom() == TF_DMG_CUSTOM_DRAGONS_FURY_BONUS_BURNING )
 			{
 				eBonusEffect = kBonusEffect_DragonsFury;
@@ -6338,13 +5316,6 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 			if ( !(bitsDamage & DMG_BURN ) )
 			{
 				pVictim->SpeakConceptIfAllowed( MP_CONCEPT_HURT );
-			}
-
-			// If this is critical explosive damage, and the Medic giving us invuln triggered 
-			// it in the last second, he's earned himself an achievement. 
-			if ( (bitsDamage & DMG_CRITICAL) && (bitsDamage & DMG_BLAST) )
-			{
-				pVictim->m_Shared.CheckForAchievement( ACHIEVEMENT_TF_MEDIC_SAVE_TEAMMATE );
 			}
 
 			return false;
@@ -7579,109 +6550,6 @@ CTFGameRules::~CTFGameRules()
 //-----------------------------------------------------------------------------
 void CTFGameRules::CheckTauntAchievement( CTFPlayer *pAchiever, int nGibs, int *pTauntCamAchievements )
 {
-	if ( !pAchiever || !pAchiever->GetPlayerClass() )
-		return;
-
-	int iClass = pAchiever->GetPlayerClass()->GetClassIndex();
-	if ( pTauntCamAchievements[ iClass ] )
-	{
-		bool bAwardAchievement = true;
-
-		// for the Heavy achievement, the player needs to also be invuln
-		if ( iClass == TF_CLASS_HEAVYWEAPONS && pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_HEAVY_FREEZECAM_TAUNT )
-		{
-			if ( !pAchiever->m_Shared.InCond( TF_COND_INVULNERABLE_WEARINGOFF ) && !pAchiever->m_Shared.InCond( TF_COND_INVULNERABLE ) )
-			{
-				bAwardAchievement = false;
-			}
-		}
-
-		// for the Spy achievement, we must be in the cig lighter taunt
-		if ( iClass == TF_CLASS_SPY && pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_SPY_FREEZECAM_FLICK )
-		{
-			if ( pAchiever->GetActiveTFWeapon() && pAchiever->GetActiveTFWeapon()->GetWeaponID() != TF_WEAPON_PDA_SPY )
-			{
-				bAwardAchievement = false;
-			}
-		}
-
-		// for the two Sniper achievements, we need to check for specific taunts
-		if ( iClass == TF_CLASS_SNIPER )
-		{
-			if ( pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_SNIPER_FREEZECAM_HAT )
-			{
-				if ( pAchiever->GetActiveTFWeapon() && pAchiever->GetActiveTFWeapon()->GetWeaponID() != TF_WEAPON_CLUB )
-				{
-					bAwardAchievement = false;
-				}
-			}
-			else if ( pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_SNIPER_FREEZECAM_WAVE  )
-			{
-				if ( pAchiever->GetActiveTFWeapon() && WeaponID_IsSniperRifle( pAchiever->GetActiveTFWeapon()->GetWeaponID() ) )
-				{
-					bAwardAchievement = false;
-				}
-			}
-		}
-
-		// For the Soldier achievements, we need to be doing a specific taunt, or have enough gibs onscreen
-		if ( iClass == TF_CLASS_SOLDIER )
-		{
-			if ( pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_SOLDIER_FREEZECAM_TAUNT )
-			{
-				if ( pAchiever->GetActiveTFWeapon() && pAchiever->GetActiveTFWeapon()->GetWeaponID() != TF_WEAPON_SHOTGUN_SOLDIER )
-				{
-					bAwardAchievement = false;
-				}
-			}
-			else if ( pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_SOLDIER_FREEZECAM_GIBS )
-			{
-				// Need at least 3 gibs on-screen
-				if ( nGibs < 3 )
-				{
-					bAwardAchievement = false;
-				}
-			}
-		}
-
-		// for the two Demoman achievements, we need to check for specific taunts
-		if ( iClass == TF_CLASS_DEMOMAN )
-		{
-			if ( pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_DEMOMAN_FREEZECAM_SMILE )
-			{
-				if ( pAchiever->GetActiveTFWeapon() && pAchiever->GetActiveTFWeapon()->GetWeaponID() != TF_WEAPON_GRENADELAUNCHER )
-				{
-					bAwardAchievement = false;
-				}
-			}
-			else if ( pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_DEMOMAN_FREEZECAM_RUMP )
-			{
-				if ( pAchiever->GetActiveTFWeapon() && pAchiever->GetActiveTFWeapon()->GetAttributeContainer() )
-				{
-					// Needs to be the Scottish Defender
-					CEconItemView *pItem = pAchiever->GetActiveTFWeapon()->GetAttributeContainer()->GetItem();
-					if ( pItem && pItem->IsValid() && pItem->GetItemDefIndex() != 130 )	// Scottish Defender is item index 130
-					{
-						bAwardAchievement = false;
-					}
-				}
-			}
-		}
-
-		// for the Engineer achievement, we must be in the guitar taunt
-		if ( iClass == TF_CLASS_ENGINEER && pTauntCamAchievements[ iClass ] == ACHIEVEMENT_TF_ENGINEER_FREEZECAM_TAUNT )
-		{
-			if ( pAchiever->GetActiveTFWeapon() && pAchiever->GetActiveTFWeapon()->GetWeaponID() != TF_WEAPON_SENTRY_REVENGE )
-			{
-				bAwardAchievement = false;
-			}
-		}
-
-		if ( bAwardAchievement )
-		{
-			pAchiever->AwardAchievement( pTauntCamAchievements[ iClass ] );
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -7691,20 +6559,6 @@ bool CTFGameRules::TFVoiceManager( CBasePlayer *pListener, CBasePlayer *pTalker 
 {
 	if ( pTalker && pTalker->BHaveChatSuspensionInCurrentMatch() )
 		return false;
-
-	// check coaching--we only want coaches and students to talk and listen to each other!
-	CTFPlayer* pTFListener = (CTFPlayer*)pListener;
-	CTFPlayer* pTFTalker = (CTFPlayer*)pTalker;
-	if ( pTFListener->GetStudent() || pTFListener->GetCoach() || 
-			pTFTalker->GetStudent() || pTFTalker->GetCoach() )
-	{
-		if ( pTFListener->GetStudent() == pTFTalker || pTFTalker->GetStudent() == pTFListener ||
-				pTFListener->GetCoach() == pTalker || pTFTalker->GetCoach() == pTFListener )
-		{
-			return true;
-		}
-		return false;
-	}
 
 	// Always allow teams to hear each other in TD mode
 	if ( IsMannVsMachineMode() )
@@ -7791,9 +6645,6 @@ bool CTFGameRules::ClientCommand( CBaseEntity *pEdict, const CCommand &args )
 			if ( IsMannVsMachineMode() )
 				return true;
 
-			if ( IsCompetitiveMode() )
-				return true;
-
 			if ( args.ArgC() < 2 )
 				return true;
 
@@ -7842,10 +6693,6 @@ bool CTFGameRules::ClientCommand( CBaseEntity *pEdict, const CCommand &args )
 		if ( FStrEq( pcmd, "tournament_player_readystate" ) )
 		{
 			if ( State_Get() != GR_STATE_BETWEEN_RNDS )
-				return true;
-
-			const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-			if ( pMatchDesc && pMatchDesc->BUsesAutoReady() )
 				return true;
 
 			// Make sure we have enough to allow ready mode commands
@@ -8013,286 +6860,12 @@ void CTFGameRules::Think()
 		LoadMapCycleFile();
 	}
 
-	if ( g_fGameOver )
+	if ( gpGlobals->curtime > m_flNextPeriodicThink )
 	{
-		if ( IsCompetitiveMode() && !IsMannVsMachineMode() )
+		if ( State_Get() != GR_STATE_BONUS && State_Get() != GR_STATE_TEAM_WIN && State_Get() != GR_STATE_GAME_OVER && IsInWaitingForPlayers() == false )
 		{
-			const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-
-			static int nLastTimeSent = -1;
-			int nTimeLeft = ( m_flStateTransitionTime - gpGlobals->curtime );
-			int nTimePassed = gpGlobals->curtime - m_flLastRoundStateChangeTime;
-			if ( pMatchDesc && pMatchDesc->GetMatchEndKickWarning() && nTimeLeft <= 50 && nTimeLeft % 10 == 0 && nTimeLeft != nLastTimeSent )
-			{
-				nLastTimeSent = nTimeLeft;
-				CBroadcastRecipientFilter filter;
-				UTIL_ClientPrintFilter( filter, HUD_PRINTTALK, pMatchDesc->GetMatchEndKickWarning(), CFmtStr( "%d", nTimeLeft ) );
-			}
-
-			if ( BAttemptMapVoteRollingMatch() )
-			{
-				const CMatchInfo* pMatch = GTFGCClientSystem()->GetMatch();
-				if ( pMatch && pMatch->GetNumActiveMatchPlayers() == 0 )
-				{
-					Msg( "All players left during next map voting period.  Ending match.\n" );
-					GTFGCClientSystem()->EndManagedMatch();
-					Assert( IsManagedMatchEnded() );
-					m_bMatchEnded.Set( true );
-					return;
-				}
-
-				if ( m_eRematchState == NEXT_MAP_VOTE_STATE_WAITING_FOR_USERS_TO_VOTE )
-				{
-					bool bVotePeriodExpired = false;
-					// Judgment time has arrived.  Force a result below
-					if ( nTimePassed == tf_mm_next_map_vote_time.GetInt() )
-					{
-						bVotePeriodExpired = true;
-					}
-
-					int nVotes[ EUserNextMapVote::NUM_VOTE_STATES ];
-					EUserNextMapVote eWinningVote = GetWinningVote( nVotes );
-
-					if ( bVotePeriodExpired ||
-						( nVotes[ USER_NEXT_MAP_VOTE_UNDECIDED ] == 0 && eWinningVote != USER_NEXT_MAP_VOTE_UNDECIDED ) )
-					{
-						CBroadcastRecipientFilter filter;
-
-						const MapDef_t *pMap = NULL;
-						if ( eWinningVote == USER_NEXT_MAP_VOTE_UNDECIDED )
-						{
-							// Nobody voted!  We're playing on the same map again by default
-							pMap = GetItemSchema()->GetMasterMapDefByName( STRING( gpGlobals->mapname ) );
-							Log( "Nobody voted for the next map.  Defaulting to current map.\n" );
-						}
-						else
-						{
-							pMap = GetItemSchema()->GetMasterMapDefByIndex( GetNextMapVoteOption( eWinningVote ) );
-							if ( pMap )
-							{
-								Log( "Next map vote winner is candidate %d, '%s'\n", (int)eWinningVote, pMap->pszMapName );
-							}
-							else
-							{
-								Log( "Next map vote for candidate %d resulted in invalid map.\n", (int)eWinningVote );
-							}
-						}
-
-						if ( pMap == NULL )
-						{
-							Assert( false );
-							Log( "We didn't pick a new map to rotate to!  Default to the current one, '%s'\n",  STRING( gpGlobals->mapname ) );
-							pMap = GetItemSchema()->GetMasterMapDefByName( STRING( gpGlobals->mapname ) );
-						}
-
-						if ( pMap )
-						{
-							m_eRematchState = NEXT_MAP_VOTE_STATE_MAP_CHOSEN_PAUSE;
-							GTFGCClientSystem()->RequestNewMatchForLobby( pMap );
-							Log( "Next map is '%s'.\n", pMap->pszMapName );
-						}
-					}
-				}
-				else if ( m_eRematchState == NEXT_MAP_VOTE_STATE_MAP_CHOSEN_PAUSE )
-				{
-					// CTFGCServerSystem is in control at this point
-				}
-			}
-
-			if ( gpGlobals->curtime > m_flStateTransitionTime || !BHavePlayers() )
-			{
-				nLastTimeSent = -1;
-				if ( pMatchDesc )
-				{
-					// Matchmaking path
-					pMatchDesc->PostMatchClearServerSettings();
-				}
-				else
-				{
-					// Readymode (Tournament) path
-					g_fGameOver = false;
-					if ( !IsCommunityGameMode() )
-						m_bAllowBetweenRounds = true;
-					State_Transition( GR_STATE_RESTART );
-					SetInWaitingForPlayers( true );
-				}
+			if ( CheckCapsPerRound() )
 				return;
-			}
-		}
-
-		if ( ( m_flMatchSummaryTeleportTime > 0 ) && ( gpGlobals->curtime > m_flMatchSummaryTeleportTime ) )
-		{
-			m_flMatchSummaryTeleportTime = -1.f;
-			MatchSummaryTeleport();
-		}
-	}
-	else
-	{
-		if ( gpGlobals->curtime > m_flNextPeriodicThink )
-		{
-			if ( State_Get() != GR_STATE_BONUS && State_Get() != GR_STATE_TEAM_WIN && State_Get() != GR_STATE_GAME_OVER && IsInWaitingForPlayers() == false )
-			{
-				if ( CheckCapsPerRound() )
-					return;
-			}
-		}
-
-		// These network variables mirror the MM system's match state for client's sake. Gamerules should still
-		// be aware of when these change, either because we caused it or via a callback.  This warning will
-		// detect desync. (Ideally we'd have the ability to just share between the client GC system and server
-		// GC system directly without passing things through gamerules)
-		if ( m_bMatchEnded != IsManagedMatchEnded() )
-		{
-			Assert( false );
-			Warning( "Mirrored Match parameters on gamerules don't match MatchInfo\n" );
-			m_bMatchEnded.Set( IsManagedMatchEnded() );
-		}
-
-		if ( GTFGCClientSystem()->GetMatch() && GetCurrentMatchGroup() != (ETFMatchGroup)m_nMatchGroupType.Get() )
-		{
-			Assert( false );
-			Warning( "Mirrored Match parameters on gamerules don't match MatchInfo\n" );
-			m_nMatchGroupType.Set( GetCurrentMatchGroup() );
-		}
-
-		// Managed matches (MvM and competitive) abandon thing
-		CMatchInfo *pMatch = GTFGCClientSystem()->GetMatch();
-		bool bEveryoneSafeToLeave = true;
-		if ( pMatch )
-		{
-			// Send current safe-to-leave flags down from the GCServerSystem
-			for ( int i = 1; i <= gpGlobals->maxClients; ++i )
-			{
-				CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-				if ( !pPlayer )
-					{ continue; }
-
-				CSteamID steamID;
-				bool bSafe = !pMatch || !pPlayer->GetSteamID( &steamID ) || pMatch->BPlayerSafeToLeaveMatch( steamID );
-
-				pPlayer->SetMatchSafeToLeave( bSafe );
-				bEveryoneSafeToLeave = bEveryoneSafeToLeave && bSafe;
-			}
-		}
-
-		if ( IsCompetitiveMode() )
-		{
-			const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-			Assert( pMatch ); // Should not be in competitive mode without a match
-
-			//
-			// Check if this is mode requires a complete match, but doesn't have one
-			//
-			bool bEndMatch = false;
-			int nActiveMatchPlayers = pMatch->GetNumActiveMatchPlayers();
-			int nMissingPlayers = pMatch->GetCanonicalMatchSize() - nActiveMatchPlayers;
-			if ( pMatchDesc->BRequiresCompleteMatches() &&
-			     !IsManagedMatchEnded() &&
-			     nMissingPlayers )
-			{
-				// See if we are requesting late join right now, and give that time to work
-				if ( pMatchDesc->ShouldRequestLateJoin() )
-				{
-					// End match if GC system didn't request late join in response to players leaving
-					auto *pGCSys = GTFGCClientSystem();
-					double flRequestedLateJoin = pGCSys->GetTimeRequestedLateJoin();
-
-					if ( flRequestedLateJoin == -1.f )
-					{
-						bEndMatch = true;
-						Msg( "Failed to request late join, ending competitive match\n" );
-					}
-					else
-					{
-						// Otherwise, since we can't proceed without players, apply a timeout after which we'll
-						// cancel the match and release these players. The time to wait is shorter if the GC
-						// hasn't confirmed our late join request, so we're not spending the full time waiting
-						// when the GC is just non-responsive.
-						double flTimeWaitingForLateJoin = CRTime::RTime32TimeCur() - flRequestedLateJoin;
-						bool bGotLateJoin = pGCSys->BLateJoinEligible();
-						double flWaitLimit = bGotLateJoin ? tf_competitive_required_late_join_timeout.GetFloat()
-							                                : tf_competitive_required_late_join_confirm_timeout.GetFloat();
-						if ( flTimeWaitingForLateJoin > flWaitLimit )
-						{
-							Msg( "Exceeded wait time limit for late joiners, canceling match\n" );
-							bEndMatch = true;
-						}
-					}
-				}
-				else
-				{
-					// Can't request late joiners, tank match if number of active players get below some threshold
-					int iRedActive = 0;
-					int iBlueActive = 0;
-					for ( int idxPlayer = 0; idxPlayer < pMatch->GetNumTotalMatchPlayers(); idxPlayer++ )
-					{
-						CMatchInfo::PlayerMatchData_t *pMatchPlayer = pMatch->GetMatchDataForPlayer( idxPlayer );
-						if ( !pMatchPlayer->bDropped )
-						{
-							int iTeam = GetGameTeamForGCTeam( pMatchPlayer->eGCTeam );
-							if ( iTeam == TF_TEAM_RED )
-								iRedActive++;
-							else
-								iBlueActive++;
-						}
-					}
-
-					int iTeamSize = pMatch->GetCanonicalMatchSize() / 2;
-					if ( iRedActive == 0 || iBlueActive == 0 || ( iTeamSize - iRedActive ) > tf_mm_abandoned_players_per_team_max.GetInt() || ( iTeamSize - iBlueActive ) > tf_mm_abandoned_players_per_team_max.GetInt() )
-					{
-						Msg( "Match type requires a complete match, but there are not enough active players left and we are not requesting late join.  Stopping match.\n" );
-						bEndMatch = true;
-					}
-				}
-			}
-			else if ( !IsManagedMatchEnded() && nActiveMatchPlayers < 1 )
-			{
-				// For non-complete mode, just stop the match if we lose all players
-				Msg( "Competitive managed match in progress, but no remaining match players.  Stopping match.\n" );
-				bEndMatch = true;
-			}
-
-			if ( bEndMatch )
-			{
-				StopCompetitiveMatch( CMsgGC_Match_Result_Status_MATCH_FAILED_ABANDON );
-			}
-			else
-			{
-				// If the match was ended but we're still playing, kick off a timer to remind people that
-				// they're in a dead match.
-				AssertMsg( !IsManagedMatchEnded() || ( pMatch->BMatchTerminated() && bEveryoneSafeToLeave ),
-					        "Expect everyone to be safe to leave and the match info to reflect that after the match is over" );
-				bool bGameRunning = ( State_Get() == GR_STATE_BETWEEN_RNDS || State_Get() == GR_STATE_RND_RUNNING );
-				bool bDeadMatch = bGameRunning && IsManagedMatchEnded() && pMatch->BMatchTerminated() && bEveryoneSafeToLeave;
-				if ( bDeadMatch && ( m_flSafeToLeaveTimer == -.1f ||
-					                    m_flSafeToLeaveTimer - gpGlobals->curtime <= 0.f ) )
-				{
-					// Periodic nag event
-					m_flSafeToLeaveTimer = gpGlobals->curtime + 30.f;
-					IGameEvent *pEvent = gameeventmanager->CreateEvent( "player_abandoned_match" );
-					if ( pEvent )
-					{
-						pEvent->SetBool( "game_over", false );
-						gameeventmanager->FireEvent( pEvent );
-					}
-				}
-			}
-
-			// Handle re-spawning the players after the doors have shut at the beginning of a match
-			if ( ( m_flCompModeRespawnPlayersAtMatchStart > 0 ) && ( m_flCompModeRespawnPlayersAtMatchStart < gpGlobals->curtime ) )
-			{
-				for ( int i = 1; i <= MAX_PLAYERS; i++ )
-				{
-					CTFPlayer *pPlayer = static_cast<CTFPlayer*>( UTIL_PlayerByIndex( i ) );
-					if ( !pPlayer )
-						continue;
-
-					pPlayer->RemoveAllOwnedEntitiesFromWorld();
-					pPlayer->ForceRespawn();
-				}
-
-				m_flCompModeRespawnPlayersAtMatchStart = -1.f;
-			}
 		}
 	}
 
@@ -8381,7 +6954,7 @@ void CTFGameRules::Think()
 
 		tf_item_based_forced_holiday.SetValue( kHoliday_None );
 		FlushAllAttributeCaches();
-	}	
+	}
 
 	// play the bomb alarm if we need to
 	if ( m_bMannVsMachineAlarmStatus )
@@ -8534,15 +7107,6 @@ void CTFGameRules::Think()
 	}
 #endif // TF_RAID_MODE
 
-	// Batched strange event message processing?
-	if ( engine->Time() > m_flNextStrangeEventProcessTime )
-	{
-		KillEaterEvents_FlushBatches();
-		m_flNextStrangeEventProcessTime = engine->Time() + g_flStrangeEventBatchProcessInterval;
-	}
-
-	ManageCompetitiveMode();
-
 #endif // GAME_DLL
 
 //=============================================================================
@@ -8556,13 +7120,6 @@ void CTFGameRules::Think()
 			int client_message = tf_training_client_message.GetInt();
 			switch ( client_message )
 			{
-				case TRAINING_CLIENT_MESSAGE_IN_SUMMARY_SCREEN:
-				{
-					//Keep adding time to the restart while we are in the end screen menu so that we never restart the round until
-					//the player presses the replay button (or next button to go to the next map).
-					m_flStateTransitionTime = gpGlobals->curtime + 5.0f;
-				}
-				break;
 				case TRAINING_CLIENT_MESSAGE_NEXT_MAP:
 				{
 					LoadNextTrainingMap();
@@ -9506,18 +8063,6 @@ void CTFGameRules::PlayWinSong( int team )
 	if ( IsPlayingSpecialDeliveryMode() )
 		return;
 
-	bool bGameOver = IsGameOver();
-
-	if ( !IsInStopWatch() || bGameOver )
-	{
-		// Give the match a chance to play something custom.  It returns true if it handled everything
-		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-		if ( pMatchDesc && pMatchDesc->BPlayWinMusic( team, bGameOver ) )
-		{
-			return;
-		}
-	}
-
 	if ( IsInTournamentMode() && IsInStopWatch() && ObjectiveResource() )
 	{
 		int iStopWatchTimer = ObjectiveResource()->GetStopWatchTimer();
@@ -9655,11 +8200,6 @@ void CTFGameRules::SetWinningTeam( int team, int iWinReason, bool bForceMapReset
 	}
 
 	CTeamplayRoundBasedRules::SetWinningTeam( team, iWinReason, bForceMapReset, bSwitchTeams, bDontAddScore, bFinal );
-
-	if ( IsCompetitiveMode() )
-	{
-		HaveAllPlayersSpeakConceptIfAllowed( IsGameOver() ? MP_CONCEPT_MATCH_OVER_COMP : MP_CONCEPT_GAME_OVER_COMP );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -9959,8 +8499,6 @@ CBaseEntity *CTFGameRules::GetPlayerSpawnSpot( CBasePlayer *pPlayer )
 //-----------------------------------------------------------------------------
 bool CTFGameRules::IsSpawnPointValid( CBaseEntity *pSpot, CBasePlayer *pPlayer, bool bIgnorePlayers, PlayerTeamSpawnMode_t nSpawnMode /* = 0*/ )
 {
-	bool bMatchSummary = ShowMatchSummary();
-
 	// Check the team.
 	// In Item Testing mode, bots all use the Red team spawns, and the player uses Blue
 	if ( IsInItemTestingMode() )
@@ -9970,11 +8508,8 @@ bool CTFGameRules::IsSpawnPointValid( CBaseEntity *pSpot, CBasePlayer *pPlayer, 
 	}
 	else
 	{
-		if ( !bMatchSummary )
-		{
-			if ( pSpot->GetTeamNumber() != pPlayer->GetTeamNumber() )
-				return false;
-		}
+		if ( pSpot->GetTeamNumber() != pPlayer->GetTeamNumber() )
+			return false;
 	}
 
 	if ( !pSpot->IsTriggered( pPlayer ) )
@@ -9989,37 +8524,14 @@ bool CTFGameRules::IsSpawnPointValid( CBaseEntity *pSpot, CBasePlayer *pPlayer, 
 		if ( pCTFSpawn->GetTeamSpawnMode() && pCTFSpawn->GetTeamSpawnMode() != nSpawnMode )
 			return false;
 
-		if ( bMatchSummary )
-		{
-			if ( pCTFSpawn->AlreadyUsedForMatchSummary() )
-				return false; 
-
-			if ( pCTFSpawn->GetMatchSummaryType() == PlayerTeamSpawn_MatchSummary_Winner )
-			{
-				if ( pPlayer->GetTeamNumber() != GetWinningTeam() )
-					return false;
-			}
-			else if ( pCTFSpawn->GetMatchSummaryType() == PlayerTeamSpawn_MatchSummary_Loser )
-			{
-				if ( pPlayer->GetTeamNumber() == GetWinningTeam() )
-					return false;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			if ( pCTFSpawn->GetMatchSummaryType() != PlayerTeamSpawn_MatchSummary_None )
-				return false;
-		}
+		if ( pCTFSpawn->GetMatchSummaryType() != PlayerTeamSpawn_MatchSummary_None )
+			return false;
 	}
 
 	Vector mins = VEC_HULL_MIN_SCALED( pPlayer );
 	Vector maxs = VEC_HULL_MAX_SCALED( pPlayer );
 
-	if ( !bIgnorePlayers && !bMatchSummary )
+	if ( !bIgnorePlayers )
 	{
 		Vector vTestMins = pSpot->GetAbsOrigin() + mins;
 		Vector vTestMaxs = pSpot->GetAbsOrigin() + maxs;
@@ -10030,14 +8542,6 @@ bool CTFGameRules::IsSpawnPointValid( CBaseEntity *pSpot, CBasePlayer *pPlayer, 
 	UTIL_TraceHull( pSpot->GetAbsOrigin(), pSpot->GetAbsOrigin(), mins, maxs, MASK_PLAYERSOLID, pPlayer, COLLISION_GROUP_PLAYER_MOVEMENT, &trace );
 	if ( trace.fraction == 1 && trace.allsolid != 1 && (trace.startsolid != 1) )
 	{
-		if ( bMatchSummary )
-		{
-			if ( pCTFSpawn )
-			{
-				pCTFSpawn->SetAlreadyUsedForMatchSummary();
-			}
-		}
-
 		return true;
 	}
 
@@ -10077,14 +8581,8 @@ const char *CTFGameRules::GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer )
 
 	const char *pszFormat = NULL;
 
-	// coach?
-	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
-	if ( pTFPlayer && pTFPlayer->IsCoaching() )
-	{
-		pszFormat = "TF_Chat_Coach";
-	}
 	// team only
-	else if ( bTeamOnly == true )
+	if ( bTeamOnly == true )
 	{
 		if ( pPlayer->GetTeamNumber() == TEAM_SPECTATOR )
 		{
@@ -10204,6 +8702,32 @@ void CTFGameRules::ChangePlayerName( CTFPlayer *pPlayer, const char *pszNewName 
 	pPlayer->SetPlayerName( pszNewName );
 }
 
+template <size_t len>
+void SetupPlayerShortName( wchar_t ( &buffer )[len] )
+{
+	// Trim trailing space
+	size_t length = len;
+	while ( length > 0  && ( buffer[length - 1] == L'\0' || iswspace( buffer[length - 1] ) ) )
+		buffer[ --length ] = L'\0';
+
+	// Trim leading space
+	int skip = 0;
+	while ( skip < length && iswspace( buffer[skip] ) )
+		++skip;
+
+	if ( skip > 0 )
+	{
+		wchar_t *pDst = buffer;
+		wchar_t *pSrc = buffer + skip;
+
+		while ( ( *pDst++ = *pSrc++ ) != L'\0' );
+	}
+
+	// Convert to Uppercase
+	for ( wchar_t *p = buffer; *p; ++p )
+		*p = towupper( *p );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -10250,10 +8774,15 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	pTFPlayer->SetUseLegacyPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "pf_legacy_throw_controls" ) ) > 0 );
 	pTFPlayer->SetUseReversedPasstimeGunControls( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "pf_reverse_throw_controls" ) ) > 0);
 
-	// p4ss short nickname
-	const char *newNick = engine->GetClientConVarValue( pPlayer->entindex(), "p4ss_nick" );
-	Q_strncpy( pTFPlayer->m_sPlayerShortNick.GetForModify(), newNick, 5 );
+	const char *pszPlayerShortName = engine->GetClientConVarValue( pPlayer->entindex(), "pf_shortname" );
+	if ( !pszPlayerShortName || !pszPlayerShortName[0] )
+		pszPlayerShortName = pPlayer->GetPlayerName();
 
+	wchar_t wszPlayerShortname[P4SS_SHORTNAME_MAX_CHARS + 1] = { 0 };
+	g_pVGuiLocalize->ConvertANSIToUnicode( pszPlayerShortName, wszPlayerShortname, sizeof( wszPlayerShortname ) );
+	SetupPlayerShortName( wszPlayerShortname );
+	
+	g_pStringTablePlayerShortNames->SetStringUserData( pPlayer->entindex() - 1, sizeof( wszPlayerShortname), wszPlayerShortname );
 }
 
 //-----------------------------------------------------------------------------
@@ -10280,617 +8809,6 @@ bool CTFGameRules::CanHaveAmmo( CBaseCombatCharacter *pPlayer, int iAmmoIndex )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-bool EconEntity_KillEaterEventPassesRestrictionCheck( const IEconItemInterface *pEconInterface, const CEconItemAttributeDefinition *pRestrictionAttribDef, const CEconItemAttributeDefinition *pRestrictionValueAttribDef, const CSteamID VictimSteamID )
-{
-	uint32 unRestrictionType = kStrangeEventRestriction_None;
-	attrib_value_t unRestrictionValue;
-	DbgVerify( pEconInterface->FindAttribute( pRestrictionAttribDef, &unRestrictionType ) ==
-			   pEconInterface->FindAttribute( pRestrictionValueAttribDef, &unRestrictionValue ) );
-
-	switch (unRestrictionType)
-	{
-	case kStrangeEventRestriction_None:
-		return true;
-
-	case kStrangeEventRestriction_Map:
-	{
-		const MapDef_t *pMap = GetItemSchema()->GetMasterMapDefByName(STRING(gpGlobals->mapname));
-		return pMap && pMap->m_nDefIndex == unRestrictionValue;
-	}
-	case kStrangeEventRestriction_VictimSteamAccount:
-		return VictimSteamID.GetAccountID() == unRestrictionValue;
-	case kStrangeEventRestriction_Competitive:
-	{
-		if ( TFGameRules() && TFGameRules()->IsMatchTypeCompetitive() )
-		{
-			// Match Season unRestrictionValue == Season Number
-			return true;
-		}
-		return false;
-	}
-	} // end Switch
-
-	AssertMsg1( false, "Unhandled strange event restriction %u!", unRestrictionType );
-	return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-static CSteamID GetSteamIDForKillEaterScoring( CTFPlayer *pPlayer )
-{
-	if ( pPlayer->IsBot() )
-		return k_steamIDNil;
-
-	CSteamID ret;
-	if ( !pPlayer->GetSteamID( &ret ) )
-		return k_steamIDNil;
-
-	return ret;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-class CStrangeEventValidator
-{
-public:
-	CStrangeEventValidator( IEconItemInterface *pEconEntity, CTFPlayer *pOwner, CTFPlayer *pVictim, kill_eater_event_t eEventType )
-		: m_unItemID( INVALID_ITEM_ID )
-		, m_eEventType( eEventType )
-	{
-		m_bIsValid = BInitEventParams( pEconEntity, pOwner, pVictim );
-	}
-
-	bool BIsValidEvent() const { return m_bIsValid; }
-	CSteamID GetKillerSteamID() const { Assert( m_bIsValid ); return m_KillerSteamID; }
-	CSteamID GetVictimSteamID() const { Assert( m_bIsValid ); return m_VictimSteamID; }
-	itemid_t GetItemID() const { Assert( m_bIsValid ); return m_unItemID; }
-	kill_eater_event_t GetEventType() const { Assert( m_bIsValid ); return m_eEventType; }
-
-private:
-	bool BInitEventParams( IEconItemInterface *pEconEntity, CTFPlayer *pOwner, CTFPlayer *pVictim )
-	{
-		static CSchemaAttributeDefHandle pAttrDef_KillEater( "kill eater" );
-
-		// Kill-eater weapons.
-		if ( !pEconEntity )
-			return false;
-
-		if ( !pOwner )
-			return false;
-
-		if ( !pVictim )
-			return false;
-
-		// Ignore events where we're affecting ourself.
-		if ( pOwner == pVictim )
-			return false;
-
-		// Store off our item ID for reference post-init.
-		m_unItemID = pEconEntity->GetID();
-
-		// Always require that we have at least the base kill eater attribute before sending any messages
-		// to the GC.
-		if ( !pEconEntity->FindAttribute( pAttrDef_KillEater ) )
-			return false;
-
-		// Don't bother sending a message to the GC if either party is a bot, unless we're tracking events against
-		// bots specifically.
-		if ( !pOwner->GetSteamID( &m_KillerSteamID ) )
-			return false;
-	
-		m_VictimSteamID = GetSteamIDForKillEaterScoring( pVictim );
-		if ( !m_VictimSteamID.IsValid() )
-		{
-			if ( !GetItemSchema()->GetKillEaterScoreTypeAllowsBotVictims( m_eEventType ) )
-				return false;
-		}
-
-		// Also require that we have whatever event type we're looking for, unless we're looking for regular
-		// player kills in which case we may or may not have a field to describe that.
-		for ( int i = 0; i < GetKillEaterAttrCount(); i++ )
-		{
-			const CEconItemAttributeDefinition *pScoreAttribDef = GetKillEaterAttr_Score(i);
-			if ( !pScoreAttribDef )
-				continue;
-
-			// If we don't have this attribute, move on. It's possible to be missing this attribute but still
-			// have the next one in the list if we have user-customized tracking types.
-			if ( !pEconEntity->FindAttribute( pScoreAttribDef ) )
-				continue;
-		
-			const CEconItemAttributeDefinition *pScoreTypeAttribDef = GetKillEaterAttr_Type(i);
-			if ( !pScoreTypeAttribDef )
-				continue;
-		
-			// If we're missing our type attribute, we interpret that as "track kills" -- none of the original
-			// kill eaters have score type attributes.
-			float fKillEaterEventType;
-			kill_eater_event_t eMatchEvent = FindAttribute_UnsafeBitwiseCast<attrib_value_t>( pEconEntity, pScoreTypeAttribDef, &fKillEaterEventType )
-										   ? (kill_eater_event_t)(int)fKillEaterEventType
-										   : kKillEaterEvent_PlayerKill;
-
-			if ( m_eEventType == eMatchEvent )
-			{
-				// Does this attribute also specify a restriction (ie., "has to be on this specific map" or "has to be
-				// against this specific account"? If so, only count this as a match if the restriction check passes.
-				if ( EconEntity_KillEaterEventPassesRestrictionCheck( pEconEntity, GetKillEaterAttr_Restriction(i), GetKillEaterAttr_RestrictionValue(i), m_VictimSteamID ) )
-					return true;
-			}
-		}
-
-		return false;
-	}
-
-private:
-	bool m_bIsValid;
-	CSteamID m_KillerSteamID;
-	CSteamID m_VictimSteamID;
-	itemid_t m_unItemID;
-	kill_eater_event_t m_eEventType;
-};
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-template < typename tMsgType >
-static void FillOutBaseKillEaterMessage( tMsgType *out_pMsg, const CStrangeEventValidator& Validator )
-{
-	Assert( out_pMsg );
-	Assert( Validator.BIsValidEvent() );
-
-	out_pMsg->set_killer_steam_id( Validator.GetKillerSteamID().ConvertToUint64() );
-	out_pMsg->set_victim_steam_id( Validator.GetVictimSteamID().ConvertToUint64() );
-	out_pMsg->set_item_id( Validator.GetItemID() );
-	out_pMsg->set_event_type( Validator.GetEventType() );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Get the actual killeater weapon from a CTakeDamageInfo
-//-----------------------------------------------------------------------------
-CTFWeaponBase *GetKilleaterWeaponFromDamageInfo( const CTakeDamageInfo *pInfo )
-{
-	CTFWeaponBase *pTFWeapon = dynamic_cast<CTFWeaponBase *>( pInfo->GetWeapon() );
-	CBaseEntity* pInflictor = pInfo->GetInflictor();
-
-	// If there's no weapon specified, it might have been from a sentry
-	if ( !pTFWeapon )
-	{
-		// If a sentry did the damage with bullets, it's the inflictor
-		CObjectSentrygun *pSentrygun = dynamic_cast<CObjectSentrygun *>( pInflictor );
-		if ( !pSentrygun )
-		{
-			// If a sentry's rocket did the damage, then the rocket is the inflictor, and the sentry is the rocket's owner
-			pSentrygun = pInflictor ? dynamic_cast<CObjectSentrygun *>( pInflictor->GetOwnerEntity() ) : NULL;
-		}
-
-		if ( pSentrygun )
-		{
-			// Maybe they were using a Wrangler?  The builder is the player who owns the sentry
-			CTFPlayer *pBuilder = pSentrygun->GetBuilder();
-			if ( pBuilder )
-			{
-				// Check if they have a Wrangler and were aiming with it
-				CTFLaserPointer* pLaserPointer = dynamic_cast< CTFLaserPointer * >( pBuilder->GetEntityForLoadoutSlot( LOADOUT_POSITION_SECONDARY ) );
-				if ( pLaserPointer && pLaserPointer->HasLaserDot() )
-				{
-					pTFWeapon =  pLaserPointer;
-				}
-			}
-		}
-	}
-
-	// need to check for deflected projectiles so the weapon that did the most recent
-	// deflection will get the killeater credit instead of the original launcher
-	if ( pInflictor )
-	{
-		CTFWeaponBaseGrenadeProj *pBaseGrenade = dynamic_cast< CTFWeaponBaseGrenadeProj* >( pInflictor );
-		if ( pBaseGrenade )
-		{
-			if ( pBaseGrenade->GetDeflected() && pBaseGrenade->GetLauncher() )
-			{
-				pTFWeapon = dynamic_cast< CTFWeaponBase* >( pBaseGrenade->GetLauncher() );
-			}
-		}
-		else
-		{
-			CTFBaseRocket *pRocket = dynamic_cast< CTFBaseRocket* >( pInflictor );
-			if ( pRocket )
-			{
-				if ( pRocket->GetDeflected() && pRocket->GetLauncher() )
-				{
-					pTFWeapon = dynamic_cast< CTFWeaponBase* >( pRocket->GetLauncher() );
-				}
-			}
-		}
-	}
-
-	return pTFWeapon;
-}
-
-//-----------------------------------------------------------------------------
-void EconEntity_ValidateAndSendStrangeMessageToGC( IEconItemInterface *pEconEntity, CTFPlayer *pOwner, CTFPlayer *pVictim, kill_eater_event_t eEventType, int nIncrementValue /*= 1*/ )
-{
-	CStrangeEventValidator Validator( pEconEntity, pOwner, pVictim, eEventType );
-
-	if ( !Validator.BIsValidEvent() )
-		return;
-
-	GCSDK::CProtoBufMsg<CMsgIncrementKillCountAttribute> msg( k_EMsgGC_IncrementKillCountAttribute );
-	FillOutBaseKillEaterMessage( &msg.Body(), Validator );
-
-	if ( nIncrementValue != 1 )
-	{
-		msg.Body().set_increment_value( nIncrementValue );
-	}
-
-	GCClientSystem()->BSendMessage( msg );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void EconEntity_OnOwnerKillEaterEvent( CEconEntity *pEconEntity, CTFPlayer *pOwner, CTFPlayer *pVictim, kill_eater_event_t eEventType, int nIncrementValue /*= 1*/ )
-{
-	if ( !pEconEntity )
-		return;
-
-	EconItemInterface_OnOwnerKillEaterEvent( pEconEntity->GetAttributeContainer()->GetItem(), pOwner, pVictim, eEventType, nIncrementValue );
-}
-//-----------------------------------------------------------------------------
-void EconItemInterface_OnOwnerKillEaterEvent( IEconItemInterface *pEconEntity, CTFPlayer *pOwner, CTFPlayer *pVictim, kill_eater_event_t eEventType, int nIncrementValue /*= 1*/ )
-{
-	bool bEconEntityHandled = false;
-
-	// Fire the kill eater event on all wearables
-	// Wearables can have all Strange parts
-	for ( int i = 0; i < pOwner->GetNumWearables(); ++i )
-	{
-		CTFWearable *pWearableItem = dynamic_cast<CTFWearable *>( pOwner->GetWearable( i ) );
-		if ( !pWearableItem )
-			continue;
-
-		if ( !pWearableItem->GetAttributeContainer() )
-			continue;
-
-		EconEntity_ValidateAndSendStrangeMessageToGC( pWearableItem->GetAttributeContainer()->GetItem(), pOwner, pVictim, eEventType, nIncrementValue );
-
-		if ( pWearableItem->GetAttributeContainer()->GetItem() == pEconEntity )
-		{
-			bEconEntityHandled = true;
-		}
-	}
-
-	if ( !bEconEntityHandled )
-	{
-		EconEntity_ValidateAndSendStrangeMessageToGC( pEconEntity, pOwner, pVictim, eEventType, nIncrementValue );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void EconEntity_OnOwnerKillEaterEventNoPartner( CEconEntity *pEconEntity, CTFPlayer *pOwner, kill_eater_event_t eEventType, int nIncrementValue /*= 1*/ )
-{
-	if ( !pEconEntity )
-		return;
-
-	EconItemInterface_OnOwnerKillEaterEventNoPartner( pEconEntity->GetAttributeContainer()->GetItem(), pOwner,  eEventType, nIncrementValue );
-}
-//-----------------------------------------------------------------------------
-void EconItemInterface_OnOwnerKillEaterEventNoPartner( IEconItemInterface *pEconEntity, CTFPlayer *pOwner, kill_eater_event_t eEventType, int nIncrementValue /*= 1*/ )
-{
-	// Look for another player to pass in. We do two passes over the list of candidates.
-	// First we look for anyone that we know is a real player. If we don't find any of
-	// those then we pass in a known bot. This means that things that allow bots will
-	// still find one and work, but event types that don't allow bots won't be dependent
-	// on the order of players in the list.
-	for( int iPass = 1; iPass <= 2; iPass++ )
-	{
-		for( int playerIndex = 1; playerIndex <= MAX_PLAYERS; playerIndex++ )
-		{
-			CTFPlayer *pOtherPlayer = ToTFPlayer( UTIL_PlayerByIndex( playerIndex ) );
-			if ( !pOtherPlayer )
-				continue;
-
-			// Ignore ourself.
-			if ( pOtherPlayer == pOwner )
-				continue;
-
-		
-			const bool bCandidatePasses = (iPass == 1 && GetSteamIDForKillEaterScoring( pOtherPlayer ).IsValid())	// if we have a real Steam ID we're golden
-									   || (iPass == 2);																// or if we made it to the second pass, any valid player pointer is as good as any other
-			if ( bCandidatePasses )
-			{
-				EconItemInterface_OnOwnerKillEaterEvent( pEconEntity, pOwner, pOtherPlayer, eEventType, nIncrementValue );
-				return;
-			}
-		}
-	}
-
-	// We couldn't find anyone else at all. This is hard. Let's give up.
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-static GCSDK::CProtoBufMsg<CMsgIncrementKillCountAttribute_Multiple> *s_pmsgIncrementKillCountMessageBatch = NULL;
-//-----------------------------------------------------------------------------
-void EconEntity_ValidateAndSendStrangeMessageToGC_Batched( IEconItemInterface *pEconInterface, class CTFPlayer *pOwner, class CTFPlayer *pVictim, kill_eater_event_t eEventType, int nIncrementValue /*= 1*/ )
-{
-	CStrangeEventValidator Validator( pEconInterface, pOwner, pVictim, eEventType );
-
-	if ( !Validator.BIsValidEvent() )
-		return;
-
-	// This has to be dynamically allocated because we can't static-init a protobuf message at startup type.
-	if ( !s_pmsgIncrementKillCountMessageBatch )
-	{
-		s_pmsgIncrementKillCountMessageBatch = new GCSDK::CProtoBufMsg<CMsgIncrementKillCountAttribute_Multiple>( k_EMsgGC_IncrementKillCountAttribute_Multiple );
-	}
-
-	// Look for an existing message that matches this user and this event.
-	for ( int i = 0; i < s_pmsgIncrementKillCountMessageBatch->Body().msgs_size(); i++ )
-	{
-		CMsgIncrementKillCountAttribute *pMsg = s_pmsgIncrementKillCountMessageBatch->Body().mutable_msgs( i );
-		Assert( pMsg );
-
-		if ( pMsg->killer_steam_id() == Validator.GetKillerSteamID().ConvertToUint64() &&
-			pMsg->victim_steam_id() == Validator.GetVictimSteamID().ConvertToUint64() &&
-			pMsg->item_id() == Validator.GetItemID() &&
-			(kill_eater_event_t)pMsg->event_type() == Validator.GetEventType() )
-		{
-			// We found an existing entry for this message. All we want to do is add to the stat we're tracking
-			// but still send up this single message.
-			Assert( pMsg->has_increment_value() );
-
-			pMsg->set_increment_value( pMsg->increment_value() + nIncrementValue );
-			return;
-		}
-	}
-
-	// We don't have an existing entry, so make a new one.
-	CMsgIncrementKillCountAttribute *pNewMsg = s_pmsgIncrementKillCountMessageBatch->Body().add_msgs();
-
-	FillOutBaseKillEaterMessage( pNewMsg, Validator );
-	pNewMsg->set_increment_value( nIncrementValue );
-}
-//-----------------------------------------------------------------------------
-void EconEntity_OnOwnerKillEaterEvent_Batched( CEconEntity *pEconEntity, class CTFPlayer *pOwner, class CTFPlayer *pVictim, kill_eater_event_t eEventType, int nIncrementValue /*= 1*/ )
-{
-	if ( !pEconEntity )
-		return;
-
-	EconItemInterface_OnOwnerKillEaterEvent_Batched( pEconEntity->GetAttributeContainer()->GetItem(), pOwner, pVictim, eEventType, nIncrementValue );
-}
-//-----------------------------------------------------------------------------
-void EconItemInterface_OnOwnerKillEaterEvent_Batched( IEconItemInterface *pEconInterface, class CTFPlayer *pOwner, class CTFPlayer *pVictim, kill_eater_event_t eEventType, int nIncrementValue /*= 1*/ )
-{
-	for ( int i = 0; i < pOwner->GetNumWearables(); ++i )
-	{
-		CTFWearable *pWearableItem = dynamic_cast<CTFWearable *>( pOwner->GetWearable( i ) );
-		if ( !pWearableItem )
-			continue;
-
-		if ( !pWearableItem->GetAttributeContainer() )
-			continue;
-
-		CEconItemView *pEconItemView = pWearableItem->GetAttributeContainer()->GetItem();
-		if ( !pEconItemView )
-			continue;
-
-		EconEntity_ValidateAndSendStrangeMessageToGC_Batched( pWearableItem->GetAttributeContainer()->GetItem(), pOwner, pVictim, eEventType, nIncrementValue );
-	}
-
-	EconEntity_ValidateAndSendStrangeMessageToGC_Batched( pEconInterface, pOwner, pVictim, eEventType, nIncrementValue );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void KillEaterEvents_FlushBatches()
-{
-	if ( s_pmsgIncrementKillCountMessageBatch )
-	{
-		Assert( s_pmsgIncrementKillCountMessageBatch->Body().msgs_size() > 0 );
-
-		GCClientSystem()->BSendMessage( *s_pmsgIncrementKillCountMessageBatch );
-
-		delete s_pmsgIncrementKillCountMessageBatch;
-		s_pmsgIncrementKillCountMessageBatch = NULL;
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void HatAndMiscEconEntities_OnOwnerKillEaterEventNoParter( class CTFPlayer *pOwner, kill_eater_event_t eEventType, int nIncrementValue )
-{
-	EconItemInterface_OnOwnerKillEaterEventNoPartner( NULL, pOwner, eEventType, nIncrementValue );
-}
-
-//-----------------------------------------------------------------------------
-void HatAndMiscEconEntities_OnOwnerKillEaterEvent( class CTFPlayer *pOwner, class CTFPlayer *pVictim, kill_eater_event_t eEventType, int nIncrementValue )
-{
-	EconItemInterface_OnOwnerKillEaterEvent( NULL, pOwner, pVictim, eEventType, nIncrementValue );
-}
-
-//-----------------------------------------------------------------------------
-void EconEntity_OnOwnerUniqueEconEvent( IEconItemInterface *pEconEntity, CTFPlayer *pOwner, CTFPlayer *pVictim, kill_eater_event_t eEventType )
-{
-	CStrangeEventValidator Validator( pEconEntity, pOwner, pVictim, eEventType );
-
-	if ( !Validator.BIsValidEvent() )
-		return;
-
-	GCSDK::CProtoBufMsg<CMsgTrackUniquePlayerPairEvent> msg( k_EMsgGC_TrackUniquePlayerPairEvent );
-	FillOutBaseKillEaterMessage( &msg.Body(), Validator );
-
-	GCClientSystem()->BSendMessage( msg );
-}
-
-//-----------------------------------------------------------------------------
-void EconEntity_OnOwnerUniqueEconEvent( CEconEntity *pEconEntity, CTFPlayer *pOwner, CTFPlayer *pVictim, kill_eater_event_t eEventType )
-{
-	if ( !pEconEntity )
-		return;
-	EconEntity_OnOwnerUniqueEconEvent( pEconEntity->GetAttributeContainer()->GetItem(), pOwner, pVictim, eEventType );
-}
-
-//-----------------------------------------------------------------------------
-void EconEntity_NonEquippedItemKillTracking( CTFPlayer *pOwner, CTFPlayer *pVictim, item_definition_index_t iDefIndex, kill_eater_event_t eEventType, int nIncrementValue = 1 )
-{
-	// Validate
-	if ( !pOwner || !pVictim || pOwner == pVictim )
-		return;
-
-	if ( pOwner->IsBot() || pVictim->IsBot() )
-		return;
-
-	CSteamID pOwnerSteamID;
-	CSteamID pVictimSteamID;
-	if ( !pOwner->GetSteamID( &pOwnerSteamID ) || !pVictim->GetSteamID( &pVictimSteamID ) )
-		return;
-	
-	// Current date
-	static CSchemaAttributeDefHandle pAttrDef_DeactiveDate( "deactive date" );
-	uint32 unCurrentDate = CRTime::RTime32TimeCur();
-
-	CEconItemView *pNonEquippedItem = pOwner->Inventory()->GetFirstItemOfItemDef( iDefIndex, pOwner->Inventory() );
-	if ( pNonEquippedItem )
-	{
-		// Check the date
-		uint32 unDeactiveDate = 0;
-		if ( !pNonEquippedItem->FindAttribute( pAttrDef_DeactiveDate, &unDeactiveDate ) || unDeactiveDate > unCurrentDate )
-		{
-			GCSDK::CProtoBufMsg<CMsgIncrementKillCountAttribute> msg( k_EMsgGC_IncrementKillCountAttribute );
-			msg.Body().set_killer_steam_id( pOwnerSteamID.ConvertToUint64() );
-			msg.Body().set_victim_steam_id( pVictimSteamID.ConvertToUint64() );
-			
-			if ( nIncrementValue > 1 )
-			{
-				msg.Body().set_increment_value( nIncrementValue );
-			}
-
-			msg.Body().set_item_id( pNonEquippedItem->GetID() );
-			msg.Body().set_event_type( eEventType );
-			GCClientSystem()->BSendMessage( msg );
-		}
-	}
-
-}
-
-//-----------------------------------------------------------------------------
-void EconEntity_NonEquippedItemKillTracking_NoPartner( CTFPlayer *pOwner, item_definition_index_t iDefIndex, kill_eater_event_t eEventType, int nIncrementValue )
-{
-	// Find a partner or give up
-	for( int iPass = 1; iPass <= 2; iPass++ )
-	{
-		for( int playerIndex = 1; playerIndex <= MAX_PLAYERS; playerIndex++ )
-		{
-			CTFPlayer *pOtherPlayer = ToTFPlayer( UTIL_PlayerByIndex( playerIndex ) );
-			if ( !pOtherPlayer )
-				continue;
-
-			// Ignore ourself.
-			if ( pOtherPlayer == pOwner )
-				continue;
-
-
-			const bool bCandidatePasses = (iPass == 1 && GetSteamIDForKillEaterScoring( pOtherPlayer ).IsValid())	// if we have a real Steam ID we're golden
-				|| (iPass == 2);																// or if we made it to the second pass, any valid player pointer is as good as any other
-
-			if ( bCandidatePasses )
-			{
-				EconEntity_NonEquippedItemKillTracking( pOwner, pOtherPlayer, iDefIndex, eEventType, nIncrementValue );
-				return;
-			}
-		}
-	}
-}
-
-void EconEntity_NonEquippedItemKillTracking_NoPartnerBatched( class CTFPlayer *pOwner, item_definition_index_t iDefIndex, kill_eater_event_t eEventType, int nIncrementValue )
-{
-	// Find a partner or give up
-	for ( int iPass = 1; iPass <= 2; iPass++ )
-	{
-		for ( int playerIndex = 1; playerIndex <= MAX_PLAYERS; playerIndex++ )
-		{
-			CTFPlayer *pOtherPlayer = ToTFPlayer( UTIL_PlayerByIndex( playerIndex ) );
-			if ( !pOtherPlayer )
-				continue;
-
-			// Ignore ourself.
-			if ( pOtherPlayer == pOwner )
-				continue;
-
-
-			const bool bCandidatePasses = ( iPass == 1 && GetSteamIDForKillEaterScoring( pOtherPlayer ).IsValid() )	// if we have a real Steam ID we're golden
-				|| ( iPass == 2 );																// or if we made it to the second pass, any valid player pointer is as good as any other
-
-			if ( bCandidatePasses )
-			{
-				// find the item
-				// Current date
-				static CSchemaAttributeDefHandle pAttrDef_DeactiveDate( "deactive date" );
-				uint32 unCurrentDate = CRTime::RTime32TimeCur();
-
-				CEconItemView *pNonEquippedItem = pOwner->Inventory()->GetFirstItemOfItemDef( iDefIndex, pOwner->Inventory() );
-				if ( pNonEquippedItem )
-				{
-					uint32 unDeactiveDate = 0;
-					if ( !pNonEquippedItem->FindAttribute( pAttrDef_DeactiveDate, &unDeactiveDate ) || unDeactiveDate > unCurrentDate )
-					{
-						EconEntity_ValidateAndSendStrangeMessageToGC_Batched( pNonEquippedItem, pOwner, pOtherPlayer, eEventType, nIncrementValue );
-					}
-				}
-				
-				return;
-			}
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// TODO: Remove this call and only use the one above
-//-----------------------------------------------------------------------------
-void EconEntity_NonEquippedItemKillTracking( CTFPlayer *pOwner, CTFPlayer *pVictim, int nIncrementValue )
-{
-	// Validate
-	if ( !pOwner || !pVictim || pOwner == pVictim )
-		return;
-
-	if ( pOwner->IsBot() || pVictim->IsBot() )
-		return;
-
-	CSteamID pOwnerSteamID;
-	CSteamID pVictimSteamID;
-	if ( ! pOwner->GetSteamID( &pOwnerSteamID ) || !pVictim->GetSteamID( &pVictimSteamID ) )
-		return;
-
-	// Find any active operation
-	CUtlVector< item_definition_index_t > vecProcessedItems;
-	const auto& dictOperations = GetItemSchema()->GetOperationDefinitions();
-	FOR_EACH_DICT_FAST( dictOperations, i )
-	{
-		CEconOperationDefinition* pOperation = dictOperations[i];
-		if ( pOperation->IsActive() && pOperation->IsCampaign() )
-		{
-			// we only want to process each required item once, but some operations have the same required item
-			const item_definition_index_t unRequiredItemIndex = pOperation->GetRequiredItemDefIndex();
-			if ( ( unRequiredItemIndex != INVALID_ITEM_DEF_INDEX ) && ( vecProcessedItems.Find( unRequiredItemIndex ) != vecProcessedItems.InvalidIndex() ) )
-				continue;
-
-			vecProcessedItems.AddToTail( unRequiredItemIndex );
-			EconEntity_NonEquippedItemKillTracking( pOwner, pVictim, unRequiredItemIndex, kKillEaterEvent_CosmeticOperationKills, nIncrementValue );
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Sends a soul with the specified value to every living member of the
 //			specified team, originating from vecPosition.
 //-----------------------------------------------------------------------------
@@ -10908,9 +8826,6 @@ void CTFGameRules::DropHalloweenSoulPackToTeam( int nAmount, const Vector& vecPo
 		DropHalloweenSoulPack( nAmount, vecPosition, pTFPlayer, nSourceTeam );
 	}
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -11051,15 +8966,6 @@ void CTFGameRules::DropBonusDuck( const Vector& vPosition, CTFPlayer *pTFCreator
 		return;
 	}
 
-	static CSchemaAttributeDefHandle pAttr_DuckLevelBadge( "duck badge level" );
-
-	// Find Badge and increase number of ducks based on badge level (1 duck per 5 levels)
-	// Look through equipped items, if one is a duck badge use its level
-	int iDuckFlags = 0;
- 	if ( pTFCreator == NULL || bObjective )
-	{
-		iDuckFlags |= EDuckFlags::DUCK_FLAG_OBJECTIVE;
-	}
 	uint32 iDuckBadgeLevel = 0;
 
 	if ( pTFCreator )
@@ -11149,7 +9055,7 @@ void CTFGameRules::DropBonusDuck( const Vector& vPosition, CTFPlayer *pTFCreator
 				pDuckPickup->SetVictimId( iVictimId );
 				pDuckPickup->SetAssisterId( iAssisterId );
 				pDuckPickup->ChangeTeam( iDuckTeam );
-				pDuckPickup->SetDuckFlag( iDuckFlags );
+				pDuckPickup->SetDuckFlag( 0 );
 				// random chance to have a special duck appear
 				// Bonus duck implies atleast 1 Saxton
 				if ( bSpecial || ( RandomInt( 1, 100 ) <= tf_test_special_ducks.GetInt() ) )
@@ -11179,112 +9085,7 @@ void CTFGameRules::DropBonusDuck( const Vector& vPosition, CTFPlayer *pTFCreator
 				}
 			}
 		}
-
-		// Update duckstreak count on player and assister if they have badges
-		if ( pTFCreator && PlayerHasDuckStreaks( pTFCreator ) )
-		{
-			pTFCreator->m_Shared.IncrementStreak( CTFPlayerShared::kTFStreak_Ducks, iDuckCount );
-		}
-		if ( pAssister && PlayerHasDuckStreaks( pAssister ) )
-		{
-			pAssister->m_Shared.IncrementStreak( CTFPlayerShared::kTFStreak_Ducks, iDuckCount );
-		}
-
-		// Duck UserMessage
-		if ( pTFCreator && pTFVictim && !TFGameRules()->HaveCheatsBeenEnabledDuringLevel() )
-		{
-			if ( IsHolidayActive( kHoliday_EOTL ) )
-			{
-				// Send a Message to Creator
-				{
-					// IsCreated, ID of Creator, ID of Victim, Count, IsGolden
-					CSingleUserRecipientFilter userfilter( pTFCreator );
-					UserMessageBegin( userfilter, "EOTLDuckEvent" );
-					WRITE_BYTE( true );
-					WRITE_BYTE( iCreatorId );
-					WRITE_BYTE( iVictimId );
-					WRITE_BYTE( 0 );
-					WRITE_BYTE( iDuckTeam );
-					WRITE_BYTE( iDuckCount );
-					WRITE_BYTE( iDuckFlags );
-					MessageEnd();
-				}
-
-				// To assister
-				if ( pAssister )
-				{
-					// IsCreated, ID of Creator, ID of Victim, Count, IsGolden
-					CSingleUserRecipientFilter userfilter( pAssister );
-					UserMessageBegin( userfilter, "EOTLDuckEvent" );
-					WRITE_BYTE( true );
-					WRITE_BYTE( pAssister->entindex() );
-					WRITE_BYTE( iVictimId );
-					WRITE_BYTE( 0 );
-					WRITE_BYTE( iDuckTeam );
-					WRITE_BYTE( iDuckCount );
-					WRITE_BYTE( iDuckFlags );
-					MessageEnd();
-				}
-			}
-		}
 	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-static kill_eater_event_t g_eClassKillEvents[] =
-{
-	kKillEaterEvent_ScoutKill,					// TF_CLASS_SCOUT
-	kKillEaterEvent_SniperKill,					// TF_CLASS_SNIPER
-	kKillEaterEvent_SoldierKill,				// TF_CLASS_SOLDIER
-	kKillEaterEvent_DemomanKill,				// TF_CLASS_DEMOMAN
-	kKillEaterEvent_MedicKill,					// TF_CLASS_MEDIC
-	kKillEaterEvent_HeavyKill,					// TF_CLASS_HEAVYWEAPONS
-	kKillEaterEvent_PyroKill,					// TF_CLASS_PYRO
-	kKillEaterEvent_SpyKill,					// TF_CLASS_SPY
-	kKillEaterEvent_EngineerKill,				// TF_CLASS_ENGINEER
-};
-COMPILE_TIME_ASSERT( ARRAYSIZE( g_eClassKillEvents ) == (TF_LAST_NORMAL_CLASS - TF_FIRST_NORMAL_CLASS) );
-
-//-----------------------------------------------------------------------------
-static kill_eater_event_t g_eRobotClassKillEvents[] =
-{
-	kKillEaterEvent_RobotScoutKill,					// TF_CLASS_SCOUT
-	kKillEaterEvent_RobotSniperKill,				// TF_CLASS_SNIPER
-	kKillEaterEvent_RobotSoldierKill,				// TF_CLASS_SOLDIER
-	kKillEaterEvent_RobotDemomanKill,				// TF_CLASS_DEMOMAN
-	kKillEaterEvent_RobotMedicKill,					// TF_CLASS_MEDIC
-	kKillEaterEvent_RobotHeavyKill,					// TF_CLASS_HEAVYWEAPONS
-	kKillEaterEvent_RobotPyroKill,					// TF_CLASS_PYRO
-	kKillEaterEvent_RobotSpyKill,					// TF_CLASS_SPY
-	kKillEaterEvent_RobotEngineerKill,				// TF_CLASS_ENGINEER
-};
-COMPILE_TIME_ASSERT( ARRAYSIZE( g_eRobotClassKillEvents ) == (TF_LAST_NORMAL_CLASS - TF_FIRST_NORMAL_CLASS) );
-
-static bool BHasWearableOfSpecificQualityEquipped( /*const*/ CTFPlayer *pTFPlayer, EEconItemQuality eQuality )
-{
-	Assert( pTFPlayer );
-
-	// Fire the kill eater event on all wearables
-	for ( int i = 0; i < pTFPlayer->GetNumWearables(); ++i )
-	{
-		CTFWearable *pWearableItem = dynamic_cast<CTFWearable *>( pTFPlayer->GetWearable( i ) );
-		if ( !pWearableItem )
-			continue;
-
-		if ( !pWearableItem->GetAttributeContainer() )
-			continue;
-
-		CEconItemView *pEconItemView = pWearableItem->GetAttributeContainer()->GetItem();
-		if ( !pEconItemView )
-			continue;
-
-		if ( pEconItemView->GetQuality() == eQuality )
-			return true;
-	}
-
-	return false;
 }
 
 void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &info )
@@ -11358,12 +9159,6 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 				if ( pOwner->GetMaxSentryKills() < iKills )
 				{
 					pOwner->SetMaxSentryKills( iKills );
-				}
-
-				// if we just got 10 kills with one sentry, tell the owner's client, which will award achievement if it doesn't have it already
-				if ( iKills == 10 )
-				{
-					pOwner->AwardAchievement( ACHIEVEMENT_TF_GET_TURRETKILLS );
 				}
 			}
 		}
@@ -11458,11 +9253,6 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 				{
 					int iDefenderKills = pAssister->GetPerLifeCounterKV( "medic_defender_kills" );
 
-					if ( ++iDefenderKills == 3 )
-					{
-						pAssister->AwardAchievement( ACHIEVEMENT_TF_MEDIC_ASSIST_CAPTURER );
-					}
-
 					pAssister->SetPerLifeCounterKV( "medic_defender_kills", iDefenderKills );
 				}
 			}
@@ -11556,274 +9346,6 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 		// Increment the server-side kill count for this weapon -- this is used for honorbound
 		// weapons and has nothing to do with strange weapons/stats.
 		pTFPlayerScorer->IncrementKillCountSinceLastDeploy( info );
-
-		CTFWeaponBase *pTFWeapon = GetKilleaterWeaponFromDamageInfo( &info );
-		
-		kill_eater_event_t eKillEaterEvent = pTFWeapon														// if we have a weapon...
-											? pTFWeapon->GetKillEaterKillEventType()							// ...then ask it what type of event to report
-											: info.GetDamageCustom() == TF_DMG_CUSTOM_BOOTS_STOMP			// if we don't have a weapon, and we're hacking for kill types from wearables (!)...
-											? kKillEaterEvent_PlayerKillByBootStomp							// ...then use our hard-coded event
-											: kKillEaterEvent_PlayerKill;									// otherwise default to a normal player kill
-		
-		CEconEntity *pAttackerEconWeapon = NULL;
-
-		// Cosmetic Kill like manntreads or demo shield
-		if ( !pTFWeapon )
-		{
-			pAttackerEconWeapon = dynamic_cast< CEconEntity * >( info.GetWeapon() );
-		}
-		else
-		{
-			pAttackerEconWeapon = dynamic_cast< CEconEntity * >( pTFWeapon );
-		}
-		
-
-		if ( pAttackerEconWeapon )
-		{
-			if ( !( IsPVEModeActive() && pTFPlayerVictim->GetTeamNumber() == TF_TEAM_PVE_INVADERS ) )
-			{
-				// Any type of non-robot kill!
-				EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, eKillEaterEvent );
-
-				// Cosmetic any kill type tracking
-				{
-					HatAndMiscEconEntities_OnOwnerKillEaterEvent( pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_CosmeticKills );
-
-					// Halloween silliness: overworld kills for Merasmus carnival.
-					if ( IsHalloweenScenario( HALLOWEEN_SCENARIO_DOOMSDAY ) && !pTFPlayerScorer->m_Shared.InCond( TF_COND_HALLOWEEN_IN_HELL ) )
-					{
-						HatAndMiscEconEntities_OnOwnerKillEaterEvent( pTFPlayerScorer,
-																	  pTFPlayerVictim,
-																	  kKillEaterEvent_Halloween_OverworldKills );
-					}
-				}
-
-				// Operation Kills
-				EconEntity_NonEquippedItemKillTracking( pTFPlayerScorer, pTFPlayerVictim, 1 );
-
-				// Unique kill tracking?
-				// XXX(JohnS) - Disabling.  No longer collecting this on GC, never shipped code using this. See ECON_UNIQUE_EVENT_SUPPORT define
-				// EconEntity_OnOwnerUniqueEconEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_UniqueEvent__KilledAccountWithItem );
-
-				// Optional Taunt Kill tracking
-				if ( IsTauntDmg( info.GetDamageCustom() ) )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_TauntKill );
-				}
-				// Scorch Shot Taunt is Different
-				else if ( info.GetDamageCustom() == TF_DMG_CUSTOM_FLARE_PELLET )
-				{
-					CBaseEntity *pInflictor = info.GetInflictor();
-					CTFProjectile_Flare *pFlare = dynamic_cast<CTFProjectile_Flare*>(pInflictor);
-					if ( pFlare && pFlare->IsFromTaunt() )
-					{
-						EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_TauntKill );
-					}
-				}
-
-				// Optional: also track "killed X players of this specific class".
-				int iVictimClassIndex = pTFPlayerVictim->GetPlayerClass()->GetClassIndex();
-				if ( iVictimClassIndex >= TF_FIRST_NORMAL_CLASS && iVictimClassIndex <= TF_LAST_NORMAL_CLASS )
-				{
-					const kill_eater_event_t eClassKillType = g_eClassKillEvents[ iVictimClassIndex - TF_FIRST_NORMAL_CLASS ];
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, eClassKillType );
-				}
-
-				// Optional : Kills while in Victory / Bonus time
-				if ( State_Get() == GR_STATE_TEAM_WIN && GetWinningTeam() != pTFPlayerVictim->GetTeamNumber() )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_VictoryTimeKill );
-				}
-
-				// Optional: also track "killed X players while they were in the air".
-				if ( !(pTFPlayerVictim->GetFlags() & FL_ONGROUND) && (pTFPlayerVictim->GetWaterLevel() == WL_NotInWater) )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_AirborneEnemyKill );
-				}
-
-				// Optional: also track "killed X players with headshots".
-				if ( IsHeadshot( info.GetDamageCustom() ) )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_HeadshotKill );
-				}
-
-				// Optional: also track "gibbed X players".
-				if ( pTFPlayerVictim->ShouldGib( info ) )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_GibKill );
-				}
-
-				// Optional: also track "killed X players during full moons". We intentionally don't call into the
-				// game rules here because we don't want server variables to override this. Setting local time on the
-				// server will still allow it to happen but it at least takes a little effort.
-				if ( UTIL_IsHolidayActive( kHoliday_FullMoon ) )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_PlayerKillDuringFullMoon );
-				}
-
-				// Optional: also track kills we make while we're dead (afterburn, pre-death-fired rocket, etc.)
-				if ( !pTFPlayerScorer->IsAlive() )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_PlayerKillPosthumous );
-				}
-
-				// Optional: also track kills that were specifically criticals.
-				if ( (info.GetDamageType() & DMG_CRITICAL) != 0 )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_PlayerKillCritical );
-				}
-				else 
-				{
-					// Not special at all kill
-					if ( pTFPlayerVictim->GetAttackBonusEffect() == kBonusEffect_None )
-					{
-						EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_NonCritKills );
-					}
-				}
-
-				// Optional: also track kills that were made while we were launched into the air from an explosion (ie., rocket-jumping).
-				if ( pTFPlayerScorer->InAirDueToExplosion() )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_PlayerKillWhileExplosiveJumping );
-				}
-
-				// Optional: also track kills where the victim was a spy who was invisible at the time of death.
-				if ( iVictimClassIndex == TF_CLASS_SPY && pTFPlayerVictim->m_Shared.GetPercentInvisible() > 0 )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_InvisibleSpiesKilled );
-				}
-
-				// Optional: also track kills where the victim was a medic with 100% uber.
-				if ( pTFPlayerVictim->MedicGetChargeLevel() >= 1.0f )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_MedicsWithFullUberKilled );
-				}
-
-				// Optional: also track kills where the killer was at low health when they dealt the final damage. Don't count
-				// kills with 0 or fewer health -- those would be post-mortem kills instead.
-				if ( ((float)pTFPlayerScorer->GetHealth() / (float)pTFPlayerScorer->GetMaxHealth()) <= 0.1f && pTFPlayerScorer->GetHealth() > 0 )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_KillWhileLowHealth );
-				}
-
-				// Optional: also track kills that take place during the Halloween holiday. We intentionally *do* check against
-				// the game rules logic here -- if folks want to enable Halloween mode on a server and play around, I don't see any
-				// reason why we benefit from stopping their fun.
-				if ( TF_IsHolidayActive( kHoliday_Halloween ) )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_HalloweenKill );
-				}
-
-				// Optional: also track kills where the victim was completely underwater.
-				if ( pTFPlayerVictim->GetWaterLevel() >= WL_Eyes )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_UnderwaterKill );
-				}
-
-				// Optional: also track kills where we're under the effects of a medic's ubercharge.
-				if ( pTFPlayerScorer->m_Shared.InCond( TF_COND_INVULNERABLE ) || pTFPlayerScorer->m_Shared.InCond( TF_COND_INVULNERABLE_WEARINGOFF ) )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_KillWhileUbercharged );
-				}
-
-				// Optional: also track kills where the victim was in the process of carrying the intel, capturing a point, or pushing
-				// the cart. The actual logic for "killed a flag carrier" is handled elsewhere because by this point we've forgotten
-				// if we had a flag before we died.
-				if ( pTFPlayerVictim->IsCapturingPoint() )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_DefenderKill );
-				}
-
-				// Optional: also track kills where the victim was at least N units from the person dealing the damage, where N is "however far
-				// you have to be to get the crowd chear noise". This also specifically checks to make sure the damage dealer is alive to avoid
-				// casing where you spectate far away, etc.
-				if ( pTFPlayerScorer->IsAlive() && (pTFPlayerScorer->GetAbsOrigin() - pTFPlayerVictim->GetAbsOrigin()).Length() >= 2000.0f )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_LongDistanceKill );
-				}
-
-				// Optional: also track kills where the victim was wearing at least one unusual-quality item.
-				if ( BHasWearableOfSpecificQualityEquipped( pTFPlayerVictim, AE_UNUSUAL ) )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_PlayersWearingUnusualKill );
-				}
-
-				// Optional: also track kills where the victim was on fire at the time that they died. We can't check the condition flag
-				// here because that may or may not be active after they die, but instead we test to see whether they still had a burn queued
-				// up for the future as a proxy for "was on fire at this point".
-				if ( pTFPlayerVictim->m_Shared.GetFlameBurnTime() >= gpGlobals->curtime )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_BurningEnemyKill );
-				}
-
-				// Optional: also track kills where this kill ended someone else's killstreak, where "killstreak" starts when the first
-				// announcement happens. If Mike gets to hard-code constants, I do, too.
-				enum { kFirstKillStreakAnnouncement = 5 };
-				if ( pTFPlayerVictim->m_Shared.GetStreak( CTFPlayerShared::kTFStreak_Kills ) >= kFirstKillStreakAnnouncement )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_KillstreaksEnded );
-				}
-
-				// Optional: also track kills where the killer and the victim were basically right next to each other. This is hard-coded to
-				// 1.5x default melee swing range.
-				if ( pTFPlayerScorer->IsAlive() && (pTFPlayerScorer->GetAbsOrigin() - pTFPlayerVictim->GetAbsOrigin()).Length() <= 72.0f )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_PointBlankKills );
-				}
-
-				// Optional : Fullhealth kills
-				if ( pTFPlayerScorer->GetHealth() >= pTFPlayerScorer->GetMaxHealth() )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_FullHealthKills );
-				}
-
-				// Optional : Taunting Player kills
-				if ( pTFPlayerVictim->IsTaunting() )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_TauntingPlayerKills );
-				}
-			}
-			else
-			{
-				Assert( pTFPlayerVictim->GetTeamNumber() == TF_TEAM_PVE_INVADERS );
-
-				// Optional: also track kills where the victim was a robot in MvM
-				EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_RobotsDestroyed );
-
-				// Optional: also track "killed X Robots of this specific class".
-				int iVictimClassIndex = pTFPlayerVictim->GetPlayerClass()->GetClassIndex();
-				if ( iVictimClassIndex >= TF_FIRST_NORMAL_CLASS && iVictimClassIndex <= TF_LAST_NORMAL_CLASS )
-				{
-					const kill_eater_event_t eClassKillType = g_eRobotClassKillEvents[ iVictimClassIndex - TF_FIRST_NORMAL_CLASS ];
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, eClassKillType );
-				}
-
-				// Optional: specifically track miniboss kills separately from base robot kills.
-				if ( pTFPlayerVictim->IsMiniBoss() )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_MinibossRobotsDestroyed );
-				}
-
-				// Optional: track whether this shot killed a robot *after* penetrating something else.
-				if ( info.GetPlayerPenetrationCount() > 0 )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_RobotsDestroyedAfterPenetration );
-				}
-
-				// Optional: also track "killed X players with headshots", but for robots specifically.
-				if ( IsHeadshot( info.GetDamageCustom() ) )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_RobotHeadshotKills );
-				}
-
-				// Optional: also track kills that take place during the Halloween holiday. See note for kKillEaterEvent_HalloweenKill
-				// regarding calling into game rules here.
-				if ( TF_IsHolidayActive( kHoliday_Halloween ) )
-				{
-					EconEntity_OnOwnerKillEaterEvent( pAttackerEconWeapon, pTFPlayerScorer, pTFPlayerVictim, kKillEaterEvent_HalloweenKillRobot );
-				}
-			}
-		}
 	}
 
 	BaseClass::PlayerKilled( pVictim, info );
@@ -11836,81 +9358,6 @@ void CTFGameRules::PlayerKilledCheckAchievements( CTFPlayer *pAttacker, CTFPlaye
 {
 	if ( !pAttacker || !pVictim )
 		return;
-
-	// HEAVY WEAPONS GUY
-	if ( pAttacker->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-	{
-		if ( GetGameType() == TF_GAMETYPE_CP )
-		{
-			// ACHIEVEMENT_TF_HEAVY_DEFEND_CONTROL_POINT
-			CTriggerAreaCapture *pAreaTrigger = pAttacker->GetControlPointStandingOn();
-			if ( pAreaTrigger )
-			{
-				CTeamControlPoint *pCP = pAreaTrigger->GetControlPoint();
-				if ( pCP )
-				{
-					if ( pCP->GetOwner() == pAttacker->GetTeamNumber() )
-					{
-						// no suicides!
-						if ( pAttacker != pVictim )
-						{
-							pAttacker->AwardAchievement( ACHIEVEMENT_TF_HEAVY_DEFEND_CONTROL_POINT );
-						}
-					}
-				}
-			}
-
-			// ACHIEVEMENT_TF_HEAVY_KILL_CAPPING_ENEMIES
-			pAreaTrigger = pVictim->GetControlPointStandingOn();
-			if ( pAreaTrigger )
-			{
-				CTeamControlPoint *pCP = pAreaTrigger->GetControlPoint();
-				if ( pCP )
-				{
-					if ( pCP->GetOwner() == pAttacker->GetTeamNumber() && 
-						 TeamMayCapturePoint( pVictim->GetTeamNumber(), pCP->GetPointIndex() ) &&
-						 PlayerMayCapturePoint( pVictim, pCP->GetPointIndex() ) )
-					{
-						pAttacker->AwardAchievement( ACHIEVEMENT_TF_HEAVY_KILL_CAPPING_ENEMIES );
-					}
-				}
-			}
-		}
-
-		// ACHIEVEMENT_TF_HEAVY_CLEAR_STICKYBOMBS
-		if ( pVictim->IsPlayerClass( TF_CLASS_DEMOMAN ) )
-		{
-			int iPipes = pVictim->GetNumActivePipebombs();
-
-			for (int i = 0; i < iPipes; i++)
-			{
-				pAttacker->AwardAchievement( ACHIEVEMENT_TF_HEAVY_CLEAR_STICKYBOMBS );
-			}
-		}
-
-		// ACHIEVEMENT_TF_HEAVY_DEFEND_MEDIC
-		int i;
-		int iNumHealers = pAttacker->m_Shared.GetNumHealers();
-		for ( i = 0 ; i < iNumHealers ; i++ )
-		{
-			CTFPlayer *pMedic = ToTFPlayer( pAttacker->m_Shared.GetHealerByIndex( i ) );
-			if ( pMedic && pMedic->m_AchievementData.IsDamagerInHistory( pVictim, 3.0 ) )
-			{
-				pAttacker->AwardAchievement( ACHIEVEMENT_TF_HEAVY_DEFEND_MEDIC );
-				break; // just award it once for each kill...even if the victim attacked more than one medic attached to the killer
-			}
-		}
-
-		// ACHIEVEMENT_TF_HEAVY_STAND_NEAR_DISPENSER
-		for ( i = 0 ; i < iNumHealers ; i++ )
-		{
-			if ( pAttacker->m_Shared.HealerIsDispenser( i ) )
-			{
-				pAttacker->AwardAchievement( ACHIEVEMENT_TF_HEAVY_STAND_NEAR_DISPENSER );
-				break; // just award it once for each kill...even if the attacker is being healed by more than one dispenser
-			}
-		}
-	}
 
 	int i;
 	int iNumHealers = pAttacker->m_Shared.GetNumHealers();
@@ -11949,17 +9396,11 @@ void CTFGameRules::CalcDominationAndRevenge( CTFPlayer *pAttacker, CBaseEntity *
 	if ( IsPowerupMode() )
 		return;
 
-	// no dominations/revenge in competitive mode
-	if ( IsMatchTypeCompetitive() )
-		return;
-
 	PlayerStats_t *pStatsVictim = CTF_GameStats.FindPlayerStats( pVictim );
 
 	// no dominations/revenge in PvE mode
 	if ( IsPVEModeActive() )
 		return;
-
-	CEconEntity *pEconWeapon = dynamic_cast<CEconEntity *>( pWeapon );
 	
 	int nAttackerEntIdx = pAttacker->entindex();
 	if ( !IsIndexIntoPlayerArrayValid(nAttackerEntIdx) )
@@ -11979,9 +9420,6 @@ void CTFGameRules::CalcDominationAndRevenge( CTFPlayer *pAttacker, CBaseEntity *
 
 		// record stats
 		CTF_GameStats.Event_PlayerDominatedOther( pAttacker );
-
-		// strange weapon stat tracking?
-		EconEntity_OnOwnerKillEaterEvent( pEconWeapon, pAttacker, pVictim, kKillEaterEvent_PlayerKillStartDomination );
 
 		IGameEvent *pDominationEvent = gameeventmanager->CreateEvent( "player_domination" );
 		if ( pDominationEvent )
@@ -12010,16 +9448,6 @@ void CTFGameRules::CalcDominationAndRevenge( CTFPlayer *pAttacker, CBaseEntity *
 
 		// record stats
 		CTF_GameStats.Event_PlayerRevenge( pAttacker );
-
-		// strange weapon stat tracking?
-		EconEntity_OnOwnerKillEaterEvent( pEconWeapon, pAttacker, pVictim, kKillEaterEvent_PlayerKillRevenge );
-	}
-	else if ( pAttacker->m_Shared.IsPlayerDominated( pVictim->entindex() ) )
-	{
-		// the killer killed someone who they were already dominating
-
-		// strange weapon stat tracking?
-		EconEntity_OnOwnerKillEaterEvent( pEconWeapon, pAttacker, pVictim, kKillEaterEvent_PlayerKillAlreadyDominated );
 	}
 }
 
@@ -12827,47 +10255,6 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 	const char *killer_weapon_name = GetKillingWeaponName( info, pTFPlayerVictim, &iWeaponID );
 	const char *killer_weapon_log_name = killer_weapon_name;
 
-	// Kill eater events.
-	{
-		// Was this a sentry kill? If the sentry did the kill itself with bullets then it'll be the inflictor.
-		// If it got the kill by firing a rocket, the rocket will be the inflictor and the sentry will be the
-		// owner of the rocket.
-		//
-		// dynamic_cast quagmire of sadness below.
-		CObjectSentrygun *pSentrygun = dynamic_cast<CObjectSentrygun *>( pInflictor );
-		if ( !pSentrygun )
-		{
-			pSentrygun = pInflictor ? dynamic_cast<CObjectSentrygun *>( pInflictor->GetOwnerEntity() ) : NULL;
-		}
-
-		if ( pSentrygun )
-		{
-			// Try to grab the wrench that the engineer has equipped right now. We destroy sentries when wrenches
-			// get changed so whatever they have equipped right now counts for the wrench that built this sentry.
-			CTFPlayer *pBuilder = pSentrygun->GetBuilder();
-			if ( pBuilder )
-			{
-				EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( pBuilder->GetEntityForLoadoutSlot( LOADOUT_POSITION_MELEE ) ), pScorer, pTFPlayerVictim, kKillEaterEvent_PlayerKillsBySentry );
-				// PDA's Also count Sentry kills
-				EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( pBuilder->GetEntityForLoadoutSlot( LOADOUT_POSITION_PDA ) ), pScorer, pTFPlayerVictim, kKillEaterEvent_PlayerKillsBySentry );
-
-				// Check if the engineer is using a Wrangler on this sentry
-				CTFLaserPointer* pLaserPointer = dynamic_cast< CTFLaserPointer * >( pBuilder->GetEntityForLoadoutSlot( LOADOUT_POSITION_SECONDARY ) );
-				if ( pLaserPointer && pLaserPointer->HasLaserDot() )
-				{
-					EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( pLaserPointer ), pScorer, pTFPlayerVictim, kKillEaterEvent_PlayerKillsByManualControlOfSentry );
-				}
-			}
-		}
-
-		// Should we award an assist kill to someone?
-		if ( pAssister )
-		{
-			EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( pAssister->GetActiveWeapon() ), pAssister, pTFPlayerVictim, kKillEaterEvent_PlayerKillAssist );
-			HatAndMiscEconEntities_OnOwnerKillEaterEvent( pAssister, pTFPlayerVictim, kKillEaterEvent_CosmeticAssists );
-		}
-	}
-
 	if ( pScorer )	// Is the killer a client?
 	{
 		killer_ID = pScorer->GetUserID();
@@ -12908,8 +10295,8 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 				if ( GetGlobalTeam( pVictim->GetTeamNumber() ) && GetGlobalTeam( pVictim->GetTeamNumber() )->GetNumPlayers() > 1 )
 #endif // !DEBUG
 				{
-					float flFastTime = IsCompetitiveMode() ? 120.f : TF_ARENA_MODE_FAST_FIRST_BLOOD_TIME;
-					float flSlowTime = IsCompetitiveMode() ? 300.f : TF_ARENA_MODE_SLOW_FIRST_BLOOD_TIME;
+					float flFastTime = TF_ARENA_MODE_FAST_FIRST_BLOOD_TIME;
+					float flSlowTime = TF_ARENA_MODE_SLOW_FIRST_BLOOD_TIME;
 
 					if ( ( gpGlobals->curtime - m_flRoundStartTime ) <= flFastTime )
 					{
@@ -12927,27 +10314,7 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 					m_bArenaFirstBlood = true;
 					bKillWasFirstBlood = true;
 
-					if ( IsCompetitiveMode() )
-					{
-// 						CTF_GameStats.Event_PlayerAwardBonusPoints( pScorer, pVictim, 10 );
-// 						
-// 						CUtlVector< CTFPlayer* > vecPlayers;
-// 						CollectPlayers( &vecPlayers, pScorer->GetTeamNumber(), false );
-// 						FOR_EACH_VEC( vecPlayers, i )
-// 						{
-// 							if ( !vecPlayers[i] )
-// 								continue;
-// 
-// 							if ( vecPlayers[i] == pScorer )
-// 								continue;
-// 
-// 							CTF_GameStats.Event_PlayerAwardBonusPoints( vecPlayers[i], pVictim, 5 );
-// 						}
-					}
-					else
-					{
-						pScorer->m_Shared.AddCond( TF_COND_CRITBOOSTED_FIRST_BLOOD, TF_ARENA_MODE_FIRST_BLOOD_CRIT_TIME );
-					}
+					pScorer->m_Shared.AddCond( TF_COND_CRITBOOSTED_FIRST_BLOOD, TF_ARENA_MODE_FIRST_BLOOD_CRIT_TIME );
 				}
 			}
 		}
@@ -12981,14 +10348,7 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 			if ( !pEconItemView )
 				continue;
 
-			if ( pEconItemView->GetCustomName() )
-			{
-				sAssisterOverrideDesc = CFmtStr( "%c%s", iKillerHasPetItem == 2 ? kHorriblePyroVisionHack_KillAssisterType_CustomName_First : kHorriblePyroVisionHack_KillAssisterType_CustomName, pEconItemView->GetCustomName() );
-			}
-			else
-			{
-				sAssisterOverrideDesc = CFmtStr( "%c%s", iKillerHasPetItem == 2 ? kHorriblePyroVisionHack_KillAssisterType_LocalizationString_First : kHorriblePyroVisionHack_KillAssisterType_LocalizationString, pEconItemView->GetItemDefinition()->GetItemBaseName() ).Get();
-			}
+			sAssisterOverrideDesc = CFmtStr( "%c%s", iKillerHasPetItem == 2 ? kHorriblePyroVisionHack_KillAssisterType_LocalizationString_First : kHorriblePyroVisionHack_KillAssisterType_LocalizationString, pEconItemView->GetItemDefinition()->GetItemBaseName() ).Get();
 			break;
 		}
 	}
@@ -13090,11 +10450,6 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 			// Kill streak updating
 			if ( pTFPlayerVictim && pScorer && pTFPlayerVictim != pScorer )
 			{
-				// Propagate duckstreaks
-				event->SetInt( "duck_streak_victim", pTFPlayerVictim->m_Shared.GetStreak( CTFPlayerShared::kTFStreak_Ducks ) );
-				event->SetInt( "duck_streak_total", pScorer->m_Shared.GetStreak( CTFPlayerShared::kTFStreak_Ducks ) );
-				event->SetInt( "ducks_streaked", pScorer->m_Shared.GetLastDuckStreakIncrement() );
-
 				// Check if they have the appropriate attribute.
 				int iKillStreak = 0;
 				int iKills = 0;
@@ -13156,8 +10511,6 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 
 				if ( pAssister )
 				{
-					event->SetInt( "duck_streak_assist", pAssister->m_Shared.GetStreak( CTFPlayerShared::kTFStreak_Ducks ) );
-
 					// Only allow assists for Mediguns
 					CTFWeaponBase *pAssisterWpn = pAssister->GetActiveTFWeapon();
 					if ( pAssisterWpn && pAssister->IsPlayerClass( TF_CLASS_MEDIC ) )
@@ -13218,32 +10571,6 @@ void CTFGameRules::ClientDisconnected( edict_t *pClient )
 	CTFPlayer *pPlayer = ToTFPlayer( GetContainingEntity( pClient ) );
 	if ( pPlayer )
 	{
-		// ACHIEVEMENT_TF_PYRO_DOMINATE_LEAVESVR - Pyro causes a dominated player to leave the server
-		for ( int i = 1; i <= gpGlobals->maxClients ; i++ )
-		{
-			if ( pPlayer->m_Shared.IsPlayerDominatingMe(i) )
-			{
-				CTFPlayer *pDominatingPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-				if ( pDominatingPlayer && pDominatingPlayer != pPlayer )
-				{
-					if ( pDominatingPlayer->IsPlayerClass(TF_CLASS_PYRO) )
-					{
-						pDominatingPlayer->AwardAchievement( ACHIEVEMENT_TF_PYRO_DOMINATE_LEAVESVR );
-					}
-				}
-			}
-		}
-
-		CTFPlayerResource *pTFResource = dynamic_cast< CTFPlayerResource* >( g_pPlayerResource );		
-		if ( pTFResource )
-		{
-			if ( pPlayer->entindex() == pTFResource->GetPartyLeaderIndex( pPlayer->GetTeamNumber() ) )
-			{
-				// the leader is leaving so reset the player resource index
-				pTFResource->SetPartyLeaderIndex( pPlayer->GetTeamNumber(), 0 ); 
-			}
-		}
-
 		// Notify gamestats that the player left.
 		CTF_GameStats.Event_PlayerDisconnectedTF( pPlayer );
 
@@ -13252,16 +10579,7 @@ void CTFGameRules::ClientDisconnected( edict_t *pClient )
 		{
 			if ( !pPlayer->IsBot() && State_Get() != GR_STATE_RND_RUNNING )
 			{
-				const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-				if ( !pMatchDesc || !pMatchDesc->BUsesAutoReady() )
-				{
-					// Always reset when a player leaves this type of match if it isn't MvM
-					if ( !IsMannVsMachineMode() )
-					{
-						PlayerReadyStatus_ResetState();
-					}
-				}
-				else if ( !IsTeamReady( pPlayer->GetTeamNumber() ) )
+				if ( !IsTeamReady( pPlayer->GetTeamNumber() ) )
 				{
 					if ( IsPlayerReady( pPlayer->entindex() ) )
 					{
@@ -13329,6 +10647,8 @@ void CTFGameRules::ClientDisconnected( edict_t *pClient )
 			}
 		}
 	}
+
+	g_pStringTablePlayerShortNames->SetStringUserData( engine->IndexOfEdict( pClient ) - 1, 0, NULL );
 }
 
 // Falling damage stuff.
@@ -13913,12 +11233,6 @@ bool CTFGameRules::IsFirstBloodAllowed( void )
 	if ( IsInArenaMode() && tf_arena_first_blood.GetBool() )
 		return true;
 
-	if ( IsCompetitiveMode() && ( State_Get() == GR_STATE_RND_RUNNING ) )
-	{
-		if ( IsMatchTypeCompetitive() )
-			return true;
-	}
-
 	return false;
 }
 
@@ -14033,13 +11347,6 @@ bool CTFGameRules::TimerMayExpire( void )
 //-----------------------------------------------------------------------------
 bool CTFGameRules::BHavePlayers( void )
 {
-	CMatchInfo *pInfo = GTFGCClientSystem()->GetMatch();
-	if ( pInfo )
-	{
-		// When we have a match, we start reporting we're active as soon as the first person loads, and never stop.
-		return pInfo->m_bFirstPersonActive;
-	}
-
 	if ( IsInArenaMode() )
 	{
 		// At least two in queue, we're always able to play
@@ -15091,9 +12398,6 @@ bool CTFGameRules::ShouldScrambleTeams( void )
 	if ( IsPVEModeActive() )
 		return false;
 
-	if ( IsCompetitiveMode() )
-		return false;
-
 	return BaseClass::ShouldScrambleTeams();
 }
 
@@ -15111,39 +12415,7 @@ void CTFGameRules::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValu
 	char const *pszCommand = pKeyValues->GetName();
 	if ( pszCommand && pszCommand[0] )
 	{
-		if ( FStrEq( pszCommand, "FreezeCamTaunt" ) )
-		{
-			CTFPlayer *pAchiever = ToTFPlayer( UTIL_PlayerByUserId( pKeyValues->GetInt( "achiever" ) ) );
-			if ( pAchiever )
-			{
-				const char *pszCommand = pKeyValues->GetString( "command" );
-				if ( pszCommand && pszCommand[0] )
-				{
-					int nGibs = pKeyValues->GetInt( "gibs" );
-
-					if ( FStrEq( pszCommand, "freezecam_taunt" ) )
-					{	
-						CheckTauntAchievement( pAchiever, nGibs, g_TauntCamAchievements );
-						CheckTauntAchievement( pAchiever, nGibs, g_TauntCamAchievements2 );
-						HatAndMiscEconEntities_OnOwnerKillEaterEventNoParter( pAchiever, kKillEaterEvent_KillcamTaunts );
-					}
-					else if ( FStrEq( pszCommand, "freezecam_tauntrag" ) )
-					{	
-						CheckTauntAchievement( pAchiever, nGibs, g_TauntCamRagdollAchievements );
-					}
-					else if ( FStrEq( pszCommand, "freezecam_tauntgibs" ) )
-					{	
-						CheckTauntAchievement( pAchiever, nGibs, g_TauntCamAchievements );
-					}
-					else if ( FStrEq( pszCommand, "freezecam_tauntsentry" ) )
-					{
-						// Maybe should also require a taunt? Currently too easy to get?
-						pAchiever->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_FREEZECAM_SENTRY );
-					}
-				}
-			}
-		}
-		else if ( FStrEq( pszCommand, "UsingVRHeadset" ) )
+		if ( FStrEq( pszCommand, "UsingVRHeadset" ) )
 		{
 			static CSchemaItemDefHandle pItemDef_OculusRiftHeadset( "The TF2VRH" );
 
@@ -15389,9 +12661,6 @@ void CTFGameRules::RequestClientInventory( CSteamID steamID )
 //-----------------------------------------------------------------------------
 void CTFGameRules::BroadcastDrawLine( CTFPlayer *pTFPlayer, KeyValues *pKeyValues )
 {
-	if ( !IsMatchTypeCompetitive() || !m_bPlayersAreOnMatchSummaryStage || pTFPlayer->BHaveChatSuspensionInCurrentMatch() )
-		return;
-
 	int paneltype = clamp( pKeyValues->GetInt( "panel", DRAWING_PANEL_TYPE_NONE ), DRAWING_PANEL_TYPE_NONE, DRAWING_PANEL_TYPE_MAX - 1 );
 
 	if ( paneltype >= DRAWING_PANEL_TYPE_MATCH_SUMMARY )
@@ -15551,52 +12820,6 @@ void CTFGameRules::PlayHelltowerAnnouncerVO( int iRedLine, int iBlueLine )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Based on connected match players, chooses the 3 maps players can
-//			vote on as their next map
-//-----------------------------------------------------------------------------
-void CTFGameRules::ChooseNextMapVoteOptions()
-{
-	// Copy chosen maps into the actual fields we're networking to clients
-	for( int i=0; i < NEXT_MAP_VOTE_OPTIONS; ++i )
-	{
-		const MapDef_t* pMap = GTFGCClientSystem()->GetNextMapVoteByIndex( i );
-		if ( !pMap )
-		{
-			Warning( "Invalid NextMap list, substituting current map" );
-			pMap = GetItemSchema()->GetMasterMapDefByName( STRING( gpGlobals->mapname ) );
-		}
-
-		MapDefIndex_t nIndex = pMap ? pMap->m_nDefIndex : 0;
-		m_nNextMapVoteOptions.Set( i, nIndex );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFGameRules::CheckHelltowerCartAchievement( int iTeam )
-{
-	if ( IsHalloweenScenario( HALLOWEEN_SCENARIO_HIGHTOWER ) )
-	{
-		CUtlVector< CTFPlayer * > playerVector;
-		CollectPlayers( &playerVector, iTeam );
-
-		FOR_EACH_VEC( playerVector, i )
-		{
-			CTFPlayer *pPlayer = playerVector[i];
-			if ( pPlayer && ( pPlayer->GetObserverMode() <= OBS_MODE_DEATHCAM ) ) // they might be killed by the explosion, so check if they are OBS_MODE_NONE OR OBS_MODE_DEATHCAM
-			{
-				CTriggerAreaCapture *pAreaTrigger = pPlayer->GetControlPointStandingOn();
-				if ( pAreaTrigger && pAreaTrigger->TeamCanCap( iTeam ) )
-				{
-					pPlayer->AwardAchievement( ACHIEVEMENT_TF_HALLOWEEN_HELLTOWER_KILL_BROTHERS );
-				}
-			}
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFGameRules::HandleMapEvent( inputdata_t &inputdata )
@@ -15644,7 +12867,6 @@ void CTFGameRules::HandleMapEvent( inputdata_t &inputdata )
 		}
 		else if ( FStrEq( pszEvent, "red_capture" ) )
 		{
-			CheckHelltowerCartAchievement( TF_TEAM_RED );
 			if ( RandomFloat( 0, 1 ) < HELLTOWER_RARE_LINE_CHANCE )
 			{
 				PlayHelltowerAnnouncerVO( HELLTOWER_VO_RED_WIN_RARE, HELLTOWER_VO_BLUE_LOSE_RARE );
@@ -15656,7 +12878,6 @@ void CTFGameRules::HandleMapEvent( inputdata_t &inputdata )
 		}
 		else if ( FStrEq( pszEvent, "blue_capture" ) )
 		{
-			CheckHelltowerCartAchievement( TF_TEAM_BLUE );
 			if ( RandomFloat( 0, 1 ) < HELLTOWER_RARE_LINE_CHANCE )
 			{
 				PlayHelltowerAnnouncerVO( HELLTOWER_VO_RED_LOSE_RARE, HELLTOWER_VO_BLUE_WIN_RARE );
@@ -16192,99 +13413,11 @@ void CTFGameRules::TeamPlayerCountChanged( CTFTeam *pTeam )
 	}
 }
 
-
-//-----------------------------------------------------------------------------
-// Purpose: Should we attempt to roll into a new match for the current match
-//-----------------------------------------------------------------------------
-bool CTFGameRules::BAttemptMapVoteRollingMatch()
-{
-	if ( IsManagedMatchEnded() )
-		{ return false; }
-
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-	return pMatchDesc && GTFGCClientSystem()->CanRequestNewMatchForLobby() && pMatchDesc->BUsesMapVoteAfterMatchEnds();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CTFGameRules::BIsManagedMatchEndImminent( void )
-{
-/*
-	if ( IsCompetitiveMode() )
-	{
-		if ( State_Get() == GR_STATE_RND_RUNNING )
-		{
-			bool bPotentiallyTheFinalRound = ( CheckWinLimit( false, 1 ) || CheckMaxRounds( false, 1 ) );
-			if ( bPotentiallyTheFinalRound )
-			{
-				bool bPlayingMiniRounds = ( g_hControlPointMasters.Count() && g_hControlPointMasters[0] && g_hControlPointMasters[0]->PlayingMiniRounds() );
-
-				switch( m_nGameType )
-				{
-				case TF_GAMETYPE_ESCORT:
-				{
-					if ( HasMultipleTrains() )
-					{
-
-
-					}
-					else
-					{
-
-
-
-					}
-				}
-					break;
-				case TF_GAMETYPE_CP:
-
-					break;
-				case TF_GAMETYPE_CTF:
-					if ( tf_flag_caps_per_round.GetInt() > 0 )
-					{
-						for ( int iTeam = TF_TEAM_RED; iTeam < TF_TEAM_COUNT; iTeam++ )
-						{
-							C_TFTeam *pTeam = GetGlobalTFTeam( iTeam );
-							if ( pTeam )
-							{
-								if ( ( tf_flag_caps_per_round.GetInt() - pTeam->GetFlagCaptures() ) <= 1 )
-								{
-									CCaptureFlag *pFlag = NULL;
-									for ( int iFlag = 0; iFlag < ICaptureFlagAutoList::AutoList().Count(); ++iFlag )
-									{
-										pFlag = static_cast< CCaptureFlag* >( ICaptureFlagAutoList::AutoList()[iFlag] );
-										if ( !pFlag->IsDisabled() && ( pFlag->GetTeamNumber() == iTeam ) && !pFlag->IsHome() )
-											return true;
-									}
-								}
-							}
-						}
-					}
-					break;
-				default:
-					break;
-				}
-			}
-		}
-	}*/
-
-	return false;
-}
-
 //-----------------------------------------------------------------------------
 // 
 //-----------------------------------------------------------------------------
 void CTFGameRules::PowerupTeamImbalance_PlayerChangeTeam( CTFPlayer *pTFPlayer, int nTeam )
 {
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetLiveMatch();
-	if ( pMatch )
-	{
-		CSteamID steamID;
-		pTFPlayer->GetSteamID( &steamID );
-		GTFGCClientSystem()->ChangeMatchPlayerTeam( steamID, TFGameRules()->GetGCTeamForGameTeam( nTeam ) );
-	}
-
 	pTFPlayer->ChangeTeam( nTeam, false, false, true );
 	pTFPlayer->ForceRespawn();
 	pTFPlayer->SetLastAutobalanceTime( gpGlobals->curtime );
@@ -16508,25 +13641,6 @@ void CTFGameRules::HandleSwitchTeams( void )
 	}
 
 	UTIL_ClientPrintAll( HUD_PRINTTALK, "#TF_TeamsSwitched" );
-
-	CMatchInfo *pMatchInfo = GTFGCClientSystem()->GetMatch();
-	if ( pMatchInfo )
-	{
-		CTFPlayerResource *pTFResource = dynamic_cast< CTFPlayerResource* >( g_pPlayerResource );
-		if ( pTFResource )
-		{
-			uint32 unEventTeamStatus = pTFResource->GetEventTeamStatus();
-
-			if ( unEventTeamStatus && m_bTeamsSwitched )
-			{
-				const uint32 unInvadersArePyro = 1u;
-				const uint32 unInvadersAreHeavy = 2u;
-				unEventTeamStatus = ( unEventTeamStatus == unInvadersArePyro ) ? unInvadersAreHeavy : unInvadersArePyro;
-			}
-
-			pMatchInfo->m_unEventTeamStatus = unEventTeamStatus;
-		}
-	}
 }
 
 
@@ -17555,30 +14669,6 @@ void CTFGameRules::GetTeamGlowColor( int nTeam, float &r, float &g, float &b )
 	}
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CTFGameRules::ShouldConfirmOnDisconnect()
-{
-	// Add any game mode which uses matchmaking here. Note that the disconnect dialog checks if it should be showing
-	// abandons and such.
-	return GTFGCClientSystem()->BConnectedToMatchServer( true );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CTFGameRules::ShouldShowPreRoundDoors() const
-{
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-	if ( pMatchDesc )
-	{
-		return pMatchDesc->BUsesPreRoundDoors();
-	}
-
-	return false;
-}
-
 #endif
 
 
@@ -17684,10 +14774,6 @@ bool CTFGameRules::CanPlayerChooseClass( CBasePlayer *pPlayer, int iClass )
 //-----------------------------------------------------------------------------
 bool CTFGameRules::ShouldBalanceTeams( void )
 {
-	// never autobalance the teams for managed matches using the old system
-	if ( GetMatchGroupDescription( GetCurrentMatchGroup() ) )
-		return false;
-
 	bool bDisableBalancing = false;
 
 	if ( IsPVEModeActive() || bDisableBalancing )
@@ -17708,13 +14794,6 @@ int CTFGameRules::GetBonusRoundTime( bool bGameOver /* = false*/ )
 	if ( IsMannVsMachineMode() )
 	{
 		return 5;
-	}
-	else if ( IsCompetitiveMode() && bGameOver )
-	{
-		if ( IsMatchTypeCompetitive() )
-		{
-			return 5;
-		}
 	}
 
 	return BaseClass::GetBonusRoundTime( bGameOver );
@@ -17886,18 +14965,8 @@ bool CTFGameRules::ClientConnected( edict_t *pEntity, const char *pszName, const
 		if ( nCount >= tf_mvm_max_connected_players.GetInt() )
 			return false;
 	}
-
-	bool bRet = BaseClass::ClientConnected( pEntity, pszName, pszAddress, reject, maxrejectlen );
-	if ( bRet )
-	{
-		const CSteamID *steamID = engine->GetClientSteamID( pEntity );
-		if ( steamID && steamID->IsValid() )
-		{
-			// Invalid steamIDs wont be known to the GC system, but it has a SteamIDAllowedToConnect() hook that would
-			// allow it to reject the connect in the first place in a matchmaking scenario where cares.
-			GTFGCClientSystem()->ClientConnected( *steamID, pEntity );
-		}
-	}
+	
+	BaseClass::ClientConnected( pEntity, pszName, pszAddress, reject, maxrejectlen );
 	return true;
 }
 
@@ -17906,7 +14975,7 @@ bool CTFGameRules::ClientConnected( edict_t *pEntity, const char *pszName, const
 //-----------------------------------------------------------------------------
 bool CTFGameRules::ShouldMakeChristmasAmmoPack( void )
 {
-	if ( IsInTournamentMode() && !IsMatchTypeCasual() )
+	if ( IsInTournamentMode() )
 		return false;
 
 	if ( IsMannVsMachineMode() )
@@ -18179,11 +15248,6 @@ void CTFGameRules::FireGameEvent( IGameEvent *event )
 			{
 				CTF_GameStats.Event_PlayerCapturedPoint( pPlayer );	
 
-				if ( pPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) && GetGameType() == TF_GAMETYPE_ESCORT )
-				{
-					pPlayer->AwardAchievement( ACHIEVEMENT_TF_HEAVY_PAYLOAD_CAP_GRIND );
-				}
-
 				// Give money and experience
 				int nAmount = CalculateCurrencyAmount_ByType( TF_CURRENCY_CAPTURED_OBJECTIVE );
 				DistributeCurrencyAmount( nAmount, pPlayer, false );
@@ -18202,8 +15266,6 @@ void CTFGameRules::FireGameEvent( IGameEvent *event )
 		int iPlayerIndex = event->GetInt( "blocker" );
 		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( iPlayerIndex ) );
 		CTF_GameStats.Event_PlayerDefendedPoint( pPlayer );
-
-		pPlayer->m_Shared.CheckForAchievement( ACHIEVEMENT_TF_MEDIC_CHARGE_BLOCKER );
 	}	
 	else if ( !Q_strcmp( eventName, "teamplay_round_win" ) )
 	{
@@ -18245,14 +15307,6 @@ void CTFGameRules::FireGameEvent( IGameEvent *event )
 
 				int nAmount = CalculateCurrencyAmount_ByType( TF_CURRENCY_ESCORT_REWARD );
 				DistributeCurrencyAmount( ( nAmount * iPoints ), pPlayer, false );
-
-				if ( pPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) && GetGameType() == TF_GAMETYPE_ESCORT )
-				{
-					for ( int i = 0 ; i < iPoints ; i++ )
-					{
-						pPlayer->AwardAchievement( ACHIEVEMENT_TF_HEAVY_PAYLOAD_CAP_GRIND );
-					}
-				}
 			}
 		}
 	}
@@ -18681,9 +15735,6 @@ bool CTFGameRules::ShouldRespawnQuickly( CBasePlayer *pPlayer )
 		return true;
 #endif // _DEBUG || STAGING_ONLY
 
-	if ( IsCompetitiveMode() && State_Get() == GR_STATE_BETWEEN_RNDS )
-		return true;
-
 	return BaseClass::ShouldRespawnQuickly( pPlayer );
 }
 
@@ -18731,7 +15782,6 @@ convar_tags_t convars_to_check_for_tags[] =
 	{ "tf_pve_mode", "pve" },
 	{ "sv_registration_successful", "_registered", NULL },
 	{ "tf_server_identity_disable_quickplay", "noquickplay", NULL },
-	{ "tf_mm_strict", "hidden", NULL },
 	{ "tf_medieval", "medieval", NULL },
 	{ "mp_holiday_nogifts", "nogifts" },
 	{ "tf_powerup_mode", "powerup", NULL },
@@ -19241,9 +16291,6 @@ LINK_ENTITY_TO_CLASS( tf_logic_competitive, CCompetitiveLogic );
 //-----------------------------------------------------------------------------
 void CCompetitiveLogic::OnSpawnRoomDoorsShouldLock( void )
 {
-	if ( !TFGameRules() || !TFGameRules()->IsCompetitiveMode() )
-		return; 
-
 	m_OnSpawnRoomDoorsShouldLock.FireOutput( this, this );
 }
 
@@ -19252,9 +16299,6 @@ void CCompetitiveLogic::OnSpawnRoomDoorsShouldLock( void )
 //-----------------------------------------------------------------------------
 void CCompetitiveLogic::OnSpawnRoomDoorsShouldUnlock( void )
 {
-	if ( !TFGameRules() || !TFGameRules()->IsCompetitiveMode() )
-		return; 
-
 	m_OnSpawnRoomDoorsShouldUnlock.FireOutput( this, this );
 }
 
@@ -20202,49 +17246,6 @@ static bool CanFindBallSpawnLocation( const Vector& vSearchOrigin, Vector *out_p
 
 void CTFGameRules::OnPlayerSpawned( CTFPlayer *pPlayer )
 {
-	// coach?
-	CSteamID steamIDForPlayer;
-	if ( pPlayer->GetSteamID( &steamIDForPlayer ) )
-	{
-		// find out if we are supposed to coach
-		int idx = m_mapCoachToStudentMap.Find( steamIDForPlayer.GetAccountID() );
-		if ( m_mapCoachToStudentMap.IsValidIndex( idx ) )
-		{
-			// find student
-			uint32 studentAccountID = m_mapCoachToStudentMap[idx];
-			CSteamID steamIDForStudent;
-			for ( int i = 1; i <= gpGlobals->maxClients; i++ )
-			{
-				CTFPlayer *pPotentialStudent = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-				if ( NULL == pPotentialStudent )
-				{
-					continue;
-				}
-				// is this the student?
-				if ( pPotentialStudent->GetSteamID( &steamIDForStudent ) && steamIDForStudent.GetAccountID() == studentAccountID )
-				{
-					Coaching_Start( pPlayer, pPotentialStudent );
-					// @todo (Tom Bui): Not sure this is required--nothing seems to use it
-					// engine->ClientCommand( pPlayer->edict(), "cl_spec_mode %d", OBS_MODE_IN_EYE );
-					// finally, notify the GC
-					GCSDK::CProtoBufMsg< CMsgTFCoaching_CoachJoined > msg( k_EMsgGCCoaching_CoachJoined );
-					msg.Body().set_account_id_coach( steamIDForPlayer.GetAccountID() );
-					GCClientSystem()->BSendMessage( msg );
-					break;
-				}
-			}
-			// remove from the map now so the coach can join later as a normal player if they DC
-			m_mapCoachToStudentMap.RemoveAt( idx );
-		}
-	}
-	// warp coach to student?
-	if ( pPlayer->GetCoach() )
-	{
-		// warp the coach to student
-		pPlayer->GetCoach()->SetObserverTarget( pPlayer );
-		pPlayer->GetCoach()->StartObserverMode( OBS_MODE_CHASE );
-	}
-
 	// notify training
 	if ( m_hTrainingModeLogic )
 	{
@@ -20305,41 +17306,6 @@ void CTFGameRules::OnPlayerSpawned( CTFPlayer *pPlayer )
 #endif
 }
 
-
-class CGCCoaching_CoachJoining : public GCSDK::CGCClientJob
-{
-public:
-	CGCCoaching_CoachJoining( GCSDK::CGCClient *pClient ) : GCSDK::CGCClientJob( pClient ) {}
-
-	virtual bool BYieldingRunGCJob( GCSDK::IMsgNetPacket *pNetPacket )
-	{
-		GCSDK::CProtoBufMsg< CMsgTFCoaching_CoachJoining > msg( pNetPacket );
-		if ( TFGameRules() )
-		{
-			TFGameRules()->OnCoachJoining( msg.Body().account_id_coach(), msg.Body().account_id_student() );
-		}
-		return true;
-	}
-};
-GC_REG_JOB( GCSDK::CGCClient, CGCCoaching_CoachJoining, "CGCCoaching_CoachJoining", k_EMsgGCCoaching_CoachJoining, GCSDK::k_EServerTypeGCClient );
-
-class CGCCoaching_RemoveCurrentCoach : public GCSDK::CGCClientJob
-{
-public:
-	CGCCoaching_RemoveCurrentCoach( GCSDK::CGCClient *pClient ) : GCSDK::CGCClientJob( pClient ) {}
-
-	virtual bool BYieldingRunGCJob( GCSDK::IMsgNetPacket *pNetPacket )
-	{
-		GCSDK::CProtoBufMsg< CMsgTFCoaching_RemoveCurrentCoach > msg( pNetPacket );
-		if ( TFGameRules() )
-		{
-			TFGameRules()->OnRemoveCoach( msg.Body().account_id_coach() );
-		}
-		return true;
-	}
-};
-GC_REG_JOB( GCSDK::CGCClient, CGCCoaching_RemoveCurrentCoach, "CGCCoaching_RemoveCurrentCoach", k_EMsgGCCoaching_RemoveCurrentCoach, GCSDK::k_EServerTypeGCClient );
-
 class CGCUseServerModificationItemJob : public GCSDK::CGCClientJob
 {
 public:
@@ -20392,101 +17358,6 @@ public:
 	}
 };
 GC_REG_JOB( GCSDK::CGCClient, CGCUpdateServerModificationItemStateJob, "CGCUpdateServerModificationItemStateJob", k_EMsgGC_GameServer_ModificationItemState, GCSDK::k_EServerTypeGCClient );
-
-#ifdef _DEBUG
-CON_COMMAND( coaching_stop, "Stop coaching" )
-{
-	CTFPlayer* pCoach = ToTFPlayer( UTIL_GetListenServerHost() );
-	Coaching_Stop( pCoach );
-}
-
-CON_COMMAND( coaching_remove_coach, "Remove current coach" )
-{
-	CTFPlayer* pStudent = ToTFPlayer( UTIL_GetListenServerHost() );
-	CTFPlayer *pCoach = pStudent->GetCoach();
-	if ( pCoach )
-	{
-		Coaching_Stop( pCoach );
-	}
-}
-
-CON_COMMAND( coaching_force_coach, "Force self as coach" )
-{
-	CTFPlayer* pCoachPlayer = ToTFPlayer( UTIL_GetListenServerHost() );
-	if ( pCoachPlayer && TFGameRules() )
-	{
-		for ( int i = 1 ; i <= gpGlobals->maxClients ; i++ )
-		{
-			CTFPlayer *pStudentPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-			if ( pStudentPlayer != pCoachPlayer )
-			{
-				Coaching_Start( pCoachPlayer, pStudentPlayer );
-				break;
-			}
-		}
-	}
-}
-
-CON_COMMAND( coaching_force_student, "Force self as student" )
-{
-	CTFPlayer* pStudentPlayer = ToTFPlayer( UTIL_GetListenServerHost() );
-	if ( pStudentPlayer && TFGameRules() )
-	{
-		for ( int i = 1 ; i <= gpGlobals->maxClients ; i++ )
-		{
-			CTFPlayer *pCoachPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-			if ( pCoachPlayer != pStudentPlayer )
-			{
-				Coaching_Start( pCoachPlayer, pStudentPlayer );
-				break;
-			}
-		}
-	}
-}
-#endif
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFGameRules::OnCoachJoining( uint32 unCoachAccountID, uint32 unStudentAccountID )
-{
-	m_mapCoachToStudentMap.Insert( unCoachAccountID, unStudentAccountID );
-	// see if the coach is on the server already
-	CSteamID steamIDForCoach;
-	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
-	{
-		CTFPlayer *pPotentialCoach = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-		if ( NULL == pPotentialCoach )
-		{
-			continue;
-		}
-		// coach is here, force them to respawn, which will set them up as a coach
-		if ( pPotentialCoach->GetSteamID( &steamIDForCoach ) && steamIDForCoach.GetAccountID() == unCoachAccountID )
-		{
-			pPotentialCoach->ForceRespawn();
-			return;
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFGameRules::OnRemoveCoach( uint32 unCoachAccountID )
-{
-	m_mapCoachToStudentMap.Remove( unCoachAccountID );
-	for ( int i = 1 ; i <= gpGlobals->maxClients ; i++ )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-		CSteamID steamID;
-		if ( pPlayer && pPlayer->GetSteamID( &steamID ) && steamID.GetAccountID() == unCoachAccountID )
-		{
-			Coaching_Stop( pPlayer );
-			return;
-		}
-	}
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: Activates 100% crits for an entire team for a short period of time
@@ -20626,16 +17497,6 @@ void CTFGameRules::SetupOnBonusStart( void )
 		State_Transition( GR_STATE_PREROUND );
 		return;
 	}
-
-	// Bring up the giveaway panel on all the players
-	for ( int i = 1; i <= MAX_PLAYERS; i++ )
-	{
-		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-		if ( !pPlayer )
-			continue;
-
-		pPlayer->ShowViewPortPanel( PANEL_GIVEAWAY_ITEM );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -20709,22 +17570,6 @@ void CTFGameRules::BetweenRounds_Start( void )
 	{
 		m_hCompetitiveLogicEntity->OnSpawnRoomDoorsShouldUnlock();
 	}
-
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-	if ( pMatchDesc && pMatchDesc->BUsesAutoReady() )
-	{
-		for ( int i = 1; i <= MAX_PLAYERS; i++ )
-		{
-			CTFPlayer *pPlayer = static_cast<CTFPlayer*>( UTIL_PlayerByIndex( i ) );
-			if ( !pPlayer )
-				continue;
-
-			if ( IsValidTFTeam( pPlayer->GetTeamNumber() ) && pPlayer->GetPlayerClass() && IsValidTFPlayerClass( pPlayer->GetPlayerClass()->GetClassIndex() ) )
-			{
-				PlayerReadyStatus_UpdatePlayerState( pPlayer, true );
-			}
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -20770,11 +17615,6 @@ void CTFGameRules::BetweenRounds_Think( void )
 			m_flRestartRoundTime.Set( gpGlobals->curtime + flDelay );
 			ShouldResetScores( true, true );
 			ShouldResetRoundsPlayed( true );
-
-			if ( IsCompetitiveMode() )
-			{
-				m_flCompModeRespawnPlayersAtMatchStart = gpGlobals->curtime + 2.0;
-			}
 		}
 
 		// Required for UI state
@@ -21182,169 +18022,14 @@ void CTFGameRules::ProcessVerboseLogOutput( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFGameRules::MatchSummaryTeleport()
-{
-	bool bUseMatchSummaryStage = false;
-
-	const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
-	if ( pMatchDesc && pMatchDesc->BUseMatchSummaryStage() )
-	{
-		bUseMatchSummaryStage = true;
-	}
-
-	if ( bUseMatchSummaryStage && m_bMapHasMatchSummaryStage )
-	{
-		RespawnPlayers( true );
-
-		// find the observer target for the stage
-		CObserverPoint *pObserverPoint = dynamic_cast<CObserverPoint*>( gEntList.FindEntityByClassname( NULL, "info_observer_point" ) );
-		while( pObserverPoint )
-		{
-			if ( pObserverPoint->IsMatchSummary() )
-			{
-				pObserverPoint->SetDisabled( false );
-				SetRequiredObserverTarget( pObserverPoint );
-				break;
-			}
-
-			pObserverPoint = dynamic_cast<CObserverPoint*>( gEntList.FindEntityByClassname( pObserverPoint, "info_observer_point" ) );
-		}
-
-		// need to do this AFTER we respawn the players above or the conditions will be cleared
-		for ( int i = 1; i <= MAX_PLAYERS; i++ )
-		{
-			CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-			if ( !pPlayer )
-				continue;
-
-			pPlayer->AddFlag( FL_FROZEN );
-
-			if ( pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM )  // spectators automatically get the RequiredObserverTarget that was set above
-			{
-				CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
-				if ( pTFPlayer )
-				{
-					pTFPlayer->m_Shared.AddCond( ( pTFPlayer->GetTeamNumber() == GetWinningTeam() ) ? TF_COND_COMPETITIVE_WINNER : TF_COND_COMPETITIVE_LOSER );
-
-					if ( pObserverPoint )
-					{
-						pTFPlayer->SetViewEntity( pObserverPoint );
-						pTFPlayer->SetViewOffset( vec3_origin );
-						pTFPlayer->SetFOV( pObserverPoint, pObserverPoint->m_flFOV );
-					}
-
-					// use this to force the client player anim to face the right direction
-					pTFPlayer->SetTauntYaw( pTFPlayer->GetAbsAngles()[YAW] );
-				}
-			}
-		}
-
-		m_bPlayersAreOnMatchSummaryStage.Set( true );
-	}
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFGameRules::MatchSummaryStart( void )
-{
-	if ( BAttemptMapVoteRollingMatch() )
-	{
-		// Grab the final list of maps for users to vote on
-		ChooseNextMapVoteOptions();
-		m_eRematchState = NEXT_MAP_VOTE_STATE_WAITING_FOR_USERS_TO_VOTE;
-	}
-
-	for ( int i = 1; i <= MAX_PLAYERS; i++ )
-	{
-		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-		if ( pPlayer )
-		{
-			pPlayer->AddFlag( FL_FROZEN );
-		}
-	}
-
-	IGameEvent *event = gameeventmanager->CreateEvent( "show_match_summary" );
-	if ( event )
-	{
-		gameeventmanager->FireEvent( event );
-	}
-
-	m_bShowMatchSummary.Set( true );
-	m_flMatchSummaryTeleportTime = gpGlobals->curtime + 2.f;
-
-	if ( m_hGamerulesProxy )
-	{
-		m_hGamerulesProxy->MatchSummaryStart();
-	}
-
-	CBaseEntity *pLogicCase = NULL;
-	while ( ( pLogicCase = gEntList.FindEntityByName( pLogicCase, "competitive_stage_logic_case" ) ) != NULL )
-	{
-		if ( pLogicCase )
-		{
-			variant_t sVariant;
-			sVariant.SetInt( GetWinningTeam() );
-			pLogicCase->AcceptInput( "InValue", NULL, NULL, sVariant, 0 );
-			break;
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFGameRules::MatchSummaryEnd( void )
-{
-	m_bShowMatchSummary.Set( false );
-	m_bPlayersAreOnMatchSummaryStage.Set( false );
-
-	SetRequiredObserverTarget( NULL );
-
-	for ( int i = 1; i <= MAX_PLAYERS; i++ )
-	{
-		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-		if ( !pPlayer )
-			continue;
-
-		pPlayer->RemoveFlag( FL_FROZEN );
-		pPlayer->SetViewEntity( NULL );
-		pPlayer->SetFOV( pPlayer, 0 );
-	}
-
-	// reset bot convars here
-	static ConVarRef tf_bot_quota( "tf_bot_quota" );
-	tf_bot_quota.SetValue( tf_bot_quota.GetDefault() );
-	static ConVarRef tf_bot_quota_mode( "tf_bot_quota_mode" );
-	tf_bot_quota_mode.SetValue( tf_bot_quota_mode.GetDefault() );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 int CTFGameRules::GetTeamAssignmentOverride( CTFPlayer *pTFPlayer, int iDesiredTeam, bool bAutoBalance /*= false*/ )
 {
 	int iTeam = iDesiredTeam;
-
-	// Look up GC managed match info
-	CSteamID steamID;
-	pTFPlayer->GetSteamID( &steamID );
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetLiveMatch();
-	int nMatchPlayers = pMatch ? pMatch->GetNumActiveMatchPlayers() : 0;
-	CMatchInfo::PlayerMatchData_t *pMatchPlayer = ( pMatch && steamID.IsValid() ) ? pMatch->GetMatchDataForPlayer( steamID ) : NULL;
 
 	if ( IsMannVsMachineMode() )
 	{
 		if ( !pTFPlayer->IsBot() && iTeam != TEAM_SPECTATOR )
 		{
-			if ( pMatchPlayer && !pMatchPlayer->bDropped )
-			{
-				// Part of the lobby match
-				Log( "MVM assigned %s to defending team (player is in lobby)\n", pTFPlayer->GetPlayerName() );
-				return TF_TEAM_PVE_DEFENDERS;
-			}
-
 			// Count ad-hoc players on defenders team
 			int nAdHocDefenders = 0;
 			for ( int i = 1; i <= gpGlobals->maxClients; i++ )
@@ -21354,16 +18039,12 @@ int CTFGameRules::GetTeamAssignmentOverride( CTFPlayer *pTFPlayer, int iDesiredT
 				if ( !pPlayer || ( pPlayer->GetTeamNumber() != TF_TEAM_PVE_DEFENDERS ) )
 					{ continue; }
 
-				CSteamID steamID;
-				if ( pPlayer->GetSteamID( &steamID ) && GTFGCClientSystem()->GetLiveMatchPlayer( steamID ) )
-					{ continue; }
-
 				// Player on defenders that doesn't have a live match entry
 				nAdHocDefenders++;
 			}
 
 			// Bootcamp mode can mix a lobby with ad-hoc joins
-			int nSlotsLeft = tf_mvm_defenders_team_size.GetInt() - nMatchPlayers - nAdHocDefenders;
+			int nSlotsLeft = tf_mvm_defenders_team_size.GetInt() - nAdHocDefenders;
 			if ( nSlotsLeft >= 1 )
 			{
 				Log( "MVM assigned %s to defending team (%d more slots remaining after us)\n", pTFPlayer->GetPlayerName(), nSlotsLeft-1 );
@@ -21381,26 +18062,9 @@ int CTFGameRules::GetTeamAssignmentOverride( CTFPlayer *pTFPlayer, int iDesiredT
 			else
 			{
 				// no room
-				Log( "MVM assigned %s to spectator, all slots for defending team are in use, or reserved for lobby members\n",
+				Log( "MVM assigned %s to spectator, all slots for defending team are in use\n",
 				     pTFPlayer->GetPlayerName() );
 				iTeam = TEAM_SPECTATOR;
-			}
-		}
-	}
-	else if ( pMatch )
-	{
-		if ( !bAutoBalance )
-		{
-			CSteamID steamID;
-			if ( pMatchPlayer )
-			{
-				iTeam = GetGameTeamForGCTeam( pMatchPlayer->eGCTeam );
-				if ( iTeam < FIRST_GAME_TEAM )
-				{
-					// We should always have a team assigned by the GC
-					Warning( "Competitive mode: Lobby player with invalid GC team %i in MatchGroup %i\n", iTeam, (int)pMatch->m_eMatchGroup );
-				}
-				CheckAndSetPartyLeader( pTFPlayer, iTeam );
 			}
 		}
 	}
@@ -22001,10 +18665,6 @@ const char * CTFGameRules::GetNextMvMPopfile ( )
 //-----------------------------------------------------------------------------
 void CTFGameRules::BalanceTeams( bool bRequireSwitcheesToBeDead )
 {
-	// are we playing a managed match via matchmaking?
-	if ( GetMatchGroupDescription( GetCurrentMatchGroup() ) )
-		return;
-		
 	if ( mp_autoteambalance.GetInt() == 2 )
 		return;
 
@@ -22063,9 +18723,6 @@ void CTFGameRules::CreateSoldierStatue()
 		return;
 
 	if ( !IsHolidayActive( kHoliday_Soldier ) )
-		return;
-
-	if ( IsMatchTypeCompetitive() )
 		return;
 
 	char szCurrentMap[MAX_MAP_NAME];
@@ -22367,10 +19024,10 @@ bool	ScriptGameModeUsesMiniBosses()								{ return TFGameRules()->GameModeUsesM
 bool	ScriptIsPasstimeMode()										{ return TFGameRules()->IsPasstimeMode(); }
 bool	ScriptIsMannVsMachineRespecEnabled()						{ return TFGameRules()->IsMannVsMachineRespecEnabled(); }
 bool	ScriptIsPowerupMode()										{ return TFGameRules()->IsPowerupMode(); }
-bool	ScriptIsCompetitiveMode()									{ return TFGameRules()->IsCompetitiveMode(); }
-bool	ScriptIsMatchTypeCasual()									{ return TFGameRules()->IsMatchTypeCasual(); }
-bool	ScriptIsMatchTypeCompetitive()								{ return TFGameRules()->IsMatchTypeCompetitive(); }
-bool	ScriptInMatchStartCountdown()								{ return TFGameRules()->InMatchStartCountdown(); }
+bool	ScriptIsCompetitiveMode()									{ return false; }
+bool	ScriptIsMatchTypeCasual()									{ return false; }
+bool	ScriptIsMatchTypeCompetitive()								{ return false; }
+bool	ScriptInMatchStartCountdown()								{ return false; }
 bool	ScriptMatchmakingShouldUseStopwatchMode()					{ return TFGameRules()->MatchmakingShouldUseStopwatchMode(); }
 bool	ScriptIsAttackDefenseMode()									{ return TFGameRules()->IsAttackDefenseMode(); }
 bool	ScriptUsePlayerReadyStatusMode()							{ return TFGameRules()->UsePlayerReadyStatusMode(); }
@@ -22388,8 +19045,8 @@ void	ScriptSetUsingSpells( bool bUsingSpells )					{ return TFGameRules()->SetUs
 bool	ScriptIsUsingSpells()										{ return TFGameRules()->IsUsingSpells(); }
 bool	ScriptIsUsingGrapplingHook()								{ return TFGameRules()->IsUsingGrapplingHook(); }
 bool	ScriptIsTruceActive()										{ return TFGameRules()->IsTruceActive(); }
-bool	ScriptMapHasMatchSummaryStage()								{ return TFGameRules()->MapHasMatchSummaryStage(); }
-bool	ScriptPlayersAreOnMatchSummaryStage()						{ return TFGameRules()->PlayersAreOnMatchSummaryStage(); }
+bool	ScriptMapHasMatchSummaryStage()								{ return false; }
+bool	ScriptPlayersAreOnMatchSummaryStage()						{ return false; }
 bool	ScriptHaveStopWatchWinner()									{ return TFGameRules()->HaveStopWatchWinner(); }
 void	ScriptSetOvertimeAllowedForCTF( bool bAllowed )				{ TFGameRules()->SetOvertimeAllowedForCTF( bAllowed ); }
 bool	ScriptGetOvertimeAllowedForCTF()							{ return TFGameRules()->GetOvertimeAllowedForCTF(); }

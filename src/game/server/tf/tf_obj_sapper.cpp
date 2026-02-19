@@ -627,24 +627,6 @@ void CObjectSapper::Killed( const CTakeDamageInfo &info )
 		{
 			CTF_GameStats.Event_PlayerAwardBonusPoints( pScorer, this, 10 );
 		}
-
-		if ( pScorer->IsPlayerClass( TF_CLASS_ENGINEER ) )
-		{
-			pScorer->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_DESTROY_SAPPERS, 1 );
-		}
-	}
-
-	// Optional: if a weapon was used to destroy this sapper, we give the weapon an opportunity
-	//			 to adjust its stats.
-	{
-		CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
-		if ( pWeapon )
-		{
-			EconEntity_OnOwnerKillEaterEvent( dynamic_cast<CEconEntity *>( info.GetWeapon() ),		// econ entity
-											  pWeapon->GetTFPlayerOwner(),							// scorer
-											  GetOwner(),											// victim
-											  kKillEaterEvent_SapperDestroyed );
-		}
 	}
 
 	CBaseObject *pParent = GetParentObject();
@@ -707,16 +689,6 @@ void CObjectSapper::ApplyRoboSapper( CTFPlayer *pTarget, float flDuration, int n
 			// Apply
 			if ( ApplyRoboSapperEffects( pPlayer, flDuration ) )
 				iCount++;
-		}
-
-		// ACHIEVEMENT_TF_MVM_SPY_SAP_ROBOTS
-		if ( iCount >= 10 )
-		{
-			CTFPlayer *pBuilder = ToTFPlayer( GetBuilder() );
-			if ( pBuilder && TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
-			{
-				pBuilder->AwardAchievement( ACHIEVEMENT_TF_MVM_SPY_SAP_ROBOTS );
-			}
 		}
 
 		Vector vecOrigin = GetAbsOrigin();

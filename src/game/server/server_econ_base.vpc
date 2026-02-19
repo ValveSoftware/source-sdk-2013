@@ -59,16 +59,8 @@ $Project
 			$File	"$SRCDIR\game\shared\econ\econ_item_schema.h"
 			$File	"$SRCDIR\game\shared\econ\econ_item_schema_private.cpp" [!$SOURCESDK]
 			$File	"$SRCDIR\game\shared\econ\econ_item_schema_sdk.cpp" [$SOURCESDK]
-			$File	"$SRCDIR\game\shared\econ\econ_item_tools.cpp"
-			$File	"$SRCDIR\game\shared\econ\econ_item_tools.h"
 			$File	"$SRCDIR\game\shared\econ\item_selection_criteria.cpp"
 			$File	"$SRCDIR\game\shared\econ\item_selection_criteria.h"
-			$File	"$SRCDIR\game\shared\econ\econ_dynamic_recipe.cpp"
-			$File	"$SRCDIR\game\shared\econ\econ_dynamic_recipe.h"
-			$File	"$SRCDIR\game\shared\econ\econ_quests.cpp"
-			$File	"$SRCDIR\game\shared\econ\econ_quests.h"
-			$File	"$SRCDIR\game\shared\econ\econ_paintkit.cpp"
-			$File	"$SRCDIR\game\shared\econ\econ_paintkit.h"
 
 
 			$File	"$SRCDIR\game\shared\gc_clientsystem.h"

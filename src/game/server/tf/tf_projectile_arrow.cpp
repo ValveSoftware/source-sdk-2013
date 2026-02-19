@@ -732,11 +732,6 @@ int	CTFProjectile_Arrow::GetArrowSkin() const
 //-----------------------------------------------------------------------------
 void CTFProjectile_Arrow::OnArrowMissAllPlayers()
 {
-	CTFPlayer* pOwner = ToTFPlayer( GetOwnerEntity() );
-	if( pOwner && pOwner->IsPlayerClass( TF_CLASS_SNIPER ) )
-	{
-		EconEntity_OnOwnerKillEaterEventNoPartner( assert_cast<CEconEntity *>( m_hLauncher.Get() ), pOwner, kKillEaterEvent_NEGATIVE_SniperShotsMissed );
-	}
 }
 
 
@@ -1341,8 +1336,6 @@ void CTFProjectile_HealingBolt::ImpactTeamPlayer( CTFPlayer *pOther, bool bHeads
 		pMedigun->AddCharge( ( iActualHealed / flGainRate ) * gpGlobals->frametime );
 	}
 	pOther->m_Shared.AddCond( TF_COND_HEALTH_OVERHEALED, 1.2f );
-
-	EconEntity_OnOwnerKillEaterEvent_Batched( dynamic_cast<CEconEntity *>( GetLauncher() ), pOwner, pOther, kKillEaterEvent_AllyHealingDone, flHealth );
 }
 
 

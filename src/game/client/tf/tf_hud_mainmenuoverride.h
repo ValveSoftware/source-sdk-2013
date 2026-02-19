@@ -26,7 +26,6 @@
 #include "item_model_panel.h"
 #include "motd.h"
 #include "gcsdk/gcclientsdk.h"
-#include "quest_log_panel.h"
 #include "local_steam_shared_object_listener.h"
 
 
@@ -37,12 +36,7 @@ using namespace GCSDK;
 
 class CExButton;
 class HTML;
-class CSaxxyAwardsPanel;
 class CTFStreamListPanel;
-class CLobbyContainerFrame_Comp;
-class CLobbyContainerFrame_MvM;
-class CLobbyContainerFrame_Casual;
-class CPvPRankPanel;
 
 enum mm_button_styles
 {
@@ -109,15 +103,12 @@ public:
 
 	void		 SetMOTDButtonVisible( bool bVisible );
 	void		 SetMOTDVisible( bool bVisible );
-	void		 SetQuestMapVisible( bool bVisible );
 //	void		 SetWatchStreamVisible( bool bVisible );
 	void		 UpdateMOTD( bool bNewMOTDs );
 	bool		 ReloadedAllMOTDs( void ) { return m_bReloadedAllMOTDs; }
 	CMOTDManager & GetMOTDManager() { return m_MOTDManager; }
 	RTime32		 GetLastMOTDRequestTime( void ) { return m_nLastMOTDRequestAt; }
 	ELanguage	 GetLastMOTDRequestLanguage( void ) { return m_nLastMOTDRequestLanguage; }
-
-	void		 UpdatePromotionalCodes( void );
 
 	void		 CheckTrainingStatus( void );
 	CExplanationPopup*	 StartHighlightAnimation( mm_highlight_anims iAnim );
@@ -127,9 +118,6 @@ public:
 	MESSAGE_FUNC( OnMainMenuStabilized, "MainMenuStabilized" );
 
 	void		ScheduleTrainingCheck( bool bWasInTraining ) { m_flCheckTrainingAt = (engine->Time() + 1.5); m_bWasInTraining = bWasInTraining; }
-	void		ScheduleItemCheck( void ) { m_flCheckUnclaimedItems = (engine->Time() + 1.5); }
-
-	void		CheckUnclaimedItems();
 
 	void		OnTick();
 
@@ -153,7 +141,6 @@ private:
 
 	bool		CheckAndWarnForPREC( void );
 	void		StopUpdateGlow();
-	void		UpdateRankPanelVisibility();
 
 private:
 
@@ -201,8 +188,6 @@ private:
 	bool					m_bIsDisconnectText;
 
 	CExButton				*m_pBackToReplaysButton;
-	ImagePanel				*m_pStoreHasNewItemsImage;
-	CExButton				*m_pStoreButton;
 
 	CExButton				*m_pVRModeButton;
 	vgui::Panel				*m_pVRModeBackground;
@@ -212,8 +197,6 @@ private:
 
 	float					m_flCheckTrainingAt;
 	bool					m_bWasInTraining;
-
-	float					m_flCheckUnclaimedItems;
 
 	vgui::ImagePanel		*m_pBackground;
 
@@ -235,8 +218,6 @@ private:
 	vgui::EditablePanel		*m_pToolTipEmbeddedPanel;
 
 	EditablePanel	*m_pWatchStreamButton;
-	EditablePanel	*m_pQuestLogButton;
-	EditablePanel	*m_pEventPromoContainer;
 	EditablePanel	*m_pSafeModeContainer;
 
 	vgui::DHANDLE<CMutePlayerDialog> m_hMutePlayerDialog;
@@ -246,10 +227,6 @@ private:
 	bool m_bStabilizedInitialLayout;
 	bool m_bBackgroundUsesCharacterImages;
 	const char* m_pszForcedCharacterImage = NULL;
-
-	CPvPRankPanel*	m_pRankPanel = NULL;
-	CPvPRankPanel*	m_pRankModelPanel = NULL;
-	vgui::Menu*		m_pRankTypeMenu = NULL;
 
 	CPanelAnimationVarAliasType( int, m_iButtonXOffset, "button_x_offset", "0", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iButtonY, "button_y", "0", "proportional_int" );

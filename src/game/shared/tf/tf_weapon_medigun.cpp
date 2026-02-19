@@ -672,8 +672,6 @@ void CWeaponMedigun::MaintainTargetInSlot()
 
 		m_flNextTargetCheckTime = gpGlobals->curtime + 1.0f;
 
-		CheckAchievementsOnHealTarget();
-
 		trace_t tr;
 		CMedigunFilter drainFilter( pOwner );
 
@@ -1079,7 +1077,6 @@ void CWeaponMedigun::UberchargeChunkDeployed()
 			return;
 
 		CTF_GameStats.Event_PlayerInvulnerable( pOwner );
-		EconEntity_OnOwnerKillEaterEvent( this, pOwner, ToTFPlayer( m_hHealingTarget ), kKillEaterEvent_UberActivated );
 	}
 }
 #endif // GAME_DLL
@@ -1485,7 +1482,6 @@ void CWeaponMedigun::SubtractChargeAndUpdateDeployState( float flSubtractAmount,
 				m_DetachedTargets.Purge();
 
 #ifdef GAME_DLL
-				pOwner->ClearPunchVictims();
 				RecalcEffectOnTarget( pOwner );
 #endif
 			}
@@ -1501,7 +1497,6 @@ void CWeaponMedigun::SubtractChargeAndUpdateDeployState( float flSubtractAmount,
 		m_DetachedTargets.Purge();
 
 #ifdef GAME_DLL
-		pOwner->ClearPunchVictims();
 		RecalcEffectOnTarget( pOwner );
 		StopHealingOwner(); // QuickFix uber heals the target and medic
 #endif
@@ -1879,8 +1874,6 @@ void CWeaponMedigun::SecondaryAttack( void )
 	{
 		// Award assist point
 		CTF_GameStats.Event_PlayerInvulnerable( pOwner );
-		// Award strange assist score
-		EconEntity_OnOwnerKillEaterEvent( this, pOwner, ToTFPlayer( m_hHealingTarget ), kKillEaterEvent_UberActivated );
 	}
 	
 	// STAGING_MEDIC
@@ -1911,42 +1904,6 @@ void CWeaponMedigun::SecondaryAttack( void )
 		}
 		gameeventmanager->FireEvent( event );
 	}
-
-	// Check for achievements
-	// Simultaneous uber charge with teammates.
-	CTeam *pTeam = pOwner->GetTeam();
-	if ( pTeam )
-	{
-		CUtlVector<CTFPlayer*> aChargingMedics;
-		aChargingMedics.AddToTail( pOwner );
-		for ( int i = 0; i < pTeam->GetNumPlayers(); i++ )
-		{
-			CTFPlayer *pTeamPlayer = ToTFPlayer( pTeam->GetPlayer(i) );
-			if ( pTeamPlayer && pTeamPlayer->IsPlayerClass( TF_CLASS_MEDIC ) && pTeamPlayer != pOwner )
-			{
-				CWeaponMedigun *pWeapon = dynamic_cast <CWeaponMedigun*>( pTeamPlayer->GetActiveWeapon() );
-				if ( pWeapon && pWeapon->IsReleasingCharge() )
-				{
-					aChargingMedics.AddToTail( pTeamPlayer );
-				}
-			}
-		}
-
-		if ( aChargingMedics.Count() >= 3 )
-		{
-			// Give the achievement to all the Medics
-			for ( int i = 0; i < aChargingMedics.Count(); i++ )
-			{
-				if ( aChargingMedics[i] )
-				{
-					aChargingMedics[i]->AwardAchievement( ACHIEVEMENT_TF_MEDIC_SIMUL_CHARGE );
-				}
-			}
-		}
-	}
-
-	// reset this count
-	pOwner->HandleAchievement_Medic_AssistHeavy( NULL );
 
 	// If using the QuickFix, heal the medic
 	if ( GetMedigunType() == MEDIGUN_QUICKFIX )
@@ -2546,63 +2503,6 @@ void CWeaponMedigun::UpdateMedicAutoCallers( void )
 	}
 }
 #endif
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CWeaponMedigun::CheckAchievementsOnHealTarget( void )
-{
-	CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
-	if ( !pTFPlayer )
-		return;
-
-#ifdef GAME_DLL
-
-	// Check for "target under fire" achievement
-	if ( pTFPlayer->m_AchievementData.CountDamagersWithinTime(3.0) >= 4 )
-	{
-		if ( GetTFPlayerOwner() )
-		{
-			GetTFPlayerOwner()->AwardAchievement( ACHIEVEMENT_TF_MEDIC_HEAL_UNDER_FIRE );
-		}
-	}
-
-	// Check for "Engineer repairing sentrygun" achievement
-	if ( pTFPlayer->IsPlayerClass( TF_CLASS_ENGINEER ) )
-	{
-		// Has Engineer worked on his sentrygun recently?
-		CBaseObject	*pSentry = pTFPlayer->GetObjectOfType( OBJ_SENTRYGUN );
-		if ( pSentry && pTFPlayer->m_AchievementData.IsTargetInHistory( pSentry, 4.0 ) )
-		{
-			if ( pSentry->m_AchievementData.CountDamagersWithinTime(3.0) > 0 )
-			{
-				CTFPlayer *pOwner = GetTFPlayerOwner();
-				if ( pOwner )
-				{
-					// give to medic
-					pOwner->AwardAchievement( ACHIEVEMENT_TF_MEDIC_HEAL_ENGINEER );
-
-					// give to the engineer!
-					pTFPlayer->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_REPAIR_SENTRY_W_MEDIC );
-				}
-			}
-		}
-	}
-#else
-
-	// check for ACHIEVEMENT_TF_MEDIC_HEAL_CALLERS
-	if ( pTFPlayer->m_flSaveMeExpireTime > gpGlobals->curtime )
-	{
-		IGameEvent *event = gameeventmanager->CreateEvent( "player_healedmediccall" );
-		if ( event )
-		{
-			event->SetInt( "userid", pTFPlayer->GetUserID() );
-			gameeventmanager->FireEventClientSide( event );
-		}
-	}
-
-#endif
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: Our owner has become stunned.

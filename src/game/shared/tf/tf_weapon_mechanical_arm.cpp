@@ -189,30 +189,6 @@ void CTFMechanicalArm::ShockVictim( CTFPlayer *pOwner, CBaseEntity *pTarget )
 	info.SetDamage( 20 );
 	info.SetDamagePosition( pTarget->WorldSpaceCenter() );
 	pTarget->TakeDamage( info );
-
-	// Achievement
-	CTFGrenadePipebombProjectile *pPipebomb = dynamic_cast<CTFGrenadePipebombProjectile*>( pTarget );
-	if ( pPipebomb && pPipebomb->HasStickyEffects() )
-	{
-		// If we are near a building, award achievement progress.
-		CTFTeam *pTeam = pOwner->GetTFTeam();
-		if ( pTeam )
-		{
-			for ( int j = 0; j < pTeam->GetNumObjects(); j++ )
-			{
-				CBaseObject *pTemp = pTeam->GetObject( j );
-				if ( pTemp && ( pTemp->ObjectType() != OBJ_ATTACHMENT_SAPPER ) )
-				{
-					if ( ( pTemp->GetAbsOrigin().DistTo( pPipebomb->GetAbsOrigin() ) < 100 ) &&
-						( pTemp->FVisible( pPipebomb, MASK_SOLID_BRUSHONLY ) ) )
-					{
-						pOwner->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_DESTROY_STICKIES, 1 );
-						break; // Only one award per sticky.
-					}
-				}
-			}
-		}
-	}
 }
 #endif
 

@@ -2,9 +2,7 @@
 #define TF_LEADERBOARDPANEL_H
 
 #include "vgui_controls/EditablePanel.h"
-#include "tf_wardata.h"
 #include "vgui_controls/ProgressBar.h"
-#include "quest_log_panel.h"
 #include "tf_asyncpanel.h"
 
 using namespace vgui;
