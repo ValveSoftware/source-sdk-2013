@@ -96,10 +96,10 @@ def main(args: argparse.Namespace):
       windows_build(args)
 
     if args.should_clear_temp:
-      shutil.move(building_dir, contentdir)
+      shutil.move(os.path.join(building_dir, "game"), contentdir)
     else:
       os.mkdir(args.contentdir)
-      shutil.copytree(building_dir + "/game", contentdir)
+      shutil.copytree(os.path.join(building_dir, "game"), contentdir)
     
   except (Exception, KeyboardInterrupt) as err:
     if args.should_clear_temp:
