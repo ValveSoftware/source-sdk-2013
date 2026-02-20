@@ -41,10 +41,12 @@ IMPLEMENT_NETWORKCLASS_ALIASED( PasstimeGun, DT_PasstimeGun )
 BEGIN_NETWORK_TABLE( CPasstimeGun, DT_PasstimeGun )
 #ifdef GAME_DLL
 	SendPropInt( SENDINFO( m_eThrowState ) ),
-	SendPropFloat( SENDINFO( m_fChargeBeginTime ) )
+	SendPropFloat( SENDINFO( m_fChargeBeginTime ) ),
+	SendPropEHandle( SENDINFO( m_hBufferedSwitchWeapon ) )
 #else
 	RecvPropInt( RECVINFO( m_eThrowState ) ),
-	RecvPropFloat( RECVINFO( m_fChargeBeginTime ) )
+	RecvPropFloat( RECVINFO( m_fChargeBeginTime ) ),
+	RecvPropEHandle( RECVINFO( m_hBufferedSwitchWeapon ) )
 #endif
 END_NETWORK_TABLE()
 
@@ -53,6 +55,7 @@ BEGIN_PREDICTION_DATA( CPasstimeGun )
 #ifdef CLIENT_DLL
 	DEFINE_PRED_FIELD( m_eThrowState, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_fChargeBeginTime, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_hBufferedSwitchWeapon, FIELD_EHANDLE, FTYPEDESC_INSENDTABLE ),
 #endif
 END_PREDICTION_DATA()
 
@@ -79,6 +82,7 @@ CPasstimeGun::CPasstimeGun()
 	, m_bDeploymentInputBuffer(false) // Initialize the flag
 {
 	m_eThrowState = THROWSTATE_DISABLED;
+	m_hBufferedSwitchWeapon = NULL;
 #ifdef CLIENT_DLL
 	m_pBounceReticle = 0;
 #endif
@@ -144,7 +148,12 @@ void CPasstimeGun::Precache()
 //-----------------------------------------------------------------------------
 bool CPasstimeGun::CanHolster() const
 {
-	return !GetTFPlayerOwner()->m_Shared.HasPasstimeBall();
+	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
+	if ( pOwner && pOwner->m_Shared.HasPasstimeBall() )
+	{
+		return false;
+	}
+	return BaseClass::CanHolster();
 }
 
 //-----------------------------------------------------------------------------
@@ -177,6 +186,7 @@ void CPasstimeGun::WeaponReset()
         pOwner->m_Shared.SetPasstimePassTarget(0);
 
     m_bDeploymentInputBuffer = false; // Reset the flag
+	m_hBufferedSwitchWeapon = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -777,6 +787,17 @@ void CPasstimeGun::ItemPostFrame()
 		// and CTFPlayerAnimState::CheckPasstimeThrowAnimation to see why.
 		m_eThrowState = THROWSTATE_IDLE; 
 
+		// Try buffered weapon first
+		if ( m_hBufferedSwitchWeapon )
+		{
+			if ( pOwner->Weapon_Switch( m_hBufferedSwitchWeapon ) )
+			{
+				m_hBufferedSwitchWeapon = NULL;
+				return;
+			}
+			m_hBufferedSwitchWeapon = NULL;
+		}
+
 		if ( !m_hStoredLastWpn || !pOwner->Weapon_Switch( m_hStoredLastWpn ) )
 		{
 			pOwner->SwitchToNextBestWeapon( this );
@@ -1163,25 +1184,15 @@ CPasstimeGun::LaunchParams CPasstimeGun::CalcLaunch( CTFPlayer *pPlayer, bool bH
 //-----------------------------------------------------------------------------
 void CPasstimeGun::ClientThink()
 {
-	if ( !IsActiveByLocalPlayer() && !IsLocalPlayerSpectator() )
+	if ( m_pBounceReticle )
 	{
-		if ( m_pBounceReticle )
-		{
+		// doing this in ItemPostFrame makes the position jittery for some reason, 
+		// and doing it in ClientThink works better. Not entirely sure why, but I 
+		// assume it's something to do with order of operations, or possibly prediction.
+		if ( ( IsActiveByLocalPlayer() || IsLocalPlayerSpectator() ) && (m_eThrowState == THROWSTATE_CHARGING || m_eThrowState == THROWSTATE_CHARGED) )
+			UpdateThrowArch();
+		else
 			m_pBounceReticle->Hide();
-		}
-		return;
-	}
-
-	// doing this in ItemPostFrame makes the position jittery for some reason, 
-	// and doing it in ClientThink works better. Not entirely sure why, but I 
-	// assume it's something to do with order of operations, or possibly prediction.
-	if ( !IsLocalPlayerSpectator() && ((m_eThrowState == THROWSTATE_CHARGING) || (m_eThrowState == THROWSTATE_CHARGED)) )
-	{
-		UpdateThrowArch();
-	}
-	else if ( (IsLocalPlayerSpectator() || (m_eThrowState != THROWSTATE_THROWN)) && m_pBounceReticle )
-	{
-		m_pBounceReticle->Hide();
 	}
 }
 

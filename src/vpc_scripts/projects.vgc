@@ -8,6 +8,11 @@
 // Project definitions //
 /////////////////////////
 
+$Project "buildinfo"
+{
+	"buildinfo\buildinfo.vpc"
+}
+
 $Project "captioncompiler"
 {
 	"utils\captioncompiler\captioncompiler.vpc" [$WINDOWS]

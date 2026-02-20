@@ -1331,17 +1331,7 @@ void CTFClassMenu::OnCommand( const char *command )
 	}
 	else if ( !V_strnicmp( command, "openloadout", 11 ) )
 	{
-		// Let this panel know when you've closed, so we can reload items
-		EconUI()->AddPanelCloseListener( this );
-
-		// Make the back button close, rather than go back to the econ root panel
-		EconUI()->SetClosePanel( -m_iCurrentClassIndex );
-
-		// Set team number, so the model's color will match
-		EconUI()->SetDefaultTeam( GetTeamNumber() );
-
-		// Go directly to the loadout for the selected class
-		EconUI()->OpenEconUI( -m_iCurrentClassIndex );	
+		engine->ClientCmd_Unrestricted( "open_charinfo_direct" );
 	}
 	else
 	{

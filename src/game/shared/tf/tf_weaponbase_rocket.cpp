@@ -23,6 +23,7 @@ extern void SendProxy_Angles( const SendProp *pProp, const void *pStruct, const 
 #ifdef CLIENT_DLL
 #include "props_shared.h"
 #include "usermessages.h"
+#include "cdll_bounded_cvars.h"
 #endif
 
 //w_rocket_airstrike\w_rocket_airstrike.mdl
@@ -200,6 +201,7 @@ void CTFBaseRocket::PostDataUpdate( DataUpdateType_t type )
 
 		float flChangeTime = GetLastChangeTime( LATCH_SIMULATION_VAR );
 
+#if 0
 		// Add a sample 1 second back.
 		Vector vCurOrigin = GetLocalOrigin() - m_vInitialVelocity;
 		interpolator.AddToHead( flChangeTime - 1.0f, &vCurOrigin, false );
@@ -211,7 +213,40 @@ void CTFBaseRocket::PostDataUpdate( DataUpdateType_t type )
 		vCurOrigin = GetLocalOrigin();
 		interpolator.AddToHead( flChangeTime, &vCurOrigin, false );
 
-		rotInterpolator.AddToHead( flChangeTime - 1.0, &vCurAngles, false );
+		rotInterpolator.AddToHead( flChangeTime, &vCurAngles, false );
+#else
+#if 1
+		// NEW SETUP: slowly transition to the future pos we'll get in the next update,
+		// reflecting our latest data NOW where the client is seeing, so they always can see the latest.
+		// Add a sample 1 second back.
+		const float flLerp = GetClientInterpAmount();
+		Vector vCurOrigin = GetLocalOrigin();
+		interpolator.AddToHead(flChangeTime - flLerp, &vCurOrigin, false);
+
+		QAngle vCurAngles = GetLocalAngles();
+		rotInterpolator.AddToHead(flChangeTime - flLerp, &vCurAngles, false);
+
+		// Add a sample a tick later. This isn't exactly when we'll get our next update, but it's close enough.
+		const float flTick = gpGlobals->interval_per_tick - 0.001f;
+		vCurOrigin += m_vInitialVelocity * flTick;
+		interpolator.AddToHead(flChangeTime + flTick, &vCurOrigin, false);
+
+		rotInterpolator.AddToHead(flChangeTime + flTick, &vCurAngles, false);
+#else
+		// Add a sample 1 second back.
+		Vector vCurOrigin = GetLocalOrigin();
+		interpolator.AddToHead(flChangeTime - 1.0f, &vCurOrigin, false);
+
+		QAngle vCurAngles = GetLocalAngles();
+		rotInterpolator.AddToHead(flChangeTime - 1.0f, &vCurAngles, false);
+
+		// Add the current sample.
+		vCurOrigin = GetLocalOrigin();
+		interpolator.AddToHead(flChangeTime, &vCurOrigin, false);
+
+		rotInterpolator.AddToHead(flChangeTime, &vCurAngles, false);
+#endif
+#endif
 	}
 }
 
@@ -236,8 +271,8 @@ void CTFBaseRocket::OnDataChanged(DataUpdateType_t updateType)
 //-----------------------------------------------------------------------------
 int CTFBaseRocket::DrawModel( int flags )
 {
-	// During the first 0.2 seconds of our life, don't draw ourselves.
-	if ( gpGlobals->curtime - m_flSpawnTime < 0.2f )
+	// During the first 0.1 seconds of our life, don't draw ourselves.
+	if ( gpGlobals->curtime - m_flSpawnTime < 0.1f )
 		return 0;
 
 	return BaseClass::DrawModel( flags );
@@ -546,12 +581,6 @@ void CTFBaseRocket::CheckForStunOnImpact( CTFPlayer* pTarget )
 
 	pTarget->SetAbsVelocity( vec3_origin );
 	pTarget->m_Shared.StunPlayer( flStunTime, flStunAmount, TF_STUN_MOVEMENT | TF_STUN_NO_EFFECTS, pAttacker );
-
-	if ( TFGameRules()->IsMannVsMachineMode() && pTarget->IsBot() && ( pAttacker->GetTeamNumber() == TF_TEAM_PVE_DEFENDERS ) )
-	{
-		pAttacker->AwardAchievement( ACHIEVEMENT_TF_MVM_ROCKET_SPECIALIST_STUN_GRIND );
-	}
-
 
 	// Effect
 	CPVSFilter filter( GetAbsOrigin() );

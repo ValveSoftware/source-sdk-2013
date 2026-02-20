@@ -106,7 +106,7 @@ bool CHudTeamGoal::ShouldDraw( void )
 
 	bool bCouldSee = TFGameRules()->ShouldShowTeamGoal();
 
-	if ( TFGameRules()->IsInTournamentMode() && !TFGameRules()->IsMatchTypeCasual() )
+	if ( TFGameRules()->IsInTournamentMode() )
 	{
 		bCouldSee = false;
 	}

@@ -158,7 +158,6 @@ CObjectSentrygun::CObjectSentrygun()
 	m_bFireRocketNextFrame = false;
 	m_flAutoAimStartTime = 0.f;
 	m_bPlayerControlled = false;
-	m_iLifetimeShieldedDamage = 0;
 	m_flFireRate = 1.f;
 	m_flSentryRange = SENTRY_MAX_RANGE;
 	m_nShieldLevel.Set( SHIELD_NONE );
@@ -703,11 +702,6 @@ bool CObjectSentrygun::OnWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vect
 
 	if ( GetOwner() != pPlayer )
 	{
-		if ( bDidWork && m_bPlayerControlled )
-		{
-			pPlayer->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_HELP_MANUAL_SENTRY, 1 );
-		}
-
 		// keep track of who last hit us with a wrench for kill assists
 		m_lastTeammateWrenchHit = pPlayer;
 		m_lastTeammateWrenchHitTimer.Start();
@@ -1418,23 +1412,6 @@ void CObjectSentrygun::OnKilledEnemy(CBasePlayer* pVictim)
 	CTFPlayer *pOwner = GetOwner();
 	if ( !pOwner )
 		return;
-
-	if ( m_bPlayerControlled && pVictim->GetAbsOrigin().DistToSqr( GetAbsOrigin() ) > ( m_flSentryRange * m_flSentryRange ) )
-	{
-		pOwner->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_MANUAL_SENTRY_KILLS_BEYOND_RANGE );
-	}
-
-	CTFPlayer *pCTFVictim = static_cast<CTFPlayer *>( pVictim );
-	if ( pCTFVictim->GetControlPointStandingOn() != NULL )
-	{
-		pOwner->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_SENTRY_KILL_CAPS, 1 );
-	}
-
-	if ( (gpGlobals->curtime - GetCarryDeployTime() < tf_sentrygun_kill_after_redeploy_time_achievement.GetInt()) &&
-		 GetUpgradeLevel() == 3 )
-	{
-		pOwner->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_MOVE_SENTRY_GET_KILL );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1993,22 +1970,6 @@ int CObjectSentrygun::OnTakeDamage( const CTakeDamageInfo &info )
 	if ( iDamageTaken > 0 )
 	{
 		m_flLastAttackedTime = gpGlobals->curtime;
-
-		// check for achievement
-		if ( bFullyShielded )
-		{
-			int iPrevLifetimeShieldedDamage = m_iLifetimeShieldedDamage;
-			m_iLifetimeShieldedDamage += iDamageTaken;
-			const int kMaxDamageForAchievement = tf_sentrygun_max_absorbed_damage_while_controlled_for_achievement.GetInt();
-			if ( iPrevLifetimeShieldedDamage <= kMaxDamageForAchievement && m_iLifetimeShieldedDamage > kMaxDamageForAchievement )
-			{
-				CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
-				if ( pOwner && pOwner->IsPlayerClass( TF_CLASS_ENGINEER ) )
-				{
-					pOwner->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_MANUAL_SENTRY_ABSORB_DMG );
-				}
-			}
-		}
 	}
 
 	return iDamageTaken;
@@ -2019,38 +1980,6 @@ int CObjectSentrygun::OnTakeDamage( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 void CObjectSentrygun::Killed( const CTakeDamageInfo &info )
 {
-	CTFPlayer *pTFKiller = ToTFPlayer( info.GetAttacker() );
-	if ( pTFKiller && pTFKiller->IsPlayerClass( TF_CLASS_SOLDIER ) )
-	{
-		if ( pTFKiller->GetAbsOrigin().DistTo( GetAbsOrigin() ) > SENTRY_MAX_RANGE )
-		{
-			pTFKiller->AwardAchievement( ACHIEVEMENT_TF_SOLDIER_DESTROY_SENTRY_OUT_OF_RANGE );
-		}
-		//If we are in the corridor map, then we check for the achievement for it.
-		else if ( m_hEnemy && !( pTFKiller->GetFlags() & FL_ONGROUND ) )
-		{
-			CBaseEntity *pDamager = GetBuilder();
-			
-			if ( NULL == pDamager )
-			{
-				pDamager = this;
-			}
-
-			static const float DAMAGE_INTERVAL = 2.0f;
-			if ( pTFKiller->m_AchievementData.IsDamagerInHistory( pDamager, DAMAGE_INTERVAL ) )
-			{
-				//Check the map.
-				if ( 0 == Q_stricmp( "tra_sol_corridor", STRING( gpGlobals->mapname ) ) )
-				{
-#ifdef TF_SOLDIER_TRAINING_ACHIEVEMENTS
-					//If the attacker was in the air when this sentry died, give him an achievement.
-					pTFKiller->AwardAchievement( ACHIEVEMENT_TF_SOLDIER_TRAINING_COR_SENTRY_FROM_AIR );
-#endif // TF_SOLDIER_TRAINING_ACHIEVEMENTS
-				}
-			}
-		}
-	}
-
 	// Tell our owner's shotgun the sentry died.
 	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
 	if ( pOwner )

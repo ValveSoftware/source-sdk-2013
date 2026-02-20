@@ -177,7 +177,6 @@ void CTFTrainingComplete::SetUpResults( IGameEvent *event )
 
 	extern int Training_GetProgressCount();
 	TFGameRules()->SetAllowTrainingAchievements( true );
-	g_AchievementMgrTF.UpdateAchievement( ACHIEVEMENT_TF_COMPLETE_TRAINING, Training_GetProgressCount() );
 }
 
 //-----------------------------------------------------------------------------

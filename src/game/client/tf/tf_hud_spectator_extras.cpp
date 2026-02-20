@@ -111,12 +111,6 @@ void CTFHudSpectatorExtras::OnTick()
 	if ( !g_PR )
 		return;
 
-	if ( TFGameRules() && TFGameRules()->ShowMatchSummary() )
-	{
-		Reset();
-		return;
-	}
-
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pLocalPlayer )
 		return;
@@ -238,27 +232,10 @@ void CTFHudSpectatorExtras::OnTick()
 
 			// use actual name or disguised name?
 			int nNameIndex = pDisguiseTarget ? pDisguiseTarget->entindex() : i;
-			g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( nNameIndex ), m_vecEntitiesToDraw[nVecIndex].m_wszName, sizeof( m_vecEntitiesToDraw[nVecIndex].m_wszName ) );
 
+			const wchar_t *pwszShortName = GetPlayerShortName( nNameIndex );
+			V_wcscpy_safe( m_vecEntitiesToDraw[nVecIndex].m_wszName, pwszShortName );
 
-			if ( pDisguiseTarget )
-			{
-				int nNameIndex = pDisguiseTarget->entindex();
-				g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( nNameIndex ), m_vecEntitiesToDraw[nVecIndex].m_wszName, sizeof( m_vecEntitiesToDraw[nVecIndex].m_wszName ) );
-			}
-			else
-			{
-				C_TFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
-				if ( pTFPlayer )
-				{
-					g_pVGuiLocalize->ConvertANSIToUnicode( pTFPlayer->GetShortNick(), m_vecEntitiesToDraw[nVecIndex].m_wszName, sizeof( m_vecEntitiesToDraw[nVecIndex].m_wszName ) );
-				}
-				else
-				{
-					// Fallback to regular name if cast fails
-					g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( i ), m_vecEntitiesToDraw[nVecIndex].m_wszName, sizeof( m_vecEntitiesToDraw[nVecIndex].m_wszName ) );
-				}
-			}
 			m_vecEntitiesToDraw[nVecIndex].m_nNameWidth = UTIL_ComputeStringWidth( m_hNameFont, m_vecEntitiesToDraw[nVecIndex].m_wszName );
 
 			m_vecEntitiesToDraw[nVecIndex].m_nOffset = ( VEC_HULL_MAX_SCALED( pPlayer ).z );

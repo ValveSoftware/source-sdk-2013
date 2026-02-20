@@ -15,8 +15,6 @@
 #include "vgui/ISurface.h"
 #include "vgui_controls/TextImage.h"
 #include "vgui_controls/CheckButton.h"
-#include "econ_ui.h"
-#include "store/store_panel.h"
 #ifdef TF_CLIENT_DLL
 #include "tf_playerpanel.h"
 #include "item_ad_panel.h"
@@ -507,26 +505,6 @@ void CTFGenericConfirmOptOutDialog::OnButtonChecked( KeyValues *pData )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFUpgradeBoxDialog::OnCommand( const char *command )
-{
-	if ( !Q_stricmp( command, "upgrade" ) )
-	{
-		FinishUp();
-
-		// Open the store, and show the upgrade advice
-		EconUI()->CloseEconUI();
-		EconUI()->OpenStorePanel( STOREPANEL_SHOW_UPGRADESTEPS, false );
-	}
-	else
-	{
-		BaseClass::OnCommand( command );
-	}
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 CTFGenericConfirmDialog *ShowConfirmDialog( const char *pTitle, const char *pText, const char *pConfirmBtnText, const char *pCancelBtnText, GenericConfirmDialogCallback callback,
 										    vgui::Panel *parent/*=NULL*/, void *pContext/*=NULL*/, const char *pSound/*=NULL*/ )
 {
@@ -634,39 +612,6 @@ CTFGenericConfirmOptOutDialog *ShowConfirmOptOutDialog( const char *pTitle, cons
 	}
 
 	return pDialog;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CTFMessageBoxDialog *ShowUpgradeMessageBox( const char *pTitle, const char *pText,
-										   const char *pConfirmBtnText, 
-										   GenericConfirmDialogCallback callback,
-										   vgui::Panel *parent, void *pContext )
-{
-	CTFMessageBoxDialog *pDialog = vgui::SETUP_PANEL(
-		new CTFUpgradeBoxDialog(
-		pTitle, pText,
-		pConfirmBtnText, callback, parent
-		)
-		);
-
-	if ( pDialog )
-	{
-		pDialog->SetContext( pContext );
-		pDialog->Show();
-	}
-
-	return pDialog;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Pop up a dialog prompting the player to go to the store to upgrade
-//-----------------------------------------------------------------------------
-CTFMessageBoxDialog *ShowUpgradeMessageBox( const char *pTitle, const char *pText )
-{
-	return ShowUpgradeMessageBox( pTitle, pText, "#GameUI_OK", NULL, NULL, NULL );
 }
 
 //-----------------------------------------------------------------------------

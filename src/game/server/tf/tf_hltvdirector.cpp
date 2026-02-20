@@ -191,7 +191,7 @@ const char** CTFHLTVDirector::GetModEvents()
 		"round_end",
 		"server_cvar",
 		"server_spawn",
-				
+
 		// additional TF events:
 		"controlpoint_starttouch",
 		"controlpoint_endtouch",
@@ -210,7 +210,28 @@ const char** CTFHLTVDirector::GetModEvents()
 		"training_complete",
 		"tf_game_over",
 		"object_destroyed",
-			
+
+		"player_healonhit",
+		"arrow_impact",
+		"rocket_jump",
+		"rocket_jump_landed",
+		"sticky_jump",
+		"sticky_jump_landed",
+		"player_healed",
+		"damage_resisted",
+		"restart_timer_time",
+		"winlimit_changed",
+		"teamplay_setup_finished",
+		"teamplay_point_captured",
+		"teamplay_point_unlocked",
+
+		"pass_get",
+		"pass_score",
+		"pass_free",
+		"pass_pass_caught",
+		"pass_ball_stolen",
+		"pass_ball_blocked",
+
 		NULL
 	};
 

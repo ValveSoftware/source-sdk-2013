@@ -86,6 +86,7 @@ BEGIN_DATADESC( CTFPasstimeLogic )
 	DEFINE_OUTPUT( m_onBallPowerDown, "OnBallPowerDown" ),
 END_DATADESC()
 
+//PF - Remove halloween changes
 //-----------------------------------------------------------------------------
 static const CCountdownAnnouncer::TimeSounds sCountdownSoundsRoundBegin = {
 	"Announcer.RoundBegins60seconds",
@@ -96,18 +97,6 @@ static const CCountdownAnnouncer::TimeSounds sCountdownSoundsRoundBegin = {
 	"Announcer.RoundBegins3seconds",
 	"Announcer.RoundBegins2seconds",
 	"Announcer.RoundBegins1seconds",
-};
-
-//-----------------------------------------------------------------------------
-static const CCountdownAnnouncer::TimeSounds sCountdownSoundsRoundBeginMerasmus = {
-	"Announcer.RoundBegins60seconds",
-	"Announcer.RoundBegins30seconds",
-	"Announcer.RoundBegins10seconds",
-	"Merasmus.RoundBegins5seconds",
-	"Merasmus.RoundBegins4seconds",
-	"Merasmus.RoundBegins3seconds",
-	"Merasmus.RoundBegins2seconds",
-	"Merasmus.RoundBegins1seconds",
 };
 
 //-----------------------------------------------------------------------------
@@ -164,10 +153,10 @@ void CTFPasstimeLogic::Spawn()
 		m_trackPoints.GetForModify(i).Zero();
 	}
 
-	const auto *pCountdownSounds = TFGameRules() && TFGameRules()->IsHolidayActive( kHoliday_Halloween )
-		? &sCountdownSoundsRoundBeginMerasmus
-		: &sCountdownSoundsRoundBegin;
+	//PF - Removed halloween changes
+	const auto *pCountdownSounds = &sCountdownSoundsRoundBegin;
 	m_pRespawnCountdown = new CCountdownAnnouncer( pCountdownSounds );
+
 
 	SetContextThink( &CTFPasstimeLogic::PostSpawn, gpGlobals->curtime, "postspawn" );
 	SetContextThink( &CTFPasstimeLogic::BallPower_PackHealThink, gpGlobals->curtime + 1, "packheal" );
@@ -740,28 +729,20 @@ void CTFPasstimeLogic::Precache()
 	PrecacheScriptSound( "Announcer.RoundBegins30seconds");
 	PrecacheScriptSound( "Announcer.RoundBegins10seconds");
 
-	if ( TFGameRules() && TFGameRules()->IsHolidayActive( kHoliday_Halloween ) ) 
-	{
-		PrecacheScriptSound( "Merasmus.RoundBegins5seconds");
-		PrecacheScriptSound( "Merasmus.RoundBegins4seconds");
-		PrecacheScriptSound( "Merasmus.RoundBegins3seconds");
-		PrecacheScriptSound( "Merasmus.RoundBegins2seconds");
-		PrecacheScriptSound( "Merasmus.RoundBegins1seconds");
+	PrecacheScriptSound( "Announcer.RoundBegins5seconds");
+	PrecacheScriptSound( "Announcer.RoundBegins4seconds");
+	PrecacheScriptSound( "Announcer.RoundBegins3seconds");
+	PrecacheScriptSound( "Announcer.RoundBegins2seconds");
+	PrecacheScriptSound( "Announcer.RoundBegins1seconds");
 
-		PrecacheScriptSound( "sf14.Merasmus.Soccer.GoalRed" );
-		PrecacheScriptSound( "sf14.Merasmus.Soccer.GoalBlue" );
-		PrecacheScriptSound( "Passtime.Merasmus.Laugh" );
-	}
-	else
-	{
-		PrecacheScriptSound( "Announcer.RoundBegins5seconds");
-		PrecacheScriptSound( "Announcer.RoundBegins4seconds");
-		PrecacheScriptSound( "Announcer.RoundBegins3seconds");
-		PrecacheScriptSound( "Announcer.RoundBegins2seconds");
-		PrecacheScriptSound( "Announcer.RoundBegins1seconds");
-	}
+//	PrecacheScriptSound( "sf14.Merasmus.Soccer.GoalRed" );
+//	PrecacheScriptSound( "sf14.Merasmus.Soccer.GoalBlue" );
 
-	PrecacheScriptSound( "Game.Overtime");
+	//testing
+	PrecacheScriptSound( "Passtime.Merasmus.Deathbomb" );
+	PrecacheScriptSound( "Passtime.Merasmus.Why" );
+
+	PrecacheScriptSound( "Passtime.Merasmus.Overtime");
 	PrecacheScriptSound( "Passtime.AskForBall" );
 
 	// secret room stuff
@@ -943,6 +924,12 @@ bool CTFPasstimeLogic::BCanPlayerPickUpBall( CTFPlayer *pPlayer, HudNotification
 		return false;
 	}
 
+	// Check for jack armor cooldown - use GetLastThrower() which persists even after ball is neutralized
+	if ( tf_passtime_no_jack_armor.GetBool() && pBall->GetLastThrower() == pPlayer )
+	{
+		if ( gpGlobals->curtime < pBall->GetThrowerCanPickupTime() ) return false;
+	}
+
 	return true;
 }
 
@@ -1097,11 +1084,15 @@ void CTFPasstimeLogic::SpawnBallAtSpawner( CPasstimeBallSpawn *pSpawner )
 	}
 
 	TFGameRules()->BroadcastSound( 255, "Passtime.BallSpawn" );
-	// TODO: wrap in convar
-	if ( TFGameRules()->IsHolidayActive( kHoliday_Halloween ) )
-	{
-		TFGameRules()->BroadcastSound( 255, "Passtime.Merasmus.Laugh" );
-	}
+	
+	//
+	// PF
+	// Shut up, Merasmus
+	//
+//	if ( TFGameRules()->IsHolidayActive( kHoliday_Halloween ) )
+//	{
+//		TFGameRules()->BroadcastSound( 255, "Passtime.Merasmus.Laugh" );
+//	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1359,6 +1350,15 @@ void CTFPasstimeLogic::EjectBall( CTFPlayer *pPlayer, CTFPlayer *pAttacker )
 	}
 
 	m_onBallFree.FireOutput( m_hBall, this );
+	
+	//PF
+	//Make Merasmus question whoever died with the ball, 1% chance
+	
+	if ( random->RandomFloat( 0.0f, 1.0f ) < 0.01f )
+	{
+		TFGameRules()->BroadcastSound( 255, "Passtime.Merasmus.Why" );
+	}	
+	
 	std::pair<CTFPlayer*, float> toAdd( pPlayer, gpGlobals->realtime );
 	for ( int i = 0; i < m_ballLastHeldTimes.Count(); i++ )
 	{
@@ -1488,6 +1488,9 @@ void CTFPasstimeLogic::Score( CTFPlayer *pPlayer, CPasstimeBall *pBall, int iTea
 				CTF_GameStats.Event_PlayerP4ssAssist( pAssister );
 				PasstimeGameEvents::Score( pScorer->entindex(), pAssister->entindex(), iPoints, true, false, false ) // dont care that panacea exists BECAUSE WE JUST HIT THE DEATHBOMB.
 				.Fire();
+				
+				//DISGUSTING GOAL!
+				TFGameRules()->BroadcastSound( 255, "Passtime.Merasmus.Deathbomb" );
 			}
 		}
 		else
@@ -1551,14 +1554,18 @@ void CTFPasstimeLogic::Score( CTFPlayer *pPlayer, CPasstimeBall *pBall, int iTea
 	pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_FLAGCAPTURED );
 	TFGameRules()->BroadcastSound( iTeam, "Passtime.Crowd.Cheer" );
 	TFGameRules()->BroadcastSound( GetEnemyTeam( iTeam ), "Passtime.Crowd.Boo" );
-
-	if ( TFGameRules()->IsHolidayActive( kHoliday_Halloween ) ) 
-	{
-		const char* pszSound = ( iTeam == TF_TEAM_RED )
-			? "sf14.Merasmus.Soccer.GoalRed"
-			: "sf14.Merasmus.Soccer.GoalBlue";
-		TFGameRules()->BroadcastSound( 255, pszSound );
-	}
+	
+	//
+	// PF
+	// Shut up, Merasmus
+	//
+//	if ( TFGameRules()->IsHolidayActive( kHoliday_Halloween ) ) 
+//	{
+//		const char* pszSound = ( iTeam == TF_TEAM_RED )
+//			? "sf14.Merasmus.Soccer.GoalRed"
+//			: "sf14.Merasmus.Soccer.GoalBlue";
+//		TFGameRules()->BroadcastSound( 255, pszSound );
+//	}
 
 	//
 	// Game state management
@@ -1914,15 +1921,18 @@ void CTFPasstimeLogic::InputTimeUp( inputdata_t &input )
 	
 	// going through the list of goals to calculate the max possible point gain
 	// is possible but tricky since goals can be enabled/disabled and there's no
-	// way to know which goals are actually possible to score in, so this is 
+	// way to know which goals are actually possible to score in, so this WAS 
 	// simply hard-coded to work correctly for the official maps where there's
 	// a 3-point unlockable goal.
-	int iMaxPossibleScoreGain = 3;
+	
+	// PF edit: change this to 1 since we don't have any 2-point or 3-point goals.
+	// this should be fine unless 2-point goal gimmick maps suddenly become popular
+	int iMaxPossibleScoreGain = 1;
 
 	if ( ( iPointDifference <= iMaxPossibleScoreGain ) && !ShouldEndOvertime() )
 	{
 		m_pRespawnCountdown->Disable();
-		TFGameRules()->BroadcastSound( 255, "Game.Overtime" );
+		TFGameRules()->BroadcastSound( 255, "Passtime.Merasmus.Overtime" );
 		ThinkExpiredTimer();
 	}
 	else
@@ -2509,15 +2519,6 @@ void CTFPasstimeLogic::SecretRoom_Solve()
 			variant_t(), 0.0f, this, this );
 	}
 
-	// achieves
-	for ( auto id : m_SecretRoom_playersThatTouchedRoom )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerBySteamID( id ) );
-		if ( pPlayer )
-		{
-			pPlayer->AwardAchievement( ACHIEVEMENT_TF_PASS_TIME_HAT );
-		}
-	}
 	m_SecretRoom_playersThatTouchedRoom.RemoveAll(); // paranoia
 }
 

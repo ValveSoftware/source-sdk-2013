@@ -1,5 +1,16 @@
-"Resource/HudLayout.res"
+"resource/hudlayout.res"
 {
+	HudBuildInfo
+	{
+		"fieldName" "HudBuildInfo"
+		"visible" "1"
+		"enabled" "1"
+		"xpos" "0"
+		"ypos" "0"
+		"wide" "f0"
+		"tall" "24"
+	}
+	
 	HudPlayerStatus
 	{
 		"fieldName" "HudPlayerStatus"
@@ -17,12 +28,11 @@
 		"visible" "1"
 		"enabled" "1"
 		"xpos"	"r172"	
-		"xpos_minmode"	"r372"	
+		"xpos_minmode"	"c54"	
 		"ypos"	"r66"	
-		"ypos_minmode"	"r180"	
-		"wide"	"100"
+		"ypos_minmode"	"c60"	
+		"wide"	"110"
 		"tall"	"100"
-	
 	}
 	
 	HudObjectiveStatus
@@ -73,16 +83,14 @@
 	HudMedicCharge
 	{
 		"fieldName"		"HudMedicCharge"
-		"visible"		"1"
-		"enabled"		"1"
-		"xpos"			"r138"	[$WIN32]
-		"xpos_minmode"	"r100"	[$WIN32]
-		"ypos"			"r69"	[$WIN32]
-		"ypos_minmode"	"r34"	[$WIN32]
-		"xpos"			"r174"	[$X360]
-		"ypos"			"r90"	[$X360]
-		"wide"			"200"
-		"tall"			"100"
+		"visible" "1"
+		"enabled" "1"
+		"xpos"	"r172"	
+		"xpos_minmode"	"c54"	
+		"ypos"	"r66"	
+		"ypos_minmode"	"c60"	
+		"wide"	"110"
+		"tall"	"100"
 	}
 	
 	HudDemomanCharge
@@ -199,8 +207,6 @@
 		"xpos"					"r162"	[$WIN32]
 		"ypos"					"r152"	[$WIN32]
 		"ypos_minmode"			"r134"	[$WIN32]
-		"xpos"					"r194"	[$X360]
-		"ypos"					"r174"	[$X360]
 		"wide"					"116"
 		"tall"  				"180"
 		"visible" 				"1"
@@ -212,9 +218,9 @@
 	{
 		"fieldName"				"CHealthAccountPanel"
 		"xpos"					"82"
-		"xpos_minmode"			"61"
-		"ypos"					"r152"
-		"ypos_minmode"			"r134"
+		"xpos_minmode"			"c-165"
+		"ypos"					"r162"
+		"ypos_minmode"			"c0"
 		"wide"					"116"
 		"tall"  				"180"
 		"visible" 				"1"
@@ -437,7 +443,16 @@
 
 	HudDamageIndicator
 	{
-
+		"fieldName"			"HudDamageIndicator"
+		"visible"				"1"
+		"enabled"				"1" 
+		"MinimumWidth"			"20"  
+		"MaximumWidth"			"50" 
+		"StartRadius"			"80" 
+		"EndRadius"				"80" 
+		"MaximumHeight"			"50" 
+		"MinimumTime"			"1"
+		"Noise"					"0"                         // 0 removes noise from direction, improving accuracy
 	}
 
 	HudCommentary
@@ -739,10 +754,8 @@
 		"fieldName" "HudVoiceSelfStatus"
 		"visible" "1"
 		"enabled" "1"
-		"xpos" "r42" 	[$WIN32]
-		"ypos" "355"	[$WIN32]
-		"xpos" "r75"	[$X360]
-		"ypos" "375"	[$X360]
+		"xpos" "50" 	[$WIN32]
+		"ypos" "360"	[$WIN32]
 		"wide" "32"
 		"tall" "32"
 	}
@@ -752,7 +765,7 @@
 		"fieldName" "HudVoiceStatus"
 		"visible" "1"
 		"enabled" "1"
-		"xpos" "r145" [$WIN32]
+		"xpos" "r155" [$WIN32]
 		"ypos" "0" [$WIN32]
 		"xpos" "r210" [$X360]
 		"ypos" "0" [$X360]
@@ -760,18 +773,23 @@
 		"tall" "400"
 
 		"item_wide"	"135"
+		"item_tall"	"20"
 		
-		"show_avatar"		"0"
+		"show_avatar"		"1"
+		"avatar_xpos"		"-9"
+		"avatar_ypos"		"1"
+		"avatar_wide"		"18"
+		"avatar_tall"		"18"
 		
 		"show_dead_icon"	"1"
-		"dead_xpos"			"1"
-		"dead_ypos"			"0"
+		"dead_xpos"			"19"
+		"dead_ypos"			"3"
 		"dead_wide"			"16"
 		"dead_tall"			"16"
 		
-		"show_voice_icon"	"1"
+		"show_voice_icon"	"0"
 		"icon_ypos"			"0"
-		"icon_xpos"			"15"
+		"icon_xpos"			"0"
 		"icon_tall"			"16"
 		"icon_wide"			"16"
 		
@@ -907,16 +925,12 @@
 	StatPanel
 	{
 		"fieldName"				"StatPanel"
-		"visible"				"1"
-		"enabled"				"1"
-		"xpos"					"c-133"
-		"xpos_lodef"			"c-190"
-		"ypos"				"270"
-		"ypos_lodef"			"250"
-		"wide"					"266"
-		"wide_lodef"			"400"
-		"tall"					"120"
-		"tall_lodef"			"190"
+		"visible"				"0"
+		"enabled"				"0"
+		"xpos"					"9999"
+		"ypos"					"9999"
+		"wide"					"0"
+		"tall"					"0"
 	}
 	
 	FreezePanel
@@ -1163,12 +1177,11 @@
 		"fieldName"				"HudStopWatch"
 		"visible"				"1"
 		"enabled"				"1"
-		"xpos"					"c-160"
-		"ypos"					"5"
-		"ypos_minmode"				"15"
-		"ypos_lodef"				"75"
+		"xpos"					"cs-0.5"
+		"ypos"					"r55"
 		"wide"					"125"
 		"tall"					"70"
+		"proportionaltoparent"	"1"
 	}
 	
 	NotificationPanel
@@ -1178,6 +1191,7 @@
 		"enabled"				"1"
 		"xpos"					"c-320"
 		"ypos"					"300"
+		"ypos_minmode"					"280"
 		"wide"					"640"
 		"tall"					"100"
 	}
@@ -1517,5 +1531,18 @@
 		"mouseinputenabled"		"0"
 		"alpha"					"100"
 	}
+	
+	"HudSpeedo"
+	{
+		"fieldName"		"HudSpeedo"
+		"visible"		"1"
+		"enabled"		"1"
+		"xpos"			"cs-0.5"
+		"ypos"			"r160"
+		"zpos"			"1"
+		"wide"			"110"
+		"tall"			"50"
+
+	}	
 }
 

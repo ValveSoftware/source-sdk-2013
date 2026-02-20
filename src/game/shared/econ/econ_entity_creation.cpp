@@ -40,12 +40,11 @@ CItemGeneration::CItemGeneration( void )
 //-----------------------------------------------------------------------------
 CBaseEntity *CItemGeneration::GenerateRandomItem( CItemSelectionCriteria *pCriteria, const Vector &vecOrigin, const QAngle &vecAngles, const char* pszOverrideClassName )
 {
-	entityquality_t iQuality;
-	int iChosenItem = ItemSystem()->GenerateRandomItem( pCriteria, &iQuality );
+	int iChosenItem = ItemSystem()->GenerateRandomItem( pCriteria );
 	if ( iChosenItem == INVALID_ITEM_DEF_INDEX )
 		return NULL;
 
-	return SpawnItem( iChosenItem, vecOrigin, vecAngles, pCriteria->GetItemLevel(), iQuality, pszOverrideClassName );
+	return SpawnItem( iChosenItem, vecOrigin, vecAngles, pszOverrideClassName );
 }
 
 //-----------------------------------------------------------------------------
@@ -53,7 +52,7 @@ CBaseEntity *CItemGeneration::GenerateRandomItem( CItemSelectionCriteria *pCrite
 //-----------------------------------------------------------------------------
 CBaseEntity *CItemGeneration::GenerateItemFromDefIndex( int iDefIndex, const Vector &vecOrigin, const QAngle &vecAngles )
 {
-	return SpawnItem( iDefIndex, vecOrigin, vecAngles, 1, AE_UNIQUE, NULL );
+	return SpawnItem( iDefIndex, vecOrigin, vecAngles, NULL );
 }
 
 //-----------------------------------------------------------------------------
@@ -73,13 +72,13 @@ CBaseEntity *CItemGeneration::GenerateBaseItem( struct baseitemcriteria_t *pCrit
 	if ( iChosenItem == INVALID_ITEM_DEF_INDEX )
 		return NULL;
 
-	return SpawnItem( iChosenItem, vec3_origin, vec3_angle, 1, AE_NORMAL, NULL );
+	return SpawnItem( iChosenItem, vec3_origin, vec3_angle, NULL );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Create a new instance of the chosen item
 //-----------------------------------------------------------------------------
-CBaseEntity *CItemGeneration::SpawnItem( int iChosenItem, const Vector &vecAbsOrigin, const QAngle &vecAbsAngles, int iItemLevel, entityquality_t entityQuality, const char *pszOverrideClassName )
+CBaseEntity *CItemGeneration::SpawnItem( int iChosenItem, const Vector &vecAbsOrigin, const QAngle &vecAbsAngles, const char *pszOverrideClassName )
 {
 	CEconItemDefinition *pData = ItemSystem()->GetStaticDataForItemByDefIndex( iChosenItem );
 	if ( !pData )
@@ -118,7 +117,7 @@ CBaseEntity *CItemGeneration::SpawnItem( int iChosenItem, const Vector &vecAbsOr
 	{
 		// Setup the script item. Don't generate attributes here, because it'll be done during entity spawn.
 		CEconItemView *pScriptItem = pItemInterface->GetAttributeContainer()->GetItem();
-		pScriptItem->Init( iChosenItem, entityQuality, iItemLevel, false );
+		pScriptItem->Init( iChosenItem, false );
 	}
 
 	return PostSpawnItem( pItem, pItemInterface, vecAbsOrigin, vecAbsAngles );

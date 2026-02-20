@@ -32,8 +32,6 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-extern ConVar tf_mm_trusted;
-
 extern ConVar tf_mvm_respec_limit;
 extern ConVar tf_mvm_respec_credit_goal;
 

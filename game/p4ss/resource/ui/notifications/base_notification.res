@@ -1,4 +1,4 @@
-"Resource/UI/notifications/base_notification.res"
+"resource/ui/notifications/base_notification.res"
 {
 	"Notification_Background"
 	{

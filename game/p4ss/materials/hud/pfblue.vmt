@@ -1,0 +1,10 @@
+"UnlitGeneric"
+{
+	"$basetexture" "hud/PFBlue"
+	"$vertexcolor" 1
+	"$no_fullbright" 1
+	"$ignorez" 1
+	"%keywords" "tf"
+	"$translucent" 1
+	"$alpha"		"1"
+}

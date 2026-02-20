@@ -13,7 +13,6 @@
 #include "vgui_controls/Frame.h"
 #include "vgui_controls/ListPanel.h"
 #include "vgui_controls/Button.h"
-#include "tf_badge_panel.h"
 
 class CMutePlayerDialog : public vgui::Frame
 {
@@ -33,7 +32,6 @@ private:
 
 	void ToggleMuteStateOfSelectedUser();
 	void RefreshPlayerStatus();
-	void UpdateBadgePanels();
 
 	virtual void OnKeyCodePressed( vgui::KeyCode code ) OVERRIDE
 	{
@@ -52,11 +50,9 @@ private:
 
 	vgui::ImageList				*m_pImageList = nullptr;
 	CUtlMap<CSteamID, int>		m_mapAvatarsToImageList;
-	CUtlVector< CTFBadgePanel* > m_pBadgePanels;
 
 	int m_nExtraSpace = 0;
 
-	CPanelAnimationVarAliasType( int, m_iMedalWidth, "medal_width", "20", "proportional_int" );
 	CPanelAnimationVar( int, m_iAvatarWidth, "avatar_width", "65" );		// Avatar width doesn't scale with resolution
 	CPanelAnimationVarAliasType( int, m_iNameWidth, "name_width", "94", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iScoreWidth, "score_width", "30", "proportional_int" );

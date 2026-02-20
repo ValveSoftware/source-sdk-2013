@@ -104,20 +104,8 @@ void CTFWrench::Spawn()
 #ifdef GAME_DLL
 void CTFWrench::OnFriendlyBuildingHit( CBaseObject *pObject, CTFPlayer *pPlayer, Vector hitLoc )
 {
-	bool bHelpTeammateBuildStructure = pObject->IsBuilding() && pObject->GetOwner() != GetOwner();
-
 	// Did this object hit do any work? repair or upgrade?
 	bool bUsefulHit = pObject->InputWrenchHit( pPlayer, this, hitLoc );
-
-	// award achievement if we helped a teammate build a structure
-	if ( bUsefulHit && bHelpTeammateBuildStructure )
-	{
-		CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
-		if ( pOwner && pOwner->IsPlayerClass( TF_CLASS_ENGINEER ) )
-		{
-			pOwner->AwardAchievement( ACHIEVEMENT_TF_ENGINEER_HELP_BUILD_STRUCTURE );
-		}
-	}
 
 	CDisablePredictionFiltering disabler;
 

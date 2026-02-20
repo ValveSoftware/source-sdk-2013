@@ -1,6 +1,6 @@
 #base "base_notification.res"
 
-"Resource/UI/notifications/notify_passtime_no_taunt.res"
+"resource/ui/notifications/notify_passtime_no_taunt.res"
 {	
 	"Notification_Background"
 	{

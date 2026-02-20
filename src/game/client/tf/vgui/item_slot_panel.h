@@ -26,7 +26,7 @@ public:
 	virtual void AddNewItemPanel( int iPanelIndex ) OVERRIDE;
 	virtual void UpdateModelPanels( void ) OVERRIDE;
 	virtual int	 GetNumItemPanels( void ) OVERRIDE;
-	virtual void OnShowPanel( bool bVisible, bool bReturningFromArmory ) OVERRIDE;
+	virtual void OnShowPanel( bool bVisible ) OVERRIDE;
 
 	MESSAGE_FUNC_PTR( OnItemPanelMouseReleased, "ItemPanelMouseReleased", panel );
 	MESSAGE_FUNC_PARAMS( OnSelectionReturned, "SelectionReturned", data );

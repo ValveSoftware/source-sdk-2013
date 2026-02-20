@@ -144,12 +144,9 @@ CTFItemCardPanel::CTFItemCardPanel( Panel *pParent, const char *pszName )
 	, m_bAllControlsValid( false )
 	, m_bPinned( false )
 	, m_pDropShadow( NULL )
-	, m_pRarityBackgroundOverlay( NULL )
 	, m_pCardTop( NULL )
 	, m_pItemModel( NULL )
-	, m_pRarityContainer( NULL )
 	, m_pItemName( NULL )
-	, m_pRarityName( NULL )
 	, m_pInfoContainer( NULL )
 	, m_pClassLabel( NULL )
 	, m_pClassIconContainer( NULL )
@@ -346,20 +343,6 @@ void CTFItemCardPanel::UpdateDescription()
 	// Itm name
 	m_pItemName->SetText( m_pItem->GetItemName() );
 
-	// If we dont have a rarity, then we assume we're an "old" item.
-	if ( !GetItemSchema()->GetRarityColor(pItemDef->GetRarity() ) )
-	{
-		// Grab the item quality (ie. strange, unusual)
-		const char *pszQualityColorString = EconQuality_GetColorString( (EEconItemQuality)m_pItem->GetItemQuality() );
-		if ( m_pItem->IsValid() && pszQualityColorString )
-		{
-			IScheme *pScheme = scheme()->GetIScheme( GetScheme() );
-			Color colorName = pScheme->GetColor( pszQualityColorString, Color( 0, 255, 0, 255 ) );
-			m_pItemName->SetFgColor( colorName );
-		}
-	}
-
-
 	// Set highlighting on the class icons
 	{
 		for ( int i = TF_FIRST_NORMAL_CLASS; i < TF_LAST_NORMAL_CLASS; i++ )
@@ -376,34 +359,6 @@ void CTFItemCardPanel::UpdateDescription()
 	{
 		const locchar_t *locTypename = g_pVGuiLocalize->Find( pItemDef->GetItemTypeName() );
 		m_pTypeLabelValue->SetText( locTypename );
-	}
-
-	const CEconItemRarityDefinition* pItemRarity = GetItemSchema()->GetRarityDefinition( pItemDef->GetRarity() );
-
-	// Setup the rarity color overlay
-	{
-		attrib_colors_t attribColor = ATTRIB_COL_RARITY_DEFAULT;
-
-		if ( pItemRarity )
-		{
-			attribColor = pItemRarity->GetAttribColor();
-		}
-
-		vgui::IScheme *pScheme = scheme()->GetIScheme( GetScheme() );
-		Color color = pScheme->GetColor( GetColorNameForAttribColor( attribColor ), Color( 255, 255, 255, 255 ) );
-		m_pRarityBackgroundOverlay->SetDrawColor( color );
-		m_pRarityName->SetFgColor( color );
-	}
-
-	// Rarity name into the label
-	{
-		const char *pszRarityName = "#Rarity_Default";
-		if ( pItemRarity )
-		{
-			pszRarityName = pItemRarity->GetLocKey();
-		}
-		
-		m_pRarityName->SetText( g_pVGuiLocalize->Find( pszRarityName ) );
 	}
 
 	enum { kAttribBufferSize = 4 * 1024 };
@@ -517,18 +472,6 @@ void CTFItemCardPanel::LoadResFileForCurrentItem()
 {
 	// Temp hack.  New items get the new cards
 	const char *pszResFile = "Resource/UI/econ/ItemCardPanel_Series1.res";
-	if ( m_pItem )
-	{
-		const GameItemDefinition_t *pItemDef = m_pItem->GetItemDefinition();
-		if ( pItemDef )
-		{
-			const CEconItemRarityDefinition* pItemRarity = GetItemSchema()->GetRarityDefinition( pItemDef->GetRarity() );
-			if ( pItemRarity && pItemRarity->GetDBValue() > 0 )
-			{
-				pszResFile = "Resource/UI/econ/ItemCardPanel_Series2.res";
-			}
-		}
-	}
 
 	m_bAllControlsValid = false;
 
@@ -537,14 +480,11 @@ void CTFItemCardPanel::LoadResFileForCurrentItem()
 	m_bAllControlsValid = true;
 	// Grab all the controls...
 	m_pMainContainer = FindAndVerifyControl< EditablePanel >( this, "MainContainer" );
-	m_pRarityBackgroundOverlay = FindAndVerifyControl< ImagePanel >( m_pMainContainer, "RarityBackgroundOverlay" );
 	m_pBackground = FindAndVerifyControl< ImagePanel >( m_pMainContainer, "Background" );
 	m_pGrime = FindAndVerifyControl< ImagePanel >( m_pMainContainer, "GrimeLayer" );
 	m_pCardTop = FindAndVerifyControl< EditablePanel >( m_pMainContainer, "CardTop" );
 	m_pItemModel = FindAndVerifyControl< CEmbeddedItemModelPanel >( m_pCardTop, "ItemModel" );
-	m_pRarityContainer = FindAndVerifyControl< EditablePanel >( m_pMainContainer, "RarityContainer" );
-	m_pItemName = FindAndVerifyControl< Label >( m_pRarityContainer, "ItemNameLabel" );
-	m_pRarityName = FindAndVerifyControl< Label >( m_pRarityContainer, "ItemRarityLabel" );
+	m_pItemName = FindAndVerifyControl< Label >( m_pMainContainer, "ItemNameLabel" );
 	m_pClassIconContainer = FindAndVerifyControl< CRepeatingContainer >( m_pMainContainer, "ClassIconContainer" );
 	m_pInfoContainer = FindAndVerifyControl< EditablePanel >( m_pMainContainer, "InfoContainer" );
 	m_pClassLabel = FindAndVerifyControl< Label >( m_pInfoContainer, "ClassLabel" );

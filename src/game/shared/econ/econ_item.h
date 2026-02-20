@@ -283,13 +283,6 @@ public:
 
 	CEconItem &operator=( const CEconItem& rhs );
 
-	//called to determine if this item is tradable or not. This will return the time after which it can be traded. If 0 it can be traded. This is
-	//needed since the base implementation of this is protected
-	RTime32 GetTradableAfterDateTime() const		 { return IEconItemInterface::GetTradableAfterDateTime(); }
-
-	//called to set a tradable after date/time value onto this item (this avoids a lot of potential inefficiencies around this process)
-	void SetTradableAfterDateTime( RTime32 rtTime );
-
 	// IEconItemInterface interface.
 	const GameItemDefinition_t *GetItemDefinition() const;
 public:
@@ -310,17 +303,8 @@ public:
 	uint32 GetDefinitionIndex() const { return m_unDefIndex; }
 	void SetDefinitionIndex( uint32 unDefinitionIndex ) { m_unDefIndex = unDefinitionIndex; }
 
-	uint32 GetItemLevel() const { return m_unLevel; }
-	void SetItemLevel( uint32 unItemLevel ) { m_unLevel = unItemLevel; }
-
-	int32 GetQuality() const { return m_nQuality; }
-	void SetQuality( int32 nQuality ) { m_nQuality = nQuality; }
-
 	uint32 GetInventoryToken() const { return m_unInventory; }
 	void SetInventoryToken( uint32 unToken ) { m_unInventory = unToken; }
-
-	int GetQuantity() const;
-	void SetQuantity( uint16 unQuantity );
 
 	uint8 GetFlags() const { return m_unFlags; }
 	void SetFlags( uint8 unFlags ) { m_unFlags = unFlags; }
@@ -339,12 +323,6 @@ public:
 	const char *GetIconURLSmall() const;
 	const char *GetIconURLLarge() const;
 
-	const char *GetCustomName() const;
-	void SetCustomName( const char *pName );
-
-	const char *GetCustomDesc() const;
-	void SetCustomDesc( const char *pDesc );
-
 	bool IsEquipped() const;
 	bool IsEquippedForClass( equipped_class_t unClass ) const;
 	equipped_slot_t GetEquippedPositionForClass( equipped_class_t unClass ) const;
@@ -360,15 +338,6 @@ public:
 
 	virtual bool GetInUse() const;
 	void SetInUse( bool bInUse );
-
-	bool IsTradable() const;
-	bool IsMarketable() const;
-	bool IsCommodity() const;
-
-	void AdoptMoreRestrictedTradabilityFromItem( const CEconItem *pOther, uint32 nTradabilityFlagsToAccept = 0xFFFFFFFF );
-	void AdoptMoreRestrictedTradability( uint32 nTradabilityFlags, RTime32 nUntradableTime );
-	bool IsUsableInCrafting() const;
-
 
 	// --------------------------------------------------------------------------------------------
 	// Typed attributes. These are methods for accessing and setting values of attributes with
@@ -497,9 +466,6 @@ public:
 
 	const CEconItemCustomData* GetCustomData() const { return m_pCustomData; }
 
-	void OnTraded( uint32 unTradabilityDelaySeconds );
-	void OnReceivedFromMarket( bool bFromRollback );
-
 protected:
 
 	// Call this when the appearance of this item changes (ex. paintkit, style, festive). This will
@@ -547,8 +513,6 @@ public:
 	uint32 m_unAccountID;					// Item Owner
 	uint32 m_unInventory;					// App managed int representing inventory placement
 	item_definition_index_t m_unDefIndex;	// Item definition index
-	uint8 m_unLevel;						// Item Level
-	uint8 m_nQuality;						// Item quality (rarity)
 	uint8 m_unFlags;						// Flags
 	uint8 m_unOrigin;						// Origin (eEconItemOrigin)
 	style_index_t m_unStyle;				// Style
@@ -574,7 +538,6 @@ public:
 	CEconItemCustomData()
 		: m_pInteriorItem( NULL )
 		, m_ulOriginalID( INVALID_ITEM_ID )
-		, m_unQuantity( 1 )
 		, m_vecAttributes( /* grow size: */ 1, /* init size: */ 0 )
 		, m_vecEquipped( /* grow size: */ 1, /* init size: */ 0 )
 	{}
@@ -584,7 +547,6 @@ public:
 	CUtlVector< CEconItem::attribute_t > m_vecAttributes;
 	CEconItem* m_pInteriorItem;
 	uint64 m_ulOriginalID;	// Original Item ID
-	uint16 m_unQuantity;	// Consumable stack count (ammo, money, etc)	
 
 	CUtlVector<CEconItem::EquippedInstance_t> m_vecEquipped;
 
@@ -629,69 +591,6 @@ template < typename TAttribInMemoryType >
 void YieldingAddAuditRecord( GCSDK::CSQLAccess *sqlAccess, CEconItem *pItem, uint32 unOwnerID, EItemAction eAction, uint32 unData );
 void YieldingAddAuditRecord( GCSDK::CSQLAccess *sqlAccess, uint64 ulItemID, uint32 unOwnerID, EItemAction eAction, uint32 unData );
 bool YieldingAddItemToDatabase( CEconItem *pItem, const CSteamID & steamID, EItemAction eAction, uint32 unData );
-
-//-----------------------------------------------------------------------------
-// Purpose: wrap the idea of "get a loot list from this item"; some loot lists
-//			are static definitions and some are temporary heap-allocated objects
-//			and this means you don't care which you're dealing with until we
-//			come up with a better interface
-//-----------------------------------------------------------------------------
-class CCrateLootListWrapper
-{
-public:
-	CCrateLootListWrapper( const IEconItemInterface *pEconItem )
-		: m_pLootList( NULL )
-		, m_unAuditDetailData( 0 )
-		, m_bIsDynamicallyAllocatedLootList( false )
-	{
-		Assert( pEconItem );
-
-		if ( !BAttemptCrateSeriesInitialization( pEconItem )
-		  && !BAttemptLootListStringInitialization( pEconItem )
-		  && !BAttemptLineItemInitialization( pEconItem ) )
-		{
-			// We don't actually have anything to do here. We'll return NULL when someone asks for our
-			// loot list and we're done.
-		}
-	}
-
-	~CCrateLootListWrapper()
-	{
-		if ( m_bIsDynamicallyAllocatedLootList )
-		{
-			delete m_pLootList;
-		}
-	}
-
-	const IEconLootList *GetEconLootList() const
-	{
-		return m_pLootList;
-	}
-
-	uint32 GetAuditDetailData() const
-	{
-		return m_unAuditDetailData;
-	}
-	
-private:
-	CCrateLootListWrapper( const CCrateLootListWrapper& );		// intentionally unimplemented
-	void operator=( const CCrateLootListWrapper& );				// intentionally unimplemented
-
-private:
-	// Look for an attribute that specifies a crate series.
-	MUST_CHECK_RETURN bool BAttemptCrateSeriesInitialization( const IEconItemInterface *pEconItem );
-
-	// Look for an attribute that specifies a loot list by string name.
-	MUST_CHECK_RETURN bool BAttemptLootListStringInitialization( const IEconItemInterface *pEconItem );
-
-	// Look for a line-item-per-attribute list.
-	MUST_CHECK_RETURN bool BAttemptLineItemInitialization( const IEconItemInterface *pEconItem );
-
-private:
-	const IEconLootList *m_pLootList;
-	uint32 m_unAuditDetailData;
-	bool m_bIsDynamicallyAllocatedLootList;
-};
 
 //-----------------------------------------------------------------------------
 // Purpose: Maintains a handle to an CEconItem.  If the item gets deleted, this

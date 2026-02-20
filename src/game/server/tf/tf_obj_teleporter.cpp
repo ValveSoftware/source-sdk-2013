@@ -133,14 +133,6 @@ void CObjectTeleporter::TeleporterSend( CTFPlayer *pPlayer )
 	// Strange - Teleports Provided to Allies
 	if ( GetBuilder() && GetBuilder()->GetTeam() == pPlayer->GetTeam() )
 	{
-		// Strange Health Provided to Allies
-		EconEntity_OnOwnerKillEaterEvent( 
-			dynamic_cast<CEconEntity *>( GetBuilder()->GetEntityForLoadoutSlot( LOADOUT_POSITION_PDA ) ),
-			GetBuilder(),
-			pPlayer,
-			kKillEaterEvent_TeleportsProvided
-		);
-
 		if ( GetBuilder() != pPlayer &&
 			 TFGameRules() && 
 			 TFGameRules()->GameModeUsesUpgrades() &&

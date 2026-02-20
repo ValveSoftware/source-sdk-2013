@@ -1799,10 +1799,6 @@ void CReplayPerformanceEditorPanel::Achievements_Think( float flElapsed )
 
 void CReplayPerformanceEditorPanel::Achievements_Grant()
 {
-#if defined( TF_CLIENT_DLL )
-	g_AchievementMgrTF.AwardAchievement( ACHIEVEMENT_TF_REPLAY_EDIT_TIME );
-#endif
-
 	// Awarded
 	m_bAchievementAwarded = true;
 }

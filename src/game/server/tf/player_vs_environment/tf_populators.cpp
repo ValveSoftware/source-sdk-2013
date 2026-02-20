@@ -2171,15 +2171,7 @@ void CWave::WaveCompleteUpdate( void )
 
 		if ( TFGameRules() )
 		{
-			if ( GTFGCClientSystem()->GetMatch() && GTFGCClientSystem()->GetMatch()->m_eMatchGroup == k_eTFMatchGroup_MvM_MannUp )
-			{
-				TFGameRules()->BroadcastSound( 255, "Announcer.MVM_Manned_Up_Wave_End" );
-			}
-			else
-			{
-				TFGameRules()->BroadcastSound( 255, "Announcer.MVM_Final_Wave_End" );
-			}
-
+			TFGameRules()->BroadcastSound( 255, "Announcer.MVM_Final_Wave_End" );
 			TFGameRules()->BroadcastSound( 255, "music.mvm_end_last_wave" );
 		}
 

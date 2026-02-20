@@ -50,16 +50,6 @@ public:
 	virtual void Event_OnRoundComplete( float flRoundTime, IGameEvent *event ) = 0 ;
 };
 
-class CAchievementTopScoreboard : public CTFAchievementFullRound
-{
-	DECLARE_CLASS( CAchievementTopScoreboard, CTFAchievementFullRound );
-
-public:
-	void Init();
-	virtual void ListenForEvents();
-	virtual void Event_OnRoundComplete( float flRoundTime, IGameEvent *event );
-};
-
 //----------------------------------------------------------------------------------------------------------------
 // Helper class for achievements that involve killing players after walking through a teleporter
 template < class tBaseClass >

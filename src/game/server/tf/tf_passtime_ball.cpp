@@ -124,6 +124,7 @@ CPasstimeBall::CPasstimeBall()
 	m_flLastTeamChangeTime = 0;
 	m_flBeginCarryTime = 0;
 	m_flIdleRespawnTime = 0;
+	m_flThrowerCanPickupTime = 0;
 	m_bTrailActive = false;
 	m_pCloseToTarget = 0;
 	m_bPanacea = true;
@@ -158,18 +159,24 @@ CTFPlayer *CPasstimeBall::GetThrower() const
 }
 
 //-----------------------------------------------------------------------------
+CTFPlayer *CPasstimeBall::GetLastThrower() const 
+{ 
+	return m_hLastThrower.Get(); 
+}
+
+//-----------------------------------------------------------------------------
 void CPasstimeBall::SetThrower( CTFPlayer *pPlayer ) 
 { 
-	m_hThrower = pPlayer; 
-	if ( !pPlayer )
+	m_hThrower = pPlayer;
+	if ( pPlayer )
 	{
-		ChangeTeam( TEAM_UNASSIGNED );
+		m_hLastThrower = pPlayer; // Track for jack armor cooldown
+		ChangeTeam( pPlayer->GetTeamNumber() );
 	}
 	else 
 	{
-		ChangeTeam( pPlayer->GetTeamNumber() );
+		ChangeTeam( TEAM_UNASSIGNED );
 	}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -500,6 +507,8 @@ CPasstimeBall::~CPasstimeBall()
 	{
 		CSoundEnvelopeController::GetController().SoundDestroy( m_pBeepLoop );
 	}
+
+	KillMagnetSound();
 }
 
 //-----------------------------------------------------------------------------
@@ -569,6 +578,13 @@ void CPasstimeBall::SetStateFree()
 	SetSolid( SOLID_VPHYSICS );
 	SetSolidFlags( FSOLID_NOT_STANDABLE );
 	SetThrower( m_hCarrier );
+	
+	// Set cooldown for jack armor prevention
+	if ( tf_passtime_no_jack_armor.GetBool() && m_hCarrier )
+	{
+		m_flThrowerCanPickupTime = gpGlobals->curtime + tf_passtime_no_jack_armor_time.GetFloat();
+	}
+	
 	TFGameRules()->SetObjectiveObserverTarget( this );
 	VPhysicsGetObject()->EnableGravity( true );
 	VPhysicsGetObject()->Wake();
@@ -661,6 +677,8 @@ void CPasstimeBall::SetStateOutOfPlay()
 		CSoundEnvelopeController::GetController().SoundDestroy( m_pBeepLoop );
 		m_pBeepLoop = 0;
 	}
+
+	KillMagnetSound();
 
 	//
 	// Bookeeping
@@ -774,6 +792,8 @@ void CPasstimeBall::SetStateCarried( CTFPlayer *pCarrier )
 		m_hPrevCarrier = m_hCarrier;
 	}
 	m_hCarrier = pCarrier;
+	m_hLastThrower = 0; // Clear jack armor cooldown when someone picks up ball
+	m_flThrowerCanPickupTime = 0;
 	ChangeTeam( pCarrier->GetTeamNumber() );
 }
 
@@ -783,6 +803,8 @@ void CPasstimeBall::MoveToSpawner( const Vector &pos )
 	MoveTo( pos, Vector( 0,0,0 ) );
 	m_bTouchedSinceSpawn = false;
 	m_hPrevCarrier = 0;
+	m_hLastThrower = 0; // Clear jack armor cooldown on respawn
+	m_flThrowerCanPickupTime = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1272,6 +1294,18 @@ static bool IsGroundCollision( int index, const gamevcollisionevent_t *pEvent )
 		return false; // paranoia
 	}
 
+ 	// --- P4SS: Check for surfaceprop that makes the ball not go neutral ---
+    static int s_pfNoneutralIndex = -1;
+    if (s_pfNoneutralIndex == -1)
+    {
+        s_pfNoneutralIndex = physprops->GetSurfaceIndex("pf_noneutral");
+    }
+    if (pEvent->surfaceProps[otherindex] == s_pfNoneutralIndex)
+    {
+        return false;
+    }
+
+    // --- End custom surface property check ---
 	Vector vecNormal;
 	pEvent->pInternalData->GetSurfaceNormal( vecNormal );
 	return Vector( 0, 0, 1 ).Dot( vecNormal ) < -0.7f; // why is this backwards?
@@ -1401,9 +1435,25 @@ COLLISION_GROUP_WEAPON, &result );
 			}
 
 			CTFPlayer *attackerPlayer = dynamic_cast<CTFPlayer *>(attacker);
+			
+			//we need to to this conversion
+			//so the icons are matching with the weapons
+			CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase*>( attackerPlayer->Weapon_OwnsThisID(iWeaponID) );
+			if ( pWeapon )
+			{
+				CEconItemView *pItem = pWeapon->GetAttributeContainer()->GetItem();
+
+				if ( pItem )
+				{
+					if ( pItem->GetStaticData()->GetIconClassname() )
+					{
+						weaponname = pItem->GetStaticData()->GetIconClassname();
+					}
+				}
+			}
 
 			// P4SS: this may cause issues later for things like pipes but we will try it out and see
-			if ( distance < 10.0f )
+			if ( distance < 10.0f || info.GetDamageType() & DMG_MELEE )
 			{
 				if ( didSplashGoal && attackerPlayer && ballThrower && attackerPlayer->GetTeamNumber() != ballThrower->GetTeamNumber() )
 				{
@@ -1598,6 +1648,12 @@ float CPasstimeBall::GetAirtimeDistance() const
 	return m_flAirtimeDistance;
 }
 
+//-----------------------------------------------------------------------------
+float CPasstimeBall::GetThrowerCanPickupTime() const 
+{
+	return m_flThrowerCanPickupTime;
+}
+
 
 void CPasstimeBall::CreateMagnetSound()
 {
@@ -1605,7 +1661,7 @@ void CPasstimeBall::CreateMagnetSound()
 	{
 		CReliableBroadcastRecipientFilter filter;
 		m_pCloseToTarget =CSoundEnvelopeController::GetController().SoundCreate( filter, entindex(), "Passtime.BallMagnetLock" );
-		CSoundEnvelopeController::GetController().Play( m_pCloseToTarget, 2.5, PITCH_NORM );
+		CSoundEnvelopeController::GetController().Play( m_pCloseToTarget, 4, PITCH_NORM );
 	}
 }
 

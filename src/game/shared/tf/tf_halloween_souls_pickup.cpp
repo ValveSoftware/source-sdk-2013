@@ -149,11 +149,6 @@ void CHalloweenSoulPack::ItemTouch( CBaseEntity *pOther )
 			gameeventmanager->FireEvent( pEvent, true );
 		}
 
-		// Strange Tracking
-		static CSchemaItemDefHandle hItemDef( "Activated Halloween Pass");
-		kill_eater_event_t eEventType = kKillEaterEvent_HalloweenSouls;
-		EconEntity_NonEquippedItemKillTracking_NoPartnerBatched( pPlayer, hItemDef->GetDefinitionIndex(), eEventType, m_nAmount );
-
 		// Play a spooky sound in their ears
 		CSingleUserRecipientFilter filter( pPlayer );
 		EmitSound_t params;

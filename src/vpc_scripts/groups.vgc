@@ -16,6 +16,7 @@ $Group "gamedlls"
 
 $Group "game"
 {
+	"buildinfo"
 	"client"
 	"launcher_main"
 	"mathlib"
@@ -33,6 +34,7 @@ $Group "shaders"
 
 $Group "everything"
 {
+	"buildinfo"
 	"captioncompiler"
 	"client"
 	"fgdlib"

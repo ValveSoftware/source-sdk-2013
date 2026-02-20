@@ -236,9 +236,6 @@ protected:
 	int		m_nCurrency;
 	int		m_nUpgradeActivity;
 
-	bool	m_bAwardMaxSlotAchievement;
-	bool	m_bAwardMaxResistAchievement;
-
 	ItemSlotBuyPanels	m_ItemSlotBuyPanels[ MAX_ITEM_SLOT_BUY_PANELS ];
 
 	CPanelAnimationVarAliasType( int, m_iItemPanelXPos, "itempanel_xpos", "0", "proportional_int" );

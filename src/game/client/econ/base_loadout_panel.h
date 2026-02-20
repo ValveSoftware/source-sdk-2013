@@ -13,7 +13,6 @@
 
 #include "vgui_controls/EditablePanel.h"
 #include "econ_controls.h"
-#include "item_pickup_panel.h"
 #include "GameEventListener.h"
 #include "tf_item_card_panel.h"
 
@@ -31,7 +30,7 @@ public:
 	virtual void ApplySettings( KeyValues *inResourceData );
 	virtual void PerformLayout( void );
 	virtual void OnCommand( const char *command );
-	void		 ShowPanel( int iClass, bool bBackpack, bool bReturningFromArmory = false );
+	void		 ShowPanel( int iClass, bool bBackpack );
 	virtual void FireGameEvent( IGameEvent *event );
 
 	virtual int	 GetNumSlotsPerPage( void ) { return 1; }
@@ -42,7 +41,7 @@ public:
 	virtual void SetCurrentPage( int nNewPage );
 
 	virtual int	 GetNumItemPanels( void ) { Assert(0); return 0; };
-	virtual void OnShowPanel( bool bVisible, bool bReturningFromArmory ) { return; }
+	virtual void OnShowPanel( bool bVisible ) { return; }
 	virtual void PostShowPanel( bool bVisible ) { return; }
 	CItemModelPanel *FindBestPanelNavigationForDirection( const CItemModelPanel *pCurrentPanel, const Vector2D &vPos, const Vector2D &vDirection );
 	void LinkModelPanelControllerNavigation( bool bForceRelink );

@@ -13,6 +13,8 @@
 
 #include "GameEventListener.h"
 
+class CTFPlayer;
+
 enum autobalance_state_t
 {
 	AB_STATE_INACTIVE = 0,

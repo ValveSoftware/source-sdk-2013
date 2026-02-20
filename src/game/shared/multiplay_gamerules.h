@@ -34,6 +34,8 @@ extern INetworkStringTable *g_pStringTableServerPopFiles;
 extern INetworkStringTable *g_pStringTableServerMapCycleMvM;
 #endif
 
+extern INetworkStringTable *g_pStringTablePlayerShortNames;
+
 #define VOICE_COMMAND_MAX_SUBTITLE_DIST	1900
 
 class CBaseMultiplayerPlayer;

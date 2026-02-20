@@ -64,7 +64,6 @@ private:
 	bool			m_bTeamReady[MAX_TEAMS];
 
 	bool			m_bReadyStatusMode;
-	bool			m_bCompetitiveMode;
 	bool			m_bReadyTextBlinking;
 	bool			m_bCountDownVisible;
 

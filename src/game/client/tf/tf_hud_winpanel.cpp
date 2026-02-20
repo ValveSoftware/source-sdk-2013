@@ -26,7 +26,6 @@
 #include "tf_gamerules.h"
 #include "tf_logic_halloween_2014.h"
 #include "c_tf_team.h"
-#include "tf_badge_panel.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -137,13 +136,6 @@ void CTFWinPanel::FireGameEvent( IGameEvent * event )
 		int iRoundsRemaining = event->GetInt( "rounds_remaining" );
 		bool bGameOver = event->GetBool( "game_over", false );
 		bool bUseMoreOpaqueBorder = false;
-		if ( TFGameRules() && bGameOver )
-		{
-			if ( TFGameRules()->IsMatchTypeCompetitive() )
-			{
-				bUseMoreOpaqueBorder = true;
-			}
-		}
 
 		// non-final rounds of stopwatch mode should say something different
 		CTeamRoundTimer *pTimer = NULL;
@@ -336,10 +328,7 @@ void CTFWinPanel::FireGameEvent( IGameEvent * event )
 			g_pVGuiLocalize->ConstructString_safe( wzWinReason, g_pVGuiLocalize->Find( "#Winreason_DefendedUntilTimeLimit" ), 1, pLocalizedTeamName );
 			break;
 		case WINREASON_STALEMATE:
-			if ( !TFGameRules() || !TFGameRules()->IsCompetitiveMode() )
-			{
-				g_pVGuiLocalize->ConstructString_safe( wzWinReason, g_pVGuiLocalize->Find( "#Winreason_Stalemate" ), 0 );
-			}
+			g_pVGuiLocalize->ConstructString_safe( wzWinReason, g_pVGuiLocalize->Find( "#Winreason_Stalemate" ), 0 );
 			break;	
 		case WINREASON_TIMELIMIT:
 			g_pVGuiLocalize->ConstructString_safe( wzWinReason, g_pVGuiLocalize->Find( "#Winreason_TimeLimit" ), 1, pLocalizedTeamName );
@@ -516,39 +505,6 @@ void CTFWinPanel::FireGameEvent( IGameEvent * event )
 				pPlayerAvatar->SetVisible( bShow );
 			}
 
-			CTFBadgePanel *pBadgePanel = dynamic_cast<CTFBadgePanel *>( FindChildByName( CFmtStr( "Player%dBadge", i ) ) );
-			if ( pBadgePanel )
-			{
-				const IMatchGroupDescription *pMatchDesc = TFGameRules() ? GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() ) : NULL;
-
-				bool bVisible = pMatchDesc && pMatchDesc->m_pProgressionDesc;
-				if ( bVisible )
-				{
-					if ( !bGameOver && TFGameRules()->IsMatchTypeCompetitive() )
-					{
-						bVisible = false;
-					}
-				}
-
-				if ( bVisible )
-				{
-					const CSteamID steamID = GetSteamIDForPlayerIndex( iPlayerIndex );
-					if ( steamID.IsValid() )
-					{
-						pBadgePanel->SetupBadge( pMatchDesc, steamID );
-					}
-					else
-					{
-						bVisible = false;
-					}
-				}
-
-				if ( pBadgePanel->IsVisible() != bVisible )
-				{
-					pBadgePanel->SetVisible( bVisible );
-				}
-			}
-
 			vgui::Label *pPlayerName = dynamic_cast<Label *>( FindChildByName( CFmtStr( "Player%dName", i ) ) );
 			vgui::Label *pPlayerClass = dynamic_cast<Label *>( FindChildByName( CFmtStr( "Player%dClass", i ) ) );
 			vgui::Label *pPlayerScore = dynamic_cast<Label *>( FindChildByName( CFmtStr( "Player%dScore", i ) ) );
@@ -624,31 +580,6 @@ void CTFWinPanel::FireGameEvent( IGameEvent * event )
 				pKillStreakPlayerName->SetText( g_PR->GetPlayerName( iPlayerIndex ) );
 				pKillStreakPlayerClass->SetText( g_aPlayerClassNames[g_TF_PR->GetPlayerClass( iPlayerIndex )] );
 				pKillStreakPlayerScore->SetText( CFmtStr( "%d", iCount ) );
-			}
-
-			CTFBadgePanel *pBadgePanel = dynamic_cast<CTFBadgePanel *>( FindChildByName( CFmtStr( "KillStreakPlayer%dBadge", i ) ) );
-			if ( pBadgePanel )
-			{
-				const IMatchGroupDescription *pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-
-				bool bVisible = ( bShow && pMatchDesc );
-				if ( bVisible )
-				{
-					const CSteamID steamID = GetSteamIDForPlayerIndex( iPlayerIndex );
-					if ( steamID.IsValid() )
-					{
-						pBadgePanel->SetupBadge( pMatchDesc, steamID );
-					}
-					else
-					{
-						bVisible = false;
-					}
-				}
-
-				if ( pBadgePanel->IsVisible() != bVisible )
-				{
-					pBadgePanel->SetVisible( bVisible );
-				}
 			}
 
 			// show or hide labels for this player position

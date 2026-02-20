@@ -343,8 +343,6 @@ CTFWeaponBase::CTFWeaponBase()
 	ClearKillComboCount();
 
 	m_flLastPrimaryAttackTime = 0.f;
-	m_eStrangeType = STRANGE_UNKNOWN;
-	m_eStatTrakModuleType = MODULE_UNKNOWN;
 
 	m_flInspectAnimEndTime = -1.f;
 	m_nInspectStage = INSPECT_INVALID;
@@ -352,10 +350,6 @@ CTFWeaponBase::CTFWeaponBase()
 
 CTFWeaponBase::~CTFWeaponBase()
 {
-#ifdef CLIENT_DLL
-	RemoveWorldmodelStatTrak();
-	RemoveViewmodelStatTrak();
-#endif
 }
 
 // -----------------------------------------------------------------------------
@@ -1053,17 +1047,6 @@ void CTFWeaponBase::UpdateExtraWearablesVisibility()
 	if ( m_hExtraWearableViewModel.Get() )
 	{
 		m_hExtraWearableViewModel->UpdateVisibility();
-	}
-
-	if ( m_viewmodelStatTrakAddon.Get() )
-	{
-		m_viewmodelStatTrakAddon->UpdateVisibility();
-	}
-
-	if ( m_worldmodelStatTrakAddon.Get() )
-	{
-		m_worldmodelStatTrakAddon->UpdateVisibility();
-		m_worldmodelStatTrakAddon->CreateShadow();
 	}
 }
 #endif // GAME_DLL
@@ -3196,10 +3179,7 @@ bool CTFWeaponBase::ShouldDraw( void )
 			if ( pTFOwner->m_Shared.InCond( TF_COND_DISGUISED ) )
 			{
 				int iLocalPlayerTeam = pLocalPlayer->GetTeamNumber();
-				if ( pLocalPlayer->m_bIsCoaching && pLocalPlayer->m_hStudent )
-				{
-					iLocalPlayerTeam = pLocalPlayer->m_hStudent->GetTeamNumber();
-				}
+
 				// If we are disguised we may want to draw the disguise weapon.
 				if ( iLocalPlayerTeam != pOwner->GetTeamNumber() && (iLocalPlayerTeam != TEAM_SPECTATOR) )
 				{
@@ -5792,10 +5772,6 @@ bool CTFWeaponBase::AreRandomCritsEnabled( void )
 	{
 		if ( TFGameRules()->IsPowerupMode() )
 			return false;
-
-		const IMatchGroupDescription *pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-		if ( pMatchDesc )
-			return pMatchDesc->BUsesRandomCrits();
 	}
 
 	return tf_weapon_criticals.GetBool();
@@ -6013,8 +5989,6 @@ bool CTFWeaponBase::DeflectEntity( CBaseEntity *pTarget, CTFPlayer *pOwner, Vect
 	VectorAngles( vecDir, newAngles );
 	pTarget->SetAbsAngles( newAngles );
 
-	pOwner->AwardAchievement( ACHIEVEMENT_TF_PYRO_REFLECT_PROJECTILES );
-
 	CDisablePredictionFiltering disabler;
 	DispatchParticleEffect( "deflect_fx", PATTACH_ABSORIGIN_FOLLOW, pTarget );
 
@@ -6095,14 +6069,6 @@ void CTFWeaponBase::ApplyItemRegen( void )
 	}
 }
 
-
-kill_eater_event_t CTFWeaponBase::GetKillEaterKillEventType() const
-{
-	uint32 unEventType = kKillEaterEvent_PlayerKill;
-	CALL_ATTRIB_HOOK_INT( unEventType, kill_eater_kill_type );
-	return (kill_eater_event_t)unEventType;
-}
-
 #endif // GAME_DLL
 
 bool CTFWeaponBase::IsSilentKiller()
@@ -6153,101 +6119,6 @@ void CTFWeaponBase::UpdateWeaponBodyGroups( CTFPlayer* pPlayer, bool bHandleDepl
 		pWpn->UpdateBodygroups( pPlayer, 1 );
 	}
 }
-
-
-#ifdef CLIENT_DLL
-//-----------------------------------------------------------------------------
-// Purpose: Weapon Level Notification
-//-----------------------------------------------------------------------------
-class CTFKillEaterNotification : public CEconNotification
-{
-public:
-	CTFKillEaterNotification( const CSteamID& KillerID, const wchar_t *wszWeaponName, const wchar_t *wszLevelName )
-		: CEconNotification() 
-	{
-		SetLifetime( 20.0f );
-
-		SetSteamID( KillerID );
-
-		SetText( "#TF_HUD_Event_KillEater_Leveled" );
-
-		AddStringToken( "weapon_name", wszWeaponName );
-
-		AddStringToken( "rank_name", wszLevelName );
-
-		SetSoundFilename( "misc/happy_birthday.wav" );
-	}
-
-	virtual EType NotificationType() { return eType_Basic; }
-};
-
-//-----------------------------------------------------------------------------
-// Purpose: GC Msg handler to receive the server response that we've killed a player.
-//-----------------------------------------------------------------------------
-class CGCPlayerKilledResponse : public GCSDK::CGCClientJob
-{
-public:
-	CGCPlayerKilledResponse( GCSDK::CGCClient *pClient ) : GCSDK::CGCClientJob( pClient ) {}
-
-	virtual bool BYieldingRunGCJob( GCSDK::IMsgNetPacket *pNetPacket )
-	{
-		GCSDK::CProtoBufMsg<CMsgGCIncrementKillCountResponse> msg( pNetPacket );
-
-		if ( !steamapicontext || !steamapicontext->SteamFriends() || !steamapicontext->SteamUser() || !steamapicontext->SteamUtils() )
-			return true;
-
-		item_definition_index_t unItemDef = msg.Body().item_def();
-		const CEconItemDefinition* pItemDef = ItemSystem()->GetStaticDataForItemByDefIndex( unItemDef );
-		if ( !pItemDef )
-			return true;
-
-		const char *pszKillerName = InventoryManager()->PersonaName_Get( msg.Body().killer_account_id() );
-		if ( !pszKillerName )
-			return true;
-
-		wchar_t wszPlayerName[1024];
-		g_pVGuiLocalize->ConvertANSIToUnicode( pszKillerName, wszPlayerName, sizeof(wszPlayerName) );
-
-		wchar_t* wszWeaponName = g_pVGuiLocalize->Find( pItemDef->GetItemBaseName() );
-
-		uint32 unLevelBlock = msg.Body().level_type();
-		const char *pszLevelBlockName = GetItemSchema()->GetKillEaterScoreTypeLevelingDataName( unLevelBlock );
-		
-		const CItemLevelingDefinition *pLevelDef = GetItemSchema()->GetItemLevelForScore( pszLevelBlockName, msg.Body().num_kills() );
-		if ( !pLevelDef )
-			return true;
-
-		wchar_t* wszLevelName = g_pVGuiLocalize->Find( pLevelDef->GetNameLocalizationKey() );
-
-		// Kyle says: the notifications were annoying people so instead of doing a full
-		//			  flashy thing we display a HUD message for everyone except the guy whose
-		//			  weapon it is. Basically, *you* get the flashy notification that your
-		//			  weapon leveled up, but everyone else just gets the HUD text.
-		if ( steamapicontext->SteamUser()->GetSteamID().GetAccountID() == msg.Body().killer_account_id() )
-		{
-			NotificationQueue_Add( new CTFKillEaterNotification( CSteamID( msg.Body().killer_account_id(), GetUniverse(), k_EAccountTypeIndividual ), wszWeaponName, wszLevelName ) );
-		}
-
-		// Everyone gets the HUD notification text.
-		CBaseHudChat *pHUDChat = (CBaseHudChat *)GET_HUDELEMENT( CHudChat );
-		if ( pHUDChat )
-		{
-			wchar_t wszNotification[1024]=L"";
-			g_pVGuiLocalize->ConstructString_safe( wszNotification, 
-				g_pVGuiLocalize->Find( "#TF_HUD_Event_KillEater_Leveled_Chat" ), 
-				3, wszPlayerName, wszWeaponName, wszLevelName );
-
-			char szAnsi[1024];
-			g_pVGuiLocalize->ConvertUnicodeToANSI( wszNotification, szAnsi, sizeof(szAnsi) );
-
-			pHUDChat->Printf( CHAT_FILTER_NONE, "%s", szAnsi );
-		}
-
-		return true;
-	}
-};
-GC_REG_JOB( GCSDK::CGCClient, CGCPlayerKilledResponse, "CGCPlayerKilledResponse", k_EMsgGC_IncrementKillCountResponse, GCSDK::k_EServerTypeGCClient );
-#endif
 
 bool WeaponID_IsSniperRifle( int iWeaponID )
 {
@@ -6645,216 +6516,10 @@ bool CTFWeaponBase::IsHonorBound( void ) const
 	return iHonorbound != 0;
 }
 
-EWeaponStrangeType_t CTFWeaponBase::GetStrangeType()
-{
-	// verify stattrak module and add if necessary
-	if ( m_eStrangeType == STRANGE_UNKNOWN )
-	{
-		CEconItemView *pItem = GetAttributeContainer()->GetItem();
-		if ( !pItem )
-			return STRANGE_UNKNOWN;
-
-		int iStrangeType = -1;
-		for ( int i = 0; i < GetKillEaterAttrCount(); i++ )
-		{
-			if ( pItem->FindAttribute( GetKillEaterAttr_Score( i ) ) )
-			{
-				iStrangeType = i;
-				break;
-			}
-		}
-
-		m_eStrangeType = iStrangeType == -1 ? STRANGE_NOT_STRANGE : STRANGE_IS_STRANGE;
-	}
-
-	return m_eStrangeType;
-}
-
-bool CTFWeaponBase::BHasStatTrakModule()
-{
-	if ( m_eStatTrakModuleType == MODULE_UNKNOWN )
-	{
-		CEconItemView *pItem = GetAttributeContainer()->GetItem();
-		if ( !pItem )
-			return false;
-
-		EWeaponStrangeType_t eStrangeType = GetStrangeType();
-		if ( eStrangeType != STRANGE_IS_STRANGE)
-		{
-			m_eStatTrakModuleType = MODULE_NONE;
-			return false;
-		}
-
-		// Does it have a module
-		if ( GetStattrak( pItem ) )
-		{
-			m_eStatTrakModuleType = MODULE_FOUND;
-			return true;
-		}
-	}
-
-	if ( m_eStatTrakModuleType != MODULE_FOUND )
-		return false;
-
-	return true;
-
-}
 #ifdef CLIENT_DLL
 //-----------------------------------------------------------------------------
 void CTFWeaponBase::UpdateAllViewmodelAddons( void )
 {
-	C_TFPlayer *pPlayer = ToTFPlayer( GetOwner() );
-
-	// Remove any view model add ons if we're spectating.
-	if ( !pPlayer )
-	{
-		RemoveViewmodelStatTrak();
-		return;
-	}
-
-	// econ-related addons follow, so bail out if we can't get at the econitemview
-	CEconItemView *pItem = GetAttributeContainer()->GetItem();
-	if ( !pItem )
-	{
-		RemoveViewmodelStatTrak();
-		return;
-	}
-
-	if ( GetStrangeType() > -1 )
-	{
-		CSteamID HolderSteamID;
-		pPlayer->GetSteamID( &HolderSteamID );
-		AddStatTrakModel( pItem, m_eStrangeType, HolderSteamID.GetAccountID() );
-	}
-	else
-	{
-		RemoveViewmodelStatTrak();
-	}
-}
-
-// StatTrak Module Testing
-void CTFWeaponBase::AddStatTrakModel( CEconItemView *pItem, int nStatTrakType, AccountID_t holderAcctId )
-{
-	// Already has module, just early out
-	if ( m_viewmodelStatTrakAddon && m_viewmodelStatTrakAddon.Get() && m_viewmodelStatTrakAddon->GetMoveParent() )
-	{
-		return;
-	}
-
-	// Something is missing, remove and return
-	if ( !pItem )
-	{
-		RemoveViewmodelStatTrak();
-		RemoveWorldmodelStatTrak();
-		return;
-	}
-	
-	if ( GetStrangeType() != STRANGE_IS_STRANGE )
-	{
-		RemoveViewmodelStatTrak();
-		RemoveWorldmodelStatTrak();
-		return;
-	}
-
-	if ( !BHasStatTrakModule() )
-	{
-		RemoveViewmodelStatTrak();
-		RemoveWorldmodelStatTrak();
-		return;
-	}
-
-	// Get Module Data
-	CAttribute_String attrModule;
-	if ( !GetStattrak( pItem, &attrModule ) )
-	{
-		RemoveViewmodelStatTrak();
-		RemoveWorldmodelStatTrak();
-		return;
-	}
-
-	float flScale = 1.0f;
-	CALL_ATTRIB_HOOK_FLOAT( flScale, weapon_stattrak_module_scale );
-
-	// Skin
-	int nSkin = pItem->GetTeamNumber() - TF_TEAM_RED;
-	if ( pItem->GetAccountID() != holderAcctId )
-	{
-		nSkin += 2;	// sad skin
-	}
-
-	// View Model / third person
-	if ( GetViewmodelAttachment() )
-	{
-		// Already has a module, early out
-		if ( !( m_viewmodelStatTrakAddon && m_viewmodelStatTrakAddon.Get() && m_viewmodelStatTrakAddon->GetMoveParent() ) )
-		{
-			RemoveViewmodelStatTrak();
-		
-			CTFWeaponAttachmentModel *pStatTrakEnt = new class CTFWeaponAttachmentModel;
-			if ( pStatTrakEnt )
-			{
-				pStatTrakEnt->InitializeAsClientEntity( attrModule.value().c_str(), RENDER_GROUP_VIEW_MODEL_OPAQUE );
-				
-				pStatTrakEnt->Init( GetViewmodelAttachment(), this, true );
-				pStatTrakEnt->m_nSkin = nSkin;
-				m_viewmodelStatTrakAddon = pStatTrakEnt;
-				
-				if ( cl_flipviewmodels.GetBool() )
-				{
-					pStatTrakEnt->SetBodygroup( 1, 1 ); // use a special mirror-image stattrak module that appears correct for lefties
-					flScale *= -1.0f;					// flip scale
-				}
-
-				pStatTrakEnt->SetModelScale( flScale );
-				//RemoveEffects( EF_NODRAW );
-			}
-		}
-	}
-
-	// World Model
-	if ( !(m_worldmodelStatTrakAddon && m_worldmodelStatTrakAddon.Get() && m_worldmodelStatTrakAddon->GetMoveParent() ) )
-	{
-		RemoveWorldmodelStatTrak();
-
-		CTFWeaponAttachmentModel *pStatTrakEnt = new class CTFWeaponAttachmentModel;
-		if ( pStatTrakEnt )
-		{
-			pStatTrakEnt->InitializeAsClientEntity( attrModule.value().c_str(), RENDER_GROUP_OPAQUE_ENTITY );
-			pStatTrakEnt->SetModelScale( flScale );
-			pStatTrakEnt->Init( this, this, false );
-			pStatTrakEnt->m_nSkin = nSkin;
-			m_worldmodelStatTrakAddon = pStatTrakEnt;
-			
-			
-			//	//if ( !cl_flipviewmodels.GetBool() )
-			//	//{
-			//	//	pStatTrakEnt->SetBodygroup( 0, 1 ); // use a special mirror-image stattrak module that appears correct for lefties
-			//	//}
-
-			//RemoveEffects( EF_NODRAW );
-		}
-	}
-	
-}
-
-//-----------------------------------------------------------------------------
-void CTFWeaponBase::RemoveViewmodelStatTrak( void )
-{
-	if ( m_viewmodelStatTrakAddon.Get() )
-	{
-		m_viewmodelStatTrakAddon->Remove();
-		m_viewmodelStatTrakAddon = NULL;
-	}
-}
-
-//-----------------------------------------------------------------------------
-void CTFWeaponBase::RemoveWorldmodelStatTrak( void )
-{
-	if ( m_worldmodelStatTrakAddon )
-	{
-		m_worldmodelStatTrakAddon->Remove();
-		m_worldmodelStatTrakAddon = NULL;
-	}
 }
 
 //-----------------------------------------------------------------------------

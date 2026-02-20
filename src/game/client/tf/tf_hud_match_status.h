@@ -15,7 +15,6 @@
 #include "hudelement.h"
 #include "basemodelpanel.h"
 #include "tf_teamstatus.h"
-#include "tf_matchmaking_shared.h"
 
 using namespace vgui;
 
@@ -63,6 +62,7 @@ private:
 	ImageVector m_vecBlueWinIndicators;
 
 	bool m_bCountDirty;
+	bool m_bScoreReset; //Reset the scores next time we invalidate the layout
 
 	CPanelAnimationVarAliasType( int, m_nStartingWidth, "starting_width", "10", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_nWidthPerRound, "width_per_round", "10", "proportional_int" );
@@ -94,8 +94,6 @@ public:
 
 private:
 
-	void ShowMatchStartDoors();
-	void ShowRoundSign( int nRoundNumber );
 	void InitPlayerList( SectionedListPanel *pPlayerList, int nTeam );
 	void UpdatePlayerList();
 	void UpdatePlayerAvatar( int playerIndex, KeyValues *kv );
@@ -104,10 +102,7 @@ private:
 
 	CRoundCounterPanel	*m_pRoundCounter;
 	class CTFHudTimeStatus	*m_pTimePanel;
-	CModelPanel			*m_pRoundSignModel;
 	CTFTeamStatus		*m_pTeamStatus;
-	CModelPanel			*m_pMatchStartModelPanel;
-	ETFMatchGroup			m_eMatchGroupSettings;
 
 	vgui::EditablePanel			*m_pBlueTeamPanel;
 	vgui::SectionedListPanel	*m_pPlayerListBlue;

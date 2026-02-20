@@ -12,13 +12,9 @@
 
 CLocalSteamSharedObjectListener::CLocalSteamSharedObjectListener()
 {
-	// Delayed add in case something derives from us and isn't fully constructed yet
-	// so their SOCreated functions are setup in the VTable yet.
-	GTFGCClientSystem()->AddLocalPlayerSOListener( this, false );
 }
 
 
 CLocalSteamSharedObjectListener::~CLocalSteamSharedObjectListener()
 {
-	GTFGCClientSystem()->RemoveLocalPlayerSOListener( this );
 }

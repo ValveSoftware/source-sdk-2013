@@ -14,7 +14,6 @@
 #include "vgui_controls/TextImage.h"
 #include "vgui_controls/PropertyPage.h"
 #include "econ_item_system.h"
-#include "econ_item_tools.h"
 #include "iachievementmgr.h"
 #include "econ_item_description.h"
 
@@ -962,8 +961,6 @@ void CExRichText::OnTick()
 //-----------------------------------------------------------------------------
 CEconItemDetailsRichText::CEconItemDetailsRichText( vgui::Panel *parent, const char *panelName )
 :	BaseClass( parent, panelName ),
-	m_bAllowItemSetLinks( false ),
-	m_bLimitedItem( false ),
 	m_hLinkFont( INVALID_FONT )
 {
 }
@@ -976,11 +973,9 @@ void CEconItemDetailsRichText::ApplySettings( KeyValues *inResourceData )
 	BaseClass::ApplySettings( inResourceData );
 
 	const char *pszHighlightColor = inResourceData->GetString( "highlight_color", "Orange" );
-	const char *pszItemSetColor = inResourceData->GetString( "itemset_color", "Blue" );
 	const char *pszLinkColor = inResourceData->GetString( "link_color", "LightOrange" );
 	IScheme *pScheme = scheme()->GetIScheme( GetScheme() );
 	m_colTextHighlight = pScheme->GetColor( pszHighlightColor, Color( 255, 255, 255, 255 ) );
-	m_colItemSet = pScheme->GetColor( pszItemSetColor, Color( 255, 255, 255, 255 ) );
 	m_colLink = pScheme->GetColor( pszLinkColor, Color( 255, 255, 255, 255 ) );
 	m_hLinkFont = pScheme->GetFont( "Link", true );
 }
@@ -1002,16 +997,7 @@ void CEconItemDetailsRichText::UpdateDetailsForItem( const CEconItemDefinition *
 {
 	SetText( "" );
 
-	if ( !m_ToolList.Count() )
-	{
-		UpdateToolList();
-	}
-
-	DataText_AppendStoreFlags( pDef );
-	DataText_AppendItemData( pDef );
-	DataText_AppendAttributeData( pDef );
 	DataText_AppendUsageData( pDef );
-	DataText_AppendToolUsage( pDef );
 }
 
 //-----------------------------------------------------------------------------
@@ -1048,7 +1034,6 @@ void CEconItemDetailsRichText::AddDataText( const char *pszText, bool bAddPostLi
 		{
 			STATE_COLOR_NORMAL = 1,
 			STATE_COLOR_HINT,
-			STATE_COLOR_ITEMSET,
 			STATE_LINK_START,
 			STATE_LINK_STOP,
 		};
@@ -1077,10 +1062,6 @@ void CEconItemDetailsRichText::AddDataText( const char *pszText, bool bAddPostLi
 				break;
 			case STATE_COLOR_HINT:
 				newColor = m_colTextHighlight;
-				bSetText = true;
-				break;
-			case STATE_COLOR_ITEMSET:
-				newColor = m_colItemSet;
 				bSetText = true;
 				break;
 			case STATE_LINK_START:
@@ -1141,15 +1122,7 @@ void CEconItemDetailsRichText::DataText_AppendUsageData( const CEconItemDefiniti
 	// Class usage
 	if ( pDef->CanBeUsedByAllClasses() )
 	{
-		if ( pDef->GetBundleInfo() != NULL )
-		{
-			AddDataText( "#TF_Armory_Item_ClassUsageAllBundle", false );
-		}
-		else
-		{
-			AddDataText( "#TF_Armory_Item_ClassUsageAll", false );
-		}
-		AddDataText( "\n" );
+		AddDataText( "#TF_Armory_Item_ClassUsageAll\n", false );
 	}
 	else
 	{
@@ -1161,15 +1134,7 @@ void CEconItemDetailsRichText::DataText_AppendUsageData( const CEconItemDefiniti
 				if ( bFirst )
 				{
 					bFirst = false;
-
-					if ( pDef->GetBundleInfo() != NULL )
-					{
-						AddDataText( "#TF_Armory_Item_ClassUsageBundle", false );
-					}
-					else
-					{
-						AddDataText( "#TF_Armory_Item_ClassUsage", false );
-					}
+					AddDataText( "#TF_Armory_Item_ClassUsage", false );
 				}
 				else
 				{
@@ -1241,352 +1206,6 @@ void CEconItemDetailsRichText::DataText_AppendUsageData( const CEconItemDefiniti
 		}
 	}
 #endif // #if defined(TF_DLL) || defined(TF_CLIENT_DLL)
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDetailsRichText::DataText_AppendToolUsage( const CEconItemDefinition *pDef )
-{
-	// Loop through the tools, and list any that can be applied to this item
-	bool bFirstTool = true;
-	for ( int i = 0; i < m_ToolList.Count(); i++ )
-	{
-		const GameItemDefinition_t *pToolDef = dynamic_cast<const GameItemDefinition_t *>( GetItemSchema()->GetItemDefinition( m_ToolList[i] ) );
-
-		if ( !CEconSharedToolSupport::ToolCanApplyToDefinition( pToolDef, dynamic_cast<const GameItemDefinition_t *>( pDef ) ) )
-			continue;
-
-		if ( bFirstTool )
-		{
-			bFirstTool = false;
-			AddDataText( "#TF_Armory_Item_ToolUsage", false );
-		}
-		else
-		{
-			AddDataText( ", " );
-		}
-
-		// Create a link to the item
-		{
-			// we need an econ item view here for just the item name
-			CEconItemView tmpTool;
-			tmpTool.Init( m_ToolList[i], AE_USE_SCRIPT_VALUE, AE_USE_SCRIPT_VALUE, true );
-
-			InsertItemLink( tmpTool.GetItemName(), pToolDef->GetDefinitionIndex() );
-		}
-	}
-	if ( !bFirstTool )
-	{
-		AddDataText( ".\n" );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDetailsRichText::DataText_AppendStoreFlags( const CEconItemDefinition *pDef )
-{
-	if ( !ItemSystem() || !ItemSystem()->GetItemSchema() )
-		return;
-
-	const bool bHolidayRestriction = pDef->GetHolidayRestriction() != NULL && V_strlen( pDef->GetHolidayRestriction() ) > 0;
-	if ( bHolidayRestriction )
-	{
-		wchar_t *pRestrictedText = g_pVGuiLocalize->Find( "#Store_HolidayRestrictionText" );
-
-		if ( pRestrictedText )
-		{
-			InsertColorChange( Color( 200, 80, 60, 255 ) );
-			InsertString( pRestrictedText );
-			InsertString( L".\n\n" );
-		}
-	}
-
-	if ( m_bLimitedItem )
-	{
-		wchar_t *pLocText = bHolidayRestriction
-						  ? g_pVGuiLocalize->Find( "#TF_Armory_Item_Limited_Holiday" )
-						  : g_pVGuiLocalize->Find( "#TF_Armory_Item_Limited" );
-		
-		if ( pLocText )
-		{
-			InsertColorChange( Color( 255, 140, 0, 255 ) );
-			InsertString ( pLocText );
-			InsertString( L"\n\n" );
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDetailsRichText::DataText_AppendItemData( const CEconItemDefinition *pDef )
-{
-	if ( !GetItemSchema() )
-		return;
-
-	// Start by looking for a specified armory desc string
-	const char *pDesc = pDef->GetArmoryDescString();
-	if ( pDesc && pDesc[0] )
-	{
-		const ArmoryStringDict_t &ArmoryItemData = ItemSystem()->GetItemSchema()->GetArmoryDataItems();
-
-		// Tokenize it, and look for localization strings for each token
-		CUtlVector< char * > vecArmoryKeys;
-		Q_SplitString( pDesc, " ", vecArmoryKeys );
-		FOR_EACH_VEC( vecArmoryKeys, i )
-		{
-			int iIdx = ArmoryItemData.Find( vecArmoryKeys[i] );
-			if ( ArmoryItemData.IsValidIndex( iIdx ) )
-			{
-				const char *pLoc = ArmoryItemData.Element( iIdx ).Get();
-				AddDataText( pLoc );
-			}
-		}
-		vecArmoryKeys.PurgeAndDeleteElements();
-	}
-
-	// Is this item part of a set?
-	if ( pDef->GetItemSetDefinition() )
-	{
-		DataText_AppendSetData( pDef );
-	}
-
-	if ( pDef->GetBundleInfo() != NULL )
-	{
-		DataText_AppendBundleData( pDef );
-	}
-
-	// Does this item type have data associated with it?
-	const ArmoryStringDict_t &ArmoryItemTypeData = GetItemSchema()->GetArmoryDataItemTypes();
-	int iIdx = ArmoryItemTypeData.Find( pDef->GetItemTypeName() );
-	if ( ArmoryItemTypeData.IsValidIndex( iIdx ) )
-	{
-		const char *pLoc = ArmoryItemTypeData.Element( iIdx ).Get();
-		AddDataText( pLoc );
-	}
-
-	// Does this item class have data associated with it?
-	const ArmoryStringDict_t &ArmoryItemClassData = GetItemSchema()->GetArmoryDataItemClasses();
-	iIdx = pDef->GetItemClass() ? ArmoryItemClassData.Find( pDef->GetItemClass() ) : ArmoryItemClassData.InvalidIndex();
-	if ( ArmoryItemClassData.IsValidIndex( iIdx ) )
-	{
-		if ( !pDef->GetDefinitionKey( "hack_disable_armory_type_desc" ) )
-		{
-			const char *pLoc = ArmoryItemClassData.Element( iIdx ).Get();
-			AddDataText( pLoc );
-		}
-	}
-
-	// Can this item be earned by an achievement?
-	const AchievementAward_t *pAchievementAward = GetItemSchema()->GetAchievementRewardByDefIndex( pDef->GetDefinitionIndex() );
-	if( pAchievementAward )
-	{
-		wchar_t *pszAchName = ACHIEVEMENT_LOCALIZED_NAME_FROM_STR( pAchievementAward->m_sNativeName.String() );
-		if ( pszAchName )
-		{
-			AddDataText( "#TF_Armory_Item_AchievementReward", true, pszAchName );
-		}
-	}
-
-	// Is this a Holiday item?
-	if ( pDef->GetHolidayRestriction() )
-	{
-		AddDataText( "#TF_Armory_Item_HolidayRestriction" );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDetailsRichText::DataText_AppendBundleData( const CEconItemDefinition *pDef )
-{
-	bool bFirstItem = true;
-
-	const bundleinfo_t *pBundleInfo = pDef->GetBundleInfo();
-	FOR_EACH_VEC( pBundleInfo->vecItemDefs, i )
-	{
-		CEconItemDefinition *pBundledItem = pBundleInfo->vecItemDefs[i];
-		if ( pBundledItem )
-		{
-			if ( bFirstItem )
-			{
-				bFirstItem = false;
-				AddDataText( "#TF_Armory_Item_Bundle", false );
-			}
-			else
-			{
-				AddDataText( ", " );
-			}
-
-			CEconItemView bundleItemData;
-			bundleItemData.Init( pBundledItem->GetDefinitionIndex(), AE_UNIQUE, AE_USE_SCRIPT_VALUE, true );
-
-			InsertItemLink( bundleItemData.GetItemName(), bundleItemData.GetItemDefIndex() );
-		}
-	}
-
-	if ( !bFirstItem )
-	{
-		AddDataText( ".\n\n" );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDetailsRichText::DataText_AppendAttributeData( const CEconItemDefinition *pDef )
-{
-	if ( !ItemSystem() || !ItemSystem()->GetItemSchema() )
-		return;
-
-	const ArmoryStringDict_t &ArmoryAttribData = ItemSystem()->GetItemSchema()->GetArmoryDataAttributes();
-
-	CVarBitVec m_AttribsShown;
-	m_AttribsShown.Resize( ArmoryAttribData.Count() );
-	m_AttribsShown.ClearAll();
-
-	const CUtlVector<static_attrib_t> &vecStaticAttribs = pDef->GetStaticAttributes();
-	FOR_EACH_VEC( vecStaticAttribs, i )
-	{
-		const static_attrib_t &attrib = vecStaticAttribs[i];
-		CEconItemAttributeDefinition *pAttributeDef = ItemSystem()->GetStaticDataForAttributeByDefIndex( attrib.iDefIndex );
-		if ( !pAttributeDef )
-			continue;
-		if ( pAttributeDef->IsHidden() )
-			continue;
-
-		const char *pDesc = pAttributeDef->GetArmoryDescString();
-		if ( !pDesc || !pDesc[0] )
-			continue;
-
-		// Tokenize it, and look for localization strings for each token
-		CUtlVector< char * > vecArmoryKeys;
-		Q_SplitString( pDesc, " ", vecArmoryKeys );
-		FOR_EACH_VEC( vecArmoryKeys, iKey )
-		{
-			int iIdx = ArmoryAttribData.Find( vecArmoryKeys[iKey] );
-			if ( ArmoryAttribData.IsValidIndex( iIdx ) )
-			{
-				if ( m_AttribsShown[iIdx] == false )
-				{
-					const char *pLoc = ArmoryAttribData.Element( iIdx ).Get();
-					AddDataText( pLoc );
-
-					m_AttribsShown.Set( iIdx );
-				}
-			}
-		}
-
-		vecArmoryKeys.PurgeAndDeleteElements();
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDetailsRichText::DataText_AppendSetData( const CEconItemDefinition *pDef )
-{
-	if ( !ItemSystem() || !ItemSystem()->GetItemSchema() )
-		return;
-
-	CEconItemSchema *pSchema = ItemSystem()->GetItemSchema();
-	if ( pSchema )
-	{
-		const CEconItemSetDefinition *pItemSet = pDef->GetItemSetDefinition();
-		if ( pItemSet )
-		{
-			// Does this set provide bonus attributes when completely worn?
-			if ( pItemSet->m_iAttributes.Count() > 0 )
-			{
-				// Used for grabbing display colors.
-				vgui::HScheme hScheme = vgui::scheme()->GetScheme( "ClientScheme" );
-				vgui::IScheme *pScheme = vgui::scheme()->GetIScheme( hScheme );
-
-				Assert( pScheme );
-
-				// Insert the set description
-				wchar_t *pLocText = g_pVGuiLocalize->Find( pItemSet->m_pszLocalizedName );
-				AddDataText( "#TF_Armory_Item_InSet", false, pLocText, NULL, m_bAllowItemSetLinks ? &pItemSet->m_iBundleItemDef : NULL );
-
-				for ( int i = 0;  i < pItemSet->m_iAttributes.Count(); i++ )
-				{
-					const CEconItemAttributeDefinition *pAttrDef = GetItemSchema()->GetAttributeDefinition( pItemSet->m_iAttributes[i].m_iAttribDefIndex );
-					if ( !pAttrDef )
-						continue;
-
-					CEconAttributeDescription AttrDesc( GLocalizationProvider(), pAttrDef, pItemSet->m_iAttributes[i].m_flValue );
-					if ( !AttrDesc.GetDescription().IsEmpty() )
-					{
-						InsertColorChange( pScheme->GetColor( GetColorNameForAttribColor( AttrDesc.GetDefaultColor() ), Color(255, 255, 255, 255) ) );
-						AddDataText( "      " );
-						InsertString( AttrDesc.GetDescription().Get() );
-						AddDataText( "\n" );
-					}
-				}
-
-				AddDataText( "\n" );
-			}
-			// This set is visual and provides no additional bonuses when worn completely.
-			else
-			{
-				// Insert the set description
-				wchar_t *pLocText = g_pVGuiLocalize->Find( pItemSet->m_pszLocalizedName );
-				AddDataText( "#TF_Armory_Item_InSet_NoBonus", false, pLocText, NULL, m_bAllowItemSetLinks ? &pItemSet->m_iBundleItemDef : NULL );
-			}
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CEconItemDetailsRichText::UpdateToolList( void )
-{
-	m_ToolList.Purge();
-
-	// Find all the tool types in our items list
-	const CEconItemSchema::ToolsItemDefinitionMap_t &mapItemDefs = ItemSystem()->GetItemSchema()->GetToolsItemDefinitionMap();
-	FOR_EACH_MAP( mapItemDefs, i )
-	{
-		const CEconItemDefinition *pDef = mapItemDefs[i];
-		if ( !pDef->GetItemClass() )
-			continue;
-
-		if ( !pDef->IsTool() )
-			continue;
-
-		const IEconTool *pEconTool = pDef->GetEconTool();
-		if ( !pEconTool )
-			continue;
-
-		if ( !pEconTool->ShouldDisplayAsUseableOnItemsInArmory() )
-			continue;
-
-		// Now make sure it doesn't have the same type as an existing tool
-		bool bAlreadyFound = false;
-		
-		FOR_EACH_VEC( m_ToolList, tool )
-		{
-			CEconItemDefinition *pOtherDef = ItemSystem()->GetStaticDataForItemByDefIndex( m_ToolList[tool] );
-			Assert( pOtherDef );
-				
-			const IEconTool *pOtherEconTool = pOtherDef->GetEconTool();
-			Assert( pOtherEconTool );
-				
-			bAlreadyFound = !V_strcmp( pEconTool->GetTypeName(), pOtherEconTool->GetTypeName() );
-			if ( bAlreadyFound )
-			{
-				break;
-			}
-		}
-		
-		if ( !bAlreadyFound )
-		{
-			m_ToolList.AddToTail( pDef->GetDefinitionIndex() );
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------

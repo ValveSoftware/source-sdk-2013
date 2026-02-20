@@ -261,8 +261,7 @@ void CEconEntity::DebugDescribe( void )
 	Msg("============================================\n");
 	char tempstr[1024];
 // FIXME:	ILocalize::ConvertUnicodeToANSI( pScriptItem->GetItemName(), tempstr, sizeof(tempstr) );
-	const char *pszQualityString = EconQuality_GetQualityString( (EEconItemQuality)pScriptItem->GetItemQuality() );
-	Msg("%s \"%s\" (level %d)\n", pszQualityString ? pszQualityString : "[unknown]", tempstr, pScriptItem->GetItemLevel() );
+	Msg("[unknown] \"%s\"\n", tempstr );
 	// FIXME: ILocalize::ConvertUnicodeToANSI( pScriptItem->GetAttributeDescription(), tempstr, sizeof(tempstr) );
 	Msg("%s", tempstr );
 	Msg("\n============================================\n");
@@ -1042,13 +1041,10 @@ void CEconEntity::OnDataChanged( DataUpdateType_t updateType )
 		}
 #endif
 
-		// if we have paintkit material override, stomp all material override
-		const char *pszPaintKitMaterialOverride = GetPaintKitMaterialOverride( pItem );
-
 		// Find & cache for easy leaf code usage
 		for ( int team = 0; team < TEAM_VISUAL_SECTIONS; team++ )
 		{
-			const char *pszMaterial = pszPaintKitMaterialOverride ? pszPaintKitMaterialOverride : pItem->GetStaticData()->GetMaterialOverride( team );
+			const char *pszMaterial = pItem->GetStaticData()->GetMaterialOverride( team );
 			if ( pszMaterial )
 			{
 				m_MaterialOverrides[team].Init( pszMaterial, TEXTURE_GROUP_CLIENT_EFFECTS );
@@ -1431,14 +1427,6 @@ void CEconEntity::GetEconParticleSystems( CUtlVector<const attachedparticlesyste
 		for ( int i = 0; i < iStaticParticleCount; i++ )
 		{
 			out_pvecParticleSystems->AddToTail( pItemDef->GetAttachedParticleData( GetTeamNumber(), i ) );
-		}
-
-		// Do we have a particle effect that goes along with our specific quality? Self-made
-		// and community items have a sparkle, for example.
-		const int iQualityParticleType = pEconItemView->GetQualityParticleType();
-		if ( iQualityParticleType > 0 )
-		{
-			out_pvecParticleSystems->AddToTail( GetItemSchema()->GetAttributeControlledParticleSystem( iQualityParticleType ) );
 		}
 	}
 

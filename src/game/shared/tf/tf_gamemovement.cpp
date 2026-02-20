@@ -611,18 +611,6 @@ bool CTFGameMovement::StunMove()
 		return true;
 	}
 
-	// No one can move when in a final countdown transition or with the ConTracker open.
-	// Do this here to avoid the inevitable hack that prevents players 
-	// from receiving a flag or condition by stalling thinks, etc.
-	if ( m_pTFPlayer->IsViewingCYOAPDA() || ( TFGameRules() && TFGameRules()->BInMatchStartCountdown() ) )
-	{
-		mv->m_flForwardMove = 0.f;
-		mv->m_flSideMove = 0.f;
-		mv->m_flUpMove = 0.f;
-		mv->m_nButtons = 0;
-		m_pTFPlayer->m_nButtons = mv->m_nButtons;
-	}
-
 	return false;
 }
 
@@ -3456,7 +3444,7 @@ void CTFGameMovement::Duck( void )
 	//
 	// If the player is still alive and not an observer, check to make sure that
 	// his view height is at the standing height.
-	else if ( bFirstTimePredicted && !IsDead() && !player->IsObserver() && !player->IsInAVehicle() && !( TFGameRules() && TFGameRules()->ShowMatchSummary() ) )
+	else if ( bFirstTimePredicted && !IsDead() && !player->IsObserver() && !player->IsInAVehicle() )
 	{
 		float flOffsetDelta = player->GetViewOffset().z - GetPlayerViewOffset( false ).z;
 		if ( ( fabs( flOffsetDelta ) > 0.1 ) )

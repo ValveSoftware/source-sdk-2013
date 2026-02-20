@@ -36,6 +36,8 @@
 
 #endif
 
+extern ConVar sv_suppress_viewpunch;
+
 //=============================================================================
 //
 // TFWeaponBase Gun tables.
@@ -470,20 +472,23 @@ int CTFWeaponBaseGun::GetAmmoPerShot( void )
 	}
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CTFWeaponBaseGun::UpdatePunchAngles( CTFPlayer *pPlayer )
 {
-	// Update the player's punch angle.
-	QAngle angle = pPlayer->GetPunchAngle();
-	float flPunchAngle = m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flPunchAngle;
+    // Check if view punch is suppressed
+    if ( sv_suppress_viewpunch.GetBool() )
+    {
+        return;
+    }
 
-	if ( flPunchAngle > 0 )
-	{
-		angle.x -= SharedRandomInt( "ShotgunPunchAngle", ( flPunchAngle - 1 ), ( flPunchAngle + 1 ) );
-		pPlayer->SetPunchAngle( angle );
-	}
+    // Update the player's punch angle.
+    QAngle angle = pPlayer->GetPunchAngle();
+    float flPunchAngle = m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flPunchAngle;
+
+    if ( flPunchAngle > 0 )
+    {
+        angle.x -= SharedRandomInt( "ShotgunPunchAngle", ( flPunchAngle - 1 ), ( flPunchAngle + 1 ) );
+        pPlayer->SetPunchAngle( angle );
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1014,8 +1019,7 @@ bool CTFWeaponBaseGun::Holster( CBaseCombatWeapon *pSwitchingTo )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose:
-// NOTE: Should this be put into fire gun
+// Purpose: NOTE: Should this be put into fire gun
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseGun::DoFireEffects()
 {

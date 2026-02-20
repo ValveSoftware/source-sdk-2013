@@ -1103,15 +1103,6 @@ void CTFSniperRifle::Detach( void )
 void CTFSniperRifle::OnPlayerKill( CTFPlayer *pVictim, const CTakeDamageInfo &info )
 {
 	BaseClass::OnPlayerKill( pVictim, info );
-
-	if ( m_iConsecutiveKills == 3 )
-	{
-		CTFPlayer *pPlayer = ToTFPlayer( GetOwnerEntity() );
-		if ( pPlayer )
-		{
-			pPlayer->AwardAchievement( ACHIEVEMENT_TF_SNIPER_RIFLE_NO_MISSING );
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1120,13 +1111,6 @@ void CTFSniperRifle::OnPlayerKill( CTFPlayer *pVictim, const CTakeDamageInfo &in
 void CTFSniperRifle::OnBulletFire( int iEnemyPlayersHit )
 {
 	BaseClass::OnBulletFire( iEnemyPlayersHit );
-
-	// Did we completely miss?
-	CTFPlayer *pPlayer = ToTFPlayer( GetOwnerEntity() );
-	if( iEnemyPlayersHit == 0 && pPlayer && pPlayer->m_Shared.InCond( TF_COND_AIMING ) )
-	{
-		EconEntity_OnOwnerKillEaterEventNoPartner( assert_cast<CEconEntity *>( this ), pPlayer, kKillEaterEvent_NEGATIVE_SniperShotsMissed );
-	}
 }
 
 //-----------------------------------------------------------------------------

@@ -358,10 +358,6 @@ void CTFMinigun::SharedAttack()
 					 nAmmo != pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) ) // did PrimaryAttack() fire a shot? (checking our ammo to find out)
 				{
 					m_nShotsFired++;
-					if ( m_nShotsFired == 1000 ) // == and not >= so we don't keep awarding this every shot after it's achieved
-					{
-						g_AchievementMgrTF.OnAchievementEvent( ACHIEVEMENT_TF_HEAVY_FIRE_LOTS );
-					}
 					// NVNT the local player fired a shot. notify the haptics system.
 					if ( haptics )
 						haptics->ProcessHapticEvent(2,"Weapons","minigun_fire");

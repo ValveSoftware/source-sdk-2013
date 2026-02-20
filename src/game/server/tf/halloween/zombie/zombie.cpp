@@ -283,8 +283,6 @@ void CZombie::Event_Killed( const CTakeDamageInfo &info )
 		{
 			if (TFGameRules() && TFGameRules()->IsHalloweenScenario(CTFGameRules::HALLOWEEN_SCENARIO_HIGHTOWER))
 			{
-				pPlayerAttacker->AwardAchievement(ACHIEVEMENT_TF_HALLOWEEN_HELLTOWER_SKELETON_GRIND);
-
 				IGameEvent *pEvent = gameeventmanager->CreateEvent("halloween_skeleton_killed");
 				if (pEvent)
 				{

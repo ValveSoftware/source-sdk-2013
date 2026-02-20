@@ -13,3 +13,29 @@ event TeamStatus_PlayerDead
 event TeamStatus_PlayerAlive
 {
 }
+
+event HudMedicCharged
+{
+	Animate	ChargeLabel 	FgColor		"TanLight"		Linear 0.0 0.1
+	Animate	ChargeLabel 	FgColor		"TanDark"		Linear 0.3 0.4
+	
+	Animate	ChargeMeter 	FgColor		"128 128 128 255"		Linear 0.0 0.1
+	Animate	ChargeMeter 	FgColor		"PFGrey"		Linear 0.3 0.4
+
+	RunEvent HudMedicChargedLoop	0.6
+}
+
+// call to loop HudHealthBonusPulse
+event HudMedicChargedLoop
+{
+	RunEvent HudMedicCharged 0.0
+}
+
+event HudMedicChargedStop
+{
+	StopEvent HudMedicCharged 0.0
+	StopEvent HudMedicChargedLoop 0.0
+	
+	Animate	ChargeLabel 	FgColor		"PFGrey"		Linear 0.0 0.0001
+	Animate	ChargeMeter 	FgColor		"PFGrey"		Linear 0.0 0.0001
+}

@@ -8,7 +8,6 @@
 
 #include "tf_autobalance.h"
 #include "tf_gamerules.h"
-#include "tf_matchmaking_shared.h"
 #include "team.h"
 #include "minigames/tf_duel.h"
 #include "player_resource.h"
@@ -96,12 +95,6 @@ bool CTFAutobalance::ShouldBeActive() const
 	if ( mp_teams_unbalance_limit.GetInt() <= 0 )
 		return false;
 
-	const IMatchGroupDescription *pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-	if ( pMatchDesc )
-	{
-		return pMatchDesc->BUsesAutoBalance();
-	}
-
 	// outside of managed matches, we don't normally do any balancing for tournament mode
 	if ( TFGameRules()->IsInTournamentMode() )
 		return false;
@@ -130,46 +123,31 @@ bool CTFAutobalance::AreTeamsUnbalanced()
 	if ( !IsOkayToBalancePlayers() )
 		return false;
 
-	int nDiffBetweenTeams = 0;
 	m_iLightestTeam = m_iHeaviestTeam = TEAM_INVALID;
 	m_nNeeded = 0;
 
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetLiveMatch();
-	if ( pMatch )
+	int iMostPlayers = 0;
+	int iLeastPlayers = MAX_PLAYERS_ARRAY_SAFE;
+	int i = FIRST_GAME_TEAM;
+
+	for ( CTeam *pTeam = GetGlobalTeam( i ); pTeam != NULL; pTeam = GetGlobalTeam( ++i ) )
 	{
-		int nNumTeamRed = pMatch->GetNumActiveMatchPlayersForTeam( TFGameRules()->GetGCTeamForGameTeam( TF_TEAM_RED ) );
-		int nNumTeamBlue = pMatch->GetNumActiveMatchPlayersForTeam( TFGameRules()->GetGCTeamForGameTeam( TF_TEAM_BLUE ) );
+		int iNumPlayers = pTeam->GetNumPlayers();
 
-		m_iLightestTeam = ( nNumTeamRed > nNumTeamBlue ) ? TF_TEAM_BLUE : TF_TEAM_RED;
-		m_iHeaviestTeam = ( nNumTeamRed > nNumTeamBlue ) ? TF_TEAM_RED : TF_TEAM_BLUE;
-
-		nDiffBetweenTeams = abs( nNumTeamRed - nNumTeamBlue );
-	}
-	else
-	{
-		int iMostPlayers = 0;
-		int iLeastPlayers = MAX_PLAYERS_ARRAY_SAFE;
-		int i = FIRST_GAME_TEAM;
-
-		for ( CTeam *pTeam = GetGlobalTeam( i ); pTeam != NULL; pTeam = GetGlobalTeam( ++i ) )
+		if ( iNumPlayers < iLeastPlayers )
 		{
-			int iNumPlayers = pTeam->GetNumPlayers();
-
-			if ( iNumPlayers < iLeastPlayers )
-			{
-				iLeastPlayers = iNumPlayers;
-				m_iLightestTeam = i;
-			}
-
-			if ( iNumPlayers > iMostPlayers )
-			{
-				iMostPlayers = iNumPlayers;
-				m_iHeaviestTeam = i;
-			}
+			iLeastPlayers = iNumPlayers;
+			m_iLightestTeam = i;
 		}
 
-		nDiffBetweenTeams = ( iMostPlayers - iLeastPlayers );
+		if ( iNumPlayers > iMostPlayers )
+		{
+			iMostPlayers = iNumPlayers;
+			m_iHeaviestTeam = i;
+		}
 	}
+
+	int nDiffBetweenTeams = ( iMostPlayers - iLeastPlayers );
 
 	if ( nDiffBetweenTeams > mp_teams_unbalance_limit.GetInt() ) 
 	{
@@ -199,12 +177,6 @@ bool CTFAutobalance::IsAlreadyCandidate( CTFPlayer *pTFPlayer ) const
 //-----------------------------------------------------------------------------
 double CTFAutobalance::GetTeamAutoBalanceScore( int nTeam ) const
 {
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetLiveMatch();
-	if ( pMatch && TFGameRules() )
-	{
-		return pMatch->GetTotalSkillRatingForTeam( TFGameRules()->GetGCTeamForGameTeam( nTeam ) );
-	}
-
 	int nTotalScore = 0;
 	int nTeamScore = 0;
 	CTFPlayerResource *pTFPlayerResource = dynamic_cast<CTFPlayerResource *>( g_pPlayerResource );
@@ -237,22 +209,6 @@ double CTFAutobalance::GetPlayerAutoBalanceScore( CTFPlayer *pTFPlayer ) const
 {
 	if ( !pTFPlayer )
 		return 0.0;
-
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetLiveMatch();
-	if ( pMatch )
-	{
-		CSteamID steamID;
-		pTFPlayer->GetSteamID( &steamID );
-
-		if ( steamID.IsValid() )
-		{
-			const CMatchInfo::PlayerMatchData_t* pPlayerMatchData = pMatch->GetMatchDataForPlayer( steamID );
-			if ( pPlayerMatchData )
-			{
-				return pPlayerMatchData->flNormalizedMMSkillRating;
-			}
-		}
-	}
 
 	int nPlayerScore = 0;
 	int nTotalScore = 0;
@@ -400,23 +356,6 @@ bool CTFAutobalance::FindCandidates()
 //-----------------------------------------------------------------------------
 void CTFAutobalance::PlayerChangeTeam( CTFPlayer *pTFPlayer, bool bFullBonus )
 {
-	CMatchInfo *pMatch = GTFGCClientSystem()->GetLiveMatch();
-	if ( pMatch )
-	{
-		CSteamID steamID;
-		pTFPlayer->GetSteamID( &steamID );
-
-		// We're going to give the switching player a bonus pool of XP. This should encourage
-		// them to keep playing to earn what's in the pool, rather than just quit after getting
-		// a big payout
-		if ( !pMatch->BSentResult() )
-		{
-			pMatch->GiveXPBonus( steamID, CMsgTFXPSource_XPSourceType_SOURCE_AUTOBALANCE_BONUS, 1, bFullBonus ? tf_autobalance_xp_bonus.GetInt() : ( tf_autobalance_xp_bonus.GetInt() / 2 ) );
-		}
-
-		GTFGCClientSystem()->ChangeMatchPlayerTeam( steamID, TFGameRules()->GetGCTeamForGameTeam( m_iLightestTeam ) );
-	}
-
 	pTFPlayer->ChangeTeam( m_iLightestTeam, false, false, true );
 	pTFPlayer->ForceRespawn();
 	pTFPlayer->SetLastAutobalanceTime( gpGlobals->curtime );
@@ -436,7 +375,7 @@ void CTFAutobalance::PlayerChangeTeam( CTFPlayer *pTFPlayer, bool bFullBonus )
 
 	// let the player know what happened
 	const char *pszTeam = ( m_iLightestTeam == TF_TEAM_RED ) ? "#TF_RedTeam_Name" : "#TF_BlueTeam_Name";
-	ClientPrint( pTFPlayer, HUD_PRINTTALK, ( pMatch ? "#TF_Autobalance_TeamChangeDone_Match" : "#TF_Autobalance_TeamChangeDone" ), pszTeam, CFmtStr( "%d", ( int ) ( bFullBonus ? tf_autobalance_xp_bonus.GetInt() : ( tf_autobalance_xp_bonus.GetInt() / 2 ) ) ) );
+	ClientPrint( pTFPlayer, HUD_PRINTTALK, "#TF_Autobalance_TeamChangeDone", pszTeam, CFmtStr( "%d", ( int ) ( bFullBonus ? tf_autobalance_xp_bonus.GetInt() : ( tf_autobalance_xp_bonus.GetInt() / 2 ) ) ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -608,9 +547,6 @@ void CTFAutobalance::FrameUpdatePostEntityThink()
 //-----------------------------------------------------------------------------
 bool CTFAutobalance::IsOkayToBalancePlayers()
 {
-	if ( GTFGCClientSystem()->GetLiveMatch() && !GTFGCClientSystem()->CanChangeMatchPlayerTeams() ) 
-		return false;
-
 	return true;
 }
 

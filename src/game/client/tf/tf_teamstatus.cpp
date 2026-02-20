@@ -15,8 +15,6 @@
 #include "c_tf_playerresource.h"
 #include "tf_playerpanel.h"
 #include "tf_teamstatus.h"
-#include "tf_matchmaking_shared.h"
-#include "tf_match_description.h"
 #include "tf_hud_match_status.h"
 
 using namespace vgui;
@@ -528,12 +526,8 @@ bool CTFTeamStatus::ShouldDraw( void )
 
 	if ( TFGameRules() )
 	{
-		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
-		if ( ( pMatchDesc && !pMatchDesc->BUsesMatchHUD() ) || !ShouldUseMatchHUD() )
+		if ( !ShouldUseMatchHUD() )
 			return false;
-
-		if ( TFGameRules()->ShowMatchSummary() )
-			return false; 
 	}
 
 	return true;

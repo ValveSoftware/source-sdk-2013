@@ -11,7 +11,7 @@
 
 #include "replaybrowsermainpanel.h"
 #include "replaybrowserbasepage.h"
-#include "confirm_delete_dialog.h"
+#include "confirm_dialog.h"
 #include "vgui_controls/PropertySheet.h"
 #include "vgui_controls/TextImage.h"
 #include "vgui/IInput.h"
@@ -27,9 +27,9 @@
 //-----------------------------------------------------------------------------
 // Purpose: Replay deletion confirmation dialog
 //-----------------------------------------------------------------------------
-class CConfirmDeleteReplayDialog : public CConfirmDeleteDialog
+class CConfirmDeleteReplayDialog : public CConfirmDialog
 {
-	DECLARE_CLASS_SIMPLE( CConfirmDeleteReplayDialog, CConfirmDeleteDialog );
+	DECLARE_CLASS_SIMPLE( CConfirmDeleteReplayDialog, CConfirmDialog );
 public:
 	CConfirmDeleteReplayDialog( Panel *pParent, IReplayItemManager *pItemManager, int iPerformance )
 	:	BaseClass( pParent )

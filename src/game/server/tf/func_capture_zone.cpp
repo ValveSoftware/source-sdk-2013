@@ -683,24 +683,6 @@ void CFlagDetectionZone::FlagCaptured( CBasePlayer *pPlayer )
 					winningPlayers.AddToHead( hTemp );
 				}
 			}
-
-			// ACHIEVEMENT_TF_MAPS_DOOMSDAY_RIDE_THE_ELEVATOR
-			if ( winningPlayers.Count() >= 5 )
-			{
-				// loop through and award the achievement
-				for ( int i = 0 ; i < winningPlayers.Count() ; i++ )
-				{
-					EHANDLE hTemp = winningPlayers[i];
-					if ( hTemp )
-					{
-						CTFPlayer *pTFPlayer = ToTFPlayer( hTemp );
-						if ( pTFPlayer )
-						{
-							pTFPlayer->AwardAchievement( ACHIEVEMENT_TF_MAPS_DOOMSDAY_RIDE_THE_ELEVATOR );
-						}
-					}
-				}
-			}
  		}
 	}
 }

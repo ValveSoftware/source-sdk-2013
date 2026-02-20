@@ -97,26 +97,19 @@ public:
 	// Given a client state, match group loc token and pretty map name, build a localized status line.
 	// These are equivalent to 'state', 'matchgrouploc' and 'currentmap' rich presence keys from a player.
 	static bool BuildRichPresenceStatusDirect( wchar_t *pwzOutStatus, size_t uOutSizeBytes,
-	                                           const char *pszState,
-	                                           const char *pszMatchGroupLocToken, const char *pszPrettyMapName );
+	                                           const char *pszState, const char *pszPrettyMapName );
 	// Safe version
 	template < size_t maxLenInChars >
 	static inline bool BuildRichPresenceStatus( OUT_Z_ARRAY wchar_t (&pwzOutStatus)[maxLenInChars],
-	                                            const char *pszState,
-	                                            const char *pszMatchGroupLocToken, const char *pszPrettyMapName )
+	                                            const char *pszState, const char *pszPrettyMapName )
 	{
-		return BuildRichPresenceStatusDirect( pwzOutStatus, maxLenInChars, pszState,
-		                                      pszMatchGroupLocToken, pszPrettyMapName );
+		return BuildRichPresenceStatusDirect( pwzOutStatus, maxLenInChars, pszState, pszPrettyMapName );
 	}
 
 	virtual void OnDemoRecordStart( char const* pDemoBaseName ) OVERRIDE;
 	virtual void OnDemoRecordStop() OVERRIDE;
 
 	bool BIsFriendOrPartyMember( C_TFPlayer *pPlayer );
-
-private:
-	virtual bool BCanSendPartyChatMessages() const OVERRIDE;
-	//	void	UpdateSpectatorMode( void );
 
 private:
 	CHudMenuEngyBuild		*m_pMenuEngyBuild;
