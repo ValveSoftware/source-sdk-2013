@@ -442,7 +442,7 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 				{
 					// If our killer is using an item, display its stats.
 					CTFWeaponBase *pWeapon = pTFPlayerKiller ? pTFPlayerKiller->GetActiveTFWeapon() : NULL;
-
+					if ( pWeapon )
 					{
 						Label* pItemLabel = m_pItemPanel->FindControl<Label>( "ItemLabel" );
 						CEconItemView *pItemToShow = pWeapon->GetAttributeContainer()->GetItem();
