@@ -159,6 +159,8 @@ extern ConVar	sk_player_stomach;
 extern ConVar	sk_player_arm;
 extern ConVar	sk_player_leg;
 
+extern ConVar	sv_suppress_viewpunch;
+
 extern ConVar	tf_spy_invis_time;
 extern ConVar	tf_spy_invis_unstealth_time;
 extern ConVar	tf_stalematechangeclasstime;
@@ -3287,6 +3289,12 @@ void CTFPlayer::ApplyGenericPushbackImpulse( const Vector &vecImpulse, CTFPlayer
 //-----------------------------------------------------------------------------
 bool CTFPlayer::ApplyPunchImpulseX ( float flImpulse ) 
 {
+	// Check if view punch is suppressed
+	if ( sv_suppress_viewpunch.GetBool() )
+	{
+		return false;
+	}
+
 	// Check for No Aim Flinch
 	bool bFlinch = true;
 	if ( IsPlayerClass( TF_CLASS_SNIPER ) && m_Shared.InCond( TF_COND_AIMING ) )

@@ -36,6 +36,8 @@
 
 #endif
 
+extern ConVar sv_suppress_viewpunch;
+
 //=============================================================================
 //
 // TFWeaponBase Gun tables.
@@ -470,15 +472,10 @@ int CTFWeaponBaseGun::GetAmmoPerShot( void )
 	}
 }
 
-ConVar tf_viewpunch_disable("tf_viewpunch_disable", "1", FCVAR_REPLICATED, "Disable weapon recoils");
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CTFWeaponBaseGun::UpdatePunchAngles( CTFPlayer *pPlayer )
 {
-    // Check if view punch is disabled
-    if ( tf_viewpunch_disable.GetBool() )
+    // Check if view punch is suppressed
+    if ( sv_suppress_viewpunch.GetBool() )
     {
         return;
     }

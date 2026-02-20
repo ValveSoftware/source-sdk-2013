@@ -33,6 +33,8 @@
 
 extern IFileSystem *filesystem;
 
+extern ConVar sv_suppress_viewpunch;
+
 #ifndef CLIENT_DLL
 	#include "env_player_surface_trigger.h"
 	static ConVar dispcoll_drawplane( "dispcoll_drawplane", "0" );
@@ -3998,11 +4000,14 @@ void CGameMovement::PlayerRoughLandingEffects( float fvol )
 		//
 		// Knock the screen around a little bit, temporary effect.
 		//
-		player->m_Local.m_vecPunchAngle.Set( ROLL, player->m_Local.m_flFallVelocity * 0.013 );
-
-		if ( player->m_Local.m_vecPunchAngle[PITCH] > 8 )
+		if ( !sv_suppress_viewpunch.GetBool() )
 		{
-			player->m_Local.m_vecPunchAngle.Set( PITCH, 8 );
+			player->m_Local.m_vecPunchAngle.Set( ROLL, player->m_Local.m_flFallVelocity * 0.013 );
+
+			if ( player->m_Local.m_vecPunchAngle[PITCH] > 8 )
+			{
+				player->m_Local.m_vecPunchAngle.Set( PITCH, 8 );
+			}
 		}
 
 #if !defined( CLIENT_DLL )
