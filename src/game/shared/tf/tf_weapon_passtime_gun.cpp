@@ -66,11 +66,12 @@ PRECACHE_WEAPON_REGISTER( tf_weapon_passtime_gun );
 //-----------------------------------------------------------------------------
 namespace
 {
-	static char const * const kChargeSound = "Passtime.GunCharge";
+	static char const * const kChargeSound           = "Passtime.GunCharge";
 	static char const * const kTargetHightlightSound = "Passtime.TargetLock";
-	static char const * const kShootOkSound = "Passtime.Throw";
-	static char const * const kPassOkSound = "Passtime.Throw";
-	static char const * const kHalloweenBallModel = "models/passtime/ball/passtime_ball_halloween.mdl";
+	static char const * const kTargetUnlockSound     = "Passtime.TargetUnlock";
+	static char const * const kShootOkSound          = "Passtime.Throw";
+	static char const * const kPassOkSound           = "Passtime.Throw";
+	static char const * const kHalloweenBallModel    = "models/passtime/ball/passtime_ball_halloween.mdl";
 }
 
 //-----------------------------------------------------------------------------
@@ -127,6 +128,7 @@ void CPasstimeGun::Equip( CBaseCombatCharacter *pOwner )
 void CPasstimeGun::Precache()
 {
 	PrecacheScriptSound( kTargetHightlightSound );
+	PrecacheScriptSound( kTargetUnlockSound );
 	PrecacheScriptSound( kShootOkSound );
 	PrecacheScriptSound( kPassOkSound );
 	PrecacheScriptSound( kChargeSound );
@@ -452,18 +454,32 @@ void CPasstimeGun::ItemPostFrame()
 		}
 
 		//
-		// If the current target is behind me, forget it immediately
+		// Get current pass target
 		//
 		auto *pCurrentTarget = ToTFPlayer( pOwner->m_Shared.GetPasstimePassTarget() );
 		if ( pCurrentTarget )
 		{
-			Vector vLocalCurrentTarget( 0, 0, 0 ); // current target in local space
-			Vector3DMultiplyPosition( mWorldToView, pCurrentTarget->WorldSpaceCenter(), vLocalCurrentTarget );
-			if ( vLocalCurrentTarget.x < 0 ) // behind me
+			float flMaxAngle = p4ss_lock_max_turn_angle.GetFloat();
+			if ( flMaxAngle > 0.0f )
 			{
-				// clear the target
-				pOwner->m_Shared.SetPasstimePassTarget( 0 );
-				m_flTargetResetTime = 0;
+				Vector vecEyePos, vecEyeDir;
+				pOwner->EyePositionAndVectors( &vecEyePos, &vecEyeDir, nullptr, nullptr );
+				Vector vecToTarget = pCurrentTarget->WorldSpaceCenter() - vecEyePos;
+				vecToTarget.NormalizeInPlace();
+				float flDot = DotProduct( vecEyeDir, vecToTarget );
+				float flAngle = RAD2DEG( acosf( clamp( flDot, -1.0f, 1.0f ) ) );
+				
+				if ( flAngle > flMaxAngle )
+				{
+					// clear the target
+					pOwner->m_Shared.SetPasstimePassTarget( 0 );
+					m_flTargetResetTime = 0;
+					
+					// Play unlock sound
+					CRecipientFilter filter;
+					filter.AddRecipient( pOwner );
+					EmitSound( filter, pOwner->entindex(), kTargetUnlockSound );
+				}
 			}
 		}
 
