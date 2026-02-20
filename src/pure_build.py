@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import argparse, tempfile, subprocess, os, sys, shutil, platform
+import argparse, tempfile, subprocess, os, sys, shutil, platform, typing
 
 DEFAULT_ROOTDIR=".."
 DEFAULT_CONTENTDIR="./content"
@@ -13,14 +13,16 @@ def error(cause: str, code: int = 1):
 if not (SYSTEM == "Windows" or SYSTEM == "Linux"):
   error(f"System \"{SYSTEM}\" is not supported.")
 
-def dont_print(*args):
+def _dont_print(*_args: typing.Any) -> None:
   pass
-
+def _do_print(*args: typing.Any) -> None:
+  print("[build.py LOG]", *args)
+  
 def get_log_function(quiet: bool):
   if quiet:
-    return dont_print
+    return _dont_print
   else:
-    return lambda *args: print("[build.py LOG]", *args)
+    return _do_print
 
 
 
