@@ -5,8 +5,13 @@ DEFAULT_ROOTDIR=".."
 DEFAULT_CONTENTDIR="./content"
 
 SYSTEM = platform.system()
+
+def error(cause: str, code: int = 1):
+  print(cause, file=sys.stderr, flush=True)
+  exit(code)
+
 if not (SYSTEM == "Windows" or SYSTEM == "Linux"):
-  error(f"System \"{system}\" is not supported.")
+  error(f"System \"{SYSTEM}\" is not supported.")
 
 def dont_print(*args):
   pass
@@ -17,9 +22,7 @@ def get_log_function(quiet: bool):
   else:
     return lambda *args: print("[build.py LOG]", *args)
 
-def error(cause: str, code: int = 1):
-  print(cause, file=sys.stderr, flush=True)
-  exit(code)
+
 
 def linux_build(args: argparse.Namespace):
   log = get_log_function(args.should_log)
