@@ -15578,7 +15578,7 @@ void CTFGameRules::OnDataChanged( DataUpdateType_t updateType )
 void CTFGameRules::HandleOvertimeBegin()
 {
 	C_TFPlayer *pTFPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( pTFPlayer )
+	if ( pTFPlayer && !IsPasstimeMode() )
 	{
 		pTFPlayer->EmitSound( "Game.Overtime" );
 	}
