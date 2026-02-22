@@ -1,0 +1,51 @@
+name: Build - Windows
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Create all projects
+        working-directory: src
+        run: .\createallprojects.bat
+
+      - name: Build
+        run: |
+          & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe" `
+            src\everything.sln `
+            /p:Configuration=Release `
+            /p:Platform=x64 `
+            /m `
+            /v:minimal
+
+      - name: Collect artifact
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifact\game | Out-Null
+          Copy-Item -Recurse -Force game\* artifact\game\
+          $binDir = "artifact\game\fortress_sandbox\bin"
+          New-Item -ItemType Directory -Force -Path $binDir | Out-Null
+          Copy-Item -Force src\game\client\Release_mod_*\client.dll $binDir\ -ErrorAction SilentlyContinue
+          Copy-Item -Force src\game\server\Release_mod_*\server.dll $binDir\ -ErrorAction SilentlyContinue
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fsb-windows
+          path: artifact/
