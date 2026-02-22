@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build All Projects",
+            "label": "Build FSB",
             "type": "shell",
             "options": {
                 "cwd": "src/"
@@ -24,7 +24,10 @@
         {
             "label": "Build & Run FSB",
             "type": "shell",
-            "command": "cd src && ./buildallprojects && cd ../game && ./fortress_sandbox_linux64",
+            "options": {
+                "cwd": "src/"
+            },
+            "command": "./buildallprojects && cd ../game && ./fortress_sandbox_linux64",
             "group": {
                 "kind": "build",
                 "isDefault": true
