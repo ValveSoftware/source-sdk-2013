@@ -105,6 +105,9 @@ public:
 
 	bool RemoveBotFromTeamAndKick( int nTeam );
 
+	CUtlStringList m_botNames;
+	void PrecacheBotNames();
+
 protected:
 	void MaintainBotQuota();
 	void SetIsInOfflinePractice( bool bIsInOfflinePractice );

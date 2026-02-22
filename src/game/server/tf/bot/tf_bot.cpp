@@ -142,113 +142,20 @@ const char *DifficultyLevelToString( CTFBot::DifficultyType skill )
 //-----------------------------------------------------------------------------------------------------
 const char *GetRandomBotName( void )
 {
-	static const char *nameList[] =
-	{
-		"Chucklenuts",
-		"CryBaby",
-		"WITCH",
-		"ThatGuy",
-		"Still Alive",
-		"Hat-Wearing MAN",
-		"Me",
-		"Numnutz",
-		"H@XX0RZ",
-		"The G-Man",
-		"Chell",
-		"The Combine",
-		"Totally Not A Bot",
-		"Pow!",
-		"Zepheniah Mann",
-		"THEM",
-		"LOS LOS LOS",
-		"10001011101",
-		"DeadHead",
-		"ZAWMBEEZ",
-		"MindlessElectrons",
-		"TAAAAANK!",
-		"The Freeman",
-		"Black Mesa",
-		"Soulless",
-		"CEDA",
-		"BeepBeepBoop",
-		"NotMe",
-		"CreditToTeam",
-		"BoomerBile",
-		"Someone Else",
-		"Mann Co.",
-		"Dog",
-		"Kaboom!",
-		"AmNot",
-		"0xDEADBEEF",
-		"HI THERE",
-		"SomeDude",
-		"GLaDOS",
-		"Hostage",
-		"Headful of Eyeballs",
-		"CrySomeMore",
-		"Aperture Science Prototype XR7",
-		"Humans Are Weak",
-		"AimBot",
-		"C++",
-		"GutsAndGlory!",
-		"Nobody",
-		"Saxton Hale",
-		"RageQuit",
-		"Screamin' Eagles",
-
-		"Ze Ubermensch",
-		"Maggot",
-		"CRITRAWKETS",
-		"Herr Doktor",
-		"Gentlemanne of Leisure",
-		"Companion Cube",
-		"Target Practice",
-		"One-Man Cheeseburger Apocalypse",
-		"Crowbar",
-		"Delicious Cake",
-		"IvanTheSpaceBiker",
-		"I LIVE!",
-		"Cannon Fodder",
-
-		"trigger_hurt",
-		"Nom Nom Nom",
-		"Divide by Zero",
-		"GENTLE MANNE of LEISURE",
-		"MoreGun",
-		"Tiny Baby Man",
-		"Big Mean Muther Hubbard",
-		"Force of Nature",
-
-		"Crazed Gunman",
-		"Grim Bloody Fable",
-		"Poopy Joe",
-		"A Professional With Standards",
-		"Freakin' Unbelievable",
-		"SMELLY UNFORTUNATE",
-		"The Administrator",
-		"Mentlegen",
-
-		"Archimedes!",
-		"Ribs Grow Back",
-		"It's Filthy in There!",
-		"Mega Baboon",
-		"Kill Me",
-		"Glorified Toaster with Legs",
-
-		NULL
-	};
 	static int nameCount = 0;
 	static int nameIndex = 0;
 
 	if ( nameCount == 0 )
 	{
-		for( ; nameList[ nameCount ]; ++nameCount );
+		//for( ; nameCount < TheTFBots().m_botNames.Count(); ++nameCount );
+		nameCount = TheTFBots().m_botNames.Count();
 
 		// randomize the initial index
 		nameIndex = RandomInt( 0, nameCount-1 );
 	}
 
-	const char *name = nameList[ nameIndex++ ];
+	const char *name = TheTFBots().m_botNames.Element( nameIndex++ );
+	Msg( "TheTFBots().m_botNames[%d] = %s\n", nameIndex, name );
 
 	if ( nameIndex >= nameCount )
 		nameIndex = 0;

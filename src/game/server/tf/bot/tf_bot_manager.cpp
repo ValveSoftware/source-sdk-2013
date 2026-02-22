@@ -350,6 +350,38 @@ bool CTFBotManager::RemoveBotFromTeamAndKick( int nTeam )
 }
 
 //----------------------------------------------------------------------------------------------------------------
+void CTFBotManager::PrecacheBotNames()
+{
+	FileHandle_t fh = filesystem->Open( "scripts/tf_botnames.txt", "r", "GAME" );
+
+	if ( fh )
+	{
+		int fileLen = filesystem->Size( fh );
+		char* buffer = new char[fileLen + 1];
+		
+		Msg( "successfully opened scripts/tf_botnames.txt\n" );
+		
+		while ( !filesystem->EndOfFile( fh ) )
+		{
+			filesystem->ReadLine( buffer, sizeof( buffer ), fh );
+			V_StrTrim( buffer );
+			if ( !V_isempty( buffer ) )
+			{
+				m_botNames.CopyAndAddToTail( buffer );
+				Msg( "line: \"%s\"\n", buffer );
+			}
+		}
+		
+		delete[] buffer;
+		filesystem->Close( fh );
+	}
+	else
+	{
+		Msg( "failed to open scripts/tf_botnames.txt\n" );
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------
 void CTFBotManager::MaintainBotQuota()
 {
 	if ( TheNavMesh->IsGenerating() )
