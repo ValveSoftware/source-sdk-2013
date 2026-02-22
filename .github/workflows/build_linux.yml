@@ -2,95 +2,52 @@ name: Build - Linux
 
 on:
   push:
-    branches:
-      - "*"
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  release:
+    types: [published]
 
 jobs:
-  build_linux:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup ccache
-        id: setup-ccache
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y podman ccache
+
+      - name: Create ccache directory
+        run: mkdir -p ~/.ccache
+
+      - name: Cache ccache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/.ccache
-          key: ${{ runner.os }}-ccache-${{ github.ref_name }}-${{ github.sha }}
+          path: ~/.ccache
+          key: ${{ runner.os }}-ccache-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-ccache-${{ github.ref_name }}-
-            ${{ runner.os }}-ccache-${{ github.base_ref }}-
-            ${{ runner.os }}-ccache-fsb-mod-
+            ${{ runner.os }}-ccache-
 
-      # - name: Setup Butler
-      #   id: setup-butler
-      #   run: |
-      #     sudo apt-get install 7zip
-      #     mkdir -p ~/.local/bin
-      #     curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
-      #     7z x -y butler.zip -o$HOME/.local/bin/
-      #     rm butler.zip
-      #     chmod +x ~/.local/bin/butler
-      #     butler -V
+      - name: Build
+        working-directory: src
+        run: ./buildallprojects
 
-      - name: Setup Butler
-        id: setup-butler
+      - name: Collect artifact
         run: |
-          sudo apt-get update
-          sudo apt-get install 7zip
-          mkdir -p ~/.local/bin
-          7z x -y cibin/butler/linux/butler.zip -o$HOME/.local/bin/
-          chmod +x ~/.local/bin/butler
-          butler -V
+          mkdir -p artifact/game
+          cp -r game/. artifact/game/
 
-      - name: Build dist
-        id: build-dist
-        env:
-          CCACHE_DIR: ${{ github.workspace }}/.ccache
-          CCACHE_COMPRESSLEVEL: 6
+      - name: Zip artifact
         run: |
-          mkdir -p $CCACHE_DIR
-          ./src/buildallprojects
-          ./abt/copy.sh
+          cd artifact
+          zip -r ../fsb-linux.zip .
 
-      - name: Archive production artifacts
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: game
-          path: |
-            game_dist
-
-      - name: Archive debug info
-        uses: actions/upload-artifact@v4
-        with:
-          name: game-debug-info
-          path: |
-            game_dist_debug
-
-      - name: Push Permalink Rel
-        id: perma-rel
-        if: ${{ github.repository_owner == 'oaktownmc' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-        run: |
-          rm -rf game_dist_debug
-          (cd game_dist && 7z a -r ../game-linux.zip '*')
-          gh release upload --clobber rel game-linux.zip
-          (cd ~ && du -aBM 2>/dev/null | sort -nr | head -n 50 | more)
-        env:
-          GH_TOKEN: ${{secrets.REPO_TOKEN}}
-
-      - name: Push Release
-        id: create-rel
-        if: ${{ github.repository_owner == 'oaktownmc' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-        run: |
-          ./abt/tag.sh
-          rm game-linux.zip
-        shell: bash
-        env:
-          GH_TOKEN: ${{secrets.REPO_TOKEN}}
-
-      - name: Cleanup
-        id: cleanup
-        run: |
-          rm -rf game_dist
-          git clean -xfd -- game src
+          name: fsb-linux
+          path: fsb-linux.zip
