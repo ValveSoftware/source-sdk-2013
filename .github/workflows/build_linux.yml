@@ -24,7 +24,7 @@ jobs:
       - name: Create ccache directory
         run: mkdir -p ~/.ccache
 
-      - name: Build
+      - name: Build all projects
         working-directory: src
         run: ./buildallprojects
 
@@ -36,5 +36,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: fortress-sandbox-linux
+          name: fsb-linux
           path: artifact/
