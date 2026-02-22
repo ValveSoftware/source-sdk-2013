@@ -46,6 +46,7 @@ jobs:
           Get-ChildItem -Path src\game\server -Filter server.dll -Recurse | ForEach-Object {
             Copy-Item $_.FullName $binDir\
           }
+          Get-ChildItem -Path artifact\ -Filter *.exe -Recurse | Remove-Item -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
