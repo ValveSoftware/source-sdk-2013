@@ -32,6 +32,7 @@ jobs:
         run: |
           mkdir -p artifact/game
           cp -r game/. artifact/game/
+          rm -f artifact/game/fortress_sandbox_linux64
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
