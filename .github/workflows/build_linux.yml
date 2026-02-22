@@ -24,14 +24,6 @@ jobs:
       - name: Create ccache directory
         run: mkdir -p ~/.ccache
 
-      - name: Cache ccache
-        uses: actions/cache@v4
-        with:
-          path: ~/.ccache
-          key: ${{ runner.os }}-ccache-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-ccache-
-
       - name: Build
         working-directory: src
         run: ./buildallprojects
