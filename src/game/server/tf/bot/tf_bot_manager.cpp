@@ -363,7 +363,7 @@ void CTFBotManager::PrecacheBotNames()
 		
 		while ( !filesystem->EndOfFile( fh ) )
 		{
-			filesystem->ReadLine( buffer, sizeof( buffer ), fh );
+			filesystem->ReadLine( buffer, fileLen + 1, fh );
 			V_StrTrim( buffer );
 			if ( !V_isempty( buffer ) )
 			{

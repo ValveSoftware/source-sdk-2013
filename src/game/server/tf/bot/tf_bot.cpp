@@ -147,15 +147,19 @@ const char *GetRandomBotName( void )
 
 	if ( nameCount == 0 )
 	{
-		//for( ; nameCount < TheTFBots().m_botNames.Count(); ++nameCount );
 		nameCount = TheTFBots().m_botNames.Count();
 
 		// randomize the initial index
 		nameIndex = RandomInt( 0, nameCount-1 );
 	}
 
-	const char *name = TheTFBots().m_botNames.Element( nameIndex++ );
+	const char *name = TheTFBots().m_botNames[ nameIndex++ ];
 	Msg( "TheTFBots().m_botNames[%d] = %s\n", nameIndex, name );
+	//for ( int i = 0; i < V_strlen( name ); i++ )
+	//{
+	//	Msg( "%x ", TheTFBots().m_botNames[ nameIndex ][ i ] );
+	//}
+	//Msg( "\n" );
 
 	if ( nameIndex >= nameCount )
 		nameIndex = 0;
