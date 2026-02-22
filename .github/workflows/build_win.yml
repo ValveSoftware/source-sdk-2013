@@ -26,11 +26,10 @@ jobs:
         run: .\createallprojects.bat
 
       - name: Build
+        shell: pwsh
         run: |
           & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe" `
             src\everything.sln `
-            /p:Configuration=Release `
-            /p:Platform=x64 `
             /m `
             /v:minimal
 
@@ -41,8 +40,12 @@ jobs:
           Copy-Item -Recurse -Force game\* artifact\game\
           $binDir = "artifact\game\fortress_sandbox\bin"
           New-Item -ItemType Directory -Force -Path $binDir | Out-Null
-          Copy-Item -Force src\game\client\Release_mod_*\client.dll $binDir\ -ErrorAction SilentlyContinue
-          Copy-Item -Force src\game\server\Release_mod_*\server.dll $binDir\ -ErrorAction SilentlyContinue
+          Get-ChildItem -Path src\game\client -Filter client.dll -Recurse | ForEach-Object {
+            Copy-Item $_.FullName $binDir\
+          }
+          Get-ChildItem -Path src\game\server -Filter server.dll -Recurse | ForEach-Object {
+            Copy-Item $_.FullName $binDir\
+          }
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
