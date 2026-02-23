@@ -32,7 +32,7 @@
 			// folder.
 			//
 			// Note that this folder is scanned only when the game is booted.
-			game+mod+custom_mod	fortress_sandbox/custom/*
+			game+mod+custom_mod	|gameinfo_path|/custom/*
 			// Enable this if you want to load your TF custom content.
 			//game+mod+custom_mod	|appid_440|tf/custom/*
 
