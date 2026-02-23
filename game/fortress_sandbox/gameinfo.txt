@@ -32,7 +32,7 @@
 			// folder.
 			//
 			// Note that this folder is scanned only when the game is booted.
-			game+mod+custom_mod	|gameinfo_path|/custom/*
+			game+mod+custom_mod	|gameinfo_path|custom/*
 			// Enable this if you want to load your TF custom content.
 			//game+mod+custom_mod	|appid_440|tf/custom/*
 
@@ -76,7 +76,7 @@
 			// packed up in the .bsp file so that it will be mounted as a map search pack.
 			// The map search pack is mounted at the top of the search path list,
 			// but only while you are connected that server and on that map.
-			game+download		fortress_sandbox/download
+			game+download		|gameinfo_path|download
 		}
 	}
 }
