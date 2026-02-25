@@ -250,11 +250,13 @@ enum CastVote
 //This is ok since MAX_PLAYERS is used for code specific things like arrays and loops, but it doesn't really means that this is the max number of players allowed
 //Since this is decided by the gamerules (and it can be whatever number as long as its less than MAX_PLAYERS).
 #if defined( CSTRIKE_DLL )
-	#define MAX_PLAYERS				65  // Absolute max players supported
-#elif defined( TF_DLL ) || defined ( TF_CLIENT_DLL ) || defined( HL2MP )
+	#define MAX_PLAYERS				65  // Absolute max players supported (64 humans + 1 SourceTV client)
+#elif defined( UNRESTRICTED_MAXPLAYERS )	// Pivot (25/02/2026): This is now controlled by a conditional in the vpc project build scripts.
 	#define MAX_PLAYERS				101
+#elif not defined( HL2MP_DLL ) && ( defined( HL2_DLL ) || defined ( HL2_EPISODIC ) || defined ( PORTAL_DLL ) ) // Pivot (25/02/2026): Forced to 1 by singleplayer-only mods (hl2, episodic, portal).
+	#define MAX_PLAYERS				1	// Only one player for SP.
 #else
-	#define MAX_PLAYERS				33  // Absolute max players supported
+	#define MAX_PLAYERS				33  // Absolute max players supported (32 humans + 1 SourceTV client)
 #endif
 
 // Josh: Accounts for code that may index this array by an entindex
