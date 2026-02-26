@@ -253,8 +253,6 @@ enum CastVote
 	#define MAX_PLAYERS				65  // Absolute max players supported (64 humans + 1 SourceTV client)
 #elif defined( UNRESTRICTED_MAXPLAYERS )	// Pivot (25/02/2026): This is now controlled by a conditional in the vpc project build scripts.
 	#define MAX_PLAYERS				101
-#elif not defined( HL2MP_DLL ) && ( defined( HL2_DLL ) || defined ( HL2_EPISODIC ) || defined ( PORTAL ) ) // Pivot (25/02/2026): Forced to 1 by singleplayer-only mods (hl2, episodic, portal).
-	#define MAX_PLAYERS				1	// Only one player for SP.
 #else
 	#define MAX_PLAYERS				33  // Absolute max players supported (32 humans + 1 SourceTV client)
 #endif
