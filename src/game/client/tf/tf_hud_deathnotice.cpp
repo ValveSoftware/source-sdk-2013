@@ -54,6 +54,19 @@ ConVar cl_hud_killstreak_display_time( "cl_hud_killstreak_display_time", "3", FC
 ConVar cl_hud_killstreak_display_fontsize( "cl_hud_killstreak_display_fontsize", "0", FCVAR_ARCHIVE, "Adjusts font size of killstreak notices.  Range is from 0 to 2 (default is 1)." );
 ConVar cl_hud_killstreak_display_alpha( "cl_hud_killstreak_display_alpha", "120", FCVAR_ARCHIVE, "Adjusts font alpha value of killstreak notices.  Range is from 0 to 255 (default is 200)." );
 
+ConVar pf_killfeed_use_nicks( "pf_killfeed_use_nicks", "0", FCVAR_ARCHIVE, "Use short nicknames in the killfeed instead of full names." );
+
+const char* GetPlayerDeathNoticeName( int iPlayerIndex )
+{
+	if ( pf_killfeed_use_nicks.GetBool() )
+	{
+		C_TFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( iPlayerIndex ) );
+		if ( pPlayer )
+			return pPlayer->GetShortNick();
+	}
+	return g_PR->GetPlayerName( iPlayerIndex );
+}
+
 const int STREAK_MIN = 5;
 const int STREAK_MIN_MVM = 20;
 const int STREAK_MIN_DUCKS = 10;
@@ -228,11 +241,11 @@ void CTFStreakNotice::StreakEnded( CTFPlayerShared::ETFStreak eStreakType, int i
 
 	// Killer Name
 	wchar_t wszKillerName[MAX_PLAYER_NAME_LENGTH / 2];
-	g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( iKillerID ), wszKillerName, sizeof(wszKillerName) );
+	g_pVGuiLocalize->ConvertANSIToUnicode( GetPlayerDeathNoticeName( iKillerID ), wszKillerName, sizeof(wszKillerName) );
 
 	// Victim Name
 	wchar_t wszVictimName[MAX_PLAYER_NAME_LENGTH / 2];
-	g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( iVictimID ), wszVictimName, sizeof(wszVictimName) );
+	g_pVGuiLocalize->ConvertANSIToUnicode( GetPlayerDeathNoticeName( iVictimID ), wszVictimName, sizeof(wszVictimName) );
 
 	// Count
 	wchar_t wzCount[10];
@@ -415,7 +428,7 @@ void CTFStreakNotice::StreakUpdated( CTFPlayerShared::ETFStreak eStreakType, int
 
 	// Name
 	wchar_t wszPlayerName[MAX_PLAYER_NAME_LENGTH / 2];
-	g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( iKillerID ), wszPlayerName, sizeof(wszPlayerName) );
+	g_pVGuiLocalize->ConvertANSIToUnicode( GetPlayerDeathNoticeName( iKillerID ), wszPlayerName, sizeof(wszPlayerName) );
 
 	wchar_t	wTemp[256];
 	g_pVGuiLocalize->ConstructString_safe( wTemp, wzMsg, 2, wszPlayerName, wzCount );
@@ -697,12 +710,21 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		
 		const int iKillerID = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
 		const int iVictimID = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
+		
+		if ( iKillerID > 0 && iKillerID != iVictimID )
+		{
+			Q_strncpy( m_DeathNotices[iDeathNoticeMsg].Killer.szName, GetPlayerDeathNoticeName( iKillerID ), ARRAYSIZE( m_DeathNotices[iDeathNoticeMsg].Killer.szName ) );
+		}
+		if ( iVictimID > 0 )
+		{
+			Q_strncpy( m_DeathNotices[iDeathNoticeMsg].Victim.szName, GetPlayerDeathNoticeName( iVictimID ), ARRAYSIZE( m_DeathNotices[iDeathNoticeMsg].Victim.szName ) );
+		}
 		// if there was an assister, put both the killer's and assister's names in the death message
 		int iAssisterID = engine->GetPlayerForUserID( event->GetInt( "assister" ) );
 
 		EHorriblePyroVisionHack ePyroVisionHack = kHorriblePyroVisionHack_KillAssisterType_Default;
 		CUtlConstString sAssisterNameScratch;
-		const char *assister_name = ( iAssisterID > 0 ? g_PR->GetPlayerName( iAssisterID ) : NULL );
+		const char *assister_name = ( iAssisterID > 0 ? GetPlayerDeathNoticeName( iAssisterID ) : NULL );
 		
 		// If we don't have a real assister (would have been passed in to us as a player index) and
 		// we're in crazy pyrovision mode and we got a dummy assister, than fall back and display
@@ -1175,7 +1197,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 
 		// if there was an assister, put both the killer's and assister's names in the death message
 		int iAssisterID = engine->GetPlayerForUserID( event->GetInt( "assister" ) );
-		const char *assister_name = ( iAssisterID > 0 ? g_PR->GetPlayerName( iAssisterID ) : NULL );
+		const char *assister_name = ( iAssisterID > 0 ? GetPlayerDeathNoticeName( iAssisterID ) : NULL );
 		if ( assister_name )
 		{
 			char szKillerBuf[MAX_PLAYER_NAME_LENGTH*2];
@@ -1205,7 +1227,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 
 	//	// if there was an assister, put both the killer's and assister's names in the death message
 	//	int iAssisterID = engine->GetPlayerForUserID( event->GetInt( "assister" ) );
-	//	const char *assister_name = ( iAssisterID > 0 ? g_PR->GetPlayerName( iAssisterID ) : NULL );
+	//	const char *assister_name = ( iAssisterID > 0 ? GetPlayerDeathNoticeName( iAssisterID ) : NULL );
 	//	if ( assister_name )
 	//	{
 	//		char szKillerBuf[MAX_PLAYER_NAME_LENGTH*2];
@@ -1225,7 +1247,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 			msg.bLocalPlayerInvolved = true;
 
 		msg.Killer.iTeam = g_PR->GetTeam( killer );
-		Q_strncpy( msg.Killer.szName, g_PR->GetPlayerName( killer ), ARRAYSIZE( msg.Killer.szName ) );
+		Q_strncpy( msg.Killer.szName, GetPlayerDeathNoticeName( killer ), ARRAYSIZE( msg.Killer.szName ) );
 
 		Q_strncpy( msg.Victim.szName, g_PR->GetTeam( killer ) == TF_TEAM_RED ? "BLUE ROBOT" : "RED ROBOT", ARRAYSIZE( msg.Victim.szName ) );
 		msg.Victim.iTeam = g_PR->GetTeam( killer ) == TF_TEAM_RED ? TF_TEAM_BLUE : TF_TEAM_RED;
@@ -1237,7 +1259,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		PasstimeGameEvents::BallSplashed ev( event );
 		DeathNoticeItem &msg = m_DeathNotices[iDeathNoticeMsg];
 
-		const char *szPlayerName = g_PR->GetPlayerName( ev.attackerIndex );
+		const char *szPlayerName = GetPlayerDeathNoticeName( ev.attackerIndex );
 		Q_strncpy( msg.Killer.szName, szPlayerName,
 				   ARRAYSIZE( msg.Killer.szName ) );
 		msg.Killer.iTeam = g_PR->GetTeam( ev.attackerIndex );
@@ -1262,7 +1284,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		PasstimeGameEvents::BallDirected ev( event );
 		DeathNoticeItem &msg = m_DeathNotices[iDeathNoticeMsg];
 
-		const char *szPlayerName = g_PR->GetPlayerName( ev.attackerIndex );
+		const char *szPlayerName = GetPlayerDeathNoticeName( ev.attackerIndex );
 		Q_strncpy( msg.Killer.szName, szPlayerName,
 				   ARRAYSIZE( msg.Killer.szName ) );
 		msg.Killer.iTeam = g_PR->GetTeam( ev.attackerIndex );
@@ -1290,7 +1312,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		V_wcsncpy( msg.wzInfoText, g_pVGuiLocalize->Find("#Msg_PasstimeBallGet"), sizeof( msg.wzInfoText ) );
 
 		// killer
-		const char *szPlayerName = g_PR->GetPlayerName( ev.ownerIndex);
+		const char *szPlayerName = GetPlayerDeathNoticeName( ev.ownerIndex);
 		Q_strncpy( msg.Killer.szName, szPlayerName, ARRAYSIZE( msg.Killer.szName ) );
 		msg.Killer.iTeam = g_PR->GetTeam( ev.ownerIndex );
 
@@ -1311,12 +1333,12 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		int victimTeam = g_PR->GetTeam( ev.victimIndex );
 
 		// attacker
-		const char *szPlayerName = g_PR->GetPlayerName( ev.attackerIndex );
+		const char *szPlayerName = GetPlayerDeathNoticeName( ev.attackerIndex );
 		Q_strncpy( msg.Killer.szName, szPlayerName, ARRAYSIZE( msg.Killer.szName ) );
 		msg.Killer.iTeam = attackerTeam;
 
 		// victim
-		szPlayerName = g_PR->GetPlayerName( ev.victimIndex );
+		szPlayerName = GetPlayerDeathNoticeName( ev.victimIndex );
 		Q_strncpy( msg.Victim.szName, szPlayerName, ARRAYSIZE( msg.Victim.szName ) );
 		msg.Victim.iTeam = victimTeam;
 
@@ -1348,7 +1370,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		}
 		
 		// killer
-		const char *szPlayerName = g_PR->GetPlayerName( ev.scorerIndex );
+		const char *szPlayerName = GetPlayerDeathNoticeName( ev.scorerIndex );
 		Q_strncpy( msg.Killer.szName, szPlayerName, ARRAYSIZE( msg.Killer.szName ) );
 		msg.Killer.iTeam = g_PR->GetTeam( ev.scorerIndex );
 
@@ -1397,12 +1419,12 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		}
 
 		// killer
-		const char *szPlayerName = g_PR->GetPlayerName( killerIndex );
+		const char *szPlayerName = GetPlayerDeathNoticeName( killerIndex );
 		Q_strncpy( msg.Killer.szName, szPlayerName, ARRAYSIZE( msg.Killer.szName ) );
 		msg.Killer.iTeam = killerTeam;
 
 		// victim
-		szPlayerName = g_PR->GetPlayerName( victimIndex );
+		szPlayerName = GetPlayerDeathNoticeName( victimIndex );
 		Q_strncpy( msg.Victim.szName, szPlayerName, ARRAYSIZE( msg.Victim.szName ) );
 		msg.Victim.iTeam = victimTeam;
 
@@ -1419,12 +1441,12 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		DeathNoticeItem &msg = m_DeathNotices[ iDeathNoticeMsg ];
 
 		// blocker
-		const char *szPlayerName = g_PR->GetPlayerName( ev.blockerIndex );
+		const char *szPlayerName = GetPlayerDeathNoticeName( ev.blockerIndex );
 		Q_strncpy( msg.Killer.szName, szPlayerName, ARRAYSIZE( msg.Killer.szName ) );
 		msg.Killer.iTeam = g_PR->GetTeam( ev.blockerIndex );
 
 		// owner
-		szPlayerName = g_PR->GetPlayerName( ev.ownerIndex );
+		szPlayerName = GetPlayerDeathNoticeName( ev.ownerIndex );
 		Q_strncpy( msg.Victim.szName, szPlayerName, ARRAYSIZE( msg.Victim.szName ) );
 		msg.Victim.iTeam = g_PR->GetTeam( ev.ownerIndex );
 
@@ -1446,9 +1468,9 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 void CTFHudDeathNotice::AddAdditionalMsg( int iKillerID, int iVictimID, const char *pMsgKey )
 {
 	DeathNoticeItem &msg2 = m_DeathNotices[AddDeathNoticeItem()];
-	Q_strncpy( msg2.Killer.szName, g_PR->GetPlayerName( iKillerID ), ARRAYSIZE( msg2.Killer.szName ) );
+	Q_strncpy( msg2.Killer.szName, GetPlayerDeathNoticeName( iKillerID ), ARRAYSIZE( msg2.Killer.szName ) );
 	msg2.Killer.iTeam = g_PR->GetTeam( iKillerID );
-	Q_strncpy( msg2.Victim.szName, g_PR->GetPlayerName( iVictimID ), ARRAYSIZE( msg2.Victim.szName ) );
+	Q_strncpy( msg2.Victim.szName, GetPlayerDeathNoticeName( iVictimID ), ARRAYSIZE( msg2.Victim.szName ) );
 	msg2.Victim.iTeam = g_PR->GetTeam( iVictimID );
 	const wchar_t *wzMsg =  g_pVGuiLocalize->Find( pMsgKey );
 	if ( wzMsg )
