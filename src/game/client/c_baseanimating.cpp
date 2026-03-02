@@ -3595,7 +3595,7 @@ void C_BaseAnimating::DoAnimationEvents( CStudioHdr *pStudioHdr )
 	int nSeqNum = GetSequence();
 	if ( nSeqNum >= nStudioNumSeq )
 	{
-#ifndef HL2MP
+#if !defined( HL2MP ) && !defined( HL1MP_CLIENT_DLL )
 		// This can happen e.g. while reloading Heavy's shotgun, switch to the minigun.
 		Warning( "%s[%d]: Playing sequence %d but there's only %d in total?\n", GetDebugName(), entindex(), nSeqNum, nStudioNumSeq );
 #endif
