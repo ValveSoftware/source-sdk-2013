@@ -6010,33 +6010,15 @@ public:
 
 			target = STRING( AllocPooledString(command.Arg( 1 ) ) );
 
-			// Don't allow them to run anything on a point_servercommand unless they're the host player. Otherwise they can ent_fire
-			// and run any command on the server. Admittedly, they can only do the ent_fire if sv_cheats is on, but 
-			// people complained about users resetting the rcon password if the server briefly turned on cheats like this:
-			//    give point_servercommand
-			//    ent_fire point_servercommand command "rcon_password mynewpassword"
-			//
-			// Robin: Unfortunately, they get around point_servercommand checks with this:
-			//	  ent_create point_servercommand; ent_setname mine; ent_fire mine command "rcon_password mynewpassword"
-			// So, I'm removing the ability for anyone to execute ent_fires on dedicated servers (we can't check to see if
-			// this command is going to connect with a point_servercommand entity here, because they could delay the event and create it later).
-			if ( engine->IsDedicatedServer() )
-			{
-				// We allow people with disabled autokick to do it, because they already have rcon.
-				if ( pPlayer->IsAutoKickDisabled() == false )
-					return;
-			}
-			else if ( gpGlobals->maxClients > 1 )
-			{
-				// On listen servers with more than 1 player, only allow the host to issue ent_fires.
-				CBasePlayer *pHostPlayer = UTIL_GetListenServerHost();
-				if ( pPlayer != pHostPlayer )
-					return;
-			}
+			
 
 			if ( command.ArgC() >= 3 )
 			{
 				action = STRING( AllocPooledString(command.Arg( 2 )) );
+				if (StringHasPrefix(action, "command")) //Block players misusing point_servercommand
+				{
+					return;
+				}
 			}
 			if ( command.ArgC() >= 4 )
 			{
