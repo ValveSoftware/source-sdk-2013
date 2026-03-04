@@ -1808,12 +1808,13 @@ ConVar tf_viewmodel_cloak_tint( "tf_viewmodel_cloak_tint", "0", FCVAR_ARCHIVE, "
 //-----------------------------------------------------------------------------
 void CInvisProxy::OnBind( C_BaseEntity *pC_BaseEntity )
 {
-	if( !m_pPercentInvisible )
+	if ( !m_pPercentInvisible )
 		return;
 
 	C_BaseEntity *pEnt = pC_BaseEntity;
 
 	C_TFPlayer *pPlayer = NULL;
+	C_TFRagdoll *pRagdoll = NULL;
 	float flCloakTintFactor = 1.0f;
 
 	// Check if we are parented to a player
@@ -1837,8 +1838,8 @@ void CInvisProxy::OnBind( C_BaseEntity *pC_BaseEntity )
 			flCloakTintFactor = tf_viewmodel_cloak_tint.GetFloat();
 		}
 	}
-	
-	// Check if we are a player
+
+	// Check if we are a player or a ragdoll
 	if ( !pPlayer )
 	{
 		if ( pEnt->IsPlayer() )
@@ -1853,72 +1854,85 @@ void CInvisProxy::OnBind( C_BaseEntity *pC_BaseEntity )
 				pPlayer = ToTFPlayer( pOwnerInterface->GetOwnerViaInterface() );
 			}
 		}
-	}
-	
-	// Check if we are a ragdoll, otherwise give up
-	if ( !pPlayer )
-	{
-		C_TFRagdoll *pRagdoll = dynamic_cast<C_TFRagdoll*>( pEnt );
-		if ( pRagdoll && pRagdoll->IsCloaked() )
+
+		pRagdoll = dynamic_cast<C_TFRagdoll*>( pEnt );
+
+		// Check for wearables
+		if ( !pRagdoll )
 		{
-			m_pPercentInvisible->SetFloatValue( pRagdoll->GetPercentInvisible() );
+			C_BaseEntity *pOwner = pEnt->GetOwnerEntity();
+			if ( pOwner )
+			{
+				pRagdoll = dynamic_cast<C_TFRagdoll*>( pOwner );
+			}
 		}
-		else
-		{
-			m_pPercentInvisible->SetFloatValue( 0.0f );
-		}
-		return;
 	}
 
-	// Cloak tinting
+	// We were validated, color as necessary
 	Vector vecColor{ 1.0f, 1.0f, 1.0f };
 
+	int iTeam = TEAM_UNASSIGNED;
+
 	if ( pPlayer )
+		iTeam = pPlayer->GetTeamNumber();
+	else if ( pRagdoll )
+		iTeam = pRagdoll->GetRagdollTeam();
+
+	switch ( iTeam )
 	{
-		// We were validated, color as necessary
-		switch ( pPlayer->GetTeamNumber() )
-		{
-		case TF_TEAM_RED:
-			vecColor = cloakTintRed;
-			break;
-		case TF_TEAM_BLUE:
-		default:
-			vecColor = cloakTintBlue;
-			break;
-		}
+	case TF_TEAM_RED:
+		vecColor = cloakTintRed;
+		break;
+	case TF_TEAM_BLUE:
+	default:
+		vecColor = cloakTintBlue;
+		break;
 	}
 
 	// Blend the color based on cloak tint factor, if applicable
-	if( flCloakTintFactor != 1.0f )
+	if ( flCloakTintFactor != 1.0f )
 	{
 		VectorLerp( Vector( 1.0f, 1.0f, 1.0f ), vecColor, flCloakTintFactor, vecColor );
 	}
 	m_pCloakColorTint->SetVecValue( vecColor.Base(), 3 );
 
 	// Handle the local player
-	if ( pPlayer->IsLocalPlayer() )
+	if ( pPlayer )
 	{
-		float flPercentInvisible = pPlayer->GetEffectiveInvisibilityLevel();
-		float flWeaponInvis = flPercentInvisible;
-
-		// Reveal ourself a little when bumping into players
-		if ( pPlayer->m_Shared.InCond( TF_COND_STEALTHED_BLINK ) )
+		if ( pPlayer->IsLocalPlayer() )
 		{
-			flWeaponInvis = 0.3f;
-		}
+			float flPercentInvisible = pPlayer->GetEffectiveInvisibilityLevel();
+			float flWeaponInvis = flPercentInvisible;
 
-		// Reveal ourself a little if we're using motion cloak and our well has run dry
-		CTFWeaponInvis *pWpn = (CTFWeaponInvis *) pPlayer->Weapon_OwnsThisID( TF_WEAPON_INVIS );
-		if ( pWpn && pWpn->HasMotionCloak() && (pPlayer->m_Shared.GetSpyCloakMeter() <= 0.f ) )
+			// Reveal ourself a little when bumping into players
+			if ( pPlayer->m_Shared.InCond( TF_COND_STEALTHED_BLINK ) )
+			{
+				flWeaponInvis = 0.3f;
+			}
+
+			// Reveal ourself a little if we're using motion cloak and our well has run dry
+			CTFWeaponInvis *pWpn = (CTFWeaponInvis *)pPlayer->Weapon_OwnsThisID( TF_WEAPON_INVIS );
+			if ( pWpn && pWpn->HasMotionCloak() && (pPlayer->m_Shared.GetSpyCloakMeter() <= 0.f) )
+			{
+				flWeaponInvis = 0.3f;
+			}
+
+			m_pPercentInvisible->SetFloatValue( flWeaponInvis );
+		}
+		else
 		{
-			flWeaponInvis = 0.3f;
+			m_pPercentInvisible->SetFloatValue( pPlayer->GetEffectiveInvisibilityLevel() );
 		}
-
-		m_pPercentInvisible->SetFloatValue( flWeaponInvis );
 	}
-	else
+	else if ( pRagdoll )
 	{
-		m_pPercentInvisible->SetFloatValue( pPlayer->GetEffectiveInvisibilityLevel() );
+		// Apply cloak to ragdolls
+		{
+			if ( pRagdoll->IsCloaked() )
+				m_pPercentInvisible->SetFloatValue( pRagdoll->GetPercentInvisible() );
+			else
+				m_pPercentInvisible->SetFloatValue( 0.0f );
+		}
 	}
 }
 
@@ -6955,7 +6969,7 @@ float C_TFPlayer::GetEffectiveInvisibilityLevel( void )
 	}
 
 	// stomp invis level with taunt invis if there's one
-	if (IsTaunting())
+	if ( IsTaunting() )
 	{
 		float flTauntInvis = 0.f;
 		CALL_ATTRIB_HOOK_FLOAT( flTauntInvis, taunt_attr_player_invis_percent );
