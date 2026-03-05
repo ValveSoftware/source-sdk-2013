@@ -7871,7 +7871,6 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 
 		// Reset the camera.
 		HandleTaunting();
-		TurnOffTauntCam_Finish();
 		
 		ResetToneMapping(1.0);
 
