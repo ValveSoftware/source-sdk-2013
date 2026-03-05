@@ -1755,6 +1755,7 @@ void CBaseCombatWeapon::ItemPostFrame( void )
 		}
 	}
 	
+	// If we didn't fire because of a secondary attack, we don't want to trigger a primary attack.
 	if ( !bFired && (pOwner->m_nButtons & IN_ATTACK) && (m_flNextPrimaryAttack <= gpGlobals->curtime))
 	{
 		// Clip empty? Or out of ammo on a no-clip weapon?

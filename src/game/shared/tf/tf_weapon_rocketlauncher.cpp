@@ -282,7 +282,8 @@ bool CTFRocketLauncher::CheckReloadMisfire( void )
 //-----------------------------------------------------------------------------
 bool CTFRocketLauncher::ShouldBlockPrimaryFire()
 {
-	return !AutoFiresFullClip();
+	// return !AutoFiresFullClip();
+	return false; // Allow firing and reloading rockets while holding right click
 }
 
 //-----------------------------------------------------------------------------
@@ -348,6 +349,24 @@ void CTFRocketLauncher::ItemPostFrame( void )
 		m_flShowReloadHintAt = 0;
 	}
 #endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Fix rocket launcher not firing when attacking for a single tick while reloading
+//-----------------------------------------------------------------------------
+void CTFRocketLauncher::ItemBusyFrame( void )
+{
+	BaseClass::ItemBusyFrame();
+
+	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
+	
+	if ( !pOwner )
+		return;
+
+	if ( pOwner->m_flNextAttack >= gpGlobals->curtime && ( pOwner->m_nButtons & IN_ATTACK ) && Clip1() > 0 )
+	{
+		this->ItemPostFrame();
+	}
 }
 
 //-----------------------------------------------------------------------------

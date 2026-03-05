@@ -5,6 +5,7 @@
 // $NoKeywords: $
 //=============================================================================
 #include "cbase.h"
+#include "dbg.h"
 #include "gamemovement.h"
 #include "tf_gamerules.h"
 #include "tf_shareddefs.h"
@@ -2934,6 +2935,37 @@ void CTFGameMovement::SetGroundEntity( trace_t *pm )
 	if ( m_pTFPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_KART ) && !m_pTFPlayer->GetGroundEntity() && pm && pm->m_pEnt )
 	{
 		m_pTFPlayer->EmitSound( "BumperCar.JumpLand" );
+	}
+
+	// Rampfix - prevent getting grounded on ramps with high upward velocity
+	if (pm && pm->m_pEnt)
+	{
+		// Get player gravity
+		float gravity = sv_gravity.GetFloat() * player->GetGravity();
+
+		// Get current velocity
+		Vector vel_current = mv->m_vecVelocity;
+
+		// Calculate next frame's velocity with gravity applied
+		Vector vel_next = vel_current;
+		vel_next.z -= gravity * gpGlobals->frametime;
+
+		// Get ramp normal
+		Vector normal_ramp = pm->plane.normal;
+
+		// Calculate incident velocity (dot product of velocity and surface normal)
+		float incident_ramp = DotProduct(vel_next, normal_ramp);
+
+		// Calculate velocity projected along the ramp
+		Vector vel_ramp = vel_next - (normal_ramp * incident_ramp);
+
+		// If moving toward ramp (negative incident) and high vertical ramp velocity (>250),
+		// don't set ground entity to preserve momentum
+		if (incident_ramp < 0.0f && vel_ramp.z > 250.0f)
+		{
+			// Skip setting ground entity
+			return;
+		}
 	}
 
 	BaseClass::SetGroundEntity( pm );

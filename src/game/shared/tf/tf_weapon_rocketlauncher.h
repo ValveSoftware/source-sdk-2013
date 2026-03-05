@@ -58,6 +58,7 @@ public:
 	virtual void	Misfire( void );
 	virtual CBaseEntity *FireProjectile( CTFPlayer *pPlayer );
 	virtual void	ItemPostFrame( void );
+	virtual void	ItemBusyFrame( void );
 	virtual bool	DefaultReload( int iClipSize1, int iClipSize2, int iActivity );
 
 	virtual int		GetWeaponProjectileType( void ) const OVERRIDE;
