@@ -473,6 +473,7 @@ void	CItemPickupPanel::OnKeyCodePressed( vgui::KeyCode code )
 	else if ( nButtonCode == KEY_XBUTTON_RIGHT || 
 			  nButtonCode == KEY_XSTICK1_RIGHT ||
 			  nButtonCode == KEY_XSTICK2_RIGHT || 
+			  nButtonCode == STEAMCONTROLLER_DPAD_RIGHT ||
 			  nButtonCode == KEY_RIGHT )
 	{
 		OnCommand( "nextitem" );
@@ -480,6 +481,7 @@ void	CItemPickupPanel::OnKeyCodePressed( vgui::KeyCode code )
 	else if ( nButtonCode == KEY_XBUTTON_LEFT || 
 			  nButtonCode == KEY_XSTICK1_LEFT ||
 			  nButtonCode == KEY_XSTICK2_LEFT || 
+			  nButtonCode == STEAMCONTROLLER_DPAD_LEFT ||
 			  nButtonCode == KEY_LEFT )
 	{
 		OnCommand( "previtem" );
@@ -848,7 +850,7 @@ void	CItemDiscardPanel::OnKeyCodePressed( vgui::KeyCode code )
 {	
 	ButtonCode_t nButtonCode = GetBaseButtonCode( code );
 
-	if( nButtonCode == KEY_XBUTTON_B )
+	if( nButtonCode == KEY_XBUTTON_B || nButtonCode == STEAMCONTROLLER_B )
 	{
 		OnCommand( "vguicancel" );
 	}
