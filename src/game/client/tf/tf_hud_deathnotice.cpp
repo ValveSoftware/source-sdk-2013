@@ -60,9 +60,10 @@ const char* GetPlayerDeathNoticeName( int iPlayerIndex )
 {
 	if ( pf_killfeed_use_nicks.GetBool() )
 	{
-		C_TFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( iPlayerIndex ) );
-		if ( pPlayer )
-			return pPlayer->GetShortNick();
+		static char szShortName[MAX_PLAYER_NAME_LENGTH];
+		const wchar_t *wszShortName = GetPlayerShortName( iPlayerIndex );
+		g_pVGuiLocalize->ConvertUnicodeToANSI( wszShortName, szShortName, sizeof(szShortName) );
+		return szShortName;
 	}
 	return g_PR->GetPlayerName( iPlayerIndex );
 }
