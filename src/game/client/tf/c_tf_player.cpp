@@ -6340,6 +6340,10 @@ bool C_TFPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 		AvoidPlayers( pCmd );
 	}
 
+	// Populate passtime lock target for client-side targeting
+	C_TFPlayer *pPassTarget = m_Shared.GetPasstimePassTarget();
+	pCmd->passtime_lock_target = pPassTarget ? pPassTarget->entindex() : 0;
+
 	return bNoTaunt;
 }
 

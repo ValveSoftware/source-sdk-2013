@@ -78,19 +78,20 @@ PASSTIME_CONVAR( tf_passtime_pack_speed,                  1, "When set to 1, all
 PASSTIME_CONVAR( tf_passtime_pack_hp_per_sec,             2.0f, "How many HP per second pack members are healed." );
 
 // med splashing
-PASSTIME_CONVAR( p4ss_med_cansplash,              1, "Enables med splashing." );
-PASSTIME_CONVAR( p4ss_med_canpushball,            1, "Enables med pushing ball with crossbow." );
-PASSTIME_CONVAR( p4ss_med_canheadshot,            0, "Enables med headshotting with crossbow." );
-PASSTIME_CONVAR( p4ss_med_crossbow_damagefalloff, -1, "Sets damage falloff for crossbow. [-1, 0, 1]" );
+PASSTIME_CONVAR( p4ss_med_cansplash,              1,    "Enables med splashing." );
+PASSTIME_CONVAR( p4ss_med_canpushball,            1,    "Enables med pushing ball with crossbow." );
+PASSTIME_CONVAR( p4ss_med_canheadshot,            0,    "Enables med headshotting with crossbow." );
+PASSTIME_CONVAR( p4ss_med_crossbow_damagefalloff, -1,   "Sets damage falloff for crossbow. [-1, 0, 1]" );
 PASSTIME_CONVAR( p4ss_med_crossbow_heal_mult,     2.0f, "Sets heal multiplier for crossbow. " );
 
-PASSTIME_CONVAR( p4ss_golden_goal,                1, "Enables golden goal state when stalemate would happen." );
-PASSTIME_CONVAR( p4ss_lock_eye_to_eye_los,        1, "Check LOS eye-to-eye when trying to lock-on." );
-PASSTIME_CONVAR( p4ss_whistle_more,               1, "Allows users to whistle in more use cases." );
-PASSTIME_CONVAR( p4ss_heal_on_pass,               0, "How many HP you recieve when ball is passed to you." );
-PASSTIME_CONVAR( p4ss_heal_on_pass_flight_time,   2, "How many seconds between passes for a pass to heal." );
-PASSTIME_CONVAR( p4ss_minicrit_protection_time,   3, "How many seconds you are protected from minicrits after picking up the ball." );
-PASSTIME_CONVAR( p4ss_lock_max_turn_angle,        90, "Maximum angle in degrees you can turn away from locked target before unlocking. 0 to disable." );
+PASSTIME_CONVAR( p4ss_golden_goal,                1,     "Enables golden goal state when stalemate would happen." );
+PASSTIME_CONVAR( p4ss_lock_eye_to_eye_los,        1,     "Check LOS eye-to-eye when trying to lock-on." );
+PASSTIME_CONVAR( p4ss_whistle_more,               1,     "Allows users to whistle in more use cases." );
+PASSTIME_CONVAR( p4ss_heal_on_pass,               0,     "How many HP you recieve when ball is passed to you." );
+PASSTIME_CONVAR( p4ss_heal_on_pass_flight_time,   2,     "How many seconds between passes for a pass to heal." );
+PASSTIME_CONVAR( p4ss_minicrit_protection_time,   3,     "How many seconds you are protected from minicrits after picking up the ball." );
+PASSTIME_CONVAR( p4ss_lock_max_turn_angle,        90,    "Maximum angle in degrees you can turn away from locked target before unlocking. 0 to disable." );
+PASSTIME_CONVAR( p4ss_passtime_lock_angle,        15.0f, "Maximum cone angle in degrees from crosshair for lock-on detection." );
 
 PASSTIME_CONVAR( tf_passtime_no_jack_armor, 1, "Prevents ball thrower from immediately grabbing the ball." );
 PASSTIME_CONVAR( tf_passtime_no_jack_armor_time, 0.25f, "How many seconds the thrower must wait before picking up the ball again." );

@@ -56,6 +56,7 @@ public:
 #endif
 		mousedx = 0;
 		mousedy = 0;
+		passtime_lock_target = 0;
 
 		hasbeenpredicted = false;
 #if defined( HL2_DLL ) || defined( HL2_CLIENT_DLL )
@@ -68,22 +69,23 @@ public:
 		if ( this == &src )
 			return *this;
 
-		command_number		= src.command_number;
-		tick_count			= src.tick_count;
-		viewangles			= src.viewangles;
-		forwardmove			= src.forwardmove;
-		sidemove			= src.sidemove;
-		upmove				= src.upmove;
-		buttons				= src.buttons;
-		impulse				= src.impulse;
-		weaponselect		= src.weaponselect;
-		weaponsubtype		= src.weaponsubtype;
-		random_seed			= src.random_seed;
+		command_number			= src.command_number;
+		tick_count				= src.tick_count;
+		viewangles				= src.viewangles;
+		forwardmove				= src.forwardmove;
+		sidemove				= src.sidemove;
+		upmove					= src.upmove;
+		buttons					= src.buttons;
+		impulse					= src.impulse;
+		weaponselect			= src.weaponselect;
+		weaponsubtype			= src.weaponsubtype;
+		random_seed				= src.random_seed;
 #ifdef GAME_DLL
-		server_random_seed = src.server_random_seed;
+		server_random_seed		= src.server_random_seed;
 #endif
-		mousedx				= src.mousedx;
-		mousedy				= src.mousedy;
+		mousedx					= src.mousedx;
+		mousedy					= src.mousedy;
+		passtime_lock_target	= src.passtime_lock_target;
 
 		hasbeenpredicted	= src.hasbeenpredicted;
 
@@ -117,6 +119,7 @@ public:
 		CRC32_ProcessBuffer( &crc, &random_seed, sizeof( random_seed ) );
 		CRC32_ProcessBuffer( &crc, &mousedx, sizeof( mousedx ) );
 		CRC32_ProcessBuffer( &crc, &mousedy, sizeof( mousedy ) );
+		CRC32_ProcessBuffer( &crc, &passtime_lock_target, sizeof( passtime_lock_target ) );
 		CRC32_Final( &crc );
 
 		return crc;
@@ -131,6 +134,7 @@ public:
 		upmove = 0.f;
 		buttons = 0;
 		impulse = 0;
+		passtime_lock_target = 0;
 	}
 
 	// For matching server and client commands for debugging
@@ -163,6 +167,9 @@ public:
 
 	short	mousedx;		// mouse accum in x from create move
 	short	mousedy;		// mouse accum in y from create move
+
+	// Passtime: client-side pass lock-on target entity index
+	short	passtime_lock_target;
 
 	// Client only, tracks whether we've predicted this command at least once
 	bool	hasbeenpredicted;

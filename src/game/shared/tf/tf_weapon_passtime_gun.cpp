@@ -436,22 +436,19 @@ void CPasstimeGun::ItemPostFrame()
 		m_attack2.iButton = IN_ATTACK2;
 	}
 
-#ifdef GAME_DLL
-
 	//
 	// Update pass target
 	//
-	if ( pOwner->m_Shared.HasPasstimeBall() && !pf_nolock.GetBool() )
+#ifdef GAME_DLL
+	bool bShouldUpdateTarget = pOwner->IsBot();
+#else
+	bool bShouldUpdateTarget = true;
+#endif
+	
+	if ( bShouldUpdateTarget && pOwner->m_Shared.HasPasstimeBall() && !pf_nolock.GetBool() )
 	{
-		VMatrix mWorldToView( SetupMatrixIdentity() );
-		Vector vecEyePos;
-		{
-			Vector vecEyeDir;
-			pOwner->EyePositionAndVectors( &vecEyePos, &vecEyeDir, 0, 0 );
-			const QAngle &angEye = pOwner->EyeAngles();
-			const VMatrix mTemp( SetupMatrixOrgAngles( vecEyePos, angEye ) );
-			MatrixInverseTR( mTemp, mWorldToView );
-		}
+		Vector vecEyePos, vecEyeDir;
+		pOwner->EyePositionAndVectors( &vecEyePos, &vecEyeDir, 0, 0 );
 
 		//
 		// Get current pass target
@@ -475,10 +472,20 @@ void CPasstimeGun::ItemPostFrame()
 					pOwner->m_Shared.SetPasstimePassTarget( 0 );
 					m_flTargetResetTime = 0;
 					
-					// Play unlock sound
+
+#ifdef CLIENT_DLL
+					if ( prediction->IsFirstTimePredicted() )
+					{
+						pOwner->EmitSound( kTargetUnlockSound );
+					}
+#endif
+
+#ifdef GAME_DLL
 					CRecipientFilter filter;
-					filter.AddRecipient( pOwner );
-					EmitSound( filter, pOwner->entindex(), kTargetUnlockSound );
+					filter.AddRecipient( pCurrentTarget );
+					filter.MakeReliable();
+					EmitSound( filter, pCurrentTarget->entindex(), kTargetUnlockSound );
+#endif
 				}
 			}
 		}
@@ -487,15 +494,16 @@ void CPasstimeGun::ItemPostFrame()
 		// Look for a pass target
 		//
 		auto bAutoPassing = tf_passtime_experiment_autopass.GetBool() && m_attack2.Is( EButtonState::BUTTONSTATE_DOWN );
-		auto flBestTargetDist = bAutoPassing ? FLT_MAX : 0.1f;
+		float flMaxConeAngle = clamp( p4ss_passtime_lock_angle.GetFloat(), 5.0f, 30.0f );
+		float flMaxConeCos = cos( DEG2RAD( flMaxConeAngle ) );
+		float flBestTargetAngleCos = bAutoPassing ? -1.0f : flMaxConeCos; // closest to aim
 		CTFPlayer *pNewTarget = nullptr;
 		auto flMaxPassDistSqr = g_pPasstimeLogic->GetMaxPassRange();
 		flMaxPassDistSqr *= flMaxPassDistSqr;
 		if ( !bCanAttack2Cancel || !m_attack2.Is( BUTTONSTATE_DOWN ) ) // right click prevents pass lock
 		{
 			//
-			// Find a valid pass target that's close to the center of the screen
-			// When autopassing is happening, it's just world distance instead of viewspace distance
+			// Find a valid pass target within the cone angle from crosshair
 			//
 			for( int i = 1; i <= MAX_PLAYERS; i++ )
 			{
@@ -508,44 +516,38 @@ void CPasstimeGun::ItemPostFrame()
 
 				// Check world distance
 				const auto &vTargetPos = pPlayer->WorldSpaceCenter();
-				auto flThisTargetDist = vTargetPos.DistToSqr(vecEyePos);
-				if ( flThisTargetDist > flMaxPassDistSqr ) 
+				auto flWorldDistSqr = vTargetPos.DistToSqr(vecEyePos);
+				if ( flWorldDistSqr > flMaxPassDistSqr ) 
 					continue;
 
-				// Check viewspace distance from crosshair when not autopassing
+				// Check angle from crosshair when not autopassing
+				float flThisTargetAngleCos = 1.0f; // default for autopassing
 				if ( !bAutoPassing )
 				{
-					Vector vLocalTarget;
-					Vector3DMultiplyPosition( mWorldToView, vTargetPos, vLocalTarget );
-
-					if ( vLocalTarget.x < 0 )
+					Vector vToTarget = vTargetPos - vecEyePos;
+					vToTarget.NormalizeInPlace();
+					
+					flThisTargetAngleCos = vToTarget.Dot( vecEyeDir );
+					
+					if ( flThisTargetAngleCos < 0 )
 						continue; // behind me
-
-					flThisTargetDist = Vector( -vLocalTarget.y / vLocalTarget.x, -vLocalTarget.z / vLocalTarget.x, 0 ).Length(); // not aspect-correct
+					
+					// Check if within cone angle
+					if ( flThisTargetAngleCos < flMaxConeCos ) continue;
 				}
 
-				// check if closer than best
-				if ( flThisTargetDist >= flBestTargetDist )
-					continue; // too far 
+				// check if closer to crosshair than best
+				if ( flThisTargetAngleCos <= flBestTargetAngleCos ) continue;
 
 				// pretend that people who are asking for the ball are closer, so they get priority
-				// do this after the distance check 
 				if ( pPlayer->m_Shared.AskForBallTime() > gpGlobals->curtime )
-					flThisTargetDist /= 50.0f;
+					flThisTargetAngleCos = MIN( flThisTargetAngleCos * 1.05f, 1.0f ); // boost priority
 
 				// check for line of sight
 				Vector vTargetPosForLineOfSight;
 				if ( p4ss_lock_eye_to_eye_los.GetBool() )
 				{
-					VMatrix mWorldToView( SetupMatrixIdentity() );
-					Vector vecEyePos;
-					{
-						Vector vecEyeDir;
-						pPlayer->EyePositionAndVectors( &vTargetPosForLineOfSight, &vecEyeDir, 0, 0 );
-						const QAngle &angEye = pPlayer->EyeAngles();
-						const VMatrix mTemp( SetupMatrixOrgAngles( vTargetPosForLineOfSight, angEye ) );
-						MatrixInverseTR( mTemp, mWorldToView );
-					}
+					vTargetPosForLineOfSight = pPlayer->EyePosition();
 				}
 				else
 				{
@@ -558,7 +560,7 @@ void CPasstimeGun::ItemPostFrame()
 					continue; // obstructed
 
 				// success - new target
-				flBestTargetDist = flThisTargetDist;
+				flBestTargetAngleCos = flThisTargetAngleCos;
 				pNewTarget = pPlayer;
 			}
 		}
@@ -578,15 +580,19 @@ void CPasstimeGun::ItemPostFrame()
 				pOwner->m_Shared.SetPasstimePassTarget( pNewTarget );
 				pCurrentTarget = pNewTarget;
 
-				// play the lock-on sound for the player
-				CRecipientFilter filter;
-				filter.AddRecipient( pOwner );
-				EmitSound( filter, pOwner->entindex(), kTargetHightlightSound );
+#ifdef CLIENT_DLL
+				if ( prediction->IsFirstTimePredicted() )
+				{
+					pOwner->EmitSound( kTargetHightlightSound );
+				}
+#endif
 
-				// now play it for the target
-				filter.RemoveAllRecipients();
+#ifdef GAME_DLL
+				CRecipientFilter filter;
 				filter.AddRecipient( pCurrentTarget );
+				filter.MakeReliable();
 				EmitSound( filter, pCurrentTarget->entindex(), kTargetHightlightSound );
+#endif
 			}
 		}
 		//
@@ -623,7 +629,6 @@ void CPasstimeGun::ItemPostFrame()
 		pOwner->m_Shared.SetPasstimePassTarget( 0 );
 		m_flTargetResetTime = 0;
 	}
-#endif
 
 	//
 	// Update throw state
@@ -882,7 +887,22 @@ void CPasstimeGun::Throw( CTFPlayer *pOwner )
 
 #ifdef GAME_DLL
 	pOwner->NoteWeaponFired(); // not sure what this does, exactly, but it seems important 
-	CTFPlayer *pPassTarget = pOwner->m_Shared.GetPasstimePassTarget();
+	
+	// Use client-provided target from user command (client-authoritative targeting)
+	// Fall back to server-side target for bots
+	CTFPlayer *pPassTarget = nullptr;
+	const CUserCmd *pCmd = pOwner->GetCurrentUserCommand();
+	if ( pCmd && pCmd->passtime_lock_target > 0 ) {
+		pPassTarget = ToTFPlayer( UTIL_PlayerByIndex( pCmd->passtime_lock_target ) );
+		// Validate that the target is actually valid
+		if ( pPassTarget && !BValidPassTarget( pOwner, pPassTarget ) ) {
+			pPassTarget = nullptr;
+		}
+	} else {
+		// Fallback for bots who don't have client-side targeting
+		pPassTarget = ToTFPlayer( pOwner->m_Shared.GetPasstimePassTarget() );
+	}
+	
 	const LaunchParams& launch = CalcLaunch( pOwner, pPassTarget != 0 );
 	g_pPasstimeLogic->LaunchBall( pOwner, launch.startPos, launch.startVel );
 
