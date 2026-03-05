@@ -254,11 +254,11 @@ void CMvMWaveLossPanel::OnKeyCodePressed( vgui::KeyCode code )
 {
 	ButtonCode_t nButtonCode = GetBaseButtonCode( code );
 
-	if ( nButtonCode == STEAMCONTROLLER_A || nButtonCode == STEAMCONTROLLER_B )
+	if ( nButtonCode == KEY_XBUTTON_A || nButtonCode == STEAMCONTROLLER_A || nButtonCode == KEY_XBUTTON_B || nButtonCode == STEAMCONTROLLER_B )
 	{
 		OnCommand( "continue" );
 	}
-	else if ( nButtonCode == STEAMCONTROLLER_X )
+	else if ( nButtonCode == KEY_XBUTTON_X || nButtonCode == STEAMCONTROLLER_X )
 	{
 		OnCommand( "vote_restart" );
 	}
