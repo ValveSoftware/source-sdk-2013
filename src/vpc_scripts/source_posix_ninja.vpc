@@ -59,8 +59,8 @@ $Macro NINJA_STACK_OPT_RELEASE		" "													[!$DEVELOPMENT_ONLY]
 $Macro NINJA_SANITIZE_FLAGS		    "-fsanitize=address -DENABLE_ASAN=1" [$ENABLE_ASAN]
 $Macro NINJA_SANITIZE_FLAGS		    " " [!$ENABLE_ASAN]
 
-$Macro NINJA_OPTIMIZATION_DEBUG		"$NINJA_SANITIZE_FLAGS -O0 -ggdb3 $NINJA_STACK_OPT_DEBUG -fno-delete-null-pointer-checks"
-$Macro NINJA_OPTIMIZATION_RELEASE	"$NINJA_SANITIZE_FLAGS -O2 -g $NINJA_STACK_OPT_RELEASE -fno-strict-aliasing -ffast-math -fno-omit-frame-pointer -fno-delete-null-pointer-checks -ftree-vectorize -fpredictive-commoning -funswitch-loops"
+$Macro NINJA_OPTIMIZATION_DEBUG		"$NINJA_SANITIZE_FLAGS -Og -ggdb3 $NINJA_STACK_OPT_DEBUG -fno-delete-null-pointer-checks"
+$Macro NINJA_OPTIMIZATION_RELEASE	"$NINJA_SANITIZE_FLAGS -O2 -s $NINJA_STACK_OPT_RELEASE -fno-strict-aliasing -ffast-math -fno-omit-frame-pointer -fno-delete-null-pointer-checks -ftree-vectorize -fpredictive-commoning -funswitch-loops"
 $Macro NINJA_CLANG_EXTRAS			" -Wno-ignored-optimization-argument -Wno-unknown-warning-option -Wno-inconsistent-missing-override"
 
 $Configuration
