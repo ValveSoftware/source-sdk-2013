@@ -577,3 +577,5 @@ jumpqol.sp
 jumpqol.inc
 .windsurf
 game/p4ss/glshaders.cfg
+
+src/content/
