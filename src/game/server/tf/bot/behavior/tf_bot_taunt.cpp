@@ -43,6 +43,7 @@ ActionResult< CTFBot > CTFBotTaunt::Update( CTFBot *me, float interval )
 			// Stop taunting when the timer is up
 			if ( m_tauntEndTimer.HasStarted() && m_tauntEndTimer.IsElapsed() && me->m_Shared.GetTauntIndex() == TAUNT_LONG )
 			{
+				me->ReleaseForwardButton();
 				me->EndLongTaunt();
 			}
 
@@ -75,14 +76,14 @@ ActionResult< CTFBot > CTFBotTaunt::Update( CTFBot *me, float interval )
 					m_hasTauntYaw = true;
 				}
 
-				const float nearbyRange = 100.f;
+				const float nearbyRange = 50.f;
 				const float maxFacingAngle = 10.f;
 
 				// if outside range of the target, move towards them and turn to face them
 				if ( me->IsRangeGreaterThan( partner, nearbyRange ) )
 				{
 					// Force move forwards
-					me->PressForwardButton();
+					me->PressForwardButton( interval );
 
 					Vector toPartner = partner->GetAbsOrigin() - me->GetAbsOrigin();
 					toPartner.z = 0.f;
@@ -137,7 +138,7 @@ ActionResult< CTFBot > CTFBotTaunt::Update( CTFBot *me, float interval )
 				me->ReleaseForwardButton();
 			}
 
-			const float maxRange = 800.f;
+			const float maxRange = 600.f;
 
 			// Start a timer to end our taunt if partner missing, partner not taunting, or can't see/too far from partner
 			if ( !m_tauntEndTimer.HasStarted()
