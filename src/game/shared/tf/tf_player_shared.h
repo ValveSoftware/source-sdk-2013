@@ -466,7 +466,7 @@ public:
 	float	GetLastStealthExposedTime( void ) { return m_flLastStealthExposeTime; }
 	void	SetNextStealthTime( float flTime ) { m_flStealthNextChangeTime = flTime; }
 	bool	IsFullyInvisible( void ) { return ( GetPercentInvisible() == 1.f ); }
-
+	bool	IsFullyVisible( void ) { return ( GetPercentInvisible() == 0.f ); }
 	bool	IsEnteringOrExitingFullyInvisible( void );
 
 	bool	CanRuneCharge() const;

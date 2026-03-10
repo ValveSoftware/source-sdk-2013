@@ -277,7 +277,7 @@ bool CTFBotVision::IsIgnored( CBaseEntity *subject ) const
 			return true;
 		}
 
-		if ( enemy->m_Shared.IsStealthed() )
+		if ( !enemy->m_Shared.IsFullyVisible() )
 		{
 			if ( enemy->m_Shared.GetPercentInvisible() < 0.75f )
 			{
@@ -372,7 +372,7 @@ bool CTFBotVision::IsVisibleEntityNoticed( CBaseEntity *subject ) const
 			return false;
 		}
 
-		if ( player->m_Shared.IsStealthed() )
+		if ( !player->m_Shared.IsFullyVisible() )
 		{
 			if ( player->m_Shared.GetPercentInvisible() < 0.75f )
 			{
