@@ -10,6 +10,7 @@
 #include "tf_gamerules.h"
 #include "animation.h"
 #include "basecombatweapon_shared.h"
+#include "tf_weapon_mechanical_arm.h"
 #ifdef CLIENT_DLL
 #include "c_tf_player.h"
 #include "model_types.h"
@@ -578,6 +579,19 @@ bool CTFWearable::UpdateBodygroups( CBaseCombatCharacter* pOwner, int iState )
 		{
 			// We must use team 0 for disguise weapons.
 			UpdateDisguiseBodygroups( pTFOwner, pDisguiseTarget, pItem, 0, iState );
+
+			CTFMechanicalArm* pMechArm = dynamic_cast<CTFMechanicalArm*>(pDisguiseWeapon);
+			if (pMechArm) {
+				// Hack, Short circuit is special case and should be off if it is the disguise weapon.
+				// Directly set the bodygroup since UpdateDisguiseBodygroups doesn't work for this weapon
+				int iDisguiseBody = pTFOwner->m_Shared.GetDisguiseBody();
+				int iBodyGroup = pDisguiseTarget->FindBodygroupByName("rightarm");
+				if (iBodyGroup != -1)
+				{
+					::SetBodygroup(pDisguiseTarget->GetModelPtr(), iDisguiseBody, iBodyGroup, 2);
+					pTFOwner->m_Shared.SetDisguiseBody(iDisguiseBody);
+				}
+			}
 		}
 	}
 
