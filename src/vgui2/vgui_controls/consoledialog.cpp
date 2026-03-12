@@ -648,16 +648,14 @@ void CConsolePanel::OnAutoComplete(bool reverse)
 		Q_strncat(completedText, " ", sizeof(completedText), COPY_ALL_CHARACTERS );
 	}
 
-	char szEntry[256];
-	m_pEntry->GetText(szEntry, sizeof(szEntry));
-
-	int nPrefix = FindChainedPrefix( szEntry );
-	szEntry[nPrefix] = '\0';
-
+	int nPrefix = FindChainedPrefix( m_szPartialText );
 	char szFull[512];
-	Q_snprintf( szFull, sizeof(szFull), "%s%s", szEntry, completedText );
+	if ( nPrefix > 0 )
+		Q_snprintf( szFull, sizeof(szFull), "%.*s%s", nPrefix, m_szPartialText, completedText );
+	else
+		Q_strncpy( szFull, completedText, sizeof(szFull) );
 
-	m_pEntry->SetText(szFull);
+		m_pEntry->SetText(szFull);
 	m_pEntry->GotoTextEnd();
 	m_pEntry->SelectNone();
 
