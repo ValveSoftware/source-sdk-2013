@@ -2539,7 +2539,7 @@ bool VScriptServerInit()
 				ScriptRegisterFunctionNamed( g_pScriptVM, NDebugOverlay::Text, "DebugDrawText", "Draw text in 3d (origin, text, bViewCheck, duration)" );
 				ScriptRegisterFunctionNamed( g_pScriptVM, NDebugOverlay::Box, "DebugDrawBox", "Draw a debug overlay box" );
 				ScriptRegisterFunctionNamed( g_pScriptVM, NDebugOverlay::Line, "DebugDrawLine", "Draw a debug overlay line" );
-				ScriptRegisterFunctionNamed( g_pScriptVM, Script_OverlayCircle, "DebugDrawCircle", "Draw a debug circle (center, rad, vRgb, a, ztest, duration)" );
+				ScriptRegisterFunctionNamed( g_pScriptVM, Script_OverlayCircle, "DebugDrawCircle", "Draw a debug circle (center, vRgb, a, rad, ztest, duration)" );
 				ScriptRegisterFunctionNamed( g_pScriptVM, Script_OverlayLine_vCol, "DebugDrawLine_vCol", "Draw a debug line using color vec (start, end, vRgb, a, ztest, duration)" );
 				ScriptRegisterFunctionNamed( g_pScriptVM, Script_OverlayBoxDirection, "DebugDrawBoxDirection", "Draw a debug forward box (cent, min, max, forward, vRgb, a, duration)" );
 				ScriptRegisterFunctionNamed( g_pScriptVM, Script_OverlayBoxAngles, "DebugDrawBoxAngles", "Draw a debug oriented box (cent, min, max, angles(p,y,r), vRgb, a, duration)" );
