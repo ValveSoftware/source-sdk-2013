@@ -321,11 +321,17 @@ void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 		// Perform some knock back.
 		CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
 		if ( !pOwner )
+		{
+			BaseClass::FireBullet( pPlayer );
 			return;
+		}
 
 		// No knockback during pre-round freeze.
 		if ( TFGameRules() && (TFGameRules()->State_Get() == GR_STATE_PREROUND) )
+		{
+			BaseClass::FireBullet( pPlayer );
 			return;
+		}
 
 		// Knock the firer back!
 		if ( !(pOwner->GetFlags() & FL_ONGROUND) && !pPlayer->m_Shared.m_bScattergunJump )
