@@ -12707,7 +12707,8 @@ CBasePlayer *CTFGameRules::GetAssister( CBasePlayer *pVictim, CBasePlayer *pScor
 		CTFPlayer *pHealer = ToTFPlayer( pTFScorer->m_Shared.GetFirstHealer() );
 		// Must be a medic to receive a healing assist, otherwise engineers get credit for assists from dispensers doing healing.
 		// Also don't give an assist for healing if the inflictor was a sentry gun, otherwise medics healing engineers get assists for the engineer's sentry kills.
-		if ( pHealer && ( TF_CLASS_MEDIC == pHealer->GetPlayerClass()->GetClassIndex() ) && ( NULL == dynamic_cast<CObjectSentrygun *>( pInflictor ) ) )
+		// And also don't give an assist for healing if the healer was the victim otherwise medics get assists from dying to a disguised spy they are healing.
+		if ( pHealer && ( TF_CLASS_MEDIC == pHealer->GetPlayerClass()->GetClassIndex() ) && ( NULL == dynamic_cast<CObjectSentrygun *>( pInflictor ) ) && ( pHealer != pTFVictim ) )
 		{
 			return pHealer;
 		}
