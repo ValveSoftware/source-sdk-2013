@@ -318,14 +318,6 @@ void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 {
 	if ( HasKnockback() )
 	{
-		// Perform some knock back.
-		CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
-		if ( !pOwner )
-		{
-			BaseClass::FireBullet( pPlayer );
-			return;
-		}
-
 		// No knockback during pre-round freeze.
 		if ( TFGameRules() && (TFGameRules()->State_Get() == GR_STATE_PREROUND) )
 		{
@@ -334,35 +326,35 @@ void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 		}
 
 		// Knock the firer back!
-		if ( !(pOwner->GetFlags() & FL_ONGROUND) && !pPlayer->m_Shared.m_bScattergunJump )
+		if ( !(pPlayer->GetFlags() & FL_ONGROUND) && !pPlayer->m_Shared.m_bScattergunJump )
 		{
 			pPlayer->m_Shared.m_bScattergunJump = true;
 
-			pOwner->m_Shared.StunPlayer( 0.3f, 1.f, TF_STUN_MOVEMENT | TF_STUN_MOVEMENT_FORWARD_ONLY );
+			pPlayer->m_Shared.StunPlayer( 0.3f, 1.f, TF_STUN_MOVEMENT | TF_STUN_MOVEMENT_FORWARD_ONLY );
 
-			float flForce = AirBurstDamageForce( pOwner->WorldAlignSize(), 60, 6.f );
+			float flForce = AirBurstDamageForce( pPlayer->WorldAlignSize(), 60, 6.f );
 
 			Vector vecForward;
-			AngleVectors( pOwner->EyeAngles(), &vecForward );
+			AngleVectors( pPlayer->EyeAngles(), &vecForward );
 			Vector vecForce = vecForward * -flForce;
 
 			VMatrix mtxPlayer;
-			mtxPlayer.SetupMatrixOrgAngles( pOwner->GetAbsOrigin(), pOwner->EyeAngles() );
-			Vector vecAbsVelocity = pOwner->GetAbsVelocity();
-			Vector vecAbsVelocityAsPoint = vecAbsVelocity + pOwner->GetAbsOrigin();
+			mtxPlayer.SetupMatrixOrgAngles( pPlayer->GetAbsOrigin(), pPlayer->EyeAngles() );
+			Vector vecAbsVelocity = pPlayer->GetAbsVelocity();
+			Vector vecAbsVelocityAsPoint = vecAbsVelocity + pPlayer->GetAbsOrigin();
 			Vector vecLocalVelocity = mtxPlayer.VMul4x3Transpose( vecAbsVelocityAsPoint );
 
 			vecLocalVelocity.x = -300;
 
 			vecAbsVelocityAsPoint = mtxPlayer.VMul4x3( vecLocalVelocity );
-			vecAbsVelocity = vecAbsVelocityAsPoint - pOwner->GetAbsOrigin();
-			pOwner->SetAbsVelocity( vecAbsVelocity );
+			vecAbsVelocity = vecAbsVelocityAsPoint - pPlayer->GetAbsOrigin();
+			pPlayer->SetAbsVelocity( vecAbsVelocity );
 
 			// Impulse an additional bit of Z push.
-			pOwner->ApplyAbsVelocityImpulse( Vector(0,0,50.f) );
+			pPlayer->ApplyAbsVelocityImpulse( Vector(0,0,50.f) );
 
 			// Slow player movement for a brief period of time.
-			pOwner->RemoveFlag( FL_ONGROUND );
+			pPlayer->RemoveFlag( FL_ONGROUND );
 		}
 	}
 
