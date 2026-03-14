@@ -124,6 +124,8 @@ public:
 	void OnNavMeshLoad( void );
 	
 #ifndef CLIENT_DLL
+	virtual void InitDefaultAIRelationships(void);
+
 	virtual Vector VecItemRespawnSpot( CItem *pItem );
 	virtual QAngle VecItemRespawnAngles( CItem *pItem );
 	virtual float	FlItemRespawnTime( CItem *pItem );
