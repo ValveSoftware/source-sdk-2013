@@ -18371,6 +18371,8 @@ static void DispatchRPSEffect( const CTFPlayer *pPlayer, const char* pszParticle
 	te->DispatchEffect( intiatorFilter, 0.0, data.m_vOrigin, "ParticleEffect", data );
 }
 
+extern ConVar friendlyfire;
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -18485,11 +18487,13 @@ void CTFPlayer::DoTauntAttack( void )
 		trace_t tr;
 		UTIL_TraceLine( EyePosition(), vecEnd, MASK_SOLID & ~CONTENTS_HITBOX, this, COLLISION_GROUP_PLAYER, &tr );
 
+		bool bIsFriendlyFirePossible = friendlyfire.GetBool();
+
 		if ( tr.fraction < 1.0 )
 		{
 			CBaseEntity *pEnt = tr.m_pEnt;
 
-			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM && pEnt->GetTeamNumber() != GetTeamNumber() )
+			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM && (!pEnt->InSameTeam( this ) || bIsFriendlyFirePossible) )
 			{
 				CTFPlayer *pVictim = ToTFPlayer( pEnt );
 
@@ -18625,7 +18629,7 @@ void CTFPlayer::DoTauntAttack( void )
 		{
 			CBaseEntity *pEnt = tr.m_pEnt;
 
-			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM && pEnt->GetTeamNumber() != GetTeamNumber() )
+			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM )
 			{
 				// Launch them up a little
 				AngleVectors( QAngle(-45, m_angEyeAngles[YAW], 0), &vecForward );
@@ -18683,6 +18687,8 @@ void CTFPlayer::DoTauntAttack( void )
 		Vector vecSize = Vector(24,24,24);
 		CBaseEntity *pObjects[256];
 		int count = UTIL_EntitiesInBox( pObjects, 256, vecCenter - vecSize, vecCenter + vecSize, FL_CLIENT|FL_OBJECT );
+
+		bool bIsFriendlyFirePossible = friendlyfire.GetBool();
 		if ( count )
 		{
 			for ( int i=0; i<count; i++ )
@@ -18699,7 +18705,7 @@ void CTFPlayer::DoTauntAttack( void )
 				if ( !pTarget )
 					continue;
 
-				if ( pTarget->GetTeamNumber() == GetTeamNumber() )
+				if ( pTarget->GetTeamNumber() == GetTeamNumber() && !bIsFriendlyFirePossible)
 					continue;
 
 				// Do a quick trace and make sure we have LOS.
@@ -18765,11 +18771,21 @@ void CTFPlayer::DoTauntAttack( void )
 		const float flRadiusSqr = flRadius * flRadius;	
 
 		CBaseEntity *pEntity = NULL;
+
+		bool bIsFriendlyFirePossible = friendlyfire.GetBool();
 		for ( CEntitySphereQuery sphere( origin, flRadius ); (pEntity = sphere.GetCurrentEntity()) != NULL && vecDamagedPlayers.Count() < ARRAYSIZE( nRandomPick ); sphere.NextEntity() )
 		{
-			// Skip players on the same team or who are invuln
+			// Skip players who are invuln
 			CTFPlayer *pPlayer = ToTFPlayer( pEntity );
-			if ( !pPlayer || InSameTeam( pPlayer ) || pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE ) )
+			if ( !pPlayer || pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE ) )
+				continue;
+				
+			// And skip ourselves, of course
+			if ( pPlayer == this )
+				continue;
+
+			// Skip players on our team if we have to
+			if ( InSameTeam( pPlayer ) && !bIsFriendlyFirePossible )
 				continue;
 
 			// CEntitySphereQuery actually does a box test. So we need to make sure the distance is less than the radius first.
@@ -18894,12 +18910,13 @@ void CTFPlayer::DoTauntAttack( void )
 
 		trace_t tr;
 		UTIL_TraceLine( EyePosition(), vecEnd, MASK_SOLID & ~CONTENTS_HITBOX, this, COLLISION_GROUP_PLAYER, &tr );
-
+		
+		bool bIsFriendlyFirePossible = friendlyfire.GetBool();
 		if ( tr.fraction < 1.0 )
 		{
 			CBaseEntity *pEnt = tr.m_pEnt;
 
-			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM && pEnt->GetTeamNumber() != GetTeamNumber() )
+			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM && (!pEnt->InSameTeam( this ) || bIsFriendlyFirePossible) )
 			{
 				CTFPlayer *pVictim = ToTFPlayer( pEnt );
 
@@ -18924,7 +18941,8 @@ void CTFPlayer::DoTauntAttack( void )
 					pVictim->TakeDamage( CTakeDamageInfo( this, this, GetActiveTFWeapon(), vecForward * 12000, WorldSpaceCenter(), 500.0f, DMG_BULLET | DMG_PREVENT_PHYSICS_FORCE, TF_DMG_CUSTOM_TAUNTATK_UBERSLICE ) );
 
 					CWeaponMedigun *pMedigun = (CWeaponMedigun *) Weapon_OwnsThisID( TF_WEAPON_MEDIGUN );
-					if ( pMedigun )
+					// While it's possible to do this under friendly fire, we don't want them to actually gain charge from it.
+					if ( pMedigun && !pEnt->InSameTeam( this ) )
 					{
 						pMedigun->AddCharge( 0.5f );
 					}
@@ -18951,7 +18969,7 @@ void CTFPlayer::DoTauntAttack( void )
 		{
 			CBaseEntity *pEnt = tr.m_pEnt;
 
-			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM && pEnt->GetTeamNumber() != GetTeamNumber() )
+			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM )
 			{
 				vecForward = (WorldSpaceCenter() - pEnt->WorldSpaceCenter());
 				VectorNormalize( vecForward );
@@ -18972,7 +18990,7 @@ void CTFPlayer::DoTauntAttack( void )
 		{
 			CBaseEntity *pEnt = tr.m_pEnt;
 
-			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM && pEnt->GetTeamNumber() != GetTeamNumber() )
+			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM )
 			{
 				vecForward = (WorldSpaceCenter() - pEnt->WorldSpaceCenter());
 				VectorNormalize( vecForward );
@@ -19057,6 +19075,7 @@ void CTFPlayer::DoTauntAttack( void )
 	{
 		if ( m_hHighFivePartner.Get() )
 		{
+			bool bIsFriendlyFirePossible = friendlyfire.GetBool();
 			bool bInitiatorWin = ( m_iTauntRPSResult / 3 ) == 0;
 
 			// figure out for RPS
@@ -19087,8 +19106,9 @@ void CTFPlayer::DoTauntAttack( void )
 			DispatchRPSEffect( this, s_pszTauntRPSParticleNames[iInitiator] );
 			DispatchRPSEffect( m_hHighFivePartner.Get(), s_pszTauntRPSParticleNames[iReceiver] );
 
-			// setup time to kill the opposing team loser
-			if ( GetTeamNumber() != m_hHighFivePartner->GetTeamNumber() )
+			// setup time to kill the loser
+			// Perform a check here instead of letting the damage check it as we don't want to set gib flags unless truly necessary.
+			if ( GetTeamNumber() != m_hHighFivePartner->GetTeamNumber() || bIsFriendlyFirePossible )
 			{
 				m_iTauntAttack = TAUNTATK_RPS_KILL;
 				m_flTauntAttackTime = m_flTauntRemoveTime - 1.2f;
@@ -19147,7 +19167,7 @@ void CTFPlayer::DoTauntAttack( void )
 		{
 			CBaseEntity *pEnt = tr.m_pEnt;
 
-			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM && pEnt->GetTeamNumber() != GetTeamNumber() )
+			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM )
 			{
 				// Launch them up a little
 				AngleVectors( QAngle( -45, m_angEyeAngles[ YAW ], 0 ), &vecForward );
@@ -20070,8 +20090,6 @@ void CTFPlayer::NoteSpokeVoiceCommand( const char *pszScenePlayed )
 		m_flNextVoiceCommandTime += m_iVoiceSpamCounter * 0.5f;
 	}
 }
-
-extern ConVar friendlyfire;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
