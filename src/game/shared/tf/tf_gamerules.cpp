@@ -6468,7 +6468,7 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 	}
 
 	// Use defense buffs if it's not a backstab, Half-Zatoichi duel kill, or direct crush damage (telefrags, etc.)
-	if ( pVictim && info.GetDamageCustom() != TF_DMG_CUSTOM_BACKSTAB && ( info.GetDamageType() & DMG_CRUSH ) == 0 && ( pTFAttacker && !pTFAttacker->GetActiveTFWeapon()->IsHonorBound() && !pVictim->GetActiveTFWeapon()->IsHonorBound() ) )
+	if ( pVictim && info.GetDamageCustom() != TF_DMG_CUSTOM_BACKSTAB && info.GetDamageCustom() != TF_DMG_CUSTOM_HONORBOUND_DUEL && ( info.GetDamageType() & DMG_CRUSH ) == 0 )
 	{
 		if ( pVictim->m_Shared.InCond( TF_COND_DEFENSEBUFF ) )
 		{
@@ -7283,8 +7283,10 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 		// Stomp flRealDamage with resist adjusted values
 		flRealDamage = flDamageBase + flDamageBonus;
 
+		bool isHonorboundDuel = pTFAttacker->GetActiveTFWeapon()->IsHonorBound() && pVictim->GetActiveTFWeapon()->IsHonorBound();
+
 		// Some Powerups apply a damage multiplier. Backstabs and Half-Zatoichi duel kills are immune to resist protection
-		if ( ( pVictim && info.GetDamageCustom() != TF_DMG_CUSTOM_BACKSTAB ) && (pTFAttacker && !pTFAttacker->GetActiveTFWeapon()->IsHonorBound() && !pVictim->GetActiveTFWeapon()->IsHonorBound() ) )
+		if (pVictim && info.GetDamageCustom() != TF_DMG_CUSTOM_BACKSTAB && info.GetDamageCustom() != TF_DMG_CUSTOM_HONORBOUND_DUEL )
 		{
 			// Plague bleed damage is immune from resist calculation
 			if ( ( !pVictim->m_Shared.InCond( TF_COND_PLAGUE ) && info.GetDamageCustom() != TF_DMG_CUSTOM_BLEEDING ) )
