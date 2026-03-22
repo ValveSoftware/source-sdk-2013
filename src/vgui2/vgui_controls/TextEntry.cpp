@@ -3140,7 +3140,7 @@ void TextEntry::DeleteSelected()
 	_cursorPos = x0;
 
 	// scroll left if we need to
-	if ( _horizScrollingAllowed && ( _cursorPos < _currentStartIndex ) )
+	if ( _cursorPos < _currentStartIndex )
 	{
 		_currentStartIndex = _cursorPos;
 	}
