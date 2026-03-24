@@ -316,7 +316,6 @@ extern float AirBurstDamageForce( const Vector &size, float damage, float scale 
 //-----------------------------------------------------------------------------
 void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 {
-#ifndef CLIENT_DLL
 	if ( HasKnockback() )
 	{
 		// Perform some knock back.
@@ -329,9 +328,9 @@ void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 			return;
 
 		// Knock the firer back!
-		if ( !(pOwner->GetFlags() & FL_ONGROUND) && !pPlayer->m_bScattergunJump )
+		if ( !(pOwner->GetFlags() & FL_ONGROUND) && !pPlayer->m_Shared.m_bScattergunJump )
 		{
-			pPlayer->m_bScattergunJump = true;
+			pPlayer->m_Shared.m_bScattergunJump = true;
 
 			pOwner->m_Shared.StunPlayer( 0.3f, 1.f, TF_STUN_MOVEMENT | TF_STUN_MOVEMENT_FORWARD_ONLY );
 
@@ -341,15 +340,15 @@ void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 			AngleVectors( pOwner->EyeAngles(), &vecForward );
 			Vector vecForce = vecForward * -flForce;
 
-			EntityMatrix mtxPlayer;
-			mtxPlayer.InitFromEntity( pOwner );
+			VMatrix mtxPlayer;
+			mtxPlayer.SetupMatrixOrgAngles( pOwner->GetAbsOrigin(), pOwner->EyeAngles() );
 			Vector vecAbsVelocity = pOwner->GetAbsVelocity();
 			Vector vecAbsVelocityAsPoint = vecAbsVelocity + pOwner->GetAbsOrigin();
-			Vector vecLocalVelocity = mtxPlayer.WorldToLocal( vecAbsVelocityAsPoint );
+			Vector vecLocalVelocity = mtxPlayer.VMul4x3Transpose( vecAbsVelocityAsPoint );
 
 			vecLocalVelocity.x = -300;
 
-			vecAbsVelocityAsPoint = mtxPlayer.LocalToWorld( vecLocalVelocity );
+			vecAbsVelocityAsPoint = mtxPlayer.VMul4x3( vecLocalVelocity );
 			vecAbsVelocity = vecAbsVelocityAsPoint - pOwner->GetAbsOrigin();
 			pOwner->SetAbsVelocity( vecAbsVelocity );
 
@@ -360,7 +359,6 @@ void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 			pOwner->RemoveFlag( FL_ONGROUND );
 		}
 	}
-#endif
 
 	BaseClass::FireBullet( pPlayer );
 }
@@ -440,61 +438,6 @@ bool CTFScatterGun::HasKnockback( void )
 		return true;
 	else
 		return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Play animation appropriate to ball status.
-//-----------------------------------------------------------------------------
-bool CTFScatterGun::SendWeaponAnim( int iActivity )
-{
-	CTFPlayer *pPlayer = GetTFPlayerOwner();
-	if ( !pPlayer )
-		return BaseClass::SendWeaponAnim( iActivity );
-
-	if ( HasKnockback() )
-	{
-		// Knockback version uses a different model and animation set.
-		switch ( iActivity )
-		{
-		case ACT_VM_DRAW:
-			iActivity = ACT_ITEM2_VM_DRAW;
-			break;
-		case ACT_VM_HOLSTER:
-			iActivity = ACT_ITEM2_VM_HOLSTER;
-			break;
-		case ACT_VM_IDLE:
-			iActivity = ACT_ITEM2_VM_IDLE;
-			break;
-		case ACT_VM_PULLBACK:
-			iActivity = ACT_ITEM2_VM_PULLBACK;
-			break;
-		case ACT_VM_PRIMARYATTACK:
-			iActivity = ACT_ITEM2_VM_PRIMARYATTACK;
-			break;
-		case ACT_VM_SECONDARYATTACK:
-			iActivity = ACT_ITEM2_VM_SECONDARYATTACK;
-			break;
-		case ACT_VM_RELOAD:
-			iActivity = ACT_ITEM2_VM_RELOAD;
-			break;
-		case ACT_VM_DRYFIRE:
-			iActivity = ACT_ITEM2_VM_DRYFIRE;
-			break;
-		case ACT_VM_IDLE_TO_LOWERED:
-			iActivity = ACT_ITEM2_VM_IDLE_TO_LOWERED;
-			break;
-		case ACT_VM_IDLE_LOWERED:
-			iActivity = ACT_ITEM2_VM_IDLE_LOWERED;
-			break;
-		case ACT_VM_LOWERED_TO_IDLE:
-			iActivity = ACT_ITEM2_VM_LOWERED_TO_IDLE;
-			break;
-		default:
-			break;
-		}
-	}
-
-	return BaseClass::SendWeaponAnim( iActivity );
 }
 
 #ifdef GAME_DLL

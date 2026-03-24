@@ -66,6 +66,46 @@ enum EAmmoSource
 	kAmmoSource_ResourceMeter,			// it regenerated after a cooldown
 };
 
+extern ConVar tf_voice_command_suspension_rate_limit_bucket_count;
+extern ConVar tf_voice_command_suspension_rate_limit_bucket_refill_rate;
+
+class CVoiceCommandBucketSizer
+{
+public:
+	int GetBucketSize() const { return tf_voice_command_suspension_rate_limit_bucket_count.GetInt(); }
+	float GetBucketRefillRate() const { return tf_voice_command_suspension_rate_limit_bucket_refill_rate.GetFloat(); }
+};
+
+template <typename TBucketSizer>
+class CRateLimitingTokenBucket : public TBucketSizer
+{
+public:
+	CRateLimitingTokenBucket()
+		: m_nBucket( this->GetBucketSize() )
+	{
+	}
+
+	bool BTakeToken( float flNow )
+	{
+		// misyl: This token bucket doesn't go negative, so you don't ever dig yourself into a hole by spamming.
+		// You might want that if you use this class, feel free to add something to the BucketSizer.
+
+		int nNewBucket = MIN( m_nBucket + ( flNow - m_flLastTokenTaken ) / this->GetBucketRefillRate(), this->GetBucketSize() ) - 1;
+		if ( nNewBucket <= 0 )
+		{
+			return false;
+		}
+
+		m_nBucket = nNewBucket;
+		m_flLastTokenTaken = flNow;
+
+		return true;
+	}
+private:
+	float m_flLastTokenTaken = 0.0f;
+	int m_nBucket = 0;
+};
+
 //=============================================================================
 //
 // TF Player
@@ -482,6 +522,8 @@ public:
 
 	float m_flNextVoiceCommandTime;
 	int m_iVoiceSpamCounter;
+
+	CRateLimitingTokenBucket<CVoiceCommandBucketSizer> m_RateLimitedVoiceCommandTokenBucket;
 
 	float m_flNextSpeakWeaponFire;
 
@@ -911,6 +953,8 @@ public:
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID ) const;
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
 
+	virtual void		PlayStepSound( Vector &vecOrigin, surfacedata_t *psurface, float fvol, bool force );
+
 	medigun_charge_types	GetChargeEffectBeingProvided( void );
 
 	// Achievements
@@ -938,10 +982,9 @@ public:
 
 	bool				m_bSuicideExplode;
 
-	bool				m_bScattergunJump;
 	int					m_iOldStunFlags;
 
-	bool				m_bFlipViewModels;
+	CNetworkVar( bool, m_bFlipViewModels );
 	int					m_iBlastJumpState;
 	float				m_flBlastJumpLandTime;
 	bool				m_bTakenBlastDamageSinceLastMovement;
