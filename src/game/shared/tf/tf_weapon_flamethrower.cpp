@@ -824,6 +824,8 @@ void CTFFlameThrower::PrimaryAttack()
 		flFiringInterval = tf_flamethrower_new_flame_fire_delay;
 	}
 
+	flFiringInterval = ApplyFireDelay( flFiringInterval );
+
 	// Don't attack if we're underwater
 	if ( pOwner->GetWaterLevel() != WL_Eyes )
 	{
@@ -1039,6 +1041,10 @@ void CTFFlameThrower::FireAirBlast( int iAmmoPerShot )
 	if ( pOwner->m_Shared.GetCarryingRuneType() == RUNE_HASTE )
 	{
 		fAirblastRefireTimeScale *= 0.5f;
+	}
+	else if ( pOwner->m_Shared.GetCarryingRuneType() == RUNE_KING || pOwner->m_Shared.InCond( TF_COND_KING_BUFFED ) )
+	{
+		fAirblastRefireTimeScale *= 0.75f;
 	}
 
 	m_flNextSecondaryAttack = gpGlobals->curtime + (0.75f * fAirblastRefireTimeScale);	
