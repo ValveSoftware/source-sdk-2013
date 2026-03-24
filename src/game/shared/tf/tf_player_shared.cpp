@@ -9711,14 +9711,17 @@ void CTFPlayerShared::StunPlayer( float flTime, float flReductionAmount, int iSt
 		return;
 #endif
 
-	if ( InCond( TF_COND_PHASE ) || InCond( TF_COND_PASSTIME_INTERCEPTION ) )
-		return;
+	if ( !InCond( TF_COND_MVM_BOT_STUN_RADIOWAVE ) )
+	{
+		if ( InCond( TF_COND_PHASE ) || InCond( TF_COND_PASSTIME_INTERCEPTION ) )
+			return;
 
-	if ( InCond( TF_COND_MEGAHEAL ) )
-		return;
+		if ( InCond( TF_COND_MEGAHEAL ) )
+			return;
 
-	if ( InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGED ) && !InCond( TF_COND_MVM_BOT_STUN_RADIOWAVE ) )
-		return;
+		if ( InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGED ) )
+			return;
+	}
 
 #ifdef GAME_DLL
 	if ( pAttacker && TFGameRules() && TFGameRules()->IsTruceActive() && pAttacker->IsTruceValidForEnt() )
