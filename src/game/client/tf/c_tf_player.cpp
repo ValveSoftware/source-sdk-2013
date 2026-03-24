@@ -10041,7 +10041,14 @@ void C_TFPlayer::UpdateOverhealEffect( void )
 	{
 		if ( m_pOverHealedEffect )
 		{
-			ParticleProp()->StopEmission( m_pOverHealedEffect );
+			if ( m_Shared.InCond( TF_COND_FEIGN_DEATH ) )
+			{
+				ParticleProp()->StopEmissionAndDestroyImmediately( m_pOverHealedEffect );
+			}
+			else
+			{
+				ParticleProp()->StopEmission( m_pOverHealedEffect );
+			}
 			m_pOverHealedEffect = NULL;
 		}
 	}
