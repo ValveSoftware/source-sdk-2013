@@ -489,19 +489,19 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 			bLocalPlayerInvolved = true;
 		}
 
-		if (event->GetInt("damagebits") & DMG_CRITICAL)
+		if ( event->GetInt( "damagebits" ) & DMG_CRITICAL )
 		{
 			m_DeathNotices[iMsg].bCrit = true;
-			m_DeathNotices[iMsg].iconCritDeath = GetIcon("d_crit", bLocalPlayerInvolved ? kDeathNoticeIcon_Inverted : kDeathNoticeIcon_Standard);
+			m_DeathNotices[iMsg].iconCritDeath = GetIcon( "d_crit", bLocalPlayerInvolved ? kDeathNoticeIcon_Inverted : kDeathNoticeIcon_Standard );
 		}
 		else if ( event->GetInt( "death_flags" ) & TF_DEATH_AUSTRALIUM )
 		{
-			m_DeathNotices[iMsg].bCrit= false;
+			m_DeathNotices[iMsg].bCrit = false;
 			m_DeathNotices[iMsg].iconCritDeath = GetIcon( "d_australium", bLocalPlayerInvolved ? kDeathNoticeIcon_Inverted : kDeathNoticeIcon_Standard );
 		}
 		else
 		{
-			m_DeathNotices[iMsg].bCrit= false;
+			m_DeathNotices[iMsg].bCrit = false;
 			m_DeathNotices[iMsg].iconCritDeath = NULL;
 		}
 
