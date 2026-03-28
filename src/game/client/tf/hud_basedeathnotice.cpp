@@ -287,8 +287,8 @@ void CHudBaseDeathNotice::Paint()
 			x += iconPostkillerWide + xSpacing;
 		}
 
-		// Draw glow behind weapon icon to show it was a crit death
-		if ( msg.bCrit && msg.iconCritDeath )
+		// Draw glow behind weapon icon to show it was a crit or australium death
+		if ( msg.iconCritDeath )
 		{
 			msg.iconCritDeath->DrawSelf( x, yIcon, iconActualWide, iconTall, m_clrIcon );
 		}
@@ -489,15 +489,15 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 			bLocalPlayerInvolved = true;
 		}
 
-		if ( event->GetInt( "death_flags" ) & TF_DEATH_AUSTRALIUM )
+		if (event->GetInt("damagebits") & DMG_CRITICAL)
 		{
-			m_DeathNotices[iMsg].bCrit= true;
-			m_DeathNotices[iMsg].iconCritDeath = GetIcon( "d_australium", bLocalPlayerInvolved ? kDeathNoticeIcon_Inverted : kDeathNoticeIcon_Standard );
+			m_DeathNotices[iMsg].bCrit = true;
+			m_DeathNotices[iMsg].iconCritDeath = GetIcon("d_crit", bLocalPlayerInvolved ? kDeathNoticeIcon_Inverted : kDeathNoticeIcon_Standard);
 		}
-		else if ( event->GetInt( "damagebits" ) & DMG_CRITICAL )
+		else if ( event->GetInt( "death_flags" ) & TF_DEATH_AUSTRALIUM )
 		{
-			m_DeathNotices[iMsg].bCrit= true;
-			m_DeathNotices[iMsg].iconCritDeath = GetIcon( "d_crit", bLocalPlayerInvolved ? kDeathNoticeIcon_Inverted : kDeathNoticeIcon_Standard );
+			m_DeathNotices[iMsg].bCrit= false;
+			m_DeathNotices[iMsg].iconCritDeath = GetIcon( "d_australium", bLocalPlayerInvolved ? kDeathNoticeIcon_Inverted : kDeathNoticeIcon_Standard );
 		}
 		else
 		{
