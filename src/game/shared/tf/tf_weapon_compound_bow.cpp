@@ -649,7 +649,7 @@ bool CTFCompoundBow::CalcIsAttackCriticalHelper()
 //-----------------------------------------------------------------------------
 void CTFCompoundBow::SetArrowAlight( bool bAlight ) 
 { 
-	// Don't light arrows if we're still firing one or are currently underwater.
+	// Don't light arrows if we're still firing one.
 	if (GetActivity() != ACT_ITEM2_VM_PRIMARYATTACK ) 
 	{
 		m_bArrowAlight = bAlight; 
