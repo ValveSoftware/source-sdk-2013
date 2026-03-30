@@ -828,12 +828,12 @@ CON_COMMAND_F( buddha, "Toggle.  Player takes damage but won't die. (Shows red c
 		if (pPlayer->m_debugOverlays & OVERLAY_BUDDHA_MODE)
 		{
 			pPlayer->m_debugOverlays &= ~OVERLAY_BUDDHA_MODE;
-			Msg("Buddha Mode off...\n");
+			ClientPrint(pPlayer, HUD_PRINTCONSOLE, "Buddha Mode off...\n");
 		}
 		else
 		{
 			pPlayer->m_debugOverlays |= OVERLAY_BUDDHA_MODE;
-			Msg("Buddha Mode on...\n");
+			ClientPrint(pPlayer, HUD_PRINTCONSOLE, "Buddha Mode on...\n");
 		}
 	}
 }
