@@ -10348,7 +10348,7 @@ void CTFPlayer::FireBullet( CTFWeaponBase *pWpn, const FireBulletsInfo_t &info, 
 				// put out fire for burning teammate
 				if ( nCustomDamageType == TF_DMG_CUSTOM_PENETRATE_NONBURNING_TEAMMATE )
 				{
-					if ( pTargetPlayer && GetTeamNumber() == pTargetPlayer->GetTeamNumber() && pTargetPlayer->m_Shared.InCond( TF_COND_BURNING ) && ToTFPlayer(GetActiveWeapon()->GetOwner())->m_Shared.InCond( TF_COND_AIMING ))
+					if ( pTargetPlayer && GetTeamNumber() == pTargetPlayer->GetTeamNumber() && pTargetPlayer->m_Shared.InCond( TF_COND_BURNING ) && m_Shared.InCond( TF_COND_AIMING ))
 					{
 						ExtinguishPlayer( GetActiveWeapon(), ToTFPlayer( GetActiveWeapon()->GetOwner() ), pTargetPlayer, GetActiveWeapon()->GetName() );
 					}
