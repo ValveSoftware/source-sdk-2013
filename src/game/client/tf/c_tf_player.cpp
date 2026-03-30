@@ -1599,12 +1599,14 @@ void C_TFRagdoll::DissolveEntity( CBaseEntity* pEnt )
 		Vector vColor;
 		if ( m_iTeam == TF_TEAM_BLUE )
 		{
-			vColor = TF_PARTICLE_WEAPON_RED_1 * 255;
+			// vColor = TF_PARTICLE_WEAPON_RED_1 * 255;
+			vColor = TF_PARTICLE_WEAPON_BLUE_1 * 255;
 			pDissolve->SetEffectColor( vColor );
 		}
 		else
 		{
-			vColor = TF_PARTICLE_WEAPON_BLUE_1 * 255;
+			// vColor = TF_PARTICLE_WEAPON_BLUE_1 * 255;
+			vColor = TF_PARTICLE_WEAPON_RED_1 * 255;
 			pDissolve->SetEffectColor( vColor );
 		}
 
