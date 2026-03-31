@@ -142,7 +142,7 @@ class CAchievementTFDemoman_DecapitateCloakedSpy : public CBaseTFAchievement
 		if ( pTFVictim && pTFVictim->IsPlayerClass( TF_CLASS_SPY ) && pTFVictim->m_Shared.InCond( TF_COND_STEALTHED ) )
 		{
 			int customdmg = event->GetInt( "customkill" );
-			if ( customdmg == TF_DMG_CUSTOM_DECAPITATION )
+			if ( customdmg == TF_DMG_CUSTOM_DECAPITATION || customdmg == TF_DMG_CUSTOM_HONORBOUND_DUEL )
 			{
 				IncrementCount();
 			}
@@ -270,7 +270,7 @@ class CAchievementTFDemoman_DecapitatePlayers : public CBaseTFAchievement
 			return;
 
 		int customdmg = event->GetInt( "customkill" );
-		if ( customdmg == TF_DMG_CUSTOM_DECAPITATION )
+		if ( customdmg == TF_DMG_CUSTOM_DECAPITATION || customdmg == TF_DMG_CUSTOM_HONORBOUND_DUEL)
 		{
 			IncrementCount();
 		}
@@ -313,7 +313,7 @@ class CAchievementTFDemoman_DecapitatePlayersFast : public CBaseTFAchievement
 			return;
 
 		int customdmg = event->GetInt( "customkill" );
-		if ( customdmg == TF_DMG_CUSTOM_DECAPITATION )
+		if ( customdmg == TF_DMG_CUSTOM_DECAPITATION || customdmg == TF_DMG_CUSTOM_HONORBOUND_DUEL)
 		{
 			if ( (m_iTimelyDecapitations == 0) || ((m_iTimelyDecapitations > 0) && (gpGlobals->curtime < m_flLastDecapTime + 10.f)) )
 			{
@@ -805,7 +805,7 @@ class CAchievementTFDemoman_DecapitateEqualizer : public CBaseTFAchievement
 			if ( pShovel && (pShovel->GetShovelType() == SHOVEL_DAMAGE_BOOST) )
 			{
 				int customdmg = event->GetInt( "customkill" );
-				if ( customdmg == TF_DMG_CUSTOM_DECAPITATION )
+				if ( customdmg == TF_DMG_CUSTOM_DECAPITATION || customdmg == TF_DMG_CUSTOM_HONORBOUND_DUEL)
 				{
 					IncrementCount();
 				}
@@ -833,7 +833,7 @@ class CAchievementTFDemoman_DecapitateNemesis : public CBaseTFAchievement
 		if ( pTFVictim && pTFVictim->IsNemesisOfLocalPlayer() )
 		{
 			int customdmg = event->GetInt( "customkill" );
-			if ( customdmg == TF_DMG_CUSTOM_DECAPITATION )
+			if ( customdmg == TF_DMG_CUSTOM_DECAPITATION || customdmg == TF_DMG_CUSTOM_HONORBOUND_DUEL)
 			{
 				IncrementCount();
 			}
@@ -1035,7 +1035,7 @@ class CAchievementTFDemoman_CritSwordKill : public CBaseTFAchievement
 	{
 		// was this a charge kill with the sword?
 		int nDamageBits = event->GetInt( "damagebits" );
-		if ( (nDamageBits & DMG_CRITICAL) && (event->GetInt( "customkill" ) == TF_DMG_CUSTOM_DECAPITATION) )
+		if ( (nDamageBits & DMG_CRITICAL) && ( ( event->GetInt( "customkill" ) == TF_DMG_CUSTOM_DECAPITATION ) || event->GetInt("customkill") == TF_DMG_CUSTOM_HONORBOUND_DUEL ) ) )
 		{
 			IncrementCount();
 		}
