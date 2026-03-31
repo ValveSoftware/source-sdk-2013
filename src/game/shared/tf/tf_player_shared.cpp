@@ -8162,8 +8162,9 @@ void CTFPlayerShared::Disguise( int nTeam, int nClass, CTFPlayer* pDesiredTarget
 		// not allowed to disguise while taunting
 		return;
 	}
-
+	
 	// If disguising due to 'Your Eternal Reward' backstab, ensure that disguise team is the opposing team
+	// Fixes issue with backstabbing an enemy that then gets autobalanced, disguising the spy as his own team
 	if (nRealTeam == nTeam && bOnKill)
 	{
 		nTeam = (nRealTeam == TF_TEAM_RED) ? TF_TEAM_BLUE : TF_TEAM_RED;
