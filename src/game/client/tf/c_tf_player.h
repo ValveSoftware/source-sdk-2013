@@ -626,6 +626,7 @@ public:
 // Called by shared code.
 public:
 	float GetClassChangeTime() const { return m_flChangeClassTime; }
+	bool GetIsSuicide() const { return m_bIsSuicide; }
 	void SetFootStamps( int nFootStamps ) { m_nFootStamps = nFootStamps; }
 
 	void DoAnimationEvent( PlayerAnimEvent_t event, int nData = 0 );
@@ -675,6 +676,7 @@ public:
 	bool			m_bSaveMeParity;
 	bool			m_bOldSaveMeParity;
 	bool			m_bIsCoaching;
+	bool			m_bIsSuicide;
 
 private:
 	void			UpdateTauntItem();
