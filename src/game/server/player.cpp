@@ -6300,6 +6300,7 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 
 	switch ( iImpulse )
 	{
+	#ifdef HL1_DLL
 	case 76:
 		{
 			if (!giPrecacheGrunt)
@@ -6314,12 +6315,16 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 			}
 			break;
 		}
+	#endif
 
+	#if defined ( HL2_DLL ) || defined ( PORTAL )
 	case 81:
 
 		GiveNamedItem( "weapon_cubemap" );
 		break;
+	#endif
 
+	#if defined ( HL2_DLL )
 	case 82:
 		// Cheat to create a jeep in front of the player
 		CreateJeep( this );
@@ -6329,6 +6334,7 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 		// Cheat to create a airboat in front of the player
 		CreateAirboat( this );
 		break;
+	#endif
 
 	case 101:
 		gEvilImpulse101 = true;
