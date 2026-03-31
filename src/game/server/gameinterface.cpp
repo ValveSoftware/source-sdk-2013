@@ -1051,7 +1051,9 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		g_pServerBenchmark->StartBenchmark();
 
 		// Now call the mod specific parse
-		LevelInit_ParseAllEntities( pMapEntities );
+		#ifndef HL1MP_DLL
+			LevelInit_ParseAllEntities( pMapEntities );
+		#endif
 	}
 
 	// Check low violence settings for this map
