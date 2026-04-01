@@ -39,6 +39,7 @@ ConVar cl_showtextmsg( "cl_showtextmsg", "1", 0, "Enable/disable text messages p
 ConVar cl_chatfilters( "cl_chatfilters", "63", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Stores the chat filter settings " );
 ConVar cl_chatfilter_version( "cl_chatfilter_version", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE | FCVAR_HIDDEN, "Stores the chat filter version" );
 ConVar cl_mute_all_comms("cl_mute_all_comms", "1", FCVAR_ARCHIVE, "If 1, then all communications from a player will be blocked when that player is muted, including chat messages.");
+ConVar cl_mute_voice_commands_text("cl_mute_voice_commands_text", "0", FCVAR_ARCHIVE, "Disable voice commands being printed in chat when performed. 0 = All voice commands get printed, 1 = No voice commands get printed, 2 = Only allow MEDIC! calls to be printed.");
 ConVar cl_enable_text_chat( "cl_enable_text_chat", "1", FCVAR_ARCHIVE, "Enable text chat in this game" );
 
 const int kChatFilterVersion = 1;
@@ -964,6 +965,9 @@ void CBaseHudChat::MsgFunc_VoiceSubtitle( bf_read &msg )
 	if ( !cl_showtextmsg.GetInt() )
 		return;
 
+	if ( cl_mute_voice_commands_text.GetInt() == 1 )
+		return;
+
 	char szString[2048];
 	char szPrefix[64];	//(Voice)
 	wchar_t szBuf[128];
@@ -971,6 +975,9 @@ void CBaseHudChat::MsgFunc_VoiceSubtitle( bf_read &msg )
 	int client = msg.ReadByte();
 	int iMenu = msg.ReadByte();
 	int iItem = msg.ReadByte();
+
+	if (cl_mute_voice_commands_text.GetInt() == 2 && (iMenu != 0 || iItem != 0))
+		return;
 
 	const char *pszSubtitle = "";
 
