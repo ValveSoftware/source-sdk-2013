@@ -6310,7 +6310,7 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 			else
 			{
 				Vector forward = UTIL_YawToVector( EyeAngles().y );
-				Create("NPC_human_grunt", GetLocalOrigin() + forward * 128, GetLocalAngles());
+				Create("monster_human_grunt", GetLocalOrigin() + forward * 128, GetLocalAngles());
 			}
 			break;
 		}
