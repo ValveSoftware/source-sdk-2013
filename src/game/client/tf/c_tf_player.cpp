@@ -1301,6 +1301,7 @@ bool C_TFRagdoll::IsDecapitation()
 {
 	return (cl_ragdoll_fade_time.GetFloat() > 5.f) && 
 		((m_iDamageCustom == TF_DMG_CUSTOM_DECAPITATION) 
+		|| (m_iDamageCustom == TF_DMG_CUSTOM_HONORBOUND)
 		|| (m_iDamageCustom == TF_DMG_CUSTOM_TAUNTATK_BARBARIAN_SWING)
 		|| (m_iDamageCustom == TF_DMG_CUSTOM_DECAPITATION_BOSS) 
 		|| (m_iDamageCustom == TF_DMG_CUSTOM_HEADSHOT_DECAPITATION)
@@ -10118,6 +10119,7 @@ bool C_TFPlayer::InSameDisguisedTeam( CBaseEntity *pEnt )
 static bool IsDecapitationCustomDamageType( int iCustomDamageType )
 {
 	return iCustomDamageType == TF_DMG_CUSTOM_DECAPITATION
+		|| iCustomDamageType == TF_DMG_CUSTOM_HONORBOUND
 		|| iCustomDamageType == TF_DMG_CUSTOM_TAUNTATK_BARBARIAN_SWING
 		|| iCustomDamageType == TF_DMG_CUSTOM_DECAPITATION_BOSS
 		|| iCustomDamageType == TF_DMG_CUSTOM_MERASMUS_DECAPITATION;

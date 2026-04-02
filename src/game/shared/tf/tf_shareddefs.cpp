@@ -913,6 +913,7 @@ const char *g_szSpecialDamageNames[] =
 	"TF_DMG_CUSTOM_CROC",
 	"TF_DMG_CUSTOM_TAUNTATK_GASBLAST",
 	"TF_DMG_CUSTOM_AXTINGUISHER_BOOSTED",
+	"TF_DMG_CUSTOM_HONORBOUND",
 	"TF_DMG_CUSTOM_KRAMPUS_MELEE",
 	"TF_DMG_CUSTOM_KRAMPUS_RANGED",
 	"TF_DMG_CUSTOM_TAUNTATK_TRICKSHOT",
@@ -1462,7 +1463,7 @@ void LoadObjectInfos( IBaseFileSystem *pFileSystem )
 			// Does it make sense to call the below Steam API so it'll force a validation next startup time?
 			// Need to verify it's real corruption and not someone dorking around with their objects.txt file...
 			//
-			// From Martin Otten: If you have a file on disc and you’re 100% sure it’s
+			// From Martin Otten: If you have a file on disc and youï¿½re 100% sure itï¿½s
 			//  corrupt, call ISteamApps::MarkContentCorrupt( false ), before you shutdown
 			//  the game. This will cause a content validation in Steam.
 

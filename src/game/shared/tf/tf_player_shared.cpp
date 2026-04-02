@@ -13383,6 +13383,7 @@ int CTFPlayerShared::GetSequenceForDeath( CBaseAnimating* pRagdoll, bool bBurnin
 	{
 	case TF_DMG_CUSTOM_HEADSHOT_DECAPITATION:
 	case TF_DMG_CUSTOM_TAUNTATK_BARBARIAN_SWING:
+	case TF_DMG_CUSTOM_HONORBOUND:
 	case TF_DMG_CUSTOM_DECAPITATION:
 	case TF_DMG_CUSTOM_HEADSHOT:
 		iDeathSeq = pRagdoll->LookupSequence( "primary_death_headshot" );
@@ -14731,4 +14732,3 @@ bool CTFPlayer::IsHelpmeButtonPressed() const
 {
 	return m_flHelpmeButtonPressTime != 0.f;
 }
-
