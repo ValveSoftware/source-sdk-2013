@@ -1598,14 +1598,14 @@ void C_TFRagdoll::DissolveEntity( CBaseEntity* pEnt )
 
 		Vector vColor;
 		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-
+		// If a player kills themselves with a weapon that dissolves ragdolls, set dissolving color to their own team
 		if ( m_iTeam == TF_TEAM_BLUE )
 		{
 			if (pLocalPlayer)
 			{
 				vColor = (pLocalPlayer->GetIsSuicide()) ? TF_PARTICLE_WEAPON_BLUE_1 * 255 : TF_PARTICLE_WEAPON_RED_1 * 255;
 			}
-			else
+			else // Fallback to original code if pLocalPlayer is invalid
 			{
 				vColor = TF_PARTICLE_WEAPON_RED_1 * 255;
 			}
@@ -1617,7 +1617,7 @@ void C_TFRagdoll::DissolveEntity( CBaseEntity* pEnt )
 			{
 				vColor = (pLocalPlayer->GetIsSuicide()) ? TF_PARTICLE_WEAPON_RED_1 * 255 : TF_PARTICLE_WEAPON_BLUE_1 * 255;
 			}
-			else
+			else // Fallback to original code if pLocalPlayer is invalid
 			{
 				vColor = TF_PARTICLE_WEAPON_BLUE_1 * 255;
 			}
