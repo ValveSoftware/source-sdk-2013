@@ -1603,7 +1603,7 @@ void C_TFRagdoll::DissolveEntity( CBaseEntity* pEnt )
 		{
 			if (pLocalPlayer)
 			{
-				vColor = (pLocalPlayer->GetIsSuicide()) ? TF_PARTICLE_WEAPON_BLUE_1 * 255 : TF_PARTICLE_WEAPON_RED_1 * 255;
+				vColor = ( pLocalPlayer->IsDeathSuicide() ) ? TF_PARTICLE_WEAPON_BLUE_1 * 255 : TF_PARTICLE_WEAPON_RED_1 * 255;
 			}
 			else // Fallback to original code if pLocalPlayer is invalid
 			{
@@ -1615,7 +1615,7 @@ void C_TFRagdoll::DissolveEntity( CBaseEntity* pEnt )
 		{
 			if (pLocalPlayer)
 			{
-				vColor = (pLocalPlayer->GetIsSuicide()) ? TF_PARTICLE_WEAPON_RED_1 * 255 : TF_PARTICLE_WEAPON_BLUE_1 * 255;
+				vColor = ( pLocalPlayer->IsDeathSuicide() ) ? TF_PARTICLE_WEAPON_RED_1 * 255 : TF_PARTICLE_WEAPON_BLUE_1 * 255;
 			}
 			else // Fallback to original code if pLocalPlayer is invalid
 			{
