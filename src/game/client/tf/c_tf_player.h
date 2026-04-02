@@ -676,7 +676,7 @@ public:
 	bool			m_bSaveMeParity;
 	bool			m_bOldSaveMeParity;
 	bool			m_bIsCoaching;
-	bool			m_bIsSuicide = false;
+	bool			m_bIsSuicide;
 
 private:
 	void			UpdateTauntItem();

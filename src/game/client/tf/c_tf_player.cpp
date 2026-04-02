@@ -1598,29 +1598,16 @@ void C_TFRagdoll::DissolveEntity( CBaseEntity* pEnt )
 
 		Vector vColor;
 		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+		bool bIsSuicide = pLocalPlayer ? pLocalPlayer->IsDeathSuicide() : NULL;
 		// If a player kills themselves with a weapon that dissolves ragdolls, set dissolving color to their own team
 		if ( m_iTeam == TF_TEAM_BLUE )
 		{
-			if (pLocalPlayer)
-			{
-				vColor = ( pLocalPlayer->IsDeathSuicide() ) ? TF_PARTICLE_WEAPON_BLUE_1 * 255 : TF_PARTICLE_WEAPON_RED_1 * 255;
-			}
-			else // Fallback to original code if pLocalPlayer is invalid
-			{
-				vColor = TF_PARTICLE_WEAPON_RED_1 * 255;
-			}
+			vColor = ( bIsSuicide ) ? TF_PARTICLE_WEAPON_BLUE_1 * 255 : TF_PARTICLE_WEAPON_RED_1 * 255;
 			pDissolve->SetEffectColor( vColor );
 		}
 		else
 		{
-			if (pLocalPlayer)
-			{
-				vColor = ( pLocalPlayer->IsDeathSuicide() ) ? TF_PARTICLE_WEAPON_RED_1 * 255 : TF_PARTICLE_WEAPON_BLUE_1 * 255;
-			}
-			else // Fallback to original code if pLocalPlayer is invalid
-			{
-				vColor = TF_PARTICLE_WEAPON_BLUE_1 * 255;
-			}
+			vColor = ( bIsSuicide ) ? TF_PARTICLE_WEAPON_RED_1 * 255 : TF_PARTICLE_WEAPON_BLUE_1 * 255;
 			pDissolve->SetEffectColor( vColor );
 		}
 
@@ -3992,6 +3979,8 @@ C_TFPlayer::C_TFPlayer() :
 	m_pPasstimeAskForBallReticle = NULL;
 
 	m_iPlayerSkinOverride = 0;
+
+	m_bIsSuicide = false;
 
 	ListenForGameEvent( "player_hurt" );
 	ListenForGameEvent( "hltv_changed_mode" );
@@ -11202,11 +11191,11 @@ void C_TFPlayer::FireGameEvent( IGameEvent *event )
 	else if (FStrEq(event->GetName(), "player_death" ) )
 	{
 		m_bIsSuicide = false;
-		const int iAttacker = engine->GetPlayerForUserID(event->GetInt("attacker"));
-		C_TFPlayer* pAttacker = ToTFPlayer(UTIL_PlayerByIndex(iAttacker));
+		const int iAttacker = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
+		C_TFPlayer* pAttacker = ToTFPlayer( UTIL_PlayerByIndex( iAttacker ) );
 
-		const int iVictim = engine->GetPlayerForUserID(event->GetInt("userid"));
-		C_TFPlayer* pVictim = ToTFPlayer(UTIL_PlayerByIndex(iVictim));
+		const int iVictim = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
+		C_TFPlayer* pVictim = ToTFPlayer( UTIL_PlayerByIndex( iVictim) );
 
 		if ( !pVictim )
 			return;
