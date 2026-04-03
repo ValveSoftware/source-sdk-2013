@@ -610,7 +610,7 @@ void CTFFlareGun_Revenge::OnDataChanged( DataUpdateType_t type )
 	CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
 	if ( pOwner )
 	{
-		if ( m_nOldRevengeCrits < pOwner->m_Shared.GetRevengeCrits() )
+		if (pOwner->m_Shared.GetRevengeCrits() == ( m_nOldRevengeCrits + 1 ) && !( m_nOldRevengeCrits == 0 ) )
 		{
 			DoAbsorbEffect();
 		}
