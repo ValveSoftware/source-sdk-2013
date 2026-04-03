@@ -1598,16 +1598,16 @@ void C_TFRagdoll::DissolveEntity( CBaseEntity* pEnt )
 
 		Vector vColor;
 		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-		bool bIsSuicide = pLocalPlayer ? pLocalPlayer->IsDeathSuicide() : NULL;
-		// If a player kills themselves with a weapon that dissolves ragdolls, set dissolving color to their own team
+		bool bIsFriendlyFireOrSuicide = pLocalPlayer ? pLocalPlayer->IsDeathFriendlyFireOrSuicide() : NULL;
+		// If a player kills themselves or a teammate with a weapon that dissolves ragdolls, set dissolving color to their own team
 		if ( m_iTeam == TF_TEAM_BLUE )
 		{
-			vColor = ( bIsSuicide ) ? TF_PARTICLE_WEAPON_BLUE_1 * 255 : TF_PARTICLE_WEAPON_RED_1 * 255;
+			vColor = ( bIsFriendlyFireOrSuicide ) ? TF_PARTICLE_WEAPON_BLUE_1 * 255 : TF_PARTICLE_WEAPON_RED_1 * 255;
 			pDissolve->SetEffectColor( vColor );
 		}
 		else
 		{
-			vColor = ( bIsSuicide ) ? TF_PARTICLE_WEAPON_RED_1 * 255 : TF_PARTICLE_WEAPON_BLUE_1 * 255;
+			vColor = ( bIsFriendlyFireOrSuicide ) ? TF_PARTICLE_WEAPON_RED_1 * 255 : TF_PARTICLE_WEAPON_BLUE_1 * 255;
 			pDissolve->SetEffectColor( vColor );
 		}
 
@@ -3980,7 +3980,7 @@ C_TFPlayer::C_TFPlayer() :
 
 	m_iPlayerSkinOverride = 0;
 
-	m_bIsSuicide = false;
+	m_bIsFriendlyFireOrSuicide = false;
 
 	ListenForGameEvent( "player_hurt" );
 	ListenForGameEvent( "hltv_changed_mode" );
@@ -11190,19 +11190,25 @@ void C_TFPlayer::FireGameEvent( IGameEvent *event )
 	}
 	else if (FStrEq(event->GetName(), "player_death" ) )
 	{
-		m_bIsSuicide = false;
+		m_bIsFriendlyFireOrSuicide = false;
 		const int iAttacker = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
 		C_TFPlayer* pAttacker = ToTFPlayer( UTIL_PlayerByIndex( iAttacker ) );
 
 		const int iVictim = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
-		C_TFPlayer* pVictim = ToTFPlayer( UTIL_PlayerByIndex( iVictim) );
+		C_TFPlayer* pVictim = ToTFPlayer( UTIL_PlayerByIndex( iVictim ) );
 
 		if ( !pVictim )
 			return;
-
-		if ( !pAttacker || pAttacker == pVictim )
+		// Attacker cant be found.. could still be a suicide though, lets treat it as one!
+		if ( !pAttacker )
 		{
-			m_bIsSuicide = true;
+			m_bIsFriendlyFireOrSuicide = true;
+			return;	
+		}
+
+		if ( pAttacker->GetTeamNumber() == pVictim->GetTeamNumber() )
+		{
+			m_bIsFriendlyFireOrSuicide = true;
 		}
 	}
 	BaseClass::FireGameEvent( event );
