@@ -11199,14 +11199,8 @@ void C_TFPlayer::FireGameEvent( IGameEvent *event )
 
 		if ( !pVictim )
 			return;
-		// Attacker cant be found.. could still be a suicide though, lets treat it as one!
-		if ( !pAttacker )
-		{
-			m_bIsFriendlyFireOrSuicide = true;
-			return;	
-		}
-
-		if ( pAttacker->GetTeamNumber() == pVictim->GetTeamNumber() )
+		// If attacker can't be found lets treat it as a suicide
+		if ( !pAttacker || pAttacker->GetTeamNumber() == pVictim->GetTeamNumber() )
 		{
 			m_bIsFriendlyFireOrSuicide = true;
 		}
