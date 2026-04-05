@@ -44,7 +44,7 @@ CDashboardPartyMember::EMemberState SteamIDOfPartySlot( int nSlot, CSteamID& ste
 	if ( nSlot < GTFPartyClient()->GetNumOutgoingInvites() )
 	{
 		steamID = GTFPartyClient()->GetOutgoingInvite( nSlot );
-		return CDashboardPartyMember::MEMBER_PENDING_INCOMING_JOIN_REQUEST;
+		return CDashboardPartyMember::MEMBER_PENDING_OUTGOING_INVITE;
 	}
 
 	nSlot -= GTFPartyClient()->GetNumIncomingInvites();
