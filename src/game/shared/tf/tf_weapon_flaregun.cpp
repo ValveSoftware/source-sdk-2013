@@ -12,7 +12,6 @@
 #include "c_tf_player.h"
 #include "soundenvelope.h"
 #include "prediction.h"
-#include "usermessages.h"
 // Server specific.
 #else
 #include "tf_gamestats.h"
