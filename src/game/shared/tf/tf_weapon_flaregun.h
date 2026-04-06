@@ -84,6 +84,12 @@ protected:
 	int										m_iFlareCount;
 #endif
 
+	float m_flLastDenySoundTime;
+	CNetworkVar(float, m_flChargeBeginTime);
+#ifdef CLIENT_DLL
+	bool m_bReadyToFire;
+#endif
+
 protected:
 	void StartChargeStartTime() { m_flChargeBeginTime = gpGlobals->curtime; }
 
@@ -97,14 +103,11 @@ protected:
 
 private:
 
-	CNetworkVar( float, m_flChargeBeginTime );
 
 	bool m_bEffectsThinking;
-	float m_flLastDenySoundTime;
 
 #if defined( CLIENT_DLL )
 	CSoundPatch	*m_pChargeLoop;
-	bool m_bReadyToFire;
 #endif
 
 	CTFFlareGun( const CTFFlareGun & ) {}

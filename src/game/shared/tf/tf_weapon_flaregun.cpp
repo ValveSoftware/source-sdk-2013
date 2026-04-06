@@ -11,6 +11,8 @@
 #ifdef CLIENT_DLL
 #include "c_tf_player.h"
 #include "soundenvelope.h"
+#include "prediction.h"
+#include "usermessages.h"
 // Server specific.
 #else
 #include "tf_gamestats.h"
@@ -126,7 +128,7 @@ void CTFFlareGun::PrimaryAttack( void )
 	if ( pOwner->GetWaterLevel() != WL_Eyes )
 	{
 		BaseClass::PrimaryAttack();
-	}
+		}
 	else
 	{
 		if ( gpGlobals->curtime > m_flLastDenySoundTime )
@@ -480,12 +482,39 @@ void CTFFlareGun_Revenge::PrimaryAttack()
 {
 	if ( !CanAttack() )
 		return;
+	// Lets steal the base CTFFlareGun::PrimaryAttack checks and emulate it here, calling CTFFlareGun::PrimaryAttack and doing our checks afterwards can cause problems!
 
-	BaseClass::PrimaryAttack();
+	// Get the player owning the weapon.
+	CTFPlayer* pOwner = ToTFPlayer(GetPlayerOwner());
+	if (!pOwner)
+		return;
 
-	// Lower the reveng crit count
-	CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
+	if (m_flChargeBeginTime > 0.0f)
+		return;
+
+	// Don't attack if we're underwater
+	if (pOwner->GetWaterLevel() != WL_Eyes)
+	{
+		CTFWeaponBaseGun::PrimaryAttack();
+	}
+	else
+	{
+		if (gpGlobals->curtime > m_flLastDenySoundTime)
+		{
+			WeaponSound(SPECIAL2);
+			m_flLastDenySoundTime = gpGlobals->curtime + 1.0f;
+		}
+	}
+
+#ifdef CLIENT_DLL
+	m_bReadyToFire = false;
+
+	// Lower the revenge crit count
+	if ( pOwner && ( !prediction->InPrediction() || prediction->IsFirstTimePredicted() ) )
+#elif defined( GAME_DLL )
 	if ( pOwner )
+#endif
+
 	{
 		int iNewRevengeCrits = MAX( pOwner->m_Shared.GetRevengeCrits() - 1, 0 );
 		pOwner->m_Shared.SetRevengeCrits( iNewRevengeCrits );
@@ -553,6 +582,12 @@ void CTFFlareGun_Revenge::ChargePostFrame( void )
 						// Grant revenge crits
 						pOwner->m_Shared.SetRevengeCrits( pOwner->m_Shared.GetRevengeCrits() + 1 );
 
+						// Send UserMessage to owner to spawn absorb effect
+						CSingleUserRecipientFilter filter(pOwner);
+						filter.MakeReliable();
+						UserMessageBegin(filter, "ManmelterExtinguishedPlayer");
+						MessageEnd();
+
 						// Return health to the Pyro.
 						int iRestoreHealthOnExtinguish = 0;
 						CALL_ATTRIB_HOOK_INT( iRestoreHealthOnExtinguish, extinguish_restores_health );
@@ -603,20 +638,22 @@ bool CTFFlareGun_Revenge::ExtinguishPlayerInternal( CTFPlayer *pTarget, CTFPlaye
 }
 
 #ifdef CLIENT_DLL
+USER_MESSAGE( ManmelterExtinguishedPlayer )
+{
+	C_TFPlayer* pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if (!pPlayer)
+		return;
+
+	CTFFlareGun_Revenge* pWeapon = dynamic_cast<CTFFlareGun_Revenge*>( pPlayer->GetActiveWeapon() );
+	if (!pWeapon)
+		return;
+
+	pWeapon->DoAbsorbEffect();
+}
+
 void CTFFlareGun_Revenge::OnDataChanged( DataUpdateType_t type )
 {
 	BaseClass::OnDataChanged( type );
-
-	CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
-	if ( pOwner )
-	{
-		if ( m_nOldRevengeCrits < pOwner->m_Shared.GetRevengeCrits() )
-		{
-			DoAbsorbEffect();
-		}
-		
-		m_nOldRevengeCrits = pOwner->m_Shared.GetRevengeCrits();
-	}
 }
 
 void CTFFlareGun_Revenge::DoAbsorbEffect( void )
