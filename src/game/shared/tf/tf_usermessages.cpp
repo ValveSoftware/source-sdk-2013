@@ -129,8 +129,6 @@ void RegisterUserMessages()
 
 	usermessages->Register( "BuiltObject", 3 ); // object type, object mode (entrance vs. exit), index
 
-	usermessages->Register( "ManmelterExtinguishedPlayer", -1 );
-
 	// NVNT register haptic user messages
 	RegisterHapticMessages();
 	RegisterScriptMessages();

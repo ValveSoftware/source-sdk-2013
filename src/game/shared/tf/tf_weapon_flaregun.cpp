@@ -425,7 +425,9 @@ bool CTFFlareGun_Revenge::Holster( CBaseCombatWeapon *pSwitchingTo )
 #endif
 
 	StopCharge();
-
+#ifdef CLIENT_DLL
+	gameeventmanager->RemoveListener(this);
+#endif
 	return BaseClass::Holster( pSwitchingTo );
 }
 
@@ -440,6 +442,8 @@ bool CTFFlareGun_Revenge::Deploy( void )
 	{
 		pOwner->m_Shared.AddCond( TF_COND_CRITBOOSTED );
 	}
+#elif defined( CLIENT_DLL )
+	gameeventmanager->AddListener(this, "player_extinguished", false);
 #endif
 
 	StopCharge();
@@ -582,12 +586,6 @@ void CTFFlareGun_Revenge::ChargePostFrame( void )
 						// Grant revenge crits
 						pOwner->m_Shared.SetRevengeCrits( pOwner->m_Shared.GetRevengeCrits() + 1 );
 
-						// Send UserMessage to owner to spawn absorb effect
-						CSingleUserRecipientFilter filter(pOwner);
-						filter.MakeReliable();
-						UserMessageBegin(filter, "ManmelterExtinguishedPlayer");
-						MessageEnd();
-
 						// Return health to the Pyro.
 						int iRestoreHealthOnExtinguish = 0;
 						CALL_ATTRIB_HOOK_INT( iRestoreHealthOnExtinguish, extinguish_restores_health );
@@ -638,17 +636,19 @@ bool CTFFlareGun_Revenge::ExtinguishPlayerInternal( CTFPlayer *pTarget, CTFPlaye
 }
 
 #ifdef CLIENT_DLL
-USER_MESSAGE( ManmelterExtinguishedPlayer )
+void CTFFlareGun_Revenge::FireGameEvent( IGameEvent *event )
 {
-	C_TFPlayer* pPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if (!pPlayer)
-		return;
+	if (FStrEq(event->GetName(), "player_extinguished"))
+	{
+		C_TFPlayer* pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+		if (!pLocalPlayer)
+			return;
 
-	CTFFlareGun_Revenge* pWeapon = dynamic_cast<CTFFlareGun_Revenge*>( pPlayer->GetActiveWeapon() );
-	if (!pWeapon)
-		return;
+		if (event->GetInt("healer") != pLocalPlayer->entindex())
+			return;
 
-	pWeapon->DoAbsorbEffect();
+		DoAbsorbEffect();
+	}
 }
 
 void CTFFlareGun_Revenge::OnDataChanged( DataUpdateType_t type )

@@ -153,6 +153,7 @@ public:
 #ifdef CLIENT_DLL
 	virtual void OnDataChanged( DataUpdateType_t type );
 	void DoAbsorbEffect( void );
+	virtual void FireGameEvent(IGameEvent *event) OVERRIDE;
 #endif
 
 private:
