@@ -127,7 +127,7 @@ void CTFFlareGun::PrimaryAttack( void )
 	if ( pOwner->GetWaterLevel() != WL_Eyes )
 	{
 		BaseClass::PrimaryAttack();
-		}
+	}
 	else
 	{
 		if ( gpGlobals->curtime > m_flLastDenySoundTime )
@@ -488,23 +488,23 @@ void CTFFlareGun_Revenge::PrimaryAttack()
 	// Lets steal the base CTFFlareGun::PrimaryAttack checks and emulate it here, calling CTFFlareGun::PrimaryAttack and doing our checks afterwards can cause problems!
 
 	// Get the player owning the weapon.
-	CTFPlayer* pOwner = ToTFPlayer(GetPlayerOwner());
-	if (!pOwner)
+	CTFPlayer* pOwner = ToTFPlayer( GetPlayerOwner() );
+	if ( !pOwner )
 		return;
 
-	if (m_flChargeBeginTime > 0.0f)
+	if ( m_flChargeBeginTime > 0.0f )
 		return;
 
 	// Don't attack if we're underwater
-	if (pOwner->GetWaterLevel() != WL_Eyes)
+	if ( pOwner->GetWaterLevel() != WL_Eyes )
 	{
 		CTFWeaponBaseGun::PrimaryAttack();
 	}
 	else
 	{
-		if (gpGlobals->curtime > m_flLastDenySoundTime)
+		if ( gpGlobals->curtime > m_flLastDenySoundTime )
 		{
-			WeaponSound(SPECIAL2);
+			WeaponSound( SPECIAL2 );
 			m_flLastDenySoundTime = gpGlobals->curtime + 1.0f;
 		}
 	}
@@ -637,13 +637,13 @@ bool CTFFlareGun_Revenge::ExtinguishPlayerInternal( CTFPlayer *pTarget, CTFPlaye
 #ifdef CLIENT_DLL
 void CTFFlareGun_Revenge::FireGameEvent( IGameEvent *event )
 {
-	if (FStrEq(event->GetName(), "player_extinguished"))
+	if ( FStrEq( event->GetName(), "player_extinguished" ) )
 	{
 		C_TFPlayer* pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-		if (!pLocalPlayer)
+		if ( !pLocalPlayer )
 			return;
 
-		if (event->GetInt("healer") != pLocalPlayer->entindex())
+		if ( event->GetInt( "healer" ) != pLocalPlayer->entindex() )
 			return;
 
 		DoAbsorbEffect();
