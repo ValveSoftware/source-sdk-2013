@@ -2005,6 +2005,9 @@ bool CTFItemSchema::BInitMaps( KeyValues *pKVMaps, CUtlVector<CUtlString> *pVecE
 		pMap->pszStrangePrefixLocKey	= pKVMap->GetString( "strangeprefixtoken", NULL );
 		pMap->m_nStatsIdentifier		= pKVMap->GetInt( "statsidentifier", -1 );
 
+		int iQuickplayType = StringFieldToInt( pKVMap->GetString( "quickplay_type", NULL ), s_pszQuickplayMatchTypes, ARRAYSIZE( s_pszQuickplayMatchTypes ), true );
+		pMap->eQuickplayType = ( iQuickplayType != -1 ) ? (eQuickplayMatchType)iQuickplayType : kQuickplay_Disabled;
+
 		// initialize from optional "tags" block
 		KeyValues *pKVTags = pKVMap->FindKey( "tags" );
 		if ( pKVTags )
