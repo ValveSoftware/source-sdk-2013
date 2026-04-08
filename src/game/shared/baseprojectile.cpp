@@ -18,10 +18,8 @@ IMPLEMENT_NETWORKCLASS_ALIASED( BaseProjectile, DT_BaseProjectile )
 BEGIN_NETWORK_TABLE( CBaseProjectile, DT_BaseProjectile )
 #if !defined( CLIENT_DLL )
 	SendPropEHandle( SENDINFO( m_hOriginalLauncher ) ),
-	SendPropInt( SENDINFO( m_nSyncedTickOffset ), 8, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ), // 8 bits (0-255), for precise sync
 #else
 	RecvPropEHandle( RECVINFO( m_hOriginalLauncher ) ),
-	RecvPropInt( RECVINFO( m_nSyncedTickOffset ) ),
 #endif // CLIENT_DLL
 END_NETWORK_TABLE()
 
@@ -59,9 +57,6 @@ CBaseProjectile::CBaseProjectile()
 	m_bCanCollideWithTeammates = false;
 #endif
 	m_hOriginalLauncher = NULL;
-
-	// Init sync vars
-	m_nSyncedTickOffset = 0;
 }
 
 

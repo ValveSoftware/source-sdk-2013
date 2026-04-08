@@ -63,15 +63,7 @@ public:
 	virtual void Destroy( bool bBlinkOut = true, bool bBreakRocket = false ) {}
 	virtual void SetLauncher( CBaseEntity *pLauncher );
 
-	virtual void SetSyncedSimulationTick(int tick) { m_nSimulationTick = tick; }
-	int GetSimulationTick() const { return m_nSimulationTick; }
 	CBaseEntity *GetOriginalLauncher() const { return m_hOriginalLauncher; }
-	
-	// Determines if this projectile should be specially synced with player cmds
-	virtual bool IsSyncCandidate() const { return false; }
-	
-	// Sets the sync tick offset value (0-255) for networking
-	void SetSyncedTickOffset(int nOffset) { m_nSyncedTickOffset = nOffset & 0xFF; }
 
 protected:
 #ifdef GAME_DLL
@@ -90,9 +82,6 @@ private:
 #endif // GAME_DLL
 
 	CNetworkHandle( CBaseEntity, m_hOriginalLauncher );
-
-	// Sync props
-	CNetworkVar( int, m_nSyncedTickOffset );
 
 #ifdef TF_DLL
 	CUtlVector< int > m_vecEntsHit;

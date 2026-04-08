@@ -48,8 +48,6 @@ public:
 
 	void SetEyeBallRocket( bool state ){ m_bEyeBallRocket = state; }
 	void SetSpell( bool bSpell ) { m_bSpell = bSpell; }
-	
-	virtual bool IsSyncCandidate() const OVERRIDE { return true; }
 
 private:
 	CBaseHandle m_Scorer;

@@ -140,10 +140,6 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-float flPRunCmdHostInitCurTime = 0.0f;
-float flPRunCmdHostInitFrameTime = 0.0f;
-int   iPRunCmdHostInitTickCount = 0;
-
 #pragma warning( disable: 4355 ) // disables ' 'this' : used in base member initializer list'
 
 ConVar sv_motd_unload_on_dismissal( "sv_motd_unload_on_dismissal", "0", 0, "If enabled, the MOTD contents will be unloaded when the player closes the MOTD." );
@@ -3038,11 +3034,6 @@ void CTFPlayer::Precache()
 ConVar sv_runcmds( "sv_runcmds", "1" );
 void CTFPlayer::PlayerRunCommand( CUserCmd *ucmd, IMoveHelper *moveHelper )
 {
-	// Store the initial timing context when this player's command processing starts
-	flPRunCmdHostInitCurTime = gpGlobals->curtime;
-	flPRunCmdHostInitFrameTime = gpGlobals->frametime;
-	iPRunCmdHostInitTickCount = gpGlobals->tickcount;
-
 	static bool bSeenSyncError = false;
 	VPROF( "CTFPlayer::PlayerRunCommand" );
 
@@ -3077,68 +3068,6 @@ void CTFPlayer::PlayerRunCommand( CUserCmd *ucmd, IMoveHelper *moveHelper )
 	}
 
 	BaseClass::PlayerRunCommand( ucmd, moveHelper );
-
-	// Projectile sync logic - ensures all eligible projectiles are simulated consistently with player cmds
-	// Store the timing context *after* BaseClass::PlayerRunCommand has run, as it might have advanced gpGlobals
-	float flPostBaseCmdCurTime = gpGlobals->curtime;
-	float flPostBaseCmdFrameTime = gpGlobals->frametime;
-	int   iPostBaseCmdTickCount = gpGlobals->tickcount;
-
-	// Set gpGlobals to the *initial* state for our projectile simulation loop
-	gpGlobals->curtime = flPRunCmdHostInitCurTime;
-	gpGlobals->frametime = flPRunCmdHostInitFrameTime;
-	gpGlobals->tickcount = iPRunCmdHostInitTickCount;
-
-	// Look for all player-owned projectiles that need synchronization
-	CBaseEntity *pEntity = NULL;
-	for ( pEntity = gEntList.FirstEnt(); pEntity != NULL; pEntity = gEntList.NextEnt(pEntity) )
-	{
-		if ( !pEntity )
-			continue;
-
-		// Check if this is a projectile that should be synchronized
-		CBaseProjectile *pProjectile = dynamic_cast<CBaseProjectile*>(pEntity);
-		if ( pProjectile && pProjectile->GetOwnerEntity() == this && pProjectile->IsSyncCandidate() )
-		{
-			// Store original simulation tick for later reference
-			int nOriginalSimulationTick = pProjectile->GetSimulationTick();
-
-			// Ensure the projectile simulates by setting its simulation tick
-			// to one less than the target gpGlobals->tickcount
-			pProjectile->SetSyncedSimulationTick(iPRunCmdHostInitTickCount - 1);
-			
-			// Simulate the projectile with our adjusted global time values
-			pProjectile->PhysicsSimulate();
-
-			// Calculate and set the network tick offset for client-side synchronization
-			// This uses the same calculation as in the SourcePawn script
-			int entityIndex = pProjectile->entindex();
-			int tickNumber = iPRunCmdHostInitTickCount;
-			int mod = entityIndex % 32;
-			int tickbase = 100 * ((tickNumber - mod) / 100);
-			int addt = 0;
-			
-			if (tickNumber >= tickbase) {
-				addt = (tickNumber - tickbase) & 0xFF;
-			}
-			
-			// Set the tick offset to be networked to clients
-			pProjectile->SetSyncedTickOffset(addt);
-			
-			// Mark entity as changed for networking
-			pProjectile->NetworkStateChanged();
-			
-			// For debugging
-			// DevMsg("Sync: Player %d, Projectile %d, Tick %d, Offset %d\n", 
-			//        entindex(), pProjectile->entindex(), tickNumber, addt);
-		}
-	}
-
-	// Restore gpGlobals to their state from *after* BaseClass::PlayerRunCommand,
-	// so the rest of the game simulation proceeds with the correctly advanced time
-	gpGlobals->curtime = flPostBaseCmdCurTime;
-	gpGlobals->frametime = flPostBaseCmdFrameTime;
-	gpGlobals->tickcount = iPostBaseCmdTickCount;
 
 	// try to play taunt remap on input after updating user command
 	if ( IsTaunting() && m_flNextAllowTauntRemapInputTime >= 0.f && m_flNextAllowTauntRemapInputTime <= gpGlobals->curtime )

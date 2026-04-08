@@ -71,8 +71,6 @@ public:
 
 	float GetProjectileSpeed( void ) const;
 	float GetHeatSeekPower( void ) const;
-	
-	virtual bool IsSyncCandidate() const OVERRIDE { return true; }
 
 private:
 
