@@ -79,6 +79,7 @@ public:
 	float GetAirtimeSec() const;
 	float GetAirtimeDistance() const;
 	float GetThrowerCanPickupTime() const;
+	float GetBallDmgImmuneTime() const;
 
 	void StartLagCompensation( CBasePlayer *player, CUserCmd *cmd );
 	void FinishLagCompensation( CBasePlayer *player );
@@ -129,7 +130,8 @@ private:
 	float m_flLastTeamChangeTime; // for stats
 	float m_flBeginCarryTime;
 	float m_flIdleRespawnTime;
-	float m_flThrowerCanPickupTime; // for jack armor prevention
+	float m_flThrowerCanPickupTime; // jack armor prevention
+	float m_flBallDmgImmuneTime; // instant splash prevention
 
 	CUtlVector<CBaseEntity*> m_mapGoals; 
 

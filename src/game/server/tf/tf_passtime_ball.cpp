@@ -551,6 +551,7 @@ void CPasstimeBall::OnBecomeNotCarried()
 	SetParent( 0 );
 }
 
+// Applied when throwing the ball, when the ball spawns, and when dying with the ball
 //-----------------------------------------------------------------------------
 void CPasstimeBall::SetStateFree()
 {
@@ -584,6 +585,9 @@ void CPasstimeBall::SetStateFree()
 	{
 		m_flThrowerCanPickupTime = gpGlobals->curtime + tf_passtime_no_jack_armor_time.GetFloat();
 	}
+
+	// Set ball immunity length after being thrown
+	m_flBallDmgImmuneTime = gpGlobals->curtime + tf_passtime_ball_dmg_immune_time.GetFloat();
 	
 	TFGameRules()->SetObjectiveObserverTarget( this );
 	VPhysicsGetObject()->EnableGravity( true );
@@ -1375,7 +1379,7 @@ int	CPasstimeBall::OnTakeDamage( const CTakeDamageInfo &info )
 {
 	CTFPlayer *ballThrower = GetThrower();
 
-	if ( !tf_passtime_ball_takedamage.GetBool() )
+	if ( !tf_passtime_ball_takedamage.GetBool() || gpGlobals->curtime < GetBallDmgImmuneTime())
 	{
 		// this can happen if the cvar is disabled after the ball has spawned
 		return 0;
@@ -1411,8 +1415,7 @@ int	CPasstimeBall::OnTakeDamage( const CTakeDamageInfo &info )
 		Ray_t ray;
 
 		ray.Init( inflictorOrigin, ballOrigin );
-		UTIL_TraceRay( ray, MASK_SOLID, inflictor,
-COLLISION_GROUP_WEAPON, &result );
+		UTIL_TraceRay( ray, MASK_SOLID, inflictor, COLLISION_GROUP_WEAPON, &result );
 
 		if ( result.DidHit() ) // ball direct
 		{
@@ -1457,22 +1460,15 @@ COLLISION_GROUP_WEAPON, &result );
 			{
 				if ( didSplashGoal && attackerPlayer && ballThrower && attackerPlayer->GetTeamNumber() != ballThrower->GetTeamNumber() )
 				{
-					PasstimeGameEvents::BallSplashed(
-					attackerPlayer->entindex(), weaponname, true )
-					.Fire();
+					PasstimeGameEvents::BallSplashed( attackerPlayer->entindex(), weaponname, true ).Fire();
 				}
 				else
 				{
-					PasstimeGameEvents::BallDirected(
-					attackerPlayer->entindex(), inflictor->entindex(), weaponname )
-					.Fire();				
+					PasstimeGameEvents::BallDirected( attackerPlayer->entindex(), inflictor->entindex(), weaponname ).Fire();				
 				}
 
 			} else if ( didSplashGoal && attackerPlayer && ballThrower && attackerPlayer->GetTeamNumber() != ballThrower->GetTeamNumber() ) { // ball splash
-
-					PasstimeGameEvents::BallSplashed(
-					attackerPlayer->entindex(), weaponname, false )
-					.Fire();
+					PasstimeGameEvents::BallSplashed( attackerPlayer->entindex(), weaponname, false ).Fire();
 			} 
 		}
 
@@ -1654,6 +1650,10 @@ float CPasstimeBall::GetThrowerCanPickupTime() const
 	return m_flThrowerCanPickupTime;
 }
 
+float CPasstimeBall::GetBallDmgImmuneTime() const
+{
+	return m_flBallDmgImmuneTime;
+}
 
 void CPasstimeBall::CreateMagnetSound()
 {

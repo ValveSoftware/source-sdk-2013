@@ -92,7 +92,8 @@ extern ConVar
 	p4ss_passtime_lock_angle,
 
 	tf_passtime_no_jack_armor,
-	tf_passtime_no_jack_armor_time;
+	tf_passtime_no_jack_armor_time,
+	tf_passtime_ball_dmg_immune_time;
     
     enum class EPasstimeExperiment_Telepass { 
 	None,

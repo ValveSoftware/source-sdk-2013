@@ -1316,6 +1316,7 @@ void CTFPasstimeLogic::SetLastPassTime( CTFPlayer* pPlayer )
 	}
 }
 
+// Send the ball straight up when the player holding it died.
 //-----------------------------------------------------------------------------
 void CTFPasstimeLogic::EjectBall( CTFPlayer *pPlayer, CTFPlayer *pAttacker )
 {
