@@ -6016,7 +6016,7 @@ bool UTIL_CreateScaledPhysObject( CBaseAnimating *pInstance, float flScale )
 
 		// Create a container to hold all the convexes we'll create
 		const int nNumConvex = pQuery->ConvexCount();
-		CPhysConvex **pConvexes = (CPhysConvex **) stackalloc( sizeof(CPhysConvex *) * nNumConvex );
+		CPhysPolysoup *pPolySoups = physcollision->PolysoupCreate();
 
 		// For each convex, collect the verts and create a convex from it we'll retain for later
 		for ( int i = 0; i < nNumConvex; i++ )
@@ -6025,7 +6025,6 @@ bool UTIL_CreateScaledPhysObject( CBaseAnimating *pInstance, float flScale )
 			int nNumVerts = nNumTris * 3;
 			// FIXME: Really?  stackalloc?
 			Vector *pVerts = (Vector *) stackalloc( sizeof(Vector) * nNumVerts );
-			Vector **ppVerts = (Vector **) stackalloc( sizeof(Vector *) * nNumVerts );
 			for ( int j = 0; j < nNumTris; j++ )
 			{
 				// Get all the verts for this triangle and scale them up
@@ -6033,25 +6032,19 @@ bool UTIL_CreateScaledPhysObject( CBaseAnimating *pInstance, float flScale )
 				*(pVerts+(j*3)) *= flScale;
 				*(pVerts+(j*3)+1) *= flScale;
 				*(pVerts+(j*3)+2) *= flScale;
-
-				// Setup our pointers (blech!)
-				*(ppVerts+(j*3)) = pVerts+(j*3);
-				*(ppVerts+(j*3)+1) = pVerts+(j*3)+1;
-				*(ppVerts+(j*3)+2) = pVerts+(j*3)+2;
 			}
 
-			// Convert it back to a convex
-			pConvexes[i] = physcollision->ConvexFromVerts( ppVerts, nNumVerts );
-			Assert( pConvexes[i] != NULL );
-			if ( pConvexes[i] == NULL )
-				return false;
+			for ( int j = 0; j < nNumVerts; j += 3 )
+			{
+				physcollision->PolysoupAddTriangle( pPolySoups, pVerts[j], pVerts[j + 1], pVerts[j + 2], 0 );
+			}
 		}
 
 		// Clean up
 		physcollision->DestroyQueryModel( pQuery );
 
 		// Create a collision model from all the convexes
-		pNewCollide = physcollision->ConvertConvexToCollide( pConvexes, nNumConvex );
+		pNewCollide = physcollision->ConvertPolysoupToCollide( pPolySoups, true );
 		if ( pNewCollide == NULL )
 			return false;
 	}
