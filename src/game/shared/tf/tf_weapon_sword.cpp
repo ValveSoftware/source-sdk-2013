@@ -562,7 +562,7 @@ float CTFKatana::GetMeleeDamage( CBaseEntity *pTarget, int* piDamageType, int* p
 			if ( pTFPlayerTarget->GetActiveTFWeapon() && pTFPlayerTarget->GetActiveTFWeapon()->IsHonorBound() )
 			{
 				fDamage = MAX( fDamage, pTFPlayerTarget->GetHealth() * 3 );
-				*piDamageType |= DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE;
+				*piDamageType |= DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE | DMG_IGNORE_RESIST_BUFFS;
 			}
 		}
 	}
