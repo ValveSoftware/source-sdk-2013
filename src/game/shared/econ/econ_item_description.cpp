@@ -3697,7 +3697,8 @@ void CEconItemDescription::AddAttributeDescription( const CLocalizationProvider 
 	}
 	// They can also be from Halloween spells. These are intended to expire after Halloween in any
 	// event, but for display purposes they'll appear in grey unless the holiday is active.
-	else if ( pAttribDef->GetUserGenerationType() == kUserGeneratedAttributeType_HalloweenSpell && !EconHolidays_IsHolidayActive( kHoliday_Halloween, CRTime::RTime32TimeCur() ) )
+	else if ( pAttribDef->GetUserGenerationType() == kUserGeneratedAttributeType_HalloweenSpell &&
+	!(EconHolidays_IsHolidayActive(kHoliday_Halloween, CRTime::RTime32TimeCur()) || EconHolidays_IsHolidayActive(kHoliday_FullMoon, CRTime::RTime32TimeCur())) )
 	{
 		eDefaultAttribColor = ATTRIB_COL_ITEMSET_MISSING;
 	}

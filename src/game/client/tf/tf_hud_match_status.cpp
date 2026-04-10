@@ -358,7 +358,7 @@ void CTFHudMatchStatus::ApplySchemeSettings(IScheme *pScheme)
 		pConditions = new KeyValues( "conditions" );
 		AddSubKeyNamed( pConditions, "if_match" );
 
-		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GTFGCClientSystem()->GetLiveMatchGroup() );
+		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules() ? TFGameRules()->GetCurrentMatchGroup() : GTFGCClientSystem()->GetLiveMatchGroup() );
 		if ( pMatchDesc )
 		{
 			if ( pMatchDesc->GetMatchSize() > 12 )
