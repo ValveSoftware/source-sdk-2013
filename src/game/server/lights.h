@@ -13,10 +13,10 @@
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CLight : public CPointEntity
+class CLight : public CServerOnlyPointEntity
 {
 public:
-	DECLARE_CLASS( CLight, CPointEntity );
+	DECLARE_CLASS( CLight, CServerOnlyPointEntity );
 
 	bool	KeyValue( const char *szKeyName, const char *szValue );
 	void	Spawn( void );
