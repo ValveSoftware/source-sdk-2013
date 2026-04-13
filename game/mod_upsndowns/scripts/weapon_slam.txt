@@ -1,0 +1,61 @@
+// Slam
+
+WeaponData
+{
+	// Weapon data is loaded by both the Game and Client DLLs.
+	"printname"	"#HL2_SLAM"
+	"viewmodel"				"models/weapons/v_slam.mdl"
+	"playermodel"			"models/weapons/w_slam.mdl"
+	"anim_prefix"			"slam"
+	"bucket"				"4"
+	"bucket_position"		"2"
+
+	"clip_size"				"3"
+	"primary_ammo"			"None"
+	"secondary_ammo"		"slam"
+	"default_clip2"			"3"
+
+	"weight"				"1"
+	"item_flags"			"2"
+
+	// Weapon Sprite data is loaded by the Client DLL.
+	TextureData
+	{
+		"weapon"
+		{
+				"font"		"WeaponIcons"
+				"character"	"o"
+		}
+		"weapon_s"
+		{
+				"font"		"WeaponIconsSelected"
+				"character"	"o"
+		}
+		"weapon_small"
+		{
+				"font"		"WeaponIconsSmall"
+				"character"	"o"
+		}
+		"ammo"
+		{
+				"font"		"WeaponIcons"
+				"character"	"o"
+		}
+		"crosshair"
+		{
+				"file"		"sprites/crosshairs"
+				"x"			"0"
+				"y"			"48"
+				"width"		"24"
+				"height"	"24"
+		}
+		"autoaim"
+		{
+				"file"		"sprites/crosshairs"
+				"x"			"48"
+				"y"			"72"
+				"width"		"24"
+				"height"	"24"
+		}
+	}
+}

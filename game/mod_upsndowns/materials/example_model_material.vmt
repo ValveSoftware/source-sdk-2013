@@ -1,0 +1,7 @@
+"Mod_Example_Model"
+{
+	"$basetexture"			"Models/props_c17/Oil_Drum001g"
+//	"$basetexturetransform"	"center 0 0 scale 1 2 rotate 0 translate 0 0"
+//	"$AlphaTestReference"	"0.5"
+	"$surfaceprop" "metal"
+}

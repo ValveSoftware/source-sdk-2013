@@ -17,6 +17,7 @@ $Project "client"
 {
 	"game\client\client_tf.vpc"			[$TF]
 	"game\client\client_hl2mp.vpc"		[$HL2MP]
+	"game\client\client_upsndowns.vpc"	[$UPSNDOWNS]
 }
 
 $Project "fgdlib"
@@ -27,6 +28,7 @@ $Project "fgdlib"
 $Project "game_shader_generic_example"
 {
 	"materialsystem\stdshaders\game_shader_generic_example_hl2mp.vpc" [$HL2MP]
+	"materialsystem\stdshaders\game_shader_generic_example_hl2mp.vpc" [$UPSNDOWNS]
 	"materialsystem\stdshaders\game_shader_generic_example_tf.vpc" [$TF]
 }
 
@@ -35,6 +37,7 @@ $Project "game_shader_generic_example"
 $Project "game_shader_generic_std"
 {
 	"materialsystem\stdshaders\game_shader_generic_std_hl2mp.vpc" [$HL2MP]
+	"materialsystem\stdshaders\game_shader_generic_std_hl2mp.vpc" [$UPSNDOWNS]
 	"materialsystem\stdshaders\game_shader_generic_std_tf.vpc" [$TF]
 }
 
@@ -52,12 +55,14 @@ $Project "server"
 {
 	"game\server\server_tf.vpc"			[$TF]
 	"game\server\server_hl2mp.vpc"		[$HL2MP]
+	"game\server\server_upsndowns.vpc"	[$UPSNDOWNS]
 }
 
 $Project "launcher_main"
 {
 	"launcher_main\launcher_main_mod_hl2mp.vpc" [$HL2MP]
 	"launcher_main\launcher_main_mod_tf.vpc" [$TF]
+	"launcher_main\launcher_main_mod_upsndowns.vpc" [$UPSNDOWNS]
 }
 
 $Project "mathlib"

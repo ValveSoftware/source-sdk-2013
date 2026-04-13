@@ -1,0 +1,75 @@
+// Missile Launcher
+
+WeaponData
+{
+	// Weapon data is loaded by both the Game and Client DLLs.
+	"printname"	"#HL2_RPG"
+	"viewmodel"				"models/weapons/v_rpg.mdl"
+	"playermodel"			"models/weapons/w_rocket_launcher.mdl"
+	"anim_prefix"			"missile launcher"
+	"bucket"				"4"
+	"bucket_position"		"1"
+	"autoswitchfrom"		"1"
+
+	"clip_size"				"-1"
+	"clip2_size"			"-1"
+	"default_clip"			"3"
+	"default_clip2"			"-1"
+
+	"primary_ammo"			"rpg_round"
+	"secondary_ammo"		"None"
+
+	"weight"				"0"
+	"item_flags"			"0"
+	"damage"			"150"
+
+	// Sounds for the weapon. There is a max of 16 sounds per category (i.e. max 16 "single_shot" sounds)
+	SoundData
+	{
+		"single_shot"		"Weapon_RPG.Single"
+		"single_shot_npc"	"Weapon_RPG.NPC_Single"
+		//Laser on
+		"special1"			"Weapon_RPG.LaserOn"
+		//Laser off
+		"special2"			"Weapon_RPG.LaserOff"
+		"empty"				"Weapon_SMG1.Empty"
+	}
+
+	// Weapon Sprite data is loaded by the Client DLL.
+	TextureData
+	{
+		"weapon"
+		{
+				"font"		"WeaponIcons"
+				"character"	"i"
+		}
+		"weapon_s"
+		{	
+				"font"		"WeaponIconsSelected"
+				"character"	"i"
+		}
+		"weapon_small"
+		{
+				"font"		"WeaponIconsSmall"
+				"character"	"i"
+		}
+		"ammo"
+		{
+				"font"		"WeaponIconsSmallSecondary"
+				"character"	"x"
+		}
+		"crosshair"
+		{
+				"font"		"Crosshairs"
+				"character"	"Q"
+		}
+		"autoaim"
+		{
+				"file"		"sprites/crosshairs"
+				"x"			"48"
+				"y"			"72"
+				"width"		"24"
+				"height"	"24"
+		}
+	}
+}
