@@ -40,11 +40,11 @@ extern ConVar tf_mm_trusted;
 static ConVar tf_stats_nogameplaycheck( "tf_stats_nogameplaycheck", "0", FCVAR_NONE , "Disable normal check for valid gameplay, send stats regardless." );
 //static ConVar tf_stats_track( "tf_stats_track", "1", FCVAR_NONE, "Turn on//off tf stats tracking." );
 //static ConVar tf_stats_verbose( "tf_stats_verbose", "0", FCVAR_NONE, "Turn on//off verbose logging of stats." );
-ConVar tf_stats_bogus_damage_max("tf_stats_bogus_damage_max", "1500", FCVAR_REPLICATED, "Maximum damage before bogus warning");
-ConVar tf_stats_bogus_damage_mvm_max("tf_stats_bogus_damage_mvm_max", "5000", FCVAR_REPLICATED, "Maximum damage in MvM before bogus warning");
-ConVar tf_stats_bogus_healing_max("tf_stats_bogus_healing_max", "1000", FCVAR_REPLICATED, "Maximum healing before bogus warning");
-ConVar tf_stats_bogus_block_damage_max("tf_stats_bogus_block_damage_max", "3000", FCVAR_REPLICATED, "Maximum damage blocked before bogus warning");
-ConVar tf_stats_bogus_return("tf_stats_bogus_return", "1", FCVAR_REPLICATED, "Return without recording stats if bogus values are found");
+ConVar tf_stats_bogus_damage_max("tf_stats_bogus_damage_max", "1500", FCVAR_REPLICATED, "The maximum damage allowed before a bogus warning is sent.", true, 1500.f, false, 0.f );
+ConVar tf_stats_bogus_damage_mvm_max("tf_stats_bogus_damage_mvm_max", "5000", FCVAR_REPLICATED, "The maximum damage allowed in mvm before a bogus warning is sent.", true, 5000.f, false, 0.f );
+ConVar tf_stats_bogus_healing_max("tf_stats_bogus_healing_max", "1000", FCVAR_REPLICATED, "The maximum healing allowed before a bogus warning is sent.", true, 1000.f, false, 0.f );
+ConVar tf_stats_bogus_block_damage_max("tf_stats_bogus_block_damage_max", "3000", FCVAR_REPLICATED, "The maximum damage blocked allowed before a bogus warning is sent.", true, 3000.f, false, 0.f );
+ConVar tf_stats_bogus_ignore("tf_stats_bogus_ignore", "1", FCVAR_REPLICATED, "If non-zero, ignore recording bogus stats. If equals 2, don't print DevMsg.", true, 0.f, true, 2.f );
 
 CTFGameStats CTF_GameStats;
 
@@ -725,18 +725,15 @@ void CTFGameStats::Event_PlayerHealedOther( CTFPlayer *pPlayer, float amount )
 	int iAmount = (int) amount;
 	Assert( iAmount >= 0 );
 	Assert( iAmount <= tf_stats_bogus_healing_max.GetInt() );
-	if ( iAmount < 0 || iAmount > tf_stats_bogus_healing_max.GetInt() )
+	if ( ( iAmount < 0 || iAmount > tf_stats_bogus_healing_max.GetInt() ) && tf_stats_bogus_ignore.GetInt() > 0 )
 	{
-		if ( tf_stats_bogus_return.GetBool() )
+		if ( tf_stats_bogus_ignore.GetInt() != 2 )
 		{
-			DevMsg("CTFGameStats: bogus healing value found, %d, ignoring\n", iAmount);
-			return;
+			DevMsg("CTFGameStats: bogus healing value of %d found\n", iAmount);
 		}
-		else
-		{
-			DevMsg("CTFGameStats: bogus healing value found, %d\n", iAmount);
-		}
+		return;
 	}
+
 	IncrementStat( pPlayer, TFSTAT_HEALING, (int) amount );
 
 	TF_Gamestats_RoundStats_t* round = GetRoundStatsForTeam( pPlayer->GetTeamNumber() );
@@ -768,20 +765,16 @@ void CTFGameStats::Event_PlayerHealedOtherAssist( CTFPlayer *pPlayer, float amou
 	int iAmount = (int) amount;
 	Assert( iAmount >= 0 );
 	Assert( iAmount <= tf_stats_bogus_healing_max.GetInt() );
-	if ( iAmount < 0 || iAmount > tf_stats_bogus_healing_max.GetInt() )
-	{
-		if ( tf_stats_bogus_return.GetBool() )
-		{
-			DevMsg("CTFGameStats: bogus healing value found, %d, ignoring\n", iAmount);
-			return;
-		}
-		else
-		{
-			DevMsg("CTFGameStats: bogus healing value found, %d\n", iAmount);
-		}
-	}
 
-	IncrementStat( pPlayer, TFSTAT_HEALING_ASSIST, (int) amount );
+	if ( ( iAmount < 0 || iAmount > tf_stats_bogus_healing_max.GetInt() ) && tf_stats_bogus_ignore.GetInt() > 0 )
+	{
+		if ( tf_stats_bogus_ignore.GetInt() != 2 )
+		{
+			DevMsg("CTFGameStats: bogus healing value of %d found\n", iAmount);
+		}
+		return;
+	}
+	IncrementStat( pPlayer, TFSTAT_HEALING_ASSIST, iAmount );
 }
 
 //-----------------------------------------------------------------------------
@@ -789,19 +782,16 @@ void CTFGameStats::Event_PlayerHealedOtherAssist( CTFPlayer *pPlayer, float amou
 //-----------------------------------------------------------------------------
 void CTFGameStats::Event_PlayerBlockedDamage( CTFPlayer *pPlayer, int nAmount ) 
 {
-	Assert( pPlayer && nAmount > 0 && nAmount < tf_stats_bogus_block_damage_max.GetInt() );
-	if ( nAmount < 0 || nAmount > tf_stats_bogus_block_damage_max.GetInt() )
+	Assert( pPlayer && nAmount > 0 && nAmount <  tf_stats_bogus_block_damage_max.GetInt() );
+	if ( ( nAmount < 0 || nAmount > tf_stats_bogus_block_damage_max.GetInt() ) && tf_stats_bogus_ignore.GetInt() > 0 )
 	{
-		if ( tf_stats_bogus_return.GetBool() )
+		if ( tf_stats_bogus_ignore.GetInt() != 2 )
 		{
-			DevMsg("CTFGameStats: bogus blocked damage value found, %d, ignoring\n", nAmount);
-			return;
+			DevMsg("CTFGameStats: bogus blocked damage value of %d found\n", nAmount);
 		}
-		else
-		{
-			DevMsg("CTFGameStats: bogus blocked damage value found, %d\n", nAmount);
-		}
+		return;
 	}
+
 	IncrementStat( pPlayer, TFSTAT_DAMAGE_BLOCKED, nAmount );
 }
 
@@ -1060,25 +1050,22 @@ void CTFGameStats::Event_PlayerFiredWeapon( CTFPlayer *pPlayer, bool bCritical )
 void CTFGameStats::Event_PlayerDamage( CBasePlayer *pBasePlayer, const CTakeDamageInfo &info, int iDamageTaken )
 {
 	// defensive guard against insanely huge damage values that apparently get into the stats system once in a while -- ignore insane values
-	int INSANE_PLAYER_DAMAGE = TFGameRules()->IsMannVsMachineMode() ? tf_stats_bogus_damage_mvm_max.GetInt() : tf_stats_bogus_damage_max.GetInt();
+	int INSANE_PLAYER_DAMAGE = TFGameRules()->IsMannVsMachineMode() ? tf_stats_bogus_damage_mvm_max.GetFloat() : tf_stats_bogus_damage_max.GetFloat();
+
 	if ( sv_cheats && !sv_cheats->GetBool() )
 	{
 		Assert( iDamageTaken >= 0 );
 	}
-	
-	if ( iDamageTaken < 0 || iDamageTaken > INSANE_PLAYER_DAMAGE )
-	{
-		if (tf_stats_bogus_return.GetBool())
-		{
-			DevMsg("CTFGameStats: bogus damage value found, %d, ignoring\n", iDamageTaken);
-			return;
-		}
-		else
-		{
-			DevMsg("CTFGameStats: bogus damage value found, %d\n", iDamageTaken);
-		}
-	}
 
+	if ( ( iDamageTaken < 0 || iDamageTaken > INSANE_PLAYER_DAMAGE ) && tf_stats_bogus_ignore.GetInt() > 0 )
+	{
+		if ( tf_stats_bogus_ignore.GetInt() != 2 )
+		{
+			DevMsg("CTFGameStats: bogus damage value of %d found\n", iDamageTaken);
+		}
+		return;
+	}
+	
 	CObjectSentrygun *pSentry = NULL;
 	CTFPlayer *pTarget = ToTFPlayer( pBasePlayer );
 	CTFPlayer *pAttacker = ToTFPlayer( info.GetAttacker() );
@@ -1280,11 +1267,18 @@ void CTFGameStats::Event_PlayerDamageAssist( CBasePlayer *pProvider, int iBonusD
 {
 	Assert( pProvider );
 
-	const int INSANE_PLAYER_DAMAGE = 5000;
+	int INSANE_PLAYER_DAMAGE = tf_stats_bogus_damage_max.GetInt();
 	Assert( iBonusDamage >= 0 );
 	Assert( iBonusDamage <= INSANE_PLAYER_DAMAGE );
-	if ( iBonusDamage < 0 || iBonusDamage > INSANE_PLAYER_DAMAGE )
+
+	if ( ( iBonusDamage < 0 || iBonusDamage > INSANE_PLAYER_DAMAGE ) && tf_stats_bogus_ignore.GetInt() > 0 )
+	{
+		if ( tf_stats_bogus_ignore.GetInt() != 2 )
+		{
+			DevMsg("CTFGameStats: bogus assist damage value of %d found\n", iBonusDamage);
+		}
 		return;
+	}
 
 	CTFPlayer *pTFProvider = ToTFPlayer( pProvider );
 	if ( pTFProvider )
@@ -1298,11 +1292,20 @@ void CTFGameStats::Event_PlayerDamageAssist( CBasePlayer *pProvider, int iBonusD
 //-----------------------------------------------------------------------------
 void CTFGameStats::Event_BossDamage( CBasePlayer *pAttacker, int iDamage )
 {
-	const int INSANE_DAMAGE = 5000;
+	int INSANE_DAMAGE = tf_stats_bogus_damage_max.GetInt();
 	Assert( iDamage >= 0 );
 	Assert( iDamage <= INSANE_DAMAGE );
 	if ( iDamage < 0 || iDamage > INSANE_DAMAGE )
 		return;
+
+	if ( ( iDamage < 0 || iDamage > INSANE_DAMAGE ) && tf_stats_bogus_ignore.GetInt() > 0 )
+	{
+		if ( tf_stats_bogus_ignore.GetInt() != 2 )
+		{
+			DevMsg("CTFGameStats: bogus boss damage value of %d found\n", iDamage);
+		}
+		return;
+	}
 
 	CTFPlayer *pTFAttacker = ToTFPlayer( pAttacker );
 	if ( pTFAttacker )
