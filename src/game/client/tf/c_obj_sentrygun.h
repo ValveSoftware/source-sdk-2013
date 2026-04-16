@@ -35,7 +35,7 @@ class C_SentrygunShield : public C_BaseAnimating
 	DECLARE_CLASS( C_SentrygunShield, C_BaseAnimating );
 
 public:
-	static C_SentrygunShield* Create( const char* pszModelName );
+	static C_SentrygunShield *Create( const char *pszModelName );
 
 	virtual void ClientThink();
 
@@ -45,6 +45,7 @@ private:
 	float m_flFadeOutStartTime;
 	float m_flFadeOutEndTime;
 };
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Sentry object
