@@ -23,10 +23,6 @@
 #include "vscript/ivscript.h"
 #include "vscript_server.h"
 
-class IPhysicsObject;
-void PhysDisableEntityCollisions( IPhysicsObject *pObject0, IPhysicsObject *pObject1 );
-void PhysEnableEntityCollisions( IPhysicsObject *pObject0, IPhysicsObject *pObject1 );
-extern IPhysicsSurfaceProps *physprops;
 
 class CDamageModifier;
 class CDmgAccumulator;
@@ -106,6 +102,10 @@ class INextBot;
 class IHasAttributes;
 
 typedef CUtlVector< CBaseEntity* > EntityList_t;
+
+extern IPhysicsSurfaceProps *physprops;
+void PhysDisableEntityCollisions( IPhysicsObject *pObject0, IPhysicsObject *pObject1 );
+void PhysEnableEntityCollisions( IPhysicsObject *pObject0, IPhysicsObject *pObject1 );
 
 #if defined( HL2_DLL )
 
@@ -1431,6 +1431,38 @@ public:
 				PhysDisableEntityCollisions( vPhysObj1, vPhysObj2 );
 			}
 		}
+	}
+
+	void ScriptSetPhysicsFlag( int PhysFlag )
+	{
+		IPhysicsObject * vPhys = VPhysicsGetObject();
+		if ( vPhys )
+		{ 
+			unsigned short flags = vPhys->GetGameFlags();
+			flags |= PhysFlag;
+			vPhys->SetGameFlags( flags );
+		}
+	}
+
+	void ScriptRemovePhysicsFlag( int PhysFlag )
+	{
+		IPhysicsObject * vPhys = VPhysicsGetObject();
+		if ( vPhys )
+		{ 
+			unsigned short flags = vPhys->GetGameFlags();
+			flags &= ~PhysFlag;
+			vPhys->SetGameFlags( flags );
+		}
+	}
+
+	bool ScriptHasPhysicsFlag( int PhysFlag ) const
+	{
+		IPhysicsObject *vPhys = VPhysicsGetObject();
+		if ( vPhys )
+		{
+			return ( vPhys->GetGameFlags() & PhysFlag ) != 0;
+		}
+		return false;
 	}
 
 	void ScriptSetMass( float flMass ) 

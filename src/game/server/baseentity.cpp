@@ -2418,6 +2418,9 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetElasticity, "SetElasticity", "Set the entity's Elasticity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetElasticity,	"GetElasticity", "Get the entity's Elasticity." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptToggleCollisionsOn, "ToggleCollisionsOn", "Toggle Collisions between two physical entities." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetPhysicsFlag, "SetPhysicsFlag", "Set a physics flag for the entity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptRemovePhysicsFlag, "RemovePhysicsFlag", "Remove a physics flag for the entity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptHasPhysicsFlag, "HasPhysicsFlag", "Check if the entity has a specific physics flag." )
 	
 	DEFINE_SCRIPTFUNC( TerminateScriptScope, "Clear the current script scope for this entity" )
 
