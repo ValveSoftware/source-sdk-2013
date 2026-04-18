@@ -6044,7 +6044,7 @@ bool UTIL_CreateScaledPhysObject( CBaseAnimating *pInstance, float flScale )
 		physcollision->DestroyQueryModel( pQuery );
 
 		// Create a collision model from all the convexes
-		pNewCollide = physcollision->ConvertPolysoupToCollide( pPolySoups, true );
+		pNewCollide = physcollision->ConvertPolysoupToCollide( pPolySoups, false );
 		if ( pNewCollide == NULL )
 			return false;
 	}
