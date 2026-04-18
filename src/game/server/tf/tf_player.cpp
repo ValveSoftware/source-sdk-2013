@@ -4097,6 +4097,20 @@ void CTFPlayer::Regenerate( bool bRefillHealthAndAmmo /*= true*/ )
 		m_Shared.SetScoutEnergyDrinkMeter( 100.0f );
 		m_Shared.SetDemomanChargeMeter( 100.0f );
 
+		CTFWearableDemoShield* pWearableShield = NULL;
+
+		// Loop through our wearables in search of a shield
+		for ( int i = 0; i < GetNumWearables(); ++i )
+		{
+			pWearableShield = dynamic_cast<CTFWearableDemoShield*>( GetWearable( i ) );
+		}
+
+		// Update the shield charge condition to reflect the shield refill
+		if ( pWearableShield && m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
+		{
+			pWearableShield->DoCharge( this );
+		}
+
 		// Selectively refill the item effect meters if they're allowed
 		for( int i = FIRST_LOADOUT_SLOT_WITH_CHARGE_METER; i <= LAST_LOADOUT_SLOT_WITH_CHARGE_METER; ++i )
 		{
@@ -14769,6 +14783,20 @@ void CTFPlayer::CheatImpulseCommands( int iImpulse )
 
 				m_Shared.m_flRageMeter = 100.f;
 				m_Shared.SetDemomanChargeMeter( 100.f );
+
+				CTFWearableDemoShield* pWearableShield = NULL;
+
+				// Loop through our wearables in search of a shield
+				for ( int i = 0; i < GetNumWearables(); ++i )
+				{
+					pWearableShield = dynamic_cast<CTFWearableDemoShield*>( GetWearable( i ) );
+				}
+
+				// Update the shield charge condition to reflect the shield refill
+				if ( pWearableShield && m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
+				{
+					pWearableShield->DoCharge( this );
+				}
 
 				for( int i = FIRST_LOADOUT_SLOT_WITH_CHARGE_METER; i <= LAST_LOADOUT_SLOT_WITH_CHARGE_METER; ++i )
 				{
