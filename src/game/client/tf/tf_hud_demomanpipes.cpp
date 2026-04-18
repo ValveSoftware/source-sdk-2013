@@ -192,7 +192,6 @@ void CHudDemomanPipes::OnTick( void )
 			}
 			else
 			{
-				vgui::ivgui()->AddTickSignal( GetVPanel(), 100 );
 				m_pChargeMeter->SetFgColor( Color( 255, 255, 255, 255 ) );
 
 				// Play a sound if we are newly ready.
@@ -208,6 +207,8 @@ void CHudDemomanPipes::OnTick( void )
 				{
 					m_flOldProgress = flProgress;
 				}
+
+				vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 			}
 		}
 	}
