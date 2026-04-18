@@ -167,11 +167,14 @@ void CHudDemomanPipes::OnTick( void )
 			m_pPipesPresent->SetVisible( false );
 			m_pNoPipesPresent->SetVisible( false );
 
+			int iDemoChargeDamagePenalty = 0;
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pPlayer, iDemoChargeDamagePenalty, lose_demo_charge_on_damage_when_charging );
+
 			float flProgress = pPlayer->m_Shared.GetDemomanChargeMeter() / 100.f;
 			m_pChargeMeter->SetProgress( flProgress );
 			if ( pPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 			{
-				if ( flProgress <= 0.33f )
+				if ( !iDemoChargeDamagePenalty && flProgress <= 0.4f )
 				{
 					m_pChargeMeter->SetFgColor( Color( 255, 0, 0, 255 ) );
 				}
@@ -183,9 +186,13 @@ void CHudDemomanPipes::OnTick( void )
 				{
 					m_pChargeMeter->SetFgColor( Color( 153, 255, 153, 255 ) );
 				}
+				
+				// We halve the update ticks so that the meter is mostly reliably synced for the colors
+				vgui::ivgui()->AddTickSignal( GetVPanel(), 50 );
 			}
 			else
 			{
+				vgui::ivgui()->AddTickSignal( GetVPanel(), 100 );
 				m_pChargeMeter->SetFgColor( Color( 255, 255, 255, 255 ) );
 
 				// Play a sound if we are newly ready.
