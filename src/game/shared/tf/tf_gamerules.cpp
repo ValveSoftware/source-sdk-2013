@@ -15280,11 +15280,6 @@ void CTFGameRules::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValu
 			CTFReviveMarker *pReviveMarker = pTFPlayer->GetReviveMarker();
 			if ( pReviveMarker )
 			{
-				if ( pKeyValues->GetBool( "accepted", 0 ) )
-				{
-					pReviveMarker->ReviveOwner();
-				}
-				else
 				{
 					// They hit cancel after their spawn timer was up
 					if ( HasPassedMinRespawnTime( pTFPlayer ) )
