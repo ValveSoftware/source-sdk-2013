@@ -758,6 +758,7 @@ void CTFHudPasstimeEventText::Tick()
 //-----------------------------------------------------------------------------
 void CTFHudPasstimeEventText::Clear()
 {
+	m_displayTimer.Invalidate();
 	while( !m_queue.IsEmpty() )
 	{
 		m_queue.RemoveAtTail();
