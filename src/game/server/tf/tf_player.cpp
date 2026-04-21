@@ -4097,18 +4097,12 @@ void CTFPlayer::Regenerate( bool bRefillHealthAndAmmo /*= true*/ )
 		m_Shared.SetScoutEnergyDrinkMeter( 100.0f );
 		m_Shared.SetDemomanChargeMeter( 100.0f );
 
-		CTFWearableDemoShield* pWearableShield = NULL;
-
-		// Loop through our wearables in search of a shield
-		for ( int i = 0; i < GetNumWearables(); ++i )
+		// Update the shield charge condition to reflect the reset for charge
+		if ( m_Shared.InCond(TF_COND_SHIELD_CHARGE ) )
 		{
-			pWearableShield = dynamic_cast<CTFWearableDemoShield*>( GetWearable( i ) );
-		}
+			float flChargeTime = m_Shared.GetConditionDuration( TF_COND_SHIELD_CHARGE ) + 1.0f;
 
-		// Update the shield charge condition to reflect the shield refill
-		if ( pWearableShield && m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
-		{
-			pWearableShield->DoCharge( this );
+			m_Shared.SetConditionDuration( TF_COND_SHIELD_CHARGE, flChargeTime );
 		}
 
 		// Selectively refill the item effect meters if they're allowed
@@ -14784,18 +14778,12 @@ void CTFPlayer::CheatImpulseCommands( int iImpulse )
 				m_Shared.m_flRageMeter = 100.f;
 				m_Shared.SetDemomanChargeMeter( 100.f );
 
-				CTFWearableDemoShield* pWearableShield = NULL;
-
-				// Loop through our wearables in search of a shield
-				for ( int i = 0; i < GetNumWearables(); ++i )
+				// Update the shield charge condition to reflect the reset for charge
+				if ( m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 				{
-					pWearableShield = dynamic_cast<CTFWearableDemoShield*>( GetWearable( i ) );
-				}
+					float flChargeTime = m_Shared.GetConditionDuration( TF_COND_SHIELD_CHARGE ) + 1.0f;
 
-				// Update the shield charge condition to reflect the shield refill
-				if ( pWearableShield && m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
-				{
-					pWearableShield->DoCharge( this );
+					m_Shared.SetConditionDuration( TF_COND_SHIELD_CHARGE, flChargeTime );
 				}
 
 				for( int i = FIRST_LOADOUT_SLOT_WITH_CHARGE_METER; i <= LAST_LOADOUT_SLOT_WITH_CHARGE_METER; ++i )

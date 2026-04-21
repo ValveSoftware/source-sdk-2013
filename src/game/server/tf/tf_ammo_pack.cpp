@@ -387,24 +387,14 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 				m_flAmmoRatio *= 0.2;
 			}
 
-			CTFWearableDemoShield* pWearableShield = NULL;
-
-			// Loop through our wearables in search of a shield
-			for ( int i = 0; i < pPlayer->GetNumWearables(); ++i )
-			{
-				pWearableShield = dynamic_cast<CTFWearableDemoShield*>( pPlayer->GetWearable( i ) );
-			}
-
 			pPlayer->m_Shared.SetDemomanChargeMeter( flCurrentCharge + m_flAmmoRatio * 100.0f );
 
 			// Update the shield charge condition to reflect the ammo pack increase
-			if ( pWearableShield && pPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
+			if ( pPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 			{
-				float flChargeTime = 1.5f;
-				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, flChargeTime, mod_charge_time );
-				flChargeTime = ( flCurrentCharge + m_flAmmoRatio ) * flChargeTime;
+				float flChargeTime = pPlayer->m_Shared.GetConditionDuration( TF_COND_SHIELD_CHARGE ) + m_flAmmoRatio;
 
-				pPlayer->m_Shared.AddCond( TF_COND_SHIELD_CHARGE, flChargeTime );
+				pPlayer->m_Shared.SetConditionDuration( TF_COND_SHIELD_CHARGE, flChargeTime );
 			}
 
 			iAmmoTaken++;
