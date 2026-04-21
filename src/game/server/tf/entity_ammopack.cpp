@@ -111,7 +111,7 @@ bool CAmmoPack::MyTouch( CBasePlayer *pPlayer )
 				// Update the shield charge condition to reflect the ammo pack increase
 				if ( pTFPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 				{
-					float flChargeTime = pTFPlayer->m_Shared.GetConditionDuration( TF_COND_SHIELD_CHARGE ) + flPackRatio;
+					float flChargeTime = ( pTFPlayer->m_Shared.GetDemomanChargeMeter() / 100.0f ) + flPackRatio;
 
 					pTFPlayer->m_Shared.SetConditionDuration( TF_COND_SHIELD_CHARGE, flChargeTime );
 				}
