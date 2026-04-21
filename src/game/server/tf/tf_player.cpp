@@ -4100,7 +4100,10 @@ void CTFPlayer::Regenerate( bool bRefillHealthAndAmmo /*= true*/ )
 		// Update the shield charge condition to reflect the reset for charge
 		if ( m_Shared.InCond(TF_COND_SHIELD_CHARGE ) )
 		{
-			float flChargeTime = m_Shared.GetConditionDuration( TF_COND_SHIELD_CHARGE ) + 1.0f;
+			float flChargeTime = 1.5f;
+			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( this, flChargeTime, mod_charge_time );
+
+			flChargeTime = m_Shared.GetConditionDuration( TF_COND_SHIELD_CHARGE ) + flChargeTime;
 
 			m_Shared.SetConditionDuration( TF_COND_SHIELD_CHARGE, flChargeTime );
 		}
@@ -14781,7 +14784,10 @@ void CTFPlayer::CheatImpulseCommands( int iImpulse )
 				// Update the shield charge condition to reflect the reset for charge
 				if ( m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 				{
-					float flChargeTime = m_Shared.GetConditionDuration( TF_COND_SHIELD_CHARGE ) + 1.0f;
+					float flChargeTime = 1.5f;
+					CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( this, flChargeTime, mod_charge_time );
+
+					flChargeTime = m_Shared.GetConditionDuration( TF_COND_SHIELD_CHARGE ) + flChargeTime;
 
 					m_Shared.SetConditionDuration( TF_COND_SHIELD_CHARGE, flChargeTime );
 				}
