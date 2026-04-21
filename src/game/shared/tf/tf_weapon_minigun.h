@@ -106,7 +106,7 @@ public:
 
 #ifdef GAME_DLL
 	virtual CDmgAccumulator	*GetDmgAccumulator( void ) { return &m_Accumulator; }
-	virtual float GetInitialAfterburnDuration() const OVERRIDE;
+	virtual float GetAfterburnRateOnHit() const OVERRIDE;
 #endif // GAME_DLL
 
 #ifdef CLIENT_DLL
