@@ -66,7 +66,7 @@ CHudDemomanPipes::CHudDemomanPipes( const char *pElementName ) : CHudElement( pE
 
 	SetHiddenBits( HIDEHUD_MISCSTATUS | HIDEHUD_PIPES_AND_CHARGE );
 
-	vgui::ivgui()->AddTickSignal( GetVPanel(), 100 );
+	vgui::ivgui()->AddTickSignal( GetVPanel(), 50 );
 
 	m_bChargeMode = false;
 	m_flOldProgress = 1.f;
@@ -186,9 +186,6 @@ void CHudDemomanPipes::OnTick( void )
 				{
 					m_pChargeMeter->SetFgColor( Color( 153, 255, 153, 255 ) );
 				}
-				
-				// We halve the update ticks so that the meter is mostly reliably synced for the colors
-				vgui::ivgui()->AddTickSignal( GetVPanel(), 50 );
 			}
 			else
 			{
@@ -207,8 +204,6 @@ void CHudDemomanPipes::OnTick( void )
 				{
 					m_flOldProgress = flProgress;
 				}
-
-				vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 			}
 		}
 	}
