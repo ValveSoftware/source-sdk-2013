@@ -6443,7 +6443,7 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 				int iAttackerAlien = 0;
 				int iVictimMerc = 0;
 				CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFAttacker, iAttackerAlien, alien_isolation_xeno_bonus_pos );
-				CALL_ATTRIB_HOOK_INT_ON_OTHER( pVictim, iVictimMerc, alien_isolation_merc_bonus_pos );
+				CALL_ATTRIB_HOOK_INT_ON_OTHER( pVictim, iVictimMerc, alien_isolation_merc_bonus_neg );
 
 				if ( iAttackerAlien && iVictimMerc )
 				{
@@ -6458,7 +6458,7 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 			int iAttackerMerc = 0;
 			int iVictimAlien = 0;
 			CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFAttacker, iAttackerMerc, alien_isolation_merc_bonus_pos );
-			CALL_ATTRIB_HOOK_INT_ON_OTHER( pVictim, iVictimAlien, alien_isolation_xeno_bonus_pos );
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pVictim, iVictimAlien, alien_isolation_xeno_bonus_neg );
 
 			if ( iAttackerMerc && iVictimAlien )
 			{
