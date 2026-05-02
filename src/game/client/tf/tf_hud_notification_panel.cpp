@@ -149,6 +149,20 @@ void CHudNotificationPanel::MsgFunc_HudNotifyCustom( bf_read &msg )
 	msg.ReadString( szIcon, sizeof(szIcon) );
 	int iBackgroundTeam = msg.ReadByte();
 
+	bool bForceShow = false;
+	if ( msg.GetNumBytesLeft() > 0 )
+	{
+		bForceShow = msg.ReadByte();
+	}
+
+	// Ignore notifications in minmode
+	if ( !bForceShow )
+	{
+		ConVarRef cl_hud_minmode( "cl_hud_minmode", true );
+		if ( cl_hud_minmode.IsValid() && cl_hud_minmode.GetBool() )
+			return;
+	}
+
 	SetupNotifyCustom( szText, szIcon, iBackgroundTeam );
 }
 
