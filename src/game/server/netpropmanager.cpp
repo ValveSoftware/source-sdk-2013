@@ -1229,7 +1229,7 @@ void CNetPropManager::StoreDataPropValue( typedescription_t *pTypeDesc, CBaseEnt
 			PropInfo_t propInfo = GetEntityPropInfo( pBaseEntity, pszPropName, iElement );
 			if ( !propInfo.m_IsPropValid )
 			{
-				g_pScriptVM->SetValue( hTable, pszPropName, "ERROR VALUE" );
+				g_pScriptVM->SetValue( hTable, pszPropName, ScriptVariant_t() ); // Return null to be consistent with other script functions
 				break;
 			}
 
