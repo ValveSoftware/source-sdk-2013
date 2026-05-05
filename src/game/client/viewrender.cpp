@@ -1431,20 +1431,23 @@ void CViewRender::ViewDrawScene( bool bDrew3dSkybox, SkyboxVisibility_t nSkyboxV
 
 	ParticleMgr()->IncrementFrameCode();
 
-	ITexture* pColor = GetFullscreenTexture();
-	CMatRenderContextPtr pRenderContext(materials);
-	if (viewID == VIEW_MAIN)
+	if (g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 90 && viewID == VIEW_MAIN)
 	{
+		CMatRenderContextPtr pRenderContext(materials);
+
+		ITexture*  pColor = GetFullscreenTexture();
 		ITexture* pDepth = GetFullFrameDepthTexture();
+
 		pRenderContext->PushRenderTargetAndViewport(pColor, pDepth, viewRender.x, viewRender.y, viewRender.width, viewRender.height);
-	}
 
-	DrawWorldAndEntities(drawSkybox, viewRender, nClearFlags, pCustomVisibility);
+		DrawWorldAndEntities(drawSkybox, viewRender, nClearFlags, pCustomVisibility);
 
-	if (viewID == VIEW_MAIN)
-	{
 		pRenderContext->PopRenderTargetAndViewport();
 		pRenderContext->CopyTextureToRenderTargetEx(0, pColor, NULL, NULL);
+	}
+	else 
+	{
+		DrawWorldAndEntities(drawSkybox, viewRender, nClearFlags, pCustomVisibility);
 	}
 
 	// Disable fog for the rest of the stuff
@@ -5012,7 +5015,7 @@ void CSkyboxView::Draw()
 	ITexture *pRTColor = NULL;
 	ITexture *pRTDepth = NULL;
 
-	if (g_CurrentViewID == VIEW_MAIN)
+	if (g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 90 && g_CurrentViewID == VIEW_MAIN)
 	{
 		pRTColor = GetFullscreenTexture();
 		pRTDepth = GetFullFrameDepthTexture();
