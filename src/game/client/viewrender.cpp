@@ -1431,7 +1431,22 @@ void CViewRender::ViewDrawScene( bool bDrew3dSkybox, SkyboxVisibility_t nSkyboxV
 
 	ParticleMgr()->IncrementFrameCode();
 
-	DrawWorldAndEntities( drawSkybox, viewRender, nClearFlags, pCustomVisibility );
+	ITexture* pColor = GetFullscreenTexture();
+	CMatRenderContextPtr pRenderContext(materials);
+	if (viewID == VIEW_MAIN)
+	{
+		ITexture* pDepth = g_pMaterialSystem->FindTexture("_rt_FullFrameDepth", TEXTURE_GROUP_RENDER_TARGET);
+		ITexture* pColor = GetFullscreenTexture();
+		pRenderContext->PushRenderTargetAndViewport(pColor, pDepth, viewRender.x, viewRender.y, viewRender.width, viewRender.height);
+	}
+
+	DrawWorldAndEntities(drawSkybox, viewRender, nClearFlags, pCustomVisibility);
+
+	if (viewID == VIEW_MAIN)
+	{
+		pRenderContext->PopRenderTargetAndViewport();
+		pRenderContext->CopyTextureToRenderTargetEx(0, pColor, NULL, NULL);
+	}
 
 	// Disable fog for the rest of the stuff
 	DisableFog();
