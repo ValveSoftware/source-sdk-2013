@@ -1435,7 +1435,7 @@ void CViewRender::ViewDrawScene( bool bDrew3dSkybox, SkyboxVisibility_t nSkyboxV
 	{
 		CMatRenderContextPtr pRenderContext(materials);
 
-		ITexture*  pColor = GetFullscreenTexture();
+		ITexture* pColor = GetFullscreenTexture();
 		ITexture* pDepth = GetFullFrameDepthTexture();
 
 		pRenderContext->PushRenderTargetAndViewport(pColor, pDepth, viewRender.x, viewRender.y, viewRender.width, viewRender.height);
