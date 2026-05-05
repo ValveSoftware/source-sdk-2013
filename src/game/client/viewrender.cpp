@@ -1435,8 +1435,7 @@ void CViewRender::ViewDrawScene( bool bDrew3dSkybox, SkyboxVisibility_t nSkyboxV
 	CMatRenderContextPtr pRenderContext(materials);
 	if (viewID == VIEW_MAIN)
 	{
-		ITexture* pDepth = g_pMaterialSystem->FindTexture("_rt_FullFrameDepth", TEXTURE_GROUP_RENDER_TARGET);
-		ITexture* pColor = GetFullscreenTexture();
+		ITexture* pDepth = GetFullFrameDepthTexture();
 		pRenderContext->PushRenderTargetAndViewport(pColor, pDepth, viewRender.x, viewRender.y, viewRender.width, viewRender.height);
 	}
 
