@@ -1431,7 +1431,7 @@ void CViewRender::ViewDrawScene( bool bDrew3dSkybox, SkyboxVisibility_t nSkyboxV
 
 	ParticleMgr()->IncrementFrameCode();
 
-	if (g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 90 && viewID == VIEW_MAIN && g_pMaterialSystem->GetCurrentConfigForVideoCard().m_nAASamples == 1)
+	if (g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 95 && viewID == VIEW_MAIN && g_pMaterialSystem->GetCurrentConfigForVideoCard().m_nAASamples == 1)
 	{
 		CMatRenderContextPtr pRenderContext(materials);
 
@@ -5015,7 +5015,7 @@ void CSkyboxView::Draw()
 	ITexture *pRTColor = NULL;
 	ITexture *pRTDepth = NULL;
 
-	if (g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 90 && g_CurrentViewID == VIEW_MAIN && g_pMaterialSystem->GetCurrentConfigForVideoCard().m_nAASamples == 1)
+	if (g_pMaterialSystemHardwareConfig->GetDXSupportLevel() >= 95 && g_CurrentViewID == VIEW_MAIN && g_pMaterialSystem->GetCurrentConfigForVideoCard().m_nAASamples == 1)
 	{
 		pRTColor = GetFullscreenTexture();
 		pRTDepth = GetFullFrameDepthTexture();
