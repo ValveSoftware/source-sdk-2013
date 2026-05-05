@@ -5011,6 +5011,13 @@ void CSkyboxView::Draw()
 
 	ITexture *pRTColor = NULL;
 	ITexture *pRTDepth = NULL;
+
+	if (g_CurrentViewID == VIEW_MAIN)
+	{
+		pRTColor = GetFullscreenTexture();
+		pRTDepth = GetFullFrameDepthTexture();
+	}
+	
 	if( m_eStereoEye != STEREO_EYE_MONO )
 	{
 		pRTColor = g_pSourceVR->GetRenderTarget( (ISourceVirtualReality::VREye)(m_eStereoEye-1), ISourceVirtualReality::RT_Color );
