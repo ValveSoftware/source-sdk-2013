@@ -6214,13 +6214,13 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 			{
 				eBonusEffect = kBonusEffect_DragonsFury;
 			}
-			else if ( pTFAttacker && pTFAttacker->IsPlayerClass( TF_CLASS_SCOUT ) && !( pTFAttacker->GetFlags() & FL_ONGROUND ) )
+			else if ( pTFAttacker && !( pTFAttacker->GetFlags() & FL_ONGROUND ) )
 			{
 				// Make sure the weapon that did this damage is the same as the one that grants mini-crits
 				if ( info.GetWeapon() == pTFAttacker->GetActiveTFWeapon() )
 				{
 					int iDashCount = 0;
-					CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFAttacker->GetActiveTFWeapon(), iDashCount, air_dash_count );
+					CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFAttacker->GetActiveTFWeapon(), iDashCount, air_dash_count_from_weapon );
 					if ( iDashCount )
 					{
 						info.SetCritType( CTakeDamageInfo::CRIT_MINI );
