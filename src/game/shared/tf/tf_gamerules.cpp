@@ -2250,7 +2250,7 @@ bool CTFGameRules::BInMatchStartCountdown() const
 	if ( IsCompetitiveMode() )
 	{
 		float flTime = GetRoundRestartTime();
-		if ( ( flTime > 0.f ) && ( (int)( flTime - gpGlobals->curtime ) <= mp_tournament_readymode_countdown.GetInt() ) )
+		if ( ( flTime > 0.f ) && ( (int)ceil( flTime - gpGlobals->curtime ) <= mp_tournament_readymode_countdown.GetInt() ) )
 		{
 			return true;
 		}
@@ -20789,7 +20789,7 @@ void CTFGameRules::BetweenRounds_Think( void )
 	if ( UsePlayerReadyStatusMode() )
 	{
 		// Everyone is ready, or the drop-dead timer naturally ticked down to mp_tournament_readymode_countdown
-		bool bStartFinalCountdown = ( PlayerReadyStatus_ShouldStartCountdown() || ( m_flRestartRoundTime > 0 && (int)( m_flRestartRoundTime - gpGlobals->curtime ) == mp_tournament_readymode_countdown.GetInt() ) );
+		bool bStartFinalCountdown = ( PlayerReadyStatus_ShouldStartCountdown() || ( m_flRestartRoundTime > 0 && (int)ceil( m_flRestartRoundTime - gpGlobals->curtime ) == mp_tournament_readymode_countdown.GetInt() ) );
 
 		// It's the FINAL COUNTDOOOWWWNNnnnnnnnnn
 		float flDropDeadTime = gpGlobals->curtime + mp_tournament_readymode_countdown.GetFloat() + 0.1f;
