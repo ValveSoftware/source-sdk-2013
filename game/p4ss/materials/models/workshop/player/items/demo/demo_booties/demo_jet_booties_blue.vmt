@@ -1,0 +1,6 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/workshop/player/items/demo/demo_booties/demo_jet_booties_blue"
+	"$selfillum" "1"
+
+}
