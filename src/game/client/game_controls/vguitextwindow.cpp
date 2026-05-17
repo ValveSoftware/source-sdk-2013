@@ -88,6 +88,7 @@ CTextWindow::CTextWindow(IViewPort *pViewPort) : Frame(NULL, PANEL_INFO	)
 	m_szTitle[0] = '\0';
 	m_szMessage[0] = '\0';
 	m_szMessageFallback[0] = '\0';
+	m_szLastURL[0] = '\0';
 	m_nExitCommand = TEXTWINDOW_CMD_NONE;
 	m_bShownURL = false;
 	m_bUnloadOnDismissal = false;
@@ -151,6 +152,7 @@ void CTextWindow::Reset( void )
 	m_nContentType = TYPE_TEXT;
 	m_bShownURL = false;
 	m_bUnloadOnDismissal = false;
+	m_szLastURL[0] = '\0';
 	Update();
 }
 
@@ -191,7 +193,16 @@ void CTextWindow::ShowURL( const char *URL, bool bAllowUserToDisable )
 	} 
 
 	m_pHTMLMessage->SetVisible( true );
+
+	// Don't reload the page if we're already displaying this exact URL. Re-opening it
+	// would discard any navigation the user has done within the MOTD. This path gets
+	// hit when the viewport calls UpdateAllPanels() -> Update() while the MOTD is still
+	// open (e.g. when other panels show/hide on the local player's death/respawn).
+	if ( m_bShownURL && !Q_strcmp( m_szLastURL, URL ) )
+		return;
+
 	m_pHTMLMessage->OpenURL( URL, NULL );
+	Q_strncpy( m_szLastURL, URL, sizeof( m_szLastURL ) );
 	m_bShownURL = true;
 }
 
@@ -425,6 +436,7 @@ void CTextWindow::ShowPanel( bool bShow )
 		{
 			m_pHTMLMessage->OpenURL( "about:blank", NULL );
 			m_bShownURL = false;
+			m_szLastURL[0] = '\0';
 		}
 	}
 }
