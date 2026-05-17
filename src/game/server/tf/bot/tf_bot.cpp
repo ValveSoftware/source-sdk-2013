@@ -4900,7 +4900,8 @@ void CTFBot::AddItem( const char* pszItemName )
 	criteria.SetQuality( AE_USE_SCRIPT_VALUE );
 	criteria.BAddCondition( "name", k_EOperator_String_EQ, pszItemName, true );
 
-	CBaseEntity *pItem = ItemGeneration()->GenerateRandomItem( &criteria, WorldSpaceCenter(), vec3_angle );
+	int classNum = GetPlayerClass()->GetClassIndex();
+	CBaseEntity *pItem = ItemGeneration()->GenerateRandomItem( &criteria, WorldSpaceCenter(), vec3_angle, NULL, classNum);
 	if ( pItem )
 	{
 		CEconItemView *pScriptItem = static_cast< CBaseCombatWeapon * >( pItem )->GetAttributeContainer()->GetItem();
