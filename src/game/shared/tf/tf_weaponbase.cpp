@@ -48,6 +48,7 @@
 // Client specific.
 #else
 #include "c_tf_player.h"
+#include "c_baseviewmodel.h"
 #include "tf_viewmodel.h"
 #include "hud_crosshair.h"
 #include "c_tf_playerresource.h"
@@ -91,7 +92,6 @@ extern ConVar tf_weapon_criticals_bucket_bottom;
 
 #ifdef CLIENT_DLL
 extern ConVar cl_crosshair_file;
-extern ConVar cl_flipviewmodels;
 #endif
 
 //=============================================================================
@@ -231,6 +231,8 @@ END_NETWORK_TABLE()
 BEGIN_PREDICTION_DATA( CTFWeaponBase ) 
 #ifdef CLIENT_DLL
 	DEFINE_PRED_FIELD( m_bLowered, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_bInAttack, FIELD_BOOLEAN, 0 ),
+	DEFINE_PRED_FIELD( m_bInAttack2, FIELD_BOOLEAN, 0 ),
 	DEFINE_PRED_FIELD( m_iReloadMode, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bReloadedThroughAnimEvent, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bDisguiseWeapon, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
@@ -980,7 +982,7 @@ void CTFWeaponBase::UpdateExtraWearables()
 				// Precaching may be needed here, because we allow virtually everything to be loaded on demand now.
 				pExtraWearableItem->PrecacheModel( pEconItemView->GetExtraWearableViewModel() );
 			}
-
+			pExtraWearableItem->SetDisguiseWearable(m_bDisguiseWeapon);
 			pExtraWearableItem->AddSpawnFlags( SF_NORESPAWN );
 			pExtraWearableItem->SetAlwaysAllow( true );
 			DispatchSpawn( pExtraWearableItem );
@@ -1006,6 +1008,7 @@ void CTFWeaponBase::UpdateExtraWearables()
 				pExtraWearableItem->PrecacheModel( pEconItemView->GetExtraWearableModel() );
 			}
 
+			pExtraWearableItem->SetDisguiseWearable(m_bDisguiseWeapon);
 			pExtraWearableItem->AddSpawnFlags( SF_NORESPAWN );
 			pExtraWearableItem->SetAlwaysAllow( true );
 			DispatchSpawn( pExtraWearableItem );
@@ -2088,9 +2091,9 @@ void CTFWeaponBase::IncrementAmmo( void )
 		}
 		else if ( !CheckReloadMisfire() ) 
 		{
-			if ( pPlayer && pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 )
+			if ( pPlayer && pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && ( m_iClip1 < GetMaxClip1() ) )
 			{
-				m_iClip1 = MIN( ( m_iClip1 + 1 ), GetMaxClip1() );
+				m_iClip1++;
 				pPlayer->RemoveAmmo( 1, m_iPrimaryAmmoType );
 			}
 		}
@@ -3296,6 +3299,87 @@ bool CTFWeaponBase::OnInternalDrawModel( ClientModelRenderInfo_t *pInfo )
 	}
 
 	return BaseClass::OnInternalDrawModel( pInfo );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Override for disguise weapons to use team 0 for attachment lookups
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::UpdateAttachmentModels( void )
+{
+#ifdef CLIENT_DLL
+	// For disguise weapons, we need to use the disguise target's team when fetching attachment models
+	// because GetTeamNumber() returns the spy's team, not the disguised target's team.
+	if ( m_bDisguiseWeapon )
+	{
+		C_TFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
+		if ( !pOwner )
+		{
+			BaseClass::UpdateAttachmentModels();
+			return;
+		}
+
+		C_TFPlayer *pDisguiseTarget = pOwner->m_Shared.GetDisguiseTarget();
+		int iTeamNumber = pDisguiseTarget ? pDisguiseTarget->GetTeamNumber() : 0;
+
+		CEconItemView *pItem = GetAttributeContainer()->GetItem();
+		GameItemDefinition_t *pItemDef = pItem && pItem->IsValid() ? pItem->GetStaticData() : NULL;
+
+		// Update the state of additional model attachments
+		m_vecAttachedModels.Purge();
+		if ( pItemDef && AttachmentModelsShouldBeVisible() )
+		{
+			{
+				int iAttachedModels = pItemDef->GetNumAttachedModels( iTeamNumber );
+				for ( int i = 0; i < iAttachedModels; i++ )
+				{
+					attachedmodel_t	*pModel = pItemDef->GetAttachedModelData( iTeamNumber, i );
+
+					int iModelIndex = modelinfo->GetModelIndex( pModel->m_pszModelName );
+					if ( iModelIndex >= 0 )
+					{
+						AttachedModelData_t attachedModelData;
+						attachedModelData.m_pModel			   = modelinfo->GetModel( iModelIndex );
+						attachedModelData.m_iModelDisplayFlags = pModel->m_iModelDisplayFlags;
+						m_vecAttachedModels.AddToTail( attachedModelData );
+					}
+				}
+			}
+
+			// Check for Festive attachedmodels for festivized weapons
+			{
+				int iAttachedModels = pItemDef->GetNumAttachedModelsFestivized( iTeamNumber );
+				if ( iAttachedModels )
+				{
+					int iFestivized = 0;
+					CALL_ATTRIB_HOOK_INT( iFestivized, is_festivized );
+					if ( iFestivized )
+					{
+						for ( int i = 0; i < iAttachedModels; i++ )
+						{
+							attachedmodel_t	*pModel = pItemDef->GetAttachedModelDataFestivized( iTeamNumber, i );
+
+							int iModelIndex = modelinfo->GetModelIndex( pModel->m_pszModelName );
+							if ( iModelIndex >= 0 )
+							{
+								AttachedModelData_t attachedModelData;
+								attachedModelData.m_pModel = modelinfo->GetModel( iModelIndex );
+								attachedModelData.m_iModelDisplayFlags = pModel->m_iModelDisplayFlags;
+								m_vecAttachedModels.AddToTail( attachedModelData );
+							}
+						}
+					}
+				}
+			}
+		}
+		// Note: We skip the viewmodel attachment section (ShouldAttachToHands) because
+		// disguise weapons are world models only and don't need viewmodel attachments.
+	}
+	else
+	{
+		// Normal weapons use the base class implementation
+		BaseClass::UpdateAttachmentModels();
+	}
+#endif
 }
 
 void CTFWeaponBase::ProcessMuzzleFlashEvent( void )
@@ -4969,6 +5053,7 @@ void CTFWeaponBase::ApplyOnHitAttributes( CBaseEntity *pVictimBaseEntity, CTFPla
 		if ( pVictim && 
 			 pVictim->IsPlayerClass( TF_CLASS_SPY ) && 
 			 pVictim->m_Shared.InCond( TF_COND_DISGUISED ) && 
+			 ( pVictim->m_Shared.GetDisguiseTeam() != pVictim->GetTeamNumber() ) &&
 			 !( pVictim->m_Shared.IsStealthed() || pVictim->m_Shared.InCond( TF_COND_STEALTHED_BLINK ) ) )
 		{
 			flPercentage = 0.0f;
@@ -5030,7 +5115,7 @@ void CTFWeaponBase::ApplyOnHitAttributes( CBaseEntity *pVictimBaseEntity, CTFPla
 		}
 
 		// On hit attributes don't work when you shoot disguised spies
-		if ( pVictim->m_Shared.InCond( TF_COND_DISGUISED ) )
+		if ( pVictim->m_Shared.InCond( TF_COND_DISGUISED ) && ( pVictim->m_Shared.GetDisguiseTeam() != pVictim->GetTeamNumber() ) )
 			return;
 	}
 
@@ -5593,7 +5678,7 @@ bool CTFWeaponBase::IsViewModelFlipped( void )
 		return true;
 	}
 #else
-	if ( m_bFlipViewModel != cl_flipviewmodels.GetBool() )
+	if ( m_bFlipViewModel != TeamFortress_ShouldFlipClientViewModel() )
 	{
 		return true;
 	}
@@ -6774,7 +6859,7 @@ void CTFWeaponBase::AddStatTrakModel( CEconItemView *pItem, int nStatTrakType, A
 				pStatTrakEnt->m_nSkin = nSkin;
 				m_viewmodelStatTrakAddon = pStatTrakEnt;
 				
-				if ( cl_flipviewmodels.GetBool() )
+				if ( TeamFortress_ShouldFlipClientViewModel() )
 				{
 					pStatTrakEnt->SetBodygroup( 1, 1 ); // use a special mirror-image stattrak module that appears correct for lefties
 					flScale *= -1.0f;					// flip scale
