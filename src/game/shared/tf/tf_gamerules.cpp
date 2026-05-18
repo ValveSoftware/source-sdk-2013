@@ -7494,7 +7494,7 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 			{
 				if ( flRealDamage > 0 )
 				{
-					if ( pTFAttacker->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_MINIGUN || pTFAttacker->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_FLAMETHROWER )
+					if ( pTFAttacker->GetActiveTFWeapon() && ( pTFAttacker->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_MINIGUN || pTFAttacker->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_FLAMETHROWER ) )
 					{
 						pTFAttacker->TakeHealth( ( flRealDamage * 0.6f ), DMG_GENERIC );
 					}
