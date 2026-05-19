@@ -1479,6 +1479,7 @@ void CTFPlayerShared::OnDataChanged( void )
 	{
 		m_hDisguiseWeapon->UpdateVisibility();
 		m_hDisguiseWeapon->UpdateParticleSystems();
+		m_hDisguiseWeapon->UpdateAttachmentModels();
 	}
 
 	// XXX(JohnS): This is not the right place to do these things, SetWeaponVisible on the *client* is just stomping
@@ -7229,6 +7230,8 @@ void CTFPlayerShared::OnRemoveDisguising( void )
 void CTFPlayerShared::OnRemoveDisguised( void )
 {
 #ifdef CLIENT_DLL
+	// Save the disguise target before clearing it, so we can mark bodygroups dirty.
+	CTFPlayer *pOldDisguiseTarget = ToTFPlayer( m_hDisguiseTarget.Get() );
 
 	if ( m_pOuter->GetPredictable() && ( !prediction->IsFirstTimePredicted() || m_bSyncingConditions ) )
 		return;
@@ -7253,7 +7256,14 @@ void CTFPlayerShared::OnRemoveDisguised( void )
 	UpdateCritBoostEffect( kCritBoost_ForceRefresh );
 	m_pOuter->UpdateSpyStateChange();
 
+	// Mark the old disguise target's bodygroups as dirty so they'll be recalculated.
+	if ( pOldDisguiseTarget )
+	{
+		pOldDisguiseTarget->SetBodygroupsDirty();
+	}
+
 #else
+
 	m_nDisguiseTeam  = TF_SPY_UNDEFINED;
 	m_nDisguiseClass.Set( TF_CLASS_UNDEFINED );
 	m_nDisguiseSkinOverride = 0;
@@ -8223,6 +8233,15 @@ void CTFPlayerShared::Disguise( int nTeam, int nClass, CTFPlayer* pDesiredTarget
 		}
 	}
 
+#ifdef CLIENT_DLL
+	// Save the old disguise target before changing disguise, so we can clean up bodygroups.
+	CTFPlayer *pOldDisguiseTarget = ToTFPlayer( m_hDisguiseTarget.Get() );
+	if ( pOldDisguiseTarget )
+	{
+		pOldDisguiseTarget->SetBodygroupsDirty();
+	}
+#endif
+
 	m_hDesiredDisguiseTarget.Set( pDesiredTarget );
 	m_nDesiredDisguiseClass = nClass;
 	m_nDesiredDisguiseTeam = nTeam;
@@ -8402,6 +8421,7 @@ void CTFPlayerShared::DetermineDisguiseWeapon( bool bForcePrimary )
 	{
 		CTFWeaponBase *pLastDisguiseWeapon = m_hDisguiseWeapon;
 		CTFWeaponBase *pFirstValidWeapon = NULL;
+
 		// Cycle through the target's weapons and see if we have a match.
 		// Note that it's possible the disguise target doesn't have a weapon in the slot we want,
 		// for example if they have replaced it with an unlockable that isn't a weapon (wearable).
@@ -8505,6 +8525,7 @@ void CTFPlayerShared::DetermineDisguiseWeapon( bool bForcePrimary )
 			m_hDisguiseWeapon->m_bDisguiseWeapon = true;
 			m_hDisguiseWeapon->SetContextThink( &CTFWeaponBase::DisguiseWeaponThink, gpGlobals->curtime + 0.5, "DisguiseWeaponThink" );
 
+			m_hDisguiseWeapon->UpdateExtraWearables();
 
 			// Ammo/clip state is displayed to attached medics
 			m_iDisguiseAmmo = 0;
@@ -8539,14 +8560,31 @@ void CTFPlayerShared::DetermineDisguiseWeapon( bool bForcePrimary )
 void CTFPlayerShared::DetermineDisguiseWearables()
 {
 	CTFPlayer *pDisguiseTarget = ToTFPlayer( m_hDisguiseTarget.Get() );
-	if ( !pDisguiseTarget )
-		return;
 
 	// Remove any existing disguise wearables.
 	RemoveDisguiseWearables();
 
-	if ( GetDisguiseClass() != pDisguiseTarget->GetPlayerClass()->GetClassIndex() )
+	if ( !pDisguiseTarget )
+	{
+		// No target exists, reset disguise body to default state.
+		SetDisguiseBody( 0 );
 		return;
+	}
+
+	if ( GetDisguiseClass() != pDisguiseTarget->GetPlayerClass()->GetClassIndex() )
+	{
+		// Class mismatch, reset disguise body to default.
+		SetDisguiseBody( 0 );
+#ifdef CLIENT_DLL
+		// Mark bodygroups dirty even when not copying wearables (class mismatch).
+		pDisguiseTarget->SetBodygroupsDirty();
+#endif
+		return;
+	}
+
+	// Reset disguise body to default before applying new wearables.
+	// This ensures old bodygroup modifications don't carry over.
+	SetDisguiseBody( 0 );
 
 	// Equip us with copies of our disguise target's wearables.
 	int iPlayerSkinOverride = 0;
@@ -8592,6 +8630,11 @@ void CTFPlayerShared::DetermineDisguiseWearables()
 	}
 
 	m_nDisguiseSkinOverride = iPlayerSkinOverride;
+
+#ifdef CLIENT_DLL
+	// Mark bodygroups dirty after creating disguise wearables.
+	pDisguiseTarget->SetBodygroupsDirty();
+#endif
 }
 
 void CTFPlayerShared::RemoveDisguiseWearables()
