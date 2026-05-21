@@ -26,7 +26,7 @@ Or load shortcuts once: `exec ff_aliases.cfg`, then `ff_ow`, `ff_rim`, `ff_bombe
 - `ff_play bomber` -> defaults to `koth_badlands` (grid auto-aligned to team spawns)
 - `ff_play stock` -> defaults to `ctf_2fort`
 
-After any map load, the server runs **post-map setup** automatically (~4s): kicks old bots, applies mode cfg, restarts the match, then spawns OW/RIM bots or respawns bomber players on the grid.
+After any map load, the server runs **post-map setup** automatically (~4s): kicks old bots, applies mode cfg, restarts the match, then RIM spawns Mr. Teddy hostages or bomber players respawn on the grid. **Bots use Valve stock AI** — add them yourself if you want (`tf_bot_add`, `tf_bot_quota`).
 
 Same map, no reload: `ff_restart`
 
@@ -48,13 +48,13 @@ Legacy `tf_ow_mode` / `tf_rim_mode` still work; the server keeps them mutually e
 
 ## Suggested maps
 
-- **OW:** `koth_badlands` (then `exec ow_quickstart` for 6v6 bots)
+- **OW:** `koth_badlands` (optional: `tf_bot_quota 6` + `tf_bot_quota_mode fill`, or `tf_bot_add scout red` etc.)
 - **RIM:** `plr_hightower` or other Payload maps with hostage setup
 
 ## Code
 
 Mode checks live in `CTFGameRules::IsOverwatchMode()` / `IsRainbowIsMagicMode()` / `IsBombermanMode()` in `tf_gamerules.cpp`. Custom logic only runs for the active `tf_ff_game_mode` value.
 
-**RIM bots:** after the round is running, `rim_add_bots` or `exec rim_quickstart`.
+**RIM fill bots:** after the round is running, use stock `tf_bot_add` / `tf_bot_quota` (no custom spawn queue).
 
 **Bomber:** see `BOMBERMAN.md`; align grid with `getpos` then `tf_bm_grid_origin`.

@@ -690,6 +690,10 @@ public:
 	bool	m_bOWHeroLocked;
 	float	m_flOWCooldownEnd[3];
 	float	m_flBMNextGridSnapTime;
+	int		m_iBMActiveBombs;
+	int		m_nBMPreviousButtons;
+	bool	m_bBMWasMoving;
+	bool	m_bBMSpawnConfigured;
 #endif
 
 	int					StateGet( void ) const;

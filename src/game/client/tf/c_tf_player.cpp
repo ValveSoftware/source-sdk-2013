@@ -6567,6 +6567,13 @@ bool C_TFPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 	bool bNoTaunt = true;
 	bool bInTaunt = m_Shared.InCond( TF_COND_TAUNTING ) || m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER );
 
+#ifdef SOURCESDK
+	if ( IsLocalPlayer() && TFGameRules() && TFGameRules()->IsBombermanMode() )
+	{
+		BM_ClientCreateMove( this, pCmd );
+	}
+#endif
+
 	if ( m_Shared.InCond( TF_COND_FREEZE_INPUT ) )
 	{
 		pCmd->viewangles = angMoveAngle; // use the last save angles
@@ -9570,6 +9577,13 @@ void C_TFPlayer::CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNear, f
 {
 	HandleTaunting();
 	BaseClass::CalcView( eyeOrigin, eyeAngles, zNear, zFar, fov );
+
+#ifdef SOURCESDK
+	if ( IsLocalPlayer() && TFGameRules() && TFGameRules()->IsBombermanMode() )
+	{
+		BM_ClientCalcView( this, eyeOrigin, eyeAngles );
+	}
+#endif
 }
 
 void SelectDisguise( int iClass, int iTeam );

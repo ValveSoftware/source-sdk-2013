@@ -10,6 +10,12 @@
 #include "view_shared.h"
 #include "tf_viewrender.h"
 #include "viewpostprocess.h"
+#ifdef SOURCESDK
+#include "bm_client.h"
+#include "tf_gamerules.h"
+
+extern ConVar tf_bm_clip_world;
+#endif
 #include <game/client/iviewport.h>
 #include "clienteffectprecachesystem.h"
 
@@ -66,6 +72,25 @@ void CTFViewRender::Init()
 	}
 
 	BaseClass::Init();
+}
+
+//-----------------------------------------------------------------------------
+void CTFViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatToDraw )
+{
+#ifdef SOURCESDK
+	// World clip is opt-in (tf_bm_clip_world 1) — default off so the full map draws.
+	if ( tf_bm_clip_world.GetBool() )
+	{
+		const bool bClip = BM_ClientPushWorldClip();
+		BaseClass::RenderView( view, nClearFlags, whatToDraw );
+		if ( bClip )
+		{
+			BM_ClientPopWorldClip();
+		}
+		return;
+	}
+#endif
+	BaseClass::RenderView( view, nClearFlags, whatToDraw );
 }
 
 //-----------------------------------------------------------------------------

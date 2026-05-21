@@ -912,6 +912,8 @@ ConVar tf_ff_game_mode( "tf_ff_game_mode", "1", FCVAR_REPLICATED | FCVAR_NOTIFY,
 	, TfFfGameModeChanged
 #endif
 );
+ConVar tf_bm_respawn_time( "tf_bm_respawn_time", "2", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: respawn delay after dying to a blast." );
+ConVar tf_bm_build_id( "tf_bm_build_id", "phase4-warp-arena", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman build tag (confirms DLL has bombs + camera fix)." );
 ConVar tf_rim_mode( "tf_rim_mode", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Rainbow Is Magic: archived hostage mode (0=off). Prefer tf_ff_game_mode or ff_mode."
 #ifdef GAME_DLL
 	, TfRimModeChanged
@@ -989,7 +991,7 @@ static bool FF_TryParseMode( const char *pszModeName, FFModeInfo_t &modeInfo )
 		modeInfo.m_iMode = 3;
 		modeInfo.m_pszCanonicalName = "bomber";
 		modeInfo.m_pszConfigFile = "mode_bomber.cfg";
-		modeInfo.m_pszDefaultMap = "koth_badlands";
+		modeInfo.m_pszDefaultMap = "itemtest";
 		return true;
 	}
 
@@ -1025,7 +1027,7 @@ static bool FF_GetModeInfoForInt( int iMode, FFModeInfo_t &modeInfo )
 		modeInfo.m_iMode = 3;
 		modeInfo.m_pszCanonicalName = "bomber";
 		modeInfo.m_pszConfigFile = "mode_bomber.cfg";
-		modeInfo.m_pszDefaultMap = "koth_badlands";
+		modeInfo.m_pszDefaultMap = "itemtest";
 		return true;
 	default:
 		modeInfo.m_iMode = 0;
@@ -4086,6 +4088,10 @@ float CTFGameRules::GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayer
 	if ( IsRainbowIsMagicMode() )
 	{
 		return 1.5f;
+	}
+	if ( IsBombermanMode() )
+	{
+		return Max( 0.5f, tf_bm_respawn_time.GetFloat() );
 	}
 #endif
 
@@ -18260,11 +18266,16 @@ void CTFGameRules::FF_TickPostMapSetup( void )
 
 	if ( m_nFFPostMapSetupPass == 0 )
 	{
-		engine->ServerCommand( "tf_bot_kick all\n" );
+		const bool bBomber = ( iMode == 3 );
+		if ( !bBomber )
+		{
+			engine->ServerCommand( "tf_bot_kick all\n" );
+		}
+
 		FF_ExecModeConfigForGameMode( iMode );
 		FF_SyncActiveModeConVars();
 
-		if ( iMode == 3 )
+		if ( bBomber )
 		{
 			extern void BM_AutoAlignGridFromSpawns( void );
 			BM_AutoAlignGridFromSpawns();
@@ -18273,12 +18284,16 @@ void CTFGameRules::FF_TickPostMapSetup( void )
 		FFModeInfo_t setupInfo = { 0 };
 		FF_GetModeInfoForInt( iMode, setupInfo );
 		UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Fortress: starting %s mode...", setupInfo.m_pszCanonicalName ) );
-		engine->ServerCommand( "mp_restartgame 1\n" );
-		engine->ServerExecute();
+
+		if ( !bBomber )
+		{
+			engine->ServerCommand( "mp_restartgame 1\n" );
+			engine->ServerExecute();
+		}
 
 		m_nFFPostMapSetupPass = 1;
-		m_flFFPostMapSetupTime = gpGlobals->curtime + 3.0f;
-		Msg( "FF: post-map pass 0 — cfg applied, match restarting (mode %d).\n", iMode );
+		m_flFFPostMapSetupTime = gpGlobals->curtime + ( bBomber ? 1.0f : 3.0f );
+		Msg( "FF: post-map pass 0 — cfg applied%s (mode %d).\n", bBomber ? "" : ", match restarting", iMode );
 		return;
 	}
 
@@ -18303,11 +18318,7 @@ void CTFGameRules::FF_TickPostMapSetup( void )
 			return;
 		}
 
-		extern void OW_ResetBotSpawnSchedule( float flDelaySeconds );
-		extern void OW_QueueNeededBots( void );
-		OW_ResetBotSpawnSchedule( 0.0f );
-		OW_QueueNeededBots();
-		UTIL_ClientPrintAll( HUD_PRINTTALK, "OW: queuing hero bots for this round." );
+		UTIL_ClientPrintAll( HUD_PRINTTALK, "OW: hero mode ready. Add bots with tf_bot_add if you want them." );
 	}
 	else if ( IsRainbowIsMagicMode() )
 	{
@@ -18315,13 +18326,15 @@ void CTFGameRules::FF_TickPostMapSetup( void )
 		m_nRimDeferredSetupPass = 0;
 		m_nRimObjectiveRetryCount = 0;
 		m_flRimNextObjectiveRetryTime = -1.0f;
-		UTIL_ClientPrintAll( HUD_PRINTTALK, "RIM: spawning bears and role bots..." );
+		UTIL_ClientPrintAll( HUD_PRINTTALK, "RIM: spawning Mr. Teddy hostages (use tf_bot_add for fill bots)." );
 	}
 	else if ( IsBombermanMode() )
 	{
 		extern void BM_RespawnAllPlayers( void );
+		extern void BM_BuildArena( void );
+		BM_BuildArena();
 		BM_RespawnAllPlayers();
-		UTIL_ClientPrintAll( HUD_PRINTTALK, "Frog Bomber: respawned on arena grid." );
+		UTIL_ClientPrintAll( HUD_PRINTTALK, "Frog Bomber: join RED or BLU, pick Scout — MOUSE1 places bombs!" );
 	}
 
 	m_flFFPostMapSetupTime = -1.0f;
@@ -18350,9 +18363,6 @@ void CTFGameRules::OW_ConfigureMatch( void )
 
 	extern ConVar tf_bot_spawn_use_preset_roster;
 	tf_bot_spawn_use_preset_roster.SetValue( 0 );
-
-	extern void OW_SpawnDefaultBots( void );
-	OW_SpawnDefaultBots();
 }
 
 //-----------------------------------------------------------------------------
@@ -18363,10 +18373,8 @@ void CTFGameRules::OW_TickMatch( void )
 		return;
 	}
 
-	extern void OW_TickBotSpawnQueue( void );
 	extern void OW_EnsureAllBotsHaveAI( void );
-	OW_TickBotSpawnQueue();
-	OW_EnsureAllBotsHaveAI(); // setup only: idle bots until round starts
+	OW_EnsureAllBotsHaveAI();
 
 	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
 	{
@@ -18640,14 +18648,10 @@ void CTFGameRules::Rim_TickDeferredSetup( void )
 		return;
 	}
 
-	extern void Rim_SpawnDefaultBots( void );
-
 	if ( m_nRimDeferredSetupPass == 0 )
 	{
 		Rim_SpawnMrBears();
 	}
-
-	Rim_SpawnDefaultBots();
 
 	if ( m_nRimDeferredSetupPass == 0 )
 	{

@@ -24,6 +24,7 @@ public:
 	CTFViewRender();
 
 	virtual void Init( void );
+	virtual void RenderView( const CViewSetup &view, int nClearFlags, int whatToDraw );
 	virtual void Render2DEffectsPostHUD( const CViewSetup &view );
 };
 

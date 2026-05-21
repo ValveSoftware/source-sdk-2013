@@ -984,6 +984,10 @@ CTFPlayer::CTFPlayer()
 	m_flOWCooldownEnd[2] = 0.0f;
 	m_bOWHeroLocked = false;
 	m_flBMNextGridSnapTime = 0.0f;
+	m_iBMActiveBombs = 0;
+	m_nBMPreviousButtons = 0;
+	m_bBMWasMoving = false;
+	m_bBMSpawnConfigured = false;
 #endif
 
 	m_flWaterExitTime = 0;
@@ -2151,7 +2155,11 @@ void CTFPlayer::PostSpawnThink( void )
 #ifdef SOURCESDK
 	if ( IsAlive() && TFGameRules() && TFGameRules()->IsBombermanMode() )
 	{
-		BM_OnPlayerSpawn( this );
+		if ( !m_bBMSpawnConfigured )
+		{
+			BM_OnPlayerSpawn( this );
+			m_bBMSpawnConfigured = true;
+		}
 	}
 	else if ( IsAlive() && TFGameRules() && TFGameRules()->IsOverwatchMode() )
 	{
@@ -3681,6 +3689,10 @@ void CTFPlayer::Spawn()
 
 	m_flSpawnTime = gpGlobals->curtime;
 
+#ifdef SOURCESDK
+	m_bBMSpawnConfigured = false;
+#endif
+
 	SetModelScale( 1.0f );
 	UpdateModel();
 
@@ -4045,6 +4057,13 @@ void CTFPlayer::Spawn()
 		ResetMaxHealthDrain();
 		SetHealth( GetMaxHealth() );
 	}
+
+#ifdef SOURCESDK
+	if ( TFGameRules() && TFGameRules()->IsBombermanMode() && IsAlive() )
+	{
+		BM_EnsurePlayerInArena( this );
+	}
+#endif
 
 	SetContextThink( &CTFPlayer::PostSpawnThink, gpGlobals->curtime + 0.1f, "PostSpawnThink" );
 }
