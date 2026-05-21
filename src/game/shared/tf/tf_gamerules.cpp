@@ -47,6 +47,7 @@
 	#include "tf_mr_bear.h"
 	#include "ow_hero_registry.h"
 	#include "ow_player_system.h"
+	#include "bm_player_system.h"
 #endif
 	#include "filesystem.h"
 	#include "minigames/tf_duel.h"
@@ -906,7 +907,7 @@ void TfRimModeChanged( IConVar *var, const char *pOldString, float flOldValue );
 #endif
 
 ConVar tf_ff_game_mode( "tf_ff_game_mode", "1", FCVAR_REPLICATED | FCVAR_NOTIFY,
-	"Frog Fortress game mode: 0=stock mod_tf, 1=OW heroes, 2=RIM hostage. Switch anytime; reload map after."
+	"Frog Fortress game mode: 0=stock, 1=OW, 2=RIM, 3=Bomberman. Switch anytime; reload map after."
 #ifdef GAME_DLL
 	, TfFfGameModeChanged
 #endif
@@ -932,6 +933,72 @@ ConVar tf_ow_enemy_bonus_on_join( "tf_ow_enemy_bonus_on_join", "1", FCVAR_REPLIC
 #ifdef GAME_DLL
 static bool s_bFfModeApplying = false;
 
+struct FFModeInfo_t
+{
+	int m_iMode;
+	const char *m_pszCanonicalName;
+	const char *m_pszConfigFile;
+	const char *m_pszDefaultMap;
+};
+
+static bool FF_TryParseMode( const char *pszModeName, FFModeInfo_t &modeInfo )
+{
+	if ( !pszModeName || !pszModeName[0] )
+	{
+		return false;
+	}
+
+	if ( !Q_stricmp( pszModeName, "ow" ) || !Q_stricmp( pszModeName, "overwatch" ) )
+	{
+		modeInfo.m_iMode = 1;
+		modeInfo.m_pszCanonicalName = "ow";
+		modeInfo.m_pszConfigFile = "mode_ow.cfg";
+		modeInfo.m_pszDefaultMap = "koth_badlands";
+		return true;
+	}
+
+	if ( !Q_stricmp( pszModeName, "rim" ) || !Q_stricmp( pszModeName, "rainbow" ) )
+	{
+		modeInfo.m_iMode = 2;
+		modeInfo.m_pszCanonicalName = "rim";
+		modeInfo.m_pszConfigFile = "mode_rim.cfg";
+		modeInfo.m_pszDefaultMap = "plr_hightower";
+		return true;
+	}
+
+	if ( !Q_stricmp( pszModeName, "bomber" ) || !Q_stricmp( pszModeName, "bomberman" ) || !Q_stricmp( pszModeName, "bm" ) )
+	{
+		modeInfo.m_iMode = 3;
+		modeInfo.m_pszCanonicalName = "bomber";
+		modeInfo.m_pszConfigFile = "mode_bomber.cfg";
+		modeInfo.m_pszDefaultMap = "ctf_2fort";
+		return true;
+	}
+
+	if ( !Q_stricmp( pszModeName, "stock" ) || !Q_stricmp( pszModeName, "vanilla" ) || !Q_stricmp( pszModeName, "off" ) )
+	{
+		modeInfo.m_iMode = 0;
+		modeInfo.m_pszCanonicalName = "stock";
+		modeInfo.m_pszConfigFile = "mode_stock.cfg";
+		modeInfo.m_pszDefaultMap = "ctf_2fort";
+		return true;
+	}
+
+	return false;
+}
+
+static void FF_PrintModeMenu( void )
+{
+	Msg( "Frog Fortress mode menu:\n" );
+	Msg( "  ff_mode ow      — Overwatch-style heroes\n" );
+	Msg( "  ff_mode rim     — Rainbow Is Magic hostages\n" );
+	Msg( "  ff_mode bomber  — Frog Bomber grid mode\n" );
+	Msg( "  ff_mode stock   — vanilla mod_tf rules\n" );
+	Msg( "  ff_play <mode> [map]  — apply cfg + switch map in one command\n" );
+	Msg( "  Current: tf_ff_game_mode=%d (ow=%d rim=%d)\n",
+		tf_ff_game_mode.GetInt(), tf_ow_mode.GetInt(), tf_rim_mode.GetInt() );
+}
+
 static void FF_ApplyGameMode( int iMode )
 {
 	if ( s_bFfModeApplying )
@@ -947,6 +1014,10 @@ static void FF_ApplyGameMode( int iMode )
 	case 2:
 		tf_ow_mode.SetValue( 0 );
 		tf_rim_mode.SetValue( 1 );
+		break;
+	case 3:
+		tf_ow_mode.SetValue( 0 );
+		tf_rim_mode.SetValue( 0 );
 		break;
 	default:
 		tf_ow_mode.SetValue( 0 );
@@ -1026,38 +1097,69 @@ void CC_FF_Mode( const CCommand &args )
 {
 	if ( args.ArgC() < 2 )
 	{
-		Msg( "Frog Fortress mode (choose plan later):\n" );
-		Msg( "  ff_mode ow     — Overwatch-style heroes (tf_ff_game_mode 1)\n" );
-		Msg( "  ff_mode rim    — Rainbow Is Magic hostages (tf_ff_game_mode 2)\n" );
-		Msg( "  ff_mode stock  — vanilla mod_tf rules (tf_ff_game_mode 0)\n" );
-		Msg( "  Current: tf_ff_game_mode = %d (ow=%d rim=%d)\n",
-			tf_ff_game_mode.GetInt(), tf_ow_mode.GetInt(), tf_rim_mode.GetInt() );
-		Msg( "  Or: exec mode_ow.cfg / mode_rim.cfg / mode_stock.cfg\n" );
-		Msg( "  Reload the map after switching for full effect.\n" );
+		FF_PrintModeMenu();
 		return;
 	}
 
-	const char *pszMode = args[1];
-	if ( !Q_stricmp( pszMode, "ow" ) || !Q_stricmp( pszMode, "overwatch" ) )
+	FFModeInfo_t modeInfo = { 0 };
+	if ( !FF_TryParseMode( args[1], modeInfo ) )
 	{
-		tf_ff_game_mode.SetValue( 1 );
+		Warning( "ff_mode: unknown mode '%s' (use ow, rim, bomber, or stock)\n", args[1] );
+		return;
 	}
-	else if ( !Q_stricmp( pszMode, "rim" ) || !Q_stricmp( pszMode, "rainbow" ) )
+
+	tf_ff_game_mode.SetValue( modeInfo.m_iMode );
+}
+
+void CC_FF_Play( const CCommand &args )
+{
+	if ( !UTIL_IsCommandIssuedByServerAdmin() )
 	{
-		tf_ff_game_mode.SetValue( 2 );
+		Warning( "ff_play: listen host or server admin access required.\n" );
+		return;
 	}
-	else if ( !Q_stricmp( pszMode, "stock" ) || !Q_stricmp( pszMode, "vanilla" ) || !Q_stricmp( pszMode, "off" ) )
+
+	if ( args.ArgC() < 2 )
 	{
-		tf_ff_game_mode.SetValue( 0 );
+		FF_PrintModeMenu();
+		Msg( "Examples:\n" );
+		Msg( "  ff_play ow\n" );
+		Msg( "  ff_play rim plr_hightower\n" );
+		Msg( "  ff_play bomber ctf_2fort\n" );
+		return;
 	}
-	else
+
+	FFModeInfo_t modeInfo = { 0 };
+	if ( !FF_TryParseMode( args[1], modeInfo ) )
 	{
-		Warning( "ff_mode: unknown mode '%s' (use ow, rim, or stock)\n", pszMode );
+		Warning( "ff_play: unknown mode '%s' (use ow, rim, bomber, or stock)\n", args[1] );
+		return;
 	}
+
+	const char *pszMap = ( args.ArgC() >= 3 ) ? args[2] : modeInfo.m_pszDefaultMap;
+
+	tf_ff_game_mode.SetValue( modeInfo.m_iMode );
+
+	char szExecCommand[128];
+	Q_snprintf( szExecCommand, sizeof( szExecCommand ), "exec %s\n", modeInfo.m_pszConfigFile );
+	engine->ServerCommand( szExecCommand );
+
+	if ( pszMap && pszMap[0] )
+	{
+		char szChangeLevelCommand[256];
+		Q_snprintf( szChangeLevelCommand, sizeof( szChangeLevelCommand ), "changelevel %s\n", pszMap );
+		engine->ServerCommand( szChangeLevelCommand );
+	}
+	engine->ServerExecute();
+
+	Msg( "ff_play: mode=%s (%d), cfg=%s, map=%s\n",
+		modeInfo.m_pszCanonicalName, modeInfo.m_iMode, modeInfo.m_pszConfigFile, pszMap ? pszMap : "<none>" );
 }
 
 static ConCommand ff_mode( "ff_mode", CC_FF_Mode,
-	"Switch Frog Fortress game mode: ow | rim | stock. Modes are archived, not removed.", FCVAR_GAMEDLL );
+	"Switch Frog Fortress game mode: ow | rim | bomber | stock.", FCVAR_GAMEDLL );
+static ConCommand ff_play( "ff_play", CC_FF_Play,
+	"Apply mode cfg and changelevel: ff_play <ow|rim|bomber|stock> [map].", FCVAR_GAMEDLL );
 #endif // GAME_DLL
 #endif // SOURCESDK
 
@@ -5678,6 +5780,10 @@ void CTFGameRules::SetupOnRoundRunning( void )
 		m_nRimObjectiveRetryCount = 0;
 		m_flRimNextObjectiveRetryTime = -1.0f;
 	}
+	else if ( IsBombermanMode() )
+	{
+		BM_ConfigureMatch();
+	}
 #endif // GAME_DLL
 #endif // SOURCESDK
 }
@@ -8252,6 +8358,7 @@ void CTFGameRules::Think()
 	Rim_TickDeferredSetup();
 	Rim_TickObjectives();
 	OW_TickMatch();
+	BM_TickMatch();
 #endif
 #endif
 
@@ -17898,6 +18005,8 @@ int CTFGameRules::GetClassLimit( int iClass )
 bool CTFGameRules::IsOverwatchMode() const
 {
 	// tf_ff_game_mode is canonical; legacy convars stay synced via server callbacks.
+	if ( tf_ff_game_mode.GetInt() == 3 )
+		return false;
 	if ( tf_ff_game_mode.GetInt() == 1 )
 		return true;
 	if ( tf_ff_game_mode.GetInt() == 0 )
@@ -17906,8 +18015,16 @@ bool CTFGameRules::IsOverwatchMode() const
 }
 
 //-----------------------------------------------------------------------------
+bool CTFGameRules::IsBombermanMode() const
+{
+	return tf_ff_game_mode.GetInt() == 3;
+}
+
+//-----------------------------------------------------------------------------
 bool CTFGameRules::IsRainbowIsMagicMode() const
 {
+	if ( tf_ff_game_mode.GetInt() == 3 )
+		return false;
 	if ( tf_ff_game_mode.GetInt() == 2 )
 		return true;
 	if ( tf_ff_game_mode.GetInt() == 1 )
@@ -17954,7 +18071,7 @@ void CTFGameRules::OW_TickMatch( void )
 	extern void OW_TickBotSpawnQueue( void );
 	extern void OW_EnsureAllBotsHaveAI( void );
 	OW_TickBotSpawnQueue();
-	OW_EnsureAllBotsHaveAI();
+	OW_EnsureAllBotsHaveAI(); // setup only: idle bots until round starts
 
 	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
 	{
@@ -17965,6 +18082,7 @@ void CTFGameRules::OW_TickMatch( void )
 		}
 	}
 }
+
 #endif // GAME_DLL
 
 //-----------------------------------------------------------------------------
@@ -22737,7 +22855,7 @@ void CTFGameRules::BalanceTeams( bool bRequireSwitcheesToBeDead )
 bool CTFGameRules::PointsMayBeCaptured( void )
 {
 #ifdef SOURCESDK
-	if ( IsRainbowIsMagicMode() )
+	if ( IsRainbowIsMagicMode() || IsBombermanMode() )
 	{
 		return false;
 	}
