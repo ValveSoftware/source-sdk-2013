@@ -244,6 +244,13 @@ Action< CTFBot > *CTFBotScenarioMonitor::DesiredScenarioAndClassAction( CTFBot *
 		}
 	}
 
+#ifdef SOURCESDK
+	if ( TFGameRules() && TFGameRules()->IsRainbowIsMagicMode() )
+	{
+		return new CTFBotSeekAndDestroy;
+	}
+#endif
+
 	if ( me->GetFlagToFetch() )
 	{
 		// capture the flag

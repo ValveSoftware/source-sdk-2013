@@ -70,6 +70,25 @@
 
 CMOTDManager CHudMainMenuOverride::m_MOTDManager;
 
+#ifdef SOURCESDK
+static void ApplySDKModMainMenuTitle( vgui::EditablePanel *pTitleImageContainer, vgui::ImagePanel *pTitleImage, vgui::Label *pTitleLabel )
+{
+	if ( pTitleImageContainer )
+	{
+		pTitleImageContainer->SetVisible( false );
+	}
+	if ( pTitleImage )
+	{
+		pTitleImage->SetVisible( false );
+	}
+	if ( pTitleLabel )
+	{
+		pTitleLabel->SetVisible( true );
+		pTitleLabel->SetText( "#Mod_MainMenu_Title" );
+	}
+}
+#endif
+
 void AddSubKeyNamed( KeyValues *pKeys, const char *pszName );
 
 extern const char *g_sImagesBlue[];
@@ -603,6 +622,10 @@ void CHudMainMenuOverride::ApplySchemeSettings( IScheme *scheme )
 	{
 		m_pMOTDTitleImage = dynamic_cast<vgui::ImagePanel*>( m_pMOTDTitleImageContainer->FindChildByName("MOTD_TitleImage") );
 	}
+
+#ifdef SOURCESDK
+	ApplySDKModMainMenuTitle( m_pMOTDTitleImageContainer, m_pMOTDTitleImage, m_pMOTDTitleLabel );
+#endif
 
 	m_pNotificationsScroller->GetScrollbar()->SetAutohideButtons( true );
 	m_pNotificationsScroller->GetScrollbar()->SetPaintBorderEnabled( false );
@@ -1320,6 +1343,9 @@ void CHudMainMenuOverride::UpdateMOTD( bool bNewMOTDs )
 
 		if ( m_pMOTDTitleImage )
 		{
+#ifdef SOURCESDK
+			ApplySDKModMainMenuTitle( m_pMOTDTitleImageContainer, m_pMOTDTitleImage, m_pMOTDTitleLabel );
+#else
 			m_pMOTDTitleImage->SetShouldScaleImage( false );
 			if ( pszImage == NULL || Q_strcmp( pszImage, "" ) == 0 || Q_strcmp( pszImage, "class_icons/filter_all_on") == 0 )
 			{
@@ -1350,7 +1376,8 @@ void CHudMainMenuOverride::UpdateMOTD( bool bNewMOTDs )
 			pImage->SetSize( fScaledWide, fScaledTall );
 
 			// reposition the image so that its centered
-			m_pMOTDTitleImage->SetPos( (iContentWide - fScaledWide) / 2, (iContentTall - fScaledTall) / 2 );
+			m_pMOTDTitleImage->SetPos( (iContentWide - fScaledWide) / 2, (iContentTall - fScaledTall ) / 2 );
+#endif
 		}
 
 		// We need to resize our text label to fit all the text

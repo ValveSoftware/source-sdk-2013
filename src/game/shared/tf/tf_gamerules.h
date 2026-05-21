@@ -302,6 +302,12 @@ public:
 #define MAX_TEAMGOAL_STRING		256
 #define MAX_TEAMNAME_STRING		6
 
+#ifdef GAME_DLL
+#ifdef SOURCESDK
+class CTFMrBear;
+#endif
+#endif
+
 class CTFGameRules : public CTeamplayRoundBasedRules
 {
 public:
@@ -339,6 +345,14 @@ public:
 	int				GetClassLimit( int iClass );
 	bool			CanPlayerChooseClass( CBasePlayer *pPlayer, int iClass );
 
+#ifdef SOURCESDK
+	bool			IsRainbowIsMagicMode() const;
+	bool			IsRimPistolOnly() const;
+	bool			IsOverwatchMode() const;
+	void			OW_ConfigureMatch( void );
+	void			OW_TickMatch( void );
+#endif
+
 	virtual bool	ShouldBalanceTeams( void );
 
 	virtual int		GetBonusRoundTime( bool bGameOver = false ) OVERRIDE;
@@ -360,6 +374,23 @@ public:
 
 	// Called when a new round is being initialized
 	virtual void	SetupOnRoundStart( void );
+
+#ifdef SOURCESDK
+	friend bool Rim_TrySetupPayloadObjectives( CTFGameRules *pRules );
+	friend void Rim_CheckObjectiveEntity( CTFGameRules *pRules, CHandle<CBaseEntity> &hObjective, bool &bWasActive, int iOwnerTeam );
+
+	void			Rim_RemoveMrBears( void );
+	void			Rim_SpawnMrBears( bool bForceRespawn = false );
+	void			Rim_OnMrBearKilled( int iWinningTeam, CBaseEntity *pAttacker );
+	void			Rim_ConfigureBots( void );
+	void			Rim_TickDeferredSetup( void );
+	CBaseEntity		*Rim_GetEnemyMrBear( int iTeam ) const;
+	CBaseEntity		*Rim_GetFriendlyObjective( int iTeam ) const;
+	void			Rim_SetTeamObjective( int iTeam, CBaseEntity *pEnt );
+	void			Rim_TickObjectives( void );
+	void			Rim_EnsureTeamObjectives( void );
+	void			Rim_TryRespawnMissingObjectives( void );
+#endif
 
 	// Called when a new round is off and running
 	virtual void	SetupOnRoundRunning( void );
@@ -1464,6 +1495,17 @@ private:
 	float	m_flCompModeRespawnPlayersAtMatchStart;
 
 	CHandle< CEntitySoldierStatue > m_hSoldierStatue = nullptr;
+
+#ifdef SOURCESDK
+	CHandle<CBaseEntity>	m_hRedRimObjective;
+	CHandle<CBaseEntity>	m_hBlueRimObjective;
+	bool				m_bRedRimObjectiveActive;
+	bool				m_bBlueRimObjectiveActive;
+	float			m_flRimDeferredSetupTime;
+	int				m_nRimDeferredSetupPass;
+	int				m_nRimObjectiveRetryCount;
+	float			m_flRimNextObjectiveRetryTime;
+#endif
 
 #endif // GAME_DLL
 

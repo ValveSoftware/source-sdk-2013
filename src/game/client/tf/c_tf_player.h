@@ -672,6 +672,14 @@ public:
 	bool			m_bIsABot;
 	int				m_nBotSkill;
 	int				m_nOldBotSkill;
+
+#ifdef SOURCESDK
+	int				m_iOWHeroId;
+	float			m_flOWUltCharge;
+	float			m_flOWCooldown0;
+	float			m_flOWCooldown1;
+	float			m_flOWCooldown2;
+#endif
 	bool			m_bSaveMeParity;
 	bool			m_bOldSaveMeParity;
 	bool			m_bIsCoaching;

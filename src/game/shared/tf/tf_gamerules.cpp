@@ -43,6 +43,11 @@
 	#include "tf_team.h"
 	#include "player_resource.h"
 	#include "entity_tfstart.h"
+#ifdef SOURCESDK
+	#include "tf_mr_bear.h"
+	#include "ow_hero_registry.h"
+	#include "ow_player_system.h"
+#endif
 	#include "filesystem.h"
 	#include "minigames/tf_duel.h"
 	#include "tf_obj.h"
@@ -892,6 +897,169 @@ ConVar tf_training_client_message( "tf_training_client_message", "0", FCVAR_REPL
 #define TF_ARENA_MODE_FIRST_BLOOD_CRIT_TIME 5.0f
 #define TF_ARENA_MODE_FAST_FIRST_BLOOD_TIME 20.0f
 #define TF_ARENA_MODE_SLOW_FIRST_BLOOD_TIME 50.0f
+
+#ifdef SOURCESDK
+#ifdef GAME_DLL
+void TfFfGameModeChanged( IConVar *var, const char *pOldString, float flOldValue );
+void TfOwModeChanged( IConVar *var, const char *pOldString, float flOldValue );
+void TfRimModeChanged( IConVar *var, const char *pOldString, float flOldValue );
+#endif
+
+ConVar tf_ff_game_mode( "tf_ff_game_mode", "1", FCVAR_REPLICATED | FCVAR_NOTIFY,
+	"Frog Fortress game mode: 0=stock mod_tf, 1=OW heroes, 2=RIM hostage. Switch anytime; reload map after."
+#ifdef GAME_DLL
+	, TfFfGameModeChanged
+#endif
+);
+ConVar tf_rim_mode( "tf_rim_mode", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Rainbow Is Magic: archived hostage mode (0=off). Prefer tf_ff_game_mode or ff_mode."
+#ifdef GAME_DLL
+	, TfRimModeChanged
+#endif
+);
+ConVar tf_rim_pistol_only( "tf_rim_pistol_only", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "RIM: class secondary + melee only (no primaries)." );
+ConVar tf_rim_use_payload( "tf_rim_use_payload", "0", FCVAR_GAMEDLL, "RIM: on Payload maps use frozen carts instead of tf_mr_bear hostages." );
+ConVar tf_ow_mode( "tf_ow_mode", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "Overwatch-style hero shooter mode. Prefer tf_ff_game_mode or ff_mode."
+#ifdef GAME_DLL
+	, TfOwModeChanged
+#endif
+);
+ConVar tf_ow_hero_lock( "tf_ow_hero_lock", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "OW: change hero only in spawn room." );
+ConVar tf_ow_respawn_time( "tf_ow_respawn_time", "6", FCVAR_REPLICATED | FCVAR_NOTIFY, "OW: respawn wave time (seconds)." );
+ConVar tf_ow_team_size( "tf_ow_team_size", "6", FCVAR_REPLICATED | FCVAR_NOTIFY, "OW: legacy team size hint (see tf_ow_bots_per_team)." );
+ConVar tf_ow_bots_per_team( "tf_ow_bots_per_team", "5", FCVAR_REPLICATED | FCVAR_NOTIFY, "OW: bots per team before a human joins the enemy team." );
+ConVar tf_ow_enemy_bonus_on_join( "tf_ow_enemy_bonus_on_join", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "OW: extra bots on the team without the human when someone picks RED/BLU." );
+
+#ifdef GAME_DLL
+static bool s_bFfModeApplying = false;
+
+static void FF_ApplyGameMode( int iMode )
+{
+	if ( s_bFfModeApplying )
+		return;
+
+	s_bFfModeApplying = true;
+	switch ( iMode )
+	{
+	case 1:
+		tf_ow_mode.SetValue( 1 );
+		tf_rim_mode.SetValue( 0 );
+		break;
+	case 2:
+		tf_ow_mode.SetValue( 0 );
+		tf_rim_mode.SetValue( 1 );
+		break;
+	default:
+		tf_ow_mode.SetValue( 0 );
+		tf_rim_mode.SetValue( 0 );
+		break;
+	}
+	s_bFfModeApplying = false;
+}
+
+static void FF_SyncGameModeFromLegacy( void )
+{
+	if ( s_bFfModeApplying )
+		return;
+
+	s_bFfModeApplying = true;
+	if ( tf_ow_mode.GetBool() )
+	{
+		tf_rim_mode.SetValue( 0 );
+		tf_ff_game_mode.SetValue( 1 );
+	}
+	else if ( tf_rim_mode.GetBool() )
+	{
+		tf_ff_game_mode.SetValue( 2 );
+	}
+	else
+	{
+		tf_ff_game_mode.SetValue( 0 );
+	}
+	s_bFfModeApplying = false;
+}
+
+void TfFfGameModeChanged( IConVar *var, const char *pOldString, float flOldValue )
+{
+	if ( s_bFfModeApplying )
+		return;
+
+	FF_ApplyGameMode( ( (ConVar *)var )->GetInt() );
+}
+
+void TfOwModeChanged( IConVar *var, const char *pOldString, float flOldValue )
+{
+	if ( s_bFfModeApplying )
+		return;
+
+	if ( tf_ow_mode.GetBool() )
+	{
+		s_bFfModeApplying = true;
+		tf_rim_mode.SetValue( 0 );
+		tf_ff_game_mode.SetValue( 1 );
+		s_bFfModeApplying = false;
+	}
+	else
+	{
+		FF_SyncGameModeFromLegacy();
+	}
+}
+
+void TfRimModeChanged( IConVar *var, const char *pOldString, float flOldValue )
+{
+	if ( s_bFfModeApplying )
+		return;
+
+	if ( tf_rim_mode.GetBool() && tf_ow_mode.GetBool() )
+	{
+		s_bFfModeApplying = true;
+		tf_ow_mode.SetValue( 0 );
+		tf_ff_game_mode.SetValue( 2 );
+		s_bFfModeApplying = false;
+	}
+	else
+	{
+		FF_SyncGameModeFromLegacy();
+	}
+}
+
+void CC_FF_Mode( const CCommand &args )
+{
+	if ( args.ArgC() < 2 )
+	{
+		Msg( "Frog Fortress mode (choose plan later):\n" );
+		Msg( "  ff_mode ow     — Overwatch-style heroes (tf_ff_game_mode 1)\n" );
+		Msg( "  ff_mode rim    — Rainbow Is Magic hostages (tf_ff_game_mode 2)\n" );
+		Msg( "  ff_mode stock  — vanilla mod_tf rules (tf_ff_game_mode 0)\n" );
+		Msg( "  Current: tf_ff_game_mode = %d (ow=%d rim=%d)\n",
+			tf_ff_game_mode.GetInt(), tf_ow_mode.GetInt(), tf_rim_mode.GetInt() );
+		Msg( "  Or: exec mode_ow.cfg / mode_rim.cfg / mode_stock.cfg\n" );
+		Msg( "  Reload the map after switching for full effect.\n" );
+		return;
+	}
+
+	const char *pszMode = args[1];
+	if ( !Q_stricmp( pszMode, "ow" ) || !Q_stricmp( pszMode, "overwatch" ) )
+	{
+		tf_ff_game_mode.SetValue( 1 );
+	}
+	else if ( !Q_stricmp( pszMode, "rim" ) || !Q_stricmp( pszMode, "rainbow" ) )
+	{
+		tf_ff_game_mode.SetValue( 2 );
+	}
+	else if ( !Q_stricmp( pszMode, "stock" ) || !Q_stricmp( pszMode, "vanilla" ) || !Q_stricmp( pszMode, "off" ) )
+	{
+		tf_ff_game_mode.SetValue( 0 );
+	}
+	else
+	{
+		Warning( "ff_mode: unknown mode '%s' (use ow, rim, or stock)\n", pszMode );
+	}
+}
+
+static ConCommand ff_mode( "ff_mode", CC_FF_Mode,
+	"Switch Frog Fortress game mode: ow | rim | stock. Modes are archived, not removed.", FCVAR_GAMEDLL );
+#endif // GAME_DLL
+#endif // SOURCESDK
 
 #ifdef TF_RAID_MODE
 // Raid mode
@@ -3278,6 +3446,12 @@ CTFGameRules::CTFGameRules()
 	, m_flCompModeRespawnPlayersAtMatchStart( -1.f )
 	, m_bMapForcedTruceDuringBossFight( false )
 	, m_flNextHalloweenGiftUpdateTime( -1 )
+#ifdef SOURCESDK
+	, m_flRimDeferredSetupTime( -1.0f )
+	, m_nRimDeferredSetupPass( 0 )
+	, m_nRimObjectiveRetryCount( 0 )
+	, m_flRimNextObjectiveRetryTime( -1.0f )
+#endif
 #else
 	: m_bRecievedBaseline( false )
 #endif
@@ -3622,6 +3796,17 @@ float CTFGameRules::GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayer
 {
 	bool bScale = bScaleWithNumPlayers;
 
+#ifdef SOURCESDK
+	if ( IsOverwatchMode() )
+	{
+		return tf_ow_respawn_time.GetFloat();
+	}
+	if ( IsRainbowIsMagicMode() )
+	{
+		return 1.5f;
+	}
+#endif
+
 #ifdef TF_RAID_MODE
 	if ( IsRaidMode() )
 	{
@@ -3658,6 +3843,13 @@ float CTFGameRules::GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayer
 //-----------------------------------------------------------------------------
 bool CTFGameRules::FlagsMayBeCapped( void )
 {
+#ifdef SOURCESDK
+	if ( IsRainbowIsMagicMode() && !IsOverwatchMode() && State_Get() == GR_STATE_RND_RUNNING )
+	{
+		return false;
+	}
+#endif
+
 	if ( State_Get() != GR_STATE_TEAM_WIN && State_Get() != GR_STATE_PREROUND )
 		return true;
 
@@ -5470,6 +5662,24 @@ void CTFGameRules::SetupOnRoundRunning( void )
 	{
 		PowerupModeInitKillCountTimer();
 	}
+
+#ifdef SOURCESDK
+#ifdef GAME_DLL
+	if ( IsOverwatchMode() )
+	{
+		OW_ConfigureMatch();
+	}
+	else if ( IsRainbowIsMagicMode() )
+	{
+		Rim_ConfigureBots();
+		Rim_SpawnMrBears();
+		m_flRimDeferredSetupTime = gpGlobals->curtime + 0.5f;
+		m_nRimDeferredSetupPass = 0;
+		m_nRimObjectiveRetryCount = 0;
+		m_flRimNextObjectiveRetryTime = -1.0f;
+	}
+#endif // GAME_DLL
+#endif // SOURCESDK
 }
 
 //-----------------------------------------------------------------------------
@@ -8037,6 +8247,14 @@ void CTFGameRules::LevelShutdown()
 //-----------------------------------------------------------------------------
 void CTFGameRules::Think()
 {
+#ifdef SOURCESDK
+#ifdef GAME_DLL
+	Rim_TickDeferredSetup();
+	Rim_TickObjectives();
+	OW_TickMatch();
+#endif
+#endif
+
 	if ( m_bMapCycleNeedsUpdate )
 	{
 		m_bMapCycleNeedsUpdate = false;
@@ -17616,6 +17834,36 @@ bool CTFGameRules::ShouldShowPreRoundDoors() const
 //-----------------------------------------------------------------------------
 int CTFGameRules::GetClassLimit( int iClass )
 {
+#ifdef SOURCESDK
+	if ( IsOverwatchMode() )
+	{
+		switch ( iClass )
+		{
+		case TF_CLASS_SCOUT:
+		case TF_CLASS_SNIPER:
+		case TF_CLASS_MEDIC:
+		case TF_CLASS_HEAVYWEAPONS:
+		case TF_CLASS_PYRO:
+		case TF_CLASS_ENGINEER:
+			return NO_CLASS_LIMIT;
+		default:
+			return 0;
+		}
+	}
+	if ( IsRainbowIsMagicMode() )
+	{
+		switch ( iClass )
+		{
+		case TF_CLASS_SCOUT:
+		case TF_CLASS_HEAVYWEAPONS:
+		case TF_CLASS_PYRO:
+			return NO_CLASS_LIMIT;
+		default:
+			return 0;
+		}
+	}
+#endif
+
 	if ( IsInTournamentMode() || IsPasstimeMode() )
 	{
 		switch ( iClass )
@@ -17645,11 +17893,438 @@ int CTFGameRules::GetClassLimit( int iClass )
 	return NO_CLASS_LIMIT;
 }
 
+#ifdef SOURCESDK
+//-----------------------------------------------------------------------------
+bool CTFGameRules::IsOverwatchMode() const
+{
+	// tf_ff_game_mode is canonical; legacy convars stay synced via server callbacks.
+	if ( tf_ff_game_mode.GetInt() == 1 )
+		return true;
+	if ( tf_ff_game_mode.GetInt() == 0 )
+		return tf_ow_mode.GetBool() && !tf_rim_mode.GetBool();
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+bool CTFGameRules::IsRainbowIsMagicMode() const
+{
+	if ( tf_ff_game_mode.GetInt() == 2 )
+		return true;
+	if ( tf_ff_game_mode.GetInt() == 1 )
+		return false;
+	return tf_rim_mode.GetBool() && !IsOverwatchMode();
+}
+
+#ifdef GAME_DLL
+//-----------------------------------------------------------------------------
+void CTFGameRules::OW_ConfigureMatch( void )
+{
+	OW_PlayerSystem_Init();
+	OW_LoadModeConfig();
+
+	extern ConVar tf_bot_quota;
+	extern ConVar tf_bot_quota_mode;
+	extern ConVar tf_bot_join_after_player;
+	extern ConVar mp_autoteambalance;
+	extern ConVar tf_bot_auto_vacate;
+	tf_bot_quota.SetValue( 0 );
+	tf_bot_quota_mode.SetValue( "normal" );
+	tf_bot_join_after_player.SetValue( 0 );
+	mp_autoteambalance.SetValue( 0 );
+	tf_bot_auto_vacate.SetValue( 0 );
+
+	COWHeroRegistry::Instance().PrintRoster();
+	UTIL_ClientPrintAll( HUD_PRINTTALK, "OW: Hero shooter — pick a class (hero), Shift/E/Q abilities, R ultimate." );
+
+	extern ConVar tf_bot_spawn_use_preset_roster;
+	tf_bot_spawn_use_preset_roster.SetValue( 0 );
+
+	extern void OW_SpawnDefaultBots( void );
+	OW_SpawnDefaultBots();
+}
+
+//-----------------------------------------------------------------------------
+void CTFGameRules::OW_TickMatch( void )
+{
+	if ( !IsOverwatchMode() || State_Get() != GR_STATE_RND_RUNNING )
+	{
+		return;
+	}
+
+	extern void OW_TickBotSpawnQueue( void );
+	extern void OW_EnsureAllBotsHaveAI( void );
+	OW_TickBotSpawnQueue();
+	OW_EnsureAllBotsHaveAI();
+
+	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
+	{
+		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+		if ( pPlayer && pPlayer->IsAlive() )
+		{
+			OW_OnPlayerPostThink( pPlayer );
+		}
+	}
+}
+#endif // GAME_DLL
+
+//-----------------------------------------------------------------------------
+bool CTFGameRules::IsRimPistolOnly() const
+{
+	return IsRainbowIsMagicMode() && tf_rim_pistol_only.GetBool();
+}
+
+#ifdef GAME_DLL
+//-----------------------------------------------------------------------------
+void CTFGameRules::Rim_RemoveMrBears( void )
+{
+	m_hRedRimObjective = NULL;
+	m_hBlueRimObjective = NULL;
+	m_bRedRimObjectiveActive = false;
+	m_bBlueRimObjectiveActive = false;
+	CTFMrBear::RemoveAllRimObjectives();
+}
+
+//-----------------------------------------------------------------------------
+static void Rim_SpawnBearForTeam( CTFGameRules *pRules, int iTeam, CHandle<CBaseEntity> &hObjective, bool &bActive )
+{
+	if ( hObjective.Get() )
+	{
+		return;
+	}
+
+	Vector vecOrigin;
+	QAngle angles;
+	if ( !CTFMrBear::FindSpawnLocation( iTeam, vecOrigin, angles ) )
+	{
+		Warning( "RIM: no team spawn entity for team %d — cannot place hostage.\n", iTeam );
+		return;
+	}
+
+	CTFMrBear *pBear = CTFMrBear::Create( vecOrigin, angles, iTeam );
+	if ( !pBear || pBear->GetHealth() <= 0 )
+	{
+		if ( pBear )
+		{
+			UTIL_Remove( pBear );
+		}
+		Warning( "RIM: failed to create hostage for team %d.\n", iTeam );
+		return;
+	}
+
+	CTFMrBear::FinalizeOutdoorPlacement( pBear );
+
+	hObjective = pBear;
+	bActive = true;
+	Msg( "RIM: team %d objective active at %.0f %.0f %.0f\n",
+		iTeam, pBear->GetAbsOrigin().x, pBear->GetAbsOrigin().y, pBear->GetAbsOrigin().z );
+}
+
+//-----------------------------------------------------------------------------
+static bool Rim_IsLivingObjective( CBaseEntity *pEnt )
+{
+	return pEnt && pEnt->GetHealth() > 0;
+}
+
+//-----------------------------------------------------------------------------
+void CTFGameRules::Rim_SpawnMrBears( bool bForceRespawn )
+{
+	if ( !IsRainbowIsMagicMode() )
+	{
+		return;
+	}
+
+	CBaseEntity *pRed = m_hRedRimObjective.Get();
+	CBaseEntity *pBlue = m_hBlueRimObjective.Get();
+	const bool bHaveRed = Rim_IsLivingObjective( pRed );
+	const bool bHaveBlue = Rim_IsLivingObjective( pBlue );
+
+	if ( !bForceRespawn && bHaveRed && bHaveBlue )
+	{
+		return;
+	}
+
+	if ( bForceRespawn )
+	{
+		Rim_RemoveMrBears();
+	}
+	else
+	{
+		if ( !bHaveRed && pRed )
+		{
+			UTIL_Remove( pRed );
+			m_hRedRimObjective = NULL;
+			m_bRedRimObjectiveActive = false;
+		}
+		if ( !bHaveBlue && pBlue )
+		{
+			UTIL_Remove( pBlue );
+			m_hBlueRimObjective = NULL;
+			m_bBlueRimObjectiveActive = false;
+		}
+	}
+
+	if ( !bForceRespawn && !bHaveRed && !bHaveBlue && Rim_TrySetupPayloadObjectives( this ) )
+	{
+		UTIL_ClientPrintAll( HUD_PRINTTALK, "RIM: Kill the enemy cart to win!" );
+		if ( m_hRedRimObjective.Get() && m_hBlueRimObjective.Get() )
+		{
+			return;
+		}
+	}
+	else if ( bForceRespawn && Rim_TrySetupPayloadObjectives( this ) )
+	{
+		UTIL_ClientPrintAll( HUD_PRINTTALK, "RIM: Kill the enemy cart to win!" );
+	}
+
+	Rim_SpawnBearForTeam( this, TF_TEAM_RED, m_hRedRimObjective, m_bRedRimObjectiveActive );
+	Rim_SpawnBearForTeam( this, TF_TEAM_BLUE, m_hBlueRimObjective, m_bBlueRimObjectiveActive );
+
+	if ( m_hRedRimObjective.Get() && m_hBlueRimObjective.Get() )
+	{
+		if ( !tf_rim_use_payload.GetBool() || GetGameType() != TF_GAMETYPE_ESCORT )
+		{
+			UTIL_ClientPrintAll( HUD_PRINTTALK, "RIM: Kill the enemy HOSTAGE to win the round!" );
+		}
+	}
+	else
+	{
+		Warning( "RIM mode: missing objective(s) — try rim_respawn_teddies or rim_spawn_objective_here\n" );
+		m_flRimNextObjectiveRetryTime = gpGlobals->curtime + 1.0f;
+	}
+
+	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
+	{
+		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+		if ( !pPlayer || pPlayer->IsBot() || !pPlayer->IsConnected() )
+		{
+			continue;
+		}
+
+		CBaseEntity *pFriendly = Rim_GetFriendlyObjective( pPlayer->GetTeamNumber() );
+		if ( pFriendly )
+		{
+			ClientPrint( pPlayer, HUD_PRINTTALK, "RIM: Hostages are OUTSIDE spawn — kill the enemy one to win!" );
+		}
+		else if ( pPlayer->GetTeamNumber() == TF_TEAM_RED || pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
+		{
+			ClientPrint( pPlayer, HUD_PRINTTALK, "RIM: objective missing — rim_respawn_teddies or rim_spawn_objective_here" );
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+CBaseEntity *CTFGameRules::Rim_GetFriendlyObjective( int iTeam ) const
+{
+	if ( iTeam == TF_TEAM_RED )
+	{
+		return m_hRedRimObjective.Get();
+	}
+
+	if ( iTeam == TF_TEAM_BLUE )
+	{
+		return m_hBlueRimObjective.Get();
+	}
+
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+void CTFGameRules::Rim_SetTeamObjective( int iTeam, CBaseEntity *pEnt )
+{
+	if ( iTeam == TF_TEAM_RED )
+	{
+		m_hRedRimObjective = pEnt;
+		m_bRedRimObjectiveActive = ( pEnt != NULL );
+	}
+	else if ( iTeam == TF_TEAM_BLUE )
+	{
+		m_hBlueRimObjective = pEnt;
+		m_bBlueRimObjectiveActive = ( pEnt != NULL );
+	}
+}
+
+//-----------------------------------------------------------------------------
+void CTFGameRules::Rim_EnsureTeamObjectives( void )
+{
+	if ( !IsRainbowIsMagicMode() || State_Get() != GR_STATE_RND_RUNNING )
+	{
+		return;
+	}
+
+	if ( tf_rim_use_payload.GetBool() && GetGameType() == TF_GAMETYPE_ESCORT &&
+		( m_hRedRimObjective.Get() || m_hBlueRimObjective.Get() ) )
+	{
+		return;
+	}
+
+	Rim_SpawnBearForTeam( this, TF_TEAM_RED, m_hRedRimObjective, m_bRedRimObjectiveActive );
+	Rim_SpawnBearForTeam( this, TF_TEAM_BLUE, m_hBlueRimObjective, m_bBlueRimObjectiveActive );
+}
+
+//-----------------------------------------------------------------------------
+void CTFGameRules::Rim_TryRespawnMissingObjectives( void )
+{
+	if ( m_nRimObjectiveRetryCount >= 30 )
+	{
+		return;
+	}
+
+	if ( m_flRimNextObjectiveRetryTime > 0.0f && gpGlobals->curtime < m_flRimNextObjectiveRetryTime )
+	{
+		return;
+	}
+
+	const bool bNeedRed = !m_hRedRimObjective.Get();
+	const bool bNeedBlue = !m_hBlueRimObjective.Get();
+	if ( !bNeedRed && !bNeedBlue )
+	{
+		m_flRimNextObjectiveRetryTime = -1.0f;
+		return;
+	}
+
+	++m_nRimObjectiveRetryCount;
+	m_flRimNextObjectiveRetryTime = gpGlobals->curtime + 1.0f;
+
+	Msg( "RIM: retrying missing objectives (attempt %d)...\n", m_nRimObjectiveRetryCount );
+	Rim_SpawnBearForTeam( this, TF_TEAM_RED, m_hRedRimObjective, m_bRedRimObjectiveActive );
+	Rim_SpawnBearForTeam( this, TF_TEAM_BLUE, m_hBlueRimObjective, m_bBlueRimObjectiveActive );
+}
+
+//-----------------------------------------------------------------------------
+void CTFGameRules::Rim_ConfigureBots( void )
+{
+	extern ConVar tf_bot_force_class;
+	extern ConVar tf_bot_quota;
+	extern ConVar mp_autoteambalance;
+	extern ConVar mp_teams_unbalance_limit;
+	extern ConVar tf_bot_auto_vacate;
+	extern ConVar tf_bot_spawn_use_preset_roster;
+
+	tf_bot_force_class.SetValue( "" );
+	tf_bot_quota.SetValue( 0 );
+	mp_autoteambalance.SetValue( 0 );
+	mp_teams_unbalance_limit.SetValue( 0 );
+	tf_bot_auto_vacate.SetValue( 0 );
+	tf_bot_spawn_use_preset_roster.SetValue( 0 );
+}
+
+//-----------------------------------------------------------------------------
+void CTFGameRules::Rim_TickDeferredSetup( void )
+{
+	if ( !IsRainbowIsMagicMode() || m_flRimDeferredSetupTime <= 0.0f )
+	{
+		return;
+	}
+
+	if ( gpGlobals->curtime < m_flRimDeferredSetupTime )
+	{
+		return;
+	}
+
+	if ( State_Get() != GR_STATE_RND_RUNNING )
+	{
+		m_flRimDeferredSetupTime = -1.0f;
+		return;
+	}
+
+	extern void Rim_SpawnDefaultBots( void );
+
+	if ( m_nRimDeferredSetupPass == 0 )
+	{
+		Rim_SpawnMrBears();
+	}
+
+	Rim_SpawnDefaultBots();
+
+	if ( m_nRimDeferredSetupPass == 0 )
+	{
+		m_nRimDeferredSetupPass = 1;
+		m_flRimDeferredSetupTime = gpGlobals->curtime + 1.0f;
+	}
+	else
+	{
+		m_flRimDeferredSetupTime = -1.0f;
+	}
+}
+
+//-----------------------------------------------------------------------------
+CBaseEntity *CTFGameRules::Rim_GetEnemyMrBear( int iTeam ) const
+{
+	if ( iTeam == TF_TEAM_RED )
+	{
+		return m_hBlueRimObjective.Get();
+	}
+
+	if ( iTeam == TF_TEAM_BLUE )
+	{
+		return m_hRedRimObjective.Get();
+	}
+
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+void CTFGameRules::Rim_TickObjectives( void )
+{
+	if ( IsOverwatchMode() || !IsRainbowIsMagicMode() || State_Get() != GR_STATE_RND_RUNNING )
+	{
+		return;
+	}
+
+	Rim_EnsureTeamObjectives();
+	Rim_TryRespawnMissingObjectives();
+
+	Rim_CheckObjectiveEntity( this, m_hRedRimObjective, m_bRedRimObjectiveActive, TF_TEAM_RED );
+	Rim_CheckObjectiveEntity( this, m_hBlueRimObjective, m_bBlueRimObjectiveActive, TF_TEAM_BLUE );
+}
+
+//-----------------------------------------------------------------------------
+void CTFGameRules::Rim_OnMrBearKilled( int iWinningTeam, CBaseEntity *pAttacker )
+{
+	if ( !IsRainbowIsMagicMode() )
+	{
+		return;
+	}
+
+	if ( State_Get() != GR_STATE_RND_RUNNING )
+	{
+		return;
+	}
+
+	if ( m_iWinningTeam != TEAM_UNASSIGNED )
+	{
+		return;
+	}
+
+	const char *pszWinTeam = ( iWinningTeam == TF_TEAM_RED ) ? "RED" : "BLU";
+	char szMsg[256];
+	Q_snprintf( szMsg, sizeof( szMsg ), "BOP THE TEDDY! %s destroyed the enemy cart!", pszWinTeam );
+	UTIL_ClientPrintAll( HUD_PRINTCENTER, szMsg );
+
+	SetWinningTeam( iWinningTeam, WINREASON_OPPONENTS_DEAD );
+}
+#endif // GAME_DLL
+#endif // SOURCESDK
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 bool CTFGameRules::CanPlayerChooseClass( CBasePlayer *pPlayer, int iClass )
 {
+#ifdef SOURCESDK
+#ifdef GAME_DLL
+	if ( IsOverwatchMode() && tf_ow_hero_lock.GetBool() )
+	{
+		CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+		if ( pTFPlayer && pTFPlayer->m_bOWHeroLocked &&
+			iClass != pTFPlayer->GetPlayerClass()->GetClassIndex() )
+		{
+			return false;
+		}
+	}
+#endif
+#endif
+
 	int iClassLimit = GetClassLimit( iClass );
 
 #ifdef TF_RAID_MODE
@@ -17770,6 +18445,21 @@ bool CTFGameRules::CanBotChangeClass( CBasePlayer* pPlayer )
 
 bool CTFGameRules::CanBotChooseClass( CBasePlayer *pPlayer, int iClass )
 {
+#ifdef SOURCESDK
+	if ( IsRainbowIsMagicMode() )
+	{
+		switch ( iClass )
+		{
+		case TF_CLASS_SCOUT:
+		case TF_CLASS_HEAVYWEAPONS:
+		case TF_CLASS_PYRO:
+			return CanPlayerChooseClass( pPlayer, iClass );
+		default:
+			return false;
+		}
+	}
+#endif
+
 	// if there's a roster for this bot's team, then check to see if the class the bot has requested is allowed by the roster
 	bool bCanChooseClass = CanPlayerChooseClass( pPlayer, iClass );
 	if ( bCanChooseClass )
@@ -22046,6 +22736,13 @@ void CTFGameRules::BalanceTeams( bool bRequireSwitcheesToBeDead )
 //-----------------------------------------------------------------------------
 bool CTFGameRules::PointsMayBeCaptured( void )
 {
+#ifdef SOURCESDK
+	if ( IsRainbowIsMagicMode() )
+	{
+		return false;
+	}
+#endif
+
 #ifdef GAME_DLL
 	if ( IsHolidayActive( kHoliday_Halloween ) && GetActiveBoss() )
 	{

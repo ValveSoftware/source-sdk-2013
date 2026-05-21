@@ -1,8 +1,8 @@
 "GameInfo"
 {
-	game					"Frog Fortress 2"
+	game					"Frog Fortress OW"
 	type 					multiplayer_only
-	nomodels				1
+	nomodels				0
 	nohimodel 				1
 	nocrosshair				0
 	hidden_maps
@@ -54,6 +54,10 @@
 			game+mod			|appid_440|tf/tf2_sound_vo_english.vpk
 			game+mod			|appid_440|tf/tf2_sound_misc.vpk
 			game+mod+vgui		|appid_440|tf/tf2_misc.vpk
+			game+mod			|appid_440|tf/tf2_models_dir.vpk
+			game+mod			|appid_440|tf/tf2_models_000.vpk
+			game+mod			|appid_440|tf/tf2_models_001.vpk
+			game+mod			|appid_440|tf/tf2_models_002.vpk
 			game				|appid_243750|hl2/hl2_textures.vpk
 			game				|appid_243750|hl2/hl2_sound_vo_english.vpk
 			game				|appid_243750|hl2/hl2_sound_misc.vpk

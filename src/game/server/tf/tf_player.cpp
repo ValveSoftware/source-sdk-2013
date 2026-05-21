@@ -77,6 +77,10 @@
 #include "econ_gcmessages.h"
 #include "tf_gcmessages.h"
 #include "tf_obj_sentrygun.h"
+#ifdef SOURCESDK
+#include "ow_player_system.h"
+#include "ow_shareddefs.h"
+#endif
 #include "tf_weapon_shovel.h"
 #include "bot/tf_bot.h"
 #include "bot/tf_bot_manager.h"
@@ -788,6 +792,14 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	SendPropBool(SENDINFO(m_bIsABot)),
 	SendPropInt( SENDINFO(m_nBotSkill), 3, SPROP_UNSIGNED ),
 
+#ifdef SOURCESDK
+	SendPropInt( SENDINFO( m_iOWHeroId ), 4, SPROP_UNSIGNED ),
+	SendPropFloat( SENDINFO( m_flOWUltCharge ), 0, SPROP_NOSCALE ),
+	SendPropFloat( SENDINFO( m_flOWCooldown0 ), 0, SPROP_NOSCALE ),
+	SendPropFloat( SENDINFO( m_flOWCooldown1 ), 0, SPROP_NOSCALE ),
+	SendPropFloat( SENDINFO( m_flOWCooldown2 ), 0, SPROP_NOSCALE ),
+#endif
+
 	// This will create a race condition will the local player, but the data will be the same so.....
 	SendPropInt( SENDINFO( m_nWaterLevel ), 2, SPROP_UNSIGNED ),
 
@@ -959,6 +971,18 @@ CTFPlayer::CTFPlayer()
 
 	m_flNextTimeCheck = gpGlobals->curtime;
 	m_flSpawnTime = 0;
+
+#ifdef SOURCESDK
+	m_iOWHeroId = OW_HERO_INVALID;
+	m_flOWUltCharge = 0.0f;
+	m_flOWCooldown0 = 0.0f;
+	m_flOWCooldown1 = 0.0f;
+	m_flOWCooldown2 = 0.0f;
+	m_flOWCooldownEnd[0] = 0.0f;
+	m_flOWCooldownEnd[1] = 0.0f;
+	m_flOWCooldownEnd[2] = 0.0f;
+	m_bOWHeroLocked = false;
+#endif
 
 	m_flWaterExitTime = 0;
 
@@ -2121,6 +2145,74 @@ void CTFPlayer::PostSpawnThink( void )
 				pMedigun->SetChargeLevelToPreserve( 0.f );
 		}
 	}
+
+#ifdef SOURCESDK
+	if ( IsAlive() && TFGameRules() && TFGameRules()->IsOverwatchMode() )
+	{
+		OW_OnPlayerSpawn( this );
+	}
+	else if ( IsAlive() && TFGameRules() && TFGameRules()->IsRainbowIsMagicMode() )
+	{
+		const char *pszSpawnMsg = NULL;
+		switch ( GetPlayerClass()->GetClassIndex() )
+		{
+		case TF_CLASS_SCOUT:
+			{
+				const float flSpeedySpeed = MaxSpeed() * 1.10f;
+				if ( flSpeedySpeed > 0.0f )
+				{
+					SetMaxSpeed( flSpeedySpeed );
+				}
+				pszSpawnMsg = "Speedy (Scout): pistol + melee — protect your team's giant!";
+			}
+			break;
+		case TF_CLASS_HEAVYWEAPONS:
+			{
+				const int iNewMaxHealth = ceil( GetMaxHealth() * 1.5f );
+				SetMaxHealth( iNewMaxHealth );
+				SetHealth( iNewMaxHealth );
+				pszSpawnMsg = "Stronk (Heavy): shotgun + melee, extra HP — protect your giant!";
+			}
+			break;
+		case TF_CLASS_PYRO:
+			{
+				const float flFlexySpeed = MaxSpeed() * 1.05f;
+				if ( flFlexySpeed > 0.0f )
+				{
+					SetMaxSpeed( flFlexySpeed );
+				}
+				pszSpawnMsg = "Flexy (Pyro): shotgun + melee — destroy the enemy giant!";
+			}
+			break;
+		default:
+			break;
+		}
+
+		if ( TFGameRules()->IsRimPistolOnly() )
+		{
+			CTFWeaponBase *pSecondary = dynamic_cast<CTFWeaponBase *>( GetEntityForLoadoutSlot( LOADOUT_POSITION_SECONDARY ) );
+			CTFWeaponBase *pMelee = dynamic_cast<CTFWeaponBase *>( GetEntityForLoadoutSlot( LOADOUT_POSITION_MELEE ) );
+			if ( !pSecondary && !pMelee )
+			{
+				Regenerate( true );
+			}
+			else if ( !pSecondary && pMelee )
+			{
+				Weapon_Switch( pMelee );
+			}
+			else if ( pSecondary )
+			{
+				Weapon_Switch( pSecondary );
+			}
+		}
+
+		if ( pszSpawnMsg && !IsBot() )
+		{
+			ClientPrint( this, HUD_PRINTCENTER, pszSpawnMsg );
+		}
+
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -4447,6 +4539,17 @@ bool CTFPlayer::ItemIsAllowed( CEconItemView *pItem )
 			return false;
 	}
 
+#ifdef SOURCESDK
+	if ( TFGameRules()->IsRimPistolOnly() )
+	{
+		const bool bRimWeaponAllowed = ( iSlot == LOADOUT_POSITION_SECONDARY ) || ( iSlot == LOADOUT_POSITION_MELEE );
+		if ( !bRimWeaponAllowed )
+		{
+			return false;
+		}
+	}
+#endif
+
 	if ( TFGameRules()->IsInMedievalMode() )
 	{
 		bool bMedievalModeAllowed = false;
@@ -4713,15 +4816,29 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		{
 			SetActiveWeapon( NULL );
 
-			// Find a weapon to switch to, starting with primary.
-			CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase*>( GetEntityForLoadoutSlot( LOADOUT_POSITION_PRIMARY ) );
-			if ( !pWeapon || !pWeapon->CanBeSelected() || !Weapon_Switch( pWeapon ) )
+#ifdef SOURCESDK
+			if ( TFGameRules() && TFGameRules()->IsRimPistolOnly() )
 			{
-				pWeapon = dynamic_cast<CTFWeaponBase*>( GetEntityForLoadoutSlot( LOADOUT_POSITION_SECONDARY ) );
-				if ( !pWeapon || pWeapon->CanBeSelected() || !Weapon_Switch( pWeapon ) )
+				CTFWeaponBase *pPistol = dynamic_cast<CTFWeaponBase *>( GetEntityForLoadoutSlot( LOADOUT_POSITION_SECONDARY ) );
+				if ( !pPistol || !pPistol->CanBeSelected() || !Weapon_Switch( pPistol ) )
 				{
-					pWeapon = dynamic_cast<CTFWeaponBase*>( GetEntityForLoadoutSlot( LOADOUT_POSITION_MELEE ) );
-					Weapon_Switch( pWeapon );
+					CTFWeaponBase *pMelee = dynamic_cast<CTFWeaponBase *>( GetEntityForLoadoutSlot( LOADOUT_POSITION_MELEE ) );
+					Weapon_Switch( pMelee );
+				}
+			}
+			else
+#endif
+			{
+				// Find a weapon to switch to, starting with primary.
+				CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase*>( GetEntityForLoadoutSlot( LOADOUT_POSITION_PRIMARY ) );
+				if ( !pWeapon || !pWeapon->CanBeSelected() || !Weapon_Switch( pWeapon ) )
+				{
+					pWeapon = dynamic_cast<CTFWeaponBase*>( GetEntityForLoadoutSlot( LOADOUT_POSITION_SECONDARY ) );
+					if ( !pWeapon || pWeapon->CanBeSelected() || !Weapon_Switch( pWeapon ) )
+					{
+						pWeapon = dynamic_cast<CTFWeaponBase*>( GetEntityForLoadoutSlot( LOADOUT_POSITION_MELEE ) );
+						Weapon_Switch( pWeapon );
+					}
 				}
 			}
 		}
@@ -4898,6 +5015,23 @@ CEconItemView *CTFPlayer::GetLoadoutItem( int iClass, int iSlot, bool bReportWhi
 		CTFInventoryManager *pInventoryManager = TFInventoryManager();
 		return pInventoryManager->GetBaseItemForClass( iClass, iSlot );
 	}
+
+#ifdef SOURCESDK
+	// OW / RIM: stock items only (no GC inventory required).
+	if ( TFGameRules()->IsOverwatchMode() )
+	{
+		if ( iSlot >= LOADOUT_POSITION_PRIMARY && iSlot <= LOADOUT_POSITION_MELEE )
+		{
+			return TFInventoryManager()->GetBaseItemForClass( iClass, iSlot );
+		}
+	}
+
+	// Simple loadout: each class gets its stock secondary (pistol / shotgun) + melee.
+	if ( TFGameRules()->IsRimPistolOnly() && iSlot == LOADOUT_POSITION_SECONDARY )
+	{
+		return TFInventoryManager()->GetBaseItemForClass( iClass, LOADOUT_POSITION_SECONDARY );
+	}
+#endif
 
 	CEconItemView *pItem = m_Inventory.GetItemInLoadout( iClass, iSlot );
 
@@ -6655,6 +6789,13 @@ void CTFPlayer::ChangeTeam( int iTeamNum, bool bAutoTeam, bool bSilent, bool bAu
 	}
 
 	BaseClass::ChangeTeam( iTeamNum, bAutoTeam, bSilent, bAutoBalance );
+
+#ifdef SOURCESDK
+	if ( TFGameRules() && TFGameRules()->IsOverwatchMode() && !IsBot() )
+	{
+		OW_OnHumanChangedTeam( this, iTeamNum, iOldTeam );
+	}
+#endif
 
 	if ( TFGameRules() && TFGameRules()->IsInHighlanderMode() )
 	{
@@ -22695,6 +22836,13 @@ bool CTFPlayer::PickupWeaponFromOther( CTFDroppedWeapon *pDroppedWeapon )
 	const CEconItemView *pItem = pDroppedWeapon->GetItem();
 	if ( !pItem )
 		return false;
+
+#ifdef SOURCESDK
+	if ( TFGameRules() && TFGameRules()->IsRimPistolOnly() )
+	{
+		return false;
+	}
+#endif
 
 	if ( pItem->IsValid() )
 	{

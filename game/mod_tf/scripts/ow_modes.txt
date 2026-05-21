@@ -1,0 +1,9 @@
+// Map prefix -> OW game mode hint
+"OWModes"
+{
+	"plr_"	{ "type" "escort" }
+	"pl_"	{ "type" "escort" }
+	"koth_"	{ "type" "control" }
+	"cp_"	{ "type" "assault" }
+	"ctf_"	{ "type" "assault" }
+}

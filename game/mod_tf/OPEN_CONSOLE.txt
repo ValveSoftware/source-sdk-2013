@@ -1,0 +1,31 @@
+How to open the console (Rainbow Is Magic TF)
+==========================================
+
+TF2 often ships with the developer console OFF, and the main menu
+may ignore it until you enable it once.
+
+Option A — In-game settings (do this once)
+------------------------------------------
+1. Launch the mod and click Play / join any map (or Create Server).
+2. Escape → Options → Keyboard → Advanced (bottom).
+3. Check "Enable developer console (~)".
+4. Apply. Quit and relaunch.
+
+Option B — Keys to try
+----------------------
+- `  (backtick, key left of 1 on US keyboards)
+- On many Swedish/Nordic layouts:  §  or  ½  (same key position)
+- F1  (we also bind this in autoexec.cfg)
+
+Option C — Launch with console forced
+-------------------------------------
+Use "Launch Frog Fortress 2.bat" (not the raw exe), or add to Steam:
+  -console +con_enable 1
+
+Option D — No console needed to start a map
+-------------------------------------------
+Main menu → Play → Create Server → pick a map (e.g. ctf_2fort).
+Once you are IN the map, try F1 or ` for console, then:
+  tf_bot_add 4 red
+  tf_bot_add 4 blue
+  rim_respawn_teddies

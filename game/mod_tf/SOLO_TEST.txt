@@ -1,0 +1,60 @@
+Rainbow Is Magic TF — solo test loop
+====================================
+
+Build (from src/):
+  build_mod_tf.bat
+
+Launch:
+  game\mod_tf_win64.exe
+
+In-game console (~):
+  sv_lan 1
+  changelevel plr_hightower
+  tf_bot_spawn_use_preset_roster 0
+  tf_bot_add 4 red
+  tf_bot_add 4 blue
+
+  (If "map ..." does nothing, use changelevel instead.)
+
+Maps (RIM does not need CTF flags):
+  plr_hightower   — BEST: uses real payload carts as killable "teddies" (tf_rim_use_payload 1)
+  Any Payload/PL map with a cart model works; other modes fall back to statue prop
+  koth_badlands   — flat KOTH, good for quick solo tests
+  ctf_2fort       — classic, but multi-level spawns are harder for auto-placement
+  Do NOT use: tr_2fort, background_2fort (not in your install — "map load failed")
+
+Gameplay checks:
+  - Class menu: Scout, Heavy, Pyro only
+  - Fast respawn (~1.5s wave)
+  - On PL maps: two frozen payload carts OUTSIDE spawn (shootable, ~2x Heavy scale)
+  - On other maps: soldier statue prop (tf_rim_use_payload 0 for statue-only)
+  - Weapons: Scout pistol, Heavy/Pyro shotgun + melee (no minigun/flamethrower)
+  - Pick RED or BLU from the team menu — don't stay spectator or everyone piles up
+  - Chat message when bears spawn
+  - Shoot the ENEMY team's bear to win the round
+
+Saxton not visible?
+  - Rebuild after quitting the game (client.dll locks while running).
+  - rim_where_bears — should print RED/BLU coordinates
+  - rim_goto_my_saxton — teleports you to your Saxton
+  - tf_rim_bear_model models/props_halloween/pumpkin_loot.mdl — huge orange test prop
+  - rim_respawn_teddies — respawn objectives
+
+Steam disconnect ("Invalid STEAM UserID Ticket"):
+  Your log showed MasterRequestRestart + failure code 8 — the SDK server
+  (build 2000) was talking to Steam as a public server. Fix:
+    1. sv_lan 1  (also in cfg/listenserver.cfg and cfg/autoexec.cfg)
+    2. Relaunch after rebuild (launcher adds -insecure +sv_lan 1)
+    3. Create Server defaults to plr_hightower, or: changelevel plr_hightower
+    4. Restart Steam if still kicked
+
+Console noise you can ignore:
+  - "Parent cvar in server.dll not allowed" — normal SDK/TF mismatch
+  - "For FCVAR_REPLICATED... sv_use_steam_voice" — vanilla TF, harmless
+  - breadspace / moonbase material errors — only on some maps
+
+ConVars:
+  tf_rim_mode 1
+  tf_rim_bear_health 500
+  tf_rim_bear_model models/props_halloween/pumpkin_loot.mdl
+  (empty = auto: boss heavy, pumpkin, Saxton, statue last)

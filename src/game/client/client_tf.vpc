@@ -485,6 +485,8 @@ $Project "Client (TF)"
 			$File	"tf\c_tf_notification.cpp"
 			$File	"tf\c_tf_taunt_prop.h"
 			$File	"tf\c_tf_taunt_prop.cpp"
+			$File	"tf\c_tf_mr_bear.h" [$SOURCESDK]
+			$File	"tf\c_tf_mr_bear.cpp" [$SOURCESDK]
 			$File	"$SRCDIR\game\shared\tf\ihasgenericmeter.h"
 			$File	"$SRCDIR\game\shared\tf\quest_objective_trackers.cpp"
 			$File	"$SRCDIR\game\shared\tf\quest_objective_manager.cpp"

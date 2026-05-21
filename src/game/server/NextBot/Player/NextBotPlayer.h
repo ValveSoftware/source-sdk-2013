@@ -47,8 +47,13 @@ T * NextBotCreatePlayerBot( const char *name, bool bReportFakeClient = true )
 	// the engine calls ClientPutInServer (from CreateFakeClient)
 	ClientPutInServerOverride( T::AllocatePlayerEntity );
 
-	// create the bot and spawn it into the environment
-	edict_t *botEdict = engine->CreateFakeClientEx( name, bReportFakeClient );
+	// SDK mods: don't report fake clients to Steam or CreateFakeClientEx returns NULL.
+#ifdef SOURCESDK
+	const bool bUseFakeClient = false;
+#else
+	const bool bUseFakeClient = bReportFakeClient;
+#endif
+	edict_t *botEdict = engine->CreateFakeClientEx( name, bUseFakeClient );
 
 	// close the "back door"
 	ClientPutInServerOverride( NULL );

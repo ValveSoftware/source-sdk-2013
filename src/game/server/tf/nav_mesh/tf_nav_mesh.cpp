@@ -2466,7 +2466,7 @@ void CTFNavMesh::CollectSpawnRoomThresholdAreas( CUtlVector< CTFNavArea * > *spa
 
 	for( int i=0; i<exitAreaVector->Count(); ++i )
 	{
-		CTFNavArea *area = static_cast< CTFNavArea * >( TheNavAreas[ i ] );
+		CTFNavArea *area = ( *exitAreaVector )[i];
 
 		// find largest non-spawn-room area connected to this exit
 		CTFNavArea *exitArea = NULL;

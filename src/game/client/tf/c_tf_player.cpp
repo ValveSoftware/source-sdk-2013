@@ -3737,6 +3737,14 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropBool(RECVINFO(m_bIsABot)),
 	RecvPropInt(RECVINFO(m_nBotSkill)),
 
+#ifdef SOURCESDK
+	RecvPropInt( RECVINFO( m_iOWHeroId ) ),
+	RecvPropFloat( RECVINFO( m_flOWUltCharge ) ),
+	RecvPropFloat( RECVINFO( m_flOWCooldown0 ) ),
+	RecvPropFloat( RECVINFO( m_flOWCooldown1 ) ),
+	RecvPropFloat( RECVINFO( m_flOWCooldown2 ) ),
+#endif
+
 	// This will create a race condition will the local player, but the data will be the same so.....
 	RecvPropInt( RECVINFO( m_nWaterLevel ) ),
 	RecvPropEHandle( RECVINFO( m_hRagdoll ) ),

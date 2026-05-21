@@ -1,0 +1,20 @@
+Steam → Add a Non-Steam Game → point at:
+  ...\source-sdk-2013\game\mod_tf_win64.exe
+
+Right-click → Properties → General:
+  Start In (Working Directory):
+    C:\Users\simon\source\repos\source-sdk-2013\game
+
+Launch Options:
+  -game mod_tf -console -insecure +sv_lan 1 +con_enable 1 +map koth_badlands +exec ow_quickstart
+
+Or double-click:
+  game\Deploy and Launch Frog Fortress.bat
+
+In-game:
+  tf_ow_mode 1          (Overwatch-style heroes — default)
+  tf_rim_mode 1         (archived Rainbow Is Magic hostage mode)
+  Pick team → class menu shows 6 heroes
+  Q / E / Shift / R     abilities + ultimate
+  F2–F7                 quick hero pick in spawn
+  ow_roster             list heroes

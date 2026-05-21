@@ -87,6 +87,7 @@ static void *Launcher_GetProcAddress( void *pHandle, const char *pszName )
 #endif
 
 static const AppId_t k_unSDK2013MPAppId = 243750;
+static const AppId_t k_unTF2AppId = 440;
 
 #ifdef MOD_LAUNCHER
 static const AppId_t k_unMyModAppid = MOD_APPID;
@@ -222,11 +223,16 @@ static bool GetGameInstallDir( const char *pRootDir, char *pszBuf, int nBufSize 
 		unLength = pSteamApps->GetAppInstallDir( k_unSDK2013MPAppId, pszBuf, nBufSize );
 	}
 
+	if ( unLength == 0 && pSteamApps->BIsAppInstalled( k_unTF2AppId ) )
+	{
+		unLength = pSteamApps->GetAppInstallDir( k_unTF2AppId, pszBuf, nBufSize );
+	}
+
 	UnloadSteam();
 
 	if ( unLength == 0 )
 	{
-		MessageBox( 0, "Source SDK 2013 Multiplayer (243750) must be installed to launch this mod.", "Launcher Error", MB_OK );
+		MessageBox( 0, "Source SDK 2013 Multiplayer (243750) or Team Fortress 2 (440) must be installed to launch this mod.", "Launcher Error", MB_OK );
 		return false;
 	}
 
@@ -486,8 +492,27 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 		return 0;
 	}
 
-	LauncherMain_t main = (LauncherMain_t)GetProcAddress( launcher, "LauncherMain" );
-	return main( hInstance, hPrevInstance, lpCmdLine, nCmdShow );
+	LauncherMain_t pfnLauncherMain = (LauncherMain_t)GetProcAddress( launcher, "LauncherMain" );
+	if ( !pfnLauncherMain )
+	{
+		MessageBox( 0, "LauncherMain not found in launcher.dll!", "Launcher Error", MB_OK );
+		return 0;
+	}
+
+	// Windows does not auto-append -game like the Linux launcher path does.
+	static char s_szFullCmdLine[8192];
+	const char *pEffectiveCmdLine = lpCmdLine;
+	if ( !lpCmdLine || !strstr( lpCmdLine, "-game" ) )
+	{
+		char szModDir[MAX_PATH];
+		_snprintf( szModDir, sizeof( szModDir ), "%s\\mod_tf", pRootDir );
+		szModDir[sizeof( szModDir ) - 1] = '\0';
+		_snprintf( s_szFullCmdLine, sizeof( s_szFullCmdLine ), "-game \"%s\" -steam -console -insecure +con_enable 1 +sv_lan 1 %s", szModDir, lpCmdLine ? lpCmdLine : "" );
+		s_szFullCmdLine[sizeof( s_szFullCmdLine ) - 1] = '\0';
+		pEffectiveCmdLine = s_szFullCmdLine;
+	}
+
+	return pfnLauncherMain( hInstance, hPrevInstance, (LPSTR)pEffectiveCmdLine, nCmdShow );
 }
 
 #elif defined (POSIX)

@@ -61,6 +61,11 @@ ConVar tf_mm_debug_level( "tf_mm_debug_level", "4" );
 
 static ConVar mod_inventory_request_timeout( "mod_inventory_request_timeout", "300", FCVAR_NONE, "Seconds to wait for TF inventory before assuming failure" );
 
+#ifdef SOURCESDK
+// Web API inventory auth churn can invalidate listen-server Steam tickets and kick you.
+static ConVar mod_skip_webapi_inventory( "mod_skip_webapi_inventory", "1", FCVAR_ARCHIVE, "Skip TF inventory webapi in SDK mod (recommended for local RIM play)." );
+#endif
+
 
 using namespace GCSDK;
 
@@ -329,6 +334,13 @@ bool CTFGCClientSystem::WebapiInventoryState_t::IsBackingOff()
 
 void CTFGCClientSystem::WebapiInventoryThink()
 {
+#ifdef SOURCESDK
+	if ( mod_skip_webapi_inventory.GetBool() )
+	{
+		return;
+	}
+#endif
+
 	WebapiInventoryState_t &state = m_WebapiInventory;
 
 	// Early out if we are waiting backoff timer

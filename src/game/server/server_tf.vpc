@@ -172,6 +172,8 @@ $Project "Server (TF)"
 			$File	"tf\entity_bird.h"
 			$File	"tf\entity_soldier_statue.cpp"
 			$File	"tf\entity_soldier_statue.h"
+			$File	"tf\tf_mr_bear.cpp" [$SOURCESDK]
+			$File	"tf\tf_mr_bear.h" [$SOURCESDK]
 			$File	"$SRCDIR\game\shared\tf\entity_bonuspack.cpp"
 			$File	"$SRCDIR\game\shared\tf\entity_bonuspack.h"
 			$File	"$SRCDIR\game\shared\tf\entity_halloween_pickup.cpp"

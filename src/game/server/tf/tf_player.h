@@ -681,6 +681,16 @@ public:
 	CNetworkVar( bool, m_bIsABot );
 	CNetworkVar( int, m_nBotSkill );
 
+#ifdef SOURCESDK
+	CNetworkVar( int, m_iOWHeroId );
+	CNetworkVar( float, m_flOWUltCharge );
+	CNetworkVar( float, m_flOWCooldown0 );
+	CNetworkVar( float, m_flOWCooldown1 );
+	CNetworkVar( float, m_flOWCooldown2 );
+	bool	m_bOWHeroLocked;
+	float	m_flOWCooldownEnd[3];
+#endif
+
 	int					StateGet( void ) const;
 
 	void				SetOffHandWeapon( CTFWeaponBase *pWeapon );

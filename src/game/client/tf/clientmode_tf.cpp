@@ -517,6 +517,13 @@ void ClientModeTFNormal::Init()
 	extern void Training_Init();
 	Training_Init();
 
+#ifdef SOURCESDK
+	if ( g_pVGuiLocalize )
+	{
+		g_pVGuiLocalize->AddFile( "resource/mod_tf_english.txt", "GAME", true );
+	}
+#endif
+
 	BaseClass::Init();
 
 	m_bPendingRichPresenceUpdate = true;
