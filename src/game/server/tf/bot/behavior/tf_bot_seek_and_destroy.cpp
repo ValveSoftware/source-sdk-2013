@@ -12,9 +12,6 @@
 #include "bot/behavior/tf_bot_seek_and_destroy.h"
 #include "bot/behavior/sniper/tf_bot_sniper_attack.h"
 #include "nav_mesh.h"
-#ifdef SOURCESDK
-#include "tf_mr_bear.h"
-#endif
 
 extern ConVar tf_bot_path_lookahead_range;
 extern ConVar tf_bot_offense_must_push_time;
@@ -86,29 +83,11 @@ ActionResult< CTFBot >	CTFBotSeekAndDestroy::Update( CTFBot *me, float interval 
 			}
 		}
 		
-		if ( !TFGameRules()->IsRainbowIsMagicMode() &&
-			 !TFGameRules()->RoundHasBeenWon() && me->GetTimeLeftToCapture() < tf_bot_offense_must_push_time.GetFloat() )
+		if ( !TFGameRules()->RoundHasBeenWon() && me->GetTimeLeftToCapture() < tf_bot_offense_must_push_time.GetFloat() )
 		{
 			return Done( "Time to push for the objective" );
 		}
 	}
-
-#ifdef SOURCESDK
-	if ( TFGameRules() && TFGameRules()->IsRainbowIsMagicMode() )
-	{
-		CBaseEntity *pEnemyBear = TFGameRules()->Rim_GetEnemyMrBear( me->GetTeamNumber() );
-		if ( pEnemyBear && pEnemyBear->GetHealth() > 0 )
-		{
-			const float flAttackRange = 900.0f;
-			if ( me->IsRangeLessThan( pEnemyBear->WorldSpaceCenter(), flAttackRange ) &&
-				 me->IsLineOfFireClear( pEnemyBear ) )
-			{
-				me->GetBodyInterface()->AimHeadTowards( pEnemyBear->WorldSpaceCenter(), IBody::MANDATORY, 0.1f, NULL, "RIM: attacking enemy Mr. Teddy" );
-				me->PressFireButton();
-			}
-		}
-	}
-#endif
 
 	const CKnownEntity *threat = me->GetVisionInterface()->GetPrimaryKnownThreat();
 	if ( threat )
@@ -236,19 +215,6 @@ CTFNavArea *CTFBotSeekAndDestroy::ChooseGoalArea( CTFBot *me )
 //---------------------------------------------------------------------------------------------
 void CTFBotSeekAndDestroy::RecomputeSeekPath( CTFBot *me )
 {
-#ifdef SOURCESDK
-	if ( TFGameRules() && TFGameRules()->IsRainbowIsMagicMode() )
-	{
-		CBaseEntity *pEnemyBear = TFGameRules()->Rim_GetEnemyMrBear( me->GetTeamNumber() );
-		if ( pEnemyBear && pEnemyBear->GetHealth() > 0 )
-		{
-			CTFBotPathCost cost( me, SAFEST_ROUTE );
-			m_path.Compute( me, pEnemyBear->WorldSpaceCenter(), cost );
-			return;
-		}
-	}
-#endif
-
 	m_goalArea = ChooseGoalArea( me );
 	if ( m_goalArea )
 	{
