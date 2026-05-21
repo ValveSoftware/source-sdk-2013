@@ -352,6 +352,8 @@ public:
 	bool			IsBombermanMode() const;
 	void			OW_ConfigureMatch( void );
 	void			OW_TickMatch( void );
+	void			FF_SchedulePostMapSetup( float flDelay );
+	void			FF_TickPostMapSetup( void );
 #endif
 
 	virtual bool	ShouldBalanceTeams( void );
@@ -1506,6 +1508,8 @@ private:
 	int				m_nRimDeferredSetupPass;
 	int				m_nRimObjectiveRetryCount;
 	float			m_flRimNextObjectiveRetryTime;
+	float			m_flFFPostMapSetupTime;
+	int				m_nFFPostMapSetupPass;
 #endif
 
 #endif // GAME_DLL

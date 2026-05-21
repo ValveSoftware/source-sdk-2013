@@ -23,8 +23,12 @@ Or load shortcuts once: `exec ff_aliases.cfg`, then `ff_ow`, `ff_rim`, `ff_bombe
 
 - `ff_play ow` -> defaults to `koth_badlands`
 - `ff_play rim` -> defaults to `plr_hightower`
-- `ff_play bomber` -> defaults to `ctf_2fort`
+- `ff_play bomber` -> defaults to `koth_badlands` (grid auto-aligned to team spawns)
 - `ff_play stock` -> defaults to `ctf_2fort`
+
+After any map load, the server runs **post-map setup** automatically (~4s): kicks old bots, applies mode cfg, restarts the match, then spawns OW/RIM bots or respawns bomber players on the grid.
+
+Same map, no reload: `ff_restart`
 
 You can override the map:
 

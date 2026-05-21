@@ -971,7 +971,7 @@ static bool FF_TryParseMode( const char *pszModeName, FFModeInfo_t &modeInfo )
 		modeInfo.m_iMode = 3;
 		modeInfo.m_pszCanonicalName = "bomber";
 		modeInfo.m_pszConfigFile = "mode_bomber.cfg";
-		modeInfo.m_pszDefaultMap = "ctf_2fort";
+		modeInfo.m_pszDefaultMap = "koth_badlands";
 		return true;
 	}
 
@@ -987,6 +987,37 @@ static bool FF_TryParseMode( const char *pszModeName, FFModeInfo_t &modeInfo )
 	return false;
 }
 
+static bool FF_GetModeInfoForInt( int iMode, FFModeInfo_t &modeInfo )
+{
+	switch ( iMode )
+	{
+	case 1:
+		modeInfo.m_iMode = 1;
+		modeInfo.m_pszCanonicalName = "ow";
+		modeInfo.m_pszConfigFile = "mode_ow.cfg";
+		modeInfo.m_pszDefaultMap = "koth_badlands";
+		return true;
+	case 2:
+		modeInfo.m_iMode = 2;
+		modeInfo.m_pszCanonicalName = "rim";
+		modeInfo.m_pszConfigFile = "mode_rim.cfg";
+		modeInfo.m_pszDefaultMap = "plr_hightower";
+		return true;
+	case 3:
+		modeInfo.m_iMode = 3;
+		modeInfo.m_pszCanonicalName = "bomber";
+		modeInfo.m_pszConfigFile = "mode_bomber.cfg";
+		modeInfo.m_pszDefaultMap = "koth_badlands";
+		return true;
+	default:
+		modeInfo.m_iMode = 0;
+		modeInfo.m_pszCanonicalName = "stock";
+		modeInfo.m_pszConfigFile = "mode_stock.cfg";
+		modeInfo.m_pszDefaultMap = "ctf_2fort";
+		return true;
+	}
+}
+
 static void FF_PrintModeMenu( void )
 {
 	Msg( "Frog Fortress mode menu:\n" );
@@ -994,7 +1025,8 @@ static void FF_PrintModeMenu( void )
 	Msg( "  ff_mode rim     — Rainbow Is Magic hostages\n" );
 	Msg( "  ff_mode bomber  — Frog Bomber grid mode\n" );
 	Msg( "  ff_mode stock   — vanilla mod_tf rules\n" );
-	Msg( "  ff_play <mode> [map]  — apply cfg + switch map in one command\n" );
+	Msg( "  ff_play <mode> [map]  — apply cfg + switch map + auto setup\n" );
+	Msg( "  ff_restart            — re-setup current mode on this map\n" );
 	Msg( "  Current: tf_ff_game_mode=%d (ow=%d rim=%d)\n",
 		tf_ff_game_mode.GetInt(), tf_ow_mode.GetInt(), tf_rim_mode.GetInt() );
 }
@@ -1066,6 +1098,15 @@ static void FF_ExecModeConfig( const char *pszConfigFile )
 	Q_snprintf( szExecCommand, sizeof( szExecCommand ), "exec %s\n", pszConfigFile );
 	engine->ServerCommand( szExecCommand );
 	engine->ServerExecute();
+}
+
+static void FF_ExecModeConfigForGameMode( int iMode )
+{
+	FFModeInfo_t modeInfo = { 0 };
+	if ( FF_GetModeInfoForInt( iMode, modeInfo ) )
+	{
+		FF_ExecModeConfig( modeInfo.m_pszConfigFile );
+	}
 }
 
 void TfFfGameModeChanged( IConVar *var, const char *pOldString, float flOldValue )
@@ -1171,7 +1212,12 @@ void CC_FF_Play( const CCommand &args )
 	}
 	engine->ServerExecute();
 
-	Msg( "ff_play: mode=%s (%d), cfg=%s, map=%s\n",
+	if ( TFGameRules() )
+	{
+		TFGameRules()->FF_SchedulePostMapSetup( 4.0f );
+	}
+
+	Msg( "ff_play: mode=%s (%d), cfg=%s, map=%s — post-map setup scheduled.\n",
 		modeInfo.m_pszCanonicalName, modeInfo.m_iMode, modeInfo.m_pszConfigFile, pszMap ? pszMap : "<none>" );
 }
 
@@ -1179,6 +1225,24 @@ static ConCommand ff_mode( "ff_mode", CC_FF_Mode,
 	"Switch Frog Fortress game mode: ow | rim | bomber | stock.", FCVAR_GAMEDLL );
 static ConCommand ff_play( "ff_play", CC_FF_Play,
 	"Apply mode cfg and changelevel: ff_play <ow|rim|bomber|stock> [map].", FCVAR_GAMEDLL );
+
+void CC_FF_Restart( const CCommand &args )
+{
+	if ( !UTIL_IsCommandIssuedByServerAdmin() )
+	{
+		Warning( "ff_restart: listen host or server admin access required.\n" );
+		return;
+	}
+
+	if ( TFGameRules() )
+	{
+		TFGameRules()->FF_SchedulePostMapSetup( 0.5f );
+		Msg( "ff_restart: scheduling match setup + restart for mode %d.\n", tf_ff_game_mode.GetInt() );
+	}
+}
+
+static ConCommand ff_restart( "ff_restart", CC_FF_Restart,
+	"Re-apply current Frog Fortress mode cfg, kick bots, and restart the match.", FCVAR_GAMEDLL );
 #endif // GAME_DLL
 #endif // SOURCESDK
 
@@ -3572,6 +3636,8 @@ CTFGameRules::CTFGameRules()
 	, m_nRimDeferredSetupPass( 0 )
 	, m_nRimObjectiveRetryCount( 0 )
 	, m_flRimNextObjectiveRetryTime( -1.0f )
+	, m_flFFPostMapSetupTime( -1.0f )
+	, m_nFFPostMapSetupPass( 0 )
 #endif
 #else
 	: m_bRecievedBaseline( false )
@@ -3894,6 +3960,12 @@ void CTFGameRules::LevelInitPostEntity( void )
 	{
 		pMatchDesc->InitGameRulesSettingsPostEntity();
 	}
+
+#ifdef SOURCESDK
+	extern void BM_ResetGridAlign( void );
+	BM_ResetGridAlign();
+	FF_SchedulePostMapSetup( 4.0f );
+#endif
 
 #endif // GAME_DLL
 }
@@ -8381,6 +8453,7 @@ void CTFGameRules::Think()
 #ifdef GAME_DLL
 	Rim_TickDeferredSetup();
 	Rim_TickObjectives();
+	FF_TickPostMapSetup();
 	OW_TickMatch();
 	BM_TickMatch();
 #endif
@@ -18057,6 +18130,98 @@ bool CTFGameRules::IsRainbowIsMagicMode() const
 }
 
 #ifdef GAME_DLL
+//-----------------------------------------------------------------------------
+void CTFGameRules::FF_SchedulePostMapSetup( float flDelay )
+{
+	m_flFFPostMapSetupTime = gpGlobals->curtime + Max( 0.5f, flDelay );
+	m_nFFPostMapSetupPass = 0;
+
+	extern void BM_ResetGridAlign( void );
+	BM_ResetGridAlign();
+}
+
+//-----------------------------------------------------------------------------
+void CTFGameRules::FF_TickPostMapSetup( void )
+{
+	if ( m_flFFPostMapSetupTime <= 0.0f )
+	{
+		return;
+	}
+
+	if ( gpGlobals->curtime < m_flFFPostMapSetupTime )
+	{
+		return;
+	}
+
+	const int iMode = tf_ff_game_mode.GetInt();
+
+	if ( m_nFFPostMapSetupPass == 0 )
+	{
+		engine->ServerCommand( "tf_bot_kick all\n" );
+		FF_ExecModeConfigForGameMode( iMode );
+
+		if ( iMode == 3 )
+		{
+			extern void BM_AutoAlignGridFromSpawns( void );
+			BM_AutoAlignGridFromSpawns();
+		}
+
+		UTIL_ClientPrintAll( HUD_PRINTTALK, "Frog Fortress: setting up match..." );
+		engine->ServerCommand( "mp_restartgame 1\n" );
+		engine->ServerExecute();
+
+		m_nFFPostMapSetupPass = 1;
+		m_flFFPostMapSetupTime = gpGlobals->curtime + 3.0f;
+		Msg( "FF: post-map pass 0 — cfg applied, match restarting (mode %d).\n", iMode );
+		return;
+	}
+
+	// Pass 1: wait until we can spawn bots / respawn players.
+	if ( IsInWaitingForPlayers() )
+	{
+		m_flFFPostMapSetupTime = gpGlobals->curtime + 1.0f;
+		return;
+	}
+
+	if ( State_Get() != GR_STATE_RND_RUNNING )
+	{
+		m_flFFPostMapSetupTime = gpGlobals->curtime + 1.0f;
+		return;
+	}
+
+	if ( IsOverwatchMode() )
+	{
+		if ( InSetup() )
+		{
+			m_flFFPostMapSetupTime = gpGlobals->curtime + 1.0f;
+			return;
+		}
+
+		extern void OW_ResetBotSpawnSchedule( float flDelaySeconds );
+		extern void OW_QueueNeededBots( void );
+		OW_ResetBotSpawnSchedule( 0.0f );
+		OW_QueueNeededBots();
+		UTIL_ClientPrintAll( HUD_PRINTTALK, "OW: queuing hero bots for this round." );
+	}
+	else if ( IsRainbowIsMagicMode() )
+	{
+		m_flRimDeferredSetupTime = gpGlobals->curtime + 0.5f;
+		m_nRimDeferredSetupPass = 0;
+		m_nRimObjectiveRetryCount = 0;
+		m_flRimNextObjectiveRetryTime = -1.0f;
+		UTIL_ClientPrintAll( HUD_PRINTTALK, "RIM: spawning bears and role bots..." );
+	}
+	else if ( IsBombermanMode() )
+	{
+		extern void BM_RespawnAllPlayers( void );
+		BM_RespawnAllPlayers();
+		UTIL_ClientPrintAll( HUD_PRINTTALK, "Frog Bomber: respawned on arena grid." );
+	}
+
+	m_flFFPostMapSetupTime = -1.0f;
+	Msg( "FF: post-map setup complete (mode %d).\n", iMode );
+}
+
 //-----------------------------------------------------------------------------
 void CTFGameRules::OW_ConfigureMatch( void )
 {

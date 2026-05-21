@@ -482,9 +482,30 @@ static void Rim_CountTeams( int &nRedBots, int &nBlueBots, int &nRedHumans, int 
 }
 
 //-----------------------------------------------------------------------------------------------------
+static bool Rim_IsSafeToSpawnBots( void )
+{
+	if ( !TFGameRules() || !TFGameRules()->IsRainbowIsMagicMode() )
+	{
+		return false;
+	}
+
+	if ( TFGameRules()->State_Get() != GR_STATE_RND_RUNNING )
+	{
+		return false;
+	}
+
+	if ( TFGameRules()->InSetup() )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------------------------------
 static int Rim_AddTeamBots( int iTeam, int nBotsToAdd )
 {
-	if ( nBotsToAdd <= 0 || !TFGameRules() || !TFGameRules()->IsRainbowIsMagicMode() )
+	if ( nBotsToAdd <= 0 || !Rim_IsSafeToSpawnBots() )
 	{
 		return 0;
 	}
