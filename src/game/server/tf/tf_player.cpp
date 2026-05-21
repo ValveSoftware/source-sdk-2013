@@ -2157,8 +2157,10 @@ void CTFPlayer::PostSpawnThink( void )
 	{
 		if ( !m_bBMSpawnConfigured )
 		{
-			BM_OnPlayerSpawn( this );
-			m_bBMSpawnConfigured = true;
+			if ( BM_OnPlayerSpawn( this ) )
+			{
+				m_bBMSpawnConfigured = true;
+			}
 		}
 	}
 	else if ( IsAlive() && TFGameRules() && TFGameRules()->IsOverwatchMode() )
@@ -5842,6 +5844,21 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 {
 	CBaseEntity *pSpot = g_pLastSpawnPoints[ GetTeamNumber() ];
 	const char *pSpawnPointName = "";
+
+#ifdef SOURCESDK
+	if ( TFGameRules() && TFGameRules()->IsBombermanMode() )
+	{
+		if ( GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_BLUE )
+		{
+			extern CBaseEntity *BM_GetSkySpawnEntity( CTFPlayer *pPlayer );
+			CBaseEntity *pBMSpot = BM_GetSkySpawnEntity( this );
+			if ( pBMSpot )
+			{
+				return pBMSpot;
+			}
+		}
+	}
+#endif
 
 #ifdef TF_RAID_MODE
 	if ( TFGameRules()->IsRaidMode() )

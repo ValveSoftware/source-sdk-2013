@@ -23,10 +23,23 @@ Or load shortcuts once: `exec ff_aliases.cfg`, then `ff_ow`, `ff_rim`, `ff_bombe
 
 - `ff_play ow` -> defaults to `koth_badlands`
 - `ff_play rim` -> defaults to `plr_hightower`
-- `ff_play bomber` -> defaults to `koth_badlands` (grid auto-aligned to team spawns)
+- `ff_play bomber` -> defaults to `itemtest` (sky arena; flat play layer)
 - `ff_play stock` -> defaults to `ctf_2fort`
 
-After any map load, the server runs **post-map setup** automatically (~4s): kicks old bots, applies mode cfg, restarts the match, then RIM spawns Mr. Teddy hostages or bomber players respawn on the grid. **Bots use Valve stock AI** — add them yourself if you want (`tf_bot_add`, `tf_bot_quota`).
+### Join any game first, then switch mode
+
+You do **not** need to start in bomber. This is the normal workflow:
+
+1. Launch **mod_tf** (your build with Frog Fortress DLLs).
+2. **Create server** or **join** any listen match (menu, `map`, `connect`, etc.) — OW is fine; you can land on `koth_badlands` or whatever.
+3. When you are **host** (listen server) or server admin, run:
+   - `ff_play bomber` or `exec bomber_quickstart` or `ff_bomber` (after `exec ff_aliases.cfg`)
+4. The mod **changelevels** to the mode map, runs `mode_bomber.cfg`, builds the sky arena, and finishes post-map setup (~4–8s).
+5. **Join RED or BLU**, pick **Scout** — you should spawn on the sky grid (`phase5-spawn-fix` in center HUD).
+
+**Requirements:** `ff_play` only works on a **listen host** or **dedicated server you control**. It does not work on Valve matchmaking / remote servers you do not admin. You must run **mod_tf**, not retail TF2.
+
+After any map load, the server runs **post-map setup** automatically: OW/RIM kick bots and restart; **bomber** skips bot kick/restart and builds the arena when the round is running. **Bots use Valve stock AI** — add them yourself if you want (`tf_bot_add`, `tf_bot_quota`).
 
 Same map, no reload: `ff_restart`
 

@@ -913,7 +913,7 @@ ConVar tf_ff_game_mode( "tf_ff_game_mode", "1", FCVAR_REPLICATED | FCVAR_NOTIFY,
 #endif
 );
 ConVar tf_bm_respawn_time( "tf_bm_respawn_time", "2", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: respawn delay after dying to a blast." );
-ConVar tf_bm_build_id( "tf_bm_build_id", "phase4-warp-arena", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman build tag (confirms DLL has bombs + camera fix)." );
+ConVar tf_bm_build_id( "tf_bm_build_id", "phase6-sky-body", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman build tag (confirms DLL has bombs + camera fix)." );
 ConVar tf_rim_mode( "tf_rim_mode", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Rainbow Is Magic: archived hostage mode (0=off). Prefer tf_ff_game_mode or ff_mode."
 #ifdef GAME_DLL
 	, TfRimModeChanged
@@ -1266,6 +1266,7 @@ void CC_FF_Play( const CCommand &args )
 
 	if ( pszMap && pszMap[0] )
 	{
+		UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Fortress: loading %s (%s)...", pszMap, modeInfo.m_pszCanonicalName ) );
 		char szChangeLevelCommand[256];
 		Q_snprintf( szChangeLevelCommand, sizeof( szChangeLevelCommand ), "changelevel %s\n", pszMap );
 		engine->ServerCommand( szChangeLevelCommand );
@@ -10486,11 +10487,23 @@ CBaseEntity *CTFGameRules::GetPlayerSpawnSpot( CBasePlayer *pPlayer )
 	// get valid spawn point
 	CBaseEntity *pSpawnSpot = pPlayer->EntSelectSpawnPoint();
 
-	// drop down to ground
-	Vector GroundPos = DropToGround( pPlayer, pSpawnSpot->GetAbsOrigin(), VEC_HULL_MIN_SCALED( pTFPlayer ), VEC_HULL_MAX_SCALED( pTFPlayer ) );
+	Vector vecSpawnPos = pSpawnSpot->GetAbsOrigin();
+
+#ifdef SOURCESDK
+	// Sky bomber arena: DropToGround traces 500 units down and lands on the map floor under the grid.
+	if ( IsBombermanMode() )
+	{
+		vecSpawnPos.z += 1.0f;
+	}
+	else
+#endif
+	{
+		vecSpawnPos = DropToGround( pPlayer, vecSpawnPos, VEC_HULL_MIN_SCALED( pTFPlayer ), VEC_HULL_MAX_SCALED( pTFPlayer ) );
+		vecSpawnPos.z += 1.0f;
+	}
 
 	// Move the player to the place it said.
-	pPlayer->SetLocalOrigin( GroundPos + Vector(0,0,1) );
+	pPlayer->SetLocalOrigin( vecSpawnPos );
 	pPlayer->SetAbsVelocity( vec3_origin );
 	pPlayer->SetLocalAngles( pSpawnSpot->GetLocalAngles() );
 	pPlayer->m_Local.m_vecPunchAngle = vec3_angle;
@@ -10507,6 +10520,13 @@ CBaseEntity *CTFGameRules::GetPlayerSpawnSpot( CBasePlayer *pPlayer )
 bool CTFGameRules::IsSpawnPointValid( CBaseEntity *pSpot, CBasePlayer *pPlayer, bool bIgnorePlayers, PlayerTeamSpawnMode_t nSpawnMode /* = 0*/ )
 {
 	bool bMatchSummary = ShowMatchSummary();
+
+#ifdef SOURCESDK
+	if ( IsBombermanMode() && pSpot && pSpot->ClassMatches( "info_target" ) )
+	{
+		return true;
+	}
+#endif
 
 	// Check the team.
 	// In Item Testing mode, bots all use the Red team spawns, and the player uses Blue

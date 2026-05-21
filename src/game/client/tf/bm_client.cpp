@@ -18,11 +18,12 @@ ConVar tf_bm_cam_pitch( "tf_bm_cam_pitch", "89", FCVAR_CLIENTDLL | FCVAR_ARCHIVE
 ConVar tf_bm_clip_world( "tf_bm_clip_world", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: experimental roof clip (off — was hiding the whole map)." );
 ConVar tf_bm_clip_height( "tf_bm_clip_height", "256", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: only used if tf_bm_clip_world is 1." );
 ConVar tf_bm_show_grid( "tf_bm_show_grid", "1", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: draw grid lines on the play floor." );
-ConVar tf_bm_arena_width( "tf_bm_arena_width", "15", FCVAR_CLIENTDLL | FCVAR_REPLICATED, "Bomberman arena width (replicated)." );
-ConVar tf_bm_arena_height( "tf_bm_arena_height", "13", FCVAR_CLIENTDLL | FCVAR_REPLICATED, "Bomberman arena height (replicated)." );
-
-ConVar tf_bm_cell_size( "tf_bm_cell_size", "64", FCVAR_CLIENTDLL | FCVAR_REPLICATED, "Bomberman: grid cell size (replicated)." );
-ConVar tf_bm_grid_origin( "tf_bm_grid_origin", "0 0 0", FCVAR_CLIENTDLL | FCVAR_REPLICATED, "Bomberman: grid origin (replicated)." );
+// Replicated — strings/defaults must match server (bm_arena.cpp, bm_player_system.cpp).
+ConVar tf_bm_arena_width( "tf_bm_arena_width", "15", FCVAR_REPLICATED, "Bomberman arena width in grid cells (odd, includes border walls)." );
+ConVar tf_bm_arena_height( "tf_bm_arena_height", "13", FCVAR_REPLICATED, "Bomberman arena height in grid cells (odd, includes border walls)." );
+ConVar tf_bm_cell_size( "tf_bm_cell_size", "64", FCVAR_REPLICATED, "Bomberman: grid cell size in Hammer units." );
+ConVar tf_bm_grid_origin( "tf_bm_grid_origin", "0 0 0", FCVAR_REPLICATED, "Bomberman: world origin of cell (0,0). Auto-set from team spawns on map load." );
+ConVar tf_bm_play_z_offset( "tf_bm_play_z_offset", "8", FCVAR_REPLICATED, "Bomberman: player feet offset above grid origin Z." );
 
 static QAngle s_angBMLockedView( 89.0f, 0.0f, 0.0f );
 static int s_nBMClipPushDepth = 0;
@@ -163,7 +164,7 @@ static void BM_ClientDrawGridOverlay( void )
 	const int iWidth = clamp( tf_bm_arena_width.GetInt(), 7, 31 );
 	const int iHeight = clamp( tf_bm_arena_height.GetInt(), 7, 25 );
 
-	const float flZ = pLocal->GetAbsOrigin().z + 2.0f;
+	const float flZ = vecGridOrigin.z + tf_bm_play_z_offset.GetFloat() + 2.0f;
 
 	for ( int iCellX = 0; iCellX < iWidth; ++iCellX )
 	{

@@ -24,6 +24,30 @@ extern ConVar tf_bm_sky_height;
 static bool s_bArenaActive = false;
 static int s_iArenaWidth = 0;
 static int s_iArenaHeight = 0;
+static CBaseEntity *s_pBMSkySpawn = NULL;
+
+//-----------------------------------------------------------------------------
+static void BM_GetArenaSpawnCell( CTFPlayer *pPlayer, int &iCellX, int &iCellY )
+{
+	iCellX = 1;
+	iCellY = 1;
+
+	if ( !pPlayer )
+	{
+		return;
+	}
+
+	if ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
+	{
+		iCellX = s_iArenaWidth - 2;
+		iCellY = s_iArenaHeight - 2;
+	}
+	else if ( pPlayer->GetTeamNumber() == TF_TEAM_RED )
+	{
+		iCellX = 1;
+		iCellY = s_iArenaHeight - 2;
+	}
+}
 
 //-----------------------------------------------------------------------------
 void BM_GetArenaSize( int &iWidth, int &iHeight )
@@ -156,6 +180,59 @@ bool BM_CellBlocksBlast( int iCellX, int iCellY )
 }
 
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+CBaseEntity *BM_GetSkySpawnEntity( CTFPlayer *pPlayer )
+{
+	if ( !pPlayer || !TFGameRules() || !TFGameRules()->IsBombermanMode() )
+	{
+		return NULL;
+	}
+
+	if ( pPlayer->GetTeamNumber() != TF_TEAM_RED && pPlayer->GetTeamNumber() != TF_TEAM_BLUE )
+	{
+		return NULL;
+	}
+
+	if ( !s_bArenaActive )
+	{
+		BM_BuildArena();
+	}
+
+	if ( !s_bArenaActive )
+	{
+		return NULL;
+	}
+
+	if ( !s_pBMSkySpawn )
+	{
+		s_pBMSkySpawn = CreateEntityByName( "info_target" );
+		if ( s_pBMSkySpawn )
+		{
+			s_pBMSkySpawn->AddEffects( EF_NODRAW );
+			DispatchSpawn( s_pBMSkySpawn );
+			s_pBMSkySpawn->Activate();
+		}
+	}
+
+	if ( !s_pBMSkySpawn )
+	{
+		return NULL;
+	}
+
+	int iCellX = 0;
+	int iCellY = 0;
+	BM_GetArenaSpawnCell( pPlayer, iCellX, iCellY );
+
+	Vector vecDest;
+	BM_CellToWorldCenter( iCellX, iCellY, vecDest );
+	s_pBMSkySpawn->SetAbsOrigin( vecDest );
+	s_pBMSkySpawn->SetAbsAngles( vec3_angle );
+	s_pBMSkySpawn->ChangeTeam( pPlayer->GetTeamNumber() );
+
+	return s_pBMSkySpawn;
+}
+
+//-----------------------------------------------------------------------------
 void BM_WarpPlayerToArenaSpawn( CTFPlayer *pPlayer )
 {
 	if ( !pPlayer || !s_bArenaActive )
@@ -163,26 +240,26 @@ void BM_WarpPlayerToArenaSpawn( CTFPlayer *pPlayer )
 		return;
 	}
 
-	int iCellX = 1;
-	int iCellY = 1;
-
-	if ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
-	{
-		iCellX = s_iArenaWidth - 2;
-		iCellY = s_iArenaHeight - 2;
-	}
-	else if ( pPlayer->GetTeamNumber() == TF_TEAM_RED )
-	{
-		iCellX = 1;
-		iCellY = s_iArenaHeight - 2;
-	}
-
 	Vector vecDest;
-	BM_CellToWorldCenter( iCellX, iCellY, vecDest );
+	BM_GetSkySpawnEntity( pPlayer );
+	if ( s_pBMSkySpawn )
+	{
+		vecDest = s_pBMSkySpawn->GetAbsOrigin();
+	}
+	else
+	{
+		int iCellX = 0;
+		int iCellY = 0;
+		BM_GetArenaSpawnCell( pPlayer, iCellX, iCellY );
+		BM_CellToWorldCenter( iCellX, iCellY, vecDest );
+	}
 
 	const QAngle angFace( 0.0f, 0.0f, 0.0f );
 	pPlayer->Teleport( &vecDest, &angFace, &vec3_origin );
 	pPlayer->SnapEyeAngles( angFace );
+
+	extern void BM_ApplySkyPlayMovement( CTFPlayer *pPlayer );
+	BM_ApplySkyPlayMovement( pPlayer );
 }
 
 //-----------------------------------------------------------------------------

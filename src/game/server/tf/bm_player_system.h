@@ -12,11 +12,12 @@ void BM_MarkGridAligned( void );
 void BM_AutoAlignGridFromSpawns( void );
 void BM_ConfigureMatch( void );
 void BM_TickMatch( void );
-void BM_OnPlayerSpawn( CTFPlayer *pPlayer );
+bool BM_OnPlayerSpawn( CTFPlayer *pPlayer );
 void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd );
 void BM_SnapPlayerToGrid( CTFPlayer *pPlayer );
 void BM_RespawnAllPlayers( void );
 void BM_EnsurePlayerInArena( CTFPlayer *pPlayer );
+void BM_ApplySkyPlayMovement( CTFPlayer *pPlayer );
 
 #endif
 

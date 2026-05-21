@@ -1,14 +1,27 @@
 # Frog Bomber (Bomberman in TF2)
 
+## Quick start (join any game first)
+
+You can start on OW, stock, or any map — then switch:
+
+```
+exec bomber_quickstart
+```
+
+Same as `ff_play bomber` (host/listen server only). Reloads **`itemtest`**, runs `mode_bomber.cfg`, builds the sky arena, then tells you to join RED/BLU + Scout.
+
+Confirm the fix loaded: center message should include **`phase5-spawn-fix`**.
+
 ## Phase 3 — classic arena (try it now)
 
 1. Rebuild server + client (`build_mod_tf.bat` or VS Release x64).
 2. Quit game, deploy DLLs.
-3. Console:
+3. Console (from any listen-server game):
    ```
    ff_play bomber
    ```
-   Default map: **`itemtest`** (flat). Fallback: `ff_play bomber koth_badlands`
+   or `exec bomber_quickstart`
+   Default map: **`itemtest`** (sky arena). Fallback: `ff_play bomber koth_badlands`
 4. Pick a team. You should get:
    - **Top-down camera**
    - **Scout** with no weapons

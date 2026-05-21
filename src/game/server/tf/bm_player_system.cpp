@@ -95,7 +95,7 @@ void BM_FindFloorAtXY( const Vector &vecXY, float flRefZ, CTFPlayer *pPlayer, Ve
 	if ( BM_UseSkyPlayPlane() && TFGameRules() && TFGameRules()->IsBombermanMode() )
 	{
 		vecFloor = vecXY;
-		vecFloor.z = flRefZ + tf_bm_play_z_offset.GetFloat();
+		vecFloor.z = BM_GetPlayPlaneZ();
 		return;
 	}
 
@@ -322,6 +322,20 @@ bool BM_TryPlaceBomb( CTFPlayer *pPlayer )
 }
 
 //-----------------------------------------------------------------------------
+void BM_ApplySkyPlayMovement( CTFPlayer *pPlayer )
+{
+	if ( !pPlayer || !BM_UseSkyPlayPlane() )
+	{
+		return;
+	}
+
+	pPlayer->SetMoveType( MOVETYPE_FLY );
+	pPlayer->SetGravity( 0.0f );
+	pPlayer->AddFlag( FL_FLY );
+	pPlayer->SetGroundEntity( NULL );
+}
+
+//-----------------------------------------------------------------------------
 void BM_EnsurePlayerInArena( CTFPlayer *pPlayer )
 {
 	if ( !pPlayer || !pPlayer->IsAlive() || !TFGameRules() || !TFGameRules()->IsBombermanMode() )
@@ -351,14 +365,16 @@ void BM_EnsurePlayerInArena( CTFPlayer *pPlayer )
 	{
 		BM_WarpPlayerToArenaSpawn( pPlayer );
 	}
+
+	BM_ApplySkyPlayMovement( pPlayer );
 }
 
 //-----------------------------------------------------------------------------
-void BM_OnPlayerSpawn( CTFPlayer *pPlayer )
+bool BM_OnPlayerSpawn( CTFPlayer *pPlayer )
 {
 	if ( !pPlayer || !TFGameRules() || !TFGameRules()->IsBombermanMode() )
 	{
-		return;
+		return false;
 	}
 
 	if ( pPlayer->GetPlayerClass()->GetClassIndex() != TF_CLASS_SCOUT )
@@ -368,25 +384,19 @@ void BM_OnPlayerSpawn( CTFPlayer *pPlayer )
 		{
 			pPlayer->ForceRespawn();
 		}
-		return;
+		return false;
 	}
 
 	for ( int i = 0; i < MAX_WEAPONS; ++i )
 	{
 		CTFWeaponBase *pWpn = assert_cast<CTFWeaponBase *>( pPlayer->GetWeapon( i ) );
-		if ( !pWpn || pWpn->GetTFWpnData().m_iWeaponType == TF_WPN_TYPE_MELEE )
+		if ( !pWpn )
 		{
 			continue;
 		}
 
 		pPlayer->Weapon_Detach( pWpn );
 		UTIL_Remove( pWpn );
-	}
-
-	CTFWeaponBase *pMelee = dynamic_cast<CTFWeaponBase *>( pPlayer->Weapon_GetSlot( TF_WPN_TYPE_MELEE ) );
-	if ( pMelee )
-	{
-		pPlayer->Weapon_Switch( pMelee );
 	}
 
 	const float flSpeed = tf_bm_move_speed.GetFloat();
@@ -398,7 +408,18 @@ void BM_OnPlayerSpawn( CTFPlayer *pPlayer )
 	if ( !pPlayer->IsBot() )
 	{
 		extern ConVar tf_bm_build_id;
-		ClientPrint( pPlayer, HUD_PRINTCENTER, "Frog Bomber [%s] — you are on the sky arena (not map spawns).", tf_bm_build_id.GetString() );
+		ClientPrint( pPlayer, HUD_PRINTCENTER, "Frog Bomber [%s1] — on sky arena. MOUSE1 = bomb.", tf_bm_build_id.GetString() );
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+static void BM_StripMeleeAttackButtons( CUserCmd *ucmd )
+{
+	if ( ucmd )
+	{
+		ucmd->buttons &= ~( IN_ATTACK | IN_ATTACK2 );
 	}
 }
 
@@ -410,7 +431,17 @@ void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd )
 		return;
 	}
 
-	if ( !pPlayer->IsAlive() || !BM_PlayerReadyForGameplay( pPlayer ) )
+	if ( !pPlayer->IsAlive() )
+	{
+		return;
+	}
+
+	if ( pPlayer->GetTeamNumber() == TF_TEAM_RED || pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
+	{
+		BM_EnsurePlayerInArena( pPlayer );
+	}
+
+	if ( !BM_PlayerReadyForGameplay( pPlayer ) )
 	{
 		return;
 	}
@@ -433,10 +464,9 @@ void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd )
 		}
 
 		pPlayer->m_nBMPreviousButtons = ucmd->buttons;
+		BM_StripMeleeAttackButtons( ucmd );
 		return;
 	}
-
-	BM_EnsurePlayerInArena( pPlayer );
 
 	Vector vecVelocity = pPlayer->GetAbsVelocity();
 	if ( BM_UseSkyPlayPlane() && vecVelocity.z != 0.0f )
@@ -469,6 +499,7 @@ void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd )
 
 		pPlayer->m_bBMWasMoving = false;
 		pPlayer->m_nBMPreviousButtons = ucmd->buttons;
+		BM_StripMeleeAttackButtons( ucmd );
 		return;
 	}
 
@@ -480,6 +511,7 @@ void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd )
 	{
 		BM_EnsurePlayerInArena( pPlayer );
 		pPlayer->m_nBMPreviousButtons = ucmd->buttons;
+		BM_StripMeleeAttackButtons( ucmd );
 		return;
 	}
 
@@ -508,6 +540,7 @@ void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd )
 		ucmd->sidemove = 0.0f;
 		pPlayer->m_bBMWasMoving = false;
 		pPlayer->m_nBMPreviousButtons = ucmd->buttons;
+		BM_StripMeleeAttackButtons( ucmd );
 		return;
 	}
 
@@ -526,6 +559,9 @@ void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd )
 		ucmd->forwardmove = 0.0f;
 		ucmd->sidemove = ( flSide > 0.0f ) ? flSpeed : -flSpeed;
 	}
+
+	// MOUSE1 places bombs above — never swing melee in bomber mode.
+	BM_StripMeleeAttackButtons( ucmd );
 }
 
 //-----------------------------------------------------------------------------
@@ -553,7 +589,14 @@ void BM_SnapPlayerToGrid( CTFPlayer *pPlayer )
 	vecSnapped.x = vecGridOrigin.x + ( iCellX + 0.5f ) * flCell;
 	vecSnapped.y = vecGridOrigin.y + ( iCellY + 0.5f ) * flCell;
 
-	BM_FindFloorAtXY( vecSnapped, vecOrigin.z, pPlayer, vecSnapped );
+	if ( BM_UseSkyPlayPlane() )
+	{
+		vecSnapped.z = BM_GetPlayPlaneZ();
+	}
+	else
+	{
+		BM_FindFloorAtXY( vecSnapped, vecGridOrigin.z, pPlayer, vecSnapped );
+	}
 
 	Vector vecVelocity = pPlayer->GetAbsVelocity();
 	vecVelocity.z = 0.0f;
