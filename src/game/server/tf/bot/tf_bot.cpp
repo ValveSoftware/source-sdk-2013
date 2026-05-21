@@ -443,6 +443,8 @@ CON_COMMAND_F( tf_bot_add, "Add a bot.", FCVAR_GAMEDLL )
 }
 
 #ifdef SOURCESDK
+#include "ow_player_system.h"
+
 //-----------------------------------------------------------------------------------------------------
 static void Rim_CountTeams( int &nRedBots, int &nBlueBots, int &nRedHumans, int &nBlueHumans )
 {
@@ -663,6 +665,10 @@ static int OW_AddTeamBots( int iTeam, int nBotsToAdd )
 		}
 
 		// Leave mission unset — stock CTFBotScenarioMonitor picks payload/KOTH/CTF behavior.
+		if ( pBot->IsAlive() )
+		{
+			OW_OnPlayerSpawn( pBot );
+		}
 
 		++iNumAdded;
 	}

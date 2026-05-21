@@ -78,6 +78,13 @@ static bool OW_GiveWeaponByEntName( CTFPlayer *pPlayer, const char *pszWeaponEnt
 
 	const int iClass = pPlayer->GetPlayerClass()->GetClassIndex();
 	const char *pszTranslated = TranslateWeaponEntForClass( pszWeaponEnt, iClass );
+	const char *pszGive = pszTranslated ? pszTranslated : pszWeaponEnt;
+
+	if ( dynamic_cast<CTFWeaponBase *>( pPlayer->GiveNamedItem( pszGive, 0, NULL, true ) ) )
+	{
+		return true;
+	}
+
 	CTFInventoryManager *pInvMgr = TFInventoryManager();
 	if ( !pInvMgr )
 	{
@@ -100,7 +107,7 @@ static bool OW_GiveWeaponByEntName( CTFPlayer *pPlayer, const char *pszWeaponEnt
 
 		if ( FStrEq( pszClass, pszWeaponEnt ) || ( pszTranslated && FStrEq( pszClass, pszTranslated ) ) )
 		{
-			if ( pPlayer->GiveNamedItem( pszClass, 0, pItem ) )
+			if ( dynamic_cast<CTFWeaponBase *>( pPlayer->GiveNamedItem( pszClass, 0, pItem, true ) ) )
 			{
 				return true;
 			}
@@ -108,6 +115,33 @@ static bool OW_GiveWeaponByEntName( CTFPlayer *pPlayer, const char *pszWeaponEnt
 	}
 
 	return false;
+}
+
+//-----------------------------------------------------------------------------
+static void OW_GiveStockClassWeapons( CTFPlayer *pPlayer )
+{
+	if ( !pPlayer )
+	{
+		return;
+	}
+
+	CTFInventoryManager *pInvMgr = TFInventoryManager();
+	if ( !pInvMgr )
+	{
+		return;
+	}
+
+	const int iClass = pPlayer->GetPlayerClass()->GetClassIndex();
+	static const int s_WeaponSlots[] = { LOADOUT_POSITION_PRIMARY, LOADOUT_POSITION_SECONDARY, LOADOUT_POSITION_MELEE };
+
+	for ( int i = 0; i < ARRAYSIZE( s_WeaponSlots ); ++i )
+	{
+		CEconItemView *pItem = pInvMgr->GetBaseItemForClass( iClass, s_WeaponSlots[i] );
+		if ( pItem && pItem->GetStaticData() && pItem->GetStaticData()->GetItemClass() )
+		{
+			pPlayer->GiveNamedItem( pItem->GetStaticData()->GetItemClass(), 0, pItem, true );
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -153,6 +187,19 @@ static void OW_ApplyHeroWeapons( CTFPlayer *pPlayer, const OWHeroDefinition_t *p
 	if ( pActive )
 	{
 		pPlayer->Weapon_Switch( pActive );
+	}
+	else
+	{
+		OW_GiveStockClassWeapons( pPlayer );
+		pActive = pPlayer->Weapon_GetWeaponByType( TF_WPN_TYPE_PRIMARY );
+		if ( !pActive )
+		{
+			pActive = pPlayer->Weapon_GetWeaponByType( TF_WPN_TYPE_MELEE );
+		}
+		if ( pActive )
+		{
+			pPlayer->Weapon_Switch( pActive );
+		}
 	}
 }
 

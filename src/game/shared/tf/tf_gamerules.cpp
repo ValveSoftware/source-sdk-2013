@@ -930,8 +930,26 @@ ConVar tf_ow_team_size( "tf_ow_team_size", "6", FCVAR_REPLICATED | FCVAR_NOTIFY,
 ConVar tf_ow_bots_per_team( "tf_ow_bots_per_team", "5", FCVAR_REPLICATED | FCVAR_NOTIFY, "OW: bots per team before a human joins the enemy team." );
 ConVar tf_ow_enemy_bonus_on_join( "tf_ow_enemy_bonus_on_join", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "OW: extra bots on the team without the human when someone picks RED/BLU." );
 
+#ifdef SOURCESDK
+static int g_iFFActiveGameMode = -1;
+static bool g_bFFModeLocked = false;
+#endif
+
 #ifdef GAME_DLL
 static bool s_bFfModeApplying = false;
+
+static void FF_ApplyGameMode( int iMode );
+
+static int FF_GetActiveGameMode( void )
+{
+#ifdef SOURCESDK
+	if ( g_bFFModeLocked && g_iFFActiveGameMode >= 0 && g_iFFActiveGameMode <= 3 )
+	{
+		return g_iFFActiveGameMode;
+	}
+#endif
+	return tf_ff_game_mode.GetInt();
+}
 
 struct FFModeInfo_t
 {
@@ -1059,6 +1077,28 @@ static void FF_ApplyGameMode( int iMode )
 	s_bFfModeApplying = false;
 }
 
+static void FF_SetActiveGameMode( int iMode )
+{
+#ifdef SOURCESDK
+	g_iFFActiveGameMode = clamp( iMode, 0, 3 );
+	g_bFFModeLocked = true;
+#endif
+
+	s_bFfModeApplying = true;
+	tf_ff_game_mode.SetValue( iMode );
+	FF_ApplyGameMode( iMode );
+	s_bFfModeApplying = false;
+}
+
+static void FF_SyncActiveModeConVars( void )
+{
+	const int iMode = FF_GetActiveGameMode();
+	s_bFfModeApplying = true;
+	tf_ff_game_mode.SetValue( iMode );
+	FF_ApplyGameMode( iMode );
+	s_bFfModeApplying = false;
+}
+
 static void FF_SyncGameModeFromLegacy( void )
 {
 	if ( s_bFfModeApplying )
@@ -1114,6 +1154,24 @@ void TfFfGameModeChanged( IConVar *var, const char *pOldString, float flOldValue
 	if ( s_bFfModeApplying )
 		return;
 
+#ifdef SOURCESDK
+	if ( g_bFFModeLocked )
+	{
+		const int iLocked = g_iFFActiveGameMode;
+		if ( ( (ConVar *)var )->GetInt() != iLocked )
+		{
+			Warning( "FF: ignoring cfg override of tf_ff_game_mode (locked to %d — use ff_play or ff_mode)\n", iLocked );
+			s_bFfModeApplying = true;
+			tf_ff_game_mode.SetValue( iLocked );
+			FF_ApplyGameMode( iLocked );
+			s_bFfModeApplying = false;
+		}
+		return;
+	}
+
+	g_iFFActiveGameMode = ( (ConVar *)var )->GetInt();
+#endif
+
 	FF_ApplyGameMode( ( (ConVar *)var )->GetInt() );
 }
 
@@ -1168,9 +1226,9 @@ void CC_FF_Mode( const CCommand &args )
 		return;
 	}
 
-	tf_ff_game_mode.SetValue( modeInfo.m_iMode );
+	FF_SetActiveGameMode( modeInfo.m_iMode );
 	FF_ExecModeConfig( modeInfo.m_pszConfigFile );
-	Msg( "ff_mode: %s (%d) — exec %s. Reload map (ff_play <mode>) for full effect.\n",
+	Msg( "ff_mode: %s (%d) locked — exec %s. Reload map (ff_play <mode>) for full effect.\n",
 		modeInfo.m_pszCanonicalName, modeInfo.m_iMode, modeInfo.m_pszConfigFile );
 }
 
@@ -1201,7 +1259,7 @@ void CC_FF_Play( const CCommand &args )
 
 	const char *pszMap = ( args.ArgC() >= 3 ) ? args[2] : modeInfo.m_pszDefaultMap;
 
-	tf_ff_game_mode.SetValue( modeInfo.m_iMode );
+	FF_SetActiveGameMode( modeInfo.m_iMode );
 	FF_ExecModeConfig( modeInfo.m_pszConfigFile );
 
 	if ( pszMap && pszMap[0] )
@@ -1243,6 +1301,36 @@ void CC_FF_Restart( const CCommand &args )
 
 static ConCommand ff_restart( "ff_restart", CC_FF_Restart,
 	"Re-apply current Frog Fortress mode cfg, kick bots, and restart the match.", FCVAR_GAMEDLL );
+
+void CC_FF_Status( const CCommand &args )
+{
+	const int iActive = FF_GetActiveGameMode();
+	FFModeInfo_t modeInfo = { 0 };
+	FF_GetModeInfoForInt( iActive, modeInfo );
+
+	Msg( "Frog Fortress status:\n" );
+	Msg( "  active mode: %s (%d)%s\n", modeInfo.m_pszCanonicalName, iActive,
+#ifdef SOURCESDK
+		g_bFFModeLocked ? " [locked]" : ""
+#else
+		""
+#endif
+	);
+	Msg( "  tf_ff_game_mode=%d tf_ow_mode=%d tf_rim_mode=%d\n",
+		tf_ff_game_mode.GetInt(), tf_ow_mode.GetInt(), tf_rim_mode.GetInt() );
+	Msg( "  OW=%d RIM=%d Bomber=%d\n",
+		TFGameRules() && TFGameRules()->IsOverwatchMode() ? 1 : 0,
+		TFGameRules() && TFGameRules()->IsRainbowIsMagicMode() ? 1 : 0,
+		TFGameRules() && TFGameRules()->IsBombermanMode() ? 1 : 0 );
+
+	if ( iActive == 3 )
+	{
+		Msg( "  Bomber: no weapons by design (grid movement only).\n" );
+	}
+}
+
+static ConCommand ff_status( "ff_status", CC_FF_Status,
+	"Show locked Frog Fortress mode and which rules are active.", FCVAR_GAMEDLL );
 #endif // GAME_DLL
 #endif // SOURCESDK
 
@@ -3964,7 +4052,8 @@ void CTFGameRules::LevelInitPostEntity( void )
 #ifdef SOURCESDK
 	extern void BM_ResetGridAlign( void );
 	BM_ResetGridAlign();
-	FF_SchedulePostMapSetup( 4.0f );
+	FF_SyncActiveModeConVars();
+	FF_SchedulePostMapSetup( 2.5f );
 #endif
 
 #endif // GAME_DLL
@@ -18101,12 +18190,16 @@ int CTFGameRules::GetClassLimit( int iClass )
 //-----------------------------------------------------------------------------
 bool CTFGameRules::IsOverwatchMode() const
 {
-	// tf_ff_game_mode is canonical; legacy convars stay synced via server callbacks.
-	if ( tf_ff_game_mode.GetInt() == 3 )
+#ifdef GAME_DLL
+	const int iMode = FF_GetActiveGameMode();
+#else
+	const int iMode = tf_ff_game_mode.GetInt();
+#endif
+	if ( iMode == 3 )
 		return false;
-	if ( tf_ff_game_mode.GetInt() == 1 )
+	if ( iMode == 1 )
 		return true;
-	if ( tf_ff_game_mode.GetInt() == 0 )
+	if ( iMode == 0 )
 		return tf_ow_mode.GetBool() && !tf_rim_mode.GetBool();
 	return false;
 }
@@ -18114,17 +18207,26 @@ bool CTFGameRules::IsOverwatchMode() const
 //-----------------------------------------------------------------------------
 bool CTFGameRules::IsBombermanMode() const
 {
+#ifdef GAME_DLL
+	return FF_GetActiveGameMode() == 3;
+#else
 	return tf_ff_game_mode.GetInt() == 3;
+#endif
 }
 
 //-----------------------------------------------------------------------------
 bool CTFGameRules::IsRainbowIsMagicMode() const
 {
-	if ( tf_ff_game_mode.GetInt() == 3 )
+#ifdef GAME_DLL
+	const int iMode = FF_GetActiveGameMode();
+#else
+	const int iMode = tf_ff_game_mode.GetInt();
+#endif
+	if ( iMode == 3 )
 		return false;
-	if ( tf_ff_game_mode.GetInt() == 2 )
+	if ( iMode == 2 )
 		return true;
-	if ( tf_ff_game_mode.GetInt() == 1 )
+	if ( iMode == 1 )
 		return false;
 	return tf_rim_mode.GetBool() && !IsOverwatchMode();
 }
@@ -18153,12 +18255,14 @@ void CTFGameRules::FF_TickPostMapSetup( void )
 		return;
 	}
 
-	const int iMode = tf_ff_game_mode.GetInt();
+	const int iMode = FF_GetActiveGameMode();
+	FF_SetActiveGameMode( iMode );
 
 	if ( m_nFFPostMapSetupPass == 0 )
 	{
 		engine->ServerCommand( "tf_bot_kick all\n" );
 		FF_ExecModeConfigForGameMode( iMode );
+		FF_SyncActiveModeConVars();
 
 		if ( iMode == 3 )
 		{
@@ -18166,7 +18270,9 @@ void CTFGameRules::FF_TickPostMapSetup( void )
 			BM_AutoAlignGridFromSpawns();
 		}
 
-		UTIL_ClientPrintAll( HUD_PRINTTALK, "Frog Fortress: setting up match..." );
+		FFModeInfo_t setupInfo = { 0 };
+		FF_GetModeInfoForInt( iMode, setupInfo );
+		UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Fortress: starting %s mode...", setupInfo.m_pszCanonicalName ) );
 		engine->ServerCommand( "mp_restartgame 1\n" );
 		engine->ServerExecute();
 

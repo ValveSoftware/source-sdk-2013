@@ -163,7 +163,7 @@ void BM_OnPlayerSpawn( CTFPlayer *pPlayer )
 
 	if ( !pPlayer->IsBot() )
 	{
-		ClientPrint( pPlayer, HUD_PRINTCENTER, "Frog Bomber — WASD moves on the grid. Top-down view." );
+		ClientPrint( pPlayer, HUD_PRINTCENTER, "Frog Bomber — WASD grid move, top-down cam. (No weapons in Phase 0.)" );
 	}
 }
 
