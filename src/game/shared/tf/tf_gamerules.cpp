@@ -1032,6 +1032,12 @@ static void FF_SyncGameModeFromLegacy( void )
 	if ( s_bFfModeApplying )
 		return;
 
+	// Canonical bomber mode must not be clobbered when legacy OW/RIM convars are off.
+	if ( tf_ff_game_mode.GetInt() == 3 )
+	{
+		return;
+	}
+
 	s_bFfModeApplying = true;
 	if ( tf_ow_mode.GetBool() )
 	{
@@ -1047,6 +1053,19 @@ static void FF_SyncGameModeFromLegacy( void )
 		tf_ff_game_mode.SetValue( 0 );
 	}
 	s_bFfModeApplying = false;
+}
+
+static void FF_ExecModeConfig( const char *pszConfigFile )
+{
+	if ( !pszConfigFile || !pszConfigFile[0] )
+	{
+		return;
+	}
+
+	char szExecCommand[128];
+	Q_snprintf( szExecCommand, sizeof( szExecCommand ), "exec %s\n", pszConfigFile );
+	engine->ServerCommand( szExecCommand );
+	engine->ServerExecute();
 }
 
 void TfFfGameModeChanged( IConVar *var, const char *pOldString, float flOldValue )
@@ -1109,6 +1128,9 @@ void CC_FF_Mode( const CCommand &args )
 	}
 
 	tf_ff_game_mode.SetValue( modeInfo.m_iMode );
+	FF_ExecModeConfig( modeInfo.m_pszConfigFile );
+	Msg( "ff_mode: %s (%d) — exec %s. Reload map (ff_play <mode>) for full effect.\n",
+		modeInfo.m_pszCanonicalName, modeInfo.m_iMode, modeInfo.m_pszConfigFile );
 }
 
 void CC_FF_Play( const CCommand &args )
@@ -1139,10 +1161,7 @@ void CC_FF_Play( const CCommand &args )
 	const char *pszMap = ( args.ArgC() >= 3 ) ? args[2] : modeInfo.m_pszDefaultMap;
 
 	tf_ff_game_mode.SetValue( modeInfo.m_iMode );
-
-	char szExecCommand[128];
-	Q_snprintf( szExecCommand, sizeof( szExecCommand ), "exec %s\n", modeInfo.m_pszConfigFile );
-	engine->ServerCommand( szExecCommand );
+	FF_ExecModeConfig( modeInfo.m_pszConfigFile );
 
 	if ( pszMap && pszMap[0] )
 	{
@@ -3946,6 +3965,11 @@ float CTFGameRules::GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayer
 bool CTFGameRules::FlagsMayBeCapped( void )
 {
 #ifdef SOURCESDK
+	if ( IsBombermanMode() && State_Get() == GR_STATE_RND_RUNNING )
+	{
+		return false;
+	}
+
 	if ( IsRainbowIsMagicMode() && !IsOverwatchMode() && State_Get() == GR_STATE_RND_RUNNING )
 	{
 		return false;

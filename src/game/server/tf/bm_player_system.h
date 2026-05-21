@@ -1,0 +1,18 @@
+//========= Copyright Valve Corporation, All rights reserved. ============//
+#ifndef BM_PLAYER_SYSTEM_H
+#define BM_PLAYER_SYSTEM_H
+
+class CTFPlayer;
+class CUserCmd;
+
+#ifdef SOURCESDK
+
+void BM_ConfigureMatch( void );
+void BM_TickMatch( void );
+void BM_OnPlayerSpawn( CTFPlayer *pPlayer );
+void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd );
+void BM_SnapPlayerToGrid( CTFPlayer *pPlayer );
+
+#endif
+
+#endif

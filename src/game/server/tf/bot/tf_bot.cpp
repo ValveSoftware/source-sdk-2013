@@ -640,10 +640,8 @@ static int OW_AddTeamBots( int iTeam, int nBotsToAdd )
 		{
 			pBot->ChangeTeam( iTeam, false, false );
 		}
-		if ( !TFGameRules()->InSetup() )
-		{
-			pBot->SetMission( CTFBot::MISSION_SEEK_AND_DESTROY, false );
-		}
+
+		// Leave mission unset — stock CTFBotScenarioMonitor picks payload/KOTH/CTF behavior.
 
 		++iNumAdded;
 	}
@@ -735,8 +733,6 @@ void OW_TickBotSpawnQueue( void )
 	if ( iNumAdded > 0 )
 	{
 		s_flOWNextStaggeredSpawnTime = gpGlobals->curtime + 0.4f;
-		extern void OW_EnsureAllBotsHaveAI( void );
-		OW_EnsureAllBotsHaveAI();
 	}
 }
 
@@ -1527,6 +1523,12 @@ const char *CTFBot::GetNextSpawnClassname( void ) const
 	{
 		static const char *s_rimBotClasses[] = { "scout", "heavyweapons", "pyro" };
 		return s_rimBotClasses[ RandomInt( 0, ARRAYSIZE( s_rimBotClasses ) - 1 ) ];
+	}
+
+	if ( TFGameRules() && TFGameRules()->IsOverwatchMode() )
+	{
+		static const char *s_owBotClasses[] = { "scout", "heavyweapons", "pyro", "sniper", "medic", "engineer" };
+		return s_owBotClasses[ RandomInt( 0, ARRAYSIZE( s_owBotClasses ) - 1 ) ];
 	}
 #endif
 

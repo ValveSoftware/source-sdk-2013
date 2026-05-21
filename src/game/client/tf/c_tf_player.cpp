@@ -67,6 +67,7 @@
 #include "dt_utlvector_recv.h"
 #include "tf_item_wearable.h"
 #include "cam_thirdperson.h"
+#include "bm_client.h"
 #include "c_tf_projectile_arrow.h"
 #include "econ_entity.h"
 #include "ihasowner.h"
@@ -424,7 +425,16 @@ void SetAppropriateCamera( C_TFPlayer *pPlayer )
 	if ( pPlayer->IsLocalPlayer() == false )
 		return;
 
-	if ( TFGameRules() &&
+	if ( TFGameRules() && TFGameRules()->IsBombermanMode() )
+	{
+		g_ThirdPersonManager.SetForcedThirdPerson( true );
+		if ( !::input->CAM_IsThirdPerson() )
+		{
+			::input->CAM_ToThirdPerson();
+			pPlayer->ThirdPersonSwitch( true );
+		}
+	}
+	else if ( TFGameRules() &&
 		( ( TFGameRules()->IsInMedievalMode() && tf_medieval_thirdperson.GetBool() )
 		|| pPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) ) )
 	{
@@ -8377,6 +8387,14 @@ bool C_TFPlayer::IsOverridingViewmodel( void )
 void C_TFPlayer::OverrideView( CViewSetup *pSetup )
 {
 	BaseClass::OverrideView( pSetup );
+
+#ifdef SOURCESDK
+	if ( IsLocalPlayer() && TFGameRules() && TFGameRules()->IsBombermanMode() )
+	{
+		BM_ClientApplyTopDownCamera( this, pSetup );
+		return;
+	}
+#endif
 
 	TFPlayerClassData_t *pData = GetPlayerClass()->GetData();
 

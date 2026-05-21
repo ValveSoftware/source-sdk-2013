@@ -377,24 +377,44 @@ void OW_EnsureAllBotsHaveAI( void )
 		return;
 	}
 
-	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
-	{
-		CTFBot *pBot = dynamic_cast<CTFBot *>( UTIL_PlayerByIndex( i ) );
-		if ( !pBot || !pBot->IsBot() )
-		{
-			continue;
-		}
+	static bool s_bOWResetMissionsAfterSetup = false;
 
-		if ( TFGameRules()->InSetup() )
+	if ( TFGameRules()->InSetup() )
+	{
+		s_bOWResetMissionsAfterSetup = false;
+
+		// Idle during setup — prevents wall-flying from seek-and-destroy pathing.
+		for ( int i = 1; i <= gpGlobals->maxClients; ++i )
 		{
+			CTFBot *pBot = dynamic_cast<CTFBot *>( UTIL_PlayerByIndex( i ) );
+			if ( !pBot || !pBot->IsBot() )
+			{
+				continue;
+			}
+
 			if ( pBot->GetMission() != CTFBot::NO_MISSION )
 			{
 				pBot->SetMission( CTFBot::NO_MISSION, false );
 			}
 		}
-		else if ( pBot->GetMission() == CTFBot::NO_MISSION )
+		return;
+	}
+
+	// Once per round after setup: drop any forced mission so scenario monitor uses stock PL/KOTH/CTF AI.
+	if ( !s_bOWResetMissionsAfterSetup && TFGameRules()->State_Get() == GR_STATE_RND_RUNNING )
+	{
+		s_bOWResetMissionsAfterSetup = true;
+
+		for ( int i = 1; i <= gpGlobals->maxClients; ++i )
 		{
-			pBot->SetMission( CTFBot::MISSION_SEEK_AND_DESTROY, false );
+			CTFBot *pBot = dynamic_cast<CTFBot *>( UTIL_PlayerByIndex( i ) );
+			if ( !pBot || !pBot->IsBot() )
+			{
+				continue;
+			}
+
+			pBot->SetMission( CTFBot::NO_MISSION, false );
+			pBot->GetIntentionInterface()->Reset();
 		}
 	}
 }
@@ -421,7 +441,6 @@ void OW_OnHumanChangedTeam( CTFPlayer *pPlayer, int iNewTeam, int iOldTeam )
 	extern void OW_TickBotSpawnQueue( void );
 	OW_MaintainBotCounts();
 	OW_TickBotSpawnQueue();
-	OW_EnsureAllBotsHaveAI();
 }
 
 //-----------------------------------------------------------------------------

@@ -349,6 +349,7 @@ public:
 	bool			IsRainbowIsMagicMode() const;
 	bool			IsRimPistolOnly() const;
 	bool			IsOverwatchMode() const;
+	bool			IsBombermanMode() const;
 	void			OW_ConfigureMatch( void );
 	void			OW_TickMatch( void );
 #endif

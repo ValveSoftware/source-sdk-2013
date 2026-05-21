@@ -689,6 +689,7 @@ public:
 	CNetworkVar( float, m_flOWCooldown2 );
 	bool	m_bOWHeroLocked;
 	float	m_flOWCooldownEnd[3];
+	float	m_flBMNextGridSnapTime;
 #endif
 
 	int					StateGet( void ) const;

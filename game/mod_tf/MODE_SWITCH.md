@@ -13,11 +13,13 @@ Both **Overwatch-style heroes** and **Rainbow Is Magic (RIM)** stay in the mod. 
 
 Run `ff_mode` with no args to see the current mode.
 
-After switching, **reload the map** (`changelevel <map>`) so spawn logic, objectives, and bots match the new mode.
+`ff_mode <name>` now also runs the matching `mode_*.cfg`. For a full switch (cfg + map), use `ff_play` below.
 
 ## One-command launch (recommended)
 
 Use `ff_play` to apply mode, execute the right cfg, and switch map in one step:
+
+Or load shortcuts once: `exec ff_aliases.cfg`, then `ff_ow`, `ff_rim`, `ff_bomber`, or `ff_stock`.
 
 - `ff_play ow` -> defaults to `koth_badlands`
 - `ff_play rim` -> defaults to `plr_hightower`
@@ -47,4 +49,8 @@ Legacy `tf_ow_mode` / `tf_rim_mode` still work; the server keeps them mutually e
 
 ## Code
 
-Mode checks live in `CTFGameRules::IsOverwatchMode()` / `IsRainbowIsMagicMode()` in `tf_gamerules.cpp`. RIM entities and win logic remain compiled under `#ifdef SOURCESDK` and only run when mode `2` is active.
+Mode checks live in `CTFGameRules::IsOverwatchMode()` / `IsRainbowIsMagicMode()` / `IsBombermanMode()` in `tf_gamerules.cpp`. Custom logic only runs for the active `tf_ff_game_mode` value.
+
+**RIM bots:** after the round is running, `rim_add_bots` or `exec rim_quickstart`.
+
+**Bomber:** see `BOMBERMAN.md`; align grid with `getpos` then `tf_bm_grid_origin`.

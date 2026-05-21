@@ -435,6 +435,7 @@ $Project "Client (TF)"
 			$File	"tf\tf_hud_weaponselection.cpp"
 			$File	"tf\tf_hud_winpanel.cpp"
 			$File	"tf\tf_hud_winpanel.h"
+			$File	"tf\tf_hud_ow.cpp" [$SOURCESDK]
 			$File	"tf\vgui\tf_imagepanel.cpp"
 			$File	"tf\vgui\tf_imagepanel.h"
 			$File	"tf\vgui\tf_item_card_panel.cpp"
@@ -487,6 +488,8 @@ $Project "Client (TF)"
 			$File	"tf\c_tf_taunt_prop.cpp"
 			$File	"tf\c_tf_mr_bear.h" [$SOURCESDK]
 			$File	"tf\c_tf_mr_bear.cpp" [$SOURCESDK]
+			$File	"tf\bm_client.h" [$SOURCESDK]
+			$File	"tf\bm_client.cpp" [$SOURCESDK]
 			$File	"$SRCDIR\game\shared\tf\ihasgenericmeter.h"
 			$File	"$SRCDIR\game\shared\tf\quest_objective_trackers.cpp"
 			$File	"$SRCDIR\game\shared\tf\quest_objective_manager.cpp"

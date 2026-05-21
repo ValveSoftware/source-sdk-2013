@@ -19,8 +19,6 @@
 
 using namespace vgui;
 
-extern ConVar tf_ow_mode;
-
 //-----------------------------------------------------------------------------
 class CHudOWAbilities : public CHudElement, public vgui::Panel
 {
@@ -55,7 +53,7 @@ bool CHudOWAbilities::ShouldDraw( void )
 		return false;
 	}
 
-	if ( !tf_ow_mode.GetBool() )
+	if ( !TFGameRules() || !TFGameRules()->IsOverwatchMode() )
 	{
 		return false;
 	}

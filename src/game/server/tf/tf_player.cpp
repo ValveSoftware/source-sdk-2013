@@ -79,6 +79,7 @@
 #include "tf_obj_sentrygun.h"
 #ifdef SOURCESDK
 #include "ow_player_system.h"
+#include "bm_player_system.h"
 #include "ow_shareddefs.h"
 #endif
 #include "tf_weapon_shovel.h"
@@ -982,6 +983,7 @@ CTFPlayer::CTFPlayer()
 	m_flOWCooldownEnd[1] = 0.0f;
 	m_flOWCooldownEnd[2] = 0.0f;
 	m_bOWHeroLocked = false;
+	m_flBMNextGridSnapTime = 0.0f;
 #endif
 
 	m_flWaterExitTime = 0;
@@ -2147,7 +2149,11 @@ void CTFPlayer::PostSpawnThink( void )
 	}
 
 #ifdef SOURCESDK
-	if ( IsAlive() && TFGameRules() && TFGameRules()->IsOverwatchMode() )
+	if ( IsAlive() && TFGameRules() && TFGameRules()->IsBombermanMode() )
+	{
+		BM_OnPlayerSpawn( this );
+	}
+	else if ( IsAlive() && TFGameRules() && TFGameRules()->IsOverwatchMode() )
 	{
 		OW_OnPlayerSpawn( this );
 	}
@@ -3274,6 +3280,13 @@ void CTFPlayer::PlayerRunCommand( CUserCmd *ucmd, IMoveHelper *moveHelper )
 			// invisible on their end.
 		}
 	}
+
+#ifdef SOURCESDK
+	if ( TFGameRules() && TFGameRules()->IsBombermanMode() )
+	{
+		BM_PlayerRunCommand( this, ucmd );
+	}
+#endif
 
 	BaseClass::PlayerRunCommand( ucmd, moveHelper );
 

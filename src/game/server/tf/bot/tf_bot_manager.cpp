@@ -477,13 +477,6 @@ void CTFBotManager::MaintainBotQuota()
 
 				pBot->HandleCommand_JoinClass( pBot->GetNextSpawnClassname() );
 
-#ifdef SOURCESDK
-				if ( TFGameRules() && TFGameRules()->IsOverwatchMode() && !TFGameRules()->InSetup() )
-				{
-					pBot->SetMission( CTFBot::MISSION_SEEK_AND_DESTROY, false );
-				}
-#endif
-
 				// give the bot a proper name
 				char name[256];
 				CTFBot::DifficultyType skill = pBot->GetDifficulty();

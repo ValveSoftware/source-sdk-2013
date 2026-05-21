@@ -12,17 +12,15 @@
 
 See **`MODE_SWITCH.md`** for full detail.
 
-- `ff_mode ow` / `ff_mode rim` / `ff_mode stock`
-- `exec mode_ow.cfg` / `mode_rim.cfg` / `mode_stock.cfg`
-- Canonical: `tf_ff_game_mode` — `0` stock, `1` OW, `2` RIM
-
-Reload the map after switching.
+- `ff_play ow` / `ff_play rim` / `ff_play bomber` / `ff_play stock` — one command (cfg + map)
+- `ff_mode ow` — sets mode + runs cfg (reload map or use `ff_play` for full switch)
+- Canonical: `tf_ff_game_mode` — `0` stock, `1` OW, `2` RIM, `3` Frog Bomber
 
 ## ConVars
 
 | ConVar | Default | Purpose |
 |--------|---------|---------|
-| `tf_ff_game_mode` | 1 | Mode switch: 0=stock, 1=OW, 2=RIM |
+| `tf_ff_game_mode` | 1 | Mode switch: 0=stock, 1=OW, 2=RIM, 3=Bomber |
 | `tf_ow_mode` | 1 | OW hero shooter (synced from `tf_ff_game_mode`) |
 | `tf_rim_mode` | 0 | RIM hostage mode (synced when mode 2) |
 | `tf_ow_bots_per_team` | 5 | Bots on each team at round start |
@@ -39,6 +37,10 @@ Reload the map after switching.
 
 - `ow_roster` — list heroes
 - `ow_add_bots` — top up bots to the 5v5 (+ bonus) targets
+
+## Bots (OW mode)
+
+OW uses **stock TF bot AI** (payload push, KOTH cap, CTF, etc.) — not seek-and-destroy wander. Bots spawn after map setup ends, staggered. RIM mode still uses custom bear-hunt behavior.
 - `ow_hero <name>` — pick hero (spawn room only if locked)
 
 ## Archived RIM
