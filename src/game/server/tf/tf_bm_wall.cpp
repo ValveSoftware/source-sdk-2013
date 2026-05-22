@@ -38,10 +38,10 @@ void CTFBMWall::Spawn( void )
 
 	BM_ApplyPropModelOrHidden( assert_cast<CBaseAnimating *>( this ), g_BMWallModels, ARRAYSIZE( g_BMWallModels ), 1.0f );
 
-	const float flHalf = BM_GetCellSize() * 0.42f;
-	UTIL_SetSize( this, Vector( -flHalf, -flHalf, 0 ), Vector( flHalf, flHalf, 72 ) );
+	// Grid logic blocks movement; SOLID_BBOX here caused invisible hull hits (models are EF_NODRAW).
+	UTIL_SetSize( this, vec3_origin, vec3_origin );
 
-	SetSolid( SOLID_BBOX );
+	SetSolid( SOLID_NONE );
 	SetMoveType( MOVETYPE_NONE );
 	AddEffects( EF_NOSHADOW );
 	SetCollisionGroup( COLLISION_GROUP_NONE );

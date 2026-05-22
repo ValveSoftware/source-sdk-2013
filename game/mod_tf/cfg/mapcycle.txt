@@ -1,5 +1,4 @@
-plr_hightower
+itemtest
 koth_badlands
 ctf_2fort
-cp_dustbowl
-pl_upward
+plr_hightower

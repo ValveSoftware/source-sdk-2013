@@ -17,7 +17,13 @@ void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd );
 void BM_SnapPlayerToGrid( CTFPlayer *pPlayer );
 void BM_RespawnAllPlayers( void );
 void BM_EnsurePlayerInArena( CTFPlayer *pPlayer );
+bool BM_UseGridMovement( CTFPlayer *pPlayer );
 void BM_ApplySkyPlayMovement( CTFPlayer *pPlayer );
+bool BM_IsPlayerMovementUnlocked( CTFPlayer *pPlayer );
+void BM_SetPlayerMovementUnlocked( CTFPlayer *pPlayer, bool bUnlocked );
+bool BM_IsFreeForAll( void );
+int BM_GetPlayerSpawnSlot( CTFPlayer *pPlayer );
+void BM_EnsurePlayerJoinedMatch( CTFPlayer *pPlayer );
 
 #endif
 

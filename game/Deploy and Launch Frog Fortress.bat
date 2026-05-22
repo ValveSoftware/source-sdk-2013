@@ -1,5 +1,5 @@
 @echo off
-title Deploy + Launch Frog Fortress 2 (RIM)
+title Deploy + Launch Frog Fortress (Bomber)
 cd /d "%~dp0"
 
 echo Copying latest server.dll...
@@ -17,7 +17,7 @@ if exist "%~dp0..\src\game\client\Release_mod_tf\client.dll" (
 
 echo.
 echo Launching Frog Fortress 2...
-echo   Map: plr_hightower  |  Console: F1 or `
+echo   Map: itemtest (Frog Bomber)  |  Console: F1 or `
 echo   Steam: set Working Directory to this game folder if you use Non-Steam shortcut.
 echo.
-start "" "%~dp0mod_tf_win64.exe" -game mod_tf -console -insecure +sv_lan 1 +con_enable 1 +map koth_badlands +exec ow_quickstart
+start "" "%~dp0mod_tf_win64.exe" -game mod_tf -console -insecure +sv_lan 1 +con_enable 1 +map itemtest

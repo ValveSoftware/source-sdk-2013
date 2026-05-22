@@ -5,6 +5,10 @@
 #ifdef SOURCESDK
 
 bool BM_IsArenaActive( void );
+bool BM_IsBomberGameplayActive( void );
+bool BM_IsMapFloorArena( void );
+bool BM_IsInsideItemtestPlayRoom( const Vector &vecPos );
+void BM_GetPlayAreaWorldBounds( float &flMinX, float &flMinY, float &flMaxX, float &flMaxY );
 bool BM_IsInsideArenaCell( int iCellX, int iCellY );
 bool BM_IsHardWallCell( int iCellX, int iCellY );
 CBaseEntity *BM_GetSkySpawnEntity( CTFPlayer *pPlayer );

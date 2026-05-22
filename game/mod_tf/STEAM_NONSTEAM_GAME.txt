@@ -6,15 +6,14 @@ Right-click → Properties → General:
     C:\Users\simon\source\repos\source-sdk-2013\game
 
 Launch Options:
-  -game mod_tf -console -insecure +sv_lan 1 +con_enable 1 +map koth_badlands +exec ow_quickstart
+  -game mod_tf -console -insecure +sv_lan 1 +con_enable 1 +map itemtest
 
 Or double-click:
   game\Deploy and Launch Frog Fortress.bat
 
-In-game:
-  tf_ow_mode 1          (Overwatch-style heroes — default)
-  tf_rim_mode 1         (archived Rainbow Is Magic hostage mode)
-  Pick team → class menu shows 6 heroes
-  Q / E / Shift / R     abilities + ultimate
-  F2–F7                 quick hero pick in spawn
-  ow_roster             list heroes
+In-game (default = Frog Bomber on itemtest):
+  tf_bm_build_id          // expect reset-v20-bomber-default
+  ff_ow                   // switch to Overwatch heroes (koth_badlands)
+  ff_rim                  // Rainbow Is Magic hostage mode
+  ff_bomber               // back to bomber / itemtest
+  WASD + MOUSE1           // grid move + bomb (Scout)

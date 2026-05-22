@@ -1,6 +1,6 @@
 "GameInfo"
 {
-	game					"Frog Fortress OW"
+	game					"Frog Fortress (Bomber)"
 	type 					multiplayer_only
 	nomodels				0
 	nohimodel 				1

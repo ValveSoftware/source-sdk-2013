@@ -4,6 +4,7 @@
 #ifdef SOURCESDK
 
 #include "bm_player_system.h"
+#include "bm_shareddefs.h"
 #include "bm_grid.h"
 #include "tf_bm_bomb.h"
 #include "bm_arena.h"
@@ -11,7 +12,6 @@
 #include "tf_gamerules.h"
 #include "tf_weaponbase.h"
 #include "in_buttons.h"
-#include "filesystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -21,12 +21,165 @@ extern ConVar tf_bm_bomb_range;
 extern ConVar tf_bm_max_bombs;
 
 ConVar tf_bm_cell_size( "tf_bm_cell_size", "64", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: grid cell size in Hammer units." );
-ConVar tf_bm_grid_origin( "tf_bm_grid_origin", "0 0 0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: world origin of cell (0,0). Auto-set from team spawns on map load." );
-ConVar tf_bm_sky_arena( "tf_bm_sky_arena", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: legacy sky layer above the map (0=ground floor, use bm_arena map)." );
+ConVar tf_bm_grid_origin( "tf_bm_grid_origin", "0 0 0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: cell (0,0) world origin (server-written on build; do not set manually)." );
+ConVar tf_bm_sky_arena( "tf_bm_sky_arena", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: legacy sky layer above the map (0=ground floor on itemtest)." );
 ConVar tf_bm_sky_height( "tf_bm_sky_height", "3072", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: sky play plane height above map reference Z." );
 ConVar tf_bm_play_z_offset( "tf_bm_play_z_offset", "8", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: player feet offset above grid origin Z." );
+ConVar tf_bm_floor_drop( "tf_bm_floor_drop", "288", FCVAR_REPLICATED | FCVAR_NOTIFY, "itemtest: legacy target depth below spawn (auto uses floor_deck)." );
+ConVar tf_bm_floor_deck( "tf_bm_floor_deck", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "itemtest: which floor below spawns (0=first, 1=basement deck, 2=deeper)." );
+ConVar tf_bm_floor_z_override( "tf_bm_floor_z_override", "-135", FCVAR_REPLICATED | FCVAR_NOTIFY, "Grid floor Z. -135 = room floor (~feet at -127). 0 = auto trace." );
+ConVar tf_bm_arena_center_x( "tf_bm_arena_center_x", "1664", FCVAR_REPLICATED | FCVAR_NOTIFY, "itemtest: unused — grid uses tf_bm_room_* / hardcoded play room." );
+ConVar tf_bm_arena_center_y( "tf_bm_arena_center_y", "-1408", FCVAR_REPLICATED | FCVAR_NOTIFY, "itemtest: unused — grid uses tf_bm_room_* / hardcoded play room." );
+ConVar tf_bm_room_min_x( "tf_bm_room_min_x", "1304.03125", FCVAR_REPLICATED | FCVAR_NOTIFY, "itemtest play room AABB min X (SE/SW corners)." );
+ConVar tf_bm_room_min_y( "tf_bm_room_min_y", "-2535.97412", FCVAR_REPLICATED | FCVAR_NOTIFY, "itemtest play room AABB min Y (south corners)." );
+ConVar tf_bm_room_max_x( "tf_bm_room_max_x", "2023.96875", FCVAR_REPLICATED | FCVAR_NOTIFY, "itemtest play room AABB max X (NE/NW corners)." );
+ConVar tf_bm_room_max_y( "tf_bm_room_max_y", "-280.03979", FCVAR_REPLICATED | FCVAR_NOTIFY, "itemtest play room AABB max Y (north corners)." );
 ConVar tf_bm_move_speed( "tf_bm_move_speed", "320", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: movement speed along one axis." );
+ConVar tf_bm_arena_lock( "tf_bm_arena_lock", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "1=enforce arena rules. 0=free walk (itemtest default). Per-player: bm_letgo / bm_lock." );
+ConVar tf_bm_grid_move( "tf_bm_grid_move", "0", FCVAR_REPLICATED | FCVAR_NOTIFY,
+	"1=classic 4-way grid steps. 0=normal TF movement in the play area (itemtest default)." );
+ConVar tf_bm_ffa( "tf_bm_ffa", "1", FCVAR_REPLICATED | FCVAR_NOTIFY,
+	"Bomberman: free-for-all (1=everyone can hurt everyone except self; teams only used for joining)." );
+
+//-----------------------------------------------------------------------------
+bool BM_IsFreeForAll( void )
+{
+	return tf_bm_ffa.GetBool();
+}
+
+//-----------------------------------------------------------------------------
+int BM_GetPlayerSpawnSlot( CTFPlayer *pPlayer )
+{
+	if ( !pPlayer )
+	{
+		return 0;
+	}
+
+	int iSlot = 0;
+	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
+	{
+		CTFPlayer *pOther = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+		if ( !pOther || !pOther->IsConnected() || pOther == pPlayer )
+		{
+			continue;
+		}
+
+		if ( BM_IsFreeForAll() )
+		{
+			if ( pOther->GetTeamNumber() >= FIRST_GAME_TEAM && pOther->GetUserID() < pPlayer->GetUserID() )
+			{
+				++iSlot;
+			}
+		}
+		else if ( pOther->GetTeamNumber() == pPlayer->GetTeamNumber() && pOther->GetUserID() < pPlayer->GetUserID() )
+		{
+			++iSlot;
+		}
+	}
+
+	return clamp( iSlot, 0, BM_MAX_SPAWN_SLOTS_PER_TEAM - 1 );
+}
+
+//-----------------------------------------------------------------------------
+void BM_EnsurePlayerJoinedMatch( CTFPlayer *pPlayer )
+{
+	if ( !pPlayer || !BM_IsFreeForAll() )
+	{
+		return;
+	}
+
+	if ( pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM )
+	{
+		return;
+	}
+
+	pPlayer->ChangeTeam( TF_TEAM_RED, true, true );
+}
 static bool s_bBMGridAligned = false;
+static bool s_bBMLetGo[MAX_PLAYERS + 1];
+
+//-----------------------------------------------------------------------------
+static void BM_ReleaseArenaMovementLocks( CTFPlayer *pPlayer )
+{
+	if ( !pPlayer )
+	{
+		return;
+	}
+
+	pPlayer->SetMoveType( MOVETYPE_WALK );
+	pPlayer->SetGravity( 1.0f );
+	pPlayer->RemoveFlag( FL_FLY );
+	pPlayer->SetGroundEntity( NULL );
+}
+
+//-----------------------------------------------------------------------------
+bool BM_UseGridMovement( CTFPlayer *pPlayer )
+{
+	if ( !pPlayer || !pPlayer->IsAlive() || !TFGameRules() || !TFGameRules()->IsBombermanMode() )
+	{
+		return false;
+	}
+
+	if ( BM_IsPlayerMovementUnlocked( pPlayer ) )
+	{
+		return false;
+	}
+
+	return tf_bm_grid_move.GetBool();
+}
+
+//-----------------------------------------------------------------------------
+bool BM_IsPlayerMovementUnlocked( CTFPlayer *pPlayer )
+{
+	if ( !pPlayer || !pPlayer->IsAlive() )
+	{
+		return false;
+	}
+
+	if ( !TFGameRules() || !TFGameRules()->IsBombermanMode() )
+	{
+		return true;
+	}
+
+	if ( !tf_bm_arena_lock.GetBool() )
+	{
+		return true;
+	}
+
+	const int iIndex = pPlayer->entindex();
+	if ( iIndex >= 0 && iIndex <= MAX_PLAYERS && s_bBMLetGo[iIndex] )
+	{
+		return true;
+	}
+
+	if ( pPlayer->GetMoveType() == MOVETYPE_NOCLIP || pPlayer->GetMoveType() == MOVETYPE_OBSERVER )
+	{
+		return true;
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+void BM_SetPlayerMovementUnlocked( CTFPlayer *pPlayer, bool bUnlocked )
+{
+	if ( !pPlayer )
+	{
+		return;
+	}
+
+	const int iIndex = pPlayer->entindex();
+	if ( iIndex < 0 || iIndex > MAX_PLAYERS )
+	{
+		return;
+	}
+
+	s_bBMLetGo[iIndex] = bUnlocked;
+	if ( bUnlocked )
+	{
+		BM_ReleaseArenaMovementLocks( pPlayer );
+	}
+}
 
 //-----------------------------------------------------------------------------
 void BM_MarkGridAligned( void )
@@ -90,23 +243,163 @@ void BM_CellToWorldCenter( int iCellX, int iCellY, Vector &vecCenter )
 }
 
 //-----------------------------------------------------------------------------
-void BM_FindFloorAtXY( const Vector &vecXY, float flRefZ, CTFPlayer *pPlayer, Vector &vecFloor )
+static void BM_CollectFloorHeightsBelow( const Vector &vecXY, float flSpawnZ, CTFPlayer *pPlayer, CUtlVector<float> &vecFloors )
 {
-	if ( BM_UseIsolatedPlayPlane() && TFGameRules() && TFGameRules()->IsBombermanMode() )
+	vecFloors.RemoveAll();
+
+	float flZ = flSpawnZ + 192.0f;
+	float flLastHitZ = flSpawnZ + 512.0f;
+
+	for ( int iStep = 0; iStep < 48 && flZ > -4096.0f; ++iStep )
 	{
-		vecFloor = vecXY;
-		vecFloor.z = BM_GetPlayPlaneZ();
-		return;
+		Vector vecStart( vecXY.x, vecXY.y, flZ );
+		Vector vecEnd( vecXY.x, vecXY.y, flZ - 128.0f );
+
+		trace_t trace;
+		UTIL_TraceHull( vecStart, vecEnd, VEC_HULL_MIN, VEC_HULL_MAX, MASK_PLAYERSOLID, pPlayer, COLLISION_GROUP_PLAYER, &trace );
+
+		if ( trace.DidHit() && trace.endpos.z < flLastHitZ - 20.0f )
+		{
+			vecFloors.AddToTail( trace.endpos.z );
+			flLastHitZ = trace.endpos.z;
+			flZ = trace.endpos.z - 48.0f;
+		}
+		else
+		{
+			flZ -= 128.0f;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// itemtest basement walkable top (Hammer units). Tune with tf_bm_floor_z_override.
+//-----------------------------------------------------------------------------
+static const float BM_ITEMTEST_BASEMENT_FLOOR_Z = -135.0f;
+
+//-----------------------------------------------------------------------------
+static float BM_PickItemtestPlayFloorZ( const Vector &vecXY, float flSpawnZ, CTFPlayer *pPlayer )
+{
+	const float flOverride = tf_bm_floor_z_override.GetFloat();
+	if ( flOverride < -128.0f )
+	{
+		Msg( "BM arena: itemtest floor override Z=%.0f.\n", flOverride );
+		return flOverride;
 	}
 
-	Vector vecStart( vecXY.x, vecXY.y, flRefZ + 512.0f );
-	Vector vecEnd( vecXY.x, vecXY.y, flRefZ - 4096.0f );
+	CUtlVector<float> vecFloors;
+	BM_CollectFloorHeightsBelow( vecXY, flSpawnZ, pPlayer, vecFloors );
+
+	// Keep only decks below the upper teamspawns, not void under the basement slab.
+	CUtlVector<float> vecDecks;
+	for ( int i = 0; i < vecFloors.Count(); ++i )
+	{
+		const float flZ = vecFloors[i];
+		if ( flZ <= flSpawnZ - 48.0f && flZ >= flSpawnZ - tf_bm_floor_drop.GetFloat() )
+		{
+			vecDecks.AddToTail( flZ );
+		}
+	}
+
+	int iDeck = clamp( tf_bm_floor_deck.GetInt(), 0, Max( 0, vecDecks.Count() - 1 ) );
+
+	if ( vecDecks.Count() > 0 )
+	{
+		// vecDecks is collected top-to-bottom; index 0 = highest deck below spawns.
+		const float flBestZ = vecDecks[iDeck];
+		Msg( "BM arena: itemtest decks=%d using deck[%d] Z=%.0f (spawn Z=%.0f, highest=%.0f).\n",
+			vecDecks.Count(), iDeck, flBestZ, flSpawnZ, vecDecks[0] );
+		return flBestZ;
+	}
+
+	// Trace missed — use tuned constant (top of basement floor, not void below).
+	Warning( "BM arena: no itemtest decks traced — default basement Z=%.0f (spawn %.0f).\n",
+		BM_ITEMTEST_BASEMENT_FLOOR_Z, flSpawnZ );
+	return BM_ITEMTEST_BASEMENT_FLOOR_Z;
+}
+
+//-----------------------------------------------------------------------------
+static bool BM_IsPlayerOnGroundNearPlayPlane( CTFPlayer *pPlayer )
+{
+	if ( !pPlayer )
+	{
+		return false;
+	}
+
+	const Vector vecPos = pPlayer->GetAbsOrigin();
+	Vector vecStart( vecPos.x, vecPos.y, vecPos.z + 8.0f );
+	Vector vecEnd( vecPos.x, vecPos.y, vecPos.z - 96.0f );
 
 	trace_t trace;
 	UTIL_TraceHull( vecStart, vecEnd, VEC_HULL_MIN, VEC_HULL_MAX, MASK_PLAYERSOLID, pPlayer, COLLISION_GROUP_PLAYER, &trace );
 
+	if ( !trace.DidHit() )
+	{
+		return false;
+	}
+
+	const float flPlayZ = BM_GetPlayPlaneZ();
+	return ( fabsf( trace.endpos.z - flPlayZ ) <= 72.0f && fabsf( vecPos.z - trace.endpos.z ) <= 24.0f );
+}
+
+//-----------------------------------------------------------------------------
+void BM_ClearHullFromWorld( Vector &vecDest, CTFPlayer *pPlayer )
+{
+	const float flPlayZ = BM_GetPlayPlaneZ();
+	Vector vecStart( vecDest.x, vecDest.y, flPlayZ + 72.0f );
+	Vector vecEnd( vecDest.x, vecDest.y, flPlayZ - 128.0f );
+
+	trace_t trace;
+	UTIL_TraceHull( vecStart, vecEnd, VEC_HULL_MIN, VEC_HULL_MAX, MASK_PLAYERSOLID, pPlayer, COLLISION_GROUP_PLAYER, &trace );
+	vecDest.z = trace.DidHit() ? trace.endpos.z : flPlayZ;
+
+	for ( int i = 0; i < 24; ++i )
+	{
+		UTIL_TraceHull( vecDest, vecDest, VEC_HULL_MIN, VEC_HULL_MAX, MASK_PLAYERSOLID, pPlayer, COLLISION_GROUP_PLAYER, &trace );
+		if ( !trace.startsolid && !trace.allsolid )
+		{
+			return;
+		}
+
+		vecDest.z += 16.0f;
+	}
+}
+
+//-----------------------------------------------------------------------------
+void BM_FindFloorAtXY( const Vector &vecXY, float flRefZ, CTFPlayer *pPlayer, Vector &vecFloor )
+{
 	vecFloor = vecXY;
-	vecFloor.z = trace.DidHit() ? ( trace.endpos.z + 8.0f ) : flRefZ;
+
+	if ( BM_IsArenaActive() )
+	{
+		vecFloor.z = BM_GetPlayPlaneZ() - tf_bm_play_z_offset.GetFloat();
+		return;
+	}
+
+	if ( BM_UseIsolatedPlayPlane() && TFGameRules() && TFGameRules()->IsBombermanMode() )
+	{
+		vecFloor.z = BM_GetPlayPlaneZ() - tf_bm_play_z_offset.GetFloat();
+		return;
+	}
+
+	float flFloorZ = flRefZ;
+	if ( BM_IsMapFloorArena() )
+	{
+		flFloorZ = BM_PickItemtestPlayFloorZ( vecXY, flRefZ, pPlayer );
+	}
+	else
+	{
+		Vector vecStart( vecXY.x, vecXY.y, flRefZ + 512.0f );
+		Vector vecEnd( vecXY.x, vecXY.y, flRefZ - 4096.0f );
+
+		trace_t trace;
+		UTIL_TraceHull( vecStart, vecEnd, VEC_HULL_MIN, VEC_HULL_MAX, MASK_PLAYERSOLID, pPlayer, COLLISION_GROUP_PLAYER, &trace );
+		if ( trace.DidHit() )
+		{
+			flFloorZ = trace.endpos.z;
+		}
+	}
+
+	vecFloor.z = flFloorZ;
 }
 
 //-----------------------------------------------------------------------------
@@ -152,14 +445,10 @@ void BM_ResetGridAlign( void )
 //-----------------------------------------------------------------------------
 void BM_AutoAlignGridFromSpawns( void )
 {
-	// Arena build sets grid origin; this early pass only helps before the round starts.
-	if ( BM_IsArenaActive() )
+	if ( BM_EnsureArenaBuilt() )
 	{
 		BM_MarkGridAligned();
-		return;
 	}
-
-	BM_BuildArena( false );
 }
 
 //-----------------------------------------------------------------------------
@@ -172,14 +461,30 @@ void BM_ConfigureMatch( void )
 
 	extern ConVar tf_bot_quota;
 	extern ConVar mp_autoteambalance;
+	extern ConVar friendlyfire;
 	tf_bot_quota.SetValue( 0 );
 	mp_autoteambalance.SetValue( 0 );
 
-	BM_BuildArena( false );
+	if ( BM_IsFreeForAll() )
+	{
+		friendlyfire.SetValue( 1 );
+	}
 
-	UTIL_ClientPrintAll( HUD_PRINTTALK, "Frog Bomber: classic arena — hard walls, soft crates!" );
-	Msg( "BM: match started — cell=%.0f origin=(%s) fuse=%.1fs range=%d\n",
-		BM_GetCellSize(), tf_bm_grid_origin.GetString(), tf_bm_bomb_fuse.GetFloat(), tf_bm_bomb_range.GetInt() );
+	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
+	{
+		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+		if ( pPlayer && pPlayer->IsConnected() )
+		{
+			BM_EnsurePlayerJoinedMatch( pPlayer );
+		}
+	}
+
+	// Arena is built once in FF_TickPostMapSetup (after mode_bomber.cfg). Do not rebuild here.
+	BM_EnsureArenaBuilt();
+
+	Msg( "BM: round running — cell=%.0f origin=(%s) fuse=%.1fs range=%d (arena %s)\n",
+		BM_GetCellSize(), tf_bm_grid_origin.GetString(), tf_bm_bomb_fuse.GetFloat(), tf_bm_bomb_range.GetInt(),
+		BM_IsArenaActive() ? "ready" : "pending post-map build" );
 }
 
 //-----------------------------------------------------------------------------
@@ -200,6 +505,8 @@ void BM_RespawnAllPlayers( void )
 
 		pPlayer->m_iBMActiveBombs = 0;
 		pPlayer->m_bBMSpawnConfigured = false;
+		BM_SetPlayerMovementUnlocked( pPlayer, false );
+		BM_ResetArenaSpawnDebounce( pPlayer );
 		pPlayer->ForceRespawn();
 	}
 }
@@ -216,9 +523,10 @@ void BM_FixMatch( void )
 	extern void BM_RemoveStrayArenaProps( void );
 	extern ConVar tf_bm_build_id;
 	BM_RemoveStrayArenaProps();
-	BM_BuildArena( true );
+	BM_BuildArena( true, true );
 	BM_RespawnAllPlayers();
-	UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Bomber [%s]: arena rebuilt — RED/BLU Scout.", tf_bm_build_id.GetString() ) );
+	UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Bomber [%s]: arena rebuilt — Scout %s.",
+		tf_bm_build_id.GetString(), BM_IsFreeForAll() ? "FFA" : "RED/BLU" ) );
 	Msg( "BM: bm_fix — arena rebuilt.\n" );
 }
 
@@ -230,28 +538,55 @@ static void CC_BM_Fix( const CCommand &args )
 static ConCommand bm_fix( "bm_fix", CC_BM_Fix, "Rebuild bomber arena and warp/respawn players.", FCVAR_GAMEDLL );
 
 //-----------------------------------------------------------------------------
-static void CC_BM_MapStatus( const CCommand &args )
+static void CC_BM_LetGo( const CCommand &args )
 {
-	const char *pszMap = STRING( gpGlobals->mapname );
-	const bool bHasArenaBsp = g_pFullFileSystem && g_pFullFileSystem->FileExists( "maps/bm_arena.bsp", "GAME" );
+	CTFPlayer *pIssuer = ToTFPlayer( UTIL_GetCommandClient() );
 
-	Msg( "BM map status: current map='%s' bm_arena.bsp=%s arena_active=%d grid_aligned=%d\n",
-		pszMap ? pszMap : "?",
-		bHasArenaBsp ? "YES" : "NO",
-		BM_IsArenaActive() ? 1 : 0,
-		s_bBMGridAligned ? 1 : 0 );
+	if ( pIssuer )
+	{
+		BM_SetPlayerMovementUnlocked( pIssuer, true );
+		ClientPrint( pIssuer, HUD_PRINTTALK, "bm_letgo: arena lock OFF — use noclip, fly, getpos. bm_lock when done." );
+		Msg( "BM: bm_letgo — released %s (arena warp/grid snap disabled).\n", pIssuer->GetPlayerName() );
+		return;
+	}
 
-	if ( !bHasArenaBsp )
+	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
 	{
-		UTIL_ClientPrintAll( HUD_PRINTTALK, "No maps/bm_arena.bsp — using itemtest. Run mapsrc/compile_bm_arena.bat after installing Source SDK 2013 MP." );
+		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+		if ( pPlayer && pPlayer->IsConnected() )
+		{
+			BM_SetPlayerMovementUnlocked( pPlayer, true );
+		}
 	}
-	else
-	{
-		UTIL_ClientPrintAll( HUD_PRINTTALK, "maps/bm_arena.bsp found — ff_play bomber will load bm_arena." );
-	}
+
+	UTIL_ClientPrintAll( HUD_PRINTTALK, "bm_letgo: all players released — noclip/fly OK." );
+	Msg( "BM: bm_letgo — all players released.\n" );
 }
 
-static ConCommand bm_map_status( "bm_map_status", CC_BM_MapStatus, "Show whether bm_arena.bsp exists and bomber arena state.", FCVAR_GAMEDLL );
+//-----------------------------------------------------------------------------
+static void CC_BM_Lock( const CCommand &args )
+{
+	CTFPlayer *pIssuer = ToTFPlayer( UTIL_GetCommandClient() );
+
+	if ( pIssuer )
+	{
+		BM_SetPlayerMovementUnlocked( pIssuer, false );
+		ClientPrint( pIssuer, HUD_PRINTTALK, "bm_lock: arena lock ON again." );
+		Msg( "BM: bm_lock — %s locked to grid.\n", pIssuer->GetPlayerName() );
+		return;
+	}
+
+	for ( int i = 0; i <= MAX_PLAYERS; ++i )
+	{
+		s_bBMLetGo[i] = false;
+	}
+
+	UTIL_ClientPrintAll( HUD_PRINTTALK, "bm_lock: arena lock ON for everyone." );
+	Msg( "BM: bm_lock — all players.\n" );
+}
+
+static ConCommand bm_letgo( "bm_letgo", CC_BM_LetGo, "Stop bomber warp/grid snap so noclip and fly work (host/cheat).", FCVAR_GAMEDLL );
+static ConCommand bm_lock( "bm_lock", CC_BM_Lock, "Re-enable bomber arena warp/grid snap.", FCVAR_GAMEDLL );
 
 //-----------------------------------------------------------------------------
 static bool BM_PlayerReadyForGameplay( CTFPlayer *pPlayer )
@@ -276,7 +611,9 @@ bool BM_TryPlaceBomb( CTFPlayer *pPlayer )
 	{
 		if ( !pPlayer->IsBot() )
 		{
-			ClientPrint( pPlayer, HUD_PRINTCENTER, "Join RED or BLU to play Frog Bomber." );
+			ClientPrint( pPlayer, HUD_PRINTCENTER, BM_IsFreeForAll()
+				? "Join a team (auto on spawn) to play Frog Bomber."
+				: "Join RED or BLU to play Frog Bomber." );
 		}
 		return false;
 	}
@@ -295,12 +632,6 @@ bool BM_TryPlaceBomb( CTFPlayer *pPlayer )
 	int iCellX = 0;
 	int iCellY = 0;
 	BM_WorldToCell( pPlayer->GetAbsOrigin(), iCellX, iCellY );
-
-	if ( BM_IsArenaActive() && !BM_IsInsideArenaCell( iCellX, iCellY ) )
-	{
-		BM_WarpPlayerToArenaSpawn( pPlayer );
-		BM_WorldToCell( pPlayer->GetAbsOrigin(), iCellX, iCellY );
-	}
 
 	if ( !BM_IsInsideArenaCell( iCellX, iCellY ) )
 	{
@@ -366,35 +697,37 @@ void BM_EnsurePlayerInArena( CTFPlayer *pPlayer )
 		return;
 	}
 
-	if ( !BM_IsArenaActive() )
-	{
-		BM_BuildArena( false );
-	}
-
-	if ( !BM_IsArenaActive() )
+	if ( BM_IsPlayerMovementUnlocked( pPlayer ) || !tf_bm_arena_lock.GetBool() )
 	{
 		return;
 	}
 
-	int iCellX = 0;
-	int iCellY = 0;
-	BM_WorldToCell( pPlayer->GetAbsOrigin(), iCellX, iCellY );
-
-	const bool bInsideCell = BM_IsInsideArenaCell( iCellX, iCellY );
-	const float flPlaneZ = BM_GetPlayPlaneZ();
-	const bool bOnPlayPlane = ( fabsf( pPlayer->GetAbsOrigin().z - flPlaneZ ) <= 32.0f );
-
-	if ( !bInsideCell || !bOnPlayPlane )
+	if ( !BM_EnsureArenaBuilt() )
 	{
-		BM_WarpPlayerToArenaSpawn( pPlayer );
+		return;
 	}
-	else if ( !tf_bm_sky_arena.GetBool() )
+
+	const float flPlayZ = BM_GetPlayPlaneZ();
+	const Vector &vecPos = pPlayer->GetAbsOrigin();
+
+	// Only recover from a fall — never warp for touching grid/map walls.
+	if ( vecPos.z >= flPlayZ - 96.0f )
 	{
-		Vector vecPos = pPlayer->GetAbsOrigin();
-		vecPos.z = flPlaneZ;
-		pPlayer->SetAbsOrigin( vecPos );
-		pPlayer->SetLocalOrigin( vecPos );
+		if ( BM_IsMapFloorArena() && BM_IsInsideItemtestPlayRoom( vecPos ) )
+		{
+			return;
+		}
+
+		int iCellX = 0;
+		int iCellY = 0;
+		BM_WorldToCell( vecPos, iCellX, iCellY );
+		if ( BM_IsInsideArenaCell( iCellX, iCellY ) && BM_IsPlayerOnGroundNearPlayPlane( pPlayer ) )
+		{
+			return;
+		}
 	}
+
+	BM_WarpPlayerToArenaSpawn( pPlayer );
 
 	if ( tf_bm_sky_arena.GetBool() )
 	{
@@ -403,11 +736,35 @@ void BM_EnsurePlayerInArena( CTFPlayer *pPlayer )
 }
 
 //-----------------------------------------------------------------------------
+float BM_GetItemtestPlayFloorGridZ( void )
+{
+	const float flOverride = tf_bm_floor_z_override.GetFloat();
+	if ( flOverride <= -64.0f || flOverride >= 64.0f )
+	{
+		return flOverride;
+	}
+
+	return BM_ITEMTEST_BASEMENT_FLOOR_Z;
+}
+
+//-----------------------------------------------------------------------------
 bool BM_OnPlayerSpawn( CTFPlayer *pPlayer )
 {
-	if ( !pPlayer || !TFGameRules() || !TFGameRules()->IsBombermanMode() )
+	extern bool BM_IsBomberGameplayActive( void );
+
+	if ( !pPlayer || !BM_IsBomberGameplayActive() )
 	{
 		return false;
+	}
+
+	BM_EnsurePlayerJoinedMatch( pPlayer );
+
+	// bm_letgo / noclip exploration must not skip the next respawn warp.
+	BM_ResetArenaSpawnDebounce( pPlayer );
+	BM_SetPlayerMovementUnlocked( pPlayer, false );
+	if ( pPlayer->GetMoveType() == MOVETYPE_NOCLIP )
+	{
+		pPlayer->SetMoveType( MOVETYPE_WALK );
 	}
 
 	if ( pPlayer->GetPlayerClass()->GetClassIndex() != TF_CLASS_SCOUT )
@@ -434,12 +791,14 @@ bool BM_OnPlayerSpawn( CTFPlayer *pPlayer )
 
 	const float flSpeed = tf_bm_move_speed.GetFloat();
 	pPlayer->SetMaxSpeed( flSpeed );
-	BM_EnsurePlayerInArena( pPlayer );
 
 	if ( !pPlayer->IsBot() )
 	{
 		extern ConVar tf_bm_build_id;
-		ClientPrint( pPlayer, HUD_PRINTCENTER, "Frog Bomber [%s1] — Scout on arena floor. MOUSE1 = bomb.", tf_bm_build_id.GetString() );
+		ClientPrint( pPlayer, HUD_PRINTCENTER, BM_IsFreeForAll()
+			? "Frog Bomber [%s1] — on the grid. MOUSE1 = bomb."
+			: "Frog Bomber [%s1] — Scout on arena floor. MOUSE1 = bomb.",
+			tf_bm_build_id.GetString() );
 	}
 
 	return true;
@@ -467,9 +826,9 @@ void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd )
 		return;
 	}
 
-	if ( pPlayer->GetTeamNumber() == TF_TEAM_RED || pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
+	if ( BM_IsPlayerMovementUnlocked( pPlayer ) )
 	{
-		BM_EnsurePlayerInArena( pPlayer );
+		return;
 	}
 
 	if ( !BM_PlayerReadyForGameplay( pPlayer ) )
@@ -478,6 +837,7 @@ void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd )
 	}
 
 	const int iPlaceButtons = IN_ATTACK | IN_ATTACK2 | IN_USE;
+	const bool bGridMove = BM_UseGridMovement( pPlayer );
 	const bool bPlacePressed = ( ucmd->buttons & iPlaceButtons ) && !( pPlayer->m_nBMPreviousButtons & iPlaceButtons );
 
 	if ( !BM_IsArenaActive() )
@@ -486,9 +846,21 @@ void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd )
 		if ( gpGlobals->curtime >= s_flNextArenaBuildTry )
 		{
 			s_flNextArenaBuildTry = gpGlobals->curtime + 1.0f;
-			BM_BuildArena( false );
+			BM_EnsureArenaBuilt();
 		}
 
+		if ( bPlacePressed )
+		{
+			BM_TryPlaceBomb( pPlayer );
+		}
+
+		pPlayer->m_nBMPreviousButtons = ucmd->buttons;
+		BM_StripMeleeAttackButtons( ucmd );
+		return;
+	}
+
+	if ( !bGridMove )
+	{
 		if ( bPlacePressed )
 		{
 			BM_TryPlaceBomb( pPlayer );
@@ -540,7 +912,9 @@ void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd )
 
 	if ( BM_IsArenaActive() && !BM_IsInsideArenaCell( iCellX, iCellY ) )
 	{
-		BM_EnsurePlayerInArena( pPlayer );
+		ucmd->forwardmove = 0.0f;
+		ucmd->sidemove = 0.0f;
+		pPlayer->m_bBMWasMoving = false;
 		pPlayer->m_nBMPreviousButtons = ucmd->buttons;
 		BM_StripMeleeAttackButtons( ucmd );
 		return;
@@ -630,19 +1004,7 @@ void BM_SnapPlayerToGrid( CTFPlayer *pPlayer )
 	}
 
 	pPlayer->SetAbsOrigin( vecSnapped );
-
-	// Yaw only — camera handles pitch on the client.
-	float flYaw = pPlayer->EyeAngles().y;
-	if ( pPlayer->m_bBMWasMoving )
-	{
-		Vector vecVel = pPlayer->GetAbsVelocity();
-		vecVel.z = 0.0f;
-		if ( vecVel.LengthSqr() > 1.0f )
-		{
-			flYaw = RAD2DEG( atan2f( vecVel.y, vecVel.x ) );
-		}
-	}
-	pPlayer->SnapEyeAngles( QAngle( 0, flYaw, 0 ) );
+	pPlayer->SetLocalOrigin( vecSnapped );
 }
 
 //-----------------------------------------------------------------------------

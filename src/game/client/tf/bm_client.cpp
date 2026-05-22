@@ -18,20 +18,23 @@
 #include "vgui/IVGui.h"
 #include "vgui/ILocalize.h"
 
-ConVar tf_bm_camera_mode( "tf_bm_camera_mode", "1", FCVAR_CLIENTDLL | FCVAR_ARCHIVE,
-	"Bomberman camera: 0=vanilla first-person, 1=top-down chase (recommended), 2=ortho (experimental)." );
+ConVar tf_bm_camera_mode( "tf_bm_camera_mode", "0", FCVAR_CLIENTDLL,
+	"Bomberman camera: 0=normal TF first-person (default), 1=top-down, 2=ortho (experimental)." );
 ConVar tf_bm_cam_height( "tf_bm_cam_height", "520", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: height above player (straight down)." );
 ConVar tf_bm_cam_pitch( "tf_bm_cam_pitch", "-89", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: camera pitch (-89 = top-down in TF)." );
 ConVar tf_bm_cam_back( "tf_bm_cam_back", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: horizontal offset (0 = overhead, avoids walls)." );
 ConVar tf_bm_clip_world( "tf_bm_clip_world", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: experimental roof clip (off)." );
 ConVar tf_bm_clip_height( "tf_bm_clip_height", "256", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: only used if tf_bm_clip_world is 1." );
-ConVar tf_bm_show_grid( "tf_bm_show_grid", "1", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: client grid overlay (recommended — server props are invisible)." );
-ConVar tf_bm_draw_floor( "tf_bm_draw_floor", "1", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: client floor tint overlay when props are missing." );
+ConVar tf_bm_show_grid( "tf_bm_show_grid", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE,
+	"Bomberman: 3D debug grid (NDebugOverlay). Off in first-person — use top-down cam or minimap HUD." );
+ConVar tf_bm_draw_floor( "tf_bm_draw_floor", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE,
+	"Bomberman: blue floor tint (NDebugOverlay). Off in first-person — causes a blinking horizon bar." );
 ConVar tf_bm_client_snap( "tf_bm_client_snap", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: client origin snap (0=server warp only)." );
+ConVar tf_bm_ffa( "tf_bm_ffa", "1", FCVAR_REPLICATED, "Bomberman: free-for-all (teams cosmetic / join only)." );
 
 // Replicated — defaults must match server (bm_arena.cpp / bm_player_system.cpp).
-ConVar tf_bm_arena_width( "tf_bm_arena_width", "15", FCVAR_REPLICATED, "Bomberman arena width in grid cells (odd, includes border walls)." );
-ConVar tf_bm_arena_height( "tf_bm_arena_height", "13", FCVAR_REPLICATED, "Bomberman arena height in grid cells (odd, includes border walls)." );
+ConVar tf_bm_arena_width( "tf_bm_arena_width", "11", FCVAR_REPLICATED, "Bomberman arena width in grid cells (odd, includes border walls)." );
+ConVar tf_bm_arena_height( "tf_bm_arena_height", "35", FCVAR_REPLICATED, "Bomberman arena height in grid cells (odd, includes border walls)." );
 ConVar tf_bm_cell_size( "tf_bm_cell_size", "64", FCVAR_REPLICATED, "Bomberman: grid cell size in Hammer units." );
 ConVar tf_bm_grid_origin( "tf_bm_grid_origin", "0 0 0", FCVAR_REPLICATED, "Bomberman: world origin of cell (0,0). Auto-set from team spawns on map load." );
 ConVar tf_bm_play_z_offset( "tf_bm_play_z_offset", "8", FCVAR_REPLICATED, "Bomberman: player feet offset above grid origin Z." );
@@ -43,6 +46,11 @@ static float s_flBMNextGridDrawTime = 0.0f;
 static void BM_ClientDrawGridOverlay( void );
 static void BM_ClientDrawArenaFloor( void );
 static bool BM_ClientGridReady( void );
+
+static bool BM_ClientShouldDrawWorldOverlays( void )
+{
+	return tf_bm_camera_mode.GetInt() > 0;
+}
 
 //-----------------------------------------------------------------------------
 void BM_ClientClearBomberCameraState( C_TFPlayer *pLocalPlayer )
@@ -179,7 +187,14 @@ static int BM_ClientGetSpawnSlot( C_TFPlayer *pLocalPlayer )
 			continue;
 		}
 
-		if ( pOther->GetTeamNumber() == pLocalPlayer->GetTeamNumber() && pOther->GetUserID() < pLocalPlayer->GetUserID() )
+		if ( tf_bm_ffa.GetBool() )
+		{
+			if ( pOther->GetTeamNumber() >= FIRST_GAME_TEAM && pOther->GetUserID() < pLocalPlayer->GetUserID() )
+			{
+				++iSlot;
+			}
+		}
+		else if ( pOther->GetTeamNumber() == pLocalPlayer->GetTeamNumber() && pOther->GetUserID() < pLocalPlayer->GetUserID() )
 		{
 			++iSlot;
 		}
@@ -202,9 +217,16 @@ static void BM_ClientGetSpawnCell( C_TFPlayer *pLocalPlayer, int &iCellX, int &i
 		++iHeight;
 	}
 
-	const bool bBlueTeam = ( pLocalPlayer && pLocalPlayer->GetTeamNumber() == TF_TEAM_BLUE );
 	const int iSlot = BM_ClientGetSpawnSlot( pLocalPlayer );
-	BM_GetSpawnCellForSlot( bBlueTeam, iSlot, iWidth, iHeight, iCellX, iCellY );
+	if ( tf_bm_ffa.GetBool() )
+	{
+		BM_GetSpawnCellForCorner( iSlot % 4, iSlot, iWidth, iHeight, iCellX, iCellY );
+	}
+	else
+	{
+		const bool bBlueTeam = ( pLocalPlayer && pLocalPlayer->GetTeamNumber() == TF_TEAM_BLUE );
+		BM_GetSpawnCellForSlot( bBlueTeam, iSlot, iWidth, iHeight, iCellX, iCellY );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -441,6 +463,42 @@ void BM_ClientApplyBomberViewCmd( C_TFPlayer *pLocalPlayer, CUserCmd *pCmd )
 }
 
 //-----------------------------------------------------------------------------
+void BM_ClientTickGameplayOverlays( void )
+{
+	if ( !TFGameRules() || !TFGameRules()->IsBombermanMode() )
+	{
+		return;
+	}
+
+	C_TFPlayer *pLocal = C_TFPlayer::GetLocalTFPlayer();
+	if ( !pLocal || !pLocal->IsAlive() || pLocal->GetTeamNumber() < FIRST_GAME_TEAM )
+	{
+		return;
+	}
+
+	if ( gpGlobals->curtime < s_flBMNextGridDrawTime )
+	{
+		return;
+	}
+
+	s_flBMNextGridDrawTime = gpGlobals->curtime + 0.1f;
+
+	if ( !BM_ClientShouldDrawWorldOverlays() )
+	{
+		return;
+	}
+
+	if ( tf_bm_draw_floor.GetBool() )
+	{
+		BM_ClientDrawArenaFloor();
+	}
+	if ( tf_bm_show_grid.GetBool() )
+	{
+		BM_ClientDrawGridOverlay();
+	}
+}
+
+//-----------------------------------------------------------------------------
 void BM_ClientCreateMove( C_TFPlayer *pLocalPlayer, CUserCmd *pCmd )
 {
 	if ( !pLocalPlayer || !pCmd || !BM_ClientShouldControlView( pLocalPlayer ) )
@@ -456,19 +514,6 @@ void BM_ClientCreateMove( C_TFPlayer *pLocalPlayer, CUserCmd *pCmd )
 	BM_ClientGetCameraTargets( pLocalPlayer, vecCam, vecLook );
 
 	BM_ClientApplyBomberViewCmd( pLocalPlayer, pCmd );
-
-	if ( gpGlobals->curtime >= s_flBMNextGridDrawTime )
-	{
-		s_flBMNextGridDrawTime = gpGlobals->curtime + 0.1f;
-		if ( tf_bm_draw_floor.GetBool() )
-		{
-			BM_ClientDrawArenaFloor();
-		}
-		if ( tf_bm_show_grid.GetBool() )
-		{
-			BM_ClientDrawGridOverlay();
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -556,7 +601,7 @@ void BM_ClientPaintArenaHUD( void )
 	}
 
 	wchar_t wszLine[128];
-	g_pVGuiLocalize->ConvertANSIToUnicode( "Frog Bomber phase28 — HUD OK", wszLine, sizeof( wszLine ) );
+	g_pVGuiLocalize->ConvertANSIToUnicode( "Frog Bomber — normal FP spawn", wszLine, sizeof( wszLine ) );
 	vgui::surface()->DrawSetTextPos( 12, 8 );
 	vgui::surface()->DrawPrintText( wszLine, V_wcslen( wszLine ) );
 

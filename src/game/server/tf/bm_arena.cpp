@@ -5,6 +5,7 @@
 
 #include "bm_arena.h"
 #include "bm_grid.h"
+#include "bm_player_system.h"
 #include "bm_shareddefs.h"
 #include "tf_bm_crate.h"
 #include "tf_bm_wall.h"
@@ -16,8 +17,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-ConVar tf_bm_arena_width( "tf_bm_arena_width", "15", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman arena width in grid cells (odd, includes border walls)." );
-ConVar tf_bm_arena_height( "tf_bm_arena_height", "13", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman arena height in grid cells (odd, includes border walls)." );
+ConVar tf_bm_arena_width( "tf_bm_arena_width", "11", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman arena width in grid cells (odd, includes border walls)." );
+ConVar tf_bm_arena_height( "tf_bm_arena_height", "35", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman arena height in grid cells (odd, includes border walls)." );
 ConVar tf_bm_arena_soft_fill( "tf_bm_arena_soft_fill", "0.35", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: chance to place a soft crate in empty interior cells." );
 ConVar tf_bm_arena_lift( "tf_bm_arena_lift", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: legacy relative lift above spawns." );
 ConVar tf_bm_arena_offset( "tf_bm_arena_offset", "2048 2048", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: XY offset from map spawns for floating arena (stock maps)." );
@@ -30,36 +31,112 @@ extern ConVar tf_bm_grid_origin;
 extern ConVar tf_bm_sky_arena;
 extern ConVar tf_bm_sky_height;
 extern ConVar tf_bm_play_z_offset;
+extern ConVar tf_ff_game_mode;
 
 static bool s_bArenaActive = false;
+static bool s_bBMPostMapArenaReady = false;
 static int s_iArenaWidth = 0;
 static int s_iArenaHeight = 0;
 static CBaseEntity *s_pBMSkySpawn = NULL;
 
+//-----------------------------------------------------------------------------
+// Arena lifecycle (single source of truth — do not stack rebuilds):
+//   1) FF_TickPostMapSetup pass 0: exec mode_bomber.cfg
+//   2) pass 1: BM_BuildArena( force ) — only authoritative itemtest placement
+//   3) gameplay: BM_EnsureArenaBuilt() — reuse grid, no ClearArena
+//   4) bm_fix: BM_BuildArena( warp, force )
+// itemtest XY always from BM_GetItemtestPlayRoomBounds (never team spawns).
+//-----------------------------------------------------------------------------
+
+// itemtest Hammer room fallback (override with tf_bm_room_*). Active arena uses grid footprint.
+static const float BM_ITEMTEST_ROOM_MIN_X = 1304.03125f;
+static const float BM_ITEMTEST_ROOM_MIN_Y = -2535.97412f;
+static const float BM_ITEMTEST_ROOM_MAX_X = 2023.96875f;
+static const float BM_ITEMTEST_ROOM_MAX_Y = -280.03979f;
+
 static bool BM_IsNearSpawnCell( int iCellX, int iCellY );
-static bool BM_GetTeamSpawnAnchors( Vector &vecRed, Vector &vecBlue );
-static bool BM_AlignGridOriginFromAnchors( const Vector &vecRed, const Vector &vecBlue, int iWidth, int iHeight, float flCell, Vector &vecGridOrigin );
 static CBaseEntity *BM_FindMapTeamSpawn( CTFPlayer *pPlayer );
+static bool BM_IsArenaConfigValid( void );
+static void BM_GetItemtestPlayRoomBounds( float &flMinX, float &flMinY, float &flMaxX, float &flMaxY, float &flCenterX, float &flCenterY );
+static void BM_GetArenaDimensions( int &iWidth, int &iHeight );
+static void BM_GetItemtestFitArenaDimensions( int &iWidth, int &iHeight );
+static void BM_ComputeItemtestExpectedGridOrigin( int iWidth, int iHeight, float flCell, Vector &vecGridOrigin, Vector &vecCenter );
 
 //-----------------------------------------------------------------------------
-bool BM_IsDedicatedArenaMap( void )
+// itemtest only: align grid to team spawns on map floor geometry.
+//-----------------------------------------------------------------------------
+bool BM_IsMapFloorArena( void )
 {
 	const char *pszMap = STRING( gpGlobals->mapname );
-	return ( pszMap && Q_stricmp( pszMap, "bm_arena" ) == 0 );
+	return ( pszMap && Q_stricmp( pszMap, "itemtest" ) == 0 );
 }
 
 //-----------------------------------------------------------------------------
-// bm_arena BSP and itemtest fallback: align grid to team spawns on real map geometry (sky + lighting).
-//-----------------------------------------------------------------------------
-static bool BM_IsMapFloorArena( void )
+void BM_GetPlayAreaWorldBounds( float &flMinX, float &flMinY, float &flMaxX, float &flMaxY )
 {
-	const char *pszMap = STRING( gpGlobals->mapname );
-	if ( !pszMap )
+	if ( s_bArenaActive && s_iArenaWidth > 0 && s_iArenaHeight > 0 )
+	{
+		Vector vecGridOrigin;
+		BM_GetGridOrigin( vecGridOrigin );
+		const float flCell = BM_GetCellSize();
+		flMinX = vecGridOrigin.x;
+		flMinY = vecGridOrigin.y;
+		flMaxX = vecGridOrigin.x + s_iArenaWidth * flCell;
+		flMaxY = vecGridOrigin.y + s_iArenaHeight * flCell;
+		return;
+	}
+
+	float flCenterX = 0.0f;
+	float flCenterY = 0.0f;
+	BM_GetItemtestPlayRoomBounds( flMinX, flMinY, flMaxX, flMaxY, flCenterX, flCenterY );
+}
+
+//-----------------------------------------------------------------------------
+bool BM_IsInsideItemtestPlayRoom( const Vector &vecPos )
+{
+	if ( !BM_IsMapFloorArena() )
 	{
 		return false;
 	}
 
-	return ( Q_stricmp( pszMap, "bm_arena" ) == 0 || Q_stricmp( pszMap, "itemtest" ) == 0 );
+	float flMinX = 0.0f;
+	float flMinY = 0.0f;
+	float flMaxX = 0.0f;
+	float flMaxY = 0.0f;
+	float flCenterX = 0.0f;
+	float flCenterY = 0.0f;
+	BM_GetItemtestPlayRoomBounds( flMinX, flMinY, flMaxX, flMaxY, flCenterX, flCenterY );
+
+	const float flMargin = 8.0f;
+	return ( vecPos.x >= flMinX + flMargin && vecPos.x <= flMaxX - flMargin
+		&& vecPos.y >= flMinY + flMargin && vecPos.y <= flMaxY - flMargin );
+}
+
+//-----------------------------------------------------------------------------
+static void BM_GetItemtestFitArenaDimensions( int &iWidth, int &iHeight )
+{
+	float flMinX = 0.0f;
+	float flMinY = 0.0f;
+	float flMaxX = 0.0f;
+	float flMaxY = 0.0f;
+	float flCenterX = 0.0f;
+	float flCenterY = 0.0f;
+	BM_GetItemtestPlayRoomBounds( flMinX, flMinY, flMaxX, flMaxY, flCenterX, flCenterY );
+
+	const float flCell = BM_GetCellSize();
+	int w = (int)floorf( ( flMaxX - flMinX ) / flCell );
+	int h = (int)floorf( ( flMaxY - flMinY ) / flCell );
+	if ( w % 2 == 0 )
+	{
+		++w;
+	}
+	if ( h % 2 == 0 )
+	{
+		++h;
+	}
+
+	iWidth = clamp( w, 7, 51 );
+	iHeight = clamp( h, 7, 51 );
 }
 
 //-----------------------------------------------------------------------------
@@ -98,29 +175,25 @@ bool BM_UseVoidArenaPlatform( void )
 }
 
 //-----------------------------------------------------------------------------
-static int BM_GetPlayerSpawnSlot( CTFPlayer *pPlayer )
+static void BM_GetArenaDimensions( int &iWidth, int &iHeight )
 {
-	if ( !pPlayer )
+	if ( s_bArenaActive && s_iArenaWidth > 0 && s_iArenaHeight > 0 )
 	{
-		return 0;
+		iWidth = s_iArenaWidth;
+		iHeight = s_iArenaHeight;
+		return;
 	}
 
-	int iSlot = 0;
-	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
+	iWidth = clamp( tf_bm_arena_width.GetInt(), 7, 51 );
+	iHeight = clamp( tf_bm_arena_height.GetInt(), 7, 51 );
+	if ( iWidth % 2 == 0 )
 	{
-		CTFPlayer *pOther = ToTFPlayer( UTIL_PlayerByIndex( i ) );
-		if ( !pOther || !pOther->IsConnected() || pOther == pPlayer )
-		{
-			continue;
-		}
-
-		if ( pOther->GetTeamNumber() == pPlayer->GetTeamNumber() && pOther->GetUserID() < pPlayer->GetUserID() )
-		{
-			++iSlot;
-		}
+		++iWidth;
 	}
-
-	return clamp( iSlot, 0, BM_MAX_SPAWN_SLOTS_PER_TEAM - 1 );
+	if ( iHeight % 2 == 0 )
+	{
+		++iHeight;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -129,14 +202,25 @@ static void BM_GetArenaSpawnCell( CTFPlayer *pPlayer, int &iCellX, int &iCellY )
 	iCellX = 1;
 	iCellY = 1;
 
-	if ( !pPlayer || !s_bArenaActive )
+	if ( !pPlayer )
 	{
 		return;
 	}
 
+	int iWidth = 0;
+	int iHeight = 0;
+	BM_GetArenaDimensions( iWidth, iHeight );
+
 	const int iSlot = BM_GetPlayerSpawnSlot( pPlayer );
-	const bool bBlueTeam = ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE );
-	BM_GetSpawnCellForSlot( bBlueTeam, iSlot, s_iArenaWidth, s_iArenaHeight, iCellX, iCellY );
+	if ( BM_IsFreeForAll() )
+	{
+		BM_GetSpawnCellForCorner( iSlot % 4, iSlot, iWidth, iHeight, iCellX, iCellY );
+	}
+	else
+	{
+		const bool bBlueTeam = ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE );
+		BM_GetSpawnCellForSlot( bBlueTeam, iSlot, iWidth, iHeight, iCellX, iCellY );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -207,13 +291,33 @@ static bool BM_IsNearSpawnCell( int iCellX, int iCellY )
 	const int iMaxX = s_iArenaWidth - 2;
 	const int iMargin = 3;
 
-	// RED corner (low X, high Y)
+	// Keep crates clear of all four play-room corners on itemtest.
+	if ( BM_IsMapFloorArena() )
+	{
+		if ( iCellX <= 1 + iMargin && iCellY >= iMaxY - iMargin )
+		{
+			return true;
+		}
+		if ( iCellX >= iMaxX - iMargin && iCellY >= iMaxY - iMargin )
+		{
+			return true;
+		}
+		if ( iCellX >= iMaxX - iMargin && iCellY <= 1 + iMargin )
+		{
+			return true;
+		}
+		if ( iCellX <= 1 + iMargin && iCellY <= 1 + iMargin )
+		{
+			return true;
+		}
+		return false;
+	}
+
 	if ( iCellX <= 1 + iMargin && iCellY >= iMaxY - iMargin )
 	{
 		return true;
 	}
 
-	// BLU corner (high X, low Y)
 	if ( iCellX >= iMaxX - iMargin && iCellY <= 1 + iMargin )
 	{
 		return true;
@@ -303,9 +407,136 @@ static CBaseEntity *BM_FindMapTeamSpawn( CTFPlayer *pPlayer )
 }
 
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+static void BM_ComputeItemtestExpectedGridOrigin( int iWidth, int iHeight, float flCell, Vector &vecGridOrigin, Vector &vecCenter )
+{
+	float flMinX = 0.0f;
+	float flMinY = 0.0f;
+	float flMaxX = 0.0f;
+	float flMaxY = 0.0f;
+	BM_GetItemtestPlayRoomBounds( flMinX, flMinY, flMaxX, flMaxY, vecCenter.x, vecCenter.y );
+	vecGridOrigin.x = vecCenter.x - ( iWidth * flCell ) * 0.5f;
+	vecGridOrigin.y = vecCenter.y - ( iHeight * flCell ) * 0.5f;
+	vecGridOrigin.z = BM_GetItemtestPlayFloorGridZ();
+	vecCenter.z = vecGridOrigin.z;
+}
+
+//-----------------------------------------------------------------------------
+static bool BM_IsArenaConfigValid( void )
+{
+	if ( !s_bArenaActive || s_iArenaWidth <= 0 || s_iArenaHeight <= 0 )
+	{
+		return false;
+	}
+
+	int iWantW = clamp( tf_bm_arena_width.GetInt(), 7, 51 );
+	int iWantH = clamp( tf_bm_arena_height.GetInt(), 7, 51 );
+	if ( BM_IsMapFloorArena() )
+	{
+		BM_GetItemtestFitArenaDimensions( iWantW, iWantH );
+	}
+	else
+	{
+		if ( iWantW % 2 == 0 )
+		{
+			++iWantW;
+		}
+		if ( iWantH % 2 == 0 )
+		{
+			++iWantH;
+		}
+	}
+
+	if ( iWantW != s_iArenaWidth || iWantH != s_iArenaHeight )
+	{
+		return false;
+	}
+
+	if ( BM_IsMapFloorArena() )
+	{
+		Vector vecExpectedOrigin;
+		Vector vecExpectedCenter;
+		BM_ComputeItemtestExpectedGridOrigin( s_iArenaWidth, s_iArenaHeight, BM_GetCellSize(), vecExpectedOrigin, vecExpectedCenter );
+
+		Vector vecCurrentOrigin;
+		BM_GetGridOrigin( vecCurrentOrigin );
+
+		const float flXYTol = BM_GetCellSize() * 0.25f;
+		if ( fabsf( vecCurrentOrigin.x - vecExpectedOrigin.x ) > flXYTol
+			|| fabsf( vecCurrentOrigin.y - vecExpectedOrigin.y ) > flXYTol
+			|| fabsf( vecCurrentOrigin.z - vecExpectedOrigin.z ) > 2.0f )
+		{
+			Warning( "BM arena: grid origin (%.0f %.0f %.0f) != play room (%.0f %.0f %.0f) — needs rebuild.\n",
+				vecCurrentOrigin.x, vecCurrentOrigin.y, vecCurrentOrigin.z,
+				vecExpectedOrigin.x, vecExpectedOrigin.y, vecExpectedOrigin.z );
+			return false;
+		}
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+bool BM_EnsureArenaBuilt( void )
+{
+	if ( !BM_IsBomberGameplayActive() )
+	{
+		return false;
+	}
+
+	if ( BM_IsArenaConfigValid() )
+	{
+		return true;
+	}
+
+	if ( !s_bBMPostMapArenaReady )
+	{
+		return false;
+	}
+
+	BM_BuildArena( false, false );
+	return s_bArenaActive;
+}
+
+//-----------------------------------------------------------------------------
+static void BM_GetItemtestPlayRoomBounds( float &flMinX, float &flMinY, float &flMaxX, float &flMaxY, float &flCenterX, float &flCenterY )
+{
+	flMinX = BM_ITEMTEST_ROOM_MIN_X;
+	flMinY = BM_ITEMTEST_ROOM_MIN_Y;
+	flMaxX = BM_ITEMTEST_ROOM_MAX_X;
+	flMaxY = BM_ITEMTEST_ROOM_MAX_Y;
+
+	// Optional cfg override (FindVar — safe if ConVar lives in another TU).
+	if ( g_pCVar )
+	{
+		ConVar *pMinX = g_pCVar->FindVar( "tf_bm_room_min_x" );
+		ConVar *pMinY = g_pCVar->FindVar( "tf_bm_room_min_y" );
+		ConVar *pMaxX = g_pCVar->FindVar( "tf_bm_room_max_x" );
+		ConVar *pMaxY = g_pCVar->FindVar( "tf_bm_room_max_y" );
+		if ( pMinX && pMinY && pMaxX && pMaxY )
+		{
+			const float flCfgMinX = pMinX->GetFloat();
+			const float flCfgMinY = pMinY->GetFloat();
+			const float flCfgMaxX = pMaxX->GetFloat();
+			const float flCfgMaxY = pMaxY->GetFloat();
+			if ( flCfgMaxX > flCfgMinX + 128.0f && flCfgMaxY > flCfgMinY + 128.0f )
+			{
+				flMinX = flCfgMinX;
+				flMinY = flCfgMinY;
+				flMaxX = flCfgMaxX;
+				flMaxY = flCfgMaxY;
+			}
+		}
+	}
+
+	flCenterX = 0.5f * ( flMinX + flMaxX );
+	flCenterY = 0.5f * ( flMinY + flMaxY );
+}
+
+//-----------------------------------------------------------------------------
 CBaseEntity *BM_GetSkySpawnEntity( CTFPlayer *pPlayer )
 {
-	if ( !pPlayer || !pPlayer->IsAlive() || !TFGameRules() || !TFGameRules()->IsBombermanMode() )
+	if ( !pPlayer || !pPlayer->IsAlive() || !BM_IsBomberGameplayActive() )
 	{
 		return NULL;
 	}
@@ -315,20 +546,20 @@ CBaseEntity *BM_GetSkySpawnEntity( CTFPlayer *pPlayer )
 		return NULL;
 	}
 
-	if ( !s_bArenaActive )
-	{
-		BM_BuildArena( false );
-	}
-
-	if ( !s_bArenaActive )
+	Vector vecSkySpawn;
+	if ( !BM_ComputeArenaSpawnWorldPos( pPlayer, vecSkySpawn ) )
 	{
 		return NULL;
 	}
 
-	CBaseEntity *pMapSpawn = BM_FindMapTeamSpawn( pPlayer );
-	if ( pMapSpawn )
+	// Map teamspawns on itemtest sit in the roof — always use grid cells for XY/Z.
+	if ( !BM_IsMapFloorArena() )
 	{
-		return pMapSpawn;
+		CBaseEntity *pMapSpawn = BM_FindMapTeamSpawn( pPlayer );
+		if ( pMapSpawn )
+		{
+			return pMapSpawn;
+		}
 	}
 
 	if ( !s_pBMSkySpawn )
@@ -347,13 +578,11 @@ CBaseEntity *BM_GetSkySpawnEntity( CTFPlayer *pPlayer )
 		return NULL;
 	}
 
-	int iCellX = 0;
-	int iCellY = 0;
-	BM_GetArenaSpawnCell( pPlayer, iCellX, iCellY );
-
-	Vector vecDest;
-	BM_CellToWorldCenter( iCellX, iCellY, vecDest );
-	s_pBMSkySpawn->SetAbsOrigin( vecDest );
+	if ( BM_IsMapFloorArena() )
+	{
+		BM_ClearHullFromWorld( vecSkySpawn, pPlayer );
+	}
+	s_pBMSkySpawn->SetAbsOrigin( vecSkySpawn );
 	s_pBMSkySpawn->SetAbsAngles( vec3_angle );
 	s_pBMSkySpawn->ChangeTeam( pPlayer->GetTeamNumber() );
 
@@ -361,67 +590,130 @@ CBaseEntity *BM_GetSkySpawnEntity( CTFPlayer *pPlayer )
 }
 
 //-----------------------------------------------------------------------------
-void BM_WarpPlayerToArenaSpawn( CTFPlayer *pPlayer )
+bool BM_IsBomberGameplayActive( void )
 {
-	if ( !pPlayer || !s_bArenaActive )
+	if ( !TFGameRules() )
+	{
+		return false;
+	}
+
+	if ( tf_ff_game_mode.GetInt() == TF_FF_MODE_BOMBERMAN )
+	{
+		return true;
+	}
+
+	return TFGameRules()->IsBombermanMode();
+}
+
+//-----------------------------------------------------------------------------
+static float s_flBMSpawnApplyTime[MAX_PLAYERS + 1];
+
+//-----------------------------------------------------------------------------
+void BM_ResetArenaSpawnDebounce( CTFPlayer *pPlayer )
+{
+	if ( !pPlayer )
 	{
 		return;
 	}
 
-	Vector vecDest;
-	CBaseEntity *pSpawn = BM_GetSkySpawnEntity( pPlayer );
-	if ( pSpawn )
+	const int iIndex = pPlayer->entindex();
+	if ( iIndex >= 0 && iIndex <= MAX_PLAYERS )
 	{
-		vecDest = pSpawn->GetAbsOrigin();
+		s_flBMSpawnApplyTime[iIndex] = 0.0f;
 	}
-	else
+}
+
+//-----------------------------------------------------------------------------
+bool BM_ComputeArenaSpawnWorldPos( CTFPlayer *pPlayer, Vector &vecDest )
+{
+	if ( !pPlayer || !BM_IsBomberGameplayActive() )
 	{
-		int iCellX = 0;
-		int iCellY = 0;
-		BM_GetArenaSpawnCell( pPlayer, iCellX, iCellY );
-		BM_CellToWorldCenter( iCellX, iCellY, vecDest );
+		return false;
+	}
+
+	if ( pPlayer->GetTeamNumber() != TF_TEAM_RED && pPlayer->GetTeamNumber() != TF_TEAM_BLUE )
+	{
+		return false;
 	}
 
 	if ( BM_IsMapFloorArena() )
 	{
-		Vector vecFloor;
-		BM_FindFloorAtXY( vecDest, vecDest.z + 256.0f, pPlayer, vecFloor );
-		vecDest.z = vecFloor.z;
-	}
-	else
-	{
-		// If still embedded in world brushes, step up onto the platform.
-		for ( int iNudge = 0; iNudge < 24; ++iNudge )
+		int iWidth = 0;
+		int iHeight = 0;
+		BM_GetArenaDimensions( iWidth, iHeight );
+
+		int iCellX = 0;
+		int iCellY = 0;
+		const int iSlot = BM_GetPlayerSpawnSlot( pPlayer );
+		if ( BM_IsFreeForAll() )
 		{
-			trace_t trace;
-			UTIL_TraceHull( vecDest, vecDest + Vector( 0, 0, 2 ), VEC_HULL_MIN, VEC_HULL_MAX, MASK_PLAYERSOLID, pPlayer, COLLISION_GROUP_PLAYER, &trace );
-			if ( !trace.startsolid )
-			{
-				break;
-			}
-
-			vecDest.z += 32.0f;
+			BM_GetSpawnCellForCorner( iSlot % 4, iSlot, iWidth, iHeight, iCellX, iCellY );
 		}
+		else
+		{
+			const bool bBlueTeam = ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE );
+			BM_GetSpawnCellForSlot( bBlueTeam, iSlot, iWidth, iHeight, iCellX, iCellY );
+		}
+
+		BM_CellToWorldCenter( iCellX, iCellY, vecDest );
+		return true;
 	}
 
-	QAngle angFace( 0.0f, 0.0f, 0.0f );
-	if ( pSpawn )
+	if ( !s_bArenaActive )
 	{
-		angFace = pSpawn->GetAbsAngles();
-	}
-	else if ( pPlayer->GetTeamNumber() == TF_TEAM_RED )
-	{
-		angFace.y = 45.0f;
-	}
-	else if ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
-	{
-		angFace.y = 225.0f;
+		return false;
 	}
 
-	pPlayer->Teleport( &vecDest, &angFace, &vec3_origin );
+	int iCellX = 0;
+	int iCellY = 0;
+	BM_GetArenaSpawnCell( pPlayer, iCellX, iCellY );
+	BM_CellToWorldCenter( iCellX, iCellY, vecDest );
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+bool BM_ApplyArenaSpawnToPlayer( CTFPlayer *pPlayer )
+{
+	if ( !pPlayer || BM_IsPlayerMovementUnlocked( pPlayer ) )
+	{
+		return false;
+	}
+
+	const int iIndex = pPlayer->entindex();
+	if ( iIndex >= 0 && iIndex <= MAX_PLAYERS && gpGlobals->curtime < s_flBMSpawnApplyTime[iIndex] )
+	{
+		return false;
+	}
+
+	Vector vecDest;
+	if ( !BM_ComputeArenaSpawnWorldPos( pPlayer, vecDest ) )
+	{
+		return false;
+	}
+
+	if ( BM_IsMapFloorArena() )
+	{
+		vecDest.z = BM_GetPlayPlaneZ();
+		BM_ClearHullFromWorld( vecDest, pPlayer );
+		vecDest.z = BM_GetPlayPlaneZ();
+	}
+	else if ( !BM_UseVoidArenaPlatform() )
+	{
+		const float flPlayZ = BM_GetPlayPlaneZ();
+		trace_t trace;
+		Vector vecTraceStart( vecDest.x, vecDest.y, flPlayZ + 96.0f );
+		Vector vecTraceEnd( vecDest.x, vecDest.y, flPlayZ - 256.0f );
+		UTIL_TraceHull( vecTraceStart, vecTraceEnd, VEC_HULL_MIN, VEC_HULL_MAX, MASK_PLAYERSOLID, pPlayer, COLLISION_GROUP_PLAYER, &trace );
+		vecDest.z = trace.DidHit() ? trace.endpos.z : flPlayZ;
+		BM_ClearHullFromWorld( vecDest, pPlayer );
+	}
+
+	pPlayer->SetGroundEntity( NULL );
+
+	const QAngle angEyes = pPlayer->EyeAngles();
+	pPlayer->Teleport( &vecDest, &angEyes, &vec3_origin );
 	pPlayer->SetLocalOrigin( vecDest );
 	pPlayer->SetAbsOrigin( vecDest );
-	pPlayer->SnapEyeAngles( angFace );
 
 	if ( tf_bm_sky_arena.GetBool() )
 	{
@@ -434,6 +726,25 @@ void BM_WarpPlayerToArenaSpawn( CTFPlayer *pPlayer )
 		pPlayer->SetGravity( 1.0f );
 		pPlayer->RemoveFlag( FL_FLY );
 	}
+
+	if ( iIndex >= 0 && iIndex <= MAX_PLAYERS )
+	{
+		s_flBMSpawnApplyTime[iIndex] = gpGlobals->curtime + 0.5f;
+	}
+
+	int iLogCellX = 0;
+	int iLogCellY = 0;
+	BM_WorldToCell( vecDest, iLogCellX, iLogCellY );
+	Msg( "BM spawn: %s -> %.0f %.0f %.0f (grid cell %d,%d)\n",
+		pPlayer->GetPlayerName(), vecDest.x, vecDest.y, vecDest.z, iLogCellX, iLogCellY );
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+void BM_WarpPlayerToArenaSpawn( CTFPlayer *pPlayer )
+{
+	BM_EnsureArenaBuilt();
+	BM_ApplyArenaSpawnToPlayer( pPlayer );
 }
 
 //-----------------------------------------------------------------------------
@@ -463,67 +774,6 @@ static void BM_AccumulateSpawnOrigin( const Vector &vecOrigin, float &flMinX, fl
 static bool BM_FindArenaCenter( Vector &vecCenter, float &flRefZ );
 
 //-----------------------------------------------------------------------------
-static bool BM_GetTeamSpawnAnchors( Vector &vecRed, Vector &vecBlue )
-{
-	vecRed = vec3_origin;
-	vecBlue = vec3_origin;
-	int nRed = 0;
-	int nBlue = 0;
-	float flBestRedCorner = -FLT_MAX;
-	float flBestBlueCorner = -FLT_MAX;
-
-	for ( CBaseEntity *pEnt = gEntList.FindEntityByClassname( NULL, "info_player_teamspawn" );
-		pEnt != NULL;
-		pEnt = gEntList.FindEntityByClassname( pEnt, "info_player_teamspawn" ) )
-	{
-		const Vector &vecOrigin = pEnt->GetAbsOrigin();
-		const int iTeam = pEnt->GetTeamNumber();
-		if ( iTeam == TF_TEAM_RED )
-		{
-			++nRed;
-			// RED bomber corner: low X, high Y.
-			const float flCornerScore = vecOrigin.y - vecOrigin.x;
-			if ( flCornerScore > flBestRedCorner )
-			{
-				flBestRedCorner = flCornerScore;
-				vecRed = vecOrigin;
-			}
-		}
-		else if ( iTeam == TF_TEAM_BLUE )
-		{
-			++nBlue;
-			// BLU bomber corner: high X, low Y.
-			const float flCornerScore = vecOrigin.x - vecOrigin.y;
-			if ( flCornerScore > flBestBlueCorner )
-			{
-				flBestBlueCorner = flCornerScore;
-				vecBlue = vecOrigin;
-			}
-		}
-	}
-
-	return ( nRed > 0 && nBlue > 0 );
-}
-
-//-----------------------------------------------------------------------------
-static bool BM_AlignGridOriginFromAnchors( const Vector &vecRed, const Vector &vecBlue, int iWidth, int iHeight, float flCell, Vector &vecGridOrigin )
-{
-	const int iRedCellX = 1;
-	const int iRedCellY = iHeight - 2;
-	const int iBluCellX = iWidth - 2;
-	const int iBluCellY = 1;
-
-	const float flOxRed = vecRed.x - ( iRedCellX + 0.5f ) * flCell;
-	const float flOyRed = vecRed.y - ( iRedCellY + 0.5f ) * flCell;
-	const float flOxBlu = vecBlue.x - ( iBluCellX + 0.5f ) * flCell;
-	const float flOyBlu = vecBlue.y - ( iBluCellY + 0.5f ) * flCell;
-
-	vecGridOrigin.x = 0.5f * ( flOxRed + flOxBlu );
-	vecGridOrigin.y = 0.5f * ( flOyRed + flOyBlu );
-	vecGridOrigin.z = Max( vecRed.z, vecBlue.z ) - tf_bm_play_z_offset.GetFloat();
-	return true;
-}
-
 //-----------------------------------------------------------------------------
 // Stock maps: huge platform offset from spawns (beside map, in PVS — not basement, not Z=4096 void).
 //-----------------------------------------------------------------------------
@@ -545,43 +795,19 @@ static bool BM_ResolveArenaGridOrigin( Vector &vecGridOrigin, int iWidth, int iH
 
 	if ( BM_IsMapFloorArena() )
 	{
-		Vector vecRed;
-		Vector vecBlue;
-		if ( BM_GetTeamSpawnAnchors( vecRed, vecBlue ) && BM_AlignGridOriginFromAnchors( vecRed, vecBlue, iWidth, iHeight, flCell, vecGridOrigin ) )
-		{
-			vecCenter.x = vecGridOrigin.x + ( iWidth * flCell ) * 0.5f;
-			vecCenter.y = vecGridOrigin.y + ( iHeight * flCell ) * 0.5f;
-			vecCenter.z = vecGridOrigin.z;
+		float flMinX = 0.0f;
+		float flMinY = 0.0f;
+		float flMaxX = 0.0f;
+		float flMaxY = 0.0f;
+		float flBoxCenterX = 0.0f;
+		float flBoxCenterY = 0.0f;
+		BM_ComputeItemtestExpectedGridOrigin( iWidth, iHeight, flCell, vecGridOrigin, vecCenter );
+		BM_GetItemtestPlayRoomBounds( flMinX, flMinY, flMaxX, flMaxY, flBoxCenterX, flBoxCenterY );
 
-			CBaseEntity *pAnchor = gEntList.FindEntityByName( NULL, "bm_arena_center" );
-			if ( pAnchor )
-			{
-				vecGridOrigin.z = pAnchor->GetAbsOrigin().z - tf_bm_play_z_offset.GetFloat();
-			}
-			else
-			{
-				Vector vecFloor;
-				const float flRefZ = Max( vecRed.z, vecBlue.z );
-				BM_FindFloorAtXY( vecCenter, flRefZ + 256.0f, NULL, vecFloor );
-				vecGridOrigin.z = vecFloor.z - tf_bm_play_z_offset.GetFloat();
-			}
-
-			Msg( "BM arena: grid aligned to team spawns (RED %.0f %.0f, BLU %.0f %.0f).\n",
-				vecRed.x, vecRed.y, vecBlue.x, vecBlue.y );
-			return true;
-		}
-
-		float flRefZ = 0.0f;
-		if ( !BM_FindArenaCenter( vecCenter, flRefZ ) )
-		{
-			return false;
-		}
-
-		vecGridOrigin.x = vecCenter.x - ( iWidth * flCell ) * 0.5f;
-		vecGridOrigin.y = vecCenter.y - ( iHeight * flCell ) * 0.5f;
-		Vector vecFloor;
-		BM_FindFloorAtXY( vecCenter, flRefZ + 256.0f, NULL, vecFloor );
-		vecGridOrigin.z = vecFloor.z - tf_bm_play_z_offset.GetFloat();
+		Msg( "BM arena: itemtest PLAY ROOM (%.0f,%.0f)-(%.0f,%.0f) center (%.0f %.0f) floor Z=%.0f origin (%.0f %.0f %.0f).\n",
+			flMinX, flMinY, flMaxX, flMaxY,
+			vecCenter.x, vecCenter.y, vecGridOrigin.z + tf_bm_play_z_offset.GetFloat(),
+			vecGridOrigin.x, vecGridOrigin.y, vecGridOrigin.z );
 		return true;
 	}
 
@@ -617,14 +843,6 @@ static bool BM_ResolveArenaGridOrigin( Vector &vecGridOrigin, int iWidth, int iH
 //-----------------------------------------------------------------------------
 static bool BM_FindArenaCenter( Vector &vecCenter, float &flRefZ )
 {
-	CBaseEntity *pAnchor = gEntList.FindEntityByName( NULL, "bm_arena_center" );
-	if ( pAnchor )
-	{
-		vecCenter = pAnchor->GetAbsOrigin();
-		flRefZ = vecCenter.z;
-		return true;
-	}
-
 	float flMinX = FLT_MAX;
 	float flMinY = FLT_MAX;
 	float flMaxX = -FLT_MAX;
@@ -723,36 +941,52 @@ void BM_ClearArena( void )
 	BM_RemoveStrayArenaProps();
 	BM_ClearSkySpawn();
 	s_bArenaActive = false;
+	s_bBMPostMapArenaReady = false;
 	s_iArenaWidth = 0;
 	s_iArenaHeight = 0;
 }
 
 //-----------------------------------------------------------------------------
-void BM_BuildArena( bool bWarpAllPlayers )
+void BM_BuildArena( bool bWarpAllPlayers, bool bForceRebuild )
 {
-	if ( !TFGameRules() || !TFGameRules()->IsBombermanMode() )
+	if ( !BM_IsBomberGameplayActive() )
+	{
+		return;
+	}
+
+	if ( !bForceRebuild && BM_IsArenaConfigValid() )
+	{
+		if ( bWarpAllPlayers )
+		{
+			BM_WarpAllPlayersToArenaSpawns();
+		}
+		return;
+	}
+
+	if ( !bForceRebuild && !s_bBMPostMapArenaReady )
 	{
 		return;
 	}
 
 	BM_ClearArena();
 
-	s_iArenaWidth = clamp( tf_bm_arena_width.GetInt(), 7, 51 );
-	if ( s_iArenaWidth % 2 == 0 )
+	if ( BM_IsMapFloorArena() )
 	{
-		++s_iArenaWidth;
+		BM_GetItemtestFitArenaDimensions( s_iArenaWidth, s_iArenaHeight );
 	}
-
-	s_iArenaHeight = clamp( tf_bm_arena_height.GetInt(), 7, 51 );
-	if ( s_iArenaHeight % 2 == 0 )
+	else
 	{
-		++s_iArenaHeight;
-	}
+		s_iArenaWidth = clamp( tf_bm_arena_width.GetInt(), 7, 51 );
+		if ( s_iArenaWidth % 2 == 0 )
+		{
+			++s_iArenaWidth;
+		}
 
-	if ( BM_IsDedicatedArenaMap() )
-	{
-		s_iArenaWidth = Min( s_iArenaWidth, 15 );
-		s_iArenaHeight = Min( s_iArenaHeight, 13 );
+		s_iArenaHeight = clamp( tf_bm_arena_height.GetInt(), 7, 51 );
+		if ( s_iArenaHeight % 2 == 0 )
+		{
+			++s_iArenaHeight;
+		}
 	}
 
 	const float flCell = BM_GetCellSize();
@@ -768,6 +1002,8 @@ void BM_BuildArena( bool bWarpAllPlayers )
 	char szOrigin[64];
 	Q_snprintf( szOrigin, sizeof( szOrigin ), "%.1f %.1f %.1f", vecGridOrigin.x, vecGridOrigin.y, vecGridOrigin.z );
 	tf_bm_grid_origin.SetValue( szOrigin );
+	tf_bm_arena_width.SetValue( s_iArenaWidth );
+	tf_bm_arena_height.SetValue( s_iArenaHeight );
 
 	extern void BM_ResetGridAlign( void );
 	extern void BM_MarkGridAligned( void );
@@ -853,6 +1089,8 @@ void BM_BuildArena( bool bWarpAllPlayers )
 			UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Bomber: %dx%d on map floor (Z=%.0f).", s_iArenaWidth, s_iArenaHeight, flPlayZ ) );
 		}
 	}
+
+	s_bBMPostMapArenaReady = true;
 
 	if ( bWarpAllPlayers )
 	{

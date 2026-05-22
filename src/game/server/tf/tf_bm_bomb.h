@@ -25,7 +25,11 @@ public:
 	float m_flDetonateTime;
 	int m_iBlastRange;
 	EHANDLE m_hOwnerPlayer;
+	EHANDLE m_hBombVisual;
 	bool m_bDetonating;
+
+	void SpawnBombVisual( void );
+	void RemoveBombVisual( void );
 };
 
 #endif // SOURCESDK

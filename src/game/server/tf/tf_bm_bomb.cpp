@@ -6,6 +6,7 @@
 #include "tf_bm_bomb.h"
 #include "bm_grid.h"
 #include "bm_props.h"
+#include "props.h"
 #include "tf_bm_crate.h"
 #include "bm_arena.h"
 #include "bm_player_system.h"
@@ -18,7 +19,10 @@
 
 LINK_ENTITY_TO_CLASS( tf_bm_bomb, CTFBMBomb );
 
+#define BM_BOMB_STATUE_MODEL "models/soldier_statue/soldier_statue.mdl"
+
 static const char *const g_BMBombModels[] = {
+	BM_BOMB_STATUE_MODEL,
 	"models/props_gameplay/orange_cone001.mdl",
 	"models/props_halloween/pumpkin_loot.mdl",
 	"models/props_farm/wooden_barrel.mdl",
@@ -29,6 +33,16 @@ ConVar tf_bm_bomb_fuse( "tf_bm_bomb_fuse", "2.5", FCVAR_REPLICATED | FCVAR_NOTIF
 ConVar tf_bm_bomb_range( "tf_bm_bomb_range", "2", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: blast length in grid cells (each arm, not counting center)." );
 ConVar tf_bm_max_bombs( "tf_bm_max_bombs", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: max active bombs per player." );
 ConVar tf_bm_bomb_damage( "tf_bm_bomb_damage", "500", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: blast damage to players." );
+ConVar tf_bm_bomb_visible( "tf_bm_bomb_visible", "1", FCVAR_REPLICATED | FCVAR_NOTIFY,
+	"Bomberman: spawn a networked prop_dynamic at each bomb (visible on clients)." );
+ConVar tf_bm_bomb_scale( "tf_bm_bomb_scale", "0.18", FCVAR_REPLICATED | FCVAR_NOTIFY,
+	"Bomberman: scale for bomb prop (soldier statue default; ~0.18 fits a 64u cell)." );
+
+//-----------------------------------------------------------------------------
+static float BM_GetBombVisualBaseScale( void )
+{
+	return clamp( tf_bm_bomb_scale.GetFloat(), 0.05f, 1.0f );
+}
 
 //-----------------------------------------------------------------------------
 CTFBMBomb::CTFBMBomb()
@@ -38,6 +52,7 @@ CTFBMBomb::CTFBMBomb()
 	m_flDetonateTime = 0.0f;
 	m_iBlastRange = 2;
 	m_bDetonating = false;
+	m_hBombVisual.Set( NULL );
 }
 
 //-----------------------------------------------------------------------------
@@ -63,8 +78,65 @@ void CTFBMBomb::Spawn( void )
 
 	BaseClass::Spawn();
 
+	SpawnBombVisual();
+
 	SetThink( &CTFBMBomb::BombThink );
 	SetNextThink( gpGlobals->curtime + 0.1f );
+}
+
+//-----------------------------------------------------------------------------
+void CTFBMBomb::SpawnBombVisual( void )
+{
+	RemoveBombVisual();
+
+	if ( !tf_bm_bomb_visible.GetBool() )
+	{
+		return;
+	}
+
+	BM_PrecacheModelCandidates( g_BMBombModels, ARRAYSIZE( g_BMBombModels ) );
+	const char *pszModel = BM_SelectModel( g_BMBombModels, ARRAYSIZE( g_BMBombModels ) );
+	if ( !pszModel )
+	{
+		return;
+	}
+
+	CDynamicProp *pProp = dynamic_cast<CDynamicProp *>( CreateEntityByName( "prop_dynamic_override" ) );
+	if ( !pProp )
+	{
+		return;
+	}
+
+	const float flBaseScale = BM_GetBombVisualBaseScale();
+
+	pProp->SetModel( pszModel );
+	Vector vecOrigin = GetAbsOrigin();
+	// Statue origin is at feet; nudge down so the mini statue sits on the grid plane.
+	if ( pszModel && Q_stristr( pszModel, "soldier_statue" ) != NULL )
+	{
+		vecOrigin.z -= BM_GetCellSize() * 0.12f * flBaseScale;
+		pProp->SetSequence( 0 );
+	}
+	pProp->SetAbsOrigin( vecOrigin );
+	pProp->SetAbsAngles( vec3_angle );
+	pProp->SetModelScale( flBaseScale );
+	pProp->SetSolid( SOLID_NONE );
+	pProp->SetMoveType( MOVETYPE_NONE );
+	pProp->Spawn();
+	pProp->Activate();
+
+	m_hBombVisual.Set( pProp );
+}
+
+//-----------------------------------------------------------------------------
+void CTFBMBomb::RemoveBombVisual( void )
+{
+	CBaseEntity *pVisual = m_hBombVisual.Get();
+	if ( pVisual )
+	{
+		UTIL_Remove( pVisual );
+	}
+	m_hBombVisual.Set( NULL );
 }
 
 //-----------------------------------------------------------------------------
@@ -84,6 +156,13 @@ void CTFBMBomb::BombThink( void )
 
 	const float flPulse = 0.85f + 0.15f * sinf( gpGlobals->curtime * 8.0f );
 	SetModelScale( flPulse, 0.0f );
+
+	const float flBaseScale = BM_GetBombVisualBaseScale();
+	CBaseAnimating *pVisual = dynamic_cast<CBaseAnimating *>( m_hBombVisual.Get() );
+	if ( pVisual )
+	{
+		pVisual->SetModelScale( flBaseScale * flPulse, 0.0f );
+	}
 
 	SetNextThink( gpGlobals->curtime + 0.1f );
 }
@@ -159,6 +238,11 @@ static void BM_HurtPlayersAtCell( int iCellX, int iCellY, CTFPlayer *pOwner, CTF
 			continue;
 		}
 
+		if ( pOwner && pPlayer == pOwner )
+		{
+			continue;
+		}
+
 		CTakeDamageInfo info( pBomb, pOwner, tf_bm_bomb_damage.GetFloat(), DMG_BLAST );
 		pPlayer->TakeDamage( info );
 	}
@@ -173,6 +257,7 @@ void CTFBMBomb::Detonate( void )
 	}
 
 	m_bDetonating = true;
+	RemoveBombVisual();
 
 	CTFPlayer *pOwner = ToTFPlayer( m_hOwnerPlayer.Get() );
 	if ( pOwner && pOwner->m_iBMActiveBombs > 0 )

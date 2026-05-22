@@ -1,53 +1,61 @@
-# Frog Bomber (Bomberman in TF2)
-
-## Quick start
-
-```
-ff_play bomber
-```
-
-Or from any listen game: `exec bomber_quickstart`
-
-1. **Compile the map once** (recommended): `game/mod_tf/mapsrc/compile_bm_arena.bat` → `game/mod_tf/maps/bm_arena.bsp`
-2. Join **RED** or **BLU**, pick **Scout**
-3. **WASD** = grid move, **MOUSE1** = bomb (no bat swing)
-4. Confirm build: green top banner **`Frog Bomber phase28 — HUD OK`** and `tf_bm_build_id phase28-hud-floor`
-
-## Humans only
-
-Bomber mode sets `tf_bot_quota 0`. Valve bots are not wired for grid play — add humans on a listen server.
-
-## Ground vs sky
-
-| Setting | Behavior |
-|--------|----------|
-| `tf_bm_void_arena 0` (default) | Arena on map floor (`itemtest` or `bm_arena`) |
-| `tf_bm_sky_arena 1` | Legacy floating arena (not recommended) |
-
-## Controls
-
-| Input | Action |
-|-------|--------|
-| WASD | Move one axis at a time (grid snap) |
-| MOUSE1 | Place bomb |
-
-## Tuning (after `mode_bomber.cfg`)
-
-| ConVar | `mode_bomber.cfg` | Purpose |
-|--------|-------------------|---------|
-| `tf_bm_build_id` | `phase28-hud-floor` | DLL build tag |
-| `tf_bm_camera_mode` | `1` | `0`=vanilla FP, `1`=top-down, `2`=ortho (experimental) |
-| `tf_bm_cell_size` | `64` | Grid cell size |
-| `tf_bm_arena_width` / `height` | `15` / `13` | Arena cells |
-| `tf_bm_show_grid` | `0` | Debug overlay (`1` = NDebug lines; HUD minimap always on) |
-| `tf_bm_deck_visible` | `1` | Server `prop_dynamic_override` deck markers |
-| `tf_bm_render_props` | `0` | Wall/crate models off server (avoids NULL material) |
-| `mat_fullbright` | `1` | Brighter 3D on itemtest until dedicated map is lit |
-
-Stuck or wrong layer? Console: `bm_fix` then `kill`. Black 3D but HUD visible? `tf_bm_camera_mode 0`
-
-See `maps/BM_ARENA_MAP.md` and `mapsrc/README.txt` for Hammer compile steps.
-
-## Roadmap
-
-- Power-ups, scoring — later
+# Frog Bomber (default mode — itemtest only)
+
+**Frog Bomber** is the mod default (`autoexec.cfg` → `mode_bomber.cfg`, `tf_ff_game_mode 3`). Dedicated Hammer map work was removed; the arena is a code-spawned grid on **`itemtest`**.
+
+## Quick start
+
+Launch mod_tf (or `+map itemtest`) — autoexec applies bomber. Or explicitly:
+
+```
+ff_play bomber
+```
+
+1. Server loads **`itemtest`** (automatic if you were on another map).
+2. Join a team, pick **Scout** (FFA: one player per corner slot).
+3. **WASD** = grid move, **MOUSE1** = bomb.
+4. Confirm build: `tf_bm_build_id` = **`reset-v21-free-roam`**. **Free walk** in the Hammer room (`tf_bm_grid_move 0`). Spawn log: **`BM spawn: ... (grid cell X,Y)`** at Z ~ **-127**.
+
+## Arena pipeline (no stacked rebuilds)
+
+1. Post-map setup → **exec `mode_bomber.cfg`** then **one** `BM_BuildArena`
+2. **Spawn once** in `GetPlayerSpawnSpot` (no PostSpawnThink re-teleport)
+3. FFA: spawns at grid corner cells (NE/NW/SW/SE by player slot)
+4. `bm_fix`: force rebuild + respawn
+
+## itemtest play room (from `getpos` corners)
+
+| Corner | X | Y | Z |
+|--------|---|---|---|
+| NE | 1304.03 | -280.81 | -126.97 |
+| NW | 2023.97 | -280.04 | -126.97 |
+| SW | 2023.99 | -2535.97 | -126.97 |
+| SE | 1304.03 | -2535.87 | -126.97 |
+
+AABB **1304.03,-2535.97** → **2023.97,-280.04**, center **~1664,-1408**, floor **-135** (~feet -127). Grid auto-fits room (**11×35** @ 64 typical). After `bm_letgo`, **`kill`** or **`bm_lock`** returns you to grid spawn.
+
+## Defaults (reset)
+
+| Setting | Value | Why |
+|--------|-------|-----|
+| `tf_ff_game_mode` | `3` | Bomber is default (DLL + cfg) |
+| `tf_bm_ffa` | `1` | Free-for-all; `mp_friendlyfire 1` |
+| `tf_bm_grid_move` | `0` | Normal WASD in room (set `1` for classic grid steps) |
+| `tf_bm_arena_lock` | `0` | No spawn warp when touching walls |
+| `tf_bm_show_grid` | `0` | 3D debug grid (off in FP — avoids blinking blue bar; use `tf_bm_camera_mode 1`) |
+| `tf_bm_draw_floor` | `0` | Blue floor tint (off in FP) |
+| `tf_bm_camera_mode` | `0` | Normal first-person |
+| `tf_bm_void_arena` | `0` | Arena on itemtest floor |
+| `tf_bm_render_props` | `0` | Invisible wall collision (no NULL materials) |
+| `tf_bm_bomb_scale` | `0.18` | Mini soldier statue bombs |
+
+Stuck? `bm_fix` then `kill`. Switch to OW: `ff_ow`.
+
+## Not in this reset
+
+- `bm_arena.bsp` / Hammer compile pipeline
+- Dedicated map anchors
+
+## Roadmap
+
+- Visible crate/wall props
+- Scoring and power-ups

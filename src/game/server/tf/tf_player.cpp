@@ -80,7 +80,9 @@
 #ifdef SOURCESDK
 #include "ow_player_system.h"
 #include "bm_player_system.h"
+#include "bm_shareddefs.h"
 #include "ow_shareddefs.h"
+extern ConVar tf_ff_game_mode;
 #endif
 #include "tf_weapon_shovel.h"
 #include "bot/tf_bot.h"
@@ -2152,7 +2154,8 @@ void CTFPlayer::PostSpawnThink( void )
 	}
 
 #ifdef SOURCESDK
-	if ( IsAlive() && TFGameRules() && TFGameRules()->IsBombermanMode() )
+	if ( IsAlive() && TFGameRules()
+		&& ( TFGameRules()->IsBombermanMode() || tf_ff_game_mode.GetInt() == TF_FF_MODE_BOMBERMAN ) )
 	{
 		if ( !m_bBMSpawnConfigured )
 		{
@@ -4059,13 +4062,6 @@ void CTFPlayer::Spawn()
 		SetHealth( GetMaxHealth() );
 	}
 
-#ifdef SOURCESDK
-	if ( TFGameRules() && TFGameRules()->IsBombermanMode() && IsAlive() )
-	{
-		BM_EnsurePlayerInArena( this );
-	}
-#endif
-
 	SetContextThink( &CTFPlayer::PostSpawnThink, gpGlobals->curtime + 0.1f, "PostSpawnThink" );
 }
 
@@ -5845,11 +5841,14 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 	const char *pSpawnPointName = "";
 
 #ifdef SOURCESDK
-	if ( TFGameRules() && TFGameRules()->IsBombermanMode() && IsAlive() )
+	if ( TFGameRules()
+		&& ( TFGameRules()->IsBombermanMode() || tf_ff_game_mode.GetInt() == TF_FF_MODE_BOMBERMAN )
+		&& ( GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_BLUE ) )
 	{
-		if ( GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_BLUE )
+		extern CBaseEntity *BM_GetSkySpawnEntity( CTFPlayer *pPlayer );
+		extern bool BM_IsMapFloorArena( void );
+		if ( BM_IsMapFloorArena() )
 		{
-			extern CBaseEntity *BM_GetSkySpawnEntity( CTFPlayer *pPlayer );
 			CBaseEntity *pBMSpot = BM_GetSkySpawnEntity( this );
 			if ( pBMSpot )
 			{
@@ -6844,14 +6843,13 @@ void CTFPlayer::ChangeTeam( int iTeamNum, bool bAutoTeam, bool bSilent, bool bAu
 		OW_OnHumanChangedTeam( this, iTeamNum, iOldTeam );
 	}
 
-	if ( TFGameRules() && TFGameRules()->IsBombermanMode() && iTeamNum >= FIRST_GAME_TEAM )
+	if ( TFGameRules()
+		&& ( TFGameRules()->IsBombermanMode() || tf_ff_game_mode.GetInt() == TF_FF_MODE_BOMBERMAN )
+		&& iTeamNum >= FIRST_GAME_TEAM )
 	{
 		m_bBMSpawnConfigured = false;
-		if ( IsAlive() )
-		{
-			extern void BM_EnsurePlayerInArena( CTFPlayer *pPlayer );
-			BM_EnsurePlayerInArena( this );
-		}
+		extern void BM_ResetArenaSpawnDebounce( CTFPlayer *pPlayer );
+		BM_ResetArenaSpawnDebounce( this );
 	}
 #endif
 

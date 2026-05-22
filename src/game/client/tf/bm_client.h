@@ -26,6 +26,8 @@ bool BM_ClientShouldControlView( C_TFPlayer *pLocalPlayer );
 
 void BM_ClientCreateMove( C_TFPlayer *pLocalPlayer, CUserCmd *pCmd );
 
+void BM_ClientTickGameplayOverlays( void );
+
 void BM_ClientApplyBomberViewCmd( C_TFPlayer *pLocalPlayer, CUserCmd *pCmd );
 
 void BM_ClientApplyTopDownCamera( C_TFPlayer *pLocalPlayer, CViewSetup *pSetup );

@@ -428,18 +428,19 @@ void SetAppropriateCamera( C_TFPlayer *pPlayer )
 #ifdef SOURCESDK
 	if ( TFGameRules() && TFGameRules()->IsBombermanMode() )
 	{
-		if ( pPlayer->IsAlive() && pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM )
+		extern ConVar tf_bm_camera_mode;
+		if ( tf_bm_camera_mode.GetInt() > 0 && pPlayer->IsAlive() && pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM )
 		{
 			BM_ClientApplyBomberCameraState( pPlayer );
+			return;
 		}
-		else
-		{
-			BM_ClientClearBomberCameraState( pPlayer );
-		}
-		return;
-	}
 
-	BM_ClientClearBomberCameraState( pPlayer );
+		BM_ClientClearBomberCameraState( pPlayer );
+	}
+	else
+	{
+		BM_ClientClearBomberCameraState( pPlayer );
+	}
 #endif
 
 	if ( TFGameRules() &&
@@ -6580,6 +6581,7 @@ bool C_TFPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 #ifdef SOURCESDK
 	if ( bBomberLocalPlay && IsAlive() && GetTeamNumber() >= FIRST_GAME_TEAM )
 	{
+		BM_ClientTickGameplayOverlays();
 		BM_ClientCreateMove( this, pCmd );
 	}
 #endif
@@ -8413,7 +8415,8 @@ void C_TFPlayer::OverrideView( CViewSetup *pSetup )
 	BaseClass::OverrideView( pSetup );
 
 #ifdef SOURCESDK
-	if ( IsLocalPlayer() && IsAlive() && GetTeamNumber() >= FIRST_GAME_TEAM
+	extern ConVar tf_bm_camera_mode;
+	if ( tf_bm_camera_mode.GetInt() > 0 && IsLocalPlayer() && IsAlive() && GetTeamNumber() >= FIRST_GAME_TEAM
 		&& TFGameRules() && TFGameRules()->IsBombermanMode() )
 	{
 		BM_ClientApplyTopDownCamera( this, pSetup );
@@ -9597,7 +9600,8 @@ void C_TFPlayer::CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNear, f
 	BaseClass::CalcView( eyeOrigin, eyeAngles, zNear, zFar, fov );
 
 #ifdef SOURCESDK
-	if ( IsLocalPlayer() && IsAlive() && GetTeamNumber() >= FIRST_GAME_TEAM
+	extern ConVar tf_bm_camera_mode;
+	if ( tf_bm_camera_mode.GetInt() > 0 && IsLocalPlayer() && IsAlive() && GetTeamNumber() >= FIRST_GAME_TEAM
 		&& TFGameRules() && TFGameRules()->IsBombermanMode() )
 	{
 		BM_ClientCalcView( this, eyeOrigin, eyeAngles, zNear, zFar );
