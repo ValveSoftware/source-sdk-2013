@@ -436,6 +436,7 @@ $Project "Client (TF)"
 			$File	"tf\tf_hud_winpanel.cpp"
 			$File	"tf\tf_hud_winpanel.h"
 			$File	"tf\tf_hud_ow.cpp" [$SOURCESDK]
+			$File	"tf\tf_hud_bomber.cpp" [$SOURCESDK]
 			$File	"tf\vgui\tf_imagepanel.cpp"
 			$File	"tf\vgui\tf_imagepanel.h"
 			$File	"tf\vgui\tf_item_card_panel.cpp"

@@ -5,6 +5,7 @@
 
 #include "c_tf_player.h"
 #include "tf_gamerules.h"
+#include "bm_client.h"
 #include "bm_shareddefs.h"
 #include "view_shared.h"
 #include "cam_thirdperson.h"
@@ -13,13 +14,18 @@
 #include "materialsystem/imaterialsystem.h"
 #include "iviewrender.h"
 #include "debugoverlay_shared.h"
+#include "vgui/ISurface.h"
+#include "vgui/IVGui.h"
+#include "vgui/ILocalize.h"
 
+ConVar tf_bm_camera_mode( "tf_bm_camera_mode", "1", FCVAR_CLIENTDLL | FCVAR_ARCHIVE,
+	"Bomberman camera: 0=vanilla first-person, 1=top-down chase (recommended), 2=ortho (experimental)." );
 ConVar tf_bm_cam_height( "tf_bm_cam_height", "520", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: height above player (straight down)." );
-ConVar tf_bm_cam_pitch( "tf_bm_cam_pitch", "89", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: camera pitch (89 = top-down)." );
+ConVar tf_bm_cam_pitch( "tf_bm_cam_pitch", "-89", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: camera pitch (-89 = top-down in TF)." );
 ConVar tf_bm_cam_back( "tf_bm_cam_back", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: horizontal offset (0 = overhead, avoids walls)." );
 ConVar tf_bm_clip_world( "tf_bm_clip_world", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: experimental roof clip (off)." );
 ConVar tf_bm_clip_height( "tf_bm_clip_height", "256", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: only used if tf_bm_clip_world is 1." );
-ConVar tf_bm_show_grid( "tf_bm_show_grid", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: debug grid overlay (0=off, 1=on)." );
+ConVar tf_bm_show_grid( "tf_bm_show_grid", "1", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: client grid overlay (recommended — server props are invisible)." );
 ConVar tf_bm_draw_floor( "tf_bm_draw_floor", "1", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: client floor tint overlay when props are missing." );
 ConVar tf_bm_client_snap( "tf_bm_client_snap", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Bomberman: client origin snap (0=server warp only)." );
 
@@ -30,7 +36,7 @@ ConVar tf_bm_cell_size( "tf_bm_cell_size", "64", FCVAR_REPLICATED, "Bomberman: g
 ConVar tf_bm_grid_origin( "tf_bm_grid_origin", "0 0 0", FCVAR_REPLICATED, "Bomberman: world origin of cell (0,0). Auto-set from team spawns on map load." );
 ConVar tf_bm_play_z_offset( "tf_bm_play_z_offset", "8", FCVAR_REPLICATED, "Bomberman: player feet offset above grid origin Z." );
 
-static QAngle s_angBMLockedView( 89.0f, 0.0f, 0.0f );
+static QAngle s_angBMLockedView( 90.0f, 90.0f, 0.0f );
 static int s_nBMClipPushDepth = 0;
 static float s_flBMNextGridDrawTime = 0.0f;
 
@@ -66,11 +72,17 @@ void BM_ClientApplyBomberCameraState( C_TFPlayer *pLocalPlayer )
 		return;
 	}
 
-	// Do not use stock third-person — it places the eye inside map geometry on itemtest.
+	// First-person overhead eye (no third-person / ForceTempForceDraw — those triggered NULL material binds).
 	g_ThirdPersonManager.SetForcedThirdPerson( false );
 	g_ThirdPersonManager.SetOverridingThirdPerson( false );
 
-	pLocalPlayer->ForceTempForceDraw( true );
+	if ( input->CAM_IsThirdPerson() )
+	{
+		input->CAM_ToFirstPerson();
+		pLocalPlayer->ThirdPersonSwitch( false );
+	}
+
+	pLocalPlayer->ForceTempForceDraw( false );
 	pLocalPlayer->m_Local.m_bDrawViewmodel = false;
 }
 
@@ -319,10 +331,100 @@ static void BM_ClientGetCameraTargets( C_TFPlayer *pLocalPlayer, Vector &vecCamO
 }
 
 //-----------------------------------------------------------------------------
+static bool BM_ClientGetArenaCenter( Vector &vecCenter, float &flArenaW, float &flArenaD )
+{
+	if ( !BM_ClientGridReady() )
+	{
+		return false;
+	}
+
+	Vector vecGridOrigin;
+	BM_ClientParseGridOrigin( vecGridOrigin );
+	const float flCell = BM_ClientGetCellSize();
+	const int iWidth = clamp( tf_bm_arena_width.GetInt(), 7, 51 );
+	const int iHeight = clamp( tf_bm_arena_height.GetInt(), 7, 51 );
+	flArenaW = iWidth * flCell;
+	flArenaD = iHeight * flCell;
+	vecCenter.x = vecGridOrigin.x + flArenaW * 0.5f;
+	vecCenter.y = vecGridOrigin.y + flArenaD * 0.5f;
+	vecCenter.z = BM_ClientGetPlayPlaneZ();
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+static void BM_ClientApplyOrthoView( CViewSetup *pSetup, Vector *pEyeOrigin, QAngle *pEyeAngles, float *pZNear, float *pZFar )
+{
+	Vector vecCenter;
+	float flArenaW = 1024.0f;
+	float flArenaD = 1024.0f;
+	if ( !BM_ClientGetArenaCenter( vecCenter, flArenaW, flArenaD ) )
+	{
+		C_TFPlayer *pLocal = C_TFPlayer::GetLocalTFPlayer();
+		if ( pLocal )
+		{
+			vecCenter = pLocal->GetAbsOrigin();
+		}
+		flArenaW = 1024.0f;
+		flArenaD = 768.0f;
+	}
+
+	const float flHeight = Max( 256.0f, tf_bm_cam_height.GetFloat() );
+	Vector vecEye = vecCenter;
+	vecEye.z += flHeight;
+
+	const QAngle angView( 90.0f, 90.0f, 0.0f );
+	s_angBMLockedView = angView;
+
+	const float flHalfW = flArenaW * 0.55f;
+	const float flHalfD = flArenaD * 0.55f;
+
+	if ( pSetup )
+	{
+		pSetup->origin = vecEye;
+		pSetup->angles = angView;
+		pSetup->m_bOrtho = true;
+		pSetup->m_OrthoLeft = -flHalfW;
+		pSetup->m_OrthoTop = -flHalfD;
+		pSetup->m_OrthoRight = flHalfW;
+		pSetup->m_OrthoBottom = flHalfD;
+		pSetup->zNear = 1.0f;
+		pSetup->zFar = flHeight + 8192.0f;
+	}
+
+	if ( pEyeOrigin )
+	{
+		*pEyeOrigin = vecEye;
+	}
+	if ( pEyeAngles )
+	{
+		*pEyeAngles = angView;
+	}
+	if ( pZNear )
+	{
+		*pZNear = 1.0f;
+	}
+	if ( pZFar )
+	{
+		*pZFar = flHeight + 8192.0f;
+	}
+}
+
+//-----------------------------------------------------------------------------
 bool BM_ClientShouldControlView( C_TFPlayer *pLocalPlayer )
 {
+	if ( tf_bm_camera_mode.GetInt() <= 0 )
+	{
+		return false;
+	}
+
 	return ( pLocalPlayer && pLocalPlayer->IsAlive() && pLocalPlayer->GetTeamNumber() >= FIRST_GAME_TEAM
 		&& TFGameRules() && TFGameRules()->IsBombermanMode() );
+}
+
+//-----------------------------------------------------------------------------
+static bool BM_ClientUseOrthoCamera( void )
+{
+	return tf_bm_camera_mode.GetInt() >= 2;
 }
 
 //-----------------------------------------------------------------------------
@@ -379,16 +481,19 @@ void BM_ClientApplyTopDownCamera( C_TFPlayer *pLocalPlayer, CViewSetup *pSetup )
 
 	BM_ClientApplyBomberCameraState( pLocalPlayer );
 
-	Vector vecCam, vecLook;
+	if ( BM_ClientUseOrthoCamera() )
+	{
+		BM_ClientApplyOrthoView( pSetup, NULL, NULL, NULL, NULL );
+		return;
+	}
+
+	Vector vecCam;
+	Vector vecLook;
 	BM_ClientGetCameraTargets( pLocalPlayer, vecCam, vecLook );
 
 	pSetup->origin = vecCam;
 	pSetup->angles = s_angBMLockedView;
 	pSetup->m_bOrtho = false;
-
-	const float flViewDist = ( vecLook - vecCam ).Length();
-	pSetup->zNear = clamp( 1.0f, pSetup->zNear, 8.0f );
-	pSetup->zFar = Max( pSetup->zFar, flViewDist + 4096.0f );
 }
 
 //-----------------------------------------------------------------------------
@@ -399,15 +504,140 @@ void BM_ClientCalcView( C_TFPlayer *pLocalPlayer, Vector &eyeOrigin, QAngle &eye
 		return;
 	}
 
-	Vector vecCam, vecLook;
+	if ( BM_ClientUseOrthoCamera() )
+	{
+		BM_ClientApplyOrthoView( NULL, &eyeOrigin, &eyeAngles, &zNear, &zFar );
+		return;
+	}
+
+	Vector vecCam;
+	Vector vecLook;
 	BM_ClientGetCameraTargets( pLocalPlayer, vecCam, vecLook );
 
 	eyeOrigin = vecCam;
 	eyeAngles = s_angBMLockedView;
+	zNear = 1.0f;
+	zFar = view ? view->GetZFar() : 32768.0f;
+}
 
-	const float flViewDist = ( vecLook - vecCam ).Length();
-	zNear = clamp( 1.0f, zNear, 8.0f );
-	zFar = Max( zFar, flViewDist + 4096.0f );
+//-----------------------------------------------------------------------------
+void BM_ClientPaintArenaHUD( void )
+{
+	if ( !TFGameRules() || !TFGameRules()->IsBombermanMode() )
+	{
+		return;
+	}
+
+	int nScreenW = 0;
+	int nScreenH = 0;
+	vgui::surface()->GetScreenSize( nScreenW, nScreenH );
+
+	// Top banner — visible even when the 3D view is black.
+	const int nBannerH = 36;
+	vgui::surface()->DrawSetColor( 32, 96, 48, 240 );
+	vgui::surface()->DrawFilledRect( 0, 0, nScreenW, nBannerH );
+	vgui::surface()->DrawSetColor( 180, 255, 120, 255 );
+	vgui::surface()->DrawOutlinedRect( 0, 0, nScreenW, nBannerH );
+
+	const int nMapW = 280;
+	const int nMapH = 220;
+	const int nX0 = nScreenW - nMapW - 16;
+	const int nY0 = 48;
+
+	vgui::surface()->DrawSetColor( 24, 36, 52, 235 );
+	vgui::surface()->DrawFilledRect( nX0, nY0, nX0 + nMapW, nY0 + nMapH );
+	vgui::surface()->DrawSetColor( 200, 220, 255, 255 );
+	vgui::surface()->DrawOutlinedRect( nX0, nY0, nX0 + nMapW, nY0 + nMapH );
+
+	vgui::surface()->DrawSetTextColor( 255, 255, 255, 255 );
+	if ( g_hFontTrebuchet24 != vgui::INVALID_FONT )
+	{
+		vgui::surface()->DrawSetTextFont( g_hFontTrebuchet24 );
+	}
+
+	wchar_t wszLine[128];
+	g_pVGuiLocalize->ConvertANSIToUnicode( "Frog Bomber phase28 — HUD OK", wszLine, sizeof( wszLine ) );
+	vgui::surface()->DrawSetTextPos( 12, 8 );
+	vgui::surface()->DrawPrintText( wszLine, V_wcslen( wszLine ) );
+
+	g_pVGuiLocalize->ConvertANSIToUnicode( "Frog Bomber arena", wszLine, sizeof( wszLine ) );
+	vgui::surface()->DrawSetTextPos( nX0 + 8, nY0 + 6 );
+	vgui::surface()->DrawPrintText( wszLine, V_wcslen( wszLine ) );
+
+	C_TFPlayer *pLocal = C_TFPlayer::GetLocalTFPlayer();
+	char szStatus[128];
+	if ( !pLocal || !pLocal->IsAlive() || pLocal->GetTeamNumber() < FIRST_GAME_TEAM )
+	{
+		Q_snprintf( szStatus, sizeof( szStatus ), "jointeam red, then Scout" );
+	}
+	else
+	{
+		Q_snprintf( szStatus, sizeof( szStatus ), "Team %d  cam %d", pLocal->GetTeamNumber(), tf_bm_camera_mode.GetInt() );
+	}
+	g_pVGuiLocalize->ConvertANSIToUnicode( szStatus, wszLine, sizeof( wszLine ) );
+	vgui::surface()->DrawSetTextPos( nX0 + 8, nY0 + 24 );
+	vgui::surface()->DrawPrintText( wszLine, V_wcslen( wszLine ) );
+
+	if ( !BM_ClientGridReady() )
+	{
+		g_pVGuiLocalize->ConvertANSIToUnicode( "Grid not ready yet...", wszLine, sizeof( wszLine ) );
+		vgui::surface()->DrawSetTextPos( nX0 + 8, nY0 + 44 );
+		vgui::surface()->DrawPrintText( wszLine, V_wcslen( wszLine ) );
+		return;
+	}
+
+	const int iWidth = clamp( tf_bm_arena_width.GetInt(), 7, 51 );
+	const int iHeight = clamp( tf_bm_arena_height.GetInt(), 7, 51 );
+	const int nInnerX = nX0 + 12;
+	const int nInnerY = nY0 + 48;
+	const int nInnerW = nMapW - 24;
+	const int nInnerH = nMapH - 60;
+	const float flCellPixW = (float)nInnerW / (float)iWidth;
+	const float flCellPixH = (float)nInnerH / (float)iHeight;
+
+	for ( int iCellX = 0; iCellX < iWidth; ++iCellX )
+	{
+		for ( int iCellY = 0; iCellY < iHeight; ++iCellY )
+		{
+			const bool bBorder = ( iCellX == 0 || iCellY == 0 || iCellX == iWidth - 1 || iCellY == iHeight - 1 );
+			const int r = bBorder ? 200 : 72;
+			const int g = bBorder ? 90 : 110;
+			const int bCol = bBorder ? 60 : 150;
+
+			const int px0 = nInnerX + (int)( iCellX * flCellPixW );
+			const int py0 = nInnerY + (int)( iCellY * flCellPixH );
+			const int px1 = nInnerX + (int)( ( iCellX + 1 ) * flCellPixW );
+			const int py1 = nInnerY + (int)( ( iCellY + 1 ) * flCellPixH );
+
+			vgui::surface()->DrawSetColor( r, g, bCol, 255 );
+			vgui::surface()->DrawFilledRect( px0, py0, px1, py1 );
+		}
+	}
+
+	if ( pLocal && pLocal->IsAlive() && BM_ClientGridReady() )
+	{
+		Vector vecGridOrigin;
+		BM_ClientParseGridOrigin( vecGridOrigin );
+		const float flCell = BM_ClientGetCellSize();
+		int iCellX = Floor2Int( ( pLocal->GetAbsOrigin().x - vecGridOrigin.x ) / flCell );
+		int iCellY = Floor2Int( ( pLocal->GetAbsOrigin().y - vecGridOrigin.y ) / flCell );
+		iCellX = clamp( iCellX, 0, iWidth - 1 );
+		iCellY = clamp( iCellY, 0, iHeight - 1 );
+
+		const int px0 = nInnerX + (int)( iCellX * flCellPixW );
+		const int py0 = nInnerY + (int)( iCellY * flCellPixH );
+		const int px1 = nInnerX + (int)( ( iCellX + 1 ) * flCellPixW );
+		const int py1 = nInnerY + (int)( ( iCellY + 1 ) * flCellPixH );
+		vgui::surface()->DrawSetColor( 255, 240, 80, 255 );
+		vgui::surface()->DrawFilledRect( px0, py0, px1, py1 );
+	}
+}
+
+//-----------------------------------------------------------------------------
+void BM_ClientDrawArenaHUD( const CViewSetup &viewSetup )
+{
+	(void)viewSetup;
+	BM_ClientPaintArenaHUD();
 }
 
 //-----------------------------------------------------------------------------
@@ -491,8 +721,8 @@ static void BM_ClientDrawArenaFloor( void )
 	const Vector v11( x1, y1, flZ );
 	const Vector v01( x0, y1, flZ );
 
-	NDebugOverlay::Triangle( v00, v10, v11, 48, 72, 96, 220, true, 0.0f );
-	NDebugOverlay::Triangle( v00, v11, v01, 48, 72, 96, 220, true, 0.0f );
+	NDebugOverlay::Triangle( v00, v10, v11, 72, 110, 150, 240, true, 0.0f );
+	NDebugOverlay::Triangle( v00, v11, v01, 72, 110, 150, 240, true, 0.0f );
 }
 
 //-----------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 #ifdef SOURCESDK
 
 #include "bm_props.h"
+#include "props.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -56,45 +57,12 @@ void BM_ApplyPropModelOrHidden( CBaseAnimating *pEntity, const char *const *ppsz
 		return;
 	}
 
-	if ( !tf_bm_render_props.GetBool() )
-	{
-		pEntity->AddEffects( EF_NODRAW );
-		return;
-	}
-
-	const char *pszModel = BM_SelectModel( ppszModels, nModels );
-	if ( pszModel )
-	{
-		pEntity->SetModel( pszModel );
-		if ( flModelScale != 1.0f )
-		{
-			pEntity->SetModelScale( flModelScale, 0.0f );
-		}
-	}
-	else
-	{
-		static bool s_bWarnedMissingModels = false;
-		if ( !s_bWarnedMissingModels )
-		{
-			s_bWarnedMissingModels = true;
-			Warning( "BM: no prop models found — hiding arena props. Mount TF2 (appid 440) or set tf_bm_render_props 0.\n" );
-		}
-		// Fallback: still draw a crate so the arena is not invisible wireframe only.
-		const char *pszFallback = "models/props_junk/wood_crate001a.mdl";
-		if ( modelinfo->GetModelIndex( pszFallback ) > 0 )
-		{
-			pEntity->SetModel( pszFallback );
-			if ( flModelScale != 1.0f )
-			{
-				pEntity->SetModelScale( flModelScale, 0.0f );
-			}
-			pEntity->SetRenderColor( 200, 180, 140 );
-		}
-		else
-		{
-			pEntity->AddEffects( EF_NODRAW );
-		}
-	}
+	// Server entities have no client class — drawing models here causes "Bind: NULL material" on clients.
+	// Arena visuals are drawn client-side (tf_bm_draw_floor / tf_bm_show_grid).
+	(void)ppszModels;
+	(void)nModels;
+	(void)flModelScale;
+	pEntity->AddEffects( EF_NODRAW );
 }
 
 static CUtlVector<EHANDLE> s_hArenaVisuals;
@@ -168,53 +136,56 @@ void BM_SpawnArenaVisuals( const Vector &vecArenaCenter, float flArenaW, float f
 	}
 
 	BM_PrecacheModelCandidates( g_BMDeckModels, ARRAYSIZE( g_BMDeckModels ) );
-
 	const char *pszModel = BM_SelectModel( g_BMDeckModels, ARRAYSIZE( g_BMDeckModels ) );
 	if ( !pszModel )
 	{
-		static bool s_bWarnedDeck = false;
-		if ( !s_bWarnedDeck )
-		{
-			s_bWarnedDeck = true;
-			Warning( "BM: no deck model — black void likely. Mount TF2 (appid 440) or add props to game paths.\n" );
-		}
 		return;
 	}
 
-	const int nTilesX = 3;
-	const int nTilesY = 3;
-	const float flTileW = flArenaW / nTilesX;
-	const float flTileD = flArenaD / nTilesY;
-	const float flScale = Max( flTileW, flTileD ) / 36.0f;
-
-	for ( int iTileX = 0; iTileX < nTilesX; ++iTileX )
+	// One large deck prop (networked, has a client class) — debug overlays are invisible in normal play.
+	CDynamicProp *pDeck = dynamic_cast<CDynamicProp *>( CreateEntityByName( "prop_dynamic_override" ) );
+	if ( pDeck )
 	{
-		for ( int iTileY = 0; iTileY < nTilesY; ++iTileY )
+		Vector vecDeckOrigin( vecArenaCenter.x, vecArenaCenter.y, flPlayZ + 4.0f );
+		const float flScale = Max( flArenaW, flArenaD ) / 50.0f;
+
+		pDeck->SetModel( pszModel );
+		pDeck->SetAbsOrigin( vecDeckOrigin );
+		pDeck->SetAbsAngles( vec3_angle );
+		pDeck->SetModelScale( flScale );
+		pDeck->SetSolid( SOLID_NONE );
+		pDeck->Spawn();
+		pDeck->Activate();
+		BM_TrackArenaVisual( pDeck );
+	}
+
+	const float flCorners[4][2] = {
+		{ -0.5f, -0.5f },
+		{  0.5f, -0.5f },
+		{  0.5f,  0.5f },
+		{ -0.5f,  0.5f },
+	};
+
+	for ( int i = 0; i < 4; ++i )
+	{
+		CDynamicProp *pProp = dynamic_cast<CDynamicProp *>( CreateEntityByName( "prop_dynamic_override" ) );
+		if ( !pProp )
 		{
-			Vector vecOrigin(
-				vecArenaCenter.x - flArenaW * 0.5f + ( iTileX + 0.5f ) * flTileW,
-				vecArenaCenter.y - flArenaD * 0.5f + ( iTileY + 0.5f ) * flTileD,
-				flPlayZ + 6.0f );
-
-			CBaseAnimating *pProp = dynamic_cast<CBaseAnimating *>( CreateEntityByName( "prop_dynamic" ) );
-			if ( !pProp )
-			{
-				continue;
-			}
-
-			pProp->SetModel( pszModel );
-			pProp->SetModelScale( flScale, 0.0f );
-			pProp->SetAbsOrigin( vecOrigin );
-			pProp->SetAbsAngles( vec3_angle );
-			pProp->SetRenderColor( 96, 140, 180 );
-			pProp->RemoveEffects( EF_NODRAW );
-			pProp->SetSolid( SOLID_NONE );
-			pProp->SetMoveType( MOVETYPE_NONE );
-
-			DispatchSpawn( pProp );
-			pProp->Activate();
-			BM_TrackArenaVisual( pProp );
+			continue;
 		}
+
+		Vector vecOrigin(
+			vecArenaCenter.x + flCorners[i][0] * flArenaW,
+			vecArenaCenter.y + flCorners[i][1] * flArenaD,
+			flPlayZ + 12.0f );
+
+		pProp->SetModel( pszModel );
+		pProp->SetAbsOrigin( vecOrigin );
+		pProp->SetAbsAngles( vec3_angle );
+		pProp->SetSolid( SOLID_NONE );
+		pProp->Spawn();
+		pProp->Activate();
+		BM_TrackArenaVisual( pProp );
 	}
 }
 

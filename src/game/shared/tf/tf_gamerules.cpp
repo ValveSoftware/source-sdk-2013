@@ -916,7 +916,7 @@ ConVar tf_ff_game_mode( "tf_ff_game_mode", "1", FCVAR_REPLICATED | FCVAR_NOTIFY,
 #endif
 );
 ConVar tf_bm_respawn_time( "tf_bm_respawn_time", "2", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: respawn delay after dying to a blast." );
-ConVar tf_bm_build_id( "tf_bm_build_id", "phase24-visible", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman build tag (confirms DLL has bombs + camera fix)." );
+ConVar tf_bm_build_id( "tf_bm_build_id", "phase28-hud-floor", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman build tag (confirms DLL has bombs + camera fix)." );
 ConVar tf_rim_mode( "tf_rim_mode", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Rainbow Is Magic: archived hostage mode (0=off). Prefer tf_ff_game_mode or ff_mode."
 #ifdef GAME_DLL
 	, TfRimModeChanged
@@ -1351,8 +1351,11 @@ static const char *FF_ResolveBomberMap( const char *pszRequested )
 		return "bm_arena";
 	}
 
-	Warning( "FF: maps/bm_arena.bsp NOT FOUND — fallback itemtest builds an ISOLATED void arena (not inside stock geometry).\n" );
-	Warning( "FF: Compile game/mod_tf/mapsrc/bm_arena.vmf -> maps/bm_arena.bsp for the dedicated bomber map.\n" );
+	Warning( "FF: maps/bm_arena.bsp NOT FOUND — fallback itemtest (arena on map team spawns; client HUD draws the playfield).\n" );
+	Warning( "FF: Install 'Source SDK Base 2013 Multiplayer' (Steam Library -> Tools), then run game/mod_tf/mapsrc/compile_bm_arena.bat\n" );
+#ifdef GAME_DLL
+	UTIL_ClientPrintAll( HUD_PRINTTALK, "Frog Bomber: no maps/bm_arena.bsp — using itemtest. See mapsrc/COMPILE_MAP_SETUP.txt" );
+#endif
 	return "itemtest";
 }
 

@@ -425,6 +425,7 @@ void SetAppropriateCamera( C_TFPlayer *pPlayer )
 	if ( pPlayer->IsLocalPlayer() == false )
 		return;
 
+#ifdef SOURCESDK
 	if ( TFGameRules() && TFGameRules()->IsBombermanMode() )
 	{
 		if ( pPlayer->IsAlive() && pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM )
@@ -439,6 +440,7 @@ void SetAppropriateCamera( C_TFPlayer *pPlayer )
 	}
 
 	BM_ClientClearBomberCameraState( pPlayer );
+#endif
 
 	if ( TFGameRules() &&
 		( ( TFGameRules()->IsInMedievalMode() && tf_medieval_thirdperson.GetBool() )
@@ -6682,18 +6684,9 @@ bool C_TFPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 	}
 
 #ifdef SOURCESDK
-	if ( bBomberLocalPlay )
+	if ( bBomberLocalPlay && ( !IsAlive() || GetTeamNumber() < FIRST_GAME_TEAM ) )
 	{
-		if ( IsAlive() && GetTeamNumber() >= FIRST_GAME_TEAM )
-		{
-			extern void BM_ClientApplyBomberViewCmd( C_TFPlayer *pLocalPlayer, CUserCmd *pCmd );
-			BM_ClientApplyBomberViewCmd( this, pCmd );
-		}
-		else
-		{
-			extern void BM_ClientClearBomberCameraState( C_TFPlayer *pLocalPlayer );
-			BM_ClientClearBomberCameraState( this );
-		}
+		BM_ClientClearBomberCameraState( this );
 	}
 #endif
 

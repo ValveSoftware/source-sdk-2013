@@ -35,7 +35,7 @@ You do **not** need to start in bomber. This is the normal workflow:
 3. When you are **host** (listen server) or server admin, run:
    - `ff_play bomber` or `exec bomber_quickstart` or `ff_bomber` (after `exec ff_aliases.cfg`)
 4. The mod **changelevels** to `bm_arena` (or `itemtest` if the BSP is not compiled yet), runs `mode_bomber.cfg`, builds walls/crates on a **flat floor**, and finishes post-map setup (~4–8s).
-5. **Join RED or BLU**, pick **Scout** — you spawn on the arena floor (console: `tf_bm_build_id` should show **`phase19-mode-isolation`**).
+5. **Join RED or BLU**, pick **Scout** — you spawn on the arena floor (console: `tf_bm_build_id` should show **`phase28-hud-floor`**; green top HUD bar when client DLL is current).
 
 Leaving OW for bomber clears hero state and kicks OW fill bots so OW and bomber do not run together.
 

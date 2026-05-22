@@ -21,7 +21,9 @@ ConVar tf_bm_arena_height( "tf_bm_arena_height", "13", FCVAR_REPLICATED | FCVAR_
 ConVar tf_bm_arena_soft_fill( "tf_bm_arena_soft_fill", "0.35", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: chance to place a soft crate in empty interior cells." );
 ConVar tf_bm_arena_lift( "tf_bm_arena_lift", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: legacy relative lift above spawns." );
 ConVar tf_bm_arena_offset( "tf_bm_arena_offset", "2048 2048", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: XY offset from map spawns for floating arena (stock maps)." );
-ConVar tf_bm_platform_height( "tf_bm_platform_height", "512", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: platform height above highest map spawn Z (stock maps)." );
+ConVar tf_bm_void_arena( "tf_bm_void_arena", "0", FCVAR_REPLICATED | FCVAR_NOTIFY,
+	"Bomberman: park arena in empty space (+8192 on itemtest). Off = build on map floor (recommended)." );
+ConVar tf_bm_platform_height( "tf_bm_platform_height", "512", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: platform height above highest map spawn Z (void arena only)." );
 ConVar tf_bm_platform_z( "tf_bm_platform_z", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: absolute platform Z override (0 = use platform_height above spawns)." );
 
 extern ConVar tf_bm_grid_origin;
@@ -47,7 +49,7 @@ bool BM_IsDedicatedArenaMap( void )
 }
 
 //-----------------------------------------------------------------------------
-// Only the dedicated bm_arena BSP uses map-floor alignment. itemtest/stock maps use an isolated void platform.
+// bm_arena BSP and itemtest fallback: align grid to team spawns on real map geometry (sky + lighting).
 //-----------------------------------------------------------------------------
 static bool BM_IsMapFloorArena( void )
 {
@@ -57,7 +59,7 @@ static bool BM_IsMapFloorArena( void )
 		return false;
 	}
 
-	return ( Q_stricmp( pszMap, "bm_arena" ) == 0 );
+	return ( Q_stricmp( pszMap, "bm_arena" ) == 0 || Q_stricmp( pszMap, "itemtest" ) == 0 );
 }
 
 //-----------------------------------------------------------------------------
@@ -67,12 +69,14 @@ static void BM_GetVoidPlatformOffset( float &flOffX, float &flOffY )
 	flOffY = 2048.0f;
 	sscanf( tf_bm_arena_offset.GetString(), "%f %f", &flOffX, &flOffY );
 
-	const char *pszMap = STRING( gpGlobals->mapname );
-	if ( pszMap && Q_stricmp( pszMap, "itemtest" ) == 0 && flOffX == 0.0f && flOffY == 0.0f )
+	if ( tf_bm_void_arena.GetBool() && flOffX == 0.0f && flOffY == 0.0f )
 	{
-		// itemtest has stock geometry everywhere — park the arena far away in empty space.
-		flOffX = 8192.0f;
-		flOffY = 8192.0f;
+		const char *pszMap = STRING( gpGlobals->mapname );
+		if ( pszMap && Q_stricmp( pszMap, "itemtest" ) == 0 )
+		{
+			flOffX = 8192.0f;
+			flOffY = 8192.0f;
+		}
 	}
 }
 
@@ -827,7 +831,7 @@ void BM_BuildArena( bool bWarpAllPlayers )
 		const char *pszMap = STRING( gpGlobals->mapname );
 		if ( pszMap && Q_stricmp( pszMap, "itemtest" ) == 0 )
 		{
-			UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Bomber: isolated arena (itemtest fallback) at %.0f %.0f Z=%.0f — compile mapsrc/bm_arena.vmf for the real map!",
+			UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Bomber: void arena at %.0f %.0f Z=%.0f (tf_bm_void_arena 1). Use 0 for itemtest floor.",
 				vecCenter.x, vecCenter.y, flPlayZ ) );
 		}
 		else
@@ -838,7 +842,16 @@ void BM_BuildArena( bool bWarpAllPlayers )
 	}
 	else
 	{
-		UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Bomber: %dx%d on bm_arena floor (Z=%.0f).", s_iArenaWidth, s_iArenaHeight, flPlayZ ) );
+		const char *pszMap = STRING( gpGlobals->mapname );
+		if ( pszMap && Q_stricmp( pszMap, "itemtest" ) == 0 )
+		{
+			UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Bomber: %dx%d on itemtest floor at %.0f %.0f Z=%.0f — join RED/BLU Scout.",
+				s_iArenaWidth, s_iArenaHeight, vecCenter.x, vecCenter.y, flPlayZ ) );
+		}
+		else
+		{
+			UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Bomber: %dx%d on map floor (Z=%.0f).", s_iArenaWidth, s_iArenaHeight, flPlayZ ) );
+		}
 	}
 
 	if ( bWarpAllPlayers )

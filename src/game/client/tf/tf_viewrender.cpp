@@ -99,6 +99,7 @@ void CTFViewRender::RenderView( const CViewSetup &view, int nClearFlags, int wha
 void CTFViewRender::Render2DEffectsPostHUD( const CViewSetup &viewTF )
 {
 	BaseClass::Render2DEffectsPostHUD( viewTF );
+	// Bomber HUD: CHudBomberArena in tf_hud_bomber.cpp (DECLARE_HUDELEMENT).
 
 #if defined( _X360 )
 	// if we're in the intro menus

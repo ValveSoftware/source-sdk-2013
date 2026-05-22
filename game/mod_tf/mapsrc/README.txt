@@ -5,8 +5,9 @@ This folder contains the Hammer source for a flat Bomberman-only map.
 
 Requirements
 ------------
-- Team Fortress 2 installed (for textures/FGD)
-- Source SDK Base 2013 Multiplayer (Hammer + vbsp/vvis/lightrad)
+- Team Fortress 2 installed (for textures/FGD via gameinfo.txt)
+- Source SDK Base 2013 Multiplayer (Steam -> Library -> Tools) — REQUIRED to compile
+  If missing, ff_play bomber uses itemtest instead. See COMPILE_MAP_SETUP.txt
 
 Steps
 -----

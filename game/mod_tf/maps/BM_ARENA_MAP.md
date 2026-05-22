@@ -9,26 +9,27 @@ ff_play bomber
 ```
 
 - Tries **`bm_arena`** if `game/mod_tf/maps/bm_arena.bsp` exists.
-- Otherwise **`itemtest`** with a **solid code-built floor** and optional offset platform beside the map.
+- Otherwise **`itemtest`** with a **solid code-built floor** aligned to team spawns.
 
-Build tag: **`phase15-playable-map`**
+Build tag: **`phase28-hud-floor`** (green top HUD bar when client DLL is current).
 
 ## Proper map (recommended)
 
-1. Open `game/mod_tf/mapsrc/bm_arena.vmf` in Hammer (Source SDK 2013).
-2. Run `game/mod_tf/mapsrc/compile_bm_arena.bat` (or F9 in Hammer).
+1. Open `game/mod_tf/mapsrc/bm_arena.vmf` in Hammer (Source SDK 2013 Multiplayer).
+2. Run `game/mod_tf/mapsrc/compile_bm_arena.bat` (or `compile_bm_arena.ps1`).
 3. Confirm `game/mod_tf/maps/bm_arena.bsp` exists.
-4. `ff_play bomber` — you spawn on the flat map with RED/BLU team spawns.
+4. `ff_play bomber` — flat BSP with RED/BLU spawns; mod still spawns walls/crates on the grid.
+
+Hammer **GameDir** must be `game/mod_tf` (folder with `gameinfo.txt`). **BSPDir** must be `game/mod_tf/maps` (folder must exist).
 
 Map size: **2048×1536** floor, sized for a **15×13** cell arena at **64** units per cell.
 
-## What the mod still builds
+## What the mod still builds each round
 
-Each round the server spawns on the floor:
-
-- Border walls + pillar blocks + soft crates
-- Invisible **solid play platform** (`tf_bm_floor`) + visible deck props
-- Optional debug grid overlay (`tf_bm_show_grid 1`)
+- Border walls + soft crates (server entities, invisible models — collision only)
+- Invisible **solid play platform** (`tf_bm_floor`)
+- Visible **deck markers** (`prop_dynamic_override` when `tf_bm_deck_visible 1`)
+- **HUD minimap** (client `CHudBomberArena` — not debug overlays)
 
 ## Legacy sky mode
 

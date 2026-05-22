@@ -11,6 +11,7 @@
 #include "tf_gamerules.h"
 #include "tf_weaponbase.h"
 #include "in_buttons.h"
+#include "filesystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -227,6 +228,30 @@ static void CC_BM_Fix( const CCommand &args )
 }
 
 static ConCommand bm_fix( "bm_fix", CC_BM_Fix, "Rebuild bomber arena and warp/respawn players.", FCVAR_GAMEDLL );
+
+//-----------------------------------------------------------------------------
+static void CC_BM_MapStatus( const CCommand &args )
+{
+	const char *pszMap = STRING( gpGlobals->mapname );
+	const bool bHasArenaBsp = g_pFullFileSystem && g_pFullFileSystem->FileExists( "maps/bm_arena.bsp", "GAME" );
+
+	Msg( "BM map status: current map='%s' bm_arena.bsp=%s arena_active=%d grid_aligned=%d\n",
+		pszMap ? pszMap : "?",
+		bHasArenaBsp ? "YES" : "NO",
+		BM_IsArenaActive() ? 1 : 0,
+		s_bBMGridAligned ? 1 : 0 );
+
+	if ( !bHasArenaBsp )
+	{
+		UTIL_ClientPrintAll( HUD_PRINTTALK, "No maps/bm_arena.bsp — using itemtest. Run mapsrc/compile_bm_arena.bat after installing Source SDK 2013 MP." );
+	}
+	else
+	{
+		UTIL_ClientPrintAll( HUD_PRINTTALK, "maps/bm_arena.bsp found — ff_play bomber will load bm_arena." );
+	}
+}
+
+static ConCommand bm_map_status( "bm_map_status", CC_BM_MapStatus, "Show whether bm_arena.bsp exists and bomber arena state.", FCVAR_GAMEDLL );
 
 //-----------------------------------------------------------------------------
 static bool BM_PlayerReadyForGameplay( CTFPlayer *pPlayer )
