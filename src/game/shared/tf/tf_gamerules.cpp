@@ -900,10 +900,13 @@ ConVar tf_training_client_message( "tf_training_client_message", "0", FCVAR_REPL
 #define TF_ARENA_MODE_SLOW_FIRST_BLOOD_TIME 50.0f
 
 #ifdef SOURCESDK
+#include "bm_shareddefs.h"
 #ifdef GAME_DLL
 void TfFfGameModeChanged( IConVar *var, const char *pOldString, float flOldValue );
 void TfOwModeChanged( IConVar *var, const char *pOldString, float flOldValue );
 void TfRimModeChanged( IConVar *var, const char *pOldString, float flOldValue );
+void OW_TeardownAllPlayers( void );
+extern void BM_ClearArena( void );
 #endif
 
 ConVar tf_ff_game_mode( "tf_ff_game_mode", "1", FCVAR_REPLICATED | FCVAR_NOTIFY,
@@ -913,7 +916,7 @@ ConVar tf_ff_game_mode( "tf_ff_game_mode", "1", FCVAR_REPLICATED | FCVAR_NOTIFY,
 #endif
 );
 ConVar tf_bm_respawn_time( "tf_bm_respawn_time", "2", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: respawn delay after dying to a blast." );
-ConVar tf_bm_build_id( "tf_bm_build_id", "phase6-sky-body", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman build tag (confirms DLL has bombs + camera fix)." );
+ConVar tf_bm_build_id( "tf_bm_build_id", "phase24-visible", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman build tag (confirms DLL has bombs + camera fix)." );
 ConVar tf_rim_mode( "tf_rim_mode", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Rainbow Is Magic: archived hostage mode (0=off). Prefer tf_ff_game_mode or ff_mode."
 #ifdef GAME_DLL
 	, TfRimModeChanged
@@ -991,7 +994,7 @@ static bool FF_TryParseMode( const char *pszModeName, FFModeInfo_t &modeInfo )
 		modeInfo.m_iMode = 3;
 		modeInfo.m_pszCanonicalName = "bomber";
 		modeInfo.m_pszConfigFile = "mode_bomber.cfg";
-		modeInfo.m_pszDefaultMap = "itemtest";
+		modeInfo.m_pszDefaultMap = "bm_arena";
 		return true;
 	}
 
@@ -1027,7 +1030,7 @@ static bool FF_GetModeInfoForInt( int iMode, FFModeInfo_t &modeInfo )
 		modeInfo.m_iMode = 3;
 		modeInfo.m_pszCanonicalName = "bomber";
 		modeInfo.m_pszConfigFile = "mode_bomber.cfg";
-		modeInfo.m_pszDefaultMap = "itemtest";
+		modeInfo.m_pszDefaultMap = "bm_arena";
 		return true;
 	default:
 		modeInfo.m_iMode = 0;
@@ -1045,7 +1048,8 @@ static void FF_PrintModeMenu( void )
 	Msg( "  ff_mode rim     — Rainbow Is Magic hostages\n" );
 	Msg( "  ff_mode bomber  — Frog Bomber grid mode\n" );
 	Msg( "  ff_mode stock   — vanilla mod_tf rules\n" );
-	Msg( "  ff_play <mode> [map]  — apply cfg + switch map + auto setup\n" );
+	Msg( "  ff_play <mode> [map]  — set mode + changelevel (cfg after load)\n" );
+	Msg( "  ff_map <mapname>      — changelevel only + re-setup current mode\n" );
 	Msg( "  ff_restart            — re-setup current mode on this map\n" );
 	Msg( "  Current: tf_ff_game_mode=%d (ow=%d rim=%d)\n",
 		tf_ff_game_mode.GetInt(), tf_ow_mode.GetInt(), tf_rim_mode.GetInt() );
@@ -1079,17 +1083,78 @@ static void FF_ApplyGameMode( int iMode )
 	s_bFfModeApplying = false;
 }
 
+static void FF_TeardownModeTransition( int iOldMode, int iNewMode )
+{
+#ifdef GAME_DLL
+	if ( iNewMode == TF_FF_MODE_BOMBERMAN && iOldMode != TF_FF_MODE_BOMBERMAN )
+	{
+		OW_TeardownAllPlayers();
+		engine->ServerCommand( "tf_bot_kick all\n" );
+		engine->ServerExecute();
+		Msg( "FF: leaving mode %d — OW heroes cleared, bots kicked for Frog Bomber.\n", iOldMode );
+	}
+	else if ( iNewMode != TF_FF_MODE_BOMBERMAN && iOldMode == TF_FF_MODE_BOMBERMAN )
+	{
+		BM_ClearArena();
+		Msg( "FF: leaving Frog Bomber — arena props cleared.\n" );
+	}
+#endif
+}
+
+static bool FF_MapNameMatches( const char *pszA, const char *pszB )
+{
+	if ( !pszA || !pszA[0] || !pszB || !pszB[0] )
+	{
+		return false;
+	}
+
+	return !Q_stricmp( pszA, pszB );
+}
+
+static bool FF_IsBomberArenaMap( const char *pszMap )
+{
+	return FF_MapNameMatches( pszMap, "bm_arena" );
+}
+
 static void FF_SetActiveGameMode( int iMode )
 {
+	const int iOldMode = FF_GetActiveGameMode();
+	const int iClamped = clamp( iMode, 0, 3 );
+	FF_TeardownModeTransition( iOldMode, iClamped );
+
 #ifdef SOURCESDK
-	g_iFFActiveGameMode = clamp( iMode, 0, 3 );
+	g_iFFActiveGameMode = iClamped;
 	g_bFFModeLocked = true;
 #endif
 
 	s_bFfModeApplying = true;
-	tf_ff_game_mode.SetValue( iMode );
-	FF_ApplyGameMode( iMode );
+	tf_ff_game_mode.SetValue( iClamped );
+	FF_ApplyGameMode( iClamped );
 	s_bFfModeApplying = false;
+}
+
+static void FF_ChangeLevelForMode( const FFModeInfo_t &modeInfo, const char *pszMap )
+{
+	if ( !pszMap || !pszMap[0] )
+	{
+		return;
+	}
+
+	if ( modeInfo.m_iMode == TF_FF_MODE_BOMBERMAN || ( TFGameRules() && TFGameRules()->IsBombermanMode() ) )
+	{
+		BM_ClearArena();
+	}
+
+	UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Fortress: changelevel %s (%s)...", pszMap, modeInfo.m_pszCanonicalName ) );
+	char szChangeLevelCommand[256];
+	Q_snprintf( szChangeLevelCommand, sizeof( szChangeLevelCommand ), "changelevel %s\n", pszMap );
+	engine->ServerCommand( szChangeLevelCommand );
+	engine->ServerExecute();
+
+	if ( TFGameRules() )
+	{
+		TFGameRules()->FF_SchedulePostMapSetup( 4.0f );
+	}
 }
 
 static void FF_SyncActiveModeConVars( void )
@@ -1151,6 +1216,8 @@ static void FF_ExecModeConfigForGameMode( int iMode )
 	}
 }
 
+static const char *FF_ResolveBomberMap( const char *pszRequested );
+
 void TfFfGameModeChanged( IConVar *var, const char *pOldString, float flOldValue )
 {
 	if ( s_bFfModeApplying )
@@ -1171,7 +1238,25 @@ void TfFfGameModeChanged( IConVar *var, const char *pOldString, float flOldValue
 		return;
 	}
 
-	g_iFFActiveGameMode = ( (ConVar *)var )->GetInt();
+	const int iNewMode = ( (ConVar *)var )->GetInt();
+	const int iOldMode = (int)flOldValue;
+	FF_TeardownModeTransition( iOldMode, iNewMode );
+	g_iFFActiveGameMode = iNewMode;
+
+	FF_ApplyGameMode( iNewMode );
+
+	// exec mode_bomber.cfg on koth_badlands (etc.) must not leave OW map + bomber rules overlapping.
+	if ( iNewMode == TF_FF_MODE_BOMBERMAN && !FF_IsBomberArenaMap( STRING( gpGlobals->mapname ) ) )
+	{
+		FFModeInfo_t modeInfo = { 0 };
+		if ( FF_GetModeInfoForInt( TF_FF_MODE_BOMBERMAN, modeInfo ) )
+		{
+			const char *pszTarget = FF_ResolveBomberMap( NULL );
+			Warning( "FF: Frog Bomber needs %s — changelevel from %s...\n", pszTarget, STRING( gpGlobals->mapname ) );
+			FF_ChangeLevelForMode( modeInfo, pszTarget );
+		}
+	}
+	return;
 #endif
 
 	FF_ApplyGameMode( ( (ConVar *)var )->GetInt() );
@@ -1229,9 +1314,46 @@ void CC_FF_Mode( const CCommand &args )
 	}
 
 	FF_SetActiveGameMode( modeInfo.m_iMode );
+
+	const char *pszTargetMap = NULL;
+	if ( modeInfo.m_iMode == TF_FF_MODE_BOMBERMAN )
+	{
+		pszTargetMap = FF_ResolveBomberMap( NULL );
+		const char *pszCurrentMap = STRING( gpGlobals->mapname );
+		if ( !FF_IsBomberArenaMap( pszCurrentMap ) )
+		{
+			FF_ChangeLevelForMode( modeInfo, pszTargetMap );
+			Msg( "ff_mode: %s — changelevel %s (OW/RIM torn down; cfg after load).\n",
+				modeInfo.m_pszCanonicalName, pszTargetMap );
+			return;
+		}
+	}
+
 	FF_ExecModeConfig( modeInfo.m_pszConfigFile );
-	Msg( "ff_mode: %s (%d) locked — exec %s. Reload map (ff_play <mode>) for full effect.\n",
+	engine->ServerExecute();
+	if ( TFGameRules() )
+	{
+		TFGameRules()->FF_SchedulePostMapSetup( 1.0f );
+	}
+	Msg( "ff_mode: %s (%d) locked — %s on this map.\n",
 		modeInfo.m_pszCanonicalName, modeInfo.m_iMode, modeInfo.m_pszConfigFile );
+}
+
+static const char *FF_ResolveBomberMap( const char *pszRequested )
+{
+	if ( pszRequested && pszRequested[0] )
+	{
+		return pszRequested;
+	}
+
+	if ( filesystem && filesystem->FileExists( "maps/bm_arena.bsp", "GAME" ) )
+	{
+		return "bm_arena";
+	}
+
+	Warning( "FF: maps/bm_arena.bsp NOT FOUND — fallback itemtest builds an ISOLATED void arena (not inside stock geometry).\n" );
+	Warning( "FF: Compile game/mod_tf/mapsrc/bm_arena.vmf -> maps/bm_arena.bsp for the dedicated bomber map.\n" );
+	return "itemtest";
 }
 
 void CC_FF_Play( const CCommand &args )
@@ -1248,7 +1370,8 @@ void CC_FF_Play( const CCommand &args )
 		Msg( "Examples:\n" );
 		Msg( "  ff_play ow\n" );
 		Msg( "  ff_play rim plr_hightower\n" );
-		Msg( "  ff_play bomber ctf_2fort\n" );
+		Msg( "  ff_play bomber\n" );
+		Msg( "  ff_play bomber itemtest\n" );
 		return;
 	}
 
@@ -1259,18 +1382,74 @@ void CC_FF_Play( const CCommand &args )
 		return;
 	}
 
-	const char *pszMap = ( args.ArgC() >= 3 ) ? args[2] : modeInfo.m_pszDefaultMap;
+	const char *pszMap = NULL;
+	if ( args.ArgC() >= 3 )
+	{
+		pszMap = args[2];
+	}
+	else if ( modeInfo.m_iMode == TF_FF_MODE_BOMBERMAN )
+	{
+		pszMap = FF_ResolveBomberMap( NULL );
+	}
+	else
+	{
+		pszMap = modeInfo.m_pszDefaultMap;
+	}
 
 	FF_SetActiveGameMode( modeInfo.m_iMode );
-	FF_ExecModeConfig( modeInfo.m_pszConfigFile );
 
-	if ( pszMap && pszMap[0] )
+	const bool bChangingMap = ( pszMap && pszMap[0] );
+	if ( bChangingMap )
 	{
-		UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Fortress: loading %s (%s)...", pszMap, modeInfo.m_pszCanonicalName ) );
-		char szChangeLevelCommand[256];
-		Q_snprintf( szChangeLevelCommand, sizeof( szChangeLevelCommand ), "changelevel %s\n", pszMap );
-		engine->ServerCommand( szChangeLevelCommand );
+		// Source standard: changelevel loads the BSP; mode cfg runs on the NEW map in FF_TickPostMapSetup pass 0.
+		FF_ChangeLevelForMode( modeInfo, pszMap );
 	}
+	else
+	{
+		FF_ExecModeConfig( modeInfo.m_pszConfigFile );
+		engine->ServerExecute();
+
+		if ( TFGameRules() )
+		{
+			TFGameRules()->FF_SchedulePostMapSetup( 1.0f );
+		}
+	}
+
+	Msg( "ff_play: mode=%s (%d), map=%s — post-map setup scheduled.\n",
+		modeInfo.m_pszCanonicalName, modeInfo.m_iMode, pszMap ? pszMap : "<same map>" );
+}
+
+//-----------------------------------------------------------------------------
+// Map only (Valve-style changelevel). Keeps current ff mode; re-runs post-map setup.
+//-----------------------------------------------------------------------------
+void CC_FF_Map( const CCommand &args )
+{
+	if ( !UTIL_IsCommandIssuedByServerAdmin() )
+	{
+		Warning( "ff_map: listen host or server admin access required.\n" );
+		return;
+	}
+
+	if ( args.ArgC() < 2 )
+	{
+		Msg( "ff_map <mapname> — changelevel and re-run mode setup on the new map.\n" );
+		Msg( "  ff_map itemtest\n" );
+		Msg( "  ff_map bm_arena\n" );
+		return;
+	}
+
+	const char *pszMap = args[1];
+
+	extern void BM_ClearArena( void );
+	if ( TFGameRules() && TFGameRules()->IsBombermanMode() )
+	{
+		BM_ClearArena();
+	}
+
+	UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Fortress: changelevel %s...", pszMap ) );
+	char szChangeLevelCommand[256];
+	Q_snprintf( szChangeLevelCommand, sizeof( szChangeLevelCommand ), "changelevel %s\n", pszMap );
+	engine->ServerCommand( szChangeLevelCommand );
 	engine->ServerExecute();
 
 	if ( TFGameRules() )
@@ -1278,14 +1457,15 @@ void CC_FF_Play( const CCommand &args )
 		TFGameRules()->FF_SchedulePostMapSetup( 4.0f );
 	}
 
-	Msg( "ff_play: mode=%s (%d), cfg=%s, map=%s — post-map setup scheduled.\n",
-		modeInfo.m_pszCanonicalName, modeInfo.m_iMode, modeInfo.m_pszConfigFile, pszMap ? pszMap : "<none>" );
+	Msg( "ff_map: changelevel %s — post-map setup scheduled.\n", pszMap );
 }
 
 static ConCommand ff_mode( "ff_mode", CC_FF_Mode,
 	"Switch Frog Fortress game mode: ow | rim | bomber | stock.", FCVAR_GAMEDLL );
 static ConCommand ff_play( "ff_play", CC_FF_Play,
-	"Apply mode cfg and changelevel: ff_play <ow|rim|bomber|stock> [map].", FCVAR_GAMEDLL );
+	"Set mode and changelevel: ff_play <ow|rim|bomber|stock> [map]. Cfg runs after map loads.", FCVAR_GAMEDLL );
+static ConCommand ff_map( "ff_map", CC_FF_Map,
+	"changelevel only, then re-run post-map setup for the current mode.", FCVAR_GAMEDLL );
 
 void CC_FF_Restart( const CCommand &args )
 {
@@ -10490,7 +10670,7 @@ CBaseEntity *CTFGameRules::GetPlayerSpawnSpot( CBasePlayer *pPlayer )
 	Vector vecSpawnPos = pSpawnSpot->GetAbsOrigin();
 
 #ifdef SOURCESDK
-	// Sky bomber arena: DropToGround traces 500 units down and lands on the map floor under the grid.
+	// Never DropToGround in bomber — map floor is below the arena play plane.
 	if ( IsBombermanMode() )
 	{
 		vecSpawnPos.z += 1.0f;
@@ -18181,6 +18361,10 @@ int CTFGameRules::GetClassLimit( int iClass )
 			return 0;
 		}
 	}
+	if ( IsBombermanMode() )
+	{
+		return ( iClass == TF_CLASS_SCOUT ) ? NO_CLASS_LIMIT : 0;
+	}
 #endif
 
 	if ( IsInTournamentMode() || IsPasstimeMode() )
@@ -18221,7 +18405,7 @@ bool CTFGameRules::IsOverwatchMode() const
 #else
 	const int iMode = tf_ff_game_mode.GetInt();
 #endif
-	if ( iMode == 3 )
+	if ( iMode == TF_FF_MODE_BOMBERMAN )
 		return false;
 	if ( iMode == 1 )
 		return true;
@@ -18234,9 +18418,9 @@ bool CTFGameRules::IsOverwatchMode() const
 bool CTFGameRules::IsBombermanMode() const
 {
 #ifdef GAME_DLL
-	return FF_GetActiveGameMode() == 3;
+	return FF_GetActiveGameMode() == TF_FF_MODE_BOMBERMAN;
 #else
-	return tf_ff_game_mode.GetInt() == 3;
+	return tf_ff_game_mode.GetInt() == TF_FF_MODE_BOMBERMAN;
 #endif
 }
 
@@ -18248,7 +18432,7 @@ bool CTFGameRules::IsRainbowIsMagicMode() const
 #else
 	const int iMode = tf_ff_game_mode.GetInt();
 #endif
-	if ( iMode == 3 )
+	if ( iMode == TF_FF_MODE_BOMBERMAN )
 		return false;
 	if ( iMode == 2 )
 		return true;
@@ -18286,20 +18470,17 @@ void CTFGameRules::FF_TickPostMapSetup( void )
 
 	if ( m_nFFPostMapSetupPass == 0 )
 	{
-		const bool bBomber = ( iMode == 3 );
-		if ( !bBomber )
+		const bool bBomber = ( iMode == TF_FF_MODE_BOMBERMAN );
+		if ( bBomber )
 		{
-			engine->ServerCommand( "tf_bot_kick all\n" );
+			OW_TeardownAllPlayers();
 		}
+		engine->ServerCommand( "tf_bot_kick all\n" );
 
 		FF_ExecModeConfigForGameMode( iMode );
 		FF_SyncActiveModeConVars();
 
-		if ( bBomber )
-		{
-			extern void BM_AutoAlignGridFromSpawns( void );
-			BM_AutoAlignGridFromSpawns();
-		}
+		// Bomber arena builds in pass 1 (void platform) — avoid a pre-cfg build at map spawns.
 
 		FFModeInfo_t setupInfo = { 0 };
 		FF_GetModeInfoForInt( iMode, setupInfo );
@@ -18324,7 +18505,8 @@ void CTFGameRules::FF_TickPostMapSetup( void )
 		return;
 	}
 
-	if ( State_Get() != GR_STATE_RND_RUNNING )
+	// Bomber: don't stall forever in setup/warmup on listen servers — arena must build.
+	if ( !IsBombermanMode() && State_Get() != GR_STATE_RND_RUNNING )
 	{
 		m_flFFPostMapSetupTime = gpGlobals->curtime + 1.0f;
 		return;
@@ -18351,10 +18533,10 @@ void CTFGameRules::FF_TickPostMapSetup( void )
 	else if ( IsBombermanMode() )
 	{
 		extern void BM_RespawnAllPlayers( void );
-		extern void BM_BuildArena( void );
-		BM_BuildArena();
+		extern void BM_BuildArena( bool bWarpAllPlayers );
+		BM_BuildArena( false );
 		BM_RespawnAllPlayers();
-		UTIL_ClientPrintAll( HUD_PRINTTALK, "Frog Bomber: join RED or BLU, pick Scout — MOUSE1 places bombs!" );
+		UTIL_ClientPrintAll( HUD_PRINTTALK, "Frog Bomber: join RED or BLU, pick Scout — you spawn ON the grid." );
 	}
 
 	m_flFFPostMapSetupTime = -1.0f;

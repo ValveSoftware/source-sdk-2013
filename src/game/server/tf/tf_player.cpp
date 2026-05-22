@@ -983,7 +983,6 @@ CTFPlayer::CTFPlayer()
 	m_flOWCooldownEnd[1] = 0.0f;
 	m_flOWCooldownEnd[2] = 0.0f;
 	m_bOWHeroLocked = false;
-	m_flBMNextGridSnapTime = 0.0f;
 	m_iBMActiveBombs = 0;
 	m_nBMPreviousButtons = 0;
 	m_bBMWasMoving = false;
@@ -5846,7 +5845,7 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 	const char *pSpawnPointName = "";
 
 #ifdef SOURCESDK
-	if ( TFGameRules() && TFGameRules()->IsBombermanMode() )
+	if ( TFGameRules() && TFGameRules()->IsBombermanMode() && IsAlive() )
 	{
 		if ( GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_BLUE )
 		{
@@ -6843,6 +6842,16 @@ void CTFPlayer::ChangeTeam( int iTeamNum, bool bAutoTeam, bool bSilent, bool bAu
 	if ( TFGameRules() && TFGameRules()->IsOverwatchMode() && !IsBot() )
 	{
 		OW_OnHumanChangedTeam( this, iTeamNum, iOldTeam );
+	}
+
+	if ( TFGameRules() && TFGameRules()->IsBombermanMode() && iTeamNum >= FIRST_GAME_TEAM )
+	{
+		m_bBMSpawnConfigured = false;
+		if ( IsAlive() )
+		{
+			extern void BM_EnsurePlayerInArena( CTFPlayer *pPlayer );
+			BM_EnsurePlayerInArena( this );
+		}
 	}
 #endif
 

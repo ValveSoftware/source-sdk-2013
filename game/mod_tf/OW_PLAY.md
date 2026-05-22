@@ -36,11 +36,11 @@ See **`MODE_SWITCH.md`** for full detail.
 ## Console
 
 - `ow_roster` — list heroes
-- `ow_add_bots` — top up bots to the 5v5 (+ bonus) targets
+- `tf_bot_add` / `tf_bot_quota` — standard Valve bot fill (see `exec ow_quickstart`)
 
 ## Bots (OW mode)
 
-OW uses **stock TF bot AI** (payload push, KOTH cap, CTF, etc.) — not seek-and-destroy wander. Bots spawn after map setup ends, staggered. RIM mode still uses custom bear-hunt behavior.
+OW does **not** auto-spawn bots. Use Valve commands (`tf_bot_quota 6`, `tf_bot_quota_mode fill`, or `tf_bot_add scout red`). Bots get normal TF AI; humans get hero loadouts via `ow_hero`.
 - `ow_hero <name>` — pick hero (spawn room only if locked)
 
 ## Archived RIM

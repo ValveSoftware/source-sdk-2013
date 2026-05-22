@@ -351,6 +351,11 @@ void CTFModeManager::LevelShutdown( void )
 	CL_Coaching_LevelShutdown();
 	CL_Consumables_LevelShutdown();
 	CL_Halloween_LevelShutdown();
+
+#ifdef SOURCESDK
+	extern void BM_ClientOnLevelShutdown( void );
+	BM_ClientOnLevelShutdown();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -590,6 +595,17 @@ extern ConVar r_drawviewmodel;
 //-----------------------------------------------------------------------------
 bool ClientModeTFNormal::ShouldDrawViewModel()
 {
+#ifdef SOURCESDK
+	if ( TFGameRules() && TFGameRules()->IsBombermanMode() )
+	{
+		C_TFPlayer *pLocal = C_TFPlayer::GetLocalTFPlayer();
+		if ( pLocal && pLocal->IsAlive() && pLocal->GetTeamNumber() >= FIRST_GAME_TEAM )
+		{
+			return false;
+		}
+	}
+#endif
+
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( pPlayer )
 	{

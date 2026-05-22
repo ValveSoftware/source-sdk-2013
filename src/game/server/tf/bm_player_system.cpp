@@ -21,12 +21,10 @@ extern ConVar tf_bm_max_bombs;
 
 ConVar tf_bm_cell_size( "tf_bm_cell_size", "64", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: grid cell size in Hammer units." );
 ConVar tf_bm_grid_origin( "tf_bm_grid_origin", "0 0 0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: world origin of cell (0,0). Auto-set from team spawns on map load." );
-ConVar tf_bm_sky_arena( "tf_bm_sky_arena", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: play on a flat sky layer (no terrain traces)." );
+ConVar tf_bm_sky_arena( "tf_bm_sky_arena", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: legacy sky layer above the map (0=ground floor, use bm_arena map)." );
 ConVar tf_bm_sky_height( "tf_bm_sky_height", "3072", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: sky play plane height above map reference Z." );
 ConVar tf_bm_play_z_offset( "tf_bm_play_z_offset", "8", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: player feet offset above grid origin Z." );
 ConVar tf_bm_move_speed( "tf_bm_move_speed", "320", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: movement speed along one axis." );
-ConVar tf_bm_snap_move_interval( "tf_bm_snap_move_interval", "0.12", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: seconds between grid position snaps while moving." );
-
 static bool s_bBMGridAligned = false;
 
 //-----------------------------------------------------------------------------
@@ -44,13 +42,19 @@ void BM_GetGridOrigin( Vector &vecGridOrigin )
 //-----------------------------------------------------------------------------
 float BM_GetCellSize( void )
 {
-	return Max( 32.0f, tf_bm_cell_size.GetFloat() );
+	return clamp( tf_bm_cell_size.GetFloat(), 32.0f, 128.0f );
 }
 
 //-----------------------------------------------------------------------------
 bool BM_UseSkyPlayPlane( void )
 {
 	return tf_bm_sky_arena.GetBool();
+}
+
+//-----------------------------------------------------------------------------
+bool BM_UseIsolatedPlayPlane( void )
+{
+	return BM_UseSkyPlayPlane() || BM_GetEffectiveArenaLift() > 0.0f || BM_UseVoidArenaPlatform();
 }
 
 //-----------------------------------------------------------------------------
@@ -81,18 +85,13 @@ void BM_CellToWorldCenter( int iCellX, int iCellY, Vector &vecCenter )
 
 	vecCenter.x = vecGridOrigin.x + ( iCellX + 0.5f ) * flCell;
 	vecCenter.y = vecGridOrigin.y + ( iCellY + 0.5f ) * flCell;
-	vecCenter.z = vecGridOrigin.z + tf_bm_play_z_offset.GetFloat();
-
-	if ( !BM_UseSkyPlayPlane() )
-	{
-		BM_FindFloorAtXY( vecCenter, vecGridOrigin.z, NULL, vecCenter );
-	}
+	vecCenter.z = BM_GetPlayPlaneZ();
 }
 
 //-----------------------------------------------------------------------------
 void BM_FindFloorAtXY( const Vector &vecXY, float flRefZ, CTFPlayer *pPlayer, Vector &vecFloor )
 {
-	if ( BM_UseSkyPlayPlane() && TFGameRules() && TFGameRules()->IsBombermanMode() )
+	if ( BM_UseIsolatedPlayPlane() && TFGameRules() && TFGameRules()->IsBombermanMode() )
 	{
 		vecFloor = vecXY;
 		vecFloor.z = BM_GetPlayPlaneZ();
@@ -159,7 +158,7 @@ void BM_AutoAlignGridFromSpawns( void )
 		return;
 	}
 
-	BM_BuildArena();
+	BM_BuildArena( false );
 }
 
 //-----------------------------------------------------------------------------
@@ -175,7 +174,7 @@ void BM_ConfigureMatch( void )
 	tf_bot_quota.SetValue( 0 );
 	mp_autoteambalance.SetValue( 0 );
 
-	BM_BuildArena();
+	BM_BuildArena( false );
 
 	UTIL_ClientPrintAll( HUD_PRINTTALK, "Frog Bomber: classic arena — hard walls, soft crates!" );
 	Msg( "BM: match started — cell=%.0f origin=(%s) fuse=%.1fs range=%d\n",
@@ -199,17 +198,8 @@ void BM_RespawnAllPlayers( void )
 		}
 
 		pPlayer->m_iBMActiveBombs = 0;
-		if ( pPlayer->IsAlive() )
-		{
-			if ( BM_IsArenaActive() )
-			{
-				BM_WarpPlayerToArenaSpawn( pPlayer );
-			}
-		}
-		else
-		{
-			pPlayer->ForceRespawn();
-		}
+		pPlayer->m_bBMSpawnConfigured = false;
+		pPlayer->ForceRespawn();
 	}
 }
 
@@ -222,9 +212,12 @@ void BM_FixMatch( void )
 		return;
 	}
 
-	BM_BuildArena();
+	extern void BM_RemoveStrayArenaProps( void );
+	extern ConVar tf_bm_build_id;
+	BM_RemoveStrayArenaProps();
+	BM_BuildArena( true );
 	BM_RespawnAllPlayers();
-	UTIL_ClientPrintAll( HUD_PRINTTALK, "Frog Bomber: arena rebuilt — pick RED/BLU if you are spectating." );
+	UTIL_ClientPrintAll( HUD_PRINTTALK, CFmtStr( "Frog Bomber [%s]: arena rebuilt — RED/BLU Scout.", tf_bm_build_id.GetString() ) );
 	Msg( "BM: bm_fix — arena rebuilt.\n" );
 }
 
@@ -263,6 +256,11 @@ bool BM_TryPlaceBomb( CTFPlayer *pPlayer )
 		return false;
 	}
 
+	if ( !BM_IsArenaActive() )
+	{
+		return false;
+	}
+
 	const int iMaxBombs = Max( 1, tf_bm_max_bombs.GetInt() );
 	if ( pPlayer->m_iBMActiveBombs >= iMaxBombs )
 	{
@@ -293,7 +291,7 @@ bool BM_TryPlaceBomb( CTFPlayer *pPlayer )
 		return false;
 	}
 
-	if ( BM_CellBlocksMovement( iCellX, iCellY ) && BM_FindCrateAtCell( iCellX, iCellY ) != NULL )
+	if ( BM_FindCrateAtCell( iCellX, iCellY ) != NULL )
 	{
 		if ( !pPlayer->IsBot() )
 		{
@@ -324,7 +322,7 @@ bool BM_TryPlaceBomb( CTFPlayer *pPlayer )
 //-----------------------------------------------------------------------------
 void BM_ApplySkyPlayMovement( CTFPlayer *pPlayer )
 {
-	if ( !pPlayer || !BM_UseSkyPlayPlane() )
+	if ( !pPlayer || !BM_UseSkyPlayPlane() || !tf_bm_sky_arena.GetBool() )
 	{
 		return;
 	}
@@ -345,7 +343,7 @@ void BM_EnsurePlayerInArena( CTFPlayer *pPlayer )
 
 	if ( !BM_IsArenaActive() )
 	{
-		BM_BuildArena();
+		BM_BuildArena( false );
 	}
 
 	if ( !BM_IsArenaActive() )
@@ -365,8 +363,18 @@ void BM_EnsurePlayerInArena( CTFPlayer *pPlayer )
 	{
 		BM_WarpPlayerToArenaSpawn( pPlayer );
 	}
+	else if ( !tf_bm_sky_arena.GetBool() )
+	{
+		Vector vecPos = pPlayer->GetAbsOrigin();
+		vecPos.z = flPlaneZ;
+		pPlayer->SetAbsOrigin( vecPos );
+		pPlayer->SetLocalOrigin( vecPos );
+	}
 
-	BM_ApplySkyPlayMovement( pPlayer );
+	if ( tf_bm_sky_arena.GetBool() )
+	{
+		BM_ApplySkyPlayMovement( pPlayer );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -401,14 +409,12 @@ bool BM_OnPlayerSpawn( CTFPlayer *pPlayer )
 
 	const float flSpeed = tf_bm_move_speed.GetFloat();
 	pPlayer->SetMaxSpeed( flSpeed );
-	pPlayer->m_flBMNextGridSnapTime = gpGlobals->curtime;
-
 	BM_EnsurePlayerInArena( pPlayer );
 
 	if ( !pPlayer->IsBot() )
 	{
 		extern ConVar tf_bm_build_id;
-		ClientPrint( pPlayer, HUD_PRINTCENTER, "Frog Bomber [%s1] — on sky arena. MOUSE1 = bomb.", tf_bm_build_id.GetString() );
+		ClientPrint( pPlayer, HUD_PRINTCENTER, "Frog Bomber [%s1] — Scout on arena floor. MOUSE1 = bomb.", tf_bm_build_id.GetString() );
 	}
 
 	return true;
@@ -455,7 +461,7 @@ void BM_PlayerRunCommand( CTFPlayer *pPlayer, CUserCmd *ucmd )
 		if ( gpGlobals->curtime >= s_flNextArenaBuildTry )
 		{
 			s_flNextArenaBuildTry = gpGlobals->curtime + 1.0f;
-			BM_BuildArena();
+			BM_BuildArena( false );
 		}
 
 		if ( bPlacePressed )
@@ -589,14 +595,7 @@ void BM_SnapPlayerToGrid( CTFPlayer *pPlayer )
 	vecSnapped.x = vecGridOrigin.x + ( iCellX + 0.5f ) * flCell;
 	vecSnapped.y = vecGridOrigin.y + ( iCellY + 0.5f ) * flCell;
 
-	if ( BM_UseSkyPlayPlane() )
-	{
-		vecSnapped.z = BM_GetPlayPlaneZ();
-	}
-	else
-	{
-		BM_FindFloorAtXY( vecSnapped, vecGridOrigin.z, pPlayer, vecSnapped );
-	}
+	vecSnapped.z = BM_GetPlayPlaneZ();
 
 	Vector vecVelocity = pPlayer->GetAbsVelocity();
 	vecVelocity.z = 0.0f;

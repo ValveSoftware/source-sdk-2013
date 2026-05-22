@@ -187,6 +187,8 @@ $Project "Server (TF)"
 			$File	"tf\bm_props.h" [$SOURCESDK]
 			$File	"tf\tf_bm_wall.cpp" [$SOURCESDK]
 			$File	"tf\tf_bm_wall.h" [$SOURCESDK]
+			$File	"tf\tf_bm_floor.cpp" [$SOURCESDK]
+			$File	"tf\tf_bm_floor.h" [$SOURCESDK]
 			$File	"tf\ow_player_system.cpp" [$SOURCESDK]
 			$File	"tf\ow_player_system.h" [$SOURCESDK]
 			$File	"$SRCDIR\game\shared\tf\ow_hero_registry.cpp" [$SOURCESDK]

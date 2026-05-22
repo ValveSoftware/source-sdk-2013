@@ -689,7 +689,6 @@ public:
 	CNetworkVar( float, m_flOWCooldown2 );
 	bool	m_bOWHeroLocked;
 	float	m_flOWCooldownEnd[3];
-	float	m_flBMNextGridSnapTime;
 	int		m_iBMActiveBombs;
 	int		m_nBMPreviousButtons;
 	bool	m_bBMWasMoving;

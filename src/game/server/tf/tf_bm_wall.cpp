@@ -14,9 +14,6 @@ LINK_ENTITY_TO_CLASS( tf_bm_wall, CTFBMWall );
 
 static const char *const g_BMWallModels[] = {
 	"models/props_gameplay/orange_cone001.mdl",
-	"models/props_farm/concrete_block001.mdl",
-	"models/props_farm/wood_fence001.mdl",
-	"models/props_c17/oildrum001.mdl",
 	"models/props_junk/wood_crate001a.mdl",
 };
 
@@ -39,7 +36,7 @@ void CTFBMWall::Spawn( void )
 {
 	Precache();
 
-	BM_ApplyPropModelOrHidden( assert_cast<CBaseAnimating *>( this ), g_BMWallModels, ARRAYSIZE( g_BMWallModels ), 1.1f );
+	BM_ApplyPropModelOrHidden( assert_cast<CBaseAnimating *>( this ), g_BMWallModels, ARRAYSIZE( g_BMWallModels ), 1.0f );
 
 	const float flHalf = BM_GetCellSize() * 0.42f;
 	UTIL_SetSize( this, Vector( -flHalf, -flHalf, 0 ), Vector( flHalf, flHalf, 72 ) );

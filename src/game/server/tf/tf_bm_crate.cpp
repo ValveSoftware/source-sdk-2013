@@ -8,7 +8,6 @@
 #include "bm_props.h"
 #include "tf_gamerules.h"
 #include "tf_player.h"
-#include "ndebugoverlay.h"
 #include "explode.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -23,9 +22,6 @@ static const char *const g_BMCrateModels[] = {
 	"models/props_halloween/pumpkin_loot.mdl",
 	"models/props_c17/oildrum001.mdl",
 };
-
-ConVar tf_bm_crate_density( "tf_bm_crate_density", "0.28", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: chance each arena cell gets a breakable crate." );
-ConVar tf_bm_crate_radius( "tf_bm_crate_radius", "7", FCVAR_REPLICATED | FCVAR_NOTIFY, "Bomberman: half-size of crate arena in grid cells." );
 
 //-----------------------------------------------------------------------------
 CTFBMCrate::CTFBMCrate()

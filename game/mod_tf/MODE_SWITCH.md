@@ -13,7 +13,7 @@ Both **Overwatch-style heroes** and **Rainbow Is Magic (RIM)** stay in the mod. 
 
 Run `ff_mode` with no args to see the current mode.
 
-`ff_mode <name>` now also runs the matching `mode_*.cfg`. For a full switch (cfg + map), use `ff_play` below.
+`ff_mode <name>` runs the matching `mode_*.cfg`. **`ff_mode bomber`** (and `ff_play bomber`) also **changelevel** to `itemtest` / `bm_arena` when you are on a stock OW map — do not use `exec mode_bomber.cfg` alone on `koth_badlands`.
 
 ## One-command launch (recommended)
 
@@ -23,7 +23,7 @@ Or load shortcuts once: `exec ff_aliases.cfg`, then `ff_ow`, `ff_rim`, `ff_bombe
 
 - `ff_play ow` -> defaults to `koth_badlands`
 - `ff_play rim` -> defaults to `plr_hightower`
-- `ff_play bomber` -> defaults to `itemtest` (sky arena; flat play layer)
+- `ff_play bomber` -> defaults to `bm_arena` (compile `mapsrc/bm_arena.vmf`; else `itemtest` + flat floor)
 - `ff_play stock` -> defaults to `ctf_2fort`
 
 ### Join any game first, then switch mode
@@ -34,8 +34,10 @@ You do **not** need to start in bomber. This is the normal workflow:
 2. **Create server** or **join** any listen match (menu, `map`, `connect`, etc.) — OW is fine; you can land on `koth_badlands` or whatever.
 3. When you are **host** (listen server) or server admin, run:
    - `ff_play bomber` or `exec bomber_quickstart` or `ff_bomber` (after `exec ff_aliases.cfg`)
-4. The mod **changelevels** to the mode map, runs `mode_bomber.cfg`, builds the sky arena, and finishes post-map setup (~4–8s).
-5. **Join RED or BLU**, pick **Scout** — you should spawn on the sky grid (`phase5-spawn-fix` in center HUD).
+4. The mod **changelevels** to `bm_arena` (or `itemtest` if the BSP is not compiled yet), runs `mode_bomber.cfg`, builds walls/crates on a **flat floor**, and finishes post-map setup (~4–8s).
+5. **Join RED or BLU**, pick **Scout** — you spawn on the arena floor (console: `tf_bm_build_id` should show **`phase19-mode-isolation`**).
+
+Leaving OW for bomber clears hero state and kicks OW fill bots so OW and bomber do not run together.
 
 **Requirements:** `ff_play` only works on a **listen host** or **dedicated server you control**. It does not work on Valve matchmaking / remote servers you do not admin. You must run **mod_tf**, not retail TF2.
 
@@ -70,4 +72,4 @@ Mode checks live in `CTFGameRules::IsOverwatchMode()` / `IsRainbowIsMagicMode()`
 
 **RIM fill bots:** after the round is running, use stock `tf_bot_add` / `tf_bot_quota` (no custom spawn queue).
 
-**Bomber:** see `BOMBERMAN.md`; align grid with `getpos` then `tf_bm_grid_origin`.
+**Bomber:** see `BOMBERMAN.md`. Humans only (`tf_bot_quota 0`). Stuck? `bm_fix` then `kill`. Debug grid: `tf_bm_show_grid 1`.

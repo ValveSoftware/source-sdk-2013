@@ -427,14 +427,20 @@ void SetAppropriateCamera( C_TFPlayer *pPlayer )
 
 	if ( TFGameRules() && TFGameRules()->IsBombermanMode() )
 	{
-		g_ThirdPersonManager.SetForcedThirdPerson( true );
-		if ( !::input->CAM_IsThirdPerson() )
+		if ( pPlayer->IsAlive() && pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM )
 		{
-			::input->CAM_ToThirdPerson();
-			pPlayer->ThirdPersonSwitch( true );
+			BM_ClientApplyBomberCameraState( pPlayer );
 		}
+		else
+		{
+			BM_ClientClearBomberCameraState( pPlayer );
+		}
+		return;
 	}
-	else if ( TFGameRules() &&
+
+	BM_ClientClearBomberCameraState( pPlayer );
+
+	if ( TFGameRules() &&
 		( ( TFGameRules()->IsInMedievalMode() && tf_medieval_thirdperson.GetBool() )
 		|| pPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) ) )
 	{
@@ -6567,8 +6573,10 @@ bool C_TFPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 	bool bNoTaunt = true;
 	bool bInTaunt = m_Shared.InCond( TF_COND_TAUNTING ) || m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER );
 
+	const bool bBomberLocalPlay = ( IsLocalPlayer() && TFGameRules() && TFGameRules()->IsBombermanMode() );
+
 #ifdef SOURCESDK
-	if ( IsLocalPlayer() && TFGameRules() && TFGameRules()->IsBombermanMode() )
+	if ( bBomberLocalPlay && IsAlive() && GetTeamNumber() >= FIRST_GAME_TEAM )
 	{
 		BM_ClientCreateMove( this, pCmd );
 	}
@@ -6672,6 +6680,22 @@ bool C_TFPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 	{
 		AvoidPlayers( pCmd );
 	}
+
+#ifdef SOURCESDK
+	if ( bBomberLocalPlay )
+	{
+		if ( IsAlive() && GetTeamNumber() >= FIRST_GAME_TEAM )
+		{
+			extern void BM_ClientApplyBomberViewCmd( C_TFPlayer *pLocalPlayer, CUserCmd *pCmd );
+			BM_ClientApplyBomberViewCmd( this, pCmd );
+		}
+		else
+		{
+			extern void BM_ClientClearBomberCameraState( C_TFPlayer *pLocalPlayer );
+			BM_ClientClearBomberCameraState( this );
+		}
+	}
+#endif
 
 	return bNoTaunt;
 }
@@ -8396,10 +8420,10 @@ void C_TFPlayer::OverrideView( CViewSetup *pSetup )
 	BaseClass::OverrideView( pSetup );
 
 #ifdef SOURCESDK
-	if ( IsLocalPlayer() && TFGameRules() && TFGameRules()->IsBombermanMode() )
+	if ( IsLocalPlayer() && IsAlive() && GetTeamNumber() >= FIRST_GAME_TEAM
+		&& TFGameRules() && TFGameRules()->IsBombermanMode() )
 	{
 		BM_ClientApplyTopDownCamera( this, pSetup );
-		return;
 	}
 #endif
 
@@ -9576,12 +9600,14 @@ void C_TFPlayer::ComputeFxBlend( void )
 void C_TFPlayer::CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNear, float &zFar, float &fov )
 {
 	HandleTaunting();
+
 	BaseClass::CalcView( eyeOrigin, eyeAngles, zNear, zFar, fov );
 
 #ifdef SOURCESDK
-	if ( IsLocalPlayer() && TFGameRules() && TFGameRules()->IsBombermanMode() )
+	if ( IsLocalPlayer() && IsAlive() && GetTeamNumber() >= FIRST_GAME_TEAM
+		&& TFGameRules() && TFGameRules()->IsBombermanMode() )
 	{
-		BM_ClientCalcView( this, eyeOrigin, eyeAngles );
+		BM_ClientCalcView( this, eyeOrigin, eyeAngles, zNear, zFar );
 	}
 #endif
 }

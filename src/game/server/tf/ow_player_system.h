@@ -7,6 +7,7 @@ class CTFPlayer;
 #ifdef SOURCESDK
 
 void OW_PlayerSystem_Init( void );
+void OW_TeardownAllPlayers( void );
 void OW_OnPlayerSpawn( CTFPlayer *pPlayer );
 void OW_OnPlayerPostThink( CTFPlayer *pPlayer );
 void OW_ApplyHeroFromClass( CTFPlayer *pPlayer );

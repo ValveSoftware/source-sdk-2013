@@ -30,6 +30,25 @@ void OW_PlayerSystem_Init( void )
 }
 
 //-----------------------------------------------------------------------------
+void OW_TeardownAllPlayers( void )
+{
+	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
+	{
+		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+		if ( !pPlayer || !pPlayer->IsConnected() )
+		{
+			continue;
+		}
+
+		pPlayer->m_iOWHeroId = OW_HERO_INVALID;
+		pPlayer->m_flOWUltCharge = 0.0f;
+		pPlayer->m_bOWHeroLocked = false;
+		pPlayer->m_iBMActiveBombs = 0;
+		pPlayer->m_bBMSpawnConfigured = false;
+	}
+}
+
+//-----------------------------------------------------------------------------
 void OW_SetPlayerHero( CTFPlayer *pPlayer, int iHeroId )
 {
 	if ( !pPlayer || !TFGameRules() || !TFGameRules()->IsOverwatchMode() )
@@ -483,11 +502,6 @@ void OW_OnHumanChangedTeam( CTFPlayer *pPlayer, int iNewTeam, int iOldTeam )
 	{
 		return;
 	}
-
-	extern void OW_MaintainBotCounts( void );
-	extern void OW_TickBotSpawnQueue( void );
-	OW_MaintainBotCounts();
-	OW_TickBotSpawnQueue();
 }
 
 //-----------------------------------------------------------------------------
