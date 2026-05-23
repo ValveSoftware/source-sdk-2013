@@ -1118,6 +1118,22 @@ void CTFWeaponBase::Drop( const Vector &vecVelocity )
 	}
 #endif
 
+#ifndef CLIENT_DLL
+	// For disguise weapons specifically, the viewmodel-only extra wearable
+	// (e.g. botkiller medigun head) must be removed before BaseClass::Drop
+	// clears OwnerEntity — otherwise on disguise-weapon swap it orphans on
+	// the spy's viewmodel and accumulates one per swap. The world-model
+	// extra (e.g. soldier banner) is intentionally NOT removed here so
+	// it remains visible across disguise-weapon swaps within the same
+	// disguise; We cap Wearables during assingment
+	// RemoveDisguiseWearables sweeps it up at full disguise removal which prevents the leak.
+	if ( m_bDisguiseWeapon && m_hExtraWearableViewModel )
+	{
+		m_hExtraWearableViewModel->RemoveFrom( GetOwnerEntity() );
+		m_hExtraWearableViewModel = NULL;
+	}
+#endif
+
 	BaseClass::Drop( vecVelocity );
 
 	ReapplyProvision();
