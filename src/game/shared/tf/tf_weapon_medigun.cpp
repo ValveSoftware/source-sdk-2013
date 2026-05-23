@@ -682,7 +682,7 @@ void CWeaponMedigun::MaintainTargetInSlot()
 		pOwner->EyeVectors( &vecAiming );
 
 		Vector vecEnd = vecSrc + vecAiming * GetTargetRange();
-		UTIL_TraceLine( vecSrc, vecEnd, (MASK_SHOT & ~CONTENTS_HITBOX), pOwner, DMG_GENERIC, &tr );
+		UTIL_TraceLine( vecSrc, vecEnd, (MASK_SHOT & ~CONTENTS_HITBOX), pOwner, COLLISION_GROUP_NONE, &tr );
 
 		// Still visible?
 		if ( tr.m_pEnt == pTarget )
@@ -729,24 +729,39 @@ void CWeaponMedigun::FindNewTargetForSlot()
 	// Find a player in range of this player, and make sure they're healable.
 	Vector vecEnd = vecSrc + vecAiming * GetTargetRange();
 	trace_t tr;
+	// for leniency, trace for hull instead of hitboxes first
+	UTIL_TraceLine( vecSrc, vecEnd, (MASK_SHOT & ~CONTENTS_HITBOX), pOwner, COLLISION_GROUP_NONE, &tr );
 
-	UTIL_TraceLine( vecSrc, vecEnd, (MASK_SHOT & ~CONTENTS_HITBOX), pOwner, DMG_GENERIC, &tr );
 	if ( tr.fraction != 1.0 && tr.m_pEnt )
 	{
-		if ( !HealingTarget( tr.m_pEnt ) && AllowedToHealTarget( tr.m_pEnt ) )
+		CBaseEntity *pTarget = tr.m_pEnt;
+
+		// trace again but for hitboxes to help with selecting targets that are clumped together
+		UTIL_TraceLine( vecSrc, vecEnd, MASK_SHOT, pOwner, COLLISION_GROUP_NONE, &tr );
+
+		if ( tr.fraction != 1.0 && tr.m_pEnt && tr.m_pEnt != pTarget && !HealingTarget( tr.m_pEnt ) && AllowedToHealTarget( tr.m_pEnt ) )
+		{
+			pTarget = tr.m_pEnt;
+		}
+		else if ( HealingTarget( pTarget ) || !AllowedToHealTarget( pTarget ) )
+		{
+			pTarget = NULL;
+		}
+
+		if ( pTarget )
 		{
 #ifdef GAME_DLL
 			pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_STARTEDHEALING );
-			if ( tr.m_pEnt->IsPlayer() )
+			if ( pTarget->IsPlayer() )
 			{
-				CTFPlayer *pTarget = ToTFPlayer( tr.m_pEnt );
-				pTarget->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_STARTEDHEALING );
+				CTFPlayer *pTFPlayer = ToTFPlayer( pTarget );
+				pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_STARTEDHEALING );
 			}
 
 			// Start the heal target thinking.
 			SetContextThink( &CWeaponMedigun::HealTargetThink, gpGlobals->curtime, s_pszMedigunHealTargetThink );
 #endif
-			m_hHealingTarget.Set( tr.m_pEnt );
+			m_hHealingTarget.Set( pTarget );
 			m_flNextTargetCheckTime = gpGlobals->curtime + 1.0f;
 		}			
 	}

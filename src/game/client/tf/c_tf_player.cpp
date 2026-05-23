@@ -76,6 +76,9 @@
 #include "netadr.h"
 #include "input.h"
 
+// for rescue ranger
+#include "materialsystem/imaterialproxy.h"
+
 #include "gcsdk/gcclientsdk.h"
 #include "econ_gcmessages.h"
 #include "rtime.h"
@@ -2289,12 +2292,31 @@ public:
 EXPOSE_INTERFACE( CProxyBenefactorLevel, IMaterialProxy, "BenefactorLevel" IMATERIAL_PROXY_INTERFACE_VERSION );
 
 //-----------------------------------------------------------------------------
-// Purpose: Used for scaling the oscilloscope on the Building Rescue Gun
-// Flattens the Wave when the player has no energy
+// Purpose: Used for scaling the oscilloscope on the Rescue Ranger
+// Flattens the Wave when the player has insufficent energy to rescue buildings
+// Wave has horizontal scrolling whose speed and direction can be controlled from material proxy
 //-----------------------------------------------------------------------------
+
 class CProxyBuildingRescueLevel : public CResultProxy
 {
 public:
+// Add this member (default to something safe)
+    float m_flScrollSpeed = -0.1f;
+
+    virtual bool Init( IMaterial *pMaterial, KeyValues *pKeyValues )
+    {
+        // Call base init first if needed
+        if ( !CResultProxy::Init( pMaterial, pKeyValues ) )
+            return false;
+
+        // pKeyValues points to the { "screenScrollRate" "#" ... } subkey
+        if ( pKeyValues )
+        {
+            m_flScrollSpeed = pKeyValues->GetFloat( "screenScrollRate", -0.1f );  // fallback if missing
+        }
+
+        return true;
+    }
 	void OnBind( void *pC_BaseEntity )
 	{
 		Assert( m_pResult );
@@ -2338,6 +2360,17 @@ public:
 		MatrixBuildTranslation( temp, center.x, center.y, 0.0f );
 		MatrixMultiply( temp, mat, mat );
 
+
+		float flScrollSpeed = m_flScrollSpeed;
+
+		float scrollOffset = fmodf( gpGlobals->curtime * flScrollSpeed, 1.0f );
+		if ( scrollOffset < 0.0f )
+			scrollOffset += 1.0f;  // [0,1) range for seamless loop
+
+		// Apply horizontal scroll AFTER the existing scale/center operations
+		MatrixBuildTranslation( temp, scrollOffset, 0.0f, 0.0f );
+		MatrixMultiply( temp, mat, mat );
+
 		m_pResult->SetMatrixValue( mat );
 
 		if ( ToolsEnabled() )
@@ -2347,7 +2380,7 @@ public:
 	}
 };
 
-EXPOSE_INTERFACE( CProxyBuildingRescueLevel, IMaterialProxy, "BuildingRescueLevel" IMATERIAL_PROXY_INTERFACE_VERSION );
+EXPOSE_INTERFACE(CProxyBuildingRescueLevel, IMaterialProxy, "BuildingRescueLevel" IMATERIAL_PROXY_INTERFACE_VERSION);
 
 
 //-----------------------------------------------------------------------------
@@ -3757,6 +3790,7 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropInt( RECVINFO( m_iPlayerSkinOverride ) ),
 	RecvPropBool( RECVINFO( m_bViewingCYOAPDA ) ),
 	RecvPropBool( RECVINFO( m_bRegenerating ) ),
+	RecvPropEHandle( RECVINFO( m_hOffHandWeapon ) ),
 END_RECV_TABLE()
 
 
@@ -5853,6 +5887,17 @@ bool C_TFPlayer::IsPlayerOnSteamFriendsList( C_BasePlayer *pPlayer )
 	return false;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_TFPlayer::PreThink( void )
+{
+	// Update timers.
+	UpdateTimers();
+
+	// Pass through to the base class think.
+	BaseClass::PreThink();
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -6056,6 +6101,11 @@ void C_TFPlayer::ClientThink()
 		    engine->ClientCmd("voicemenu 1 8");
 	    }
 	}
+}
+
+void C_TFPlayer::UpdateTimers( void )
+{
+	m_Shared.SharedThink();
 }
 
 void C_TFPlayer::Touch( CBaseEntity *pOther )
@@ -7002,6 +7052,15 @@ void C_TFPlayer::UpdateIDTarget()
 
 	if ( tr.m_pEnt && tr.m_pEnt->IsPlayer() )
 	{
+		trace_t trShot;
+		// use the shot mask to replicate the medigun's trace
+		UTIL_TraceLine( vecStart, vecEnd, MASK_SHOT, this, COLLISION_GROUP_NONE, &trShot );
+
+		if ( trShot.fraction != 1.0 && trShot.m_pEnt && trShot.m_pEnt->IsPlayer() && ( !tr.startsolid || tr.m_pEnt != trShot.m_pEnt ) )
+		{
+			tr = trShot;
+		}
+
 		// It's okay to start solid against enemies because we sometimes press right against them
 		bIsEnemyPlayer = GetTeamNumber() != tr.m_pEnt->GetTeamNumber();
 	}

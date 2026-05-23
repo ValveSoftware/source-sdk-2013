@@ -286,6 +286,16 @@ bool CTFDroppedWeapon::OnInternalDrawModel( ClientModelRenderInfo_t *pInfo )
 	if ( !BaseClass::OnInternalDrawModel( pInfo ) )
 		return false;
 
+	// This flag says we should turn off the material overrides for attachments. 
+	IMaterial* pMaterialOverride = NULL;
+	OverrideType_t nMaterialOverrideType = OVERRIDE_NORMAL;
+
+	if ((pInfo->flags & STUDIO_NO_OVERRIDE_FOR_ATTACH) != 0)
+	{
+		modelrender->GetMaterialOverride(&pMaterialOverride, &nMaterialOverrideType);
+		modelrender->ForcedMaterialOverride(NULL, nMaterialOverrideType);
+	}
+
 	// Draw Attached Models
 	// Draw our attached models as well
 	for ( int i = 0; i < m_vecAttachedModels.Size(); i++ )
@@ -312,6 +322,9 @@ bool CTFDroppedWeapon::OnInternalDrawModel( ClientModelRenderInfo_t *pInfo )
 			DoInternalDrawModel( &infoAttached, ( bMarkAsDrawn && ( infoAttached.flags & STUDIO_RENDER ) ) ? &state : NULL, pBoneToWorld );
 		}
 	}
+
+	if (pMaterialOverride != NULL)
+		modelrender->ForcedMaterialOverride(pMaterialOverride, nMaterialOverrideType);
 
 	return true;
 }
