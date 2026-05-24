@@ -317,7 +317,10 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 			(params[info.m_nBlendModulateTexture]->IsTexture() );
 		bool hasNormalMapAlphaEnvmapMask = IS_FLAG_SET( MATERIAL_VAR_NORMALMAPALPHAENVMAPMASK );
 
-		if ( hasFlashlight && !IsX360() )				
+		bool bForceTangentSpace = ( info.m_nForceTangentSpace != -1 ) &&
+			( params[info.m_nForceTangentSpace]->GetIntValue() != 0 );
+
+		if ( hasFlashlight && !IsX360() )
 		{
 			// !!speed!! do this in the caller so we don't build struct every time
 			CBaseVSShader::DrawFlashlight_dx90_Vars_t vars;
@@ -449,7 +452,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 					pShaderShadow->EnableSRGBRead( SHADER_SAMPLER1, false );
 				}
 
-				if( hasEnvmap || ( IsX360() && hasFlashlight ) )
+				if( hasEnvmap || bForceTangentSpace || ( IsX360() && hasFlashlight ) )
 				{
 					if( hasEnvmap )
 					{
@@ -533,7 +536,7 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 
 				DECLARE_STATIC_VERTEX_SHADER( lightmappedgeneric_vs20 );
 				SET_STATIC_VERTEX_SHADER_COMBO( ENVMAP_MASK,  hasEnvmapMask );
-				SET_STATIC_VERTEX_SHADER_COMBO( TANGENTSPACE,  params[info.m_nEnvmap]->IsTexture() );
+				SET_STATIC_VERTEX_SHADER_COMBO( TANGENTSPACE,  params[info.m_nEnvmap]->IsTexture() || bForceTangentSpace );
 				SET_STATIC_VERTEX_SHADER_COMBO( BUMPMAP,  hasBump );
 				SET_STATIC_VERTEX_SHADER_COMBO( DIFFUSEBUMPMAP, hasDiffuseBumpmap );
 				SET_STATIC_VERTEX_SHADER_COMBO( VERTEXCOLOR, IS_FLAG_SET( MATERIAL_VAR_VERTEXCOLOR ) );

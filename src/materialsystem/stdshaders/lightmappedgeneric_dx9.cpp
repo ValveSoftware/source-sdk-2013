@@ -73,6 +73,8 @@ BEGIN_VS_SHADER( LightmappedGeneric,
 		SHADER_PARAM( OUTLINESTART1, SHADER_PARAM_TYPE_FLOAT, "0.0", "inner start value for outline")
 		SHADER_PARAM( OUTLINEEND0, SHADER_PARAM_TYPE_FLOAT, "0.0", "inner end value for outline")
 		SHADER_PARAM( OUTLINEEND1, SHADER_PARAM_TYPE_FLOAT, "0.0", "outer end value for outline")
+
+		SHADER_PARAM( FORCETANGENTSPACE, SHADER_PARAM_TYPE_BOOL, "0", "Force tangent-space vertex stream even without $bumpmap/$envmap" )
 END_SHADER_PARAMS
 
 	void SetupVars( LightmappedGeneric_DX9_Vars_t& info )
@@ -134,6 +136,8 @@ END_SHADER_PARAMS
 		info.m_nOutlineStart1 = OUTLINESTART1;
 		info.m_nOutlineEnd0 = OUTLINEEND0;
 		info.m_nOutlineEnd1 = OUTLINEEND1;
+
+		info.m_nForceTangentSpace = FORCETANGENTSPACE;
 	}
 
 	SHADER_FALLBACK
