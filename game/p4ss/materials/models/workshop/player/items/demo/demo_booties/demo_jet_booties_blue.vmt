@@ -2,5 +2,9 @@
 {
 	"$basetexture" "models/workshop/player/items/demo/demo_booties/demo_jet_booties_blue"
 	"$selfillum" "1"
-
+	"$detail" "effects/tiledfire/fireLayeredSlowTiled512.vtf"	
+	"$detailscale" "5"
+	"$detailblendfactor" .01
+	"$detailblendmode" 6
+	"$yellow" "0"
 }
