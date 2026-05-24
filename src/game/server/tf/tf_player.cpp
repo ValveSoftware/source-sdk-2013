@@ -6925,19 +6925,6 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName, bool bAllowSpaw
 	}
 #endif // _DEBUG || STAGING_ONLY
 
-	// joining the same class?
-	if ( iClass != TF_CLASS_RANDOM && iClass == GetDesiredPlayerClassIndex() )
-	{
-		// If we're dead, and we have instant spawn, respawn us immediately. Catches the case
-		// where a player misses respawn wave because they're at the class menu, and then changes
-		// their mind and reselects their current class.
-		if ( m_bAllowInstantSpawn && !IsAlive() )
-		{
-			ForceRespawn();
-		}
-		return;
-	}
-
 	if ( TFGameRules()->IsInArenaMode() && tf_arena_use_queue.GetBool() == true && GetTeamNumber() <= LAST_SHARED_TEAM )
 	{
 		TFGameRules()->AddPlayerToQueue( this );
