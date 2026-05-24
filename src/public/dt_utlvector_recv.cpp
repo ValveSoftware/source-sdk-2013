@@ -36,6 +36,10 @@ void RecvProxy_UtlVectorLength( const CRecvProxyData *pData, void *pStruct, void
 		// to write arbitrary data to out of bounds memory.
 		// There isn't much we can do at this point - we're deep in the networking stack, it's hard to recover
 		// gracefully and we shouldn't be talking to this server anymore.
+		// Log the diagnostic before crashing so the user knows why their client died.
+		Warning( "RecvProxy_UtlVectorLength: server sent lengthprop %d outside allowed range [0, %d]. "
+			"Crashing client to prevent possible remote code execution.\n",
+			pData->m_Value.m_Int, pExtra->m_nMaxElements );
 		// So we crash.
 		*(int *) 1 = 2;
 	}
