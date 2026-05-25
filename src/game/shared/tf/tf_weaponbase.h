@@ -586,6 +586,7 @@ class CTFWeaponBase : public CBaseCombatWeapon, public IHasOwner, public IHasGen
 	virtual	float	CalcViewmodelBob( void );
 	BobState_t		*GetBobState();
 	virtual bool	AttachmentModelsShouldBeVisible( void ) OVERRIDE { return (m_iState == WEAPON_IS_ACTIVE) && !IsBeingRepurposedForTaunt(); }
+	virtual void	UpdateAttachmentModels( void ) OVERRIDE;
 
 	virtual bool ShouldEjectBrass() { return true; }
 
