@@ -245,8 +245,8 @@ BEGIN_VS_SHADER_FLAGS( screenspace_general_dx9, "Help for screenspace_general", 
 				BindTexture( SHADER_SAMPLER0, BASETEXTURE, -1 );
 
 				ITexture *pTarget = params[ BASETEXTURE ]->GetTextureValue();
-				float nWidth = pTexture->GetActualWidth();
-				float nHeight = pTexture->GetActualHeight();
+				int nWidth = pTexture->GetActualWidth();
+				int nHeight = pTexture->GetActualHeight();
 				float vPixelSize[4] = { 1.0f / nWidth, 1.0f / nHeight, nWidth, nHeight };
 				pShaderAPI->SetPixelShaderConstant( 4, vPixelSize, 1 );
 			}
@@ -256,8 +256,8 @@ BEGIN_VS_SHADER_FLAGS( screenspace_general_dx9, "Help for screenspace_general", 
 				BindTexture( SHADER_SAMPLER1, TEXTURE1, -1 );
 
 				ITexture *pTarget = params[ TEXTURE1 ]->GetTextureValue();
-				float nWidth = pTexture->GetActualWidth();
-				float nHeight = pTexture->GetActualHeight();
+				int nWidth = pTexture->GetActualWidth();
+				int nHeight = pTexture->GetActualHeight();
 				float vPixelSize[4] = { 1.0f / nWidth, 1.0f / nHeight, nWidth, nHeight };
 				pShaderAPI->SetPixelShaderConstant( 5, vPixelSize, 1 );
 			}
@@ -267,8 +267,8 @@ BEGIN_VS_SHADER_FLAGS( screenspace_general_dx9, "Help for screenspace_general", 
 				BindTexture( SHADER_SAMPLER2, TEXTURE2, -1 );
 
 				ITexture *pTarget = params[ TEXTURE2 ]->GetTextureValue();
-				float nWidth = pTexture->GetActualWidth();
-				float nHeight = pTexture->GetActualHeight();
+				int nWidth = pTexture->GetActualWidth();
+				int nHeight = pTexture->GetActualHeight();
 				float vPixelSize[4] = { 1.0f / nWidth, 1.0f / nHeight, nWidth, nHeight };
 				pShaderAPI->SetPixelShaderConstant( 6, vPixelSize, 1 );
 			}
@@ -278,8 +278,8 @@ BEGIN_VS_SHADER_FLAGS( screenspace_general_dx9, "Help for screenspace_general", 
 				BindTexture( SHADER_SAMPLER3, TEXTURE3, -1 );
 
 				ITexture *pTarget = params[ TEXTURE3 ]->GetTextureValue();
-				float nWidth = pTexture->GetActualWidth();
-				float nHeight = pTexture->GetActualHeight();
+				int nWidth = pTexture->GetActualWidth();
+				int nHeight = pTexture->GetActualHeight();
 				float vPixelSize[4] = { 1.0f / nWidth, 1.0f / nHeight, nWidth, nHeight };
 				pShaderAPI->SetPixelShaderConstant( 7, vPixelSize, 1 );
 			}
