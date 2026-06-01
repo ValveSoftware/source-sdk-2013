@@ -12831,11 +12831,17 @@ bool CTFPlayer::CanAirDash( void ) const
 	int iDashCount = 0;
 	if ( GetPlayerClass()->IsClass( TF_CLASS_SCOUT ) )
 	{
-		int iNoAirDash = 0;
-		CALL_ATTRIB_HOOK_INT( iNoAirDash, set_scout_doublejump_disabled );
-		if ( !iNoAirDash )
+		int iScoutDashCount = tf_scout_air_dash_count.GetInt();
+		// allow negative cvar values to 'eat' jumps
+		if ( iScoutDashCount != 0 )
 		{
-			iDashCount += tf_scout_air_dash_count.GetInt();
+			int iNoAirDash = 0;
+			CALL_ATTRIB_HOOK_INT( iNoAirDash, set_scout_doublejump_disabled );
+			// attribute nullifies the effect of cvar if nonzero
+			if ( !iNoAirDash )
+			{
+				iDashCount += iScoutDashCount;
+			}
 		}
 	}
 
