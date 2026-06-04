@@ -630,6 +630,30 @@ float CInput::KeyState ( kbutton_t *key )
 	return val;
 }
 
+
+/*
+==============================
+MovementKeyState
+
+Wrapper around KeyState() for movement keys.
+Optionally converts first tick half-acceleration (0.5) into full acceleration (1.0)
+depending on cvar settings.
+Ref: ValveSoftware/Source-1-Games#8045
+==============================
+*/
+ConVar cl_full_accel_first_tick( "cl_full_accel_first_tick", "1", FCVAR_ARCHIVE, "Full acceleration on first tick of movement." );
+
+float CInput::MovementKeyState( kbutton_t *key )
+{
+	float value = KeyState( key );
+	
+	if ( cl_full_accel_first_tick.GetBool() && value == 0.5f )
+		value = 1.0f;
+	
+	return value;
+}
+
+
 void CInput::IN_SetSampleTime( float frametime )
 {
 	m_flKeyboardSampleTime = frametime;
@@ -818,10 +842,10 @@ void CInput::ComputeSideMove( CUserCmd *cmd )
 		float ideal_sin = sin(DEG2RAD(ideal_yaw));
 		float ideal_cos = cos(DEG2RAD(ideal_yaw));
 		
-		float movement = ideal_cos*KeyState(&in_moveright)
-			+  ideal_sin*KeyState(&in_back)
-			+ -ideal_cos*KeyState(&in_moveleft)
-			+ -ideal_sin*KeyState(&in_forward);
+		float movement = ideal_cos*MovementKeyState(&in_moveright)
+			+  ideal_sin*MovementKeyState(&in_back)
+			+ -ideal_cos*MovementKeyState(&in_moveleft)
+			+ -ideal_sin*MovementKeyState(&in_forward);
 
 		cmd->sidemove += cl_sidespeed.GetFloat() * movement;
 
@@ -831,13 +855,13 @@ void CInput::ComputeSideMove( CUserCmd *cmd )
 	// If strafing, check left and right keys and act like moveleft and moveright keys
 	if ( in_strafe.state & 1 )
 	{
-		cmd->sidemove += cl_sidespeed.GetFloat() * KeyState (&in_right);
-		cmd->sidemove -= cl_sidespeed.GetFloat() * KeyState (&in_left);
+		cmd->sidemove += cl_sidespeed.GetFloat() * MovementKeyState (&in_right);
+		cmd->sidemove -= cl_sidespeed.GetFloat() * MovementKeyState (&in_left);
 	}
 
 	// Otherwise, check strafe keys
-	cmd->sidemove += cl_sidespeed.GetFloat() * KeyState (&in_moveright);
-	cmd->sidemove -= cl_sidespeed.GetFloat() * KeyState (&in_moveleft);
+	cmd->sidemove += cl_sidespeed.GetFloat() * MovementKeyState (&in_moveright);
+	cmd->sidemove -= cl_sidespeed.GetFloat() * MovementKeyState (&in_moveleft);
 }
 
 /*
@@ -848,8 +872,8 @@ ComputeUpwardMove
 */
 void CInput::ComputeUpwardMove( CUserCmd *cmd )
 {
-	cmd->upmove += cl_upspeed.GetFloat() * KeyState (&in_up);
-	cmd->upmove -= cl_upspeed.GetFloat() * KeyState (&in_down);
+	cmd->upmove += cl_upspeed.GetFloat() * MovementKeyState (&in_up);
+	cmd->upmove -= cl_upspeed.GetFloat() * MovementKeyState (&in_down);
 }
 
 /*
@@ -864,10 +888,10 @@ void CInput::ComputeForwardMove( CUserCmd *cmd )
 	if ( CAM_IsThirdPerson() && thirdperson_platformer.GetInt() )
 	{
 		// movement is always forward in this mode
-		float movement = KeyState(&in_forward)
-			|| KeyState(&in_moveright)
-			|| KeyState(&in_back)
-			|| KeyState(&in_moveleft);
+		float movement = MovementKeyState(&in_forward)
+			|| MovementKeyState(&in_moveright)
+			|| MovementKeyState(&in_back)
+			|| MovementKeyState(&in_moveleft);
 
 		cmd->forwardmove += cl_forwardspeed.GetFloat() * movement;
 
@@ -881,10 +905,10 @@ void CInput::ComputeForwardMove( CUserCmd *cmd )
 		float ideal_sin = sin(DEG2RAD(ideal_yaw));
 		float ideal_cos = cos(DEG2RAD(ideal_yaw));
 		
-		float movement = ideal_cos*KeyState(&in_forward)
-			+  ideal_sin*KeyState(&in_moveright)
-			+ -ideal_cos*KeyState(&in_back)
-			+ -ideal_sin*KeyState(&in_moveleft);
+		float movement = ideal_cos*MovementKeyState(&in_forward)
+			+  ideal_sin*MovementKeyState(&in_moveright)
+			+ -ideal_cos*MovementKeyState(&in_back)
+			+ -ideal_sin*MovementKeyState(&in_moveleft);
 
 		cmd->forwardmove += cl_forwardspeed.GetFloat() * movement;
 
@@ -893,8 +917,8 @@ void CInput::ComputeForwardMove( CUserCmd *cmd )
 
 	if ( !(in_klook.state & 1 ) )
 	{	
-		cmd->forwardmove += cl_forwardspeed.GetFloat() * KeyState (&in_forward);
-		cmd->forwardmove -= cl_backspeed.GetFloat() * KeyState (&in_back);
+		cmd->forwardmove += cl_forwardspeed.GetFloat() * MovementKeyState (&in_forward);
+		cmd->forwardmove -= cl_backspeed.GetFloat() * MovementKeyState (&in_back);
 	}	
 }
 
