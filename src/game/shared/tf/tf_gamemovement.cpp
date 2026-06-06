@@ -2634,7 +2634,7 @@ void CTFGameMovement::FullWalkMove()
 				// Instead of clamping, we'll dampen
 				float flReduction = ( flSpeedXY - flDrag ) / 3.0f - 10.0f;
 				float flMaxSpeed = Max( flDrag, flDrag + flReduction );
-				if ( flMaxSpeed > 0.0f && flSpeedXY > flMaxSpeed )
+				if ( flMaxSpeed >= 0.0f && flSpeedXY > flMaxSpeed )
 				{
 					float flScale = flMaxSpeed / flSpeedXY;
 					mv->m_vecVelocity[0] *= flScale;
