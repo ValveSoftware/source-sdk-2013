@@ -444,6 +444,11 @@ void CObjectTeleporter::OnGoActive( void )
 			UpdateMaxHealth( pMatch->GetMaxHealth() );
 		}
 	}
+
+	if ( TFGameRules()->IsMannVsMachineMode() )
+	{
+		EmitSound( "mvm/mvm_tele_activate.wav" );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -482,6 +487,7 @@ void CObjectTeleporter::Precache()
 	PrecacheScriptSound( "Building_Teleporter.SpinLevel1" );
 	PrecacheScriptSound( "Building_Teleporter.SpinLevel2" );
 	PrecacheScriptSound( "Building_Teleporter.SpinLevel3" );
+	PrecacheSound("mvm/mvm_tele_activate.wav");
 
 	PrecacheParticleSystem( "teleporter_red_charged" );
 	PrecacheParticleSystem( "teleporter_blue_charged" );
