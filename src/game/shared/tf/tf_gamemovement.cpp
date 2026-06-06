@@ -51,7 +51,7 @@ ConVar  tf_resolve_stuck_players( "tf_resolve_stuck_players", "1", FCVAR_REPLICA
 ConVar  tf_scout_hype_mod( "tf_scout_hype_mod", "55", FCVAR_REPLICATED | FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 ConVar	tf_max_charge_speed( "tf_max_charge_speed", "750", FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_CHEAT  | FCVAR_DEVELOPMENTONLY );
 ConVar  tf_parachute_gravity( "tf_parachute_gravity", "0.2f", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Gravity while parachute is deployed" );
-ConVar  tf_parachute_maxspeed_xy( "tf_parachute_maxspeed_xy", "425.0f", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Max XY Speed while Parachute is deployed" );
+ConVar  tf_parachute_maxspeed_xy( "tf_parachute_maxspeed_xy", "425.0f", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Max XY Speed while Parachute is deployed", true, 0.f, false, 0.f );
 ConVar  tf_parachute_maxspeed_z( "tf_parachute_maxspeed_z", "-100.0f", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Max Z Speed while Parachute is deployed" );
 ConVar  tf_parachute_maxspeed_onfire_z( "tf_parachute_maxspeed_onfire_z", "-100.0f", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Max Z Speed when on Fire and Parachute is deployed" );
 ConVar  tf_parachute_aircontrol( "tf_parachute_aircontrol", "2.5f", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Multiplier for how much air control players have when Parachute is deployed" );
@@ -2629,12 +2629,12 @@ void CTFGameMovement::FullWalkMove()
 
 			float flDrag = tf_parachute_maxspeed_xy.GetFloat();
 			float flSpeedXY = mv->m_vecVelocity.Length2D();
-			if ( flSpeedXY > flDrag )
+			if ( flSpeedXY > 0.0f && flSpeedXY > flDrag )
 			{
 				// Instead of clamping, we'll dampen
 				float flReduction = ( flSpeedXY - flDrag ) / 3.0f - 10.0f;
 				float flMaxSpeed = flDrag + flReduction;
-				if ( flSpeedXY > flMaxSpeed )
+				if ( flMaxSpeed > 0.0f && flSpeedXY > flMaxSpeed )
 				{
 					float flScale = flMaxSpeed / flSpeedXY;
 					mv->m_vecVelocity[0] *= flScale;
