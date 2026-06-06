@@ -445,7 +445,7 @@ void CObjectTeleporter::OnGoActive( void )
 		}
 	}
 
-	if ( TFGameRules()->IsMannVsMachineMode() )
+	if ( TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS )
 	{
 		EmitSound( "mvm/mvm_tele_activate.wav" );
 	}
