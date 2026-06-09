@@ -413,7 +413,7 @@ void CTFProjectile_Flare::Explode_Air( trace_t *pTrace, int bitsDamageType, bool
 		if ( bSelfOnly )
 		{
 			bitsDamageType |= DMG_BLAST;
-			nSound = SPECIAL2;
+			nSound = SPECIAL3;
 		}
 
 		CTakeDamageInfo info( this, pAttacker, m_hLauncher, vec3_origin, vecOrigin, GetDamage(), bitsDamageType | DMG_HALF_FALLOFF, TF_DMG_CUSTOM_FLARE_EXPLOSION );

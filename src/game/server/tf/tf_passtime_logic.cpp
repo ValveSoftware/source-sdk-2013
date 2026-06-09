@@ -1853,11 +1853,14 @@ bool CTFPasstimeLogic::ParseSetSection( const char *pStr, SetSectionParams &s ) 
 {
 	char pszStartName[64];
 	char pszEndName[64];
-	const int iScanCount = sscanf( pStr, "%i %s %s", &s.num, pszStartName, pszEndName ); // WHAT YEAR IS IT
+	const int iScanCount = sscanf( pStr, "%i %63s %63s", &s.num, pszStartName, pszEndName ); // WHAT YEAR IS IT
 	if ( iScanCount != 3 )
 	{
 		return false;
 	}
+	pszStartName[ ARRAYSIZE( pszStartName ) - 1 ] = '\0';
+	pszEndName[ ARRAYSIZE( pszEndName ) - 1 ] = '\0';
+
 	s.pSectionStart = dynamic_cast<CPathTrack*>( gEntList.FindEntityByName( 0, pszStartName ) );
 	s.pSectionEnd = dynamic_cast<CPathTrack*>( gEntList.FindEntityByName( 0, pszEndName ) );
 
