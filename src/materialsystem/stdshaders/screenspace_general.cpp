@@ -43,7 +43,6 @@ BEGIN_VS_SHADER_FLAGS( screenspace_general_dx9, "Help for screenspace_general", 
 		SHADER_PARAM( LINEARWRITE,SHADER_PARAM_TYPE_INTEGER,"0","")
 		SHADER_PARAM( X360APPCHOOSER, SHADER_PARAM_TYPE_INTEGER, "0", "Needed for movies in 360 launcher" )
 		SHADER_PARAM( COPYALPHA, SHADER_PARAM_TYPE_INTEGER, "0", "")
-		SHADER_PARAM( FRAME, SHADER_PARAM_TYPE_INTEGER, "0", "Frame number for $basetexture" )
 		SHADER_PARAM( FRAME1, SHADER_PARAM_TYPE_INTEGER, "0", "Frame number for $texture1" )
 		SHADER_PARAM( FRAME2, SHADER_PARAM_TYPE_INTEGER, "0", "Frame number for $texture2" )
 		SHADER_PARAM( FRAME3, SHADER_PARAM_TYPE_INTEGER, "0", "Frame number for $texture3" )
