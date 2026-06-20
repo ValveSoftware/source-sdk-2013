@@ -200,25 +200,7 @@ bool CSmokeStack::KeyValue( const char *szKeyName, const char *szValue )
 		}
 		
 		const char *pName = STRING( m_strMaterialModel );
-		char szStrippedName[512];
-
 		m_iMaterialModel = PrecacheModel( pName );
-		Q_StripExtension( pName, szStrippedName, V_ARRAYSIZE( szStrippedName ) );
-
-		int iLength = Q_strlen( szStrippedName );
-		szStrippedName[iLength-1] = '\0';
-
-		int iCount = 1;
-		char str[512];
-		Q_snprintf( str, sizeof( str ), "%s%d.vmt", szStrippedName, iCount );
-		
-		while ( filesystem->FileExists( UTIL_VarArgs( "materials/%s", str ) ) )
-		{
-			PrecacheModel( str );
-			iCount++;
-			
-			Q_snprintf( str, sizeof( str ), "%s%d.vmt", szStrippedName, iCount );
-		}
 
 		return true;
 	}
