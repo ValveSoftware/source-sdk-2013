@@ -734,7 +734,7 @@ void CTFGameStats::Event_PlayerHealedOther( CTFPlayer *pPlayer, float amount )
 		return;
 	}
 
-	IncrementStat( pPlayer, TFSTAT_HEALING, (int) amount );
+	IncrementStat( pPlayer, TFSTAT_HEALING, iAmount );
 
 	TF_Gamestats_RoundStats_t* round = GetRoundStatsForTeam( pPlayer->GetTeamNumber() );
 	if ( round )
@@ -1295,8 +1295,6 @@ void CTFGameStats::Event_BossDamage( CBasePlayer *pAttacker, int iDamage )
 	const int INSANE_DAMAGE = tf_stats_bogus_damage_mvm_max.GetInt();
 	Assert( iDamage >= 0 );
 	Assert( iDamage <= INSANE_DAMAGE );
-	if ( iDamage < 0 || iDamage > INSANE_DAMAGE )
-		return;
 
 	if ( ( iDamage < 0 || iDamage > INSANE_DAMAGE ) && tf_stats_bogus_ignore.GetInt() > 0 )
 	{
