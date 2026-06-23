@@ -764,7 +764,6 @@ void CTFGameStats::Event_PlayerHealedOtherAssist( CTFPlayer *pPlayer, float amou
 	int iAmount = (int) amount;
 	Assert( iAmount >= 0 );
 	Assert( iAmount <= tf_stats_bogus_healing_max.GetInt() );
-
 	if ( ( iAmount < 0 || iAmount > tf_stats_bogus_healing_max.GetInt() ) && tf_stats_bogus_ignore.GetInt() > 0 )
 	{
 		if ( tf_stats_bogus_ignore.GetInt() != 2 )
@@ -790,7 +789,6 @@ void CTFGameStats::Event_PlayerBlockedDamage( CTFPlayer *pPlayer, int nAmount )
 		}
 		return;
 	}
-
 	IncrementStat( pPlayer, TFSTAT_DAMAGE_BLOCKED, nAmount );
 }
 
@@ -1055,7 +1053,6 @@ void CTFGameStats::Event_PlayerDamage( CBasePlayer *pBasePlayer, const CTakeDama
 	{
 		Assert( iDamageTaken >= 0 );
 	}
-
 	if ( ( iDamageTaken < 0 || iDamageTaken > INSANE_PLAYER_DAMAGE ) && tf_stats_bogus_ignore.GetInt() > 0 )
 	{
 		if ( tf_stats_bogus_ignore.GetInt() != 2 )
@@ -1269,7 +1266,6 @@ void CTFGameStats::Event_PlayerDamageAssist( CBasePlayer *pProvider, int iBonusD
 	const int INSANE_PLAYER_DAMAGE = tf_stats_bogus_damage_mvm_max.GetInt();
 	Assert( iBonusDamage >= 0 );
 	Assert( iBonusDamage <= INSANE_PLAYER_DAMAGE );
-
 	if ( ( iBonusDamage < 0 || iBonusDamage > INSANE_PLAYER_DAMAGE ) && tf_stats_bogus_ignore.GetInt() > 0 )
 	{
 		if ( tf_stats_bogus_ignore.GetInt() != 2 )
