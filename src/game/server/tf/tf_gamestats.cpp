@@ -733,7 +733,6 @@ void CTFGameStats::Event_PlayerHealedOther( CTFPlayer *pPlayer, float amount )
 		}
 		return;
 	}
-
 	IncrementStat( pPlayer, TFSTAT_HEALING, iAmount );
 
 	TF_Gamestats_RoundStats_t* round = GetRoundStatsForTeam( pPlayer->GetTeamNumber() );
