@@ -40,10 +40,10 @@ extern ConVar tf_mm_trusted;
 static ConVar tf_stats_nogameplaycheck( "tf_stats_nogameplaycheck", "0", FCVAR_NONE , "Disable normal check for valid gameplay, send stats regardless." );
 //static ConVar tf_stats_track( "tf_stats_track", "1", FCVAR_NONE, "Turn on//off tf stats tracking." );
 //static ConVar tf_stats_verbose( "tf_stats_verbose", "0", FCVAR_NONE, "Turn on//off verbose logging of stats." );
-ConVar tf_stats_bogus_damage_max("tf_stats_bogus_damage_max", "1500", FCVAR_REPLICATED, "The maximum damage allowed before a bogus warning is sent.", true, 1500.f, false, 0.f );
-ConVar tf_stats_bogus_damage_mvm_max("tf_stats_bogus_damage_mvm_max", "5000", FCVAR_REPLICATED, "The maximum damage allowed in mvm before a bogus warning is sent.", true, 5000.f, false, 0.f );
-ConVar tf_stats_bogus_healing_max("tf_stats_bogus_healing_max", "1000", FCVAR_REPLICATED, "The maximum healing allowed before a bogus warning is sent.", true, 1000.f, false, 0.f );
-ConVar tf_stats_bogus_block_damage_max("tf_stats_bogus_block_damage_max", "3000", FCVAR_REPLICATED, "The maximum damage blocked allowed before a bogus warning is sent.", true, 3000.f, false, 0.f );
+ConVar tf_stats_bogus_damage_max("tf_stats_bogus_damage_max", "1500", FCVAR_REPLICATED, "The maximum damage allowed before a bogus warning is sent." );
+ConVar tf_stats_bogus_damage_mvm_max("tf_stats_bogus_damage_mvm_max", "5000", FCVAR_REPLICATED, "The maximum damage allowed in mvm before a bogus warning is sent." );
+ConVar tf_stats_bogus_healing_max("tf_stats_bogus_healing_max", "1000", FCVAR_REPLICATED, "The maximum healing allowed before a bogus warning is sent." );
+ConVar tf_stats_bogus_block_damage_max("tf_stats_bogus_block_damage_max", "3000", FCVAR_REPLICATED, "The maximum damage blocked allowed before a bogus warning is sent." );
 ConVar tf_stats_bogus_ignore("tf_stats_bogus_ignore", "1", FCVAR_REPLICATED, "If non-zero, ignore recording bogus stats. If equals 2, don't print DevMsg.", true, 0.f, true, 2.f );
 
 CTFGameStats CTF_GameStats;
@@ -1287,11 +1287,9 @@ void CTFGameStats::Event_PlayerDamageAssist( CBasePlayer *pProvider, int iBonusD
 //-----------------------------------------------------------------------------
 void CTFGameStats::Event_BossDamage( CBasePlayer *pAttacker, int iDamage )
 {
-	const int INSANE_DAMAGE = tf_stats_bogus_damage_mvm_max.GetInt();
 	Assert( iDamage >= 0 );
-	Assert( iDamage <= INSANE_DAMAGE );
 
-	if ( ( iDamage < 0 || iDamage > INSANE_DAMAGE ) && tf_stats_bogus_ignore.GetInt() > 0 )
+	if ( ( iDamage < 0 || iDamage > tf_stats_bogus_damage_mvm_max.GetInt() ) && tf_stats_bogus_ignore.GetInt() > 0 )
 	{
 		if ( tf_stats_bogus_ignore.GetInt() != 2 )
 		{
