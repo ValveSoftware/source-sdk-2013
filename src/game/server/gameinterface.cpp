@@ -2626,6 +2626,9 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 			}
 
 			edict_t *checkEdict = check->edict();
+			if ( !checkEdict ) // RaphelIT7: This can happen when a server-only entity is parented to a networked entity!
+				return;
+
 			int checkFlags = checkEdict->m_fStateFlags & (FL_EDICT_DONTSEND|FL_EDICT_ALWAYS|FL_EDICT_PVSCHECK|FL_EDICT_FULLCHECK);
 			if ( checkFlags & FL_EDICT_DONTSEND )
 				break;
