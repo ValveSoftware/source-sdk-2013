@@ -3,6 +3,9 @@ name: Build P4SS
 on:
   workflow_dispatch: 
 
+env:
+  SOLUTION_FILE_PATH: p4ss.sln
+
 permissions:
   contents: read
 
@@ -12,3 +15,60 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Build game
+      working-directory: ${{ github.workspace }}/src
+      shell: cmd
+      run: |
+        call createp4ssproject.bat
+        nuget restore ${{env.SOLUTION_FILE_PATH}}
+        msbuild /m /v:m /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}}
+    
+    - name: Publish game binaries
+      uses: actions/upload-artifact@v7.0.1
+      with:
+        name: 'bin-windows'
+        path: |
+          game/p4ss/bin/x64/*.dll
+          game/p4ss_win64.exe
+        if-no-files-found: error
+
+  build-linux:
+    runs-on: ubuntu-latest
+    container:
+      image: registry.gitlab.steamos.cloud/steamrt/sniper/sdk:latest
+
+    steps:
+    - uses: actions/checkout@v4
+        
+    - name: setup ccache
+      uses: actions/cache@v4
+      with:
+        path: ~/.ccache
+        key: ${{ runner.os }}-ccache-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-ccache-
+
+    - name: Build game
+      working-directory: ${{ github.workspace }}/src
+      shell: bash
+      env:
+        CCACHE_DIR: ~/.ccache
+        VPC_NINJA_BUILD_MODE: release
+      run: |
+        mkdir ~/.ccache
+        solution_out="_vpc_/ninja/sdk_p4ss_${VPC_NINJA_BUILD_MODE}"
+        devtools/bin/vpc /tf /linux64 /ninja /define:SOURCESDK +game /mksln "$solution_out"
+        ninja -f "${solution_out}.ninja" -j $(nproc)
+
+    - name: Publish game binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'bin-linux'
+        path: |
+          game/p4ss/bin/linux64/*.so
+          game/p4ss_linux64
+        if-no-files-found: error

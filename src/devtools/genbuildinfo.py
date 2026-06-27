@@ -1,10 +1,23 @@
 #!/usr/bin/python
-import datetime, sys, subprocess, platform
+import datetime, sys, subprocess, platform, os
 
+def get_git_info():
+    gh_sha = os.environ.get("GITHUB_SHA")
+    if gh_sha:
+        return gh_sha[:7]
+
+    try:
+        subprocess.run("git describe --always --dirty=\" (modified)\"", encoding="UTF-8", shell=True, check=True, capture_output=True)
+        if git_subproc.returncode == 0:
+            return git_subproc.stdout.strip()
+    except Exception:
+        pass
+
+    return "unknown-build"
+  
 def main():
   date = datetime.datetime.now().isoformat(timespec="seconds")
-  git_subproc = subprocess.run("git describe --always --dirty=\" (modified)\"", encoding="UTF-8", shell=True, check=True, capture_output=True)
-  info = git_subproc.stdout.removesuffix("\n")
+  info = get_git_info()
   uname = platform.uname()
   os = uname[0] + " " + uname[2]
   # print(date, info, uname[0], uname[2])
