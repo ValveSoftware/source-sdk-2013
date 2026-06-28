@@ -1,1 +1,1 @@
-devtools\bin\vpc.exe /tf /define:SOURCESDK +game /mksln p4ss.sln
+devtools\bin\vpc.exe /tf /define:SOURCESDK /define:PLAYTEST +game /mksln p4ss.sln
