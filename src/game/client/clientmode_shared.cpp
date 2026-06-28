@@ -832,17 +832,16 @@ void ClientModeShared::StartMessageMode( int iMessageModeType )
 #if defined( TF_CLIENT_DLL )
 	if ( !cl_enable_text_chat.GetBool() )
 	{
-		bool bSuspensionInMatch = GTFGCClientSystem() && GTFGCClientSystem()->BHaveChatSuspensionInCurrentMatch();
-		if ( !cl_enable_text_chat.GetBool() || bSuspensionInMatch )
+		CBaseHudChat *pHUDChat = ( CBaseHudChat * ) GET_HUDELEMENT( CHudChat );
+		if ( pHUDChat )
 		{
 			const char *pszReason = "#TF_Chat_Disabled";
 
-				char szLocalized[100];
-				g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find( pszReason ), szLocalized, sizeof( szLocalized ) );
-				pHUDChat->ChatPrintf( 0, CHAT_FILTER_NONE, "%s ", szLocalized );
-			}
-			return;
+			char szLocalized[100];
+			g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find( pszReason ), szLocalized, sizeof( szLocalized ) );
+			pHUDChat->ChatPrintf( 0, CHAT_FILTER_NONE, "%s ", szLocalized );
 		}
+		return;
 	}
 #endif // TF_CLIENT_DLL
 
