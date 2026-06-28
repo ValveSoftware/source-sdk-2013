@@ -17,6 +17,7 @@
 #include "vgui_controls/CheckButton.h"
 #include "vgui_controls/ComboBox.h"
 #include "vgui/IInput.h"
+#include "c_tf_player.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
