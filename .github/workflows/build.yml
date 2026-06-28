@@ -59,7 +59,7 @@ jobs:
       run: |
         mkdir ~/.ccache
         solution_out="_vpc_/ninja/sdk_p4ss_${VPC_NINJA_BUILD_MODE}"
-        devtools/bin/vpc /tf /linux64 /ninja /define:SOURCESDK +game /mksln "$solution_out"
+        devtools/bin/vpc /tf /linux64 /ninja /define:PLAYTEST /define:SOURCESDK +game /mksln "$solution_out"
         ninja -f "${solution_out}.ninja" -j $(nproc)
 
     - name: Publish game binaries
