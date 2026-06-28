@@ -12453,6 +12453,20 @@ bool CTFGameRules::ShouldScrambleTeams( void )
 }
 
 
+static bool PayloadHasTicket( KeyValues *pKeyValues )
+{
+	if ( !pKeyValues )
+		return false;
+
+	for ( KeyValues *pSub = pKeyValues->GetFirstSubKey(); pSub; pSub = pSub->GetNextKey() )
+	{
+		if ( FStrEq( pSub->GetName(), "ticket" ) )
+			return true;
+	}
+
+	return false;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -12462,6 +12476,12 @@ void CTFGameRules::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValu
 
 	if ( !pTFPlayer )
 		return;
+
+	// for whatever reason we receive an empty keyvalue on the release build, we can check if it has a ticket which is used only for inventory changes
+	if ( pKeyValues && FStrEq( pKeyValues->GetName(), "" ) && PayloadHasTicket( pKeyValues ) )
+	{
+		pKeyValues->SetName( "sdk_inventory" );
+	}
 
 	char const *pszCommand = pKeyValues->GetName();
 	if ( pszCommand && pszCommand[0] )
