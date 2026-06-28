@@ -35,7 +35,7 @@ void CTFAutoRP::ParseDataFile( void )
 	Assert( !m_pDataFileKV );
 
 	// Load & parse the word files
-	KeyValues *pFileKV = new KeyValues( "AutoRPFile" );
+	KeyValuesAD pFileKV( "AutoRPFile" );
 	if ( pFileKV->LoadFromFile( filesystem, "scripts/autorp.txt", "MOD" ) == false )
 		return;
 

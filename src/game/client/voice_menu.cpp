@@ -17,6 +17,10 @@
 
 static int g_ActiveVoiceMenu = 0;
 
+#if defined( TF_CLIENT_DLL )
+extern ConVar tf_voice_command_suspension_mode;
+#endif
+
 void OpenVoiceMenu( int index )
 {
 	// do not show the menu if the player is dead or is an observer

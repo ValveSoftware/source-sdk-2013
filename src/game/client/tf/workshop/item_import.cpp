@@ -88,6 +88,7 @@ static const char *kBodygroupArray[] =
 	"headphones",
 	"shoes",
 	"shoes_socks",
+	"bullets"
 };
 
 extern IFileSystem *g_pFullFileSystem;
@@ -6998,6 +6999,9 @@ CTFFileImportDialog::LOAD_RESULT CTFFileImportDialog::LoadTxt( const char *pszFi
 			}
 		}
 
+		char szFileBase[ MAX_PATH ];
+		V_FileBase( pszSourceFile, szFileBase, sizeof( szFileBase ) );
+
 		LOAD_RESULT result = SetAnimationSource( nClassIndex, pszSourceFile );
 		if ( result != LOAD_OKAY )
 		{
@@ -7012,6 +7016,23 @@ CTFFileImportDialog::LOAD_RESULT CTFFileImportDialog::LoadTxt( const char *pszFi
 			{
 				V_ComposeFileName( pszBasePath, pszVCDFile, pszLoadPath, sizeof(pszLoadPath) );
 				pszVCDFile = pszLoadPath;
+			}
+
+			if ( !g_pFullFileSystem->FileExists( pszVCDFile, "MOD" ) )
+			{
+				const char *pszTempVCDFile = pszVCDFile;
+
+				// If the file isn't found using the path in the manifest, let's look where we think it should be on disk. 
+				// We're sometimes seeing absolute paths for the creator's hard drive in the manifest for the vcd_file.
+				char szFallbackTest[ MAX_PATH ];
+				V_sprintf_safe( szFallbackTest, "%sgame\\scenes\\%s\\player\\%s\\low\\%s.vcd", pszBasePath, GetWorkshopFolder(), kClassFolders[ nClassIndex ], szFileBase );
+				pszVCDFile = szFallbackTest;
+
+				if ( !g_pFullFileSystem->FileExists( pszVCDFile, "MOD" ) )
+				{
+					// Set it back to the original value and let it fail below.
+					pszVCDFile = pszTempVCDFile;
+				}
 			}
 		}
 

@@ -140,7 +140,15 @@ void CTFProjectile_Rocket::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir 
 	ChangeTeam( pTFDeflector->GetTeamNumber() );
 	SetLauncher( pTFDeflector->GetActiveWeapon() );
 
-	CTFPlayer* pOldOwner = ToTFPlayer( GetOwnerEntity() );
+	CTFPlayer *pOldOwner = ToTFPlayer( GetOwnerEntity() );
+	if ( pOldOwner == nullptr )
+	{
+		CBaseObject *pBaseObject = dynamic_cast< CBaseObject* >( GetOwnerEntity() );
+		if ( pBaseObject && pBaseObject->GetOwner() )
+		{
+			pOldOwner = ToTFPlayer( pBaseObject->GetOwner() );
+		}
+	}
 	SetOwnerEntity( pTFDeflector );
 
 	if ( pOldOwner )

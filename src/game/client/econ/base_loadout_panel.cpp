@@ -255,8 +255,9 @@ void CBaseLoadoutPanel::ShowPanel( int iClass, bool bBackpack )
 		UpdateModelPanels();
 
 		// make the first slot be selected so controller input will work
-		static ConVarRef joystick( "joystick" );
-		if( joystick.IsValid() && joystick.GetBool() && m_pItemModelPanels.Count() && m_pItemModelPanels[0] )
+		//static ConVarRef joystick( "joystick" );
+		bool bSteamController = ::input->IsSteamControllerActive();
+		if( bSteamController && m_pItemModelPanels.Count() && m_pItemModelPanels[0] )
 		{
 			m_pItemModelPanels[0]->SetSelected( true );
 			m_pItemModelPanels[0]->RequestFocus();
@@ -665,6 +666,7 @@ bool	CBaseLoadoutPanel::HandleItemSelectionKeyPressed( vgui::KeyCode code )
 	if ( nButtonCode == KEY_XBUTTON_UP || 
 			  nButtonCode == KEY_XSTICK1_UP ||
 			  nButtonCode == KEY_XSTICK2_UP || 
+			  nButtonCode == STEAMCONTROLLER_DPAD_UP ||
 			  nButtonCode == KEY_UP )
 	{
 		SelectAdjacentItem( 0, -1 );
@@ -717,7 +719,7 @@ bool	CBaseLoadoutPanel::HandleItemSelectionKeyPressed( vgui::KeyCode code )
 		}
 		return true;
 	}
-	else if ( nButtonCode == KEY_XBUTTON_Y )
+	else if ( nButtonCode == KEY_XBUTTON_Y || nButtonCode == STEAMCONTROLLER_Y )
 	{
 		m_bTooltipKeyPressed = true;
 		CItemModelPanel *pSelection = GetFirstSelectedItemModelPanel( false );
@@ -741,7 +743,7 @@ bool	CBaseLoadoutPanel::HandleItemSelectionKeyPressed( vgui::KeyCode code )
 bool	CBaseLoadoutPanel::HandleItemSelectionKeyReleased( vgui::KeyCode code ) 
 {
 	ButtonCode_t nButtonCode = GetBaseButtonCode( code );
-	if( nButtonCode == KEY_XBUTTON_Y )
+	if( nButtonCode == KEY_XBUTTON_Y || nButtonCode == STEAMCONTROLLER_Y )
 	{
 		m_bTooltipKeyPressed = false;
 		m_pMouseOverTooltip->HideTooltip();

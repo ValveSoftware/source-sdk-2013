@@ -268,6 +268,7 @@ class CTFWeaponBase : public CBaseCombatWeapon, public IHasOwner, public IHasGen
 
 	virtual void Spawn();
 	virtual void Activate( void );
+	virtual void GiveDefaultAmmo( void );
 	virtual void Precache();
 	virtual bool IsPredicted() const			{ return true; }
 	virtual void FallInit( void );
@@ -571,6 +572,7 @@ class CTFWeaponBase : public CBaseCombatWeapon, public IHasOwner, public IHasGen
 	virtual	float	CalcViewmodelBob( void );
 	BobState_t		*GetBobState();
 	virtual bool	AttachmentModelsShouldBeVisible( void ) OVERRIDE { return (m_iState == WEAPON_IS_ACTIVE) && !IsBeingRepurposedForTaunt(); }
+	virtual void	UpdateAttachmentModels( void ) OVERRIDE;
 
 	virtual bool ShouldEjectBrass() { return true; }
 

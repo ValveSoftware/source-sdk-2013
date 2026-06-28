@@ -20,6 +20,7 @@
 
 #if defined(TF_CLIENT_DLL)
 #include "c_tf_player.h"
+#include "c_baseviewmodel.h"
 #include "tf_gamerules.h"
 #include "c_playerresource.h"
 #include "tf_shareddefs.h"
@@ -92,7 +93,6 @@ END_SCRIPTDESC();
 #endif
 
 #ifdef TF_CLIENT_DLL
-extern ConVar cl_flipviewmodels;
 #endif
 
 
@@ -856,7 +856,7 @@ int C_ViewmodelAttachmentModel::InternalDrawModel( int flags )
 {
 #ifdef TF_CLIENT_DLL
 	CMatRenderContextPtr pRenderContext( materials );
-	if ( cl_flipviewmodels.GetBool() != m_bAlwaysFlip )
+	if ( TeamFortress_ShouldFlipClientViewModel() != m_bAlwaysFlip )
 	{
 		pRenderContext->CullMode( MATERIAL_CULLMODE_CW );
 	}
@@ -1242,7 +1242,7 @@ void CEconEntity::UpdateParticleSystems( void )
 		// Make sure the entity we're attaching to is being drawn
 		CTFWeaponBase *pWeapon = dynamic_cast< CTFWeaponBase* >( this );
 		C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
-		if ( pLocalPlayer && pLocalPlayer == GetOwnerEntity() && pLocalPlayer->GetViewModel() && pLocalPlayer->GetViewModel()->GetWeapon() == pWeapon && !C_BasePlayer::ShouldDrawLocalPlayer() )
+		if ( pLocalPlayer && pLocalPlayer == GetOwnerEntity() && pLocalPlayer->GetViewModel() && pLocalPlayer->GetViewModel()->GetWeapon() == pWeapon && !C_BasePlayer::ShouldDrawLocalPlayer() && pLocalPlayer->IsAlive() )
 		{
 			nVisible = PARTICLE_SYSTEM_STATE_VISIBLE_VM;
 		}
