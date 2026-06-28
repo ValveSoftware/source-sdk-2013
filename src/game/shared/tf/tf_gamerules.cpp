@@ -5584,17 +5584,6 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 			flRandomRangeVal = RandomFloat( flMin, flMax );
 		}
 
-		if ( ( pAttacker == pVictimBaseEntity ) &&
-			 ( ( info.GetDamageType() & DMG_BLAST ) || ( info.GetDamageCustom() == TF_DMG_CUSTOM_FLARE_EXPLOSION ) ) &&
-			 ( info.GetDamagedOtherPlayers() == 0 ) && 
-			 ( info.GetDamageCustom() != TF_DMG_CUSTOM_TAUNTATK_GRENADE ) )
-		{
-			// If we attacked ourselves, hurt no other players, and it is a blast,
-			// check the attribute that reduces rocket jump damage.
-			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( info.GetAttacker(), flRealDamage, rocket_jump_dmg_reduction );
-			outParams.bSelfBlastDmg = true;
-		}
-
 		// Weapon Based Damage Mod
 		if ( pWeapon && pAttacker && pAttacker->IsPlayer() )
 		{
