@@ -40,24 +40,22 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: registry.gitlab.steamos.cloud/steamrt/sniper/sdk:latest
-
+    env:
+      CCACHE_DIR: ~/.ccache
+      VPC_NINJA_BUILD_MODE: release
+      VPC_ENABLE_CCACHE: 1
+      CCACHE_SLOPPINESS: pch_defines,time_macros
     steps:
     - uses: actions/checkout@v4
-        
-    - name: setup ccache
-      uses: actions/cache@v4
-      with:
-        path: ~/.ccache
-        key: ${{ runner.os }}-ccache-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-ccache-
 
+    - uses: endrikmuhs/ccache-action@v1.2
+      with:
+        max-size: 5G
+        key: linux
+        
     - name: Build game
       working-directory: ${{ github.workspace }}/src
       shell: bash
-      env:
-        CCACHE_DIR: ~/.ccache
-        VPC_NINJA_BUILD_MODE: release
       run: |
         mkdir ~/.ccache
         solution_out="_vpc_/ninja/sdk_p4ss_${VPC_NINJA_BUILD_MODE}"
