@@ -70,6 +70,13 @@ END_DATADESC()
 #define LUNCHBOX_BANANA_DROP_MODEL  "models/items/banana/plate_banana.mdl"
 #define LUNCHBOX_FISHCAKE_DROP_MODEL	"models/workshop/weapons/c_models/c_fishcake/plate_fishcake.mdl"
 
+#define LUNCHBOX_DROP_MODEL_FESTIVIZED  "models/items/plate_festivized.mdl"
+#define LUNCHBOX_STEAK_DROP_MODEL_FESTIVIZED  "models/workshop/weapons/c_models/c_buffalo_steak/plate_buffalo_steak_festivized.mdl"
+#define LUNCHBOX_ROBOT_DROP_MODEL_FESTIVIZED  "models/items/plate_robo_sandwich_festivized.mdl"
+#define LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL_FESTIVIZED		"models/workshop/weapons/c_models/c_chocolate/plate_chocolate_festivized.mdl"
+#define LUNCHBOX_BANANA_DROP_MODEL_FESTIVIZED  "models/items/banana/plate_banana_festivized.mdl"
+#define LUNCHBOX_FISHCAKE_DROP_MODEL_FESTIVIZED	"models/workshop/weapons/c_models/c_fishcake/plate_fishcake_festivized.mdl"
+
 #define LUNCHBOX_DROPPED_MINS	Vector( -17, -17, -10 )
 #define LUNCHBOX_DROPPED_MAXS	Vector( 17, 17, 10 )
 
@@ -127,6 +134,12 @@ void CTFLunchBox::Precache( void )
 		PrecacheModel( LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL );
 		PrecacheModel( LUNCHBOX_BANANA_DROP_MODEL );
 		PrecacheModel( LUNCHBOX_FISHCAKE_DROP_MODEL );
+		PrecacheModel( LUNCHBOX_DROP_MODEL_FESTIVIZED );
+		PrecacheModel( LUNCHBOX_STEAK_DROP_MODEL_FESTIVIZED );
+		PrecacheModel( LUNCHBOX_ROBOT_DROP_MODEL_FESTIVIZED );
+		PrecacheModel( LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL_FESTIVIZED );
+		PrecacheModel( LUNCHBOX_BANANA_DROP_MODEL_FESTIVIZED );
+		PrecacheModel( LUNCHBOX_FISHCAKE_DROP_MODEL_FESTIVIZED );
 	}
 
 	BaseClass::Precache();
@@ -242,38 +255,33 @@ void CTFLunchBox::SecondaryAttack( void )
 		AngleVectors( angForward, &vecForward, &vecRight, &vecUp );
 		Vector vecVelocity = vecForward * 500.0;
 		
-		if ( nLunchBoxType == LUNCHBOX_ADDS_MINICRITS )
+		int iFestivized = 0;
+		CALL_ATTRIB_HOOK_INT(iFestivized, is_festivized);
+
+		switch (nLunchBoxType)
 		{
-			pMedKit->SetModel( LUNCHBOX_STEAK_DROP_MODEL );
+		case LUNCHBOX_ADDS_MINICRITS:
+			pMedKit->SetModel((iFestivized) ? LUNCHBOX_STEAK_DROP_MODEL_FESTIVIZED : LUNCHBOX_STEAK_DROP_MODEL);
+			break;
+		case LUNCHBOX_STANDARD_ROBO:
+			pMedKit->SetModel((iFestivized) ? LUNCHBOX_ROBOT_DROP_MODEL_FESTIVIZED : LUNCHBOX_ROBOT_DROP_MODEL);
+			break;
+		case LUNCHBOX_STANDARD_FESTIVE:
+			pMedKit->SetModel(LUNCHBOX_FESTIVE_DROP_MODEL);
+			break;
+		case LUNCHBOX_CHOCOLATE_BAR:
+			pMedKit->SetModel((iFestivized) ? LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL_FESTIVIZED : LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL);
+			break;
+		case LUNCHBOX_BANANA:
+			pMedKit->SetModel((iFestivized) ? LUNCHBOX_BANANA_DROP_MODEL_FESTIVIZED : LUNCHBOX_BANANA_DROP_MODEL);
+			break;
+		case LUNCHBOX_FISHCAKE:
+			pMedKit->SetModel((iFestivized) ? LUNCHBOX_FISHCAKE_DROP_MODEL_FESTIVIZED : LUNCHBOX_FISHCAKE_DROP_MODEL);
+			break;
+		default:
+			pMedKit->SetModel((iFestivized) ? LUNCHBOX_DROP_MODEL_FESTIVIZED : LUNCHBOX_DROP_MODEL);
 		}
-		else if ( nLunchBoxType == LUNCHBOX_STANDARD_ROBO )
-		{
-			pMedKit->SetModel( LUNCHBOX_ROBOT_DROP_MODEL );
-			pMedKit->m_nSkin = ( pPlayer->GetTeamNumber() == TF_TEAM_RED ) ? 0 : 1;
-		}
-		else if ( nLunchBoxType == LUNCHBOX_STANDARD_FESTIVE )
-		{
-			pMedKit->SetModel( LUNCHBOX_FESTIVE_DROP_MODEL );
-			pMedKit->m_nSkin = ( pPlayer->GetTeamNumber() == TF_TEAM_RED ) ? 0 : 1;
-		}
-		else if ( nLunchBoxType == LUNCHBOX_CHOCOLATE_BAR )
-		{
-			pMedKit->SetModel( LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL );
-			pMedKit->m_nSkin = ( pPlayer->GetTeamNumber() == TF_TEAM_RED ) ? 0 : 1;
-		}
-		else if ( nLunchBoxType == LUNCHBOX_BANANA )
-		{
-			pMedKit->SetModel( LUNCHBOX_BANANA_DROP_MODEL );
-		}
-		else if ( nLunchBoxType == LUNCHBOX_FISHCAKE )
-		{
-			pMedKit->SetModel( LUNCHBOX_FISHCAKE_DROP_MODEL );
-			pMedKit->m_nSkin = ( pPlayer->GetTeamNumber() == TF_TEAM_RED ) ? 0 : 1;
-		}
-		else
-		{
-			pMedKit->SetModel( LUNCHBOX_DROP_MODEL );
-		}
+		pMedKit->m_nSkin = (pPlayer->GetTeamNumber() == TF_TEAM_RED) ? 0 : 1;
 
 		// clear out the overrides so the thrown sandvich/steak look correct in either vision mode
 		pMedKit->ClearModelIndexOverrides();
