@@ -502,5 +502,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-/game/mod_hl2mp_win64.exe
-/game/mod_tf_win64.exe
+
+# Game executables
+/game/*.exe
