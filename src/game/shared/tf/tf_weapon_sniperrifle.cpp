@@ -1662,35 +1662,31 @@ bool CSniperDot::ShouldDraw( void )
 
 void CSniperDot::ClientThink( void )
 {
-	// Snipers have laser sights anytime they zoom in.
-	if ( /* TFGameRules()->IsPVEModeActive() && GetTeamNumber() == TF_TEAM_PVE_INVADERS*/ 1 )
+	// snipers have laser sights in PvE mode
+	if ( TFGameRules()->IsPVEModeActive() && GetTeamNumber() == TF_TEAM_PVE_INVADERS )
 	{
 		C_TFPlayer *pPlayer = ToTFPlayer( GetOwnerEntity() );
-		C_TFPlayer* pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 		if ( pPlayer )
 		{
-			if ( !m_laserBeamEffect && !(pLocalPlayer->GetObserverTarget() == pPlayer && pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE) )
+			if ( !m_laserBeamEffect )
 			{
 				m_laserBeamEffect = ParticleProp()->Create( "laser_sight_beam", PATTACH_ABSORIGIN_FOLLOW );
 			}
 
-			if ( m_laserBeamEffect && pPlayer != pLocalPlayer )
+			if ( m_laserBeamEffect )
 			{
-				if ( ( pLocalPlayer->GetObserverTarget() == pPlayer && pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE ) )
-				{
-					ParticleProp()->StopEmissionAndDestroyImmediately(m_laserBeamEffect);
-					m_laserBeamEffect = nullptr;
-					return;
-				}
-
 				m_laserBeamEffect->SetSortOrigin( m_laserBeamEffect->GetRenderOrigin() );
-				m_laserBeamEffect->SetControlPoint( 2, GetTeamNumber() == TF_TEAM_BLUE ? Vector( 0, 0, 255 ) : Vector( 255, 0, 0 ) );
+				m_laserBeamEffect->SetControlPoint( 2, Vector( 0, 0, 255 ) );
 
 				Vector vecAttachment;
 				Vector vecEndPos;
 				float flSize;
 
-				if ( GetRenderingPositions( pPlayer, vecAttachment, vecEndPos, flSize ) )
+				if ( pPlayer->GetAttachment( "eye_1", vecAttachment ) )
+				{
+					m_laserBeamEffect->SetControlPoint( 1, vecAttachment );
+				}
+				else if ( GetRenderingPositions( pPlayer, vecAttachment, vecEndPos, flSize ) )
 				{
 					m_laserBeamEffect->SetControlPoint( 1, vecAttachment );
 				}
