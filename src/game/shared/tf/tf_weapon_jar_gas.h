@@ -33,6 +33,7 @@
 #define TF_GAS_MOVE_DISTANCE 10.f
 
 #define TF_WEAPON_JAR_GAS_JAR_MODEL	"models/weapons/c_models/c_gascan/c_gascan.mdl"
+#define TF_WEAPON_JAR_GAS_JAR_MODEL_FESTIVIZED	"models/weapons/c_models/c_gascan/c_gascan_festivizer_projectile.mdl"
 #define TF_WEAPON_JARGAS_EXPLODE_SOUND	"Weapon_GasCan.Explode"
 
 // *************************************************************************************************************************
