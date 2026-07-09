@@ -19155,6 +19155,55 @@ void CTFPlayer::DoTauntAttack( void )
 			}
 		}
 	}
+	else if (iTauntAttack == TAUNTATK_PYRO_ECON_EXTINGUISHER)
+	{
+		// Pyro "Friendly Fire" attack
+		Vector vecForward;
+		AngleVectors(QAngle(0, m_angEyeAngles[YAW], 0), &vecForward);
+		Vector vecCenter = WorldSpaceCenter() + vecForward * 64;
+		Vector vecSize = Vector(24, 24, 24);
+		CBaseEntity* pList[256];
+		int count = UTIL_EntitiesInBox(pList, 256, vecCenter - vecSize, vecCenter + vecSize, FL_CLIENT);
+		if (count)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				if (pList[i] == this)
+					continue;
+
+				if (FVisible(pList[i], MASK_SOLID) == false)
+					continue;
+
+				//Extinguish our friends, push back our enemies.
+				if (pList[i]->GetTeamNumber() == GetTeamNumber())
+				{
+					//Ignore non burning teammates
+					if (!ToTFPlayer(pList[i])->m_Shared.InCond(TF_COND_BURNING))
+						return;
+
+					Vector vecPos = WorldSpaceCenter();
+					vecPos += (pList[i]->WorldSpaceCenter() - vecPos) * 0.75;
+
+					//Offset angle to match left hook.
+					AngleVectors(QAngle(-45, m_angEyeAngles[YAW] - 35, 0), &vecForward);
+					ToTFPlayer(pList[i])->m_Shared.RemoveCond(TF_COND_BURNING);
+					pList[i]->EmitSound("TFPlayer.FlameOut");
+				}
+				else
+				{
+					Vector vecDir = WorldSpaceCenter() - pList[i]->WorldSpaceCenter();
+					VectorNormalize(vecDir);
+
+					//Adjust the values?...
+					float flForce = 175;
+					Vector vecForce = vecDir * -flForce;
+					vecForce.z += 230;
+
+					ToTFPlayer(pList[i])->ApplyGenericPushbackImpulse(vecForce, this);
+				}
+			}
+		}
+	}
 
 	// Particle Being played in VCD instead
 	//else if ( iTauntAttack == TAUNTATK_FLIP_LAND_PARTICLE )
