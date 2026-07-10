@@ -19175,23 +19175,48 @@ void CTFPlayer::DoTauntAttack( void )
 					continue;
 
 				//Extinguish our friends, push back our enemies.
-				if (pList[i]->GetTeamNumber() == GetTeamNumber())
+				CTFPlayer* pAffectedPlayers = ToTFPlayer(pList[i]);
+				if (pAffectedPlayers->GetTeamNumber() == GetTeamNumber())
 				{
 					//Ignore non burning teammates
-					if (!ToTFPlayer(pList[i])->m_Shared.InCond(TF_COND_BURNING))
+					if (!pAffectedPlayers->m_Shared.InCond(TF_COND_BURNING))
 						return;
 
 					Vector vecPos = WorldSpaceCenter();
-					vecPos += (pList[i]->WorldSpaceCenter() - vecPos) * 0.75;
+					vecPos += (pAffectedPlayers->WorldSpaceCenter() - vecPos) * 0.75;
 
 					//Offset angle to match left hook.
 					AngleVectors(QAngle(-45, m_angEyeAngles[YAW] - 35, 0), &vecForward);
-					ToTFPlayer(pList[i])->m_Shared.RemoveCond(TF_COND_BURNING);
-					pList[i]->EmitSound("TFPlayer.FlameOut");
+					pAffectedPlayers->m_Shared.RemoveCond(TF_COND_BURNING);
+					pAffectedPlayers->EmitSound("TFPlayer.FlameOut");
+
+					//Same rules from the Flamethrower
+					if (ShouldGetBonusPointsForExtinguishEvent(pAffectedPlayers->GetUserID()))
+					{
+						CTF_GameStats.Event_PlayerAwardBonusPoints(this, pAffectedPlayers, 10);
+					}
+
+					CRecipientFilter involved_filter;
+					involved_filter.AddRecipient(this);
+					involved_filter.AddRecipient(pAffectedPlayers);
+
+					UserMessageBegin(involved_filter, "PlayerExtinguished");
+					WRITE_BYTE(entindex());
+					WRITE_BYTE(pAffectedPlayers->entindex());
+					MessageEnd();
+
+					IGameEvent* event = gameeventmanager->CreateEvent("player_extinguished");
+					if (event)
+					{
+						event->SetInt("victim", pAffectedPlayers->entindex());
+						event->SetInt("healer", entindex());
+
+						gameeventmanager->FireEvent(event, true);
+					}
 				}
 				else
 				{
-					Vector vecDir = WorldSpaceCenter() - pList[i]->WorldSpaceCenter();
+					Vector vecDir = WorldSpaceCenter() - pAffectedPlayers->WorldSpaceCenter();
 					VectorNormalize(vecDir);
 
 					//Adjust the values?...
@@ -19199,7 +19224,7 @@ void CTFPlayer::DoTauntAttack( void )
 					Vector vecForce = vecDir * -flForce;
 					vecForce.z += 230;
 
-					ToTFPlayer(pList[i])->ApplyGenericPushbackImpulse(vecForce, this);
+					pAffectedPlayers->ApplyGenericPushbackImpulse(vecForce, this);
 				}
 			}
 		}
