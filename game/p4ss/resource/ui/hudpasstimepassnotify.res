@@ -32,8 +32,8 @@ Resource/UI/HudPasstimePassNotify.res
 	{
 		ControlName 				EditablePanel
 		fieldName 					TextBox
-		xpos 						c-78
-		ypos 						43
+		xpos 						cs-0.5
+		ypos 						103
 		zpos 						1
 		wide 						156
 		tall 						26
@@ -41,6 +41,7 @@ Resource/UI/HudPasstimePassNotify.res
 		enabled 					1
 		border						TFFatLineBorder
 		RoundedCorners				255
+		proportionaltoparent		1
 
 		TextInPassRange
 		{
