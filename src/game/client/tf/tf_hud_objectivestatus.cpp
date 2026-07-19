@@ -39,7 +39,7 @@
 
 void AddSubKeyNamed( KeyValues *pKeys, const char *pszName );
 
-ConVar tf_hud_show_servertimelimit( "tf_hud_show_servertimelimit", "0", FCVAR_ARCHIVE, "Display time left before the current map ends." );
+ConVar tf_hud_show_servertimelimit( "tf_hud_show_servertimelimit", "1", FCVAR_ARCHIVE, "Display time left before the current map ends." );
 
 extern ConVar tf_arena_round_time;
 
