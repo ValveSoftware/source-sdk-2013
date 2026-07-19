@@ -1170,9 +1170,12 @@ bool CTeamplayRoundBasedRules::CheckTimeLimit( bool bAllowEnd /*= true*/ )
 
 	if ( ( mp_timelimit.GetInt() > 0 && CanChangelevelBecauseOfTimeLimit() ) || m_bChangelevelAfterStalemate )
 	{
-		// If there's less than 5 minutes to go, just switch now. This avoids the problem
+		// TF2 DEV NOTE: If there's less than 5 minutes to go, just switch now. This avoids the problem
 		// of sudden death modes starting shortly after a new round starts.
-		const int iMinTime = 5;
+		// P4SS: Set this to zero minutes. Sudden death is not relevant in this mod. It isn't even relevant in TF2 anymore.
+		// We'd rather fully exhaust the server timer all the way down to 0 seconds remaining before switching maps.
+
+		const int iMinTime = 0;
 		bool bSwitchDueToTime = ( mp_timelimit.GetInt() > iMinTime && GetTimeLeft() < (iMinTime * 60) );
 
 		if ( IsInTournamentMode() == true  )
