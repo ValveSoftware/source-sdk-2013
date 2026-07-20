@@ -852,7 +852,7 @@ ConVar tf_arena_force_class( "tf_arena_force_class", "0", FCVAR_REPLICATED | FCV
 ConVar tf_arena_change_limit( "tf_arena_change_limit", "1", FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Number of times players can change their class when mp_force_random_class is being used." );
 ConVar tf_arena_override_cap_enable_time( "tf_arena_override_cap_enable_time", "-1", FCVAR_REPLICATED | FCVAR_NOTIFY, "Overrides the time (in seconds) it takes for the capture point to become enable, -1 uses the level designer specified time." );
 ConVar tf_arena_override_team_size( "tf_arena_override_team_size", "0", FCVAR_REPLICATED, "Overrides the maximum team size in arena mode. Set to zero to keep the default behavior of 1/3 maxplayers.");
-ConVar tf_arena_first_blood( "tf_arena_first_blood", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "Rewards the first player to get a kill each round." );
+ConVar tf_arena_first_blood( "tf_arena_first_blood", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Rewards the first player to get a kill each round." );
 extern ConVar tf_arena_preround_time;
 extern ConVar tf_arena_max_streak;
 #if defined( _DEBUG ) || defined( STAGING_ONLY )
@@ -1083,7 +1083,7 @@ static Vector s_BotSpawnPosition;
 
 ConVar tf_gravetalk( "tf_gravetalk", "1", FCVAR_NOTIFY, "Allows living players to hear dead players using text/voice chat.", true, 0, true, 1 );
 
-ConVar tf_ctf_bonus_time ( "tf_ctf_bonus_time", "10", FCVAR_NOTIFY, "Length of team crit time for CTF capture." );
+ConVar tf_ctf_bonus_time ( "tf_ctf_bonus_time", "0", FCVAR_NOTIFY, "Length of team crit time for CTF capture." );
 
 #ifdef _DEBUG
 ConVar mp_scrambleteams_debug( "mp_scrambleteams_debug", "0", FCVAR_NONE, "Debug spew." );
@@ -10705,7 +10705,7 @@ void CTFGameRules::ClientDisconnected( edict_t *pClient )
 // Falling damage stuff.
 #define TF_PLAYER_MAX_SAFE_FALL_SPEED	650		
 
-ConVar tf_fall_damage_disablespread( "tf_fall_damage_disablespread", "0", FCVAR_NONE );
+ConVar tf_fall_damage_disablespread( "tf_fall_damage_disablespread", "1", FCVAR_NONE );
 
 float CTFGameRules::FlPlayerFallDamage( CBasePlayer *pPlayer )
 {

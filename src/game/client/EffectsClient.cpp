@@ -74,7 +74,7 @@ static CEffectsClient s_EffectClient;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CEffectsClient, IEffects, IEFFECTS_INTERFACE_VERSION, s_EffectClient);
 IEffects *g_pEffects = &s_EffectClient;
 
-ConVar r_decals( "r_decals", "2048" );
+ConVar r_decals( "r_decals", "25" ); //P4SS - Lowered this to 25 to match the one we had in our autoexec. Default was 2048. Makes rocket splashes disappear faster
 
 //-----------------------------------------------------------------------------
 // constructor, destructor

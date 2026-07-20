@@ -79,7 +79,7 @@ ConVar weapon_medigun_resist_num_chunks( "weapon_medigun_resist_num_chunks", "4"
 ConVar tf_vaccinator_uber_charge_rate_modifier( "tf_vaccinator_uber_charge_rate_modifier", "1.0", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY , "Vaccinator uber charge rate." );
 
 #if defined (CLIENT_DLL)
-ConVar tf_medigun_autoheal( "tf_medigun_autoheal", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE | FCVAR_USERINFO, "Setting this to 1 will cause the Medigun's primary attack to be a toggle instead of needing to be held down." );
+ConVar tf_medigun_autoheal( "tf_medigun_autoheal", "1", FCVAR_CLIENTDLL | FCVAR_ARCHIVE | FCVAR_USERINFO, "Setting this to 1 will cause the Medigun's primary attack to be a toggle instead of needing to be held down." );
 #endif
 
 #if !defined (CLIENT_DLL)
@@ -200,9 +200,9 @@ extern ConVar tf_max_health_boost;
 // Purpose: For HUD auto medic callers
 //-----------------------------------------------------------------------------
 #ifdef CLIENT_DLL
-ConVar hud_medicautocallers( "hud_medicautocallers", "0", FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBOX );
+ConVar hud_medicautocallers( "hud_medicautocallers", "1", FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBOX );
 ConVar hud_medicautocallersthreshold( "hud_medicautocallersthreshold", "75", FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBOX );
-ConVar hud_medichealtargetmarker ( "hud_medichealtargetmarker", "0", FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBOX );
+ConVar hud_medichealtargetmarker ( "hud_medichealtargetmarker", "1", FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBOX );
 #endif
 
 const char *g_pszMedigunHealSounds[] =

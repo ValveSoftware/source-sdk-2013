@@ -9805,7 +9805,7 @@ void CTFPlayer::CommitSuicide( bool bExplode /* = false */, bool bForce /*= fals
 // Input  : &info - 
 // Output : int
 //-----------------------------------------------------------------------------
-ConVar tf_preround_push_from_damage_enable( "tf_preround_push_from_damage_enable", "0", FCVAR_NONE, "If enabled, this will allow players using certain type of damage to move during pre-round freeze time." );
+ConVar tf_preround_push_from_damage_enable( "tf_preround_push_from_damage_enable", "1", FCVAR_NONE, "If enabled, this will allow players using certain type of damage to move during pre-round freeze time." );
 void CTFPlayer::ApplyPushFromDamage( const CTakeDamageInfo &info, Vector vecDir )
 {
 	// check if player can be moved
