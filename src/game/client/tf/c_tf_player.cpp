@@ -1842,7 +1842,7 @@ void CMvMTextureProxy::OnBind( void *pC_BaseEntity )
 		bUseMvMTexture = pPlayer &&
 			pPlayer->IsPlayerClass( TF_CLASS_SPY ) &&
 			pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) &&
-			pPlayer->m_Shared.GetDisguiseTeam() != pPlayer->GetTeamNumber();
+			pPlayer->m_Shared.GetDisguiseTeam() == TF_TEAM_PVE_INVADERS;
 	}
 
 	m_pResult->SetTextureValue( bUseMvMTexture ? m_MvMTexture : m_OriginalTexture );
