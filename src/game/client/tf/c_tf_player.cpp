@@ -1771,6 +1771,8 @@ EXPOSE_INTERFACE( CSpyInvisProxy, IMaterialProxy, "spy_invis" IMATERIAL_PROXY_IN
 class CMvMTextureProxy : public CResultProxy
 {
 public:
+	CMvMTextureProxy() : m_bEnemyDisguiseOnly( false ) {}
+
 	virtual bool Init( IMaterial *pMaterial, KeyValues *pKeyValues ) OVERRIDE;
 	virtual void OnBind( void *pC_BaseEntity ) OVERRIDE;
 
@@ -1779,6 +1781,7 @@ private:
 
 	CTextureReference m_OriginalTexture;
 	CTextureReference m_MvMTexture;
+	bool m_bEnemyDisguiseOnly;
 };
 
 bool CMvMTextureProxy::Init( IMaterial *pMaterial, KeyValues *pKeyValues )
@@ -1791,6 +1794,8 @@ bool CMvMTextureProxy::Init( IMaterial *pMaterial, KeyValues *pKeyValues )
 		return false;
 
 	m_MvMTexture.Init( pszMvMTexture, TEXTURE_GROUP_MODEL );
+	KeyValues *pEnemyDisguiseOnly = pKeyValues->FindKey( "enemyDisguiseOnly", false );
+	m_bEnemyDisguiseOnly = pEnemyDisguiseOnly && pEnemyDisguiseOnly->GetBool();
 
 	// With async material loading, $basetexture may still be a string here.
 	// CaptureOriginalTexture will try again when the material is first bound.
@@ -1820,7 +1825,26 @@ void CMvMTextureProxy::OnBind( void *pC_BaseEntity )
 	if ( !CaptureOriginalTexture() )
 		return;
 
-	const bool bUseMvMTexture = TFGameRules() && TFGameRules()->IsMannVsMachineMode();
+	bool bUseMvMTexture = TFGameRules() && TFGameRules()->IsMannVsMachineMode();
+	if ( bUseMvMTexture && m_bEnemyDisguiseOnly )
+	{
+		C_BaseEntity *pEntity = BindArgToEntity( pC_BaseEntity );
+		C_TFPlayer *pPlayer = ToTFPlayer( pEntity );
+		if ( !pPlayer && pEntity )
+		{
+			IHasOwner *pOwnerInterface = dynamic_cast< IHasOwner* >( pEntity );
+			if ( pOwnerInterface )
+			{
+				pPlayer = ToTFPlayer( pOwnerInterface->GetOwnerViaInterface() );
+			}
+		}
+
+		bUseMvMTexture = pPlayer &&
+			pPlayer->IsPlayerClass( TF_CLASS_SPY ) &&
+			pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) &&
+			pPlayer->m_Shared.GetDisguiseTeam() != pPlayer->GetTeamNumber();
+	}
+
 	m_pResult->SetTextureValue( bUseMvMTexture ? m_MvMTexture : m_OriginalTexture );
 
 	if ( ToolsEnabled() )
