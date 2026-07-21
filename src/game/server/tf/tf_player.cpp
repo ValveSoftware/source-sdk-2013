@@ -15333,7 +15333,7 @@ const char* CTFPlayer::GetSceneSoundToken( CBasePlayer *pListener )
 			  IsPlayerClass( TF_CLASS_SPY ) &&
 			  m_Shared.InCond( TF_COND_DISGUISED ) &&
 			  m_Shared.GetDisguiseTeam() == TF_TEAM_PVE_INVADERS &&
-			  pListener->GetTeamNumber() == TF_TEAM_PVE_INVADERS )
+			  ( pListener == this || ( pListener && pListener->GetTeamNumber() == TF_TEAM_PVE_INVADERS ) ) )
 	{
 		return "MVM_";
 	}
