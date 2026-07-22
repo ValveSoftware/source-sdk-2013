@@ -2754,11 +2754,17 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 
 			// collection
 			int fontHeight = surface()->GetFontTall( m_pFontAttribSmall );
-			if ( ( line.unMetaType & (kDescLineFlag_Collection | kDescLineFlag_CollectionName | kDescLineFlag_CollectionCurrentItem ) ) != 0 && pCollectionNameTextImage && pCollectionListTextImage )
+			if ( ( line.unMetaType & (kDescLineFlag_Collection | kDescLineFlag_CollectionName | kDescLineFlag_CollectionCurrentItem ) ) != 0 )
 			{
 				bool bIsCollectionName = ( line.unMetaType & kDescLineFlag_CollectionName ) != 0;
 				vgui::TextImage *pTextImage = bIsCollectionName ? pCollectionNameTextImage : pCollectionListTextImage;
 				unsigned int &unCurrentCollectionTextStreamIndex = bIsCollectionName ? unCurrentCollectionNameTextStreamIndex : unCurrentCollectionListTextStreamIndex;
+
+				// If the UI does not display collection lootlist, skip the lines so color controls do not leak
+				if ( !pTextImage )
+				{
+					continue;
+				}
 
 				bool bIsCurrentItem = ( line.unMetaType & kDescLineFlag_CollectionCurrentItem ) != 0;
 				// use bg color as text color for current item for a better highlight
