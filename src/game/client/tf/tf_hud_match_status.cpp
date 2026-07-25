@@ -358,7 +358,7 @@ void CTFHudMatchStatus::ApplySchemeSettings(IScheme *pScheme)
 		pConditions = new KeyValues( "conditions" );
 		AddSubKeyNamed( pConditions, "if_match" );
 
-		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GTFGCClientSystem()->GetLiveMatchGroup() );
+		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules() ? TFGameRules()->GetCurrentMatchGroup() : GTFGCClientSystem()->GetLiveMatchGroup() );
 		if ( pMatchDesc )
 		{
 			if ( pMatchDesc->GetMatchSize() > 12 )
@@ -575,26 +575,38 @@ void CTFHudMatchStatus::FireGameEvent( IGameEvent * event )
 
 		const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( TFGameRules()->GetCurrentMatchGroup() );
 
-		// FIX: Refresh versus doors so late-joiners do not see the wrong skin
-		int nSkin = 0;
-		int nSubModel = 0;
-		if (pMatchDesc->BGetRoundDoorParameters(nSkin, nSubModel))
+		if ( pMatchDesc )
 		{
-			m_pMatchStartModelPanel->SetBodyGroup( "logos", nSubModel );
-			m_pMatchStartModelPanel->UpdateModel();
-			m_pMatchStartModelPanel->SetSkin( nSkin );
-		}
+			// FIX: Refresh versus doors so late-joiners do not see the wrong skin
+			int nSkin = 0;
+			int nSubModel = 0;
+			if ( pMatchDesc->BGetRoundDoorParameters( nSkin, nSubModel ) )
+			{
+				if ( m_pMatchStartModelPanel )
+				{
+					// Is VS doors model not initialized yet?
+					if ( m_pMatchStartModelPanel->m_hModel == NULL )
+					{
+						m_pMatchStartModelPanel->UpdateModel();
+					}
 
-		bool bForceDoors = false;
-		if ( bForceDoors || ( pMatchDesc && pMatchDesc->BUsesPostRoundDoors() ) )
-		{
-			if ( TFGameRules() && TFGameRules()->MapHasMatchSummaryStage() && ( bForceDoors || pMatchDesc->BUseMatchSummaryStage() ) )
-			{
-				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMatchStatus_ShowMatchWinDoors", false );
+					m_pMatchStartModelPanel->SetBodyGroup( "logos", nSubModel );
+					m_pMatchStartModelPanel->UpdateModel();
+					m_pMatchStartModelPanel->SetSkin( nSkin );
+				}
 			}
-			else
+
+			bool bForceDoors = false;
+			if ( bForceDoors || ( pMatchDesc && pMatchDesc->BUsesPostRoundDoors() ) )
 			{
-				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMatchStatus_ShowMatchWinDoors_NoOpen", false );
+				if ( TFGameRules() && TFGameRules()->MapHasMatchSummaryStage() && ( bForceDoors || pMatchDesc->BUseMatchSummaryStage() ) )
+				{
+					g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMatchStatus_ShowMatchWinDoors", false );
+				}
+				else
+				{
+					g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMatchStatus_ShowMatchWinDoors_NoOpen", false );
+				}
 			}
 		}
 	}

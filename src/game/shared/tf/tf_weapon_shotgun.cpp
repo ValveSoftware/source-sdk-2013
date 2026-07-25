@@ -440,61 +440,6 @@ bool CTFScatterGun::HasKnockback( void )
 		return false;
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: Play animation appropriate to ball status.
-//-----------------------------------------------------------------------------
-bool CTFScatterGun::SendWeaponAnim( int iActivity )
-{
-	CTFPlayer *pPlayer = GetTFPlayerOwner();
-	if ( !pPlayer )
-		return BaseClass::SendWeaponAnim( iActivity );
-
-	if ( HasKnockback() )
-	{
-		// Knockback version uses a different model and animation set.
-		switch ( iActivity )
-		{
-		case ACT_VM_DRAW:
-			iActivity = ACT_ITEM2_VM_DRAW;
-			break;
-		case ACT_VM_HOLSTER:
-			iActivity = ACT_ITEM2_VM_HOLSTER;
-			break;
-		case ACT_VM_IDLE:
-			iActivity = ACT_ITEM2_VM_IDLE;
-			break;
-		case ACT_VM_PULLBACK:
-			iActivity = ACT_ITEM2_VM_PULLBACK;
-			break;
-		case ACT_VM_PRIMARYATTACK:
-			iActivity = ACT_ITEM2_VM_PRIMARYATTACK;
-			break;
-		case ACT_VM_SECONDARYATTACK:
-			iActivity = ACT_ITEM2_VM_SECONDARYATTACK;
-			break;
-		case ACT_VM_RELOAD:
-			iActivity = ACT_ITEM2_VM_RELOAD;
-			break;
-		case ACT_VM_DRYFIRE:
-			iActivity = ACT_ITEM2_VM_DRYFIRE;
-			break;
-		case ACT_VM_IDLE_TO_LOWERED:
-			iActivity = ACT_ITEM2_VM_IDLE_TO_LOWERED;
-			break;
-		case ACT_VM_IDLE_LOWERED:
-			iActivity = ACT_ITEM2_VM_IDLE_LOWERED;
-			break;
-		case ACT_VM_LOWERED_TO_IDLE:
-			iActivity = ACT_ITEM2_VM_LOWERED_TO_IDLE;
-			break;
-		default:
-			break;
-		}
-	}
-
-	return BaseClass::SendWeaponAnim( iActivity );
-}
-
 #ifdef GAME_DLL
 //-----------------------------------------------------------------------------
 void CTFScatterGun::Equip( CBaseCombatCharacter *pOwner )

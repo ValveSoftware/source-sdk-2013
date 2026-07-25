@@ -52,6 +52,9 @@ CPointCamera::CPointCamera()
 	m_bFogEnable = false;
 	m_bFogRadial = false;
 
+	// By default, transmit to everyone
+	m_bitsTransmitPlayers.SetAll();
+
 	g_PointCameraList.Insert( this );
 }
 
@@ -75,33 +78,42 @@ void CPointCamera::Spawn( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Transmit only to players who are in PVS of the camera and its link
+//			See PointCameraSetupVisibility
+//-----------------------------------------------------------------------------
+int CPointCamera::ShouldTransmit( const CCheckTransmitInfo *pInfo )
+{
+	if ( m_bitsTransmitPlayers.IsBitSet( pInfo->m_pClientEnt->m_EdictIndex ) )
+		return FL_EDICT_ALWAYS;
+
+	return FL_EDICT_DONTSEND;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Override ShouldTransmit since we want to be sent even though we don't have a model, etc.
 //			All that matters is if we are in the pvs.
 //-----------------------------------------------------------------------------
 int CPointCamera::UpdateTransmitState()
 {
-	if ( m_bActive )
-	{
-		return SetTransmitState( FL_EDICT_ALWAYS );
-	}
-	else
-	{
-		return SetTransmitState( FL_EDICT_DONTSEND );
-	}
+	return SetTransmitState( FL_EDICT_FULLCHECK );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Toggle networking of the camera to the specified player
+//-----------------------------------------------------------------------------
+void CPointCamera::TransmitToPlayer( int nPlayerIndex, bool bTransmit )
+{
+	if ( bTransmit )
+		m_bitsTransmitPlayers.Set( nPlayerIndex );
+	else
+		m_bitsTransmitPlayers.Clear( nPlayerIndex );
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CPointCamera::SetActive( bool bActive )
 {
-	// If the mapmaker's told the camera it's off, it enforces inactive state
-	if ( !m_bIsOn )
-	{
-		bActive = false;
-	}
-
 	if ( m_bActive != bActive )
 	{
 		m_bActive = bActive;
