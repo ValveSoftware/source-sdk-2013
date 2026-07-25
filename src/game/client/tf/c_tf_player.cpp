@@ -4452,11 +4452,6 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 			m_nOldMaxHealth = GetMaxHealth();
 		}
 
-		if ( m_nPrevTauntSlot != m_nActiveTauntSlot || m_iPrevTauntItemDefIndex != m_iTauntItemDefIndex )
-		{
-			UpdateTauntItem();
-		}
-
 		if ( m_iOldKartHealth != m_iKartHealth )
 		{
 			UpdateKartEffects();
@@ -4466,6 +4461,11 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 		{
 			UpdateKartState();
 		}
+	}
+
+	if ( updateType == DATA_UPDATE_CREATED || m_nPrevTauntSlot != m_nActiveTauntSlot || m_iPrevTauntItemDefIndex != m_iTauntItemDefIndex )
+	{
+		UpdateTauntItem();
 	}
 
 	GetAttributeManager()->OnDataChanged( updateType );
@@ -10277,19 +10277,6 @@ CEconItemView *C_TFPlayer::GetInspectItem( int *pLastItem )
 	int iItemsFound = 0;
 	CEconItemView *pFirstItem = NULL;
 	CEconItemView *pTauntItem = GetTauntEconItemView();
-	if ( m_Shared.InCond( TF_COND_TAUNTING ) && pTauntItem &&
-		 ( !pTauntItem->GetItemDefinition() || !pTauntItem->GetItemDefinition()->IsHidden() ) )
-	{
-		pFirstItem = pTauntItem;
-
-		iItemsFound++;
-		if ( iItemsFound > *pLastItem )
-		{
-			*pLastItem = iItemsFound;
-			return pTauntItem;
-		}
-	}
-
 	int nCount = WeaponCount();
 	for ( int i = 0; i < nCount; ++i )
 	{
@@ -10342,6 +10329,22 @@ CEconItemView *C_TFPlayer::GetInspectItem( int *pLastItem )
 			// Found the next item, we're done.
 			*pLastItem = iItemsFound;
 			return pTmp;
+		}
+	}
+
+	if ( m_Shared.InCond( TF_COND_TAUNTING ) && pTauntItem &&
+		 ( !pTauntItem->GetItemDefinition() || !pTauntItem->GetItemDefinition()->IsHidden() ) )
+	{
+		if ( !pFirstItem )
+		{
+			pFirstItem = pTauntItem;
+		}
+
+		iItemsFound++;
+		if ( iItemsFound > *pLastItem )
+		{
+			*pLastItem = iItemsFound;
+			return pTauntItem;
 		}
 	}
 
