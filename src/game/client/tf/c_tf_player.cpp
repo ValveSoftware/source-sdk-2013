@@ -4898,6 +4898,7 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 //-----------------------------------------------------------------------------
 void C_TFPlayer::UpdateTauntItem()
 {
+	bool bUsedInventoryItem = false;
 	if ( m_nActiveTauntSlot == LOADOUT_POSITION_INVALID )
 	{
 		if ( m_iTauntItemDefIndex != INVALID_ITEM_DEF_INDEX )
@@ -4917,7 +4918,24 @@ void C_TFPlayer::UpdateTauntItem()
 		if ( pMiscItemView )
 		{
 			m_TauntEconItemView = *pMiscItemView;
+			bUsedInventoryItem = true;
 		}
+		else if ( m_iTauntItemDefIndex != INVALID_ITEM_DEF_INDEX )
+		{
+			m_TauntEconItemView.Init( m_iTauntItemDefIndex, AE_UNIQUE, 1 );
+		}
+		else
+		{
+			m_TauntEconItemView.Invalidate();
+		}
+	}
+
+	ConVarRef cl_taunt_inspect_debug( "cl_taunt_inspect_debug" );
+	if ( cl_taunt_inspect_debug.IsValid() && cl_taunt_inspect_debug.GetBool() )
+	{
+		Msg( "[taunt inspect] player=%d slot=%d defindex=%d valid=%d source=%s\n",
+			entindex(), m_nActiveTauntSlot, m_iTauntItemDefIndex, m_TauntEconItemView.IsValid(),
+			bUsedInventoryItem ? "inventory" : "network" );
 	}
 
 	if ( m_TauntEconItemView.IsValid() )

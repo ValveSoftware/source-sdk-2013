@@ -77,6 +77,8 @@ DECLARE_BUILD_FACTORY( CTFFreezePanelHealth );
 
 CTFFreezePanel *CTFFreezePanel::s_pFreezePanel = NULL;
 
+static ConVar cl_taunt_inspect_debug( "cl_taunt_inspect_debug", "0", FCVAR_CHEAT, "Print active taunt inspect diagnostics." );
+
 //-----------------------------------------------------------------------------
 
 CTFFreezePanel *CTFFreezePanel::Instance()
@@ -99,6 +101,8 @@ CTFFreezePanel::CTFFreezePanel( const char *pElementName )
 	SetScheme( "ClientScheme" );
 
 	m_iKillerIndex = 0;
+	m_bShowingTaunt = false;
+	m_bKillerWasTaunting = false;
 	m_iShowNemesisPanel = SHOW_NO_NEMESIS;
 	m_iYBase = -1;
 	m_flShowCalloutsAt = 0;
@@ -294,6 +298,8 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 	{
 		// Get the entity who killed us
 		m_iKillerIndex = event->GetInt( "killer" );
+		m_bShowingTaunt = false;
+		m_bKillerWasTaunting = false;
 		C_BaseEntity *pKiller =  ClientEntityList().GetBaseEntity( m_iKillerIndex );
 		CTFPlayer *pTFPlayerKiller = NULL;
 		if ( pKiller )
@@ -451,6 +457,16 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 						m_pItemPanel->SetDialogVariable( "killername", g_PR->GetPlayerName( m_iKillerIndex ) );
 						m_pItemPanel->SetItem( pTauntItem );
 						m_pItemPanel->SetVisible( true );
+						m_bShowingTaunt = true;
+					}
+
+					m_bKillerWasTaunting = pTFPlayerKiller && pTFPlayerKiller->m_Shared.InCond( TF_COND_TAUNTING );
+					if ( cl_taunt_inspect_debug.GetBool() )
+					{
+						Msg( "[taunt inspect] death killer=%d taunting=%d slot=%d item=%d shown=%d\n",
+							m_iKillerIndex, m_bKillerWasTaunting,
+							pTFPlayerKiller ? pTFPlayerKiller->GetActiveTauntSlot() : LOADOUT_POSITION_INVALID,
+							pTauntItem ? pTauntItem->GetItemDefIndex() : INVALID_ITEM_DEF_INDEX, bShowTaunt );
 					}
 
 					// If our killer is using an item, display its stats.
@@ -926,6 +942,28 @@ bool CTFFreezePanel::ShouldDraw( void )
 void CTFFreezePanel::OnThink( void )
 {
 	BaseClass::OnThink();
+
+	C_TFPlayer *pKiller = ToTFPlayer( UTIL_PlayerByIndex( m_iKillerIndex ) );
+	bool bKillerIsTaunting = pKiller && pKiller->m_Shared.InCond( TF_COND_TAUNTING );
+	if ( IsVisible() && !m_bShowingTaunt && bKillerIsTaunting )
+	{
+		CEconItemView *pTauntItem = pKiller->GetTauntEconItemView();
+		if ( cl_taunt_inspect_debug.GetBool() && !m_bKillerWasTaunting )
+		{
+			Msg( "[taunt inspect] late taunt killer=%d slot=%d item=%d valid=%d\n",
+				m_iKillerIndex, pKiller->GetActiveTauntSlot(),
+				pTauntItem ? pTauntItem->GetItemDefIndex() : INVALID_ITEM_DEF_INDEX, pTauntItem != NULL );
+		}
+
+		if ( pTauntItem && ( !pTauntItem->GetItemDefinition() || !pTauntItem->GetItemDefinition()->IsHidden() ) )
+		{
+			m_pItemPanel->SetDialogVariable( "killername", g_PR->GetPlayerName( m_iKillerIndex ) );
+			m_pItemPanel->SetItem( pTauntItem );
+			m_pItemPanel->SetVisible( true );
+			m_bShowingTaunt = true;
+		}
+	}
+	m_bKillerWasTaunting = bKillerIsTaunting;
 
 	if ( m_pItemPanel && m_pItemPanel->IsVisible() )
 	{

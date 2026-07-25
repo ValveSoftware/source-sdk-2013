@@ -139,6 +139,8 @@ private:
 	int						m_iKillerOriginalY;
 
 	bool					m_bHoldingAfterScreenshot;
+	bool					m_bShowingTaunt;
+	bool					m_bKillerWasTaunting;
 
 	enum 
 	{
