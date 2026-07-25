@@ -4914,7 +4914,7 @@ void C_TFPlayer::UpdateTauntItem()
 	{
 		int iClass = GetPlayerClass()->GetClassIndex();
 
-		CEconItemView *pMiscItemView = Inventory() ? Inventory()->GetCacheServerItemInLoadout( iClass, m_nActiveTauntSlot ) : NULL;
+		CEconItemView *pMiscItemView = Inventory() ? Inventory()->GetItemInLoadout( iClass, m_nActiveTauntSlot ) : NULL;
 		if ( pMiscItemView )
 		{
 			m_TauntEconItemView = *pMiscItemView;

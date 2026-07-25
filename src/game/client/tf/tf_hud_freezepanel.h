@@ -106,6 +106,7 @@ private:
 
 	void DeleteCalloutPanels();
 	void ShowNemesisPanel( bool bShow );
+	bool ShowActiveTaunt();
 	const char *GetFilesafePlayerName( const char *pszOldName );
 
 	CPanelAnimationVar( bool, m_bShouldScreenshotMovePanelToCorner, "screenshot_move_panel_to_corner", "1" );

@@ -256,6 +256,7 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 	}
 	else if ( Q_strcmp( "freezecam_started", pEventName ) == 0 )
 	{
+		ShowActiveTaunt();
 		ShowCalloutsIn( 1.0 );
 		ShowSnapshotPanelIn( 1.25 );
 
@@ -947,21 +948,15 @@ void CTFFreezePanel::OnThink( void )
 	bool bKillerIsTaunting = pKiller && pKiller->m_Shared.InCond( TF_COND_TAUNTING );
 	if ( IsVisible() && !m_bShowingTaunt && bKillerIsTaunting )
 	{
-		CEconItemView *pTauntItem = pKiller->GetTauntEconItemView();
 		if ( cl_taunt_inspect_debug.GetBool() && !m_bKillerWasTaunting )
 		{
+			CEconItemView *pTauntItem = pKiller->GetTauntEconItemView();
 			Msg( "[taunt inspect] late taunt killer=%d slot=%d item=%d valid=%d\n",
 				m_iKillerIndex, pKiller->GetActiveTauntSlot(),
 				pTauntItem ? pTauntItem->GetItemDefIndex() : INVALID_ITEM_DEF_INDEX, pTauntItem != NULL );
 		}
 
-		if ( pTauntItem && ( !pTauntItem->GetItemDefinition() || !pTauntItem->GetItemDefinition()->IsHidden() ) )
-		{
-			m_pItemPanel->SetDialogVariable( "killername", g_PR->GetPlayerName( m_iKillerIndex ) );
-			m_pItemPanel->SetItem( pTauntItem );
-			m_pItemPanel->SetVisible( true );
-			m_bShowingTaunt = true;
-		}
+		ShowActiveTaunt();
 	}
 	m_bKillerWasTaunting = bKillerIsTaunting;
 
@@ -1008,6 +1003,26 @@ void CTFFreezePanel::OnThink( void )
 		}
 		m_flShowReplayReminderAt = 0;
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Show the killer's active taunt in preference to their weapon.
+//-----------------------------------------------------------------------------
+bool CTFFreezePanel::ShowActiveTaunt()
+{
+	C_TFPlayer *pKiller = ToTFPlayer( UTIL_PlayerByIndex( m_iKillerIndex ) );
+	if ( !pKiller || !pKiller->m_Shared.InCond( TF_COND_TAUNTING ) )
+		return false;
+
+	CEconItemView *pTauntItem = pKiller->GetTauntEconItemView();
+	if ( !pTauntItem || ( pTauntItem->GetItemDefinition() && pTauntItem->GetItemDefinition()->IsHidden() ) )
+		return false;
+
+	m_pItemPanel->SetDialogVariable( "killername", g_PR->GetPlayerName( m_iKillerIndex ) );
+	m_pItemPanel->SetItem( pTauntItem );
+	m_pItemPanel->SetVisible( true );
+	m_bShowingTaunt = true;
+	return true;
 }
 
 
