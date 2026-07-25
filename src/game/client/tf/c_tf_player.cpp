@@ -10258,6 +10258,20 @@ CEconItemView *C_TFPlayer::GetInspectItem( int *pLastItem )
 {
 	int iItemsFound = 0;
 	CEconItemView *pFirstItem = NULL;
+	CEconItemView *pTauntItem = GetTauntEconItemView();
+	if ( m_Shared.InCond( TF_COND_TAUNTING ) && pTauntItem &&
+		 ( !pTauntItem->GetItemDefinition() || !pTauntItem->GetItemDefinition()->IsHidden() ) )
+	{
+		pFirstItem = pTauntItem;
+
+		iItemsFound++;
+		if ( iItemsFound > *pLastItem )
+		{
+			*pLastItem = iItemsFound;
+			return pTauntItem;
+		}
+	}
+
 	int nCount = WeaponCount();
 	for ( int i = 0; i < nCount; ++i )
 	{

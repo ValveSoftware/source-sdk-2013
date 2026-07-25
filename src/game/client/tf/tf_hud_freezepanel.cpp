@@ -443,12 +443,22 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 				}
 				else
 				{
+					CEconItemView *pTauntItem = pTFPlayerKiller && pTFPlayerKiller->m_Shared.InCond( TF_COND_TAUNTING )
+						? pTFPlayerKiller->GetTauntEconItemView() : NULL;
+					bool bShowTaunt = pTauntItem && ( !pTauntItem->GetItemDefinition() || !pTauntItem->GetItemDefinition()->IsHidden() );
+					if ( bShowTaunt )
+					{
+						m_pItemPanel->SetDialogVariable( "killername", g_PR->GetPlayerName( m_iKillerIndex ) );
+						m_pItemPanel->SetItem( pTauntItem );
+						m_pItemPanel->SetVisible( true );
+					}
+
 					// If our killer is using an item, display its stats.
 					CTFWeaponBase *pWeapon = pTFPlayerKiller ? pTFPlayerKiller->GetActiveTFWeapon() : NULL;
 					bool bShowItem = false;
 					if ( pWeapon )
 					{
-						bShowItem = pWeapon->GetAttributeContainer()->GetItem()->GetItemQuality() != AE_NORMAL;
+						bShowItem = !bShowTaunt && pWeapon->GetAttributeContainer()->GetItem()->GetItemQuality() != AE_NORMAL;
 						if ( bShowItem )
 						{
 							CTFStatPanel *pStatPanel = GET_HUDELEMENT( CTFStatPanel );
