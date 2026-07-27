@@ -231,6 +231,8 @@ END_NETWORK_TABLE()
 BEGIN_PREDICTION_DATA( CTFWeaponBase ) 
 #ifdef CLIENT_DLL
 	DEFINE_PRED_FIELD( m_bLowered, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_bInAttack, FIELD_BOOLEAN, 0 ),
+	DEFINE_PRED_FIELD( m_bInAttack2, FIELD_BOOLEAN, 0 ),
 	DEFINE_PRED_FIELD( m_iReloadMode, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bReloadedThroughAnimEvent, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bDisguiseWeapon, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
@@ -980,7 +982,7 @@ void CTFWeaponBase::UpdateExtraWearables()
 				// Precaching may be needed here, because we allow virtually everything to be loaded on demand now.
 				pExtraWearableItem->PrecacheModel( pEconItemView->GetExtraWearableViewModel() );
 			}
-
+			pExtraWearableItem->SetDisguiseWearable(m_bDisguiseWeapon);
 			pExtraWearableItem->AddSpawnFlags( SF_NORESPAWN );
 			pExtraWearableItem->SetAlwaysAllow( true );
 			DispatchSpawn( pExtraWearableItem );
@@ -1006,6 +1008,7 @@ void CTFWeaponBase::UpdateExtraWearables()
 				pExtraWearableItem->PrecacheModel( pEconItemView->GetExtraWearableModel() );
 			}
 
+			pExtraWearableItem->SetDisguiseWearable(m_bDisguiseWeapon);
 			pExtraWearableItem->AddSpawnFlags( SF_NORESPAWN );
 			pExtraWearableItem->SetAlwaysAllow( true );
 			DispatchSpawn( pExtraWearableItem );
@@ -1112,6 +1115,22 @@ void CTFWeaponBase::Drop( const Vector &vecVelocity )
 		{
 			pPlayer->StopHintTimer( m_iAltFireHint );
 		}
+	}
+#endif
+
+#ifndef CLIENT_DLL
+	// For disguise weapons specifically, the viewmodel-only extra wearable
+	// (e.g. botkiller medigun head) must be removed before BaseClass::Drop
+	// clears OwnerEntity — otherwise on disguise-weapon swap it orphans on
+	// the spy's viewmodel and accumulates one per swap. The world-model
+	// extra (e.g. soldier banner) is intentionally NOT removed here so
+	// it remains visible across disguise-weapon swaps within the same
+	// disguise; We cap Wearables during assingment
+	// RemoveDisguiseWearables sweeps it up at full disguise removal which prevents the leak.
+	if ( m_bDisguiseWeapon && m_hExtraWearableViewModel )
+	{
+		m_hExtraWearableViewModel->RemoveFrom( GetOwnerEntity() );
+		m_hExtraWearableViewModel = NULL;
 	}
 #endif
 
@@ -3296,6 +3315,87 @@ bool CTFWeaponBase::OnInternalDrawModel( ClientModelRenderInfo_t *pInfo )
 	}
 
 	return BaseClass::OnInternalDrawModel( pInfo );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Override for disguise weapons to use team 0 for attachment lookups
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::UpdateAttachmentModels( void )
+{
+#ifdef CLIENT_DLL
+	// For disguise weapons, we need to use the disguise target's team when fetching attachment models
+	// because GetTeamNumber() returns the spy's team, not the disguised target's team.
+	if ( m_bDisguiseWeapon )
+	{
+		C_TFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
+		if ( !pOwner )
+		{
+			BaseClass::UpdateAttachmentModels();
+			return;
+		}
+
+		C_TFPlayer *pDisguiseTarget = pOwner->m_Shared.GetDisguiseTarget();
+		int iTeamNumber = pDisguiseTarget ? pDisguiseTarget->GetTeamNumber() : 0;
+
+		CEconItemView *pItem = GetAttributeContainer()->GetItem();
+		GameItemDefinition_t *pItemDef = pItem && pItem->IsValid() ? pItem->GetStaticData() : NULL;
+
+		// Update the state of additional model attachments
+		m_vecAttachedModels.Purge();
+		if ( pItemDef && AttachmentModelsShouldBeVisible() )
+		{
+			{
+				int iAttachedModels = pItemDef->GetNumAttachedModels( iTeamNumber );
+				for ( int i = 0; i < iAttachedModels; i++ )
+				{
+					attachedmodel_t	*pModel = pItemDef->GetAttachedModelData( iTeamNumber, i );
+
+					int iModelIndex = modelinfo->GetModelIndex( pModel->m_pszModelName );
+					if ( iModelIndex >= 0 )
+					{
+						AttachedModelData_t attachedModelData;
+						attachedModelData.m_pModel			   = modelinfo->GetModel( iModelIndex );
+						attachedModelData.m_iModelDisplayFlags = pModel->m_iModelDisplayFlags;
+						m_vecAttachedModels.AddToTail( attachedModelData );
+					}
+				}
+			}
+
+			// Check for Festive attachedmodels for festivized weapons
+			{
+				int iAttachedModels = pItemDef->GetNumAttachedModelsFestivized( iTeamNumber );
+				if ( iAttachedModels )
+				{
+					int iFestivized = 0;
+					CALL_ATTRIB_HOOK_INT( iFestivized, is_festivized );
+					if ( iFestivized )
+					{
+						for ( int i = 0; i < iAttachedModels; i++ )
+						{
+							attachedmodel_t	*pModel = pItemDef->GetAttachedModelDataFestivized( iTeamNumber, i );
+
+							int iModelIndex = modelinfo->GetModelIndex( pModel->m_pszModelName );
+							if ( iModelIndex >= 0 )
+							{
+								AttachedModelData_t attachedModelData;
+								attachedModelData.m_pModel = modelinfo->GetModel( iModelIndex );
+								attachedModelData.m_iModelDisplayFlags = pModel->m_iModelDisplayFlags;
+								m_vecAttachedModels.AddToTail( attachedModelData );
+							}
+						}
+					}
+				}
+			}
+		}
+		// Note: We skip the viewmodel attachment section (ShouldAttachToHands) because
+		// disguise weapons are world models only and don't need viewmodel attachments.
+	}
+	else
+	{
+		// Normal weapons use the base class implementation
+		BaseClass::UpdateAttachmentModels();
+	}
+#endif
 }
 
 void CTFWeaponBase::ProcessMuzzleFlashEvent( void )
