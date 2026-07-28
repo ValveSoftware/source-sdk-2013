@@ -8239,10 +8239,13 @@ void CTFGameRules::SetWinningTeam( int team, int iWinReason, bool bForceMapReset
 		// stats reporting happens as a result of BaseClass::SetWinningTeam, but we need to make sure to
 		// update ball carry data before stats are reported.
 		// FIXME: refactor this so we're not calling it just for its side effects :/
-		CPasstimeBall *pBall = g_pPasstimeLogic->GetBall();
-		if ( pBall )
+		for ( int i = 0; i < g_pPasstimeLogic->GetBallCount(); ++i )
 		{
-			pBall->SetStateOutOfPlay();
+			CPasstimeBall *pBall = g_pPasstimeLogic->GetBall( i );
+			if ( pBall )
+			{
+				pBall->SetStateOutOfPlay();
+			}
 		}
 	}
 

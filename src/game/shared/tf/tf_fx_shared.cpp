@@ -231,9 +231,16 @@ void FX_FireBullets( CTFWeaponBase *pWpn, int iPlayer, const Vector &vecOrigin, 
 	
 	// PASSTIME custom lag compensation for the ball; see also tf_weapon_flamethrower.cpp
 	// it would be better if all entities could opt-in to this, or a way for lagcompensation to handle non-players automatically
-	if ( g_pPasstimeLogic && g_pPasstimeLogic->GetBall() )
+	if ( g_pPasstimeLogic )
 	{
-		g_pPasstimeLogic->GetBall()->StartLagCompensation( pPlayer, pPlayer->GetCurrentCommand() );
+		for ( int i = 0; i < g_pPasstimeLogic->GetBallCount(); ++i )
+		{
+			CPasstimeBall *pBall = g_pPasstimeLogic->GetBall( i );
+			if ( pBall )
+			{
+				pBall->StartLagCompensation( pPlayer, pPlayer->GetCurrentCommand() );
+			}
+		}
 	}
 #endif
 
@@ -400,9 +407,16 @@ void FX_FireBullets( CTFWeaponBase *pWpn, int iPlayer, const Vector &vecOrigin, 
 
 	// PASSTIME custom lag compensation for the ball; see also tf_weapon_flamethrower.cpp
 	// it would be better if all entities could opt-in to this, or a way for lagcompensation to handle non-players automatically
-	if ( g_pPasstimeLogic && g_pPasstimeLogic->GetBall() )
+	if ( g_pPasstimeLogic )
 	{
-		g_pPasstimeLogic->GetBall()->FinishLagCompensation( pPlayer );
+		for ( int i = 0; i < g_pPasstimeLogic->GetBallCount(); ++i )
+		{
+			CPasstimeBall *pBall = g_pPasstimeLogic->GetBall( i );
+			if ( pBall )
+			{
+				pBall->FinishLagCompensation( pPlayer );
+			}
+		}
 	}
 #endif
 

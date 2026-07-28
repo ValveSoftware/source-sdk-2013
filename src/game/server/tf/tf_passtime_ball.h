@@ -38,9 +38,22 @@ public:
 	virtual void Deflected( CBaseEntity *pDeflectedBy, Vector& vecDir ) OVERRIDE;
 	virtual bool ShouldCollide( int collisionGroup, int contentsMask ) const OVERRIDE;
 	virtual int UpdateTransmitState() OVERRIDE;
+	virtual void UpdateOnRemove() OVERRIDE;
 
 	CTFPlayer *GetCarrier() const;
 	CTFPlayer *GetPrevCarrier() const;
+	CTFPlayer *GetOwner() const;
+	void SetOwner( CTFPlayer *pOwner );
+	bool IsPracticeBall() const;
+	bool CanPlayerInteract( CTFPlayer *pPlayer ) const;
+	int GetBallPower() const;
+	void SetBallPower( int iPower );
+	float GetPackSpeed() const;
+	void SetPackSpeed( float flSpeed );
+	float GetLastReceived() const;
+	void SetLastReceived( float flTime );
+	bool IsProtActive() const;
+	void SetProtActive( bool bActive );
 	CTFPlayer *GetThrower() const;
 	CTFPlayer *GetLastThrower() const;
 	int GetCollisionCount() const;
@@ -48,6 +61,7 @@ public:
 
 	void ResetTrail();
 	void HideTrail();
+	void UpdateTrailColor();
 
 	void CreateMagnetSound();
 	bool GetActiveMagnetSound();
@@ -132,6 +146,9 @@ private:
 	float m_flIdleRespawnTime;
 	float m_flThrowerCanPickupTime; // jack armor prevention
 	float m_flBallDmgImmuneTime; // instant splash prevention
+	float m_flLastReceived;
+	float m_flPackSpeed;
+	bool m_bProtActive;
 
 	CUtlVector<CBaseEntity*> m_mapGoals; 
 
@@ -151,6 +168,8 @@ private:
 	CNetworkHandle( CTFPlayer, m_hLastHomingTarget );
 	CNetworkHandle( CTFPlayer, m_hCarrier );
 	CNetworkHandle( CTFPlayer, m_hPrevCarrier );
+	CNetworkHandle( CTFPlayer, m_hOwner );
+	CNetworkVar( int, m_iBallPower );
 };
 
 #endif // TF_PASSTIME_BALL_H  

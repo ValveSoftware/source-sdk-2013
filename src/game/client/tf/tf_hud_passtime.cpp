@@ -1023,8 +1023,8 @@ void CTFHudPasstimeBallStatus::ApplySchemeSettings( IScheme *pScheme )
 		m_pBallPowerMeterFinalSection->SetWide( iFinalSectionWidth );
 		m_pBallPowerMeterFinalSection->SetPos( m_pBallPowerMeterFinalSection->GetXPos() + (m_iBallPowerMeterFillWidth - iFinalSectionWidth), m_pBallPowerMeterFinalSection->GetYPos() );
 	}
-	m_iPrevBallPower = g_pPasstimeLogic 
-		? g_pPasstimeLogic->GetBallPower() 
+	m_iPrevBallPower = ( g_pPasstimeLogic && g_pPasstimeLogic->GetBall() )
+		? g_pPasstimeLogic->GetBall()->GetBallPower()
 		: 0;
 	
 	// find the left/right markers in the res files
@@ -1220,8 +1220,8 @@ void CTFHudPasstimeBallStatus::OnTickHidden()
 			m_pPlayerIcons[i]->SetVisible( false );
 	}
 
-	m_iPrevBallPower = g_pPasstimeLogic 
-		? g_pPasstimeLogic->GetBallPower() 
+	m_iPrevBallPower = ( g_pPasstimeLogic && g_pPasstimeLogic->GetBall() )
+		? g_pPasstimeLogic->GetBall()->GetBallPower()
 		: 0;
 
 	HideGoalIcons();
@@ -1268,7 +1268,9 @@ void CTFHudPasstimeBallStatus::OnTickVisible( C_TFPlayer *pLocalPlayer, C_Passti
 	}
 	{
 		// update the power bar
-		int iCurPower = g_pPasstimeLogic->GetBallPower();
+		int iCurPower = ( g_pPasstimeLogic && g_pPasstimeLogic->GetBall() )
+			? g_pPasstimeLogic->GetBall()->GetBallPower()
+			: 0;
 		int iThreshold = tf_passtime_powerball_threshold.GetInt();
 		int iAlpha = (iCurPower > iThreshold)
 			? FLerp( 150, 255, (1 + sin(gpGlobals->curtime*5)) / 2.0f)

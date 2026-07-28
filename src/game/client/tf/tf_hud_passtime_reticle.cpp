@@ -30,6 +30,16 @@ Color GetTeamColor( int iTeam )
 	default: return Color(0xFF, 0xFF, 0xFF);
 	};
 }
+
+//-----------------------------------------------------------------------------
+Color GetPasstimeJackHudColor( int iTeam, C_PasstimeBall *pBall )
+{
+	if ( pBall && pBall->IsPracticeBall() )
+	{
+		return Color( 0xE7, 0xB5, 0x3B );
+	}
+	return GetTeamColor( iTeam );
+}
 //callback included in crosshair convars
 void OnCrosshairSettingsChanged(IConVar* pConVar, const char* pOldValue, float flOldValue);
 //reloads for each crosshair type
@@ -197,8 +207,12 @@ void C_PasstimeBallReticle::InitializeSprites()
 		pBallOutlineB = fullPath;
 	}
 
-	AddSprite( CreateReticleSprite( pBallOutlineA, k_flBallReticleSize, 360 ) ); // the O
-	AddSprite( CreateReticleSprite( pBallOutlineB, k_flBallReticleSize, 360 ) ); // the ><
+	int iBallCount = g_pPasstimeLogic ? g_pPasstimeLogic->GetBallCount() : 0;
+	for ( int i = 0; i < iBallCount; ++i )
+	{
+		AddSprite( CreateReticleSprite( pBallOutlineA, k_flBallReticleSize, 360 ) ); // the O
+		AddSprite( CreateReticleSprite( pBallOutlineB, k_flBallReticleSize, 360 ) ); // the ><
+	}
 }
 
 C_PasstimeBallReticle::C_PasstimeBallReticle()
@@ -217,42 +231,83 @@ void C_PasstimeBallReticle::ReloadSprites()
 
 bool C_PasstimeBallReticle::Update()
 {
-	if ( !g_pPasstimeLogic || !g_pPasstimeLogic->GetBall() ) 
+	if ( !g_pPasstimeLogic || !g_pPasstimeLogic->GetBallCount() )
 	{
 		return false;
 	}
 
-	auto *pBall = g_pPasstimeLogic->GetBall();
+	int iBalls = g_pPasstimeLogic->GetBallCount();
+	if ( m_pSprites.Count() != iBalls * 2 )
+	{
+		ReloadSprites();
+		iBalls = g_pPasstimeLogic->GetBallCount();
+	}
+
+	if ( iBalls == 0 || m_pSprites.Count() == 0 )
+	{
+		return false;
+	}
+
 	auto *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	C_BaseEntity *pTarget = 0;
-	auto bHomingActive = false;
-	auto bHaveTarget = g_pPasstimeLogic->GetBallReticleTarget( &pTarget, &bHomingActive );
-	if ( !pBall || !pLocalPlayer || !bHaveTarget )
+	if ( !pLocalPlayer )
 	{
 		return false;
 	}
-	
-	auto vecTargetPos = pTarget->WorldSpaceCenter();
-	SetAllOrigins( vecTargetPos );
-	SetAllNormals( -MainViewForward() );
-		
-	auto teamColor = GetTeamColor( pTarget->GetTeamNumber() );
-	auto iAlpha = ( bHomingActive || pLocalPlayer->m_Shared.IsTargetedForPasstimePass() )
-		? (int)( (fmodf( gpGlobals->curtime * 3.0f, 1.0f )) * 255 )
-		: 180;
 
-	SetRgba( 0, teamColor.r(), teamColor.g(), teamColor.b(), iAlpha );
-	SetRgba( 1, teamColor.r(), teamColor.g(), teamColor.b(), iAlpha );
-
-	auto flDist = (vecTargetPos - MainViewOrigin()).Length();
-	auto flScale = RemapValClamped( flDist, 768.0f, 4096.0f, 1.0f, 3.0f );
-	flScale *= k_flBallReticleSize;
-	if ( bHomingActive || pLocalPlayer->m_Shared.IsTargetedForPasstimePass() )
+	for ( int i = 0; i < iBalls; ++i )
 	{
-		flScale *= 2;
+		C_PasstimeBall *pBall = g_pPasstimeLogic->GetBall( i );
+		int iA = i * 2;
+		int iB = i * 2 + 1;
+		if ( !pBall )
+		{
+			SetAlpha( iA, 0 );
+			SetAlpha( iB, 0 );
+			continue;
+		}
+
+		C_BaseEntity *pTarget = (C_BaseEntity*) pBall->GetCarrier();
+		if ( !pTarget )
+		{
+			pTarget = pBall;
+		}
+
+		if ( (pTarget == pLocalPlayer)
+			|| (pTarget->GetEffects() & EF_NODRAW)
+			|| ((pTarget->GetTeamNumber() != TEAM_UNASSIGNED)
+				&& (pTarget->GetTeamNumber() != pLocalPlayer->GetTeamNumber())) )
+		{
+			SetAlpha( iA, 0 );
+			SetAlpha( iB, 0 );
+			continue;
+		}
+
+		auto vecTargetPos = pTarget->WorldSpaceCenter();
+		SetOrigin( iA, vecTargetPos );
+		SetOrigin( iB, vecTargetPos );
+		SetNormal( iA, -MainViewForward() );
+		SetNormal( iB, -MainViewForward() );
+
+		Color teamColor = GetPasstimeJackHudColor( pTarget->GetTeamNumber(), pBall );
+		auto bHomingActive = pBall->GetHomingTarget() != nullptr;
+		auto bTargeted = pLocalPlayer->m_Shared.IsTargetedForPasstimePass();
+		auto iAlpha = ( bHomingActive || bTargeted )
+			? (int)( (fmodf( gpGlobals->curtime * 3.0f, 1.0f )) * 255 )
+			: 180;
+
+		SetRgba( iA, teamColor.r(), teamColor.g(), teamColor.b(), iAlpha );
+		SetRgba( iB, teamColor.r(), teamColor.g(), teamColor.b(), iAlpha );
+
+		auto flDist = (vecTargetPos - MainViewOrigin()).Length();
+		auto flScale = RemapValClamped( flDist, 768.0f, 4096.0f, 1.0f, 3.0f );
+		flScale *= k_flBallReticleSize;
+		if ( bHomingActive || bTargeted )
+		{
+			flScale *= 2;
+		}
+		SetScale( iA, flScale );
+		SetScale( iB, flScale );
 	}
-	SetScale( 0, flScale );
-	SetScale( 1, flScale );
 
 	return true;
 }
@@ -294,13 +349,20 @@ bool C_PasstimeGoalReticle::Update()
 	if ( !IsLocalPlayerSpectator() && pEnt != C_BasePlayer::GetLocalPlayer() )
 		return false;
 
+	auto *pPlayer = ToTFPlayer( pEnt );
+	C_PasstimeBall *pBall = pPlayer ? g_pPasstimeLogic->GetCarriedBall( pPlayer ) : nullptr;
+	if ( pBall && pBall->IsPracticeBall() )
+	{
+		return false;
+	}
+
 	auto *pGoal = m_hGoal.Get();
 	if ( !pGoal || pGoal->BGoalTriggerDisabled() || (pGoal->GetTeamNumber() != pEnt->GetTeamNumber()) )
 	{
 		return false;
 	}
 
-	auto teamColor = GetTeamColor( pEnt->GetTeamNumber() );
+	auto teamColor = GetPasstimeJackHudColor( pEnt->GetTeamNumber(), pBall );
 
 	auto vec = pGoal->WorldSpaceCenter();
 	auto facingFrac = MainViewForward().Dot( (vec - MainViewOrigin()).Normalized() );
@@ -413,6 +475,8 @@ bool C_PasstimePassReticle::Update()
 		return false;
 	}
 	
+	C_PasstimeBall *pCarriedBall = g_pPasstimeLogic->GetCarriedBall( pBallCarrier );
+
 	SetAllNormals( -MainViewForward() );
 
 	// the player's actual pass target always takes precedence, but if it's
@@ -424,7 +488,7 @@ bool C_PasstimePassReticle::Update()
 		auto vecTargetPos = pPassTarget->WorldSpaceCenter();
 		SetAllOrigins( vecTargetPos );
 
-		auto teamColor = GetTeamColor( pBallCarrier->GetTeamNumber() );
+		auto teamColor = GetPasstimeJackHudColor( pBallCarrier->GetTeamNumber(), pCarriedBall );
 		auto neutralColor = GetTeamColor( TEAM_UNASSIGNED );
 
 		int iAlpha;
@@ -611,18 +675,8 @@ ConVar pf_crosshair_outer_a( "pf_crosshair_outer_a", "200", FCVAR_ARCHIVE, "Sets
 ConVar pf_crosshair_inner_teamcolored( "pf_crosshair_inner_teamcolored", "1", FCVAR_ARCHIVE, "If set to 1, the inner piece of the JACK bounce crosshair will be team colored." );
 ConVar pf_crosshair_outer_teamcolored( "pf_crosshair_outer_teamcolored", "0", FCVAR_ARCHIVE, "If set to 1, the outer piece of the JACK bounce crosshair will be team colored." );
 
-void C_PasstimeBounceReticle::Show( const Vector &vec, const Vector &normal )
+void C_PasstimeBounceReticle::Show( const Vector &vec, const Vector &normal, int nTeamNumber, C_PasstimeBall *pBall )
 {
-	int nTeamNumber = 0;
-	if ( g_pPasstimeLogic )
-	{
-		if ( auto ball = g_pPasstimeLogic->GetBall() )
-		{
-			if ( auto carrier = ball->GetCarrier() )
-				nTeamNumber = carrier->GetTeamNumber();
-		}
-	}
-
 	SetOrigin( 0, vec );
 	SetOrigin( 1, vec );//+ (normal * 16) );
 	SetNormal( 0, normal );
@@ -636,27 +690,26 @@ void C_PasstimeBounceReticle::Show( const Vector &vec, const Vector &normal )
 		g_BounceReticleDirty = false;
 	}
 
-	if ( pf_crosshair_inner_teamcolored.GetBool() && nTeamNumber )
-	{
-		Color teamColor = GetTeamColor( nTeamNumber );
-		SetRgba( 0, teamColor.r(), teamColor.g(), teamColor.b(), pf_crosshair_inner_a.GetInt() );
-	}
-	else
+	Color crosshairColor = ( nTeamNumber && pf_crosshair_inner_teamcolored.GetBool() )
+		? GetPasstimeJackHudColor( nTeamNumber, pBall )
+		: Color( r, g, b, 255 );
+	if ( !pf_crosshair_inner_teamcolored.GetBool() )
 	{
 		sscanf( pf_crosshair_inner_color.GetString(), "%d %d %d", &r, &g, &b );
-		SetRgba( 0, r, g, b, pf_crosshair_inner_a.GetInt() );
+		crosshairColor = Color( r, g, b, 255 );
 	}
-	
-	if ( pf_crosshair_outer_teamcolored.GetBool() && nTeamNumber )
-	{
-		Color teamColor = GetTeamColor( nTeamNumber );
-		SetRgba( 1, teamColor.r(), teamColor.g(), teamColor.b(), pf_crosshair_outer_a.GetInt() );
-	}
-	else
+	SetRgba( 0, crosshairColor.r(), crosshairColor.g(), crosshairColor.b(), pf_crosshair_inner_a.GetInt() );
+
+	r = 200; g = 200; b = 200;
+	crosshairColor = ( nTeamNumber && pf_crosshair_outer_teamcolored.GetBool() )
+		? GetPasstimeJackHudColor( nTeamNumber, pBall )
+		: Color( r, g, b, 255 );
+	if ( !pf_crosshair_outer_teamcolored.GetBool() )
 	{
 		sscanf( pf_crosshair_outer_color.GetString(), "%d %d %d", &r, &g, &b );
-		SetRgba( 1, r, g, b, pf_crosshair_outer_a.GetInt() );
+		crosshairColor = Color( r, g, b, 255 );
 	}
+	SetRgba( 1, crosshairColor.r(), crosshairColor.g(), crosshairColor.b(), pf_crosshair_outer_a.GetInt() );
 }
 
 void C_PasstimeBounceReticle::ReloadSprites()
@@ -932,8 +985,12 @@ void C_PasstimeBallPredictionReticle::InitializeSprites()
     const char* pFloorSprite = "reticles/pf";
 	const char* pFloorSpriteOuter = "reticles/b2";
 
-    AddSprite(CreateReticleSprite(pFloorSprite, 128, 200)); // Floor indicator sprite, inner section
-	AddSprite(CreateReticleSprite(pFloorSpriteOuter, 128, 0)); // Floor indicator sprite, outer section
+	int iBallCount = g_pPasstimeLogic ? g_pPasstimeLogic->GetBallCount() : 0;
+	for ( int i = 0; i < iBallCount; ++i )
+	{
+		AddSprite(CreateReticleSprite(pFloorSprite, 128, 200)); // Floor indicator sprite, inner section
+		AddSprite(CreateReticleSprite(pFloorSpriteOuter, 128, 0)); // Floor indicator sprite, outer section
+	}
 }
 
 C_PasstimeBallPredictionReticle::C_PasstimeBallPredictionReticle()
@@ -946,45 +1003,68 @@ bool C_PasstimeBallPredictionReticle::Update()
     if ( !pf_ball_floor_enabled.GetBool() )
         return false;
 
-    if ( !g_pPasstimeLogic )
+    if ( !g_pPasstimeLogic || !g_pPasstimeLogic->GetBallCount() )
         return false;
 
-    // We need a ball that wants to be drawn that isn't being carried, but has been carried at least once.
-    auto ball = g_pPasstimeLogic->GetBall();
-    if ( !ball || ball->IsEffectActive(EF_NODRAW) || ball->GetCarrier() || !ball->GetPrevCarrier() )
+    int iBalls = g_pPasstimeLogic->GetBallCount();
+    if ( m_pSprites.Count() != iBalls * 2 )
+    {
+        ReloadSprites();
+        iBalls = g_pPasstimeLogic->GetBallCount();
+    }
+
+    if ( iBalls == 0 || m_pSprites.Count() == 0 )
         return false;
 
-    auto teamColor = GetTeamColor(ball->GetTeamNumber());
-    auto ballPosition = ball->WorldSpaceCenter();
+    for ( int i = 0; i < iBalls; ++i )
+    {
+        C_PasstimeBall *pBall = g_pPasstimeLogic->GetBall( i );
+        int iA = i * 2;
+        int iB = i * 2 + 1;
+        if ( !pBall || pBall->IsEffectActive(EF_NODRAW) || pBall->GetCarrier() || !pBall->GetPrevCarrier() )
+        {
+            SetAlpha( iA, 0 );
+            SetAlpha( iB, 0 );
+            continue;
+        }
 
-    // Trace down to find the floor
-    trace_t tr;
-    UTIL_TraceLine(ballPosition, ballPosition - Vector(0, 0, 5000), MASK_SOLID, ball, COLLISION_GROUP_NONE, &tr);
+        auto ballPosition = pBall->WorldSpaceCenter();
 
-    if ( tr.fraction >= 1.0f )
-        return false;
+        // Trace down to find the floor
+        trace_t tr;
+        UTIL_TraceLine(ballPosition, ballPosition - Vector(0, 0, 5000), MASK_SOLID, pBall, COLLISION_GROUP_NONE, &tr);
 
-    auto floorPos = tr.endpos + Vector(0, 0, 1); // Slightly above the floor to prevent z-fighting
+        if ( tr.fraction >= 1.0f )
+        {
+            SetAlpha( iA, 0 );
+            SetAlpha( iB, 0 );
+            continue;
+        }
 
-    SetAllOrigins(floorPos);
-    SetAllNormals(tr.plane.normal); // Orient sprite to floor normal
+        auto floorPos = tr.endpos + Vector(0, 0, 1); // Slightly above the floor to prevent z-fighting
 
-    auto distFromFloor = (ballPosition - floorPos).Length();
-	auto alpha = RemapValClamped(distFromFloor, 16.0f, 1000.0f, 0, 255);
-	SetAllAlphas(alpha);
+        SetOrigin( iA, floorPos );
+        SetOrigin( iB, floorPos );
+        SetNormal( iA, tr.plane.normal );
+        SetNormal( iB, tr.plane.normal );
 
-    SetRgba(0, teamColor.r(), teamColor.g(), teamColor.b(), alpha);
-	SetRgba(1, 255, 255, 255, alpha);
+        auto teamColor = GetPasstimeJackHudColor( pBall->GetTeamNumber(), pBall );
+        auto distFromFloor = (ballPosition - floorPos).Length();
+        auto alpha = RemapValClamped(distFromFloor, 16.0f, 1000.0f, 0, 255);
 
-	float scale;
-	if (distFromFloor <= 1000.0f) {
-		scale = RemapValClamped(distFromFloor, 16.0f, 1000.0f, 1.0f, 0.1f) * 128.0f;
-	} else {
-		scale = RemapValClamped(distFromFloor, 1000.0f, 8192.0f, 0.1f, 0.05f) * 128.0f;
-	}
+        SetRgba( iA, teamColor.r(), teamColor.g(), teamColor.b(), alpha );
+        SetRgba( iB, 255, 255, 255, alpha );
 
-	SetScale(1, 128.0f);
-	SetScale(0, scale);
+        float scale;
+        if (distFromFloor <= 1000.0f) {
+            scale = RemapValClamped(distFromFloor, 16.0f, 1000.0f, 1.0f, 0.1f) * 128.0f;
+        } else {
+            scale = RemapValClamped(distFromFloor, 1000.0f, 8192.0f, 0.1f, 0.05f) * 128.0f;
+        }
+
+        SetScale( iB, 128.0f );
+        SetScale( iA, scale );
+    }
 
     return true;
 }

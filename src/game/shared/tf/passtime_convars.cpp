@@ -30,6 +30,7 @@ PASSTIME_CONVAR( tf_passtime_flinch_boost,                0, "Intensity of flinc
 PASSTIME_CONVAR( tf_passtime_mode_homing_lock_sec,        1.5f, "Number of seconds the ball carrier will stay locked on to a teammate after line of sight is broken." );
 PASSTIME_CONVAR( tf_passtime_mode_homing_speed,           1000.0f, "How fast the ball moves during a pass." );
 PASSTIME_CONVAR( tf_passtime_overtime_idle_sec,           5, "How many seconds the ball can be idle in overtime before the round ends.");
+PASSTIME_CONVAR( pf_ball_count,                   1, "How many passtime balls to spawn at round start and on respawn." );
 PASSTIME_CONVAR( tf_passtime_player_reticles_enemies,     1, "Controls HUD reticles for enemies. 0 = never, 1 = when carrying ball, 2 = always." );
 PASSTIME_CONVAR( tf_passtime_player_reticles_friends,     2, "Controls HUD reticles for teammates. 0 = never, 1 = when carrying ball, 2 = always." );
 PASSTIME_CONVAR( tf_passtime_score_crit_sec,              0.0f, "How long a scoring team's crits last, in default tf2 this is 5.0f" ); 
@@ -92,6 +93,8 @@ PASSTIME_CONVAR( p4ss_heal_on_pass_flight_time,   2,      "How many seconds betw
 PASSTIME_CONVAR( p4ss_minicrit_protection_time,   3,      "How many seconds you are protected from minicrits after picking up the ball." );
 PASSTIME_CONVAR( p4ss_lock_max_turn_angle,        90,     "Maximum angle in degrees you can turn away from locked target before unlocking. 0 to disable." );
 PASSTIME_CONVAR( p4ss_passtime_lock_angle,        15.0f,  "Maximum cone angle in degrees from crosshair for lock-on detection." );
+
+ConVar pf_training_ball_enabled( "pf_training_ball_enabled", "0", FCVAR_GAMEDLL | FCVAR_REPLICATED, "Enables training-ball commands during practice." );
 
 PASSTIME_CONVAR( tf_passtime_no_jack_armor,        1,     "Prevents ball thrower from immediately grabbing the ball." );
 PASSTIME_CONVAR( tf_passtime_no_jack_armor_time,   0.25f, "How many seconds the thrower must wait before picking up the ball again." );

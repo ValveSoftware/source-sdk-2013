@@ -24,6 +24,8 @@ IMPLEMENT_CLIENTCLASS_DT( C_PasstimeBall, DT_PasstimeBall, CPasstimeBall )
 	RecvPropEHandle(RECVINFO(m_hLastHomingTarget)),
 	RecvPropEHandle(RECVINFO(m_hCarrier)),
 	RecvPropEHandle(RECVINFO(m_hPrevCarrier)),
+	RecvPropEHandle(RECVINFO(m_hOwner)),
+	RecvPropInt(RECVINFO(m_iBallPower), 8),
 END_RECV_TABLE()
 
 //-----------------------------------------------------------------------------

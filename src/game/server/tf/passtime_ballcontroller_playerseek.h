@@ -26,7 +26,7 @@ private:
 	virtual void OnDisabled() OVERRIDE { SetIsEnabled( true ); } // never actually disable
 	virtual void OnBallSpawned( CPasstimeBall *ball ) OVERRIDE;
 
-	CTFPlayer *FindTarget( CTFPlayer *pIgnorePlayer, const Vector& ballOrigin ) const;
+	CTFPlayer *FindTarget( CPasstimeBall *pBall ) const;
 	bool Seek( CPasstimeBall *ball, CTFPlayer *pTarget ) const;
 
 	float m_fEnableTime;

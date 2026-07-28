@@ -61,14 +61,27 @@ void CTriggerPasstimeBall::Update()
 
 	SetNextThink( gpGlobals->curtime );
 	
-	if ( !g_pPasstimeLogic || !g_pPasstimeLogic->GetBall() )
+	if ( !g_pPasstimeLogic )
 		return;
 
-	CPasstimeBall *pBall = g_pPasstimeLogic->GetBall();
-	CBaseEntity *pEnt = pBall->GetCarrier();
-	if ( !pEnt ) pEnt = pBall;
+	bool bPresentNow = false;
+	for ( int i = 0; i < g_pPasstimeLogic->GetBallCount(); ++i )
+	{
+		CPasstimeBall *pBall = g_pPasstimeLogic->GetBall( i );
+		if ( !pBall )
+		{
+			continue;
+		}
 
-	bool bPresentNow = (pEnt && BTouching( pEnt ));
+		CBaseEntity *pEnt = pBall->GetCarrier();
+		if ( !pEnt ) pEnt = pBall;
+
+		if ( pEnt && BTouching( pEnt ) )
+		{
+			bPresentNow = true;
+			break;
+		}
+	}
 	if ( bPresentNow && !m_bPresent )
 	{
 		m_onBallEnter.FireOutput( this, this );

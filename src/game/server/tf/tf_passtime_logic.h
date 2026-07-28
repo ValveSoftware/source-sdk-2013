@@ -40,11 +40,25 @@ public:
 	virtual int UpdateTransmitState() OVERRIDE;
 	virtual void FireGameEvent( IGameEvent *pEvent ) OVERRIDE;
 
-	void LaunchBall( CTFPlayer *pPlayer, const Vector &pos, const Vector &vel );
+	enum { kMaxPasstimeBalls = 8 };
+
+	void LaunchBall( CPasstimeBall *pBall, CTFPlayer *pPlayer, const Vector &pos, const Vector &vel );
+	void EjectBall( CPasstimeBall *pBall, CTFPlayer *pPlayer, CTFPlayer *pAttacker );
 	void EjectBall( CTFPlayer *pPlayer, CTFPlayer *pAttacker );
 
 	bool BCanPlayerPickUpBall( CTFPlayer *pPlayer, HudNotification_t *pReason = 0 ) const;
+	bool BCanPlayerPickUpBall( CTFPlayer *pPlayer, CPasstimeBall *pBall, HudNotification_t *pReason = 0 ) const;
 	CPasstimeBall *GetBall() const;
+	CPasstimeBall *GetBall( int i ) const;
+	int GetBallCount() const { return m_iNumBalls; }
+	CPasstimeBall *GetCarriedBall( CTFPlayer *pPlayer ) const;
+	CPasstimeBall *GetRelevantBallForPlayer( CTFPlayer *pPlayer ) const;
+	void RegisterBall( CPasstimeBall *pBall );
+	void UnregisterBall( CPasstimeBall *pBall );
+	CPasstimeBall *SpawnGameBall( const Vector &vecOrigin, const QAngle &angles );
+	void SpawnPracticeBallForPlayer( CTFPlayer *pPlayer );
+	void DestroyPracticeBallsForPlayer( CTFPlayer *pPlayer );
+	CPasstimeBall *GetTrainingBallForPlayer( CTFPlayer *pPlayer ) const;
 
 	bool BPlayerInWinstratZone( CTFPlayer *pPlayer ) const;
 
@@ -59,9 +73,10 @@ public:
 	float GetLastHeldTime( CTFPlayer* pPlayer );
 	float GetLastPassTime( CTFPlayer* pPlayer );
 	void SetLastPassTime( CTFPlayer* pPlayer );
-	void RespawnBall();
+	void RespawnBall( CPasstimeBall *pBall = 0 );
+	void RespawnAllBalls();
 	float GetMaxPassRange() const { return m_flMaxPassRange; }
-	CTFPlayer *GetBallCarrier() const;
+	CTFPlayer *GetBallCarrier( CPasstimeBall *pBall = 0 ) const;
 	float GetPackSpeed( CTFPlayer *pPlayer ) const;
 
 	static void AddCondToTeam( ETFCond eCond, int iTeam, float flTime );
@@ -77,15 +92,18 @@ private:
 
 	void StopAskForBallEffects();
 	void StopAskForBallEffectsOnOpposingTeam(CTFPlayer *pCarrier);
-	void OnBallGet();
+	void OnBallGet( CPasstimeBall *pBall );
 	void Score( CTFPlayer *pPlayer, CFuncPasstimeGoal *pGoal );
 	void Score( CPasstimeBall *pBall, CFuncPasstimeGoal *pGoal, bool isDeathBomb );
 	void Score( CTFPlayer *pPlayer, CPasstimeBall *pBall, int iTeam, int iPoints, bool iForceWin, bool isDeathBomb );
 	void SpawnBallAtRandomSpawnerThink();
 	void SpawnBallAtRandomSpawner();
 	void SpawnBallAtSpawner( CPasstimeBallSpawn *pSpawner );
-	void MoveBallToSpawner();
+	void MoveBallToSpawner( CPasstimeBall *pBall = 0 );
+	void MoveAllBallsToSpawner();
 	void StealBall( CTFPlayer *pFrom, CTFPlayer *pTo );
+	void StealBall( CPasstimeBall *pBall, CTFPlayer *pFrom, CTFPlayer *pTo );
+	void LaunchBall( CTFPlayer *pPlayer, const Vector &pos, const Vector &vel );
 	void ThinkExpiredTimer();
 	void EndRoundExpiredTimer();
 	void CrowdReactionSound( int iTeam );
@@ -96,21 +114,21 @@ private:
 	void BallPower_PackThink();
 	void BallPower_PackHealThink();
 	float CalcProgressFrac() const;
-	bool AddBallPower( int iPower );
-	void ClearBallPower();
+	bool AddBallPower( CPasstimeBall *pBall, int iPower );
+	void ClearBallPower( CPasstimeBall *pBall );
+	bool IsAnyBallAbovePowerThreshold() const;
 	bool ShouldEndOvertime() const;
 	void ReplicatePackMemberBits();
 
 	CUtlVector< std::pair<CTFPlayer*, float> > m_ballLastPassTimes;
 	CUtlVector< std::pair<CTFPlayer*, float> > m_ballLastHeldTimes;
+	CUtlVector< EHANDLE > m_hBallsToRespawn;
 	CCountdownAnnouncer *m_pRespawnCountdown;
 	int m_iBallSpawnCountdownSec;
 	float m_flNextCrowdReactionTime;
+	float m_flLastBallSpawnSoundTime;
 	uint64 m_nPackMemberBits;
 	uint64 m_nPrevPackMemberBits;
-	float m_flBallLastReceived;
-	bool m_bProtActive;
-
 	// outputs
 	COutputEvent m_onBallFree;
 	COutputEvent m_onBallGetRed;
@@ -141,12 +159,12 @@ private:
 	CUtlVector<CSteamID> m_SecretRoom_playersThatTouchedRoom;
 	
 	// netvars
-	CNetworkHandle( CPasstimeBall, m_hBall );
+	CNetworkArray( EHANDLE, m_hBalls, kMaxPasstimeBalls );
+	CNetworkVar( int, m_iNumBalls );
 	CNetworkArray( Vector, m_trackPoints, 16 );
 	CNetworkVar( int, m_iNumSections );
 	CNetworkVar( int, m_iCurrentSection );
 	CNetworkVar( float, m_flMaxPassRange );
-	CNetworkVar( int, m_iBallPower );
 	CNetworkVar( float, m_flPackSpeed );
 	CNetworkArray( int, m_bPlayerIsPackMember, MAX_PLAYERS_ARRAY_SAFE ); // +1 for easy entity index
 };

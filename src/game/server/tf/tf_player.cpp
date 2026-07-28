@@ -11745,6 +11745,12 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		}
 	}
 
+	// Remove any practice/training balls owned by this player.
+	if ( g_pPasstimeLogic )
+	{
+		g_pPasstimeLogic->DestroyPracticeBallsForPlayer( this );
+	}
+
 	// Remove all items...
 	RemoveAllItems( true );
 
@@ -14980,13 +14986,20 @@ bool CTFPlayer::SayAskForBall()
 		return false;
 	}
 
-	CPasstimeBall *pBall = g_pPasstimeLogic->GetBall();
-	if ( !pBall )
+	CTFPlayer *pBallCarrier = nullptr;
+	for ( int i = 0; i < g_pPasstimeLogic->GetBallCount(); ++i )
 	{
-		return false;
+		CPasstimeBall *pBall = g_pPasstimeLogic->GetBall( i );
+		if ( pBall )
+		{
+			pBallCarrier = pBall->GetCarrier();
+			if ( pBallCarrier )
+			{
+				break;
+			}
+		}
 	}
 
-	CTFPlayer *pBallCarrier = pBall->GetCarrier();
 	if ( !pBallCarrier && !p4ss_whistle_more.GetBool())
 	{
 		return false;

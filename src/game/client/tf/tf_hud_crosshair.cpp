@@ -21,6 +21,7 @@
 #include "mathlib/mathlib.h"
 #include "tf_weapon_passtime_gun.h"
 #include "tf_hud_passtime_reticle.h"
+#include "c_tf_passtime_logic.h"
 
 //ConVar cl_crosshair_red( "cl_crosshair_red", "200", FCVAR_ARCHIVE );
 //ConVar cl_crosshair_green( "cl_crosshair_green", "200", FCVAR_ARCHIVE );
@@ -259,8 +260,8 @@ void CHudTFCrosshair::Paint()
         
 		if ( pf_ballindicator_teamcolored.GetBool() )
 		{
-			Color teamColor;
-			teamColor = GetTeamColor( pPlayer->GetTeamNumber() );
+			C_PasstimeBall *pBall = g_pPasstimeLogic ? g_pPasstimeLogic->GetCarriedBall( pPlayer ) : nullptr;
+			Color teamColor = GetPasstimeJackHudColor( pPlayer->GetTeamNumber(), pBall );
 			clrbi = Color( teamColor.r(), teamColor.g(), teamColor.b(), 255 );
 		}
         pSurf->DrawSetColor( clrbi );

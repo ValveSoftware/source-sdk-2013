@@ -31,13 +31,19 @@ bool CPasstimeBallControllerPlayerSeek::Apply( CPasstimeBall *ball )
 	if ( gpGlobals->curtime < m_fEnableTime )
 		return false;
 
-	return Seek( ball, FindTarget( ball->GetThrower(), ball->GetAbsOrigin() ) );
+	return Seek( ball, FindTarget( ball ) );
 }
 
 //-----------------------------------------------------------------------------
-CTFPlayer *CPasstimeBallControllerPlayerSeek::FindTarget( CTFPlayer *pIgnorePlayer, const Vector& ballOrigin ) const
+CTFPlayer *CPasstimeBallControllerPlayerSeek::FindTarget( CPasstimeBall *pBall ) const
 {
-	CTFPlayer *pTarget = 0;	
+	CTFPlayer *pTarget = 0;
+	if ( !pBall )
+		return pTarget;
+
+	const Vector& ballOrigin = pBall->GetAbsOrigin();
+	CTFPlayer *pIgnorePlayer = pBall->GetThrower();
+
 	float closestPlayerDist = tf_passtime_ball_seek_range.GetFloat();
 	closestPlayerDist *= closestPlayerDist; // avoid some sqrts
 
@@ -61,8 +67,19 @@ CTFPlayer *CPasstimeBallControllerPlayerSeek::FindTarget( CTFPlayer *pIgnorePlay
 		if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
 			continue; // don't seek any disguised people
 
-		if ( !g_pPasstimeLogic->BCanPlayerPickUpBall( pPlayer ) )
+		if ( g_pPasstimeLogic->GetCarriedBall( pPlayer ) )
+			continue; // don't magnet to players already holding a ball
+
+		// Practice balls are owner-only; regular balls use normal pickup rules.
+		if ( pBall->IsPracticeBall() )
+		{
+			if ( !pBall->CanPlayerInteract( pPlayer ) )
+				continue;
+		}
+		else if ( !g_pPasstimeLogic->BCanPlayerPickUpBall( pPlayer ) )
+		{
 			continue; // can't pick it up
+		}
 
 		trace_t trace;
 		UTIL_TraceLine( ballOrigin, eyepos, MASK_PLAYERSOLID, &traceFilter, &trace );

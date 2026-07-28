@@ -40,6 +40,9 @@ public:
 	C_TFPlayer *GetLastHomingTarget() const { return m_hLastHomingTarget; }
 	C_TFPlayer *GetCarrier();
 	C_TFPlayer *GetPrevCarrier();
+	C_TFPlayer *GetOwner() const { return m_hOwner; }
+	bool IsPracticeBall() const { return m_hOwner != NULL; }
+	int GetBallPower() const { return m_iBallPower; }
 	
 private:
 	bool m_bWasVisible;
@@ -49,6 +52,8 @@ private:
 	CNetworkHandle( C_TFPlayer, m_hLastHomingTarget );
 	CNetworkHandle( C_TFPlayer, m_hCarrier );
 	CNetworkHandle( C_TFPlayer, m_hPrevCarrier );
+	CNetworkHandle( C_TFPlayer, m_hOwner );
+	CNetworkVar( int, m_iBallPower );
 };
 
 #endif // C_TF_PASSTIME_BALL_H  

@@ -31,7 +31,12 @@ public:
 	virtual void ClientThink() OVERRIDE;
 	virtual void PostDataUpdate( DataUpdateType_t updateType ) OVERRIDE;
 
-	C_PasstimeBall *GetBall() const { return m_hBall.Get(); }
+	enum { kMaxPasstimeBalls = 8 };
+
+	C_PasstimeBall *GetBall() const { return GetBall( 0 ); }
+	C_PasstimeBall *GetBall( int i ) const;
+	C_PasstimeBall *GetCarriedBall( C_TFPlayer *pPlayer ) const;
+	int GetBallCount() const { return m_iNumBalls; }
 	void GetTrackPoints( Vector (&points)[16] );
 	int GetNumSections() const { return m_iNumSections; }
 	int GetCurrentSection() const { return m_iCurrentSection; }
@@ -40,7 +45,6 @@ public:
 	bool BCanPlayerPickUpBall( C_TFPlayer *pPlayer ) const;
 
 	float GetMaxPassRange() const { return m_flMaxPassRange; }
-	int GetBallPower() const { return m_iBallPower; }
 	C_PasstimeReticle* GetPassReticle() const { return m_pPassReticle; }
 	C_PasstimeReticle* GetBallReticle() const { return m_pBallReticle; }
 	C_PasstimeReticle *GetBallFloorReticle() const { return m_pBallFloorReticle; }
@@ -59,12 +63,13 @@ private:
 	CNewParticleEffect *m_apPackBeams[MAX_PLAYERS_ARRAY_SAFE];
 	bool m_bPlayerIsPackMember[MAX_PLAYERS_ARRAY_SAFE];
 
-	CNetworkHandle( C_PasstimeBall, m_hBall );
+	CNetworkVar( int, m_iNumBalls );
+	CNetworkArray( EHANDLE, m_hBalls, kMaxPasstimeBalls );
+
 	CNetworkArray( Vector, m_trackPoints, 16 );
 	CNetworkVar( int, m_iNumSections );
 	CNetworkVar( int, m_iCurrentSection );
 	CNetworkVar( float, m_flMaxPassRange );
-	CNetworkVar( int, m_iBallPower );
 	CNetworkVar( float, m_flPackSpeed );
 };
 

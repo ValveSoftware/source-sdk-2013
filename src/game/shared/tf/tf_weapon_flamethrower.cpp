@@ -809,9 +809,16 @@ void CTFFlameThrower::PrimaryAttack()
 
 	// PASSTIME custom lag compensation for the ball; see also tf_fx_shared.cpp
 	// it would be better if all entities could opt-in to this, or a way for lagcompensation to handle non-players automatically
-	if ( g_pPasstimeLogic && g_pPasstimeLogic->GetBall() )
+	if ( g_pPasstimeLogic )
 	{
-		g_pPasstimeLogic->GetBall()->StartLagCompensation( pOwner, pOwner->GetCurrentCommand() );
+		for ( int i = 0; i < g_pPasstimeLogic->GetBallCount(); ++i )
+		{
+			CPasstimeBall *pBall = g_pPasstimeLogic->GetBall( i );
+			if ( pBall )
+			{
+				pBall->StartLagCompensation( pOwner, pOwner->GetCurrentCommand() );
+			}
+		}
 	}
 
 #endif
@@ -935,9 +942,16 @@ void CTFFlameThrower::PrimaryAttack()
 
 	// PASSTIME custom lag compensation for the ball; see also tf_fx_shared.cpp
 	// it would be better if all entities could opt-in to this, or a way for lagcompensation to handle non-players automatically
-	if ( g_pPasstimeLogic && g_pPasstimeLogic->GetBall() )
+	if ( g_pPasstimeLogic )
 	{
-		g_pPasstimeLogic->GetBall()->FinishLagCompensation( pOwner );
+		for ( int i = 0; i < g_pPasstimeLogic->GetBallCount(); ++i )
+		{
+			CPasstimeBall *pBall = g_pPasstimeLogic->GetBall( i );
+			if ( pBall )
+			{
+				pBall->FinishLagCompensation( pOwner );
+			}
+		}
 	}
 #endif
 
@@ -1909,9 +1923,21 @@ bool CTFFlameThrower::DeflectEntity( CBaseEntity *pTarget, CTFPlayer *pOwner, Ve
 		return false;
 
 	// can't deflect things on our own team
-	// except the passtime ball when in passtime mode
+	// except any passtime ball when in passtime mode
+	bool bIsAnyPasstimeBall = false;
+	if ( g_pPasstimeLogic )
+	{
+		for ( int i = 0; i < g_pPasstimeLogic->GetBallCount(); ++i )
+		{
+			if ( g_pPasstimeLogic->GetBall( i ) == pTarget )
+			{
+				bIsAnyPasstimeBall = true;
+				break;
+			}
+		}
+	}
 	if ( (pTarget->GetTeamNumber() == pOwner->GetTeamNumber()) 
-		&& !(g_pPasstimeLogic && (g_pPasstimeLogic->GetBall() == pTarget)) )
+		&& !bIsAnyPasstimeBall )
 	{
 		return false;
 	}

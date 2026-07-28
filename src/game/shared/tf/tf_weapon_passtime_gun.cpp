@@ -903,8 +903,14 @@ void CPasstimeGun::Throw( CTFPlayer *pOwner )
 		pPassTarget = ToTFPlayer( pOwner->m_Shared.GetPasstimePassTarget() );
 	}
 	
+	CPasstimeBall *pCarriedBall = g_pPasstimeLogic->GetCarriedBall( pOwner );
+	if ( !pCarriedBall )
+	{
+		return;
+	}
+
 	const LaunchParams& launch = CalcLaunch( pOwner, pPassTarget != 0 );
-	g_pPasstimeLogic->LaunchBall( pOwner, launch.startPos, launch.startVel );
+	g_pPasstimeLogic->LaunchBall( pCarriedBall, pOwner, launch.startPos, launch.startVel );
 
 	CPASAttenuationFilter pasFilter( pOwner );
 	pOwner->EmitSound( pasFilter, pOwner->entindex(), kShootOkSound );
@@ -913,7 +919,7 @@ void CPasstimeGun::Throw( CTFPlayer *pOwner )
 		++CTF_GameStats.m_passtimeStats.summary.nTotalPassesStarted;
 		m_ballController.SetTargetSpeed( tf_passtime_mode_homing_speed.GetFloat() );
 		auto isCharged = (m_fChargeBeginTime > 0) && (GetCurrentCharge() >= 1);
-		m_ballController.StartHoming( g_pPasstimeLogic->GetBall(), pPassTarget, isCharged );
+		m_ballController.StartHoming( pCarriedBall, pPassTarget, isCharged );
 		if ( CTFPlayer *pPlayerPassTarget = ToTFPlayer( pPassTarget ) )
 		{
 			char pszSound[64];
@@ -1004,6 +1010,20 @@ bool CPasstimeGun::BValidPassTarget( CTFPlayer *pSource, CTFPlayer *pTarget, Hud
 		return false;
 	}
 
+	if ( g_pPasstimeLogic )
+	{
+		CPasstimeBall *pSourceBall = g_pPasstimeLogic->GetCarriedBall( pSource );
+		if ( pSourceBall && pSourceBall->IsPracticeBall() )
+		{
+			return false;
+		}
+
+		if ( g_pPasstimeLogic->GetCarriedBall( pTarget ) )
+		{
+			return false;
+		}
+	}
+
 	bool bTargetDisguised = pTarget->m_Shared.InCond( TF_COND_DISGUISED );
 	int iTargetTeam = pTarget->GetTeamNumber();
 	int iSourceTeam = pSource ? pSource->GetTeamNumber() : iTargetTeam;
@@ -1034,6 +1054,24 @@ bool CPasstimeGun::BValidPassTarget( CTFPlayer *pSource, CTFPlayer *pTarget, Hud
 
 //-----------------------------------------------------------------------------
 #ifdef CLIENT_DLL
+class CTraceFilterIgnorePasstimeBalls : public CTraceFilterSimple
+{
+public:
+	CTraceFilterIgnorePasstimeBalls( C_BaseEntity *pPassEnt, int collisionGroup )
+		: CTraceFilterSimple( pPassEnt, collisionGroup ) {}
+
+	virtual bool ShouldHitEntity( IHandleEntity *pHandleEntity, int contentsMask ) OVERRIDE
+	{
+		C_BaseEntity *pEntity = EntityFromEntityHandle( pHandleEntity );
+		if ( pEntity && dynamic_cast<C_PasstimeBall*>( pEntity ) )
+		{
+			return false;
+		}
+		return CTraceFilterSimple::ShouldHitEntity( pHandleEntity, contentsMask );
+	}
+};
+
+//-----------------------------------------------------------------------------
 void CPasstimeGun::UpdateThrowArch()
 {
 	C_TFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
@@ -1053,6 +1091,8 @@ void CPasstimeGun::UpdateThrowArch()
 		return;
 	}
 
+	CPasstimeBall *pCarriedBall = g_pPasstimeLogic ? g_pPasstimeLogic->GetCarriedBall( pOwner ) : nullptr;
+
 	const LaunchParams& launchParams = CalcLaunch( pOwner, false );
 
 	// Simple euler integration.
@@ -1067,7 +1107,7 @@ void CPasstimeGun::UpdateThrowArch()
 
 	Vector vecStart, vecEnd;
 	trace_t tr;
-	CTraceFilterSimple traceFilter( pOwner, COLLISION_GROUP_NONE );
+	CTraceFilterIgnorePasstimeBalls traceFilter( pOwner, COLLISION_GROUP_NONE );
 	const int iMaxTraces = 100; // is this insane?
 	for ( int iPoint = 0; iPoint < iMaxTraces; ++iPoint )
 	{
@@ -1086,7 +1126,7 @@ void CPasstimeGun::UpdateThrowArch()
 
 		if ( tr.DidHit() )
 		{	
-			m_pBounceReticle->Show( tr.endpos, tr.plane.normal );
+			m_pBounceReticle->Show( tr.endpos, tr.plane.normal, pOwner->GetTeamNumber(), pCarriedBall );
 			break;
 
 			// commented out code trying to guess bounce

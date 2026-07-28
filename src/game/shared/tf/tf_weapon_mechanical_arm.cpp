@@ -159,8 +159,16 @@ bool CTFMechanicalArm::IsValidVictim( CTFPlayer *pOwner, CBaseEntity *pTarget )
 	if ( pOwner->FVisible( pTarget, MASK_SOLID_BRUSHONLY ) == false )
 		return false;
 
-	if ( g_pPasstimeLogic && ( g_pPasstimeLogic->GetBall() == pTarget ) )
-		return false;
+	if ( g_pPasstimeLogic )
+	{
+		for ( int i = 0; i < g_pPasstimeLogic->GetBallCount(); ++i )
+		{
+			if ( g_pPasstimeLogic->GetBall( i ) == pTarget )
+			{
+				return false;
+			}
+		}
+	}
 
 	return true;
 }

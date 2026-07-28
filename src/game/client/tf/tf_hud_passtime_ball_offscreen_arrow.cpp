@@ -302,11 +302,10 @@ C_BaseEntity *CTFHudPasstimeBallOffscreenArrow::PreparePaint(
 		return NULL;
 	}
 
-	C_PasstimeBall *pBall = g_pPasstimeLogic->GetBall();
 	C_BaseEntity *pTarget = 0;
 	bool bHomingActive = false;
 	bool bHaveTarget = g_pPasstimeLogic->GetBallReticleTarget( &pTarget, &bHomingActive );
-	if ( !pImage || !pBall || !pLocalPlayer || !bHaveTarget )
+	if ( !pImage || !pLocalPlayer || !bHaveTarget )
 	{
 		return NULL;
 	}

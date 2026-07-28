@@ -43,12 +43,12 @@ extern ConVar hud_fastswitch;
 
 //-----------------------------------------------------------------------------
 IMPLEMENT_CLIENTCLASS_DT( C_TFPasstimeLogic, DT_TFPasstimeLogic, CTFPasstimeLogic )
-	RecvPropEHandle( RECVINFO( m_hBall ) ),
+	RecvPropInt( RECVINFO( m_iNumBalls ), 4 ),
+	RecvPropArray3( RECVINFO_ARRAY( m_hBalls ), RecvPropEHandle( RECVINFO( m_hBalls[0] ) ) ),
 	RecvPropArray( RecvPropVector( RECVINFO( m_trackPoints[0] ) ), m_trackPoints ),
 	RecvPropInt( RECVINFO( m_iNumSections ) ),
 	RecvPropInt( RECVINFO( m_iCurrentSection ) ),
 	RecvPropFloat( RECVINFO( m_flMaxPassRange ) ),
-	RecvPropInt( RECVINFO( m_iBallPower ), 8 ),
 	RecvPropFloat( RECVINFO( m_flPackSpeed ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_bPlayerIsPackMember ), RecvPropInt( RECVINFO( m_bPlayerIsPackMember[0] ) ) ),
 END_RECV_TABLE()
@@ -61,6 +61,7 @@ C_TFPasstimeLogic::C_TFPasstimeLogic()
 	m_pBallReticle = nullptr;
 	m_pPassReticle = nullptr;
 	m_pBallFloorReticle = nullptr;
+	m_iNumBalls = 0;
 	memset( m_apPackBeams, 0, sizeof( m_apPackBeams ) );
 	memset( m_bPlayerIsPackMember, 0, sizeof( m_bPlayerIsPackMember ) );
 	for( int i = 0; i < m_trackPoints.Count(); ++i )
@@ -69,6 +70,38 @@ C_TFPasstimeLogic::C_TFPasstimeLogic()
 	}
 
 	g_pPasstimeLogic = this;
+}
+
+//-----------------------------------------------------------------------------
+C_PasstimeBall *C_TFPasstimeLogic::GetBall( int i ) const
+{
+	if ( (i < 0) || (i >= m_iNumBalls) )
+	{
+		return nullptr;
+	}
+
+	C_BaseEntity *pEnt = m_hBalls[i].Get();
+	return pEnt ? assert_cast<C_PasstimeBall*>( pEnt ) : nullptr;
+}
+
+//-----------------------------------------------------------------------------
+C_PasstimeBall *C_TFPasstimeLogic::GetCarriedBall( C_TFPlayer *pPlayer ) const
+{
+	if ( !pPlayer )
+	{
+		return nullptr;
+	}
+
+	for ( int i = 0; i < m_iNumBalls; ++i )
+	{
+		C_PasstimeBall *pBall = GetBall( i );
+		if ( pBall && (pBall->GetCarrier() == pPlayer) )
+		{
+			return pBall;
+		}
+	}
+
+	return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -219,28 +252,48 @@ bool C_TFPasstimeLogic::GetBallReticleTarget( C_BaseEntity **ppEnt, bool *bHomin
 		return false;
 	}
 
-	C_PasstimeBall *pBall = 0;
-	C_TFPlayer *pCarrier = 0, *pHomingTarget = 0;
-	if ( !GetImportantEntities( &pBall, &pCarrier, &pHomingTarget ) )
+	C_BaseEntity *pBestEnt = nullptr;
+	C_PasstimeBall *pBestBall = nullptr;
+	float flBestDist = FLT_MAX;
+
+	for ( int i = 0; i < m_iNumBalls; ++i )
+	{
+		C_PasstimeBall *pBall = GetBall( i );
+		if ( !pBall )
+		{
+			continue;
+		}
+
+		C_TFPlayer *pCarrier = pBall->GetCarrier();
+		C_BaseEntity *pEnt = pCarrier ? (C_BaseEntity*) pCarrier : (C_BaseEntity*) pBall;
+		if ( !pEnt 
+			|| (pEnt == pLocalPlayer) 
+			|| (pEnt->GetEffects() & EF_NODRAW) 
+			|| ((pEnt->GetTeamNumber() != TEAM_UNASSIGNED) 
+				&& (pEnt->GetTeamNumber() != pLocalPlayer->GetTeamNumber()))
+			|| (pLocalPlayer->IsObserver() && (GetSpectatorMode() != OBS_MODE_ROAMING) && (GetSpectatorTarget() == pEnt->index)) )
+		{
+			continue;
+		}
+
+		float flDist = (pEnt->WorldSpaceCenter() - pLocalPlayer->WorldSpaceCenter()).LengthSqr();
+		if ( flDist < flBestDist )
+		{
+			flBestDist = flDist;
+			pBestEnt = pEnt;
+			pBestBall = pBall;
+		}
+	}
+
+	if ( !pBestEnt || !pBestBall )
 	{
 		return false;
 	}
 
-	C_BaseEntity *pEnt = pCarrier ? (C_BaseEntity*) pCarrier : (C_BaseEntity*)pBall;
-	if ( !pEnt 
-		|| (pEnt == pLocalPlayer) 
-		|| (pEnt->GetEffects() & EF_NODRAW) 
-		|| ((pEnt->GetTeamNumber() != TEAM_UNASSIGNED) 
-			&& (pEnt->GetTeamNumber() != pLocalPlayer->GetTeamNumber()))
-		|| (pLocalPlayer->IsObserver() && (GetSpectatorMode() != OBS_MODE_ROAMING) && (GetSpectatorTarget() == pEnt->index)) )
-	{
-		return false;
-	}
-
-	*ppEnt = pEnt;
+	*ppEnt = pBestEnt;
 	if ( bHomingActive ) 
 	{
-		*bHomingActive = pHomingTarget != 0;
+		*bHomingActive = pBestBall->GetHomingTarget() != nullptr;
 	}
 
 	return true;

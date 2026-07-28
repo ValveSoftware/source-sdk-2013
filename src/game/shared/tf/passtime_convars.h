@@ -32,6 +32,7 @@ extern ConVar
 	tf_passtime_mode_homing_lock_sec,
 	tf_passtime_mode_homing_speed,
 	tf_passtime_overtime_idle_sec,
+	pf_ball_count,
 	tf_passtime_player_reticles_enemies,
 	tf_passtime_player_reticles_friends,
 	tf_passtime_score_crit_sec,
@@ -90,6 +91,7 @@ extern ConVar
 	p4ss_minicrit_protection_time,
 	p4ss_lock_max_turn_angle,
 	p4ss_passtime_lock_angle,
+	pf_training_ball_enabled,
 
 	tf_passtime_no_jack_armor,
 	tf_passtime_no_jack_armor_time,

@@ -16,8 +16,10 @@
 #include "fx_quad.h"
 
 //-----------------------------------------------------------------------------
+class C_PasstimeBall;
 CFXQuad *CreateReticleSprite( const char *pModelName, float scale, float spinSpeed );
 Color GetTeamColor( int iTeam );
+Color GetPasstimeJackHudColor( int iTeam, C_PasstimeBall *pBall = nullptr );
 class C_FuncPasstimeGoal;
 
 //-----------------------------------------------------------------------------
@@ -94,7 +96,7 @@ class C_PasstimeBounceReticle : public C_PasstimeReticle
 {
 public:
 	C_PasstimeBounceReticle();
-	void Show( const Vector& pos, const Vector& normal );
+	void Show( const Vector& pos, const Vector& normal, int nTeamNumber = TEAM_UNASSIGNED, C_PasstimeBall *pBall = nullptr );
 	void Hide();
 	virtual void ReloadSprites() OVERRIDE;
 private:
