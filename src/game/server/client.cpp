@@ -1153,6 +1153,9 @@ static int FindPassableSpace( CBasePlayer *pPlayer, const Vector& direction, flo
 //------------------------------------------------------------------------------
 // Noclip
 //------------------------------------------------------------------------------
+
+ConVar fsb_free_noclip("fsb_free_noclip", "0", FCVAR_GAMEDLL | FCVAR_REPLICATED | FCVAR_NOTIFY, "Allows players to freely noclip regardless of sv_cheats.");
+
 void EnableNoClip( CBasePlayer *pPlayer )
 {
 	// Disengage from hierarchy
@@ -1164,12 +1167,16 @@ void EnableNoClip( CBasePlayer *pPlayer )
 
 void CC_Player_NoClip( void )
 {
-	if ( !sv_cheats->GetBool() )
-		return;
-
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() ); 
 	if ( !pPlayer )
 		return;
+
+	if (!sv_cheats->GetBool() && !fsb_free_noclip.GetBool())
+	{
+		//screw it just fake it
+		ClientPrint(pPlayer, HUD_PRINTCONSOLE, "Can't use cheat command noclip in multiplayer, unless the server has sv_cheats or fsb_free_noclip set to 1.\n");
+		return;
+	}
 
 	CPlayerState *pl = pPlayer->PlayerData();
 	Assert( pl );
@@ -1216,8 +1223,7 @@ void CC_Player_NoClip( void )
 	}
 }
 
-static ConCommand noclip("noclip", CC_Player_NoClip, "Toggle. Player becomes non-solid and flies.", FCVAR_CHEAT);
-
+static ConCommand noclip("noclip", CC_Player_NoClip, "Toggle. Player becomes non-solid and flies.", FCVAR_CLIENTCMD_CAN_EXECUTE);
 
 //------------------------------------------------------------------------------
 // Sets client to godmode
