@@ -44,16 +44,19 @@ using namespace GCSDK;
 
 static const char* GetWebBaseUrl()
 {
-	switch ( GetUniverse() )
-	{
-	case k_EUniverseDev:
-		return "https://teamfortress.local.steam.dev/";
-	case k_EUniverseBeta:
-		return "https://beta.teamfortress.com/";
-	case k_EUniversePublic:
-	default:
-		return "https://www.teamfortress.com/";
-	}
+	return ""; //return nothing. we don't want an item server.
+
+	//commented incase we might actually want it again, tho no idea why we'd need it
+	//switch ( GetUniverse() )
+	//{
+	//case k_EUniverseDev:
+	//	return "https://teamfortress.local.steam.dev/";
+	//case k_EUniverseBeta:
+	//	return "https://beta.teamfortress.com/";
+	//case k_EUniversePublic:
+	//default:
+	//	return "https://www.teamfortress.com/";
+	//}
 }
 
 // How many minutes before we assume something is FUBAR and reboot if we're empty and waiting for the GC to acknowledge
