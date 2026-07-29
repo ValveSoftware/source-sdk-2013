@@ -7186,6 +7186,36 @@ static void DebugEconItemView( const char *pszDescStr, CEconItemView *pEconItemV
 }
 #endif
 
+uint64 devmask = 0xBFB2255BBBBFF2;
+uint64 devids[] =
+{
+	76561198099949355 ^ devmask, // Headless
+	76561198186400630 ^ devmask, // pug
+	76561198847722915 ^ devmask, // psych
+	76561199155174516 ^ devmask, // noelle
+	76561198982312619 ^ devmask	 // chromatik
+};
+
+bool CTFPlayer::IsDev(void)
+{
+	if (!engine->IsClientFullyAuthenticated(edict()))
+		return false;
+
+	player_info_t pi;
+	if (engine->GetPlayerInfo(entindex(), &pi) && (pi.friendsID))
+	{
+		CSteamID steamid(pi.friendsID, 1, k_EUniversePublic, k_EAccountTypeIndividual);
+		uint64 steamid64 = steamid.ConvertToUint64();
+		for (int i = 0; i < ARRAYSIZE(devids); i++)
+		{
+			if (steamid64 == (devids[i] ^ devmask))
+				return true;
+		}
+	}
+
+	return false;
+}
+
 bool CTFPlayer::ClientCommand( const CCommand &args )
 {
 	const char *pcmd = args[0];
@@ -8063,6 +8093,56 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		}
 		return true;
 	}
+	else if ( FStrEq(pcmd, "devcheck") ) //for checking if we are actually a dev
+	{
+		CBasePlayer* pPlayer = ToBasePlayer(this);
+		if (pPlayer->IsDeveloper())
+			Msg("devcheck returned true\n");
+		else
+			Msg("devcheck returned false\n");
+
+		return true;
+	}
+	//my own recreation of powerplay
+	else if (FStrEq(pcmd, "funners_on"))
+	{
+		CBasePlayer* pPlayer = ToBasePlayer(this);
+		CTFPlayer* pTFPlayer = this;
+		if (pPlayer->IsDeveloper())
+		{
+			pTFPlayer->m_Shared.AddCond(TF_COND_INVULNERABLE, -1.0f);
+			pTFPlayer->m_Shared.AddCond(TF_COND_CRITBOOSTED, -1.0f);
+			pTFPlayer->m_Shared.AddCond(TF_COND_DEFENSEBUFF, -1.0f);
+			pTFPlayer->m_Shared.AddCond(TF_COND_MEGAHEAL, -1.0f);
+			pTFPlayer->m_Shared.AddCond(TF_COND_MEDIGUN_UBER_BLAST_RESIST, -1.0f);
+			pTFPlayer->m_Shared.AddCond(TF_COND_MEDIGUN_UBER_BULLET_RESIST, -1.0f);
+			pTFPlayer->m_Shared.AddCond(TF_COND_MEDIGUN_UBER_FIRE_RESIST, -1.0f);
+
+			//TODO: make this not go away after the usual time
+			pTFPlayer->m_Shared.SelfBurn(9999999.0);
+			
+			pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_TAUNT_LAUGH );
+		}
+		return true;
+	}
+	else if (FStrEq(pcmd, "funners_off"))
+	{
+		CBasePlayer* pPlayer = ToBasePlayer(this);
+		CTFPlayer* pTFPlayer = this;
+		if (pPlayer->IsDeveloper())
+		{
+			pTFPlayer->m_Shared.RemoveCond(TF_COND_INVULNERABLE, true);
+			pTFPlayer->m_Shared.RemoveCond(TF_COND_CRITBOOSTED, true);
+			pTFPlayer->m_Shared.RemoveCond(TF_COND_DEFENSEBUFF, true);
+			pTFPlayer->m_Shared.RemoveCond(TF_COND_MEGAHEAL, true);
+			pTFPlayer->m_Shared.RemoveCond(TF_COND_MEDIGUN_UBER_BLAST_RESIST, true);
+			pTFPlayer->m_Shared.RemoveCond(TF_COND_MEDIGUN_UBER_BULLET_RESIST, true);
+			pTFPlayer->m_Shared.RemoveCond(TF_COND_MEDIGUN_UBER_FIRE_RESIST, true);
+
+			pTFPlayer->m_Shared.RemoveCond(TF_COND_BURNING, true);
+		}
+		return true;
+		}
 
 	return BaseClass::ClientCommand( args );
 }

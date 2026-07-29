@@ -10159,6 +10159,33 @@ const char *CTFGameRules::GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer )
 			}
 		}
 	}
+	//taken out of 0.6 pf2. creds goes to them
+	if (pPlayer->IsDeveloper())
+	{
+		if (pPlayer->GetTeamNumber() == TEAM_SPECTATOR)
+		{
+			pszFormat = "TF_Chat_DevSpec";
+		}
+		else
+		{
+			if (pPlayer->IsAlive() == false && State_Get() != GR_STATE_TEAM_WIN)
+			{
+				pszFormat = "TF_Chat_DevDead";
+			}
+			else
+			{
+				pszFormat = "TF_Chat_Dev";
+			}
+		}
+		if (bTeamOnly && pPlayer->IsAlive())
+		{
+			pszFormat = "TF_Chat_DevTeam";
+		}
+		else if (bTeamOnly && !pPlayer->IsAlive())
+		{
+			pszFormat = "TF_Chat_DevTeam_Dead";
+		}
+	}
 
 	return pszFormat;
 }

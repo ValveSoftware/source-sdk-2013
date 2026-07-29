@@ -160,6 +160,8 @@ public:
 	virtual void		UpdateOnRemove( void );
 	void				CheckInstantLoadoutRespawn( void );
 
+	//bool CheckDeveloper(void);
+
 	virtual void		ResetPerRoundStats( void );
 
 	void				HandleCommand_JoinTeam( const char *pTeamName );
@@ -1190,6 +1192,8 @@ private:
 	// Combat.
 	CNetworkHandle( CTFWeaponBase, m_hOffHandWeapon );
 
+
+
 	float					m_flHealthBuffTime;
 	int						m_iHealthBefore;
 
@@ -1361,6 +1365,9 @@ private:
 	CountdownTimer		m_inCombatThrottleTimer;
 
 	mutable char		m_bIsCalculatingMaximumSpeed;
+
+public:
+	bool				IsDev(void);
 
 public:
 

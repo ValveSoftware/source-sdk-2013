@@ -70,6 +70,8 @@
 #include "vote_controller.h"
 #include "ai_speech.h"
 
+#include "tf_player.h"
+
 #if defined USES_ECON_ITEMS
 #include "econ_wearable.h"
 #endif
@@ -1597,6 +1599,13 @@ static float DamageForce( const Vector &size, float damage )
 	}
 
 	return force;
+}
+
+bool CBasePlayer::IsDeveloper()
+{
+	CTFPlayer* pTFPlayer = ToTFPlayer(this);
+	
+	return pTFPlayer->IsDev();
 }
 
 
