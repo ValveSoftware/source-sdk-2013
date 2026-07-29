@@ -99,6 +99,7 @@
 #include "tf_gamerules.h"
 #include "player_vs_environment/tf_population_manager.h"
 #include "workshop/maps_workshop.h"
+#include "tf/bot/tf_bot_manager.h"
 
 extern ConVar tf_mm_trusted;
 extern ConVar tf_mm_servermode;
@@ -1063,6 +1064,11 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 
 	// load MOTD from file into stringtable
 	LoadMessageOfTheDay();
+
+#ifdef TF_DLL
+	// load tfbot names
+	TheTFBots().PrecacheBotNames();
+#endif
 
 	// Sometimes an ent will Remove() itself during its precache, so RemoveImmediate won't happen.
 	// This makes sure those ents get cleaned up.
