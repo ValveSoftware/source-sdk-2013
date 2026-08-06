@@ -290,7 +290,6 @@ $Project
 		$File	"c_vehicle_jeep.cpp"
 		$File	"c_vguiscreen.cpp"
 		$File	"hl2\c_waterbullet.cpp"
-		$File	"hl2\hud_autoaim.cpp"
 		$File	"C_WaterLODControl.cpp"
 		$File	"c_world.cpp"
 		$File	"$SRCDIR\game\shared\cam_thirdperson.cpp"
