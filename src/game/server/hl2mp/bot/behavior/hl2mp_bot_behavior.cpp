@@ -281,13 +281,17 @@ Vector CHL2MPBotMainAction::SelectTargetPoint( const INextBot *meBot, const CBas
 						float flForceMax = physcannon_maxforce.GetFloat();
 						float flForce = flForceMax;
 
-						float mass = pHeldEntity->VPhysicsGetObject()->GetMass();
-						if ( mass > 100 )
-						{
-							mass = MIN( mass, 1000 );
-							float flForceMin = physcannon_minforce.GetFloat();
-							flForce = SimpleSplineRemapVal( mass, 100, 600, flForceMax, flForceMin );
-						}
+						IPhysicsObject* pPhysObj = pHeldEntity->VPhysicsGetObject();
+                        if (pPhysObj)
+                        {
+				            float mass = pPhysObj->GetMass();
+				            if (mass > 100.0f)
+				            {
+					            mass = MIN(mass, 1000.0f);
+					            float flForceMin = physcannon_minforce.GetFloat();
+					            flForce = SimpleSplineRemapVal(mass, 100.0f, 600.0f, flForceMax, flForceMin);
+				            }
+                        }
 
 						const float veryCloseRange = 150.0f;
 						if ( rangeBetween > veryCloseRange )
