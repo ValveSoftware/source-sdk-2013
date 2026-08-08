@@ -532,7 +532,7 @@ void CTFPlayerModelPanel::SwitchHeldItemTo( CEconItemView *pItem )
 		}
 		else
 		{
-			SetToPlayerClass( m_iCurrentClassIndex );
+			SetToPlayerClass( m_iCurrentClassIndex, false, m_strPlayerModelOverride );
 		}
 	}
 
@@ -835,6 +835,8 @@ void CTFPlayerModelPanel::UpdateHiddenBodyGroups( CEconItemView* pItem )
 {
 	MDLCACHE_CRITICAL_SECTION();
 	CStudioHdr &studioHdr = *m_RootMDL.m_pStudioHdr;
+	if ( !&studioHdr || !studioHdr.IsValid() )
+		return;
 
 	int iNumBodyGroups = pItem->GetStaticData()->GetNumModifiedBodyGroups( 0 );
 	for ( int i=0; i<iNumBodyGroups; ++i )
@@ -1008,7 +1010,7 @@ void CTFPlayerModelPanel::EquipItem( CEconItemView *pItem )
 			MDLCACHE_CRITICAL_SECTION();
 
 			// Get the studio header of the root model.
-			if ( !m_RootMDL.m_pStudioHdr )
+			if ( !m_RootMDL.m_pStudioHdr || !m_RootMDL.m_pStudioHdr->IsValid() )
 				return;
 
 			CStudioHdr &studioHdr = *m_RootMDL.m_pStudioHdr;

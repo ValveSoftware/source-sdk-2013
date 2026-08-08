@@ -233,10 +233,26 @@ void CTFHudPlayerClass::OnThink()
 		bPlayerClassModeChange = true;
 	}
 
+	bool bCustomModelChange = false;
+	if ( m_bUsePlayerModel && m_pPlayerModelPanel )
+	{
+		CUtlString strCustomModelOverride = m_pPlayerModelPanel->GetPlayerModelOverride();
+		C_TFPlayerClass *pPlayerClass = pPlayer->GetPlayerClass();
+
+		if ( strCustomModelOverride.IsEmpty() == pPlayerClass->HasCustomModel() )
+		{
+			bCustomModelChange = true;
+		}
+		else if ( pPlayerClass->HasCustomModel() )
+		{
+			bCustomModelChange = !strCustomModelOverride.IsEqual_CaseInsensitive( pPlayerClass->GetModelName() );
+		}
+	}
+
 
 	bool bForceEyeUpdate = false;
 	// set our class image
-	if (	m_nClass != pPlayer->GetPlayerClass()->GetClassIndex() || bTeamChange || bCloakChange || bLoadoutPositionChange || bPlayerClassModeChange ||
+	if (	m_nClass != pPlayer->GetPlayerClass()->GetClassIndex() || bTeamChange || bCloakChange || bLoadoutPositionChange || bPlayerClassModeChange || bCustomModelChange ||
 			(
 				m_nClass == TF_CLASS_SPY &&
 				(
@@ -446,6 +462,7 @@ void CTFHudPlayerClass::UpdateModelPanel()
 		int nClass;
 		int nTeam;
 		int nItemSlot = m_nLoadoutPosition;
+		const char* pszCustomModel = NULL;
 		CEconItemView *pWeapon = NULL;
 
 		bool bDisguised = pPlayer->m_Shared.InCond( TF_COND_DISGUISED );
@@ -474,10 +491,14 @@ void CTFHudPlayerClass::UpdateModelPanel()
 			{
 				pWeapon = pEnt->GetAttributeContainer()->GetItem();
 			}
+			if ( pPlayer->GetPlayerClass()->HasCustomModel() )
+			{
+				pszCustomModel = pPlayer->GetPlayerClass()->GetModelName();
+			}
 		}
 
 		m_pPlayerModelPanel->ClearCarriedItems();
-		m_pPlayerModelPanel->SetToPlayerClass( nClass );
+		m_pPlayerModelPanel->SetToPlayerClass( nClass, false, pszCustomModel );
 		m_pPlayerModelPanel->SetTeam( nTeam );
 
 		if ( pWeapon )
