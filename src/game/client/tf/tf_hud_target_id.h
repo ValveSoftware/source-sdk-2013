@@ -170,7 +170,6 @@ public:
 private:
 	CTFSpectatorGUIHealth	*m_pTargetHealth;
 	CHandle< C_BaseEntity >	m_hEntity;
-	float					m_flPrevHealth;
 	int						m_nPrevLevel;
 };
 
