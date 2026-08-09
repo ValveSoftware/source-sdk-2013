@@ -192,6 +192,8 @@ void CCurrencyPack::ComeToRest( void )
 	}
 
 	// See if we've come to rest in a trigger_hurt
+	//  We can't use IsTakingTriggerHurtDamageAtPoint for this as it would cause a regression
+	//  on maps that use manually placed 0 damage trigger_hurts for collection.
 	for ( int i = 0; i < ITriggerHurtAutoList::AutoList().Count(); i++ )
 	{
 		CTriggerHurt *pTrigger = static_cast<CTriggerHurt *>( ITriggerHurtAutoList::AutoList()[ i ] );
@@ -203,14 +205,10 @@ void CCurrencyPack::ComeToRest( void )
 	}
 
 	// Or a func_respawnroom (robots can drop money in their own spawn)
-	for ( int i = 0; i < IFuncRespawnRoomAutoList::AutoList().Count(); i++ )
+	if ( PointInRespawnRoom( NULL, GetAbsOrigin() ) )
 	{
-		CFuncRespawnRoom *pRespawnRoom = static_cast<CFuncRespawnRoom *>( IFuncRespawnRoomAutoList::AutoList()[ i ] );
-		if ( !pRespawnRoom->m_bDisabled && pRespawnRoom->PointIsWithin( GetAbsOrigin() ) )
-		{
-			AutoCollect();
-			return;
-		}
+		AutoCollect();
+		return;
 	}
 }
 
