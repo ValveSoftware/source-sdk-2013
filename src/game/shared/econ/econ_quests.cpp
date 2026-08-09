@@ -64,7 +64,7 @@ COMPILE_TIME_ASSERT( ARRAYSIZE( g_QuestPointsDefs ) == EQuestPoints_ARRAYSIZE );
 extern bool InitPerClassRandomChanceStringArray( KeyValues *pPerClassData, CRandomChanceString (&outputArray)[LOADOUT_COUNT], CUtlVector<CUtlString>* pVecErrors );
 
 #ifdef CLIENT_DLL
-CON_COMMAND( set_party_contract_progress_enabled, "Set whether or not you'd like your party memebers to be able to make progress on your Contracts along with you." )
+CON_COMMAND( set_party_contract_progress_enabled, "Set whether or not you'd like your party members to be able to make progress on your Contracts along with you." )
 {
 	if ( args.ArgC() != 2 )
 	{

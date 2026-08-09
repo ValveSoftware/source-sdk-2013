@@ -163,6 +163,7 @@ const char *GetShaderNameForTexInfo( int iTexInfo )
 
 void WorldVertexTransitionFixup( void )
 {
+
 	CUtlVector<entitySideList_t> sideList;
 	sideList.SetCount( g_MainMap->num_entities );
 	int i;
