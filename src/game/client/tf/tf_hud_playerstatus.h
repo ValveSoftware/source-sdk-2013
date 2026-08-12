@@ -84,8 +84,8 @@ private:
 	int					m_nLoadoutPosition;
 	int					m_nKillStreak;
 
-	
 	bool				m_bUsePlayerModel;
+	bool				m_bModelPanelDirty;
 };
 
 //-----------------------------------------------------------------------------

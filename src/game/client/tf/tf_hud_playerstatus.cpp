@@ -108,6 +108,7 @@ CTFHudPlayerClass::CTFHudPlayerClass( Panel *parent, const char *name ) : Editab
 	m_nKillStreak = 0;
 
 	m_bUsePlayerModel = cl_hud_playerclass_use_playermodel.GetBool();
+	m_bModelPanelDirty = false;
 
 	ListenForGameEvent( "localplayer_changedisguise" );
 	ListenForGameEvent( "post_inventory_application" );
@@ -233,10 +234,9 @@ void CTFHudPlayerClass::OnThink()
 		bPlayerClassModeChange = true;
 	}
 
-
 	bool bForceEyeUpdate = false;
 	// set our class image
-	if (	m_nClass != pPlayer->GetPlayerClass()->GetClassIndex() || bTeamChange || bCloakChange || bLoadoutPositionChange || bPlayerClassModeChange ||
+	if (	m_bModelPanelDirty || m_nClass != pPlayer->GetPlayerClass()->GetClassIndex() || bTeamChange || bCloakChange || bLoadoutPositionChange || bPlayerClassModeChange ||
 			(
 				m_nClass == TF_CLASS_SPY &&
 				(
@@ -411,6 +411,8 @@ static void HudPlayerClassUsePlayerModelDialogCallback( bool bConfirmed, void *p
 //-----------------------------------------------------------------------------
 void CTFHudPlayerClass::UpdateModelPanel()
 {
+	m_bModelPanelDirty = false;
+
 	if ( !m_bUsePlayerModel )
 	{
 		return;
@@ -547,12 +549,13 @@ void CTFHudPlayerClass::FireGameEvent( IGameEvent * event )
 	}
 	else if ( FStrEq( "post_inventory_application", pszEventName ) )
 	{
-		// Force a refresh. if this is for the local player
+		// Force a refresh if this is for the local player.
 		int iUserID = event->GetInt( "userid" );
 		C_TFPlayer* pPlayer = ToTFPlayer( C_TFPlayer::GetLocalPlayer() );
 		if ( pPlayer && pPlayer->GetUserID() == iUserID )
 		{
-			UpdateModelPanel();
+			// Prediction won't have reconciled our loadout changes yet - defer our refresh to the next time we think.
+			m_bModelPanelDirty = true;
 		}
 	}
 	else if ( FStrEq( "localplayer_pickup_weapon", pszEventName ) )
