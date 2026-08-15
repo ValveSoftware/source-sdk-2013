@@ -3849,7 +3849,7 @@ BEGIN_DATADESC( CTriggerWind )
 
 	DEFINE_FIELD( m_nSpeedCurrent, FIELD_INTEGER),
 	DEFINE_FIELD( m_nSpeedTarget,	FIELD_INTEGER),
-	DEFINE_FIELD( m_nDirBase,		FIELD_INTEGER),
+	DEFINE_KEYFIELD( m_nDirBase,	FIELD_INTEGER, "WindAngle"),
 	DEFINE_FIELD( m_nDirCurrent,	FIELD_INTEGER),
 	DEFINE_FIELD( m_nDirTarget,	FIELD_INTEGER),
 	DEFINE_FIELD( m_bSwitch,		FIELD_BOOLEAN),
@@ -3869,6 +3869,14 @@ BEGIN_DATADESC( CTriggerWind )
 
 END_DATADESC()
 
+//------------------------------------------------------------------------------
+// Purpose: Constructor for trigger_wind
+//------------------------------------------------------------------------------
+CTriggerWind::CTriggerWind()
+{
+	// assign default values
+	m_nDirBase = -1;
+}
 
 //------------------------------------------------------------------------------
 // Purpose:
@@ -3876,8 +3884,19 @@ END_DATADESC()
 void CTriggerWind::Spawn( void )
 {
 	m_bSwitch = true;
-	m_nDirBase = GetLocalAngles().y;
-
+	if (m_nDirBase >= 0)
+	{
+		// negative "WindAngle" (default) means use the old method and grab
+		// from "angles" instead (has the unintended side effect of rotating
+		// the trigger; not fixing in order to not break existing maps)
+		m_nDirBase = GetLocalAngles().y;
+	}
+	else 
+	{
+		// rotate wind to match brush rotation. fixes rotated instances,
+		// as long as they're only rotated around Z (yaw) axis
+		m_nDirBase += (GetLocalAngles().y);
+	}
 	BaseClass::Spawn();
 
 	m_nSpeedCurrent = m_nSpeedBase;
