@@ -3821,6 +3821,7 @@ public:
 	// Input handlers
 	void	InputEnable( inputdata_t &inputdata );
 	void	InputSetSpeed( inputdata_t &inputdata );
+	void	InputSetWindAngle( inputdata_t &inputdata);
 
 private:
 	int 	m_nSpeedBase;	// base line for how hard the wind blows
@@ -3866,6 +3867,7 @@ BEGIN_DATADESC( CTriggerWind )
 	DEFINE_FUNCTION( WindThink ),
 
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetSpeed", InputSetSpeed ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetWindAngle", InputSetWindAngle ),
 
 END_DATADESC()
 
@@ -4074,6 +4076,14 @@ void CTriggerWind::InputSetSpeed( inputdata_t &inputdata )
 	m_bSwitch = true;
 }
 
+//------------------------------------------------------------------------------
+// Purpose: set new wind angle and mark to switch next think
+//------------------------------------------------------------------------------
+void CTriggerWind::InputSetWindAngle( inputdata_t &inputdata )
+{
+	m_nDirBase = (inputdata.value.int() + GetLocalAngles().y);
+	m_bSwitch = true;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Draw any debug text overlays
