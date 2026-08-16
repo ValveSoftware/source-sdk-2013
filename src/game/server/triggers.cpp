@@ -4081,7 +4081,7 @@ void CTriggerWind::InputSetSpeed( inputdata_t &inputdata )
 //------------------------------------------------------------------------------
 void CTriggerWind::InputSetWindAngle( inputdata_t &inputdata )
 {
-	m_nDirBase = (inputdata.value.int() + GetLocalAngles().y);
+	m_nDirBase = (inputdata.value.Int() + GetLocalAngles().y);
 	m_bSwitch = true;
 }
 
