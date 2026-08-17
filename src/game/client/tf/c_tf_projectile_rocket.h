@@ -34,6 +34,7 @@ public:
 
 private:
 	bool	m_bCritical;
+	bool	m_bCreatedTrails;
 
 	CNewParticleEffect	*pEffect;
 };
