@@ -17986,6 +17986,11 @@ void CTFPlayer::Taunt( taunts_t iTauntIndex, int iTauntConcept )
 		}
 		else if ( !V_stricmp( szResponse, "scenes/player/pyro/low/taunt_bubbles.vcd" ) )
 		{
+			CTFWeaponBase* pWeapon = GetActiveTFWeapon();
+			if (pWeapon)
+			{
+				pWeapon->SetIsBeingRepurposedForTaunt(true);
+			}
 			m_flTauntAttackTime = gpGlobals->curtime + 3.0f;
 			m_iTauntAttack = TAUNTATK_PYRO_ARMAGEDDON;
 
@@ -18102,6 +18107,11 @@ void CTFPlayer::Taunt( taunts_t iTauntIndex, int iTauntConcept )
 	{
 		if ( !V_stricmp( szResponse, "scenes/player/engineer/low/taunt07.vcd" ) )
 		{
+			CTFWeaponBase* pWeapon = GetActiveTFWeapon();
+			if (pWeapon)
+			{
+				pWeapon->SetIsBeingRepurposedForTaunt(true);
+			}
 			m_flTauntAttackTime = gpGlobals->curtime + 3.695f;
 			m_iTauntAttack = TAUNTATK_ENGINEER_GUITAR_SMASH;
 		}
