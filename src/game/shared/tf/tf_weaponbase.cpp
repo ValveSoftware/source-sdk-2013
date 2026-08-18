@@ -3374,7 +3374,7 @@ void CTFWeaponBase::UpdateAttachmentModels( void )
 						{
 							attachedmodel_t	*pModel = pItemDef->GetAttachedModelDataFestivized( iTeamNumber, i );
 
-							int iModelIndex = modelinfo->GetModelIndex( pModel->m_pszModelName );
+							int iModelIndex = modelinfo->GetModelIndex(GameRules() ? GameRules()->TranslateEffectForVisionFilter("weapons", pModel->m_pszModelName) : pModel->m_pszModelName);
 							if ( iModelIndex >= 0 )
 							{
 								AttachedModelData_t attachedModelData;

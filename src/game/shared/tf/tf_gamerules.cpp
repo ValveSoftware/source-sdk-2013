@@ -17410,13 +17410,17 @@ void CTFGameRules::SetUpVisionFilterKeyValues( void )
 	// No special vision
 	pKVFlag = new KeyValues( "0" );
 	pKVFlag->SetString( "models/weapons/c_models/c_rainblower/c_rainblower.mdl", "models/weapons/c_models/c_flamethrower/c_flamethrower.mdl" );
-	pKVFlag->SetString( "models/weapons/c_models/c_lollichop/c_lollichop.mdl", "models/weapons/w_models/w_fireaxe.mdl" );
+	pKVFlag->SetString( "models/weapons/c_models/c_lollichop/c_lollichop.mdl", "models/weapons/c_models/c_fireaxe_pyro/c_fireaxe_pyro.mdl" );
+	pKVFlag->SetString( "models/weapons/c_models/c_rainblower/c_rainblower_festivizer.mdl", "models/weapons/c_models/c_flamethrower/c_flamethrower_festivizer.mdl" );
+	pKVFlag->SetString( "models/weapons/c_models/c_lollichop/c_lollichop_festivizer.mdl", "models/weapons/c_models/c_fireaxe_pyro/c_fireaxe_pyro_festivizer.mdl" );
 	pKVBlock->AddSubKey( pKVFlag );
 
 	// Pyrovision
 	pKVFlag = new KeyValues( "1" );
 	pKVFlag->SetString( "models/weapons/c_models/c_rainblower/c_rainblower.mdl", "models/weapons/c_models/c_rainblower/c_rainblower.mdl" );		//explicit set for pyrovision
 	pKVFlag->SetString( "models/weapons/c_models/c_lollichop/c_lollichop.mdl", "models/weapons/c_models/c_lollichop/c_lollichop.mdl" );
+	pKVFlag->SetString( "models/weapons/c_models/c_rainblower/c_rainblower_festivizer.mdl", "models/weapons/c_models/c_rainblower/c_rainblower_festivizer.mdl" );
+	pKVFlag->SetString( "models/weapons/c_models/c_lollichop/c_lollichop_festivizer.mdl", "models/weapons/c_models/c_lollichop/c_lollichop_festivizer.mdl" );
 
 	pKVFlag->SetString( "models/player/items/demo/demo_bombs.mdl", "models/player/items/all_class/mtp_bottle_demo.mdl" );
 	pKVFlag->SetString( "models/player/items/pyro/xms_pyro_bells.mdl", "models/player/items/all_class/mtp_bottle_pyro.mdl" );
