@@ -2112,19 +2112,11 @@ void CWeaponMedigun::StopChargeEffect( bool bImmediately )
 void CWeaponMedigun::ManageChargeEffect( void )
 {
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	C_BaseEntity *pEffectOwner = this;
 
 	if ( pLocalPlayer == NULL )
 		return;
 
-	if ( pLocalPlayer == GetTFPlayerOwner() )
-	{
-		pEffectOwner = pLocalPlayer->GetRenderedWeaponModel();
-		if ( !pEffectOwner )
-		{
-			return;
-		}
-	}
+	C_BaseEntity *pEffectOwner = GetAppropriateWorldOrViewModel();
 
 	bool bOwnerTaunting = false;
 
@@ -2335,7 +2327,8 @@ void CWeaponMedigun::ClientThink()
 	}
 
 	// If the rendered weapon has changed, we need to update our particles
-	if ( m_hHealingTargetEffect.pOwner && pFiringPlayer->GetRenderedWeaponModel() != m_hHealingTargetEffect.pOwner )
+	if ( m_hHealingTargetEffect.pOwner
+		&& GetAppropriateWorldOrViewModel() != m_hHealingTargetEffect.pOwner )
 	{
 		ForceHealingTargetUpdate();
 	}
@@ -2356,11 +2349,7 @@ void CWeaponMedigun::UpdateEffects( void )
 		return;
 
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	C_BaseEntity *pEffectOwner = this;
-	if ( pLocalPlayer == pFiringPlayer )
-	{
-		pEffectOwner = pLocalPlayer->GetRenderedWeaponModel();
-	}
+	C_BaseEntity *pEffectOwner = GetAppropriateWorldOrViewModel();
 
 	// If we're still healing and our owner changed, then we did something
 	// like changed 
