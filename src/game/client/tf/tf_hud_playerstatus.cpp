@@ -443,10 +443,11 @@ void CTFHudPlayerClass::UpdateModelPanel()
 
 	if ( m_pPlayerModelPanel && m_pPlayerModelPanel->IsVisible() )
 	{
+		m_pPlayerModelPanel->ClearCarriedItems();
+
 		int nClass;
 		int nTeam;
 		int nItemSlot = m_nLoadoutPosition;
-		CEconItemView *pWeapon = NULL;
 
 		bool bDisguised = pPlayer->m_Shared.InCond( TF_COND_DISGUISED );
 		if ( bDisguised )
@@ -457,10 +458,11 @@ void CTFHudPlayerClass::UpdateModelPanel()
 			if ( pPlayer->m_Shared.GetDisguiseWeapon() )
 			{
 				CAttributeContainer *pCont = pPlayer->m_Shared.GetDisguiseWeapon()->GetAttributeContainer();
-				pWeapon = pCont ? pCont->GetItem() : NULL;
+				CEconItemView *pWeapon = pCont ? pCont->GetItem() : NULL;
 				if ( pWeapon )
 				{
 					nItemSlot = pWeapon->GetStaticData()->GetLoadoutSlot( nClass );
+					m_pPlayerModelPanel->AddCarriedItem( pWeapon );
 				}
 			}
 		}
@@ -469,21 +471,24 @@ void CTFHudPlayerClass::UpdateModelPanel()
 			nClass = pPlayer->GetPlayerClass()->GetClassIndex();
 			nTeam = pPlayer->GetTeamNumber();
 
-			CTFWeaponBase *pEnt = dynamic_cast< CTFWeaponBase* >( pPlayer->GetEntityForLoadoutSlot( nItemSlot ) );
-			if ( pEnt )
+			for ( int wpn = 0; wpn < pPlayer->WeaponCount(); wpn++ )
 			{
-				pWeapon = pEnt->GetAttributeContainer()->GetItem();
+				C_TFWeaponBase *pWpn = dynamic_cast<C_TFWeaponBase *>( pPlayer->GetWeapon( wpn ) );
+				if ( !pWpn )
+					continue;
+
+				CAttributeContainer *pCont = pWpn->GetAttributeContainer();
+				CEconItemView *pEconItemView = pCont ? pCont->GetItem() : NULL;
+
+				if ( pEconItemView && pEconItemView->IsValid() )
+				{
+					m_pPlayerModelPanel->AddCarriedItem( pEconItemView );
+				}
 			}
 		}
 
-		m_pPlayerModelPanel->ClearCarriedItems();
 		m_pPlayerModelPanel->SetToPlayerClass( nClass );
 		m_pPlayerModelPanel->SetTeam( nTeam );
-
-		if ( pWeapon )
-		{
-			m_pPlayerModelPanel->AddCarriedItem( pWeapon );
-		}
 
 		for ( int wbl = pPlayer->GetNumWearables()-1; wbl >= 0; wbl-- )
 		{
