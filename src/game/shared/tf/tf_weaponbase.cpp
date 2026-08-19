@@ -693,6 +693,16 @@ const char *CTFWeaponBase::GetWorldModel( void ) const
 		{
 			iClass = pPlayer->GetPlayerClass()->GetClassIndex();
 			iTeam = pPlayer->GetTeamNumber();
+			
+			//if this is a disguise weapon we need the disguise target's team and class
+			if ( m_bDisguiseWeapon )
+			{
+				CTFPlayer *pDisguiseTarget = pPlayer->m_Shared.GetDisguiseTarget();
+				if ( pDisguiseTarget ) {
+					iTeam = pDisguiseTarget->GetTeamNumber();
+					iClass = pDisguiseTarget->GetPlayerClass()->GetClassIndex();
+				}
+			}
 		}
 
 		return pItem->GetPlayerDisplayModel( iClass, iTeam );
