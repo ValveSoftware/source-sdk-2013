@@ -697,11 +697,8 @@ const char *CTFWeaponBase::GetWorldModel( void ) const
 			//if this is a disguise weapon we need the disguise target's team and class
 			if ( m_bDisguiseWeapon )
 			{
-				CTFPlayer *pDisguiseTarget = pPlayer->m_Shared.GetDisguiseTarget();
-				if ( pDisguiseTarget ) {
-					iTeam = pDisguiseTarget->GetTeamNumber();
-					iClass = pDisguiseTarget->GetPlayerClass()->GetClassIndex();
-				}
+				iClass = ( pPlayer->m_Shared.GetDisguiseClass() ? pPlayer->m_Shared.GetDisguiseClass() : iClass );
+				iTeam = ( pPlayer->m_Shared.GetDisguiseTeam() ? pPlayer->m_Shared.GetDisguiseTeam() : iTeam );
 			}
 		}
 
