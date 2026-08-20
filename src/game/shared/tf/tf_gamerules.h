@@ -99,6 +99,10 @@ class CMannVsMachineUpgrades;
 extern ConVar tf_mvm_defenders_team_size;
 extern ConVar tf_mvm_max_invaders;
 
+extern ConVar tf_robot_team;
+
+extern bool IsRobotTeam( int );
+
 const int kLadder_TeamSize_6v6 = 6;
 const int kLadder_TeamSize_9v9 = 9;
 const int kLadder_TeamSize_12v12 = 12;

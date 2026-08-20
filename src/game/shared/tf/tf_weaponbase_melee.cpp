@@ -100,7 +100,7 @@ void CTFWeaponBaseMelee::Precache()
 {
 	BaseClass::Precache();
 
-	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
+	if ( tf_robot_team.GetInt() != 0 && ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() ) )
 	{
 		char szMeleeSoundStr[128] = "MVM_";
 		const char *shootsound = GetShootSound( MELEE_HIT );
@@ -570,9 +570,9 @@ bool CTFWeaponBaseMelee::OnSwingHit( trace_t &trace )
 
 		bool bPlayMvMHitOnly = false;
 		// handle hitting a robot	
-		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
+		if ( tf_robot_team.GetInt() != 0 || ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() ) )
 		{
-			if ( pTargetPlayer  && pTargetPlayer->GetTeamNumber() == TF_TEAM_PVE_INVADERS && !pTargetPlayer->IsPlayer() )
+			if ( pTargetPlayer  && ( IsRobotTeam( pTargetPlayer->GetTeamNumber() ) || ( pTargetPlayer->GetTeamNumber() == TF_TEAM_PVE_INVADERS && !pTargetPlayer->IsPlayer() ) ) )
 			{
 				bPlayMvMHitOnly = true;
 

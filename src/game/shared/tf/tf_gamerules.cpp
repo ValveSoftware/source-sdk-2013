@@ -918,6 +918,8 @@ ConVar tf_mvm_respec_credit_goal( "tf_mvm_respec_credit_goal", "2000", FCVAR_CHE
 ConVar tf_mvm_buybacks_method( "tf_mvm_buybacks_method", "0", FCVAR_REPLICATED | FCVAR_HIDDEN, "When set to 0, use the traditional, currency-based system.  When set to 1, use finite, charge-based system.", true, 0.0, true, 1.0 );
 ConVar tf_mvm_buybacks_per_wave( "tf_mvm_buybacks_per_wave", "3", FCVAR_REPLICATED | FCVAR_HIDDEN, "The fixed number of buybacks players can use per-wave." );
 
+ConVar tf_robot_team( "tf_robot_team", "1", FCVAR_GAMEDLL, "Whether to turn a given team into robots outside of Man vs Machine." );
+
 
 #ifdef GAME_DLL
 enum { kMVM_CurrencyPackMinSize = 1, };
@@ -1022,6 +1024,24 @@ bool IsCustomGameMode()
 	return IsCustomGameMode( STRING( gpGlobals->mapname ) );
 }
 #endif
+
+bool IsRobotTeam( int team )
+{
+	const int setting = tf_robot_team.GetInt();
+
+	if ( setting == 1 )
+	{
+		return true;
+	}
+	else if ( setting == 0 )
+	{
+		return false;
+	}
+	else
+	{
+		return team == setting;
+	}
+}
 
 // Fetch holiday setting taking into account convars, etc, but NOT
 // taking into consideration the current game rules, map, etc.
@@ -3550,7 +3570,7 @@ void CTFGameRules::Precache( void )
 		CMerasmus::PrecacheMerasmus();
 	}
 
-	if ( MapHasPrefix( STRING( gpGlobals->mapname ), "mvm_" ) )
+	if ( MapHasPrefix( STRING( gpGlobals->mapname ), "mvm_" ) || tf_robot_team.GetInt() != 0 )
 	{
 		CTFPlayer::PrecacheMvM();
 	}

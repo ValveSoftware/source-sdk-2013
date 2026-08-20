@@ -1221,7 +1221,7 @@ void CTFPlayer::SetGrapplingHookTarget( CBaseEntity *pTarget, bool bShouldBleed 
 //-----------------------------------------------------------------------------
 bool CTFPlayer::CanBeForcedToLaugh( void )
 {
-	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && IsBot() && ( GetTeamNumber() == TF_TEAM_PVE_INVADERS ) )
+	if ( IsRobotTeam( GetTeamNumber() ) || ( TFGameRules() && ( TFGameRules()->IsMannVsMachineMode() && IsBot() && ( GetTeamNumber() == TF_TEAM_PVE_INVADERS ) ) ) )
 		return false;
 
 	return true;
@@ -10834,7 +10834,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 			vDamagePos = WorldSpaceCenter();
 		}
 
-		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS )
+		if ( IsRobotTeam( GetTeamNumber() ) || ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS ) )
 		{
 			if ( ( IsMiniBoss() && static_cast< float >( GetHealth() ) / GetMaxHealth() > 0.3f ) || realDamage < 50 )
 			{
@@ -12420,7 +12420,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	SetGibbedOnLastDeath( bGib );
 
 	bool bIsMvMRobot = TFGameRules()->IsMannVsMachineMode() && IsBot();
-	if ( bGib && !bIsMvMRobot && IsPlayerClass( TF_CLASS_SCOUT ) && RandomInt( 1, 100 ) <= SCOUT_ADD_BIRD_ON_GIB_CHANCE )
+	if ( bGib && !bIsMvMRobot && !IsRobotTeam( GetTeamNumber() ) && IsPlayerClass( TF_CLASS_SCOUT ) && RandomInt( 1, 100 ) <= SCOUT_ADD_BIRD_ON_GIB_CHANCE )
 	{
 		Vector vecPos = WorldSpaceCenter();
 		SpawnClientsideFlyingBird( vecPos );
@@ -14721,6 +14721,22 @@ void CTFPlayer::ForceRespawn( void )
 	}
 
 	m_bSwitchedClass = false;
+
+	if ( IsRobotTeam( GetTeamNumber() ) )
+	{
+		const int nClassIndex = ( GetPlayerClass() ? GetPlayerClass()->GetClassIndex() : TF_CLASS_UNDEFINED );
+		if ( nClassIndex >= TF_CLASS_SCOUT && nClassIndex <= TF_CLASS_ENGINEER && g_pFullFileSystem->FileExists( g_szBotModels[ nClassIndex ] ) )
+			SetCustomModelWithClassAnimations( g_szBotModels[nClassIndex] );
+
+		SetBloodColor( DONT_BLEED );
+	}
+	else
+	{
+		if ( GetPlayerClass()->HasCustomModel() )
+			SetCustomModelWithClassAnimations( NULL );
+
+		SetBloodColor( BLOOD_COLOR_RED );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -15156,7 +15172,16 @@ void CTFPlayer::PainSound( const CTakeDamageInfo &info )
 			TFPlayerClassData_t *pData = GetPlayerClass()->GetData();
 			if ( pData )
 			{
-				EmitSound( pData->GetDeathSound( DEATH_SOUND_GENERIC ) );
+				int deathSound = DEATH_SOUND_GENERIC;
+				if ( IsRobotTeam( GetTeamNumber() ) || ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS ) )
+				{
+					deathSound = DEATH_SOUND_GENERIC_MVM;
+					if ( IsMiniBoss() )
+					{
+						deathSound = DEATH_SOUND_GENERIC_GIANT_MVM;
+					}
+				}
+				EmitSound( pData->GetDeathSound( deathSound ) );
 			}
 		}
 		return;
@@ -15258,7 +15283,7 @@ void CTFPlayer::DeathSound( const CTakeDamageInfo &info )
 
 	int nDeathSoundOffset = DEATH_SOUND_FIRST;
 
-	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS )
+	if ( IsRobotTeam( GetTeamNumber() ) || ( TFGameRules() && ( TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS ) ) )
 	{
 		nDeathSoundOffset = IsMiniBoss() ? DEATH_SOUND_GIANT_MVM_FIRST : DEATH_SOUND_MVM_FIRST;
 	}
@@ -15317,7 +15342,7 @@ void CTFPlayer::DeathSound( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 const char* CTFPlayer::GetSceneSoundToken( void )
 {
-	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS )
+	if ( IsRobotTeam( GetTeamNumber() ) || ( TFGameRules() && ( TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS ) ) )
 	{
 		if ( IsMiniBoss() )
 		{

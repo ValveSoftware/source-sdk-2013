@@ -1244,7 +1244,7 @@ void C_TFRagdoll::OnDataChanged( DataUpdateType_t type )
 					CreateTFHeadGib();
 					EmitSound( "TFPlayer.Decapitated" );
 
-					bool bBlood = true;
+					bool bBlood = !( pPlayer && IsRobotTeam( pPlayer->GetTeamNumber() ) );
 					if ( TFGameRules() && ( TFGameRules()->UseSillyGibs() || 
 											( TFGameRules()->IsMannVsMachineMode() && pPlayer && pPlayer->GetTeamNumber() == TF_TEAM_PVE_INVADERS ) ) )
 					{
@@ -5843,7 +5843,7 @@ bool C_TFPlayer::CanLightCigarette( void )
 	}
 
 	// don't light for MvM Spy robots
-	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS )
+	if ( IsRobotTeam( GetTeamNumber() ) || ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS ) )
 		return false;
 
 	// Don't light if we are invis.
@@ -10611,7 +10611,7 @@ void C_TFPlayer::UpdateKillStreakEffects( int iCount, bool bKillScored /* = fals
 
 void C_TFPlayer::UpdateMVMEyeGlowEffect( bool bVisible )
 {
-	if ( !TFGameRules() || !TFGameRules()->IsMannVsMachineMode() || GetTeamNumber() != TF_TEAM_PVE_INVADERS )
+	if ( !IsRobotTeam( GetTeamNumber() ) || !TFGameRules() || !TFGameRules()->IsMannVsMachineMode() || GetTeamNumber() != TF_TEAM_PVE_INVADERS )
 	{
 		return;
 	}

@@ -12041,7 +12041,7 @@ void CTFPlayer::SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalking
 const char *CTFPlayer::GetOverrideStepSound( const char *pszBaseStepSoundName )
 {
 
-	if( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS && !IsMiniBoss() && !m_Shared.InCond( TF_COND_DISGUISED ) )
+	if( IsRobotTeam( GetTeamNumber() ) || ( TFGameRules() && ( TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS && !IsMiniBoss() && !m_Shared.InCond( TF_COND_DISGUISED ) ) ) )
 	{
 		return "MVM.BotStep";
 	}
