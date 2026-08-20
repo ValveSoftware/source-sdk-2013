@@ -582,6 +582,14 @@ int CTFKatana::GetActivityWeaponRole() const
 		// demo should use act table item1
 		return TF_WPN_TYPE_ITEM1;
 	}
+	else if ( pPlayer && pPlayer->GetPlayerClass()->GetClassIndex() == TF_CLASS_SPY )
+	{
+		CTFPlayer* pDisguiseTarget = pPlayer->m_Shared.GetDisguiseTarget();
+		if ( pDisguiseTarget && pDisguiseTarget->GetPlayerClass()->GetClassIndex() == TF_CLASS_DEMOMAN ) {
+			// demo should use act table item1
+			return TF_WPN_TYPE_ITEM1;
+		}
+	}
 
 	return BaseClass::GetActivityWeaponRole();
 }
