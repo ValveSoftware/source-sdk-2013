@@ -147,7 +147,7 @@ bool CTFBotMvMEngineerIdle::ShouldAdvanceNestSpot( CTFBot *me )
 	for ( int i=0; i<me->GetObjectCount(); ++i )
 	{
 		CBaseObject *pObj = me->GetObject( i );
-		if ( pObj && pObj->GetHealth() < pObj->GetMaxHealth() )
+		if ( pObj && DoesBuildingRequireAttention( pObj ) )
 		{
 			// if the nest is under attack, don't advance the nest
 			m_reevaluateNestTimer.Start( 5.f );
@@ -215,6 +215,20 @@ void CTFBotMvMEngineerIdle::TryToDetonateStaleNest()
 	m_bTriedToDetonateStaleNest = true;
 }
 
+//---------------------------------------------------------------------------------------------
+bool CTFBotMvMEngineerIdle::DoesBuildingRequireAttention( CBaseObject *pObj )
+{
+	if ( !pObj )
+		return false;
+
+	if ( pObj->GetHealth() < pObj->GetMaxHealth() && !pObj->IsBuilding() )
+		return true; // Needs repair
+
+	if ( pObj->HasSapper() )
+		return true; // Needs sapper removed
+
+	return false;
+}
 
 //---------------------------------------------------------------------------------------------
 ActionResult< CTFBot >	CTFBotMvMEngineerIdle::Update( CTFBot *me, float interval )
@@ -316,7 +330,7 @@ ActionResult< CTFBot >	CTFBotMvMEngineerIdle::Update( CTFBot *me, float interval
 		}
 	}
 
-	if ( mySentry && mySentry->GetHealth() < mySentry->GetMaxHealth() && !mySentry->IsBuilding() )
+	if ( mySentry && DoesBuildingRequireAttention( mySentry ) )
 	{
 		// track when sentry was last hurt
 		m_sentryInjuredTimer.Start( 3.0f );
@@ -339,7 +353,7 @@ ActionResult< CTFBot >	CTFBotMvMEngineerIdle::Update( CTFBot *me, float interval
 	}
 
 	// fix teleporter if sentry is not hurt
-	if ( myTeleporter && m_sentryInjuredTimer.IsElapsed() && myTeleporter->GetHealth() < myTeleporter->GetMaxHealth() && !myTeleporter->IsBuilding() )
+	if ( myTeleporter && m_sentryInjuredTimer.IsElapsed() && DoesBuildingRequireAttention( myTeleporter ) )
 	{
 		float rangeToTeleporter = me->GetDistanceBetween( myTeleporter );
 
