@@ -2927,6 +2927,10 @@ void CTFGameStats::Event_PlayerLoadoutChanged( CTFPlayer *pPlayer, bool bForceRe
 //-----------------------------------------------------------------------------
 void CTFGameStats::Event_PlayerRevived( CTFPlayer *pPlayer )
 {
+	// Don't count revives between MvM waves
+	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && TFGameRules()->State_Get() != GR_STATE_RND_RUNNING )
+		return;
+
 	IncrementStat( pPlayer, TFSTAT_REVIVED, 1 );
 }
 
