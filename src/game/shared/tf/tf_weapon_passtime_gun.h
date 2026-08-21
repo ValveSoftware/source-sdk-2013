@@ -74,6 +74,7 @@ protected:
 	virtual const char *GetWorldModel() const OVERRIDE;
 	virtual bool SendWeaponAnim( int actBase ) OVERRIDE;
 	virtual Activity GetDrawActivity() OVERRIDE { return ACT_BALL_VM_CATCH; }
+	virtual bool	CanInspect() const OVERRIDE { return false; }
 
 	// HasPrimaryAmmo, CanBeSelected, IsEnergyWeapon:
 	// these exist to make other code have correct side-effects
