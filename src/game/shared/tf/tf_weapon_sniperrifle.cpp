@@ -45,6 +45,10 @@ void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 #define SNIPER_CHARGE_BEAM_RED		"tfc_sniper_charge_red"
 #define SNIPER_CHARGE_BEAM_BLUE		"tfc_sniper_charge_blue"
 
+ConVar tf_sniper_rifle_laser( "tf_sniper_rifle_laser", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "If set, all sniper rifles will have a laser sight, similar to Snipers in Mann Vs Machine." );
+ConVar tf_sniper_rifle_laser_min_opacity( "tf_sniper_rifle_laser_min_opacity", "0.1", FCVAR_REPLICATED | FCVAR_NOTIFY, "The minimum opacity of sniper rifle laser sights." );
+ConVar tf_sniper_rifle_laser_max_opacity( "tf_sniper_rifle_laser_max_opacity", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "The maximum opacity of sniper rifle laser sights." );
+
 #ifdef CLIENT_DLL
 ConVar tf_sniper_fullcharge_bell( "tf_sniper_fullcharge_bell", "0", FCVAR_ARCHIVE );
 #endif
@@ -1662,36 +1666,102 @@ bool CSniperDot::ShouldDraw( void )
 
 void CSniperDot::ClientThink( void )
 {
-	// snipers have laser sights in PvE mode
+	C_TFPlayer *pPlayer = ToTFPlayer( GetOwnerEntity() );
+	C_TFPlayer *pViewingPlayer = C_TFPlayer::GetLocalTFPlayer();
+
+	if ( GetSpectatorTarget() != 0 && GetSpectatorMode() == OBS_MODE_IN_EYE )
+		pViewingPlayer = ToTFPlayer( UTIL_PlayerByIndex( GetSpectatorTarget() ) );
+
+	bool bPlayerIsRobot = false;
 	if ( TFGameRules()->IsPVEModeActive() && GetTeamNumber() == TF_TEAM_PVE_INVADERS )
+		bPlayerIsRobot = true;
+
+	if ( pPlayer && ( bPlayerIsRobot || tf_sniper_rifle_laser.GetBool() ) && !( pPlayer == pViewingPlayer && pPlayer->GetFOV() < pPlayer->GetDefaultFOV() ) )
 	{
-		C_TFPlayer *pPlayer = ToTFPlayer( GetOwnerEntity() );
-		if ( pPlayer )
+		if ( !m_laserBeamEffect )
 		{
-			if ( !m_laserBeamEffect )
-			{
-				m_laserBeamEffect = ParticleProp()->Create( "laser_sight_beam", PATTACH_ABSORIGIN_FOLLOW );
-			}
-
-			if ( m_laserBeamEffect )
-			{
-				m_laserBeamEffect->SetSortOrigin( m_laserBeamEffect->GetRenderOrigin() );
-				m_laserBeamEffect->SetControlPoint( 2, Vector( 0, 0, 255 ) );
-
-				Vector vecAttachment;
-				Vector vecEndPos;
-				float flSize;
-
-				if ( pPlayer->GetAttachment( "eye_1", vecAttachment ) )
-				{
-					m_laserBeamEffect->SetControlPoint( 1, vecAttachment );
-				}
-				else if ( GetRenderingPositions( pPlayer, vecAttachment, vecEndPos, flSize ) )
-				{
-					m_laserBeamEffect->SetControlPoint( 1, vecAttachment );
-				}
-			}
+			if ( !bPlayerIsRobot )
+				m_laserBeamEffect = ParticleProp()->Create( "sniper_laser_sight_beam_muzzle", PATTACH_CUSTOMORIGIN );
+			else
+				m_laserBeamEffect = ParticleProp()->Create( "sniper_laser_sight_beam", PATTACH_CUSTOMORIGIN );
 		}
+		if ( m_laserBeamEffect )
+		{
+			m_laserBeamEffect->SetSortOrigin( m_laserBeamEffect->GetRenderOrigin() );
+
+			// Set beam color
+			Vector vecLaserBeamColor = ( GetTeamNumber() == TF_TEAM_PVE_INVADERS ) ? Vector( 0, 0, 255 ) : Vector( 255, 0, 0 );
+			m_laserBeamEffect->SetControlPoint( 2, vecLaserBeamColor );
+
+			CTFWeaponBase *pBaseWeapon = pPlayer->GetActiveTFWeapon();
+			CTFSniperRifle *pWeapon = dynamic_cast<CTFSniperRifle*>( pBaseWeapon );
+
+			// Set opacity of beam based on charge
+			if ( bPlayerIsRobot )
+				m_laserBeamEffect->SetControlPoint( 3, Vector( 1, 0, 0 ) );
+			else
+			{
+				float flLifeTime = gpGlobals->curtime - m_flChargeStartTime;
+				float flChargePerSec = TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
+
+				if ( pWeapon )
+				{
+					pWeapon->ApplyChargeSpeedModifications( flChargePerSec );
+				}
+				float flMinOpacity = clamp( tf_sniper_rifle_laser_min_opacity.GetFloat(), 0.01f, 1.0f );
+				float flMaxOpacity = clamp( tf_sniper_rifle_laser_max_opacity.GetFloat(), 0.01f, 1.0f );
+				float flStrength = RemapValClamped( flLifeTime, 0.0f, TF_WEAPON_SNIPERRIFLE_DAMAGE_MAX / flChargePerSec, flMinOpacity, flMaxOpacity );
+				if ( flStrength )
+					m_laserBeamEffect->SetControlPoint( 3, Vector( flStrength, 0, 0 ) );
+			}
+
+			// Set location of beam
+			Vector vecAttachment;
+			Vector vecEndPos;
+			float flSize;
+			matrix3x4_t attachmentToWorld;
+			int iAttachment = pWeapon->LookupAttachment( "muzzle" );
+
+			item_definition_index_t iWeaponDefIndex = pBaseWeapon->GetAttributeContainer()->GetItem()->GetItemDefIndex();
+			bool bUsingAwperHand = ( iWeaponDefIndex && iWeaponDefIndex == 851 );
+
+			if ( !bPlayerIsRobot && pWeapon && iAttachment && pWeapon->GetAttachment( iAttachment, attachmentToWorld ) )
+			{
+				Vector vecLocalOffset( 0, 0, 0 );
+					
+				// We need to hardcode an offset here because the AWPer hand's muzzle attachment is misplaced :(
+				if ( bUsingAwperHand )
+					vecLocalOffset.x = -16.f;
+
+				VectorTransform( vecLocalOffset, attachmentToWorld, vecAttachment );
+				m_laserBeamEffect->SetControlPoint( 1, vecAttachment );
+			}
+
+			else if ( bPlayerIsRobot && pPlayer->GetAttachment( "eye_1", vecAttachment ) )
+				m_laserBeamEffect->SetControlPoint( 1, vecAttachment );
+
+			else if (GetRenderingPositions( pPlayer, vecAttachment, vecEndPos, flSize ) )
+				m_laserBeamEffect->SetControlPoint( 1, vecAttachment );
+
+			Vector vecEyePos = pPlayer->EyePosition();
+			QAngle anglesEye = pPlayer->EyeAngles();
+			Vector vecDir;
+			AngleVectors( anglesEye, &vecDir );
+
+			trace_t tr;
+			CTraceFilterSimple filter( pPlayer, COLLISION_GROUP_NONE );
+			UTIL_TraceLine( vecEyePos, vecEyePos + ( vecDir * MAX_TRACE_LENGTH ), MASK_SHOT, &filter, &tr );
+
+			UTIL_ClipTraceToPlayers( vecEyePos, vecEyePos + ( vecDir * MAX_TRACE_LENGTH ), MASK_SHOT, &filter, &tr );
+
+			vecEndPos = tr.endpos + vecDir * -4;
+			m_laserBeamEffect->SetControlPoint( 0, vecEndPos );
+		}
+	}
+	else if ( m_laserBeamEffect )
+	{
+		ParticleProp()->StopEmissionAndDestroyImmediately( m_laserBeamEffect );
+		m_laserBeamEffect = NULL;
 	}
 }
 
