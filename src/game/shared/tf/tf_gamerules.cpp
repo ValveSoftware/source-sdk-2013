@@ -5665,8 +5665,11 @@ void CTFGameRules::RadiusDamage( CTFRadiusDamageInfo &info )
 				// Keep track of any enemies we damaged
 				if ( pEntity->IsPlayer() && !pEntity->InSameTeam( info.dmgInfo->GetAttacker() ) )
 				{
-					nDamageDealt+= iDamageToEntity;
-					iDamageEnemies++;
+					if (!ToTFPlayer(pEntity)->m_Shared.InCond(TF_COND_DISGUISED))
+					{
+						nDamageDealt += iDamageToEntity;
+						iDamageEnemies++;
+					}
 				}
 			}
 		}
@@ -6819,7 +6822,7 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 		{
 			int iAddCloakOnHit = 0;
 			CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFAttacker->GetActiveWeapon(), iAddCloakOnHit, add_cloak_on_hit );
-			if ( iAddCloakOnHit > 0 )
+			if ( iAddCloakOnHit > 0 && (!pVictim->m_Shared.InCond(TF_COND_DISGUISED) || (pVictim->GetHealth() - flDamage <= 0.f)))
 			{
 				pTFAttacker->m_Shared.AddToSpyCloakMeter( iAddCloakOnHit, true );
 			}
@@ -7537,12 +7540,15 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 				}
 			}
 
-			int iHypeOnDamage = 0;
-			CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFAttacker, iHypeOnDamage, hype_on_damage );
-			if ( iHypeOnDamage )
+			if (pVictim && (!pVictim->m_Shared.InCond(TF_COND_DISGUISED) || (pVictim->GetHealth() - flRealDamage <= 0.f)))
 			{
-				float flHype = RemapValClamped( flRealDamage, 1.f, 200.f, 1.f, 50.f );
-				pTFAttacker->m_Shared.SetScoutHypeMeter( Min( 100.f, flHype + pTFAttacker->m_Shared.GetScoutHypeMeter() ) );
+				int iHypeOnDamage = 0;
+				CALL_ATTRIB_HOOK_INT_ON_OTHER(pTFAttacker, iHypeOnDamage, hype_on_damage);
+				if (iHypeOnDamage)
+				{
+					float flHype = RemapValClamped(flRealDamage, 1.f, 200.f, 1.f, 50.f);
+					pTFAttacker->m_Shared.SetScoutHypeMeter(Min(100.f, flHype + pTFAttacker->m_Shared.GetScoutHypeMeter()));
+				}
 			}
 		}
 	}

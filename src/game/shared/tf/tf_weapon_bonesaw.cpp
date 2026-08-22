@@ -87,27 +87,37 @@ void CTFBonesaw::DoMeleeDamage( CBaseEntity* ent, trace_t& trace )
 			CTFPlayer *pTFOwner = ToTFPlayer( GetOwnerEntity() );
 			if ( pTFOwner && pTFOwner->GetTeamNumber() != ent->GetTeamNumber() )
 			{
-				int iDecaps = pTFOwner->m_Shared.GetDecapitations() + 1;
-
-				int iTakeHeads = 0;
-				CALL_ATTRIB_HOOK_INT( iTakeHeads, add_head_on_hit );
-				if ( iTakeHeads )
+				float MeleeDamage = 0.f;
+#ifndef CLIENT_DLL
+				int iCustomDamage = GetDamageCustom();
+				int iDmgType = DMG_MELEE | DMG_NEVERGIB | DMG_CLUB;
+				MeleeDamage = GetMeleeDamage(ent, &iDmgType, &iCustomDamage);
+#endif
+				if (!ToTFPlayer(ent)->m_Shared.InCond(TF_COND_DISGUISED) || 
+					(ent->GetHealth() - MeleeDamage <= 0.f))
 				{
-					// We hit a target, take a head
-					pTFOwner->m_Shared.SetDecapitations( iDecaps );
-					pTFOwner->TeamFortress_SetSpeed();
-				}
+					int iDecaps = pTFOwner->m_Shared.GetDecapitations() + 1;
 
-				float flPreserveUber = 0.f;
-				CALL_ATTRIB_HOOK_FLOAT( flPreserveUber, ubercharge_preserved_on_spawn_max );
-				if ( flPreserveUber )
-				{
-					pTFOwner->m_Shared.SetDecapitations( iDecaps );
-
-					CWeaponMedigun *pMedigun = dynamic_cast< CWeaponMedigun* >( pTFOwner->Weapon_OwnsThisID( TF_WEAPON_MEDIGUN ) );
-					if ( pMedigun )
+					int iTakeHeads = 0;
+					CALL_ATTRIB_HOOK_INT(iTakeHeads, add_head_on_hit);
+					if (iTakeHeads)
 					{
-						pMedigun->SetChargeLevelToPreserve( ( iDecaps * VITASAW_CHARGE_PER_HIT ) );
+						// We hit a target, take a head
+						pTFOwner->m_Shared.SetDecapitations(iDecaps);
+						pTFOwner->TeamFortress_SetSpeed();
+					}
+
+					float flPreserveUber = 0.f;
+					CALL_ATTRIB_HOOK_FLOAT(flPreserveUber, ubercharge_preserved_on_spawn_max);
+					if (flPreserveUber)
+					{
+						pTFOwner->m_Shared.SetDecapitations(iDecaps);
+
+						CWeaponMedigun* pMedigun = dynamic_cast<CWeaponMedigun*>(pTFOwner->Weapon_OwnsThisID(TF_WEAPON_MEDIGUN));
+						if (pMedigun)
+						{
+							pMedigun->SetChargeLevelToPreserve((iDecaps * VITASAW_CHARGE_PER_HIT));
+						}
 					}
 				}
 			}
