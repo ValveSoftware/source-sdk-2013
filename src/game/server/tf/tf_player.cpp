@@ -297,6 +297,8 @@ extern ConVar mp_developer;
 extern ConVar bot_mimic;
 #endif // _DEBUG || STAGING_ONLY 
 
+ConVar tf_compound_bow_taunt_loop_bug("tf_compound_bow_taunt_loop_bug", "1", FCVAR_NOTIFY, "Restore the compound bow's old taunt attack loop bug behavior when enabled");
+
 extern CBaseEntity *FindPickerEntity( CBasePlayer *pPlayer );
 extern bool CanScatterGunKnockBack( CTFWeaponBase *pWeapon, float flDamage, float flDistanceSq );
 extern bool IsCustomGameMode();
@@ -18081,7 +18083,6 @@ void CTFPlayer::Taunt( taunts_t iTauntIndex, int iTauntConcept )
 		if ( !V_stricmp( szResponse, "scenes/player/sniper/low/taunt04.vcd" ) )
 		{
 			m_flTauntAttackTime = gpGlobals->curtime + 0.85f;
-			m_flTauntNextStartTime = gpGlobals->curtime;
 			m_iTauntAttack = TAUNTATK_SNIPER_ARROW_STAB_IMPALE;
 		}
 	}
@@ -18506,6 +18507,14 @@ void CTFPlayer::DoTauntAttack( void )
 				switch ( iTauntAttack )
 				{
 				case TAUNTATK_SNIPER_ARROW_STAB_IMPALE:
+					if ( tf_compound_bow_taunt_loop_bug.GetBool() && pVictim )
+					{
+						// restore the Huntsman/Fortified Compound taunt attack loop bug staring contest duels
+						pVictim->m_flTauntNextStartTime = gpGlobals->curtime;
+					}
+					
+					// intentional fallthrough
+
 				case TAUNTATK_ENGINEER_ARM_IMPALE:
 					if ( pVictim )
 					{
