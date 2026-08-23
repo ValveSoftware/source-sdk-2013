@@ -1003,7 +1003,14 @@ void CTFPlayerModelPanel::EquipItem( CEconItemView *pItem )
 
 		if ( iAnimSlot == -1 )
 		{
-			iAnimSlot = pItemDef->GetLoadoutSlot( m_iCurrentClassIndex );
+			if (strcmp(pItemDef->GetItemClass(), "tf_weapon_katana") == 0 && m_iCurrentClassIndex == TF_CLASS_DEMOMAN)
+			{
+				iAnimSlot = TF_WPN_TYPE_ITEM2;
+			}
+			else
+			{
+				iAnimSlot = pItemDef->GetLoadoutSlot(m_iCurrentClassIndex);
+			}
 		}
 
 		const CUtlVector<const char *>& vecWeaponTypeSubstrings = GetItemSchema()->GetWeaponTypeSubstrings();
