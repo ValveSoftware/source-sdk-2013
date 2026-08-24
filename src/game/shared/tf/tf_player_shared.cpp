@@ -8316,6 +8316,8 @@ void CTFPlayerShared::CompleteDisguise( void )
 	m_pOuter->UpdateModel();
 	m_pOuter->ClearExpression();
 
+	RemoveDisguiseWeapon();
+
 	FindDisguiseTarget();
 
 	if ( GetDisguiseTarget() )

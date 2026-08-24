@@ -10436,7 +10436,7 @@ void CTFPlayer::ApplyPushFromDamage( const CTakeDamageInfo &info, Vector vecDir 
 			}
 		}
 
-		if ( TFGameRules()->GameModeUsesUpgrades() )
+		if ( TFGameRules()->IsMannVsMachineMode() )
 		{
 			if ( GetTeamNumber() == TF_TEAM_PVE_INVADERS )
 			{
@@ -10733,7 +10733,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 			{
 				int iExplosiveShot = 0;
 				CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFAttacker, iExplosiveShot, explosive_sniper_shot );
-				if ( iExplosiveShot )
+				if ( iExplosiveShot && !m_Shared.IsInvulnerable() )
 				{
 					pSniper->ExplosiveHeadShot( pTFAttacker, this );
 				}
@@ -15156,7 +15156,16 @@ void CTFPlayer::PainSound( const CTakeDamageInfo &info )
 			TFPlayerClassData_t *pData = GetPlayerClass()->GetData();
 			if ( pData )
 			{
-				EmitSound( pData->GetDeathSound( DEATH_SOUND_GENERIC ) );
+				int nDeathSound = DEATH_SOUND_GENERIC;
+				if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS )
+				{
+					nDeathSound = DEATH_SOUND_GENERIC_MVM;
+					if ( IsMiniBoss() )
+					{
+						nDeathSound = DEATH_SOUND_GENERIC_GIANT_MVM;
+					}
+				}
+				EmitSound( pData->GetDeathSound( nDeathSound ) );
 			}
 		}
 		return;
