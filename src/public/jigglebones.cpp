@@ -99,7 +99,7 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 	bool bMaxDeltaT = deltaT < thousandHZ;
 	bool bUseGoalMatrix = cl_jiggle_bone_framerate_cutoff.GetFloat() <= 0.0f || deltaT > ( 1.0f / cl_jiggle_bone_framerate_cutoff.GetFloat() );
 
-	if ( bUseGoalMatrix )
+	if ( bUseGoalMatrix && data->useGoalMatrixCount <= 0 )
 	{
 		// We hit the jiggle bone framerate cutoff. Reset the useGoalMatrixCount so we
 		//  use the goal matrix at least 32 frames and don't flash back and forth.
