@@ -176,6 +176,9 @@ ConVar tf_scout_energydrink_activation( "tf_scout_energydrink_activation", "0.0"
 ConVar tf_demoman_charge_regen_rate( "tf_demoman_charge_regen_rate", "8.3", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "" );
 ConVar tf_demoman_charge_drain_time( "tf_demoman_charge_drain_time", "1.5", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "" );
 
+ConVar tf_sniper_rifle_trails("tf_sniper_rifle_trails", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "If set, sniper rifles will leave a bullet trail after firing (1 = Machina trail, 2 = Classic trail).");
+ConVar tf_sniper_rifle_trails_forced("tf_sniper_rifle_trails_forced", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "If set, the value of tf_sniper_rifle_trails will override the trail of rifles like the Classic and Machina.");
+
 // STAGING_SPY
 ConVar tf_feign_death_duration( "tf_feign_death_duration", "3.0", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Time that feign death buffs last." );
 ConVar tf_feign_death_speed_duration( "tf_feign_death_speed_duration", "3.0", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Time that feign death speed boost last." );
@@ -10087,6 +10090,48 @@ bool CTargetOnlyFilter::ShouldHitEntity( IHandleEntity *pHandleEntity, int conte
 		return CTraceFilterSimple::ShouldHitEntity( pHandleEntity, contentsMask );
 }
 
+enum SniperTrailType_t
+{
+	SNIPER_TRAIL_NONE = 0,
+	SNIPER_TRAIL_MACHINA,
+	SNIPER_TRAIL_CLASSIC,
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: Return the correct trail to be used by a rifle.
+//-----------------------------------------------------------------------------
+SniperTrailType_t GetSniperTrailType( CTFSniperRifle *pRifle )
+{
+	if ( !pRifle )
+		return SNIPER_TRAIL_NONE;
+
+	SniperTrailType_t nativeTrail = SNIPER_TRAIL_NONE;
+
+	if ( pRifle->GetRifleType() == RIFLE_MACHINA )
+		nativeTrail = SNIPER_TRAIL_MACHINA;
+	else if ( pRifle->GetRifleType() == RIFLE_CLASSIC )
+		nativeTrail = SNIPER_TRAIL_CLASSIC;
+
+	int nSetting = tf_sniper_rifle_trails.GetInt();
+	SniperTrailType_t convarTrail = ( nSetting == 1 ) ? SNIPER_TRAIL_MACHINA :
+		( nSetting >= 2 ) ? SNIPER_TRAIL_CLASSIC :
+		SNIPER_TRAIL_NONE;
+
+	// Check for Sniper focus, the trail is an inherent feature of
+	// the ability rather than a passive attribute of the weapon.
+	if ( pRifle->GetTFPlayerOwner()->m_Shared.InCond( TF_COND_SNIPERCHARGE_RAGE_BUFF ) )
+		return SNIPER_TRAIL_MACHINA;
+
+	if ( nativeTrail != SNIPER_TRAIL_NONE )
+	{
+		// Check if trails are being forced to a certain type.
+		if ( tf_sniper_rifle_trails_forced.GetBool() && convarTrail != SNIPER_TRAIL_NONE )
+			return convarTrail;
+		return nativeTrail;
+	}
+
+	return convarTrail;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -10102,28 +10147,14 @@ void CTFPlayer::MaybeDrawRailgunBeam( IRecipientFilter *pFilter, CTFWeaponBase *
 #endif
 	Assert( pWeapon );
 
-	int iShouldFireTracer = 0;
-	CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iShouldFireTracer, sniper_fires_tracer );
+	CTFSniperRifle *pRifle = dynamic_cast<CTFSniperRifle*>( pWeapon );
+	SniperTrailType_t trailType = GetSniperTrailType( pRifle );
 
-	if ( !iShouldFireTracer )
+	if ( trailType != SNIPER_TRAIL_NONE )
 	{
-		CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iShouldFireTracer, sniper_fires_tracer_HIDDEN );
-	}
-
-	// Check for heatmaker
-	if ( !iShouldFireTracer )
-	{
-		iShouldFireTracer = m_Shared.InCond( TF_COND_SNIPERCHARGE_RAGE_BUFF ) && pWeapon && WeaponID_IsSniperRifle( pWeapon->GetWeaponID() );
-	}
-
-	if ( iShouldFireTracer )
-	{
-		const char *pParticleSystemName = pWeapon->GetTeamNumber() == TF_TEAM_BLUE ? "dxhr_sniper_rail_blue" : "dxhr_sniper_rail_red";
-		CTFSniperRifle *pRifle = dynamic_cast< CTFSniperRifle* >( pWeapon );
-		if ( pRifle && ( pRifle->GetRifleType() == RIFLE_CLASSIC ) )
-		{
-			pParticleSystemName = "tfc_sniper_distortion_trail";
-		}
+		const char *pParticleSystemName = ( trailType == SNIPER_TRAIL_MACHINA )
+			? ( pWeapon->GetTeamNumber() == TF_TEAM_BLUE ? "dxhr_sniper_rail_blue" : "dxhr_sniper_rail_red" )
+			: "tfc_sniper_distortion_trail";
 
 #ifdef GAME_DLL
 		te_tf_particle_effects_control_point_t controlPoint = { PATTACH_WORLDORIGIN, vEndPos };
