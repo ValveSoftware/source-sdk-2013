@@ -892,6 +892,8 @@ END_NETWORK_TABLE()
 
 #ifdef CLIENT_DLL
 BEGIN_PREDICTION_DATA( CWeaponPhysCannon )
+	DEFINE_PRED_FIELD( m_bActive, 		FIELD_BOOLEAN,	FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_hAttachedObject,	FIELD_EHANDLE,	FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_EffectState,	FIELD_INTEGER,	FTYPEDESC_INSENDTABLE | FTYPEDESC_NOERRORCHECK ),
 	DEFINE_PRED_FIELD( m_bOpen,			FIELD_BOOLEAN,	FTYPEDESC_INSENDTABLE | FTYPEDESC_NOERRORCHECK ),
 END_PREDICTION_DATA()
@@ -939,6 +941,8 @@ enum
 //-----------------------------------------------------------------------------
 CWeaponPhysCannon::CWeaponPhysCannon( void )
 {
+	m_bActive				= false;
+	m_hAttachedObject		= NULL;
 	m_bOpen					= false;
 	m_nChangeState			= ELEMENT_STATE_NONE;
 	m_flCheckSuppressTime	= 0.0f;
@@ -1999,12 +2003,12 @@ void CWeaponPhysCannon::UpdateObject( void )
 //-----------------------------------------------------------------------------
 void CWeaponPhysCannon::DetachObject( bool playSound, bool wasLaunched )
 {
+	if ( m_bActive == false )
+		return;
+
 #ifndef CLIENT_DLL
 	// misyl: Disable pred filtering in this server-only section.
 	CDisablePredictionFiltering disablePred;
-
-	if ( m_bActive == false )
-		return;
 
 	CHL2MP_Player *pOwner = (CHL2MP_Player *)ToBasePlayer( GetOwner() );
 	if( pOwner != NULL )
@@ -2027,10 +2031,6 @@ void CWeaponPhysCannon::DetachObject( bool playSound, bool wasLaunched )
 		pObject->SetOwnerEntity( NULL );
 	}
 
-	m_bActive = false;
-	m_hAttachedObject = NULL;
-
-	
 	if ( playSound )
 	{
 		//Play the detach sound
@@ -2038,14 +2038,18 @@ void CWeaponPhysCannon::DetachObject( bool playSound, bool wasLaunched )
 	}
 	
 #else
+	CBaseEntity *pObject = m_hAttachedObject.Get();
 
 	m_grabController.DetachEntity( wasLaunched );
 
-	if ( m_hAttachedObject )
+	if ( pObject )
 	{
-		m_hAttachedObject->VPhysicsDestroyObject();
+		pObject->VPhysicsDestroyObject();
 	}
 #endif
+
+	m_bActive = false;
+	m_hAttachedObject = NULL;
 
 	// Stop our looping sound
 	if ( GetMotorSound() )
