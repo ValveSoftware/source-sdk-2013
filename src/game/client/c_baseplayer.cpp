@@ -235,6 +235,8 @@ END_RECV_TABLE()
 
 		RecvPropInt			( RECVINFO( m_nTickBase ) ),
 		RecvPropInt			( RECVINFO( m_nNextThinkTick ) ),
+		RecvPropInt			( RECVINFO( m_afButtonDisabled ) ),
+		RecvPropInt			( RECVINFO( m_afButtonForced ) ),
 
 		RecvPropEHandle		( RECVINFO( m_hLastWeapon ) ),
 		RecvPropEHandle		( RECVINFO( m_hGroundEntity ) ),
@@ -390,6 +392,8 @@ BEGIN_PREDICTION_DATA( C_BasePlayer )
 	DEFINE_FIELD( m_afButtonLast, FIELD_INTEGER ),
 	DEFINE_FIELD( m_afButtonPressed, FIELD_INTEGER ),
 	DEFINE_FIELD( m_afButtonReleased, FIELD_INTEGER ),
+	DEFINE_PRED_FIELD( m_afButtonDisabled, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_afButtonForced, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	// DEFINE_FIELD( m_vecOldViewAngles, FIELD_VECTOR ),
 
 	// DEFINE_ARRAY( m_iOldAmmo, FIELD_INTEGER,  MAX_AMMO_TYPES ),
@@ -434,6 +438,8 @@ C_BasePlayer::C_BasePlayer() : m_iv_vecViewOffset( "C_BasePlayer::m_iv_vecViewOf
 
 	m_flPredictionErrorTime = -100;
 	m_StuckLast = 0;
+	m_afButtonDisabled = 0;
+	m_afButtonForced = 0;
 	m_bWasFrozen = false;
 
 	m_bResampleWaterSurface = true;

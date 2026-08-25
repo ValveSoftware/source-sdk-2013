@@ -888,6 +888,11 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	Q_snprintf( sz, sizeof( sz ), "runcommand%04d", ucmd->command_number );
 	PREDICTION_TRACKVALUECHANGESCOPE( sz );
 #endif
+	CUserCmd effectiveCmd( *ucmd );
+	effectiveCmd.buttons |= player->m_afButtonForced;
+	effectiveCmd.buttons &= ~player->m_afButtonDisabled;
+	ucmd = &effectiveCmd;
+
 	StartCommand( player, ucmd );
 
 	// Set globals appropriately
