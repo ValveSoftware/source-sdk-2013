@@ -45,7 +45,7 @@ public:
 	CNetworkVar( bool,				m_bThrowSatchel);
 	CNetworkVar( bool,				m_bAttachSatchel);
 	CNetworkVar( bool,				m_bAttachTripmine);
-	float				m_flWallSwitchTime;
+	CNetworkVar( float,				m_flWallSwitchTime );
 
 	void				Spawn( void );
 	void				Precache( void );
