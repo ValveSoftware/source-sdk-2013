@@ -1360,7 +1360,7 @@ void CWeaponPhysCannon::PuntVPhysics( CBaseEntity *pEntity, const Vector &vecFor
 
 #endif
 	// Add recoil
-	QAngle	recoil = QAngle( random->RandomFloat( 1.0f, 2.0f ), random->RandomFloat( -1.0f, 1.0f ), 0 );
+	QAngle	recoil = QAngle( SharedRandomFloat( "physcannonpax", 1.0f, 2.0f ), SharedRandomFloat( "physcannonpay", -1.0f, 1.0f ), 0 );
 	pOwner->ViewPunch( recoil );
 
 	//Explosion effect
