@@ -609,6 +609,7 @@ CBasePlayer::CBasePlayer( )
 	m_bLagCompensation = false;
 	m_flLaggedMovementValue = 1.0f;
 	m_StuckLast = 0;
+	m_vecWaterJumpVel.Init();
 	m_impactEnergyScale = 1.0f;
 	m_fLastPlayerTalkTime = 0.0f;
 	m_fLastPlayerTalkAttemptTime = 0.0f;
