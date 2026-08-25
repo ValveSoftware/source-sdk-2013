@@ -546,6 +546,9 @@ void CWeaponFrag::RollGrenade( CBasePlayer *pPlayer )
 
 #endif
 
+#ifndef CLIENT_DLL
+	CDisablePredictionFiltering disablePred;
+#endif
 	WeaponSound( SPECIAL1 );
 
 	// player "shoot" animation
@@ -553,4 +556,3 @@ void CWeaponFrag::RollGrenade( CBasePlayer *pPlayer )
 
 	m_bRedraw = true;
 }
-
