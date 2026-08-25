@@ -28,20 +28,39 @@ public:
 	C_FuncConveyor();
 
 	float GetConveyorSpeed() { return m_flConveyorSpeed; }
+	bool GetGroundVelocityToApply( Vector &vecGroundVel );
 
 private:
 	float m_flConveyorSpeed;
+	Vector m_vecConveyorVelocity;
+	bool m_bAffectsPlayerMovement;
 };
 
 
 IMPLEMENT_CLIENTCLASS_DT( C_FuncConveyor, DT_FuncConveyor, CFuncConveyor )
 	RecvPropFloat( RECVINFO( m_flConveyorSpeed ) ),
+	RecvPropVector( RECVINFO( m_vecConveyorVelocity ) ),
+	RecvPropBool( RECVINFO( m_bAffectsPlayerMovement ) ),
 END_RECV_TABLE()
 
 
 C_FuncConveyor::C_FuncConveyor()
 {
 	m_flConveyorSpeed = 0.0;
+	m_vecConveyorVelocity.Init();
+	m_bAffectsPlayerMovement = false;
+}
+
+bool C_FuncConveyor::GetGroundVelocityToApply( Vector &vecGroundVel )
+{
+	if ( !m_bAffectsPlayerMovement )
+	{
+		vecGroundVel.Init();
+		return false;
+	}
+
+	vecGroundVel = m_vecConveyorVelocity;
+	return true;
 }
 
 
