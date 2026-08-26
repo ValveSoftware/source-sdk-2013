@@ -1594,7 +1594,7 @@ void CBaseObject::FinishedBuilding( void )
 //-----------------------------------------------------------------------------
 void CBaseObject::SetHealth( float flHealth )
 {
-	if ( m_bCarryDeploy && (flHealth>m_iHealthOnPickup) )
+	if ( m_bCarryDeploy && (flHealth>m_iHealthOnPickup) && IsBuilding() )
 	{
 		// If we are re-deploying after being carried we shouldn't gain more health than we had
 		// on pickup until the deploy process is finished.
@@ -2962,7 +2962,7 @@ int CBaseObject::Command_Repair( CTFPlayer *pActivator, float flAmount, float fl
 	{
 		iRepairAmount = iRepairCost * flRepairToMetalRatio;
 		float flNewHealth = Min( (float)GetMaxHealth(), m_flHealth + iRepairAmount );
-		if ( m_bCarryDeploy && ( flNewHealth > m_iHealthOnPickup ) )
+		if ( m_bCarryDeploy && ( flNewHealth > m_iHealthOnPickup ) && isBuilding() )
 		{
 			// If we are re-deploying after being carried we shouldn't gain more health than we had
 			// on pickup until the deploy process is finished.
