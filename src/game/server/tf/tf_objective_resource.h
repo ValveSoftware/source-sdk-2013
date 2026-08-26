@@ -66,7 +66,8 @@ public:
 	void SetMvMPopfileName( string_t iszMvMPopfileName ) { m_iszMvMPopfileName = iszMvMPopfileName; }
 	string_t GetMvMPopfileName( void ) const { return m_iszMvMPopfileName.Get(); }
 
-	void SetMannVsMachineEventPopfileType( int nType ){ m_nMvMEventPopfileType.Set( nType ); }
+	void SetMannVsMachineEventPopfileType( int nType ) { m_nMvMEventPopfileType.Set( nType ); }
+	int GetMvMEventPopfileType(void) { return m_nMvMEventPopfileType; }
 
 	string_t GetTeleporterString() const { return m_teleporterString; }
 

@@ -2777,6 +2777,8 @@ void CTFPlayer::PrecacheMvM()
 	PrecacheModel( "models/items/currencypack_large.mdl" );
 
 	PrecacheModel( "models/bots/tw2/boss_bot/twcarrier_addon.mdl" );
+    
+	PrecacheModel( "models/player/gibs/gibs_bolt.mdl" );
 
 	PrecacheParticleSystem( "bot_impact_light" );
 	PrecacheParticleSystem( "bot_impact_heavy" );
@@ -9125,7 +9127,15 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				pRandomInternalOrgan->KeyValue( "origin", buf );
 				Q_snprintf( buf, sizeof( buf ), "%.10f %.10f %.10f", GetAbsAngles().x, GetAbsAngles().y, GetAbsAngles().z );
 				pRandomInternalOrgan->KeyValue( "angles", buf );
-				pRandomInternalOrgan->KeyValue( "model", "models/player/gibs/random_organ.mdl" );
+				if ( TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS && BloodColor() == DONT_BLEED && TFObjectiveResource()->GetMvMEventPopfileType() != MVM_EVENT_POPFILE_HALLOWEEN )
+				{
+					//robots don't have spleens....
+					pRandomInternalOrgan->KeyValue( "model", "models/player/gibs/gibs_bolt.mdl" );
+				}
+				else
+				{
+					pRandomInternalOrgan->KeyValue( "model", "models/player/gibs/random_organ.mdl" );
+				}
 				pRandomInternalOrgan->KeyValue( "fademindist", "-1" );
 				pRandomInternalOrgan->KeyValue( "fademaxdist", "0" );
 				pRandomInternalOrgan->KeyValue( "fadescale", "1" );
