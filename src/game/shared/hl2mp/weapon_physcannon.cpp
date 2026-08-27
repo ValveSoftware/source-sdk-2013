@@ -995,11 +995,36 @@ void CWeaponPhysCannon::OnRestore()
 //-----------------------------------------------------------------------------
 void CWeaponPhysCannon::UpdateOnRemove(void)
 {
+#ifdef CLIENT_DLL
+	ResetPredictedObject();
+#endif
 	DestroyEffects( );
 	BaseClass::UpdateOnRemove();
 }
 
 #ifdef CLIENT_DLL
+void CWeaponPhysCannon::ResetPredictedObject( void )
+{
+	CBaseEntity *pAttachedObject = m_hAttachedObject.Get();
+	CBaseEntity *pOldAttachedObject = m_hOldAttachedObject.Get();
+
+	m_grabController.DetachEntity( false );
+
+	if ( pAttachedObject )
+	{
+		pAttachedObject->VPhysicsDestroyObject();
+	}
+
+	if ( pOldAttachedObject && pOldAttachedObject != pAttachedObject )
+	{
+		pOldAttachedObject->VPhysicsDestroyObject();
+	}
+
+	m_bActive = false;
+	m_hAttachedObject = NULL;
+	m_hOldAttachedObject = NULL;
+}
+
 void CWeaponPhysCannon::OnDataChanged( DataUpdateType_t type )
 {
 	BaseClass::OnDataChanged( type );
@@ -1014,15 +1039,7 @@ void CWeaponPhysCannon::OnDataChanged( DataUpdateType_t type )
 
 	if ( GetOwner() == NULL )
 	{
-		if ( m_hAttachedObject )
-		{
-			m_hAttachedObject->VPhysicsDestroyObject();
-		}
-
-		if ( m_hOldAttachedObject )
-		{
-			m_hOldAttachedObject->VPhysicsDestroyObject();
-		}
+		ResetPredictedObject();
 	}
 
 	// Update effect state when out of parity with the server
@@ -3197,6 +3214,7 @@ void CWeaponPhysCannon::NotifyShouldTransmit( ShouldTransmitState_t state )
 
 	if ( state == SHOULDTRANSMIT_END )
 	{
+		ResetPredictedObject();
 		DoEffect( EFFECT_NONE );
 	}
 }
