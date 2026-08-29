@@ -24,6 +24,7 @@
 #include "halloween/merasmus/merasmus_trick_or_treat_prop.h"
 #include "tf_robot_destruction_robot.h"
 #include "tf_generic_bomb.h"
+#include "tf_weapon_compound_bow.h"
 #endif
 
 #define ENERGY_RING_DISPATCH_EFFECT			"ClientProjectile_EnergyRing"
@@ -188,6 +189,7 @@ void CTFProjectile_EnergyRing::Spawn()
 	SetRenderMode( kRenderNone	);
 	SetSolidFlags( FSOLID_TRIGGER | FSOLID_NOT_SOLID );
 	SetCollisionGroup( TFCOLLISION_GROUP_ROCKETS );
+	CollisionProp()->UseTriggerBounds(true, 24.0f, true);
 }
 
 //-----------------------------------------------------------------------------
@@ -256,6 +258,24 @@ void CTFProjectile_EnergyRing::ProjectileTouch( CBaseEntity *pOther )
 
 	if ( bCombatEntity )
 	{
+		// Light friendly Huntsman arrows with the Bison and Pomson
+		if ( pOther->IsPlayer() && pOther->InSameTeam(pOwner) )
+		{
+			CTFPlayer* pPlayer = ToTFPlayer(pOther);
+
+			// Only care about Snipers
+			if ( pPlayer->IsPlayerClass(TF_CLASS_SNIPER) )
+			{
+				// Does he have the bow?
+				CTFWeaponBase* pWpn = pPlayer->GetActiveTFWeapon();
+				if ( pWpn && pWpn->GetWeaponID() == TF_WEAPON_COMPOUND_BOW )
+				{
+					CTFCompoundBow* pBow = static_cast<CTFCompoundBow*>(pWpn);
+					pBow->SetArrowAlight(true);
+				}
+			}
+		}
+
 		// Bison projectiles shouldn't collide with friendly things
 		if ( ShouldPenetrate() && ( pOther->InSameTeam( this ) || ( gpGlobals->curtime - m_flLastHitTime ) < tf_bison_tick_time.GetFloat() ) )
 			return;
