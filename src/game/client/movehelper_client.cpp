@@ -148,6 +148,7 @@ void C_TriggerPush::ApplyPush( C_BasePlayer *pPlayer )
 		pPlayer->SetGroundEntity( NULL );
 		Vector origin = pPlayer->GetAbsOrigin();
 		origin.z += 1.0f;
+		pPlayer->SetNetworkOrigin( origin );
 		pPlayer->SetAbsOrigin( origin );
 	}
 
