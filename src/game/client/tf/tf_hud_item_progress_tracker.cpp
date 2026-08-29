@@ -57,13 +57,20 @@ void cc_contract_progress_show_update( IConVar *pConVar, const char *pOldString,
 }
 ConVar tf_contract_progress_show( "tf_contract_progress_show", "1", FCVAR_CLIENTDLL | FCVAR_DONTRECORD | FCVAR_ARCHIVE, "Settings for the contract HUD element: 0 show nothing, 1 show everything, 2 show only active contracts.", cc_contract_progress_show_update );
 ConVar tf_contract_competitive_show( "tf_contract_competitive_show", "2", FCVAR_CLIENTDLL | FCVAR_DONTRECORD | FCVAR_ARCHIVE, "Settings for the contract HUD element during competitive matches: 0 show nothing, 1 show everything, 2 show only active contracts.", cc_contract_progress_show_update );
+ConVar tf_contract_mvm_show( "tf_contract_mvm_show", "2", FCVAR_CLIENTDLL | FCVAR_DONTRECORD | FCVAR_ARCHIVE, "Settings for the contract HUD element in Mann vs Machine: 0 show nothing, 1 show everything, 2 show only active contracts.", cc_contract_progress_show_update );
 ConVar tf_contract_progress_report_item_hold_time( "tf_contract_progress_report_item_hold_time", "2", FCVAR_DEVELOPMENTONLY );
 
 
 EContractHUDVisibility GetContractHUDVisibility()
 {
-	if ( TFGameRules() && TFGameRules()->IsMatchTypeCompetitive() )
-		return (EContractHUDVisibility)tf_contract_competitive_show.GetInt();
+	if ( TFGameRules() )
+	{
+		if ( TFGameRules()->IsMatchTypeCompetitive() )
+			return (EContractHUDVisibility)tf_contract_competitive_show.GetInt();
+
+		if ( TFGameRules()->IsMannVsMachineMode() )
+			return (EContractHUDVisibility)tf_contract_mvm_show.GetInt();
+	}
 
 	return (EContractHUDVisibility)tf_contract_progress_show.GetInt();
 }
