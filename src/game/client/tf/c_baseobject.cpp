@@ -420,15 +420,18 @@ void C_BaseObject::Simulate( void )
 	}
 	else if ( !IsPlacing() && !IsCarried() && m_iLastPlacementPosValid == 0 )
 	{
-		// HACK HACK: This sentry has been placed, but was placed on the server before the client updated
+		float flPlaybackRate = GetPlaybackRate();
+
+		// HACK HACK: This object has been placed, but was placed on the server before the client updated
 		// from the carry position to see that was a valid placement.
 		// It missed its chance to set the correct activity, so we're doing it now.
-		SetActivity( ACT_OBJ_RUNNING );
+		SetActivity( IsBuilding() ? ACT_OBJ_ASSEMBLING : ACT_OBJ_RUNNING );
+		SetPlaybackRate( flPlaybackRate );
 
 		// Check if the activity was valid because it might have still been using the older placement model
 		if ( GetActivity() != ACT_INVALID )
 		{
-			// Remember to retest our placement, but don't keep forcing the running activity
+			// Remember to retest our placement, but don't keep forcing the new activity
 			m_iLastPlacementPosValid = -1;
 		}
 	}

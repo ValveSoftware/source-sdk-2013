@@ -586,7 +586,9 @@ bool CMDLPanel::SetPoseParameterByName( const char *pszName, float fValue )
 		const mstudioposeparamdesc_t &Pose = studioHdr.pPoseParameter( i );
 		if ( V_strcasecmp( pszName, Pose.pszName() ) == 0 )
 		{
-			m_PoseParameters[ i ] = fValue;
+			float ctlValue;
+			Studio_SetPoseParameter( &studioHdr, i, fValue, ctlValue );
+			m_PoseParameters[ i ] = ctlValue;
 			return true;
 		}
 	}

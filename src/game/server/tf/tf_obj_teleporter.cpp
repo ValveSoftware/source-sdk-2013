@@ -1166,6 +1166,12 @@ void CObjectTeleporter::TeleporterThink( void )
 			SetState( TELEPORTER_STATE_RECHARGING );
 
 			m_flCurrentRechargeDuration = (float)g_iTeleporterRechargeTimes[GetUpgradeLevel()];
+			if ( !m_bWasMapPlaced )
+			{
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetBuilder(), m_flCurrentRechargeDuration, mult_teleporter_recharge_rate );
+			}
+
+			m_flRechargeTime = gpGlobals->curtime + m_flCurrentRechargeDuration;
 			m_flMyNextThink = gpGlobals->curtime + m_flCurrentRechargeDuration;
 		}
 		break;

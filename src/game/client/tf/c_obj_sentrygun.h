@@ -28,6 +28,26 @@ enum
 };
 
 //-----------------------------------------------------------------------------
+// Purpose: Wrangler shield
+//-----------------------------------------------------------------------------
+class C_SentrygunShield : public C_BaseAnimating
+{
+	DECLARE_CLASS( C_SentrygunShield, C_BaseAnimating );
+
+public:
+	static C_SentrygunShield *Create( const char *pszModelName );
+
+	virtual void ClientThink();
+
+	void StartFadeOut( float flDuration );
+
+private:
+	float m_flFadeOutStartTime;
+	float m_flFadeOutEndTime;
+};
+
+
+//-----------------------------------------------------------------------------
 // Purpose: Sentry object
 //-----------------------------------------------------------------------------
 class C_ObjectSentrygun : public C_BaseObject
@@ -124,7 +144,7 @@ private:
 	bool m_bRecreateLaserBeam;
 	float m_flNextNearMissCheck;
 
-	C_LocalTempEntity *m_pTempShield;
+	CHandle<C_SentrygunShield> m_hShieldModel;
 
 	HPARTICLEFFECT  m_hSirenEffect;
 	HPARTICLEFFECT  m_hShieldEffect;

@@ -23,6 +23,7 @@
 #include <tier0/memdbgon.h>
 
 ConVar tf_explanations_charinfo_armory_panel( "tf_explanations_charinfo_armory_panel", "0", FCVAR_ARCHIVE, "Whether the user has seen explanations for this panel." );
+ConVar tf_armory_page_skip( "tf_armory_page_skip", "10", FCVAR_ARCHIVE, "Number of pages to skip in the Mann Co. Catalog", true, 1, true, 100 );
 
 const char *g_szArmoryFilterStrings[ARMFILT_TOTAL] =
 {
@@ -60,8 +61,6 @@ CArmoryPanel::CArmoryPanel(Panel *parent, const char *panelName) : vgui::Editabl
 	m_CurrentFilter = ARMFILT_ALL_ITEMS;
 	m_OldFilter = ARMFILT_ALL_ITEMS;
 	m_iFilterPage = 0;
-	m_pNextPageButton = NULL;
-	m_pPrevPageButton = NULL;
 	m_pViewSetButton = NULL;
 	m_pStoreButton = NULL;
 	m_bAllowGotoStore = false;
@@ -109,8 +108,6 @@ void CArmoryPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	m_pMouseOverItemPanel->SetBorder( pScheme->GetBorder("LoadoutItemPopupBorder") );
 
 	m_pDataTextRichText = dynamic_cast<CEconItemDetailsRichText*>( m_pDataPanel->FindChildByName( "Data_TextRichText" ) );
-	m_pNextPageButton = dynamic_cast<CExButton*>( FindChildByName("NextPageButton") );
-	m_pPrevPageButton = dynamic_cast<CExButton*>( FindChildByName("PrevPageButton") );
 	m_pViewSetButton = dynamic_cast<CExButton*>( FindChildByName("ViewSetButton") );
 	m_pStoreButton = dynamic_cast<CExButton*>( FindChildByName("StoreButton") );
 
@@ -311,26 +308,63 @@ void CArmoryPanel::OnClosing()
 //-----------------------------------------------------------------------------
 void CArmoryPanel::OnCommand( const char *command )
 {
-	if ( !Q_strnicmp( command, "prevpage", 8 ) )
+	if ( !Q_stricmp( command, "prevpage" ) )
 	{
 		if ( m_iFilterPage > 0 )
 		{
 			m_iFilterPage--;
-			UpdateItemList();
-			UpdateSelectedItem();
 		}
-		return;
-	}
-	else if ( !Q_strnicmp( command, "nextpage", 8 ) )
-	{
-		int nMaxPages = MAX( 1, ceil(m_FilteredItemList.Count() / (float)(m_iThumbnailRows * m_iThumbnailColumns)) );
-		if ( m_iFilterPage < (nMaxPages-1) )
+		else
 		{
-			m_iFilterPage++;
-			UpdateItemList();
-			UpdateSelectedItem();
+			m_iFilterPage = ceil( m_FilteredItemList.Count() / (float)( m_iThumbnailRows * m_iThumbnailColumns ) ) - 1;
 		}
-		return;
+		UpdateItemList();
+		UpdateSelectedItem();
+	}
+	else if ( !Q_stricmp( command, "prevpageskip" ) )
+	{
+		for ( int i = 0; i < tf_armory_page_skip.GetInt(); i++ )
+		{
+			if ( m_iFilterPage > 0 )
+			{
+				m_iFilterPage--;
+			}
+			else
+			{
+				m_iFilterPage = ceil( m_FilteredItemList.Count() / (float)( m_iThumbnailRows * m_iThumbnailColumns ) ) - 1;
+			}
+		}
+		UpdateItemList();
+		UpdateSelectedItem();
+	}
+	else if ( !Q_stricmp( command, "skiptostart" ) )
+	{
+		m_iFilterPage = 0;
+		UpdateItemList();
+		UpdateSelectedItem();
+	}
+	else if ( !Q_stricmp( command, "nextpage" ) )
+	{
+		m_iFilterPage++;
+		if ( m_iFilterPage > ceil( m_FilteredItemList.Count() / (float)( m_iThumbnailRows * m_iThumbnailColumns ) ) - 1 )
+		{
+			m_iFilterPage = 0;
+		}
+		UpdateItemList();
+		UpdateSelectedItem();
+	}
+	else if ( !Q_stricmp( command, "nextpageskip" ) )
+	{
+		uint32 unNumPages = ceil( m_FilteredItemList.Count() / (float)( m_iThumbnailRows * m_iThumbnailColumns ) );
+		m_iFilterPage = ( ( m_iFilterPage + tf_armory_page_skip.GetInt() ) % unNumPages );
+		UpdateItemList();
+		UpdateSelectedItem();
+	}
+	else if ( !Q_stricmp( command, "skiptoend" ) )
+	{
+		m_iFilterPage = ceil( m_FilteredItemList.Count() / (float)( m_iThumbnailRows * m_iThumbnailColumns ) ) - 1;
+		UpdateItemList();
+		UpdateSelectedItem();
 	}
 	else if ( !Q_strnicmp( command, "back", 4 ) )
 	{
@@ -366,7 +400,7 @@ void CArmoryPanel::OnCommand( const char *command )
 				ELanguage iLang = PchLanguageToELanguage( uilanguage );
 
 				char szURL[512];
-				Q_snprintf( szURL, sizeof(szURL), "http://wiki.teamfortress.com/scripts/itemredirect.php?id=%d&lang=%s", m_SelectedItem.GetItemDefIndex(), GetLanguageICUName( iLang ) );
+				Q_snprintf( szURL, sizeof( szURL ), "https://wiki.teamfortress.com/scripts/itemredirect.php?id=%d&lang=%s", m_SelectedItem.GetItemDefIndex(), GetLanguageICUName( iLang ) );
 				steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( szURL );
 
 				C_CTF_GameStats.Event_Catalog( IE_ARMORY_BROWSE_WIKI, NULL, &m_SelectedItem );
@@ -682,10 +716,6 @@ void CArmoryPanel::UpdateItemList( void )
 	int nMaxPages = MAX( 1, ceil(m_FilteredItemList.Count() / (float)(m_iThumbnailRows * m_iThumbnailColumns)) );
 	Q_snprintf(szTmp, 16, "%d/%d", m_iFilterPage+1, nMaxPages );
 	SetDialogVariable( "thumbnailpage", szTmp );
-
-	bool bNextEnabled = m_iFilterPage < (nMaxPages-1);
-	m_pNextPageButton->SetEnabled( bNextEnabled );
-	m_pPrevPageButton->SetEnabled( m_iFilterPage > 0 );
 }
 
 //-----------------------------------------------------------------------------

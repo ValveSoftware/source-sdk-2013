@@ -815,6 +815,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 
 	SendPropFloat( SENDINFO( m_flMvMLastDamageTime ), 16, SPROP_ROUNDUP ),
 	SendPropInt( SENDINFO( m_iSpawnCounter ) ),
+	SendPropBool( SENDINFO( m_bFlipViewModels ) ),
 	SendPropBool( SENDINFO( m_bArenaSpectator ) ),
 	SendPropFloat( SENDINFO( m_flHeadScale ) ),
 	SendPropFloat( SENDINFO( m_flTorsoScale ) ),
@@ -843,6 +844,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	SendPropInt( SENDINFO( m_iPlayerSkinOverride ) ),
 	SendPropBool( SENDINFO( m_bViewingCYOAPDA ) ),
 	SendPropBool( SENDINFO( m_bRegenerating ) ),
+	SendPropEHandle( SENDINFO( m_hOffHandWeapon ) ),
 END_SEND_TABLE()
 
 // -------------------------------------------------------------------------------- //
@@ -2775,6 +2777,8 @@ void CTFPlayer::PrecacheMvM()
 	PrecacheModel( "models/items/currencypack_large.mdl" );
 
 	PrecacheModel( "models/bots/tw2/boss_bot/twcarrier_addon.mdl" );
+    
+	PrecacheModel( "models/player/gibs/gibs_bolt.mdl" );
 
 	PrecacheParticleSystem( "bot_impact_light" );
 	PrecacheParticleSystem( "bot_impact_heavy" );
@@ -5949,8 +5953,9 @@ void CTFPlayer::HandleAnimEvent( animevent_t *pEvent )
 		char szAttrName[128];
 		float flVal;
 		float flDuration;
-		if ( sscanf( pEvent->options, "%s %f %f", szAttrName, &flVal, &flDuration ) == 3 )
+		if ( sscanf( pEvent->options, "%127s %f %f", szAttrName, &flVal, &flDuration ) == 3 )
 		{
+			szAttrName[ ARRAYSIZE( szAttrName ) - 1 ] = '\0';
 			Assert( flDuration > 0.f );
 			AddCustomAttribute( szAttrName, flVal, flDuration );
 		}
@@ -6868,20 +6873,29 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName, bool bAllowSpaw
 	}
 	else
 	{
-		int iTries = 20;
-		// The player has selected Random class...so let's pick one for them.
-		do{
-			// Don't let them be the same class twice in a row
-			iClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS - 1 ); // -1 to remove the civilian from the randomness
-			iTries--;
-		} while( iClass == GetPlayerClass()->GetClassIndex() || (iTries > 0 && !TFGameRules()->CanPlayerChooseClass(this,iClass)) );
+		int iChoices = 0;
+		int iClasses[ TF_LAST_NORMAL_CLASS - 1 ] = {}; // -1 to remove the civilian from the randomness
+		int iCurrentClass = GetPlayerClass()->GetClassIndex();
 
-		if ( iTries <= 0 )
+		for ( iClass = TF_FIRST_NORMAL_CLASS; iClass < TF_LAST_NORMAL_CLASS; iClass++ )
 		{
+			if ( iClass != iCurrentClass && TFGameRules()->CanPlayerChooseClass( this, iClass ) )
+			{
+				iClasses[ iChoices++ ] = iClass;
+			}
+		}
+
+		if ( !iChoices )
+		{
+			if ( TFGameRules()->CanPlayerChooseClass( this, iCurrentClass ) )
+				return;
+
 			// We failed to find a random class. Bring up the class menu again.
 			ShowViewPortPanel( ( GetTeamNumber() == TF_TEAM_RED ) ? PANEL_CLASS_RED : PANEL_CLASS_BLUE );
 			return;
 		}
+
+		iClass = iClasses[ random->RandomInt( 0, iChoices - 1 ) ];
 	}
 
 	if ( TFGameRules() && TFGameRules()->State_Get() == GR_STATE_RND_RUNNING )
@@ -7332,7 +7346,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	if ( FStrEq( pcmd, "jointeam" ) )
 	{
 		// don't let them spam the server with changes
-		if ( GetNextChangeTeamTime() > gpGlobals->curtime )
+		if ( ( GetNextChangeTeamTime() > gpGlobals->curtime ) && ( GetTeamNumber() != TEAM_UNASSIGNED ) )
 			return true;
 
 		SetNextChangeTeamTime( gpGlobals->curtime + 2.0f );  // limit to one change every 2 secs
@@ -9113,7 +9127,15 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				pRandomInternalOrgan->KeyValue( "origin", buf );
 				Q_snprintf( buf, sizeof( buf ), "%.10f %.10f %.10f", GetAbsAngles().x, GetAbsAngles().y, GetAbsAngles().z );
 				pRandomInternalOrgan->KeyValue( "angles", buf );
-				pRandomInternalOrgan->KeyValue( "model", "models/player/gibs/random_organ.mdl" );
+				if ( TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS && BloodColor() == DONT_BLEED && TFObjectiveResource()->GetMvMEventPopfileType() != MVM_EVENT_POPFILE_HALLOWEEN )
+				{
+					//robots don't have spleens....
+					pRandomInternalOrgan->KeyValue( "model", "models/player/gibs/gibs_bolt.mdl" );
+				}
+				else
+				{
+					pRandomInternalOrgan->KeyValue( "model", "models/player/gibs/random_organ.mdl" );
+				}
 				pRandomInternalOrgan->KeyValue( "fademindist", "-1" );
 				pRandomInternalOrgan->KeyValue( "fademaxdist", "0" );
 				pRandomInternalOrgan->KeyValue( "fadescale", "1" );
@@ -10424,7 +10446,7 @@ void CTFPlayer::ApplyPushFromDamage( const CTakeDamageInfo &info, Vector vecDir 
 			}
 		}
 
-		if ( TFGameRules()->GameModeUsesUpgrades() )
+		if ( TFGameRules()->IsMannVsMachineMode() )
 		{
 			if ( GetTeamNumber() == TF_TEAM_PVE_INVADERS )
 			{
@@ -10721,7 +10743,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 			{
 				int iExplosiveShot = 0;
 				CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFAttacker, iExplosiveShot, explosive_sniper_shot );
-				if ( iExplosiveShot )
+				if ( iExplosiveShot && !m_Shared.IsInvulnerable() )
 				{
 					pSniper->ExplosiveHeadShot( pTFAttacker, this );
 				}
@@ -14752,10 +14774,7 @@ void CTFPlayer::CheatImpulseCommands( int iImpulse )
 
 					pWeapon->GiveDefaultAmmo();
 
-					if ( pWeapon->IsEnergyWeapon() )
-					{
-						pWeapon->WeaponRegenerate();
-					}
+					pWeapon->WeaponRegenerate();
 				}
 
 				m_Shared.m_flRageMeter = 100.f;
@@ -15147,7 +15166,16 @@ void CTFPlayer::PainSound( const CTakeDamageInfo &info )
 			TFPlayerClassData_t *pData = GetPlayerClass()->GetData();
 			if ( pData )
 			{
-				EmitSound( pData->GetDeathSound( DEATH_SOUND_GENERIC ) );
+				int nDeathSound = DEATH_SOUND_GENERIC;
+				if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS )
+				{
+					nDeathSound = DEATH_SOUND_GENERIC_MVM;
+					if ( IsMiniBoss() )
+					{
+						nDeathSound = DEATH_SOUND_GENERIC_GIANT_MVM;
+					}
+				}
+				EmitSound( pData->GetDeathSound( nDeathSound ) );
 			}
 		}
 		return;
@@ -19123,6 +19151,30 @@ void CTFPlayer::DoTauntAttack( void )
 			pLoser->TakeDamage( CTakeDamageInfo( pWinner, pWinner, NULL, 999, DMG_GENERIC, 0 ) );
 		}
 	}
+	else if ( iTauntAttack == TAUNTATK_ENGINEER_TRICKSHOT )
+	{
+		// Engineer "Texan Trickshot" attack
+		Vector vecForward;
+		AngleVectors( EyeAngles(), &vecForward );
+		Vector vecEnd = EyePosition() + vecForward * 500;
+
+		trace_t tr;
+		UTIL_TraceLine( EyePosition(), vecEnd, ( MASK_SOLID | CONTENTS_HITBOX ), this, COLLISION_GROUP_PLAYER, &tr );
+		//		DebugDrawLine( EyePosition(), vecEnd, 0, 0, 255, true, 3.0f );
+
+		if ( tr.fraction < 1.0 )
+		{
+			CBaseEntity *pEnt = tr.m_pEnt;
+
+			if ( pEnt && pEnt->IsPlayer() && pEnt->GetTeamNumber() > LAST_SHARED_TEAM && pEnt->GetTeamNumber() != GetTeamNumber() )
+			{
+				// Launch them up a little
+				AngleVectors( QAngle( -45, m_angEyeAngles[ YAW ], 0 ), &vecForward );
+				pEnt->TakeDamage( CTakeDamageInfo( this, this, GetActiveTFWeapon(), vecForward * 25000, WorldSpaceCenter(), 500.0f, DMG_BULLET, TF_DMG_CUSTOM_TAUNTATK_TRICKSHOT ) );
+			}
+		}
+	}
+
 	// Particle Being played in VCD instead
 	//else if ( iTauntAttack == TAUNTATK_FLIP_LAND_PARTICLE )
 	//{
@@ -21572,6 +21624,7 @@ static bool SelectPartnerTaunt( const GameItemDefinition_t *pItemDef, CTFPlayer 
 {
 	static CSchemaItemDefHandle pItemDef_rpsTaunt( "RPS Taunt" );
 	static CSchemaItemDefHandle pItemDef_TauntNeckSnap( "Taunt: Neck Snap" );
+	static CSchemaItemDefHandle pItemDef_TauntBearHug( "Taunt: Bear Hug" );
 
 	CTFTauntInfo *pTauntData = pItemDef->GetTauntData();
 	if ( !pTauntData )
@@ -21620,6 +21673,13 @@ static bool SelectPartnerTaunt( const GameItemDefinition_t *pItemDef, CTFPlayer 
 
 		iInitiator = 0;
 		iReceiver = ( iReceiverClass != TF_CLASS_SOLDIER ) ? 0 : 1;
+	}
+	else if ( pItemDef == pItemDef_TauntBearHug )
+	{
+		Assert( iInitiatorSceneCount == 2 && iReceiverSceneCount > 0 );
+
+		iInitiator = 0;
+		iReceiver = ( iReceiverClass != TF_CLASS_HEAVYWEAPONS ) ? 0 : 1;
 	}
 	else
 	{

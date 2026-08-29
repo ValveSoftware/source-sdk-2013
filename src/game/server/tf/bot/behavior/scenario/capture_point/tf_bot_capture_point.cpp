@@ -95,7 +95,7 @@ ActionResult< CTFBot >	CTFBotCapturePoint::Update( CTFBot *me, float interval )
 			if ( controlPointAreas->Count() == 0 )
 			{
 				Assert( controlPointAreas->Count() );
-				Continue(); // this control point has no nav areas for bot to move around
+				return Continue(); // this control point has no nav areas for bot to move around
 			}
 
 			// move to a random spot on this control point
