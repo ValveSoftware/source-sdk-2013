@@ -10090,42 +10090,48 @@ bool CTargetOnlyFilter::ShouldHitEntity( IHandleEntity *pHandleEntity, int conte
 		return CTraceFilterSimple::ShouldHitEntity( pHandleEntity, contentsMask );
 }
 
-enum SniperTrailType_t
+enum TFSniperTrailType_t
 {
-	SNIPER_TRAIL_NONE = 0,
-	SNIPER_TRAIL_MACHINA,
-	SNIPER_TRAIL_CLASSIC,
+	TF_SNIPER_TRAIL_NONE = 0,
+	TF_SNIPER_TRAIL_MACHINA,
+	TF_SNIPER_TRAIL_CLASSIC,
 };
 
 //-----------------------------------------------------------------------------
 // Purpose: Return the correct trail to be used by a rifle.
 //-----------------------------------------------------------------------------
-SniperTrailType_t GetSniperTrailType( CTFSniperRifle *pRifle )
+static TFSniperTrailType_t GetSniperTrailType( CTFSniperRifle *pRifle )
 {
 	if ( !pRifle )
-		return SNIPER_TRAIL_NONE;
+		return TF_SNIPER_TRAIL_NONE;
 
-	SniperTrailType_t nativeTrail = SNIPER_TRAIL_NONE;
+	TFSniperTrailType_t nativeTrail = TF_SNIPER_TRAIL_NONE;
 
-	if ( pRifle->GetRifleType() == RIFLE_MACHINA )
-		nativeTrail = SNIPER_TRAIL_MACHINA;
-	else if ( pRifle->GetRifleType() == RIFLE_CLASSIC )
-		nativeTrail = SNIPER_TRAIL_CLASSIC;
+	int iShouldFireMachinaTracer = 0;
+	CALL_ATTRIB_HOOK_INT_ON_OTHER(pRifle, iShouldFireMachinaTracer, sniper_fires_tracer);
+	int iShouldFireClassicTracer = 0;
+	CALL_ATTRIB_HOOK_INT_ON_OTHER(pRifle, iShouldFireClassicTracer, sniper_fires_tracer_HIDDEN);
+
+
+	if ( iShouldFireMachinaTracer )
+		nativeTrail = TF_SNIPER_TRAIL_MACHINA;
+	else if ( iShouldFireClassicTracer )
+		nativeTrail = TF_SNIPER_TRAIL_CLASSIC;
 
 	int nSetting = tf_sniper_rifle_trails.GetInt();
-	SniperTrailType_t convarTrail = ( nSetting == 1 ) ? SNIPER_TRAIL_MACHINA :
-		( nSetting >= 2 ) ? SNIPER_TRAIL_CLASSIC :
-		SNIPER_TRAIL_NONE;
+	TFSniperTrailType_t convarTrail = ( nSetting == 1 ) ? TF_SNIPER_TRAIL_MACHINA :
+		( nSetting >= 2 ) ? TF_SNIPER_TRAIL_CLASSIC :
+		TF_SNIPER_TRAIL_NONE;
 
 	// Check for Sniper focus, the trail is an inherent feature of
 	// the ability rather than a passive attribute of the weapon.
 	if ( pRifle->GetTFPlayerOwner()->m_Shared.InCond( TF_COND_SNIPERCHARGE_RAGE_BUFF ) )
-		return SNIPER_TRAIL_MACHINA;
+		return TF_SNIPER_TRAIL_MACHINA;
 
-	if ( nativeTrail != SNIPER_TRAIL_NONE )
+	if ( nativeTrail != TF_SNIPER_TRAIL_NONE )
 	{
 		// Check if trails are being forced to a certain type.
-		if ( tf_sniper_rifle_trails_forced.GetBool() && convarTrail != SNIPER_TRAIL_NONE )
+		if ( tf_sniper_rifle_trails_forced.GetBool() && convarTrail != TF_SNIPER_TRAIL_NONE )
 			return convarTrail;
 		return nativeTrail;
 	}
@@ -10148,11 +10154,11 @@ void CTFPlayer::MaybeDrawRailgunBeam( IRecipientFilter *pFilter, CTFWeaponBase *
 	Assert( pWeapon );
 
 	CTFSniperRifle *pRifle = dynamic_cast<CTFSniperRifle*>( pWeapon );
-	SniperTrailType_t trailType = GetSniperTrailType( pRifle );
+	TFSniperTrailType_t trailType = GetSniperTrailType( pRifle );
 
-	if ( trailType != SNIPER_TRAIL_NONE )
+	if ( trailType != TF_SNIPER_TRAIL_NONE )
 	{
-		const char *pParticleSystemName = ( trailType == SNIPER_TRAIL_MACHINA )
+		const char *pParticleSystemName = ( trailType == TF_SNIPER_TRAIL_MACHINA )
 			? ( pWeapon->GetTeamNumber() == TF_TEAM_BLUE ? "dxhr_sniper_rail_blue" : "dxhr_sniper_rail_red" )
 			: "tfc_sniper_distortion_trail";
 
