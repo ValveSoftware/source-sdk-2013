@@ -105,8 +105,8 @@ bool C_TriggerPush::IsTouching( C_BasePlayer *pPlayer )
 	Ray_t ray;
 	trace_t trace;
 	ray.Init( pPlayer->GetAbsOrigin(), pPlayer->GetAbsOrigin(), pPlayer->WorldAlignMins(), pPlayer->WorldAlignMaxs() );
-	enginetrace->ClipRayToCollideable( ray, MASK_ALL, CollisionProp(), &trace );
-	return trace.startsolid;
+	enginetrace->ClipRayToCollideable( ray, MASK_SOLID, CollisionProp(), &trace );
+	return ( trace.contents & MASK_SOLID ) != 0;
 }
 
 void C_TriggerPush::ApplyPush( C_BasePlayer *pPlayer )
