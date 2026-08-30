@@ -66,7 +66,7 @@ PRECACHE_REGISTER_FN(PrecacheRing);
 
 #ifdef GAME_DLL
 ConVar tf_bison_tick_time( "tf_bison_tick_time", "0.025", FCVAR_CHEAT );
-ConVar tf_energy_ring_old_damage_mechanics( "tf_energy_ring_old_damage_mechanics", "1", FCVAR_CHEAT, "Globally use the old Pomson/Bison damage ramp-up and falloff mechanics.");
+ConVar tf_energy_ring_old_damage_mechanics( "tf_energy_ring_old_damage_mechanics", "1", FCVAR_CHEAT | FCVAR_NOTIFY, "Globally use the old Pomson/Bison damage ramp-up and falloff mechanics.");
 #endif
 
 
@@ -283,31 +283,20 @@ void CTFProjectile_EnergyRing::ProjectileTouch( CBaseEntity *pOther )
 
 		m_flLastHitTime = gpGlobals->curtime;
 
-		// Pre-July 7, 2016 Bison and Pomson damage falloff mechanics
-		const bool bOldDamage = tf_energy_ring_old_damage_mechanics.GetBool();
-
 		float flDamage = GetDamage();
-		int iDamageType = GetDamageType();
 
-		if ( bOldDamage )
+		if ( tf_energy_ring_old_damage_mechanics.GetBool() ) // Pre-July 7, 2016 Bison and Pomson damage falloff mechanics
 		{
 			const float flDistance = ( pOwner->WorldSpaceCenter() - pTrace->endpos ).Length();
-
-			if ( flDistance > 256.0f )
-			{
-				flDamage *= RemapValClamped( flDistance, 256.0f, 400.0f, 1.0f, 0.70f );
-			}
-			else
-			{
-				flDamage = GetDamage();
-			}
+			
+			flDamage *= RemapValClamped( flDistance, 256.0f, 400.0f, 1.0f, 0.70f );
 		}
 
 		const int nDamage = RoundFloatToInt( flDamage );
 
 		CTakeDamageInfo info( this, pOwner, GetLauncher(), nDamage, GetDamageType(), TF_DMG_CUSTOM_PLASMA );
 
-		if (tf_energy_ring_old_damage_mechanics.GetBool())
+		if ( tf_energy_ring_old_damage_mechanics.GetBool() )
 		{
 			info.SetDamageType( info.GetDamageType() &~( DMG_USEDISTANCEMOD | DMG_NOCLOSEDISTANCEMOD ) );
 		}
