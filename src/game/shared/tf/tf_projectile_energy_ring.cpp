@@ -270,7 +270,7 @@ void CTFProjectile_EnergyRing::ProjectileTouch( CBaseEntity *pOther )
 				CTFWeaponBase* pWpn = pPlayer->GetActiveTFWeapon();
 				if ( pWpn && pWpn->GetWeaponID() == TF_WEAPON_COMPOUND_BOW )
 				{
-					CTFCompoundBow* pBow = static_cast<CTFCompoundBow*>(pWpn);
+					CTFCompoundBow *pBow = static_cast<CTFCompoundBow*>( pWpn );
 					pBow->SetArrowAlight(true);
 				}
 			}
