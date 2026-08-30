@@ -66,7 +66,7 @@ PRECACHE_REGISTER_FN(PrecacheRing);
 
 #ifdef GAME_DLL
 ConVar tf_bison_tick_time( "tf_bison_tick_time", "0.025", FCVAR_CHEAT );
-ConVar tf_energy_ring_old_damage_mechanics( "tf_energy_ring_old_damage_mechanics", "1", FCVAR_CHEAT | FCVAR_NOTIFY, "Globally use the old Pomson/Bison damage ramp-up and falloff mechanics.");
+ConVar tf_energy_ring_old_damage_mechanics( "tf_energy_ring_old_damage_mechanics", "1", FCVAR_CHEAT | FCVAR_NOTIFY, "Globally use the old Pomson/Bison damage ramp-up and falloff mechanics." );
 #endif
 
 
@@ -190,7 +190,7 @@ void CTFProjectile_EnergyRing::Spawn()
 	SetRenderMode( kRenderNone	);
 	SetSolidFlags( FSOLID_TRIGGER | FSOLID_NOT_SOLID );
 	SetCollisionGroup( TFCOLLISION_GROUP_ROCKETS );
-	CollisionProp()->UseTriggerBounds(true, 24.0f, true);
+	CollisionProp()->UseTriggerBounds( true, 24.0f, true );
 }
 
 //-----------------------------------------------------------------------------
@@ -260,19 +260,19 @@ void CTFProjectile_EnergyRing::ProjectileTouch( CBaseEntity *pOther )
 	if ( bCombatEntity )
 	{
 		// Light friendly Huntsman arrows with the Bison and Pomson
-		if ( pOther->IsPlayer() && pOther->InSameTeam(pOwner) )
+		if ( pOther->IsPlayer() && pOther->InSameTeam( pOwner ) )
 		{
-			CTFPlayer* pPlayer = ToTFPlayer(pOther);
+			CTFPlayer* pPlayer = ToTFPlayer( pOther );
 
 			// Only care about Snipers
-			if ( pPlayer->IsPlayerClass(TF_CLASS_SNIPER) )
+			if ( pPlayer->IsPlayerClass( TF_CLASS_SNIPER ) )
 			{
 				// Does he have the bow?
 				CTFWeaponBase* pWpn = pPlayer->GetActiveTFWeapon();
 				if ( pWpn && pWpn->GetWeaponID() == TF_WEAPON_COMPOUND_BOW )
 				{
 					CTFCompoundBow *pBow = static_cast<CTFCompoundBow*>( pWpn );
-					pBow->SetArrowAlight(true);
+					pBow->SetArrowAlight( true );
 				}
 			}
 		}
