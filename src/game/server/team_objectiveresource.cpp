@@ -56,7 +56,7 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE(CBaseTeamObjectiveResource, DT_BaseTeamObjective
 	SendPropArray3( SENDINFO_ARRAY3(m_flCPTimerTimes), SendPropFloat( SENDINFO_ARRAY(m_flCPTimerTimes) ) ),
 	
 	// state variables
-	SendPropArray3( SENDINFO_ARRAY3(m_iNumTeamMembers), SendPropInt( SENDINFO_ARRAY(m_iNumTeamMembers), 4, SPROP_UNSIGNED ) ),
+	SendPropArray3( SENDINFO_ARRAY3(m_iNumTeamMembers), SendPropInt( SENDINFO_ARRAY(m_iNumTeamMembers), MAX_TRANSMIT_CAPPERS_BITS, SPROP_UNSIGNED ) ),
 	SendPropArray3( SENDINFO_ARRAY3(m_iCappingTeam), SendPropInt( SENDINFO_ARRAY(m_iCappingTeam), 4, SPROP_UNSIGNED ) ),
 	SendPropArray3( SENDINFO_ARRAY3(m_iTeamInZone), SendPropInt( SENDINFO_ARRAY(m_iTeamInZone), 4, SPROP_UNSIGNED ) ),
 	SendPropArray3( SENDINFO_ARRAY3(m_bBlocked), SendPropInt( SENDINFO_ARRAY(m_bBlocked), 1, SPROP_UNSIGNED ) ),
@@ -455,7 +455,7 @@ bool CBaseTeamObjectiveResource::TeamCanCapPoint( int index, int team )
 void CBaseTeamObjectiveResource::SetNumPlayers( int index, int team, int iNumPlayers )
 {
 	AssertValidIndex(index);
-	m_iNumTeamMembers.Set( TEAM_ARRAY( index, team ), iNumPlayers );
+	m_iNumTeamMembers.Set( TEAM_ARRAY( index, team ), MIN(iNumPlayers, MAX_TRANSMIT_CAPPERS));
 	UpdateCapHudElement();
 }
 
