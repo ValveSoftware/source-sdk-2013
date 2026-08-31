@@ -1199,7 +1199,7 @@ void CTFMinigun::ItemPreFrame( void )
 	BaseClass::ItemPreFrame();
 }
 
-
+extern ConVar cl_ejectbrass;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1209,6 +1209,9 @@ void CTFMinigun::StartBrassEffect()
 
 	m_hEjectBrassWeapon = GetWeaponForEffect();
 	if ( !m_hEjectBrassWeapon )
+		return;
+
+	if ( cl_ejectbrass.GetBool() == false )
 		return;
 
 	if ( UsingViewModel() && !g_pClientMode->ShouldDrawViewModel() )
