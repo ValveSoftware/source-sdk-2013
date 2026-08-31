@@ -944,17 +944,20 @@ void CTargetID::UpdateID( void )
 							pszActionCommand = "+use_action_slot_item";
 						}
 	
+						uint32 unPaintKitIndexNum = 0;
+						bool hasPaintKitIndex = GetPaintKitDefIndex( pDroppedEconItem, &unPaintKitIndexNum );
+
 						if ( FStrEq( pDroppedEconItem->GetStaticData()->GetItemClass(), "tf_weapon_medigun" ) )
 						{
 							wchar_t wszChargeLevel[10];
 							_snwprintf( wszChargeLevel, ARRAYSIZE( wszChargeLevel ) - 1, L"%.0f", pDroppedWeapon->GetChargeLevel() * 100 );
 							wszChargeLevel[ARRAYSIZE( wszChargeLevel ) - 1] = '\0';
 
-							g_pVGuiLocalize->ConstructString_safe( sIDString, L"%s1 (%s2%)", 2, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pDroppedEconItem->GetItemDefinition(), pDroppedEconItem->GetItemQuality() ).GetFullName(), wszChargeLevel );
+							g_pVGuiLocalize->ConstructString_safe( sIDString, L"%s1 (%s2%)", 2, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pDroppedEconItem->GetItemDefinition(), true, pDroppedEconItem->GetItemQuality(), ( hasPaintKitIndex ? unPaintKitIndexNum : 0 ) ).GetFullName(), wszChargeLevel );
 						}
 						else
 						{
-							g_pVGuiLocalize->ConstructString_safe( sIDString, L"%s1", 1, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pDroppedEconItem->GetItemDefinition(), pDroppedEconItem->GetItemQuality() ).GetFullName() );
+							g_pVGuiLocalize->ConstructString_safe( sIDString, L"%s1", 1, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pDroppedEconItem->GetItemDefinition(), true, pDroppedEconItem->GetItemQuality(), ( hasPaintKitIndex ? unPaintKitIndexNum : 0 ) ).GetFullName() );
 						}
 
 						locchar_t wszPlayerName [128];
