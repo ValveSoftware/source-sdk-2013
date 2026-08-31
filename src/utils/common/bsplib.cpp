@@ -2775,7 +2775,7 @@ void WriteLumpToFile( char *filename, int lump )
 	FileHandle_t lumpfile = g_pFileSystem->Open(lumppre, "wb");
 	if ( !lumpfile )
 	{
-		Error ("Error opening %s! (Check for write enable)\n",filename);
+		Error ("Error opening %s! (Check for write enable)\n", lumppre);
 		return;
 	}
 
@@ -2793,6 +2793,8 @@ void WriteLumpToFile( char *filename, int lump )
 
 	// Write the lump
 	SafeWrite (lumpfile, (byte *)g_pBSPHeader + ofs, length);
+
+	g_pFileSystem->Close(lumpfile);
 }
 
 void	WriteLumpToFile( char *filename, int lump, int nLumpVersion, void *pBuffer, size_t nBufLen )
