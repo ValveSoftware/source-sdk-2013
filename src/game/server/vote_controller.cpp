@@ -63,6 +63,65 @@ static const int k_nKickWatchListMaxDuration = 300;
 
 static int s_nVoteIdx = 0;
 
+CON_COMMAND_F( test_vote_creation_failed, "Test vote UI", FCVAR_CHEAT )
+{
+	CBasePlayer *pPlayer = UTIL_GetCommandClient();
+	if ( !pPlayer )
+		return;
+
+	if ( args.ArgC() <= 2 )
+	{
+		ClientPrint( pPlayer, HUD_PRINTCONSOLE, "Usage: test_vote_creation_failed <reasonnum> <time> [customtext]\n" );
+		return;
+	}
+
+	vote_create_failed_t nReason = (vote_create_failed_t)Q_atoi( args[1] );
+	int nTime = Q_atoi( args[2] );
+	const char* pszCustomText = nullptr;
+	if ( args.ArgC() > 3 )
+		pszCustomText = args[3];
+
+	if ( g_voteControllerGlobal )
+		g_voteControllerGlobal->SendVoteCreationFailedMessage( nReason, pPlayer, nTime, pszCustomText );
+}
+
+CON_COMMAND_F( test_vote_pass_failed, "Test vote UI", FCVAR_CHEAT )
+{
+	CBasePlayer* pPlayer = UTIL_GetCommandClient();
+	if ( !pPlayer )
+		return;
+
+	if ( args.ArgC() <= 1 )
+	{
+		ClientPrint( pPlayer, HUD_PRINTCONSOLE, "Usage: test_vote_pass_failed <reasonnum> [customtext]\n" );
+		return;
+	}
+
+	vote_create_failed_t nReason = (vote_create_failed_t)Q_atoi( args[1] );
+	const char* pszCustomText = nullptr;
+	if (args.ArgC() > 2)
+		pszCustomText = args[2];
+
+	if ( g_voteControllerGlobal )
+	{
+		bool bCreatedVote = false;
+		if ( !g_voteControllerGlobal->IsVoteActive() )
+		{
+			if ( !g_voteControllerGlobal->CreateVote( DEDICATED_SERVER, "eternaween", "" ) )
+			{
+				ClientPrint( pPlayer, HUD_PRINTCONSOLE, "Failed to create test vote.\n" );
+				return;
+			}
+
+			bCreatedVote = true;
+		}
+
+		g_voteControllerGlobal->SendVoteFailedToPassMessage( nReason, pszCustomText );
+		if (bCreatedVote)
+			g_voteControllerGlobal->ResetData();
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -632,7 +691,7 @@ bool CVoteController::CreateVote( int iEntIndex, const char *pszTypeString, cons
 //-----------------------------------------------------------------------------
 // Purpose: The vote failed to start - let the caller know why
 //-----------------------------------------------------------------------------
-void CVoteController::SendVoteCreationFailedMessage( vote_create_failed_t nReason, CBasePlayer *pVoteCaller, int nTime /*= -1*/ )
+void CVoteController::SendVoteCreationFailedMessage( vote_create_failed_t nReason, CBasePlayer *pVoteCaller, int nTime /*= -1*/, const char* pszCustomText /*= nullptr*/ )
 {
 	Assert( pVoteCaller );
 	if ( !pVoteCaller )
@@ -648,13 +707,15 @@ void CVoteController::SendVoteCreationFailedMessage( vote_create_failed_t nReaso
 	UserMessageBegin( user, "CallVoteFailed" );
 	WRITE_BYTE( nReason );
 	WRITE_SHORT( nTime );
+	if ( pszCustomText && pszCustomText[0] )
+		WRITE_STRING( pszCustomText );
 	MessageEnd();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: The vote was called, but failed to pass - let everyone know why
 //-----------------------------------------------------------------------------
-void CVoteController::SendVoteFailedToPassMessage( vote_create_failed_t nReason )
+void CVoteController::SendVoteFailedToPassMessage( vote_create_failed_t nReason, const char* pszCustomText /*= nullptr*/ )
 {
 	Assert( m_potentialIssues[m_iActiveIssueIndex] );
 
@@ -667,6 +728,8 @@ void CVoteController::SendVoteFailedToPassMessage( vote_create_failed_t nReason 
 	WRITE_BYTE( m_iOnlyTeamToVote );
 	WRITE_LONG( m_nVoteIdx );
 	WRITE_BYTE( nReason );
+	if ( pszCustomText && pszCustomText[0] )
+		WRITE_STRING( pszCustomText );
 	MessageEnd();
 }
 
