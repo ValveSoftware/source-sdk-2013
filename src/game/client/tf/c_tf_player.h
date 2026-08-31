@@ -202,7 +202,7 @@ public:
 	// Gibs.
 	void InitPlayerGibs( void );
 	void CheckAndUpdateGibType( void );
-	void CreatePlayerGibs( const Vector &vecOrigin, const Vector &vecVelocity, float flImpactScale, bool bBurning, bool bWearableGibs=false, bool bOnlyHead=false, bool bDisguiseGibs=false );
+	void CreatePlayerGibs( const Vector &vecOrigin, const Vector &vecVelocity, float flImpactScale, bool bBurning, bool bFeignDeath=false, bool bWearableGibs=false, bool bOnlyHead=false, bool bDisguiseGibs=false );
 	void DropPartyHat( breakablepropparams_t &breakParams, Vector &vecBreakVelocity );
 	void DropWearable( C_TFWearable *pItem, const breakablepropparams_t &params );
 
@@ -1079,7 +1079,7 @@ private:
 	void Interp_Copy( C_BaseAnimatingOverlay *pSourceEntity );
 
 	void CreateTFRagdoll();
-	void CreateTFGibs( bool bDestroyRagdoll = true, bool bCurrentPosition = false );
+	void CreateTFGibs( bool bDestroyRagdoll = true );
 	void CreateWearableGibs( bool bDisguiseWearables );
 	void CreateTFHeadGib();
 
@@ -1123,6 +1123,7 @@ private:
 	float m_flPercentInvisible;
 	float m_flTimeToDissolve;
 	bool  m_bCritOnHardHit;	// plays the red mist particle effect
+	bool  m_bBombinomicon;
 	float m_flHeadScale;
 	float m_flTorsoScale;
 	float m_flHandScale;
