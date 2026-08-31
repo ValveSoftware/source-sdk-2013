@@ -312,13 +312,22 @@ public:
 	virtual void IgniteLifetime( float flFlameLifetime );
 	virtual void IgniteNumHitboxFires( int iNumHitBoxFires );
 	virtual void IgniteHitboxFireScale( float flHitboxFireScale );
-	virtual void Extinguish() { RemoveFlag( FL_ONFIRE ); }
+	virtual void Extinguish();
+
+	// VScript Bindings for Fire
+	virtual void ScriptIgnite(float flFlameLifetime, bool bNPCOnly, float flSize, bool bCalledByLevelDesigner = false) { Ignite(flFlameLifetime, bNPCOnly, flSize, bCalledByLevelDesigner); }
+	virtual void ScriptIgniteLifetime(float flFlameLifetime) { IgniteLifetime( flFlameLifetime ); }
+	virtual void ScriptIgniteNumHitboxFires(int iNumHitBoxFires) { IgniteNumHitboxFires(iNumHitBoxFires); }
+	virtual void ScriptIgniteHitboxFireScale(float flHitboxFireScale) { IgniteHitboxFireScale(flHitboxFireScale); }
+	virtual void ScriptExtinguish() { Extinguish(); }
+
 	bool IsOnFire() { return ( (GetFlags() & FL_ONFIRE) != 0 ); }
 	void Scorch( int rate, int floor );
 	void InputIgnite( inputdata_t &inputdata );
 	void InputIgniteLifetime( inputdata_t &inputdata );
 	void InputIgniteNumHitboxFires( inputdata_t &inputdata );
 	void InputIgniteHitboxFireScale( inputdata_t &inputdata );
+	void InputExtinguish( inputdata_t &inputdata );
 	void InputBecomeRagdoll( inputdata_t &inputdata );
 
 	// Dissolve, returns true if the ragdoll has been created
@@ -443,6 +452,7 @@ protected:
 
 public:
 	COutputEvent m_OnIgnite;
+	COutputEvent m_OnExtinguish;
 
 private:
 	CStudioHdr			*m_pStudioHdr;
