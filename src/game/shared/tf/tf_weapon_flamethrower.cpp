@@ -3128,19 +3128,19 @@ void CTFFlameEntity::OnCollideWithTeammate( CTFPlayer *pPlayer )
 	if ( !pPlayer->IsPlayerClass(TF_CLASS_SNIPER) )
 		return;
 
+	// Does he have the bow?
+	CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
+	if ( !pWpn || pWpn->GetWeaponID() != TF_WEAPON_COMPOUND_BOW )
+		return;
+
+	CTFCompoundBow *pBow = static_cast<CTFCompoundBow*>( pWpn );
+	pBow->SetArrowAlight( true );
+
 	int iIndex = m_hEntitiesBurnt.Find( pPlayer );
 	if ( iIndex != m_hEntitiesBurnt.InvalidIndex() )
 		return;
 
 	m_hEntitiesBurnt.AddToTail( pPlayer );
-
-	// Does he have the bow?
-	CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
-	if ( pWpn && pWpn->GetWeaponID() == TF_WEAPON_COMPOUND_BOW )
-	{
-		CTFCompoundBow *pBow = static_cast<CTFCompoundBow*>( pWpn );
-		pBow->SetArrowAlight( true );
-	}
 }
 
 //-----------------------------------------------------------------------------
