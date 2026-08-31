@@ -806,8 +806,13 @@ void CObjectDispenser::EndTouch( CBaseEntity *pOther )
 	EHANDLE hOther = pOther;
 	m_hTouchingEntities.FindAndRemove( hOther );
 
-	// remove from healing list
-	StopHealing( pOther );
+	// check if we should stop healing
+	// if pOther is touching both the dispenser and its trigger, it will be in m_hTouchingEntities twice
+	// if it's still present after one removal, it's still touching the trigger, so don't stop healing
+	if ( !m_hTouchingEntities.HasElement( hOther ) )
+	{
+		StopHealing( pOther );
+	}
 }
 
 //-----------------------------------------------------------------------------
