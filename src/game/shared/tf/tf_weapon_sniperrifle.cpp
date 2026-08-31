@@ -906,14 +906,7 @@ float CTFSniperRifle::GetProjectileDamage( void )
 //-----------------------------------------------------------------------------
 int	CTFSniperRifle::GetDamageType( void ) const
 {
-	// Only do hit location damage if we're zoomed
-	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
-	if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_ZOOMED ) )
-		return BaseClass::GetDamageType();
-
-	int nDamageType = BaseClass::GetDamageType() & ~DMG_USE_HITLOCATIONS;
-
-	return nDamageType;
+	return BaseClass::GetDamageType();
 }
 
 //-----------------------------------------------------------------------------
@@ -1041,7 +1034,7 @@ bool CTFSniperRifle::CanFireCriticalShot( bool bIsHeadshot, CBaseEntity *pTarget
 		if ( pPlayer )
 		{
 			// no crits if they're not zoomed
-			if ( pPlayer->GetFOV() >= pPlayer->GetDefaultFOV() )
+			if ( !pPlayer->m_Shared.InCond( TF_COND_ZOOMED ) )
 			{
 				return false;
 			}
