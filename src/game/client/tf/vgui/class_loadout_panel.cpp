@@ -686,6 +686,14 @@ void CClassLoadoutPanel::OnKeyCodePressed( vgui::KeyCode code )
 			OnCommand( VarArgs("change%d", nSelected ) );
 		}
 	}
+	else if ( nButtonCode == KEY_XBUTTON_X || nButtonCode == STEAMCONTROLLER_X )
+	{
+		int nSelected = GetFirstSelectedItemIndex( true );
+		if( nSelected != -1 )
+		{
+			OnCommand( VarArgs("preview%d", nSelected ) );
+		}
+	}
 	else
 	{
 		BaseClass::OnKeyCodePressed( code );
@@ -924,6 +932,23 @@ void CClassLoadoutPanel::OnItemPanelMouseReleased( vgui::Panel *panel )
 			if ( m_pItemModelPanels[i] == pItemPanel  )
 			{
 				OnCommand( VarArgs("change%d", i) );
+				return;
+			}
+		}
+	}
+}
+
+void CClassLoadoutPanel::OnItemPanelMouseRightRelease( vgui::Panel *panel )
+{
+	CItemModelPanel *pItemPanel = dynamic_cast < CItemModelPanel * > ( panel );
+
+	if ( pItemPanel && IsVisible() )
+	{
+		for ( int i = 0; i < m_pItemModelPanels.Count(); i++ )
+		{
+			if ( m_pItemModelPanels[i] == pItemPanel  )
+			{
+				OnCommand( VarArgs("preview%d", i) );
 				return;
 			}
 		}
@@ -1214,6 +1239,22 @@ void CClassLoadoutPanel::OnCommand( const char *command )
 		}
 
 		return;
+	}
+	else if ( !V_strnicmp( command, "preview", 7 ) )
+	{
+		const char *pszNum = command+7;
+		if ( pszNum && pszNum[0] )
+		{
+			int iSlot = atoi(pszNum);
+			if ( iSlot >= 0 && iSlot < CLASS_LOADOUT_POSITION_COUNT && m_iCurrentClassIndex != TF_CLASS_UNDEFINED )
+			{
+				if ( m_iCurrentSlotIndex != iSlot )
+				{
+					m_iCurrentSlotIndex = iSlot;
+					UpdateModelPanels();
+				}
+			}
+		}
 	}
 	else if ( !V_strnicmp( command, "options", 7 ) )
 	{
