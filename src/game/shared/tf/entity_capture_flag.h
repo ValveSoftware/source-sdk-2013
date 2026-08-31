@@ -332,7 +332,9 @@ public:
 	void			GetHudIcon( int nTeam, char *pchName, int nBuffSize );
 	const char		*GetPaperEffect( void );
 	void			GetTrailEffect( int nTeam, char *pchName, int nBuffSize );
-
+	string_t m_iszCaptureName;
+	string_t m_iszPickupName;
+	string_t m_iszDefendName;
 	int				GetPointValue() const { return m_nPointValue.Get(); }
 private:
 
@@ -349,7 +351,6 @@ private:
 #endif
 
 	bool			IsGlowEnabled( void ){ return m_bGlowEnabled; }
-
 private:
 
 	CNetworkVar( bool,	m_bDisabled );	// Enabled/Disabled?
