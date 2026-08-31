@@ -1345,6 +1345,7 @@ class CAchievementTFScout_LongDistanceRunner : public CBaseTFAchievement
 	virtual void ListenForEvents( void )
 	{
 		ListenForGameEvent( "player_death" );
+		ListenForGameEvent( "teamplay_round_win" );
 	}
 
 	void FireGameEvent_Internal( IGameEvent *event )
