@@ -10,6 +10,7 @@
 #include "KeyValues.h"
 #include "multiplay_gamerules.h"
 #if defined ( TF_CLIENT_DLL )
+#include "tf_gamerules.h"
 #include "tf_gc_client.h"
 #include "hud_basechat.h"
 #include "hud_chat.h"
@@ -73,6 +74,13 @@ void OpenVoiceMenu( int index )
 				pKV->deleteThis();
 				return;
 			}
+
+#ifdef TF_CLIENT_DLL
+			if ( !dynamic_cast< CTFGameRules * >( pRules )->IsPasstimeMode() )
+			{
+				pKV->RemoveSubKey( pKV->FindKey( "#Voice_Menu_AskForBall" ) );
+			}
+#endif // TF_CLIENT_DLL 
 		}
 
 		pMenu->ShowMenu_KeyValueItems( pKV );
