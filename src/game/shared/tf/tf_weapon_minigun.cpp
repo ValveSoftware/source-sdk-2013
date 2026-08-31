@@ -35,6 +35,10 @@
 #define TF_MINIGUN_SPINUP_TIME 0.75f
 #define TF_MINIGUN_PENALTY_PERIOD 1.f
 
+#ifdef CLIENT_DLL
+extern ConVar cl_muzzleflash_dlight_1st;
+#endif
+
 //=============================================================================
 //
 // Weapon Minigun tables.
@@ -365,6 +369,32 @@ void CTFMinigun::SharedAttack()
 					// NVNT the local player fired a shot. notify the haptics system.
 					if ( haptics )
 						haptics->ProcessHapticEvent(2,"Weapons","minigun_fire");
+
+
+					if ( cl_muzzleflash_dlight_1st.GetBool() == true && IsFirstPersonView() )
+					{
+						Vector vecOrigin;
+						QAngle angAngles;
+						void TE_DynamicLight( IRecipientFilter& filter, float delay,
+							const Vector* org, int r, int g, int b, int exponent, float radius, float time, float decay, int nLightIndex = LIGHT_INDEX_TE_DYNAMIC );
+
+						m_hMuzzleEffectWeapon = GetWeaponForEffect();
+
+						// Try and setup the attachment point if it doesn't already exist.
+						// This caching will mess up if we go third person from first - we only do this in taunts and don't fire so we should
+						// be okay for now.
+						if ( m_iMuzzleAttachment <= 0 )
+						{
+							m_iMuzzleAttachment = m_hMuzzleEffectWeapon->LookupAttachment( "muzzle" );
+						}
+						m_hMuzzleEffectWeapon->GetAttachment( m_iMuzzleAttachment, vecOrigin, angAngles );
+
+						if ( m_iMuzzleAttachment > 0 )
+						{
+							CLocalPlayerFilter filter;
+							TE_DynamicLight( filter, 0.0f, &vecOrigin, 255, 192, 64, 5, 70.0f, 0.2f, 70.0f / 0.2f, LIGHT_INDEX_MUZZLEFLASH );
+						}
+					}
 				}
 #endif
 				CalcIsAttackCritical();
