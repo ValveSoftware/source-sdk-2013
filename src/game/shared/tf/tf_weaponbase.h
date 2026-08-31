@@ -38,6 +38,7 @@
 #define CTFWeaponBaseGrenadeProj C_TFWeaponBaseGrenadeProj
 #include "tf_fx_muzzleflash.h"
 #include "GameEventListener.h"
+extern ConVar cl_ejectbrass;
 #endif // CLIENT_DLL
 
 #ifdef GAME_DLL
@@ -588,7 +589,7 @@ class CTFWeaponBase : public CBaseCombatWeapon, public IHasOwner, public IHasGen
 	virtual bool	AttachmentModelsShouldBeVisible( void ) OVERRIDE { return (m_iState == WEAPON_IS_ACTIVE) && !IsBeingRepurposedForTaunt(); }
 	virtual void	UpdateAttachmentModels( void ) OVERRIDE;
 
-	virtual bool ShouldEjectBrass() { return true; }
+	virtual bool ShouldEjectBrass() { return cl_ejectbrass.GetBool(); }
 
 	bool OnFireEvent( C_BaseViewModel *pViewModel, const Vector& origin, const QAngle& angles, int event, const char *options );
 
