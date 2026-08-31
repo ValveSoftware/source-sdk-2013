@@ -1322,16 +1322,19 @@ void CHL2MP_Player::Event_Killed( const CTakeDamageInfo &info )
 
 	CBaseEntity *pAttacker = info.GetAttacker();
 
-	if ( pAttacker )
+	if ( HL2MPRules()->IsTeamplay() )
 	{
-		int iScoreToAdd = 1;
-
-		if ( pAttacker == this )
+		// Check for the attacker being in team Unassigned to account
+		// for non-player attackers, which are in this team by default.
+		// In TDM, should only happen with deaths to non-player causes.
+		if ( pAttacker && !pAttacker->InSameTeam( this ) && pAttacker->GetTeamNumber() != TEAM_UNASSIGNED )
 		{
-			iScoreToAdd = -1;
+			pAttacker->GetTeam()->AddScore( 1 );
 		}
-
-		GetGlobalTeam( pAttacker->GetTeamNumber() )->AddScore( iScoreToAdd );
+		else
+		{
+			GetTeam()->AddScore( -1 );
+		}
 	}
 
 	FlashlightTurnOff();
