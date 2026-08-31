@@ -81,13 +81,13 @@ void CTFBotEngineerMoveToBuild::CollectBuildAreas( CTFBot *me )
 	{
 		CTeamTrainWatcher *trainWatcher;
 
-		if ( myTeam == TF_TEAM_BLUE )
+		if ( TFGameRules()->HasMultipleTrains() || myTeam == TF_TEAM_RED )
 		{
-			trainWatcher = TFGameRules()->GetPayloadToPush( me->GetTeamNumber() );
+			trainWatcher = TFGameRules()->GetPayloadToBlock( me->GetTeamNumber() );
 		}
 		else
 		{
-			trainWatcher = TFGameRules()->GetPayloadToBlock( me->GetTeamNumber() );
+			trainWatcher = TFGameRules()->GetPayloadToPush( me->GetTeamNumber() );
 		}
 
 		if ( trainWatcher )
