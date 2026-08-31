@@ -141,7 +141,7 @@ void CTFAmmoPack::InitAmmoPack( CTFPlayer *pPlayer, CTFWeaponBase *pWeapon, int 
 		// Fill up the ammo pack.
 		GiveAmmo( iPrimary, TF_AMMO_PRIMARY );			// Gets recalculated in PackTouch
 		GiveAmmo( iSecondary, TF_AMMO_SECONDARY );		// Gets recalculated in PackTouch
-		GiveAmmo( iMetal, TF_AMMO_METAL );
+		GiveAmmo( iMetal, TF_AMMO_METAL );              // Gets recalculated in PackTouch if it's not a building gib
 		SetHealthInstead( pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_LUNCHBOX && pPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) );
 	}
 	else
@@ -349,6 +349,16 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 
 	int iMaxSecondary = pPlayer->GetMaxAmmo(TF_AMMO_SECONDARY);
 	GiveAmmo( ceil( iMaxSecondary * m_flAmmoRatio ), TF_AMMO_SECONDARY );
+
+	// Do not scale building gibs
+	if ( GetOwnerEntity() && !GetOwnerEntity()->IsBaseObject() )
+	{
+		int iMetalRatio = pPlayer->GetMaxAmmo(TF_AMMO_METAL) / 200;
+
+		// Scale metal given
+		int iMetal = m_iAmmo[TF_AMMO_METAL] == 100 ? ceil( pPlayer->GetMaxAmmo(TF_AMMO_METAL) * m_flAmmoRatio ) : ceil( m_iAmmo[TF_AMMO_METAL] * iMetalRatio );
+		GiveAmmo( iMetal, TF_AMMO_METAL );
+	}
 
 	int iAmmoTaken = 0;
 
