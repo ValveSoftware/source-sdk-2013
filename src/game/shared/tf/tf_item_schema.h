@@ -489,6 +489,7 @@ struct MapDef_t
 	MapDef_t( const char* pszMapStampDefName )
 		: mapStampDef( pszMapStampDefName )
 		, m_nStatsIdentifier( (MapDefIndex_t)-1 )
+		, eQuickplayType( kQuickplay_Disabled )
 	{}
 
 	CSchemaItemDefHandle mapStampDef;
@@ -508,6 +509,7 @@ struct MapDef_t
 	map_identifier_t m_nStatsIdentifier;
 	map_identifier_t GetStatsIdentifier() const { return m_nStatsIdentifier == -1 ? (m_nDefIndex << 16) : m_nStatsIdentifier; }
 	bool IsCommunityMap() const { return pszAuthorsLocKey != NULL; }
+	eQuickplayMatchType eQuickplayType;
 	CUtlVector< EGameCategory > m_vecAssociatedGameCategories;
 	CUtlVector<econ_tag_handle_t>	vecTags;
 	// The rolling match tags for this map.  When a rolling match vote happens, only allow voting on

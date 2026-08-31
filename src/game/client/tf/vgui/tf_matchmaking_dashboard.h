@@ -130,6 +130,7 @@ public:
 	MESSAGE_FUNC( OnPlayMvM, "PlayMvM" );
 	MESSAGE_FUNC( OnPlayMvM_MannUp, "PlayMvM_MannUp" );
 	MESSAGE_FUNC( OnPlayMvM_BootCamp, "PlayMvM_BootCamp" );
+	MESSAGE_FUNC( OnPlayQuickplay, "PlayQuickplay" );
 	MESSAGE_FUNC( OnPlayTraining, "PlayTraining" );
 	MESSAGE_FUNC( OnPlayCommunity, "PlayCommunity" );
 	MESSAGE_FUNC( OnCreateServer, "CreateServer" );

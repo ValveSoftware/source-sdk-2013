@@ -11,6 +11,8 @@
 #include "tf_item_inventory.h"
 #include "econ_game_account_server.h"
 #include "gc_clientsystem.h"
+#include "tf_gc_client.h"
+#include "tf_partyclient.h"
 #include "tf_quickplay.h"
 
 // ui related
@@ -139,7 +141,7 @@ static bool BHasTag( const CUtlStringList &TagList, const char *tag )
 static void GetQuickplayTags( const QuickplaySearchOptions &opt, CUtlStringList &requiredTags, CUtlStringList &illegalTags )
 {
 	// Always required
-	requiredTags.CopyAndAddToTail( "_registered" );
+	// requiredTags.CopyAndAddToTail( "_registered" );
 
 	// Always illegal
 	illegalTags.CopyAndAddToTail( "friendlyfire" );
@@ -1308,7 +1310,7 @@ protected:
 		// Check if the server is registered
 		item.m_bRegistered = BHasTag( TagList, "_registered" );
 
-		const SchemaMap_t *pMapInfo = GetItemSchema()->GetMapForName( item.server.m_szMap );
+		const MapDef_t *pMapInfo = GetItemSchema()->GetMasterMapDefByName( item.server.m_szMap );
 		if ( pMapInfo != NULL )
 		{
 			item.m_bMapIsQuickPlayOK = true;
@@ -1338,7 +1340,8 @@ protected:
 			switch ( m_options.m_eSelectedGameType )
 			{
 				case kGameCategory_EventMix:
-					if ( pMapInfo->eGameCategory != kGameCategory_EventMix && pMapInfo->eGameCategory != kGameCategory_Event247 )
+					if ( !pMapInfo->m_vecAssociatedGameCategories.HasElement( kGameCategory_EventMix )
+					  && !pMapInfo->m_vecAssociatedGameCategories.HasElement( kGameCategory_Event247 ) )
 						failureCodes |= (1<<12);
 					break;
 
@@ -1348,11 +1351,12 @@ protected:
 
 				default:
 					// Must match requested game mode
-					if ( pMapInfo->eGameCategory != m_options.m_eSelectedGameType )
+					if ( !pMapInfo->m_vecAssociatedGameCategories.HasElement( m_options.m_eSelectedGameType ) )
 						failureCodes |= (1<<12);
 			}
 		}
-		if ( server.m_nPlayers >= server.m_nMaxPlayers ) failureCodes |= (1<<11);
+		int nNumInSearchParty = GTFPartyClient()->GetNumPartyMembers();
+		if ( server.m_nPlayers + nNumInSearchParty > server.m_nMaxPlayers ) failureCodes |= (1<<11);
 		if ( m_blackList.IsServerBlacklisted( server ) ) failureCodes |= (1<<10);
 
 		if ( failureCodes != 0 )
@@ -1373,7 +1377,6 @@ protected:
 
 			// Start a score based only on the server, not on us
 			int nHumans = item.server.m_nPlayers - item.server.m_nBotPlayers;
-			int nNumInSearchParty = 1; // we are a party of 1
 			item.serverScore = QuickplayCalculateServerScore( nHumans, item.server.m_nBotPlayers, item.server.m_nMaxPlayers, nNumInSearchParty );
 			item.serverScore += 6.0f; // !KLUDGE! Add offset to keep score ranges comparable with historical norms.  (We used to give bonuses for some things we now simply require.)
 
@@ -1609,17 +1612,18 @@ protected:
 	static void AddMapsFilter( CUtlVector<MatchMakingKeyValuePair_t> &vecServerFilters, EGameCategory t )
 	{
 		CUtlString sMapList;
-		for ( int i = 0 ; i < GetItemSchema()->GetMapCount() ; ++i )
+		const CUtlVector<MapDef_t*> &vecMaps = GetItemSchema()->GetMasterMapsList();
+		FOR_EACH_VEC( vecMaps, i )
 		{
-			const SchemaMap_t& map = GetItemSchema()->GetMapForIndex( i );
-			int mapType = map.eGameCategory;
-			if ( ( mapType == t )  || ( ( mapType == kGameCategory_Event247 ) && ( t == kGameCategory_EventMix ) ) )
+			const MapDef_t *pMapDef = vecMaps[i];
+			if ( pMapDef->m_vecAssociatedGameCategories.HasElement( t )
+			  || ( ( t == kGameCategory_EventMix ) && pMapDef->m_vecAssociatedGameCategories.HasElement( kGameCategory_Event247 ) ) )
 			{
 				if ( !sMapList.IsEmpty() )
 				{
 					sMapList.Append( "," );
 				}
-				sMapList.Append( map.pszMapName );
+				sMapList.Append( pMapDef->pszMapName );
 			}
 		}
 		MatchMakingKeyValuePair_t kludge;
@@ -2847,22 +2851,20 @@ protected:
 			int nNumForThisMode = 0;
 
 			// Go through each of the modes
-			for ( int j = 0 ; j < GetItemSchema()->GetMapCount(); ++j )
+			const CUtlVector<MapDef_t*> &vecMaps = GetItemSchema()->GetMasterMapsList();
+			FOR_EACH_VEC( vecMaps, j )
 			{
-				const SchemaMap_t& map = GetItemSchema()->GetMapForIndex( j );
+				const MapDef_t *pMapDef = vecMaps[j];
 
 				// Tally up maps for this mode
-				if ( map.eGameCategory == m_vecAllItems[i].gameType )
+				if ( pMapDef->m_vecAssociatedGameCategories.HasElement( m_vecAllItems[i].gameType ) )
 				{
 					nNumForThisMode++;
 
 					// Check if any of the tags has "beta" as a tag, and tally that if so
-					for( int k = 0; k < map.vecTags.Count(); ++k )
+					if ( pMapDef->vecTags.HasElement( GetItemSchema()->GetHandleForTag( "beta" ) ) )
 					{
-						if ( map.vecTags.HasElement( GetItemSchema()->GetHandleForTag( "beta" ) ) )
-						{
-							nNumWithBetaContent++;
-						}
+						nNumWithBetaContent++;
 					}
 				}
 			}
