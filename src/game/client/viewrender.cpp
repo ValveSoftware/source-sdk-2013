@@ -941,6 +941,10 @@ CViewRender::CViewRender()
 	m_pCurrentlyDrawingEntity = NULL;
 
 	m_szCurrentScriptMaterialName[0] = '\0';
+	for (int i = 0; i < MAX_SCRIPT_OVERLAYS; i++)
+	{
+		m_szCurrentScriptMaterialArrayName[i][0] = '\0';
+	}
 }
 
 
@@ -954,6 +958,12 @@ void CViewRender::LevelShutdown( void )
 
 	m_ScriptOverlayMaterial.Shutdown();
 	m_szCurrentScriptMaterialName[0] = '\0';
+
+	for (int i = 0; i < MAX_SCRIPT_OVERLAYS; i++)
+	{
+		m_ScriptOverlayMaterialArray[i].Shutdown();
+		m_szCurrentScriptMaterialArrayName[i][0] = '\0';
+	}
 }
 
 
@@ -1246,11 +1256,13 @@ void CViewRender::PerformScreenOverlay( int x, int y, int w, int h )
 		}
 	}
 
+	C_BasePlayer* pLocalPlayer = C_BasePlayer::GetLocalPlayer();
+	if ( !pLocalPlayer )
+		return;
+
 	{
 		const char *pszScriptMaterial = nullptr;
-		C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
-		if ( pLocalPlayer )
-			pszScriptMaterial = pLocalPlayer->GetScriptOverlayMaterial();
+		pszScriptMaterial = pLocalPlayer->GetScriptOverlayMaterial();
 
 		if ( pszScriptMaterial && *pszScriptMaterial )
 		{
@@ -1292,6 +1304,55 @@ void CViewRender::PerformScreenOverlay( int x, int y, int w, int h )
 			{
 				byte color[4] = { 255, 255, 255, 255 };
 				render->ViewDrawFade( color, m_ScriptOverlayMaterial );
+			}
+		}
+	}
+
+	for (int i = 0; i < MAX_SCRIPT_OVERLAYS; i++)
+	{
+		const char* pszScriptMaterial;
+		pszScriptMaterial = pLocalPlayer->GetScriptOverlayMaterialEx(i);
+
+		if ( pszScriptMaterial && *pszScriptMaterial )
+		{
+			if (V_strncmp(m_szCurrentScriptMaterialArrayName[i], pszScriptMaterial, MAX_PATH) != 0)
+			{
+				m_ScriptOverlayMaterialArray[i].Init(pszScriptMaterial, TEXTURE_GROUP_OTHER, false);
+			}
+
+			V_strncpy(m_szCurrentScriptMaterialArrayName[i], pszScriptMaterial, MAX_PATH);
+		}
+		else
+		{
+			m_ScriptOverlayMaterialArray[i].Shutdown();
+			m_szCurrentScriptMaterialArrayName[i][0] = '\0';
+		}
+
+		if ( m_ScriptOverlayMaterialArray[i] )
+		{
+			if ( m_ScriptOverlayMaterialArray[i]->NeedsFullFrameBufferTexture() )
+			{
+				// FIXME: check with multi/sub-rect renders. Should this be 0,0,w,h instead?
+				DrawScreenEffectMaterial(m_ScriptOverlayMaterialArray[i], x, y, w, h);
+			}
+			else if ( m_ScriptOverlayMaterialArray[i]->NeedsPowerOfTwoFrameBufferTexture() )
+			{
+				// First copy the FB off to the offscreen texture
+				UpdateRefractTexture(x, y, w, h, true);
+
+				// Now draw the entire screen using the material...
+				CMatRenderContextPtr pRenderContext(materials);
+				ITexture* pTexture = GetPowerOfTwoFrameBufferTexture();
+				int sw = pTexture->GetActualWidth();
+				int sh = pTexture->GetActualHeight();
+				// Note - don't offset by x,y - already done by the viewport.
+				pRenderContext->DrawScreenSpaceRectangle(m_ScriptOverlayMaterialArray[i], 0, 0, w, h,
+					0, 0, sw - 1, sh - 1, sw, sh);
+			}
+			else
+			{
+				byte color[4] = { 255, 255, 255, 255 };
+				render->ViewDrawFade(color, m_ScriptOverlayMaterialArray[i]);
 			}
 		}
 	}
