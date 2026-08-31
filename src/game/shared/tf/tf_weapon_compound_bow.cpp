@@ -474,6 +474,11 @@ void CTFCompoundBow::ItemPostFrame( void )
 	{
 		WeaponIdle();
 	}
+
+	if (pOwner->GetWaterLevel() == WL_Eyes && m_bArrowAlight)
+	{
+		SetArrowAlight(false);
+	}
 }
 
 //-----------------------------------------------------------------------------
