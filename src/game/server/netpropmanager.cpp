@@ -1226,6 +1226,13 @@ void CNetPropManager::StoreDataPropValue( typedescription_t *pTypeDesc, CBaseEnt
 	case FIELD_SOUNDNAME:
 	case FIELD_STRING:
 		{
+			PropInfo_t propInfo = GetEntityPropInfo( pBaseEntity, pszPropName, iElement );
+			if ( !propInfo.m_IsPropValid )
+			{
+				g_pScriptVM->SetValue( hTable, pszPropName, ScriptVariant_t() ); // Return null to be consistent with other script functions
+				break;
+			}
+
 			string_t propString = *(string_t *)(uint8 *)pEntityPropData;
 			g_pScriptVM->SetValue( hTable, pszPropName, (propString == NULL_STRING) ? "" : STRING(propString) );
 			break;
@@ -1361,7 +1368,10 @@ void CNetPropManager::CollectNestedDataMaps( datamap_t *pMap, CBaseEntity *pBase
 					g_pScriptVM->ReleaseValue( hPropTable );
 				}
 				else
+				{
+					GetPropStringArray( ToHScript( pBaseEntity ), pTypeDesc->fieldName, 0 ); // fixes a weird bug causing the dataprop to always be invalid
 					StoreDataPropValue( pTypeDesc, pBaseEntity, iOffset, -1, hTable );
+				}
 			}
 		}
 
