@@ -5200,6 +5200,12 @@ void CFreezeFrameView::Draw( void )
 	pRenderContext->PushVertexShaderGPRAllocation( 16 ); //max out pixel shader threads
 #endif
 
+	if ( mat_viewportupscale.GetBool() && mat_viewportscale.GetFloat() < 1.0f )
+	{
+		// mat_viewportscale breaks it without that
+		vgui::surface()->GetScreenSize(width, height);
+	}
+
 	// we might only need half of the texture if we're rendering in stereo
 	int nTexX0 = 0, nTexY0 = 0;
 	int nTexX1 = width, nTexY1 = height;
