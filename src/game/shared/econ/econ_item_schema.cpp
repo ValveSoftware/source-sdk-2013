@@ -4293,6 +4293,7 @@ void CEconItemSchema::Reset( void )
 	m_vecAttributeTypes.Purge();
 	m_mapItems.PurgeAndDeleteElements();
 	m_mapItems.Purge();
+	m_mapItemsName.Purge();
 	m_mapRarities.Purge();
 	m_mapQualities.Purge();
 	m_mapItemsSorted.Purge();
@@ -5270,6 +5271,7 @@ bool CEconItemSchema::BInitItems( KeyValues *pKVItems, CUtlVector<CUtlString> *p
 {
 	m_mapItems.PurgeAndDeleteElements();
 	m_mapItemsSorted.Purge();
+	m_mapItemsName.Purge();
 	m_mapToolsItems.Purge();
 	m_mapPaintKitTools.Purge();
 	m_mapBaseItems.Purge();
@@ -5319,6 +5321,7 @@ bool CEconItemSchema::BInitItems( KeyValues *pKVItems, CUtlVector<CUtlString> *p
 				nMapIndex = m_mapItems.Insert( nItemIndex, pItemDef );
 				m_mapItemsSorted.Insert( nItemIndex, pItemDef );
 				SCHEMA_INIT_SUBSTEP( m_mapItems[nMapIndex]->BInitFromKV( pKVItem, pVecErrors ) );
+				m_mapItemsName.Insert( pItemDef->GetDefinitionName(), pItemDef );
 
 				// Cache off Tools references
 				if ( pItemDef->IsTool() )
@@ -5446,6 +5449,7 @@ bool CEconItemSchema::DeleteItemDefinition( int iDefIndex )
 		CEconItemDefinition* pItemDef = m_mapItems[nMapIndex];
 		if ( pItemDef )
 		{
+			m_mapItemsName.Remove( pItemDef->GetDefinitionName() );
 			m_mapItems.RemoveAt( nMapIndex );
 			delete pItemDef;
 			return true;
@@ -6411,8 +6415,10 @@ void CEconItemSchema::ItemTesting_CreateTestDefinition( int iCloneFromItemDef, i
 	int nMapIndex = m_mapItems.Find( iNewDef );
 	if ( !m_mapItems.IsValidIndex( nMapIndex ) )
 	{
-		nMapIndex = m_mapItems.Insert( iNewDef, CreateEconItemDefinition() );
+		CEconItemDefinition* pItemDef = CreateEconItemDefinition() ;
+		nMapIndex = m_mapItems.Insert( iNewDef, pItemDef );
 		m_mapItemsSorted.Insert( iNewDef, m_mapItems[nMapIndex] );
+		m_mapItemsName.Insert( pItemDef->GetDefinitionName(), pItemDef );
 	}
 
 	// Find & copy the clone item def's data in
@@ -6430,7 +6436,12 @@ void CEconItemSchema::ItemTesting_CreateTestDefinition( int iCloneFromItemDef, i
 //-----------------------------------------------------------------------------
 void CEconItemSchema::ItemTesting_DiscardTestDefinition( int iDef )
 {
-	m_mapItems.Remove( iDef );
+	int nIndex = m_mapItems.Find( iDef );
+	if ( nIndex != m_mapItems.InvalidIndex() )
+	{
+		m_mapItemsName.Remove( m_mapItems[nIndex]->GetDefinitionName() );
+		m_mapItems.RemoveAt( nIndex );
+	}
 	m_mapItemsSorted.Remove( iDef );
 }
 
@@ -6718,16 +6729,9 @@ const CEconItemDefinition *CEconItemSchema::GetItemDefinition( int iItemIndex ) 
 //-----------------------------------------------------------------------------
 CEconItemDefinition *CEconItemSchema::GetItemDefinitionByName( const char *pszDefName )
 {
-	// This shouldn't happen, but let's not crash if it ever does.
-	Assert( pszDefName != NULL );
-	if ( pszDefName == NULL )
-		return NULL;
-
-	FOR_EACH_MAP_FAST( m_mapItems, i )
-	{
-		if ( V_stricmp( pszDefName, m_mapItems[i]->GetDefinitionName()) == 0 )
-			return m_mapItems[i]; 
-	}
+	int nIndex = m_mapItemsName.Find( pszDefName );
+	if ( nIndex != m_mapItemsName.InvalidIndex() )
+		return m_mapItemsName[nIndex];
 	return NULL;
 }
 
@@ -6885,13 +6889,18 @@ const CEconOperationDefinition* CEconItemSchema::GetOperationByName( const char*
 #if defined(CLIENT_DLL) || defined(GAME_DLL)
 bool CEconItemSchema::SetupPreviewItemDefinition( KeyValues *pKV )
 {
+	CEconItemDefinition* pItemDef;
 	int nMapIndex = m_mapItems.Find( PREVIEW_ITEM_DEFINITION_INDEX );
 	if ( !m_mapItems.IsValidIndex( nMapIndex ) )
 	{
-		nMapIndex = m_mapItems.Insert( PREVIEW_ITEM_DEFINITION_INDEX, CreateEconItemDefinition() );
+		pItemDef = CreateEconItemDefinition();
+		nMapIndex = m_mapItems.Insert( PREVIEW_ITEM_DEFINITION_INDEX, pItemDef );
+		m_mapItemsName.Insert( pItemDef->GetDefinitionName(), pItemDef );
 	}
-
-	CEconItemDefinition *pItemDef = m_mapItems[ nMapIndex ];
+	else
+	{
+		pItemDef = m_mapItems[ nMapIndex ];
+	}
 	return pItemDef->BInitFromKV( pKV );
 }
 #endif // defined(CLIENT_DLL) || defined(GAME_DLL)
