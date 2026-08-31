@@ -2865,7 +2865,6 @@ void CTFPlayer::PrecachePlayerModels( void )
 			PrecacheModel( pszModel );
 		}
 
-/*
 		if ( !IsX360() )
 		{
 			// Precache the hardware facial morphed models as well.
@@ -2875,7 +2874,6 @@ void CTFPlayer::PrecachePlayerModels( void )
 				PrecacheModel( pszHWMModel );
 			}
 		}
-*/
 	}
 	
 	// Always precache the silly gibs.

@@ -80,13 +80,12 @@ char const *C_SceneEntity::GetSceneFileName()
 	return g_pStringTableClientSideChoreoScenes->GetString( m_nSceneStringIndex );
 }
 
-ConVar mp_usehwmvcds( "mp_usehwmvcds", "0", NULL, "Enable the use of the hw morph vcd(s). (-1 = never, 1 = always, 0 = based upon GPU)" ); // -1 = never, 0 = if hasfastvertextextures, 1 = always
+ConVar mp_usehwmvcds( "mp_usehwmvcds", "-1", NULL, "Enable the use of the hw morph vcd(s). (-1 = never, 1 = always, 0 = based upon GPU)" ); // -1 = never, 0 = if hasfastvertextextures, 1 = always
 bool UseHWMorphVCDs()
 {
-// 	if ( mp_usehwmvcds.GetInt() == 0 )
-// 		return g_pMaterialSystemHardwareConfig->HasFastVertexTextures();
-// 	return mp_usehwmvcds.GetInt() > 0;
-	return false;
+ 	if ( mp_usehwmvcds.GetInt() == 0 )
+ 		return g_pMaterialSystemHardwareConfig->HasFastVertexTextures();
+ 	return mp_usehwmvcds.GetInt() > 0;
 }
 
 //-----------------------------------------------------------------------------
