@@ -555,7 +555,7 @@ class CTFWeaponBase : public CBaseCombatWeapon, public IHasOwner, public IHasGen
 	void			SetClipScale ( float flScale ) { m_flClipScale = flScale; }
 
 	virtual float	GetInitialAfterburnDuration() const { return 0.f; }
-	virtual float	GetAfterburnRateOnHit() const { return 0.f; }
+	virtual float	GetAfterburnRateOnHit() const { return 10.f; }
 
 // Client specific.
 #else
