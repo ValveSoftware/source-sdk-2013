@@ -294,6 +294,9 @@ void CTFGameMovement::ProcessMovement( CBasePlayer *pBasePlayer, CMoveData *pMov
 	if ( !pBasePlayer || !pMove )
 		return;
 
+	float flStoreFrametime = gpGlobals->frametime;
+	gpGlobals->frametime *= pBasePlayer->GetLaggedMovementValue();
+
 	// Reset point contents for water check.
 	ResetGetPointContentsCache();
 
@@ -334,6 +337,8 @@ void CTFGameMovement::ProcessMovement( CBasePlayer *pBasePlayer, CMoveData *pMov
 #if defined(GAME_DLL)
 	m_pTFPlayer->m_bTakenBlastDamageSinceLastMovement = false;
 #endif
+
+	gpGlobals->frametime = flStoreFrametime;
 }
 
 //-----------------------------------------------------------------------------
