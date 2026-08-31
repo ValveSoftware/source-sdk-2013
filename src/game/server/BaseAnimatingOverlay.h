@@ -147,11 +147,18 @@ public:
 
 	int		AddGestureSequence( int sequence, bool autokill = true );
 	int		AddGestureSequence( int sequence, float flDuration, bool autokill = true );
+	int		ScriptAddGestureSequence( int sequence, bool autokill = true ) { return AddGestureSequence( sequence, autokill ); }
+	int		ScriptAddGestureSequenceDuration( int sequence, float flDuration, bool autokill = true ) { return AddGestureSequence( sequence, flDuration, autokill ); }
 	int		AddGesture( Activity activity, bool autokill = true );
 	int		AddGesture( Activity activity, float flDuration, bool autokill = true );
+	int		ScriptAddGesture( int activity, bool autokill = true ) { return AddGesture( ( Activity )activity, autokill ); }
+	int		ScriptAddGestureDuration( int activity, float flDuration, bool autokill = true ) { return AddGesture( ( Activity )activity, flDuration, autokill ); }
 	bool	IsPlayingGesture( Activity activity );
+	bool	ScriptIsPlayingGesture( int activity ) { return IsPlayingGesture( ( Activity )activity ); }
 	void	RestartGesture( Activity activity, bool addifmissing = true, bool autokill = true );
+	void	ScriptRestartGesture( int activity, bool addifmissing = true, bool autokill = true ) { RestartGesture( ( Activity )activity, addifmissing, autokill ); }
 	void	RemoveGesture( Activity activity );
+	void	ScriptRemoveGesture( int activity ) { RemoveGesture( ( Activity )activity ); }
 	void	RemoveAllGestures( void );
 
 	int		AddLayeredSequence( int sequence, int iPriority );
@@ -166,6 +173,8 @@ public:
 	void	SetLayerCycle( int iLayer, float flCycle );
 	void	SetLayerCycle( int iLayer, float flCycle, float flPrevCycle );
 	void	SetLayerCycle( int iLayer, float flCycle, float flPrevCycle, float flLastEventCheck );
+	void	ScriptSetLayerCycle( int iLayer, float flCycle ) { SetLayerCycle( iLayer, flCycle ); }
+	void	ScriptSetLayerCycleLastEventCheck( int iLayer, float flCycle, float flPrevCycle, float flLastEventCheck ) { SetLayerCycle( iLayer, flCycle, flPrevCycle, flLastEventCheck ); };
 	float	GetLayerCycle( int iLayer );
 
 	void	SetLayerPlaybackRate( int iLayer, float flPlaybackRate );
@@ -181,6 +190,7 @@ public:
 	int			GetLayerSequence( int iLayer );
 
 	int		FindGestureLayer( Activity activity );
+	int		ScriptFindGestureLayer( int activity ) { return FindGestureLayer( ( Activity )activity ); }
 
 	void	RemoveLayer( int iLayer, float flKillRate = 0.2, float flKillDelay = 0.0 );
 	void	FastRemoveLayer( int iLayer );
@@ -199,6 +209,7 @@ private:
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
 	DECLARE_PREDICTABLE();
+	DECLARE_ENT_SCRIPTDESC();
 };
 
 EXTERN_SEND_TABLE(DT_BaseAnimatingOverlay);

@@ -84,6 +84,48 @@ IMPLEMENT_SERVERCLASS_ST( CBaseAnimatingOverlay, DT_BaseAnimatingOverlay )
 END_SEND_TABLE()
 
 
+BEGIN_ENT_SCRIPTDESC( CBaseAnimatingOverlay, CBaseAnimating, "Animating models with gestures and layers" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddGestureSequence, "AddGestureSequenceSimple", "Add a gesture sequence. Returns index to the layer" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddGestureSequenceDuration, "AddGestureSequenceDuration", "Add a gesture sequence for a set duration. Returns index to the layer" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddGesture, "AddGestureSimple", "Add a gesture. Returns index to the layer" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptAddGestureDuration, "AddGestureDuration", "Add a gesture for a set duration. Returns index to the layer" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptIsPlayingGesture, "IsPlayingGesture", "Check if gesture is playing")
+	DEFINE_SCRIPTFUNC_NAMED( ScriptRestartGesture, "RestartGesture", "Restart a gesture" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptRemoveGesture, "RemoveGesture", "Remove a gesture with the given activity index" )
+	DEFINE_SCRIPTFUNC( RemoveAllGestures, "Remove all gestures from a model" )
+
+	DEFINE_SCRIPTFUNC( AddLayeredSequence, "Add a layered sequence. Returns index to the layer" )
+
+	DEFINE_SCRIPTFUNC( SetLayerPriority, "Set the priority of an animation layer" )
+
+	DEFINE_SCRIPTFUNC( IsValidLayer, "Check if a layer index is valid" )
+
+	DEFINE_SCRIPTFUNC( SetLayerDuration, "Set the duration of an animation layer" )
+	DEFINE_SCRIPTFUNC( GetLayerDuration, "Get the duration of an animation layer" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetLayerCycle, "SetLayerCycleSimple", "Set cycle for a layer" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetLayerCycleLastEventCheck, "SetLayerCycleLastEventCheck", "Set cycle for a layer with last event check" )
+	DEFINE_SCRIPTFUNC( GetLayerCycle, "Get the current cycle of an animation layer" )
+
+	DEFINE_SCRIPTFUNC( SetLayerPlaybackRate, "Set playback rate of a layer" )
+	DEFINE_SCRIPTFUNC( SetLayerWeight, "Set weight of a layer" )
+	DEFINE_SCRIPTFUNC( GetLayerWeight, "Get weight of a layer" )
+	DEFINE_SCRIPTFUNC( SetLayerBlendIn, "Set blend-in time of a layer" )
+	DEFINE_SCRIPTFUNC( SetLayerBlendOut, "Set blend-out time of a layer" )
+	DEFINE_SCRIPTFUNC( SetLayerAutokill, "Set autokill flag of a layer" )
+	DEFINE_SCRIPTFUNC( SetLayerLooping, "Set looping flag of a layer" )
+	DEFINE_SCRIPTFUNC( SetLayerNoRestore, "Set no-restore flag of a layer" )
+
+	DEFINE_SCRIPTFUNC( GetLayerActivity, "Get activity index of a layer" )
+	DEFINE_SCRIPTFUNC( GetLayerSequence, "Get sequence index of a layer" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptFindGestureLayer, "FindGestureLayer", "Find the layer playing a specific gesture" )
+
+	DEFINE_SCRIPTFUNC( RemoveLayer, "Remove a layer with fading" )
+	DEFINE_SCRIPTFUNC( FastRemoveLayer, "Immediately remove a layer" )
+
+	DEFINE_SCRIPTFUNC( HasActiveLayer, "Check if any layers are currently active" )
+END_SCRIPTDESC()
 
 
 CAnimationLayer::CAnimationLayer( )
