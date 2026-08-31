@@ -476,9 +476,19 @@ public:
 		}
 		else
 		{
-			AssertMsg( 0, "Unknown game" );
+#if defined(TF_CLIENT_DLL)
+			//assume tf2
+			*ppShortGameName = "TF2";
+			*ppFullGameName = "Team Fortress 2";
+#elif defined(CSTRIKE_DLL)
+			//assume cstrike
+			*ppShortGameName = "CSS";
+			*ppFullGameName = "Counter-Strike: Source";
+#else
+			AssertMsg(0, "Unknown game");
 			*ppShortGameName = "";
 			*ppFullGameName = "";
+#endif
 		}
 	}
 
