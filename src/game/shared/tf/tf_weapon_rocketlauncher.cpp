@@ -412,7 +412,7 @@ void CTFRocketLauncher_AirStrike::OnPlayerKill( CTFPlayer *pVictim, const CTakeD
 {
 	BaseClass::OnPlayerKill( pVictim, info );
 
-	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
+	CTFPlayer *pOwner = ToTFPlayer( info.GetAttacker() );
 	if ( !pOwner )
 		return;
 
