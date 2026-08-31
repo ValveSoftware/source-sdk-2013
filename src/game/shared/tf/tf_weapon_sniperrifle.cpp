@@ -307,7 +307,29 @@ void CTFSniperRifle::HandleZooms( void )
 		}
 	}
 
-	if ( ( pPlayer->m_nButtons & IN_ATTACK2 ) && ( m_flNextSecondaryAttack <= gpGlobals->curtime ) )
+	if ( pPlayer->ShouldHoldZoom() )
+	{
+		if ( m_flNextSecondaryAttack <= gpGlobals->curtime )
+		{
+			if ( pPlayer->m_nButtons & IN_ATTACK2 )
+			{
+				if ( !IsZoomed() && gpGlobals->curtime > m_flNextPrimaryAttack )
+				{
+					Zoom();
+				}
+			}
+			else
+			{
+				if ( IsZoomed() )
+				{
+					Zoom();
+				}
+			}
+		}
+
+		m_bRezoomAfterShot = false;
+	}
+	else if ( ( pPlayer->m_nButtons & IN_ATTACK2 ) && ( m_flNextSecondaryAttack <= gpGlobals->curtime ) )
 	{
 		// If we're in the process of rezooming, just cancel it
 		if ( m_flRezoomTime > 0 || m_flUnzoomTime > 0 )
@@ -1849,7 +1871,29 @@ void CTFSniperRifleClassic::HandleZooms( void )
 		}
 	}
 
-	if ( ( pPlayer->m_nButtons & IN_ATTACK2 ) && ( m_flNextSecondaryAttack <= gpGlobals->curtime ) )
+	if ( pPlayer->ShouldHoldZoom() )
+	{
+		if ( m_flNextSecondaryAttack <= gpGlobals->curtime )
+		{
+			if ( pPlayer->m_nButtons & IN_ATTACK2 )
+			{
+				if ( !IsZoomed() && gpGlobals->curtime > m_flNextPrimaryAttack )
+				{
+					Zoom();
+				}
+			}
+			else
+			{
+				if ( IsZoomed() )
+				{
+					Zoom();
+				}
+			}
+		}
+
+		m_bRezoomAfterShot = false;
+	}
+	else if ( ( pPlayer->m_nButtons & IN_ATTACK2 ) && ( m_flNextSecondaryAttack <= gpGlobals->curtime ) )
 	{
 		Zoom();
 	}
