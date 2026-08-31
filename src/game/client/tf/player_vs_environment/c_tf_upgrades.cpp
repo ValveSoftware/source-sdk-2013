@@ -1175,10 +1175,7 @@ void CHudUpgradePanel::UpdateUpgradeButtons( void )
 					pUpgradeBuyPanel->m_pShortDescriptionLabel->SetText( pDescription );
 				}
 
-				locchar_t wzCost[64];
-				loc_sprintf_safe( wzCost, LOCCHAR( "%d" ), pUpgradeBuyPanel->m_nPrice );
-
-				pUpgradeBuyPanel->m_pPriceLabel->SetText( wzCost );
+				pUpgradeBuyPanel->m_pPriceLabel->SetText( V_AddThousandSeparators( pUpgradeBuyPanel->m_nPrice ) );
 			}
 		}
 	}
@@ -1781,9 +1778,7 @@ void CHudUpgradePanel::UpdateButtonStates( int nCurrentMoney, int nUpgrade /*= 0
 	}
 
 	// Credits count
-	wchar_t wzCount[10];
-	_snwprintf( wzCount, ARRAYSIZE( wzCount ), L"%d", nCurrentMoney );
-	m_pSelectWeaponPanel->SetDialogVariable( "credits", wzCount );
+	m_pSelectWeaponPanel->SetDialogVariable( "credits", V_AddThousandSeparators( nCurrentMoney ) );
 }
 
 void CHudUpgradePanel::UpdateItemStatsLabel( void )
