@@ -72,6 +72,60 @@ public:
 	KeyValues *m_pKeyValues;	// actual KeyValue entity
 };
 
+// ----------------------------------------------------------------------------
+// Player Messages access
+// ----------------------------------------------------------------------------
+#define MAX_SCRIPT_USERMESSAGE_DATA 48
+
+enum eScriptPlayerMessageType {
+	TYPE_NULL,
+	TYPE_BYTE,
+	TYPE_CHAR,
+	TYPE_SHORT,
+	TYPE_WORD,
+	TYPE_LONG,
+	TYPE_FLOAT,
+	TYPE_ANGLE,
+	TYPE_COORD,
+	TYPE_VEC3COORD,
+	TYPE_VEC3NORMAL,
+	TYPE_ANGLES,
+	TYPE_STRING,
+	TYPE_BOOL,
+	TYPE_MAX
+};
+
+class CScriptUserMessage
+{
+public:
+	CScriptUserMessage( const char* szMessageName );
+
+	void Execute( HSCRIPT filterParams );
+
+	void WriteByte( int iValue );
+	void WriteChar( int iValue );
+	void WriteShort( int iValue );
+	void WriteWord( int iValue );
+	void WriteLong( int iValue );
+	void WriteFloat( float flValue );
+	void WriteAngle( float flValue );
+	void WriteCoord( float flValue );
+	void WriteVec3Coord( const Vector& rgflValue );
+	void WriteVec3Normal( const Vector& rgflValue );
+	void WriteAngles( const QAngle& rgflValue );
+	void WriteString( const char* szValue );
+	void WriteBool( bool bValue );
+
+private:
+	void WriteValue( const char* szValue, int iType );
+	
+	char m_szMessageName[64];
+
+	int iDataCount = 0;
+	char m_szDataValues[MAX_SCRIPT_USERMESSAGE_DATA][512];
+	int m_iDataTypes[MAX_SCRIPT_USERMESSAGE_DATA];
+};
+
 class CVScriptGameEventListener : public CGameEventListener
 {
 public:
