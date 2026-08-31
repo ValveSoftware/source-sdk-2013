@@ -47,100 +47,114 @@ void C_TFProjectile_Rocket::OnDataChanged(DataUpdateType_t updateType)
 //-----------------------------------------------------------------------------
 void C_TFProjectile_Rocket::CreateTrails( void )
 {
-	if ( IsDormant() )
-		return;
+    if ( IsDormant() )
+        return;
 
-	bool bUsingCustom = false;
+    bool bUsingCustom = false;
 
-	if ( pEffect )
-	{
-		ParticleProp()->StopEmission( pEffect );
-		pEffect = NULL;
-	}
+    if ( pEffect )
+    {
+        ParticleProp()->StopEmission( pEffect );
+        pEffect = NULL;
+    }
 
-	int iAttachment = LookupAttachment( "trail" );
-	if ( iAttachment == INVALID_PARTICLE_ATTACHMENT )
-		return;
+    int iAttachment = LookupAttachment( "trail" );
+    if ( iAttachment == INVALID_PARTICLE_ATTACHMENT )
+        return;
+    
+    // Check for Halloween spell first regardless of environment
+    int iHalloweenSpell = 0;
+    // if the owner is a Sentry, Check its owner
+    CBaseObject *pSentry = GetOriginalLauncher() && GetOriginalLauncher()->IsBaseObject() ? assert_cast<CBaseObject*>( GetOriginalLauncher() ) : NULL;
+    
+    if ( TF_IsHolidayActive( kHoliday_HalloweenOrFullMoon ) )
+    {
+        if ( pSentry )
+        {
+            CALL_ATTRIB_HOOK_INT_ON_OTHER( pSentry->GetOwner(), iHalloweenSpell, halloween_pumpkin_explosions );
+        }
+        else
+        {
+            CALL_ATTRIB_HOOK_INT_ON_OTHER( GetOriginalLauncher(), iHalloweenSpell, halloween_pumpkin_explosions );
+        }
+    }
+    
+    bool bIsUnderwater = enginetrace->GetPointContents( GetAbsOrigin() ) & MASK_WATER;
+    
+    // Handle Halloween rockets (both underwater and normal)
+    if ( iHalloweenSpell > 0 )
+    {
+        if ( bIsUnderwater )
+        {
+            // This is the new particle effect the game searches for when a Pumpkin bombs rocket is fired underwater, something that was missing entirely before. The particle in question is stored within the rockettrail.pcf file under the halloween_rockettrail_underwater name.
+            ParticleProp()->Create( "halloween_rockettrail_underwater", PATTACH_POINT_FOLLOW, iAttachment );
+        }
+        else
+        {
+            // Use the existing Halloween particle
+            ParticleProp()->Create( "halloween_rockettrail", PATTACH_POINT_FOLLOW, iAttachment );
+        }
+        bUsingCustom = true;
+    }
+    // Handle standard underwater rockets
+    else if ( bIsUnderwater )
+    {
+        ParticleProp()->Create( "rockettrail_underwater", PATTACH_POINT_FOLLOW, "trail" );
+        bUsingCustom = true;
+    }
+    else if ( GetTeamNumber() == TEAM_UNASSIGNED )
+    {
+        ParticleProp()->Create( "rockettrail_underwater", PATTACH_POINT_FOLLOW, "trail" );
+        bUsingCustom = true;
+    }
+    else
+    {
+        // Mini rockets from airstrike RL
+        if ( !pSentry )
+        {
+            if ( GetOriginalLauncher() )
+            {
+                int iMiniRocket = 0;
+                CALL_ATTRIB_HOOK_INT_ON_OTHER( GetOriginalLauncher(), iMiniRocket, mini_rockets );
+                if ( iMiniRocket )
+                {
+                    ParticleProp()->Create( "rockettrail_airstrike", PATTACH_POINT_FOLLOW, iAttachment );
+                    bUsingCustom = true;
 
-	if ( enginetrace->GetPointContents( GetAbsOrigin() ) & MASK_WATER )
-	{
-		ParticleProp()->Create( "rockettrail_underwater", PATTACH_POINT_FOLLOW, "trail" );
-		bUsingCustom = true;
-	}
-	else if ( GetTeamNumber() == TEAM_UNASSIGNED )
-	{
-		ParticleProp()->Create( "rockettrail_underwater", PATTACH_POINT_FOLLOW, "trail" );
-		bUsingCustom = true;
-	}
-	else
-	{
-		// Halloween Spell Effect Check
-		int iHalloweenSpell = 0;
-		// if the owner is a Sentry, Check its owner
-		CBaseObject *pSentry = GetOwnerEntity() && GetOwnerEntity()->IsBaseObject() ? assert_cast<CBaseObject*>( GetOwnerEntity() ) : NULL;
-		if ( TF_IsHolidayActive( kHoliday_HalloweenOrFullMoon ) )
-		{
-			if ( pSentry )
-			{
-				CALL_ATTRIB_HOOK_INT_ON_OTHER( pSentry->GetOwner(), iHalloweenSpell, halloween_pumpkin_explosions );
-			}
-			else
-			{
-				CALL_ATTRIB_HOOK_INT_ON_OTHER( GetOwnerEntity(), iHalloweenSpell, halloween_pumpkin_explosions );
-			}
-		}
+                    // rockettrail_airstrike_line
+                    CTFPlayer *pPlayer = ToTFPlayer( GetOwnerEntity() );
+                    if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_BLASTJUMPING ) )
+                    {
+                        ParticleProp()->Create( "rockettrail_airstrike_line", PATTACH_POINT_FOLLOW, iAttachment );
+                    }
+                }
+            }
+        }
+    }
 
-		// Mini rockets from airstrike RL
-		if ( iHalloweenSpell > 0 )
-		{
-			ParticleProp()->Create( "halloween_rockettrail", PATTACH_POINT_FOLLOW, iAttachment );
-			bUsingCustom = true;
-		}
-		else if ( !pSentry )
-		{
-			if ( GetLauncher() )
-			{
-				int iMiniRocket = 0;
-				CALL_ATTRIB_HOOK_INT_ON_OTHER( GetLauncher(), iMiniRocket, mini_rockets );
-				if ( iMiniRocket )
-				{
-					ParticleProp()->Create( "rockettrail_airstrike", PATTACH_POINT_FOLLOW, iAttachment );
-					bUsingCustom = true;
+    if ( !bUsingCustom )
+    {
+        if ( GetTrailParticleName() )
+        {
+            ParticleProp()->Create( GetTrailParticleName(), PATTACH_POINT_FOLLOW, iAttachment );
+        }
+    }
 
-					// rockettrail_airstrike_line
-					CTFPlayer *pPlayer = ToTFPlayer( GetOwnerEntity() );
-					if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_BLASTJUMPING ) )
-					{
-						ParticleProp()->Create( "rockettrail_airstrike_line", PATTACH_POINT_FOLLOW, iAttachment );
-					}
-				}
-			}
-		}
-	}
-
-	if ( !bUsingCustom )
-	{
-		if ( GetTrailParticleName() )
-		{
-			ParticleProp()->Create( GetTrailParticleName(), PATTACH_POINT_FOLLOW, iAttachment );
-		}
-	}
-
-	if ( m_bCritical )
-	{
-		switch( GetTeamNumber() )
-		{
-		case TF_TEAM_BLUE:
-			pEffect = ParticleProp()->Create( "critical_rocket_blue", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		case TF_TEAM_RED:
-			pEffect = ParticleProp()->Create( "critical_rocket_red", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		default:
-			pEffect = ParticleProp()->Create( "eyeboss_projectile", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		}
-	}
+    if ( m_bCritical )
+    {
+        switch( GetTeamNumber() )
+        {
+        case TF_TEAM_BLUE:
+            pEffect = ParticleProp()->Create( "critical_rocket_blue", PATTACH_ABSORIGIN_FOLLOW );
+            break;
+        case TF_TEAM_RED:
+            pEffect = ParticleProp()->Create( "critical_rocket_red", PATTACH_ABSORIGIN_FOLLOW );
+            break;
+        default:
+            pEffect = ParticleProp()->Create( "eyeboss_projectile", PATTACH_ABSORIGIN_FOLLOW );
+            break;
+        }
+    }
 }
 
 
