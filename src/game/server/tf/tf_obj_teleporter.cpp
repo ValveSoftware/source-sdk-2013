@@ -1139,21 +1139,24 @@ void CObjectTeleporter::TeleporterThink( void )
 				pTeleportingPlayer->TeleportEffect();
 				pTeleportingPlayer->m_Shared.RemoveCond( TF_COND_SELECTED_TO_TELEPORT );
 				CTF_GameStats.Event_PlayerUsedTeleport( GetBuilder(), pTeleportingPlayer );
-
+			
 				pTeleportingPlayer->SpeakConceptIfAllowed( MP_CONCEPT_TELEPORTED );
-
+			
 				IGameEvent * event = gameeventmanager->CreateEvent( "player_teleported" );
 				if ( event )
 				{
 					event->SetInt( "userid", pTeleportingPlayer->GetUserID() );
 					event->SetInt( "builderid", GetBuilder() ? GetBuilder()->GetUserID() : 0 );
+					event->SetInt( "exitindex", entindex() );
 					if ( GetMatchingTeleporter() )
 					{
-						event->SetFloat( "dist", GetMatchingTeleporter()->GetAbsOrigin().DistTo( GetAbsOrigin() ) );					
+						event->SetFloat( "dist", GetMatchingTeleporter()->GetAbsOrigin().DistTo( GetAbsOrigin() ) );
+						event->SetInt( "entranceindex", GetMatchingTeleporter()->entindex() );
 					}
 					else
 					{
 						event->SetFloat( "dist", 0 );
+						event->SetInt( "entranceindex", 0 );
 					}
 					gameeventmanager->FireEvent( event );
 				}
