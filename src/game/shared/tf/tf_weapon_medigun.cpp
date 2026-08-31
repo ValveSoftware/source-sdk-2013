@@ -349,9 +349,11 @@ void CWeaponMedigun::Precache()
 	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_blue" );
 	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_red" );
 	PrecacheParticleSystem( "medicgun_beam_red_invun" );
+	PrecacheParticleSystem( "medicgun_beam_red_invun_targeted" );
 	PrecacheParticleSystem( "medicgun_beam_red" );
 	PrecacheParticleSystem( "medicgun_beam_red_targeted" );
 	PrecacheParticleSystem( "medicgun_beam_blue_invun" );
+	PrecacheParticleSystem( "medicgun_beam_blue_invun_targeted" );
 	PrecacheParticleSystem( "medicgun_beam_blue" );
 	PrecacheParticleSystem( "medicgun_beam_blue_targeted" );
 	PrecacheParticleSystem( "vaccinator_red_buff1" );
@@ -2420,7 +2422,14 @@ void CWeaponMedigun::UpdateEffects( void )
 		{
 			if ( m_bChargeRelease )
 			{
-				pszEffectName = "medicgun_beam_red_invun";
+				if ( bHealTargetMarker && pFiringPlayer == pLocalPlayer )
+				{
+					pszEffectName = "medicgun_beam_red_invun_targeted";
+				}
+				else
+				{
+					pszEffectName = "medicgun_beam_red_invun";
+				}
 			}
 			else
 			{
@@ -2438,7 +2447,14 @@ void CWeaponMedigun::UpdateEffects( void )
 		{
 			if ( m_bChargeRelease )
 			{
-				pszEffectName = "medicgun_beam_blue_invun";
+				if ( bHealTargetMarker && pFiringPlayer == pLocalPlayer )
+				{
+					pszEffectName = "medicgun_beam_blue_invun_targeted";
+				}
+				else
+				{
+					pszEffectName = "medicgun_beam_blue_invun";
+				}
 			}
 			else
 			{
