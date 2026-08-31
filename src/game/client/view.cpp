@@ -318,6 +318,18 @@ void CViewRender::Init( void )
 	m_flLastFOV = default_fov.GetFloat();
 #endif
 
+	materials->RemoveTextureAlias("_rt_FullFrameDepth");
+
+	materials->BeginRenderTargetAllocation();
+	materials->CreateNamedRenderTargetTextureEx("_rt_FullFrameDepth", 1, 1,
+		RT_SIZE_FULL_FRAME_BUFFER,
+		(IsOpenGL() ? IMAGE_FORMAT_NV_DST24 : IMAGE_FORMAT_NV_INTZ),
+		MATERIAL_RT_DEPTH_NONE,
+		TEXTUREFLAGS_CLAMPS | TEXTUREFLAGS_CLAMPT | TEXTUREFLAGS_POINTSAMPLE,
+		CREATERENDERTARGETFLAGS_NOEDRAM
+	);
+	materials->EndRenderTargetAllocation();
+
 }
 
 //-----------------------------------------------------------------------------
