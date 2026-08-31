@@ -2861,6 +2861,7 @@ public:
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	void FollowTarget( void );
 	void Move(void);
+	virtual void UpdateOnRemove( void );
 
 	// Always transmit to clients so they know where to move the view to
 	virtual int UpdateTransmitState();
@@ -3224,7 +3225,7 @@ void CTriggerCamera::Enable( void )
 //-----------------------------------------------------------------------------
 void CTriggerCamera::Disable( void )
 {
-	if ( m_hPlayer && m_hPlayer->IsAlive() )
+	if ( m_hPlayer )
 	{
 		if ( HasSpawnFlags( SF_CAMERA_PLAYER_NOT_SOLID ) )
 		{
@@ -3456,6 +3457,16 @@ void CTriggerCamera::Move()
 		}
 	}
 #endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Disable the camera so viewers are not locked to its view if the camera is killed
+//-----------------------------------------------------------------------------
+void CTriggerCamera::UpdateOnRemove()
+{
+	Disable();
+	
+	BaseClass::UpdateOnRemove();
 }
 
 
