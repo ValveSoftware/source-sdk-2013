@@ -15,22 +15,33 @@ $Project
 		$Libexternal $SRCDIR\thirdparty\protobuf-2.6.1\bin\linux64\libprotobuf [$LINUX64]
 	}
 
+	// Currently there's an issue with debug build of libprotobuf not playing nice with the GCSDK on the Source SDK 2013 public repository.
+	// To get around this temporarily, we'll just compile against the release build of libprotobuf since we don't ship (most of) the thirdparty code anyway.
+	// ... However this causes the iterator debug level mismatch linker error (LNK2038) to come back to haunt us,
+	// so on the Public SDK we'll just have to disable iterator debugging completely for now.
+
 	$Folder "Link Libraries"
 	{
 		$File "$SRCDIR\thirdparty\protobuf-2.6.1\bin\win32\2015\staticcrt\release\libprotobuf.lib" [$WIN32]
 		{
-			$Configuration "Debug" 	{ $ExcludedFromBuild "Yes" }
+			$Configuration "Debug"
+			{
+				$ExcludedFromBuild "Yes" [!$SOURCESDK]
+			} 
 		}
-		$File "$SRCDIR\thirdparty\protobuf-2.6.1\bin\win32\2015\staticcrt\debug\libprotobuf.lib" [$WIN32]
+		$File "$SRCDIR\thirdparty\protobuf-2.6.1\bin\win32\2015\staticcrt\debug\libprotobuf.lib" [$WIN32 && !$SOURCESDK]
 		{
 			$Configuration "Release" { $ExcludedFromBuild "Yes" }
 		}
 		
 		$File "$SRCDIR\thirdparty\protobuf-2.6.1\bin\win64\2015\staticcrt\release\libprotobuf.lib" [$WIN64]
 		{
-			$Configuration "Debug" 	{ $ExcludedFromBuild "Yes" }
+			$Configuration "Debug"
+			{
+				$ExcludedFromBuild "Yes" [!$SOURCESDK]
+			}
 		}
-		$File "$SRCDIR\thirdparty\protobuf-2.6.1\bin\win64\2015\staticcrt\debug\libprotobuf.lib" [$WIN64]
+		$File "$SRCDIR\thirdparty\protobuf-2.6.1\bin\win64\2015\staticcrt\debug\libprotobuf.lib" [$WIN64 && !$SOURCESDK]
 		{
 			$Configuration "Release" { $ExcludedFromBuild "Yes" }
 		}
