@@ -57,6 +57,10 @@ END_DATADESC()
 ConVar tf_fireball_airblast_recharge_penalty( "tf_fireball_airblast_recharge_penalty", "0.5", FCVAR_REPLICATED | FCVAR_CHEAT );
 ConVar tf_fireball_hit_recharge_boost( "tf_fireball_hit_recharge_boost", "1.5", FCVAR_REPLICATED | FCVAR_CHEAT );
 
+#ifdef CLIENT_DLL
+ConVar tf_fireball_show_pressure( "tf_fireball_show_pressure", "0", FCVAR_ARCHIVE );
+#endif
+
 CTFWeaponFlameBall::CTFWeaponFlameBall()
 {
 	m_flRechargeScale = 1.f;
@@ -277,6 +281,15 @@ void CTFWeaponFlameBall::ItemPostFrame( void )
 	}
 }
 
+float CTFWeaponFlameBall::GetProgress( void )
+{
+	CTFPlayer *pPlayer = GetTFPlayerOwner();
+	if ( !pPlayer )
+		return 0.f;
+
+	return pPlayer->m_Shared.GetItemChargeMeter( LOADOUT_POSITION_PRIMARY ) / 100.0f;
+}
+
 void CTFWeaponFlameBall::OnResourceMeterFilled()
 {
 	m_flRechargeScale = 1.f;
@@ -346,7 +359,7 @@ void CTFWeaponFlameBall::OnDataChanged( DataUpdateType_t updateType )
 bool CTFWeaponFlameBall::ShouldDrawMeter() const
 {
 	// There's a meter on the gun, so don't draw the meter
-	return false;	
+	return tf_fireball_show_pressure.GetBool();
 }
 
 void CTFWeaponFlameBall::UpdatePoseParams()

@@ -21,6 +21,7 @@
 #include "tf_weapon_flaregun.h"
 #include "tf_weapon_revolver.h"
 #include "tf_weapon_flamethrower.h"
+#include "tf_weapon_dragons_fury.h"
 #include "tf_weapon_knife.h"
 #include "tf_item_powerup_bottle.h"
 #include "tf_imagepanel.h"
@@ -304,7 +305,7 @@ void CHudItemEffectMeter::CreateHudElementsForClass( C_TFPlayer* pPlayer, CUtlVe
 		DECLARE_ITEM_EFFECT_METER( CTFBuffItem, TF_WEAPON_BUFF_ITEM, true, NULL );
 		DECLARE_ITEM_EFFECT_METER( CTFParticleCannon, TF_WEAPON_PARTICLE_CANNON, false, "resource/UI/HUDItemEffectMeter_ParticleCannon.res" );
 		DECLARE_ITEM_EFFECT_METER( CTFRaygun, TF_WEAPON_RAYGUN, false, "resource/UI/HUDItemEffectMeter_Raygun.res" );
-		DECLARE_ITEM_EFFECT_METER( CTFRocketLauncher_AirStrike, TF_WEAPON_ROCKETLAUNCHER, false, "resource/UI/HudItemEffectMeter_Demoman.res" );
+		DECLARE_ITEM_EFFECT_METER( CTFRocketLauncher_AirStrike, TF_WEAPON_ROCKETLAUNCHER, false, "resource/UI/HUDItemEffectMeter_Soldier.res" ); // respect shared meter language
 		break;
 
 	case TF_CLASS_SPY:
@@ -326,20 +327,20 @@ void CHudItemEffectMeter::CreateHudElementsForClass( C_TFPlayer* pPlayer, CUtlVe
 	case TF_CLASS_ENGINEER:
 		DECLARE_ITEM_EFFECT_METER( CTFShotgun_Revenge, TF_WEAPON_SENTRY_REVENGE, false, "resource/UI/HUDItemEffectMeter_Engineer.res" );
 		DECLARE_ITEM_EFFECT_METER( CTFDRGPomson, TF_WEAPON_DRG_POMSON, false, "resource/UI/HUDItemEffectMeter_Pomson.res" );
-		DECLARE_ITEM_EFFECT_METER( CTFRevolver, TF_WEAPON_REVOLVER, false, "resource/UI/HUDItemEffectMeter_Spy.res" );
+		DECLARE_ITEM_EFFECT_METER( CTFRevolver, TF_WEAPON_REVOLVER, false, "resource/UI/HUDItemEffectMeter_Engineer.res" ); // respect shared meter language
 		break;
 
 	case TF_CLASS_PYRO:
 	{
 		DECLARE_ITEM_EFFECT_METER( CTFFlameThrower, TF_WEAPON_FLAMETHROWER, true, "resource/UI/HudItemEffectMeter_Pyro.res" );
-		DECLARE_ITEM_EFFECT_METER( CTFFlareGun_Revenge, TF_WEAPON_FLAREGUN_REVENGE, false, "resource/UI/HUDItemEffectMeter_Engineer.res" );
+		DECLARE_ITEM_EFFECT_METER( CTFFlareGun_Revenge, TF_WEAPON_FLAREGUN_REVENGE, false, "resource/UI/HUDItemEffectMeter_Flaregun.res" ); // respect shared meter language
 		DECLARE_ITEM_EFFECT_METER( CTFRocketPack, TF_WEAPON_ROCKETPACK, false, "resource/UI/HudRocketPack.res" );
+		DECLARE_ITEM_EFFECT_METER( CTFWeaponFlameBall, TF_WEAPON_FLAME_BALL, false, "resource/UI/HudItemEffectMeter_Pyro.res" );
 		lambdaAddItemEffectMeter( "tf_weapon_jar_gas", true );
-		lambdaAddItemEffectMeter( "tf_weapon_rocketlauncher_fireball", false );
 		break;
 	}
 	case TF_CLASS_MEDIC:
-		DECLARE_ITEM_EFFECT_METER( CWeaponMedigun, TF_WEAPON_MEDIGUN, true, "resource/UI/HudItemEffectMeter_Scout.res" );
+		DECLARE_ITEM_EFFECT_METER( CWeaponMedigun, TF_WEAPON_MEDIGUN, true, "resource/UI/HudItemEffectMeter_Medic.res" ); // respect shared meter language
 		DECLARE_ITEM_EFFECT_METER( CTFBonesaw, TF_WEAPON_BONESAW, false, "resource/UI/HUDItemEffectMeter_Organs.res" );
 		break;
 	}
@@ -871,6 +872,20 @@ bool CHudItemEffectMeter_Weapon<CTFFlameThrower>::ShouldFlash( void )
 }
 
 //-----------------------------------------------------------------------------
+template <>
+bool CHudItemEffectMeter_Weapon<CTFWeaponFlameBall>::IsEnabled( void )
+{
+	if ( !m_pPlayer )
+		return false;
+
+	CTFWeaponFlameBall *pWeapon = GetWeapon();
+	if ( !pWeapon )
+		return false;
+
+	return pWeapon->ShouldDrawMeter();
+}
+
+//-----------------------------------------------------------------------------
 // Soda Popper Flash
 //-----------------------------------------------------------------------------
 template <>
@@ -1018,16 +1033,6 @@ int CHudItemEffectMeter_Weapon<CTFShotgun_Revenge>::GetCount( void )
 	{
 		return 0.f;
 	}
-}
-
-template <>
-bool CHudItemEffectMeter_Weapon<CTFFlareGun_Revenge>::IsEnabled( void )
-{
-	if ( !m_pPlayer )
-		return false;
-
-	CTFFlareGun_Revenge *pWeapon = GetWeapon();
-	return pWeapon && pWeapon->IsActiveByLocalPlayer();
 }
 
 template <>
