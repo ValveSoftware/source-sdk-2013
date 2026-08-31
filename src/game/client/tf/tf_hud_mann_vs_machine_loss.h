@@ -35,6 +35,8 @@ public:
 
 	void ShowPanel();
 
+	virtual void OnKeyCodePressed( vgui::KeyCode code );
+
 private:
 
 	void SetCaptainCanteenImage( vgui::ImagePanel *panel, const char *pchImage, int nNewX );

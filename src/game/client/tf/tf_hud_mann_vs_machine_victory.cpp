@@ -1877,7 +1877,9 @@ void CMvMVictoryPanelContainer::OnCommand( const char *command )
 
 void CMvMVictoryPanelContainer::OnKeyCodePressed( vgui::KeyCode code )
 {
-	if ( code == STEAMCONTROLLER_A || code == STEAMCONTROLLER_B )
+	ButtonCode_t nButtonCode = GetBaseButtonCode( code );
+
+	if ( nButtonCode == KEY_XBUTTON_A || nButtonCode == STEAMCONTROLLER_A || nButtonCode == KEY_XBUTTON_B || nButtonCode == STEAMCONTROLLER_B )
 	{
 		OnCommand( "done" );
 	}
@@ -1910,7 +1912,7 @@ void CMvMVictoryPanelContainer::ShowVictoryPanel( bool bIsReopening )
 	SetVisible( true );
 	MakePopup();
 	MoveToFront();
-	SetKeyBoardInputEnabled( false );
+	SetKeyBoardInputEnabled( true );
 	SetMouseInputEnabled( true );
 	m_pObjective = TFObjectiveResource();
 

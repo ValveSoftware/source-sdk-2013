@@ -329,7 +329,12 @@ public:
 		return m_pVictoryContainer && m_pVictoryContainer->IsVictoryPanelVisible();
 	}
 
-	virtual GameActionSet_t GetPreferredActionSet() { return IsActive() ? (IsVictoryPanelVisible() ? GAME_ACTION_SET_MENUCONTROLS : CHudElement::GetPreferredActionSet()) : GAME_ACTION_SET_NONE; }
+	bool IsLossPanelVisible()
+	{
+		return m_pWaveLossPanel && m_pWaveLossPanel->IsVisible();
+	}
+
+	virtual GameActionSet_t GetPreferredActionSet() { return IsActive() ? ( ( IsVictoryPanelVisible() || IsLossPanelVisible() ) ? GAME_ACTION_SET_MENUCONTROLS : CHudElement::GetPreferredActionSet()) : GAME_ACTION_SET_NONE; }
 
 	bool IsWaveCompletePanelVisible()
 	{
