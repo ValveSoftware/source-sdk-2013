@@ -115,28 +115,8 @@ void CHudDemomanChargeMeter::OnTick( void )
 	
 
 	ITFChargeUpWeapon *pChargeupWeapon = dynamic_cast< ITFChargeUpWeapon *>( pWpn );
-	if ( !pWpn || !pChargeupWeapon || !pChargeupWeapon->CanCharge() )
+	if ( !pWpn || !pChargeupWeapon || !pChargeupWeapon->CanCharge() || !m_pChargeMeter || !pChargeupWeapon->GetChargeMaxTime() )
 		return;
-
-	if ( m_pChargeMeter )
-	{
-		float flChargeMaxTime = pChargeupWeapon->GetChargeMaxTime();
-
-		if ( flChargeMaxTime != 0 )
-		{
-			float flChargeBeginTime = pChargeupWeapon->GetChargeBeginTime();
-
-			if ( flChargeBeginTime > 0 )
-			{
-				float flTimeCharged = MAX( 0, gpGlobals->curtime - flChargeBeginTime );
-				float flPercentCharged = MIN( 1.0, flTimeCharged / flChargeMaxTime );
-
-				m_pChargeMeter->SetProgress( flPercentCharged );
-			}
-			else
-			{
-				m_pChargeMeter->SetProgress( 0.0f );
-			}
-		}
-	}
+	
+	m_pChargeMeter->SetProgress( pChargeupWeapon->GetPercentProgress() );
 }

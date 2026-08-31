@@ -118,6 +118,14 @@ public:
 	{ 
 		return ( gpGlobals->curtime - GetChargeBeginTime() ) / GetChargeMaxTime();
 	}
+
+#ifdef CLIENT_DLL
+	void SetPercentProgress( float flPercentProgress ) { m_flPercentProgress = flPercentProgress; };
+	float GetPercentProgress( void ) { return m_flPercentProgress; };
+
+private:
+	float m_flPercentProgress = 0;
+#endif
 };
 
 class CTraceFilterIgnoreTeammates : public CTraceFilterSimple
