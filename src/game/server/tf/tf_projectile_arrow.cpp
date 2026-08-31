@@ -816,24 +816,38 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 	if ( !closest_box )
 	{
 		// Locate the hitbox closest to our point of impact on the collision box.
-		Vector position, start, forward;
-		QAngle angles;
-		float closest_dist = 99999;
+		Vector forward, impact_pos;
+		float closest_dist = FLT_MAX;
 
 		// Intense, but extremely accurate:
 		AngleVectors( GetAbsAngles(), &forward );
-		start = GetAbsOrigin() + forward*16;
+		impact_pos = GetAbsOrigin();
+
 		for ( int i = 0; i < set->numhitboxes; i++ )
 		{
 			mstudiobbox_t *pbox = set->pHitbox( i );
 
-			pAnimOther->GetBonePosition( pbox->bone, position, angles );
+			Vector origin, center;
+			QAngle angles;
 
-			Ray_t ray;
-			ray.Init( start, position );
-			trace_t tr;
-			IntersectRayWithBox( ray, position+pbox->bbmin, position+pbox->bbmax, 0.f, &tr );
-			float dist = tr.endpos.DistTo( start );
+			pAnimOther->GetBonePosition( pbox->bone, origin, angles );
+
+			matrix3x4_t mat;
+			AngleMatrix( angles, origin, mat );
+
+			VectorTransform( ( pbox->bbmin + pbox->bbmax ) * 0.5f, mat, center );
+
+			Vector proj = impact_pos + forward * ( center - impact_pos ).Dot( forward );
+
+			Vector point;
+			VectorITransform( proj, mat, point );
+
+			CalcClosestPointOnAABB( pbox->bbmin, pbox->bbmax, point, point );
+
+			Vector surface_point;
+			VectorTransform( point, mat, surface_point );
+
+			float dist = proj.DistToSqr( surface_point );
 
 			if ( dist < closest_dist )
 			{
