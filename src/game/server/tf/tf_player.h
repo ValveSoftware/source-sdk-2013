@@ -748,6 +748,7 @@ public:
 	bool				IsTaunting( void ) const { return m_Shared.InCond( TF_COND_TAUNTING ); }
 	void				DoTauntAttack( void );
 	bool				IsAllowedToTaunt( void );
+	bool                IsAllowedToViewCYOAPDA( void );
 	bool				FindOpenTauntPartnerPosition( const CEconItemView *pEconItemView, Vector &position, float *flTolerance );
 	bool				IsAllowedToInitiateTauntWithPartner( const CEconItemView *pEconItemView, char *pszErrorMessage = NULL, int cubErrorMessage = 0 );
 	void				CancelTaunt( void );
@@ -774,6 +775,8 @@ public:
 	void				SetVehicleReverseTime( float flTime ) { m_flVehicleReverseTime = flTime; }
 
 	bool				IsViewingCYOAPDA( void ) const { return m_bViewingCYOAPDA; }
+	bool				IsInCYOAPDAAnimation( void ) const;
+	void				StopViewingCYOAPDA( void );
 	bool				IsRegenerating( void ) const { return m_bRegenerating; }
 
 	HSCRIPT				ScriptGetActiveWeapon( void ) { return ToHScript( GetActiveTFWeapon() ); }

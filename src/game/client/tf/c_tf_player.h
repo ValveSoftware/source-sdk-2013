@@ -195,6 +195,9 @@ public:
 	bool			IsTaunting( void ) const { return m_Shared.InCond( TF_COND_TAUNTING ); }
 
 	bool			IsViewingCYOAPDA( void ) const { return m_bViewingCYOAPDA; }
+	bool			IsInCYOAPDAAnimation( void ) const;
+	void			StopViewingCYOAPDA( void );
+
 	bool			IsRegenerating( void ) const { return m_bRegenerating; }
 
 	virtual void	InitPhonemeMappings();
@@ -248,6 +251,7 @@ public:
 	CNetworkVar( int, m_iKartState );
 
 	bool IsAllowedToTaunt( void );
+	bool IsAllowedToViewCYOAPDA( void );
 	
 	virtual bool	IsOverridingViewmodel( void );
 	virtual int		DrawOverriddenViewmodel( C_BaseViewModel *pViewmodel, int flags );
