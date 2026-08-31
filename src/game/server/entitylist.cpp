@@ -556,7 +556,22 @@ CBaseEntity *CGlobalEntityList::FindEntityProcedural( const char *szName, CBaseE
 		}
 		else if ( FStrEq( pName, "picker" ) )
 		{
-			return FindPickerEntity( UTIL_PlayerByIndex(1) );
+			if ( pSearchingEntity && pSearchingEntity->IsPlayer() )
+			{
+				return FindPickerEntity( (CBasePlayer *)pSearchingEntity );
+			}
+			else if( pActivator && pActivator->IsPlayer() )
+			{
+				return FindPickerEntity( (CBasePlayer *)pActivator );
+			}
+			else if( pCaller && pCaller->IsPlayer() )
+			{
+				return FindPickerEntity( (CBasePlayer *)pCaller );
+			}
+			else
+			{
+				return FindPickerEntity( UTIL_PlayerByIndex(1) );
+			}
 		}
 		else if ( FStrEq( pName, "self" ) )
 		{
