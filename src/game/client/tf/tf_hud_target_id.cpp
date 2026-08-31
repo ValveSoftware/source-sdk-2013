@@ -969,7 +969,12 @@ void CTargetID::UpdateID( void )
 							vgui::IScheme *pScheme = vgui::scheme()->GetIScheme( GetScheme() );
 							if ( pScheme )
 							{
-								const char* pszColorName = GetItemSchema()->GetRarityColor( pDroppedEconItem->GetItemDefinition()->GetRarity() );
+								const char* pszColorName = GetItemSchema()->GetRarityColor(pDroppedEconItem->GetRarity());
+								// Addition for consistency with other economy UI
+								if (pDroppedEconItem->GetItemQuality() == AE_SELFMADE)
+								{
+									pszColorName = EconQuality_GetColorString(AE_SELFMADE);
+								}
 								pszColorName = pszColorName ? pszColorName : "TanLight";
 								colorName = pScheme->GetColor( pszColorName, Color( 255, 255, 255, 255 ) );
 							}
