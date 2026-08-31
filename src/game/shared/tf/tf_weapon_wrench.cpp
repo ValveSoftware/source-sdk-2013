@@ -54,17 +54,20 @@ IMPLEMENT_NETWORKCLASS_ALIASED( TFRobotArm, DT_TFWeaponRobotArm )
 
 BEGIN_NETWORK_TABLE( CTFRobotArm, DT_TFWeaponRobotArm )
 #ifdef GAME_DLL
-SendPropEHandle(SENDINFO(m_hRobotArm)),
+	SendPropEHandle( SENDINFO( m_hRobotArm ) ),
+	SendPropInt( SENDINFO( m_iComboCount ), 4, SPROP_UNSIGNED),
+	SendPropFloat( SENDINFO( m_flLastComboHit ), 0, SPROP_NOSCALE),
 #else
-RecvPropEHandle(RECVINFO(m_hRobotArm)),
+	RecvPropEHandle( RECVINFO( m_hRobotArm ) ),
+	RecvPropInt( RECVINFO( m_iComboCount ) ),
+	RecvPropFloat( RECVINFO( m_flLastComboHit) ),
 #endif
 END_NETWORK_TABLE()
 
 #ifdef CLIENT_DLL
 BEGIN_PREDICTION_DATA( CTFRobotArm )
-// DEFINE_PRED_FIELD( name, fieldtype, flags )
-DEFINE_PRED_FIELD( m_iComboCount, FIELD_INTEGER, 0 ),
-DEFINE_PRED_FIELD( m_flLastComboHit, FIELD_FLOAT, 0 ),
+DEFINE_PRED_FIELD( m_iComboCount, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
+DEFINE_PRED_FIELD( m_flLastComboHit, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 END_PREDICTION_DATA()
 #endif
 
