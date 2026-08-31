@@ -478,7 +478,7 @@ BEGIN_PREDICTION_DATA_NO_BASE( CTFPlayerShared )
 	DEFINE_PRED_FIELD( m_flHolsterAnimTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_ARRAY( m_flItemChargeMeter, FIELD_FLOAT, LAST_LOADOUT_SLOT_WITH_CHARGE_METER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iStunIndex, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
-	DEFINE_PRED_FIELD( m_bScattergunJump, FIELD_BOOLEAN, 0 ),
+	DEFINE_PRED_FIELD( m_iScattergunJump, FIELD_INTEGER, 0 ),
 END_PREDICTION_DATA()
 
 // Server specific.
@@ -791,7 +791,7 @@ CTFPlayerShared::CTFPlayerShared()
 	m_flPrevInvisibility = 0.f;
 	m_flTmpDamageBonusAmount = 1.0f;
 
-	m_bScattergunJump = false;
+	m_iScattergunJump = 0;
 
 	m_bFeignDeathReady = false;
 
