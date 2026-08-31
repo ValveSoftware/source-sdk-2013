@@ -349,6 +349,10 @@ void CTFParticleCannon::Precache()
 	PrecacheParticleSystem( "drg_cow_explosioncore_charged_blue" );
 	PrecacheParticleSystem( "drg_cow_explosioncore_normal" );
 	PrecacheParticleSystem( "drg_cow_explosioncore_normal_blue" );
+	PrecacheParticleSystem( "drg_cow_explosioncore_charged_halloween" );
+	PrecacheParticleSystem( "drg_cow_explosioncore_normal_halloween" );
+	PrecacheParticleSystem( "drg_cow_explosioncore_charged_halloween_blue" );
+	PrecacheParticleSystem( "drg_cow_explosioncore_normal_halloween_blue" );
 	PrecacheParticleSystem( "drg_cow_muzzleflash_charged" );
 	PrecacheParticleSystem( "drg_cow_muzzleflash_charged_blue" );
 	PrecacheParticleSystem( "drg_cow_muzzleflash_normal" );
