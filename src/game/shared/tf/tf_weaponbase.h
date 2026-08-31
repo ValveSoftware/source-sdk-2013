@@ -707,6 +707,8 @@ protected:
 	int				m_iLastCritCheckFrame;
 	int				m_iCurrentSeed;
 	float			m_flLastRapidFireCritCheckTime;
+	
+	float			m_flTimeFinishReloadSingly;
 
 	float			m_flLastDeployTime;
 

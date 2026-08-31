@@ -545,6 +545,16 @@ float CTFGrenadeLauncher::GetChargeMaxTime( void )
 	return GetMortarDetonateTimeLength();
 }
 
+bool CTFGrenadeLauncher::CanInspect() const
+{
+    // we are charging a ball, so don't inspect
+    if ( m_flDetonateTime > gpGlobals->curtime )
+    {
+        return false;
+    }
+
+    return BaseClass::CanInspect();
+}
 
 void CTFGrenadeLauncher::ResetDetonateTime()
 {
