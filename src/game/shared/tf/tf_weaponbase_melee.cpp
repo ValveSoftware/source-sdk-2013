@@ -271,6 +271,12 @@ void CTFWeaponBaseMelee::PlaySwingSound( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseMelee::Swing( CTFPlayer *pPlayer )
 {
+	// A previous smack could be pending, so do the smack before we forget about it
+	if ( m_flSmackTime >= m_flNextPrimaryAttack )
+	{
+		Smack();
+	}
+
 	CalcIsAttackCritical();
 
 #ifdef GAME_DLL
@@ -308,7 +314,7 @@ void CTFWeaponBaseMelee::Swing( CTFPlayer *pPlayer )
 	m_potentialVictimVector.RemoveAll();
 	const float looseSwingRange = 1.2f * GetSwingRange();
 
-	for( int i=0; i<enemyVector.Count(); ++i )
+	for ( int i=0; i<enemyVector.Count(); ++i )
 	{
 		Vector toVictim = enemyVector[i]->WorldSpaceCenter() - pPlayer->Weapon_ShootPosition();
 
