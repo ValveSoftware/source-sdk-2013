@@ -153,9 +153,9 @@ void C_BaseObject::UpdateOnRemove( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void C_BaseObject::PreDataUpdate( DataUpdateType_t updateType )
+void C_BaseObject::OnPreDataChanged( DataUpdateType_t updateType )
 {
-	BaseClass::PreDataUpdate( updateType );
+	BaseClass::OnPreDataChanged( updateType );
 
 	m_iOldHealth = m_iHealth;
 	m_hOldOwner = GetOwner();
