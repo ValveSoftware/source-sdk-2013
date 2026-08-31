@@ -53,7 +53,7 @@ int CBlacklistedServerManager::LoadServersFromFile( const char *pszFilename, boo
 	{
 		const char *pszName = pData->GetString( "name" );
 
-		uint32 ulDate = pData->GetInt( "date" );
+		time_t ulDate = pData->GetUint64( "date" );
 		if ( bResetTimes )
 		{
 			time_t today;
@@ -90,7 +90,7 @@ void CBlacklistedServerManager::SaveToFile( const char *pszFilename )
 	{
 		KeyValues *pSubKey = new KeyValues( "server" );
 		pSubKey->SetString( "name", m_Blacklist[i].m_szServerName );
-		pSubKey->SetInt( "date", m_Blacklist[i].m_ulTimeBlacklistedAt );
+		pSubKey->SetUint64( "date", m_Blacklist[i].m_ulTimeBlacklistedAt );
 		pSubKey->SetString( "addr", m_Blacklist[i].m_NetAdr.ToString() );
 		pKV->AddSubKey( pSubKey );
 	}
@@ -155,7 +155,7 @@ blacklisted_server_t *CBlacklistedServerManager::AddServer( const char *serverNa
 //-----------------------------------------------------------------------------
 // Purpose: Add the given server to the blacklist. Return added server.
 //-----------------------------------------------------------------------------
-blacklisted_server_t *CBlacklistedServerManager::AddServer( const char *serverName, const char *netAddressString, uint32 timestamp )
+blacklisted_server_t *CBlacklistedServerManager::AddServer( const char *serverName, const char *netAddressString, time_t timestamp )
 {
 	netadr_t netAdr( netAddressString );
 
