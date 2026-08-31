@@ -10068,8 +10068,9 @@ void CTFPlayer::AddConnectedPlayers( CUtlVector<CTFPlayer*> &vecPlayers, CTFPlay
 
 	for ( int i = 0 ; i < pPlayerToConsider->m_Shared.GetNumHealers() ; i++ )
 	{
+		// Make sure the Medic is healing us specifically - don't count AoE healing
 		CTFPlayer *pMedic = ToTFPlayer( pPlayerToConsider->m_Shared.GetHealerByIndex( i ) );
-		if ( pMedic )
+		if ( pMedic && pMedic->MedicGetHealTarget() == pPlayerToConsider )
 		{
 			AddConnectedPlayers( vecPlayers, pMedic );
 		}
