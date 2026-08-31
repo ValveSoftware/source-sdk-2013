@@ -173,6 +173,7 @@ void CCharacterInfoPanel::ShowPanel(bool bShow)
 		Activate();
 
 		int iClass = m_pLoadoutPanel->GetCurrentClassIndex();
+		SetDefaultTeam( GetLocalPlayerTeam() == TF_TEAM_BLUE ? TF_TEAM_BLUE : TF_TEAM_RED );
 		OpenLoadoutToClass( iClass, false );
 	}
 	else
@@ -331,9 +332,9 @@ void CCharacterInfoPanel::OnCommand( const char *command )
 //-----------------------------------------------------------------------------
 void CCharacterInfoPanel::OpenLoadoutToClass( int iClassIndex, bool bOpenClassLoadout ) 
 { 
-	Assert(iClassIndex >= TF_CLASS_UNDEFINED && iClassIndex < TF_CLASS_COUNT); 
-	m_pLoadoutPanel->SetClassIndex( iClassIndex, bOpenClassLoadout );
+	Assert(iClassIndex >= TF_CLASS_UNDEFINED && iClassIndex < TF_CLASS_COUNT);
 	m_pLoadoutPanel->SetTeamIndex( m_iDefaultTeam );
+	m_pLoadoutPanel->SetClassIndex( iClassIndex, bOpenClassLoadout );
 }
 
 //-----------------------------------------------------------------------------
@@ -470,6 +471,7 @@ IEconRootUI	*CCharacterInfoPanel::OpenEconUI( int iDirectToPage, bool bCheckForI
 	}
 	else if ( iDirectToPage < 0 )
 	{
+		SetDefaultTeam( GetLocalPlayerTeam() == TF_TEAM_BLUE ? TF_TEAM_BLUE : TF_TEAM_RED );
 		// Negative numbers go directly to the class loadout
 		OpenLoadoutToClass( -(iDirectToPage), true );
 	}
@@ -565,6 +567,11 @@ void Open_CharInfoDirect( const CCommand &args )
 	if ( args.ArgC() > 1 )
 	{
 		iClass = -atoi( args.Arg( 1 ) );
+		if ( -iClass < TF_CLASS_UNDEFINED || -iClass >= TF_CLASS_COUNT )
+		{
+			// prevent Assert-crashing if the client does something silly
+			iClass = -TF_CLASS_UNDEFINED;
+		}
 	}
 
 	EconUI()->OpenEconUI( iClass );	
