@@ -257,6 +257,8 @@ void CTFStickBomb::Smack( void )
 			int dmgType = DMG_BLAST | DMG_USEDISTANCEMOD | DMG_MELEE;
 			if ( IsCurrentAttackACrit() )
 				dmgType |= DMG_CRITICAL;
+			else if ( m_bMiniCrit )
+				dmgType |= DMG_RADIUS_MAX;
 
 			float flDamage = 75.0f;
 			CALL_ATTRIB_HOOK_FLOAT( flDamage, mult_dmg );
