@@ -60,6 +60,7 @@ private:
 	bool			m_bShouldBeVisible;
 
 	float			m_flNextUpdate;
+	float			m_flNextActionTime;	// new addition for bugfix
 
 	bool			m_bTeamReady[MAX_TEAMS];
 
