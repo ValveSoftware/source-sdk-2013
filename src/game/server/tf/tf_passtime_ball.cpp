@@ -324,7 +324,8 @@ void CPasstimeBall::CreateSphereCollider()
 void CPasstimeBall::Spawn()
 {
 	// not sure why this has to come first, but iirc it does.
-	SetCollisionGroup( COLLISION_GROUP_NONE ); 
+	// Use COLLISION_GROUP_INTERACTIVE so we don't collide with nonsense like dropped weapons and ammo from players.
+	SetCollisionGroup( COLLISION_GROUP_INTERACTIVE );
 
 	// === CBaseProp::Spawn
 	const char *pszModelName = (char*) STRING( GetModelName() );
