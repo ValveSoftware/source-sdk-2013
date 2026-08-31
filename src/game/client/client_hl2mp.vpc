@@ -9,6 +9,7 @@ $Macro GAMENAME 	"hl2mp" [!$SOURCESDK]
 $Macro GAMENAME 	"mod_hl2mp" [$SOURCESDK]
 
 $Include "$SRCDIR\game\client\client_base.vpc"
+$Include "$SRCDIR\game\client\discord\discord.vpc"
 
 $Configuration
 {
