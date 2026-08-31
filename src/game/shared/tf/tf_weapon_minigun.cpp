@@ -35,6 +35,8 @@
 #define TF_MINIGUN_SPINUP_TIME 0.75f
 #define TF_MINIGUN_PENALTY_PERIOD 1.f
 
+#define MINIGUN_FIRE_RING_RADIUS 135.0f
+
 //=============================================================================
 //
 // Weapon Minigun tables.
@@ -507,11 +509,10 @@ void CTFMinigun::RingOfFireAttack( int nDamage )
 #ifdef GAME_DLL
 
 	Vector vOrigin = pPlayer->GetAbsOrigin();
-	const float flFireRadius = 135.0f;
-	const float flFireRadiusSqr = flFireRadius * flFireRadius;
-
+	Vector vecSrc = pPlayer->WorldSpaceCenter();
 	CBaseEntity *pEntity = NULL;
-	for ( CEntitySphereQuery sphere( vOrigin, flFireRadius ); (pEntity = sphere.GetCurrentEntity()) != NULL; sphere.NextEntity() )
+	float flRingRadiusSqr = MINIGUN_FIRE_RING_RADIUS * MINIGUN_FIRE_RING_RADIUS;
+	for ( CEntitySphereQuery sphere( vOrigin, MINIGUN_FIRE_RING_RADIUS ); (pEntity = sphere.GetCurrentEntity()) != NULL; sphere.NextEntity() )
 	{
 		// Skip players on the same team or who are invuln
 		CTFPlayer *pVictim = ToTFPlayer( pEntity );
@@ -521,32 +522,41 @@ void CTFMinigun::RingOfFireAttack( int nDamage )
 		// Make sure their bounding box is near our ground plane
 		Vector vMins = pVictim->GetPlayerMins();
 		Vector vMaxs = pVictim->GetPlayerMaxs();
-		if ( !( vOrigin.z > pVictim->GetAbsOrigin().z + vMins.z - 32.0f && vOrigin.z < pVictim->GetAbsOrigin().z + vMaxs.z ) )
-		{
+		Vector vicOrigin = pVictim->GetAbsOrigin();
+
+		if ( !( vOrigin.z > vicOrigin.z + vMins.z - 32.0f && vOrigin.z < vicOrigin.z + vMaxs.z ) )
 			continue;
-		}
 
 		// CEntitySphereQuery actually does a box test. So we need to make sure the distance is less than the radius first.
 		Vector vecPos;
 		pEntity->CollisionProp()->CalcNearestPoint( vOrigin, &vecPos );
-		if ( ( vOrigin - vecPos ).LengthSqr() > flFireRadiusSqr )
+
+		if ( ( vOrigin - vecPos ).LengthSqr() > flRingRadiusSqr)
 			continue;
 
 		// Finally LOS test
 		trace_t	tr;
-		Vector vecSrc = WorldSpaceCenter();
-		Vector vecSpot = pEntity->WorldSpaceCenter();
-		CTraceFilterSimple filter( this, COLLISION_GROUP_PROJECTILE );
-		UTIL_TraceLine( vecSrc, vecSpot, MASK_SOLID_BRUSHONLY, &filter, &tr );
+		CTraceFilterSimple filter(NULL, COLLISION_GROUP_NONE);
+		UTIL_TraceLine( vecSrc, vecPos, MASK_SOLID_AOE, &filter, &tr );
 
-		// If we don't trace the whole way to the target, and we didn't hit the target entity, we're blocked
-		if ( tr.fraction != 1.0 && tr.m_pEnt != pEntity )
-			continue;
-
-		pVictim->TakeDamage( CTakeDamageInfo( pPlayer, pPlayer, this, vec3_origin, vOrigin, nDamage, DMG_PLASMA, 0, &vOrigin ) );
+		// If we don't trace the whole way to the target, we're blocked
+		if ( tr.fraction != 1.0 )
+		{
+			UTIL_TraceLine( vecSrc, vicOrigin, MASK_SOLID_AOE, &filter, &tr );
+			if ( tr.fraction != 1.0 )
+			{
+				Vector vecSpot = pEntity->WorldSpaceCenter();
+				UTIL_TraceLine( vecSrc, vecSpot, MASK_SOLID_AOE, &filter, &tr );
+				if ( tr.fraction != 1.0 )
+				{
+					continue;
+				}
+			}
+		}
+		pVictim->TakeDamage( CTakeDamageInfo( pPlayer, pPlayer, this, vec3_origin, vOrigin, nDamage, DMG_IGNITE, 0, &vOrigin ) );
 	}
 
-	DispatchParticleEffect( "heavy_ring_of_fire", pPlayer->GetAbsOrigin(), vec3_angle );
+	DispatchParticleEffect( "heavy_ring_of_fire", vOrigin, vec3_angle );
 
 #else
 
