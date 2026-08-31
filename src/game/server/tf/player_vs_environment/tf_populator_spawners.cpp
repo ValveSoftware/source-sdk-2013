@@ -750,6 +750,10 @@ static bool ParseDynamicAttributes( CTFBot::EventChangeAttributes_t& event, KeyV
 		{
 			event.m_attributeFlags |= CTFBot::PROJECTILE_SHIELD;
 		}
+		else if ( !Q_stricmp( value, "ForceDifficultyBasedAim" ) )
+		{
+			event.m_attributeFlags |= CTFBot::FORCE_DIFFICULTY_BASED_AIM;
+		}
 		else
 		{
 			Warning( "TFBotSpawner: Invalid attribute '%s'\n", value );
