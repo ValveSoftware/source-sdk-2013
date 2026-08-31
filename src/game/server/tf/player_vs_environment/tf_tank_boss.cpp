@@ -185,6 +185,13 @@ BEGIN_DATADESC( CTFTankBoss )
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "DestroyIfAtCapturePoint", InputDestroyIfAtCapturePoint ),
 	DEFINE_INPUTFUNC( FIELD_STRING, "AddCaptureDestroyPostfix", InputAddCaptureDestroyPostfix ),
 
+
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetPath", InputSetPath ),
+	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "CanDeploy", InputCanDeploy ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "ForceDeploy", InputForceDeploy ),
+
+	DEFINE_OUTPUT( m_outputOnBombDeployed,	"OnBombDeployed" ),
+
 END_DATADESC()
 
 //-----------------------------------------------------------------------------------------------------
@@ -244,6 +251,7 @@ CTFTankBoss::CTFTankBoss()
 	m_szDeathPostfix[ 0 ] = '\0';
 	m_flDroppingStart = 0.0f;
 	m_flSpawnTime = 0.0f;
+	m_bCanDeploy = true;
 }
 
 
@@ -340,7 +348,10 @@ void CTFTankBoss::Spawn( void )
 	SetModelIndexOverride( VISION_MODE_ROME, modelinfo->GetModelIndex( s_TankModelRome[ m_damageModelIndex ] ) );
 	m_lastHealth = GetMaxHealth();
 
-	AddGlowEffect();
+	if ( !HasSpawnFlags(SF_TANK_NOGLOW) )
+	{ 
+		AddGlowEffect();
+	}
 
 	m_leftTracks = (CBaseAnimating *)CreateEntityByName( "prop_dynamic" );
 	if ( m_leftTracks )
@@ -517,6 +528,7 @@ void CTFTankBoss::Spawn( void )
 //--------------------------------------------------------------------------------------
 void CTFTankBoss::UpdateOnRemove( void )
 {
+	StopSound( "MVM.TankDeploy" );
 	StopSound( "MVM.TankEngineLoop" );
 	StopSound( "MVM.TankDeploy" );
 
@@ -613,6 +625,82 @@ void CTFTankBoss::Event_Killed( const CTakeDamageInfo &info )
 void CTFTankBoss::SetStartingPathTrackNode( char *name )
 {
 	m_goalNode = dynamic_cast< CPathTrack * >( gEntList.FindEntityByName( NULL, name ) );
+}
+
+
+//--------------------------------------------------------------------------------------
+void CTFTankBoss::InputSetPath( inputdata_t &inputdata )
+{
+	m_goalNode = dynamic_cast< CPathTrack * >( gEntList.FindEntityByName( NULL, inputdata.value.String() ) );
+}
+
+
+//--------------------------------------------------------------------------------------
+void CTFTankBoss::InputCanDeploy( inputdata_t &inputdata )
+{
+	m_bCanDeploy = inputdata.value.Bool();
+}
+
+
+//--------------------------------------------------------------------------------------
+void CTFTankBoss::InputForceDeploy( inputdata_t &inputdata )
+{
+	//Already Deploying? Ignore!
+	if ( m_isDroppingBomb )
+		return;
+	
+	//No permission? No Deploy
+	if ( !m_bCanDeploy )
+		return;
+
+	m_goalNode = NULL;
+
+	DeployBomb();
+}
+
+
+//-----------------------------------------------------------------------------------------------------
+void CTFTankBoss::DeployBomb(void)
+{
+	//DevMsg( "Tank's final position: %.2f %.2f %.2f", GetAbsOrigin().x, GetAbsOrigin().y, GetAbsOrigin().z );
+	/*if ( TFGameRules() )
+	{
+		TFGameRules()->SetBossNormalizedTravelDistance( 1.0f );
+	}*/
+	// reached end of track - deploy the bomb
+	int animSequence = m_bomb->LookupSequence( "deploy" );
+	if ( animSequence )
+	{
+		m_bomb->SetSequence( animSequence );
+		m_bomb->SetPlaybackRate( 1.0f );
+		m_bomb->SetCycle( 0 );
+		m_bomb->ResetSequenceInfo();
+	}
+
+	animSequence = LookupSequence( "deploy" );
+	if ( animSequence )
+	{
+		SetSequence( animSequence );
+		SetPlaybackRate( 1.0f );
+		SetCycle( 0 );
+		ResetSequenceInfo();
+	}
+
+	if ( m_flLastTankAlert + 5.0f < gpGlobals->curtime )
+	{
+		TFGameRules()->PlayThrottledAlert( 255, "Announcer.MVM_Tank_Alert_Deploying", 5.0f );
+		m_flLastTankAlert = gpGlobals->curtime;
+		m_bPlayedNearAlert = true;
+	}
+
+	m_isDroppingBomb = true;
+	m_flDroppingStart = gpGlobals->curtime;
+
+	StopSound( "MVM.TankEngineLoop" );
+
+	EmitSound( "MVM.TankDeploy" );
+
+	TFGameRules()->HaveAllPlayersSpeakConceptIfAllowed( MP_CONCEPT_MVM_TANK_DEPLOYING, TF_TEAM_PVE_DEFENDERS );
 }
 
 
@@ -791,49 +879,9 @@ void CTFTankBoss::TankBossThink( void )
 			m_goalNode = m_goalNode->GetNext();
 			m_nNodeNumber++;
 
-			if ( m_goalNode == NULL && m_bomb )
+			if ( m_goalNode == NULL && m_bomb && m_bCanDeploy )
 			{
-				//DevMsg( "Tank's final position: %.2f %.2f %.2f", GetAbsOrigin().x, GetAbsOrigin().y, GetAbsOrigin().z );
-
-				/*if ( TFGameRules() )
-				{
-					TFGameRules()->SetBossNormalizedTravelDistance( 1.0f );
-				}*/
-
-				// reached end of track - deploy the bomb
-				int animSequence = m_bomb->LookupSequence( "deploy" );
-				if ( animSequence )
-				{
-					m_bomb->SetSequence( animSequence );
-					m_bomb->SetPlaybackRate( 1.0f );
-					m_bomb->SetCycle( 0 );
-					m_bomb->ResetSequenceInfo();
-				}
-
-				animSequence = LookupSequence( "deploy" );
-				if ( animSequence )
-				{
-					SetSequence( animSequence );
-					SetPlaybackRate( 1.0f );
-					SetCycle( 0 );
-					ResetSequenceInfo();
-				}
-
-				if ( m_flLastTankAlert + 5.0f < gpGlobals->curtime )
-				{
-					TFGameRules()->PlayThrottledAlert( 255, "Announcer.MVM_Tank_Alert_Deploying", 5.0f );
-					m_flLastTankAlert = gpGlobals->curtime;
-					m_bPlayedNearAlert = true;
-				}
-
-				m_isDroppingBomb = true;
-				m_flDroppingStart = gpGlobals->curtime;
-
-				StopSound( "MVM.TankEngineLoop" );
-
-				EmitSound( "MVM.TankDeploy" );
-
-				TFGameRules()->HaveAllPlayersSpeakConceptIfAllowed( MP_CONCEPT_MVM_TANK_DEPLOYING, TF_TEAM_PVE_DEFENDERS );
+				DeployBomb();
 			}
 		}
 
@@ -858,9 +906,13 @@ void CTFTankBoss::TankBossThink( void )
 	if ( m_isDroppingBomb && IsSequenceFinished() )
 	{
 		FirePopFileEvent( &m_onBombDroppedEventInfo );
+		m_outputOnBombDeployed.FireOutput( this, this );
 		m_isDroppingBomb = false;
 
 		TFGameRules()->BroadcastSound( 255, "Announcer.MVM_Tank_Planted" );
+
+		// rabscootle - MVM Wave Win/Lose Responses
+		TFGameRules()->HaveAllPlayersSpeakConceptIfAllowed( MP_CONCEPT_MVM_WAVE_LOSE, TF_TEAM_PVE_DEFENDERS );
 	}
 
 	// if the Tank is driving under something, shut off its smokestack
@@ -981,6 +1033,7 @@ void CTFTankBoss::FirePopFileEvent( EventInfo *eventInfo )
 
 void CTFTankBoss::Explode( void )
 {
+	StopSound( "MVM.TankDeploy" );
 	StopSound( "MVM.TankEngineLoop" );
 	StopSound( "MVM.TankDeploy" );
 
@@ -1076,4 +1129,3 @@ void CTFTankBoss::UpdatePingSound( void )
 		EmitSound( "MVM.TankPing");
 	}
 }
-

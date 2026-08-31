@@ -10,6 +10,8 @@
 //----------------------------------------------------------------------------
 class CTFTankBoss : public CTFBaseBoss
 {
+	#define SF_TANK_NOGLOW 2
+
 public:
 	DECLARE_CLASS( CTFTankBoss, CTFBaseBoss );
 	DECLARE_SERVERCLASS();
@@ -32,9 +34,14 @@ public:
 
 	virtual void Event_Killed( const CTakeDamageInfo &info );
 
+	void DeployBomb( void );
 	void TankBossThink( void );
 
 	void SetStartingPathTrackNode( char *name );
+
+	void InputSetPath( inputdata_t &inputdata );
+	void InputCanDeploy( inputdata_t &inputdata );
+	void InputForceDeploy( inputdata_t &inputdata );
 
 	void DefineOnKilledOutput( EventInfo *eventInfo );
 	void DefineOnBombDroppedOutput( EventInfo *eventInfo );
@@ -42,6 +49,9 @@ public:
 	void SetWaveSpawnPopulator( CWaveSpawnPopulator *pWave ){ m_pWaveSpawnPopulator = pWave; }
 
 	virtual int GetCurrencyValue( void );
+
+	// Entity I/O - For Mappers
+	COutputEvent m_outputOnBombDeployed;
 
 	// Input handlers
 	void InputDestroyIfAtCapturePoint( inputdata_t &inputdata );
@@ -73,6 +83,7 @@ private:
 
 	int m_exhaustAttachment;
 	bool m_isSmoking;
+	bool m_bCanDeploy;
 
 	bool m_bIsPlayerKilled;
 	bool m_bPlayedHalfwayAlert;
