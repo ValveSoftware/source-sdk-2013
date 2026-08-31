@@ -2527,6 +2527,24 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 				return -1;
 			}
 		}
+		else if (!Q_stricmp(argv[i], "-extrapasses"))
+		{
+			if (++i < argc)
+			{
+				int extrapassesParam = atoi(argv[i]);
+				if (extrapassesParam < 0)
+				{
+					Warning("Error: expected non-negative value after '-extrapasses'\n");
+					return 1;
+				}
+				extrapasses = extrapassesParam;
+			}
+			else
+			{
+				Warning("Error: expected a value after '-extrapasses'\n");
+				return 1;
+			}
+		}
 		else if (!Q_stricmp(argv[i],"-centersamples"))
 		{
 			do_centersamples = true;
@@ -2822,6 +2840,7 @@ void PrintUsage( int argc, char **argv )
 		"  -fastambient    : Per-leaf ambient sampling is lower quality to save compute time.\n"
 		"  -final          : High quality processing. equivalent to -extrasky 16.\n"
 		"  -extrasky n     : trace N times as many rays for indirect light and sky ambient.\n"
+		"  -extrapasses #  : Lets you scale how many extra passes you want your map to go through (default 4), differences above this value are minimal.\n"
 		"  -low            : Run as an idle-priority process.\n"
 #ifdef MPI
 		"  -mpi            : Use VMPI to distribute computations.\n"
