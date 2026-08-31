@@ -366,6 +366,47 @@ HackMakeValidList:
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Generate a item matching the specified criteria
+//-----------------------------------------------------------------------------
+item_definition_index_t CEconItemSystem::GenerateItem( CItemSelectionCriteria *pCriteria, const char *pszItemName, entityquality_t *outEntityQuality )
+{
+	VPROF_BUDGET("CEconItemSystem::GenerateItem", "Econ");
+	// First, pick a random item quality (use the one passed in first)
+	if ( !pCriteria->BQualitySet() )
+	{
+		pCriteria->SetQuality( GetRandomQualityForItem() );
+	}
+
+	pCriteria->SetIgnoreEnabledFlag( true );
+
+	const CEconItemDefinition* pItemDef = GetItemSchema()->GetItemDefinitionByName( pszItemName );
+	if ( !pItemDef )
+	{
+		DevMsg( "CEconItemSystem::GenerateItem: Invalid item %s\n", pszItemName );
+		return INVALID_ITEM_DEF_INDEX;
+	}
+
+	// If we haven't specified an entity quality, we want to use the item's specified one
+	if ( pCriteria->GetQuality() == AE_USE_SCRIPT_VALUE )
+	{
+		int32 iScriptQuality = pItemDef->GetQuality();
+		pCriteria->SetQuality( iScriptQuality == AE_UNDEFINED ? GetRandomQualityForItem( true ) : iScriptQuality );
+	}
+
+	// If we haven't specified an item level, we want to use the item's specified one.
+	if ( !pCriteria->BItemLevelSet() )
+	{
+		pCriteria->SetItemLevel( RandomInt( pItemDef->GetMinLevel(), pItemDef->GetMaxLevel() ) );
+	}
+
+	if ( outEntityQuality )
+	{
+		*outEntityQuality = pCriteria->GetQuality();
+	}
+	return pItemDef->GetDefinitionIndex();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Return a random quality for the item specified
 //-----------------------------------------------------------------------------
 entityquality_t CEconItemSystem::GetRandomQualityForItem( bool bPreventUnique )

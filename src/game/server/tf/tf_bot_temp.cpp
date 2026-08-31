@@ -1391,9 +1391,8 @@ void BotGenerateAndWearItem( CTFPlayer *pBot, const char *itemName )
 	CItemSelectionCriteria criteria;
 	criteria.SetItemLevel( AE_USE_SCRIPT_VALUE );
 	criteria.SetQuality( AE_USE_SCRIPT_VALUE );
-	criteria.BAddCondition( "name", k_EOperator_String_EQ, itemName, true );
 
-	CBaseEntity *pItem = ItemGeneration()->GenerateRandomItem( &criteria, pBot->GetAbsOrigin(), vec3_angle );
+	CBaseEntity *pItem = ItemGeneration()->GenerateItem( &criteria, itemName, pBot->GetAbsOrigin(), vec3_angle );
 	if ( pItem )
 	{
 		// If it's a weapon, remove the current one, and give us this one.

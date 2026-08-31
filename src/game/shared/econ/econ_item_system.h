@@ -54,6 +54,9 @@ public:
 	// Select and return a random item's definition index matching the specified criteria
 	item_definition_index_t	GenerateRandomItem( CItemSelectionCriteria *pCriteria, entityquality_t *outEntityQuality );
 
+	// Select and return a item's definition index matching the specified criteria
+	item_definition_index_t	GenerateItem( CItemSelectionCriteria *pCriteria, const char *pszItemName, entityquality_t *outEntityQuality );
+
 	// Select and return the base item definition index for a class's load-out slot 
 	// Note: baseitemcriteria_t is game-specific and/or may not exist!
 	virtual item_definition_index_t GenerateBaseItem( struct baseitemcriteria_t *pCriteria ) { return INVALID_ITEM_DEF_INDEX; }

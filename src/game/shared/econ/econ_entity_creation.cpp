@@ -57,6 +57,19 @@ CBaseEntity *CItemGeneration::GenerateItemFromDefIndex( int iDefIndex, const Vec
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Generate a item matching the specified definition index
+//-----------------------------------------------------------------------------
+CBaseEntity *CItemGeneration::GenerateItem( CItemSelectionCriteria *pCriteria, const char *pszItemName, const Vector &vecOrigin, const QAngle &vecAngles, const char* pszOverrideClassName )
+{
+	entityquality_t iQuality;
+	int iChosenItem = ItemSystem()->GenerateItem( pCriteria, pszItemName, &iQuality );
+	if ( iChosenItem == INVALID_ITEM_DEF_INDEX )
+		return NULL;
+
+	return SpawnItem( iChosenItem, vecOrigin, vecAngles, pCriteria->GetItemLevel(), iQuality, pszOverrideClassName );
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Generate an item from the specified item data
 //-----------------------------------------------------------------------------
 CBaseEntity *CItemGeneration::GenerateItemFromScriptData( const CEconItemView *pData, const Vector &vecOrigin, const QAngle &vecAngles, const char *pszOverrideClassName )

@@ -32,6 +32,9 @@ public:
 	// Generate a random item matching the specified definition index
 	CBaseEntity *GenerateItemFromDefIndex( int iDefIndex, const Vector &vecOrigin, const QAngle &vecAngles );
 
+	// Generate a item matching the specified definition index
+	CBaseEntity* GenerateItem( CItemSelectionCriteria* pCriteria, const char *pszItemName, const Vector& vecOrigin, const QAngle& vecAngles, const char* pszOverrideClassName = NULL );
+
 	// Generate an item from the specified item data
 	CBaseEntity *GenerateItemFromScriptData( const CEconItemView *pData, const Vector &vecOrigin, const QAngle &vecAngles, const char *pszOverrideClassName );
 

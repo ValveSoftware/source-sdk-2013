@@ -5568,8 +5568,7 @@ CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, int iSubType, const 
 		// Generate a base item of the specified type
 		CItemSelectionCriteria criteria;
 		criteria.SetQuality( AE_NORMAL );
-		criteria.BAddCondition( "name", k_EOperator_String_EQ, pszName, true );
-		pItem = ItemGeneration()->GenerateRandomItem( &criteria, GetAbsOrigin(), vec3_angle, pszName );
+		pItem = ItemGeneration()->GenerateItem( &criteria, pszName, GetAbsOrigin(), vec3_angle, pszName );
 	}
 
 	if ( pItem == NULL )
