@@ -799,4 +799,27 @@ bool IVision::IsLookingAt( const CBaseCombatCharacter *actor, float cosTolerance
 	return IsLookingAt( actor->EyePosition(), cosTolerance );
 }
 
+BEGIN_ENT_SCRIPTDESC( IVision, INextBotComponent, "Next bot vision" )
 
+	DEFINE_SCRIPTFUNC_WRAPPED( GetPrimaryKnownThreat, "Returns the most dangerous threat from the set of known entities" )
+	DEFINE_SCRIPTFUNC( GetTimeSinceVisible, "Returns the time since the bot saw any member of a given team" )
+	DEFINE_SCRIPTFUNC_WRAPPED( GetClosestKnown, "Returns the closest recognized entity, optionally filtered by team" )
+	DEFINE_SCRIPTFUNC_WRAPPED( GetKnown, "Returns our known version of the given entity, or NULL if unknown" )
+	DEFINE_SCRIPTFUNC( GetKnownCount, "Returns the number of known entities on a given team closer than rangeLimit" )
+	DEFINE_SCRIPTFUNC_WRAPPED( AddKnownEntity, "Introduces a known entity into the system" )
+	DEFINE_SCRIPTFUNC_WRAPPED( ForgetEntity, "Removes the given entity from the bots list of known entities" )
+	DEFINE_SCRIPTFUNC( ForgetAllKnownEntities, "Removes all entities from the bots list of known entities" )
+	DEFINE_SCRIPTFUNC( GetMaxVisionRange, "Get the bots max vision range" )
+	DEFINE_SCRIPTFUNC( GetMinRecognizeTime, "Get the minimum time required to recognize an entity" )
+	DEFINE_SCRIPTFUNC_WRAPPED( IsAbleToSee, "Checks if the bot can see the given vector" )	
+	DEFINE_SCRIPTFUNC_WRAPPED( IsIgnored, "Returns true if we should ignore the given entity" )
+	DEFINE_SCRIPTFUNC_WRAPPED( IsVisibleEntityNoticed, "Returns true if the given visible entity has been noticed" )
+	DEFINE_SCRIPTFUNC_WRAPPED( IsInFieldOfView, "Checks if a given Vector is in the bots field of view" )
+	DEFINE_SCRIPTFUNC_WRAPPED( IsEntityInFieldOfView, "Checks if a given Entity handle is in the bots field of view" )
+	DEFINE_SCRIPTFUNC( GetDefaultFieldOfView, "Returns the default field of view in degrees" )
+	DEFINE_SCRIPTFUNC( GetFieldOfView, "Gets the bots field of view" )
+	DEFINE_SCRIPTFUNC( SetFieldOfView, "Sets the horizontal field of view angle in degrees" )
+	DEFINE_SCRIPTFUNC( IsLineOfSightClear, "Returns true if the ray to the given point is unobstructed" )
+	DEFINE_SCRIPTFUNC_WRAPPED( IsLookingAt, "Checks if the bot is looking at the given position" )
+
+END_SCRIPTDESC();
