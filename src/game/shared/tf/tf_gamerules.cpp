@@ -7928,6 +7928,10 @@ bool CTFGameRules::ClientCommand( CBaseEntity *pEdict, const CCommand &args )
 				return true;
 
 			bool bReady = ( atoi( args[1] ) == 1 );
+
+			if ( bReady == IsPlayerReady( pPlayer->entindex() ) )
+				return true;
+
 			PlayerReadyStatus_UpdatePlayerState( pPlayer, bReady );
 			if ( bReady )
 			{
