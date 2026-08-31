@@ -238,7 +238,10 @@ public:
 	virtual bool		CanBreatheUnderwater() const { return m_HL2Local.m_flSuitPower > 0.0f; }
 
 	// physics interactions
+	virtual void		OnPickupObject( void );
+	virtual void		OnDropObject( void );
 	virtual void		PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize );
+	virtual bool		IsHoldingAnyEntity( void ) { return m_HL2Local.m_bHoldingObject; }
 	virtual	bool		IsHoldingEntity( CBaseEntity *pEnt );
 	virtual void		ForceDropOfCarriedPhysObjects( CBaseEntity *pOnlyIfHoldindThis );
 	virtual float		GetHeldObjectMass( IPhysicsObject *pHeldObject );

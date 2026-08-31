@@ -38,6 +38,7 @@ public:
 	CNetworkVar( int,	m_iSquadMedicCount );
 	CNetworkVar( bool,	m_fSquadInFollowMode );
 	CNetworkVar( bool,	m_bWeaponLowered );
+	CNetworkVar( bool,  m_bHoldingObject );
 	CNetworkVar( EHANDLE, m_hAutoAimTarget );
 	CNetworkVar( Vector, m_vecAutoAimPoint );
 	CNetworkVar( bool,	m_bDisplayReticle );

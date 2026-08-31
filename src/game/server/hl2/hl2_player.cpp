@@ -3151,6 +3151,16 @@ bool CHL2_Player::Weapon_CanSwitchTo( CBaseCombatWeapon *pWeapon )
 	return true;
 }
 
+void CHL2_Player::OnPickupObject( void )
+{
+	m_HL2Local.m_bHoldingObject = true;
+}
+
+void CHL2_Player::OnDropObject( void )
+{
+	m_HL2Local.m_bHoldingObject = false;
+}
+
 void CHL2_Player::PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize )
 {
 	// can't pick up what you're standing on
