@@ -987,7 +987,8 @@ void BuildGroup::LoadControlSettings(const char *controlResourceName, const char
 	m_pResourceName = new char[strlen(controlResourceName) + 1];
 	strcpy(m_pResourceName, controlResourceName);
 
-	if (pathID)
+	// set path id only if it is not the same to prevent use-after-free
+	if (pathID && pathID != m_pResourcePathID)
 	{
 		delete [] m_pResourcePathID;
 		m_pResourcePathID = new char[strlen(pathID) + 1];
