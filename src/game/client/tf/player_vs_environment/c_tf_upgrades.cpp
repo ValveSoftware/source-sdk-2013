@@ -34,6 +34,7 @@
 #include "tf_hud_statpanel.h"
 #include "tf_mann_vs_machine_stats.h"
 #include "c_tf_playerresource.h"
+#include "ienginevgui.h"
 
 #define UPGRADE_PANEL_LEVEL_LABEL_COUNT 10
 
@@ -467,7 +468,7 @@ bool CHudUpgradePanel::ShouldDraw( void )
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( m_hPlayer && pLocalPlayer == m_hPlayer )
 	{
-		if ( !m_hPlayer->IsAlive() || m_hPlayer->m_Shared.IsLoser() || m_hPlayer->GetTeamNumber() == TEAM_SPECTATOR )
+		if ( !m_hPlayer->IsAlive() || m_hPlayer->m_Shared.IsLoser() || m_hPlayer->GetTeamNumber() == TEAM_SPECTATOR || enginevgui->IsGameUIVisible() )
 		{
 			m_bWasInZone = false;
 			return false;
@@ -553,6 +554,9 @@ void CHudUpgradePanel::SetActive( bool bActive )
 
 		// Becoming visible. Get ready.
 		UpdateModelPanels();
+
+		// Hack to prevent a crash when trying to read m_pActiveUpgradeBuyPanel
+		UpgradeItemInSlot( LOADOUT_POSITION_PRIMARY );
 
 		// Accept button is disabled till you buy or sell something
 		m_pSelectWeaponPanel->SetControlEnabled( "CloseButton", false );
@@ -1190,26 +1194,23 @@ void CHudUpgradePanel::UpdateUpgradeButtons( void )
 
 void CHudUpgradePanel::UpdateJoystickControls( void )
 {
-	static ConVarRef joystick( "joystick" );
-	if ( !joystick.IsValid() || !joystick.GetBool() )
-	{
-		return;
-	}
+	//static ConVarRef joystick( "joystick" );
 
-	bool bUp = ::input->Joystick_GetForward() < 0.0f || ::input->Joystick_GetPitch() < 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_UP ) || vgui::input()->IsKeyDown( KEY_UP );
-	bool bDown = ::input->Joystick_GetForward() > 0.0f || ::input->Joystick_GetPitch() > 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_DOWN ) || vgui::input()->IsKeyDown( KEY_DOWN );
+	bool bUp = ::input->Joystick_GetForward() < 0.0f || ::input->Joystick_GetPitch() < 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_UP ) || vgui::input()->IsKeyDown( KEY_UP ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_DPAD_UP );
+	bool bDown = ::input->Joystick_GetForward() > 0.0f || ::input->Joystick_GetPitch() > 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_DOWN ) || vgui::input()->IsKeyDown( KEY_DOWN ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_DPAD_DOWN );
 	bool bNavUpDownPressed = bUp || bDown;
 
-	bool bLeft = ::input->Joystick_GetSide() < 0.0f || ::input->Joystick_GetYaw() < 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_LEFT ) || vgui::input()->IsKeyDown( KEY_LEFT );
-	bool bRight = ::input->Joystick_GetSide() > 0.0f || ::input->Joystick_GetYaw() > 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_RIGHT ) || vgui::input()->IsKeyDown( KEY_RIGHT );
+	bool bLeft = ::input->Joystick_GetSide() < 0.0f || ::input->Joystick_GetYaw() < 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_LEFT ) || vgui::input()->IsKeyDown( KEY_LEFT ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_DPAD_LEFT );
+	bool bRight = ::input->Joystick_GetSide() > 0.0f || ::input->Joystick_GetYaw() > 0.0f || vgui::input()->IsKeyDown( KEY_XBUTTON_RIGHT ) || vgui::input()->IsKeyDown( KEY_RIGHT ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_DPAD_RIGHT );
 	bool bNavLeftRightPressed = bLeft || bRight;
 
 	bool bAccept = vgui::input()->IsKeyDown( KEY_XBUTTON_A ) || vgui::input()->IsKeyDown( KEY_ENTER ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_A );
 	bool bBack = vgui::input()->IsKeyDown( KEY_XBUTTON_X ) || vgui::input()->IsKeyDown( KEY_BACKSPACE ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_X );
 	bool bDone = vgui::input()->IsKeyDown( KEY_XBUTTON_B ) || vgui::input()->IsKeyDown( KEY_ESCAPE ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_B );
-	bool bNext = vgui::input()->IsKeyDown( KEY_XBUTTON_RIGHT_SHOULDER ) || vgui::input()->IsKeyDown( KEY_PAGEDOWN );
-	bool bPrev = vgui::input()->IsKeyDown( KEY_XBUTTON_LEFT_SHOULDER ) || vgui::input()->IsKeyDown( KEY_PAGEUP );
-	bool bNavButtonPressed = bAccept || bBack || bDone || bNext || bPrev;
+	bool bRespec = vgui::input()->IsKeyDown( KEY_XBUTTON_Y ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_Y );
+	bool bNext = vgui::input()->IsKeyDown( KEY_XBUTTON_RIGHT_SHOULDER ) || vgui::input()->IsKeyDown( KEY_PAGEDOWN ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_RIGHT_BUMPER );
+	bool bPrev = vgui::input()->IsKeyDown( KEY_XBUTTON_LEFT_SHOULDER ) || vgui::input()->IsKeyDown( KEY_PAGEUP ) || vgui::input()->IsKeyDown( STEAMCONTROLLER_LEFT_BUMPER );
+	bool bNavButtonPressed = bAccept || bBack || bDone || bRespec || bNext || bPrev;
 
 	if ( m_bNavUpDownPressed )
 	{
@@ -1338,6 +1339,10 @@ void CHudUpgradePanel::UpdateJoystickControls( void )
 		else if ( bDone )
 		{
 			OnCommand( "close" );
+		}
+		else if ( bRespec )
+		{
+			OnCommand( "respec" );
 		}
 		else if ( bNext )
 		{
@@ -1491,7 +1496,16 @@ void CHudUpgradePanel::UpdateMouseOverHighlight( void )
 
 	int x, y;
 	m_pActiveUpgradeBuyPanel->GetPos( x, y );
-	m_pMouseOverUpgradePanel->SetPos( x - YRES( 1 ), y - YRES( 1 ) );
+	// hide the box so that it doesn't appear over the weapon icon for 1 frame
+	if ( x == 0 && y == 0 )
+	{
+		m_pMouseOverUpgradePanel->SetVisible( false );
+	}
+	else
+	{
+		m_pMouseOverUpgradePanel->SetVisible( true );
+		m_pMouseOverUpgradePanel->SetPos( x - YRES( 1 ), y - YRES( 1 ) );
+	}
 
 	CMannVsMachineUpgrades *pUpgrade = &(g_MannVsMachineUpgrades.m_Upgrades[ m_pActiveUpgradeBuyPanel->m_nUpgradeIndex ]);
 	CEconItemAttributeDefinition *pAttribDef = ItemSystem()->GetStaticDataForAttributeByName( pUpgrade->szAttrib );
