@@ -3186,7 +3186,7 @@ inline void Studio_SetRootLOD( studiohdr_t *pStudioHdr, int rootLOD )
 	}
 
 	Assert( rootLOD >= 0 && rootLOD < MAX_NUM_LODS );
-	Clamp( rootLOD, 0, MAX_NUM_LODS - 1 );
+	rootLOD = Clamp( rootLOD, 0, MAX_NUM_LODS - 1 );
 
 	// run the lod fixups that culls higher detail lods
 	// vertexes are external, fixups ensure relative offsets and counts are cognizant of shrinking data
