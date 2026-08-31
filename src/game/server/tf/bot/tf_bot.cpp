@@ -4989,3 +4989,22 @@ float CTFBot::GetUberDeployDelayDuration()
 	
 	return -1.f;
 }
+
+bool CTFBot::IsEnemy( const CBaseEntity *them ) const
+{
+	if ( them == NULL )
+		return false;
+		
+	int theirTeamNum = them->GetTeamNumber();
+	
+	// Check if a truce is active, as this will make enemy players no longer an "enemy" as they cannot be damaged during this state.
+	if ( TFGameRules() && TFGameRules()->IsTruceActive() )
+	{
+		return theirTeamNum != TF_TEAM_BLUE && theirTeamNum != TF_TEAM_RED;
+	}
+	else
+	{
+		// this is not strictly correct, as spectators are not enemies
+		return ( ( INextBot * ) this )->GetEntity()->GetTeamNumber() != theirTeamNum;
+	}
+}
