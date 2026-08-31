@@ -11486,19 +11486,62 @@ void CTFPlayer::CheckSpellHalloweenDeathGhosts( const CTakeDamageInfo &info, CTF
 	if ( TF_IsHolidayActive( kHoliday_HalloweenOrFullMoon ) )
 	{
 		int iHalloweenDeathGhosts = 0;
-		CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
-
-		// was this a wrangler kill?
-		if ( info.GetDamageCustom() == TF_DMG_CUSTOM_PLAYER_SENTRY )
+		CTFWeaponBase* pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
+		
+		if ( IsPlayerClass( TF_CLASS_ENGINEER ) )
 		{
-			CTFLaserPointer* pLaserPointer = dynamic_cast<CTFLaserPointer *>( GetEntityForLoadoutSlot( LOADOUT_POSITION_SECONDARY ) );
-			if ( pLaserPointer )
+			CObjectSentrygun* pSentry = dynamic_cast<CObjectSentrygun*>( info.GetInflictor() );
+			CTFProjectile_SentryRocket* pSentryRockets = dynamic_cast<CTFProjectile_SentryRocket*>( info.GetInflictor() );
+
+			if ( ( info.GetDamageCustom() == TF_DMG_CUSTOM_PLAYER_SENTRY ) && iHalloweenDeathGhosts == 0 ) // Was the Wrangler used + spelled?
 			{
-				pWeapon = pLaserPointer;
+				CTFLaserPointer* pLaserPointer = dynamic_cast<CTFLaserPointer*>( GetEntityForLoadoutSlot( LOADOUT_POSITION_SECONDARY ) );
+				if ( pLaserPointer )
+				{
+					CALL_ATTRIB_HOOK_INT_ON_OTHER(pLaserPointer, iHalloweenDeathGhosts, halloween_death_ghosts);
+				}
+			}
+			if ( ( pSentry || pSentryRockets ) && iHalloweenDeathGhosts == 0 ) // Was the Sentry used & the Wrench is spelled?
+			{
+				CTFWrench* pWrench = dynamic_cast<CTFWrench*>(GetEntityForLoadoutSlot(LOADOUT_POSITION_MELEE));
+				if ( pWrench )
+				{
+					CALL_ATTRIB_HOOK_INT_ON_OTHER(pWrench, iHalloweenDeathGhosts, halloween_death_ghosts);
+				}
+			}
+		}
+		else if (IsPlayerClass(TF_CLASS_DEMOMAN))
+		{
+			if (info.GetDamageCustom() == TF_DMG_CUSTOM_CHARGE_IMPACT && iHalloweenDeathGhosts == 0) // Was the death due to the shield?
+			{
+				CTFWearableDemoShield* pShield = NULL;
+
+				// Find a shield wearable...
+				for (int i = 0; i < GetNumWearables(); ++i)
+				{
+					CEconWearable* pItem = GetWearable(i);
+					if (!pItem)
+						continue;
+
+					CTFWearableDemoShield* pTempShield = dynamic_cast<CTFWearableDemoShield*>(pItem);
+					if (!pTempShield)
+						continue;
+
+					pShield = pTempShield;
+				}
+
+				if (pShield)
+				{
+					CALL_ATTRIB_HOOK_INT_ON_OTHER(pShield, iHalloweenDeathGhosts, halloween_death_ghosts);
+				}
 			}
 		}
 
-		CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iHalloweenDeathGhosts, halloween_death_ghosts );
+		if (iHalloweenDeathGhosts == 0) // This uses the actual weapon
+		{
+			CALL_ATTRIB_HOOK_INT_ON_OTHER(pWeapon, iHalloweenDeathGhosts, halloween_death_ghosts);
+		}
+
 		if ( iHalloweenDeathGhosts > 0 )
 		{
 			if ( pTFVictim->GetTeam()->GetTeamNumber() == TF_TEAM_BLUE )
@@ -15792,6 +15835,7 @@ void CTFPlayer::FeignDeath( const CTakeDamageInfo& info, bool bDeathnotice )
 		{
 			DropDeathCallingCard( pTFPlayer, this );
 		}
+
 
 		// Check for Halloween Death Ghosts
 		pTFPlayer->CheckSpellHalloweenDeathGhosts( info, this );
