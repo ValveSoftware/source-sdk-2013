@@ -175,6 +175,17 @@ void CTFParticleCannon::ItemPostFrame( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CTFParticleCannon::CanInspect() const
+{
+	// Don't allow us to inspect our weapon while charging a shot.
+	if ( m_flChargeBeginTime > 0 )
+		return false;
+	return BaseClass::CanInspect();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFParticleCannon::PrimaryAttack( void )

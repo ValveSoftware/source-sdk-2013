@@ -2029,6 +2029,14 @@ void CWeaponMedigun::WeaponIdle( void )
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CWeaponMedigun::CanInspect() const
+{
+	return BaseClass::CanInspect() && !m_bHealing;
+}
+
 #if defined( CLIENT_DLL )
 //-----------------------------------------------------------------------------
 // Purpose: 
