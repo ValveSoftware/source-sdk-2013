@@ -6,18 +6,20 @@
 
 #include "cbase.h"
 
+#ifdef GLOWS_ENABLE
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 //-----------------------------------------------------------------------------
-class C_TFGlow : public C_BaseEntity
+class C_EnvEntityGlow : public C_BaseEntity
 {
 public:
-	DECLARE_CLASS( C_TFGlow, C_BaseEntity );
+	DECLARE_CLASS( C_EnvEntityGlow, C_BaseEntity );
 	DECLARE_CLIENTCLASS();
 
-	C_TFGlow();
-	virtual ~C_TFGlow();
+	C_EnvEntityGlow();
+	virtual ~C_EnvEntityGlow();
 	virtual void PostDataUpdate( DataUpdateType_t updateType ) OVERRIDE;
 
 private:
@@ -25,32 +27,34 @@ private:
 
 	CGlowObject *pGlow;
 	CNetworkVar( int, m_iMode );
+	CNetworkVar( int, m_iStyle );
 	CNetworkVar( color32, m_glowColor );
 	CNetworkVar( bool, m_bDisabled );
 	CNetworkHandle( CBaseEntity, m_hTarget );
 };
 
 //-----------------------------------------------------------------------------
-IMPLEMENT_CLIENTCLASS_DT( C_TFGlow, DT_TFGlow, CTFGlow )
-	RecvPropInt(RECVINFO( m_iMode ) ),
+IMPLEMENT_CLIENTCLASS_DT( C_EnvEntityGlow, DT_EnvEntityGlow, CEnvEntityGlow )
+	RecvPropInt( RECVINFO( m_iMode ) ),
+	RecvPropInt( RECVINFO( m_iStyle ) ),
 	RecvPropInt( RECVINFO( m_glowColor ), 0, RecvProxy_IntToColor32 ),
 	RecvPropBool( RECVINFO( m_bDisabled ) ),
 	RecvPropEHandle( RECVINFO( m_hTarget ) ),
 END_RECV_TABLE()
 
 //-----------------------------------------------------------------------------
-C_TFGlow::C_TFGlow()
+C_EnvEntityGlow::C_EnvEntityGlow()
 {
 }
 
 //-----------------------------------------------------------------------------
-C_TFGlow::~C_TFGlow()
+C_EnvEntityGlow::~C_EnvEntityGlow()
 {
 	delete pGlow;
 }
 
 //-----------------------------------------------------------------------------
-void C_TFGlow::CreateGlow()
+void C_EnvEntityGlow::CreateGlow()
 {
 	if ( pGlow )
 	{
@@ -75,11 +79,11 @@ void C_TFGlow::CreateGlow()
 	bool bDrawWhenVisible = ( iMode == 0 ) || ( iMode == 2 );
 	Assert( bDrawWhenOccluded || bDrawWhenVisible );
 
-	pGlow = new CGlowObject( m_hTarget, cvec, a, bDrawWhenOccluded, bDrawWhenVisible );
+	pGlow = new CGlowObject( m_hTarget, cvec, a, bDrawWhenOccluded, bDrawWhenVisible, (GlowStyle_t)m_iStyle.Get() );
 }
 
 //-----------------------------------------------------------------------------
-void C_TFGlow::PostDataUpdate( DataUpdateType_t updateType )
+void C_EnvEntityGlow::PostDataUpdate( DataUpdateType_t updateType )
 {
 	BaseClass::PostDataUpdate( updateType );
 	
@@ -87,3 +91,5 @@ void C_TFGlow::PostDataUpdate( DataUpdateType_t updateType )
 	// wouldn't be noticeably more efficient and it would add a ton of code here.
 	CreateGlow();
 }
+
+#endif // GLOWS_ENABLE
