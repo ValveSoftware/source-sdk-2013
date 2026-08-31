@@ -1256,8 +1256,8 @@ void CTFBall_Ornament::VPhysicsCollision( int index, gamevcollisionevent_t *pEve
 	if ( !pHitEntity )
 		return;
 
-	// Break if we hit the world.
-	if ( pHitEntity->IsWorld() )
+	// Break if we hit anything that isn't a player (the world, doors, etc)
+	if ( !pHitEntity->IsPlayer() )
 	{
 		// Explode immediately next frame. (Can't explode in the collision callback.)
 		m_vCollisionVelocity = pEvent->preVelocity[index];
