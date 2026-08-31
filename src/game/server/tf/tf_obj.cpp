@@ -278,7 +278,7 @@ void CBaseObject::UpdateOnRemove( void )
 		CTFPlayer *pSapperOwner = pSapper->GetOwner();
 		if ( pSapperOwner )
 		{
-			pSapperOwner->m_Shared.IncrementRevengeCrits();
+			pSapperOwner->m_Shared.AddRevengeCrits( 1 );
 		}
 	}
 
