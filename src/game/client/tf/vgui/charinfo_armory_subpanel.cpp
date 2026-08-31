@@ -49,6 +49,36 @@ const char *g_szArmoryFilterStrings[ARMFILT_TOTAL] =
 	"Not Used",						// ARMFILT_CUSTOM
 };
 
+// List of priority (stock) items
+static const item_definition_index_t s_PriorityItems[] = {
+    190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 737, 26, 27, 211, 212, 736
+};
+static const int s_NumPriorityItems = ARRAYSIZE( s_PriorityItems );
+
+// Priority item helper function
+static inline bool IsPriorityItem( int defIndex )
+{
+    for ( int i = 0; i < s_NumPriorityItems; i++ )
+        if ( s_PriorityItems[i] == defIndex )
+            return true;
+    return false;
+}
+
+static int PrioritySort( const item_definition_index_t* a, const item_definition_index_t* b )
+{
+	int indexA = s_NumPriorityItems;
+	int indexB = s_NumPriorityItems;
+
+	for ( int i = 0; i < s_NumPriorityItems; ++i )
+	{
+		if ( indexA == s_NumPriorityItems && s_PriorityItems[i] == *a ) indexA = i;
+		if ( indexB == s_NumPriorityItems && s_PriorityItems[i] == *b ) indexB = i;
+		if ( indexA != s_NumPriorityItems && indexB != s_NumPriorityItems ) break;
+	}
+
+	return indexA - indexB;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -521,6 +551,8 @@ void CArmoryPanel::SetFilterTo( int iItemDef, armory_filters_t nFilter )
 	}
 	else
 	{
+		CUtlVector<item_definition_index_t> priorityItemList;
+
 		// First, build a list of all the items that match the filter
 		const CEconItemSchema::SortedItemDefinitionMap_t& mapItemDefs = ItemSystem()->GetItemSchema()->GetSortedItemDefinitionMap();
 		FOR_EACH_MAP( mapItemDefs, i )
@@ -530,9 +562,9 @@ void CArmoryPanel::SetFilterTo( int iItemDef, armory_filters_t nFilter )
 			// Never show:
 			//	- Hidden items
 			//	- Items that don't have fixed qualities
-			//	- Normal quality items
+			//	- Normal quality items that aren't priority
 			//	- Items that haven't asked to be shown
-			if ( pDef->IsHidden() || pDef->GetQuality() == k_unItemQuality_Any || pDef->GetQuality() == AE_NORMAL || !pDef->ShouldShowInArmory() )
+			if ( pDef->IsHidden() || pDef->GetQuality() == k_unItemQuality_Any || (pDef->GetQuality() == AE_NORMAL && !IsPriorityItem(pDef->GetDefinitionIndex())) || !pDef->ShouldShowInArmory() )
 				continue;
 
 #ifdef DEBUG
@@ -551,14 +583,27 @@ void CArmoryPanel::SetFilterTo( int iItemDef, armory_filters_t nFilter )
 
 			if ( DefPassesFilter( pDef, m_CurrentFilter ) )
 			{
-				m_FilteredItemList.AddToTail( pDef->GetDefinitionIndex() );
+				int defIndex = pDef->GetDefinitionIndex();
 
-				if ( iItemDef == pDef->GetDefinitionIndex() )
+				if ( !IsPriorityItem( defIndex ) ) {
+					m_FilteredItemList.AddToTail( defIndex );
+				}
+				else
 				{
-					SetSelectedItem( pDef->GetDefinitionIndex() );
+					// Catch priority items
+					priorityItemList.AddToTail( defIndex );
+				}
+
+				if ( iItemDef == defIndex )
+				{
+					SetSelectedItem( defIndex );
 				}
 			}
 		}
+
+		// If we caught priority items, insert them at the front of the list
+		priorityItemList.Sort( PrioritySort );
+		m_FilteredItemList.InsertMultipleBefore( 0, priorityItemList.Count(), priorityItemList.Base() );
 	}
 
 	// Make sure our current item is in the list
@@ -596,7 +641,7 @@ bool CArmoryPanel::DefPassesFilter( const CTFItemDefinition *pDef, armory_filter
 	case ARMFILT_WEAPONS:
 		{
 			int iSlot = pDef->GetDefaultLoadoutSlot();
-			bInList = ( iSlot == LOADOUT_POSITION_PRIMARY || iSlot == LOADOUT_POSITION_SECONDARY || iSlot == LOADOUT_POSITION_MELEE );
+			bInList = ( iSlot == LOADOUT_POSITION_PRIMARY || iSlot == LOADOUT_POSITION_SECONDARY || iSlot == LOADOUT_POSITION_MELEE || iSlot == LOADOUT_POSITION_BUILDING || iSlot == LOADOUT_POSITION_PDA || iSlot == LOADOUT_POSITION_PDA2 );
 			break;
 		}
 
@@ -706,7 +751,17 @@ void CArmoryPanel::UpdateItemList( void )
 			continue;
 		}
 
-		pItemData->Init( m_FilteredItemList[iItemPos], AE_USE_SCRIPT_VALUE, AE_USE_SCRIPT_VALUE, true );
+		int defIndex = m_FilteredItemList[iItemPos];
+		if ( IsPriorityItem(defIndex) )
+		{
+			// Slam Unique quality on priority items, for consistency
+			pItemData->Init( defIndex, AE_UNIQUE, AE_USE_SCRIPT_VALUE, true );
+		}
+		else
+		{
+			pItemData->Init( defIndex, AE_USE_SCRIPT_VALUE, AE_USE_SCRIPT_VALUE, true );
+		}
+
 		m_pThumbnailModelPanels[i]->SetItem( pItemData );
 		m_pThumbnailModelPanels[i]->SetVisible( true );
 	}
