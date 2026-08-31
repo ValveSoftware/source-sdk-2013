@@ -635,6 +635,8 @@ void C_BasePlayer::SetObserverMode ( int iNewMode )
 			// On a change of viewing mode or target, we may want to reset both head and torso to point at the new target.
 			g_ClientVirtualReality.AlignTorsoAndViewToWeapon();
 		}
+
+		UpdateVisibility();
 	}
 }
 
