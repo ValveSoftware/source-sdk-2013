@@ -558,6 +558,7 @@ extern	int	firstmodelface;
 void MakeFaces (node_t *headnode);
 void MakeDetailFaces (node_t *headnode);
 face_t *FixTjuncs( node_t *headnode, face_t *pLeafFaceList );
+void EndTjuncs();
 
 face_t	*AllocFace (void);
 void FreeFace (face_t *f);
