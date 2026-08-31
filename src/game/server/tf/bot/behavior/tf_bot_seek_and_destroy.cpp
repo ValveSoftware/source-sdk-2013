@@ -82,10 +82,15 @@ ActionResult< CTFBot >	CTFBotSeekAndDestroy::Update( CTFBot *me, float interval 
 				return Done( "The point just unlocked" );
 			}
 		}
-		
-		if ( !TFGameRules()->RoundHasBeenWon() && me->GetTimeLeftToCapture() < tf_bot_offense_must_push_time.GetFloat() )
+
+		// Added proper fix to the bot offense push time bug that causes seek and destroy to never happen
+		// Basically just check for these gamemodes and otherwise allow seek and destroy at all times
+		if (TFGameRules()->GetGameType() == TF_GAMETYPE_ESCORT || TFGameRules()->GetGameType() == TF_GAMETYPE_CP)
 		{
-			return Done( "Time to push for the objective" );
+			if (!TFGameRules()->RoundHasBeenWon() && me->GetTimeLeftToCapture() < tf_bot_offense_must_push_time.GetFloat())
+			{
+				return Done("Time to push for the objective");
+			}
 		}
 	}
 
