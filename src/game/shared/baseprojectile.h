@@ -55,6 +55,7 @@ public:
 #endif // GAME_DLL
 
 #ifdef TF_DLL
+	CBaseEntity* GetAttackerEntity();
 	void RecordEnemyPlayerHit( const CBaseEntity* pHitPlayer, bool bDirect );
 	virtual bool IsBaseProjectile( void ) const OVERRIDE { return true; }	
 #endif // TF_DLL
