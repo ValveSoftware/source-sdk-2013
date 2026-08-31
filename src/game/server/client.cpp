@@ -218,6 +218,9 @@ void Host_Say( edict_t *pEdict, const CCommand &args, bool teamonly )
 		pPlayer = ((CBasePlayer *)CBaseEntity::Instance( pEdict ));
 		Assert( pPlayer );
 
+		if ( !pPlayer )
+			return;
+
 		// make sure the text has valid content
 		p = CheckChatText( pPlayer, p );
 	}
@@ -305,10 +308,10 @@ void Host_Say( edict_t *pEdict, const CCommand &args, bool teamonly )
 		if ( teamonly && g_pGameRules->PlayerCanHearChat( client, pPlayer ) != GR_TEAMMATE )
 			continue;
 
-		if ( pPlayer && !client->CanHearAndReadChatFrom( pPlayer ) )
+		if ( !client->CanHearAndReadChatFrom( pPlayer ) )
 			continue;
 
-		if ( pPlayer && GetVoiceGameMgr() && GetVoiceGameMgr()->IsPlayerIgnoringPlayer( pPlayer->entindex(), i ) )
+		if ( GetVoiceGameMgr() && GetVoiceGameMgr()->IsPlayerIgnoringPlayerChat( pPlayer->entindex(), i ) )
 			continue;
 
 		CSingleUserRecipientFilter user( client );

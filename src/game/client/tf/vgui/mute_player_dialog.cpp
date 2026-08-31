@@ -27,7 +27,8 @@ CMutePlayerDialog::CMutePlayerDialog( vgui::Panel *parent ) : BaseClass( parent,
 	SetSize( 320, 270 );
 	SetTitle( "#TF_MutePlayerCaps", true );
 
-	m_pMuteButton = new Button( this, "MuteButton", "" );
+	m_pVoiceMuteButton = new Button( this, "VoiceMuteButton", "" );
+	m_pChatMuteButton = new Button( this, "ChatMuteButton", "" );
 	m_pPlayerList = new ListPanel( this, "PlayerList" );
 	m_pPlayerList->SetEmptyListText( "#GameUI_NoOtherPlayersInGame" );
 
@@ -202,9 +203,35 @@ void CMutePlayerDialog::RefreshPlayerStatus()
 
 		data->SetString( "name", UTIL_GetFilteredPlayerName( playerIndex, pi.name ) );
 
-		if ( GetClientVoiceMgr() && GetClientVoiceMgr()->IsPlayerBlocked( playerIndex ) )
+
+		if ( GetClientVoiceMgr() )
 		{
-			data->SetString( "status", "#TF_Muted" );
+			char szStatusLocalization[32] = {0};
+			bool bVoiceBlocked = GetClientVoiceMgr()->IsPlayerBlocked( playerIndex, BANMGR_FLAG_VOICE );
+			bool bChatBlocked = GetClientVoiceMgr()->IsPlayerBlocked( playerIndex, BANMGR_FLAG_CHAT );
+			if ( bVoiceBlocked && bChatBlocked )
+			{
+				V_strncpy( szStatusLocalization, "#TF_VoiceAndChatMuted", sizeof( szStatusLocalization ) );
+			}
+			else if ( bVoiceBlocked )
+			{
+				V_strncpy( szStatusLocalization, "#TF_VoiceMuted", sizeof( szStatusLocalization ) );
+			}
+			else if ( bChatBlocked )
+			{
+				V_strncpy( szStatusLocalization, "#TF_ChatMuted", sizeof( szStatusLocalization ) );
+			}
+
+			if ( szStatusLocalization[0] != '\0' )
+			{
+				char szStatus[128];
+				g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find( szStatusLocalization ), szStatus, sizeof( szStatus ) );
+				data->SetString( "status", szStatus );
+			}
+			else
+			{
+				data->SetString( "status", "" );
+			}
 		}
 		else
 		{
@@ -219,9 +246,13 @@ void CMutePlayerDialog::RefreshPlayerStatus()
 //-----------------------------------------------------------------------------
 void CMutePlayerDialog::OnCommand( const char *command )
 {
-	if ( !stricmp( command, "Mute" ) )
+	if ( !stricmp( command, "VoiceMute" ) )
 	{
-		ToggleMuteStateOfSelectedUser();
+		ToggleMuteStateOfSelectedUser( BANMGR_FLAG_VOICE );
+	}
+	else if ( !stricmp( command, "ChatMute" ) )
+	{
+		ToggleMuteStateOfSelectedUser( BANMGR_FLAG_CHAT );
 	}
 	else
 	{
@@ -232,7 +263,7 @@ void CMutePlayerDialog::OnCommand( const char *command )
 //-----------------------------------------------------------------------------
 // Purpose: toggles whether a user is muted or not
 //-----------------------------------------------------------------------------
-void CMutePlayerDialog::ToggleMuteStateOfSelectedUser()
+void CMutePlayerDialog::ToggleMuteStateOfSelectedUser( int iBanFlag )
 {
 	if ( !GetClientVoiceMgr() )
 		return;
@@ -244,15 +275,8 @@ void CMutePlayerDialog::ToggleMuteStateOfSelectedUser()
 			return;
 		int playerIndex = data->GetInt( "index" );
 		Assert( playerIndex );
-
-		if ( GetClientVoiceMgr()->IsPlayerBlocked( playerIndex ) )
-		{
-			GetClientVoiceMgr()->SetPlayerBlockedState( playerIndex, false );
-		}
-		else
-		{
-			GetClientVoiceMgr()->SetPlayerBlockedState( playerIndex, true );
-		}
+		bool bBlocked = GetClientVoiceMgr()->IsPlayerBlocked( playerIndex, iBanFlag );
+		GetClientVoiceMgr()->SetPlayerBlockedState( playerIndex, !bBlocked, iBanFlag );
 	}
 
 	RefreshPlayerStatus();
@@ -268,7 +292,7 @@ void CMutePlayerDialog::OnItemSelected()
 	RefreshPlayerStatus();
 
 	// set the button state based on the selected item
-	bool bMuteButtonEnabled = false;
+	bool bMuteButtonsEnabled = false;
 	if ( m_pPlayerList->GetSelectedItemsCount() > 0 )
 	{
 		KeyValues *data = m_pPlayerList->GetItem( m_pPlayerList->GetSelectedItem( 0 ) );
@@ -288,26 +312,25 @@ void CMutePlayerDialog::OnItemSelected()
 			isValidPlayer = false;
 		}
 
-		if ( data && isValidPlayer && GetClientVoiceMgr() && GetClientVoiceMgr()->IsPlayerBlocked( data->GetInt( "index" ) ) )
+		if ( data && isValidPlayer && GetClientVoiceMgr() )
 		{
-			m_pMuteButton->SetText( "#GameUI_UnmuteIngameVoice" );
-		}
-		else
-		{
-			m_pMuteButton->SetText( "#GameUI_MuteIngameVoice" );
-		}
+			bMuteButtonsEnabled = true;
 
-		if ( GetClientVoiceMgr() && isValidPlayer )
-		{
-			bMuteButtonEnabled = true;
+			bool bVoiceBlocked = GetClientVoiceMgr()->IsPlayerBlocked( data->GetInt( "index" ), BANMGR_FLAG_VOICE );
+			m_pVoiceMuteButton->SetText( bVoiceBlocked ? "#GameUI_UnmuteIngameVoice" : "#GameUI_MuteIngameVoice" );
+
+			bool bChatBlocked = GetClientVoiceMgr()->IsPlayerBlocked( data->GetInt( "index" ), BANMGR_FLAG_CHAT );
+			m_pChatMuteButton->SetText( bChatBlocked ? "#GameUI_UnmuteIngameChat" : "#GameUI_MuteIngameChat" );
 		}
 	}
 	else
 	{
-		m_pMuteButton->SetText( "#GameUI_MuteIngameVoice" );
+		m_pVoiceMuteButton->SetText( "#GameUI_MuteIngameVoice" );
+		m_pChatMuteButton->SetText( "#GameUI_MuteIngameChat" );
 	}
 
-	m_pMuteButton->SetEnabled( bMuteButtonEnabled );
+	m_pVoiceMuteButton->SetEnabled( bMuteButtonsEnabled );
+	m_pChatMuteButton->SetEnabled( bMuteButtonsEnabled );
 }
 
 //-----------------------------------------------------------------------------
