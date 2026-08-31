@@ -400,6 +400,9 @@ void CTFBotManager::MaintainBotQuota()
 		if ( !pPlayer->IsConnected() )
 			continue;
 
+		if ( pPlayer->IsHLTV() || pPlayer->IsReplay() )
+			continue;
+
 		CTFBot* pBot = dynamic_cast<CTFBot*>( pPlayer );
 		if ( pBot && pBot->HasAttribute( CTFBot::QUOTA_MANANGED ) )
 		{
