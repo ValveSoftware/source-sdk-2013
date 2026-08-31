@@ -1319,7 +1319,7 @@ void CMultiSource::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 			break;
 
 	// if we didn't find it, report error and leave
-	if (i > m_iTotal)
+	if (i >= m_iTotal)
 	{
 		Warning("MultiSrc: Used by non member %s.\n", pCaller->edict() ? pCaller->GetClassname() : "<logical entity>");
 		return;	
