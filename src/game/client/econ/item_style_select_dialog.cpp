@@ -20,6 +20,36 @@
 #include <tier0/memdbgon.h>
 
 
+
+
+
+class CStyleComboMenu : public vgui::Menu
+{
+	DECLARE_CLASS_SIMPLE(CStyleComboMenu, vgui::Menu);
+
+public:
+	CStyleComboMenu(vgui::Panel* pParent, const char* pszName)
+		: BaseClass(pParent, pszName)
+	{
+	}
+
+	virtual void OnKeyCodeTyped(vgui::KeyCode code)
+	{
+		if (code == KEY_ESCAPE)
+		{
+			SetVisible(false);
+			PostActionSignal(new KeyValues("ComboBoxEscape"));
+			return;
+		}
+
+		BaseClass::OnKeyCodeTyped(code);
+	}
+};
+
+
+
+
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -35,6 +65,10 @@ CComboBoxBackpackOverlayDialogBase::CComboBoxBackpackOverlayDialogBase( vgui::Pa
 	}
 
 	m_pComboBox = new vgui::ComboBox( this, "ComboBox", 5, false );
+	CStyleComboMenu* pMenu = new CStyleComboMenu(m_pComboBox, "StyleComboMenu");
+
+	pMenu->AddActionSignalTarget(this);
+	m_pComboBox->SetMenu(pMenu);
 }
 
 //-----------------------------------------------------------------------------
@@ -74,6 +108,25 @@ void CComboBoxBackpackOverlayDialogBase::ApplySchemeSettings( vgui::IScheme *pSc
 		pTitleLabel->SetText( GetTitleLabelLocalizationToken() );
 	}
 }
+
+
+void CComboBoxBackpackOverlayDialogBase::OnComboBoxEscape()
+{
+	OnCommand("cancel");
+}
+
+
+void CComboBoxBackpackOverlayDialogBase::OnKeyCodeTyped(vgui::KeyCode code)
+{
+	if (code == KEY_ESCAPE)
+	{
+		OnCommand("cancel");
+		return;
+	}
+
+	BaseClass::OnKeyCodeTyped(code);
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose:
