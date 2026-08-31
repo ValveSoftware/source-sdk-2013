@@ -4844,7 +4844,7 @@ bool CEconItemSchema::BInitGameInfo( KeyValues *pKVGameInfo, CUtlVector<CUtlStri
 	m_unFirstValidClassItemSlot = pKVGameInfo->GetInt( "first_valid_item_slot", INVALID_EQUIPPED_SLOT );
 	m_unLastValidClassItemSlot = pKVGameInfo->GetInt( "last_valid_item_slot", INVALID_EQUIPPED_SLOT );
 	SCHEMA_INIT_CHECK( INVALID_EQUIPPED_SLOT != m_unFirstValidClassItemSlot, "first_valid_item_slot not set!" );
-	SCHEMA_INIT_CHECK( INVALID_EQUIPPED_SLOT != m_unFirstValidClassItemSlot, "last_valid_item_slot not set!" );
+	SCHEMA_INIT_CHECK( INVALID_EQUIPPED_SLOT != m_unLastValidClassItemSlot, "last_valid_item_slot not set!" );
 	SCHEMA_INIT_CHECK( m_unFirstValidClassItemSlot <= m_unLastValidClassItemSlot, "First valid item slot must be less than or equal to last valid item slot." );
 
 	m_unFirstValidAccountItemSlot = pKVGameInfo->GetInt( "account_first_valid_item_slot", INVALID_EQUIPPED_SLOT );
