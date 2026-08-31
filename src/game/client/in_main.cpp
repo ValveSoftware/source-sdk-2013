@@ -157,15 +157,9 @@ void IN_CenterView_f (void)
 {
 	QAngle viewangles;
 
-	if ( UsingMouselook() == false )
-	{
-		if ( !::input->CAM_InterceptingMouse() )
-		{
-			engine->GetViewAngles( viewangles );
-			viewangles[PITCH] = 0;
-			engine->SetViewAngles( viewangles );
-		}
-	}
+	engine->GetViewAngles( viewangles );
+	viewangles[PITCH] = 0;
+	engine->SetViewAngles( viewangles );
 }
 
 /*
