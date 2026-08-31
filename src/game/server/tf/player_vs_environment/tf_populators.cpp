@@ -1404,6 +1404,12 @@ void CWaveSpawnPopulator::OnNonSupportWavesDone( void )
 {
 	if ( m_bSupportWave )
 	{
+		if ( TFGameRules() && ( m_unallocatedCurrency > 0 ) )
+		{
+			TFGameRules()->DistributeCurrencyAmount( m_unallocatedCurrency, NULL, true, true );
+			m_unallocatedCurrency = 0;
+		}
+
 		switch( m_state )
 		{
 		case PENDING:
@@ -1412,11 +1418,6 @@ void CWaveSpawnPopulator::OnNonSupportWavesDone( void )
 			break;
 		case SPAWNING:
 		case WAIT_FOR_ALL_DEAD:
-			if ( TFGameRules() && ( m_unallocatedCurrency > 0 ) )
-			{
-				TFGameRules()->DistributeCurrencyAmount( m_unallocatedCurrency, NULL, true, true );
-				m_unallocatedCurrency = 0;
-			}
 			SetState( WAIT_FOR_ALL_DEAD );
  		case DONE:
 			break;
