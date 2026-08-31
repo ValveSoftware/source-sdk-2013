@@ -48,6 +48,12 @@ struct DeathNoticeItem
 		iconPostVictimName = NULL;
 
 		bSpecialScore = false;
+
+		bUseMsgColorOverride = false;
+		bUseMsg2ColorOverride = false;
+		bUseMsg3ColorOverride = false;
+		bUseKillerTextColorOverride = false;
+		bUseVictimTextColorOverride = false;
 	}
 
 	float GetExpiryTime();
@@ -77,6 +83,18 @@ struct DeathNoticeItem
 	int			iCount;
 
 	bool		bSpecialScore;
+
+	Color		msgColorOverride;
+	Color		msg2ColorOverride;
+	Color		msg3ColorOverride;
+	Color		killerTextColorOverride;
+	Color		victimTextColorOverride;
+
+	bool		bUseMsgColorOverride;
+	bool		bUseMsg2ColorOverride;
+	bool		bUseMsg3ColorOverride;
+	bool		bUseKillerTextColorOverride;
+	bool		bUseVictimTextColorOverride;
 };
 
 #define NUM_CORNER_COORD 10
