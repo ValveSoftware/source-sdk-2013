@@ -51,7 +51,7 @@ ConVar tf_bot_hitscan_range_limit( "tf_bot_hitscan_range_limit", "1800", FCVAR_C
 ConVar tf_bot_always_full_reload( "tf_bot_always_full_reload", "0", FCVAR_CHEAT );
 
 ConVar tf_bot_fire_weapon_allowed( "tf_bot_fire_weapon_allowed", "1", FCVAR_CHEAT, "If zero, TFBots will not pull the trigger of their weapons (but will act like they did)" );
-ConVar tf_bot_reevaluate_class_in_spawnroom( "tf_bot_reevaluate_class_in_spawnroom", "1", FCVAR_CHEAT, "If set, bots will opportunisticly switch class while in spawnrooms if their current class is no longer their first choice." );
+ConVar tf_bot_reevaluate_class_in_spawnroom( "tf_bot_reevaluate_class_in_spawnroom", "1", FCVAR_NONE, "If set, bots will opportunisticly switch class while in spawnrooms if their current class is no longer their first choice." );
 
 
 //---------------------------------------------------------------------------------------------
@@ -151,6 +151,7 @@ ActionResult< CTFBot >	CTFBotMainAction::Update( CTFBot *me, float interval )
 
 	// should I try to change class?
 	if ( tf_bot_reevaluate_class_in_spawnroom.GetBool() &&
+		 !me->GetDidReselectClass() &&
 	     !TFGameRules()->IsMannVsMachineMode() && 
 		 !TFGameRules()->IsInTraining() && 
 		 myArea && myArea->HasAttributeTF( spawnRoomFlag ) )
