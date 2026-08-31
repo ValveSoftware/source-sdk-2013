@@ -52,6 +52,12 @@ void CTFProjectile_Rocket::Spawn()
 {
 	SetModel( ROCKET_MODEL );
 	BaseClass::Spawn();
+	CBaseEntity* pTFOwner = GetOwnerEntity();
+	if (pTFOwner)
+	{
+		m_nSkin = (pTFOwner->GetTeamNumber() == TF_TEAM_BLUE) ? 1 : 0;
+	}
+	
 }
 
 //-----------------------------------------------------------------------------
