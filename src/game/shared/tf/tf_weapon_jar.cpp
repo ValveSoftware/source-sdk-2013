@@ -263,9 +263,9 @@ void CTFProjectile_Jar::SetCustomPipebombModel()
 	// Check for Model Override
 	int iProjectile = 0;
 	CTFPlayer *pThrower = ToTFPlayer( GetThrower() );
-	if ( pThrower && pThrower->GetActiveWeapon() )
+	if ( pThrower && pThrower->Weapon_OwnsThisID( TF_WEAPON_JAR ) )
 	{
-		CALL_ATTRIB_HOOK_INT_ON_OTHER( pThrower->GetActiveWeapon(), iProjectile, override_projectile_type );
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( pThrower->Weapon_OwnsThisID( TF_WEAPON_JAR ), iProjectile, override_projectile_type );
 		switch ( iProjectile )
 		{
 		case TF_PROJECTILE_FESTIVE_JAR :
@@ -838,9 +838,9 @@ void CTFProjectile_JarMilk::SetCustomPipebombModel()
 	// Check for Model Override
 	int iProjectile = 0;
 	CTFPlayer *pThrower = ToTFPlayer( GetThrower() );
-	if ( pThrower && pThrower->GetActiveWeapon() )
+	if ( pThrower && pThrower->Weapon_OwnsThisID( TF_WEAPON_JAR_MILK ) )
 	{
-		CALL_ATTRIB_HOOK_INT_ON_OTHER( pThrower->GetActiveWeapon(), iProjectile, override_projectile_type );
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( pThrower->Weapon_OwnsThisID( TF_WEAPON_JAR_MILK ), iProjectile, override_projectile_type );
 		switch ( iProjectile )
 		{
 		case TF_PROJECTILE_BREADMONSTER_JARATE:
