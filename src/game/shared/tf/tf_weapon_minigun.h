@@ -167,6 +167,7 @@ private:
 	CSoundPatch		*m_pSoundCur;				// the weapon sound currently being played
 	int				m_iMinigunSoundCur;			// the enum value of the weapon sound currently being played
 	float			m_flMinigunSoundCurrentPitch;
+	float			m_flBasePostFireDelay;
 
 #ifdef GAME_DLL
 	float	m_flAegisCheckTime;
