@@ -272,29 +272,6 @@ static void EnableSteamScreenshots( bool bEnable )
 #endif
 }
 
-static void RemoveDownloadedParticlesManifest()
-{
-	FileFindHandle_t hFind = NULL;
-	const char *pszFileName = g_pFullFileSystem->FindFirstEx( "download/maps/*_particles.txt", "MOD", &hFind );
-
-	while ( pszFileName )
-	{
-		if ( pszFileName[0] != '.' )
-		{
-			CFmtStr fmtFilename( "download/maps/%s", pszFileName );
-
-			if ( !g_pFullFileSystem->IsDirectory( fmtFilename, "MOD" ) )
-			{
-				g_pFullFileSystem->RemoveFile( fmtFilename, "MOD" );
-			}
-		}
-
-		pszFileName = g_pFullFileSystem->FindNext( hFind );
-	}
-
-	g_pFullFileSystem->FindClose( hFind );
-}
-
 #if !defined(NO_STEAM)
 void SteamScreenshotsCallBack( IConVar *var, const char *pOldString, float flOldValue )
 {
@@ -374,8 +351,6 @@ void CTFModeManager::LevelShutdown( void )
 	CL_Coaching_LevelShutdown();
 	CL_Consumables_LevelShutdown();
 	CL_Halloween_LevelShutdown();
-
-	RemoveDownloadedParticlesManifest();
 }
 
 //-----------------------------------------------------------------------------
@@ -560,6 +535,8 @@ void ClientModeTFNormal::Shutdown()
 	}
 
 	DestroyStatsSummaryPanel();
+
+	BaseClass::Shutdown();
 }
 
 void ClientModeTFNormal::InitViewport()
@@ -742,8 +719,6 @@ void ClientModeTFNormal::FireGameEvent( IGameEvent *event )
 		m_eConnectState = k_eConnectState_Disconnected;
 		m_szMapBaseName[0] = '\0';
 		m_bPendingRichPresenceUpdate = true;
-
-		RemoveDownloadedParticlesManifest();
 #if !defined( _X360 ) && !defined( NO_STEAM )
 		if ( SteamTimeline() )
 			SteamTimeline()->ClearTimelineStateDescription( 0 );
@@ -1440,8 +1415,6 @@ void ClientModeTFNormal::FireGameEvent( IGameEvent *event )
 		m_bRestrictInfoPanel = pchSource && ( FStrEq( "matchmaking", pchSource ) || !Q_strncmp( pchSource, "quickplay_", 10 ) );
 
 		m_bInfoPanelShown = false;
-
-		RemoveDownloadedParticlesManifest();
 	}
 	else if ( FStrEq( "player_teleported", eventname ) )
 	{
