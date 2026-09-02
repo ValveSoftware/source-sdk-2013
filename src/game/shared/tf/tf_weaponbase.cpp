@@ -5579,8 +5579,12 @@ void CTFWeaponBase::ApplyPostHitEffects( const CTakeDamageInfo &info, CTFPlayer 
 						iSubtractVictimMedigunChargeOnHit *= RemapValClamped( toEnt.LengthSqr(), (512.0f * 512.0f), (1536.0f * 1536.0f), 1.0f, 0.0f );
 					}	
 
-					pMedigun->SubtractCharge( iSubtractVictimMedigunChargeOnHit / 100.0f );
-					bDidDrain = true;
+					//Only drain if the medic has some charge first!
+					if ( pMedigun->GetChargeLevel() > 0.0f )
+					{
+						pMedigun->SubtractCharge( iSubtractVictimMedigunChargeOnHit / 100.0f );
+						bDidDrain = true;
+					}
 				}
 			}
 		}
