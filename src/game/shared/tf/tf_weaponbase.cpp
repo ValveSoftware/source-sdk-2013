@@ -5569,7 +5569,7 @@ void CTFWeaponBase::ApplyPostHitEffects( const CTakeDamageInfo &info, CTFPlayer 
 			if ( iSubtractVictimMedigunChargeOnHit > 0 )
 			{
 				CWeaponMedigun *pMedigun = (CWeaponMedigun *)pVictim->Weapon_OwnsThisID( TF_WEAPON_MEDIGUN );
-				if ( pMedigun && !pMedigun->IsReleasingCharge() )
+				if ( pMedigun && !pMedigun->IsReleasingCharge() && pMedigun->GetChargeLevel() > 0.0f )
 				{
 					// STAGING_ENGY
 					// Scale drain after 512 Hu to 1536Hu ( 50% drain at 1024, 0 drain at 1536 units )
@@ -5579,12 +5579,8 @@ void CTFWeaponBase::ApplyPostHitEffects( const CTakeDamageInfo &info, CTFPlayer 
 						iSubtractVictimMedigunChargeOnHit *= RemapValClamped( toEnt.LengthSqr(), (512.0f * 512.0f), (1536.0f * 1536.0f), 1.0f, 0.0f );
 					}	
 
-					//Only drain if the medic has some charge first!
-					if ( pMedigun->GetChargeLevel() > 0.0f )
-					{
-						pMedigun->SubtractCharge( iSubtractVictimMedigunChargeOnHit / 100.0f );
-						bDidDrain = true;
-					}
+					pMedigun->SubtractCharge( iSubtractVictimMedigunChargeOnHit / 100.0f );
+					bDidDrain = true;
 				}
 			}
 		}
