@@ -932,7 +932,35 @@ ConVar tf_grapplinghook_enable( "tf_grapplinghook_enable", "0", FCVAR_REPLICATED
 
 #ifdef GAME_DLL
 CUtlString s_strNextMvMPopFile;
-CON_COMMAND_F( tf_mvm_popfile, "Change to a target popfile for MvM", FCVAR_GAMEDLL )
+
+static int PopfileCompletion( char const *partial, char commands[ COMMAND_COMPLETION_MAXITEMS ][ COMMAND_COMPLETION_ITEM_LENGTH ] )
+{
+	int matches = 0;
+
+	partial += ARRAYSIZE( "tf_mvm_popfile " ) - 1;
+	const int partialLen = V_strlen( partial );
+
+	if ( TFGameRules() && g_pPopulationManager )
+	{
+		CUtlVector< CUtlString > shortNames;
+		g_pPopulationManager->FindDefaultPopulationFileShortNames( shortNames );
+
+		shortNames.Sort( CUtlString::SortCaseInsensitive );
+
+		for ( int i = 0; i < shortNames.Count() && matches < COMMAND_COMPLETION_MAXITEMS; ++i )
+		{
+			const char *popfile = shortNames[ i ];
+			if ( partialLen == 0 || !V_strncasecmp( popfile, partial, partialLen ) )
+			{
+				V_snprintf( commands[ matches++ ], COMMAND_COMPLETION_ITEM_LENGTH, "tf_mvm_popfile %s", popfile );
+			}
+		}
+	}
+
+	return matches;
+}
+
+CON_COMMAND_F_COMPLETION( tf_mvm_popfile, "Change to a target popfile for MvM", FCVAR_GAMEDLL, PopfileCompletion )
 {
 	// Listenserver host or rcon access only!
 	if ( !UTIL_IsCommandIssuedByServerAdmin() )
@@ -1137,6 +1165,10 @@ ConVar tf_competitive_required_late_join_timeout( "tf_competitive_required_late_
                                                   "How long to wait for late joiners in matches requiring full player counts before canceling the match" );
 ConVar tf_competitive_required_late_join_confirm_timeout( "tf_competitive_required_late_join_confirm_timeout", "30", FCVAR_DEVELOPMENTONLY,
                                                           "How long to wait for the GC to confirm we're in the late join pool before canceling the match" );
+
+ConVar tf_ready_countdown_reduce_per_player( "tf_ready_countdown_reduce_per_player", "30", FCVAR_NONE, "How many seconds we should reduce the countdown timer by per player readying up" );
+ConVar tf_ready_countdown_minimum( "tf_ready_countdown_minimum", "60", FCVAR_NONE, "When players ready up never reduce the countdown timer below this number of seconds" );
+
 #endif // GAME_DLL
 
 ConVar tf_gamemode_community ( "tf_gamemode_community", "0", FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DEVELOPMENTONLY );
@@ -3080,14 +3112,24 @@ void CTFGameRules::PlayerReadyStatus_UpdatePlayerState( CTFPlayer *pTFPlayer, bo
 	{
 		if ( IsMannVsMachineMode() || IsCompetitiveMode() )
 		{
-			// Reduce timer as each player hits Ready, but only once per-player
-			if ( !m_bPlayerReadyBefore[nEntIndex] && m_flRestartRoundTime > gpGlobals->curtime + 60.f )
+			int nReadyCountdownMinimum = tf_ready_countdown_minimum.GetFloat();
+			int nReadyCountdownReducePerPlayer = tf_ready_countdown_reduce_per_player.GetFloat();
+
+			const IMatchGroupDescription* pMatchDesc = GetMatchGroupDescription( GetCurrentMatchGroup() );
+			if ( pMatchDesc )
 			{
-				float flReduceBy = 30.f;
-				if ( m_flRestartRoundTime < gpGlobals->curtime + 90.f )
+				nReadyCountdownMinimum = pMatchDesc->GetReadyCountdownMinimum();
+				nReadyCountdownReducePerPlayer = pMatchDesc->GetReadyCountdownReducePerPlayer();
+			}
+
+			// Reduce timer as each player hits Ready, but only once per-player
+			if ( !m_bPlayerReadyBefore[nEntIndex] && m_flRestartRoundTime > gpGlobals->curtime + nReadyCountdownMinimum )
+			{
+				float flReduceBy = nReadyCountdownReducePerPlayer;
+				if ( m_flRestartRoundTime < gpGlobals->curtime + nReadyCountdownReducePerPlayer + nReadyCountdownMinimum )
 				{
-					// Never reduce below 60 seconds remaining
-					flReduceBy = m_flRestartRoundTime - gpGlobals->curtime - 60.f;
+					// Never reduce below tf_ready_countdown_minimum seconds remaining
+					flReduceBy = m_flRestartRoundTime - gpGlobals->curtime - nReadyCountdownMinimum;
 				}
 
 				m_flRestartRoundTime -= flReduceBy;
