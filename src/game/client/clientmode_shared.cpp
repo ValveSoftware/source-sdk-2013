@@ -409,6 +409,8 @@ void ClientModeShared::VGui_Shutdown()
 //-----------------------------------------------------------------------------
 void ClientModeShared::Shutdown()
 {
+	RemoveDownloadedMapManifests( "particles" );
+	RemoveDownloadedMapManifests( "level_sounds" );
 }
 
 //-----------------------------------------------------------------------------
@@ -1574,5 +1576,30 @@ void ClientModeShared::DeactivateInGameVGuiContext()
 	vgui::ivgui()->ActivateContext( DEFAULT_VGUI_CONTEXT );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Purge downloaded map manifest files matching <mapname>_<suffix>.txt
+//-----------------------------------------------------------------------------
+void ClientModeShared::RemoveDownloadedMapManifests( const char *pszSuffix ) const
+{
+	FileFindHandle_t hFind = NULL;
 
+	CFmtStr fmtSearchPath( "download/maps/*_%s.txt", pszSuffix );
+	const char *pszFileName = g_pFullFileSystem->FindFirstEx( fmtSearchPath, "MOD", &hFind );
+	while ( pszFileName )
+	{
+		if ( pszFileName[0] != '.' )
+		{
+			CFmtStr fmtFilename( "download/maps/%s", pszFileName );
+
+			if ( !g_pFullFileSystem->IsDirectory( fmtFilename, "MOD" ) )
+			{
+				g_pFullFileSystem->RemoveFile( fmtFilename, "MOD" );
+			}
+		}
+
+		pszFileName = g_pFullFileSystem->FindNext( hFind );
+	}
+
+	g_pFullFileSystem->FindClose( hFind );
+}
 
