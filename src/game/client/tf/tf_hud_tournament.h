@@ -113,6 +113,7 @@ public:
 	void			DisableInput( void );
 	bool			ToggleState( ButtonCode_t code );
 	virtual void	OnCommand( const char *command );
+	void			TogglePlayerReadiness( void );
 
 	virtual void OnKeyCodeTyped(vgui::KeyCode code)
 	{
