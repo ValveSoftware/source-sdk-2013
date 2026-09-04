@@ -24,6 +24,7 @@
 #include "halloween/merasmus/merasmus_trick_or_treat_prop.h"
 #include "tf_robot_destruction_robot.h"
 #include "tf_generic_bomb.h"
+#include "tf_weapon_compound_bow.h"
 #endif
 
 #define ENERGY_RING_DISPATCH_EFFECT			"ClientProjectile_EnergyRing"
@@ -65,6 +66,8 @@ PRECACHE_REGISTER_FN(PrecacheRing);
 
 #ifdef GAME_DLL
 ConVar tf_bison_tick_time( "tf_bison_tick_time", "0.025", FCVAR_CHEAT );
+ConVar tf_energy_ring_old_damage_mechanics( "tf_energy_ring_old_damage_mechanics", "1", FCVAR_CHEAT | FCVAR_NOTIFY, "Globally use the old Pomson/Bison damage ramp-up and falloff mechanics." );
+ConVar tf_energy_ring_old_damage_maxdamagedist( "tf_energy_ring_old_damage_maxdamagedist", "350.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Maximum damage distance for energy weapons." );
 #endif
 
 
@@ -188,6 +191,9 @@ void CTFProjectile_EnergyRing::Spawn()
 	SetRenderMode( kRenderNone	);
 	SetSolidFlags( FSOLID_TRIGGER | FSOLID_NOT_SOLID );
 	SetCollisionGroup( TFCOLLISION_GROUP_ROCKETS );
+	CollisionProp()->UseTriggerBounds( true, 24.0f, true );
+
+	m_vecInitialPos = GetAbsOrigin();
 }
 
 //-----------------------------------------------------------------------------
@@ -256,15 +262,48 @@ void CTFProjectile_EnergyRing::ProjectileTouch( CBaseEntity *pOther )
 
 	if ( bCombatEntity )
 	{
+		// Light friendly Huntsman arrows with the Bison and Pomson
+		if ( pOther->IsPlayer() && pOther->InSameTeam( pOwner ) )
+		{
+			CTFPlayer* pPlayer = ToTFPlayer( pOther );
+
+			// Only care about Snipers
+			if ( pPlayer->IsPlayerClass( TF_CLASS_SNIPER ) )
+			{
+				// Does he have the bow?
+				CTFWeaponBase* pWpn = pPlayer->GetActiveTFWeapon();
+				if ( pWpn && pWpn->GetWeaponID() == TF_WEAPON_COMPOUND_BOW )
+				{
+					CTFCompoundBow *pBow = static_cast<CTFCompoundBow*>( pWpn );
+					pBow->SetArrowAlight( true );
+				}
+			}
+		}
+
 		// Bison projectiles shouldn't collide with friendly things
 		if ( ShouldPenetrate() && ( pOther->InSameTeam( this ) || ( gpGlobals->curtime - m_flLastHitTime ) < tf_bison_tick_time.GetFloat() ) )
 			return;
 
 		m_flLastHitTime = gpGlobals->curtime;
 
-		const int nDamage = GetDamage();
+		float flDamage = GetDamage();
+
+		if ( tf_energy_ring_old_damage_mechanics.GetBool() ) // Pre-July 7, 2016 Bison and Pomson damage falloff mechanics
+		{
+			const float flDistance = GetAbsOrigin().DistTo( m_vecInitialPos );
+			flDamage *= RemapValClamped( flDistance, tf_energy_ring_old_damage_maxdamagedist.GetFloat()/2, tf_energy_ring_old_damage_maxdamagedist.GetFloat(), 1.0f, 0.70f );
+		}
+
+		const int nDamage = RoundFloatToInt( flDamage );
 
 		CTakeDamageInfo info( this, pOwner, GetLauncher(), nDamage, GetDamageType(), TF_DMG_CUSTOM_PLASMA );
+		info.SetDamageForce( GetAbsVelocity() ); // Fix "== vec3_origin" check errors caused by setting damage type to DMG_SONIC
+
+		if ( tf_energy_ring_old_damage_mechanics.GetBool() )
+		{
+			info.SetDamageType( info.GetDamageType() &~( DMG_USEDISTANCEMOD | DMG_NOCLOSEDISTANCEMOD ) );
+		}
+
 		info.SetReportedPosition( pOwner->GetAbsOrigin() );
 		info.SetDamagePosition( pTrace->endpos );
 
