@@ -309,7 +309,8 @@ void CTFWeaponInvis::SetFeignDeathState( bool bEnabled )
 			pOwner->HolsterOffHandWeapon();
 			if ( pOwner->GetActiveWeapon() )
 			{
-				pOwner->GetActiveWeapon()->m_flNextPrimaryAttack = gpGlobals->curtime + 0.1f;
+				// don't skip revolver's reload time
+				pOwner->GetActiveWeapon()->m_flNextPrimaryAttack = Max( pOwner->GetActiveWeapon()->m_flNextPrimaryAttack.Get(), gpGlobals->curtime + 0.1f );
 			}
 		}
 	}
