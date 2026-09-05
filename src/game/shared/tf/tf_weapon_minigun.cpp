@@ -156,9 +156,6 @@ void CTFMinigun::WeaponReset( void )
 	m_iMinigunSoundCur = -1;
 	m_flMinigunSoundCurrentPitch = 1.0f;
 
-	m_flBasePostFireDelay = 1.0f;
-	CALL_ATTRIB_HOOK_FLOAT( m_flBasePostFireDelay, mult_postfiredelay );
-
 	StopMuzzleEffect();
 	StopBrassEffect();
 #endif
@@ -1443,16 +1440,7 @@ void CTFMinigun::WeaponSoundUpdate()
 	float flSpeed = ApplyFireDelay( 1.0f );
 	if ( flSpeed != 1.0f )
 	{
-		if ( m_flBasePostFireDelay != 1.0f )
-		{
-			// Pitch correction. Adjusts base firing sound pitch with the base firing speed.
-			// Fixes Tomislav's base firing sound pitch sounding lower than intended due to its base 20% slower firing speed penalty
-			// DevMsg( "Pitch correction: flSpeed BEFORE = %f, m_flBasePostFireDelay = %f, flPitch = %f\n", flSpeed, m_flBasePostFireDelay, flPitch );
-			flSpeed /= m_flBasePostFireDelay;
-		}
-
 		flPitch = RemapValClamped( flSpeed, 1.5f, 0.5f, 80.f, 120.f );
-		// DevMsg( "Pitch correction: flSpeed AFTER = %f, m_flBasePostFireDelay = %f, flPitch = %f\n", flSpeed, m_flBasePostFireDelay, flPitch );
 	}
 
 	if ( m_bRageDraining )
