@@ -123,6 +123,10 @@ void CObjectSapper::Precache()
 	Precache( "c_p2rec.mdl" );
 	Precache( "c_sapper_xmas.mdl" );
 	Precache( "c_breadmonster_sapper.mdl" );
+	Precache( "c_sapper_festivized.mdl" );
+	Precache( "c_sd_sapper_festivized.mdl" );
+	Precache( "c_p2rec_festivized.mdl" );
+	Precache( "c_breadmonster_sapper_festivized.mdl" );
 
 	PrecacheScriptSound( "Weapon_Sapper.Plant" );
 	PrecacheScriptSound( "Weapon_Sapper.Timer" );
@@ -366,6 +370,7 @@ const char* CObjectSapper::GetSapperModelName( SapperModel_t nModel, const char 
 	// Check to see if we have model names generated, if not we must generate
 	if ( m_szPlacementModel[0] == '\0' || m_szSapperModel[0] == '\0' )
 	{
+		int iFestivized = 0;
 		if ( !pchModelName )
 		{
 			if ( GetBuilder() )
@@ -374,6 +379,7 @@ const char* CObjectSapper::GetSapperModelName( SapperModel_t nModel, const char 
 				if ( pWeapon )
 				{
 					pchModelName = pWeapon->GetWorldModel();
+					CALL_ATTRIB_HOOK_INT_ON_OTHER(pWeapon, iFestivized, is_festivized);
 				}
 			}
 		}
@@ -392,8 +398,16 @@ const char* CObjectSapper::GetSapperModelName( SapperModel_t nModel, const char 
 		pchModelName = szModelName + 2;
 
 		{
-			V_snprintf(m_szPlacementModel, sizeof(m_szPlacementModel), "models/buildables/%s%s", pchModelName, "_placement.mdl");
-			V_snprintf(m_szSapperModel, sizeof(m_szSapperModel), "models/buildables/%s%s", pchModelName, "_placed.mdl");
+			if (!iFestivized)
+			{
+				V_snprintf(m_szPlacementModel, sizeof(m_szPlacementModel), "models/buildables/%s%s", pchModelName, "_placement.mdl");
+				V_snprintf(m_szSapperModel, sizeof(m_szSapperModel), "models/buildables/%s%s", pchModelName, "_placed.mdl");
+			}
+			else
+			{
+				V_snprintf(m_szPlacementModel, sizeof(m_szPlacementModel), "models/buildables/%s%s", pchModelName, "_festivized_placement.mdl");
+				V_snprintf(m_szSapperModel, sizeof(m_szSapperModel), "models/buildables/%s%s", pchModelName, "_festivized_placed.mdl");
+			}
 		}
 	}
 
