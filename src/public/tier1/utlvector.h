@@ -206,6 +206,7 @@ public:
 
 	/// sort using std:: and expecting a "<" function to be defined for the type
 	void Sort( void );
+	void StableSort( void );
 
 	/// sort using std:: with a predicate. e.g. [] -> bool ( T &a, T &b ) { return a < b; }
 	template <class F> void SortPredicate( F &&predicate );
@@ -942,6 +943,13 @@ void CUtlVector<T, A>::Sort( void )
 {
 	//STACK STATS TODO: Do we care about allocation tracking precision enough to match element origins across a sort?
 	std::sort( Base(), Base() + Count() );
+}
+
+template< typename T, class A >
+void CUtlVector<T, A>::StableSort( void )
+{
+	//STACK STATS TODO: Do we care about allocation tracking precision enough to match element origins across a sort?
+	std::stable_sort( Base(), Base() + Count() );
 }
 
 template< typename T, class A >
