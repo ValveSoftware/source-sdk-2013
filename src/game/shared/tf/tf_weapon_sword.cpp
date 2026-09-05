@@ -99,11 +99,9 @@ Activity CTFDecapitationMeleeWeaponBase::TranslateViewmodelHandActivityInternal(
 			return BaseClass::TranslateViewmodelHandActivityInternal( actBase );
 	}
 
-	// Alright, so we have some decapitation weapons (katana) that can be used
-	// by both the soldier and the demoman, but the classes play totally different
-	// animations using the same weapon.
+	// This logic no longer handles the katana, which is handled in its own override
 	//
-	// This logic is also responsible for playing the correct animations on the
+	// This logic is still responsible for playing the correct animations on the
 	// demo when he's using non-shared weapons like the Eyelanders.
 	if ( pPlayer->GetPlayerClass()->GetClassIndex() == TF_CLASS_DEMOMAN )
 	{
@@ -577,15 +575,80 @@ float CTFKatana::GetMeleeDamage( CBaseEntity *pTarget, int* piDamageType, int* p
 int CTFKatana::GetActivityWeaponRole() const
 {
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
-	if ( pPlayer && pPlayer->GetPlayerClass()->GetClassIndex() == TF_CLASS_DEMOMAN )
+	if (pPlayer && (pPlayer->GetPlayerClass()->GetClassIndex() == TF_CLASS_DEMOMAN || (pPlayer->GetPlayerClass()->GetClassIndex() == TF_CLASS_SPY && pPlayer->m_Shared.GetDisguiseClass() == TF_CLASS_DEMOMAN)))
 	{
-		// demo should use act table item1
-		return TF_WPN_TYPE_ITEM1;
+		// demo should use act table item2
+		return TF_WPN_TYPE_ITEM2;
 	}
 
 	return BaseClass::GetActivityWeaponRole();
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+Activity CTFKatana::TranslateViewmodelHandActivityInternal(Activity actBase)
+{
+	actBase = BaseClass::TranslateViewmodelHandActivityInternal(actBase);
+
+	CTFPlayer* pPlayer = GetTFPlayerOwner();
+	if (!pPlayer)
+		return BaseClass::TranslateViewmodelHandActivityInternal(actBase);
+
+	// katana on demoman needs to use item2 animslot now
+	if (pPlayer->GetPlayerClass()->GetClassIndex() == TF_CLASS_DEMOMAN)
+	{
+		switch (actBase)
+		{
+		case ACT_VM_DRAW_SPECIAL:
+			actBase = ACT_ITEM2_VM_DRAW;
+			break;
+		case ACT_VM_HOLSTER_SPECIAL:
+			actBase = ACT_ITEM2_VM_HOLSTER;
+			break;
+		case ACT_VM_IDLE_SPECIAL:
+			actBase = ACT_ITEM2_VM_IDLE;
+			break;
+		case ACT_VM_PULLBACK_SPECIAL:
+			actBase = ACT_ITEM2_VM_PULLBACK;
+			break;
+		case ACT_VM_PRIMARYATTACK_SPECIAL:
+			actBase = ACT_ITEM2_VM_PRIMARYATTACK;
+			break;
+		case ACT_VM_SECONDARYATTACK_SPECIAL:
+			actBase = ACT_ITEM2_VM_SECONDARYATTACK;
+			break;
+		case ACT_VM_HITCENTER_SPECIAL:
+			actBase = ACT_ITEM2_VM_HITCENTER;
+			break;
+		case ACT_VM_SWINGHARD_SPECIAL:
+			actBase = ACT_ITEM2_VM_SWINGHARD;
+			break;
+		case ACT_VM_IDLE_TO_LOWERED_SPECIAL:
+			actBase = ACT_ITEM2_VM_IDLE_TO_LOWERED;
+			break;
+		case ACT_VM_IDLE_LOWERED_SPECIAL:
+			actBase = ACT_ITEM2_VM_IDLE_LOWERED;
+			break;
+		case ACT_VM_LOWERED_TO_IDLE_SPECIAL:
+			actBase = ACT_ITEM2_VM_LOWERED_TO_IDLE;
+			break;
+		case ACT_SPECIAL_VM_INSPECT_START:
+			actBase = ACT_ITEM2_VM_INSPECT_START;
+			break;
+		case ACT_SPECIAL_VM_INSPECT_IDLE:
+			actBase = ACT_ITEM2_VM_INSPECT_IDLE;
+			break;
+		case ACT_SPECIAL_VM_INSPECT_END:
+			actBase = ACT_ITEM2_VM_INSPECT_END;
+			break;
+		default:
+			break;
+		}
+	}
+
+	return actBase;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose:
