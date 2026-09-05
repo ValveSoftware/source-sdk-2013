@@ -1045,6 +1045,20 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	IGameSystem::Add( GetPredictionCopyTester() );
 #endif
 
+#ifndef DEDICATED
+
+	//usually thats in materialsystem but sdk dont have that
+	//overlays freaks out when flashlight support is on while having pyrovision
+	//this check is only for tf mods, because pyrovision is only tf thing
+#if defined( TF_CLIENT_DLL )
+	{
+		ConVarRef( "mat_supportflashlight" ).SetValue( false );
+	}
+#endif
+
+
+#endif
+
 	modemanager->Init( );
 
 	g_pClientMode->InitViewport();
