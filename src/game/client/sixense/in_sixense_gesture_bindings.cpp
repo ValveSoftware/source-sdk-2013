@@ -9,7 +9,7 @@
 #include "tf_gamerules.h"
 #endif
 
-#include <isixense.h>
+#include <sixense.h>
 #include <sixense_math.hpp>
 #include <sixense_utils/interfaces.hpp>
 
@@ -428,9 +428,11 @@ void SixenseGestureBindings::CreateDefaultBindings()
 #elif defined( TF_CLIENT_DLL )
 
 	AddBinding( "left", "tilt_gesture", "ccw", "+reload", "" );
+	AddBinding( "left", "tilt_gesture", "cw", "+use_action_slot_item", "" );
 	AddBinding( "left", "tilt_gesture", "down", "+duck", "" );
 	AddBinding( "left", "tilt_gesture", "up", "+jump", "" );
 	AddBinding( "left", "tilt_gesture", "right", "impulse 201", "" );
+	AddBinding( "left", "tilt_gesture", "left", "player_ready_toggle", "" );
 	AddBinding( "left", "trigger_press", "", "+attack2", "" );
 	AddBinding( "left", "button_press", "start", "cancelselect", "" );
 	AddBinding( "left", "button_press", "bumper", "+duck", "" );
@@ -441,6 +443,8 @@ void SixenseGestureBindings::CreateDefaultBindings()
 	AddBinding( "left", "button_press", "2", "changeteam", "" );
 	AddBinding( "left", "button_press", "4", "lastdisguise", "" );
 	AddBinding( "left", "button_press", "joystick", "voicemenu 0 0", "" );
+	AddBinding( "right", "tilt_gesture", "ccw", "+inspect", "" );
+	AddBinding( "right", "tilt_gesture", "cw", "+attack3", "" );
 	AddBinding( "right", "joystick_move", "up", "+context_action", "" );
 	AddBinding( "right", "joystick_move", "left", "invprev", "" );
 	AddBinding( "right", "joystick_move", "right", "invnext", "" );
@@ -450,7 +454,7 @@ void SixenseGestureBindings::CreateDefaultBindings()
 	AddBinding( "right", "button_press", "3", "+voicerecord", "" );
 	AddBinding( "right", "button_press", "4", "cl_trigger_first_notification", "" );
 	AddBinding( "right", "button_press", "joystick", "dropitem", "" );
-	AddBinding( "right", "button_press", "bumper", "taunt", "" );
+	AddBinding( "right", "button_press", "bumper", "+jump", "" );
 	AddBinding( "right", "trigger_press", "", "+attack", "" );
 	AddBinding( "right", "button_press", "start", "+showscores", "" );
 
