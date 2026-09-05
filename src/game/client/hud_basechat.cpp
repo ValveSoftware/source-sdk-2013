@@ -1790,6 +1790,11 @@ void CBaseHudChat::ChatPrintf( int iPlayerIndex, int iFilter, const char *fmt, .
 	if ( !cl_enable_text_chat.GetBool() && ( iPlayerIndex != 0 ) )
 		return;
 
+	C_BasePlayer *pSelf = C_BasePlayer::GetLocalPlayer();
+	C_BasePlayer *pOther = UTIL_PlayerByIndex( iPlayerIndex );
+	if ( pSelf && pOther && !pSelf->CanHearAndReadChatFrom( pOther ) )
+		return;
+
 	if ( *pmsg < 32 )
 	{
 		hudlcd->AddChatLine( pmsg + 1 );
