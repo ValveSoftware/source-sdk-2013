@@ -1263,9 +1263,15 @@ void CEconItemDescription::Generate_ItemLevelDesc_Default( const CLocalizationPr
 	const bool bIsStoreItem = IsStorePreviewItem( pEconItem );
 	const bool bIsPreviewItem = pEconItem->GetFlags() & kEconItemFlagClient_Preview;
 
+	// For collection cosmetics, we already display itemtype with item grade (ie. "Mercenary Grade Hat")
+	if (pEconItem->GetItemDefinition()->GetRarity() != k_unItemRarity_Any)
+	{
+		return;
+	}
+		
 	// If the item doesn't have a valid itemID, we'll just use the locTypename for the item level description. 
 	// We don't want to display "Level 0 Hat" in places like the Mann Co. Store and Armory. We'll just display "Hat".
-	if ( bIsStoreItem || bIsPreviewItem || pEconItem->GetItemDefinition()->GetRarity() != k_unItemRarity_Any )
+	if ( bIsStoreItem || bIsPreviewItem )
 	{
 		if ( locTypename && *locTypename )
 		{
