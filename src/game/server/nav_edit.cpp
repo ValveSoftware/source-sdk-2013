@@ -14,7 +14,7 @@
 #include "nav_pathfind.h"
 #include "nav_node.h"
 #include "nav_colors.h"
-#include "Color.h"
+#include "color.h"
 #include "tier0/vprof.h"
 #include "collisionutils.h"
 #include "world.h"

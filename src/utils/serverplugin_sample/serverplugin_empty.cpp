@@ -20,7 +20,7 @@
 #include "eiface.h"
 #include "igameevents.h"
 #include "convar.h"
-#include "Color.h"
+#include "color.h"
 #include "vstdlib/random.h"
 #include "engine/IEngineTrace.h"
 #include "tier2/tier2.h"

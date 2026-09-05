@@ -7,7 +7,7 @@
 #include "cbase.h"
 #include "hud.h"		
 #include <vgui_controls/Controls.h>
-#include <Color.h>
+#include <color.h>
 #include "c_vehicle_crane.h"
 #include "view.h"
 #include "vehicle_viewblend_shared.h"

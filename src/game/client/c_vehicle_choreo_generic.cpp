@@ -9,7 +9,7 @@
 #include "c_props.h"
 #include "iclientvehicle.h"
 #include <vgui_controls/Controls.h>
-#include <Color.h>
+#include <color.h>
 #include "vehicle_choreo_generic_shared.h"
 #include "vehicle_viewblend_shared.h"
 // NVNT haptic utils
