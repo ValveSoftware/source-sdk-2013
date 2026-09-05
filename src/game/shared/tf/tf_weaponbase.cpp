@@ -3189,6 +3189,29 @@ void CTFWeaponBase::CreateMuzzleFlashEffects( C_BaseEntity *pAttachEnt, int nInd
 		{
 			DispatchMuzzleFlash( pszMuzzleFlashParticleEffect, pAttachEnt );
 		}
+
+		if ( ShouldEjectBrass() )
+		{
+			const CTFWeaponInfo* pWpn = &GetTFWpnData();
+
+			if ( pWpn->m_bDoInstantEjectBrass )
+			{
+				// Try and setup the attachment point if it doesn't already exist.
+				// This caching will mess up if we go third person from first - we only do this in taunts and don't fire so we should
+				// be okay for now.
+				if ( m_iEjectBrassAttachpoint == -2 )
+				{
+					m_iEjectBrassAttachpoint = pAttachEnt->LookupAttachment( "eject_brass" );
+				}
+				if ( m_iEjectBrassAttachpoint > 0 )
+				{
+					CEffectData data;
+					data.m_nHitBox = GetWeaponID();
+					pAttachEnt->GetAttachment( m_iEjectBrassAttachpoint, data.m_vOrigin, data.m_vAngles );
+					DispatchEffect("TF_EjectBrass", data);
+				}
+			}
+		}
 	}
 }
 
