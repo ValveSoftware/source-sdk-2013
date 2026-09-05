@@ -254,16 +254,23 @@ void CTFStickBomb::Smack( void )
 
 			TE_TFExplosion( filter, 0.0f, explosion, Vector(0,0,1), TF_WEAPON_GRENADELAUNCHER, pTFPlayer->entindex(), -1, SPECIAL1, iCustomParticleIndex );
 
-			int dmgType = DMG_BLAST | DMG_USEDISTANCEMOD | DMG_MELEE;
-			if ( IsCurrentAttackACrit() )
-				dmgType |= DMG_CRITICAL;
+			int dmgType = DMG_BLAST | DMG_USEDISTANCEMOD;
 
-			float flDamage = 75.0f;
-			CALL_ATTRIB_HOOK_FLOAT( flDamage, mult_dmg );
+			if ( IsCurrentAttackACrit() )
+			{
+				// TODO: Not removing the old critical path yet, but the new custom damage is marking criticals as well for melee now.
+				dmgType |= DMG_CRITICAL;
+			}
+			else if ( m_bMiniCrit )
+			{
+				dmgType |= DMG_RADIUS_MAX; // Unused for melee, indicates this should be a minicrit.
+			}
+
+			float flDamage = GetBlastDamage( &dmgType );
 
 			CTakeDamageInfo info( pTFPlayer, pTFPlayer, this, explosion, explosion, flDamage, dmgType, TF_DMG_CUSTOM_STICKBOMB_EXPLOSION, &explosion );
 
-			float flRadius = 100.f;
+			float flRadius = 100.0f;
 			CALL_ATTRIB_HOOK_FLOAT( flRadius, mult_explosion_radius );
 
 			CTFRadiusDamageInfo radiusinfo( &info, explosion, flRadius );
@@ -272,6 +279,60 @@ void CTFStickBomb::Smack( void )
 #endif
 	}
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : float
+//-----------------------------------------------------------------------------
+#ifdef GAME_DLL
+float CTFStickBomb::GetBlastDamage( int *iDamageType )
+{
+	float flDamage = 75.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flDamage, mult_dmg );
+
+	int iCritDoesNoDamage = 0;
+	CALL_ATTRIB_HOOK_INT( iCritDoesNoDamage, crit_does_no_damage );
+	if ( iCritDoesNoDamage > 0 )
+	{
+		if ( IsCurrentAttackACrit() )
+		{
+			return 0.0f;	
+		}
+
+		if ( iDamageType && *iDamageType & DMG_CRITICAL )
+		{
+			return 0.0f;
+		}
+	}
+
+	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
+	if ( pPlayer )
+	{
+		float flHalfHealth = pPlayer->GetMaxHealth() * 0.5f;
+		if ( pPlayer->GetHealth() < flHalfHealth )
+		{
+			CALL_ATTRIB_HOOK_FLOAT( flDamage, mult_dmg_bonus_while_half_dead );
+		}
+		else
+		{
+			CALL_ATTRIB_HOOK_FLOAT( flDamage, mult_dmg_penalty_while_half_alive );
+		}
+
+		// Some weapons change damage based on player's health
+		float flReducedHealthBonus = 1.0f;
+		CALL_ATTRIB_HOOK_FLOAT( flReducedHealthBonus, mult_dmg_with_reduced_health );
+		if ( flReducedHealthBonus != 1.0f )
+		{
+			float flHealthFraction = clamp( pPlayer->HealthFraction(), 0.0f, 1.0f );
+			flReducedHealthBonus = Lerp( flHealthFraction, flReducedHealthBonus, 1.0f );
+
+			flDamage *= flReducedHealthBonus;
+		}
+	}
+
+	return flDamage;
+}
+#endif
 
 void CTFStickBomb::WeaponReset( void )
 {
