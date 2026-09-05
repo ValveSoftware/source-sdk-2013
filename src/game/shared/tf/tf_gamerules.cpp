@@ -17452,7 +17452,7 @@ void CTFGameRules::SetUpVisionFilterKeyValues( void )
 	// No special vision
 	pKVFlag = new KeyValues( "0" );
 	pKVFlag->SetString( "models/weapons/c_models/c_rainblower/c_rainblower.mdl", "models/weapons/c_models/c_flamethrower/c_flamethrower.mdl" );
-	pKVFlag->SetString( "models/weapons/c_models/c_lollichop/c_lollichop.mdl", "models/weapons/w_models/w_fireaxe.mdl" );
+	pKVFlag->SetString( "models/weapons/c_models/c_lollichop/c_lollichop.mdl", "models/weapons/c_models/c_fireaxe_pyro/c_fireaxe_pyro.mdl" );
 	pKVBlock->AddSubKey( pKVFlag );
 
 	// Pyrovision
