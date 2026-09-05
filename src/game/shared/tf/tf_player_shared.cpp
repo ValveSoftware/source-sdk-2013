@@ -10031,7 +10031,8 @@ public:
 		if ( pEnt == m_pShooter )
 			return true;
 
-		if ( pEnt->IsCombatCharacter() || pEnt->IsBaseObject() )
+		CTFMedigunShield *pMedigunShield = dynamic_cast<CTFMedigunShield*>( pEnt );
+		if ( pEnt->IsCombatCharacter() || pEnt->IsBaseObject() || pMedigunShield )
 		{
 			if ( m_bIgnoreTeammates && pEnt->GetTeam() == m_pShooter->GetTeam() )
 				return true;
@@ -10305,7 +10306,8 @@ void CTFPlayer::FireBullet( CTFWeaponBase *pWpn, const FireBulletsInfo_t &info, 
 	bool bPenetratingShot = ( (ePenetrateType == TF_DMG_CUSTOM_PENETRATE_ALL_PLAYERS) || (ePenetrateType == TF_DMG_CUSTOM_PENETRATE_MY_TEAM) || (ePenetrateType == TF_DMG_CUSTOM_PENETRATE_NONBURNING_TEAMMATE) );
 	if ( bPenetratingShot && trace.m_pEnt )
 	{
-		if ( trace.m_pEnt->IsCombatCharacter() || trace.m_pEnt->IsBaseObject() )
+		CTFMedigunShield *pMedigunShield = dynamic_cast<CTFMedigunShield*>( trace.m_pEnt );
+		if ( trace.m_pEnt->IsCombatCharacter() || trace.m_pEnt->IsBaseObject() || pMedigunShield )
 		{
 			const float penetrationHullExtension = 40.0f;
 			// Josh: EnumerateEntities only collides with bboxes, extend the ray to a larger hull, then we clip to it.
@@ -10421,6 +10423,7 @@ void CTFPlayer::FireBullet( CTFWeaponBase *pWpn, const FireBulletsInfo_t &info, 
 				dmgInfo.SetPlayerPenetrationCount( iPenetratedPlayerCount );
 				pTarget->DispatchTraceAttack( dmgInfo, info.m_vecDirShooting, pTraceToUse, GetActiveWeapon() ? GetActiveWeapon()->GetDmgAccumulator() : NULL );
 
+				CTFMedigunShield* pMedigunShield = dynamic_cast<CTFMedigunShield*>( pTarget );
 				const bool bIsPenetratingPlayer = pTargetPlayer != NULL;
 				if ( bIsPenetratingPlayer )
 				{
@@ -10429,9 +10432,23 @@ void CTFPlayer::FireBullet( CTFWeaponBase *pWpn, const FireBulletsInfo_t &info, 
 					CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWpn, flPenetrationPenalty, penetration_damage_penalty );
 					dmgInfo.SetDamage( dmgInfo.GetDamage() * flPenetrationPenalty );
 				}
+				else if ( pMedigunShield )
+				{
+					CBaseEntity *pTFOwner = pMedigunShield->GetOwnerEntity();
+					if ( pTFOwner )
+					{
+						int nShieldLevel = 0;
+						CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFOwner, nShieldLevel, generate_rage_on_heal );
+						iPenetratedPlayerCount += nShieldLevel;
 
-				// If we're only supposed to penetrate players and this thing isn't a player, stop here.
-				if ( !bIsPenetratingPlayer && (ePenetrateType == TF_DMG_CUSTOM_PENETRATE_ALL_PLAYERS) )
+						// Treat shield level 4 and higher inpenetrable, even by Sniper rifles
+						if ( nShieldLevel >= 4 )
+							break;
+					}
+				}
+
+				// If we're only supposed to penetrate players and this thing isn't a player or medigun shield, stop here.
+				if ( !bIsPenetratingPlayer && (ePenetrateType == TF_DMG_CUSTOM_PENETRATE_ALL_PLAYERS) && !pMedigunShield )
 					break;
 			}
 			else
