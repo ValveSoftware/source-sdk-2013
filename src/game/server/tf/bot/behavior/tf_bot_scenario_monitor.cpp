@@ -176,7 +176,7 @@ Action< CTFBot > *CTFBotScenarioMonitor::DesiredScenarioAndClassAction( CTFBot *
 	}
 #endif // TF_RAID_MODE	
 
-	if ( TFGameRules()->IsMannVsMachineMode() )
+	if ( TFGameRules()->IsMannVsMachineMode() && me->GetTeamNumber() == TF_TEAM_PVE_INVADERS ) // Only use this specialized AI for BLU bots
 	{
 		if ( me->IsPlayerClass( TF_CLASS_SPY ) )
 		{
@@ -218,7 +218,7 @@ Action< CTFBot > *CTFBotScenarioMonitor::DesiredScenarioAndClassAction( CTFBot *
 		}
 
 		// capture the flag
-		return new CTFBotFetchFlag;
+		// The normal TFBot AI already captures the flag. See below - Siobhan-Saoirse
 	}
 
 	if ( me->IsPlayerClass( TF_CLASS_SPY ) )
