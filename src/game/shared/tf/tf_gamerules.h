@@ -1036,7 +1036,7 @@ private:
 
 	void ChooseNextMapVoteOptions();
 
-	int DefaultFOV( void ) { return 75; }
+	int DefaultFOV( void ) { return 90; }
 	int GetDuckSkinForClass( int nTeam, int nClass ) const;
 	void MatchSummaryTeleport();
 
