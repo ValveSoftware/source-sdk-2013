@@ -103,6 +103,7 @@ BEGIN_NETWORK_TABLE_NOBASE( CTeamplayRoundBasedRules, DT_TeamplayRoundBasedRules
 	RecvPropBool( RECVINFO( m_bCheatsEnabledDuringLevel ) ),
 	RecvPropTime( RECVINFO( m_flCountdownTime ) ),
 	RecvPropTime( RECVINFO( m_flStateTransitionTime ) ),
+	RecvPropString( RECVINFO( m_pszCustomKillIconsFile ) ),
 #else
 	SendPropInt( SENDINFO( m_iRoundState ), 5 ),
 	SendPropBool( SENDINFO( m_bInWaitingForPlayers ) ),
@@ -123,6 +124,7 @@ BEGIN_NETWORK_TABLE_NOBASE( CTeamplayRoundBasedRules, DT_TeamplayRoundBasedRules
 	SendPropBool( SENDINFO( m_bCheatsEnabledDuringLevel ) ),
 	SendPropTime( SENDINFO( m_flCountdownTime ) ),
 	SendPropTime( SENDINFO( m_flStateTransitionTime ) ),
+	SendPropString( SENDINFO( m_pszCustomKillIconsFile ) ),
 #endif
 END_NETWORK_TABLE()
 
@@ -173,6 +175,7 @@ END_SEND_TABLE()
 BEGIN_DATADESC( CTeamplayRoundBasedRulesProxy )
 	// Inputs.
 	DEFINE_INPUTFUNC( FIELD_BOOLEAN, "SetStalemateOnTimelimit", InputSetStalemateOnTimelimit ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetCustomKillIconsFile", InputSetCustomKillIconsFile),
 END_DATADESC()
 
 //-----------------------------------------------------------------------------
@@ -181,6 +184,14 @@ END_DATADESC()
 void CTeamplayRoundBasedRulesProxy::InputSetStalemateOnTimelimit( inputdata_t &inputdata )
 {
 	TeamplayRoundBasedRules()->SetStalemateOnTimelimit( inputdata.value.Bool() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTeamplayRoundBasedRulesProxy::InputSetCustomKillIconsFile(inputdata_t& inputdata)
+{
+	TeamplayRoundBasedRules()->SetCustomKillIconsFile( inputdata.value.String() );
 }
 #endif
 
@@ -501,6 +512,8 @@ CTeamplayRoundBasedRules::CTeamplayRoundBasedRules( void )
 
 	m_hWaitingForPlayersTimer = NULL;
 	m_bStopWatchShouldBeTimedWin = false;
+#else // GAME_DLL
+	V_strncpy( m_pszOldCustomKillIconsFile, "", MAX_PATH );	
 #endif
 }
 
@@ -552,6 +565,11 @@ void CTeamplayRoundBasedRules::AddTeamRespawnWaveTime( int iTeam, float flValue 
 	}
 
 	m_TeamRespawnWaveTimes.Set( iTeam, flNewValue );
+}
+
+void CTeamplayRoundBasedRules::SetCustomKillIconsFile( const char *pszCustomKillIconsFile )
+{
+	V_StripExtension( pszCustomKillIconsFile, m_pszCustomKillIconsFile.GetForModify(), MAX_PATH );
 }
 #endif
 
@@ -3762,6 +3780,12 @@ void CTeamplayRoundBasedRules::OnDataChanged( DataUpdateType_t updateType )
 	if ( m_bInOvertime && ( m_bOldInOvertime != m_bInOvertime ) )
 	{
 		HandleOvertimeBegin();
+	}
+
+	if ( !FStrEq(m_pszOldCustomKillIconsFile, m_pszCustomKillIconsFile ) )
+	{
+		V_strncpy( m_pszOldCustomKillIconsFile, m_pszCustomKillIconsFile, MAX_PATH );
+		gHUD.RefreshHudTextures( GetCustomKillIconsFile() );
 	}
 }
 #endif // CLIENT_DLL

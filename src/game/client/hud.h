@@ -144,7 +144,7 @@ public:
 	CHudTexture					*AddUnsearchableHudIconToList( CHudTexture& texture );
 	CHudTexture					*AddSearchableHudIconToList( CHudTexture& texture );
 
-	void						RefreshHudTextures();
+	void						RefreshHudTextures( const char* customKillIconFile = "\0" );
 
 	// User messages
 	void						MsgFunc_ResetHUD(bf_read &msg);
