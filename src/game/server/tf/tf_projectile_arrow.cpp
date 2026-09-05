@@ -1220,6 +1220,7 @@ void CTFProjectile_HealingBolt::ImpactTeamPlayer( CTFPlayer *pOther )
 
 	// Scale this if needed
 	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pOther, flHealth, mult_healing_from_medics );
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pOther, flHealth, mult_health_fromhealers );
 
 	CTFWeaponBase *pActiveWeapon = pOther->GetActiveTFWeapon();
 	if ( pActiveWeapon )
