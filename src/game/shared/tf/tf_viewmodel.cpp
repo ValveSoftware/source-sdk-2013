@@ -474,16 +474,16 @@ void CViewModelInvisProxy::OnBind( C_BaseEntity *pEnt )
 		return;
 	}
 	
-	float flPercentInvisible = pPlayer->GetPercentInvisible();
+	float flPercentInvisible = pPlayer->GetEffectiveInvisibilityLevel();
 	float flWeaponInvis = flPercentInvisible;
 
 	if ( bIsViewModel == true )
 	{
 		// remap from 0.22 to 0.5
 		// but drop to 0.0 if we're not invis at all
-		flWeaponInvis = ( flPercentInvisible < 0.01 ) ?
+		flWeaponInvis = (flPercentInvisible < 0.01) ?
 			0.0 :
-			RemapVal( flPercentInvisible, 0.0, 1.0, TF_VM_MIN_INVIS, TF_VM_MAX_INVIS );
+			RemapVal(flPercentInvisible, 0.0, 1.0, TF_VM_MIN_INVIS, TF_VM_MAX_INVIS);
 
 		// Exaggerated blink effect on bump.
 		if ( pPlayer->m_Shared.InCond( TF_COND_STEALTHED_BLINK ) )
@@ -503,111 +503,5 @@ void CViewModelInvisProxy::OnBind( C_BaseEntity *pEnt )
 }
 
 EXPOSE_INTERFACE( CViewModelInvisProxy, IMaterialProxy, "vm_invis" IMATERIAL_PROXY_INTERFACE_VERSION );
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Generic invis proxy that can handle invis for both weapons & viewmodels.
-//			Makes the vm_invis & weapon_invis proxies obsolete, do not use them.
-//-----------------------------------------------------------------------------
-class CInvisProxy : public CBaseInvisMaterialProxy
-{
-public:
-	virtual void OnBind( C_BaseEntity *pC_BaseEntity ) OVERRIDE;
-};
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CInvisProxy::OnBind( C_BaseEntity *pC_BaseEntity )
-{
-	if( !m_pPercentInvisible )
-		return;
-
-	C_BaseEntity *pEnt = pC_BaseEntity;
-
-	CTFPlayer *pPlayer = NULL;
-
-	// Check if we have a move parent and if it's a player
-	C_BaseEntity *pMoveParent = pEnt->GetMoveParent();
-	if ( pMoveParent && pMoveParent->IsPlayer() )
-	{
-		pPlayer = ToTFPlayer( pMoveParent );
-	}
-
-	// If it's not a player then check for viewmodel.
-	if ( !pPlayer )
-	{
-		CBaseEntity *pEntParent = pMoveParent ? pMoveParent : pEnt;
-
-		CTFViewModel *pVM = dynamic_cast<CTFViewModel *>( pEntParent );
-		if ( pVM )
-		{
-			pPlayer = ToTFPlayer( pVM->GetOwner() );
-		}
-	}
-	
-	if ( !pPlayer )
-	{
-		if ( pEnt->IsPlayer() )
-		{
-			pPlayer = dynamic_cast<C_TFPlayer*>( pEnt );
-		}
-		else
-		{
-			IHasOwner *pOwnerInterface = dynamic_cast<IHasOwner*>( pEnt );
-			if ( pOwnerInterface )
-			{
-				pPlayer = ToTFPlayer( pOwnerInterface->GetOwnerViaInterface() );
-			}
-		}
-	}
-	
-	if ( !pPlayer )
-	{
-		C_TFRagdoll *pRagdoll = dynamic_cast<C_TFRagdoll*>( pEnt );
-		if ( !pRagdoll || !pRagdoll->IsCloaked() )
-		{
-			m_pPercentInvisible->SetFloatValue( 0.0f );
-		}
-		return;
-	}
-
-	// If we're the local player, use the old "vm_invis" code. Otherwise, use the "weapon_invis".
-	if ( pPlayer->IsLocalPlayer() )
-	{
-		float flPercentInvisible = pPlayer->GetPercentInvisible();
-		float flWeaponInvis = flPercentInvisible;
-
-		// remap from 0.22 to 0.5
-		// but drop to 0.0 if we're not invis at all
-		flWeaponInvis = ( flPercentInvisible < 0.01 ) ?
-			0.0 :
-		RemapVal( flPercentInvisible, 0.0, 1.0, TF_VM_MIN_INVIS, TF_VM_MAX_INVIS );
-
-		// Exaggerated blink effect on bump.
-		if ( pPlayer->m_Shared.InCond( TF_COND_STEALTHED_BLINK ) )
-		{
-			flWeaponInvis = 0.3f;
-		}
-
-		// Also exaggerate the effect if we're using motion cloak and our well has run dry.
-		CTFWeaponInvis *pWpn = (CTFWeaponInvis *) pPlayer->Weapon_OwnsThisID( TF_WEAPON_INVIS );
-		if ( pWpn && pWpn->HasMotionCloak() && (pPlayer->m_Shared.GetSpyCloakMeter() <= 0.f ) )
-		{
-			flWeaponInvis = 0.3f;
-		}
-
-		m_pPercentInvisible->SetFloatValue( flWeaponInvis );
-	}
-	else
-	{
-		m_pPercentInvisible->SetFloatValue( pPlayer->GetEffectiveInvisibilityLevel() );
-	}
-}
-
-//	Generic invis proxy that can handle invis for both weapons & viewmodels.
-//	Makes the vm_invis & weapon_invis proxies obsolete, do not use them.
-EXPOSE_INTERFACE( CInvisProxy, IMaterialProxy, "invis" IMATERIAL_PROXY_INTERFACE_VERSION );
-
 
 #endif // CLIENT_DLL
