@@ -12216,6 +12216,12 @@ bool CTFPlayer::CanAttack( int iCanAttackFlags )
 
 	Assert( pRules );
 
+	CTFPipebombLauncher *pPipebombLauncher = static_cast<CTFPipebombLauncher*>( Weapon_OwnsThisID( TF_WEAPON_PIPEBOMBLAUNCHER ) );
+	if ( pPipebombLauncher )
+	{
+		iCanAttackFlags |= TF_CAN_ATTACK_FLAG_PIPEBOMBLAUNCHER;
+	}
+
 	if ( IsViewingCYOAPDA() )
 		return false;
 
@@ -12246,7 +12252,36 @@ bool CTFPlayer::CanAttack( int iCanAttackFlags )
 	}
 
 	if ( IsTaunting() )
-		return false;
+	{
+		if ( !( iCanAttackFlags & TF_CAN_ATTACK_FLAG_PIPEBOMBLAUNCHER ) )
+			return false;
+
+		if ( m_nButtons & IN_ATTACK )
+			return false;
+
+		if ( m_nButtons & IN_ATTACK2 )
+		{
+			if ( !IsPlayerClass( TF_CLASS_DEMOMAN ) )
+				return false;
+
+			if ( !pPipebombLauncher )
+				return false;
+
+			CTFTauntInfo *pTaunt = m_TauntEconItemView.GetStaticData()->GetTauntData();
+			if ( pTaunt )
+			{
+				for ( int i=0; i<pTaunt->GetTauntInputRemapCount(); ++i )
+				{
+					const CTFTauntInfo::TauntInputRemap_t& tauntRemap = pTaunt->GetTauntInputRemapScene( i );
+					{
+						// disable sticky detonation if the secondary fire key is bound to do something else.
+						if ( m_nButtons & tauntRemap.m_iButton )
+							return false;
+					}
+				}
+			}
+		}
+	}
 
 	if ( m_Shared.InCond( TF_COND_PHASE ) == true )
 		return false;
