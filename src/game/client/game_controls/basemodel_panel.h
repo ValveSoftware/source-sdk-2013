@@ -12,6 +12,23 @@
 #include "matsys_controls/mdlpanel.h"
 
 //-----------------------------------------------------------------------------
+// Particle data we want the particle system query to have.
+//-----------------------------------------------------------------------------
+struct BMPParticleQueryObject_t
+{
+	const studiohdr_t *m_pStudioHdr;
+	int                m_numbones;
+	matrix3x4_t       *m_pmatBoneToWorld;
+
+	BMPParticleQueryObject_t( void )
+	{
+		m_pStudioHdr = NULL;
+		m_numbones = -1;
+		m_pmatBoneToWorld = NULL;
+	}
+};
+
+//-----------------------------------------------------------------------------
 // Resource file data used in posing the model inside of the model panel.
 //-----------------------------------------------------------------------------
 struct BMPResAnimData_t
@@ -248,6 +265,7 @@ protected:
 
 		bool				m_bIsUpdateToDate;
 		CParticleCollection	*m_pParticleSystem;
+		BMPParticleQueryObject_t m_BMPQueryObj;
 	};
 	CUtlVector< particle_data_t* > m_particleList;
 
