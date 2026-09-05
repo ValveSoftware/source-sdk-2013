@@ -577,7 +577,7 @@ float CTFKatana::GetMeleeDamage( CBaseEntity *pTarget, int* piDamageType, int* p
 int CTFKatana::GetActivityWeaponRole() const
 {
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
-	if ( pPlayer && pPlayer->GetPlayerClass()->GetClassIndex() == TF_CLASS_DEMOMAN )
+	if ( pPlayer && ( pPlayer->GetPlayerClass()->GetClassIndex() == TF_CLASS_DEMOMAN || ( pPlayer->GetPlayerClass()->GetClassIndex() == TF_CLASS_SPY && pPlayer->m_Shared.GetDisguiseClass() == TF_CLASS_DEMOMAN ) ) )
 	{
 		// demo should use act table item1
 		return TF_WPN_TYPE_ITEM1;
