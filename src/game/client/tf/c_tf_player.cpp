@@ -1597,14 +1597,17 @@ void C_TFRagdoll::DissolveEntity( CBaseEntity* pEnt )
 		pDissolve->SetRenderColor( 255, 255, 255, 255 );
 
 		Vector vColor;
+		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+		bool bIsFriendlyFireOrSuicide = pLocalPlayer ? pLocalPlayer->IsDeathFriendlyFireOrSuicide() : NULL;
+		// If a player kills themselves or a teammate with a weapon that dissolves ragdolls, set dissolving color to their own team
 		if ( m_iTeam == TF_TEAM_BLUE )
 		{
-			vColor = TF_PARTICLE_WEAPON_RED_1 * 255;
+			vColor = ( bIsFriendlyFireOrSuicide ) ? TF_PARTICLE_WEAPON_BLUE_1 * 255 : TF_PARTICLE_WEAPON_RED_1 * 255;
 			pDissolve->SetEffectColor( vColor );
 		}
 		else
 		{
-			vColor = TF_PARTICLE_WEAPON_BLUE_1 * 255;
+			vColor = ( bIsFriendlyFireOrSuicide ) ? TF_PARTICLE_WEAPON_RED_1 * 255 : TF_PARTICLE_WEAPON_BLUE_1 * 255;
 			pDissolve->SetEffectColor( vColor );
 		}
 
@@ -4020,6 +4023,8 @@ C_TFPlayer::C_TFPlayer() :
 
 	m_iPlayerSkinOverride = 0;
 
+	m_bIsFriendlyFireOrSuicide = false;
+
 	ListenForGameEvent( "player_hurt" );
 	ListenForGameEvent( "hltv_changed_mode" );
 	ListenForGameEvent( "hltv_changed_target" );
@@ -4036,6 +4041,7 @@ C_TFPlayer::C_TFPlayer() :
 	ListenForGameEvent( "player_abandoned_match" );
 	ListenForGameEvent( "rocketpack_launch" );
 	ListenForGameEvent( "rocketpack_landed" );
+	ListenForGameEvent( "player_death" );
 
 	//AddPhonemeFile
 	engine->AddPhonemeFile( "scripts/game_sounds_vo_phonemes.txt" );
@@ -11223,6 +11229,23 @@ void C_TFPlayer::FireGameEvent( IGameEvent *event )
 					pHudChat->ChatPrintf( pLocalPlayer->entindex(), CHAT_FILTER_SERVERMSG, "%s", szLocalized );
 				}
 			}
+		}
+	}
+	else if (FStrEq(event->GetName(), "player_death" ) )
+	{
+		m_bIsFriendlyFireOrSuicide = false;
+		const int iAttacker = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
+		C_TFPlayer* pAttacker = ToTFPlayer( UTIL_PlayerByIndex( iAttacker ) );
+
+		const int iVictim = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
+		C_TFPlayer* pVictim = ToTFPlayer( UTIL_PlayerByIndex( iVictim ) );
+
+		if ( !pVictim )
+			return;
+		// If attacker can't be found lets treat it as a suicide
+		if ( !pAttacker || pAttacker->GetTeamNumber() == pVictim->GetTeamNumber() )
+		{
+			m_bIsFriendlyFireOrSuicide = true;
 		}
 	}
 	BaseClass::FireGameEvent( event );
