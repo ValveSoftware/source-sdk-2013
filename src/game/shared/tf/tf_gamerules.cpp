@@ -21942,12 +21942,15 @@ bool CTFGameRules::CanUpgradeWithAttrib( CTFPlayer *pPlayer, int iWeaponSlot, at
 		}
 	case 874:	// mult_item_meter_charge_rate
 		{
-			attrib_value_t eChargeType = ATTRIBUTE_METER_TYPE_NONE;
-			CALL_ATTRIB_HOOK_INT_ON_OTHER( pEntity, eChargeType, item_meter_charge_type );
-			if ( eChargeType != ATTRIBUTE_METER_TYPE_NONE )
-			{
-				return ( iWeaponID != TF_WEAPON_FLAME_BALL );
-			}
+			CTFWearableRazorback *pRazorback = dynamic_cast< CTFWearableRazorback * >( pEntity );
+
+			return ( iWeaponID == TF_WEAPON_LUNCHBOX ||
+				iWeaponID == TF_WEAPON_ROCKETPACK ||
+				iWeaponID == TF_WEAPON_JAR_GAS || 
+				iWeaponID == TF_WEAPON_JAR || 
+				iWeaponID == TF_WEAPON_JAR_MILK ||
+				iWeaponID == TF_WEAPON_CLEAVER ||
+				pRazorback );
 		}
 	case 875:	// explode_on_ignite
 		{
