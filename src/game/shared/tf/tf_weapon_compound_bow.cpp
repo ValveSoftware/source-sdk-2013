@@ -465,7 +465,8 @@ void CTFCompoundBow::ItemPostFrame( void )
 		}
 	}
 
-	if ( GetCurrentCharge() == 1.f && IsViewModelSequenceFinished() )
+	float flTotalChargeTime = gpGlobals->curtime - GetInternalChargeBeginTime();
+	if ( GetCurrentCharge() == 1.f && ( IsViewModelSequenceFinished() || ( GetActivity() == ACT_ITEM2_VM_IDLE_2 && flTotalChargeTime >= TF_ARROW_MAX_CHARGE_TIME ) ) )
 	{
 		SendWeaponAnim( ACT_VM_IDLE );
 	}
