@@ -20,6 +20,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFObjectiveResource, DT_TFObjectiveResource )
 	SendPropInt( SENDINFO(m_nMannVsMachineMaxWaveCount), 9, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO(m_nMannVsMachineWaveCount), 9, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO(m_nMannVsMachineWaveEnemyCount), 16, SPROP_UNSIGNED ),
+	SendPropBool( SENDINFO(m_nMannVsMachineWaveHasTanks) ),
 	SendPropInt( SENDINFO(m_nMvMWorldMoney), 16, SPROP_UNSIGNED ),
 	SendPropFloat( SENDINFO( m_flMannVsMachineNextWaveTime ) ),
 	SendPropBool( SENDINFO( m_bMannVsMachineBetweenWaves ) ),
@@ -47,6 +48,7 @@ BEGIN_DATADESC( CTFObjectiveResource )
 	DEFINE_FIELD( m_nMannVsMachineMaxWaveCount, FIELD_INTEGER ),
 	DEFINE_FIELD( m_nMannVsMachineWaveCount, FIELD_INTEGER ),
 	DEFINE_FIELD( m_nMannVsMachineWaveEnemyCount, FIELD_INTEGER ),
+	DEFINE_FIELD( m_nMannVsMachineWaveHasTanks, FIELD_BOOLEAN),
 	DEFINE_FIELD( m_nMvMWorldMoney, FIELD_INTEGER ),
 	DEFINE_FIELD( m_flMannVsMachineNextWaveTime, FIELD_TIME ),
 	DEFINE_FIELD( m_bMannVsMachineBetweenWaves, FIELD_BOOLEAN ),
@@ -74,6 +76,7 @@ CTFObjectiveResource::CTFObjectiveResource()
 	m_nMannVsMachineMaxWaveCount = 0;
 	m_nMannVsMachineWaveCount = 0;
 	m_nMannVsMachineWaveEnemyCount = 0;
+	m_nMannVsMachineWaveHasTanks = false;
 	m_nMvMWorldMoney = 0;
 	m_flMannVsMachineNextWaveTime = 0;
 	m_bMannVsMachineBetweenWaves = false;
