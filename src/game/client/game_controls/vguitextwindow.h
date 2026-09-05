@@ -84,6 +84,7 @@ protected:
 	int			m_nContentType;
 	bool		m_bShownURL;
 	bool		m_bUnloadOnDismissal;
+	char		m_szLastURL[2048];	// the URL currently loaded in m_pHTMLMessage, so we don't needlessly reload it
 
 	vgui::TextEntry	*m_pTextMessage;
 	
