@@ -313,7 +313,7 @@ struct ambientsample_t
 // be discarded.  This has the effect of converging on the best samples when enough are added.
 void AddSampleToList( CUtlVector<ambientsample_t> &list, const Vector &samplePosition, Vector *pCube )
 {
-	const int MAX_SAMPLES = 16;
+	const int MAX_SAMPLES = g_iAmbientCubesPerLeaf;
 
 	int index = list.AddToTail();
 	list[index].pos = samplePosition;
@@ -698,7 +698,7 @@ void ComputePerLeafAmbientLighting()
 		{
 			if ( !(dleafs[i].contents & CONTENTS_SOLID) )
 			{
-				Msg("Bad leaf ambient for leaf %d\n", i );
+				Warning("Bad leaf ambient for leaf %d\n", i );
 			}
 
 			int refLeaf = NearestNeighborWithLight(i);
