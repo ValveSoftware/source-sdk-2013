@@ -1,0 +1,42 @@
+//-----------------------------------------------------------------------------
+//	GIFMATERIAL_INCLUDE.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Configuration
+{
+    $Compiler
+    {
+        $AdditionalIncludeDirectories   "$BASE;$SRCDIR\thirdparty\giflib-6.1.3;"
+        $PreprocessorDefinitions        "$BASE;INCLUDED_GIFMATERIAL;"
+    }
+}
+
+$Project
+{
+    $Folder "Header Files"
+    {
+        $File   "$SRCDIR\common\gifmaterial.h"
+    }
+
+    $Folder "Source Files"
+    {
+        $File   "$SRCDIR\common\gifmaterial.cpp"
+		{
+			$Configuration
+			{
+				$Compiler
+				{
+					$Create/UsePrecompiledHeader    "Not Using Precompiled Headers"
+				}
+			}
+		}
+    }
+
+    $Folder "Link Libraries"
+    {
+        $Libexternal $LIBCOMMON/giflib [$WINDOWS]
+        $Libexternal $LIBCOMMON/libgiflib [$LINUXALL]
+    }
+}

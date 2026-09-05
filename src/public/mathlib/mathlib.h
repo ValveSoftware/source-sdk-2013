@@ -2152,6 +2152,22 @@ inline bool AlmostEqual( const Vector &a, const Vector &b, int maxUlps = 10)
 		AlmostEqual( a.z, b.z, maxUlps );
 }
 
+//-----------------------------------------------------------------------------
+// Integer alignment to a multiple of given boundary
+//-----------------------------------------------------------------------------
+template< int TAlignment, typename TType >
+FORCEINLINE TType AlignUp( TType nVal )
+{
+	TType tMask = TAlignment - 1;
+	return ( nVal + tMask ) & ~tMask;
+}
+template< int TAlignment, typename TType >
+FORCEINLINE TType AlignDown( TType nVal )
+{
+	TType tMask = TAlignment - 1;
+	return nVal & ~tMask;
+}
+
 
 #endif	// MATH_BASE_H
 
