@@ -174,6 +174,7 @@ public:
 	virtual void		PlayerRunCommand( CUserCmd *ucmd, IMoveHelper *moveHelper );
 
 	virtual void		CommitSuicide( bool bExplode = false, bool bForce = false );
+	virtual void		CommitSuicideWithCustomRagdoll( int m_iCustomRagdoll = 0 );
 
 	// Combats
 	virtual void		TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator );
