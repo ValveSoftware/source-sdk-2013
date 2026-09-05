@@ -380,9 +380,6 @@ void CTFPlayerAnimState::Update( float eyeYaw, float eyePitch )
 	// Compute the player sequences.
 	ComputeSequences( pStudioHdr );
 
-	CTFPlayer *pTauntPartner = pTFPlayer->GetTauntPartner();
-
-	Vector vPositionToFace = ( pTauntPartner ? pTauntPartner->GetAbsOrigin() : vec3_origin );
 	bool bInTaunt = pTFPlayer->m_Shared.InCond( TF_COND_TAUNTING );
 	bool bInKart = pTFPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_KART );
 	bool bIsImmobilized = bInTaunt || pTFPlayer->m_Shared.IsControlStunned();

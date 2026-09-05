@@ -238,7 +238,7 @@ ActionResult< CTFBot >	CTFBotTacticalMonitor::Update( CTFBot *me, float interval
 						// don't ack again for awhile
 						m_acknowledgeRetryTimer.Start( RandomFloat( 10.0f, 20.0f ) );
 
-						return SuspendFor( new CTFBotTaunt, "Acknowledging friendly human attention" );
+						return SuspendFor( new CTFBotTaunt( NULL ), "Acknowledging friendly human attention" );
 					}
 				}
 			}
@@ -419,7 +419,7 @@ EventDesiredResult< CTFBot > CTFBotTacticalMonitor::OnCommandString( CTFBot *me,
 	}
 	else if ( FStrEq( command, "taunt" ) )
 	{
-		return TrySuspendFor( new CTFBotTaunt(), RESULT_TRY, "Received command to taunt" );
+		return TrySuspendFor( new CTFBotTaunt( NULL ), RESULT_TRY, "Received command to taunt" );
 	}
 	else if ( FStrEq( command, "cloak" ) )
 	{

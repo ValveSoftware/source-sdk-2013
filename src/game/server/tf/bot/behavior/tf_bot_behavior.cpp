@@ -37,7 +37,7 @@ ConVar tf_bot_sniper_aim_error( "tf_bot_sniper_aim_error", "0.01", FCVAR_CHEAT )
 ConVar tf_bot_sniper_aim_steady_rate( "tf_bot_sniper_aim_steady_rate", "10", FCVAR_CHEAT );
 ConVar tf_bot_debug_sniper( "tf_bot_debug_sniper", "0", FCVAR_CHEAT );
 ConVar tf_bot_fire_weapon_min_time( "tf_bot_fire_weapon_min_time", "1", FCVAR_CHEAT );
-ConVar tf_bot_taunt_victim_chance( "tf_bot_taunt_victim_chance", "20" );		// community requested this not be a cheat cvar
+ConVar tf_bot_taunt_victim_chance( "tf_bot_taunt_victim_chance", "20", FCVAR_NONE, "Percent chance a bot will taunt a victim after a kill", true, 0.f, true, 100.f );		// community requested this not be a cheat cvar
 
 ConVar tf_bot_notice_backstab_chance( "tf_bot_notice_backstab_chance", "25", FCVAR_CHEAT );
 ConVar tf_bot_notice_backstab_min_range( "tf_bot_notice_backstab_min_range", "100", FCVAR_CHEAT );
@@ -51,7 +51,7 @@ ConVar tf_bot_hitscan_range_limit( "tf_bot_hitscan_range_limit", "1800", FCVAR_C
 ConVar tf_bot_always_full_reload( "tf_bot_always_full_reload", "0", FCVAR_CHEAT );
 
 ConVar tf_bot_fire_weapon_allowed( "tf_bot_fire_weapon_allowed", "1", FCVAR_CHEAT, "If zero, TFBots will not pull the trigger of their weapons (but will act like they did)" );
-ConVar tf_bot_reevaluate_class_in_spawnroom( "tf_bot_reevaluate_class_in_spawnroom", "1", FCVAR_CHEAT, "If set, bots will opportunisticly switch class while in spawnrooms if their current class is no longer their first choice." );
+ConVar tf_bot_reevaluate_class_in_spawnroom( "tf_bot_reevaluate_class_in_spawnroom", "1", FCVAR_CHEAT, "If set, bots will opportunistically switch class while in spawnrooms if their current class is no longer their first choice." );
 
 
 //---------------------------------------------------------------------------------------------
@@ -107,9 +107,10 @@ ActionResult< CTFBot >	CTFBotMainAction::Update( CTFBot *me, float interval )
 	}
 
 	// Should I accept taunt from my partner?
-	if ( me->FindPartnerTauntInitiator() )
+	CTFPlayer* initiator = me->FindPartnerTauntInitiator();
+	if ( initiator )
 	{
-		return SuspendFor( new CTFBotTaunt, "Responding to teammate partner taunt" );
+		return SuspendFor( new CTFBotTaunt( initiator ), "Responding to teammate partner taunt" );
 	}
 
 	// make sure our vision FOV matches the player's
@@ -571,18 +572,18 @@ EventDesiredResult< CTFBot > CTFBotMainAction::OnOtherKilled( CTFBot *me, CBaseC
 
 		if ( !ToTFPlayer( victim )->IsBot() && me->IsEnemy( victim ) && me->IsSelf( info.GetAttacker() ) )
 		{
-			bool isTaunting = !me->HasTheFlag() && RandomFloat( 0.0f, 100.0f ) <= tf_bot_taunt_victim_chance.GetFloat();
+			bool shouldTaunt = !me->HasTheFlag() && RandomFloat( 0.0f, 100.0f ) < tf_bot_taunt_victim_chance.GetFloat();
 
 			if ( TFGameRules()->IsMannVsMachineMode() && me->IsMiniBoss() )
 			{
 				// Bosses don't taunt puny humans
-				isTaunting = false;
+				shouldTaunt = false;
 			}
 
-			if ( isTaunting )
+			if ( shouldTaunt )
 			{
 				// we just killed a human - taunt!
-				return TrySuspendFor( new CTFBotTaunt, RESULT_IMPORTANT, "Taunting our victim" );
+				return TrySuspendFor( new CTFBotTaunt( NULL ), RESULT_IMPORTANT, "Taunting our victim" );
 			}
 		}
 	}

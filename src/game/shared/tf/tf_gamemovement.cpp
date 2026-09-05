@@ -657,11 +657,20 @@ bool CTFGameMovement::TauntMove( void )
 				flMoveDir += mv->m_flForwardMove / cl_backspeed.GetFloat();
 			}
 
-			// No need to read buttons explicitly anymore, since that input is already included in m_flForwardMove
-			/*	if ( mv->m_nButtons & IN_FORWARD )
-				flMoveDir += 1.f;
-			if ( mv->m_nButtons & IN_BACK )
-				flMoveDir += -1.f;	  */
+			// Bots set m_flForwardMove to PlayerLocomotion::GetRunSpeed, not cl_forwardspeed.
+			// Fix their values so that they can TauntMove at the correct speed
+			if ( m_pTFPlayer->IsBot() )
+			{
+				// Bots never end up pressing both of these at once
+				if ( mv->m_nButtons & IN_FORWARD )
+				{
+					flMoveDir = 1.f;
+				}
+				else if ( mv->m_nButtons & IN_BACK )
+				{
+					flMoveDir = -1.f;
+				}
+			}
 
 			// Clamp to [0,1], just in case.
 			if ( flMoveDir > 1.0f )
