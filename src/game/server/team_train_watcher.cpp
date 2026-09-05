@@ -1186,6 +1186,12 @@ void CTeamTrainWatcher::WatcherThink( void )
 					{
 						if ( m_hAreaCap->IsTouching( pPlayer ) )
 						{
+							// only makes sense for offense
+							pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_CART_PUSHING );
+						}
+						else
+						{
+							// for offense and defense, since cart doesn't move when red is touching
 							pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_CART_MOVING_FORWARD );
 						}
 					}
