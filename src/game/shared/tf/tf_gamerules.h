@@ -920,7 +920,7 @@ bool IsCreepWaveMode( void ) const;
 	int		GetPreviousRoundWinners( void ) { return m_iPreviousRoundWinners; }
 
 	void	SendHudNotification( IRecipientFilter &filter, HudNotification_t iType, bool bForceShow = false  );
-	void	SendHudNotification( IRecipientFilter &filter, const char *pszText, const char *pszIcon, int iTeam = TEAM_UNASSIGNED );
+	void	SendHudNotification( IRecipientFilter &filter, const char *pszText, const char *pszIcon, int iTeam = TEAM_UNASSIGNED, bool bForceShow = false );
 	void	StopWatchModeThink( void );
 
 	virtual		void RestartTournament( void );
