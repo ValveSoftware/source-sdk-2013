@@ -40,6 +40,7 @@ BEGIN_NETWORK_TABLE( CWeapon_SLAM, DT_Weapon_SLAM )
 	RecvPropBool( RECVINFO( m_bThrowSatchel ) ),
 	RecvPropBool( RECVINFO( m_bAttachSatchel ) ),
 	RecvPropBool( RECVINFO( m_bAttachTripmine ) ),
+	RecvPropTime( RECVINFO( m_flWallSwitchTime ) ),
 #else
 	SendPropInt( SENDINFO( m_tSlamState ) ),
 	SendPropBool( SENDINFO( m_bDetonatorArmed ) ),
@@ -50,6 +51,7 @@ BEGIN_NETWORK_TABLE( CWeapon_SLAM, DT_Weapon_SLAM )
 	SendPropBool( SENDINFO( m_bThrowSatchel ) ),
 	SendPropBool( SENDINFO( m_bAttachSatchel ) ),
 	SendPropBool( SENDINFO( m_bAttachTripmine ) ),
+	SendPropTime( SENDINFO( m_flWallSwitchTime ) ),
 #endif
 END_NETWORK_TABLE()
 
@@ -65,6 +67,7 @@ BEGIN_PREDICTION_DATA( CWeapon_SLAM )
 	DEFINE_PRED_FIELD( m_bThrowSatchel, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bAttachSatchel, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bAttachTripmine, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD_TOL( m_flWallSwitchTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, TD_MSECTOLERANCE ),
 END_PREDICTION_DATA()
 
 #endif
@@ -476,12 +479,12 @@ void CWeapon_SLAM::StartTripmineAttach( void )
 //-----------------------------------------------------------------------------
 void CWeapon_SLAM::SatchelThrow( void )
 {	
-#ifndef CLIENT_DLL
 	m_bThrowSatchel = false;
 
 	// Only the player fires this way so we can cast
 	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
 
+#ifndef CLIENT_DLL
 	Vector vecSrc	 = pPlayer->WorldSpaceCenter();
 	Vector vecFacing = pPlayer->BodyDirection3D( );
 	vecSrc = vecSrc + vecFacing * 18.0;
@@ -511,10 +514,9 @@ void CWeapon_SLAM::SatchelThrow( void )
 		pSatchel->m_pMyWeaponSLAM = this;
 	}
 
+#endif
 	pPlayer->RemoveAmmo( 1, m_iSecondaryAmmoType );
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
-
-#endif
 
 	// Play throw sound
 	EmitSound( "Weapon_SLAM.SatchelThrow" );
@@ -1004,7 +1006,9 @@ bool CWeapon_SLAM::Deploy( void )
 		return false;
 	}
 
+#ifndef CLIENT_DLL
 	m_bDetonatorArmed = AnyUndetonatedCharges();
+#endif
 
 
 	SetModel( GetViewModel() );
@@ -1069,4 +1073,5 @@ CWeapon_SLAM::CWeapon_SLAM(void)
 	m_bAttachTripmine		= false;
 	m_bNeedDetonatorDraw	= false;
 	m_bNeedDetonatorHolster	= false;
+	m_flWallSwitchTime		= 0.0f;
 }
