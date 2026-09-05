@@ -258,6 +258,7 @@ protected:
 private:
 	void UpdateTip();
 	CHandle< C_TFPlayer > m_hPlayer;
+	CSoundPatch* m_pMvMUpgradeMachineLoop;
 };
 
 
