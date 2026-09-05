@@ -237,7 +237,10 @@ void CMutePlayerDialog::ToggleMuteStateOfSelectedUser()
 	if ( !GetClientVoiceMgr() )
 		return;
 
-	for ( int iSelectedItem = 0; iSelectedItem < m_pPlayerList->GetSelectedItemsCount(); iSelectedItem++ )
+	CUtlVector<VoiceBlockState_t> playerStates;
+
+	const int nSelectedItems = m_pPlayerList->GetSelectedItemsCount();
+	for ( int iSelectedItem = 0; iSelectedItem < nSelectedItems; iSelectedItem++ )
 	{
 		KeyValues *data = m_pPlayerList->GetItem( m_pPlayerList->GetSelectedItem( iSelectedItem ) );
 		if ( !data )
@@ -245,16 +248,14 @@ void CMutePlayerDialog::ToggleMuteStateOfSelectedUser()
 		int playerIndex = data->GetInt( "index" );
 		Assert( playerIndex );
 
-		if ( GetClientVoiceMgr()->IsPlayerBlocked( playerIndex ) )
-		{
-			GetClientVoiceMgr()->SetPlayerBlockedState( playerIndex, false );
-		}
-		else
-		{
-			GetClientVoiceMgr()->SetPlayerBlockedState( playerIndex, true );
-		}
+		VoiceBlockState_t state;
+		state.playerIndex = playerIndex;
+		state.blocked = !GetClientVoiceMgr()->IsPlayerBlocked( playerIndex );
+
+		playerStates.AddToTail( state );
 	}
 
+	GetClientVoiceMgr()->SetPlayersBlockedState( playerStates );
 	RefreshPlayerStatus();
 	OnItemSelected();
 }
