@@ -125,6 +125,15 @@ void ITFGroupMatchCriteria::SetCustomPingTolerance( uint32_t unCustomPingToleran
 }
 
 //-----------------------------------------------------------------------------
+void ITFGroupMatchCriteria::SetKeepPartyOnSameTeam( bool bKeepPartyOnSameTeam )
+{
+	if ( Proto().keep_party_on_same_team() != bKeepPartyOnSameTeam )
+	{
+		MutProto().set_keep_party_on_same_team( bKeepPartyOnSameTeam );
+	}
+}
+
+//-----------------------------------------------------------------------------
 void ITFGroupMatchCriteria::SetCasualMapSelected( uint32 nMapDefIndex, bool bSelected )
 {
 	CCasualCriteriaHelper casualHelper( Proto().casual_criteria() );
