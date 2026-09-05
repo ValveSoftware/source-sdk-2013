@@ -144,6 +144,8 @@ private:
 	void DrawCollisionModel();
 	void UpdateStudioRenderConfig( void );
 
+	void SetupBones( matrix3x4_t *pmatBoneToWorld );
+
 	CTextureReference m_DefaultEnvCubemap;
 	CTextureReference m_DefaultHDREnvCubemap;
 
