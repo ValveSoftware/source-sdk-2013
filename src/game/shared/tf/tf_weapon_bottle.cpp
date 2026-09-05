@@ -17,6 +17,7 @@
 #include "tf_player.h"
 #include "tf_fx.h"
 #include "tf_gamerules.h"
+#include "ilagcompensationmanager.h"
 #endif
 
 //=============================================================================
@@ -266,8 +267,12 @@ void CTFStickBomb::Smack( void )
 			float flRadius = 100.f;
 			CALL_ATTRIB_HOOK_FLOAT( flRadius, mult_explosion_radius );
 
+			lagcompensation->StartLagCompensation( pTFPlayer, pTFPlayer->GetCurrentCommand() );
+
 			CTFRadiusDamageInfo radiusinfo( &info, explosion, flRadius );
 			TFGameRules()->RadiusDamage( radiusinfo );
+
+			lagcompensation->FinishLagCompensation( pTFPlayer );
 		}
 #endif
 	}
