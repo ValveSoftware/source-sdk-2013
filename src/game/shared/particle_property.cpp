@@ -552,7 +552,7 @@ void CParticleProperty::UpdateControlPoint( ParticleEffectList_t *pEffect, int i
 	Vector vecOrigin, vecForward, vecRight, vecUp;
 
 	float flOffset = 0.0f;
-	bool bUsingHeadOrigin = false;
+	bool bUsingUnusual = false;
 
 #ifdef TF_CLIENT_DLL
 
@@ -562,36 +562,91 @@ void CParticleProperty::UpdateControlPoint( ParticleEffectList_t *pEffect, int i
 		C_BaseAnimating *pAnimating = pPoint->hEntity->GetBaseAnimating();
 		if ( pAnimating )
 		{
-			int bUseHeadOrigin = 0;
-			CALL_ATTRIB_HOOK_INT_ON_OTHER( pAnimating, bUseHeadOrigin, particle_effect_use_head_origin );
-			if ( bUseHeadOrigin > 0 )
+			// Do not use this now. It asks players to use particle from head attachment.
+			// But unusual particles for wearables are made for head attachment already.
+			// CALL_ATTRIB_HOOK_INT_ON_OTHER( pAnimating, bUseHeadOrigin, particle_effect_use_head_origin );
+
+			// Reference from bone_merge_cache
+			CUtlVector<CUtlString> 		BoneNames;
+			CUtlVector<unsigned short> 	ParentBones;
+
+			int nFollowBoneSetupMask 	= 0;
+			CStudioHdr *pWearableHdr 	= pAnimating->GetModelPtr();
+			C_BaseAnimating *pFollow 	= pAnimating->FindFollowedEntity();
+			CStudioHdr *pFollowHdr 		= (pFollow ? pFollow->GetModelPtr() : NULL);
+
+			bool bIsUnusual 			= false;
+			bool bIsUnusualStatic 		= false;
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pAnimating, bIsUnusual, set_attached_particle );
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pAnimating, bIsUnusualStatic, set_attached_particle_static );
+			if ( pWearableHdr && pFollowHdr && ( bIsUnusual || bIsUnusualStatic ) )
 			{
-				int iBone = Studio_BoneIndexByName( pAnimating->GetModelPtr(), "bip_head" );
-				if ( iBone < 0 )
+				CBitVec<MAXSTUDIOBONES> BoneMergeBits;	// One bit for each bone. The bit is set if the bone gets merged.
+				BoneMergeBits.Resize( pWearableHdr->numbones() / 8 + 1 );
+				memset( BoneMergeBits.Base(), 0, sizeof(BoneMergeBits) );
+
+				mstudiobone_t *pWearableBones = pWearableHdr->pBone( 0 );
+
+				nFollowBoneSetupMask = BONE_USED_BY_BONE_MERGE;
+				for ( int i = 0; i < pWearableHdr->numbones(); i++ )
 				{
-					iBone = Studio_BoneIndexByName( pAnimating->GetModelPtr(), "prp_helmet" );
-					if ( iBone < 0 )
+					const CUtlString sBoneName = pWearableBones[i].pszName();
+					const int parentBoneIndex = Studio_BoneIndexByName( pFollowHdr, sBoneName );
+					if ( parentBoneIndex < 0 )
+						continue;
+
+					BoneNames.AddToTail( sBoneName );
+					ParentBones.AddToTail( parentBoneIndex );
+
+					BoneMergeBits.Set( i );
+
+					if ( ( pFollowHdr->boneFlags( parentBoneIndex ) & BONE_USED_BY_BONE_MERGE ) == 0 )
 					{
-						iBone = Studio_BoneIndexByName( pAnimating->GetModelPtr(), "prp_hat" );
+						nFollowBoneSetupMask = BONE_USED_BY_ANYTHING;
 					}
 				}
-				if ( iBone < 0 )
+
+				if ( !ParentBones.Count() )
 				{
-					iBone = 0;
+					nFollowBoneSetupMask = 0;
+				}
+			}
+			else
+			{
+				nFollowBoneSetupMask = 0;
+			}
+
+			if ( pWearableHdr && BoneNames.Count() )
+			{
+				pFollow->SetupBones( NULL, -1, nFollowBoneSetupMask, gpGlobals->curtime );
+				const char * const pPriorityBones[] = { "bip_head", "prp_helmet", "prp_hat" };
+				int iBone = -1;
+				bool bFound = false;
+				for ( int j = 0; j < ARRAYSIZE(pPriorityBones) && !bFound; j++ )
+				{
+					for ( int i = 0; i < BoneNames.Count(); i++ )
+					{
+						if ( BoneNames[i] == pPriorityBones[j] )
+						{
+							iBone = i;
+							bFound = true;
+							break;
+						}
+					}
 				}
 
-				bUsingHeadOrigin = true;
-				const matrix3x4_t headBone = pAnimating->GetBone( iBone );
-				MatrixVectors( headBone, &vecForward, &vecRight, &vecUp );
-				MatrixPosition( headBone, vecOrigin );
+				bUsingUnusual = true;
+				const matrix3x4_t rootBone = iBone >= 0 ? pFollow->GetBone( ParentBones[iBone] ) : pFollow->GetBone( ParentBones[0] );
+				MatrixVectors( rootBone, &vecForward, &vecRight, &vecUp );
+				MatrixPosition( rootBone, vecOrigin );
 
-				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pAnimating, flOffset, particle_effect_vertical_offset );	
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pAnimating, flOffset, particle_effect_vertical_offset );
 			}
 		}
 	}
 #endif
 
-	if ( !bUsingHeadOrigin )
+	if ( !bUsingUnusual )
 	{
 		switch ( pPoint->iAttachType )
 		{
