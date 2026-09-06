@@ -849,7 +849,7 @@ void CPrediction::CheckMovingGround( C_BasePlayer *player, double frametime )
 	if ( player->GetFlags() & FL_ONGROUND )
 	{
 		groundentity = player->GetGroundEntity();
-		if ( groundentity && (groundentity->GetFlags() & FL_CONVEYOR) )
+		if ( groundentity && ( groundentity->GetFlags() & FL_CONVEYOR) )
 		{
 			Vector vecNewVelocity;
 			groundentity->GetGroundVelocityToApply( vecNewVelocity );
@@ -1103,7 +1103,7 @@ void CPrediction::RemoveStalePredictedEntities( int sequence_number )
 
 		// If it was ack'd then the server sent us the entity.
 		// Leave it unless it wasn't made dormant this frame, in
-		//  which case it can be removed now
+			//  which case it can be removed now
 		if ( ent->m_PredictableID.GetAcknowledged() )
 		{
 			// Hasn't become dormant yet!!!
