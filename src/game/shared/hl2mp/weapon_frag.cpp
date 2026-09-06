@@ -9,6 +9,8 @@
 #include "in_buttons.h"
 
 #ifdef CLIENT_DLL
+	#include "animation.h"
+	#include "baseviewmodel_shared.h"
 	#include "c_hl2mp_player.h"
 	#include "c_te_effect_dispatch.h"
 #else
@@ -339,6 +341,39 @@ void CWeaponFrag::DecrementAmmo( CBaseCombatCharacter *pOwner )
 //-----------------------------------------------------------------------------
 void CWeaponFrag::ItemPostFrame( void )
 {
+#ifdef CLIENT_DLL
+	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
+	CBaseViewModel *pViewModel = pPlayer ? pPlayer->GetViewModel( m_nViewModelIndex ) : NULL;
+	if ( pViewModel && pPlayer == CBasePlayer::GetLocalPlayer() && pViewModel->GetOwningWeapon() == this && gpGlobals->frametime > 0.0f )
+	{
+		MDLCACHE_CRITICAL_SECTION();
+		CStudioHdr *pStudioHdr = pViewModel->GetModelPtr();
+		int nSequence = pViewModel->GetSequence();
+		if ( pStudioHdr && nSequence >= 0 && nSequence < pStudioHdr->GetNumSeq() )
+		{
+			float flCycleRate = pViewModel->GetSequenceCycleRate( pStudioHdr, nSequence ) * pViewModel->GetPlaybackRate();
+			int nTick = TIME_TO_TICKS( gpGlobals->curtime );
+			float flStartCycle = ( TICKS_TO_TIME( nTick - 1 ) - pViewModel->GetAnimTime() ) * flCycleRate;
+			float flEndCycle = ( TICKS_TO_TIME( nTick ) - pViewModel->GetAnimTime() ) * flCycleRate;
+			animevent_t event;
+			int nEvent = 0;
+			while ( ( nEvent = GetAnimationEvent( pStudioHdr, nSequence, &event, flStartCycle, flEndCycle, nEvent ) ) != 0 )
+			{
+				switch ( event.event )
+				{
+				case EVENT_WEAPON_SEQUENCE_FINISHED:
+					m_fDrawbackFinished = true;
+					break;
+
+				case EVENT_WEAPON_THROW2:
+					WeaponSound( SPECIAL1 );
+					break;
+				}
+			}
+		}
+	}
+#endif
+
 	if( m_fDrawbackFinished )
 	{
 		CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
@@ -553,4 +588,3 @@ void CWeaponFrag::RollGrenade( CBasePlayer *pPlayer )
 
 	m_bRedraw = true;
 }
-
