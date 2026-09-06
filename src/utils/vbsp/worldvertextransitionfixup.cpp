@@ -6,7 +6,7 @@
 
 #include "bsplib.h"
 #include "vbsp.h"
-#include "tier1/UtlBuffer.h"
+#include "tier1/utlbuffer.h"
 #include "tier1/utlvector.h"
 #include "KeyValues.h"
 #include "materialpatch.h"

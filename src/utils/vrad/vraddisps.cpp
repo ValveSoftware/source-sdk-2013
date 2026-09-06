@@ -8,12 +8,12 @@
 #include "vrad.h"
 #include "utlvector.h"
 #include "cmodel.h"
-#include "BSPTreeData.h"
-#include "VRAD_DispColl.h"
-#include "CollisionUtils.h"
+#include "bsptreedata.h"
+#include "vrad_dispcoll.h"
+#include "collisionutils.h"
 #include "lightmap.h"
-#include "Radial.h"
-#include "CollisionUtils.h"
+#include "radial.h"
+#include "collisionutils.h"
 #include "mathlib/bumpvects.h"
 #include "utlrbtree.h"
 #include "tier0/fasttimer.h"
@@ -562,7 +562,7 @@ bool CVRadDispMgr::ClipRayToDisp( DispTested_t &dispTested, Ray_t const &ray )
 	ctx.m_pDispTested = &dispTested;
 
 	// If it got through without a hit, it returns true
-	return !m_pBSPTreeData->EnumerateLeavesAlongRay( ray, &m_EnumDispRay, ( int )&ctx );
+	return !m_pBSPTreeData->EnumerateLeavesAlongRay( ray, &m_EnumDispRay, ( intp )&ctx );
 }
 
 
@@ -575,7 +575,7 @@ bool CVRadDispMgr::ClipRayToDispInLeaf( DispTested_t &dispTested, Ray_t const &r
 	ctx.m_pRay = &ray;
 	ctx.m_pDispTested = &dispTested;
 
-	return !m_pBSPTreeData->EnumerateElementsInLeaf( ndxLeaf, &m_EnumDispRay, ( int )&ctx );
+	return !m_pBSPTreeData->EnumerateElementsInLeaf( ndxLeaf, &m_EnumDispRay, ( intp )&ctx );
 }
 
 //-----------------------------------------------------------------------------

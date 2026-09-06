@@ -337,7 +337,7 @@ bspbrush_t *AllocBrush (int numsides)
 	bspbrush_t	*bb;
 	int			c;
 
-	c = (int)&(((bspbrush_t *)0)->sides[numsides]);
+	c = sizeof( side_t ) * numsides;
 	bb = (bspbrush_t*)malloc(c);
 	memset (bb, 0, c);
 	bb->id = s_BrushId++;
@@ -394,7 +394,7 @@ bspbrush_t *CopyBrush (bspbrush_t *brush)
 	int			size;
 	int			i;
 	
-	size = (int)&(((bspbrush_t *)0)->sides[brush->numsides]);
+	size = sizeof (side_t) * brush->numsides;
 
 	newbrush = AllocBrush (brush->numsides);
 	memcpy (newbrush, brush, size);

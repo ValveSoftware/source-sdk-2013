@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "vtf/vtf.h"
-#include "tier1/UtlBuffer.h"
+#include "tier1/utlbuffer.h"
 #include "tier1/utlmap.h"
 #include "bitmap/imageformat.h"
 #include "mathlib/vector.h"

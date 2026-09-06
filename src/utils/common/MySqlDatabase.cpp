@@ -7,6 +7,14 @@
 
 #include "MySqlDatabase.h"
 
+#ifdef POSIX
+#define InitializeCriticalSection(x)
+#define EnterCriticalSection(x) pthread_mutex_lock(x)
+#define LeaveCriticalSection(x) pthread_mutex_unlock(x)
+#define SetEvent(x) pthread_cond_broadcast(&x)
+#define Sleep(x) sleep(x)
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -24,17 +32,21 @@ CMySqlDatabase::~CMySqlDatabase()
 	m_bRunThread = false;
 
 	// pulse the thread to make it run
-	::SetEvent(m_hEvent);
+	SetEvent(m_hEvent);
 
 	// make sure it's done
-	::EnterCriticalSection(&m_csThread);
-	::LeaveCriticalSection(&m_csThread);
+	EnterCriticalSection(&m_csThread);
+	LeaveCriticalSection(&m_csThread);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Thread access function
 //-----------------------------------------------------------------------------
+#ifdef WIN32
 static DWORD WINAPI staticThreadFunc(void *param)
+#elif defined(POSIX)
+void *staticThreadFunc( void* param )
+#endif
 {
 	((CMySqlDatabase *)param)->RunThread();
 	return 0;
@@ -48,19 +60,27 @@ bool CMySqlDatabase::Initialize()
 {
 	// prepare critical sections
 	//!! need to download SDK and replace these with InitializeCriticalSectionAndSpinCount() calls
-	::InitializeCriticalSection(&m_csThread);
-	::InitializeCriticalSection(&m_csInQueue);
-	::InitializeCriticalSection(&m_csOutQueue);
-	::InitializeCriticalSection(&m_csDBAccess);
+	InitializeCriticalSection(&m_csThread);
+	InitializeCriticalSection(&m_csInQueue);
+	InitializeCriticalSection(&m_csOutQueue);
+	InitializeCriticalSection(&m_csDBAccess);
 
 	// initialize wait calls
+#ifdef WIN32
 	m_hEvent = ::CreateEvent(NULL, false, true, NULL);
-
+#elif defined(POSIX)
+	pthread_cond_init(&m_hEvent, NULL);
+#endif
 	// start the DB-access thread
 	m_bRunThread = true;
 
+#ifdef WIN32
 	unsigned long threadID;
 	::CreateThread(NULL, 0, staticThreadFunc, this, 0, &threadID);
+#elif defined(POSIX)
+	pthread_t threadID;
+	pthread_create(&threadID, NULL, staticThreadFunc, (void*)this);
+#endif
 
 	return true;
 }
@@ -70,34 +90,34 @@ bool CMySqlDatabase::Initialize()
 //-----------------------------------------------------------------------------
 void CMySqlDatabase::RunThread()
 {
-	::EnterCriticalSection(&m_csThread);
+	EnterCriticalSection(&m_csThread);
 	while (m_bRunThread)
 	{
 		if (m_InQueue.Count() > 0)
 		{
 			// get a dispatched DB request
-			::EnterCriticalSection(&m_csInQueue);
+			EnterCriticalSection(&m_csInQueue);
 
 			// pop the front of the queue
 			int headIndex = m_InQueue.Head();
 			msg_t msg = m_InQueue[headIndex];
 			m_InQueue.Remove(headIndex);
 
-			::LeaveCriticalSection(&m_csInQueue);
+			LeaveCriticalSection(&m_csInQueue);
 
-			::EnterCriticalSection(&m_csDBAccess);
+			EnterCriticalSection(&m_csDBAccess);
 			
 			// run sqldb command
 			msg.result = msg.cmd->RunCommand();
 
-			::LeaveCriticalSection(&m_csDBAccess);
+			LeaveCriticalSection(&m_csDBAccess);
 
 			if (msg.replyTarget)
 			{
 				// put the results in the outgoing queue
-				::EnterCriticalSection(&m_csOutQueue);
+				EnterCriticalSection(&m_csOutQueue);
 				m_OutQueue.AddToTail(msg);
-				::LeaveCriticalSection(&m_csOutQueue);
+				LeaveCriticalSection(&m_csOutQueue);
 
 				// wake up out queue
 				msg.replyTarget->WakeUp();
@@ -111,16 +131,22 @@ void CMySqlDatabase::RunThread()
 		else
 		{
 			// nothing in incoming queue, so wait until we get the signal
+#ifdef WIN32
 			::WaitForSingleObject(m_hEvent, INFINITE);
+#elif defined(POSIX)
+			pthread_mutex_lock(&m_EventMutex);
+			pthread_cond_wait(&m_hEvent, &m_EventMutex);
+			pthread_mutex_unlock(&m_EventMutex);
+#endif
 		}
 
 		// check the size of the outqueue; if it's getting too big, sleep to let the main thread catch up
 		if (m_OutQueue.Count() > 50)
 		{
-			::Sleep(2);
+			Sleep(2);
 		}
 	}
-	::LeaveCriticalSection(&m_csThread);
+	LeaveCriticalSection(&m_csThread);
 }
 
 //-----------------------------------------------------------------------------
@@ -128,16 +154,16 @@ void CMySqlDatabase::RunThread()
 //-----------------------------------------------------------------------------
 void CMySqlDatabase::AddCommandToQueue(ISQLDBCommand *cmd, ISQLDBReplyTarget *replyTarget, int returnState)
 {
-	::EnterCriticalSection(&m_csInQueue);
+	EnterCriticalSection(&m_csInQueue);
 
 	// add to the queue
 	msg_t msg = { cmd, replyTarget, 0, returnState };
 	m_InQueue.AddToTail(msg);
 
-	::LeaveCriticalSection(&m_csInQueue);
+	LeaveCriticalSection(&m_csInQueue);
 
 	// signal the thread to start running
-	::SetEvent(m_hEvent);
+	SetEvent(m_hEvent);
 }
 
 //-----------------------------------------------------------------------------
@@ -149,14 +175,14 @@ bool CMySqlDatabase::RunFrame()
 
 	while (m_OutQueue.Count() > 0)
 	{
-		::EnterCriticalSection(&m_csOutQueue);
+		EnterCriticalSection(&m_csOutQueue);
 
 		// pop the first item in the queue
 		int headIndex = m_OutQueue.Head();
 		msg_t msg = m_OutQueue[headIndex];
 		m_OutQueue.Remove(headIndex);
 
-		::LeaveCriticalSection(&m_csOutQueue);
+		LeaveCriticalSection(&m_csOutQueue);
 
 		// run result
 		if (msg.replyTarget)

@@ -338,7 +338,7 @@ public:
 	void			RemoveFileFromZip( const char *relativename );
 
 	// Add buffer to zip as a file with given name
-	void			AddBufferToZip( const char *relativename, void *data, int length, bool bTextMode, IZip::eCompressionType compressionType );
+	void			AddBufferToZip( const char *relativename, const void *data, int length, bool bTextMode, IZip::eCompressionType compressionType );
 
 	// Check if a file already exists in the zip.
 	bool			FileExistsInZip( const char *relativename );
@@ -990,7 +990,7 @@ static void CopyTextData( char *pDst, const char *pSrc, int dstSize, int srcSize
 //			*data - 
 //			length - 
 //-----------------------------------------------------------------------------
-void CZipFile::AddBufferToZip( const char *relativename, void *data, int length, bool bTextMode, IZip::eCompressionType compressionType )
+void CZipFile::AddBufferToZip( const char *relativename, const void *data, int length, bool bTextMode, IZip::eCompressionType compressionType )
 {
 	// Lower case only
 	char name[512];
@@ -999,7 +999,7 @@ void CZipFile::AddBufferToZip( const char *relativename, void *data, int length,
 
 	int outLength = length;
 	int uncompressedLength = length;
-	void *outData = data;
+	const void *outData = data;
 	CUtlBuffer textTransform;
 	CUtlBuffer compressionTransform;
 
@@ -1713,7 +1713,7 @@ public:
 	virtual unsigned int	EstimateSize( void ) OVERRIDE;
 
 	// Add buffer to zip as a file with given name - uses current alignment size, default 0 (no alignment)
-	virtual void			AddBufferToZip( const char *relativename, void *data, int length,
+	virtual void			AddBufferToZip( const char *relativename, const void *data, int length,
 											bool bTextMode, eCompressionType compressionType ) OVERRIDE;
 
 	// Writes out zip file to a buffer - uses current alignment size
@@ -1826,7 +1826,7 @@ unsigned int CZip::EstimateSize( void )
 }
 
 // Add buffer to zip as a file with given name
-void CZip::AddBufferToZip( const char *relativename, void *data, int length, bool bTextMode, eCompressionType compressionType )
+void CZip::AddBufferToZip( const char *relativename, const void *data, int length, bool bTextMode, eCompressionType compressionType )
 {
 	m_ZipFile.AddBufferToZip( relativename, data, length, bTextMode, compressionType );
 }

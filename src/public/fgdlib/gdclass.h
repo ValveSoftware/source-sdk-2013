@@ -17,10 +17,10 @@
 #pragma once
 #endif
 
-#include "HelperInfo.h"
-#include "TokenReader.h"
-#include "GDVar.h"
-#include "InputOutput.h"
+#include "helperinfo.h"
+#include "tokenreader.h"
+#include "gdvar.h"
+#include "inputoutput.h"
 #include "mathlib/vector.h"
 
 class CHelperInfo;

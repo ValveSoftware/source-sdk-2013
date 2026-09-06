@@ -24,9 +24,9 @@
 #include "polylib.h"
 #include "threads.h"
 #include "builddisp.h"
-#include "VRAD_DispColl.h"
-#include "UtlMemory.h"
-#include "UtlHash.h"
+#include "vrad_dispcoll.h"
+#include "utlmemory.h"
+#include "utlhash.h"
 #include "utlvector.h"
 #include "iincremental.h"
 #include "raytrace.h"
@@ -40,11 +40,9 @@
 #include <sys/stat.h>
 
 #pragma warning(disable: 4142 4028)
-#include <io.h>
 #pragma warning(default: 4142 4028)
 
 #include <fcntl.h>
-#include <direct.h>
 #include <ctype.h>
 
 
@@ -337,7 +335,7 @@ extern dface_t *g_pFaces;
 extern bool g_bMPIProps;
 
 extern	byte	nodehit[MAX_MAP_NODES];
-extern  float	gamma;
+extern  float	gamma_;
 extern	float	indirect_sun;
 extern	float	smoothing_threshold;
 extern	int		dlight_map;
