@@ -32,14 +32,17 @@ public:
 		BaseClass::ApplySchemeSettings( pScheme );
 	}
 
-	virtual bool ShouldBeActve() const OVERRIDE
+	virtual bool ShouldBeActive() const OVERRIDE
 	{
+		if ( !TFGameRules() )
+		{
+			return false;
+		}
 
 		int nVotes[ CTFGameRules::EUserNextMapVote::NUM_VOTE_STATES ];
 		CTFGameRules::EUserNextMapVote eWinningVote = TFGameRules()->GetWinningVote( nVotes );
 
 		if ( BInEndOfMatch() &&
-			 TFGameRules() &&
 			 TFGameRules()->GetCurrentNextMapVotingState() == CTFGameRules::NEXT_MAP_VOTE_STATE_MAP_CHOSEN_PAUSE &&
 			 eWinningVote != CTFGameRules::USER_NEXT_MAP_VOTE_UNDECIDED && 
 			 GTFGCClientSystem()->BConnectedToMatchServer( false ) )

@@ -99,13 +99,18 @@ void CTFMatchmakingPopup::OnThink()
 	{
 		OnUpdate();
 	}
+
+	// Doing this in OnThink rather than OnTick closes the window
+	// where reparenting between ticks could leave the UI unresponsive
+	SetMouseInputEnabled( m_bActive );
+	SetKeyBoardInputEnabled( false ); // Never
 }
 
 void CTFMatchmakingPopup::OnTick()
 {
 	BaseClass::OnTick();
 
-	bool bShouldBeActive = ShouldBeActve();
+	bool bShouldBeActive = ShouldBeActive();
 	if ( bShouldBeActive != m_bActive )
 	{
 		if ( bShouldBeActive )
@@ -119,16 +124,13 @@ void CTFMatchmakingPopup::OnTick()
 			OnExit();
 		}
 	}
-
-	SetMouseInputEnabled( ShouldBeActve() );
-	SetKeyBoardInputEnabled( false ); // Never
 }
 
 void CTFMatchmakingPopup::FireGameEvent( IGameEvent *pEvent )
 {
 	if ( FStrEq( pEvent->GetName(), "party_updated" ) )
 	{
-		if ( ShouldBeActve() )
+		if ( ShouldBeActive() )
 		{
 			Update();
 		}
