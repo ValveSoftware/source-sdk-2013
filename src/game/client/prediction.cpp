@@ -197,7 +197,6 @@ void CPrediction::CheckError( int commands_acknowledged )
 	}
 #endif
 }
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -397,7 +396,6 @@ bool CPrediction::ShouldDumpEntity( C_BaseEntity *ent )
 	{
 		if ( cl_predictionentitydumpbyclass.GetString()[ 0 ] == 0 )
 			return false;
-
 		if ( !FClassnameIs( ent, cl_predictionentitydumpbyclass.GetString() ) )
 			return false;
 	}
@@ -597,7 +595,6 @@ void CPrediction::PostNetworkDataReceived( int commands_acknowledged )
 	}
 #endif
 #endif
-
 }
 
 //-----------------------------------------------------------------------------
@@ -888,10 +885,9 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	Q_snprintf( sz, sizeof( sz ), "runcommand%04d", ucmd->command_number );
 	PREDICTION_TRACKVALUECHANGESCOPE( sz );
 #endif
-	CUserCmd effectiveCmd( *ucmd );
-	effectiveCmd.buttons |= player->m_afButtonForced;
-	effectiveCmd.buttons &= ~player->m_afButtonDisabled;
-	ucmd = &effectiveCmd;
+	const int nOriginalButtons = ucmd->buttons;
+	ucmd->buttons |= player->m_afButtonForced;
+	ucmd->buttons &= ~player->m_afButtonDisabled;
 
 	StartCommand( player, ucmd );
 
@@ -976,6 +972,7 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	g_pGameMovement->FinishTrackPredictionErrors( player );
 
 	FinishCommand( player );
+	ucmd->buttons = nOriginalButtons;
 
 	if ( gpGlobals->frametime > 0 )
 	{
