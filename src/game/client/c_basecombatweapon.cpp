@@ -132,29 +132,33 @@ void C_BaseCombatWeapon::OnDataChanged( DataUpdateType_t updateType )
 	// find the registered weapon for this ID
 
 	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+	C_BasePlayer *pHudPlayer = GetHudPlayer();
 	C_BaseCombatCharacter *pOwner = GetOwner();
 
 	// check if weapon is carried by local player
 	bool bIsLocalPlayer = pPlayer && pPlayer == pOwner;
-	if ( bIsLocalPlayer && ShouldDrawLocalPlayerViewModel() )		// TODO: figure out the purpose of the ShouldDrawLocalPlayer() test.
+	bool bDrawsLocalViewModel = bIsLocalPlayer && ShouldDrawLocalPlayerViewModel(); // TODO: figure out the purpose of the ShouldDrawLocalPlayer() test.
+	bool bReportPickup = bDrawsLocalViewModel;
+#ifdef HL2MP
+	bReportPickup = bReportPickup || ( pPlayer && pPlayer->IsObserver() && pHudPlayer && pHudPlayer == pOwner );
+#endif
+	if ( bReportPickup &&
+		(m_iState != WEAPON_NOT_CARRIED ) && (m_iOldState == WEAPON_NOT_CARRIED) && ShouldDrawPickup() )
 	{
-		// If I was just picked up, or created & immediately carried, add myself to this client's list of weapons
-		if ( (m_iState != WEAPON_NOT_CARRIED ) && (m_iOldState == WEAPON_NOT_CARRIED) )
+		CHudHistoryResource *pHudHistory = GET_HUDELEMENT( CHudHistoryResource );
+		if ( pHudHistory && pHudHistory->IsTrackingPlayer( pHudPlayer ) )
 		{
 			// Tell the HUD this weapon's been picked up
-			if ( ShouldDrawPickup() )
-			{
-				CBaseHudWeaponSelection *pHudSelection = GetHudWeaponSelection();
-				if ( pHudSelection )
-				{
-					pHudSelection->OnWeaponPickup( this );
-				}
-
-				pPlayer->EmitSound( "Player.PickupWeapon" );
-			}
+			CBaseHudWeaponSelection *pHudSelection = GetHudWeaponSelection();
+			if ( pHudSelection )
+				pHudSelection->OnWeaponPickup( this );
 		}
+
+		if ( bDrawsLocalViewModel )
+			pPlayer->EmitSound( "Player.PickupWeapon" );
 	}
-	else // weapon carried by other player or not at all
+
+	if ( !bDrawsLocalViewModel )
 	{
 		int overrideModelIndex = CalcOverrideModelIndex();
 		if( overrideModelIndex != -1 && overrideModelIndex != GetModelIndex() )

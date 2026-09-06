@@ -31,6 +31,7 @@ class IClientEntity;
 class CHudTexture;
 class CGameTrace;
 class C_BaseEntity;
+class C_BasePlayer;
 
 struct Ray_t;
 struct client_textmessage_t;
@@ -112,7 +113,7 @@ bool GetTargetInScreenSpace( C_BaseEntity *pTargetEntity, int& iX, int& iY, Vect
 bool GetTargetInHudSpace( C_BaseEntity *pTargetEntity, int& iX, int& iY, Vector *vecOffset = NULL );
 
 // prints messages through the HUD (stub in client .dll right now )
-class C_BasePlayer;
+C_BasePlayer *GetHudPlayer( void );
 void ClientPrint( C_BasePlayer *player, int msg_dest, const char *msg_name, const char *param1 = NULL, const char *param2 = NULL, const char *param3 = NULL, const char *param4 = NULL );
 
 // Pass in an array of pointers and an array size, it fills the array and returns the number inserted

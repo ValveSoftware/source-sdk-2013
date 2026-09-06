@@ -56,6 +56,9 @@ public:
 
 	virtual void Update( void );
 	virtual bool NeedsUpdate( void );
+	virtual Color GetBlackBarColor( void ) { return Color( 15, 18, 17, 224 ); }
+	virtual int GetTopBarHeight( void ) { return 0; }
+	virtual int GetBottomBarHeight( void ) { return 0; }
 
 protected:
 	int		m_nLastSpecMode;
