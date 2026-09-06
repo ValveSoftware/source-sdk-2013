@@ -180,7 +180,13 @@ int	FindMiptex (const char *name)
 
 		if( g_BumpAll || GetMaterialShaderPropertyBool( matID, UTILMATLIB_NEEDS_BUMPED_LIGHTMAPS ) )
 		{
-			textureref[i].flags |= SURF_BUMPLIGHT;
+			// $nodiffusebumpedlighting doesn't work properly in vanilla shaders unless using SSBump.
+			// Leaving out SURF_BUMPLIGHT bypasses the issue. This breaks custom shaders that fix
+			// bumped overlays, however (since those require bumped lightmaps), so a separate matvar is used.
+			if (!( ( propVal = GetMaterialVar( matID, "%compileNoBumpLight" ) ) && StringIsTrue( propVal ) ))
+			{
+				textureref[i].flags |= SURF_BUMPLIGHT;
+			}
 		}
 		
 		if( GetMaterialShaderPropertyBool( matID, UTILMATLIB_NEEDS_LIGHTMAP ) )
