@@ -50,6 +50,11 @@ const char* g_pszEnergyProjectileImpactParticle	( "drg_pomson_impact" );
 IMPLEMENT_NETWORKCLASS_ALIASED( TFProjectile_EnergyRing, DT_TFProjectile_EnergyRing )
 
 BEGIN_NETWORK_TABLE( CTFProjectile_EnergyRing, DT_TFProjectile_EnergyRing )
+#ifdef GAME_DLL
+	SendPropBool( SENDINFO( m_bCritical ) ),
+#else
+	RecvPropBool( RECVINFO( m_bCritical ) ),
+#endif
 END_NETWORK_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -122,6 +127,8 @@ CTFProjectile_EnergyRing *CTFProjectile_EnergyRing::Create( CTFWeaponBaseGun *pL
 	pRing->SetLauncher( pLauncher );
 
 	pRing->SetScorer( pScorer );
+
+	pRing->m_bCritical = bCritical;
 
 	// Spawn.
 	pRing->Spawn();
@@ -373,11 +380,11 @@ const char*	CTFProjectile_EnergyRing::GetTrailParticleName() const
 {
 	if ( ShouldPenetrate() )	// Righteous Bison
 	{
-		return IsCritical() ? g_pszBisonTrailParticleCrit : g_pszBisonTrailParticle;
+		return m_bCritical ? g_pszBisonTrailParticleCrit : g_pszBisonTrailParticle;
 	}
 	else // Pomson
 	{
-		return IsCritical() ? g_pszPomsonTrailParticleCrit : g_pszPomsonTrailParticle;
+		return m_bCritical ? g_pszPomsonTrailParticleCrit : g_pszPomsonTrailParticle;
 	}
 }
 
