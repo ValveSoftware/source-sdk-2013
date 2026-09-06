@@ -92,6 +92,9 @@ public:
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
 	DECLARE_ENT_SCRIPTDESC();
+#ifdef HL2MP
+	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_ArmorValue );
+#endif
 
 	virtual void		CreateCorpse( void ) { CopyToBodyQue( this ); };
 

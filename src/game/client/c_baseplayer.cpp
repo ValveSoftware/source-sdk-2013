@@ -230,6 +230,10 @@ END_RECV_TABLE()
 		RecvPropFloat		( RECVINFO(m_flFriction) ),
 
 		RecvPropArray3		( RECVINFO_ARRAY(m_iAmmo), RecvPropInt( RECVINFO(m_iAmmo[0])) ),
+
+#ifdef HL2MP
+		RecvPropInt			( RECVINFO_NAME(m_iArmorValue, m_ArmorValue) ),
+#endif
 		
 		RecvPropInt			( RECVINFO(m_fOnTarget) ),
 
@@ -417,6 +421,10 @@ LINK_ENTITY_TO_CLASS( player, C_BasePlayer );
 // -------------------------------------------------------------------------------- //
 C_BasePlayer::C_BasePlayer() : m_iv_vecViewOffset( "C_BasePlayer::m_iv_vecViewOffset" )
 {
+#ifdef HL2MP
+	m_iArmorValue = 0;
+#endif
+
 	AddVar( &m_vecViewOffset, &m_iv_vecViewOffset, LATCH_SIMULATION_VAR );
 
 	AddVar( &m_Local.m_vecPunchAngle, &m_Local.m_iv_vecPunchAngle, LATCH_SIMULATION_VAR );
@@ -1008,6 +1016,14 @@ void C_BasePlayer::OnRestore()
 	}
 }
 
+void C_BasePlayer::ResetHudAmmoHistory( void )
+{
+	for ( int i = 0; i < MAX_AMMO_TYPES; ++i )
+	{
+		m_iOldAmmo[i] = GetAmmoCount( i );
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Process incoming data
 //-----------------------------------------------------------------------------
@@ -1022,12 +1038,10 @@ void C_BasePlayer::OnDataChanged( DataUpdateType_t updateType )
 
 	BaseClass::OnDataChanged( updateType );
 
-	// Only care about this for local player
-	if ( IsLocalPlayer() )
+	C_BasePlayer *pHudPlayer = GetHudPlayer();
+	CHudHistoryResource *pHudHR = GET_HUDELEMENT( CHudHistoryResource );
+	if ( this == pHudPlayer && pHudHR && pHudHR->IsTrackingPlayer( this ) )
 	{
-		// Reset engine areabits pointer
-		render->SetAreaState( m_Local.m_chAreaBits, m_Local.m_chAreaPortalBits );
-
 		// Check for Ammo pickups.
 		for ( int i = 0; i < MAX_AMMO_TYPES; i++ )
 		{
@@ -1039,14 +1053,16 @@ void C_BasePlayer::OnDataChanged( DataUpdateType_t updateType )
 				if ( !pWeaponData || !( pWeaponData->iFlags & ITEM_FLAG_NOAMMOPICKUPS ) )
 				{
 					// We got more ammo for this ammo index. Add it to the ammo history
-					CHudHistoryResource *pHudHR = GET_HUDELEMENT( CHudHistoryResource );
-					if( pHudHR )
-					{
-						pHudHR->AddToHistory( HISTSLOT_AMMO, i, abs(GetAmmoCount(i) - m_iOldAmmo[i]) );
-					}
+					pHudHR->AddToHistory( HISTSLOT_AMMO, i, abs(GetAmmoCount(i) - m_iOldAmmo[i]) );
 				}
 			}
 		}
+	}
+
+	if ( IsLocalPlayer() )
+	{
+		// Reset engine areabits pointer
+		render->SetAreaState( m_Local.m_chAreaBits, m_Local.m_chAreaPortalBits );
 
 		Soundscape_Update( m_Local.m_audio );
 

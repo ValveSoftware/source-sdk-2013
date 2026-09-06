@@ -36,6 +36,7 @@ public:
 
 	void SetAmmo(int ammo, bool playAnimation);
 	void SetAmmo2(int ammo2, bool playAnimation);
+	virtual bool ShouldDraw( void );
 	virtual void Paint( void );
 
 protected:
@@ -96,6 +97,11 @@ void CHudAmmo::VidInit( void )
 {
 }
 
+bool CHudAmmo::ShouldDraw( void )
+{
+	return CHudElement::ShouldDraw();
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Resets hud after save/restore
 //-----------------------------------------------------------------------------
@@ -119,7 +125,7 @@ void CHudAmmo::UpdatePlayerAmmo( C_BasePlayer *player )
 	// Clear out the vehicle entity
 	m_hCurrentVehicle = NULL;
 
-	C_BaseCombatWeapon *wpn = GetActiveWeapon();
+	C_BaseCombatWeapon *wpn = player ? player->GetActiveWeapon() : NULL;
 
 	hudlcd->SetGlobalStat( "(weapon_print_name)", wpn ? wpn->GetPrintName() : " " );
 	hudlcd->SetGlobalStat( "(weapon_name)", wpn ? wpn->GetName() : " " );
@@ -259,7 +265,7 @@ void CHudAmmo::OnThink()
 //-----------------------------------------------------------------------------
 void CHudAmmo::UpdateAmmoDisplays()
 {
-	C_BasePlayer *player = C_BasePlayer::GetLocalPlayer();
+	C_BasePlayer *player = GetHudPlayer();
 	IClientVehicle *pVehicle = player ? player->GetVehicle() : NULL;
 
 	if ( !pVehicle )
@@ -381,6 +387,11 @@ public:
 	{
 	}
 
+	bool ShouldDraw( void )
+	{
+		return CHudElement::ShouldDraw();
+	}
+
 	void SetAmmo( int ammo )
 	{
 		if (ammo != m_iAmmo)
@@ -438,8 +449,8 @@ protected:
 	virtual void OnThink()
 	{
 		// set whether or not the panel draws based on if we have a weapon that supports secondary ammo
-		C_BaseCombatWeapon *wpn = GetActiveWeapon();
-		C_BasePlayer *player = C_BasePlayer::GetLocalPlayer();
+		C_BasePlayer *player = GetHudPlayer();
+		C_BaseCombatWeapon *wpn = player ? player->GetActiveWeapon() : NULL;
 		IClientVehicle *pVehicle = player ? player->GetVehicle() : NULL;
 		if (!wpn || !player || pVehicle)
 		{
@@ -459,8 +470,8 @@ protected:
 
 	void UpdateAmmoState()
 	{
-		C_BaseCombatWeapon *wpn = GetActiveWeapon();
-		C_BasePlayer *player = C_BasePlayer::GetLocalPlayer();
+		C_BasePlayer *player = GetHudPlayer();
+		C_BaseCombatWeapon *wpn = player ? player->GetActiveWeapon() : NULL;
 
 		if (player && wpn && wpn->UsesSecondaryAmmo())
 		{
@@ -493,4 +504,3 @@ private:
 };
 
 DECLARE_HUDELEMENT( CHudSecondaryAmmo );
-

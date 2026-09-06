@@ -117,9 +117,15 @@ bool CHudZoom::ShouldDraw( void )
 {
 	bool bNeedsDraw = false;
 
-	C_BaseHLPlayer *pPlayer = dynamic_cast<C_BaseHLPlayer *>(C_BasePlayer::GetLocalPlayer());
+	C_BaseHLPlayer *pPlayer = dynamic_cast<C_BaseHLPlayer *>(GetHudPlayer());
 	if ( pPlayer == NULL )
 		return false;
+
+#ifdef HL2MP
+	C_BasePlayer *pLocalObserver = C_BasePlayer::GetLocalPlayer();
+	if ( pLocalObserver && pLocalObserver->IsObserver() && pLocalObserver->GetObserverMode() != OBS_MODE_IN_EYE )
+		return false;
+#endif
 
 	if ( pPlayer->m_HL2Local.m_bZooming )
 	{
@@ -144,7 +150,7 @@ void CHudZoom::Paint( void )
 	m_bPainted = false;
 
 	// see if we're zoomed any
-	C_BaseHLPlayer *pPlayer = dynamic_cast<C_BaseHLPlayer *>(C_BasePlayer::GetLocalPlayer());
+	C_BaseHLPlayer *pPlayer = dynamic_cast<C_BaseHLPlayer *>(GetHudPlayer());
 	if ( pPlayer == NULL )
 		return;
 

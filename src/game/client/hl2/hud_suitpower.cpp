@@ -62,7 +62,7 @@ bool CHudSuitPower::ShouldDraw()
 {
 	bool bNeedsDraw = false;
 
-	C_BaseHLPlayer *pPlayer = (C_BaseHLPlayer *)C_BasePlayer::GetLocalPlayer();
+	C_BaseHLPlayer *pPlayer = (C_BaseHLPlayer *)GetHudPlayer();
 	if ( !pPlayer )
 		return false;
 
@@ -78,7 +78,7 @@ bool CHudSuitPower::ShouldDraw()
 void CHudSuitPower::OnThink( void )
 {
 	float flCurrentPower = 0;
-	C_BaseHLPlayer *pPlayer = (C_BaseHLPlayer *)C_BasePlayer::GetLocalPlayer();
+	C_BaseHLPlayer *pPlayer = (C_BaseHLPlayer *)GetHudPlayer();
 	if ( !pPlayer )
 		return;
 
@@ -134,7 +134,7 @@ void CHudSuitPower::OnThink( void )
 //-----------------------------------------------------------------------------
 void CHudSuitPower::Paint()
 {
-	C_BaseHLPlayer *pPlayer = (C_BaseHLPlayer *)C_BasePlayer::GetLocalPlayer();
+	C_BaseHLPlayer *pPlayer = (C_BaseHLPlayer *)GetHudPlayer();
 	if ( !pPlayer )
 		return;
 
@@ -253,5 +253,4 @@ void CHudSuitPower::Paint()
 		}
 	}
 }
-
 

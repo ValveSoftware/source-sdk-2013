@@ -23,6 +23,10 @@ extern ConVar hud_drawhistory_time;
 DECLARE_HUDELEMENT( CHudHistoryResource );
 DECLARE_HUD_MESSAGE( CHudHistoryResource, ItemPickup );
 DECLARE_HUD_MESSAGE( CHudHistoryResource, AmmoDenied );
+#ifdef HL2MP
+DECLARE_HUD_MESSAGE( CHudHistoryResource, SpecItemPickup );
+DECLARE_HUD_MESSAGE( CHudHistoryResource, SpecAmmoDenied );
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -32,6 +36,7 @@ CHudHistoryResource::CHudHistoryResource( const char *pElementName ) :
 {	
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
+	m_hHistoryPlayer = NULL;
 	m_bDoNotDraw = true;
 	m_wcsAmmoFullMsg[0] = 0;
 	m_bNeedsDraw = false;
@@ -61,8 +66,26 @@ void CHudHistoryResource::Init( void )
 {
 	HOOK_HUD_MESSAGE( CHudHistoryResource, ItemPickup );
 	HOOK_HUD_MESSAGE( CHudHistoryResource, AmmoDenied );
+#ifdef HL2MP
+	HOOK_HUD_MESSAGE( CHudHistoryResource, SpecItemPickup );
+	HOOK_HUD_MESSAGE( CHudHistoryResource, SpecAmmoDenied );
+#endif
 
 	Reset();
+}
+
+void CHudHistoryResource::OnThink( void )
+{
+	BaseClass::OnThink();
+
+	C_BasePlayer *pHudPlayer = GetHudPlayer();
+	if ( m_hHistoryPlayer != pHudPlayer )
+	{
+		m_hHistoryPlayer = pHudPlayer;
+		Reset();
+		if ( pHudPlayer )
+			pHudPlayer->ResetHudAmmoHistory();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -255,6 +278,24 @@ void CHudHistoryResource::MsgFunc_AmmoDenied( bf_read &msg )
 	// add into the list
 	AddToHistory( HISTSLOT_AMMODENIED, iAmmo, 0 );
 }
+
+#ifdef HL2MP
+void CHudHistoryResource::MsgFunc_SpecItemPickup( bf_read &msg )
+{
+	int iPlayer = msg.ReadByte();
+	C_BasePlayer *pHudPlayer = GetHudPlayer();
+	if ( pHudPlayer && pHudPlayer->entindex() == iPlayer )
+		MsgFunc_ItemPickup( msg );
+}
+
+void CHudHistoryResource::MsgFunc_SpecAmmoDenied( bf_read &msg )
+{
+	int iPlayer = msg.ReadByte();
+	C_BasePlayer *pHudPlayer = GetHudPlayer();
+	if ( pHudPlayer && pHudPlayer->entindex() == iPlayer )
+		MsgFunc_AmmoDenied( msg );
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: If there aren't any items in the history, clear it out.

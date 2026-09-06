@@ -82,6 +82,14 @@ void CHudPoisonDamageIndicator::Reset( void )
 //-----------------------------------------------------------------------------
 bool CHudPoisonDamageIndicator::ShouldDraw( void )
 {
+#ifdef HL2MP
+	if ( IsLocalPlayerSpectator() )
+	{
+		Reset();
+		return false;
+	}
+#endif
+
 	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
 	if ( !pPlayer )
 		return false;

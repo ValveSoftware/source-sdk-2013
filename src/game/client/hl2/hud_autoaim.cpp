@@ -147,7 +147,7 @@ void CHUDAutoAim::VidInit( void )
 bool CHUDAutoAim::ShouldDraw( void )
 {	
 #ifndef HL1_CLIENT_DLL
-	C_BaseHLPlayer *pLocalPlayer = (C_BaseHLPlayer *)C_BasePlayer::GetLocalPlayer();
+	C_BaseHLPlayer *pLocalPlayer = (C_BaseHLPlayer *)GetHudPlayer();
 	if ( pLocalPlayer )
 	{
 		if( !pLocalPlayer->m_HL2Local.m_bDisplayReticle )
@@ -155,6 +155,12 @@ bool CHUDAutoAim::ShouldDraw( void )
 			return false;
 		}
 	}
+
+#ifdef HL2MP
+	C_BasePlayer *pLocalObserver = C_BasePlayer::GetLocalPlayer();
+	if ( pLocalObserver && pLocalObserver->IsObserver() && pLocalObserver->GetObserverMode() != OBS_MODE_IN_EYE )
+		return false;
+#endif
 #endif
 
 	return ( (hud_draw_fixed_reticle.GetBool() || hud_draw_active_reticle.GetBool()) && CHudElement::ShouldDraw() && !engine->IsDrawingLoadingImage() );
@@ -177,7 +183,7 @@ void CHUDAutoAim::OnThink()
 	BaseClass::OnThink();
 
 	// Get the HL2 player
-	C_BaseHLPlayer *pLocalPlayer = (C_BaseHLPlayer *)C_BasePlayer::GetLocalPlayer();
+	C_BaseHLPlayer *pLocalPlayer = (C_BaseHLPlayer *)GetHudPlayer();
 	if ( pLocalPlayer == NULL )
 	{
 		// Just turn the autoaim crosshair off.
@@ -456,7 +462,7 @@ void CHUDAutoAim::Paint()
 		int r,g,b,a;
 		clr.GetColor( r,g,b,a );
 
-		C_BaseHLPlayer *pLocalPlayer = (C_BaseHLPlayer *)C_BasePlayer::GetLocalPlayer();
+		C_BaseHLPlayer *pLocalPlayer = (C_BaseHLPlayer *)GetHudPlayer();
 		if( pLocalPlayer && pLocalPlayer->m_HL2Local.m_hAutoAimTarget.Get() )
 		{
 			r = 250; 
