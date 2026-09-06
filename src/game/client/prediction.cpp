@@ -849,7 +849,7 @@ void CPrediction::CheckMovingGround( C_BasePlayer *player, double frametime )
 	if ( player->GetFlags() & FL_ONGROUND )
 	{
 		groundentity = player->GetGroundEntity();
-		if ( groundentity && ( groundentity->GetFlags() & FL_CONVEYOR) )
+		if ( groundentity && (groundentity->GetFlags() & FL_CONVEYOR) )
 		{
 			Vector vecNewVelocity;
 			groundentity->GetGroundVelocityToApply( vecNewVelocity );
@@ -888,7 +888,6 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	Q_snprintf( sz, sizeof( sz ), "runcommand%04d", ucmd->command_number );
 	PREDICTION_TRACKVALUECHANGESCOPE( sz );
 #endif
-	const int nOriginalButtons = ucmd->buttons;
 	ucmd->buttons |= player->m_afButtonForced;
 	ucmd->buttons &= ~player->m_afButtonDisabled;
 
@@ -975,7 +974,6 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	g_pGameMovement->FinishTrackPredictionErrors( player );
 
 	FinishCommand( player );
-	ucmd->buttons = nOriginalButtons;
 
 	if ( gpGlobals->frametime > 0 )
 	{
