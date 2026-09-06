@@ -197,6 +197,7 @@ void CPrediction::CheckError( int commands_acknowledged )
 	}
 #endif
 }
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -396,6 +397,7 @@ bool CPrediction::ShouldDumpEntity( C_BaseEntity *ent )
 	{
 		if ( cl_predictionentitydumpbyclass.GetString()[ 0 ] == 0 )
 			return false;
+
 		if ( !FClassnameIs( ent, cl_predictionentitydumpbyclass.GetString() ) )
 			return false;
 	}
@@ -595,6 +597,7 @@ void CPrediction::PostNetworkDataReceived( int commands_acknowledged )
 	}
 #endif
 #endif
+
 }
 
 //-----------------------------------------------------------------------------
