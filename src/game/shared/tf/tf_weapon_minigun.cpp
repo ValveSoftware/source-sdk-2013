@@ -1438,16 +1438,17 @@ void CTFMinigun::WeaponSoundUpdate()
 	float flPitch = 1.0f;
 
 	float flSpeed = ApplyFireDelay( 1.0f );
+
+	float flPitchScale = 1.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flPitchScale, mult_minigun_pitch_scale );
+	if ( flPitchScale != 1.0f )
+	{
+		flSpeed /= ( flPitchScale );
+	}
+
 	if ( flSpeed != 1.0f )
 	{
 		flPitch = RemapValClamped( flSpeed, 1.5f, 0.5f, 80.f, 120.f );
-		// Tomislav - Fixes Tomislav's base firing sound pitch sounding lower than intended due to its base 20% slower firing speed penalty
-		if ( GetAttributeContainer()->GetItem()->GetItemDefIndex() == 424 )
-		{
-			//DevMsg( "Tomislav pitch correction: flSpeed BEFORE = %f, flPitch = %f\n", flSpeed, flPitch );
-			flPitch = RemapVal( flSpeed, 1.2f, 0.6f, 100.f, 120.f );
-			//DevMsg( "Tomislav pitch correction: flSpeed AFTER = %f, flPitch = %f\n", flSpeed, flPitch );
-		}
 	}
 
 	if ( m_bRageDraining )
