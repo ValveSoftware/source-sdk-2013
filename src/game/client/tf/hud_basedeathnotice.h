@@ -54,7 +54,7 @@ struct DeathNoticeItem
 
 	DeathNoticePlayer	Killer;
 	DeathNoticePlayer   Victim;
-	char		szIcon[32];		// name of icon to display
+	char		szIcon[64];		// name of icon to display
 	wchar_t		wzInfoText[32];	// any additional text to display next to icon
 	wchar_t		wzInfoTextEnd[32];	// any additional text to display next to victim name
 	CHudTexture *iconDeath;
