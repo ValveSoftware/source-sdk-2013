@@ -119,9 +119,12 @@ void CTFHudSpectatorExtras::OnTick()
 		return;
 	}
 
+	bool bLocalPlayerIsAlive = pLocalPlayer->IsAlive();
+	bool bLocalPlayerTeamGlows = bLocalPlayerIsAlive && pLocalPlayer->m_Shared.InCond( TF_COND_TEAM_GLOWS );
+
 	if ( nLocalPlayerTeam >= FIRST_GAME_TEAM )
 	{
-		if ( pLocalPlayer->IsAlive() && !pLocalPlayer->m_Shared.InCond( TF_COND_TEAM_GLOWS ) )
+		if ( bLocalPlayerIsAlive && !bLocalPlayerTeamGlows )
 		{
 			if ( m_vecEntitiesToDraw.Count() > 0 )
 			{
@@ -132,7 +135,7 @@ void CTFHudSpectatorExtras::OnTick()
 	}
 
 	if ( bIsHLTV || 
-		( tf_spec_xray.GetBool() && ( ( nLocalPlayerTeam == TEAM_SPECTATOR ) || ( pLocalPlayer->GetObserverMode() > OBS_MODE_FREEZECAM ) || ( pLocalPlayer->m_Shared.InCond( TF_COND_TEAM_GLOWS ) && tf_enable_glows_after_respawn.GetBool() ) ) ) )
+		( tf_spec_xray.GetBool() && ( ( nLocalPlayerTeam == TEAM_SPECTATOR ) || ( pLocalPlayer->GetObserverMode() > OBS_MODE_FREEZECAM ) || ( bLocalPlayerTeamGlows && tf_enable_glows_after_respawn.GetBool() ) ) ) )
 	{
 		bool bShowEveryone = ( bIsHLTV || 
 							   ( ( nLocalPlayerTeam == TEAM_SPECTATOR ) && tf_spec_xray.GetBool() ) ||
@@ -163,7 +166,8 @@ void CTFHudSpectatorExtras::OnTick()
 				( pPlayer->m_Shared.IsStealthed() && ( nLocalPlayerTeam >= FIRST_GAME_TEAM ) && ( nPlayerTeamNumber != nLocalPlayerTeam ) ) ||
 				( !bShowEveryone && !pPlayer->IsPlayerClass( TF_CLASS_SPY ) && ( nPlayerTeamNumber != nLocalPlayerTeam ) ) ||
 				( !bShowEveryone && pPlayer->IsPlayerClass( TF_CLASS_SPY ) && !pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && ( nPlayerTeamNumber != nLocalPlayerTeam ) ) ||
-				( !bShowEveryone && pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && ( nPlayerTeamNumber != nLocalPlayerTeam ) && ( pPlayer->m_Shared.GetDisguiseTeam() != nLocalPlayerTeam ) ) )
+				( !bShowEveryone && pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && ( nPlayerTeamNumber != nLocalPlayerTeam ) && ( pPlayer->m_Shared.GetDisguiseTeam() != nLocalPlayerTeam ) ) ||
+				( !bShowEveryone && bLocalPlayerTeamGlows && ( ( nPlayerTeamNumber != nLocalPlayerTeam ) || pLocalPlayer->IsLineOfSightClear( pPlayer, CBaseCombatCharacter::IGNORE_ACTORS ) ) ) )
 			{
 				if ( pPlayer->IsClientSideGlowEnabled() )
 				{
@@ -193,7 +197,7 @@ void CTFHudSpectatorExtras::OnTick()
 
 			// don't draw their name if we're currently spectating them, but we still want them to glow
 			m_vecEntitiesToDraw[nVecIndex].m_bDrawName = true;
-			if ( !pLocalPlayer->IsAlive() )
+			if ( !bLocalPlayerIsAlive )
 			{
 				CSpectatorTargetID *pSpecTargetID = (CSpectatorTargetID *)GET_HUDELEMENT( CSpectatorTargetID );
 				if ( ( pLocalPlayer->GetObserverTarget() == pPlayer ) || ( pSpecTargetID && pSpecTargetID->GetTargetIndex() == i ) )
