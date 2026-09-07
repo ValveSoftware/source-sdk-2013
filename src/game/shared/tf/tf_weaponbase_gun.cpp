@@ -706,12 +706,12 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, int iPipeBombTy
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
 		pProjectile->SetLauncher( this );
 
-		//float flFizzle = 0;
-		//CALL_ATTRIB_HOOK_FLOAT( flFizzle, stickybomb_fizzle_time );
-		//if ( flFizzle )
-		//{
-		//	pProjectile->SetDetonateTimerLength( flFizzle );
-		//}
+		float flFizzle = 0;
+		CALL_ATTRIB_HOOK_FLOAT( flFizzle, stickybomb_fizzle_time );
+		if ( flFizzle )
+		{
+			pProjectile->SetDetonateTimerLength( flFizzle );
+		}
 		CAttribute_String attrCustomModelName;
 		GetCustomProjectileModel( &attrCustomModelName );
 		if ( attrCustomModelName.has_value() )
@@ -1054,8 +1054,7 @@ void CTFWeaponBaseGun::ZoomIn( void )
 	// TODO: The weapon fov should be gotten from the script file.
 	float fBaseZoom = TF_WEAPON_ZOOM_FOV;
 
-	// Disabled this for now, because we have no attributes using it
-	//CALL_ATTRIB_HOOK_FLOAT( fBaseZoom, mult_zoom_fov );
+	CALL_ATTRIB_HOOK_FLOAT( fBaseZoom, mult_zoom_fov );
 
 	pPlayer->SetFOV( pPlayer, fBaseZoom, 0.1f );
 	pPlayer->m_Shared.AddCond( TF_COND_ZOOMED );
