@@ -1931,10 +1931,12 @@ const char *CServerGameDLL::GetServerBrowserGameData()
 	if ( !pMatch )
 	{
 		sResult.Append( ",lobby:0" );
+		sResult.Append( ",matchgroup:0" );
 	}
 	else
 	{
 		sResult.Append( CFmtStr( ",lobby:%016llx", pMatch->m_nLobbyID ) );
+		sResult.Append( CFmtStr( ",matchgroup:%d", (int)pMatch->m_eMatchGroup ) );
 	}
 	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
 	{
