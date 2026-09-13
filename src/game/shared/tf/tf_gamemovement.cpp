@@ -49,6 +49,7 @@ ConVar  tf_clamp_back_speed_min( "tf_clamp_back_speed_min", "100", FCVAR_REPLICA
 ConVar  tf_clamp_airducks( "tf_clamp_airducks", "1", FCVAR_REPLICATED );
 ConVar  tf_resolve_stuck_players( "tf_resolve_stuck_players", "1", FCVAR_REPLICATED );
 ConVar  tf_scout_hype_mod( "tf_scout_hype_mod", "55", FCVAR_REPLICATED | FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+ConVar  tf_scout_coyote_time( "tf_scout_coyote_time", "0.15", FCVAR_REPLICATED | FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Coyote time window (seconds) for Scout air dash ground detection fix." );
 ConVar	tf_max_charge_speed( "tf_max_charge_speed", "750", FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_CHEAT  | FCVAR_DEVELOPMENTONLY );
 ConVar  tf_parachute_gravity( "tf_parachute_gravity", "0.2f", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Gravity while parachute is deployed" );
 ConVar  tf_parachute_maxspeed_xy( "tf_parachute_maxspeed_xy", "300.0f", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Max XY Speed while Parachute is deployed" );
@@ -1241,7 +1242,31 @@ bool CTFGameMovement::CheckJumpButton()
 	{
 		if ( m_pTFPlayer->CanAirDash() )
 		{
-			bAirDash = true;
+			// Coyote time: if we were on ground very recently and haven't used any air dashes yet,
+			// treat this as a ground jump instead of an air dash. This fixes the issue where
+			// ground detection fails on weird edges, causing the first jump to be miscounted
+			// as an air dash and consuming a charge that should have been free.
+			// Restricted to cases where a surface is actually just below the player (edge bug),
+			// not when the player has genuinely walked off a ledge.
+			bool bCoyoteTime = false;
+			if ( m_pTFPlayer->m_Shared.GetAirDash() == 0 &&
+				 gpGlobals->curtime - m_pTFPlayer->m_Shared.GetLastOnGroundTime() <= tf_scout_coyote_time.GetFloat() )
+			{
+				Vector vecStart = mv->GetAbsOrigin();
+				Vector vecEnd( vecStart.x, vecStart.y, vecStart.z - 4.0f );
+				trace_t trace;
+				TracePlayerBBox( vecStart, vecEnd, PlayerSolidMask(), COLLISION_GROUP_PLAYER_MOVEMENT, trace );
+				bCoyoteTime = ( trace.fraction < 1.0f );
+			}
+
+			if ( bCoyoteTime )
+			{
+				// Fall through to regular ground jump — don't consume an air dash charge.
+			}
+			else
+			{
+				bAirDash = true;
+			}
 		}
 		else
 		{
@@ -1273,6 +1298,9 @@ bool CTFGameMovement::CheckJumpButton()
 
 	// Set the player as in the air.
 	SetGroundEntity( NULL );
+
+	// Clear coyote time so we can't get a second ground jump from the same ground contact.
+	m_pTFPlayer->m_Shared.SetLastOnGroundTime( 0.0f );
 
 	// Check the surface the player is standing on to see if it impacts jumping.
 	float flGroundFactor = 1.0f;
@@ -2946,6 +2974,7 @@ void CTFGameMovement::SetGroundEntity( trace_t *pm )
 	BaseClass::SetGroundEntity( pm );
 	if ( pm && pm->m_pEnt )
 	{
+		m_pTFPlayer->m_Shared.SetLastOnGroundTime( gpGlobals->curtime );
 #ifdef GAME_DLL
 		int iAirDash = m_pTFPlayer->m_Shared.GetAirDash();
 		if ( iAirDash > 0 )
