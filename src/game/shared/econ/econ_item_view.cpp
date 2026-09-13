@@ -259,6 +259,9 @@ CEconItemView::CEconItemView( void )
 	m_iLastGeneratedTeamSkin = TF_TEAM_RED;
 	m_bWeaponSkinUseHighRes = false;
 	m_bWeaponSkinUseLowRes = false;
+	m_bWeaponSkinRequestAnswered = false;
+	m_nWeaponSkinAnsweredWidth = 0;
+	m_nWeaponSkinAnsweredHeight = 0;
 #endif // CLIENT_DLL
 
 	m_iTeamNumber = TF_TEAM_RED;
@@ -301,6 +304,9 @@ CEconItemView::CEconItemView( const CEconItemView &src )
 	m_unWeaponSkinBaseCreateFlags = 0;
 	m_bWeaponSkinUseHighRes = src.m_bWeaponSkinUseHighRes;
 	m_bWeaponSkinUseLowRes  = src.m_bWeaponSkinUseLowRes;
+	m_bWeaponSkinRequestAnswered = false;
+	m_nWeaponSkinAnsweredWidth = 0;
+	m_nWeaponSkinAnsweredHeight = 0;
 #endif //CLIENT_DLL
 
 	m_iTeamNumber = src.m_iTeamNumber; // keep the same team from the first creation
@@ -389,6 +395,9 @@ CEconItemView& CEconItemView::operator=( const CEconItemView& src )
 
 	SafeAssign( &m_pWeaponSkinBase, src.m_pWeaponSkinBase );
 	SafeAssign( &m_pWeaponSkinBaseCompositor, src.m_pWeaponSkinBaseCompositor );
+	m_bWeaponSkinRequestAnswered = src.m_bWeaponSkinRequestAnswered;
+	m_nWeaponSkinAnsweredWidth = src.m_nWeaponSkinAnsweredWidth;
+	m_nWeaponSkinAnsweredHeight = src.m_nWeaponSkinAnsweredHeight;
 
 	m_nWeaponSkinGeneration = src.m_nWeaponSkinGeneration;
 	m_unWeaponSkinBaseCreateFlags = src.m_unWeaponSkinBaseCreateFlags;
@@ -1007,6 +1016,10 @@ int CEconItemView::GetSkin( int iTeam, bool bViewmodel /*= false*/ ) const
 //-----------------------------------------------------------------------------
 void CEconItemView::SetWeaponSkinBase( ITexture* pBaseTex )
 {
+	// Forget the answered request when the texture changes.
+	if ( pBaseTex != m_pWeaponSkinBase )
+		m_bWeaponSkinRequestAnswered = false;
+
 	SafeAssign( &m_pWeaponSkinBase, pBaseTex );
 }
 
