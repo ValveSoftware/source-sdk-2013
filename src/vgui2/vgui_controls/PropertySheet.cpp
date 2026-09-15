@@ -1022,11 +1022,11 @@ void PropertySheet::PerformLayout()
 
 		if(_showTabs)
 		{
-			_activePage->SetBounds(0, tabHeight, wide, tall - tabHeight);
+			_activePage->SetBounds(0, tabHeight + m_iPageYOffset, wide, tall - tabHeight);
 		}
 		else
 		{
-			_activePage->SetBounds(0, 0, wide, tall );
+			_activePage->SetBounds(0, m_iPageYOffset, wide, tall );
 		}
 		_activePage->InvalidateLayout();
 	}
@@ -1060,11 +1060,11 @@ void PropertySheet::PerformLayout()
 			if (m_PageTabs[i] == _activeTab)
 			{
 				// active tab is taller
-				_activeTab->SetBounds(xtab, 2, width, tabHeight);
+				_activeTab->SetBounds(xtab, 2 + m_iPageYOffset, width, tabHeight);
 			}
 			else
 			{
-				m_PageTabs[i]->SetBounds(xtab, 4, width, tabHeight - 2);
+				m_PageTabs[i]->SetBounds(xtab, 4 + m_iPageYOffset, width, tabHeight - 2);
 			}
 			m_PageTabs[i]->SetVisible(true);
 			xtab += (width + 1) + m_iTabXDelta;

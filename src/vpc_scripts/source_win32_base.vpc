@@ -58,6 +58,8 @@ $Configuration
 		$DisableSpecificWarnings	"$BASE;4577" [$AT_LEAST_VS2015] // 'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc
 		$DisableSpecificWarnings	"$BASE;4091" [$AT_LEAST_VS2015] // 'keyword' : ignored on left of 'type' when no variable is declared
 
+		$DisableSpecificWarnings	"$BASE;4355" [$AT_LEAST_VS2015]
+
 		// Started appearning now since compiler updates... We have warnings as errors on Win32, so disable this there.
 		$DisableSpecificWarnings	"$BASE;4101" [$WIN32 && $AT_LEAST_VS2022] // 'Start': unreferenced local variable
 

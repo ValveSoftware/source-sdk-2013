@@ -190,7 +190,7 @@ float CHL2MPBotSquad::GetSlowestMemberIdealSpeed( bool includeLeader ) const
 
 
 //----------------------------------------------------------------------
-// Return the maximum formation error of the squad's memebers.
+// Return the maximum formation error of the squad's members.
 float CHL2MPBotSquad::GetMaxSquadFormationError( void ) const
 {
 	float maxError = 0.0f;

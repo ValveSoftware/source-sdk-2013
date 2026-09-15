@@ -664,6 +664,7 @@ qboolean CMapFile::MakeBrushWindings (mapbrush_t *ob)
 	return true;
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: Takes all of the brushes from the current entity and adds them to the
 //			world's brush list. Used by func_detail and func_areaportal.
@@ -700,12 +701,16 @@ void CMapFile::MoveBrushesToWorld( entity_t *mapent )
 	memcpy (mapbrushes + worldbrushes, temp, sizeof(mapbrush_t) * newbrushes);
 
 	// fix up indexes
-	entities[0].numbrushes += newbrushes;
-	for (i=1 ; i<num_entities ; i++)
-		entities[i].firstbrush += newbrushes;
-	free (temp);
 
-	mapent->numbrushes = 0;
+	entities[ 0 ].numbrushes += newbrushes;
+
+	{
+		for ( i = 1; i < num_entities; i++ )
+			entities[ i ].firstbrush += newbrushes;
+		mapent->numbrushes = 0;
+	}
+
+	free(temp);
 }
 
 //-----------------------------------------------------------------------------
@@ -754,13 +759,17 @@ void CMapFile::MoveBrushesToWorldGeneral( entity_t *mapent )
 
 	// fix up indexes
 	entities[0].numbrushes += newbrushes;
-	for (i=1 ; i<num_entities ; i++)
+
 	{
-		if ( entities[ i ].firstbrush < mapent->firstbrush ) // if we use <=, then we'll remap the passed in ent, which we don't want to
+		for ( i = 1; i < num_entities; i++ )
 		{
-			entities[ i ].firstbrush += newbrushes;
+			if (entities[ i ].firstbrush < mapent->firstbrush ) // if we use <=, then we'll remap the passed in ent, which we don't want to
+			{
+				entities[ i ].firstbrush += newbrushes;
+			}
 		}
 	}
+
 	free (temp);
 
 	mapent->numbrushes = 0;
@@ -1581,11 +1590,12 @@ ChunkFileResult_t CMapFile::LoadEntityCallback(CChunkFile *pFile, int nParam)
 
 		if ( !strcmp( "func_detail", pClassName ) )
 		{
-			MoveBrushesToWorld (mapent);
-			mapent->numbrushes = 0;
-			
-			// clear out this entity
-			mapent->epairs = NULL;
+			MoveBrushesToWorld( mapent );
+
+				mapent->numbrushes = 0;
+				// clear out this entity
+				mapent->epairs = NULL;
+
 			return(ChunkFile_Ok);
 		}
 
@@ -1971,6 +1981,7 @@ bool CMapFile::DeterminePath( const char *pszBaseFileName, const char *pszInstan
 //-----------------------------------------------------------------------------
 void CMapFile::CheckForInstances( const char *pszFileName )
 {
+
 	if ( this != g_MainMap )
 	{	// all sub-instances will be appended to the main map master list as they are read in
 		// so the main loop below will naturally get to the appended ones.
@@ -2019,6 +2030,8 @@ void CMapFile::CheckForInstances( const char *pszFileName )
 		if ( !strcmp( pEntity, "func_instance" ) )
 		{
 			char *pInstanceFile = ValueForKey( &entities[ i ], "file" );
+
+
 			if ( pInstanceFile[ 0 ] )
 			{
 				char	InstancePath[ MAX_PATH ];
@@ -2368,7 +2381,9 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 		entities[ num_entities + i ] = Instance->entities[ i ];
 
 		entity_t *entity = &entities[ num_entities + i ];
-		entity->firstbrush += ( nummapbrushes - Instance->nummapbrushes );
+		{
+			entity->firstbrush += ( nummapbrushes - Instance->nummapbrushes );
+		}
 
 		char *pID = ValueForKey( entity, "hammerid" );
 		if ( pID[ 0 ] )
@@ -2403,21 +2418,21 @@ void CMapFile::MergeEntities( entity_t *pInstanceEntity, CMapFile *Instance, Vec
 			GDclass *EntClass = GD.BeginInstanceRemap( pEntity, NameFixup, InstanceOrigin, InstanceAngle );
 			if ( EntClass )
 			{
-				for( int i = 0; i < EntClass->GetVariableCount(); i++ )
+				for( int j = 0; j < EntClass->GetVariableCount(); j++ )
 				{
-					GDinputvariable *EntVar = EntClass->GetVariableAt( i );
+					GDinputvariable *EntVar = EntClass->GetVariableAt( j );
 					char *pValue = ValueForKey( entity, ( char * )EntVar->GetName() );
 					if ( GD.RemapKeyValue( EntVar->GetName(), pValue, temp, FixupStyle ) )
 					{
 #ifdef MERGE_INSTANCE_DEBUG_INFO
-						Msg( "   %d. Remapped %s: from %s to %s\n", i, EntVar->GetName(), pValue, temp );
+						Msg( "   %d. Remapped %s: from %s to %s\n", j, EntVar->GetName(), pValue, temp );
 #endif // #ifdef MERGE_INSTANCE_DEBUG_INFO
 						SetKeyValue( entity, EntVar->GetName(), temp );
 					}
 					else
 					{
 #ifdef MERGE_INSTANCE_DEBUG_INFO
-						Msg( "   %d. Ignored %s: %s\n", i, EntVar->GetName(), pValue );
+						Msg( "   %d. Ignored %s: %s\n", j, EntVar->GetName(), pValue );
 #endif // #ifdef MERGE_INSTANCE_DEBUG_INFO
 					}
 				}

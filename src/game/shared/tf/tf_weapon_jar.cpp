@@ -206,6 +206,17 @@ void CTFJar::TossJarThink( void )
 		pPlayer->SpeakWeaponFire( MP_CONCEPT_JARATE_LAUNCH );
 	}
 
+	if ( pProjectile->ExplodesOnHit() )
+	{
+		Vector vecEnd = pProjectile->GetAbsOrigin() + ( vecVelocity.Normalized() * 32.0f );
+		UTIL_TraceHull( pProjectile->GetAbsOrigin(), vecEnd, -Vector( 8, 8, 8 ), Vector( 8, 8, 8 ), MASK_SOLID_BRUSHONLY, &traceFilter, &trace );
+
+		if ( trace.fraction < 1.0 )
+		{
+			pProjectile->Explode( &trace, pProjectile->GetDamageType() );
+		}
+	}
+
 #endif
 }
 //-----------------------------------------------------------------------------

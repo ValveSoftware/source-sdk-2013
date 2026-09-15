@@ -347,6 +347,8 @@ public:
 	bool IsRightAligned();		// returns true if the settings are aligned to the right of the screen
 	bool IsBottomAligned();		// returns true if the settings are aligned to the bottom of the screen
 
+	virtual bool CanAnimate() const { return true; } // If the panel can animate
+
 	// scheme access functions
 	virtual HScheme GetScheme();
 	virtual void SetScheme(const char *tag);

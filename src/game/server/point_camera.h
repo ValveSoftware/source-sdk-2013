@@ -29,7 +29,9 @@ public:
 
 	// Tell the client that this camera needs to be rendered
 	void SetActive( bool bActive );
-	int  UpdateTransmitState(void);
+	int  ShouldTransmit( const CCheckTransmitInfo *pInfo );
+	int  UpdateTransmitState( void );
+	void TransmitToPlayer( int nPlayerIndex, bool bTransmit );
 
 	void ChangeFOVThink( void );
 
@@ -55,6 +57,8 @@ private:
 
 	// Allows the mapmaker to control whether a camera is active or not
 	bool	m_bIsOn;
+
+	CBitVec< MAX_PLAYERS > m_bitsTransmitPlayers;
 
 public:
 	CPointCamera	*m_pNext;

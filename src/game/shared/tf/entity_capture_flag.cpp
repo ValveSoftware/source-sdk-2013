@@ -573,13 +573,6 @@ bool CCaptureFlag::ShouldHideGlowEffect( void )
 			// In non-CTF control the flag changes to the team that's carrying it
 			bIsHiddenTeam = ( pLocalPlayer->GetTeamNumber() != TEAM_SPECTATOR && pLocalPlayer->GetTeamNumber() != GetTeamNumber() );
 		}
-
-		if ( pLocalPlayer->m_Shared.IsFullyInvisible() )
-		{
-			C_TFPlayer *pOwner = ToTFPlayer( m_hPrevOwner );
-			if ( pOwner && pOwner != pLocalPlayer )
-				return true;
-		}
 	}
 
 	bool bHide = IsStolen() && bIsHiddenTeam;
@@ -2600,20 +2593,6 @@ void CCaptureFlag::Simulate( void )
 	BaseClass::Simulate();
 
 	ManageTrailEffects();
-
-	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( m_hPrevOwner && m_hPrevOwner->IsPlayer() && pLocalPlayer && pLocalPlayer->m_Shared.IsFullyInvisible() && !IsEffectActive( EF_NODRAW ) )
-	{
-		C_TFPlayer *pTFOwner = ToTFPlayer( m_hPrevOwner );
-		if ( pTFOwner && pTFOwner != pLocalPlayer )
-		{
-			AddEffects( EF_NODRAW );
-		}
-	}
-	else if ( IsEffectActive( EF_NODRAW ) && ( IsStolen() || IsDropped() ) )
-	{
-		RemoveEffects( EF_NODRAW );
-	}
 }
 
 void CCaptureFlag::ManageTrailEffects( void )

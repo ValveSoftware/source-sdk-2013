@@ -385,14 +385,6 @@ void CTFMapInfoMenu::LoadMapPage()
 	{
 		m_pMapInfo->SetText( wszMapDescription );
 	}
-	else if ( StringHasPrefix( m_szMapName, "vsh_" ) )
-	{
-		m_pMapInfo->SetText( "#default_vsh_description" );
-	}
-	else if ( StringHasPrefix( m_szMapName, "zi_" ) )
-	{
-		m_pMapInfo->SetText( "#default_zi_description" );
-	}
 	else
 	{
 		// try loading map descriptions from .txt files first
@@ -497,7 +489,15 @@ void CTFMapInfoMenu::LoadMapPage()
 
 			if( !g_pVGuiLocalize->Find( mapInfoKey ) )
 			{
-				if ( TFGameRules() )
+				if ( MapHasPrefix( m_szMapName, "vsh_" ) )
+				{
+					pszDescription = "#default_vsh_description";
+				}
+				else if ( MapHasPrefix( m_szMapName, "zi_" ) )
+				{
+					pszDescription = "#default_zi_description";
+				}
+				else if ( TFGameRules() )
 				{
 					if ( TFGameRules()->IsMannVsMachineMode() )
 					{

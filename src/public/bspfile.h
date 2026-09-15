@@ -786,6 +786,7 @@ struct dfaceid_t
 };
 
 
+
 // NOTE: Only 7-bits stored!!!
 #define LEAF_FLAGS_SKY			0x01		// This leaf has 3D sky in its PVS
 #define LEAF_FLAGS_RADIAL		0x02		// This leaf culled away some portals due to radial vis

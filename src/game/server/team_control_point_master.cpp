@@ -1156,6 +1156,9 @@ int CTeamControlPointMaster::GetNumPointsOwnedByTeam( int iTeam )
 //-----------------------------------------------------------------------------	
 int CTeamControlPointMaster::CalcNumRoundsRemaining( int iTeam )
 {
+	if ( m_ControlPointRounds.IsEmpty() )
+		return 0;
+
 	// To determine how many rounds remain for a given team if it consistently wins mini-rounds, we have to 
 	// simulate forward each mini-round and track the control point ownership that would result
 

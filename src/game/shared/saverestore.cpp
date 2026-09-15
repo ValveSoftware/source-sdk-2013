@@ -325,6 +325,7 @@ void CSave::Log( const char *pName, fieldtype_t fieldType, void *value, int coun
 				char chValue = pValue[iCount];
 				Q_snprintf( szTempBuf, sizeof( szTempBuf ), "%c", chValue );
 				Q_strncat( szBuf, szTempBuf, sizeof( szTempBuf ), COPY_ALL_CHARACTERS );
+				break;
 			}
 		case FIELD_COLOR32:
 			{
@@ -332,6 +333,7 @@ void CSave::Log( const char *pName, fieldtype_t fieldType, void *value, int coun
 				byte *pColor = &pValue[iCount*4];
 				Q_snprintf( szTempBuf, sizeof( szTempBuf ), "(%d %d %d %d)", ( int )pColor[0], ( int )pColor[1], ( int )pColor[2], ( int )pColor[3] );
 				Q_strncat( szBuf, szTempBuf, sizeof( szTempBuf ), COPY_ALL_CHARACTERS );
+				break;				
 			}
 		case FIELD_EMBEDDED:
 		case FIELD_CUSTOM:

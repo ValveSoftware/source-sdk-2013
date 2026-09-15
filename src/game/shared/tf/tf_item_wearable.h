@@ -18,6 +18,10 @@
 #if defined( CLIENT_DLL )
 #define CTFWearable C_TFWearable
 #define CTFWearableVM C_TFWearableVM
+class C_TFPlayer;
+#define CTFPlayer C_TFPlayer
+#else
+class CTFPlayer;
 #endif
 
 
@@ -74,8 +78,8 @@ public:
 protected:
 	virtual void		InternalSetPlayerDisplayModel( void );
 
-
 private:
+	void				UpdateDisguiseBodygroups( CTFPlayer *pTFOwner, CTFPlayer *pDisguiseTarget, CEconItemView *pItem, int iTeam, int iState );
 	CNetworkVar( bool, m_bDisguiseWearable );
 	CNetworkHandle( CBaseEntity, m_hWeaponAssociatedWith );
 

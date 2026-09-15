@@ -16,7 +16,11 @@ Clone the repository using the following command:
 
 Requirements:
  - Source SDK 2013 Multiplayer installed via Steam
- - Visual Studio 2022
+ - Visual Studio 2022 with the following workload and components:
+   - Desktop development with C++:
+     - MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)
+     - Windows 11 SDK (10.0.22621.0) or Windows 10 SDK (10.0.19041.1)
+ - Python 3.13 or later
 
 Inside the cloned directory, navigate to `src`, run:
 ```bat

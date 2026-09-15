@@ -317,7 +317,7 @@ bool CTFWeaponPDA_Spy::Deploy( void )
 {
 	bool bDeploy = BaseClass::Deploy();
 
-	if ( bDeploy )
+	if ( bDeploy && prediction->IsFirstTimePredicted() )
 	{
 		// let the spy pda menu know to reset
 		IGameEvent *event = gameeventmanager->CreateEvent( "spy_pda_reset" );

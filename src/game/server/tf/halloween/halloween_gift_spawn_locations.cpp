@@ -252,8 +252,6 @@ static valid_item_pos kValidPositions_Hightower[] =
 	{ 5629.083984,  7272.486816, 186.031311f  - g_flPlayerEyeHeight },
 	{ 7569.272461,  7356.835938, 30.543331f   - g_flPlayerEyeHeight },
 	{ 7620.356445,  7806.569824, 43.632362f   - g_flPlayerEyeHeight },
-	{ 10225.334961, 7462.086914, -366.968689f - g_flPlayerEyeHeight },
-	{ 10208.725586, 7768.193848, -366.968689f - g_flPlayerEyeHeight },
 };
 
 struct halloween_map_info

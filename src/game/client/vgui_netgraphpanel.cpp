@@ -768,10 +768,10 @@ void CNetGraphPanel::DrawTextFields( int graphvalue, int x, int y, int w, netban
 
 	g_pMatSystemSurface->DrawColoredText( font, x, y, GRAPH_RED, GRAPH_GREEN, GRAPH_BLUE, 255, "%s", sz );
 
-	Q_snprintf( sz, sizeof( sz ), "lerp: %5.1f ms", GetClientInterpAmount() * 1000.0f );
+	Q_snprintf( sz, sizeof( sz ), "lerp: %5.1f ms", ROUND_TO_TICKS( GetClientInterpAmount() ) * 1000.0f );
 
 	int interpcolor[ 3 ] = { (int)GRAPH_RED, (int)GRAPH_GREEN, (int)GRAPH_BLUE }; 
-	float flInterp = GetClientInterpAmount();
+	float flInterp = ROUND_TO_TICKS( GetClientInterpAmount() );
 	if ( flInterp > 0.001f )
 	{
 		// Server framerate is lower than interp can possibly deal with
@@ -782,7 +782,7 @@ void CNetGraphPanel::DrawTextFields( int graphvalue, int x, int y, int w, netban
 			interpcolor[ 2 ] = 31;
 		}
 		// flInterp is below recommended setting!!!
-		else if ( flInterp < ( 2.0f / cl_updaterate->GetFloat() ) )
+		else if ( flInterp < ROUND_TO_TICKS( 2.0f / cl_updaterate->GetFloat() ) )
 		{
 			interpcolor[ 0 ] = 255;
 			interpcolor[ 1 ] = 125;

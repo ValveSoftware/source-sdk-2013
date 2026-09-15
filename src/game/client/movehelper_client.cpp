@@ -191,12 +191,12 @@ void CMoveHelperClient::ProcessImpacts( void )
 	}
 
 	// misyl: Debug
-	if ( vOldLocalVel != vOldAbsVel )
-	{
-		Msg( "%d\n", gpGlobals->tickcount );
-		Msg( "vOldLocalVel: %f %f %f\n", vOldLocalVel.x, vOldLocalVel.y, vOldLocalVel.z );
-		Msg( "vOldAbsVel: %f %f %f\n", vOldAbsVel.x, vOldAbsVel.y, vOldAbsVel.z );
-	}
+//	if ( vOldLocalVel != vOldAbsVel )
+// 	{
+// 		Msg( "%d\n", gpGlobals->tickcount );
+// 		Msg( "vOldLocalVel: %f %f %f\n", vOldLocalVel.x, vOldLocalVel.y, vOldLocalVel.z );
+// 		Msg( "vOldAbsVel: %f %f %f\n", vOldAbsVel.x, vOldAbsVel.y, vOldAbsVel.z );
+// 	}
 		// Restore the velocity
 		m_pHost->SetAbsVelocity( vOldAbsVel );
 		//m_pHost->SetLocalVelocity( vOldLocalVel );

@@ -269,7 +269,7 @@ bool CEngineSprite::Init( const char *pName )
 		Q_strncpy( pMaterialPath, pMaterialName, sizeof(pMaterialPath) );
 		Q_SetExtension( pMaterialPath, ".vmt", sizeof(pMaterialPath) );
 
-		KeyValues *kv = new KeyValues( "vmt" );
+		KeyValuesAD kv( "vmt" );
 		if ( !kv->LoadFromFile( g_pFullFileSystem, pMaterialPath, "GAME" ) )
 		{
 			Warning( "Unable to load sprite material %s!\n", pMaterialPath );
@@ -290,8 +290,6 @@ bool CEngineSprite::Init( const char *pName )
 			m_material[i] = g_pMaterialSystem->FindProceduralMaterial( pMaterialPath, TEXTURE_GROUP_CLIENT_EFFECTS, pMaterialKV );
 			m_material[ i ]->IncrementReferenceCount();
 		}
-
-		kv->deleteThis();
 
 		m_width = m_material[0]->GetMappingWidth();
 		m_height = m_material[0]->GetMappingHeight();

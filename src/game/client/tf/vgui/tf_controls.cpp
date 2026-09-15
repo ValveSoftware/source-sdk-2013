@@ -2215,6 +2215,7 @@ void CTFLogoPanel::PaintTFLogo( float flAngle, const Color& color ) const
 void CTFLogoPanel::Paint()
 {
 	m_flOffsetAngle += gpGlobals->frametime * m_flVelocity;
+	m_flOffsetAngle = fmodf( m_flOffsetAngle, 360.f );
 	PaintTFLogo( m_flOffsetAngle, GetFgColor() );
 	BaseClass::Paint();
 }

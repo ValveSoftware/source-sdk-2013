@@ -693,4 +693,11 @@ const char		   *UTIL_GetActiveOperationString();
 
 const char *GetCleanMapName( const char *pszUnCleanMapName, char (&pszTmp)[256] );
 
+inline bool	MapHasPrefix( const char *pszUnCleanMapName, const char *prefix )
+{
+	char maptmp[ 256 ];
+	const char *pszCleanMapName = GetCleanMapName( pszUnCleanMapName, maptmp );
+
+	return StringHasPrefix( pszCleanMapName, prefix );
+}
 #endif // UTIL_SHARED_H

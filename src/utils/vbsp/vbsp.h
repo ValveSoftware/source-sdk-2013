@@ -638,6 +638,7 @@ struct mapoverlay_t
 extern CUtlVector<mapoverlay_t>	g_aMapOverlays;
 extern CUtlVector<mapoverlay_t> g_aMapWaterOverlays;
 
+
 int Overlay_GetFromEntity( entity_t *pMapEnt );
 void Overlay_UpdateSideLists( int StartIndex );
 void Overlay_AddFaceToLists( int iFace, side_t *pSide );

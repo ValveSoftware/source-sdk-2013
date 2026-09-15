@@ -10,6 +10,7 @@
 #include "tf_gamerules.h"
 #include "animation.h"
 #include "basecombatweapon_shared.h"
+#include "tf_weapon_mechanical_arm.h"
 #ifdef CLIENT_DLL
 #include "c_tf_player.h"
 #include "model_types.h"
@@ -517,6 +518,32 @@ void CTFWearable::ValidateModelIndex( void )
 #endif
 
 //-----------------------------------------------------------------------------
+// Purpose: Helper to apply bodygroups from an item to a disguise target.
+//-----------------------------------------------------------------------------
+void CTFWearable::UpdateDisguiseBodygroups( CTFPlayer *pTFOwner, CTFPlayer *pDisguiseTarget, CEconItemView *pItem, int iTeam, int iState )
+{
+	if ( !pTFOwner || !pDisguiseTarget || !pItem )
+		return;
+
+	int iDisguiseBody = pTFOwner->m_Shared.GetDisguiseBody();
+	int iNumBodyGroups = pItem->GetStaticData()->GetNumModifiedBodyGroups( iTeam );
+
+	for ( int i = 0; i < iNumBodyGroups; ++i )
+	{
+		int iBody = 0;
+		const char *pszBodyGroup = pItem->GetStaticData()->GetModifiedBodyGroup( iTeam, i, iBody );
+		int iBodyGroup = pDisguiseTarget->FindBodygroupByName( pszBodyGroup );
+
+		if ( iBodyGroup == -1 )
+			continue;
+
+		::SetBodygroup( pDisguiseTarget->GetModelPtr(), iDisguiseBody, iBodyGroup, iState );
+	}
+
+	pTFOwner->m_Shared.SetDisguiseBody( iDisguiseBody );
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Hides or shows masked bodygroups associated with this item.
 //-----------------------------------------------------------------------------
 bool CTFWearable::UpdateBodygroups( CBaseCombatCharacter* pOwner, int iState )
@@ -529,28 +556,43 @@ bool CTFWearable::UpdateBodygroups( CBaseCombatCharacter* pOwner, int iState )
 	if ( bBaseUpdate && m_bDisguiseWearable )
 	{
 		CEconItemView *pItem = GetAttributeContainer()->GetItem(); // Safe. Checked in base class call.
-
 		CTFPlayer *pDisguiseTarget = pTFOwner->m_Shared.GetDisguiseTarget();
 		if ( !pDisguiseTarget )
 			return false;
 
-		// Update our disguise bodygroup.
-		int iDisguiseBody = pTFOwner->m_Shared.GetDisguiseBody();
 		int iTeam = pTFOwner->m_Shared.GetDisguiseTeam();
-		int iNumBodyGroups = pItem->GetStaticData()->GetNumModifiedBodyGroups( iTeam );
-		for ( int i=0; i<iNumBodyGroups; ++i )
+		UpdateDisguiseBodygroups( pTFOwner, pDisguiseTarget, pItem, iTeam, iState );
+	}
+
+	// CEconEntity::UpdateBodygroups is broken for disguise weapons and wearables.
+	// Additionally it is missing most of the infrastructure needed to set up this function there.
+	// As such, we set up the disguise weapon along with the other wearables since this is the only place
+	// they are actually handled correctly.
+	CTFWeaponBase *pDisguiseWeapon = pTFOwner->m_Shared.GetDisguiseWeapon();
+	if ( pDisguiseWeapon )
+	{
+		CAttributeContainer *pCont = pDisguiseWeapon->GetAttributeContainer();
+		CEconItemView *pItem = pCont ? pCont->GetItem() : NULL;
+		CTFPlayer *pDisguiseTarget = pTFOwner->m_Shared.GetDisguiseTarget();
+
+		if ( pItem && pDisguiseTarget )
 		{
-			int iBody = 0;
-			const char *pszBodyGroup = pItem->GetStaticData()->GetModifiedBodyGroup( iTeam, i, iBody );
-			int iBodyGroup = pDisguiseTarget->FindBodygroupByName( pszBodyGroup );
+			// We must use team 0 for disguise weapons.
+			UpdateDisguiseBodygroups( pTFOwner, pDisguiseTarget, pItem, 0, iState );
 
-			if ( iBodyGroup == -1 )
-				continue;
-
-			::SetBodygroup( pDisguiseTarget->GetModelPtr(), iDisguiseBody, iBodyGroup, iState );
+			CTFMechanicalArm* pMechArm = dynamic_cast<CTFMechanicalArm*>(pDisguiseWeapon);
+			if (pMechArm) {
+				// Hack, Short circuit is special case and should be off if it is the disguise weapon.
+				// Directly set the bodygroup since UpdateDisguiseBodygroups doesn't work for this weapon
+				int iDisguiseBody = pTFOwner->m_Shared.GetDisguiseBody();
+				int iBodyGroup = pDisguiseTarget->FindBodygroupByName("rightarm");
+				if (iBodyGroup != -1)
+				{
+					::SetBodygroup(pDisguiseTarget->GetModelPtr(), iDisguiseBody, iBodyGroup, 2);
+					pTFOwner->m_Shared.SetDisguiseBody(iDisguiseBody);
+				}
+			}
 		}
-
-		pTFOwner->m_Shared.SetDisguiseBody( iDisguiseBody );
 	}
 
 	CEconItemView *pItem = GetAttributeContainer() ? GetAttributeContainer()->GetItem() : NULL;
