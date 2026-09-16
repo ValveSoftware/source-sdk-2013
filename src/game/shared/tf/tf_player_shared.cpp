@@ -67,6 +67,7 @@
 
 // Server specific.
 #else
+#include "vscript_server.h"
 #include "tf_player.h"
 #include "te_effect_dispatch.h"
 #include "tf_fx.h"
@@ -1104,6 +1105,31 @@ CConditionVars< decltype( m_nPlayerCond ) > name( m_pOuter, cond, m_nPlayerCond,
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::AddCond( ETFCond eCond, float flDuration /* = PERMANENT_CONDITION */, CBaseEntity *pProvider /*= NULL */)
 {
+#ifndef CLIENT_DLL
+	if ( ScriptHookEnabled( "OnAddCond" ) )
+	{
+		IScriptVM *pVM = g_pScriptVM;
+
+		ScriptVariant_t varTable;
+		pVM->CreateTable( varTable );
+
+		pVM->SetValue( varTable, "const_entity", ToHScript( m_pOuter ) );
+		pVM->SetValue( varTable, "provider", ToHScript( pProvider ) );
+		pVM->SetValue( varTable, "duration", flDuration );
+		pVM->SetValue( varTable, "condition", eCond );
+		pVM->SetValue( varTable, "cancel_condition", false );
+
+		if ( RunScriptHook( "OnAddCond", varTable ) )
+		{
+			if ( pVM->Get<bool>( varTable, "cancel_condition" ) )
+				return;
+			eCond = static_cast<ETFCond>( pVM->Get<int>( varTable, "condition" ) );
+			flDuration = pVM->Get<float>( varTable, "duration" );
+			pProvider = ToEnt( pVM->Get<HSCRIPT>( varTable, "provider" ) );
+		}
+	}
+#endif
+
 	Assert( eCond >= 0 && eCond < TF_COND_LAST );
 	Assert( eCond < m_ConditionData.Count() );
 
@@ -1165,6 +1191,29 @@ void CTFPlayerShared::AddCond( ETFCond eCond, float flDuration /* = PERMANENT_CO
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::RemoveCond( ETFCond eCond, bool ignore_duration )
 {
+#ifndef CLIENT_DLL
+	if ( ScriptHookEnabled( "OnRemoveCond" ) )
+	{
+		IScriptVM *pVM = g_pScriptVM;
+
+		ScriptVariant_t varTable;
+		pVM->CreateTable( varTable );
+
+		pVM->SetValue( varTable, "const_entity", ToHScript( m_pOuter ) );
+		pVM->SetValue( varTable, "condition", eCond );
+		pVM->SetValue( varTable, "ignore_duration", ignore_duration );
+		pVM->SetValue( varTable, "cancel_removal", false );
+
+		if ( RunScriptHook( "OnRemoveCond", varTable ) )
+		{
+			if ( pVM->Get<bool>( varTable, "cancel_removal" ) )
+				return;
+			ignore_duration = pVM->Get<bool>( varTable, "ignoreDuration" );
+			eCond = static_cast<ETFCond>( pVM->Get<int>( varTable, "condition" ) );
+		}
+	}
+#endif
+
 	Assert( eCond >= 0 && eCond < TF_COND_LAST );
 	Assert( eCond < m_ConditionData.Count() );
 
