@@ -23,14 +23,6 @@
 
 extern ConVar nav_area_bgcolor;
 
-/* 
-In the Orange Box, there was an "info_ladder" entity here, which VBSP would write for func_ladders.
-info_ladder never actually did anything, so it was removed, but removing it caused console spam on 
-map spawn for existing maps ("Attempted to create unknown entity type info_ladder!"). Therefore, we
-treat info_ladder as alias for info_null, to shut up this spam without requiring the maps to be recompiled.
-*/
-LINK_ENTITY_TO_CLASS( info_ladder, CNullEntity );
-
 unsigned int CNavLadder::m_nextID = 1;
 
 //--------------------------------------------------------------------------------------------------------------
