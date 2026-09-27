@@ -18430,6 +18430,12 @@ void CTFPlayer::DoTauntAttack( void )
 				// Team damage doesn't prevent us hurting ourself, so we do it manually here
 				if ( pList[i] == this )
 					continue;
+				
+				// don't hit dead players
+				if ( pList[i]->IsAlive() )
+				{
+					continue;
+				}
 
 				if ( FVisible( pList[i], MASK_SOLID ) == false )
 					continue;
