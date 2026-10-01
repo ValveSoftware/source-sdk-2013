@@ -39,7 +39,14 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 	bool isUsingCloseRangeWeapon = ( myWeapon && ( myWeapon->IsWeapon( TF_WEAPON_FLAMETHROWER ) || myWeapon->IsMeleeWeapon() ) );
 
 	const CKnownEntity *threat = me->GetVisionInterface()->GetPrimaryKnownThreat();
-	if ( threat == NULL || threat->IsObsolete() || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
+	bool validThreat = threat != NULL && !threat->IsObsolete()
+
+	// always try to find new threats if we have MISSION_ATTACK_PLAYERS, even if we can't attack
+	if ( !validThreat && me->HasMission( CTFBot::MISSION_ATTACK_PLAYERS ) )
+	{
+		return Continue();
+	}
+	else if ( !validThreat || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
 	{
 		return Done( "No threat" );
 	}
@@ -86,6 +93,13 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 			if ( me->IsRangeLessThan( threat->GetLastKnownPosition(), 20.0f ) )
 			{
 				me->GetVisionInterface()->ForgetEntity( threat->GetEntity() );
+				
+				// look for another threat
+				if ( me->HasMission( CTFBot::MISSION_ATTACK_PLAYERS ) )
+				{
+					return Continue();
+				}
+
 				return Done( "I lost my target!" );
 			}
 
