@@ -666,9 +666,9 @@ static bool ParseDynamicAttributes( CTFBot::EventChangeAttributes_t& event, KeyV
 		{
 			event.m_mission = CTFBot::MISSION_REPROGRAMMED;
 		}
-		else if ( !Q_stricmp( value, "AttackPlayers" ) )
+		else if ( !Q_stricmp( value, "Attack" ) )
 		{
-			event.m_mission = CTFBot::MISSION_ATTACK_PLAYERS;
+			event.m_mission = CTFBot::MISSION_ATTACK;
 		}
 		else
 		{

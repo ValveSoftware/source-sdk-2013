@@ -102,7 +102,7 @@ Action< CTFBot > *CTFBotScenarioMonitor::DesiredScenarioAndClassAction( CTFBot *
 	case CTFBot::MISSION_SNIPER:
 		return new CTFBotSniperLurk;
 	
-	case CTFBot::MISSION_ATTACK_PLAYERS:
+	case CTFBot::MISSION_ATTACK:
 		return new CTFBotAttack;
 
 	}

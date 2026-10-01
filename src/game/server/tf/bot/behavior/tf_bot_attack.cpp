@@ -41,8 +41,8 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 	const CKnownEntity *threat = me->GetVisionInterface()->GetPrimaryKnownThreat();
 	bool validThreat = threat != NULL && !threat->IsObsolete()
 
-	// always try to find new threats if we have MISSION_ATTACK_PLAYERS, even if we can't attack
-	if ( !validThreat && me->HasMission( CTFBot::MISSION_ATTACK_PLAYERS ) )
+	// always try to find new threats if we have MISSION_ATTACK, even if we can't attack
+	if ( !validThreat && me->HasMission( CTFBot::MISSION_ATTACK ) )
 	{
 		return Continue();
 	}
@@ -95,7 +95,7 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 				me->GetVisionInterface()->ForgetEntity( threat->GetEntity() );
 				
 				// look for another threat
-				if ( me->HasMission( CTFBot::MISSION_ATTACK_PLAYERS ) )
+				if ( me->HasMission( CTFBot::MISSION_ATTACK ) )
 				{
 					return Continue();
 				}

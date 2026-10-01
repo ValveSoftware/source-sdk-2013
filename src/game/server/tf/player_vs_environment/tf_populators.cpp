@@ -455,9 +455,9 @@ bool CMissionPopulator::Parse( KeyValues *values )
 			{
 				m_mission = CTFBot::MISSION_DESTROY_SENTRIES;
 			}
-			else if ( !Q_stricmp( data->GetString(), "AttackPlayers" ) )
+			else if ( !Q_stricmp( data->GetString(), "Attack" ) )
 			{
-				m_mission = CTFBot::MISSION_ATTACK_PLAYERS;
+				m_mission = CTFBot::MISSION_ATTACK;
 			}
 			else if ( !Q_stricmp( data->GetString(), "Sniper" ) )
 			{
@@ -894,7 +894,7 @@ void CMissionPopulator::Update( void )
 	case CTFBot::MISSION_SNIPER:
 	case CTFBot::MISSION_SPY:
 	case CTFBot::MISSION_ENGINEER:
-	case CTFBot::MISSION_ATTACK_PLAYERS:
+	case CTFBot::MISSION_ATTACK:
 		UpdateMission( m_mission );
 		break;
 	}
