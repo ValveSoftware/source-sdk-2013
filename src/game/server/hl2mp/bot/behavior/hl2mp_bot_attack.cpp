@@ -36,7 +36,22 @@ ActionResult< CHL2MPBot >	CHL2MPBotAttack::Update( CHL2MPBot *me, float interval
 	const CKnownEntity *threat = me->GetVisionInterface()->GetPrimaryKnownThreat();
 	me->EquipBestWeaponForThreat( threat );
 
-	if ( threat == NULL || threat->IsObsolete() || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
+	bool validThreat = threat != NULL && !threat->IsObsolete()
+
+	// always try to find new threats if we have MISSION_ATTACK, even if we can't attack
+	if ( !validThreat && me->HasMission( CHL2MPBot::MISSION_ATTACK ) )
+	{
+		threat = me->SelectRandomReachableEnemy();
+
+		if ( threat != NULL )
+		{
+			// cheat and "see" our victim so we know where to go
+			me->GetVisionInterface()->AddKnownEntity( threat );
+		}
+
+		return Continue();
+	}
+	else if ( !validThreat || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
 	{
 		return Done( "No threat" );
 	}
@@ -96,6 +111,21 @@ ActionResult< CHL2MPBot >	CHL2MPBotAttack::Update( CHL2MPBot *me, float interval
 			if ( me->IsRangeLessThan( threat->GetLastKnownPosition(), 20.0f ) )
 			{
 				me->GetVisionInterface()->ForgetEntity( threat->GetEntity() );
+
+				// nothing to attack, move towards a random player
+				if ( me->HasMission( CHL2MPBot::MISSION_ATTACK ) )
+				{
+					threat = me->SelectRandomReachableEnemy();
+			
+					if ( threat != NULL )
+					{
+						// cheat and "see" our victim so we know where to go
+						me->GetVisionInterface()->AddKnownEntity( threat );
+					}
+
+					return Continue();
+				}
+
 				return Done( "I lost my target!" );
 			}
 

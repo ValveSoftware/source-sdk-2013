@@ -44,6 +44,32 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 	// always try to find new threats if we have MISSION_ATTACK, even if we can't attack
 	if ( !validThreat && me->HasMission( CTFBot::MISSION_ATTACK ) )
 	{
+		threat = me->SelectRandomReachableEnemy();
+
+		if ( threat == NULL )
+		{
+			// no reachable enemy, attack a sentry
+			CUtlVector< CBaseObject* > sentries;
+			for ( int i=0; i<IBaseObjectAutoList::AutoList().Count(); ++i )
+			{
+				CBaseObject *obj = static_cast< CBaseObject* >( IBaseObjectAutoList::AutoList()[i] );
+				if ( obj->ObjectType() == OBJ_SENTRYGUN && obj->GetTeamNumber() != me->GetTeamNumber() && !obj->IsPlacing() && !obj->IsCarried() )
+				{
+					sentries.AddToTail( obj );
+				}
+			}
+			if ( sentries.Size() > 0 )
+			{
+				threat = sentries[RandomInt( 0, sentries.Size() - 1 )];
+			}
+		}
+
+		if ( threat != NULL )
+		{
+			// cheat and "see" our victim so we know where to go
+			me->GetVisionInterface()->AddKnownEntity( threat );
+		}
+
 		return Continue();
 	}
 	else if ( !validThreat || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
@@ -94,9 +120,35 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 			{
 				me->GetVisionInterface()->ForgetEntity( threat->GetEntity() );
 				
-				// look for another threat
+				// nothing to attack, move towards a random player
 				if ( me->HasMission( CTFBot::MISSION_ATTACK ) )
 				{
+					threat = me->SelectRandomReachableEnemy();
+			
+					if ( threat == NULL )
+					{
+						// no reachable enemy, attack a sentry
+						CUtlVector< CBaseObject* > sentries;
+						for ( int i=0; i<IBaseObjectAutoList::AutoList().Count(); ++i )
+						{
+							CBaseObject *obj = static_cast< CBaseObject* >( IBaseObjectAutoList::AutoList()[i] );
+							if ( obj->ObjectType() == OBJ_SENTRYGUN && obj->GetTeamNumber() != me->GetTeamNumber() && !obj->IsPlacing() && !obj->IsCarried() )
+							{
+								sentries.AddToTail( obj );
+							}
+						}
+						if ( sentries.Size() > 0 )
+						{
+							threat = sentries[RandomInt( 0, sentries.Size() - 1 )];
+						}
+					}
+
+					if ( threat != NULL )
+					{
+						// cheat and "see" our victim so we know where to go
+						me->GetVisionInterface()->AddKnownEntity( threat );
+					}
+
 					return Continue();
 				}
 
