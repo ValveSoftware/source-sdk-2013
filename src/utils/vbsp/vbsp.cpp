@@ -1067,7 +1067,7 @@ int RunVBSP( int argc, char **argv )
 			Msg("Dumping collision models to collideXXX.txt\n" );
 			dumpcollide = true;
 		}
-		else if ( !Q_stricmp( argv[i], "-dumpstaticprop" ) )
+		else if ( !Q_stricmp( argv[i], "-dumpstaticprops" ) )
 		{
 			Msg("Dumping static props to staticpropXXX.txt\n" );
 			g_DumpStaticProps = true;
