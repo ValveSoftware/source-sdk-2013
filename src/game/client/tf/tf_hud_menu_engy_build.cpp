@@ -471,6 +471,7 @@ void CHudMenuEngyBuild::SendBuildMessage( int iSlot )
 	// If we don't already have a sentry (NULL), or we're allowed to build multiple, and we can afford it
 	if ( ( pObj == NULL || iBuildDisposableSents == CB_CAN_BUILD ) && pLocalPlayer->GetAmmoCount( TF_AMMO_METAL ) >= iCost )
 	{
+		engine->ClientCmd( "pda_click" );
 		char szCmd[128];
 		Q_snprintf( szCmd, sizeof(szCmd), "build %d %d", iBuilding, iMode );
 		engine->ClientCmd( szCmd );
@@ -502,6 +503,7 @@ bool CHudMenuEngyBuild::SendDestroyMessage( int iSlot )
 
 	if ( pObj != NULL )
 	{
+		engine->ClientCmd( "pda_click" );
 		char szCmd[128];
 		Q_snprintf( szCmd, sizeof(szCmd), "destroy %d %d", iBuilding, iMode );
 		engine->ClientCmd( szCmd );
