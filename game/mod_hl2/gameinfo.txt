@@ -1,8 +1,8 @@
 "GameInfo"
 {
-	game 		"My First HL2 Mod"
-	title 		"HALF-LIFE'"
-	title2		""
+	game 		"Eternal City Prototype"
+	title 		"Eternal City Prototype"
+	title2		"Source SDK Base 2013 Singleplayer"
 	supportsvr	1
 
 	type		singleplayer_only
