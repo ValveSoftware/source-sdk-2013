@@ -783,6 +783,7 @@ void CPopulationManager::UpdateObjectiveResource( void )
 	{
 		TFObjectiveResource()->SetMannVsMachineWaveEnemyCount( wave->GetEnemyCount() );
 		TFObjectiveResource()->ClearMannVsMachineWaveClassFlags();
+		TFObjectiveResource()->SetMannVsMachineWaveHasTanks( wave->HasTanks() );
 
 		int i = 0;
 		bool bHasEngineer = false;
