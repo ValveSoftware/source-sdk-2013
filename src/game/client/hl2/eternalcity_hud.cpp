@@ -4,6 +4,8 @@
 #include "c_basecombatweapon.h"
 #include "c_baseplayer.h"
 #include "clientmode_shared.h"
+#include "hud_chat.h"
+#include "ienginevgui.h"
 #include <vgui/ILocalize.h>
 #include <vgui/IInput.h>
 #include <vgui/IScheme.h>
@@ -21,6 +23,43 @@ namespace
 }
 
 DECLARE_HUDELEMENT( CEternalCityHud );
+
+static void ExecuteEternalCityCommand( const char *pCommand )
+{
+	if ( !engine->IsInGame() || !C_BasePlayer::GetLocalPlayer() )
+	{
+		Warning( "Eternal City UI requires a loaded game.\n" );
+		return;
+	}
+
+	CEternalCityHud *pHud = GET_HUDELEMENT( CEternalCityHud );
+	if ( !pHud )
+	{
+		Warning( "Eternal City HUD is unavailable.\n" );
+		return;
+	}
+	pHud->HandleCommand( pCommand );
+}
+
+CON_COMMAND( ec_character, "Toggle the mock Eternal City character panel." )
+{
+	ExecuteEternalCityCommand( "ec_character" );
+}
+
+CON_COMMAND( ec_equipment, "Toggle the mock Eternal City equipment panel." )
+{
+	ExecuteEternalCityCommand( "ec_equipment" );
+}
+
+CON_COMMAND( ec_inventory, "Toggle the mock Eternal City inventory panel." )
+{
+	ExecuteEternalCityCommand( "ec_inventory" );
+}
+
+CON_COMMAND( ec_close, "Close the Eternal City modal panel." )
+{
+	ExecuteEternalCityCommand( "ec_close" );
+}
 
 CEternalCityHud::CEternalCityHud( const char *pElementName )
 	: BaseClass( NULL, "EternalCityHud" ),
@@ -69,8 +108,56 @@ bool CEternalCityHud::IsModalOpen() const
 	return m_PanelType != PANEL_NONE;
 }
 
+bool CEternalCityHud::HandleCommand( const char *pCommand )
+{
+	if ( !pCommand || !pCommand[0] )
+		return false;
+
+	if ( Q_stricmp( pCommand, "ec_character" ) == 0 )
+		ToggleCharacter();
+	else if ( Q_stricmp( pCommand, "ec_equipment" ) == 0 )
+		ToggleEquipment();
+	else if ( Q_stricmp( pCommand, "ec_inventory" ) == 0 )
+		ToggleInventory();
+	else if ( Q_stricmp( pCommand, "ec_close" ) == 0 )
+		CloseModal();
+	else
+		return false;
+
+	return true;
+}
+
+bool CEternalCityHud::HandleShortcut( vgui::KeyCode keynum, const char *pBinding )
+{
+	if ( HandleCommand( pBinding ) )
+		return true;
+
+	const bool bUnbound = !pBinding || !pBinding[0];
+	if ( keynum == KEY_E && ( bUnbound || Q_stricmp( pBinding, "+use" ) == 0 ) &&
+		( vgui::input()->IsKeyDown( KEY_LCONTROL ) || vgui::input()->IsKeyDown( KEY_RCONTROL ) ) )
+		ToggleCharacter();
+	else if ( keynum == KEY_I && bUnbound )
+		ToggleEquipment();
+	else if ( keynum == KEY_J && bUnbound )
+		ToggleInventory();
+	else
+		return false;
+
+	return true;
+}
+
 void CEternalCityHud::TogglePanel( PanelType_t panel )
 {
+	CHudChat *pChat = GET_HUDELEMENT( CHudChat );
+	const vgui::VPANEL modalSurface = vgui::input()->GetAppModalSurface();
+	if ( !engine->IsInGame() || !C_BasePlayer::GetLocalPlayer() || engine->IsPlayingDemo() ||
+		enginevgui->IsGameUIVisible() || ( pChat && pChat->GetMessageMode() != MM_NONE ) ||
+		( modalSurface && modalSurface != GetVPanel() ) )
+	{
+		Warning( "Eternal City UI cannot open while another UI owns focus or no live game is available.\n" );
+		return;
+	}
+
 	if ( m_PanelType == panel )
 	{
 		CloseModal();
@@ -146,7 +233,7 @@ void CEternalCityHud::DrawVitals()
 	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
 	char status[128];
 	if ( pPlayer )
-		Q_snprintf( status, sizeof( status ), "HEALTH  %d", pPlayer->Health() );
+		Q_snprintf( status, sizeof( status ), "HEALTH  %d", pPlayer->GetHealth() );
 	else
 		Q_strncpy( status, "HEALTH  --", sizeof( status ) );
 	DrawText( kHudMargin + 16, cardY + 31, status, textColor );
@@ -279,11 +366,12 @@ bool CEternalCityHud::ShouldDraw()
 
 void CEternalCityHud::OnMousePressed( vgui::MouseCode code )
 {
-	if ( code != vgui::MOUSE_LEFT || !IsModalOpen() )
+	if ( code != MOUSE_LEFT || !IsModalOpen() )
 		return;
 
 	int cursorX, cursorY;
-	GetCursorPos( cursorX, cursorY );
+	vgui::input()->GetCursorPosition( cursorX, cursorY );
+	ScreenToLocal( cursorX, cursorY );
 	const int panelWidth = MIN( kPanelWidth, GetWide() - 32 );
 	const int panelHeight = MIN( kPanelHeight, GetTall() - 48 );
 	const int x = ( GetWide() - panelWidth ) / 2;
@@ -315,11 +403,14 @@ void CEternalCityHud::OnMousePressed( vgui::MouseCode code )
 
 void CEternalCityHud::OnKeyCodePressed( vgui::KeyCode code )
 {
-	if ( code == vgui::KEY_ESCAPE )
+	if ( code == KEY_ESCAPE )
 	{
 		CloseModal();
 		return;
 	}
+
+	if ( HandleShortcut( code, engine->Key_BindingForKey( code ) ) )
+		return;
 
 	BaseClass::OnKeyCodePressed( code );
 }

@@ -16,12 +16,6 @@
 #include <windows.h>
 #endif
 
-#include "tier0/dbg.h"
-#include "tier0/memalloc.h"
-#include <string.h>
-#include <stdio.h>
-#include "memdbgoff.h"
-
 #ifdef _WIN32
 // ARG: crtdbg is necessary for certain definitions below,
 // but it also redefines malloc as a macro in release.
@@ -36,7 +30,15 @@
 #ifdef NDEBUG
 #undef _DEBUG
 #endif
-#elif POSIX
+#endif
+
+#include "tier0/dbg.h"
+#include "tier0/memalloc.h"
+#include <string.h>
+#include <stdio.h>
+#include "memdbgoff.h"
+
+#if POSIX
 #define __cdecl
 #endif
 
@@ -108,7 +110,11 @@ inline void *ReallocUnattributed( void *pMem, size_t nSize )
 // this magic only works under win32
 // under linux this malloc() overrides the libc malloc() and so we
 // end up in a recursion (as g_pMemAlloc->Alloc() calls malloc)
-#if _MSC_VER >= 1400
+#if _MSC_VER >= 1900
+#define SUPPRESS_INVALID_PARAMETER_NO_INFO
+#define ALLOC_CALL __declspec(restrict)
+#define FREE_CALL
+#elif _MSC_VER >= 1400
 #define ALLOC_CALL _CRTNOALIAS _CRTRESTRICT 
 #define FREE_CALL _CRTNOALIAS 
 #else
@@ -162,24 +168,38 @@ void *_malloc_base( size_t nSize )
 }
 #endif
 
+#if _MSC_VER >= 1900
+ALLOC_CALL void *_calloc_base( size_t nCount, size_t nElementSize )
+{
+	return calloc( nCount, nElementSize );
+}
+#else
 void *_calloc_base( size_t nSize )
 {
 	void *pMem = AllocUnattributed( nSize );
 	memset(pMem, 0, nSize);
 	return pMem;
 }
+#endif
 
 void *_realloc_base( void *pMem, size_t nSize )
 {
 	return ReallocUnattributed( pMem, nSize );
 }
 
+#if _MSC_VER >= 1920
+ALLOC_CALL void *_recalloc_base( void *pMem, size_t nCount, size_t nElementSize )
+{
+	return _recalloc( pMem, nCount, nElementSize );
+}
+#else
 void *_recalloc_base( void *pMem, size_t nSize )
 {
 	void *pMemOut = ReallocUnattributed( pMem, nSize );
 	memset(pMemOut, 0, nSize);
 	return pMemOut;
 }
+#endif
 
 void _free_base( void *pMem )
 {
@@ -200,7 +220,11 @@ void * __cdecl _malloc_crt(size_t size)
 
 void * __cdecl _calloc_crt(size_t count, size_t size)
 {
+#if _MSC_VER >= 1900
+	return _calloc_base( count, size );
+#else
 	return _calloc_base( count * size );
+#endif
 }
 
 void * __cdecl _realloc_crt(void *ptr, size_t size)
@@ -210,7 +234,11 @@ void * __cdecl _realloc_crt(void *ptr, size_t size)
 
 void * __cdecl _recalloc_crt(void *ptr, size_t count, size_t size)
 {
+#if _MSC_VER >= 1920
+	return _recalloc_base( ptr, count, size );
+#else
 	return _recalloc_base( ptr, size * count );
+#endif
 }
 
 ALLOC_CALL void * __cdecl _recalloc ( void * memblock, size_t count, size_t size )
@@ -220,7 +248,11 @@ ALLOC_CALL void * __cdecl _recalloc ( void * memblock, size_t count, size_t size
 	return pMem;
 }
 
+#if _MSC_VER >= 1930
+size_t _msize_base( void *pMem ) noexcept
+#else
 size_t _msize_base( void *pMem )
+#endif
 {
 	return g_pMemAlloc->GetSize(pMem);
 }
@@ -632,6 +664,13 @@ int _CrtSetDbgFlag( int nNewFlag )
 // 64-bit port.
 #define AFNAME(var) __p_ ## var
 #define AFRET(var)  &var
+
+#ifdef _crtDbgFlag
+#undef _crtDbgFlag
+#endif
+#ifdef _crtBreakAlloc
+#undef _crtBreakAlloc
+#endif
 
 int _crtDbgFlag = _CRTDBG_ALLOC_MEM_DF;
 int* AFNAME(_crtDbgFlag)(void)
@@ -1306,6 +1345,7 @@ SIZE_T WINAPI XMemSize( PVOID pAddress, DWORD dwAllocAttributes )
 }
 #endif // _X360
 
+#if _MSC_VER < 1900
 #define MAX_LANG_LEN        64  /* max language name length */
 #define MAX_CTRY_LEN        64  /* max country name length */
 #define MAX_MODIFIER_LEN    0   /* max modifier name length - n/a */
@@ -1651,6 +1691,7 @@ namespace _NATIVE_STARTUP_NAMESPACE
 }
 #pragma warning(pop)
 
+#endif // _MSC_VER < 1900
 #endif // _MSC_VER >= 1400
 
 #endif // !STEAM && !NO_MALLOC_OVERRIDE

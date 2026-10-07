@@ -1,0 +1,8 @@
+"lang"
+{
+	"Language" "English"
+	"Tokens"
+	{
+		"GameUI_GameTitle" "Eternal City Prototype"
+	}
+}

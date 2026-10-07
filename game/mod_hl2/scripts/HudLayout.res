@@ -1,5 +1,16 @@
 "Resource/HudLayout.res"
 {
+	"EternalCityHud"
+	{
+		"fieldName" "EternalCityHud"
+		"xpos" "0"
+		"ypos" "0"
+		"wide" "f0"
+		"tall" "f0"
+		"visible" "1"
+		"enabled" "1"
+	}
+
 	HudHealth [$WIN32]
 	{
 		"fieldName"		"HudHealth"

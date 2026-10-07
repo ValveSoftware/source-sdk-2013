@@ -28,6 +28,8 @@ public:
 	void ToggleCharacter();
 	void ToggleEquipment();
 	void ToggleInventory();
+	bool HandleCommand( const char *pCommand );
+	bool HandleShortcut( vgui::KeyCode keynum, const char *pBinding );
 	bool IsModalOpen() const;
 	void CloseModal();
 

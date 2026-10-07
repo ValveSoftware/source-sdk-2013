@@ -12,6 +12,7 @@
 #include "vgui_int.h"
 #include "hud.h"
 #include "hud_element_helper.h"
+#include "hud_chat.h"
 #include <vgui/IInput.h>
 #include <vgui/IPanel.h>
 #include <vgui/ISurface.h>
@@ -110,7 +111,7 @@ void ClientModeHLNormal::ReleaseEternalCityCamera()
 {
 	if ( m_bOwnsThirdPerson )
 	{
-		input->CAM_ToFirstPerson();
+		::input->CAM_ToFirstPerson();
 		m_bOwnsThirdPerson = false;
 	}
 }
@@ -150,9 +151,9 @@ void ClientModeHLNormal::OverrideView( CViewSetup *pSetup )
 	}
 
 	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-	if ( !input->CAM_IsThirdPerson() )
+	if ( !::input->CAM_IsThirdPerson() )
 	{
-		input->CAM_ToThirdPerson();
+		::input->CAM_ToThirdPerson();
 		pPlayer->ThirdPersonSwitch( true );
 		m_bOwnsThirdPerson = true;
 	}
@@ -205,8 +206,13 @@ bool ClientModeHLNormal::CreateMove( float flInputSampleTime, CUserCmd *cmd )
 
 int ClientModeHLNormal::KeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding )
 {
-	if ( engine->Con_IsVisible() )
+	CHudChat *pChat = GET_HUDELEMENT( CHudChat );
+	if ( engine->Con_IsVisible() || enginevgui->IsGameUIVisible() ||
+		( pChat && pChat->GetMessageMode() != MM_NONE ) )
 		return BaseClass::KeyInput( down, keynum, pszCurrentBinding );
+
+	if ( down && m_pEternalCityHud && m_pEternalCityHud->HandleShortcut( keynum, pszCurrentBinding ) )
+		return 0;
 
 	if ( m_pEternalCityHud && m_pEternalCityHud->IsModalOpen() )
 	{
@@ -218,25 +224,6 @@ int ClientModeHLNormal::KeyInput( int down, ButtonCode_t keynum, const char *psz
 		if ( !down )
 			return BaseClass::KeyInput( down, keynum, pszCurrentBinding );
 		return 0;
-	}
-
-	if ( down && m_pEternalCityHud )
-	{
-		if ( keynum == KEY_E && ( vgui::input()->IsKeyDown( KEY_LCONTROL ) || vgui::input()->IsKeyDown( KEY_RCONTROL ) ) )
-		{
-			m_pEternalCityHud->ToggleCharacter();
-			return 0;
-		}
-		if ( keynum == KEY_I )
-		{
-			m_pEternalCityHud->ToggleEquipment();
-			return 0;
-		}
-		if ( keynum == KEY_J )
-		{
-			m_pEternalCityHud->ToggleInventory();
-			return 0;
-		}
 	}
 
 	return BaseClass::KeyInput( down, keynum, pszCurrentBinding );

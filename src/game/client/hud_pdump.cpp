@@ -17,12 +17,12 @@
 static CPDumpPanel *g_pPDumpPanel = NULL;
 
 
-// OKAY, so typeinfo.h somewhere re-enables a bunch of warnings about float to int conversion, etc., that
+// OKAY, so typeinfo somewhere re-enables a bunch of warnings about float to int conversion, etc., that
 //  we pragma'd away in platform.h, so this little compiler specific hack will eliminate those warnings while
 //  retaining our own warning setup...ywb
 #ifdef WIN32
 #pragma warning( push )
-#include <typeinfo.h>
+#include <typeinfo>
 #pragma warning( pop )
 #endif
 

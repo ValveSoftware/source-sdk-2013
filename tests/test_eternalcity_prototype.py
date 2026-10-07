@@ -18,10 +18,16 @@ class EternalCityPrototypeContractTests(unittest.TestCase):
         project = (ROOT / "src/game/client/client_hl2.vpc").read_text()
         self.assertIn('$File\t"hl2\\eternalcity_hud.cpp"', project)
 
+    def test_hud_has_layout_and_mod_localization_resources(self):
+        layout = (ROOT / "game/mod_hl2/scripts/HudLayout.res").read_text()
+        self.assertIn('"EternalCityHud"', layout)
+        localization = ROOT / "game/mod_hl2/resource/EternalCityPrototype_english.txt"
+        self.assertTrue(localization.is_file())
+
     def test_hud_reads_live_player_health_and_weapon_ammo(self):
         hud = (ROOT / "src/game/client/hl2/eternalcity_hud.cpp").read_text()
         self.assertIn("C_BasePlayer::GetLocalPlayer()", hud)
-        self.assertIn("pPlayer->Health()", hud)
+        self.assertIn("pPlayer->GetHealth()", hud)
         self.assertIn("pWeapon->Clip1()", hud)
         self.assertIn("pPlayer->GetAmmoCount(", hud)
 
@@ -59,12 +65,49 @@ class EternalCityPrototypeContractTests(unittest.TestCase):
         self.assertIn("cursorY < buttonY || cursorY >= buttonY + 38", handler)
 
     def test_status_shortcut_preserves_default_use_and_escape_closes(self):
+        hud = (ROOT / "src/game/client/hl2/eternalcity_hud.cpp").read_text()
         client_mode = (ROOT / "src/game/client/hl2/clientmode_hlnormal.cpp").read_text()
-        self.assertIn("KEY_E", client_mode)
-        self.assertIn("KEY_LCONTROL", client_mode)
-        self.assertIn("KEY_RCONTROL", client_mode)
+        self.assertIn("KEY_E", hud)
+        self.assertIn("KEY_LCONTROL", hud)
+        self.assertIn("KEY_RCONTROL", hud)
         self.assertIn("KEY_ESCAPE", client_mode)
         self.assertIn("BaseClass::KeyInput", client_mode)
+
+    def test_bindable_panel_commands_route_to_existing_modal_actions(self):
+        hud = (ROOT / "src/game/client/hl2/eternalcity_hud.cpp").read_text()
+        for command, action in (
+            ("ec_character", "ToggleCharacter"),
+            ("ec_equipment", "ToggleEquipment"),
+            ("ec_inventory", "ToggleInventory"),
+            ("ec_close", "CloseModal"),
+        ):
+            self.assertIn("CON_COMMAND( %s," % command, hud)
+            self.assertRegex(
+                hud,
+                r'Q_stricmp\( pCommand, "%s" \) == 0 \)\s*%s\(\);' % (command, action),
+            )
+
+    def test_bound_and_modal_keys_share_shortcut_handler(self):
+        hud = (ROOT / "src/game/client/hl2/eternalcity_hud.cpp").read_text()
+        client_mode = (ROOT / "src/game/client/hl2/clientmode_hlnormal.cpp").read_text()
+        self.assertIn("HandleShortcut( keynum, pszCurrentBinding )", client_mode)
+        self.assertIn("HandleShortcut( code, engine->Key_BindingForKey( code ) )", hud)
+        shortcut = hud.split("bool CEternalCityHud::HandleShortcut", 1)[1]
+        shortcut = shortcut.split("void CEternalCityHud::TogglePanel", 1)[0]
+        self.assertRegex(shortcut, r'keynum == KEY_I && bUnbound')
+        self.assertRegex(shortcut, r'keynum == KEY_J && bUnbound')
+        self.assertIn('Q_stricmp( pBinding, "+use" ) == 0', shortcut)
+
+    def test_ui_opening_preserves_chat_and_foreign_modal_focus(self):
+        hud = (ROOT / "src/game/client/hl2/eternalcity_hud.cpp").read_text()
+        client_mode = (ROOT / "src/game/client/hl2/clientmode_hlnormal.cpp").read_text()
+        self.assertIn("GET_HUDELEMENT( CHudChat )", client_mode)
+        self.assertIn("pChat->GetMessageMode() != MM_NONE", client_mode)
+        self.assertNotIn("m_pChatElement", client_mode)
+        self.assertIn("pChat->GetMessageMode() != MM_NONE", hud)
+        self.assertIn("modalSurface && modalSurface != GetVPanel()", hud)
+        self.assertIn("enginevgui->IsGameUIVisible()", hud)
+        self.assertIn("engine->IsPlayingDemo()", hud)
 
     def test_follow_camera_traces_walls_and_skips_non_player_views(self):
         client_mode = (ROOT / "src/game/client/hl2/clientmode_hlnormal.cpp").read_text()
@@ -76,6 +119,18 @@ class EternalCityPrototypeContractTests(unittest.TestCase):
     def test_camera_includes_complete_view_definition(self):
         client_mode = (ROOT / "src/game/client/hl2/clientmode_hlnormal.cpp").read_text()
         self.assertIn('#include "view_shared.h"', client_mode)
+
+    def test_modal_cursor_uses_vgui_screen_to_local_coordinates(self):
+        hud = (ROOT / "src/game/client/hl2/eternalcity_hud.cpp").read_text()
+        self.assertIn("vgui::input()->GetCursorPosition( cursorX, cursorY );", hud)
+        self.assertIn("ScreenToLocal( cursorX, cursorY );", hud)
+        self.assertNotIn("vgui::MOUSE_LEFT", hud)
+        self.assertNotIn("vgui::KEY_ESCAPE", hud)
+
+    def test_camera_qualifies_engine_input_against_vgui_input(self):
+        client_mode = (ROOT / "src/game/client/hl2/clientmode_hlnormal.cpp").read_text()
+        self.assertIn("::input->CAM_ToThirdPerson();", client_mode)
+        self.assertIn("::input->CAM_ToFirstPerson();", client_mode)
 
     def test_follow_camera_connects_source_third_person_rendering(self):
         client_mode = (ROOT / "src/game/client/hl2/clientmode_hlnormal.cpp").read_text()
@@ -105,7 +160,7 @@ class EternalCityPrototypeContractTests(unittest.TestCase):
         self.assertIn("243730", guide)
         self.assertIn("singleplayer", guide.lower())
         self.assertIn("smoke test", guide.lower())
-        self.assertIn("not been built", guide.lower())
+        self.assertIn("runtime-unverified", guide.lower())
         self.assertIn("E remains", guide)
 
     def test_modal_bounds_fit_1280x720_and_1920x1080(self):
