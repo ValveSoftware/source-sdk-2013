@@ -10844,7 +10844,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 			vDamagePos = WorldSpaceCenter();
 		}
 
-		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS )
+		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS && TFObjectiveResource() && TFObjectiveResource()->GetMvMEventPopfileType() != MVM_EVENT_POPFILE_HALLOWEEN )
 		{
 			if ( ( IsMiniBoss() && static_cast< float >( GetHealth() ) / GetMaxHealth() > 0.3f ) || realDamage < 50 )
 			{
@@ -12275,9 +12275,12 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 				TFObjectiveResource()->DecrementMannVsMachineWaveClassCount( GetPlayerClass()->GetClassIconName(), MVM_CLASS_FLAG_SUPPORT_LIMITED );
 			}
 
-			// Electrical effect whenever a bot dies
-			CPVSFilter filter( WorldSpaceCenter() );
-			TE_TFParticleEffect( filter, 0.f, "bot_death", GetAbsOrigin(), vec3_angle );
+			// Electrical effect whenever a bot dies outside of wave 666
+			if ( TFObjectiveResource()->GetMvMEventPopfileType() != MVM_EVENT_POPFILE_HALLOWEEN )
+			{
+				CPVSFilter filter( WorldSpaceCenter() );
+				TE_TFParticleEffect( filter, 0.f, "bot_death", GetAbsOrigin(), vec3_angle );
+			}
 		}
 		else
 		{
