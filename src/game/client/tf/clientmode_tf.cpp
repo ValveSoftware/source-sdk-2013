@@ -12,6 +12,7 @@
 #include "cbase.h"
 #include "hud.h"
 #include "clientmode_tf.h"
+#include "tf_streamer_mode.h"
 #include "cdll_client_int.h"
 #include "iinput.h"
 #include "iviewrender.h"
@@ -549,6 +550,9 @@ void ClientModeTFNormal::LevelInit( const char *newmap )
 	BaseClass::LevelInit( newmap );
 
 	m_bInfoPanelShown = false;
+
+	// Aliases must not persist across an unrelated connection.
+	TF_StreamerMode_ResetSession();
 }
 
 IClientMode *GetClientModeNormal()
@@ -2092,7 +2096,10 @@ void ClientModeTFNormal::UpdateSteamRichPresence() const
 	//   MM match you cannot directly join)
 	//
 	// Note that AdvertiseGame() happens as soon as we begin connecting
-	if ( ( bInMatch || ( !bConnected && !bConnecting ) ) && steamapicontext->SteamUser() )
+	//
+	// AdvertiseGame() is also called by the engine while connecting.
+	bool bStreamerBlockDirectJoin = TF_ShouldDisableDirectJoinPresence() && bConnected;
+	if ( ( bInMatch || ( !bConnected && !bConnecting ) || bStreamerBlockDirectJoin ) && steamapicontext->SteamUser() )
 	{
 		// If they have an MM match, or if they're just on the menus, direct joiners to join their party, they cannot
 		// join the server directly.
@@ -2213,7 +2220,7 @@ void ClientModeTFNormal::UpdateSteamRichPresence() const
 	// If we're connecting or connected, the source engine called AdvertiseGame() which shows a this-server status we
 	// don't want to override -- except if we're in a match which cannot be ad-hoc joined.
 	wchar_t wzStatus[256] = { 0 };
-	if ( ( bInMatch || ( !bConnecting && !bConnected ) ) &&
+	if ( ( bInMatch || ( !bConnecting && !bConnected ) || bStreamerBlockDirectJoin ) &&
 	     BuildRichPresenceStatus( wzStatus, pszState, pszMatchGroupLoc, pszPrettyMap ))
 	{
 			char szStatus[256] = { 0 };

@@ -29,6 +29,7 @@
 #if defined( TF_CLIENT_DLL )
 #include "tf_shareddefs.h"
 #include "tf_imagepanel.h"
+#include "tf_streamer_mode.h"
 #endif
 #include <vgui_controls/Frame.h>
 #include <../common/GameUI/scriptobject.h>
@@ -474,17 +475,18 @@ public:
 
 		FOR_EACH_VEC( vecBlameSteamIDs, i )
 		{
+			const char *pszBlameName = TF_GetPlayerDisplayName( vecBlameSteamIDs[ i ], SteamFriends()->GetFriendPersonaName( vecBlameSteamIDs[ i ] ) );
 			if ( i == 0 )
 			{
-				g_pVGuiLocalize->ConstructString_safe( wszMembers, L"%s1", 1, CStrAutoEncode( SteamFriends()->GetFriendPersonaName( vecBlameSteamIDs[ i ] ) ).ToWString() );
+				g_pVGuiLocalize->ConstructString_safe( wszMembers, L"%s1", 1, CStrAutoEncode( pszBlameName ).ToWString() );
 			}
 			else if ( i == vecBlameSteamIDs.Count() - 1 )
 			{
-				g_pVGuiLocalize->ConstructString_safe( wszMembers, g_pVGuiLocalize->Find( "#TF_PartyMemberState_LastTwo" ), 2, CStrAutoEncode( wszMembers ).ToWString(), CStrAutoEncode( SteamFriends()->GetFriendPersonaName( vecBlameSteamIDs[ i ] ) ).ToWString() );
+				g_pVGuiLocalize->ConstructString_safe( wszMembers, g_pVGuiLocalize->Find( "#TF_PartyMemberState_LastTwo" ), 2, CStrAutoEncode( wszMembers ).ToWString(), CStrAutoEncode( pszBlameName ).ToWString() );
 			}
 			else
 			{
-				g_pVGuiLocalize->ConstructString_safe( wszMembers, L"%s1, %s2", 2, CStrAutoEncode( wszMembers ).ToWString(), CStrAutoEncode( SteamFriends()->GetFriendPersonaName( vecBlameSteamIDs[ i ] ) ).ToWString() );
+				g_pVGuiLocalize->ConstructString_safe( wszMembers, L"%s1, %s2", 2, CStrAutoEncode( wszMembers ).ToWString(), CStrAutoEncode( pszBlameName ).ToWString() );
 			}
 		}
 

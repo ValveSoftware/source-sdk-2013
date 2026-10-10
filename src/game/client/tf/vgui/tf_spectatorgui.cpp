@@ -10,6 +10,7 @@
 #include "c_team.h"
 #include "tf_playerpanel.h"
 #include "tf_spectatorgui.h"
+#include "tf_streamer_mode.h"
 #include "tf_shareddefs.h"
 #include "tf_gamerules.h"
 #include "tf_hud_objectivestatus.h"
@@ -722,7 +723,7 @@ void CTFSpectatorGUI::UpdateKeyLabels( void )
 		{
 			wchar_t wPlayerName[MAX_PLAYER_NAME_LENGTH];
 			wchar_t wLabel[256];
-			const char* pStudentName = g_TF_PR->GetPlayerName( pStudent->entindex() );
+			const char* pStudentName = TF_GetPlayerDisplayName( pStudent->entindex() );
 
 			g_pVGuiLocalize->ConvertANSIToUnicode( pStudentName, wPlayerName, sizeof(wPlayerName));
 			g_pVGuiLocalize->ConstructString_safe( wLabel, g_pVGuiLocalize->Find( "#TF_Coach_Student_Prefix" ), 1, wPlayerName );
@@ -996,12 +997,12 @@ void CTFSpectatorGUI::UpdateItemPanel( bool bForce )
 						
 
 						bVisible = true;
-						m_pItemPanel->SetDialogVariable( "killername", g_TF_PR->GetPlayerName( pPlayer->entindex() ) );
+						m_pItemPanel->SetDialogVariable( "killername", TF_GetPlayerDisplayName( pPlayer->entindex() ) );
 
 						// Set the item owner's name
 						if ( pOriginalOwner )
 						{
-							m_pItemPanel->SetDialogVariable( "ownername", g_TF_PR->GetPlayerName( pOriginalOwner->entindex() ) );
+							m_pItemPanel->SetDialogVariable( "ownername", TF_GetPlayerDisplayName( pOriginalOwner->entindex() ) );
 						}
 
 						m_pItemPanel->SetItem( pItemToShow );

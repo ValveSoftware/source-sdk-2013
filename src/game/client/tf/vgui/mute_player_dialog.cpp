@@ -14,6 +14,7 @@
 #include <vgui_controls/ImageList.h>
 #include "tf_gamerules.h"
 #include "voice_status.h"
+#include "tf_streamer_mode.h"
 
 using namespace vgui;
 
@@ -119,7 +120,7 @@ void CMutePlayerDialog::Activate()
 
 				KeyValues *pKeyValues = new KeyValues( "data" );
 				pKeyValues->SetInt( "index", playerIndex );
-				pKeyValues->SetString( "name", g_TF_PR->GetPlayerName( playerIndex ) );
+				pKeyValues->SetString( "name", TF_GetPlayerDisplayName( playerIndex ) );
 				pKeyValues->SetInt( "score", g_TF_PR->GetTotalScore( playerIndex ) );
 
 				// Update their avatar
@@ -200,7 +201,7 @@ void CMutePlayerDialog::RefreshPlayerStatus()
 			continue;
 		}
 
-		data->SetString( "name", UTIL_GetFilteredPlayerName( playerIndex, pi.name ) );
+		data->SetString( "name", TF_GetPlayerDisplayName( playerIndex ) );
 
 		if ( GetClientVoiceMgr() && GetClientVoiceMgr()->IsPlayerBlocked( playerIndex ) )
 		{
@@ -402,4 +403,4 @@ void CMutePlayerDialog::OnThink()
 	}
 
 	BaseClass::OnThink();
-}
+}

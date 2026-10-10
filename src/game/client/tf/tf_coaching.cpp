@@ -30,6 +30,7 @@
 #include "c_playerresource.h"
 #include "tf_hud_statpanel.h"
 #include "tf_gamerules.h"
+#include "tf_streamer_mode.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -824,7 +825,7 @@ public:
 		}
 		
 		C_TFPlayer *pCoachPlayer = pLocalTFPlayer->m_hCoach;
-		const char* pCoachName = pCoachPlayer->GetPlayerName();
+		const char* pCoachName = TF_GetPlayerDisplayName( pCoachPlayer->entindex() );
 
 		wchar_t wszPlayerName[ MAX_PLAYER_NAME_LENGTH ];
 		g_pVGuiLocalize->ConvertANSIToUnicode(pCoachName, wszPlayerName, sizeof( wszPlayerName ) );

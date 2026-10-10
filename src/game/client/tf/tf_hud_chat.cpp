@@ -6,6 +6,8 @@
 
 #include "cbase.h"
 #include "tf_hud_chat.h"
+#include "tf_streamer_mode.h"
+#include "steam/steam_api.h"
 #include "hud_macros.h"
 #include "text_message.h"
 #include "vguicenterprint.h"
@@ -221,6 +223,11 @@ void CHudChat::FireGameEvent( IGameEvent *event )
 		// color.
 		CSteamID steamID = SteamIDFromDecimalString( event->GetString( "steamid", "0" ) );
 
+		bool bIsLocalSender = steamapicontext && steamapicontext->SteamUser() &&
+			steamID == steamapicontext->SteamUser()->GetSteamID();
+		if ( TF_ShouldHidePartyChat() && !bIsLocalSender )
+			return;
+
 		auto eType = (ETFPartyChatType)event->GetInt( "type", k_eTFPartyChatType_Invalid );
 		const char *pszText = event->GetString( "text", "" );
 		wchar_t *wText = NULL;
@@ -342,6 +349,7 @@ Color CHudChat::GetClientColor( int clientIndex )
 
 	return g_ColorYellow;
 }
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

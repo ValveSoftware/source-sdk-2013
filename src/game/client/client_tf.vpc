@@ -962,6 +962,12 @@ $Project "Client (TF)"
 				$File	"$SRCDIR\game\shared\tf\tf_progression_description_comp.cpp"
 				$File	"$SRCDIR\game\shared\tf\tf_progression_debug.cpp"
 			}
+
+			$Folder	"StreamerMode"
+			{
+				$File	"tf\tf_streamer_mode.cpp"
+				$File	"tf\tf_streamer_mode.h"
+			}
 		}
 
 		$Folder	"game_controls"

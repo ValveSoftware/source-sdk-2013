@@ -29,6 +29,7 @@
 #include "tf_shareddefs.h"
 #include "tf_playermodelpanel.h"
 #include "tf_clientscoreboard.h"
+#include "tf_streamer_mode.h"
 #include "c_playerresource.h"
 #include "c_tf_playerresource.h"
 #include "c_tf_team.h"
@@ -1372,7 +1373,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 
 			KeyValues *pKeyValues = new KeyValues( "data" );
 			pKeyValues->SetInt( "playerIndex", playerIndex );
-			pKeyValues->SetString( "name", g_TF_PR->GetPlayerName( playerIndex ) );
+			pKeyValues->SetString( "name", TF_GetPlayerDisplayName( playerIndex ) );
 			pKeyValues->SetInt( "dominating", iDominationIndex );
 			pKeyValues->SetInt( "score", g_TF_PR->GetTotalScore( playerIndex ) );
 			pKeyValues->SetInt( "connected", 2 );
@@ -1520,7 +1521,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 
 			if ( tf_show_all_scoreboard_elements.GetBool() )
 			{
-				pKeyValues->SetString( "name", g_TF_PR->GetPlayerName( playerIndex ) );
+				pKeyValues->SetString( "name", TF_GetPlayerDisplayName( playerIndex ) );
 				pKeyValues->SetInt( "dominating", m_iImageDom[1] );
 				pKeyValues->SetInt( "score", 9999 );
 				pKeyValues->SetInt( "connected", 2 );
@@ -1661,7 +1662,7 @@ void CTFClientScoreBoardDialog::UpdateSpectatorList()
 					Q_strncat( szCoachList, ", ", ARRAYSIZE( szCoachList ) );
 				}
 
-				Q_strncat( szCoachList, g_PR->GetPlayerName( playerIndex ), ARRAYSIZE( szCoachList ) );
+				Q_strncat( szCoachList, TF_GetPlayerDisplayName( playerIndex ), ARRAYSIZE( szCoachList ) );
 				nCoaches++;
 			}
 			else
@@ -1671,7 +1672,7 @@ void CTFClientScoreBoardDialog::UpdateSpectatorList()
 					Q_strncat( szSpectatorList, ", ", ARRAYSIZE( szSpectatorList ) );
 				}
 
-				Q_strncat( szSpectatorList, g_PR->GetPlayerName( playerIndex ), ARRAYSIZE( szSpectatorList ) );
+				Q_strncat( szSpectatorList, TF_GetPlayerDisplayName( playerIndex ), ARRAYSIZE( szSpectatorList ) );
 				nSpectators++;
 			}
 		}
@@ -1754,7 +1755,7 @@ void CTFClientScoreBoardDialog::UpdateArenaWaitingToPlayList()
 					Q_strncat( szSpectatorList, ", ", ARRAYSIZE( szSpectatorList ) );
 				}
 
-				Q_strncat( szSpectatorList, g_PR->GetPlayerName( playerIndex ), ARRAYSIZE( szSpectatorList ) );
+				Q_strncat( szSpectatorList, TF_GetPlayerDisplayName( playerIndex ), ARRAYSIZE( szSpectatorList ) );
 				nSpectators++;
 			}
 		}
@@ -1786,7 +1787,7 @@ static void PopulateDuelPanel( CTFClientScoreBoardDialog::duel_panel_t &duelPane
 
 	if ( duelPanel.m_pPlayerNameLabel && g_TF_PR != NULL )
 	{
-		duelPanel.m_pPanel->SetDialogVariable( "playername", g_TF_PR->GetPlayerName( pPlayer->entindex() ) );
+		duelPanel.m_pPanel->SetDialogVariable( "playername", TF_GetPlayerDisplayName( pPlayer->entindex() ) );
 		Color clr = g_PR->GetTeamColor( g_PR->GetTeam( pPlayer->entindex() ) );
 		duelPanel.m_pPlayerNameLabel->SetFgColor( clr );
 	}
@@ -1845,7 +1846,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails()
 	if ( engine->IsHLTV() )
 #endif
 	{
-		SetDialogVariable( "playername", g_TF_PR->GetPlayerName( playerIndex ) );
+		SetDialogVariable( "playername", TF_GetPlayerDisplayName( playerIndex ) );
 		return;
 	}
 
@@ -1964,7 +1965,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails()
 		}
 	}		
 
-	SetDialogVariable( "playername", g_TF_PR->GetPlayerName( playerIndex ) );
+	SetDialogVariable( "playername", TF_GetPlayerDisplayName( playerIndex ) );
 
 	Color clr = g_PR->GetTeamColor( g_PR->GetTeam( playerIndex ) );
 	m_pLabelPlayerName->SetFgColor( clr );
@@ -2274,7 +2275,7 @@ void CTFClientScoreBoardDialog::FireGameEvent( IGameEvent *event )
 	if ( FStrEq( type, "server_spawn" ) )
 	{		
 		// set server name in scoreboard
-		const char *hostname = event->GetString( "hostname" );
+		const char *hostname = TF_ShouldHideServerInformation() ? "Streamer Mode Enabled" : event->GetString( "hostname" );
 		wchar_t wzHostName[256];
 		wchar_t wzServerLabel[256];
 		g_pVGuiLocalize->ConvertANSIToUnicode( hostname, wzHostName, sizeof( wzHostName ) );

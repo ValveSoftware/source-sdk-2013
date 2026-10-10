@@ -13,6 +13,10 @@
 	#define PROJECT_TF
 #endif
 
+// Optional hook so client code (TF's Streamer Mode) can hide a player's
+// custom item text. NULL means no filtering.
+extern bool (*g_pfnEconShouldHideCustomItemText)( uint32 unAccountID );
+
 
 	#define TF_ANTI_IDLEBOT_VERIFICATION_ONLY_COMMA
 	#define TF_ANTI_IDLEBOT_VERIFICATION_ONLY_ARG( arg )

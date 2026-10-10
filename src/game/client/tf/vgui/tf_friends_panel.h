@@ -61,6 +61,7 @@ public:
 
 	virtual void PerformLayout() OVERRIDE;
 	virtual void ApplySettings( KeyValues *inResourceData ) OVERRIDE;
+	virtual void ApplySchemeSettings( vgui::IScheme *pScheme ) OVERRIDE;
 	virtual void OnThink();
 private:
 
@@ -78,6 +79,11 @@ private:
 	void ProcessFriends();
 	void PruneKnownFriends();
 	void FriendStateChange( CSteamID steamIDFriend );
+
+	// Replaces the friends list with a notice while TF_ShouldHideFriendsList() is true.
+	void UpdateStreamerModeState();
+	vgui::Label		*m_pStreamerModeLabel;
+	bool			m_bStreamerModeListHidden = false;
 
 	CPanelAnimationVar( int, m_nNumColumns, "columns_count", "1" );
 	CPanelAnimationVarAliasType( int, m_nXInset, "inset_x", "10", "proportional_int" );

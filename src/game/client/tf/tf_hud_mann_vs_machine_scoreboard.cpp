@@ -6,6 +6,7 @@
 //=============================================================================
 #include "cbase.h"
 #include "tf_hud_mann_vs_machine_scoreboard.h"
+#include "tf_streamer_mode.h"
 #include <filesystem.h>
 #include <time.h>
 #include "tf_lobby_server.h"
@@ -289,7 +290,7 @@ void CTFHudMannVsMachineScoreboard::UpdatePlayerList ()
 			continue;
 		}
 
-		const char *szName = g_TF_PR->GetPlayerName( playerIndex );
+		const char *szName = TF_GetPlayerDisplayName( playerIndex );
 		KeyValues *pKeyValues = new KeyValues( "data" );
 
 		pKeyValues->SetInt( "playerIndex", playerIndex );
