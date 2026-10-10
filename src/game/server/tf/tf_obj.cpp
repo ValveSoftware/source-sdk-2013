@@ -2121,7 +2121,8 @@ bool CBaseObject::Construct( float flHealth )
 		// Minibuildings build health at a reduced rate
 		// Staging_engy
 		{
-			SetHealth( Min( (float)GetMaxHealth(), m_flHealth + (IsMiniBuilding() ? (flHealth * 0.5f) : flHealth) ) );
+			float flMult = IsDisposableBuilding() ? 0.f : 0.5f;
+			SetHealth( Min( (float)GetMaxHealth(), m_flHealth + (IsMiniBuilding() ? (flHealth * flMult) : flHealth) ) );
 		}
 
 		// Return true if we're constructed now
@@ -2192,7 +2193,7 @@ float CBaseObject::GetConstructionMultiplier( void )
 		{
 			m_ConstructorList.RemoveAt( iThis );
 		}
-		else
+		else if ( !IsDisposableBuilding() )
 		{
 			// STAGING_ENGY
 			// each Player adds a fixed amount of speed boost
@@ -2203,7 +2204,11 @@ float CBaseObject::GetConstructionMultiplier( void )
 
 	// See if we have any attributes that want to modify our build rate
 	CTFPlayer* pBuilder = GetOwner();
-	if( pBuilder )
+	if ( IsDisposableBuilding() )
+	{
+		flMultiplier += m_bCarryDeploy ? 7.f : 3.f;
+	}
+	else if( pBuilder )
 	{
 		flMultiplier += pBuilder->GetObjectBuildSpeedMultiplier( ObjectType(), m_bCarryDeploy );
 	}
@@ -2261,7 +2266,7 @@ void CBaseObject::CreateObjectGibs( void )
 	if ( IsMiniBuilding() )
 	{
 		// STAGING_ENGY
-		nMetalPerGib = 0;
+		nMetalPerGib = IsDisposableBuilding() ? 7 : 0;
 		nLeftOver = 0;
 	}
 
@@ -2782,7 +2787,7 @@ bool CBaseObject::InputWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector
 		bDidWork = OnWrenchHit( pPlayer, pWrench, hitLoc );
 //		bDidWork = false;
 	}
-	else if ( IsBuilding() )
+	else if ( IsBuilding() && !IsDisposableBuilding() )
 	{
 		OnConstructionHit( pPlayer, pWrench, hitLoc );
 		bDidWork = true;
