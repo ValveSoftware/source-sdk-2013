@@ -47,6 +47,15 @@ void CTFFists::ItemPreFrame( void )
 }
 
 // -----------------------------------------------------------------------------
+// Purpose: Precache sound for TAUNTATK_HEAVY_PUNCHOUT
+// -----------------------------------------------------------------------------
+void CTFFists::Precache(void)
+{
+	BaseClass::Precache();
+	PrecacheScriptSound("Weapon_BoxingGloves.CritHit");
+}
+
+// -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
 void CTFFists::PrimaryAttack()
