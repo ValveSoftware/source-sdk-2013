@@ -6236,7 +6236,7 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 			ClientPrint( this, HUD_PRINTCENTER, "#TF_Ladder_NoTeamChange" );
 			return;
 		}
-		else if ( TFGameRules()->ArePlayersInHell() || TFGameRules()->IsPowerupMode() )
+		else if ( TFGameRules()->ArePlayersInHell() )
 		{
 			ClientPrint( this, HUD_PRINTCENTER, "#TF_CantChangeTeamNow" );
 			return;
