@@ -123,6 +123,7 @@ float CTFJarGas::GetProjectileSpeed( void )
 void CTFProjectile_JarGas::Precache()
 {
 	PrecacheModel( TF_WEAPON_JAR_GAS_JAR_MODEL );
+	PrecacheModel(TF_WEAPON_JAR_GAS_JAR_MODEL_FESTIVIZED);
 	PrecacheParticleSystem( "gas_can_blue" );
 	PrecacheParticleSystem( "gas_can_red" );
 	PrecacheScriptSound( TF_WEAPON_JARGAS_EXPLODE_SOUND );
@@ -158,7 +159,10 @@ CTFProjectile_JarGas* CTFProjectile_JarGas::Create( const Vector &position, cons
 //-----------------------------------------------------------------------------
 void CTFProjectile_JarGas::SetCustomPipebombModel()
 {
-	SetModel( TF_WEAPON_JAR_GAS_JAR_MODEL );
+	int iFestivized = 0;
+	CTFPlayer* pThrower = ToTFPlayer(GetThrower());
+	if (pThrower && pThrower->GetActiveWeapon()){ CALL_ATTRIB_HOOK_INT_ON_OTHER(pThrower->GetActiveWeapon(), iFestivized, is_festivized); }
+	SetModel((iFestivized) ? TF_WEAPON_JAR_GAS_JAR_MODEL_FESTIVIZED : TF_WEAPON_JAR_GAS_JAR_MODEL);
 }
 
 //-----------------------------------------------------------------------------
