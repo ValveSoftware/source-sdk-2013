@@ -7536,11 +7536,16 @@ void C_TFPlayer::CreatePlayerGibs( const Vector &vecOrigin, const Vector &vecVel
 	}
 }
 
+extern ConVar cl_hide_cosmetics;
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void C_TFPlayer::DropWearable( C_TFWearable *pItem, const breakablepropparams_t &params )
 {
+	if ( cl_hide_cosmetics.GetInt() >= 1 && pItem->IsHideableCosmetic() )
+		return;
+
 	// Get the position from the rootbone of the wearable entity itself
 	Vector position;
 	matrix3x4_t rootBone;
@@ -7752,6 +7757,9 @@ bool C_TFPlayer::BRenderAsZombie( bool bWeaponsCheck /*= false */  )
 {
 	// Only if the local player is optining in.
 	if ( !IsLocalPlayerUsingVisionFilterFlags( TF_VISION_FILTER_HALLOWEEN, bWeaponsCheck ) )
+		return false;
+
+	if ( cl_hide_cosmetics.GetInt() == 1 || ( cl_hide_cosmetics.GetInt() >= 2 && !IsLocalPlayer() ) )
 		return false;
 
 	// Should we render as somebody else?
@@ -10169,7 +10177,7 @@ static bool IsDecapitationCustomDamageType( int iCustomDamageType )
 void C_TFPlayer::CreateBoneAttachmentsFromWearables( C_TFRagdoll *pRagdoll, bool bDisguised )
 {
 	if ( bDisguised && !ShouldDrawSpyAsDisguised() )
-	{
+	{	
 		// the team of disguised spy don't see any wearable
 		return;
 	}
@@ -10178,6 +10186,9 @@ void C_TFPlayer::CreateBoneAttachmentsFromWearables( C_TFRagdoll *pRagdoll, bool
 	{
 		C_TFWearable *pItem = dynamic_cast<C_TFWearable*> (GetWearable(wbl));
 		if ( !pItem )
+			continue;
+
+		if ( cl_hide_cosmetics.GetInt() >= 1 && pItem->IsHideableCosmetic() )
 			continue;
 
 		if ( pItem->IsViewModelWearable() )

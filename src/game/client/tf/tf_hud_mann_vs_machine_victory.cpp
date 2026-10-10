@@ -1330,6 +1330,7 @@ bool CMvMVictoryMannUpEntry::SetModelPanelInfo( C_TFPlayer* pPlayer )
 	m_pPlayerModelPanel->ClearCarriedItems();
 	m_pPlayerModelPanel->SetToPlayerClass( nClass, true );
 	m_pPlayerModelPanel->SetTeam( nTeam );
+	m_pPlayerModelPanel->SetIsLocalPlayerModel( pPlayer == C_TFPlayer::GetLocalPlayer() );
 
 	for ( int wbl = pPlayer->GetNumWearables()-1; wbl >= 0; wbl-- )
 	{

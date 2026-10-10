@@ -268,6 +268,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerModel()
 	m_pPlayerModelPanel->ClearCarriedItems();
 	m_pPlayerModelPanel->SetToPlayerClass( nClass );
 	m_pPlayerModelPanel->SetTeam( nTeam );
+	m_pPlayerModelPanel->SetIsLocalPlayerModel( pPlayer == C_TFPlayer::GetLocalPlayer() );
 
 	if ( pWeapon )
 	{
