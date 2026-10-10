@@ -265,7 +265,12 @@ bool BCanPreviewPaintKit( const CEconItemView* pItem )
 	if ( IsPaintKitTool( pItem->GetItemDefinition() ) )
 		return true;
 
-	return IsValidPickupWeaponSlot( pItem->GetItemDefinition()->GetDefaultLoadoutSlot() );
+	int iSlot = pItem->GetItemDefinition()->GetDefaultLoadoutSlot();
+	return iSlot == LOADOUT_POSITION_PRIMARY
+		|| iSlot == LOADOUT_POSITION_SECONDARY
+		|| iSlot == LOADOUT_POSITION_MELEE
+		|| iSlot == LOADOUT_POSITION_BUILDING
+		|| iSlot == LOADOUT_POSITION_PDA;
 }
 
 //-----------------------------------------------------------------------------
