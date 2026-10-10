@@ -85,8 +85,8 @@ private:
 	int					m_nKillStreak;
 	int					m_nVisionFilterFlags;
 
-	
 	bool				m_bUsePlayerModel;
+	bool				m_bModelPanelDirty;
 };
 
 //-----------------------------------------------------------------------------
