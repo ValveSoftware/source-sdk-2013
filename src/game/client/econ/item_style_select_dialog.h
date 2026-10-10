@@ -43,9 +43,11 @@ private:
 	virtual void PopulateComboBoxOptions() = 0;
 	virtual void OnComboBoxApplication() = 0;
 	virtual void OnComboBoxChanged( int iNewSelection ) { }
+	virtual void OnKeyCodeTyped(vgui::KeyCode code);
 	virtual const char *GetTitleLabelLocalizationToken() const = 0;
 
 	MESSAGE_FUNC_PARAMS( OnTextChanged, "TextChanged", data );
+	MESSAGE_FUNC(OnComboBoxEscape, "ComboBoxEscape");
 
 	CItemModelPanel			*m_pPreviewModelPanel;
 	vgui::ComboBox			*m_pComboBox;
