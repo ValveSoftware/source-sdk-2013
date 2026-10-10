@@ -225,6 +225,22 @@ void CTFRocketLauncher::ModifyEmitSoundParams( EmitSound_t &params )
 	}
 }
 
+bool CTFRocketLauncher::CanReload( void )
+{
+	if ( AutoFiresFullClip() && GetTFPlayerOwner() && GetTFPlayerOwner()->m_Shared.InCond( TF_COND_TAUNTING ) )
+		return false;
+
+	return BaseClass::CanReload();
+}
+
+bool CTFRocketLauncher::OwnerCanTaunt( void )
+{
+	if ( AutoFiresFullClip() && ( m_iClip1 > 0 ) )
+		return false;
+
+	return BaseClass::OwnerCanTaunt();
+}
+
 void CTFRocketLauncher::Misfire( void )
 {
 	BaseClass::Misfire();
