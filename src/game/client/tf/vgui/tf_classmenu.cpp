@@ -1306,6 +1306,12 @@ void CTFClassMenu::OnCommand( const char *command )
 	}
 	else if ( !V_strnicmp( command, "openloadout", 11 ) )
 	{
+		if (!IsValidTFPlayerClass(m_iCurrentClassIndex))
+		{
+			// Random class does not have a loadout.
+			return;
+		}
+
 		// Let this panel know when you've closed, so we can reload items
 		EconUI()->AddPanelCloseListener( this );
 
