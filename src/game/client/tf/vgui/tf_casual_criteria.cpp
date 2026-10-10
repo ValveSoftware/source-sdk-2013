@@ -16,6 +16,8 @@
 #include "clientmode_tf.h"
 #include "tf_partyclient.h"
 #include "tf_matchmaking_dashboard_explanations.h"
+#include "checksum_crc.h"
+#include "rtime.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -31,6 +33,111 @@ ConVar tf_show_maps_details_explanation_count( "tf_show_maps_details_explanation
 
 using namespace vgui;
 
+// Rotation resets Monday at 19:00 UTC.
+static const uint32 k_unFeaturedEpoch = 1704135600;
+static const uint32 k_unFeaturedRotationSeconds = 7 * 24 * 60 * 60;
+static const int k_nFeaturedMapCount = 6;
+static const int k_nFeaturedMaxPerCategory = 2;
+static const int k_nFeaturedSeasonalCount = 3;
+
+struct FeaturedCandidate_t
+{
+	const MapDef_t* m_pMap;
+	EGameCategory m_eCategory;
+	bool m_bSeasonal;
+	uint32 m_unScore;
+};
+
+static uint32 GetFeaturedRotation( void )
+{
+	uint32 unNow = steamapicontext && steamapicontext->SteamUtils() ? steamapicontext->SteamUtils()->GetServerRealTime() : CRTime::RTime32TimeCur();
+	return unNow > k_unFeaturedEpoch ? ( unNow - k_unFeaturedEpoch ) / k_unFeaturedRotationSeconds : 0;
+}
+
+static void GetFeaturedMaps( CUtlVector< const MapDef_t* >& vecMaps )
+{
+	uint32 unRotation = GetFeaturedRotation();
+
+	const SchemaGameCategory_t* pStockFeatured = GetItemSchema()->GetGameCategory( kGameCategory_Featured );
+
+	CUtlVector< FeaturedCandidate_t > vecCandidates;
+	const MMGroupMap_t& mapMMGroups = GetItemSchema()->GetMMGroupMap();
+	FOR_EACH_MAP( mapMMGroups, i )
+	{
+		const SchemaMMGroup_t* pGroup = mapMMGroups[ i ];
+		bool bSeasonalGroup = pGroup->m_eMMGroup == kMatchmakingType_SpecialEvents;
+		if ( ( pGroup->m_eMMGroup != kMatchmakingType_Core && pGroup->m_eMMGroup != kMatchmakingType_Alternative && !bSeasonalGroup ) || !pGroup->m_bitsValidMMGroups.IsBitSet( k_eTFMatchGroup_Casual_12v12 ) )
+			continue;
+
+		FOR_EACH_VEC( pGroup->m_vecModes, j )
+		{
+			const SchemaGameCategory_t* pCategory = pGroup->m_vecModes[ j ];
+			if ( !pCategory->PassesRestrictions() || ( bSeasonalGroup && pCategory->m_eGameCategory != kGameCategory_Halloween && pCategory->m_eGameCategory != kGameCategory_Christmas ) )
+				continue;
+
+			FOR_EACH_VEC( pCategory->m_vecEnabledMaps, k )
+			{
+				const MapDef_t* pMap = pCategory->m_vecEnabledMaps[ k ];
+				if ( bSeasonalGroup && pStockFeatured && pStockFeatured->m_vecMaps.HasElement( pMap ) )
+					continue;
+
+				bool bDuplicate = false;
+				FOR_EACH_VEC( vecCandidates, c )
+				{
+					bDuplicate |= vecCandidates[ c ].m_pMap == pMap;
+				}
+				if ( bDuplicate )
+					continue;
+
+				CRC32_t crc;
+				CRC32_Init( &crc );
+				CRC32_ProcessBuffer( &crc, &unRotation, sizeof( unRotation ) );
+				CRC32_ProcessBuffer( &crc, &pMap->m_nDefIndex, sizeof( pMap->m_nDefIndex ) );
+				CRC32_Final( &crc );
+
+				FeaturedCandidate_t candidate = { pMap, pCategory->m_eGameCategory, bSeasonalGroup, crc };
+				vecCandidates.AddToTail( candidate );
+			}
+		}
+	}
+
+	vecCandidates.SortPredicate( []( const FeaturedCandidate_t& left, const FeaturedCandidate_t& right ) -> bool
+	{
+		if ( left.m_unScore != right.m_unScore )
+			return left.m_unScore < right.m_unScore;
+
+		return left.m_pMap->m_nDefIndex < right.m_pMap->m_nDefIndex;
+	} );
+
+	int anCategoryCount[ eNumGameCategories ] = { 0 };
+	int nSeasonalCount = 0;
+	for ( int nPass = 0; nPass < 3; ++nPass )
+	{
+		FOR_EACH_VEC( vecCandidates, i )
+		{
+			if ( vecMaps.Count() >= k_nFeaturedMapCount )
+				return;
+
+			const FeaturedCandidate_t& candidate = vecCandidates[ i ];
+			if ( vecMaps.HasElement( candidate.m_pMap ) )
+				continue;
+
+			if ( candidate.m_bSeasonal && nSeasonalCount >= k_nFeaturedSeasonalCount )
+				continue;
+
+			if ( nPass == 0 && !candidate.m_bSeasonal )
+				continue;
+
+			if ( nPass == 1 && ( candidate.m_bSeasonal || anCategoryCount[ candidate.m_eCategory ] >= k_nFeaturedMaxPerCategory ) )
+				continue;
+
+			vecMaps.AddToTail( candidate.m_pMap );
+			++anCategoryCount[ candidate.m_eCategory ];
+			nSeasonalCount += candidate.m_bSeasonal;
+		}
+	}
+}
+
 class CCasualCategory : public CExpandablePanel
 {
 	DECLARE_CLASS_SIMPLE( CCasualCategory, CExpandablePanel );
@@ -39,6 +146,8 @@ public:
 	CCasualCategory( Panel *parent, const char *panelName, EGameCategory eCategory, Panel* pSignalHandler ) 
 		: BaseClass( parent, panelName )
 		, m_eCategory( eCategory )
+		, m_unFeaturedRotation( 0 )
+		, m_flNextFeaturedCheck( 0 )
 		, pToggleButton( NULL )
 		, m_mapMapPanels( DefLessFunc( uint32 ) )
 		, m_pSignalHandler( pSignalHandler )
@@ -56,23 +165,28 @@ public:
 
 		LoadControlSettings( "resource/ui/MatchmakingCategoryPanel.res" );
 
-		const SchemaGameCategory_t* pCategory = GetItemSchema()->GetGameCategory( m_eCategory );
-		Assert( pCategory );
-		if ( !pCategory )
+		bool bFeatured = m_eCategory == eNumGameCategories;
+		const SchemaGameCategory_t* pCategory = bFeatured ? NULL : GetItemSchema()->GetGameCategory( m_eCategory );
+		Assert( bFeatured || pCategory );
+		if ( !bFeatured && !pCategory )
 			return;
 
 		EditablePanel* pTopContainer = FindControl< EditablePanel >( "TopContainer", true );
 		if ( pTopContainer )
 		{
 			// Set our dialog variables
-			pTopContainer->SetDialogVariable( "title_token", g_pVGuiLocalize->Find( pCategory->m_pszLocalizedName ) );
-			pTopContainer->SetDialogVariable( "desc_token", g_pVGuiLocalize->Find( pCategory->m_pszLocalizedDesc ) );
+			pTopContainer->SetDialogVariable( "title_token", g_pVGuiLocalize->Find( bFeatured ? "#TF_Casual_Featured" : pCategory->m_pszLocalizedName ) );
+			pTopContainer->SetDialogVariable( "desc_token", g_pVGuiLocalize->Find( bFeatured ? "#TF_Casual_Featured_Desc" : pCategory->m_pszLocalizedDesc ) );
 		}
 
 		ImagePanel* pImagePanel = FindControl< ImagePanel >( "BGImage", true );
 		if ( pImagePanel && pCategory && pCategory->m_pszListImage )
 		{
 			pImagePanel->SetImage( pCategory->m_pszListImage );
+		}
+		else if ( pImagePanel && bFeatured )
+		{
+			pImagePanel->SetImage( "casual/gametype_featured_campaign3" );
 		}
 
 		// Clear out the old map entries
@@ -86,7 +200,17 @@ public:
 
 			// Sort the maps alphabetically
 			CUtlVector< const MapDef_t* > vecSortedMaps;
-			vecSortedMaps.AddVectorToTail( pCategory->m_vecEnabledMaps );
+			if ( bFeatured )
+			{
+				m_unFeaturedRotation = GetFeaturedRotation();
+				m_vecFeaturedMaps.Purge();
+				GetFeaturedMaps( m_vecFeaturedMaps );
+				vecSortedMaps.AddVectorToTail( m_vecFeaturedMaps );
+			}
+			else
+			{
+				vecSortedMaps.AddVectorToTail( pCategory->m_vecEnabledMaps );
+			}
 			vecSortedMaps.SortPredicate( []( const MapDef_t* pLeft, const MapDef_t* pRight ) -> bool
 			{
 				// Localized map name first
@@ -218,6 +342,92 @@ public:
 		}
 	}
 
+	bool BFeaturedRotationChanged() const
+	{
+		return m_eCategory == eNumGameCategories && m_unFeaturedRotation != GetFeaturedRotation();
+	}
+
+	bool BFeaturedMapsChanged() const
+	{
+		CUtlVector< const MapDef_t* > vecMaps;
+		GetFeaturedMaps( vecMaps );
+		if ( vecMaps.Count() != m_vecFeaturedMaps.Count() )
+			return true;
+
+		FOR_EACH_VEC( vecMaps, i )
+		{
+			if ( vecMaps[ i ] != m_vecFeaturedMaps[ i ] )
+				return true;
+		}
+
+		return false;
+	}
+
+	bool BFeaturedMapsChangedThrottled()
+	{
+		if ( m_eCategory != eNumGameCategories || Plat_FloatTime() < m_flNextFeaturedCheck )
+			return false;
+
+		m_flNextFeaturedCheck = Plat_FloatTime() + 10.0;
+		return BFeaturedMapsChanged();
+	}
+
+	const CUtlVector< const MapDef_t* >& GetFeaturedMapList() const
+	{
+		return m_vecFeaturedMaps;
+	}
+
+	bool UpdateSelection( const CUtlVector< const MapDef_t* >& vecMaps, bool bClickable, CUtlVector< const MapDef_t* >& vecSelectedMaps )
+	{
+		bool bCatSelected = false;
+
+		FOR_EACH_VEC( vecMaps, k )
+		{
+			auto &criteria = GTFPartyClient()->GetEffectiveGroupCriteria();
+			bool bMapSelected = criteria.IsCasualMapSelected( vecMaps[ k ]->m_nDefIndex );
+			bCatSelected = bCatSelected | bMapSelected;
+
+			SetCheckButtonState( vecMaps[ k ]->m_nDefIndex, bMapSelected, bClickable );
+
+			if ( bMapSelected )
+			{
+				vecSelectedMaps.AddToTail( vecMaps[ k ] );
+			}
+		}
+
+		if ( bCatSelected )
+		{
+			g_pClientMode->GetViewportAnimationController()->StopAnimationSequence( this, "CasualCategory_NotSelected" );
+			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "CasualCategory_Selected" );
+		}
+		else
+		{
+			g_pClientMode->GetViewportAnimationController()->StopAnimationSequence( this, "CasualCategory_Selected" );
+			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "CasualCategory_NotSelected" );
+		}
+
+		InvalidateLayout();
+
+		CExCheckButton* pCheckButton = FindControl< CExCheckButton >( "CheckButton", true );
+		if ( pCheckButton )
+		{
+			tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s - if ( pCheckButton )", __FUNCTION__ );
+
+			pCheckButton->RemoveActionSignalTarget( m_pSignalHandler );
+			pCheckButton->SetCheckButtonCheckable( true );
+			pCheckButton->SetSelected( bCatSelected );
+			pCheckButton->SetCheckButtonCheckable( bClickable );
+			pCheckButton->SetTooltip( bClickable ? NULL : GetDashboardTooltip( k_eSmallFont ), "#TF_Matchmaking_OnlyLeaderCanChange" );
+			pCheckButton->AddActionSignalTarget( m_pSignalHandler );
+
+			KeyValues* pKVData = new KeyValues( "data" );
+			pKVData->SetInt( m_eCategory == eNumGameCategories ? "featured_index" : "category_index", m_eCategory );
+			pCheckButton->SetData( pKVData );
+		}
+
+		return bCatSelected;
+	}
+
 private:
 	void ClearMapEntries()
 	{
@@ -230,6 +440,9 @@ private:
 	}
 
 	const EGameCategory m_eCategory;
+	uint32 m_unFeaturedRotation;
+	double m_flNextFeaturedCheck;
+	CUtlVector< const MapDef_t* > m_vecFeaturedMaps;
 	CExImageButton* pToggleButton;
 	Panel* m_pSignalHandler;
 	CUtlMap< uint32, EditablePanel* > m_mapMapPanels;
@@ -264,6 +477,11 @@ void CCasualCriteriaPanel::OnThink()
 {
 	BaseClass::OnThink();
 
+	auto idxFeatured = m_mapCategoryPanels.Find( eNumGameCategories );
+	if ( idxFeatured != m_mapCategoryPanels.InvalidIndex() && ( ( (CCasualCategory*)m_mapCategoryPanels[ idxFeatured ] )->BFeaturedRotationChanged() || ( (CCasualCategory*)m_mapCategoryPanels[ idxFeatured ] )->BFeaturedMapsChangedThrottled() ) )
+	{
+		m_bCriteriaDirty = true;
+	}
 
 	if ( m_bCriteriaDirty )
 	{
@@ -386,7 +604,8 @@ void CCasualCriteriaPanel::OnCheckButtonChecked( vgui::Panel* panel )
 			int nMapIndex = pCheckButton->GetData()->GetInt( "map_index", -1 );
 			int nCategoryIndex = pCheckButton->GetData()->GetInt( "category_index", -1 );
 			int nGroupIndex = pCheckButton->GetData()->GetInt( "group_index", -1 );
-			Assert( nCategoryIndex >= 0 || nGroupIndex >= 0 || nMapIndex >= 0 );
+			int nFeaturedIndex = pCheckButton->GetData()->GetInt( "featured_index", -1 );
+			Assert( nCategoryIndex >= 0 || nGroupIndex >= 0 || nMapIndex >= 0 || nFeaturedIndex >= 0 );
 			if ( nGroupIndex >= 0 )
 			{
 				EMatchmakingGroupType eGroup = EMatchmakingGroupType( nGroupIndex );
@@ -400,6 +619,18 @@ void CCasualCriteriaPanel::OnCheckButtonChecked( vgui::Panel* panel )
 			else if ( nMapIndex >= 0 )
 			{
 				GTFPartyClient()->MutLocalGroupCriteria().SetCasualMapSelected( nMapIndex, bSelected );
+			}
+			else if ( nFeaturedIndex >= 0 )
+			{
+				auto idxFeatured = m_mapCategoryPanels.Find( eNumGameCategories );
+				if ( idxFeatured != m_mapCategoryPanels.InvalidIndex() )
+				{
+					const CUtlVector< const MapDef_t* >& vecFeaturedMaps = ( (CCasualCategory*)m_mapCategoryPanels[ idxFeatured ] )->GetFeaturedMapList();
+					FOR_EACH_VEC( vecFeaturedMaps, i )
+					{
+						GTFPartyClient()->MutLocalGroupCriteria().SetCasualMapSelected( vecFeaturedMaps[ i ]->m_nDefIndex, bSelected );
+					}
+				}
 			}
 		}
 
@@ -445,7 +676,7 @@ void CCasualCriteriaPanel::WriteCategories( void )
 			continue;
 		}
 
-		if ( !pCat->IsCategoryValid() )
+		if ( !pCat->IsCategoryValid() && pCat->m_eMMGroup != kMatchmakingType_SpecialEvents )
 		{
 			continue;
 		}
@@ -507,56 +738,35 @@ void CCasualCriteriaPanel::WriteCategories( void )
 				pListEntry = (CCasualCategory*)m_mapCategoryPanels[ idxCat ];
 			}
 
-			bool bCatSelected = false;
+			bool bCatSelected = pListEntry->UpdateSelection( pCategory->m_vecEnabledMaps, bLeader, vecSelectedMaps );
+			m_bHasAMapSelected |= bCatSelected;
+			bGroupSelected = bGroupSelected | bCatSelected;
+		}
 
-			FOR_EACH_VEC( pCategory->m_vecEnabledMaps, k )
+		if ( pCat->m_eMMGroup == kMatchmakingType_SpecialEvents )
+		{
+			CCasualCategory* pFeaturedEntry = NULL;
+			auto idxFeatured = m_mapCategoryPanels.Find( eNumGameCategories );
+			if ( idxFeatured == m_mapCategoryPanels.InvalidIndex() )
 			{
-				auto &criteria = GTFPartyClient()->GetEffectiveGroupCriteria();
-				bool bMapSelected = criteria.IsCasualMapSelected( pCategory->m_vecEnabledMaps[ k ]->m_nDefIndex );
-				m_bHasAMapSelected |= bMapSelected;
-				bCatSelected = bCatSelected | bMapSelected;
-				bGroupSelected = bGroupSelected | bCatSelected;
+				pFeaturedEntry = new CCasualCategory( pScrollableList, "MatchmakingCategoryPanel", eNumGameCategories, this );
+				pFeaturedEntry->AddActionSignalTarget( this );
+				pFeaturedEntry->MakeReadyForUse();
 
-				// Update map check button state
-				pListEntry->SetCheckButtonState( pCategory->m_vecEnabledMaps[ k ]->m_nDefIndex, bMapSelected, bLeader );
-
-				// We're going to use this to setup the tooltip for total selected maps
-				if ( bMapSelected )
-				{
-					vecSelectedMaps.AddToTail( pCategory->m_vecEnabledMaps[ k ] );
-				}
-			}
-
-			if ( bCatSelected )
-			{
-				g_pClientMode->GetViewportAnimationController()->StopAnimationSequence( pListEntry, "CasualCategory_NotSelected" );
-				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( pListEntry, "CasualCategory_Selected" );
+				pScrollableList->AddPanel( pFeaturedEntry, 5 );
+				m_mapCategoryPanels.Insert( eNumGameCategories, pFeaturedEntry );
 			}
 			else
 			{
-				g_pClientMode->GetViewportAnimationController()->StopAnimationSequence( pListEntry, "CasualCategory_Selected" );
-				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( pListEntry, "CasualCategory_NotSelected" );
+				pFeaturedEntry = (CCasualCategory*)m_mapCategoryPanels[ idxFeatured ];
 			}
 
-			pListEntry->InvalidateLayout();
-
-			// Update the check button within the list entry
-			CExCheckButton* pCheckButton = pListEntry->FindControl< CExCheckButton >( "CheckButton", true );
-			if ( pCheckButton )
+			if ( pFeaturedEntry->BFeaturedRotationChanged() || pFeaturedEntry->BFeaturedMapsChanged() )
 			{
-				tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s - if ( pCheckButton )", __FUNCTION__ );
-
-				pCheckButton->RemoveActionSignalTarget( this );	// So we dont endlessly loop by checking
-				pCheckButton->SetCheckButtonCheckable( true );	// So we can potentially check it on the next line
-				pCheckButton->SetSelected( bCatSelected );
-				pCheckButton->SetCheckButtonCheckable( bLeader );
-				pCheckButton->SetTooltip( bLeader ? NULL : GetDashboardTooltip( k_eSmallFont ), "#TF_Matchmaking_OnlyLeaderCanChange" );
-				pCheckButton->AddActionSignalTarget( this );	// So that we get user check messages
-
-				KeyValues* pKVData = new KeyValues( "data" );
-				pKVData->SetInt( "category_index", pCategory->m_eGameCategory );
-				pCheckButton->SetData( pKVData );
+				pFeaturedEntry->InvalidateLayout( false, true );
 			}
+
+			m_bHasAMapSelected |= pFeaturedEntry->UpdateSelection( pFeaturedEntry->GetFeaturedMapList(), bLeader, vecSelectedMaps );
 		}
 
 		// Update check button state
