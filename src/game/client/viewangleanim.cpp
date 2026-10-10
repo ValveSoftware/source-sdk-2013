@@ -132,6 +132,10 @@ CViewAngleAnimation::CViewAngleAnimation()
 
 CViewAngleAnimation::~CViewAngleAnimation()
 {
+	if (g_pTestAnimation == this) {
+		g_pTestAnimation = NULL;
+	}
+
 	DeleteKeyFrames();
 }
 
