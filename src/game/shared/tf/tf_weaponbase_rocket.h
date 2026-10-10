@@ -12,6 +12,7 @@
 #include "cbase.h"
 #include "tf_shareddefs.h"
 #include "baseprojectile.h"
+#include "convar.h"
 
 // Server specific.
 #ifdef GAME_DLL
@@ -27,6 +28,8 @@
 #define TF_FLARE_DET_RADIUS			(110)			// Special version of the flare that can be detonated by the player
 #define TF_FLARE_RADIUS_FOR_FJS		(100.0f)
 #define TF_ROCKET_DESTROYABLE_TIMER	(0.25)
+
+extern ConVar tf_fix_splash;
 
 
 //=============================================================================

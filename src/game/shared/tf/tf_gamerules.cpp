@@ -918,6 +918,7 @@ ConVar tf_mvm_respec_credit_goal( "tf_mvm_respec_credit_goal", "2000", FCVAR_CHE
 ConVar tf_mvm_buybacks_method( "tf_mvm_buybacks_method", "0", FCVAR_REPLICATED | FCVAR_HIDDEN, "When set to 0, use the traditional, currency-based system.  When set to 1, use finite, charge-based system.", true, 0.0, true, 1.0 );
 ConVar tf_mvm_buybacks_per_wave( "tf_mvm_buybacks_per_wave", "3", FCVAR_REPLICATED | FCVAR_HIDDEN, "The fixed number of buybacks players can use per-wave." );
 
+ConVar tf_splash_fix( "tf_splash_fix", "1", FCVAR_PROTECTED, "Fixes a bug where splash damage could go through walls. Rockets may still visually disapear and may not deal any damage in rare cases." );
 
 #ifdef GAME_DLL
 enum { kMVM_CurrencyPackMinSize = 1, };
@@ -5822,8 +5823,9 @@ int CTFRadiusDamageInfo::ApplyToEntity( CBaseEntity *pEntity )
 		UTIL_TraceLine( vecSrc, vecSpot, MASK_RADIUS_DAMAGE, &filterSelf, &tr );
 	}
 
-	// If we don't trace the whole way to the target, and we didn't hit the target entity, we're blocked
-	if ( tr.fraction != 1.f && tr.m_pEnt != pEntity )
+	// If we don't trace the whole way to the target, and we didn't hit the target entity, we're blocked.
+	// Startsolid check since if a trace starts within a wall, often it will give fraction as 1.0
+	if ( ( tr.fraction != 1.f && tr.m_pEnt != pEntity ) || ( tf_splash_fix.GetBool( ) && tr.startsolid && tr.m_pEnt != pEntity ) )
 	{
 		// Don't let projectiles block damage
 		return 0;
