@@ -65,6 +65,8 @@ private:
 	bool			ShouldPenetrate() const;
 	const char*		GetTrailParticleName() const;
 
+	CNetworkVar( bool, m_bCritical );
+
 	Vector			m_vColor1;
 	Vector			m_vColor2;
 
