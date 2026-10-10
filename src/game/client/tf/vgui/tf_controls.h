@@ -192,6 +192,10 @@ private:
 	void SaveValues();
 
 	virtual void OnCommand( const char *command );
+
+	// Commits a 3D ping color field to its convar as you type.
+	MESSAGE_FUNC_PTR( OnPingColorTextChanged, "TextChanged", panel );
+
 	virtual void OnClose();
 	virtual void OnKeyCodeTyped(vgui::KeyCode code);
 	virtual void OnKeyCodePressed(vgui::KeyCode code);

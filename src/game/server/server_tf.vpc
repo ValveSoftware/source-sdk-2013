@@ -992,6 +992,13 @@ $Project "Server (TF)"
 				$File	"$SRCDIR\game\shared\tf\tf_progression_description_comp.h"
 				$File	"$SRCDIR\game\shared\tf\tf_progression_description_comp.cpp"
 			}
+
+			$Folder	"3DPing"
+			{
+				$File	"tf\tf_3dping.cpp"
+				$File	"tf\tf_3dping.h"
+				$File	"$SRCDIR\game\shared\tf\tf_3dping_shared.h"
+			}
 		}
 
 		$Folder "NextBot"
