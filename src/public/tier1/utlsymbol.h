@@ -105,7 +105,7 @@ public:
 	
 	inline bool HasElement( const char* pStr ) const
 	{
-		return Find( pStr ) != UTL_INVAL_SYMBOL;
+		return Find( pStr ) != CUtlSymbol(UTL_INVAL_SYMBOL);
 	}
 
 	// Remove all symbols in the table.
