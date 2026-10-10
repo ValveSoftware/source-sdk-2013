@@ -17,6 +17,7 @@
 #include "vgui_controls/Label.h"
 #include "vgui_controls/Button.h"
 #include "econ_item_system.h"
+#include "econ_paintkit.h"
 #include "ienginevgui.h"
 #include "VGuiMatSurface/IMatSystemSurface.h"
 #include "renderparm.h"
@@ -408,6 +409,52 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 					}
 				}
 
+				int iTeam = GetLocalPlayerTeam();
+
+				//if we have a team color selector panel, we want to use the color defined by that panel
+				CSchemaAttributeDefHandle pAttrTeamColoredPaintkit("has team color paintkit");
+				uint32 iHasTeamColoredPaintkit = 0;
+				bool bShowTeamButton = m_pItem && FindAttribute_UnsafeBitwiseCast<attrib_value_t>(m_pItem, pAttrTeamColoredPaintkit, &iHasTeamColoredPaintkit) && iHasTeamColoredPaintkit > 0;
+				if (!bShowTeamButton) {
+					uint32 unPaintKitIndex = 0;
+					bool bPaintkit = false;
+					bPaintkit = pItem && GetPaintKitDefIndex(pItem, &unPaintKitIndex);
+					if (bPaintkit)
+					{
+						const CPaintKitDefinition* pPaintKitDef = GetProtoScriptObjDefManager()->GetTypedDefinition< CPaintKitDefinition >(unPaintKitIndex);
+						bShowTeamButton |= pPaintKitDef && pPaintKitDef->BHasTeamTextures();
+					}
+				}
+				if (bShowTeamButton) {
+					iTeam = m_pItem->GetTeamNumber();
+				}
+
+#ifdef TF_CLIENT_DLL
+				// If we aren't in a game we default to previewing the red team skin.
+				if (iTeam == TEAM_UNASSIGNED)
+				{
+					iTeam = TF_TEAM_RED;
+				}
+#endif // TF_CLIENT_DLL
+
+				int iSkin = iTeam;
+
+				if (iSkin != TEAM_UNASSIGNED)
+				{
+					// Use the first skin for the first team, and the second skin for the other (but default to 0)
+					iSkin = (iSkin == (FIRST_GAME_TEAM + 1)) ? 1 : 0;
+				}
+
+				// Handle styles/visuals overriding the skin.
+				int iOverrideSkin = m_pItem->GetSkin(iTeam);
+				if (iOverrideSkin != -1)
+				{
+					iSkin = iOverrideSkin;
+				}
+
+				SetSkin(iSkin);
+				m_ItemModel.m_MDL.m_nSkin = iSkin;
+
 				// Attach Models
 				// Attach the models for the item
 				{
@@ -475,6 +522,7 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 							hStatTrackMDL = MDLHANDLE_INVALID;
 						}
 						m_StatTrackModel.m_MDL.SetMDL( hStatTrackMDL );
+						m_StatTrackModel.m_MDL.m_nSkin = m_ItemModel.m_MDL.m_nSkin;
 						mdlcache->Release( hStatTrackMDL ); // counterbalance addref from within FindMDL
 
 						m_StatTrackModel.m_MDL.m_pProxyData = static_cast<IClientRenderable*>(pItem);
@@ -482,37 +530,6 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 						m_StatTrackModel.m_MDL.m_nSequence = ACT_IDLE;
 						SetIdentityMatrix( m_StatTrackModel.m_MDLToWorld );
 					}
-				}
-
-				int iTeam = GetLocalPlayerTeam(),
-					iSkin = iTeam;
-
-#ifdef TF_CLIENT_DLL
-				// If we aren't in a game we default to previewing the red team skin.
-				if ( iTeam == TEAM_UNASSIGNED )
-				{
-					iTeam = TF_TEAM_RED;
-				}
-#endif // TF_CLIENT_DLL
-
-				if ( iSkin != TEAM_UNASSIGNED )
-				{
-					// Use the first skin for the first team, and the second skin for the other (but default to 0)
-					iSkin = (iSkin == (FIRST_GAME_TEAM+1)) ? 1 : 0;
-				}
-
-				// Handle styles/visuals overriding the skin.
-				int iOverrideSkin = m_pItem->GetSkin( iTeam );
-				if ( iOverrideSkin != -1 )
-				{
-					iSkin = iOverrideSkin;
-				}
-					
-				SetSkin( iSkin );
-
-				if ( m_bUsePedestal )
-				{
-					m_ItemModel.m_MDL.m_nSkin = iSkin;
 				}
 			}
 		}
@@ -537,6 +554,7 @@ void CEmbeddedItemModelPanel::LoadAttachedModel( attachedmodel_t *pModel )
 		hMDL = MDLHANDLE_INVALID;
 	}
 	m_AttachedModels[iIndex].m_MDL.SetMDL( hMDL );
+	m_AttachedModels[iIndex].m_MDL.m_nSkin = m_ItemModel.m_MDL.m_nSkin;
 	mdlcache->Release( hMDL ); // counterbalance addref from within FindMDL
 
 	m_AttachedModels[iIndex].m_MDL.m_pProxyData = static_cast<IClientRenderable*>( m_pItem );
