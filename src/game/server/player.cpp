@@ -652,6 +652,8 @@ CBasePlayer::CBasePlayer( )
 	m_nMovementTicksForUserCmdProcessingRemaining = 0;
 
 	m_flLastObjectiveTime = -1.f;
+
+	SetTimeBase( gpGlobals->curtime );
 }
 
 CBasePlayer::~CBasePlayer( )
