@@ -1008,6 +1008,17 @@ void CInput::ExtraMouseSample( float frametime, bool active )
 
 	cmd->Reset();
 
+	// Snapshot movement key state to prevent ExtraMouseSample() from
+	// consuming impulse-down bits that should be processed by CreateMove().
+	// This fixes FPS-dependent first-tick acceleration behavior.
+	// Ref: ValveSoftware/Source-1-Games#8045
+	kbutton_t saved_forward = in_forward;
+	kbutton_t saved_back = in_back;
+	kbutton_t saved_moveleft = in_moveleft;
+	kbutton_t saved_moveright = in_moveright;
+	kbutton_t saved_up = in_up;
+	kbutton_t saved_down = in_down;
+
 
 	QAngle viewangles;
 	engine->GetViewAngles( viewangles );
@@ -1106,6 +1117,14 @@ void CInput::ExtraMouseSample( float frametime, bool active )
 		}
 	}
 
+	// Undo side effects on kbutton_t state so that
+	// CreateMove() receives the correct impulse transitions.
+	in_forward = saved_forward;
+	in_back = saved_back;
+	in_moveleft = saved_moveleft;
+	in_moveright = saved_moveright;
+	in_up = saved_up;
+	in_down = saved_down;
 }
 
 void CInput::CreateMove ( int sequence_number, float input_sample_frametime, bool active )
