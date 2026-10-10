@@ -531,7 +531,7 @@ void CTFStreamManager::UpdateTwitchTvAccounts()
 	//
 	// If we ever end up using this we'll need to update to the most recent API. v3 of the API (which we were using for this)
 	// is being shut down. It's not currently being used so I'm just going to comment it out for now.
-	//m_hHTTPRequestHandleTwitchTv = steamapicontext->SteamHTTP()->CreateHTTPRequest( k_EHTTPMethodGET, CFmtStr( "http://api.twitch.tv/api/steam/%llu", m_pLoadingAccount->m_uiSteamID ) );
+	//m_hHTTPRequestHandleTwitchTv = steamapicontext->SteamHTTP()->CreateHTTPRequest( k_EHTTPMethodGET, CFmtStr( "https://api.twitch.tv/api/steam/%llu", m_pLoadingAccount->m_uiSteamID ) );
 	//steamapicontext->SteamHTTP()->SetHTTPRequestHeaderValue( m_hHTTPRequestHandleTwitchTv, "Accept", cl_streams_request_accept.GetString() );
 	DevMsg( "Requesting twitch.tv account link...\n" );
 

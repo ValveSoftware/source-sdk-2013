@@ -253,11 +253,11 @@ private:
 
 	virtual JobStatus_t	DoExecute()
 	{
-		HTTPRequestHandle hRequest = GetISteamHTTP()->CreateHTTPRequest( k_EHTTPMethodGET, "http://gdata.youtube.com/feeds/api/users/default" );
+		HTTPRequestHandle hRequest = GetISteamHTTP()->CreateHTTPRequest( k_EHTTPMethodGET, "https://gdata.youtube.com/feeds/api/users/default" );
 		GetISteamHTTP()->SetHTTPRequestNetworkActivityTimeout( hRequest, 30 );
 		GetISteamHTTP()->SetHTTPRequestHeaderValue( hRequest, "Authorization", CFmtStr1024( "GoogleLogin auth=%s", gYouTube.GetAuthToken() ) );
 
-		DoRequest( hRequest, "http://gdata.youtube.com/feeds/api/users/default" );
+		DoRequest( hRequest, "https://gdata.youtube.com/feeds/api/users/default" );
 
 		return JOB_OK;
 	}
@@ -440,7 +440,7 @@ private:
 	{
 		m_bAllowRequestFailure = true;
 
-		HTTPRequestHandle hRequest = GetISteamHTTP()->CreateHTTPRequest( k_EHTTPMethodPUT, "http://uploads.gdata.youtube.com/feeds/api/users/default/uploads" );
+		HTTPRequestHandle hRequest = GetISteamHTTP()->CreateHTTPRequest( k_EHTTPMethodPUT, "https://uploads.gdata.youtube.com/feeds/api/users/default/uploads" );
 		GetISteamHTTP()->SetHTTPRequestNetworkActivityTimeout( hRequest, 30 );
 
 		const char *pFileName = Q_UnqualifiedFileName( m_strFilePath.Get() );
@@ -520,7 +520,7 @@ private:
 			GetISteamHTTP()->SetHTTPRequestRawPostBody( hRequest, "multipart/form-data;boundary=-x", (uint8 *)postDataRaw.Base(), postDataRaw.TellPut() );
 
 			// BUGBUG: use SendHTTPRequestAndStreamResponse
-			DoRequest( hRequest, "http://uploads.gdata.youtube.com/feeds/api/users/default/uploads" );
+			DoRequest( hRequest, "https://uploads.gdata.youtube.com/feeds/api/users/default/uploads" );
 		}	
 
 		return JOB_OK;
@@ -823,7 +823,7 @@ bool CYouTubeSystem::GetProfileURL( CUtlString &strProfileURL ) const
 {
 	if ( m_eLoginStatus == kYouTubeLogin_LoggedIn )
 	{
-		strProfileURL = CFmtStr1024( "http://www.youtube.com/profile?user=%s", m_strYouTubeUserName.Get() );
+		strProfileURL = CFmtStr1024( "https://www.youtube.com/profile?user=%s", m_strYouTubeUserName.Get() );
 		return true;
 	}
 	return false;

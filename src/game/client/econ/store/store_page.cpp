@@ -1232,7 +1232,7 @@ void CStorePage::OnCommand( const char *command )
 	{
 		if ( steamapicontext && steamapicontext->SteamFriends() )
 		{
-			steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( "http://steamcommunity.com/market/search?appid=440" );
+			steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( "https://steamcommunity.com/market/search?appid=440" );
 		}
 		return;
 	}
