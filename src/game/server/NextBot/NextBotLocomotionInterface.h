@@ -7,17 +7,11 @@
 #define _NEXT_BOT_LOCOMOTION_INTERFACE_H_
 
 #include "NextBotComponentInterface.h"
-#ifdef TF_DLL
-#include "tf/nav_mesh/tf_nav_area.h"
+
+#ifdef USE_NAV_MESH
+#include "nav_area.h"
 #else
-class CTFNavArea;
-
 inline HSCRIPT ToHScript( CNavArea *pArea )
-{
-	return NULL;
-}
-
-inline HSCRIPT ToHScript( CTFNavArea *pArea )
 {
 	return NULL;
 }
