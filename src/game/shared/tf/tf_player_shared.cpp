@@ -753,6 +753,16 @@ bool CTFPlayer::IsAllowedToTaunt( void )
 		}
 	}
 
+	if ( IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
+	{
+		if ( pActiveWeapon && pActiveWeapon->GetWeaponID() == TF_WEAPON_LUNCHBOX ) 
+		{
+			// Prevents bypassing the cooldown by holding primary fire and taunting
+			if ( !pActiveWeapon->HasAmmo() )
+				return false;
+		}
+	}
+
 	if ( IsPlayerClass( TF_CLASS_SPY ) )
 	{
 		if ( m_Shared.IsStealthed() || m_Shared.InCond( TF_COND_STEALTHED_BLINK ) || 
