@@ -131,6 +131,7 @@ public:
 	virtual void	OnDecapitation( CTFPlayer *pDeadPlayer );
 
 	virtual int		GetActivityWeaponRole() const OVERRIDE;
+	virtual Activity	TranslateViewmodelHandActivityInternal(Activity actBase);
 
 protected:
 	virtual int		GetSkinOverride() const;
