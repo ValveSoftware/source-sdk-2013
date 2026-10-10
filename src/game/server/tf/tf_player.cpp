@@ -2877,27 +2877,16 @@ void CTFPlayer::PrecachePlayerModels( void )
 		}
 */
 	}
-	
-	// Always precache the silly gibs.
-	for ( i = 4; i < ARRAYSIZE( g_pszBDayGibs ); ++i )
+
+	// Precache birthday & silly gibs
+	for ( i = 0; i < ARRAYSIZE( g_pszBDayGibs ); ++i )
 	{
 		PrecacheModel( g_pszBDayGibs[i] );
 	}
 
-	if ( TFGameRules() && TFGameRules()->IsBirthday() )
-	{
-		for ( i = 0; i < 4/*ARRAYSIZE(g_pszBDayGibs)*/; i++ )
-		{
-			PrecacheModel( g_pszBDayGibs[i] );
-		}
-		PrecacheModel( "models/effects/bday_hat.mdl" );
-	}
-	if ( TFGameRules() && TFGameRules()->IsHolidayActive( kHoliday_Halloween ) )
-	{
-		PrecacheModel( "models/props_halloween/halloween_gift.mdl" );
-		PrecacheModel( "models/props_halloween/ghost_no_hat.mdl" );
-		PrecacheModel( "models/props_halloween/ghost_no_hat_red.mdl" );
-	}
+	// Precache ghost models (for TF_COND_HALLOWEEN_GHOST_MODE)
+	PrecacheModel( "models/props_halloween/ghost_no_hat.mdl" );
+	PrecacheModel( "models/props_halloween/ghost_no_hat_red.mdl" );
 
 	// Precache player class sounds
 	for ( i = TF_FIRST_NORMAL_CLASS; i < TF_CLASS_COUNT_ALL; ++i )
@@ -2910,15 +2899,12 @@ void CTFPlayer::PrecachePlayerModels( void )
 		}
 	}
 
-
 	COMPILE_TIME_ASSERT( TF_CALLING_CARD_MODEL_COUNT == ARRAYSIZE( g_pszDeathCallingCardModels ) );
-	// Precache, Deliberatly skipping zero
+	// Precache, deliberately skipping zero
 	for ( i = 1; i < TF_CALLING_CARD_MODEL_COUNT; i++ )		
 	{
 		PrecacheModel( g_pszDeathCallingCardModels[i] );
 	}
-
-	
 }
 
 //-----------------------------------------------------------------------------
