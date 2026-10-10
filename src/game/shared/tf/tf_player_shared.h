@@ -540,6 +540,8 @@ public:
 	bool    IsAirDashing( void ) const		{ return (m_iAirDash > 0); }
 	int		GetAirDash( void ) const		{ return m_iAirDash; }
 	void    SetAirDash( int iAirDash );
+	float	GetLastOnGroundTime( void ) const	{ return m_flLastOnGroundTime; }
+	void	SetLastOnGroundTime( float flTime )	{ m_flLastOnGroundTime = flTime; }
 	void	SetAirDucked( int nAirDucked )	{ m_nAirDucked = nAirDucked; }
 	int		AirDuckedCount( void )			{ return m_nAirDucked; }
 	void	SetDuckTimer( float flTime )	{ m_flDuckTimer = flTime; }
@@ -1113,6 +1115,8 @@ private:
 	CNetworkVar( int,  m_iAirDash );
 	CNetworkVar( int, m_nAirDucked );
 	CNetworkVar( float, m_flDuckTimer );
+
+	float	m_flLastOnGroundTime; // Coyote time: last time ground was confirmed
 
 	CNetworkVar( float, m_flStealthNoAttackExpire );
 	CNetworkVar( float, m_flStealthNextChangeTime );
