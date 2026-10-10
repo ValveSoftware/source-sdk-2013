@@ -26,6 +26,7 @@
 // TF Syringe Projectile functions (Server specific).
 //
 #define SYRINGE_MODEL				"models/weapons/w_models/w_syringe_proj.mdl"
+#define SYRINGE_LEECH_MODEL			"models/weapons/c_models/c_leechgun/c_leech_proj.mdl"
 #define SYRINGE_DISPATCH_EFFECT		"ClientProjectile_Syringe"
 
 LINK_ENTITY_TO_CLASS( tf_projectile_syringe, CTFProjectile_Syringe );
@@ -43,8 +44,29 @@ PRECACHE_REGISTER_FN(PrecacheSyringe);
 //-----------------------------------------------------------------------------
 // CTFProjectile_Syringe
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 #define SYRINGE_GRAVITY		0.3f
 #define SYRINGE_VELOCITY	1000.0f
+
+//-----------------------------------------------------------------------------
+// Purpose: Model path comes from the launcher's "custom projectile model"
+// attribute; falls back to the stock syringe.
+//-----------------------------------------------------------------------------
+static const char *GetSyringeModelPath( CBaseEntity *pLauncher, CAttribute_String &attrModel )
+{
+	static CSchemaAttributeDefHandle pAttrDef_CustomModel( "custom projectile model" );
+	CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( pLauncher );
+	if ( pWeapon && pAttrDef_CustomModel && pWeapon->GetAttributeContainer() )
+	{
+		CEconItemView *pItem = pWeapon->GetAttributeContainer()->GetItem();
+		if ( pItem && pItem->FindAttribute( pAttrDef_CustomModel, &attrModel ) && !attrModel.value().empty() )
+			return attrModel.value().c_str();
+	}
+	return SYRINGE_MODEL;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
 CTFBaseProjectile *CTFProjectile_Syringe::Create( 
@@ -55,8 +77,34 @@ CTFBaseProjectile *CTFProjectile_Syringe::Create(
 	CBaseEntity *pScorer /*= NULL*/, 
 	bool bCritical /*= false */
 ) {
-	return CTFBaseProjectile::Create( "tf_projectile_syringe", vecOrigin, vecAngles, pOwner, SYRINGE_VELOCITY, g_sModelIndexSyringe, SYRINGE_DISPATCH_EFFECT, pScorer, bCritical );
+	// The client branch of the base Create uses this index for the shooter's own predicted syringe.
+	CAttribute_String attrModel;
+	int nModelIndex = modelinfo->GetModelIndex( GetSyringeModelPath( pLauncher, attrModel ) );
+
+	return CTFBaseProjectile::Create( "tf_projectile_syringe", vecOrigin, vecAngles, pOwner, SYRINGE_VELOCITY, nModelIndex, SYRINGE_DISPATCH_EFFECT, pScorer, bCritical, vec3_origin, vec3_origin, pLauncher );
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: Model for the server entity. The launcher is set before Spawn().
+//-----------------------------------------------------------------------------
+const char *CTFProjectile_Syringe::GetProjectileModelName( void )
+{
+#ifdef GAME_DLL
+	CAttribute_String attrModel;
+	return STRING( AllocPooledString( GetSyringeModelPath( GetLauncher(), attrModel ) ) );
+#else
+	return SYRINGE_MODEL;
+#endif
+}
+
+#ifdef GAME_DLL
+void CTFProjectile_Syringe::Precache( void )
+{
+	PrecacheModel( SYRINGE_MODEL );
+	PrecacheModel( SYRINGE_LEECH_MODEL ); // keep in sync with the schema attribute value
+	BaseClass::Precache();
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -116,7 +164,7 @@ void GetSyringeTrailParticleName( CTFPlayer *pPlayer, CAttribute_String *attrPar
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: For Synrgine Projectiles, Add effects
+// Purpose: For Syringe Projectiles, Add effects
 //-----------------------------------------------------------------------------
 void ClientsideProjectileSyringeCallback( const CEffectData &data )
 {
