@@ -5866,13 +5866,14 @@ void C_BaseEntity::EstimateAbsVelocity( Vector& vel )
 void C_BaseEntity::Interp_Reset( VarMapping_t *map )
 {
 	PREDICTION_TRACKVALUECHANGESCOPE_ENTITY( this, "reset" );
+	const bool bUpdateLastNetworkedValue = !GetPredictable();
 	int c = map->m_Entries.Count();
 	for ( int i = 0; i < c; i++ )
 	{
 		VarMapEntry_t *e = &map->m_Entries[ i ];
 		IInterpolatedVar *watcher = e->watcher;
 
-		watcher->Reset();
+		watcher->Reset( bUpdateLastNetworkedValue );
 	}
 }
 
