@@ -637,6 +637,22 @@ void CHudUpgradePanel::OnTick( void )
 	}
 }
 
+void CHudUpgradePanel::LevelShutdown(void)
+{
+	m_bShowUpgradeMenu = false;
+	m_bCancelUpgrades = false;
+	m_bOpenLoadout = false;
+	m_bInspectMode = false;
+	m_bWasInZone = false;
+	m_hPlayer = NULL;
+
+	vgui::ivgui()->RemoveTickSignal(GetVPanel());
+
+	SetVisible(false);
+
+	CHudElement::SetActive(false);
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
