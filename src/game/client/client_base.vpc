@@ -235,6 +235,7 @@ $Project
 		$File	"c_dynamiclight.cpp"
 		$File	"c_entitydissolve.cpp"
 		$File	"c_entityparticletrail.cpp"
+		$File	"c_env_entity_glow.cpp"
 		$File	"c_env_fog_controller.cpp"
 		$File	"c_env_particlescript.cpp"
 		$File	"c_env_projectedtexture.cpp"

@@ -52,6 +52,8 @@ public:
 	virtual void Precache();
 	virtual void SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways );
 
+	virtual int UpdateTransmitState() OVERRIDE;
+
 	virtual int	 Restore( IRestore &restore );
 	virtual void OnRestore();
 
@@ -368,6 +370,20 @@ private:
 
 	bool CanSkipAnimation( void );
 
+#ifdef GLOWS_ENABLE
+	void InputEnableGlow( inputdata_t &inputdata );
+	void InputDisableGlow( inputdata_t &inputdata );
+	void InputSetGlowColor( inputdata_t &inputdata );
+	void InputSetGlowMode( inputdata_t &inputdata );
+	void InputSetGlowStyle( inputdata_t &inputdata );
+
+public:
+	void ToggleGlow( bool bToggle );
+	void SetGlowColor( int r, int g, int b, int a );
+	void SetGlowMode( int iMode );
+	void SetGlowStyle( int iStyle );
+#endif
+
 public:
 	void ScriptSetModel( const char *pszModel );
 
@@ -440,6 +456,13 @@ protected:
 	CNetworkVar( float, m_fadeMinDist );	// Point at which fading is absolute
 	CNetworkVar( float, m_fadeMaxDist );	// Point at which fading is inactive
 	CNetworkVar( float, m_flFadeScale );	// Scale applied to min / max
+
+#ifdef GLOWS_ENABLE
+	CNetworkVar( bool, m_bGlowEnabled );
+	CNetworkColor32( m_glowColor );
+	CNetworkVar( int, m_iGlowMode );
+	CNetworkVar( int, m_iGlowStyle );
+#endif
 
 public:
 	COutputEvent m_OnIgnite;
