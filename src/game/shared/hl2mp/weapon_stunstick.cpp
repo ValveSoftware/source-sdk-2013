@@ -175,8 +175,6 @@ IMPLEMENT_ACTTABLE(CWeaponStunStick);
 //-----------------------------------------------------------------------------
 CWeaponStunStick::CWeaponStunStick( void )
 {
-	// HACK:  Don't call SetStunState because this tried to Emit a sound before
-	//  any players are connected which is a bug
 	m_bActive = false;
 
 #ifdef CLIENT_DLL
@@ -433,12 +431,22 @@ void CWeaponStunStick::SetStunState( bool state )
 		g_pEffects->Sparks( vecAttachment );
 
 		//FIXME: END - Move to client-side
-
-		EmitSound( "Weapon_StunStick.Activate" );
 	}
-	else
+
+#ifdef CLIENT_DLL
+	// Workaround to prevent sounds from playing on other players when they leave PVS.
+	if ( GetPredictable() )
+#endif
 	{
-		EmitSound( "Weapon_StunStick.Deactivate" );
+		CBaseEntity *pEntity = GetOwner() != NULL ? GetOwnerEntity() : this;
+		const char *sound = m_bActive ? "Weapon_StunStick.Activate" : "Weapon_StunStick.Deactivate";
+
+		CPASAttenuationFilter filter( pEntity, sound );
+
+		if ( IsPredicted() && CBaseEntity::GetPredictionPlayer() )
+			filter.UsePredictionRules();
+
+		EmitSound( filter, pEntity->entindex(), sound );
 	}
 }
 
