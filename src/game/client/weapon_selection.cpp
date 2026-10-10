@@ -265,7 +265,7 @@ int	CBaseHudWeaponSelection::KeyInput( int down, ButtonCode_t keynum, const char
 		return 0;
 	}
 
-	if ( down >= 1 && keynum >= KEY_1 && keynum <= KEY_9 )
+	if ( down >= 1 && keynum >= KEY_0 && keynum <= KEY_9 )
 	{
 		if ( HandleHudMenuInput( keynum - KEY_0 ) )
 			return 0;
@@ -301,7 +301,7 @@ void CBaseHudWeaponSelection::UserCmd_Slot1(void)
 		nFastswitchMode = HUDTYPE_FASTSWITCH;
 	}
 
-	if( HUDTYPE_CAROUSEL == nFastswitchMode )
+	if( HUDTYPE_CAROUSEL == nFastswitchMode && !IsHudMenuTakingInput() )
 	{
 		UserCmd_LastWeapon();
 	}
@@ -319,7 +319,7 @@ void CBaseHudWeaponSelection::UserCmd_Slot2(void)
 		nFastswitchMode = HUDTYPE_FASTSWITCH;
 	}
 
-	if( HUDTYPE_CAROUSEL == nFastswitchMode )
+	if( HUDTYPE_CAROUSEL == nFastswitchMode && !IsHudMenuTakingInput() )
 	{
 		UserCmd_NextWeapon();
 	}
@@ -337,7 +337,7 @@ void CBaseHudWeaponSelection::UserCmd_Slot3(void)
 		nFastswitchMode = HUDTYPE_FASTSWITCH;
 	}
 
-	if( HUDTYPE_CAROUSEL == nFastswitchMode )
+	if( HUDTYPE_CAROUSEL == nFastswitchMode && !IsHudMenuTakingInput() )
 	{
 		engine->ClientCmd( "phys_swap" );
 	}
@@ -355,7 +355,7 @@ void CBaseHudWeaponSelection::UserCmd_Slot4(void)
 		nFastswitchMode = HUDTYPE_FASTSWITCH;
 	}
 
-	if( HUDTYPE_CAROUSEL == nFastswitchMode )
+	if( HUDTYPE_CAROUSEL == nFastswitchMode && !IsHudMenuTakingInput() )
 	{
 		UserCmd_PrevWeapon();
 	}
@@ -406,7 +406,7 @@ void CBaseHudWeaponSelection::UserCmd_Slot10(void)
 bool CBaseHudWeaponSelection::IsHudMenuTakingInput()
 {
 	CHudMenu *pHudMenu = GET_HUDELEMENT( CHudMenu );
-	return ( pHudMenu && pHudMenu->IsMenuOpen() );
+	return ( pHudMenu && pHudMenu->IsTakingInput() );
 }
 
 //-----------------------------------------------------------------------------
@@ -415,7 +415,7 @@ bool CBaseHudWeaponSelection::IsHudMenuTakingInput()
 bool CBaseHudWeaponSelection::HandleHudMenuInput( int iSlot )
 {
 	CHudMenu *pHudMenu = GET_HUDELEMENT( CHudMenu );
-	if ( !pHudMenu || !pHudMenu->IsMenuOpen() )
+	if ( !pHudMenu || !pHudMenu->IsTakingInput() )
 		return false;
 
 	pHudMenu->SelectMenuItem( iSlot );
