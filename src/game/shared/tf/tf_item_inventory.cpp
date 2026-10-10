@@ -195,6 +195,58 @@ bool AreSlotsConsideredIdentical( EEquipType_t eEquipType, int iBaseSlot, int iT
 	return iBaseSlot == iTestSlot;
 }
 
+bool IsMedalItem( const CTFItemDefinition *pItemDef, int iClass )
+{
+	if ( !pItemDef || pItemDef->GetEquipType() != EQUIP_TYPE_CLASS || pItemDef->GetLoadoutSlot( iClass ) != LOADOUT_POSITION_MISC )
+		return false;
+
+	if ( pItemDef->GetDefinitionIndex() == 5075 && pItemDef->GetItemClass() && !V_strcmp( pItemDef->GetItemClass(), "tf_wearable" ) )
+		return true;
+
+	if ( !( pItemDef->GetEquipRegionMask() & GetItemSchema()->GetEquipRegionBitMaskByName( "medal" ) ) )
+		return false;
+
+	const char *pszType = pItemDef->GetItemTypeName();
+	if ( !pszType )
+		return false;
+
+	static const char * const pszMedalTypes[] =
+	{
+		"#TF_Wearable_Medal",
+		"#TF_Wearable_Badge",
+		"#TF_Wearable_TournamentMedal",
+		"#TF_Wearable_CommunityMedal",
+		"#TF_Wearable_MapperMedal",
+		"#TF_Wearable_Medallion",
+		"#TF_Wearable_Pin",
+	};
+
+	for ( int i = 0; i < ARRAYSIZE( pszMedalTypes ); ++i )
+	{
+		if ( !V_strcmp( pszType, pszMedalTypes[i] ) )
+			return true;
+	}
+
+	return false;
+}
+
+bool CanEquipItemInSlot( const CTFItemDefinition *pItemDef, int iClass, int iSlot )
+{
+	if ( AreSlotsConsideredIdentical( pItemDef->GetEquipType(), pItemDef->GetLoadoutSlot( iClass ), iSlot ) )
+		return true;
+
+	return iSlot == LOADOUT_POSITION_ACTION && IsMedalItem( pItemDef, iClass );
+}
+
+int GetEffectiveLoadoutSlot( const CEconItemView *pItem, int iClass )
+{
+	const CTFItemDefinition *pItemDef = pItem->GetStaticData();
+	if ( pItem->GetEquippedPositionForClass( iClass ) == LOADOUT_POSITION_ACTION && IsMedalItem( pItemDef, iClass ) )
+		return LOADOUT_POSITION_ACTION;
+
+	return pItemDef->GetLoadoutSlot( iClass );
+}
+
 //-----------------------------------------------------------------------------
 CTFInventoryManager g_TFInventoryManager;
 CInventoryManager *InventoryManager( void )
@@ -271,7 +323,7 @@ bool CTFInventoryManager::EquipItemInLoadout( int iClass, int iSlot, itemid_t iI
 
 	// We check for validity on the GC when we equip items, but we can't really trust anyone
 	// and so we check here as well.
-	if ( !AreSlotsConsideredIdentical( pItem->GetStaticData()->GetEquipType(), pItem->GetStaticData()->GetLoadoutSlot(iClass), iSlot ) )
+	if ( !CanEquipItemInSlot( pItem->GetStaticData(), iClass, iSlot ) )
 	{
 		return false;
 	}
@@ -319,7 +371,7 @@ int	CTFInventoryManager::GetAllUsableItemsForSlot( int iClass, int iSlot, CUtlVe
 			continue;
 
 		// Passing in iSlot of -1 finds all items usable by the class
-		if ( iSlot >= 0 && pItem->GetStaticData()->GetLoadoutSlot( iClass ) != iSlot )
+		if ( iSlot >= 0 && pItemData->GetLoadoutSlot( iClass ) != iSlot && !( iSlot == LOADOUT_POSITION_ACTION && IsMedalItem( pItemData, iClass ) ) )
 			continue;
 
 		// Ignore unpack'd items
@@ -1062,6 +1114,23 @@ void CTFPlayerInventory::EquipLocal(uint64 ulItemID, equipped_class_t unClass, e
 		pItem->GetSOCData()->Equip(unClass, unSlot);
 	}
 
+	for ( int iSlot = 0; iSlot < CLASS_LOADOUT_POSITION_COUNT; ++iSlot )
+	{
+		if ( iSlot == unSlot || ulItemID == INVALID_ITEM_ID )
+			continue;
+
+		if ( m_LoadoutItems[unClass][iSlot] == ulItemID )
+		{
+			m_LoadoutItems[unClass][iSlot] = LOADOUT_SLOT_USE_BASE_ITEM;
+		}
+#ifdef CLIENT_DLL
+		if ( m_PresetItems[m_ActivePreset[unClass]][unClass][iSlot] == ulItemID )
+		{
+			m_PresetItems[m_ActivePreset[unClass]][unClass][iSlot] = LOADOUT_SLOT_USE_BASE_ITEM;
+		}
+#endif
+	}
+
 	m_LoadoutItems[unClass][unSlot] = ulItemID;
 
 #ifdef CLIENT_DLL
@@ -1461,7 +1530,7 @@ CEconItemView *CTFPlayerInventory::GetItemInLoadout( int iClass, int iSlot )
 
 			// To protect against users lying to the backend about the position of their items,
 			// we need to validate their position on the server when we retrieve them.
-			if ( pItem && AreSlotsConsideredIdentical( pItem->GetStaticData()->GetEquipType(), pItem->GetStaticData()->GetLoadoutSlot( iClass ), iSlot ) )
+			if ( pItem && CanEquipItemInSlot( pItem->GetStaticData(), iClass, iSlot ) )
 				return pItem;
 		}
 	}
@@ -1484,7 +1553,7 @@ CEconItemView *CTFPlayerInventory::GetCacheServerItemInLoadout( int iClass, int 
 
 		// To protect against users lying to the backend about the position of their items,
 		// we need to validate their position on the server when we retrieve them.
-		if ( pItem && AreSlotsConsideredIdentical( pItem->GetStaticData()->GetEquipType(), pItem->GetStaticData()->GetLoadoutSlot( iClass ), iSlot ) )
+		if ( pItem && CanEquipItemInSlot( pItem->GetStaticData(), iClass, iSlot ) )
 			return pItem;
 	}
 

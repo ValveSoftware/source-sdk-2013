@@ -5304,7 +5304,7 @@ void CTFPlayer::ValidateWearables( TFPlayerClassData_t *pData )
 				{
 					for ( int i = LOADOUT_POSITION_INVALID + 1; i < CLASS_LOADOUT_POSITION_COUNT; i++ )
 					{
-						if ( ( bLoadoutMisc && IsMiscSlot( i ) ) || ( bLoadoutTaunt && IsTauntSlot( i ) ) )
+						if ( CanEquipItemInSlot( pWearable->GetAttributeContainer()->GetItem()->GetStaticData(), GetPlayerClass()->GetClassIndex(), i ) )
 						{
 							pItem = TFInventoryManager()->GetItemInLoadoutForClass( GetPlayerClass()->GetClassIndex(), i, &steamIDForPlayer );
 							itemMatch |= ItemsMatch( pData, pWearable->GetAttributeContainer()->GetItem(), pItem );

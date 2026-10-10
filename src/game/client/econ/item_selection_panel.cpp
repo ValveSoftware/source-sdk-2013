@@ -1161,8 +1161,7 @@ const char *CEquipSlotItemSelectionPanel::GetItemNotSelectableReason( const CEco
 	if ( !pItemData->CanBeUsedByClass(m_iClass) )
 		return "#Econ_GreyOutReason_CannotBeUsedByThisClass";
 
-	extern bool AreSlotsConsideredIdentical( EEquipType_t eEquipType, int iBaseSlot, int iTestSlot );
-	if ( !AreSlotsConsideredIdentical( pItem->GetStaticData()->GetEquipType(), pItemData->GetLoadoutSlot(m_iClass), m_iSlot ) )
+	if ( !CanEquipItemInSlot( pItemData, m_iClass, m_iSlot ) )
 		return "#Econ_GreyOutReason_CannotBeUsedInThisSlot";
 
 	// Should we gray out this item? This will happen if we're coming from the loadout and we have equip region
