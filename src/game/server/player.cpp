@@ -95,6 +95,99 @@ ConVar	spec_freeze_traveltime( "spec_freeze_traveltime", "0.4", FCVAR_CHEAT | FC
 
 ConVar sv_bonus_challenge( "sv_bonus_challenge", "0", FCVAR_REPLICATED, "Set to values other than 0 to select a bonus map challenge type." );
 
+#ifdef HL2MP
+static bool ShouldReceivePlayerLocalData( CBasePlayer *pRecipient, CBasePlayer *pPlayer )
+{
+	if ( !pRecipient || !pPlayer || !pRecipient->IsConnected() )
+		return false;
+
+	if ( pRecipient == pPlayer || pRecipient->IsHLTV() || pRecipient->IsReplay() )
+		return true;
+
+	int iObserverMode = pRecipient->GetObserverMode();
+	return ( iObserverMode == OBS_MODE_IN_EYE || iObserverMode == OBS_MODE_CHASE ) &&
+		pRecipient->GetObserverTarget() == pPlayer;
+}
+
+static void AddPlayerHudSpectatorRecipients( CBasePlayer *pPlayer, CRecipientFilter &filter )
+{
+	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
+	{
+		CBasePlayer *pRecipient = UTIL_PlayerByIndex( i );
+		if ( pRecipient != pPlayer && ShouldReceivePlayerLocalData( pRecipient, pPlayer ) )
+			filter.AddRecipient( pRecipient );
+	}
+}
+
+void SetPlayerLocalDataRecipients( CBasePlayer *pPlayer, CSendProxyRecipients *pRecipients )
+{
+	pRecipients->ClearAllRecipients();
+
+	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
+	{
+		CBasePlayer *pRecipient = UTIL_PlayerByIndex( i );
+		if ( ShouldReceivePlayerLocalData( pRecipient, pPlayer ) )
+			pRecipients->SetRecipient( pRecipient->GetClientIndex() );
+	}
+}
+
+void* SendProxy_SendPlayerLocalDataTable( const SendProp *pProp, const void *pStruct, const void *pVarData, CSendProxyRecipients *pRecipients, int objectID )
+{
+	CBasePlayer *pPlayer = UTIL_PlayerByIndex( objectID );
+	if ( !pPlayer )
+		return NULL;
+
+	SetPlayerLocalDataRecipients( pPlayer, pRecipients );
+	return ( void * )pVarData;
+}
+
+REGISTER_SEND_PROXY_NON_MODIFIED_POINTER( SendProxy_SendPlayerLocalDataTable );
+#endif
+
+void SendPlayerHudItemPickup( CBasePlayer *pPlayer, const char *pszItemName )
+{
+	CSingleUserRecipientFilter owner( pPlayer );
+	owner.MakeReliable();
+	UserMessageBegin( owner, "ItemPickup" );
+		WRITE_STRING( pszItemName );
+	MessageEnd();
+
+#ifdef HL2MP
+	CRecipientFilter spectators;
+	AddPlayerHudSpectatorRecipients( pPlayer, spectators );
+	if ( spectators.GetRecipientCount() > 0 )
+	{
+		spectators.MakeReliable();
+		UserMessageBegin( spectators, "SpecItemPickup" );
+			WRITE_BYTE( pPlayer->entindex() );
+			WRITE_STRING( pszItemName );
+		MessageEnd();
+	}
+#endif
+}
+
+void SendPlayerHudAmmoDenied( CBasePlayer *pPlayer, int iAmmoType )
+{
+	CSingleUserRecipientFilter owner( pPlayer );
+	owner.MakeReliable();
+	UserMessageBegin( owner, "AmmoDenied" );
+		WRITE_SHORT( iAmmoType );
+	MessageEnd();
+
+#ifdef HL2MP
+	CRecipientFilter spectators;
+	AddPlayerHudSpectatorRecipients( pPlayer, spectators );
+	if ( spectators.GetRecipientCount() > 0 )
+	{
+		spectators.MakeReliable();
+		UserMessageBegin( spectators, "SpecAmmoDenied" );
+			WRITE_BYTE( pPlayer->entindex() );
+			WRITE_SHORT( iAmmoType );
+		MessageEnd();
+	}
+#endif
+}
+
 ConVar sv_chat_bucket_size_tier1( "sv_chat_bucket_size_tier1", "4", FCVAR_NONE, "The maximum size of the short term chat msg bucket." );
 ConVar sv_chat_seconds_per_msg_tier1( "sv_chat_seconds_per_msg_tier1", "3", FCVAR_NONE, "The number of seconds to accrue an additional short term chat msg." );
 ConVar sv_chat_bucket_size_tier2( "sv_chat_bucket_size_tier2", "30", FCVAR_NONE, "The maximum size of the long term chat msg bucket." );
@@ -6674,6 +6767,25 @@ bool CBasePlayer::ClientCommand( const CCommand &args )
 
 		return true;
 	}
+#ifdef HL2MP
+	else if ( stricmp( cmd, "spec_player_index" ) == 0 )
+	{
+		if ( GetObserverMode() > OBS_MODE_FIXED && args.ArgC() == 2 )
+		{
+			int iPlayerIndex = atoi( args[1] );
+			if ( iPlayerIndex >= 1 && iPlayerIndex <= gpGlobals->maxClients )
+			{
+				CBasePlayer *target = UTIL_PlayerByIndex( iPlayerIndex );
+				if ( IsValidObserverTarget( target ) )
+				{
+					SetObserverTarget( target );
+				}
+			}
+		}
+
+		return true;
+	}
+#endif
 	else if ( stricmp( cmd, "spec_player" ) == 0 ) // chase next player
 	{
 		if ( GetObserverMode() > OBS_MODE_FIXED && args.ArgC() == 2 )
@@ -8128,6 +8240,10 @@ void CMovementSpeedMod::InputSpeedMod(inputdata_t &data)
 		SendPropFloat		( SENDINFO(m_flFriction),		8,	SPROP_ROUNDDOWN,	0.0f,	4.0f),
 
 		SendPropArray3		( SENDINFO_ARRAY3(m_iAmmo), SendPropInt( SENDINFO_ARRAY(m_iAmmo), -1, SPROP_VARINT | SPROP_UNSIGNED ) ),
+
+#ifdef HL2MP
+		SendPropInt			( SENDINFO(m_ArmorValue), -1, SPROP_VARINT | SPROP_UNSIGNED ),
+#endif
 			
 		SendPropInt			( SENDINFO( m_fOnTarget ), 2, SPROP_UNSIGNED ),
 
@@ -8196,7 +8312,11 @@ void CMovementSpeedMod::InputSpeedMod(inputdata_t &data)
 #endif // USES_ECON_ITEMS
 
 		// Data that only gets sent to the local player.
+#ifdef HL2MP
+		SendPropDataTable( "localdata", 0, &REFERENCE_SEND_TABLE(DT_LocalPlayerExclusive), SendProxy_SendPlayerLocalDataTable ),
+#else
 		SendPropDataTable( "localdata", 0, &REFERENCE_SEND_TABLE(DT_LocalPlayerExclusive), SendProxy_SendLocalDataTable ),
+#endif
 
 	END_SEND_TABLE()
 

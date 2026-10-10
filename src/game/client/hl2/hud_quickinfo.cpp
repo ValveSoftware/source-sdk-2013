@@ -179,9 +179,15 @@ bool CHUDQuickInfo::ShouldDraw( void )
 	if ( !m_icon_c || !m_icon_rb || !m_icon_rbe || !m_icon_lb || !m_icon_lbe )
 		return false;
 
-	C_BasePlayer *player = C_BasePlayer::GetLocalPlayer();
+	C_BasePlayer *player = GetHudPlayer();
 	if ( player == NULL )
 		return false;
+
+#ifdef HL2MP
+	C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
+	if ( pLocalPlayer && pLocalPlayer->IsObserver() && pLocalPlayer->GetObserverMode() != OBS_MODE_IN_EYE )
+		return false;
+#endif
 
 	if ( !crosshair.GetBool() && !IsX360() )
 		return false;
@@ -196,7 +202,7 @@ void CHUDQuickInfo::OnThink()
 {
 	BaseClass::OnThink();
 
-	C_BasePlayer *player = C_BasePlayer::GetLocalPlayer();
+	C_BasePlayer *player = GetHudPlayer();
 	if ( player == NULL )
 		return;
 
@@ -241,11 +247,11 @@ void CHUDQuickInfo::OnThink()
 
 void CHUDQuickInfo::Paint()
 {
-	C_BasePlayer *player = C_BasePlayer::GetLocalPlayer();
+	C_BasePlayer *player = GetHudPlayer();
 	if ( player == NULL )
 		return;
 
-	C_BaseCombatWeapon *pWeapon = GetActiveWeapon();
+	C_BaseCombatWeapon *pWeapon = player->GetActiveWeapon();
 	if ( pWeapon == NULL )
 		return;
 

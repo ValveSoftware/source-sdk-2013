@@ -102,6 +102,15 @@ bool CHudBattery::ShouldDraw( void )
 //-----------------------------------------------------------------------------
 void CHudBattery::OnThink( void )
 {
+#ifdef HL2MP
+	if ( IsLocalPlayerSpectator() )
+	{
+		C_BasePlayer *pPlayer = GetHudPlayer();
+		if ( pPlayer )
+			m_iNewBat = pPlayer->ArmorValue();
+	}
+#endif
+
 	if ( m_iBat == m_iNewBat )
 		return;
 

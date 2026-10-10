@@ -31,9 +31,9 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
-																						
+
 ConVar localplayer_visionflags( "localplayer_visionflags", "0", FCVAR_DEVELOPMENTONLY );
-																						
+
 //-----------------------------------------------------------------------------
 // ConVars
 //-----------------------------------------------------------------------------
@@ -162,6 +162,26 @@ int GetSpectatorTarget( void )
 	{
 		return  0;	// game not started yet
 	}
+}
+
+C_BasePlayer *GetHudPlayer( void )
+{
+	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+
+#ifdef HL2MP
+	if ( pPlayer )
+	{
+		int iObserverMode = pPlayer->GetObserverMode();
+		if ( iObserverMode == OBS_MODE_IN_EYE || iObserverMode == OBS_MODE_CHASE )
+		{
+			C_BasePlayer *pTarget = ToBasePlayer( pPlayer->GetObserverTarget() );
+			if ( pTarget && pTarget != pPlayer && !pTarget->IsObserver() )
+				return pTarget;
+		}
+	}
+#endif
+
+	return pPlayer;
 }
 
 int GetLocalPlayerTeam( void ) 

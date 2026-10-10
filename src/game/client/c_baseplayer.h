@@ -86,6 +86,7 @@ public:
 	// IClientEntity overrides.
 	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
 	virtual void	OnDataChanged( DataUpdateType_t updateType );
+	void			ResetHudAmmoHistory( void );
 
 	virtual void	PreDataUpdate( DataUpdateType_t updateType );
 	virtual void	PostDataUpdate( DataUpdateType_t updateType );
@@ -177,6 +178,9 @@ public:
 
 
 	bool			IsSuitEquipped( void ) { return m_Local.m_bWearingSuit; };
+#ifdef HL2MP
+	int			ArmorValue( void ) const { return m_iArmorValue; }
+#endif
 
 	// Team handlers
 	virtual void	TeamChange( int iNewTeam );
@@ -411,6 +415,9 @@ public:
 	
 	// Data for only the local player
 	CNetworkVarEmbedded( CPlayerLocalData, m_Local );
+#ifdef HL2MP
+	int						m_iArmorValue;
+#endif
 
 #if defined USES_ECON_ITEMS
 	CNetworkVarEmbedded( CAttributeList, m_AttributeList );
