@@ -15,8 +15,18 @@
 #include "c_playerresource.h"
 #include "voice_common.h"
 #include "vgui_avatarimage.h"
+#if defined( TF_CLIENT_DLL )
+#include "tf_shareddefs.h"
+#include "c_tf_player.h"
+#include "c_tf_playerresource.h"
+#endif
 
 ConVar *sv_alltalk = NULL;
+
+#if defined( TF_CLIENT_DLL )
+ConVar tf_voice_show_class_icons( "tf_voice_show_class_icons", "1", FCVAR_ARCHIVE | FCVAR_CLIENTDLL, "Show class icons for voice chat speakers." );
+static ConVar *sv_voice_show_class_icons = NULL;
+#endif
 
 //=============================================================================
 // Icon for the local player using voice
@@ -114,6 +124,11 @@ private:
 
 	Color	m_clrIcon;
 
+#if defined( TF_CLIENT_DLL )
+	vgui::IImage *GetClassIconForSpeaker( int playerId );
+	vgui::IImage *m_pClassIcons[ TF_LAST_NORMAL_CLASS ];
+#endif
+
 	struct ActiveSpeaker
 	{
 		int					playerId;
@@ -152,6 +167,14 @@ private:
 
 	CPanelAnimationVarAliasType( float, text_xpos, "text_xpos", "40", "proportional_float" );
 
+#if defined( TF_CLIENT_DLL )
+	CPanelAnimationVarAliasType( bool, show_class_icon, "show_class_icon", "1", "bool" );
+	CPanelAnimationVarAliasType( float, class_icon_ypos, "class_icon_ypos", "2", "proportional_float" );
+	CPanelAnimationVarAliasType( float, class_icon_xpos, "class_icon_xpos", "2", "proportional_float" );
+	CPanelAnimationVarAliasType( float, class_icon_tall, "class_icon_tall", "12", "proportional_float" );
+	CPanelAnimationVarAliasType( float, class_icon_wide, "class_icon_wide", "12", "proportional_float" );
+#endif
+
 	CPanelAnimationVarAliasType( float, fade_in_time, "fade_in_time", "0.0", "float" );
 	CPanelAnimationVarAliasType( float, fade_out_time, "fade_out_time", "0.0", "float" );
 };
@@ -177,6 +200,13 @@ CHudVoiceStatus::CHudVoiceStatus( const char *pName ) :
 		m_iDeadImageID = surface()->CreateNewTextureID();
 		surface()->DrawSetTextureFile( m_iDeadImageID, "hud/leaderboard_dead", true, false );
 	}
+
+#if defined( TF_CLIENT_DLL )
+	for ( int i = 0; i < ARRAYSIZE( m_pClassIcons ); i++ )
+	{
+		m_pClassIcons[i] = NULL;
+	}
+#endif
 }
 
 CHudVoiceStatus::~CHudVoiceStatus()
@@ -190,6 +220,13 @@ void CHudVoiceStatus::ApplySchemeSettings(vgui::IScheme *pScheme)
 
 #ifdef HL2MP
 	SetBgColor( Color( 0, 0, 0, 0 ) );
+#endif
+
+#if defined( TF_CLIENT_DLL )
+	FOR_EACH_NORMAL_PLAYER_CLASS( i )
+	{
+		m_pClassIcons[i] = scheme()->GetImage( g_pszClassIcons[i], true );
+	}
 #endif
 }
 
@@ -437,6 +474,24 @@ void CHudVoiceStatus::Paint()
 		// HPE_END
 		//=============================================================================
 
+#if defined( TF_CLIENT_DLL )
+		if ( show_class_icon && bIsAlive )
+		{
+			vgui::IImage *pClassIcon = GetClassIconForSpeaker( playerId );
+			if ( pClassIcon )
+			{
+				int iOrigWide, iOrigTall;
+				pClassIcon->GetSize( iOrigWide, iOrigTall );
+
+				pClassIcon->SetPos( class_icon_xpos, ypos + class_icon_ypos );
+				pClassIcon->SetSize( class_icon_wide, class_icon_tall );
+				pClassIcon->Paint();
+
+				pClassIcon->SetSize( iOrigWide, iOrigTall );
+			}
+		}
+#endif
+
 		// Draw the voice icon
 		if (show_voice_icon)
 			m_pVoiceIcon->DrawSelf( voice_icon_xpos, ypos + voice_icon_ypos, voice_icon_wide, voice_icon_tall, m_clrIcon );
@@ -474,6 +529,39 @@ void CHudVoiceStatus::Paint()
 		surface()->DrawSetAlphaMultiplier(oldAlphaMultiplier);
 	}
 }
+
+#if defined( TF_CLIENT_DLL )
+vgui::IImage *CHudVoiceStatus::GetClassIconForSpeaker( int playerId )
+{
+	if ( !tf_voice_show_class_icons.GetBool() )
+		return NULL;
+
+	if ( !g_TF_PR || !g_PR )
+		return NULL;
+
+	int iClass = g_TF_PR->GetPlayerClass( playerId );
+	if ( !IsValidTFPlayerClass( iClass ) )
+		return NULL;
+
+	int iSpeakerTeam = g_PR->GetTeam( playerId );
+	if ( iSpeakerTeam == TEAM_SPECTATOR || iSpeakerTeam == TEAM_UNASSIGNED )
+		return NULL;
+
+	C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
+	int iLocalTeam = pLocalPlayer ? pLocalPlayer->GetTeamNumber() : TEAM_UNASSIGNED;
+
+	if ( iLocalTeam != iSpeakerTeam )
+	{
+		if ( !sv_voice_show_class_icons )
+			sv_voice_show_class_icons = cvar->FindVar( "sv_voice_show_class_icons" );
+
+		if ( sv_voice_show_class_icons && !sv_voice_show_class_icons->GetBool() )
+			return NULL;
+	}
+
+	return m_pClassIcons[ iClass ];
+}
+#endif
 
 int CHudVoiceStatus::FindActiveSpeaker( int playerId )
 {
