@@ -524,6 +524,9 @@ void CTFPlayerModelPanel::SwitchHeldItemTo( CEconItemView *pItem, bool bPreserve
 
 	ClearScene();
 
+	//purge weapon attachments
+	m_AttachedModels.Purge();
+
 	m_pHeldItem = pItem;
 	// force yeti model for yeti taunt item
 	bool bYeti = false;
@@ -1052,7 +1055,19 @@ void CTFPlayerModelPanel::EquipItem( CEconItemView *pItem )
 					continue;
 				}
 
-				LoadAndAttachAdditionalModel( pModel->m_pszModelName, pItem );
+				int iIndex = m_AttachedModels.AddToTail();
+				MDLHandle_t hMDL = mdlcache->FindMDL( pModel->m_pszModelName );
+				if ( mdlcache->IsErrorModel(hMDL) )
+				{
+					hMDL = MDLHANDLE_INVALID;
+				}
+				m_AttachedModels[iIndex].m_MDL.SetMDL( hMDL );
+				mdlcache->Release( hMDL ); // counterbalance addref from within FindMDL
+
+				m_AttachedModels[iIndex].m_MDL.m_pProxyData = static_cast<IClientRenderable*>( pItem );
+				m_AttachedModels[iIndex].m_bDisabled = false;
+				m_AttachedModels[iIndex].m_MDL.m_nSequence = ACT_IDLE;
+				SetIdentityMatrix( m_AttachedModels[iIndex].m_MDLToWorld );
 			}
 		}
 
@@ -1075,7 +1090,19 @@ void CTFPlayerModelPanel::EquipItem( CEconItemView *pItem )
 					continue;
 				}
 
-				LoadAndAttachAdditionalModel( pModel->m_pszModelName, pItem );
+				int iIndex = m_AttachedModels.AddToTail();
+				MDLHandle_t hMDL = mdlcache->FindMDL( pModel->m_pszModelName );
+				if ( mdlcache->IsErrorModel(hMDL) )
+				{
+					hMDL = MDLHANDLE_INVALID;
+				}
+				m_AttachedModels[iIndex].m_MDL.SetMDL( hMDL );
+				mdlcache->Release( hMDL ); // counterbalance addref from within FindMDL
+
+				m_AttachedModels[iIndex].m_MDL.m_pProxyData = static_cast<IClientRenderable*>( pItem );
+				m_AttachedModels[iIndex].m_bDisabled = false;
+				m_AttachedModels[iIndex].m_MDL.m_nSequence = ACT_IDLE;
+				SetIdentityMatrix( m_AttachedModels[iIndex].m_MDLToWorld );
 			}
 		}
 	}
@@ -1509,9 +1536,10 @@ void CTFPlayerModelPanel::RenderingMergedModel( IMatRenderContext *pRenderContex
 	// so we have to test each slot individually
 	UpdateCosmeticParticles( pRenderContext, pStudioHdr, mdlHandle, pWorldMatrix, iSystem, pEconItem );
 
-	if ( m_iCurrentSlotIndex == iPosition )
+	if ( m_iCurrentSlotIndex == iPosition || m_iCurrentSlotIndex >= LOADOUT_POSITION_TAUNT )
 	{
 		RenderStatTrack( pStudioHdr, pWorldMatrix );
+		RenderAttachedModels( pStudioHdr, pWorldMatrix );
 	}
 }
 
@@ -1582,6 +1610,29 @@ bool CTFPlayerModelPanel::RenderStatTrack( CStudioHdr *pStudioHdr, matrix3x4_t *
 	}
 
 	return false;
+}
+
+bool CTFPlayerModelPanel::RenderAttachedModels( CStudioHdr* pStudioHdr, matrix3x4_t* pWorldMatrix )
+{
+	// Draw the merge MDLs.
+	FOR_EACH_VEC( m_AttachedModels, iModel )
+	{
+		matrix3x4_t matMergeBoneToWorld[MAXSTUDIOBONES];
+
+		// Get the merge studio header.
+		studiohdr_t* pAttachedStudioHdr = m_AttachedModels[iModel].m_MDL.GetStudioHdr();
+		matrix3x4_t* pMergeBoneToWorld = &matMergeBoneToWorld[0];
+
+		// If we have a valid mesh, bonemerge it. If we have an invalid mesh we can't bonemerge because
+		// it'll crash trying to pull data from the missing header.
+		if ( pAttachedStudioHdr != NULL )
+		{
+			CStudioHdr mergeHdr( pAttachedStudioHdr, g_pMDLCache );
+			m_AttachedModels[iModel].m_MDL.SetupBonesWithBoneMerge( &mergeHdr, pMergeBoneToWorld, pStudioHdr, pWorldMatrix, m_AttachedModels[iModel].m_MDLToWorld );
+			m_AttachedModels[iModel].m_MDL.Draw( m_AttachedModels[iModel].m_MDLToWorld, pMergeBoneToWorld );
+		}
+	}
+	return true;
 }
 
 //-----------------------------------------------------------------------------
