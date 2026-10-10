@@ -744,9 +744,6 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 	bool bShield = pOther->IsCombatItem() && !InSameTeam( pOther );
 	CTFPumpkinBomb *pPumpkinBomb = dynamic_cast< CTFPumpkinBomb * >( pOther );
 
-	if ( pOther->IsSolidFlagSet( FSOLID_TRIGGER | FSOLID_VOLUME_CONTENTS ) && !pPumpkinBomb && !bShield )
-		return;
-
 	// test against combat characters, which include players, engineer buildings, and NPCs
 	CBaseCombatCharacter *pOtherCombatCharacter = dynamic_cast< CBaseCombatCharacter * >( pOther );
 
@@ -758,6 +755,19 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 		{
 			pOther = pOtherCombatCharacter;
 		}
+	}
+
+	// Verify a correct "other."
+	const trace_t *pTrace = &CBaseEntity::GetTouchTrace();
+	if ( ( !pOther->IsSolid() ||
+		   ( pOther->GetCollisionGroup() == TFCOLLISION_GROUP_RESPAWNROOMS ) ||
+		   pOther->IsFuncLOD() ||
+		   pOther->IsBaseProjectile() ||
+		   !ShouldTouchNonWorldSolid( pOther, pTrace ) ||
+		   pOther->IsSolidFlagSet( FSOLID_TRIGGER | FSOLID_VOLUME_CONTENTS ) )
+		 && !pPumpkinBomb && !bShield )
+	{
+		return;
 	}
 
 	CTFMerasmusTrickOrTreatProp *pMerasmusProp = dynamic_cast< CTFMerasmusTrickOrTreatProp* >( pOther );
