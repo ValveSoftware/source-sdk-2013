@@ -16,6 +16,9 @@
 #include "clientmode_tf.h"
 #include "tf_partyclient.h"
 #include "tf_matchmaking_dashboard_explanations.h"
+#include <vgui/IInput.h>
+#include <vgui/ISurface.h>
+#include <vgui_controls/ScalableImagePanel.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -247,6 +250,10 @@ CCasualCriteriaPanel::CCasualCriteriaPanel( vgui::Panel *pParent, const char* ps
 	, m_mapGroupPanels( DefLessFunc( EMatchmakingGroupType ) )
 	, m_mapCategoryPanels( DefLessFunc( EGameCategory ) )
 	, m_bCriteriaDirty( true )
+	, m_pMapPreviewFrame( NULL )
+	, m_pMapPreview( NULL )
+	, m_pPreviewMap( NULL )
+	, m_bPreviewValid( false )
 {
 	GTFPartyClient()->LoadSavedCasualCriteria();
 
@@ -264,10 +271,150 @@ void CCasualCriteriaPanel::OnThink()
 {
 	BaseClass::OnThink();
 
+	UpdateMapPreview();
 
 	if ( m_bCriteriaDirty )
 	{
 		WriteCategories();
+	}
+}
+
+static const int k_nMapPreviewWide = 170;
+static const int k_nMapPreviewTall = 125;
+static const int k_nMapPreviewVisibleTall = 94;
+static const int k_nMapPreviewBleed = 6;
+static const int k_nMapPreviewDrop = 1;
+static const int k_nMapPreviewSlice = 21;
+static const int k_nMapPreviewBorder = 10;
+static const int k_nMapPreviewFrameWide = k_nMapPreviewWide + k_nMapPreviewBorder * 2 - 1;
+static const int k_nMapPreviewFrameTall = k_nMapPreviewVisibleTall + k_nMapPreviewBorder * 2 - 1;
+
+ConVar tf_map_thumbnail_showcase( "tf_map_thumbnail_showcase", "1", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Show map thumbnail previews in the Casual map picker." );
+
+void CCasualCriteriaPanel::UpdateMapPreview( void )
+{
+	if ( !tf_map_thumbnail_showcase.GetBool() )
+	{
+		if ( m_pMapPreviewFrame )
+		{
+			m_pMapPreviewFrame->SetVisible( false );
+		}
+
+		return;
+	}
+
+	const MapDef_t* pMap = NULL;
+
+	int nCursorX, nCursorY;
+	input()->GetCursorPos( nCursorX, nCursorY );
+
+	CExCheckButton* pCheckButton = dynamic_cast< CExCheckButton* >( ipanel()->GetPanel( input()->GetMouseOver(), "ClientDLL" ) );
+	if ( pCheckButton && pCheckButton->GetData() && pCheckButton->GetParent() )
+	{
+		int nMapIndex = pCheckButton->GetData()->GetInt( "map_index", -1 );
+		Label* pNameLabel = pCheckButton->GetParent()->FindControl< Label >( "MapNameLabel" );
+		if ( nMapIndex >= 0 && pNameLabel )
+		{
+			int nLabelX = nCursorX, nLabelY = nCursorY;
+			pNameLabel->ScreenToLocal( nLabelX, nLabelY );
+
+			int nInsetX, nInsetY;
+			pNameLabel->GetTextInset( &nInsetX, &nInsetY );
+
+			int nTextWide, nTextTall;
+			pNameLabel->GetContentSize( nTextWide, nTextTall );
+
+			int nTextTop = ( pNameLabel->GetTall() - nTextTall ) / 2;
+
+			if ( nLabelX >= nInsetX && nLabelX < nTextWide && nLabelY >= nTextTop && nLabelY < nTextTop + nTextTall )
+			{
+				pMap = GetItemSchema()->GetMasterMapDefByIndex( nMapIndex );
+			}
+		}
+	}
+
+	if ( m_pPreviewMap != pMap )
+	{
+		m_pPreviewMap = pMap;
+		m_bPreviewValid = pMap && g_pFullFileSystem->FileExists( CFmtStr( "materials/vgui/maps/menu_thumb_%s.vmt", pMap->pszMapName ), "MOD" );
+
+		if ( m_bPreviewValid )
+		{
+			if ( !m_pMapPreviewFrame )
+			{
+				m_pMapPreviewFrame = new Panel( this, "MapPreviewFrame" );
+				m_pMapPreviewFrame->SetPaintBackgroundEnabled( false );
+				m_pMapPreviewFrame->SetMouseInputEnabled( false );
+				m_pMapPreviewFrame->MakePopup( false, true );
+
+				Panel* pClip = new Panel( m_pMapPreviewFrame, "MapPreviewClip" );
+				pClip->SetPaintBackgroundEnabled( false );
+				pClip->SetMouseInputEnabled( false );
+				pClip->SetBounds( k_nMapPreviewBorder - k_nMapPreviewBleed, k_nMapPreviewBorder - k_nMapPreviewBleed + k_nMapPreviewDrop, k_nMapPreviewWide + k_nMapPreviewBleed * 2, k_nMapPreviewVisibleTall + k_nMapPreviewBleed * 2 );
+
+				m_pMapPreview = new ImagePanel( pClip, "MapPreview" );
+				m_pMapPreview->SetShouldScaleImage( true );
+				m_pMapPreview->SetMouseInputEnabled( false );
+				m_pMapPreview->SetBounds( 0, 0, k_nMapPreviewWide + k_nMapPreviewBleed * 2, k_nMapPreviewTall + k_nMapPreviewBleed * 2 );
+
+				Panel* pBorder = new ScalableImagePanel( m_pMapPreviewFrame, "MapPreviewBorder" );
+				pBorder->SetMouseInputEnabled( false );
+				pBorder->SetProportional( false );
+
+				KeyValues* pBorderSettings = new KeyValues( "MapPreviewBorder" );
+				pBorderSettings->SetString( "image", "maps/map_thumbnail_border" );
+				pBorderSettings->SetInt( "src_corner_width", k_nMapPreviewSlice );
+				pBorderSettings->SetInt( "src_corner_height", k_nMapPreviewSlice );
+				pBorderSettings->SetInt( "draw_corner_width", k_nMapPreviewBorder );
+				pBorderSettings->SetInt( "draw_corner_height", k_nMapPreviewBorder );
+				pBorder->ApplySettings( pBorderSettings );
+				pBorderSettings->deleteThis();
+
+				pBorder->SetBounds( 0, 0, k_nMapPreviewFrameWide, k_nMapPreviewFrameTall );
+			}
+
+			m_pMapPreview->SetImage( CFmtStr( "..\\vgui\\maps\\menu_thumb_%s", pMap->pszMapName ) );
+		}
+	}
+
+	if ( !m_bPreviewValid )
+	{
+		if ( m_pMapPreviewFrame )
+		{
+			m_pMapPreviewFrame->SetVisible( false );
+		}
+		return;
+	}
+
+	int nHorizontalGap = scheme()->GetProportionalScaledValue( 3 );
+	int nVerticalOffset = scheme()->GetProportionalScaledValue( 14 );
+
+	int nScreenWide, nScreenTall;
+	surface()->GetScreenSize( nScreenWide, nScreenTall );
+
+	int nCheckX = 0, nCheckY = 0;
+	pCheckButton->LocalToScreen( nCheckX, nCheckY );
+
+	int nListTop = 0, nListBottom = nScreenTall;
+	Panel* pList = FindControl< Panel >( "GameModesList", true );
+	if ( pList )
+	{
+		int nListX = 0;
+		pList->LocalToScreen( nListX, nListTop );
+		nListBottom = nListTop + pList->GetTall();
+	}
+
+	int nX = nCheckX - k_nMapPreviewFrameWide - nHorizontalGap;
+	int nY = nCursorY - k_nMapPreviewFrameTall / 2 + nVerticalOffset;
+	nX = clamp( nX, 0, nScreenWide - k_nMapPreviewFrameWide );
+	nY = MAX( nListTop, MIN( nY, nListBottom - k_nMapPreviewFrameTall ) );
+
+	bool bWasVisible = m_pMapPreviewFrame->IsVisible();
+	m_pMapPreviewFrame->SetBounds( nX, nY, k_nMapPreviewFrameWide, k_nMapPreviewFrameTall );
+	m_pMapPreviewFrame->SetVisible( true );
+	if ( !bWasVisible )
+	{
+		m_pMapPreviewFrame->MoveToFront();
 	}
 }
 
