@@ -127,6 +127,82 @@ CRawInputConvarOnetimeReset g_RawInputConvarOnetimeReset( "CRawInputConvarOnetim
 static ConVar m_limitedcapture_workaround( "m_limitedcapture_workaround", "0", FCVAR_NONE,
                                            "Workaround limitations on mouse capture in some environments" );
 
+#if defined( WIN32 ) && !defined( _X360 )
+static ConVar m_rawinput_clipcursor( "m_rawinput_clipcursor", "1", FCVAR_ARCHIVE,
+	"While the mouse is captured with m_rawinput 1, pin the cursor to the window center. Avoids stutter with high polling rate mice (4000-8000 Hz)." );
+
+static bool		s_bCursorClipped = false;
+static RECT		s_rcPrevCursorClip;
+static double	s_flCursorClipTime = 0.0;
+
+static void ReleaseCursorClip()
+{
+	if ( !s_bCursorClipped )
+		return;
+
+	ClipCursor( &s_rcPrevCursorClip );
+	s_bCursorClipped = false;
+}
+
+static void ClipCursorToWindowCenter()
+{
+	HWND hWnd = GetForegroundWindow();
+	DWORD nProcessId = 0;
+	if ( !hWnd || !GetWindowThreadProcessId( hWnd, &nProcessId ) || nProcessId != GetCurrentProcessId() )
+	{
+		ReleaseCursorClip();
+		return;
+	}
+
+	RECT rcClient;
+	if ( !GetClientRect( hWnd, &rcClient ) )
+		return;
+	POINT center;
+	center.x = ( rcClient.right - rcClient.left ) >> 1;
+	center.y = ( rcClient.bottom - rcClient.top ) >> 1;
+	ClientToScreen( hWnd, &center );
+
+	RECT rcClip;
+	SetRect( &rcClip, center.x, center.y, center.x + 1, center.y + 1 );
+
+	if ( !s_bCursorClipped )
+	{
+		GetClipCursor( &s_rcPrevCursorClip );
+		s_bCursorClipped = true;
+	}
+	s_flCursorClipTime = Plat_FloatTime();
+
+	RECT rcCurrent;
+	if ( !GetClipCursor( &rcCurrent ) || !EqualRect( &rcCurrent, &rcClip ) )
+	{
+		ClipCursor( &rcClip );
+	}
+}
+
+class CRawInputCursorClipRelease : public CAutoGameSystemPerFrame
+{
+public:
+	CRawInputCursorClipRelease( char const *pszName )
+		: CAutoGameSystemPerFrame( pszName )
+	{
+	}
+
+	virtual void Update( float frametime ) OVERRIDE
+	{
+		if ( s_bCursorClipped && Plat_FloatTime() - s_flCursorClipTime > 0.1 )
+		{
+			ReleaseCursorClip();
+		}
+	}
+
+	virtual void Shutdown() OVERRIDE
+	{
+		ReleaseCursorClip();
+	}
+};
+CRawInputCursorClipRelease g_RawInputCursorClipRelease( "CRawInputCursorClipRelease" );
+#endif
+
 #if DEBUG
 ConVar cl_mouselook( "cl_mouselook", "1", FCVAR_ARCHIVE, "Set to 1 to use mouse for look, 0 for keyboard look." );
 #else
@@ -193,6 +269,9 @@ void CInput::DeactivateMouse (void)
 		}
 		m_fMouseActive = false;
 		vgui::surface()->SetCursor( vgui::dc_arrow );
+#if defined( WIN32 ) && !defined( _X360 )
+		ReleaseCursorClip();
+#endif
 #if !defined( PLATFORM_WINDOWS )
 		// now put the mouse back in the middle of the screen
 		ResetMouse();
@@ -738,6 +817,17 @@ void CInput::MouseMove( CUserCmd *cmd )
 
 		// Re-center the mouse.
 		ResetMouse();
+
+#if defined( WIN32 ) && !defined( _X360 )
+		if ( m_rawinput.GetBool() && m_rawinput_clipcursor.GetBool() && !m_limitedcapture_workaround.GetBool() )
+		{
+			ClipCursorToWindowCenter();
+		}
+		else
+		{
+			ReleaseCursorClip();
+		}
+#endif
 	}
 
 	// Store out the new viewangles.
