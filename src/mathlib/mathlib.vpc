@@ -29,7 +29,6 @@ $Project "mathlib"
 		$File	"sseconst.cpp"
 		$File	"sse.cpp"					[$WINDOWS||$POSIX]
 		$File	"ssenoise.cpp"				
-		$File	"3dnow.cpp"					[$WINDOWS||$LINUX]
 		$File	"anorms.cpp"
 		$File	"bumpvects.cpp"
 		$File	"IceKey.cpp"
@@ -77,6 +76,5 @@ $Project "mathlib"
 	{
 		$File	"noisedata.h"
 		$File	"sse.h"					[$WINDOWS||$POSIX]
-		$File	"3dnow.h"				[$WINDOWS||$LINUX]
 	}
 }
