@@ -14,7 +14,7 @@
 #include "utldict.h"
 #include "convar.h"
 #include <vgui/VGUI.h>
-#include <Color.h>
+#include <color.h>
 #include <bitbuf.h>
 
 namespace vgui

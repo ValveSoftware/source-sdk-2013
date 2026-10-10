@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include <Color.h>
+#include <color.h>
 #include "tier1/utlvector.h"
 #include "vgui_controls/EditablePanel.h"
 #include "vgui_controls/Frame.h"
