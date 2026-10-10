@@ -14,7 +14,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE;hl2mp\ui,.\hl2mp,$SRCDIR\game\shared\hl2mp,.\hl2,.\hl2\elements,$SRCDIR\game\shared\hl2"
+		$AdditionalIncludeDirectories		"$BASE;hl2mp\ui,.\hl2mp,$SRCDIR\game\shared\hl2mp,.\hl2,.\hl2\elements,$SRCDIR\game\shared\hl2,$SRCDIR\game\shared\Multiplayer"
 		$PreprocessorDefinitions			"$BASE;HL2MP;HL2_CLIENT_DLL;NEXT_BOT"
 	}
 }
@@ -34,6 +34,8 @@ $Project "Client (HL2MP)"
 		$File	"$SRCDIR\game\shared\predicted_viewmodel.h"
 		$File	"$SRCDIR\game\shared\teamplay_round_timer.cpp"
 		$File	"$SRCDIR\game\shared\teamplay_round_timer.h"
+		$File	"$SRCDIR\game\shared\Multiplayer\multiplayer_animstate.cpp"
+		$File	"$SRCDIR\game\shared\Multiplayer\multiplayer_animstate.h"
 
 		$Folder	"NextBot"
 		{
@@ -130,6 +132,10 @@ $Project "Client (HL2MP)"
 			$File	"hl2mp\clientmode_hl2mpnormal.h"
 			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_gamerules.cpp"
 			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_gamerules.h"
+			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_gamemovement.cpp"
+			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_gamemovement.h"
+			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_playeranimstate.cpp"
+			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_playeranimstate.h"
 			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_player_shared.cpp"
 			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_player_shared.h"
 			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_weapon_parse.cpp"

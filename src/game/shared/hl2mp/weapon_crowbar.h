@@ -36,9 +36,7 @@ public:
 	DECLARE_NETWORKCLASS(); 
 	DECLARE_PREDICTABLE();
 
-#ifndef CLIENT_DLL
 	DECLARE_ACTTABLE();
-#endif
 
 	CWeaponCrowbar();
 

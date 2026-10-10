@@ -60,6 +60,7 @@ public:
 
 	virtual void FireBullets( const FireBulletsInfo_t &info );
 	virtual void FallInit( void );
+	virtual bool Reload( void );
 	
 public:
 	#if defined( CLIENT_DLL )
