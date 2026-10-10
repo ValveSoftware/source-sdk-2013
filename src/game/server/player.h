@@ -774,7 +774,7 @@ public:
 
 	// talk control
 	virtual bool CanPlayerTalk();
-	void	NotePlayerTalked() { m_fLastPlayerTalkTime = gpGlobals->curtime; }
+	void	NotePlayerTalked() { m_fLastPlayerTalkTime = gpGlobals->realtime; }
 	float	LastTimePlayerTalked() const { return m_fLastPlayerTalkTime; }
 	bool	ArePlayerTalkMessagesAvailable();
 
