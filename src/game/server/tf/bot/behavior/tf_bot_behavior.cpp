@@ -190,9 +190,7 @@ ActionResult< CTFBot >	CTFBotMainAction::Update( CTFBot *me, float interval )
 		if ( myArea && myArea->HasAttributeTF( spawnRoomFlag ) )
 		{
 			// invading bots get uber while they leave their spawn so they don't drop their cash where players can't pick it up
-			me->m_Shared.AddCond( TF_COND_INVULNERABLE, 0.5f );
 			me->m_Shared.AddCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGED, 0.5f );
-			me->m_Shared.AddCond( TF_COND_INVULNERABLE_WEARINGOFF, 0.5f );
 			me->m_Shared.AddCond( TF_COND_IMMUNE_TO_PUSHBACK, 1.0f );
 		}
 
