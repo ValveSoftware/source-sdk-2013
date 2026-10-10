@@ -2590,7 +2590,7 @@ public:
 										   : unSlot >= m_unFirstValidClassItemSlot && unSlot <= m_unLastValidClassItemSlot; 
 	}
 
-	enum { kMaxItemPresetCount = 4 };
+	enum { kMaxItemPresetCount = 6 };
 	uint32				GetNumAllowedItemPresets() const					{ return kMaxItemPresetCount; }
 	bool				IsValidPreset( equipped_preset_t unPreset ) const	{ return unPreset <= GetNumAllowedItemPresets(); }
 
