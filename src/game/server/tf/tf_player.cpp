@@ -13797,6 +13797,8 @@ bool CTFPlayer::SetObserverMode(int mode)
 		}
 	}
 
+	NetworkStateChanged( &m_Local.m_flFOVRate );
+
 	switch ( m_iObserverMode )
 	{
 	case OBS_MODE_NONE:

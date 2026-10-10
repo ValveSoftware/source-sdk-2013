@@ -2451,7 +2451,33 @@ float C_BasePlayer::GetFOV( void )
 		// get fov from observer target. Not if target is observer itself
 		if ( pTargetPlayer && !pTargetPlayer->IsObserver() )
 		{
-			return pTargetPlayer->GetFOV();
+			if ( engine->IsHLTV()
+#if defined( REPLAY_ENABLED )
+				 || g_pEngineClientReplay->IsPlayingReplayDemo()
+#endif
+				 )
+			{
+				return pTargetPlayer->GetFOV();
+			}
+
+			int iDefaultFOV = GetDefaultFOV();
+			int iTargetDefaultFOV = pTargetPlayer->GetDefaultFOV();
+
+			float fFOV = ( pTargetPlayer->m_iFOV == 0 ) ? iDefaultFOV : pTargetPlayer->m_iFOV;
+			float flFOVStart = pTargetPlayer->m_iFOVStart;
+
+			if ( flFOVStart == iTargetDefaultFOV )
+			{
+				flFOVStart = iDefaultFOV;
+			}
+
+			if ( !prediction->InPrediction() && fFOV != flFOVStart && m_Local.m_flFOVRate > 0.0f )
+			{
+				float flDeltaTime = ( gpGlobals->curtime - pTargetPlayer->m_flFOVTime ) / m_Local.m_flFOVRate;
+				fFOV = SimpleSplineRemapValClamped( flDeltaTime, 0.0f, 1.0f, flFOVStart, fFOV );
+			}
+
+			return fFOV;
 		}
 	}
 
