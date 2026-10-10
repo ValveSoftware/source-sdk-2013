@@ -503,6 +503,8 @@ const char* g_modelWhiteList[] =
 
 	"models/workshop/weapons/c_models/c_paratooper_pack/c_paratrooper_pack.mdl",
 	"models/workshop/weapons/c_models/c_paratooper_pack/c_paratrooper_pack_open.mdl",
+	"models/workshop/weapons/c_models/c_paratooper_pack/c_paratrooper_pack_festivized.mdl",
+	"models/workshop/weapons/c_models/c_paratooper_pack/c_paratrooper_pack_open_festivized.mdl",
 
 };
 

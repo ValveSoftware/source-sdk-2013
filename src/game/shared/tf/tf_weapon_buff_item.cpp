@@ -45,8 +45,18 @@ const char* BannerModels[] =
 	"models/workshop/weapons/c_models/c_paratooper_pack/c_paratrooper_parachute.mdl"
 };
 
+const char* BannerModelsFestive[] =
+{
+	"models/weapons/c_models/c_buffbanner/c_buffbanner.mdl",
+	"models/workshop/weapons/c_models/c_battalion_buffbanner/c_battalion_buffbanner.mdl",
+	"models/workshop_partner/weapons/c_models/c_shogun_warbanner/c_shogun_warbanner.mdl",
+	"models/workshop/weapons/c_models/c_paratooper_pack/c_paratrooper_parachute_festivized.mdl"
+};
+
 #define CLOSED_PARACHUTE_MDL "models/workshop/weapons/c_models/c_paratooper_pack/c_paratrooper_pack.mdl"
 #define OPEN_PARACHUTE_MDL "models/workshop/weapons/c_models/c_paratooper_pack/c_paratrooper_pack_open.mdl"
+#define CLOSED_PARACHUTE_MDL_FESTIVE "models/workshop/weapons/c_models/c_paratooper_pack/c_paratrooper_pack_festivized.mdl"
+#define OPEN_PARACHUTE_MDL_FESTIVE "models/workshop/weapons/c_models/c_paratooper_pack/c_paratrooper_pack_open_festivized.mdl"
 
 COMPILE_TIME_ASSERT( ARRAYSIZE( BannerModels ) == NUM_BUFF_ITEM_TYPES );
 //=============================================================================
@@ -93,12 +103,18 @@ void CTFBuffItem::Precache()
 	{
 		PrecacheModel( BannerModels[i] );
 	}
+	for ( int i = 0; i < ARRAYSIZE( BannerModelsFestive ); i++ )
+	{
+		PrecacheModel(BannerModelsFestive[i]);
+	}
 
 	PrecacheModel( "models/weapons/c_models/c_buffpack/c_buffpack.mdl" );
 	PrecacheModel( "models/workshop/weapons/c_models/c_battalion_buffpack/c_battalion_buffpack.mdl" );
 	PrecacheModel( "models/workshop_partner/weapons/c_models/c_shogun_warpack/c_shogun_warpack.mdl" );
 	PrecacheModel( OPEN_PARACHUTE_MDL );
 	PrecacheModel( CLOSED_PARACHUTE_MDL );
+	PrecacheModel( OPEN_PARACHUTE_MDL_FESTIVE );
+	PrecacheModel( CLOSED_PARACHUTE_MDL_FESTIVE );
 
 	PrecacheScriptSound( "Weapon_BuffBanner.HornRed" );
 	PrecacheScriptSound( "Weapon_BuffBanner.HornBlue" );
@@ -310,10 +326,13 @@ void CTFBuffItem::CreateBanner()
 		if ( !pBanner )
 			return;
 
+		int iFestivized = 0;
+		CALL_ATTRIB_HOOK_INT( iFestivized, is_festivized );
+
 		//Assert( iBuffType > 0 );
 		//Assert( iBuffType <= ARRAYSIZE(BannerModels) );
-		pBanner->m_nSkin = 0;
-		pBanner->InitializeAsClientEntity( BannerModels[GetBuffType()-1], RENDER_GROUP_OPAQUE_ENTITY );
+		pBanner->m_nSkin = GetSkin();
+		pBanner->InitializeAsClientEntity( ( iFestivized ? BannerModelsFestive[GetBuffType()-1] : BannerModels[GetBuffType() - 1]), RENDER_GROUP_OPAQUE_ENTITY );
 		pBanner->SetBuffItem( this );
 		pBanner->SetBuffType( GetBuffType() );
 		pBanner->ForceClientSideAnimationOn();
