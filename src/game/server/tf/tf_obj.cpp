@@ -3101,10 +3101,21 @@ void CBaseObject::ApplyHealthUpgrade( void )
 		return;
 
 	int iHealth = GetMaxHealthForCurrentLevel();
+	
+	if (IsCarried())
+	{
+		int nMissingLevels = GetHighestUpgradeLevel() - GetUpgradeLevel();
+
+		if (!IsMiniBuilding() && nMissingLevels > 0)
+		{
+			iHealth = (int)(iHealth * pow(UPGRADE_LEVEL_HEALTH_MULTIPLIER, nMissingLevels));
+		}
+
+		m_iHealthOnPickup = iHealth;
+	}
+
 	SetMaxHealth( iHealth );
 	SetHealth( iHealth );
-
-	//DevMsg( "%i\n", GetMaxHealth() );
 }
 
 //-----------------------------------------------------------------------------
