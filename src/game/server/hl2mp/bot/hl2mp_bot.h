@@ -265,6 +265,7 @@ public:
 		MISSION_SPY,					// maintain teams of spies harassing the enemy
 		MISSION_ENGINEER,				// maintain engineer nests for harassing the enemy
 		MISSION_REPROGRAMMED,			// MvM: robot has been hacked and will do bad things to their team
+		MISSION_ATTACK,					// focus on finding and killing enemy players and ignore all objectives
 	};
 	#define MISSION_DOESNT_RESET_BEHAVIOR_SYSTEM false
 	void SetMission( MissionType mission, bool resetBehaviorSystem = true );

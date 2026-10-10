@@ -642,6 +642,34 @@ static bool ParseDynamicAttributes( CTFBot::EventChangeAttributes_t& event, KeyV
 		{
 			event.m_attributeFlags |= CTFBot::AGGRESSIVE;
 		}
+		else if ( !Q_stricmp( value, "SeekAndDestroy" ) )
+		{
+			event.m_mission = CTFBot::MISSION_SEEK_AND_DESTROY;
+		}
+		else if ( !Q_stricmp( value, "DestroySentries" ) )
+		{
+			event.m_mission = CTFBot::MISSION_DESTROY_SENTRIES;
+		}
+		else if ( !Q_stricmp( value, "Sniper" ) )
+		{
+			event.m_mission = CTFBot::MISSION_SNIPER;
+		}
+		else if ( !Q_stricmp( value, "Spy" ) )
+		{
+			event.m_mission = CTFBot::MISSION_SPY;
+		}
+		else if ( !Q_stricmp( value, "Engineer" ) )
+		{
+			event.m_mission = CTFBot::MISSION_ENGINEER;
+		}
+		else if ( !Q_stricmp( value, "Reprogrammed" ) )
+		{
+			event.m_mission = CTFBot::MISSION_REPROGRAMMED;
+		}
+		else if ( !Q_stricmp( value, "Attack" ) )
+		{
+			event.m_mission = CTFBot::MISSION_ATTACK;
+		}
 		else
 		{
 			Warning( "TFBotSpawner: Invalid behavior modifier '%s'\n", value );

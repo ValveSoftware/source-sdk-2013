@@ -39,7 +39,40 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 	bool isUsingCloseRangeWeapon = ( myWeapon && ( myWeapon->IsWeapon( TF_WEAPON_FLAMETHROWER ) || myWeapon->IsMeleeWeapon() ) );
 
 	const CKnownEntity *threat = me->GetVisionInterface()->GetPrimaryKnownThreat();
-	if ( threat == NULL || threat->IsObsolete() || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
+	bool validThreat = threat != NULL && !threat->IsObsolete()
+
+	// always try to find new threats if we have MISSION_ATTACK, even if we can't attack
+	if ( !validThreat && me->HasMission( CTFBot::MISSION_ATTACK ) )
+	{
+		threat = me->SelectRandomReachableEnemy();
+
+		if ( threat == NULL )
+		{
+			// no reachable enemy, attack a sentry
+			CUtlVector< CBaseObject* > sentries;
+			for ( int i=0; i<IBaseObjectAutoList::AutoList().Count(); ++i )
+			{
+				CBaseObject *obj = static_cast< CBaseObject* >( IBaseObjectAutoList::AutoList()[i] );
+				if ( obj->ObjectType() == OBJ_SENTRYGUN && obj->GetTeamNumber() != me->GetTeamNumber() && !obj->IsPlacing() && !obj->IsCarried() )
+				{
+					sentries.AddToTail( obj );
+				}
+			}
+			if ( sentries.Size() > 0 )
+			{
+				threat = sentries[RandomInt( 0, sentries.Size() - 1 )];
+			}
+		}
+
+		if ( threat != NULL )
+		{
+			// cheat and "see" our victim so we know where to go
+			me->GetVisionInterface()->AddKnownEntity( threat );
+		}
+
+		return Continue();
+	}
+	else if ( !validThreat || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
 	{
 		return Done( "No threat" );
 	}
@@ -86,6 +119,39 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 			if ( me->IsRangeLessThan( threat->GetLastKnownPosition(), 20.0f ) )
 			{
 				me->GetVisionInterface()->ForgetEntity( threat->GetEntity() );
+				
+				// nothing to attack, move towards a random player
+				if ( me->HasMission( CTFBot::MISSION_ATTACK ) )
+				{
+					threat = me->SelectRandomReachableEnemy();
+			
+					if ( threat == NULL )
+					{
+						// no reachable enemy, attack a sentry
+						CUtlVector< CBaseObject* > sentries;
+						for ( int i=0; i<IBaseObjectAutoList::AutoList().Count(); ++i )
+						{
+							CBaseObject *obj = static_cast< CBaseObject* >( IBaseObjectAutoList::AutoList()[i] );
+							if ( obj->ObjectType() == OBJ_SENTRYGUN && obj->GetTeamNumber() != me->GetTeamNumber() && !obj->IsPlacing() && !obj->IsCarried() )
+							{
+								sentries.AddToTail( obj );
+							}
+						}
+						if ( sentries.Size() > 0 )
+						{
+							threat = sentries[RandomInt( 0, sentries.Size() - 1 )];
+						}
+					}
+
+					if ( threat != NULL )
+					{
+						// cheat and "see" our victim so we know where to go
+						me->GetVisionInterface()->AddKnownEntity( threat );
+					}
+
+					return Continue();
+				}
+
 				return Done( "I lost my target!" );
 			}
 

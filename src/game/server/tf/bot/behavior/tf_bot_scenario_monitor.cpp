@@ -94,13 +94,16 @@ Action< CTFBot > *CTFBotScenarioMonitor::DesiredScenarioAndClassAction( CTFBot *
 	switch( me->GetMission() )
 	{
 	case CTFBot::MISSION_SEEK_AND_DESTROY:
-		break;
+		return new CTFBotSeekAndDestroy;
 
 	case CTFBot::MISSION_DESTROY_SENTRIES:
 		return new CTFBotMissionSuicideBomber;
 
 	case CTFBot::MISSION_SNIPER:
 		return new CTFBotSniperLurk;
+	
+	case CTFBot::MISSION_ATTACK:
+		return new CTFBotAttack;
 
 	}
 
