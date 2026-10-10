@@ -72,6 +72,7 @@ public:
 	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo );
 	virtual bool	HolsterOnDetach() { return true; }
 	virtual bool	Lower( void );
+	virtual bool	Deploy( void );
 	virtual void	HandleFireOnEmpty( void );
 	virtual void	WeaponReset( void );
 	virtual float	GetProjectileDamage( void );
