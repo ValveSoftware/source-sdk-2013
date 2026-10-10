@@ -47,7 +47,7 @@ float4 main( PS_INPUT i ) : COLOR
 
 	float4 resultColor;
 	resultColor.xyz = lightDirDotNormalMap * ( textureColor.rgb * i.directionalLightColor.rgb );
-	resultColor.a = textureColor.a * i.directionalLightColor.a;
+	resultColor.a = textureColor.a;
 
 	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos_SpecExponent.xyz, i.worldPos_projPosZ.xyz, i.worldPos_projPosZ.w );
 
