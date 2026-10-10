@@ -1237,6 +1237,30 @@ public:
 	{
 		SetScriptOverlayMaterial( inputdata.value.String() );
 	}
+
+	const char* GetScriptOverlayMaterialEx(int index) const
+	{
+		if ( index >= MAX_SCRIPT_OVERLAYS || index < 0 )
+			return "";
+
+		const char* szMaterial = STRING(m_Local.m_szScriptOverlayMaterialArray.Get(index));
+		return !szMaterial || V_strcmp(szMaterial, "null") == 0 ? "" : szMaterial;
+	}
+	void SetScriptOverlayMaterialEx( const char *pszMaterial, const int index )
+	{
+		if ( index >= MAX_SCRIPT_OVERLAYS || index < 0)
+			return;
+
+		if ( !pszMaterial || !*pszMaterial )
+		{
+			m_Local.m_szScriptOverlayMaterialArray.Set( index, AllocPooledString("null"));
+			return;
+		}
+		
+		char szMaterialName[MAX_PATH];
+		V_strncpy( szMaterialName, pszMaterial, MAX_PATH );
+		m_Local.m_szScriptOverlayMaterialArray.Set( index, AllocPooledString(szMaterialName) );
+	}
 private:
 	// NVNT member variable holding if this user is using a haptic device.
 	bool m_bhasHaptics;

@@ -408,6 +408,14 @@ public:
 	int m_StuckLast;
 
 	const char* GetScriptOverlayMaterial() const { return m_Local.m_szScriptOverlayMaterial; }
+	const char* GetScriptOverlayMaterialEx(int index) const
+	{
+		if ( index >= MAX_SCRIPT_OVERLAYS || index < 0 )
+			return "";
+
+		const char* szMaterial = STRING(m_Local.m_szScriptOverlayMaterialArray.Get(index));
+		return !szMaterial || V_strcmp(szMaterial, "null") == 0 ? "" : szMaterial;
+	}
 	
 	// Data for only the local player
 	CNetworkVarEmbedded( CPlayerLocalData, m_Local );
