@@ -9900,10 +9900,11 @@ void CTFPlayerShared::StunPlayer( float flTime, float flReductionAmount, int iSt
 		}
 	}
 
-	if ( ( GetActiveStunInfo()->iStunFlags & TF_STUN_SOUND ) ||
-		 ( GetActiveStunInfo()->iStunFlags & TF_STUN_SPECIAL_SOUND ) ||
-		 ( GetActiveStunInfo()->iStunFlags & TF_STUN_CONTROLS ) ||
-		 ( GetActiveStunInfo()->iStunFlags & TF_STUN_LOSER_STATE ) )
+	if ( ( ( GetActiveStunInfo()->iStunFlags & TF_STUN_SOUND ) ||
+		( GetActiveStunInfo()->iStunFlags & TF_STUN_SPECIAL_SOUND ) ||
+		( GetActiveStunInfo()->iStunFlags & TF_STUN_CONTROLS ) ||
+		( GetActiveStunInfo()->iStunFlags & TF_STUN_LOSER_STATE ) ) &&
+		!( GetActiveStunInfo()->iStunFlags & TF_STUN_NO_EFFECTS ) )
 	{
 		m_pOuter->StunSound( pAttacker, GetActiveStunInfo()->iStunFlags, iOldStunFlags );
 	}
