@@ -436,34 +436,14 @@ inline vec_t RoundInt (vec_t in)
 
 int Q_log2(int val);
 
-#define SIN_TABLE_SIZE	256
-#define FTOIBIAS		12582912.f
-extern float SinCosTable[SIN_TABLE_SIZE];
-
 inline float TableCos( float theta )
 {
-	union
-	{
-		int i;
-		float f;
-	} ftmp;
-
-	// ideally, the following should compile down to: theta * constant + constant, changing any of these constants from defines sometimes fubars this.
-	ftmp.f = theta * ( float )( SIN_TABLE_SIZE / ( 2.0f * M_PI ) ) + ( FTOIBIAS + ( SIN_TABLE_SIZE / 4 ) );
-	return SinCosTable[ ftmp.i & ( SIN_TABLE_SIZE - 1 ) ];
+	return FastCos( theta );
 }
 
 inline float TableSin( float theta )
 {
-	union
-	{
-		int i;
-		float f;
-	} ftmp;
-
-	// ideally, the following should compile down to: theta * constant + constant
-	ftmp.f = theta * ( float )( SIN_TABLE_SIZE / ( 2.0f * M_PI ) ) + FTOIBIAS;
-	return SinCosTable[ ftmp.i & ( SIN_TABLE_SIZE - 1 ) ];
+	return sinf( theta );
 }
 
 template<class T>
