@@ -33,6 +33,7 @@
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps30]
 // DYNAMIC: "STATIC_LIGHT_LIGHTMAP"	    "0..1"  [ps20b] [ps30]
 // DYNAMIC: "STATIC_LIGHT_LIGHTMAP"	    "0..0"  [ps20]
+// DYNAMIC: "BICUBIC_LIGHTMAP"			"0..1"	[ps20b] [ps30]
 // DYNAMIC: "DEBUG_LUXELS"				"0..1"	[ps20b] [ps30]
 
 // detail blend mode 6 = ps20b only
@@ -76,6 +77,13 @@
 
 // Debugging luxels only makes sense if we have lightmaps on this geometry.
 // SKIP: ($STATIC_LIGHT_LIGHTMAP == 0) && ($DEBUG_LUXELS == 1)
+
+// Can't sample lightmaps bicubically if we don't have lightmaps.
+// SKIP: $BICUBIC_LIGHTMAP && ($STATIC_LIGHT_LIGHTMAP == 0)
+
+// Luxel debugging overrides lightmap sampler with the luxel dev texture,
+// no point in sampling that bicubically.
+// SKIP: $BICUBIC_LIGHTMAP && ($DEBUG_LUXELS == 1)
 
 #include "common_flashlight_fxc.h"
 #include "common_vertexlitgeneric_dx9.h"
@@ -174,7 +182,7 @@ const float4 g_OutlineParams : register( c9 );
 const float3 g_DetailTint : register( c10 );
 #endif
 
-#if DEBUG_LUXELS
+#if DEBUG_LUXELS || BICUBIC_LIGHTMAP
 const float4 g_LuxelScale : register( c11 );
 #endif
 
@@ -354,7 +362,14 @@ float4 main( PS_INPUT i ) : COLOR
 	#if DEBUG_LUXELS
 		lightmapTexCoords.xy *= g_LuxelScale.xy;
 	#endif
-	float3 f3LightmapColor = GammaToLinear( 2.0f * tex2D( LightMapSampler, lightmapTexCoords ).rgb );
+
+	float2 vLightmapSize = 0.0.xx;
+	#if BICUBIC_LIGHTMAP
+		vLightmapSize = g_LuxelScale;
+	#endif
+	
+	float3 f3LightmapColor = GammaToLinear( 2.0f * LightMapSample( LightMapSampler, lightmapTexCoords, vLightmapSize.x, vLightmapSize.y ) );
+
 	diffuseLighting = f3LightmapColor;
 #endif
 
