@@ -1467,9 +1467,6 @@ bool CTFGameMovement::CheckWater( void )
 	int nContents = GetPointContentsCached( vecPoint, 0 );	
 	if ( nContents & MASK_WATER )
 	{
-		// Clear our jump flag, because we have landed in water.
-		m_pTFPlayer->m_Shared.SetJumping( false );
-
 		// Set water type and level.
 		wt = nContents;
 		wl = WL_Feet;
@@ -1504,6 +1501,12 @@ bool CTFGameMovement::CheckWater( void )
 	if ( m_pTFPlayer->m_Shared.InCond( TF_COND_SWIMMING_CURSE ) )
 	{
 		wl = WL_Eyes;
+	}
+
+	// If we're in deep enough water, clear our jump flag.
+	if ( wl > WL_Feet )
+	{
+		m_pTFPlayer->m_Shared.SetJumping( false );
 	}
 
 	player->SetWaterLevel( wl );
