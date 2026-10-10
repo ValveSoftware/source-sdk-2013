@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+script=$(readlink -f -- "$0")
+pushd "$(dirname -- "$script")" > /dev/null
+
+source sdk_container
+run_in_sniper "$@"
+export CCACHE_SLOPPINESS="pch_defines,time_macros"
+export VPC_ENABLE_CCACHE="1"
+ccache -z
+
+if [ $# -eq 0 ]; then
+    export VPC_NINJA_BUILD_MODE="release"     
+else
+    if [[ "$1" == "debug" ]]; then
+        export VPC_NINJA_BUILD_MODE="debug"
+    elif [[ "$1" == "release" ]]; then
+        export VPC_NINJA_BUILD_MODE="release"
+    else
+        echo "Usage: $0 [debug|release]"
+        exit 1
+    fi
+fi
+
+solution_out="_vpc_/ninja/sdk_dedicated_$VPC_NINJA_BUILD_MODE"
+
+# Dir of interest in /my_mod/src
+DIR="./lib/public/linux64"
+
+# Check if the serversided libraries are provided in catalog files check
+SERVER_LIBS=("libtier0_srv.so" "libvstdlib_srv.so")
+
+for file in "${SERVER_LIBS[@]}"; do
+    if [[ ! -f "$DIR/$file" ]]; then
+        echo "Error: Required file $DIR/$file is missing!"
+        echo "Please, provide them from your dedicated server install."
+        exit 1
+    fi
+done
+
+# Directories for symlinking server libraries in
+DIRS=("./lib/public/linux64" "./lib/common/linux64")
+
+# Copy all the *.a -> *_srv.a files from lib catalog before compiling
+for dir in "${DIRS[@]}"; do
+    for file in "$dir"/*.a; do
+        [[ -e "$file" ]] || continue
+        base_name=$(basename -- "$file" .a)
+        copy="$dir/${base_name}_srv.a"
+
+        if [[ -f "$copy" ]]; then
+            echo "File already exists, skipping: $copy"
+            continue
+        fi
+
+        cp "$file" "$copy"
+        echo "Copied: $file -> $copy"
+    done
+done
+
+
+if [[ ! -e "$solution_out.ninja" ]]; then
+    devtools/bin/vpc /hl2mp /tf /linux64 /ninja /define:SOURCESDK +dedicated /dedicated /mksln "$solution_out"
+
+    # Generate compile commands.
+    ninja -f "$solution_out.ninja" -t compdb > compile_commands.json
+    # Remove some unsupported clang commands.
+    sed -i 's/-fpredictive-commoning//g; s/-fvar-tracking-assignments//g' compile_commands.json
+    sed -i 's|/my_mod/src|.|g' compile_commands.json
+fi
+
+ninja -f "$solution_out.ninja" -j$(nproc)
+ccache -s
+
+# Removing copied files
+for dir in "${DIRS[@]}"; do
+    for copy in "$dir"/*_srv.a; do
+        if [[ -f "$copy" ]]; then
+            echo "Deleting copied file: $copy"
+            rm "$copy"
+        fi
+    done
+done
+
+popd
