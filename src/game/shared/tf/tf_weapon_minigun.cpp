@@ -1438,6 +1438,14 @@ void CTFMinigun::WeaponSoundUpdate()
 	float flPitch = 1.0f;
 
 	float flSpeed = ApplyFireDelay( 1.0f );
+
+	float flPitchScale = 1.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flPitchScale, mult_minigun_pitch_scale );
+	if ( flPitchScale != 1.0f )
+	{
+		flSpeed /= ( flPitchScale );
+	}
+
 	if ( flSpeed != 1.0f )
 	{
 		flPitch = RemapValClamped( flSpeed, 1.5f, 0.5f, 80.f, 120.f );
