@@ -107,6 +107,7 @@ CTFHudPlayerClass::CTFHudPlayerClass( Panel *parent, const char *name ) : Editab
 	m_flNextThink = 0.0f;
 	m_nKillStreak = 0;
 	m_nVisionFilterFlags = 0;
+	m_nPrevDecapitations = 0;
 
 	m_bUsePlayerModel = cl_hud_playerclass_use_playermodel.GetBool();
 
@@ -265,6 +266,22 @@ void CTFHudPlayerClass::OnThink()
 	}
 
 	bool bForceEyeUpdate = false;
+
+	if ( pPlayer->IsPlayerClass( TF_CLASS_DEMOMAN ) )
+	{
+		int nDecapitations = pPlayer->m_Shared.GetDecapitations();
+
+		if ( nDecapitations != m_nPrevDecapitations )
+		{
+			m_nPrevDecapitations = nDecapitations;
+			bForceEyeUpdate = true;
+		}
+	}
+	else
+	{
+		m_nPrevDecapitations = 0;
+	}
+
 	// set our class image
 	if (	m_nClass != pPlayer->GetPlayerClass()->GetClassIndex() || bTeamChange || bCloakChange || bLoadoutPositionChange || bPlayerClassModeChange || bVisionFilterChange ||
 			(

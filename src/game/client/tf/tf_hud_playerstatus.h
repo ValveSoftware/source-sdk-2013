@@ -84,7 +84,7 @@ private:
 	int					m_nLoadoutPosition;
 	int					m_nKillStreak;
 	int					m_nVisionFilterFlags;
-
+	int					m_nPrevDecapitations;
 	
 	bool				m_bUsePlayerModel;
 };
