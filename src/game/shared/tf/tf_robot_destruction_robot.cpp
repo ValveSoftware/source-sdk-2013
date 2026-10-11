@@ -661,6 +661,39 @@ int CTFRobotDestruction_Robot::OnTakeDamage( const CTakeDamageInfo &info )
 	if ( CTFRobotDestructionLogic::GetRobotDestructionLogic() )
 		CTFRobotDestructionLogic::GetRobotDestructionLogic()->RobotAttacked( this );
 	
+	// fire event for client combat text, beep, etc.
+	IGameEvent *damageEvent = gameeventmanager->CreateEvent( "npc_hurt" );
+	if ( damageEvent )
+	{
+		damageEvent->SetInt( "entindex", entindex() );
+		damageEvent->SetInt( "health", MAX( 0, GetHealth() ) );
+		damageEvent->SetInt( "damageamount", info.GetDamage() );
+		damageEvent->SetBool( "crit", ( info.GetDamageType() & DMG_CRITICAL ) ? true : false );
+
+		CTFPlayer *attackerPlayer = ToTFPlayer( info.GetAttacker() );
+		if ( attackerPlayer )
+		{
+			damageEvent->SetInt( "attacker_player", attackerPlayer->GetUserID() );
+
+			if ( attackerPlayer->GetActiveTFWeapon() )
+			{
+				damageEvent->SetInt( "weaponid", attackerPlayer->GetActiveTFWeapon()->GetWeaponID() );
+			}
+			else
+			{
+				damageEvent->SetInt( "weaponid", 0 );
+			}
+		}
+		else
+		{
+			// hurt by world
+			damageEvent->SetInt( "attacker_player", 0 );
+			damageEvent->SetInt( "weaponid", 0 );
+		}
+
+		gameeventmanager->FireEvent( damageEvent );
+	}
+
 	return nBaseResult;
 }
 

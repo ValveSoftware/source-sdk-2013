@@ -264,6 +264,39 @@ int CZombie::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		recentDamager.m_hEnt = info.GetAttacker();
 	}
 
+	// fire event for client combat text, beep, etc.
+	IGameEvent *event = gameeventmanager->CreateEvent( "npc_hurt" );
+	if ( event )
+	{
+		event->SetInt( "entindex", entindex() );
+		event->SetInt( "health", MAX( 0, GetHealth() - info.GetDamage() ) );
+		event->SetInt( "damageamount", info.GetDamage() );
+		event->SetBool( "crit", ( info.GetDamageType() & DMG_CRITICAL ) ? true : false );
+
+		CTFPlayer *attackerPlayer = ToTFPlayer( info.GetAttacker() );
+		if ( attackerPlayer )
+		{
+			event->SetInt( "attacker_player", attackerPlayer->GetUserID() );
+
+			if ( attackerPlayer->GetActiveTFWeapon() )
+			{
+				event->SetInt( "weaponid", attackerPlayer->GetActiveTFWeapon()->GetWeaponID() );
+			}
+			else
+			{
+				event->SetInt( "weaponid", 0 );
+			}
+		}
+		else
+		{
+			// hurt by world
+			event->SetInt( "attacker_player", 0 );
+			event->SetInt( "weaponid", 0 );
+		}
+
+		gameeventmanager->FireEvent( event );
+	}
+
 	DispatchParticleEffect( pszEffectName, info.GetDamagePosition(), GetAbsAngles() );
 
 	return BaseClass::OnTakeDamage_Alive( info );
