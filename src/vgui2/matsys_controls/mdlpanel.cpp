@@ -166,6 +166,7 @@ void CMDLPanel::SetMDL( MDLHandle_t handle, void *pProxyData )
 	m_RootMDL.m_MDL.m_bWorldSpaceViewTarget = false;
 	m_RootMDL.m_MDL.m_vecViewTarget.Init( 100.0f, 0.0f, vecMaxs.z );
 
+	m_RootMDL.m_MDL.m_flTime = 0.0f;
 	m_RootMDL.m_flCycleStartTime = 0.f;
 
 	// Set the pose parameters to the default for the mdl
