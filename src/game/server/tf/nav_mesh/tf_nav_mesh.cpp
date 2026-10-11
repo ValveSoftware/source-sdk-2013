@@ -1133,7 +1133,7 @@ void CTFNavMesh::RecomputeInternalData( void )
 	ComputeLegalBombDropAreas();
 	ComputeBombTargetDistance();	// for MvM
 
-	if ( m_recomputeReason == RESET || m_recomputeReason == SETUP_FINISHED )
+	if ( m_recomputeReason == RESET || m_recomputeReason == SETUP_FINISHED || m_recomputeReason == POINT_CAPTURED )
 	{
 		// update point-conditionally blocked areas
 		FOR_EACH_VEC( TheNavAreas, it )
