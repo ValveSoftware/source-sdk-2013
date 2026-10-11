@@ -939,9 +939,6 @@ bool CTFItemDefinition::BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString> 
 		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_CROUCH_PDA", "ACT_MP_CROUCH_PDA_BET_PB" );
 		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_AIRWALK_PDA", "ACT_MP_AIRWALK_PDA_BET_PB" );
 		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_JUMP_START_PDA", "ACT_MP_JUMP_START_PDA_BET_PB" );
-		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_ATTACK_STAND_PDA", "ACT_MP_ATTACK_STAND_PDA_BET_PB" );
-		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_ATTACK_RUN_PDA", "ACT_MP_ATTACK_RUN_PDA_BET_PB" );
-		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_ATTACK_CROUCH_PDA", "ACT_MP_ATTACK_CROUCH_PDA_BET_PB" );
 		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_RUN_PDA", "ACT_MP_RUN_PDA_BET_PB" );
 		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_CROUCHWALK_PDA", "ACT_MP_CROUCHWALK_PDA_BET_PB" );
 		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_SWIM_PDA", "ACT_MP_SWIM_PDA_BET_PB" );
