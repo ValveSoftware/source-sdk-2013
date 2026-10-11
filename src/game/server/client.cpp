@@ -129,6 +129,9 @@ char * CheckChatText( CBasePlayer *pPlayer, char *text )
 		p[length] = 0;
 	}
 
+	// prevent sending blank text and eating color codes
+	V_StripTrailingWhitespace( p );
+
 	// Josh:
 	// Cheaters can send us whatever data they want through this channel
 	// Let's validate they aren't trying to clear the chat.
@@ -190,7 +193,7 @@ void Host_Say( edict_t *pEdict, const CCommand &args, bool teamonly )
 	{
 		if ( args.ArgC() >= 2 )
 		{
-			p = (char *)args.ArgS();
+			V_strcpy_safe( szTemp, args.ArgS() );
 		}
 		else
 		{
@@ -209,8 +212,9 @@ void Host_Say( edict_t *pEdict, const CCommand &args, bool teamonly )
 			// Just a one word command, use the first word...sigh
 			Q_snprintf( szTemp,sizeof(szTemp), "%s", ( char * )pcmd );
 		}
-		p = szTemp;
 	}
+
+	p = szTemp;
 
 	CBasePlayer *pPlayer = NULL;
 	if ( pEdict )
