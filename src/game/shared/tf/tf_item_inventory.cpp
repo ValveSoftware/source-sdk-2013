@@ -29,6 +29,10 @@
 #include "backpack_panel.h"
 #include "materialsystem/itexture.h"
 
+#if INVENTORY_VIA_WEBAPI
+#include "class_loadout_panel.h"
+#endif
+
 #include "tf_gc_client.h"
 
 #else
@@ -2033,6 +2037,9 @@ CON_COMMAND(reset_loadout, "Reset local loadout to what is active on TF2.")
 
 	pInventory->SaveLocalLoadout(true, true);
 	pInventory->LoadLocalLoadout();
+
+	if (g_pClassLoadoutPanel)
+		g_pClassLoadoutPanel->UpdateModelPanels();
 }
 
 CON_COMMAND(clear_loadout, "Clear local loadout back to defaults")
@@ -2045,6 +2052,9 @@ CON_COMMAND(clear_loadout, "Clear local loadout back to defaults")
 
 	pInventory->SaveLocalLoadout(true, false);
 	pInventory->LoadLocalLoadout();
+
+	if (g_pClassLoadoutPanel)
+		g_pClassLoadoutPanel->UpdateModelPanels();
 }
 
 CON_COMMAND(reset_loadout_ui, "Reset local loadout to what is active on TF2 (show confirmation)")
