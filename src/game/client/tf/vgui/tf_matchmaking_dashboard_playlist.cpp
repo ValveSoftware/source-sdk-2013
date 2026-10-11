@@ -599,6 +599,11 @@ void CTFPlaylistPanel::OnCommand( const char *command )
 		PostActionSignal( new KeyValues( "PlayMvM" ) );
 		return;
 	}
+	else if ( FStrEq( "play_quickplay", command ) )
+	{
+		PostActionSignal( new KeyValues( "PlayQuickplay" ) );
+		return;
+	}
 	else if ( FStrEq( "play_training", command ) )
 	{
 		PostActionSignal( new KeyValues( "PlayTraining" ) );
