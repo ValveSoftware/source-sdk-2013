@@ -238,15 +238,15 @@ bool CBaseHudWeaponSelection::CanBeSelectedInHUD( C_BaseCombatWeapon *pWeapon )
 		nFastswitchMode = HUDTYPE_FASTSWITCH;
 	}
 
-	// Xbox: In plus type, weapons without ammo can still be selected in the HUD
-	if( HUDTYPE_PLUS == nFastswitchMode )
-	{
-		return pWeapon->VisibleInWeaponSelection();
-	}
-
 	if ( !pWeapon->VisibleInWeaponSelection() )
 	{
 		return false;
+	}
+
+	// Xbox: In plus type, weapons without ammo can still be selected in the HUD
+	if( HUDTYPE_PLUS == nFastswitchMode )
+	{
+		return true;
 	}
 
 	// All other current hud types
