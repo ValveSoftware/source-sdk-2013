@@ -196,21 +196,11 @@ void CHudTournament::PlaySounds( int nTime )
 			{
 				int nMaxWaves = TFObjectiveResource()->GetMannVsMachineMaxWaveCount();
 				int nCurWave = TFObjectiveResource()->GetMannVsMachineWaveCount();
-				bool bHasTank = false;
-				for ( int i = 0; i < MVM_CLASS_TYPES_PER_WAVE_MAX_NEW; ++i )
-				{
-	// 				int nClassCount = TFObjectiveResource()->GetMannVsMachineWaveClassCount( i );
- 					const char *pchClassIconName = TFObjectiveResource()->GetMannVsMachineWaveClassName( i );
-					if( V_stristr( pchClassIconName, "tank" ))
-					{
-						bHasTank = true;
-					}
-				}
 				if( nCurWave == nMaxWaves )
 				{
 					pLocalPlayer->EmitSound( "music.mvm_start_last_wave" );	
 				}
-				else if( bHasTank )
+				else if( TFObjectiveResource()->GetMannVsMachineWaveHasTanks() )
 				{
 					pLocalPlayer->EmitSound( "music.mvm_start_tank_wave" );
 				}
