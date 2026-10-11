@@ -26,6 +26,7 @@ private:
 	string_t m_iszIcon;
 	int m_iRecipientTeam;
 	int m_iBackgroundTeam;
+	bool m_bForceShow;
 };
 
 LINK_ENTITY_TO_CLASS( game_text_tf, CTFHudNotify );
@@ -36,6 +37,7 @@ DEFINE_KEYFIELD( m_iszMessage, FIELD_STRING, "message" ),
 DEFINE_KEYFIELD( m_iszIcon, FIELD_STRING, "icon" ),
 DEFINE_KEYFIELD( m_iRecipientTeam, FIELD_INTEGER, "display_to_team" ),
 DEFINE_KEYFIELD( m_iBackgroundTeam, FIELD_INTEGER, "background" ),
+DEFINE_KEYFIELD( m_bForceShow, FIELD_BOOLEAN, "force_show" ),
 
 // Inputs
 DEFINE_INPUTFUNC( FIELD_VOID, "Display", InputDisplay ),
@@ -63,5 +65,5 @@ void CTFHudNotify::Display( CBaseEntity *pActivator )
 		break;
 	}
 
-	TFGameRules()->SendHudNotification( filter, STRING(m_iszMessage), STRING(m_iszIcon), m_iBackgroundTeam );
+	TFGameRules()->SendHudNotification( filter, STRING(m_iszMessage), STRING(m_iszIcon), m_iBackgroundTeam, m_bForceShow );
 }
