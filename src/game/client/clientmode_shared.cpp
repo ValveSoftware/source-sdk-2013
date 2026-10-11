@@ -389,6 +389,9 @@ void ClientModeShared::Init()
 
 	HOOK_MESSAGE( VGUIMenu );
 	HOOK_MESSAGE( Rumble );
+
+	RemoveDownloadedMapManifests( "particles" );
+	RemoveDownloadedMapManifests( "level_sounds" );
 }
 
 
