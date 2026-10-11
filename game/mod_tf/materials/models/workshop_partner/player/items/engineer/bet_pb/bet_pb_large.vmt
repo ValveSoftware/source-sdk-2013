@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$baseTexture" "backpack/workshop_partner/player/items/engineer/bet_pb/bet_pb_large"
+	"$translucent" 1
+	"$vertexcolor" 1
+}

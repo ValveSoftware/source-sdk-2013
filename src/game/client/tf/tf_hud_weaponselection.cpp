@@ -26,6 +26,7 @@
 #include "baseobject_shared.h"
 #include "tf_imagepanel.h"
 #include "item_model_panel.h"
+#include "item_selection_panel.h"
 #include "c_tf_player.h"
 #include "c_tf_weapon_builder.h"
 #include "tf_spectatorgui.h"
@@ -180,6 +181,8 @@ private:
 	CTFImagePanel *m_pActiveWeaponBG;
 
 	CItemModelPanel	*m_pModelPanels[MAX_WEAPON_SLOTS];
+
+	wchar_t			m_wszPipBoyDestroyPDAName[128];
 
 
 	float m_flDemoStartTime;
@@ -513,6 +516,8 @@ void CHudWeaponSelection::PerformLayout( void )
 	if ( nNumSlots <= 0 )
 		return;
 
+	bool bPipBoyEquipped = TF_ComputePipBoyDestroyName( pPlayer->GetPlayerClass()->GetClassIndex(), m_wszPipBoyDestroyPDAName, ARRAYSIZE( m_wszPipBoyDestroyPDAName ) );
+
 	// find and display our current selection
 	C_BaseCombatWeapon *pSelectedWeapon = NULL;
 	int fastswitch = hud_fastswitch.GetInt();
@@ -557,7 +562,13 @@ void CHudWeaponSelection::PerformLayout( void )
 				if ( !pWeapon->VisibleInWeaponSelection() )
 					continue;
 
-				m_pModelPanels[i]->SetItem( pWeapon->GetAttributeContainer()->GetItem() );
+				const char *pszDestroyIconPath = NULL;
+				if ( TF_SetPipBoyPresentationItem( m_pModelPanels[i], pWeapon->GetAttributeContainer()->GetItem(), bPipBoyEquipped, m_wszPipBoyDestroyPDAName, &pszDestroyIconPath ) )
+				{
+					// Use the Pip-Boy Destroy PDA icon (from the item schema) only in the weapon selector.
+					if ( pszDestroyIconPath && pszDestroyIconPath[0] )
+						m_pModelPanels[i]->SetInventoryImageOverride( pszDestroyIconPath );
+				}
 
 				m_pModelPanels[i]->SetSize( rSlot[i].wide, rSlot[ i ].tall );
 
@@ -584,8 +595,14 @@ void CHudWeaponSelection::PerformLayout( void )
 				if ( !pWeapon )
 					continue;
 
-				m_pModelPanels[i]->SetItem( pWeapon->GetAttributeContainer()->GetItem() );
-				
+				const char *pszDestroyIconPath = NULL;
+				if ( TF_SetPipBoyPresentationItem( m_pModelPanels[i], pWeapon->GetAttributeContainer()->GetItem(), bPipBoyEquipped, m_wszPipBoyDestroyPDAName, &pszDestroyIconPath ) )
+				{
+					// Use the Pip-Boy Destroy PDA icon (from the item schema) only in the weapon selector.
+					if ( pszDestroyIconPath && pszDestroyIconPath[0] )
+						m_pModelPanels[i]->SetInventoryImageOverride( pszDestroyIconPath );
+				}
+
 				m_pModelPanels[i]->SetSize( rSlot[i].wide, rSlot[ i ].tall );
 				vgui::IScheme *pScheme = vgui::scheme()->GetIScheme( GetScheme() );
 				m_pModelPanels[i]->SetBorder( pScheme->GetBorder("TFFatLineBorder") );

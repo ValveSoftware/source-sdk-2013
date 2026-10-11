@@ -943,7 +943,8 @@ void CTFPlayerModelPanel::EquipAllWearables( CEconItemView *pHeldItem )
 		if ( pszAttached && pszAttached[ 0 ] )
 		{
 			const char *pszViewModelAttached = pItem->GetExtraWearableViewModel();
-			if ( pHeldItem == pItem || pszViewModelAttached == NULL || pszViewModelAttached[ 0 ] == '\0' || pszViewModelAttached[ 0 ] == '?' )
+			bool bPersistentPipBoy = pItem->GetItemDefIndex() == 519;
+			if ( bPersistentPipBoy || pHeldItem == pItem || pszViewModelAttached == NULL || pszViewModelAttached[ 0 ] == '\0' || pszViewModelAttached[ 0 ] == '?' )
 			{
 				LoadAndAttachAdditionalModel( pszAttached, pItem );
 			}
@@ -992,6 +993,21 @@ void CTFPlayerModelPanel::EquipItem( CEconItemView *pItem )
 	// Change team number so skins composite correctly
 	pItem->SetTeamNumber( m_iTeam );
 
+	const GameItemDefinition_t *pVisualItemDef = pItemDef;
+	bool bIsPipBoyPDASlot = false;
+	if ( !pItemDef->IsAWearable() )
+	{
+		int loadoutSlot = pItemDef->GetLoadoutSlot( m_iCurrentClassIndex );
+		if ( loadoutSlot == LOADOUT_POSITION_PDA2 )
+		{
+			CEconItemView *pBuildItem = GetItemInSlot( LOADOUT_POSITION_PDA );
+			if ( pBuildItem && pBuildItem->IsValid() && pBuildItem->GetItemDefIndex() == 519 )
+				pVisualItemDef = pBuildItem->GetItemDefinition();
+		}
+		bIsPipBoyPDASlot = ( loadoutSlot == LOADOUT_POSITION_PDA || loadoutSlot == LOADOUT_POSITION_PDA2 )
+			&& pVisualItemDef->GetDefinitionIndex() == 519;
+	}
+
 	// Non wearables can modify the animation
 	if ( !pItemDef->IsAWearable() )
 	{
@@ -1016,7 +1032,14 @@ void CTFPlayerModelPanel::EquipItem( CEconItemView *pItem )
 				return;
 
 			CStudioHdr &studioHdr = *m_RootMDL.m_pStudioHdr;
-			int iSequence = FindSequenceFromActivity( &studioHdr, s_pszDefaultAnimForWpnSlot[ iAnimSlot ] );
+			const char *pszActivityName = s_pszDefaultAnimForWpnSlot[ iAnimSlot ];
+			if ( pszActivityName )
+			{
+				const char *pszOverrideName = pVisualItemDef->GetActivityOverride( m_iTeam, pszActivityName );
+				if ( pszOverrideName )
+					pszActivityName = pszOverrideName;
+			}
+			int iSequence = FindSequenceFromActivity( &studioHdr, pszActivityName );
 			if ( iSequence != ACT_INVALID )
 			{
 				SetSequence( iSequence, true );
@@ -1025,8 +1048,8 @@ void CTFPlayerModelPanel::EquipItem( CEconItemView *pItem )
 	}
 
 	// Attach the models for the item
-	const char *pszAttached = pItem->GetWorldDisplayModel();
-	if ( !pszAttached )
+	const char *pszAttached = bIsPipBoyPDASlot ? NULL : pItem->GetWorldDisplayModel();
+	if ( !pszAttached && !bIsPipBoyPDASlot )
 	{
 		pszAttached = pItem->GetPlayerDisplayModel( m_iCurrentClassIndex, m_iTeam );
 	}

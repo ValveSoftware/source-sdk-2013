@@ -164,6 +164,7 @@ CEmbeddedItemModelPanel::CEmbeddedItemModelPanel( vgui::Panel *pParent, const ch
 	m_bUseItemRenderTarget = false;
 	m_bForceUseModel = false;
 	m_pItem = NULL;
+	m_pszInventoryImageOverride = NULL;
 	m_pszToolTargetItemImage = NULL;
 	m_iTextureID = -1;
 	m_iToolTargetItemTextureID = -1;
@@ -275,6 +276,7 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 	m_iCameraAttachment = -1;
 
 	m_pItem = pItem;
+	m_pszInventoryImageOverride = NULL;
 
 	if ( !m_pItem )
 		return;
@@ -622,7 +624,7 @@ void CEmbeddedItemModelPanel::LoadInventoryImage()
 	{
 		type = IMAGETYPE_LARGE;
 	}
-	GetMaterialForImage( type, m_pItem->GetInventoryImage() );
+	GetMaterialForImage( type, m_pszInventoryImageOverride ? m_pszInventoryImageOverride : m_pItem->GetInventoryImage() );
 	m_bImageNotLoaded = false;
 	m_iTextureID = -1;
 }
@@ -673,7 +675,7 @@ void CEmbeddedItemModelPanel::Paint( void )
 	if ( m_bImageNotLoaded && !m_bWeaponAllowInspect && !UseRenderTargetAsIcon() )
 		return;
 
-	const char *pszInventoryImage = m_pItem->GetInventoryImage();
+	const char *pszInventoryImage = m_pszInventoryImageOverride ? m_pszInventoryImageOverride : m_pItem->GetInventoryImage();
 
 	CMatRenderContextPtr pRenderContext( materials );
 
@@ -1400,6 +1402,7 @@ CItemModelPanel::CItemModelPanel( vgui::Panel *parent, const char *name ) : vgui
 	m_bShowGreyedOutTooltip = false;
 	m_bShouldSendPanelEnterExits = false;
 	m_bContainedItem = false;
+	m_pwszDisplayNameOverride = NULL;
 	m_bShowOthersGiftWrappedItems = false;
 	m_bDescriptionDirty = false;
 	m_nRecipeMatchingIndex = 0;
@@ -2214,6 +2217,8 @@ void CItemModelPanel::SetItem( const CEconItemView *pItem )
 
 	HideContainedItemPanel();
 
+	m_pwszDisplayNameOverride = NULL;
+
 	bool bMatch = false;
 
 	if ( pItem && pItem->IsValid() )
@@ -2655,7 +2660,7 @@ void CItemModelPanel::UpdateDescription( bool bIsToolTip /* = false */ )
 		m_pMainContentContainer->SetDialogVariable( "attriblist", wszAttribBuffer );
 		m_pMainContentContainer->SetDialogVariable( "collectionname", wszCollectionNameBuffer );
 		m_pMainContentContainer->SetDialogVariable( "collectionlist", wszCollectionListBuffer );
-		m_pMainContentContainer->SetDialogVariable( "itemname", m_ItemData.GetItemName() );
+		m_pMainContentContainer->SetDialogVariable( "itemname", m_pwszDisplayNameOverride ? m_pwszDisplayNameOverride : m_ItemData.GetItemName() );
 	}
 
 	if ( m_pItemNameLabel )

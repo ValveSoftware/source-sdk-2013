@@ -332,7 +332,7 @@ float CEconEntity::ScriptGetAttribute( const char *pName, float flFallbackValue 
 //-----------------------------------------------------------------------------
 Activity CEconEntity::TranslateViewmodelHandActivity( Activity actBase )
 {
-	CEconItemView *pItem = GetAttributeContainer()->GetItem();
+	CEconItemView *pItem = GetWeaponVisualItem();
 	if ( pItem && pItem->IsValid() )
 	{
 		GameItemDefinition_t *pStaticData = pItem->GetStaticData();
@@ -833,7 +833,7 @@ void C_ViewmodelAttachmentModel::SetOuter( CEconEntity *pOuter )
 	m_hOuter = pOuter;
 	SetOwnerEntity( pOuter );
 
-	CEconItemView *pItem = pOuter->GetAttributeContainer()->GetItem();
+	CEconItemView *pItem = pOuter->GetWeaponVisualItem();
 	if ( pItem->IsValid() )
 	{
 		m_bAlwaysFlip = pItem->GetStaticData()->ShouldFlipViewmodels();
@@ -1079,7 +1079,7 @@ void CEconEntity::OnDataChanged( DataUpdateType_t updateType )
 void CEconEntity::UpdateAttachmentModels( void )
 {
 #ifndef DOTA_DLL
-	CEconItemView *pItem = GetAttributeContainer()->GetItem();
+	CEconItemView *pItem = GetWeaponVisualItem();
 	GameItemDefinition_t *pItemDef = pItem && pItem->IsValid() ? pItem->GetStaticData() : NULL;
 
 	// Update the state of additional model attachments
@@ -1890,7 +1890,7 @@ int	CEconEntity::DrawOverriddenViewmodel( C_BaseViewModel *pViewmodel, int flags
 	bool bIsAttachmentTranslucent = m_hViewmodelAttachment.Get() ? m_hViewmodelAttachment->IsTransparent() : false;
 	bool bUseOverride = false;
 	
-	CEconItemView *pItem = GetAttributeContainer()->GetItem();
+	CEconItemView *pItem = GetWeaponVisualItem();
 	bool bAttachesToHands = ( pItem->IsValid() && (pItem->GetStaticData()->ShouldAttachToHands() || pItem->GetStaticData()->ShouldAttachToHandsVMOnly()));
 
 	// If the attachment is translucent, we need to render the viewmodel first

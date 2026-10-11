@@ -477,6 +477,7 @@ void CTFHudPlayerClass::UpdateModelPanel()
 		int nTeam;
 		int nItemSlot = m_nLoadoutPosition;
 		CEconItemView *pWeapon = NULL;
+		CEconItemView *pPipBoyItem = NULL;
 
 		bool bDisguised = pPlayer->m_Shared.InCond( TF_COND_DISGUISED );
 		bool bRobotDisguise = IsMvMRobotDisguise( pPlayer );	// Are we disguised as a robot?
@@ -517,6 +518,14 @@ void CTFHudPlayerClass::UpdateModelPanel()
 			{
 				pWeapon = pEnt->GetAttributeContainer()->GetItem();
 			}
+
+			CTFWeaponBase *pPDAEnt = dynamic_cast< CTFWeaponBase* >( pPlayer->GetEntityForLoadoutSlot( LOADOUT_POSITION_PDA ) );
+			if ( pPDAEnt )
+			{
+				CEconItemView *pItem = pPDAEnt->GetAttributeContainer()->GetItem();
+				if ( pItem && pItem->IsValid() && pItem->GetItemDefIndex() == 519 )
+					pPipBoyItem = pItem;
+			}
 		}
 
 		m_pPlayerModelPanel->ClearCarriedItems();
@@ -526,6 +535,11 @@ void CTFHudPlayerClass::UpdateModelPanel()
 		if ( pWeapon )
 		{
 			m_pPlayerModelPanel->AddCarriedItem( pWeapon );
+		}
+
+		if ( pPipBoyItem && pPipBoyItem != pWeapon )
+		{
+			m_pPlayerModelPanel->AddCarriedItem( pPipBoyItem );
 		}
 
 		for ( int wbl = pPlayer->GetNumWearables()-1; wbl >= 0; wbl-- )

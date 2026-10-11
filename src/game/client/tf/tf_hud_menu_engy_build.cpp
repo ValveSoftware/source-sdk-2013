@@ -149,7 +149,8 @@ CHudMenuEngyBuild::CHudMenuEngyBuild( const char *pElementName )
 void CHudMenuEngyBuild::ApplySchemeSettings( IScheme *pScheme )
 {
 	bool bSteamController = ::input->IsSteamControllerActive();
-	bool b360Style = ( bSteamController || IsConsole() || tf_build_menu_controller_mode.GetBool() );
+	bool b360Style = ( bSteamController || IsConsole() || tf_build_menu_controller_mode.GetBool() )
+		&& m_eCurrentBuildMenuLayout != BUILDMENU_PIPBOY;
 
 	// load control settings...
 
@@ -592,21 +593,20 @@ void CHudMenuEngyBuild::SetVisible( bool state )
 		engine->ClientCmd( "cancelselect" );
 
 		bool bConsoleMode = ( IsConsole() || tf_build_menu_controller_mode.GetBool() );
+		bool bLayoutChanged = ( bConsoleMode != m_bInConsoleMode );
+		m_bInConsoleMode = bConsoleMode;
 
-		if ( bConsoleMode != m_bInConsoleMode )
+		// See if our layout needs to change, due to equipped items
+		buildmenulayouts_t eDesired = CalcCustomBuildMenuLayout();
+		if ( eDesired != m_eCurrentBuildMenuLayout )
+		{
+			m_eCurrentBuildMenuLayout = eDesired;
+			bLayoutChanged = true;
+		}
+
+		if ( bLayoutChanged )
 		{
 			InvalidateLayout( true, true );
-			m_bInConsoleMode = bConsoleMode;
-		}
-		else
-		{
-			// See if our layout needs to change, due to equipped items
-			buildmenulayouts_t eDesired = CalcCustomBuildMenuLayout();
-			if ( eDesired != m_eCurrentBuildMenuLayout )
-			{
-				m_eCurrentBuildMenuLayout = eDesired;
-				InvalidateLayout( true, true );
-			}
 		}
 
 		// set the %lastinv% dialog var to our binding

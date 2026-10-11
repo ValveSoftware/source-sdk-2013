@@ -49,6 +49,8 @@ public:
 #else
 		virtual float	CalcViewmodelBob( void );
 		virtual CHudBaseBuildMenu *GetBuildMenu() const { return NULL; }
+		virtual bool	ShouldDraw() OVERRIDE;
+		virtual ShadowType_t	ShadowCastType() OVERRIDE;
 #endif
 
 	virtual bool	ShouldShowControlPanels( void );
@@ -75,6 +77,7 @@ public:
 private:
 #ifdef CLIENT_DLL
 	void HideBuildMenu() const;
+	bool IsPipBoyWorldModel() const;
 #endif
 
 	CTFWeaponPDA( const CTFWeaponPDA & ) {}
@@ -113,6 +116,13 @@ public:
 #endif
 
 	virtual bool	VisibleInWeaponSelection( void );
+
+	virtual CEconItemView *GetWeaponVisualItem( void ) OVERRIDE;
+	virtual const CEconItemView *GetWeaponVisualItem( void ) const OVERRIDE;
+	virtual int		GetSkinOverride( void ) const OVERRIDE;
+#ifdef CLIENT_DLL
+	virtual bool	AttachmentModelsShouldBeVisible( void ) OVERRIDE;
+#endif
 };
 
 class CTFWeaponPDA_Spy : public CTFWeaponPDA

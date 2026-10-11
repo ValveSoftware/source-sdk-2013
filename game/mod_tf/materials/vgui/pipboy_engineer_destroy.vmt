@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui\pipboy_engineer_destroy"
+	"$translucent" 1
+	"$ignorez" 1
+	"$vertexcolor" 1
+}

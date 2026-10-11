@@ -1004,12 +1004,47 @@ equip_region_mask_t GenerateEquipRegionConflictMask( int iClass, int iUpToSlot, 
 	return unEquippedRegionMask;
 }
 
+bool TF_ComputePipBoyDestroyName( int iClass, wchar_t *pszNameBuf, int nNameBufChars )
+{
+	if ( iClass != TF_CLASS_ENGINEER )
+		return false;
+
+	CEconItemView *pPDASlotItem = TFInventoryManager()->GetItemInLoadoutForClass( iClass, LOADOUT_POSITION_PDA );
+	if ( !pPDASlotItem || !pPDASlotItem->IsValid() || pPDASlotItem->GetItemDefIndex() != 519 )
+		return false;
+
+	V_wcsncpy( pszNameBuf, pPDASlotItem->GetItemName(), nNameBufChars * sizeof( wchar_t ) );
+	const wchar_t *pwszDestroySuffix = g_pVGuiLocalize->Find( "#TF_PipBoy_DestructionPDA" );
+	if ( pwszDestroySuffix )
+		V_wcsncat( pszNameBuf, pwszDestroySuffix, nNameBufChars );
+	return true;
+}
+
+bool TF_SetPipBoyPresentationItem( CItemModelPanel *pPanel, const CEconItemView *pDisplayItem, bool bPipBoyEquipped, const wchar_t *pszPipBoyName, const char **ppszDestroyIconPath )
+{
+	if ( bPipBoyEquipped && pDisplayItem && pDisplayItem->IsValid() && pDisplayItem->GetItemDefIndex() == 26 )
+	{
+		CEconItemView presentationItem = *pDisplayItem;
+		presentationItem.SetItemDefIndex( 519 );
+		pPanel->SetItem( &presentationItem );
+		pPanel->SetDisplayNameOverride( pszPipBoyName );
+		if ( ppszDestroyIconPath )
+			*ppszDestroyIconPath = presentationItem.GetStaticData()->GetDefinitionString( "destroy_inventory_image", "" );
+		return true;
+	}
+
+	pPanel->SetItem( pDisplayItem );
+	return false;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CEquipSlotItemSelectionPanel::UpdateModelPanelsForSelection( void )
 {
 	Assert( !DisplayOnlyAllowUniqueQualityCheckbox() );
+
+	bool bPipBoyEquipped = TF_ComputePipBoyDestroyName( m_iClass, m_wszPipBoyDestroyPDAName, ARRAYSIZE( m_wszPipBoyDestroyPDAName ) );
 
 	const bool bShowEquippedItemFirst = true;
 
@@ -1136,7 +1171,9 @@ void CEquipSlotItemSelectionPanel::UpdateModelPanelsForSelection( void )
 			}
 
 			m_pItemModelPanels[i]->SetForceShowEquipped( bShowEquipped );
-			m_pItemModelPanels[i]->SetItem( vecDisplayItems[iItemIndex].m_pEconItemView );
+
+			CEconItemView *pDisplayItem = vecDisplayItems[iItemIndex].m_pEconItemView;
+			TF_SetPipBoyPresentationItem( m_pItemModelPanels[i], pDisplayItem, bPipBoyEquipped, m_wszPipBoyDestroyPDAName );
 			m_pItemModelPanels[i]->SetGreyedOut( pszGreyOutReason );
 		}
 		else
