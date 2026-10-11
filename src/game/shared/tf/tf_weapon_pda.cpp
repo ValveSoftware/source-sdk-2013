@@ -144,6 +144,19 @@ void CTFWeaponPDA::SecondaryAttack( void )
 
 #endif
 
+#ifdef CLIENT_DLL
+CON_COMMAND( pda_click, "Play the PDA click gesture" )
+{
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if ( pPlayer && dynamic_cast<CTFWeaponPDA *>( pPlayer->GetActiveTFWeapon() ) && !pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+	{
+		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
+	}
+
+	engine->ServerCmd( "pda_click" );
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Output : Returns true on success, false on failure.
