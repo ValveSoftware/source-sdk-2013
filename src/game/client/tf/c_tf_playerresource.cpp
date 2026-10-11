@@ -21,6 +21,72 @@ extern ConVar tf_mvm_buybacks_method;
 
 C_TF_PlayerResource *g_TF_PR;
 
+//-----------------------------------------------------------------------------
+// Purpose: Prints connected player identifiers and team assignments.
+//-----------------------------------------------------------------------------
+CON_COMMAND_F( tf_player_team_debug, "Prints player identifiers and team assignments.", FCVAR_CLIENTDLL )
+{
+	if ( !g_TF_PR )
+	{
+		return;
+	}
+
+	Msg( "# userid uniqueid           team_id team\n" );
+
+	for ( int i = 1; i <= MAX_PLAYERS; ++i )
+	{
+		if ( !g_TF_PR->IsConnected( i ) )
+		{
+			continue;
+		}
+
+		const int iUserID = g_TF_PR->GetUserID( i );
+		const uint32 unAccountID = g_TF_PR->GetAccountID( i );
+		const int iTeam = g_TF_PR->GetTeam( i );
+
+		const char *pszTeamName = "Unknown";
+
+		switch ( iTeam )
+		{
+		case TEAM_UNASSIGNED:
+			pszTeamName = "Unassigned";
+			break;
+
+		case TEAM_SPECTATOR:
+			pszTeamName = "Spectator";
+			break;
+
+		case TF_TEAM_RED:
+			pszTeamName = "RED";
+			break;
+
+		case TF_TEAM_BLUE:
+			pszTeamName = "BLU";
+			break;
+
+		default:
+			break;
+		}
+
+		if ( g_TF_PR->IsFakePlayer( i ) )
+		{
+			Msg( "# %6d %-18s %7d %s\n",
+				iUserID, "BOT", iTeam, pszTeamName );
+		}
+		else
+		{
+			const CSteamID steamID(
+				unAccountID,
+				GetUniverse(),
+				k_EAccountTypeIndividual
+			);
+
+			Msg( "# %6d %-18s %7d %s\n",
+				iUserID, steamID.Render(), iTeam, pszTeamName );
+		}
+	}
+}
+
 IMPLEMENT_CLIENTCLASS_DT( C_TF_PlayerResource, DT_TFPlayerResource, CTFPlayerResource )
 	RecvPropArray3( RECVINFO_ARRAY( m_iTotalScore ), RecvPropInt( RECVINFO( m_iTotalScore[0] ) ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_iMaxHealth ), RecvPropInt( RECVINFO( m_iMaxHealth[0] ) ) ),
