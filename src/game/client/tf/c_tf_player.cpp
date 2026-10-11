@@ -60,6 +60,7 @@
 #include "tf_proxyentity.h"
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialvar.h"
+#include "materialsystem/MaterialSystemUtil.h"
 #include "materialsystem/itexturecompositor.h"
 #include "c_tf_team.h"
 #include "tf_item_inventory.h"
@@ -1763,6 +1764,96 @@ void CSpyInvisProxy::OnBindNotEntity( void *pRenderable )
 }
 
 EXPOSE_INTERFACE( CSpyInvisProxy, IMaterialProxy, "spy_invis" IMATERIAL_PROXY_INTERFACE_VERSION );
+
+//-----------------------------------------------------------------------------
+// Purpose: Replaces a material's texture while playing Mann vs. Machine.
+//-----------------------------------------------------------------------------
+class CMvMTextureProxy : public CResultProxy
+{
+public:
+	CMvMTextureProxy() : m_bEnemyDisguiseOnly( false ) {}
+
+	virtual bool Init( IMaterial *pMaterial, KeyValues *pKeyValues ) OVERRIDE;
+	virtual void OnBind( void *pC_BaseEntity ) OVERRIDE;
+
+private:
+	bool CaptureOriginalTexture();
+
+	CTextureReference m_OriginalTexture;
+	CTextureReference m_MvMTexture;
+	bool m_bEnemyDisguiseOnly;
+};
+
+bool CMvMTextureProxy::Init( IMaterial *pMaterial, KeyValues *pKeyValues )
+{
+	if ( !CResultProxy::Init( pMaterial, pKeyValues ) )
+		return false;
+
+	const char *pszMvMTexture = pKeyValues->GetString( "mvmTexture", "" );
+	if ( !pszMvMTexture[0] )
+		return false;
+
+	m_MvMTexture.Init( pszMvMTexture, TEXTURE_GROUP_MODEL );
+	KeyValues *pEnemyDisguiseOnly = pKeyValues->FindKey( "enemyDisguiseOnly", false );
+	m_bEnemyDisguiseOnly = pEnemyDisguiseOnly && pEnemyDisguiseOnly->GetBool();
+
+	// With async material loading, $basetexture may still be a string here.
+	// CaptureOriginalTexture will try again when the material is first bound.
+	CaptureOriginalTexture();
+
+	return m_MvMTexture.IsValid();
+}
+
+bool CMvMTextureProxy::CaptureOriginalTexture()
+{
+	if ( m_OriginalTexture.IsValid() )
+		return true;
+
+	if ( !m_pResult || !m_pResult->IsTexture() )
+		return false;
+
+	ITexture *pOriginalTexture = m_pResult->GetTextureValue();
+	if ( !pOriginalTexture )
+		return false;
+
+	m_OriginalTexture.Init( pOriginalTexture );
+	return true;
+}
+
+void CMvMTextureProxy::OnBind( void *pC_BaseEntity )
+{
+	if ( !CaptureOriginalTexture() )
+		return;
+
+	bool bUseMvMTexture = TFGameRules() && TFGameRules()->IsMannVsMachineMode();
+	if ( bUseMvMTexture && m_bEnemyDisguiseOnly )
+	{
+		C_BaseEntity *pEntity = BindArgToEntity( pC_BaseEntity );
+		C_TFPlayer *pPlayer = ToTFPlayer( pEntity );
+		if ( !pPlayer && pEntity )
+		{
+			IHasOwner *pOwnerInterface = dynamic_cast< IHasOwner* >( pEntity );
+			if ( pOwnerInterface )
+			{
+				pPlayer = ToTFPlayer( pOwnerInterface->GetOwnerViaInterface() );
+			}
+		}
+
+		bUseMvMTexture = pPlayer &&
+			pPlayer->IsPlayerClass( TF_CLASS_SPY ) &&
+			pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) &&
+			pPlayer->m_Shared.GetDisguiseTeam() == TF_TEAM_PVE_INVADERS;
+	}
+
+	m_pResult->SetTextureValue( bUseMvMTexture ? m_MvMTexture : m_OriginalTexture );
+
+	if ( ToolsEnabled() )
+	{
+		ToolFramework_RecordMaterialParams( GetMaterial() );
+	}
+}
+
+EXPOSE_INTERFACE( CMvMTextureProxy, IMaterialProxy, "MvMTexture" IMATERIAL_PROXY_INTERFACE_VERSION );
 
 //-----------------------------------------------------------------------------
 // Purpose: Used for invulnerability material
