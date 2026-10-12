@@ -99,7 +99,7 @@ void CTFBaseProjectile::Spawn( void )
 	// Client specific.
 #ifdef CLIENT_DLL
 
-	m_bCanDraw = false;
+	m_bLerpDraw = false;
 	m_flSpawnTime = gpGlobals->curtime;
 
 	BaseClass::Spawn();
@@ -293,12 +293,10 @@ void CTFBaseProjectile::PostDataUpdate( DataUpdateType_t type )
 int CTFBaseProjectile::DrawModel( int flags )
 {
 	// During the client's lerp time, don't draw ourselves.
-	if ( !m_bCanDraw && gpGlobals->curtime - m_flSpawnTime < GetInterpolationAmount( 0 ) )
-	{
+	if ( !m_bLerpDraw && gpGlobals->curtime - m_flSpawnTime < GetInterpolationAmount( 0 ) )
 		return 0;
-	}
 
-	m_bCanDraw = true;
+	m_bLerpDraw = true;
 	return BaseClass::DrawModel( flags );
 }
 
