@@ -1938,6 +1938,15 @@ extern "C"
 
 //---------------------------------------------------------
 
+inline CThreadMutex::CThreadMutex()
+{
+		InitializeCriticalSection((CRITICAL_SECTION *)&m_CriticalSection);
+}
+
+inline CThreadMutex::~CThreadMutex() {
+		DeleteCriticalSection((CRITICAL_SECTION *)&m_CriticalSection);
+}
+
 inline void CThreadMutex::Lock()
 {
 #ifdef THREAD_MUTEX_TRACING_ENABLED

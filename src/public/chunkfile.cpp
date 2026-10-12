@@ -135,7 +135,7 @@ ChunkErrorHandler_t CChunkHandlerMap::GetErrorHandler(void **ppData)
 // Input  : pszChunkName - Name of chunk.
 //			ppfnHandler - Receives the address of the callback function.
 //			ppData - Receives the context data for the given chunk.
-// Output : Returns true if a handler was found, false if not.
+// Output : Returns the handler if found, or nullptr if not.
 //-----------------------------------------------------------------------------
 ChunkHandler_t CChunkHandlerMap::GetHandler(const char *pszChunkName, void **ppData)
 {
@@ -151,7 +151,7 @@ ChunkHandler_t CChunkHandlerMap::GetHandler(const char *pszChunkName, void **ppD
 		pNode = pNode->pNext;
 	}
 
-	return(false);
+	return nullptr;
 }
 
 

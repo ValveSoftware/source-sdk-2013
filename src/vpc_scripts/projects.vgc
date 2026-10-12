@@ -21,7 +21,7 @@ $Project "client"
 
 $Project "fgdlib"
 {
-	"fgdlib\fgdlib.vpc" [$WINDOWS]
+	"fgdlib\fgdlib.vpc"
 }
 
 $Project "game_shader_generic_example"
@@ -107,7 +107,7 @@ $Project "tier1"
 
 $Project "vbsp"
 {
-	"utils\vbsp\vbsp.vpc" [$WINDOWS]
+	"utils\vbsp\vbsp.vpc"
 }
 
 $Project "vgui_controls"
@@ -122,12 +122,12 @@ $Project "vice"
 
 $Project "vrad_dll"
 {
-	"utils\vrad\vrad_dll.vpc" [$WINDOWS]
+	"utils\vrad\vrad_dll.vpc"
 }
 
 $Project "vrad_launcher"
 {
-	"utils\vrad_launcher\vrad_launcher.vpc" [$WINDOWS]
+	"utils\vrad_launcher\vrad_launcher.vpc"
 }
 
 $Project "vtf2tga"
@@ -142,11 +142,11 @@ $Project "vtfdiff"
 
 $Project "vvis_dll"
 {
-	"utils\vvis\vvis_dll.vpc" [$WINDOWS]
+	"utils\vvis\vvis_dll.vpc"
 }
 
 $Project "vvis_launcher"
 {
-	"utils\vvis_launcher\vvis_launcher.vpc" [$WINDOWS]
+	"utils\vvis_launcher\vvis_launcher.vpc"
 }
 

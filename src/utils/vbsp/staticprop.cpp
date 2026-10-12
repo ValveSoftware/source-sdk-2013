@@ -11,14 +11,14 @@
 #include "utlvector.h"
 #include "bspfile.h"
 #include "gamebspfile.h"
-#include "VPhysics_Interface.h"
-#include "Studio.h"
+#include "vphysics_interface.h"
+#include "studio.h"
 #include "byteswap.h"
-#include "UtlBuffer.h"
-#include "CollisionUtils.h"
+#include "utlbuffer.h"
+#include "collisionutils.h"
 #include <float.h>
-#include "CModel.h"
-#include "PhysDll.h"
+#include "cmodel.h"
+#include "physdll.h"
 #include "utlsymbol.h"
 #include "tier1/strtools.h"
 #include "KeyValues.h"
@@ -247,7 +247,7 @@ static CPhysCollide* GetCollisionModel( char const* pModelName )
 	// Convert to a common string
 	char* pTemp = (char*)_alloca(strlen(pModelName) + 1);
 	strcpy( pTemp, pModelName );
-	_strlwr( pTemp );
+	strlwr( pTemp );
 
 	char* pSlash = strchr( pTemp, '\\' );
 	while( pSlash )
