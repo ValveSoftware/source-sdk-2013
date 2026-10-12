@@ -248,8 +248,8 @@ void CTFDRGPomson::Precache()
 //-----------------------------------------------------------------------------
 void CTFDRGPomson::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOffset, Vector *vecSrc, QAngle *angForward, bool bHitTeammates, float flEndDist )
 {
-	BaseClass::GetProjectileFireSetup( pPlayer, vecOffset, vecSrc, angForward, bHitTeammates, flEndDist );
-
 	// adjust to line up with the weapon muzzle
-	vecSrc->z -= 13.0f;
+	vecOffset.z -= 13.0f;
+
+	BaseClass::GetProjectileFireSetup( pPlayer, vecOffset, vecSrc, angForward, bHitTeammates, flEndDist );
 }
