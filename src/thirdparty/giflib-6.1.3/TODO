@@ -1,0 +1,10 @@
+= GIFLIB TODO list =
+
+There is a list of GIF test suites here:
+
+https://stackoverflow.com/questions/4866093/test-suite-for-gif-containing-images-using-rarely-used-features
+
+These break the format in quite a number of interesting ways.  GIFLIB doesn't
+do as well as it could; I haven't found one that causes a core dump, yet, but
+some malformations that could be worked around are not yet.
+
