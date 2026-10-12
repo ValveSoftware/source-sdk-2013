@@ -435,6 +435,7 @@ public:
 	CNetworkVar( float, m_flHeadScale );
 	CNetworkVar( float, m_flTorsoScale );
 	CNetworkVar( float, m_flHandScale );
+	CNetworkVar( float, m_flNeckScale );
 	CUtlVector<CHandle<CEconWearable > > m_hRagWearables;
 };
 
@@ -464,6 +465,7 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE( CTFRagdoll, DT_TFRagdoll )
 	SendPropFloat( SENDINFO( m_flHeadScale ) ),
 	SendPropFloat( SENDINFO( m_flTorsoScale ) ),
 	SendPropFloat( SENDINFO( m_flHandScale ) ),
+	SendPropFloat( SENDINFO( m_flNeckScale ) ),
 END_SEND_TABLE()
 
 // -------------------------------------------------------------------------------- //
@@ -820,6 +822,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	SendPropFloat( SENDINFO( m_flHeadScale ) ),
 	SendPropFloat( SENDINFO( m_flTorsoScale ) ),
 	SendPropFloat( SENDINFO( m_flHandScale ) ),
+	SendPropFloat( SENDINFO( m_flNeckScale ) ),
 
 	SendPropBool( SENDINFO( m_bUseBossHealthBar ) ),
 
@@ -1069,6 +1072,7 @@ CTFPlayer::CTFPlayer()
 	m_flHeadScale = 1.f;
 	m_flTorsoScale = 1.f;
 	m_flHandScale = 1.f;
+	m_flNeckScale = 1.f;
 
 	m_bPendingMerasmusPlayerBombExplode = false;
 	m_fLastBombHeadTimestamp = 0.0f;
@@ -1734,6 +1738,9 @@ void CTFPlayer::TFPlayerThink()
 
 	// scale our torso
 	m_flHandScale = Approach( GetDesiredHandScale(), m_flHandScale, GetHandScaleSpeed() );
+
+	// scale our neck
+	m_flNeckScale = Approach( GetDesiredNeckScale(), m_flNeckScale, GetNeckScaleSpeed() );
 
 /*
 #ifdef STAGING_ONLY
@@ -15650,6 +15657,7 @@ void CTFPlayer::CreateRagdollEntity( bool bGib, bool bBurning, bool bElectrocute
 		pRagdoll->m_flHeadScale = m_flHeadScale;
 		pRagdoll->m_flTorsoScale = m_flTorsoScale;
 		pRagdoll->m_flHandScale = m_flHandScale;
+		pRagdoll->m_flNeckScale = m_flNeckScale;
 	}
 
 	// Turn off the player.
@@ -15844,6 +15852,7 @@ void CTFPlayer::CreateFeignDeathRagdoll( const CTakeDamageInfo& info, bool bGib,
 		pRagdoll->m_flHeadScale = m_flHeadScale;
 		pRagdoll->m_flTorsoScale = m_flTorsoScale;
 		pRagdoll->m_flHandScale = m_flHandScale;
+		pRagdoll->m_flNeckScale = m_flNeckScale;
 
 		{
 			int iGoldRagdoll = 0;
@@ -22489,6 +22498,24 @@ float CTFPlayer::GetHandScaleSpeed() const
 		return GetDesiredHandScale();
 	}
 
+	return gpGlobals->frametime;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+float CTFPlayer::GetDesiredNeckScale() const
+{
+	float flDesiredNeckScale = 1.f;
+	CALL_ATTRIB_HOOK_FLOAT( flDesiredNeckScale, neck_scale );
+	return flDesiredNeckScale;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+float CTFPlayer::GetNeckScaleSpeed() const
+{
 	return gpGlobals->frametime;
 }
 
