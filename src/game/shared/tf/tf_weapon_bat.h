@@ -147,6 +147,7 @@ public:
 	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_GRENADE_STUNBALL; }
 	virtual const char *GetBallModelName( void ) const;
 	virtual const char *GetBallViewModelName( void ) const;
+	const char		   *GetTrailEffect( void ) const;
 
 	virtual bool		IsAllowedToExplode( void ) OVERRIDE { return false; }
 	virtual void		Explode( trace_t *pTrace, int bitsDamageType );
@@ -157,6 +158,7 @@ public:
 	virtual float		GetDamage( void );
 	virtual int			GetDamageType( void )				{ return DMG_CLUB; }
 	virtual Vector		GetDamageForce( void );
+	virtual void		Deflected( CBaseEntity* pDeflectedBy, Vector& vecDir ) OVERRIDE;
 
 	virtual float		GetShakeAmplitude( void )			{ return 0.0; }
 	virtual float		GetShakeRadius( void )				{ return 0.0; }
