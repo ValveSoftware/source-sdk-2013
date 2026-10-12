@@ -95,7 +95,7 @@ public:
 	virtual void	PostDataUpdate( DataUpdateType_t type );
 
 private:
-
+	bool	m_bLerpDraw;
 	float	 m_flSpawnTime;
 #else
 

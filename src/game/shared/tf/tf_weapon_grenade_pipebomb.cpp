@@ -378,9 +378,10 @@ void CTFGrenadePipebombProjectile::Simulate( void )
 //-----------------------------------------------------------------------------
 int CTFGrenadePipebombProjectile::DrawModel( int flags )
 {
-	if ( gpGlobals->curtime < ( m_flCreationTime + 0.1 ) )
+	if ( !m_bLerpDraw && gpGlobals->curtime < ( m_flCreationTime + GetInterpolationAmount( 0 ) ) )
 		return 0;
 
+	m_bLerpDraw = true;
 	return BaseClass::DrawModel( flags );
 }
 
@@ -492,6 +493,13 @@ CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector
 //-----------------------------------------------------------------------------
 void CTFGrenadePipebombProjectile::Spawn()
 {
+	// Client specific.
+	#ifdef CLIENT_DLL
+
+	m_bLerpDraw = false;
+
+	#endif
+
 	if ( HasStickyEffects() )
 	{
 		// Set this to max, so effectively they do not self-implode.
