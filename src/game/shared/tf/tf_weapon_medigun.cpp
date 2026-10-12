@@ -291,6 +291,17 @@ void CWeaponMedigun::WeaponReset( void )
 	if ( TFGameRules()->State_Get() == GR_STATE_RND_RUNNING )
 	{
 		// This is determined via an attribute in SetStoredChargeLevel()
+		int iPreserveUberCharge = 0;
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( pOwner, iPreserveUberCharge, preserve_ubercharge );
+		if ( iPreserveUberCharge > 0 )
+		{
+#ifdef _WIN32
+			m_flChargeLevelToPreserve = Max( m_flChargeLevelToPreserve, iPreserveUberCharge / 99.f );
+#else
+			m_flChargeLevelToPreserve = Max( m_flChargeLevelToPreserve, iPreserveUberCharge / 100.f );
+#endif
+		}
+		
 		m_flChargeLevel = Min( (float)m_flChargeLevel, m_flChargeLevelToPreserve );
 	}
 	else
