@@ -1211,24 +1211,17 @@ bool CTFGameMovement::CheckJumpButton()
 		return false;
 
 	// Check to see if the player is a scout.
-	bool bScout = m_pTFPlayer->GetPlayerClass()->IsClass( TF_CLASS_SCOUT );
 	bool bAirDash = false;
 	bool bOnGround = ( player->GetGroundEntity() != NULL );
 
 	ToggleParachute();
 
-	// Cannot jump will ducked.
-	if ( player->GetFlags() & FL_DUCKING )
-	{
-		// Let a scout do it.
-		bool bAllow = ( bScout && !bOnGround );
-
-		if ( !bAllow )
-			return false;
-	}
+	// Cannot jump while ducked and grounded.
+	if ( player->GetFlags() & FL_DUCKING && bOnGround )
+		return false;
 
 	// Cannot jump while in the unduck transition.
-	if ( ( player->m_Local.m_bDucking && (  player->GetFlags() & FL_DUCKING ) ) || ( player->m_Local.m_flDuckJumpTime > 0.0f ) )
+	if ( ( player->m_Local.m_bDucking && ( player->GetFlags() & FL_DUCKING ) ) || ( player->m_Local.m_flDuckJumpTime > 0.0f ) )
 		return false;
 
 	// Cannot jump again until the jump button has been released.
