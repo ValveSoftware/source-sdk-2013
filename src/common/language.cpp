@@ -105,14 +105,11 @@ ELanguage PchLanguageICUCodeToELanguage( const char *pchICUCode, ELanguage eDefa
 	if ( !pchICUCode )
 		return eDefault;
 
-	// Match to no more than the param length so either a short 'en' or
-	// full 'zh-Hant' can match
-	int nLen = Q_strlen( pchICUCode );
-
-	// we only have 5 character ICU codes so this should be enough room
-	char rchCleanedCode[ 6 ];
+	// we only have 5 character ICU codes but 'es_419' has 6 characters, so we increase the buffer to 8
+	char rchCleanedCode[ 8 ];
 	Q_strncpy( rchCleanedCode, pchICUCode, Q_ARRAYSIZE( rchCleanedCode ) );
-	if( nLen >= 3 && rchCleanedCode[ 2 ] == '-' )
+	int nLen = ( int ) Q_strlen( rchCleanedCode );
+	if ( nLen >= 3 && rchCleanedCode[ 2 ] == '-' )
 	{
 		rchCleanedCode[ 2 ] = '_';
 	}
