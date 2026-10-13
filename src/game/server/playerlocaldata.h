@@ -30,7 +30,7 @@ public:
 
 	CPlayerLocalData();
 
-	void UpdateAreaBits( CBasePlayer *pl, unsigned char chAreaPortalBits[MAX_AREA_PORTAL_STATE_BYTES] );
+	void UpdateAreaBits( const Vector &origin, unsigned char chAreaPortalBits[MAX_AREA_PORTAL_STATE_BYTES] );
 
 
 public:
