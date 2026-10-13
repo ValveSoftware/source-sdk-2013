@@ -69,10 +69,10 @@ bool CSpellPickup::ItemCanBeTouchedByPlayer( CBasePlayer *pPlayer )
 	if ( IsDisabled() )
 		return false;
 
-	// Dont let them pick up new spells if they already have a spell unless its a tier 1 spell
 	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
-	if ( pTFPlayer && m_nTier == 0 )
+	if ( pTFPlayer )
 	{
+		// Check for spellbook regardless of tier
 		CTFSpellBook *pSpellBook = dynamic_cast< CTFSpellBook* >( pTFPlayer->GetEntityForLoadoutSlot( LOADOUT_POSITION_ACTION ) );
 		if ( !pSpellBook )
 		{
@@ -81,7 +81,8 @@ bool CSpellPickup::ItemCanBeTouchedByPlayer( CBasePlayer *pPlayer )
 			return false;
 		}
 		
-		if ( pSpellBook->HasASpellWithCharges() )
+		// Only check for existing charges on tier 0 spells
+		if ( m_nTier == 0 && pSpellBook->HasASpellWithCharges() )
 		{
 			return false;
 		}
