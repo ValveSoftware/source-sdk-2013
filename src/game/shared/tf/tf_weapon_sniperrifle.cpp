@@ -326,6 +326,14 @@ void CTFSniperRifle::HandleZooms( void )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
+bool CTFSniperRifle::CanInspect() const
+{
+	return BaseClass::CanInspect() && !IsZoomed() && m_flChargedDamage == 0.f;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 void CTFSniperRifle::ItemPostFrame( void )
 {
 	// If we're lowered, we're not allowed to fire
@@ -545,7 +553,7 @@ void CTFSniperRifle::ZoomIn( void )
 
 
 //-----------------------------------------------------------------------------
-bool CTFSniperRifle::IsZoomed( void )
+bool CTFSniperRifle::IsZoomed( void ) const
 {
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
 
@@ -1917,6 +1925,9 @@ void CTFSniperRifleClassic::ItemPostFrame( void )
 			CreateSniperDot();
 			pPlayer->ClearExpression();	
 #endif
+			// Stop inspecting and reset our animation.
+			StopInspect();
+			SendWeaponAnim( ACT_VM_IDLE );
 		}
 
 		float fSniperRifleChargePerSec = m_flChargePerSec;
