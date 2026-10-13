@@ -182,7 +182,7 @@ void CObjectSentrygun::Spawn()
 	// Rotate Details
 	m_iRightBound = 45;
 	m_iLeftBound = 315;
-	m_iBaseTurnRate = 6;
+	m_iBaseTurnRate = 2;
 	m_flFieldOfView = VIEW_FIELD_NARROW;
 
 	// Give the Gun some ammo
@@ -216,7 +216,7 @@ void CObjectSentrygun::Spawn()
 
 	m_iState.Set( SENTRY_STATE_INACTIVE );
 
-	SetContextThink( &CObjectSentrygun::SentryThink, gpGlobals->curtime + SENTRY_THINK_DELAY, SENTRYGUN_CONTEXT );
+	SetContextThink( &CObjectSentrygun::SentryThink, gpGlobals->curtime, SENTRYGUN_CONTEXT );
 }
 
 //-----------------------------------------------------------------------------
@@ -294,7 +294,7 @@ void CObjectSentrygun::SentryThink( void )
 		break;
 	}
 
-	SetContextThink( &CObjectSentrygun::SentryThink, gpGlobals->curtime + SENTRY_THINK_DELAY, SENTRYGUN_CONTEXT );
+	SetContextThink( &CObjectSentrygun::SentryThink, gpGlobals->curtime, SENTRYGUN_CONTEXT );
 
 	if ( m_nShieldLevel > 0 && (gpGlobals->curtime > m_flShieldFadeTime) )
 	{
