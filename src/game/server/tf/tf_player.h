@@ -497,6 +497,8 @@ public:
 	void SetAutoRezoom( bool bAutoRezoom ) { m_bAutoRezoom = bAutoRezoom; }
 	bool ShouldAutoReload( void ){ return m_bAutoReload; }
 	void SetAutoReload( bool bAutoReload ) { m_bAutoReload = bAutoReload; }
+	bool ShouldHoldZoom( void ){ return m_bHoldZoom; }
+	void SetHoldZoom( bool bHoldZoom ) { m_bHoldZoom = bHoldZoom; }
 
 	virtual void	ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet );
 
@@ -1267,6 +1269,7 @@ private:
 	bool 				m_bMedigunAutoHeal;
 	bool				m_bAutoRezoom;	// does the player want to re-zoom after each shot for sniper rifles
 	bool				m_bAutoReload;
+	bool				m_bHoldZoom;
 
 	bool				m_bForceItemRemovalOnRespawn;
 
