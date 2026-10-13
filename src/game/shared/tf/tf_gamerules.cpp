@@ -729,6 +729,7 @@ ConVar tf_player_spell_drop_on_death_rate( "tf_player_spell_drop_on_death_rate",
 ConVar tf_player_drop_bonus_ducks( "tf_player_drop_bonus_ducks", "-1", FCVAR_REPLICATED, "-1 Default (Holiday-based)\n0 - Force off\n1 - Force on" );
 
 ConVar tf_allow_player_name_change( "tf_allow_player_name_change", "1", FCVAR_NOTIFY, "Allow player name changes." );
+ConVar tf_kill_enable_custom_ragdolls( "tf_kill_enable_custom_ragdolls", "1", FCVAR_REPLICATED, "Allow players to use custom ragdolls with tf_kill" );
 
 ConVar tf_weapon_criticals_distance_falloff( "tf_weapon_criticals_distance_falloff", "0", FCVAR_CHEAT, "Critical weapon damage will take distance into account." );
 ConVar tf_weapon_minicrits_distance_falloff( "tf_weapon_minicrits_distance_falloff", "0", FCVAR_CHEAT, "Mini-crit weapon damage will take distance into account." );
