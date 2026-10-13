@@ -2939,7 +2939,9 @@ void CServerGameClients::ClientSetupVisibility( edict_t *pViewEntity, edict_t *p
 	CBasePlayer *pPlayer = ( CBasePlayer * )GetContainingEntity( pClient );
 	if ( pPlayer )
 	{
-		org = pPlayer->EyePosition();
+		if ( !pVE )
+			org = pPlayer->EyePosition();
+
 		pPlayer->SetupVisibility( pVE, pvs, pvssize );
 		UTIL_SetClientVisibilityPVS( pClient, pvs, pvssize );
 		fovDistanceAdjustFactor = pPlayer->GetFOVDistanceAdjustFactorForNetworking();
@@ -2999,7 +3001,7 @@ void CServerGameClients::ClientSetupVisibility( edict_t *pViewEntity, edict_t *p
 	if ( pPlayer )
 	{
 		// Update the area bits that get sent to the client.
-		pPlayer->m_Local.UpdateAreaBits( pPlayer, portalBits );
+		pPlayer->m_Local.UpdateAreaBits( org, portalBits );
 
 #ifdef PORTAL 
 		// *After* the player's view has updated its area bits, add on any other areas seen by portals

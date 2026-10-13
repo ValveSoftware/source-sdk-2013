@@ -198,10 +198,8 @@ CPlayerLocalData::CPlayerLocalData()
 }
 
 
-void CPlayerLocalData::UpdateAreaBits( CBasePlayer *pl, unsigned char chAreaPortalBits[MAX_AREA_PORTAL_STATE_BYTES] )
+void CPlayerLocalData::UpdateAreaBits( const Vector &origin, unsigned char chAreaPortalBits[MAX_AREA_PORTAL_STATE_BYTES] )
 {
-	Vector origin = pl->EyePosition();
-
 	unsigned char tempBits[32];
 	COMPILE_TIME_ASSERT( sizeof( tempBits ) >= sizeof( ((CPlayerLocalData*)0)->m_chAreaBits ) );
 
