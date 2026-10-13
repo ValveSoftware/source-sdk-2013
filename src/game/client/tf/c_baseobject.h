@@ -56,7 +56,7 @@ public:
 	void			SetObjectSequence( int sequence );
 	virtual void	ResetClientsideFrame( void );
 
-	virtual void	PreDataUpdate( DataUpdateType_t updateType );
+	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
 	virtual void	OnDataChanged( DataUpdateType_t updateType );
 
 	virtual int		GetHealth() const { return m_iHealth; }
