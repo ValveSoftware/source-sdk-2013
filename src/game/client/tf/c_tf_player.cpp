@@ -3771,6 +3771,7 @@ END_RECV_TABLE()
 //-----------------------------------------------------------------------------
 BEGIN_RECV_TABLE_NOBASE( C_TFPlayer, DT_TFSendHealersDataTable )
 	RecvPropInt( RECVINFO( m_nActiveWpnClip ) ),
+	RecvPropInt( RECVINFO( m_nActiveWpnReserve ) ),
 END_RECV_TABLE()
 
 IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
@@ -9827,14 +9828,23 @@ void C_TFPlayer::GetTargetIDDataString( bool bIsDisguised, OUT_Z_BYTECAP(iMaxLen
 				}
 
 				// Show target's clip state to attached medics
-				if ( !sDataString[0] && m_nActiveWpnClip >= 0 )
+				if ( !sDataString[0] && m_nActiveWpnClip != UINT16_MAX )
 				{
 					C_TFPlayer *pTFHealTarget = ToTFPlayer( pLocalPlayer->MedicGetHealTarget() );
 					if ( pTFHealTarget && pTFHealTarget == this )
 					{
 						wchar_t wszClip[10];
-						V_snwprintf( wszClip, ARRAYSIZE(wszClip) - 1, L"%d", m_nActiveWpnClip );
-						g_pVGuiLocalize->ConstructString( sDataString, iMaxLenInBytes, g_pVGuiLocalize->Find( "#TF_playerid_ammo" ), 1, wszClip );
+						V_snwprintf( wszClip, ARRAYSIZE( wszClip ) - 1, L"%d", m_nActiveWpnClip );
+						if ( m_nActiveWpnReserve != UINT16_MAX )
+						{
+							wchar_t wszReserve[10];
+							V_snwprintf( wszReserve, ARRAYSIZE( wszReserve ) - 1, L"%d", m_nActiveWpnReserve );
+							g_pVGuiLocalize->ConstructString( sDataString, iMaxLenInBytes, g_pVGuiLocalize->Find( "#TF_playerid_ammo_reserve" ), 2, wszClip, wszReserve );
+						}
+						else
+						{
+							g_pVGuiLocalize->ConstructString( sDataString, iMaxLenInBytes, g_pVGuiLocalize->Find("#TF_playerid_ammo" ), 1, wszClip );
+						}
 						bIsAmmoData = true;
 					}
 				}

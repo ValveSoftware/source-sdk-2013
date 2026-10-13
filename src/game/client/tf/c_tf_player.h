@@ -880,6 +880,7 @@ private:
 
 	// Medic healtarget active weapon ammo/clip count
 	uint16	m_nActiveWpnClip;
+	uint16	m_nActiveWpnReserve;
 	
 	// Blast jump whistle
 	CSoundPatch		*m_pBlastJumpLoop;
