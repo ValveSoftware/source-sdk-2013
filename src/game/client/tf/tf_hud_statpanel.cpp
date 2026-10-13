@@ -640,12 +640,12 @@ bool CTFStatPanel::ReadStats( void )
 		CDmxElement *pMap = aMapStatsList[ i ];
 		MapStats_t &stat = m_aMapStats[ i ];
 
-		const char* szCommentMapName = pMap->GetValueString( "comment: mapname" );
+		const char* pszCommentMapName = pMap->GetValueString( "comment: mapname" );
 		pMap->UnpackIntoStructure( &stat, sizeof( stat ), s_MapStatsUnpack );
 		// Required so stats don't get reset when importing semi-broken records missing "iMapID"
-	    if ( szCommentMapName )
+	    if ( pszCommentMapName )
 		{
-			map_identifier_t mapIdent = GetMapIdentifierFromName( szCommentMapName );
+			map_identifier_t mapIdent = GetMapIdentifierFromName( pszCommentMapName );
 			if ( mapIdent > 0 )
 			{
 				stat.iMapID = mapIdent;
@@ -1013,14 +1013,11 @@ map_identifier_t CTFStatPanel::GetMapIdentifierFromName( const char* pszMapName 
 {
 	if ( !pszMapName ) return 0;
 	
-    for ( int i = 0; i < GetItemSchema()->GetMapCount(); i++ )
-	{
-		const MapDef_t* pMap = GetItemSchema()->GetMasterMapDefByIndex( i );
-		if ( FStrEq( pMap->pszMapName, pszMapName ) )
+	const MapDef_t* pMap = GetItemSchema()->GetMasterMapDefByName( pszMapName );
+	if ( pMap )
 		{
 			return pMap->GetStatsIdentifier();
 		}
-	}
 
     return 0;
 }
