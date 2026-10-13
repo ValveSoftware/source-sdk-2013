@@ -615,7 +615,7 @@ bool CBaseCombatCharacter::IsLookingTowards( const Vector &target, float cosTole
 bool CBaseCombatCharacter::IsInFieldOfView( CBaseEntity *entity ) const
 {
 	CBasePlayer *pPlayer = ToBasePlayer( const_cast< CBaseCombatCharacter* >( this ) );
-	float flTolerance = pPlayer ? cos( (float)pPlayer->GetFOV() * 0.5f ) : BCC_DEFAULT_LOOK_TOWARDS_TOLERANCE;
+	float flTolerance = pPlayer ? cos( DEG2RAD( (float)pPlayer->GetFOV() * 0.5f ) ) : BCC_DEFAULT_LOOK_TOWARDS_TOLERANCE;
 
 	Vector vecForward;
 	Vector vecEyePosition = EyePosition();
@@ -650,7 +650,7 @@ bool CBaseCombatCharacter::IsInFieldOfView( const Vector &pos ) const
 	CBasePlayer *pPlayer = ToBasePlayer( const_cast< CBaseCombatCharacter* >( this ) );
 
 	if ( pPlayer )
-		return IsLookingTowards( pos, cos( (float)pPlayer->GetFOV() * 0.5f ) );
+		return IsLookingTowards( pos, cos( DEG2RAD( (float)pPlayer->GetFOV() * 0.5f ) ) );
 
 	return IsLookingTowards( pos );
 }
