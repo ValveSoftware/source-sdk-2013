@@ -524,14 +524,11 @@ public:
 	//-----------------------------------------------------------------------------
 	void DisplayDamageFeedback( CTFPlayer *pAttacker, CBaseCombatCharacter *pVictim, int iDamage, int iHealth, bool bIsCrit )
 	{
-		if ( iDamage <= 0 ) // zero value (invuln?)
+		if ( iDamage <= 0 || !pAttacker )
 			return;
 
 		CTFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 		if ( !pLocalPlayer || !pLocalPlayer->IsAlive() )
-			return;
-
-		if ( !pAttacker || !pVictim )
 			return;
 
 		// Show the attacker, or when healing the player that is
@@ -617,7 +614,7 @@ public:
 				}
 			}
 
-			if ( hud_combattext.GetBool() )
+			if ( hud_combattext.GetBool() && pVictim )
 			{
 				// Ignore damage events on targets that we can't see, so it's not a cheat
 				trace_t	tr;
