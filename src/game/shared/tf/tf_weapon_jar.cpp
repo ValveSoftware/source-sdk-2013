@@ -199,6 +199,7 @@ void CTFJar::TossJarThink( void )
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
 		pProjectile->SetLauncher( this );
+		pProjectile->SetCustomPipebombModel();
 	}
 
 	if ( ShouldSpeakWhenFiring() )
@@ -263,9 +264,9 @@ void CTFProjectile_Jar::SetCustomPipebombModel()
 	// Check for Model Override
 	int iProjectile = 0;
 	CTFPlayer *pThrower = ToTFPlayer( GetThrower() );
-	if ( pThrower && pThrower->GetActiveWeapon() )
+	if ( pThrower && GetLauncher() )
 	{
-		CALL_ATTRIB_HOOK_INT_ON_OTHER( pThrower->GetActiveWeapon(), iProjectile, override_projectile_type );
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( GetLauncher(), iProjectile, override_projectile_type );
 		switch ( iProjectile )
 		{
 		case TF_PROJECTILE_FESTIVE_JAR :
@@ -838,9 +839,9 @@ void CTFProjectile_JarMilk::SetCustomPipebombModel()
 	// Check for Model Override
 	int iProjectile = 0;
 	CTFPlayer *pThrower = ToTFPlayer( GetThrower() );
-	if ( pThrower && pThrower->GetActiveWeapon() )
+	if ( pThrower && GetLauncher() )
 	{
-		CALL_ATTRIB_HOOK_INT_ON_OTHER( pThrower->GetActiveWeapon(), iProjectile, override_projectile_type );
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( GetLauncher(), iProjectile, override_projectile_type );
 		switch ( iProjectile )
 		{
 		case TF_PROJECTILE_BREADMONSTER_JARATE:
