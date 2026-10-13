@@ -3984,31 +3984,36 @@ void CGameMovement::CheckFalling( void )
 	player->m_Local.m_flFallVelocity = 0;
 }
 
+ConVar sv_rough_landing_effects( "sv_rough_landing_effects", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Apply effects on rough landing" );
+
 void CGameMovement::PlayerRoughLandingEffects( float fvol )
 {
-	if ( fvol > 0.0 )
+	if ( fvol <= 0.0 )
+		return;
+
+	if ( !sv_rough_landing_effects.GetBool() )
+		return;
+	
+	//
+	// Play landing sound right away.
+	player->m_flStepSoundTime = 400;
+
+	// Play step sound for current texture.
+	player->PlayStepSound( (Vector &)mv->GetAbsOrigin(), player->m_pSurfaceData, fvol, true );
+
+	//
+	// Knock the screen around a little bit, temporary effect.
+	//
+	player->m_Local.m_vecPunchAngle.Set( ROLL, player->m_Local.m_flFallVelocity * 0.013 );
+
+	if ( player->m_Local.m_vecPunchAngle[PITCH] > 8 )
 	{
-		//
-		// Play landing sound right away.
-		player->m_flStepSoundTime = 400;
-
-		// Play step sound for current texture.
-		player->PlayStepSound( (Vector &)mv->GetAbsOrigin(), player->m_pSurfaceData, fvol, true );
-
-		//
-		// Knock the screen around a little bit, temporary effect.
-		//
-		player->m_Local.m_vecPunchAngle.Set( ROLL, player->m_Local.m_flFallVelocity * 0.013 );
-
-		if ( player->m_Local.m_vecPunchAngle[PITCH] > 8 )
-		{
-			player->m_Local.m_vecPunchAngle.Set( PITCH, 8 );
-		}
+		player->m_Local.m_vecPunchAngle.Set( PITCH, 8 );
+	}
 
 #if !defined( CLIENT_DLL )
-		player->RumbleEffect( ( fvol > 0.85f ) ? ( RUMBLE_FALL_LONG ) : ( RUMBLE_FALL_SHORT ), 0, RUMBLE_FLAGS_NONE );
+	player->RumbleEffect( ( fvol > 0.85f ) ? ( RUMBLE_FALL_LONG ) : ( RUMBLE_FALL_SHORT ), 0, RUMBLE_FLAGS_NONE );
 #endif
-	}
 }
 
 //-----------------------------------------------------------------------------
