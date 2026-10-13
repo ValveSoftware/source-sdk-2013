@@ -373,7 +373,7 @@ public:
 	float PlayCritReceivedSound( void );
 	void PainSound( const CTakeDamageInfo &info );
 	void DeathSound( const CTakeDamageInfo &info );
-	virtual const char* GetSceneSoundToken( void );
+	virtual const char* GetSceneSoundToken( CBasePlayer *pListener );
 	void StunSound( CTFPlayer* pAttacker, int iStunFlags, int iOldStunFlags=0 );
 
 	void SetSeeCrit( bool bAllSeeCrit, bool bMiniCrit, bool bShowDisguisedCrit ) { m_bAllSeeCrit = bAllSeeCrit; m_bMiniCrit = bMiniCrit; m_bShowDisguisedCrit = bShowDisguisedCrit;  }

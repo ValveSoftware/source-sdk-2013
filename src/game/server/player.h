@@ -463,7 +463,7 @@ public:
 	virtual void			GetStepSoundVelocities( float *velwalk, float *velrun );
 	virtual void			SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalking );
 	virtual void			DeathSound( const CTakeDamageInfo &info );
-	virtual const char*		GetSceneSoundToken( void ) { return ""; }
+	virtual const char*		GetSceneSoundToken( CBasePlayer * ) { return ""; }
 
 	virtual void			OnEmitFootstepSound( const CSoundParameters& params, const Vector& vecOrigin, float fVolume ) {}
 
