@@ -1737,12 +1737,18 @@ int CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 
 			if ( RunScriptHook( "OnTakeDamage", varTable ) )
 			{
-				info.SetInflictor( ToEnt( pVM->Get<HSCRIPT>( varTable, "inflictor" ) ) );
-				info.SetWeapon( ToEnt( pVM->Get<HSCRIPT>( varTable, "weapon" ) ) );
-				info.SetAttacker( ToEnt( pVM->Get<HSCRIPT>( varTable, "attacker" ) ) );
+				// HSCRIPT results use GetValue + ReleaseValue: the Get<HSCRIPT> specialization
+				// returns a handle that aliases the variant, so it intentionally does not release.
+				// Get<Vector>/Get<float>/Get<int> use the generic template, which releases for us.
+				ScriptVariant_t vr;
+				if ( pVM->GetValue( varTable, "inflictor", &vr ) ) info.SetInflictor( ToEnt( (HSCRIPT)vr ) ); pVM->ReleaseValue( vr );
+				if ( pVM->GetValue( varTable, "weapon", &vr ) )    info.SetWeapon( ToEnt( (HSCRIPT)vr ) );    pVM->ReleaseValue( vr );
+				if ( pVM->GetValue( varTable, "attacker", &vr ) )  info.SetAttacker( ToEnt( (HSCRIPT)vr ) );  pVM->ReleaseValue( vr );
 				info.SetDamage( pVM->Get<float>( varTable, "damage" ) );
 				info.SetMaxDamage( pVM->Get<float>( varTable, "max_damage" ) );
-				info.SetDamageBonus( pVM->Get<float>( varTable, "damage_bonus" ), ToEnt( pVM->Get<HSCRIPT>( varTable, "damage_bonus_provider" ) ) );
+				CBaseEntity *pBonusProvider = NULL;
+				if ( pVM->GetValue( varTable, "damage_bonus_provider", &vr ) ) pBonusProvider = ToEnt( (HSCRIPT)vr ); pVM->ReleaseValue( vr );
+				info.SetDamageBonus( pVM->Get<float>( varTable, "damage_bonus" ), pBonusProvider );
 				info.SetDamageForce( pVM->Get<Vector>( varTable, "damage_force" ) );
 				info.SetDamageForForceCalc( pVM->Get<float>( varTable, "damage_for_force_calc" ) );
 				info.SetDamagePosition( pVM->Get<Vector>( varTable, "damage_position" ) );
@@ -1755,9 +1761,15 @@ int CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 				info.SetPlayerPenetrationCount( pVM->Get<int>( varTable, "player_penetration_count" ) );
 				info.SetDamagedOtherPlayers( pVM->Get<int>( varTable, "damaged_other_players" ) );
 				info.SetCritType( (CTakeDamageInfo::ECritType) pVM->Get<int>( varTable, "crit_type" ) );
+
 				if ( pVM->Get<bool>( varTable, "early_out" ) )
+				{
+					pVM->ReleaseValue( varTable );
 					return info.GetDamage();
+				}
 			}
+
+			pVM->ReleaseValue( varTable );
 		}
 
 		return OnTakeDamage( info );
