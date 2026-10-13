@@ -23,6 +23,7 @@
 #include "input.h"
 #include "client_virtualreality.h"
 #include "sourcevr/isourcevirtualreality.h"
+#include "prediction.h"
 
 // forward declarations
 void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
@@ -385,7 +386,7 @@ void CTFSniperRifle::ItemPostFrame( void )
 
 #ifdef CLIENT_DLL
 			// play the recharged bell if we're fully charged
-			if ( IsFullyCharged() && !m_bPlayedBell )
+			if ( IsFullyCharged() && !m_bPlayedBell && ( !prediction->InPrediction() || prediction->IsFirstTimePredicted() ) )
 			{
 				m_bPlayedBell = true;
 				if ( tf_sniper_fullcharge_bell.GetBool() )
@@ -1930,7 +1931,7 @@ void CTFSniperRifleClassic::ItemPostFrame( void )
 
 #ifdef CLIENT_DLL
 		// play the recharged bell if we're fully charged
-		if ( IsFullyCharged() && !m_bPlayedBell )
+		if ( IsFullyCharged() && !m_bPlayedBell && ( !prediction->InPrediction() || prediction->IsFirstTimePredicted() ) )
 		{
 			m_bPlayedBell = true;
 			if ( tf_sniper_fullcharge_bell.GetBool() )
