@@ -31,6 +31,7 @@
 #include "collisionutils.h"
 #endif
 
+ConVar	tf_debug_gas("tf_debug_gas", "0", FCVAR_CHEAT | FCVAR_REPLICATED, "Visualize the gas particles.");
 
 IMPLEMENT_NETWORKCLASS_ALIASED( TFJarGas, DT_TFWeaponJarGas )
 
@@ -391,6 +392,12 @@ void CTFGasManager::OnCollide( CBaseEntity *pEnt, int iPointIndex )
 }
 #endif // GAME_DLL
 
+void DebugGas( const Vector& vStart, const Vector& vEnd, const Vector& vMin, const Vector& vMax, const Color& color )
+{
+	NDebugOverlay::Line( vStart, vEnd, 255, 255, 0, false, 0.0f );
+	NDebugOverlay::SweptBox( vStart, vEnd, vMin, vMax, vec3_angle, color.r(), color.g(), color.b(), color.a(), 0.0f );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -599,6 +606,23 @@ void CTFGasManager::Update()
 		}
 	}
 #endif // CLIENT_DLL
+
+	if ( tf_debug_gas.GetBool() )
+	{
+#ifdef GAME_DLL
+		Color color(0, 0, 255, 100);
+#else
+		Color color(255, 0, 0, 100);
+#endif
+		FOR_EACH_VEC( GetPointVec(), i )
+		{
+			float flRadius = GetRadius( GetPointVec()[i] );
+			Vector vMins = flRadius * Vector(-1, -1, -1);
+			Vector vMaxs = flRadius * Vector(1, 1, 1);
+
+			DebugGas( GetPointVec()[i]->m_vecPrevPosition, GetPointVec()[i]->m_vecPosition, vMins, vMaxs, color );
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
