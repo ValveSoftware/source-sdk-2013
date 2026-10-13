@@ -5860,8 +5860,10 @@ bool C_TFPlayer::CanLightCigarette( void )
 	if ( (pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE) && (pLocalPlayer->GetObserverTarget() == this) )
 		return false;
 
-	// Don't light if we're covered in urine.
-	if ( m_Shared.InCond( TF_COND_URINE ) )
+	// Don't light if we're covered in urine, milk, or gas.
+	if ( m_Shared.InCond( TF_COND_URINE ) 
+		|| m_Shared.InCond( TF_COND_MAD_MILK ) 
+		|| m_Shared.InCond( TF_COND_GAS ) )
 		return false;
 
 	return true;
