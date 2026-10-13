@@ -19174,6 +19174,80 @@ void CTFPlayer::DoTauntAttack( void )
 			}
 		}
 	}
+	else if (iTauntAttack == TAUNTATK_PYRO_ECON_EXTINGUISHER)
+	{
+		// Pyro "Friendly Fire" attack
+		Vector vecForward;
+		AngleVectors(QAngle(0, m_angEyeAngles[YAW], 0), &vecForward);
+		Vector vecCenter = WorldSpaceCenter() + vecForward * 64;
+		Vector vecSize = Vector(24, 24, 24);
+		CBaseEntity* pList[256];
+		int count = UTIL_EntitiesInBox(pList, 256, vecCenter - vecSize, vecCenter + vecSize, FL_CLIENT);
+		if (count)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				if (pList[i] == this)
+					continue;
+
+				if (FVisible(pList[i], MASK_SOLID) == false)
+					continue;
+
+				//Extinguish our friends, push back our enemies.
+				CTFPlayer* pAffectedPlayers = ToTFPlayer(pList[i]);
+				if (pAffectedPlayers->GetTeamNumber() == GetTeamNumber())
+				{
+					//Ignore non burning teammates
+					if (!pAffectedPlayers->m_Shared.InCond(TF_COND_BURNING))
+						return;
+
+					Vector vecPos = WorldSpaceCenter();
+					vecPos += (pAffectedPlayers->WorldSpaceCenter() - vecPos) * 0.75;
+
+					//Offset angle to match left hook.
+					AngleVectors(QAngle(-45, m_angEyeAngles[YAW] - 35, 0), &vecForward);
+					pAffectedPlayers->m_Shared.RemoveCond(TF_COND_BURNING);
+					pAffectedPlayers->EmitSound("TFPlayer.FlameOut");
+
+					//Same rules from the Flamethrower
+					if (ShouldGetBonusPointsForExtinguishEvent(pAffectedPlayers->GetUserID()))
+					{
+						CTF_GameStats.Event_PlayerAwardBonusPoints(this, pAffectedPlayers, 10);
+					}
+
+					CRecipientFilter involved_filter;
+					involved_filter.AddRecipient(this);
+					involved_filter.AddRecipient(pAffectedPlayers);
+
+					UserMessageBegin(involved_filter, "PlayerExtinguished");
+					WRITE_BYTE(entindex());
+					WRITE_BYTE(pAffectedPlayers->entindex());
+					MessageEnd();
+
+					IGameEvent* event = gameeventmanager->CreateEvent("player_extinguished");
+					if (event)
+					{
+						event->SetInt("victim", pAffectedPlayers->entindex());
+						event->SetInt("healer", entindex());
+
+						gameeventmanager->FireEvent(event, true);
+					}
+				}
+				else
+				{
+					Vector vecDir = WorldSpaceCenter() - pAffectedPlayers->WorldSpaceCenter();
+					VectorNormalize(vecDir);
+
+					//Adjust the values?...
+					float flForce = 175;
+					Vector vecForce = vecDir * -flForce;
+					vecForce.z += 230;
+
+					pAffectedPlayers->ApplyGenericPushbackImpulse(vecForce, this);
+				}
+			}
+		}
+	}
 
 	// Particle Being played in VCD instead
 	//else if ( iTauntAttack == TAUNTATK_FLIP_LAND_PARTICLE )
