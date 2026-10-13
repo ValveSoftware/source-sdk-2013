@@ -4099,6 +4099,17 @@ void CTFPlayer::Regenerate( bool bRefillHealthAndAmmo /*= true*/ )
 		m_Shared.SetScoutEnergyDrinkMeter( 100.0f );
 		m_Shared.SetDemomanChargeMeter( 100.0f );
 
+		// Update the shield charge condition to reflect the reset for charge
+		if ( m_Shared.InCond(TF_COND_SHIELD_CHARGE ) )
+		{
+			float flChargeTime = 1.5f;
+			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( this, flChargeTime, mod_charge_time );
+
+			flChargeTime = m_Shared.GetConditionDuration( TF_COND_SHIELD_CHARGE ) + flChargeTime;
+
+			m_Shared.SetConditionDuration( TF_COND_SHIELD_CHARGE, flChargeTime );
+		}
+
 		// Selectively refill the item effect meters if they're allowed
 		for( int i = FIRST_LOADOUT_SLOT_WITH_CHARGE_METER; i <= LAST_LOADOUT_SLOT_WITH_CHARGE_METER; ++i )
 		{
@@ -14779,6 +14790,17 @@ void CTFPlayer::CheatImpulseCommands( int iImpulse )
 
 				m_Shared.m_flRageMeter = 100.f;
 				m_Shared.SetDemomanChargeMeter( 100.f );
+
+				// Update the shield charge condition to reflect the reset for charge
+				if ( m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
+				{
+					float flChargeTime = 1.5f;
+					CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( this, flChargeTime, mod_charge_time );
+
+					flChargeTime = m_Shared.GetConditionDuration( TF_COND_SHIELD_CHARGE ) + flChargeTime;
+
+					m_Shared.SetConditionDuration( TF_COND_SHIELD_CHARGE, flChargeTime );
+				}
 
 				for( int i = FIRST_LOADOUT_SLOT_WITH_CHARGE_METER; i <= LAST_LOADOUT_SLOT_WITH_CHARGE_METER; ++i )
 				{

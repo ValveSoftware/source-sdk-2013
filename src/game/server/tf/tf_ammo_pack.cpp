@@ -10,6 +10,7 @@
 #include "ammodef.h"
 #include "tf_gamerules.h"
 #include "explode.h"
+#include "tf_wearable_weapons.h"
 #include "tf_gamestats.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -385,7 +386,17 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 			{
 				m_flAmmoRatio *= 0.2;
 			}
+
 			pPlayer->m_Shared.SetDemomanChargeMeter( flCurrentCharge + m_flAmmoRatio * 100.0f );
+
+			// Update the shield charge condition to reflect the ammo pack increase
+			if ( pPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
+			{
+				float flChargeTime = (pPlayer->m_Shared.GetDemomanChargeMeter() / 100.0f ) + m_flAmmoRatio;
+
+				pPlayer->m_Shared.SetConditionDuration( TF_COND_SHIELD_CHARGE, flChargeTime );
+			}
+
 			iAmmoTaken++;
 		}
 	}
