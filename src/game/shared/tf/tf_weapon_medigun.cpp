@@ -321,10 +321,14 @@ void CWeaponMedigun::WeaponReset( void )
 	m_bOldChargeRelease = false;
 
 	UpdateEffects();
+	m_hHealingTargetEffect.hOwner = NULL;
+	m_hHealingTargetEffect.hTarget = NULL;
+	m_hHealingTargetEffect.pEffect = NULL;
+	m_hHealingTargetEffect.pCustomEffect = NULL;
 	StopChargeEffect( true );
 	StopHealSound();
 
-	m_pChargeEffectOwner = NULL;
+	m_hChargeEffectOwner = NULL;
 	m_pChargeEffect = NULL;
 	m_pChargedSound = NULL;
 	m_pDisruptSound = NULL;
@@ -2082,22 +2086,24 @@ void CWeaponMedigun::StopHealSound( bool bStopHealingSound, bool bStopNoTargetSo
 
 void CWeaponMedigun::StopChargeEffect( bool bImmediately )
 {
-	// Either these should both be NULL or neither NULL
-	Assert( ( m_pChargeEffect != NULL && m_pChargeEffectOwner != NULL ) || ( m_pChargeEffect == NULL && m_pChargeEffectOwner == NULL ) );
-
-	if ( m_pChargeEffect != NULL && m_pChargeEffectOwner != NULL )
+	C_BaseEntity *pEffectOwner = m_hChargeEffectOwner.Get();
+	if ( m_pChargeEffect != NULL && pEffectOwner != NULL )
 	{
 		if( bImmediately )
 		{
-			m_pChargeEffectOwner->ParticleProp()->StopEmissionAndDestroyImmediately( m_pChargeEffect );
+			pEffectOwner->ParticleProp()->StopEmissionAndDestroyImmediately( m_pChargeEffect );
 		}
 		else
 		{
-			m_pChargeEffectOwner->ParticleProp()->StopEmission( m_pChargeEffect );
+			pEffectOwner->ParticleProp()->StopEmission( m_pChargeEffect );
 		}
-		m_pChargeEffect = NULL;
-		m_pChargeEffectOwner = NULL;
 	}
+	
+	// A spectator viewmodel may stop transmitting before this weapon updates.
+	// Its particle property already stopped the effect, so only clear stale
+	// bookkeeping when the owner handle has expired.
+	m_pChargeEffect = NULL;
+	m_hChargeEffectOwner = NULL;
 
 	if ( m_pChargedSound != NULL )
 	{
@@ -2112,19 +2118,11 @@ void CWeaponMedigun::StopChargeEffect( bool bImmediately )
 void CWeaponMedigun::ManageChargeEffect( void )
 {
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	C_BaseEntity *pEffectOwner = this;
 
 	if ( pLocalPlayer == NULL )
 		return;
 
-	if ( pLocalPlayer == GetTFPlayerOwner() )
-	{
-		pEffectOwner = pLocalPlayer->GetRenderedWeaponModel();
-		if ( !pEffectOwner )
-		{
-			return;
-		}
-	}
+	C_BaseEntity *pEffectOwner = GetAppropriateWorldOrViewModel();
 
 	bool bOwnerTaunting = false;
 
@@ -2138,7 +2136,7 @@ void CWeaponMedigun::ManageChargeEffect( void )
 	if ( GetTFPlayerOwner() && bOwnerTaunting == false && m_bHolstered == false && ( m_flChargeLevel >= flMinChargeToDeploy || m_bChargeRelease == true ) )
 	{
 		// Did we switch from 1st to 3rd or 3rd to 1st?  Taunting does this.
-		if( pEffectOwner != m_pChargeEffectOwner )
+		if( pEffectOwner != m_hChargeEffectOwner.Get() )
 		{
 			// Stop the current effect so we can make a new one
 			StopChargeEffect( m_bHolstered );
@@ -2162,7 +2160,10 @@ void CWeaponMedigun::ManageChargeEffect( void )
 			}
 
 			m_pChargeEffect = pEffectOwner->ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "muzzle" );
-			m_pChargeEffectOwner = pEffectOwner;
+			if ( m_pChargeEffect )
+			{
+				m_hChargeEffectOwner = pEffectOwner;
+			}
 		}
 
 		if ( m_pChargedSound == NULL )
@@ -2335,7 +2336,8 @@ void CWeaponMedigun::ClientThink()
 	}
 
 	// If the rendered weapon has changed, we need to update our particles
-	if ( m_hHealingTargetEffect.pOwner && pFiringPlayer->GetRenderedWeaponModel() != m_hHealingTargetEffect.pOwner )
+	if ( ( m_hHealingTargetEffect.pEffect || m_hHealingTargetEffect.pCustomEffect )
+		&& GetAppropriateWorldOrViewModel() != m_hHealingTargetEffect.hOwner.Get() )
 	{
 		ForceHealingTargetUpdate();
 	}
@@ -2356,43 +2358,29 @@ void CWeaponMedigun::UpdateEffects( void )
 		return;
 
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	C_BaseEntity *pEffectOwner = this;
-	if ( pLocalPlayer == pFiringPlayer )
-	{
-		pEffectOwner = pLocalPlayer->GetRenderedWeaponModel();
-	}
+	C_BaseEntity *pEffectOwner = GetAppropriateWorldOrViewModel();
+	C_BaseEntity *pPreviousEffectOwner = m_hHealingTargetEffect.hOwner.Get();
 
 	// If we're still healing and our owner changed, then we did something
 	// like changed 
-	bool bImmediate = pEffectOwner != m_hHealingTargetEffect.pOwner && m_bHealing;
+	bool bImmediate = pEffectOwner != pPreviousEffectOwner && m_bHealing;
 
 	// Remove all the effects
-	if ( m_hHealingTargetEffect.pOwner )
+	if ( pPreviousEffectOwner )
 	{
 		if ( m_hHealingTargetEffect.pEffect )
 		{
-			bImmediate ? m_hHealingTargetEffect.pOwner->ParticleProp()->StopEmissionAndDestroyImmediately( m_hHealingTargetEffect.pEffect )
-					   : m_hHealingTargetEffect.pOwner->ParticleProp()->StopEmission( m_hHealingTargetEffect.pEffect );
+			bImmediate ? pPreviousEffectOwner->ParticleProp()->StopEmissionAndDestroyImmediately( m_hHealingTargetEffect.pEffect )
+					   : pPreviousEffectOwner->ParticleProp()->StopEmission( m_hHealingTargetEffect.pEffect );
 		}
 		if ( m_hHealingTargetEffect.pCustomEffect )
 		{
-			bImmediate ? m_hHealingTargetEffect.pOwner->ParticleProp()->StopEmissionAndDestroyImmediately( m_hHealingTargetEffect.pCustomEffect )
-					   : m_hHealingTargetEffect.pOwner->ParticleProp()->StopEmission( m_hHealingTargetEffect.pCustomEffect );
+			bImmediate ? pPreviousEffectOwner->ParticleProp()->StopEmissionAndDestroyImmediately( m_hHealingTargetEffect.pCustomEffect )
+					   : pPreviousEffectOwner->ParticleProp()->StopEmission( m_hHealingTargetEffect.pCustomEffect );
 		}
 	}
-	else
-	{
-		if ( m_hHealingTargetEffect.pEffect )
-		{
-			m_hHealingTargetEffect.pEffect->StopEmission();
-		}
-		if ( m_hHealingTargetEffect.pCustomEffect )
-		{
-			m_hHealingTargetEffect.pCustomEffect->StopEmission();
-		}
-	}
-	m_hHealingTargetEffect.pOwner			= NULL;
-	m_hHealingTargetEffect.pTarget			= NULL;
+	m_hHealingTargetEffect.hOwner			= NULL;
+	m_hHealingTargetEffect.hTarget			= NULL;
 	m_hHealingTargetEffect.pEffect			= NULL;
 	m_hHealingTargetEffect.pCustomEffect	= NULL;
 
@@ -2405,7 +2393,7 @@ void CWeaponMedigun::UpdateEffects( void )
 
 	if ( m_hHealingTarget )
 	{
-		if ( m_hHealingTargetEffect.pTarget == m_hHealingTarget )
+		if ( m_hHealingTargetEffect.hTarget == m_hHealingTarget )
 			return;
 
 		bool bReviveMarker = m_hReviveMarker && m_hReviveMarker == m_hHealingTarget;	// Hack to avoid another dynamic_cast here
@@ -2459,11 +2447,14 @@ void CWeaponMedigun::UpdateEffects( void )
 		const char *pszAttachName = bReviveMarker ? "healbeam" : NULL;
 
 		CNewParticleEffect *pEffect = pEffectOwner->ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "muzzle" );
+		if ( !pEffect )
+			return;
+
 		pEffectOwner->ParticleProp()->AddControlPoint( pEffect, 1, m_hHealingTarget, attachType, pszAttachName, Vector(0.f,0.f,flVecHeightOffset) );
 
-		m_hHealingTargetEffect.pTarget = m_hHealingTarget;
+		m_hHealingTargetEffect.hTarget = m_hHealingTarget;
 		m_hHealingTargetEffect.pEffect = pEffect;
-		m_hHealingTargetEffect.pOwner  = pEffectOwner;
+		m_hHealingTargetEffect.hOwner  = pEffectOwner;
 
 		// See if we have a custom particle effect that wants to add to the beam
 		CEconItemView *pItem = m_AttributeManager.GetItem();
@@ -2474,8 +2465,11 @@ void CWeaponMedigun::UpdateEffects( void )
 			if ( pSystem->iCustomType == 1 )
 			{
 				pEffect = pEffectOwner->ParticleProp()->Create( pSystem->pszSystemName, PATTACH_POINT_FOLLOW, "muzzle" );
-				pEffectOwner->ParticleProp()->AddControlPoint( pEffect, 1, m_hHealingTarget, attachType, pszAttachName, Vector(0.f,0.f,flVecHeightOffset) );
-				m_hHealingTargetEffect.pCustomEffect = pEffect;
+				if ( pEffect )
+				{
+					pEffectOwner->ParticleProp()->AddControlPoint( pEffect, 1, m_hHealingTarget, attachType, pszAttachName, Vector(0.f,0.f,flVecHeightOffset) );
+					m_hHealingTargetEffect.pCustomEffect = pEffect;
+				}
 			}
 		}
 	}
