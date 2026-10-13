@@ -1211,7 +1211,16 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 				pContextData->m_SemiStaticCmdsOut.SetPixelShaderStateAmbientLightCube( 5 );
 				pContextData->m_SemiStaticCmdsOut.CommitPixelShaderLighting( 13 );
 			}
-			pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant_W( 4, info.m_nSelfIllumTint, fBlendFactor );
+			
+			// SetPixelShaderConstant_W skips write if constantVar is -1, so fBlendFactor doesn't get written.
+			if ( info.m_nSelfIllumTint != -1 )
+			{
+				pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant_W( 4, info.m_nSelfIllumTint, fBlendFactor );
+			}
+			else
+			{
+				pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant4( 4, 1.0f, 1.0f, 1.0f, fBlendFactor );
+			}
 			pContextData->m_SemiStaticCmdsOut.SetAmbientCubeDynamicStateVertexShader();
 			pContextData->m_SemiStaticCmdsOut.End();
 		}
