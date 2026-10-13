@@ -432,6 +432,7 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	RecvPropEHandle( RECVINFO( m_hPasstimePassTarget ) ),
 	RecvPropFloat( RECVINFO( m_askForBallTime ) ),
 	RecvPropBool( RECVINFO( m_bKingRuneBuffActive ) ),
+	RecvPropBool( RECVINFO( m_bOldMeleeTrace ) ),
 
 	RecvPropUtlVectorDataTable( m_ConditionData, TF_COND_LAST, DT_TFPlayerConditionSource ),
 
@@ -479,6 +480,7 @@ BEGIN_PREDICTION_DATA_NO_BASE( CTFPlayerShared )
 	DEFINE_PRED_ARRAY( m_flItemChargeMeter, FIELD_FLOAT, LAST_LOADOUT_SLOT_WITH_CHARGE_METER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iStunIndex, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bScattergunJump, FIELD_BOOLEAN, 0 ),
+	DEFINE_PRED_FIELD( m_bOldMeleeTrace, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 END_PREDICTION_DATA()
 
 // Server specific.
@@ -610,6 +612,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropEHandle( SENDINFO( m_hPasstimePassTarget ) ),
 	SendPropFloat( SENDINFO( m_askForBallTime ) ),
 	SendPropBool( SENDINFO( m_bKingRuneBuffActive ) ),
+	SendPropBool( SENDINFO( m_bOldMeleeTrace ) ),
 
 	SendPropUtlVectorDataTable( m_ConditionData, TF_COND_LAST, DT_TFPlayerConditionSource ),
 
