@@ -1169,6 +1169,7 @@ extern const char *g_pszHintMessages[];
 #define DMG_FROM_OTHER_SAPPER					(DMG_IGNITE)		// USED TO DAMAGE SAPPERS ON MATCHED TELEPORTERS
 #define DMG_MELEE								(DMG_BLAST_SURFACE)
 #define DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE	(DMG_DISSOLVE)		// DON'T USE THIS FOR EXPLOSION DAMAGE YOU WILL MAKE BRANDON SAD AND KYLE SADDER
+#define DMG_IGNORE_RESIST_BUFFS					(DMG_PHYSGUN)
 
 // This can only ever be used on a TakeHealth call, since it re-uses a dmg flag that means something else
 #define DMG_IGNORE_MAXHEALTH	(DMG_BULLET)
