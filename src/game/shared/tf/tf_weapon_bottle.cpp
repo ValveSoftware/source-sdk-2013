@@ -216,19 +216,22 @@ void CTFStickBomb::Precache( void )
 	PrecacheModel( TF_WEAPON_STICKBOMB_BROKEN_MODEL );
 }
 
-void CTFStickBomb::Smack( void )
+void CTFStickBomb::Detonate( bool bTaunting )
 {
-	CTFWeaponBaseMelee::Smack();
+	CTFPlayer* pTFPlayer = ToTFPlayer( GetOwner() );
+	if ( !pTFPlayer )
+		return;
 
+	bool connectedHit = ( !bTaunting ) ? ConnectedHit() : true;
+	
 	// Stick bombs detonate once, on impact.
-	if ( m_iDetonated == 0 && ConnectedHit() )
+	if ( m_iDetonated == 0 && connectedHit )
 	{
 		m_iDetonated = 1;
 		m_bBroken = true;
 		SwitchBodyGroups();
 
 #ifdef GAME_DLL
-		CTFPlayer *pTFPlayer = ToTFPlayer( GetOwner() );
 		if ( pTFPlayer )
 		{
 			Vector vecForward; 
@@ -259,6 +262,13 @@ void CTFStickBomb::Smack( void )
 				dmgType |= DMG_CRITICAL;
 
 			float flDamage = 75.0f;
+      
+			// instantly kill the target if we're in a taunt.
+			if ( bTaunting )
+			{
+				flDamage = TF_STICKBOMB_KILLTAUNT_DAMAGE;
+			}
+      
 			CALL_ATTRIB_HOOK_FLOAT( flDamage, mult_dmg );
 
 			CTakeDamageInfo info( pTFPlayer, pTFPlayer, this, explosion, explosion, flDamage, dmgType, TF_DMG_CUSTOM_STICKBOMB_EXPLOSION, &explosion );
@@ -271,6 +281,12 @@ void CTFStickBomb::Smack( void )
 		}
 #endif
 	}
+}
+
+void CTFStickBomb::Smack( void )
+{
+	CTFWeaponBaseMelee::Smack();
+	Detonate();
 }
 
 void CTFStickBomb::WeaponReset( void )
