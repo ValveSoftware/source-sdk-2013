@@ -86,6 +86,8 @@ protected:
 	int m_nTextureID;
 	bool m_bMaintainProportions;
 	bool m_bUsePaintRect;
+
+	static int s_nTextureSerial;
 };
 
 
