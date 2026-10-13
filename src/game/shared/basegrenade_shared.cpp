@@ -35,6 +35,7 @@ BEGIN_DATADESC( CBaseGrenade )
 	//					m_fRegisteredSound ???
 	DEFINE_FIELD( m_bIsLive, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_DmgRadius, FIELD_FLOAT ),
+	DEFINE_FIELD( m_flNextAttack, FIELD_TIME ),
 	DEFINE_FIELD( m_flDetonateTime, FIELD_TIME ),
 	DEFINE_FIELD( m_flWarnAITime, FIELD_TIME ),
 	DEFINE_FIELD( m_flDamage, FIELD_FLOAT ),
@@ -63,6 +64,7 @@ BEGIN_NETWORK_TABLE( CBaseGrenade, DT_BaseGrenade )
 	SendPropFloat( SENDINFO( m_flDamage ), 10, SPROP_ROUNDDOWN, 0.0, 256.0f ),
 	SendPropFloat( SENDINFO( m_DmgRadius ), 10, SPROP_ROUNDDOWN, 0.0, 1024.0f ),
 	SendPropInt( SENDINFO( m_bIsLive ), 1, SPROP_UNSIGNED ),
+	SendPropTime( SENDINFO( m_flNextAttack ) ),
 //	SendPropTime( SENDINFO( m_flDetonateTime ) ),
 	SendPropEHandle( SENDINFO( m_hThrower ) ),
 
@@ -73,6 +75,7 @@ BEGIN_NETWORK_TABLE( CBaseGrenade, DT_BaseGrenade )
 	RecvPropFloat( RECVINFO( m_flDamage ) ),
 	RecvPropFloat( RECVINFO( m_DmgRadius ) ),
 	RecvPropInt( RECVINFO( m_bIsLive ) ),
+	RecvPropTime( RECVINFO( m_flNextAttack ) ),
 //	RecvPropTime( RECVINFO( m_flDetonateTime ) ),
 	RecvPropEHandle( RECVINFO( m_hThrower ) ),
 
@@ -91,9 +94,9 @@ BEGIN_PREDICTION_DATA( CBaseGrenade  )
 
 	DEFINE_PRED_FIELD( m_hThrower, FIELD_EHANDLE, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bIsLive, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
-	DEFINE_PRED_FIELD( m_DmgRadius, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD_TOL( m_DmgRadius, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, 1.01f ),
 //	DEFINE_PRED_FIELD_TOL( m_flDetonateTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, TD_MSECTOLERANCE ),
-	DEFINE_PRED_FIELD( m_flDamage, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD_TOL( m_flDamage, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, 0.251f ),
 
 	DEFINE_PRED_FIELD_TOL( m_vecVelocity, FIELD_VECTOR, FTYPEDESC_INSENDTABLE, 0.5f ),
 	DEFINE_PRED_FIELD_TOL( m_flNextAttack, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, TD_MSECTOLERANCE ),
@@ -535,6 +538,7 @@ CBaseGrenade::CBaseGrenade(void)
 	m_hOriginalThrower	= NULL;
 	m_bIsLive			= false;
 	m_DmgRadius			= 100;
+	m_flNextAttack		= 0;
 	m_flDetonateTime	= 0;
 	m_bHasWarnedAI		= false;
 
