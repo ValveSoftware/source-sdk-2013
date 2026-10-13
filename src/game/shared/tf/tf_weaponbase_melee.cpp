@@ -452,14 +452,23 @@ bool CTFWeaponBaseMelee::DoSwingTraceInternal( trace_t &trace, bool bCleave, CUt
 				continue;
 			}
 
+			if ( !pTarget->IsAlive() )
+			{
+				// don't hit dead players
+				continue;
+			}
+
 			if ( pTargetTraceVector )
 			{
 				trace_t tr;
 				UTIL_TraceModel( vecSwingStart, vecSwingEnd, vecSwingMins, vecSwingMaxs, pTarget, COLLISION_GROUP_NONE, &tr );
-				pTargetTraceVector->AddToTail();
-				pTargetTraceVector->Tail() = tr;
+				if ( tr.m_pEnt != NULL ) 
+				{
+					pTargetTraceVector->AddToTail();
+					pTargetTraceVector->Tail() = tr;
+					nHitCount++;
+				}
 			}
-			nHitCount++;
 		}
 
 		return nHitCount > 0;
