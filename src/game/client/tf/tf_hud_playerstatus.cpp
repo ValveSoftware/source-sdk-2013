@@ -186,7 +186,8 @@ static bool IsMvMRobotDisguise( C_TFPlayer *pPlayer )
 		   TFGameRules() && TFGameRules()->IsMannVsMachineMode() &&
 		   pPlayer->GetTeamNumber() == TF_TEAM_PVE_DEFENDERS &&
 		   pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) &&
-		   pPlayer->m_Shared.GetDisguiseTeam() != pPlayer->GetTeamNumber();
+		   pPlayer->m_Shared.GetDisguiseTeam() != pPlayer->GetTeamNumber() &&
+		   pPlayer->m_Shared.GetDisguisedSkinOverride() == 0; // If the target is a zombie, do not display as robot!
 }
 
 //-----------------------------------------------------------------------------
