@@ -19,7 +19,6 @@
 #include "tier1/utlrbtree.h"
 #include "tier1/utlbuffer.h"
 #include "bitmap/tgawriter.h"
-#include "mathlib/quantize.h"
 #include "bitmap/imageformat.h"
 #include "coordsize.h"
 
