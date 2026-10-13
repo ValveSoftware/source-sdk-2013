@@ -44,7 +44,15 @@ public:
 
 	virtual void	Spawn( void ) OVERRIDE;
 	virtual void	Precache( void ) OVERRIDE;
+private:
+    /*
+	This variable is used to fix a heap corruption for the tf2 sdk.
+    I'm not sure if there is a better way to do this but it solves the issue. -Billy
+	*/
+	CNetworkVar( bool, m_bCoreState );
+
 #ifdef GAME_DLL
+public:
 	virtual bool	AffectedByRadiusCollection() const OVERRIDE { return false; }
 	virtual bool	MyTouch( CBasePlayer *pPlayer ) OVERRIDE;
 	virtual bool	ValidTouch( CBasePlayer *pPlayer ) OVERRIDE;

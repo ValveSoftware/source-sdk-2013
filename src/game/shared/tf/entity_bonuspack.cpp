@@ -25,6 +25,11 @@ ConVar tf_bonuspack_score( "tf_bonuspack_score", "1", FCVAR_REPLICATED | FCVAR_D
 IMPLEMENT_NETWORKCLASS_ALIASED( BonusPack, DT_CBonusPack )
 
 BEGIN_NETWORK_TABLE( CBonusPack, DT_CBonusPack  )
+#ifdef CLIENT_DLL
+	RecvPropBool( RECVINFO( m_bCoreState ) ),
+#else
+	SendPropBool( SENDINFO( m_bCoreState ) ),
+#endif
 END_NETWORK_TABLE()
 
 BEGIN_DATADESC( CBonusPack )
@@ -39,6 +44,7 @@ IMPLEMENT_AUTO_LIST( IBonusPackAutoList );
 //-----------------------------------------------------------------------------
 CBonusPack::CBonusPack()
 {
+	m_bCoreState = false;
 #ifdef GAME_DLL
 	m_bAutoMaterialize = false;
 #else
