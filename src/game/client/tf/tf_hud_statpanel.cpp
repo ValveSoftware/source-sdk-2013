@@ -1015,9 +1015,9 @@ map_identifier_t CTFStatPanel::GetMapIdentifierFromName( const char* pszMapName 
 	
 	const MapDef_t* pMap = GetItemSchema()->GetMasterMapDefByName( pszMapName );
 	if ( pMap )
-		{
-			return pMap->GetStatsIdentifier();
-		}
+	{
+		return pMap->GetStatsIdentifier();
+	}
 
     return 0;
 }
