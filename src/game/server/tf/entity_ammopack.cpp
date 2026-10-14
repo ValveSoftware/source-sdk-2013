@@ -97,15 +97,18 @@ bool CAmmoPack::MyTouch( CBasePlayer *pPlayer )
 		CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFPlayer, iAmmoIsCharge, ammo_gives_charge );
 		if ( iAmmoIsCharge )
 		{
-			float flCurrentCharge = pTFPlayer->m_Shared.GetDemomanChargeMeter();
-			if ( flCurrentCharge < 100.0f )
+			if ( !pTFPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 			{
-				if ( TFGameRules() && TFGameRules()->IsPowerupMode() )
+				float flCurrentCharge = pTFPlayer->m_Shared.GetDemomanChargeMeter();
+				if ( flCurrentCharge < 100.0f )
 				{
-					flPackRatio *= 0.2;
+					if ( TFGameRules() && TFGameRules()->IsPowerupMode() )
+					{
+						flPackRatio *= 0.2;
+					}
+					pTFPlayer->m_Shared.SetDemomanChargeMeter( flCurrentCharge + flPackRatio * 100.0f );
+					bSuccess = true;
 				}
-				pTFPlayer->m_Shared.SetDemomanChargeMeter( flCurrentCharge + flPackRatio * 100.0f );
-				bSuccess = true;
 			}
 		}
 
