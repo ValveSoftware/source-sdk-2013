@@ -84,7 +84,7 @@ BEGIN_DMXELEMENT_UNPACK( ClassStats_t )
 END_DMXELEMENT_UNPACK( ClassStats_t, s_ClassStatsUnpack )
 
 BEGIN_DMXELEMENT_UNPACK( MapStats_t )
-	DMXELEMENT_UNPACK_FIELD( "iMapID", "0", map_identifier_t, iMapID )
+	DMXELEMENT_UNPACK_FIELD( "iMapID", "0", int, iMapID )
 	DMXELEMENT_UNPACK_FIELD( "iNumberOfRounds", "0", int, iNumberOfRounds )
 	// RoundStats_t		accumulated;
 	// RoundStats_t		currentRound;
@@ -640,7 +640,17 @@ bool CTFStatPanel::ReadStats( void )
 		CDmxElement *pMap = aMapStatsList[ i ];
 		MapStats_t &stat = m_aMapStats[ i ];
 
+		const char* pszCommentMapName = pMap->GetValueString( "comment: mapname" );
 		pMap->UnpackIntoStructure( &stat, sizeof( stat ), s_MapStatsUnpack );
+		// Required so stats don't get reset when importing semi-broken records missing "iMapID"
+	    if ( pszCommentMapName )
+		{
+			map_identifier_t mapIdent = GetMapIdentifierFromName( pszCommentMapName );
+			if ( mapIdent > 0 )
+			{
+				stat.iMapID = mapIdent;
+			}
+		}
 
 		CDmxElement *pAccumulated = pMap->GetValue< CDmxElement * >( "accumulated" );
 		if ( pAccumulated )
@@ -997,6 +1007,19 @@ const char* CTFStatPanel::GetMapNameFromID( map_identifier_t iMapID )
 	}
 
 	return "";
+}
+
+map_identifier_t CTFStatPanel::GetMapIdentifierFromName( const char* pszMapName )
+{
+	if ( !pszMapName ) return 0;
+	
+	const MapDef_t* pMap = GetItemSchema()->GetMasterMapDefByName( pszMapName );
+	if ( pMap )
+	{
+		return pMap->GetStatsIdentifier();
+	}
+
+    return 0;
 }
 
 //-----------------------------------------------------------------------------
