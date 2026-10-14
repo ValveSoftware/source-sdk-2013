@@ -292,6 +292,7 @@ extern ConVar tf_tournament_classchange_allowed;
 extern ConVar tf_tournament_classchange_ready_allowed;
 extern ConVar tf_rocketpack_impact_push_min;
 extern ConVar tf_rocketpack_impact_push_max;
+extern ConVar mp_disable_respawn_times;
 #if defined( _DEBUG ) || defined( STAGING_ONLY )
 extern ConVar mp_developer;
 extern ConVar bot_mimic;
@@ -12933,6 +12934,9 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 
 	// make sure to remove custom attributes
 	RemoveAllCustomAttributes();
+
+	if ( mp_disable_respawn_times.GetInt() > 1 )
+		ForceRespawn();
 }
 
 struct SkillRatingAttackRecord_t
