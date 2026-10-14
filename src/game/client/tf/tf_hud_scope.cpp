@@ -346,6 +346,9 @@ void CHudScope::ApplySchemeSettings( vgui::IScheme *scheme )
 	SetPaintBackgroundEnabled(false);
 	SetPaintBorderEnabled(false);
 
+	SetAlpha(255);
+	PinToSibling(NULL, PIN_TOPLEFT, PIN_TOPLEFT);
+
 	if ( UseVR() )
 	{
 		// Make it fill the screen.
