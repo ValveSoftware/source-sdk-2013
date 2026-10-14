@@ -188,16 +188,20 @@ void CTFAmmoPack::InitAmmoPack( CTFPlayer *pPlayer, CTFWeaponBase *pWeapon, int 
 	SetBodygroup( 1, 1 );
 }
 
+ConVar tf_halloween_crit_pumpkins( "tf_halloween_crit_pumpkins", "1", FCVAR_REPLICATED, "Controls whether Halloween crit pumpkins are enabled. If set to 2, crit pumpkins will spawn regardless of the current map." );
+
 void CTFAmmoPack::MakeHolidayPack( void )
 {
 	// don't want special ammo packs during a competitive match
 	if ( TFGameRules()->IsMatchTypeCompetitive() )
 		return;
 
-	// Only do this on the halloween maps.
-	if ( TFGameRules()->IsHolidayActive( kHoliday_Halloween ) 
+	// Only do this on the halloween maps unless tf_halloween_crit_pumpkins is set to 2.
+	if ( tf_halloween_crit_pumpkins.GetInt() == 2
+		|| ( TFGameRules()->IsHolidayActive( kHoliday_Halloween )
 		&& TFGameRules()->IsHolidayMap( kHoliday_Halloween ) 
-		&& !TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_HIGHTOWER ) )
+		&& !TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_HIGHTOWER )
+		&& tf_halloween_crit_pumpkins.GetBool() ) )
 	{
 		m_PackType = AP_HALLOWEEN;
 		SetModelIndex( modelinfo->GetModelIndex( HALLOWEEN_MODEL ) );
