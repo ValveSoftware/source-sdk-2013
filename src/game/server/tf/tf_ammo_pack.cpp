@@ -378,15 +378,18 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 	CALL_ATTRIB_HOOK_INT_ON_OTHER( pPlayer, iAmmoIsCharge, ammo_gives_charge );
 	if ( iAmmoIsCharge )
 	{
-		float flCurrentCharge = pPlayer->m_Shared.GetDemomanChargeMeter();
-		if ( flCurrentCharge < 100.0f )
+		if ( !pPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 		{
-			if ( TFGameRules() && TFGameRules()->IsPowerupMode() )
+			float flCurrentCharge = pPlayer->m_Shared.GetDemomanChargeMeter();
+			if ( flCurrentCharge < 100.0f )
 			{
-				m_flAmmoRatio *= 0.2;
+				if ( TFGameRules() && TFGameRules()->IsPowerupMode() )
+				{
+					m_flAmmoRatio *= 0.2;
+				}
+				pPlayer->m_Shared.SetDemomanChargeMeter( flCurrentCharge + m_flAmmoRatio * 100.0f );
+				iAmmoTaken++;
 			}
-			pPlayer->m_Shared.SetDemomanChargeMeter( flCurrentCharge + m_flAmmoRatio * 100.0f );
-			iAmmoTaken++;
 		}
 	}
 
