@@ -1849,7 +1849,7 @@ public:
 		{
 			C_TFPlayer *pPlayer = assert_cast< C_TFPlayer* >( pEntity );
 			// is the player burning?
-			if (  pPlayer->m_Shared.InCond( TF_COND_BURNING ) )
+			if ( pPlayer->m_Shared.InCond( TF_COND_BURNING ) )
 			{
 				flBurnStartTime = pPlayer->m_flBurnEffectStartTime;
 			}
@@ -1861,6 +1861,29 @@ public:
 			if ( pRagDoll )
 			{
 				flBurnStartTime = pRagDoll->GetBurnStartTime();
+			}
+			else
+			{
+				// is the owner of this entity burning?
+				CEconWearable *pWearable = dynamic_cast< CEconWearable* >( pEntity );
+				C_EconWearableGib *pWearableGib = dynamic_cast< C_EconWearableGib* >( pEntity );
+
+				if ( pWearable )
+				{
+					C_TFPlayer *pOwner = ToTFPlayer( pWearable->GetOwnerEntity() );
+					if ( pOwner && pOwner->m_Shared.InCond( TF_COND_BURNING ) )
+					{
+						flBurnStartTime = pOwner->m_flBurnEffectStartTime;
+					}
+				}
+				else if ( pWearableGib )
+				{
+					C_TFRagdoll *pRagDoll = dynamic_cast< C_TFRagdoll* >( pWearableGib->GetOwnerEntity() );
+					if ( pRagDoll )
+					{
+						flBurnStartTime = pRagDoll->GetBurnStartTime();
+					}
+				}
 			}
 		}
 		
