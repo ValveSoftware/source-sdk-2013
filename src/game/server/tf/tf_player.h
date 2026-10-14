@@ -17,6 +17,7 @@
 #include "steam/steam_gameserver.h"
 #include "ihasattributes.h"
 #include "tf_item_inventory.h"
+#include "tf_weapon_wrench.h"
 
 class CTFPlayer;
 class CTFTeam;
