@@ -263,8 +263,7 @@ void CTFProjectile_Jar::SetCustomPipebombModel()
 {
 	// Check for Model Override
 	int iProjectile = 0;
-	CTFPlayer *pThrower = ToTFPlayer( GetThrower() );
-	if ( pThrower && GetLauncher() )
+	if ( GetLauncher() )
 	{
 		CALL_ATTRIB_HOOK_INT_ON_OTHER( GetLauncher(), iProjectile, override_projectile_type );
 		switch ( iProjectile )
@@ -838,8 +837,7 @@ void CTFProjectile_JarMilk::SetCustomPipebombModel()
 {
 	// Check for Model Override
 	int iProjectile = 0;
-	CTFPlayer *pThrower = ToTFPlayer( GetThrower() );
-	if ( pThrower && GetLauncher() )
+	if ( GetLauncher() )
 	{
 		CALL_ATTRIB_HOOK_INT_ON_OTHER( GetLauncher(), iProjectile, override_projectile_type );
 		switch ( iProjectile )
