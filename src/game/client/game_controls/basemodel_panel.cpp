@@ -774,6 +774,11 @@ void CBaseModelPanel::LookAtBounds( const Vector &vecBoundsMin, const Vector &ve
 //-----------------------------------------------------------------------------
 CBaseModelPanel::particle_data_t::~particle_data_t()
 {
+	if ( m_BMPQueryObj.m_pmatBoneToWorld )
+	{
+		delete[] m_BMPQueryObj.m_pmatBoneToWorld;
+		m_BMPQueryObj.m_pmatBoneToWorld = NULL;
+	}
 	if ( m_pParticleSystem )
 	{
 		delete m_pParticleSystem;
@@ -789,6 +794,19 @@ void CBaseModelPanel::particle_data_t::UpdateControlPoints( CStudioHdr *pStudioH
 {
 	if ( m_pParticleSystem )
 	{
+		m_BMPQueryObj.m_pStudioHdr = pStudioHdr->GetRenderHdr();
+		// Save off bone transforms for the particle system query
+		if ( m_BMPQueryObj.m_numbones != pStudioHdr->numbones() )
+		{
+			m_BMPQueryObj.m_numbones = pStudioHdr->numbones();
+			if ( m_BMPQueryObj.m_pmatBoneToWorld )
+			{
+				delete[] m_BMPQueryObj.m_pmatBoneToWorld;
+			}
+			m_BMPQueryObj.m_pmatBoneToWorld = new matrix3x4_t[ m_BMPQueryObj.m_numbones ];
+		}
+		Q_memcpy( m_BMPQueryObj.m_pmatBoneToWorld, pWorldMatrix, m_BMPQueryObj.m_numbones * sizeof( matrix3x4_t ) );
+
 		// Update control points which is updating the position of the particles
 		matrix3x4_t matAttachToWorld;
 		Vector vecPosition, vecForward, vecRight, vecUp;
@@ -803,6 +821,7 @@ void CBaseModelPanel::particle_data_t::UpdateControlPoints( CStudioHdr *pStudioH
 				MatrixPosition( matAttachToWorld, vecPosition );
 
 				m_pParticleSystem->SetControlPointOrientation( i, vecForward, vecRight, vecUp );
+				m_pParticleSystem->SetControlPointObject( i, &m_BMPQueryObj );
 				m_pParticleSystem->SetControlPoint( i, vecPosition + vecParticleOffset );
 			}
 		}
@@ -813,6 +832,7 @@ void CBaseModelPanel::particle_data_t::UpdateControlPoints( CStudioHdr *pStudioH
 			MatrixPosition( matAttachToWorld, vecPosition );
 			
 			m_pParticleSystem->SetControlPointOrientation( 0, vecForward, vecRight, vecUp );
+			m_pParticleSystem->SetControlPointObject( 0, &m_BMPQueryObj );
 			m_pParticleSystem->SetControlPoint( 0, vecPosition + vecParticleOffset );
 		}
 	}
