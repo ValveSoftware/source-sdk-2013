@@ -1178,6 +1178,18 @@ void CTFBall_Ornament::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 	{
 		bIsCriticalHit = true;
 		bIsLongRangeHit = true;
+
+		EmitSound_t params;
+		params.m_flSoundTime = 0;
+		params.m_pSoundName = "BallBuster.OrnamentImpactRange";
+
+		CPASFilter filter( GetAbsOrigin() );
+		filter.RemoveRecipient( pOwner );
+		EmitSound( filter, pPlayer->entindex(), params );
+
+		// Play a louder pain sound for the person who threw the ornament.
+		CSingleUserRecipientFilter attackerFilter( pOwner );
+		EmitSound( attackerFilter, pOwner->entindex(), params );
 	}
 
 	// just do the bleed effect directly since the bleed

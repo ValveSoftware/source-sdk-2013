@@ -38,6 +38,7 @@ public:
 	DECLARE_PREDICTABLE();
 
 	CTFKnife();
+	virtual void		Precache();
 	virtual void		PrimaryAttack( void ) OVERRIDE;
 	virtual int			GetWeaponID( void ) const OVERRIDE			{ return TF_WEAPON_KNIFE; }
 	int					GetKnifeType( void ) const { int iMode = 0; CALL_ATTRIB_HOOK_INT( iMode, set_weapon_mode ); return iMode; };
