@@ -1077,7 +1077,8 @@ void CViewRender::Render( vrect_t *rect )
 	    if ( ( sv_restrict_aspect_ratio_fov.GetInt() > 0 && engine->IsWindowedMode() && gpGlobals->maxClients > 1 ) ||
 		    sv_restrict_aspect_ratio_fov.GetInt() == 2 )
 	    {
-		    limitedAspectRatio = MIN( aspectRatio, 1.85f * 0.75f ); // cap out the FOV advantage at a 1.85:1 ratio (about the widest any legit user should be)
+		    // cap out the FOV advantage at a 2.40:1 ratio (slightly wider than most "21:9" monitors)
+			limitedAspectRatio = MIN( aspectRatio, 2.4f * 0.75f ); 
 	    }
 
 		viewEye.fov = ScaleFOVByWidthRatio( viewEye.fov, limitedAspectRatio );
