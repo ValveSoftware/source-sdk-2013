@@ -199,7 +199,7 @@ float CTFShovel::GetForceScale( void )
 	}
 	else
 	{
-		return 1.f;
+		return BaseClass::GetForceScale();
 	}
 }
 
