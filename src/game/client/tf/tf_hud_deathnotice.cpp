@@ -1069,7 +1069,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 			{
 				if ( msg.Killer.iTeam == TEAM_UNASSIGNED )
 				{
-					char szLocalizedName[MAX_PLAYER_NAME_LENGTH];
+					char szLocalizedName[MAX_PLAYER_NAME_LENGTH*2];
 					szLocalizedName[ 0 ] = 0;
 					const wchar_t *wszLocalizedName = g_pVGuiLocalize->Find( "#TF_HALLOWEEN_BOSS_DEATHCAM_NAME" );
 					if ( wszLocalizedName )
@@ -1085,7 +1085,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 			{
 				if ( msg.Killer.iTeam == TEAM_UNASSIGNED )
 				{
-					char szLocalizedName[MAX_PLAYER_NAME_LENGTH];
+					char szLocalizedName[MAX_PLAYER_NAME_LENGTH*2];
 					szLocalizedName[ 0 ] = 0;
 					const wchar_t *wszLocalizedName = g_pVGuiLocalize->Find( "#TF_HALLOWEEN_EYEBALL_BOSS_DEATHCAM_NAME" );
 					if ( wszLocalizedName )
@@ -1103,7 +1103,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 			{
 				if ( msg.Killer.iTeam == TEAM_UNASSIGNED )
 				{
-					char szLocalizedName[MAX_PLAYER_NAME_LENGTH];
+					char szLocalizedName[MAX_PLAYER_NAME_LENGTH*2];
 					szLocalizedName[ 0 ] = 0;
 					const wchar_t *wszLocalizedName = g_pVGuiLocalize->Find( "#TF_HALLOWEEN_MERASMUS_DEATHCAM_NAME" );
 					if ( wszLocalizedName )
@@ -1119,7 +1119,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 			{
 				if ( msg.Killer.iTeam == TEAM_UNASSIGNED )
 				{
-					char szLocalizedName[MAX_PLAYER_NAME_LENGTH];
+					char szLocalizedName[MAX_PLAYER_NAME_LENGTH*2];
 					szLocalizedName[ 0 ] = 0;
 					const wchar_t *wszLocalizedName = g_pVGuiLocalize->Find( "#TF_HALLOWEEN_SKELETON_DEATHCAM_NAME" );
 					if ( FStrEq( engine->GetLevelName(), "maps/koth_slime.bsp" ) )
@@ -1149,7 +1149,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 			break;
 		case TF_DMG_CUSTOM_KRAMPUS_MELEE:
 			{
-				char szLocalizedName[ MAX_PLAYER_NAME_LENGTH ];
+				char szLocalizedName[ MAX_PLAYER_NAME_LENGTH * 2 ];
 				szLocalizedName[ 0 ] = 0;
 				const wchar_t *wszLocalizedName = g_pVGuiLocalize->Find( "#koth_krampus_boss" );
 				if ( wszLocalizedName )
@@ -1164,7 +1164,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 			}
 		case TF_DMG_CUSTOM_KRAMPUS_RANGED:
 			{
-				char szLocalizedName[ MAX_PLAYER_NAME_LENGTH ];
+				char szLocalizedName[ MAX_PLAYER_NAME_LENGTH * 2 ];
 				szLocalizedName[ 0 ] = 0;
 				const wchar_t *wszLocalizedName = g_pVGuiLocalize->Find( "#koth_krampus_boss" );
 				if ( wszLocalizedName )
