@@ -87,6 +87,10 @@ void CTFBotVision::CollectPotentiallyVisibleEntities( CUtlVector< CBaseEntity * 
 		if ( !player->IsAlive() )
 			continue;
 
+		CTFPlayer *pPlayer = static_cast< CTFPlayer * >( player );
+		if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) )
+			continue;
+
 		potentiallyVisible->AddToTail( player );
 	}
 
