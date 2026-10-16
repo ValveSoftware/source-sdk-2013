@@ -9,6 +9,7 @@ $Macro GAMENAME 	"tf" [!$SOURCESDK]
 $Macro GAMENAME 	"mod_tf" [$SOURCESDK]
 
 $Include "$SRCDIR\game\server\server_base.vpc"
+$Include "$SRCDIR\game\server\server_replay_base.vpc"
 $Include "$SRCDIR\game\server\server_econ_base.vpc"
 $include "$SRCDIR\game\shared\tf\tf_gcmessages_include.vpc"
 $include "$SRCDIR\game\shared\tf\tf_proto_def_messages_include.vpc"
