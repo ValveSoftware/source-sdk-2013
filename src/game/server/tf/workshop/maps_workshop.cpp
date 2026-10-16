@@ -217,42 +217,19 @@ void CTFWorkshopMap::Steam_OnQueryUGCDetails( SteamUGCQueryCompleted_t *pResult,
 	}
 
 	uint32 state = steamUGC->GetItemState( m_nFileID );
-	if (( state & k_EItemStateNeedsUpdate ) ||
-	    !( state & ( k_EItemStateDownloading | k_EItemStateDownloadPending | k_EItemStateInstalled ) ) )
+	if ( ! ( state & k_EItemStateDownloading ) )
 	{
-		// Either out of date or not installed, downloading, or queued to download, ask UGC to do so. The latter happens
-		// for maps added not from subscriptions that have no reason for UGC to initiate downloads on its own.
-		if ( !steamUGC->DownloadItem( m_nFileID, m_bHighPriority ) )
+		// For some reason GetItemState returns stale data, the k_EItemStateNeedsUpdate flag is not set
+		// In the past this behaviour was already done for dedicated servers but not for clients, causing clients to be out-of-date when the map updated
+		// DownloadItem does an update check, no unnecessary downloads are done
+		if ( !steamUGC->DownloadItem(m_nFileID, m_bHighPriority ) )
 		{
 			TFWorkshopWarning( "DownloadItem failed for file, map will not be usable [ %s ]\n", m_strCanonicalName.Get() );
 			return;
 		}
 
-		TFWorkshopMsg( "New version available for map, download queued [ %s ]\n", m_strCanonicalName.Get() );
+		TFWorkshopMsg( "Map update queued [ %s ]\n", m_strCanonicalName.Get() );
 		m_eState = eState_Downloading;
-	}
-	else if ( engine->IsDedicatedServer() &&
-	          ( state & k_EItemStateInstalled ) &&
-	          !( state & k_EItemStateDownloading ) &&
-	          steamUGC->DownloadItem( m_nFileID, m_bHighPriority ) )
-	{
-		// TODO This is working around a ISteamUGC bug, wherein it sends us the result of the query for a newer revision
-		//      of the file, but GetItemState() does not see an update available yet. This only seems to occur using the
-		//      gameserver API. Once that is fixed this is only needed if the first DownloadItem() call wasn't high
-		//      priority.
-		// NOTE There is another bug where calling DownloadItem() on the *non-gameserver* api on a fully up to date item
-		//      sometimes sets it to DownloadPending but never begins the download, causing us to wait
-		//      forever. (Triggered by being subscribed to the file?)
-		uint32 newState = steamUGC->GetItemState( m_nFileID );
-		DevMsg( "[TF Workshop] UGC state %u\n", newState );
-		// It's unclear if DownloadItem() is supposed to be a no-op on downloaded things, or is meant to return
-		// false, but either way we'll now get a downloaded callback when things are good.
-		m_eState = eState_Downloading;
-	}
-	else
-	{
-		TFWorkshopMsg( "Got updated information for map [ %s ]\n", m_strCanonicalName.Get() );
-		m_eState = Downloaded() ? eState_Downloaded : eState_Downloading;
 	}
 
 	// Notify gamerules of the udpate
@@ -790,7 +767,7 @@ bool CTFMapsWorkshop::GetWorkshopMapDesc( uint32 uIndex, WorkshopMapDesc_t* pDes
 	V_sprintf_safe( pDesc->szMapName, "workshop/%llu", id );
 	pDesc->uTimestamp  = 0;
 	pDesc->bDownloaded = false;
-	
+
 	auto index = m_mapMaps.Find( id );
 	if ( index != m_mapMaps.InvalidIndex() )
 	{
