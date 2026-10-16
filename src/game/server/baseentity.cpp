@@ -2199,6 +2199,9 @@ BEGIN_DATADESC_NO_BASE( CBaseEntity )
 	DEFINE_INPUTFUNC( FIELD_STRING, "CallScriptFunction", InputCallScriptFunction ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "TerminateScriptScope", InputTerminateScriptScope ),
 
+	DEFINE_INPUTFUNC( FIELD_VOID, "IncrementTextureFrameIndex", InputIncrementBrushTexIndex ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetTextureFrameIndex", InputSetBrushTexIndex ),
+
 	DEFINE_OUTPUT( m_OnUser1, "OnUser1" ),
 	DEFINE_OUTPUT( m_OnUser2, "OnUser2" ),
 	DEFINE_OUTPUT( m_OnUser3, "OnUser3" ),
@@ -7318,6 +7321,28 @@ float g_debugCounter = 0;
 #define UPDATE_VMPROFILE
 
 #endif // VMPROFILE
+
+//-----------------------------------------------------------------------------
+// Purpose: Increment toggleTextureVar of materials on the entity with 
+// 			ToggleTexture material proxy.
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CTextureToggle::InputIncrementBrushTexIndex( inputdata_t& inputdata )
+{
+	int iCurrentIndex = GetTextureFrameIndex() + 1;
+	SetTextureFrameIndex( iCurrentIndex );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Explicitly set toggleTextureVar of materials on the entity with 
+// 			ToggleTexture material proxy.
+// Input  : &inputdata - 
+//-----------------------------------------------------------------------------
+void CTextureToggle::InputSetBrushTexIndex( inputdata_t& inputdata )
+{
+	int iData = inputdata.value.Int();
+	SetTextureFrameIndex( iData );
+}
 
 //-----------------------------------------------------------------------------
 // Returns true if the function was located and called. false otherwise.

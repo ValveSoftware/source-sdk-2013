@@ -705,6 +705,8 @@ public:
 	void InputCallScriptFunction( inputdata_t &inputdata );
 	void TerminateScriptScope();
 	void InputTerminateScriptScope( inputdata_t &inputdata );
+	void InputIncrementBrushTexIndex( inputdata_t &inputdata );
+	void InputSetBrushTexIndex( inputdata_t &inputdata );
 
 	inline void ScriptDisableDraw()
 	{
