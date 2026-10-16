@@ -636,6 +636,21 @@ void CClassLoadoutPanel::PerformLayout( void )
 	}
 
 	LinkModelPanelControllerNavigation( true );
+
+	// fix for controllers: refocusing stuff, fixes double selections, all that stuff
+	if ( ::input->IsSteamControllerActive() && GetFirstSelectedItemIndex( true ) == -1 )
+	{
+		FOR_EACH_VEC( m_pItemModelPanels, i )
+		{
+			bool bPrevSelected = ( i == m_iCurrentSlotIndex ) && m_pItemModelPanels[i]->IsVisible();
+			m_pItemModelPanels[i]->SetSelected(bPrevSelected);
+			if ( bPrevSelected )
+			{
+				SetBorderForItem( m_pItemModelPanels[i], false );
+				m_pItemModelPanels[i]->RequestFocus();
+			}
+		}
+	}
 }
 
 
@@ -685,6 +700,14 @@ void CClassLoadoutPanel::OnKeyCodePressed( vgui::KeyCode code )
 		{
 			OnCommand( VarArgs("change%d", nSelected ) );
 		}
+	}
+	else if ( nButtonCode == KEY_XBUTTON_X || code == STEAMCONTROLLER_X )
+	{
+		if ( m_pSelectionPanel == NULL )
+		{
+			!m_bInTauntLoadoutMode ? OnCommand("tauntloadout") : OnCommand("characterloadout");
+		}
+		return;
 	}
 	else
 	{
@@ -738,7 +761,7 @@ void CClassLoadoutPanel::OnShowPanel( bool bVisible, bool bReturningFromArmory )
 			m_pSelectionPanel = NULL;
 		}
 
-		m_iCurrentSlotIndex = TF_WPN_TYPE_PRIMARY;
+		m_iCurrentClassIndex == TF_CLASS_SPY ? m_iCurrentSlotIndex = TF_WPN_TYPE_SECONDARY : m_iCurrentSlotIndex = TF_WPN_TYPE_PRIMARY;
 		if( m_pItemModelPanels.Count() && m_pItemModelPanels[0] )
 		{
 			m_pItemModelPanels[0]->SetSelected( true );
@@ -971,6 +994,13 @@ void CClassLoadoutPanel::OnSelectionReturned( KeyValues *data )
 	}
 
 	pSelection->RequestFocus();
+
+	// with a controller we actually want to keep the weapon highlighted
+	if ( ::input->IsSteamControllerActive() )
+	{
+		m_pItemModelPanels[m_iCurrentSlotIndex]->SetSelected( true );
+		SetBorderForItem( m_pItemModelPanels[m_iCurrentSlotIndex], false );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1153,11 +1183,13 @@ void CClassLoadoutPanel::SetLoadoutPage( classloadoutpage_t loadoutPage )
 		case CHARACTER_LOADOUT_PAGE:
 		{
 			m_bInTauntLoadoutMode = false;
+			m_iCurrentClassIndex == TF_CLASS_SPY ? m_iCurrentSlotIndex = TF_WPN_TYPE_SECONDARY : m_iCurrentSlotIndex = TF_WPN_TYPE_PRIMARY;
 		}
 		break;
 		case TAUNT_LOADOUT_PAGE:
 		{
 			m_bInTauntLoadoutMode = true;
+			m_iCurrentSlotIndex = LOADOUT_POSITION_TAUNT;
 		}
 		break;
 		default:
@@ -1166,6 +1198,13 @@ void CClassLoadoutPanel::SetLoadoutPage( classloadoutpage_t loadoutPage )
 			Assert( 0 );
 		}
 	}
+
+	FOR_EACH_VEC( m_pItemModelPanels, i )
+	{
+		m_pItemModelPanels[i]->SetSelected( false );
+		SetBorderForItem( m_pItemModelPanels[i], false );
+	}
+
 	InvalidateLayout();
 }
 
