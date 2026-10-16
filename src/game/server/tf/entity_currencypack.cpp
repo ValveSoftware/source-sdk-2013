@@ -174,61 +174,55 @@ void CCurrencyPack::BlinkThink( void )
 
 
 //-----------------------------------------------------------------------------
-// Become touchable when we are at rest
+// Purpose: Collect this pack when it comes to rest if it is outside the playable space.
 //-----------------------------------------------------------------------------
 void CCurrencyPack::ComeToRest( void )
 {
 	BaseClass::ComeToRest();
 
-	if ( IsClaimed() || m_bDistributed )
+	// I'm not sure when this should ever actually return true, but it doesn't seem to cause any issues so I'm not touching it.
+	if ( IsClaimed() )
 		return;
 
 	// if we've come to rest in an area with no nav, just grant the money to the player
 	if ( TheNavMesh->GetNavArea( GetAbsOrigin() ) == NULL )
 	{
-		TFGameRules()->DistributeCurrencyAmount( m_nAmount );
-		m_bTouched = true;
-		UTIL_Remove( this );
-
+		AutoCollect();
 		return;
 	}
 
 	// See if we've come to rest in a trigger_hurt
+	//  We can't use IsTakingTriggerHurtDamageAtPoint for this as it would cause a regression
+	//  on maps that use manually placed 0 damage trigger_hurts for collection.
 	for ( int i = 0; i < ITriggerHurtAutoList::AutoList().Count(); i++ )
 	{
-		CTriggerHurt *pTrigger = static_cast<CTriggerHurt*>( ITriggerHurtAutoList::AutoList()[i] );
-		if ( !pTrigger->m_bDisabled )
+		CTriggerHurt *pTrigger = static_cast<CTriggerHurt *>( ITriggerHurtAutoList::AutoList()[ i ] );
+		if ( !pTrigger->m_bDisabled && pTrigger->PointIsWithin( GetAbsOrigin() ) )
 		{
-			Vector vecMins, vecMaxs;
-			pTrigger->GetCollideable()->WorldSpaceSurroundingBounds( &vecMins, &vecMaxs );
-			if ( IsPointInBox( GetCollideable()->GetCollisionOrigin(), vecMins, vecMaxs ) )
-			{
-				TFGameRules()->DistributeCurrencyAmount( m_nAmount );
-
-				m_bTouched = true;
-				UTIL_Remove( this );
-
-				return;
-			}
+			AutoCollect();
+			return;
 		}
 	}
 
 	// Or a func_respawnroom (robots can drop money in their own spawn)
-	for ( int i = 0; i < IFuncRespawnRoomAutoList::AutoList().Count(); i++ )
+	if ( PointInRespawnRoom( NULL, GetAbsOrigin() ) )
 	{
-		CFuncRespawnRoom *pRespawnRoom = static_cast<CFuncRespawnRoom *>( IFuncRespawnRoomAutoList::AutoList()[ i ] );
-		Vector vecMins, vecMaxs;
-		pRespawnRoom->GetCollideable()->WorldSpaceSurroundingBounds( &vecMins, &vecMaxs );
-		if ( IsPointInBox( GetCollideable()->GetCollisionOrigin(), vecMins, vecMaxs ) )
-		{
-			TFGameRules()->DistributeCurrencyAmount( m_nAmount );
-
-			m_bTouched = true;
-			UTIL_Remove( this );
-
-			return;
-		}
+		AutoCollect();
+		return;
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Collects the pack, crediting the player team appropriately. Intended for when a pack lands outside the playable space.
+//-----------------------------------------------------------------------------
+void CCurrencyPack::AutoCollect( void )
+{
+	if ( !m_bDistributed )
+	{
+		TFGameRules()->DistributeCurrencyAmount( m_nAmount );
+	}
+	m_bTouched = true;
+	UTIL_Remove( this );
 }
 
 //-----------------------------------------------------------------------------
