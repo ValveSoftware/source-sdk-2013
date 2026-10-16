@@ -660,6 +660,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 
 		const char *pszMsgKey = NULL;
 		int iEventType = event->GetInt( "eventtype" );
+		const char *pszMsgText = event->GetString( "msg", "");
 
 		bool bIsMvM = TFGameRules() && TFGameRules()->IsMannVsMachineMode();
 		if ( bIsMvM )
@@ -678,22 +679,41 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		switch ( iEventType )
 		{
 		case TF_FLAGEVENT_PICKUP: 
-			pszMsgKey = bIsHalloween2014 ? "#Msg_PickedUpFlagHalloween2014" : "#Msg_PickedUpFlag"; 
-			break;
-		case TF_FLAGEVENT_CAPTURE: 
-			pszMsgKey = bIsHalloween2014 ? "#Msg_CapturedFlagHalloween2014" : "#Msg_CapturedFlag"; 
-			break;
-		case TF_FLAGEVENT_DEFEND: 
-			if ( bIsMvM )
+			if ( Q_strlen(pszMsgText) <= 0 )
 			{
-				pszMsgKey = "#Msg_DefendedBomb";
+				pszMsgKey = bIsHalloween2014 ? "#Msg_PickedUpFlagHalloween2014" : "#Msg_PickedUpFlag";
 			}
 			else
 			{
-				pszMsgKey = bIsHalloween2014 ? "#Msg_DefendedFlagHalloween2014" : "#Msg_DefendedFlag";
+				pszMsgKey = pszMsgText;
 			}
-
-
+			break;
+		case TF_FLAGEVENT_CAPTURE: 
+			if ( Q_strlen(pszMsgText) <= 0 )
+			{
+				pszMsgKey = bIsHalloween2014 ? "#Msg_CapturedFlagHalloween2014" : "#Msg_CapturedFlag";
+			}
+			else
+			{
+				pszMsgKey = pszMsgText;
+			}
+			break;
+		case TF_FLAGEVENT_DEFEND: 
+			if ( Q_strlen(pszMsgText) <= 0 )
+			{
+				if (bIsMvM)
+				{
+					pszMsgKey = "#Msg_DefendedBomb";
+				}
+				else
+				{
+					pszMsgKey = bIsHalloween2014 ? "#Msg_DefendedFlagHalloween2014" : "#Msg_DefendedFlag";
+				}
+			}
+			else
+			{
+				pszMsgKey = pszMsgText;
+			}
 			break;
 
 		// Add this when we can get localization for it
@@ -708,6 +728,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		}
 
 		wchar_t *pwzEventText = g_pVGuiLocalize->Find( pszMsgKey );
+		wchar_t pwzEventTextNonLocalized[256] = L"";
 		Assert( pwzEventText );
 		if ( pwzEventText )
 		{
@@ -715,7 +736,8 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		}
 		else
 		{
-			V_memset( m_DeathNotices[iMsg].wzInfoText, 0, sizeof( m_DeathNotices[iMsg].wzInfoText ) );
+			g_pVGuiLocalize->ConvertANSIToUnicode( pszMsgKey, pwzEventTextNonLocalized, sizeof(pwzEventTextNonLocalized) );
+			V_wcsncpy( m_DeathNotices[iMsg].wzInfoText, pwzEventTextNonLocalized, sizeof( m_DeathNotices[iMsg].wzInfoText ) );
 		}
 
 		int iPlayerIndex = event->GetInt( "player" );

@@ -186,6 +186,9 @@ BEGIN_DATADESC( CCaptureFlag )
 	DEFINE_KEYFIELD( m_iszPaperEffect, FIELD_STRING, "flag_paper" ),
 	DEFINE_KEYFIELD( m_iszTrailEffect, FIELD_STRING, "flag_trail" ),
 	DEFINE_KEYFIELD( m_iszTags, FIELD_STRING, "tags" ),
+	DEFINE_KEYFIELD( m_iszCaptureName, FIELD_STRING, "text_captured" ),
+	DEFINE_KEYFIELD( m_iszPickupName, FIELD_STRING, "text_pickup" ),
+	DEFINE_KEYFIELD( m_iszDefendName, FIELD_STRING, "text_defend" ),
 
 	// Inputs.
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
@@ -935,6 +938,7 @@ void CCaptureFlag::ResetMessage( void )
 			event->SetInt( "eventtype", TF_FLAGEVENT_RETURNED );
 			event->SetInt( "priority", 8 );
 			event->SetInt( "team", GetTeamNumber() );
+			event->SetString( "msg", STRING( m_iszDefendName ) );
 			gameeventmanager->FireEvent( event );
 		}
 
@@ -1423,6 +1427,7 @@ void CCaptureFlag::PickUp( CTFPlayer *pPlayer, bool bInvisible )
 		event->SetInt( "priority", 8 );
 		event->SetInt( "home", ( nOldFlagStatus == TF_FLAGINFO_HOME ) ? 1 : 0 );
 		event->SetInt( "team", GetTeamNumber() );
+		event->SetString( "msg", STRING( m_iszPickupName ) );
 		gameeventmanager->FireEvent( event );
 	}
 
@@ -1724,6 +1729,7 @@ void CCaptureFlag::Capture( CTFPlayer *pPlayer, int nCapturePoint )
 		event->SetInt( "eventtype", TF_FLAGEVENT_CAPTURE );
 		event->SetInt( "priority", 9 );
 		event->SetInt( "team", GetTeamNumber() );
+		event->SetString( "msg", STRING( m_iszCaptureName ) );
 		gameeventmanager->FireEvent( event );
 	}
 
@@ -2840,6 +2846,7 @@ void CCaptureFlag::AddPointValue( int nPoints )
 			{
 				pEvent->SetInt( "player", m_hPrevOwner && m_hPrevOwner->IsPlayer() ? ToBasePlayer( m_hPrevOwner )->entindex() : -1 );
 				pEvent->SetInt( "eventtype", TF_FLAGEVENT_PICKUP );
+				pEvent->SetString( "msg", STRING( m_iszPickupName ) );
 				gameeventmanager->FireEvent( pEvent );
 			}
 		}
