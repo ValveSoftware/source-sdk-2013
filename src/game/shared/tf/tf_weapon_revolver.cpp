@@ -214,7 +214,7 @@ void CTFRevolver::GetWeaponCrosshairScale( float &flScale )
 	{
 		float curtime = pTFPlayer->GetFinalPredictedTime() + ( gpGlobals->interpolation_amount * TICK_INTERVAL );
 		float flTimeSinceCheck = curtime - m_flLastAccuracyCheck;
-		flScale = RemapValClamped( flTimeSinceCheck, 1.0f, 0.5f, 0.75f, 2.5f );
+		flScale = RemapValClamped( flTimeSinceCheck, 1.0f, 0.5f, 1.0f, 2.5f );
 	}
 	else
 	{
