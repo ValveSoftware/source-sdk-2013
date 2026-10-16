@@ -21598,6 +21598,21 @@ CTFPlayer *CTFPlayer::FindPartnerTauntInitiator( void )
 			continue;
 		}
 
+		// Check if: 1. the initiator is inside a respawnroom 
+		// 2. the round has not ended, to not execute when players can already enter the enemy respawnroom.
+		// 3. initiator and partner are enemies
+		if( PointInRespawnRoom( pPlayer, pPlayer->WorldSpaceCenter() ) && TFGameRules()->State_Get() != GR_STATE_TEAM_WIN )
+		{
+			if ( pPlayer->GetTeamNumber() != GetTeamNumber() )
+			{
+				if ( tf_highfive_debug.GetBool() )
+					Msg(" - but %s is inside their spawn room and the round hasn't ended.\n", pPlayer->GetPlayerName());
+
+				continue;
+			}
+			
+		}
+
 		// update to closer target player
 		if ( flDistSqrToPlayer < flDistSqrToTargetInitiator )
 		{
