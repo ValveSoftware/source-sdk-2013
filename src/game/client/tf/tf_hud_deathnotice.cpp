@@ -1065,6 +1065,22 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 			break;
 		}
 
+		case TF_DMG_CUSTOM_DECAPITATION_BOSS:
+			{
+				if ( msg.Killer.iTeam == TEAM_UNASSIGNED )
+				{
+					char szLocalizedName[MAX_PLAYER_NAME_LENGTH];
+					szLocalizedName[ 0 ] = 0;
+					const wchar_t *wszLocalizedName = g_pVGuiLocalize->Find( "#TF_HALLOWEEN_BOSS_DEATHCAM_NAME" );
+					if ( wszLocalizedName )
+					{
+						g_pVGuiLocalize->ConvertUnicodeToANSI( wszLocalizedName, szLocalizedName, ARRAYSIZE( szLocalizedName ) );
+						Q_strncpy( msg.Killer.szName, szLocalizedName, ARRAYSIZE( msg.Killer.szName ) );
+						msg.Killer.iTeam = TF_TEAM_HALLOWEEN; // This will set the name to purple for The Horseless Headless Horsemann!
+					}
+				}
+				break;
+			}
 		case TF_DMG_CUSTOM_EYEBALL_ROCKET:
 			{
 				if ( msg.Killer.iTeam == TEAM_UNASSIGNED )
