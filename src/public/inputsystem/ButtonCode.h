@@ -310,7 +310,7 @@ inline bool IsSpace( ButtonCode_t code )
 
 inline bool IsKeypad( ButtonCode_t code )
 {
-	return ( code >= MOUSE_FIRST ) && ( code <= KEY_PAD_DECIMAL );
+	return ( code >= KEY_PAD_0 ) && ( code <= KEY_PAD_DECIMAL );
 }
 
 inline bool IsPunctuation( ButtonCode_t code )
