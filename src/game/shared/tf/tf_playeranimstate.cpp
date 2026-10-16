@@ -385,7 +385,8 @@ void CTFPlayerAnimState::Update( float eyeYaw, float eyePitch )
 	Vector vPositionToFace = ( pTauntPartner ? pTauntPartner->GetAbsOrigin() : vec3_origin );
 	bool bInTaunt = pTFPlayer->m_Shared.InCond( TF_COND_TAUNTING );
 	bool bInKart = pTFPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_KART );
-	bool bIsImmobilized = bInTaunt || pTFPlayer->m_Shared.IsControlStunned();
+	bool bInCYOAPDAAnim = pTFPlayer->IsInCYOAPDAAnimation();
+	bool bIsImmobilized = bInTaunt || bInCYOAPDAAnim || pTFPlayer->m_Shared.IsControlStunned();
 
 	if ( SetupPoseParameters( pStudioHdr ) )
 	{
@@ -489,6 +490,11 @@ void CTFPlayerAnimState::Update( float eyeYaw, float eyePitch )
 			m_bForceAimYaw = true;
 			m_flEyeYaw = pTFPlayer->GetTauntYaw();
 		}
+		else if ( bInCYOAPDAAnim )
+		{
+			m_bForceAimYaw = true;
+			m_flEyeYaw = pTFPlayer->GetTauntYaw();
+		}
 		
 		if ( !bIsImmobilized || bInTaunt || bInKart )
 		{
@@ -571,7 +577,6 @@ void CTFPlayerAnimState::CheckPasstimeThrowAnimation()
 }
 
 
-
 extern bool IsInPrediction();
 
 //-----------------------------------------------------------------------------
@@ -583,15 +588,17 @@ void CTFPlayerAnimState::CheckCYOAPDAAnimtion()
 	if ( !pPlayer )
 		return;
 
+#ifdef CLIENT_DLL
 	if ( IsInPrediction() )
 		return;
+#endif
 
-	// do not play anims if in kart
-	if ( pPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_KART ) )
+	if ( !pPlayer->IsAllowedToViewCYOAPDA() )
+	{
+		// Skip animating out if something changes and we shouldn't be playing ConTracker animations.
+		pPlayer->StopViewingCYOAPDA();
 		return;
-
-	if ( pPlayer->IsTaunting() )
-		return;
+	}
 
 	bool isViewingCYOAPDA = pPlayer->IsViewingCYOAPDA();
 
@@ -610,7 +617,10 @@ void CTFPlayerAnimState::CheckCYOAPDAAnimtion()
 	}
 #endif
 	item_definition_index_t contractTrackerDefIndex = 5869;
-	if ( pItem && pItem->GetItemDefIndex() != contractTrackerDefIndex )
+
+	// We need to check pItem->IsValid() because GetItemInLoadoutForClass() can return a non-null invalid item in some cases.
+	// (maybe disallow ConTracker animations if pItem is invalid?)
+	if ( pItem && pItem->IsValid() && pItem->GetItemDefIndex() != contractTrackerDefIndex )
 	{
 		// If we don't have the contracker equipped, we can't be looking at it.
 		// We may have been looking at it and only just now removed it,
@@ -627,6 +637,8 @@ void CTFPlayerAnimState::CheckCYOAPDAAnimtion()
 	{
 		if ( state == CYOA_PDA_ANIM_NONE )
 		{
+			pPlayer->SetTauntYaw( pPlayer->GetAbsAngles()[YAW] );
+
 			int iSeq = pPlayer->SelectWeightedSequence( ACT_MP_CYOA_PDA_INTRO );
 			pPlayer->m_Shared.m_flCYOAPDAAnimStateTime = gpGlobals->curtime + pPlayer->SequenceDuration( iSeq );
 			pPlayer->DoAnimationEvent( PLAYERANIMEVENT_CYOAPDA_BEGIN );
