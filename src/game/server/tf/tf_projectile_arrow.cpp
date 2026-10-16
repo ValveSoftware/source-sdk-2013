@@ -659,12 +659,16 @@ void CTFProjectile_Arrow::BuildingHealingArrow( CBaseEntity *pOther )
 	if ( !pTFAttacker )
 		return;
 
+	CTFPlayer* pOriginalTFAttacker = ToTFPlayer( GetAttackerEntity() );
+	if ( !pOriginalTFAttacker )
+		return;
+
 	// if not on our team, forget about it
 	if ( GetTeamNumber() != pOther->GetTeamNumber() )
 		return;
 
 	int iArrowHealAmount = 0;
-	CALL_ATTRIB_HOOK_INT_ON_OTHER( pTFAttacker, iArrowHealAmount, arrow_heals_buildings );
+	CALL_ATTRIB_HOOK_INT_ON_OTHER( pOriginalTFAttacker, iArrowHealAmount, arrow_heals_buildings );
 	if ( iArrowHealAmount == 0 )
 		return;
 
