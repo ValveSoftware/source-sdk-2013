@@ -269,7 +269,7 @@ CTFHudMatchStatus::CTFHudMatchStatus(const char *pElementName)
 	: CHudElement(pElementName)
 	, BaseClass(NULL, "HudMatchStatus")
 	, m_pTimePanel( NULL )
-	, m_bUseMatchHUD( false )
+	, m_bUseMatchHUD( ShouldUseMatchHUD() )
 	, m_eMatchGroupSettings( k_eTFMatchGroup_Invalid )
 {
 	Panel *pParent = g_pClientMode->GetViewport();
