@@ -273,6 +273,14 @@ bool CTFBuffItem::Holster( CBaseCombatWeapon *pSwitchingTo )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CTFBuffItem::CanInspect() const
+{
+    return BaseClass::CanInspect() && !m_bPlayingHorn;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFBuffItem::FireGameEvent( IGameEvent* event )
