@@ -156,12 +156,6 @@ static bool HalloweenHandlesKeyInput( int down, ButtonCode_t keynum, const char 
 	C_TFPlayer *pPlayer = ToTFPlayer( C_BasePlayer::GetLocalPlayer() );
 	if ( pPlayer )
 	{
-		// don't do anything while dancing
-		if ( pPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER ) )
-		{
-			return true;
-		}
-
 		// only allow +attack
 		if ( pPlayer->m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) )
 		{
