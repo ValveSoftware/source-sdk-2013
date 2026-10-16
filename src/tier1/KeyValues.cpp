@@ -1547,6 +1547,17 @@ Color KeyValues::GetColor( const char *keyName )
 	KeyValues *dat = FindKey( keyName, false );
 	if ( dat )
 	{
+		//first, check if it's a hex code before we move on to check its type.
+		if ( dat->m_iDataType == TYPE_STRING )
+		{
+			Color testCol = Color( dat->m_sValue );
+			if ( testCol.GetRawColor() != 0 )
+			{
+				color = testCol;
+				return color;
+			}
+		}
+		
 		if ( dat->m_iDataType == TYPE_COLOR )
 		{
 			color[0] = dat->m_Color[0];
