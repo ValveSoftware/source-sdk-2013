@@ -359,6 +359,8 @@ public:
 	// Called by the renderer to apply the prediction error smoothing.
 	void GetPredictionErrorSmoothingVector( Vector &vOffset ); 
 
+	virtual bool CanHearAndReadChatFrom( C_BasePlayer *pPlayer ) { return true; }
+
 	virtual void ExitLadder() {}
 	surfacedata_t *GetLadderSurface( const Vector &origin );
 
