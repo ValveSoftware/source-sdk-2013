@@ -533,6 +533,8 @@ void CHud::LevelInit( void )
 		group->bHidden = false;
 		group->m_pLockingElements.Purge();
 	}
+
+	RefreshHudTextures();
 }
 
 //-----------------------------------------------------------------------------
@@ -801,7 +803,7 @@ CHudTexture *CHud::GetIcon( const char *szIcon )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CHud::RefreshHudTextures()
+void CHud::RefreshHudTextures( const char* customKillIconFile /* = "\0" */ )
 {
 	if ( !m_bHudTexturesLoaded )
 	{
@@ -811,6 +813,17 @@ void CHud::RefreshHudTextures()
 
 	CUtlDict< CHudTexture *, int >	textureList;
 
+	// loading custom kill icons, presumably packed into the map and because of an input to the gamerules entity
+	if ( FStrEq( customKillIconFile, "" ) == false )
+	{
+		LoadHudTextures( textureList, customKillIconFile, NULL );
+		int co = textureList.Count();
+		for ( int index = 0; index < co; index++ )
+		{
+			CHudTexture* tex = textureList[ index ];
+			AddSearchableHudIconToList( *tex );
+		}
+	}
 	// check to see if we have sprites for this res; if not, step down
 	LoadHudTextures( textureList, "scripts/hud_textures", NULL );
 	LoadHudTextures( textureList, "scripts/mod_textures", NULL );

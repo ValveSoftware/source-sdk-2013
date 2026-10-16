@@ -27,4 +27,7 @@ public:
 	float		m_flDelay;
 	string_t	m_strTarget;
 	EHANDLE		m_pActivator;
+#ifdef TF_DLL
+	string_t m_szKillIcon;
+#endif // TF_DLL
 };
