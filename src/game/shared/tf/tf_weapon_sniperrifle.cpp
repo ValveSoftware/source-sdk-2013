@@ -445,7 +445,11 @@ void CTFSniperRifle::PlayWeaponShootSound( void )
 	{
 		float flDamageBonus = 1.0f;
 		CALL_ATTRIB_HOOK_FLOAT( flDamageBonus, sniper_full_charge_damage_bonus );
-		if ( flDamageBonus > 1.0f )
+		const CEconItemView* pItem = GetAttributeContainer()->GetItem();
+		// Fixes rifles with "sniper_full_charge_damage_bonus"
+		// playing an undefined "SPECIAL3" sound when not fully charged.
+		// Improvement By Bitl
+		if ( flDamageBonus > 1.0f && ( pItem && pItem->GetStaticData()->GetWeaponReplacementSound( GetTeamNumber(), SPECIAL3 )))
 		{
 			WeaponSound( SPECIAL3 );
 			return;
