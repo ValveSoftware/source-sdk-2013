@@ -113,6 +113,7 @@ CNewParticleEffect *CParticleProperty::Create( const char *pszParticleName, Part
 // Purpose: Create a new particle system and attach it to our owner
 //-----------------------------------------------------------------------------
 static ConVar cl_particle_batch_mode( "cl_particle_batch_mode", "1" );
+static ConVar cl_disable_batch_mode_bullet_tracers("cl_disable_batch_mode_for_bullet_tracers", "1");
 CNewParticleEffect *CParticleProperty::Create( const char *pszParticleName, ParticleAttachment_t iAttachType, int iAttachmentPoint, Vector vecOriginOffset )
 {
 	if ( GameRules() )
@@ -122,15 +123,18 @@ CNewParticleEffect *CParticleProperty::Create( const char *pszParticleName, Part
 
 	int nBatchMode = cl_particle_batch_mode.GetInt();
 	CParticleSystemDefinition *pDef = g_pParticleSystemMgr->FindParticleSystem( pszParticleName );
-	bool bRequestedBatch = ( nBatchMode == 2 ) || ( ( nBatchMode == 1 ) && pDef && pDef->ShouldBatch() ); 
-	if ( ( iAttachType == PATTACH_CUSTOMORIGIN ) && bRequestedBatch )
+	if (!(cl_disable_batch_mode_bullet_tracers.GetInt() && V_strstr(pszParticleName, "bullet") && V_strstr(pszParticleName, "tracer")))
 	{
-		int iIndex = FindEffect( pszParticleName );
-		if ( iIndex >= 0 )
+		bool bRequestedBatch = (nBatchMode == 2) || ((nBatchMode == 1) && pDef && pDef->ShouldBatch());
+		if ((iAttachType == PATTACH_CUSTOMORIGIN) && bRequestedBatch)
 		{
-			CNewParticleEffect *pEffect = m_ParticleEffects[iIndex].pParticleEffect.GetObject();
-			pEffect->Restart();
-			return pEffect;
+			int iIndex = FindEffect(pszParticleName);
+			if (iIndex >= 0)
+			{
+				CNewParticleEffect* pEffect = m_ParticleEffects[iIndex].pParticleEffect.GetObject();
+				pEffect->Restart();
+				return pEffect;
+			}
 		}
 	}
 
