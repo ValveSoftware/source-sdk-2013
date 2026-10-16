@@ -365,6 +365,25 @@ void CTFMinigun::SharedAttack()
 					// NVNT the local player fired a shot. notify the haptics system.
 					if ( haptics )
 						haptics->ProcessHapticEvent(2,"Weapons","minigun_fire");
+
+					m_hEjectBrassWeapon = GetWeaponForEffect();
+					if ( m_hEjectBrassWeapon && ShouldEjectBrass() )
+					{
+						// Try and setup the attachment point if it doesn't already exist.
+						// This caching will mess up if we go third person from first - we only do this in taunts and don't fire so we should
+						// be okay for now.
+						if ( m_iEjectBrassAttachment == -1 )
+						{
+							m_iEjectBrassAttachment = m_hEjectBrassWeapon->LookupAttachment( "eject_brass" );
+						}
+						if ( m_iEjectBrassAttachment > 0 )
+						{
+							CEffectData data;
+							data.m_nHitBox = GetWeaponID();
+							m_hEjectBrassWeapon->GetAttachment( m_iEjectBrassAttachment, data.m_vOrigin, data.m_vAngles );
+							DispatchEffect("TF_EjectBrass", data);
+						}
+					}
 				}
 #endif
 				CalcIsAttackCritical();
@@ -1210,8 +1229,8 @@ void CTFMinigun::StartBrassEffect()
 	m_hEjectBrassWeapon = GetWeaponForEffect();
 	if ( !m_hEjectBrassWeapon )
 		return;
-
-	if ( UsingViewModel() && !g_pClientMode->ShouldDrawViewModel() )
+	C_TFPlayer *pOwner = GetTFPlayerOwner();
+	if ( UsingViewModel() && !g_pClientMode->ShouldDrawViewModel() || pOwner == C_TFPlayer::GetLocalTFPlayer() )
 	{
 		// Prevent effects when the ViewModel is hidden with r_drawviewmodel=0
 		return;
