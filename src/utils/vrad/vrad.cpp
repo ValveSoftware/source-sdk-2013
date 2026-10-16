@@ -2688,7 +2688,7 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 				g_MaxDispPatchRadius = ( float )atof( argv[i] );
 				if ( g_MaxDispPatchRadius < 10.0f )
 				{
-					Warning( "Error: g_MaxDispPatchRadius < 10.0\n" );
+					Warning( "Error: g_MaxDispPatchRadius < 10.0, increase the value above 10.0!\n" );
 					return -1;
 				}
 			}
