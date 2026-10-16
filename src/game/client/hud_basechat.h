@@ -247,6 +247,8 @@ public:
 	virtual void	StopMessageMode( void );
 	void			Send( void );
 
+	virtual void OnKeyCodeTyped(vgui::KeyCode code);
+
 	MESSAGE_FUNC( OnChatEntrySend, "ChatEntrySend" );
 	MESSAGE_FUNC( OnChatEntryStopMessageMode, "ChatEntryStopMessageMode" );
 
