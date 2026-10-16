@@ -151,17 +151,22 @@ void CHudBaseDeathNotice::Paint()
 
 		wchar_t victim[256]=L"";
 		wchar_t killer[256]=L"";
+		wchar_t	assister[256]=L"";
 
+		const wchar_t *plus = L"+";
 		// TEMP - print the death icon name if we don't have a material for it
 
 		g_pVGuiLocalize->ConvertANSIToUnicode( msg.Victim.szName, victim, sizeof( victim ) );
 		g_pVGuiLocalize->ConvertANSIToUnicode( msg.Killer.szName, killer, sizeof( killer ) );
+		g_pVGuiLocalize->ConvertANSIToUnicode( msg.Assister.szName, assister, sizeof( assister ) );
 
 		int iVictimTextWide = UTIL_ComputeStringWidth( m_hTextFont, victim ) + xSpacing;
 		int iDeathInfoTextWide= msg.wzInfoText[0] ? UTIL_ComputeStringWidth( m_hTextFont, msg.wzInfoText ) + xSpacing : 0;
 		int iDeathInfoEndTextWide= msg.wzInfoTextEnd[0] ? UTIL_ComputeStringWidth( m_hTextFont, msg.wzInfoTextEnd ) + xSpacing : 0;
 
 		int iKillerTextWide = killer[0] ? UTIL_ComputeStringWidth( m_hTextFont, killer ) + xSpacing : 0;
+		int iAssisterTextWide = assister[0] ? UTIL_ComputeStringWidth( m_hTextFont, assister ) + xSpacing : 0;
+		int iPlusTextWide = assister[0] ? UTIL_ComputeStringWidth( m_hTextFont, plus ) + xSpacing : 0;
 		int iLineTall = m_flLineHeight;
 		int iTextTall = surface()->GetFontTall( m_hTextFont );
 		int iconWide = 0, iconTall = 0, iDeathInfoOffset = 0, iVictimTextOffset = 0, iconActualWide = 0;
@@ -234,7 +239,7 @@ void CHudBaseDeathNotice::Paint()
 			iconPostVictimWide *= flScale;
 		}
 
-		int iTotalWide = iKillerTextWide + iconWide + iVictimTextWide + iDeathInfoTextWide + iDeathInfoEndTextWide + ( xMargin * 2 );
+		int iTotalWide = iKillerTextWide + iPlusTextWide + iAssisterTextWide + iconWide + iVictimTextWide + iDeathInfoTextWide + iDeathInfoEndTextWide + ( xMargin * 2 );
 		iTotalWide += iconPrekillerWide + iconPostkillerWide + iPreKillerTextWide + iconPostVictimWide;
 
 		int y = yStart + ( ( iLineTall + m_flLineSpacing ) * i );				
@@ -269,6 +274,14 @@ void CHudBaseDeathNotice::Paint()
 			// Draw killer's name
 			DrawText( x, yText, m_hTextFont, GetTeamColor( msg.Killer.iTeam, msg.bLocalPlayerInvolved ), killer );
 			x += iKillerTextWide;
+		}
+
+		if ( assister[0] )
+		{
+			DrawText( x, yText, m_hTextFont, GetTeamColor( msg.Killer.iTeam == msg.Assister.iTeam ? msg.Assister.iTeam : TEAM_UNASSIGNED, msg.bLocalPlayerInvolved ), plus );
+			x += iPlusTextWide;
+			DrawText( x, yText, m_hTextFont, GetTeamColor( msg.Assister.iTeam, msg.bLocalPlayerInvolved ), assister );
+			x += iAssisterTextWide;
 		}
 
 		// prekiller text
