@@ -248,6 +248,7 @@ int CPopulationManager::m_nNumConsecutiveWipes = 0;
 static int s_iLastKnownMissionCategory = 1;
 static int s_iLastKnownMission = 1;
 
+
 //-------------------------------------------------------------------------
 // CPopulationManager
 //-------------------------------------------------------------------------
@@ -1257,6 +1258,33 @@ void CPopulationManager::WaveEnd( bool bSuccess )
 	{
 		TFGameRules()->State_Transition( GR_STATE_BETWEEN_RNDS );
 		TFObjectiveResource()->SetMannVsMachineBetweenWaves( true );
+	}
+}
+
+void CPopulationManager::ScriptForceWaveEnd(bool bSuccess)
+{
+	CWave* pWave = GetCurrentWave();
+	if ( !bSuccess )
+	{
+		//If told to end in a failure, it will auto-reset without the end screen
+		if ( pWave )
+		{
+			pWave->ForceFinish();
+			WaveEnd(bSuccess);
+			pWave->ForceReset();
+			TFGameRules()->SetAllowBetweenRounds(true);
+			TFGameRules()->State_Transition(GR_STATE_PREROUND);
+			TFGameRules()->PlayerReadyStatus_ResetState();
+			TFObjectiveResource()->SetMannVsMachineBetweenWaves(true);
+			RestorePlayerCurrency();
+		}
+	}
+	else
+	{
+		if ( pWave )
+		{
+			pWave->ForceWin();
+		}
 	}
 }
 
