@@ -96,9 +96,14 @@ public:
 private:
 	void HideSelectQuestInfo();
 	void BeginTurnInAnimation();
+	// Will return false if the quest is not map restricted
+	bool BFillValidMaps( CUtlVector<int>& vecValidMaps ) const;
+	// Also sets up the tooltip for m_pJoinQueueButton
+	bool BIsAllowedToQueue();
 
 	EditablePanel* m_pAcceptTooltipHack;
 	CExButton* m_pActivateButton;
+	CExButton* m_pJoinQueueButton;
 	CTFTextToolTip* m_pToolTip;
 	ImagePanel* m_pBGImage;
 	ImagePanel* m_pInfo;

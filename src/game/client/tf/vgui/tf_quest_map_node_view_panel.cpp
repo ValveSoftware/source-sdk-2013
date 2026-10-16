@@ -176,6 +176,8 @@ CQuestViewSubPanel::CQuestViewSubPanel( Panel* pParent,
 	m_pObjectivePanel = new CQuestObjectivePanel( this, "objectives" );
 	m_pActivateButton = new CExButton( this, "ActivateButton", (const char*)NULL, this, "activate_node" );
 	m_pActivateButton->PassMouseTicksTo( this, true );
+	m_pJoinQueueButton = new CExButton( this, "JoinQueueButton", (const char*)NULL, this, "join_queue" );
+	m_pJoinQueueButton->PassMouseTicksTo( this, true );
 	m_pBGImage = new ImagePanel( this, "BGImage" );
 	m_pAcceptTooltipHack = new EditablePanel( this, "EditableTooltip" );
 	m_pInfo = new ImagePanel( this, "ObjectivesInfoImage" );
@@ -183,6 +185,7 @@ CQuestViewSubPanel::CQuestViewSubPanel( Panel* pParent,
 	m_pTurnInContainer = new EditablePanel( m_pObjectivePanel, "TurnInContainer" );
 
 	ListenForGameEvent( "quest_response" );
+	ListenForGameEvent( "party_updated" );
 }
 
 void CQuestViewSubPanel::ApplySchemeSettings( IScheme *pScheme )
@@ -243,6 +246,20 @@ void CQuestViewSubPanel::PerformLayout()
 	// Make the activate button be very dark and uninviting when not enabled
 	m_pActivateButton->SetDefaultColor( colorTanLight, bCanActivate ? colorActive : colorInactive );
 
+	if ( !bCompleted && bActive )
+	{
+		m_pJoinQueueButton->SetVisible( true );
+		m_pJoinQueueButton->SetEnabled( BIsAllowedToQueue() );
+
+		// Force disable activate button if we are showing the join queue button instead
+		m_pActivateButton->SetVisible( false );
+		m_pActivateButton->SetEnabled( false );
+	}
+	else
+	{
+		m_pJoinQueueButton->SetVisible( false );
+		m_pJoinQueueButton->SetEnabled( false );
+	}
 
 	if ( !bCanActivate && !bCanChoose && !bActive )
 	{
@@ -323,6 +340,32 @@ void CQuestViewSubPanel::OnCommand( const char *command )
 
 		InvalidateLayout();
 	}
+	else if ( FStrEq( "join_queue", command ) )
+	{
+		if ( !BIsAllowedToQueue() )
+			return;
+
+		CTFGroupMatchCriteria& criteria = GTFPartyClient()->MutLocalGroupCriteria();
+
+		// Select the quest specific maps if there are any
+		CUtlVector< int > vecValidMaps;
+		if ( BFillValidMaps( vecValidMaps ) )
+		{
+			criteria.ClearCasualCriteria();
+
+			FOR_EACH_VEC( vecValidMaps, i )
+			{
+				criteria.SetCasualMapSelected( vecValidMaps[ i ], true );
+			}
+		}
+		// Otherwise fallback to the users favourites, which simply loads the Core category if there are no favourites
+		if ( !criteria.GetCasualCriteriaHelper().AnySelected() )
+			GTFPartyClient()->LoadSavedCasualCriteria();
+
+		// Sanity check
+		if ( criteria.GetCasualCriteriaHelper().AnySelected() )
+			GTFPartyClient()->RequestQueueForMatch( k_eTFMatchGroup_Casual_12v12 );
+	}
 	else if ( FStrEq( "turn_in", command ) ) 
 	{
 		if ( !GetQuestMapHelper().BCanNodeBeTurnedIn( m_msgNodeData.defindex() ) )
@@ -339,6 +382,77 @@ void CQuestViewSubPanel::OnCommand( const char *command )
 			PlaySoundEntry( strCommandArgs[ 1 ] );
 		}
 	}
+}
+
+bool CQuestViewSubPanel::BFillValidMaps( CUtlVector< int >& vecValidMaps ) const
+{
+	const CQuestDefinition* pQuestDef = m_pQuest->GetDefinition();
+	if ( !pQuestDef )
+		return false;
+
+	const QuestObjectiveDefVec_t& vecQuestObjectives = pQuestDef->GetObjectives();
+	FOR_EACH_VEC( vecQuestObjectives, i )
+	{
+		if ( m_pQuest->BEarnedAllPointsForCategory( vecQuestObjectives[ i ].GetPointsType() ) )
+			continue; // This objective is complete, don't queue it
+
+		const CQuestObjectiveDefinition* pQuestObjDef = vecQuestObjectives[ i ].GetObjectiveDef();
+		if ( !pQuestObjDef )
+			continue;
+		const CMsgQuestObjectiveDef& msgQuestObjDef = pQuestObjDef->GetTypedMsg();
+
+		int nMapsSize = msgQuestObjDef.map_size();
+		for ( int j = 0; j < nMapsSize; j++ )
+		{
+			const char *pszMapName = msgQuestObjDef.map( j ).c_str();
+			const MapDef_t* pMapDef = GetItemSchema()->GetMasterMapDefByName( pszMapName );
+			assert( pMapDef );
+			if ( !pMapDef )
+				return false; // A map is defined but we can't find it, something is very wrong
+
+			vecValidMaps.AddToTail( pMapDef->m_nDefIndex );
+		}
+
+		int nGameModesSize = msgQuestObjDef.game_mode_size();
+		for ( int j = 0; j < nGameModesSize; j++ )
+		{
+			EGameCategory eGameMode = (EGameCategory)msgQuestObjDef.game_mode( j );
+			const SchemaGameCategory_t* pGameCategory = GetItemSchema()->GetGameCategory( eGameMode );
+			assert( pGameCategory );
+			if ( !pGameCategory )
+				return false; // A gamemode is defined but we can't find it, something is very wrong
+
+			FOR_EACH_VEC( pGameCategory->m_vecEnabledMaps, k )
+			{
+				vecValidMaps.AddToTail( pGameCategory->m_vecEnabledMaps[ k ]->m_nDefIndex );
+			}
+		}
+	}
+	return vecValidMaps.Count() > 0;
+}
+
+bool CQuestViewSubPanel::BIsAllowedToQueue()
+{
+	CUtlVector< CTFPartyClient::QueueEligibilityData_t > vecReasons;
+	if ( !GTFPartyClient()->BCanQueueForMatch( k_eTFMatchGroup_Casual_12v12, vecReasons ) )
+	{
+		FOR_EACH_VEC( vecReasons, i )
+		{
+			// Ugly hack to check if this is casual criteria, we override the selected maps anyways so we ignore this one
+			const wchar_t* pszNoCasualCriteriaString = g_pVGuiLocalize->Find( "#TF_Matchmaking_CantQueue_NoCasualCriteria" );
+			if ( Q_wcscmp( pszNoCasualCriteriaString, vecReasons[ i ].wszCantReason ) == 0 )
+				continue;
+
+			m_pAcceptTooltipHack->SetVisible( true );
+			m_pAcceptTooltipHack->SetTooltip( m_pToolTip, NULL );
+			m_pAcceptTooltipHack->SetDialogVariable( "tiptext", vecReasons[i].wszCantReason );
+			return false;
+		}
+	}
+
+	m_pJoinQueueButton->SetTooltip( NULL, NULL );
+	m_pAcceptTooltipHack->SetVisible( false );
+	return true;
 }
 
 void CQuestViewSubPanel::BeginTurnInAnimation()
@@ -416,6 +530,10 @@ void CQuestViewSubPanel::FireGameEvent( IGameEvent *event )
 				return;
 			}
 		}
+	}
+	else if ( FStrEq( "party_updated", event->GetName() ) )
+	{
+		InvalidateLayout();
 	}
 }
 
