@@ -600,8 +600,6 @@ static bool Coaching_ShouldRequestCoach()
 		return false;
 	}
 
-	return false;
-
 	// Grab generic stats and add time played to total time played
 	int totalTimePlayed = 0;
 	for ( int iClass = TF_FIRST_NORMAL_CLASS; iClass < TF_LAST_NORMAL_CLASS; iClass++ )
