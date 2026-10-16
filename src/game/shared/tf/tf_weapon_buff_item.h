@@ -65,6 +65,8 @@ public:
 	void			FireGameEvent( IGameEvent* event );
 	virtual void	CreateBanner();
 
+	virtual bool	CanInspect() const OVERRIDE;
+
 	virtual Activity TranslateViewmodelHandActivityInternal( Activity actBase ) OVERRIDE;
 
 	void			BlowHorn( void );

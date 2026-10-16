@@ -68,6 +68,8 @@ public:
 	virtual bool	Reload( void );
 	virtual void	WeaponReset( void );
 
+	virtual bool	CanInspect() const OVERRIDE;
+
 public:
 	// ITFChargeUpWeapon
 	virtual bool CanCharge() { return true; }

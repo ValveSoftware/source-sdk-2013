@@ -36,6 +36,7 @@ public:
 	~CPasstimeGun();
 	virtual float GetChargeBeginTime() OVERRIDE;
 	virtual float GetCurrentCharge() OVERRIDE;
+	virtual bool CanInspect() const OVERRIDE;
 	static bool BValidPassTarget( CTFPlayer *pSource, CTFPlayer *pTarget, HudNotification_t *pReason = 0 );
 
 	struct LaunchParams

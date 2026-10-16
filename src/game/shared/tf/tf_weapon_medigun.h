@@ -137,6 +137,8 @@ public:
 
 	virtual bool	IsHolstered(){ return m_bHolstered; }
 
+	virtual bool	CanInspect() const OVERRIDE;
+
 	float			GetProgress( void );
 	const char*		GetEffectLabelText( void ) { return "#TF_Rescue"; }
 	bool			EffectMeterShouldFlash( void );

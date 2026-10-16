@@ -81,6 +81,8 @@ public:
 
 	virtual char const*	GetShootSound( int iIndex ) const;
 
+	virtual bool	CanInspect() const OVERRIDE;
+
 	// Charged shot support.
 	virtual float	GetChargeBeginTime( void ) { return m_flChargeBeginTime; }
 	virtual float	GetChargeMaxTime( void ) { return TF_PARTICLE_MAX_CHARGE_TIME; }
