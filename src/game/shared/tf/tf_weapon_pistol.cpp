@@ -157,7 +157,7 @@ void CTFPistol_ScoutPrimary::Push( void )
 		const Vector vHull = Vector( 16.f, 16.f, 16.f );
 		trace_t trace;
 
-		float flDist = 50.f;
+		float flDist = SCOUTPRIMARY_MINPUSHDIST;
 		UTIL_TraceHull( vecEyes, vecEyes + vecForward * flDist,  -vHull, vHull, MASK_SOLID, &traceFilter, &trace );
 		
 		bool bDebug = false;
@@ -196,6 +196,11 @@ void CTFPistol_ScoutPrimary::Push( void )
 #endif
 }
 
+bool CTFPistol_ScoutPrimary::CanUsePush()
+{
+	return ( m_flPushTime > -1.f && gpGlobals->curtime > m_flPushTime );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  :  - 
@@ -203,7 +208,7 @@ void CTFPistol_ScoutPrimary::Push( void )
 void CTFPistol_ScoutPrimary::ItemPostFrame()
 {
 	// Check for smack.
-	if ( m_flPushTime > -1.f && gpGlobals->curtime > m_flPushTime )
+	if ( CanUsePush() )
 	{
 		Push();
 		m_flPushTime = -1.f;
