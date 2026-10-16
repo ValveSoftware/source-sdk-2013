@@ -10917,7 +10917,6 @@ float CTFPlayer::TeamFortress_CalculateMaxSpeed( bool bIgnoreSpecialAbility /*= 
 		}
 	}
 
-#ifdef GAME_DLL
 	if ( m_Shared.InCond( TF_COND_SPEED_BOOST ) )
 	{
 		// We only allow our speed boost to apply if we have a base speed to work with. If we're supposed
@@ -10927,7 +10926,6 @@ float CTFPlayer::TeamFortress_CalculateMaxSpeed( bool bIgnoreSpecialAbility /*= 
 			maxfbspeed += MIN( maxfbspeed * 0.4f, tf_whip_speed_increase.GetFloat() );
 		}
 	}
-#endif
 
 	if ( m_Shared.InCond( TF_COND_STEALTHED ) )
 	{
