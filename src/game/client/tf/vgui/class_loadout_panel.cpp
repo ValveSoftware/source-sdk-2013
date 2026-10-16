@@ -1260,6 +1260,20 @@ void CClassLoadoutPanel::OnCommand( const char *command )
 			return;
 		}
 	}
+	else if ( !V_strnicmp( command, "setteam", 7 ) )
+	{
+		const char *pszNum = command + 7;
+		if ( pszNum && pszNum[0] )
+		{
+			int iTeam = atoi( pszNum );
+			if ( IsValidTFTeam( iTeam ) )
+			{
+				SetTeam( iTeam );
+				UpdateModelPanels();
+			}
+		}
+		return;
+	}
 	BaseClass::OnCommand( command );
 }
 
