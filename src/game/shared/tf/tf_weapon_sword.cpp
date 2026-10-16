@@ -349,13 +349,10 @@ void CTFSword::OnDecapitation( CTFPlayer *pDeadPlayer )
 		}
 		pOwner->m_Shared.SetDecapitations( ++iDecap );
 		pOwner->TeamFortress_SetSpeed();
-		if ( pOwner->m_Shared.GetBestOverhealDecayMult() == -1.f )
-		{
-			pOwner->m_Shared.SetBestOverhealDecayMult( 0.25f );
-		}
+
 		if ( pOwner->GetHealth() < pOwner->m_Shared.GetMaxBuffedHealth() )
 		{
-			pOwner->TakeHealth( 15, DMG_IGNORE_MAXHEALTH );
+			pOwner->TakeHealth( 15, DMG_GENERIC );
 		}
 		if ( !pOwner->m_Shared.InCond( TF_COND_DEMO_BUFF ) )
 		{
