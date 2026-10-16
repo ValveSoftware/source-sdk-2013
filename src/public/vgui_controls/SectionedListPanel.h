@@ -203,6 +203,8 @@ public:
 
 	virtual void SetProportional(bool state);
 
+	virtual void SetMouseInputEnabled( bool state );
+
 	HFont GetHeaderFont( void ) const;
 	void SetHeaderFont( HFont hFont );
 	HFont GetRowFont( void ) const;
