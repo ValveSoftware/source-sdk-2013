@@ -1609,7 +1609,7 @@ void CreateDirectLights (void)
 		}
 		else
 		{
-			qprintf( "unsupported light entity: \"%s\"\n", name );
+			Warning( "unsupported light entity: \"%s\"\n", name );
 		}
 	}
 

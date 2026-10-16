@@ -726,7 +726,7 @@ void MakePatches (void)
 
 	if (num_degenerate_faces > 0)
 	{
-		qprintf("%d degenerate faces\n", num_degenerate_faces );
+		Warning("%d degenerate faces\n", num_degenerate_faces );
 	}
 
 	qprintf ("%i square feet [%.2f square inches]\n", (int)(totalarea/144), totalarea );
@@ -1712,7 +1712,7 @@ void BounceLight (void)
 		// light is always received to leaf patches
 		CollectLight( added );
 
-		qprintf ("\tBounce #%i added RGB(%.0f, %.0f, %.0f)\n", i+1, added[0], added[1], added[2] );
+		Msg("\tBounce #%i added RGB(%.0f, %.0f, %.0f)\n", i + 1, added[0], added[1], added[2]);
 
 		if ( i+1 == numbounce || (added[0] < 1.0 && added[1] < 1.0 && added[2] < 1.0) )
 			bouncing = false;
@@ -2331,10 +2331,7 @@ void VRAD_Finish()
 	Msg( "Ready to Finish\n" ); 
 	fflush( stdout );
 
-	if ( verbose )
-	{
-		PrintBSPFileSizes();
-	}
+	PrintBSPFileSizes();
 
 	Msg( "Writing %s\n", source );
 #ifdef MPI
@@ -2916,8 +2913,6 @@ int RunVRAD( int argc, char **argv )
 #endif
 
 	Msg("\n      Valve Radiosity Simulator     \n");
-
-	verbose = true;  // Originally FALSE
 
 	bool onlydetail;
 	int i = ParseCommandLine( argc, argv, &onlydetail );
