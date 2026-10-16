@@ -54,8 +54,7 @@ public:
 	// Returns true if it handled the command.
 	bool				ClientCommand(CBasePlayer *pPlayer, const CCommand &args );
 
-	bool				CheckProximity( int iDistance );
-	void				SetProximityDistance( int iDistance );
+	bool				CheckProximity( float flDistance );
 
 	bool				IsPlayerIgnoringPlayer( int iTalker, int iListener );
 
@@ -69,7 +68,6 @@ private:
 	IVoiceGameMgrHelper	*m_pHelper;
 	int					m_nMaxPlayers;
 	double				m_UpdateInterval;						// How long since the last update.
-	int					m_iProximityDistance;
 };
 
 
