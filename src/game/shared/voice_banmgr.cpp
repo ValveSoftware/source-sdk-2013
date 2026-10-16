@@ -14,7 +14,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#define BANMGR_FILEVERSION	1
+#define BANMGR_FILEVERSION	2
 const char *g_pBanMgrFilename = "voice_ban.dt";
 
 
@@ -62,7 +62,9 @@ bool CVoiceBanMgr::Init(const char *pGameDir)
 			{
 				char playerID[SIGNED_GUID_LEN];
 				filesystem->Read(playerID, SIGNED_GUID_LEN, fh);
-				AddBannedPlayer(playerID);
+				int iBanFlags;
+				filesystem->Read(&iBanFlags, sizeof(iBanFlags), fh);
+				AddBannedPlayer(playerID, iBanFlags);
 			}			
 		}
 
@@ -106,6 +108,7 @@ void CVoiceBanMgr::SaveState(const char *pGameDir)
 			for(BannedPlayer *pCur=pListHead->m_pNext; pCur != pListHead; pCur=pCur->m_pNext)
 			{
 				filesystem->Write(pCur->m_PlayerID, SIGNED_GUID_LEN, fh);
+				filesystem->Write(&pCur->m_iBanFlags, sizeof(pCur->m_iBanFlags), fh);
 			}
 		}
 
@@ -114,30 +117,35 @@ void CVoiceBanMgr::SaveState(const char *pGameDir)
 }
 
 
-bool CVoiceBanMgr::GetPlayerBan(char const playerID[SIGNED_GUID_LEN])
+int CVoiceBanMgr::GetPlayerBan(char const playerID[SIGNED_GUID_LEN])
 {
-	return !!InternalFindPlayerSquelch(playerID);
+	BannedPlayer* pBannedPlayer = InternalFindPlayerSquelch(playerID);
+	return pBannedPlayer ? InternalFindPlayerSquelch(playerID)->m_iBanFlags : 0;
 }
 
 
-void CVoiceBanMgr::SetPlayerBan(char const playerID[SIGNED_GUID_LEN], bool bSquelch)
+void CVoiceBanMgr::SetPlayerBan(char const playerID[SIGNED_GUID_LEN], int iBanFlag, bool bSquelch)
 {
+	BannedPlayer* pPlayer = InternalFindPlayerSquelch( playerID );
 	if(bSquelch)
 	{
-		// Is this guy already squelched?
-		if(GetPlayerBan(playerID))
-			return;
-	
-		AddBannedPlayer(playerID);
+		if ( pPlayer )
+			pPlayer->m_iBanFlags |= iBanFlag;
+		else
+			AddBannedPlayer( playerID, iBanFlag );
 	}
 	else
 	{
-		BannedPlayer *pPlayer = InternalFindPlayerSquelch(playerID);
 		if(pPlayer)
 		{
-			pPlayer->m_pPrev->m_pNext = pPlayer->m_pNext;
-			pPlayer->m_pNext->m_pPrev = pPlayer->m_pPrev;
-			delete pPlayer;
+			pPlayer->m_iBanFlags &= ~iBanFlag;
+
+			if (pPlayer->m_iBanFlags == 0)
+			{
+				pPlayer->m_pPrev->m_pNext = pPlayer->m_pNext;
+				pPlayer->m_pNext->m_pPrev = pPlayer->m_pPrev;
+				delete pPlayer;
+			}
 		}
 	}
 }
@@ -167,7 +175,7 @@ CVoiceBanMgr::BannedPlayer* CVoiceBanMgr::InternalFindPlayerSquelch(char const p
 }
 
 
-CVoiceBanMgr::BannedPlayer* CVoiceBanMgr::AddBannedPlayer(char const playerID[SIGNED_GUID_LEN])
+CVoiceBanMgr::BannedPlayer* CVoiceBanMgr::AddBannedPlayer(char const playerID[SIGNED_GUID_LEN], int iBanFlags)
 {
 	BannedPlayer *pNew = new BannedPlayer;
 	if(!pNew)
@@ -175,6 +183,7 @@ CVoiceBanMgr::BannedPlayer* CVoiceBanMgr::AddBannedPlayer(char const playerID[SI
 
 	int index = HashPlayerID(playerID);
 	memcpy(pNew->m_PlayerID, playerID, SIGNED_GUID_LEN);
+	pNew->m_iBanFlags = iBanFlags;
 	pNew->m_pNext = &m_PlayerHash[index];
 	pNew->m_pPrev = m_PlayerHash[index].m_pPrev;
 	pNew->m_pPrev->m_pNext = pNew->m_pNext->m_pPrev = pNew;

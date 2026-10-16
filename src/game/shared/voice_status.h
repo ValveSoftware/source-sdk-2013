@@ -117,7 +117,7 @@ public:
 
 	// returns true if the target client has been banned
 	// playerIndex is of range 1..maxplayers
-	bool	IsPlayerBlocked(int iPlayerIndex);
+	bool	IsPlayerBlocked(int iPlayerIndex, int iBanFlag);
 
 	// returns false if the player can't hear the other client due to game rules (eg. the other team)
 	bool    IsPlayerAudible(int iPlayerIndex);
@@ -129,7 +129,7 @@ public:
 	bool	IsLocalPlayerSpeaking( void );
 
 	// blocks the target client from being heard
-	void	SetPlayerBlockedState(int iPlayerIndex, bool blocked);
+	void	SetPlayerBlockedState(int iPlayerIndex, bool blocked, int iBanFlag);
 
 	void	SetHeadLabelMaterial( const char *pszMaterial );
 
@@ -159,7 +159,8 @@ private:
 
 	// This is who the server THINKS we have banned (it can become incorrect when a new player arrives on the server).
 	// It is checked periodically, and the server is told to squelch or unsquelch the appropriate players.
-	CPlayerBitVec	m_ServerBannedPlayers;
+	CPlayerBitVec	m_ServerVoiceBannedPlayers;
+	CPlayerBitVec	m_ServerChatBannedPlayers;
 
 	IVoiceStatusHelper	*m_pHelper;		// Each mod provides an implementation of this.
 

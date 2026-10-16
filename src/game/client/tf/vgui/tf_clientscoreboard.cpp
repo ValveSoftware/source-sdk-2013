@@ -480,7 +480,7 @@ void CTFClientScoreBoardDialog::OnCommand( const char *command )
 	{
 		engine->ClientCmd( command );
 	}
-	else if ( !V_strcmp( command, "muteplayer" ) )
+	else if ( !V_strcmp( command, "muteplayervoice" ) || !V_strcmp( command, "muteplayerchat" ) )
 	{
 		SectionedListPanel *pList = GetSelectedPlayerList();
 		if ( pList )
@@ -496,7 +496,8 @@ void CTFClientScoreBoardDialog::OnCommand( const char *command )
 				if ( playerIndex > 0 && playerIndex <= MAX_PLAYERS && GetClientVoiceMgr() )
 				{
 					// Toggle
-					GetClientVoiceMgr()->SetPlayerBlockedState( playerIndex, ( GetClientVoiceMgr()->IsPlayerBlocked( playerIndex ) ? false : true ) );
+					int iBanFlag = !V_strcmp( command, "muteplayervoice" ) ? BANMGR_FLAG_VOICE : BANMGR_FLAG_CHAT;
+					GetClientVoiceMgr()->SetPlayerBlockedState( playerIndex, !GetClientVoiceMgr()->IsPlayerBlocked( playerIndex, iBanFlag ), iBanFlag );
 				}
 			}
 		}
@@ -765,11 +766,15 @@ void CTFClientScoreBoardDialog::OnScoreBoardMouseRightRelease( void )
 		}
 	}
 
-	// Mute
+	
 	if ( !bFakeClient && GetClientVoiceMgr() )
 	{
-		const char *pszString = GetClientVoiceMgr()->IsPlayerBlocked( playerIndex ) ? "#TF_ScoreBoard_Context_UnMute" : "#TF_ScoreBoard_Context_Mute";
-		contextMenuBuilder.AddMenuItem( pszString, "muteplayer", "mute" );
+		// Voice Mute
+		const char *pszVoiceString = GetClientVoiceMgr()->IsPlayerBlocked( playerIndex, BANMGR_FLAG_VOICE ) ? "#TF_ScoreBoard_Context_UnMuteVoice" : "#TF_ScoreBoard_Context_MuteVoice";
+		contextMenuBuilder.AddMenuItem( pszVoiceString, "muteplayervoice", "mutevoice" );
+		// Chat Mute
+		const char* pszChatString = GetClientVoiceMgr()->IsPlayerBlocked( playerIndex, BANMGR_FLAG_CHAT ) ? "#TF_ScoreBoard_Context_UnMuteChat" : "#TF_ScoreBoard_Context_MuteChat";
+		contextMenuBuilder.AddMenuItem( pszChatString, "muteplayerchat", "mutechat" );
 	}
 
 	// Spectate

@@ -58,6 +58,7 @@ public:
 	void				SetProximityDistance( int iDistance );
 
 	bool				IsPlayerIgnoringPlayer( int iTalker, int iListener );
+	bool				IsPlayerIgnoringPlayerChat( int iTalker, int iListener );
 
 private:
 

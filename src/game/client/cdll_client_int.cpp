@@ -357,17 +357,17 @@ public:
 	// ingame voice manipulation
 	bool IsPlayerGameVoiceMuted(int playerIndex)
 	{
-		return GetClientVoiceMgr()->IsPlayerBlocked(playerIndex);
+		return GetClientVoiceMgr()->IsPlayerBlocked( playerIndex, BANMGR_FLAG_VOICE );
 	}
 
 	void MutePlayerGameVoice(int playerIndex)
 	{
-		GetClientVoiceMgr()->SetPlayerBlockedState(playerIndex, true);
+		GetClientVoiceMgr()->SetPlayerBlockedState( playerIndex, true, BANMGR_FLAG_VOICE );
 	}
 
 	void UnmutePlayerGameVoice(int playerIndex)
 	{
-		GetClientVoiceMgr()->SetPlayerBlockedState(playerIndex, false);
+		GetClientVoiceMgr()->SetPlayerBlockedState( playerIndex, false, BANMGR_FLAG_VOICE );
 	}
 
 	void OnGameUIActivated( void )

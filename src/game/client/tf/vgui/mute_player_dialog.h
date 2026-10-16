@@ -31,7 +31,7 @@ private:
 	virtual void OnCommand( const char *command ) OVERRIDE;
 	virtual void OnThink() OVERRIDE;
 
-	void ToggleMuteStateOfSelectedUser();
+	void ToggleMuteStateOfSelectedUser( int iBanFlag );
 	void RefreshPlayerStatus();
 	void UpdateBadgePanels();
 
@@ -48,7 +48,8 @@ private:
 	}
 
 	vgui::ListPanel *m_pPlayerList = nullptr;
-	vgui::Button *m_pMuteButton = nullptr;
+	vgui::Button *m_pVoiceMuteButton = nullptr;
+	vgui::Button *m_pChatMuteButton = nullptr;
 
 	vgui::ImageList				*m_pImageList = nullptr;
 	CUtlMap<CSteamID, int>		m_mapAvatarsToImageList;
@@ -61,7 +62,7 @@ private:
 	CPanelAnimationVarAliasType( int, m_iNameWidth, "name_width", "94", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iScoreWidth, "score_width", "30", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTimeWidth, "time_width", "60", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iStatusWidth, "status_width", "60", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iStatusWidth, "status_width", "120", "proportional_int" );
 };
 
 #endif // MUTE_PLAYER_DIALOG_H
