@@ -235,6 +235,29 @@ const char *GetRandomBotName( void )
 		"Kill Me",
 		"Glorified Toaster with Legs",
 
+		"The Japanese Mafia",
+		"Giant Cluster of Stickies",
+		"2Fort Cow",
+		"Queuing for Casual...",
+		"F1 Bot",
+		"Golden Frying Pan",
+		"This Server is VAC Secured",
+		"Respect The Sightline",
+		"Miss Pauling",
+		"Professional Bread Teleporter",
+		"sv_cheats 1",
+		"Fruit Shop Owner",
+		"pablo.gonzales.2007",
+		"The Observer",
+		"King of Australia",
+		"Blockhead",
+		"Pootis",
+		"DOOR STUCK!",
+		"Wheatley",
+		"BOT Connor",
+		"Scout's Father",
+		"coconut.jpg",
+
 		NULL
 	};
 	static int nameCount = 0;
