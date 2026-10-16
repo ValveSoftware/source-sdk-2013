@@ -829,6 +829,11 @@ void CTFWearable::FireGameEvent( IGameEvent *event )
 #if defined( CLIENT_DLL )
 ShadowType_t CTFWearableVM::ShadowCastType( void )
 {
+	if (IsEffectActive(EF_NODRAW | EF_NOSHADOW))
+	{
+		return SHADOWS_NONE;
+	}
+
 	if ( ToTFPlayer(GetMoveParent())->ShouldDrawThisPlayer() )
 	{
 		// Using the viewmodel.
