@@ -114,6 +114,7 @@ unsigned	num_degenerate_faces;
 qboolean	g_bLowPriority = false;
 qboolean	g_bLogHashData = false;
 bool		g_bNoDetailLighting = false;
+int			g_SunSamplesAreaLight = 30;
 double		g_flStartTime;
 bool		g_bStaticPropLighting = false;
 bool        g_bStaticPropPolys = false;
@@ -2587,6 +2588,24 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 				return -1;
 			}
 		}
+		else if (!Q_stricmp(argv[i], "-SunSamplesAreaLight"))
+		{
+			if (++i < argc)
+			{
+				int SunSamplesAreaLightParam = atoi(argv[i]);
+				if (SunSamplesAreaLightParam < 0)
+				{
+					Warning("Error: expected non-negative value after '-SunSamplesAreaLight'\n");
+					return -1;
+				}
+				g_SunSamplesAreaLight = SunSamplesAreaLightParam;
+			}
+			else
+			{
+				Warning("Error: expected a value after '-SunSamplesAreaLight'\n");
+				return -1;
+			}
+		}
 		else if ( !Q_stricmp( argv[i], "-maxdispsamplesize" ) )
 		{
 			if ( ++i < argc )
@@ -2861,6 +2880,7 @@ void PrintUsage( int argc, char **argv )
 		"  -maxdispsamplesize #: Set max displacement sample size (default: 512).\n"
 		"  -softsun <n>    : Treat the sun as an area light source of size <n> degrees."
 		"                    Produces soft shadows.\n"
+		"  -SunSamplesAreaLight # : Set max number of samples from the light_enviroment, (default: 30).\n"
 		"                    Recommended values are between 0 and 5. Default is 0.\n"
 		"  -FullMinidumps  : Write large minidumps on crash.\n"
 		"  -chop           : Smallest number of luxel widths for a bounce patch, used on edges\n"
