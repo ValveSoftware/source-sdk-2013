@@ -33,7 +33,7 @@ extern short g_nQuestSpewFlags;
 #define SO_TRACKER_SPEW_GC_COMMITS 1<<2
 #define SO_TRACKER_SPEW_OBJECTIVE_TRACKER_MANAGEMENT 1<<3
 #define SO_TRACKER_SPEW_SOCACHE_ACTIVITY 1<<4
-#define SO_TRACKER_SPEW_TRACKER_ACCEPTANCE 1<<5
+#define SO_TRACKER_SPEW_TRACKER_ACCEPTANCE (1<<5)
 void SOTrackerSpew( const char* pszBuff, int nType );
 #define SO_TRACKER_SPEW( pszBuff, nType ) SOTrackerSpew( pszBuff, nType );		
 
