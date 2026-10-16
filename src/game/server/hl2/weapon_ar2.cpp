@@ -55,53 +55,53 @@ PRECACHE_WEAPON_REGISTER(weapon_ar2);
 acttable_t	CWeaponAR2::m_acttable[] = 
 {
 	{ ACT_RANGE_ATTACK1,			ACT_RANGE_ATTACK_AR2,			true },
-	{ ACT_RELOAD,					ACT_RELOAD_SMG1,				true },		// FIXME: hook to AR2 unique
-	{ ACT_IDLE,						ACT_IDLE_SMG1,					true },		// FIXME: hook to AR2 unique
-	{ ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_SMG1,			true },		// FIXME: hook to AR2 unique
+	{ ACT_RANGE_ATTACK2,			ACT_COMBINE_AR2_ALTFIRE,		true },		// Shared with Soldiers and Citizens.
+	{ ACT_RELOAD,					ACT_RELOAD_AR2,					true },
+	{ ACT_IDLE,						ACT_IDLE_AR2,					true },
+	{ ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_AR2,				true },
 
-	{ ACT_WALK,						ACT_WALK_RIFLE,					true },
+	{ ACT_WALK,						ACT_WALK_AR2,					true },
 
-// Readiness activities (not aiming)
-	{ ACT_IDLE_RELAXED,				ACT_IDLE_SMG1_RELAXED,			false },//never aims
-	{ ACT_IDLE_STIMULATED,			ACT_IDLE_SMG1_STIMULATED,		false },
-	{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_SMG1,			false },//always aims
+	// Readiness activities (not aiming)
+	{ ACT_IDLE_RELAXED,				ACT_IDLE_AR2_RELAXED,			false },	// Citizens only. Never aims.
+	{ ACT_IDLE_STIMULATED,			ACT_IDLE_AR2_STIMULATED,		false },
+	{ ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_AR2,				false },	// Citizens only. Always aims.
 
-	{ ACT_WALK_RELAXED,				ACT_WALK_RIFLE_RELAXED,			false },//never aims
-	{ ACT_WALK_STIMULATED,			ACT_WALK_RIFLE_STIMULATED,		false },
-	{ ACT_WALK_AGITATED,			ACT_WALK_AIM_RIFLE,				false },//always aims
+	{ ACT_WALK_RELAXED,				ACT_WALK_AR2_RELAXED,			false },	// Citizens only. Never aims.
+	{ ACT_WALK_STIMULATED,			ACT_WALK_AR2_STIMULATED,		false },
+	{ ACT_WALK_AGITATED,			ACT_WALK_AIM_AR2,				false },	// Citizens only. Always aims.
 
-	{ ACT_RUN_RELAXED,				ACT_RUN_RIFLE_RELAXED,			false },//never aims
-	{ ACT_RUN_STIMULATED,			ACT_RUN_RIFLE_STIMULATED,		false },
-	{ ACT_RUN_AGITATED,				ACT_RUN_AIM_RIFLE,				false },//always aims
+	{ ACT_RUN_RELAXED,				ACT_RUN_AR2_RELAXED,			false },	// Citizens only. Never aims.
+	{ ACT_RUN_STIMULATED,			ACT_RUN_AR2_STIMULATED,		false },
+	{ ACT_RUN_AGITATED,				ACT_RUN_AIM_AR2,				false },	// Citizens only. Always aims.
 
-// Readiness activities (aiming)
-	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_SMG1_RELAXED,			false },//never aims	
-	{ ACT_IDLE_AIM_STIMULATED,		ACT_IDLE_AIM_RIFLE_STIMULATED,	false },
-	{ ACT_IDLE_AIM_AGITATED,		ACT_IDLE_ANGRY_SMG1,			false },//always aims
+	// Readiness activities (aiming)
+	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_AR2_RELAXED,			false },	// Citizens only. Never aims.	
+	{ ACT_IDLE_AIM_STIMULATED,		ACT_IDLE_AIM_AR2_STIMULATED,	false },
+	{ ACT_IDLE_AIM_AGITATED,		ACT_IDLE_ANGRY_AR2,				false },	// Citizens only. Always aims.
 
-	{ ACT_WALK_AIM_RELAXED,			ACT_WALK_RIFLE_RELAXED,			false },//never aims
-	{ ACT_WALK_AIM_STIMULATED,		ACT_WALK_AIM_RIFLE_STIMULATED,	false },
-	{ ACT_WALK_AIM_AGITATED,		ACT_WALK_AIM_RIFLE,				false },//always aims
+	{ ACT_WALK_AIM_RELAXED,			ACT_WALK_AR2_RELAXED,			false },	// Citizens only. Never aims.
+	{ ACT_WALK_AIM_STIMULATED,		ACT_WALK_AIM_AR2_STIMULATED,	false },
+	{ ACT_WALK_AIM_AGITATED,		ACT_WALK_AIM_AR2,				false },	// Citizens only. Always aims.
 
-	{ ACT_RUN_AIM_RELAXED,			ACT_RUN_RIFLE_RELAXED,			false },//never aims
-	{ ACT_RUN_AIM_STIMULATED,		ACT_RUN_AIM_RIFLE_STIMULATED,	false },
-	{ ACT_RUN_AIM_AGITATED,			ACT_RUN_AIM_RIFLE,				false },//always aims
-//End readiness activities
+	{ ACT_RUN_AIM_RELAXED,			ACT_RUN_AR2_RELAXED,			false },	// Citizens only. Never aims.
+	{ ACT_RUN_AIM_STIMULATED,		ACT_RUN_AIM_AR2_STIMULATED,	false },
+	{ ACT_RUN_AIM_AGITATED,			ACT_RUN_AIM_AR2,				false },	// Citizens only. Always aims.
+	//End readiness activities
 
-	{ ACT_WALK_AIM,					ACT_WALK_AIM_RIFLE,				true },
-	{ ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RIFLE,			true },
-	{ ACT_WALK_CROUCH_AIM,			ACT_WALK_CROUCH_AIM_RIFLE,		true },
-	{ ACT_RUN,						ACT_RUN_RIFLE,					true },
-	{ ACT_RUN_AIM,					ACT_RUN_AIM_RIFLE,				true },
-	{ ACT_RUN_CROUCH,				ACT_RUN_CROUCH_RIFLE,			true },
-	{ ACT_RUN_CROUCH_AIM,			ACT_RUN_CROUCH_AIM_RIFLE,		true },
+	{ ACT_WALK_AIM,					ACT_WALK_AIM_AR2,				true },
+	{ ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RIFLE,			true },		// This doesn't have unique Citizen anims.
+	{ ACT_WALK_CROUCH_AIM,			ACT_WALK_CROUCH_AIM_RIFLE,		true },		// This doesn't have unique Citizen anims.
+	{ ACT_RUN,						ACT_RUN_AR2,					true },
+	{ ACT_RUN_AIM,					ACT_RUN_AIM_AR2_STIMULATED,		true },		// Exists, but only for stimulated readiness.
+	{ ACT_RUN_CROUCH,				ACT_RUN_CROUCH_RIFLE,			true },		// This doesn't have unique Citizen anims.
+	{ ACT_RUN_CROUCH_AIM,			ACT_RUN_CROUCH_AIM_RIFLE,		true },		// This doesn't have unique Citizen anims.
 	{ ACT_GESTURE_RANGE_ATTACK1,	ACT_GESTURE_RANGE_ATTACK_AR2,	false },
-	{ ACT_COVER_LOW,				ACT_COVER_SMG1_LOW,				false },		// FIXME: hook to AR2 unique
+	{ ACT_COVER_LOW,				ACT_COVER_LOW,					false },	// No unique activity ID. ACT_COVER_LOW for both Citizens and Soldiers.
 	{ ACT_RANGE_AIM_LOW,			ACT_RANGE_AIM_AR2_LOW,			false },
-	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_SMG1_LOW,		true },		// FIXME: hook to AR2 unique
-	{ ACT_RELOAD_LOW,				ACT_RELOAD_SMG1_LOW,			false },
-	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_SMG1,		true },
-//	{ ACT_RANGE_ATTACK2, ACT_RANGE_ATTACK_AR2_GRENADE, true },
+	{ ACT_RANGE_ATTACK1_LOW,		ACT_RANGE_ATTACK_AR2_LOW,		true },
+	{ ACT_RELOAD_LOW,				ACT_RELOAD_SMG1_LOW,			false },	// No unique activity ID for both Citizens and Soldiers.
+	{ ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_AR2,			true },
 };
 
 IMPLEMENT_ACTTABLE(CWeaponAR2);
