@@ -209,7 +209,10 @@ void CTFPipebombLauncher::PrimaryAttack( void )
 		SendWeaponAnim( ACT_VM_PULLBACK );
 
 #ifdef CLIENT_DLL
-		EmitSound( TF_WEAPON_PIPEBOMB_LAUNCHER_CHARGE_SOUND );
+		if ( !prediction->InPrediction() || prediction->IsFirstTimePredicted() )
+		{
+			EmitSound( TF_WEAPON_PIPEBOMB_LAUNCHER_CHARGE_SOUND );
+		}
 #endif // CLIENT_DLL
 	}
 	else
