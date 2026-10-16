@@ -55,6 +55,9 @@
 extern float dispchop; // "-dispchop" tightest number of luxel widths for a patch, used on edges
 extern float g_MaxDispPatchRadius;
 
+extern int g_iBuildLdrCubemapPasses;
+extern int g_iBuildHdrCubemapPasses;
+
 //-----------------------------------------------------------------------------
 // forward declarations
 //-----------------------------------------------------------------------------
@@ -346,6 +349,7 @@ extern float	g_flMaxDispSampleSize;
 extern float	g_SunAngularExtent;
 
 extern char		source[MAX_PATH];
+extern char		level_name[MAX_PATH];
 
 // Used by incremental lighting to trivial-reject faces.
 // There is a bit in here for each face telling whether or not any of the
