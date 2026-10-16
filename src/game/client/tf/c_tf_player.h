@@ -486,6 +486,7 @@ public:
 	bool ShouldShowNemesisIcon();
 
 	virtual	IMaterial *GetHeadLabelMaterial( void );
+	virtual bool ShouldShowHeadLabel();
 
 	// Spy Cigarette
 	bool CanLightCigarette( void );
