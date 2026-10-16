@@ -95,7 +95,7 @@ BEGIN_DATADESC( CBaseFlex )
 
 END_DATADESC()
 
-BEGIN_ENT_SCRIPTDESC( CBaseFlex, CBaseAnimating, "Animated characters who have vertex flex capability." )
+BEGIN_ENT_SCRIPTDESC( CBaseFlex, CBaseAnimatingOverlay, "Animated characters who have vertex flex capability." )
 #if 0
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetOldestScene, "GetCurrentScene", "Returns the instance of the oldest active scene entity (if any)." )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSceneByIndex, "GetSceneByIndex", "Returns the instance of the scene entity at the specified index." )
