@@ -12,6 +12,7 @@
 #include "collisionutils.h"
 #include "util_shared.h"
 #include "tf_weapon_rocketlauncher.h"
+#include "tf_gamerules.h"
 
 //-----------------------------------------------------------------------------
 IMPLEMENT_NETWORKCLASS_ALIASED( TFProjectile_EnergyBall, DT_TFProjectile_EnergyBall )
@@ -56,13 +57,44 @@ void C_TFProjectile_EnergyBall::CreateTrails( void )
 	}
 
 	bool bDeflected = m_iCachedDeflect != GetDeflected();
+	bool bUsingHalloween = false;
+
+	// Check for Halloween spell
+	int iHalloweenSpell = 0;
+	if ( TF_IsHolidayActive( kHoliday_HalloweenOrFullMoon ) )
+	{
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( GetOriginalLauncher(), iHalloweenSpell, halloween_pumpkin_explosions );
+	}
 
 	if ( pEffect == NULL )
 	{
 		ParticleProp()->Init( this );
-		pEffect = ParticleProp()->Create( GetTrailParticleName(), PATTACH_ABSORIGIN_FOLLOW, 0 );
 
-		if ( pEffect )
+		// Handle Halloween spell particles
+		if ( iHalloweenSpell > 0 )
+		{
+			const char *pszHalloweenParticle = NULL;
+			
+			// Use charged or normal Halloween particles based on shot type
+			if ( m_bChargedShot )
+			{
+				pszHalloweenParticle = ( GetTeamNumber() == TF_TEAM_RED ) ? "drg_cow_rockettrail_charged_halloween" : "drg_cow_rockettrail_charged_halloween_blue";
+			}
+			else
+			{
+				pszHalloweenParticle = ( GetTeamNumber() == TF_TEAM_RED ) ? "drg_cow_rockettrail_halloween" : "drg_cow_rockettrail_halloween_blue";
+			}
+			
+			pEffect = ParticleProp()->Create( pszHalloweenParticle, PATTACH_ABSORIGIN_FOLLOW, 0 );
+			bUsingHalloween = true;
+		}
+		else
+		{
+			// Use standard Cow Mangler trails
+			pEffect = ParticleProp()->Create( GetTrailParticleName(), PATTACH_ABSORIGIN_FOLLOW, 0 );
+		}
+
+		if ( pEffect && !bUsingHalloween )
 		{
 			if ( bDeflected )
 			{
