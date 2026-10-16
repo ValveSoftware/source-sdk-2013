@@ -61,6 +61,7 @@ bool		bRed2Black = true;
 bool		g_bFastAmbient = false;
 bool        g_bNoSkyRecurse = false;
 bool		g_bDumpPropLightmaps = false;
+bool		g_bPropLightmapFallbacks = false;
 
 
 int			junk;
@@ -2698,6 +2699,10 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 				return -1;
 			}
 		}
+		else if (!Q_stricmp(argv[i],"-propmapvertexfallbacks"))
+		{
+			g_bPropLightmapFallbacks = true;
+		}
 
 #if ALLOWDEBUGOPTIONS
 		else if (!Q_stricmp(argv[i],"-scale"))
@@ -2876,6 +2881,7 @@ void PrintUsage( int argc, char **argv )
 		"  -textureshadows : Allows texture alpha channels to block light - rays intersecting alpha surfaces will sample the texture\n"
 		"  -noskyboxrecurse : Turn off recursion into 3d skybox (skybox shadows on world)\n"
 		"  -nossprops      : Globally disable self-shadowing on static props\n"
+		"  -propmapvertexfallbacks : Generate fallback per-vertex lighting for lightmapped static props"
 		"\n"
 #if 1 // Disabled for the initial SDK release with VMPI so we can get feedback from selected users.
 		);
