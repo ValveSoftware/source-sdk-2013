@@ -247,28 +247,6 @@ void CTFHudMannVsMachineScoreboard::InitPlayerList ( IScheme *pScheme )
 }
 
 //-----------------------------------------------------------------------------
-char *ConvertScoreboardValueToString( int iValue )
-{
-	static char szConversion[32];
-	szConversion[0] = '\0';
-
-	if ( iValue >= 1000000 )
-	{
-		V_sprintf_safe( szConversion, "%d%s%d%d%d%s%d%d%d", iValue / 1000000, ",", ( iValue % 1000000 ) / 100000, ( iValue % 100000 ) / 10000, ( iValue % 10000 ) / 1000, ",", ( iValue % 1000 ) / 100, ( iValue % 100 ) / 10, iValue % 10 );
-	}
-	else if ( iValue >= 1000 )
-	{
-		V_sprintf_safe( szConversion, "%d%s%d%d%d", iValue / 1000, ",", ( iValue % 1000 ) / 100, ( iValue % 100 ) / 10, iValue % 10 );
-	}
-	else if ( iValue >= 0 )
-	{
-		V_sprintf_safe( szConversion, "%d", iValue  );
-	}
-
-	return szConversion;
-}
-
-//-----------------------------------------------------------------------------
 void CTFHudMannVsMachineScoreboard::UpdatePlayerList () 
 {
 	m_pPlayerList->ClearSelection();
@@ -347,7 +325,7 @@ void CTFHudMannVsMachineScoreboard::UpdatePlayerList ()
 			}
 			else
 			{
-				pKeyValues->SetString( "ping", ConvertScoreboardValueToString( g_PR->GetPing( playerIndex ) ) );
+				pKeyValues->SetString( "ping", V_AddThousandSeparators( g_PR->GetPing( playerIndex ) ) );
 			}
 		}
 
@@ -398,7 +376,7 @@ void CTFHudMannVsMachineScoreboard::UpdatePlayerList ()
 
 				if ( nTourNo > 0 )
 				{
-					pKeyValues->SetString( "tour_no", ConvertScoreboardValueToString( nTourNo ) );
+					pKeyValues->SetString( "tour_no", V_AddThousandSeparators( nTourNo ) );
 				}
 				else
 				{
@@ -421,14 +399,14 @@ void CTFHudMannVsMachineScoreboard::UpdatePlayerList ()
 						   g_TF_PR->GetDamageBlocked( playerIndex ) +
 						   ( g_TF_PR->GetBonusPoints( playerIndex ) * 25 );
 
-			pKeyValues->SetString( "score", ConvertScoreboardValueToString( g_TF_PR->GetTotalScore( playerIndex ) ) );
-			pKeyValues->SetString( "damage", ConvertScoreboardValueToString( g_TF_PR->GetDamage( playerIndex ) ) );
-			pKeyValues->SetString( "tank", ConvertScoreboardValueToString( g_TF_PR->GetDamageBoss( playerIndex ) ) );
-			pKeyValues->SetString( "healing", ConvertScoreboardValueToString( g_TF_PR->GetHealing( playerIndex ) ) );
-			pKeyValues->SetString( "support", ConvertScoreboardValueToString( nSupport ) );
-			//pKeyValues->SetString( "blocked", ConvertScoreboardValueToString( g_TF_PR->GetDamageBlocked( playerIndex ) ) );
-			//pKeyValues->SetString( "bonus", ConvertScoreboardValueToString( g_TF_PR->GetBonusPoints( playerIndex ) ) );
-			pKeyValues->SetString( "credits", ConvertScoreboardValueToString( g_TF_PR->GetCurrencyCollected( playerIndex ) ) );
+			pKeyValues->SetString( "score", V_AddThousandSeparators( g_TF_PR->GetTotalScore( playerIndex ) ) );
+			pKeyValues->SetString( "damage", V_AddThousandSeparators( g_TF_PR->GetDamage( playerIndex ) ) );
+			pKeyValues->SetString( "tank", V_AddThousandSeparators( g_TF_PR->GetDamageBoss( playerIndex ) ) );
+			pKeyValues->SetString( "healing", V_AddThousandSeparators( g_TF_PR->GetHealing( playerIndex ) ) );
+			pKeyValues->SetString( "support", V_AddThousandSeparators( nSupport ) );
+			//pKeyValues->SetString( "blocked", V_AddThousandSeparators( g_TF_PR->GetDamageBlocked( playerIndex ) ) );
+			//pKeyValues->SetString( "bonus", V_AddThousandSeparators( g_TF_PR->GetBonusPoints( playerIndex ) ) );
+			pKeyValues->SetString( "credits", V_AddThousandSeparators( g_TF_PR->GetCurrencyCollected( playerIndex ) ) );
 		}	
 
 		int itemID = m_pPlayerList->AddItem( 0, pKeyValues );
@@ -586,9 +564,9 @@ void CTFHudMannVsMachineScoreboard::UpdateCreditStats()
 //-----------------------------------------------------------------------------
 void CTFHudMannVsMachineScoreboard::UpdateCreditPanel( CCreditDisplayPanel *panel, int nAcquired, int nMissed, int nBonus )
 {
-	panel->SetDialogVariable( "creditscollected", nAcquired );
-	panel->SetDialogVariable( "creditsmissed", nMissed );
-	panel->SetDialogVariable( "creditbonus", nBonus );
+	panel->SetDialogVariable( "creditscollected", V_AddThousandSeparators( nAcquired ) );
+	panel->SetDialogVariable( "creditsmissed", V_AddThousandSeparators( nMissed ) );
+	panel->SetDialogVariable( "creditbonus", V_AddThousandSeparators( nBonus ) );
 
 	int nDropped = nAcquired + nMissed;
 
@@ -634,9 +612,9 @@ void CTFHudMannVsMachineScoreboard::UpdateCreditSpend ( CCreditSpendPanel *panel
 {
 	if ( panel )
 	{
-		panel->SetDialogVariable( "upgrades", nUpgrades );
-		panel->SetDialogVariable( "buybacks", nBuybacks );
-		panel->SetDialogVariable( "bottles", nBottles );
+		panel->SetDialogVariable( "upgrades", V_AddThousandSeparators( nUpgrades ) );
+		panel->SetDialogVariable( "buybacks", V_AddThousandSeparators( nBuybacks ) );
+		panel->SetDialogVariable( "bottles", V_AddThousandSeparators( nBottles ) );
 	}
 }
 //-----------------------------------------------------------------------------

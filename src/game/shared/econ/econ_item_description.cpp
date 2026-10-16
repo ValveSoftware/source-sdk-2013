@@ -1169,8 +1169,10 @@ bool CEconItemDescription::BGenerate_ItemLevelDesc_StrangeNameAndStats( const CL
 
 			const uint32 unKillEaterAltType = GetScoreTypeForKillEaterAttr( pEconItem, pKillEaterAltScoreTypeAttrDef );
 
+			wchar_t wStrangeScore[18];
+			g_pVGuiLocalize->ConvertANSIToUnicode( V_AddThousandSeparators( unKillEaterAltScore ), wStrangeScore, sizeof( wStrangeScore ) );
 			AddDescLine( CConstructLocalizedString( pLocalizationProvider->Find( "ItemTypeDescKillEaterAltv2" ),
-				unKillEaterAltScore,
+				wStrangeScore,
 				GetLocalizedStringForKillEaterTypeAttr( pLocalizationProvider, unKillEaterAltType ),
 				*CStrangeRestrictionAttrWrapper( pLocalizationProvider, GetLocalizedStringForStrangeRestrictionAttr( pLocalizationProvider, pEconItem, i ) ) ),
 				ATTRIB_COL_LEVEL,
@@ -1187,10 +1189,12 @@ bool CEconItemDescription::BGenerate_ItemLevelDesc_StrangeNameAndStats( const CL
 	static CSchemaAttributeDefHandle pAttrDef_LimitedQuantityItem( "limited quantity item" );
 	bLimitedQuantity = pEconItem->FindAttribute( pAttrDef_LimitedQuantityItem );
 
+	wchar_t wStrangeScore[18];
+	g_pVGuiLocalize->ConvertANSIToUnicode( V_AddThousandSeparators( RankGenerator.GetStrangeScore() ), wStrangeScore, sizeof( wStrangeScore ) );
 	AddDescLine( CConstructLocalizedString( pLocalizationProvider->Find( "ItemTypeDescKillEater" ),
 												RankGenerator.GetRankLocalized(),
 												locTypename ? locTypename : LOCCHAR(""),
-												RankGenerator.GetStrangeScore(),
+												wStrangeScore,
 												GetLocalizedStringForKillEaterTypeAttr( pLocalizationProvider, RankGenerator.GetStrangeType() ),
 												*CStrangeRestrictionAttrWrapper( pLocalizationProvider, GetLocalizedStringForStrangeRestrictionAttr( pLocalizationProvider, pEconItem, RankGenerator.GetUsedStrangeSlot() ) ),
 												RankGenerator.GetRankSecondaryLocalized() ? RankGenerator.GetRankSecondaryLocalized() : LOCCHAR(""), 
@@ -1222,8 +1226,10 @@ bool CEconItemDescription::BGenerate_ItemLevelDesc_StrangeNameAndStats( const CL
 		if ( unKillEaterAltType == RankGenerator.GetStrangeType() )
 			continue;
 
+		wchar_t wStrangeScore[18];
+		g_pVGuiLocalize->ConvertANSIToUnicode( V_AddThousandSeparators( unKillEaterAltScore ), wStrangeScore, sizeof( wStrangeScore ) );
 		AddDescLine( CConstructLocalizedString( pLocalizationProvider->Find( "ItemTypeDescKillEaterAlt" ),
-												unKillEaterAltScore,
+												wStrangeScore,
 												GetLocalizedStringForKillEaterTypeAttr( pLocalizationProvider, unKillEaterAltType ),
 												*CStrangeRestrictionAttrWrapper( pLocalizationProvider, GetLocalizedStringForStrangeRestrictionAttr( pLocalizationProvider, pEconItem, i ) ) ),
 					 ATTRIB_COL_LEVEL,
