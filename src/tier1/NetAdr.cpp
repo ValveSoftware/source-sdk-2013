@@ -5,7 +5,11 @@
 // NetAdr.cpp: implementation of the CNetAdr class.
 //
 //===========================================================================//
+
 #if defined( _WIN32 ) && !defined( _X360 )
+#define WIN32_LEAN_AND_MEAN
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <windows.h>
 #endif
 
@@ -14,13 +18,12 @@
 #include "tier1/strtools.h"
 
 #if defined( _WIN32 ) && !defined( _X360 )
-#define WIN32_LEAN_AND_MEAN
-#include <winsock.h>
 typedef int socklen_t;
 #elif !defined( _X360 )
-#include <netinet/in.h> // ntohs()
-#include <netdb.h>		// gethostbyname()
-#include <sys/socket.h>	// getsockname()
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -266,85 +269,127 @@ void netadr_t::SetPort(unsigned short newport)
 bool netadr_t::SetFromString( const char *pch, bool bUseDNS )
 {
 	Clear();
-	type = NA_IP;
-
-	Assert( pch );		// invalid to call this with NULL pointer; fix your code bug!
-	if ( !pch )			// but let's not crash
+	if ( !pch || !pch[0] )
 		return false;
 
-	char address[ 128 ];
-	V_strcpy_safe( address, pch );
+	char szInput[256];
+	V_strncpy( szInput, pch, sizeof(szInput) );
+	V_StripTrailingWhitespaceASCII( szInput );
 
-	if ( !V_strnicmp( address, "loopback", 8 ) )
+	if ( !V_strnicmp( szInput, "loopback", 8 ) )
 	{
-		char newaddress[ 128 ];
 		type = NA_LOOPBACK;
-		V_strcpy_safe( newaddress, "127.0.0.1" );
-		V_strcat_safe( newaddress, address + 8 ); // copy anything after "loopback"
-
-		V_strcpy_safe( address, newaddress );
+		char szTemp[256];
+		V_snprintf( szTemp, sizeof(szTemp), "127.0.0.1%s", szInput + 8 );
+		V_strncpy( szInput, szTemp, sizeof(szInput) );
+	}
+	else if ( !V_strnicmp( szInput, "localhost", 9 ) )
+	{
+		type = NA_IP;
+		V_memcpy( szInput, "127.0.0.1", 9 );
+	}
+	else
+	{
+		type = NA_IP;
 	}
 
-	if ( !V_strnicmp( address, "localhost", 9 ) )
-	{
-		V_memcpy( address, "127.0.0.1", 9 ); // Note use of memcpy allows us to keep the colon and rest of string since localhost and 127.0.0.1 are both 9 characters.
-	}
+	char szHost[256];
+	V_strncpy( szHost, szInput, sizeof(szHost) );
+	unsigned short usPort = 0;
 
-	// Starts with a number and has a dot
-	if ( address[0] >= '0' && 
-		 address[0] <= '9' && 
-		 strchr( address, '.' ) )
+	char *pColon = strrchr( szHost, ':' );
+	if ( pColon )
 	{
-		int n1 = -1, n2 = -1, n3 = -1, n4 = -1, n5 = 0; // set port to 0 if we don't parse one
-		int nRes = sscanf( address, "%d.%d.%d.%d:%d", &n1, &n2, &n3, &n4, &n5 );
-		if (
-			nRes < 4
-			|| n1 < 0 || n1 > 255
-			|| n2 < 0 || n2 > 255
-			|| n3 < 0 || n3 > 255
-			|| n4 < 0 || n4 > 255
-			|| n5 < 0 || n5 > 65535
-		)
+		*pColon = '\0';
+		int nPort = V_atoi( pColon + 1 );
+		if ( nPort > 0 && nPort <= 65535 )
+			usPort = (unsigned short)nPort;
+		else
 			return false;
-		SetIP( n1, n2, n3, n4 );
-		SetPort( ( uint16 ) n5 );
-		return true;
 	}
 
-	if ( bUseDNS )
+	bool bIsIPv4Literal = ( szHost[0] >= '0' && szHost[0] <= '9' && strchr( szHost, '.' ) );
+
+	if ( bIsIPv4Literal )
 	{
-// X360TBD:
-	// dgoodenough - since this is skipped on X360, seems reasonable to skip as well on PS3
-	// PS3_BUILDFIX
-	// FIXME - Leap of faith, this works without asserting on X360, so I assume it will on PS3
-#if !defined( _X360 ) && !defined( _PS3 )
-		// Null out the colon if there is one
-		char *pchColon = strchr( address, ':' );
-		if ( pchColon )
+		int o1, o2, o3, o4;
+		if ( sscanf( szHost, "%d.%d.%d.%d", &o1, &o2, &o3, &o4 ) == 4 )
 		{
-			*pchColon = 0;
+			if ( o1 >= 0 && o1 <= 255 &&
+				 o2 >= 0 && o2 <= 255 &&
+				 o3 >= 0 && o3 <= 255 &&
+				 o4 >= 0 && o4 <= 255 )
+			{
+				SetIP( o1, o2, o3, o4 );
+				SetPort( usPort );
+				return true;
+			}
 		}
-		
-		// DNS it base name
-		struct hostent *h = gethostbyname( address );
-		if ( !h )
-			return false;
-
-		SetIP( ntohl( *(int *)h->h_addr_list[0] ) );
-
-		// Set Port to whatever was specified after the colon
-		if ( pchColon )
-		{
-			SetPort( V_atoi( ++pchColon ) );
-		}
-		return true;
-#else
-		Assert( 0 );
 		return false;
-#endif
+	}
+
+	if ( !bUseDNS )
+		return false;
+
+#if !defined( _X360 ) && !defined( _PS3 )
+	struct addrinfo hints, *res = NULL, *p = NULL;
+	Q_memset( &hints, 0, sizeof(hints) );
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_DGRAM;
+
+	if ( getaddrinfo( szHost, NULL, &hints, &res ) != 0 || !res )
+		return false;
+
+	bool bSuccess = false;
+	for ( p = res; p != NULL; p = p->ai_next )
+	{
+		if ( p->ai_family == AF_INET )
+		{
+			struct sockaddr_in *pAddr = (struct sockaddr_in *)p->ai_addr;
+			SetIP( ntohl( pAddr->sin_addr.s_addr ) );
+			SetPort( usPort );
+			bSuccess = true;
+			break;
+		}
+		else if ( p->ai_family == AF_INET6 )
+		{
+			struct sockaddr_in6 *pAddr6 = (struct sockaddr_in6 *)p->ai_addr;
+			unsigned char *b = pAddr6->sin6_addr.s6_addr;
+
+			if ( b[0] == 0 && b[1] == 0 &&
+				 b[2] == 0 && b[3] == 0 &&
+				 b[4] == 0 && b[5] == 0 &&
+				 b[6] == 0 && b[7] == 0 &&
+				 b[8] == 0 && b[9] == 0 &&
+				 b[10] == 0xFF && b[11] == 0xFF )
+			{
+				SetIP( b[12], b[13], b[14], b[15] );
+				SetPort( usPort );
+				bSuccess = true;
+				break;
+			}
+		}
+	}
+
+	if ( res )
+		freeaddrinfo( res );
+
+	if ( bSuccess )
+		return true;
+
+	for ( p = res; p != NULL; p = p->ai_next )
+	{
+		if ( p->ai_family == AF_INET6 )
+		{
+			Warning( "DNS for '%s' returned IPv6, but Source Engine requires IPv4\n", szHost );
+			break;
+		}
 	}
 
 	return false;
+#else
+	return false;
+#endif
 }
 
 bool netadr_t::operator<(const netadr_t &netadr) const
