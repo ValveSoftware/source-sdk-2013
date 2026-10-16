@@ -2879,6 +2879,7 @@ void CTeamplayRoundBasedRules::RoundRespawn( void )
 
 		if ( pPlayer )
 		{
+			pPlayer->SetViewEntity( pPlayer ); // Additionally reset the view entity for the player
 			pPlayer->ResetPerRoundStats();
 		}
 	}
