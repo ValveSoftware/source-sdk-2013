@@ -88,6 +88,7 @@ ConVar mp_timelimit( "mp_timelimit", "0", FCVAR_NOTIFY|FCVAR_REPLICATED, "game t
 					, MPTimeLimitCallback 
 #endif
 					);
+ConVar mp_timelimit_min( "mp_timelimit_min", "5", FCVAR_NOTIFY|FCVAR_REPLICATED, "Minimum timelimit (in minutes) when the map should end after a round ends." );
 
 ConVar fraglimit( "mp_fraglimit","0", FCVAR_NOTIFY|FCVAR_REPLICATED, "The number of kills at which the map ends");
 
