@@ -5806,9 +5806,9 @@ void CC_Ent_SetName( const CCommand& args )
 			CBaseEntity *ent = NULL;
 			while ( (ent = gEntList.NextEnt(ent)) != NULL )
 			{
-				if (  (ent->GetEntityName() != NULL_STRING	&& FStrEq(args[1], STRING(ent->GetEntityName())))	|| 
-					  (ent->m_iClassname != NULL_STRING	&& FStrEq(args[1], STRING(ent->m_iClassname))) ||
-					  (ent->GetClassname()!=NULL && FStrEq(args[1], ent->GetClassname())))
+				if (  (ent->GetEntityName() != NULL_STRING	&& FStrEq(args[2], STRING(ent->GetEntityName())))	|| 
+					  (ent->m_iClassname != NULL_STRING	&& FStrEq(args[2], STRING(ent->m_iClassname))) ||
+					  (ent->GetClassname()!=NULL && FStrEq(args[2], ent->GetClassname())))
 				{
 					pEntity = ent;
 					break;
