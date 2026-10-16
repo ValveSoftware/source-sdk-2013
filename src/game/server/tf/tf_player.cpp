@@ -3107,6 +3107,8 @@ void CTFPlayer::PrecacheTFPlayer()
 	PrecacheScriptSound( "Weapon_Pomson.Reload" );
 	PrecacheScriptSound( "Weapon_Pomson.DrainedVictim" );
 
+	PrecacheScriptSound( "Weapon_BoxingGloves.CritEnabled" );
+
 	PrecacheScriptSound( "BlastJump.Whistle" );
 
 	PrecacheScriptSound( "Spy.TeaseVictim" );
@@ -11151,6 +11153,10 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 			CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iCritBoost, add_onkill_critboost_time );
 			if ( iCritBoost )
 			{
+				// Check if we aren't being critboosted already
+				if ( !m_Shared.InCond( TF_COND_CRITBOOSTED_ON_KILL ) )
+					EmitSound( "Weapon_BoxingGloves.CritEnabled" );
+
 				// Perceptually, people seem to think the effect is shorter than the stated time, so we cheat by adding a tad more for that
 				m_Shared.AddCond( TF_COND_CRITBOOSTED_ON_KILL, iCritBoost+1 );
 			}
