@@ -1360,6 +1360,18 @@ void CTFBotMainAction::FireWeaponAtEnemy( CTFBot *me )
 		{
 			// bounce missiles with compression blast
 			me->PressAltFireButton();
+			
+			if ( !me->m_CompressionBlastTimer.HasStarted() )
+			{
+				if ( me->IsDifficulty( CTFBot::EXPERT ) )
+				{
+					me->m_CompressionBlastTimer.Start( RandomFloat( 0.25f, 0.5f ) );
+				}
+				else
+				{
+					me->m_CompressionBlastTimer.Start( RandomFloat( 0.5f, 1.0f ) );
+				}
+			}
 		}
 		else if ( threat->GetTimeSinceLastSeen() < 1.0f && 
 				  me->IsDistanceBetweenLessThan( threat->GetEntity(), me->GetMaxAttackRange() ) )
