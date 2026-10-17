@@ -171,6 +171,9 @@ private:
 // Purpose: Displays a TF specific list of options
 //			This is essentially a TF-styled version of the GameUI Advanced Multiplayer Options Dialog
 //-----------------------------------------------------------------------------
+#ifdef _WIN64
+class CAudioOutputPanel;
+#endif
 class CTFAdvancedOptionsDialog : public vgui::EditablePanel
 {
 	DECLARE_CLASS_SIMPLE( CTFAdvancedOptionsDialog, vgui::EditablePanel ); 
@@ -198,6 +201,9 @@ private:
 
 private:
 	CInfoDescription	*m_pDescription;
+#ifdef _WIN64
+	CAudioOutputPanel *m_pAudioOutput;
+#endif
 	mpcontrol_t			*m_pList;
 	vgui::PanelListPanel *m_pListPanel;
 	CTFTextToolTip		*m_pToolTip;

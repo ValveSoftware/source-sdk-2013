@@ -30,6 +30,9 @@
 #include <../common/GameUI/cvarslider.h>
 #include "filesystem.h"
 #include "hud_controlpointicons.h"
+#ifdef _WIN64
+#include "GameUI/AudioOutputPanel.h"
+#endif
 
 using namespace vgui;
 
@@ -651,6 +654,9 @@ void CTFFooter::ClearButtons( void )
 //-----------------------------------------------------------------------------
 CTFAdvancedOptionsDialog::CTFAdvancedOptionsDialog(vgui::Panel *parent) : BaseClass(NULL, "TFAdvancedOptionsDialog")
 {
+#ifdef _WIN64
+	m_pAudioOutput = NULL;
+#endif
 	// Need to use the clientscheme (we're not parented to a clientscheme'd panel)
 	vgui::HScheme scheme = vgui::scheme()->LoadSchemeFromFileEx( enginevgui->GetPanel( PANEL_CLIENTDLL ), "resource/ClientScheme.res", "ClientScheme");
 	SetScheme(scheme);
@@ -745,6 +751,10 @@ void CTFAdvancedOptionsDialog::OnCommand( const char *command )
 	}
 	else if ( !stricmp( command, "Ok" ) )
 	{
+#ifdef _WIN64
+		if ( m_pAudioOutput && !m_pAudioOutput->Apply() )
+			return;
+#endif
 		// OnApplyChanges();
 		SaveValues();
 		OnClose();
@@ -895,6 +905,13 @@ void CTFAdvancedOptionsDialog::GatherCurrentValues()
 void CTFAdvancedOptionsDialog::CreateControls()
 {
 	DestroyControls();
+#ifdef _WIN64
+	// Preserve the audio row (and staged ID) across scheme/layout rebuilds.
+	if ( !m_pAudioOutput )
+		m_pAudioOutput = new CAudioOutputPanel( m_pListPanel, cvar, engine );
+	m_pAudioOutput->SetSize( m_iControlW, MAX( m_iControlH * 4, YRES( 100 ) ) );
+	m_pListPanel->AddItem( NULL, m_pAudioOutput );
+#endif
 
 	// Go through desciption creating controls
 	CScriptObject *pObj;
@@ -1107,6 +1124,11 @@ void CTFAdvancedOptionsDialog::CreateControls()
 //-----------------------------------------------------------------------------
 void CTFAdvancedOptionsDialog::DestroyControls()
 {
+#ifdef _WIN64
+	// Remove the list's references before deleting script rows. Audio is owned
+	// by its parent and survives here; it is reinserted by CreateControls.
+	m_pListPanel->RemoveAll();
+#endif
 	mpcontrol_t *p, *n;
 
 	p = m_pList;

@@ -20,6 +20,10 @@ $Include "$SRCDIR\utils\itemtest_lib\itemtest_lib_support.vpc" [$WORKSHOP_IMPORT
 
 $Configuration
 {
+	$Linker [$WIN64]
+	{
+		$AdditionalDependencies "$BASE ole32.lib uuid.lib"
+	}
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	".\hl2;.\hl2\elements;.\tf;.\tf\vgui;..\statemachine;$SRCDIR\game\shared\multiplayer;$SRCDIR\game\shared\tf;$SRCDIR\gcsdk\steamextra;$BASE;.\econ"
@@ -71,6 +75,52 @@ $Project "Client (TF)"
 
 		$Folder "Common"
 		{
+			$File "$SRCDIR\common\GameUI\AudioOutputDevicesWin.h" [$WIN64]
+			$File "$SRCDIR\common\GameUI\AudioOutputSelection.h" [$WIN64]
+			$File "$SRCDIR\common\GameUI\AudioOutputPanel.h" [$WIN64]
+			$File "$SRCDIR\common\GameUI\AudioOutputDevicesWin.cpp" [$WIN64]
+			{
+				$Configuration
+				{
+					$Compiler
+					{
+						$Create/UsePrecompiledHeader "Not Using Precompiled Headers"
+					}
+				}
+			}
+			$File "$SRCDIR\common\GameUI\AudioOutputSelection.cpp" [$WIN64]
+			{
+				$Configuration
+				{
+					$Compiler
+					{
+						$Create/UsePrecompiledHeader "Not Using Precompiled Headers"
+					}
+				}
+			}
+			$File "$SRCDIR\common\GameUI\AudioOutputRecoveryPolicy.h" [$WIN64]
+			$File "$SRCDIR\common\GameUI\AudioOutputWatchWin.h" [$WIN64]
+			$File "$SRCDIR\game\client\tf\tf_audio_output_recovery.cpp" [$WIN64]
+			$File "$SRCDIR\common\GameUI\AudioOutputWatchWin.cpp" [$WIN64]
+			{
+				$Configuration
+				{
+					$Compiler
+					{
+						$Create/UsePrecompiledHeader "Not Using Precompiled Headers"
+					}
+				}
+			}
+			$File "$SRCDIR\common\GameUI\AudioOutputPanel.cpp" [$WIN64]
+			{
+				$Configuration
+				{
+					$Compiler
+					{
+						$Create/UsePrecompiledHeader "Not Using Precompiled Headers"
+					}
+				}
+			}
 			$File	"$SRCDIR\common\protoutils.cpp"
 			$File	"$SRCDIR\common\protoutils.h"
 			$File	"$SRCDIR\common\ServerBrowser\blacklisted_server_manager.h"
