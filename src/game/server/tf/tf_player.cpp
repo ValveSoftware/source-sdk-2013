@@ -51,6 +51,8 @@
 #include "tf_weapon_flamethrower.h"
 #include "tf_weapon_laser_pointer.h"
 #include "tf_projectile_flare.h"
+#include "tf_projectile_arrow.h"
+#include "tf_projectile_energy_ball.h"
 #include "trigger_area_capture.h"
 #include "triggers.h"
 #include "tf_weapon_medigun.h"
@@ -10669,7 +10671,26 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 
 	if ( outParams.bIgniting && pTFAttacker )
 	{
-		m_Shared.Burn( pTFAttacker, dynamic_cast< CTFWeaponBase * >( info.GetWeapon() ) );
+		CBaseEntity* pInflictor = info.GetInflictor();
+		CTFProjectile_Flare *pFlare = dynamic_cast< CTFProjectile_Flare* >( pInflictor );
+		CTFProjectile_Arrow *pArrow = dynamic_cast< CTFProjectile_Arrow* >( pInflictor );
+		CTFProjectile_EnergyBall *pBall = dynamic_cast< CTFProjectile_EnergyBall* >( pInflictor );
+		if ( pFlare && pFlare->GetDeflected() )
+		{
+			m_Shared.Burn( pTFAttacker, dynamic_cast< CTFWeaponBase * >( pFlare->GetOriginalLauncher() ) );
+		}
+		else if ( pArrow && pArrow->GetDeflected() )
+		{
+			m_Shared.Burn( pTFAttacker, dynamic_cast< CTFWeaponBase * >( pArrow->GetOriginalLauncher() ) );
+		}
+		else if ( pBall && pBall->GetDeflected() )
+		{
+			m_Shared.Burn( pTFAttacker, dynamic_cast< CTFWeaponBase * >( pBall->GetOriginalLauncher() ) );
+		}
+		else
+		{
+			m_Shared.Burn( pTFAttacker, dynamic_cast< CTFWeaponBase * >( info.GetWeapon() ) );
+		}
 	}
 
 	if ( flBleedingTime > 0 && pTFAttacker )
