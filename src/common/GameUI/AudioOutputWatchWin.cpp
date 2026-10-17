@@ -6,6 +6,11 @@
 #include <vector>
 #include "AudioOutputWatchWin.h"
 
+// Game-thread-only state. A failed unregister leaves ownership uncertain: do
+// not register another observer after quarantining the first one.
+static bool s_NotificationShutdownFailed = false;
+static const char s_NotificationModuleAnchor = 0;
+
 // Callbacks never touch SDK objects, allocate, wait, or execute commands.
 class CEndpointNotifications : public IMMNotificationClient
 {
@@ -35,6 +40,7 @@ struct CAudioOutputWatchWin::State
 {
  IMMDeviceEnumerator *enumerator;
  CEndpointNotifications *notifications;
+ HMODULE module;
  bool balanceCOM;
 };
 CAudioOutputWatchWin::CAudioOutputWatchWin() : m_State(NULL) {}
@@ -42,6 +48,7 @@ CAudioOutputWatchWin::~CAudioOutputWatchWin() { Stop(); }
 bool CAudioOutputWatchWin::Start()
 {
  if(m_State) return true;
+ if(s_NotificationShutdownFailed) return false;
  HRESULT hr=CoInitializeEx(NULL,COINIT_MULTITHREADED);
  if(FAILED(hr) && hr!=RPC_E_CHANGED_MODE) return false;
  bool balance=SUCCEEDED(hr);
@@ -49,23 +56,44 @@ bool CAudioOutputWatchWin::Start()
  hr=CoCreateInstance(__uuidof(MMDeviceEnumerator),NULL,CLSCTX_INPROC_SERVER,
   __uuidof(IMMDeviceEnumerator),reinterpret_cast<void **>(&enumerator));
  if(FAILED(hr)) { if(balance) CoUninitialize(); return false; }
+ // Hold the callback's code as well as its object until unregistration succeeds.
+ // Acquire before registration so failure containment cannot itself fail later.
+ HMODULE module=NULL;
+ if(!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+  &s_NotificationModuleAnchor,&module))
+ { enumerator->Release(); if(balance) CoUninitialize(); return false; }
  CEndpointNotifications *notifications=new CEndpointNotifications;
  hr=enumerator->RegisterEndpointNotificationCallback(notifications);
- if(FAILED(hr)) { notifications->Release(); enumerator->Release(); if(balance) CoUninitialize(); return false; }
+ if(FAILED(hr)) { notifications->Release(); enumerator->Release(); if(balance) CoUninitialize(); FreeLibrary(module); return false; }
  // Registration does not own a reference; retain ours until unregister.
  m_State=new State;
  m_State->enumerator=enumerator; m_State->notifications=notifications; m_State->balanceCOM=balance;
+ m_State->module=module;
  return true;
 }
 void CAudioOutputWatchWin::Stop()
 {
  if(!m_State) return;
- m_State->enumerator->UnregisterEndpointNotificationCallback(m_State->notifications);
- m_State->enumerator->Release();
- m_State->notifications->Release();
- bool balance=m_State->balanceCOM;
- delete m_State; m_State=NULL;
+ State *state=m_State;
+ m_State=NULL;
+ HRESULT hr=state->enumerator->UnregisterEndpointNotificationCallback(state->notifications);
+ if(FAILED(hr))
+ {
+  // No failure result guarantees that callbacks have stopped. Retain the
+  // callback, enumerator, apartment initialization and module reference until
+  // process exit. Callbacks only touch their own atomic fields, never this
+  // owner. Intentionally do not retry or uninitialize COM on this path.
+  s_NotificationShutdownFailed=true;
+  return;
+ }
+ state->enumerator->Release();
+ state->notifications->Release();
+ bool balance=state->balanceCOM;
+ HMODULE module=state->module;
+ delete state;
  if(balance) CoUninitialize();
+ // Stop is called by the game while its client-module reference is still held.
+ FreeLibrary(module);
 }
 bool CAudioOutputWatchWin::Poll() { return m_State && m_State->notifications->Poll(); }
 bool CAudioOutputWatchWin::Query(const char *id,bool &active)
