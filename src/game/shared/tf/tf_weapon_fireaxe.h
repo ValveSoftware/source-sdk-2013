@@ -32,7 +32,7 @@ public:
 	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_FIREAXE; }
 
 #ifdef GAME_DLL
-	virtual float GetInitialAfterburnDuration() const OVERRIDE;
+	virtual float GetAfterburnRateOnHit() const OVERRIDE;
 #endif
 
 private:
