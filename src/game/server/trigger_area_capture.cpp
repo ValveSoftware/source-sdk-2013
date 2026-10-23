@@ -831,6 +831,9 @@ void CTriggerAreaCapture::GetNumCappingPlayers( int team, int &numcappers, int *
 
 			if ( IsTouching( player ) && ( player->GetTeamNumber() == team ) ) // need to make sure disguised spies aren't included in the list of capping players
 			{
+				if ( m_hPoint && !TeamplayGameRules()->PlayerMayCapturePoint( player, m_hPoint->GetPointIndex() ) )
+					continue;
+
 				if ( numcappers < MAX_AREA_CAPPERS-1 )
 				{
 					cappingplayers[numcappers] = i;
