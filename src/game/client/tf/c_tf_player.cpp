@@ -9534,7 +9534,28 @@ IMaterial *C_TFPlayer::GetHeadLabelMaterial( void )
 	if ( g_pHeadLabelMaterial[0] == NULL )
 		SetupHeadLabelMaterials();
 
-	if ( GetTeamNumber() == TF_TEAM_RED )
+	C_TFPlayer* pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	int iOurTeamNum = 0;
+	if ( pPlayer ) {
+		iOurTeamNum = pPlayer->GetTeamNumber();
+	}
+	int iSpeakerTeamNum = this->GetTeamNumber();
+
+	//if the player is not on our own team, handle some more logic to determine if we should see the head label.
+	//check that our team is either red or blu as well, to prevent being a spectator from interfering with the logic.
+	if ( (iOurTeamNum != iSpeakerTeamNum) && (iOurTeamNum ==TF_TEAM_RED || iOurTeamNum ==TF_TEAM_BLUE ) ) {
+		if ( this->IsPlayerClass(TF_CLASS_SPY) ) {
+			if (this->m_Shared.InCond(TF_COND_STEALTHED)) { //invisible spies do not show speech bubbles
+				return nullptr;
+			}
+
+			if (this->m_Shared.InCond(TF_COND_DISGUISED) && this->m_Shared.GetDisguiseTeam() == iOurTeamNum ) { //spies disguised as our team do not show speech bubbles
+				return nullptr;
+			}
+		}
+	}
+	
+	if (iSpeakerTeamNum == TF_TEAM_RED )
 	{
 		return g_pHeadLabelMaterial[TF_PLAYER_HEAD_LABEL_RED];
 	}

@@ -234,6 +234,11 @@ void CVoiceStatus::DrawHeadLabels()
 		if( pPlayer->IsPlayerDead() )
 			continue;
 
+		IMaterial *pHeadLabelMaterial = pPlayer->GetHeadLabelMaterial();
+		if ( !pHeadLabelMaterial ) {
+			continue;
+		}
+
 		// Place it 20 units above his head.
 		Vector vOrigin = pPlayer->WorldSpaceCenter();
 		vOrigin.z += g_flHeadOffset;
@@ -251,7 +256,7 @@ void CVoiceStatus::DrawHeadLabels()
 
 		float flSize = g_flHeadIconSize;
 
-		pRenderContext->Bind( pPlayer->GetHeadLabelMaterial() );
+		pRenderContext->Bind( pHeadLabelMaterial );
 		IMesh *pMesh = pRenderContext->GetDynamicMesh();
 		CMeshBuilder meshBuilder;
 		meshBuilder.Begin( pMesh, MATERIAL_QUADS, 1 );
