@@ -797,8 +797,9 @@ void CQuestMapRegionPanel::OnMouseDoublePressed( MouseCode code )
 
 bool BRecursiveGetRegionNodeState( const CQuestMapRegion* pRegion,
 								  int& nNumNodesAvailable,
-								  int& nNumTotalNodes,
 								  int& nNumNodesCompleted,
+								  int& nNumPrimaryAvailable,
+								  int& nNumPrimaryCompleted,
 								  bool& bHasActiveNode )
 {
 	bool bHasAnyActiveNodes = false;
@@ -816,16 +817,25 @@ bool BRecursiveGetRegionNodeState( const CQuestMapRegion* pRegion,
 
 		for( int j=0; j < EQuestPoints_ARRAYSIZE; ++j )
 		{
-			if ( !pNodeDef->BIsMedalOffered( (EQuestPoints)j ) )
+			EQuestPoints eType = (EQuestPoints)j;
+			if ( !pNodeDef->BIsMedalOffered( eType ) )
 				continue;
 
 			// Tally up how many stars they COULD go earn right now
 			if ( pNode )
 			{
-				if ( !pNode->BIsMedalEarned( (EQuestPoints)j ) )
-					nNumNodesAvailable += 1;		
+				if ( !pNode->BIsMedalEarned( eType ) )
+				{
+					nNumNodesAvailable += 1;
+					if ( eType == QUEST_POINTS_NOVICE )
+						nNumPrimaryAvailable += 1;
+				}
 				else
+				{
 					nNumNodesCompleted += 1;
+					if ( eType == QUEST_POINTS_NOVICE )
+						nNumPrimaryCompleted += 1;
+				}
 
 				const CQuest* pQuest = GetQuestMapHelper().GetQuestForNode( pNode->GetID() );
 				if ( pQuest && pQuest->Obj().active() )
@@ -833,7 +843,9 @@ bool BRecursiveGetRegionNodeState( const CQuestMapRegion* pRegion,
 			}
 			else if ( !pNode )
 			{
-				nNumNodesAvailable += 1; 
+				nNumNodesAvailable += 1;
+				if ( eType == QUEST_POINTS_NOVICE )
+					nNumPrimaryAvailable += 1;
 			}
 		}
 	}
@@ -841,7 +853,7 @@ bool BRecursiveGetRegionNodeState( const CQuestMapRegion* pRegion,
 	for( int i=0; i < pRegion->GetNumLinks(); ++i )
 	{
 		const CQuestMapRegion* pSubRegion = GetProtoScriptObjDefManager()->GetTypedDefinition< CQuestMapRegion >( pRegion->GetLink( i ).target_region_defid().defindex() );
-		bHasAnyActiveNodes |= BRecursiveGetRegionNodeState( pSubRegion, nNumNodesAvailable, nNumTotalNodes, nNumNodesCompleted, bHasActiveNode );
+		bHasAnyActiveNodes |= BRecursiveGetRegionNodeState( pSubRegion, nNumNodesAvailable, nNumNodesCompleted, nNumPrimaryAvailable, nNumPrimaryCompleted, bHasActiveNode );
 	}
 
 	return bHasAnyActiveNodes;
@@ -913,10 +925,11 @@ void CQuestMapRegionPanel::UpdateControls()
 
 		// Gather some data about the region
 		int nNumAvailable = 0;
-		int nNumTotal = 0;
 		int nNumCompleted = 0;
+		int nNumPrimaryAvailable = 0;
+		int nNumPrimaryCompleted = 0;		
 		bool bHasActive = false;
-		if ( !BRecursiveGetRegionNodeState( pLinkedRegionDef, nNumAvailable, nNumTotal, nNumCompleted, bHasActive ) )
+		if ( !BRecursiveGetRegionNodeState( pLinkedRegionDef, nNumAvailable, nNumCompleted, nNumPrimaryAvailable, nNumPrimaryCompleted, bHasActive ) )
 			continue;
 
 		auto linkIdx = m_mapRegionLinkPanels.Find( pLinkedRegionDef->GetDefIndex() );
@@ -944,8 +957,8 @@ void CQuestMapRegionPanel::UpdateControls()
 	
 		// Setup labels
 		pRegionLink->SetDialogVariable( "link_region_name", g_pVGuiLocalize->Find( pLinkedRegionDef->GetRegionNameLocToken() ) );
-		pRegionLink->SetDialogVariable( "completed", LocalizeNumberWithToken( "#TF_QuestMap_Region_Completed", nNumCompleted ) );
-		pRegionLink->SetDialogVariable( "available", LocalizeNumberWithToken( "#TF_QuestMap_Region_Available", nNumAvailable ) );
+		pRegionLink->SetDialogVariable( "completed", LocalizeNumberWithToken( "#TF_QuestMap_Region_Completed", nNumPrimaryCompleted, nNumCompleted ) );
+		pRegionLink->SetDialogVariable( "available", LocalizeNumberWithToken( "#TF_QuestMap_Region_Available", nNumPrimaryAvailable, nNumAvailable ) );
 		pRegionLink->SetControlVisible( "ActiveLabel", bHasActive );
 
 		Panel* pWhiteLine = pRegionLink->FindChildByName( "WhiteLine" );
