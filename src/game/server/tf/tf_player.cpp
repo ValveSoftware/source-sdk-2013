@@ -4532,6 +4532,18 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		// Create a copy of currently equipped items, if we equip something new report player loadout
 		bool bItemsChanged = false;
 
+		// Before going through items clear player attributes because some items give those too.
+		// Previously this was done in ReapplyPlayerUpgrades() but that would remove aforementioned attributes.
+		if ( TFGameRules() && TFGameRules()->GameModeUsesUpgrades() && !IsBot() )
+		{
+			if (  m_Inventory.ClassLoadoutHasChanged( GetPlayerClass()->GetClassIndex() )
+			    || ( m_bSwitchedClass )
+			    || ( g_pPopulationManager && g_pPopulationManager->IsRestoringCheckpoint() ) )
+			{
+				RemovePlayerAttributes( false );
+			}
+		}
+
 		// Now Loop through our inventory for the current class, and give us any items we don't have.
 		int iClass = GetPlayerClass()->GetClassIndex();
 		if ( iClass > TF_CLASS_UNDEFINED && iClass < TF_CLASS_COUNT )
@@ -22299,7 +22311,22 @@ void CTFPlayer::ReapplyItemUpgrades( CEconItemView *pItem )
 		const CUpgradeInfo& upgrade = upgrades->Element(u);
 		if ( iClassIndex == upgrade.m_iPlayerClass && pItem->GetItemDefIndex() == upgrade.m_itemDefIndex )
 		{
-			g_hUpgradeEntity->ApplyUpgradeToItem( this, pItem, upgrade.m_upgrade, upgrade.m_nCost );
+			const attrib_definition_index_t nUpgradedAttrDefIndex = g_hUpgradeEntity->ApplyUpgradeToItem( this, pItem, upgrade.m_upgrade, upgrade.m_nCost );
+			// In case the weapon modifies attibutes like rage duration we need to give chance to
+			// rehook attributes and notify item on the upgrade.
+			// See PlayerPurchasingUpgrade() for reference
+			for ( int i = 0; i < MAX_WEAPONS; i++ )
+			{
+				CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( i );
+				if ( !pWeapon )
+					continue;
+
+				if ( pWeapon->GetAttributeContainer()->GetItem() == pItem )
+				{
+					pWeapon->OnUpgraded();
+				}
+			}
+			g_hUpgradeEntity->NotifyItemOnUpgrade( this, nUpgradedAttrDefIndex );
 		}
 	}
 
@@ -22315,7 +22342,6 @@ void CTFPlayer::ReapplyPlayerUpgrades( void )
 		return;
 
 	int iClassIndex = GetPlayerClass()->GetClassIndex();
-	RemovePlayerAttributes( false );
 
 	CUtlVector< CUpgradeInfo > *upgrades = GetPlayerUpgradeHistory();
 	if ( upgrades == NULL )

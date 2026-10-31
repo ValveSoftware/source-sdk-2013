@@ -47,8 +47,9 @@ public:
 
 	const char *	GetUpgradeAttributeName( int iUpgrade ) const;
 
-private:
 	void			NotifyItemOnUpgrade( CTFPlayer *pTFPlayer, attrib_definition_index_t nAttrDefIndex, bool bDowngrade = false );
+
+private:
 	void			ReportUpgrade ( CTFPlayer *pTFPlayer, int nItemDef, int nAttributeDef, int nQuality, int nCost, bool bDowngrade, bool bIsFresh, bool bIsBottle = false );
 	void			RestoreItemAttributeToBaseValue( CEconItemAttributeDefinition *pAttrib, CEconItemView *pItem );
 	void			RestorePlayerAttributeToBaseValue( CEconItemAttributeDefinition *pAttrib, CTFPlayer *pTFPlayer );
