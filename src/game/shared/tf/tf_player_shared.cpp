@@ -4588,7 +4588,7 @@ void CTFPlayerShared::OnRemoveRocketPack( void )
 void CTFPlayerShared::OnRemoveBurningPyro( void )
 {
 #ifdef GAME_DLL
-	if ( m_pOuter->IsPlayerClass( TF_CLASS_PYRO) && InCond( TF_COND_BURNING ) )
+	if ( InCond( TF_COND_BURNING ) )
 	{
 		RemoveCond( TF_COND_BURNING );
 	}
@@ -6653,7 +6653,7 @@ void CTFPlayerShared::Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon, float 
 		AddCond( TF_COND_HEALING_DEBUFF, m_flAfterburnDuration, pAttacker );
 
 		// let the attacker know he burned me
-		if ( pAttacker && !bVictimIsImmunePyro )
+		if ( pAttacker && ( !bVictimIsImmunePyro || InCond( TF_COND_BURNING_PYRO ) ) )
 		{
 			pAttacker->OnBurnOther( m_pOuter, pWeapon );
 
@@ -6668,53 +6668,56 @@ void CTFPlayerShared::Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon, float 
 
 	int bAfterburnImmunity = bVictimIsImmunePyro;
 
-	// Check my weapon
-	if ( !bAfterburnImmunity )
+	if ( !InCond( TF_COND_BURNING_PYRO ) )
 	{
-		int nAfterburnImmunity = 0;
-		CTFWeaponBase *pMyWeapon = GetActiveTFWeapon();
-		if ( pMyWeapon )
+		// Check my weapon
+		if ( !bAfterburnImmunity )
 		{
-			CALL_ATTRIB_HOOK_INT_ON_OTHER( pMyWeapon, nAfterburnImmunity, afterburn_immunity );
-		}
-
-		bAfterburnImmunity |= nAfterburnImmunity != 0;
-	}
-
-	// STAGING_SPY
-	if ( InCond( TF_COND_AFTERBURN_IMMUNE ) )
-	{
-		bAfterburnImmunity = true;
-	}
-
-	// Check demo shield
-	if ( !bAfterburnImmunity && IsShieldEquipped() )
-	{
-		int nAfterburnImmunity = 0;
-		CTFWearableDemoShield *pWearableShield = GetEquippedDemoShield( m_pOuter );
-		if ( pWearableShield && !pWearableShield->IsDisguiseWearable() )
-		{
-			CALL_ATTRIB_HOOK_INT_ON_OTHER( pWearableShield, nAfterburnImmunity, afterburn_immunity );
-		}
-
-		bAfterburnImmunity |= nAfterburnImmunity != 0;
-	}
-	
-	// Check sniper shields (e.g. Darwin's)
-	if ( !bAfterburnImmunity && m_pOuter->IsPlayerClass( TF_CLASS_SNIPER ) )
-	{
-		for ( int i = 0; i < m_pOuter->GetNumWearables(); ++i )
-		{
-			CTFWearable *pWearableItem = dynamic_cast< CTFWearable* >( m_pOuter->GetWearable( i ) );
-			if ( !pWearableItem )
-				continue;
-
 			int nAfterburnImmunity = 0;
-			CALL_ATTRIB_HOOK_INT_ON_OTHER( pWearableItem, nAfterburnImmunity, afterburn_immunity );
-			if ( nAfterburnImmunity )
+			CTFWeaponBase *pMyWeapon = GetActiveTFWeapon();
+			if ( pMyWeapon )
 			{
-				bAfterburnImmunity = true;
-				break;
+				CALL_ATTRIB_HOOK_INT_ON_OTHER( pMyWeapon, nAfterburnImmunity, afterburn_immunity );
+			}
+
+			bAfterburnImmunity |= nAfterburnImmunity != 0;
+		}
+
+		// STAGING_SPY
+		if ( InCond( TF_COND_AFTERBURN_IMMUNE ) )
+		{
+			bAfterburnImmunity = true;
+		}
+
+		// Check demo shield
+		if ( !bAfterburnImmunity && IsShieldEquipped() )
+		{
+			int nAfterburnImmunity = 0;
+			CTFWearableDemoShield *pWearableShield = GetEquippedDemoShield( m_pOuter );
+			if ( pWearableShield && !pWearableShield->IsDisguiseWearable() )
+			{
+				CALL_ATTRIB_HOOK_INT_ON_OTHER( pWearableShield, nAfterburnImmunity, afterburn_immunity );
+			}
+
+			bAfterburnImmunity |= nAfterburnImmunity != 0;
+		}
+
+		// Check sniper shields (e.g. Darwin's)
+		if ( !bAfterburnImmunity && m_pOuter->IsPlayerClass( TF_CLASS_SNIPER ) )
+		{
+			for ( int i = 0; i < m_pOuter->GetNumWearables(); ++i )
+			{
+				CTFWearable *pWearableItem = dynamic_cast< CTFWearable* >( m_pOuter->GetWearable( i ) );
+				if ( !pWearableItem )
+					continue;
+
+				int nAfterburnImmunity = 0;
+				CALL_ATTRIB_HOOK_INT_ON_OTHER( pWearableItem, nAfterburnImmunity, afterburn_immunity );
+				if ( nAfterburnImmunity )
+				{
+					bAfterburnImmunity = true;
+					break;
+				}
 			}
 		}
 	}

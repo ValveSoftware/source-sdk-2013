@@ -24,6 +24,7 @@
 	#include "halloween/merasmus/merasmus_trick_or_treat_prop.h"
 	#include "tf_robot_destruction_robot.h"
 	#include "tf_generic_bomb.h"
+	#include "tf_wearable_weapons.h"
 #endif
 
 #ifdef CLIENT_DLL
@@ -341,8 +342,66 @@ public:
 
 			float flBurnDuration = tf_fireball_burn_duration.GetFloat();
 
+			int bAfterburnImmunity = pTFPlayer->IsPlayerClass( TF_CLASS_PYRO );
+
+			// Check my weapon
+			if ( !bAfterburnImmunity )
+			{
+				int nAfterburnImmunity = 0;
+				CTFWeaponBase *pMyWeapon = pTFPlayer->GetActiveTFWeapon();
+				if ( pMyWeapon )
+				{
+					CALL_ATTRIB_HOOK_INT_ON_OTHER( pMyWeapon, nAfterburnImmunity, afterburn_immunity );
+				}
+
+				bAfterburnImmunity |= nAfterburnImmunity != 0;
+			}
+
+			// STAGING_SPY
+			if ( pTFPlayer->m_Shared.InCond( TF_COND_AFTERBURN_IMMUNE ) )
+			{
+				bAfterburnImmunity = true;
+			}
+
+			// Check demo shield
+			if ( !bAfterburnImmunity && pTFPlayer->m_Shared.IsShieldEquipped() )
+			{
+				int nAfterburnImmunity = 0;
+
+				// Loop through our wearables in search of a shield
+				for ( int i=0; i<pTFPlayer->GetNumWearables(); ++i )
+				{
+					CTFWearableDemoShield *pWearableShield = dynamic_cast<CTFWearableDemoShield*>( pTFPlayer->GetWearable( i ) );
+					if ( pWearableShield && !pWearableShield->IsDisguiseWearable() )
+					{
+						CALL_ATTRIB_HOOK_INT_ON_OTHER( pWearableShield, nAfterburnImmunity, afterburn_immunity );
+					}
+				}
+
+				bAfterburnImmunity |= nAfterburnImmunity != 0;
+			}
+
+			// Check sniper shields (e.g. Darwin's)
+			if ( !bAfterburnImmunity && pTFPlayer->IsPlayerClass( TF_CLASS_SNIPER ) )
+			{
+				for ( int i = 0; i < pTFPlayer->GetNumWearables(); ++i )
+				{
+					CTFWearable *pWearableItem = dynamic_cast< CTFWearable* >( pTFPlayer->GetWearable( i ) );
+					if ( !pWearableItem )
+						continue;
+
+					int nAfterburnImmunity = 0;
+					CALL_ATTRIB_HOOK_INT_ON_OTHER( pWearableItem, nAfterburnImmunity, afterburn_immunity );
+					if ( nAfterburnImmunity )
+					{
+						bAfterburnImmunity = true;
+						break;
+					}
+				}
+			}
+
 			// This burn affects pyros, too, but only half as long
-			if ( pTFPlayer->IsPlayerClass( TF_CLASS_PYRO ) )
+			if ( bAfterburnImmunity )
 			{
 				pTFPlayer->m_Shared.AddCond( TF_COND_BURNING_PYRO, ( flBurnDuration * 0.5f ), pOwner );
 			}
