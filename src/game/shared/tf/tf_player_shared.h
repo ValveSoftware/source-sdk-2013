@@ -363,6 +363,7 @@ public:
 	bool	IsStealthed( void ) const;
 	bool	CanBeDebuffed( void ) const;
 	bool	IsImmuneToPushback( void ) const;
+	bool	IsImmuneToAfterburn( void ) const;
 
 	void	Disguise( int nTeam, int nClass, CTFPlayer* pDesiredTarget=NULL, bool bOnKill = false );
 	void	CompleteDisguise( void );

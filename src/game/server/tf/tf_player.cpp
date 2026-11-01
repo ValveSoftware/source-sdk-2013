@@ -9891,7 +9891,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			}
 		}
 
-		if ( IsPlayerClass( TF_CLASS_PYRO ) )
+		if ( IsPlayerClass( TF_CLASS_PYRO ) || m_Shared.IsImmuneToAfterburn() )
 		{
 			m_Shared.AddCond( TF_COND_BURNING_PYRO, tf_afterburn_max_duration );
 		}
