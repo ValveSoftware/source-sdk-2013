@@ -8,7 +8,7 @@ status=0
 while read -r local_ref local_sha _ remote_sha; do
   [[ $local_sha == "$zero" || $local_ref != refs/heads/* ]] && continue
   scripts/lint/check-branch-name.sh "${local_ref#refs/heads/}" || status=1
-  if [[ $remote_sha == "$zero" ]]; then range="$remote/master..$local_sha"; else range="$remote_sha..$local_sha"; fi
+  if [[ $remote_sha == "$zero" ]]; then range="$remote/development..$local_sha"; else range="$remote_sha..$local_sha"; fi
   scripts/lint/check-commit-range.sh "$range" || status=1
 done
 

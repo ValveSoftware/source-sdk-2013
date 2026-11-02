@@ -27,7 +27,7 @@ jobs:
         SHA: ${{ github.sha }}
       run: |
         if [ "$EVENT" = pull_request ]; then range="$BASE_SHA..$HEAD_SHA"
-        elif [ "$BEFORE" = 0000000000000000000000000000000000000000 ]; then range="origin/master..$SHA"
+        elif [ "$BEFORE" = 0000000000000000000000000000000000000000 ]; then range="origin/development..$SHA"
         else range="$BEFORE..$SHA"; fi
         scripts/lint/check-commit-range.sh "$range"
 
