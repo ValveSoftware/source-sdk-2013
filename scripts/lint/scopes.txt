@@ -1,0 +1,4 @@
+Project: repo build lint
+Game: config network launcher convar movement physics script
+Assets: model texture animation sound hud
+Gameplay: jack weapons soldier medic demo logic balancing

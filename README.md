@@ -82,6 +82,21 @@ Then:
 ```
 and you're up and running!
 
+## Contributing
+
+The `development` branch is used for new branches and pull requests.
+For releases, `development` is merged into `master`.
+
+Commits and pull request titles must follow [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/): `<type>(<scope>)[!]: <description>`.
+Valid scopes are listed in [scripts/lint/scopes.txt](./scripts/lint/scopes.txt).
+
+Pull requests must link an issue (`Closes #123`).
+
+If you fork this repository, enable the linter by running:
+```bash
+git config core.hooksPath githooks
+```
+
 ## How can I help?
 
 Thanks for your interest!

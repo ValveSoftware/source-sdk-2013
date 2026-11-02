@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[ -f "$(git rev-parse --git-path MERGE_HEAD)" ] && exit 0
+scripts/lint/check-commit-msg.sh "$(head -n1 "$1")"

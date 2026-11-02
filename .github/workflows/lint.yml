@@ -1,0 +1,66 @@
+name: Lint
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: ['**']
+    tags-ignore: ['**']
+
+permissions:
+  contents: read
+
+jobs:
+  commits:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6.1.0
+      with:
+        fetch-depth: 0
+
+    - name: Check commit messages
+      env:
+        EVENT: ${{ github.event_name }}
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        BEFORE: ${{ github.event.before }}
+        SHA: ${{ github.sha }}
+      run: |
+        if [ "$EVENT" = pull_request ]; then range="$BASE_SHA..$HEAD_SHA"
+        elif [ "$BEFORE" = 0000000000000000000000000000000000000000 ]; then range="origin/master..$SHA"
+        else range="$BEFORE..$SHA"; fi
+        scripts/lint/check-commit-range.sh "$range"
+
+  pr-title:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6.1.0
+
+    - name: Check PR title
+      env:
+        TITLE: ${{ github.event.pull_request.title }}
+      run: scripts/lint/check-commit-msg.sh "$TITLE"
+
+  pr-issue:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6.1.0
+
+    - name: Check PR links an issue
+      env:
+        HEAD: ${{ github.event.pull_request.head.ref }}
+        BASE: ${{ github.event.pull_request.base.ref }}
+        BODY: ${{ github.event.pull_request.body }}
+      run: scripts/lint/check-pr.sh "$HEAD" "$BASE" "$BODY"
+
+  branch:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6.1.0
+
+    - name: Check branch name
+      env:
+        NAME: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+      run: scripts/lint/check-branch-name.sh "$NAME"
