@@ -652,6 +652,7 @@ void CTFHudDeathNotice::Init()
 	ListenForGameEvent( "fish_notice__arm" );
 	ListenForGameEvent( "duck_xp_level_up" );
 	ListenForGameEvent( "slap_notice" );
+	ListenForGameEvent( "snowball_notice" );
 	//ListenForGameEvent( "throwable_hit" );
 
 	m_bShowItemOnKill = true;
@@ -777,6 +778,7 @@ bool CTFHudDeathNotice::EventIsPlayerDeath( const char* eventName )
 		|| FStrEq( eventName, "fish_notice__arm" )
 		|| FStrEq( eventName, "slap_notice" )
 		//|| FStrEq( eventName, "throwable_hit" )
+		|| FStrEq( eventName, "snowball_notice" )
 		|| BaseClass::EventIsPlayerDeath( eventName );
 }
 
@@ -791,9 +793,24 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 
 	const char *pszEventName = event->GetName();
 
+	// Snowball 
+	const char *pszWeaponName = event->GetString( "weapon" );
+	if ( StringHasPrefix( pszWeaponName, "snowball_" ) )
+	{
+		DeathNoticeItem &msg = m_DeathNotices[iDeathNoticeMsg];
+		Q_snprintf( msg.szIcon, sizeof( msg.szIcon ), "d_%s", pszWeaponName );
+		msg.iconDeath = GetIcon( msg.szIcon, msg.bLocalPlayerInvolved ? kDeathNoticeIcon_Inverted : kDeathNoticeIcon_Standard );
+	}
+
 	if ( FStrEq( pszEventName, "player_death" ) || FStrEq( pszEventName, "object_destroyed" ) )
 	{
 		bool bIsObjectDestroyed = FStrEq( pszEventName, "object_destroyed" );
+
+		if ( StringHasPrefix( pszWeaponName, "snowball_" ) )
+		{
+			m_DeathNotices[iDeathNoticeMsg].wzInfoText[0] = L'\0';
+			m_DeathNotices[iDeathNoticeMsg].flCreationTime = gpGlobals->curtime;
+		}
 		int iCustomDamage = event->GetInt( "customkill" );
 		int iLocalPlayerIndex = GetLocalPlayerIndex();
 		
@@ -1276,7 +1293,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 
 		Q_strncpy( msg.szIcon, bDefense ? szDefenseIcons[iIndex] : szCaptureIcons[iIndex], ARRAYSIZE( msg.szIcon ) );
 	}
-	else if ( FStrEq( "fish_notice", pszEventName ) || FStrEq( "fish_notice__arm", pszEventName ) || FStrEq( "slap_notice", pszEventName ) )
+	else if ( FStrEq( "fish_notice", pszEventName ) || FStrEq( "fish_notice__arm", pszEventName ) || FStrEq( "slap_notice", pszEventName ) || FStrEq( "snowball_notice", pszEventName ) )
 	{
 		DeathNoticeItem &msg = m_DeathNotices[ iDeathNoticeMsg ];
 		int deathFlags = event->GetInt( "death_flags" );
