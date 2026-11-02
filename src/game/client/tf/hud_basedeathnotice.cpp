@@ -514,7 +514,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		{
 			Q_snprintf( m_DeathNotices[iMsg].szIcon, sizeof(m_DeathNotices[iMsg].szIcon), "d_%s", killedwith );
 		}			
-		if ( !killer || killer == victim )
+		if ( !killer || ( killer == victim && !FStrEq( pszEventName, "snowball_notice" ) ) )
 		{
 			m_DeathNotices[iMsg].bSelfInflicted = true;
 			m_DeathNotices[iMsg].Killer.szName[0] = 0;
