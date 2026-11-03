@@ -63,6 +63,12 @@ public:
 	virtual const char *GetPowerupModel( void );
 	virtual const char *GetDefaultPowerupModel( void ) = 0;
 
+	// True if map set valid custom model through "powerup_model" keyvalue
+	bool			HasCustomPowerupModel( void );
+	// Returns map's custom model if set, otherwise pszFallback
+	// Used for vision-mode and holiday overrides to not replace mapper's custom model
+	const char		*GetPowerupModelOrFallback( const char *pszFallback );
+
 	virtual bool	ItemCanBeTouchedByPlayer( CBasePlayer *pPlayer );
 
 	virtual float	GetLifeTime() { return TF_POWERUP_LIFETIME; }
