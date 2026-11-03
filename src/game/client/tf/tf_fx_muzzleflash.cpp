@@ -32,7 +32,7 @@ CLIENTEFFECT_REGISTER_BEGIN( PrecacheEffect_TF_MuzzleFlash )
 	CLIENTEFFECT_MATERIAL( "effects/muzzleflash4" )
 CLIENTEFFECT_REGISTER_END()
 
-ConVar cl_muzzleflash_dlight_1st( "cl_muzzleflash_dlight_1st", "1" );
+ConVar cl_muzzleflash_dlight_1st( "cl_muzzleflash_dlight_1st", "0", FCVAR_ARCHIVE );
 
 void TE_DynamicLight( IRecipientFilter& filter, float delay,
 	const Vector* org, int r, int g, int b, int exponent, float radius, float time, float decay, int nLightIndex = LIGHT_INDEX_TE_DYNAMIC );
