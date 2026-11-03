@@ -1268,7 +1268,6 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 
 			if ( pTFPlayer && weapon_medigun_charge_rate.GetFloat() )
 			{
-#ifdef GAME_DLL
 				int iBoostMax = floor( pTFPlayer->m_Shared.GetMaxBuffedHealth() * 0.95);
 				float flChargeModifier = 1.f;
 
@@ -1325,7 +1324,7 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 
 				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pOwner, flChargeAmount, mult_medigun_uberchargerate );
 
-
+#ifdef GAME_DLL
 				// Apply any bonus our target gives us.
 				if ( pTarget )
 				{
@@ -1338,6 +1337,7 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 						CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pTarget, flChargeAmount, mult_uberchargerate_for_healer );
 					}
 				}
+#endif
 				if ( TFGameRules() )
 				{
 					if ( TFGameRules()->IsQuickBuildTime() )
@@ -1349,7 +1349,6 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 						flChargeAmount *= 3.f;
 					}
 				}
-#endif
 
 				float flNewLevel = MIN( m_flChargeLevel + flChargeAmount, 1.0 );
 
@@ -1627,7 +1626,23 @@ void CWeaponMedigun::ItemPostFrame( void )
 		m_bReloadDown = false;
 	}
 
+#ifdef CLIENT_DLL
+		DrainCharge();
+#endif
+
 	WeaponIdle();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Drain Ubercharge on client during weapon draw to fix prediction errors
+//-----------------------------------------------------------------------------
+void CWeaponMedigun::ItemBusyFrame( void )
+{
+#ifdef CLIENT_DLL
+	DrainCharge();
+#endif
+
+	BaseClass::ItemBusyFrame();
 }
 
 //-----------------------------------------------------------------------------
@@ -1980,11 +1995,11 @@ void CWeaponMedigun::SecondaryAttack( void )
 	{
 		// Remove charge immediately and just give target and yourself the conditions
 		m_bChargeRelease = false;
+		SetChargeLevel( m_flChargeLevel - flChunkSize );
 #ifdef GAME_DLL
 		float flResistDuration = weapon_vaccinator_resist_duration.GetFloat();
 		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pOwner, flResistDuration, add_uber_time );
 		pOwner->m_Shared.AddCond( g_MedigunResistConditions[GetResistType()].uberCond, flResistDuration, pOwner );
-		m_flChargeLevel -= flChunkSize;
 		if ( pTFPlayerPatient )
 		{
 			pTFPlayerPatient->m_Shared.AddCond( g_MedigunResistConditions[GetResistType()].uberCond, flResistDuration, pOwner );

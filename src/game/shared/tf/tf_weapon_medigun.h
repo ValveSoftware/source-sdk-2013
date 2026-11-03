@@ -73,6 +73,7 @@ public:
 	virtual void	UpdateOnRemove( void );
 	virtual void	ItemHolsterFrame( void );
 	virtual void	ItemPostFrame( void );
+	virtual void	ItemBusyFrame( void );
 	virtual bool	Lower( void );
 	virtual void	PrimaryAttack( void );
 	virtual void	SecondaryAttack( void );
