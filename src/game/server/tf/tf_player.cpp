@@ -10751,22 +10751,6 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		}
 	}
 
-	// Prevents a sandwich ignore-ammo-while-taking-damage-and-eating alias exploit
-	if ( m_Shared.InCond( TF_COND_TAUNTING ) && m_Shared.GetTauntIndex() == TAUNT_BASE_WEAPON )
-	{
-		if ( IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-		{
-			CTFLunchBox *pLunchBox = dynamic_cast <CTFLunchBox *> ( m_Shared.GetActiveTFWeapon() );
-			if ( pLunchBox )
-			{
-				if ( ( pLunchBox->GetLunchboxType() != LUNCHBOX_CHOCOLATE_BAR ) && ( pLunchBox->GetLunchboxType() != LUNCHBOX_FISHCAKE ) )
-				{
-					pLunchBox->DrainAmmo( true );
-				}
-			}
-		}
-	}
-
 	// Fire a global game event - "player_hurt"
 	IGameEvent * event = gameeventmanager->CreateEvent( "player_hurt" );
 	if ( event )
@@ -18576,7 +18560,7 @@ void CTFPlayer::DoTauntAttack( void )
 		CTFWeaponBase *pActiveWeapon = m_Shared.GetActiveTFWeapon();
 		if ( pActiveWeapon && pActiveWeapon->GetWeaponID() == TF_WEAPON_LUNCHBOX )
 		{
-			CTFLunchBox *pLunchbox = (CTFLunchBox*)pActiveWeapon;
+			CTFLunchBox *pLunchbox = (CTFLunchBox *)pActiveWeapon;
 			pLunchbox->ApplyBiteEffects( this );
 		}
 
@@ -18663,32 +18647,37 @@ void CTFPlayer::DoTauntAttack( void )
 				float flDropDeadTime = ( 100.f / tf_scout_energydrink_consume_rate.GetFloat() ) + 1.f;	// Just in case.  Normally over in 8 seconds.
 
 				CTFLunchBox *pLunchbox = static_cast< CTFLunchBox* >( pActiveWeapon );
-				if ( pLunchbox && pLunchbox->GetLunchboxType() == LUNCHBOX_ADDS_MINICRITS )
+				if (pLunchbox)
 				{
-					m_Shared.AddCond( TF_COND_ENERGY_BUFF, flDropDeadTime );
-				}
-				else
-				{
-					m_Shared.AddCond( TF_COND_PHASE, flDropDeadTime );
-
-					if ( HasTheFlag() )
+					if ( pLunchbox->GetLunchboxType() == LUNCHBOX_ADDS_MINICRITS )
 					{
-						bool bShouldDrop = true;
-
-						// Always allow teams to hear each other in TD mode
-						if ( TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS )
-						{
-							bShouldDrop = false;
-						}
-
-						if ( bShouldDrop )
-						{
-							DropFlag();
-						}
+						m_Shared.AddCond( TF_COND_ENERGY_BUFF, flDropDeadTime );
 					}
-				}
+					else
+					{
+						m_Shared.AddCond( TF_COND_PHASE, flDropDeadTime );
 
-				SelectLastItem();
+						if ( HasTheFlag() )
+						{
+							bool bShouldDrop = true;
+
+							// Always allow teams to hear each other in TD mode
+							if ( TFGameRules()->IsMannVsMachineMode() && GetTeamNumber() == TF_TEAM_PVE_INVADERS )
+							{
+								bShouldDrop = false;
+							}
+
+							if ( bShouldDrop )
+							{
+								DropFlag();
+							}
+						}
+
+					}
+
+					pLunchbox->DrainAmmo();
+					m_Shared.SetBiteEffectWasApplied();
+				}
 			}
 		}
 	}

@@ -62,7 +62,7 @@ public:
 	virtual bool	DropAllowed( void );
 	int				GetLunchboxType( void ) const { int iMode = 0; CALL_ATTRIB_HOOK_INT( iMode, set_weapon_mode ); return iMode; };
 
-	void			DrainAmmo( bool bForceCooldown = false );
+	void			DrainAmmo( void );
 
 	virtual void	Detach( void ) OVERRIDE;
 	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo = NULL ) OVERRIDE;
