@@ -769,6 +769,7 @@ void CTFClassMenu::SelectClass( int iClass )
 
 	m_pTFPlayerModelPanel->SetVisible( true );
 	m_pTFPlayerModelPanel->ClearCarriedItems();
+	m_pTFPlayerModelPanel->SetIsLocalPlayerModel( true );
 
 	if ( bRandomClass )
 	{
