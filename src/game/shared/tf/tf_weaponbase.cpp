@@ -357,6 +357,8 @@ CTFWeaponBase::~CTFWeaponBase()
 #ifdef CLIENT_DLL
 	RemoveWorldmodelStatTrak();
 	RemoveViewmodelStatTrak();
+	RemoveWorldmodelBotkiller();
+	RemoveViewmodelBotkiller();
 #endif
 }
 
@@ -1094,6 +1096,17 @@ void CTFWeaponBase::UpdateExtraWearablesVisibility()
 	{
 		m_worldmodelStatTrakAddon->UpdateVisibility();
 		m_worldmodelStatTrakAddon->CreateShadow();
+	}
+
+	if ( m_viewmodelBotkillerAddon.Get() )
+	{
+		m_viewmodelBotkillerAddon->UpdateVisibility();
+	}
+
+	if ( m_worldmodelBotkillerAddon.Get() )
+	{
+		m_worldmodelBotkillerAddon->UpdateVisibility();
+		m_worldmodelBotkillerAddon->CreateShadow();
 	}
 }
 #endif // GAME_DLL
@@ -6799,6 +6812,7 @@ void CTFWeaponBase::UpdateAllViewmodelAddons( void )
 	if ( !pPlayer )
 	{
 		RemoveViewmodelStatTrak();
+		RemoveViewmodelBotkiller();
 		return;
 	}
 
@@ -6807,8 +6821,11 @@ void CTFWeaponBase::UpdateAllViewmodelAddons( void )
 	if ( !pItem )
 	{
 		RemoveViewmodelStatTrak();
+		RemoveViewmodelBotkiller();
 		return;
 	}
+
+	UpdateBotkillerModule();
 
 	if ( GetStrangeType() > -1 )
 	{
@@ -6944,6 +6961,114 @@ void CTFWeaponBase::RemoveWorldmodelStatTrak( void )
 	{
 		m_worldmodelStatTrakAddon->Remove();
 		m_worldmodelStatTrakAddon = NULL;
+	}
+}
+
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::UpdateBotkillerModule( void )
+{
+	CEconItemView *pItem = GetAttributeContainer()->GetItem();
+
+	CAttribute_String attrModule, attrModuleVM;
+	int nSkin = 0;
+	if ( !pItem || !GetBotkillerModule( pItem, &attrModule, &attrModuleVM, &nSkin ) )
+	{
+		RemoveViewmodelBotkiller();
+		RemoveWorldmodelBotkiller();
+		return;
+	}
+
+	if ( pItem->GetTeamNumber() == TF_TEAM_BLUE )
+	{
+		nSkin++;
+	}
+
+	bool bCreated = false;
+
+	// View Model
+	if ( GetViewmodelAttachment() && !( m_viewmodelBotkillerAddon.Get() && m_viewmodelBotkillerAddon->GetMoveParent() ) )
+	{
+		RemoveViewmodelBotkiller();
+		SetParticleSystemsVisible( PARTICLE_SYSTEM_STATE_NOT_VISIBLE );
+
+		CTFWeaponAttachmentModel *pBotkillerEnt = new class CTFWeaponAttachmentModel;
+		if ( pBotkillerEnt->InitializeAsClientEntity( attrModuleVM.value().c_str(), RENDER_GROUP_VIEW_MODEL_OPAQUE ) )
+		{
+			pBotkillerEnt->Init( GetViewmodelAttachment(), this, true );
+			pBotkillerEnt->RemoveEffects( EF_BONEMERGE_FASTCULL );
+			// Required: without client side animation the head stops updating
+			pBotkillerEnt->ForceClientSideAnimationOn();
+			m_viewmodelBotkillerAddon = pBotkillerEnt;
+
+			if ( TeamFortress_ShouldFlipClientViewModel() )
+			{
+				pBotkillerEnt->SetModelScale( -1.0f );
+			}
+
+			bCreated = true;
+		}
+		else
+		{
+			pBotkillerEnt->Release();
+		}
+	}
+
+	// World Model
+	if ( !( m_worldmodelBotkillerAddon.Get() && m_worldmodelBotkillerAddon->GetMoveParent() ) )
+	{
+		RemoveWorldmodelBotkiller();
+		SetParticleSystemsVisible( PARTICLE_SYSTEM_STATE_NOT_VISIBLE );
+
+		CTFWeaponAttachmentModel *pBotkillerEnt = new class CTFWeaponAttachmentModel;
+		if ( pBotkillerEnt->InitializeAsClientEntity( attrModule.value().c_str(), RENDER_GROUP_OPAQUE_ENTITY ) )
+		{
+			pBotkillerEnt->Init( this, this, false );
+			pBotkillerEnt->RemoveEffects( EF_BONEMERGE_FASTCULL );
+			pBotkillerEnt->ForceClientSideAnimationOn();
+			m_worldmodelBotkillerAddon = pBotkillerEnt;
+			bCreated = true;
+		}
+		else
+		{
+			pBotkillerEnt->Release();
+		}
+	}
+
+	if ( m_viewmodelBotkillerAddon.Get() )
+	{
+		m_viewmodelBotkillerAddon->m_nSkin = nSkin;
+	}
+
+	if ( m_worldmodelBotkillerAddon.Get() )
+	{
+		m_worldmodelBotkillerAddon->m_nSkin = nSkin;
+	}
+
+	if ( bCreated )
+	{
+		UpdateParticleSystems();
+	}
+}
+
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::RemoveViewmodelBotkiller( void )
+{
+	if ( m_viewmodelBotkillerAddon.Get() )
+	{
+		m_viewmodelBotkillerAddon->ParticleProp()->StopEmission( NULL, false, true );
+		m_viewmodelBotkillerAddon->Remove();
+		m_viewmodelBotkillerAddon = NULL;
+	}
+}
+
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::RemoveWorldmodelBotkiller( void )
+{
+	if ( m_worldmodelBotkillerAddon.Get() )
+	{
+		m_worldmodelBotkillerAddon->ParticleProp()->StopEmission( NULL, false, true );
+		m_worldmodelBotkillerAddon->Remove();
+		m_worldmodelBotkillerAddon = NULL;
 	}
 }
 

@@ -331,6 +331,13 @@ int C_BaseViewModel::DrawModel( int flags )
 		pTFWeapon->m_viewmodelStatTrakAddon->DrawModel( flags );
 		pTFWeapon->m_viewmodelStatTrakAddon->AddEffects( EF_NODRAW );
 	}
+
+	if ( ( flags & STUDIO_RENDER ) && pTFWeapon && pTFWeapon->m_viewmodelBotkillerAddon )
+	{
+		pTFWeapon->m_viewmodelBotkillerAddon->RemoveEffects( EF_NODRAW );
+		pTFWeapon->m_viewmodelBotkillerAddon->DrawModel( flags );
+		pTFWeapon->m_viewmodelBotkillerAddon->AddEffects( EF_NODRAW );
+	}
 #endif
 
 	int ret;

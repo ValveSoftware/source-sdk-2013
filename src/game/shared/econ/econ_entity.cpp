@@ -970,6 +970,18 @@ void CEconEntity::Release( void )
 			pEffectOwnerVM = pWeapon->m_hExtraWearableViewModel.Get();
 			bExtraWearableVM = true;
 		}
+
+		if ( pWeapon->m_worldmodelBotkillerAddon.Get() )
+		{
+			pEffectOwnerWM = pWeapon->m_worldmodelBotkillerAddon.Get();
+			bExtraWearable = true;
+		}
+
+		if ( pWeapon->m_viewmodelBotkillerAddon.Get() )
+		{
+			pEffectOwnerVM = pWeapon->m_viewmodelBotkillerAddon.Get();
+			bExtraWearableVM = true;
+		}
 		// always kill all effects for VM
 		if ( pEffectOwnerVM )
 		{
@@ -1528,6 +1540,18 @@ void CEconEntity::SetParticleSystemsVisible( ParticleSystemState_t nState )
 				bDirty = !( pWeapon->m_hExtraWearableViewModel->m_nParticleSystemsCreated == nState );
 				pWeapon->m_hExtraWearableViewModel->m_nParticleSystemsCreated = nState;
 			}
+
+			if ( pWeapon->m_worldmodelBotkillerAddon.Get() )
+			{
+				bDirty |= !( pWeapon->m_worldmodelBotkillerAddon->m_nParticleSystemsCreated == nState );
+				pWeapon->m_worldmodelBotkillerAddon->m_nParticleSystemsCreated = nState;
+			}
+
+			if ( pWeapon->m_viewmodelBotkillerAddon.Get() )
+			{
+				bDirty |= !( pWeapon->m_viewmodelBotkillerAddon->m_nParticleSystemsCreated == nState );
+				pWeapon->m_viewmodelBotkillerAddon->m_nParticleSystemsCreated = nState;
+			}
 		}
 #endif
 
@@ -1616,6 +1640,18 @@ void CEconEntity::UpdateSingleParticleSystem( bool bVisible, const attachedparti
 		if ( pWeapon->m_hExtraWearableViewModel.Get() )
 		{
 			pEffectOwnerVM = pWeapon->m_hExtraWearableViewModel.Get();
+			bExtraWearableVM = true;
+		}
+
+		if ( pWeapon->m_worldmodelBotkillerAddon.Get() )
+		{
+			pEffectOwnerWM = pWeapon->m_worldmodelBotkillerAddon.Get();
+			bExtraWearable = true;
+		}
+
+		if ( pWeapon->m_viewmodelBotkillerAddon.Get() )
+		{
+			pEffectOwnerVM = pWeapon->m_viewmodelBotkillerAddon.Get();
 			bExtraWearableVM = true;
 		}
 	}

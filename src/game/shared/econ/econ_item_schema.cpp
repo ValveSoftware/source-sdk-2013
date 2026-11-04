@@ -2706,6 +2706,32 @@ void CEconItemDefinition::BInitVisualBlockFromKV( KeyValues *pKVItem, CUtlVector
 
 #if defined(CLIENT_DLL) || defined(GAME_DLL)
 //-----------------------------------------------------------------------------
+class CBotkillerModuleIterator : public CEconItemSpecificAttributeIterator
+{
+public:
+	CBotkillerModuleIterator( CUtlVector<const char *> *pVecModelStrings )
+		: m_pVecModelStrings( pVecModelStrings )
+	{
+	}
+
+	virtual bool OnIterateAttributeValue( const CEconItemAttributeDefinition *pAttrDef, const CAttribute_String& value )
+	{
+		static CSchemaAttributeDefHandle pAttribDef_Module( "weapon_uses_botkiller_module" );
+		static CSchemaAttributeDefHandle pAttribDef_ModuleVM( "weapon_uses_botkiller_module_vm" );
+
+		if ( pAttrDef == static_cast<const CEconItemAttributeDefinition *>( pAttribDef_Module ) || pAttrDef == static_cast<const CEconItemAttributeDefinition *>( pAttribDef_ModuleVM ) )
+		{
+			m_pVecModelStrings->AddToTail( value.value().c_str() );
+		}
+
+		return true;
+	}
+
+private:
+	CUtlVector<const char *> *m_pVecModelStrings;
+};
+
+//-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
 void CEconItemDefinition::GeneratePrecacheModelStrings( bool bDynamicLoad, CUtlVector<const char *> *out_pVecModelStrings ) const
@@ -2760,6 +2786,9 @@ void CEconItemDefinition::GeneratePrecacheModelStrings( bool bDynamicLoad, CUtlV
 	{
 		out_pVecModelStrings->AddToTail( GetVisionFilteredDisplayModel() );
 	}
+
+	CBotkillerModuleIterator botkillerIterator( out_pVecModelStrings );
+	IterateAttributes( &botkillerIterator );
 
 	// We don't need to cache the inventory model, because it's never loaded by the game
 }
