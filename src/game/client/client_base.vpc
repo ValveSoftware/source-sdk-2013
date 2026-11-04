@@ -554,6 +554,7 @@ $Project
 				"$SRCDIR\public\studio.cpp"							\
 				"$SRCDIR\public\vallocator.cpp"						\
 				"$SRCDIR\public\vgui_controls\vgui_controls.cpp"	\
+				"$SRCDIR\public\jigglebones.cpp"					\
 				"hud_lcd.cpp"										\
 				"in_mouse.cpp"										\
 				"mumble.cpp"						\
