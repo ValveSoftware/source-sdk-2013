@@ -331,6 +331,7 @@ $Project
 		$File	"env_debughistory.h"
 		$File	"$SRCDIR\game\shared\env_detail_controller.cpp"
 		$File	"env_effectsscript.cpp"
+		$File	"env_entity_glow.cpp"
 		$File	"env_entity_maker.cpp"
 		$File	"env_particlescript.cpp"
 		$File	"env_player_surface_trigger.cpp"

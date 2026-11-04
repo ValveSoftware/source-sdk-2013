@@ -810,6 +810,12 @@ bool ClientModeShared::DoPostScreenSpaceEffects( const CViewSetup *pSetup )
 			return false;
 	}
 #endif 
+
+	// TF2 does this conditionally, so make sure to respect that here
+#ifndef TF_CLIENT_DLL
+	g_GlowObjectManager.RenderGlowEffects( pSetup, 0 );
+#endif
+
 	return true;
 }
 
