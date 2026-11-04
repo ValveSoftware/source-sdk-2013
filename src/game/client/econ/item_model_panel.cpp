@@ -484,6 +484,27 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 					}
 				}
 
+				// Botkiller
+				CAttribute_String attrBotkiller;
+				bool bBotkiller = m_StatTrackModel.m_bDisabled && GetBotkillerModule( m_pItem, &attrBotkiller );
+				if ( bBotkiller )
+				{
+					m_flStatTrackScale = 1.0f;
+
+					MDLHandle_t hBotkillerMDL = mdlcache->FindMDL( attrBotkiller.value().c_str() );
+					if ( mdlcache->IsErrorModel( hBotkillerMDL ) )
+					{
+						hBotkillerMDL = MDLHANDLE_INVALID;
+					}
+					m_StatTrackModel.m_MDL.SetMDL( hBotkillerMDL );
+					mdlcache->Release( hBotkillerMDL );
+
+					m_StatTrackModel.m_MDL.m_pProxyData = static_cast<IClientRenderable*>(pItem);
+					m_StatTrackModel.m_bDisabled = ( hBotkillerMDL == MDLHANDLE_INVALID );
+					m_StatTrackModel.m_MDL.m_nSequence = ACT_IDLE;
+					SetIdentityMatrix( m_StatTrackModel.m_MDLToWorld );
+				}
+
 				int iTeam = GetLocalPlayerTeam(),
 					iSkin = iTeam;
 
@@ -506,6 +527,11 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 				if ( iOverrideSkin != -1 )
 				{
 					iSkin = iOverrideSkin;
+				}
+
+				if ( bBotkiller )
+				{
+					m_StatTrackModel.m_MDL.m_nSkin = ( iOverrideSkin != -1 ) ? iOverrideSkin : ( iTeam == TF_TEAM_BLUE ? 1 : 0 );
 				}
 					
 				SetSkin( iSkin );

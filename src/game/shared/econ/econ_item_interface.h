@@ -516,6 +516,7 @@ bool GetPaintKitDefIndex( const TAttributeContainerType *pAttrContainer, uint32 
 }
 
 bool GetStattrak( const IEconItemInterface *pItem, CAttribute_String *pAttrModule = NULL );
+bool GetBotkillerModule( const IEconItemInterface *pItem, CAttribute_String *pAttrModule = NULL, CAttribute_String *pAttrModuleVM = NULL );
 const char *GetPaintKitMaterialOverride( const IEconItemInterface *pItem );
 const CEconItemCollectionDefinition* GetCollection( const IEconItemInterface* pItem );
 

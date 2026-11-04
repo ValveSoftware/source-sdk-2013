@@ -4297,6 +4297,12 @@ void C_TFPlayer::UpdateClientSideAnimation()
 		{
 			pWeapon->UpdateAllViewmodelAddons();
 		}
+
+		CTFWeaponBase *pDisguiseWeapon = m_Shared.GetDisguiseWeapon();
+		if ( pDisguiseWeapon && pDisguiseWeapon != pWeapon )
+		{
+			pDisguiseWeapon->UpdateBotkillerModule();
+		}
 	}
 
 	BaseClass::UpdateClientSideAnimation();

@@ -619,6 +619,40 @@ void CTFPlayerModelPanel::SwitchHeldItemTo( CEconItemView *pItem, bool bPreserve
 		}
 	}
 
+	CAttribute_String attrBotkiller;
+	if ( m_StatTrackModel.m_bDisabled && GetBotkillerModule( m_pHeldItem, &attrBotkiller ) )
+	{
+		m_flStatTrackScale = 1.0f;
+
+		MDLHandle_t hBotkillerMDL = mdlcache->FindMDL( attrBotkiller.value().c_str() );
+		if ( mdlcache->IsErrorModel( hBotkillerMDL ) )
+		{
+			hBotkillerMDL = MDLHANDLE_INVALID;
+		}
+
+		if ( hBotkillerMDL != MDLHANDLE_INVALID )
+		{
+			m_StatTrackModel.m_MDL.SetMDL( hBotkillerMDL );
+
+			studiohdr_t* pStudioHdr = mdlcache->GetStudioHdr( hBotkillerMDL );
+			if ( pStudioHdr )
+			{
+				if ( !m_StatTrackModel.m_pStudioHdr )
+				{
+					m_StatTrackModel.m_pStudioHdr = new CStudioHdr();
+				}
+				m_StatTrackModel.m_pStudioHdr->Init( pStudioHdr, mdlcache );
+			}
+
+			mdlcache->Release( hBotkillerMDL );
+
+			m_StatTrackModel.m_MDL.m_pProxyData = static_cast<IClientRenderable*>( pItem );
+			m_StatTrackModel.m_bDisabled = false;
+			m_StatTrackModel.m_MDL.m_nSequence = ACT_IDLE;
+			SetIdentityMatrix( m_StatTrackModel.m_MDLToWorld );
+		}
+	}
+
 	SetSequenceLayers( NULL, 0 );
 
 	// See if our VCD is overridden
@@ -1278,6 +1312,16 @@ void CTFPlayerModelPanel::UpdatePreviewVisuals()
 	{
 		int iSkin = 0;
 		iSkin = m_iTeam == TF_TEAM_RED ? 0 : 1;
+
+		if ( m_pHeldItem && GetBotkillerModule( m_pHeldItem ) )
+		{
+			int nBotkillerSkin = m_pHeldItem->GetSkin( m_iTeam );
+			if ( nBotkillerSkin != -1 )
+			{
+				iSkin = nBotkillerSkin;
+			}
+		}
+
 		m_StatTrackModel.m_MDL.m_nSkin = iSkin;
 	}
 
