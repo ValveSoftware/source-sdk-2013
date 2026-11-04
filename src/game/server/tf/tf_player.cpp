@@ -13499,7 +13499,7 @@ void CTFPlayer::RemoveOwnedProjectiles( void )
 		CTFFlameManager *pFlameManager = static_cast< CTFFlameManager* >( ITFFlameManager::AutoList()[i] );
 		if ( pFlameManager->GetAttacker() == this )
 		{
-			pFlameManager->ClearPoints();
+			UTIL_Remove( pFlameManager );
 		}
 	}
 }
