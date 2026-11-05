@@ -1,0 +1,61 @@
+name: Build Linux
+
+on:
+  pull_request:
+    branches:
+      - master
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ubuntu-build-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    container:
+      image: registry.gitlab.steamos.cloud/steamrt/sniper/sdk:latest
+
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      VPC_NINJA_BUILD_MODE: release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select game
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          title="${PR_TITLE^^}"
+
+          if [[ "$title" == *"[TF2]"* ]]; then
+            echo "VPC_GAME=/tf" >> "$GITHUB_ENV"
+            echo "BUILD_NAME=tf2" >> "$GITHUB_ENV"
+          elif [[ "$title" == *"[HL2MP]"* ]]; then
+            echo "VPC_GAME=/hl2mp" >> "$GITHUB_ENV"
+            echo "BUILD_NAME=hl2mp" >> "$GITHUB_ENV"
+          else
+            echo "VPC_GAME=/allgames" >> "$GITHUB_ENV"
+            echo "BUILD_NAME=all" >> "$GITHUB_ENV"
+          fi
+
+      - name: Generate Ninja build
+        working-directory: src
+        run: |
+          solution="_vpc_/ninja/${BUILD_NAME}_release"
+          echo "SOLUTION=$solution" >> "$GITHUB_ENV"
+
+          devtools/bin/vpc "$VPC_GAME" /linux64 /ninja /define:SOURCESDK +game /mksln "$solution"
+
+      - name: Build
+        working-directory: src
+        run: ninja -f "$SOLUTION.ninja" -j"$(nproc)"
