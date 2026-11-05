@@ -1913,8 +1913,8 @@ bool CTFFlameThrower::DeflectEntity( CBaseEntity *pTarget, CTFPlayer *pOwner, Ve
 
 	// can't deflect things on our own team
 	// except the passtime ball when in passtime mode
-	if ( (pTarget->GetTeamNumber() == pOwner->GetTeamNumber()) 
-		&& !(g_pPasstimeLogic && (g_pPasstimeLogic->GetBall() == pTarget)) )
+	// and except our teammates' snowballs
+	if ( ( pTarget->GetTeamNumber() == pOwner->GetTeamNumber() ) && !( g_pPasstimeLogic && ( g_pPasstimeLogic->GetBall() == pTarget ) ) && !FClassnameIs( pTarget, "tf_projectile_snowball" ) )
 	{
 		return false;
 	}

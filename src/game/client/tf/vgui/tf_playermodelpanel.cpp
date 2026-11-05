@@ -27,6 +27,7 @@
 #include "tier2/renderutils.h"
 #include "bone_setup.h"
 #include "halloween/tf_weapon_spellbook.h"
+#include "tf_weapon_snowball.h"
 #include "matsys_controls/matsyscontrols.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -764,7 +765,7 @@ void CTFPlayerModelPanel::SwitchHeldItemTo( CEconItemView *pItem, bool bPreserve
 	m_bDrawActionSlotEffects = false;
 	if ( pItem->GetStaticData()->GetItemClass() )
 	{
-		m_bDrawActionSlotEffects = FStrEq( pItem->GetStaticData()->GetItemClass(), "tf_weapon_spellbook" );
+		m_bDrawActionSlotEffects = FStrEq( pItem->GetStaticData()->GetItemClass(), "tf_weapon_spellbook" ) || FStrEq( pItem->GetStaticData()->GetItemClass(), "tf_weapon_snowball" );
 	}
 
 	// update eyeglows
@@ -1811,7 +1812,14 @@ void CTFPlayerModelPanel::UpdateActionSlotEffects(
 
 	if ( !m_aParticleSystems[ SYSTEM_ACTIONSLOT ] )
 	{
-		m_aParticleSystems[ SYSTEM_ACTIONSLOT ] = CreateParticleData( CTFSpellBook::GetHandEffect( m_pHeldItem, 0 ) );
+		if ( m_pHeldItem && FStrEq( m_pHeldItem->GetStaticData()->GetItemClass(), "tf_weapon_snowball" ) )
+		{
+			m_aParticleSystems[ SYSTEM_ACTIONSLOT ] = CreateParticleData( CTFSnowball::GetHandEffect( m_pHeldItem ) );
+		}
+		else
+		{
+			m_aParticleSystems[ SYSTEM_ACTIONSLOT ] = CreateParticleData( CTFSpellBook::GetHandEffect( m_pHeldItem, 0 ) );
+		}
 	}
 
 	if ( !m_aParticleSystems[ SYSTEM_ACTIONSLOT ] )
