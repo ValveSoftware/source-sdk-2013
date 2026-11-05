@@ -645,6 +645,11 @@ void CLagCompensationManager::BacktrackPlayer( CBasePlayer *pPlayer, float flTar
 	restore->m_masterSequence = pPlayer->GetSequence();
 	restore->m_masterCycle = pPlayer->GetCycle();
 
+	for( int i=0; i<MAXSTUDIOPOSEPARAM; i++ )
+	{
+		restore->m_flPoseParameters[i] = pPlayer->GetPoseParameter(i);
+	}
+
 	bool interpolationAllowed = false;
 	if( prevRecord && (record->m_masterSequence == prevRecord->m_masterSequence) )
 	{
