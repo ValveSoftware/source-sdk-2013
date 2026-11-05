@@ -4,7 +4,7 @@
 //
 //=============================================================================//
 
-#include "Color.h"
+#include "color.h"
 
 #ifndef COMBINE_MINE_H
 #define COMBINE_MINE_H

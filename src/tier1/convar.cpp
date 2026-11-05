@@ -18,7 +18,7 @@
 #include "tier1/convar_serverbounded.h"
 #include "icvar.h"
 #include "tier0/dbg.h"
-#include "Color.h"
+#include "color.h"
 #include "cdll_int.h"
 #if defined( _X360 )
 #include "xbox/xbox_console.h"

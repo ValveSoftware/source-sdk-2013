@@ -13,7 +13,7 @@
 #endif
 
 #include <vgui/VGUI.h>
-#include <Color.h>
+#include <color.h>
 #include <vgui/IImage.h>
 
 namespace vgui
