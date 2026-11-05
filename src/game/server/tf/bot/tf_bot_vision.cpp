@@ -261,12 +261,9 @@ bool CTFBotVision::IsIgnored( CBaseEntity *subject ) const
 			return false;
 		}
 
-		if ( enemy->m_Shared.InCond( TF_COND_BURNING ) ||
-			 enemy->m_Shared.InCond( TF_COND_URINE ) ||
-			 enemy->m_Shared.InCond( TF_COND_STEALTHED_BLINK ) ||
-			 enemy->m_Shared.InCond( TF_COND_BLEEDING ) )
+		if ( IsRevealedSpy(enemy) )
 		{
-			// always notice players with these conditions
+			// always notice players with those conditions
 			return false;
 		}
 
@@ -350,12 +347,9 @@ bool CTFBotVision::IsVisibleEntityNoticed( CBaseEntity *subject ) const
 	{
 		CTFPlayer *player = static_cast< CTFPlayer * >( subject );
 
-		if ( player->m_Shared.InCond( TF_COND_BURNING ) ||
-			 player->m_Shared.InCond( TF_COND_URINE ) ||
-			 player->m_Shared.InCond( TF_COND_STEALTHED_BLINK ) ||
-			 player->m_Shared.InCond( TF_COND_BLEEDING ) )
+		if ( IsRevealedSpy(player) )
 		{
-			// always notice players with these conditions
+			// always notice players with those conditions
 			if ( player->m_Shared.InCond( TF_COND_STEALTHED ) )
 			{
 				me->RealizeSpy( player );
@@ -431,6 +425,19 @@ bool CTFBotVision::IsVisibleEntityNoticed( CBaseEntity *subject ) const
 	}
 
 	return true;
+}
+
+
+//-----------------------------------------------------------------------------------------------------
+// Return true if enemy spy is covered in liquid, are on fire or otherwise give away they are enemy
+bool CTFBotVision::IsRevealedSpy( CTFPlayer *player ) const
+{
+	return ( player->m_Shared.InCond( TF_COND_BURNING ) ||
+	         player->m_Shared.InCond( TF_COND_URINE ) ||
+	         player->m_Shared.InCond( TF_COND_STEALTHED_BLINK ) ||
+	         player->m_Shared.InCond( TF_COND_BLEEDING ) ||
+			 player->m_Shared.InCond( TF_COND_MAD_MILK) ||
+			 player->m_Shared.InCond( TF_COND_GAS) );
 }
 
 

@@ -28,6 +28,7 @@ public:
 
 	virtual bool IsIgnored( CBaseEntity *subject ) const;		// return true to completely ignore this entity (may not be in sight when this is called)
 	virtual bool IsVisibleEntityNoticed( CBaseEntity *subject ) const;		// return true if we 'notice' the subject, even though we have LOS to it
+	virtual bool IsRevealedSpy( CTFPlayer* player ) const;				// Return true if enemy spy is covered in liquid, are on fire or otherwise give away they are enemy
 
 	virtual float GetMaxVisionRange( void ) const;				// return maximum distance vision can reach
 	virtual float GetMinRecognizeTime( void ) const;			// return VISUAL reaction time
