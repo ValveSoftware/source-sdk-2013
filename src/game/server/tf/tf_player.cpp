@@ -9805,14 +9805,44 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		pTFAttacker->OnDealtDamage( this, info );
 	}
 
-	bool bIsPyroDetonateJumping = ( IsPlayerClass( TF_CLASS_PYRO ) && pAttacker == this && !(GetFlags() & FL_ONGROUND) && !(GetFlags() & FL_INWATER));
-	if ( bIsDemomanPipeJumping || bIsSoldierRocketJumping || bIsPyroDetonateJumping )
+	bool bQuickFixCanMirrorKnockback = false; //if this damage should count for a valid form of knockback to mirror with the quick-fix
+	bool bQuickFixMirrorRequireAirborne = false; //if this damage requires we (both the attacker and the medic) be airborne to mirror with the quick-fix.
+
+	if ( pAttacker == this && !(inputInfo.GetDamageType() & (DMG_MELEE | DMG_SLASH)) ) {
+		bQuickFixCanMirrorKnockback = true; //if the attacker is ourselves, the KB is mirrored, unless it is melee or bleed damage
+	}
+
+	//if engi, add an exception to the quick-fix mirroring if...
+	if ( IsPlayerClass( TF_CLASS_ENGINEER ) ) {
+		CObjectSentrygun* sentry = dynamic_cast<CObjectSentrygun*>( pInflictor );
+		CTFProjectile_SentryRocket* sentryRocket = dynamic_cast<CTFProjectile_SentryRocket*>( pInflictor );
+		if ( sentry ) {
+			if ( (sentry->GetBuilder() == this) && (sentry->GetShieldLevel() != SHIELD_NONE) ) {
+				bQuickFixCanMirrorKnockback = true; //...our sentry is wranged, then we should mirror the bullet knockback.
+				bQuickFixMirrorRequireAirborne = true; //require we be airborne first, to avoid mirroring of accidental self-damage.
+			}
+		}
+		else if ( sentryRocket ) {
+			sentry = dynamic_cast<CObjectSentrygun*>( sentryRocket->GetOwnerEntity() );
+			if ( (sentry->GetShieldLevel() == SHIELD_NONE) || (sentry->GetBuilder() != this) )
+				bQuickFixCanMirrorKnockback = false; //...the sentry is not wrangled, or it is not ours then we should not mirror its rocket knockback
+		}
+	}
+	
+
+	
+	//if the knockback is mirrored, check if we need to also be airborne to mirror it
+	if ( bQuickFixCanMirrorKnockback && (bQuickFixMirrorRequireAirborne ? !(GetFlags() & (FL_ONGROUND | FL_INWATER)) : true) )
 	{
 		// Are we being healed by any QuickFix medics?
 		for ( int i = 0; i < m_Shared.m_nNumHealers; i++ )
 		{
 			CTFPlayer *pMedic = ToTFPlayer( m_Shared.m_aHealers[i].pHealer );
 			if ( !pMedic )
+				continue;
+
+			//the medic checks if he's airborne as well, meaning both of us need to be in the air, should it be required
+			if (bQuickFixMirrorRequireAirborne && (pMedic->GetFlags() & (FL_ONGROUND | FL_INWATER)) )
 				continue;
 
 			// Share blast jump with them
@@ -10540,6 +10570,8 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	outParams.bPlayDamageReductionSound = false;
 	float realDamage = info.GetDamage();
 	int iPreFeignDamage = realDamage;
+	bool bIgnoreKnockbackImmunity = info.GetAttacker() == this; //self-damage automatically bypasses KB immunity
+
 	if ( TFGameRules() )
 	{
 		realDamage = TFGameRules()->ApplyOnDamageAliveModifyRules( info, this, outParams );
@@ -10549,6 +10581,10 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 			// Hard out requested from ApplyOnDamageModifyRules 
 			return 0;
 		}
+	}
+
+	if ( outParams.bSelfBlastDmg ) {
+		bIgnoreKnockbackImmunity = true; //as does self-blast damage, in case the attacker is not directly linked to us.
 	}
 
 	if ( outParams.bPlayDamageReductionSound )
@@ -10639,6 +10675,11 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 
 				pTFAttacker->AccumulateSentryGunDamageDealt( iOldHealth - flooredHealth );
 			}
+
+			//check if it is our sentry
+			if (sentry && sentry->GetBuilder() == this) {
+				bIgnoreKnockbackImmunity = sentry->GetShieldLevel() != SHIELD_NONE; // bypass KB immunity if it is wrangled
+			}
 		}
 	}
 
@@ -10660,7 +10701,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		   ( !pAttacker->IsSolidFlagSet( FSOLID_TRIGGER ) ) && 
 		   ( !m_Shared.InCond( TF_COND_DISGUISED ) ) )	
 		{
-			if ( !m_Shared.IsImmuneToPushback() || outParams.bSelfBlastDmg )
+			if ( !m_Shared.IsImmuneToPushback() || bIgnoreKnockbackImmunity )
 			{
 				ApplyPushFromDamage( info, vecDir );
 			}
