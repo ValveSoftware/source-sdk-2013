@@ -520,16 +520,27 @@ void EmitFace( face_t *f, qboolean onNode )
 	side_t *pSide = f->originalface;
 	if ( pSide )
 	{
-		int nOverlayCount = pSide->aOverlayIds.Count();
-		if ( nOverlayCount > 0 )
+		// Overlays are only supported on world geometry (model 0). Binding one to
+		// a brush entity (entity_num != 0) bakes a face the engine resolves against
+		// the world brush, crashing clients on map load -- drop it instead.
+		if ( entity_num != 0 &&
+			 ( pSide->aOverlayIds.Count() > 0 || pSide->aWaterOverlayIds.Count() > 0 ) )
 		{
-			Overlay_AddFaceToLists( ( numfaces - 1 ), pSide );
+			Warning( "Overlay on brush entity %d skipped (overlays only work on world geometry).\n", entity_num );
 		}
-
-		nOverlayCount = pSide->aWaterOverlayIds.Count();
-		if ( nOverlayCount > 0 )
+		else
 		{
-			OverlayTransition_AddFaceToLists( ( numfaces - 1 ), pSide );
+			int nOverlayCount = pSide->aOverlayIds.Count();
+			if ( nOverlayCount > 0 )
+			{
+				Overlay_AddFaceToLists( ( numfaces - 1 ), pSide );
+			}
+
+			nOverlayCount = pSide->aWaterOverlayIds.Count();
+			if ( nOverlayCount > 0 )
+			{
+				OverlayTransition_AddFaceToLists( ( numfaces - 1 ), pSide );
+			}
 		}
 	}
 }
