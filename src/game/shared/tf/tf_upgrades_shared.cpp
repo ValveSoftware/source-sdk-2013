@@ -272,8 +272,8 @@ int GetUpgradeStepData( CTFPlayer *pPlayer, int nWeaponSlot, int nUpgradeIndex, 
 	int nNumSteps = 0;
 	
 	// ...
-	nNumSteps = RoundFloatToInt( fabsf( ( flCap - flBase ) / flIncrement ) );
-	nCurrentStep = RoundFloatToInt( fabsf( ( flCurrentAttribValue - flBase ) / flIncrement ) );
+	nNumSteps = ceilf( fabsf( ( flCap - flBase ) / flIncrement ) );
+	nCurrentStep = ceilf( fabsf( ( flCurrentAttribValue - flBase ) / flIncrement ) );
 
 	// Include the 0th step
 	return nNumSteps;
