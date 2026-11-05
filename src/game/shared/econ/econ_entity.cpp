@@ -1147,7 +1147,7 @@ void CEconEntity::UpdateAttachmentModels( void )
 		{
 			if ( !m_hViewmodelAttachment )
 			{
-				C_BaseViewModel *vm = pOwner->GetViewModel( 0 );
+				C_BaseViewModel *vm = pOwner->GetViewModel( 0, false );
 				if ( vm )
 				{
 					C_ViewmodelAttachmentModel *pEnt = new class C_ViewmodelAttachmentModel;
