@@ -11059,15 +11059,33 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 
 		// Custom death handlers
 		// TODO: Need a system here!  This conditional is getting pretty big.
-		const char *pszCustomDeath = "customdeath:none";
-		if ( info.GetAttacker() && info.GetAttacker()->IsBaseObject() )
+		CBaseEntity *pInflictor = info.GetInflictor();
+		CBaseEntity *pAttacker = info.GetAttacker();
+		CBaseObject *pObject = NULL;
+		if ( pInflictor )
 		{
-			pszCustomDeath = "customdeath:sentrygun";
+			if ( pInflictor->IsBaseObject() )
+			{
+				pObject = dynamic_cast<CBaseObject *>( pInflictor );
+			}
+			else 
+			{
+				CBaseEntity *pInflictorOwner = pInflictor->GetOwnerEntity();
+				if ( pInflictorOwner && pInflictorOwner->IsBaseObject() )
+				{
+					pObject = dynamic_cast<CBaseObject *>( pInflictorOwner );
+				}
+			}
 		}
-		else if ( info.GetInflictor() && info.GetInflictor()->IsBaseObject() )
+		else if( pAttacker && pAttacker->IsBaseObject() )
 		{
-			CBaseObject* pObj = dynamic_cast<CBaseObject*>( info.GetInflictor() );
-			if ( pObj->IsMiniBuilding() )
+			pObject = dynamic_cast<CBaseObject *>( pAttacker );
+		}
+
+		const char *pszCustomDeath = "customdeath:none";
+		if ( pObject )
+		{
+			if ( pObject->IsMiniBuilding() )
 			{
 				pszCustomDeath = "customdeath:minisentrygun";
 			}
