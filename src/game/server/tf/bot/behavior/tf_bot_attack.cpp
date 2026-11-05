@@ -39,42 +39,29 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 	bool isUsingCloseRangeWeapon = ( myWeapon && ( myWeapon->IsWeapon( TF_WEAPON_FLAMETHROWER ) || myWeapon->IsMeleeWeapon() ) );
 
 	const CKnownEntity *threat = me->GetVisionInterface()->GetPrimaryKnownThreat();
-	bool validThreat = threat != NULL && !threat->IsObsolete()
+	bool validThreat = threat != NULL && !threat->IsObsolete();
 
-	// always try to find new threats if we have MISSION_ATTACK, even if we can't attack
-	if ( !validThreat && me->HasMission( CTFBot::MISSION_ATTACK ) )
+	if ( !validThreat || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
 	{
-		threat = me->SelectRandomReachableEnemy();
-
-		if ( threat == NULL )
+		// Always try to find new threats if we have MISSION_ATTACK
+		if ( !me->HasMission( CTFBot::MISSION_ATTACK ) )
 		{
-			// no reachable enemy, attack a sentry
-			CUtlVector< CBaseObject* > sentries;
-			for ( int i=0; i<IBaseObjectAutoList::AutoList().Count(); ++i )
-			{
-				CBaseObject *obj = static_cast< CBaseObject* >( IBaseObjectAutoList::AutoList()[i] );
-				if ( obj->ObjectType() == OBJ_SENTRYGUN && obj->GetTeamNumber() != me->GetTeamNumber() && !obj->IsPlacing() && !obj->IsCarried() )
-				{
-					sentries.AddToTail( obj );
-				}
-			}
-			if ( sentries.Size() > 0 )
-			{
-				threat = sentries[RandomInt( 0, sentries.Size() - 1 )];
-			}
+			return Done( "No threat" );
 		}
-
-		if ( threat != NULL )
+		else if ( !validThreat )
 		{
-			// cheat and "see" our victim so we know where to go
-			me->GetVisionInterface()->AddKnownEntity( threat );
-		}
+			CBaseEntity *newThreat = me->SelectRandomReachableEnemy();
 
-		return Continue();
-	}
-	else if ( !validThreat || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
-	{
-		return Done( "No threat" );
+			// No reachable enemy, attack a sentry
+			if ( !newThreat )
+			{
+				newThreat = me->SelectRandomEnemyBuilding( OBJ_SENTRYGUN );
+			}
+
+			me->GetVisionInterface()->AddKnownEntity( newThreat );
+
+			return Continue();
+		}
 	}
 
 	me->EquipBestWeaponForThreat( threat );
@@ -92,10 +79,9 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 		}
 	}
 
-
 	// pursue the threat. if not visible, go to the last known position
-	if ( !threat->IsVisibleRecently() || 
-		 me->IsRangeGreaterThan( threat->GetEntity()->GetAbsOrigin(), me->GetDesiredAttackRange() ) || 
+	if ( !threat->IsVisibleRecently() ||
+		 me->IsRangeGreaterThan( threat->GetEntity()->GetAbsOrigin(), me->GetDesiredAttackRange() ) ||
 		 !me->IsLineOfFireClear( threat->GetEntity()->EyePosition() ) )
 	{
 		if ( threat->IsVisibleRecently() )
@@ -119,35 +105,19 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 			if ( me->IsRangeLessThan( threat->GetLastKnownPosition(), 20.0f ) )
 			{
 				me->GetVisionInterface()->ForgetEntity( threat->GetEntity() );
-				
-				// nothing to attack, move towards a random player
+
+				// Always find a new threat if we have MISSION_ATTACK
 				if ( me->HasMission( CTFBot::MISSION_ATTACK ) )
 				{
-					threat = me->SelectRandomReachableEnemy();
-			
-					if ( threat == NULL )
+					CBaseEntity *newThreat = me->SelectRandomReachableEnemy();
+
+					// No reachable enemy, attack a sentry
+					if ( !newThreat )
 					{
-						// no reachable enemy, attack a sentry
-						CUtlVector< CBaseObject* > sentries;
-						for ( int i=0; i<IBaseObjectAutoList::AutoList().Count(); ++i )
-						{
-							CBaseObject *obj = static_cast< CBaseObject* >( IBaseObjectAutoList::AutoList()[i] );
-							if ( obj->ObjectType() == OBJ_SENTRYGUN && obj->GetTeamNumber() != me->GetTeamNumber() && !obj->IsPlacing() && !obj->IsCarried() )
-							{
-								sentries.AddToTail( obj );
-							}
-						}
-						if ( sentries.Size() > 0 )
-						{
-							threat = sentries[RandomInt( 0, sentries.Size() - 1 )];
-						}
+						newThreat = me->SelectRandomEnemyBuilding( OBJ_SENTRYGUN );
 					}
 
-					if ( threat != NULL )
-					{
-						// cheat and "see" our victim so we know where to go
-						me->GetVisionInterface()->AddKnownEntity( threat );
-					}
+					me->GetVisionInterface()->AddKnownEntity( newThreat );
 
 					return Continue();
 				}

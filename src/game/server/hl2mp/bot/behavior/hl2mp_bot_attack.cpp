@@ -36,24 +36,20 @@ ActionResult< CHL2MPBot >	CHL2MPBotAttack::Update( CHL2MPBot *me, float interval
 	const CKnownEntity *threat = me->GetVisionInterface()->GetPrimaryKnownThreat();
 	me->EquipBestWeaponForThreat( threat );
 
-	bool validThreat = threat != NULL && !threat->IsObsolete()
+	bool validThreat = threat != NULL && !threat->IsObsolete();
 
-	// always try to find new threats if we have MISSION_ATTACK, even if we can't attack
-	if ( !validThreat && me->HasMission( CHL2MPBot::MISSION_ATTACK ) )
+	if ( !validThreat || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
 	{
-		threat = me->SelectRandomReachableEnemy();
-
-		if ( threat != NULL )
+		// Always try to find new threats if we have MISSION_ATTACK
+		if ( !me->HasMission( CHL2MPBot::MISSION_ATTACK ) )
 		{
-			// cheat and "see" our victim so we know where to go
-			me->GetVisionInterface()->AddKnownEntity( threat );
+			return Done( "No threat" );
 		}
-
-		return Continue();
-	}
-	else if ( !validThreat || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
-	{
-		return Done( "No threat" );
+		else if ( !validThreat )
+		{
+			me->GetVisionInterface()->AddKnownEntity( me->SelectRandomReachableEnemy() );
+			return Continue();
+		}
 	}
 
 	if ( me->IsPropFreak() && me->Physcannon_GetHeldProp() == NULL )
@@ -112,17 +108,10 @@ ActionResult< CHL2MPBot >	CHL2MPBotAttack::Update( CHL2MPBot *me, float interval
 			{
 				me->GetVisionInterface()->ForgetEntity( threat->GetEntity() );
 
-				// nothing to attack, move towards a random player
+				// Always find a new threat if we have MISSION_ATTACK
 				if ( me->HasMission( CHL2MPBot::MISSION_ATTACK ) )
 				{
-					threat = me->SelectRandomReachableEnemy();
-			
-					if ( threat != NULL )
-					{
-						// cheat and "see" our victim so we know where to go
-						me->GetVisionInterface()->AddKnownEntity( threat );
-					}
-
+					me->GetVisionInterface()->AddKnownEntity( me->SelectRandomReachableEnemy() );
 					return Continue();
 				}
 

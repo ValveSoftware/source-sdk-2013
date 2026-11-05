@@ -304,6 +304,7 @@ public:
 	Action< CHL2MPBot > *OpportunisticallyUseWeaponAbilities( void );
 
 	CHL2MP_Player *SelectRandomReachableEnemy( void );	// mostly for MvM - pick a random enemy player that is not in their spawn room
+	HSCRIPT ScriptSelectRandomReachableEnemy( void ) { return ToHScript( this->SelectRandomReachableEnemy() ); }
 
 	float GetDesiredPathLookAheadRange( void ) const;	// different sized bots used different lookahead distances
 

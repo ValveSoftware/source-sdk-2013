@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+	//========= Copyright Valve Corporation, All rights reserved. ============//
 // tf_bot.h
 // Team Fortress NextBot
 // Michael Booth, February 2009
@@ -380,6 +380,7 @@ public:
 	float GetMaxVisionRangeOverride( void ) const;
 
 	void DisguiseAsMemberOfEnemyTeam( void );		// set Spy disguise to be a class that someone on the enemy team is actually using
+
 	CBaseObject *GetNearestKnownSappableTarget( void );
 	HSCRIPT ScriptGetNearestKnownSappableTarget( void ) { return ToHScript( this->GetNearestKnownSappableTarget() ); }
 
@@ -392,6 +393,9 @@ public:
 	Action< CTFBot > *OpportunisticallyUseWeaponAbilities( void );
 
 	CTFPlayer *SelectRandomReachableEnemy( void );	// mostly for MvM - pick a random enemy player that is not in their spawn room
+	CBaseObject *SelectRandomEnemyBuilding( ObjectType_t objectType, bool bAllowPlacing = false, bool bAllowCarried = false );	// pick a random enemy building of the given type
+	HSCRIPT ScriptSelectRandomReachableEnemy( void ) { return ToHScript( this->SelectRandomReachableEnemy() ); }
+	HSCRIPT ScriptSelectRandomEnemyBuilding( int objectType, bool bAllowPlacing = false, bool bAllowCarried = false ) { return ToHScript( this->SelectRandomEnemyBuilding( (ObjectType_t)objectType, bAllowPlacing, bAllowCarried ) ); }
 
 	float GetDesiredPathLookAheadRange( void ) const;	// different sized bots used different lookahead distances
 
