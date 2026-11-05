@@ -22,8 +22,11 @@ extern ConVar tf_populator_debug;
 extern ConVar tf_populator_active_buffer_range;
 
 ConVar tf_mvm_engineer_teleporter_uber_duration( "tf_mvm_engineer_teleporter_uber_duration", "5.f", FCVAR_CHEAT );
-ConVar tf_mvm_currency_bonus_ratio_min( "tf_mvm_currency_bonus_ratio_min", "0.95f", FCVAR_HIDDEN, "The minimum percentage of wave money players must collect in order to qualify for min bonus - 0.1 to 1.0.  Half the bonus amount will be awarded when reaching min ratio, and half when reaching max.", true, 0.1, true, 1.0 );
-ConVar tf_mvm_currency_bonus_ratio_max( "tf_mvm_currency_bonus_ratio_max", "1.f", FCVAR_HIDDEN, "The highest percentage of wave money players must collect in order to qualify for max bonus - 0.1 to 1.0.  Half the bonus amount will be awarded when reaching min ratio, and half when reaching max.", true, 0.1, true, 1.0 );
+ConVar tf_mvm_currency_bonus_ratio_min( "tf_mvm_currency_bonus_ratio_min", "0.95f", FCVAR_CHEAT, "The minimum percentage of wave money players must collect in order to qualify for min bonus - 0.1 to 1.0.  Partial bonus will be awarded when reaching min ratio, and full when reaching max.", true, 0.1, true, 1.0 );
+ConVar tf_mvm_currency_bonus_ratio_max( "tf_mvm_currency_bonus_ratio_max", "1.f", FCVAR_CHEAT, "The highest percentage of wave money players must collect in order to qualify for max bonus - 0.1 to 1.0.  Partial bonus will be awarded when reaching min ratio, and full when reaching max.", true, 0.1, true, 1.0 );
+
+ConVar tf_mvm_currency_bonus_full( "tf_mvm_currency_bonus_full", "50", FCVAR_CHEAT, "The amount of money players will get for max bonus. This will be in addition to the min bonus.", false, -30000, false, 30000 );
+ConVar tf_mvm_currency_bonus_partial( "tf_mvm_currency_bonus_partial", "50", FCVAR_CHEAT, "The amount of money players will get for min bonus.", false, -30000, false, 30000 );
 
 //-----------------------------------------------------------------------
 static void FireEvent( EventInfo *eventInfo, const char *eventName )
@@ -2343,7 +2346,7 @@ void CWave::WaveIntermissionUpdate ( void )
 			// Max bonus
 			if ( m_bCheckBonusCreditsMax && nDropped > 0 && flRatioCollected >= flMaxBonus )
 			{
-				int nAmount = (float)TFGameRules()->CalculateCurrencyAmount_ByType( TF_CURRENCY_WAVE_COLLECTION_BONUS ) * 0.5f;
+				int nAmount = (float)TFGameRules()->CalculateCurrencyAmount_ByType( TF_CURRENCY_WAVE_COLLECTION_BONUS_FULL );
 				TFGameRules()->DistributeCurrencyAmount( nAmount, NULL, true, false, true );
 
 				TFGameRules()->BroadcastSound( 255, "Announcer.MVM_Bonus" );
@@ -2359,7 +2362,7 @@ void CWave::WaveIntermissionUpdate ( void )
 			// Min bonus
 			if ( m_bCheckBonusCreditsMin && nDropped > 0 && flRatioCollected >= flMinBonus )
 			{
-				int nAmount = (float)TFGameRules()->CalculateCurrencyAmount_ByType( TF_CURRENCY_WAVE_COLLECTION_BONUS ) * 0.5f;
+				int nAmount = (float)TFGameRules()->CalculateCurrencyAmount_ByType( TF_CURRENCY_WAVE_COLLECTION_BONUS_PARTIAL );
 				TFGameRules()->DistributeCurrencyAmount( nAmount, NULL, true, false, true );
 
 				TFGameRules()->BroadcastSound( 255, "Announcer.MVM_Bonus" );
