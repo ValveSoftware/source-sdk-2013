@@ -33,6 +33,7 @@ public:
 private:
 	PathFollower m_path;
 	CHandle< CBaseEntity > m_prop;
+	CountdownTimer m_propAbandonTimer;
 
 	bool m_pushedPhyscannon = false;
 };
