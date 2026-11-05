@@ -1039,6 +1039,108 @@ void CViewRender::SetUpOverView()
 }
 
 //-----------------------------------------------------------------------------
+// Poster screenshots
+//
+// renders the scene as NxN offcenter tiles at screen resolution
+// and stitches them into one coherent image
+//-----------------------------------------------------------------------------
+static int s_nPosterScale = 0;
+
+CON_COMMAND( poster, "Take a screenshot at N times the screen resolution: poster <scale>" )
+{
+	int nScale = args.ArgC() >= 2 ? atoi( args[1] ) : 2;
+	if ( nScale < 1 || nScale > 16 )
+	{
+		Msg( "Usage: poster <scale 1-16>\n" );
+		return;
+	}
+
+	s_nPosterScale = nScale;
+}
+
+static unsigned char *RenderPosterImage( const CViewSetup &viewEye, int nRenderFlags, int nScale )
+{
+	int nTileWidth = viewEye.width;
+	int nTileHeight = viewEye.height;
+	int nWidth = nTileWidth * nScale;
+	int nHeight = nTileHeight * nScale;
+
+	unsigned char* pImage = new unsigned char[ (size_t)nWidth * nHeight * 3 ];
+	unsigned char* pTile = new unsigned char[ (size_t)nTileWidth * nTileHeight * 3 ];
+	if ( !pImage || !pTile )
+	{
+		Warning( "poster: failed to allocate %dx%d image\n", nWidth, nHeight );
+		delete[] pImage;
+		delete[] pTile;
+		return NULL;
+	}
+
+	CMatRenderContextPtr pRenderContext( materials );
+
+	for ( int nRow = 0; nRow < nScale; nRow++ )
+	{
+		for ( int nCol = 0; nCol < nScale; nCol++ )
+		{
+			CViewSetup tileView = viewEye;
+			tileView.m_bOffCenter = true;
+			tileView.m_flOffCenterLeft = (float)nCol / nScale;
+			tileView.m_flOffCenterRight = (float)( nCol + 1 ) / nScale;
+			tileView.m_flOffCenterTop = 1.0f - (float)nRow / nScale;
+			tileView.m_flOffCenterBottom = 1.0f - (float)( nRow + 1 ) / nScale;
+
+			view->RenderView( tileView, VIEW_CLEAR_COLOR | VIEW_CLEAR_DEPTH | VIEW_CLEAR_STENCIL, nRenderFlags );
+
+			pRenderContext->ReadPixels( tileView.x, tileView.y, nTileWidth, nTileHeight, pTile, IMAGE_FORMAT_RGB888 );
+
+			for ( int y = 0; y < nTileHeight; y++ )
+			{
+				unsigned char *pDst = pImage + 3 * ( (size_t)( nRow * nTileHeight + y ) * nWidth + nCol * nTileWidth );
+				memcpy( pDst, pTile + 3 * (size_t)y * nTileWidth, 3 * nTileWidth );
+			}
+		}
+	}
+
+	delete[] pTile;
+
+	return pImage;
+}
+
+static void WritePosterScreenshot( const CViewSetup &viewEye, int nRenderFlags, int nScale )
+{
+	unsigned char *pImage = RenderPosterImage( viewEye, nRenderFlags, nScale );
+	if ( !pImage )
+		return;
+
+	int nWidth = viewEye.width * nScale;
+	int nHeight = viewEye.height * nScale;
+
+	char szMapName[MAX_PATH];
+	V_FileBase( engine->GetLevelName(), szMapName, sizeof( szMapName ) );
+
+	filesystem->CreateDirHierarchy( "screenshots", "MOD" );
+
+	char szFileName[MAX_PATH];
+	for ( int i = 0; i < 10000; i++ )
+	{
+		V_snprintf( szFileName, sizeof( szFileName ), "screenshots/%s_poster%04d.tga", szMapName, i );
+		if ( !filesystem->FileExists( szFileName, "MOD" ) )
+			break;
+	}
+
+	CUtlBuffer buffer;
+	bool bWritten = TGAWriter::WriteToBuffer( pImage, buffer, nWidth, nHeight, IMAGE_FORMAT_RGB888, IMAGE_FORMAT_RGB888 );
+	if ( bWritten )
+		bWritten = filesystem->WriteFile( szFileName, "MOD", buffer );
+
+	if ( bWritten )
+		Msg( "Wrote poster %s (%dx%d)\n", szFileName, nWidth, nHeight );
+	else
+		Warning( "poster: failed to write %s\n", szFileName );
+
+	delete[] pImage;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Render current view into specified rectangle
 // Input  : *rect - is computed by CVideoMode_Common::GetClientViewRect()
 //-----------------------------------------------------------------------------
@@ -1202,6 +1304,15 @@ void CViewRender::Render( vrect_t *rect )
 		}
 
 	    RenderView( viewEye, nClearFlags, flags );
+
+		if ( s_nPosterScale > 0 && eEye == STEREO_EYE_MONO )
+		{
+			WritePosterScreenshot( viewEye, flags & ~RENDERVIEW_DRAWHUD, s_nPosterScale );
+			s_nPosterScale = 0;
+
+			// restore frame
+			RenderView( viewEye, nClearFlags | VIEW_CLEAR_COLOR, flags );
+		}
 
 		if ( UseVR() )
 		{
