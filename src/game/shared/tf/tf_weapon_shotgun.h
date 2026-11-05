@@ -113,7 +113,7 @@ public:
 	virtual void	FireBullet( CTFPlayer *pPlayer );
 	virtual void	ApplyPostHitEffects( const CTakeDamageInfo &inputInfo, CTFPlayer *pPlayer );
 	virtual void	FinishReload( void );
-	virtual bool	HasKnockback( void );
+	virtual int		GetKnockbackCount( void );
 
 #ifdef GAME_DLL
 	virtual void	Equip( CBaseCombatCharacter *pOwner );
