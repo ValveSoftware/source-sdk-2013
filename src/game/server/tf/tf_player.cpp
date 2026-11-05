@@ -707,6 +707,7 @@ BEGIN_ENT_SCRIPTDESC( CTFPlayer, CBaseMultiplayerPlayer , "Team Fortress 2 Playe
 
 	DEFINE_SCRIPTFUNC( GrantOrRemoveAllUpgrades, "Grants or removes all upgrades the player has purchased." )
 
+	DEFINE_SCRIPTFUNC_NAMED( ScriptReapplyPlayerUpgrades, "ReapplyPlayerUpgrades", "Reapply player-type upgrades from upgrade history" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetCustomAttribute, "GetCustomAttribute", "Get a custom attribute float from the player" )
 
 	DEFINE_SCRIPTFUNC_WRAPPED( StunPlayer, "" )
@@ -22371,6 +22372,23 @@ void CTFPlayer::EndPurchasableUpgrades( void )
 	{
 		g_pPopulationManager->SendUpgradesToPlayer( this );
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::ScriptReapplyPlayerUpgrades()
+{
+    if ( IsBot() ||
+         !TFGameRules() ||
+         !TFGameRules()->GameModeUsesUpgrades() ||
+         !g_hUpgradeEntity ||
+         !GetPlayerUpgradeHistory() )
+    {
+        return;
+    }
+
+    ReapplyPlayerUpgrades();
 }
 
 //-----------------------------------------------------------------------------
