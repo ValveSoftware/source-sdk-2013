@@ -22,6 +22,16 @@
 #include <KeyValues.h>
 #include <vgui_controls/AnimationController.h>
 
+#if defined( HL2MP )
+#include "ienginevgui.h"
+#include <vgui/IVGui.h>
+#include <vgui_controls/Button.h>
+#include <vgui_controls/Frame.h>
+#include <vgui_controls/PanelListPanel.h>
+#include <vgui_controls/ScrollBar.h>
+#include <vgui_controls/TextImage.h>
+#endif
+
 #define MAX_MENU_STRING	512
 wchar_t g_szMenuString[MAX_MENU_STRING];
 char g_szPrelocalisedMenuString[MAX_MENU_STRING];
@@ -37,6 +47,205 @@ char g_szPrelocalisedMenuString[MAX_MENU_STRING];
 
 DECLARE_HUDELEMENT( CHudMenu );
 DECLARE_HUD_MESSAGE( CHudMenu, ShowMenu );
+
+#if defined( HL2MP )
+ConVar cl_radio_menus( "cl_radio_menus", "1", FCVAR_ARCHIVE, "Display server menus on the HUD (1) or in a dialog when ESC is pressed (0).", true, 0, true, 1 );
+ConVar cl_menu_dialog_x( "cl_menu_dialog_x", "-1", FCVAR_ARCHIVE, "Saved ESC menu horizontal position as a fraction of screen width (-1 centers it).", true, -1, true, 1 );
+ConVar cl_menu_dialog_y( "cl_menu_dialog_y", "-1", FCVAR_ARCHIVE, "Saved ESC menu vertical position as a fraction of screen height (-1 centers it).", true, -1, true, 1 );
+
+class CHudMenuDialog : public vgui::Frame
+{
+	DECLARE_CLASS_SIMPLE( CHudMenuDialog, vgui::Frame );
+public:
+	CHudMenuDialog( CHudMenu *pMenu ) : BaseClass( NULL, "HudMenuDialog" ),
+		m_nMenuSerial( ~0u ),
+		m_nLastX( 0 ), m_nLastY( 0 ), m_bPositionInitialized( false )
+	{
+		m_hMenu = pMenu;
+		SetParent( enginevgui->GetPanel( PANEL_GAMEUIDLL ) );
+		SetAutoDelete( false );
+		SetProportional( false );
+		SetTitle( "Menu", true );
+		SetSizeable( false );
+		SetClipToParent( true );
+		SetFadeEffectDisableOverride( true );
+		SetMinimizeButtonVisible( false );
+		SetMaximizeButtonVisible( false );
+		SetMenuButtonVisible( false );
+		SetCloseButtonVisible( false );
+		m_pItems = new vgui::PanelListPanel( this, "MenuItems" );
+		m_pItems->SetFirstColumnWidth( 0 );
+		KeyValues *pSettings = new KeyValues( "MenuItems" );
+		pSettings->SetInt( "autohide_scrollbar", 1 );
+		m_pItems->ApplySettings( pSettings );
+		pSettings->deleteThis();
+		MakePopup();
+		SetVisible( false );
+	}
+
+	virtual ~CHudMenuDialog()
+	{
+		SavePosition();
+	}
+
+	void UpdateMenu()
+	{
+		CHudMenu *pMenu = m_hMenu.Get();
+		if ( !pMenu || m_nMenuSerial == pMenu->m_nMenuSerial )
+			return;
+
+		m_nMenuSerial = pMenu->m_nMenuSerial;
+		m_pItems->DeleteAllItems();
+		SetTitle( "Menu", true );
+		for ( int i = 0; i < pMenu->m_Processed.Count(); ++i )
+		{
+			const CHudMenu::ProcessedLine &line = pMenu->m_Processed[i];
+			wchar_t text[MAX_MENU_STRING];
+			V_wcsncpy( text, &g_szMenuString[line.startchar], ( line.length + 1 ) * sizeof( wchar_t ) );
+			int slot = line.menuitem;
+			if ( !slot && line.length >= 2 && text[0] >= L'0' && text[0] <= L'9' && text[1] == L'.' )
+				slot = text[0] == L'0' ? 10 : text[0] - L'0';
+
+			if ( i == 0 && !slot && line.length <= 64 )
+			{
+				if ( text[line.length - 1] == L':' )
+					text[line.length - 1] = 0;
+				SetTitle( text, true );
+				continue;
+			}
+
+			vgui::Label *pItem;
+			if ( slot >= 1 && slot <= 10 )
+			{
+				vgui::Button *pButton = new vgui::Button( m_pItems, "MenuItem", text );
+				pButton->SetCommand( new KeyValues( "MenuItemSelected", "slot", slot, "serial", (int)m_nMenuSerial ) );
+				pButton->AddActionSignalTarget( this );
+				pButton->SetEnabled( ( pMenu->m_bitsValidSlots & ( 1 << ( slot - 1 ) ) ) != 0 );
+				pButton->SetTabPosition( i + 1 );
+				pItem = pButton;
+			}
+			else
+			{
+				pItem = new vgui::Label( m_pItems, "MenuText", text );
+			}
+			pItem->SetContentAlignment( vgui::Label::a_west );
+			pItem->SetWrap( true );
+			m_pItems->AddItem( NULL, pItem );
+		}
+		m_pItems->MoveScrollBarToTop();
+		InvalidateLayout( true );
+	}
+
+	void SavePosition()
+	{
+		if ( !m_bPositionInitialized )
+			return;
+		int x, y;
+		GetPos( x, y );
+		if ( x == m_nLastX && y == m_nLastY )
+			return;
+
+		int screenWide, screenTall;
+		vgui::surface()->GetScreenSize( screenWide, screenTall );
+		if ( screenWide > 0 && screenTall > 0 )
+		{
+			m_nLastX = x;
+			m_nLastY = y;
+			cl_menu_dialog_x.SetValue( (float)x / screenWide );
+			cl_menu_dialog_y.SetValue( (float)y / screenTall );
+		}
+	}
+
+private:
+	MESSAGE_FUNC_INT_INT( OnMenuItemSelected, "MenuItemSelected", slot, serial )
+	{
+		CHudMenu *pMenu = m_hMenu.Get();
+		if ( pMenu && IsVisible() && (unsigned int)serial == pMenu->m_nMenuSerial &&
+			!pMenu->UseRadioMenus() && engine->IsInGame() && enginevgui->IsGameUIVisible() )
+		{
+			pMenu->SelectMenuItem( slot );
+			if ( !pMenu->IsMenuOpen() )
+				SetVisible( false );
+		}
+	}
+
+	virtual void PerformLayout()
+	{
+		SavePosition();
+		int screenWide, screenTall;
+		vgui::surface()->GetScreenSize( screenWide, screenTall );
+		if ( screenWide <= 0 || screenTall <= 0 )
+			return;
+
+		vgui::IScheme *pScheme = vgui::scheme()->GetIScheme( GetScheme() );
+		vgui::HFont font = pScheme->GetFont( "Default", IsProportional() );
+		int fontTall = vgui::surface()->GetFontTall( font );
+		int padding = 8;
+		int gap = 4;
+		SetSize( MIN( screenWide - 2 * padding, 360 ), MIN( screenTall - 2 * padding, 480 ) );
+		int x, y, wide, tall;
+		GetClientArea( x, y, wide, tall );
+		int frameTall = GetTall() - tall;
+
+		m_pItems->InvalidateLayout( true, true );
+		m_pItems->SetVerticalBufferPixels( gap );
+		m_pItems->SetPaintBackgroundEnabled( false );
+		m_pItems->SetPaintBorderEnabled( false );
+		int itemWide = MAX( 1, wide - m_pItems->GetScrollbar()->GetWide() - gap - 12 );
+		for ( int i = 0; i < m_pItems->GetItemCount(); ++i )
+		{
+			vgui::Label *pItem = static_cast<vgui::Label *>( m_pItems->GetItemPanel( m_pItems->GetItemIDFromRow( i ) ) );
+			pItem->SetSize( itemWide, 1 );
+			pItem->SetTextInset( padding, 0 );
+			pItem->InvalidateLayout( true, true );
+			pItem->SetFont( font );
+			pItem->GetTextImage()->SetDrawWidth( MAX( 1, itemWide - 2 * padding ) );
+			int textWide, textTall;
+			pItem->GetTextImage()->GetContentSize( textWide, textTall );
+			pItem->SetTall( MAX( textTall, fontTall ) + padding );
+		}
+		int listTall = MIN( m_pItems->ComputeVPixelsNeeded(), MAX( 1, tall ) );
+		SetTall( frameTall + listTall );
+		BaseClass::PerformLayout();
+		m_pItems->SetBounds( x, y, wide, listTall );
+		m_pItems->InvalidateLayout( true );
+		RestorePosition();
+	}
+
+	void RestorePosition()
+	{
+		int screenWide, screenTall;
+		vgui::surface()->GetScreenSize( screenWide, screenTall );
+		if ( screenWide <= 0 || screenTall <= 0 )
+			return;
+
+		int x = cl_menu_dialog_x.GetFloat() < 0 ? ( screenWide - GetWide() ) / 2 : RoundFloatToInt( cl_menu_dialog_x.GetFloat() * screenWide );
+		int y = cl_menu_dialog_y.GetFloat() < 0 ? ( screenTall - GetTall() ) / 2 : RoundFloatToInt( cl_menu_dialog_y.GetFloat() * screenTall );
+		m_nLastX = clamp( x, 0, MAX( 0, screenWide - GetWide() ) );
+		m_nLastY = clamp( y, 0, MAX( 0, screenTall - GetTall() ) );
+		m_bPositionInitialized = true;
+		SetPos( m_nLastX, m_nLastY );
+		if ( cl_menu_dialog_x.GetFloat() < 0 )
+			cl_menu_dialog_x.SetValue( (float)m_nLastX / screenWide );
+		if ( cl_menu_dialog_y.GetFloat() < 0 )
+			cl_menu_dialog_y.SetValue( (float)m_nLastY / screenTall );
+	}
+
+	virtual void OnScreenSizeChanged( int oldwide, int oldtall )
+	{
+		m_bPositionInitialized = false;
+		BaseClass::OnScreenSizeChanged( oldwide, oldtall );
+		InvalidateLayout( true );
+	}
+
+	vgui::DHANDLE< CHudMenu > m_hMenu;
+	vgui::PanelListPanel *m_pItems;
+	unsigned int m_nMenuSerial;
+	int m_nLastX;
+	int m_nLastY;
+	bool m_bPositionInitialized;
+};
+#endif
 
 //
 //-----------------------------------------------------
@@ -56,13 +265,25 @@ static char* ConvertCRtoNL( char *str )
 //-----------------------------------------------------------------------------
 CHudMenu::CHudMenu( const char *pElementName ) :
 	CHudElement( pElementName ), BaseClass(NULL, "HudMenu")
+#if defined( HL2MP )
+	, m_nMenuSerial( 0 )
+#endif
 {
-	m_nSelectedItem = -1;
+	Reset();
 
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
 	
 	SetHiddenBits( HIDEHUD_MISCSTATUS );
+}
+
+CHudMenu::~CHudMenu()
+{
+#if defined( HL2MP )
+	vgui::ivgui()->RemoveTickSignal( GetVPanel() );
+	if ( m_hMenuDialog.Get() )
+		m_hMenuDialog->MarkForDeletion();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -72,12 +293,9 @@ void CHudMenu::Init( void )
 {
 	HOOK_HUD_MESSAGE( CHudMenu, ShowMenu );
 
-	m_bMenuTakesInput = false;
-	m_bMenuDisplayed = false;
-	m_bitsValidSlots = 0;
-	m_Processed.RemoveAll();
-	m_nMaxPixels = 0;
-	m_nHeight = 0;
+#if defined( HL2MP )
+	vgui::ivgui()->AddTickSignal( GetVPanel(), 50 );
+#endif
 	Reset();
 }
 
@@ -86,6 +304,21 @@ void CHudMenu::Init( void )
 //-----------------------------------------------------------------------------
 void CHudMenu::Reset( void )
 {
+#if defined( HL2MP )
+	++m_nMenuSerial;
+	m_bNetworkMenu = false;
+	if ( m_hMenuDialog.Get() )
+		m_hMenuDialog->SetVisible( false );
+#endif
+	m_bMenuTakesInput = false;
+	m_bMenuDisplayed = false;
+	m_bitsValidSlots = 0;
+	m_flShutoffTime = -1;
+	m_nSelectedItem = -1;
+	m_Processed.RemoveAll();
+	m_nMaxPixels = 0;
+	m_nHeight = 0;
+	g_szMenuString[0] = 0;
 	g_szPrelocalisedMenuString[0] = 0;
 	m_fWaitingForMore = false;
 }
@@ -96,14 +329,52 @@ void CHudMenu::Reset( void )
 //-----------------------------------------------------------------------------
 bool CHudMenu::IsMenuOpen( void )
 {
-	return m_bMenuDisplayed && m_bMenuTakesInput;
+	return m_bMenuDisplayed && m_bMenuTakesInput &&
+		( m_flShutoffTime < 0 || m_flShutoffTime > gpGlobals->realtime );
 }
+
+bool CHudMenu::UseRadioMenus( void )
+{
+#if defined( HL2MP )
+	return !m_bNetworkMenu || cl_radio_menus.GetBool();
+#else
+	return true;
+#endif
+}
+
+bool CHudMenu::IsTakingInput( void )
+{
+	return UseRadioMenus() && IsMenuOpen();
+}
+
+#if defined( HL2MP )
+void CHudMenu::OnTick()
+{
+	if ( m_hMenuDialog.Get() )
+		m_hMenuDialog->SavePosition();
+
+	bool visible = !UseRadioMenus() && IsMenuOpen() && engine->IsInGame() && enginevgui->IsGameUIVisible();
+	if ( !visible )
+	{
+		if ( m_hMenuDialog.Get() )
+			m_hMenuDialog->SetVisible( false );
+		return;
+	}
+
+	if ( !m_hMenuDialog.Get() )
+		m_hMenuDialog = new CHudMenuDialog( this );
+	m_hMenuDialog->UpdateMenu();
+	if ( !m_hMenuDialog->IsVisible() )
+		m_hMenuDialog->Activate();
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CHudMenu::VidInit( void )
 {
+	Reset();
 }
 
 //-----------------------------------------------------------------------------
@@ -111,12 +382,10 @@ void CHudMenu::VidInit( void )
 //-----------------------------------------------------------------------------
 void CHudMenu::OnThink()
 {
-	float flSelectionTimeout = MENU_SELECTION_TIMEOUT;
-
-	// If we've been open for a while without input, hide
-	if ( m_bMenuDisplayed && ( gpGlobals->curtime - m_flSelectionTime > flSelectionTimeout ) )
+	if ( m_bMenuDisplayed && m_flShutoffTime >= 0 && m_flShutoffTime <= gpGlobals->realtime )
 	{
 		m_bMenuDisplayed = false;
+		m_bMenuTakesInput = false;
 	}
 }
 
@@ -125,15 +394,21 @@ void CHudMenu::OnThink()
 //-----------------------------------------------------------------------------
 bool CHudMenu::ShouldDraw( void )
 {
+#if defined( HL2MP )
+	if ( !UseRadioMenus() )
+		return CHudElement::ShouldDraw() && IsMenuOpen() && engine->IsInGame() && !enginevgui->IsGameUIVisible();
+#endif
+
 	bool draw = CHudElement::ShouldDraw() && m_bMenuDisplayed;
 	if ( !draw )
 		return false;
 
 	// check for if menu is set to disappear
-	if ( m_flShutoffTime > 0 && m_flShutoffTime <= gpGlobals->realtime )
+	if ( m_flShutoffTime >= 0 && m_flShutoffTime <= gpGlobals->realtime )
 	{  
 		// times up, shutoff
 		m_bMenuDisplayed = false;
+		m_bMenuTakesInput = false;
 		return false;
 	}
 
@@ -165,6 +440,24 @@ void CHudMenu::PaintString( const wchar_t *text, int textlen, vgui::HFont& font,
 //-----------------------------------------------------------------------------
 void CHudMenu::Paint()
 {
+#if defined( HL2MP )
+	if ( !UseRadioMenus() )
+	{
+		if ( !ShouldDraw() )
+			return;
+
+		const wchar_t *text = L"Press ESC to open menu";
+		int wide, tall;
+		vgui::surface()->GetTextSize( m_hTextFont, text, wide, tall );
+		int inset = YRES( 8 );
+		int padding = YRES( 4 );
+		DrawBox( inset, inset, wide + 2 * padding, tall + 2 * padding, m_BoxColor, 1.0f );
+		vgui::surface()->DrawSetTextColor( m_MenuColor );
+		PaintString( text, V_wcslen( text ), m_hTextFont, inset + padding, inset + padding );
+		return;
+	}
+#endif
+
 	if ( !m_bMenuDisplayed )
 		return;
 
@@ -247,8 +540,11 @@ void CHudMenu::Paint()
 //-----------------------------------------------------------------------------
 void CHudMenu::SelectMenuItem( int menu_item )
 {
+	if ( menu_item == 0 )
+		menu_item = 10;
+
 	// if menu_item is in a valid slot,  send a menuselect command to the server
-	if ( (menu_item > 0) && (m_bitsValidSlots & (1 << (menu_item-1))) )
+	if ( IsMenuOpen() && menu_item > 0 && menu_item <= 10 && ( m_bitsValidSlots & ( 1 << ( menu_item - 1 ) ) ) )
 	{
 		char szbuf[32];
 		Q_snprintf( szbuf, sizeof( szbuf ), "menuselect %d\n", menu_item );
@@ -267,6 +563,9 @@ void CHudMenu::SelectMenuItem( int menu_item )
 
 void CHudMenu::ProcessText( void )
 {
+#if defined( HL2MP )
+	++m_nMenuSerial;
+#endif
 	m_Processed.RemoveAll();
 	m_nMaxPixels = 0;
 	m_nHeight = 0;
@@ -285,6 +584,8 @@ void CHudMenu::ProcessText( void )
 		{
 			// Special handling for menu item specifiers
 			swscanf( &g_szMenuString[ i + 2 ], L"%d", &menuitem );
+			if ( menuitem == 0 )
+				menuitem = 10;
 			i += 2;
 			startpos += 2;
 
@@ -363,6 +664,7 @@ void CHudMenu::ProcessText( void )
 //-----------------------------------------------------------------------------
 void CHudMenu::HideMenu( void )
 {
+	m_fWaitingForMore = false;
 	m_bMenuTakesInput = false;
 	m_flShutoffTime = gpGlobals->realtime + m_flOpenCloseTime;
 	g_pClientMode->GetViewportAnimationController()->StartAnimationSequence("MenuClose");
@@ -378,7 +680,10 @@ void CHudMenu::HideMenu( void )
 //-----------------------------------------------------------------------------
 void CHudMenu::ShowMenu( const char * menuName, int validSlots )
 {
-	m_flShutoffTime = -1;
+#if defined( HL2MP )
+	m_bNetworkMenu = false;
+#endif
+	m_flShutoffTime = gpGlobals->realtime + MENU_SELECTION_TIMEOUT;
 	m_bitsValidSlots = validSlots;
 	m_fWaitingForMore = 0;
 
@@ -396,8 +701,6 @@ void CHudMenu::ShowMenu( const char * menuName, int validSlots )
 
 	m_bMenuDisplayed = true;
 	m_bMenuTakesInput = true;
-
-	m_flSelectionTime = gpGlobals->curtime;
 }
 
 //-----------------------------------------------------------------------------
@@ -405,7 +708,10 @@ void CHudMenu::ShowMenu( const char * menuName, int validSlots )
 //-----------------------------------------------------------------------------
 void CHudMenu::ShowMenu_KeyValueItems( KeyValues *pKV )
 {
-	m_flShutoffTime = -1;
+#if defined( HL2MP )
+	m_bNetworkMenu = false;
+#endif
+	m_flShutoffTime = gpGlobals->realtime + MENU_SELECTION_TIMEOUT;
 	m_fWaitingForMore = 0;
 	m_bitsValidSlots = 0;
 
@@ -444,8 +750,6 @@ void CHudMenu::ShowMenu_KeyValueItems( KeyValues *pKV )
 
 	m_bMenuDisplayed = true;
 	m_bMenuTakesInput = true;
-
-	m_flSelectionTime = gpGlobals->curtime;
 }
 
 //-----------------------------------------------------------------------------
@@ -459,13 +763,16 @@ void CHudMenu::ShowMenu_KeyValueItems( KeyValues *pKV )
 //-----------------------------------------------------------------------------
 void CHudMenu::MsgFunc_ShowMenu( bf_read &msg)
 {
+#if defined( HL2MP )
+	m_bNetworkMenu = true;
+#endif
 	m_bitsValidSlots = (short)msg.ReadWord();
 	int DisplayTime = msg.ReadChar();
 	int NeedMore = msg.ReadByte();
 
 	if ( DisplayTime > 0 )
 	{
-		m_flShutoffTime = m_flOpenCloseTime + DisplayTime + gpGlobals->realtime;
+		m_flShutoffTime = DisplayTime + gpGlobals->realtime;
 
 	}
 	else
@@ -480,6 +787,8 @@ void CHudMenu::MsgFunc_ShowMenu( bf_read &msg)
 
 		if ( !m_fWaitingForMore ) // this is the start of a new menu
 		{
+			m_bMenuDisplayed = false;
+			m_bMenuTakesInput = false;
 			Q_strncpy( g_szPrelocalisedMenuString, szString, sizeof( g_szPrelocalisedMenuString ) );
 		}
 		else
@@ -498,16 +807,15 @@ void CHudMenu::MsgFunc_ShowMenu( bf_read &msg)
 			g_pVGuiLocalize->ConvertANSIToUnicode( szMenuString, g_szMenuString, sizeof( g_szMenuString ) );
 			
 			ProcessText();
+
+			m_bMenuDisplayed = true;
+			m_bMenuTakesInput = true;
 		}
-
-		m_bMenuDisplayed = true;
-		m_bMenuTakesInput = true;
-
-		m_flSelectionTime = gpGlobals->curtime;
 	}
 	else
 	{
 		HideMenu();
+		return;
 	}
 
 	m_fWaitingForMore = NeedMore;
