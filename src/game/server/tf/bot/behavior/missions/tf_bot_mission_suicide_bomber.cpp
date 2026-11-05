@@ -48,7 +48,7 @@ ActionResult< CTFBot >	CTFBotMissionSuicideBomber::OnStart( CTFBot *me, Action< 
 //---------------------------------------------------------------------------------------------
 ActionResult< CTFBot >	CTFBotMissionSuicideBomber::Update( CTFBot *me, float interval )
 {
-	// one we start detonating, there's no turning back
+	// once we start detonating, there's no turning back
 	if ( m_detonateTimer.HasStarted() )
 	{
 		if ( m_detonateTimer.IsElapsed() )
@@ -111,6 +111,13 @@ ActionResult< CTFBot >	CTFBotMissionSuicideBomber::Update( CTFBot *me, float int
 				m_lastKnownVictimPosition = sentry->GetOwner()->GetAbsOrigin();
 			}
 		}
+	}
+	else
+	{
+		// If there's no victim - detonate
+		StartDetonate( me );
+
+		return Continue();
 	}
 
 	// Get to a third of the damage range before detonating
