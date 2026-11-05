@@ -1115,9 +1115,11 @@ void CEconEntity::UpdateAttachmentModels( void )
 				{
 					for ( int i = 0; i < iAttachedModels; i++ )
 					{
-						attachedmodel_t	*pModel = pItemDef->GetAttachedModelDataFestivized( iTeamNumber, i );
+						attachedmodel_t *pModel = pItemDef->GetAttachedModelDataFestivized( iTeamNumber, i );
+						//check for vision filter of attachment, but NOT if showing the viewmodel since viewmodel won't filter the base weapon model
+						CBasePlayer* pOwner = ToBasePlayer( GetOwnerEntity() );
+						int iModelIndex = modelinfo->GetModelIndex( ( ( !pOwner || pOwner->ShouldDrawThisPlayer() ) && GameRules() ) ? GameRules()->TranslateEffectForVisionFilter( "weapons", pModel->m_pszModelName ) : pModel->m_pszModelName );
 
-						int iModelIndex = modelinfo->GetModelIndex( pModel->m_pszModelName );
 						if ( iModelIndex >= 0 )
 						{
 							AttachedModelData_t attachedModelData;
