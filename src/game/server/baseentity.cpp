@@ -2404,6 +2404,23 @@ BEGIN_ENT_SCRIPTDESC_ROOT( CBaseEntity, "Root class of all server-side entities"
 
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSolid, "GetSolid", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetSolid, "SetSolid", "" )
+
+	DEFINE_SCRIPTFUNC_NAMED( ScriptCreatePhysics, "CreatePhysics", "Create the entity Physics." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptDestroyPhysics, "DestroyPhysics", "Destroy the entity Physics." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptHasPhysics, "HasPhysics", "Do we have Physics?")
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSurfaceProperty, "GetSurfaceProperty", "Get the surface property id of the Physics Object.")
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSurfacePropertyName, "GetSurfacePropertyName", "Get the surface property id by name on the Physics Object.")
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetSurfaceProperty, "SetSurfaceProperty", "Set a surface property id of the Physics Object.")
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetSurfacePropertyByName, "SetSurfacePropertyByName", "Set a surface property id by name on the Physics Object.")
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetMass, "SetMass", "Set the entity's Mass." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetMass, "GetMass", "Get the entity's Mass." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetBuoyancy, "SetBuoyancy", "Set the entity's Bouyancy, 0-1 ratio." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetElasticity, "SetElasticity", "Set the entity's Elasticity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetElasticity,	"GetElasticity", "Get the entity's Elasticity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptToggleCollisionsOn, "ToggleCollisionsOn", "Toggle Collisions between two physical entities." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetPhysicsFlag, "SetPhysicsFlag", "Set a physics flag for the entity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptRemovePhysicsFlag, "RemovePhysicsFlag", "Remove a physics flag for the entity." )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptHasPhysicsFlag, "HasPhysicsFlag", "Check if the entity has a specific physics flag." )
 	
 	DEFINE_SCRIPTFUNC( TerminateScriptScope, "Clear the current script scope for this entity" )
 
