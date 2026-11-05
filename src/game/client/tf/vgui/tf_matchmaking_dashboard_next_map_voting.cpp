@@ -87,7 +87,7 @@ public:
 		}
 	}
 
-	virtual bool ShouldBeActve() const OVERRIDE
+	virtual bool ShouldBeActive() const OVERRIDE
 	{
 
 		if ( engine->IsInGame() &&
@@ -123,6 +123,7 @@ public:
 	virtual void FireGameEvent( IGameEvent *pEvent )
 	{
 		if ( FStrEq( pEvent->GetName(), "player_next_map_vote_change" ) &&
+			 TFGameRules() &&
 			 TFGameRules()->GetCurrentNextMapVotingState() == CTFGameRules::NEXT_MAP_VOTE_STATE_WAITING_FOR_USERS_TO_VOTE )
 		{
 			ShowVoteByOtherPlayer( pEvent->GetInt( "map_index" ) );
@@ -139,8 +140,11 @@ public:
 
 	virtual void OnEnter() OVERRIDE
 	{
+		// Needs to be here so the InvalidateLayout below runs with input enabled
+		SetMouseInputEnabled( true );
+
 		// To get the voting options setup how they're supposed to be
-		InvalidateLayout( true, false);
+		InvalidateLayout( true, false );
 
 		SetHidden( false );
 
@@ -180,6 +184,11 @@ private:
 			EditablePanel* pMapChoice = FindControl< EditablePanel >( CFmtStr( "MapChoice%d", nIndex ), true );
 			if ( pMapChoice )
 			{
+				// VGUI's SetMouseInputEnabled does not propagate to children, so when
+				// CMMDashboardParentManager reparents this panel, sub-panels can end up
+				// with mouse input disabled
+				pMapChoice->SetMouseInputEnabled( true );
+
 				ScalableImagePanel* pMapImage = pMapChoice->FindControl< ScalableImagePanel >( "MapImage", true );
 			
 				// The image
