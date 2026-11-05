@@ -1984,7 +1984,11 @@ int CObjectSentrygun::OnTakeDamage( const CTakeDamageInfo &info )
 		// Take less damage if the owner is causing additional damage.
 		if ( pSapper && ( info.GetAttacker() == pSapper->GetOwner() ) )
 		{
-			float flDamage = newInfo.GetDamage() * SENTRYGUN_SAPPER_OWNER_DAMAGE_MODIFIER;
+			int iPierceResists = 0;
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( info.GetWeapon(), iPierceResists, mod_pierce_resists_absorbs );
+
+			// If we bypass resistances, use unmodified damage.
+			float flDamage = ( iPierceResists == 1 ) ? newInfo.GetDamage() : newInfo.GetDamage() * SENTRYGUN_SAPPER_OWNER_DAMAGE_MODIFIER;
 			newInfo.SetDamage( flDamage );
 		}
 	}
