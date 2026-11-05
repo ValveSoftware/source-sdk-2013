@@ -1075,7 +1075,8 @@ void CTFGameMovement::AirDash( void )
 		CPASFilter filter( m_pTFPlayer->GetAbsOrigin( ) );
 		params.m_flVolume = 0.1f;
 		params.m_SoundLevel = SNDLVL_25dB;
-		params.m_nPitch = RemapVal( iAirDash, 1.0f, 5.0f, 100.f, 120.f );
+		// prevent too many dashes from getting an overflowed pitch
+		params.m_nPitch = RemapValClamped( iAirDash, 1.0f, 32.0f, 100.f, 255.f );
 		params.m_nFlags |= ( SND_CHANGE_PITCH | SND_CHANGE_VOL );
 		m_pTFPlayer->StopSound( "General.banana_slip" );
 		m_pTFPlayer->EmitSound( filter, m_pTFPlayer->entindex( ), params );
