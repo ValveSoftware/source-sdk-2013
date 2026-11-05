@@ -84,9 +84,12 @@ PRECACHE_WEAPON_REGISTER( tf_projectile_cleaver );
 #define TF_JAR_LAUNCH_SPEED		1000.f
 #define TF_CLEAVER_LAUNCH_SPEED		7000.f
 #define TF_WEAPON_PEEJAR_MODEL	"models/weapons/c_models/urinejar.mdl"
+#define TF_WEAPON_PEEJAR_MODEL_FESTIVIZED	"models/weapons/c_models/urinejar_festivizer_projectile.mdl"
 #define TF_WEAPON_FESTIVE_PEEJAR_MODEL	"models/weapons/c_models/c_xms_urinejar.mdl"
 #define TF_WEAPON_MILKJAR_MODEL	"models/workshop/weapons/c_models/c_madmilk/c_madmilk.mdl"
+#define TF_WEAPON_MILKJAR_MODEL_FESTIVIZED	"models/workshop/weapons/c_models/c_madmilk/c_madmilk_festivizer_projectile.mdl"
 #define TF_WEAPON_CLEAVER_MODEL	"models/workshop_partner/weapons/c_models/c_sd_cleaver/c_sd_cleaver.mdl"
+#define TF_WEAPON_CLEAVER_MODEL_FESTIVIZED	"models/workshop_partner/weapons/c_models/c_sd_cleaver/c_sd_cleaver_festivizer_projectile.mdl"
 #define TF_WEAPON_CLEAVER_IMPACT_FLESH_SOUND	"Cleaver.ImpactFlesh"
 #define TF_WEAPON_CLEAVER_IMPACT_WORLD_SOUND	"Cleaver.ImpactWorld"
 
@@ -248,8 +251,10 @@ CTFProjectile_Jar::CTFProjectile_Jar()
 void CTFProjectile_Jar::Precache()
 {
 	PrecacheModel( TF_WEAPON_PEEJAR_MODEL );
+	PrecacheModel( TF_WEAPON_PEEJAR_MODEL_FESTIVIZED);
 	PrecacheModel( TF_WEAPON_FESTIVE_PEEJAR_MODEL );
 	PrecacheModel( "models/weapons/c_models/c_breadmonster/c_breadmonster.mdl" );
+	PrecacheModel( "models/weapons/c_models/c_breadmonster/c_breadmonster_festivizer_projectile.mdl" );
 
 	PrecacheScriptSound( TF_WEAPON_PEEJAR_EXPLODE_SOUND );
 	BaseClass::Precache();
@@ -262,10 +267,12 @@ void CTFProjectile_Jar::SetCustomPipebombModel()
 {
 	// Check for Model Override
 	int iProjectile = 0;
+	int iFestivized = 0;
 	CTFPlayer *pThrower = ToTFPlayer( GetThrower() );
 	if ( pThrower && pThrower->GetActiveWeapon() )
 	{
 		CALL_ATTRIB_HOOK_INT_ON_OTHER( pThrower->GetActiveWeapon(), iProjectile, override_projectile_type );
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( pThrower->GetActiveWeapon(), iFestivized, is_festivized );
 		switch ( iProjectile )
 		{
 		case TF_PROJECTILE_FESTIVE_JAR :
@@ -275,12 +282,12 @@ void CTFProjectile_Jar::SetCustomPipebombModel()
 		case TF_PROJECTILE_BREADMONSTER_JARATE:
 		case TF_PROJECTILE_BREADMONSTER_MADMILK:
 			m_iProjectileType = iProjectile;
-			SetModel( "models/weapons/c_models/c_breadmonster/c_breadmonster.mdl" );
+			SetModel((iFestivized) ? "models/weapons/c_models/c_breadmonster/c_breadmonster_festivizer_projectile.mdl" : "models/weapons/c_models/c_breadmonster/c_breadmonster.mdl");
 			return;
 		}
 	}
 	
-	SetModel( TF_WEAPON_PEEJAR_MODEL );
+	SetModel((iFestivized) ? TF_WEAPON_PEEJAR_MODEL_FESTIVIZED : TF_WEAPON_PEEJAR_MODEL);
 }
 
 //-----------------------------------------------------------------------------
@@ -794,6 +801,9 @@ CTFProjectile_Jar *CTFJarMilk::CreateJarProjectile( const Vector &position, cons
 void CTFProjectile_JarMilk::Precache()
 {
 	PrecacheModel( TF_WEAPON_MILKJAR_MODEL );
+	PrecacheModel( TF_WEAPON_MILKJAR_MODEL_FESTIVIZED);
+	PrecacheModel( "models/weapons/c_models/c_breadmonster/c_breadmonster_milk.mdl" );
+	PrecacheModel( "models/weapons/c_models/c_breadmonster/c_breadmonster_milk_festivizer_projectile.mdl" );
 
 	BaseClass::Precache();
 }
@@ -837,21 +847,23 @@ void CTFProjectile_JarMilk::SetCustomPipebombModel()
 {
 	// Check for Model Override
 	int iProjectile = 0;
+	int iFestivized = 0;
 	CTFPlayer *pThrower = ToTFPlayer( GetThrower() );
 	if ( pThrower && pThrower->GetActiveWeapon() )
 	{
 		CALL_ATTRIB_HOOK_INT_ON_OTHER( pThrower->GetActiveWeapon(), iProjectile, override_projectile_type );
+		CALL_ATTRIB_HOOK_INT_ON_OTHER(pThrower->GetActiveWeapon(), iFestivized, is_festivized);
 		switch ( iProjectile )
 		{
 		case TF_PROJECTILE_BREADMONSTER_JARATE:
 		case TF_PROJECTILE_BREADMONSTER_MADMILK:
 			m_iProjectileType = iProjectile;
-			SetModel( "models/weapons/c_models/c_breadmonster/c_breadmonster_milk.mdl" );
+			SetModel((iFestivized) ? "models/weapons/c_models/c_breadmonster/c_breadmonster_milk_festivizer_projectile.mdl" : "models/weapons/c_models/c_breadmonster/c_breadmonster_milk.mdl");
 			return;
 		}
 	}
 
-	SetModel( TF_WEAPON_MILKJAR_MODEL );
+	SetModel((iFestivized) ? TF_WEAPON_MILKJAR_MODEL_FESTIVIZED : TF_WEAPON_MILKJAR_MODEL);
 }
 #endif
 
@@ -963,6 +975,7 @@ bool CTFCleaver::Holster( CBaseCombatWeapon *pSwitchingTo )
 void CTFProjectile_Cleaver::Precache()
 {
 	PrecacheModel( TF_WEAPON_CLEAVER_MODEL );
+	PrecacheModel( TF_WEAPON_CLEAVER_MODEL_FESTIVIZED );
 	PrecacheScriptSound( TF_WEAPON_CLEAVER_IMPACT_FLESH_SOUND );
 	PrecacheScriptSound( TF_WEAPON_CLEAVER_IMPACT_WORLD_SOUND );
 
@@ -974,7 +987,10 @@ void CTFProjectile_Cleaver::Precache()
 //-----------------------------------------------------------------------------
 void CTFProjectile_Cleaver::SetCustomPipebombModel()
 {
-	SetModel( TF_WEAPON_CLEAVER_MODEL );
+	int iFestivized = 0;
+	CTFPlayer* pThrower = ToTFPlayer(GetThrower());
+	if (pThrower && pThrower->GetActiveWeapon()) { CALL_ATTRIB_HOOK_INT_ON_OTHER(pThrower->GetActiveWeapon(), iFestivized, is_festivized); }
+	SetModel((iFestivized) ? TF_WEAPON_CLEAVER_MODEL_FESTIVIZED : TF_WEAPON_CLEAVER_MODEL);
 }
 
 CTFProjectile_Cleaver::CTFProjectile_Cleaver()
