@@ -533,6 +533,8 @@ DEFINE_SCRIPTFUNC( IsBehaviorFlagSet, "Return true if the given behavior flag(s)
 DEFINE_SCRIPTFUNC_WRAPPED( SetActionPoint, "Set the given action point for this bot" )
 DEFINE_SCRIPTFUNC_WRAPPED( GetActionPoint, "Get the given action point for this bot" )
 
+DEFINE_SCRIPTFUNC_WRAPPED( SelectRandomReachableEnemy, "Select a random reachable enemy (not in their spawn room)" )
+
 END_SCRIPTDESC();
 
 //-----------------------------------------------------------------------------------------------------

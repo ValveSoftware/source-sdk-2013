@@ -711,6 +711,9 @@ DEFINE_SCRIPTFUNC_WRAPPED( IsBehaviorFlagSet, "Return true if the given behavior
 DEFINE_SCRIPTFUNC_WRAPPED( SetActionPoint, "Set the given action point for this bot" )
 DEFINE_SCRIPTFUNC_WRAPPED( GetActionPoint, "Get the given action point for this bot" )
 
+DEFINE_SCRIPTFUNC_WRAPPED( SelectRandomReachableEnemy, "Select a random reachable enemy (not in their spawn room)" )
+DEFINE_SCRIPTFUNC_WRAPPED( SelectRandomEnemyBuilding, "Select a random enemy building of a given type" )
+
 END_SCRIPTDESC();
 
 //-----------------------------------------------------------------------------------------------------
@@ -4642,6 +4645,42 @@ CTFPlayer *CTFBot::SelectRandomReachableEnemy( void )
 	return NULL;
 }
 
+//-----------------------------------------------------------------------------------------
+// Pick a random enemy building of the given type
+CBaseObject *CTFBot::SelectRandomEnemyBuilding( ObjectType_t objectType, bool bAllowPlacing, bool bAllowCarried )
+{
+	CUtlVector< CBaseObject * > buildingVector;
+
+	for ( int i=0; i<IBaseObjectAutoList::AutoList().Count(); ++i )
+	{
+		CBaseObject *obj = static_cast< CBaseObject* >( IBaseObjectAutoList::AutoList()[i] );
+
+		if ( obj->ObjectType() != objectType || !IsEnemy( obj ) )
+		{
+			continue;
+		}
+		else if ( !obj->IsAlive() || obj->IsDying() )
+		{
+			continue;
+		}
+		else if ( obj->IsPlacing() && !bAllowPlacing )
+		{
+			continue;
+		}
+		else if ( obj->IsCarried() && !bAllowCarried )
+		{
+			continue;
+		}
+		buildingVector.AddToTail( obj );
+	}
+
+	if ( buildingVector.Count() > 0 )
+	{
+		return buildingVector[ RandomInt( 0, buildingVector.Count()-1 ) ];
+	}
+
+	return NULL;
+}
 
 //-----------------------------------------------------------------------------------------
 // Different sized bots used different lookahead distances
@@ -4806,6 +4845,13 @@ void CTFBot::OnEventChangeAttributes( const CTFBot::EventChangeAttributes_t* pEv
 		SetWeaponRestriction( pEvent->m_weaponRestriction );
 
 		SetMission( pEvent->m_mission );
+
+		if ( pEvent->m_mission == CTFBot::MISSION_DESTROY_SENTRIES && !GetMissionTarget() )
+		{
+			// buster spawned outside of mission populator
+			// these don't care about target priority or thresholds since they can hold up the main wave.
+			SetMissionTarget( SelectRandomEnemyBuilding( OBJ_SENTRYGUN, true, true ) );
+		}
 
 		ClearAllAttributes();
 		SetAttribute( pEvent->m_attributeFlags );

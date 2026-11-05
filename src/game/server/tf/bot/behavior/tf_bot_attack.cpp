@@ -39,9 +39,29 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 	bool isUsingCloseRangeWeapon = ( myWeapon && ( myWeapon->IsWeapon( TF_WEAPON_FLAMETHROWER ) || myWeapon->IsMeleeWeapon() ) );
 
 	const CKnownEntity *threat = me->GetVisionInterface()->GetPrimaryKnownThreat();
-	if ( threat == NULL || threat->IsObsolete() || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
+	bool validThreat = threat != NULL && !threat->IsObsolete();
+
+	if ( !validThreat || !me->GetIntentionInterface()->ShouldAttack( me, threat ) )
 	{
-		return Done( "No threat" );
+		// Always try to find new threats if we have MISSION_ATTACK
+		if ( !me->HasMission( CTFBot::MISSION_ATTACK ) )
+		{
+			return Done( "No threat" );
+		}
+		else if ( !validThreat )
+		{
+			CBaseEntity *newThreat = me->SelectRandomReachableEnemy();
+
+			// No reachable enemy, attack a sentry
+			if ( !newThreat )
+			{
+				newThreat = me->SelectRandomEnemyBuilding( OBJ_SENTRYGUN );
+			}
+
+			me->GetVisionInterface()->AddKnownEntity( newThreat );
+
+			return Continue();
+		}
 	}
 
 	me->EquipBestWeaponForThreat( threat );
@@ -59,10 +79,9 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 		}
 	}
 
-
 	// pursue the threat. if not visible, go to the last known position
-	if ( !threat->IsVisibleRecently() || 
-		 me->IsRangeGreaterThan( threat->GetEntity()->GetAbsOrigin(), me->GetDesiredAttackRange() ) || 
+	if ( !threat->IsVisibleRecently() ||
+		 me->IsRangeGreaterThan( threat->GetEntity()->GetAbsOrigin(), me->GetDesiredAttackRange() ) ||
 		 !me->IsLineOfFireClear( threat->GetEntity()->EyePosition() ) )
 	{
 		if ( threat->IsVisibleRecently() )
@@ -86,6 +105,23 @@ ActionResult< CTFBot >	CTFBotAttack::Update( CTFBot *me, float interval )
 			if ( me->IsRangeLessThan( threat->GetLastKnownPosition(), 20.0f ) )
 			{
 				me->GetVisionInterface()->ForgetEntity( threat->GetEntity() );
+
+				// Always find a new threat if we have MISSION_ATTACK
+				if ( me->HasMission( CTFBot::MISSION_ATTACK ) )
+				{
+					CBaseEntity *newThreat = me->SelectRandomReachableEnemy();
+
+					// No reachable enemy, attack a sentry
+					if ( !newThreat )
+					{
+						newThreat = me->SelectRandomEnemyBuilding( OBJ_SENTRYGUN );
+					}
+
+					me->GetVisionInterface()->AddKnownEntity( newThreat );
+
+					return Continue();
+				}
+
 				return Done( "I lost my target!" );
 			}
 
