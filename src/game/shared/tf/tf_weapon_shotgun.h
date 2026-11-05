@@ -83,7 +83,7 @@ public:
 	virtual int			GetWeaponID( void ) const		{ return TF_WEAPON_SENTRY_REVENGE; }
 
 	void				Precache();
-	virtual void		PrimaryAttack();
+	virtual CBaseEntity *FireProjectile( CTFPlayer *pPlayer ) OVERRIDE;
 	virtual void		SentryKilled( int iKills );
 	virtual bool		Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	virtual bool		Deploy( void );
