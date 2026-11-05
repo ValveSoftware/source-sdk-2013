@@ -73,6 +73,7 @@ public:
 	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo );
 
 	virtual bool	CanReload( void );
+	virtual bool	CanInspect() const OVERRIDE;
 
 	virtual int		GetBuffType() { int iBuffType = 0; CALL_ATTRIB_HOOK_INT( iBuffType, set_buff_type ); return iBuffType; }
 
