@@ -7271,6 +7271,7 @@ void CTFPlayerShared::OnRemoveDisguised( void )
 	m_iDisguiseHealth = 0;
 	SetDisguiseBody( 0 );
 	m_iDisguiseAmmo = 0;
+	m_iDisguiseAmmoReserve = 0;
 
 	// Update the player model and skin.
 	m_pOuter->UpdateModel();
@@ -8547,8 +8548,10 @@ void CTFPlayerShared::DetermineDisguiseWeapon( bool bForcePrimary )
 			}
 
 			// Ammo/clip state is displayed to attached medics
-			m_iDisguiseAmmo = 0;
-			if ( !m_hDisguiseWeapon->IsMeleeWeapon() )
+			m_iDisguiseAmmo = UINT16_MAX;
+			m_iDisguiseAmmoReserve = UINT16_MAX;
+
+			if ( m_hDisguiseWeapon->UsesPrimaryAmmo() )
 			{
 				// Use the player we're disguised as if possible
 				if ( pDisguiseTarget )
@@ -8556,20 +8559,38 @@ void CTFPlayerShared::DetermineDisguiseWeapon( bool bForcePrimary )
 					CTFWeaponBase *pWeapon = pDisguiseTarget->GetActiveTFWeapon();
 					if ( pWeapon && pWeapon->GetWeaponID() == m_hDisguiseWeapon->GetWeaponID() )
 					{
-						m_iDisguiseAmmo = pWeapon->UsesClipsForAmmo1() ? 
-										  pWeapon->Clip1() : 
-										  pDisguiseTarget->GetAmmoCount( pWeapon->GetPrimaryAmmoType() );
+						if ( pWeapon->UsesClipsForAmmo1() && !pWeapon->IsMeleeWeapon() )
+						{
+							m_iDisguiseAmmo = pWeapon->Clip1();
+							m_iDisguiseAmmoReserve = pDisguiseTarget->GetAmmoCount( pWeapon->GetPrimaryAmmoType() );
+						}
+						else
+						{
+							m_iDisguiseAmmo = pDisguiseTarget->GetAmmoCount( pWeapon->GetPrimaryAmmoType() );
+						}
 					}
 				}
 
 				// Otherwise display a faked ammo count
-				if ( !m_iDisguiseAmmo )
+				if ( m_iDisguiseAmmo == UINT16_MAX )
 				{
-					int nMaxCount = m_hDisguiseWeapon->UsesClipsForAmmo1() ? 
-									m_hDisguiseWeapon->GetMaxClip1() : 
-									m_pOuter->GetMaxAmmo( m_hDisguiseWeapon->GetPrimaryAmmoType(), m_nDisguiseClass );
-				
-					m_iDisguiseAmmo = (int)random->RandomInt( 1, nMaxCount );
+					int nMaxAmmo = 0, nMaxReserve = 0;
+					if ( m_hDisguiseWeapon->UsesClipsForAmmo1() && !m_hDisguiseWeapon->IsMeleeWeapon() )
+					{
+						nMaxAmmo = m_hDisguiseWeapon->GetMaxClip1();
+						nMaxReserve = m_pOuter->GetMaxAmmo( m_hDisguiseWeapon->GetPrimaryAmmoType(), m_nDisguiseClass );
+					}
+					else
+					{
+						nMaxAmmo = m_pOuter->GetMaxAmmo( m_hDisguiseWeapon->GetPrimaryAmmoType(), m_nDisguiseClass );
+					}
+
+					m_iDisguiseAmmo = (int)random->RandomInt( 1, nMaxAmmo );
+
+					if ( nMaxReserve )
+					{
+						m_iDisguiseAmmoReserve = (int)random->RandomInt( 1, nMaxReserve );
+					}
 				}
 			}
 		}
