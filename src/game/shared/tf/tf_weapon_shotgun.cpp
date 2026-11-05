@@ -171,7 +171,7 @@ bool CTFShotgun_Revenge::Holster( CBaseCombatWeapon *pSwitchingTo )
 	CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
 	if ( pOwner && pOwner->m_Shared.GetRevengeCrits() )
 	{
-		pOwner->m_Shared.RemoveCond( TF_COND_CRITBOOSTED );
+		pOwner->m_Shared.RemoveCond( TF_COND_REVENGECRITBOOSTED );
 	}
 #endif
 
@@ -187,7 +187,7 @@ bool CTFShotgun_Revenge::Deploy( void )
 	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
 	if ( pOwner && pOwner->m_Shared.GetRevengeCrits() )
 	{
-		pOwner->m_Shared.AddCond( TF_COND_CRITBOOSTED );
+		pOwner->m_Shared.AddCond( TF_COND_REVENGECRITBOOSTED );
 	}
 #endif
 
@@ -285,8 +285,7 @@ void CTFShotgun_Revenge::Detach( void )
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
 	if ( pPlayer )
 	{
-		pPlayer->m_Shared.SetRevengeCrits( 0 );
-		pPlayer->m_Shared.RemoveCond( TF_COND_CRITBOOSTED );
+		pPlayer->m_Shared.ResetRevengeCrits();
 	}
 
 	BaseClass::Detach();
