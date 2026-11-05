@@ -11157,17 +11157,12 @@ void CTFPlayer::TeamFortress_SetSpeed()
 	// Anyone that's watching our speed should know that our speed changed so they can
 	// update their own speed.
 	//
-	// We guard against re-entrancy here as well to avoid the case where two medics are
-	// healing each other with Quick-Fixes.
-	// 
-	// This can also happen when a quickfix medic is healing a player that gets a speed
-	// boost. And it doesn't work because the recursive call will just return the healed
-	// character's default speed instead of current speed.
-	// TODO fix this. why not just set the medic's speed directly at this point?
-	//
-	if ( !m_bIsCalculatingMaximumSpeed )
+	// We guard against re-entrancy here to avoid the case where two or more
+	// medics are healing each other and therefore recursively notifying each
+	// other.
+	if ( !m_bIsNotifyingSpeedWatchers )
 	{
-		CScopedFlag<char> flagAvoidReentrancy( m_bIsCalculatingMaximumSpeed );
+		CScopedFlag<char> flagAvoidReentrancy( m_bIsNotifyingSpeedWatchers );
 
 		CUtlVector<CTFPlayer *> vecSpeedWatchers;
 		m_Shared.GetSpeedWatchersList( &vecSpeedWatchers );
