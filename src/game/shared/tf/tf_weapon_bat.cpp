@@ -732,12 +732,13 @@ void CTFStunBall::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 	if ( flLifeTimeRatio > 0.1f )
 	{
 		bool bMax = flLifeTimeRatio >= 1.f;
-		int iStunFlags = ( bMax ) ? TF_STUN_SPECIAL_SOUND | TF_STUN_MOVEMENT : TF_STUN_SOUND | TF_STUN_MOVEMENT;
+		int iStunFlags = TF_STUN_MOVEMENT | TF_STUN_EFFECTS;
 		float flStunAmount = 0.5f;
 		float flStunDuration = Max( 2.f, tf_scout_stunball_base_duration.GetFloat() * flLifeTimeRatio );
 		if ( bMax )
 		{
 			flStunDuration += 1.0;
+			iStunFlags |= TF_STUN_SPECIAL_SOUND;
 		}
 
 		// MvM bots
