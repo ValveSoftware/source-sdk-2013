@@ -38,7 +38,11 @@ BEGIN_SEND_TABLE_NOBASE( CHL2PlayerLocalData, DT_HL2Local )
 	SendPropFloat( SENDINFO(m_flFlashBattery) ),
 	SendPropVector( SENDINFO(m_vecLocatorOrigin) ),
 #endif
+#ifdef HL2MP
+	SendPropDataTable( SENDINFO_DT( m_LadderMove ), &REFERENCE_SEND_TABLE( DT_LadderMove ), SendProxy_SendPlayerLocalDataTable ),
+#else
 	SendPropDataTable( SENDINFO_DT( m_LadderMove ), &REFERENCE_SEND_TABLE( DT_LadderMove ), SendProxy_SendLocalDataTable ),
+#endif
 END_SEND_TABLE()
 
 BEGIN_SIMPLE_DATADESC( CHL2PlayerLocalData )

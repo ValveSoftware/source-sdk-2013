@@ -48,6 +48,7 @@ public:
 	virtual void Init( void );
 	virtual void VidInit( void );
 	virtual void Reset( void );
+	virtual bool ShouldDraw( void );
 	virtual void OnThink();
 			void MsgFunc_Damage( bf_read &msg );
 
@@ -107,13 +108,18 @@ void CHudHealth::VidInit()
 	Reset();
 }
 
+bool CHudHealth::ShouldDraw( void )
+{
+	return CHudElement::ShouldDraw();
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CHudHealth::OnThink()
 {
 	int newHealth = 0;
-	C_BasePlayer *local = C_BasePlayer::GetLocalPlayer();
+	C_BasePlayer *local = GetHudPlayer();
 	if ( local )
 	{
 		// Never below zero

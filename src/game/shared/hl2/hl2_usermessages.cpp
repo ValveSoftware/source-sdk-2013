@@ -41,6 +41,10 @@ void RegisterUserMessages( void )
 	usermessages->Register( "KeyHintText", -1 );	// Displays hint text display
 	usermessages->Register( "SquadMemberDied", 0 );
 	usermessages->Register( "AmmoDenied", 2 );
+#ifdef HL2MP
+	usermessages->Register( "SpecItemPickup", -1 );
+	usermessages->Register( "SpecAmmoDenied", 3 );
+#endif
 	usermessages->Register( "CreditsMsg", 1 );
 	usermessages->Register( "LogoTimeMsg", 4 );
 	usermessages->Register( "AchievementEvent", -1 );

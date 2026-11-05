@@ -154,6 +154,15 @@ void CHudDamageIndicator::Init( void )
 //-----------------------------------------------------------------------------
 bool CHudDamageIndicator::ShouldDraw( void )
 {
+#ifdef HL2MP
+	if ( IsLocalPlayerSpectator() )
+	{
+		g_pClientMode->GetViewportAnimationController()->CancelAnimationsForPanel( this );
+		Reset();
+		return false;
+	}
+#endif
+
 	bool bNeedsDraw = m_DmgColorLeft[3] || 
 						m_DmgColorRight[3] || 
 						m_DmgHighColorLeft[3] || 

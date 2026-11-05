@@ -62,8 +62,8 @@ public:
 	virtual void SetParent(vgui::VPANEL parent) { BaseClass::SetParent(parent); }
 	virtual void OnThink();
 
-	virtual int GetTopBarHeight() { return m_pTopBar->GetTall(); }
-	virtual int GetBottomBarHeight() { return m_pBottomBarBlank->GetTall(); }
+	virtual int GetTopBarHeight() { return m_pTopBar->IsVisible() ? m_pTopBar->GetTall() : 0; }
+	virtual int GetBottomBarHeight();
 	
 	virtual bool ShouldShowPlayerLabel( int specmode );
 
@@ -80,6 +80,9 @@ protected:
 	void MoveLabelToFront(const char *textEntryName);
 	void UpdateTimer();
 	void SetLogoImage(const char *image);
+#ifdef HL2MP
+	void UpdatePlayerCard();
+#endif
 
 protected:	
 	enum { INSET_OFFSET = 2 } ; 
@@ -125,6 +128,7 @@ public:
 	virtual bool HasInputElements( void ) { return true; }
 	virtual void ShowPanel( bool bShow );
 	virtual void FireGameEvent( IGameEvent *event );
+	virtual void OnThink();
 
 	// both vgui::Frame and IViewPortPanel define these, so explicitly define them here as passthroughs to vgui
 	virtual bool IsVisible() { return BaseClass::IsVisible(); }
@@ -136,6 +140,7 @@ public:
 private:
 	// VGUI2 overrides
 	MESSAGE_FUNC_PARAMS( OnTextChanged, "TextChanged", data );
+	MESSAGE_FUNC_PARAMS( OnItemSelected, "ItemSelected", data );
 	virtual void OnCommand( const char *command );
 	virtual void OnKeyCodePressed(vgui::KeyCode code);
 	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
@@ -153,6 +158,7 @@ private:
 
 	IViewPort *m_pViewPort;
 	ButtonCode_t m_iDuckKey;
+	bool m_bDuckKeyReleased;
 };
 
 extern CSpectatorGUI * g_pSpectatorGUI;
