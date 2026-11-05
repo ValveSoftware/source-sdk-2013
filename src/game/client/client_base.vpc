@@ -17,6 +17,7 @@ $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 $include "$SRCDIR\vpc_scripts\protobuf_builder.vpc"
 $Include "$SRCDIR\vpc_scripts\source_replay.vpc"	[$TF]
 $Include "$SRCDIR\game\protobuf_include.vpc"
+$Include "$SRCDIR\common\gifmaterial_include.vpc"
 
 $Configuration	"Debug"
 {
