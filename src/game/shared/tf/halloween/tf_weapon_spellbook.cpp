@@ -1065,6 +1065,9 @@ void CTFSpellBook::CreateSpellJar( const Vector &position, const QAngle &angles,
 //-----------------------------------------------------------------------------
 void CTFSpellBook::RollNewSpell( int iTier, bool bForceReroll /*= false*/ )
 {
+	if ( !TFGameRules()->IsUsingSpells() )
+	return;
+	
 	// do not do anything if we already have a spell for low tier, always roll for high tier
 	if ( m_iSpellCharges > 0 && iTier == 0 && !bForceReroll )
 		return;
