@@ -25,6 +25,7 @@
 // Globals
 //-----------------------------------------------------------------------------
 vgui::HScheme g_hVGuiCombineScheme = 0;
+ConVar fov_desired( "fov_desired", "90", FCVAR_ARCHIVE | FCVAR_USERINFO, "Sets the base field-of-view.", true, 70.0, true, 110.0 );
 
 
 // Instance the singleton and expose the interface to it.
@@ -123,6 +124,5 @@ void ClientModeHL2MPNormal::Init()
 		Warning( "Couldn't load combine panel scheme!\n" );
 	}
 }
-
 
 

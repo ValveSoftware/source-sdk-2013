@@ -1876,18 +1876,6 @@ bool CBasePlayer::IsLerpingFOV( void ) const
 //-----------------------------------------------------------------------------
 int CBasePlayer::GetDefaultFOV( void ) const
 {
-#if defined( CLIENT_DLL )
-	if ( GetObserverMode() == OBS_MODE_IN_EYE )
-	{
-		C_BasePlayer *pTargetPlayer = dynamic_cast<C_BasePlayer*>( GetObserverTarget() );
-
-		if ( pTargetPlayer && !pTargetPlayer->IsObserver() )
-		{
-			return pTargetPlayer->GetDefaultFOV();
-		}
-	}
-#endif
-
 	int iFOV = ( m_iDefaultFOV == 0 ) ? g_pGameRules->DefaultFOV() : m_iDefaultFOV;
 	if ( iFOV > MAX_FOV )
 		iFOV = MAX_FOV;
@@ -1986,6 +1974,17 @@ bool CBasePlayer::SetFOV( CBaseEntity *pRequester, int FOV, float zoomRate, int 
 	m_iFOV = FOV;
 
 	m_Local.m_flFOVRate	= zoomRate;
+
+#ifdef GAME_DLL
+	for ( int i = 1; i <= gpGlobals->maxClients; ++i )
+	{
+		CBasePlayer *pObserver = UTIL_PlayerByIndex( i );
+		if ( pObserver && pObserver->GetObserverMode() == OBS_MODE_IN_EYE && pObserver->GetObserverTarget() == this )
+		{
+			pObserver->NetworkStateChanged( &pObserver->m_Local.m_flFOVRate );
+		}
+	}
+#endif
 
 	return true;
 }
@@ -2095,4 +2094,3 @@ bool fogparams_t::operator !=( const fogparams_t& other ) const
 
 	return false;
 }
-

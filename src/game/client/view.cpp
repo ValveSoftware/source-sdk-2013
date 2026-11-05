@@ -726,7 +726,13 @@ void CViewRender::SetUpViews()
 	float flFOVOffset = fDefaultFov - viewEye.fov;
 
 	//Adjust the viewmodel's FOV to move with any FOV offsets on the viewer's end
-	viewEye.fovViewmodel = g_pClientMode->GetViewModelFOV() - flFOVOffset;
+	const float flViewModelFOV = g_pClientMode->GetViewModelFOV();
+	viewEye.fovViewmodel = flViewModelFOV - flFOVOffset;
+
+	if ( engine->IsHLTV() && HLTVCamera()->GetMode() == OBS_MODE_IN_EYE )
+	{
+		viewEye.fovViewmodel = clamp( flViewModelFOV * ( viewEye.fov / 90.0f ), 0.1f, 179.9f );
+	}
 
 	if ( UseVR() )
 	{
