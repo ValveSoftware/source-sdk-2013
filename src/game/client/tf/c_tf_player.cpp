@@ -4421,6 +4421,9 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 		SetNextClientThink( CLIENT_THINK_ALWAYS );
 
 		InitInvulnerableMaterial();
+
+		// Joined or got a full update mid taunt
+		UpdateTauntItem();
 		
 		// There used to be code here to switch to first person. This breaks thirdperson mode
 		// and karts when we have to get a full client update--don't do it here anymore.
@@ -4914,15 +4917,27 @@ void C_TFPlayer::UpdateTauntItem()
 		int iClass = GetPlayerClass()->GetClassIndex();
 
 		CEconItemView *pMiscItemView = Inventory() ? Inventory()->GetCacheServerItemInLoadout( iClass, m_nActiveTauntSlot ) : NULL;
-		if ( pMiscItemView )
+		// Our copy of their loadout can be missing or stale, the server's item wins
+		if ( pMiscItemView && ( m_iTauntItemDefIndex == INVALID_ITEM_DEF_INDEX || pMiscItemView->GetItemDefIndex() == m_iTauntItemDefIndex ) )
 		{
 			m_TauntEconItemView = *pMiscItemView;
+		}
+		else if ( m_iTauntItemDefIndex != INVALID_ITEM_DEF_INDEX )
+		{
+			m_TauntEconItemView.Init( m_iTauntItemDefIndex, AE_UNIQUE, 1 );
 		}
 	}
 
 	if ( m_TauntEconItemView.IsValid() )
 	{
 		ParseSharedTauntDataFromEconItemView( &m_TauntEconItemView );
+	}
+
+	// The weapon may not get an update of its own to swap in the taunt prop
+	C_TFWeaponBase *pWeapon = GetActiveTFWeapon();
+	if ( pWeapon )
+	{
+		pWeapon->UpdateModelIndex();
 	}
 }
 
