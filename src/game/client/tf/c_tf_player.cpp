@@ -3526,6 +3526,10 @@ public:
 				// If the texture is the correct res already, we're done!
 				if ( desiredW == pWeaponSkinBase->GetActualWidth() && desiredH == pWeaponSkinBase->GetActualHeight() )
 					return;
+
+				// We already asked for this size and got this texture back, so don't ask again.
+				if ( !pItem->GetWeaponSkinBaseCompositor() && pItem->IsWeaponSkinRequestAnswered( desiredW, desiredH ) )
+					return;
 			}
 		}
 
@@ -3680,6 +3684,7 @@ public:
 					// Had a cache hit, so add the texture here.
 					pWeaponSkinBase = pWeaponSkinBaseCompositor->GetResultTexture();
 					pItem->SetWeaponSkinBase( pWeaponSkinBase );
+					pItem->SetWeaponSkinRequestAnswered( desiredW, desiredH );
 					setter.SetTexture( pWeaponSkinBase );
 				}
 
