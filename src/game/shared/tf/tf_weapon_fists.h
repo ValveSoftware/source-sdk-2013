@@ -36,6 +36,8 @@ public:
 	DECLARE_PREDICTABLE();
 
 	CTFFists() {}
+	virtual const char *GetShootSound( int iIndex ) const OVERRIDE;
+	virtual void Precache() OVERRIDE;
 	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_FISTS; }
 
 	virtual void ItemPreFrame();
@@ -49,6 +51,8 @@ public:
 
 	virtual bool HideWhileStunned( void ) { return false; }
 
+	bool		 UsesBoxingCritHitSound() const;
+
 	void Punch( void );
 
 #ifdef GAME_DLL
@@ -57,7 +61,7 @@ public:
 
 	virtual bool AllowTaunts( void );
 
-	int			 GetFistType( void ) { int iMode = 0; CALL_ATTRIB_HOOK_INT( iMode, set_weapon_mode ); return iMode; };
+	int			 GetFistType( void ) const { int iMode = 0; CALL_ATTRIB_HOOK_INT( iMode, set_weapon_mode ); return iMode; };
 
 	virtual void SetWeaponVisible( bool visible ) OVERRIDE;
 	virtual bool Deploy( void );

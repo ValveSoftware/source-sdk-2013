@@ -1397,10 +1397,7 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 								m_pChargedSound = controller.SoundCreate( filter, entindex(), pzsSoundName );
 								controller.Play( m_pChargedSound, 1.0, 100 );
 							}
-							else
-							{
-								pOwner->EmitSound( pzsSoundName );
-							}
+							pOwner->EmitSound( pzsSoundName );
 						}
 					}
 #endif
