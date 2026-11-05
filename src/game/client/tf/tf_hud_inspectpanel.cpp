@@ -229,7 +229,8 @@ C_TFPlayer *CHudInspectPanel::GetInspectTarget( C_TFPlayer *pLocalTFPlayer )
 	Vector vecStart, vecEnd;
 	VectorMA( MainViewOrigin(), MAX_TRACE_LENGTH, MainViewForward(), vecEnd );
 	VectorMA( MainViewOrigin(), 10,   MainViewForward(), vecStart );
-	UTIL_TraceLine( vecStart, vecEnd, MASK_SOLID, pLocalTFPlayer, COLLISION_GROUP_NONE, &tr );
+	CTraceFilterSkipEnemyStealthedPlayers filter( pLocalTFPlayer, COLLISION_GROUP_NONE, pLocalTFPlayer->GetTeamNumber() );
+	UTIL_TraceLine( vecStart, vecEnd, MASK_SOLID, &filter, &tr );
 
 	if ( !tr.startsolid && tr.DidHitNonWorldEntity() )
 	{

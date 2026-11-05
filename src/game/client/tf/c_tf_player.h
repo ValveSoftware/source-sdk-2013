@@ -983,6 +983,36 @@ inline C_TFPlayer* ToTFPlayer( C_BaseEntity *pEntity )
 	return static_cast< C_TFPlayer* >( pEntity );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: A custom trace filter class that skips stealthed enemy players
+//-----------------------------------------------------------------------------
+class CTraceFilterSkipEnemyStealthedPlayers : public CTraceFilterSimple
+{
+public:
+	CTraceFilterSkipEnemyStealthedPlayers( const IHandleEntity *pPassEntity, int collisionGroup, int iTeam )
+		: CTraceFilterSimple( pPassEntity, collisionGroup ), m_iTeam( iTeam )
+	{
+	}
+
+	virtual bool ShouldHitEntity( IHandleEntity *pHandleEntity, int contentsMask )
+	{
+		if ( !CTraceFilterSimple::ShouldHitEntity( pHandleEntity, contentsMask ) )
+			return false;
+
+		if ( m_iTeam == TEAM_SPECTATOR )
+			return true;
+
+		C_TFPlayer *pPlayer = ToTFPlayer( EntityFromEntityHandle( pHandleEntity ) );
+		if ( pPlayer && pPlayer->GetTeamNumber() != m_iTeam && pPlayer->m_Shared.IsStealthed() )
+			return false;
+
+		return true;
+	}
+
+	private:
+		int m_iTeam;
+};
+
 void SetAppropriateCamera( C_TFPlayer *pPlayer );
 
 class C_TFPlayerPreviewEffect
