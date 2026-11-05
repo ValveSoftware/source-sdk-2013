@@ -16,6 +16,7 @@
 #include "tf_weapon_flamethrower.h"
 #include "tf_weapon_sniperrifle.h"
 #include "tf_weapon_compound_bow.h"
+#include "tf_weapon_medigun.h"
 #include "bot/tf_bot.h"
 #include "bot/tf_bot_manager.h"
 #include "bot/behavior/tf_bot_behavior.h"
@@ -1024,8 +1025,28 @@ const CKnownEntity *CTFBotMainAction::SelectMoreDangerousThreat( const INextBot 
 		return threat;
 	}
 
+	const CKnownEntity *pHealer = GetHealerOfThreat( threat );
+
  	// smarter bots first aim at the Medic healing our dangerous target
-	return GetHealerOfThreat( threat );
+	if ( pHealer && pHealer != threat && TFGameRules()->IsMannVsMachineMode() )
+	{
+		// Test whether healer is invulnerable or has a shield deployed
+		const CTFPlayer *playerHealer = ToTFPlayer( pHealer->GetEntity() );
+		if ( playerHealer && playerHealer->IsPlayerClass( TF_CLASS_MEDIC ) )
+		{
+			bool invulnerable = playerHealer->m_Shared.IsInvulnerable();
+			bool shielded = false;
+
+			CWeaponMedigun *pMedigun = dynamic_cast< CWeaponMedigun * >( playerHealer->GetActiveWeapon() );
+			if ( pMedigun && pMedigun->GetMedigunShield() )
+				shielded = true;
+
+			if ( invulnerable || shielded )
+				return threat;
+		}
+	}
+
+	return pHealer;
 }
 
 
@@ -1122,7 +1143,7 @@ const CKnownEntity *CTFBotMainAction::SelectMoreDangerousThreatInternal( const I
 		const float spyHateRadius = 1000.0f;
 
 		const CKnownEntity *spyThreat = SelectClosestSpyToMe( me, threat1, threat2 );
-		if ( spyThreat && me->IsRangeLessThan( spyThreat->GetEntity(), spyHateRadius ) )
+		if ( spyThreat && me->IsRangeLessThan( spyThreat->GetEntity(), spyHateRadius ) && me->IsLineOfFireClear( spyThreat->GetEntity() ) )
 		{
 			return spyThreat;
 		}
