@@ -9008,7 +9008,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 					m_Shared.ApplyRocketPackStun( ( bHitEnemy ) ? 5.f : flStunTime );
 				}
 				
-				TFGameRules()->PushAllPlayersAway( GetAbsOrigin(), flPushRadius, flPushAmount, GetEnemyTeam( GetTeamNumber() ) );
+				TFGameRules()->PushMovablePlayersAway( GetAbsOrigin(), flPushRadius, flPushAmount, GetEnemyTeam( GetTeamNumber() ) );
 
 				m_Local.m_flFallVelocity = 0.f;
 
