@@ -9774,7 +9774,8 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		// Lose hype on take damage
 		int iHypeResetsOnTakeDamage = 0;
 		CALL_ATTRIB_HOOK_INT( iHypeResetsOnTakeDamage, lose_hype_on_take_damage );
-		if ( iHypeResetsOnTakeDamage != 0 )
+		// Does not apply to self or fall damage
+		if ( iHypeResetsOnTakeDamage != 0 && !( info.GetDamageType() & DMG_FALL ) && (pAttacker != this) )
 		{
 			// Loose x hype on jump
 			float flHype = m_Shared.GetScoutHypeMeter();
