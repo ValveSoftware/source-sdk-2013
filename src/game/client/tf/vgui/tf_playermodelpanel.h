@@ -217,6 +217,8 @@ private:
 	bool					RenderStatTrack( CStudioHdr *pStudioHdr, matrix3x4_t *pWorldMatrix );
 	MDLData_t				m_StatTrackModel;
 	float					m_flStatTrackScale;
+	bool					RenderAttachedModels( CStudioHdr* pStudioHdr, matrix3x4_t* pWorldMatrix );
+	CUtlVector< MDLData_t > m_AttachedModels;
 };
 
 #endif // TF_PLAYERMODELPANEL_H
