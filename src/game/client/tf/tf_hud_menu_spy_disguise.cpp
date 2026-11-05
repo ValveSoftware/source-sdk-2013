@@ -559,6 +559,7 @@ void CHudMenuSpyDisguise::SelectDisguise( int iClass, int iTeam )
 		CCommand args;
 		args.Tokenize( szDisguise );
 
+		engine->ClientCmd( "pda_click" );
 		IN_Impulse( args );
 	}
 }
