@@ -63,6 +63,22 @@ CTFParticleCannon::CTFParticleCannon() : CTFRocketLauncher()
 #ifdef CLIENT_DLL
 	m_bEffectsThinking = false;
 	m_iChargeEffectBase = 0;
+	m_pSoundCur = NULL;
+	f_ChargeSoundStartTime = 0.0f;
+#endif
+	
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Destructor.
+//-----------------------------------------------------------------------------
+CTFParticleCannon::~CTFParticleCannon()
+{
+#ifdef CLIENT_DLL
+	if (m_pSoundCur) {
+		CSoundEnvelopeController::GetController().SoundDestroy(m_pSoundCur);
+		m_pSoundCur = NULL;
+	}
 #endif
 }
 
@@ -144,6 +160,40 @@ void CTFParticleCannon::WeaponReset( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: inturrupt reloading if we are trying to charge shot
+//-----------------------------------------------------------------------------
+void CTFParticleCannon::ItemBusyFrame( void ) {
+	CTFPlayer* pPlayer = ToTFPlayer( GetPlayerOwner() );
+	if ( (m_bInAttack2 || (pPlayer->m_nButtons & IN_ATTACK2) ) && CanPerformSecondaryAttack() ) {
+		//stop reloading if we are attempting to charge a shot
+		AbortReload();
+		m_flNextSecondaryAttack = gpGlobals->curtime; //immedietly try firing. this shouldn't be much of an issue because the charged shot has a very long windup time that ticks independantly of this var.
+		m_flNextPrimaryAttack = gpGlobals->curtime;
+		m_bInReload = false;
+		SetWeaponIdleTime( gpGlobals->curtime );
+		SecondaryAttack();
+		return;
+	}
+
+	BaseClass::ItemBusyFrame();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: prevent reloading when charging a shot
+//-----------------------------------------------------------------------------
+bool CTFParticleCannon::Reload( void ) {
+	//prevent reloading if we are charging a charged shot
+	if ( m_flChargeBeginTime > 0 ) {
+		return false;
+	}
+	//and prevent reloading if we are preparing to start to charge a shot
+	if ( (m_bInAttack2 || (ToTFPlayer( GetPlayerOwner() )->m_nButtons & IN_ATTACK2) ) && CanPerformSecondaryAttack() ) {
+		return false;
+	}
+	return BaseClass::Reload();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFParticleCannon::ItemPostFrame( void )
@@ -165,7 +215,6 @@ void CTFParticleCannon::ItemPostFrame( void )
 	}
 
 #ifdef CLIENT_DLL
-
 	if ( !m_bEffectsThinking )
 	{
 		m_bEffectsThinking = true;
@@ -190,12 +239,30 @@ void CTFParticleCannon::PrimaryAttack( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: check for ammo
+//-----------------------------------------------------------------------------
+bool CTFParticleCannon::CanPerformSecondaryAttack() {
+	if ( Energy_GetEnergy() < (4.f * Energy_GetShotCost()) )
+	{
+		return false;
+	}
+	if (m_flChargeBeginTime) {
+		return false;
+	}
+	if (m_flNextSecondaryAttack > gpGlobals->curtime) {
+		return false;
+	}
+	return BaseClass::CanPerformSecondaryAttack();
+}
+
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFParticleCannon::SecondaryAttack( void )
 {
 	// Check for ammunition.
-	if ( !Energy_FullyCharged() )
+	if ( Energy_GetEnergy() < (4.f * Energy_GetShotCost()) )
 	{
 		Reload();
 		return;
@@ -203,6 +270,9 @@ void CTFParticleCannon::SecondaryAttack( void )
 
 	// Are we capable of firing again?
 	if ( m_flNextPrimaryAttack > gpGlobals->curtime )
+		return;
+
+	if (m_flNextSecondaryAttack > gpGlobals->curtime)
 		return;
 
 	if ( m_flChargeBeginTime > 0 )
@@ -229,7 +299,10 @@ void CTFParticleCannon::SecondaryAttack( void )
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY_SUPER );
 	}
 
-	WeaponSound( SPECIAL1 );
+#ifdef CLIENT_DLL
+	PlayChargeSound();
+#endif
+	//WeaponSound( SPECIAL1 );
 
 	pPlayer->m_Shared.AddCond( TF_COND_AIMING );
 	pPlayer->TeamFortress_SetSpeed();
@@ -248,6 +321,31 @@ void CTFParticleCannon::CreateChargeEffect()
 	{
 		DispatchParticleEffect( "drg_cowmangler_muzzleflash_chargeup", PATTACH_POINT_FOLLOW, GetAppropriateWorldOrViewModel(), "muzzle", GetParticleColor( 1 ), GetParticleColor( 2 ) );
 	}
+}
+
+
+void CTFParticleCannon::PlayChargeSound() {
+	//do not try to start playing the sound if we are not charging
+	if (!m_flChargeBeginTime)
+		return;
+	
+	//do nothing if we're already playing a shot
+	if ( f_ChargeSoundStartTime > gpGlobals->curtime + GetChargeForceReleaseTime() )
+		return;
+	
+	CSoundEnvelopeController& controller = CSoundEnvelopeController::GetController();
+	if (m_pSoundCur)
+	{
+		controller.SoundDestroy(m_pSoundCur);
+		m_pSoundCur = NULL;
+	}
+
+	float flTotalChargeTime = gpGlobals->curtime - m_flChargeBeginTime;
+	float fPitch = GetChargeMaxTime() / GetChargeForceReleaseTime();
+	CLocalPlayerFilter filter;
+	m_pSoundCur = controller.SoundCreate(filter, entindex(), GetShootSound(SPECIAL1));
+	controller.Play(m_pSoundCur, 1.0, 100 * fPitch, flTotalChargeTime* fPitch);
+	f_ChargeSoundStartTime = m_flChargeBeginTime;
 }
 #endif
 
@@ -281,12 +379,15 @@ void CTFParticleCannon::FireChargedShot()
 	float flFireDelay = ApplyFireDelay( m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay );
 
 	m_flNextPrimaryAttack = gpGlobals->curtime + flFireDelay;
-
+	m_flNextSecondaryAttack = gpGlobals->curtime + flFireDelay;
+	
 	SetWeaponIdleTime( gpGlobals->curtime + SequenceDuration() );
 
-	m_iReloadMode.Set( TF_RELOAD_START );
-
 	m_flChargeBeginTime = 0.0f;
+
+	if (!Energy_GetEnergy()) {
+		Reload();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -306,7 +407,7 @@ void CTFParticleCannon::ModifyProjectile( CBaseEntity* pProj )
 
 	if ( m_bChargedShot )
 	{
-		Energy_DrainEnergy( Energy_GetMaxEnergy() );
+		Energy_DrainEnergy( 4.f * Energy_GetShotCost() );
 	}
 	else
 	{
