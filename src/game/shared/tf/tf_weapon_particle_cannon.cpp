@@ -40,6 +40,9 @@ BEGIN_NETWORK_TABLE( CTFParticleCannon, DT_ParticleCannon )
 END_NETWORK_TABLE()
 
 BEGIN_PREDICTION_DATA( CTFParticleCannon )
+#ifdef CLIENT_DLL
+	DEFINE_PRED_FIELD( m_flChargeBeginTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
+#endif
 END_PREDICTION_DATA()
 
 LINK_ENTITY_TO_CLASS( tf_weapon_particle_cannon, CTFParticleCannon );
