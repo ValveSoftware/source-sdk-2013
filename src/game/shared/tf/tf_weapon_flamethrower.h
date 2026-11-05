@@ -156,6 +156,8 @@ public:
 
 	virtual void	FireGameEvent( IGameEvent *event ) OVERRIDE;
 
+	virtual bool	CanInspect() const OVERRIDE;
+
 	void CalculateHalloweenSpell( void );
 	int GetFlameThrowerMode( void ) const { int iMode = 0; CALL_ATTRIB_HOOK_INT( iMode, set_weapon_mode ); return iMode; }
 	bool IsCritFire( void ) { return m_bCritFire; }

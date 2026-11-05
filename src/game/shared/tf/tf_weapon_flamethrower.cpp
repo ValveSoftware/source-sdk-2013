@@ -2175,6 +2175,14 @@ void CTFFlameThrower::FireGameEvent( IGameEvent *event )
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CTFFlameThrower::CanInspect() const
+{
+	return BaseClass::CanInspect() && !IsFiring();
+}
+
 #if defined( CLIENT_DLL )
 
 //-----------------------------------------------------------------------------
