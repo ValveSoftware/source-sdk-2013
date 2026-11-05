@@ -93,8 +93,6 @@ public:
 	void GiveAllItems( void );
 	void GiveDefaultItems( void );
 
-	void NoteWeaponFired( void );
-
 	void ResetAnimation( void );
 	void SetPlayerModel( void );
 	void SetPlayerTeamModel( void );
@@ -148,7 +146,6 @@ private:
 	CNetworkQAngle( m_angEyeAngles );
 	CPlayerAnimState   m_PlayerAnimState;
 
-	int m_iLastWeaponFireUsercmd;
 	int m_iModelType;
 	CNetworkVar( int, m_iSpawnInterpCounter );
 	CNetworkVar( int, m_iPlayerSoundType );
