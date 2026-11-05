@@ -880,8 +880,9 @@ enum
 {
 	kAttachedModelDisplayFlag_WorldModel = 0x01,
 	kAttachedModelDisplayFlag_ViewModel	 = 0x02,
+	kAttachedModelDisplayFlag_InventoryModel = 0x04,
 
-	kAttachedModelDisplayFlag_MaskAll	 = kAttachedModelDisplayFlag_WorldModel | kAttachedModelDisplayFlag_ViewModel,
+	kAttachedModelDisplayFlag_MaskAll	 = kAttachedModelDisplayFlag_WorldModel | kAttachedModelDisplayFlag_ViewModel | kAttachedModelDisplayFlag_InventoryModel,
 };
 
 struct attachedmodel_t
@@ -969,6 +970,7 @@ public:
 
 		m_pszName = NULL;
 		m_pszBasePlayerModel = NULL;
+		m_pszBasePlayerModelFestive = NULL;
 		m_bIsSelectable = true;
 		m_bUseSmokeParticleEffect = true;
 		m_pszInventoryImage = NULL;
@@ -1006,6 +1008,7 @@ public:
 
 	const char *GetName() const { return m_pszName; }
 	const char *GetBasePlayerDisplayModel() const { return m_pszBasePlayerModel; }
+	const char *GetBasePlayerDisplayModelFestive() const { return m_pszBasePlayerModelFestive; }
 	const CUtlVector<CUtlString>& GetAdditionalHideBodygroups() const { return m_vecAdditionalHideBodygroups; }
 	bool IsSelectable() const { return m_bIsSelectable; }
 	bool UseSmokeParticleEffect() const { return m_bUseSmokeParticleEffect; }
@@ -1024,6 +1027,7 @@ protected:
 	int m_iViewmodelSkins[TEAM_VISUAL_SECTIONS];
 	const char *m_pszName;
 	const char *m_pszBasePlayerModel;
+	const char *m_pszBasePlayerModelFestive;
 	bool m_bIsSelectable;
 	const char *m_pszInventoryImage;
 	bool m_bUseSmokeParticleEffect;
@@ -1338,6 +1342,7 @@ public:
 	void		SetIconURL( const char* pszKey, const char *szURL )	{ m_pDictIcons->Insert( pszKey, CUtlString( szURL ) ); }
 	const char  *GetIconURL( const char* pszKey ) const;
 	const char	*GetBasePlayerDisplayModel() const				{ return m_pszBaseDisplayModel; }
+	const char	*GetBasePlayerDisplayModelFestive() const		{ return m_pszBaseDisplayModelFestive; }
 	int			GetDefaultSkin() const							{ return m_iDefaultSkin; }
 	const char  *GetWorldDisplayModel() const					{ return m_pszWorldDisplayModel; }
 	const char  *GetCollectionReference() const					{ return m_pszCollectionReference; }
@@ -1347,6 +1352,9 @@ public:
 
 	const char	*GetExtraWearableModel( void ) const			{ return m_pszWorldExtraWearableModel; }
 	const char	*GetExtraWearableViewModel( void ) const		{ return m_pszWorldExtraWearableViewModel; }
+	const char	*GetExtraWearableFestive( void ) const			{ return m_pszWorldExtraWearableFestive; }
+	const char	*GetOverrideHandModel( void ) const				{ return m_pszOverrideHandModel; }
+	const char	*GetOverrideHandModelFestive( void ) const		{ return m_pszOverrideHandModelFestive; }
 	const char  *GetVisionFilteredDisplayModel() const			{ return m_pszVisionFilteredDisplayModel; }
 	const char	*GetItemDesc( void ) const						{ return m_pszItemDesc; }
 	const char	*GetArmoryDescString( void ) const				{ return m_pszArmoryDesc; }
@@ -1526,6 +1534,7 @@ private:
 	int				m_iInspectPanelDistance;
 
 	const char		*m_pszBaseDisplayModel;
+	const char		*m_pszBaseDisplayModelFestive; //necessary for festivized wearables
 	int				m_iDefaultSkin;
 	bool			m_bLoadOnDemand;
 	bool			m_bHasBeenLoaded;
@@ -1539,6 +1548,9 @@ private:
 	const char		*m_pszWorldDisplayModel;
 	const char		*m_pszWorldExtraWearableModel;		// Some weapons attach an extra wearable item to the player
 	const char		*m_pszWorldExtraWearableViewModel;	// Some weapons attach an extra wearable view model item to the player
+	const char		*m_pszWorldExtraWearableFestive;	// Some weapons attach an alternative extra wearable when festivized
+	const char		*m_pszOverrideHandModel;			// One weapon (gunslinger) sets an alternative hand model
+	const char		*m_pszOverrideHandModelFestive;		// Two weapons (gunslinger, fists) set an alternative hand model when festivized
 	const char		*m_pszVisionFilteredDisplayModel;	// Some weapons display differently depending on the viewer's filters
 
 	const char		*m_pszCollectionReference;			// Reference a colletion

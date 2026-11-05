@@ -340,7 +340,12 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 				}
 			}
 
-			const char *pszModelName = m_pItem->GetPlayerDisplayModel( nClass, 0 );
+			//some weapons load an alternate model in the inventory
+			const char *pszModelName = m_pItem->GetInventoryModel();
+			if ( !pszModelName || !pszModelName[0] )
+			{
+				pszModelName = m_pItem->GetPlayerDisplayModel( nClass, 0 );
+			}
 			if ( pszModelName )
 			{
 				CMDL *pMDL = NULL;
@@ -521,7 +526,7 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 
 void CEmbeddedItemModelPanel::LoadAttachedModel( attachedmodel_t *pModel )
 {
-	if ( !( pModel->m_iModelDisplayFlags & kAttachedModelDisplayFlag_WorldModel ) )
+	if ( !( pModel->m_iModelDisplayFlags & kAttachedModelDisplayFlag_InventoryModel ) )
 		return;
 
 	if ( !pModel->m_pszModelName )

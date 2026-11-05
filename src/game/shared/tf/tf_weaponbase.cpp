@@ -655,18 +655,34 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 
 	CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
 
-	int iHandModelIndex = 0;
-	if ( pPlayer )
-	{
-		//CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, iHandModelIndex, override_hand_model_index );		// this is a cleaner way of doing it, but...
-		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, iHandModelIndex, wrench_builds_minisentry );			// ...the gunslinger is the only thing that uses this attribute for now
-	}
-
 	const CEconItemView *pItem = GetAttributeContainer()->GetItem();
 	if ( pPlayer && pItem->IsValid() && pItem->GetStaticData()->ShouldAttachToHands() )
 	{
 		// Should always be valid, because players without classes shouldn't be carrying items
-		const char *pszHandModel = pPlayer->GetPlayerClass()->GetHandModelName( iHandModelIndex );
+		const char *pszHandModel = pPlayer->GetPlayerClass()->GetHandModelName( 0 );
+
+		//is the player's melee weapon overriding the hand model?
+		const char *pszHandModelOverride = NULL;
+		for ( int i = 0; i < pPlayer->WeaponCount(); i++ )
+		{
+			CTFWeaponBase *pWpn = ( CTFWeaponBase *)pPlayer->GetWeapon( i );
+			if ( !pWpn )
+			{
+				continue;
+			}
+
+			CEconItemView *pWpnItem = pWpn->GetAttributeContainer()->GetItem();
+			if ( pWpnItem )
+			{
+				pszHandModelOverride = pWpnItem->GetOverrideHandModel();
+				if ( pszHandModelOverride && pszHandModelOverride[0] )
+				{
+					pszHandModel = pszHandModelOverride;
+					break;
+				}
+			}
+		}
+
 		Assert( pszHandModel );
 
 		return pszHandModel;

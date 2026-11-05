@@ -2286,10 +2286,14 @@ m_pszInventoryImage( NULL ),
 m_pszHolidayRestriction( NULL ),
 m_iSubType( 0 ),
 m_pszBaseDisplayModel( NULL ),
+m_pszBaseDisplayModelFestive( NULL ),
 m_iDefaultSkin( -1 ),
 m_pszWorldDisplayModel( NULL ),
 m_pszWorldExtraWearableModel( NULL ),
 m_pszWorldExtraWearableViewModel( NULL ),
+m_pszWorldExtraWearableFestive( NULL ),
+m_pszOverrideHandModel( NULL ),
+m_pszOverrideHandModelFestive( NULL ),
 m_pszVisionFilteredDisplayModel( NULL ),
 m_pszBrassModelOverride( NULL ),
 m_bHideBodyGroupsDeployedOnly( false ),
@@ -2374,6 +2378,7 @@ bool CEconItemDefinition::BInitFromTestItemKVs( int iNewDefIndex, KeyValues *pKV
 #endif
 
 		m_pszBaseDisplayModel = pKVItem->GetString( "model_player", NULL );
+		m_pszBaseDisplayModelFestive = pKVItem->GetString( "model_player_festive", NULL );
 		m_pszVisionFilteredDisplayModel = pKVItem->GetString( "model_vision_filtered", NULL );
 		m_bAttachToHands = pKVItem->GetInt( "attach_to_hands", 0 ) != 0;
 
@@ -2746,6 +2751,11 @@ void CEconItemDefinition::GeneratePrecacheModelStrings( bool bDynamicLoad, CUtlV
 		}
 	}
 
+	if ( GetBasePlayerDisplayModelFestive() )
+	{
+		out_pVecModelStrings->AddToTail( GetBasePlayerDisplayModelFestive() );
+	}
+
 	if ( GetExtraWearableModel() )
 	{
 		out_pVecModelStrings->AddToTail( GetExtraWearableModel() );
@@ -2754,6 +2764,21 @@ void CEconItemDefinition::GeneratePrecacheModelStrings( bool bDynamicLoad, CUtlV
 	if ( GetExtraWearableViewModel() )
 	{
 		out_pVecModelStrings->AddToTail( GetExtraWearableViewModel() );
+	}
+
+	if ( GetExtraWearableFestive() )
+	{
+		out_pVecModelStrings->AddToTail( GetExtraWearableFestive() );
+	}
+
+	if ( GetOverrideHandModel() )
+	{
+		out_pVecModelStrings->AddToTail( GetOverrideHandModel() );
+	}
+
+	if ( GetOverrideHandModelFestive() )
+	{
+		out_pVecModelStrings->AddToTail( GetOverrideHandModelFestive() );
 	}
 
 	if ( GetVisionFilteredDisplayModel() )
@@ -2862,6 +2887,7 @@ void CEconStyleInfo::BInitFromKV( KeyValues *pKVStyle, CUtlVector<CUtlString> *p
 	// Remaining common properties.
 	m_pszName = pKVStyle->GetString( "name", "#TF_UnknownStyle" );
 	m_pszBasePlayerModel = pKVStyle->GetString( "model_player", NULL );
+	m_pszBasePlayerModelFestive = pKVStyle->GetString( "model_player_festive", NULL );
 	m_bIsSelectable = pKVStyle->GetBool( "selectable", true );
 	m_pszInventoryImage = pKVStyle->GetString( "image_inventory", NULL );
 	m_bUseSmokeParticleEffect = pKVStyle->GetBool( "use_smoke_particle_effect", true );
@@ -2887,6 +2913,11 @@ void CEconStyleInfo::GeneratePrecacheModelStringsForStyle( CUtlVector<const char
 	if ( GetBasePlayerDisplayModel() != NULL )
 	{
 		out_pVecModelStrings->AddToTail( GetBasePlayerDisplayModel() );
+	}
+    
+    if ( GetBasePlayerDisplayModelFestive() != NULL )
+	{
+		out_pVecModelStrings->AddToTail( GetBasePlayerDisplayModelFestive() );
 	}
 }
 #endif
@@ -3156,10 +3187,14 @@ bool CEconItemDefinition::BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString
 	m_nVisionFilterFlags = m_pKVItem->GetInt( "vision_filter_flags", 0 );
 	m_iSubType = atoi( m_pKVItem->GetString( "subtype", "0" ) );
 	m_pszBaseDisplayModel = m_pKVItem->GetString( "model_player", NULL );
+	m_pszBaseDisplayModelFestive = m_pKVItem->GetString( "model_player_festive", NULL ); //not ideal but needed for festivized wearables
 	m_iDefaultSkin = m_pKVItem->GetInt( "default_skin", -1 );
 	m_pszWorldDisplayModel = m_pKVItem->GetString( "model_world", NULL ); // Not the ideal method. c_models are better, but this is to solve a retrofit problem with the sticky launcher.
 	m_pszWorldExtraWearableModel = m_pKVItem->GetString( "extra_wearable", NULL ); 
 	m_pszWorldExtraWearableViewModel = m_pKVItem->GetString( "extra_wearable_vm", NULL );
+	m_pszWorldExtraWearableFestive = m_pKVItem->GetString( "extra_wearable_festive", NULL );
+	m_pszOverrideHandModel = m_pKVItem->GetString( "override_hand_model", NULL );
+	m_pszOverrideHandModelFestive = m_pKVItem->GetString( "override_hand_model_festive", NULL );
 	m_pszVisionFilteredDisplayModel = pKVItem->GetString( "model_vision_filtered", NULL );
 	m_pszBrassModelOverride = m_pKVItem->GetString( "brass_eject_model", NULL );
 	m_bHideBodyGroupsDeployedOnly = m_pKVItem->GetBool( "hide_bodygroups_deployed_only" );
