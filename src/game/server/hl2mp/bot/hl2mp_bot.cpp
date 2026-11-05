@@ -243,15 +243,15 @@ CON_COMMAND_F( hl2mp_bot_add, "Add a bot.", FCVAR_GAMEDLL )
 			const char *pszModel = "";
 			if ( iTeam == TEAM_UNASSIGNED )
 			{
-				pszModel = g_ppszRandomModels[ RandomInt( 0, ARRAYSIZE( g_ppszRandomModels ) ) ];
+				pszModel = g_ppszRandomModels[ RandomInt( 0, ARRAYSIZE( g_ppszRandomModels ) - 1 ) ];
 			}
 			else if ( iTeam == TEAM_COMBINE )
 			{
-				pszModel = g_ppszRandomCombineModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomCombineModels ) )];
+				pszModel = g_ppszRandomCombineModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomCombineModels ) - 1 )];
 			}
 			else
 			{
-				pszModel = g_ppszRandomCitizenModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomCitizenModels ) )];
+				pszModel = g_ppszRandomCitizenModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomCitizenModels ) - 1 )];
 			}
 			engine->SetFakeClientConVarValue( pBot->edict(), "cl_playermodel", pszModel );
 			engine->SetFakeClientConVarValue( pBot->edict(), "name", name );

@@ -275,7 +275,7 @@ CPathTrack *CAI_TrackPather::BestPointOnPath( CPathTrack *pPath, const Vector &t
 
 	// Find the nearest node to the target (going forward)
 	CPathTrack *pNearestPath	= NULL;
-	float		flNearestDist	= bFarthestPoint ? 0 : 999999999;
+	float		flNearestDist	= bFarthestPoint ? 0.0f : 999999999.0f;
 	float		flPathDist;
 
 	float flFarthestDistSqr = ( m_flFarthestPathDist - 2.0f * m_flTargetDistanceThreshold );
@@ -800,8 +800,8 @@ CPathTrack *CAI_TrackPather::FindClosestPointOnPath( CPathTrack *pPath,
 
 	// Find the nearest node to the target (going forward)
 	CPathTrack *pNearestPath	= NULL;
-	float		flNearestDist2D	= 999999999;
-	float		flNearestDist	= 999999999;
+	float		flNearestDist2D	= 999999999.0f;
+	float		flNearestDist	= 999999999.0f;
 	float		flPathDist, flPathDist2D;
 
 	// NOTE: Gotta do it this crazy way because paths can be one-way.

@@ -493,6 +493,8 @@ struct Rule
 
 	Rule( const Rule& src )
 	{
+		m_szContext = nullptr;
+
 		int i;
 		int c;
 		

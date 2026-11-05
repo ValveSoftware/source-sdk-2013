@@ -1628,7 +1628,7 @@ void CNPC_BaseZombie::HandleAnimEvent( animevent_t *pEvent )
 
 		pString = nexttoken( token, pString, ' ' );
 
-		if ( !token )
+		if ( !token[0] )
 		{
 			Warning( "AE_ZOMBIE_POPHEADCRAB event format missing velocity parameter! Usage: event AE_ZOMBIE_POPHEADCRAB \"<BoneName> <Speed>\" \n" );
 			return;

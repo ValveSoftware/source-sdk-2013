@@ -18,7 +18,11 @@
 // ENABLE_SO_CONSTRUCT_DESTRUCT_PARANOIA can be set to either 0 or 1. If enabled, it
 // will add extra fields to every CSharedObject instance to try and detect issues with
 // constructions/destruction (ie., double-deletes, etc.), including reference counting.
-#define ENABLE_SO_CONSTRUCT_DESTRUCT_PARANOIA		(defined( STAGING_ONLY ))
+#ifdef STAGING_ONLY
+#define ENABLE_SO_CONSTRUCT_DESTRUCT_PARANOIA		1
+#else
+#define ENABLE_SO_CONSTRUCT_DESTRUCT_PARANOIA		0
+#endif
 
 #include "tier0/memdbgon.h"
 

@@ -1042,8 +1042,8 @@ void CClient_Precipitation::EmitParticles( float fTimeDelta )
 		Vector vPlayerCenter = pPlayer->WorldSpaceCenter();
 
 		// Compute where to emit
-	if (!ComputeEmissionArea( org, size ))
-		return;
+		if (!ComputeEmissionArea( org, size ))
+			return;
 
 		// clamp this to prevent creating a bunch of rain or snow at one time.
 		if( fTimeDelta > 0.075f )
@@ -1876,7 +1876,7 @@ void CSnowFallManager::FindSnowVolumes( Vector &vecCenter, float flRadius, Vecto
 		for ( iSnow = 0; iSnow < m_nActiveSnowCount; ++iSnow )
 		{
 			Vector vecMin, vecMax;
-			vecCenter = ( m_aSnow[iSnow].m_vecMin, m_aSnow[iSnow].m_vecMax ) * 0.5;
+			vecCenter = ( m_aSnow[iSnow].m_vecMin + m_aSnow[iSnow].m_vecMax ) * 0.5;
 			vecMin = m_aSnow[iSnow].m_vecMin - vecCenter;
 			vecMax = m_aSnow[iSnow].m_vecMax - vecCenter;
 			if ( debugoverlay )

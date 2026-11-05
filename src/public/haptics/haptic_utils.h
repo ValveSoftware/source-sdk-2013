@@ -21,7 +21,7 @@ class bf_read;
 #endif
 
 // stubbed version of haptics interface. Used when haptics is not available.
-class CHapticsStubbed : public IHaptics
+class CHapticsStubbed final : public IHaptics
 {
 public:
 public: // Initialization.

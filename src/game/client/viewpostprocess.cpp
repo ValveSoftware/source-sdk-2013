@@ -838,7 +838,7 @@ void CLuminanceHistogramSystem::UpdateLuminanceRanges( void )
 		{
 			if ( strlen( engine->GetGameDirectory() ) >= strlen( sModsForOriginalAlgorithm[i] ) )
 			{
-				if ( stricmp( &( engine->GetGameDirectory()[strlen( engine->GetGameDirectory() ) - strlen( sModsForOriginalAlgorithm[i] )] ), sModsForOriginalAlgorithm[i] ) == 0 )
+				if ( V_stricmp( &( engine->GetGameDirectory()[strlen( engine->GetGameDirectory() ) - strlen( sModsForOriginalAlgorithm[i] )] ), sModsForOriginalAlgorithm[i] ) == 0 )
 				{
 					mat_tonemap_algorithm.SetValue( 0 ); // Original algorithm
 					s_nCurrentBucketAlgorithm = mat_tonemap_algorithm.GetInt();

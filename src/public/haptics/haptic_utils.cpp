@@ -147,7 +147,7 @@ void DisconnectHaptics()
 		pFalconModule = 0;
 	}else{
 		// delete the stub.
-		delete haptics;
+		delete static_cast<CHapticsStubbed *>( haptics );
 	}
 	haptics = NULL;
 }

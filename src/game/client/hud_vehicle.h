@@ -5,8 +5,8 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#ifndef HUD_CROSSHAIR_H
-#define HUD_CROSSHAIR_H
+#ifndef HUD_VEHICLE_H
+#define HUD_VEHICLE_H
 #ifdef _WIN32
 #pragma once
 #endif

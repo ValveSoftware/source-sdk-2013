@@ -115,7 +115,7 @@ void CDebugOverlay::Paint()
 	OverlayText_t* pCurrText = debugoverlay->GetFirst();
 	while (pCurrText) 
 	{
-		if ( pCurrText->text != NULL ) 
+		if ( pCurrText->text[0] != '\0' ) 
 		{
 			// --------------
 			// Draw the text

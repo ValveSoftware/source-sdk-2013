@@ -1733,7 +1733,7 @@ int CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 			pVM->SetValue( varTable, "player_penetration_count", info.GetPlayerPenetrationCount() );
 			pVM->SetValue( varTable, "damaged_other_players", info.GetDamagedOtherPlayers() );
 			pVM->SetValue( varTable, "crit_type", (int)info.GetCritType() );
-			pVM->SetValue( varTable, "early_out", false );
+			pVM->SetValue( varTable, "early_out", ScriptVariant_t( false ) );
 
 			if ( RunScriptHook( "OnTakeDamage", varTable ) )
 			{

@@ -137,6 +137,16 @@ public:
 		return pResult;
 	}
 
+	void operator delete( void *pMem )
+	{
+		MemAlloc_Free( pMem );
+	}
+
+	void operator delete( void *pMem, int nBlockUse, const char *pFileName, int nLine )
+	{
+		MemAlloc_Free( pMem, pFileName, nLine );
+	}
+
 private:
 	CAI_BaseNPC *m_pOuter;
 };

@@ -83,7 +83,7 @@ struct FS_LocalToGlobal_t
 
 	~FS_LocalToGlobal_t()
 	{
-		delete m_Mapping;
+		delete[] m_Mapping;
 		m_nCount = 0;
 		m_Mapping = 0;
 	}

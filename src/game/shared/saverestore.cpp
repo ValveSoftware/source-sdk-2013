@@ -1513,7 +1513,7 @@ typedescription_t *CRestore::FindField( const char *pszFieldName, typedescriptio
 			if ( fieldNumber == fieldCount )
 				fieldNumber = 0;
 			
-			if ( stricmp( pTest->fieldName, pszFieldName ) == 0 )
+			if ( V_stricmp( pTest->fieldName, pszFieldName ) == 0 )
 				return pTest;
 		}
 	}
@@ -1602,7 +1602,7 @@ void CRestore::StartBlock( SaveRestoreRecordHeader_t *pHeader )
 
 //-------------------------------------
 
-void CRestore::StartBlock( char szBlockName[] )
+void CRestore::StartBlock( char szBlockName[SIZE_BLOCK_NAME_BUF] )
 {
 	SaveRestoreRecordHeader_t header;
 	StartBlock( &header );

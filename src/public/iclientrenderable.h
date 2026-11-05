@@ -14,6 +14,7 @@
 #include "mathlib/mathlib.h"
 #include "interface.h"
 #include "iclientunknown.h"
+#include "basehandle.h"
 #include "client_render_handle.h"
 #include "engine/ivmodelrender.h"
 
@@ -263,7 +264,7 @@ public:
 // IClientUnknown implementation.
 public:
 	virtual void SetRefEHandle( const CBaseHandle &handle )	{ Assert( false ); }
-	virtual const CBaseHandle& GetRefEHandle() const		{ Assert( false ); return *((CBaseHandle*)0); }
+	virtual const CBaseHandle& GetRefEHandle() const		{ Assert( false ); static const CBaseHandle s_hInvalid; return s_hInvalid; }
 
 	virtual IClientUnknown*		GetIClientUnknown()		{ return this; }
 	virtual ICollideable*		GetCollideable()		{ return 0; }

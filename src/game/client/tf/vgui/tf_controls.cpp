@@ -1061,7 +1061,7 @@ void CTFAdvancedOptionsDialog::CreateControls()
 		}
 
 		// Hook up the tooltip, if the entry has one
-		if ( pObj->tooltip && pObj->tooltip[0] )
+		if ( pObj->tooltip[0] )
 		{
 			if ( pCtrl->pPrompt )
 			{

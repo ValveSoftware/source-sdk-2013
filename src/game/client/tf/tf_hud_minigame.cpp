@@ -80,7 +80,7 @@ void CHudMiniGame::OnTick()
 			m_pActiveMinigame = pActiveMinigame;
 		}
 		
-		if ( pszResFilename && pszResFilename[0] && m_szResFilename && m_szResFilename[0] )	
+		if ( pszResFilename && pszResFilename[0] && m_szResFilename[0] )	
 		{
 			if ( !FStrEq( pszResFilename, m_szResFilename + sizeof( "resource/UI/" ) - 1 ) )
 			{

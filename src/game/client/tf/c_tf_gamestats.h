@@ -215,7 +215,7 @@ struct TF_Gamestats_QuickPlay_t
 	TF_Gamestats_QuickPlay_t()
 	{
 		m_fUserHoursPlayed = -1.0f;
-		m_sUserGameMode;
+		m_sUserGameMode.Clear();
 		m_fSearchTime = -1.0;
 		m_eResultCode = k_Result_UserCancel;
 		m_iExperimentGroup = 0;

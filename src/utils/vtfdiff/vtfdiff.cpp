@@ -23,6 +23,7 @@ void Usage( void )
 
 bool LoadFileIntoBuffer( const char *pFileName, CUtlBuffer &buf )
 {
+	int nBytesRead;
 	struct	_stat statBuf;
 	if( _stat( pFileName, &statBuf ) != 0 )
 	{
@@ -37,7 +38,7 @@ bool LoadFileIntoBuffer( const char *pFileName, CUtlBuffer &buf )
 		goto error;
 	}
 	
-	int nBytesRead = fread( buf.Base(), 1, statBuf.st_size, fp );
+	nBytesRead = fread( buf.Base(), 1, statBuf.st_size, fp );
 	fclose( fp );
 
 	buf.SeekPut( CUtlBuffer::SEEK_HEAD, nBytesRead );

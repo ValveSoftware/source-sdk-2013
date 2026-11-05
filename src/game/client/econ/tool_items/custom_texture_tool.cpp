@@ -1105,8 +1105,8 @@ void CustomTextureStencilGradientMapWidget::OnMousePressed(vgui::MouseCode code)
 {
 	int x,y;
 
-    if (!IsEnabled())
-        return;
+	if (!IsEnabled())
+		return;
 
 	g_pVGuiInput->GetCursorPosition( x, y );
 

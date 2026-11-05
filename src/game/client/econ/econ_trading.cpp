@@ -37,7 +37,7 @@
 
 const char *g_FriendRelationship[] =
 {
-	"none"
+	"none",
 	"blocked",
 	"request_recipient",
 	"friend",

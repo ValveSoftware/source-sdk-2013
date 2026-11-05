@@ -1860,8 +1860,8 @@ void CTFPlayerInventory::VerifyChangedLoadoutsAreValid()
     // remove the problematic items, but the inventory manager is a global for the local player. This means that another
     // played connected with an invalid inventory can cause changes in your inventory because we don't distinguish
     // self/other state past this point.
-    if ( GetOwner() != steamapicontext->SteamUser()->GetSteamID() )
-        return;
+	if ( GetOwner() != steamapicontext->SteamUser()->GetSteamID() )
+		return;
 
 	// We maybe changed equip state for an item and it's possible if we're sending bad messages and/or
 	// hacking state that we'll now have conflicting items equipped. Walk all of our items for this class

@@ -1662,7 +1662,7 @@ void CHudUpgradePanel::UpdateButtonStates( int nCurrentMoney, int nUpgrade /*= 0
 			if ( bMax && m_iWeaponSlotBeingUpgraded == -1 )
 			{
 				// This is ugly - I blame time vs workload
-				if ( pUpgradeBuyPanel->m_szAttribName )
+				if ( pUpgradeBuyPanel->m_szAttribName[0] )
 				{
 					CEconItemAttributeDefinition *pAttribDef = ItemSystem()->GetStaticDataForAttributeByName( pUpgradeBuyPanel->m_szAttribName );
 					if ( pAttribDef )

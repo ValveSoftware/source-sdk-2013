@@ -431,7 +431,7 @@ CTFNavArea *CTFBotDefendPoint::SelectAreaToDefendFrom( CTFBot *me )
 	{
 		for( int i=0; i<defenseAreas.Count(); ++i )
 		{
-			defenseAreas[i]->DrawFilled( 0, 200, 200, 999.9f );
+			defenseAreas[i]->DrawFilled( 0, 200, 200, 999 );
 		}
 	}
 

@@ -224,7 +224,7 @@ public:
 	// IHandleEntity stubs.
 public:
 	virtual void SetRefEHandle( const CBaseHandle &handle )	{ Assert( false ); }
-	virtual const CBaseHandle& GetRefEHandle() const		{ Assert( false ); return *((CBaseHandle*)0); }
+	virtual const CBaseHandle& GetRefEHandle() const		{ Assert( false ); static const CBaseHandle s_hInvalid; return s_hInvalid; }
 
 	//---------------------------------
 	struct LightStyleInfo_t
@@ -643,7 +643,8 @@ ClientShadowHandle_t CDetailModel::GetShadowHandle() const
 ClientRenderHandle_t& CDetailModel::RenderHandle()
 {
 	AssertMsg( 0, "CDetailModel has no render handle" );
-	return *((ClientRenderHandle_t*)NULL);
+	static ClientRenderHandle_t s_hInvalid = INVALID_CLIENT_RENDER_HANDLE;
+	return s_hInvalid;
 }	
 
 

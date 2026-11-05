@@ -151,7 +151,7 @@ ChunkHandler_t CChunkHandlerMap::GetHandler(const char *pszChunkName, void **ppD
 		pNode = pNode->pNext;
 	}
 
-	return(false);
+	return NULL;
 }
 
 

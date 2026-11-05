@@ -11,6 +11,7 @@
 // $NoKeywords: $
 //=============================================================================//
 
+#pragma once
 #include "particles_simple.h"
 #include "particlemgr.h"
 #include "c_pixel_visibility.h"

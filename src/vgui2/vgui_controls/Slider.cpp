@@ -751,8 +751,8 @@ void Slider::OnMousePressed(MouseCode code)
 {
 	int x,y;
 
-    if (!IsEnabled())
-        return;
+	if (!IsEnabled())
+		return;
 
 //	input()->GetCursorPos(x,y);
 	input()->GetCursorPosition( x, y );

@@ -1591,7 +1591,7 @@ float Hermite_Spline(
 	float t );
 
 
-void Hermite_SplineBasis( float t, float basis[] );
+void Hermite_SplineBasis( float t, float basis[4] );
 
 void Hermite_Spline( 
 	const Quaternion &q0, 

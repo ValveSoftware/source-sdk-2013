@@ -121,6 +121,7 @@ typedef C_BaseEntity* (*DISPATCHFUNCTION)( void );
 
 #include "touchlink.h"
 #include "groundlink.h"
+#include "soundstartparams.h"
 
 #if !defined( NO_ENTITY_PREDICTION )
 //-----------------------------------------------------------------------------

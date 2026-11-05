@@ -141,7 +141,7 @@ bool CUtlSymbolTable::CLess::operator()( const CStringPoolIndex &i1, const CStri
 	// can be arbitrarily moved in memory on a realloc. Yes, this is portable. In reality,
 	// right now at least, because m_LessFunc is the first member of CUtlRBTree, and m_Lookup
 	// is the first member of CUtlSymbolTabke, this == pTable
-	CUtlSymbolTable *pTable = (CUtlSymbolTable *)( (byte *)this - offsetof(CUtlSymbolTable::CTree, m_LessFunc) ) - offsetof(CUtlSymbolTable, m_Lookup );
+	CUtlSymbolTable *pTable = (CUtlSymbolTable *)( (byte *)this - offsetof(CUtlSymbolTable::CTree, m_LessFunc) - offsetof(CUtlSymbolTable, m_Lookup ) );
 	const char* str1 = (i1 == INVALID_STRING_INDEX) ? pTable->m_pUserSearchString :
 													  pTable->StringFromIndex( i1 );
 	const char* str2 = (i2 == INVALID_STRING_INDEX) ? pTable->m_pUserSearchString :

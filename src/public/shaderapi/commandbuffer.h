@@ -11,8 +11,8 @@
 //
 //===========================================================================//
 
-#ifndef COMMANDBUFFER_H
-#define COMMANDBUFFER_H
+#ifndef SHADERAPI_COMMANDBUFFER_H
+#define SHADERAPI_COMMANDBUFFER_H
 
 
 #ifdef _WIN32

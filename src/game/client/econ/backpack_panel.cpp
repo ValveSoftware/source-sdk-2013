@@ -942,7 +942,7 @@ void CBackpackPanel::CheckForQuickOpenKey()
 			if ( !pInvItem->GetStaticData()->GetEconTool() )
 				continue;
 
-			if ( !Q_strcmp( pInvItem->GetStaticData()->GetEconTool()->GetTypeName(), "decoder_ring" ) == 0 )
+			if ( Q_strcmp( pInvItem->GetStaticData()->GetEconTool()->GetTypeName(), "decoder_ring" ) != 0 )
 				continue;
 
 			ApplyTool( this, pInvItem, m_hQuickOpenCrate );

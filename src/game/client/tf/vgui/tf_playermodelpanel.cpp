@@ -1656,7 +1656,7 @@ bool CTFPlayerModelPanel::UpdateCosmeticParticles(
 	CUtlVector< int > vecAttachments;
 	static CSchemaAttributeDefHandle pAttrDef_UseHead( "particle effect use head origin" );
 	uint32 iUseHead = 0;
-	if ( !pEconItem->FindAttribute( pAttrDef_UseHead, &iUseHead ) || !iUseHead == 0 )
+	if ( !pEconItem->FindAttribute( pAttrDef_UseHead, &iUseHead ) || iUseHead == 0 )
 	{
 		// not using head? try searching for attachment points
 		for ( int i=0; i<ARRAYSIZE( pParticleSystem->pszControlPoints ); ++i )

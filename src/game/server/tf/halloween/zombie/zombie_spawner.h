@@ -3,8 +3,8 @@
 //
 //
 //=============================================================================
-#ifndef ZOMBIE_SPAWN_H
-#define ZOMBIE_SPAWN_H
+#ifndef ZOMBIE_SPAWNER_H
+#define ZOMBIE_SPAWNER_H
 
 class CZombieSpawner : public CPointEntity
 {

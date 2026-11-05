@@ -1658,7 +1658,7 @@ void CExplanationPopup::Hide( int iExplanationDelta )
 	const char *pszMoveTo = NULL;
 	if ( iExplanationDelta == -1 )
 	{
-		if ( !m_szPrevExplanation || m_szPrevExplanation[ 0 ] == '\0' )
+		if ( m_szPrevExplanation[ 0 ] == '\0' )
 			return;
 
 		pszMoveTo = m_szPrevExplanation;
@@ -1666,7 +1666,7 @@ void CExplanationPopup::Hide( int iExplanationDelta )
 	}
 	else if ( iExplanationDelta == 1 )
 	{
-		if ( !m_szNextExplanation || m_szNextExplanation[ 0 ] == '\0' )
+		if ( m_szNextExplanation[ 0 ] == '\0' )
 			return;
 
 		pszMoveTo = m_szNextExplanation;

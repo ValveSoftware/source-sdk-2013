@@ -983,15 +983,17 @@ void BuildGroup::LoadControlSettings(const char *controlResourceName, const char
 	}
 
 	// save off the resource name
+	char *pResourceName = new char[strlen(controlResourceName) + 1];
+	strcpy(pResourceName, controlResourceName);
 	delete [] m_pResourceName;
-	m_pResourceName = new char[strlen(controlResourceName) + 1];
-	strcpy(m_pResourceName, controlResourceName);
+	m_pResourceName = pResourceName;
 
 	if (pathID)
 	{
+		char *pResourcePathID = new char[strlen(pathID) + 1];
+		strcpy(pResourcePathID, pathID);
 		delete [] m_pResourcePathID;
-		m_pResourcePathID = new char[strlen(pathID) + 1];
-		strcpy(m_pResourcePathID, pathID);
+		m_pResourcePathID = pResourcePathID;
 	}
 
 	// delete any controls not in both files

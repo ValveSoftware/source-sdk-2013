@@ -81,6 +81,9 @@ public:
 	// Move assignment operator:
 	CUtlString& operator=( CUtlString&& rhs )
 	{
+		if ( this == &rhs )
+			return *this;
+
 		// Move the string pointer from the source to this -- be sure to
 		// zero out the source to avoid double frees.  SetPtr will free our existing
 		// value if needed.
@@ -318,6 +321,8 @@ inline CUtlString::CUtlString( const CUtlString& string )
 {
 	Set( string.Get() );
 }
+
+static_assert( sizeof( CUtlString ) == sizeof( char * ) );
 
 inline CUtlString::~CUtlString()
 {

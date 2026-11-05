@@ -1316,7 +1316,7 @@ void CTFBotMainAction::FireWeaponAtEnemy( CTFBot *me )
 		{
 			if ( !myWeapon->IsWeapon( TF_WEAPON_ROCKETLAUNCHER ) &&
 				!myWeapon->IsWeapon( TF_WEAPON_GRENADELAUNCHER ) &&
-				!myWeapon->IsWeapon( TF_WEAPON_PIPEBOMBLAUNCHER ) &
+				!myWeapon->IsWeapon( TF_WEAPON_PIPEBOMBLAUNCHER ) &&
 				!myWeapon->IsWeapon( TF_WEAPON_ROCKETLAUNCHER_DIRECTHIT ) )
 			{
 				// firing would just waste ammo, so don't
