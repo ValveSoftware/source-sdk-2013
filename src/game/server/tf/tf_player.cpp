@@ -958,6 +958,7 @@ CTFPlayer::CTFPlayer()
 	m_flLastCoachCommand = 0;
 
 	m_flNextTimeCheck = gpGlobals->curtime;
+	m_flNextSandmanStunBonusTime = gpGlobals->curtime;
 	m_flSpawnTime = 0;
 
 	m_flWaterExitTime = 0;
