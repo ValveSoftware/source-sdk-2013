@@ -81,6 +81,15 @@ const char* CPaintKitDefinition::GetMaterialOverride( item_definition_index_t iD
 		}
 	}
 
+	//paintkit tool's iDefIndex will come in here as different for every different paint
+	//and is different from the index that comes up when generating the supported items below
+	//BUT if we're getting asked for the override for an item thats not in the supported items
+	//and the paint CAN render a paintkit tool, this is surely asking for the paintkit override
+	if (m_bHasPaintKitTool && m_pszPaintKitOverride && *m_pszPaintKitOverride)
+	{
+		return m_pszPaintKitOverride;
+	}
+
 	return NULL;
 }
 
@@ -91,7 +100,8 @@ void CPaintKitDefinition::GenerateSupportedItems() const
 		CUtlVector< SupportedItem_t > tempVec;
 		const CMsgPaintKit_Definition *pPaintKitDef = static_cast< const CMsgPaintKit_Definition * >( GetMsg() );
 		bool bHasPaintKitTool = false;
-		auto lambdaGenerateSupportedItems = [ pPaintKitDef, &tempVec, &bHasPaintKitTool ]( const google::protobuf::Message* pMsgVar, const google::protobuf::FieldDescriptor* pField, const CMsgFieldID& fieldID )->bool
+		const char *pszPaintKitOverride = NULL;
+		auto lambdaGenerateSupportedItems = [ pPaintKitDef, &tempVec, &bHasPaintKitTool, &pszPaintKitOverride]( const google::protobuf::Message* pMsgVar, const google::protobuf::FieldDescriptor* pField, const CMsgFieldID& fieldID )->bool
 		{
 			if ( !BMessagesTypesAreTheSame( pMsgVar->GetDescriptor(), CMsgPaintKit_Definition_Item::descriptor() ) )
 			{
@@ -113,6 +123,7 @@ void CPaintKitDefinition::GenerateSupportedItems() const
 				if ( pItemDefMsg->item_definition_index() == pPaintkitToolItemDef->GetDefinitionIndex() )
 				{
 					bHasPaintKitTool = true;
+					pszPaintKitOverride = pItemMsg->data().material_override().c_str();
 				}
 			}
 
@@ -145,6 +156,9 @@ void CPaintKitDefinition::GenerateSupportedItems() const
 
 		m_vecSupportedItems.AddVectorToTail( tempVec );
 		m_bHasPaintKitTool = bHasPaintKitTool;
+		if (bHasPaintKitTool) {
+			m_pszPaintKitOverride = pszPaintKitOverride && *pszPaintKitOverride ? pszPaintKitOverride : NULL;
+		}
 	}
 }
 
