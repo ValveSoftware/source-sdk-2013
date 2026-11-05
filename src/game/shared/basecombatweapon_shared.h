@@ -354,8 +354,10 @@ public:
 	virtual bool			AllowsAutoSwitchFrom( void ) const;
 	virtual bool			ForceWeaponSwitch( void ) const { return false; }
 	virtual int				GetWeaponFlags( void ) const;
-	virtual int				GetSlot( void ) const;
-	virtual int				GetPosition( void ) const;
+	virtual int				GetSlot( void ) const { return m_iSlot; };
+	virtual void			SetSlot( int iSlot ) { m_iSlot = iSlot; };
+	virtual int				GetPosition( void ) const { return m_iPosition; };
+	virtual void			SetPosition( int iPosition ) { m_iPosition = iPosition; };
 	virtual char const		*GetName( void ) const;
 	virtual char const		*GetPrintName( void ) const;
 	virtual char const		*GetShootSound( int iIndex ) const;
@@ -638,12 +640,15 @@ public:
 	float					m_fMaxRange2;			// What's the furthest this weapon can be used?
 	bool					m_bReloadsSingly;		// True if this weapon reloads 1 round at a time
 	float					m_fFireDuration;		// The amount of time that the weapon has sustained firing
-	int						m_iSubType;
+	CNetworkVar( int, m_iSubType );
 
 	float					m_flUnlockTime;
 	EHANDLE					m_hLocker;				// Who locked this weapon.
 
 	CNetworkVar( bool, m_bFlipViewModel );
+
+	CNetworkVar( int, m_iSlot );				// which bucket this weapon is in
+	CNetworkVar( int, m_iPosition );			// position in the bucket
 
 	IPhysicsConstraint		*GetConstraint() { return m_pConstraint; }
 
