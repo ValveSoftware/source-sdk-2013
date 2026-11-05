@@ -6509,7 +6509,7 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 		}
 	}
 
-	// Use defense buffs if it's not a backstab or direct crush damage (telefrage, etc.)
+	// Use defense buffs if it's not a backstab or direct crush damage (telefrag, etc.)
 	if ( pVictim && info.GetDamageCustom() != TF_DMG_CUSTOM_BACKSTAB && ( info.GetDamageType() & DMG_CRUSH ) == 0 )
 	{
 		if ( pVictim->m_Shared.InCond( TF_COND_DEFENSEBUFF ) )
@@ -6529,7 +6529,8 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 			info.SetCritType( CTakeDamageInfo::CRIT_NONE );
 		}
 
-		if ( !iAttackIgnoresResists )
+		// Reduce damage if not resist-piercing weapon or honorbound duel
+		if ( !iAttackIgnoresResists && !( info.GetDamageType() & DMG_IGNORE_RESIST_BUFFS ) )
 		{
 			// If we are defense buffed...
 			if ( pVictim->m_Shared.InCond( TF_COND_DEFENSEBUFF_HIGH ) )
@@ -7151,9 +7152,6 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 
 	float flRealDamage = info.GetDamage();
 
-	int iAttackIgnoresResists = 0;
-	CALL_ATTRIB_HOOK_INT_ON_OTHER( info.GetWeapon(), iAttackIgnoresResists, mod_pierce_resists_absorbs );
-
 	if ( pVictimBaseEntity && pVictimBaseEntity->m_takedamage != DAMAGE_EVENTS_ONLY && pVictim )
 	{
 		int iDamageTypeBits = info.GetDamageType() & DMG_IGNITE;
@@ -7239,16 +7237,16 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 			Assert( flDamageBase >= 0.f );
 		}
 
-		int iPierceResists = 0;
-		CALL_ATTRIB_HOOK_INT_ON_OTHER( info.GetWeapon(), iPierceResists, mod_pierce_resists_absorbs );
+		int iAttackIgnoresResists = 0;
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( info.GetWeapon(), iAttackIgnoresResists, mod_pierce_resists_absorbs );
 
 		// This raw damage wont get scaled.  Used for determining how much health to give resist medics.
 		float flRawDamage = flDamageBase;
-		
+
 		// Check if we're immune
 		outParams.bPlayDamageReductionSound = CheckForDamageTypeImmunity( info.GetDamageType(), pVictim, flDamageBase, flDamageBonus );
 
-		if ( !iPierceResists )
+		if ( !iAttackIgnoresResists )
 		{
 			// Reduce only the crit portion of the damage with crit resist
 			bool bCrit = ( info.GetDamageType() & DMG_CRITICAL ) > 0;
@@ -7325,8 +7323,9 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 		// Stomp flRealDamage with resist adjusted values
 		flRealDamage = flDamageBase + flDamageBonus;
 
-		// Some Powerups apply a damage multiplier. Backstabs are immune to resist protection
-		if ( ( pVictim && info.GetDamageCustom() != TF_DMG_CUSTOM_BACKSTAB ) )
+		// Some Powerups apply a damage multiplier. Backstabs and honorbound duels are immune to resist protection
+		if ( pVictim && info.GetDamageCustom() != TF_DMG_CUSTOM_BACKSTAB
+			&& !( info.GetDamageType() & DMG_IGNORE_RESIST_BUFFS ) )
 		{
 			// Plague bleed damage is immune from resist calculation
 			if ( ( !pVictim->m_Shared.InCond( TF_COND_PLAGUE ) && info.GetDamageCustom() != TF_DMG_CUSTOM_BLEEDING ) )
