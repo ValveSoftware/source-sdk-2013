@@ -13,6 +13,7 @@
 #include "vgui/ISurface.h"
 #include "vgui/IInput.h"
 #include "tf_controls.h"
+#include "tf_hud_3dping.h"
 #include "vgui_controls/TextImage.h"
 #include "vgui_controls/PropertyPage.h"
 #include "econ_item_system.h"
@@ -759,6 +760,23 @@ void CTFAdvancedOptionsDialog::OnCommand( const char *command )
 	BaseClass::OnCommand( command );
 }
 
+// Only wired up for 3D ping color fields. Every other field waits for OK.
+void CTFAdvancedOptionsDialog::OnPingColorTextChanged( vgui::Panel *panel )
+{
+	mpcontrol_t *pCtrl = dynamic_cast< mpcontrol_t* >( panel->GetParent() );
+	if ( !pCtrl || !pCtrl->pScrObj )
+		return;
+
+	char szText[ 64 ];
+	( (vgui::TextEntry *)panel )->GetText( szText, sizeof( szText ) );
+
+	ConVarRef cvar( pCtrl->pScrObj->cvarname );
+	if ( cvar.IsValid() )
+	{
+		cvar.SetValue( szText );
+	}
+}
+
 void CTFAdvancedOptionsDialog::OnKeyCodeTyped(KeyCode code)
 {
 	// force ourselves to be closed if the escape key it pressed
@@ -978,6 +996,12 @@ void CTFAdvancedOptionsDialog::CreateControls()
 
 			pEdit->InvalidateLayout( true, true );
 			pEdit->SetBgColor( Color(0,0,0,255) );
+
+			// Commit ping colors immediately so the preview updates live.
+			if ( pObj->cvarname[0] && !Q_strnicmp( pObj->cvarname, "cl_3dping_color_", 16 ) )
+			{
+				pEdit->AddActionSignalTarget( this );
+			}
 			break;
 		case O_LIST:
 			{
@@ -1075,6 +1099,11 @@ void CTFAdvancedOptionsDialog::CreateControls()
 		}
 
 		m_pListPanel->AddItem( NULL, pCtrl );
+
+		if ( pCtrl->type == O_CATEGORY )
+		{
+			TF3DPing_MaybeInsertPreviewRow( m_pListPanel, pObj->prompt );
+		}
 
 		// Link it in
 		if ( !m_pList )

@@ -103,6 +103,8 @@
 #include "entity_rune.h"
 #include "entity_halloween_pickup.h"
 #include "tf_gc_server.h"
+#include "tf_3dping.h"
+#include "tf_3dping_shared.h"
 #include "tf_logic_halloween_2014.h"
 #include "tf_weapon_knife.h"
 #include "tf_weapon_grapplinghook.h"
@@ -8063,6 +8065,11 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			m_bViewingCYOAPDA.Set( bOpen );
 			TeamFortress_SetSpeed();
 		}
+		return true;
+	}
+	else if ( FStrEq( pcmd, TF_3DPING_COMMAND_NAME ) )
+	{
+		TF3DPing_OnPlayerPingCommand( this, args );
 		return true;
 	}
 

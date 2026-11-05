@@ -202,6 +202,7 @@ CHudMainMenuOverride::CHudMainMenuOverride( IViewPort *pViewPort ) : BaseClass( 
 	ListenForGameEvent( "store_pricesheet_updated" );
 	ListenForGameEvent( "gameui_activated" );
 	ListenForGameEvent( "party_updated" );
+	ListenForGameEvent( "party_member_join" );
 	ListenForGameEvent( "server_spawn" );
 
 	m_pRankPanel = new CPvPRankPanel( this, "rankpanel" );
@@ -340,6 +341,20 @@ void CHudMainMenuOverride::AttachToGameUI( void )
 //-----------------------------------------------------------------------------
 ConVar tf_last_store_pricesheet_version( "tf_last_store_pricesheet_version", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE | FCVAR_DONTRECORD | FCVAR_HIDDEN );
 
+static bool s_bTF3DPingPartySuggestionOffered = false;
+
+static void TF3DPing_OnPartySuggestionConfirmed( bool bConfirmed, void *pContext )
+{
+	if ( !bConfirmed )
+		return;
+
+	ConVarRef cl_3dping_enabled( "cl_3dping_enabled" );
+	if ( cl_3dping_enabled.IsValid() )
+	{
+		cl_3dping_enabled.SetValue( true );
+	}
+}
+
 void CHudMainMenuOverride::FireGameEvent( IGameEvent *event )
 {
 	const char * type = event->GetName();
@@ -431,6 +446,38 @@ void CHudMainMenuOverride::FireGameEvent( IGameEvent *event )
 		if ( NeedsToChooseMostHelpfulFriend() )
 		{
 			NotifyNeedsToChooseMostHelpfulFriend();
+		}
+	}
+	else if ( Q_strcmp( type, "party_member_join" ) == 0 )
+	{
+		if ( s_bTF3DPingPartySuggestionOffered || !steamapicontext || !steamapicontext->SteamUser() )
+			return;
+
+		const char *pszJoinedSteamID = event->GetString( "steamid", "" );
+		if ( !pszJoinedSteamID[0] )
+			return;
+
+		CSteamID localSteamID = steamapicontext->SteamUser()->GetSteamID();
+		char szLocalSteamID[ 32 ];
+		Q_snprintf( szLocalSteamID, sizeof( szLocalSteamID ), "%llu", localSteamID.ConvertToUint64() );
+
+		if ( Q_strcmp( pszJoinedSteamID, szLocalSteamID ) != 0 )
+			return;
+
+		ConVarRef cl_3dping_enabled( "cl_3dping_enabled" );
+		if ( !cl_3dping_enabled.IsValid() || cl_3dping_enabled.GetBool() )
+			return;
+
+		s_bTF3DPingPartySuggestionOffered = true;
+
+		CTFGenericConfirmDialog *pDialog = vgui::SETUP_PANEL( new CTFGenericConfirmDialog(
+			"3D Pings",
+			L"Enable 3D pings to mark locations for your party?",
+			"#GameUI_OK", "#GameUI_Cancel",
+			&TF3DPing_OnPartySuggestionConfirmed, this ) );
+		if ( pDialog )
+		{
+			pDialog->Show();
 		}
 	}
 }
