@@ -501,6 +501,37 @@ bool GetStattrak( const IEconItemInterface *pItem, CAttribute_String *pAttrModul
 	return bRet;
 }
 
+bool GetBotkillerModule( const IEconItemInterface *pItem, CAttribute_String *pAttrModule /*= NULL*/, CAttribute_String *pAttrModuleVM /*= NULL*/, int *pnSkin /*= NULL*/ )
+{
+	static CSchemaAttributeDefHandle pAttribDef_Module( "weapon_uses_botkiller_module" );
+	static CSchemaAttributeDefHandle pAttribDef_ModuleVM( "weapon_uses_botkiller_module_vm" );
+	static CSchemaAttributeDefHandle pAttribDef_ModuleSkin( "weapon_botkiller_module_skin" );
+
+	CAttribute_String attrModule;
+	if ( !pAttribDef_Module || !pItem->FindAttribute( pAttribDef_Module, &attrModule ) || !attrModule.has_value() )
+		return false;
+
+	if ( pAttrModule )
+	{
+		*pAttrModule = attrModule;
+	}
+
+	if ( pAttrModuleVM )
+	{
+		CAttribute_String attrModuleVM;
+		bool bHasModuleVM = pAttribDef_ModuleVM && pItem->FindAttribute( pAttribDef_ModuleVM, &attrModuleVM ) && attrModuleVM.has_value();
+		*pAttrModuleVM = bHasModuleVM ? attrModuleVM : attrModule;
+	}
+
+	if ( pnSkin )
+	{
+		uint32 unSkin = 0;
+		*pnSkin = ( pAttribDef_ModuleSkin && FindAttribute_UnsafeBitwiseCast<attrib_value_t>( pItem, pAttribDef_ModuleSkin, &unSkin ) ) ? (int)unSkin : 0;
+	}
+
+	return true;
+}
+
 const char *GetPaintKitMaterialOverride( const IEconItemInterface *pItem )
 {
 	uint32 unPaintKitDefIndex = 0;
