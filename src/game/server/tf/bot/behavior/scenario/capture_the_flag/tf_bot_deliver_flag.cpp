@@ -277,7 +277,7 @@ ActionResult< CTFBot > CTFBotDeliverFlag::Update( CTFBot *me, float interval )
 
 	if ( UpgradeOverTime( me ) )
 	{
-		return SuspendFor( new CTFBotTaunt, "Taunting for our new upgrade" );
+		return SuspendFor( new CTFBotTaunt( NULL ), "Taunting for our new upgrade" );
 	}
 
 	return Continue();
