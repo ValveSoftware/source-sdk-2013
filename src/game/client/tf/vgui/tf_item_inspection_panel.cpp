@@ -840,6 +840,9 @@ void CTFItemInspectionPanel::OnNavButtonSelected( KeyValues *pData )
 	{
 		pItem->SetTeamNumber( iTeam );
 
+		//set the panel as well to update attachments for team
+		m_pModelInspectPanel->SetItem(pItem);
+
 		RecompositeItem();
 	}
 }
