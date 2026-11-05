@@ -69,6 +69,8 @@ public:
 	virtual bool CanCharge( void );
 	virtual float GetChargeBeginTime( void );
 	virtual float GetChargeMaxTime( void );
+	
+	virtual bool	CanInspect() const OVERRIDE;
 
 	void LaunchGrenade( void );
 
