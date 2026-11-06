@@ -932,6 +932,24 @@ void CBaseEntity::PhysicsStartTouch( CBaseEntity *pentOther )
 	}
 }
 
+static touchlink_t *Physics_FindTouchLink( CBaseEntity *pEntity, CBaseEntity *pOther )
+{
+	if ( !pEntity || !pOther )
+		return NULL;
+
+	touchlink_t *pRoot = ( touchlink_t * )pEntity->GetDataObject( TOUCHLINK );
+	if ( !pRoot )
+		return NULL;
+
+	for ( touchlink_t *pLink = pRoot->nextLink; pLink != pRoot; pLink = pLink->nextLink )
+	{
+		if ( pLink->entityTouched == pOther )
+			return pLink;
+	}
+
+	return NULL;
+}
+
 
 
 //-----------------------------------------------------------------------------
@@ -992,6 +1010,7 @@ touchlink_t *CBaseEntity::PhysicsMarkEntityAsTouched( CBaseEntity *other )
 				if ( !CBaseEntity::sm_bDisableTouchFuncs )
 				{
 					PhysicsTouch( other );
+					return Physics_FindTouchLink( this, other );
 				}
 
 				// no more to do
@@ -1033,6 +1052,7 @@ touchlink_t *CBaseEntity::PhysicsMarkEntityAsTouched( CBaseEntity *other )
 		if ( !CBaseEntity::sm_bDisableTouchFuncs )
 		{
 			PhysicsStartTouch( other );
+			return Physics_FindTouchLink( this, other );
 		}
 	}
 
@@ -1064,12 +1084,16 @@ void CBaseEntity::PhysicsMarkEntitiesAsTouchingEventDriven( CBaseEntity *other, 
 
 	touchlink_t *link;
 	link = this->PhysicsMarkEntityAsTouched( other );
-	if ( link )
+	if ( !link )
 	{
-		// mark these links as event driven so they aren't untouched the next frame
-		// when the physics doesn't refresh them
-		link->touchStamp = TOUCHSTAMP_EVENT_DRIVEN;
+		g_TouchTrace.m_pEnt = this;
+		return;
 	}
+
+	// mark these links as event driven so they aren't untouched the next frame
+	// when the physics doesn't refresh them
+	link->touchStamp = TOUCHSTAMP_EVENT_DRIVEN;
+
 	g_TouchTrace.m_pEnt = this;
 	link = other->PhysicsMarkEntityAsTouched( this );
 	if ( link )
