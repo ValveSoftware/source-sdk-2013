@@ -191,12 +191,14 @@ private:
 	void GatherCurrentValues();
 	void SaveValues();
 
+	virtual void OnMessage( const KeyValues *pParams, vgui::VPANEL fromPanel );
 	virtual void OnCommand( const char *command );
 	virtual void OnClose();
 	virtual void OnKeyCodeTyped(vgui::KeyCode code);
 	virtual void OnKeyCodePressed(vgui::KeyCode code);
 
 private:
+	vgui::TextEntry		*m_pFilterField;
 	CInfoDescription	*m_pDescription;
 	mpcontrol_t			*m_pList;
 	vgui::PanelListPanel *m_pListPanel;
