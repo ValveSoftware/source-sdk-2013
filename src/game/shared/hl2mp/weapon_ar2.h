@@ -75,9 +75,7 @@ protected:
 	CNetworkVar( bool,		m_bShotDelayed );
 	int						m_nVentPose;
 	
-#ifndef CLIENT_DLL
 	DECLARE_ACTTABLE();
-#endif
 };
 
 

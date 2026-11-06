@@ -433,9 +433,7 @@ private:
 	void	SetChargerState( ChargerState_t state );
 	void	DoLoadEffect( void );
 
-#ifndef CLIENT_DLL
 	DECLARE_ACTTABLE();
-#endif
 
 private:
 	
@@ -478,7 +476,6 @@ LINK_ENTITY_TO_CLASS( weapon_crossbow, CWeaponCrossbow );
 
 PRECACHE_WEAPON_REGISTER( weapon_crossbow );
 
-#ifndef CLIENT_DLL
 
 acttable_t	CWeaponCrossbow::m_acttable[] = 
 {
@@ -493,7 +490,6 @@ acttable_t	CWeaponCrossbow::m_acttable[] =
 
 IMPLEMENT_ACTTABLE(CWeaponCrossbow);
 
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -669,6 +665,7 @@ void CWeaponCrossbow::FireBolt( void )
 	WeaponSound( SPECIAL2 );
 
 	SendWeaponAnim( ACT_VM_PRIMARYATTACK );
+	ToHL2MPPlayer( pOwner )->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 
 	if ( !m_iClip1 && pOwner->GetAmmoCount( m_iPrimaryAmmoType ) <= 0 )
 	{

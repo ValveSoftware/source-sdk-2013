@@ -14,6 +14,8 @@
 #include "iviewrender_beams.h"			// flashlight beam
 #include "r_efx.h"
 #include "dlight.h"
+#include "prediction.h"
+#include "c_basetempentity.h"
 
 // Don't alias here
 #if defined( CHL2MP_Player )
@@ -67,6 +69,13 @@ BEGIN_PREDICTION_DATA( C_HL2MP_Player )
 	// with just altfire ammo, and get new ammo and we force reload. But the additional pred error sorts that out itself
 	// without this for every pickup which is 1000% more common.
 	DEFINE_PRED_ARRAY( m_iAmmo, FIELD_INTEGER, MAX_AMMO_TYPES, FTYPEDESC_INSENDTABLE | FTYPEDESC_OVERRIDE | FTYPEDESC_NOERRORCHECK ),
+
+	// Player animations are updated on the client by CHL2MPPlayerAnimState.
+	DEFINE_PRED_FIELD( m_flCycle, FIELD_FLOAT, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE | FTYPEDESC_NOERRORCHECK ),
+	DEFINE_PRED_FIELD( m_nSequence, FIELD_INTEGER, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE | FTYPEDESC_NOERRORCHECK ),
+	DEFINE_PRED_FIELD( m_flPlaybackRate, FIELD_FLOAT, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE | FTYPEDESC_NOERRORCHECK ),
+	DEFINE_PRED_ARRAY_TOL( m_flEncodedController, FIELD_FLOAT, MAXSTUDIOBONECTRLS, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE, 0.02f ),
+	DEFINE_PRED_FIELD( m_nNewSequenceParity, FIELD_INTEGER, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE | FTYPEDESC_NOERRORCHECK ),
 END_PREDICTION_DATA()
 
 ConVar hl2_walkspeed( "hl2_walkspeed", "150", FCVAR_REPLICATED );
@@ -100,8 +109,11 @@ void SpawnBlood (Vector vecSpot, const Vector &vecDir, int bloodColor, float flD
 #endif
 CSuitPowerDevice SuitDeviceBreather( bits_SUIT_DEVICE_BREATHER, 6.7f );		// 100 units in 15 seconds (plus three padded seconds)
 
-C_HL2MP_Player::C_HL2MP_Player() : m_PlayerAnimState( this ), m_iv_angEyeAngles( "C_HL2MP_Player::m_iv_angEyeAngles" )
+C_HL2MP_Player::C_HL2MP_Player() :
+	m_iv_angEyeAngles( "C_HL2MP_Player::m_iv_angEyeAngles" )
 {
+	m_PlayerAnimState = CreateHL2MPPlayerAnimState( this );
+
 	m_iIDEntIndex = 0;
 	m_iSpawnInterpCounterCache = 0;
 
@@ -120,6 +132,8 @@ C_HL2MP_Player::C_HL2MP_Player() : m_PlayerAnimState( this ), m_iv_angEyeAngles(
 C_HL2MP_Player::~C_HL2MP_Player( void )
 {
 	ReleaseFlashlight();
+
+	m_PlayerAnimState->Release();
 }
 
 int C_HL2MP_Player::GetIDTarget() const
@@ -217,10 +231,21 @@ void C_HL2MP_Player::Initialize( void )
 CStudioHdr *C_HL2MP_Player::OnNewModel( void )
 {
 	CStudioHdr *hdr = BaseClass::OnNewModel();
-	
-	Initialize( );
+
+	Initialize();
+
+	m_PlayerAnimState->OnNewModel();
 
 	return hdr;
+}
+
+bool C_HL2MP_Player::Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex )
+{
+	bool bRet = BaseClass::Weapon_Switch( pWeapon, viewmodelindex );
+
+	DoAnimationEvent( PLAYERANIMEVENT_CANCEL );
+
+	return bRet;
 }
 
 //-----------------------------------------------------------------------------
@@ -577,17 +602,7 @@ void C_HL2MP_Player::AddEntity( void )
 {
 	BaseClass::AddEntity();
 
-	QAngle vTempAngles = GetLocalAngles();
-	vTempAngles[PITCH] = m_angEyeAngles[PITCH];
-
-	SetLocalAngles( vTempAngles );
-		
-	m_PlayerAnimState.Update();
-
-	// Zero out model pitch, blending takes care of all of it.
-	SetLocalAnglesDim( X_INDEX, 0 );
-
-	if( this != C_BasePlayer::GetLocalPlayer() )
+	if ( !IsLocalPlayer() )
 	{
 		if ( IsEffectActive( EF_DIMLIGHT ) )
 		{
@@ -679,7 +694,7 @@ const QAngle& C_HL2MP_Player::GetRenderAngles()
 	}
 	else
 	{
-		return m_PlayerAnimState.GetRenderAngles();
+		return m_PlayerAnimState->GetRenderAngles();
 	}
 }
 
@@ -1220,11 +1235,58 @@ void C_HL2MP_Player::PostThink( void )
 {
 	BaseClass::PostThink();
 
-	// Store the eye angles pitch so the client can compute its animation state correctly.
-	m_angEyeAngles = EyeAngles();
-
 	if ( GetFlags() & FL_DUCKING )
 	{
 		SetCollisionBounds( VEC_CROUCH_TRACE_MIN, VEC_CROUCH_TRACE_MAX );
 	}
+}
+
+void C_HL2MP_Player::UpdateClientSideAnimation( void )
+{
+	QAngle eyeAngles = EyeAngles();
+
+	m_PlayerAnimState->Update( eyeAngles[YAW], eyeAngles[PITCH] );
+
+	BaseClass::UpdateClientSideAnimation();
+}
+
+class C_TEPlayerAnimEvent : public C_BaseTempEntity
+{
+public:
+	DECLARE_CLASS( C_TEPlayerAnimEvent, C_BaseTempEntity );
+	DECLARE_CLIENTCLASS();
+
+	virtual void PostDataUpdate( DataUpdateType_t updateType )
+	{
+		C_HL2MP_Player *pPlayer = ToHL2MPPlayer( m_hPlayer.Get() );
+
+		if ( pPlayer && !pPlayer->IsDormant() )
+			pPlayer->DoAnimationEvent( (PlayerAnimEvent_t)m_iEvent.Get(), m_nData );
+	}
+
+public:
+	CNetworkHandle( CBasePlayer, m_hPlayer );
+	CNetworkVar( int, m_iEvent );
+	CNetworkVar( int, m_nData );
+};
+
+IMPLEMENT_CLIENTCLASS_EVENT( C_TEPlayerAnimEvent, DT_TEPlayerAnimEvent, CTEPlayerAnimEvent );
+
+BEGIN_RECV_TABLE_NOBASE( C_TEPlayerAnimEvent, DT_TEPlayerAnimEvent )
+	RecvPropEHandle( RECVINFO( m_hPlayer ) ),
+	RecvPropInt( RECVINFO( m_iEvent ) ),
+	RecvPropInt( RECVINFO( m_nData ) )
+END_RECV_TABLE()
+
+void C_HL2MP_Player::DoAnimationEvent( PlayerAnimEvent_t event, int nData )
+{
+	if ( IsLocalPlayer() )
+	{
+		if ( prediction->InPrediction() && !prediction->IsFirstTimePredicted() )
+			return;
+	}
+
+	MDLCACHE_CRITICAL_SECTION();
+
+	m_PlayerAnimState->DoAnimationEvent( event, nData );
 }

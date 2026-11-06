@@ -1193,8 +1193,8 @@ bool CHL2GameMovement::CanAccelerate()
 	return true;
 }
 
-
-#ifndef PORTAL	// Portal inherits from this but needs to declare it's own global interface
+// These games inherit from this but need to declare their own global interface
+#if !defined( PORTAL ) && !defined( HL2MP )
 	// Expose our interface.
 	static CHL2GameMovement g_GameMovement;
 	IGameMovement *g_pGameMovement = ( IGameMovement * )&g_GameMovement;
