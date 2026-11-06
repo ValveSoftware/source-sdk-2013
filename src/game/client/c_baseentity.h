@@ -959,6 +959,7 @@ public:
 
 	void					SetGroundEntity( C_BaseEntity *ground );
 	C_BaseEntity			*GetGroundEntity( void );
+	virtual bool			GetGroundVelocityToApply( Vector &vecGroundVel ) { vecGroundVel.Init(); return false; }
 
 	void					PhysicsPushEntity( const Vector& push, trace_t *pTrace );
 	void					PhysicsCheckWaterTransition( void );
