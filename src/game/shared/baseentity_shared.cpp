@@ -450,7 +450,12 @@ bool CBaseEntity::KeyValue( const char *szKeyName, const char *szValue )
 		for ( datamap_t *dmap = GetDataDescMap(); dmap != NULL; dmap = dmap->baseMap )
 		{
 			if ( ::ParseKeyvalue(this, dmap->dataDesc, dmap->dataNumFields, szKeyName, szValue) )
+			{
+				if ( edict() )
+					edict()->StateChanged();
+				
 				return true;
+			}
 		}
 	}
 	else
@@ -478,6 +483,9 @@ bool CBaseEntity::KeyValue( const char *szKeyName, const char *szValue )
 
 			if ( ::ParseKeyvalue(this, dmap->dataDesc, dmap->dataNumFields, szKeyName, szValue) )
 			{
+				if ( edict() )
+					edict()->StateChanged();
+
 				if ( printKeyHits )
 					Msg( "(%s) key: %-16s value: %s\n", debugName, szKeyName, szValue );
 				
