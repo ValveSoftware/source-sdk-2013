@@ -25,6 +25,7 @@
 #include "c_tf_freeaccount.h"
 #include "tf_item_powerup_bottle.h"
 #include "tf_weapon_grapplinghook.h"
+#include "tf_streamer_mode.h"
 
 // for UI
 #include "clientmode_tf.h"
@@ -235,7 +236,8 @@ void GetPlayerNameBySteamID( const CSteamID &steamID, OUT_Z_CAP(maxLenInChars) c
 				CSteamID steamIDTemp( pi.friendsID, 1, GetUniverse(), k_EAccountTypeIndividual );
 				if ( steamIDTemp == steamID )
 				{
-					V_strncpy( pDestBuffer, UTIL_GetFilteredPlayerName( steamID, pi.name ), maxLenInChars );
+					const char *pszRealName = UTIL_GetFilteredPlayerName( steamID, pi.name );
+					V_strncpy( pDestBuffer, TF_GetPlayerDisplayName( steamID, pszRealName ), maxLenInChars );
 					return;
 				}
 			}
@@ -255,6 +257,10 @@ void GetPlayerNameBySteamID( const CSteamID &steamID, OUT_Z_CAP(maxLenInChars) c
 		V_strncpy( pDestBuffer, steamapicontext->SteamFriends()->GetFriendPersonaName( steamID ), maxLenInChars );
 	}
 	UTIL_GetFilteredPlayerName( steamID, pDestBuffer );
+
+	char szRealName[ MAX_PLAYER_NAME_LENGTH ];
+	V_strncpy( szRealName, pDestBuffer, sizeof( szRealName ) );
+	V_strncpy( pDestBuffer, TF_GetPlayerDisplayName( steamID, szRealName ), maxLenInChars );
 }
 
 static bool IsGCUseableItem( const GameItemDefinition_t *pItemDef )

@@ -17,6 +17,8 @@
 
 DECLARE_BUILD_FACTORY( CAvatarImagePanel );
 
+CSteamID (*g_pfnAvatarDisplaySteamIDFilter)( CSteamID steamIDReal ) = NULL;
+
 
 CUtlMap< AvatarImagePair_t, int> CAvatarImage::s_AvatarImageCache; // cache of steam id's to textureids to use for images
 bool CAvatarImage::m_sbInitializedAvatarCache = false;
@@ -75,6 +77,7 @@ void CAvatarImage::ClearAvatarSteamID( void )
 	m_bFriend = false;
 	m_bLoadPending = false;
 	m_SteamID.Set( 0, k_EUniverseInvalid, k_EAccountTypeInvalid );
+	m_SteamIDReal.Set( 0, k_EUniverseInvalid, k_EAccountTypeInvalid );
 	m_sPersonaStateChangedCallback.Unregister();
 }
 
@@ -85,6 +88,17 @@ void CAvatarImage::ClearAvatarSteamID( void )
 bool CAvatarImage::SetAvatarSteamID( CSteamID steamIDUser, EAvatarSize avatarSize /*= k_EAvatarSize32x32 */ )
 {
 	ClearAvatarSteamID();
+
+	m_SteamIDReal = steamIDUser;
+
+	if ( g_pfnAvatarDisplaySteamIDFilter )
+	{
+		steamIDUser = g_pfnAvatarDisplaySteamIDFilter( steamIDUser );
+	}
+
+	// Invalid ID uses the fallback avatar.
+	if ( steamIDUser.GetAccountID() == 0 )
+		return false;
 
 	m_SteamID = steamIDUser;
 	// misyl: We determine this in UpdateAvatarImageSize.
@@ -226,11 +240,27 @@ void CAvatarImage::InitFromRGBA( int iAvatar, const byte *rgba, int width, int h
 	m_bValid = true;
 }
 
+// Re-resolves if the filter's answer changed since assignment.
+void CAvatarImage::CheckAvatarFilterChanged( void )
+{
+	if ( !g_pfnAvatarDisplaySteamIDFilter || !m_SteamIDReal.IsValid() )
+		return;
+
+	CSteamID steamIDFilteredNow = g_pfnAvatarDisplaySteamIDFilter( m_SteamIDReal );
+	if ( steamIDFilteredNow == m_SteamID )
+		return;
+
+	CSteamID steamIDReal = m_SteamIDReal;
+	SetAvatarSteamID( steamIDReal, m_AvatarSize );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Draw the image and optional friend icon
 //-----------------------------------------------------------------------------
 void CAvatarImage::Paint( void )
 {
+	CheckAvatarFilterChanged();
+
 	if ( m_bFriend && m_pFriendIcon && m_bDrawFriend)
 	{
 		m_pFriendIcon->DrawSelf( m_nX, m_nY, m_wide, m_tall, m_Color );

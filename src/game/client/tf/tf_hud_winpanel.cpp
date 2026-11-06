@@ -27,6 +27,7 @@
 #include "tf_logic_halloween_2014.h"
 #include "c_tf_team.h"
 #include "tf_badge_panel.h"
+#include "tf_streamer_mode.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -444,7 +445,7 @@ void CTFWinPanel::FireGameEvent( IGameEvent * event )
 				wchar_t wzCapMsg[512]=L"";
 				for ( int i = 0; i < iCappers; i++ )
 				{
-					Q_strncat( szPlayerNames, g_PR->GetPlayerName( (int) pCappers[i] ), ARRAYSIZE( szPlayerNames ) );
+					Q_strncat( szPlayerNames, TF_GetPlayerDisplayName( (int) pCappers[i] ), ARRAYSIZE( szPlayerNames ) );
 					if ( i < iCappers - 1 )
 					{
 						Q_strncat( szPlayerNames, ", ", ARRAYSIZE( szPlayerNames ) );
@@ -565,7 +566,7 @@ void CTFWinPanel::FireGameEvent( IGameEvent * event )
 				pPlayerScore->SetFgColor( clr );
 
 				// set label contents
-				pPlayerName->SetText( g_PR->GetPlayerName( iPlayerIndex ) );
+				pPlayerName->SetText( TF_GetPlayerDisplayName( iPlayerIndex ) );
 				pPlayerClass->SetText( g_aPlayerClassNames[g_TF_PR->GetPlayerClass( iPlayerIndex )] );
 				pPlayerScore->SetText( CFmtStr( "%d", iRoundScore ) );
 
@@ -621,7 +622,7 @@ void CTFWinPanel::FireGameEvent( IGameEvent * event )
 				pKillStreakPlayerScore->SetFgColor( clr );
 
 				// set label contents
-				pKillStreakPlayerName->SetText( g_PR->GetPlayerName( iPlayerIndex ) );
+				pKillStreakPlayerName->SetText( TF_GetPlayerDisplayName( iPlayerIndex ) );
 				pKillStreakPlayerClass->SetText( g_aPlayerClassNames[g_TF_PR->GetPlayerClass( iPlayerIndex )] );
 				pKillStreakPlayerScore->SetText( CFmtStr( "%d", iCount ) );
 			}

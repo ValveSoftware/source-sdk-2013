@@ -24,6 +24,7 @@
 #include "tf_hud_inspectpanel.h"
 #include "clientmode_tf.h"
 #include "vguicenterprint.h"
+#include "tf_streamer_mode.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -195,7 +196,7 @@ void CHudInspectPanel::UserCmd_InspectTarget( void )
 			CEconItemView *pItem = m_hTarget->GetInspectItem( &m_iTargetItemIterator );
 			if ( pItem && pItem->IsValid() )
 			{
-				m_pItemPanel->SetDialogVariable( "killername", g_PR->GetPlayerName( m_hTarget->entindex() ) );
+				m_pItemPanel->SetDialogVariable( "killername", TF_GetPlayerDisplayName( m_hTarget->entindex() ) );
 				m_pItemPanel->SetItem( pItem );
 
 				// force update description to get the correct panel size

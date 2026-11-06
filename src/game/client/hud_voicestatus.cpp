@@ -15,6 +15,9 @@
 #include "c_playerresource.h"
 #include "voice_common.h"
 #include "vgui_avatarimage.h"
+#if defined( TF_CLIENT_DLL )
+#include "tf_streamer_mode.h"
+#endif
 
 ConVar *sv_alltalk = NULL;
 
@@ -359,7 +362,11 @@ void CHudVoiceStatus::Paint()
 
 		c[3] = 128;
 
+#if defined( TF_CLIENT_DLL )
+		const char *pName = g_PR ? TF_GetPlayerDisplayName( playerId ) : "unknown";
+#else
 		const char *pName = g_PR ? g_PR->GetPlayerName(playerId) : "unknown";
+#endif
 		wchar_t szconverted[ 64 ];
 
 		// Add the location, if any

@@ -7,6 +7,9 @@
 
 #include "cbase.h"
 #include "hud_basechat.h"
+#if defined( TF_CLIENT_DLL )
+#include "tf_streamer_mode.h"
+#endif
 
 #include <vgui/IScheme.h>
 #include <vgui/IVGui.h>
@@ -49,7 +52,6 @@ Color g_ColorGreen( 153, 255, 153, 255 );
 Color g_ColorDarkGreen( 64, 255, 64, 255 );
 Color g_ColorYellow( 255, 178, 0, 255 );
 Color g_ColorGrey( 204, 204, 204, 255 );
-
 
 // removes all color markup characters, so Msg can deal with the string properly
 // returns a pointer to str
@@ -616,7 +618,6 @@ CBaseHudChat::CBaseHudChat( const char *pElementName )
 	g_pVGuiLocalize->AddFile( "resource/chat_%language%.txt" );
 
 	m_nMessageMode = 0;
-
 	vgui::ivgui()->AddTickSignal( GetVPanel() );
 
 	// (We don't actually want input until they bring up the chat line).
@@ -768,6 +769,12 @@ void CBaseHudChat::MsgFunc_SayText( bf_read &msg )
 	char szString[256];
 
 	int client = msg.ReadByte();
+
+#if defined( TF_CLIENT_DLL )
+	if ( TF_ShouldHideChat() && client != GetLocalPlayerIndex() )
+		return;
+#endif
+
 	msg.ReadString( szString, sizeof(szString) );
 	bool bWantsToChat = msg.ReadByte();
 
@@ -816,6 +823,12 @@ void CBaseHudChat::MsgFunc_SayText2( bf_read &msg )
 		return;
 
 	int client = msg.ReadByte();
+
+#if defined( TF_CLIENT_DLL )
+	if ( TF_ShouldHideChat() && client != GetLocalPlayerIndex() )
+		return;
+#endif
+
 	bool bWantsToChat = msg.ReadByte();
 
 	wchar_t szBuf[6][256];
@@ -880,6 +893,11 @@ void CBaseHudChat::MsgFunc_SayText2( bf_read &msg )
 //-----------------------------------------------------------------------------
 void CBaseHudChat::MsgFunc_TextMsg( bf_read &msg )
 {
+#if defined( TF_CLIENT_DLL )
+	if ( TF_ShouldHideChat() )
+		return;
+#endif
+
 	char szString[2048];
 	int msg_dest = msg.ReadByte();
 
@@ -969,6 +987,13 @@ void CBaseHudChat::MsgFunc_VoiceSubtitle( bf_read &msg )
 	wchar_t szBuf[128];
 
 	int client = msg.ReadByte();
+
+#if defined( TF_CLIENT_DLL )
+	// Callouts use a separate Streamer Mode setting.
+	if ( TF_ShouldHideCallouts() && client != GetLocalPlayerIndex() )
+		return;
+#endif
+
 	int iMenu = msg.ReadByte();
 	int iItem = msg.ReadByte();
 
@@ -1161,6 +1186,11 @@ int CBaseHudChat::ComputeBreakChar( int width, const char *text, int textlen )
 //-----------------------------------------------------------------------------
 void CBaseHudChat::Printf( int iFilter, const char *fmt, ... )
 {
+#if defined( TF_CLIENT_DLL )
+	if ( TF_ShouldHideChat() )
+		return;
+#endif
+
 	va_list marker;
 	char msg[4096];
 
@@ -1244,7 +1274,6 @@ void CBaseHudChat::StartMessageMode( int iMessageModeType )
 void CBaseHudChat::StopMessageMode( void )
 {
 #ifndef _XBOX
-
 	engine->ClientCmd_Unrestricted( "gameui_allowescapetoshow\n" );
 
 	SetKeyBoardInputEnabled( false );
@@ -1273,7 +1302,7 @@ void CBaseHudChat::StopMessageMode( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CBaseHudChat::OnChatEntrySend( void )
 {
@@ -1730,6 +1759,8 @@ void CBaseHudChat::LevelShutdown( void )
 //-----------------------------------------------------------------------------
 void CBaseHudChat::ChatPrintf( int iPlayerIndex, int iFilter, const char *fmt, ... )
 {
+	// Message-type filtering is handled before formatting.
+
 	va_list marker;
 	char msg[4096];
 

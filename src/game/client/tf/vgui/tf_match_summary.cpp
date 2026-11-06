@@ -27,6 +27,7 @@
 #include "teamplayroundbased_gamerules.h"
 #include "tf_gamerules.h"
 #include "tf_logic_halloween_2014.h"
+#include "tf_streamer_mode.h"
 #include "tf_playermodelpanel.h"
 #include "tf_mapinfo.h"
 #include "c_tf_team.h"
@@ -668,7 +669,7 @@ void CTFMatchSummary::UpdatePlayerList()
 			// this is just a placeholder in the sectioned list panel
 			pKeyValues->SetInt( "medal", 0 ); 
 
-			pKeyValues->SetString( "name", g_TF_PR->GetPlayerName( playerIndex ) );
+			pKeyValues->SetString( "name", TF_GetPlayerDisplayName( playerIndex ) );
 			pKeyValues->SetInt( "score", g_TF_PR->GetTotalScore( playerIndex ) );
 
 			int iClass = g_TF_PR->GetPlayerClass( playerIndex );

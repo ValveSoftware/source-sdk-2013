@@ -6,6 +6,9 @@
 //===========================================================================//
 #include "cbase.h"
 #include <crtmemdebug.h>
+#if defined( TF_CLIENT_DLL )
+#include "tf_streamer_mode.h"
+#endif
 #include "vgui_int.h"
 #include "clientmode.h"
 #include "iinput.h"
@@ -357,6 +360,11 @@ public:
 	// ingame voice manipulation
 	bool IsPlayerGameVoiceMuted(int playerIndex)
 	{
+#if defined( TF_CLIENT_DLL )
+		// Do not modify the persistent mute list.
+		if ( TF_ShouldDisableVoice() )
+			return true;
+#endif
 		return GetClientVoiceMgr()->IsPlayerBlocked(playerIndex);
 	}
 

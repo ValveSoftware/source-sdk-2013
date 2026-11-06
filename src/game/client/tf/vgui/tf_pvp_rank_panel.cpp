@@ -24,6 +24,7 @@
 #include "tf_particlepanel.h"
 #include "tf_rating_data.h"
 #include "tf_gamerules.h"
+#include "tf_streamer_mode.h"
 
 using namespace vgui;
 
@@ -973,7 +974,8 @@ void CPvPRankPanel::SetMatchStats( void )
 
 	if ( steamapicontext && steamapicontext->SteamFriends() )
 	{
-		m_pBGPanel->SetDialogVariable( "name", steamapicontext->SteamFriends()->GetPersonaName() );
+		const char *pszRealName = steamapicontext->SteamFriends()->GetPersonaName();
+		m_pBGPanel->SetDialogVariable( "name", TF_ShouldAnonymisePlayerNames() ? TF_GetLocalStreamerDisplayName() : pszRealName );
 	}
 	else
 	{
@@ -1020,4 +1022,4 @@ bool CPvPRankPanel::BIsInPlacement() const
 	return m_pMatchDesc &&
 		   m_pMatchDesc->BUsesPlacementMatches() &&
 		   s_rankReavealState[ m_eMatchGroup ].m_bLastSeenInPlacement;
-}
+}

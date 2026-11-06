@@ -29,6 +29,7 @@
 #include "fmtstr.h"
 #include "tf_gamerules.h"
 #include "tf_gc_client.h"
+#include "tf_streamer_mode.h"
 
 using namespace vgui;
 
@@ -728,7 +729,8 @@ void CTFStatsSummaryPanel::OnMapLoad( const char *pMapName )
 				m_pContributedPanel->SetVisible( iDonationAmount != 0 );
 				if ( iDonationAmount != 0 )
 				{
-					m_pContributedPanel->SetDialogVariable( "playername", steamapicontext->SteamFriends()->GetPersonaName() );
+					const char *pszRealName = steamapicontext->SteamFriends()->GetPersonaName();
+					m_pContributedPanel->SetDialogVariable( "playername", TF_ShouldAnonymisePlayerNames() ? TF_GetLocalStreamerDisplayName() : pszRealName );
 				}
 			}
 

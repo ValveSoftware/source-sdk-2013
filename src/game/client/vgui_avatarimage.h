@@ -26,6 +26,10 @@
 // size of the standard avatar icon (unless override by SetAvatarSize)
 #define DEFAULT_AVATAR_SIZE		(32)
 
+// Optional hook so game code (TF's Streamer Mode) can substitute a SteamID
+// for avatar display. NULL means no filtering.
+extern CSteamID (*g_pfnAvatarDisplaySteamIDFilter)( CSteamID steamIDReal );
+
 
 //=============================================================================
 // HPE_CHANGE:
@@ -148,6 +152,9 @@ private:
 
 	void LoadAvatarImage();
 
+	// Re-resolves if the filter's answer has changed since last resolved.
+	void CheckAvatarFilterChanged();
+
 	Color m_Color;
 	int m_iTextureID;
 	int m_nX, m_nY;
@@ -162,6 +169,9 @@ private:
 	EAvatarSize m_AvatarSize;
 	CHudTexture *m_pFriendIcon;
 	CSteamID	m_SteamID;
+	// Pre-filter identity, kept for CheckAvatarFilterChanged() to detect a
+	// changed filter answer.
+	CSteamID	m_SteamIDReal;
 
 	//=============================================================================
 	// HPE_BEGIN:

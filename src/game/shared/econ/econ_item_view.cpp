@@ -36,6 +36,7 @@
 #include "tf_gcmessages.h"
 #include "c_tf_freeaccount.h"
 #include "c_tf_player.h"
+#include "tf_streamer_mode.h"
 
 static ConVar tf_hide_custom_decals( "tf_hide_custom_decals", "0", FCVAR_ARCHIVE );
 #endif
@@ -1639,10 +1640,11 @@ uint64 CEconItemView::GetCustomUserTextureID()
 	static CSchemaAttributeDefHandle pAttr_CustomTextureHi( "custom texture hi" );
 
 #if defined( TF_CLIENT_DLL )
-	if ( tf_hide_custom_decals.GetBool() )
+	// -1 skips the entindex self-exemption. The account ID check below
+	// handles that instead, without needing a live player entity.
+	if ( tf_hide_custom_decals.GetBool() || TF_ShouldHidePlayerCreatedImages( -1 ) )
 	{
-		CBasePlayer *pPlayer = GetPlayerByAccountID( m_iAccountID );
-		if ( !pPlayer || ( pPlayer != C_BasePlayer::GetLocalPlayer() ) )
+		if ( !TF_IsLocalAccountID( m_iAccountID ) )
 			return 0;
 	}
 #endif // TF_CLIENT_DLL

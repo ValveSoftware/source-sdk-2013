@@ -20,6 +20,7 @@
 #include "tf_matchmaking_dashboard_parent_manager.h"
 #include "tf_partyclient.h"
 #include "tf_controls.h"
+#include "tf_streamer_mode.h"
 #include "softline.h"
 #include "hud_controlpointicons.h"
 
@@ -151,7 +152,7 @@ void CDashboardPartyMember::PerformLayout()
 	if ( m_eMemberState != MEMBER_NONE )
 	{
 		// First their name
-		lambdaAddTipText( SteamFriends()->GetFriendPersonaName( m_steamIDPartyMember ) );
+		lambdaAddTipText( TF_GetPartyMemberDisplayName( m_steamIDPartyMember, SteamFriends()->GetFriendPersonaName( m_steamIDPartyMember ) ) );
 
 		bool bHyphenAdded = false;
 
