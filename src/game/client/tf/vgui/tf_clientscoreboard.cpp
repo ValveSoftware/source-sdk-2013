@@ -626,7 +626,7 @@ void CTFClientScoreBoardDialog::OnCommand( const char *command )
 //-----------------------------------------------------------------------------
 void CTFClientScoreBoardDialog::OnItemSelected( vgui::Panel *panel )
 {
-	if ( panel == m_pPlayerListBlue || panel == m_pPlayerListRed )
+	if ( panel == m_pPlayerListBlue || panel == m_pPlayerListRed || panel == m_pMvMScoreboard->GetPlayerList() )
 	{
 		// There can be only one... selection
 		if ( panel == m_pPlayerListBlue && m_pPlayerListBlue->GetSelectedItem() >= 0 && m_pPlayerListRed->GetSelectedItem() >= 0 )
@@ -650,7 +650,7 @@ void CTFClientScoreBoardDialog::OnItemSelected( vgui::Panel *panel )
 //-----------------------------------------------------------------------------
 void CTFClientScoreBoardDialog::OnItemContextMenu( vgui::Panel *panel )
 {
-	if ( panel == m_pPlayerListBlue || panel == m_pPlayerListRed )
+	if ( panel == m_pPlayerListBlue || panel == m_pPlayerListRed || panel == m_pMvMScoreboard->GetPlayerList() )
 	{
 		if ( vgui::input()->IsMouseDown( MOUSE_RIGHT ) )
 		{
@@ -862,6 +862,12 @@ void CTFClientScoreBoardDialog::InitializeInputScheme( void )
 		m_pPlayerListRed->GetScrollBar()->GetButton( 0 )->SetMouseInputEnabled( UseMouseMode() );
 		m_pPlayerListRed->GetScrollBar()->GetButton( 1 )->SetMouseInputEnabled( UseMouseMode() );
 		m_pPlayerListRed->GetScrollBar()->GetSlider()->SetMouseInputEnabled( UseMouseMode() );
+	}
+
+	// MvM
+	if ( m_bIsPVEMode )
+	{
+		m_pMvMScoreboard->InitializeInputScheme( UseMouseMode() );
 	}
 }
 
@@ -2298,7 +2304,12 @@ SectionedListPanel *CTFClientScoreBoardDialog::GetSelectedPlayerList( void )
 	SectionedListPanel *pList = NULL;
 
 	// navigation
-	if ( m_pPlayerListBlue->GetSelectedItem() >= 0 )
+	if ( m_bIsPVEMode )
+	{
+		// only one list in MvM
+		pList = m_pMvMScoreboard->GetPlayerList();
+	}
+	else if ( m_pPlayerListBlue->GetSelectedItem() >= 0 )
 	{
 		pList = m_pPlayerListBlue;
 	}
