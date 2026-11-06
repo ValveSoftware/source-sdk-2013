@@ -11,11 +11,171 @@
 #include "igamemovement.h"
 #include "engine/IEngineTrace.h"
 #include "engine/ivmodelinfo.h"
+#include "triggers_shared.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 extern CMoveData *g_pMoveData;
+
+class C_TriggerPush : public C_BaseEntity
+{
+public:
+	DECLARE_CLASS( C_TriggerPush, C_BaseEntity );
+	DECLARE_CLIENTCLASS();
+	DECLARE_PREDICTABLE();
+
+	C_TriggerPush();
+	~C_TriggerPush();
+
+	bool ShouldPredict( void );
+	void OnDataChanged( DataUpdateType_t updateType );
+
+	static void PredictPushes( C_BasePlayer *pPlayer );
+
+private:
+	void ApplyPush( C_BasePlayer *pPlayer );
+	bool IsTouching( C_BasePlayer *pPlayer );
+
+	static CUtlVector<C_TriggerPush *> s_TriggerPushes;
+
+	Vector m_vecAbsPushDir;
+	float m_flPushSpeed;
+	int m_spawnflags;
+	bool m_bPushOnceFired;
+};
+
+CUtlVector<C_TriggerPush *> C_TriggerPush::s_TriggerPushes;
+
+IMPLEMENT_CLIENTCLASS_DT( C_TriggerPush, DT_TriggerPush, CTriggerPush )
+	RecvPropVector( RECVINFO( m_vecAbsPushDir ) ),
+	RecvPropFloat( RECVINFO( m_flPushSpeed ) ),
+	RecvPropInt( RECVINFO( m_spawnflags ) ),
+	RecvPropBool( RECVINFO( m_bPushOnceFired ) ),
+END_RECV_TABLE()
+
+BEGIN_PREDICTION_DATA( C_TriggerPush )
+	DEFINE_PRED_FIELD( m_vecAbsPushDir, FIELD_VECTOR, FTYPEDESC_INSENDTABLE | FTYPEDESC_NOERRORCHECK ),
+	DEFINE_PRED_FIELD( m_flPushSpeed, FIELD_FLOAT, FTYPEDESC_INSENDTABLE | FTYPEDESC_NOERRORCHECK ),
+	DEFINE_PRED_FIELD( m_spawnflags, FIELD_INTEGER, FTYPEDESC_INSENDTABLE | FTYPEDESC_NOERRORCHECK ),
+	DEFINE_PRED_FIELD( m_bPushOnceFired, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+END_PREDICTION_DATA()
+
+C_TriggerPush::C_TriggerPush()
+	: m_flPushSpeed( 0.0f ),
+	  m_spawnflags( 0 ),
+	  m_bPushOnceFired( false )
+{
+	m_vecAbsPushDir.Init();
+	SetPredictionEligible( true );
+}
+
+C_TriggerPush::~C_TriggerPush()
+{
+	s_TriggerPushes.FindAndRemove( this );
+}
+
+bool C_TriggerPush::ShouldPredict( void )
+{
+	return C_BasePlayer::GetLocalPlayer() != NULL && ( m_spawnflags & SF_TRIG_PUSH_ONCE ) != 0;
+}
+
+void C_TriggerPush::OnDataChanged( DataUpdateType_t updateType )
+{
+	BaseClass::OnDataChanged( updateType );
+
+	if ( updateType == DATA_UPDATE_CREATED )
+	{
+		int i = 0;
+		while ( i < s_TriggerPushes.Count() && s_TriggerPushes[i]->entindex() < entindex() )
+		{
+			++i;
+		}
+		s_TriggerPushes.InsertBefore( i, this );
+	}
+
+	if ( GetPredictable() && !ShouldPredict() )
+	{
+		ShutdownPredictable();
+	}
+}
+
+bool C_TriggerPush::IsTouching( C_BasePlayer *pPlayer )
+{
+	Ray_t ray;
+	trace_t trace;
+	ray.Init( pPlayer->GetAbsOrigin(), pPlayer->GetAbsOrigin(), pPlayer->WorldAlignMins(), pPlayer->WorldAlignMaxs() );
+	enginetrace->ClipRayToCollideable( ray, MASK_SOLID, CollisionProp(), &trace );
+	return ( trace.contents & MASK_SOLID ) != 0;
+}
+
+void C_TriggerPush::ApplyPush( C_BasePlayer *pPlayer )
+{
+	if ( IsDormant() || !IsSolidFlagSet( FSOLID_TRIGGER ) || !IsTouching( pPlayer ) )
+		return;
+
+	if ( m_spawnflags & SF_TRIG_PUSH_ONCE )
+	{
+		if ( !GetPredictable() || m_bPushOnceFired )
+			return;
+
+		m_bPushOnceFired = true;
+		pPlayer->ApplyAbsVelocityImpulse( m_flPushSpeed * m_vecAbsPushDir );
+
+		if ( m_vecAbsPushDir.z > 0.0f )
+		{
+			pPlayer->SetGroundEntity( NULL );
+		}
+		return;
+	}
+
+	if ( pPlayer->GetMoveType() == MOVETYPE_NOCLIP || pPlayer->GetMoveType() == MOVETYPE_VPHYSICS )
+		return;
+
+#if defined( HL2_CLIENT_DLL )
+	if ( pPlayer->GetMoveType() == MOVETYPE_LADDER && !( m_spawnflags & SF_TRIG_PUSH_AFFECT_PLAYER_ON_LADDER ) )
+		return;
+#endif
+
+	Vector vecPush = m_flPushSpeed * m_vecAbsPushDir;
+	if ( pPlayer->GetFlags() & FL_BASEVELOCITY )
+	{
+		vecPush += pPlayer->GetBaseVelocity();
+	}
+
+	if ( vecPush.z > 0.0f && ( pPlayer->GetFlags() & FL_ONGROUND ) )
+	{
+		pPlayer->SetGroundEntity( NULL );
+		Vector origin = pPlayer->GetAbsOrigin();
+		origin.z += 1.0f;
+		pPlayer->SetNetworkOrigin( origin );
+		pPlayer->SetAbsOrigin( origin );
+	}
+
+	pPlayer->SetBaseVelocity( vecPush );
+	pPlayer->AddFlag( FL_BASEVELOCITY );
+}
+
+void C_TriggerPush::PredictPushes( C_BasePlayer *pPlayer )
+{
+	if ( !pPlayer || pPlayer != C_BasePlayer::GetLocalPlayer() || !pPlayer->GetPredictable() ||
+		 !pPlayer->IsAlive() || !pPlayer->IsSolid() || pPlayer->GetMoveParent() || pPlayer->IsInAVehicle() )
+		return;
+
+	switch ( pPlayer->GetMoveType() )
+	{
+	case MOVETYPE_NONE:
+	case MOVETYPE_PUSH:
+		return;
+	default:
+		break;
+	}
+
+	for ( int i = 0; i < s_TriggerPushes.Count(); ++i )
+	{
+		s_TriggerPushes[i]->ApplyPush( pPlayer );
+	}
+}
 
 class CMoveHelperClient : public IMoveHelper
 {
@@ -155,12 +315,11 @@ void CMoveHelperClient::ProcessImpacts( void )
 	// Relink in order to build absorigin and absmin/max to reflect any changes
 	//  from prediction.  Relink will early out on SOLID_NOT
 
-	// TODO: Touch triggers on the client
-	//pPlayer->PhysicsTouchTriggers();
-
 	// Don't bother if the player ain't solid
 	if ( m_pHost->IsSolidFlagSet( FSOLID_NOT_SOLID ) )
 		return;
+
+	C_TriggerPush::PredictPushes( m_pHost );
 
 	// Save off the velocity, cause we need to temporarily reset it
 	Vector vOldLocalVel = m_pHost->GetLocalVelocity();

@@ -2178,27 +2178,69 @@ class CTriggerPush : public CBaseTrigger
 {
 public:
 	DECLARE_CLASS( CTriggerPush, CBaseTrigger );
+	DECLARE_SERVERCLASS();
+
+	CTriggerPush();
 
 	void Spawn( void );
 	void Activate( void );
 	void Touch( CBaseEntity *pOther );
 	void Untouch( CBaseEntity *pOther );
+	int UpdateTransmitState( void );
+	int ShouldTransmit( const CCheckTransmitInfo *pInfo );
 
 	Vector m_vecPushDir;
+	CNetworkVector( m_vecAbsPushDir );
 
 	DECLARE_DATADESC();
 	
 	float m_flAlternateTicksFix; // Scale factor to apply to the push speed when running with alternate ticks
-	float m_flPushSpeed;
+	CNetworkVar( float, m_flPushSpeed );
+	CNetworkVar( bool, m_bPushOnceFired );
 };
 
 BEGIN_DATADESC( CTriggerPush )
 	DEFINE_KEYFIELD( m_vecPushDir, FIELD_VECTOR, "pushdir" ),
+	DEFINE_FIELD( m_vecAbsPushDir, FIELD_VECTOR ),
 	DEFINE_KEYFIELD( m_flAlternateTicksFix, FIELD_FLOAT, "alternateticksfix" ),
-	//DEFINE_FIELD( m_flPushSpeed, FIELD_FLOAT ),
+	DEFINE_FIELD( m_flPushSpeed, FIELD_FLOAT ),
+	DEFINE_FIELD( m_bPushOnceFired, FIELD_BOOLEAN ),
 END_DATADESC()
 
 LINK_ENTITY_TO_CLASS( trigger_push, CTriggerPush );
+
+IMPLEMENT_SERVERCLASS_ST( CTriggerPush, DT_TriggerPush )
+	SendPropVector( SENDINFO( m_vecAbsPushDir ), -1, SPROP_NOSCALE ),
+	SendPropFloat( SENDINFO( m_flPushSpeed ), 0, SPROP_NOSCALE ),
+	SendPropInt( SENDINFO( m_spawnflags ), 13, SPROP_UNSIGNED ),
+	SendPropBool( SENDINFO( m_bPushOnceFired ) ),
+END_SEND_TABLE()
+
+CTriggerPush::CTriggerPush()
+{
+	m_vecAbsPushDir.Init();
+	m_flPushSpeed = 0.0f;
+	m_bPushOnceFired = false;
+}
+
+
+int CTriggerPush::UpdateTransmitState()
+{
+	return SetTransmitState( FL_EDICT_FULLCHECK );
+}
+
+
+int CTriggerPush::ShouldTransmit( const CCheckTransmitInfo *pInfo )
+{
+	if ( GetMoveParent() )
+		return FL_EDICT_DONTSEND;
+
+	CBaseEntity *pRecipient = CBaseEntity::Instance( pInfo->m_pClientEnt );
+	if ( !pRecipient || !pRecipient->IsPlayer() || !PassesTriggerFilters( pRecipient ) )
+		return FL_EDICT_DONTSEND;
+
+	return FL_EDICT_ALWAYS;
+}
 
 
 //-----------------------------------------------------------------------------
@@ -2213,6 +2255,8 @@ void CTriggerPush::Spawn()
 
 	// Transform the vector into entity space
 	VectorIRotate( vecAbsDir, EntityToWorldTransform(), m_vecPushDir );
+	VectorRotate( m_vecPushDir, EntityToWorldTransform(), vecAbsDir );
+	m_vecAbsPushDir = vecAbsDir;
 
 	BaseClass::Spawn();
 
@@ -2264,10 +2308,15 @@ void CTriggerPush::Touch( CBaseEntity *pOther )
 	// Transform the push dir into global space
 	Vector vecAbsDir;
 	VectorRotate( m_vecPushDir, EntityToWorldTransform(), vecAbsDir );
+	m_vecAbsPushDir = vecAbsDir;
 
 	// Instant trigger, just transfer velocity and remove
 	if (HasSpawnFlags(SF_TRIG_PUSH_ONCE))
 	{
+		if ( m_bPushOnceFired )
+			return;
+
+		m_bPushOnceFired = true;
 		pOther->ApplyAbsVelocityImpulse( m_flPushSpeed * vecAbsDir );
 
 		if ( vecAbsDir.z > 0 )
