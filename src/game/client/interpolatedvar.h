@@ -160,7 +160,7 @@ public:
 	// Returns true if the new value is different from the prior most recent value.
 	virtual void NoteLastNetworkedValue() = 0;
 	virtual bool NoteChanged( float changetime, bool bUpdateLastNetworkedValue ) = 0;
-	virtual void Reset() = 0;
+	virtual void Reset( bool bUpdateLastNetworkedValue = true ) = 0;
 	
 	// Returns 1 if the value will always be the same if currentTime is always increasing.
 	virtual int Interpolate( float currentTime ) = 0;
@@ -449,7 +449,7 @@ public:
 	virtual void SetInterpolationAmount( float seconds );
 	virtual void NoteLastNetworkedValue();
 	virtual bool NoteChanged( float changetime, bool bUpdateLastNetworkedValue );
-	virtual void Reset();
+	virtual void Reset( bool bUpdateLastNetworkedValue = true );
 	virtual int Interpolate( float currentTime );
 	virtual int GetType() const;
 	virtual void RestoreToLastNetworked();
@@ -737,7 +737,7 @@ inline void CInterpolatedVarArrayBase<Type, IS_ARRAY>::AddToHead( float changeTi
 }
 
 template< typename Type, bool IS_ARRAY >
-inline void CInterpolatedVarArrayBase<Type, IS_ARRAY>::Reset()
+inline void CInterpolatedVarArrayBase<Type, IS_ARRAY>::Reset( bool bUpdateLastNetworkedValue )
 {
 	ClearHistory();
 
@@ -747,7 +747,8 @@ inline void CInterpolatedVarArrayBase<Type, IS_ARRAY>::Reset()
 		AddToHead( gpGlobals->curtime, m_pValue, false );
 		AddToHead( gpGlobals->curtime, m_pValue, false );
 
-		memcpy( m_LastNetworkedValue, m_pValue, m_nMaxCount * sizeof( Type ) );
+		if ( bUpdateLastNetworkedValue )
+			memcpy( m_LastNetworkedValue, m_pValue, m_nMaxCount * sizeof( Type ) );
 	}
 }
 
