@@ -58,6 +58,7 @@ public:
 	virtual		void		MakeWeaponSelection( C_BaseCombatWeapon *weapon );
 
 	virtual		float		KeyState( kbutton_t *key );
+	virtual		float		MovementKeyState( kbutton_t *key );
 	virtual		int			KeyEvent( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
 	virtual		kbutton_t	*FindKey( const char *name );
 
