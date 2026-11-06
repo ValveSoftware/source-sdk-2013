@@ -71,6 +71,7 @@ public:
 	static MapStats_t &GetMapStats( map_identifier_t iMapID );
 	static bool	IsValidMapID( map_identifier_t iMapID );
 	static const char* GetMapNameFromID( map_identifier_t iMapID );
+	static map_identifier_t GetMapIdentifierFromName( const char* pszMapName );
 	static float GetTotalHoursPlayed( void );		// Return the total time this player has played the game, in hours
 	void		UpdateStatSummaryPanel();
 	bool		IsLocalFileTrusted() { return m_bLocalFileTrusted; }
