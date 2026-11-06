@@ -1035,7 +1035,8 @@ private:
 	CHandle<CTFPlayer>		m_hOriginalBurnAttacker;		// Player who originally ignited this target
 	CHandle<CTFWeaponBase>	m_hBurnWeapon;
 	float					m_flFlameBurnTime;
-	float					m_flAfterburnDuration;
+	float					m_flAfterburnDuration;			// Active afterburn duration
+	float					m_flAfterburnMaxDuration;		// Maximum afterburn duration
 
 	// Bleeding
 	struct bleed_struct_t
