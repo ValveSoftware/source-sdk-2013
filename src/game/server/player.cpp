@@ -3190,7 +3190,10 @@ void CBasePlayer::RunNullCommand( void )
 	float flOldFrametime = gpGlobals->frametime;
 	float flOldCurtime = gpGlobals->curtime;
 
-	pl.fixangle = FIXANGLE_NONE;
+	if ( pl.fixangle != FIXANGLE_ABSOLUTE || IsReplay() )
+	{
+		pl.fixangle = FIXANGLE_NONE;
+	}
 
 	if ( IsReplay() )
 	{
@@ -3401,7 +3404,10 @@ void CBasePlayer::PhysicsSimulate( void )
 			CUserCmd cmd = m_LastCmd;
 			cmd.tick_count = gpGlobals->tickcount;
 			cmd.viewangles = EyeAngles();
-			pl.fixangle = FIXANGLE_NONE; // this forces use of cmd.viewangles directly, not as a relative value
+			if ( pl.fixangle != FIXANGLE_ABSOLUTE )
+			{
+				pl.fixangle = FIXANGLE_NONE;
+			}
 			PlayerRunCommand( &cmd, MoveHelperServer() );
 
 			if ( m_nMovementTicksForUserCmdProcessingRemaining > nMaxTicks )
@@ -5019,6 +5025,8 @@ ReturnSpot:
 void CBasePlayer::InitialSpawn( void )
 {
 	m_iConnected = PlayerConnected;
+	m_flLastUserCommandTime = gpGlobals->curtime;
+	SetTimeBase( gpGlobals->curtime );
 	gamestats->Event_PlayerConnected( this );
 }
 
