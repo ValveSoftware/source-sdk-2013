@@ -213,6 +213,7 @@ protected:
 
 	CHandle< CTFMedigunShield > m_hMedigunShield;
 	CHandle< CTFReviveMarker > m_hReviveMarker;
+    float m_flReviveMarkerNextHeal;
 
 #ifdef CLIENT_DLL
 	bool					m_bPlayingSound;
