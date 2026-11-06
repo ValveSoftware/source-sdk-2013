@@ -524,7 +524,6 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 	int nMaxEnemyCountNoSupport = TFObjectiveResource()->GetMannVsMachineWaveEnemyCount();
 
 	// Loop through all the class types to find which enemy counts to display
-	CUtlVector< hud_enemy_data_t > miniboss;
 	CUtlVector< hud_enemy_data_t > normal;
 	CUtlVector< hud_enemy_data_t > support;
 	CUtlVector< hud_enemy_data_t > mission;
@@ -532,6 +531,7 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 	int nNumEnemyTypes = 0;
 	int nNumNonVerboseTypes = 0;
 
+	// Add icons to vectors
 	for ( int i = 0; i < MVM_CLASS_TYPES_PER_WAVE_MAX_NEW; ++i )
 	{
 		int nClassCount = TFObjectiveResource()->GetMannVsMachineWaveClassCount( i );
@@ -568,20 +568,7 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 					nNumNonVerboseTypes++;
 				}
 			}
-			else if ( iFlags & MVM_CLASS_FLAG_MINIBOSS )
-			{
-				if ( nClassCount > 0 )
-				{
-					int index = miniboss.AddToTail();
-					miniboss[index].nCount = nClassCount;
-					miniboss[index].pchClassIconName = pchClassIconName;
-					miniboss[index].iFlags = iFlags;
-					miniboss[index].bActive = TFObjectiveResource()->GetMannVsMachineWaveClassActive( i );
-					nNumEnemyTypes++;
-					nNumEnemyRemaining += nClassCount;
-				}
-			}
-			else if ( iFlags & MVM_CLASS_FLAG_NORMAL )
+			else if ( iFlags & ( MVM_CLASS_FLAG_NORMAL | MVM_CLASS_FLAG_MINIBOSS ) )
 			{
 				// only show classes with > 0 remaining
 				if ( nClassCount > 0 )
@@ -602,6 +589,11 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 			}
 		}
 	}
+
+	// Then sort, minibosses first, ordering kept
+	normal.StableSort();
+	support.StableSort();
+	mission.StableSort();
 
 	// update the progress bar
 	if ( nMaxEnemyCountNoSupport > 0 )
@@ -689,37 +681,6 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 
 	int iPanelIndex = 0;
 
-	if ( bVerbose )
-	{
-		// miniboss	enemies
-		for ( int i = 0 ; i < miniboss.Count() && iPanelIndex < m_EnemyCountPanels.Count() ; i++, iPanelIndex++ )
-		{
-			CEnemyCountPanel *pPanel = m_EnemyCountPanels[ iPanelIndex ];
-
-			pPanel->SetVisible( true );
-			pPanel->SetDialogVariable( "enemy_count", miniboss[i].nCount );
-			pPanel->SetPos( nXPos, m_nWaveCountYPos + nMinModeReduction );
-			pPanel->SetFlashing( false );
-
-			if ( pPanel->m_pEnemyCountImage )
-			{
-				pPanel->m_pEnemyCountImage->SetImage( VarArgs( "../hud/leaderboard_class_%s", miniboss[i].pchClassIconName ) );
-				pPanel->m_pEnemyCountImage->SetVisible( true );
-			}
-			
-			if ( pPanel->m_pEnemyCountImageBG  )
-			{
-				pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrMiniBoss );
-			}
-			if ( pPanel->m_pEnemyCountCritBG )
-			{
-				pPanel->m_pEnemyCountCritBG->SetVisible( miniboss[i].iFlags & MVM_CLASS_FLAG_ALWAYSCRIT );
-			}
-
-			nXPos += nEnemyCountWide + m_nWaveCountOffset;
-		}
-	}
-
 	// normal enemies
 	for ( int i = 0 ; i < normal.Count() && iPanelIndex < m_EnemyCountPanels.Count() ; i++ )
 	{
@@ -769,8 +730,16 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 			{
 				if ( pPanel->m_pEnemyCountImageBG  )
 				{
-					pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrNormal );
+					if ( normal[i].iFlags & MVM_CLASS_FLAG_MINIBOSS )
+					{
+						pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrMiniBoss );
+					}
+					else
+					{
+						pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrNormal );
+					}
 				}
+
 				if ( pPanel->m_pEnemyCountCritBG )
 				{
 					pPanel->m_pEnemyCountCritBG->SetVisible( normal[i].iFlags & MVM_CLASS_FLAG_ALWAYSCRIT );
@@ -927,6 +896,7 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 							pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrNormal );
 						}
 					}
+
 					if ( pPanel->m_pEnemyCountCritBG )
 					{
 						pPanel->m_pEnemyCountCritBG->SetVisible( false );
