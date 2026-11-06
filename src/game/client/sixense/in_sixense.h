@@ -26,11 +26,11 @@ namespace sixenseUtils {
 	class IFPSPlayerMovement;
 	class IFPSEvents;
 	class IFPSMeleeWeapon;
-
+	class IMousePointer;
 	class IDerivatives;
 	class IButtonStates;
 	class ILaserPointer;
-
+	class IMouseAndKeyboard;
 	class IControllerManager;
 };
 
@@ -197,21 +197,51 @@ private:
 	bool m_bScopeSwitchedMode;
 	sixenseUtils::IFPSViewAngles::fps_mode m_nScopeSwitchedPrevMode;
 	int m_nScopeSwitchedPrevSpringViewEnabled;
+	int m_nChargingPrevSpringViewEnabled;
 
 	float m_fTeleportWaitToBlendTime;
 
-	class ISixenseAPI *m_pSixenseAPI;
+	class ISixenseAPI
+	{
+	public:
+		virtual int sixenseInit( void );
+		virtual int sixenseExit( void );
+		virtual int sixenseGetMaxBases();
+		virtual int sixenseSetActiveBase( int i );
+		virtual int sixenseIsBaseConnected( int i );
+		virtual int sixenseGetMaxControllers( void );
+		virtual int sixenseIsControllerEnabled( int which );
+		virtual int sixenseGetNumActiveControllers();
+		virtual int sixenseGetHistorySize();
+		virtual int sixenseGetData( int which, int index_back, sixenseControllerData * );
+		virtual int sixenseGetAllData( int index_back, sixenseAllControllerData * );
+		virtual int sixenseGetNewestData( int which, sixenseControllerData * );
+		virtual int sixenseGetAllNewestData( sixenseAllControllerData * );
+		virtual int sixenseSetHemisphereTrackingMode( int which_controller, int state );
+		virtual int sixenseGetHemisphereTrackingMode( int which_controller, int *state );
+		virtual int sixenseAutoEnableHemisphereTracking( int which_controller );
+		virtual int sixenseSetHighPriorityBindingEnabled( int on_or_off );
+		virtual int sixenseGetHighPriorityBindingEnabled( int *on_or_off );
+		virtual int sixenseTriggerVibration( int controller_id, int duration_100ms, int pattern_id );
+		virtual int sixenseSetFilterEnabled( int on_or_off );
+		virtual int sixenseGetFilterEnabled( int *on_or_off );
+		virtual int sixenseSetFilterParams( float near_range, float near_val, float far_range, float far_val );
+		virtual int sixenseGetFilterParams( float *near_range, float *near_val, float *far_range, float *far_val );
+		virtual int sixenseSetBaseColor( unsigned char red, unsigned char green, unsigned char blue );
+		virtual int sixenseGetBaseColor( unsigned char *red, unsigned char *green, unsigned char *blue );
+	};
+	ISixenseAPI *m_pSixenseAPI;
 
 	struct _sixenseAllControllerData *m_pACD;
 
 	class sixenseUtils::IFPSViewAngles *m_pFPSViewAngles;
 	class sixenseUtils::IFPSPlayerMovement *m_pFPSPlayerMovement;
 	class sixenseUtils::IFPSEvents *m_pFPSEvents;
-
+	class sixenseUtils::IMousePointer* m_pMousePointer;
 	class sixenseUtils::IDerivatives *m_pLeftDeriv, *m_pRightDeriv;
 	class sixenseUtils::IButtonStates *m_pLeftButtonStates, *m_pRightButtonStates;
 	class sixenseUtils::ILaserPointer *m_pLaserPointer;
-
+	class sixenseUtils::IMouseAndKeyboard* m_pMouseAndKeyboard;
 	class sixenseUtils::IControllerManager *m_pControllerManager;
 
 	int m_LastViewMode;
