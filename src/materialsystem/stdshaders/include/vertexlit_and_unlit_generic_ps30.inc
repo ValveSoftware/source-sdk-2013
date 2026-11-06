@@ -21,6 +21,8 @@
 // $FLASHLIGHT && $CUBEMAP
 // $CUBEMAP_SPHERE_LEGACY && ($CUBEMAP == 0)
 // ($STATIC_LIGHT_LIGHTMAP == 0) && ($DEBUG_LUXELS == 1)
+// $BICUBIC_LIGHTMAP && ($STATIC_LIGHT_LIGHTMAP == 0)
+// $BICUBIC_LIGHTMAP && ($DEBUG_LUXELS == 1)
 // defined $HDRTYPE && defined $HDRENABLED && !$HDRTYPE && $HDRENABLED
 // defined $PIXELFOGTYPE && defined $WRITEWATERFOGTODESTALPHA && ( $PIXELFOGTYPE != 1 ) && $WRITEWATERFOGTODESTALPHA
 // defined $LIGHTING_PREVIEW && defined $HDRTYPE && $LIGHTING_PREVIEW && $HDRTYPE != 0
@@ -341,7 +343,7 @@ public:
 		AssertMsg( !( m_nBLENDTINTBYBASEALPHA && ( m_nSELFILLUM || ( ( m_nDISTANCEALPHA && ( m_nDISTANCEALPHAFROMDETAIL == 0 ) ) || m_nBASEALPHAENVMAPMASK ) ) ), "Invalid combo combination ( BLENDTINTBYBASEALPHA && ( SELFILLUM || ( ( DISTANCEALPHA && ( DISTANCEALPHAFROMDETAIL == 0 ) ) || BASEALPHAENVMAPMASK ) ) )" );
 		AssertMsg( !( m_nFLASHLIGHT && m_nCUBEMAP ), "Invalid combo combination ( FLASHLIGHT && CUBEMAP )" );
 		AssertMsg( !( m_nCUBEMAP_SPHERE_LEGACY && ( m_nCUBEMAP == 0 ) ), "Invalid combo combination ( CUBEMAP_SPHERE_LEGACY && ( CUBEMAP == 0 ) )" );
-		return ( 72 * m_nDETAILTEXTURE ) + ( 144 * m_nCUBEMAP ) + ( 288 * m_nDIFFUSELIGHTING ) + ( 576 * m_nENVMAPMASK ) + ( 1152 * m_nBASEALPHAENVMAPMASK ) + ( 2304 * m_nSELFILLUM ) + ( 4608 * m_nVERTEXCOLOR ) + ( 9216 * m_nFLASHLIGHT ) + ( 18432 * m_nSELFILLUM_ENVMAPMASK_ALPHA ) + ( 36864 * m_nDETAIL_BLEND_MODE ) + ( 368640 * m_nSEAMLESS_BASE ) + ( 737280 * m_nSEAMLESS_DETAIL ) + ( 1474560 * m_nDISTANCEALPHA ) + ( 2949120 * m_nDISTANCEALPHAFROMDETAIL ) + ( 5898240 * m_nSOFT_MASK ) + ( 11796480 * m_nOUTLINE ) + ( 23592960 * m_nOUTER_GLOW ) + ( 47185920 * m_nFLASHLIGHTDEPTHFILTERMODE ) + ( 141557760 * m_nDEPTHBLEND ) + ( 283115520 * m_nBLENDTINTBYBASEALPHA ) + ( 566231040 * m_nCUBEMAP_SPHERE_LEGACY ) + 0;
+		return ( 144 * m_nDETAILTEXTURE ) + ( 288 * m_nCUBEMAP ) + ( 576 * m_nDIFFUSELIGHTING ) + ( 1152 * m_nENVMAPMASK ) + ( 2304 * m_nBASEALPHAENVMAPMASK ) + ( 4608 * m_nSELFILLUM ) + ( 9216 * m_nVERTEXCOLOR ) + ( 18432 * m_nFLASHLIGHT ) + ( 36864 * m_nSELFILLUM_ENVMAPMASK_ALPHA ) + ( 73728 * m_nDETAIL_BLEND_MODE ) + ( 737280 * m_nSEAMLESS_BASE ) + ( 1474560 * m_nSEAMLESS_DETAIL ) + ( 2949120 * m_nDISTANCEALPHA ) + ( 5898240 * m_nDISTANCEALPHAFROMDETAIL ) + ( 11796480 * m_nSOFT_MASK ) + ( 23592960 * m_nOUTLINE ) + ( 47185920 * m_nOUTER_GLOW ) + ( 94371840 * m_nFLASHLIGHTDEPTHFILTERMODE ) + ( 283115520 * m_nDEPTHBLEND ) + ( 566231040 * m_nBLENDTINTBYBASEALPHA ) + ( 1132462080 * m_nCUBEMAP_SPHERE_LEGACY ) + 0;
 	}
 };
 
@@ -354,12 +356,14 @@ class vertexlit_and_unlit_generic_ps30_Dynamic_Index
 	unsigned int m_nLIGHTING_PREVIEW : 2;
 	unsigned int m_nFLASHLIGHTSHADOWS : 2;
 	unsigned int m_nSTATIC_LIGHT_LIGHTMAP : 2;
+	unsigned int m_nBICUBIC_LIGHTMAP : 2;
 	unsigned int m_nDEBUG_LUXELS : 2;
 #ifdef _DEBUG
 	bool m_bPIXELFOGTYPE : 1;
 	bool m_bLIGHTING_PREVIEW : 1;
 	bool m_bFLASHLIGHTSHADOWS : 1;
 	bool m_bSTATIC_LIGHT_LIGHTMAP : 1;
+	bool m_bBICUBIC_LIGHTMAP : 1;
 	bool m_bDEBUG_LUXELS : 1;
 #endif	// _DEBUG
 public:
@@ -399,6 +403,15 @@ public:
 #endif	// _DEBUG
 	}
 
+	void SetBICUBIC_LIGHTMAP( int i )
+	{
+		Assert( i >= 0 && i <= 1 );
+		m_nBICUBIC_LIGHTMAP = i;
+#ifdef _DEBUG
+		m_bBICUBIC_LIGHTMAP = true;
+#endif	// _DEBUG
+	}
+
 	void SetDEBUG_LUXELS( int i )
 	{
 		Assert( i >= 0 && i <= 1 );
@@ -414,23 +427,27 @@ public:
 		m_nLIGHTING_PREVIEW = 0;
 		m_nFLASHLIGHTSHADOWS = 0;
 		m_nSTATIC_LIGHT_LIGHTMAP = 0;
+		m_nBICUBIC_LIGHTMAP = 0;
 		m_nDEBUG_LUXELS = 0;
 #ifdef _DEBUG
 		m_bPIXELFOGTYPE = false;
 		m_bLIGHTING_PREVIEW = false;
 		m_bFLASHLIGHTSHADOWS = false;
 		m_bSTATIC_LIGHT_LIGHTMAP = false;
+		m_bBICUBIC_LIGHTMAP = false;
 		m_bDEBUG_LUXELS = false;
 #endif	// _DEBUG
 	}
 
 	int GetIndex() const
 	{
-		Assert( m_bPIXELFOGTYPE && m_bLIGHTING_PREVIEW && m_bFLASHLIGHTSHADOWS && m_bSTATIC_LIGHT_LIGHTMAP && m_bDEBUG_LUXELS );
+		Assert( m_bPIXELFOGTYPE && m_bLIGHTING_PREVIEW && m_bFLASHLIGHTSHADOWS && m_bSTATIC_LIGHT_LIGHTMAP && m_bBICUBIC_LIGHTMAP && m_bDEBUG_LUXELS );
 		AssertMsg( !( ( m_nSTATIC_LIGHT_LIGHTMAP == 0 ) && ( m_nDEBUG_LUXELS == 1 ) ), "Invalid combo combination ( ( STATIC_LIGHT_LIGHTMAP == 0 ) && ( DEBUG_LUXELS == 1 ) )" );
-		return ( 1 * m_nPIXELFOGTYPE ) + ( 3 * m_nLIGHTING_PREVIEW ) + ( 9 * m_nFLASHLIGHTSHADOWS ) + ( 18 * m_nSTATIC_LIGHT_LIGHTMAP ) + ( 36 * m_nDEBUG_LUXELS ) + 0;
+		AssertMsg( !( m_nBICUBIC_LIGHTMAP && ( m_nSTATIC_LIGHT_LIGHTMAP == 0 ) ), "Invalid combo combination ( BICUBIC_LIGHTMAP && ( STATIC_LIGHT_LIGHTMAP == 0 ) )" );
+		AssertMsg( !( m_nBICUBIC_LIGHTMAP && ( m_nDEBUG_LUXELS == 1 ) ), "Invalid combo combination ( BICUBIC_LIGHTMAP && ( DEBUG_LUXELS == 1 ) )" );
+		return ( 1 * m_nPIXELFOGTYPE ) + ( 3 * m_nLIGHTING_PREVIEW ) + ( 9 * m_nFLASHLIGHTSHADOWS ) + ( 18 * m_nSTATIC_LIGHT_LIGHTMAP ) + ( 36 * m_nBICUBIC_LIGHTMAP ) + ( 72 * m_nDEBUG_LUXELS ) + 0;
 	}
 };
 
-#define shaderDynamicTest_vertexlit_and_unlit_generic_ps30 psh_forgot_to_set_dynamic_PIXELFOGTYPE + psh_forgot_to_set_dynamic_LIGHTING_PREVIEW + psh_forgot_to_set_dynamic_FLASHLIGHTSHADOWS + psh_forgot_to_set_dynamic_STATIC_LIGHT_LIGHTMAP + psh_forgot_to_set_dynamic_DEBUG_LUXELS
+#define shaderDynamicTest_vertexlit_and_unlit_generic_ps30 psh_forgot_to_set_dynamic_PIXELFOGTYPE + psh_forgot_to_set_dynamic_LIGHTING_PREVIEW + psh_forgot_to_set_dynamic_FLASHLIGHTSHADOWS + psh_forgot_to_set_dynamic_STATIC_LIGHT_LIGHTMAP + psh_forgot_to_set_dynamic_BICUBIC_LIGHTMAP + psh_forgot_to_set_dynamic_DEBUG_LUXELS
 

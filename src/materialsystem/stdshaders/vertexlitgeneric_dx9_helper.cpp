@@ -33,6 +33,7 @@
 static ConVar mat_fullbright( "mat_fullbright","0", FCVAR_CHEAT );
 static ConVar r_lightwarpidentity( "r_lightwarpidentity","0", FCVAR_CHEAT );
 static ConVar mat_luxels( "mat_luxels", "0", FCVAR_CHEAT );
+extern ConVar r_lightmap_bicubic;
 //static ConVar r_treesway( "r_treesway", "1" );
 
 static inline bool WantsSkinShader( IMaterialVar** params, const VertexLitGeneric_DX9_Vars_t &info )
@@ -402,6 +403,7 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 	bool bIsAlphaTested = IS_FLAG_SET( MATERIAL_VAR_ALPHATEST ) != 0;
 	bool bHasDiffuseWarp = (!bHasFlashlight || IsX360() ) && hasDiffuseLighting && (info.m_nDiffuseWarpTexture != -1) && params[info.m_nDiffuseWarpTexture]->IsTexture();
 	bool bHasLightmapTexture = IsTextureSet( info.m_nLightmap, params );
+	bool bHasBicubicLightmapSampling = bHasLightmapTexture && r_lightmap_bicubic.GetBool();
 	bool bHasMatLuxel = bHasLightmapTexture && mat_luxels.GetBool();
 
 	//bool bNoCull = IS_FLAG_SET( MATERIAL_VAR_NOCULL );
@@ -1267,8 +1269,12 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 			}
 			else
 			{
-				float dimensions[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 				DynamicCmdsOut.BindStandardTexture( SHADER_SAMPLER12, TEXTURE_DEBUG_LUXELS );
+			}
+
+			if ( bHasMatLuxel || bHasBicubicLightmapSampling )
+			{
+				float dimensions[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 				pShader->GetTextureDimensions( &dimensions[0], &dimensions[1], info.m_nLightmap );
 				DynamicCmdsOut.SetPixelShaderConstant( 11, dimensions, 1 );
 			}
@@ -1398,6 +1404,7 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 					SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo1( true ) );
 					SET_DYNAMIC_PIXEL_SHADER_COMBO( FLASHLIGHTSHADOWS, bFlashlightShadows );
 					SET_DYNAMIC_PIXEL_SHADER_COMBO( STATIC_LIGHT_LIGHTMAP, lightState.m_bStaticLightTexel ? 1 : 0 );
+					SET_DYNAMIC_PIXEL_SHADER_COMBO( BICUBIC_LIGHTMAP, bHasBicubicLightmapSampling ? 1 : 0 );
 					SET_DYNAMIC_PIXEL_SHADER_COMBO( DEBUG_LUXELS, bHasMatLuxel ? 1 : 0 );
 					SET_DYNAMIC_PIXEL_SHADER_COMBO(
 						LIGHTING_PREVIEW,
@@ -1436,6 +1443,7 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 				SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo1( true ) );
 				SET_DYNAMIC_PIXEL_SHADER_COMBO( FLASHLIGHTSHADOWS, bFlashlightShadows );
 				SET_DYNAMIC_PIXEL_SHADER_COMBO( STATIC_LIGHT_LIGHTMAP,  lightState.m_bStaticLightTexel  ? 1 : 0 );
+				SET_DYNAMIC_PIXEL_SHADER_COMBO( BICUBIC_LIGHTMAP, bHasBicubicLightmapSampling ? 1 : 0 );
 				SET_DYNAMIC_PIXEL_SHADER_COMBO( DEBUG_LUXELS, bHasMatLuxel ? 1 : 0 );
 				SET_DYNAMIC_PIXEL_SHADER_COMBO(	LIGHTING_PREVIEW,
 					pShaderAPI->GetIntRenderingParameter(INT_RENDERPARM_ENABLE_FIXED_LIGHTING) );
