@@ -630,7 +630,7 @@ void CWeaponCrossbow::FireBolt( void )
 		else
 		{
 			WeaponSound( EMPTY );
-			m_flNextPrimaryAttack = 0.15;
+			m_flNextPrimaryAttack = gpGlobals->curtime + 0.15f;
 		}
 
 		return;
