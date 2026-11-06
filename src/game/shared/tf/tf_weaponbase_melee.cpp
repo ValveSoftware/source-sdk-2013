@@ -150,11 +150,18 @@ bool CTFWeaponBaseMelee::Holster( CBaseCombatWeapon *pSwitchingTo )
 	{
 		pPlayer->m_Shared.SetNextMeleeCrit( MELEE_NOCRIT );
 	
-		int iSelfMark = 0;
-		CALL_ATTRIB_HOOK_INT( iSelfMark, self_mark_for_death );
-		if ( iSelfMark )
+		// Don't do this on the client for non-local players,
+		// as it can cause issues if this weapon becomes dormant.
+#ifdef CLIENT_DLL
+		if ( pPlayer->IsLocalPlayer() )
+#endif
 		{
-			pPlayer->m_Shared.AddCond( TF_COND_MARKEDFORDEATH_SILENT, iSelfMark );
+			int iSelfMark = 0;
+			CALL_ATTRIB_HOOK_INT( iSelfMark, self_mark_for_death );
+			if ( iSelfMark )
+			{
+				pPlayer->m_Shared.AddCond( TF_COND_MARKEDFORDEATH_SILENT, iSelfMark );
+			}
 		}
 	}
 
