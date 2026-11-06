@@ -725,8 +725,6 @@ void CWeaponCrossbow::ToggleZoom( void )
 	if ( pPlayer == NULL )
 		return;
 
-#ifndef CLIENT_DLL
-
 	if ( m_bInZoom )
 	{
 		if ( pPlayer->SetFOV( this, 0, 0.2f ) )
@@ -741,7 +739,6 @@ void CWeaponCrossbow::ToggleZoom( void )
 			m_bInZoom = true;
 		}
 	}
-#endif
 }
 
 #define	BOLT_TIP_ATTACHMENT	2
