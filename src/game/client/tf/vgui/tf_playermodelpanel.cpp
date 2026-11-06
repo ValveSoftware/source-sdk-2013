@@ -1851,11 +1851,11 @@ void CTFPlayerModelPanel::UpdateTauntEffects(
 		m_aParticleSystems[SYSTEM_TAUNT] = CreateParticleData( strParticleName.String() );
 	}
 
-	matrix3x4_t matAttachToWorld;
-	SetIdentityMatrix( matAttachToWorld );
+	Vector vecBonePos;
+	MatrixPosition( *pWorldMatrix, vecBonePos );
 
 	CUtlVector< int > vecAttachments;
-	m_aParticleSystems[SYSTEM_TAUNT]->UpdateControlPoints( pStudioHdr, &matAttachToWorld, vecAttachments, 0, m_vecPlayerPos );
+	m_aParticleSystems[SYSTEM_TAUNT]->UpdateControlPoints( pStudioHdr, pWorldMatrix, vecAttachments, 0, m_vecPlayerPos - vecBonePos );
 }
 
 //-----------------------------------------------------------------------------
