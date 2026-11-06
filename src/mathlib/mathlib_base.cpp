@@ -23,9 +23,6 @@
 #include "mathlib/vector.h"
 #if !defined( _X360 )
 #include "mathlib/amd3dx.h"
-#ifndef OSX
-#include "3dnow.h"
-#endif
 #include "sse.h"
 #endif
 
@@ -50,19 +47,6 @@ const int nanmask = 255<<23;
 //-----------------------------------------------------------------------------
 // Standard C implementations of optimized routines:
 //-----------------------------------------------------------------------------
-float _sqrtf(float _X)
-{
-	Assert( s_bMathlibInitialized );
-	return sqrtf(_X); 
-}
-
-float _rsqrtf(float x)
-{
-	Assert( s_bMathlibInitialized );
-
-	return 1.f / _sqrtf( x );
-}
-
 float FASTCALL _VectorNormalize (Vector& vec)
 {
 #ifdef _VPROF_MATHLIB
@@ -96,22 +80,11 @@ void FASTCALL _VectorNormalizeFast (Vector& vec)
 	
 }
 
-float _InvRSquared(const float* v)
-{
-	Assert( s_bMathlibInitialized );
-	float	r2 = DotProduct(v, v);
-	return r2 < 1.f ? 1.f : 1/r2;
-}
-
 //-----------------------------------------------------------------------------
 // Function pointers selecting the appropriate implementation
 //-----------------------------------------------------------------------------
-float (*pfSqrt)(float x)  = _sqrtf;
-float (*pfRSqrt)(float x) = _rsqrtf;
-float (*pfRSqrtFast)(float x) = _rsqrtf;
 float (FASTCALL *pfVectorNormalize)(Vector& v) = _VectorNormalize;
 void  (FASTCALL *pfVectorNormalizeFast)(Vector& v) = _VectorNormalizeFast;
-float (*pfInvRSquared)(const float* v) = _InvRSquared;
 void  (*pfFastSinCos)(float x, float* s, float* c) = SinCos;
 float (*pfFastCos)(float x) = cosf;
 
@@ -3321,12 +3294,8 @@ void MathLib_Init( float gamma, float texGamma, float brightness, int overbright
 	const CPUInformation& pi = *GetCPUInformation();
 
 	// Select the default generic routines.
-	pfSqrt = _sqrtf;
-	pfRSqrt = _rsqrtf;
-	pfRSqrtFast = _rsqrtf;
 	pfVectorNormalize = _VectorNormalize;
 	pfVectorNormalizeFast = _VectorNormalizeFast;
-	pfInvRSquared = _InvRSquared;
 	pfFastSinCos = SinCos;
 	pfFastCos = cosf;
 
@@ -3347,14 +3316,6 @@ void MathLib_Init( float gamma, float texGamma, float brightness, int overbright
 	if ( bAllow3DNow && pi.m_b3DNow )
 	{
 		s_b3DNowEnabled = true;
-
-		// Select the 3DNow specific routines if available;
-		pfVectorNormalize = _3DNow_VectorNormalize;
-		pfVectorNormalizeFast = _3DNow_VectorNormalizeFast;
-		pfInvRSquared = _3DNow_InvRSquared;
-		pfSqrt = _3DNow_Sqrt;
-		pfRSqrt = _3DNow_RSqrt;
-		pfRSqrtFast = _3DNow_RSqrt;
 	}
 	else
 #endif
@@ -3371,10 +3332,6 @@ void MathLib_Init( float gamma, float texGamma, float brightness, int overbright
 		// Select the SSE specific routines if available
 		pfVectorNormalize = _VectorNormalize;
 		pfVectorNormalizeFast = _SSE_VectorNormalizeFast;
-		pfInvRSquared = _SSE_InvRSquared;
-		pfSqrt = _SSE_Sqrt;
-		pfRSqrt = _SSE_RSqrtAccurate;
-		pfRSqrtFast = _SSE_RSqrtFast;
 #endif
 #ifdef PLATFORM_WINDOWS_PC32
 		pfFastSinCos = _SSE_SinCos;
