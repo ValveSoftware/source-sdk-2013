@@ -2440,6 +2440,10 @@ void KeyValues::RecursiveLoadFromBuffer( char const *resourceName, CUtlBuffer &b
 	// We maintain the pointer to the last child here, so we don't have to re-locate
 	// it each time we append the next subkey, which causes O(N^2) time
 	KeyValues *pLastChild = FindLastSubKey();;
+	// ReadToken stores its result in s_pTokenBuf. Preserve ordinary lookahead
+	// tokens for the next iteration instead of reading them twice.
+	bool bHasPendingToken = false;
+	bool bPendingTokenWasQuoted = false;
 
 	// Keep parsing until we hit the closing brace which terminates this block, or a parse error
 	while ( 1 )
@@ -2447,7 +2451,18 @@ void KeyValues::RecursiveLoadFromBuffer( char const *resourceName, CUtlBuffer &b
 		bool bAccepted = true;
 
 		// get the key name
-		const char * name = ReadToken( buf, wasQuoted, wasConditional );
+		const char *name;
+		if ( bHasPendingToken )
+		{
+			name = s_pTokenBuf;
+			wasQuoted = bPendingTokenWasQuoted;
+			wasConditional = false;
+			bHasPendingToken = false;
+		}
+		else
+		{
+			name = ReadToken( buf, wasQuoted, wasConditional );
+		}
 
 		if ( !name )	// EOF stop reading
 		{
@@ -2579,15 +2594,15 @@ void KeyValues::RecursiveLoadFromBuffer( char const *resourceName, CUtlBuffer &b
 			}
 
 			// Look ahead one token for a conditional tag
-			int prevPos = buf.TellGet();
 			const char *peek = ReadToken( buf, wasQuoted, wasConditional );
 			if ( wasConditional )
 			{
 				bAccepted = !m_bEvaluateConditionals || EvaluateConditional( peek );
 			}
-			else
+			else if ( peek )
 			{
-				buf.SeekGet( CUtlBuffer::SEEK_HEAD, prevPos );
+				bPendingTokenWasQuoted = wasQuoted;
+				bHasPendingToken = true;
 			}
 		}
 
