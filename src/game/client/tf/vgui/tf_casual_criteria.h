@@ -13,7 +13,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
-
+namespace vgui
+{
+	class ImagePanel;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -40,6 +43,7 @@ public:
 private:
 
 	void WriteCategories( void );
+	void UpdateMapPreview( void );
 
 	MESSAGE_FUNC_PARAMS( OnCategoryExpanded, "CategoryExpanded", params );
 	MESSAGE_FUNC_PTR( OnCheckButtonChecked, "CheckButtonChecked", panel );
@@ -63,6 +67,11 @@ private:
 	CUtlMap< EGameCategory, Panel* > m_mapCategoryPanels;
 
 	bool					m_bCriteriaDirty;
+
+	vgui::Panel*			m_pMapPreviewFrame;
+	vgui::ImagePanel*		m_pMapPreview;
+	const MapDef_t*			m_pPreviewMap;
+	bool					m_bPreviewValid;
 };
 
 #endif //TF_CASUAL_CRITERIA_H
