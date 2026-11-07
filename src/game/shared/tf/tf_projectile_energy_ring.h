@@ -69,6 +69,7 @@ private:
 	Vector			m_vColor2;
 
 	Vector			m_vecPrevPos;
+	Vector			m_vecInitialPos;
 
 #ifdef GAME_DLL
 	float m_flLastHitTime;
