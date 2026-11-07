@@ -582,6 +582,26 @@ int CTFBaseBoss::OnTakeDamage_Alive( const CTakeDamageInfo &rawInfo )
 }
 
 
+void CTFBaseBoss::SetHealth( float flHealth )
+{
+	BaseClass::SetHealth( flHealth );
+	UpdateHealthPercentage();
+}
+
+
+void CTFBaseBoss::SetMaxHealth( float flHealth )
+{
+	BaseClass::SetMaxHealth( flHealth );
+	UpdateHealthPercentage();
+}
+
+
+void CTFBaseBoss::UpdateHealthPercentage( void )
+{
+	m_lastHealthPercentage = (float)GetHealth() / (float)GetMaxHealth();
+}
+
+
 //--------------------------------------------------------------------------------------
 void CTFBaseBoss::InputEnable( inputdata_t &inputdata )
 {
