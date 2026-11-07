@@ -25,7 +25,11 @@
 #include <wchar.h>
 #endif
 #include <string.h>
+#if defined( OSX )
+#include <malloc/malloc.h>
+#else
 #include <malloc.h>
+#endif
 #include "commonmacros.h"
 #include "memalloc.h"
 
