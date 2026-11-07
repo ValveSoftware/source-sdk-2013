@@ -120,6 +120,7 @@ public:
 	void SetLateJoin( bool bLateJoin );
 	void SetCustomPingTolerance( uint32_t unCustomPingTolerance );
 
+	void SetKeepPartyOnSameTeam( bool bKeepPartyOnSameTeam );
 	void SetCasualMapSelected( uint32 nMapDefIndex, bool bSelected );
 	void SetCasualGroupSelected( EMatchmakingGroupType eGroup, bool bSelected );
 	void SetCasualCategorySelected( EGameCategory eCategory, bool bSelected );

@@ -55,7 +55,7 @@ private:
 	bool IsAlreadyCandidate( CTFPlayer *pTFPlayer ) const;
 	double GetTeamAutoBalanceScore( int nTeam ) const;
 	double GetPlayerAutoBalanceScore( CTFPlayer *pTFPlayer ) const;
-	CTFPlayer *FindNextCandidate();
+	CTFPlayer *FindNextCandidate( bool bKeepPartiesOnSameTeam );
 	bool FindCandidates();
 	bool ValidateCandidates();
 

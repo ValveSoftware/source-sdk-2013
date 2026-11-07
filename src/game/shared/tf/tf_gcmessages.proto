@@ -1033,6 +1033,7 @@ message CTFGroupMatchCriteriaProto
 	// optional TF_MatchmakingMode     matchmaking_mode         = 7;
 	optional    bool                   late_join_ok             = 5; // Is my party willing to join late?
 	optional    uint32                 custom_ping_tolerance    = 13 [ default = 0 ]; // 0 == no custom tolerance
+	optional    bool                   keep_party_on_same_team  = 17 [ default = true ]; // Should auto-balance try to avoid splitting party members up?
 
 	// Deprecated - with multi-queue, you are no longer locked to one match group, and criteria is universal (not one
 	// per match-group)

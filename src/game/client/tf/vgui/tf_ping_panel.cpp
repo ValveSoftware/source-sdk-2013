@@ -69,13 +69,6 @@ void CTFPingPanel::ApplySchemeSettings( IScheme *pScheme )
 	m_pIgnoreInvitesCheckBox = FindControl< CvarToggleCheckButton<UIConVarRef> >( "IgnorePartyInvites", true );
 	m_pKeepTeamTogetherCheckBox = FindControl< CvarToggleCheckButton<UIConVarRef> >( "KeepPartyOnSameTeam", true );
 
-	if ( m_pKeepTeamTogetherCheckBox )
-	{
-		m_pKeepTeamTogetherCheckBox->SetSelected( true );
-		m_pKeepTeamTogetherCheckBox->SetEnabled( false );
-		m_pKeepTeamTogetherCheckBox->SetTooltip( GetDashboardTooltip( k_eMediumFont ), "#TF_MM_ComingSoon" );
-	}
-
 	RegeneratePingPanels();
 	m_pPingSlider->AddActionSignalTarget( this );
 }
