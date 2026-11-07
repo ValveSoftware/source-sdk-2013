@@ -24,7 +24,11 @@
 
 #ifndef _X360
 // For MMX intrinsics
+#if defined( __aarch64__ )
+#include "../../thirdparty/sse2neon/sse2neon.h"
+#else
 #include <xmmintrin.h>
+#endif
 #endif
 
 #include "tier0/dbg.h"

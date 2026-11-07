@@ -8,6 +8,8 @@
 
 #if defined( _X360 )
 #include <xboxmath.h>
+#elif defined( __aarch64__ )
+#include "../../thirdparty/sse2neon/sse2neon.h"
 #else
 #include <xmmintrin.h>
 #endif

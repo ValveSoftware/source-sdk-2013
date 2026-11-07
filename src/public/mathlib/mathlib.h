@@ -18,7 +18,11 @@
 #include "mathlib/math_pfns.h"
 
 // For MMX intrinsics
+#if defined( __aarch64__ )
+#include "../../thirdparty/sse2neon/sse2neon.h"
+#else
 #include <xmmintrin.h>
+#endif
 
 // XXX remove me
 #undef clamp
@@ -1176,6 +1180,8 @@ FORCEINLINE int RoundFloatToInt(float f)
 {
 #if defined( PLATFORM_INTEL )
 	return _mm_cvtss_si32(_mm_load_ss(&f));
+#elif defined( __aarch64__ )
+	return (int)lrintf( f );
 #elif defined( _X360 )
 #ifdef Assert
 	Assert( IsFPUControlWordSet() );
@@ -1218,7 +1224,7 @@ FORCEINLINE unsigned long RoundFloatToUnsignedLong(float f)
 	return pResult[1];
 #else  // !X360
 	
-#if defined( PLATFORM_WINDOWS_PC64 )
+#if defined( PLATFORM_WINDOWS_PC64 ) || defined( __aarch64__ )
 	uint nRet = ( uint ) f;
 	if ( nRet & 1 )
 	{

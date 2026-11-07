@@ -25,6 +25,13 @@
 #undef fopen
 #endif
 
+#if defined( OSX )
+// With libc++, these templates and std::min/max are both visible to unqualified calls (e.g. in protobuf's
+// headers), which makes the calls ambiguous. Use the standard ones instead.
+#include <algorithm>
+using std::min;
+using std::max;
+#else
 template <typename T>
 const T& min(const T& a, const T& b)
 {
@@ -36,5 +43,6 @@ const T& max(const T& a, const T& b)
 {
     return (a < b) ? b : a;
 }
+#endif
 
 #endif // MINMAX_H
