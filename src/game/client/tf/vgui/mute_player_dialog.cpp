@@ -43,6 +43,20 @@ CMutePlayerDialog::~CMutePlayerDialog()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Sort function for the player time column.
+//-----------------------------------------------------------------------------
+static int __cdecl SortPlayersByPlayTime( vgui::ListPanel *pPanel, const ListPanelItem &item1, const ListPanelItem &item2 )
+{
+    int time1 = item1.kv->GetInt( "time_int", 0 );
+    int time2 = item2.kv->GetInt( "time_int", 0 );
+    if ( time1 < time2 )
+        return -1;
+    if ( time1 > time2 )
+        return 1;
+    return 0;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CMutePlayerDialog::ApplySchemeSettings( vgui::IScheme *pScheme )
@@ -72,6 +86,7 @@ void CMutePlayerDialog::ApplySchemeSettings( vgui::IScheme *pScheme )
 		m_pPlayerList->AddColumnHeader( 2, "name", "#TF_Scoreboard_Name", m_iNameWidth + m_nExtraSpace );
 		m_pPlayerList->AddColumnHeader( 3, "score", "#TF_Scoreboard_Score", m_iScoreWidth );
 		m_pPlayerList->AddColumnHeader( 4, "time", "#TF_Connected", m_iTimeWidth );
+		m_pPlayerList->SetSortFunc( 4, SortPlayersByPlayTime );
 		m_pPlayerList->AddColumnHeader( 5, "status", "", m_iStatusWidth );
 
 		// doesn't make sense to sort with the images
@@ -155,7 +170,10 @@ void CMutePlayerDialog::Activate()
 
 				// The medal column is just a place holder for the images that are displayed later
 				pKeyValues->SetInt( "medal", 0 );
-				pKeyValues->SetString( "time", FormatSeconds( gpGlobals->curtime - g_TF_PR->GetConnectTime( playerIndex ) ) );
+
+				int nTime = gpGlobals->curtime - g_TF_PR->GetConnectTime( playerIndex );
+				pKeyValues->SetInt( "time_int", nTime );
+				pKeyValues->SetString( "time", FormatSeconds( nTime ) );
 
 				Color clr = g_PR->GetTeamColor( nTeam );
 				pKeyValues->SetColor( "cellcolor", clr );
@@ -185,7 +203,8 @@ void CMutePlayerDialog::RefreshPlayerStatus()
 {
 	for ( int i = 0; i <= m_pPlayerList->GetItemCount(); i++ )
 	{
-		KeyValues *data = m_pPlayerList->GetItem( i );
+		int itemID = m_pPlayerList->GetItemIDFromRow( i );
+		KeyValues *data = m_pPlayerList->GetItem( itemID );
 		if ( !data )
 			continue;
 
@@ -197,6 +216,7 @@ void CMutePlayerDialog::RefreshPlayerStatus()
 		{
 			// disconnected
 			data->SetString( "status", "#TF_Disconnected" );
+			m_pPlayerList->ApplyItemChanges( itemID );
 			continue;
 		}
 
@@ -210,8 +230,9 @@ void CMutePlayerDialog::RefreshPlayerStatus()
 		{
 			data->SetString( "status", "" );
 		}
+
+		m_pPlayerList->ApplyItemChanges( itemID );
 	}
-	m_pPlayerList->RereadAllItems();
 }
 
 //-----------------------------------------------------------------------------
