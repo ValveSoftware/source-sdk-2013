@@ -83,6 +83,9 @@ public:
 	void SetInitialHealth( int value );
 	void SetCurrencyValue( int value );				// how much cash do we drop when we die?
 
+	virtual void SetHealth( float flHealth );
+	virtual void SetMaxHealth( float flHealth );
+
 	COutputEvent m_outputOnHealthBelow90Percent;
 	COutputEvent m_outputOnHealthBelow80Percent;
 	COutputEvent m_outputOnHealthBelow70Percent;
@@ -100,6 +103,8 @@ protected:
 	int GetInitialHealth( ) const { return m_initialHealth; }
 
 private:
+	void UpdateHealthPercentage( void );
+
 	int m_initialHealth;
 	CNetworkVar( float, m_lastHealthPercentage );
 	string_t m_modelString;
