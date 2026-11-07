@@ -290,6 +290,7 @@ extern bool g_bStaticPropPolys;
 extern bool g_bTextureShadows;
 extern bool g_bShowStaticPropNormals;
 extern bool g_bDisablePropSelfShadowing;
+extern int g_nIndirectPropLightingMode;
 
 extern CUtlVector<char const *> g_NonShadowCastingMaterialStrings;
 extern void ForceTextureShadowsOnModel( const char *pModelName );
