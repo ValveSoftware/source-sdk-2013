@@ -455,6 +455,7 @@ BEGIN_PREDICTION_DATA_NO_BASE( CTFPlayerShared )
 	DEFINE_PRED_FIELD( m_iAirDash, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_nAirDucked, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_flDuckTimer, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_flLastOnGroundTime, FIELD_FLOAT, 0 ),
 	DEFINE_PRED_FIELD( m_flInvisChangeCompleteTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_flLastStealthExposeTime, FIELD_FLOAT, 0 ),
 	DEFINE_PRED_FIELD( m_flStealthNextChangeTime, FIELD_INTEGER, 0 ),
@@ -784,6 +785,7 @@ CTFPlayerShared::CTFPlayerShared()
 	m_iAirDash = 0;
 	m_nAirDucked = 0;
 	m_flDuckTimer = 0.0f;
+	m_flLastOnGroundTime = 0.0f;
 	m_flStealthNoAttackExpire = 0.0f;
 	m_flStealthNextChangeTime = 0.0f;
 	m_iCritMult = 0;
