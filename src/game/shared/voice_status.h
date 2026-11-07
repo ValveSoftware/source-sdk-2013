@@ -49,6 +49,12 @@ public:
 	int					m_clientindex;	// Client index of the speaker. -1 if this label isn't being used.
 };
 
+struct VoiceBlockState_t
+{
+    int playerIndex;
+    bool blocked;
+};
+
 // This is provided by each mod to access data that may not be the same across mods.
 abstract_class IVoiceStatusHelper
 {
@@ -128,7 +134,10 @@ public:
 	// returns true if the local player is attempting to speak
 	bool	IsLocalPlayerSpeaking( void );
 
-	// blocks the target client from being heard
+	// blocks the target client(s) from being heard
+	void	SetPlayersBlockedState( const CUtlVector<VoiceBlockState_t> &playerStates );
+
+	// convenience version of SetPlayersBlockedState for a single client
 	void	SetPlayerBlockedState(int iPlayerIndex, bool blocked);
 
 	void	SetHeadLabelMaterial( const char *pszMaterial );
