@@ -27,6 +27,11 @@ namespace vgui
 }
 
 struct baseitemcriteria_t;
+class CTFItemDefinition;
+
+bool IsMedalItem( const CTFItemDefinition *pItemDef, int iClass );
+bool CanEquipItemInSlot( const CTFItemDefinition *pItemDef, int iClass, int iSlot );
+int GetEffectiveLoadoutSlot( const CEconItemView *pItem, int iClass );
 
 //===============================================================================================================
 //-----------------------------------------------------------------------------
