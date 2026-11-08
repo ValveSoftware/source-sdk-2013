@@ -207,6 +207,8 @@ void CCurrencyPack::ComeToRest( void )
 
 				m_bTouched = true;
 				UTIL_Remove( this );
+
+				return;
 			}
 		}
 	}
@@ -223,6 +225,8 @@ void CCurrencyPack::ComeToRest( void )
 
 			m_bTouched = true;
 			UTIL_Remove( this );
+
+			return;
 		}
 	}
 }

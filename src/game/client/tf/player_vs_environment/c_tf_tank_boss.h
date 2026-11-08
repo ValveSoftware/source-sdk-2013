@@ -13,10 +13,12 @@ public:
 
 	C_TFTankBoss();
 
-	virtual void GetGlowEffectColor( float *r, float *g, float *b );
+	virtual void GetGlowEffectColor(float *r, float *g, float *b);
 
 	// ITFMvMBossProgressUser
-	virtual const char* GetBossProgressImageName() const OVERRIDE { return "tank"; }
+	virtual const char* GetBossProgressImageName() const OVERRIDE;
+private:
+	char m_iszClassIcon[MAX_PATH];
 };
 
 #endif // C_TF_TANK_BOSS_H

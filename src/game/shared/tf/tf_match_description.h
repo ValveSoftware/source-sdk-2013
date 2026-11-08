@@ -138,6 +138,9 @@ public:
 
 	inline bool BIsTrustedServersOnly() const { return m_bTrustedServersOnly; }
 
+	inline int GetReadyCountdownMinimum() const { return m_nReadyCountdownMinimum; }
+	inline int GetReadyCountdownReducePerPlayer() const { return m_nReadyCountdownReducePerPlayer; }
+
 	const ETFMatchGroup m_eMatchGroup;
 	const IProgressionDesc* m_pProgressionDesc;
 
@@ -201,6 +204,10 @@ protected:
 	// If set, update this leaderboard on match results.  Must provide BuildLeaderboardValue above.
 	EMatchGroupLeaderboard  m_eLeaderboard                        = k_eMatchGroupLeaderboard_Invalid;
 	bool                    m_bUsesStrictSpectatorRules           = false;
+
+	// Controls the pre-match countdown while waiting for players
+	int                     m_nReadyCountdownMinimum              = 60;
+	int                     m_nReadyCountdownReducePerPlayer      = 30;
 };
 
 #endif //TF_MATCH_DESCRIPTION_H

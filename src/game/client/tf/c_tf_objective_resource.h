@@ -34,6 +34,7 @@ public:
 	int				GetMannVsMachineMaxWaveCount( void ) { return m_nMannVsMachineMaxWaveCount; }
 	int				GetMannVsMachineWaveCount( void ) { return m_nMannVsMachineWaveCount; }
 	int				GetMannVsMachineWaveEnemyCount( void ) { return m_nMannVsMachineWaveEnemyCount; }
+	bool			GetMannVsMachineWaveHasTanks( void ) { return m_nMannVsMachineWaveHasTanks;  }
 	int				GetMvMInWorldMoney( void ) { return m_nMvMWorldMoney; }
 
 	float			GetMannVsMachineNextWaveTime( void ) { return m_flMannVsMachineNextWaveTime; }
@@ -56,6 +57,7 @@ private:
 	int		m_nMannVsMachineMaxWaveCount;
 	int		m_nMannVsMachineWaveCount;
 	int		m_nMannVsMachineWaveEnemyCount;
+	bool	m_nMannVsMachineWaveHasTanks;
 	
 	int		m_nMvMWorldMoney;
 
