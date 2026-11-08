@@ -446,6 +446,26 @@ static ConCommand *FindAutoCompleteCommmandFromPartial( const char *partial )
 }
 
 
+static int FindChainedPrefix( const char *szText )
+{
+	bool bInQuotes = false;
+	const char *pLastSplit = NULL;
+	for ( const char *p = szText; *p; p++ )
+	{
+		if ( *p == '"' )
+			bInQuotes = !bInQuotes;
+		else if ( *p == ';' && !bInQuotes )
+			pLastSplit = p;
+	}
+	if ( !pLastSplit )
+		return 0;
+	pLastSplit++;
+	while ( *pLastSplit == ' ' )
+		pLastSplit++;
+	return pLastSplit - szText;
+}
+
+
 //-----------------------------------------------------------------------------
 // Purpose: rebuilds the list of possible completions from the current entered text
 //-----------------------------------------------------------------------------
@@ -628,7 +648,14 @@ void CConsolePanel::OnAutoComplete(bool reverse)
 		Q_strncat(completedText, " ", sizeof(completedText), COPY_ALL_CHARACTERS );
 	}
 
-	m_pEntry->SetText(completedText);
+	int nPrefix = FindChainedPrefix( m_szPartialText );
+	char szFull[512];
+	if ( nPrefix > 0 )
+		Q_snprintf( szFull, sizeof(szFull), "%.*s%s", nPrefix, m_szPartialText, completedText );
+	else
+		Q_strncpy( szFull, completedText, sizeof(szFull) );
+
+		m_pEntry->SetText(szFull);
 	m_pEntry->GotoTextEnd();
 	m_pEntry->SelectNone();
 
@@ -681,7 +708,8 @@ void CConsolePanel::OnTextChanged(Panel *panel)
 	// clear auto-complete state since the user has typed
 	m_bAutoCompleteMode = false;
 
-	RebuildCompletionList(m_szPartialText);
+	int nPrefix = FindChainedPrefix( m_szPartialText );
+	RebuildCompletionList( m_szPartialText + nPrefix );
 
 	// build the menu
 	if ( m_CompletionList.Count() < 1 )
@@ -942,7 +970,16 @@ void CConsolePanel::OnMenuItemSelected(const char *command)
 	}
 	else
 	{
-		m_pEntry->SetText(command);
+		char szEntry[256];
+		m_pEntry->GetText(szEntry, sizeof(szEntry));
+
+		int nPrefix = FindChainedPrefix( szEntry );
+		szEntry[nPrefix] = '\0';
+
+		char szFull[512];
+		Q_snprintf( szFull, sizeof(szFull), "%s%s", szEntry, command );
+
+		m_pEntry->SetText(szFull);
 		m_pEntry->GotoTextEnd();
 		m_pEntry->InsertChar(' ');
 		m_pEntry->GotoTextEnd();
