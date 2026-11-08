@@ -85,8 +85,6 @@ protected:
 	virtual void OnCommand( const char *command );
 	virtual void OnClose();
 
-	virtual void LoadMapPage( const char *mapName );
-
 	virtual void OnTick( void );
 
 	virtual void OnThink() OVERRIDE;
