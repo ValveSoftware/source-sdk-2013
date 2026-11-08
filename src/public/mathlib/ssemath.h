@@ -9,7 +9,7 @@
 #if defined( _X360 )
 #include <xboxmath.h>
 #elif defined( __aarch64__ )
-#include "../../thirdparty/sse2neon/sse2neon.h"
+#include <sse2neon.h>	// SSE-to-NEON header, https://github.com/DLTcollab/sse2neon
 #else
 #include <xmmintrin.h>
 #endif
