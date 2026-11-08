@@ -206,7 +206,7 @@ public:
 	/// WARNING: Be *very careful* when using the value provided in callbacks structs.
 	/// Callbacks are queued, and the value that you will receive in your
 	/// callback is the userdata that was effective at the time the callback
-	/// was queued.  There are subtle race conditions that can hapen if you
+	/// was queued.  There are subtle race conditions that can happen if you
 	/// don't understand this!
 	///
 	/// If any incoming messages for this connection are queued, the userdata

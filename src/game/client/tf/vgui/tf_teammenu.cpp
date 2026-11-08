@@ -513,14 +513,6 @@ void CTFTeamMenu::Join_Team( const CCommand &args )
 #endif
 
 //-----------------------------------------------------------------------------
-// Purpose: chooses and loads the text page to display that describes mapName map
-//-----------------------------------------------------------------------------
-void CTFTeamMenu::LoadMapPage( const char *mapName )
-{
-
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFTeamMenu::OnKeyCodePressed( KeyCode code )

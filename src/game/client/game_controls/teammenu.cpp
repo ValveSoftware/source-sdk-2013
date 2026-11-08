@@ -85,8 +85,10 @@ CTeamMenu::CTeamMenu(IViewPort *pViewPort) : Frame(NULL, PANEL_TEAM )
 	SetTitleBarVisible( false );
 	SetProportional(true);
 
+#if !defined( TF_CLIENT_DLL ) || !defined( HL2MP )
 	// info window about this map
 	m_pMapInfo = new RichText( this, "MapInfo" );
+#endif
 
 #if defined( ENABLE_HTML_WINDOW )
 	m_pMapInfoHTML = new HTML( this, "MapInfoHTML");
@@ -111,12 +113,15 @@ CTeamMenu::~CTeamMenu()
 void CTeamMenu::ApplySchemeSettings(IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
+
+#if !defined( TF_CLIENT_DLL ) || !defined( HL2MP )
 	m_pMapInfo->SetFgColor( pScheme->GetColor("MapDescriptionText", Color(255, 255, 255, 0)) );
 
 	if ( *m_szMapName )
 	{
 		LoadMapPage( m_szMapName ); // reload the map description to pick up the color
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -176,9 +181,12 @@ void CTeamMenu::Update()
 
 	SetLabelText( "mapname", mapname );
 
+#if !defined( TF_CLIENT_DLL ) || !defined( HL2MP )
 	LoadMapPage( mapname );
+#endif
 }
 
+#if !defined( TF_CLIENT_DLL ) || !defined( HL2MP )
 //-----------------------------------------------------------------------------
 // Purpose: chooses and loads the text page to display that describes mapName map
 //-----------------------------------------------------------------------------
@@ -313,6 +321,7 @@ void CTeamMenu::LoadMapPage( const char *mapName )
 	InvalidateLayout();
 	Repaint();
 }
+#endif
 
 /*
 //-----------------------------------------------------------------------------
