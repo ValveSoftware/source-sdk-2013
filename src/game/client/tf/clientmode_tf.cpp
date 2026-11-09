@@ -609,6 +609,13 @@ bool ClientModeTFNormal::ShouldDrawCrosshair()
 		 pPlayer->m_Shared.InCond( TF_COND_ZOOMED ) &&
 		 tf_hud_no_crosshair_on_scope_zoom.GetBool() )
 	{
+		if ( pPlayer->GetActiveTFWeapon() )
+		{
+			if ( pPlayer->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_SNIPERRIFLE_CLASSIC )
+			{
+				return ClientModeShared::ShouldDrawCrosshair();
+			}
+		}
 		return false;
 	}
 
