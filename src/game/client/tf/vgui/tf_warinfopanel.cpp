@@ -278,7 +278,7 @@ void CWarLandingPanel::OnCommand( const char *pCommand )
 	}
 	else if ( FStrEq( "view_update_comic", pCommand ) )
 	{
-		const char* pszComicURL = "http://www.teamfortress.com/theshowdown/";
+		const char* pszComicURL = "https://www.teamfortress.com/theshowdown/";
 
 		if ( steamapicontext && steamapicontext->SteamFriends() && steamapicontext->SteamUtils() && steamapicontext->SteamUtils()->IsOverlayEnabled() )
 		{

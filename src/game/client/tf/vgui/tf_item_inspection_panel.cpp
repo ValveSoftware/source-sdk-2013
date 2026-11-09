@@ -301,7 +301,7 @@ void CTFItemInspectionPanel::OnCommand( const char *command )
 			CEconItemLocalizedMarketNameGenerator generator( GLocalizationProvider(), m_pItemViewData );
 
 			char szURL[512];
-			V_snprintf( szURL, sizeof(szURL), "http://%ssteamcommunity.com/market/listings/%d/%s", pszPrefix, engine->GetAppID(), CStrAutoEncode( generator.GetFullName() ).ToString() );
+			V_snprintf( szURL, sizeof(szURL), "https://%ssteamcommunity.com/market/listings/%d/%s", pszPrefix, engine->GetAppID(), CStrAutoEncode( generator.GetFullName() ).ToString() );
 			steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( szURL );
 		}
 

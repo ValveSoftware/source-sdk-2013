@@ -3331,7 +3331,7 @@ void CBackpackPanel::DoSellMarketplace()
 		}
 		uint32 nAssetContext = 2; // k_EEconContextBackpack
 		char szURL[512];
-		V_snprintf( szURL, sizeof(szURL), "http://%ssteamcommunity.com/my/inventory/?sellOnLoad=1#%d_%d_%llu", pszPrefix, engine->GetAppID(), nAssetContext, pItem->GetItemID() );
+		V_snprintf( szURL, sizeof(szURL), "https://%ssteamcommunity.com/my/inventory/?sellOnLoad=1#%d_%d_%llu", pszPrefix, engine->GetAppID(), nAssetContext, pItem->GetItemID() );
 		steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( szURL );
 	}
 }
@@ -4046,7 +4046,7 @@ void CBackpackPanel::AttemptToShowItemInMarket( item_definition_index_t iItemDef
 		g_pVGuiLocalize->ConvertUnicodeToANSI( g_pVGuiLocalize->Find( pItemDef->GetItemBaseName() ), pszItemName, sizeof( pszItemName ) );
 
 		char szURL[512];
-		V_snprintf( szURL, sizeof( szURL ), "http://%ssteamcommunity.com/market/listings/%d/%s", pszPrefix, engine->GetAppID(), pszItemName );
+		V_snprintf( szURL, sizeof( szURL ), "https://%ssteamcommunity.com/market/listings/%d/%s", pszPrefix, engine->GetAppID(), pszItemName );
 		steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( szURL );
 	}
 }
