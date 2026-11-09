@@ -42,6 +42,7 @@
 
 #ifdef TF_CLIENT_DLL
 	ConVar cl_flipviewmodels( "cl_flipviewmodels", "0", FCVAR_USERINFO | FCVAR_ARCHIVE | FCVAR_NOT_CONNECTED, "Flip view models." );
+	ConVar cl_viewmodel_opacity( "cl_viewmodel_opacity", "100", FCVAR_ARCHIVE, "Viewmodel opacity percentage.", true, 0.0f, true, 100.0f );
 #endif
 
 void PostToolMessage( HTOOLHANDLE hEntity, KeyValues *msg );
@@ -308,6 +309,10 @@ int C_BaseViewModel::DrawModel( int flags )
 		// Determine blending amount and tell engine
 		float blend = (float)( GetFxBlend() / 255.0f );
 
+#ifdef TF_CLIENT_DLL
+		blend *= cl_viewmodel_opacity.GetFloat() / 100.0f;
+#endif
+
 		// Totally gone
 		if ( blend <= 0.0f )
 			return 0;
@@ -328,7 +333,13 @@ int C_BaseViewModel::DrawModel( int flags )
 	if ( ( flags & STUDIO_RENDER ) && pTFWeapon && pTFWeapon->m_viewmodelStatTrakAddon )
 	{
 		pTFWeapon->m_viewmodelStatTrakAddon->RemoveEffects( EF_NODRAW );
+
+		byte nAddonAlpha = pTFWeapon->m_viewmodelStatTrakAddon->GetRenderColor().a;
+		pTFWeapon->m_viewmodelStatTrakAddon->SetRenderColorA( (byte)( nAddonAlpha * ( cl_viewmodel_opacity.GetFloat() / 100.0f ) ) );
+
 		pTFWeapon->m_viewmodelStatTrakAddon->DrawModel( flags );
+
+		pTFWeapon->m_viewmodelStatTrakAddon->SetRenderColorA( nAddonAlpha );
 		pTFWeapon->m_viewmodelStatTrakAddon->AddEffects( EF_NODRAW );
 	}
 #endif

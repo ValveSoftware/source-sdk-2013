@@ -46,7 +46,7 @@ void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 #define SNIPER_CHARGE_BEAM_BLUE		"tfc_sniper_charge_blue"
 
 #ifdef CLIENT_DLL
-ConVar tf_sniper_fullcharge_bell( "tf_sniper_fullcharge_bell", "0", FCVAR_ARCHIVE );
+ConVar tf_sniper_fullcharge_bell( "tf_sniper_fullcharge_bell", "1", FCVAR_ARCHIVE );
 #endif
 
 //=============================================================================
