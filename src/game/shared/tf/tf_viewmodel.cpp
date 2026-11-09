@@ -124,7 +124,15 @@ ConVar cl_gunlowerspeed( "cl_gunlowerspeed", "2", FCVAR_CLIENTDLL | FCVAR_CHEAT 
 
 ConVar tf_use_min_viewmodels( "tf_use_min_viewmodels", "0", FCVAR_ARCHIVE, "Use minimized viewmodels." );
 
-ConVar tf_viewmodels_offset_override( "tf_viewmodels_offset_override", "", FCVAR_CHEAT, "If set, this will override the position of all viewmodels. Usage 'x y z'" );
+ConVar tf_viewmodels_offset_override( "tf_viewmodels_offset_override", "", FCVAR_CHEAT, "If set, this will override the position and angles of all viewmodels. Usage 'x y z pitch yaw roll'" );
+
+ConVar viewmodel_offset_x( "viewmodel_offset_x", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE );
+ConVar viewmodel_offset_y( "viewmodel_offset_y", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE );
+ConVar viewmodel_offset_z( "viewmodel_offset_z", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE );
+ConVar viewmodel_offset_pitch( "viewmodel_offset_pitch", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE );
+ConVar viewmodel_offset_yaw( "viewmodel_offset_yaw", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE );
+ConVar viewmodel_offset_roll( "viewmodel_offset_roll", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE );
+
 #endif
 
 void CTFViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePosition, const QAngle& eyeAngles )
@@ -192,33 +200,40 @@ void CTFViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePosit
 			}
 		}
 
-		// we want to always enable this internally
-		bool bMinMode = tf_use_min_viewmodels.GetBool();
-
 		// are we overriding vm offset?
 		const char *pszVMOffsetOverride = tf_viewmodels_offset_override.GetString();
 		bool bForceOverride = ( pszVMOffsetOverride && *pszVMOffsetOverride );
-		bMinMode |= bForceOverride;
 
-		// min mode custom offset
-		if ( bMinMode )
+		Vector positionOffset(0,0,0);
+		QAngle anglesOffset(0,0,0);
+
+		if ( bForceOverride )
 		{
-			Vector forward, right, up;
-			AngleVectors( eyeAngles, &forward, &right, &up );
-
-			Vector viewmodelOffset;
-			if ( bForceOverride )
-			{
-				UTIL_StringToVector( viewmodelOffset.Base(), pszVMOffsetOverride );
-			}
-			else
-			{
-				viewmodelOffset = pWeapon->GetViewmodelOffset();
-			}
-			Vector vOffset = viewmodelOffset.x * forward + viewmodelOffset.y * right + viewmodelOffset.z * up;
-			vOffset *= Gain( 1.f - s_inspectInterp, 0.5f );
-			vecNewOrigin += vOffset;
+			float vmOffsets[6];
+			UTIL_StringToFloatArray( vmOffsets, 6, pszVMOffsetOverride );
+			positionOffset = Vector( vmOffsets[0], vmOffsets[1], vmOffsets[2] );
+			anglesOffset = QAngle( vmOffsets[3], vmOffsets[4], vmOffsets[5] );
 		}
+		else
+		{
+			// min mode custom offset
+			if ( tf_use_min_viewmodels.GetBool() )
+			{
+				positionOffset = pWeapon->GetViewmodelOffset();
+			}
+
+			positionOffset += Vector( viewmodel_offset_x.GetFloat(), viewmodel_offset_y.GetFloat(), viewmodel_offset_z.GetFloat() );
+			anglesOffset += QAngle( viewmodel_offset_pitch.GetFloat(), viewmodel_offset_yaw.GetFloat(), viewmodel_offset_roll.GetFloat() );
+		}
+
+		Vector forward, right, up;
+		AngleVectors(eyeAngles, &forward, &right, &up);
+
+		positionOffset = positionOffset.x * forward + positionOffset.y * right + positionOffset.z * up;
+		positionOffset *= Gain( 1.f - s_inspectInterp, 0.5f );
+		vecNewOrigin += positionOffset;
+
+		vecNewAngles += anglesOffset * Gain( 1.f - s_inspectInterp, 0.5f );
 	}
 
 	BaseClass::CalcViewModelView( owner, vecNewOrigin, vecNewAngles );
