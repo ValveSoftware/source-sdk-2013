@@ -24,7 +24,11 @@
 
 #ifndef _X360
 // For MMX intrinsics
+#if defined( __aarch64__ )
+#include <sse2neon.h>	// SSE-to-NEON header, https://github.com/DLTcollab/sse2neon
+#else
 #include <xmmintrin.h>
+#endif
 #endif
 
 #include "tier0/dbg.h"

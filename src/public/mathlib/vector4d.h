@@ -17,7 +17,11 @@
 #include <stdlib.h>		// For rand(). We really need a library!
 #include <float.h>
 #if !defined( _X360 )
+#if defined( __aarch64__ )
+#include <sse2neon.h>	// SSE-to-NEON header, https://github.com/DLTcollab/sse2neon
+#else
 #include <xmmintrin.h>	// For SSE
+#endif
 #endif
 #include "basetypes.h"	// For vec_t, put this somewhere else?
 #include "tier0/dbg.h"
