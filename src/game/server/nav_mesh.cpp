@@ -22,10 +22,6 @@
 #include "functorutils.h"
 #include "nav_pathfind.h"
 
-#ifdef TF_DLL
-#include "tf/nav_mesh/tf_nav_area.h"
-#endif
-
 #ifdef NEXT_BOT
 #include "NextBot/NavMeshEntities/func_nav_prerequisite.h"
 #endif
@@ -3127,40 +3123,32 @@ END_SCRIPTDESC();
 //--------------------------------------------------------------------------------------------------------
 HSCRIPT CNavMesh::ScriptGetNavAreaByID( int areaID )
 {
-#ifdef TF_DLL
 	CNavArea *area = GetNavAreaByID( areaID );
 	if ( area )
 	{
 		return ToHScript( area );
 	}
-#endif
-	return NULL;
+
 }
 
 //--------------------------------------------------------------------------------------------------------
 HSCRIPT CNavMesh::ScriptGetNavArea( const Vector &pos, float beneathLimt )
 {
-#ifdef TF_DLL
 	CNavArea *area = GetNavArea( pos, beneathLimt );
 	if ( area )
 	{
 		return ToHScript( area );
 	}
-#endif
-	return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------------
 HSCRIPT CNavMesh::ScriptGetNearestNavArea( const Vector &pos, float maxDist, bool checkLOS, bool checkGround )
 {
-#ifdef TF_DLL
 	CNavArea *area = GetNearestNavArea( pos, false, maxDist, checkLOS, checkGround );
 	if ( area )
 	{
 		return ToHScript( area );
 	}
-#endif
-	return NULL;
 }
 
 

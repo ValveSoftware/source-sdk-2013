@@ -39,10 +39,6 @@
 #include "saverestoretypes.h"
 #include "nav_mesh.h"
 
-#ifdef TF_DLL
-#include "nav_mesh/tf_nav_area.h"
-#endif
-
 #ifdef NEXT_BOT
 #include "NextBot/NextBotManager.h"
 #endif
@@ -3622,11 +3618,7 @@ float CBaseCombatCharacter::GetTimeSinceLastInjury( int team /*= TEAM_ANY */ ) c
 //-----------------------------------------------------------------------------
 HSCRIPT CBaseCombatCharacter::ScriptGetLastKnownArea( void ) const 
 { 
-#ifdef TF_DLL
 	return ToHScript( GetLastKnownArea() ); 
-#else
-	return NULL;
-#endif
 }	
 
 BEGIN_ENT_SCRIPTDESC( CBaseCombatCharacter, CBaseFlex, "Base combat characters." )
