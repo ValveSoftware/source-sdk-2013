@@ -662,7 +662,7 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, iHandModelIndex, wrench_builds_minisentry );			// ...the gunslinger is the only thing that uses this attribute for now
 	}
 
-	const CEconItemView *pItem = GetAttributeContainer()->GetItem();
+	const CEconItemView *pItem = GetWeaponVisualItem();
 	if ( pPlayer && pItem->IsValid() && pItem->GetStaticData()->ShouldAttachToHands() )
 	{
 		// Should always be valid, because players without classes shouldn't be carrying items
@@ -680,7 +680,7 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 //-----------------------------------------------------------------------------
 const char *CTFWeaponBase::GetWorldModel( void ) const
 {
-	const CEconItemView *pItem = GetAttributeContainer()->GetItem();
+	const CEconItemView *pItem = GetWeaponVisualItem();
 	if ( pItem->IsValid() )
 	{
 		if ( pItem->GetWorldDisplayModel() )
@@ -859,7 +859,7 @@ void CTFWeaponBase::Equip( CBaseCombatCharacter *pOwner )
 //-----------------------------------------------------------------------------
 void CTFWeaponBase::UpdateHands( void )
 {
-	const CEconItemView *pItem = GetAttributeContainer()->GetItem();
+	const CEconItemView *pItem = GetWeaponVisualItem();
 	if ( pItem->IsValid() && pItem->GetStaticData()->ShouldAttachToHands() )
 	{
 		m_iViewModelIndex = CBaseEntity::PrecacheModel( GetViewModel() );
@@ -953,15 +953,30 @@ void CTFWeaponBase::UpdateExtraWearables()
 	CTFWearable *pOldWearable = m_hExtraWearable.Get();
 	CTFWearable *pOldWearableVM = m_hExtraWearableViewModel.Get();
 
+	CEconItemView *pEconItemView = GetAttributeContainer()->GetItem();
+	const char *pszExtraWearable = pEconItemView->GetExtraWearableModel();
+	const char *pszExtraWearableVM = pEconItemView->GetExtraWearableViewModel();
+	if ( pszExtraWearable && !pszExtraWearable[0] )
+		pszExtraWearable = NULL;
+	if ( pszExtraWearableVM && !pszExtraWearableVM[0] )
+		pszExtraWearableVM = NULL;
+
 	if ( pOldWearable || pOldWearableVM )
 	{
 		CBaseCombatCharacter *pOwner = GetOwner();
 		if ( pOwner )
 		{
-			if ( !( pOldWearable && pOldWearable->GetTeamNumber() != pOwner->GetTeamNumber() ) &&
-				 !( pOldWearableVM && pOldWearableVM->GetTeamNumber() != pOwner->GetTeamNumber() ) )
+			bool bWearableMatches = pOldWearable ?
+				( pszExtraWearable && pOldWearable->GetTeamNumber() == pOwner->GetTeamNumber() && FStrEq( STRING( pOldWearable->GetModelName() ), pszExtraWearable ) ) :
+				( pszExtraWearable == NULL );
+
+			bool bWearableVMMatches = pOldWearableVM ?
+				( pszExtraWearableVM && pOldWearableVM->GetTeamNumber() == pOwner->GetTeamNumber() && FStrEq( STRING( pOldWearableVM->GetModelName() ), pszExtraWearableVM ) ) :
+				( pszExtraWearableVM == NULL );
+
+			if ( bWearableMatches && bWearableVMMatches )
 			{
-				// No need to destroy and recreate them, because they already match the owner's team
+				// No need to destroy and recreate them, because they already match what this item requests
 				return;
 			}
 		}
@@ -971,23 +986,22 @@ void CTFWeaponBase::UpdateExtraWearables()
 
 	bool bHasViewModel = false;
 
-	CEconItemView *pEconItemView = GetAttributeContainer()->GetItem();
-	if ( pEconItemView->GetExtraWearableViewModel() )
+	if ( pszExtraWearableVM )
 	{
 		CTFWearable* pExtraWearableItem = dynamic_cast<CTFWearable*>( CreateEntityByName( "tf_wearable_vm" ) );
 		if ( pExtraWearableItem )
 		{
-			if ( modelinfo->GetModelIndex( pEconItemView->GetExtraWearableViewModel() ) == -1 ) {
+			if ( modelinfo->GetModelIndex( pszExtraWearableVM ) == -1 ) {
 				tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s - View Model Late Precache", __FUNCTION__ );
 				// Precaching may be needed here, because we allow virtually everything to be loaded on demand now.
-				pExtraWearableItem->PrecacheModel( pEconItemView->GetExtraWearableViewModel() );
+				pExtraWearableItem->PrecacheModel( pszExtraWearableVM );
 			}
 			pExtraWearableItem->SetDisguiseWearable(m_bDisguiseWeapon);
 			pExtraWearableItem->AddSpawnFlags( SF_NORESPAWN );
 			pExtraWearableItem->SetAlwaysAllow( true );
 			DispatchSpawn( pExtraWearableItem );
 			pExtraWearableItem->GiveTo( GetOwner() );
-			pExtraWearableItem->SetModel( pEconItemView->GetExtraWearableViewModel() );
+			pExtraWearableItem->SetModel( pszExtraWearableVM );
 
 			bHasViewModel = true;
 			pExtraWearableItem->SetWeaponAssociatedWith( this );
@@ -996,16 +1010,16 @@ void CTFWeaponBase::UpdateExtraWearables()
 		}
 	}
 
-	if ( pEconItemView->GetExtraWearableModel() )
+	if ( pszExtraWearable )
 	{
 		CTFWearable* pExtraWearableItem = dynamic_cast<CTFWearable*>( CreateEntityByName( "tf_wearable" ) );
 		if ( pExtraWearableItem )
 		{
-			if ( modelinfo->GetModelIndex( pEconItemView->GetExtraWearableModel() ) == -1 ) {
+			if ( modelinfo->GetModelIndex( pszExtraWearable ) == -1 ) {
 				tmZone(TELEMETRY_LEVEL0, TMZF_NONE, "%s - Model Late Precache", __FUNCTION__);
 
 				// Precaching may be needed here, because we allow virtually everything to be loaded on demand now.
-				pExtraWearableItem->PrecacheModel( pEconItemView->GetExtraWearableModel() );
+				pExtraWearableItem->PrecacheModel( pszExtraWearable );
 			}
 
 			pExtraWearableItem->SetDisguiseWearable(m_bDisguiseWeapon);
@@ -1013,7 +1027,7 @@ void CTFWeaponBase::UpdateExtraWearables()
 			pExtraWearableItem->SetAlwaysAllow( true );
 			DispatchSpawn( pExtraWearableItem );
 			pExtraWearableItem->GiveTo( GetOwner() );
-			pExtraWearableItem->SetModel( pEconItemView->GetExtraWearableModel() );
+			pExtraWearableItem->SetModel( pszExtraWearable );
 
 			if ( bHasViewModel )
 			{
@@ -3083,7 +3097,7 @@ C_BaseAnimating *CTFWeaponBase::GetAppropriateWorldOrViewModel()
 	if ( pPlayerOwner && UsingViewModel() )
 	{
 		// For w_* models the viewmodel itself is just arms+hands. And attached to them is the actual weapon.
-		const CEconItemView *pItem = GetAttributeContainer()->GetItem();
+		const CEconItemView *pItem = GetWeaponVisualItem();
 		if ( pItem->IsValid() && pItem->GetStaticData()->ShouldAttachToHands() )
 		{
 			C_BaseAnimating *pVMAttach = GetViewmodelAttachment();
@@ -4512,7 +4526,7 @@ viewmodelacttable_t s_viewmodelacttable[] =
 // -----------------------------------------------------------------------------
 Activity CTFWeaponBase::TranslateViewmodelHandActivityInternal( Activity actBase )
 {
-	CEconItemView *pEconItemView = GetAttributeContainer()->GetItem();
+	CEconItemView *pEconItemView = GetWeaponVisualItem();
 	if ( pEconItemView && pEconItemView->IsValid() && GetOwnerEntity() )
 	{
 		Activity translatedActivity = pEconItemView->GetStaticData()->GetActivityOverride( GetOwnerEntity()->GetTeamNumber(), actBase );

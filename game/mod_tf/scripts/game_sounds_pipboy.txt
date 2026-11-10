@@ -1,0 +1,7 @@
+"Weapon_PDA.PipBoyButton"
+{
+	"channel"		"CHAN_AUTO"
+	"soundlevel"		"SNDLVL_74dB"
+	"volume"		".25"
+	"wave"			"buttons/button15.wav"
+}

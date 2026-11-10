@@ -917,6 +917,34 @@ void CTFItemDefinition::InternalInitialize()
 //-----------------------------------------------------------------------------
 bool CTFItemDefinition::BInitFromKV( KeyValues *pKVItem, CUtlVector<CUtlString> *pVecErrors )
 {
+	KeyValues::AutoDelete pPDAItem( (KeyValues *)NULL );
+	if ( Q_atoi( pKVItem->GetName() ) == 519 )
+	{
+		pPDAItem.Assign( new KeyValues( pKVItem->GetName() ) );
+		MergeDefinitionPrefab( pPDAItem, pKVItem );
+		pPDAItem->SetString( "extra_wearable", pPDAItem->GetString( "model_player" ) );
+		pPDAItem->SetString( "extra_wearable_vm", "models/weapons/c_models/c_bet_pb/c_bet_pb.mdl" );
+		pPDAItem->SetString( "model_player", "models/weapons/c_models/c_bet_pb/c_bet_pb.mdl" );
+		pPDAItem->SetString( "item_slot", "pda" );
+		pPDAItem->SetString( "used_by_classes/engineer", "1" );
+		pPDAItem->SetString( "item_class", "tf_weapon_pda_engineer_build" );
+		pPDAItem->SetInt( "attach_to_hands", 1 );
+		pPDAItem->SetInt( "destroy_texture", 1 );
+		pPDAItem->SetInt( "destroy_skin", 2 );
+		pPDAItem->SetString( "destroy_inventory_image", "backpack/workshop_partner/player/items/engineer/bet_pb/bet_pb_destroy" );
+		pPDAItem->SetString( "static_attrs/min_viewmodel_offset", "10 0 -10" );
+		pPDAItem->SetString( "visuals/animation_replacement/ACT_VM_IDLE", "ACT_ENGINEER_PDA2_VM_IDLE_BET_PB" );
+		pPDAItem->SetString( "visuals/animation_replacement/ACT_VM_DRAW", "ACT_ENGINEER_PDA2_VM_DRAW_BET_PB" );
+		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_STAND_PDA", "ACT_MP_STAND_PDA_BET_PB" );
+		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_CROUCH_PDA", "ACT_MP_CROUCH_PDA_BET_PB" );
+		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_AIRWALK_PDA", "ACT_MP_AIRWALK_PDA_BET_PB" );
+		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_JUMP_START_PDA", "ACT_MP_JUMP_START_PDA_BET_PB" );
+		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_RUN_PDA", "ACT_MP_RUN_PDA_BET_PB" );
+		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_CROUCHWALK_PDA", "ACT_MP_CROUCHWALK_PDA_BET_PB" );
+		pPDAItem->SetString( "visuals/animation_replacement/ACT_MP_SWIM_PDA", "ACT_MP_SWIM_PDA_BET_PB" );
+		pKVItem = pPDAItem;
+	}
+
 	CEconItemDefinition::BInitFromKV( pKVItem, pVecErrors );
 
 	// Our superclass should initialize our raw definition, including any prefab work.
