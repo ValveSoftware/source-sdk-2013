@@ -89,6 +89,7 @@ private:
 	HPARTICLEFFECT		m_effect;
 
 	CHandle< C_BaseAnimating > m_worldmodelStatTrakAddon;
+	CHandle< C_BaseAnimating > m_worldmodelBotkillerAddon;
 
 	void UpdateGlowEffect( void );
 	void DestroyGlowEffect( void );
