@@ -39,6 +39,7 @@ public:
 	bool	MyTouch( CBasePlayer *pPlayer );
 	virtual bool AffectedByRadiusCollection() const { return true; }
 
+	void	AutoCollect( void );
 	void	SetAmount( float flAmount );
 	void	SetClaimed( void ) { m_bClaimed = true; }	// Radius collection code "steers" packs toward the player
 	bool	IsClaimed( void ) { return m_bClaimed; }	// So don't allow other players to interfere
