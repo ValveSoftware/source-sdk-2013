@@ -2286,7 +2286,8 @@ float CTFBot::GetTimeLeftToCapture( void ) const
 		return TFGameRules()->GetActiveRoundTimer()->GetTimeRemaining();
 	}
 
-	return 0.0f;
+	// Instead of returning 0.0, return FLT_MAX to prevent any other bugs related to this check.
+	return FLT_MAX;
 }
 
 
