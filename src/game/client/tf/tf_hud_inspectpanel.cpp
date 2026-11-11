@@ -29,6 +29,8 @@
 #include "tier0/memdbgon.h"
 
 
+extern ConVar tf_mvm_allow_upgrade_inspect;
+
 DECLARE_HUDELEMENT( CHudInspectPanel );
 
 static float s_flLastInspectDownTime = 0.f;
@@ -171,7 +173,7 @@ void CHudInspectPanel::UserCmd_InspectTarget( void )
 			// Inspect a player
 			else if ( pTargetPlayer && ( pTargetPlayer->GetTeamNumber() != TF_TEAM_PVE_INVADERS ) )
 			{
-				if ( !GetClientModeTFNormal()->BIsFriendOrPartyMember( pTargetPlayer ) )
+				if ( tf_mvm_allow_upgrade_inspect.GetInt() == 0 || ( tf_mvm_allow_upgrade_inspect.GetInt() == -1 && !GetClientModeTFNormal()->BIsFriendOrPartyMember( pTargetPlayer ) ) )
 				{
 					internalCenterPrint->Print( "#TF_Invalid_Inspect_Target" );
 					return;
