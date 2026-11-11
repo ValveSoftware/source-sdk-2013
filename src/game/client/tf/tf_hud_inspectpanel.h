@@ -26,7 +26,8 @@ public:
 	virtual bool	ShouldDraw( void );
 
 	virtual int		GetRenderGroupPriority( void ) { return 35; }	// less than statpanel
-	void		UserCmd_InspectTarget( void );
+	void		UserCmd_InspectTarget( bool bForceSelf );
+	void		UserCmd_InspectSelf( void );
 	C_TFPlayer		*GetInspectTarget( C_TFPlayer *pLocalTFPlayer );
 
 	int	HudElementKeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
