@@ -1377,57 +1377,60 @@ void CVradStaticPropMgr::ComputeLighting( CStaticProp &prop, int iThread, int pr
 					GenerateLightmapSamplesForMesh( matPos, matNormal, iThread, skip_prop, nFlags, prop.m_LightmapImageWidth, prop.m_LightmapImageHeight, pStudioHdr, pStudioModel, pVtxModel, meshID, pResults );
 				}
 
-				// If we do lightmapping, we also do vertex lighting as a potential fallback. This may change.
-				for ( int vertexID = 0; vertexID < pStudioMesh->numvertices; ++vertexID )
+				// If we do lightmapping, only do vertex lighting as a potential fallback if user requests.
+				if (!withTexelLighting || g_bPropLightmapFallbacks)
 				{
-					Vector sampleNormal;
-					Vector samplePosition;
-					// transform position and normal into world coordinate system
-					VectorTransform(*vertData->Position(vertexID), matPos, samplePosition);
-					VectorTransform(*vertData->Normal(vertexID), matNormal, sampleNormal);
-
-					if ( PositionInSolid( samplePosition ) )
+					for ( int vertexID = 0; vertexID < pStudioMesh->numvertices; ++vertexID )
 					{
-						// vertex is in solid, add to the bad list, and recover later
-						badVertex_t badVertex;
-						badVertex.m_ColorVertex = numVertexes;
-						badVertex.m_Position = samplePosition;
-						badVertex.m_Normal = sampleNormal;
-						badVerts.AddToTail( badVertex );			
-					}
-					else
-					{
-						Vector direct_pos=samplePosition;
-							
-						
+						Vector sampleNormal;
+						Vector samplePosition;
+						// transform position and normal into world coordinate system
+						VectorTransform(*vertData->Position(vertexID), matPos, samplePosition);
+						VectorTransform(*vertData->Normal(vertexID), matNormal, sampleNormal);
 
-						Vector directColor(0,0,0);
-						ComputeDirectLightingAtPoint( direct_pos,
-														sampleNormal, directColor, iThread,
-														skip_prop, nFlags );
-						Vector indirectColor(0,0,0);
-
-						if (g_bShowStaticPropNormals)
+						if ( PositionInSolid( samplePosition ) )
 						{
-							directColor= sampleNormal;
-							directColor += Vector(1.0,1.0,1.0);
-							directColor *= 50.0;
+							// vertex is in solid, add to the bad list, and recover later
+							badVertex_t badVertex;
+							badVertex.m_ColorVertex = numVertexes;
+							badVertex.m_Position = samplePosition;
+							badVertex.m_Normal = sampleNormal;
+							badVerts.AddToTail( badVertex );			
 						}
 						else
 						{
-							if (numbounce >= 1)
-								ComputeIndirectLightingAtPoint( 
-									samplePosition, sampleNormal, 
-									indirectColor, iThread, true,
-									( prop.m_Flags & STATIC_PROP_IGNORE_NORMALS) != 0 );
+							Vector direct_pos=samplePosition;
+								
+							
+
+							Vector directColor(0,0,0);
+							ComputeDirectLightingAtPoint( direct_pos,
+															sampleNormal, directColor, iThread,
+															skip_prop, nFlags );
+							Vector indirectColor(0,0,0);
+
+							if (g_bShowStaticPropNormals)
+							{
+								directColor= sampleNormal;
+								directColor += Vector(1.0,1.0,1.0);
+								directColor *= 50.0;
+							}
+							else
+							{
+								if (numbounce >= 1)
+									ComputeIndirectLightingAtPoint( 
+										samplePosition, sampleNormal, 
+										indirectColor, iThread, true,
+										( prop.m_Flags & STATIC_PROP_IGNORE_NORMALS) != 0 );
+							}
+							
+							colorVerts[numVertexes].m_bValid = true;
+							colorVerts[numVertexes].m_Position = samplePosition;
+							VectorAdd( directColor, indirectColor, colorVerts[numVertexes].m_Color );
 						}
 						
-						colorVerts[numVertexes].m_bValid = true;
-						colorVerts[numVertexes].m_Position = samplePosition;
-						VectorAdd( directColor, indirectColor, colorVerts[numVertexes].m_Color );
+						numVertexes++;
 					}
-					
-					numVertexes++;
 				}
 			}
 			
