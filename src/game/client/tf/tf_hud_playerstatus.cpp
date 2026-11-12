@@ -522,6 +522,7 @@ void CTFHudPlayerClass::UpdateModelPanel()
 		m_pPlayerModelPanel->ClearCarriedItems();
 		m_pPlayerModelPanel->SetToPlayerClass( nClass, false, bRobotDisguise ? g_szBotModels[nClass] : NULL, bRobotDisguise );
 		m_pPlayerModelPanel->SetTeam( nTeam );
+		m_pPlayerModelPanel->SetIsLocalPlayerModel( !bDisguised );
 
 		if ( pWeapon )
 		{
