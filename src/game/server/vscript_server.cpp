@@ -687,6 +687,13 @@ void CVScriptGameEventListener::FireGameEvent( IGameEvent *event )
 	// Pass all keyvales as a table of parameters
 	HSCRIPT paramsTable = ScriptTableFromKeyValues( g_pScriptVM, event->GetDataKeys() );
 	RunGameEventCallbacks( event->GetName(), paramsTable );
+
+	if ( paramsTable )
+	{
+		ScriptVariant_t varTable;
+		varTable = paramsTable;
+		g_pScriptVM->ReleaseValue( varTable );
+	}
 }
 
 void CVScriptGameEventListener::ListenForScriptHook( const char* szName )
@@ -1159,6 +1166,8 @@ bool ScriptSendGlobalGameEvent( const char *szName, HSCRIPT params )
 			if ( vKey.GetType() != FIELD_CSTRING )
 			{
 				Log_Msg( LOG_VScript, "VSCRIPT: ScriptSendRealGameEvent: Key must be a FIELD_CSTRING" );
+				g_pScriptVM->ReleaseValue( vKey );
+				g_pScriptVM->ReleaseValue( vValue );
 				continue;
 			}
 			const char *pszKeyName = (const char *)vKey;
@@ -1175,6 +1184,8 @@ bool ScriptSendGlobalGameEvent( const char *szName, HSCRIPT params )
 					break;
 				}
 			}
+			g_pScriptVM->ReleaseValue( vKey );
+			g_pScriptVM->ReleaseValue( vValue );
 		}
 	}
 
@@ -1479,6 +1490,9 @@ static void Script_EmitSoundEx( HSCRIPT params )
 
 	EmitSound_t soundParams;
 
+	// IfHas<T> releases its temporary ScriptVariant_t via Get<T>, so the value-type reads are
+	// leak-free. The HSCRIPT lookups use GetValue + ReleaseValue because the Get<HSCRIPT>
+	// specialization returns an aliasing handle and intentionally does not release.
 	IScriptVM *pVM = g_pScriptVM;
 	pVM->IfHas<int>			( params, "channel",		[&](int value)			{ soundParams.m_nChannel = value; } );
 	pVM->IfHas<CUtlString>	( params, "sound_name",		[&](CUtlString value)	{ szSoundName = std::move( value ); soundParams.m_pSoundName = szSoundName.Get(); });
@@ -1490,10 +1504,11 @@ static void Script_EmitSoundEx( HSCRIPT params )
 	pVM->IfHas<Vector>		( params, "origin",			[&](Vector value)		{ vecOriginCache = value; bSetOrigin = true; soundParams.m_pOrigin = &vecOriginCache; } );
 	pVM->IfHas<float>		( params, "delay",			[&](float value)		{ soundParams.m_flSoundTime = gpGlobals->curtime + value; } );
 	pVM->IfHas<float>		( params, "sound_time",		[&](float value)		{ soundParams.m_flSoundTime = value; } );
-	pVM->IfHas<HSCRIPT>		( params, "speaker_entity",	[&](HSCRIPT value)		{ CBaseEntity *pEntity = ToEnt( value ); if ( pEntity ) soundParams.m_nSpeakerEntity = pEntity->entindex(); });
-	pVM->IfHas<HSCRIPT>		( params, "entity",			[&](HSCRIPT value)		{ pOutputEntity = ToEnt( value ); });
 	pVM->IfHas<int>			( params, "filter_type",	[&](int value)			{ eFilter = EScriptRecipientFilter( value ); });
 	pVM->IfHas<int>			( params, "filter_param",	[&](int value)			{ nFilterParam = value; });
+	ScriptVariant_t v;
+	if ( pVM->GetValue( params, "speaker_entity",	&v ) ) { CBaseEntity *pEntity = ToEnt( (HSCRIPT)v ); if ( pEntity ) soundParams.m_nSpeakerEntity = pEntity->entindex(); } pVM->ReleaseValue( v );
+	if ( pVM->GetValue( params, "entity",			&v ) ) pOutputEntity = ToEnt( (HSCRIPT)v );			pVM->ReleaseValue( v );
 	soundParams.m_bWarnOnMissingCloseCaption = false;
 	soundParams.m_bWarnOnDirectWaveReference = false;
 
@@ -1517,6 +1532,7 @@ static bool Script_PrecacheItemFromTable( HSCRIPT hSpawnTable )
 	}
 		//	CBaseEntity *pEntity = VScript_ParseEntity( pszClassname, spawn_table );
 	CBaseEntity *pEntity = VScript_ParseEntity( vClassname, hSpawnTable );
+	g_pScriptVM->ReleaseValue( vClassname );
 	if ( pEntity )
 	{
 		DispatchSpawn( pEntity, false );
@@ -1778,9 +1794,12 @@ static const char *Script_FileToString( const char *pszFileName )
 
 void TraceToScriptVM( HSCRIPT hTable, Vector vStart, Vector vEnd, trace_t& tr )
 {
+	ScriptVariant_t v;
+
 	g_pScriptVM->SetValue( hTable, "fraction", tr.fraction );
 	g_pScriptVM->SetValue( hTable, "hit", (tr.fraction != 1.0 || tr.startsolid ));
-	g_pScriptVM->SetValue( hTable, "plane_normal", tr.plane.normal );
+	v = tr.plane.normal;
+	g_pScriptVM->SetValue( hTable, "plane_normal", v );
 	g_pScriptVM->SetValue( hTable, "plane_dist", tr.plane.dist );
 	g_pScriptVM->SetValue( hTable, "contents", tr.contents );
 	if (tr.allsolid)
@@ -1790,9 +1809,12 @@ void TraceToScriptVM( HSCRIPT hTable, Vector vStart, Vector vEnd, trace_t& tr )
 	if (tr.startsolid)
 		g_pScriptVM->SetValue( hTable, "startsolid", tr.startsolid);
 	Vector vPos = vStart + ( tr.fraction * (vEnd - vStart));
-	g_pScriptVM->SetValue( hTable, "pos", vPos );
-	g_pScriptVM->SetValue( hTable, "startpos", tr.startpos );
-	g_pScriptVM->SetValue( hTable, "endpos", tr.endpos );
+	v = vPos;
+	g_pScriptVM->SetValue( hTable, "pos", v );
+	v = tr.startpos;
+	g_pScriptVM->SetValue( hTable, "startpos", v );
+	v = tr.endpos;
+	g_pScriptVM->SetValue( hTable, "endpos", v );
 	g_pScriptVM->SetValue( hTable, "surface_name", tr.surface.name ? tr.surface.name : "" );
 	g_pScriptVM->SetValue( hTable, "surface_flags", tr.surface.flags );
 	g_pScriptVM->SetValue( hTable, "surface_props", tr.surface.surfaceProps );
@@ -1812,12 +1834,15 @@ static bool Script_TraceLineEx( HSCRIPT hTable )
 		vStart = rval;
 	else
 		bNoParams = true;
+	g_pScriptVM->ReleaseValue( rval );
 	if (g_pScriptVM->GetValue( hTable, "end", &rval ) )
 		vEnd = rval;
 	else
 		bNoParams = true;
+	g_pScriptVM->ReleaseValue( rval );
 	if (g_pScriptVM->GetValue( hTable, "mask", &rval ))
 		mask = rval;
+	g_pScriptVM->ReleaseValue( rval );
 	if (bNoParams)
 	{
 		Warning("Didnt supply start and end to Script TraceLine call, failing, setting called to false\n");
@@ -1828,6 +1853,7 @@ static bool Script_TraceLineEx( HSCRIPT hTable )
 	{
 		pIgnoreEnt = ToEnt((HSCRIPT)rval);
 	}
+	g_pScriptVM->ReleaseValue( rval );
 	trace_t tr;
 	UTIL_TraceLine( vStart, vEnd, mask, pIgnoreEnt, coll, &tr );
 
@@ -1851,21 +1877,25 @@ static bool Script_TraceHull( HSCRIPT hTable )
 		vStart = rval;
 	else
 		bNoParams = true;
+	g_pScriptVM->ReleaseValue( rval );
 
 	if (g_pScriptVM->GetValue( hTable, "end", &rval ) )
 		vEnd = rval;
 	else
 		bNoParams = true;
+	g_pScriptVM->ReleaseValue( rval );
 
 	if (g_pScriptVM->GetValue( hTable, "hullmin", &rval ) )
 		vHullMin = rval;
 	else
 		bNoParams = true;
+	g_pScriptVM->ReleaseValue( rval );
 
 	if (g_pScriptVM->GetValue( hTable, "hullmax", &rval ) )
 		vHullMax = rval;
 	else
 		bNoParams = true;
+	g_pScriptVM->ReleaseValue( rval );
 
 	if (bNoParams)
 	{
@@ -1878,11 +1908,13 @@ static bool Script_TraceHull( HSCRIPT hTable )
 	{
 		mask = rval;
 	}
+	g_pScriptVM->ReleaseValue( rval );
 
 	if (g_pScriptVM->GetValue( hTable, "ignore", &rval ))
 	{
 		pIgnoreEnt = ToEnt((HSCRIPT)rval);
 	}
+	g_pScriptVM->ReleaseValue( rval );
 
 	trace_t tr;
 	UTIL_TraceHull(vStart, vEnd, vHullMin, vHullMax, mask, pIgnoreEnt, coll, &tr);
