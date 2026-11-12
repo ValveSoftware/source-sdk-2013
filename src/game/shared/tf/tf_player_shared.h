@@ -28,7 +28,7 @@ class C_TFPlayer;
 class CTFPlayer;
 #endif
 
-
+extern ConVar tf_rocketpack_cost;
 //=============================================================================
 //
 // Tables.
@@ -474,7 +474,7 @@ public:
 	void	SetRuneCharge( float flVal ) { m_flRuneCharge = Clamp( flVal, 0.f, 100.f ); }
 	bool	IsRuneCharged() const { return m_flRuneCharge == 100.f; }
 
-	bool	IsRocketPackReady( void ) { return GetItemChargeMeter( LOADOUT_POSITION_SECONDARY ) >= 50.f; }
+	bool	IsRocketPackReady( void ) { return GetItemChargeMeter( LOADOUT_POSITION_SECONDARY ) >= tf_rocketpack_cost.GetFloat(); }
 	float	GetRocketPackCharge( void ) { return GetItemChargeMeter( LOADOUT_POSITION_SECONDARY ); }
 	void	SetRocketPackCharge( float flValue ) { SetItemChargeMeter( LOADOUT_POSITION_SECONDARY, flValue ); }
 
