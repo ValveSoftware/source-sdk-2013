@@ -11,6 +11,10 @@ $Macro GAMENAME 	"mod_tf" [$SOURCESDK]
 // This code currently only builds on Windows (itemtest_lib and dependencies)
 $Conditional WORKSHOP_IMPORT_ENABLE	1 [$WINDOWS && !$SOURCESDK]
 
+// Allows higher player counts on mp games
+// This turns on flag UNRESTRICTED_MAXPLAYERS across the entire project
+$Conditional UNRESTRICTED_MAXPLAYERS_ENABLE 1
+
 $Include "$SRCDIR\game\client\client_base.vpc"
 $include "$SRCDIR\game\shared\tf\tf_gcmessages_include.vpc"
 $include "$SRCDIR\game\shared\tf\tf_proto_def_messages_include.vpc"
