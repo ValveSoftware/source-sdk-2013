@@ -84,7 +84,7 @@ public:
 	virtual void	OnDataChanged( DataUpdateType_t type );
 	virtual void	UpdateOnRemove( void );
 #else
-	virtual float	GetInitialAfterburnDuration() const OVERRIDE;
+	virtual float	GetAfterburnRateOnHit() const OVERRIDE;
 #endif
 
 	void			SetArrowAlight( bool bAlight );
