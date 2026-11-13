@@ -223,7 +223,7 @@ bool CTFWeaponInvis::ActivateInvisibilityWatch( void )
 		if ( flDecloakRate <= 0.0f )
 			flDecloakRate = 1.0f;
 
-		pOwner->m_Shared.FadeInvis( 1.0f );
+		pOwner->m_Shared.FadeInvis( flDecloakRate );
 	}
 	else
 	{
