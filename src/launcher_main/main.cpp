@@ -87,6 +87,7 @@ static void *Launcher_GetProcAddress( void *pHandle, const char *pszName )
 #endif
 
 static const AppId_t k_unSDK2013MPAppId = 243750;
+static const AppId_t k_unSniperRuntimeAppID = 1628350;
 
 #ifdef MOD_LAUNCHER
 static const AppId_t k_unMyModAppid = MOD_APPID;
@@ -227,6 +228,51 @@ static bool GetGameInstallDir( const char *pRootDir, char *pszBuf, int nBufSize 
 	if ( unLength == 0 )
 	{
 		MessageBox( 0, "Source SDK 2013 Multiplayer (243750) must be installed to launch this mod.", "Launcher Error", MB_OK );
+		return false;
+	}
+
+	return true;
+}
+
+static bool GetSteamRuntimeDir( const char *pRootDir, char *pszBuf, int nBufSize )
+{
+	if ( !LoadSteam( pRootDir ) )
+	{
+		return false;
+	}
+
+	decltype( SteamAPI_GetHSteamUser )* pfnSteamAPI_GetHSteamUser = ( decltype( SteamAPI_GetHSteamUser )* )GetProcAddress( s_SteamModule, "SteamAPI_GetHSteamUser" );
+	if ( !pfnSteamAPI_GetHSteamUser )
+	{
+		MessageBox( 0, "SteamAPI_GetHSteamUser not present!", "Launcher Error", MB_OK );
+		return false;
+	}
+
+	decltype( SteamInternal_FindOrCreateUserInterface )* pfnSteamInternal_FindOrCreateUserInterface = ( decltype( SteamInternal_FindOrCreateUserInterface )* )GetProcAddress( s_SteamModule, "SteamInternal_FindOrCreateUserInterface" );
+	if ( !pfnSteamInternal_FindOrCreateUserInterface )
+	{
+		MessageBox( 0, "SteamInternal_FindOrCreateUserInterface not present!", "Launcher Error", MB_OK );
+		return false;
+	}
+
+	ISteamApps* pSteamApps = ( ISteamApps* )( pfnSteamInternal_FindOrCreateUserInterface( pfnSteamAPI_GetHSteamUser(), STEAMAPPS_INTERFACE_VERSION ) );
+	if ( !pSteamApps )
+	{
+		MessageBox( 0, "ISteamApps not present!", "Launcher Error", MB_OK );
+		return false;
+	}
+
+	uint32_t unLength = 0;
+	if ( pSteamApps->BIsAppInstalled( k_unSniperRuntimeAppID ) )
+	{
+		unLength = pSteamApps->GetAppInstallDir( k_unSniperRuntimeAppID, pszBuf, nBufSize );
+	}
+
+	UnloadSteam();
+
+	if ( unLength == 0 )
+	{
+		MessageBox( 0, "Steam Linux Runtime 3.0 (sniper) (1628350) must be installed to launch this mod.", "Launcher Error", MB_OK );
 		return false;
 	}
 
@@ -627,11 +673,22 @@ int main( int argc, char *argv[] )
 		return 1;
 	}
 
+	char szSteamRuntimeDir[4096];
+	if ( !GetSteamRuntimeDir( pRootDir, szSteamRuntimeDir, 4096 ) )
+	{
+		return 1;
+	}
+
 	char szExecutable[8192];
 	snprintf(szExecutable, sizeof(szExecutable), "%s/hl2.sh", szGameInstallDir );
 
+	char szRuntimeScript[8192];
+	snprintf(szRuntimeScript, sizeof(szExecutable), "%s/_v2-entry-point", szSteamRuntimeDir );
+
 	std::vector<char *> new_argv;
 
+	new_argv.push_back( szRuntimeScript );
+	new_argv.push_back( "--" );
 	new_argv.push_back( szExecutable );
 
 	bool bHasGame = false;
@@ -660,7 +717,7 @@ int main( int argc, char *argv[] )
 
 	new_argv.push_back(NULL);
 
-	execvp( szExecutable, new_argv.data() );
+	execvp( szRuntimeScript, new_argv.data() );
 
 	return 0;
 }
