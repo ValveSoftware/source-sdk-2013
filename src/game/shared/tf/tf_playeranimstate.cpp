@@ -1443,7 +1443,24 @@ bool CTFPlayerAnimState::HandleJumping( Activity &idealActivity )
 	TFPlayerClassData_t *pData = m_pTFPlayer->GetPlayerClass()->GetData();
 	bool bValidAirWalkClass = ( pData && pData->m_bDontDoAirwalk == false );
 
-	if ( bValidAirWalkClass && ( vecVelocity.z > 300.0f || m_bInAirWalk || m_pTFPlayer->GetGrapplingHookTarget() != NULL ) && !bInDuck )
+	// Account for jump height to avoid skipping the jump start animation
+	float flJumpMod = 1.f;
+	if ( bValidAirWalkClass && !m_bInAirWalk )
+	{
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( m_pTFPlayer, flJumpMod, mod_jump_height );
+		CTFWeaponBase *pWpn = m_pTFPlayer->GetActiveTFWeapon();
+		if ( pWpn )
+		{
+			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWpn, flJumpMod, mod_jump_height_from_weapon );
+		}
+
+		if ( m_pTFPlayer->m_Shared.GetCarryingRuneType() == RUNE_AGILITY )
+		{
+			flJumpMod *= 1.8f;
+		}
+	}
+
+	if ( bValidAirWalkClass && ( vecVelocity.z > 300.0f * flJumpMod || m_bInAirWalk || m_pTFPlayer->GetGrapplingHookTarget() != NULL ) && !bInDuck )
 	{
 		// Check to see if we were in an airwalk and now we are basically on the ground.
 		if ( ( GetBasePlayer()->GetFlags() & FL_ONGROUND ) && m_bInAirWalk )
