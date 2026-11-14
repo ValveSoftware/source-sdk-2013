@@ -3,7 +3,8 @@
 // builds the analyze.vpc file will not be listed as a dependency.
 $Include "$SRCDIR\vpc_scripts\source_win32_analyze.vpc" [$ANALYZE]
 
-$Conditional	$AT_LEAST_VS2022	"true" [$VS2022]
+$Conditional	$AT_LEAST_VS2026	"true" [$VS2026]
+$Conditional	$AT_LEAST_VS2022	"true" [$VS2022 || $AT_LEAST_VS2026]
 $Conditional	$AT_LEAST_VS2019	"true" [$VS2019 || $AT_LEAST_VS2022]
 $Conditional	$AT_LEAST_VS2017	"true" [$VS2017 || $AT_LEAST_VS2019]
 $Conditional	$AT_LEAST_VS2015	"true" [$VS2015 || $AT_LEAST_VS2017]
@@ -26,6 +27,7 @@ $Configuration
 		$PlatformToolset "v141"		[$VS2017]
 		$PlatformToolset "v142"		[$VS2019]
 		$PlatformToolset "v143"		[$VS2022]
+		$PlatformToolset "v145"		[$VS2026]
 
 		$WindowsTargetPlatformVersion "10.0"
 
