@@ -1015,7 +1015,7 @@ void CEmbeddedItemModelPanel::Paint( void )
 			ITexture *pRenderTarget = g_pMaterialSystem->FindTexture( pszCacheRenderTargetName, TEXTURE_GROUP_RENDER_TARGET );
 			if ( pRenderTarget )
 			{
-				pRenderContext->AsyncCreateTextureFromRenderTarget( pRenderTarget, buffer, IMAGE_FORMAT_RGBA8888, false, 0, m_pCachedWeaponIcon, NULL );
+				pRenderContext->AsyncCreateTextureFromRenderTarget( pRenderTarget, buffer, IMAGE_FORMAT_RGBA8888, false, TEXTUREFLAGS_POINTSAMPLE, m_pCachedWeaponIcon, NULL );
 			
 				pCacheRenderTarget->iItemID = m_pItem->GetItemID();
 				pCacheRenderTarget->iItemDefinitionIndex = m_pItem->GetItemDefIndex();
