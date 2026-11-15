@@ -41,7 +41,7 @@ $Project "VRAD"
 		$File	"macro_texture.cpp"
 		$File	"..\common\mpi_stats.cpp" [$WIN32]
 		$File	"mpivrad.cpp" [$WIN32]
-		$File	"$SRCDIR\public\filesystem_init.cpp" [!$WIN32]
+		$File	"$SRCDIR\public\filesystem_init.cpp"
 		$File	"..\common\filesystem_tools.cpp" [!$WIN32]
 		$File	"..\common\MySqlDatabase.cpp"
 		$File	"..\common\pacifier.cpp"
@@ -60,6 +60,7 @@ $Project "VRAD"
 		$File	"vraddll.cpp"
 		$File	"VRadStaticProps.cpp"
 		$File	"$SRCDIR\public\zip_utils.cpp"
+		$File	"cubemapbuilder.cpp"
 
 		$Folder	"Common Files"
 		{
@@ -103,6 +104,7 @@ $Project "VRAD"
 		$File	"VRAD_DispColl.h"
 		$File	"vraddetailprops.h"
 		$File	"vraddll.h"
+		$File	"cubemapbuilder.h"
 
 		$Folder	"Common Header Files"
 		{
@@ -127,6 +129,7 @@ $Project "VRAD"
 			$File	"..\vmpi\vmpi_dispatch.h" [$WIN32]
 			$File	"..\vmpi\vmpi_distribute_work.h" [$WIN32]
 			$File	"..\vmpi\vmpi_filesystem.h" [$WIN32]
+			$File	"$SRCDIR\public\filesystem_init.h"
 		}
 
 		$Folder	"Public Header Files"
@@ -224,6 +227,8 @@ $Project "VRAD"
 		$Lib vtf
 		$Lib "$LIBCOMMON/lzma"
 		$File "$SRCDIR\thirdparty\libcurl\lib\win32\libcurl.lib" [$WIN32]
+		$Lib steam_api64 [$WIN64]
+		$Lib steam_api [$WIN32]
 	}
 
 	$File	"notes.txt"

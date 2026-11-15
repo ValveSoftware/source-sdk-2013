@@ -8,12 +8,17 @@
 	nohimodel 1
 	nocrosshair 1
 	supportsvr	1
+
 	hidden_maps
 	{
 		"test_speakers"		1
 		"test_hardware"		1
 	}
-
+	
+	GameData				"hl2mp.fgd"
+	GameExecutableName32bits mod_hl2mp
+	GameExecutableName64bits mod_hl2mp_win64
+	InstancePath			"maps/instances/"
 
 	FileSystem
 	{
@@ -90,6 +95,22 @@
 			// The map search pack is mounted at the top of the search path list,
 			// but only while you are connected that server and on that map.
 			game+download	mod_hl2mp/download
+		}
+	}
+
+	CubemapBuilder 
+	{
+		SetGameToMaximumGraphic 1
+		BuildDefaultCubemap 	1
+
+		Hdr
+		{
+			BuildParams		"+sv_cheats 1 +mat_specular 0 +mat_hdr_level 2 +building_cubemaps 1"
+		}
+
+		Ldr
+		{
+			BuildParams		"+sv_cheats 1 +mat_specular 0 +mat_hdr_level 0"
 		}
 	}
 }
