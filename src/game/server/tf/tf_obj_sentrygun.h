@@ -78,7 +78,7 @@ public:
 
 	virtual void	SetBuildingSize( void );
 
-	void			ClearTarget( void ) { m_hEnemy = NULL; }
+	void			ClearTarget(void) { m_hEnemy = NULL; m_bFireNextFrame = false; m_bFireRocketNextFrame = false; }
 	CBaseEntity		*GetTarget( void ) { return m_hEnemy.Get(); }
 	void			FireNextFrame( void ) { m_bFireNextFrame = true; }
 	void			FireRocketNextFrame( void ) {m_bFireRocketNextFrame = true; }
