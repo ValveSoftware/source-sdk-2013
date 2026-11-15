@@ -417,7 +417,7 @@ void CTFScatterGun::FinishReload( void )
 	if ( !pOwner )
 		return;
 
-	if ( UsesClipsForAmmo1() && !m_bReloadsSingly )
+	if ( UsesClipsForAmmo1() && !m_bReloadsSingly && m_iClip1 < GetMaxClip1() )
 	{
 		int primary	= MIN( GetMaxClip1() - m_iClip1, pOwner->GetAmmoCount(m_iPrimaryAmmoType));	
 		m_iClip1 += primary;
