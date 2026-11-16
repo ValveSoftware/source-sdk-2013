@@ -666,6 +666,9 @@ BEGIN_DATADESC( CTriggerHurt )
 	DEFINE_KEYFIELD( m_bitsDamageInflict, FIELD_INTEGER, "damagetype" ),
 	DEFINE_KEYFIELD( m_damageModel, FIELD_INTEGER, "damagemodel" ),
 	DEFINE_KEYFIELD( m_bNoDmgForce, FIELD_BOOLEAN, "nodmgforce" ),
+#ifdef TF_DLL
+	DEFINE_KEYFIELD( m_szKillIcon, FIELD_STRING, "killicon" ),
+#endif // TF_DLL
 
 	DEFINE_FIELD( m_flLastDmgTime, FIELD_TIME ),
 	DEFINE_FIELD( m_flDmgResetTime, FIELD_TIME ),

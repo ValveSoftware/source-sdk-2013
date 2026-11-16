@@ -49,10 +49,12 @@ public:
 	void FireOutputs( CTFPlayer *pTFPlayer );
 
 	const char *GetCrocModel( void );
+	const char *GetKillIcon( void );
 
 private:
 
 	string_t m_iszModel;
+	string_t m_iszKillIcon;
 
 	COutputEvent m_OnEat;
 	COutputEvent m_OnEatRed;
