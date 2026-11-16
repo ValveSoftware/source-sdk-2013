@@ -35,6 +35,8 @@ enum
 // CNormalList.
 //==========================================================================//
 
+const int NUM_SUBDIVS = 8;
+
 // This class keeps a list of unique normals and provides a fast 
 class CNormalList
 {
@@ -53,7 +55,6 @@ public:
 private:
 
 	// This represents a grid from (-1,-1,-1) to (1,1,1).
-	enum {NUM_SUBDIVS = 8};
 	CUtlVector<int>	m_NormalGrid[NUM_SUBDIVS][NUM_SUBDIVS][NUM_SUBDIVS];
 };
 
@@ -2534,7 +2535,7 @@ static void GatherSampleLightAt4Points( SSE_SampleInfo_t& info, int sampleIdx, i
 			if (info.m_WarnFace != info.m_FaceNum)
 			{
 				Warning ("\nWARNING: Too many light styles on a face at (%f, %f, %f)\n",
-					info.m_Points.x.m128_f32[0], info.m_Points.y.m128_f32[0], info.m_Points.z.m128_f32[0] );
+						 SubFloat(info.m_Points.x, 0), SubFloat(info.m_Points.y, 0), SubFloat(info.m_Points.z, 0) );
 				info.m_WarnFace = info.m_FaceNum;
 			}
 			continue;

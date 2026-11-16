@@ -15,8 +15,8 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories		"$BASE,..\common"
-		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
-		$PrecompiledHeaderFile				"$(IntDir)/vvis_launcher.pch"
+		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)" [$WINDOWS]
+		$PrecompiledHeaderFile				"$(IntDir)/vvis_launcher.pch"  [$WINDOWS]
 	}
 
 	$Linker [$WIN32]
@@ -37,7 +37,7 @@ $Project "VVIS (Launcher)"
 			{
 				$Compiler
 				{
-					$Create/UsePrecompiledHeader		"Create Precompiled Header (/Yc)"
+					$Create/UsePrecompiledHeader		"Create Precompiled Header (/Yc)" [$WINDOWS]
 				}
 			}
 		}
@@ -47,5 +47,12 @@ $Project "VVIS (Launcher)"
 	{
 		$File	"$SRCDIR\public\tier1\interface.h"
 		$File	"StdAfx.h"
+	}
+
+	$Folder "Link Libraries"
+	{
+			$ImpLibexternal tier0 [$POSIX]
+			$Lib tier1 [$POSIX]
+			$ImpLibexternal vstdlib [$POSIX]
 	}
 }

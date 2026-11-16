@@ -17,7 +17,7 @@
 #include "conio.h"
 #include <direct.h>
 #include <io.h>
-#include "UtlBuffer.h"
+#include "utlbuffer.h"
 #include "tier0/dbg.h"
 #include "cmdlib.h"
 #include "tier0/icommandline.h"

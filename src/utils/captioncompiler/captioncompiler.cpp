@@ -11,7 +11,7 @@
 #include "cmdlib.h"
 #include "scriplib.h"
 #include "vstdlib/random.h"
-#include "tier1/UtlBuffer.h"
+#include "tier1/utlbuffer.h"
 #include "pacifier.h"
 #include "appframework/tier3app.h"
 #include "tier0/icommandline.h"

@@ -10,11 +10,11 @@
 //=============================================================================//
 
 #include "vrad.h"
-#include "Bsplib.h"
-#include "GameBSPFile.h"
-#include "UtlBuffer.h"
+#include "bsplib.h"
+#include "gamebspfile.h"
+#include "utlbuffer.h"
 #include "utlvector.h"
-#include "CModel.h"
+#include "cmodel.h"
 #include "studio.h"
 #include "pacifier.h"
 #include "vraddetailprops.h"
@@ -227,7 +227,7 @@ static void ComputeMaxDirectLighting( DetailObjectLump_t& prop, Vector* maxcolor
 		normal4.DuplicateVector( normal );
 
 		GatherSampleLightSSE ( out, dl, -1, origin4, &normal4, 1, iThread );
-		VectorMA( maxcolor[dl->light.style], out.m_flFalloff.m128_f32[0] * out.m_flDot[0].m128_f32[0], dl->light.intensity, maxcolor[dl->light.style] );
+		VectorMA( maxcolor[dl->light.style], SubFloat(out.m_flFalloff, 0) * SubFloat(out.m_flDot[0], 0), dl->light.intensity, maxcolor[dl->light.style] );
 	}
 }
 
@@ -524,7 +524,8 @@ private:
 	bool TestPointAgainstSkySurface( Vector const &pt, dface_t *pFace )
 	{
 		// Create sky face winding.
-		winding_t *pWinding = WindingFromFace( pFace, Vector( 0.0f, 0.0f, 0.0f ) );
+		Vector V( 0.0f, 0.0f, 0.0f );
+		winding_t *pWinding = WindingFromFace( pFace, V );
 
 		// Test point in winding. (Since it is at the node, it is in the plane.)
 		bool bRet = PointInWinding( pt, pWinding );

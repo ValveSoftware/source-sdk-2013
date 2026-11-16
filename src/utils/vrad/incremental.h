@@ -59,8 +59,7 @@ public:
 
 public:
 
-	CRITICAL_SECTION	m_CS;
-
+	CThreadMutex		m_CS;
 	// This is the light for which m_LightFaces was built.
 	dworldlight_t	m_Light;
 
