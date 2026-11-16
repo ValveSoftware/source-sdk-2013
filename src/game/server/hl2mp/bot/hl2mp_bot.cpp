@@ -240,20 +240,7 @@ CON_COMMAND_F( hl2mp_bot_add, "Add a bot.", FCVAR_GAMEDLL )
 				pBot->SetAttribute( CHL2MPBot::PROP_HATER );
 			}
 
-			const char *pszModel = "";
-			if ( iTeam == TEAM_UNASSIGNED )
-			{
-				pszModel = g_ppszRandomModels[ RandomInt( 0, ARRAYSIZE( g_ppszRandomModels ) ) ];
-			}
-			else if ( iTeam == TEAM_COMBINE )
-			{
-				pszModel = g_ppszRandomCombineModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomCombineModels ) )];
-			}
-			else
-			{
-				pszModel = g_ppszRandomCitizenModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomCitizenModels ) )];
-			}
-			engine->SetFakeClientConVarValue( pBot->edict(), "cl_playermodel", pszModel );
+			engine->SetFakeClientConVarValue( pBot->edict(), "cl_playermodel", CHL2MPBot::GetRandomPlayerModel( iTeam ) );
 			engine->SetFakeClientConVarValue( pBot->edict(), "name", name );
 			pBot->HandleCommand_JoinTeam( iTeam );
 			pBot->ChangeTeam( iTeam );
@@ -2422,4 +2409,23 @@ bool CHL2MPBot::IsPropHater() const
 CBaseEntity * CHL2MPBot::Physcannon_GetHeldProp() const
 {
 	return PhysCannonGetHeldEntity( GetActiveWeapon() );
+}
+
+/*static*/ const char *CHL2MPBot::GetRandomPlayerModel(int team /*= TEAM_UNASSIGNED*/)
+{
+	const char *pszModel = "";
+	if ( team == TEAM_UNASSIGNED || team == TEAM_ANY )
+	{
+		pszModel = g_ppszRandomModels[ RandomInt( 0, ARRAYSIZE( g_ppszRandomModels ) ) ];
+	}
+	else if ( team == TEAM_COMBINE )
+	{
+		pszModel = g_ppszRandomCombineModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomCombineModels ) )];
+	}
+	else
+	{
+		pszModel = g_ppszRandomCitizenModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomCitizenModels ) )];
+	}
+
+	return pszModel;
 }

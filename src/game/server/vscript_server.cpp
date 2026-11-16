@@ -36,6 +36,11 @@
 #include "nav_mesh/tf_nav_area.h"
 #include "NextBot/NextBotLocomotionInterface.h"
 #include "bot/tf_bot.h"
+#include "tf/tf_bot_temp.h"
+#endif
+
+#ifdef HL2MP
+#include "bot/hl2mp_bot.h"
 #endif
 
 #if defined( _WIN32 ) || defined( POSIX )
@@ -1670,6 +1675,105 @@ static bool Script_IsPlayerABot( HSCRIPT hEnt )
 	return pPlayer ? pPlayer->IsBot() : false;
 }
 
+#ifdef TF_DLL
+static HSCRIPT Script_CreateFakeClient( const char* pszName = NULL, int iTeam = -1, int iClass = -1 )
+#else
+static HSCRIPT Script_CreateFakeClient( const char* pszName = NULL, int iTeam = -1 )
+#endif
+{
+#ifdef TF_DLL
+	if ( iTeam == -1 || !IsValidTFTeam( iTeam ) )
+		iTeam = RandomInt( FIRST_GAME_TEAM, TF_TEAM_COUNT - 1 );
+
+	if ( iClass == -1 || !IsValidTFPlayerClass( iClass ) )
+		iClass = RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS - 1 );
+
+	CBasePlayer* pBot = BotPutInServer( false, false, iTeam, iClass, pszName );
+	return ToHScript( pBot );
+#elif HL2MP
+	edict_t *pEdict = engine->CreateFakeClient(pszName);
+	if (!pEdict)
+	{
+		Msg( "Failed to create Bot.\n");
+		return NULL;
+	}
+
+	CHL2MP_Player *pPlayer = ((CHL2MP_Player *)CHL2MP_Player::Instance( pEdict ));
+	pPlayer->ClearFlags();
+	pPlayer->AddFlag( FL_CLIENT | FL_FAKECLIENT );
+
+	return ToHScript( pPlayer );
+#else
+	// Dummy implementation
+	/*edict_t *pEdict = engine->CreateFakeClient(pszName);
+	if (!pEdict)
+	{
+		Msg( "Failed to create Bot.\n");
+		return NULL;
+	}
+
+	// Replace with your player class!
+	CBasePlayer *pPlayer = ((CBasePlayer *)CBasePlayer::Instance( pEdict ));
+	pPlayer->ClearFlags();
+	pPlayer->AddFlag( FL_CLIENT | FL_FAKECLIENT );
+
+	return ToHScript( pPlayer );*/
+
+	return NULL;
+#endif
+}
+
+#ifdef TF_DLL
+static HSCRIPT Script_CreateNextBot( const char* pszName = NULL, int iSkill = 1, int iTeam = -1, int iClass = -1 )
+#else
+static HSCRIPT Script_CreateNextBot( const char* pszName = NULL, int iSkill = 1, int iTeam = -1 )
+#endif
+{
+#ifdef TF_DLL
+	CTFBot *pBot = NextBotCreatePlayerBot< CTFBot >( pszName );
+
+	if ( pBot )
+	{
+		if ( iTeam == -1 || !IsValidTFTeam( iTeam ) )
+			iTeam = RandomInt( FIRST_GAME_TEAM, TF_TEAM_COUNT - 1 );
+
+		const char* classname = NULL;
+		if ( iClass == -1 || !IsValidTFPlayerClass( iClass ) )
+		{
+			classname = pBot->GetNextSpawnClassname();
+		}
+		else
+		{
+			classname = pBot->GetNextSpawnClassname();
+		}
+
+		pBot->HandleCommand_JoinTeam( g_aTeamNames[iTeam] );
+		pBot->SetDifficulty( (CTFBot::DifficultyType)iSkill );
+		pBot->HandleCommand_JoinClass( classname );
+	}
+
+	return ToHScript( pBot );
+#elif HL2MP
+	CHL2MPBot *pBot = NextBotCreatePlayerBot< CHL2MPBot >( pszName );
+
+	if ( pBot )
+	{
+		if ( iTeam == -1 )
+			iTeam = HL2MPRules()->IsTeamplay() ? RandomInt( TEAM_COMBINE, TEAM_REBELS ) : TEAM_UNASSIGNED;
+		
+		engine->SetFakeClientConVarValue( pBot->edict(), "cl_playermodel", CHL2MPBot::GetRandomPlayerModel( iTeam ) );
+		engine->SetFakeClientConVarValue( pBot->edict(), "name", pszName );
+		pBot->HandleCommand_JoinTeam( iTeam );
+		pBot->ChangeTeam( iTeam );
+
+		pBot->SetDifficulty( (CHL2MPBot::DifficultyType)iSkill );
+	}
+
+	return ToHScript( pBot );
+#endif
+	return NULL;
+}
+
 // Users have requested the ability to write to subdirectories of /scriptdata/, so some extra
 // validation will be needed to prevent writing to any locations outside the scriptdata directory
 template <size_t maxLenInChars> 
@@ -2534,6 +2638,9 @@ bool VScriptServerInit()
 
 				ScriptRegisterFunctionNamed( g_pScriptVM, Script_GetPlayerFromUserID, "GetPlayerFromUserID", "Given a user id, return the entity, or null");
 				ScriptRegisterFunctionNamed( g_pScriptVM, Script_IsPlayerABot, "IsPlayerABot", "Is this player/entity a bot");
+
+				ScriptRegisterFunctionNamed( g_pScriptVM, Script_CreateFakeClient, "CreateFakeClient", "Creates a bot." );
+				ScriptRegisterFunctionNamed( g_pScriptVM, Script_CreateNextBot, "CreateNextBot", "Creates a NextBot." );
 
 				ScriptRegisterFunctionNamed( g_pScriptVM, NDebugOverlay::ScreenTextLine, "DebugDrawScreenTextLine", "Draw text with a line offset" );
 				ScriptRegisterFunctionNamed( g_pScriptVM, NDebugOverlay::Text, "DebugDrawText", "Draw text in 3d (origin, text, bViewCheck, duration)" );
