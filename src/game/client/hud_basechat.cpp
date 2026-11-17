@@ -1780,10 +1780,9 @@ void CBaseHudChat::ChatPrintf( int iPlayerIndex, int iFilter, const char *fmt, .
 			return;
 	}
 
-	// If a player is muted for voice, also mute them for text because jerks gonna jerk.
 	if ( cl_mute_all_comms.GetBool() && iPlayerIndex != 0 )
 	{
-		if ( GetClientVoiceMgr() && GetClientVoiceMgr()->IsPlayerBlocked( iPlayerIndex ) )	
+		if ( GetClientVoiceMgr() && GetClientVoiceMgr()->IsPlayerBlocked( iPlayerIndex, BANMGR_FLAG_CHAT ) )
 			return;
 	}
 

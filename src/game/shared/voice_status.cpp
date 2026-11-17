@@ -362,14 +362,16 @@ void CVoiceStatus::UpdateServerState(bool bForce)
 		}
 	}
 
-	char str[2048];
+	char str[4096];
 	Q_strncpy(str,"vban",sizeof(str));
 	bool bChange = false;
 
 	for(unsigned long dw=0; dw < VOICE_MAX_PLAYERS_DW; dw++)
 	{	
-		unsigned long serverBanMask = 0;
-		unsigned long banMask = 0;
+		unsigned long serverVoiceBanMask = 0;
+		unsigned long voiceBanMask = 0;
+		unsigned long serverChatBanMask = 0;
+		unsigned long chatBanMask = 0;
 		for(unsigned long i=0; i < 32; i++)
 		{
 			int playerIndex = ( dw * 32 + i );
@@ -381,25 +383,33 @@ void CVoiceStatus::UpdateServerState(bool bForce)
 			if ( !engine->GetPlayerInfo( playerIndex + 1, &pi ) )
 				continue;
 
-			if ( m_BanMgr.GetPlayerBan( pi.guid ) )
+			if ( m_BanMgr.GetPlayerBan( pi.guid ) & BANMGR_FLAG_VOICE )
 			{
-				banMask |= 1 << i;
+				voiceBanMask |= 1 << i;
+			}
+			if ( m_BanMgr.GetPlayerBan( pi.guid ) & BANMGR_FLAG_CHAT )
+			{
+				chatBanMask |= 1 << i;
 			}
 
-			if ( m_ServerBannedPlayers[playerIndex] )
+			if ( m_ServerVoiceBannedPlayers[playerIndex] )
 			{
-				serverBanMask |= 1 << i;
+				serverVoiceBanMask |= 1 << i;
+			}
+			if ( m_ServerChatBannedPlayers[playerIndex] )
+			{
+				serverChatBanMask |= 1 << i;
 			}
 		}
 
-		if ( serverBanMask != banMask )
+		if ( ( serverVoiceBanMask != voiceBanMask ) || ( serverChatBanMask != chatBanMask ) )
 		{
 			bChange = true;
 		}
 
 		// Ok, the server needs to be updated.
-		char numStr[512];
-		Q_snprintf(numStr, sizeof(numStr), " %lx", banMask);
+		char numStr[1024];
+		Q_snprintf(numStr, sizeof(numStr), " %lx %lx", voiceBanMask, chatBanMask);
 		Q_strncat(str, numStr, sizeof(str), COPY_ALL_CHARACTERS);
 	}
 
@@ -429,13 +439,15 @@ void CVoiceStatus::HandleVoiceMaskMsg(bf_read &msg)
 	for(dw=0; dw < VOICE_MAX_PLAYERS_DW; dw++)
 	{
 		m_AudiblePlayers.SetDWord(dw, (unsigned long)msg.ReadLong());
-		m_ServerBannedPlayers.SetDWord(dw, (unsigned long)msg.ReadLong());
+		m_ServerVoiceBannedPlayers.SetDWord(dw, (unsigned long)msg.ReadLong());
+		m_ServerChatBannedPlayers.SetDWord(dw, (unsigned long)msg.ReadLong());
 
 		if( voice_clientdebug.GetInt())
 		{
 			Msg("CVoiceStatus::HandleVoiceMaskMsg\n");
 			Msg("    - m_AudiblePlayers[%d] = %u\n", dw, m_AudiblePlayers.GetDWord(dw));
-			Msg("    - m_ServerBannedPlayers[%d] = %u\n", dw, m_ServerBannedPlayers.GetDWord(dw));
+			Msg("    - m_ServerVoiceBannedPlayers[%d] = %u\n", dw, m_ServerVoiceBannedPlayers.GetDWord(dw));
+			Msg("    - m_ServerChatBannedPlayers[%d] = %u\n", dw, m_ServerChatBannedPlayers.GetDWord(dw));
 		}
 	}
 
@@ -496,14 +508,14 @@ void SetOrUpdateBounds(
 // Input  : playerID - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CVoiceStatus::IsPlayerBlocked(int iPlayer)
+bool CVoiceStatus::IsPlayerBlocked( int iPlayer, int iBanFlag )
 {
 	player_info_t pi;
 
 	if ( !engine->GetPlayerInfo( iPlayer, &pi ) )
 		return false;
 
-	return m_BanMgr.GetPlayerBan( pi.guid );
+	return m_BanMgr.GetPlayerBan( pi.guid ) & iBanFlag;
 }
 
 //-----------------------------------------------------------------------------
@@ -549,7 +561,7 @@ bool CVoiceStatus::IsLocalPlayerSpeaking( void )
 // Input  : playerID - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-void CVoiceStatus::SetPlayerBlockedState(int iPlayer, bool blocked)
+void CVoiceStatus::SetPlayerBlockedState(int iPlayer, bool blocked, int iBanFlag)
 {
 	if (voice_clientdebug.GetInt())
 	{
@@ -568,11 +580,11 @@ void CVoiceStatus::SetPlayerBlockedState(int iPlayer, bool blocked)
 	// Squelch or (try to) unsquelch this player.
 	if (voice_clientdebug.GetInt())
 	{
-		Msg("CVoiceStatus::SetPlayerBlockedState: setting player %d ban to %d\n", iPlayer, !m_BanMgr.GetPlayerBan(pi.guid));
+		Msg("CVoiceStatus::SetPlayerBlockedState: setting player %d ban to %d\n", iPlayer, blocked);
 	}
 
-	m_BanMgr.SetPlayerBan(pi.guid, !m_BanMgr.GetPlayerBan(pi.guid));
-	UpdateServerState(false);
+	m_BanMgr.SetPlayerBan(pi.guid, iBanFlag, blocked);
+	UpdateServerState( false );
 }
 
 //-----------------------------------------------------------------------------
