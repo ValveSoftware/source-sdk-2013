@@ -1452,6 +1452,7 @@ void C_BaseAnimating::GetCachedBoneMatrix( int boneIndex, matrix3x4_t &out )
 	MatrixCopy( GetBone( boneIndex ), out );
 }
 
+extern ConVar cl_jiggle_bone_scale_legacy;
 
 //-----------------------------------------------------------------------------
 // Purpose:	move position and rotation transforms into global matrices
@@ -1564,11 +1565,14 @@ void C_BaseAnimating::BuildTransformations( CStudioHdr *hdr, Vector *pos, Quater
 					// scale it back down so the jiggly bones show up non-scaled in the correct location.
 					matrix3x4_t parentMX = GetBone( pbones[i].parent );
 
-					float fScale = Square( parentMX[0][0] ) + Square( parentMX[1][0] ) + Square( parentMX[2][0] );
-					if ( fScale > Square( 1.0001f ) )
+					if ( cl_jiggle_bone_scale_legacy.GetBool() )
 					{
-						fScale = 1.0f / FastSqrt( fScale );
-						MatrixScaleBy( fScale, parentMX );
+						float fScale = Square( parentMX[0][0] ) + Square( parentMX[1][0] ) + Square( parentMX[2][0] );
+						if ( fScale > Square( 1.0001f ) )
+						{
+							fScale = 1.0f / FastSqrt( fScale );
+							MatrixScaleBy( fScale, parentMX );
+						}
 					}
 
 					ConcatTransforms( parentMX, bonematrix, goalMX );
