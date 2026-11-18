@@ -380,7 +380,7 @@ bool CTFReviveMarker::ReviveOwner( void )
 	// See if their marker is clear
 	Vector vecTeleportPos = GetAbsOrigin();			
 	trace_t tr;
-	CTraceFilterIgnoreTeammatesAndTeamObjects filter( m_hOwner, COLLISION_GROUP_NONE, m_hOwner->GetTeamNumber() );
+	CTraceFilterSimple filter( m_hOwner, COLLISION_GROUP_NONE );
 	UTIL_TraceHull( vecTeleportPos, vecTeleportPos, VEC_HULL_MIN_SCALED( m_hOwner ), VEC_HULL_MAX_SCALED( m_hOwner ), ( MASK_SOLID | CONTENTS_PLAYERCLIP ), &filter, &tr );
 		
 	// If not, try the medic's location

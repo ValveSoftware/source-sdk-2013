@@ -918,7 +918,14 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 				{
 					if ( pPanel->m_pEnemyCountImageBG )
 					{
-						pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrNormal );
+						if ( mission[i].iFlags & MVM_CLASS_FLAG_MINIBOSS )
+						{
+							pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrMiniBoss );
+						}
+						else
+						{
+							pPanel->m_pEnemyCountImageBG->SetBgColor( m_clrNormal );
+						}
 					}
 					if ( pPanel->m_pEnemyCountCritBG )
 					{
@@ -957,7 +964,7 @@ void CWaveStatusPanel::UpdateEnemyCounts( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-DECLARE_HUDELEMENT( CCurrencyStatusPanel );
+DECLARE_HUDELEMENT_DEPTH( CCurrencyStatusPanel, 49 );
 
 CCurrencyStatusPanel::CCurrencyStatusPanel( const char *pElementName )
 	: CHudElement( pElementName )
@@ -1617,7 +1624,7 @@ void CMvMBombCarrierProgress::ApplySchemeSettings( IScheme *pScheme )
 //-----------------------------------------------------------------------------
 // CTFHudMannVsMachineStatus 
 //-----------------------------------------------------------------------------
-DECLARE_HUDELEMENT( CTFHudMannVsMachineStatus );
+DECLARE_HUDELEMENT_DEPTH( CTFHudMannVsMachineStatus, 48 );
 
 CTFHudMannVsMachineStatus::CTFHudMannVsMachineStatus( const char *pElementName ) :
 CHudElement( pElementName ), BaseClass( NULL, "HudMannVsMachineStatus" )
@@ -1982,7 +1989,20 @@ void CTFHudMannVsMachineStatus::ReopenVictoryPanel( void )
 //-----------------------------------------------------------------------------
 void CTFHudMannVsMachineStatus::UpdateBombCarrierProgress ( void )
 {
-	m_pUpgradeLevelContainer->SetVisible( TFGameRules()->State_Get() == GR_STATE_RND_RUNNING );
+	bool bEnabledFlags = false;
+
+	for ( int i=0; i<ICaptureFlagAutoList::AutoList().Count(); ++i )
+	{
+		CCaptureFlag *pFlag = static_cast<CCaptureFlag *>( ICaptureFlagAutoList::AutoList()[i] );
+
+		if ( pFlag && !pFlag->IsDisabled() )
+		{
+			bEnabledFlags = true;
+			break;
+		}
+	}
+
+	m_pUpgradeLevelContainer->SetVisible( bEnabledFlags && ( TFGameRules()->State_Get() == GR_STATE_RND_RUNNING ) );
 
 	if ( !m_pUpgradeLevel1 || !m_pUpgradeLevel2 || !m_pUpgradeLevel3 || !m_pUpgradeLevelBoss )
 		return;
