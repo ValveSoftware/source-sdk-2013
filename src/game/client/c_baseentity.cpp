@@ -78,7 +78,7 @@ void cc_cl_interp_all_changed( IConVar *pConVar, const char *pOldString, float f
 
 
 static ConVar  cl_extrapolate( "cl_extrapolate", "1", FCVAR_CHEAT, "Enable/disable extrapolation if interpolation history runs out." );
-static ConVar  cl_interp_npcs( "cl_interp_npcs", "0.0", FCVAR_USERINFO, "Interpolate NPC positions starting this many seconds in past (or cl_interp, if greater)" );  
+static ConVar  cl_interp_npcs( "cl_interp_npcs", "0.1", FCVAR_USERINFO | FCVAR_NOT_CONNECTED | FCVAR_ARCHIVE, "Interpolate NPC positions starting this many seconds in past (or cl_interp, if greater)", true, 0.0f, true, 0.5f );
 static ConVar  cl_interp_all( "cl_interp_all", "0", 0, "Disable interpolation list optimizations.", 0, 0, 0, 0, cc_cl_interp_all_changed );
 ConVar  r_drawmodeldecals( "r_drawmodeldecals", "1", FCVAR_ALLOWED_IN_COMPETITIVE );
 extern ConVar	cl_showerror;
@@ -5901,7 +5901,7 @@ static float AdjustInterpolationAmount( C_BaseEntity *pEntity, float baseInterpo
 		{
 			while ( pEntity )
 			{
-				if ( pEntity->IsNPC() )
+				if ( pEntity->IsNPC() || ( !pEntity->IsPlayer() && pEntity->IsNextBot() ) )
 					return minNPCInterpolation;
 
 				pEntity = pEntity->GetMoveParent();
