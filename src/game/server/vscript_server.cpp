@@ -1766,6 +1766,8 @@ static const char *Script_FileToString( const char *pszFileName )
 	if ( iFLen > FILE_TO_STRING_BUF_SIZE )
 	{
 		Warning("File %s (from %s) is len %d too long for a ScriptFileRead\n", szFilePath, pszFileName, iFLen );
+		g_pFullFileSystem->Close( hFile );
+
 		return NULL;
 	}
 	g_pFullFileSystem->Seek( hFile, 0, FILESYSTEM_SEEK_HEAD );
