@@ -572,7 +572,7 @@ void CClassLoadoutPanel::PerformLayout( void )
 		}
 
 		int iButtonPos = 0;
-		if ( m_iCurrentClassIndex != TF_CLASS_UNDEFINED )
+		if ( IsValidTFPlayerClass(m_iCurrentClassIndex) )
 		{
 			iButtonPos = g_VisibleLoadoutSlotsPerClass[m_iCurrentClassIndex]->m_iPos[i];
 		}
