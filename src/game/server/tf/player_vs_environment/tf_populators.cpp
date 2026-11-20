@@ -1613,7 +1613,9 @@ void CWaveSpawnPopulator::Update( void )
 					m_spawnLocationResult = m_where.FindSpawnLocation( m_vSpawnPosition );
 					if ( m_spawnLocationResult == SPAWN_LOCATION_NOT_FOUND )
 					{
-						// try again
+						// release reserved slots and try again
+						m_reservedPlayerSlotCount -= m_spawnCount;
+						m_myReservedSlotCount = 0;
 						return;
 					}
 				}
