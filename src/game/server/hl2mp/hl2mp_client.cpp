@@ -60,7 +60,18 @@ void FinishClientPutInServer( CHL2MP_Player *pPlayer )
 
 	if ( HL2MPRules()->IsTeamplay() == true )
 	{
+		const int iTeam = pPlayer->GetTeamNumber();
+		if ( iTeam == TEAM_COMBINE || iTeam == TEAM_REBELS )
+		{
+			const Color teamColor = iTeam == TEAM_COMBINE ? COLOR_BLUE : COLOR_RED;
+			char szTeamMessage[128];
+			Q_snprintf( szTeamMessage, sizeof( szTeamMessage ), "\x01You are on team \x07%02X%02X%02X%s\x01\n", (unsigned int)teamColor.r(), (unsigned int)teamColor.g(), (unsigned int)teamColor.b(), pPlayer->GetTeam()->GetName() );
+			ClientPrint( pPlayer, HUD_PRINTTALK, szTeamMessage );
+		}
+		else
+		{
 		ClientPrint( pPlayer, HUD_PRINTTALK, "You are on team %s1\n", pPlayer->GetTeam()->GetName() );
+		}
 	}
 
 	const ConVar *hostname = cvar->FindVar( "hostname" );

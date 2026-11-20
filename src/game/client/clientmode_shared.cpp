@@ -37,6 +37,9 @@
 #include "hud_vote.h"
 #include "ienginevgui.h"
 #include "sourcevr/isourcevirtualreality.h"
+#ifdef HL2MP
+#include "hl2mp_gamerules.h"
+#endif
 #if defined( _X360 )
 #include "xbox/xbox_console.h"
 #endif
@@ -1110,37 +1113,79 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 			bool bUsingCustomTeamName = false;
 #ifdef TF_CLIENT_DLL
 			C_TFTeam *pTeam = GetGlobalTFTeam( team );
-			const wchar_t *wszTeam = pTeam ? pTeam->Get_Localized_Name() : L"";
+			const wchar_t *pwszTeam = pTeam ? pTeam->Get_Localized_Name() : L"";
 			bUsingCustomTeamName = pTeam ? pTeam->IsUsingCustomTeamName() : false;
 #else
 			wchar_t wszTeam[64];
 			C_Team *pTeam = GetGlobalTeam( team );
-			if ( pTeam )
+			if ( pTeam && pTeam->Get_Name()[0] )
 			{
 				g_pVGuiLocalize->ConvertANSIToUnicode( pTeam->Get_Name(), wszTeam, sizeof(wszTeam) );
 			}
+#ifdef HL2MP
+			else if ( team == TEAM_UNASSIGNED )
+			{
+				V_wcsncpy( wszTeam, L"Unassigned", sizeof( wszTeam ) );
+			}
+			else if ( team == TEAM_SPECTATOR )
+			{
+				V_wcsncpy( wszTeam, L"Spectator", sizeof( wszTeam ) );
+			}
+			else if ( team == TEAM_COMBINE )
+			{
+				V_wcsncpy( wszTeam, L"Combine", sizeof( wszTeam ) );
+			}
+			else if ( team == TEAM_REBELS )
+			{
+				V_wcsncpy( wszTeam, L"Rebels", sizeof( wszTeam ) );
+			}
+#endif
 			else
 			{
 				_snwprintf ( wszTeam, sizeof( wszTeam ) / sizeof( wchar_t ), L"%d", team );
 			}
+
+			const wchar_t *pwszTeam = wszTeam;
+#ifdef HL2MP
+			wchar_t wszColoredTeam[80];
+			const Color *pTeamColor = NULL;
+			if ( team == TEAM_COMBINE )
+			{
+				pTeamColor = &g_ColorBlue;
+			}
+			else if ( team == TEAM_REBELS )
+			{
+				pTeamColor = &g_ColorRed;
+			}
+
+			if ( pTeamColor )
+			{
+				V_snwprintf( wszColoredTeam, ARRAYSIZE( wszColoredTeam ), L"%c%02X%02X%02X%ls%c", COLOR_HEXCODE, (unsigned int)pTeamColor->r(), (unsigned int)pTeamColor->g(), (unsigned int)pTeamColor->b(), wszTeam, COLOR_NORMAL );
+				pwszTeam = wszColoredTeam;
+			}
+#endif
 #endif
 
 			if ( !IsInCommentaryMode() )
 			{
-				wchar_t wszLocalized[100];
+				wchar_t wszLocalized[256];
 				if ( bAutoTeamed )
 				{
-					g_pVGuiLocalize->ConstructString_safe( wszLocalized, bUsingCustomTeamName ? g_pVGuiLocalize->Find( "#game_player_joined_autoteam_party_leader" ) : g_pVGuiLocalize->Find( "#game_player_joined_autoteam" ), 2, wszPlayerName, wszTeam );
+					g_pVGuiLocalize->ConstructString_safe( wszLocalized, bUsingCustomTeamName ? g_pVGuiLocalize->Find( "#game_player_joined_autoteam_party_leader" ) : g_pVGuiLocalize->Find( "#game_player_joined_autoteam" ), 2, wszPlayerName, pwszTeam );
 				}
 				else
 				{
-					g_pVGuiLocalize->ConstructString_safe( wszLocalized, bUsingCustomTeamName ? g_pVGuiLocalize->Find( "#game_player_joined_team_party_leader" ) : g_pVGuiLocalize->Find( "#game_player_joined_team" ), 2, wszPlayerName, wszTeam );
+					g_pVGuiLocalize->ConstructString_safe( wszLocalized, bUsingCustomTeamName ? g_pVGuiLocalize->Find( "#game_player_joined_team_party_leader" ) : g_pVGuiLocalize->Find( "#game_player_joined_team" ), 2, wszPlayerName, pwszTeam );
 				}
 
-				char szLocalized[100];
+				char szLocalized[256];
 				g_pVGuiLocalize->ConvertUnicodeToANSI( wszLocalized, szLocalized, sizeof(szLocalized) );
 
+#ifdef HL2MP
+				hudChat->Printf( CHAT_FILTER_TEAMCHANGE, "%c%s", COLOR_NORMAL, szLocalized );
+#else
 				hudChat->Printf( CHAT_FILTER_TEAMCHANGE, "%s", szLocalized );
+#endif
 			}
 		}
 

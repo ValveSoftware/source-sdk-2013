@@ -8771,8 +8771,8 @@ void CBasePlayer::DeactivateMovementConstraint( )
 bool CBasePlayer::ArePlayerTalkMessagesAvailable( void )
 {
 	// How long since we last tried to chat?
-	float flTimeElapsedSinceLastMsg = gpGlobals->curtime - m_fLastPlayerTalkAttemptTime;
-	m_fLastPlayerTalkAttemptTime = gpGlobals->curtime;
+	float flTimeElapsedSinceLastMsg = gpGlobals->realtime - m_fLastPlayerTalkAttemptTime;
+	m_fLastPlayerTalkAttemptTime = gpGlobals->realtime;
 
 	// The max messages we can have available
 	// Tier 1 is for short-term spam
@@ -8810,7 +8810,7 @@ bool CBasePlayer::CanPlayerTalk()
 {
 	const float talk_interval = 0.66; // min time between say commands from a client
 
-	bool bRateLimitAllowed = LastTimePlayerTalked() + talk_interval < gpGlobals->curtime;
+	bool bRateLimitAllowed = LastTimePlayerTalked() + talk_interval < gpGlobals->realtime;
 
 	bool bTokenBucketLimitAllowed = ArePlayerTalkMessagesAvailable();
 
