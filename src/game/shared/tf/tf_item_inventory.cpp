@@ -637,13 +637,16 @@ bool CTFInventoryManager::SlotContainsBaseItems( EEquipType_t eType, int iSlot )
 		return true;
 	}
 
-	// Halloween spellbook
+	// Halloween spellbook, grappling hook, snowball
 	if ( iSlot == LOADOUT_POSITION_ACTION )
 	{
 		if ( TFGameRules() && TFGameRules()->IsUsingSpells() )
 			return true;
 
 		if ( TFGameRules() && TFGameRules()->IsUsingGrapplingHook() )
+			return true;
+
+		if ( TFGameRules() && TFGameRules()->IsUsingSnowball() )
 			return true;
 	}
 	// Normal game
@@ -690,7 +693,13 @@ CEconItemView *CTFInventoryManager::GetBaseItemForClass( int iClass, int iSlot )
 		{
 			stockActionItemDefIndices.AddToTail( pItemDef_MvMCanteen->GetDefinitionIndex() );
 		}
-		
+
+		static CSchemaItemDefHandle pItemDef_Snowball( "TF_WEAPON_SNOWBALL" );
+		if ( TFGameRules() && TFGameRules()->IsUsingSnowball() )
+		{
+			stockActionItemDefIndices.AddToTail( pItemDef_Snowball->GetDefinitionIndex() );
+		}
+
 		// Traverse List
 		for ( CEconItemView *pActionItem : m_pBaseLoadoutItems )
 		{

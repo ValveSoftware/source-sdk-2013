@@ -117,6 +117,7 @@
 #include "econ_paintkit.h"
 #include "soundstartparams.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
+#include "tf_weapon_snowball.h"
 
 
 #if defined( REPLAY_ENABLED )
@@ -276,7 +277,7 @@ BonusEffect_t g_BonusEffects[ kBonusEffect_Count ] =
 	{ "TFPlayer.CritHit",					"crit_text",			PATTACH_POINT_FOLLOW,	"head",			kEffectFilter_AttackerOnly, kEffectFilter_AttackerOnly,		true, true },
 	{ "TFPlayer.CritHitMini",				"minicrit_text",		PATTACH_POINT_FOLLOW,	"head",			kEffectFilter_AttackerOnly, kEffectFilter_AttackerOnly,		true, true },
 	{ "TFPlayer.DoubleDonk",				"doubledonk_text",		PATTACH_POINT_FOLLOW,	"head",			kEffectFilter_BothTeams,	kEffectFilter_BothTeams,		true, true },
-	{ NULL,									"sploosh_text",			PATTACH_POINT_FOLLOW,	"head",			kEffectFilter_BothTeams,	kEffectFilter_BothTeams,		true, false },
+	{ "TFPlayer.CritHitMini",				"hit_text",				PATTACH_POINT_FOLLOW,	"head",			kEffectFilter_AttackerOnly,	kEffectFilter_AttackerOnly,		true, true },
 	{ NULL,									NULL,					PATTACH_POINT_FOLLOW,	"head",			kEffectFilter_AttackerOnly,	kEffectFilter_AttackerOnly,		true, false },
 	{ NULL,									"dragons_fury_effect",	PATTACH_ABSORIGIN,		NULL,			kEffectFilter_AttackerOnly, kEffectFilter_AttackerOnly,		true, true },
 	{ "TFPlayer.Stomp",						"stomp_text",			PATTACH_POINT_FOLLOW,	"head",			kEffectFilter_BothTeams,	kEffectFilter_BothTeams,		true, true },
@@ -11112,6 +11113,27 @@ void C_TFPlayer::FireGameEvent( IGameEvent *event )
 				else
 				{
 					NotificationQueue_Remove( &CEquipMvMCanteenNotification::IsNotificationType );
+				}
+			}
+			// Add EconNotification to equip Snowball here
+			else if ( TFGameRules() && TFGameRules()->IsUsingSnowball() )
+			{
+				int iCount = NotificationQueue_Count( &CEquipSnowballNotification::IsNotificationType );
+				CEconItemView *pItem = TFInventoryManager()->GetItemInLoadoutForClass( event->GetInt( "class" ), LOADOUT_POSITION_ACTION );
+				// no snowball
+				if ( !pItem || !pItem->GetStaticData()->GetItemClass() || !FStrEq( pItem->GetStaticData()->GetItemClass(), "tf_weapon_snowball" ) )
+				{
+					if ( iCount == 0 )
+					{
+						CEquipSnowballNotification *pNotification = new CEquipSnowballNotification();
+						pNotification->SetText( "#TF_Snowball_EquipAction" );
+						pNotification->SetLifetime( 10.0f );
+						NotificationQueue_Add( pNotification );
+					}
+				}
+				else
+				{
+					NotificationQueue_Remove( &CEquipSnowballNotification::IsNotificationType );
 				}
 			}
 		}

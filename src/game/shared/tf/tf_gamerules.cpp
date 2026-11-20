@@ -929,6 +929,8 @@ extern ConVar mp_tournament_post_match_period;
 extern ConVar tf_flag_return_on_touch;
 extern ConVar tf_flag_return_time_credit_factor;
 ConVar tf_grapplinghook_enable( "tf_grapplinghook_enable", "0", FCVAR_REPLICATED );
+ConVar tf_snowball_enable( "tf_snowball_enable", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "0: disabled, 1: enabled during Christmas holiday, 2: always enabled, bypassing holiday restriction" );
+
 
 #ifdef GAME_DLL
 CUtlString s_strNextMvMPopFile;
@@ -3759,6 +3761,16 @@ bool CTFGameRules::IsUsingGrapplingHook( void ) const
 }
 
 //-----------------------------------------------------------------------------
+bool CTFGameRules::IsUsingSnowball( void ) const
+{
+	if ( IsHolidayActive( kHoliday_Christmas ) )
+	{
+		return tf_snowball_enable.GetBool();
+	}
+	return tf_snowball_enable.GetInt() == 2;
+}
+
+//-----------------------------------------------------------------------------
 bool CTFGameRules::IsTruceActive( void ) const
 {
 	return m_bTruceActive;
@@ -5962,6 +5974,7 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 	CBaseEntity *pAttacker = info.GetAttacker();
 	CTFPlayer *pTFAttacker = ToTFPlayer( pAttacker );
 	CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
+	CBaseEntity *pInflictor = info.GetInflictor();
 
 	int iAttackIgnoresResists = 0;
 	CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iAttackIgnoresResists, mod_pierce_resists_absorbs );
@@ -5992,6 +6005,20 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 	if ( bitsDamage & DMG_CRITICAL )
 	{
 		info.SetCritType( CTakeDamageInfo::CRIT_FULL );
+	}
+	//snowball headshot wont have DMG_CRITICAL yet because adding it earlier causes flinching
+	if ( pInflictor && FClassnameIs( pInflictor, "tf_projectile_snowball" ) && pVictim )
+	{
+		// Snowball headshot full-crits, also check if the projectile was critboosted
+		CTFProjectile_Throwable *pProjectile = dynamic_cast<CTFProjectile_Throwable*>( pInflictor );
+		if ( pVictim->LastHitGroup() == HITGROUP_HEAD || ( pProjectile && pProjectile->IsCritical() ) )
+		{
+			info.SetCritType( CTakeDamageInfo::CRIT_FULL );
+			eBonusEffect = kBonusEffect_Crit;
+			bitsDamage |= DMG_CRITICAL;
+			info.AddDamageType( DMG_CRITICAL );
+		}
+		bShowDisguisedCrit = true; //otherwise snowballs can be used to spycheck
 	}
 
 	// First figure out whether this is going to be a full forced crit for some specific reason. It's
@@ -6161,7 +6188,6 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 
 		if ( info.GetCritType() == CTakeDamageInfo::CRIT_NONE )
 		{
-			CBaseEntity *pInflictor = info.GetInflictor();
 			CTFGrenadePipebombProjectile *pBaseGrenade = dynamic_cast< CTFGrenadePipebombProjectile* >( pInflictor );
 			CTFBaseRocket *pBaseRocket = dynamic_cast< CTFBaseRocket* >( pInflictor );
 
@@ -6221,6 +6247,20 @@ bool CTFGameRules::ApplyOnDamageModifyRules( CTakeDamageInfo &info, CBaseEntity 
 				// Scouts using crit drink do mini-crits, as well as receive them
 				info.SetCritType( CTakeDamageInfo::CRIT_MINI );
 				eBonusEffect = kBonusEffect_MiniCrit;
+			}
+			else if ( pInflictor && FClassnameIs( pInflictor, "tf_projectile_snowball" ) && pVictim )
+			{
+				if ( pBaseGrenade && pBaseGrenade->GetDeflected() )
+				{
+					// Reflected snowball should minicrit
+					info.SetCritType( CTakeDamageInfo::CRIT_MINI );
+					eBonusEffect = kBonusEffect_MiniCrit;
+				}
+				else
+				{
+					eBonusEffect = kBonusEffect_WaterBalloonSploosh;
+				}
+				bShowDisguisedCrit = true; //otherwise snowballs can be used to spycheck
 			}
 			else if ( ( info.GetDamageType() & DMG_IGNITE ) && pVictim && pVictim->m_Shared.InCond( TF_COND_BURNING ) && info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING_FLARE )
 			{
@@ -7452,7 +7492,8 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 				PotentiallyDamageMitigatedEvent( pVictim, pVictim, pWatch, flBeforeflRealDamage, flRealDamage );
 
 				// Original damage would've killed the player, but the reduced damage wont
-				if ( flBeforeflRealDamage >= pVictim->GetHealth() && flRealDamage < pVictim->GetHealth() )
+				// if real damage and the original damage amount are both less than .1, it's a snowball and we don't want to activate dead ringer
+				if ( flBeforeflRealDamage >= pVictim->GetHealth() && flRealDamage < pVictim->GetHealth() && !( info.GetDamage() < 0.1f && flRealDamage < 0.1f ) )
 				{
 					IGameEvent *pEvent = gameeventmanager->CreateEvent( "deadringer_cheat_death" );
 					if ( pEvent )
@@ -9890,6 +9931,12 @@ bool CTFGameRules::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAtt
 	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_SPELL_MONOCULUS && pAttacker->GetTeamNumber() == pPlayer->GetTeamNumber() )
 	{
 		return false;
+	}
+
+	//action slot toys that don't do real damage may still want to get damage effects such as killfeed notices
+	if ( info.GetDamage() < 0.1 && info.GetDamageCustom() == TF_DMG_CUSTOM_THROWABLE )
+	{
+		return true;
 	}
 
 	// in PvE modes, if entities are on the same team, they can't hurt each other
@@ -12458,7 +12505,19 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	else if ( info.GetDamageCustom() == TF_DMG_CUSTOM_THROWABLE ||
 			  info.GetDamageCustom() == TF_DMG_CUSTOM_THROWABLE_KILL )			// Throwables
 	{
-		if ( pVictim && pVictim->GetHealth() <= 0 )
+		if ( pInflictor && FClassnameIs( pInflictor, "tf_projectile_snowball" ) )
+		{
+			CTFWeaponBaseGrenadeProj *pSnowball = dynamic_cast<CTFWeaponBaseGrenadeProj*>( pInflictor );
+			if ( pSnowball && pSnowball->GetDeflected() )
+			{
+				killer_weapon_name = ( pVictim->LastHitGroup() == HITGROUP_HEAD ? "snowball_deflect_headshot" : "snowball_deflect" );
+			}
+			else
+			{
+				killer_weapon_name = ( pVictim->LastHitGroup() == HITGROUP_HEAD ? "snowball_headshot" : "snowball_hit" );
+			}
+		}
+		else if ( pVictim && pVictim->GetHealth() <= 0 )
 		{
 			killer_weapon_name = "water_balloon_kill";	
 		}
@@ -12898,6 +12957,18 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 	const char *killer_weapon_name = GetKillingWeaponName( info, pTFPlayerVictim, &iWeaponID );
 	const char *killer_weapon_log_name = killer_weapon_name;
 
+	//snowball hitting and not killing a disguised spy should show the disguise name as well
+	//this comes after finding the killing weapon name to avoid checking the hitgroup of the disguise target
+	if ( FStrEq( eventName, "snowball_notice" ) )
+	{
+		CTFPlayer *pDisguiseTarget = pTFPlayerVictim->m_Shared.GetDisguiseTarget();
+		if ( pDisguiseTarget && pScorer && ( pScorer->GetTeamNumber() == pDisguiseTarget->GetTeamNumber() ) )
+		{
+			// Snowball is hitting player disguised as thrower's teammate; show the disguise target's name to prevent using this for spy checking
+			pVictim = pTFPlayerVictim = pDisguiseTarget;
+		}
+	}
+
 	// Kill eater events.
 	{
 		// Was this a sentry kill? If the sentry did the kill itself with bullets then it'll be the inflictor.
@@ -12973,7 +13044,7 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 	{
 		if ( pScorer && pVictim && pScorer != pVictim )
 		{
-			if ( !FStrEq( eventName, "fish_notice" ) && !FStrEq( eventName, "fish_notice__arm" ) && !FStrEq( eventName, "slap_notice" ) && !FStrEq( eventName, "throwable_hit" ) )
+			if ( !FStrEq( eventName, "fish_notice" ) && !FStrEq( eventName, "fish_notice__arm" ) && !FStrEq( eventName, "slap_notice" ) && !FStrEq( eventName, "throwable_hit" ) && !FStrEq( eventName, "snowball_notice" ) )
 			{
 #ifndef _DEBUG
 				if ( GetGlobalTeam( pVictim->GetTeamNumber() ) && GetGlobalTeam( pVictim->GetTeamNumber() )->GetNumPlayers() > 1 )

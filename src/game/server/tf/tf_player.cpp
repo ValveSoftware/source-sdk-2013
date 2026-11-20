@@ -4432,12 +4432,22 @@ bool CTFPlayer::ItemIsAllowed( CEconItemView *pItem )
 	}
 
 	// Holiday Restriction
-	CEconItemDefinition* pData = pItem->GetStaticData();
+	CEconItemDefinition *pData = pItem->GetStaticData();
 	if ( TFGameRules() && pData && pData->GetHolidayRestriction() )
 	{
 		int iHolidayRestriction = UTIL_GetHolidayForString( pData->GetHolidayRestriction() );
-		if ( iHolidayRestriction != kHoliday_None && !TFGameRules()->IsHolidayActive( iHolidayRestriction ) )
+		if ( V_stristr( pData->GetItemClass(), "tf_weapon_snowball") )
+		{
+			//snowball convar can bypass holiday restriction
+			if ( !TFGameRules()->IsUsingSnowball() )
+			{
+				return false;
+			}
+		}
+		else if ( iHolidayRestriction != kHoliday_None && !TFGameRules()->IsHolidayActive( iHolidayRestriction ) )
+		{
 			return false;
+		}
 	}
 
 	if ( TFGameRules()->InStalemate() && mp_stalemate_meleeonly.GetBool() )
@@ -8394,7 +8404,7 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 		info_modified.SetDamage( info_modified.GetDamage() * tf_damage_multiplier_red.GetFloat() );
 	}
 
-	if ( m_Shared.InCond( TF_COND_DISGUISED ) )
+	if ( m_Shared.InCond( TF_COND_DISGUISED ) || ( info.GetInflictor() && FClassnameIs( info.GetInflictor(), "tf_projectile_snowball" ) ) )
 	{
 		// no impact effects
 	}
@@ -9603,6 +9613,13 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	// Display any effect associate with this damage type
 	DamageEffect( info.GetDamage(),bitsDamage );
 
+	// Snowball is generic but wants a special screenflash
+	if ( info.GetInflictor() && FClassnameIs( info.GetInflictor(), "tf_projectile_snowball" ) )
+	{
+		color32 snow = { 200, 230, 255, 10 };
+		UTIL_ScreenFade(this, snow, 0.5f, 0.05f, FFADE_IN);
+	}
+
 	m_bitsDamageType |= bitsDamage; // Save this so we can report it to the client
 	m_bitsHUDDamage = -1;  // make sure the damage bits get reset
 
@@ -9680,7 +9697,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		}
 	}
 	
-	if ( IsPlayerClass( TF_CLASS_SPY ) && ( inputInfo.GetDamageCustom() != TF_DMG_CUSTOM_TELEFRAG ) && ( inputInfo.GetDamageCustom() != TF_DMG_CUSTOM_CROC ) )
+	if ( IsPlayerClass( TF_CLASS_SPY ) && ( inputInfo.GetDamageCustom() != TF_DMG_CUSTOM_TELEFRAG ) && ( inputInfo.GetDamageCustom() != TF_DMG_CUSTOM_CROC ) && !( inputInfo.GetDamage() < 0.1f ) )
 	{
 		// Trigger feign death if the player has it prepped...
 		if ( m_Shared.IsFeignDeathReady() )
@@ -9766,6 +9783,19 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			}
 
 			TFGameRules()->DeathNotice( this, info, bFish ? ( iFishDamageOverride ? "fish_notice__arm" : "fish_notice" ) : "slap_notice" );
+		}
+	}
+
+	// Snowball
+	if ( pTFAttacker && info.GetInflictor() && FClassnameIs( info.GetInflictor(), "tf_projectile_snowball" ) )
+	{
+		if ( m_iHealth <= 0 )
+		{
+			TFGameRules()->BroadcastSound( 255, "Snowball.KillJingle" );
+		}
+		else
+		{
+			TFGameRules()->DeathNotice( this, info, "snowball_notice" );
 		}
 	}
 
@@ -10833,6 +10863,12 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		{
 			bBleed = false;
 		}
+	}
+
+	// Snowball bleed
+	if ( info.GetInflictor() && FClassnameIs( info.GetInflictor(), "tf_projectile_snowball" ) )
+	{
+		bBleed = false;
 	}
 
 	if ( bBleed && ( realDamage > 0.f ) )
