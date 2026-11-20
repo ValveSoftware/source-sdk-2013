@@ -227,11 +227,10 @@ void CVoiceStatus::DrawHeadLabels()
 			continue;
 
 		C_BasePlayer *pPlayer = dynamic_cast<C_BasePlayer*>(pClient);
-		if( !pPlayer )
+		if ( !pPlayer )
 			continue;
 
-		// Don't show an icon for dead or spectating players (ie: invisible entities).
-		if( pPlayer->IsPlayerDead() )
+		if ( !pPlayer->ShouldShowHeadLabel() )
 			continue;
 
 		// Place it 20 units above his head.
