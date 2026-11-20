@@ -182,6 +182,7 @@ public:
 	virtual void	OnCommand( const char *command );
 	virtual void	OnTick( void );
 	virtual void	FireGameEvent( IGameEvent *event );
+	virtual void	LevelShutdown(void) override;
 	void			InspectUpgradesForPlayer( C_TFPlayer *pPlayer ) { m_hPlayer = pPlayer; m_bInspectMode = true; m_bShowUpgradeMenu = true; }
 	C_TFPlayer		*GetPlayer( void ) { return m_hPlayer; }
 	void			PlayerInventoryChanged( C_TFPlayer *pPlayer );
