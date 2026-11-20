@@ -5181,7 +5181,7 @@ void C_TFPlayer::UpdatedMarkedForDeathEffect( bool bForceStop )
 	bool bShow = m_Shared.InCond( TF_COND_MARKEDFORDEATH ) || m_Shared.InCond( TF_COND_MARKEDFORDEATH_SILENT ) || m_Shared.InCond( TF_COND_PASSTIME_PENALTY_DEBUFF );
 
 	// force stop
-	if ( bForceStop || m_Shared.IsStealthed() || m_Shared.InCond( TF_COND_DISGUISED ) )
+	if ( bForceStop || m_Shared.IsStealthed() || m_Shared.InCond( TF_COND_DISGUISED ) || IsDormant() )
 	{
 		bShow = false;
 	}
@@ -5210,7 +5210,7 @@ void C_TFPlayer::UpdateRuneIcon( bool bForceStop /*= false */ )
 	 	return;
 
 	const RuneTypes_t carryingRuneType = m_Shared.GetCarryingRuneType();
-	const bool bAllowedToShow = ( m_Shared.IsCarryingRune() && !m_Shared.IsStealthed() );
+	const bool bAllowedToShow = ( m_Shared.IsCarryingRune() && !m_Shared.IsStealthed() && !IsDormant() );
 	int iTeam = IsEnemyPlayer() && m_Shared.InCond( TF_COND_DISGUISED ) ? m_Shared.GetDisguiseTeam() : GetTeamNumber();
 
 	if ( !bAllowedToShow || bForceStop || ( carryingRuneType != m_eDisplayingRuneIcon ) )
