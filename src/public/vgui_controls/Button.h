@@ -14,7 +14,7 @@
 
 #include <vgui/VGUI.h>
 #include <vgui/Dar.h>
-#include <Color.h>
+#include <color.h>
 #include <vgui_controls/Label.h>
 #include "vgui/MouseCode.h"
 

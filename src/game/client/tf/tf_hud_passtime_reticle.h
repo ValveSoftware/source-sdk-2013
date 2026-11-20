@@ -12,7 +12,7 @@
 #endif
 
 #include "utlvector.h"
-#include "Color.h"
+#include "color.h"
 #include "fx_quad.h"
 
 //-----------------------------------------------------------------------------

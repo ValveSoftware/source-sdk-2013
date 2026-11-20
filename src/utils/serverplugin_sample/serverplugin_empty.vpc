@@ -34,7 +34,7 @@ $Project "Server Plugin (Empty)"
 	$Folder	"Header Files"
 	{
 		$File	"$SRCDIR\public\tier0\basetypes.h"
-		$File	"$SRCDIR\public\Color.h"
+		$File	"$SRCDIR\public\color.h"
 		$File	"$SRCDIR\public\tier0\dbg.h"
 		$File	"$SRCDIR\public\eiface.h"
 		$File	"$SRCDIR\public\filesystem.h"

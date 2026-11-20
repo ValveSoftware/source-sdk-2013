@@ -10,7 +10,7 @@
 
 #include "cbase.h"
 #include "nav_colors.h"
-#include "Color.h"
+#include "color.h"
 
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"

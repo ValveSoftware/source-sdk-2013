@@ -8,7 +8,7 @@
 #include "hud_numericdisplay.h"
 #include "iclientmode.h"
 
-#include <Color.h>
+#include <color.h>
 #include <KeyValues.h>
 #include <vgui/ISurface.h>
 #include <vgui/ISystem.h>
