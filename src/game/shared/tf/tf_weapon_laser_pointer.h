@@ -37,6 +37,7 @@ public:
 #ifdef CLIENT_DLL
 	virtual int DrawModel( int flags );
 	virtual bool ShouldDraw( void ) { return false; }
+	virtual void ClientThink( void ) { return; }
 #endif
 };
 
