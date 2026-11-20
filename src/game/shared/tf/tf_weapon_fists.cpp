@@ -41,9 +41,44 @@ PRECACHE_WEAPON_REGISTER( tf_weapon_fists );
 // -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
+
+void CTFFists::Precache()
+{
+	BaseClass::Precache();
+
+	PrecacheScriptSound( "Weapon_BoxingGloves.CritHit" );
+}
+
 void CTFFists::ItemPreFrame( void )
 {
 	return BaseClass::ItemPreFrame();
+}
+
+bool CTFFists::UsesBoxingCritHitSound() const
+{
+	if ( GetFistType() == FISTTYPE_GRU )
+		return true;
+
+	// Killing Gloves of Boxing
+	float flCritBoostOnKillTime = 0.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flCritBoostOnKillTime, add_onkill_critboost_time );
+
+	if ( flCritBoostOnKillTime > 0.0f )
+		return true;
+
+	// Apoco-Fists
+	int iCritKillWillGib = 0;
+	CALL_ATTRIB_HOOK_INT( iCritKillWillGib, crit_kill_will_gib );
+
+	return iCritKillWillGib != 0;
+}
+
+const char *CTFFists::GetShootSound( int iIndex ) const
+{
+	if ( iIndex == MELEE_HIT && IsCurrentAttackACrit() && UsesBoxingCritHitSound() )
+		return "Weapon_BoxingGloves.CritHit";
+
+	return BaseClass::GetShootSound( iIndex );
 }
 
 // -----------------------------------------------------------------------------

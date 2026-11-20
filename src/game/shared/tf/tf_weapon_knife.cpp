@@ -81,6 +81,11 @@ void CTFKnife::ResetVars( void )
 	m_bAllowHolsterBecauseForced = false;
 }
 
+void CTFKnife::Precache( void )
+{
+	BaseClass::Precache();
+	PrecacheScriptSound( "Weapon_Assassin_Knife.Backstab" );
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: We are regenerating (ie: resupply cabinet)
@@ -241,6 +246,13 @@ void CTFKnife::PrimaryAttack( void )
 #endif
 
 	bool bSuccessfulBackstab = IsBackstab() && ( !m_hBackstabVictim->IsAlive() || m_hBackstabVictim->m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) );
+
+	if ( bSuccessfulBackstab )
+	{
+		CEconItemView *pItem = GetAttributeContainer()->GetItem();
+		if ( pItem && pItem->IsValid() && pItem->GetItemDefIndex() == 638 ) // The Sharp Dresser
+			pPlayer->EmitSound( "Weapon_Assassin_Knife.Backstab" );
+	}
 
 	ETFFlagType ignoreTypes[] = { TF_FLAGTYPE_PLAYER_DESTRUCTION };
 	if ( ShouldDisguiseOnBackstab() && bSuccessfulBackstab && !pPlayer->HasTheFlag( ignoreTypes, ARRAYSIZE( ignoreTypes ) ) )
