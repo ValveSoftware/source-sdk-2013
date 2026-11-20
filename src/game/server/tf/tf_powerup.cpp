@@ -293,6 +293,23 @@ const char *CTFPowerup::GetPowerupModel( void )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
+bool CTFPowerup::HasCustomPowerupModel( void)
+{
+	return m_iszModel != NULL_STRING
+		&& g_pFullFileSystem->FileExists( STRING( m_iszModel ), "GAME" );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+const char *CTFPowerup::GetPowerupModelOrFallback( const char *pszFallback )
+{
+	return HasCustomPowerupModel() ? STRING( m_iszModel ) : pszFallback;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 bool CTFPowerup::ItemCanBeTouchedByPlayer( CBasePlayer *pPlayer )
 {
 	if ( pPlayer == GetOwnerEntity() )

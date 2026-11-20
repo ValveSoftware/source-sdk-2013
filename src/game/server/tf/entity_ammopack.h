@@ -39,7 +39,7 @@ public:
 		if ( modelinfo )
 		{
 			SetModelIndexOverride( VISION_MODE_NONE, modelinfo->GetModelIndex( GetPowerupModel() ) );
-			SetModelIndexOverride( VISION_MODE_PYRO, modelinfo->GetModelIndex( TF_AMMOPACK_LARGE_BDAY ) );
+			SetModelIndexOverride( VISION_MODE_PYRO, modelinfo->GetModelIndex( GetPowerupModelOrFallback( TF_AMMOPACK_LARGE_BDAY ) ) );
 		}
 	}
 
@@ -72,7 +72,7 @@ public:
 		if ( modelinfo )
 		{
 			SetModelIndexOverride( VISION_MODE_NONE, modelinfo->GetModelIndex( GetPowerupModel() ) );
-			SetModelIndexOverride( VISION_MODE_PYRO, modelinfo->GetModelIndex( TF_AMMOPACK_SMALL_BDAY ) );
+			SetModelIndexOverride( VISION_MODE_PYRO, modelinfo->GetModelIndex( GetPowerupModelOrFallback( TF_AMMOPACK_SMALL_BDAY ) ) );
 		}
 	}
 
@@ -105,7 +105,7 @@ public:
 		if ( modelinfo )
 		{
 			SetModelIndexOverride( VISION_MODE_NONE, modelinfo->GetModelIndex( GetPowerupModel() ) );
-			SetModelIndexOverride( VISION_MODE_PYRO, modelinfo->GetModelIndex( TF_AMMOPACK_MEDIUM_BDAY ) );
+			SetModelIndexOverride( VISION_MODE_PYRO, modelinfo->GetModelIndex( GetPowerupModelOrFallback( TF_AMMOPACK_MEDIUM_BDAY ) ) );
 		}
 	}
 	 
