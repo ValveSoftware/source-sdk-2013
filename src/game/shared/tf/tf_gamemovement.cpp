@@ -563,6 +563,20 @@ bool CTFGameMovement::StunMove()
 
 	// Handle movement stuns
 	float flStunAmount = m_pTFPlayer->m_Shared.GetAmountStunned( TF_STUN_MOVEMENT );
+
+	// Don't let diagonal movement get around the stun
+	if ( flStunAmount || m_pTFPlayer->m_Shared.m_flLastMovementStunChange )
+	{
+		float flMaxMove = MAX( fabs( mv->m_flForwardMove ), fabs( mv->m_flSideMove ) );
+		float flMoveSqr = ( mv->m_flForwardMove * mv->m_flForwardMove ) + ( mv->m_flSideMove * mv->m_flSideMove );
+		if ( flMoveSqr > flMaxMove * flMaxMove )
+		{
+			float flRatio = flMaxMove / sqrt( flMoveSqr );
+			mv->m_flForwardMove *= flRatio;
+			mv->m_flSideMove *= flRatio;
+		}
+	}
+
 	// Lerp to the desired amount
 	if ( flStunAmount )
 	{
@@ -1798,12 +1812,16 @@ void CTFGameMovement::WalkMove( void )
 		}
 	}
 
+	float flOldSpeed = VectorLength( mv->m_vecVelocity );
 	Accelerate( vecWishDirection, flWishSpeed, flAccelerate );
 	Assert( mv->m_vecVelocity.z == 0.0f );
 
-	float flAdjustedMaxSpeed = /* ( m_pTFPlayer->m_Shared.GetAmountStunned( TF_STUN_MOVEMENT ) ) ? 
-		mv->m_flMaxSpeed *= ( 1.f - m_pTFPlayer->m_Shared.GetAmountStunned( TF_STUN_MOVEMENT ) ) : 
-		*/ mv->m_flMaxSpeed;
+	// Don't let stunned players accelerate past their wish speed
+	float flAdjustedMaxSpeed = mv->m_flMaxSpeed;
+	if ( m_pTFPlayer->m_Shared.GetAmountStunned( TF_STUN_MOVEMENT ) || m_pTFPlayer->m_Shared.m_flLastMovementStunChange )
+	{
+		flAdjustedMaxSpeed = MIN( flAdjustedMaxSpeed, MAX( flWishSpeed, flOldSpeed ) );
+	}
 
 	// Clamp the players speed in x,y.
 	float flNewSpeed = VectorLength( mv->m_vecVelocity );
