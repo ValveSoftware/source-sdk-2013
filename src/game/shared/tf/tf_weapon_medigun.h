@@ -168,6 +168,7 @@ private:
 
 public:
 
+	CHandle< CTFMedigunShield > GetMedigunShield( void ) { return m_hMedigunShield; }
 
 	CNetworkHandle( CBaseEntity, m_hHealingTarget );
 	CNetworkHandle( CBaseEntity, m_hLastHealingTarget );
