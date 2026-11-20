@@ -753,7 +753,12 @@ void CTFStunBall::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 			}
 		}
 
-		CTF_GameStats.Event_PlayerStunBall( pOwner, ( bMax ) ? true : false );
+		// Rate limit: only award Sandman stun bonus once per 10 seconds per player
+		if ( pOwner && gpGlobals->curtime >= pOwner->m_flNextSandmanStunBonusTime )
+		{
+			CTF_GameStats.Event_PlayerStunBall( pOwner, ( bMax ) ? true : false );
+			pOwner->m_flNextSandmanStunBonusTime = gpGlobals->curtime + 10.0f;
+		}
 
 		if ( pPlayer->GetWaterLevel() != WL_Eyes )
 		{
