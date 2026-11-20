@@ -68,15 +68,19 @@ protected:
 
 	// helper functions
 	virtual void SetLabelText(const char *textEntryName, const char *text);
+#if !defined( TF_CLIENT_DLL ) || !defined( HL2MP )
 	virtual void LoadMapPage( const char *mapName );
+#endif
 	// virtual void MakeTeamButtons( void );
 	
 	// command callbacks
 	// MESSAGE_FUNC_INT( OnTeamButton, "TeamButton", team );
 
 	IViewPort	*m_pViewPort;
+#if !defined( TF_CLIENT_DLL ) || !defined( HL2MP )
 	vgui::RichText *m_pMapInfo;
 	vgui::HTML *m_pMapInfoHTML;
+#endif
 //	int m_iNumTeams;
 	ButtonCode_t m_iJumpKey;
 	ButtonCode_t m_iScoreBoardKey;

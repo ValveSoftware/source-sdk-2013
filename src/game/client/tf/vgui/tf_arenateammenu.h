@@ -42,8 +42,6 @@ protected:
 	// command callbacks
 	virtual void OnCommand( const char *command );
 
-	virtual void LoadMapPage( const char *mapName );
-
 	virtual void OnTick( void );
 
 	virtual const char *GetName( void ) { return PANEL_ARENA_TEAM; }

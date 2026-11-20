@@ -19,7 +19,7 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
-			    
+
 
 //-----------------------------------------------------------------------------
 // Character conversions for C strings
@@ -86,7 +86,7 @@ CUtlCharConversion *GetNoEscCharConversion()
 //-----------------------------------------------------------------------------
 // Constructor
 //-----------------------------------------------------------------------------
-CUtlCStringConversion::CUtlCStringConversion( char nEscapeChar, const char *pDelimiter, int nCount, ConversionArray_t *pArray ) : 
+CUtlCStringConversion::CUtlCStringConversion( char nEscapeChar, const char *pDelimiter, int nCount, ConversionArray_t *pArray ) :
 	CUtlCharConversion( nEscapeChar, pDelimiter, nCount, pArray )
 {
 	memset( m_pConversion, 0x0, sizeof(m_pConversion) );
@@ -194,7 +194,7 @@ char CUtlCharConversion::FindConversion( const char *pString, int *pLength )
 //-----------------------------------------------------------------------------
 // constructors
 //-----------------------------------------------------------------------------
-CUtlBuffer::CUtlBuffer( int growSize, int initSize, int nFlags ) : 
+CUtlBuffer::CUtlBuffer( int growSize, int initSize, int nFlags ) :
 	m_Error(0)
 {
 	MEM_ALLOC_CREDIT();
@@ -240,7 +240,7 @@ CUtlBuffer::CUtlBuffer( const void *pBuffer, int nSize, int nFlags ) :
 
 
 //-----------------------------------------------------------------------------
-// Modifies the buffer to be binary or text; Blows away the buffer and the CONTAINS_CRLF value. 
+// Modifies the buffer to be binary or text; Blows away the buffer and the CONTAINS_CRLF value.
 //-----------------------------------------------------------------------------
 void CUtlBuffer::SetBufferType( bool bIsText, bool bContainsCRLF )
 {
@@ -380,7 +380,7 @@ void CUtlBuffer::Get( void* pMem, int size )
 
 
 //-----------------------------------------------------------------------------
-// This will get at least 1 byte and up to nSize bytes. 
+// This will get at least 1 byte and up to nSize bytes.
 // It will return the number of bytes actually read.
 //-----------------------------------------------------------------------------
 int CUtlBuffer::GetUpTo( void *pMem, int nSize )
@@ -394,10 +394,10 @@ int CUtlBuffer::GetUpTo( void *pMem, int nSize )
 		m_Get += nSize;
 		return nSize;
 	}
-	return 0;	
+	return 0;
 }
 
-	
+
 //-----------------------------------------------------------------------------
 // Eats whitespace
 //-----------------------------------------------------------------------------
@@ -441,7 +441,7 @@ bool CUtlBuffer::EatCPPComment()
 	return false;
 }
 
-	
+
 //-----------------------------------------------------------------------------
 // Peeks how much whitespace to eat
 //-----------------------------------------------------------------------------
@@ -700,7 +700,7 @@ void CUtlBuffer::GetLine( char* pLine, int nMaxChars )
 		m_Error |= GET_OVERFLOW;
 		return;
 	}
-	
+
 	// Strip off the terminating NULL
 	if ( nLen <= nMaxChars )
 	{
@@ -715,7 +715,7 @@ void CUtlBuffer::GetLine( char* pLine, int nMaxChars )
 	}
 }
 
-	
+
 //-----------------------------------------------------------------------------
 // This version of GetString converts \ to \\ and " to \", etc.
 // It also places " at the beginning and end of the string
@@ -884,12 +884,12 @@ const void* CUtlBuffer::PeekGet( int nMaxSize, int nOffset )
 //-----------------------------------------------------------------------------
 // Change where I'm reading
 //-----------------------------------------------------------------------------
-void CUtlBuffer::SeekGet( SeekType_t type, int offset )	
+void CUtlBuffer::SeekGet( SeekType_t type, int offset )
 {
 	switch( type )
 	{
-	case SEEK_HEAD:						 
-		m_Get = offset; 
+	case SEEK_HEAD:
+		m_Get = offset;
 		break;
 
 	case SEEK_CURRENT:
@@ -927,7 +927,7 @@ int CUtlBuffer::VaScanf( const char* pFmt, va_list list )
 	Assert( pFmt );
 	if ( m_Error || !IsText() )
 		return 0;
-	
+
 	int numScanned = 0;
 	int nLength;
 	char c;
@@ -993,7 +993,7 @@ int CUtlBuffer::VaScanf( const char* pFmt, va_list list )
 						m_Get += nBytesRead;
 					}
 					break;
-				
+
 				case 'x':
 					{
 						int* i = va_arg( list, int * );
@@ -1013,7 +1013,7 @@ int CUtlBuffer::VaScanf( const char* pFmt, va_list list )
 						m_Get += nBytesRead;
 					}
 					break;
-					
+
 				case 'u':
 					{
 						unsigned int* u = va_arg( list, unsigned int *);
@@ -1033,7 +1033,7 @@ int CUtlBuffer::VaScanf( const char* pFmt, va_list list )
 						m_Get += nBytesRead;
 					}
 					break;
-					
+
 				case 'f':
 					{
 						float* f = va_arg( list, float *);
@@ -1053,7 +1053,7 @@ int CUtlBuffer::VaScanf( const char* pFmt, va_list list )
 						m_Get += nBytesRead;
 					}
 					break;
-					
+
 				case 's':
 					{
 						char* s = va_arg( list, char * );
@@ -1252,7 +1252,7 @@ int CUtlBuffer::ParseToken( characterset_t *pBreaks, char *pTokenBuf, int nMaxLe
 		EatWhiteSpace();
 		if ( bParseComments )
 		{
-			if ( !EatCPPComment() )	
+			if ( !EatCPPComment() )
 				break;
 		}
 		else
@@ -1260,9 +1260,9 @@ int CUtlBuffer::ParseToken( characterset_t *pBreaks, char *pTokenBuf, int nMaxLe
 			break;
 		}
 	}
-	
+
 	char c = GetChar();
-	
+
 	// End of buffer
 	if ( c == 0 )
 		return -1;
@@ -1320,13 +1320,13 @@ int CUtlBuffer::ParseToken( characterset_t *pBreaks, char *pTokenBuf, int nMaxLe
 			break;
 		}
 	}
-	
+
 	pTokenBuf[nLen] = 0;
 	return nLen;
 }
 
 
-	
+
 //-----------------------------------------------------------------------------
 // Serialization
 //-----------------------------------------------------------------------------
@@ -1462,8 +1462,8 @@ void CUtlBuffer::PutDelimitedString( CUtlCharConversion *pConv, const char *pStr
 void CUtlBuffer::VaPrintf( const char* pFmt, va_list list )
 {
 	char temp[2048];
-#ifdef DBGFLAG_ASSERT	
-	int nLen = 
+#ifdef DBGFLAG_ASSERT
+	int nLen =
 #endif
 		Q_vsnprintf( temp, sizeof( temp ), pFmt, list );
 	Assert( nLen < 2048 );
@@ -1489,7 +1489,7 @@ void CUtlBuffer::SetOverflowFuncs( UtlBufferOverflowFunc_t getFunc, UtlBufferOve
 	m_PutOverflowFunc = putFunc;
 }
 
-	
+
 //-----------------------------------------------------------------------------
 // Calls the overflow functions
 //-----------------------------------------------------------------------------
@@ -1503,7 +1503,7 @@ bool CUtlBuffer::OnGetOverflow( int nSize )
 	return (this->*m_GetOverflowFunc)( nSize );
 }
 
-	
+
 //-----------------------------------------------------------------------------
 // Checks if a put is ok
 //-----------------------------------------------------------------------------
@@ -1531,7 +1531,7 @@ bool CUtlBuffer::GetOverflow( int nSize )
 {
 	return false;
 }
-	
+
 
 //-----------------------------------------------------------------------------
 // Checks if a put is ok
@@ -1552,13 +1552,13 @@ bool CUtlBuffer::CheckPut( int nSize )
 	return true;
 }
 
-void CUtlBuffer::SeekPut( SeekType_t type, int offset )	
+void CUtlBuffer::SeekPut( SeekType_t type, int offset )
 {
 	int nNextPut = m_Put;
 	switch( type )
 	{
-	case SEEK_HEAD:						 
-		nNextPut = offset; 
+	case SEEK_HEAD:
+		nNextPut = offset;
 		break;
 
 	case SEEK_CURRENT:
@@ -1624,7 +1624,7 @@ void CUtlBuffer::AddNullTermination( void )
 			}
 		}
 		m_nMaxPut = m_Put;
-	}		
+	}
 }
 
 
@@ -1708,8 +1708,8 @@ bool CUtlBuffer::ConvertCRLF( CUtlBuffer &outBuf )
 
 	Assert(	nPut + nPutDelta <= outBuf.TellMaxPut() );
 
-	outBuf.SeekGet( SEEK_HEAD, nGet + nGetDelta ); 
-	outBuf.SeekPut( SEEK_HEAD, nPut + nPutDelta ); 
+	outBuf.SeekGet( SEEK_HEAD, nGet + nGetDelta );
+	outBuf.SeekPut( SEEK_HEAD, nPut + nPutDelta );
 
 	return true;
 }
@@ -1767,7 +1767,7 @@ bool CUtlInplaceBuffer::InplaceGetLinePtr( char **ppszInBufferPtr, int *pnLineLe
 	// Set the out args
 	if ( ppszInBufferPtr )
 		*ppszInBufferPtr = pszLine;
-	
+
 	if ( pnLineLength )
 		*pnLineLength = nLineLen;
 
@@ -1778,7 +1778,7 @@ char * CUtlInplaceBuffer::InplaceGetLinePtr( void )
 {
 	char *pszLine = NULL;
 	int nLineLen = 0;
-	
+
 	if ( InplaceGetLinePtr( &pszLine, &nLineLen ) )
 	{
 		Assert( nLineLen >= 1 );
@@ -1799,7 +1799,7 @@ char * CUtlInplaceBuffer::InplaceGetLinePtr( void )
 				}
 			}
 			break;
-		
+
 		default:
 			Assert( pszLine[ nLineLen ] == 0 );
 			break;
@@ -1808,4 +1808,3 @@ char * CUtlInplaceBuffer::InplaceGetLinePtr( void )
 
 	return pszLine;
 }
-
