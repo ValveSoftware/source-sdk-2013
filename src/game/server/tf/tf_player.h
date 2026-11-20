@@ -1507,6 +1507,7 @@ public:
 
 	void AddCustomAttribute( const char *pszAttributeName, float flVal, float flDuration = -1.f );
 	void RemoveCustomAttribute( const char *pszAttributeName );
+	void ScriptReapplyPlayerUpgrades();
 	float ScriptGetCustomAttribute( const char *pName, float flFallbackValue );
 
 	int GetSkinOverride() const { return m_iPlayerSkinOverride; }
