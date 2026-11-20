@@ -7073,11 +7073,10 @@ void C_TFPlayer::UpdateIDTarget()
 	VectorMA( MainViewOrigin(), 10,   MainViewForward(), vecStart );
 
 	// If we're in observer mode, ignore our observer target. Otherwise, ignore ourselves.
-	if ( IsObserver() )
-	{
-		UTIL_TraceLine( vecStart, vecEnd, MASK_SOLID, GetObserverTarget(), COLLISION_GROUP_NONE, &tr );
-	}
-	else
+	C_BaseEntity *pPassEntity = IsObserver() ? GetObserverTarget() : this;
+	CTraceFilterSkipEnemyStealthedPlayers filter( pPassEntity, COLLISION_GROUP_NONE, GetTeamNumber() );
+	int nMask = MASK_SOLID;
+	if ( !IsObserver() )
 	{
 		// Add DEBRIS when a medic has revive (for tracing against revive markers)
 		int iReviveMedic = 0;
@@ -7087,23 +7086,26 @@ void C_TFPlayer::UpdateIDTarget()
 			iReviveMedic = 1;
 		}
 
-		int nMask = MASK_SOLID | CONTENTS_DEBRIS;
-		UTIL_TraceLine( vecStart, vecEnd, nMask, this, COLLISION_GROUP_NONE, &tr );
+		nMask |= CONTENTS_DEBRIS;
 	}
 
-	bool bIsEnemyPlayer = false;
+	UTIL_TraceLine( vecStart, vecEnd, nMask, &filter, &tr );
 
 	if ( tr.m_pEnt && tr.m_pEnt->IsPlayer() )
 	{
 		trace_t trShot;
 		// use the shot mask to replicate the medigun's trace
-		UTIL_TraceLine( vecStart, vecEnd, MASK_SHOT, this, COLLISION_GROUP_NONE, &trShot );
+		UTIL_TraceLine( vecStart, vecEnd, MASK_SHOT, &filter, &trShot );
 
 		if ( trShot.fraction != 1.0 && trShot.m_pEnt && trShot.m_pEnt->IsPlayer() && ( !tr.startsolid || tr.m_pEnt != trShot.m_pEnt ) )
 		{
 			tr = trShot;
 		}
+	}
 
+	bool bIsEnemyPlayer = false;
+	if ( tr.m_pEnt && tr.m_pEnt->IsPlayer() )
+	{
 		// It's okay to start solid against enemies because we sometimes press right against them
 		bIsEnemyPlayer = GetTeamNumber() != tr.m_pEnt->GetTeamNumber();
 	}
