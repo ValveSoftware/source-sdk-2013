@@ -90,6 +90,7 @@ private:
 	};
 	mutable CUtlVector< SupportedItem_t > m_vecSupportedItems;
 	mutable bool m_bHasPaintKitTool;
+	mutable const char* m_pszPaintKitOverride;
 };
 
 #ifdef CLIENT_DLL
