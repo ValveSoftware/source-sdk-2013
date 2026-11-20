@@ -37,9 +37,7 @@ public:
 	DECLARE_NETWORKCLASS(); 
 	DECLARE_PREDICTABLE();
 
-#ifndef CLIENT_DLL
 	DECLARE_ACTTABLE();
-#endif
 
 private:
 	
@@ -58,7 +56,6 @@ LINK_ENTITY_TO_CLASS( weapon_357, CWeapon357 );
 PRECACHE_WEAPON_REGISTER( weapon_357 );
 
 
-#ifndef CLIENT_DLL
 acttable_t CWeapon357::m_acttable[] = 
 {
 	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_PISTOL,					false },
@@ -75,7 +72,6 @@ acttable_t CWeapon357::m_acttable[] =
 
 IMPLEMENT_ACTTABLE( CWeapon357 );
 
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -118,7 +114,7 @@ void CWeapon357::PrimaryAttack( void )
 	pPlayer->DoMuzzleFlash();
 
 	SendWeaponAnim( ACT_VM_PRIMARYATTACK );
-	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+	ToHL2MPPlayer( pPlayer )->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 
 	m_flNextPrimaryAttack = gpGlobals->curtime + 0.75;
 	m_flNextSecondaryAttack = gpGlobals->curtime + 0.75;

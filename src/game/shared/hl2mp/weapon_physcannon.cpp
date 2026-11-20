@@ -900,7 +900,6 @@ END_PREDICTION_DATA()
 LINK_ENTITY_TO_CLASS( weapon_physcannon, CWeaponPhysCannon );
 PRECACHE_WEAPON_REGISTER( weapon_physcannon );
 
-#ifndef CLIENT_DLL
 
 acttable_t	CWeaponPhysCannon::m_acttable[] = 
 {
@@ -915,7 +914,6 @@ acttable_t	CWeaponPhysCannon::m_acttable[] =
 
 IMPLEMENT_ACTTABLE(CWeaponPhysCannon);
 
-#endif
 
 
 enum
