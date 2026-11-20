@@ -926,6 +926,7 @@ void CHudUpgradePanel::CreateItemModelPanel( int iLoadoutSlot )
 	// Get the item entity. We use the entity, not the item in the loadout, because we want
 	// the dynamic attributes that have already been purchases and attached.
 	CEconItemView *pCurItemData = CTFPlayerSharedUtils::GetEconItemViewByLoadoutSlot( m_hPlayer, iLoadoutSlot );
+	pItemPanel->SetModelIsHidden( iLoadoutSlot == LOADOUT_POSITION_PDA );
 	pItemPanel->SetItem( pCurItemData );
 	pItemPanel->SetGreyedOut( NULL );
 
@@ -956,7 +957,6 @@ void CHudUpgradePanel::CreateItemModelPanel( int iLoadoutSlot )
 		m_ItemSlotBuyPanels[ m_iVisibleItemPanels + 1 ].nSlot = iLoadoutSlot;
 
 		pItemPanel->SetName( szCommand );
-		pItemPanel->SetModelIsHidden( iLoadoutSlot == LOADOUT_POSITION_PDA );
 
 		SetBorderForItem( pItemPanel, false );
 
