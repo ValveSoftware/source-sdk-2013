@@ -8934,7 +8934,7 @@ bool C_TFPlayer::CanShowTeamMenu( void )
 	if ( IsHLTV() )
 		return false;
 
-	if ( TFGameRules() && ( TFGameRules()->IsCompetitiveMode() || TFGameRules()->IsPowerupMode() ) )
+	if ( TFGameRules() && TFGameRules()->IsCompetitiveMode() )
 	
 		return false;
 
