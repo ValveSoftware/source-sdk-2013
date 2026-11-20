@@ -351,6 +351,10 @@ public:
 
 	inline bool					ShouldWeaponSkinUseHighRes() const { return m_bWeaponSkinUseHighRes; }
 	inline bool					ShouldWeaponSkinUseLowRes() const { return m_bWeaponSkinUseLowRes; }
+
+	// Size of the last compositor request answered with the held texture, so the skin proxy doesn't repeat it every frame.
+	inline void					SetWeaponSkinRequestAnswered( int nWidth, int nHeight ) { m_bWeaponSkinRequestAnswered = true; m_nWeaponSkinAnsweredWidth = nWidth; m_nWeaponSkinAnsweredHeight = nHeight; }
+	inline bool					IsWeaponSkinRequestAnswered( int nWidth, int nHeight ) const { return m_bWeaponSkinRequestAnswered && m_nWeaponSkinAnsweredWidth == nWidth && m_nWeaponSkinAnsweredHeight == nHeight; }
 #endif // CLIENT_DLL
 
 	inline int					GetTeamNumber() const { return m_iTeamNumber; }
@@ -408,6 +412,9 @@ protected:
 	int		m_iLastGeneratedTeamSkin;
 	bool	m_bWeaponSkinUseHighRes;
 	bool	m_bWeaponSkinUseLowRes;
+	bool	m_bWeaponSkinRequestAnswered;
+	int		m_nWeaponSkinAnsweredWidth;
+	int		m_nWeaponSkinAnsweredHeight;
 #endif // CLIENT_DLL
 
 	CNetworkVar( int,		m_iTeamNumber );
