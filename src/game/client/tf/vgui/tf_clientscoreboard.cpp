@@ -1464,8 +1464,8 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 				}
 			}
 
-			// can only see class information if we're on the same team
-			if ( !AreEnemyTeams( g_PR->GetTeam( playerIndex ), localteam ) && !( localteam == TEAM_UNASSIGNED ) )
+			// can only see class information if we're on the same team, unless the game is over
+			if ( ( !AreEnemyTeams( g_PR->GetTeam( playerIndex ), localteam ) && !( localteam == TEAM_UNASSIGNED ) ) || ( TFGameRules() && TFGameRules()->State_Get() == GR_STATE_GAME_OVER ) )
 			{
 				// class name
 				if ( g_PR->IsConnected( playerIndex ) )
@@ -1978,7 +1978,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails()
 
 		int iClass = pSelectedPlayer->m_Shared.GetDesiredPlayerClassIndex();
 		int iTeam = pSelectedPlayer->GetTeamNumber();
-		if ( ( pLocalPlayer->InSameTeam( pSelectedPlayer ) || pLocalPlayer->GetTeamNumber() < FIRST_GAME_TEAM ) && 
+		if ( ( pLocalPlayer->InSameTeam( pSelectedPlayer ) || pLocalPlayer->GetTeamNumber() < FIRST_GAME_TEAM || ( TFGameRules() && TFGameRules()->State_Get() == GR_STATE_GAME_OVER ) ) &&
 			 iTeam >= FIRST_GAME_TEAM && iClass >= TF_FIRST_NORMAL_CLASS && iClass <= TF_LAST_NORMAL_CLASS )
 		{
 			if ( cl_hud_playerclass_use_playermodel.GetBool() )
