@@ -81,6 +81,11 @@ CTFDroppedWeapon::~CTFDroppedWeapon()
 		m_worldmodelStatTrakAddon->Remove();
 	}
 
+	if ( m_worldmodelBotkillerAddon )
+	{
+		m_worldmodelBotkillerAddon->Remove();
+	}
+
 	if ( m_effect )
 	{
 		ParticleProp()->StopEmission( m_effect );
@@ -149,6 +154,31 @@ void CTFDroppedWeapon::OnDataChanged( DataUpdateType_t updateType )
 
 	if ( updateType == DATA_UPDATE_CREATED )
 	{
+		CAttribute_String attrBotkillerModule;
+		if ( GetBotkillerModule( &m_Item, &attrBotkillerModule ) )
+		{
+			C_BaseAnimating *pBotkillerEnt = new class C_BaseAnimating;
+			if ( pBotkillerEnt->InitializeAsClientEntity( attrBotkillerModule.value().c_str(), RENDER_GROUP_OPAQUE_ENTITY ) )
+			{
+				pBotkillerEnt->AddEffects( EF_BONEMERGE );
+				pBotkillerEnt->AddEffects( EF_BONEMERGE_FASTCULL );
+				pBotkillerEnt->ForceClientSideAnimationOn();
+
+				m_worldmodelBotkillerAddon = pBotkillerEnt;
+				pBotkillerEnt->SetParent( this );
+				pBotkillerEnt->SetLocalOrigin( vec3_origin );
+				pBotkillerEnt->UpdatePartitionListEntry();
+				pBotkillerEnt->CollisionProp()->MarkPartitionHandleDirty();
+				pBotkillerEnt->UpdateVisibility();
+
+				pBotkillerEnt->m_nSkin = m_nSkin;
+			}
+			else
+			{
+				pBotkillerEnt->Release();
+			}
+		}
+
 		// if its startrak attach a model to it
 		if ( m_Item.GetItemID() != INVALID_ITEM_ID )
 		{

@@ -643,8 +643,14 @@ class CTFWeaponBase : public CBaseCombatWeapon, public IHasOwner, public IHasGen
 	void					RemoveViewmodelStatTrak( void );
 	void					RemoveWorldmodelStatTrak( void );
 
+	void					UpdateBotkillerModule( void );
+	void					RemoveViewmodelBotkiller( void );
+	void					RemoveWorldmodelBotkiller( void );
+
 	CHandle< CTFWeaponAttachmentModel > m_viewmodelStatTrakAddon;
 	CHandle< CTFWeaponAttachmentModel > m_worldmodelStatTrakAddon;
+	CHandle< CTFWeaponAttachmentModel > m_viewmodelBotkillerAddon;
+	CHandle< CTFWeaponAttachmentModel > m_worldmodelBotkillerAddon;
 
 	virtual const Vector&	GetViewmodelOffset() OVERRIDE;
 #endif
@@ -816,7 +822,7 @@ class CTFWeaponAttachmentModel : public CBaseAnimating, public IHasOwner
 {
 	DECLARE_CLASS( CTFWeaponAttachmentModel, CBaseAnimating );
 public:
-	CTFWeaponAttachmentModel() { m_bIsViewModelAttachment = false; m_hWeaponAssociatedWith = NULL; }
+	CTFWeaponAttachmentModel() { m_bIsViewModelAttachment = false; m_hWeaponAssociatedWith = NULL; m_nParticleSystemsCreated = 0; }
 
 	virtual bool ShouldDraw( void );
 	
@@ -827,6 +833,8 @@ public:
 	bool BIsViewModelAttachment() { return m_bIsViewModelAttachment; }
 	
 	virtual CBaseEntity	*GetOwnerViaInterface( void ) OVERRIDE { return m_hWeaponAssociatedWith.Get() ? m_hWeaponAssociatedWith.Get()->GetOwner() : NULL; }
+
+	int m_nParticleSystemsCreated;
 private:
 
 	bool m_bIsViewModelAttachment;
