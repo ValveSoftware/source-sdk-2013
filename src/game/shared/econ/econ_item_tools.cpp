@@ -978,7 +978,19 @@ bool CEconTool_Xifier::CanApplyTo( const IEconItemInterface *pTool, const IEconI
 	if ( m_ItemRarityRestriction != k_unItemRarity_Any )
 	{
 		uint8 unSubjectRarity = pToolSubject->GetRarity();
-		if ( unSubjectRarity == k_unItemRarity_Any || unSubjectRarity == 0 || unSubjectRarity > m_ItemRarityRestriction )
+		bool bSelfMadePaintKitStatClock = false;
+
+#if defined( TF_DLL ) || defined( TF_GC_DLL ) || defined( TF_CLIENT_DLL )
+		// Civilian Grade Stat Clocks can be applied to Self-Made
+		// paint-kit items regardless of their rarity
+		bSelfMadePaintKitStatClock =
+			pTool->GetItemDefIndex() == (item_definition_index_t)5843 &&
+			pToolSubject->GetQuality() == AE_SELFMADE;
+#endif
+
+		if ( unSubjectRarity == k_unItemRarity_Any ||
+			 unSubjectRarity == 0 ||
+			( unSubjectRarity > m_ItemRarityRestriction && !bSelfMadePaintKitStatClock ) )
 			return false;
 
 		if ( !GetStattrak( pToolSubject ) )
