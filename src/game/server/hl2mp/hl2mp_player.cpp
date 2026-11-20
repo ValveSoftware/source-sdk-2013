@@ -144,8 +144,6 @@ CHL2MP_Player::CHL2MP_Player() : m_PlayerAnimState( this )
 {
 	m_angEyeAngles.Init();
 
-	m_iLastWeaponFireUsercmd = 0;
-
 	m_flNextModelChangeTime = 0.0f;
 	m_flNextTeamChangeTime = 0.0f;
 
@@ -651,8 +649,6 @@ void CHL2MP_Player::FireBullets ( const FireBulletsInfo_t &info )
 		modinfo.m_iPlayerDamage = modinfo.m_flDamage = pWeapon->GetHL2MPWpnData().m_iPlayerDamage;
 	}
 
-	NoteWeaponFired();
-
 	BaseClass::FireBullets( modinfo );
 
 	// Move other players back to history positions based on local player's lag
@@ -669,24 +665,10 @@ void CHL2MP_Player::OnMyWeaponFired( CBaseCombatWeapon* weapon )
 	TheNextBots().OnWeaponFired( this, weapon );
 }
 
-void CHL2MP_Player::NoteWeaponFired( void )
-{
-	Assert( m_pCurrentCommand );
-	if( m_pCurrentCommand )
-	{
-		m_iLastWeaponFireUsercmd = m_pCurrentCommand->command_number;
-	}
-}
-
 extern ConVar sv_maxunlag;
 
 bool CHL2MP_Player::WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const
 {
-	// No need to lag compensate at all if we're not attacking in this command and
-	// we haven't attacked recently.
-	if ( !( pCmd->buttons & IN_ATTACK ) && (pCmd->command_number - m_iLastWeaponFireUsercmd > 5) )
-		return false;
-
 	// If this entity hasn't been transmitted to us and acked, then don't bother lag compensating it.
 	if ( pEntityTransmitBits && !pEntityTransmitBits->Get( pPlayer->entindex() ) )
 		return false;
