@@ -91,7 +91,7 @@ const char *g_ItemEventNames[] =
 	"item_used_tool",
 	"item_used_consumable",
 	"item_removed_attrib",
-	"item_changed_style"
+	"item_changed_style",
 
 	// NEW STORE EVENTS
 	"store2_entered",	// This gets written *in addition* to IE_STORE_ENTERED
@@ -99,8 +99,6 @@ const char *g_ItemEventNames[] =
 	// THESE STORED AS INTEGERS IN THE DATABASE SO THESE ARE NEW
 	"item_reset_counters",
 	"item_put_into_collection",
-
-	""	// IE_COUNT
 };
 
 COMPILE_TIME_ASSERT( ARRAYSIZE( g_ItemEventNames ) == IE_COUNT );

@@ -318,15 +318,15 @@ void CHL2MPBotManager::MaintainBotQuota()
 			const char* pszModel = "";
 			if ( iTeam == TEAM_UNASSIGNED )
 			{
-				pszModel = g_ppszRandomModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomModels ) )];
+				pszModel = g_ppszRandomModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomModels ) - 1 )];
 			}
 			else if ( iTeam == TEAM_COMBINE )
 			{
-				pszModel = g_ppszRandomCombineModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomCombineModels ) )];
+				pszModel = g_ppszRandomCombineModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomCombineModels ) - 1 )];
 			}
 			else
 			{
-				pszModel = g_ppszRandomCitizenModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomCitizenModels ) )];
+				pszModel = g_ppszRandomCitizenModels[RandomInt( 0, ARRAYSIZE( g_ppszRandomCitizenModels ) - 1 )];
 			}
 
 			// give the bot a proper name

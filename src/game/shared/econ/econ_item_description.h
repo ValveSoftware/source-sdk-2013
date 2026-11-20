@@ -97,7 +97,11 @@ protected:
 // This will be defined as either 1 or 0 depending on which project we're in. We test its value explicitly
 // rather than just checking defined() because otherwise failing to include this header file will silently
 // result in it appearing to be undefined.
-#define BUILD_ITEM_NAME_AND_DESC (defined( CLIENT_DLL ) || defined( GC_DLL ))
+#if defined( CLIENT_DLL ) || defined( GC_DLL )
+#define BUILD_ITEM_NAME_AND_DESC 1
+#else
+#define BUILD_ITEM_NAME_AND_DESC 0
+#endif
 
 #if BUILD_ITEM_NAME_AND_DESC
 //-----------------------------------------------------------------------------

@@ -1829,7 +1829,7 @@ public:
 		Assert( pAttrDef );
 		Assert( out_ps );
 
-		this->ConvertEconAttributeValueToString( pAttrDef, value, out_ps );
+		CSchemaAttributeTypeProtobufBase::ConvertEconAttributeValueToString( pAttrDef, value, out_ps );
 	}
 };
 
@@ -1877,7 +1877,7 @@ public:
 		Assert( pAttrDef );
 		Assert( out_ps );
 
-		this->ConvertEconAttributeValueToString( pAttrDef, value, out_ps );
+		CSchemaAttributeTypeProtobufBase::ConvertEconAttributeValueToString( pAttrDef, value, out_ps );
 	}
 };
 

@@ -72,7 +72,7 @@ CON_COMMAND( set_party_contract_progress_enabled, "Set whether or not you'd like
 		return;
 	}
 
-	bool bDisable = !atoi( args[ 1 ] ) != 0; // We're flipping the logic here!
+	bool bDisable = atoi( args[ 1 ] ) == 0; // We're flipping the logic here!
 
 	// Don't pester the GC
 	if ( GetQuestMapController().BBusyWithARequest() )

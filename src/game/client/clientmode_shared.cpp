@@ -165,11 +165,11 @@ CON_COMMAND_F( crash, "Crash the client. Optional parameter -- type of crash:\n 
 	switch (crashtype)
 	{
 		case 0:
-			dummy = *((int *) NULL);
+			dummy = *((volatile int *) NULL);
 			Msg("Crashed! %d\n", dummy); // keeps dummy from optimizing out
 			break;
 		case 1:
-			*((int *)NULL) = 42;
+			*((volatile int *)NULL) = 42;
 			break;
 #if defined( _X360 )
 		case 2:

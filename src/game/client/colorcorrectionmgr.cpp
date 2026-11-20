@@ -100,7 +100,7 @@ void CColorCorrectionMgr::SetResetable( ClientCCHandle_t h, bool bResetable )
 	// NOTE: Setting stuff to be not resettable doesn't work when in queued mode
 	// because the logic that sets m_nActiveWeightCount to 0 in ResetColorCorrectionWeights
 	// is no longer valid when stuff is not resettable.
-	Assert( bResetable || !g_pMaterialSystem->GetThreadMode() == MATERIAL_SINGLE_THREADED );
+	Assert( bResetable || g_pMaterialSystem->GetThreadMode() == MATERIAL_SINGLE_THREADED );
 	if ( h != INVALID_CLIENT_CCHANDLE )
 	{
 		CMatRenderContextPtr pRenderContext( g_pMaterialSystem );

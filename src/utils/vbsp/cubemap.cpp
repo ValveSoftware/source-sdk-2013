@@ -291,7 +291,7 @@ void CreateDefaultCubemaps( bool bHDR )
 
 	IVTFTexture *pSrcVTFTextures[6];
 
-	if( !skyboxMaterialName )
+	if( !skyboxMaterialName[0] )
 	{
 		if( s_DefaultCubemapNames.Count() )
 		{

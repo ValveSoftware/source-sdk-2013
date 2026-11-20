@@ -79,7 +79,7 @@ inline int GetServerTickCount()
 	RagdollSimulationFrame_t* pNew = new RagdollSimulationFrame_t();
 	pNew->pPositions = new Vector[ nNumBones ];
 	pNew->pAngles = new QAngle[ nNumBones ];
-	gs_nBytesAllocated += sizeof( pNew ) + nNumBones * ( sizeof( Vector ) + sizeof( QAngle ) );
+	gs_nBytesAllocated += sizeof( *pNew ) + nNumBones * ( sizeof( Vector ) + sizeof( QAngle ) );
 	return pNew;
 }
 

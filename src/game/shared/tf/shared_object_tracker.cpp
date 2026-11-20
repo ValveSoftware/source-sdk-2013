@@ -566,11 +566,5 @@ void CSOTrackerManager::DBG_SpewPendingCommits()
 	}
 }
 
-#if ( defined( DEBUG ) || defined( STAGING_ONLY ) ) && defined( GAME_DLL )
-CON_COMMAND( tf_quests_spew_unacknowledged_commits, "Spews info on all unacknowledged commits" )
-{
-//	QuestObjectiveManager()->DBG_SpewPendingCommits();
-}
-#endif
 
 #endif

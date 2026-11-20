@@ -72,7 +72,7 @@ void C_EntityDissolve::GetRenderBounds( Vector& theMins, Vector& theMaxs )
 	else
 	{
 		theMins = GetAbsOrigin();
-		theMaxs = theMaxs;
+		theMaxs = theMins;
 	}
 }
 

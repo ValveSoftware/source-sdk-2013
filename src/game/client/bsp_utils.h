@@ -5,6 +5,7 @@
 // $NoKeywords: $
 //===========================================================================//
 
+#pragma once
 #include "../utils/common/bsplib.h"
 #include "ibsppack.h"
 

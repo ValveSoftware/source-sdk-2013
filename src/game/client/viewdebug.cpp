@@ -66,7 +66,7 @@ public:
 		s_bCanAccessCurrentView = true;
 		Frustum frustum;
 		render->Push3DView( *this, 0, NULL, frustum );
-		BuildWorldRenderLists( this, true, true );
+		BuildWorldRenderLists( true, true, true );
 		render->PopView( frustum );
 		s_bCanAccessCurrentView = false;
 

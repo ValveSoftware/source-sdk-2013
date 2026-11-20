@@ -790,7 +790,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 
 	if ( !bSpecialScore && !bTeamLeaderKilled )
 	{
-		if ( !m_DeathNotices[iMsg].iconDeath && m_DeathNotices[iMsg].szIcon )
+		if ( !m_DeathNotices[iMsg].iconDeath && m_DeathNotices[iMsg].szIcon[0] )
 		{
 			// Try and find the death identifier in the icon list
 			// On consoles, we flip usage of the inverted icon to make it more visible

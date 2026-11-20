@@ -2521,9 +2521,10 @@ void KeyValues::RecursiveLoadFromBuffer( char const *resourceName, CUtlBuffer &b
 			char* pFEnd;	// pos where float scan ended
 			const char* pSEnd = value + len ; // pos where token ends
 
-			int ival = strtol( value, &pIEnd, 10 );
+			long lval = strtol( value, &pIEnd, 10 );
+			int ival = (int)lval;
 			float fval = (float)strtod( value, &pFEnd );
-			bool bOverflow = ( ival == LONG_MAX || ival == LONG_MIN ) && errno == ERANGE;
+			bool bOverflow = ( lval != ival ) || ( ( lval == LONG_MAX || lval == LONG_MIN ) && errno == ERANGE );
 #ifdef POSIX
 			// strtod supports hex representation in strings under posix but we DON'T
 			// want that support in keyvalues, so undo it here if needed

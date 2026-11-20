@@ -5067,7 +5067,7 @@ float Studio_GetController( const CStudioHdr *pStudioHdr, int iController, float
 // Output: 	fills in an array
 //-----------------------------------------------------------------------------
 
-void Studio_CalcDefaultPoseParameters( const CStudioHdr *pStudioHdr, float flPoseParameter[], int nCount )
+void Studio_CalcDefaultPoseParameters( const CStudioHdr *pStudioHdr, float flPoseParameter[MAXSTUDIOPOSEPARAM], int nCount )
 {
 	int nPoseCount = pStudioHdr->GetNumPoseParameters();
 	int nNumParams = MIN( nCount, MAXSTUDIOPOSEPARAM );

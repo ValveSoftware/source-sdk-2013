@@ -265,8 +265,8 @@ bool CAI_LeadBehavior::GetClosestPointOnRoute( const Vector &targetPos, Vector *
 	}
 
 	// Find the nearest node to the target (going forward)
-	float		flNearestDist2D	= 999999999;
-	float		flNearestDist	= 999999999;
+	float		flNearestDist2D	= 999999999.0f;
+	float		flNearestDist	= 999999999.0f;
 	float		flPathDist, flPathDist2D;
 
 	Vector vecNearestPoint(0, 0, 0);

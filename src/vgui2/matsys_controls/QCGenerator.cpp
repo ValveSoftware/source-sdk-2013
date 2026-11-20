@@ -600,11 +600,11 @@ void CQCGenerator::InitializeSMDPaths( const char *pszPath, const char *pszScene
 {
 	V_strcpy_safe( m_QCInfo_t.pszSceneName, pszScene );
 
-	FileFindHandle_t *pFileHandle = new FileFindHandle_t();
+	FileFindHandle_t findHandle;
 
 	g_pFullFileSystem->AddSearchPath( pszPath, "SMD_DIR" );
 	
-	const char *filename = g_pFullFileSystem->FindFirst( "*.smd", pFileHandle );	
+	const char *filename = g_pFullFileSystem->FindFirst( "*.smd", &findHandle );	
 
 	bool bFoundReference = false;
 	bool bFoundCollision = false;
@@ -641,15 +641,16 @@ void CQCGenerator::InitializeSMDPaths( const char *pszPath, const char *pszScene
 				bFoundLOD = true;
 				//we found an LOD smd.
 				char lodName[255];
-				Q_snprintf( lodName, Q_strlen( lodName ), "lod%d", currentLOD );
+				V_sprintf_safe( lodName, "lod%d", currentLOD );
 				//we found an LOD
 				KeyValues *newKv = new KeyValues( lodName, "SMD", filename, "LOD", "10" );
 				m_pLODPanel->AddItem( newKv, currentLOD, false, false );
 				currentLOD++;
 			}
 		}
-		filename = g_pFullFileSystem->FindNext( *pFileHandle );
+		filename = g_pFullFileSystem->FindNext( findHandle );
 	}
+	g_pFullFileSystem->FindClose( findHandle );
 	char pszMessage[2048] = "";
 	char pszRefMessage[1024] = "";
 	char pszColMessage[1024] = "";

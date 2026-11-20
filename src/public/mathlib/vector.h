@@ -213,8 +213,11 @@ private:
 
 FORCEINLINE void NetworkVarConstruct( Vector &v ) { v.Zero(); }
 
-
-#define USE_M64S ( ( !defined( _X360 ) ) )
+#if defined( _X360 )
+#define USE_M64S 0
+#else
+#define USE_M64S 1
+#endif
 
 
 

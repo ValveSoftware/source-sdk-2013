@@ -787,7 +787,7 @@ void CPopulationManager::UpdateObjectiveResource( void )
 
 		int i = 0;
 		bool bHasEngineer = false;
-		for ( i; i < MVM_CLASS_TYPES_PER_WAVE_MAX_NEW && i < wave->GetNumClassTypes(); ++i )
+		for ( ; i < MVM_CLASS_TYPES_PER_WAVE_MAX_NEW && i < wave->GetNumClassTypes(); ++i )
 		{
 			if ( !bHasEngineer )
 			{
@@ -814,7 +814,7 @@ void CPopulationManager::UpdateObjectiveResource( void )
 			}
 		}
 
-		for ( i; i < MVM_CLASS_TYPES_PER_WAVE_MAX_NEW; ++i )
+		for ( ; i < MVM_CLASS_TYPES_PER_WAVE_MAX_NEW; ++i )
 		{
 			TFObjectiveResource()->SetMannVsMachineWaveClassCount( i, 0 );
 			TFObjectiveResource()->SetMannVsMachineWaveClassName( i, NULL_STRING );

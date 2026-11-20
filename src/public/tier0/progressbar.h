@@ -4,8 +4,8 @@
 //
 //=============================================================================//
 
-#ifndef PROGRESSBAR_H
-#define PROGRESSBAR_H
+#ifndef TIER0_PROGRESSBAR_H
+#define TIER0_PROGRESSBAR_H
 #ifdef _WIN32
 #pragma once
 #endif

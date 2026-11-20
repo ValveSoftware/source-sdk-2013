@@ -348,7 +348,7 @@ void CHudDeathNotice::FireGameEvent( IGameEvent * event )
 	{
 		Q_snprintf( sDeathMsg, sizeof( sDeathMsg ), "%s killed %s", deathMsg.Killer.szName, deathMsg.Victim.szName );
 
-		if ( fullkilledwith && *fullkilledwith && (*fullkilledwith > 13 ) )
+		if ( *fullkilledwith && (*fullkilledwith > 13 ) )
 		{
 			Q_strncat( sDeathMsg, VarArgs( " with %s.\n", fullkilledwith+6 ), sizeof( sDeathMsg ), COPY_ALL_CHARACTERS );
 		}

@@ -20,6 +20,7 @@ enum NormalDecodeMode_t
 
 // Forward declaration
 #ifdef _WIN32
+enum _D3DFORMAT : int;
 typedef enum _D3DFORMAT D3DFORMAT;
 #endif
 

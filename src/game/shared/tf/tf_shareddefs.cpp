@@ -1730,7 +1730,7 @@ wpntranslation_class_weapons_t pszWpnEntTranslationList[] =
 			"",			// TF_CLASS_MEDIC,
 			"",			// TF_CLASS_HEAVYWEAPONS
 			"",			// TF_CLASS_PYRO,
-			""			// TF_CLASS_SPY,
+			"",			// TF_CLASS_SPY,
 			"",			// TF_CLASS_ENGINEER,		
 		}
 	},

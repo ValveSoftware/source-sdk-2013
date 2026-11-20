@@ -492,7 +492,7 @@ typedef unsigned int *LPDWORD;
 #define DebuggerBreak()  raise(SIGTRAP)
 #endif
 #endif
-#define	DebuggerBreakIfDebugging() if ( !Plat_IsInDebugSession() ) ; else DebuggerBreak()
+#define	DebuggerBreakIfDebugging() do { if ( Plat_IsInDebugSession() ) DebuggerBreak(); } while ( 0 )
 
 #define	DebuggerBreakIfDebugging_StagingOnly()
 

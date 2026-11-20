@@ -2151,8 +2151,8 @@ void CBaseCombatCharacter::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 		// If SF_NPC_LONG_RANGE spawn flags is set let weapon work from any distance
 		if ( HasSpawnFlags(SF_NPC_LONG_RANGE) )
 		{
-			m_hActiveWeapon->m_fMaxRange1 = 999999999;
-			m_hActiveWeapon->m_fMaxRange2 = 999999999;
+			m_hActiveWeapon->m_fMaxRange1 = 999999999.0f;
+			m_hActiveWeapon->m_fMaxRange2 = 999999999.0f;
 		}
 	}
 
