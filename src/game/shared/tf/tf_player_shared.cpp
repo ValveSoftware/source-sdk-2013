@@ -7340,41 +7340,42 @@ void CTFPlayerShared::OnAddOverhealed( void )
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::OnAddStunned( void )
 {
-	if ( IsControlStunned() || IsLoserStateStunned() )
+	if ( GetActiveStunInfo() )
 	{
+		int iStunFlags = GetStunFlags();
 #ifdef CLIENT_DLL
-		if ( GetActiveStunInfo() )
+		if ( !m_pOuter->m_pStunnedEffect && !( iStunFlags & TF_STUN_NO_EFFECTS ) &&
+			 ( iStunFlags & ( TF_STUN_CONTROLS | TF_STUN_LOSER_STATE | TF_STUN_EFFECTS ) ) )
 		{
-			if ( !m_pOuter->m_pStunnedEffect && !( GetActiveStunInfo()->iStunFlags & TF_STUN_NO_EFFECTS ) )
+			if ( ( iStunFlags & TF_STUN_BY_TRIGGER ) || InCond( TF_COND_HALLOWEEN_BOMB_HEAD ) )
 			{
-				if ( ( GetActiveStunInfo()->iStunFlags & TF_STUN_BY_TRIGGER ) || InCond( TF_COND_HALLOWEEN_BOMB_HEAD ) )
-				{
-					const char* pEffectName = "yikes_fx";
-					m_pOuter->m_pStunnedEffect = m_pOuter->ParticleProp()->Create( pEffectName, PATTACH_POINT_FOLLOW, "head" );
-				}
-				else
-				{
-					const char* pEffectName = "conc_stars";
-					m_pOuter->m_pStunnedEffect = m_pOuter->ParticleProp()->Create( pEffectName, PATTACH_POINT_FOLLOW, "head" );
-				}
+				const char* pEffectName = "yikes_fx";
+				m_pOuter->m_pStunnedEffect = m_pOuter->ParticleProp()->Create( pEffectName, PATTACH_POINT_FOLLOW, "head" );
+			}
+			else
+			{
+				const char* pEffectName = "conc_stars";
+				m_pOuter->m_pStunnedEffect = m_pOuter->ParticleProp()->Create( pEffectName, PATTACH_POINT_FOLLOW, "head" );
 			}
 		}
 #endif
-
-		// Notify our weapon that we have been stunned.
-		CTFWeaponBase* pWpn = m_pOuter->GetActiveTFWeapon();
-		if ( pWpn )
+		if ( iStunFlags & ( TF_STUN_CONTROLS | TF_STUN_LOSER_STATE ) )
 		{
-			pWpn->OnControlStunned();
-		}
+			// Notify our weapon that we have been stunned.
+			CTFWeaponBase* pWpn = m_pOuter->GetActiveTFWeapon();
+			if ( pWpn )
+			{
+				pWpn->OnControlStunned();
+			}
 
-		if ( InCond( TF_COND_SHIELD_CHARGE ) )
-		{
-			SetDemomanChargeMeter( 0 );
-			RemoveCond( TF_COND_SHIELD_CHARGE );
-		}
+			if ( InCond( TF_COND_SHIELD_CHARGE ) )
+			{
+				SetDemomanChargeMeter( 0 );
+				RemoveCond( TF_COND_SHIELD_CHARGE );
+			}
 
-		m_pOuter->TeamFortress_SetSpeed();
+			m_pOuter->TeamFortress_SetSpeed();
+		}
 	}
 }
 
@@ -9876,8 +9877,10 @@ void CTFPlayerShared::StunPlayer( float flTime, float flReductionAmount, int iSt
 	}
 
 #ifdef GAME_DLL
+	int iActiveStunFlags = GetActiveStunInfo()->iStunFlags;
+
 	// Add in extra time when TF_STUN_CONTROLS
-	if ( GetActiveStunInfo()->iStunFlags & TF_STUN_CONTROLS )
+	if ( iActiveStunFlags & TF_STUN_CONTROLS )
 	{
 		if ( !InCond( TF_COND_HALLOWEEN_KART ) )
 		{
@@ -9890,9 +9893,13 @@ void CTFPlayerShared::StunPlayer( float flTime, float flReductionAmount, int iSt
 	// Update old system for networking
 	UpdateLegacyStunSystem();
 	
-	if ( GetActiveStunInfo()->iStunFlags & TF_STUN_CONTROLS || GetActiveStunInfo()->iStunFlags & TF_STUN_LOSER_STATE )
+	if ( iActiveStunFlags & ( TF_STUN_CONTROLS | TF_STUN_LOSER_STATE ) )
 	{
 		m_pOuter->m_angTauntCamera = m_pOuter->EyeAngles();
+	}
+
+	if ( iActiveStunFlags & ( TF_STUN_CONTROLS | TF_STUN_LOSER_STATE | TF_STUN_EFFECTS ) )
+	{
 		m_pOuter->SpeakConceptIfAllowed( MP_CONCEPT_STUNNED );
 		if ( pAttacker )
 		{
@@ -9900,12 +9907,9 @@ void CTFPlayerShared::StunPlayer( float flTime, float flReductionAmount, int iSt
 		}
 	}
 
-	if ( ( GetActiveStunInfo()->iStunFlags & TF_STUN_SOUND ) ||
-		 ( GetActiveStunInfo()->iStunFlags & TF_STUN_SPECIAL_SOUND ) ||
-		 ( GetActiveStunInfo()->iStunFlags & TF_STUN_CONTROLS ) ||
-		 ( GetActiveStunInfo()->iStunFlags & TF_STUN_LOSER_STATE ) )
+	if ( iActiveStunFlags & ( TF_STUN_CONTROLS | TF_STUN_SPECIAL_SOUND | TF_STUN_LOSER_STATE | TF_STUN_SOUND | TF_STUN_EFFECTS ) )
 	{
-		m_pOuter->StunSound( pAttacker, GetActiveStunInfo()->iStunFlags, iOldStunFlags );
+		m_pOuter->StunSound( pAttacker, iActiveStunFlags, iOldStunFlags );
 	}
 
 	// Event for achievements.
@@ -9918,12 +9922,12 @@ void CTFPlayerShared::StunPlayer( float flTime, float flReductionAmount, int iSt
 		}
 		event->SetInt( "victim", m_pOuter->GetUserID() );
 		event->SetBool( "victim_capping", m_pOuter->IsCapturingPoint() );
-		event->SetBool( "big_stun", ( GetActiveStunInfo()->iStunFlags & TF_STUN_SPECIAL_SOUND ) != 0 );
+		event->SetBool( "big_stun", ( iActiveStunFlags & TF_STUN_SPECIAL_SOUND ) != 0 );
 		gameeventmanager->FireEvent( event );
 	}
 
 	// Clear off all taunts, expressions, and scenes.
-	if ( ( GetActiveStunInfo()->iStunFlags & TF_STUN_CONTROLS) == TF_STUN_CONTROLS || ( GetActiveStunInfo()->iStunFlags & TF_STUN_LOSER_STATE) == TF_STUN_LOSER_STATE )
+	if ( iActiveStunFlags & ( TF_STUN_CONTROLS | TF_STUN_LOSER_STATE ) )
 	{
 		m_pOuter->StopTaunt();
 		m_pOuter->ClearExpression();
