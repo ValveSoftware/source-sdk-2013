@@ -4588,7 +4588,7 @@ void CTFPlayerShared::OnRemoveRocketPack( void )
 void CTFPlayerShared::OnRemoveBurningPyro( void )
 {
 #ifdef GAME_DLL
-	if ( m_pOuter->IsPlayerClass( TF_CLASS_PYRO) && InCond( TF_COND_BURNING ) )
+	if ( InCond( TF_COND_BURNING ) )
 	{
 		RemoveCond( TF_COND_BURNING );
 	}
@@ -6666,58 +6666,7 @@ void CTFPlayerShared::Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon, float 
 #endif // DEBUG
 	}
 
-	int bAfterburnImmunity = bVictimIsImmunePyro;
-
-	// Check my weapon
-	if ( !bAfterburnImmunity )
-	{
-		int nAfterburnImmunity = 0;
-		CTFWeaponBase *pMyWeapon = GetActiveTFWeapon();
-		if ( pMyWeapon )
-		{
-			CALL_ATTRIB_HOOK_INT_ON_OTHER( pMyWeapon, nAfterburnImmunity, afterburn_immunity );
-		}
-
-		bAfterburnImmunity |= nAfterburnImmunity != 0;
-	}
-
-	// STAGING_SPY
-	if ( InCond( TF_COND_AFTERBURN_IMMUNE ) )
-	{
-		bAfterburnImmunity = true;
-	}
-
-	// Check demo shield
-	if ( !bAfterburnImmunity && IsShieldEquipped() )
-	{
-		int nAfterburnImmunity = 0;
-		CTFWearableDemoShield *pWearableShield = GetEquippedDemoShield( m_pOuter );
-		if ( pWearableShield && !pWearableShield->IsDisguiseWearable() )
-		{
-			CALL_ATTRIB_HOOK_INT_ON_OTHER( pWearableShield, nAfterburnImmunity, afterburn_immunity );
-		}
-
-		bAfterburnImmunity |= nAfterburnImmunity != 0;
-	}
-	
-	// Check sniper shields (e.g. Darwin's)
-	if ( !bAfterburnImmunity && m_pOuter->IsPlayerClass( TF_CLASS_SNIPER ) )
-	{
-		for ( int i = 0; i < m_pOuter->GetNumWearables(); ++i )
-		{
-			CTFWearable *pWearableItem = dynamic_cast< CTFWearable* >( m_pOuter->GetWearable( i ) );
-			if ( !pWearableItem )
-				continue;
-
-			int nAfterburnImmunity = 0;
-			CALL_ATTRIB_HOOK_INT_ON_OTHER( pWearableItem, nAfterburnImmunity, afterburn_immunity );
-			if ( nAfterburnImmunity )
-			{
-				bAfterburnImmunity = true;
-				break;
-			}
-		}
-	}
+	int bAfterburnImmunity = bVictimIsImmunePyro || ( IsImmuneToAfterburn() && !InCond( TF_COND_BURNING_PYRO ) );
 
 	// check afterburn duration
 	float flFlameLife = pWeapon ? pWeapon->GetAfterburnRateOnHit() : 0.f;
@@ -6899,6 +6848,11 @@ void CTFPlayerShared::OnRemoveBurning( void )
 	if ( InCond( TF_COND_HEALING_DEBUFF ) )
 	{
 		RemoveCond( TF_COND_HEALING_DEBUFF );
+	}
+
+	if ( InCond( TF_COND_BURNING_PYRO ) )
+	{
+		RemoveCond( TF_COND_BURNING_PYRO );
 	}
 #endif
 }
@@ -8149,6 +8103,67 @@ bool CTFPlayerShared::IsImmuneToPushback( void ) const
 	}
 
 	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CTFPlayerShared::IsImmuneToAfterburn( void ) const
+{
+	int bAfterburnImmunity = 0;
+
+	// Check my weapon
+	if ( !bAfterburnImmunity )
+	{
+		int nAfterburnImmunity = 0;
+		CTFWeaponBase *pMyWeapon = GetActiveTFWeapon();
+		if ( pMyWeapon )
+		{
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pMyWeapon, nAfterburnImmunity, afterburn_immunity );
+		}
+
+		bAfterburnImmunity |= nAfterburnImmunity != 0;
+	}
+
+	// STAGING_SPY
+	if ( InCond( TF_COND_AFTERBURN_IMMUNE ) )
+	{
+		bAfterburnImmunity = true;
+	}
+
+	// Check demo shield
+	if ( !bAfterburnImmunity && IsShieldEquipped() )
+	{
+		int nAfterburnImmunity = 0;
+		CTFWearableDemoShield *pWearableShield = GetEquippedDemoShield( m_pOuter );
+		if ( pWearableShield && !pWearableShield->IsDisguiseWearable() )
+		{
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pWearableShield, nAfterburnImmunity, afterburn_immunity );
+		}
+
+		bAfterburnImmunity |= nAfterburnImmunity != 0;
+	}
+
+	// Check sniper shields (e.g. Darwin's)
+	if ( !bAfterburnImmunity && m_pOuter->IsPlayerClass( TF_CLASS_SNIPER ) )
+	{
+		for ( int i = 0; i < m_pOuter->GetNumWearables(); ++i )
+		{
+			CTFWearable *pWearableItem = dynamic_cast< CTFWearable* >( m_pOuter->GetWearable( i ) );
+			if ( !pWearableItem )
+				continue;
+
+			int nAfterburnImmunity = 0;
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pWearableItem, nAfterburnImmunity, afterburn_immunity );
+			if ( nAfterburnImmunity )
+			{
+				bAfterburnImmunity = true;
+				break;
+			}
+		}
+	}
+
+	return bAfterburnImmunity;
 }
 
 //-----------------------------------------------------------------------------

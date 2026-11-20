@@ -342,7 +342,7 @@ public:
 			float flBurnDuration = tf_fireball_burn_duration.GetFloat();
 
 			// This burn affects pyros, too, but only half as long
-			if ( pTFPlayer->IsPlayerClass( TF_CLASS_PYRO ) )
+			if ( pTFPlayer->IsPlayerClass( TF_CLASS_PYRO ) || pTFPlayer->m_Shared.IsImmuneToAfterburn() )
 			{
 				pTFPlayer->m_Shared.AddCond( TF_COND_BURNING_PYRO, ( flBurnDuration * 0.5f ), pOwner );
 			}
