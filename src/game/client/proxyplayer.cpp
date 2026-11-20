@@ -250,6 +250,91 @@ EXPOSE_INTERFACE( CPlayerPositionProxy, IMaterialProxy, "PlayerPosition" IMATERI
 
 
 //-----------------------------------------------------------------------------
+// Returns the player velocity
+//-----------------------------------------------------------------------------
+class CPlayerVelocityProxy : public CResultProxy
+{
+public:
+	bool Init(IMaterial* pMaterial, KeyValues* pKeyValues);
+	void OnBind(void* pC_BaseEntity);
+
+private:
+	float	m_Factor;
+};
+
+bool CPlayerVelocityProxy::Init(IMaterial* pMaterial, KeyValues* pKeyValues)
+{
+	if (!CResultProxy::Init(pMaterial, pKeyValues))
+		return false;
+
+	m_Factor = pKeyValues->GetFloat("scale", 0.005);
+	return true;
+}
+
+void CPlayerVelocityProxy::OnBind(void* pC_BaseEntity)
+{
+	C_BaseEntity* pPlayer = C_BasePlayer::GetLocalPlayer();
+	if (!pPlayer)
+		return;
+
+	Assert(m_pResult);
+	Vector res;
+	VectorMultiply(pPlayer->GetAbsVelocity(), m_Factor, res);
+	m_pResult->SetVecValue(res.Base(), 3);
+
+	if (ToolsEnabled())
+	{
+		ToolFramework_RecordMaterialParams(GetMaterial());
+	}
+}
+
+EXPOSE_INTERFACE(CPlayerVelocityProxy, IMaterialProxy, "PlayerVelocity" IMATERIAL_PROXY_INTERFACE_VERSION);
+
+//-----------------------------------------------------------------------------
+// Returns the player angles
+//-----------------------------------------------------------------------------
+class CPlayerAnglesProxy : public CResultProxy
+{
+public:
+	bool Init(IMaterial* pMaterial, KeyValues* pKeyValues);
+	void OnBind(void* pC_BaseEntity);
+
+private:
+	float	m_Factor;
+};
+
+bool CPlayerAnglesProxy::Init(IMaterial* pMaterial, KeyValues* pKeyValues)
+{
+	if (!CResultProxy::Init(pMaterial, pKeyValues))
+		return false;
+
+	m_Factor = pKeyValues->GetFloat("scale", 0.005);
+	return true;
+}
+
+void CPlayerAnglesProxy::OnBind(void* pC_BaseEntity)
+{
+	C_BaseEntity* pPlayer = C_BasePlayer::GetLocalPlayer();
+	if (!pPlayer)
+		return;
+
+	Assert(m_pResult);
+	QAngle angles = pPlayer->EyeAngles();
+	Vector res;
+	VectorMultiply(Vector(angles.x, angles.y, angles.z), m_Factor, res);
+
+	m_pResult->SetVecValue(res.Base(), 3);
+
+	if (ToolsEnabled())
+	{
+		ToolFramework_RecordMaterialParams(GetMaterial());
+	}
+}
+
+EXPOSE_INTERFACE(CPlayerAnglesProxy, IMaterialProxy, "PlayerAngles" IMATERIAL_PROXY_INTERFACE_VERSION);
+
+
+//-----------------------------------------------------------------------------
 // Returns the entity speed
 //-----------------------------------------------------------------------------
 class CEntitySpeedProxy : public CResultProxy
