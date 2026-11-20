@@ -43,6 +43,26 @@ event LevelInit
 {
 }
 
+event MenuOpen
+{
+	StopEvent MenuClose 0.0
+	StopEvent MenuPulse 0.0
+	Animate HudMenu SelectionAlpha "255" Linear 0.0 0.0
+	Animate HudMenu Blur "0" Linear 0.0 0.0
+}
+
+event MenuClose
+{
+	StopEvent MenuOpen 0.0
+	Animate HudMenu SelectionAlpha "0" Linear 0.0 0.15
+}
+
+event MenuPulse
+{
+	Animate HudMenu Blur "2" Linear 0.0 0.0
+	Animate HudMenu Blur "0" Deaccel 0.01 0.14
+}
+
 event FadeOutTeamLine
 {
 	// make the display visible
@@ -859,4 +879,3 @@ event HideVoteBackgrounds
 	Animate		LabelOption4	Alpha	255 Linear	0.0 0.001
 	Animate		LabelOption5	Alpha	255 Linear	0.0 0.001
 }
-

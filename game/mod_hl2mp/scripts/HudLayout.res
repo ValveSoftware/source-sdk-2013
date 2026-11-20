@@ -448,6 +448,10 @@
 		"enabled" "1"
 		"wide"	 "640"
 		"tall"	 "480"
+		"TextFont" "Default"
+		"ItemFont" "Default"
+		"ItemFontPulsing" "Default"
+		"OpenCloseTime" "0.15"
 	}
 
 	HudCloseCaption

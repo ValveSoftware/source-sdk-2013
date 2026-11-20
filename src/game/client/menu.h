@@ -17,6 +17,10 @@
 
 #define MENU_SELECTION_TIMEOUT	5.0f
 
+#if defined( HL2MP )
+class CHudMenuDialog;
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -25,6 +29,7 @@ class CHudMenu : public CHudElement, public vgui::Panel
 	DECLARE_CLASS_SIMPLE( CHudMenu, vgui::Panel );
 public:
 	CHudMenu( const char *pElementName );
+	virtual ~CHudMenu();
 	void Init( void );
 	void VidInit( void );
 	void Reset( void );
@@ -35,6 +40,7 @@ public:
 	void ShowMenu_KeyValueItems( KeyValues *pKV );
 
 	bool IsMenuOpen( void );
+	bool IsTakingInput( void );
 	void SelectMenuItem( int menu_item );
 
 private:
@@ -43,6 +49,15 @@ private:
 	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
 private:
 	void		ProcessText( void );
+	bool UseRadioMenus( void );
+
+#if defined( HL2MP )
+	friend class CHudMenuDialog;
+	virtual void OnTick();
+	vgui::DHANDLE< CHudMenuDialog > m_hMenuDialog;
+	unsigned int m_nMenuSerial;
+	bool m_bNetworkMenu;
+#endif
 
 	void PaintString( const wchar_t *text, int textlen, vgui::HFont& font, int x, int y );
 
@@ -66,8 +81,6 @@ private:
 	int				m_fWaitingForMore;
 	int				m_nSelectedItem;
 	bool			m_bMenuTakesInput;
-
-	float			m_flSelectionTime;
 
 	CPanelAnimationVar( float, m_flOpenCloseTime, "OpenCloseTime", "1" );
 
