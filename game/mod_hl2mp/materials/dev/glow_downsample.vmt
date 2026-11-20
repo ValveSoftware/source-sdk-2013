@@ -1,0 +1,10 @@
+"Downsample_nohdr"
+{
+    "$bloomtintenable" "0"
+    "$bloomtype" "0"
+	"$bloomexp" "2.5"
+	"$bloomsaturation" "1.0"
+    "$basetexture" "_rt_FullFrameFB"
+    "$ignorez" 1
+    "%noToolTexture" 1
+}
