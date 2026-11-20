@@ -69,7 +69,11 @@
 #include <stdarg.h>
 #endif
 
+#if defined( OSX )
+#include <malloc/malloc.h>
+#else
 #include <malloc.h>
+#endif
 #include <new>
 
 // need this for memset
