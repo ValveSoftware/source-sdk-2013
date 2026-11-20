@@ -1255,6 +1255,10 @@ inline uint64 Plat_Rdtsc()
 	uint32 lo, hi;
 	__asm__ __volatile__ ( "rdtsc" : "=a" (lo), "=d" (hi));
 	return ( ( ( uint64 )hi ) << 32 ) | lo;
+#elif defined( __aarch64__ )
+	uint64 val;
+	__asm__ __volatile__ ( "mrs %0, cntvct_el0" : "=r" (val) );
+	return val;
 #else
 	#error
 #endif
