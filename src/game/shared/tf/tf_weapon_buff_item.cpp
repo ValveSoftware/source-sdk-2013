@@ -438,6 +438,14 @@ bool CTFBuffItem::CanReload( void )
 	return false;
 }
 
+bool CTFBuffItem::CanInspect( void ) const
+{
+	if ( m_bPlayingHorn )
+		return false;
+
+	return BaseClass::CanInspect();
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: UI Progress
 //-----------------------------------------------------------------------------
