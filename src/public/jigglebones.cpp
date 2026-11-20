@@ -24,6 +24,7 @@ ConVar cl_jiggle_bone_debug_pitch_constraints( "cl_jiggle_bone_debug_pitch_const
 #endif // CLIENT_DLL
 
 ConVar cl_jiggle_bone_framerate_cutoff( "cl_jiggle_bone_framerate_cutoff", "20", 0, "Skip jiggle bone simulation if framerate drops below this value (frames/second)" );
+ConVar cl_jiggle_bone_scale_legacy( "cl_jiggle_bone_scale_legacy", "0", FCVAR_ARCHIVE, "Use legacy jiggle bone scaling behavior" );
 
 
 //-----------------------------------------------------------------------------
@@ -471,6 +472,11 @@ void CJiggleBones::BuildJiggleTransformations( int boneIndex, float currenttime,
 		boneMX[0][2] = forward.x;
 		boneMX[1][2] = forward.y;
 		boneMX[2][2] = forward.z;
+
+		if ( !cl_jiggle_bone_scale_legacy.GetBool() )
+		{
+			MatrixScaleBy( goalForward.Length(), boneMX );
+		}
 
 		boneMX[0][3] = goalBasePosition.x;
 		boneMX[1][3] = goalBasePosition.y;
