@@ -1193,6 +1193,12 @@ void CClassLoadoutPanel::OnCommand( const char *command )
 			int iSlot = atoi(pszNum);
 			if ( iSlot >= 0 && iSlot < CLASS_LOADOUT_POSITION_COUNT && m_iCurrentClassIndex != TF_CLASS_UNDEFINED )
 			{
+				if (m_pSelectionPanel)
+				{
+					// window is already open
+					return;
+				}
+
 				if ( m_iCurrentSlotIndex != iSlot )
 				{
 					m_iCurrentSlotIndex = iSlot;
