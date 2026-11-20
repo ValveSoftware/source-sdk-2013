@@ -2015,10 +2015,11 @@ CCaptureFlag *CTFBot::GetFlagToFetch( void ) const
 	CUtlVector<CCaptureFlag *> flagsVector;
 	int nCarriedFlags = 0;
 
-	// MvM Engineer bot never pick up a flag
+	// MvM Engineer bot never attempt to go to the flag to pick it up.
 	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
 	{
-		if ( GetTeamNumber() == TF_TEAM_PVE_INVADERS && IsPlayerClass( TF_CLASS_ENGINEER ) )
+		// In the event that the engineer bot does pickup a flag, it will attempt to capture it. Otherwise run normal MvM Engineer logic.
+		if ( GetTeamNumber() == TF_TEAM_PVE_INVADERS && IsPlayerClass( TF_CLASS_ENGINEER ) && !HasTheFlag() )
 		{
 			return NULL;
 		}
