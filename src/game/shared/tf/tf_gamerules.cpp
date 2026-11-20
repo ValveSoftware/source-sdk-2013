@@ -14916,6 +14916,9 @@ int CTFGameRules::CalculateCurrencyAmount_CustomPack( int nAmount )
 	}
 }
 
+extern ConVar tf_mvm_currency_bonus_full;
+extern ConVar tf_mvm_currency_bonus_partial;
+
 //-----------------------------------------------------------------------------
 // Purpose: Figures out how much to give for pre-definied events or types
 //-----------------------------------------------------------------------------
@@ -14968,8 +14971,12 @@ int CTFGameRules::CalculateCurrencyAmount_ByType( CurrencyRewards_t nType )
 		nAmount = 5;
 		break;
 
-	case TF_CURRENCY_WAVE_COLLECTION_BONUS:
-		nAmount = 100;
+	case TF_CURRENCY_WAVE_COLLECTION_BONUS_FULL:
+		nAmount = tf_mvm_currency_bonus_full.GetInt();
+		break;
+
+	case TF_CURRENCY_WAVE_COLLECTION_BONUS_PARTIAL:
+		nAmount = tf_mvm_currency_bonus_partial.GetInt();
 		break;
 
 	default:
