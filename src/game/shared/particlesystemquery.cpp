@@ -11,6 +11,7 @@
 #include "collisionutils.h"
 
 #if defined( CLIENT_DLL )
+#include "basemodel_panel.h"
 #include "c_pixel_visibility.h"
 #endif
 
@@ -202,100 +203,96 @@ void CParticleSystemQuery::GetRandomPointsOnControllingObjectHitBox(
 
 #ifndef GAME_DLL
 
-	EHANDLE *phMoveParent = reinterpret_cast<EHANDLE *> ( pParticles->m_ControlPoints[nControlPointNumber].m_pObject );
-	CBaseEntity *pMoveParent = NULL;
-	if ( phMoveParent )
+	EHANDLE *phMoveParent = reinterpret_cast< EHANDLE * >( pParticles->m_ControlPoints[ nControlPointNumber ].m_pObject );
+	CBaseEntity *pMoveParent = phMoveParent ? *( phMoveParent ) : NULL;
+	BMPParticleQueryObject_t *pBMPQueryObj = !pMoveParent ? reinterpret_cast< BMPParticleQueryObject_t * >( pParticles->m_ControlPoints[ nControlPointNumber ].m_pObject ) : NULL;
+
+	float flRandMax = flBBoxScale;
+	float flRandMin = 1.f - flBBoxScale;
+	Vector vecBasePos;
+	pParticles->GetControlPointAtTime( nControlPointNumber, pParticles->m_flCurTime, &vecBasePos );
+
+	auto lambdaStudioGetRandomPoints = [ & ]( const studiohdr_t *pStudioHdr, const matrix3x4_t *pmatBoneToWorld, int nHitBoxSet = 0, float flModelScale = 1.f )
 	{
-		pMoveParent = *( phMoveParent );
-	}
+		mstudiohitboxset_t *pSet = pStudioHdr->pHitboxSet( nHitBoxSet );
+		if ( pSet )
+		{
+			bSucesss = true;
+
+			Vector vecWorldPosition( 0.f, 0.f, 0.f );
+			float u = 0.f, v = 0.f, w = 0.f;
+			int nHitbox = 0;
+			int nNumIters = nNumTrysToGetAPointInsideTheModel;
+			if ( !vecDirectionalBias.IsZero( 0.0001f ) )
+				nNumIters = MAX( nNumIters, 5 );
+
+			for ( int i = 0; i < nNumPtsOut; i++ )
+			{
+				int nTryCnt = nNumIters;
+				float flBestPointGoodness = -1.0e20f;
+				do
+				{
+					int nTryHitbox = pParticles->RandomInt( 0, pSet->numhitboxes - 1 );
+					mstudiobbox_t *pBox = pSet->pHitbox( nTryHitbox );
+
+					float flTryU = pParticles->RandomFloat( flRandMin, flRandMax );
+					float flTryV = pParticles->RandomFloat( flRandMin, flRandMax );
+					float flTryW = pParticles->RandomFloat( flRandMin, flRandMax );
+
+					Vector vecLocalPosition;
+					vecLocalPosition.x = GetSurfaceCoord( flTryU, pBox->bbmin.x * flModelScale, pBox->bbmax.x * flModelScale );
+					vecLocalPosition.y = GetSurfaceCoord( flTryV, pBox->bbmin.y * flModelScale, pBox->bbmax.y * flModelScale );
+					vecLocalPosition.z = GetSurfaceCoord( flTryW, pBox->bbmin.z * flModelScale, pBox->bbmax.z * flModelScale );
+
+					Vector vecTryWorldPosition;
+					VectorTransform( vecLocalPosition, pmatBoneToWorld[ pBox->bone ], vecTryWorldPosition );
+
+					float flPointGoodness = pParticles->RandomFloat( 0.f, 72.f )
+						+ DotProduct( vecTryWorldPosition - vecBasePos,
+									  vecDirectionalBias );
+
+					if ( pMoveParent && nNumTrysToGetAPointInsideTheModel )
+					{
+						// do a point in solid test
+						Ray_t ray;
+						trace_t tr;
+						ray.Init( vecTryWorldPosition, vecTryWorldPosition );
+						enginetrace->ClipRayToEntity( ray, MASK_ALL, pMoveParent, &tr );
+						if ( tr.startsolid )
+							flPointGoodness += 1000.f; // got a point inside!
+					}
+					if ( flPointGoodness > flBestPointGoodness )
+					{
+						u = flTryU;
+						v = flTryV;
+						w = flTryW;
+						vecWorldPosition = vecTryWorldPosition;
+						nHitbox = nTryHitbox;
+						flBestPointGoodness = flPointGoodness;
+					}
+				} while ( nTryCnt-- );
+				*( pPntsOut++ ) = vecWorldPosition;
+				if ( pHitBoxRelativeCoordOut )
+					( pHitBoxRelativeCoordOut++ )->Init( u, v, w );
+				if ( pHitBoxIndexOut )
+					*( pHitBoxIndexOut++ ) = nHitbox;
+			}
+		}
+	};
+
 	if ( pMoveParent )
 	{
-		float flRandMax = flBBoxScale;
-		float flRandMin = 1.0 - flBBoxScale;
-		Vector vecBasePos;
-		pParticles->GetControlPointAtTime( nControlPointNumber, pParticles->m_flCurTime, &vecBasePos );
-
 		s_BoneMutex.Lock();
 		C_BaseAnimating *pAnimating = pMoveParent->GetBaseAnimating();
 		if ( pAnimating )
 		{
-			
 			matrix3x4_t	*hitboxbones[MAXSTUDIOBONES];
-			
 			if ( pAnimating->HitboxToWorldTransforms( hitboxbones ) )
 			{
-		
 				studiohdr_t *pStudioHdr = modelinfo->GetStudiomodel( pAnimating->GetModel() );
-				
 				if ( pStudioHdr )
 				{
-					mstudiohitboxset_t *set = pStudioHdr->pHitboxSet( pAnimating->GetHitboxSet() );
-					
-					if ( set )
-					{
-						bSucesss = true;
-						
-						Vector vecWorldPosition(0, 0, 0);
-						float u = 0, v = 0, w = 0;
-						int nHitbox = 0;
-						int nNumIters = nNumTrysToGetAPointInsideTheModel;
-						if (! vecDirectionalBias.IsZero( 0.0001 ) )
-							nNumIters = MAX( nNumIters, 5 );
-
-						for( int i=0 ; i < nNumPtsOut; i++)
-						{
-							int nTryCnt = nNumIters;
-							float flBestPointGoodness = -1.0e20;
-							do
-							{
-								int nTryHitbox = pParticles->RandomInt( 0, set->numhitboxes - 1 );
-								mstudiobbox_t *pBox = set->pHitbox(nTryHitbox);
-								
-								float flTryU = pParticles->RandomFloat( flRandMin, flRandMax );
-								float flTryV = pParticles->RandomFloat( flRandMin, flRandMax );
-								float flTryW = pParticles->RandomFloat( flRandMin, flRandMax );
-
-								Vector vecLocalPosition;
-								vecLocalPosition.x = GetSurfaceCoord( flTryU, pBox->bbmin.x * pAnimating->GetModelScale(), pBox->bbmax.x * pAnimating->GetModelScale() );
-								vecLocalPosition.y = GetSurfaceCoord( flTryV, pBox->bbmin.y * pAnimating->GetModelScale(), pBox->bbmax.y * pAnimating->GetModelScale() );
-								vecLocalPosition.z = GetSurfaceCoord( flTryW, pBox->bbmin.z * pAnimating->GetModelScale(), pBox->bbmax.z * pAnimating->GetModelScale() );
-
-								Vector vecTryWorldPosition;
-
-								VectorTransform( vecLocalPosition, *hitboxbones[pBox->bone], vecTryWorldPosition );
-								
-								
-								float flPointGoodness = pParticles->RandomFloat( 0, 72 )
-									+ DotProduct( vecTryWorldPosition - vecBasePos, 
-												  vecDirectionalBias );
-
-								if ( nNumTrysToGetAPointInsideTheModel )
-								{
-									// do a point in solid test
-									Ray_t ray;
-									trace_t tr;
-									ray.Init( vecTryWorldPosition, vecTryWorldPosition );
-									enginetrace->ClipRayToEntity( ray, MASK_ALL, pMoveParent, &tr );
-									if ( tr.startsolid )
-										flPointGoodness += 1000.; // got a point inside!
-								}
-								if ( flPointGoodness > flBestPointGoodness )
-								{
-									u = flTryU;
-									v = flTryV;
-									w = flTryW;
-									vecWorldPosition = vecTryWorldPosition;
-									nHitbox = nTryHitbox;
-									flBestPointGoodness = flPointGoodness;
-								}
-							} while ( nTryCnt-- );
-							*( pPntsOut++ ) = vecWorldPosition;
-							if ( pHitBoxRelativeCoordOut )
-								( pHitBoxRelativeCoordOut++ )->Init( u, v, w );
-							if ( pHitBoxIndexOut )
-								*( pHitBoxIndexOut++ ) = nHitbox;
-						}
-					}
+					lambdaStudioGetRandomPoints( pStudioHdr, *hitboxbones, pAnimating->GetHitboxSet(), pAnimating->GetModelScale() );
 				}
 			}
 		}
@@ -309,8 +306,6 @@ void CParticleSystemQuery::GetRandomPointsOnControllingObjectHitBox(
 			pMoveParent->GetRenderBounds( vecMin, vecMax  );
 			VecOrigin = pMoveParent->GetRenderOrigin();
 			matOrientation = pMoveParent->EntityToWorldTransform();
-
-			
 
 			Vector vecWorldPosition(0, 0, 0);
 			float u = 0, v = 0, w = 0;
@@ -371,6 +366,15 @@ void CParticleSystemQuery::GetRandomPointsOnControllingObjectHitBox(
 
 		s_BoneMutex.Unlock();
 	}
+	else if ( pBMPQueryObj )
+	{
+		matrix3x4_t       *pmatBoneToWorld = pBMPQueryObj->m_pmatBoneToWorld;
+		const studiohdr_t *pStudioHdr = pBMPQueryObj->m_pStudioHdr;
+		if ( pStudioHdr && pmatBoneToWorld )
+		{
+			lambdaStudioGetRandomPoints( pStudioHdr, pmatBoneToWorld );
+		}
+	}
 #endif
 	if (! bSucesss )
 	{
@@ -400,12 +404,25 @@ int CParticleSystemQuery::GetControllingObjectHitBoxInfo(
 #ifndef GAME_DLL
 	s_BoneMutex.Lock();
 
-	EHANDLE *phMoveParent = reinterpret_cast<EHANDLE *> ( pParticles->m_ControlPoints[nControlPointNumber].m_pObject );
-	CBaseEntity *pMoveParent = NULL;
-	if ( phMoveParent )
+	EHANDLE *phMoveParent = reinterpret_cast< EHANDLE * >( pParticles->m_ControlPoints[ nControlPointNumber ].m_pObject );
+	CBaseEntity *pMoveParent = phMoveParent ? *( phMoveParent ) : NULL;
+	BMPParticleQueryObject_t *pBMPQueryObj = !pMoveParent ? reinterpret_cast< BMPParticleQueryObject_t * >( pParticles->m_ControlPoints[ nControlPointNumber ].m_pObject ) : NULL;
+
+	auto lambdaStudioGetHitBoxInfo = [ & ]( const studiohdr_t *pStudioHdr, const matrix3x4_t *pmatBoneToWorld, int nHitBoxSet = 0 )
 	{
-		pMoveParent = *( phMoveParent );
-	}
+		mstudiohitboxset_t *pSet = pStudioHdr->pHitboxSet( nHitBoxSet );
+		if ( pSet )
+		{
+			nRet = Min( nBufSize, pSet->numhitboxes );
+			for ( int i = 0; i < nRet; i++ )
+			{
+				mstudiobbox_t *pBox = pSet->pHitbox( i );
+				pHitBoxOutputBuffer[ i ].m_vecBoxMins = pBox->bbmin;
+				pHitBoxOutputBuffer[ i ].m_vecBoxMaxes = pBox->bbmax;
+				pHitBoxOutputBuffer[ i ].m_Transform = pmatBoneToWorld[ pBox->bone ];
+			}
+		}
+	};
 
 	if ( pMoveParent )
 	{
@@ -413,33 +430,12 @@ int CParticleSystemQuery::GetControllingObjectHitBoxInfo(
 		if ( pAnimating )
 		{
 			matrix3x4_t	*hitboxbones[MAXSTUDIOBONES];
-			
 			if ( pAnimating->HitboxToWorldTransforms( hitboxbones ) )
 			{
-		
 				studiohdr_t *pStudioHdr = modelinfo->GetStudiomodel( pAnimating->GetModel() );
-				
 				if ( pStudioHdr )
 				{
-					mstudiohitboxset_t *set = pStudioHdr->pHitboxSet( pAnimating->GetHitboxSet() );
-					
-					if ( set )
-					{
-						nRet = MIN( nBufSize, set->numhitboxes );
-						for( int i=0 ; i < nRet; i++ )
-						{
-							mstudiobbox_t *pBox = set->pHitbox( i );
-							pHitBoxOutputBuffer[i].m_vecBoxMins.x = pBox->bbmin.x;
-							pHitBoxOutputBuffer[i].m_vecBoxMins.y = pBox->bbmin.y;
-							pHitBoxOutputBuffer[i].m_vecBoxMins.z = pBox->bbmin.z;
-
-							pHitBoxOutputBuffer[i].m_vecBoxMaxes.x = pBox->bbmax.x;
-							pHitBoxOutputBuffer[i].m_vecBoxMaxes.y = pBox->bbmax.y;
-							pHitBoxOutputBuffer[i].m_vecBoxMaxes.z = pBox->bbmax.z;
-
-							pHitBoxOutputBuffer[i].m_Transform = *hitboxbones[pBox->bone];
-						}
-					}
+					lambdaStudioGetHitBoxInfo( pStudioHdr, *hitboxbones, pAnimating->GetHitboxSet() );
 				}
 			}
 		}
@@ -454,6 +450,15 @@ int CParticleSystemQuery::GetControllingObjectHitBoxInfo(
 			pHitBoxOutputBuffer[0].m_vecBoxMaxes = vecMax;
 			pHitBoxOutputBuffer[0].m_Transform = matOrientation;
 			nRet = 1;
+		}
+	}
+	else if ( pBMPQueryObj )
+	{
+		matrix3x4_t       *pmatBoneToWorld = pBMPQueryObj->m_pmatBoneToWorld;
+		const studiohdr_t *pStudioHdr = pBMPQueryObj->m_pStudioHdr;
+		if ( pStudioHdr && pmatBoneToWorld )
+		{
+			lambdaStudioGetHitBoxInfo( pStudioHdr, pmatBoneToWorld );
 		}
 	}
 	s_BoneMutex.Unlock();
