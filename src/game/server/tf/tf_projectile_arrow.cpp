@@ -822,7 +822,7 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 
 		// Intense, but extremely accurate:
 		AngleVectors( GetAbsAngles(), &forward );
-		start = GetAbsOrigin() + forward*16;
+		start = GetAbsOrigin();
 		for ( int i = 0; i < set->numhitboxes; i++ )
 		{
 			mstudiobbox_t *pbox = set->pHitbox( i );
@@ -832,8 +832,21 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 			Ray_t ray;
 			ray.Init( start, position );
 			trace_t tr;
-			IntersectRayWithBox( ray, position+pbox->bbmin, position+pbox->bbmax, 0.f, &tr );
-			float dist = tr.endpos.DistTo( start );
+			IntersectRayWithOBB( ray, position, angles, pbox->bbmin, pbox->bbmax, 0.f, &tr );
+			
+			float dist;
+
+			if ( vel.LengthSqr() != 0 )
+			{
+				// We want to calculate closest distance of the arrows trajectory to a hitbox
+				// Instead of just the closest distance of the arrows position to a hitbox
+				// For better hit detection
+				dist = ( tr.endpos - start ).Cross( vel ).Length() / vel.Length();
+			}
+			else
+			{
+				dist = tr.endpos.DistTo( start ); // Fall back to old method if first method fails
+			}
 
 			if ( dist < closest_dist )
 			{
