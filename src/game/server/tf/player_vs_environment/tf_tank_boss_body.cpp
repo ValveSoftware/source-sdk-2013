@@ -5,6 +5,7 @@
 #include "tf_tank_boss.h"
 #include "tf_tank_boss_body.h"
 
+ConVar bf_tank_boss_collisiontype("tf_mvm_tank_collisionmask", "1", FCVAR_NONE, "Collision mask to use for tanks \n 0 - CONTENTS_SOLID \n 1 - MASK_SOLID ");
 
 //-------------------------------------------------------------------------------------------
 CTFTankBossBody::CTFTankBossBody( INextBot *bot ) : IBody( bot )
@@ -51,8 +52,11 @@ void CTFTankBossBody::Update( void )
 
 
 //---------------------------------------------------------------------------------------------
-// return the bot's collision mask (hack until we get a general hull trace abstraction here or in the locomotion interface)
 unsigned int CTFTankBossBody::GetSolidMask( void ) const
 {
-	return CONTENTS_SOLID;
+	//Convar for legacy maps support.
+	if ( bf_tank_boss_collisiontype.GetInt() )
+		return MASK_SOLID;
+	else
+		return CONTENTS_SOLID;
 }
