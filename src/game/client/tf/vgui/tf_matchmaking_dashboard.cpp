@@ -921,6 +921,12 @@ void CTFMatchmakingDashboard::OnPlayCommunity()
 	engine->ClientCmd_Unrestricted( "gamemenucommand openserverbrowser" );
 }
 
+void CTFMatchmakingDashboard::OnPlayQuickplay()
+{
+	ClearAllStacks();
+	engine->ClientCmd_Unrestricted( "OpenQuickplayDialog" );
+}
+
 void CTFMatchmakingDashboard::OnCreateServer()
 {
 	ClearAllStacks();
