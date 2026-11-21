@@ -3102,7 +3102,14 @@ void CBaseObject::ApplyHealthUpgrade( void )
 
 	int iHealth = GetMaxHealthForCurrentLevel();
 	SetMaxHealth( iHealth );
-	SetHealth( iHealth );
+
+	// Don't give health in MvM during active round for defenders to avoid buying
+	// and reselling the upgrade constantly healing the building
+	if ( !( TFGameRules()->IsMannVsMachineMode() && TFGameRules()->State_Get() == GR_STATE_RND_RUNNING &&
+	        GetTeamNumber() == TF_TEAM_PVE_DEFENDERS && iHealth > m_flHealth ) )
+	{
+		SetHealth( iHealth );
+	}
 
 	//DevMsg( "%i\n", GetMaxHealth() );
 }
