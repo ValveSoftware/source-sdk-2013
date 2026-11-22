@@ -955,7 +955,7 @@ bool CHud::IsHidden( int iHudFlags )
 		return true;
 
 	// No local player yet?
-	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+	C_BasePlayer *pPlayer = GetHudPlayer();
 	if ( !pPlayer )
 		return true;
 

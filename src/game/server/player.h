@@ -1608,5 +1608,11 @@ enum
 
 class CSendProxyRecipients;
 void* SendProxy_SendNonLocalDataTable( const SendProp *pProp, const void *pStruct, const void *pVarData, CSendProxyRecipients *pRecipients, int objectID );
+void SendPlayerHudItemPickup( CBasePlayer *pPlayer, const char *pszItemName );
+void SendPlayerHudAmmoDenied( CBasePlayer *pPlayer, int iAmmoType );
+#ifdef HL2MP
+void SetPlayerLocalDataRecipients( CBasePlayer *pPlayer, CSendProxyRecipients *pRecipients );
+void* SendProxy_SendPlayerLocalDataTable( const SendProp *pProp, const void *pStruct, const void *pVarData, CSendProxyRecipients *pRecipients, int objectID );
+#endif
 
 #endif // PLAYER_H

@@ -99,12 +99,28 @@ private:
 	}
 };
 
+class CSpecComboBox : public ComboBox
+{
+	DECLARE_CLASS_SIMPLE( CSpecComboBox, ComboBox );
+
+public:
+	CSpecComboBox( Panel *parent, const char *panelName, int numLines ) : ComboBox( parent, panelName, numLines, false ) {}
+
+private:
+	MESSAGE_FUNC( OnMenuItemSelected, "MenuItemSelected" )
+	{
+		BaseClass::OnMenuItemSelected();
+		PostActionSignal( new KeyValues( "ItemSelected" ) );
+	}
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
 CSpectatorMenu::CSpectatorMenu( IViewPort *pViewPort ) : Frame( NULL, PANEL_SPECMENU )
 {
 	m_iDuckKey = BUTTON_CODE_INVALID;
+	m_bDuckKeyReleased = false;
 		
 	m_pViewPort = pViewPort;
 
@@ -117,14 +133,16 @@ CSpectatorMenu::CSpectatorMenu( IViewPort *pViewPort ) : Frame( NULL, PANEL_SPEC
 
 	SetScheme("ClientScheme");
 
-	m_pPlayerList = new ComboBox(this, "playercombo", 10 , false);
+	m_pPlayerList = new CSpecComboBox( this, "playercombo", 10 );
+	m_pPlayerList->AddActionSignalTarget( this );
 	HFont hFallbackFont = scheme()->GetIScheme( GetScheme() )->GetFont( "DefaultVerySmallFallBack", false );
 	if ( INVALID_FONT != hFallbackFont )
 	{
 		m_pPlayerList->SetUseFallbackFont( true, hFallbackFont );
 	}
 
-	m_pViewOptions = new ComboBox(this, "viewcombo", 10 , false );
+	m_pViewOptions = new CSpecComboBox( this, "viewcombo", 10 );
+	m_pViewOptions->AddActionSignalTarget( this );
 	m_pConfigSettings = new ComboBox(this, "settingscombo", 10 , false );	
 
 	m_pLeftButton = new CSpecButton( this, "specprev");
@@ -146,9 +164,20 @@ CSpectatorMenu::CSpectatorMenu( IViewPort *pViewPort ) : Frame( NULL, PANEL_SPEC
 	m_pConfigSettings->SetMenu( menu );	// attach menu to combo box
 
 	// create view mode menu
+#ifdef HL2MP
+	KeyValues *pModeData = new KeyValues( "UserData" );
+	pModeData->SetInt( "mode", OBS_MODE_IN_EYE );
+	m_pViewOptions->AddItem( "#Spec_Mode3", pModeData );
+	pModeData->SetInt( "mode", OBS_MODE_CHASE );
+	m_pViewOptions->AddItem( "#Spec_Mode4", pModeData );
+	pModeData->SetInt( "mode", OBS_MODE_ROAMING );
+	m_pViewOptions->AddItem( "#Spec_Mode5", pModeData );
+	pModeData->deleteThis();
+#else
 	menu = new CommandMenu(m_pViewOptions, "spectatormodes", gViewPortInterface);
 	menu->LoadFromFile("Resource/spectatormodes.res");
 	m_pViewOptions->SetMenu( menu );	// attach menu to combo box
+#endif
 
 	LoadControlSettings( "Resource/UI/BottomSpectator.res" );
 
@@ -176,10 +205,11 @@ void CSpectatorMenu::ApplySchemeSettings(IScheme *pScheme)
 //-----------------------------------------------------------------------------
 void CSpectatorMenu::PerformLayout()
 {
+	BaseClass::PerformLayout();
+
 	int w,h;
 	GetHudSize(w, h);
 
-	// fill the screen
 	SetSize(w,GetTall());
 }
 
@@ -197,24 +227,51 @@ void CSpectatorMenu::OnTextChanged(KeyValues *data)
 	{
 		m_pConfigSettings->SetText("#Spec_Options");
 	}
-	else if ( box == m_pPlayerList )
+}
+
+void CSpectatorMenu::OnItemSelected(KeyValues *data)
+{
+	Panel *panel = reinterpret_cast<vgui::Panel *>( data->GetPtr("panel") );
+	vgui::ComboBox *box = dynamic_cast<vgui::ComboBox *>( panel );
+
+	if ( box == m_pPlayerList )
 	{
 		KeyValues *kv = box->GetActiveItemUserData();
-		if ( kv && GameResources() )
+		if ( kv )
 		{
-			const char *player = kv->GetString("player");
-
-			int currentPlayerNum = GetSpectatorTarget();
-			const char *currentPlayerName = GameResources()->GetPlayerName( currentPlayerNum );
-
-			if ( !FStrEq( currentPlayerName, player ) )
+			int iPlayerIndex = kv->GetInt( "index" );
+			if ( iPlayerIndex != GetSpectatorTarget() )
 			{
 				char command[128];
-				Q_snprintf( command, sizeof(command), "spec_player \"%s\"", player );
+#ifdef HL2MP
+				Q_snprintf( command, sizeof(command), "spec_player_index %d", iPlayerIndex );
+#else
+				player_info_t playerInfo;
+				if ( !engine->GetPlayerInfo( iPlayerIndex, &playerInfo ) )
+					return;
+				Q_snprintf( command, sizeof(command), "spec_player \"#%d\"", playerInfo.userID );
+#endif
 				engine->ClientCmd( command );
 			}
 		}
 	}
+#ifdef HL2MP
+	else if ( box == m_pViewOptions )
+	{
+		KeyValues *kv = box->GetActiveItemUserData();
+		if ( kv )
+		{
+			int iMode = kv->GetInt( "mode" );
+			int iCurrentMode = engine->IsHLTV() ? HLTVCamera()->GetMode() : GetSpectatorMode();
+			if ( iMode != iCurrentMode )
+			{
+				char command[32];
+				Q_snprintf( command, sizeof(command), "spec_mode %d", iMode );
+				engine->ClientCmd( command );
+			}
+		}
+	}
+#endif
 }
 
 void CSpectatorMenu::OnCommand( const char *command )
@@ -235,30 +292,24 @@ void CSpectatorMenu::FireGameEvent( IGameEvent * event )
 
  	if ( Q_strcmp( "spec_target_updated", pEventName ) == 0 )
 	{
-		IGameResources *gr = GameResources();
-		if ( !gr )
-			return;
-
 		// make sure the player combo box is up to date
 		int playernum = GetSpectatorTarget();
 		if ( playernum < 1 || playernum > MAX_PLAYERS )
 			return;
 
-		const char *selectedPlayerName = gr->GetPlayerName( playernum );
-		const char *currentPlayerName = "";
+		int currentPlayerNum = 0;
 		KeyValues *kv = m_pPlayerList->GetActiveItemUserData();
 		if ( kv )
-		{
-			currentPlayerName = kv->GetString( "player" );
-		}
-		if ( !FStrEq( currentPlayerName, selectedPlayerName ) )
+			currentPlayerNum = kv->GetInt( "index" );
+		if ( currentPlayerNum != playernum )
 		{
 			for ( int i=0; i<m_pPlayerList->GetItemCount(); ++i )
 			{
-				KeyValues *pKv = m_pPlayerList->GetItemUserData( i );
-				if ( pKv && FStrEq( pKv->GetString( "player" ), selectedPlayerName ) )
+				int iItemID = m_pPlayerList->GetItemIDFromRow( i );
+				KeyValues *pKv = m_pPlayerList->GetItemUserData( iItemID );
+				if ( pKv && pKv->GetInt( "index" ) == playernum )
 				{
-					m_pPlayerList->ActivateItemByRow( i );
+					m_pPlayerList->SilentActivateItemByRow( i );
 					break;
 				}
 			}
@@ -271,11 +322,31 @@ void CSpectatorMenu::FireGameEvent( IGameEvent * event )
 //-----------------------------------------------------------------------------
 void CSpectatorMenu::OnKeyCodePressed(KeyCode code)
 {
-	if ( code == m_iDuckKey )
+	if ( code == m_iDuckKey || code == KEY_ESCAPE )
 	{
 		// hide if DUCK is pressed again
 		m_pViewPort->ShowPanel( this, false );
+		return;
 	}
+
+	BaseClass::OnKeyCodePressed( code );
+}
+
+void CSpectatorMenu::OnThink()
+{
+	BaseClass::OnThink();
+
+	if ( !IsVisible() )
+		return;
+
+	bool bDuckKeyDown = m_iDuckKey != BUTTON_CODE_INVALID && g_pInputSystem->IsButtonDown( m_iDuckKey );
+	if ( ( bDuckKeyDown && m_bDuckKeyReleased ) || g_pInputSystem->IsButtonDown( KEY_ESCAPE ) )
+	{
+		m_pViewPort->ShowPanel( this, false );
+		return;
+	}
+
+	m_bDuckKeyReleased = !bDuckKeyDown;
 }
 
 void CSpectatorMenu::ShowPanel(bool bShow)
@@ -285,6 +356,9 @@ void CSpectatorMenu::ShowPanel(bool bShow)
 
 	if ( bShow )
 	{
+		m_iDuckKey = gameuifuncs->GetButtonCodeForBind( "duck" );
+		m_bDuckKeyReleased = m_iDuckKey == BUTTON_CODE_INVALID || !g_pInputSystem->IsButtonDown( m_iDuckKey );
+
 		// Force relayout in case Steam Controller stuff has changed.
 		InvalidateLayout( true, true );
 		Activate();
@@ -293,6 +367,12 @@ void CSpectatorMenu::ShowPanel(bool bShow)
 	}
 	else
 	{
+		m_pConfigSettings->HideMenu();
+		m_pViewOptions->HideMenu();
+		m_pPlayerList->HideMenu();
+		m_pConfigSettings->SelectNone();
+		m_pViewOptions->SelectNone();
+		m_pPlayerList->SelectNone();
 		SetVisible( false );
 		SetMouseInputEnabled( false );
 		SetKeyBoardInputEnabled( false );
@@ -342,7 +422,6 @@ void CSpectatorMenu::Update( void )
 
 		wchar_t playerText[ 80 ], playerName[ 64 ], *team, teamText[ 64 ];
 		char localizeTeamName[64];
-		char szPlayerIndex[16];
 		g_pVGuiLocalize->ConvertANSIToUnicode( UTIL_SafeName( gr->GetPlayerName(iPlayerIndex) ), playerName, sizeof( playerName ) );
 		const char * teamname = gr->GetTeamName( gr->GetTeam(iPlayerIndex) );
 		if ( teamname )
@@ -363,22 +442,21 @@ void CSpectatorMenu::Update( void )
 			g_pVGuiLocalize->ConstructString_safe( playerText, g_pVGuiLocalize->Find( "#Spec_PlayerItem" ), 1, playerName );
 		}
 
-		Q_snprintf( szPlayerIndex, sizeof( szPlayerIndex ), "%d", iPlayerIndex );
-
-		KeyValues *kv = new KeyValues( "UserData", "player", gr->GetPlayerName( iPlayerIndex ), "index", szPlayerIndex );
+		KeyValues *kv = new KeyValues( "UserData" );
+		kv->SetInt( "index", iPlayerIndex );
 		m_pPlayerList->AddItem( playerText, kv );
 		kv->deleteThis();
 	}
 
 	// make sure the player combo box is up to date
 	int playernum = GetSpectatorTarget();
-	const char *selectedPlayerName = gr->GetPlayerName( playernum );
 	for ( iPlayerIndex=0; iPlayerIndex<m_pPlayerList->GetItemCount(); ++iPlayerIndex )
 	{
-		KeyValues *kv = m_pPlayerList->GetItemUserData( iPlayerIndex );
-		if ( kv && FStrEq( kv->GetString( "player" ), selectedPlayerName ) )
+		int iItemID = m_pPlayerList->GetItemIDFromRow( iPlayerIndex );
+		KeyValues *kv = m_pPlayerList->GetItemUserData( iItemID );
+		if ( kv && kv->GetInt( "index" ) == playernum )
 		{
-			m_pPlayerList->ActivateItemByRow( iPlayerIndex );
+			m_pPlayerList->SilentActivateItemByRow( iPlayerIndex );
 			break;
 		}
 	}
@@ -389,9 +467,20 @@ void CSpectatorMenu::Update( void )
 	// mode can be changed multiple ways
 	//=============================================================================
 	
-	int specmode = GetSpectatorMode();
-	m_pViewOptions->SetText(s_SpectatorModes[specmode]);
-	
+	int specmode = engine->IsHLTV() ? HLTVCamera()->GetMode() : GetSpectatorMode();
+#ifdef HL2MP
+	if ( specmode == OBS_MODE_IN_EYE )
+		m_pViewOptions->SilentActivateItemByRow( 0 );
+	else if ( specmode == OBS_MODE_CHASE )
+		m_pViewOptions->SilentActivateItemByRow( 1 );
+	else if ( specmode == OBS_MODE_ROAMING )
+		m_pViewOptions->SilentActivateItemByRow( 2 );
+	else
+		m_pViewOptions->SetText( "#Spec_Modes" );
+#else
+	m_pViewOptions->SetText( specmode >= 0 && specmode < (int)ARRAYSIZE( s_SpectatorModes ) && s_SpectatorModes[specmode][0] ? s_SpectatorModes[specmode] : "#Spec_Modes" );
+#endif
+
 	//=============================================================================
 	// HPE_END
 	//=============================================================================
@@ -415,6 +504,7 @@ CSpectatorGUI::CSpectatorGUI(IViewPort *pViewPort) : EditablePanel( NULL, PANEL_
 
 	m_pViewPort = pViewPort;
 	g_pSpectatorGUI = this;
+	m_pBannerImage = NULL;
 
 	// initialize dialog
 	SetVisible(false);
@@ -426,10 +516,10 @@ CSpectatorGUI::CSpectatorGUI(IViewPort *pViewPort) : EditablePanel( NULL, PANEL_
 	SetKeyBoardInputEnabled( false );
 
 	m_pTopBar = new Panel( this, "topbar" );
- 	m_pBottomBarBlank = new Panel( this, "bottombarblank" );
+	m_pBottomBarBlank = new Panel( this, "bottombarblank" );
+	m_pPlayerLabel = new Label( this, "playerlabel", "" );
 
 	// m_pBannerImage = new ImagePanel( m_pTopBar, NULL );
-	m_pPlayerLabel = new Label( this, "playerlabel", "" );
 	m_pPlayerLabel->SetVisible( false );
 	TextImage *image = m_pPlayerLabel->GetTextImage();
 	if ( image )
@@ -478,13 +568,31 @@ void CSpectatorGUI::ApplySchemeSettings(IScheme *pScheme)
 		pConditions->deleteThis();
 	}
 
-	m_pBottomBarBlank->SetVisible( true );
-	m_pTopBar->SetVisible( true );
-
 	BaseClass::ApplySchemeSettings( pScheme );
 	SetBgColor(Color( 0,0,0,0 ) ); // make the background transparent
+
+#ifdef HL2MP
+	m_pTopBar->SetVisible( false );
+	m_pTopBar->SetPaintBackgroundEnabled( false );
+	m_pBottomBarBlank->SetVisible( false );
+	m_pBottomBarBlank->SetPaintBackgroundEnabled( false );
+
+	static const char * const classicControls[] =
+	{
+		"BlueScoreLabel", "BlueScoreValue", "RedScoreLabel", "RedScoreValue", "DividerBar", "timerclock", "timerlabel", "extrainfo", "titlelabel"
+	};
+	for ( int i = 0; i < (int)ARRAYSIZE( classicControls ); ++i )
+	{
+		Panel *pControl = FindChildByName( classicControls[i], true );
+		if ( pControl )
+			pControl->SetVisible( false );
+	}
+#else
+	m_pBottomBarBlank->SetVisible( true );
+	m_pTopBar->SetVisible( true );
 	m_pTopBar->SetBgColor(GetBlackBarColor());
 	m_pBottomBarBlank->SetBgColor(GetBlackBarColor());
+#endif
 	// m_pBottomBar->SetBgColor(Color( 0,0,0,0 ));
 	SetPaintBorderEnabled(false);
 
@@ -500,15 +608,25 @@ void CSpectatorGUI::ApplySchemeSettings(IScheme *pScheme)
 //-----------------------------------------------------------------------------
 void CSpectatorGUI::PerformLayout()
 {
-	int w,h,x,y;
+	BaseClass::PerformLayout();
+
+	int w,h;
 	GetHudSize(w, h);
 	
 	// fill the screen
 	SetBounds(0,0,w,h);
 
+#ifdef HL2MP
+	const int nNameWide = vgui::scheme()->GetProportionalScaledValueEx( GetScheme(), 350 );
+	const int nNameTall = vgui::scheme()->GetProportionalScaledValueEx( GetScheme(), 26 );
+	m_pPlayerLabel->SetBounds( ( w - nNameWide ) / 2, h - nNameTall - vgui::scheme()->GetProportionalScaledValueEx( GetScheme(), 13 ), nNameWide, nNameTall );
+	UpdatePlayerCard();
+#else
 	// stretch the bottom bar across the screen
+	int x,y;
 	m_pBottomBarBlank->GetPos(x,y);
 	m_pBottomBarBlank->SetSize( w, h - y );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -520,6 +638,10 @@ void CSpectatorGUI::OnThink()
 
 	if ( IsVisible() )
 	{
+#ifdef HL2MP
+		Update();
+#endif
+
 		if ( m_bSpecScoreboard != spec_scoreboard.GetBool() )
 		{
 			if ( !spec_scoreboard.GetBool() || !gViewPortInterface->GetActivePanel() )
@@ -626,11 +748,56 @@ bool CSpectatorGUI::ShouldShowPlayerLabel( int specmode )
 {
 	return ( (specmode == OBS_MODE_IN_EYE) ||	(specmode == OBS_MODE_CHASE) );
 }
+
+int CSpectatorGUI::GetBottomBarHeight()
+{
+#ifdef HL2MP
+	return 0;
+#else
+	return m_pBottomBarBlank->IsVisible() ? m_pBottomBarBlank->GetTall() : 0;
+#endif
+}
+
+#ifdef HL2MP
+void CSpectatorGUI::UpdatePlayerCard()
+{
+	int specmode = engine->IsHLTV() ? HLTVCamera()->GetMode() : GetSpectatorMode();
+	int playernum = GetSpectatorTarget();
+	if ( engine->IsHLTV() )
+	{
+		C_BaseEntity *pTarget = HLTVCamera()->GetPrimaryTarget();
+		playernum = pTarget ? pTarget->entindex() : 0;
+	}
+	C_BasePlayer *pPlayer = NULL;
+	if ( ShouldShowPlayerLabel( specmode ) && playernum > 0 && playernum <= gpGlobals->maxClients )
+		pPlayer = UTIL_PlayerByIndex( playernum );
+
+	IGameResources *gr = GameResources();
+	bool bShowPlayerCard = pPlayer && !pPlayer->IsObserver() && gr && gr->IsConnected( playernum );
+	m_pPlayerLabel->SetVisible( bShowPlayerCard );
+
+	if ( !bShowPlayerCard )
+	{
+		m_pPlayerLabel->SetText( "" );
+		return;
+	}
+
+	wchar_t wszPlayerName[128];
+	g_pVGuiLocalize->ConvertANSIToUnicode( UTIL_SafeName( gr->GetPlayerName( playernum ) ), wszPlayerName, sizeof( wszPlayerName ) );
+	m_pPlayerLabel->SetText( wszPlayerName );
+	m_pPlayerLabel->SetFgColor( gr->GetTeamColor( gr->GetTeam( playernum ) ) );
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Updates the gui, rearranges elements
 //-----------------------------------------------------------------------------
 void CSpectatorGUI::Update()
 {
+#ifdef HL2MP
+	UpdatePlayerCard();
+	return;
+#endif
 	int wide, tall;
 	int bx, by, bwide, btall;
 
@@ -739,6 +906,9 @@ void CSpectatorGUI::Update()
 //-----------------------------------------------------------------------------
 const char * CSpectatorGUI::GetResFile( void )
 {
+#ifdef HL2MP
+	return "Resource/UI/Spectator.res";
+#else
 	if ( ::input->IsSteamControllerActive() )
 	{
 		return "Resource/UI/Spectator_SC.res";
@@ -747,6 +917,7 @@ const char * CSpectatorGUI::GetResFile( void )
 	{
 		return "Resource/UI/Spectator.res";
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -874,6 +1045,37 @@ CON_COMMAND_F( spec_mode, "Set spectator mode", FCVAR_CLIENTCMD_CAN_EXECUTE )
 	}
 }
 
+#ifdef HL2MP
+CON_COMMAND_F( spec_player_index, "Spectate player by entity index", FCVAR_CLIENTCMD_CAN_EXECUTE )
+{
+	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+
+	if ( !pPlayer || !pPlayer->IsObserver() || args.ArgC() != 2 )
+		return;
+
+	int iPlayerIndex = Q_atoi( args[1] );
+	if ( iPlayerIndex < 1 || iPlayerIndex > gpGlobals->maxClients )
+		return;
+
+	if ( engine->IsHLTV() )
+	{
+		if ( HLTVCamera()->IsPVSLocked() )
+			return;
+
+		C_BasePlayer *pTarget = UTIL_PlayerByIndex( iPlayerIndex );
+		if ( !pTarget || ( pTarget->IsObserver() && pTarget->GetTeamNumber() != TEAM_SPECTATOR ) )
+			return;
+
+		HLTVCamera()->SetPrimaryTarget( iPlayerIndex );
+		HLTVCamera()->SetAutoDirector( false );
+	}
+	else
+	{
+		ForwardSpecCmdToServer( args );
+	}
+}
+#endif
+
 CON_COMMAND_F( spec_player, "Spectate player by partial name, steamid, or userid", FCVAR_CLIENTCMD_CAN_EXECUTE )
 {
 	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
@@ -900,6 +1102,3 @@ CON_COMMAND_F( spec_player, "Spectate player by partial name, steamid, or userid
 		ForwardSpecCmdToServer( args );
 	}
 }
-
-
-

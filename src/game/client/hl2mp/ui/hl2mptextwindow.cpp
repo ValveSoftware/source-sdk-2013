@@ -140,6 +140,8 @@ void CHL2MPTextWindow::ApplySchemeSettings( vgui::IScheme *pScheme )
 
 CHL2MPSpectatorGUI::CHL2MPSpectatorGUI(IViewPort *pViewPort) : CSpectatorGUI(pViewPort)
 {
+	m_nLastSpecMode = -1;
+	m_nLastSpecTarget = NULL;
 }
 
 
