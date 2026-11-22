@@ -490,6 +490,7 @@ void CTFPlayerModelPanel::PlayVCD( const char *pszVCD, const char *pszWeaponEnti
 	m_bVCDFileNameOnly = bFileNameOnly;
 }
 
+extern ConVar _cl_classmenuopen;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -512,6 +513,25 @@ void CTFPlayerModelPanel::FireEvent( const char *pszEventName, const char *pszEv
 		{
 			m_aMergeMDLs[nWeaponIndex].m_bDisabled = false;
 		}
+	}
+	else if ( V_strcmp( pszEventName, "AE_CL_PLAYSOUND" ) == 0 || V_strcmp( pszEventName, "CL_EVENT_SOUND" )
+			|| V_strcmp( pszEventName, "CL_EVENT_FOOTSTEP_LEFT" ) || V_strcmp( pszEventName, "CL_EVENT_FOOTSTEP_RIGHT" ) )
+	{
+		if ( !engine->IsInGame() || !_cl_classmenuopen.GetBool() )
+			return;
+
+		soundlevel_t iSoundlevel = SNDLVL_NONE;
+
+		EmitSound_t es;
+		es.m_nChannel = CHAN_STATIC;
+		es.m_flVolume = 1;
+		es.m_SoundLevel = iSoundlevel;
+		es.m_flSoundTime = gpGlobals->curtime;
+		es.m_bEmitCloseCaption = false;
+		es.m_pSoundName = pszEventOptions;
+
+		C_RecipientFilter filter;
+		C_BaseEntity::EmitSound(filter, SOUND_FROM_UI_PANEL, es);
 	}
 }
 
@@ -2300,10 +2320,22 @@ void CTFPlayerModelPanel::SetupFlexWeights( void )
 
 	LocalFlexController_t i;
 
-	// Decay to neutral
-	for ( i = LocalFlexController_t(0); i < GetNumFlexControllers(); i++)
+	// a bit hackish, but this will let us know if we're entering a new scene.
+	if ( ( m_pScene && m_flLastTickTime < FLT_EPSILON ) || m_RootMDL.m_MDL.m_flTime < FLT_EPSILON )
 	{
-		SetFlexWeight( i, GetFlexWeight( i ) * 0.95 );
+		// reset flex weights
+		for (i = LocalFlexController_t(0); i < GetNumFlexControllers(); i++)
+		{
+			SetFlexWeight(i, 0.0f);
+		}
+	}
+	else
+	{
+		// Decay to neutral
+		for (i = LocalFlexController_t(0); i < GetNumFlexControllers(); i++)
+		{
+			SetFlexWeight(i, GetFlexWeight(i) * 0.95f);
+		}
 	}
 
 	// Run scene
@@ -2336,11 +2368,15 @@ void CTFPlayerModelPanel::SetupFlexWeights( void )
 		// Advance time
 		if ( m_flLastTickTime < FLT_EPSILON )
 		{
-			m_flLastTickTime = m_RootMDL.m_MDL.m_flTime - SCENE_LERP_TIME;
+			m_flLastTickTime = m_RootMDL.m_MDL.m_flTime;
+			// if we have an end time, we can give some time to lerp to idle.
+			if ( m_flSceneEndTime > FLT_EPSILON )
+			{
+				m_flLastTickTime -= SCENE_LERP_TIME;
+			}
 		}
 
 		m_flSceneTime += (m_RootMDL.m_MDL.m_flTime - m_flLastTickTime);
-		m_flSceneTime = Max( m_flSceneTime, -SCENE_LERP_TIME );
 		m_flLastTickTime = m_RootMDL.m_MDL.m_flTime;
 
 		if ( m_flSceneEndTime > FLT_EPSILON && m_flSceneTime > m_flSceneEndTime )
