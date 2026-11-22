@@ -517,6 +517,12 @@ bool GetPaintKitDefIndex( const TAttributeContainerType *pAttrContainer, uint32 
 
 bool GetStattrak( const IEconItemInterface *pItem, CAttribute_String *pAttrModule = NULL );
 const char *GetPaintKitMaterialOverride( const IEconItemInterface *pItem );
+
+// Item has a paintkit and "paintkit_cosmetic" "1" in items_game
+bool IsPaintKitCosmetic( const IEconItemInterface *pItem );
+
+// False for paintkit cosmetics, unless they have "paintkit_cosmetic_wear" "1"
+bool ShowPaintKitWear( const IEconItemInterface *pItem );
 const CEconItemCollectionDefinition* GetCollection( const IEconItemInterface* pItem );
 
 //-----------------------------------------------------------------------------

@@ -3498,7 +3498,8 @@ public:
 
 		// if we're not using high res, check if we should down res
 		// We may force low res for some composites. 
-		if ( pItem->ShouldWeaponSkinUseLowRes() || ( !pItem->ShouldWeaponSkinUseHighRes() && !cbPlayerIsLocalPlayer ) )
+		// Paintkit cosmetics always use the full texture size of the cosmetic (512)
+		if ( !IsPaintKitCosmetic( pItem ) && ( pItem->ShouldWeaponSkinUseLowRes() || ( !pItem->ShouldWeaponSkinUseHighRes() && !cbPlayerIsLocalPlayer ) ) )
 		{
 			const int cDropMips = 2;
 			desiredW = Max( 1, desiredW >> cDropMips );

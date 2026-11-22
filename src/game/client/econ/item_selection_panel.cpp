@@ -54,6 +54,9 @@ COMPILE_TIME_ASSERT( ARRAYSIZE( g_szEquipSlotHeader ) == CLASS_LOADOUT_POSITION_
 
 static bool ShouldItemNotStack( CEconItemView *pItemData )
 {
+	if ( IsPaintKitCosmetic( pItemData ) )
+		return true;
+
 	CEconItem *pSOCData = pItemData->GetSOCData();
 	if ( pSOCData )
 	{

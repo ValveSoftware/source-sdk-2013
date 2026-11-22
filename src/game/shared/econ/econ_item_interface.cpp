@@ -404,7 +404,7 @@ EEconItemQuality IEconItemInterface::GetMarketQuality() const
 	const bool bIsPaintkit = GetPaintKitDefIndex( this );
 	// Paintkits need to do some special checks.  Everything else can
 	// just return the regular GetQuality()
-	if ( !bIsPaintkit )
+	if ( !bIsPaintkit || IsPaintKitCosmetic( this ) )
 	{
 		return (EEconItemQuality)GetQuality();
 	}
@@ -499,6 +499,26 @@ bool GetStattrak( const IEconItemInterface *pItem, CAttribute_String *pAttrModul
 	}
 
 	return bRet;
+}
+
+bool IsPaintKitCosmetic( const IEconItemInterface *pItem )
+{
+	if ( !pItem || !GetPaintKitDefIndex( pItem ) )
+		return false;
+
+	const CEconItemDefinition *pItemDef = pItem->GetItemDefinition();
+	KeyValues *pKV = pItemDef ? pItemDef->GetRawDefinition() : NULL;
+	return pKV && pKV->GetBool( "paintkit_cosmetic" );
+}
+
+bool ShowPaintKitWear( const IEconItemInterface *pItem )
+{
+	if ( !IsPaintKitCosmetic( pItem ) )
+		return true;
+
+	const CEconItemDefinition *pItemDef = pItem->GetItemDefinition();
+	KeyValues *pKV = pItemDef ? pItemDef->GetRawDefinition() : NULL;
+	return pKV && pKV->GetBool( "paintkit_cosmetic_wear" );
 }
 
 const char *GetPaintKitMaterialOverride( const IEconItemInterface *pItem )
