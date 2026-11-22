@@ -2399,7 +2399,6 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 	{
 		// Heal faster if we haven't been in combat for a while
 		float flTimeSinceDamage = gpGlobals->curtime - m_pOuter->GetLastDamageReceivedTime();
-		float flScale = RemapValClamped( flTimeSinceDamage, 10.f, 15.f, 1.f, 3.f );
 		float flAttribModScale = 1.f;
 		
 		// Any attributes affecting heal rate?
@@ -2426,6 +2425,8 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 		{
 			Assert( m_aHealers[i].pHealer );
 
+			// Per healer, so the multipliers below don't stack across healers
+			float flScale = RemapValClamped( flTimeSinceDamage, 10.f, 15.f, 1.f, 3.f );
 			float flPerHealerAttribModScale = 1.f;
 			// Check if the healer has an attribute that modifies their overheal rate
 			if( flCurOverheal > 1.f && !m_aHealers[i].bDispenserHeal )
