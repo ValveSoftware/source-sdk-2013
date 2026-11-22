@@ -1361,6 +1361,7 @@ private:
 	CountdownTimer		m_inCombatThrottleTimer;
 
 	mutable char		m_bIsCalculatingMaximumSpeed;
+	char				m_bIsNotifyingSpeedWatchers;
 
 public:
 

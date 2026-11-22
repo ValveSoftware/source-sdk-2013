@@ -1050,6 +1050,7 @@ CTFPlayer::CTFPlayer()
 	m_iPreTauntWeaponSlot = -1;
 
 	m_bIsCalculatingMaximumSpeed = false;
+	m_bIsNotifyingSpeedWatchers = false;
 
 	m_flLastThinkTime = -1.f;
 
