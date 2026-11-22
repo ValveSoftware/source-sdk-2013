@@ -1414,9 +1414,19 @@ CBaseEntity* CHL2MP_Player::EntSelectSpawnPoint( void )
 		}
 	}
 
+	int nSpawnPointRange = 5;
+	if ( !pLastSpawnPoint )
+	{
+		nSpawnPointRange = 0;
+		while ( ( pSpot = gEntList.FindEntityByClassname( pSpot, pSpawnpointName ) ) != NULL )
+		{
+			++nSpawnPointRange;
+		}
+	}
+
 	pSpot = pLastSpawnPoint;
 	// Randomize the start spot
-	for ( int i = random->RandomInt(1,5); i > 0; i-- )
+	for ( int i = random->RandomInt( 1, MAX( nSpawnPointRange, 1 ) ); i > 0; i-- )
 		pSpot = gEntList.FindEntityByClassname( pSpot, pSpawnpointName );
 	if ( !pSpot )  // skip over the null point
 		pSpot = gEntList.FindEntityByClassname( pSpot, pSpawnpointName );
