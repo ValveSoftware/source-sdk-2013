@@ -261,7 +261,7 @@ int	CHudMenuEngyDestroy::HudElementKeyInput( int down, ButtonCode_t keynum, cons
 		if ( pObj && !pObj->HasSapper() && !pObj->IsPlasmaDisabled() )
 		{
 			char szCmd[128];
-			Q_snprintf( szCmd, sizeof(szCmd), "destroy %d %d; lastinv", iBuildingID, iMode );
+			Q_snprintf( szCmd, sizeof(szCmd), "pda_click; destroy %d %d; lastinv", iBuildingID, iMode );
 			engine->ExecuteClientCmd( szCmd );
 		}
 		else
