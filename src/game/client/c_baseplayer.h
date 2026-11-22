@@ -435,6 +435,8 @@ public:
 	int				m_afButtonLast;
 	int				m_afButtonPressed;
 	int				m_afButtonReleased;
+	int				m_afButtonDisabled;
+	int				m_afButtonForced;
 
 	int				m_nButtons;
 

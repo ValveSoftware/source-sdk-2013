@@ -8133,6 +8133,8 @@ void CMovementSpeedMod::InputSpeedMod(inputdata_t &data)
 
 		SendPropInt			( SENDINFO( m_nTickBase ), -1, SPROP_CHANGES_OFTEN ),
 		SendPropInt			( SENDINFO( m_nNextThinkTick ) ),
+		SendPropInt			( SENDINFO( m_afButtonDisabled ), 32, SPROP_UNSIGNED ),
+		SendPropInt			( SENDINFO( m_afButtonForced ), 32, SPROP_UNSIGNED ),
 
 		SendPropEHandle		( SENDINFO( m_hLastWeapon ) ),
 		SendPropEHandle		( SENDINFO( m_hGroundEntity ), SPROP_CHANGES_OFTEN ),

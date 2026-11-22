@@ -888,6 +888,9 @@ void CPrediction::RunCommand( C_BasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	Q_snprintf( sz, sizeof( sz ), "runcommand%04d", ucmd->command_number );
 	PREDICTION_TRACKVALUECHANGESCOPE( sz );
 #endif
+	ucmd->buttons |= player->m_afButtonForced;
+	ucmd->buttons &= ~player->m_afButtonDisabled;
+
 	StartCommand( player, ucmd );
 
 	// Set globals appropriately
@@ -1100,7 +1103,7 @@ void CPrediction::RemoveStalePredictedEntities( int sequence_number )
 
 		// If it was ack'd then the server sent us the entity.
 		// Leave it unless it wasn't made dormant this frame, in
-		//  which case it can be removed now
+			//  which case it can be removed now
 		if ( ent->m_PredictableID.GetAcknowledged() )
 		{
 			// Hasn't become dormant yet!!!
