@@ -875,6 +875,7 @@ void CClassLoadoutPanel::UpdateModelPanels( void )
 		m_pPlayerModelPanel->ClearCarriedItems();
 		m_pPlayerModelPanel->SetToPlayerClass( m_iCurrentClassIndex );
 		m_pPlayerModelPanel->SetTeam( m_iCurrentTeamIndex );
+		m_pPlayerModelPanel->SetIsLocalPlayerModel( true );
 	}
 
 	// For now, fill them out with the local player's currently wielded items

@@ -99,8 +99,9 @@ public:
 	virtual bool			AttachmentModelsShouldBeVisible( void ) { return true; }
 	void					GetEconParticleSystems( CUtlVector<const attachedparticlesystem_t *> *out_pvecParticleSystems ) const;
 
-	// Model swaping
+	// Model swapping
 	bool					ShouldDraw( void );
+	bool					IsHideableCosmetic( void );
 	bool					ShouldHideForVisionFilterFlags( void );
 
 	virtual bool			IsTransparent( void ) OVERRIDE;
