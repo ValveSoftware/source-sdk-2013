@@ -341,6 +341,10 @@ void CEmbeddedItemModelPanel::SetItem( CEconItemView *pItem )
 			}
 
 			const char *pszModelName = m_pItem->GetPlayerDisplayModel( nClass, 0 );
+			if ( m_bIsPaintKitItem && IsPaintKitCosmetic( m_pItem ) && m_pItem->GetInventoryModel() )
+			{
+				pszModelName = m_pItem->GetInventoryModel();
+			}
 			if ( pszModelName )
 			{
 				CMDL *pMDL = NULL;

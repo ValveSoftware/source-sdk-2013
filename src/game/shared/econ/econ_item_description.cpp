@@ -636,13 +636,14 @@ static void GenerateLocalizedFullItemName
 	bool bHasCustomName = false;
 	uint32 unPaintKitDefIndex = 0;
 	bool bIsPaintKitItem = GetPaintKitDefIndex( pEconItem, &unPaintKitDefIndex );
+	bool bIsPaintKitCosmetic = IsPaintKitCosmetic( pEconItem );
 	if ( bIsPaintKitItem )
 	{
 		if ( eFlagsMask == k_EGenerateLocalizedFullItemName_Default )
 		{
 			bIgnoreWear = true;
 
-			if ( ( unQuality != AE_STRANGE ) && ( unQuality != AE_SELFMADE ) )
+			if ( !bIsPaintKitCosmetic && ( unQuality != AE_STRANGE ) && ( unQuality != AE_SELFMADE ) )
 			{
 				bIgnoreQuality = true;
 			}
@@ -998,8 +999,11 @@ static void GenerateLocalizedFullItemName
 			const CPaintKitDefinition* pPaintKitDef = assert_cast< const CPaintKitDefinition* >( GetProtoScriptObjDefManager()->GetDefinition( ProtoDefID_t( DEF_TYPE_PAINTKIT_DEFINITION, unPaintKitDefIndex ) ) );
 			locchar_t *pPaintKitStr = pPaintKitDef ? pLocalizationProvider->FindSafe( pPaintKitDef->GetDescriptionToken() ) : NULL;
 
-			Econ_ConcatPaintKitName( szItemName, pPaintKitStr, pLocalizationProvider, pEconItemDefinition );
-			if ( !bIgnoreWear )
+			if ( !bIsPaintKitCosmetic )
+			{
+				Econ_ConcatPaintKitName( szItemName, pPaintKitStr, pLocalizationProvider, pEconItemDefinition );
+			}
+			if ( !bIgnoreWear && ShowPaintKitWear( pEconItem ) )
 			{
 				float flWear = 0;
 				if ( GetPaintKitWear( pEconItem, flWear ) )
@@ -1534,7 +1538,7 @@ void CEconItemDescription::Generate_ItemRarityDesc( const CLocalizationProvider 
 	const locchar_t *loc_WearText = LOCCHAR("");
 
 	float flWear = 0;
-	if ( GetPaintKitWear( pEconItem, flWear ) )
+	if ( ShowPaintKitWear( pEconItem ) && GetPaintKitWear( pEconItem, flWear ) )
 	{
 		loc_WearText = pLocalizationProvider->Find( GetWearLocalizationString( flWear ) );
 	}
@@ -1550,7 +1554,7 @@ void CEconItemDescription::Generate_ItemRarityDesc( const CLocalizationProvider 
 //-----------------------------------------------------------------------------
 void CEconItemDescription::Generate_WearAmountDesc( const CLocalizationProvider *pLocalizationProvider, const IEconItemInterface *pEconItem )
 {
-	if ( !GetPaintKitDefIndex( pEconItem ) )
+	if ( !GetPaintKitDefIndex( pEconItem ) || !ShowPaintKitWear( pEconItem ) )
 		return;
 
 	Assert( pLocalizationProvider );
