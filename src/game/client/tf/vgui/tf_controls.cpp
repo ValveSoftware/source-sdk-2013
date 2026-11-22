@@ -656,12 +656,40 @@ CTFAdvancedOptionsDialog::CTFAdvancedOptionsDialog(vgui::Panel *parent) : BaseCl
 	SetScheme(scheme);
 	SetProportional( true );
 
-	m_pListPanel = new vgui::PanelListPanel( this, "PanelListPanel" );
+	// Keeps the old "PanelListPanel" name so the base .res still finds it.
+	m_pPropertySheet = new CTFAdvancedOptionsSheet( this, "PanelListPanel" );
+	m_pPropertySheet->SetOwnerDialog( this );
+	m_pPropertySheet->SetKBNavigationEnabled( true );
+
+	m_pPrevTabButton = new CTFAdvancedOptionsArrowButton( this, "PrevTabButton", "<", this, "PrevTab" );
+	m_pNextTabButton = new CTFAdvancedOptionsArrowButton( this, "NextTabButton", ">", this, "NextTab" );
+
+	m_iFirstVisibleTab = 0;
+	m_iActiveTabIndex = 0;
+	m_bRefreshingTabWindow = false;
+	// Zeroed until ApplySchemeSettings() sets these.
+	m_iContentBoxX = 0;
+	m_iContentBoxY = 0;
+	m_iContentBoxWide = 0;
+	m_iBaseDialogWide = 0;
+	m_iBaseDialogTall = 0;
+	m_iBlackBoxX = 0;
+	m_iBlackBoxY = 0;
+	m_iBlackBoxWide = 0;
+	m_iBlackBoxTall = 0;
 
 	m_pList = NULL;
+	m_bUseTabs = true;
+	m_pScrollModeList = NULL;
 
 	m_pToolTip = new CTFTextToolTip( this );
 	m_pToolTipEmbeddedPanel = new vgui::EditablePanel( this, "TooltipPanel" );
+
+	// "PanelListPanel"/"TooltipPanel" are also top-level block names in the
+	// .res. Registering the BuildGroup makes LoadControlSettings() reuse
+	// these panels instead of spawning orphans.
+	m_pPropertySheet->SetBuildGroup( GetBuildGroup() );
+	m_pToolTipEmbeddedPanel->SetBuildGroup( GetBuildGroup() );
 	m_pToolTipEmbeddedPanel->SetKeyBoardInputEnabled( false );
 	m_pToolTipEmbeddedPanel->SetMouseInputEnabled( false );
 	m_pToolTip->SetEmbeddedPanel( m_pToolTipEmbeddedPanel );
@@ -693,22 +721,662 @@ void CTFAdvancedOptionsDialog::ApplySchemeSettings( vgui::IScheme *pScheme )
 	BaseClass::ApplySchemeSettings( pScheme );
 
 	LoadControlSettings("resource/ui/TFAdvancedOptionsDialog.res");
-	m_pListPanel->SetFirstColumnWidth( 0 );
 
+	// Base size captured once on the first run (m_iContentBoxWide still 0).
+	// GetSize() would return the already-widened size on later calls.
+	int wide, tall;
+	GetSize( wide, tall );
+	if ( m_iContentBoxWide == 0 )
+	{
+		m_iBaseDialogWide = wide;
+		m_iBaseDialogTall = tall;
+	}
+	int iSideRoom = GetArrowSize() + TF_ADVOPT_ARROW_GAP;
+	SetSize( m_iBaseDialogWide + 2 * iSideRoom, m_iBaseDialogTall + 80 );
+	// SetSize() doesn't update wide/tall in place.
+	GetSize( wide, tall );
+
+	// Sheet bounds come from the .res, captured the first time this runs,
+	// and stay at their pre-widen width, re-centered in the wider dialog.
+	int contentX = m_iContentBoxX;
+	int contentY = m_iContentBoxY;
+	int contentWide = m_iContentBoxWide;
+	if ( m_iContentBoxWide == 0 )
+	{
+		int rawX, rawY, rawWide, rawTall;
+		m_pPropertySheet->GetBounds( rawX, rawY, rawWide, rawTall );
+
+		int iTwoButtons = 2 * GetArrowSize();
+
+		contentX = ( wide - rawWide ) / 2 + iTwoButtons / 2 + TF_ADVOPT_TABBAR_X_OFFSET;
+		contentY = rawY + TF_ADVOPT_TABBAR_Y_OFFSET;
+		contentWide = rawWide - iTwoButtons + TF_ADVOPT_TABBAR_WIDE_OFFSET;
+
+		m_iContentBoxX = contentX;
+		m_iContentBoxY = contentY;
+		m_iContentBoxWide = contentWide;
+
+		// Black box spans arrow-to-arrow width, iSideRoom past the tab
+		// bar's edge on both sides.
+		m_iBlackBoxX = ( contentX - iSideRoom ) + TF_ADVOPT_BLACKBOX_X_OFFSET;
+		m_iBlackBoxY = rawY + m_pPropertySheet->GetCurrentTabHeight() + 2 + TF_ADVOPT_BLACKBOX_Y_OFFSET;
+		m_iBlackBoxWide = ( contentWide + 2 * iSideRoom ) + TF_ADVOPT_BLACKBOX_WIDE_OFFSET;
+	}
+
+	int iNewContentTall = ( tall - TF_ADVOPT_BUTTON_AREA_TALL ) - contentY + TF_ADVOPT_TABBAR_TALL_OFFSET;
+	m_iBlackBoxTall = ( tall - TF_ADVOPT_BUTTON_AREA_TALL ) - m_iBlackBoxY + TF_ADVOPT_BLACKBOX_TALL_OFFSET;
+
+	m_pPropertySheet->SetBounds( contentX, contentY, contentWide, iNewContentTall );
+
+	// CreateControls() reads "tf_advopt_use_tabs" and updates m_bUseTabs,
+	// which everything below depends on.
 	CreateControls();
+
+	m_pPropertySheet->SetVisible( m_bUseTabs );
+	m_pPrevTabButton->SetVisible( m_bUseTabs );
+	m_pNextTabButton->SetVisible( m_bUseTabs );
+
+	if ( m_bUseTabs )
+	{
+		RestyleArrowButtons();
+		UpdateTabArrowStates();
+		RestyleTabs();
+	}
+	else if ( m_pScrollModeList )
+	{
+		m_pScrollModeList->SetBounds( m_iBlackBoxX, contentY, m_iBlackBoxWide, iNewContentTall );
+		m_pScrollModeList->SetVisible( true );
+		m_pScrollModeList->MoveToFront();
+	}
+
+	RestyleFrameChrome();
 }
 
-
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CTFAdvancedOptionsDialog::ApplySettings( KeyValues *inResourceData )
 {
 	BaseClass::ApplySettings( inResourceData );
 }
 
+// Button::ApplySchemeSettings() resets colors from scheme after this
+// dialog's own layout has already set them.
+void CTFAdvancedOptionsDialog::PerformLayout()
+{
+	BaseClass::PerformLayout();
+
+	RestyleArrowButtons();
+}
+
+void CTFAdvancedOptionsDialog::OnThink()
+{
+	BaseClass::OnThink();
+
+	// Widths may change during deferred VGUI layout.
+	ForceTabWidthsNow();
+	m_pPropertySheet->InvalidateLayout( true );
+
+	RestyleArrowButtons();
+
+	// PropertySheet can activate the wrong page while pages are rebuilt.
+	ShowActiveTabContent();
+
+	// Must run last: ForceTabWidthsNow()'s per-tab layout runs each
+	// PageTab's own PerformLayout(), which resets its colors from scheme.
+	RestyleTabs();
+}
+
+void CTFAdvancedOptionsDialog::RestyleArrowButtons()
+{
+	if ( !m_pPrevTabButton || !m_pNextTabButton )
+		return;
+
+	// Bounds need ApplySchemeSettings() to have run. Colors don't.
+	if ( m_iContentBoxWide > 0 )
+	{
+		const int iLeftArrowSize = GetArrowSize() + TF_ADVOPT_LEFT_ARROW_SIZE_OFFSET;
+		const int iRightArrowSize = GetArrowSize() + TF_ADVOPT_RIGHT_ARROW_SIZE_OFFSET;
+		const int iLeftArrowY = m_iContentBoxY + 4 + TF_ADVOPT_LEFT_ARROW_Y_OFFSET;
+		const int iRightArrowY = m_iContentBoxY + 4 + TF_ADVOPT_RIGHT_ARROW_Y_OFFSET;
+		const int iLeftArrowX = m_iContentBoxX - TF_ADVOPT_ARROW_GAP - iLeftArrowSize + TF_ADVOPT_LEFT_ARROW_X_OFFSET;
+		const int iRightArrowX = m_iContentBoxX + m_iContentBoxWide + TF_ADVOPT_ARROW_GAP + TF_ADVOPT_RIGHT_ARROW_X_OFFSET;
+
+		m_pPrevTabButton->SetBounds( iLeftArrowX, iLeftArrowY, iLeftArrowSize, iLeftArrowSize );
+		m_pNextTabButton->SetBounds( iRightArrowX, iRightArrowY, iRightArrowSize, iRightArrowSize );
+	}
+
+	IScheme *pScheme = scheme()->GetIScheme( GetScheme() );
+	// Matches the tab strip's idle background so arrows read as one surface.
+	Color colIdleBg( 0x77, 0x6B, 0x5F, 255 );
+	Color colAccent( 0x91, 0x46, 0x38, 255 );
+	Color colFont( 0xEC, 0xE3, 0xCB, 255 );
+	Color colDisabledFg( 130, 120, 110, 255 );
+
+	vgui::HFont hArrowFont = pScheme->GetFont( "HudFontMediumBold", true );
+
+	vgui::Button *pArrows[ 2 ] = { m_pPrevTabButton, m_pNextTabButton };
+	for ( int i = 0; i < 2; i++ )
+	{
+		vgui::Button *pArrow = pArrows[ i ];
+		pArrow->SetFont( hArrowFont );
+		pArrow->SetContentAlignment( vgui::Label::a_center );
+		pArrow->SetPaintBackgroundEnabled( true );
+		// Button's scheme default (type 2) is rounded/textured regardless
+		// of the border setting. Force square corners.
+		pArrow->SetPaintBackgroundType( 0 );
+		pArrow->SetPaintBorderEnabled( false );
+		pArrow->DrawFocusBox( false );
+		pArrow->SetDefaultColor( pArrow->IsEnabled() ? colFont : colDisabledFg, colIdleBg );
+		pArrow->SetArmedColor( colFont, colAccent );
+		pArrow->SetDepressedColor( colFont, colAccent );
+
+		// Only PerformLayout() bakes these colors in.
+		if ( pArrow->IsArmed() && pArrow->IsEnabled() )
+		{
+			pArrow->SetFgColor( colFont );
+			pArrow->SetBgColor( colAccent );
+		}
+		else
+		{
+			pArrow->SetFgColor( pArrow->IsEnabled() ? colFont : colDisabledFg );
+			pArrow->SetBgColor( colIdleBg );
+		}
+	}
+}
+
+void CTFAdvancedOptionsDialog::UpdateTabArrowStates( void )
+{
+	if ( !m_pPrevTabButton || !m_pNextTabButton )
+		return;
+
+	bool bEnabled = m_vecTabPages.Count() > 1;
+	m_pPrevTabButton->SetEnabled( bEnabled );
+	m_pNextTabButton->SetEnabled( bEnabled );
+
+	RestyleArrowButtons();
+}
+
+// Survives reopening the dialog this session. Resets on next launch.
+static CUtlString s_strTFAdvOptLastActiveTab;
+
+void CTFAdvancedOptionsDialog::OnActiveTabChangedInWindow( int iIndexWithinWindow )
+{
+	if ( m_bRefreshingTabWindow )
+		return;
+
+	int iCount = m_vecTabPages.Count();
+	if ( iCount <= 0 )
+		return;
+
+	m_iActiveTabIndex = ( m_iFirstVisibleTab + iIndexWithinWindow ) % iCount;
+	s_strTFAdvOptLastActiveTab = m_vecTabTitles[ m_iActiveTabIndex ];
+
+	ShowActiveTabContent();
+	RestyleTabs();
+	UpdateTabArrowStates();
+}
+
+// Re-attaches a sliding window of TF_ADVOPT_VISIBLE_TAB_COUNT categories,
+// centered on the active tab.
+void CTFAdvancedOptionsDialog::RefreshVisibleTabPages()
+{
+	int iCount = m_vecTabPages.Count();
+	if ( iCount == 0 )
+		return;
+
+	int iTargetIndex = m_iActiveTabIndex;
+	if ( iTargetIndex >= iCount )
+		iTargetIndex = iCount - 1;
+	if ( iTargetIndex < 0 )
+		iTargetIndex = 0;
+
+	m_bRefreshingTabWindow = true;
+	m_pPropertySheet->RemoveAllPages();
+
+	if ( m_iFirstVisibleTab > iTargetIndex )
+	{
+		m_iFirstVisibleTab = iTargetIndex;
+	}
+	if ( m_iFirstVisibleTab + TF_ADVOPT_VISIBLE_TAB_COUNT <= iTargetIndex )
+	{
+		m_iFirstVisibleTab = iTargetIndex - TF_ADVOPT_VISIBLE_TAB_COUNT + 1;
+	}
+	if ( m_iFirstVisibleTab < 0 )
+	{
+		m_iFirstVisibleTab = 0;
+	}
+
+	int iEnd = m_iFirstVisibleTab + TF_ADVOPT_VISIBLE_TAB_COUNT;
+	if ( iEnd > iCount )
+	{
+		iEnd = iCount;
+	}
+
+	for ( int i = m_iFirstVisibleTab; i < iEnd; i++ )
+	{
+		m_pPropertySheet->AddPage( m_vecTabPages[i], m_vecTabTitles[i].Get() );
+	}
+
+	m_bRefreshingTabWindow = false;
+	m_iActiveTabIndex = iTargetIndex;
+
+	// AddPage()'s own activation fallback may have picked a different page,
+	// and can leave its tab button unshown until the next layout pass.
+	m_pPropertySheet->SetActivePage( m_vecTabPages[ iTargetIndex ] );
+	for ( int i = 0; i < m_pPropertySheet->GetChildCount(); i++ )
+	{
+		vgui::Button *pTab = dynamic_cast< vgui::Button* >( m_pPropertySheet->GetChild( i ) );
+		if ( pTab && !pTab->IsMarkedForDeletion() )
+		{
+			pTab->SetVisible( true );
+		}
+	}
+
+	ShowActiveTabContent();
+	RestyleTabs();
+	UpdateTabArrowStates();
+
+	// Resolves tab widths now. Deferred VGUI layout isn't guaranteed to
+	// land before the first painted frame.
+	ForceTabWidthsNow();
+	m_pPropertySheet->InvalidateLayout( true );
+
+	// bWrap=true: a tail-end window needs to wrap-fill from the front.
+	FillRemainingSpaceWithTabs( true, m_iFirstVisibleTab, iEnd - m_iFirstVisibleTab );
+}
+
+void CTFAdvancedOptionsDialog::ForceTabWidthsNow()
+{
+	for ( int i = 0; i < m_pPropertySheet->GetChildCount(); i++ )
+	{
+		vgui::Button *pTab = dynamic_cast< vgui::Button* >( m_pPropertySheet->GetChild( i ) );
+		if ( pTab && !pTab->IsMarkedForDeletion() )
+		{
+			pTab->InvalidateLayout( true, false );
+		}
+	}
+}
+
+// Attaches the next category and measures its actual fit via VGUI layout,
+// not a hand-rolled width estimate. Keeps going while more fit.
+void CTFAdvancedOptionsDialog::FillRemainingSpaceWithTabs( bool bWrap, int iWindowStart, int iWindowCount )
+{
+	int iCount = m_vecTabPages.Count();
+	int iAdded = 0;
+
+	while ( iWindowCount + iAdded < iCount )
+	{
+		int iNextIdx = bWrap
+			? ( iWindowStart + iWindowCount + iAdded ) % iCount
+			: iWindowStart + iWindowCount + iAdded;
+
+		if ( iNextIdx < 0 || iNextIdx >= iCount )
+			break;
+
+		m_bRefreshingTabWindow = true;
+		m_pPropertySheet->AddPage( m_vecTabPages[ iNextIdx ], m_vecTabTitles[ iNextIdx ].Get() );
+		ForceTabWidthsNow();
+		m_pPropertySheet->InvalidateLayout( true );
+
+		int sheetX, sheetY, sheetWide, sheetTall;
+		m_pPropertySheet->GetBounds( sheetX, sheetY, sheetWide, sheetTall );
+
+		bool bFits = false;
+		for ( int i = 0; i < m_pPropertySheet->GetChildCount(); i++ )
+		{
+			vgui::Button *pTab = dynamic_cast< vgui::Button* >( m_pPropertySheet->GetChild( i ) );
+			// An outgoing tab for the same category can briefly coexist
+			// with the one just attached. Skip it, or text matching could
+			// pick the wrong instance's bounds.
+			if ( !pTab || pTab->IsMarkedForDeletion() )
+				continue;
+
+			char szTabText[ 128 ];
+			pTab->GetText( szTabText, sizeof( szTabText ) );
+			if ( !Q_stricmp( szTabText, m_vecTabTitles[ iNextIdx ].Get() ) )
+			{
+				int tx, ty, tw, th;
+				pTab->GetBounds( tx, ty, tw, th );
+				bFits = ( tx + tw <= sheetWide - TF_ADVOPT_TAB_RIGHT_MARGIN );
+
+				if ( !bFits )
+				{
+					// SetText() alone doesn't resize the button. Re-measure
+					// via SizeToContents() after each truncation.
+					char szTruncated[ 128 ];
+					V_strcpy_safe( szTruncated, szTabText );
+					int iLen = V_strlen( szTruncated );
+
+					while ( iLen > 3 )
+					{
+						iLen--;
+						szTruncated[ iLen ] = '\0';
+
+						char szWithEllipsis[ 132 ];
+						Q_snprintf( szWithEllipsis, sizeof( szWithEllipsis ), "%s..", szTruncated );
+						pTab->SetText( szWithEllipsis );
+						pTab->SizeToContents();
+
+						// Matches PropertySheet's own tab sizing.
+						int iXInset, iYInset;
+						pTab->GetTextInset( &iXInset, &iYInset );
+						pTab->SetWide( pTab->GetWide() + iXInset * 2 );
+
+						pTab->GetBounds( tx, ty, tw, th );
+						if ( tx + tw <= sheetWide - TF_ADVOPT_TAB_RIGHT_MARGIN )
+						{
+							bFits = true;
+							break;
+						}
+					}
+				}
+				break;
+			}
+		}
+
+		m_bRefreshingTabWindow = false;
+		iAdded++;
+
+		if ( !bFits )
+			break;
+	}
+
+	if ( iAdded > 0 )
+	{
+		// AddPage() hides whatever panel it's just handed, including the
+		// active tab's content if arrow-holding pushed it into this loop.
+		ShowActiveTabContent();
+		RestyleTabs();
+		UpdateTabArrowStates();
+	}
+}
+
+void CTFAdvancedOptionsDialog::ShowActiveTabContent()
+{
+	// Scroll mode uses m_pScrollModeList instead.
+	if ( !m_bUseTabs )
+	{
+		for ( int i = 0; i < m_vecTabPages.Count(); i++ )
+		{
+			m_vecTabPages[ i ]->SetVisible( false );
+		}
+		return;
+	}
+
+	if ( !m_vecTabPages.IsValidIndex( m_iActiveTabIndex ) )
+		return;
+
+	// Parented directly to this dialog, not the sheet: the sheet is
+	// narrower than the black box needs to be.
+	for ( int i = 0; i < m_vecTabPages.Count(); i++ )
+	{
+		if ( i == m_iActiveTabIndex )
+		{
+			vgui::PanelListPanel *pActive = m_vecTabPages[ i ];
+			if ( pActive->GetParent() != this )
+			{
+				pActive->SetParent( this );
+			}
+			pActive->SetBounds( m_iBlackBoxX, m_iBlackBoxY, m_iBlackBoxWide, m_iBlackBoxTall );
+			pActive->SetVisible( true );
+			pActive->MoveToFront();
+			pActive->MakeReadyForUse();
+		}
+		else
+		{
+			m_vecTabPages[ i ]->SetVisible( false );
+		}
+	}
+}
+
+void CTFAdvancedOptionsDialog::SlideTabWindow( int iDelta )
+{
+	int iCount = m_vecTabPages.Count();
+	if ( iCount <= 0 )
+		return;
+
+	m_iFirstVisibleTab = ( m_iFirstVisibleTab + iDelta + iCount ) % iCount;
+
+	m_bRefreshingTabWindow = true;
+	m_pPropertySheet->RemoveAllPages();
+
+	// Wraps individual tab indices with modulo, not just the window's
+	// start, so the window doesn't shrink near the tail.
+	int iWindowCount = min( TF_ADVOPT_VISIBLE_TAB_COUNT, iCount );
+	for ( int offset = 0; offset < iWindowCount; offset++ )
+	{
+		int idx = ( m_iFirstVisibleTab + offset ) % iCount;
+		m_pPropertySheet->AddPage( m_vecTabPages[ idx ], m_vecTabTitles[ idx ].Get() );
+	}
+
+	m_bRefreshingTabWindow = false;
+
+	// AddPage() may have activated its own first page instead of
+	// m_iActiveTabIndex's category. Set it explicitly.
+	if ( m_vecTabPages.IsValidIndex( m_iActiveTabIndex ) )
+	{
+		m_pPropertySheet->SetActivePage( m_vecTabPages[ m_iActiveTabIndex ] );
+	}
+
+	ShowActiveTabContent();
+	RestyleTabs();
+	UpdateTabArrowStates();
+	ForceTabWidthsNow();
+	m_pPropertySheet->InvalidateLayout( true );
+
+	// Meaningless if the window contains every category already.
+	if ( iWindowCount < iCount )
+	{
+		FillRemainingSpaceWithTabs( true, m_iFirstVisibleTab, iWindowCount );
+	}
+}
+
+// Found by text content since the .res doesn't name these panels.
+void CTFAdvancedOptionsDialog::RestyleFrameChrome()
+{
+	vgui::Label *pOKButton = NULL;
+	vgui::Label *pCancelButton = NULL;
+
+	for ( int i = 0; i < GetChildCount(); i++ )
+	{
+		vgui::Panel *pChild = GetChild( i );
+		vgui::Label *pLabel = pChild ? dynamic_cast< vgui::Label* >( pChild ) : NULL;
+		if ( !pLabel )
+			continue;
+
+		char szText[ 128 ];
+		pLabel->GetText( szText, sizeof( szText ) );
+
+		if ( !pOKButton && !Q_stricmp( szText, "OK" ) )
+		{
+			pOKButton = pLabel;
+			pOKButton->SetContentAlignment( vgui::Label::a_center );
+		}
+		else if ( !pCancelButton && !Q_stricmp( szText, "Cancel" ) )
+		{
+			pCancelButton = pLabel;
+			pCancelButton->SetContentAlignment( vgui::Label::a_center );
+		}
+		else if ( V_strstr( szText, "Advanced Options" ) )
+		{
+			int wide, tall;
+			GetSize( wide, tall );
+
+			pLabel->SetText( "Advanced Options" );
+			pLabel->SetContentAlignment( vgui::Label::a_center );
+			pLabel->SetWide( wide );
+			pLabel->SetPos( 0, pLabel->GetYPos() );
+		}
+	}
+
+	if ( pOKButton && pCancelButton )
+	{
+		int wide, tall;
+		GetSize( wide, tall );
+
+		const int iButtonWide = 210;
+		const int iButtonTall = TF_ADVOPT_BUTTON_TALL;
+		const int iButtonGap = 80;
+		int iPairWide = iButtonWide * 2 + iButtonGap;
+		// Centered within the content box, so it lines up above the buttons.
+		int iPairX = m_iContentBoxX + ( m_iContentBoxWide - iPairWide ) / 2;
+		int iButtonY = tall - TF_ADVOPT_BUTTON_MARGIN - iButtonTall;
+
+		pCancelButton->SetBounds( iPairX, iButtonY, iButtonWide, iButtonTall );
+		pOKButton->SetBounds( iPairX + iButtonWide + iButtonGap, iButtonY, iButtonWide, iButtonTall );
+	}
+}
+
+// Skipped if already correct: ChangeActiveTab() steals keyboard focus back
+// to the tab button, interrupting typing in any text field every layout pass.
+void CTFAdvancedOptionsDialog::ResyncActiveTabWithSheet()
+{
+	if ( !m_vecTabPages.IsValidIndex( m_iActiveTabIndex ) )
+		return;
+
+	vgui::Panel *pTarget = m_vecTabPages[ m_iActiveTabIndex ];
+	if ( m_pPropertySheet->GetActivePage() == pTarget )
+		return;
+
+	m_pPropertySheet->SetActivePage( pTarget );
+}
+
+// Called every frame from OnThink(): PageTab's colors only get baked in
+// during PerformLayout(), which hover/cursor events don't reliably trigger.
+void CTFAdvancedOptionsDialog::RestyleTabs()
+{
+	// Idle matches the arrows so tabs and arrows read as one surface.
+	Color colIdleBg( 0x77, 0x6B, 0x5F, 255 );
+	Color colHoverBg( 0x91, 0x46, 0x38, 255 );
+	Color colSelectedBg( 0x4E, 0x47, 0x49, 255 );
+	Color colFont( 0xEC, 0xE3, 0xCB, 255 );
+
+	IScheme *pScheme = scheme()->GetIScheme( GetScheme() );
+	vgui::HFont hTabFont = pScheme->GetFont( "TF2/Secondary/Build", true );
+
+	// PageTab resets its text color during layout. Set it via KeyValues instead.
+	char szColorStr[ 32 ];
+	Q_snprintf( szColorStr, sizeof( szColorStr ), "%d %d %d %d", colFont.r(), colFont.g(), colFont.b(), colFont.a() );
+	KeyValues *pTabColorKV = new KeyValues( "TabTextColor" );
+	pTabColorKV->SetString( "selectedcolor", szColorStr );
+	pTabColorKV->SetString( "unselectedcolor", szColorStr );
+
+	for ( int i = 0; i < m_pPropertySheet->GetChildCount(); i++ )
+	{
+		vgui::Button *pTab = dynamic_cast< vgui::Button* >( m_pPropertySheet->GetChild( i ) );
+		if ( !pTab )
+			continue;
+		// RemovePage() marks a tab for deletion without hiding it. Skip it.
+		if ( pTab->IsMarkedForDeletion() )
+			continue;
+
+		char szTabText[ 128 ];
+		pTab->GetText( szTabText, sizeof( szTabText ) );
+		const char *pszActiveTitle = m_vecTabTitles[ m_iActiveTabIndex ].Get();
+		bool bIsSelected = !Q_stricmp( szTabText, pszActiveTitle );
+		if ( !bIsSelected )
+		{
+			// FillRemainingSpaceWithTabs() may have truncated this tab's
+			// text to "<prefix>..". Compare just the prefix in that case.
+			int iLen = V_strlen( szTabText );
+			if ( iLen > 2 && szTabText[ iLen - 1 ] == '.' && szTabText[ iLen - 2 ] == '.' )
+			{
+				bIsSelected = !Q_strnicmp( szTabText, pszActiveTitle, iLen - 2 );
+			}
+		}
+
+		// PropertySheet's own _activeTab can be wrong once the real
+		// selection scrolls out of view. Use bIsSelected instead.
+		{
+			int tx, ty, tw, th;
+			pTab->GetBounds( tx, ty, tw, th );
+			int tabHeight = m_pPropertySheet->GetCurrentTabHeight();
+			int correctY = bIsSelected ? 2 : 4;
+			int correctTall = bIsSelected ? tabHeight : ( tabHeight - 2 );
+			if ( ty != correctY || th != correctTall )
+			{
+				pTab->SetPos( tx, correctY );
+				pTab->SetTall( correctTall );
+			}
+		}
+
+		pTab->ApplySettings( pTabColorKV );
+		pTab->SetFgColor( colFont );
+		pTab->SetFont( hTabFont );
+		pTab->SetContentAlignment( vgui::Label::a_center );
+		// PageTab inherits Button's non-flat PaintBackgroundType default.
+		pTab->SetPaintBackgroundEnabled( true );
+		pTab->SetPaintBackgroundType( 0 );
+		pTab->SetPaintBorderEnabled( false );
+
+		// PageTab overrides OnCursorEntered/Exited() without calling the
+		// base class, so hover uses raw cursor position.
+		int mouseX, mouseY;
+		vgui::input()->GetCursorPos( mouseX, mouseY );
+		bool bIsHovered = pTab->IsWithin( mouseX, mouseY );
+
+		if ( bIsHovered )
+		{
+			pTab->SetBgColor( colHoverBg );
+		}
+		else if ( bIsSelected )
+		{
+			pTab->SetBgColor( colSelectedBg );
+		}
+		else
+		{
+			pTab->SetBgColor( colIdleBg );
+		}
+	}
+
+	pTabColorKV->deleteThis();
+}
+
+void CTFAdvancedOptionsSheet::ChangeActiveTab( int index )
+{
+	BaseClass::ChangeActiveTab( index );
+
+	if ( m_pOwnerDialog )
+	{
+		// Mirrors BaseClass's own index wrapping, which it doesn't report back.
+		int iPageCount = GetNumPages();
+		if ( iPageCount > 0 )
+		{
+			if ( index < 0 )
+			{
+				index = iPageCount - 1;
+			}
+			else if ( index >= iPageCount )
+			{
+				index = 0;
+			}
+		}
+
+		m_pOwnerDialog->OnActiveTabChangedInWindow( index );
+	}
+}
+
+// ResyncActiveTabWithSheet() runs before the base class, which reads
+// _activeTab to decide the taller box. RestyleTabs() reapplies colors
+// after, since a newly created PageTab's own scheme settings would undo them.
+void CTFAdvancedOptionsSheet::PerformLayout()
+{
+	if ( m_pOwnerDialog )
+	{
+		m_pOwnerDialog->ResyncActiveTabWithSheet();
+	}
+
+	BaseClass::PerformLayout();
+
+	if ( m_pOwnerDialog )
+	{
+		m_pOwnerDialog->RestyleTabs();
+	}
+}
+
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CTFAdvancedOptionsDialog::OnClose()
 {
@@ -755,6 +1423,16 @@ void CTFAdvancedOptionsDialog::OnCommand( const char *command )
 		OnClose();
 		return;
 	}
+	else if ( !stricmp( command, "PrevTab" ) )
+	{
+		SlideTabWindow( -1 );
+		return;
+	}
+	else if ( !stricmp( command, "NextTab" ) )
+	{
+		SlideTabWindow( 1 );
+		return;
+	}
 
 	BaseClass::OnCommand( command );
 }
@@ -782,14 +1460,37 @@ void CTFAdvancedOptionsDialog::OnKeyCodePressed(KeyCode code)
 	{
 		OnClose();
 	}
+	else if ( code == KEY_LEFT )
+	{
+		OnCommand( "PrevTab" );
+	}
+	else if ( code == KEY_RIGHT )
+	{
+		OnCommand( "NextTab" );
+	}
 	else
 	{
 		BaseClass::OnKeyCodePressed(code);
 	}
 }
 
+// Closes on a click outside this modal dialog's bounds.
+void CTFAdvancedOptionsDialog::OnMousePressed( MouseCode code )
+{
+	int mouseX, mouseY;
+	vgui::input()->GetCursorPos( mouseX, mouseY );
+
+	if ( !IsWithin( mouseX, mouseY ) )
+	{
+		OnClose();
+		return;
+	}
+
+	BaseClass::OnMousePressed( code );
+}
+
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CTFAdvancedOptionsDialog::GatherCurrentValues()
 {
@@ -889,12 +1590,60 @@ void CTFAdvancedOptionsDialog::GatherCurrentValues()
 	}
 }
 
+CUtlString CTFAdvancedOptionsDialog::ResolveCategoryDisplayText( const char *pszPrompt )
+{
+	if ( !pszPrompt || pszPrompt[ 0 ] != '#' )
+	{
+		return CUtlString( pszPrompt );
+	}
+
+	wchar_t *pszLocalized = g_pVGuiLocalize->Find( pszPrompt );
+	if ( !pszLocalized )
+	{
+		return CUtlString( pszPrompt );
+	}
+
+	char szAnsi[ 128 ];
+	g_pVGuiLocalize->ConvertUnicodeToANSI( pszLocalized, szAnsi, sizeof( szAnsi ) );
+	return CUtlString( szAnsi );
+}
+
+void CTFAdvancedOptionsDialog::ApplyAutoHideScrollbar( vgui::PanelListPanel *pPanel )
+{
+	KeyValues *pKV = new KeyValues( "AutoHideScrollbar" );
+	pKV->SetString( "autohide_scrollbar", "1" );
+	pPanel->ApplySettings( pKV );
+	pKV->deleteThis();
+}
+
+// Backs the "tf_advopt_use_tabs" .scr entry. Without a real ConVar,
+// WriteToConfig() sends it to the engine as an unknown command and the
+// choice never survives a restart.
+ConVar tf_advopt_use_tabs( "tf_advopt_use_tabs", "1", FCVAR_ARCHIVE,
+	"Use tabs in the Advanced Options dialog. Takes effect next time it's opened." );
+
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CTFAdvancedOptionsDialog::CreateControls()
 {
 	DestroyControls();
+
+	CScriptObject *pUseTabsObj = m_pDescription->FindObject( "tf_advopt_use_tabs" );
+	m_bUseTabs = !pUseTabsObj || pUseTabsObj->fdefValue != 0.0f;
+
+	if ( m_bUseTabs )
+	{
+		m_pScrollModeList = NULL;
+	}
+	else
+	{
+		// Every category becomes a divider row inline in one list instead
+		// of its own tab.
+		m_pScrollModeList = new vgui::PanelListPanel( this, "AdvancedOptionsScrollList" );
+		m_pScrollModeList->SetFirstColumnWidth( 0 );
+		ApplyAutoHideScrollbar( m_pScrollModeList );
+	}
 
 	// Go through desciption creating controls
 	CScriptObject *pObj;
@@ -930,7 +1679,12 @@ void CTFAdvancedOptionsDialog::CreateControls()
 	CCvarSlider *pSlider;
 	CScriptListItem *pListItem;
 
-	Panel *objParent = m_pListPanel;
+	// Each O_CATEGORY entry starts a new tab. objParent switches to its
+	// list for everything up to the next category.
+	vgui::PanelListPanel *objParent = NULL;
+	// Merges scroll-mode dividers by resolved name, same as m_vecTabTitles
+	// does for tabs, so a reused category name doesn't get a duplicate.
+	CUtlVector< CUtlString > vecSeenScrollCategories;
 
 	IScheme *pScheme = scheme()->GetIScheme( GetScheme() );
 	vgui::HFont hTextFont = pScheme->GetFont( "HudFontSmallestBold", true );
@@ -942,6 +1696,96 @@ void CTFAdvancedOptionsDialog::CreateControls()
 		{
 			pObj = pObj->pNext;
 			continue;
+		}
+
+		if ( pObj->type == O_CATEGORY )
+		{
+			if ( !m_bUseTabs )
+			{
+				objParent = m_pScrollModeList;
+
+				CUtlString strResolved = ResolveCategoryDisplayText( pObj->prompt );
+				bool bAlreadySeen = false;
+				for ( int i = 0; i < vecSeenScrollCategories.Count(); i++ )
+				{
+					if ( !Q_stricmp( vecSeenScrollCategories[ i ].Get(), strResolved.Get() ) )
+					{
+						bAlreadySeen = true;
+						break;
+					}
+				}
+
+				if ( !bAlreadySeen )
+				{
+					vecSeenScrollCategories.AddToTail( strResolved );
+
+					vgui::Label *pDivider = new vgui::Label( objParent, "CategoryDivider", pObj->prompt );
+					pDivider->SetFont( pScheme->GetFont( "HudFontSmallBold", true ) );
+					pDivider->SetFgColor( pScheme->GetColor( "TFOrange", Color( 235, 126, 30, 255 ) ) );
+					pDivider->SetContentAlignment( vgui::Label::a_west );
+					pDivider->SetTextInset( 5, 0 );
+					pDivider->SetSize( m_iControlW, m_iControlH );
+					objParent->AddItem( NULL, pDivider );
+				}
+
+				pObj = pObj->pNext;
+				continue;
+			}
+
+			// A category matching an existing tab's resolved display name
+			// routes into that tab instead of creating a duplicate.
+			CUtlString strThisPromptResolved = ResolveCategoryDisplayText( pObj->prompt );
+			int iExistingTab = -1;
+			for ( int iTab = 0; iTab < m_vecTabTitles.Count(); iTab++ )
+			{
+				if ( !Q_stricmp( m_vecTabTitles[ iTab ].Get(), strThisPromptResolved.Get() ) )
+				{
+					iExistingTab = iTab;
+					break;
+				}
+			}
+
+			if ( iExistingTab != -1 )
+			{
+				objParent = m_vecTabPages[ iExistingTab ];
+				pObj = pObj->pNext;
+				continue;
+			}
+
+			objParent = new vgui::PanelListPanel( m_pPropertySheet, "AdvancedOptionsPageList" );
+			objParent->SetFirstColumnWidth( 0 );
+			ApplyAutoHideScrollbar( objParent );
+			// Rounded-corner background, matching the black box's stock corners.
+			objParent->SetPaintBackgroundType( 2 );
+
+			// Parented to the sheet but not attached. A new Panel defaults
+			// to visible, so hide until its first AddPage() call.
+			objParent->SetVisible( false );
+
+			m_vecTabPages.AddToTail( objParent );
+			m_vecTabTitles.AddToTail( ResolveCategoryDisplayText( pObj->prompt ) );
+
+			pObj = pObj->pNext;
+			continue;
+		}
+
+		if ( !objParent )
+		{
+			// A stray entry before any category, which no shipped .scr has.
+			if ( !m_bUseTabs )
+			{
+				objParent = m_pScrollModeList;
+			}
+			else
+			{
+				objParent = new vgui::PanelListPanel( m_pPropertySheet, "AdvancedOptionsPageList" );
+				objParent->SetFirstColumnWidth( 0 );
+				ApplyAutoHideScrollbar( objParent );
+				objParent->SetPaintBackgroundType( 2 );
+				objParent->SetVisible( false );
+				m_vecTabPages.AddToTail( objParent );
+				m_vecTabTitles.AddToTail( ResolveCategoryDisplayText( "#GameUI_Options" ) );
+			}
 		}
 
 		pCtrl = new mpcontrol_t( objParent, "mpcontrol_t" );
@@ -1013,9 +1857,6 @@ void CTFAdvancedOptionsDialog::CreateControls()
 			pButton->SetFont( hTextFont );
 			pCtrl->pControl = (Panel *)pButton;
 			break;
-		case O_CATEGORY:
-			pCtrl->SetBorder( pScheme->GetBorder("OptionsCategoryBorder") );
-			break;
 		default:
 			break;
 		}
@@ -1027,18 +1868,9 @@ void CTFAdvancedOptionsDialog::CreateControls()
 			pCtrl->pPrompt->SetTextInset( 5, 0 );
 			pCtrl->pPrompt->SetText( pObj->prompt );
 			pCtrl->pPrompt->SetFont( hTextFont );
+			pCtrl->pPrompt->SetFgColor( tanDark );
 
 			pCtrl->pPrompt->InvalidateLayout( true, true );
-
-			if ( pCtrl->type == O_CATEGORY )
-			{
-				pCtrl->pPrompt->SetFont( pScheme->GetFont( "HudFontSmallBold", true ) );
-				pCtrl->pPrompt->SetFgColor( pScheme->GetColor( "TanLight", Color(255,0,0,255) ) );
-			}
-			else
-			{
-				pCtrl->pPrompt->SetFgColor( tanDark );
-			}
 		}
 
 		pCtrl->pScrObj = pObj;
@@ -1050,7 +1882,6 @@ void CTFAdvancedOptionsDialog::CreateControls()
 		case O_NUMBER:
 		case O_LIST:
 		case O_BUTTON:
-		case O_CATEGORY:
 			pCtrl->SetSize( m_iControlW, m_iControlH );
 			break;
 		case O_SLIDER:
@@ -1074,7 +1905,7 @@ void CTFAdvancedOptionsDialog::CreateControls()
 			}
 		}
 
-		m_pListPanel->AddItem( NULL, pCtrl );
+		objParent->AddItem( NULL, pCtrl );
 
 		// Link it in
 		if ( !m_pList )
@@ -1100,10 +1931,32 @@ void CTFAdvancedOptionsDialog::CreateControls()
 
 		pObj = pObj->pNext;
 	}
+
+	if ( m_bUseTabs )
+	{
+		int iRestoreIndex = 0;
+		if ( s_strTFAdvOptLastActiveTab.Length() > 0 )
+		{
+			for ( int i = 0; i < m_vecTabTitles.Count(); i++ )
+			{
+				if ( !Q_stricmp( m_vecTabTitles[ i ].Get(), s_strTFAdvOptLastActiveTab.Get() ) )
+				{
+					iRestoreIndex = i;
+					break;
+				}
+			}
+		}
+
+		// Let RefreshVisibleTabPages() slide the window to iRestoreIndex.
+		// Presetting it directly skips that math, truncating near the tail.
+		m_iFirstVisibleTab = 0;
+		m_iActiveTabIndex = iRestoreIndex;
+		RefreshVisibleTabPages();
+	}
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CTFAdvancedOptionsDialog::DestroyControls()
 {
@@ -1129,6 +1982,22 @@ void CTFAdvancedOptionsDialog::DestroyControls()
 	}
 
 	m_pList = NULL;
+
+	// CreateControls() creates a new PanelListPanel per tab every call.
+	// RemoveAllPages() first, since only a sliding window is attached.
+	m_pPropertySheet->RemoveAllPages();
+	FOR_EACH_VEC( m_vecTabPages, i )
+	{
+		m_vecTabPages[i]->MarkForDeletion();
+	}
+	m_vecTabPages.RemoveAll();
+	m_vecTabTitles.RemoveAll();
+
+	if ( m_pScrollModeList )
+	{
+		m_pScrollModeList->MarkForDeletion();
+		m_pScrollModeList = NULL;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1169,11 +2038,16 @@ void CTFAdvancedOptionsDialog::Deploy( void )
 	SetMouseInputEnabled(true);
 	TFModalStack()->PushModal( this );
 
-	// Center it, keeping requested size
+	// An explicit InvalidateLayout(true, true) here re-enters CreateControls()
+	// and crashes. MakeReadyForUse() is PropertySheet's own safe equivalent.
+	MakeReadyForUse();
+
+	// Dead center overlaps the bottom bar since this dialog is taller than
+	// stock, so shifted up to sit between the top and bottom bars.
 	int x, y, ww, wt, wide, tall;
 	vgui::surface()->GetWorkspaceBounds( x, y, ww, wt );
 	GetSize(wide, tall);
-	SetPos(x + ((ww - wide) / 2), y + ((wt - tall) / 2));
+	SetPos(x + ((ww - wide) / 2), y + ((wt - tall) / 2) - 15);
 }
 
 //-----------------------------------------------------------------------------

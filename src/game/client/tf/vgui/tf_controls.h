@@ -31,6 +31,8 @@
 #include "tf_imagepanel.h"
 #endif
 #include <vgui_controls/Frame.h>
+#include <vgui_controls/PropertySheet.h>
+#include <vgui_controls/PanelListPanel.h>
 #include <../common/GameUI/scriptobject.h>
 #include <vgui/KeyCode.h>
 #include <vgui_controls/Tooltip.h>
@@ -167,13 +169,66 @@ private:
 };
 
 
+class CTFAdvancedOptionsDialog;
+
+// Button::PerformLayout() sets a different border per state. Re-force flat.
+class CTFAdvancedOptionsArrowButton : public vgui::Button
+{
+	DECLARE_CLASS_SIMPLE( CTFAdvancedOptionsArrowButton, vgui::Button );
+
+public:
+	CTFAdvancedOptionsArrowButton( vgui::Panel *parent, const char *panelName, const char *text, vgui::Panel *pActionSignalTarget, const char *pCmd )
+		: BaseClass( parent, panelName, text, pActionSignalTarget, pCmd )
+	{
+	}
+
+protected:
+	virtual void PerformLayout()
+	{
+		BaseClass::PerformLayout();
+		SetPaintBackgroundType( 0 );
+		SetPaintBorderEnabled( false );
+	}
+};
+
+// Notifies the owning dialog when the active tab changes.
+class CTFAdvancedOptionsSheet : public vgui::PropertySheet
+{
+	DECLARE_CLASS_SIMPLE( CTFAdvancedOptionsSheet, vgui::PropertySheet );
+
+public:
+	CTFAdvancedOptionsSheet( vgui::Panel *parent, const char *panelName )
+		: BaseClass( parent, panelName ), m_pOwnerDialog( NULL )
+	{
+	}
+
+	void SetOwnerDialog( CTFAdvancedOptionsDialog *pOwner ) { m_pOwnerDialog = pOwner; }
+
+	// PropertySheet's tab height is private with no accessor. Reproduces
+	// its scaling of the 28/14 defaults.
+	int GetCurrentTabHeight()
+	{
+		int iRaw = IsSmallTabs() ? 14 : 28;
+		return IsProportional() ? vgui::scheme()->GetProportionalScaledValueEx( GetScheme(), iRaw ) : iRaw;
+	}
+
+protected:
+	virtual void ChangeActiveTab( int index );
+	// PageTab::ApplySchemeSettings() resets colors after the dialog sets
+	// them. Reapply here since PerformLayout() runs later.
+	virtual void PerformLayout();
+
+private:
+	CTFAdvancedOptionsDialog *m_pOwnerDialog;
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: Displays a TF specific list of options
 //			This is essentially a TF-styled version of the GameUI Advanced Multiplayer Options Dialog
 //-----------------------------------------------------------------------------
 class CTFAdvancedOptionsDialog : public vgui::EditablePanel
 {
-	DECLARE_CLASS_SIMPLE( CTFAdvancedOptionsDialog, vgui::EditablePanel ); 
+	DECLARE_CLASS_SIMPLE( CTFAdvancedOptionsDialog, vgui::EditablePanel );
 
 public:
 	CTFAdvancedOptionsDialog(vgui::Panel *parent);
@@ -184,22 +239,96 @@ public:
 
 	void	Deploy( void );
 
+	// Also called from CTFAdvancedOptionsSheet::ChangeActiveTab() for tab
+	// switches that didn't come from clicking these arrows.
+	void	UpdateTabArrowStates( void );
+
+	// Converts a visible-window tab index to the full category index.
+	void	OnActiveTabChangedInWindow( int iIndexWithinWindow );
+
+	void	RestyleTabs();
+	void	ResyncActiveTabWithSheet();
+
 private:
+
+	// Shifts the visible tab window by iDelta. Resyncs the active tab if
+	// it scrolled out of view.
+	void SlideTabWindow( int iDelta );
+
+	// Matches the inactive tab's height so both sit flush.
+	int GetArrowSize() { return m_pPropertySheet->GetCurrentTabHeight() - 2; }
+
+	// PanelListPanel's scrollbar autohide is a private CPanelAnimationVar,
+	// settable only via ApplySettings().
+	void ApplyAutoHideScrollbar( vgui::PanelListPanel *pPanel );
 
 	void CreateControls();
 	void DestroyControls();
 	void GatherCurrentValues();
 	void SaveValues();
+	// Restyles title/OK/Cancel chrome, found by label text since the .res
+	// doesn't name them.
+	void RestyleFrameChrome();
+	void RestyleArrowButtons();
+	// PropertySheet has no tab overflow handling. Attaches a sliding
+	// window of TF_ADVOPT_VISIBLE_TAB_COUNT tabs at a time.
+	void RefreshVisibleTabPages();
+
+	// Bypasses PropertySheet's own page-activation fallback. Shows only
+	// the active tab's content.
+	void ShowActiveTabContent();
+
+	// Attaches additional categories while they fit. bWrap selects
+	// wraparound (SlideTabWindow) vs stopping (RefreshVisibleTabPages).
+	void FillRemainingSpaceWithTabs( bool bWrap, int iWindowStart, int iWindowCount );
+
+	// Resolves a category's raw localization token to display text, to
+	// compare against a tab's GetText().
+	CUtlString ResolveCategoryDisplayText( const char *pszPrompt );
+
+	// Forces tabs to resolve SizeToContents() width. InvalidateLayout()
+	// alone doesn't guarantee it's already computed.
+	void ForceTabWidthsNow();
+
+	virtual void PerformLayout();
+	virtual void OnThink();
 
 	virtual void OnCommand( const char *command );
 	virtual void OnClose();
 	virtual void OnKeyCodeTyped(vgui::KeyCode code);
 	virtual void OnKeyCodePressed(vgui::KeyCode code);
+	// Closes the dialog on a click outside its bounds.
+	virtual void OnMousePressed( vgui::MouseCode code );
 
 private:
 	CInfoDescription	*m_pDescription;
 	mpcontrol_t			*m_pList;
-	vgui::PanelListPanel *m_pListPanel;
+	bool	m_bUseTabs;
+	vgui::PanelListPanel	*m_pScrollModeList;
+	// Named "PanelListPanel" so the base .res positions it without a new entry.
+	CTFAdvancedOptionsSheet	*m_pPropertySheet;
+	// RefreshVisibleTabPages() attaches only a sliding window of these to the sheet.
+	CUtlVector< vgui::PanelListPanel* >	m_vecTabPages;
+	CUtlVector< CUtlString >				m_vecTabTitles;
+	int		m_iFirstVisibleTab;
+	int		m_iActiveTabIndex;
+	// Set during RefreshVisibleTabPages() to ignore the spurious
+	// ChangeActiveTab() callbacks its RemoveAllPages()/AddPage() churn fires.
+	bool	m_bRefreshingTabWindow;
+	CTFAdvancedOptionsArrowButton		*m_pPrevTabButton;
+	CTFAdvancedOptionsArrowButton		*m_pNextTabButton;
+	// Tab bar bounds from the .res, adjusted by TF_ADVOPT_TABBAR_*_OFFSET.
+	int		m_iContentBoxX;
+	int		m_iContentBoxY;
+	int		m_iContentBoxWide;
+	// Pre-widening dialog size, so the arrow side-room widening never compounds.
+	int		m_iBaseDialogWide;
+	int		m_iBaseDialogTall;
+	// Active tab's content box, independent of the tab bar bounds above.
+	int		m_iBlackBoxX;
+	int		m_iBlackBoxY;
+	int		m_iBlackBoxWide;
+	int		m_iBlackBoxTall;
 	CTFTextToolTip		*m_pToolTip;
 	vgui::EditablePanel	*m_pToolTipEmbeddedPanel;
 
@@ -208,6 +337,42 @@ private:
 	CPanelAnimationVarAliasType( int, m_iSliderW, "slider_w", "0", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iSliderH, "slider_h", "0", "proportional_int" );
 };
+
+// Tabs attached to the sheet at once. Kept low so long titles don't overflow.
+#define TF_ADVOPT_VISIBLE_TAB_COUNT	4
+
+// OK/Cancel button sizing.
+#define TF_ADVOPT_BUTTON_TALL		56
+#define TF_ADVOPT_BUTTON_MARGIN		24
+#define TF_ADVOPT_BUTTON_AREA_TALL	( TF_ADVOPT_BUTTON_MARGIN * 2 + TF_ADVOPT_BUTTON_TALL )
+
+// Manual layout tuning offsets, all 0 by default.
+
+// Tab bar (sheet) position/size.
+#define TF_ADVOPT_TABBAR_X_OFFSET			0
+#define TF_ADVOPT_TABBAR_Y_OFFSET			0
+#define TF_ADVOPT_TABBAR_WIDE_OFFSET		0
+#define TF_ADVOPT_TABBAR_TALL_OFFSET		0
+
+// Active tab's content panel, independent of the tab bar above.
+#define TF_ADVOPT_BLACKBOX_X_OFFSET		0
+#define TF_ADVOPT_BLACKBOX_Y_OFFSET		0
+#define TF_ADVOPT_BLACKBOX_WIDE_OFFSET		0
+#define TF_ADVOPT_BLACKBOX_TALL_OFFSET		0
+
+#define TF_ADVOPT_LEFT_ARROW_X_OFFSET		0
+#define TF_ADVOPT_LEFT_ARROW_Y_OFFSET		0
+#define TF_ADVOPT_LEFT_ARROW_SIZE_OFFSET	0
+
+#define TF_ADVOPT_RIGHT_ARROW_X_OFFSET		0
+#define TF_ADVOPT_RIGHT_ARROW_Y_OFFSET		0
+#define TF_ADVOPT_RIGHT_ARROW_SIZE_OFFSET	0
+
+// Gap between each arrow and the sheet edge.
+#define TF_ADVOPT_ARROW_GAP	1
+
+// Minimum space a tab's text must leave before the sheet's right edge to count as fitting.
+#define TF_ADVOPT_TAB_RIGHT_MARGIN	2
 
 //-----------------------------------------------------------------------------
 // Purpose: Scrollable panel where you can define children within the .res file
