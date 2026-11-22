@@ -140,6 +140,8 @@ public:
 	virtual void			OnDemoRecordStart( char const* pDemoBaseName ) OVERRIDE {}
 	virtual void			OnDemoRecordStop() OVERRIDE {}
 
+	virtual void			RemoveDownloadedMapManifests( const char *pszSuffix ) const;
+
 protected:
 	CBaseViewport			*m_pViewport;
 
