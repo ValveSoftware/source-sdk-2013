@@ -9,6 +9,7 @@
 #include "tf_shareddefs.h"
 #include "tf_player.h"
 #include "tf_team.h"
+#include "tf_wearable_weapons.h"
 #include "engine/IEngineSound.h"
 #include "entity_ammopack.h"
 #include "tf_gamestats.h"
@@ -104,7 +105,16 @@ bool CAmmoPack::MyTouch( CBasePlayer *pPlayer )
 				{
 					flPackRatio *= 0.2;
 				}
+
 				pTFPlayer->m_Shared.SetDemomanChargeMeter( flCurrentCharge + flPackRatio * 100.0f );
+
+				// Update the shield charge condition to reflect the ammo pack increase
+				if ( pTFPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
+				{
+					float flChargeTime = ( pTFPlayer->m_Shared.GetDemomanChargeMeter() / 100.0f ) + flPackRatio;
+
+					pTFPlayer->m_Shared.SetConditionDuration( TF_COND_SHIELD_CHARGE, flChargeTime );
+				}
 				bSuccess = true;
 			}
 		}
