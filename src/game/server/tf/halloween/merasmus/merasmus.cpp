@@ -102,8 +102,7 @@ static const char* s_pszDisguiseProps[] =
 	"models/props_well/hand_truck01.mdl",
 	"models/props_vehicles/mining_car_metal.mdl",
 	"models/props_2fort/tire002.mdl",
-	"models/props_well/computer_cart01.mdl",
-	"models/egypt/palm_tree/palm_tree.mdl"
+	"models/props_well/computer_cart01.mdl"
 };
 
 
