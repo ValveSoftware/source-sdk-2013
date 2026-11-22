@@ -570,7 +570,12 @@ public:
 	{
 		ScriptVariant_t variant;
 		GetValue( hScope, pszKey, &variant );
-		return variant.Get<T>();
+		T result = variant.Get<T>();
+		// Get<T>() copies the value out; release the source or GetValue's SV_FREE
+		// buffer (FIELD_VECTOR/FIELD_CSTRING) leaks. No-op for primitives. The
+		// const char*/HSCRIPT specializations must NOT release (result aliases it).
+		ReleaseValue( variant );
+		return result;
 	}
 
 	template <typename T>
@@ -1400,6 +1405,18 @@ inline HSCRIPT IScriptVM::Get<HSCRIPT>( HSCRIPT hScope, const char *pszKey )
 	if ( variant.GetType() == FIELD_VOID )
 		return NULL;
 	return variant.Get<HSCRIPT>();
+}
+
+// const char* aliases the variant's string buffer, so (unlike the generic template)
+// this must NOT ReleaseValue. The returned pointer would dangle; use Get<CUtlString> to own a copy.
+template <>
+inline const char *IScriptVM::Get<const char *>( HSCRIPT hScope, const char *pszKey )
+{
+	ScriptVariant_t variant;
+	GetValue( hScope, pszKey, &variant );
+	if ( variant.GetType() == FIELD_VOID )
+		return NULL;
+	return variant.Get<const char *>();
 }
 
 #include "tier0/memdbgoff.h"
