@@ -551,7 +551,7 @@ bool CTFRocketPack::Launch( void )
 	// Knock-back nearby enemies
 	float flRadius = 150.f;
 	CUtlVector< CTFPlayer* > vecPushedPlayers;
-	TFGameRules()->PushAllPlayersAway( GetAbsOrigin(), flRadius, tf_rocketpack_launch_push.GetFloat(), GetEnemyTeam( GetTeamNumber() ), &vecPushedPlayers );
+	TFGameRules()->PushMovablePlayersAway( GetAbsOrigin(), flRadius, tf_rocketpack_launch_push.GetFloat(), GetEnemyTeam( GetTeamNumber() ), &vecPushedPlayers );
 	FOR_EACH_VEC( vecPushedPlayers, i )
 	{
 		IGameEvent *event = gameeventmanager->CreateEvent( "player_rocketpack_pushed" );
