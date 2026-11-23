@@ -8753,7 +8753,8 @@ bool CTFPlayerShared::CanRecieveMedigunChargeEffect( medigun_charge_types eType 
 		if ( ( eType == MEDIGUN_CHARGE_MEGAHEAL ) 
 		  || ( eType == MEDIGUN_CHARGE_BULLET_RESIST )
 		  || ( eType == MEDIGUN_CHARGE_BLAST_RESIST )
-		  || ( eType == MEDIGUN_CHARGE_FIRE_RESIST ) )
+		  || ( eType == MEDIGUN_CHARGE_FIRE_RESIST )
+		  || ( eType == MEDIGUN_CHARGE_CRITICALBOOST ) )
 		{
 			bCanRecieve = true;
 		}
