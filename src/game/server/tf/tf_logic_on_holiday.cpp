@@ -23,6 +23,7 @@ class CLogicOnHoliday : public CLogicalEntity
 	COutputEvent m_IsSmissmas;
 	COutputEvent m_IsTFBirthday;
 	COutputEvent m_IsValentines;
+	COutputEvent m_IsSoldierHoliday;
 
 	void InputFire( inputdata_t & )
 	{
@@ -32,7 +33,8 @@ class CLogicOnHoliday : public CLogicalEntity
 		bool isSmissmas = TF_IsHolidayActive( kHoliday_Christmas );
 		bool isTFBirthday = TF_IsHolidayActive( kHoliday_TFBirthday );
 		bool isValentines = TF_IsHolidayActive( kHoliday_Valentines );
-		bool isNothing = !(isTFBirthday || isHalloween || isSmissmas || isValentines || isFullMoon || isAprilFools);
+		bool isSoldierHoliday = TF_IsHolidayActive( kHoliday_Soldier );
+		bool isNothing = !(isTFBirthday || isHalloween || isSmissmas || isValentines || isFullMoon || isAprilFools || isSoldierHoliday);
 
 		if ( isNothing )
 		{ 
@@ -46,6 +48,7 @@ class CLogicOnHoliday : public CLogicalEntity
 		if ( isSmissmas )		m_IsSmissmas.FireOutput( this, this );
 		if ( isTFBirthday )		m_IsTFBirthday.FireOutput( this, this );
 		if ( isValentines )		m_IsValentines.FireOutput( this, this );
+		if ( isSoldierHoliday )	m_IsSoldierHoliday.FireOutput( this, this );
 
 	}
 };
@@ -60,5 +63,6 @@ BEGIN_DATADESC( CLogicOnHoliday )
 	DEFINE_OUTPUT( m_IsSmissmas, "IsSmissmas" ),
 	DEFINE_OUTPUT( m_IsTFBirthday, "IsTFBirthday" ),
 	DEFINE_OUTPUT( m_IsValentines, "IsValentines" ),
+	DEFINE_OUTPUT( m_IsSoldierHoliday, "IsSoldierHoliday" ),
 	DEFINE_OUTPUT( m_IsNothing, "IsNothing" ),
 END_DATADESC()
