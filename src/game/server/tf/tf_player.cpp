@@ -10470,6 +10470,12 @@ void CTFPlayer::ApplyPushFromDamage( const CTakeDamageInfo &info, Vector vecDir 
 					return;
 				}
 			}
+
+			if ( bBigKnockback && GetTeamNumber() == TF_TEAM_PVE_INVADERS && !( GetFlags() & FL_ONGROUND ) )
+			{
+				// Reduce force for airborne targets to not send them flying across the map
+				vecForce *= 0.1f;
+			}
 		}
 
 		float flDamageForceReduction = 1.f;
