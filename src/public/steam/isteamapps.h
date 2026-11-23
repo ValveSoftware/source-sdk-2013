@@ -84,7 +84,7 @@ public:
 	// return the buildid of this app, may change at any time based on backend updates to the game
 	virtual int GetAppBuildId() = 0;
 
-	// Request all proof of purchase keys for the calling appid and asociated DLC.
+	// Request all proof of purchase keys for the calling appid and associated DLC.
 	// A series of AppProofOfPurchaseKeyResponse_t callbacks will be sent with
 	// appropriate appid values, ending with a final callback where the m_nAppId
 	// member is k_uAppIdInvalid (zero).
