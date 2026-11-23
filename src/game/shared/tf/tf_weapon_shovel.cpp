@@ -193,14 +193,7 @@ void CTFShovel::MoveSpeedThink( void )
 //-----------------------------------------------------------------------------
 float CTFShovel::GetForceScale( void )
 {
-	if ( HasDamageBoost() )
-	{
-		return BaseClass::GetForceScale() * 2.f;
-	}
-	else
-	{
-		return 1.f;
-	}
+	return BaseClass::GetForceScale() * ( HasDamageBoost() ? 2.f : 1.f );
 }
 
 //-----------------------------------------------------------------------------
