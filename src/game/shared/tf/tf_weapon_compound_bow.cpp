@@ -607,7 +607,7 @@ void CTFCompoundBow::OnDataChanged( DataUpdateType_t type )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-float CTFCompoundBow::GetInitialAfterburnDuration() const
+float CTFCompoundBow::GetAfterburnRateOnHit() const
 {
 	// if the bow is lighting someone on fire it must have
 	// been the arrow was lit before it was fired

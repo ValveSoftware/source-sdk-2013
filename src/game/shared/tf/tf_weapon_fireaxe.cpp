@@ -26,7 +26,7 @@ PRECACHE_WEAPON_REGISTER( tf_weapon_fireaxe );
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-float CTFFireAxe::GetInitialAfterburnDuration() const 
+float CTFFireAxe::GetAfterburnRateOnHit() const 
 { 
 	int iAddBurningDamageType = 0;
 	CALL_ATTRIB_HOOK_INT( iAddBurningDamageType, set_dmgtype_ignite );
@@ -35,7 +35,7 @@ float CTFFireAxe::GetInitialAfterburnDuration() const
 		return 7.5f;
 	}
 
-	return BaseClass::GetInitialAfterburnDuration();
+	return BaseClass::GetAfterburnRateOnHit();
 }
 #endif
 

@@ -683,7 +683,7 @@ void CTFMinigun::ActivatePushBackAttackMode( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-float CTFMinigun::GetInitialAfterburnDuration() const
+float CTFMinigun::GetAfterburnRateOnHit() const
 {
 	int nRingOfFireWhileAiming = 0;
 	CALL_ATTRIB_HOOK_INT( nRingOfFireWhileAiming, ring_of_fire_while_aiming );
@@ -692,7 +692,7 @@ float CTFMinigun::GetInitialAfterburnDuration() const
 		return 8.f;
 	}
 
-	return BaseClass::GetInitialAfterburnDuration();
+	return BaseClass::GetAfterburnRateOnHit();
 }
 #endif // GAME_DLL
 
