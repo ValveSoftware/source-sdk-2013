@@ -49,6 +49,8 @@
 	#include "tf_weapon_grenade_pipebomb.h"
 	#include "tf_obj_dispenser.h"
 	#include "tf_weapon_flamethrower.h"
+	#include "tf_player_shared.h"
+	#include "tf_weapon_medigun.h"
 #endif
 
 ConVar tf_test_spellindex( "tf_test_spellindex", "-1", FCVAR_CHEAT | FCVAR_REPLICATED, "Set to index to always get a specific spell" );
@@ -1366,6 +1368,32 @@ bool CTFSpellBook::CastRocketJump( CTFPlayer *pPlayer )
 	TE_TFParticleEffect( filter, 0.0, "heavy_ring_of_fire", origin, vec3_angle );
 	DispatchParticleEffect( "rocketjump_smoke", PATTACH_POINT_FOLLOW, pPlayer, "foot_L" );
 	DispatchParticleEffect( "rocketjump_smoke", PATTACH_POINT_FOLLOW, pPlayer, "foot_R" );
+
+	for ( int i = 0; i < pPlayer->m_Shared.GetNumHealers(); i++ )
+	{
+		CTFPlayer* pMedic = ToTFPlayer( pPlayer->m_Shared.GetHealerByIndex(i) );
+		if ( !pMedic )
+			continue;
+		CWeaponMedigun* pMedigun = dynamic_cast<CWeaponMedigun*>( pMedic->GetActiveTFWeapon() );
+		if ( pMedigun && pMedigun->GetMedigunType() == MEDIGUN_QUICKFIX )
+		{
+			Vector medicvel = pMedic->GetAbsVelocity();
+			if (medicvel.z < 0 )
+			{
+				medicvel.z = 0;
+			}
+			pMedic->SetAbsVelocity(medicvel);
+
+			pMedic->ApplyAbsVelocityImpulse(vForward);
+
+			const Vector& medicorigin = pMedic->GetAbsOrigin();
+			CPVSFilter medicfilter(medicorigin);
+			TE_TFParticleEffect(medicfilter, 0.0, "bombinomicon_burningdebris", medicorigin, vec3_angle);
+			TE_TFParticleEffect(medicfilter, 0.0, "heavy_ring_of_fire", medicorigin, vec3_angle);
+			DispatchParticleEffect("rocketjump_smoke", PATTACH_POINT_FOLLOW, pMedic, "foot_L");
+			DispatchParticleEffect("rocketjump_smoke", PATTACH_POINT_FOLLOW, pMedic, "foot_R");
+		}
+	}
 
 	// Give a little health to compensate for fall damage
 	pPlayer->TakeHealth( 25, DMG_GENERIC );
