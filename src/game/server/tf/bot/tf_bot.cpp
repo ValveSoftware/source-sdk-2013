@@ -1449,7 +1449,7 @@ void CTFBot::Touch( CBaseEntity *pOther )
 	CTFPlayer *them = ToTFPlayer( pOther );
 	if ( them && IsEnemy( them ) )
 	{
-		if ( them->m_Shared.IsStealthed() || them->m_Shared.InCond( TF_COND_DISGUISED ) )
+		if ( them->m_Shared.IsStealthed() || ( them->m_Shared.InCond( TF_COND_DISGUISED ) && them->m_Shared.GetDisguiseTeam() == GetTeamNumber() ) )
 		{
 			// bumped a spy - they are discovered!
 			if ( TFGameRules()->IsMannVsMachineMode() )	// we have to build up to knowing that they are a spy in MvM
