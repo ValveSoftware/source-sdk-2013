@@ -47,7 +47,7 @@ private:
 
 	enum PresetsConsts_t
 	{
-		MAX_PRESETS = 4,
+		MAX_PRESETS = 6,
 	};
 
 	int						m_iClass;
