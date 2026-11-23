@@ -5275,6 +5275,14 @@ bool CBaseWorldView::AdjustView( float waterHeight )
 			m_ViewToProjection[1][2] = -m_ViewToProjection[1][2];
 		}
 
+		// Need to flip poster tiles too
+		if( m_bOffCenter )
+		{
+			float flTop = m_flOffCenterTop;
+			m_flOffCenterTop = 1.0f - m_flOffCenterBottom;
+			m_flOffCenterBottom = 1.0f - flTop;
+		}
+
 		// Use the aspect ratio of the main view! So, don't recompute it here
 		x = y = 0;
 		width = pTexture->GetActualWidth();
