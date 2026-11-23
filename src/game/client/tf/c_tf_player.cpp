@@ -6661,6 +6661,16 @@ bool C_TFPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 			VectorCopy( angMoveAngle, pCmd->viewangles );
 		}
 
+		// Re-add IN_ATTACK2 if player is Demoman with sticky launcher. This is done so they can detonate stickies while taunting.
+		if ( (nCurrentButtons & IN_ATTACK2) && IsPlayerClass( TF_CLASS_DEMOMAN ) )
+		{
+			C_TFWeaponBase *pPipebombLauncher = Weapon_OwnsThisID( TF_WEAPON_PIPEBOMBLAUNCHER );
+			if ( pPipebombLauncher )
+			{
+				pCmd->buttons |= IN_ATTACK2;
+			}
+		}
+
 		// allow remap taunt keys to go through
 		CTFTauntInfo *pTaunt = m_TauntEconItemView.GetStaticData()->GetTauntData();
 		if ( pTaunt )

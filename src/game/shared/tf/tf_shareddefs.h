@@ -2625,6 +2625,7 @@ extern helltower_vo_t g_pszHelltowerAnnouncerLines[];
 // flags to ignore certain check in CanAttack function
 #define TF_CAN_ATTACK_FLAG_NONE				0
 #define TF_CAN_ATTACK_FLAG_GRAPPLINGHOOK	0x01
+#define TF_CAN_ATTACK_FLAG_PIPEBOMBLAUNCHER	0x02
 
 struct PlayerHistoryInfo_t
 {
