@@ -136,7 +136,7 @@ void CTFBaseProjectile::Spawn( void )
 //-----------------------------------------------------------------------------
 CTFBaseProjectile *CTFBaseProjectile::Create( const char *pszClassname, const Vector &vecOrigin, 
 											 const QAngle &vecAngles, CBaseEntity *pOwner, float flVelocity, short iProjModelIndex, const char *pszDispatchEffect,
-											CBaseEntity *pScorer, bool bCritical, Vector vColor1, Vector vColor2 )
+											CBaseEntity *pScorer, bool bCritical, Vector vColor1, Vector vColor2, CBaseEntity *pLauncher )
 {
 	CTFBaseProjectile *pProjectile = NULL;
 
@@ -154,6 +154,8 @@ CTFBaseProjectile *CTFBaseProjectile::Create( const char *pszClassname, const Ve
 	pProjectile->SetOwnerEntity( pOwner );
 
 	pProjectile->SetScorer( pScorer );
+
+	pProjectile->SetLauncher( pLauncher );
 
 	// Spawn.
 	pProjectile->Spawn();
