@@ -33,6 +33,7 @@ public:
 	DECLARE_PREDICTABLE();
 
 	CTFParticleCannon();
+	~CTFParticleCannon();
 
 	// Server specific.
 #ifdef GAME_DLL
@@ -53,9 +54,12 @@ public:
 	virtual bool	Deploy( void );
 	virtual void	WeaponReset( void );
 	virtual void	ItemPostFrame( void );
+	virtual void	ItemBusyFrame( void );
 
 	virtual void	PrimaryAttack( void );
 	virtual void	SecondaryAttack( void );
+	virtual bool	Reload( void );
+	virtual bool	CanPerformSecondaryAttack( void );
 	virtual void	FireChargedShot();
 	virtual void	ModifyProjectile( CBaseEntity* pProj );
 
@@ -72,6 +76,7 @@ public:
 	void			StartEffects( void );
 	void			ClientEffectsThink( void );
 	void			CreateChargeEffect( void );
+	void			PlayChargeSound( void );
 
 	virtual void	DispatchMuzzleFlash( const char* effectName, C_BaseEntity* pAttachEnt );
 	virtual bool	ShouldPlayClientReloadSound() { return true; }
@@ -84,7 +89,11 @@ public:
 	// Charged shot support.
 	virtual float	GetChargeBeginTime( void ) { return m_flChargeBeginTime; }
 	virtual float	GetChargeMaxTime( void ) { return TF_PARTICLE_MAX_CHARGE_TIME; }
-	virtual float	GetChargeForceReleaseTime( void ) { return GetChargeMaxTime(); }
+	virtual float	GetChargeForceReleaseTime( void ) {
+		float fBaseTime = GetChargeMaxTime();
+		float fBaseFireSpeed = m_pWeaponInfo->GetWeaponData(m_iWeaponMode).m_flTimeFireDelay;
+		return fBaseTime * ApplyFireDelay(fBaseFireSpeed) / fBaseFireSpeed; //reduce charge shot wind-up time according to fire speed reduction
+	}
 	virtual float	Energy_GetShotCost( void ) const { return 5.f; }
 	virtual float	Energy_GetRechargeCost( void ) const { return 5.f; }
 
@@ -101,6 +110,8 @@ private:
 	CNetworkVar( float, m_flChargeBeginTime );
 	CNetworkVar( int, m_iChargeEffect );
 	bool m_bChargedShot;
+	CSoundPatch* m_pSoundCur; //for playing the charged shot sound.
+	float f_ChargeSoundStartTime; //checking if the sound has started playing so we don't play it again.
 
 
 #ifdef CLIENT_DLL
