@@ -14,6 +14,7 @@
 #include <vgui_controls/ImagePanel.h>
 #include "steam/steam_api.h"
 #include "c_baseplayer.h"
+#include "gifmaterial.h"
 
 // size of the friend background frame (see texture ico_friend_indicator_avatar)
 #define FRIEND_ICON_SIZE_X	(55)	
@@ -25,7 +26,6 @@
 
 // size of the standard avatar icon (unless override by SetAvatarSize)
 #define DEFAULT_AVATAR_SIZE		(32)
-
 
 //=============================================================================
 // HPE_CHANGE:
@@ -146,10 +146,36 @@ protected:
 private:
 	void UpdateAvatarImageSize();
 
+	void LoadAnimatedAvatar();
+	void LoadStaticAvatar();
+
 	void LoadAvatarImage();
 
+	class CAnimatedAvatar
+	{
+	public:
+		CAnimatedAvatar( void )
+			: m_iTextureID( -1 )
+			, m_unUrlHashed( 0 )
+			, m_nRefCount( 0 )
+		{
+		}
+
+		CGifMaterial	m_Material;
+		int				m_iTextureID;
+		uint32			m_unUrlHashed;
+
+	private:
+		friend class CRefCountAccessor;
+
+		void			AddRef( void );
+		void			Release( void );
+
+		int				m_nRefCount;
+	};
+
 	Color m_Color;
-	int m_iTextureID;
+	int m_iStaticTextureID; // texture ID of the static version of the avatar
 	int m_nX, m_nY;
 	int m_wide, m_tall;
 	int	m_avatarWide, m_avatarTall;
@@ -162,6 +188,8 @@ private:
 	EAvatarSize m_AvatarSize;
 	CHudTexture *m_pFriendIcon;
 	CSteamID	m_SteamID;
+
+	CSmartPtr< CAnimatedAvatar > m_pAnimatedAvatar;
 
 	//=============================================================================
 	// HPE_BEGIN:
@@ -176,13 +204,18 @@ private:
 	//=============================================================================
 	// HPE_END
 	//=============================================================================
-
-	static CUtlMap< AvatarImagePair_t, int > s_AvatarImageCache;
+	
+	static CUtlMap< AvatarImagePair_t, int >	s_mapStaticAvatarCache;
+	static CUtlMap< uint32, CAnimatedAvatar * >	s_mapAnimatedAvatarCache;
 	static bool m_sbInitializedAvatarCache;
-
 	CCallback<CAvatarImage, PersonaStateChange_t, false> m_sPersonaStateChangedCallback;
-
 	void OnPersonaStateChanged( PersonaStateChange_t *info );
+
+	CCallResult<CAvatarImage, EquippedProfileItems_t> m_sEquippedProfileItemsRequestedCallback;
+	void OnEquippedProfileItemsRequested( EquippedProfileItems_t *pInfo, bool bIOFailure );
+
+	CCallResult<CAvatarImage, HTTPRequestCompleted_t> m_sHTTPRequestCompletedCallback;
+	void OnHTTPRequestCompleted( HTTPRequestCompleted_t *pInfo, bool bIOFailure );
 };
 
 //-----------------------------------------------------------------------------
