@@ -42,7 +42,7 @@ public:
 	virtual void FireGameEvent( IGameEvent *pEvent ) OVERRIDE;
 
 private:
-	virtual bool ShouldBeActve() const = 0;
+	virtual bool ShouldBeActive() const = 0;
 	void UpdateRematchtime();
 	void UpdateAutoJoinTime();
 
