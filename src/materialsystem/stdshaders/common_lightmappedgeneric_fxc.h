@@ -181,11 +181,11 @@ float g1(float a) {
 
 // h0 and h1 are the two offset functions
 float h0(float a) {
-	return -1.0 + w1(a) / (w0(a) + w1(a));
+	return 0.2 + a * (0.233332 * a + 0.566668) - a;
 }
 
 float h1(float a) {
-	return 1.0 + w3(a) / (w2(a) + w3(a));
+	return 1.0 + a * (0.233332 * a - 1.033332) + a;
 }
 
 #ifndef BICUBIC_LIGHTMAP
