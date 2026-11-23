@@ -10669,7 +10669,16 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 
 	if ( outParams.bIgniting && pTFAttacker )
 	{
-		m_Shared.Burn( pTFAttacker, dynamic_cast< CTFWeaponBase * >( info.GetWeapon() ) );
+		CTFBaseRocket *pBaseRocket = dynamic_cast< CTFBaseRocket* >( info.GetInflictor() );
+
+		if ( pBaseRocket && pBaseRocket->GetDeflected() )
+		{
+			m_Shared.Burn( pTFAttacker, dynamic_cast< CTFWeaponBase * >( pBaseRocket->GetOriginalLauncher() ) );
+		}
+		else
+		{
+			m_Shared.Burn( pTFAttacker, dynamic_cast< CTFWeaponBase * >( info.GetWeapon() ) );
+		}
 	}
 
 	if ( flBleedingTime > 0 && pTFAttacker )
