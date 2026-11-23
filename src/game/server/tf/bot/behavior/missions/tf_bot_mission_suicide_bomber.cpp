@@ -112,6 +112,13 @@ ActionResult< CTFBot >	CTFBotMissionSuicideBomber::Update( CTFBot *me, float int
 			}
 		}
 	}
+	else
+	{
+		// No victim, detonate
+		StartDetonate( me );
+
+		return Continue();
+	}
 
 	// Get to a third of the damage range before detonating
 	const float detonateRange = tf_bot_suicide_bomb_range.GetFloat() / 3.0f;

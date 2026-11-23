@@ -455,6 +455,10 @@ bool CMissionPopulator::Parse( KeyValues *values )
 			{
 				m_mission = CTFBot::MISSION_DESTROY_SENTRIES;
 			}
+			else if ( !Q_stricmp( data->GetString(), "Attack" ) )
+			{
+				m_mission = CTFBot::MISSION_ATTACK;
+			}
 			else if ( !Q_stricmp( data->GetString(), "Sniper" ) )
 			{
 				m_mission = CTFBot::MISSION_SNIPER;
@@ -712,7 +716,7 @@ bool CMissionPopulator::UpdateMission( CTFBot::MissionType mission )
 	for( int i=0; i<livePlayerVector.Count(); ++i )
 	{
 		CTFBot *pBot = dynamic_cast<CTFBot *>( livePlayerVector[i] );
-		if ( pBot && pBot ->HasMission( mission ) )
+		if ( pBot && pBot->HasMission( mission ) )
 		{
 			++activeMissionMembers;
 		}
@@ -890,6 +894,7 @@ void CMissionPopulator::Update( void )
 	case CTFBot::MISSION_SNIPER:
 	case CTFBot::MISSION_SPY:
 	case CTFBot::MISSION_ENGINEER:
+	case CTFBot::MISSION_ATTACK:
 		UpdateMission( m_mission );
 		break;
 	}
