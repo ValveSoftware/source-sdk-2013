@@ -15,10 +15,12 @@
 #include "tf_gamestats.h"
 #include "ilagcompensationmanager.h"
 #include "tf_passtime_logic.h"
+#include "tf_objective_resource.h"
 // Client specific.
 #else
 #include "c_tf_gamestats.h"
 #include "c_tf_player.h"
+#include "c_tf_objective_resource.h"
 // NVNT haptics system interface
 #include "haptics/ihaptics.h"
 #endif
@@ -572,7 +574,8 @@ bool CTFWeaponBaseMelee::OnSwingHit( trace_t &trace )
 		// handle hitting a robot	
 		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
 		{
-			if ( pTargetPlayer  && pTargetPlayer->GetTeamNumber() == TF_TEAM_PVE_INVADERS && !pTargetPlayer->IsPlayer() )
+			if ( pTargetPlayer  && pTargetPlayer->GetTeamNumber() == TF_TEAM_PVE_INVADERS
+				&& pTargetPlayer->BloodColor() == DONT_BLEED && TFObjectiveResource()->GetMvMEventPopfileType() != MVM_EVENT_POPFILE_HALLOWEEN )
 			{
 				bPlayMvMHitOnly = true;
 
