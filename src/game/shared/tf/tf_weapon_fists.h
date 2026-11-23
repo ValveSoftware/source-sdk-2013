@@ -39,6 +39,7 @@ public:
 	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_FISTS; }
 
 	virtual void ItemPreFrame();
+	virtual void Precache(void) OVERRIDE;
 	virtual void PrimaryAttack();
 	virtual void SecondaryAttack();
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo );
