@@ -18,6 +18,7 @@ LINK_ENTITY_TO_CLASS( func_croc, CFuncCroc );
 
 BEGIN_DATADESC( CFuncCroc )
 	DEFINE_KEYFIELD( m_iszModel, FIELD_STRING, "croc_model" ),
+	DEFINE_KEYFIELD( m_iszKillIcon, FIELD_STRING, "killicon" ),
 	// Outputs
 	DEFINE_OUTPUT( m_OnEat, "OnEat" ),
 	DEFINE_OUTPUT( m_OnEatRed, "OnEatRed" ),
@@ -103,6 +104,7 @@ void CEntityCroc::Think( void )
 CFuncCroc::CFuncCroc()
 {
 	m_iszModel = NULL_STRING;
+	m_iszKillIcon = NULL_STRING;
 }
 
 //-----------------------------------------------------------------------------
@@ -208,4 +210,14 @@ const char *CFuncCroc::GetCrocModel( void )
 	}
 
 	return CROC_MODEL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+const char *CFuncCroc::GetKillIcon( void )
+{
+	if ( m_iszKillIcon != NULL_STRING )
+		return ( STRING( m_iszKillIcon ) );
+	return "crocodile";
 }
