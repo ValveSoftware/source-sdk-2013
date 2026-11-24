@@ -143,6 +143,8 @@ public:
 	const CAttributeContainer	*GetAttributeContainer( void ) const { return &m_AttributeManager; }
 	CBaseEntity					*GetAttributeOwner( void ) { return GetOwnerEntity(); }
 	CAttributeList				*GetAttributeList( void ) { return m_AttributeManager.GetItem()->GetAttributeList(); }
+	virtual CEconItemView		*GetWeaponVisualItem( void ) { return GetAttributeContainer()->GetItem(); }
+	virtual const CEconItemView	*GetWeaponVisualItem( void ) const { return GetAttributeContainer()->GetItem(); }
 	virtual void				ReapplyProvision( void );
 	float						ScriptGetAttribute( const char *pName, float flFallbackValue );
 

@@ -132,7 +132,8 @@ Activity CTFPlayerAnimState::TranslateActivity( Activity actDesired )
 	{
 		translateActivity = pWeapon->ActivityOverride( translateActivity, NULL );
 
-		CEconItemView *pEconItemView = pWeapon->GetAttributeContainer()->GetItem();
+		CTFWeaponBase *pTFWeapon = assert_cast< CTFWeaponBase* >( pWeapon );
+		CEconItemView *pEconItemView = pTFWeapon->GetWeaponVisualItem();
 		if ( pEconItemView )
 		{
 			translateActivity = pEconItemView->GetStaticData()->GetActivityOverride( GetTFPlayer()->GetTeamNumber(), translateActivity );

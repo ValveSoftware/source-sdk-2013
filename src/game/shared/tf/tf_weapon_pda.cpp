@@ -142,6 +142,30 @@ void CTFWeaponPDA::SecondaryAttack( void )
 		return BaseClass::CalcViewmodelBob();
 	}
 
+	bool CTFWeaponPDA::IsPipBoyWorldModel() const
+	{
+		const CEconItemView *pItem = GetWeaponVisualItem();
+		return pItem && pItem->IsValid() && pItem->GetItemDefIndex() == 519;
+	}
+
+	bool CTFWeaponPDA::ShouldDraw()
+	{
+		// The Pip-Boy wearable replaces the PDA world model.
+		if ( IsPipBoyWorldModel() )
+			return false;
+
+		return BaseClass::ShouldDraw();
+	}
+
+	ShadowType_t CTFWeaponPDA::ShadowCastType()
+	{
+		// Keep the hidden PDA world model from casting a shadow.
+		if ( IsPipBoyWorldModel() )
+			return SHADOWS_NONE;
+
+		return BaseClass::ShadowCastType();
+	}
+
 #endif
 
 //-----------------------------------------------------------------------------
@@ -475,5 +499,46 @@ bool	CTFWeaponPDA_Engineer_Destroy::VisibleInWeaponSelection( void )
 	return BaseClass::VisibleInWeaponSelection();
 }
 
+static bool PipBoyWantsDestroyTexture( const CEconItemView *pItem )
+{
+	return pItem && pItem->IsValid() && pItem->GetItemDefIndex() == 519 &&
+		pItem->GetStaticData()->GetDefinitionString( "destroy_texture", "0" )[0] == '1';
+}
 
+// The Destroy PDA uses the Pip-Boy equipped in the Build PDA slot for visuals.
+CEconItemView *CTFWeaponPDA_Engineer_Destroy::GetWeaponVisualItem( void )
+{
+	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
+	if ( pOwner )
+	{
+		CEconItemView *pBuildItem = CTFPlayerSharedUtils::GetEconItemViewByLoadoutSlot( pOwner, LOADOUT_POSITION_PDA );
+		if ( pBuildItem && pBuildItem->IsValid() && pBuildItem->GetItemDefIndex() == 519 )
+			return pBuildItem;
+	}
+	return BaseClass::GetWeaponVisualItem();
+}
 
+const CEconItemView *CTFWeaponPDA_Engineer_Destroy::GetWeaponVisualItem( void ) const
+{
+	return const_cast< CTFWeaponPDA_Engineer_Destroy * >( this )->GetWeaponVisualItem();
+}
+
+int CTFWeaponPDA_Engineer_Destroy::GetSkinOverride( void ) const
+{
+	// Use the Pip-Boy's Destroy PDA skin when enabled by the item.
+	const CEconItemView *pItem = GetWeaponVisualItem();
+	if ( PipBoyWantsDestroyTexture( pItem ) )
+		return V_atoi( pItem->GetStaticData()->GetDefinitionString( "destroy_skin", "-1" ) );
+	return BaseClass::GetSkinOverride();
+}
+
+#ifdef CLIENT_DLL
+bool CTFWeaponPDA_Engineer_Destroy::AttachmentModelsShouldBeVisible( void )
+{
+	CEconItemView *pItem = GetWeaponVisualItem();
+	if ( pItem && pItem->IsValid() && pItem->GetItemDefIndex() == 519 )
+		return false;
+
+	return BaseClass::AttachmentModelsShouldBeVisible();
+}
+#endif

@@ -129,6 +129,7 @@ public:
 	InventoryImageType_t	GetInventoryImageType() const								{ return static_cast<InventoryImageType_t>( m_iInventoryImageType ); }
 	void					SetInventoryImageType( InventoryImageType_t eNewImageType ) { m_iInventoryImageType = (int)eNewImageType; }
 	void					LoadInventoryImage();
+	void					SetInventoryImageOverride( const char *pszBaseName ) { m_pszInventoryImageOverride = pszBaseName; }
 
 	void					SetGreyedOut( bool bGreyedOut ) { m_bGreyedOut = bGreyedOut; }
 	void					SetModelHidden( bool bModelHidden ) { m_bModelIsHidden = bModelHidden; }
@@ -141,6 +142,7 @@ private:
 	bool					UseRenderTargetAsIcon() const { return m_bUseRenderTargetAsIcon || m_bUseItemRenderTarget; }
 
 	CEconItemView			*m_pItem;			// For directly specifying the item associated with this panel.
+	const char*				m_pszInventoryImageOverride;
 	int						m_iTextureID;
 	CUtlMap<int, int>		m_iOverlayTextureIDs;
 	const char*				m_pszToolTargetItemImage;
@@ -273,11 +275,13 @@ public:
 
 	void	SetSkin( int iSkin );
 	void	SetItemStyle( style_index_t unStyle ) { m_ItemData.SetItemStyleOverride( unStyle ); }
+	void	SetDisplayNameOverride( const wchar_t *pwszName ) { m_pwszDisplayNameOverride = pwszName; }
 	void	SetNameOnly( bool bNameOnly ) { m_bNameOnly = bNameOnly; }
 	void	SetSpecialAttributesOnly( bool bSpecialOnly ) { m_bSpecialAttributesOnly = bSpecialOnly; }
 
 	CEmbeddedItemModelPanel::InventoryImageType_t	GetInventoryImageType() /*const*/													 { return m_pModelPanel->GetInventoryImageType(); }
 	void											SetInventoryImageType( CEmbeddedItemModelPanel::InventoryImageType_t eNewImageType ) { m_pModelPanel->SetInventoryImageType( eNewImageType ); }
+	void											SetInventoryImageOverride( const char *pszBaseName ) { m_pModelPanel->SetInventoryImageOverride( pszBaseName ); }
 
 	void	UpdateDescription( bool bIsToolTip = false );
 	void	DirtyDescription();
@@ -355,6 +359,7 @@ private:
 	bool				m_bShowEquipped;
 	bool				m_bForceShowEquipped;
 	const char			*m_pszGreyedOutReason;
+	const wchar_t		*m_pwszDisplayNameOverride;
 	bool				m_bShowGreyedOutTooltip;
 	bool				m_bShouldSendPanelEnterExits;
 	bool				m_bShowQuantity;
