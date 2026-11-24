@@ -1018,6 +1018,8 @@ void CBackpackPanel::OnShowPanel( bool bVisible, bool bReturningFromArmory )
 		{
 			StopDrag( false );
 		}
+		m_pItemDraggedFromPanel = NULL;
+		m_bMouseDownOnItemPanel = false;
 	}
 
 	if ( m_pInspectCosmeticPanel )
@@ -1538,15 +1540,22 @@ void CBackpackPanel::OnMouseReleased(vgui::MouseCode code)
 		{
 			// When we're dragging, we have mouse capture, so the item panels aren't getting mouse input.
 			// We need to find out what item panel we're over, and let it know.
-			if ( m_pPrevDragOverItemPanel )
+			int x, y;
+			vgui::input()->GetCursorPos( x, y );
+			ScreenToLocal( x, y );
+
+			CItemModelPanel *pItemPanel = GetItemPanelAtPos( x, y );
+			if ( pItemPanel && pItemPanel->IsVisible() )
 			{
-				OnItemPanelMouseReleased( m_pPrevDragOverItemPanel );
+				OnItemPanelMouseReleased( pItemPanel );
 			}
 			else
 			{
 				StopDrag( false );
 			}
 		}
+		m_pItemDraggedFromPanel = NULL;
+		m_bMouseDownOnItemPanel = false;
 	}
 
 	BaseClass::OnMouseReleased( code );
@@ -1634,6 +1643,7 @@ void CBackpackPanel::OnItemPanelMouseReleased( vgui::Panel *panel )
 
 		m_pItemDraggedFromPanel = NULL;
 	}
+	m_bMouseDownOnItemPanel = false;
 }
 
 
@@ -2410,8 +2420,9 @@ void CBackpackPanel::OnMouseMismatchedRelease( MouseCode code, Panel* pPressedPa
 //-----------------------------------------------------------------------------
 void CBackpackPanel::StartDrag( int x, int y )
 {
-	// don't allow item drag if there's a filter
-	if ( HasNameFilter() )
+	// A pending drag must still refer to the page where it began.
+	if ( !m_pItemDraggedFromPanel || m_iDraggedFromPage != GetCurrentPage() ||
+		!m_pItemDraggedFromPanel->HasItem() || HasNameFilter() )
 		return;
 
 	m_bDragging = true;
@@ -2430,6 +2441,7 @@ void CBackpackPanel::StartDrag( int x, int y )
 	m_iDragOffsetY = m_pMouseDragItemPanel->GetTall() * 0.5f;
 	m_flPreventDragPageSwitchUntil = 0;
 
+	m_pMouseDragItemPanel->SetPos( x - m_iDragOffsetX, y - m_iDragOffsetY );
 	m_pMouseDragItemPanel->SetVisible( true );
 
 	m_pItemDraggedFromPanel->SetItem( NULL );
@@ -2478,6 +2490,7 @@ void CBackpackPanel::StopDrag( bool bSucceeded )
 
 	m_pMouseDragItemPanel->SetVisible( false );
 	m_bDragging = false;
+	m_bMouseDownOnItemPanel = false;
 	m_pMouseOverTooltip->SetTooltipsEnabled( true );
 
 	vgui::input()->SetMouseCapture( NULL );
@@ -4285,6 +4298,29 @@ void CBackpackPanel::SetCurrentPage( int nNewPage )
 	else if ( nNewPage >= GetNumPages() )
 	{
 		nNewPage = 0;
+	}
+
+	// The item panels are reused on every page. Finish a pending drag before
+	// changing pages so StartDrag copies the item from the original slot.
+	if ( nNewPage != GetCurrentPage() && !m_bDragging && m_pItemDraggedFromPanel )
+	{
+		if ( m_bMouseDownOnItemPanel &&
+			m_iDraggedFromPage == GetCurrentPage() &&
+			vgui::input()->IsMouseDown( MOUSE_LEFT ) &&
+			m_pItemDraggedFromPanel->HasItem() && !InToolSelectionMode() && !HasNameFilter() )
+		{
+			int x, y;
+			vgui::input()->GetCursorPos( x, y );
+			ScreenToLocal( x, y );
+			StartDrag( x, y );
+		}
+
+		// Never carry an unstarted drag over to a different page.
+		if ( !m_bDragging )
+		{
+			m_pItemDraggedFromPanel = NULL;
+			m_bMouseDownOnItemPanel = false;
+		}
 	}
 
 	// deselect old page button
