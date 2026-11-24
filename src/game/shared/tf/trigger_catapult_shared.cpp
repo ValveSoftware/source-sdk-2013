@@ -556,9 +556,6 @@ void CTriggerCatapult::StartTouch( CBaseEntity *pOther )
 
 		if( bShouldLaunch )
 		{
-#if defined( CLIENT_DLL )
-			CEG_PROTECT_VIRTUAL_FUNCTION ( CTriggerCatapult_StartTouch );
-#endif
 			if( m_bOnlyVelocityCheck )
 			{
 				OnLaunchedVictim( pOther );
