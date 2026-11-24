@@ -367,8 +367,8 @@ BEGIN_DATADESC( CNPC_Citizen )
 #endif
 	
 	// copied from npc_combine.cpp
-	DEFINE_FIELD(m_flNextAltFireTime, FIELD_TIME),
-	DEFINE_FIELD(m_vecAltFireTarget, FIELD_VECTOR),
+	DEFINE_FIELD( m_flNextAltFireTime, FIELD_TIME ),
+	DEFINE_FIELD( m_vecAltFireTarget, FIELD_VECTOR ),
 
 	DEFINE_USEFUNC( CommanderUse ),
 	DEFINE_USEFUNC( SimpleUse ),
@@ -1022,18 +1022,27 @@ int	CNPC_Citizen::RangeAttack2Conditions( float flDot, float flDist )
 //-----------------------------------------------------------------------------
 bool CNPC_Citizen::CanAltFireEnemy( bool bUseFreeKnowledge )
 {
-	if ( GetActiveWeapon() && ( GetActiveWeapon()->CapabilitiesGet() & bits_CAP_WEAPON_RANGE_ATTACK2 ) )
+	// Is our weapon capable of performing an alt-fire? Abort if it isn't, so that we don't get Citizens attempting to shoot crowbars at people.
+	if ( GetActiveWeapon() && !( GetActiveWeapon()->CapabilitiesGet() & bits_CAP_WEAPON_RANGE_ATTACK2 ) )
+		return false;
+	
+	// Are we able to altfire our weapon now?
+	if ( GetActiveWeapon() && !( GetActiveWeapon()->CanPerformSecondaryAttack() ) )
 		return false;
 
+	// Are we ducking? If so, don't shoot.
 	if ( IsCrouching() )
 		return false;
 
+	// Is the next altfire window open?
 	if ( gpGlobals->curtime < m_flNextAltFireTime )
 		return false;
 
+	// If we don't have an enemy in our sight, don't attempt to blow ourselves up.
 	if ( !GetEnemy() )
 		return false;
 
+	// Has our grenade check expired?
 	if ( gpGlobals->curtime < m_flNextGrenadeCheck )
 		return false;
 
@@ -1058,8 +1067,8 @@ bool CNPC_Citizen::CanAltFireEnemy( bool bUseFreeKnowledge )
 	// Trace a hull about the size of the combine ball (don't shoot through grates!)
 	trace_t tr;
 
-	Vector mins(-12, -12, -12);
-	Vector maxs(12, 12, 12);
+	Vector mins( -12, -12, -12 );
+	Vector maxs( 12, 12, 12 );
 
 	Vector vShootPosition = EyePosition();
 
@@ -1193,18 +1202,18 @@ void CNPC_Citizen::DelaySquadAltFireAttack(float flDelay)
 	DelayAltFireAttack( flDelay );
 
 	AISquadIter_t iter;
-	CAI_BaseNPC* pSquadmate = m_pSquad ? m_pSquad->GetFirstMember(&iter) : NULL;
-	while (pSquadmate)
+	CAI_BaseNPC* pSquadmate = m_pSquad ? m_pSquad->GetFirstMember( &iter ) : NULL;
+	while ( pSquadmate )
 	{
-		CNPC_Citizen* pCitizen = dynamic_cast<CNPC_Citizen*>(pSquadmate);
-		CWeaponAR2* pAR2 = dynamic_cast<CWeaponAR2*>(GetActiveWeapon());
+		CNPC_Citizen* pCitizen = dynamic_cast<CNPC_Citizen*>( pSquadmate );
+		CWeaponAR2* pAR2 = dynamic_cast<CWeaponAR2*>( GetActiveWeapon() );
 
-		if (pCitizen && pAR2 )
+		if ( pCitizen && pAR2 )
 		{
-			pCitizen->DelayAltFireAttack(flDelay);
+			pCitizen->DelayAltFireAttack( flDelay );
 		}
 
-		pSquadmate = m_pSquad->GetNextMember(&iter);
+		pSquadmate = m_pSquad->GetNextMember( &iter );
 	}
 }
 
@@ -1325,13 +1334,13 @@ int CNPC_Citizen::SelectSchedule()
 	CWeaponRPG *pRPG = dynamic_cast<CWeaponRPG*>( GetActiveWeapon() );
 	if ( pRPG && pRPG->IsGuiding() )
 	{
-		DevMsg( "Citizen in select schedule but RPG is guiding?\n");
+		DevMsg( "Citizen in select schedule, but RPG is guiding?\n" );
 		pRPG->StopGuiding();
 	}
 
 	if ( m_NPCState == NPC_STATE_COMBAT )
 	{
-		if (CanAltFireEnemy( true ) && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ))
+		if ( CanAltFireEnemy( true ) && OccupyStrategySlot( SQUAD_SLOT_SPECIAL_ATTACK ) )
 		{
 			// If an AR2 holder in the squad could fire a combine ball at the player's last known position,
 			// do so!
@@ -2288,7 +2297,7 @@ void CNPC_Citizen::HandleAnimEvent( animevent_t *pEvent )
 		// Borrowed from npc_combine_s code
 		if ( pEvent->event == COMBINE_AE_BEGIN_ALTFIRE )
 		{
-			CWeaponAR2* pAR2 = dynamic_cast<CWeaponAR2*>(GetActiveWeapon());
+			CWeaponAR2* pAR2 = dynamic_cast<CWeaponAR2*>( GetActiveWeapon() );
 			if ( pAR2 )
 			{
 				EmitSound( "Weapon_CombineGuard.Special1" );
@@ -2304,7 +2313,7 @@ void CNPC_Citizen::HandleAnimEvent( animevent_t *pEvent )
 			GetActiveWeapon()->Operator_HandleAnimEvent( &fakeEvent, this );
 
 			// If we're holding an SMG1, play our alt-fire sound.
-			if ( GetActiveWeapon() && FClassnameIs(GetActiveWeapon(), "weapon_smg1") )
+			if ( GetActiveWeapon() && FClassnameIs( GetActiveWeapon(), "weapon_smg1" ) )
 			{
 				EmitSound( "Weapon_SMG1.Double" );
 			}
@@ -2314,7 +2323,7 @@ void CNPC_Citizen::HandleAnimEvent( animevent_t *pEvent )
 				case SKILL_HARD:
 				{
 					// Delay for 30 seconds.
-					DelaySquadAltFireAttack(30.0f);
+					DelaySquadAltFireAttack( 30.0f );
 				}
 				break;
 
@@ -2322,14 +2331,14 @@ void CNPC_Citizen::HandleAnimEvent( animevent_t *pEvent )
 				case SKILL_MEDIUM:
 				{
 					// Delay for 20 seconds.
-					DelaySquadAltFireAttack(20.0f);
+					DelaySquadAltFireAttack( 20.0f );
 				}
 				break;
 
 				case SKILL_EASY:
 				{
 					// Delay for 15 seconds.
-					DelaySquadAltFireAttack(15.0f);
+					DelaySquadAltFireAttack( 15.0f );
 				}
 				break;
 			}
@@ -2352,7 +2361,7 @@ void CNPC_Citizen::HandleAnimEvent( animevent_t *pEvent )
 			// If I have a name, make my weapon match it with "_weapon" appended
 			if ( GetEntityName() != NULL_STRING )
 			{
-				pWeapon->SetName( AllocPooledString(UTIL_VarArgs("%s_weapon", STRING(GetEntityName()) )) );
+				pWeapon->SetName( AllocPooledString( UTIL_VarArgs( "%s_weapon", STRING( GetEntityName() ) ) ) );
 			}
 			Weapon_Equip( pWeapon );
 		}
@@ -2365,10 +2374,10 @@ void CNPC_Citizen::HandleAnimEvent( animevent_t *pEvent )
 		if ( USE_EXPERIMENTAL_MEDIC_CODE() && IsMedic() )
 		{
 			CBaseCombatCharacter *pTarget = dynamic_cast<CBaseCombatCharacter *>( GetTarget() );
-			Assert(pTarget);
+			Assert( pTarget );
 			if ( pTarget )
 			{
-				m_flPlayerHealTime 	= gpGlobals->curtime + sk_citizen_heal_toss_player_delay.GetFloat();;
+				m_flPlayerHealTime 	= gpGlobals->curtime + sk_citizen_heal_toss_player_delay.GetFloat();
 				TossHealthKit( pTarget, Vector(48.0f, 0.0f, 0.0f)  );
 			}
 		}
@@ -2425,7 +2434,7 @@ void CNPC_Citizen::PickupItem( CBaseEntity *pItem )
 	}
 	else
 	{
-		DevMsg("Citizen doesn't know how to pick up %s!\n", pItem->GetClassname() );
+		DevMsg( "Citizen doesn't know how to pick up %s!\n", pItem->GetClassname() );
 	}
 }
 
@@ -2698,7 +2707,7 @@ bool CNPC_Citizen::ShouldLookForBetterWeapon()
 				// Shotgunners do not defer their weapon search indefinitely.
 				// If more than one citizen in the squad has a shotgun, we force
 				// some of them to trade for another weapon.
-				if( NumWeaponsInSquad("weapon_shotgun") > 1 )
+				if( NumWeaponsInSquad( "weapon_shotgun" ) > 1 )
 				{
 					// Check for another weapon now. If I don't find one, this code will
 					// retry in 2 seconds or so.

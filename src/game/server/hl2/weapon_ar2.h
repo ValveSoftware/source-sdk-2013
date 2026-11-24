@@ -48,7 +48,7 @@ public:
 	bool	CanHolster( void );
 	bool	Reload( void );
 
-	int		CapabilitiesGet( void ) { return bits_CAP_WEAPON_RANGE_ATTACK1; }
+	int		CapabilitiesGet( void ) { return bits_CAP_RANGE_ATTACK_GROUP; }
 
 	Activity	GetPrimaryAttackActivity( void );
 	
