@@ -962,6 +962,13 @@ $Project "Client (TF)"
 				$File	"$SRCDIR\game\shared\tf\tf_progression_description_comp.cpp"
 				$File	"$SRCDIR\game\shared\tf\tf_progression_debug.cpp"
 			}
+
+			$Folder	"3DPing"
+			{
+				$File	"tf\tf_hud_3dping.cpp"
+				$File	"tf\tf_hud_3dping.h"
+				$File	"$SRCDIR\game\shared\tf\tf_3dping_shared.h"
+			}
 		}
 
 		$Folder	"game_controls"

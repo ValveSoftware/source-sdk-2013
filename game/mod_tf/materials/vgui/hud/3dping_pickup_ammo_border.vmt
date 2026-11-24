@@ -1,0 +1,9 @@
+"UnlitGeneric"
+{
+	"$basetexture"	"vgui/hud/3dping_pickup_ammo_border"
+	"$translucent"	"1"
+	"$vertexcolor"	"1"
+	"$vertexalpha"	"1"
+	"$no_fullbright"	"1"
+	"$ignorez"	"1"
+}

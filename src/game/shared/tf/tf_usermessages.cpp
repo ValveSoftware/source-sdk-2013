@@ -8,6 +8,7 @@
 #include "usermessages.h"
 #include "shake.h"
 #include "voice_gamemgr.h"
+#include "tf_3dping_shared.h"
 
 // NVNT include to register in haptic user messages
 #include "haptics/haptic_msgs.h"
@@ -128,6 +129,8 @@ void RegisterUserMessages()
 	usermessages->Register( "SdkRequestEquipment", -1 );
 
 	usermessages->Register( "BuiltObject", 3 ); // object type, object mode (entrance vs. exit), index
+
+	usermessages->Register( TF_3DPING_USERMSG_NAME, -1 );
 
 	// NVNT register haptic user messages
 	RegisterHapticMessages();
