@@ -2416,6 +2416,7 @@ void CBackpackPanel::StartDrag( int x, int y )
 
 	m_bDragging = true;
 	HideMouseOverPanel();
+	m_pMouseOverTooltip->SetTooltipsEnabled( false );
 
 	vgui::ivgui()->AddTickSignal( GetVPanel() );
 
@@ -2461,7 +2462,10 @@ void CBackpackPanel::StartDrag( int x, int y )
 void CBackpackPanel::StopDrag( bool bSucceeded )
 {
 	if ( !m_pItemDraggedFromPanel )
+	{
+		m_pMouseOverTooltip->SetTooltipsEnabled( true );
 		return;
+	}
 
 	if ( !bSucceeded )
 	{
@@ -2474,6 +2478,7 @@ void CBackpackPanel::StopDrag( bool bSucceeded )
 
 	m_pMouseDragItemPanel->SetVisible( false );
 	m_bDragging = false;
+	m_pMouseOverTooltip->SetTooltipsEnabled( true );
 
 	vgui::input()->SetMouseCapture( NULL );
 
