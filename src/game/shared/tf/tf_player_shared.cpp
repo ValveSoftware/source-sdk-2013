@@ -11920,7 +11920,7 @@ CTFWearable *CTFPlayer::GetEquippedWearableForLoadoutSlot( int iLoadoutSlot )
 		if ( !pItemDef )
 			continue;
 
-		if ( pItemDef->GetLoadoutSlot(iClass) == iLoadoutSlot )
+		if ( GetEffectiveLoadoutSlot( pEconItemView, iClass ) == iLoadoutSlot )
 			return pWearableItem;
 	}
 	return NULL;
@@ -14666,7 +14666,7 @@ CEconItemView *CTFPlayerSharedUtils::GetEconItemViewByLoadoutSlot( CTFPlayer *pT
 		if ( !pItemDef )
 			continue;
 
-		if ( pItemDef->GetLoadoutSlot(iClass) != iSlot )
+		if ( GetEffectiveLoadoutSlot( pEconItemView, iClass ) != iSlot )
 			continue;
 
 		// Yay!
