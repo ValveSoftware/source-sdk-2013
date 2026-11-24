@@ -3006,7 +3006,9 @@ public:
 				pEntity->SetGroundChangeTime( gpGlobals->curtime + 0.5f );
 			}
 
-			pEntity->Teleport( NULL, NULL, &vecVelocity );
+			pEntity->SetAbsVelocity( vecVelocity );
+			pEntity->SetBaseVelocity( vec3_origin );
+
 		}
 
 		SetContextThink( &CTFProjectile_SpellLightningOrb::VortexThink, gpGlobals->curtime + 0.2f, "VortexThink" );
