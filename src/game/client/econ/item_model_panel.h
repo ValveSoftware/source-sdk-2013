@@ -437,6 +437,7 @@ public:
 	virtual void PerformLayout();
 	virtual void ShowTooltip( vgui::Panel *currentPanel );
 	virtual void HideTooltip();
+	void SetTooltipsEnabled( bool bEnabled );
 
 	void SetupPanels( vgui::Panel *pParentPanel, CItemModelPanel *pMouseOverItemPanel ) { m_pParentPanel = pParentPanel; m_pMouseOverItemPanel = pMouseOverItemPanel; }
 	void SetPositioningStrategy( itempanel_tooltip_strategies_t iStrat ) { m_iPositioningStrategy = iStrat; }
@@ -452,6 +453,7 @@ private:
 
 	itempanel_tooltip_strategies_t	m_iPositioningStrategy;
 	bool							m_bHorizontalPreferLeft;
+	bool							m_bTooltipsEnabled;
 };
 
 //-----------------------------------------------------------------------------

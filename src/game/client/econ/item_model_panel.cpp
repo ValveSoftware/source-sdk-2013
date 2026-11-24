@@ -3765,6 +3765,7 @@ CItemModelPanelToolTip::CItemModelPanelToolTip( vgui::Panel *parent, const char 
 , m_iPositioningStrategy( IPTTP_BOTTOM_SIDE )
 {
 	m_hCurrentPanel = NULL;
+	m_bTooltipsEnabled = true;
 	SetTooltipDelay( 100 );
 }
 
@@ -3872,6 +3873,9 @@ bool CItemModelPanelToolTip::ValidatePosition( CItemModelPanel *pItemPanel, int 
 //-----------------------------------------------------------------------------
 void CItemModelPanelToolTip::PerformLayout() 
 {
+	if ( !m_bTooltipsEnabled )
+		return;
+
 	BaseClass::PerformLayout();
 
 	if ( !ShouldLayout() )
@@ -3932,8 +3936,27 @@ void CItemModelPanelToolTip::PerformLayout()
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
+void CItemModelPanelToolTip::SetTooltipsEnabled( bool bEnabled )
+{
+	if ( m_bTooltipsEnabled == bEnabled )
+		return;
+
+	m_bTooltipsEnabled = bEnabled;
+
+	if ( !m_bTooltipsEnabled )
+	{
+		HideTooltip();
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 void CItemModelPanelToolTip::ShowTooltip( Panel *currentPanel ) 
 { 
+	if ( !m_bTooltipsEnabled )
+		return;
+
 	if ( m_pMouseOverItemPanel && currentPanel != m_hCurrentPanel.Get() ) 
 	{
 		CItemModelPanel *pItemPanel = assert_cast<CItemModelPanel *>(currentPanel);
@@ -3951,6 +3974,8 @@ void CItemModelPanelToolTip::ShowTooltip( Panel *currentPanel )
 //-----------------------------------------------------------------------------
 void CItemModelPanelToolTip::HideTooltip() 
 {
+	BaseClass::HideTooltip();
+
 	if ( m_pMouseOverItemPanel ) 
 	{
 		m_pMouseOverItemPanel->SetVisible( false ); 
