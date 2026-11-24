@@ -4106,22 +4106,12 @@ void CBackpackPanel::OnCommand( const char *command )
 	}
 	else if ( !Q_strnicmp( command, "nextpage", 8 ) )
 	{
-		if ( !m_bDragging )
-		{
-			DeSelectAllBackpackItemPanels();
-		}
-
 		SetCurrentPage( GetCurrentPage() + 1 );
 		UpdateModelPanels();
 		return;
 	}
 	else if ( !Q_strnicmp( command, "prevpage", 8 ) )
 	{
-		if ( !m_bDragging )
-		{
-			DeSelectAllBackpackItemPanels();
-		}
-
 		SetCurrentPage( GetCurrentPage() - 1 );
 		UpdateModelPanels();
 		return;
@@ -4286,11 +4276,6 @@ ConVar *CBackpackPanel::GetExplanationConVar( void )
 //-----------------------------------------------------------------------------
 void CBackpackPanel::SetCurrentPage( int nNewPage )
 {
-	if( m_pToolIcon )
-	{
-		m_pToolIcon->SetVisible( false );
-	}
-
 	if ( nNewPage < 0 )
 	{
 		nNewPage = GetNumPages() - 1;
@@ -4327,6 +4312,17 @@ void CBackpackPanel::SetCurrentPage( int nNewPage )
 			m_pItemDraggedFromPanel = NULL;
 			m_bMouseDownOnItemPanel = false;
 		}
+	}
+
+	// Item panels are reused across pages; do not carry their selection state over.
+	if ( nNewPage != GetCurrentPage() )
+	{
+		DeSelectAllBackpackItemPanels();
+	}
+
+	if( m_pToolIcon )
+	{
+		m_pToolIcon->SetVisible( false );
 	}
 
 	// deselect old page button
