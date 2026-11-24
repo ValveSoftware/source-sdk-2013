@@ -275,7 +275,7 @@ void CHudCrosshair::Paint( void )
 	m_pCrosshair->DrawSelfCropped (
 		iX-(iWidth/2), iY-(iHeight/2),
 		0, 0,
-		iTextureW, iTextureH,
+		iTextureW + 1, iTextureH + 1,
 		iWidth, iHeight,
 		clr );
 }
