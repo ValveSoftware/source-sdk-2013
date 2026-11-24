@@ -1129,10 +1129,22 @@ void CTFWeaponBase::Drop( const Vector &vecVelocity )
 	// RemoveDisguiseWearables sweeps it up at full disguise removal which prevents the leak.
 	if ( m_bDisguiseWeapon && m_hExtraWearableViewModel )
 	{
-		m_hExtraWearableViewModel->RemoveFrom( GetOwnerEntity() );
-		m_hExtraWearableViewModel = NULL;
+		// the existance of a viewmodel implies it should go away on weapon switch
+		//for disguised spies.
+		RemoveExtraWearables();
 	}
 #endif
+
+	//Drop is currently only used for disguise weapons,
+	//  but if we ever use it for non-disguise weapons
+	//  we need to make sure to remove the extra wearables here 
+	//  so they don't get orphaned in the world.
+	// Disguise weapons are handled via cap in determineDisguiseWearables
+	if ( !m_bDisguiseWeapon )
+	{
+		RemoveExtraWearables();
+	}
+
 
 	BaseClass::Drop( vecVelocity );
 
