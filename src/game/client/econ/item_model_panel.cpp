@@ -3974,6 +3974,8 @@ void CItemModelPanelToolTip::ShowTooltip( Panel *currentPanel )
 //-----------------------------------------------------------------------------
 void CItemModelPanelToolTip::HideTooltip() 
 {
+	BaseClass::HideTooltip();
+
 	if ( m_pMouseOverItemPanel ) 
 	{
 		m_pMouseOverItemPanel->SetVisible( false ); 

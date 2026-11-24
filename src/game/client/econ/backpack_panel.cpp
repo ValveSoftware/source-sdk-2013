@@ -4300,6 +4300,12 @@ void CBackpackPanel::SetCurrentPage( int nNewPage )
 		nNewPage = 0;
 	}
 
+	// Hide the tooltip before the item panels are reused for another page.
+	if ( nNewPage != GetCurrentPage() && m_pMouseOverTooltip )
+	{
+		m_pMouseOverTooltip->HideTooltip();
+	}
+
 	// The item panels are reused on every page. Finish a pending drag before
 	// changing pages so StartDrag copies the item from the original slot.
 	if ( nNewPage != GetCurrentPage() && !m_bDragging && m_pItemDraggedFromPanel )
