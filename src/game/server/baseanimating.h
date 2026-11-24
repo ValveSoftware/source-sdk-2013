@@ -277,7 +277,7 @@ public:
 	void ReportMissingActivity( int iActivity );
 	virtual bool TestCollision( const Ray_t &ray, unsigned int fContentsMask, trace_t& tr );
 	virtual bool TestHitboxes( const Ray_t &ray, unsigned int fContentsMask, trace_t& tr );
-	class CBoneCache *GetBoneCache( void );
+	class CBoneCache *GetBoneCache( CStudioHdr* pStudioHdr );
 	void InvalidateBoneCache();
 	void InvalidateBoneCacheIfOlderThan( float deltaTime );
 	virtual int DrawDebugTextOverlays( void );
