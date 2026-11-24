@@ -50,6 +50,9 @@ ConVar vprof_scope_entity_thinks( "vprof_scope_entity_thinks", "0" );
 ConVar vprof_scope_entity_gamephys( "vprof_scope_entity_gamephys", "0" );
 
 ConVar	npc_vphysics	( "npc_vphysics","0");
+
+extern ConVar sv_noclipduringpause;
+
 //-----------------------------------------------------------------------------
 // helper method for trace hull as used by physics...
 //-----------------------------------------------------------------------------
@@ -2039,17 +2042,20 @@ void Physics_RunThinkFunctions( bool simulating )
 
 	if ( !simulating )
 	{
-		// only simulate players
-		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+		if ( sv_noclipduringpause.GetBool() )
 		{
-			CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-			if ( pPlayer )
+			// only simulate players
+			for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 			{
-				// Always reset clock to real sv.time
-				gpGlobals->curtime = starttime;
-				// Force usercmd processing even though gpGlobals->tickcount isn't incrementing
-				pPlayer->ForceSimulation();
-				Physics_SimulateEntity( pPlayer );
+				CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+				if ( pPlayer )
+				{
+					// Always reset clock to real sv.time
+					gpGlobals->curtime = starttime;
+					// Force usercmd processing even though gpGlobals->tickcount isn't incrementing
+					pPlayer->ForceSimulation();
+					Physics_SimulateEntity( pPlayer );
+				}
 			}
 		}
 	}
