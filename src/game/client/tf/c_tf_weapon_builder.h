@@ -48,9 +48,6 @@ public:
 
 	virtual void UpdateAttachmentModels( void );
 
-	virtual int GetSlot( void ) const;
-	virtual int GetPosition( void ) const;
-
 	void SetupObjectSelectionSprite( void );
 
 	virtual CHudTexture const *GetSpriteActive( void ) const;

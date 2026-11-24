@@ -86,7 +86,11 @@ CTFWeaponBuilder::~CTFWeaponBuilder()
 void CTFWeaponBuilder::SetSubType( int iSubType )
 {
 	m_iObjectType = iSubType;
-	
+
+	const CObjectInfo *pInfo = GetObjectInfo( m_iObjectType );
+	SetSlot( pInfo->m_SelectionSlot );
+	SetPosition( pInfo->m_SelectionPosition );
+
 	// m_iViewModelIndex is set by the base Precache(), which didn't know what
 	// type of object we built, so it didn't get the right viewmodel index.
 	// Now that our data is filled in, go and get the right index.
@@ -1146,22 +1150,6 @@ bool CTFWeaponBuilder::HasAmmo( void )
 
 	int iCost = pOwner->m_Shared.CalculateObjectCost( pOwner, m_iObjectType );
 	return ( pOwner->GetBuildResources() >= iCost );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int CTFWeaponBuilder::GetSlot( void ) const
-{
-	return GetObjectInfo( m_iObjectType )->m_SelectionSlot;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int CTFWeaponBuilder::GetPosition( void ) const
-{
-	return GetObjectInfo( m_iObjectType )->m_SelectionPosition;
 }
 
 //-----------------------------------------------------------------------------

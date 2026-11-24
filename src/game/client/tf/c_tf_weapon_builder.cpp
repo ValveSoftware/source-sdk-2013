@@ -242,22 +242,6 @@ bool C_TFWeaponBuilder::IsPlacingObject( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int C_TFWeaponBuilder::GetSlot( void ) const
-{
-	return GetObjectInfo( m_iObjectType )->m_SelectionSlot;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int C_TFWeaponBuilder::GetPosition( void ) const
-{
-	return GetObjectInfo( m_iObjectType )->m_SelectionPosition;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void C_TFWeaponBuilder::SetupObjectSelectionSprite( void )
 {
 #ifdef CLIENT_DLL

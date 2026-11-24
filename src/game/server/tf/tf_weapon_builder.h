@@ -72,8 +72,6 @@ public:
 
 	// Selection
 	bool	HasAmmo( void );
-	int		GetSlot( void ) const;
-	int		GetPosition( void ) const;
 	const char *GetPrintName( void ) const;
 	bool	CanBuildObjectType( int iObjectType );
 	void	SetObjectTypeAsBuildable( int iObjectType );
