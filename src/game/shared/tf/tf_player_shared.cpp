@@ -479,6 +479,7 @@ BEGIN_PREDICTION_DATA_NO_BASE( CTFPlayerShared )
 	DEFINE_PRED_ARRAY( m_flItemChargeMeter, FIELD_FLOAT, LAST_LOADOUT_SLOT_WITH_CHARGE_METER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iStunIndex, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bScattergunJump, FIELD_BOOLEAN, 0 ),
+	DEFINE_PRED_FIELD( m_iRevengeCrits, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 END_PREDICTION_DATA()
 
 // Server specific.
@@ -14463,9 +14464,9 @@ void CTFPlayerShared::PulseKingRuneBuff( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerShared::IncrementRevengeCrits( void )
+void CTFPlayerShared::AddRevengeCrits( int iCrits )
 {
-	SetRevengeCrits( m_iRevengeCrits + 1 );
+	SetRevengeCrits( m_iRevengeCrits + iCrits );
 }
 
 //-----------------------------------------------------------------------------
