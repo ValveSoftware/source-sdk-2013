@@ -272,8 +272,27 @@ int GetUpgradeStepData( CTFPlayer *pPlayer, int nWeaponSlot, int nUpgradeIndex, 
 	int nNumSteps = 0;
 	
 	// ...
-	nNumSteps = RoundFloatToInt( fabsf( ( flCap - flBase ) / flIncrement ) );
-	nCurrentStep = RoundFloatToInt( fabsf( ( flCurrentAttribValue - flBase ) / flIncrement ) );
+	float diff = fabs( ( flCap - flBase ) / flIncrement );
+	float nearest = roundf(diff);
+	if (fabsf(diff - nearest) < 0.00001f)
+	{
+		nNumSteps = (int)nearest;
+	}
+	else
+	{
+		nNumSteps = ceilf(diff);
+	}
+	
+	diff = fabs( ( flCurrentAttribValue - flBase ) / flIncrement );
+	nearest = roundf(diff);
+	if (fabsf(diff - nearest) < 0.00001f)
+	{
+		nCurrentStep = (int)nearest;
+	}
+	else
+	{
+		nCurrentStep = ceilf(diff);
+	}
 
 	// Include the 0th step
 	return nNumSteps;
