@@ -270,7 +270,8 @@ bool BCanPreviewPaintKit( const CEconItemView* pItem )
 		|| iSlot == LOADOUT_POSITION_SECONDARY
 		|| iSlot == LOADOUT_POSITION_MELEE
 		|| iSlot == LOADOUT_POSITION_BUILDING
-		|| iSlot == LOADOUT_POSITION_PDA;
+		|| iSlot == LOADOUT_POSITION_PDA
+		|| iSlot == LOADOUT_POSITION_PDA2;
 }
 
 //-----------------------------------------------------------------------------

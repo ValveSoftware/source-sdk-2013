@@ -927,6 +927,9 @@ const char *CEconItemView::GetPlayerDisplayModel( int iClass, int iTeam ) const
 	if ( !pDef )
 		return NULL;
 
+	static CSchemaAttributeDefHandle pAttr_is_festivized( "is_festivized" );
+	const bool bIsFestivized = pAttr_is_festivized && FindAttribute( pAttr_is_festivized );
+
 	// If we have styles, give the style system a chance to change the mesh used for this
 	// player class.
 	if ( pDef->GetNumStyles() )
@@ -938,6 +941,9 @@ const char *CEconItemView::GetPlayerDisplayModel( int iClass, int iTeam ) const
 		// It's possible to get back a NULL pStyle if GetItemStyle() returns INVALID_STYLE_INDEX.
 		if ( pStyle )
 		{
+			if ( bIsFestivized && pStyle->GetBasePlayerDisplayModelFestive() )
+				return pStyle->GetBasePlayerDisplayModelFestive();
+
 #if defined( TF_DLL ) || defined( TF_CLIENT_DLL )
 			// TF styles support per-class models.
 			const CTFStyleInfo *pTFStyle = assert_cast<const CTFStyleInfo *>( pStyle );
@@ -965,6 +971,9 @@ const char *CEconItemView::GetPlayerDisplayModel( int iClass, int iTeam ) const
 		}
 	}
 #endif // defined( TF_DLL ) || defined( TF_CLIENT_DLL )
+
+	if ( bIsFestivized && pDef->GetBasePlayerDisplayModelFestive() )
+		return pDef->GetBasePlayerDisplayModelFestive();
 
 	return pDef->GetBasePlayerDisplayModel();
 }
@@ -1049,6 +1058,15 @@ const char *CEconItemView::GetExtraWearableModel() const
 	if ( !pData )
 		return NULL;
 
+	static CSchemaAttributeDefHandle pAttr_is_festivized( "is_festivized" );
+	if ( pAttr_is_festivized && FindAttribute( pAttr_is_festivized ) )
+	{
+		if ( pData->GetExtraWearableFestive() )
+		{
+			return pData->GetExtraWearableFestive();
+		}
+	}
+
 	return pData->GetExtraWearableModel();
 }
 
@@ -1059,6 +1077,24 @@ const char *CEconItemView::GetExtraWearableViewModel() const
 		return NULL;
 
 	return pData->GetExtraWearableViewModel();
+}
+
+const char *CEconItemView::GetOverrideHandModel() const
+{
+	CEconItemDefinition *pData = GetStaticData();
+	if ( !pData )
+		return NULL;
+
+	static CSchemaAttributeDefHandle pAttr_is_festivized( "is_festivized" );
+	if ( pAttr_is_festivized && FindAttribute( pAttr_is_festivized ) )
+	{
+		if ( pData->GetOverrideHandModelFestive() )
+		{
+			return pData->GetOverrideHandModelFestive();
+		}
+	}
+
+	return pData->GetOverrideHandModel();
 }
 
 const char *CEconItemView::GetVisionFilteredDisplayModel() const
