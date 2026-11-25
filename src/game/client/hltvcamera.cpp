@@ -18,8 +18,10 @@
 #include "game/client/iviewport.h"
 #include <KeyValues.h>
 
-#ifdef CSTRIKE_DLL
-	#include "c_cs_player.h"
+#if TF_CLIENT_DLL
+	#include "tf/c_tf_player.h"
+	#include "c_tf_playerresource.h"
+	#include "tf_shareddefs.h"
 #endif
 
 ConVar spec_autodirector( "spec_autodirector", "1", FCVAR_CLIENTDLL | FCVAR_CLIENTCMD_CAN_EXECUTE, "Auto-director chooses best view modes while spectating" );
@@ -869,3 +871,95 @@ void C_HLTVCamera::SetAutoDirector( bool bActive )
 {
 	spec_autodirector.SetValue( bActive?1:0 );
 }
+
+#ifdef TF_CLIENT_DLL
+CON_COMMAND(spec_class, "Spectate a player on a specific class")
+{
+    if ( args.ArgC() < 3 )
+	{
+		Msg( "Usage: spec_class <team> <class> [index]\n" );
+		return;
+	}
+
+    if ( !engine->IsHLTV() || HLTVCamera()->IsPVSLocked() )
+		return;
+
+	// need to know player class and teams
+	if ( !g_TF_PR )
+		return;
+
+	int team = TF_TEAM_COUNT;
+	if ( FStrEq( args[1], "red" ) ) team = TF_TEAM_RED;
+	if ( FStrEq( args[1], "blu") ) team = TF_TEAM_BLUE;
+	if ( team == TF_TEAM_COUNT )
+		return;
+
+	int classIndex = TF_CLASS_COUNT;
+	for ( unsigned i = TF_CLASS_UNDEFINED; i <= TF_LAST_NORMAL_CLASS; ++i )
+	{
+		if ( FStrEq( g_aRawPlayerClassNamesShort[i], args[2] ) )
+		{
+			classIndex = i;
+			break;
+		}
+	}
+
+	if ( classIndex == TF_CLASS_COUNT )
+		return;
+
+	int index = -1;
+
+	if ( args.ArgC() > 3 )
+		index = atoi( args[3] );
+
+	int current = -1;
+	CUtlVector<int> targets;
+
+	for ( unsigned i = 1; i < gpGlobals->maxClients; ++i )
+	{
+		C_TFPlayer* player = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+
+		if ( !player )
+			continue;
+
+		if ( HLTVCamera()->GetPrimaryTarget() == player )
+			current = i - 1;
+		
+		if( !player->IsAlive() )
+			continue;
+
+		if ( g_TF_PR->GetPlayerClass( i ) != classIndex )
+			continue;
+
+		if ( g_TF_PR->GetTeam( i ) != team )
+			continue;
+
+		targets.AddToTail( i );
+	}
+
+	if ( targets.IsEmpty() )
+		return;
+
+	// go through the classes on this team in order for me!
+	if ( index == -1 )
+	{
+		if ( current != -1 )
+		{
+			if ( current++ > targets.Count() )
+				current = 1;
+
+			index = current;
+		}
+		else
+		{
+			index = 1;
+		}
+	}
+	else if ( index <= 0 || index > targets.Count() )
+	{
+		return;
+	}
+
+	HLTVCamera()->SetPrimaryTarget( targets[index - 1] );
+}
+#endif
