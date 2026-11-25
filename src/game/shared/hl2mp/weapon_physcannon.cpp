@@ -1020,6 +1020,11 @@ void CWeaponPhysCannon::OnDataChanged( DataUpdateType_t type )
 			m_hOldAttachedObject->VPhysicsDestroyObject();
 		}
 	}
+	else if ( !m_hAttachedObject && m_hOldAttachedObject )
+	{
+		// A server-side weapon switch can stop ItemPreFrame from running before the drop is processed.
+		ManagePredictedObject();
+	}
 
 	// Update effect state when out of parity with the server
 	if ( m_nOldEffectState != m_EffectState )
