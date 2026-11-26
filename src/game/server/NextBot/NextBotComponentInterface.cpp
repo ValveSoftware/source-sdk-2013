@@ -42,9 +42,8 @@ HSCRIPT INextBotComponent::GetScriptInstance()
 }
 
 //--------------------------------------------------------------------------------------------------------------
-#ifdef TF_DLL
 DEFINE_SCRIPT_INSTANCE_HELPER( INextBotComponent, &g_NextBotComponentScriptInstanceHelper )
-#endif 
+
 BEGIN_ENT_SCRIPTDESC_ROOT( INextBotComponent, "Next bot component" )
 	DEFINE_SCRIPTFUNC( Reset, "Resets the internal update state" )
 	DEFINE_SCRIPTFUNC( ComputeUpdateInterval, "Recomputes the component update interval" )

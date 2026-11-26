@@ -31,14 +31,16 @@ class CBaseEntityScriptInstanceHelper : public IScriptInstanceHelper
 
 extern CBaseEntityScriptInstanceHelper g_BaseEntityScriptInstanceHelper;
 
-#ifdef TF_DLL
+#ifdef USE_NAV_MESH
 class CNavAreaScriptInstanceHelper : public IScriptInstanceHelper
 {
 	bool ToString( void *p, char *pBuf, int bufSize );
 };
 
 extern CNavAreaScriptInstanceHelper g_NavAreaScriptInstanceHelper;
+#endif
 
+#ifdef NEXT_BOT
 class INextBotComponentScriptInstanceHelper : public IScriptInstanceHelper
 {
 	bool ToString( void *p, char *pBuf, int bufSize );
