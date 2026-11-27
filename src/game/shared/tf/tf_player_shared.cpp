@@ -128,6 +128,8 @@ ConVar tf_always_loser( "tf_always_loser", "0", FCVAR_CHEAT | FCVAR_REPLICATED, 
 
 ConVar tf_mvm_bot_flag_carrier_movement_penalty( "tf_mvm_bot_flag_carrier_movement_penalty", "0.5", FCVAR_REPLICATED | FCVAR_CHEAT );
 
+ConVar tf_cyoa_pda_animations( "tf_cyoa_pda_animations", "1", FCVAR_CHEAT | FCVAR_REPLICATED, "Controls whether ConTracker animations are enabled.\n  0: Animations disabled\n  1: Animations enabled (default)\n" );
+
 //ConVar tf_scout_dodge_move_penalty_duration( "tf_scout_dodge_move_penalty_duration", "3.0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED );
 //ConVar tf_scout_dodge_move_penalty( "tf_scout_dodge_move_penalty", "0.5", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED );
 
@@ -765,6 +767,71 @@ bool CTFPlayer::IsAllowedToTaunt( void )
 	return true;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Check if a player is allowed to view the ConTracker. Mostly borrowed from IsAllowedToTaunt
+//-----------------------------------------------------------------------------
+bool CTFPlayer::IsAllowedToViewCYOAPDA( void )
+{
+	if ( tf_cyoa_pda_animations.GetInt() == 0 )
+		return false;
+
+	if ( !IsAlive() )
+		return false;
+
+	if ( m_Shared.InCond( TF_COND_TAUNTING ) )
+		return false;
+
+	if ( m_Shared.InCond( TF_COND_HALLOWEEN_KART ) )
+		return false;
+
+	if ( m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) )
+		return false;
+
+	// Can't taunt while charging.
+	if ( m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
+		return false;
+
+	if ( m_Shared.InCond( TF_COND_COMPETITIVE_LOSER ) )
+		return false;
+
+	if ( IsLerpingFOV() )
+		return false;
+
+	// Check to see if we are on the ground.
+	if ( !( GetFlags() & FL_ONGROUND ) )
+		return false;
+
+	CTFWeaponBase *pActiveWeapon = m_Shared.GetActiveTFWeapon();
+	if ( pActiveWeapon )
+	{
+		if ( !pActiveWeapon->OwnerCanTaunt() )
+			return false;
+
+		if ( pActiveWeapon->GetWeaponID() == TF_WEAPON_PDA_ENGINEER_BUILD 
+			 ||	pActiveWeapon->GetWeaponID() == TF_WEAPON_PDA_ENGINEER_DESTROY )
+			return false;
+	}
+
+	// can't view ConTracker while carrying an object
+	if ( m_Shared.IsCarryingObject() )
+		return false;
+
+	// Can't view ConTracker if hooked into a player
+	if ( m_Shared.InCond( TF_COND_GRAPPLED_TO_PLAYER ) )
+		return false;
+
+	if ( IsPlayerClass( TF_CLASS_SPY ) )
+	{
+		if ( m_Shared.IsStealthed() || m_Shared.InCond( TF_COND_STEALTHED_BLINK ) || 
+			 m_Shared.InCond( TF_COND_DISGUISED ) || m_Shared.InCond( TF_COND_DISGUISING ) )
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 
 // --------------------------------------------------------------------------------------------------- //
 // CTFPlayerShared implementation.
@@ -1024,6 +1091,8 @@ void CTFPlayerShared::Spawn( void )
 #endif
 	m_iStunIndex = -1;
 	m_bKingRuneBuffActive = false;
+
+	m_pOuter->StopViewingCYOAPDA();
 
 	// Reset our assist here incase something happens before we get killed
 	// again that checks this (getting slapped with a fish)
@@ -1561,6 +1630,8 @@ void CTFPlayerShared::RemoveAllCond()
 	m_nPlayerCondEx2 = 0;
 	m_nPlayerCondEx3 = 0;
 	m_nPlayerCondEx4 = 0;
+	
+	m_pOuter->StopViewingCYOAPDA();
 }
 
 
@@ -10796,7 +10867,7 @@ bool CTFPlayer::CanPlayerMove() const
 	if ( TFGameRules() && TFGameRules()->BInMatchStartCountdown() )
 		return false;
 
-	if ( IsViewingCYOAPDA() )
+	if ( IsInCYOAPDAAnimation() )
 		return false;
 
 	bool bFreezeOnRestart = tf_player_movement_restart_freeze.GetBool();
@@ -12216,7 +12287,7 @@ bool CTFPlayer::CanAttack( int iCanAttackFlags )
 
 	Assert( pRules );
 
-	if ( IsViewingCYOAPDA() )
+	if ( IsInCYOAPDAAnimation() )
 		return false;
 
 	if ( m_Shared.HasPasstimeBall() ) 
@@ -13145,7 +13216,7 @@ bool CTFPlayer::ShouldStopTaunting()
 	if ( GetWaterLevel() > WL_Waist )
 		return true;
 
-	if ( IsViewingCYOAPDA() )
+	if ( IsInCYOAPDAAnimation() )
 		return true;
 
 	return false;
@@ -14794,3 +14865,27 @@ bool CTFPlayer::IsHelpmeButtonPressed() const
 	return m_flHelpmeButtonPressTime != 0.f;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if this player is viewing or playing any ConTracker animations
+//-----------------------------------------------------------------------------
+bool CTFPlayer::IsInCYOAPDAAnimation( void ) const
+{
+	return IsViewingCYOAPDA() || m_Shared.m_iCYOAPDAAnimState != CYOA_PDA_ANIM_NONE;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Causes the player to immediately stop viewing the ConTracker
+//-----------------------------------------------------------------------------
+void CTFPlayer::StopViewingCYOAPDA()
+{
+	if ( m_PlayerAnimState && IsInCYOAPDAAnimation() )
+	{
+		// Make sure the outro anim events still go out (weapon unhide).
+		m_PlayerAnimState->RestartGesture( GESTURE_SLOT_CUSTOM, ACT_MP_CYOA_PDA_OUTRO );
+		m_PlayerAnimState->ResetGestureSlot( GESTURE_SLOT_CUSTOM );
+	}
+
+	m_Shared.m_flCYOAPDAAnimStateTime = 0.f;
+	m_Shared.m_iCYOAPDAAnimState = CYOA_PDA_ANIM_NONE;
+	m_bViewingCYOAPDA = false;
+}
