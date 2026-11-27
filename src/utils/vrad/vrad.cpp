@@ -102,6 +102,7 @@ bool		debug_extra = false;
 qboolean	do_fast = false;
 qboolean	do_centersamples = false;
 int			extrapasses = 4;
+int			g_iAmbientCubesPerLeaf = 16;
 float		smoothing_threshold = 0.7071067; // cos(45.0*(M_PI/180)) 
 // Cosine of smoothing angle(in radians)
 float		coring = 1.0;	// Light threshold to force to blackness(minimizes lightmaps)
@@ -2436,6 +2437,26 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 		{
 			g_bLargeDispSampleRadius = true;
 		}
+		else if (!Q_stricmp(argv[i], "-AmbientCubesPerLeaf"))
+		{
+			if (++i < argc && *argv[i])
+			{
+				if (atof(argv[i]) > 0)
+				{
+					g_iAmbientCubesPerLeaf = atof(argv[i]);
+				}
+				else
+				{
+					Warning("Error: expected a positive number after '-AmbientCubesPerLeaf'\n");
+					return -1;
+				}
+			}
+			else
+			{
+				Warning("Error: expected a number after '-AmbientCubesPerLeaf'\n");
+				return -1;
+			}
+		}
 		else if (!Q_stricmp( argv[i], "-dumppropmaps"))
 		{
 			g_bDumpPropLightmaps = true;
@@ -2836,7 +2857,7 @@ void PrintUsage( int argc, char **argv )
 		"  -dump           : Write debugging .txt files.\n"
 		"  -dumpnormals    : Write normals to debug files.\n"
 		"  -dumptrace      : Write ray-tracing environment to debug files.\n"
-		"  -threads        : Control the number of threads vbsp uses (defaults to the #\n"
+		"  -threads #      : Control the number of threads vbsp uses (defaults to the #\n"
 		"                    or processors on your machine).\n"
 		"  -lights <file>  : Load a lights file in addition to lights.rad and the\n"
 		"                    level lights file.\n"
@@ -2869,6 +2890,7 @@ void PrintUsage( int argc, char **argv )
 		"  -LargeDispSampleRadius: This can be used if there are splotches of bounced light\n"
 		"                          on terrain. The compile will take longer, but it will gather\n"
 		"                          light across a wider area.\n"
+		"  -AmbientCubesPerLeaf #: Lets you scale how many ambient lights your leaf has (default 16).\n"
         "  -StaticPropLighting   : generate backed static prop vertex lighting\n"
         "  -StaticPropPolys   : Perform shadow tests of static props at polygon precision\n"
         "  -OnlyStaticProps   : Only perform direct static prop lighting (vrad debug option)\n"

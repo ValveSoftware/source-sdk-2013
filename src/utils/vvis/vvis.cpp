@@ -1039,7 +1039,7 @@ void PrintUsage( int argc, char **argv )
 #ifdef MPI
 		"  -mpi_pw <pw>    : Use a password to choose a specific set of VMPI workers.\n"
 #endif
-		"  -threads        : Control the number of threads vbsp uses (defaults to the #\n"
+		"  -threads #      : Control the number of threads vvis uses (defaults to the #\n"
 		"                    or processors on your machine).\n"
 		"  -nosort         : Don't sort portals (sorting is an optimization).\n"
 		"  -tmpin          : Make portals come from \\tmp\\<mapname>.\n"
