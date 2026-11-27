@@ -11,7 +11,21 @@
 
 class IBody;
 class INextBotEntityFilter;
+class IKnownEntity;
 
+inline HSCRIPT ToHScript(const CKnownEntity *pKnownEntity)
+{
+	if (!pKnownEntity)
+		return NULL;
+	
+	// Return the underlying entity instead of the knowledge wrapper
+	return ToHScript(pKnownEntity->GetEntity());
+}
+
+inline CKnownEntity *ToKnownEntity( HSCRIPT hScript )
+{
+	return NULL;
+}
 
 //----------------------------------------------------------------------------------------------------------------
 /**
@@ -47,21 +61,29 @@ public:
 	virtual void CollectKnownEntities( CUtlVector< CKnownEntity > *knownVector );	// populate given vector with all currently known entities
 
 	virtual const CKnownEntity *GetPrimaryKnownThreat( bool onlyVisibleThreats = false ) const;	// return the biggest threat to ourselves that we are aware of
+	HSCRIPT ScriptGetPrimaryKnownThreat( bool onlyVisibleThreats = false ) const { return ToHScript( this->GetPrimaryKnownThreat( onlyVisibleThreats ) ); }
+	
 	virtual float GetTimeSinceVisible( int team ) const;				// return time since we saw any member of the given team
 
 	virtual const CKnownEntity *GetClosestKnown( int team = TEAM_ANY ) const;	// return the closest known entity
+	HSCRIPT ScriptGetClosestKnown( int team = TEAM_ANY ) const { return ToHScript( this->GetClosestKnown( team ) ); }
+	
 	virtual int GetKnownCount( int team, bool onlyVisible = false, float rangeLimit = -1.0f ) const;		// return the number of entities on the given team known to us closer than rangeLimit
 
 	virtual const CKnownEntity *GetClosestKnown( const INextBotEntityFilter &filter ) const;	// return the closest known entity that passes the given filter
 
 	virtual const CKnownEntity *GetKnown( const CBaseEntity *entity ) const;		// given an entity, return our known version of it (or NULL if we don't know of it)
-
+	HSCRIPT ScriptGetKnown( HSCRIPT hEntity ) const { return ToHScript( this->GetKnown( ToEnt( hEntity ) ) ); }
+	
 	// Introduce a known entity into the system. Its position is assumed to be known
 	// and will be updated, and it is assumed to not yet have been seen by us, allowing for learning
 	// of known entities by being told about them, hearing them, etc.
 	virtual void AddKnownEntity( CBaseEntity *entity );
+	void ScriptAddKnownEntity( HSCRIPT hEntity ) { this->AddKnownEntity( ToEnt( hEntity ) ); }
 
 	virtual void ForgetEntity( CBaseEntity *forgetMe );			// remove the given entity from our awareness (whether we know if it or not)
+	void ScriptForgetEntity( HSCRIPT hEntity ) { this->ForgetEntity( ToEnt( hEntity ) ); }
+
 	virtual void ForgetAllKnownEntities( void );
 
 	//-- physical vision interface follows ------------------------------------------------------
@@ -82,16 +104,27 @@ public:
 	 */ 
 	enum FieldOfViewCheckType { USE_FOV, DISREGARD_FOV };
 	virtual bool IsAbleToSee( CBaseEntity *subject, FieldOfViewCheckType checkFOV, Vector *visibleSpot = NULL ) const;
+	
 	virtual bool IsAbleToSee( const Vector &pos, FieldOfViewCheckType checkFOV ) const;
-
+	bool ScriptIsAbleToSee( const Vector &pos, bool checkFOV ) const 
+	{ 
+		return this->IsAbleToSee( pos, checkFOV ? USE_FOV : DISREGARD_FOV ); 
+	}
+	
 	virtual bool IsIgnored( CBaseEntity *subject ) const;		// return true to completely ignore this entity (may not be in sight when this is called)
+	bool ScriptIsIgnored( HSCRIPT hEntity ) const { return this->IsIgnored( ToEnt( hEntity ) ); }
+	
 	virtual bool IsVisibleEntityNoticed( CBaseEntity *subject ) const;		// return true if we 'notice' the subject, even though we have LOS to it
-
+	bool ScriptIsVisibleEntityNoticed( HSCRIPT hEntity ) const { return this->IsVisibleEntityNoticed( ToEnt( hEntity ) ); }
 	/**
 	 * Check if 'subject' is within the viewer's field of view
 	 */
 	virtual bool IsInFieldOfView( const Vector &pos ) const;
+	bool ScriptIsInFieldOfView( const Vector &pos ) const { return this->IsInFieldOfView( pos ); }
+	
 	virtual bool IsInFieldOfView( CBaseEntity *subject ) const;
+	bool ScriptIsEntityInFieldOfView( HSCRIPT hEntity ) const { return this->IsInFieldOfView( ToEnt( hEntity ) ); }
+	
 	virtual float GetDefaultFieldOfView( void ) const;			// return default FOV in degrees
 	virtual float GetFieldOfView( void ) const;					// return FOV in degrees
 	virtual void SetFieldOfView( float horizAngle );			// angle given in degrees
@@ -106,7 +139,12 @@ public:
 
 	/// @todo: Implement LookAt system
 	virtual bool IsLookingAt( const Vector &pos, float cosTolerance = 0.95f ) const;					// are we looking at the given position
+	bool ScriptIsLookingAt( const Vector &pos, float cosTolerance = 0.95f ) const { return this->IsLookingAt( pos, cosTolerance ); }
+	
 	virtual bool IsLookingAt( const CBaseCombatCharacter *actor, float cosTolerance = 0.95f ) const;	// are we looking at the given actor
+
+	//- Script access to vision functions ------------------------------------------------------------------
+	DECLARE_ENT_SCRIPTDESC();
 
 private:
 	CountdownTimer m_scanTimer;			// for throttling update rate
