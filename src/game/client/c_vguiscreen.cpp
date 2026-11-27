@@ -95,7 +95,7 @@ void C_VGuiScreen::OnDataChanged( DataUpdateType_t type )
 	}
 
 	// Set up the overlay material
-	if (m_nOldOverlayMaterial != m_nOverlayMaterial)
+	if ((type == DATA_UPDATE_CREATED) || (m_nOldOverlayMaterial != m_nOverlayMaterial))
 	{
 		m_OverlayMaterial.Shutdown();
 
