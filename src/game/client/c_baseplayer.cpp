@@ -792,7 +792,10 @@ void C_BasePlayer::OnPreDataChanged( DataUpdateType_t updateType )
 {
 	for (int i = 0; i < MAX_AMMO_TYPES; ++i)
 	{
-		m_iOldAmmo[i] = GetAmmoCount(i);
+		if (GetAmmoCount(i) < m_iOldAmmo[i])
+		{
+			m_iOldAmmo[i] = GetAmmoCount(i);
+		}
 	}
 
 	m_bWasFreezeFraming = (GetObserverMode() == OBS_MODE_FREEZECAM);
@@ -1021,7 +1024,7 @@ void C_BasePlayer::OnDataChanged( DataUpdateType_t updateType )
 #endif
 
 	BaseClass::OnDataChanged( updateType );
-
+	
 	// Only care about this for local player
 	if ( IsLocalPlayer() )
 	{
@@ -1033,6 +1036,9 @@ void C_BasePlayer::OnDataChanged( DataUpdateType_t updateType )
 		{
 			if ( GetAmmoCount(i) > m_iOldAmmo[i] )
 			{
+				int iCount = abs(GetAmmoCount(i) - m_iOldAmmo[i]);
+				m_iOldAmmo[i] = GetAmmoCount(i);
+
 				// Don't add to ammo pickup if the ammo doesn't do it
 				const FileWeaponInfo_t *pWeaponData = gWR.GetWeaponFromAmmo(i);
 
@@ -1042,7 +1048,7 @@ void C_BasePlayer::OnDataChanged( DataUpdateType_t updateType )
 					CHudHistoryResource *pHudHR = GET_HUDELEMENT( CHudHistoryResource );
 					if( pHudHR )
 					{
-						pHudHR->AddToHistory( HISTSLOT_AMMO, i, abs(GetAmmoCount(i) - m_iOldAmmo[i]) );
+						pHudHR->AddToHistory( HISTSLOT_AMMO, i, iCount );
 					}
 				}
 			}
