@@ -66,7 +66,7 @@ CHudDemomanPipes::CHudDemomanPipes( const char *pElementName ) : CHudElement( pE
 
 	SetHiddenBits( HIDEHUD_MISCSTATUS | HIDEHUD_PIPES_AND_CHARGE );
 
-	vgui::ivgui()->AddTickSignal( GetVPanel(), 100 );
+	vgui::ivgui()->AddTickSignal( GetVPanel(), 50 );
 
 	m_bChargeMode = false;
 	m_flOldProgress = 1.f;
@@ -167,11 +167,14 @@ void CHudDemomanPipes::OnTick( void )
 			m_pPipesPresent->SetVisible( false );
 			m_pNoPipesPresent->SetVisible( false );
 
+			int iDemoChargeDamagePenalty = 0;
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pPlayer, iDemoChargeDamagePenalty, lose_demo_charge_on_damage_when_charging );
+
 			float flProgress = pPlayer->m_Shared.GetDemomanChargeMeter() / 100.f;
 			m_pChargeMeter->SetProgress( flProgress );
 			if ( pPlayer->m_Shared.InCond( TF_COND_SHIELD_CHARGE ) )
 			{
-				if ( flProgress <= 0.33f )
+				if ( !iDemoChargeDamagePenalty && flProgress <= 0.4f )
 				{
 					m_pChargeMeter->SetFgColor( Color( 255, 0, 0, 255 ) );
 				}
