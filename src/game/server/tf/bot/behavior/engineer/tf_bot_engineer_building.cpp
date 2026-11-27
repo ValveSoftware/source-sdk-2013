@@ -226,13 +226,13 @@ bool CTFBotEngineerBuilding::CheckIfSentryIsOutOfPosition( CTFBot *me ) const
 	{
 		CTeamTrainWatcher *trainWatcher;
 
-		if ( me->GetTeamNumber() == TF_TEAM_BLUE )
+		if ( TFGameRules()->HasMultipleTrains() || me->GetTeamNumber() == TF_TEAM_RED )
 		{
-			trainWatcher = TFGameRules()->GetPayloadToPush( me->GetTeamNumber() );
+			trainWatcher = TFGameRules()->GetPayloadToBlock( me->GetTeamNumber() );
 		}
 		else
 		{
-			trainWatcher = TFGameRules()->GetPayloadToBlock( me->GetTeamNumber() );
+			trainWatcher = TFGameRules()->GetPayloadToPush( me->GetTeamNumber() );
 		}
 
 		if ( trainWatcher )

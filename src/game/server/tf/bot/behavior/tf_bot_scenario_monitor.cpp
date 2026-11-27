@@ -252,7 +252,7 @@ Action< CTFBot > *CTFBotScenarioMonitor::DesiredScenarioAndClassAction( CTFBot *
 	else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_ESCORT )
 	{
 		// push the cart
-		if ( me->GetTeamNumber() == TF_TEAM_BLUE )
+		if ( TFGameRules()->HasMultipleTrains() || me->GetTeamNumber() == TF_TEAM_BLUE )
 		{
 			// blu is pushing
 			return new CTFBotPayloadPush;
