@@ -226,6 +226,8 @@ CObjectTeleporter::CObjectTeleporter()
 	m_flCurrentRechargeDuration = 0.0f;
 	m_flRechargeTime = 0.0f;
 
+	m_flEurekaEffectCooldown = 0.0f;
+
 	ListenForGameEvent( "player_spawn" );
 	ListenForGameEvent( "player_team" );
 }
@@ -535,6 +537,10 @@ bool CObjectTeleporter::PlayerCanBeTeleported( CTFPlayer *pPlayer )
 		return false;
 
 	if ( TFGameRules() && TFGameRules()->IsPasstimeMode() && pPlayer->m_Shared.HasPasstimeBall() )
+		return false;
+
+	// If the player just used the Eureka Effect, give them time to step off the teleporter
+	if ( pBuilder && pBuilder->entindex() == pPlayer->entindex() && m_flEurekaEffectCooldown >= gpGlobals->curtime )
 		return false;
 
 	return true;
@@ -1537,4 +1543,9 @@ void CObjectTeleporter::FireGameEvent( IGameEvent *event )
 			SetTeleportingPlayer( NULL );
 		}
 	}
+}
+
+void CObjectTeleporter::AddEurekaEffectCooldown()
+{
+	m_flEurekaEffectCooldown = gpGlobals->curtime + g_iTeleporterRechargeTimes[3];
 }
