@@ -389,6 +389,8 @@ public:
 	void	ProcessDisguiseImpulse( CTFPlayer *pPlayer );
 	int		GetDisguiseAmmoCount( void ) { return m_iDisguiseAmmo; }
 	void	SetDisguiseAmmoCount( int nValue ) { m_iDisguiseAmmo = nValue; }
+	int		GetDisguiseAmmoReserveCount( void ) { return m_iDisguiseAmmoReserve; }
+	void	SetDisguiseAmmoReserveCount( int nValue ) { m_iDisguiseAmmoReserve = nValue; }
 
 	bool	CanRecieveMedigunChargeEffect( medigun_charge_types eType ) const;
 #ifdef CLIENT_DLL
@@ -960,6 +962,7 @@ private:
 	CNetworkVar( int, m_nTeamTeleporterUsed ); // for disguised spies using enemy teleporters
 	CHandle<CTFPlayer>	m_hDesiredDisguiseTarget;
 	int m_iDisguiseAmmo;
+	int m_iDisguiseAmmoReserve;
 
 	bool m_bEnableSeparation;		// Keeps separation forces on when player stops moving, but still penetrating
 	Vector m_vSeparationVelocity;	// Velocity used to keep player separate from teammates

@@ -614,6 +614,8 @@ BEGIN_ENT_SCRIPTDESC( CTFPlayer, CBaseMultiplayerPlayer , "Team Fortress 2 Playe
 	DEFINE_SCRIPTFUNC_NAMED( ScriptIsImmuneToPushback, "IsImmuneToPushback", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetDisguiseAmmoCount, "GetDisguiseAmmoCount", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptSetDisguiseAmmoCount, "SetDisguiseAmmoCount", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptGetDisguiseAmmoReserveCount, "GetDisguiseAmmoReserveCount", "" )
+	DEFINE_SCRIPTFUNC_NAMED( ScriptSetDisguiseAmmoReserveCount, "SetDisguiseAmmoReserveCount", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetDisguiseTeam, "GetDisguiseTeam", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptIsFullyInvisible, "IsFullyInvisible", "" )
 	DEFINE_SCRIPTFUNC_NAMED( ScriptGetSpyCloakMeter, "GetSpyCloakMeter", "" )
@@ -757,7 +759,8 @@ END_SEND_TABLE()
 // Purpose: Sent to attached medics
 //-----------------------------------------------------------------------------
 BEGIN_SEND_TABLE_NOBASE( CTFPlayer, DT_TFSendHealersDataTable )
-	SendPropInt( SENDINFO( m_nActiveWpnClip ), -1, SPROP_VARINT | SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_nActiveWpnClip ), 0, SPROP_VARINT | SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_nActiveWpnReserve ), 0, SPROP_VARINT | SPROP_UNSIGNED ),
 END_SEND_TABLE()
 
 //============
@@ -1061,7 +1064,9 @@ CTFPlayer::CTFPlayer()
 	ResetDamagePerSecond();
 
 	m_nActiveWpnClip.Set( 0 );
+	m_nActiveWpnReserve.Set( 0 );
 	m_nActiveWpnClipPrev = 0;
+	m_nActiveWpnReservePrev = 0;
 	m_flNextClipSendTime = 0;
 
 	m_nCanPurchaseUpgradesCount = 0;
@@ -1629,26 +1634,32 @@ void CTFPlayer::TFPlayerThink()
 		CTFWeaponBase *pTFWeapon = GetActiveTFWeapon();
 		if ( pTFWeapon )
 		{
-			int nClip = 0;
+			int nClip = UINT16_MAX, nReserve = UINT16_MAX;
 
 			if ( m_Shared.InCond( TF_COND_DISGUISED ) )
 			{
 				nClip = m_Shared.GetDisguiseAmmoCount();
+				nReserve = m_Shared.GetDisguiseAmmoReserveCount();
 			}
-			else
+			else if ( pTFWeapon->UsesPrimaryAmmo() )
 			{
-				nClip = pTFWeapon->UsesClipsForAmmo1() ? pTFWeapon->Clip1() : GetAmmoCount( pTFWeapon->GetPrimaryAmmoType() );
+				if ( pTFWeapon->UsesClipsForAmmo1() && !pTFWeapon->IsMeleeWeapon() )
+				{
+					nClip = pTFWeapon->Clip1();
+					nReserve = GetAmmoCount( pTFWeapon->GetPrimaryAmmoType() );
+				}
+				else
+				{
+					nClip = GetAmmoCount( pTFWeapon->GetPrimaryAmmoType() );
+				}
 			}
 
-			if ( nClip >= 0 && nClip != m_nActiveWpnClipPrev )
+			if ( ( nClip != m_nActiveWpnClipPrev ) || ( nReserve != m_nActiveWpnReservePrev ) )
 			{
-				if ( nClip > 500 )
-				{
-					Warning( "Heal Target: ClipSize Data Limit Exceeded: %d (max 500)\n", nClip );
-					nClip = MIN( nClip, 500 );
-				}
 				m_nActiveWpnClip.Set( nClip );
 				m_nActiveWpnClipPrev = m_nActiveWpnClip;
+				m_nActiveWpnReserve.Set( nReserve );
+				m_nActiveWpnReservePrev = m_nActiveWpnReserve;
 				m_flNextClipSendTime = gpGlobals->curtime + 0.25f;
 			}
 		}

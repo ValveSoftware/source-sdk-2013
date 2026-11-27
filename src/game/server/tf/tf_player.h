@@ -789,43 +789,45 @@ public:
 	void				ScriptSetCondDuration( int nCond, float flNewDuration );
 	HSCRIPT				ScriptGetDisguiseTarget();
 
-	bool				ScriptIsCarryingRune()						{ return m_Shared.IsCarryingRune(); }
-	bool				ScriptIsCritBoosted( void ) const			{ return m_Shared.IsCritBoosted(); }
-	bool				ScriptIsInvulnerable( void ) const			{ return m_Shared.IsInvulnerable(); }
-	bool				ScriptIsStealthed( void ) const				{ return m_Shared.IsStealthed(); }
-	bool				ScriptCanBeDebuffed( void ) const			{ return m_Shared.CanBeDebuffed(); }
-	bool				ScriptIsImmuneToPushback( void ) const		{ return m_Shared.IsImmuneToPushback(); }
-	int					ScriptGetDisguiseAmmoCount()				{ return m_Shared.GetDisguiseAmmoCount(); }
-	void				ScriptSetDisguiseAmmoCount( int nValue )	{ return m_Shared.SetDisguiseAmmoCount(nValue); }
-	int					ScriptGetDisguiseTeam()						{ return m_Shared.GetDisguiseTeam(); }
-	bool				ScriptIsFullyInvisible()					{ return m_Shared.IsFullyInvisible(); }
-	float				ScriptGetSpyCloakMeter()					{ return m_Shared.GetSpyCloakMeter(); }
-	void				ScriptSetSpyCloakMeter( float flValue )		{ return m_Shared.SetSpyCloakMeter( flValue ); }
-	bool				ScriptIsRageDraining()						{ return m_Shared.IsRageDraining(); }
-	float				ScriptGetRageMeter()						{ return m_Shared.GetRageMeter(); }
-	void				ScriptSetRageMeter( float flValue )			{ return m_Shared.SetRageMeter( flValue ); }
-	float				ScriptGetScoutHypeMeter()					{ return m_Shared.GetScoutHypeMeter(); }
-	void				ScriptSetScoutHypeMeter( float flValue )	{ return m_Shared.SetScoutHypeMeter( flValue ); }
-	bool				ScriptIsHypeBuffed()						{ return m_Shared.IsHypeBuffed(); }
-	bool				ScriptIsJumping()							{ return m_Shared.IsJumping(); }
-	bool				ScriptIsAirDashing()						{ return m_Shared.IsAirDashing(); }
-	bool				ScriptIsControlStunned()					{ return m_Shared.IsControlStunned(); }
-	bool				ScriptIsSnared()							{ return m_Shared.IsSnared(); }
-	int					ScriptGetCaptures() const					{ return m_Shared.GetCaptures( 0 ); }
-	int					ScriptGetDefenses() const					{ return m_Shared.GetDefenses( 0 ); }
-	int					ScriptGetDominations() const				{ return m_Shared.GetDominations( 0 ); }
-	int					ScriptGetRevenge() const					{ return m_Shared.GetRevenge( 0 ); }
-	int					ScriptGetBuildingsDestroyed() const			{ return m_Shared.GetBuildingsDestroyed( 0 ); }
-	int					ScriptGetHeadshots() const					{ return m_Shared.GetHeadshots( 0 ); }
-	int					ScriptGetBackstabs() const					{ return m_Shared.GetBackstabs( 0 ); }
-	int					ScriptGetHealPoints() const					{ return m_Shared.GetHealPoints( 0 ); }
-	int					ScriptGetInvulns() const					{ return m_Shared.GetInvulns( 0 ); }
-	int					ScriptGetTeleports() const					{ return m_Shared.GetTeleports( 0 ); }
-	int					ScriptGetResupplyPoints() const				{ return m_Shared.GetResupplyPoints( 0 ); }
-	int					ScriptGetKillAssists() const				{ return m_Shared.GetKillAssists( 0 ); }
-	int					ScriptGetBonusPoints() const				{ return m_Shared.GetBonusPoints( 0 ); }
-	void				ScriptResetScores()							{ m_Shared.ResetScores(); }
-	bool				ScriptIsParachuteEquipped()					{ return m_Shared.IsParachuteEquipped(); }
+	bool				ScriptIsCarryingRune()							{ return m_Shared.IsCarryingRune(); }
+	bool				ScriptIsCritBoosted( void ) const				{ return m_Shared.IsCritBoosted(); }
+	bool				ScriptIsInvulnerable( void ) const				{ return m_Shared.IsInvulnerable(); }
+	bool				ScriptIsStealthed( void ) const					{ return m_Shared.IsStealthed(); }
+	bool				ScriptCanBeDebuffed( void ) const				{ return m_Shared.CanBeDebuffed(); }
+	bool				ScriptIsImmuneToPushback( void ) const			{ return m_Shared.IsImmuneToPushback(); }
+	int					ScriptGetDisguiseAmmoCount()					{ return m_Shared.GetDisguiseAmmoCount(); }
+	void				ScriptSetDisguiseAmmoCount( int nValue )		{ return m_Shared.SetDisguiseAmmoCount(nValue); }
+	int					ScriptGetDisguiseAmmoReserveCount()				{ return m_Shared.GetDisguiseAmmoReserveCount(); }
+	void				ScriptSetDisguiseAmmoReserveCount( int nValue )	{ return m_Shared.SetDisguiseAmmoReserveCount(nValue); }
+	int					ScriptGetDisguiseTeam()							{ return m_Shared.GetDisguiseTeam(); }
+	bool				ScriptIsFullyInvisible()						{ return m_Shared.IsFullyInvisible(); }
+	float				ScriptGetSpyCloakMeter()						{ return m_Shared.GetSpyCloakMeter(); }
+	void				ScriptSetSpyCloakMeter( float flValue )			{ return m_Shared.SetSpyCloakMeter( flValue ); }
+	bool				ScriptIsRageDraining()							{ return m_Shared.IsRageDraining(); }
+	float				ScriptGetRageMeter()							{ return m_Shared.GetRageMeter(); }
+	void				ScriptSetRageMeter( float flValue )				{ return m_Shared.SetRageMeter( flValue ); }
+	float				ScriptGetScoutHypeMeter()						{ return m_Shared.GetScoutHypeMeter(); }
+	void				ScriptSetScoutHypeMeter( float flValue )		{ return m_Shared.SetScoutHypeMeter( flValue ); }
+	bool				ScriptIsHypeBuffed()							{ return m_Shared.IsHypeBuffed(); }
+	bool				ScriptIsJumping()								{ return m_Shared.IsJumping(); }
+	bool				ScriptIsAirDashing()							{ return m_Shared.IsAirDashing(); }
+	bool				ScriptIsControlStunned()						{ return m_Shared.IsControlStunned(); }
+	bool				ScriptIsSnared()								{ return m_Shared.IsSnared(); }
+	int					ScriptGetCaptures() const						{ return m_Shared.GetCaptures( 0 ); }
+	int					ScriptGetDefenses() const						{ return m_Shared.GetDefenses( 0 ); }
+	int					ScriptGetDominations() const					{ return m_Shared.GetDominations( 0 ); }
+	int					ScriptGetRevenge() const						{ return m_Shared.GetRevenge( 0 ); }
+	int					ScriptGetBuildingsDestroyed() const				{ return m_Shared.GetBuildingsDestroyed( 0 ); }
+	int					ScriptGetHeadshots() const						{ return m_Shared.GetHeadshots( 0 ); }
+	int					ScriptGetBackstabs() const						{ return m_Shared.GetBackstabs( 0 ); }
+	int					ScriptGetHealPoints() const						{ return m_Shared.GetHealPoints( 0 ); }
+	int					ScriptGetInvulns() const						{ return m_Shared.GetInvulns( 0 ); }
+	int					ScriptGetTeleports() const						{ return m_Shared.GetTeleports( 0 ); }
+	int					ScriptGetResupplyPoints() const					{ return m_Shared.GetResupplyPoints( 0 ); }
+	int					ScriptGetKillAssists() const					{ return m_Shared.GetKillAssists( 0 ); }
+	int					ScriptGetBonusPoints() const					{ return m_Shared.GetBonusPoints( 0 ); }
+	void				ScriptResetScores()								{ m_Shared.ResetScores(); }
+	bool				ScriptIsParachuteEquipped()						{ return m_Shared.IsParachuteEquipped(); }
 
 	int					ScriptGetPlayerClass()
 	{
@@ -1435,7 +1437,9 @@ private:
 	int					m_peakDamagePerSecond;
 
 	CNetworkVar( uint16, m_nActiveWpnClip );
+	CNetworkVar( uint16, m_nActiveWpnReserve );
 	uint16				m_nActiveWpnClipPrev;
+	uint16				m_nActiveWpnReservePrev;
 	float				m_flNextClipSendTime;
 
 	float				m_flWaterExitTime;
