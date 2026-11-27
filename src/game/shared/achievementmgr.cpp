@@ -1087,7 +1087,7 @@ bool CAchievementMgr::CheckAchievementsEnabled()
 		return false;
 	}
 
-	ConVarRef tf_bot_offline_practice( "tf_bot_offline_practice" );
+	static ConVarRef tf_bot_offline_practice( "tf_bot_offline_practice" );
 	// no achievements for offline practice
 	if ( tf_bot_offline_practice.GetInt() != 0 )
 	{
