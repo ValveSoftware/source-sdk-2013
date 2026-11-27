@@ -36,6 +36,7 @@ public:
 	bool	CreateVPhysics( void );
 	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 
+	// formerly pev->frame
 	int		m_nState;
 };
 
@@ -58,6 +59,16 @@ void CFuncWall::Spawn( void )
 	
 	// If it can't move/go away, it's really part of the world
 	AddFlag( FL_WORLDBRUSH );
+
+	// attempt to detect VMT-set texframeindex, without overriding it
+	if (GetTextureFrameIndex() != 0)
+	{
+		m_nState = 1;
+	}
+	else
+	{
+		m_nState = 0;
+	}
 
 	// set manual mode
 	CreateVPhysics();
@@ -88,6 +99,34 @@ void CFuncWall::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 	if ( ShouldToggle( useType, m_nState ) )
 	{
 		m_nState = 1 - m_nState;
+		SetTextureFrameIndex(m_nState);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Modified Use input that properly sets USE_TYPE instead of using
+//			a bogus value based upon output ID.
+//-----------------------------------------------------------------------------
+void CBaseEntity::InputUse( inputdata_t &inputdata )
+{
+	if ( (inputdata.value.String()) == "")
+	{
+		// if empty, assume USE_TOGGLE
+		Use( inputdata.pActivator, inputdata.pCaller, USE_TOGGLE, 0 );
+	}
+	else
+	{
+		int iData = inputdata.value.Int();
+		if ( (iData >= 0) && (iData <= 3) )
+		{
+			// Valid USE_TYPE; pass to Use funcion as-is
+			Use( inputdata.pActivator, inputdata.pCaller, iData, 0 );
+		}
+		else
+		{
+			// Invalid USE_TYPE; fall back to USE_TOGGLE
+			Use( inputdata.pActivator, inputdata.pCaller, USE_TOGGLE, 0 );
+		}
 	}
 }
 
