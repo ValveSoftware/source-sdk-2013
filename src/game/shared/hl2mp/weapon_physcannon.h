@@ -420,6 +420,7 @@ protected:
 	bool			m_bOldOpen;			// Used for parity checks
 
 	void			NotifyShouldTransmit( ShouldTransmitState_t state );
+	void			ResetPredictedObject( void );
 
 #endif	// CLIENT_DLL
 
