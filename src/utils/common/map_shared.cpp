@@ -29,6 +29,10 @@ ChunkFileResult_t LoadEntityKeyCallback(const char *szKey, const char *szValue, 
 		{
 			pLoadEntity->nBaseContents = CONTENTS_DETAIL;
 		}
+		else if (!stricmp( szValue, "func_detail_nonsolid"))
+		{
+			pLoadEntity->nBaseContents = CONTENTS_DETAIL | CONTENTS_OPAQUE;
+		}
 		else if (!stricmp(szValue, "func_ladder"))
 		{
 			pLoadEntity->nBaseContents = CONTENTS_LADDER;
