@@ -25,12 +25,14 @@ CPlayerBitVec	g_PlayerModEnable;		// Set to 1 for each player if the player want
 										// (If it's zero, then the server reports that the game rules are saying the
 										// player can't hear anyone).
 
-CPlayerBitVec	g_BanMasks[VOICE_MAX_PLAYERS];	// Tells which players don't want to hear each other.
-												// These are indexed as clients and each bit represents a client
-												// (so player entity is bit+1).
+CPlayerBitVec	g_VoiceBanMasks[VOICE_MAX_PLAYERS];	// Tells which players don't want to hear each other
+CPlayerBitVec	g_ChatBanMasks[VOICE_MAX_PLAYERS];	// or see each other's chat.
+													// These are indexed as clients and each bit represents a client
+													// (so player entity is bit+1).
 
 CPlayerBitVec	g_SentGameRulesMasks[VOICE_MAX_PLAYERS];	// These store the masks we last sent to each client so we can determine if
-CPlayerBitVec	g_SentBanMasks[VOICE_MAX_PLAYERS];			// we need to resend them.
+CPlayerBitVec	g_SentVoiceBanMasks[VOICE_MAX_PLAYERS];		// we need to resend them.
+CPlayerBitVec	g_SentChatBanMasks[VOICE_MAX_PLAYERS];
 CPlayerBitVec	g_bWantModEnable;
 
 ConVar voice_serverdebug( "voice_serverdebug", "0" );
@@ -146,7 +148,8 @@ void CVoiceGameMgr::ClientConnected(struct edict_t *pEdict)
 	// Clear out everything we use for deltas on this guy.
 	g_bWantModEnable[index] = true;
 	g_SentGameRulesMasks[index].Init(0);
-	g_SentBanMasks[index].Init(0);
+	g_SentVoiceBanMasks[index].Init(0);
+	g_SentChatBanMasks[index].Init(0);
 }
 
 
@@ -162,6 +165,7 @@ bool CVoiceGameMgr::ClientCommand( CBasePlayer *pPlayer, const CCommand &args )
 	bool bBan = stricmp( args[0], "vban" ) == 0;
 	if( bBan && args.ArgC() >= 2 )
 	{
+		const static int maxVoiceBanMasks = 4;
 		for(int i=1; i < args.ArgC(); i++)
 		{
 			uint32 mask = 0;
@@ -169,8 +173,15 @@ bool CVoiceGameMgr::ClientCommand( CBasePlayer *pPlayer, const CCommand &args )
 
 			if( i <= VOICE_MAX_PLAYERS_DW )
 			{
+				if ( i <= maxVoiceBanMasks )
+				{
+					g_VoiceBanMasks[playerClientIndex].SetDWord( i - 1, mask );
+				}
+				else
+				{
+					g_ChatBanMasks[playerClientIndex].SetDWord( i - 1, mask );
+				}
 				VoiceServerDebug( "CVoiceGameMgr::ClientCommand: vban (0x%x) from %d\n", mask, playerClientIndex );
-				g_BanMasks[playerClientIndex].SetDWord(i-1, mask);
 			}
 			else
 			{
@@ -242,18 +253,21 @@ void CVoiceGameMgr::UpdateMasks()
 		}
 
 		// If this is different from what the client has, send an update. 
-		if(gameRulesMask != g_SentGameRulesMasks[iClient] || 
-			g_BanMasks[iClient] != g_SentBanMasks[iClient])
+		if( gameRulesMask != g_SentGameRulesMasks[iClient] || 
+			g_VoiceBanMasks[iClient] != g_SentVoiceBanMasks[iClient] ||
+			g_ChatBanMasks[iClient] != g_SentChatBanMasks[iClient] )
 		{
 			g_SentGameRulesMasks[iClient] = gameRulesMask;
-			g_SentBanMasks[iClient] = g_BanMasks[iClient];
+			g_SentVoiceBanMasks[iClient] = g_VoiceBanMasks[iClient];
+			g_SentChatBanMasks[iClient] = g_ChatBanMasks[iClient];
 
 			UserMessageBegin( user, "VoiceMask" );
 				int dw;
 				for(dw=0; dw < VOICE_MAX_PLAYERS_DW; dw++)
 				{
 					WRITE_LONG(gameRulesMask.GetDWord(dw));
-					WRITE_LONG(g_BanMasks[iClient].GetDWord(dw));
+					WRITE_LONG(g_VoiceBanMasks[iClient].GetDWord(dw));
+					WRITE_LONG(g_ChatBanMasks[iClient].GetDWord(dw));
 				}
 				WRITE_BYTE( !!g_PlayerModEnable[iClient] );
 			MessageEnd();
@@ -262,7 +276,7 @@ void CVoiceGameMgr::UpdateMasks()
 		// Tell the engine.
 		for(int iOtherClient=0; iOtherClient < m_nMaxPlayers; iOtherClient++)
 		{
-			bool bCanHear = gameRulesMask[iOtherClient] && !g_BanMasks[iClient][iOtherClient];
+			bool bCanHear = gameRulesMask[iOtherClient] && !g_VoiceBanMasks[iClient][iOtherClient];
 			g_pVoiceServer->SetClientListening( iClient+1, iOtherClient+1, bCanHear );
 
 			if ( bCanHear )
@@ -275,7 +289,12 @@ void CVoiceGameMgr::UpdateMasks()
 
 bool CVoiceGameMgr::IsPlayerIgnoringPlayer( int iTalker, int iListener )
 {
-	return !!g_BanMasks[iListener-1][iTalker-1];
+	return !!g_VoiceBanMasks[iListener-1][iTalker-1];
+}
+
+bool CVoiceGameMgr::IsPlayerIgnoringPlayerChat( int iTalker, int iListener )
+{
+	return !!g_ChatBanMasks[iListener-1][iTalker-1];
 }
 
 void CVoiceGameMgr::SetProximityDistance( int iDistance )
