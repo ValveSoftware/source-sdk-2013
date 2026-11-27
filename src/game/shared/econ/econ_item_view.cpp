@@ -1249,7 +1249,7 @@ static int RemapOverridePaintIndexToRGB( uint32 unIndex, uint32 unTeamIndex )
 {
 	enum { kSamplePoints = 256, };
 
-	static uint32 k_unWitchYellow[] = {
+	static uint32 k_unWitchYellow[] = { // Die Job
 		5328971, 5328971, 5328971, 5328971, 5328971, 5328971, 5328971, 5328971, 
 		5328971, 5328971, 5395018, 5591625, 5723465, 5855050, 5921095, 6052679, 
 		6315591, 6447429, 6513222, 6710852, 7039299, 7170884, 7433793, 7631425, 
@@ -1285,7 +1285,7 @@ static int RemapOverridePaintIndexToRGB( uint32 unIndex, uint32 unTeamIndex )
 	};
 	COMPILE_TIME_ASSERT( ARRAYSIZE( k_unWitchYellow ) == kSamplePoints );
 
-	static uint32 k_unDistinctiveLackOfSanity[] =
+	static uint32 k_unDistinctiveLackOfSanity[] = // Chromatic Corruption
 	{
 		5720667, 5720667, 5786460, 5720667, 5786460, 5786460, 5851996, 5851741, 
 		6048606, 6048606, 6114145, 6114145, 6245474, 6311013, 6311013, 6441829, 
@@ -1318,11 +1318,11 @@ static int RemapOverridePaintIndexToRGB( uint32 unIndex, uint32 unTeamIndex )
 		3219253, 3285046, 3350839, 3416632, 3482425, 3614011, 3811133, 3942465, 
 		4008260, 4336455, 4533321, 4664908, 4730701, 4993362, 5124948, 5256536, 
 		5650013, 5781599, 6044003, 6175589, 6306920, 6504042, 6701167, 6898035, 
-		7029621, 7292279, 7489404, 7686526, 7752064, 8014722, 8080261, 8277127,
+		6704493, 6573417, 6507624, 6048609, 5851741, 5786460, 5720667, 5720667,
 	};
 	COMPILE_TIME_ASSERT( ARRAYSIZE( k_unDistinctiveLackOfSanity ) == kSamplePoints );
 
-	static uint32 k_unOverabundanceOfRottingFlesh[] =
+	static uint32 k_unOverabundanceOfRottingFlesh[] = // Putrescent Pigmentation
 	{
 		12703514, 12703514, 12703514, 12703516, 12703516, 12703514, 12572700, 12506907, 
 		12506907, 12506652, 12506907, 12506907, 12506652, 12506652, 12506907, 12506652, 
@@ -1360,7 +1360,7 @@ static int RemapOverridePaintIndexToRGB( uint32 unIndex, uint32 unTeamIndex )
 	COMPILE_TIME_ASSERT( ARRAYSIZE( k_unOverabundanceOfRottingFlesh ) == kSamplePoints );
 
 	// orange_flash
-	static uint32 k_unTheFlamesBelow[] =
+	static uint32 k_unTheFlamesBelow[] = // Spectral Spectrum Red
 	{
 		11548953, 11614745, 11746074, 11877659, 12008987, 12140572, 12337693, 12469278, 
 		12666655, 12863776, 13060897, 13258274, 13455395, 13652772, 13849893, 14047014, 
@@ -1398,7 +1398,7 @@ static int RemapOverridePaintIndexToRGB( uint32 unIndex, uint32 unTeamIndex )
 	COMPILE_TIME_ASSERT( ARRAYSIZE( k_unTheFlamesBelow ) == kSamplePoints );
 
 	// green_pulse
-	static uint32 k_unThatQueesyFeeling[] =
+	static uint32 k_unThatQueesyFeeling[] = // Sinister Staining
 	{
 		7439904, 7571489, 7703329, 7900706, 8032547, 8295716, 8493349, 8756518, 
 		9019943, 9283369, 9546794, 9810219, 10073644, 10402606, 10666031, 10929200, 
@@ -1436,7 +1436,7 @@ static int RemapOverridePaintIndexToRGB( uint32 unIndex, uint32 unTeamIndex )
 	COMPILE_TIME_ASSERT( ARRAYSIZE( k_unThatQueesyFeeling ) == kSamplePoints );
 
 	// blue_pulse
-	static uint32 k_unBubbleBubble[] =
+	static uint32 k_unBubbleBubble[] = // Spectral Spectrum Blue
 	{
 		9094364, 9160156, 9291485, 9357278, 9488607, 9685472, 9816801, 10013922, 
 		10145251, 10342372, 10539237, 10736358, 10933479, 11130345, 11327466, 11458795, 
@@ -1474,7 +1474,7 @@ static int RemapOverridePaintIndexToRGB( uint32 unIndex, uint32 unTeamIndex )
 	COMPILE_TIME_ASSERT( ARRAYSIZE( k_unBubbleBubble ) == kSamplePoints );
 
 	// purple_orange_rand
-	static uint32 k_unAfraidOfShadowsDark[] =
+	static uint32 k_unAfraidOfShadowsDark[] = // Unused 6th paint spell, no official name for it.
 	{
 		4536928, 4536928, 4602721, 4602721, 4668515, 4668515, 4734308, 4734308, 
 		4734308, 4734309, 4734309, 4734309, 4865896, 4865896, 4931689, 4931689, 
