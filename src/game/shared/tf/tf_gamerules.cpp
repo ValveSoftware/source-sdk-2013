@@ -7300,7 +7300,7 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 				outParams.bPlayDamageReductionSound = CheckMedicResist( TF_COND_MEDIGUN_SMALL_BULLET_RESIST, TF_COND_MEDIGUN_UBER_BULLET_RESIST, pVictim, flRawDamage, flDamageBase, bCrit, flDamageBonus );
 			}
 
-			if ( info.GetDamageType() & DMG_MELEE )
+			if ( ( info.GetDamageType() & DMG_MELEE ) || ( info.GetDamageCustom() == TF_DMG_CUSTOM_STICKBOMB_EXPLOSION ) )
 			{
 				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pVictim, flDamageBase, mult_dmgtaken_from_melee );
 			}
@@ -7416,7 +7416,7 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 
 		if ( pVictim && pVictim->GetActiveTFWeapon() && !iAttackIgnoresResists )
 		{
-			if ( info.GetDamageType() & (DMG_CLUB) )
+			if ( info.GetDamageType() & (DMG_CLUB) || ( info.GetDamageCustom() == TF_DMG_CUSTOM_STICKBOMB_EXPLOSION ) )
 			{
 				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pVictim->GetActiveTFWeapon(), flRealDamage, dmg_from_melee );
 			}
