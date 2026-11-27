@@ -58,7 +58,7 @@ ActionResult< CTFBot > CTFBotAttackFlagDefenders::Update( CTFBot *me, float inte
 
 		if ( !flag )
 		{
-			return Done( "No flag" );
+			return Continue();
 		}
 
 		// can't reach flag if it is at home
