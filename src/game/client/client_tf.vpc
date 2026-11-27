@@ -12,6 +12,7 @@ $Macro GAMENAME 	"mod_tf" [$SOURCESDK]
 $Conditional WORKSHOP_IMPORT_ENABLE	1 [$WINDOWS && !$SOURCESDK]
 
 $Include "$SRCDIR\game\client\client_base.vpc"
+$Include "$SRCDIR\game\client\client_replay_base.vpc"
 $include "$SRCDIR\game\shared\tf\tf_gcmessages_include.vpc"
 $include "$SRCDIR\game\shared\tf\tf_proto_def_messages_include.vpc"
 $Include "$SRCDIR\game\client\client_econ_base.vpc"

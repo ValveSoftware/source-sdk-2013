@@ -1,0 +1,19 @@
+//-----------------------------------------------------------------------------
+//	SERVER_REPLAY_BASE.VPC
+//
+//	Project Base Script
+//-----------------------------------------------------------------------------
+
+$Include "$SRCDIR\vpc_scripts\source_replay.vpc"
+
+$Project
+{
+	$Folder "Replay"
+	{
+		$File	"gamedll_replay.cpp"
+		$File	"$SRCDIR\common\replay\ireplaysessionrecorder.h"
+
+		$File	"$SRCDIR\game\shared\replay_gamestats_shared.cpp"	[$BUILD_REPLAY]
+		$File	"$SRCDIR\game\shared\replay_gamestats_shared.h"	[$BUILD_REPLAY]
+	}
+}

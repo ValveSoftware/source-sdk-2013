@@ -1,0 +1,119 @@
+//-----------------------------------------------------------------------------
+//	CLIENT_REPLAY_BASE.VPC
+//
+//	Project Base Script
+//-----------------------------------------------------------------------------
+
+$Include "$SRCDIR\vpc_scripts\source_replay.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+        $PreprocessorDefinitions		"$BASE;USE_WEBM_FOR_REPLAY" [$LINUXALL]
+	}
+    
+    $Linker
+	{
+        $AdditionalDependencies			"$BASE wsock32.lib Ws2_32.lib" [$BUILD_REPLAY&&$WINDOWS]
+	}
+}
+
+$Project
+{
+    $Folder "Replay"
+	{
+		$File	"replay/replaycamera.cpp"
+		$File	"replay/replaycamera.h"
+		$File	"replay/cdll_replay.cpp"
+		$File	"replay/cdll_replay.h"
+		
+		$File	"replay/gamedefs.h"	[$BUILD_REPLAY]
+		$File	"replay/gamedefs.cpp"	[$BUILD_REPLAY]
+		$File	"replay/replay_ragdoll.cpp"	[$BUILD_REPLAY]
+		$File	"replay/replay_ragdoll.h"	[$BUILD_REPLAY]
+		$File	"replay/replay_screenshot.cpp"	[$BUILD_REPLAY]
+		$File	"replay/replay_screenshot.h"	[$BUILD_REPLAY]
+		$File	"replay/replayperformanceplaybackhandler.h"	[$BUILD_REPLAY]
+		$File	"replay/replayperformanceplaybackhandler.cpp"	[$BUILD_REPLAY]
+		$File	"replay/replayrenderer.cpp"	[$BUILD_REPLAY]
+		$File	"replay/replayrenderer.h"	[$BUILD_REPLAY]
+		$File	"replay/replayvideo.cpp"	[$BUILD_REPLAY]
+		$File	"replay/replayvideo.h"	[$BUILD_REPLAY]
+		
+		$File	"replay/genericclassbased_replay.cpp"	[$BUILD_REPLAY]
+		$File	"replay/genericclassbased_replay.h"	[$BUILD_REPLAY]
+		
+		$File	"$SRCDIR\game\shared\replay_gamestats_shared.cpp"	[$BUILD_REPLAY]
+		$File	"$SRCDIR\game\shared\replay_gamestats_shared.h"	[$BUILD_REPLAY]
+		
+		$File	"$SRCDIR\game\client\youtubeapi.h"	[$BUILD_REPLAY]
+		$File	"$SRCDIR\game\client\youtubeapi.cpp"	[$BUILD_REPLAY]
+		{
+			$Configuration
+			{
+				$Compiler
+				{
+					$Create/UsePrecompiledHeader	"Not Using Precompiled Headers"
+				}
+			}
+		}
+		
+		$Folder "UI"	[$BUILD_REPLAY]
+		{
+			$File	"replay\vgui\replaybrowserbasepage.cpp"
+			$File	"replay\vgui\replaybrowserbasepage.h"
+			$File	"replay\vgui\replaybrowserbasepanel.cpp"
+			$File	"replay\vgui\replaybrowserbasepanel.h"
+			$File	"replay\vgui\replayconfirmquitdlg.cpp"
+			$File	"replay\vgui\replayconfirmquitdlg.h"
+			$File	"replay\vgui\replaybrowserdetailspanel.cpp"
+			$File	"replay\vgui\replaybrowserdetailspanel.h"
+			$File	"replay\vgui\replaybrowseritemmanager.cpp"
+			$File	"replay\vgui\replaybrowseritemmanager.h"
+			$File	"replay\vgui\replaybrowserlistitempanel.cpp"
+			$File	"replay\vgui\replaybrowserlistitempanel.h"
+			$File	"replay\vgui\replaybrowserlistpanel.cpp"
+			$File	"replay\vgui\replaybrowserlistpanel.h"
+			$File	"replay\vgui\replaybrowsermainpanel.cpp"
+			$File	"replay\vgui\replaybrowsermainpanel.h"
+			$File	"replay\vgui\replaybrowsermovieplayerpanel.cpp"
+			$File	"replay\vgui\replaybrowsermovieplayerpanel.h"
+			$File	"replay\vgui\replaybrowserpreviewpanel.cpp"
+			$File	"replay\vgui\replaybrowserpreviewpanel.h"
+			$File	"replay\vgui\replaybrowserrenderdialog.cpp"
+			$File	"replay\vgui\replaybrowserrenderdialog.h"
+			$File	"replay\vgui\replayinputpanel.cpp"
+			$File	"replay\vgui\replayinputpanel.h"
+			$File	"replay\vgui\replaymessagepanel.cpp"
+			$File	"replay\vgui\replaymessagepanel.h"
+			$File	"replay\vgui\replayperformanceeditor.cpp"
+			$File	"replay\vgui\replayperformanceeditor.h"
+			$File	"replay\vgui\replayperformancesavedlg.cpp"
+			$File	"replay\vgui\replayperformancesavedlg.h"
+			$File	"replay\vgui\replayrenderoverlay.cpp"
+			$File	"replay\vgui\replayrenderoverlay.h"
+			$File	"replay\vgui\replayreminderpanel.cpp"
+			$File	"replay\vgui\replayreminderpanel.h"
+			$File	"replay\replayyoutubeapi.cpp"
+			$File	"replay\replayyoutubeapi.h"
+			$File	"replay\replayyoutubeapi_key.cpp" [!$SOURCESDK]
+			$File	"replay\replayyoutubeapi_key_sdk.cpp" [$SOURCESDK]
+			
+			$File	"game_controls\slideshowpanel.cpp"
+			$File	"game_controls\slideshowpanel.h"
+			
+			$File	"$SRCDIR\common\movieobjects\timeutils.cpp"
+			{
+				$Configuration
+				{
+					$Compiler
+					{
+						$Create/UsePrecompiledHeader	"Not Using Precompiled Headers"
+					}
+				}
+			}
+			$File	"$SRCDIR\public\movieobjects\timeutils.h"
+		}
+	}
+}
