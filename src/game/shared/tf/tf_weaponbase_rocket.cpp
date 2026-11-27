@@ -70,6 +70,8 @@ END_DATADESC()
 ConVar tf_rocket_show_radius( "tf_rocket_show_radius", "0", FCVAR_REPLICATED | FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Render rocket radius." );
 #endif
 
+ConVar tf_splash_fix_extreme( "tf_splash_fix_extreme", "0", FCVAR_PROTECTED, "Don't use unless necessary. Plane normal will not be added to origin on explosion which might cause problems for small bumps or displacements." );
+
 //=============================================================================
 //
 // Shared (client/server) functions.
@@ -433,7 +435,13 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	// Pull out a bit.
 	if ( pTrace->fraction != 1.0 )
 	{
-		SetAbsOrigin( pTrace->endpos + ( pTrace->plane.normal * 1.0f ) );
+		if ( !tf_splash_fix_extreme.GetBool( ) )
+		{
+			// This line causes a bug where when the endpos + normal is within a wall, trace fraction will often be 1.0 or close enough to 1.0 to splash through things.
+			// Checking if the start is in a solid should fix it. This will still allow players to shoot around corners but without it, displacements and tiny bumps may block explosions.
+			// I don't know why this is done so I have added a ConVar so you can change it as a server-owner.
+			SetAbsOrigin( pTrace->endpos + ( pTrace->plane.normal * 1.0f ) );
+		}
 	}
 
 	// Play explosion sound and effect.
