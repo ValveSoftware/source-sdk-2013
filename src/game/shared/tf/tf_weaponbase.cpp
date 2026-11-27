@@ -4949,6 +4949,10 @@ bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& orig
 {
 	if ( event == 6002 && ShouldEjectBrass() )
 	{
+		EHANDLE m_hEjectBrassWeapon = GetWeaponForEffect();
+		if ( !m_hEjectBrassWeapon )
+			return true;
+
 		if ( UsingViewModel() && !g_pClientMode->ShouldDrawViewModel() )
 		{
 			// Prevent effects when the ViewModel is hidden with r_drawviewmodel=0
@@ -4959,16 +4963,16 @@ bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& orig
 		// Look for 'eject_brass' attachment first instead of using options which is a seemingly magic number
 		if ( m_iEjectBrassAttachpoint == -2 )
 		{
-			m_iEjectBrassAttachpoint = pViewModel->LookupAttachment( "eject_brass" );
+			m_iEjectBrassAttachpoint = m_hEjectBrassWeapon->LookupAttachment( "eject_brass" );
 		}
 
 		if ( m_iEjectBrassAttachpoint > 0 )
 		{
-			pViewModel->GetAttachment( m_iEjectBrassAttachpoint, data.m_vOrigin, data.m_vAngles );
+			m_hEjectBrassWeapon->GetAttachment( m_iEjectBrassAttachpoint, data.m_vOrigin, data.m_vAngles );
 		}
 		else
 		{
-			pViewModel->GetAttachment( atoi(options), data.m_vOrigin, data.m_vAngles );
+			m_hEjectBrassWeapon->GetAttachment( atoi(options), data.m_vOrigin, data.m_vAngles );
 		}
 		data.m_nDamageType = GetAttributeContainer()->GetItem() ? GetAttributeContainer()->GetItem()->GetItemDefIndex() : 0;
 		data.m_nHitBox = GetWeaponID();
