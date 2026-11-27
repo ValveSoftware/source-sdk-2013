@@ -540,6 +540,9 @@ void CTFBaseRocket::CheckForStunOnImpact( CTFPlayer* pTarget )
 	if ( !iRocketSpecialist )
 		return;
 
+	if ( pTarget->m_Shared.IsInvulnerable() )
+		return;
+
 	// Stun
 	float flStunAmount = pTarget->IsMiniBoss() ? 0.85f : 1.f;
 	float flStunTime = RemapValClamped( iRocketSpecialist, 1.f, 4.f, 0.5f, 0.75f );
