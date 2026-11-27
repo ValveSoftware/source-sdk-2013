@@ -193,13 +193,14 @@ void CObjectSapper::FinishedBuilding( void )
 			CBaseObject *pObject = dynamic_cast<CBaseObject *>( m_hBuiltOnEntity.Get() );
 			if ( pObject )
 			{
-				if ( GetBuilder() && pObject->GetBuilder() )
+				if ( GetBuilder() )
 				{
 					IGameEvent * event = gameeventmanager->CreateEvent( "player_sapped_object" );
 					if ( event )
 					{
+						CTFPlayer *pObjectBuilder = pObject->GetBuilder();
 						event->SetInt( "userid", GetBuilder()->GetUserID() );
-						event->SetInt( "ownerid", pObject->GetBuilder()->GetUserID() );
+						event->SetInt( "ownerid", pObjectBuilder ? pObjectBuilder->GetUserID() : -1 );
 						event->SetInt( "object", pObject->ObjectType() );
 						event->SetInt( "sapperid", entindex() );
 
