@@ -69,6 +69,7 @@ void CHudBaseDeathNotice::Init( void )
 	ListenForGameEvent( "rd_robot_killed" );
 	ListenForGameEvent( "special_score" );
 	ListenForGameEvent( "team_leader_killed" );
+	ListenForGameEvent( "generic_killfeed_event" );
 }
 
 //-----------------------------------------------------------------------------
@@ -166,7 +167,7 @@ void CHudBaseDeathNotice::Paint()
 		int iTextTall = surface()->GetFontTall( m_hTextFont );
 		int iconWide = 0, iconTall = 0, iDeathInfoOffset = 0, iVictimTextOffset = 0, iconActualWide = 0;
 		
-		int iPreKillerTextWide = msg.wzPreKillerText[0] ? UTIL_ComputeStringWidth( m_hTextFont, msg.wzPreKillerText ) - xSpacing : 0;
+		int iPreKillerTextWide = msg.wzPreKillerText[0] ? UTIL_ComputeStringWidth( m_hTextFont, msg.wzPreKillerText ) + xSpacing : 0;
 		
 		int iconPrekillerWide = 0, iconPrekillerActualWide = 0, iconPrekillerTall = 0;
 		int iconPostkillerWide = 0, iconPostkillerActualWide = 0, iconPostkillerTall = 0;
@@ -267,7 +268,7 @@ void CHudBaseDeathNotice::Paint()
 		if ( killer[0] )
 		{
 			// Draw killer's name
-			DrawText( x, yText, m_hTextFont, GetTeamColor( msg.Killer.iTeam, msg.bLocalPlayerInvolved ), killer );
+			DrawText( x, yText, m_hTextFont, msg.bUseKillerTextColorOverride ? msg.killerTextColorOverride : GetTeamColor( msg.Killer.iTeam, msg.bLocalPlayerInvolved ), killer );
 			x += iKillerTextWide;
 		}
 
@@ -275,7 +276,7 @@ void CHudBaseDeathNotice::Paint()
 		if ( msg.wzPreKillerText[0] )
 		{
 			x += xSpacing;
-			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor( i ), msg.wzPreKillerText );
+			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, msg.bUseMsg3ColorOverride ? msg.msg3ColorOverride : GetInfoTextColor( i ), msg.wzPreKillerText );
 			x += iPreKillerTextWide;
 		}
 
@@ -309,12 +310,12 @@ void CHudBaseDeathNotice::Paint()
 				iVictimTextOffset -= iDeathInfoTextWide;
 			}
 
-			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor( i ), msg.wzInfoText );
+			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, msg.bUseMsgColorOverride ? msg.msgColorOverride : GetInfoTextColor( i ), msg.wzInfoText );
 			x += iDeathInfoTextWide;
 		}
 
 		// Draw victims name
-		DrawText( x + iVictimTextOffset, yText, m_hTextFont, GetTeamColor( msg.Victim.iTeam, msg.bLocalPlayerInvolved ), victim );
+		DrawText( x + iVictimTextOffset, yText, m_hTextFont, msg.bUseVictimTextColorOverride ? msg.victimTextColorOverride : GetTeamColor( msg.Victim.iTeam, msg.bLocalPlayerInvolved ), victim );
 		x += iVictimTextWide;
 
 		// postkiller icon
@@ -328,7 +329,7 @@ void CHudBaseDeathNotice::Paint()
 		// Draw Additional Text on the end of the victims name
 		if ( msg.wzInfoTextEnd[0] )
 		{
-			DrawText( x , yText, m_hTextFont, GetInfoTextColor( i ), msg.wzInfoTextEnd );
+			DrawText( x , yText, m_hTextFont, msg.bUseMsg2ColorOverride ? msg.msg2ColorOverride : GetInfoTextColor( i ), msg.wzInfoTextEnd );
 		}
 	}
 }
@@ -417,6 +418,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 	bool bTeamLeaderKilled = false;
 
 	bool bIsFeignDeath = event->GetInt( "death_flags" ) & TF_DEATH_FEIGN_DEATH;
+	bool bForceHideIcon = false;
 	if ( bPlayerDeath )
 	{
 		if ( !ShouldShowDeathNotice( event ) )
@@ -725,6 +727,145 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		if ( iLocalPlayerIndex == iPlayerIndex )
 			m_DeathNotices[iMsg].bLocalPlayerInvolved = true;
 	}
+	else if ( FStrEq( "generic_killfeed_event", pszEventName ) )
+	{
+		const char *pszMsgKey = event->GetString( "msg", "" );
+		const char *pszMsg2Key = event->GetString( "msg2", "" );
+		const char *pszMsg3Key = event->GetString( "msg3", "" );
+
+		int iVictim = engine->GetPlayerForUserID( event->GetInt( "victim" ) );
+		int iKiller = engine->GetPlayerForUserID( event->GetInt( "killer" ) );
+
+		int iVictimTeamOverride = event->GetInt( "victim_team" );
+		int iKillerTeamOverride = event->GetInt( "killer_team" );
+
+		const char *pszVictimNameOverride = event->GetString( "victim_name" );
+		const char *pszKillerNameOverride = event->GetString( "killer_name" );
+
+		const char *pszMsgTextColor = event->GetString( "msgcolor" );
+		const char *pszMsg2TextColor = event->GetString( "msgcolor2" );
+		const char *pszMsg3TextColor = event->GetString( "msgcolor3" );
+		const char *pszVictimTextColor = event->GetString( "msgcolor_victim" );
+		const char *pszKillerTextColor = event->GetString( "msgcolor_killer" );
+
+		const char *pszKillicon = event->GetString( "killicon" );
+		const char *pszKilliconBackground = event->GetString( "killicon_background" );
+
+		if ( iKiller == GetLocalPlayerIndex() || iVictim == GetLocalPlayerIndex() )
+		{
+			m_DeathNotices[iMsg].bLocalPlayerInvolved = true;
+		}
+
+		if( pszKillicon && *pszKillicon )
+		{
+			Q_snprintf( m_DeathNotices[iMsg].szIcon, sizeof(m_DeathNotices[iMsg].szIcon), "d_%s", pszKillicon );
+		}
+		else
+		{
+			bForceHideIcon = true;
+		}
+
+		if( pszKilliconBackground && *pszKilliconBackground )
+		{
+			m_DeathNotices[iMsg].iconCritDeath = GetIcon( pszKilliconBackground, m_DeathNotices[iMsg].bLocalPlayerInvolved ? kDeathNoticeIcon_Inverted : kDeathNoticeIcon_Standard );
+			m_DeathNotices[iMsg].bCrit = true;
+		}
+
+		if( pszMsgTextColor && *pszMsgTextColor )
+		{ 
+			int tmp[4];
+			UTIL_StringToIntArray( tmp, 4, pszMsgTextColor );
+			Color msgTextColor( tmp[0], tmp[1], tmp[2], tmp[3] );
+
+			m_DeathNotices[iMsg].bUseMsgColorOverride = true;
+			m_DeathNotices[iMsg].msgColorOverride = msgTextColor;
+		}
+
+		if( pszMsg2TextColor && *pszMsg2TextColor )
+		{ 
+			int tmp[4];
+			UTIL_StringToIntArray( tmp, 4, pszMsg2TextColor );
+			Color msg2TextColor( tmp[0], tmp[1], tmp[2], tmp[3] );
+
+			m_DeathNotices[iMsg].bUseMsg2ColorOverride = true;
+			m_DeathNotices[iMsg].msg2ColorOverride = msg2TextColor;
+		}
+
+		if( pszMsg3TextColor && *pszMsg3TextColor )
+		{ 
+			int tmp[4];
+			UTIL_StringToIntArray( tmp, 4, pszMsg3TextColor );
+			Color msg3TextColor( tmp[0], tmp[1], tmp[2], tmp[3] );
+
+			m_DeathNotices[iMsg].bUseMsg3ColorOverride = true;
+			m_DeathNotices[iMsg].msg3ColorOverride = msg3TextColor;
+		}
+
+		if( pszVictimTextColor && *pszVictimTextColor )
+		{ 
+			int tmp[4];
+			UTIL_StringToIntArray( tmp, 4, pszVictimTextColor );
+			Color victimTextColor( tmp[0], tmp[1], tmp[2], tmp[3] );
+
+			m_DeathNotices[iMsg].bUseVictimTextColorOverride = true;
+			m_DeathNotices[iMsg].victimTextColorOverride = victimTextColor;
+		}
+
+		if( pszKillerTextColor && *pszKillerTextColor )
+		{ 
+			int tmp[4];
+			UTIL_StringToIntArray( tmp, 4, pszKillerTextColor );
+			Color killerTextColor( tmp[0], tmp[1], tmp[2], tmp[3] );
+
+			m_DeathNotices[iMsg].bUseKillerTextColorOverride = true;
+			m_DeathNotices[iMsg].killerTextColorOverride = killerTextColor;
+		}
+
+		m_DeathNotices[iMsg].Victim.iTeam = iVictimTeamOverride;
+		m_DeathNotices[iMsg].Killer.iTeam = iKillerTeamOverride;
+
+		Q_strncpy( m_DeathNotices[iMsg].Victim.szName, pszVictimNameOverride, ARRAYSIZE( m_DeathNotices[iMsg].Victim.szName ) );
+		Q_strncpy( m_DeathNotices[iMsg].Killer.szName, pszKillerNameOverride, ARRAYSIZE( m_DeathNotices[iMsg].Killer.szName ) );
+
+		wchar_t *pszMsgKeyLocalized = g_pVGuiLocalize->Find( pszMsgKey );
+		wchar_t pszMsgKeyUnlocalized[256] = L"";
+		Assert( pszMsgKeyLocalized );
+		if ( pszMsgKeyLocalized )
+		{
+			V_wcsncpy( m_DeathNotices[iMsg].wzInfoText, pszMsgKeyLocalized, sizeof( m_DeathNotices[iMsg].wzInfoText ) );
+		}
+		else
+		{
+			g_pVGuiLocalize->ConvertANSIToUnicode( pszMsgKey, pszMsgKeyUnlocalized, sizeof(pszMsgKeyUnlocalized) );
+			V_wcsncpy( m_DeathNotices[iMsg].wzInfoText, pszMsgKeyUnlocalized, sizeof( m_DeathNotices[iMsg].wzInfoText ) );
+		}
+
+		wchar_t *pszMsg2KeyLocalized = g_pVGuiLocalize->Find( pszMsg2Key );
+		wchar_t pszMsg2KeyUnlocalized[256] = L"";
+		Assert( pszMsg2KeyLocalized );
+		if ( pszMsg2KeyLocalized )
+		{
+			V_wcsncpy( m_DeathNotices[iMsg].wzInfoTextEnd, pszMsg2KeyLocalized, sizeof( m_DeathNotices[iMsg].wzInfoTextEnd ) );
+		}
+		else
+		{
+			g_pVGuiLocalize->ConvertANSIToUnicode( pszMsg2Key, pszMsg2KeyUnlocalized, sizeof(pszMsg2KeyUnlocalized) );
+			V_wcsncpy( m_DeathNotices[iMsg].wzInfoTextEnd, pszMsg2KeyUnlocalized, sizeof( m_DeathNotices[iMsg].wzInfoTextEnd ) );
+		}
+
+		wchar_t *pszMsg3KeyLocalized = g_pVGuiLocalize->Find( pszMsg3Key );
+		wchar_t pszMsg3KeyUnlocalized[256] = L"";
+		Assert( pszMsg3KeyLocalized );
+		if ( pszMsg3KeyLocalized )
+		{
+			V_wcsncpy( m_DeathNotices[iMsg].wzPreKillerText, pszMsg3KeyLocalized, sizeof( m_DeathNotices[iMsg].wzPreKillerText ) );
+		}
+		else
+		{
+			g_pVGuiLocalize->ConvertANSIToUnicode( pszMsg3Key, pszMsg3KeyUnlocalized, sizeof(pszMsg3KeyUnlocalized) );
+			V_wcsncpy( m_DeathNotices[iMsg].wzPreKillerText, pszMsg3KeyUnlocalized, sizeof( m_DeathNotices[iMsg].wzPreKillerText ) );
+		}
+	}
 	else if ( bSpecialScore )
 	{
 		DeathNoticeItem &msg = m_DeathNotices[iMsg];
@@ -788,7 +929,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 
 	OnGameEvent( event, iMsg );
 
-	if ( !bSpecialScore && !bTeamLeaderKilled )
+	if ( !bSpecialScore && !bTeamLeaderKilled && !bForceHideIcon)
 	{
 		if ( !m_DeathNotices[iMsg].iconDeath && m_DeathNotices[iMsg].szIcon )
 		{
