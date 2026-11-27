@@ -406,7 +406,7 @@ void C_SmokeStack::RenderParticles( CParticleRenderIterator *pIterator )
 		// makes it get translucent and fade out for a longer time.
 		//float alpha = cosf( -M_PI_F + tLifetime * M_PI_F * 2.f ) * 0.5f + 0.5f;
 		float tLifetime = pParticle->m_Lifetime * m_InvLifetime;
-		float alpha = TableCos( -M_PI_F + tLifetime * M_PI_F * 2.f ) * 0.5f + 0.5f;
+		float alpha = FastCos( -M_PI_F + tLifetime * M_PI_F * 2.f ) * 0.5f + 0.5f;
 		if( tLifetime > 0.5f )
 			alpha *= alpha;
 
