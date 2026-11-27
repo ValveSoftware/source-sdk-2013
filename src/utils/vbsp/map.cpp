@@ -567,6 +567,11 @@ void CMapFile::AddBrushBevels (mapbrush_t *b)
 					CrossProduct (vec, vec2, normal);
 					if (VectorNormalize (normal) < 0.5)
 						continue;
+
+					// snap before calculating dist, otherwise FindFloatPlane() snaps the
+					// normal to an axis but keeps the dist calculated from the unsnapped
+					// normal, resulting in a bogus axial side that cuts into the brush
+					SnapVector( normal );
 					dist = DotProduct (w->p[j], normal);
 
 					// if all the points on all the sides are
