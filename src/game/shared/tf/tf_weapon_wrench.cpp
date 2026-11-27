@@ -14,6 +14,7 @@
 #ifdef CLIENT_DLL
 	#include "c_tf_player.h"
 	#include "in_buttons.h"
+	#include "prediction.h"
 	#include "tf_hud_menu_eureka_teleport.h"
 	// NVNT haptics system interface
 	#include "haptics/ihaptics.h"
@@ -213,6 +214,11 @@ void CTFWrench::ItemPostFrame()
 
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
+	{
+		return;
+	}
+
+	if ( !pOwner->IsLocalPlayer() || !prediction->IsFirstTimePredicted() )
 	{
 		return;
 	}
