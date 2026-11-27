@@ -328,6 +328,7 @@ void CNetGraphPanel::OnFontChanged()
 void CNetGraphPanel::ApplySchemeSettings(IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
+	g_pNetGraphPanel = this;
 
 	m_hFont = pScheme->GetFont( "DefaultFixedOutline", false );
 	m_hFontProportional = pScheme->GetFont( "DefaultFixedOutline", true );
