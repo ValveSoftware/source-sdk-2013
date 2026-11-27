@@ -5074,13 +5074,13 @@ void Studio_CalcDefaultPoseParameters( const CStudioHdr *pStudioHdr, float flPos
 
 	for ( int i = 0; i < nNumParams; ++i )
 	{
-		// Default to middle of the pose parameter range
-		flPoseParameter[ i ] = 0.5f;
+		// Default to start of the pose parameter range
+		flPoseParameter[ i ] = 0.f;
 		if ( i < nPoseCount )
 		{
 			const mstudioposeparamdesc_t &Pose = ((CStudioHdr *)pStudioHdr)->pPoseParameter( i );
 
-			// Want to try for a zero state.  If one doesn't exist set it to .5 by default.
+			// Want to try for a zero state.  If one doesn't exist set it to 0.f by default.
 			if ( Pose.start < 0.0f && Pose.end > 0.0f )
 			{
 				float flPoseDelta = Pose.end - Pose.start;
