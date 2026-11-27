@@ -119,7 +119,7 @@ bool		g_bStaticPropLighting = false;
 bool        g_bStaticPropPolys = false;
 bool        g_bTextureShadows = false;
 bool        g_bDisablePropSelfShadowing = false;
-
+int			g_nIndirectPropLightingMode = 0;
 
 CUtlVector<byte> g_FacesVisibleToLights;
 
@@ -2408,6 +2408,18 @@ int ParseCommandLine( int argc, char **argv, bool *onlydetail )
 		{
 			g_bDisablePropSelfShadowing = true;
 		}
+		else if ( !Q_stricmp( argv[i], "-StaticPropIndirectMode" ) )
+		{
+			if ( ++i < argc )
+			{
+				g_nIndirectPropLightingMode = atoi( argv[i] );
+			}
+			else
+			{
+				Warning( "Error: expected a value after '-StaticPropIndirectMode'\n" );
+				return -1;
+			}
+		}
 		else if ( !Q_stricmp( argv[i], "-textureshadows" ) )
 		{
 			g_bTextureShadows = true;
@@ -2871,6 +2883,7 @@ void PrintUsage( int argc, char **argv )
 		"                          light across a wider area.\n"
         "  -StaticPropLighting   : generate backed static prop vertex lighting\n"
         "  -StaticPropPolys   : Perform shadow tests of static props at polygon precision\n"
+		"  -StaticPropIndirectMode : Override prop indirect lighting algorithm (0 - default, 1 - TF2, 2 - Orangebox)\n"
         "  -OnlyStaticProps   : Only perform direct static prop lighting (vrad debug option)\n"
 		"  -StaticPropNormals : when lighting static props, just show their normal vector\n"
 		"  -textureshadows : Allows texture alpha channels to block light - rays intersecting alpha surfaces will sample the texture\n"
