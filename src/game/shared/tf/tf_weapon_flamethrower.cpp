@@ -510,6 +510,14 @@ void CTFFlameThrower::UpdateOnRemove( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CTFFlameThrower::CanInspect() const
+{
+    return BaseClass::CanInspect() && !IsFiring();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 bool CTFFlameThrower::Holster( CBaseCombatWeapon *pSwitchingTo )

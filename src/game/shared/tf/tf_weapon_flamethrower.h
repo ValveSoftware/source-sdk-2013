@@ -111,6 +111,8 @@ public:
 	bool			EffectMeterShouldFlash( void );
 
 	virtual bool	Deploy( void ) OVERRIDE;
+	
+	virtual bool	CanInspect() const OVERRIDE;
 
 #if defined( CLIENT_DLL )
 

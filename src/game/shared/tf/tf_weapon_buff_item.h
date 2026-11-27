@@ -71,6 +71,8 @@ public:
 	void			RaiseFlag( void );
 
 	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo );
+	
+	virtual bool	CanInspect() const OVERRIDE;
 
 	virtual bool	CanReload( void );
 
