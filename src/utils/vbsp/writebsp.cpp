@@ -1010,7 +1010,15 @@ void SetLightStyles (void)
 
 		t = ValueForKey (e, "targetname");
 		if (!t[0])
-			continue;
+		{
+			// Treat "_targetname" like "targetname" (the underscore indicates that it
+			// is compiler-only). This allows for multiple lights with the same 
+			// name to only count as one entity in-game, by setting all but one of
+			// the light entities to "_targetname" instead of "targetname". 
+			t = ValueForKey (e, "_targetname");
+			if (!t[0])
+				continue;
+		}
 		
 		// find this targetname
 		for (j=0 ; j<stylenum ; j++)
