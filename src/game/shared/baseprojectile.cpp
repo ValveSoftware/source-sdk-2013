@@ -30,9 +30,9 @@ IMPLEMENT_AUTO_LIST( IBaseProjectileAutoList );
 
 
 #ifdef TF_DLL
-CBaseEntity* GetAttackerEntity( CBaseProjectile* pProjectile )
+CBaseEntity* CBaseProjectile::GetAttackerEntity()
 {
-	CBaseEntity *pAttacker = pProjectile->GetOriginalLauncher();
+	CBaseEntity *pAttacker = GetOriginalLauncher();
 	IScorer *pScorerInterface = dynamic_cast<IScorer*>( pAttacker );
 	if ( pScorerInterface )
 	{
@@ -78,7 +78,7 @@ CBaseProjectile::~CBaseProjectile()
 			ownerWeaponDefIndex = pWeapon->GetAttributeContainer()->GetItem()->GetItemDefIndex();
 		}
 
-		CBaseEntity *pAttacker = GetAttackerEntity( this );
+		CBaseEntity *pAttacker = GetAttackerEntity();
 
 		if ( !pAttacker || ownerWeaponDefIndex == INVALID_ITEM_DEF_INDEX )
 		{
@@ -270,7 +270,7 @@ void CBaseProjectile::RecordEnemyPlayerHit( const CBaseEntity* pHitPlayer, bool 
 				ownerWeaponDefIndex = pWeapon->GetAttributeContainer()->GetItem()->GetItemDefIndex();
 			}
 
-			CBaseEntity *pAttacker = GetAttackerEntity( this );
+			CBaseEntity *pAttacker = GetAttackerEntity();
 
 			if ( !pAttacker )
 			{
