@@ -1216,7 +1216,7 @@ private:
 #endif
 
 public:
-	bool m_bScattergunJump;
+	int m_iScattergunJump;
 
 	float	m_flStunFade;
 	float	m_flStunEnd;
