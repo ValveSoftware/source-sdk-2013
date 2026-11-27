@@ -3434,7 +3434,13 @@ void CNavMesh::BeginGeneration( bool incremental )
 		}
 	}
 #else
-	engine->ServerCommand( "bot_kick\n" );
+	#if defined(HL2MP)
+		engine->ServerCommand("hl2mp_bot_kick all\n");
+	#elif defined(TF_DLL)
+		engine->ServerCommand("tf_bot_kick all\n");
+	#else
+		engine->ServerCommand("bot_kick\n");
+	#endif
 #endif
 
 	// Right now, incrementally-generated areas won't connect to existing areas automatically.
