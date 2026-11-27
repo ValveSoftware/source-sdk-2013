@@ -78,7 +78,7 @@ public:
 	CBaseEntity		*GetLauncher( void ) { return m_hLauncher; }
 
 protected:
-
+	bool	m_bLerpDraw;
 	float	 m_flSpawnTime;
 	int		m_iCachedDeflect;
 	CNetworkHandle( CBaseEntity, m_hLauncher );

@@ -87,6 +87,7 @@ public:
 	void			SetHighlight( bool bHighlight ) { if ( m_bPulsed ) m_bHighlight = bHighlight; }
 	bool			IsHighlighted( void ) { return m_bHighlight; }
 
+	bool	m_bLerpDraw;
 	int		m_iCachedDeflect;
 	CNewParticleEffect	*pEffectTrail;
 	CNewParticleEffect	*pEffectCrit;

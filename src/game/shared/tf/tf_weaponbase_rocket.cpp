@@ -141,6 +141,7 @@ void CTFBaseRocket::Spawn( void )
 // Client specific.
 #ifdef CLIENT_DLL
 
+	m_bLerpDraw = false;
 	m_flSpawnTime = gpGlobals->curtime;
 
 // Server specific.
@@ -236,10 +237,11 @@ void CTFBaseRocket::OnDataChanged(DataUpdateType_t updateType)
 //-----------------------------------------------------------------------------
 int CTFBaseRocket::DrawModel( int flags )
 {
-	// During the first 0.2 seconds of our life, don't draw ourselves.
-	if ( gpGlobals->curtime - m_flSpawnTime < 0.2f )
+	// During the client's lerp time, don't draw ourselves.
+	if ( !m_bLerpDraw && gpGlobals->curtime - m_flSpawnTime < GetInterpolationAmount( 0 ) )
 		return 0;
 
+	m_bLerpDraw = true;
 	return BaseClass::DrawModel( flags );
 }
 
