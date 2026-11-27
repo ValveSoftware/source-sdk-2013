@@ -107,7 +107,7 @@ ActionResult< CTFBot >	CTFBotMobRush::Update( CTFBot *me, float interval )
 	if ( !m_victim->IsAlive() && me->IsRangeLessThan( m_victim, tf_bot_taunt_range.GetFloat() ) )
 	{
 		// we got 'em!
-		return ChangeTo( new CTFBotTaunt, "Taunt their corpse" );
+		return ChangeTo( new CTFBotTaunt( NULL ), "Taunt their corpse" );
 	}
 
 	if ( m_vocalizeTimer.IsElapsed() )
