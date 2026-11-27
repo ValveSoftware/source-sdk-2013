@@ -361,6 +361,8 @@ void CBaseHL2MPBludgeonWeapon::Swing( int bIsSecondary )
 	pOwner->SetAnimation( PLAYER_ATTACK1 );
 
 	//Setup our next attack times
-	m_flNextPrimaryAttack = gpGlobals->curtime + GetFireRate();
-	m_flNextSecondaryAttack = gpGlobals->curtime + SequenceDuration();
+	const float flNextAttack = gpGlobals->curtime + GetFireRate();
+	m_flNextPrimaryAttack = flNextAttack;
+	m_flNextSecondaryAttack = flNextAttack;
+	SetWeaponIdleTime( flNextAttack );
 }
