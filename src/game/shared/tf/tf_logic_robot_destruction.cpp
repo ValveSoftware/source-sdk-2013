@@ -754,30 +754,7 @@ int CTFRobotDestructionLogic::ApproachTeamTargetScore( int nTeam, int nApproachS
 
 		if ( nNewScore == m_nMaxPoints )
 		{
-			if ( nTeam == TF_TEAM_RED )
-			{
-				m_OnRedHitMaxPoints.FireOutput( this, this );
-				m_flRedFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
-				SetContextThink( &CTFRobotDestructionLogic::RedTeamWin, m_flRedFinaleEndTime, "RedWin" );
-
-				if ( m_flBlueFinaleEndTime == FLT_MAX && GetType() == TYPE_ROBOT_DESTRUCTION )
-				{
-					// Announce the state change
-					TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
-				}
-			}
-			else
-			{
-				m_OnBlueHitMaxPoints.FireOutput( this, this );
-				m_flBlueFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
-				SetContextThink( &CTFRobotDestructionLogic::BlueTeamWin, m_flBlueFinaleEndTime, "BlueWin" );
-
-				if ( m_flRedFinaleEndTime == FLT_MAX && GetType() == TYPE_ROBOT_DESTRUCTION )
-				{
-					// Announce the state change
-					TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
-				}
-			}
+			StartFinale( nTeam );
 		}
 		else if ( nCurrentScore == m_nMaxPoints && nNewScore < m_nMaxPoints )
 		{
@@ -829,6 +806,46 @@ int CTFRobotDestructionLogic::ApproachTeamTargetScore( int nTeam, int nApproachS
 	}
 
 	return nCurrentScore;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Evaluate possible win conditions if player count is adjusted
+//-----------------------------------------------------------------------------
+void CTFRobotDestructionLogic::CheckAdjustedScore()
+{	
+	if ( TFGameRules()->IsInWaitingForPlayers() ) 
+		return;
+
+	if ( !TFGameRules()->FlagsMayBeCapped() )
+		return;
+
+	//Ignore if someone is already winning
+	if ( m_flRedFinaleEndTime != FLT_MAX || m_flBlueFinaleEndTime != FLT_MAX ) 
+		return;
+	
+	int scoreRed = GetScore( TF_TEAM_RED );
+	int scoreBlue = GetScore( TF_TEAM_BLUE );
+
+	if (!(scoreRed >= m_nMaxPoints || scoreBlue >= m_nMaxPoints))
+		return;
+	
+	int winningTeam = -1;
+
+	//Both teams have enough points to win, but are also tied; the first team to have scored the last point wins
+	if ( scoreRed == scoreBlue )
+	{
+		winningTeam = (m_nLastTeamScored == TF_TEAM_RED) ? TF_TEAM_BLUE : TF_TEAM_RED;
+	}
+	else if ( scoreRed > scoreBlue )
+	{
+		winningTeam = TF_TEAM_RED;
+	}
+	else if ( scoreBlue > scoreRed )
+	{
+		winningTeam = TF_TEAM_BLUE;
+	}
+
+	StartFinale( winningTeam );
 }
 
 //-----------------------------------------------------------------------------
@@ -911,6 +928,8 @@ void CTFRobotDestructionLogic::ScorePoints( int nTeam, int nPoints, RDScoreMetho
 	short nDelta = nNewScore - nOldScore;
 	if ( nDelta != 0 )
 	{
+		m_nLastTeamScored = nTeam;
+		
 		const char *pszEventName = "RDTeamPointsChanged";
 		CBroadcastRecipientFilter filter;
 		filter.MakeReliable();
@@ -931,6 +950,37 @@ void CTFRobotDestructionLogic::ScorePoints( int nTeam, int nPoints, RDScoreMetho
 		
 				gameeventmanager->FireEvent( pScoreEvent );
 			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Setup finale for nTeam.
+//-----------------------------------------------------------------------------
+void CTFRobotDestructionLogic::StartFinale (int nTeam)
+{
+	if ( nTeam == TF_TEAM_RED )
+	{
+		m_OnRedHitMaxPoints.FireOutput( this, this );
+		m_flRedFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
+		SetContextThink( &CTFRobotDestructionLogic::RedTeamWin, m_flRedFinaleEndTime, "RedWin" );
+
+		if ( m_flBlueFinaleEndTime == FLT_MAX && GetType() == TYPE_ROBOT_DESTRUCTION )
+		{
+			// Announce the state change
+			TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
+		}
+	}
+	else
+	{
+		m_OnBlueHitMaxPoints.FireOutput( this, this );
+		m_flBlueFinaleEndTime = gpGlobals->curtime + m_flFinaleLength;
+		SetContextThink( &CTFRobotDestructionLogic::BlueTeamWin, m_flBlueFinaleEndTime, "BlueWin" );
+
+		if ( m_flRedFinaleEndTime == FLT_MAX && GetType() == TYPE_ROBOT_DESTRUCTION )
+		{
+			// Announce the state change
+			TFGameRules()->BroadcastSound( 255, "RD.FinaleMusic" );
 		}
 	}
 }
