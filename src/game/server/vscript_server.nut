@@ -29,6 +29,11 @@ function EntFire( target, action, value = null, delay = 0.0, activator = null )
 	DoEntFire( target.tostring(), action.tostring(), value.tostring(), delay, activator, caller ); 
 }
 
+function ClientPrintEx( player, destination, text, text_param1 = null, text_param2 = null, text_param3 = null, text_param4 = null )
+{
+	DoClientPrintEx( player, destination, text, text_param1, text_param2, text_param3, text_param4 );
+}
+
 function __ReplaceClosures( script, scope )
 {
 	if ( !scope )
