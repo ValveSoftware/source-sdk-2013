@@ -30,13 +30,25 @@
 #define MAX_TANK_PROGRESS_BARS 5
 
 //=========================================================
-typedef struct 
+struct hud_enemy_data_t
 {
 	int		nCount;
 	const char	*pchClassIconName;
 	int		iFlags;
 	bool	bActive;
-} hud_enemy_data_t;
+
+	friend bool operator<( const hud_enemy_data_t& lhs, const hud_enemy_data_t& rhs )
+	{
+		// True only if lhs miniboss and rhs non-miniboss
+		if ( ( lhs.iFlags & MVM_CLASS_FLAG_MINIBOSS ) &&
+			!( rhs.iFlags & MVM_CLASS_FLAG_MINIBOSS ) ) {
+			return true;
+		}
+		return false;
+	}
+};
+
+typedef struct hud_enemy_data_t hud_enemy_data_t;
 
 class CEnemyCountPanel : public vgui::EditablePanel, public CGameEventListener
 {
