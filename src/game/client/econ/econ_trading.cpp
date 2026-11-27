@@ -26,6 +26,7 @@
 
 #ifdef TF_CLIENT_DLL
 #include "c_tf_gamestats.h"
+#include "tf_streamer_mode.h"
 #endif
 
 #include "gc_clientsystem.h"
@@ -312,7 +313,11 @@ public:
 			break;
 		}
 		
-		NotificationQueue_Add( new CTFTradeRequestNotification( msg.Body().m_ulOtherSteamID, msg.Body().m_unTradeRequestID, playerName.Get() ) );
+		const char *pszDisplayName = playerName.Get();
+#ifdef TF_CLIENT_DLL
+		pszDisplayName = TF_GetPlayerDisplayName( steamIDOther, pszDisplayName );
+#endif
+		NotificationQueue_Add( new CTFTradeRequestNotification( msg.Body().m_ulOtherSteamID, msg.Body().m_unTradeRequestID, pszDisplayName ) );
 		return true;
 	}
 protected:

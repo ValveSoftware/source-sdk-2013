@@ -6,6 +6,7 @@
 //=============================================================================//
 #include "cbase.h"
 #include "tf_hud_target_id.h"
+#include "tf_streamer_mode.h"
 #include "c_tf_playerresource.h"
 #include "iclientmode.h"
 #include "vgui/ILocalize.h"
@@ -763,7 +764,7 @@ void CTargetID::UpdateID( void )
 				return;
 
 			C_TFPlayer *pDisguiseTarget = NULL;
-			g_pVGuiLocalize->ConvertANSIToUnicode( pPlayer->GetPlayerName(), wszPlayerName, sizeof(wszPlayerName) );
+			g_pVGuiLocalize->ConvertANSIToUnicode( TF_GetPlayerDisplayName( pPlayer->entindex() ), wszPlayerName, sizeof(wszPlayerName) );
 
 			// determine if the target is a disguised spy (either friendly or enemy)
 			if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && // they're disguised
@@ -788,7 +789,7 @@ void CTargetID::UpdateID( void )
 					{
 						bDisguisedEnemy = true;
 						// change the player name
-						g_pVGuiLocalize->ConvertANSIToUnicode( pDisguiseTarget->GetPlayerName(), wszPlayerName, sizeof(wszPlayerName) );
+						g_pVGuiLocalize->ConvertANSIToUnicode( TF_GetPlayerDisplayName( pDisguiseTarget->entindex() ), wszPlayerName, sizeof(wszPlayerName) );
 						// change the team  / team color
 					}
 				}
@@ -962,7 +963,7 @@ void CTargetID::UpdateID( void )
 						// Bots will not work here, so don't fill this out.
 						if ( pOwner )
 						{
-							g_pVGuiLocalize->ConvertANSIToUnicode( pOwner->GetPlayerName(), wszPlayerName, sizeof(wszPlayerName) );
+							g_pVGuiLocalize->ConvertANSIToUnicode( TF_GetPlayerDisplayName( pOwner->entindex() ), wszPlayerName, sizeof(wszPlayerName) );
 							g_pVGuiLocalize->ConstructString_safe( sDataString, g_pVGuiLocalize->Find( "#TF_WhoDropped" ), 1, wszPlayerName );
 
 							// Get the rarity color
@@ -991,7 +992,7 @@ void CTargetID::UpdateID( void )
 								float flRespawn = TFGameRules()->GetNextRespawnWave( pMarker->GetTeamNumber(), pMarker->GetOwner() ) - gpGlobals->curtime;
 								m_pTargetHealth->SetLevel( (int)flRespawn );
 
-								g_pVGuiLocalize->ConvertANSIToUnicode( pMarker->GetOwner()->GetPlayerName(), sIDString, sizeof(sIDString) );
+								g_pVGuiLocalize->ConvertANSIToUnicode( TF_GetPlayerDisplayName( pMarker->GetOwner()->entindex() ), sIDString, sizeof(sIDString) );
 							}
 						}
 					}

@@ -16,6 +16,7 @@
 #include "tf_hud_target_id.h"
 #include "c_baseobject.h"
 #include "tf_hud_spectator_extras.h"
+#include "tf_streamer_mode.h"
 
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
@@ -225,7 +226,7 @@ void CTFHudSpectatorExtras::OnTick()
 
 			// use actual name or disguised name?
 			int nNameIndex = pDisguiseTarget ? pDisguiseTarget->entindex() : i;
-			g_pVGuiLocalize->ConvertANSIToUnicode( g_PR->GetPlayerName( nNameIndex ), m_vecEntitiesToDraw[nVecIndex].m_wszName, sizeof( m_vecEntitiesToDraw[nVecIndex].m_wszName ) );
+			g_pVGuiLocalize->ConvertANSIToUnicode( TF_GetPlayerDisplayName( nNameIndex ), m_vecEntitiesToDraw[nVecIndex].m_wszName, sizeof( m_vecEntitiesToDraw[nVecIndex].m_wszName ) );
 			m_vecEntitiesToDraw[nVecIndex].m_nNameWidth = UTIL_ComputeStringWidth( m_hNameFont, m_vecEntitiesToDraw[nVecIndex].m_wszName );
 
 			m_vecEntitiesToDraw[nVecIndex].m_nOffset = ( VEC_HULL_MAX_SCALED( pPlayer ).z );

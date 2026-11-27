@@ -19,6 +19,7 @@
 #include "tf_hud_mainmenuoverride.h"
 
 #include "tf_lobby_container_frame_comp.h"
+#include "tf_streamer_mode.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -225,7 +226,8 @@ bool CLobbyContainerFrame_Comp::VerifyPartyAuthorization() const
 			if ( !pParty->Obj().members( i ).competitive_access() )
 			{
 				bAnyMembersWithoutAuth = true;
-				V_UTF8ToUnicode( steamapicontext->SteamFriends()->GetFriendPersonaName( pParty->GetMember( i ) ), wszCharPlayerName, sizeof( wszCharPlayerName ) );
+				CSteamID steamIDMember = pParty->GetMember( i );
+				V_UTF8ToUnicode( TF_GetPartyMemberDisplayName( steamIDMember, steamapicontext->SteamFriends()->GetFriendPersonaName( steamIDMember ) ), wszCharPlayerName, sizeof( wszCharPlayerName ) );
 				g_pVGuiLocalize->ConstructString_safe( wszLocalized, g_pVGuiLocalize->Find( "#TF_Matchmaking_MissingPass" ), 1, wszCharPlayerName );
 				g_pVGuiLocalize->ConvertUnicodeToANSI( wszLocalized, szLocalized, sizeof( szLocalized ) );
 

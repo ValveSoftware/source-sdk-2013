@@ -19,6 +19,9 @@
 #include "materialsystem/imaterialvar.h"
 #include "con_nprint.h"
 #include "hud_vote.h"
+#if defined( TF_CLIENT_DLL )
+#include "tf_streamer_mode.h"
+#endif
 #include "menu.h"
 #include "c_playerresource.h"
 
@@ -1449,7 +1452,11 @@ void CHudVote::MsgFunc_VoteStart( bf_read &msg )
 		C_BasePlayer *pVoteCaller = UTIL_PlayerByIndex( pVotePanel->m_iVoteCallerIdx );
 		if ( pVoteCaller )
 		{
+#if defined( TF_CLIENT_DLL )
+			pszCallerName = TF_GetPlayerDisplayName( pVoteCaller->entindex() );
+#else
 			pszCallerName = pVoteCaller->GetPlayerName();
+#endif
 
 			// Don't show a notification to the caller
 			if ( pVoteCaller == pLocalPlayer )

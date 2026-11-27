@@ -18,6 +18,10 @@
 #include "materialsystem/imaterialvar.h"
 #include "clienteffectprecachesystem.h"
 #include "tier0/vprof.h"
+#if defined( TF_CLIENT_DLL )
+#include "cdll_util.h"
+#include "tf_streamer_mode.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -207,6 +211,12 @@ void TE_PlayerDecal( IRecipientFilter& filter, float delay,
 {
 	if ( cl_spraydisable.GetBool() )
 		return;
+
+#if defined( TF_CLIENT_DLL )
+	// Streamer Mode: hide other players' custom sprays, never your own.
+	if ( TF_ShouldHidePlayerCreatedImages( player ) )
+		return;
+#endif
 
 	// No valid target?
 	C_BaseEntity *ent = cl_entitylist->GetEnt( entity );

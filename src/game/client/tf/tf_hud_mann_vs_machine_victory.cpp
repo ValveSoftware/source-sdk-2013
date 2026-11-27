@@ -6,6 +6,7 @@
 //=============================================================================
 #include "cbase.h"
 #include "tf_hud_mann_vs_machine_victory.h"
+#include "tf_streamer_mode.h"
 #include "tf_playermodelpanel.h"
 #include "econ_item_inventory.h"
 #include "vgui/IInput.h"
@@ -635,7 +636,7 @@ void CMvMVictoryMannUpEntry::UpdatePlayerData()
 	// Setup our model panel
 	SetModelPanelInfo( ToTFPlayer( m_hPlayer ) );
 
-	SetDialogVariable( "name", steamapicontext->SteamFriends()->GetFriendPersonaName( steamID ) );
+	SetDialogVariable( "name", TF_GetPlayerDisplayName( steamID, steamapicontext->SteamFriends()->GetFriendPersonaName( steamID ) ) );
 
 	// Reset
 	m_pProgressBarBG->SetVisible( true );

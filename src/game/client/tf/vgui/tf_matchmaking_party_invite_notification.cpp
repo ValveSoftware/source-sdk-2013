@@ -12,6 +12,7 @@
 #include "vgui_avatarimage.h"
 #include <vgui_controls/AnimationController.h>
 #include "clientmode_tf.h"
+#include "tf_streamer_mode.h"
 
 using namespace vgui;
 using namespace GCSDK;
@@ -46,7 +47,8 @@ CInviteNotification::CInviteNotification( CSteamID steamID, CTFParty::EPendingTy
 	m_pAvatar->SetPlayer( steamID, k_EAvatarSize64x64 );
 
 	wchar_t wszBuf[ 256 ];
-	CUtlString strName = SteamFriends()->GetFriendPersonaName( steamID );
+	// Pending invites do not use the party-member exemption.
+	CUtlString strName = TF_GetPlayerDisplayName( steamID, SteamFriends()->GetFriendPersonaName( steamID ) );
 	const char* pszRequestString = NULL;
 	if ( m_eType == CTFParty::EPendingType::ePending_JoinRequest )
 	{

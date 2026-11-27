@@ -24,6 +24,7 @@
 #include "tf_logic_player_destruction.h"
 
 #include "hud_basedeathnotice.h"
+#include "tf_streamer_mode.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -470,8 +471,8 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		}
 
 		// Get the names of the players
-		const char *killer_name = ( killer > 0 ) ? g_PR->GetPlayerName( killer ) : "";
-		const char *victim_name = g_PR->GetPlayerName( victim );
+		const char *killer_name = ( killer > 0 ) ? TF_GetPlayerDisplayName( killer ) : "";
+		const char *victim_name = TF_GetPlayerDisplayName( victim );
 		if ( !killer_name )
 		{
 			killer_name = "";
@@ -609,7 +610,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 
 			Assert( iPlayerIndex > 0 && iPlayerIndex <= gpGlobals->maxClients );
 
-			const char *pPlayerName = g_PR->GetPlayerName( iPlayerIndex );
+			const char *pPlayerName = TF_GetPlayerDisplayName( iPlayerIndex );
 
 			if ( i == 0 )
 			{
@@ -639,7 +640,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		V_wcsncpy( m_DeathNotices[iMsg].wzInfoText, g_pVGuiLocalize->Find( "#Msg_Defended" ), sizeof( m_DeathNotices[iMsg].wzInfoText ) );
 
 		int iPlayerIndex = event->GetInt( "blocker" );
-		const char *blocker_name = g_PR->GetPlayerName( iPlayerIndex );
+		const char *blocker_name = TF_GetPlayerDisplayName( iPlayerIndex );
 		Q_strncpy( m_DeathNotices[iMsg].Killer.szName, blocker_name, ARRAYSIZE( m_DeathNotices[iMsg].Killer.szName ) );
 		m_DeathNotices[iMsg].Killer.iTeam = g_PR->GetTeam( iPlayerIndex );
 		if ( iLocalPlayerIndex == iPlayerIndex )
@@ -719,7 +720,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		}
 
 		int iPlayerIndex = event->GetInt( "player" );
-		const char *szPlayerName = g_PR->GetPlayerName( iPlayerIndex );
+		const char *szPlayerName = TF_GetPlayerDisplayName( iPlayerIndex );
 		Q_strncpy( m_DeathNotices[iMsg].Killer.szName, szPlayerName, ARRAYSIZE( m_DeathNotices[iMsg].Killer.szName ) );
 		m_DeathNotices[iMsg].Killer.iTeam = g_PR->GetTeam( iPlayerIndex );
 		if ( iLocalPlayerIndex == iPlayerIndex )
@@ -730,7 +731,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		DeathNoticeItem &msg = m_DeathNotices[iMsg];
 
 		int iScorer = event->GetInt( "player" );
-		const char *pszScorer = ( iScorer > 0 ) ? g_PR->GetPlayerName( iScorer ) : "";
+		const char *pszScorer = ( iScorer > 0 ) ? TF_GetPlayerDisplayName( iScorer ) : "";
 		if ( !pszScorer )
 		{
 			pszScorer = "";
@@ -753,7 +754,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		DeathNoticeItem &msg = m_DeathNotices[iMsg];
 
 		int iKiller = event->GetInt( "killer" );
-		const char *pszKiller = ( iKiller > 0 ) ? g_PR->GetPlayerName( iKiller ) : "";
+		const char *pszKiller = ( iKiller > 0 ) ? TF_GetPlayerDisplayName( iKiller ) : "";
 		if ( !pszKiller )
 		{
 			pszKiller = "";
@@ -762,7 +763,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		m_DeathNotices[iMsg].Killer.iTeam = ( iKiller > 0 ) ? g_PR->GetTeam( iKiller ) : 0;
 
 		int iVictim = event->GetInt( "victim" );
-		const char *pszVictim = ( iVictim > 0 ) ? g_PR->GetPlayerName( iVictim ) : "";
+		const char *pszVictim = ( iVictim > 0 ) ? TF_GetPlayerDisplayName( iVictim ) : "";
 		if ( !pszVictim )
 		{
 			pszVictim = "";

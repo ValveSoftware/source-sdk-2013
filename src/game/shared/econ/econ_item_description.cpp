@@ -12,6 +12,8 @@
 #include "econ_dynamic_recipe.h"
 #include "econ_paintkit.h"
 
+bool (*g_pfnEconShouldHideCustomItemText)( uint32 unAccountID ) = NULL;
+
 
 	#ifndef EXTERNALTESTS_DLL
 		#include "econ_item_inventory.h"
@@ -1042,8 +1044,9 @@ void CEconItemDescription::Generate_ItemName( const CLocalizationProvider *pLoca
 	// If this item has a custom name, use it instead of doing our crazy name compositing based on quality,
 	// type, etc.
 	const char *utf8_CustomName = pEconItem->GetCustomName();
+	bool bHideCustomName = g_pfnEconShouldHideCustomItemText && g_pfnEconShouldHideCustomItemText( pEconItem->GetAccountID() );
 
-	if ( utf8_CustomName && utf8_CustomName[0] )
+	if ( utf8_CustomName && utf8_CustomName[0] && !bHideCustomName )
 	{
 		locchar_t loc_CustomName[ MAX_ITEM_NAME_LENGTH ];
 		pLocalizationProvider->ConvertUTF8ToLocchar( utf8_CustomName, loc_CustomName, sizeof( loc_CustomName ) );
@@ -1579,7 +1582,8 @@ void CEconItemDescription::Generate_ItemDesc( const CLocalizationProvider *pLoca
 
 	// Show the custom description if it has one.
 	const char *utf8_CustomDesc = pEconItem->GetCustomDesc();
-	if ( utf8_CustomDesc && utf8_CustomDesc[0] )
+	bool bHideCustomDesc = g_pfnEconShouldHideCustomItemText && g_pfnEconShouldHideCustomItemText( pEconItem->GetAccountID() );
+	if ( utf8_CustomDesc && utf8_CustomDesc[0] && !bHideCustomDesc )
 	{
 		locchar_t loc_CustomDesc[ MAX_ITEM_DESC_LENGTH ];
 		pLocalizationProvider->ConvertUTF8ToLocchar( utf8_CustomDesc, loc_CustomDesc, sizeof( loc_CustomDesc ) );

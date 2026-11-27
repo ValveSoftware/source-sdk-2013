@@ -15,6 +15,7 @@
 #include "tf_party.h"
 #include "ienginevgui.h"
 #include "clientmode_tf.h"
+#include "tf_streamer_mode.h"
 
 using namespace vgui;
 using namespace GCSDK;
@@ -233,6 +234,10 @@ CSteamFriendsListPanel::CSteamFriendsListPanel( Panel *parent, const char *panel
 {
 	m_mapFriendsPanels.SetLessFunc( DefLessFunc( CSteamID ) );
 	m_mapKnownFriends.SetLessFunc( DefLessFunc( CSteamID ) );
+
+	m_pStreamerModeLabel = new Label( this, "StreamerModeLabel", "Streamer Mode Enabled" );
+	m_pStreamerModeLabel->SetContentAlignment( vgui::Label::a_center );
+	m_pStreamerModeLabel->SetVisible( false );
 }
 
 CSteamFriendsListPanel::~CSteamFriendsListPanel()
@@ -244,8 +249,23 @@ CSteamFriendsListPanel::~CSteamFriendsListPanel()
 	}
 }
 
+void CSteamFriendsListPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
+{
+	BaseClass::ApplySchemeSettings( pScheme );
+
+	if ( m_pStreamerModeLabel )
+	{
+		m_pStreamerModeLabel->SetFont( pScheme->GetFont( "TF2/Secondary/Build", true ) );
+	}
+}
+
 void CSteamFriendsListPanel::PerformLayout()
 {
+	if ( m_pStreamerModeLabel )
+	{
+		m_pStreamerModeLabel->SetBounds( m_nXInset, m_nYInset, MAX( 0, GetWide() - m_nXInset * 2 ), MAX( 0, GetTall() - m_nYInset * 2 ) );
+	}
+
 	PositionFriendsList();
 
 	BaseClass::PerformLayout();
@@ -283,6 +303,10 @@ void CSteamFriendsListPanel::OnThink()
 	if ( !enginevgui->IsGameUIVisible() )
 		return;
 
+	UpdateStreamerModeState();
+	if ( m_bStreamerModeListHidden )
+		return;
+
 	if ( m_bListDirty )
 	{
 		ProcessFriends();
@@ -305,6 +329,40 @@ void CSteamFriendsListPanel::OnThink()
 		InvalidateLayout( true );
 		m_bListNeedsResort = false;
 	}
+}
+
+// Stops querying friend data while hidden, not just covering it visually.
+void CSteamFriendsListPanel::UpdateStreamerModeState()
+{
+	const bool bShouldHide = TF_ShouldHideFriendsList();
+	if ( bShouldHide == m_bStreamerModeListHidden )
+		return;
+
+	m_bStreamerModeListHidden = bShouldHide;
+
+	if ( bShouldHide )
+	{
+		FOR_EACH_MAP_FAST( m_mapFriendsPanels, i )
+		{
+			m_mapFriendsPanels[ i ]->MarkForDeletion();
+		}
+		m_mapFriendsPanels.RemoveAll();
+		m_mapKnownFriends.Purge();
+		m_bListDirty = false;
+		m_bPanelsDirty = false;
+		m_bListNeedsResort = false;
+	}
+	else
+	{
+		DirtyPotentialFriendsList();
+	}
+
+	if ( m_pStreamerModeLabel )
+	{
+		m_pStreamerModeLabel->SetVisible( bShouldHide );
+	}
+
+	InvalidateLayout( true );
 }
 
 void CSteamFriendsListPanel::PositionFriendsList()
@@ -628,4 +686,4 @@ void CSteamFriendsListPanel::OnPersonaStateChanged( PersonaStateChange_t *info )
 void CSteamFriendsListPanel::OnRichPresenceChanged( FriendRichPresenceUpdate_t *info )
 {
 	FriendStateChange( info->m_steamIDFriend );
-}
+}

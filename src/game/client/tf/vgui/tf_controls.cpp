@@ -13,6 +13,7 @@
 #include "vgui/ISurface.h"
 #include "vgui/IInput.h"
 #include "tf_controls.h"
+#include "tf_streamer_mode.h"
 #include "vgui_controls/TextImage.h"
 #include "vgui_controls/PropertyPage.h"
 #include "econ_item_system.h"
@@ -60,6 +61,7 @@ wchar_t* LocalizeNumberWithToken( const char* pszLocToken, int nValue1, int nVal
 void GetPlayerNameForSteamID( wchar_t *wCharPlayerName, int nBufSizeBytes, const CSteamID &steamID )
 {
 	const char *pszName = steamapicontext->SteamFriends()->GetFriendPersonaName( steamID );
+	pszName = TF_GetPlayerDisplayName( steamID, pszName );
 	V_UTF8ToUnicode( pszName, wCharPlayerName, nBufSizeBytes );
 }
 

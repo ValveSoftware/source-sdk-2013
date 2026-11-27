@@ -314,7 +314,7 @@ protected:
 
 	Color			m_ColorCustom;
 
-private:	
+private:
 	void			Clear( void );
 
 	int				ComputeBreakChar( int width, const char *text, int textlen );

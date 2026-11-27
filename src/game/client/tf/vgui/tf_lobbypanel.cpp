@@ -23,6 +23,7 @@
 
 #include "tf_lobbypanel.h"
 #include "tf_lobby_container_frame.h"
+#include "tf_streamer_mode.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -714,7 +715,7 @@ void CBaseLobbyPanel::UpdatePlayerList()
 	{
 		LobbyPlayerInfo p;
 		p.m_steamID = steamapicontext->SteamUser()->GetSteamID();
-		p.m_sName = steamapicontext->SteamFriends()->GetPersonaName();
+		p.m_sName = TF_GetPartyMemberDisplayName( steamapicontext->SteamUser()->GetSteamID(), steamapicontext->SteamFriends()->GetPersonaName() );
 		p.m_bHasTicket = GTFGCClientSystem()->BLocalPlayerInventoryHasMvmTicket();
 		p.m_bSquadSurplus = GTFPartyClient()->GetLocalPlayerCriteria().GetSquadSurplus();
 #ifdef USE_MVM_TOUR
@@ -781,9 +782,10 @@ void CBaseLobbyPanel::UpdatePlayerList()
 		{
 			LobbyPlayerInfo p;
 			p.m_steamID = pParty->GetMember( i );
-			p.m_sName = steamapicontext->SteamFriends()->GetFriendPersonaName( p.m_steamID );
-			if ( p.m_sName.IsEmpty() )
+			const char *pszRealName = steamapicontext->SteamFriends()->GetFriendPersonaName( p.m_steamID );
+			if ( !pszRealName || !pszRealName[0] )
 				continue;
+			p.m_sName = TF_GetPartyMemberDisplayName( p.m_steamID, pszRealName );
 			p.m_bHasTicket = pParty->Obj().members( i ).owns_ticket();
 			p.m_nBadgeLevel = pParty->Obj().members( i ).badge_level();
 			p.m_nCompletedChallenges = pParty->Obj().members( i ).completed_missions();
