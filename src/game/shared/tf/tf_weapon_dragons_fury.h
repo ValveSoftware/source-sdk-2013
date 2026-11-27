@@ -52,8 +52,10 @@ public:
 
 	bool HasFullCharge() const;
 
+	float			GetProgress( void );
 	virtual void	OnResourceMeterFilled() OVERRIDE;
 	virtual float	GetMeterMultiplier() const OVERRIDE;
+	const char*		GetEffectLabelText( void ) { return "#TF_PRESSURE"; }
 
 #ifdef GAME_DLL
 	virtual float GetInitialAfterburnDuration() const OVERRIDE { return 0.f; }
