@@ -113,7 +113,6 @@ void CTFBaseRocket::Precache( void )
 {
 	BaseClass::Precache();
 	PrecacheParticleSystem( "Explosion_ShockWave_01" );
-	PrecacheParticleSystem( "ExplosionCore_Wall_Jumper" );
 	PrecacheModel( MINI_ROCKETS_MODEL );
 }
 
