@@ -1374,7 +1374,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 			pKeyValues->SetInt( "playerIndex", playerIndex );
 			pKeyValues->SetString( "name", g_TF_PR->GetPlayerName( playerIndex ) );
 			pKeyValues->SetInt( "dominating", iDominationIndex );
-			pKeyValues->SetInt( "score", g_TF_PR->GetTotalScore( playerIndex ) );
+			pKeyValues->SetString( "score", V_AddThousandSeparators( g_TF_PR->GetTotalScore( playerIndex ) ) );
 			pKeyValues->SetInt( "connected", 2 );
 
 			C_TFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerByIndex( playerIndex ) );
@@ -1426,7 +1426,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 				{
 					if ( tf_scoreboard_ping_as_text.GetBool() )
 					{
-						pKeyValues->SetInt( "ping", nPing );
+						pKeyValues->SetString( "ping", V_AddThousandSeparators( nPing ) );
 					}
 					else
 					{
@@ -1880,84 +1880,84 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails()
 		Color cGreen = Color( 0, 255, 0, 255 );
 		Color cWhite = Color( 255, 255, 255, 255 );
 
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "kills", g_TF_PR->GetPlayerScore( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "kills", V_AddThousandSeparators( g_TF_PR->GetPlayerScore( playerIndex ) ) );
 		if ( m_pKillsLabel )
 		{
 			m_pKillsLabel->SetFgColor( g_TF_PR->GetPlayerScore( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "deaths", g_TF_PR->GetDeaths( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "deaths", V_AddThousandSeparators( g_TF_PR->GetDeaths( playerIndex ) ) );
 		if ( m_pDeathsLabel )
 		{
 			m_pDeathsLabel->SetFgColor( g_TF_PR->GetDeaths( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "assists", pSelectedPlayer->m_Shared.GetKillAssists( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "assists", V_AddThousandSeparators( pSelectedPlayer->m_Shared.GetKillAssists( playerIndex ) ) );
 		if ( m_pAssistLabel )
 		{
 			m_pAssistLabel->SetFgColor( pSelectedPlayer->m_Shared.GetKillAssists( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "destruction", pSelectedPlayer->m_Shared.GetBuildingsDestroyed( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "destruction", V_AddThousandSeparators( pSelectedPlayer->m_Shared.GetBuildingsDestroyed( playerIndex ) ) );
 		if ( m_pDestructionLabel )
 		{
 			m_pDestructionLabel->SetFgColor( pSelectedPlayer->m_Shared.GetBuildingsDestroyed( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "captures", pSelectedPlayer->m_Shared.GetCaptures( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "captures", V_AddThousandSeparators( pSelectedPlayer->m_Shared.GetCaptures( playerIndex ) ) );
 		if ( m_pCapturesLabel )
 		{
 			m_pCapturesLabel->SetFgColor( pSelectedPlayer->m_Shared.GetCaptures( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "defenses", pSelectedPlayer->m_Shared.GetDefenses( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "defenses", V_AddThousandSeparators( pSelectedPlayer->m_Shared.GetDefenses( playerIndex ) ) );
 		if ( m_pDefensesLabel )
 		{
 			m_pDefensesLabel->SetFgColor( pSelectedPlayer->m_Shared.GetDefenses( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "dominations", pSelectedPlayer->m_Shared.GetDominations( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "dominations", V_AddThousandSeparators( pSelectedPlayer->m_Shared.GetDominations( playerIndex ) ) );
 		if ( m_pDominationsLabel )
 		{
 			m_pDominationsLabel->SetFgColor( pSelectedPlayer->m_Shared.GetDominations( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "revenge", pSelectedPlayer->m_Shared.GetRevenge( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "revenge", V_AddThousandSeparators( pSelectedPlayer->m_Shared.GetRevenge( playerIndex ) ) );
 		if ( m_pRevengeLabel )
 		{
 			m_pRevengeLabel->SetFgColor( pSelectedPlayer->m_Shared.GetRevenge( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "healing", pSelectedPlayer->m_Shared.GetHealPoints( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "healing", V_AddThousandSeparators( pSelectedPlayer->m_Shared.GetHealPoints( playerIndex ) ) );
 		if ( m_pHealingLabel )
 		{
 			m_pHealingLabel->SetFgColor( pSelectedPlayer->m_Shared.GetHealPoints( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "invulns", pSelectedPlayer->m_Shared.GetInvulns( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "invulns", V_AddThousandSeparators( pSelectedPlayer->m_Shared.GetInvulns( playerIndex ) ) );
 		if ( m_pInvulnsLabel )
 		{
 			m_pInvulnsLabel->SetFgColor( pSelectedPlayer->m_Shared.GetInvulns( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "teleports", pSelectedPlayer->m_Shared.GetTeleports( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "teleports", V_AddThousandSeparators( pSelectedPlayer->m_Shared.GetTeleports( playerIndex ) ) );
 		if ( m_pTeleportsLabel )
 		{
 			m_pTeleportsLabel->SetFgColor( pSelectedPlayer->m_Shared.GetTeleports( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "headshots", pSelectedPlayer->m_Shared.GetHeadshots( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "headshots", V_AddThousandSeparators( pSelectedPlayer->m_Shared.GetHeadshots( playerIndex ) ) );
 		if ( m_pHeadshotsLabel )
 		{
 			m_pHeadshotsLabel->SetFgColor( pSelectedPlayer->m_Shared.GetHeadshots( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "backstabs", pSelectedPlayer->m_Shared.GetBackstabs( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "backstabs", V_AddThousandSeparators( pSelectedPlayer->m_Shared.GetBackstabs( playerIndex ) ) );
 		if ( m_pBackstabsLabel )
 		{
 			m_pBackstabsLabel->SetFgColor( pSelectedPlayer->m_Shared.GetBackstabs( playerIndex ) ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "bonus", pSelectedPlayer->m_Shared.GetBonusPoints( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "bonus", V_AddThousandSeparators( pSelectedPlayer->m_Shared.GetBonusPoints( playerIndex ) ) );
 		if ( m_pBonusLabel )
 		{
 			m_pBonusLabel->SetFgColor( pSelectedPlayer->m_Shared.GetBonusPoints( playerIndex ) ? cGreen : cWhite );
 		}
 
 		int nSupport = TFGameRules() ? TFGameRules()->CalcPlayerSupportScore( NULL, playerIndex ) : 0;
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "support", nSupport );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "support", V_AddThousandSeparators( nSupport ) );
 		if ( m_pSupportLabel )
 		{
 			m_pSupportLabel->SetFgColor( nSupport ? cGreen : cWhite );
 		}
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "damage", g_TF_PR->GetDamage( playerIndex ) );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "damage", V_AddThousandSeparators( g_TF_PR->GetDamage( playerIndex ) ) );
 		if ( m_pDamageLabel )
 		{
 			m_pDamageLabel->SetFgColor( g_TF_PR->GetDamage( playerIndex ) ? cGreen : cWhite );

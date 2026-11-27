@@ -1276,6 +1276,35 @@ char *V_pretifynum( int64 inputValue )
 
 
 //-----------------------------------------------------------------------------
+// Purpose: Returns a string representation of an integer with commas
+//			separating the 1000s (ie, 37,426,421)
+//			This is similar to V_pretifynum but faster
+// Input  : value -		Value to convert
+// Output : Pointer to a static buffer containing the output
+//-----------------------------------------------------------------------------
+char* V_AddThousandSeparators( int iValue )
+{
+	static char szConversion[32];
+	szConversion[0] = '\0';
+
+	if ( iValue >= 1000000 )
+	{
+		V_sprintf_safe( szConversion, "%d%s%d%d%d%s%d%d%d", iValue / 1000000, ",", ( iValue % 1000000 ) / 100000, ( iValue % 100000 ) / 10000, ( iValue % 10000 ) / 1000, ",", ( iValue % 1000 ) / 100, ( iValue % 100 ) / 10, iValue % 10 );
+	}
+	else if ( iValue >= 1000 )
+	{
+		V_sprintf_safe( szConversion, "%d%s%d%d%d", iValue / 1000, ",", ( iValue % 1000 ) / 100, ( iValue % 100 ) / 10, iValue % 10 );
+	}
+	else if ( iValue >= 0 )
+	{
+		V_sprintf_safe( szConversion, "%d", iValue );
+	}
+
+	return szConversion;
+}
+
+
+//-----------------------------------------------------------------------------
 // Purpose: returns true if a wide character is a "mean" space; that is,
 //			if it is technically a space or punctuation, but causes disruptive
 //			behavior when used in names, web pages, chat windows, etc.

@@ -633,6 +633,8 @@ char *V_pretifymem( float value, int digitsafterdecimal = 2, bool usebinaryonek 
 // Prints out a pretified integer with comma separators (eg, 7,233,270,000)
 char *V_pretifynum( int64 value );
 
+char* V_AddThousandSeparators( int value );
+
 int _V_UCS2ToUnicode( const ucs2 *pUCS2, OUT_Z_BYTECAP(cubDestSizeInBytes) wchar_t *pUnicode, int cubDestSizeInBytes );
 template< typename T > inline int V_UCS2ToUnicode( const ucs2 *pUCS2, OUT_Z_BYTECAP(cubDestSizeInBytes) wchar_t *pUnicode, T cubDestSizeInBytes )
 {

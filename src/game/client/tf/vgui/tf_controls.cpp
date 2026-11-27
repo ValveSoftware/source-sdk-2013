@@ -36,8 +36,8 @@ using namespace vgui;
 wchar_t* LocalizeNumberWithToken( const char* pszLocToken, int nValue )
 {
 	static wchar_t wszOutString[ 256 ];
-	wchar_t wszCount[ 16 ];
-	_snwprintf( wszCount, ARRAYSIZE( wszCount ), L"%d", nValue );
+	wchar_t wszCount[ 24 ];
+	_snwprintf( wszCount, ARRAYSIZE( wszCount ), L"%S", V_AddThousandSeparators( nValue ) );
 	const wchar_t *wpszFormat = g_pVGuiLocalize->Find( pszLocToken );
 	g_pVGuiLocalize->ConstructString_safe( wszOutString, wpszFormat, 1, wszCount );
 	
@@ -47,10 +47,10 @@ wchar_t* LocalizeNumberWithToken( const char* pszLocToken, int nValue )
 wchar_t* LocalizeNumberWithToken( const char* pszLocToken, int nValue1, int nValue2 )
 {
 	static wchar_t wszOutString[ 256 ];
-	wchar_t wszCount1[ 16 ];
-	wchar_t wszCount2[ 16 ];
-	_snwprintf( wszCount1, ARRAYSIZE( wszCount1 ), L"%d", nValue1 );
-	_snwprintf( wszCount2, ARRAYSIZE( wszCount2 ), L"%d", nValue2 );
+	wchar_t wszCount1[ 24 ];
+	wchar_t wszCount2[ 24 ];
+	_snwprintf( wszCount1, ARRAYSIZE( wszCount1 ), L"%S", V_AddThousandSeparators( nValue1 ) );
+	_snwprintf( wszCount2, ARRAYSIZE( wszCount2 ), L"%S", V_AddThousandSeparators( nValue2 ) );
 	const wchar_t *wpszFormat = g_pVGuiLocalize->Find( pszLocToken );
 	g_pVGuiLocalize->ConstructString_safe( wszOutString, wpszFormat, 2, wszCount1, wszCount2 );
 

@@ -1087,7 +1087,7 @@ bool CCurrencyStatusPanel::UpdateHUD( void )
 	m_nCurrency += delta;
 
 	char szTmp[16];
-	Q_snprintf( szTmp, ARRAYSIZE( szTmp ), "$%d", m_nCurrency );
+	Q_snprintf( szTmp, ARRAYSIZE( szTmp ), "$%s", V_AddThousandSeparators( m_nCurrency ) );
 	SetDialogVariable( "currency", szTmp );
 	
 	return true;
@@ -1164,7 +1164,7 @@ void CInWorldCurrencyStatus::OnTick( void )
 	}
 
 	char szTmp[16];
-	Q_snprintf( szTmp, ARRAYSIZE( szTmp ), "$%d", nWorldMoney );
+	Q_snprintf( szTmp, ARRAYSIZE( szTmp ), "$%s", V_AddThousandSeparators( nWorldMoney ) );
 	SetDialogVariable( "currency", szTmp );
 }
 //-----------------------------------------------------------------------------
@@ -1404,7 +1404,7 @@ bool CWaveCompleteSummaryPanel::StateUpdateValue( vgui::EditablePanel *parent, c
 
 	if ( parent )
 	{
-		parent->SetDialogVariable( field, (int)(endValue * fPercent) );
+		parent->SetDialogVariable( field, V_AddThousandSeparators( (int)( endValue * fPercent ) ) );
 	}
 
 	// transition to next state

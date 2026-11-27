@@ -470,7 +470,7 @@ void CPvPRankPanel::UpdateRatingControls( uint32 nPreviousRating, uint32 nCurren
 		wchar_t wszRating[ 128 ];
 		auto lambdaRatingString = [ this, &wszRating ]( const char* pszToken, int nRating )
 		{
-			V_swprintf_safe( wszRating, L"%d %ls", nRating, g_pVGuiLocalize->Find( m_pProgressionDesc->GetRankUnitsLocToken() ) );
+			V_swprintf_safe( wszRating, L"%S %ls", V_AddThousandSeparators( nRating ), g_pVGuiLocalize->Find( m_pProgressionDesc->GetRankUnitsLocToken() ) );
 			return wszRating;
 		};
 
