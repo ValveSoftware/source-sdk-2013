@@ -304,6 +304,8 @@ public:
 	bool			CanDisguise( void );
 	bool			CanDisguise_OnKill( void );
 
+	virtual bool CanHearAndReadChatFrom( C_BasePlayer *pPlayer );
+
 	virtual void OnAchievementAchieved( int iAchievement );
 
 	virtual void OverrideView( CViewSetup *pSetup );
