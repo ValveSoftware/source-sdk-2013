@@ -30,9 +30,9 @@ BEGIN_SEND_TABLE_NOBASE( CPlayerLocalData, DT_Local )
 	SendPropInt		(SENDINFO(m_bDucked),	1, SPROP_UNSIGNED ),
 	SendPropInt		(SENDINFO(m_bDucking),	1, SPROP_UNSIGNED ),
 	SendPropInt		(SENDINFO(m_bInDuckJump),	1, SPROP_UNSIGNED ),
-	SendPropFloat	(SENDINFO(m_flDucktime), 12, SPROP_ROUNDDOWN|SPROP_CHANGES_OFTEN, 0.0f, 2048.0f ),
-	SendPropFloat	(SENDINFO(m_flDuckJumpTime), 12, SPROP_ROUNDDOWN, 0.0f, 2048.0f ),
-	SendPropFloat	(SENDINFO(m_flJumpTime), 12, SPROP_ROUNDDOWN, 0.0f, 2048.0f ),
+	SendPropFloat	(SENDINFO(m_flDucktime), 0, SPROP_NOSCALE|SPROP_CHANGES_OFTEN ),
+	SendPropFloat	(SENDINFO(m_flDuckJumpTime), 0, SPROP_NOSCALE ),
+	SendPropFloat	(SENDINFO(m_flJumpTime), 0, SPROP_NOSCALE ),
 #if PREDICTION_ERROR_CHECK_LEVEL > 1 
 	SendPropFloat	(SENDINFO(m_flFallVelocity), 32, SPROP_NOSCALE ),
 
@@ -55,7 +55,7 @@ BEGIN_SEND_TABLE_NOBASE( CPlayerLocalData, DT_Local )
 	SendPropBool	(SENDINFO(m_bPoisoned)),
 	SendPropBool	(SENDINFO(m_bForceLocalPlayerDraw)),
 
-	SendPropFloat	(SENDINFO(m_flStepSize), 16, SPROP_ROUNDUP, 0.0f, 128.0f ),
+	SendPropFloat	(SENDINFO(m_flStepSize), 0, SPROP_NOSCALE ),
 	SendPropInt		(SENDINFO(m_bAllowAutoMovement),1, SPROP_UNSIGNED ),
 
 	// 3d skybox data
