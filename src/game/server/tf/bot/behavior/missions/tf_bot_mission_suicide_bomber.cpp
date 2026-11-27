@@ -165,34 +165,6 @@ void CTFBotMissionSuicideBomber::OnEnd( CTFBot *me, Action< CTFBot > *nextAction
 
 
 //---------------------------------------------------------------------------------------------
-EventDesiredResult< CTFBot > CTFBotMissionSuicideBomber::OnKilled( CTFBot *me, const CTakeDamageInfo &info )
-{
-	if ( !m_bHasDetonated )
-	{
-		if ( !m_detonateTimer.HasStarted() )
-		{
-			StartDetonate( me );
-		}
-		else if ( m_detonateTimer.IsElapsed() )
-		{
-			Detonate( me );
-		}
-		else
-		{
-			// We're in detonate mode, and something's trying to kill us.  Prevent it.
-			if ( me->GetTeamNumber() != TEAM_SPECTATOR )
-			{
-				me->m_lifeState = LIFE_ALIVE;
-				me->SetHealth( 1 );
-			}
-		}
-	}
-
-	return TryContinue();
-}
-
-
-//---------------------------------------------------------------------------------------------
 EventDesiredResult< CTFBot > CTFBotMissionSuicideBomber::OnStuck( CTFBot *me )
 {
 	// we're stuck, decide to detonate now!
