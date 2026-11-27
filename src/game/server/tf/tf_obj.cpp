@@ -2055,7 +2055,7 @@ int CBaseObject::OnTakeDamage( const CTakeDamageInfo &info )
 	if ( event )
 	{
 		event->SetInt( "entindex", entindex() );
-		event->SetInt( "health", Max( 0, (int)GetHealth() ) );
+		event->SetInt( "health", Max( 0, (int)ceil( GetHealth() ) ) );
 		event->SetInt( "damageamount", flDamage );
 		event->SetBool( "crit", ( info.GetDamageType() & DMG_CRITICAL ) ? true : false );
 
