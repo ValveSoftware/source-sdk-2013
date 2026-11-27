@@ -1557,6 +1557,8 @@ private:
 	float m_flLastAutobalanceTime;
 
 	void ResetMaxHealthDrain( void );
+	
+	float m_flLastOverhealMultiplier;
 	int m_nMaxHealthDrainBucket;
 	double m_dMaxHealthDrainLastUpdate;
 	bool m_bMaxHealthRefilling;

@@ -1118,6 +1118,7 @@ CTFPlayer::CTFPlayer()
 
 	m_bViewingCYOAPDA = false;
 
+	m_flLastOverhealMultiplier = 1.f;
 	ResetMaxHealthDrain();
 
 	m_bRegenerating = false;
@@ -14275,6 +14276,11 @@ int CTFPlayer::GetMaxHealthForBuffing()
 	int iMax = m_PlayerClass.GetMaxHealth();
 	CALL_ATTRIB_HOOK_INT( iMax, add_maxhealth );
 
+	if (m_Shared.GetNumHealers() > 0)
+	{
+		m_flLastOverhealMultiplier = m_Shared.GetMaxOverhealMultiplier();
+	}
+	
 	CTFWeaponBase *pWeapon = GetActiveTFWeapon();
 	if ( pWeapon )
 	{
@@ -14410,7 +14416,7 @@ int CTFPlayer::GetMaxHealthForBuffing()
 				if ( nHealthRestore > 0 )
 				{
 					m_dMaxHealthDrainHealthAccumulator -= nHealthRestore;
-					int nHealthMaxOverheal = nOriginalMaxHealth * m_Shared.GetMaxOverhealMultiplier();
+					int nHealthMaxOverheal = nOriginalMaxHealth * m_flLastOverhealMultiplier;
 					int nHealthMaxAttribute = nOriginalMaxHealth;
 					CALL_ATTRIB_HOOK_INT( nHealthMaxAttribute, add_maxhealth_nonbuffed );
 					int nHealthMax = Max( nHealthMaxOverheal, nHealthMaxAttribute );
