@@ -275,6 +275,21 @@ void CObjectSentrygun::SentryThink( void )
 		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetOwner(), m_flSentryRange, mult_sentry_range );
 	}
 
+	m_flFireRate = 1.f;
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetOwner(), m_flFireRate, mult_sentry_firerate );
+	if ( m_bPlayerControlled )
+	{
+		m_flFireRate *= 0.5f;
+	}
+	if ( IsMiniBuilding() && !IsDisposableBuilding() )
+	{
+		m_flFireRate *= 0.75f;
+	}
+	if ( GetBuilder() && GetBuilder()->m_Shared.InCond( TF_COND_CRITBOOSTED_USER_BUFF ) )
+	{
+		m_flFireRate *= 0.4f;
+	}
+
 	switch( m_iState )
 	{
 	case SENTRY_STATE_INACTIVE:
@@ -1265,24 +1280,6 @@ void CObjectSentrygun::Attack()
 		{
 			m_bFireNextFrame = false;
 			Fire();
-		}
-
-		m_flFireRate = 1.f;
-		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetOwner(), m_flFireRate, mult_sentry_firerate );
-
-		if ( m_bPlayerControlled )
-		{
-			m_flFireRate *= 0.5f;
-		}
-			
-		if ( IsMiniBuilding() && !IsDisposableBuilding() )
-		{
-			m_flFireRate *= 0.75f;
-		}
-
-		if ( GetBuilder() && GetBuilder()->m_Shared.InCond( TF_COND_CRITBOOSTED_USER_BUFF ) )
-		{
-			m_flFireRate *= 0.4f;
 		}
 
 		if ( m_iUpgradeLevel == 1 )
