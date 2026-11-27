@@ -572,7 +572,7 @@ bool CTFWeaponBaseMelee::OnSwingHit( trace_t &trace )
 		// handle hitting a robot	
 		if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
 		{
-			if ( pTargetPlayer  && pTargetPlayer->GetTeamNumber() == TF_TEAM_PVE_INVADERS && !pTargetPlayer->IsPlayer() )
+			if ( pTargetPlayer  && pTargetPlayer->GetTeamNumber() == TF_TEAM_PVE_INVADERS && pTargetPlayer->IsPlayer() )
 			{
 				bPlayMvMHitOnly = true;
 
