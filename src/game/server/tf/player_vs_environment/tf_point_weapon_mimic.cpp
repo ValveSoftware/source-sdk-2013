@@ -14,6 +14,7 @@ public:
 	CTFPointWeaponMimic();
 	~CTFPointWeaponMimic();
 	virtual void Spawn();
+	virtual void Precache();
 
 	void InputFireOnce( inputdata_t& inputdata );
 	void InputFireMultiple( inputdata_t& inputdata );
@@ -99,13 +100,21 @@ CTFPointWeaponMimic::~CTFPointWeaponMimic()
 void CTFPointWeaponMimic::Spawn()
 {
 	BaseClass::Spawn();
+	Precache();
+	ChangeTeam( TF_TEAM_BLUE );
+}
 
+void CTFPointWeaponMimic::Precache()
+{
+	if( m_pzsFireSound )
+	{
+		PrecacheScriptSound( m_pzsFireSound );
+	}
+	
 	if( m_pzsModelOverride )
 	{
 		PrecacheModel( m_pzsModelOverride );
 	}
-
-	ChangeTeam( TF_TEAM_BLUE );
 }
 
 
@@ -149,6 +158,7 @@ void CTFPointWeaponMimic::Fire()
 {
 	Assert( m_nWeaponType >= 0 && m_nWeaponType < WEAPON_TYPES );
 
+	EmitSound( m_pzsFireSound );
 	switch( m_nWeaponType )
 	{
 	case WEAPON_STANDARD_ROCKET:
