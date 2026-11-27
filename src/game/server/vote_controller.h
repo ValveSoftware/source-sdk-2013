@@ -138,8 +138,8 @@ public:
 	void			ListIssues( CBasePlayer *pForWhom );
 	bool			IsValidVoter( CBasePlayer *pWhom );
 	bool			CanTeamCastVote( int iTeam ) const;
-	void			SendVoteCreationFailedMessage( vote_create_failed_t nReason, CBasePlayer *pVoteCaller, int nTime = -1 );
-	void			SendVoteFailedToPassMessage( vote_create_failed_t nReason );
+	void			SendVoteCreationFailedMessage( vote_create_failed_t nReason, CBasePlayer *pVoteCaller, int nTime = -1, const char *pszCustomText = nullptr );
+	void			SendVoteFailedToPassMessage( vote_create_failed_t nReason, const char* pszCustomText = nullptr );
 	void			VoteChoice_Increment( int nVoteChoice );
 	void			VoteChoice_Decrement( int nVoteChoice );
 	int				GetVoteIssueIndexWithHighestCount( void );
@@ -160,9 +160,9 @@ public:
 	bool			HasIssue( const char *pszIssue );
 	bool			IsAVoteInProgress( void ) { return ( m_iActiveIssueIndex != INVALID_ISSUE ); }
 	int				GetVoteID() const { return m_nVoteIdx; }
+	void			ResetData(void);
 
 protected:
-	void			ResetData( void );
 	void			VoteControllerThink( void );
 	void			CheckForEarlyVoteClose( void );				// If everyone has voted (and changing votes is not allowed) then end early
 
