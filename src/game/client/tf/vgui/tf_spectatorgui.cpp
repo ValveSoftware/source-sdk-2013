@@ -406,6 +406,10 @@ void CTFSpectatorGUI::UpdateReinforcements( void )
 		{
 			g_pVGuiLocalize->ConstructString_safe( wLabel, g_pVGuiLocalize->Find("#game_respawntime_in_sec" ), 0 );
 		}
+		else if ( iRespawnWait >= 1000.0 )
+		{
+			g_pVGuiLocalize->ConstructString_safe( wLabel, g_pVGuiLocalize->Find("#game_respawntime_disabled" ), 0 );
+		}
 		else
 		{
 			char szSecs[6];
