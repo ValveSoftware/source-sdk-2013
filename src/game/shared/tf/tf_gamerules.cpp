@@ -7325,8 +7325,8 @@ float CTFGameRules::ApplyOnDamageAliveModifyRules( const CTakeDamageInfo &info, 
 		// Stomp flRealDamage with resist adjusted values
 		flRealDamage = flDamageBase + flDamageBonus;
 
-		// Some Powerups apply a damage multiplier. Backstabs are immune to resist protection
-		if ( ( pVictim && info.GetDamageCustom() != TF_DMG_CUSTOM_BACKSTAB ) )
+		// Some Powerups apply a damage multiplier. Backstabs are immune to resist protection, and ignore if damage pierces resistances
+		if ( ( pVictim && info.GetDamageCustom() != TF_DMG_CUSTOM_BACKSTAB ) && !iPierceResists )
 		{
 			// Plague bleed damage is immune from resist calculation
 			if ( ( !pVictim->m_Shared.InCond( TF_COND_PLAGUE ) && info.GetDamageCustom() != TF_DMG_CUSTOM_BLEEDING ) )
