@@ -8,6 +8,10 @@ $Macro SRCDIR		"..\.."
 $Macro GAMENAME 	"hl2mp" [!$SOURCESDK]
 $Macro GAMENAME 	"mod_hl2mp" [$SOURCESDK]
 
+// Allows higher player counts on mp games
+// This turns on flag UNRESTRICTED_MAXPLAYERS across the entire project
+$Conditional UNRESTRICTED_MAXPLAYERS_ENABLE 1
+
 $Include "$SRCDIR\game\client\client_base.vpc"
 
 $Configuration

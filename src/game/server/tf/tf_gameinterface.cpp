@@ -20,10 +20,14 @@ void CServerGameClients::GetPlayerLimits( int& minplayers, int& maxplayers, int 
 	///             servers that want to have the 33rd slot can trivially do so, so just don't clamp it beyond what we
 	///             support.
 	minplayers = 2;  // Force multiplayer.
-#ifdef PLATFORM_64BITS
+	
+	// Pivot (25/02/2026): If targeting amd64 platforms AND conditional UNRESTRICTED_MAXPLAYERS_ENABLE
+	// set to 1 in game project vpc, raise to MAX_PLAYERS limit specified in game/shared/shareddefs.h.
+#ifdef UNRESTRICTED_MAXPLAYERS 
+#ifdef PLATFORM_64BITS 	// Assuming amd64
 	maxplayers = MAX_PLAYERS;
-#else
-	if ( CommandLine()->HasParm("-unrestricted_maxplayers") )
+#else	// Assuming x86/i686
+	if ( CommandLine()->HasParm( "-unrestricted_maxplayers" ) )
 	{
 		static bool s_bWarned = false;
 		if ( !s_bWarned )
@@ -34,7 +38,10 @@ void CServerGameClients::GetPlayerLimits( int& minplayers, int& maxplayers, int 
 		maxplayers = MAX_PLAYERS;
 	}
 	else
-		maxplayers = 33;
+		maxplayers = 33;	// Accounting for one extra SourceTV client.
+#endif
+#else 
+	maxplayers = MAX_PLAYERS;	// MAX_PLAYERS = 33
 #endif
 	defaultMaxPlayers = 24;
 }

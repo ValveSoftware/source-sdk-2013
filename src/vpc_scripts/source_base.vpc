@@ -20,6 +20,7 @@ $Configuration "Debug"
 		$PreprocessorDefinitions		"$BASE;USE_MEM_DEBUG" [$USE_MEM_DEBUG]
 		$PreprocessorDefinitions		"$BASE;SOURCESDK" [$SOURCESDK]
 		$PreprocessorDefinitions		"$BASE;SOURCE_HAS_FREETYPE"
+		$PreprocessorDefinitions		"$BASE;UNRESTRICTED_MAXPLAYERS" [$UNRESTRICTED_MAXPLAYERS_ENABLE]	// Pivot (25/02/2026): Allows higher player counts on mp games
 	}
 }
 
@@ -31,5 +32,6 @@ $Configuration "Release"
 		$PreprocessorDefinitions		"VPC"
 		$PreprocessorDefinitions		"$BASE;SOURCESDK" [$SOURCESDK]
 		$PreprocessorDefinitions		"$BASE;SOURCE_HAS_FREETYPE"
+		$PreprocessorDefinitions		"$BASE;UNRESTRICTED_MAXPLAYERS" [$UNRESTRICTED_MAXPLAYERS_ENABLE]	// Pivot (25/02/2026): Allows higher player counts on mp games
 	}
 }
