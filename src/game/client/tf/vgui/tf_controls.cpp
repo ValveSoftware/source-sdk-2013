@@ -646,6 +646,8 @@ void CTFFooter::ClearButtons( void )
 #define DEFAULT_OPTIONS_FILE OPTIONS_DIR "/user_default.scr"
 #define OPTIONS_FILE OPTIONS_DIR "/user.scr"
 
+constexpr int k_cchFilterMaxLen = 64;
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -655,6 +657,9 @@ CTFAdvancedOptionsDialog::CTFAdvancedOptionsDialog(vgui::Panel *parent) : BaseCl
 	vgui::HScheme scheme = vgui::scheme()->LoadSchemeFromFileEx( enginevgui->GetPanel( PANEL_CLIENTDLL ), "resource/ClientScheme.res", "ClientScheme");
 	SetScheme(scheme);
 	SetProportional( true );
+
+	m_pFilterField = new vgui::TextEntry( this, "FilterField" );
+	m_pFilterField->AddActionSignalTarget( this );
 
 	m_pListPanel = new vgui::PanelListPanel( this, "PanelListPanel" );
 
@@ -695,6 +700,8 @@ void CTFAdvancedOptionsDialog::ApplySchemeSettings( vgui::IScheme *pScheme )
 	LoadControlSettings("resource/ui/TFAdvancedOptionsDialog.res");
 	m_pListPanel->SetFirstColumnWidth( 0 );
 
+	m_pFilterField->SetMaximumCharCount( k_cchFilterMaxLen - 1 /*leave space for NULL terminator*/ );
+
 	CreateControls();
 }
 
@@ -716,6 +723,108 @@ void CTFAdvancedOptionsDialog::OnClose()
 
 	TFModalStack()->PopModal( this );
 	MarkForDeletion();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFAdvancedOptionsDialog::OnMessage( const KeyValues *pParams, vgui::VPANEL fromPanel )
+{
+	if ( !Q_stricmp( pParams->GetName(), "TextChanged" )
+		 && fromPanel == m_pFilterField->GetVPanel() )
+	{
+		wchar_t wszFilterBuf[ k_cchFilterMaxLen ];
+		m_pFilterField->GetText( wszFilterBuf, sizeof( wszFilterBuf ) );
+		wszFilterBuf[ k_cchFilterMaxLen - 1 ] = L'\0';
+
+		// Make everything visible if the filter field is empty
+		if ( wszFilterBuf[ 0 ] == L'\0' )
+		{
+			mpcontrol_t *pList = m_pList;
+			while ( pList )
+			{
+				pList->SetVisible( true );
+				pList = pList->next;
+			}
+			m_pListPanel->InvalidateLayout();
+			return;
+		}
+
+		bool bCategoryVisible = false;
+		mpcontrol_t *pCurrentCategory = NULL;
+		mpcontrol_t *pList = m_pList;
+		while ( pList )
+		{
+			wchar_t wszDisplayText[ k_cchFilterMaxLen ];
+
+			switch ( pList->type )
+			{
+			case O_CATEGORY:
+				// When a new category is hit, we hide the previous one if it has no visible elements
+				if ( pCurrentCategory )
+					pCurrentCategory->SetVisible( bCategoryVisible );
+
+				// Set the current category to the new one and iterate to the next panel
+				bCategoryVisible = false;
+				pCurrentCategory = pList;
+				pList = pList->next;
+				continue;
+			case O_BOOL:
+			case O_BUTTON:
+				// Checkboxes and buttons handle display text themselves
+				( ( vgui::Label * )( pList->pControl ) )->GetText( wszDisplayText, sizeof( wszDisplayText ) );
+				break;
+			default:
+				pList->pPrompt->GetText( wszDisplayText, sizeof( wszDisplayText ) );
+				break;
+			}
+			wszDisplayText[ k_cchFilterMaxLen - 1 ] = L'\0';
+
+			// Find a match
+			bool bMatch = false;
+			const wchar_t *pwchLetter = wszDisplayText;
+			while ( *pwchLetter != L'\0' )
+			{
+				const wchar_t *pwchSearch = pwchLetter;
+				const wchar_t *pwchTest = wszFilterBuf;
+				while ( *pwchTest != L'\0' )
+				{
+					if ( *pwchSearch == L'\0' )
+						break;
+					if ( towlower( *pwchSearch ) != towlower( *pwchTest ) )
+						break;
+					++pwchSearch; ++pwchTest;
+				}
+				if ( *pwchTest == L'\0' )
+				{
+					bMatch = true;
+					break;
+				}
+				++pwchLetter;
+			}
+
+			if ( !bMatch )
+			{
+				pList->SetVisible( false );
+			}
+			else
+			{
+				pList->SetVisible( true );
+				bCategoryVisible = true;
+			}
+
+			pList = pList->next;
+		}
+
+		// Do this check again for the last category
+		if ( pCurrentCategory )
+			pCurrentCategory->SetVisible( bCategoryVisible );
+
+		m_pListPanel->InvalidateLayout();
+		return;
+	}
+
+	BaseClass::OnMessage( pParams, fromPanel );
 }
 
 //-----------------------------------------------------------------------------
