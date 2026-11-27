@@ -1300,7 +1300,7 @@ bool CTFSniperRifle::ShouldEjectBrass()
 	if ( GetJarateTimeInternal() > 0.f )
 		return false;
 	else
-		return true;
+		return cl_ejectbrass.GetBool();
 }
 
 //-----------------------------------------------------------------------------
