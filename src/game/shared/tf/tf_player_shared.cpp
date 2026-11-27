@@ -14302,6 +14302,10 @@ void CTFPlayerShared::PulseMedicRadiusHeal( void )
 #ifdef GAME_DLL
 	if ( gpGlobals->curtime >= m_flRadiusHealCheckTime )
 	{
+		float fMaxRadius = 450.0f;
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( m_pOuter, fMaxRadius, mod_medic_buff_range );
+		const float fMaxRadiusSq = fMaxRadius * fMaxRadius;
+
 		for( int iPlayerIndex = 1; iPlayerIndex <= MAX_PLAYERS; ++iPlayerIndex )
 		{
 			CTFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerByIndex( iPlayerIndex ) );
@@ -14332,7 +14336,7 @@ void CTFPlayerShared::PulseMedicRadiusHeal( void )
 			}
 
 			Vector vDist = pTFPlayer->GetAbsOrigin() - m_pOuter->GetAbsOrigin();
-			if ( vDist.LengthSqr() <= 450 * 450 )
+			if ( vDist.LengthSqr() <= fMaxRadiusSq )
 			{
 				// Ignore players we can't see
 				trace_t	trace;
