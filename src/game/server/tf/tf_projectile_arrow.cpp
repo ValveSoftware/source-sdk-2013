@@ -492,7 +492,7 @@ bool CTFProjectile_Arrow::StrikeTarget( mstudiobbox_t *pBox, CBaseEntity *pOther
 			if ( bHeadshot )
 			{
 				nDamageType |= DMG_CRITICAL;
-				nDamageCustom = TF_DMG_CUSTOM_HEADSHOT;
+				nDamageCustom = m_bArrowAlight ? TF_DMG_CUSTOM_HEADSHOT_FLYINGBURN : TF_DMG_CUSTOM_HEADSHOT;
 			}
 
 			if ( m_bCritical )
