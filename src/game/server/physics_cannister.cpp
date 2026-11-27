@@ -222,9 +222,14 @@ void CPhysicsCannister::CannisterActivate( CBaseEntity *pActivator, const Vector
 
 	Vector thrustDirection = CalcLocalThrust( thrustOffset );
 	m_onActivate.FireOutput( pActivator, this, 0 );
-	m_thruster.CalcThrust( m_thrustOrigin, thrustDirection, VPhysicsGetObject() );
-	m_pController = physenv->CreateMotionController( &m_thruster );
+
 	IPhysicsObject *pPhys = VPhysicsGetObject();
+	if ( !pPhys )
+	{
+		return;
+	}
+	m_thruster.CalcThrust( m_thrustOrigin, thrustDirection, pPhys );
+	m_pController = physenv->CreateMotionController( &m_thruster );
 	m_pController->AttachObject( pPhys, true );
 	// Make sure the object is simulated
 	pPhys->Wake();
@@ -332,7 +337,11 @@ void CPhysicsCannister::Deactivate(void)
 	if ( !m_pController )
 		return;
 
-	m_pController->DetachObject( VPhysicsGetObject() );
+	IPhysicsObject *pPhys = VPhysicsGetObject();
+	if ( pPhys != NULL )
+	{
+		m_pController->DetachObject( pPhys );
+	}
 	physenv->DestroyMotionController( m_pController );
 	m_pController = NULL;
 	SetNextThink( TICK_NEVER_THINK );
@@ -361,9 +370,11 @@ void CPhysicsCannister::Explode( CBaseEntity *pAttacker )
 	Vector velocity;
 	AngularImpulse angVelocity;
 	IPhysicsObject *pPhysics = VPhysicsGetObject();
-
-	pPhysics->GetVelocity( &velocity, &angVelocity );
-	PropBreakableCreateAll( GetModelIndex(), pPhysics, GetAbsOrigin(), GetAbsAngles(), velocity, angVelocity, 1.0, 20, COLLISION_GROUP_DEBRIS );
+	if ( pPhysics )
+	{
+		pPhysics->GetVelocity( &velocity, &angVelocity );
+		PropBreakableCreateAll( GetModelIndex(), pPhysics, GetAbsOrigin(), GetAbsAngles(), velocity, angVelocity, 1.0, 20, COLLISION_GROUP_DEBRIS );
+	}
 	ExplosionCreate( GetAbsOrigin(), GetAbsAngles(), pAttacker, m_damage, 0, true );
 	UTIL_Remove( this );
 }
