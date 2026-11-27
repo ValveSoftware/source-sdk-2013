@@ -320,15 +320,12 @@ void CTFScatterGun::FireBullet( CTFPlayer *pPlayer )
 	{
 		// Perform some knock back.
 		CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
-		if ( !pOwner )
-			return;
 
 		// No knockback during pre-round freeze.
-		if ( TFGameRules() && (TFGameRules()->State_Get() == GR_STATE_PREROUND) )
-			return;
+		bool bPreRound = TFGameRules() && (TFGameRules()->State_Get() == GR_STATE_PREROUND);
 
 		// Knock the firer back!
-		if ( !(pOwner->GetFlags() & FL_ONGROUND) && !pPlayer->m_Shared.m_bScattergunJump )
+		if ( pOwner && !bPreRound && !(pOwner->GetFlags() & FL_ONGROUND) && !pPlayer->m_Shared.m_bScattergunJump )
 		{
 			pPlayer->m_Shared.m_bScattergunJump = true;
 
@@ -370,6 +367,10 @@ void CTFScatterGun::ApplyPostHitEffects( const CTakeDamageInfo &inputInfo, CTFPl
 {
 #ifndef CLIENT_DLL
 	if ( !HasKnockback() )
+		return;
+
+	// No knockback during pre-round freeze.
+	if ( TFGameRules() && (TFGameRules()->State_Get() == GR_STATE_PREROUND) )
 		return;
 
 	CTFPlayer *pAttacker = ToTFPlayer( inputInfo.GetAttacker() );
