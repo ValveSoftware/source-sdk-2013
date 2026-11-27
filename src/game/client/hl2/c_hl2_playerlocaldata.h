@@ -39,6 +39,7 @@ public:
 	int		m_iSquadMedicCount;
 	bool	m_fSquadInFollowMode;
 	bool	m_bWeaponLowered;
+	bool	m_bHoldingObject;
 	EHANDLE m_hAutoAimTarget;
 	Vector	m_vecAutoAimPoint;
 	bool	m_bDisplayReticle;

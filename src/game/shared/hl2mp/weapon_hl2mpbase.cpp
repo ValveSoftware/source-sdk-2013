@@ -136,6 +136,16 @@ CHL2MP_Player* CWeaponHL2MPBase::GetHL2MPPlayerOwner() const
 	return dynamic_cast< CHL2MP_Player* >( GetOwner() );
 }
 
+void CWeaponHL2MPBase::ItemPostFrame( void )
+{
+#ifdef CLIENT_DLL
+	// prevent phantom weapon fire occuring on the client when throwing a prop
+	if( GetHL2MPPlayerOwner() && GetHL2MPPlayerOwner()->IsHoldingAnyEntity() )
+		return;
+#endif
+	BaseClass::ItemPostFrame();
+}
+
 #ifdef CLIENT_DLL
 	
 void CWeaponHL2MPBase::OnDataChanged( DataUpdateType_t type )
