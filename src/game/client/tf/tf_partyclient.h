@@ -110,6 +110,10 @@ public:
 
 	EPartyJoinRequestMode GetPartyJoinRequestMode() const;
 	void SetPartyJoinRequestMode( EPartyJoinRequestMode );
+
+	bool GetKeepPartyOnSameTeam() const;
+	void SetKeepPartyOnSameTeam( bool bKeepPartyOnSameTeam );
+
 	bool GetIgnorePartyInvites() const;
 	void SetIgnorePartyInvites( bool bIgnore );
 
@@ -437,6 +441,9 @@ private:
 	// If we have ever sent up criteria, or if pending criteria is a fresh set that should wipe whatever the server has
 	// (new session, leader changed, etc)
 	bool m_bSentInitialCriteria = false;
+
+	// Whether auto-balance should try to keep members of this party on the same team.
+	bool m_bKeepPartyOnSameTeam = true;
 
 	// Cached criteria object from party updates
 	CTFGroupMatchCriteria m_activePartyCriteria;

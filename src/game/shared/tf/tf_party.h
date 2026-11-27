@@ -42,6 +42,7 @@ public:
 
 	uint64 GetAssociatedLobbyID() const { return Obj().associated_lobby_id(); }
 	ETFMatchGroup GetAssociatedLobbyMatchGroup() const { return Obj().associated_lobby_match_group(); }
+	bool GetKeepPartyOnSameTeam() const { return Obj().group_criteria().keep_party_on_same_team(); }
 
 	virtual int GetNumMembers() const OVERRIDE { return Obj().member_ids_size(); }
 	virtual const CSteamID GetMember( int i ) const OVERRIDE;

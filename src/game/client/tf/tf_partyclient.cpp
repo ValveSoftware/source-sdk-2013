@@ -103,8 +103,7 @@ ConVar tf_party_join_request_mode( "tf_party_join_request_mode", "-1", FCVAR_ARC
 ConVar tf_party_ignore_invites( "tf_party_ignore_invites", "0", FCVAR_ARCHIVE, "If set, ignore incoming party invites",
                                 OnPartyClientPrefConVarChanged );
 
-// TODO(Universal Parties): Hook up and enable in UI
-ConVar tf_party_keep_on_same_team( "tf_party_keep_on_same_team", "0", FCVAR_ARCHIVE );
+ConVar tf_party_keep_on_same_team( "tf_party_keep_on_same_team", "1", FCVAR_ARCHIVE );
 
 //-----------------------------------------------------------------------------
 // Popup dialog for MM errors with an optional clickable url
@@ -1019,6 +1018,9 @@ void CTFPartyClient::ReadConVarPreferences()
 
 	// Ignore incoming invites
 	SetIgnorePartyInvites( tf_party_ignore_invites.GetBool() );
+
+	// Keep party on same team
+	SetKeepPartyOnSameTeam( tf_party_keep_on_same_team.GetBool() );
 }
 
 //-----------------------------------------------------------------------------
@@ -1053,6 +1055,26 @@ void CTFPartyClient::SetIgnorePartyInvites( bool bIgnore )
 		m_bPrefIgnoreInvites = bIgnore;
 		// This will trigger a OnChanged and call us again, make sure we set the mode first so we don't get in a loop.
 		tf_party_ignore_invites.SetValue( bIgnore );
+		OnPartyPrefChanged();
+	}
+}
+
+//-----------------------------------------------------------------------------
+bool CTFPartyClient::GetKeepPartyOnSameTeam() const
+{
+	return m_bKeepPartyOnSameTeam;
+}
+
+//-----------------------------------------------------------------------------
+void CTFPartyClient::SetKeepPartyOnSameTeam( bool bKeepPartyOnSameTeam )
+{
+	if ( m_bKeepPartyOnSameTeam != bKeepPartyOnSameTeam )
+	{
+		m_bKeepPartyOnSameTeam = bKeepPartyOnSameTeam;
+		MutLocalGroupCriteria().SetKeepPartyOnSameTeam( bKeepPartyOnSameTeam );
+
+		// This will trigger a OnChanged and call us again, make sure we set the mode first so we don't get in a loop.
+		tf_party_keep_on_same_team.SetValue( bKeepPartyOnSameTeam );
 		OnPartyPrefChanged();
 	}
 }
