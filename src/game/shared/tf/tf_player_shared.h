@@ -663,6 +663,7 @@ public:
 	void SetRevengeCrits( int iVal );
 	int GetRevengeCrits( void ) const { return m_iRevengeCrits; }
 	void IncrementRevengeCrits( void );
+	void ResetRevengeCrits( void );
 
 	int GetSequenceForDeath( CBaseAnimating* pRagdoll, bool bBurning, int nCustomDeath );
 
@@ -1165,6 +1166,7 @@ private:
 	int m_iOldKillStreakWepSlot;
 
 	CNetworkVar( int, m_iRevengeCrits );
+	mutable bool m_bConsumeRevengeCrits;
 
 	CNetworkVar( int,  m_iNextMeleeCrit );
 	bool m_bPostShieldCharge;

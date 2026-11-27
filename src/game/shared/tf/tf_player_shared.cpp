@@ -948,6 +948,8 @@ void CTFPlayerShared::Init( CTFPlayer *pPlayer )
 	m_iOldKillStreak = 0;
 	m_iOldKillStreakWepSlot = 0;
 
+	m_bConsumeRevengeCrits = true;
+
 	SetJumping( false );
 	SetAssist( NULL );
 
@@ -1011,7 +1013,7 @@ void CTFPlayerShared::Spawn( void )
 		}
 	}
 	
-	SetRevengeCrits( 0 );
+	ResetRevengeCrits();
 
 	m_PlayerStuns.RemoveAll();
 
@@ -1631,6 +1633,7 @@ void CTFPlayerShared::OnConditionAdded( ETFCond eCond )
 	case TF_COND_SNIPERCHARGE_RAGE_BUFF:
 	case TF_COND_CRITBOOSTED_CARD_EFFECT:
 	case TF_COND_CRITBOOSTED_RUNE_TEMP:
+	case TF_COND_REVENGECRITBOOSTED:
 		OnAddCritBoost();
 		break;
 
@@ -1921,6 +1924,7 @@ void CTFPlayerShared::OnConditionRemoved( ETFCond eCond )
 	case TF_COND_SNIPERCHARGE_RAGE_BUFF:
 	case TF_COND_CRITBOOSTED_CARD_EFFECT:
 	case TF_COND_CRITBOOSTED_RUNE_TEMP:
+	case TF_COND_REVENGECRITBOOSTED:
 		OnRemoveCritBoost();
 		break;
 
@@ -8068,9 +8072,16 @@ bool CTFPlayerShared::IsCritBoosted( void ) const
 								  InCond( TF_COND_CRITBOOSTED_CARD_EFFECT ) ||
 								  InCond( TF_COND_CRITBOOSTED_RUNE_TEMP ) );
 
+	if ( InCond( TF_COND_REVENGECRITBOOSTED ) )
+	{
+		// If we have Revenge Crits and another Crit boost, we should not consume them
+		m_bConsumeRevengeCrits = !bAllWeaponCritActive;
+
+		return true;
+	}
+	
 	if ( bAllWeaponCritActive )
 		return true;
-
 
 	CTFWeaponBase *pWeapon = dynamic_cast< CTFWeaponBase* >( m_pOuter->GetActiveWeapon() );
 	if ( pWeapon )
@@ -14473,20 +14484,33 @@ void CTFPlayerShared::IncrementRevengeCrits( void )
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::SetRevengeCrits( int iVal )
 {	
+	// If Crit boosted by another source, we don't consume Revenge Crits
+	if ( IsCritBoosted() && !m_bConsumeRevengeCrits && iVal < m_iRevengeCrits )
+		return;
+
 	m_iRevengeCrits = clamp( iVal, 0, 35 );
 
 	CTFWeaponBase *pWeapon = m_pOuter->GetActiveTFWeapon();
 	if ( ( pWeapon && pWeapon->CanHaveRevengeCrits() ) )
 	{
-		if ( m_iRevengeCrits > 0 && !InCond( TF_COND_CRITBOOSTED ) )
+		if ( m_iRevengeCrits > 0 && !InCond( TF_COND_REVENGECRITBOOSTED ) )
 		{
-			AddCond( TF_COND_CRITBOOSTED );
+			AddCond( TF_COND_REVENGECRITBOOSTED );
 		}
-		else if ( m_iRevengeCrits == 0 && InCond( TF_COND_CRITBOOSTED ) )
+		else if ( m_iRevengeCrits == 0 && InCond( TF_COND_REVENGECRITBOOSTED ) )
 		{
-			RemoveCond( TF_COND_CRITBOOSTED );
+			RemoveCond( TF_COND_REVENGECRITBOOSTED );
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Reset Revenge Crits, bypasses the Crit boost check
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::ResetRevengeCrits()
+{
+	m_iRevengeCrits = 0;
+	RemoveCond( TF_COND_REVENGECRITBOOSTED );
 }
 
 //-----------------------------------------------------------------------------
