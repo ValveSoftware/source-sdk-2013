@@ -29,6 +29,7 @@
 #include "in_buttons.h"
 #include "coordsize.h"
 #include "team.h"
+#include "te_effect_dispatch.h"
 
 #ifdef TF_DLL
 #include "tf/tf_gamerules.h"
@@ -1506,6 +1507,49 @@ static void Script_EmitSoundEx( HSCRIPT params )
 	CBaseEntity::EmitSound( filter, pOutputEntity ? pOutputEntity->entindex() : -1, soundParams );
 }
 
+bool ScriptDispatchEffect(const char* szName, HSCRIPT params)
+{
+	if (!szName || !*szName)
+		return false;
+
+	CEffectData	data;
+
+	int nFilterParam = -1;
+	bool bSetOrigin = false;
+	Vector vecOriginCache = vec3_origin;
+	EScriptRecipientFilter eFilter = RECIPIENT_FILTER_DEFAULT;
+
+	IScriptVM* pVM = g_pScriptVM;
+	pVM->IfHas<Vector>	( params, "origin",				[&](Vector value)			{ bSetOrigin = true; vecOriginCache = value; data.m_vOrigin = value; });
+	pVM->IfHas<Vector>	( params, "start",				[&](Vector value)			{ data.m_vStart = value; });
+	pVM->IfHas<Vector>	( params, "normal",				[&](Vector value)			{ data.m_vNormal = value; });
+	pVM->IfHas<QAngle>	( params, "angles",				[&](QAngle value)			{ data.m_vAngles = value; });
+	pVM->IfHas<int>		( params, "flags",				[&](int value)				{ data.m_fFlags = value; });
+	pVM->IfHas<int>		( params, "entindex",			[&](int value)				{ data.m_nEntIndex = value; });
+	pVM->IfHas<float>	( params, "scale",				[&](float value)			{ data.m_flScale = value; });
+	pVM->IfHas<float>	( params, "magnitude",			[&](float value)			{ data.m_flMagnitude = value; });
+	pVM->IfHas<float>	( params, "radius",				[&](float value)			{ data.m_flRadius = value; });
+	pVM->IfHas<int>		( params, "attachment_index",	[&](int value)				{ data.m_nAttachmentIndex = value; });
+	pVM->IfHas<int>		( params, "surface_prop",		[&](short value)			{ data.m_nSurfaceProp = value; });
+	pVM->IfHas<int>		( params, "material",			[&](int value)				{ data.m_nMaterial = value; });
+	pVM->IfHas<int>		( params, "damage_type",			[&](int value)				{ data.m_nDamageType = value; });
+	pVM->IfHas<int>		( params, "hitbox",				[&](int value)				{ data.m_nHitBox = value; });
+	pVM->IfHas<int>		( params, "color",				[&](unsigned char value)	{ data.m_nColor = value; });
+	pVM->IfHas<Vector>	( params, "custom_color1",		[&](Vector value)			{ data.m_bCustomColors = true; data.m_CustomColors.m_vecColor1 = value; });
+	pVM->IfHas<Vector>	( params, "custom_color2",		[&](Vector value)			{ data.m_bCustomColors = true; data.m_CustomColors.m_vecColor2 = value; });
+	pVM->IfHas<int>		( params, "attach_type",			[&](int value)				{ data.m_bControlPoint1 = true; data.m_ControlPoint1.m_eParticleAttachment = ParticleAttachment_t(value); });
+	pVM->IfHas<Vector>	( params, "attach_offset",		[&](Vector value)			{ data.m_bControlPoint1 = true; data.m_ControlPoint1.m_vecOffset = value; });
+	pVM->IfHas<int>		( params, "filter_type",			[&](int value)				{ eFilter = EScriptRecipientFilter(value); });
+	pVM->IfHas<int>		( params, "filter_param",		[&](int value)				{ nFilterParam = value; });
+
+	CScriptRecipientFilter filter;
+	SetupScriptRecipientFilter(filter, eFilter, nFilterParam, bSetOrigin ? &vecOriginCache : NULL, UTIL_EntityByIndex(data.m_nEntIndex), NULL);
+
+	DispatchEffect(szName, data, filter);
+
+	return true;
+}
+
 //-----------------------------------------------------------------------------
 static bool Script_PrecacheItemFromTable( HSCRIPT hSpawnTable )
 {
@@ -2514,6 +2558,7 @@ bool VScriptServerInit()
 				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptFireGameEvent, "FireGameEvent", "Fire a game event to a listening callback function in script. Parameters are passed in a squirrel table." );
 				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptFireScriptHook, "FireScriptHook", "Fire a script hoook to a listening callback function in script. Parameters are passed in a squirrel table." );
 				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptSendGlobalGameEvent, "SendGlobalGameEvent", "Sends a real game event to everything. Parameters are passed in a squirrel table." );
+				ScriptRegisterFunctionNamed( g_pScriptVM, ScriptDispatchEffect, "DispatchEffect", "Dispatch a client effect with an optional filter. Parameters are passed in a squirrel table." );
 				ScriptRegisterFunction( g_pScriptVM, ScriptHooksEnabled, "Returns whether script hooks are currently enabled." );
 
 				ScriptRegisterFunctionNamed( g_pScriptVM, Script_SpawnEntityFromTable, "SpawnEntityFromTable", "Spawn entity from KeyValues in table - 'name' is entity name, rest are KeyValues for spawn." );
