@@ -64,6 +64,10 @@ bool CBaseFilter::PassesDamageFilterImpl( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 void CBaseFilter::InputTestActivator( inputdata_t &inputdata )
 {
+	// abort early if activator and/or caller no longer exist
+	if ( inputdata.pActivator == NULL || inputdata.pCaller == NULL)
+		return;
+	
 	if ( PassesFilter( inputdata.pCaller, inputdata.pActivator ) )
 	{
 		m_OnPass.FireOutput( inputdata.pActivator, this );
