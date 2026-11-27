@@ -843,6 +843,17 @@ bool CTFMinigun::Lower( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFMinigun::Deploy( void )
+{
+	m_flBarrelCurrentVelocity = 0;
+	m_flBarrelTargetVelocity = 0;
+
+	return BaseClass::Deploy();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
 void CTFMinigun::WindDown( void )
@@ -944,20 +955,6 @@ void CTFMinigun::FireGameEvent( IGameEvent * event )
 //-----------------------------------------------------------------------------
 bool CTFMinigun::SendWeaponAnim( int iActivity )
 {
-#ifdef CLIENT_DLL
-	// Client procedurally animates the barrel bone
-	if ( iActivity == ACT_MP_ATTACK_STAND_PRIMARYFIRE || iActivity == ACT_MP_ATTACK_STAND_PREFIRE )
-	{
-		m_flBarrelTargetVelocity = MAX_BARREL_SPIN_VELOCITY;
-	}
-	else if ( iActivity == ACT_MP_ATTACK_STAND_POSTFIRE )
-	{
-		m_flBarrelTargetVelocity = 0;
-	}
-
-#endif
-
-
 	// When we start firing, play the startup firing anim first
 	if ( iActivity == ACT_VM_PRIMARYATTACK )
 	{
@@ -1099,6 +1096,16 @@ void CTFMinigun::UpdateBarrelMovement()
 	{
 		return;
 	}
+
+	if ( m_iWeaponState == AC_STATE_STARTFIRING ||
+		m_iWeaponState == AC_STATE_FIRING ||
+		m_iWeaponState == AC_STATE_SPINNING ||
+		m_iWeaponState == AC_STATE_DRYFIRE )
+	{
+		m_flBarrelTargetVelocity = MAX_BARREL_SPIN_VELOCITY;
+	}
+	else if ( m_iWeaponState == AC_STATE_IDLE )
+		m_flBarrelTargetVelocity = 0;
 
 	if ( m_flBarrelCurrentVelocity != m_flBarrelTargetVelocity )
 	{
