@@ -8312,12 +8312,10 @@ bool CBaseEntity::ValidateScriptScope()
 //-----------------------------------------------------------------------------
 void CBaseEntity::RunVScripts()
 {
-	if( m_iszVScripts == NULL_STRING )
+	if( m_iszVScripts == NULL_STRING || !ValidateScriptScope() )
 	{
 		return;
 	}
-
-	ValidateScriptScope();
 
 	// All functions we want to have call chained instead of overwritten
 	// by other scripts in this entities list.
@@ -8389,7 +8387,7 @@ void CBaseEntity::RunVScripts()
 //--------------------------------------------------------------------------------------------------
 void CBaseEntity::RunPrecacheScripts( void )
 {
-	if( m_iszVScripts == NULL_STRING )
+	if( m_iszVScripts == NULL_STRING || !ValidateScriptScope() )
 	{
 		return;
 	}
@@ -8404,7 +8402,7 @@ void CBaseEntity::RunPrecacheScripts( void )
 
 void CBaseEntity::RunOnPostSpawnScripts( void )
 {
-	if( m_iszVScripts == NULL_STRING )
+	if( m_iszVScripts == NULL_STRING || !ValidateScriptScope() )
 	{
 		return;
 	}
