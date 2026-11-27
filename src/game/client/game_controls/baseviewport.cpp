@@ -79,7 +79,7 @@ void hud_autoreloadscript_callback( IConVar *var, const char *pOldValue, float f
 
 static ConVar cl_leveloverviewmarker( "cl_leveloverviewmarker", "0", FCVAR_CHEAT );
 
-CON_COMMAND( showpanel, "Shows a viewport panel <name>" )
+CON_COMMAND_F( showpanel, "Shows a viewport panel <name>", FCVAR_CHEAT )
 {
 	if ( !gViewPortInterface )
 		return;
@@ -90,7 +90,7 @@ CON_COMMAND( showpanel, "Shows a viewport panel <name>" )
 	 gViewPortInterface->ShowPanel( args[ 1 ], true );
 }
 
-CON_COMMAND( hidepanel, "Hides a viewport panel <name>" )
+CON_COMMAND_F( hidepanel, "Hides a viewport panel <name>", FCVAR_CHEAT )
 {
 	if ( !gViewPortInterface )
 		return;
