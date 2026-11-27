@@ -79,6 +79,7 @@ void cc_cl_interp_all_changed( IConVar *pConVar, const char *pOldString, float f
 
 static ConVar  cl_extrapolate( "cl_extrapolate", "1", FCVAR_CHEAT, "Enable/disable extrapolation if interpolation history runs out." );
 static ConVar  cl_interp_npcs( "cl_interp_npcs", "0.0", FCVAR_USERINFO, "Interpolate NPC positions starting this many seconds in past (or cl_interp, if greater)" );  
+static ConVar  cl_interp_objects( "cl_interp_objects", "0.0", FCVAR_USERINFO, "Interpolate objects starting this many seconds in the past (or cl_interp, if greater)" );
 static ConVar  cl_interp_all( "cl_interp_all", "0", 0, "Disable interpolation list optimizations.", 0, 0, 0, 0, cc_cl_interp_all_changed );
 ConVar  r_drawmodeldecals( "r_drawmodeldecals", "1", FCVAR_ALLOWED_IN_COMPETITIVE );
 extern ConVar	cl_showerror;
@@ -5908,6 +5909,23 @@ static float AdjustInterpolationAmount( C_BaseEntity *pEntity, float baseInterpo
 			}
 		}
 	}
+	
+	if ( cl_interp_objects.GetFloat() > 0 )
+	{
+		const float minObjectInterpolationTime = cl_interp_objects.GetFloat();
+		const float minObjectInterpolation = TICK_INTERVAL * ( TIME_TO_TICKS( minObjectInterpolationTime ) + 1 );
+		
+		if ( minObjectInterpolation > baseInterpolation )
+		{
+			while ( pEntity )
+			{
+				if ( pEntity->IsBaseObject() )
+					return minObjectInterpolation;
+				
+				pEntity = pEntity->GetMoveParent();
+			}
+		}
+	}
 
 	return baseInterpolation;
 }
@@ -6448,11 +6466,16 @@ void C_BaseEntity::CheckCLInterpChanged()
 	float flCurValue_InterpNPCs = cl_interp_npcs.GetFloat();
 	static float flLastValue_InterpNPCs = flCurValue_InterpNPCs;
 	
+	float flCurValue_InterpObjects = cl_interp_objects.GetFloat();
+	static float flLastValue_InterpObjects = flCurValue_InterpObjects;
+	
 	if ( flLastValue_Interp != flCurValue_Interp || 
-		 flLastValue_InterpNPCs != flCurValue_InterpNPCs  )
+		 flLastValue_InterpNPCs != flCurValue_InterpNPCs ||
+		 flLastValue_InterpObjects != flCurValue_InterpObjects )
 	{
 		flLastValue_Interp = flCurValue_Interp;
 		flLastValue_InterpNPCs = flCurValue_InterpNPCs;
+		flLastValue_InterpObjects = flCurValue_InterpObjects;
 	
 		// Tell all the existing entities to update their interpolation amounts to account for the change.
 		C_BaseEntityIterator iterator;
