@@ -230,6 +230,8 @@ bool C_BaseViewModel::ShouldFlipViewModel()
 	{
 		return pWeapon->m_bFlipViewModel != TeamFortress_ShouldFlipClientViewModel();
 	}
+	// hack for scout ball projectiles to have properly flipped viewmodels, as baseballs are viewmodels with no associated weapons.
+	return TeamFortress_ShouldFlipClientViewModel();
 #endif
 
 	return false;
