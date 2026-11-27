@@ -866,12 +866,13 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 			if ( pszAssisterName && (ePyroVisionHack == kHorriblePyroVisionHack_KillAssisterType_CustomName_First ||
 									 ePyroVisionHack == kHorriblePyroVisionHack_KillAssisterType_LocalizationString_First) )
 			{
-				std::swap( pszKillerName, pszAssisterName );
+				Q_strncpy( msg.Killer.szName, pszAssisterName, ARRAYSIZE( msg.Killer.szName ) );
+				pszAssisterName = pszKillerName;
 			}
 
-			char szKillerBuf[MAX_PLAYER_NAME_LENGTH*2];
-			Q_snprintf( szKillerBuf, ARRAYSIZE(szKillerBuf), "%s + %s", pszKillerName, pszAssisterName );
-			Q_strncpy( msg.Killer.szName, szKillerBuf, ARRAYSIZE( msg.Killer.szName ) );
+			msg.Assister.iTeam = ( iAssisterID > 0 ? g_PR->GetTeam( iAssisterID ) : msg.Killer.iTeam );
+			Q_strncpy( msg.Assister.szName, pszAssisterName, ARRAYSIZE( msg.Assister.szName ) );
+
 			if ( iLocalPlayerIndex == iAssisterID )
 			{
 				msg.bLocalPlayerInvolved = true;
@@ -1307,9 +1308,8 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		const char *assister_name = ( iAssisterID > 0 ? g_PR->GetPlayerName( iAssisterID ) : NULL );
 		if ( assister_name )
 		{
-			char szKillerBuf[MAX_PLAYER_NAME_LENGTH*2];
-			Q_snprintf( szKillerBuf, ARRAYSIZE(szKillerBuf), "%s + %s", msg.Killer.szName, assister_name );
-			Q_strncpy( msg.Killer.szName, szKillerBuf, ARRAYSIZE( msg.Killer.szName ) );
+			msg.Assister.iTeam = g_PR->GetTeam( iAssisterID );
+			Q_strncpy( msg.Assister.szName, assister_name, ARRAYSIZE( msg.Assister.szName ) );
 		}
 	}
 	//else if ( FStrEq( "throwable_hit", pszEventName ) )
