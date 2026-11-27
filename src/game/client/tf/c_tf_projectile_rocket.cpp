@@ -20,6 +20,7 @@ END_NETWORK_TABLE()
 //-----------------------------------------------------------------------------
 C_TFProjectile_Rocket::C_TFProjectile_Rocket( void )
 {
+	m_bCreatedTrails = false;
 	pEffect = NULL;
 }
 
@@ -50,7 +51,6 @@ void C_TFProjectile_Rocket::CreateTrails( void )
 	if ( IsDormant() )
 		return;
 
-	bool bUsingCustom = false;
 
 	if ( pEffect )
 	{
@@ -59,70 +59,77 @@ void C_TFProjectile_Rocket::CreateTrails( void )
 	}
 
 	int iAttachment = LookupAttachment( "trail" );
-	if ( iAttachment == INVALID_PARTICLE_ATTACHMENT )
-		return;
-
-	if ( enginetrace->GetPointContents( GetAbsOrigin() ) & MASK_WATER )
+	if ( iAttachment != INVALID_PARTICLE_ATTACHMENT )
 	{
-		ParticleProp()->Create( "rockettrail_underwater", PATTACH_POINT_FOLLOW, "trail" );
-		bUsingCustom = true;
-	}
-	else if ( GetTeamNumber() == TEAM_UNASSIGNED )
-	{
-		ParticleProp()->Create( "rockettrail_underwater", PATTACH_POINT_FOLLOW, "trail" );
-		bUsingCustom = true;
-	}
-	else
-	{
-		// Halloween Spell Effect Check
-		int iHalloweenSpell = 0;
-		// if the owner is a Sentry, Check its owner
-		CBaseObject *pSentry = GetOwnerEntity() && GetOwnerEntity()->IsBaseObject() ? assert_cast<CBaseObject*>( GetOwnerEntity() ) : NULL;
-		if ( TF_IsHolidayActive( kHoliday_HalloweenOrFullMoon ) )
+		if ( !m_bCreatedTrails )
 		{
-			if ( pSentry )
+			bool bUsingCustom = false;
+
+			if ( enginetrace->GetPointContents( GetAbsOrigin() ) & MASK_WATER )
 			{
-				CALL_ATTRIB_HOOK_INT_ON_OTHER( pSentry->GetOwner(), iHalloweenSpell, halloween_pumpkin_explosions );
+				ParticleProp()->Create( "rockettrail_underwater", PATTACH_POINT_FOLLOW, "trail" );
+				bUsingCustom = true;
+			}
+			else if ( GetTeamNumber() == TEAM_UNASSIGNED )
+			{
+				ParticleProp()->Create( "rockettrail_underwater", PATTACH_POINT_FOLLOW, "trail" );
+				bUsingCustom = true;
 			}
 			else
 			{
-				CALL_ATTRIB_HOOK_INT_ON_OTHER( GetOwnerEntity(), iHalloweenSpell, halloween_pumpkin_explosions );
-			}
-		}
-
-		// Mini rockets from airstrike RL
-		if ( iHalloweenSpell > 0 )
-		{
-			ParticleProp()->Create( "halloween_rockettrail", PATTACH_POINT_FOLLOW, iAttachment );
-			bUsingCustom = true;
-		}
-		else if ( !pSentry )
-		{
-			if ( GetLauncher() )
-			{
-				int iMiniRocket = 0;
-				CALL_ATTRIB_HOOK_INT_ON_OTHER( GetLauncher(), iMiniRocket, mini_rockets );
-				if ( iMiniRocket )
+				// Halloween Spell Effect Check
+				int iHalloweenSpell = 0;
+				// if the owner is a Sentry, Check its owner
+				CBaseObject *pSentry = GetOwnerEntity() && GetOwnerEntity()->IsBaseObject() ? assert_cast<CBaseObject*>( GetOwnerEntity() ) : NULL;
+				if ( TF_IsHolidayActive( kHoliday_HalloweenOrFullMoon ) )
 				{
-					ParticleProp()->Create( "rockettrail_airstrike", PATTACH_POINT_FOLLOW, iAttachment );
-					bUsingCustom = true;
-
-					// rockettrail_airstrike_line
-					CTFPlayer *pPlayer = ToTFPlayer( GetOwnerEntity() );
-					if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_BLASTJUMPING ) )
+					if ( pSentry )
 					{
-						ParticleProp()->Create( "rockettrail_airstrike_line", PATTACH_POINT_FOLLOW, iAttachment );
+						CALL_ATTRIB_HOOK_INT_ON_OTHER( pSentry->GetOwner(), iHalloweenSpell, halloween_pumpkin_explosions );
+					}
+					else
+					{
+						CALL_ATTRIB_HOOK_INT_ON_OTHER( GetOwnerEntity(), iHalloweenSpell, halloween_pumpkin_explosions );
+					}
+				}
+
+				// Mini rockets from airstrike RL
+				if ( iHalloweenSpell > 0 )
+				{
+					ParticleProp()->Create( "halloween_rockettrail", PATTACH_POINT_FOLLOW, iAttachment );
+					bUsingCustom = true;
+				}
+				else if ( !pSentry )
+				{
+					if ( GetLauncher() )
+					{
+						int iMiniRocket = 0;
+						CALL_ATTRIB_HOOK_INT_ON_OTHER( GetLauncher(), iMiniRocket, mini_rockets );
+						if ( iMiniRocket )
+						{
+							ParticleProp()->Create( "rockettrail_airstrike", PATTACH_POINT_FOLLOW, iAttachment );
+							bUsingCustom = true;
+
+							// rockettrail_airstrike_line
+							CTFPlayer *pPlayer = ToTFPlayer( GetOwnerEntity() );
+							if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_BLASTJUMPING ) )
+							{
+								ParticleProp()->Create( "rockettrail_airstrike_line", PATTACH_POINT_FOLLOW, iAttachment );
+							}
+						}
 					}
 				}
 			}
-		}
-	}
 
-	if ( !bUsingCustom )
-	{
-		if ( GetTrailParticleName() )
-		{
-			ParticleProp()->Create( GetTrailParticleName(), PATTACH_POINT_FOLLOW, iAttachment );
+			if ( !bUsingCustom )
+			{
+				if ( GetTrailParticleName() )
+				{
+					ParticleProp()->Create( GetTrailParticleName(), PATTACH_POINT_FOLLOW, iAttachment );
+				}
+			}
+
+			m_bCreatedTrails = true;
 		}
 	}
 
