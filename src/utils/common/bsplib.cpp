@@ -2834,16 +2834,16 @@ void	WriteLumpToFile( char *filename, int lump, int nLumpVersion, void *pBuffer,
 
 int ArrayUsage( const char *szItem, int items, int maxitems, int itemsize )
 {
-	float	percentage = maxitems ? items * 100.0 / maxitems : 0.0;
+	float	percentage = maxitems ? items * 100.0f / maxitems : 0.0f;
 
     Msg("%-17.17s %8i/%-8i %8i/%-8i (%4.1f%%) ", 
 		   szItem, items, maxitems, items * itemsize, maxitems * itemsize, percentage );
-	if ( percentage > 80.0 )
-		Msg( "VERY FULL!\n" );
-	else if ( percentage > 95.0 )
-		Msg( "SIZE DANGER!\n" );
-	else if ( percentage > 99.9 )
+	if ( percentage > 100.0f )
 		Msg( "SIZE OVERFLOW!!!\n" );
+	else if ( percentage > 95.0f )
+		Msg( "SIZE DANGER!\n" );
+	else if ( percentage > 80.0f )
+		Msg( "VERY FULL!\n" );
 	else
 		Msg( "\n" );
 	return items * itemsize;
@@ -2851,15 +2851,15 @@ int ArrayUsage( const char *szItem, int items, int maxitems, int itemsize )
 
 int GlobUsage( const char *szItem, int itemstorage, int maxstorage )
 {
-	float	percentage = maxstorage ? itemstorage * 100.0 / maxstorage : 0.0;
+	float	percentage = maxstorage ? itemstorage * 100.0f / maxstorage : 0.0f;
     Msg("%-17.17s     [variable]    %8i/%-8i (%4.1f%%) ", 
 		   szItem, itemstorage, maxstorage, percentage );
-	if ( percentage > 80.0 )
-		Msg( "VERY FULL!\n" );
-	else if ( percentage > 95.0 )
-		Msg( "SIZE DANGER!\n" );
-	else if ( percentage > 99.9 )
+	if ( percentage > 100.0f )
 		Msg( "SIZE OVERFLOW!!!\n" );
+	else if ( percentage > 95.0f )
+		Msg( "SIZE DANGER!\n" );
+	else if ( percentage > 80.0f )
+		Msg( "VERY FULL!\n" );
 	else
 		Msg( "\n" );
 	return itemstorage;
