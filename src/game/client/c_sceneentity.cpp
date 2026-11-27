@@ -536,6 +536,7 @@ void C_SceneEntity::StartEvent( float currenttime, CChoreoScene *scene, CChoreoE
 
 			DispatchProcessLoop( scene, event );
 		}
+		break;
 	case CChoreoEvent::SPEAK:
 		{
 			if ( IsClientOnly() && pActor )
