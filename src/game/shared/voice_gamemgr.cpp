@@ -39,6 +39,8 @@ ConVar voice_serverdebug( "voice_serverdebug", "0" );
 // Muted players still can't talk to each other.
 ConVar sv_alltalk( "sv_alltalk", "0", FCVAR_NOTIFY | FCVAR_REPLICATED, "Players can hear all other players, no team restrictions" );
 
+ConVar sv_proximity_voice_enable( "sv_proximity_voice_enable", "0", FCVAR_NOTIFY | FCVAR_REPLICATED, "Enable proximity voice chat" );
+ConVar sv_proximity_voice_distance( "sv_proximity_voice_distance", "2048", FCVAR_NOTIFY | FCVAR_REPLICATED, "Max distance at which voice will be projected" );
 
 CVoiceGameMgr g_VoiceGameMgr;
 
@@ -103,7 +105,6 @@ CVoiceGameMgr::CVoiceGameMgr()
 {
 	m_UpdateInterval = 0;
 	m_nMaxPlayers = 0;
-	m_iProximityDistance = -1;
 }
 
 
@@ -225,15 +226,15 @@ void CVoiceGameMgr::UpdateMasks()
 
 		CPlayerBitVec gameRulesMask;
 		CPlayerBitVec ProximityMask;
-		bool		bProximity = false;
+		bool bProximity = sv_proximity_voice_enable.GetBool();
 		if( g_PlayerModEnable[iClient] )
 		{
 			// Build a mask of who they can hear based on the game rules.
 			for(int iOtherClient=0; iOtherClient < m_nMaxPlayers; iOtherClient++)
 			{
 				CBaseEntity *pEnt = UTIL_PlayerByIndex(iOtherClient+1);
-				if(pEnt && pEnt->IsPlayer() && 
-					(bAllTalk || m_pHelper->CanPlayerHearPlayer(pPlayer, (CBasePlayer*)pEnt, bProximity )) )
+				if( pEnt && pEnt->IsPlayer() && CheckProximity( pPlayer->GetAbsOrigin().DistTo( pEnt->GetAbsOrigin() ) ) &&
+					( bAllTalk || m_pHelper->CanPlayerHearPlayer( pPlayer, ( CBasePlayer* )pEnt, bProximity ) ) )
 				{
 					gameRulesMask[iOtherClient] = true;
 					ProximityMask[iOtherClient] = bProximity;
@@ -278,15 +279,9 @@ bool CVoiceGameMgr::IsPlayerIgnoringPlayer( int iTalker, int iListener )
 	return !!g_BanMasks[iListener-1][iTalker-1];
 }
 
-void CVoiceGameMgr::SetProximityDistance( int iDistance )
+bool CVoiceGameMgr::CheckProximity( float flDistance )
 {
-	m_iProximityDistance = iDistance;
-}
-
-bool CVoiceGameMgr::CheckProximity( int iDistance )
-{
-	if ( m_iProximityDistance >= iDistance )
-		return true;
-
-	return false;
+	return sv_proximity_voice_enable.GetBool() ?
+		flDistance <= sv_proximity_voice_distance.GetFloat() :
+		true;
 }
