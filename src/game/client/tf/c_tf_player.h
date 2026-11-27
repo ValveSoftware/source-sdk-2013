@@ -43,6 +43,7 @@ class C_PasstimeAskForBallReticle;
 extern ConVar tf_medigun_autoheal;
 extern ConVar cl_autorezoom;
 extern ConVar cl_autoreload;
+extern ConVar cl_holdzoom;
 
 enum EBonusEffectFilter_t
 {
@@ -297,6 +298,7 @@ public:
 	bool			GetMedigunAutoHeal( void ){ return tf_medigun_autoheal.GetBool(); }
 	bool			ShouldAutoRezoom( void ){ return cl_autorezoom.GetBool(); }
 	bool			ShouldAutoReload( void ){ return cl_autoreload.GetBool(); }
+	bool			ShouldHoldZoom( void ){ return cl_holdzoom.GetBool(); }
 
 	void			GetTargetIDDataString( bool bIsDisguised, OUT_Z_BYTECAP(iMaxLenInBytes) wchar_t *sDataString, int iMaxLenInBytes, bool &bIsAmmoData, bool &bIsKillStreakData );
 
