@@ -68,7 +68,7 @@ CTFSpectatorGUI *GetTFSpectatorGUI()
 //-----------------------------------------------------------------------------
 ConVar cl_spec_carrieditems( "cl_spec_carrieditems", "1", FCVAR_ARCHIVE, "Show non-standard items being carried by player you're spectating." );
 
-void HUDTournamentSpecChangedCallBack( IConVar *var, const char *pOldString, float flOldValue )
+void HUDSpecInvalidateLayout( IConVar *var, const char *pOldString, float flOldValue )
 {
 	CTFSpectatorGUI *pPanel = (CTFSpectatorGUI*)gViewPortInterface->FindPanelByName( PANEL_SPECGUI );
 	if ( pPanel )
@@ -76,7 +76,8 @@ void HUDTournamentSpecChangedCallBack( IConVar *var, const char *pOldString, flo
 		pPanel->InvalidateLayout( true, true );
 	}
 }
-ConVar cl_use_tournament_specgui( "cl_use_tournament_specgui", "0", FCVAR_ARCHIVE, "When in tournament mode, use the advanced tournament spectator UI.", HUDTournamentSpecChangedCallBack );
+ConVar cl_use_tournament_specgui( "cl_use_tournament_specgui", "0", FCVAR_ARCHIVE, "When in tournament mode, use the advanced tournament spectator UI.", HUDSpecInvalidateLayout);
+ConVar cl_spec_baralpha("cl_spec_baralpha", "200", FCVAR_ARCHIVE, "How transparent the spectator bars should be.", true, 0, true, 255, HUDSpecInvalidateLayout);
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
