@@ -1403,7 +1403,6 @@ int CObjectSentrygun::GetFireAttachment()
 	{
 		iAttachment = m_iAttachments[SENTRYGUN_ATTACHMENT_MUZZLE];
 	}
-	m_iLastMuzzleAttachmentFired = iAttachment;
 
 	return iAttachment;
 }
@@ -1553,6 +1552,9 @@ bool CObjectSentrygun::Fire()
 
 		FireBullets( info );
 
+		// this will alternate the attachment next time
+		m_iLastMuzzleAttachmentFired = iAttachment;
+
 		// sentry gun fire 'heats up' the nav mesh around it
 		UpdateNavMeshCombatStatus();
 
@@ -1685,7 +1687,7 @@ void CObjectSentrygun::MakeTracer( const Vector &vecTracerSrc, const trace_t &tr
 //-----------------------------------------------------------------------------
 int	CObjectSentrygun::GetTracerAttachment( void )
 {
-	return m_iAttachments[SENTRYGUN_ATTACHMENT_MUZZLE];
+	return GetFireAttachment();
 }
 
 //-----------------------------------------------------------------------------
