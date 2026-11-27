@@ -63,7 +63,7 @@ void FreeQuantization(struct QuantizedValue *t)
 		FreeQuantization(t->Children[0]);
 		FreeQuantization(t->Children[1]);
 		delete[] t->Sums;
-		delete[] t;
+		delete t;
 	}
 }
 
