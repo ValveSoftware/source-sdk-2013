@@ -67,6 +67,8 @@ public:
 
 	vgui::SectionedListPanel *GetPlayerList( void ){ return m_pPlayerList; }
 
+	void InitializeInputScheme( bool bUseMouse );
+
 private:
 	void InitPlayerList( vgui::IScheme *pScheme );
 	void UpdatePlayerList();
@@ -74,7 +76,7 @@ private:
 	void UpdateCreditStats();
 	void UpdateCreditSpend();
 	void UpdatePopFile();
-
+	void AdjustForVisibleScrollbar( void );
 
 	bool m_bInitialized;
 	char m_popfile[ MAX_PATH ];
@@ -106,6 +108,8 @@ private:
 	vgui::Label			*m_pRespecStatusLabel;
 
 	int		m_iDisplayedWave;
+
+	bool	m_bScrollBarVisible;
 
 	vgui::HFont m_hScoreFont;	
 
