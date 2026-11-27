@@ -43,6 +43,9 @@ BEGIN_VS_SHADER_FLAGS( screenspace_general_dx9, "Help for screenspace_general", 
 		SHADER_PARAM( LINEARWRITE,SHADER_PARAM_TYPE_INTEGER,"0","")
 		SHADER_PARAM( X360APPCHOOSER, SHADER_PARAM_TYPE_INTEGER, "0", "Needed for movies in 360 launcher" )
 		SHADER_PARAM( COPYALPHA, SHADER_PARAM_TYPE_INTEGER, "0", "")
+		SHADER_PARAM( FRAME1, SHADER_PARAM_TYPE_INTEGER, "0", "Frame number for $texture1" )
+		SHADER_PARAM( FRAME2, SHADER_PARAM_TYPE_INTEGER, "0", "Frame number for $texture2" )
+		SHADER_PARAM( FRAME3, SHADER_PARAM_TYPE_INTEGER, "0", "Frame number for $texture3" )
 	END_SHADER_PARAMS
 
     SHADER_INIT
@@ -242,7 +245,7 @@ BEGIN_VS_SHADER_FLAGS( screenspace_general_dx9, "Help for screenspace_general", 
 			// Using c4-c7 to store the pixel sizes of each texture
 			if (params[BASETEXTURE]->IsDefined())
 			{
-				BindTexture( SHADER_SAMPLER0, BASETEXTURE, -1 );
+				BindTexture( SHADER_SAMPLER0, BASETEXTURE, FRAME );
 
 				ITexture *pTarget = params[ BASETEXTURE ]->GetTextureValue();
 				float vPixelSize[4] = { 1.0f / pTarget->GetActualWidth(), 1.0f / pTarget->GetActualHeight(), 0.0f, 0.0f };
@@ -251,7 +254,7 @@ BEGIN_VS_SHADER_FLAGS( screenspace_general_dx9, "Help for screenspace_general", 
 
 			if (params[TEXTURE1]->IsDefined())
 			{
-				BindTexture( SHADER_SAMPLER1, TEXTURE1, -1 );
+				BindTexture( SHADER_SAMPLER1, TEXTURE1, FRAME1 );
 
 				ITexture *pTarget = params[ TEXTURE1 ]->GetTextureValue();
 				float vPixelSize[4] = { 1.0f / pTarget->GetActualWidth(), 1.0f / pTarget->GetActualHeight(), 0.0f, 0.0f };
@@ -260,7 +263,7 @@ BEGIN_VS_SHADER_FLAGS( screenspace_general_dx9, "Help for screenspace_general", 
 
 			if (params[TEXTURE2]->IsDefined())
 			{
-				BindTexture( SHADER_SAMPLER2, TEXTURE2, -1 );
+				BindTexture( SHADER_SAMPLER2, TEXTURE2, FRAME2 );
 
 				ITexture *pTarget = params[ TEXTURE2 ]->GetTextureValue();
 				float vPixelSize[4] = { 1.0f / pTarget->GetActualWidth(), 1.0f / pTarget->GetActualHeight(), 0.0f, 0.0f };
@@ -269,7 +272,7 @@ BEGIN_VS_SHADER_FLAGS( screenspace_general_dx9, "Help for screenspace_general", 
 
 			if (params[TEXTURE3]->IsDefined())
 			{
-				BindTexture( SHADER_SAMPLER3, TEXTURE3, -1 );
+				BindTexture( SHADER_SAMPLER3, TEXTURE3, FRAME3 );
 
 				ITexture *pTarget = params[ TEXTURE3 ]->GetTextureValue();
 				float vPixelSize[4] = { 1.0f / pTarget->GetActualWidth(), 1.0f / pTarget->GetActualHeight(), 0.0f, 0.0f };
