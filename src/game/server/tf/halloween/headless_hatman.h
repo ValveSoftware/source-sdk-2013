@@ -92,6 +92,9 @@ public:
 	virtual CHeadlessHatmanLocomotion	*GetLocomotionInterface( void ) const	{ return m_locomotor; }
 	virtual CHeadlessHatmanBody *GetBodyInterface( void ) const					{ return m_body; }
 
+	DECLARE_DATADESC();
+	bool m_bMallet;
+
 	virtual void Update( void );
 
 	const Vector &GetHomePosition( void ) const;
