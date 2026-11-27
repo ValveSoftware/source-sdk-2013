@@ -354,7 +354,7 @@ public:
 		{
 			if ( steamapicontext && steamapicontext->SteamFriends() )
 			{
-				steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( "http://www.youtube.com/create_account?next=/" );
+				steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( "https://www.youtube.com/create_account?next=/" );
 			}
 		}		
 		else if ( !Q_strnicmp( command, "confirm", 7 ) )
@@ -488,7 +488,7 @@ public:
 		{
 			if ( steamapicontext && steamapicontext->SteamFriends() )
 			{
-				steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( "http://www.youtube.com/t/terms" );
+				steamapicontext->SteamFriends()->ActivateGameOverlayToWebPage( "https://www.youtube.com/t/terms" );
 			}
 		}		
 		else if ( !Q_strnicmp( command, "confirm", 7 ) )
@@ -521,18 +521,18 @@ public:
 			CUtlString description( szDesc );
 			if ( steamapicontext && steamapicontext->SteamUser() )
 			{
-				const char *pchCommunityURL = "http://steamcommunity.com/";
+				const char *pchCommunityURL = "https://steamcommunity.com/";
 				switch ( eSteamUniverse )
 				{
 				case k_EUniverseDev:
 					pchCommunityURL = "http://localhost/community/";
 					break;
 				case k_EUniverseBeta:
-					pchCommunityURL = "http://beta.steamcommunity.com/";
+					pchCommunityURL = "https://beta.steamcommunity.com/";
 					break;
 				case k_EUniversePublic:
 				default:
-					pchCommunityURL = "http://steamcommunity.com/";
+					pchCommunityURL = "https://steamcommunity.com/";
 				}
 				description.Format( "%s\n\n%sprofiles/%llu", szDesc, pchCommunityURL, steamapicontext->SteamUser()->GetSteamID().ConvertToUint64() );
 			}
