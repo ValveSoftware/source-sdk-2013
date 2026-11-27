@@ -31,6 +31,11 @@ void CSpellPickup::Spawn( void )
 {
 	BaseClass::Spawn();
 	m_nSkin = m_nTier;
+
+	if ( !TFGameRules()->IsUsingSpells() )
+	{
+		SetDisabled( true );
+	}
 }
 
 //-----------------------------------------------------------------------------
