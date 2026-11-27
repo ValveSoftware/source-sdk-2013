@@ -353,6 +353,11 @@ CTFWearableItem::CTFWearableItem()
 //-----------------------------------------------------------------------------
 ShadowType_t CEconWearable::ShadowCastType()
 {
+	if (IsEffectActive(EF_NODRAW | EF_NOSHADOW))
+	{
+		return SHADOWS_NONE;
+	}
+
 	if ( ShouldDraw() )
 	{
 		return SHADOWS_RENDER_TO_TEXTURE_DYNAMIC;
