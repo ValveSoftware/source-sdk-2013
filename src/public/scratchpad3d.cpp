@@ -12,9 +12,6 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#ifndef POSIX
-// NOTE - linux doesn't need any of this code!
-
 extern "C"
 {
 	extern void __stdcall Sleep( unsigned long ms );
@@ -631,5 +628,3 @@ IScratchPad3D* ScratchPad3D_Create( char const *pFilename )
 	CScratchPad3D *pRet = new CScratchPad3D( pFilename, pFileSystem, true );
 	return pRet;
 }
-#endif // POSIX
-

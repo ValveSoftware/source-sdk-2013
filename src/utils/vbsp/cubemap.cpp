@@ -7,7 +7,7 @@
 
 #include "vbsp.h"
 #include "bsplib.h"
-#include "tier1/UtlBuffer.h"
+#include "tier1/utlbuffer.h"
 #include "tier1/utlvector.h"
 #include "bitmap/imageformat.h"
 #include <KeyValues.h>

@@ -16,7 +16,7 @@
 #include "phyfile.h"
 #include <float.h>
 #include "KeyValues.h"
-#include "UtlBuffer.h"
+#include "utlbuffer.h"
 #include "utlsymbol.h"
 #include "utlrbtree.h"
 #include "ivp.h"
@@ -432,7 +432,7 @@ public:
 
 private:
 
-	CPhysConvex *CPlaneList::BuildConvexForBrush( int brushnumber, float shrink, CPhysCollide *pCollideTest, float shrinkMinimum );
+	CPhysConvex *BuildConvexForBrush( int brushnumber, float shrink, CPhysCollide *pCollideTest, float shrinkMinimum );
 
 public:
 	CUtlVector<CPhysConvex *>	m_convex;

@@ -50,7 +50,7 @@ public:
 	virtual unsigned int	EstimateSize		( void ) = 0;
 
 	// Add buffer to zip as a file with given name - uses current alignment size, default 0 (no alignment)
-	virtual void			AddBufferToZip		( const char *relativename, void *data, int length, bool bTextMode, eCompressionType compressionType = eCompressionType_None ) = 0;
+	virtual void			AddBufferToZip		( const char *relativename, const void *data, int length, bool bTextMode, eCompressionType compressionType = eCompressionType_None ) = 0;
 
 	// Writes out zip file to a buffer - uses current alignment size
 	// (set by file's previous alignment, or a call to ForceAlignment)
