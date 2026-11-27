@@ -1092,7 +1092,7 @@ float CNextLevelIssue::GetQuorumRatio( void )
 //-----------------------------------------------------------------------------
 // Purpose: Extend the current level
 //-----------------------------------------------------------------------------
-ConVar sv_vote_issue_extendlevel_allowed( "sv_vote_issue_extendlevel_allowed", "1", FCVAR_NONE, "Can players call votes to set the next level?" );
+ConVar sv_vote_issue_extendlevel_allowed( "sv_vote_issue_extendlevel_allowed", "1", FCVAR_NONE, "Can players call votes to extend the current level?" );
 ConVar sv_vote_issue_extendlevel_quorum( "sv_vote_issue_extendlevel_quorum", "0.6", FCVAR_NONE, "What is the ratio of voters needed to reach quorum?" );
 
 //-----------------------------------------------------------------------------
