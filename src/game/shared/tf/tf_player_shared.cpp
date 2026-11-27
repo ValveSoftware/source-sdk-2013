@@ -12216,7 +12216,7 @@ bool CTFPlayer::CanAttack( int iCanAttackFlags )
 
 	Assert( pRules );
 
-	if ( IsViewingCYOAPDA() )
+	if ( IsViewingCYOAPDA()  && !m_Shared.InCond( TF_COND_ZOOMED ) )
 		return false;
 
 	if ( m_Shared.HasPasstimeBall() ) 
