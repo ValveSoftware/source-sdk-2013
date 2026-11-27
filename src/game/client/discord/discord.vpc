@@ -1,0 +1,28 @@
+//-----------------------------------------------------------------------------
+// DISCORD.VPC
+//-----------------------------------------------------------------------------
+
+$Conditional BUILD_DISCORD		1
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$BASE;.\discord"
+		$PreprocessorDefinitions	"$BASE;DISCORD_ENABLED"
+	}
+}
+
+$Project
+{
+	$Folder "Discord"
+	{
+		$File "discord/discordrpc.cpp"
+		$File "discord/discordrpc.h"
+	}
+
+	$Folder	"Link libraries"
+	{
+		$Lib "$LIBPUBLIC/discord-rpc"
+	}
+}
