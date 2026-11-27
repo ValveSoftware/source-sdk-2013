@@ -653,6 +653,12 @@ const char *CTFStunBall::GetBallViewModelName( void ) const
 
 
 //-----------------------------------------------------------------------------
+const char *CTFStunBall::GetTrailEffect( void ) const
+{
+	return ( GetTeamNumber() == TF_TEAM_RED ) ? "effects/baseballtrail_red.vmt" : "effects/baseballtrail_blu.vmt";
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Sets up initial properties.
 //-----------------------------------------------------------------------------
 void CTFStunBall::Spawn( void )
@@ -674,10 +680,9 @@ void CTFStunBall::Spawn( void )
 	// Draw the trail for the Baseball on spawn
 	if ( !m_pBallTrail )
 	{
-		const char *pTrailTeamName = ( GetTeamNumber() == TF_TEAM_RED ) ? "effects/baseballtrail_red.vmt" : "effects/baseballtrail_blu.vmt";
 		CSpriteTrail *pTempTrail = NULL;
 
-		pTempTrail = CSpriteTrail::SpriteTrailCreate( pTrailTeamName, GetAbsOrigin(), true );
+		pTempTrail = CSpriteTrail::SpriteTrailCreate( GetTrailEffect(), GetAbsOrigin(), true );
 		pTempTrail->FollowEntity( this );
 		pTempTrail->SetTransparency( kRenderTransAlpha, 255, 255, 255, STUNBALL_TRAIL_ALPHA, kRenderFxNone );
 		pTempTrail->SetStartWidth( 9 );
@@ -715,7 +720,7 @@ void CTFStunBall::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 	if ( !pPlayer )
 		return;
 
-	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
+	CTFPlayer *pOwner = ToTFPlayer( GetThrower() );
 	if ( !pOwner )
 		return;
 
@@ -777,7 +782,7 @@ void CTFStunBall::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 
 	CBaseEntity *pInflictor = GetLauncher();
 	CTakeDamageInfo info;
-	info.SetAttacker( GetOwnerEntity() );
+	info.SetAttacker( pOwner );
 	info.SetInflictor( pInflictor ); 
 	info.SetWeapon( pInflictor );
 	info.SetDamage( ( flLifeTimeRatio >= 1.f ) ? GetDamage() * 1.5f : GetDamage() );
@@ -833,7 +838,7 @@ void CTFStunBall::PipebombTouch( CBaseEntity *pOther )
 	if ( !ShouldBallTouch( pOther ) )
 		return;
 
-	CTFPlayer* pOwner = ToTFPlayer( GetOwnerEntity() );
+	CTFPlayer* pOwner = ToTFPlayer( GetThrower() );
 	if ( !pOwner )
 		return;
 
@@ -888,7 +893,7 @@ void CTFStunBall::PipebombTouch( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 void CTFStunBall::VPhysicsCollision( int index, gamevcollisionevent_t *pEvent )
 {
-	CTFPlayer* pOwner = ToTFPlayer( GetOwnerEntity() );
+	CTFPlayer* pOwner = ToTFPlayer( GetThrower() );
 	bool bWasTouched = m_bTouched;
 	BaseClass::VPhysicsCollision( index, pEvent );
 	if ( pOwner && !bWasTouched && m_bTouched )
@@ -934,7 +939,7 @@ void CTFStunBall::RemoveBallTrail( void )
 //-----------------------------------------------------------------------------
 bool CTFStunBall::ShouldBallTouch( CBaseEntity *pOther )
 {
-	CTFPlayer* pOwner = ToTFPlayer( GetOwnerEntity() );
+	CTFPlayer* pOwner = ToTFPlayer( GetThrower() );
 	if ( !pOwner )
 		return false;
 
@@ -976,6 +981,18 @@ bool CTFStunBall::ShouldBallTouch( CBaseEntity *pOther )
 	return true;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Baseball was deflected.
+//-----------------------------------------------------------------------------
+void CTFStunBall::Deflected( CBaseEntity* pDeflectedBy, Vector& vecDir )
+{
+	BaseClass::Deflected( pDeflectedBy, vecDir );
+	if ( m_pBallTrail )
+	{
+		m_pBallTrail->SetModel( GetTrailEffect() );
+	}
+}
+
 // -- SERVER ONLY
 #endif
 
@@ -1013,11 +1030,11 @@ void CTFStunBall::CreateTrailParticles( void )
 {
 	if ( pEffectTrail )
 	{
-		ParticleProp()->StopEmission( pEffectTrail );
+		ParticleProp()->StopEmissionAndDestroyImmediately( pEffectTrail );
 	}
 	if ( pEffectCrit )
 	{
-		ParticleProp()->StopEmission( pEffectCrit );
+		ParticleProp()->StopEmissionAndDestroyImmediately( pEffectCrit );
 	}
 	pEffectTrail = ParticleProp()->Create( GetTrailParticleName(), PATTACH_ABSORIGIN_FOLLOW );
 	int iTeamNumber = GetTeamNumber();
@@ -1157,7 +1174,7 @@ void CTFBall_Ornament::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 	if ( !pPlayer )
 		return;
 
-	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
+	CTFPlayer *pOwner = ToTFPlayer( GetThrower() );
 	if ( !pOwner )
 		return;
 
@@ -1193,7 +1210,7 @@ void CTFBall_Ornament::ApplyBallImpactEffectOnVictim( CBaseEntity *pOther )
 
 	CBaseEntity *pInflictor = GetLauncher();
 	CTakeDamageInfo info;
-	info.SetAttacker( GetOwnerEntity() );
+	info.SetAttacker( pOwner );
 	info.SetInflictor( pInflictor ); 
 	info.SetWeapon( pInflictor );
 	info.SetDamage( GetDamage() );
@@ -1285,8 +1302,7 @@ void CTFBall_Ornament::VPhysicsCollisionThink( void )
 void CTFBall_Ornament::Explode( trace_t *pTrace, int bitsDamageType )
 {
 	// Create smashed glass particles when we explode
-	CTFPlayer* pOwner = ToTFPlayer( GetOwnerEntity() );
-	if ( pOwner && pOwner->GetTeamNumber() == TF_TEAM_RED )
+	if ( GetTeamNumber() == TF_TEAM_RED )
 	{
 		DispatchParticleEffect( "xms_ornament_smash_red", GetAbsOrigin(), GetAbsAngles() );
 	}
@@ -1296,6 +1312,7 @@ void CTFBall_Ornament::Explode( trace_t *pTrace, int bitsDamageType )
 	}
 
 	Vector vecOrigin = GetAbsOrigin();
+	CTFPlayer* pOwner = ToTFPlayer( GetThrower() );
 
 	// sound effects
 	EmitSound_t params;
@@ -1313,7 +1330,7 @@ void CTFBall_Ornament::Explode( trace_t *pTrace, int bitsDamageType )
 
 	// Do radius damage
 	Vector vecBlastForce(0.0f, 0.0f, 0.0f);
-	CTakeDamageInfo info( this, GetThrower(), m_hLauncher, vecBlastForce, GetAbsOrigin(), flExplodeDamage, bitsDamageType, TF_DMG_CUSTOM_BASEBALL, &vecOrigin );
+	CTakeDamageInfo info( this, pOwner, m_hLauncher, vecBlastForce, GetAbsOrigin(), flExplodeDamage, bitsDamageType, TF_DMG_CUSTOM_BASEBALL, &vecOrigin );
 	CTFRadiusDamageInfo radiusinfo( &info, vecOrigin, DEFAULT_ORNAMENT_EXPLODE_RADIUS, nullptr, 0.0f, 0.0f );
 	TFGameRules()->RadiusDamage( radiusinfo );
 
