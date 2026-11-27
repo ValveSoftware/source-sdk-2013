@@ -19,6 +19,7 @@
 #include "loadcmdline.h"
 #include "byteswap.h"
 #include "worldvertextransitionfixup.h"
+#include "tier1/KeyValues.h"
 
 extern float		g_maxLightmapDimension;
 
@@ -26,6 +27,7 @@ char		source[1024];
 char		mapbase[ 64 ];
 char		name[1024];
 char		materialPath[1024];
+char		GameInfoPath[MAX_PATH];
 
 vec_t		microvolume = 1.0;
 qboolean	noprune;
@@ -840,7 +842,7 @@ ProcessModels
 */
 void ProcessModels (void)
 {
-	BeginBSPFile ();
+	BeginBSPFile();
 
 	// Mark sides that have no dynamic shadows.
 	MarkNoDynamicShadowSides();
@@ -850,7 +852,7 @@ void ProcessModels (void)
 
 	// Clip occluder brushes against each other, 
 	// Remove them from the list of models to process below
-	EmitOccluderBrushes( );
+	EmitOccluderBrushes();
 
 	for ( entity_num=0; entity_num < num_entities; ++entity_num )
 	{
@@ -869,10 +871,10 @@ void ProcessModels (void)
 		}
 		else
 		{
-			ProcessSubModel( );
+			ProcessSubModel();
 		}
 
-		EndModel ();
+		EndModel();
 
 		if (!verboseentities)
 		{
@@ -880,9 +882,29 @@ void ProcessModels (void)
 		}
 	}
 
-	// Turn the skybox into a cubemap in case we don't build env_cubemap textures.
-	Cubemap_CreateDefaultCubemaps();
-	EndBSPFile ();
+	KeyValues* pKvGameInfoCubemap = new KeyValues(GameInfoPath);
+	if(pKvGameInfoCubemap)
+	{
+		KeyValues* pKvCubemapBuilder = pKvGameInfoCubemap->FindKey("CubemapBuilder");
+		if (pKvCubemapBuilder) 
+		{
+			const char* pBuildDefaultCubemap = pKvCubemapBuilder->GetString("BuildDefaultCubemap");
+
+			if (atoi(pBuildDefaultCubemap) == 1)
+			{
+				// Turn the skybox into a cubemap in case we don't build env_cubemap textures.
+				Cubemap_CreateDefaultCubemaps();
+			}
+		}
+		pKvGameInfoCubemap->deleteThis();
+	}
+	else
+	{
+		Cubemap_CreateDefaultCubemaps();
+	}
+	
+
+	EndBSPFile();
 }
 
 
@@ -925,6 +947,7 @@ int RunVBSP( int argc, char **argv )
 	char		mapFile[1024];
 	V_strncpy( mapFile, source, sizeof( mapFile ) );
 	V_strncat( mapFile, ".bsp", sizeof( mapFile ) );
+	g_pFullFileSystem->RelativePathToFullPath("gameinfo.txt", "GAME", GameInfoPath, sizeof(GameInfoPath));	
 
 	LoadCmdLineFromFile( argc, argv, mapbase, "vbsp" );
 
@@ -1439,7 +1462,7 @@ int RunVBSP( int argc, char **argv )
 	
 	char str[512];
 	GetHourMinuteSecondsString( (int)( end - start ), str, sizeof( str ) );
-	Msg( "%s elapsed\n", str );
+	Msg( "--> Geometry complete in %s\n", str );
 
 	DeleteCmdLine( argc, argv );
 	ReleasePakFileLumps();
