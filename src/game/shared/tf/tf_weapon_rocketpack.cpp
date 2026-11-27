@@ -269,7 +269,7 @@ void CTFRocketPack::OnDataChanged( DataUpdateType_t updateType )
 {
 	BaseClass::OnDataChanged( updateType );
 
-	if ( m_flOldInitLaunchTime != m_flInitLaunchTime )
+	if ( m_flOldInitLaunchTime != m_flInitLaunchTime && m_flInitLaunchTime > 0.f )
 	{
 		CleanupParticles();
 
@@ -805,12 +805,15 @@ void CTFRocketPack::ItemPostFrame( void )
 
 	if ( m_flInitLaunchTime > 0.f )
 	{
-		if ( !m_bEnabled || pOwner->m_afButtonPressed & IN_JUMP )
+		if ( !m_bEnabled )
 		{
 			// rocketpack was disabled while waiting for player, just turn it off
 			m_flInitLaunchTime = 0.f;
 			m_flNextSecondaryAttack = gpGlobals->curtime + tf_rocketpack_launch_delay.GetFloat();
 			pOwner->m_Shared.RemoveCond( TF_COND_PARACHUTE_ACTIVE );
+#ifdef CLIENT_DLL
+			CleanupParticles();
+#endif
 		}
 		else
 		{
