@@ -491,6 +491,9 @@ public:
 
 	bool ShouldReEvaluateCurrentClass( void ) const;
 	void ReEvaluateCurrentClass( void );
+	
+public:
+	CountdownTimer m_CompressionBlastTimer;
 
 private:
 	CTFBotLocomotion	*m_locomotor;
