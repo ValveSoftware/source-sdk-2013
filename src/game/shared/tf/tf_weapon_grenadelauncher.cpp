@@ -16,6 +16,7 @@
 #include "c_tf_player.h"
 #include "c_tf_gamestats.h"
 #include "bone_setup.h"
+#include "prediction.h"
 
 // Server specific.
 #else
@@ -198,7 +199,10 @@ void CTFGrenadeLauncher::PrimaryAttack( void )
 			m_flDetonateTime = gpGlobals->curtime + GetMortarDetonateTimeLength();
 			SendWeaponAnim( ACT_VM_PULLBACK );
 #ifdef CLIENT_DLL
-			EmitSound( TF_WEAPON_CANNON_CHARGE_SOUND );
+			if ( !prediction->InPrediction() || prediction->IsFirstTimePredicted() )
+			{
+				EmitSound( TF_WEAPON_CANNON_CHARGE_SOUND );
+			}
 #endif // CLIENT_DLL
 		}
 		else
