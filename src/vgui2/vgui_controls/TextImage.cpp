@@ -245,7 +245,14 @@ void TextImage::GetText(char *buffer, int bufferSize)
 //-----------------------------------------------------------------------------
 void TextImage::GetText(wchar_t *buffer, int bufLenInBytes)
 {
-	wcsncpy(buffer, _utext, bufLenInBytes / sizeof(wchar_t));
+	if ( !_textLen )
+	{
+		buffer[ 0 ] = L'\0';
+		return;
+	}
+	int iTerminator = Min( ( int )_textLen, ( bufLenInBytes / ( int )sizeof( wchar_t ) ) - 1 );
+	wcsncpy( buffer, _utext, iTerminator );
+	buffer[ iTerminator ] = L'\0';
 
 	if ( m_bAllCaps )
 	{
