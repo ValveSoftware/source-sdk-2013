@@ -491,6 +491,9 @@ private:
 	CMaterialReference	m_ScriptOverlayMaterial;
 	char m_szCurrentScriptMaterialName[ MAX_PATH ];
 
+	CMaterialReference	m_ScriptOverlayMaterialArray[ MAX_SCRIPT_OVERLAYS ];
+	char m_szCurrentScriptMaterialArrayName[ MAX_SCRIPT_OVERLAYS ][ MAX_PATH ];
+
 	Vector			m_vecLastFacing;
 	float			m_flCheapWaterStartDistance;
 	float			m_flCheapWaterEndDistance;

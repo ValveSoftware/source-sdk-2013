@@ -14,6 +14,7 @@
 #include "shared_classnames.h"
 
 #define NUM_AUDIO_LOCAL_SOUNDS	8
+#define MAX_SCRIPT_OVERLAYS	8
 
 // These structs are contained in each player's local data and shared by the client & server
 
