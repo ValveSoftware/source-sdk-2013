@@ -177,6 +177,33 @@ public:
 };
 
 
+//
+// Template specialization for type variant_t. The generic implementation passes FIELD_INPUT
+// to variant_t::Set, which doesn't handle that type and voids the value. Copy the variant
+// instead so its value and field type are passed on unchanged.
+//
+template<>
+class CEntityOutputTemplate<variant_t, FIELD_INPUT> : public CBaseEntityOutput
+{
+public:
+	void Init( const variant_t &value )
+	{
+		m_Value = value;
+	}
+
+	void Set( const variant_t &value, CBaseEntity *pActivator, CBaseEntity *pCaller )
+	{
+		m_Value = value;
+		FireOutput( m_Value, pActivator, pCaller );
+	}
+
+	variant_t Get( void )
+	{
+		return m_Value;
+	}
+};
+
+
 //-----------------------------------------------------------------------------
 // Purpose: parameterless entity event
 //-----------------------------------------------------------------------------
